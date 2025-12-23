@@ -203,7 +203,7 @@ public:
    * So make sure reservedAttribs matches the rest of the logic.
    */
   void SetAttributeArrays(AttributeArrayCollection& attributeArrays, anari::Geometry& anariGeometry,
-    const int reservedAttribs = 1);
+    int reservedAttribs = 1);
 
   /**
    * Sets time metadata on an ANARI geometry.
@@ -249,7 +249,7 @@ public:
    * extract where the occlusion texture index is 0, roughness texture index is 1, and the
    * metallic texture index is 2.
    */
-  anari::Sampler ExtractORMFromVTK(std::string name, const int textureIdx, std::string inAttribute,
+  anari::Sampler ExtractORMFromVTK(std::string name, int textureIdx, std::string inAttribute,
     mat4 inTransform, vtkImageData* imageData, bool sRGB);
 
   /**
@@ -2222,17 +2222,29 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
   }
 
   // texture
-  std::vector<vec2> textureCoords;
+  std::vector<vec2> pointValueTextureCoords;
   vtkDataArray* da = poly->GetPointData()->GetTCoords();
+
+  vtkDataArray* cellTCoords = poly->GetCellData()->GetTCoords();
+  std::vector<vec2> cellValueTextureCoords;
 
   if (da != nullptr)
   {
-    const int numTextureCoordinates = da->GetNumberOfTuples();
-
-    for (int i = 0; i < numTextureCoordinates; i++)
+    const int numPointValueTextureCoords = da->GetNumberOfTuples();
+    for (int i = 0; i < numPointValueTextureCoords; i++)
     {
-      textureCoords.emplace_back(
+      pointValueTextureCoords.emplace_back(
         vec2{ static_cast<float>(da->GetTuple(i)[0]), static_cast<float>(da->GetTuple(i)[1]) });
+    }
+  }
+
+  if (cellTCoords != nullptr)
+  {
+    const int numCellValueTextureCoords = cellTCoords->GetNumberOfTuples();
+    for (int i = 0; i < numCellValueTextureCoords; i++)
+    {
+      cellValueTextureCoords.emplace_back(vec2{ static_cast<float>(cellTCoords->GetTuple(i)[0]),
+        static_cast<float>(cellTCoords->GetTuple(i)[1]) });
     }
   }
 
@@ -2248,7 +2260,6 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
   }
 
   // Setup Material or Colors
-  std::vector<vec2> pointValueTextureCoords;
   std::vector<vec4> pointColors;
 
   if (mapperColors)
@@ -2286,7 +2297,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
         // Use the color for the field data value
         int ncomps = mapperColors->GetNumberOfComponents();
         uint8_t* mapperColorsPtr = mapperColors->GetPointer(0);
-        mapperColorsPtr = mapperColorsPtr + mapper->GetFieldDataTupleId() * ncomps;
+        mapperColorsPtr = mapperColorsPtr + (mapper->GetFieldDataTupleId() * ncomps);
         double diffuseColor[3] = { mapperColorsPtr[0] * property->GetDiffuse() / 255.0,
           mapperColorsPtr[1] * property->GetDiffuse() / 255.0,
           mapperColorsPtr[2] * property->GetDiffuse() / 255.0 };
@@ -2316,10 +2327,10 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       const int numOfTuples = mapperColorCoords->GetNumberOfTuples();
       const int ncomps = mapperColorCoords->GetNumberOfComponents();
 
-      const int numPointValueTextureCoords = ncomps < 2 ? (numOfTuples / 2) : numOfTuples;
-      pointValueTextureCoords.resize(numPointValueTextureCoords);
+      const int numTexCoords = ncomps < 2 ? (numOfTuples / 2) : numOfTuples;
+      cellValueTextureCoords.resize(numTexCoords);
 
-      for (int i = 0, j = 0; i < numOfTuples, j < numPointValueTextureCoords; i++, j++)
+      for (int i = 0, j = 0; i < numOfTuples, j < numTexCoords; i++, j++)
       {
         vec2 tcoord;
 
@@ -2339,7 +2350,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
             static_cast<float>(*mapperColorCoords->GetTuple(++i)) };
         }
 
-        pointValueTextureCoords[j] = tcoord;
+        cellValueTextureCoords[j] = tcoord;
       }
 
       tmpAlbedoTex = vtkSmartPointer<vtkTexture>::New();
@@ -2451,7 +2462,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       auto anariSampler = this->Internal->VTKToAnariSampler(
         "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
       anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
-        conn.vertex_index, pointSize, scaleArray, scaleFunction, textureCoords,
+        conn.vertex_index, pointSize, scaleArray, scaleFunction, cellValueTextureCoords,
         pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
     }
 
@@ -2469,7 +2480,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
-          conn.line_index, pointSize, scaleArray, scaleFunction, textureCoords,
+          conn.line_index, pointSize, scaleArray, scaleFunction, cellValueTextureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
     }
@@ -2480,7 +2491,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsCylinders(anariSampler, property, poly, vertices,
-          conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
+          conn.line_index, lineWidth, scaleArray, scaleFunction, cellValueTextureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
       else if (anariDeviceExtensions.ANARI_KHR_GEOMETRY_CURVE)
@@ -2488,7 +2499,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsCurves(anariSampler, property, poly, vertices,
-          conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
+          conn.line_index, lineWidth, scaleArray, scaleFunction, cellValueTextureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
     }
@@ -2504,8 +2515,8 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
     auto anariSampler = this->Internal->VTKToAnariSampler(
       "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
     this->Internal->RenderSurfaces(anariSampler, actor, poly, vertices, conn.triangle_index, true,
-      pointSize, lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords,
-      pointColors, attributeArrays, conn2, cellFlag);
+      pointSize, lineWidth, scaleArray, scaleFunction, cellValueTextureCoords,
+      pointValueTextureCoords, pointColors, attributeArrays, conn2, cellFlag);
   }
 
   if (!conn.strip_index.empty())
@@ -2513,8 +2524,8 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
     auto anariSampler = this->Internal->VTKToAnariSampler(
       "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
     this->Internal->RenderSurfaces(anariSampler, actor, poly, vertices, conn.strip_index, false,
-      pointSize, lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords,
-      pointColors, attributeArrays, conn2, cellFlag);
+      pointSize, lineWidth, scaleArray, scaleFunction, cellValueTextureCoords,
+      pointValueTextureCoords, pointColors, attributeArrays, conn2, cellFlag);
   }
 }
 
