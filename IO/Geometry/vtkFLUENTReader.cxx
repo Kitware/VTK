@@ -786,6 +786,34 @@ bool vtkFLUENTReader::PreParseFluentFile()
           break;
       }
 
+      // Skip the whole section if binary
+      if (zoneId > 999)
+      {
+        while (!this->FluentFile->eof())
+        {
+          // Find next occurence of "\nEnd of Binary Section "
+          this->FluentFile->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+          bool found = true;
+          for (char c : std::string("End of Binary Section "))
+          {
+            char readCharacter = this->FluentFile->get();
+            if (readCharacter != c)
+            {
+              found = false;
+              break;
+            }
+          }
+          if (found)
+          {
+            break;
+          }
+        }
+        if (this->FluentFile->eof())
+        {
+          vtkErrorMacro("Unexpected end of file");
+          return false;
+        }
+      }
       // Then, drop rest of the line
       this->FluentFile->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       continue;
