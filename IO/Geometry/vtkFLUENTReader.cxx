@@ -38,6 +38,7 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <optional>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2904,8 +2905,21 @@ void vtkFLUENTReader::GetNodesAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
+  unsigned zoneId, firstIndex, lastIndex;
+  int type;
+  std::optional<int> nd;
   auto result = vtk::scan<unsigned, unsigned, unsigned, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
-  auto& [zoneId, firstIndex, lastIndex, type, nd] = result->values();
+  if (result.has_value())
+  {
+    // ND parameter is present
+    std::tie(zoneId, firstIndex, lastIndex, type, nd) = result->values();
+  }
+  else
+  {
+    // ND parameter is ommited
+    auto result2 = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+    std::tie(zoneId, firstIndex, lastIndex, type) = result2->values();
+  }
   if (zoneId == 0)
   {
     this->Points->Allocate(lastIndex);
