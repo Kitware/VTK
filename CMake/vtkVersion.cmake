@@ -1,6 +1,6 @@
 # VTK version number components.
 set(VTK_MAJOR_VERSION 9)
-set(VTK_MINOR_VERSION 5)
+set(VTK_MINOR_VERSION 6)
 
 # Git conflict avoidance barrier. When branching for an `X.Y.0.rc1` branch, if
 # the date component is updated while it is in progress, the bump of the minor
