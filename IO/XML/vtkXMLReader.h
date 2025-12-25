@@ -7,6 +7,7 @@
  * vtkXMLReader uses vtkXMLDataParser to parse a
  * <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML</a> input file.
  * Concrete subclasses then traverse the parsed file structure and extract data.
+ * This reader supports reading from vtkResourceStream.
  */
 
 #ifndef vtkXMLReader_h
@@ -17,7 +18,10 @@
 #include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
-#include <string> // for std::string
+#include <istream>   // for IStream
+#include <memory>    // for std::unique_ptr
+#include <streambuf> // for Streambuf
+#include <string>    // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -28,11 +32,12 @@ class vtkDataArray;
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDataSetAttributes;
+class vtkInformation;
+class vtkInformationVector;
+class vtkResourceStream;
+class vtkStringArray;
 class vtkXMLDataElement;
 class vtkXMLDataParser;
-class vtkInformationVector;
-class vtkInformation;
-class vtkStringArray;
 
 class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
 {
@@ -58,11 +63,13 @@ public:
   ///@{
   /**
    * Enable reading from an InputString instead of the default, a file.
+   * Default is false.
    */
   vtkSetMacro(ReadFromInputString, vtkTypeBool);
   vtkGetMacro(ReadFromInputString, vtkTypeBool);
   vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
   ///@{
+
   /**
    * Specify the InputString for use when reading from a character array.
    * Optionally include the length for binary strings. Note that a copy
@@ -88,6 +95,28 @@ public:
    * the reader, bad things will happen during a pipeline update.
    */
   virtual void SetInputArray(vtkCharArray*);
+  ///@}
+
+  ///@{
+  /**
+   * Enable reading from an InputStream
+   * `ReadFromInputStream` has an higher priority than `ReadFromInputString`.
+   * Default is false.
+   */
+  vtkSetMacro(ReadFromInputStream, bool);
+  vtkGetMacro(ReadFromInputStream, bool);
+  vtkBooleanMacro(ReadFromInputStream, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Specify resource stream to read from
+   * When both `Stream` and `Filename` or `InputString` are set, stream is used.
+   * Note the name of the actual member set here is ResourceStream, not Stream
+   * but we use SetStream for coherency with the rest of VTK API
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream();
   ///@}
 
   /**
@@ -216,6 +245,11 @@ public:
   void SetParserErrorObserver(vtkCommand*);
   vtkGetObjectMacro(ParserErrorObserver, vtkCommand);
   ///@}
+
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkXMLReader();
@@ -415,7 +449,7 @@ protected:
   char* FileName;
 
   // The stream used to read the input.
-  istream* Stream;
+  std::istream* Stream;
 
   // Whether this object is reading from a string or a file.
   // Default is 0: read from file.
@@ -516,10 +550,22 @@ protected:
   void ReadFieldData();
 
 private:
+  int OpenVTKStream();
+
+  // The stream used to read the input if it is in a resource stream
+  vtkSmartPointer<vtkResourceStream> ResourceStream;
+
+  bool ReadFromInputStream = false;
+
   // The stream used to read the input if it is in a file.
   istream* FileStream;
   // The stream used to read the input if it is in a string.
   std::istringstream* StringStream;
+
+  // Used when converting vtkResourceStream into istream
+  std::unique_ptr<std::streambuf> Streambuf;
+  std::unique_ptr<std::istream> StreamBuffer;
+
   int TimeStepWasReadOnce;
 
   int FileMajorVersion;

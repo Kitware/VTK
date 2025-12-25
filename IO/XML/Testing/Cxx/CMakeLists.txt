@@ -24,6 +24,8 @@ set(all_tests
   TestXMLReaderVariant.cxx,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx
+  TestXMLUnstructuredGridReaderStream.cxx,NO_VALID,NO_OUTPUT
+  TestXMLGenericDataObjectReaderStream.cxx,NO_VALID,NO_OUTPUT
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestXMLLegacyFileReadIdTypeArrays.cxx,NO_VALID,NO_OUTPUT
   TestXMLWriteTimeValue.cxx,NO_VALID

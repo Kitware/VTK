@@ -32,21 +32,28 @@ void vtkXMLFileReadTester::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkXMLFileReadTester::TestReadFile()
 {
-  if (!this->FileName)
+  if (!this->FileName && !this->Stream)
   {
     return 0;
   }
 
-  vtksys::ifstream inFile(this->FileName);
-  if (!inFile)
-  {
-    return 0;
-  }
-
-  this->SetStream(&inFile);
   this->Done = 0;
 
-  this->Parse();
+  if (this->Stream)
+  {
+    this->Parse();
+  }
+  else
+  {
+    vtksys::ifstream inFile(this->FileName);
+    if (!inFile)
+    {
+      return 0;
+    }
+
+    this->SetStream(&inFile);
+    this->Parse();
+  }
 
   return this->Done ? 1 : 0;
 }
