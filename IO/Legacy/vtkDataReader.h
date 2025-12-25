@@ -9,6 +9,8 @@
  * scalars, vectors, normals, etc.) from a vtk data file.  See text for
  * the format of the various vtk file types.
  *
+ * This class supports reading streams.
+ *
  * @sa
  * vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
  * vtkUnstructuredGridReader vtkRectilinearGridReader
@@ -23,7 +25,10 @@
 
 #include <vtkSmartPointer.h> // for smart pointer
 
-#include <locale> // For locale settings
+#include <istream>   // for IStream
+#include <locale>    // For locale settings
+#include <memory>    // for unique_ptr
+#include <streambuf> // for Streambuf
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -38,6 +43,7 @@ class vtkFieldData;
 class vtkGraph;
 class vtkPointSet;
 class vtkRectilinearGrid;
+class vtkResourceStream;
 class vtkTable;
 
 class VTKIOLEGACY_EXPORT vtkDataReader : public vtkSimpleReader
@@ -104,6 +110,7 @@ public:
    * Optionally include the length for binary strings. Note that a copy
    * of the string is made and stored. If this causes exceedingly large
    * memory consumption, consider using InputArray instead.
+   * Set `ReadFromInputString` to true to read from this string or input array.
    */
   void SetInputString(const char* in);
   vtkGetStringMacro(InputString);
@@ -114,6 +121,15 @@ public:
   {
     this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length()));
   }
+  ///@}
+
+  ///@{
+  /**
+   * Specify resource stream to read from
+   * Set `ReadFromInputStream` to true to read from this stream.
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream();
   ///@}
 
   ///@{
@@ -140,10 +156,22 @@ public:
   /**
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
+   * Default is false.
    */
   vtkSetMacro(ReadFromInputString, vtkTypeBool);
   vtkGetMacro(ReadFromInputString, vtkTypeBool);
   vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Enable reading from an InputStream
+   * `ReadFromInputStream` has an higher priority than `ReadFromInputString`.
+   * Default is false.
+   */
+  vtkSetMacro(ReadFromInputStream, bool);
+  vtkGetMacro(ReadFromInputStream, bool);
+  vtkBooleanMacro(ReadFromInputStream, bool);
   ///@}
 
   ///@{
@@ -510,6 +538,11 @@ public:
   }
   ///@}
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkDataReader();
   ~vtkDataReader() override;
@@ -608,6 +641,13 @@ private:
   void operator=(const vtkDataReader&) = delete;
 
   void ConvertGhostLevelsToGhostType(FieldType fieldType, vtkAbstractArray* data) const;
+
+  // The stream used to read the input if it is in a resource stream
+  vtkSmartPointer<vtkResourceStream> Stream;
+  bool ReadFromInputStream = false;
+
+  // Used when converting vtkResourceStream into istream
+  std::unique_ptr<std::streambuf> Streambuf;
 };
 
 VTK_ABI_NAMESPACE_END

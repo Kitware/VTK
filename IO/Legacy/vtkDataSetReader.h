@@ -9,6 +9,9 @@
  * output type of this class will vary depending upon the type of data
  * file. Convenience methods are provided to keep the data as a particular
  * type. (See text for format description details).
+ *
+ * This class supports reading streams.
+ *
  * The superclass of this class, vtkDataReader, provides many methods for
  * controlling the reading of the data file, see vtkDataReader for more
  * information.

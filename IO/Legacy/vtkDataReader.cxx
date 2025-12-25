@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkResourceStream.h"
 #include "vtkShortArray.h"
 #include "vtkStringArray.h"
 #include "vtkStringScanner.h"
@@ -63,6 +64,7 @@ static int my_getline(istream& in, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
 
+vtkCxxSetSmartPointerMacro(vtkDataReader, Stream, vtkResourceStream);
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
 
 //------------------------------------------------------------------------------
@@ -140,6 +142,12 @@ vtkDataReader::~vtkDataReader()
   delete this->IS;
 }
 
+//----------------------------------------------------------------------------
+vtkResourceStream* vtkDataReader::GetStream()
+{
+  return this->Stream;
+}
+
 //------------------------------------------------------------------------------
 void vtkDataReader::SetFileName(const char* fname)
 {
@@ -169,7 +177,7 @@ const char* vtkDataReader::GetFileName() const
 //------------------------------------------------------------------------------
 int vtkDataReader::ReadTimeDependentMetaData(int timestep, vtkInformation* metadata)
 {
-  if (this->ReadFromInputString)
+  if (this->ReadFromInputString || this->ReadFromInputStream)
   {
     return this->ReadMetaDataSimple(std::string(), metadata);
   }
@@ -188,7 +196,7 @@ int vtkDataReader::ReadMesh(
     return 1;
   }
 
-  if (this->ReadFromInputString)
+  if (this->ReadFromInputString || this->ReadFromInputStream)
   {
     return this->ReadMeshSimple(std::string(), output);
   }
@@ -472,7 +480,20 @@ int vtkDataReader::OpenVTKFile(const char* fname)
   {
     this->CloseVTKFile();
   }
-  if (this->ReadFromInputString)
+
+  if (this->ReadFromInputStream)
+  {
+    if (this->Stream)
+    {
+      // Use provided resource stream.
+      vtkDebugMacro(<< "Reading from resource stream");
+      this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+      this->Streambuf = this->Stream->ToStreambuf();
+      this->IS = new std::istream(this->Streambuf.get());
+      return 1;
+    }
+  }
+  else if (this->ReadFromInputString)
   {
     if (this->InputArray)
     {
@@ -623,7 +644,7 @@ int vtkDataReader::ReadHeader(const char* fname)
 
   // if this is a binary file we need to make sure that we opened it
   // as a binary file.
-  if (this->FileType == VTK_BINARY && this->ReadFromInputString == 0)
+  if (this->FileType == VTK_BINARY && this->ReadFromInputString == 0 && !this->ReadFromInputStream)
   {
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
@@ -3709,6 +3730,18 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Header: (None)\n";
   }
 
+  os << indent << "ReadFromInputStream: " << (this->ReadFromInputStream ? "On\n" : "Off\n");
+  if (this->Stream)
+  {
+    os << indent << "Stream: "
+       << "\n";
+    this->Stream->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Stream: (none)\n";
+  }
+
   os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
   if (this->InputString)
   {
@@ -3900,5 +3933,16 @@ void vtkDataReader::SetScalarLut(const char* lut)
       *cp1++ = *cp2++;
     } while (--n);
   }
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkDataReader::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->Stream)
+  {
+    mtime = std::max(mtime, this->Stream->GetMTime());
+  }
+  return mtime;
 }
 VTK_ABI_NAMESPACE_END

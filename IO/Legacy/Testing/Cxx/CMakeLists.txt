@@ -7,6 +7,8 @@ vtk_add_test_cxx(vtkIOLegacyCxxTests tests
   TestLegacyPartitionedDataSetReaderWriter.cxx,NO_DATA,NO_VALID
   TestLegacyPolyDataReaderErrorCodePath.cxx, NO_VALID
   TestLegacyDataSetWriterSetFileVersion.cxx,NO_DATA,NO_VALID
+  TestLegacyUnstructuredGridStream.cxx,NO_VALID
+  TestLegacyDataSetReaderStream.cxx,NO_VALID
   )
 
 vtk_test_cxx_executable(vtkIOLegacyCxxTests tests
