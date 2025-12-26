@@ -844,6 +844,7 @@ bool vtkOpenVDBReader::LoadFile()
   if (this->Stream)
   {
     // Encapsulate resource stream into an istream
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     auto strbuf = this->Stream->ToStreambuf();
     std::istream buffer(strbuf.get());
 
