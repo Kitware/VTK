@@ -90,8 +90,8 @@ void saveMaterial(vtkPolyData* polyData, ifcopenshell::geometry::taxonomy::style
   {
     diffuse = { material->diffuse.r(), material->diffuse.g(), material->diffuse.b() };
     specular = { material->specular.r(), material->specular.g(), material->specular.b() };
-    specularity = material->specularity;
-    transparency = material->transparency;
+    specularity = std::isnan(material->specularity) ? 1 : material->specularity;
+    transparency = std::isnan(material->transparency) ? 0 : material->transparency;
   }
   vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, diffuse.data(), 3);
   vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SPECULAR_COLOR, specular.data(), 3);
@@ -173,8 +173,6 @@ int vtkIFCReader::RequestData(
     {
       throw std::logic_error("No geometrical elements found or none successfully converted");
     }
-    vtkLog(INFO, "Unit name: " << iterator.unit_name());
-    vtkLog(INFO, "Unit magnitude: " << iterator.unit_magnitude());
     unsigned int i = 0;
     const unsigned int DEFAULT_NUMBER_OF_ENTIITIES = 512;
     output->SetNumberOfPartitionedDataSets(DEFAULT_NUMBER_OF_ENTIITIES);
@@ -188,18 +186,13 @@ int vtkIFCReader::RequestData(
 
       const IfcGeom::TriangulationElement* shape =
         static_cast<const IfcGeom::TriangulationElement*>(iterator.get());
-      vtkLog(INFO, "Name: " << shape->name());
+      // vtkLog(INFO, "Name: " << shape->name());
       const IfcGeom::Representation::Triangulation& geom = shape->geometry();
       auto& verts = geom.verts();
       auto& edges = geom.edges();
       auto& faces = geom.faces();
       auto& materialIds = geom.material_ids();
       auto& materials = geom.materials();
-      vtkLog(INFO, "Verts size: " << verts.size());
-      vtkLog(INFO, "Edges size: " << edges.size());
-      vtkLog(INFO, "Faces size: " << faces.size());
-      vtkLog(INFO, "materials_ids size: " << materialIds.size());
-      vtkLog(INFO, "materials size: " << materials.size());
       // points that can be shared between several PolyData
       vtkNew<vtkDoubleArray> pointData;
       pointData->SetNumberOfComponents(3);

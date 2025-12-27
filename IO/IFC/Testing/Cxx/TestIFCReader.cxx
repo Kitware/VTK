@@ -43,9 +43,9 @@ void AddActors(vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, cons
       auto specular = vtkPolyDataMaterial::GetField(
         poly, vtkPolyDataMaterial::SPECULAR_COLOR, std::vector<double>{ 1, 1, 1 });
       double shininess = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::SHININESS, std::vector<double>{ 0.5 })[0];
+        poly, vtkPolyDataMaterial::SHININESS, std::vector<double>{ 1 })[0];
       double transparency = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::TRANSPARENCY, std::vector<double>{ 0.5 })[0];
+        poly, vtkPolyDataMaterial::TRANSPARENCY, std::vector<double>{ 0 })[0];
       vtkNew<vtkPolyDataMapper> mapper;
       mapper->SetInputDataObject(poly);
 
@@ -100,13 +100,11 @@ int TestIFCReader(int argc, char* argv[])
 
   ::AddActors(renderer, pdc, fname);
 
+  renderer->GetActiveCamera()->Elevation(-80);
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Azimuth(90);
-  renderer->GetActiveCamera()->Roll(-90);
-  renderer->GetActiveCamera()->Zoom(1.5);
+  renderer->GetActiveCamera()->Zoom(2);
 
   renWin->SetSize(400, 400);
-  renWin->Render();
   interactor->Initialize();
   renWin->Render();
 
