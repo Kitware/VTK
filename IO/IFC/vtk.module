@@ -1,0 +1,29 @@
+NAME
+  VTK::IOIFC
+LIBRARY_NAME
+  vtkIOIFC
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::CommonSystem
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersExtraction
+  VTK::RenderingCore
+  VTK::eigen
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::CommonSystem
+  VTK::FiltersCore
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
