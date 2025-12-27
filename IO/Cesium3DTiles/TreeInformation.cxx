@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "TreeInformation.h"
 
+#include "vtkPolyDataMaterial.h"
 #include "vtk_libproj.h"
 
 #include <limits>
@@ -33,6 +34,7 @@
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMaterial.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -555,7 +557,7 @@ void TreeInformation::WriteTileTexture(
 void TreeInformation::SaveTilesMesh()
 {
   std::vector<std::string> textureFileNames =
-    vtkGLTFWriter::GetFieldAsStringVector(this->Mesh, "texture_uri");
+    vtkPolyDataMaterial::GetField(this->Mesh, vtkPolyDataMaterial::TEXTURE_URI);
   vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
 
   std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
@@ -651,7 +653,8 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         [&meshes, &numberOfTextures, &meshTextureFileNames, &meshTCoords, &meshesWithTexture](
           vtkPolyData* pd)
       {
-        auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
+        auto pdTextureFileNames =
+          vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::TEXTURE_URI);
         if (pdTextureFileNames.empty())
         {
           meshes.push_back(pd);

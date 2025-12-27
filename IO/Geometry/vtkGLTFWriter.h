@@ -187,6 +187,7 @@ public:
    * a list of texture paths
    * @see vtkCityGMLReader
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkPolyDataMaterial::GetField() instead.")
   static std::vector<std::string> GetFieldAsStringVector(vtkDataObject* obj, const char* name);
 
 protected:

@@ -29,10 +29,11 @@
  * "texture_uri" containing one tuple per texture file (and one component) with the path
  * to the file. All textures of the same type should be at the same index in the
  * texture_uri array. The path can be relative to the citygml file or it can be absolute.
- * If the dataset has a app::X3DMaterial we store two double field arrays with 3
+ * If the dataset has a app::X3DMaterial we store two field arrays of type double, with 3
  * components and 1 tuple: "diffuse_color" and "specular_color" and
- * two double field arrays with 1 component and 1 tuple: "transparency",
+ * two field arrays of type double with 1 component and 1 tuple: "transparency",
  * "shininess"
+ * This specification is detailed in vtkPolyDataMaterial.
 
  * Top level children of the multiblock dataset have a field array
  * with one element called "element" which contains the CityGML
@@ -42,6 +43,9 @@
  * gen:GenericCityObject, luse:LandUse. These nodes also have a gml_id field array.
  *
  * This reader supports reading any vtkResourceStream, but is more efficient with a vtkMemoryStream.
+ *
+ * @sa
+ * vtkPolyDataMaterial
  */
 VTK_ABI_NAMESPACE_BEGIN
 class vtkResourceStream;
@@ -119,7 +123,9 @@ public:
    * for polydata.
    *
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkPolyDataMaterial::SetField() instead.")
   static void SetField(vtkDataObject* obj, const char* name, const char* value);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkPolyDataMaterial::SetField() instead.")
   static void SetField(
     vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
   ///@}

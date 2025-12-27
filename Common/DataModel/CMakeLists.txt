@@ -201,6 +201,7 @@ set(classes
   vtkPointSetCellIterator
   vtkPointsProjectedHull
   vtkPolyData
+  vtkPolyDataMaterial
   vtkPolyDataCollection
   vtkPolyLine
   vtkPolyPlane
