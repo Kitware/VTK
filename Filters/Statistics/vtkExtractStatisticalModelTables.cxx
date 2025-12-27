@@ -45,13 +45,15 @@ void AddModelToAssembly(vtkPartitionedDataSetCollection* out, vtkStatisticalMode
     {
       continue; // no tables to add
     }
-    auto tableName = validTableName(vtkStatisticalModel::GetTableTypeName(tableType));
-    int typeNode = assy->AddNode(tableName.c_str(), rootAssyNode);
+    auto tableTypeName = validTableName(vtkStatisticalModel::GetTableTypeName(tableType));
+    int typeNode = assy->AddNode(tableTypeName.c_str(), rootAssyNode);
     for (int ii = 0; ii < numTablesThisType; ++ii)
     {
       unsigned int dsidx = nextPartition++;
+      auto rawTableName = model->GetTableName(tt, ii);
+      auto tableName = validTableName(rawTableName);
       out->SetPartition(dsidx, 0, model->GetTable(tt, ii));
-      auto tableName = validTableName(model->GetTableName(tt, ii));
+      out->GetMetaData(dsidx)->Set(vtkCompositeDataSet::NAME(), rawTableName.c_str());
       int node = assy->AddNode(tableName.c_str(), typeNode);
       assy->AddDataSetIndex(node, dsidx);
     }
