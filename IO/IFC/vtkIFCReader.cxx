@@ -74,6 +74,30 @@ void process(const std::string& schema_version, IfcParse::IfcFile& file)
     throw std::invalid_argument("IFC Schema " + schema_version + " not supported");
   }
 }
+
+void saveMaterial(vtkPolyData* polyData, ifcopenshell::geometry::taxonomy::style::ptr material)
+{
+  std::array<double, 3> diffuse, specular;
+  double specularity, transparency;
+  if (material->use_surface_color)
+  {
+    diffuse = { material->surface.r(), material->surface.g(), material->surface.b() };
+    specular = { material->surface.r(), material->surface.g(), material->surface.b() };
+    specularity = 0;
+    transparency = 0;
+  }
+  else
+  {
+    diffuse = { material->diffuse.r(), material->diffuse.g(), material->diffuse.b() };
+    specular = { material->specular.r(), material->specular.g(), material->specular.b() };
+    specularity = material->specularity;
+    transparency = material->transparency;
+  }
+  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, diffuse.data(), 3);
+  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SPECULAR_COLOR, specular.data(), 3);
+  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SHININESS, &specularity, 1);
+  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::TRANSPARENCY, &transparency, 1);
+}
 }
 
 //------------------------------------------------------------------------------
@@ -188,59 +212,81 @@ int vtkIFCReader::RequestData(
         // one material so we need one polydata
         vtkNew<vtkPolyData> polyData;
         polyData->SetPoints(points);
+        vtkNew<vtkIdTypeArray> connectivity;
+        vtkNew<vtkCellArray> cellArray;
         if (!faces.empty())
         {
-          vtkNew<vtkIdTypeArray> connectivity;
           connectivity->SetNumberOfTuples(faces.size());
           std::copy(faces.begin(), faces.end(), connectivity->GetPointer(0));
-          vtkNew<vtkCellArray> polys;
-          polys->SetData(3, connectivity);
-          polyData->SetPolys(polys);
+          cellArray->SetData(3, connectivity);
+          polyData->SetPolys(cellArray);
           // if edges are not empty
           // we already added the faces so do nothing
         }
         else if (!edges.empty())
         {
-          vtkNew<vtkIdTypeArray> connectivity;
           connectivity->SetNumberOfTuples(edges.size());
           std::copy(edges.begin(), edges.end(), connectivity->GetPointer(0));
-          vtkNew<vtkCellArray> lines;
-          lines->SetData(2, connectivity);
-          polyData->SetPolys(lines);
+          cellArray->SetData(2, connectivity);
+          polyData->SetLines(cellArray);
         }
         output->SetNumberOfPartitions(i, 1);
         output->SetPartition(i, 0, polyData);
-        if (materials.size() == 1)
-        {
-          auto& material = materials[0];
-          std::array<double, 3> diffuse, specular;
-          double specularity, transparency;
-          if (material->use_surface_color)
-          {
-            diffuse = { material->surface.r(), material->surface.g(), material->surface.b() };
-            specular = { material->surface.r(), material->surface.g(), material->surface.b() };
-            specularity = 0;
-            transparency = 0;
-          }
-          else
-          {
-            diffuse = { material->diffuse.r(), material->diffuse.g(), material->diffuse.b() };
-            specular = { material->specular.r(), material->specular.g(), material->specular.b() };
-            specularity = material->specularity;
-            transparency = material->transparency;
-          }
-          vtkPolyDataMaterial::SetField(
-            polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, diffuse.data(), 3);
-          vtkPolyDataMaterial::SetField(
-            polyData, vtkPolyDataMaterial::SPECULAR_COLOR, specular.data(), 3);
-          vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SHININESS, &specularity, 1);
-          vtkPolyDataMaterial::SetField(
-            polyData, vtkPolyDataMaterial::TRANSPARENCY, &transparency, 1);
-        }
+        saveMaterial(polyData, materials[0]);
       }
       else
       {
         // we create one polydata for each material
+        std::vector<int>::const_iterator fid0;
+        int stride;
+        if (!faces.empty())
+        {
+          stride = 3;
+          fid0 = faces.begin();
+        }
+        else
+        {
+          stride = 2;
+          fid0 = edges.begin();
+        }
+        auto mid0 = materialIds.begin();
+        auto mid1 = mid0;
+        while (true)
+        {
+          mid1++;
+          if ((mid1 == materialIds.end()) || (*mid1 != *mid0))
+          {
+            vtkNew<vtkPolyData> polyData;
+            vtkNew<vtkIdTypeArray> connectivity;
+            vtkNew<vtkCellArray> cellArray;
+            polyData->SetPoints(points);
+            auto n = std::distance(mid0, mid1);
+            auto fid1 = fid0 + n * stride;
+            connectivity->SetNumberOfTuples(n * stride);
+            std::copy(fid0, fid1, connectivity->GetPointer(0));
+            cellArray->SetData(stride, connectivity);
+            if (stride == 2)
+            {
+              polyData->SetLines(cellArray);
+            }
+            else if (stride == 3)
+            {
+              polyData->SetPolys(cellArray);
+            }
+            output->SetNumberOfPartitions(i, output->GetNumberOfPartitions(i) + 1);
+            output->SetPartition(i, output->GetNumberOfPartitions(i) - 1, polyData);
+            if (*mid0 >= 0)
+            {
+              saveMaterial(polyData, materials[*mid0]);
+            }
+            if (mid1 == materialIds.end())
+            {
+              break;
+            }
+            mid0 = mid1;
+            fid0 = fid1;
+          }
+        }
       }
       ++i;
     } while (iterator.next());
