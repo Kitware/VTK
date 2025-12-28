@@ -119,6 +119,8 @@ void vtkDICOMImageReader::ExecuteInformation()
   {
     this->Parser->ClearAllDICOMTagCallbacks();
     this->Streambuf = this->GetStream()->ToStreambuf();
+
+    // Parser takes ownership of istream
     std::istream* iStream = new std::istream(this->Streambuf.get());
     this->Parser->OpenStream(iStream);
     parseInformation();
