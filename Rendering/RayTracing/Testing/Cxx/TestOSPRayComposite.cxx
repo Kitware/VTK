@@ -34,7 +34,7 @@ public:
   static MyProcess* New();
   vtkTypeMacro(MyProcess, vtkProcess);
 
-  virtual void Execute();
+  void Execute() override;
 
   void SetArgs(int argc, char* argv[])
   {
