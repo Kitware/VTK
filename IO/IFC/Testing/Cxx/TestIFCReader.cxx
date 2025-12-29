@@ -82,6 +82,13 @@ void AddActors(vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, cons
 int TestIFCReader(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/IFC/duplex.ifc");
+  if (argc >= 8)
+  {
+    // debug code to be able to load another datafile
+    size_t len = strlen(argv[argc - 1]);
+    fname = new char[len + 1];
+    std::copy(argv[argc - 1], argv[argc - 1] + len + 1, fname);
+  }
 
   std::cout << fname << std::endl;
   vtkNew<vtkRenderer> renderer;
