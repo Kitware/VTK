@@ -49,7 +49,7 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
 {
   if ((this->Context == nullptr) || (objectBase == nullptr))
   {
-    return nlohmann::json::object();
+    return nlohmann::json(nullptr);
   }
 
   vtkTypeUInt32 identifier = 0;
@@ -94,7 +94,7 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
   }
   vtkErrorMacro(<< "Failed to add state for object=" << objectBase->GetObjectDescription()
                 << " with id=" << identifier);
-  return nlohmann::json::object();
+  return nlohmann::json(nullptr);
 }
 
 //------------------------------------------------------------------------------

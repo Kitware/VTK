@@ -264,6 +264,11 @@ vtkSmartPointer<vtkObjectBase> vtkMarshalContext::GetObjectAtId(vtkTypeUInt32 id
 //------------------------------------------------------------------------------
 vtkTypeUInt32 vtkMarshalContext::GetId(vtkObjectBase* objectBase) const
 {
+  // `nullptr` objects might exist in WeakObjects map, but we don't want to return their ids.
+  if (objectBase == nullptr)
+  {
+    return 0;
+  }
   auto& internals = (*this->Internals);
   auto objectIter = std::find_if(internals.WeakObjects.begin(), internals.WeakObjects.end(),
     [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item)

@@ -407,15 +407,9 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     fprintf(fp, "  {\n");
     fprintf(fp, "    auto value = object->%s(%s);\n", getterName, getterIdxStr);
     // serialize null values to preserve index
-    if (!isIndexed)
-    {
-      fprintf(fp, "    if (value)\n");
-    }
-    fprintf(fp, "    {\n");
-    fprintf(fp, "      state[\"%s\"]%s = ", keyName, stateIdxStr);
+    fprintf(fp, "    state[\"%s\"]%s = ", keyName, stateIdxStr);
     vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
     fprintf(fp, ";\n");
-    fprintf(fp, "    }\n");
     fprintf(fp, "  }\n");
     isWritten = 1;
   }
@@ -753,6 +747,17 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     callSetterEndMacro(fp);
     fprintf(fp, "      }\n");
     fprintf(fp, "    }\n");
+    if (!isIndexed)
+    {
+      // set nullptr only if the key is present and equals null.
+      fprintf(fp, "    else if (iter != state.end() && iter->is_null())\n");
+      fprintf(fp, "    {\n");
+      callSetterBeginMacro(fp, "      ");
+      callSetterParameterMacro(fp, "static_cast<%s*>(nullptr)", val->Class);
+      callSetterEndMacro(fp);
+      fprintf(fp, "    }\n");
+    }
+    // if not-null and not-found, leave object unchanged.
     fprintf(fp, "  }\n");
     isWritten = 1;
   }
