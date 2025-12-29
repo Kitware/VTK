@@ -14,6 +14,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMaterial.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <array>
 #include <ifcgeom/ConversionSettings.h>
 #include <ifcgeom/IfcGeomRepresentation.h>
@@ -35,6 +37,24 @@
 // Include all possible schema types that could be parsed
 #include "ifcparse/Ifc2x3.h"
 #include "ifcparse/Ifc4.h"
+#include "ifcparse/Ifc4x1.h"
+#include "ifcparse/Ifc4x2.h"
+#include "ifcparse/Ifc4x3.h"
+/**
+ * IFC4X3_TC1 refers to the first Technical Corrigendum (TC1)
+ *
+ * Purpose: A Technical Corrigendum primarily serves to correct minor
+ * technical problems, fix typos, and improve the documentation of an
+ * existing standard, without expanding its scope or functionality.
+ */
+#include "ifcparse/Ifc4x3_tc1.h"
+/**
+ * Current Standard: The latest official and internationally
+ * accredited version of the standard is IFC 4.3.2.0 (also referred to
+ * simply as IFC 4.3), which supersedes previous development versions
+ * like IFC4x3 Add1 and Add2.
+ */
+#include "ifcparse/Ifc4x3_add1.h"
 #include "ifcparse/Ifc4x3_add2.h"
 
 #include <thread>
@@ -44,7 +64,7 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // Enumerate through all IFC schemas you want to be able to process
-#define IFC_SCHEMA_SEQ (4x3_add2)(4)(2x3)
+#define IFC_SCHEMA_SEQ (4x3_add2)(4x3_add1)(4x3)(4x2)(4x1)(4)(2x3)
 #define EXPAND_AND_CONCATENATE(elem) Ifc##elem
 #define PROCESS_FOR_SCHEMA(r, data, elem)                                                          \
   if (schema_version == BOOST_PP_STRINGIZE(elem))                                                  \
@@ -132,19 +152,22 @@ int vtkIFCReader::RequestData(
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     if (!outInfo)
     {
-      throw std::logic_error("Invalid output information object");
+      throw std::runtime_error("Invalid output information object");
     }
     auto output = vtkPartitionedDataSetCollection::GetData(outputVector);
     if (!this->FileName || std::string(this->FileName).empty())
     {
-      vtkErrorWithObjectMacro(this, "Invalid input filename: nullptr or empty");
-      return 0;
+      throw std::runtime_error("Invalid input filename: nullptr or empty");
     }
+    if (!vtksys::SystemTools::FileExists(this->FileName, true))
+    {
+      throw std::runtime_error(std::string("Filename does not exist: ") + this->FileName);
+    }
+
     IfcParse::IfcFile file(this->FileName);
     if (!file.good())
     {
-      vtkErrorMacro("Unable to parse" << this->FileName);
-      return 0;
+      throw std::runtime_error(std::string("Unable to parse") + this->FileName);
     }
     auto schema_version = file.schema()->name();
     schema_version = schema_version.substr(3);
@@ -183,10 +206,15 @@ int vtkIFCReader::RequestData(
       {
         output->SetNumberOfPartitionedDataSets(output->GetNumberOfPartitionedDataSets() * 2);
       }
-
+      IfcGeom::Element* element = iterator.get();
+      vtkLog(INFO, "Name: " << element->name());
+      vtkLog(INFO, "Type: " << element->type());
+      // if (element->name() != "Terrain_Final")
+      // {
+      //   continue;
+      // }
       const IfcGeom::TriangulationElement* shape =
-        static_cast<const IfcGeom::TriangulationElement*>(iterator.get());
-      // vtkLog(INFO, "Name: " << shape->name());
+        static_cast<const IfcGeom::TriangulationElement*>(element);
       const IfcGeom::Representation::Triangulation& geom = shape->geometry();
       auto& verts = geom.verts();
       auto& edges = geom.edges();
@@ -284,6 +312,7 @@ int vtkIFCReader::RequestData(
       ++i;
     } while (iterator.next());
     output->SetNumberOfPartitionedDataSets(i);
+    vtkLog(INFO, "Finished " << i << " partitioned datasets");
   }
   catch (std::exception& e)
   {
@@ -296,22 +325,18 @@ int vtkIFCReader::RequestData(
 //----------------------------------------------------------------------------
 int vtkIFCReader::CanReadFile(const char* filename)
 {
-  try
+  if (!filename || std::string(filename).empty())
   {
-    if (!filename || std::string(filename).empty())
-    {
-      vtkErrorWithObjectMacro(this, "Invalid input filename: nullptr or empty");
-      return 0;
-    }
-    IfcParse::IfcFile file(filename);
-    if (!file.good())
-    {
-      vtkErrorMacro("Unable to parse" << filename);
-      return 0;
-    }
+    return 0;
   }
-  catch (std::exception& vtkNotUsed(e))
+  if (!vtksys::SystemTools::FileExists(this->FileName, true))
   {
+    return 0;
+  }
+  IfcParse::IfcFile file(filename);
+  if (!file.good())
+  {
+    vtkErrorMacro("Unable to parse" << filename);
     return 0;
   }
   return 1;

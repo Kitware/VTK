@@ -15,9 +15,6 @@
 
 #include "vtkIOIFCModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-#include "vtkSmartPointer.h"  // For vtkSmartPointer
-#include <vtk_nlohmannjson.h> // For nlohmann::json
-#include VTK_NLOHMANN_JSON(json.hpp)
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
@@ -38,14 +35,14 @@ public:
 
   ///@{
   /**
-   * Set/Get the name of the file from which to read points.
+   * Set/Get the name of the file
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
   ///@}
 
   /**
-   * Returns true if it can read the json file (it is a 3D Tiles tileset), false otherwise
+   * Returns true if it can read the IFC file, false otherwise
    */
   virtual int CanReadFile(VTK_FILEPATH const char* name);
 
