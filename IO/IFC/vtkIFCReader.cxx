@@ -17,106 +17,90 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <array>
-#include <ifcgeom/ConversionSettings.h>
-#include <ifcgeom/IfcGeomRepresentation.h>
 #include <sstream>
 #include <string>
+#include <thread>
 
-#include <ifcgeom/Iterator.h>
 #include <ifcparse/IfcFile.h>
+
+#include <ifcgeom/ConversionSettings.h>
+#include <ifcgeom/IfcGeomRepresentation.h>
+#include <ifcgeom/Iterator.h>
+#include <ifcgeom/taxonomy.h>
 // this would be better defined using IfcOpenShellConfig.cmake but its not
 #define IFOPSH_WITH_OPENCASCADE
 #include <ifcgeom/hybrid_kernel.h>
-
-// Schemas available: 2x3;4;4x1;4x2;4x3;4x3_tc1;4x3_add1;4x3_add2
-
-// For BOOST_PP_SEQ_FOR_EACH and BOOST_PP_STRINGIZE preprocessor macro
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/program_options.hpp>
-
-// Include all possible schema types that could be parsed
-#include "ifcparse/Ifc2x3.h"
-#include "ifcparse/Ifc4.h"
-#include "ifcparse/Ifc4x1.h"
-#include "ifcparse/Ifc4x2.h"
-#include "ifcparse/Ifc4x3.h"
-/**
- * IFC4X3_TC1 refers to the first Technical Corrigendum (TC1)
- *
- * Purpose: A Technical Corrigendum primarily serves to correct minor
- * technical problems, fix typos, and improve the documentation of an
- * existing standard, without expanding its scope or functionality.
- */
-#include "ifcparse/Ifc4x3_tc1.h"
-/**
- * Current Standard: The latest official and internationally
- * accredited version of the standard is IFC 4.3.2.0 (also referred to
- * simply as IFC 4.3), which supersedes previous development versions
- * like IFC4x3 Add1 and Add2.
- */
-#include "ifcparse/Ifc4x3_add1.h"
-#include "ifcparse/Ifc4x3_add2.h"
-
-#include <thread>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-// Enumerate through all IFC schemas you want to be able to process
-#define IFC_SCHEMA_SEQ (4x3_add2)(4x3_add1)(4x3)(4x2)(4x1)(4)(2x3)
-#define EXPAND_AND_CONCATENATE(elem) Ifc##elem
-#define PROCESS_FOR_SCHEMA(r, data, elem)                                                          \
-  if (schema_version == BOOST_PP_STRINGIZE(elem))                                                  \
-  {                                                                                                \
-    parseIfc<EXPAND_AND_CONCATENATE(elem)>(file);                                                  \
-  }                                                                                                \
-  else
-
-template <typename Schema>
-void parseIfc(IfcParse::IfcFile& file)
+double intensity(double r, double g, double b)
 {
-  const typename Schema::IfcProduct::list::ptr elements =
-    file.instances_by_type<typename Schema::IfcProduct>();
-  for (typename Schema::IfcProduct::list::it it = elements->begin(); it != elements->end(); ++it)
-  {
-    typename Schema::IfcProduct* ifcProduct = *it;
-    // TODO: Do something with ifcProduct
-  }
+  return r * 0.2126 + g * 0.7152 + b * 0.0722;
 }
 
-void process(const std::string& schema_version, IfcParse::IfcFile& file)
+double intensity(double* rgb)
 {
-  // Syntactic sugar for iterating through all IFC schemas and passing them to main processing
-  // method
-  BOOST_PP_SEQ_FOR_EACH(PROCESS_FOR_SCHEMA, , IFC_SCHEMA_SEQ)
-  { // The final else to catch unhandled schema version
-    throw std::invalid_argument("IFC Schema " + schema_version + " not supported");
-  }
+  return intensity(rgb[0], rgb[1], rgb[2]);
 }
 
-void saveMaterial(vtkPolyData* polyData, ifcopenshell::geometry::taxonomy::style::ptr material)
+void setMaterial(vtkPolyData* polyData, ifcopenshell::geometry::taxonomy::style& material)
 {
-  std::array<double, 3> diffuse, specular;
-  double specularity, transparency;
-  if (material->use_surface_color)
+  double dark = 0.1;
+  double diffuseIntensity = intensity(material.diffuse.components().data());
+  double surfaceIntensity = intensity(material.surface.components().data());
+  // vtkLog(INFO, "intensity diffuse: " << intensityDiffuse << " surface: "
+  //        << intensitySurface);
+  // vtkLog(INFO, "color diffuse: (" <<
+  //        material.diffuse.r() << ", " <<
+  //        material.diffuse.g() << ", " <<
+  //        material.diffuse.b() << ") surface: (" <<
+  //        material.surface.r() << ", " <<
+  //        material.surface.g() << ", " <<
+  //        material.surface.b() << ")");
+  ifcopenshell::geometry::taxonomy::colour color;
+  if (material.use_surface_color)
   {
-    diffuse = { material->surface.r(), material->surface.g(), material->surface.b() };
-    specular = { material->surface.r(), material->surface.g(), material->surface.b() };
-    specularity = 0;
-    transparency = 0;
+    if (surfaceIntensity < dark && diffuseIntensity > dark)
+    {
+      // we override!
+      color = material.diffuse;
+    }
+    else
+    {
+      color = material.surface;
+    }
   }
   else
   {
-    diffuse = { material->diffuse.r(), material->diffuse.g(), material->diffuse.b() };
-    specular = { material->specular.r(), material->specular.g(), material->specular.b() };
-    specularity = std::isnan(material->specularity) ? 1 : material->specularity;
-    transparency = std::isnan(material->transparency) ? 0 : material->transparency;
+    if (diffuseIntensity < dark && surfaceIntensity > dark)
+    {
+      // we override
+      color = material.surface;
+    }
+    else
+    {
+      color = material.diffuse;
+    }
   }
-  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, diffuse.data(), 3);
-  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SPECULAR_COLOR, specular.data(), 3);
-  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::SHININESS, &specularity, 1);
-  vtkPolyDataMaterial::SetField(polyData, vtkPolyDataMaterial::TRANSPARENCY, &transparency, 1);
+  vtkPolyDataMaterial::SetField(
+    polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, color.components().data(), 3);
+  if (material.specular && !material.use_surface_color)
+  {
+    vtkPolyDataMaterial::SetField(
+      polyData, vtkPolyDataMaterial::SPECULAR_COLOR, material.specular.components().data(), 3);
+  }
+  if (material.has_specularity())
+  {
+    vtkPolyDataMaterial::SetField(
+      polyData, vtkPolyDataMaterial::SHININESS, &material.specularity, 1);
+  }
+  if (material.has_transparency())
+  {
+    vtkPolyDataMaterial::SetField(
+      polyData, vtkPolyDataMaterial::TRANSPARENCY, &material.transparency, 1);
+  }
 }
 }
 
@@ -170,10 +154,7 @@ int vtkIFCReader::RequestData(
       throw std::runtime_error(std::string("Unable to parse") + this->FileName);
     }
     auto schema_version = file.schema()->name();
-    schema_version = schema_version.substr(3);
-    std::transform(schema_version.begin(), schema_version.end(), schema_version.begin(),
-      [](unsigned char c) { return std::tolower(c); });
-    process(schema_version, file);
+    vtkLog(INFO, "File schema: " << schema_version);
     ifcopenshell::geometry::Settings settings;
     // no need to use the transform
     settings.get<ifcopenshell::geometry::settings::UseWorldCoords>().value = true;
@@ -184,11 +165,34 @@ int vtkIFCReader::RequestData(
 
     unsigned int numThreads = std::thread::hardware_concurrency();
     std::vector<IfcGeom::filter_t> filter_funcs;
-    std::set<std::string> entities = { "IfcSpace", "IfcOpeningElement" };
+    std::set<std::string> entities = {
+      "IfcSpace", "IfcOpeningElement",
+
+      // "IfcAlignment",
+      // "IfcAlignmentSegment",
+      // "IfcAnnotation",
+      // "IfcBeam",
+      // "IfcBearing",
+      // "IfcColumn",
+      // "IfcCourse",
+      // "IfcDiscreteAccessory",
+      // "IfcEarthworksFill",
+      // "IfcFooting",
+      // //"IfcGeographicElement",
+      // "IfcMechanicalFastener",
+      // "IfcMember",
+      // "IfcPavement",
+      // "IfcPile",
+      // "IfcRailing",
+      // "IfcReferent",
+      // "IfcSlab",
+      // "IfcSurfaceFeature",
+      // "IfcWall",
+    };
     IfcGeom::entity_filter entity_filter;
     entity_filter.entity_names = entities;
     filter_funcs.emplace_back(boost::ref(entity_filter));
-
+    // vtkLog(INFO, "Construct IfcGeom::Iterator ...");
     IfcGeom::Iterator iterator(
       ifcopenshell::geometry::kernels::construct(&file, "opencascade", settings), settings, &file,
       filter_funcs, numThreads);
@@ -199,20 +203,21 @@ int vtkIFCReader::RequestData(
     unsigned int i = 0;
     const unsigned int DEFAULT_NUMBER_OF_ENTIITIES = 512;
     output->SetNumberOfPartitionedDataSets(DEFAULT_NUMBER_OF_ENTIITIES);
+    // vtkLog(INFO, "Iterate using IfcGeom::Iterator ...");
+    bool hasElements;
     do
     {
       // reallocate if needed
       if (i >= output->GetNumberOfPartitionedDataSets())
       {
+        // vtkLog(INFO, "Realocate NumberOfPartitionedDataSets to: "
+        //        << output->GetNumberOfPartitionedDataSets() * 2);
         output->SetNumberOfPartitionedDataSets(output->GetNumberOfPartitionedDataSets() * 2);
       }
       IfcGeom::Element* element = iterator.get();
       vtkLog(INFO, "Name: " << element->name());
       vtkLog(INFO, "Type: " << element->type());
-      // if (element->name() != "Terrain_Final")
-      // {
-      //   continue;
-      // }
+      vtkLog(INFO, "i: " << i);
       const IfcGeom::TriangulationElement* shape =
         static_cast<const IfcGeom::TriangulationElement*>(element);
       const IfcGeom::Representation::Triangulation& geom = shape->geometry();
@@ -230,6 +235,8 @@ int vtkIFCReader::RequestData(
       points->SetData(pointData);
       if (materials.size() <= 1)
       {
+        ifcopenshell::geometry::taxonomy::style material =
+          materials.empty() ? ifcopenshell::geometry::taxonomy::style() : *materials[0];
         // one material so we need one polydata
         vtkNew<vtkPolyData> polyData;
         polyData->SetPoints(points);
@@ -253,7 +260,7 @@ int vtkIFCReader::RequestData(
         }
         output->SetNumberOfPartitions(i, 1);
         output->SetPartition(i, 0, polyData);
-        saveMaterial(polyData, materials[0]);
+        setMaterial(polyData, material);
       }
       else
       {
@@ -298,7 +305,7 @@ int vtkIFCReader::RequestData(
             output->SetPartition(i, output->GetNumberOfPartitions(i) - 1, polyData);
             if (*mid0 >= 0)
             {
-              saveMaterial(polyData, materials[*mid0]);
+              setMaterial(polyData, *materials[*mid0]);
             }
             if (mid1 == materialIds.end())
             {
@@ -310,7 +317,8 @@ int vtkIFCReader::RequestData(
         }
       }
       ++i;
-    } while (iterator.next());
+      hasElements = iterator.next();
+    } while (hasElements);
     output->SetNumberOfPartitionedDataSets(i);
     vtkLog(INFO, "Finished " << i << " partitioned datasets");
   }

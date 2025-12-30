@@ -18,8 +18,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
-class vtkTransform;
-class vtkGLTFReader;
 
 /**
  * @class   vtkIFCReader
