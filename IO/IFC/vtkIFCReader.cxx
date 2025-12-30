@@ -215,9 +215,9 @@ int vtkIFCReader::RequestData(
         output->SetNumberOfPartitionedDataSets(output->GetNumberOfPartitionedDataSets() * 2);
       }
       IfcGeom::Element* element = iterator.get();
-      vtkLog(INFO, "Name: " << element->name());
-      vtkLog(INFO, "Type: " << element->type());
-      vtkLog(INFO, "i: " << i);
+      // vtkLog(INFO, "Name: " << element->name());
+      // vtkLog(INFO, "Type: " << element->type());
+      // vtkLog(INFO, "i: " << i);
       const IfcGeom::TriangulationElement* shape =
         static_cast<const IfcGeom::TriangulationElement*>(element);
       const IfcGeom::Representation::Triangulation& geom = shape->geometry();
