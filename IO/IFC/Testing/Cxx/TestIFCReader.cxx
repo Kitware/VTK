@@ -8,7 +8,9 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkFieldData.h"
 #include "vtkIFCReader.h"
 #include "vtkJPEGReader.h"
@@ -30,7 +32,59 @@
 
 namespace
 {
-void AddActors(vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, const char* fname)
+void AddCompositePolyDataMapper(
+  vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, const char* fname)
+{
+  vtkNew<vtkCompositePolyDataMapper> mapper;
+  vtkNew<vtkCompositeDataDisplayAttributes> attrs;
+  mapper->SetCompositeDataDisplayAttributes(attrs);
+  mapper->SetCompositeDataDisplayAttributes(attrs);
+
+  mapper->SetInputDataObject(pdc);
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+  renderer->AddActor(actor);
+  vtkSmartPointer<vtkCompositeDataIterator> it;
+  for (it.TakeReference(pdc->NewIterator()); !it->IsDoneWithTraversal(); it->GoToNextItem())
+  {
+    unsigned int flatIndex = it->GetCurrentFlatIndex();
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+    if (poly)
+    {
+      auto diffuse = vtkPolyDataMaterial::GetField(
+        poly, vtkPolyDataMaterial::DIFFUSE_COLOR, std::vector<double>{ 1, 1, 1 });
+      auto specular = vtkPolyDataMaterial::GetField(
+        poly, vtkPolyDataMaterial::SPECULAR_COLOR, std::vector<double>{ 1, 1, 1 });
+      double shininess = vtkPolyDataMaterial::GetField(
+        poly, vtkPolyDataMaterial::SHININESS, std::vector<double>{ 1 })[0];
+      double transparency = vtkPolyDataMaterial::GetField(
+        poly, vtkPolyDataMaterial::TRANSPARENCY, std::vector<double>{ 0 })[0];
+      mapper->SetBlockColor(flatIndex, diffuse.data());
+      mapper->SetBlockOpacity(flatIndex, 1 - transparency);
+
+      vtkStringArray* textureField =
+        vtkStringArray::SafeDownCast(poly->GetFieldData()->GetAbstractArray("texture_uri"));
+      if (textureField)
+      {
+        std::string fnamePath = vtksys::SystemTools::GetFilenamePath(std::string(fname));
+
+        vtkStdString textureURI = textureField->GetValue(0);
+        vtkNew<vtkJPEGReader> JpegReader;
+        JpegReader->SetFileName((fnamePath + "/" + textureURI).c_str());
+        JpegReader->Update();
+
+        vtkNew<vtkTexture> texture;
+        texture->SetInputConnection(JpegReader->GetOutputPort());
+        texture->InterpolateOn();
+
+        mapper->SetBlockTexture(flatIndex, texture);
+      }
+    }
+  }
+}
+
+void AddPolyDataMappers(
+  vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, const char* fname)
 {
   vtkSmartPointer<vtkCompositeDataIterator> it;
   for (it.TakeReference(pdc->NewIterator()); !it->IsDoneWithTraversal(); it->GoToNextItem())
@@ -82,7 +136,7 @@ void AddActors(vtkRenderer* renderer, vtkPartitionedDataSetCollection* pdc, cons
 int TestIFCReader(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/IFC/duplex.ifc");
-  if (argc >= 8)
+  if (argc >= 9)
   {
     // debug code to be able to load another datafile
     size_t len = strlen(argv[argc - 1]);
@@ -105,7 +159,8 @@ int TestIFCReader(int argc, char* argv[])
   reader->Update();
   vtkPartitionedDataSetCollection* pdc = reader->GetOutput();
 
-  ::AddActors(renderer, pdc, fname);
+  ::AddCompositePolyDataMapper(renderer, pdc, fname);
+  //::AddPolyDataMappers(renderer, pdc, fname);
 
   renderer->GetActiveCamera()->Elevation(-80);
   renderer->ResetCamera();
