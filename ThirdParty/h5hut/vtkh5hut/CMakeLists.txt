@@ -50,9 +50,9 @@ set(headers
   src/include/H5hut.h
   src/include/H5Part_io.h
   src/include/H5Part_model.h
-  src/vtk_h5hut_mangle.h
-  "${CMAKE_CURRENT_BINARY_DIR}/src/vtkh5hut_export.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/src/config.h")
+  src/include/vtk_h5hut_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/src/include/vtkh5hut_export.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/include/config.h")
 
 set(sources
   src/h5core/h5_attachments.c
@@ -142,7 +142,7 @@ set(private_sources
   src/h5core/private/h5t_store_trim.c)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
-	${CMAKE_CURRENT_BINARY_DIR}/src/config.h)
+	${CMAKE_CURRENT_BINARY_DIR}/src/include/config.h)
 
 vtk_module_add_module(VTK::h5hut
   HEADER_DIRECTORIES
@@ -152,13 +152,14 @@ vtk_module_add_module(VTK::h5hut
   HEADERS_SUBDIR "vtkh5hut")
 vtk_module_include(VTK::h5hut
   PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src/include>"
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/h5core>")
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/h5core>"
+  INTERFACE
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkh5hut/src/include>")
 
 include(GenerateExportHeader)
 generate_export_header(h5hut
   EXPORT_MACRO_NAME VTKH5HUT_EXPORT
-  EXPORT_FILE_NAME src/vtkh5hut_export.h)
+  EXPORT_FILE_NAME src/include/vtkh5hut_export.h)
