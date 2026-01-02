@@ -5,6 +5,7 @@
 #include "vtkOBJImporter.h"
 
 #include "vtkCamera.h"
+#include "vtkFileResourceStream.h"
 #include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -17,7 +18,7 @@
 
 #include <iostream>
 
-int TestOBJImporter(int argc, char* argv[])
+int TestOBJImporterStream(int argc, char* argv[])
 {
   // note that the executable name is stripped out already
   // so argc argv will not have it
@@ -37,12 +38,12 @@ int TestOBJImporter(int argc, char* argv[])
   mtlStream->Open(argv[2]);
 
   vtkNew<vtkFileResourceStream> texStream;
-  mtlStream->Open(argv[3]);
+  texStream->Open(argv[4]);
 
   vtkNew<vtkOBJImporter> importer;
   importer->SetStream(fileStream);
-  importer->SetStreamMTL(mtlStream);
-  importer->SetTextureStream({ { argv[3], texStream } });
+  importer->SetMTLStream(mtlStream);
+  importer->SetTextureStreams({ { argv[3], texStream } });
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
