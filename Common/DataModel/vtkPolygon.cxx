@@ -1893,6 +1893,10 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
   double closestPoint[3];
   double dist2;
   int npts = this->GetNumberOfPoints();
+  if (npts <= 0) // make sure there is something to pick
+  {
+    return 0;
+  }
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;

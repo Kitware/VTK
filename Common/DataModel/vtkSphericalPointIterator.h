@@ -73,7 +73,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPolyData;
-struct SpiralPointIterator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSphericalPointIterator : public vtkObject
 {

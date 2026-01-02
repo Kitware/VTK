@@ -301,6 +301,7 @@ set(headers
   vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h
   vtkLabelMapLookup.h
+  vtkLocatorInterface.h
   vtkRect.h
   vtkVector.h)
 
@@ -309,7 +310,6 @@ set(nowrap_headers
   vtkCompositeDataSetRange.h
   vtkDataObjectImplicitBackendInterface.h
   vtkDataObjectTreeRange.h
-  vtkLocatorInterface.h
   vtkPolyDataInternals.h
   vtkStaticPointLocator2DPrivate.h
   vtkStaticPointLocatorPrivate.h)

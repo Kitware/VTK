@@ -174,6 +174,10 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   {
     // Reset the points lists.
     this->Reset();
+    this->CurrentAxis = 0;
+    this->CurrentPointIndex = 0;
+    this->NumPts = 0;
+    this->NumVisited = 0;
     this->NumPts = 0;
 
     // Redefine the center of iteration
@@ -253,7 +257,10 @@ struct vtkSphericalPointIterator::SphericalPointIterator
   }
 
   // Determine whether formard iteration is complete.
-  bool IsDoneWithTraversal() { return (this->NumVisited <= this->NumPts ? false : true); }
+  bool IsDoneWithTraversal()
+  {
+    return ((this->NumPts > 0 && this->NumVisited <= this->NumPts) ? false : true);
+  }
 
   // Go to the the next point during forward iteration.
   void GoToNextPoint()
