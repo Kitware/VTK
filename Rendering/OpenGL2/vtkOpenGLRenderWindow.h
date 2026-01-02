@@ -37,15 +37,17 @@ class vtkTextureObject;
 class vtkTextureUnitManager;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkOpenGLState;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 #if !(defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__))
   static vtkOpenGLRenderWindow* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
 #endif
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Begin the rendering process.
@@ -663,6 +665,8 @@ private:
   // `this->GetState()`.
   vtkOpenGLState* State;
 };
-
+#if !(defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__))
+#define vtkOpenGLRenderWindow_OVERRIDE_ATTRIBUTES vtkOpenGLRenderWindow::CreateOverrideAttributes()
+#endif
 VTK_ABI_NAMESPACE_END
 #endif

@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLGlyph3DHelper.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkProperty.h"
 #include "vtkQuaternion.h"
 #include "vtkRenderWindow.h"
@@ -173,6 +174,14 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 
   delete this->GlyphValues;
   this->GlyphValues = nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLGlyph3DMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

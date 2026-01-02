@@ -15,6 +15,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 
@@ -47,6 +48,14 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
     this->TextureObject->Delete();
     this->TextureObject = nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLTexture::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

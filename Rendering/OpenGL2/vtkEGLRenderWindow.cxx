@@ -10,6 +10,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringScanner.h"
@@ -86,6 +87,16 @@ vtkEGLRenderWindow::~vtkEGLRenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkEGLRenderWindow::CreateOverrideAttributes()
+{
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "EGL", nullptr);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

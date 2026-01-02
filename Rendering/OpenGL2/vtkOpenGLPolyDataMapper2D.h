@@ -36,13 +36,15 @@ class vtkPoints;
 class vtkRenderer;
 class vtkTextureObject;
 class vtkTransform;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPolyDataMapper2D
   : public vtkPolyDataMapper2D
 {
 public:
-  vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkOpenGLPolyDataMapper2D* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
+  vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -145,5 +147,7 @@ private:
   void operator=(const vtkOpenGLPolyDataMapper2D&) = delete;
 };
 
+#define vtkOpenGLPolyDataMapper2D_OVERRIDE_ATTRIBUTES                                              \
+  vtkOpenGLPolyDataMapper2D::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

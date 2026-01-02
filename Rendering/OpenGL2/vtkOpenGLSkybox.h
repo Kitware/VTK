@@ -20,11 +20,13 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSkybox : public vtkSkybox
 {
 public:
   static vtkOpenGLSkybox* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLSkybox, vtkSkybox);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -60,5 +62,6 @@ private:
   vtkNew<vtkMatrix3x3> RotationMatrix;
 };
 
+#define vtkOpenGLSkybox_OVERRIDE_ATTRIBUTES vtkOpenGLSkybox::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

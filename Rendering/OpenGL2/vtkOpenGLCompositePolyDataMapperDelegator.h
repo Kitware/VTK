@@ -30,11 +30,13 @@ class vtkOpenGLLowMemoryBatchedPolyDataMapper;
 class vtkOpenGLBatchedPolyDataMapper;
 #define GLDelegateClass vtkOpenGLBatchedPolyDataMapper
 #endif
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCompositePolyDataMapperDelegator
   : public vtkCompositePolyDataMapperDelegator
 {
 public:
   static vtkOpenGLCompositePolyDataMapperDelegator* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLCompositePolyDataMapperDelegator, vtkCompositePolyDataMapperDelegator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -93,5 +95,7 @@ private:
   void operator=(const vtkOpenGLCompositePolyDataMapperDelegator&) = delete;
 };
 
+#define vtkOpenGLCompositePolyDataMapperDelegator_OVERRIDE_ATTRIBUTES                              \
+  vtkOpenGLCompositePolyDataMapperDelegator::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

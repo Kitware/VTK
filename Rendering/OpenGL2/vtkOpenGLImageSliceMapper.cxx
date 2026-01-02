@@ -21,6 +21,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
@@ -126,6 +127,14 @@ vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
   this->BackgroundPolyDataActor->UnRegister(this);
   this->BackingPolyDataActor->UnRegister(this);
   this->PolyDataActor->UnRegister(this);
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLImageSliceMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkTexture.h"
 
 #include "vtkOpenGLError.h"
@@ -20,6 +21,14 @@ vtkStandardNewMacro(vtkOpenGLProperty);
 vtkOpenGLProperty::vtkOpenGLProperty() = default;
 
 vtkOpenGLProperty::~vtkOpenGLProperty() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLProperty::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 // Implement base class method.

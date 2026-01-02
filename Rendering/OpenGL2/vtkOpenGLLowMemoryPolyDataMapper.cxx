@@ -35,6 +35,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLUniforms.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataFS.h"
@@ -244,6 +245,16 @@ vtkOpenGLLowMemoryPolyDataMapper::~vtkOpenGLLowMemoryPolyDataMapper()
   {
     this->InternalColorTexture->Delete();
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLLowMemoryPolyDataMapper::CreateOverrideAttributes()
+{
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "Embedded", nullptr);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", platformAttribute);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderTimer;
+class vtkOverrideAttribute;
 
 /**
  * @brief OpenGL2 override for vtkRenderTimerLog.
@@ -43,6 +44,7 @@ public:
   };
 
   static vtkOpenGLRenderTimerLog* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -122,5 +124,7 @@ private:
   void operator=(const vtkOpenGLRenderTimerLog&) = delete;
 };
 
+#define vtkOpenGLRenderTimerLog_OVERRIDE_ATTRIBUTES                                                \
+  vtkOpenGLRenderTimerLog::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLRenderTimerLog_h

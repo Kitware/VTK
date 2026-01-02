@@ -26,17 +26,15 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLUniforms;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLShaderProperty : public vtkShaderProperty
 {
 public:
+  static vtkOpenGLShaderProperty* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLShaderProperty, vtkShaderProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Construct object with no shader replacements
-   */
-  static vtkOpenGLShaderProperty* New();
 
   /**
    * Assign one property to another.
@@ -115,5 +113,7 @@ private:
   void operator=(const vtkOpenGLShaderProperty&) = delete;
 };
 
+#define vtkOpenGLShaderProperty_OVERRIDE_ATTRIBUTES                                                \
+  vtkOpenGLShaderProperty::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

@@ -19,11 +19,13 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderer;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLCamera : public vtkCamera
 {
 public:
   static vtkOpenGLCamera* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,5 +55,6 @@ private:
   void operator=(const vtkOpenGLCamera&) = delete;
 };
 
+#define vtkOpenGLCamera_OVERRIDE_ATTRIBUTES vtkOpenGLCamera::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

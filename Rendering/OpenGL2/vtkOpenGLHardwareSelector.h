@@ -19,10 +19,12 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {
 public:
   static vtkOpenGLHardwareSelector* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -71,5 +73,7 @@ private:
   void operator=(const vtkOpenGLHardwareSelector&) = delete;
 };
 
+#define vtkOpenGLHardwareSelector_OVERRIDE_ATTRIBUTES                                              \
+  vtkOpenGLHardwareSelector::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

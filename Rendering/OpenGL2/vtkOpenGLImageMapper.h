@@ -25,11 +25,13 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
 class vtkTexturedActor2D;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
   static vtkOpenGLImageMapper* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLImageMapper, vtkImageMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -70,5 +72,6 @@ private:
   void operator=(const vtkOpenGLImageMapper&) = delete;
 };
 
+#define vtkOpenGLImageMapper_OVERRIDE_ATTRIBUTES vtkOpenGLImageMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

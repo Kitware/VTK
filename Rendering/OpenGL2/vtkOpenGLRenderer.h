@@ -39,11 +39,13 @@ class vtkSSAOPass;
 class vtkPolyData;
 class vtkTexturedActor2D;
 class vtkPolyDataMapper2D;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderer : public vtkRenderer
 {
 public:
   static vtkOpenGLRenderer* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -263,5 +265,6 @@ private:
   void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
+#define vtkOpenGLRenderer_OVERRIDE_ATTRIBUTES vtkOpenGLRenderer::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

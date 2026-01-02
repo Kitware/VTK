@@ -31,6 +31,7 @@ class vtkOpenGLLowMemoryCellTypeAgent;
 class vtkOpenGLLowMemoryVerticesAgent;
 class vtkOpenGLLowMemoryLinesAgent;
 class vtkOpenGLLowMemoryPolygonsAgent;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLowMemoryPolyDataMapper
   : public vtkPolyDataMapper
@@ -40,6 +41,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLowMemoryPolyDataMappe
 {
 public:
   static vtkOpenGLLowMemoryPolyDataMapper* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLLowMemoryPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -325,5 +327,7 @@ private:
   vtkNew<vtkMatrix4x4> TempMatrix4;
 };
 
+#define vtkOpenGLLowMemoryPolyDataMapper_OVERRIDE_ATTRIBUTES                                       \
+  vtkOpenGLLowMemoryPolyDataMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLLowMemoryPolyDataMapper_h

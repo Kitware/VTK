@@ -4,6 +4,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkShaderProgram.h"
 #include "vtkStringFormatter.h"
 
@@ -553,6 +554,13 @@ vtkOpenGLUniforms::vtkOpenGLUniforms()
 vtkOpenGLUniforms::~vtkOpenGLUniforms()
 {
   this->Internals->Delete();
+}
+
+vtkOverrideAttribute* vtkOpenGLUniforms::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 void vtkOpenGLUniforms::RemoveUniform(const char* name)

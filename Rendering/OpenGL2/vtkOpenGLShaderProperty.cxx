@@ -3,6 +3,7 @@
 #include "vtkOpenGLShaderProperty.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLShaderProperty);
@@ -10,6 +11,13 @@ vtkStandardNewMacro(vtkOpenGLShaderProperty);
 vtkOpenGLShaderProperty::vtkOpenGLShaderProperty() = default;
 
 vtkOpenGLShaderProperty::~vtkOpenGLShaderProperty() = default;
+
+vtkOverrideAttribute* vtkOpenGLShaderProperty::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 void vtkOpenGLShaderProperty::DeepCopy(vtkOpenGLShaderProperty* p)
 {

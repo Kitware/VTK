@@ -17,11 +17,13 @@
 #include <stack>                       // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkWebAssemblyOpenGLRenderWindow
   : public vtkOpenGLRenderWindow
 {
 public:
   static vtkWebAssemblyOpenGLRenderWindow* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebAssemblyOpenGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -210,5 +212,7 @@ private:
   void operator=(const vtkWebAssemblyOpenGLRenderWindow&) = delete;
 };
 
+#define vtkWebAssemblyOpenGLRenderWindow_OVERRIDE_ATTRIBUTES                                       \
+  vtkWebAssemblyOpenGLRenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

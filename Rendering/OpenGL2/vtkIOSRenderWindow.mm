@@ -9,6 +9,7 @@
 #import "vtkObjectFactory.h"
 #import "vtkOpenGLFramebufferObject.h"
 #import "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
 #import "vtkStringScanner.h"
@@ -31,6 +32,17 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
   this->SetFrameBlitModeToBlitToCurrent();
+}
+
+//----------------------------------------------------------------------------
+vtkOverrideAttribute* vtkIOSRenderWindow::CreateOverrideAttributes()
+{
+  auto* platformAttribute = vtkOverrideAttribute::CreateAttributeChain("Platform", "iOS", nullptr);
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "Cocoa", platformAttribute);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 void vtkIOSRenderWindow::BlitDisplayFramebuffersToHardware()

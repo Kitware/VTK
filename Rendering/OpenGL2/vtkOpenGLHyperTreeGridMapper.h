@@ -12,16 +12,16 @@
 #define vtkOpenGLHyperTreeGridMapper_h
 
 #include "vtkHyperTreeGridMapper.h"
-#include "vtkSetGet.h"       // Get macro
-#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHyperTreeGridMapper : public vtkHyperTreeGridMapper
 {
 public:
   static vtkOpenGLHyperTreeGridMapper* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLHyperTreeGridMapper, vtkHyperTreeGridMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -34,5 +34,7 @@ private:
   void operator=(const vtkOpenGLHyperTreeGridMapper&) = delete;
 };
 
+#define vtkOpenGLHyperTreeGridMapper_OVERRIDE_ATTRIBUTES                                           \
+  vtkOpenGLHyperTreeGridMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

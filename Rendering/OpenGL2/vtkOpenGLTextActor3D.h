@@ -15,11 +15,13 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGL2PSHelper;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextActor3D : public vtkTextActor3D
 {
 public:
   static vtkOpenGLTextActor3D* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLTextActor3D, vtkTextActor3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -36,5 +38,6 @@ private:
   void operator=(const vtkOpenGLTextActor3D&) = delete;
 };
 
+#define vtkOpenGLTextActor3D_OVERRIDE_ATTRIBUTES vtkOpenGLTextActor3D::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLTextActor3D_h

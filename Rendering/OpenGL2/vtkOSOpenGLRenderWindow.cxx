@@ -22,6 +22,7 @@
 
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringScanner.h"
 
@@ -223,6 +224,15 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
   }
 
   delete this->Internal;
+}
+
+vtkOverrideAttribute* vtkOSOpenGLRenderWindow::CreateOverrideAttributes()
+{
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "OffScreenMESA", nullptr);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 // End the rendering process and display the image.
