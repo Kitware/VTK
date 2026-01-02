@@ -338,6 +338,7 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
       (displayProperty->GetRenderPointsAsSpheres() << 5) |
       (displayProperty->GetRenderLinesAsTubes() << 6) |
       (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
+    ro.Flags2 = displayProperty->GetLighting();
     internals.RenderOptionsLastUpdated.Modified();
     return true;
   }

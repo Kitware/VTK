@@ -3508,7 +3508,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
-    R"(if scene_lights.count == 0u
+    R"(if scene_lights.count == 0u || !isLightingEnabled(actor.render_options.flags_2)
   {
     // allow post-processing this pixel.
     output.color = vec4<f32>(
