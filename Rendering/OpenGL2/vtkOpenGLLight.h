@@ -25,11 +25,6 @@ public:
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Implement base class method.
-   */
-  void Render(vtkRenderer* ren, int light_index) override;
-
 protected:
   vtkOpenGLLight() = default;
   ~vtkOpenGLLight() override = default;

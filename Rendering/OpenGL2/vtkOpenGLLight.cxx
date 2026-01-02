@@ -7,12 +7,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLLight);
 
-// Implement base class method.
-void vtkOpenGLLight::Render(vtkRenderer* vtkNotUsed(ren), int vtkNotUsed(light_index))
-{
-  // all handled by the mappers
-}
-
 //------------------------------------------------------------------------------
 void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)
 {
