@@ -81,6 +81,7 @@ void vtkOBJImporter::ImportEnd()
 void vtkOBJImporter::ReadData()
 {
   this->Impl->SetFileName(this->GetFileName());
+  this->Impl->SetStream(this->GetStream());
 
   vtkNew<vtkEventForwarderCommand> progressForwarder;
   progressForwarder->SetTarget(this);
@@ -363,6 +364,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     if (!fileStream->Open(this->FileName.c_str()))
     {
       vtkErrorMacro("Unable to open " << this->GetFileName() << " , aborting.");
+      this->SetSuccessParsingFiles(false);
       return 0;
     }
 
@@ -470,14 +472,17 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (mtllibDefined)
     {
-      if (vtksys::SystemTools::FileExists(mtlname))
+      if (!this->MTLStream)
       {
-        this->MTLFileName = mtlname;
-      }
-      else
-      {
-        vtkErrorMacro(<< "The MTL file set by the mtllib command " << mtlname
-                      << " could not be found");
+        if (vtksys::SystemTools::FileExists(mtlname))
+        {
+          this->MTLFileName = mtlname;
+        }
+        else
+        {
+          vtkErrorMacro(<< "The MTL file set by the mtllib command " << mtlname
+                        << " could not be found");
+        }
       }
     }
     else
@@ -1315,7 +1320,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!everything_ok)
   {
-    SetSuccessParsingFiles(false);
+    this->SetSuccessParsingFiles(false);
   }
 
   return 1;

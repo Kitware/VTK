@@ -226,7 +226,10 @@ bool tokenGetTexture(size_t& t, std::vector<Token>& tokens, vtkOBJImportedMateri
       current_mtl->texture_filename += tokens[tt].StringValue;
       ++tt;
     }
-    checkTextureMapFile(current_mtl, texturePath);
+    if (!texturePath.empty())
+    {
+      checkTextureMapFile(current_mtl, texturePath);
+    }
     t = tt;
     return true;
   }
@@ -403,8 +406,16 @@ bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRender
       if (kti == knownTextures.end())
       {
         vtkSmartPointer<vtkImageReader2> imgReader;
-        imgReader.TakeReference(
-          vtkImageReader2Factory::CreateImageReader2(textureFilename.c_str()));
+        if (vtksys::SystemTools::FileIsFullPath(textureFilename))
+        {
+          imgReader.TakeReference(
+            vtkImageReader2Factory::CreateImageReader2(textureFilename.c_str()));
+        }
+        else
+        {
+          imgReader.TakeReference(vtkImageReader2Factory::CreateImageReader2FromExtension(
+            vtksys::SystemTools::GetFilenameLastExtension(textureFilename).c_str()));
+        }
 
         if (!imgReader)
         {
