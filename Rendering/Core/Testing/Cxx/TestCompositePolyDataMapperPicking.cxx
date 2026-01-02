@@ -258,7 +258,7 @@ int TestCompositePolyDataMapperPicking(int argc, char* argv[])
   ren->ResetCamera();
   win->Render(); // get the window up
 
-  // modify the data to force a rebuild of OpenGL structs
+  // modify the data to force a rebuild of internal state
   // after rendering set one cylinder to white
   mapper->SetBlockColor(80, 1.0, 1.0, 1.0);
   mapper->SetBlockOpacity(80, 1.0);

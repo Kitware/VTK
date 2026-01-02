@@ -16,7 +16,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
@@ -153,7 +152,7 @@ int TestCompositePolyDataMapperMixedGeometryEdges(int argc, char* argv[])
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   win->Render(); // get the window up
 
-  // modify the data to force a rebuild of OpenGL structs
+  // modify the data to force a rebuild of internal state
   // after rendering set one cylinder to white
   mapper->SetBlockColor(54, 1.0, 1.0, 1.0);
   mapper->SetBlockOpacity(54, 1.0);
