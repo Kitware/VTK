@@ -203,32 +203,16 @@ if(NOT has_vtkRenderWindow_override)
 endif()
 
 list(APPEND classes ${vtk_webgpu_factory_override_classname})
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkWebGPUObjectFactoryInit.cxx.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
 
 if(has_vtkRenderWindow_override)
   vtk_object_factory_declare(
-    BASE
-    vtkRenderWindow
-    OVERRIDE
-    ${vtk_webgpu_factory_override_classname})
+    BASE vtkRenderWindow
+    OVERRIDE ${vtk_webgpu_factory_override_classname})
 endif()
 vtk_object_factory_configure(
-  SOURCE_FILE
-  vtk_object_factory_source
-  HEADER_FILE
-  vtk_object_factory_header
-  EXPORT_MACRO
-  "VTKRENDERINGWEBGPU_EXPORT"
-  EXTRA_INCLUDES
-  "<vtkCollection.h>"
-  "<vtkCallbackCommand.h>"
-  "<vtkNew.h>"
-  "<vtkObjectFactoryCollection.h>"
-  "<iostream>"
-  "<cstdlib>"
-  INITIAL_CODE_FILE
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGWEBGPU_EXPORT")
 
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
@@ -239,8 +223,6 @@ vtk_module_add_module(VTK::RenderingWebGPU
 
 vtk_module_compile_features(VTK::RenderingWebGPU
   PUBLIC cxx_std_17)
-
-vtk_module_compile_features(VTK::RenderingWebGPU PUBLIC cxx_std_17)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_options(VTK::RenderingWebGPU

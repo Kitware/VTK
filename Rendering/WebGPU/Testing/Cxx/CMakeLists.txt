@@ -61,87 +61,70 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestWireframe.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --verify
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --translucent
   TestLineRenderingTranslucent,TestLineRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 0.5 --line-width 0.5
   TestMixedGeometry_1,TestMixedGeometry.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 1.0 --line-width 1.0
   TestMixedGeometry_2,TestMixedGeometry.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 3.0 --line-width 3.0
   TestMixedGeometry_3,TestMixedGeometry.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 0.5
   TestPointRendering_1,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 1.0
   TestPointRendering_2,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 3.0
   TestPointRendering_3,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 7.0
   TestPointRendering_4,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 0.5 --round
   TestPointRenderingRound_1,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 1.0 --round
   TestPointRenderingRound_2,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 3.0 --round
   TestPointRenderingRound_3,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-size 7.0 --round
   TestPointRenderingRound_4,TestPointRendering.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --ortho
   TestRenderPointsAsSpheresOrthoCamera,TestRenderPointsAsSpheres.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --ortho
   TestRenderLinesAsTubesOrthoCamera,TestRenderLinesAsTubes.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --point-colors
   TestPolyDataMapper2DPointScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA,NO_SERDES)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  WEBGPU_GRAPHICS_BACKEND
   --cell-colors
   TestPolyDataMapper2DCellScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA,NO_SERDES)
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)

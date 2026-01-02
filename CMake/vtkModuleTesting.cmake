@@ -364,9 +364,6 @@ C++ tests
   - ``NO_SERDES``: The test does not do serialization/deserialization testing. If
     it does, the flag ``--serdes`` is passed. Note that only tests that do a regression test on
     a render window and pass ``--serdes`` will do serdes testing.
-  - ``WEBGPU_GRAPHICS_BACKEND``: The test should be run using the WebGPU graphics backend.
-    This is only available when building with WebGPU support. It enables WebGPU via
-    setting the environment variable ``VTK_GRAPHICS_BACKEND=WEBGPU``.
 
   Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
   variable or the ``<NAME>_ARGS`` variable.
@@ -379,8 +376,7 @@ function (vtk_add_test_cxx exename _tests)
     NO_SERDES
     TIGHT_VALID
     LOOSE_VALID
-    LEGACY_VALID
-    WEBGPU_GRAPHICS_BACKEND)
+    LEGACY_VALID)
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
 
@@ -503,11 +499,6 @@ function (vtk_add_test_cxx exename _tests)
       set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
         PROPERTY
           ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
-    endif ()
-    if (local_WEBGPU_GRAPHICS_BACKEND)
-      set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
-        PROPERTY
-          ENVIRONMENT "VTK_GRAPHICS_BACKEND=WEBGPU")
     endif ()
     list(APPEND ${_tests} "${test_file}")
   endforeach ()

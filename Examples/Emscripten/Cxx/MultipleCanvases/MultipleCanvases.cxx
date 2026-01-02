@@ -8,6 +8,7 @@
 #include "vtkCubeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkDiskSource.h"
+#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollectionSource.h"
 #include "vtkPlatonicSolidSource.h"
 #include "vtkRegularPolygonSource.h"
@@ -37,6 +38,8 @@ std::vector<vtkSmartPointer<vtkRenderWindowInteractor>> interactors;
 
 int main(int argc, char* argv[])
 {
+  // Initialize object factory preferences from command line arguments.
+  vtkObjectFactory::InitializePreferencesFromCommandLineArgs(argc, argv);
   vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
   if (argc < 2)
   {

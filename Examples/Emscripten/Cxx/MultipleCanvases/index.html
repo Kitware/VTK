@@ -137,11 +137,10 @@
 
     var vtkWasmRuntime = null;
     var Module = {
-      arguments: [`${numCanvases}`],
+      arguments: [`${numCanvases}`, "--vtk-factory-prefer", "RenderingBackend=WebGPU"],
       preRun: (runtime) => {
         // cache the VTK wasm runtime instance.
         vtkWasmRuntime = runtime;
-        vtkWasmRuntime.ENV.VTK_GRAPHICS_BACKEND = "WEBGPU";
       },
       onRuntimeInitialized: () => {
         if (vtkWasmRuntime !== null) {

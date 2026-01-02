@@ -1,18 +1,18 @@
-function makeStatesForGraphicsAPI(graphicsAPI) {
+function makeStates() {
   return [{
-  //   Id: 1,
-  //   ClassName: `vtk${graphicsAPI}RenderWindow`,
-  //   Interactor: { Id: 2 },
-  //   Renderers: { Id: 3 },
-  //   Size: [800, 600],
-  //   SuperClassNames: [
-  //     "vtkObjectBase",
-  //     "vtkObject",
-  //     "vtkWindow",
-  //     "vtkRenderWindow"],
-  //   "vtk-object-manager-kept-alive": true,
-  // },
-  // {
+    Id: 1,
+    ClassName: `vtkRenderWindow`,
+    Interactor: { Id: 2 },
+    Renderers: { Id: 3 },
+    Size: [800, 600],
+    SuperClassNames: [
+      "vtkObjectBase",
+      "vtkObject",
+      "vtkWindow",
+    ],
+    "vtk-object-manager-kept-alive": true,
+  },
+  {
     Id: 2,
     ClassName: "vtkRenderWindowInteractor",
     SuperClassNames: [
@@ -28,17 +28,18 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkCollection",],
+      "vtkCollection",
+    ],
   },
   {
     Id: 4,
-    ClassName: `vtk${graphicsAPI}Renderer`,
+    ClassName: `vtkRenderer`,
     ViewProps: { Id: 5 },
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
       "vtkViewport",
-      "vtkRenderer",],
+    ],
   },
   {
     Id: 5,
@@ -52,22 +53,23 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkCollection",],
+      "vtkCollection",
+    ],
   },
   {
     Id: 6,
-    ClassName: `vtk${graphicsAPI}Actor`,
+    ClassName: `vtkActor`,
     Mapper: { Id: 7 },
     Property: { Id: 8 },
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
       "vtkProp",
-      "vtkActor",],
+    ],
   },
   {
     Id: 7,
-    ClassName: `vtk${graphicsAPI}PolyDataMapper`,
+    ClassName: `vtkPolyDataMapper`,
     InputDataObjects: [[{ Id: 9 }]],
     SuperClassNames: [
       "vtkObjectBase",
@@ -76,17 +78,15 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
       "vtkAbstractMapper",
       "vtkAbstractMapper3D",
       "vtkMapper",
-      "vtkPolyDataMapper",
     ],
     UseLookupTableScalarRange: 0
   },
   {
     Id: 8,
-    ClassName: `vtk${graphicsAPI}Property`,
+    ClassName: `vtkProperty`,
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProperty",
     ],
   },
   {
@@ -101,18 +101,18 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
     ],
   }, {
     Id: 10,
-    ClassName: `vtk${graphicsAPI}Actor`,
+    ClassName: `vtkActor`,
     Mapper: { Id: 11 },
     Property: { Id: 12 },
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
       "vtkProp",
-      "vtkActor",],
+    ],
   },
   {
     Id: 11,
-    ClassName: `vtk${graphicsAPI}Glyph3DMapper`,
+    ClassName: `vtkGlyph3DMapper`,
     InputDataObjects: [[{ Id: 13 }], [{ Id: 13 }]],
     SuperClassNames: [
       "vtkObjectBase",
@@ -121,17 +121,15 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
       "vtkAbstractMapper",
       "vtkAbstractMapper3D",
       "vtkMapper",
-      "vtkGlyph3DMapper",
     ],
     UseLookupTableScalarRange: 0
   },
   {
     Id: 12,
-    ClassName: `vtk${graphicsAPI}Property`,
+    ClassName: `vtkProperty`,
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProperty",
     ],
   },
   {
@@ -152,11 +150,12 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProp",],
+      "vtkProp",
+    ],
   },
   {
     Id: 15,
-    ClassName: `vtk${graphicsAPI}PolyDataMapper2D`,
+    ClassName: `vtkPolyDataMapper2D`,
     InputDataObjects: [[{ Id: 17 }]],
     SuperClassNames: [
       "vtkObjectBase",
@@ -164,17 +163,15 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
       "vtkAlgorithm",
       "vtkAbstractMapper",
       "vtkMapper2D",
-      "vtkPolyDataMapper2D",
     ],
     UseLookupTableScalarRange: 0
   },
   {
     Id: 16,
-    ClassName: `vtk${graphicsAPI}Property`,
+    ClassName: `vtkProperty`,
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProperty",
     ],
   },
   {
@@ -195,7 +192,8 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProp",],
+      "vtkProp",
+    ],
   },
   {
     Id: 19,
@@ -214,11 +212,10 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
   },
   {
     Id: 20,
-    ClassName: `vtk${graphicsAPI}Property`,
+    ClassName: `vtkProperty`,
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
-      "vtkProperty",
     ],
   },
   {
@@ -238,7 +235,7 @@ async function testOpenGLOverrides() {
   const vtkWASM = await globalThis.createVTKWASM({
     preRun: [function (module) {
       /// select OpenGL backend
-      module.ENV.VTK_GRAPHICS_BACKEND = "OPENGL";
+      module.ENV.VTK_FACTORY_PREFER = "RenderingBackend=OpenGL;Platform=WebAssembly"
       /// enable logging for debugging purposes (optional)
       // module.ENV.VTK_DESERIALIZER_LOG_VERBOSITY = "INFO";
       // module.ENV.VTK_INVOKER_LOG_VERBOSITY = "INFO";
@@ -246,13 +243,12 @@ async function testOpenGLOverrides() {
     }],
   });
   const session = new vtkWASM.vtkRemoteSession();
-  const states = makeStatesForGraphicsAPI("WebGPU");
+  const states = makeStates();
   for (const state of states) {
     session.registerState(state);
   }
   session.updateObjectsFromStates();
-  // Since the OpenGL backend is used, the classes with WebGPU in their names should have
-  // be replaced with OpenGL overrides.
+  // Since the OpenGL backend is used, the class name should include OpenGL
   for (const state of states) {
     const objectState = session.get(state.Id);
     if (objectState.ClassName.includes("WebGPU") && !objectState.ClassName.includes("OpenGL")) {
@@ -264,8 +260,8 @@ async function testOpenGLOverrides() {
 async function testWebGPUOverrides() {
   const vtkWASM = await globalThis.createVTKWASM({
     preRun: [function (module) {
-      /// select OpenGL backend
-      module.ENV.VTK_GRAPHICS_BACKEND = "WEBGPU";
+      /// select WebGPU backend
+      module.ENV.VTK_FACTORY_PREFER = "RenderingBackend=WebGPU;Platform=WebAssembly"
       /// enable logging for debugging purposes (optional)
       // module.ENV.VTK_DESERIALIZER_LOG_VERBOSITY = "INFO";
       // module.ENV.VTK_INVOKER_LOG_VERBOSITY = "INFO";
@@ -273,13 +269,12 @@ async function testWebGPUOverrides() {
     }],
   });
   const session = new vtkWASM.vtkRemoteSession();
-  const states = makeStatesForGraphicsAPI("OpenGL");
+  const states = makeStates();
   for (const state of states) {
     session.registerState(state);
   }
   session.updateObjectsFromStates();
-  // Since the WebGPU backend is used, the classes with OpenGL in their names should have
-  // be replaced with WebGPU overrides.
+  // Since the WebGPU backend is used, the class name should include WebGPU.
   for (const state of states) {
     const objectState = session.get(state.Id);
     if (objectState.ClassName.includes("OpenGL") && !objectState.ClassName.includes("WebGPU")) {

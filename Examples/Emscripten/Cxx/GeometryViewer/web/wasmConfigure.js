@@ -5,6 +5,10 @@ export function getConfiguration(viewAPI) {
       //Pipes std::cout and std::cerr into debug and error in dev console.
       print: (text) => console.debug(text),
       printErr: (text) => console.error(text),
+      preRun: [function (module) {
+        // select OpenGL backend (equivalent to WebGL2 in Emscripten)
+        module.ENV.VTK_FACTORY_PREFER = 'RenderingBackend=OpenGL;Platform=WebAssembly';
+      }],
     };
     return configuration;
   } else if (viewAPI === "webgpu") {
@@ -14,8 +18,8 @@ export function getConfiguration(viewAPI) {
       print: (text) => console.debug(text),
       printErr: (text) => console.error(text),
       preRun: [function (module) {
-        // select WEBGPU backend
-        module.ENV.VTK_GRAPHICS_BACKEND = 'WEBGPU';
+        // select WebGPU backend
+        module.ENV.VTK_FACTORY_PREFER = 'RenderingBackend=WebGPU;Platform=WebAssembly';
       }],
     };
     return configuration;

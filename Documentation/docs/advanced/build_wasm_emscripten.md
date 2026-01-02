@@ -249,7 +249,6 @@ $ ctest -R TestHardwareSelector -N -V
 188: Environment variables:
 188:  VTK_TESTING=1
 188:  VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID
-188:  VTK_GRAPHICS_BACKEND=WEBGPU
 Labels: VTK::RenderingWebGPU vtkRenderingWebGPU
   Test #188: VTK::RenderingWebGPUCxx-TestHardwareSelector
 Total Tests: 3

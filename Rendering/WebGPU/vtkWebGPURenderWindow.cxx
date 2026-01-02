@@ -435,7 +435,8 @@ void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
     else
     {
       vtkWarningMacro(<< "Renderer is not a vtkWebGPURenderer. Cannot initialize compute "
-                         "pipelines. Please ensure VTK_GRAPHICS_BACKEND is set to 'WEBGPU' ");
+                         "pipelines. Please ensure object factory preferences include "
+                         "'RenderingBackend=WebGPU'.");
     }
   }
 }
