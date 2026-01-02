@@ -7,7 +7,7 @@
 #include "vtkOpenGLPolyDataMapper.h"    // For PDMapper
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkObjectFactoryNewMacro(vtkOpenGLHyperTreeGridMapper);
+vtkStandardNewMacro(vtkOpenGLHyperTreeGridMapper);
 
 //------------------------------------------------------------------------------
 vtkOpenGLHyperTreeGridMapper::vtkOpenGLHyperTreeGridMapper()
