@@ -21,6 +21,21 @@
  * either at run time with the VTK_AUTOLOAD_PATH, or at compile time
  * with the vtkObjectFactory::RegisterFactory method.
  *
+ * The behavior of vtkObjectFactory can be influenced by setting a preferences string
+ * of the form: "keyA=valueA1,valueA2,...;keyB=valueB1,valueB2,...;..."
+ * Here, KeyX is the name of an attribute that can be associated with
+ * overrides, and valueXn are the preferred values for that attribute.
+ * The preferences string can be set in two ways in your application:
+ * 1. Call vtkObjectFactory::SetPreferences with your preferences string.
+ *   For convenience, you can call vtkObjectFactory::InitializePreferencesFromCommandLineArgs
+ *   before any VTK object is created somewhere in the beginning of `int main(int, char*[])`.
+ *   This method will look for the command line argument `--vtk-factory-prefer` followed by the
+ *   preferences string.
+ * 2. Alternatively, preferences can be set using the environment variable
+ *    VTK_FACTORY_PREFER.
+ *
+ * @note The VTK_FACTORY_PREFER environment variable is used as a fallback only if no preferences
+ * string has been set using vtkObjectFactory::SetPreferences.
  */
 
 #ifndef vtkObjectFactory_h
@@ -30,6 +45,7 @@
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkFeatures.h"          // For VTK_ALL_NEW_OBJECT_FACTORY
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <string> // for std::string
 
@@ -37,6 +53,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectFactoryCollection;
 class vtkOverrideInformationCollection;
 class vtkCollection;
+class vtkOverrideAttribute;
 
 class VTKCOMMONCORE_EXPORT vtkObjectFactory : public vtkObject
 {
@@ -170,6 +187,11 @@ public:
   ///@}
 
   /**
+   * Get override attributes if any for the factory at the given index.
+   */
+  vtkOverrideAttribute* GetOverrideAttributes(int index) const;
+
+  /**
    * Return 1 if this factory overrides the given class name, 0 otherwise.
    */
   virtual vtkTypeBool HasOverride(const char* className) VTK_FUTURE_CONST;
@@ -194,12 +216,40 @@ public:
 
   typedef vtkObject* (*CreateFunction)();
 
+  /**
+   * Initialize preferences from command line arguments.
+   * Recognizes the --vtk-factory-prefer argument followed by a string.
+   * See SetPreferences for the format of the preferences string.
+   * Alternatively, preferences can be set using the
+   * VTK_FACTORY_PREFER  environment variable.
+   * @return true if preferences were set from command line arguments, false otherwise.
+   * @warning This method modified argc, argv. Keep in mind that the new argv[argc] is set to
+   * nullptr for consistency. Consumed arguments are moved past argv[argc] so that the caller can
+   * free them if needed.
+   */
+  static bool InitializePreferencesFromCommandLineArgs(int& argc, char* argv[]);
+
+  /**
+   * Set preferences string.
+   * The format of the preferences string is:
+   * keyA=valueA1,valueA2,...;keyB=valueB1,valueB2,...;...
+   */
+  static void SetPreferences(std::string preferences);
+  static std::string GetPreferences();
+
 protected:
   /**
    * Register object creation information with the factory.
+   * Optionally, you may pass in a vtkOverrideAttribute linked list
+   * describing attributes for this override class. These attributes will be
+   * used when matching overrides against user preferences for the object factory.
+   *
+   * @note The factory takes ownership of the vtkOverrideAttribute object. See
+   * vtkOverrideAttribute.h for a useful macro that simplifies the creation of such linked lists.
    */
   void RegisterOverride(const char* classOverride, const char* overrideClassName,
-    const char* description, int enableFlag, CreateFunction createFunction);
+    const char* description, int enableFlag, CreateFunction createFunction,
+    vtkOverrideAttribute* attributes = nullptr);
 
   /**
    * This method is provided by sub-classes of vtkObjectFactory.
@@ -217,6 +267,7 @@ protected:
     char* OverrideWithName;
     vtkTypeBool EnabledFlag;
     CreateFunction CreateCallback;
+    vtkSmartPointer<vtkOverrideAttribute> Attributes;
   };
 
   OverrideInformation* OverrideArray;
@@ -253,6 +304,8 @@ private:
   void* LibraryHandle;
   char* LibraryVTKVersion;
   char* LibraryPath;
+
+  static std::string Preferences;
 
   vtkObjectFactory(const vtkObjectFactory&) = delete;
   void operator=(const vtkObjectFactory&) = delete;

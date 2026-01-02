@@ -133,6 +133,8 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestNumberOfGenerationsFromBase.cxx
   TestNumberToString.cxx
   TestObjectFactory.cxx
+  TestObjectFactoryOverrideAttribute.cxx
+  TestObjectFactoryPreferencesFromCommandLine.cxx
   TestObservers.cxx
   TestObserversPerformance.cxx
   TestOStreamWrapper.cxx
