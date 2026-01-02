@@ -3283,8 +3283,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
       {
         basicColorFSImpl += R"(
   let lut_tex_color: vec4<f32> = textureSample(point_color_texture, point_color_sampler, vertex.lut_uv);
-  ambient_color = ambient_color * lut_tex_color.rgb;
-  diffuse_color = diffuse_color * lut_tex_color.rgb;
+  ambient_color = lut_tex_color.rgb;
+  diffuse_color = lut_tex_color.rgb;
   opacity = opacity * lut_tex_color.a;
 )";
       }
@@ -3549,7 +3549,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
     );
   }
   // pre-multiply colors
-  output.color = vec4(output.color.rgb * opacity, opacity);)",
+  output.color = vec4(output.color.rgb, opacity);)",
     /*all=*/true);
 }
 
