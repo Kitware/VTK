@@ -647,6 +647,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "^VTK::RenderingVolumeCxx-TestGPURayCastLabelMapValidity$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
+  list(APPEND test_exclusions
+    # ANARI test requires the latest changes from anari-sdk PR
+    # (https://github.com/KhronosGroup/ANARI-SDK/pull/335)
+    "^VTK::RenderingAnariCxx-TestAnariPolyDataTexture$"
+    "^VTK::RenderingAnariCxx-TestAnariRenderMesh$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
