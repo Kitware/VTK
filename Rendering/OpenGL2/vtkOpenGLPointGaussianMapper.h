@@ -25,6 +25,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPointGaussianMapper
 {
 public:
   static vtkOpenGLPointGaussianMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

@@ -21,6 +21,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHyperTreeGridMapper : public vtkHyperT
 {
 public:
   static vtkOpenGLHyperTreeGridMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLHyperTreeGridMapper, vtkHyperTreeGridMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

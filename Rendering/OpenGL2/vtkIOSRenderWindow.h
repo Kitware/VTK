@@ -39,6 +39,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWind
 {
 public:
   static vtkIOSRenderWindow* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkIOSRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;

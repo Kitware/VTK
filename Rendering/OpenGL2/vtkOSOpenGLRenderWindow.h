@@ -31,6 +31,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOSOpenGLRenderWindow
 {
 public:
   static vtkOSOpenGLRenderWindow* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOSOpenGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;

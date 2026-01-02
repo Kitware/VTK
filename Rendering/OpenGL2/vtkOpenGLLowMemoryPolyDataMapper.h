@@ -41,6 +41,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLowMemoryPolyDataMappe
 {
 public:
   static vtkOpenGLLowMemoryPolyDataMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLLowMemoryPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

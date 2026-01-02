@@ -20,6 +20,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper : public vtkTextMapper
 {
 public:
   static vtkOpenGLTextMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

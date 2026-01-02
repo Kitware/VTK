@@ -43,6 +43,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPolyDataMapper2D
 {
 public:
   static vtkOpenGLPolyDataMapper2D* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;

@@ -28,6 +28,7 @@ class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUCompositePolyDataMapperDelegator
 {
 public:
   static vtkWebGPUCompositePolyDataMapperDelegator* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUCompositePolyDataMapperDelegator, vtkCompositePolyDataMapperDelegator);
   void PrintSelf(ostream& os, vtkIndent indent) override;

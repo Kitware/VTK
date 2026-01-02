@@ -29,6 +29,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLImageSliceMapper
 {
 public:
   static vtkOpenGLImageSliceMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLImageSliceMapper, vtkImageSliceMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

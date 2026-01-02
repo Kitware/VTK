@@ -44,6 +44,7 @@ public:
   };
 
   static vtkOpenGLRenderTimerLog* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog);
   void PrintSelf(ostream& os, vtkIndent indent) override;

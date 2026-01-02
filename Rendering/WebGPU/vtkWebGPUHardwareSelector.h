@@ -27,6 +27,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUHardwareSelector
 {
 public:
   static vtkWebGPUHardwareSelector* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;

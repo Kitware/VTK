@@ -24,6 +24,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPULight : public vtkLight
 {
 public:
   static vtkWebGPULight* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPULight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;

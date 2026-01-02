@@ -21,6 +21,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextActor3D : public v
 {
 public:
   static vtkOpenGLTextActor3D* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLTextActor3D, vtkTextActor3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;

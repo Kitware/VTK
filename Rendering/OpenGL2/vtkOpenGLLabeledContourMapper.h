@@ -24,6 +24,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLabeledContourMapper
 {
 public:
   static vtkOpenGLLabeledContourMapper* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;

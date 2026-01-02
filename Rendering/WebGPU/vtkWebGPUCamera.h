@@ -19,6 +19,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUCamera : public vtkCame
 {
 public:
   static vtkWebGPUCamera* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUCamera, vtkCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;

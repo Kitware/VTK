@@ -36,6 +36,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCompositePolyDataMapperDelegator
 {
 public:
   static vtkOpenGLCompositePolyDataMapperDelegator* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLCompositePolyDataMapperDelegator, vtkCompositePolyDataMapperDelegator);
   void PrintSelf(ostream& os, vtkIndent indent) override;

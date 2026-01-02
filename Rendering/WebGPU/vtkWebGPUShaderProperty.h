@@ -23,6 +23,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public
 {
 public:
   static vtkWebGPUShaderProperty* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUShaderProperty, vtkShaderProperty);
 

@@ -25,6 +25,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTexture : public vtkTe
 {
 public:
   static vtkOpenGLTexture* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;

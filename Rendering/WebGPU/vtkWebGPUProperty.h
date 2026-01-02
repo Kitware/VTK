@@ -22,6 +22,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUProperty : public vtkPr
 {
 public:
   static vtkWebGPUProperty* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUProperty, vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;

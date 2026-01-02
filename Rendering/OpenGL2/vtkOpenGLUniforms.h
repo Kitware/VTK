@@ -33,6 +33,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLUniforms : public vtkUniforms
 {
 public:
   static vtkOpenGLUniforms* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLUniforms, vtkUniforms);
   void PrintSelf(ostream& os, vtkIndent indent) override;

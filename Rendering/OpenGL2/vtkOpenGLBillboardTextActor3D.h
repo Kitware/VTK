@@ -18,6 +18,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBillboardTextActor3D : public vtkBillb
 {
 public:
   static vtkOpenGLBillboardTextActor3D* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;

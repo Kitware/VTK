@@ -33,6 +33,7 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper2D
 public:
   vtkTypeMacro(vtkWebGPUPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkWebGPUPolyDataMapper2D* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

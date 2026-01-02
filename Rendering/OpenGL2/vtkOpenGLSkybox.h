@@ -26,6 +26,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSkybox : public vtkSky
 {
 public:
   static vtkOpenGLSkybox* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLSkybox, vtkSkybox);
   void PrintSelf(ostream& os, vtkIndent indent) override;

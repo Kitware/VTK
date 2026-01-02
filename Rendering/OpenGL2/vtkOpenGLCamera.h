@@ -25,6 +25,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLCamera : public vtkCam
 {
 public:
   static vtkOpenGLCamera* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;

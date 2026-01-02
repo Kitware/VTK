@@ -29,6 +29,7 @@ public:
    * Instantiate the class.
    */
   static vtkXWebGPURenderWindow* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
 
   ///@{

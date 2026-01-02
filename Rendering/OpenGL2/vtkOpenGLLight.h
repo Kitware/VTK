@@ -23,6 +23,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLight : public vtkLigh
 {
 public:
   static vtkOpenGLLight* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;

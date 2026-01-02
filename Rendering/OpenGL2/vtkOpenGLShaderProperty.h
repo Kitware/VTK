@@ -32,6 +32,7 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLShaderProperty : publi
 {
 public:
   static vtkOpenGLShaderProperty* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLShaderProperty, vtkShaderProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;

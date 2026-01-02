@@ -45,6 +45,7 @@ public:
   vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
 #if !(defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__))
   static vtkOpenGLRenderWindow* New();
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes();
 #endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
