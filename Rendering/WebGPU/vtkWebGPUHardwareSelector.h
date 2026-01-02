@@ -21,11 +21,13 @@
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUHardwareSelector
   : public vtkHardwareSelector
 {
 public:
   static vtkWebGPUHardwareSelector* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -103,5 +105,7 @@ private:
   void operator=(const vtkWebGPUHardwareSelector&) = delete;
 };
 
+#define vtkWebGPUHardwareSelector_OVERRIDE_ATTRIBUTES                                              \
+  vtkWebGPUHardwareSelector::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

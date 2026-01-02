@@ -5,6 +5,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderer.h"
@@ -21,6 +22,14 @@ vtkWebGPUCamera::vtkWebGPUCamera() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPUCamera::~vtkWebGPUCamera() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUCamera::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::Render(vtkRenderer* renderer)

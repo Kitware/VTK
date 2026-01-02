@@ -5,6 +5,7 @@
 #include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
@@ -20,6 +21,14 @@ vtkWebGPUHardwareSelector::vtkWebGPUHardwareSelector() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPUHardwareSelector::~vtkWebGPUHardwareSelector() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUHardwareSelector::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUHardwareSelector::CaptureBuffers()

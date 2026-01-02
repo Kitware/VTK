@@ -20,12 +20,14 @@
 #include <tuple> // for std::tuple
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class vtkRenderWindow;
 class vtkWebGPURenderTextureDeviceResource;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTexture : public vtkTexture
 {
 public:
   static vtkWebGPUTexture* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUTexture, vtkTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -85,5 +87,6 @@ private:
   vtkWebGPURenderTextureDeviceResource::TextureFormat GetTextureFormatFromImageData(
     int numComponents, int dataType);
 };
+#define vtkWebGPUTexture_OVERRIDE_ATTRIBUTES vtkWebGPUTexture::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

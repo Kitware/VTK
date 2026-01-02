@@ -17,6 +17,7 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -170,6 +171,14 @@ vtkWebGPUPolyDataMapper::vtkWebGPUPolyDataMapper() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUPolyDataMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)

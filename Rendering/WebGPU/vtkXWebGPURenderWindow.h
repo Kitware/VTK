@@ -18,6 +18,7 @@
 #include <X11/Xlib.h>         // Needed for X types used in the public interface
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 // Forward declarations
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkXWebGPURenderWindow
@@ -28,6 +29,7 @@ public:
    * Instantiate the class.
    */
   static vtkXWebGPURenderWindow* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
 
   ///@{
   /**
@@ -313,5 +315,7 @@ private:
   void operator=(const vtkXWebGPURenderWindow&) = delete;
 };
 
+#define vtkXWebGPURenderWindow_OVERRIDE_ATTRIBUTES                                                 \
+  vtkXWebGPURenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif // vtkXWebGPURenderWindow_h

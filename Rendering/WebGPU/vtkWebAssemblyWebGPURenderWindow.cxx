@@ -4,6 +4,7 @@
 #include "vtkWebAssemblyWebGPURenderWindow.h"
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
@@ -42,6 +43,18 @@ vtkWebAssemblyWebGPURenderWindow::~vtkWebAssemblyWebGPURenderWindow()
     renderer->SetRenderWindow(nullptr);
   }
   this->SetCanvasSelector(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebAssemblyWebGPURenderWindow::CreateOverrideAttributes()
+{
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "WebAssembly", nullptr);
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "HTML5", platformAttribute);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

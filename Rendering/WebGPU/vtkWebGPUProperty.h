@@ -17,10 +17,12 @@
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUProperty : public vtkProperty
 {
 public:
   static vtkWebGPUProperty* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUProperty, vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -63,5 +65,6 @@ private:
   void operator=(const vtkWebGPUProperty&) = delete;
 };
 
+#define vtkWebGPUProperty_OVERRIDE_ATTRIBUTES vtkWebGPUProperty::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

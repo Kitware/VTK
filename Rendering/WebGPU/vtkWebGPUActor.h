@@ -16,10 +16,12 @@ class vtkMatrix3x3;
 class vtkWebGPUConfiguration;
 class vtkWebGPURenderPipelineCache;
 class vtkWebGPUActorInternals;
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUActor : public vtkActor
 {
 public:
   static vtkWebGPUActor* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -89,5 +91,6 @@ private:
   void CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration);
 };
 
+#define vtkWebGPUActor_OVERRIDE_ATTRIBUTES vtkWebGPUActor::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

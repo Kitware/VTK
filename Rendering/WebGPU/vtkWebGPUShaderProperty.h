@@ -17,16 +17,14 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public vtkShaderProperty
 {
 public:
-  vtkTypeMacro(vtkWebGPUShaderProperty, vtkShaderProperty);
-
-  /**
-   * Construct object with no shader replacements
-   */
   static vtkWebGPUShaderProperty* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
+  vtkTypeMacro(vtkWebGPUShaderProperty, vtkShaderProperty);
 
   ///@{
   /**
@@ -76,5 +74,7 @@ private:
   void operator=(const vtkWebGPUShaderProperty&) = delete;
 };
 
+#define vtkWebGPUShaderProperty_OVERRIDE_ATTRIBUTES                                                \
+  vtkWebGPUShaderProperty::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

@@ -3,6 +3,7 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkImageData.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringScanner.h"
@@ -69,6 +70,16 @@ vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
   // are destroyed. Otherwise, the destructors of WGPU objects held on to by the vtkRenderer will
   // occur after WGPUInstance is gone, which can crash applications.
   this->Finalize();
+}
+
+//------------------------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkXWebGPURenderWindow::CreateOverrideAttributes()
+{
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "X11", nullptr);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkTexture.h"
@@ -48,6 +49,14 @@ vtkWebGPUTexture::~vtkWebGPUTexture()
     this->ReleaseGraphicsResources(this->RenderWindow);
     this->RenderWindow = nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUTexture::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------
