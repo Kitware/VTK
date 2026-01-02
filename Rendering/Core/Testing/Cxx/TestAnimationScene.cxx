@@ -45,7 +45,7 @@ public:
 
     ren->AddActor(this->Actor);
     ren->ResetCamera();
-    ren->Render();
+    ren->GetRenderWindow()->Render();
   }
 
   void Tick(vtkAnimationCue::AnimationCueInfo* info, vtkRenderer* ren)
@@ -54,7 +54,7 @@ public:
       0.1 + ((info->AnimationTime - info->StartTime) / (info->EndTime - info->StartTime)) * 1;
     this->SphereSource->SetRadius(newradius);
     this->SphereSource->Update();
-    ren->Render();
+    ren->GetRenderWindow()->Render();
   }
 
   void EndCue(vtkAnimationCue::AnimationCueInfo* vtkNotUsed(info), vtkRenderer* ren)
