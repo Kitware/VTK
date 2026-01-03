@@ -154,7 +154,15 @@ EMSCRIPTEN_BINDINGS(bindings)
     .function("invoke", &vtkStandaloneSession::Invoke)
 #endif
     .function("observe", &vtkStandaloneSession::Observe)
-    .function("unObserve", &vtkStandaloneSession::UnObserve);
+    .function("unObserve", &vtkStandaloneSession::UnObserve)
+    .function("getTotalBlobMemoryUsage", &vtkStandaloneSession::GetTotalBlobMemoryUsage)
+    .function(
+      "getTotalVTKDataObjectMemoryUsage", &vtkStandaloneSession::GetTotalVTKDataObjectMemoryUsage)
+    .function("printSceneManagerInformation", &vtkStandaloneSession::PrintSceneManagerInformation)
+    .function("setDeserializerLogVerbosity", &vtkStandaloneSession::SetDeserializerLogVerbosity)
+    .function("setInvokerLogVerbosity", &vtkStandaloneSession::SetInvokerLogVerbosity)
+    .function("setObjectManagerLogVerbosity", &vtkStandaloneSession::SetObjectManagerLogVerbosity)
+    .function("setSerializerLogVerbosity", &vtkStandaloneSession::SetSerializerLogVerbosity);
 
   /// Wrappings for the WebAssembly remoting session.
   class_<vtkRemoteSession>("vtkRemoteSession")

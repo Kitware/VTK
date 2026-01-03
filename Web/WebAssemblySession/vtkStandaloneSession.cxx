@@ -131,4 +131,45 @@ bool vtkStandaloneSession::UnObserve(vtkObjectHandle object, unsigned long tag)
   return vtkSessionRemoveObserver(this->Session, object, tag) == vtkSessionResultSuccess;
 }
 
+//-------------------------------------------------------------------------------
+std::size_t vtkStandaloneSession::GetTotalBlobMemoryUsage()
+{
+  return vtkSessionGetTotalBlobMemoryUsage(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+std::size_t vtkStandaloneSession::GetTotalVTKDataObjectMemoryUsage()
+{
+  return vtkSessionGetTotalVTKDataObjectMemoryUsage(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::PrintSceneManagerInformation()
+{
+  return vtkSessionPrintSceneManagerInformation(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetDeserializerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetDeserializerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetInvokerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetInvokerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetObjectManagerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetObjectManagerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetSerializerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetSerializerLogVerbosity(this->Session, verbosityLevel.c_str());
+};
 VTK_ABI_NAMESPACE_END
