@@ -464,14 +464,7 @@ vtkTypeUInt32 vtkObjectManager::GetId(vtkSmartPointer<vtkObjectBase> object)
 std::string vtkObjectManager::GetState(vtkTypeUInt32 identifier)
 {
   auto state = this->Context->GetState(identifier);
-  if (!state.empty() && !state.is_null())
-  {
-    return state.dump();
-  }
-  else
-  {
-    return "";
-  }
+  return state.dump();
 }
 
 //------------------------------------------------------------------------------
