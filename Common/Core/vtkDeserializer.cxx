@@ -85,6 +85,7 @@ bool vtkDeserializer::DeserializeJSON(
   const auto& state = this->Context->GetState(identifier);
   if (state.empty())
   {
+    vtkErrorMacro(<< "No state found at id=" << identifier);
     return false;
   }
   std::string className;
@@ -127,6 +128,8 @@ bool vtkDeserializer::DeserializeJSON(
     }
     else
     {
+      vtkErrorMacro(<< "Failed to construct object of type " << className
+                    << " at id=" << identifier);
       return false;
     }
   }
@@ -163,6 +166,11 @@ bool vtkDeserializer::DeserializeJSON(
     }
     this->Context->AddChild(identifier);
     return true;
+  }
+  else
+  {
+    vtkErrorMacro(<< "No handler found to deserialize object of type " << objectPtr->GetClassName()
+                  << " at id=" << identifier);
   }
   return false;
 }
