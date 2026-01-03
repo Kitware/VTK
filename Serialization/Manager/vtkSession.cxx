@@ -90,6 +90,17 @@ extern "C"
     {
       objectImpl = vtk::TakeSmartPointer(constructor());
       object = session->Manager->RegisterObject(objectImpl);
+      // Insert placeholder state, so that deserializer knows about this object.
+      auto stateJson = nlohmann::json::object();
+      stateJson["ClassName"] = className;
+      stateJson["Id"] = object;
+      if (!session->Manager->RegisterState(stateJson))
+      {
+        vtkLog(
+          ERROR, << "Failed to register state for newly created object of class: " << className);
+        session->Manager->UnRegisterObject(object);
+        object = 0;
+      }
     }
     else
     {
