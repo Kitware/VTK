@@ -4,7 +4,15 @@ set(headers)
 set(nowrap_headers)
 
 # Setup factory overrides and add window system specific render windows.
-if(VTK_USE_X)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                               vtkWebAssemblyRenderWindowInteractor)
+    vtk_object_factory_declare(BASE vtkHardwareWindow OVERRIDE
+                               vtkWebAssemblyHardwareWindow)
+  endif()
+  list(APPEND classes vtkWebAssemblyRenderWindowInteractor vtkWebAssemblyHardwareWindow)
+elseif(VTK_USE_X)
   # Add some custom overrides
   if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
     vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
@@ -90,11 +98,6 @@ elseif(APPLE_IOS)
       vtkIOSRenderWindowInteractor.mm PROPERTIES COMPILE_FLAGS
                                                  "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  # Add some custom overrides
-  vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
-                             vtkWebAssemblyRenderWindowInteractor)
-  list(APPEND classes vtkWebAssemblyRenderWindowInteractor)
 else() # use generic
   vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
                              vtkGenericRenderWindowInteractor)

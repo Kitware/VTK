@@ -43,12 +43,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Concrete render windows must create a platform window and initialize this->WindowId.
-   * Upon success, please call WGPUInit().
-   */
-  virtual bool WindowSetup() { return true; }
-
-  /**
    * Create a not-off-screen window.
    */
   virtual void CreateAWindow();

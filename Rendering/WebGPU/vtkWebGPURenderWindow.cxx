@@ -21,6 +21,7 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
+#if !defined(__EMSCRIPTEN__)
 #ifdef _WIN32
 #include "vtkWin32HardwareWindow.h"
 #elif __APPLE__
@@ -29,7 +30,10 @@
 #include "vtkWaylandHardwareWindow.h"
 #else
 #include "vtkXlibHardwareWindow.h"
-#endif
+#endif // _WIN32, __APPLE__, VTK_USE_Wayland, Xlib
+#else  // __EMSCRIPTEN__
+#include "vtkWebAssemblyHardwareWindow.h"
+#endif // !__EMSCRIPTEN__
 
 #include "vtksys/SystemTools.hxx"
 
@@ -139,7 +143,17 @@ void vtkWebGPURenderWindow::CreateSurface()
     return;
   }
 
-#ifdef _WIN32
+#ifdef __EMSCRIPTEN__
+  if (auto* wasmhw = vtkWebAssemblyHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    wgpu::EmscriptenSurfaceSourceCanvasHTMLSelector htmlSurfDesc;
+    htmlSurfDesc.selector = wasmhw->GetCanvasSelector();
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK HTML5 surface";
+    surfDesc.nextInChain = &htmlSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+  }
+#elif _WIN32
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
@@ -171,7 +185,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     surfDesc.nextInChain = &metalSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-#else
+#else // Xlib
   if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     xlibhw->SetWindowName("VTK Xlib window");
@@ -190,12 +204,6 @@ void vtkWebGPURenderWindow::CreateSurface()
 void vtkWebGPURenderWindow::Initialize()
 {
   this->CreateAWindow();
-  if (!this->WindowSetup()) // calls WGPUInit after surface is created.
-  {
-    vtkLog(ERROR, "Unable to setup WebGPU.");
-    return;
-  }
-
   if (this->WGPUInit())
   {
     this->CreateSurface();
