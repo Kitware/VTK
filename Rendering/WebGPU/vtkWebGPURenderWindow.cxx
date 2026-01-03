@@ -2310,4 +2310,24 @@ void* vtkWebGPURenderWindow::GetGenericDisplayId()
   return this->Superclass::GetGenericDisplayId();
 }
 
+//-------------------------------------------------------------------------------------------------
+std::string vtkWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
+{
+  std::string result = "Visualization Toolkit - ";
+  if (this->HardwareWindow)
+  {
+    result += this->HardwareWindow->GetPlatform();
+  }
+  result += " ";
+  if (this->WGPUConfiguration)
+  {
+    result += this->WGPUConfiguration->GetBackendInUseAsString();
+  }
+  else
+  {
+    result += "undefined backend";
+  }
+  return result;
+}
+
 VTK_ABI_NAMESPACE_END

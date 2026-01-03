@@ -168,6 +168,7 @@ vtkWaylandHardwareWindow::vtkWaylandHardwareWindow()
   this->CursorHidden = false;
   this->Mapped = false;
   this->IsConfigured = false;
+  this->Platform = "Wayland";
 }
 
 //------------------------------------------------------------------------------------------------

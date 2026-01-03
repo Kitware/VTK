@@ -18,6 +18,7 @@ vtkWin32HardwareWindow::vtkWin32HardwareWindow()
   , WindowId(nullptr)
   , ApplicationInstance(nullptr)
 {
+  this->Platform = "Win32";
 }
 
 //------------------------------------------------------------------------------

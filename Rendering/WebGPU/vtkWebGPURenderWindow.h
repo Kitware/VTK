@@ -322,7 +322,7 @@ protected:
    *     "Visualization Toolkit - Cocoa OpenGL"
    *     "Visualization Toolkit - Win32 D3D12"
    */
-  virtual std::string MakeDefaultWindowNameWithBackend() { return ""; }
+  virtual std::string MakeDefaultWindowNameWithBackend();
 
   bool WGPUInit();
   void WGPUFinalize();

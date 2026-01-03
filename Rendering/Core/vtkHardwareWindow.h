@@ -56,12 +56,21 @@ public:
   virtual void SetCoverable(vtkTypeBool coverable);
   ///@}
 
+  ///@{
+  /**
+   * Get the platform name for this windowing system.
+   */
+  vtkGetCharFromStdStringMacro(Platform);
+  vtkSetStdStringFromCharMacro(Platform);
+  ///@}
+
 protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
 
   vtkWeakPointer<vtkRenderWindowInteractor> Interactor = nullptr;
   vtkTypeBool Coverable;
+  std::string Platform = "Generic";
 
 private:
   vtkHardwareWindow(const vtkHardwareWindow&) = delete;

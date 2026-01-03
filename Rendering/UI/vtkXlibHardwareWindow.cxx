@@ -95,6 +95,7 @@ vtkXlibHardwareWindow::vtkXlibHardwareWindow()
   this->ColorMap = static_cast<Colormap>(0);
   this->OwnWindow = 0;
   this->FullScreen = false;
+  this->Platform = "X11";
 
   this->XCCrosshair = 0;
   this->XCArrow = 0;

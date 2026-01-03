@@ -75,6 +75,7 @@ vtkCocoaHardwareWindow::vtkCocoaHardwareWindow()
   this->OwnsWindow = false;
   this->CursorHidden = false;
   this->Mapped = false;
+  this->Platform = "Cocoa";
 }
 
 //------------------------------------------------------------------------------

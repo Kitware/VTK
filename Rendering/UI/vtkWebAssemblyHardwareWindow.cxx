@@ -27,6 +27,9 @@ vtkWebAssemblyHardwareWindow::vtkWebAssemblyHardwareWindow()
   // in the window title bar being off screen.
   this->Position[0] = -1;
   this->Position[1] = -1;
+
+  this->WindowId = nullptr;
+  this->Platform = "Emscripten";
 }
 
 //------------------------------------------------------------------------------
