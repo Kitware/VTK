@@ -1,9 +1,17 @@
 set(classes
   vtkAnnularBinIterator
+  vtkGeneralizedSurfaceNets3D
   vtkShellBinIterator
+  vtkVoronoi2D
+  vtkVoronoi3D
+  vtkVoronoiHull
+  vtkVoronoiTile
   )
 
 set(template_classes
+  vtkVoronoiCore
+  vtkVoronoiCore2D
+  vtkVoronoiCore3D
   )
 
 set(nowrap_classes

@@ -6,8 +6,10 @@ Common/Core/vtkAndroidOutputWindow.h
 Common/Core/vtkAnimationCue.h
 Common/Core/vtkArchiver.h
 Common/Core/vtkArray.h
+Common/Core/vtkArrayComponents.h
 Common/Core/vtkArrayCoordinates.h
 Common/Core/vtkArrayDispatch.h
+Common/Core/vtkArrayDispatchDataSetArrayList.h
 Common/Core/vtkArrayExtents.h
 Common/Core/vtkArrayExtentsList.h
 Common/Core/vtkArrayInterpolate.h
@@ -123,6 +125,7 @@ Common/Core/vtkObjectFactory.h
 Common/Core/vtkObjectFactoryCollection.h
 Common/Core/vtkOldStyleCallbackCommand.h
 Common/Core/vtkOutputWindow.h
+Common/Core/vtkOverrideAttribute.h
 Common/Core/vtkOverrideInformation.h
 Common/Core/vtkOverrideInformationCollection.h
 Common/Core/vtkPriorityQueue.h
@@ -146,6 +149,8 @@ Common/Core/vtkSortDataArray.h
 Common/Core/vtkSparseArray.h
 Common/Core/vtkStdFunctionArray.h
 Common/Core/vtkStdString.h
+Common/Core/vtkStridedArray.h
+Common/Core/vtkStridedImplicitBackend.h
 Common/Core/vtkStringFormatter.h
 Common/Core/vtkStringOutputWindow.h
 Common/Core/vtkStringScanner.h
@@ -189,6 +194,7 @@ Common/Core/vtkWrappingHints.h
 Common/Core/vtkXMLFileOutputWindow.h
 Common/DataModel/vtkAMRBox.h
 Common/DataModel/vtkAMRDataInternals.h
+Common/DataModel/vtkAMRDataObject.h
 Common/DataModel/vtkAMRInformation.h
 Common/DataModel/vtkAMRMetaData.h
 Common/DataModel/vtkAMRUtilities.h
@@ -245,6 +251,7 @@ Common/DataModel/vtkCellMetadata.h
 Common/DataModel/vtkCellStatus.h
 Common/DataModel/vtkCellTreeLocator.h
 Common/DataModel/vtkCellType.h
+Common/DataModel/vtkCellTypeUtilities.h
 Common/DataModel/vtkCellTypes.h
 Common/DataModel/vtkClosestNPointsStrategy.h
 Common/DataModel/vtkClosestPointStrategy.h
@@ -355,6 +362,7 @@ Common/DataModel/vtkLagrangeTriangle.h
 Common/DataModel/vtkLagrangeWedge.h
 Common/DataModel/vtkLine.h
 Common/DataModel/vtkLocator.h
+Common/DataModel/vtkLocatorInterface.h
 Common/DataModel/vtkMappedUnstructuredGrid.h
 Common/DataModel/vtkMappedUnstructuredGridCellIterator.h
 Common/DataModel/vtkMarchingCubesPolygonCases.h
@@ -426,6 +434,9 @@ Common/DataModel/vtkStaticEdgeLocatorTemplate.h
 Common/DataModel/vtkStaticFaceHashLinksTemplate.h
 Common/DataModel/vtkStaticPointLocator.h
 Common/DataModel/vtkStaticPointLocator2D.h
+Common/DataModel/vtkStaticPointLocator2DPrivate.h
+Common/DataModel/vtkStaticPointLocatorPrivate.h
+Common/DataModel/vtkStatisticalModel.h
 Common/DataModel/vtkStructuredCellArray.h
 Common/DataModel/vtkStructuredData.h
 Common/DataModel/vtkStructuredExtent.h
@@ -526,6 +537,14 @@ Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
 Filters/Core/vtk3DLinearGridInternal.h
 Filters/Core/vtkHyperTreeGridProbeFilterUtilities.h
+Filters/Core/vtkThresholdScalars.h
+Filters/Meshing/vtkAnnularBinIterator.h
+Filters/Meshing/vtkShellBinIterator.h
+Filters/Meshing/vtkVoronoiCore.h
+Filters/Meshing/vtkVoronoiCore2D.h
+Filters/Meshing/vtkVoronoiCore3D.h
+Filters/Meshing/vtkVoronoiHull.h
+Filters/Meshing/vtkVoronoiTile.h
 Imaging/Color/vtkImageHSIToRGB.h
 Imaging/Color/vtkImageHSVToRGB.h
 Imaging/Color/vtkImageLuminance.h
@@ -576,6 +595,7 @@ Imaging/Core/vtkImageStencilSource.h
 Imaging/Core/vtkImageThreshold.h
 Imaging/Core/vtkImageTranslateExtent.h
 Imaging/Core/vtkImageWrapPad.h
+Imaging/Core/vtkInterpolationMath.h
 Interaction/Widgets/vtk3DWidget.h
 Interaction/Widgets/vtkAbstractPolygonalHandleRepresentation3D.h
 Interaction/Widgets/vtkAbstractSplineRepresentation.h
@@ -870,6 +890,7 @@ Rendering/WebGPU/vtkWebGPUComputeRenderTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTextureView.h
 Rendering/WebGPU/vtkWebGPUHelpers.h
+Rendering/WebGPU/vtkWebGPURenderTextureDeviceResource.h
 Views/Infovis/vtkApplyColors.h
 Views/Infovis/vtkApplyIcons.h
 Views/Infovis/vtkGraphItem.h

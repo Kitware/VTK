@@ -1,4 +1,21 @@
 vtk_add_test_python(
-  NO_VALID NO_RT
-  TestAnnularBinIterator.py
+  TestAnnularBinIterator.py,NO_VALID
+  TestStaticCleanPolyData.py,NO_VALID
+  TestVoronoi2D.py
+  TestVoronoi2D2.py
+  TestVoronoi2D3.py
+  TestVoronoi2D-Delaunay.py
+  TestVoronoi2D-FindTile.py
+  TestVoronoi2D-SpeedTest.py,NO_VALID
+  TestVoronoi3D.py
+  TestVoronoi3D2.py
+  TestVoronoi3DPOI.py
+  TestVoronoi3D-Delaunay.py
+  TestVoronoi3D-Lissajous.py
+  TestVoronoi3D-SpeedTest.py,NO_VALID
+  TestVoronoiPancake.py
+  TestVoronoiHull.py
+  TestVoronoiSurfaceNet.py
+  TestVoronoiTile.py
+  TestVoronoiViewHulls.py
   )

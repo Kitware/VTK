@@ -2,7 +2,9 @@
 from vtkmodules.vtkCommonCore import (
     vtkMath,
     vtkPoints,
+    vtkUnsignedCharArray,
 )
+from vtkmodules.vtkCommonColor import vtkNamedColors
 from vtkmodules.vtkCommonDataModel import (
     vtkBoundingBox,
     vtkPolyData,
@@ -11,8 +13,8 @@ from vtkmodules.vtkCommonSystem import vtkTimerLog
 from vtkmodules.vtkFiltersCore import (
     vtkFlyingEdges2D,
     vtkGlyph3D,
-    vtkVoronoi2D,
 )
+from vtkmodules.vtkFiltersMeshing import vtkVoronoi2D
 from vtkmodules.vtkFiltersSources import (
     vtkGlyphSource2D,
     vtkSphereSource,
@@ -36,22 +38,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Control problem size and set debugging parameters
 NPts = 1000
 PointsPerBucket = 2
-MaxTileClips = 1000
-PointOfInterest = 251
+PointOfInterest = 6
 GenerateFlower = 1
-
-# Create the RenderWindow, Renderer and both Actors
-#
-ren0 = vtkRenderer()
-ren0.SetViewport(0,0,0.5,1)
-ren1 = vtkRenderer()
-ren1.SetViewport(0.5,0,1,1)
-renWin = vtkRenderWindow()
-renWin.SetMultiSamples(0)
-renWin.AddRenderer(ren0)
-renWin.AddRenderer(ren1)
-iren = vtkRenderWindowInteractor()
-iren.SetRenderWindow(renWin)
 
 # create some points and display them
 #
@@ -80,10 +68,9 @@ ptActor.GetProperty().SetPointSize(2)
 #
 voronoi = vtkVoronoi2D()
 voronoi.SetInputData(profile)
-voronoi.SetGenerateScalarsToNone()
-voronoi.SetGenerateScalarsToPointIds()
+voronoi.SetOutputTypeToVoronoi()
+voronoi.SetGenerateCellScalarsToNone()
 voronoi.SetPointOfInterest(PointOfInterest)
-voronoi.SetMaximumNumberOfTileClips(MaxTileClips)
 voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
 voronoi.SetGenerateVoronoiFlower(GenerateFlower)
 
@@ -99,17 +86,24 @@ print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
 
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(voronoi.GetOutputPort())
-if voronoi.GetGenerateScalars() == 1:
+if voronoi.GetGenerateCellScalars() == 1:
     mapper.SetScalarRange(0,NPts)
-elif voronoi.GetGenerateScalars() == 2:
+elif voronoi.GetGenerateCellScalars() == 2:
     mapper.SetScalarRange(0,voronoi.GetNumberOfThreadsUsed())
+else:
+    mapper.ScalarVisibilityOff()
 print("Scalar Range: {}".format(mapper.GetScalarRange()))
+
+nc = vtkNamedColors()
+c = [0,0,0,0]
 
 actor = vtkActor()
 actor.SetMapper(mapper)
-actor.GetProperty().SetColor(1,0,0)
+actor.GetProperty().SetColor(nc.GetColor3d("slate_grey"))
+actor.GetProperty().EdgeVisibilityOn()
+actor.SetPosition(0,0,-0.001)
 
-# Debug code
+# Draw sphere at point of interest
 sphere = vtkSphereSource()
 sphere.SetRadius(0.001)
 sphere.SetThetaResolution(16)
@@ -126,12 +120,13 @@ sphereActor.GetProperty().SetColor(0,0,0)
 
 # Voronoi flower represented by sampled points
 fMapper = vtkPointGaussianMapper()
-fMapper.SetInputConnection(voronoi.GetOutputPort(1))
+fMapper.SetInputConnection(voronoi.GetOutputPort(2))
 fMapper.EmissiveOff()
 fMapper.SetScaleFactor(0.0)
 
 fActor = vtkActor()
 fActor.SetMapper(fMapper)
+fActor.GetProperty().SetPointSize(2)
 fActor.GetProperty().SetColor(0,0,1)
 
 # Voronoi flower circles
@@ -140,25 +135,46 @@ circle.SetResolution(64)
 circle.SetGlyphTypeToCircle()
 
 cGlyph = vtkGlyph3D()
-cGlyph.SetInputConnection(voronoi.GetOutputPort(2))
+cGlyph.SetInputConnection(voronoi.GetOutputPort(3))
 cGlyph.SetSourceConnection(circle.GetOutputPort())
-cGlyph.SetScaleFactor(2.0)
+cGlyph.SetScaleModeToScaleByScalar()
+cGlyph.SetScaleFactor(2)
+cGlyph.Update()
+
+circleColors = vtkUnsignedCharArray()
+circleColors.SetNumberOfComponents(4)
+circleColors.SetNumberOfTuples(5)
+nc.GetColor("Blue",c)
+circleColors.SetTuple4(0,c[0],c[1],c[2],c[3])
+nc.GetColor("Tomato",c)
+circleColors.SetTuple4(1,c[0],c[1],c[2],c[3])
+nc.GetColor("Wheat",c)
+circleColors.SetTuple4(2,c[0],c[1],c[2],c[3])
+nc.GetColor("lavender",c)
+circleColors.SetTuple4(3,c[0],c[1],c[2],c[3])
+nc.GetColor("Mint",c)
+circleColors.SetTuple4(4,c[0],c[1],c[2],c[3])
+
+cGlyphWithColors = cGlyph.GetOutput()
+cGlyphWithColors.GetCellData().SetScalars(circleColors)
 
 cMapper = vtkPolyDataMapper()
-cMapper.SetInputConnection(cGlyph.GetOutputPort())
-cMapper.ScalarVisibilityOff()
+cMapper.SetInputData(cGlyphWithColors)
+cMapper.SetScalarModeToUseCellData()
 
 cActor = vtkActor()
 cActor.SetMapper(cMapper)
 cActor.GetProperty().SetColor(0,0,0)
-cActor.GetProperty().SetRepresentationToWireframe()
+cActor.GetProperty().EdgeVisibilityOn()
 cActor.GetProperty().SetLineWidth(3)
+cActor.GetProperty().SetOpacity(0.35)
 
-# Implicit function
+# Implicit function. This basically generates a
+# silhouette outline of the Voronoi flower.
 bounds = [0,0,0,0,0,0]
 bbox = vtkBoundingBox()
-bbox.SetBounds(voronoi.GetOutput().GetBounds())
-bbox.ScaleAboutCenter(3)
+bbox.SetBounds(voronoi.GetOutput(2).GetBounds())
+bbox.ScaleAboutCenter(1.10)
 bbox.GetBounds(bounds)
 
 sample = vtkSampleFunction()
@@ -180,16 +196,29 @@ iActor = vtkActor()
 iActor.SetMapper(iMapper)
 iActor.GetProperty().SetColor(0,0,0)
 
+# Create the RenderWindow, Renderer and both Actors
+#
+ren0 = vtkRenderer()
+ren0.SetViewport(0,0,0.5,1)
+ren1 = vtkRenderer()
+ren1.SetViewport(0.5,0,1,1)
+renWin = vtkRenderWindow()
+renWin.SetMultiSamples(0)
+renWin.AddRenderer(ren0)
+renWin.AddRenderer(ren1)
+iren = vtkRenderWindowInteractor()
+iren.SetRenderWindow(renWin)
+
 # Add the actors to the renderer, set the background and size
 #
-ren0.AddActor(actor)
-ren0.AddActor(ptActor)
 if PointOfInterest >= 0:
     ren0.AddActor(sphereActor)
+    ren1.AddActor(sphereActor)
     if GenerateFlower > 0:
-         ren0.AddActor(cActor)
+         ren1.AddActor(cActor)
          ren0.AddActor(fActor)
-         ren0.RemoveActor(ptActor)
+ren0.AddActor(actor)
+ren1.AddActor(actor)
 
 ren0.SetBackground(1,1,1)
 renWin.SetSize(600,300)
@@ -219,6 +248,5 @@ picker.PickFromListOn()
 picker.AddPickList(ptActor)
 iren.SetPicker(picker)
 
-renWin.Render()
-iren.Start()
+iren.Initialize()
 # --- end of script --

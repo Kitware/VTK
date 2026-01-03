@@ -133,7 +133,6 @@ set(classes
   vtkUnstructuredGridToExplicitStructuredGrid
   vtkVectorDot
   vtkVectorNorm
-  vtkVoronoi2D
   vtkWindowedSincPolyDataFilter)
 
 set(headers

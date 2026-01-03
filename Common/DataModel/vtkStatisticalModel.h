@@ -22,16 +22,15 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkNew.h"           // For vtkNew
-#include "vtkSmartPointer.h"  // For vtkSmartPointer
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkNew.h"          // For vtkNew
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
-class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkStatisticalModel : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkStatisticalModel : public vtkDataObject
 {
 public:
   static vtkStatisticalModel* New();

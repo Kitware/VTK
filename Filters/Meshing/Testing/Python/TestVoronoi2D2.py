@@ -5,7 +5,8 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkCommonSystem import vtkTimerLog
-from vtkmodules.vtkFiltersCore import vtkVoronoi2D
+from vtkmodules.vtkFiltersCore import vtkStaticCleanPolyData
+from vtkmodules.vtkFiltersMeshing import vtkVoronoi2D
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -19,16 +20,54 @@ from vtkmodules.vtkRenderingCore import (
 import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
+import math
 from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+def uniformFn(NPts,points):
+    math = vtkMath()
+    math.RandomSeed(27183)
+    for i in range(0,NPts):
+        points.SetPoint(i,math.Random(0,1),math.Random(0,1),0.0)
+
+def lissajousFn(A, B, a, b, delta, npts, noise):
+    import numpy as np
+    t = np.arange(0.0, 2.0*math.pi, 2.0*math.pi/npts);
+    if noise > 0.0:
+        x = A * np.sin(a*t + delta)
+        y = B * np.sin(b*t)
+        dx = A*a*np.cos(a*t + delta)
+        dy = B*b*np.cos(b*t)
+        ds2 = dx*dx + dy*dy
+        ds = np.sqrt(ds2)
+        x += np.random.uniform(-noise, noise, dx.size) * dy/ds
+        y -= np.random.uniform(-noise, noise, dy.size) * dx/ds
+    else:
+        x = A * np.sin(a*t + delta)
+        y = B * np.sin(b*t)
+    print('First and last equal?', x[0] == x[npts-1], y[0] == y[npts-1])
+    return [x, y]
+
+def quarterDiskFn(NPts,points):
+    alpha = (math.pi / 2.0) / (NPts-1)
+    for i in range(0,NPts):
+        points.SetPoint(i, math.cos(alpha * i), math.sin(alpha * i) ,0.0)
+
+def KuzminFn(NPts,points):
+    import numpy as np
+    for i in range(0,NPts):
+        angle = math.pi * 2.0 * np.random.uniform(0,1)
+        length = np.random.uniform(0,1) * 0.5
+        r = (1.0 - (1. / math.sqrt(1. - length*length)))
+        px = math.cos(angle) * length
+        py = math.sin(angle) * length
+        points.SetPoint(i, px*r, py*r, 0.0)
+
 # Control problem size and set debugging parameters
 NPts = 1000
-#NPts = 1000000
-MaxTileClips = 10000
-PointsPerBucket = 2
+PointsPerBucket = 1
 GenerateFlower = 1
-PointOfInterest = -1
+PointOfInterest = 17
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -40,29 +79,40 @@ iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create some points and display them
-#
-math = vtkMath()
-math.RandomSeed(31415)
+mode = 'uniform'
+mode = 'lissajous'
+# mode = 'quarterDisk'
+# mode = 'Kuzmin'
+
 points = vtkPoints()
-i = 0
-while i < NPts:
-    points.InsertPoint(i,math.Random(0,1),math.Random(0,1),0.0)
-    i = i + 1
+points.SetNumberOfPoints(NPts)
 
-#points.InsertPoint(0,0,0,0.0)
-#points.InsertPoint(1,0,-2,0.0)
-#points.InsertPoint(2,2,0,0.0)
-#points.InsertPoint(3,0,4,0.0)
-#points.InsertPoint(4,-6,0,0.0)
-
-#points.InsertPoint(0,0,0,0.0)
-#points.InsertPoint(1,0,-2,0.0)
-#points.InsertPoint(2,2,0,0.0)
-#points.InsertPoint(3,0,2,0.0)
-#points.InsertPoint(4,-2,0,0.0)
+if mode == 'uniform':
+    uniformFn(NPts,points)
+elif mode == 'lissajous':
+    lf = lissajousFn(1,1,1,2,math.pi/2, NPts, noise=0.0)
+    for i in range(NPts):
+        points.SetPoint(i, lf[0][i], lf[1][i], 0.0)
+    # Add in some background noise? For numerical studies...
+    # i = 0
+    # while i < NPts/5:
+    #     points.InsertNextPoint(math.Random(-1,1),math.Random(-1,1),0.0)
+    #     i = i + 1
+    # print('Points ', points.GetNumberOfPoints())
+elif mode == 'quarterDisk':
+    quarterDiskFn(NPts,points)
+elif mode == 'Kuzmin':
+    KuzminFn(NPts,points)
 
 profile = vtkPolyData()
 profile.SetPoints(points)
+print("Processing number of points: {0}".format(NPts))
+
+clean = vtkStaticCleanPolyData()
+clean.SetInputData(profile)
+clean.RemoveUnusedPointsOff()
+clean.Update()
+print("After cleaning, number of points: {0}".format(clean.GetOutput().GetNumberOfPoints()))
 
 ptMapper = vtkPointGaussianMapper()
 ptMapper.SetInputData(profile)
@@ -72,19 +122,17 @@ ptMapper.SetScaleFactor(0.0)
 ptActor = vtkActor()
 ptActor.SetMapper(ptMapper)
 ptActor.GetProperty().SetColor(0,0,0)
-ptActor.GetProperty().SetPointSize(2)
+ptActor.GetProperty().SetPointSize(3)
 
 # Tessellate them
 #
 voronoi = vtkVoronoi2D()
 voronoi.SetInputData(profile)
-voronoi.SetGenerateScalarsToNone()
-voronoi.SetGenerateScalarsToThreadIds()
-voronoi.SetGenerateScalarsToPointIds()
+voronoi.SetGenerateCellScalarsToPointIds()
 voronoi.SetPointOfInterest(PointOfInterest)
-voronoi.SetMaximumNumberOfTileClips(MaxTileClips)
 voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
 voronoi.SetGenerateVoronoiFlower(GenerateFlower)
+voronoi.ValidateOn()
 
 # Time execution
 timer = vtkTimerLog()
@@ -92,15 +140,14 @@ timer.StartTimer()
 voronoi.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
-print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Voronoi tessellation: {0}".format(time))
 print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
 
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(voronoi.GetOutputPort())
-if voronoi.GetGenerateScalars() == 1:
+if voronoi.GetGenerateCellScalars() == 1:
     mapper.SetScalarRange(0,NPts)
-elif voronoi.GetGenerateScalars() == 2:
+elif voronoi.GetGenerateCellScalars() == 2:
     mapper.SetScalarRange(0,voronoi.GetNumberOfThreadsUsed())
 print("Scalar Range: {}".format(mapper.GetScalarRange()))
 
@@ -110,7 +157,7 @@ actor.GetProperty().SetColor(1,0,0)
 
 # Debug code
 sphere = vtkSphereSource()
-sphere.SetRadius(0.05)
+sphere.SetRadius(0.025)
 sphere.SetThetaResolution(16)
 sphere.SetPhiResolution(8)
 if PointOfInterest >= 0:
@@ -125,7 +172,7 @@ sphereActor.GetProperty().SetColor(0,0,0)
 
 # Voronoi flower
 fMapper = vtkPointGaussianMapper()
-fMapper.SetInputConnection(voronoi.GetOutputPort(1))
+fMapper.SetInputConnection(voronoi.GetOutputPort(2))
 fMapper.EmissiveOff()
 fMapper.SetScaleFactor(0.0)
 
@@ -167,6 +214,5 @@ picker.PickFromListOn()
 picker.AddPickList(ptActor)
 iren.SetPicker(picker)
 
-renWin.Render()
-iren.Start()
+iren.Initialize()
 # --- end of script --
