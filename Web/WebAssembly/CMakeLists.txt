@@ -6,4 +6,6 @@ endif ()
 vtk_module_add_serdes_wasm_package(
   MODULE VTK::WebAssembly
   OUTPUT_NAME vtkWebAssembly
+  # Uncomment the next line when quick linking is desired for faster dev cycles.
+  # EXTRA_LINK_OPTIONS "-O1"
 )
