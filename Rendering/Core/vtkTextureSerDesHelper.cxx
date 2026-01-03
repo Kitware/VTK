@@ -65,16 +65,26 @@ static nlohmann::json Serialize_vtkTexture(vtkObjectBase* objectBase, vtkSeriali
   return state;
 }
 
-static void Deserialize_vtkTexture(
+static bool Deserialize_vtkTexture(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto object = vtkTexture::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkTexture");
+    return false;
+  }
   // Cubemap property changes the number of input ports.
   // deserialize it before Deserialize_vtkAlgorithm gets to see the state.
   VTK_DESERIALIZE_VALUE_FROM_STATE(CubeMap, bool, state, object);
   if (auto f = deserializer->GetHandler(typeid(vtkTexture::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
   }
   VTK_DESERIALIZE_VALUE_FROM_STATE(Interpolate, int, state, object);
   VTK_DESERIALIZE_VALUE_FROM_STATE(Mipmap, bool, state, object);
@@ -90,6 +100,7 @@ static void Deserialize_vtkTexture(
   VTK_DESERIALIZE_VALUE_FROM_STATE(UseSRGBColorSpace, bool, state, object);
   VTK_DESERIALIZE_VECTOR_FROM_STATE(BorderColor, float, state, object);
   VTK_DESERIALIZE_VALUE_FROM_STATE(Wrap, int, state, object);
+  return success;
 }
 
 int RegisterHandlers_vtkTextureSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

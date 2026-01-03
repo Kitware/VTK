@@ -31,7 +31,7 @@ public:
   vtkTypeMacro(vtkDeserializer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  using HandlerType = std::function<void(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)>;
+  using HandlerType = std::function<bool(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)>;
   using ConstructorType = std::function<vtkObjectBase*()>;
 
   /**
@@ -169,7 +169,7 @@ private:
       const auto* context = deserializer->GetContext();                                            \
       const auto identifier = iter->at("Id").get<vtkTypeUInt32>();                                 \
       auto subObject = context->GetObjectAtId(identifier);                                         \
-      deserializer->DeserializeJSON(identifier, subObject);                                        \
+      success &= deserializer->DeserializeJSON(identifier, subObject);                             \
       if (auto* asVtkType = cls::SafeDownCast(subObject))                                          \
       {                                                                                            \
         object->Set##propertyName(asVtkType);                                                      \

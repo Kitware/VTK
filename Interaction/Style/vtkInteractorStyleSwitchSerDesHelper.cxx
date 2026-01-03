@@ -60,43 +60,54 @@ static nlohmann::json Serialize_vtkInteractorStyleSwitch(
   return state;
 }
 
-static void Deserialize_vtkInteractorStyleSwitch(
+static bool Deserialize_vtkInteractorStyleSwitch(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkInteractorStyleSwitch::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkInteractorStyleSwitch");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkInteractorStyleSwitch::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-  const auto iter = state.find("CurrentStyleIndex");
-  if ((iter != state.end()) && !iter->is_null())
+  if (success)
   {
-    const auto styleIndex = iter->get<vtkTypeUInt8>();
-    switch (styleIndex)
+    const auto iter = state.find("CurrentStyleIndex");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      case 0:
-        object->SetCurrentStyleToJoystickActor();
-        break;
-      case 1:
-        object->SetCurrentStyleToJoystickCamera();
-        break;
-      case 2:
-        object->SetCurrentStyleToTrackballActor();
-        break;
-      case 3:
-        object->SetCurrentStyleToTrackballCamera();
-        break;
-      case 4:
-        object->SetCurrentStyleToMultiTouchCamera();
-        break;
-      default:
-        vtkErrorWithObjectMacro(deserializer,
-          "No style exists at styleIndex=" << styleIndex
-                                           << " for vtkInteractorStyleSwitch::SetCurrentStyle. "
-                                              "Value is expected to be in range [0, 4]");
-        break;
+      const auto styleIndex = iter->get<vtkTypeUInt8>();
+      switch (styleIndex)
+      {
+        case 0:
+          object->SetCurrentStyleToJoystickActor();
+          break;
+        case 1:
+          object->SetCurrentStyleToJoystickCamera();
+          break;
+        case 2:
+          object->SetCurrentStyleToTrackballActor();
+          break;
+        case 3:
+          object->SetCurrentStyleToTrackballCamera();
+          break;
+        case 4:
+          object->SetCurrentStyleToMultiTouchCamera();
+          break;
+        default:
+          vtkErrorWithObjectMacro(deserializer,
+            "No style exists at styleIndex=" << styleIndex
+                                             << " for vtkInteractorStyleSwitch::SetCurrentStyle. "
+                                                "Value is expected to be in range [0, 4]");
+          success = false;
+          break;
+      }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkInteractorStyleSwitchSerDesHelper(

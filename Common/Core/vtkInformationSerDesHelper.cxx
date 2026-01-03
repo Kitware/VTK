@@ -198,13 +198,23 @@ static nlohmann::json Serialize_vtkInformation(vtkObjectBase* object, vtkSeriali
   return state;
 }
 
-static void Deserialize_vtkInformation(
+static bool Deserialize_vtkInformation(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* information = vtkInformation::SafeDownCast(object);
+  if (!information)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkInformation");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkInformation::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
   }
   const auto* context = deserializer->GetContext();
 
@@ -295,7 +305,7 @@ static void Deserialize_vtkInformation(
     else if (key->IsA("vtkInformationInformationKey"))
     {
       auto obj = context->GetObjectAtId(keyState["Value"]["Id"]);
-      deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
+      success &= deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
       information->Set(
         static_cast<vtkInformationInformationKey*>(key), vtkInformation::SafeDownCast(obj));
     }
@@ -307,7 +317,7 @@ static void Deserialize_vtkInformation(
       for (const auto& item : keyState["Value"])
       {
         auto obj = context->GetObjectAtId(item["Id"]);
-        deserializer->DeserializeJSON(item["Id"], obj);
+        success &= deserializer->DeserializeJSON(item["Id"], obj);
         information->Get(static_cast<vtkInformationInformationVectorKey*>(key))
           ->Append(vtkInformation::SafeDownCast(obj));
       }
@@ -315,7 +325,7 @@ static void Deserialize_vtkInformation(
     else if (key->IsA("vtkInformationObjectBaseKey"))
     {
       vtkSmartPointer<vtkObjectBase> obj;
-      deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
+      success &= deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
       information->Set(static_cast<vtkInformationObjectBaseKey*>(key), obj);
     }
     else if (key->IsA("vtkInformationObjectBaseVectorKey"))
@@ -323,7 +333,7 @@ static void Deserialize_vtkInformation(
       for (const auto& item : keyState["Value"])
       {
         vtkSmartPointer<vtkObjectBase> obj;
-        deserializer->DeserializeJSON(item["Id"], obj);
+        success &= deserializer->DeserializeJSON(item["Id"], obj);
         information->Append(static_cast<vtkInformationObjectBaseVectorKey*>(key), obj);
       }
     }
@@ -331,11 +341,12 @@ static void Deserialize_vtkInformation(
     {
       auto obj = context->GetObjectAtId(keyState["Value"]["Id"]);
 
-      deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
+      success &= deserializer->DeserializeJSON(keyState["Value"]["Id"], obj);
       information->Set(static_cast<vtkInformationDataObjectKey*>(key),
         reinterpret_cast<vtkDataObject*>(obj.GetPointer()));
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkInformationSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

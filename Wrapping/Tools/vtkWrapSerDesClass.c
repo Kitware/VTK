@@ -172,10 +172,11 @@ static void vtkWrapSerDes_EndSerializer(FILE* fp)
 static void vtkWrapSerDes_BeginDeserializer(FILE* fp, const ClassInfo* classInfo)
 {
   fprintf(fp,
-    "static void Deserialize_%s(const nlohmann::json& state, vtkObjectBase* objectBase,"
+    "static bool Deserialize_%s(const nlohmann::json& state, vtkObjectBase* objectBase,"
     "vtkDeserializer* deserializer)\n",
     classInfo->Name);
   fprintf(fp, "{\n");
+  fprintf(fp, "  bool success = true;\n");
   if (!strcmp(classInfo->Name, "vtkObjectBase"))
   {
     fprintf(fp, "  auto object = objectBase;\n");
@@ -184,21 +185,30 @@ static void vtkWrapSerDes_BeginDeserializer(FILE* fp, const ClassInfo* classInfo
   {
     fprintf(fp,
       "  auto object = %s::SafeDownCast(objectBase);\n"
+      "  if (object == nullptr)\n"
+      "  {\n"
+      "    vtkErrorWithObjectMacro(deserializer, << __func__ << \": object not a %s\");\n"
+      "    return false;\n"
+      "  }\n"
       "  if (auto f = deserializer->GetHandler(typeid(%s::Superclass)))\n"
       "  {\n"
       "    try\n"
       "    {\n"
-      "      f(state, object, deserializer);\n"
+      "      success &= f(state, object, deserializer);\n"
       "    }\n"
-      "    catch(std::exception& e)"
+      "    catch(std::exception& e)\n"
       "    {\n"
       "       vtkErrorWithObjectMacro(deserializer, << \"In \" << __func__ << \", failed to "
       "deserialize state=\" << "
       "state.dump()\n"
       "                << \". message=\" << e.what());\n"
+      "      return false;\n"
       "    }\n"
-      "  }\n",
-      classInfo->Name, classInfo->Name);
+      "  }\n"
+      // early return if superclass deserialization failed
+      "  if (!success) { vtkErrorWithObjectMacro(deserializer, << \"Superclass deserialization "
+      "failed\"); return false; }\n",
+      classInfo->Name, classInfo->Name, classInfo->Name);
   }
 }
 
@@ -210,6 +220,7 @@ static void vtkWrapSerDes_EndDeserializer(FILE* fp)
   fprintf(fp, "  (void)objectBase;\n");
   fprintf(fp, "  (void)object;\n");
   fprintf(fp, "  (void)state;\n");
+  fprintf(fp, "  return success;\n");
   fprintf(fp, "}\n\n");
 }
 

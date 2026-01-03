@@ -386,11 +386,12 @@ extern "C"
    * vtkCreateSession.
    * @param state The state to update the object from. The state must be valid json and must have
    * the required key value pairs.
+   * @return A vtkSessionResult indicating success or failure.
    * @note The state must be valid json and must have the required key value pairs. The state must
    *  1. be valid json.
    *  2. have atleast a key-value pair `{'Id': n}` where n is an integer of type vtkObjectHandle
    */
-  VTKSERIALIZATIONMANAGER_EXPORT void vtkSessionUpdateObjectFromState(
+  VTKSERIALIZATIONMANAGER_EXPORT vtkSessionResult vtkSessionUpdateObjectFromState(
     vtkSession session, vtkSessionJson state);
 
   /**

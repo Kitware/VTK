@@ -12,7 +12,6 @@
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
-#include <cstdint>
 #include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
 
@@ -219,21 +218,26 @@ static nlohmann::json Serialize_vtkXYPlotActor(vtkObjectBase* object, vtkSeriali
   }
 }
 
-static void Deserialize_vtkXYPlotActor(
+static bool Deserialize_vtkXYPlotActor(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto* xyPlotActor = vtkXYPlotActor::SafeDownCast(object);
   if (!xyPlotActor)
   {
-    return;
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkXYPlotActor");
+    return false;
   }
 
   if (auto superDeserializer = deserializer->GetHandler(typeid(vtkXYPlotActor::Superclass)))
   {
-    superDeserializer(state, object, deserializer);
+    success &= superDeserializer(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto* context = deserializer->GetContext();
     const auto iter = state.find("InputDataObjects");
@@ -245,7 +249,7 @@ static void Deserialize_vtkXYPlotActor(
       {
         const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
         auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
         if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))
         {
           inputDataObjects.emplace_back(dataObject);
@@ -270,7 +274,7 @@ static void Deserialize_vtkXYPlotActor(
       {
         const auto identifier = stateOfInputDataSets[index]["Id"].get<vtkTypeUInt32>();
         auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
         if (auto* dataSet = vtkDataSet::SafeDownCast(subObject))
         {
           inputDataSets.emplace_back(dataSet);
@@ -303,7 +307,7 @@ static void Deserialize_vtkXYPlotActor(
           auto registrationId = identifier;
           context->RegisterObject(subObject, registrationId);
         }
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
       }
     }
   }
@@ -327,7 +331,7 @@ static void Deserialize_vtkXYPlotActor(
           auto registrationId = identifier;
           context->RegisterObject(subObject, registrationId);
         }
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
       }
     }
   }
@@ -351,7 +355,7 @@ static void Deserialize_vtkXYPlotActor(
           auto registrationId = identifier;
           context->RegisterObject(subObject, registrationId);
         }
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
       }
     }
   }
@@ -445,6 +449,7 @@ static void Deserialize_vtkXYPlotActor(
   VTK_DESERIALIZE_VALUE_FROM_STATE(ReferenceYValue, double, state, xyPlotActor);
   VTK_DESERIALIZE_VALUE_FROM_STATE(XTitlePosition, double, state, xyPlotActor);
   VTK_DESERIALIZE_VALUE_FROM_STATE(YTitlePosition, int, state, xyPlotActor);
+  return success;
 }
 
 int RegisterHandlers_vtkXYPlotActorSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

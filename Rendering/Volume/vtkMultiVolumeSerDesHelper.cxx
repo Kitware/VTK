@@ -56,16 +56,25 @@ static nlohmann::json Serialize_vtkMultiVolume(vtkObjectBase* objectBase, vtkSer
   return state;
 }
 
-static void Deserialize_vtkMultiVolume(
+static bool Deserialize_vtkMultiVolume(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkMultiVolume::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkMultiVolume");
+    return false;
+  }
   // Skip superclass vtkVolume to avoid warning from vtkMultiVolume::SetProperty().
   if (auto f = deserializer->GetHandler(typeid(vtkMultiVolume::Superclass::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     auto iter = state.find("Mapper");
     if ((iter != state.end()) && !iter->is_null())
@@ -73,7 +82,7 @@ static void Deserialize_vtkMultiVolume(
       const auto* context = deserializer->GetContext();
       const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
+      success &= deserializer->DeserializeJSON(identifier, subObject);
       if (subObject != nullptr)
       {
         object->SetMapper(vtkAbstractVolumeMapper::SafeDownCast(subObject));
@@ -92,12 +101,12 @@ static void Deserialize_vtkMultiVolume(
       {
         const auto identifier = item.second.at("Id").get<vtkTypeUInt32>();
         auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
         if (subObject != nullptr)
         {
           subObject->Register(object);
           int index = 0;
-          VTK_FROM_CHARS_IF_ERROR_RETURN(item.first, index, );
+          VTK_FROM_CHARS_IF_ERROR_RETURN(item.first, index, false);
           map[index] = vtkVolume::SafeDownCast(subObject);
         }
       }
@@ -108,10 +117,7 @@ static void Deserialize_vtkMultiVolume(
       }
     }
   }
-  (void)deserializer;
-  (void)objectBase;
-  (void)object;
-  (void)state;
+  return success;
 }
 
 int RegisterHandlers_vtkMultiVolumeSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

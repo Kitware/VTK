@@ -45,7 +45,7 @@ public:
   /**
    * Set properties of a VTKObject
    */
-  void Set(vtkTypeUInt32 object, emscripten::val properties);
+  bool Set(vtkTypeUInt32 object, emscripten::val properties);
 
   /**
    * Get all properties of a VTKObject

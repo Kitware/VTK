@@ -837,26 +837,26 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
 }
 
 //------------------------------------------------------------------------------
-void vtkObjectManager::UpdateObjectFromState(const std::string& state)
+bool vtkObjectManager::UpdateObjectFromState(const std::string& state)
 {
   using json = nlohmann::json;
   auto stateJson = json::parse(state, nullptr, false);
   if (stateJson.is_discarded())
   {
     vtkErrorMacro(<< "Failed to parse state=" << state);
-    return;
+    return false;
   }
-  this->UpdateObjectFromState(stateJson);
+  return this->UpdateObjectFromState(stateJson);
 }
 
 //------------------------------------------------------------------------------
-void vtkObjectManager::UpdateObjectFromState(const nlohmann::json& stateJson)
+bool vtkObjectManager::UpdateObjectFromState(const nlohmann::json& stateJson)
 {
   const auto identifier = stateJson.at("Id").get<vtkTypeUInt32>();
   if (!this->Context->RegisterState(stateJson))
   {
     vtkErrorMacro(<< "Failed to register state=" << stateJson.dump());
-    return;
+    return false;
   }
   auto object = this->Context->GetObjectAtId(identifier);
   if (object)
@@ -866,16 +866,11 @@ void vtkObjectManager::UpdateObjectFromState(const nlohmann::json& stateJson)
     // in the marshalling context.
     this->Context->ResetDirectDependenciesForNode(identifier);
   }
-  if (!this->Deserializer->DeserializeJSON(identifier, object))
-  {
-    vtkErrorMacro(<< "Failed to update object at id=" << identifier
-                  << " from state=" << stateJson.dump());
-  }
-  else
-  {
-    vtkVLog(
-      this->GetObjectManagerLogVerbosity(), << "Updated object for state at id=" << identifier);
-  }
+  bool success = this->Deserializer->DeserializeJSON(identifier, object);
+  // Error already logged by deserializer.
+  vtkVLogIf(this->GetObjectManagerLogVerbosity(), success == true,
+    << "Updated object for state at id=" << identifier);
+  return success;
 }
 
 //------------------------------------------------------------------------------

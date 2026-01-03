@@ -119,7 +119,7 @@ public:
         const auto* context = deserializer->GetContext();                                          \
         const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
         auto subObject = context->GetObjectAtId(keyIdentifier);                                    \
-        deserializer->DeserializeJSON(keyIdentifier, subObject);                                   \
+        success &= deserializer->DeserializeJSON(keyIdentifier, subObject);                        \
         if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))                             \
         {                                                                                          \
           auto value = item["Value"].get<type>();                                                  \
@@ -141,7 +141,7 @@ public:
         const auto* context = deserializer->GetContext();                                          \
         const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
         auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
-        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        success &= deserializer->DeserializeJSON(keyIdentifier, keyObject);                        \
         if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
           auto values = item["Values"].get<json::array_t>();                                       \
@@ -163,7 +163,7 @@ public:
         const auto* context = deserializer->GetContext();                                          \
         const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
         auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
-        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        success &= deserializer->DeserializeJSON(keyIdentifier, keyObject);                        \
         if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
           auto values = item["Values"].get<json::array_t>();                                       \
@@ -185,12 +185,12 @@ public:
         const auto* context = deserializer->GetContext();                                          \
         const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
         auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
-        deserializer->DeserializeJSON(keyIdentifier, keyObject);                                   \
+        success &= deserializer->DeserializeJSON(keyIdentifier, keyObject);                        \
         if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
           const auto valueIdentifier = item["Value"].at("Id").get<vtkTypeUInt32>();                \
           auto valueObject = context->GetObjectAtId(valueIdentifier);                              \
-          deserializer->DeserializeJSON(valueIdentifier, valueObject);                             \
+          success &= deserializer->DeserializeJSON(valueIdentifier, valueObject);                  \
           object->Block##name[dataObject] = type::SafeDownCast(valueObject);                       \
         }                                                                                          \
       }                                                                                            \
@@ -198,10 +198,17 @@ public:
   } while (0)
 
   //----------------------------------------------------------------------------
-  static void Deserialize_vtkCompositeDataDisplayAttributes(
+  static bool Deserialize_vtkCompositeDataDisplayAttributes(
     const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
   {
+    bool success = true;
     auto object = vtkCompositeDataDisplayAttributes::SafeDownCast(objectBase);
+    if (!object)
+    {
+      vtkErrorWithObjectMacro(
+        deserializer, << __func__ << ": object not a vtkCompositeDataDisplayAttributes");
+      return false;
+    }
     using json = nlohmann::json;
     DESERIALIZE_MAP_SIMPLE(Visibilities, bool);
     DESERIALIZE_MAP_OF_VTK_COLOR3D(Colors);
@@ -221,6 +228,7 @@ public:
     DESERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables, vtkScalarsToColors);
     DESERIALIZE_MAP_SIMPLE(FieldDataTupleIds, vtkIdType);
     DESERIALIZE_MAP_OF_VTK_OBJECTS(Textures, vtkTexture);
+    return success;
   }
 };
 

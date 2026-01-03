@@ -71,13 +71,23 @@ static nlohmann::json Serialize_vtkColorTransferFunction(
   return state;
 }
 
-static void Deserialize_vtkColorTransferFunction(
+static bool Deserialize_vtkColorTransferFunction(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkColorTransferFunction::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkColorTransferFunction");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkColorTransferFunction::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
   }
   VTK_DESERIALIZE_VALUE_FROM_STATE(Clamping, int, state, object);
   VTK_DESERIALIZE_VALUE_FROM_STATE(ColorSpace, int, state, object);
@@ -115,6 +125,7 @@ static void Deserialize_vtkColorTransferFunction(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(

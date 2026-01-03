@@ -42,30 +42,38 @@ static nlohmann::json Serialize_vtkVariantArray(
   return state;
 }
 
-static void Deserialize_vtkVariantArray(
+static bool Deserialize_vtkVariantArray(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto object = vtkVariantArray::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkVariantArray");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkVariantArray::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
   {
-    const auto iter = state.find("Values");
-    if (iter != state.end() && iter->is_array())
+    return false;
+  }
+  const auto iter = state.find("Values");
+  if (iter != state.end() && iter->is_array())
+  {
+    const auto& values = iter->get<json::array_t>();
+    vtkIdType id = 0;
+    for (const auto& value : values)
     {
-      const auto& values = iter->get<json::array_t>();
-      vtkIdType id = 0;
-      for (const auto& value : values)
-      {
-        vtkVariant variant;
-        Deserialize_vtkVariant(value, &variant, deserializer);
-        object->InsertValue(id++, variant);
-      }
+      vtkVariant variant;
+      success &= Deserialize_vtkVariant(value, &variant, deserializer);
+      object->InsertValue(id++, variant);
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkVariantArraySerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

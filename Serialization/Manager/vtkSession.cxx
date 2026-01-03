@@ -227,7 +227,7 @@ extern "C"
   }
 
   //-------------------------------------------------------------------------------
-  void vtkSessionUpdateObjectFromState(vtkSession session, vtkSessionJson state)
+  vtkSessionResult vtkSessionUpdateObjectFromState(vtkSession session, vtkSessionJson state)
   {
     char* stateJsonCString = session->StringifyJson(state);
     auto stateJson = nlohmann::json::parse(stateJsonCString, nullptr, false);
@@ -235,7 +235,7 @@ extern "C"
     if (stateJson.is_discarded())
     {
       vtkLog(ERROR, << "Failed to parse state!");
-      return;
+      return vtkSessionResultFailure;
     }
     else if (auto idIter = stateJson.find("Id"); idIter != stateJson.end())
     {
@@ -259,7 +259,8 @@ extern "C"
         }
       }
     }
-    session->Manager->UpdateObjectFromState(stateJson);
+    return session->Manager->UpdateObjectFromState(stateJson) ? vtkSessionResultSuccess
+                                                              : vtkSessionResultFailure;
   }
 
   //-------------------------------------------------------------------------------

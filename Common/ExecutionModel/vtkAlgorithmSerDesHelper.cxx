@@ -68,14 +68,16 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
   }
 }
 
-static void Deserialize_vtkAlgorithm(
+static bool Deserialize_vtkAlgorithm(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto* algorithm = vtkAlgorithm::SafeDownCast(object);
   if (!algorithm)
   {
-    return;
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkAlgorithm");
+    return false;
   }
   VTK_DESERIALIZE_VALUE_FROM_STATE(AbortExecute, int, state, algorithm);
 
@@ -90,12 +92,12 @@ static void Deserialize_vtkAlgorithm(
       auto statesOfInputDataObjects = iter->get<json::array_t>();
       if (algorithm->GetNumberOfInputPorts() != static_cast<int>(statesOfInputDataObjects.size()))
       {
-        vtkWarningWithObjectMacro(context,
-          << deserializer->GetObjectDescription()
-          << " failed because number of input ports in state (" << statesOfInputDataObjects.size()
-          << ") does not match for algorithm=" << algorithm->GetObjectDescription() << " ("
-          << algorithm->GetNumberOfInputPorts() << ")");
-        return;
+        vtkErrorWithObjectMacro(
+          context, << deserializer->GetObjectDescription() << " number of input ports in state ("
+                   << statesOfInputDataObjects.size()
+                   << ") does not match for algorithm=" << algorithm->GetObjectDescription() << " ("
+                   << algorithm->GetNumberOfInputPorts() << ")");
+        return false;
       }
       for (int port = 0; port < algorithm->GetNumberOfInputPorts(); ++port)
       {
@@ -106,7 +108,7 @@ static void Deserialize_vtkAlgorithm(
         {
           const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
           auto subObject = context->GetObjectAtId(identifier);
-          deserializer->DeserializeJSON(identifier, subObject);
+          success &= deserializer->DeserializeJSON(identifier, subObject);
           if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))
           {
             if (hasMultipleConnections)
@@ -130,6 +132,7 @@ static void Deserialize_vtkAlgorithm(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkAlgorithmSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

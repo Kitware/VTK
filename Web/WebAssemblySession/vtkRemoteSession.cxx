@@ -36,12 +36,12 @@ bool vtkRemoteSession::UnRegisterState(vtkTypeUInt32 object)
 }
 
 //-------------------------------------------------------------------------------
-void vtkRemoteSession::Set(vtkTypeUInt32 object, emscripten::val properties)
+bool vtkRemoteSession::Set(vtkTypeUInt32 object, emscripten::val properties)
 {
   // Ensure the ID is set in the JSON state before updating the object
   properties.set("Id", object);
   vtkSessionJsonImpl propertiesImpl{ properties };
-  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl);
+  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
@@ -175,10 +175,10 @@ emscripten::val vtkRemoteSession::GetAllDependencies(vtkTypeUInt32 object)
 }
 
 //-------------------------------------------------------------------------------
-void vtkRemoteSession::UpdateObjectFromState(emscripten::val state)
+bool vtkRemoteSession::UpdateObjectFromState(emscripten::val state)
 {
   vtkSessionJsonImpl stateImpl{ state };
-  return vtkSessionUpdateObjectFromState(this->Session, &stateImpl);
+  return vtkSessionUpdateObjectFromState(this->Session, &stateImpl) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------

@@ -53,65 +53,80 @@ public:
   }
 
   //----------------------------------------------------------------------------
-  static void Deserialize_vtkFieldData(
+  static bool Deserialize_vtkFieldData(
     const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
   {
+    bool success = true;
     using nlohmann::json;
-    if (auto* fd = vtkFieldData::SafeDownCast(object))
+    auto* fd = vtkFieldData::SafeDownCast(object);
+    if (!fd)
     {
-      if (auto superDeserializer = deserializer->GetHandler(typeid(vtkFieldData::Superclass)))
-      {
-        superDeserializer(state, object, deserializer);
-      }
-      auto* context = deserializer->GetContext();
-      const auto& stateOfArrays = state["Arrays"];
-      // vector used to keep existing arrays alive so that fd->RemoveArray doesn't destroy the
-      // vtkAbstractArray object.
-      std::vector<vtkSmartPointer<vtkAbstractArray>> arrays;
-      for (auto& stateOfarray : stateOfArrays)
-      {
-        const auto identifier = stateOfarray["Id"].get<vtkTypeUInt32>();
-        auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
-        if (auto* array = vtkAbstractArray::SafeDownCast(subObject))
-        {
-          arrays.emplace_back(array);
-        }
-      }
-      // Now remove arrays from the collection.
-      // If arrays already existed before entering this function, it does not invoke
-      // destructor on the vtkAbstractArray because a reference is held by the vector of arrays.
-      if (static_cast<std::size_t>(fd->GetNumberOfArrays()) != arrays.size())
-      {
-        while (fd->GetNumberOfArrays() > 0)
-        {
-          auto* array = fd->GetAbstractArray(0);
-          context->UnRegisterObject(context->GetId(array));
-          fd->RemoveArray(0);
-        }
-        for (const auto& array : arrays)
-        {
-          fd->AddArray(array);
-        }
-      }
-      else
-      {
-        int i = 0;
-        for (const auto& array : arrays)
-        {
-          // vtkFieldData::SetArray only marks the vtkFieldData as modified if the array is
-          // different from the one already present in the vtkFieldData. This is important because
-          // the vtkFieldData::MTime affects the MTime of a vtkPolyData object. We need to be very
-          // careful here because unnecessary modification of the vtkFieldData::MTime will cause the
-          // vtkPolyData to be marked as modified and, in turn, will force a mapper to upload the
-          // data again.
-          fd->SetArray(i, array);
-          ++i;
-        }
-      }
-      VTK_DESERIALIZE_VALUE_FROM_STATE(NumberOfTuples, int, state, fd);
-      VTK_DESERIALIZE_VALUE_FROM_STATE(GhostsToSkip, int, state, fd);
+      vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkFieldData");
+      return false;
     }
+    if (auto superDeserializer = deserializer->GetHandler(typeid(vtkFieldData::Superclass)))
+    {
+      success &= superDeserializer(state, object, deserializer);
+    }
+    if (!success)
+    {
+      return false;
+    }
+    auto* context = deserializer->GetContext();
+    const auto& stateOfArrays = state["Arrays"];
+    // vector used to keep existing arrays alive so that fd->RemoveArray doesn't destroy the
+    // vtkAbstractArray object.
+    std::vector<vtkSmartPointer<vtkAbstractArray>> arrays;
+    for (auto& stateOfarray : stateOfArrays)
+    {
+      const auto identifier = stateOfarray["Id"].get<vtkTypeUInt32>();
+      auto subObject = context->GetObjectAtId(identifier);
+      success &= deserializer->DeserializeJSON(identifier, subObject);
+      if (auto* array = vtkAbstractArray::SafeDownCast(subObject))
+      {
+        arrays.emplace_back(array);
+      }
+    }
+    // Now remove arrays from the collection.
+    // If arrays already existed before entering this function, it does not invoke
+    // destructor on the vtkAbstractArray because a reference is held by the vector of arrays.
+    if (static_cast<std::size_t>(fd->GetNumberOfArrays()) != arrays.size())
+    {
+      while (fd->GetNumberOfArrays() > 0)
+      {
+        auto* array = fd->GetAbstractArray(0);
+        if (!context->UnRegisterObject(context->GetId(array)))
+        {
+          vtkErrorWithObjectMacro(
+            fd, "Failed to unregister array with id " << context->GetId(array));
+          success = false;
+          break;
+        }
+        fd->RemoveArray(0);
+      }
+      for (const auto& array : arrays)
+      {
+        fd->AddArray(array);
+      }
+    }
+    else
+    {
+      int i = 0;
+      for (const auto& array : arrays)
+      {
+        // vtkFieldData::SetArray only marks the vtkFieldData as modified if the array is
+        // different from the one already present in the vtkFieldData. This is important because
+        // the vtkFieldData::MTime affects the MTime of a vtkPolyData object. We need to be very
+        // careful here because unnecessary modification of the vtkFieldData::MTime will cause the
+        // vtkPolyData to be marked as modified and, in turn, will force a mapper to upload the
+        // data again.
+        fd->SetArray(i, array);
+        ++i;
+      }
+    }
+    VTK_DESERIALIZE_VALUE_FROM_STATE(NumberOfTuples, int, state, fd);
+    VTK_DESERIALIZE_VALUE_FROM_STATE(GhostsToSkip, int, state, fd);
+    return success;
   }
 };
 

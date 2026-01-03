@@ -35,18 +35,17 @@ void vtkStandaloneSession::Destroy(vtkObjectHandle object)
 }
 
 //-------------------------------------------------------------------------------
-void vtkStandaloneSession::Set(vtkObjectHandle object, emscripten::val properties)
+bool vtkStandaloneSession::Set(vtkObjectHandle object, emscripten::val properties)
 {
   // Ensure the ID is set in the JSON state before updating the object
   properties.set("Id", object);
   vtkSessionJsonImpl propertiesImpl{ properties };
-  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl);
+  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
 emscripten::val vtkStandaloneSession::Get(vtkObjectHandle object)
 {
-
   vtkSessionUpdateStateFromObject(this->Session, object);
   auto propertiesImpl = vtkSessionGetState(this->Session, object);
   auto result = std::move(propertiesImpl->JsonValue);

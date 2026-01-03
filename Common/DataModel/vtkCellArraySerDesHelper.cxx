@@ -49,52 +49,63 @@ static nlohmann::json Serialize_vtkCellArray(vtkObjectBase* object, vtkSerialize
   }
 }
 
-static void Deserialize_vtkCellArray(
+static bool Deserialize_vtkCellArray(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
-  if (auto* cellArray = vtkCellArray::SafeDownCast(object))
+  bool success = true;
+  auto* cellArray = vtkCellArray::SafeDownCast(object);
+  if (!cellArray)
   {
-    if (auto superDeserializer = deserializer->GetHandler(typeid(vtkCellArray::Superclass)))
-    {
-      superDeserializer(state, object, deserializer);
-    }
-    const auto numberOfCells = state["NumberOfCells"].get<vtkIdType>();
-    if (numberOfCells == 0)
-    {
-      return;
-    }
-    vtkSmartPointer<vtkDataArray> offsets;
-    vtkSmartPointer<vtkDataArray> connectivity;
-    auto* context = deserializer->GetContext();
-    {
-      const auto identifier = state["Offsets"]["Id"].get<vtkTypeUInt32>();
-      auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
-      offsets = vtkDataArray::SafeDownCast(subObject);
-    }
-    {
-      const auto identifier = state["Connectivity"]["Id"].get<vtkTypeUInt32>();
-      auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
-      connectivity = vtkDataArray::SafeDownCast(subObject);
-    }
-    if (offsets == nullptr)
-    {
-      vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
-                                       << " gave offsets=nullptr for "
-                                       << cellArray->GetObjectDescription());
-    }
-    else if (connectivity == nullptr)
-    {
-      vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
-                                       << " gave connectivity=nullptr for "
-                                       << cellArray->GetObjectDescription());
-    }
-    else
-    {
-      cellArray->SetData(offsets, connectivity);
-    }
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkCellArray");
+    return false;
   }
+  if (auto superDeserializer = deserializer->GetHandler(typeid(vtkCellArray::Superclass)))
+  {
+    success &= superDeserializer(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
+  }
+  const auto numberOfCells = state["NumberOfCells"].get<vtkIdType>();
+  if (numberOfCells == 0)
+  {
+    return success;
+  }
+  vtkSmartPointer<vtkDataArray> offsets;
+  vtkSmartPointer<vtkDataArray> connectivity;
+  auto* context = deserializer->GetContext();
+  {
+    const auto identifier = state["Offsets"]["Id"].get<vtkTypeUInt32>();
+    auto subObject = context->GetObjectAtId(identifier);
+    success &= deserializer->DeserializeJSON(identifier, subObject);
+    offsets = vtkDataArray::SafeDownCast(subObject);
+  }
+  {
+    const auto identifier = state["Connectivity"]["Id"].get<vtkTypeUInt32>();
+    auto subObject = context->GetObjectAtId(identifier);
+    success &= deserializer->DeserializeJSON(identifier, subObject);
+    connectivity = vtkDataArray::SafeDownCast(subObject);
+  }
+  if (offsets == nullptr)
+  {
+    vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
+                                     << " gave offsets=nullptr for "
+                                     << cellArray->GetObjectDescription());
+    success = false;
+  }
+  else if (connectivity == nullptr)
+  {
+    vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
+                                     << " gave connectivity=nullptr for "
+                                     << cellArray->GetObjectDescription());
+    success = false;
+  }
+  else
+  {
+    cellArray->SetData(offsets, connectivity);
+  }
+  return success;
 }
 
 int RegisterHandlers_vtkCellArraySerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

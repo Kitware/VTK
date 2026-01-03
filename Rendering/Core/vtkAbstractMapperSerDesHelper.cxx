@@ -53,10 +53,16 @@ static nlohmann::json Serialize_vtkAbstractMapper(
   return state;
 }
 
-static void Deserialize_vtkAbstractMapper(
+static bool Deserialize_vtkAbstractMapper(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkAbstractMapper::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkAbstractMapper");
+    return false;
+  }
   VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(
     ClippingPlanes, vtkPlaneCollection, state, object, deserializer);
   // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerDes.cxx
@@ -65,7 +71,7 @@ static void Deserialize_vtkAbstractMapper(
     // skip vtkAlgorithm
     if (auto f = deserializer->GetHandler(typeid(vtkAbstractMapper::Superclass::Superclass)))
     {
-      f(state, object, deserializer);
+      success &= f(state, object, deserializer);
     }
   }
   else
@@ -73,9 +79,10 @@ static void Deserialize_vtkAbstractMapper(
     // deserialize vtkAlgorithm properties
     if (auto f = deserializer->GetHandler(typeid(vtkAbstractMapper::Superclass)))
     {
-      f(state, object, deserializer);
+      success &= f(state, object, deserializer);
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkAbstractMapperSerDesHelper(
