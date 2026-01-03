@@ -40,7 +40,7 @@ public:
   /**
    * Destroy a VTKObject
    */
-  void Destroy(vtkTypeUInt32 object);
+  bool Destroy(vtkTypeUInt32 object);
 
   /**
    * Set properties of a VTKObject

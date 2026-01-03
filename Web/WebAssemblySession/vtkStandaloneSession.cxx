@@ -29,9 +29,9 @@ vtkObjectHandle vtkStandaloneSession::Create(const std::string& className)
 }
 
 //-------------------------------------------------------------------------------
-void vtkStandaloneSession::Destroy(vtkObjectHandle object)
+bool vtkStandaloneSession::Destroy(vtkObjectHandle object)
 {
-  vtkSessionDestroyObject(this->Session, object);
+  return vtkSessionDestroyObject(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
