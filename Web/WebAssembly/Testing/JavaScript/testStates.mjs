@@ -1,8 +1,7 @@
 import { readFile } from "fs/promises";
 import path from "path";
 
-const object_ids = [1, 2, 3, 41, 5, 42, 44, 4, 6, 33, 35, 38, 40, 43, 11, 45, 46, 47, 48, 49, 50, 51, 7, 34, 36, 37, 39, 12, 8, 9, 10, 13, 14, 15, 16, 19, 21, 24, 27, 30, 17, 18, 20, 22, 23, 25, 26, 28, 29, 31, 32]
-const exepected_dependencies = [1, 2, 3, 5, 33, 35, 4, 6, 45, 48, 34, 12, 36, 37, 38, 39, 40, 41, 42, 43, 44, 7, 46, 49, 50, 51, 13, 8, 9, 11, 47, 10, 14, 15, 16, 17, 18, 21, 23, 26, 29, 32, 19, 20, 22, 24, 25, 27, 28, 30, 31]
+const exepected_dependencies = [1, 2, 3, 65, 66, 5, 33, 35, 4, 67, 6, 45, 48, 52, 54, 55, 56, 59, 62, 34, 12, 36, 37, 38, 39, 40, 41, 42, 43, 44, 7, 46, 49, 50, 51, 53, 57, 60, 63, 13, 8, 9, 11, 47, 58, 61, 64, 10, 14, 15, 16, 17, 18, 21, 23, 26, 29, 32, 19, 20, 22, 24, 25, 27, 28, 30, 31]
 
 async function testStates() {
   const dataDirectoryIndex = process.argv.indexOf("-D") + 1;
@@ -12,6 +11,7 @@ async function testStates() {
   const dataDirectory = process.argv[dataDirectoryIndex];
   const blobs = JSON.parse(await readFile(path.join(dataDirectory, "Data", "WasmSceneManager", "scalar-bar-widget.blobs.json")));
   const states = JSON.parse(await readFile(path.join(dataDirectory, "Data", "WasmSceneManager", "scalar-bar-widget.states.json")));
+  const object_ids = Object.keys(states).map((k) => Number(k)).sort((a, b) => a - b);
   const vtkWASM = await globalThis.createVTKWASM({})
   const remoteSession = new vtkWASM.vtkRemoteSession();
   for (let i = 0; i < object_ids.length; ++i) {
