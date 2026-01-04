@@ -21,11 +21,16 @@
 #ifndef vtkContourHelper_h
 #define vtkContourHelper_h
 
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
+
+// These includes are required to ensure vtkCellArray and vtkCellData
+// are complete types when managed by vtkNew. Wrapping-generated
+// compilation units (e.g. Python) may otherwise fail due to
+// incomplete-type errors at destruction time.
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
@@ -79,6 +84,14 @@ private:
   vtkContourHelper(const vtkContourHelper&) = delete;
   vtkContourHelper& operator=(const vtkContourHelper&) = delete;
 
+  /**
+   * Initialize temporary cell arrays used during contouring.
+   *
+   * These containers are used to store intermediate triangle output
+   * when contouring 3D cells with polygon merging enabled. They are
+   * allocated lazily and reused across cells to avoid repeated
+   * allocations.
+   */
   void InitializeTempContainers();
 
   // Filled upon construction
