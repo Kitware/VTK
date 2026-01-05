@@ -445,7 +445,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
       orderStats->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
     if (order && order->GetNumberOfTables() >= 3)
     {
-      vtkTable* model = order->GetTable(vtkStatisticalModel::Derived, 0);
+      vtkTable* model = order->GetTable(vtkStatisticalModel::Derived, 1);
       std::ostringstream minName;
       std::ostringstream medName;
       std::ostringstream maxName;
