@@ -26,6 +26,7 @@ vtkDataSetReader::~vtkDataSetReader() = default;
 vtkDataObject* vtkDataSetReader::CreateOutput(vtkDataObject* currentOutput)
 {
   if (this->GetFileName() == nullptr &&
+    (!this->GetReadFromInputStream() || this->GetStream() == nullptr) &&
     (this->GetReadFromInputString() == 0 ||
       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
@@ -65,7 +66,7 @@ vtkDataObject* vtkDataSetReader::CreateOutput(vtkDataObject* currentOutput)
 
 int vtkDataSetReader::ReadMetaDataSimple(const std::string& fname, vtkInformation* metadata)
 {
-  if (fname.empty() &&
+  if (fname.empty() && (!this->GetReadFromInputStream() || this->GetStream() == nullptr) &&
     (this->GetReadFromInputString() == 0 ||
       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
@@ -101,6 +102,8 @@ int vtkDataSetReader::ReadMetaDataSimple(const std::string& fname, vtkInformatio
     reader->SetReadFromInputString(this->GetReadFromInputString());
     reader->SetInputArray(this->GetInputArray());
     reader->SetInputString(this->GetInputString());
+    reader->SetReadFromInputStream(this->GetReadFromInputStream());
+    reader->SetStream(this->GetStream());
     retVal = reader->ReadMetaDataSimple(fname, metadata);
     reader->Delete();
     return retVal;
@@ -118,9 +121,11 @@ int vtkDataSetReader::ReadMeshSimple(const std::string& fname, vtkDataObject* ou
     {
       vtkPolyDataReader* preader = vtkPolyDataReader::New();
       preader->SetFileName(fname.c_str());
+      preader->SetStream(this->GetStream());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(), this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetReadFromInputStream(this->GetReadFromInputStream());
       preader->SetScalarsName(this->GetScalarsName());
       preader->SetVectorsName(this->GetVectorsName());
       preader->SetNormalsName(this->GetNormalsName());
@@ -155,9 +160,11 @@ int vtkDataSetReader::ReadMeshSimple(const std::string& fname, vtkDataObject* ou
     {
       vtkStructuredPointsReader* preader = vtkStructuredPointsReader::New();
       preader->SetFileName(fname.c_str());
+      preader->SetStream(this->GetStream());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(), this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetReadFromInputStream(this->GetReadFromInputStream());
       preader->SetScalarsName(this->GetScalarsName());
       preader->SetVectorsName(this->GetVectorsName());
       preader->SetNormalsName(this->GetNormalsName());
@@ -181,9 +188,11 @@ int vtkDataSetReader::ReadMeshSimple(const std::string& fname, vtkDataObject* ou
     {
       vtkStructuredGridReader* preader = vtkStructuredGridReader::New();
       preader->SetFileName(fname.c_str());
+      preader->SetStream(this->GetStream());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(), this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetReadFromInputStream(this->GetReadFromInputStream());
       preader->SetScalarsName(this->GetScalarsName());
       preader->SetVectorsName(this->GetVectorsName());
       preader->SetNormalsName(this->GetNormalsName());
@@ -218,9 +227,11 @@ int vtkDataSetReader::ReadMeshSimple(const std::string& fname, vtkDataObject* ou
     {
       vtkRectilinearGridReader* preader = vtkRectilinearGridReader::New();
       preader->SetFileName(fname.c_str());
+      preader->SetStream(this->GetStream());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(), this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetReadFromInputStream(this->GetReadFromInputStream());
       preader->SetScalarsName(this->GetScalarsName());
       preader->SetVectorsName(this->GetVectorsName());
       preader->SetNormalsName(this->GetNormalsName());
@@ -255,9 +266,11 @@ int vtkDataSetReader::ReadMeshSimple(const std::string& fname, vtkDataObject* ou
     {
       vtkUnstructuredGridReader* preader = vtkUnstructuredGridReader::New();
       preader->SetFileName(fname.c_str());
+      preader->SetStream(this->GetStream());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(), this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetReadFromInputStream(this->GetReadFromInputStream());
       preader->SetScalarsName(this->GetScalarsName());
       preader->SetVectorsName(this->GetVectorsName());
       preader->SetNormalsName(this->GetNormalsName());
