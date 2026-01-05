@@ -39,6 +39,15 @@ public:
   vtkGetFilePathMacro(FileName);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the number of threads used to process the IFC file
+   * Default is 8.
+   */
+  vtkSetMacro(NumberOfThreads, int);
+  vtkGetMacro(NumberOfThreads, int);
+  ///@}
+
   /**
    * Returns true if it can read the IFC file, false otherwise
    */
@@ -49,6 +58,7 @@ protected:
   ~vtkIFCReader() override;
 
   char* FileName = nullptr;
+  int NumberOfThreads;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

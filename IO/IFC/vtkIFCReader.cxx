@@ -111,6 +111,7 @@ vtkStandardNewMacro(vtkIFCReader);
 vtkIFCReader::vtkIFCReader()
 {
   this->FileName = nullptr;
+  this->NumberOfThreads = 8;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -159,11 +160,16 @@ int vtkIFCReader::RequestData(
     // no need to use the transform
     settings.get<ifcopenshell::geometry::settings::UseWorldCoords>().value = true;
     settings.get<ifcopenshell::geometry::settings::OutputDimensionality>().value =
-      ifcopenshell::geometry::CURVES_SURFACES_AND_SOLIDS;
+      ifcopenshell::geometry::SURFACES_AND_SOLIDS;
     settings.get<ifcopenshell::geometry::settings::IteratorOutput>().value =
       ifcopenshell::geometry::TRIANGULATED;
+    // from ifcconvert
+    settings.get<ifcopenshell::geometry::settings::LengthUnit>().value = 0;
+    settings.get<ifcopenshell::geometry::settings::PlaneUnit>().value = 0;
+    settings.get<ifcopenshell::geometry::settings::Precision>().value = 0;
+    settings.get<ifcopenshell::geometry::settings::WeldVertices>().value = false;
+    settings.get<ifcopenshell::geometry::settings::OcctNoCleanTriangulation>().value = true;
 
-    unsigned int numThreads = std::thread::hardware_concurrency();
     std::vector<IfcGeom::filter_t> filter_funcs;
     std::set<std::string> entities = {
       "IfcSpace", "IfcOpeningElement",
@@ -195,7 +201,7 @@ int vtkIFCReader::RequestData(
     // vtkLog(INFO, "Construct IfcGeom::Iterator ...");
     IfcGeom::Iterator iterator(
       ifcopenshell::geometry::kernels::construct(&file, "opencascade", settings), settings, &file,
-      filter_funcs, numThreads);
+      filter_funcs, this->NumberOfThreads);
     if (!iterator.initialize())
     {
       throw std::logic_error("No geometrical elements found or none successfully converted");

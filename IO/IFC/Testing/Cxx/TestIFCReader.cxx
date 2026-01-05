@@ -38,7 +38,6 @@ void AddCompositePolyDataMapper(
   vtkNew<vtkCompositePolyDataMapper> mapper;
   vtkNew<vtkCompositeDataDisplayAttributes> attrs;
   mapper->SetCompositeDataDisplayAttributes(attrs);
-  mapper->SetCompositeDataDisplayAttributes(attrs);
 
   mapper->SetInputDataObject(pdc);
   vtkNew<vtkActor> actor;
