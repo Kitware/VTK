@@ -21,16 +21,11 @@
 #ifndef vtkContourHelper_h
 #define vtkContourHelper_h
 
+#include "vtkCellArray.h"         // For complete type required by vtkNew
+#include "vtkCellData.h"          // For complete type required by vtkNew
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
-
-// These includes are required to ensure vtkCellArray and vtkCellData
-// are complete types when managed by vtkNew. Wrapping-generated
-// compilation units (e.g. Python) may otherwise fail due to
-// incomplete-type errors at destruction time.
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
