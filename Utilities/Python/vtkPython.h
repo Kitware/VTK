@@ -90,8 +90,15 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #undef toupper
 #endif
 
+#if !defined(VTK_NO_PYTHON_THREADS) && !defined(Py_GIL_DISABLED)
+#define VTK_PYTHON_HAS_GIL
+#else
+/* VTK_PYTHON_FULL_THREADSAFE does not make sense without GIL */
+#undef VTK_PYTHON_FULL_THREADSAFE
+#endif
+
 /* This logic is roughly borrowed from mpi4py/vtkmpi4py/src/pycompat.h */
-#if defined(VTK_NO_PYTHON_THREADS) || defined(Py_GIL_DISABLED)
+#ifndef VTK_PYTHON_HAS_GIL
 #undef PyGILState_Ensure
 #define PyGILState_Ensure() ((PyGILState_STATE)0)
 #undef PyGILState_Release

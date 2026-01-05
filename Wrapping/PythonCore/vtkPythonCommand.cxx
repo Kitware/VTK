@@ -75,7 +75,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
     return;
   }
 
-#ifndef VTK_NO_PYTHON_THREADS
+#ifdef VTK_PYTHON_HAS_GIL
   vtkPythonScopeGilEnsurer gilEnsurer(true);
 #else
   // We only need to do this if we are not calling PyGILState_Ensure(), in fact
@@ -237,7 +237,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
     PyErr_Print();
   }
 
-#ifdef VTK_NO_PYTHON_THREADS
+#ifndef VTK_PYTHON_HAS_GIL
   // If we did the swap near the top of this function then swap back now.
   if (this->ThreadState)
   {
