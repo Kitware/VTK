@@ -140,6 +140,13 @@ struct vtkInternalSpanSpace
   // sorted later into span space.
   void SetSpanPoint(vtkIdType id, double sMin, double sMax)
   {
+    // Guard against degenerate scalar range (constant field)
+    if (this->Range <= std::numeric_limits<double>::epsilon())
+    {
+      this->Space[id].CellId = id;
+      this->Space[id].Index = 0;
+      return;
+    }
     vtkIdType i =
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (sMin - this->SMin) / this->Range);
     vtkIdType j =
@@ -160,6 +167,13 @@ struct vtkInternalSpanSpace
   // rectangle.
   void GetSpanRectangle(double value, vtkIdType rMin[2], vtkIdType rMax[2])
   {
+    // Guard against degenerate scalar range (constant field)
+    if (this->Range <= std::numeric_limits<double>::epsilon())
+    {
+      // Return empty rectangle: no candidate cells
+      rMin[0] = rMin[1] = rMax[0] = rMax[1] = 0;
+      return;
+    }
     vtkIdType i =
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (value - this->SMin) / this->Range);
 
