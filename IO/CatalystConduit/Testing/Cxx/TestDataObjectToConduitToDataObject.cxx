@@ -98,6 +98,82 @@ bool TestGhostCellsAndGhostPoints()
 }
 
 //----------------------------------------------------------------------------
+bool TestArrayNameCollision()
+{
+  conduit_cpp::Node node;
+
+  vtkNew<vtkImageData> im;
+  im->SetDimensions(3, 3, 2);
+  im->SetSpacing(10, 20, 30);
+  im->SetOrigin(-1, -2, -3);
+  im->AllocateScalars(VTK_INT, 1);
+  int* dims = im->GetDimensions();
+
+  for (int z = 0; z < dims[2]; z++)
+  {
+    for (int y = 0; y < dims[1]; y++)
+    {
+      for (int x = 0; x < dims[0]; x++)
+      {
+        im->SetScalarComponentFromFloat(x, y, z, 0, 2);
+      }
+    }
+  }
+
+  vtkNew<vtkUnsignedCharArray> cellArray;
+  cellArray->SetName("myData");
+  cellArray->SetNumberOfValues(im->GetNumberOfCells());
+  im->GetCellData()->AddArray(cellArray);
+
+  vtkNew<vtkUnsignedCharArray> pointArray;
+  pointArray->SetName("myData");
+  pointArray->SetNumberOfValues(im->GetNumberOfPoints());
+  im->GetPointData()->AddArray(pointArray);
+
+  if (!vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(im), node))
+  {
+    std::cerr << "vtkDataObjectToConduit::FillConduitNode failed for TestArrayNameCollision"
+              << std::endl;
+    return false;
+  }
+
+  const auto& fields = node["fields"];
+  if (!fields.has_child("myData_element"))
+  {
+    std::cerr << "Missing \"myData_element\" field in:\n" << node.to_string() << std::endl;
+    return false;
+  }
+
+  if (!fields.has_child("myData_vertex"))
+  {
+    std::cerr << "Missing \"myData_vertex\" field in:\n" << node.to_string() << std::endl;
+    return false;
+  }
+
+  vtkNew<vtkPartitionedDataSet> dataset;
+  if (!vtkConduitToDataObject::FillPartitionedDataSet(dataset, node))
+  {
+    std::cerr << "vtkConduitToDataObject::FillPartitionedDataSet failed for TestArrayNameCollision"
+              << std::endl;
+    return false;
+  }
+
+  if (dataset->GetPartition(0)->GetPointData()->GetAbstractArray("myData") == nullptr)
+  {
+    std::cerr << "No \"myData\" point array found in:\n" << node.to_string() << std::endl;
+    return false;
+  }
+
+  if (dataset->GetPartition(0)->GetCellData()->GetAbstractArray("myData") == nullptr)
+  {
+    std::cerr << "No \"myData\" cell array found in:\n" << node.to_string() << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int TestDataObjectToConduitToDataObject(int argc, char* argv[])
 {
   bool ret = true;
@@ -112,6 +188,7 @@ int TestDataObjectToConduitToDataObject(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   ret &= ::TestGhostCellsAndGhostPoints();
+  ret &= ::TestArrayNameCollision();
 
   controller->Finalize();
 

@@ -546,8 +546,17 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
           dsa->AddArray(array);
           continue;
         }
+        std::string displayName;
+        if (fieldNode.has_child("display_name"))
+        {
+          displayName = fieldNode["display_name"].as_string();
+        }
+        else
+        {
+          displayName = fieldname;
+        }
         vtkSmartPointer<vtkDataArray> array =
-          vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
+          vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), displayName);
         if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
         {
           vtkLog(ERROR, << "Array has " << array->GetNumberOfTuples() << " tuples but dataset has "
@@ -1041,12 +1050,7 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
   for (conduit_index_t child_index = 0; child_index < number_of_children; ++child_index)
   {
     auto field_node = stateFields.child(child_index);
-    std::string fieldName = field_node.name();
-    if (field_node.has_child("display_name"))
-    {
-      // get original field name from the display_name property
-      fieldName = field_node["display_name"].as_string();
-    }
+    const std::string& fieldName = field_node.name();
 
     try
     {
