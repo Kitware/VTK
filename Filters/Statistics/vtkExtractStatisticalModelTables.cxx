@@ -14,10 +14,17 @@
 #include "vtkStringFormatter.h"
 #include "vtkTable.h"
 
+#include "vtksys/SystemTools.hxx"
+
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+
+std::string validTableName(const std::string& tableName)
+{
+  return vtksys::SystemTools::MakeCidentifier(tableName);
+}
 
 void AddModelToAssembly(vtkPartitionedDataSetCollection* out, vtkStatisticalModel* model,
   vtkDataAssembly* assy, int rootAssyNode)
@@ -38,12 +45,16 @@ void AddModelToAssembly(vtkPartitionedDataSetCollection* out, vtkStatisticalMode
     {
       continue; // no tables to add
     }
-    int typeNode = assy->AddNode(vtkStatisticalModel::GetTableTypeName(tableType), rootAssyNode);
+    auto tableTypeName = validTableName(vtkStatisticalModel::GetTableTypeName(tableType));
+    int typeNode = assy->AddNode(tableTypeName.c_str(), rootAssyNode);
     for (int ii = 0; ii < numTablesThisType; ++ii)
     {
       unsigned int dsidx = nextPartition++;
+      auto rawTableName = model->GetTableName(tt, ii);
+      auto tableName = validTableName(rawTableName);
       out->SetPartition(dsidx, 0, model->GetTable(tt, ii));
-      int node = assy->AddNode(model->GetTableName(tt, ii).c_str(), typeNode);
+      out->GetMetaData(dsidx)->Set(vtkCompositeDataSet::NAME(), rawTableName.c_str());
+      int node = assy->AddNode(tableName.c_str(), typeNode);
       assy->AddDataSetIndex(node, dsidx);
     }
   }
@@ -74,7 +85,7 @@ public:
     int midIdx = indices.size() > 1 ? 0 : -1;
     for (const auto& index : indices)
     {
-      auto* pd = In->GetPartitionedDataSet(index);
+      auto* pd = this->In->GetPartitionedDataSet(index);
       if (!pd || pd->GetNumberOfPartitions() == 0)
       {
         continue;
@@ -128,6 +139,13 @@ int vtkExtractStatisticalModelTables::RequestData(vtkInformation* vtkNotUsed(req
   auto* model = vtkStatisticalModel::GetData(inInfoVec[0]);
   auto* pdc = vtkPartitionedDataSetCollection::GetData(inInfoVec[0]);
   auto* out = vtkPartitionedDataSetCollection::GetData(outInfoVec);
+
+  if (pdc && (pdc->GetNumberOfPartitionedDataSets() == 0 || !pdc->GetDataAssembly()))
+  {
+    // Empty input ⇒ empty output
+    out->Initialize();
+    return 1;
+  }
 
   vtkNew<vtkDataAssembly> resultAssy;
 
