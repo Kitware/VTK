@@ -28,6 +28,7 @@
 #include "vtkLZMADataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
+#include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkXMLDataElement.h"
@@ -214,6 +215,18 @@ vtkXMLReader::~vtkXMLReader()
   delete[] this->TimeSteps;
 }
 
+//----------------------------------------------------------------------------
+void vtkXMLReader::SetStream(vtkResourceStream* stream)
+{
+  vtkSetSmartPointerBodyMacro(ResourceStream, vtkResourceStream*, stream);
+}
+
+//----------------------------------------------------------------------------
+vtkResourceStream* vtkXMLReader::GetStream()
+{
+  return this->ResourceStream;
+}
+
 //------------------------------------------------------------------------------
 void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -230,6 +243,16 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << indent << "Stream: (none)\n";
+  }
+  if (this->ResourceStream)
+  {
+    os << indent << "ResourceStream: "
+       << "\n";
+    this->ResourceStream->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "ResourceStream: (none)\n";
   }
   os << indent << "TimeStep:" << this->TimeStep << "\n";
   os << indent << "ActiveTimeDataArrayName:"
@@ -303,7 +326,11 @@ void vtkXMLReader::SetInputString(const char* in, int len)
 //------------------------------------------------------------------------------
 int vtkXMLReader::OpenStream()
 {
-  if (this->ReadFromInputString)
+  if (this->ReadFromInputStream)
+  {
+    return this->OpenVTKStream();
+  }
+  else if (this->ReadFromInputString)
   {
     return this->OpenVTKString();
   }
@@ -465,6 +492,29 @@ void vtkXMLReader::CloseVTKString()
     delete this->StringStream;
     this->StringStream = nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLReader::OpenVTKStream()
+{
+  if (this->Stream)
+  {
+    // Use user-provided stream.
+    return 1;
+  }
+
+  if (!this->ResourceStream)
+  {
+    vtkErrorMacro("Resource stream not set");
+    return 0;
+  }
+
+  // Use provided resource stream stream.
+  this->ResourceStream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  this->Streambuf = this->ResourceStream->ToStreambuf();
+  this->StreamBuffer = std::make_unique<std::istream>(this->Streambuf.get());
+  this->Stream = this->StreamBuffer.get();
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -2157,5 +2207,16 @@ vtkDataObject* vtkXMLReader::GetCurrentOutput()
 vtkInformation* vtkXMLReader::GetCurrentOutputInformation()
 {
   return this->CurrentOutputInformation;
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkXMLReader::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->ResourceStream)
+  {
+    mtime = std::max(mtime, this->ResourceStream->GetMTime());
+  }
+  return mtime;
 }
 VTK_ABI_NAMESPACE_END

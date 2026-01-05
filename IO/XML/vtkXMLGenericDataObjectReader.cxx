@@ -19,6 +19,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkResourceStream.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -65,15 +66,27 @@ vtkXMLGenericDataObjectReader::~vtkXMLGenericDataObjectReader()
 }
 
 //------------------------------------------------------------------------------
+int vtkXMLGenericDataObjectReader::ReadOutputType(std::istream* stream, bool& parallel)
+{
+  vtkNew<vtkXMLFileReadTester> tester;
+  tester->SetStream(stream);
+  return this->ReadOutputType(tester, parallel);
+}
+
+//------------------------------------------------------------------------------
 int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parallel)
+{
+  vtkNew<vtkXMLFileReadTester> tester;
+  tester->SetFileName(name);
+  return this->ReadOutputType(tester, parallel);
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLGenericDataObjectReader::ReadOutputType(vtkXMLFileReadTester* tester, bool& parallel)
 {
   parallel = false;
 
-  // Test if the file with the given name is a VTKFile with the given
-  // type.
-  vtkSmartPointer<vtkXMLFileReadTester> tester = vtkSmartPointer<vtkXMLFileReadTester>::New();
-
-  tester->SetFileName(name);
+  // Test if the file with the given name is a VTKFile with the given type.
   if (tester->TestReadFile())
   {
     const char* cfileDataType = tester->GetFileDataType();
@@ -144,7 +157,7 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parall
     }
   }
 
-  vtkErrorMacro(<< "could not load " << name);
+  vtkErrorMacro(<< "could not test output type");
   return -1;
 }
 
@@ -216,7 +229,7 @@ vtkSmartPointer<vtkXMLReader> vtkXMLGenericDataObjectReader::CreateReader(
 int vtkXMLGenericDataObjectReader::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (!this->Stream && !this->FileName)
+  if (!this->Stream && !this->GetStream() && !this->FileName)
   {
     vtkErrorMacro("File name not specified");
     return 0;
@@ -240,10 +253,28 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
 
   // Create reader.
   bool parallel = false;
-  auto data_type = this->ReadOutputType(this->FileName, parallel);
-  if (auto reader = vtkXMLGenericDataObjectReader::CreateReader(data_type, parallel))
+
+  int dataType;
+  vtkResourceStream* resourceStream = this->GetStream();
+  if (this->Stream)
   {
-    output = vtkDataObjectTypes::NewDataObject(data_type);
+    dataType = this->ReadOutputType(this->Stream, parallel);
+  }
+  else if (resourceStream)
+  {
+    resourceStream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    auto streambuf = resourceStream->ToStreambuf();
+    auto buffer = std::make_unique<std::istream>(streambuf.get());
+    dataType = this->ReadOutputType(buffer.get(), parallel);
+  }
+  else
+  {
+    dataType = this->ReadOutputType(this->FileName, parallel);
+  }
+
+  if (auto reader = vtkXMLGenericDataObjectReader::CreateReader(dataType, parallel))
+  {
+    output = vtkDataObjectTypes::NewDataObject(dataType);
     this->Reader = reader;
     this->Reader->Register(this);
   }
@@ -255,7 +286,8 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
   if (this->Reader != nullptr)
   {
     this->Reader->SetFileName(this->GetFileName());
-    //    this->Reader->SetStream(this->GetStream());
+    this->Reader->SetStream(this->GetStream());
+    this->Reader->SetReadFromInputStream(this->GetReadFromInputStream());
     // Delegate the error observers
     if (this->GetReaderErrorObserver())
     {

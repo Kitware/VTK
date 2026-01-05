@@ -7,6 +7,8 @@
  * vtkXMLGenericDataObjectReader reads any type of vtk data object encoded
  * in XML format.
  *
+ * This reader supports reading from vtkResourceStream.
+ *
  * @sa
  * vtkGenericDataObjectReader
  */
@@ -28,6 +30,7 @@ class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
+class vtkXMLFileReadTester;
 
 class VTKIOXML_EXPORT vtkXMLGenericDataObjectReader : public vtkXMLDataReader
 {
@@ -112,6 +115,9 @@ protected:
 private:
   vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&) = delete;
   void operator=(const vtkXMLGenericDataObjectReader&) = delete;
+
+  int ReadOutputType(std::istream* stream, bool& parallel);
+  int ReadOutputType(vtkXMLFileReadTester* tester, bool& parallel);
 };
 
 VTK_ABI_NAMESPACE_END
