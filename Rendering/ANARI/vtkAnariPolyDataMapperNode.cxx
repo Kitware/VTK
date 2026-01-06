@@ -566,7 +566,6 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
 
       if (comps > 4)
       {
-        const int originalComps = comps;
         comps = 4;
 
         for (int i = 0; i < ysize; i++)
@@ -2330,7 +2329,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       const int numTexCoords = ncomps < 2 ? (numOfTuples / 2) : numOfTuples;
       cellValueTextureCoords.resize(numTexCoords);
 
-      for (int i = 0, j = 0; i < numOfTuples, j < numTexCoords; i++, j++)
+      for (int i = 0, j = 0; i < numOfTuples && j < numTexCoords; i++, j++)
       {
         vec2 tcoord;
 
