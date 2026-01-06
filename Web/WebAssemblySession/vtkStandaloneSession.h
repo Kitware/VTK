@@ -82,6 +82,13 @@ public:
   std::size_t GetTotalVTKDataObjectMemoryUsage();
 
   /**
+   * @brief Prints information about a VTK object to a string.
+   * @param object The identifier of the VTK object.
+   * @return A string containing the result of vtkObject::Print() for the specified object.
+   */
+  std::string PrintObjectToString(vtkTypeUInt32 object);
+
+  /**
    * @brief Prints information about the scene manager.
    */
   void PrintSceneManagerInformation();

@@ -144,6 +144,23 @@ std::size_t vtkStandaloneSession::GetTotalVTKDataObjectMemoryUsage()
 }
 
 //-------------------------------------------------------------------------------
+std::string vtkStandaloneSession::PrintObjectToString(vtkObjectHandle object)
+{
+  char* cstr = vtkSessionPrintObjectToString(this->Session, object);
+  if (cstr != nullptr)
+  {
+    std::string result(cstr);
+    free(cstr);
+    return result;
+  }
+  else
+  {
+    vtkLog(ERROR, << "Failed to print object with ID: " << object);
+    return {};
+  }
+}
+
+//-------------------------------------------------------------------------------
 void vtkStandaloneSession::PrintSceneManagerInformation()
 {
   return vtkSessionPrintSceneManagerInformation(this->Session);

@@ -20,6 +20,7 @@
 #include <string>
 
 #include <iostream>
+#include <sstream>
 
 struct vtkSessionImpl
 {
@@ -541,6 +542,22 @@ extern "C"
   size_t vtkSessionGetTotalVTKDataObjectMemoryUsage(vtkSession session)
   {
     return session->Manager->GetTotalVTKDataObjectMemoryUsage();
+  }
+
+  //-------------------------------------------------------------------------------
+  char* vtkSessionPrintObjectToString(vtkSession session, vtkObjectHandle object)
+  {
+    std::ostringstream oss;
+    if (auto objectImpl = session->Manager->GetObjectAtId(object))
+    {
+      objectImpl->Print(oss);
+      auto str = oss.str();
+      return strdup(str.c_str());
+    }
+    else
+    {
+      return strdup("(null)");
+    }
   }
 
   //-------------------------------------------------------------------------------

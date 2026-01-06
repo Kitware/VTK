@@ -158,6 +158,7 @@ EMSCRIPTEN_BINDINGS(bindings)
     .function("getTotalBlobMemoryUsage", &vtkStandaloneSession::GetTotalBlobMemoryUsage)
     .function(
       "getTotalVTKDataObjectMemoryUsage", &vtkStandaloneSession::GetTotalVTKDataObjectMemoryUsage)
+    .function("printObjectToString", &vtkStandaloneSession::PrintObjectToString)
     .function("printSceneManagerInformation", &vtkStandaloneSession::PrintSceneManagerInformation)
     .function("setDeserializerLogVerbosity", &vtkStandaloneSession::SetDeserializerLogVerbosity)
     .function("setInvokerLogVerbosity", &vtkStandaloneSession::SetInvokerLogVerbosity)
