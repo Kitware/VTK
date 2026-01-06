@@ -12,13 +12,14 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
-#include "vtkX11Functions.h" // Needed for X types used in the public interface
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkX11Functions.h"  // Needed for X types used in the public interface
 
 VTK_ABI_NAMESPACE_BEGIN
 // Forward declarations
 class vtkImageData;
 
-class VTKRENDERINGUI_EXPORT vtkXlibHardwareWindow : public vtkHardwareWindow
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkXlibHardwareWindow : public vtkHardwareWindow
 {
 public:
   static vtkXlibHardwareWindow* New();

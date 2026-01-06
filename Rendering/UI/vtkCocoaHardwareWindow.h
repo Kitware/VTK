@@ -15,6 +15,8 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+
 // Forward declare Objective-C classes
 #ifdef __OBJC__
 @class NSWindow;
@@ -28,7 +30,7 @@ class vtkCocoaWindowDelegate;
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGUI_EXPORT vtkCocoaHardwareWindow : public vtkHardwareWindow
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkCocoaHardwareWindow : public vtkHardwareWindow
 {
 public:
   /**

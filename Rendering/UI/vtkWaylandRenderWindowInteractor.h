@@ -19,6 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h"     // For export macro
 #include "vtkWaylandHardwareWindow.h" // The hardware window it depends on
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 // Forward declarations for Wayland and xkbcommon types.
 struct wl_display;
@@ -38,7 +39,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWaylandRenderWindowInteractorInternals;
 
-class VTKRENDERINGUI_EXPORT vtkWaylandRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWaylandRenderWindowInteractor
+  : public vtkRenderWindowInteractor
 {
 public:
   static vtkWaylandRenderWindowInteractor* New();

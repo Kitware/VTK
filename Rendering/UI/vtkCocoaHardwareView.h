@@ -27,6 +27,7 @@
 #define vtkCocoaHardwareView_h
 
 #import "vtkRenderingUIModule.h" // For export macro
+#import "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 #import <Cocoa/Cocoa.h>
 
 // Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
@@ -49,6 +50,7 @@ typedef void* vtkCocoaRenderWindowInteractorRef;
 #endif
 
 VTKRENDERINGUI_EXPORT
+VTK_MARSHALAUTO
 @interface vtkCocoaHardwareView : NSView<NSDraggingDestination>
 {
 @private
