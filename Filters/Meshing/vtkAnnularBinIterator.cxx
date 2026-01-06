@@ -448,7 +448,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
     return true;
   }
 
-  bool Next(double rad2, vtkDoubleArray* circles, vtkDist2TupleArray& results)
+  bool Next(double rad22, vtkDoubleArray* circles, vtkDist2TupleArray& results)
   {
     // Grab points in the bin. Make sure there is something useful to
     // return.
@@ -464,7 +464,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
         }
         // Increasing to the next level
         this->ComputeMinD2(this->Level);
-        if (rad2 < this->MinD2)
+        if (rad22 < this->MinD2)
         {
           return false; // completed iteration
         }
@@ -486,7 +486,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
         // See if the bin is outside of the Circumflower / radius of security
         double min[2], max[2];
         this->Bins->GetBucketBounds(PIter.IJ[0], PIter.IJ[1], min, max);
-        if (!IntersectsCircle(min, max, this->X, rad2))
+        if (!IntersectsCircle(min, max, this->X, rad22))
         {
           continue;
         }
@@ -519,7 +519,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
         vtkIdType ptId = ids[0].PtId;
         pt = this->GetPoint(ptId);
         double d2 = Distance2BetweenPoints2D(this->X, pt);
-        if (d2 <= rad2)
+        if (d2 <= rad22)
         {
           results.emplace_back(ptId, d2);
         }
@@ -536,7 +536,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
           vtkIdType ptId = ids[i].PtId;
           pt = this->GetPoint(ptId);
           double d2 = Distance2BetweenPoints2D(this->X, pt);
-          if (d2 <= rad2)
+          if (d2 <= rad22)
           {
             results.emplace_back(ptId, d2);
             if (d2 < minR2)
