@@ -92,6 +92,7 @@ void vtkContourHelper::Contour(
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkContourHelper::InitializeTempContainers()
 {
   if (this->TempContainersInitialized)
