@@ -1077,6 +1077,46 @@ void vtkOpenGLGlyph3DMapper::SetLODDistanceAndTargetReduction(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DMapper::SetLODDistance(vtkIdType index, float distance)
+{
+  if (index < static_cast<vtkIdType>(this->LODs.size()))
+  {
+    this->LODs[index].first = vtkMath::Max(0.f, distance);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DMapper::SetLODTargetReduction(vtkIdType index, float targetReduction)
+{
+  if (index < static_cast<vtkIdType>(this->LODs.size()))
+  {
+    this->LODs[index].second = vtkMath::ClampValue(targetReduction, 0.f, 1.f);
+  }
+}
+
+//------------------------------------------------------------------------------
+float vtkOpenGLGlyph3DMapper::GetLODDistance(vtkIdType index)
+{
+  if (index < 0 || index >= static_cast<vtkIdType>(this->LODs.size()))
+  {
+    vtkWarningMacro(<< "LOD distance index out of bounds.");
+    return 0;
+  }
+  return this->LODs[index].first;
+}
+
+//------------------------------------------------------------------------------
+float vtkOpenGLGlyph3DMapper::GetLODTargetReduction(vtkIdType index)
+{
+  if (index < 0 || index >= static_cast<vtkIdType>(this->LODs.size()))
+  {
+    vtkWarningMacro(<< "LOD target reduction index out of bounds.");
+    return 0;
+  }
+  return this->LODs[index].second;
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

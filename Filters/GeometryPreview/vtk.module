@@ -19,6 +19,7 @@ DEPENDS
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersSources
+  VTK::InteractionStyle
   VTK::RenderingVolumeOpenGL2
   VTK::TestingRendering
   VTK::TestingDataModel

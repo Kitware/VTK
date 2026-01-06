@@ -361,6 +361,9 @@ C++ tests
   - ``NO_OUTPUT``: The test does not need to write out any data to the
     filesystem. If it does, a directory which may be written to is passed via
     the ``-T`` flag.
+  - ``NO_SERDES``: The test does not do serialization/deserialization testing. If
+    it does, the flag ``--serdes`` is passed. Note that only tests that do a regression test on
+    a render window and pass ``--serdes`` will do serdes testing.
   - ``WEBGPU_GRAPHICS_BACKEND``: The test should be run using the WebGPU graphics backend.
     This is only available when building with WebGPU support. It enables WebGPU via
     setting the environment variable ``VTK_GRAPHICS_BACKEND=WEBGPU``.
@@ -373,6 +376,7 @@ function (vtk_add_test_cxx exename _tests)
     NO_DATA
     NO_VALID
     NO_OUTPUT
+    NO_SERDES
     TIGHT_VALID
     LOOSE_VALID
     LEGACY_VALID
@@ -420,6 +424,11 @@ function (vtk_add_test_cxx exename _tests)
     set(_V "")
     if (NOT local_NO_VALID)
       set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+    endif ()
+
+    set(_S "")
+    if (VTK_WRAP_SERIALIZATION AND NOT local_NO_SERDES AND NOT local_NO_VALID)
+      set(_S "--serdes")
     endif ()
 
     set(image_compare_method ${default_image_compare})
@@ -474,7 +483,7 @@ function (vtk_add_test_cxx exename _tests)
               "${args}"
               ${${_vtk_build_test}_ARGS}
               ${${test_name}_ARGS}
-              ${_D} ${_T} ${_V})
+              ${_D} ${_T} ${_V} ${_S})
     set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"

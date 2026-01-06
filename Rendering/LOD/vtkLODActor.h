@@ -46,6 +46,7 @@
 
 #include "vtkActor.h"
 #include "vtkRenderingLODModule.h" // For export macro
+#include "vtkWrappingHints.h"      // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper;
@@ -56,7 +57,7 @@ class vtkRenderer;
 class vtkViewport;
 class vtkWindow;
 
-class VTKRENDERINGLOD_EXPORT vtkLODActor : public vtkActor
+class VTKRENDERINGLOD_EXPORT VTK_MARSHALAUTO vtkLODActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkLODActor, vtkActor);
@@ -94,9 +95,13 @@ public:
    * The default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
    * (medium-res).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetLowResFilter(vtkPolyDataAlgorithm*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetMediumResFilter(vtkPolyDataAlgorithm*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(LowResFilter, vtkPolyDataAlgorithm);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(MediumResFilter, vtkPolyDataAlgorithm);
   ///@}
 

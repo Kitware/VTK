@@ -6,7 +6,7 @@ function(add_vtk_las_reader_test test_input elevation)
   set(VTK_LAS_READER_ELEVATION "${elevation}")
   set(test_source "TestLASReader_${VTK_LAS_READER_POSTFIX}.cxx")
   configure_file(TestLASReader.cxx.in ${test_source})
-  set(VTK_LAS_READER_TESTS ${VTK_LAS_READER_TESTS} ${test_source} PARENT_SCOPE)
+  set(VTK_LAS_READER_TESTS ${VTK_LAS_READER_TESTS} "${test_source},NO_SERDES" PARENT_SCOPE)
 endfunction()
 
 add_vtk_las_reader_test(test_1.las 0)

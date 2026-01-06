@@ -197,6 +197,12 @@ public:
   ///@}
 
   /**
+   * Perform a regression test after serializing and deserializing the window.
+   * Returns vtkTesting::NOT_RUN if the SerializationManager module is not enabled.
+   */
+  int SerDesTest(double thresh);
+
+  /**
    * Compute the average L2 norm between all point data data arrays
    * of types float and double present in the data sets "dsA" and "dsB"
    * (this includes instances of vtkPoints) Compare the result of

@@ -62,6 +62,7 @@ public:
    * Set the number of LOD.
    */
   void SetNumberOfLOD(vtkIdType nb) override;
+  vtkIdType GetNumberOfLOD() { return this->LODs.size(); }
 
   /**
    * Configure LODs. Culling must be enabled.
@@ -73,6 +74,14 @@ public:
    */
   void SetLODDistanceAndTargetReduction(
     vtkIdType index, float distance, float targetReduction) override;
+
+  // Set, Get, and GetNumberOf are needed to auto generate (de)serialization code.
+  void SetLODDistance(vtkIdType index, float distance);
+  void SetLODTargetReduction(vtkIdType index, float targetReduction);
+  float GetLODDistance(vtkIdType index);
+  float GetLODTargetReduction(vtkIdType index);
+  int GetNumberOfLODDistances() { return static_cast<int>(this->LODs.size()); }
+  int GetNumberOfLODTargetReductions() { return static_cast<int>(this->LODs.size()); }
   ///@}
 
 protected:

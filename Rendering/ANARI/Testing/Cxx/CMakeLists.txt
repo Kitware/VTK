@@ -1,37 +1,37 @@
 vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   # Surface Rendering Tests
-  TestAnariPass.cxx
-  TestAnariPassVisibility.cxx
-  TestAnariMaterials.cxx
-  TestAnariSphere.cxx
-  TestAnariDynamicObject.cxx
+  TestAnariPass.cxx,NO_SERDES
+  TestAnariPassVisibility.cxx,NO_SERDES
+  TestAnariMaterials.cxx,NO_SERDES
+  TestAnariSphere.cxx,NO_SERDES
+  TestAnariDynamicObject.cxx,NO_SERDES
   TestAnariAmbient.cxx
-  TestAnariCompositePolyDataMapper.cxx
-  TestAnariCylinder.cxx
-  TestAnariImplicits.cxx
-  TestAnariLayers.cxx
+  TestAnariCompositePolyDataMapper.cxx,NO_SERDES
+  TestAnariCylinder.cxx,NO_SERDES
+  TestAnariImplicits.cxx,NO_SERDES
+  TestAnariLayers.cxx,NO_SERDES
   TestAnariLights.cxx
-  TestAnariMultiBlock.cxx
-  TestAnariMultiBlockPartialArrayFieldData.cxx
-  TestAnariOrthographic.cxx
-  TestAnariRenderMesh.cxx
-  TestAnariRendererType.cxx
-  TestAnariScalarBar.cxx
-  TestAnariStereo.cxx
+  TestAnariMultiBlock.cxx,NO_SERDES
+  TestAnariMultiBlockPartialArrayFieldData.cxx,NO_SERDES
+  TestAnariOrthographic.cxx,NO_SERDES
+  TestAnariRenderMesh.cxx,NO_SERDES
+  TestAnariRendererType.cxx,NO_SERDES
+  TestAnariScalarBar.cxx,NO_SERDES
+  TestAnariStereo.cxx,NO_SERDES
   TestAnariShadows.cxx
   TestAnariPBRMaterials.cxx
   TestAnariPBRMapping.cxx
   TestAnariPBRMaterialsCoat.cxx
   # Volume Rendering Tests
-  TestAnariVolumeRenderer.cxx
-  TestAnariSmartVolumeMapper.cxx
-  TestAnariVolumeWavelet.cxx
-  TestAnariTransfer2D.cxx
-  TestAnariCameraInside.cxx
-  TestAnariCameraInsideSmallSpacing.cxx
-  TestAnariCellData.cxx
-  TestAnariVolumeLightKit.cxx
-  TestAnariPerspectiveParallel.cxx
+  TestAnariVolumeRenderer.cxx,NO_SERDES
+  TestAnariSmartVolumeMapper.cxx,NO_SERDES
+  TestAnariVolumeWavelet.cxx,NO_SERDES
+  TestAnariTransfer2D.cxx,NO_SERDES
+  TestAnariCameraInside.cxx,NO_SERDES
+  TestAnariCameraInsideSmallSpacing.cxx,NO_SERDES
+  TestAnariCellData.cxx,NO_SERDES
+  TestAnariVolumeLightKit.cxx,NO_SERDES
+  TestAnariPerspectiveParallel.cxx,NO_SERDES
   TestAnariPositionalLights.cxx
   TestAnariRendererParameters.cxx,NO_DATA,NO_VALID)
 

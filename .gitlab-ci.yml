@@ -348,6 +348,17 @@ fedora42-x86_64-mpi-python-qt-stdthread:test:
     needs:
         - fedora42-x86_64-mpi-python-qt-tbb:build
 
+fedora42-x86_64-mpi-python-qt-tbb-serialization:test:
+    extends:
+        - .fedora42_x86_64_mpi_python_qt_tbb_serialization
+        - .ctest_new_cdash_submission
+        - .cmake_test_linux
+        - .linux_x86_64_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - fedora42-x86_64-mpi-python-qt-tbb:build
+
 fedora42-x86_64-mangling:build:
     extends:
         - .fedora42_x86_64_mangling
@@ -2639,6 +2650,17 @@ macos-arm64-kits-python-qt:test:
     needs:
         - macos-arm64-kits-python-qt:build
 
+#macos-arm64-kits-python-qt-serialization:test:
+#    extends:
+#        - .macos_arm64_kits_python_qt_serialization
+#        - .ctest_new_cdash_submission
+#        - .cmake_test_macos
+#        - .macos_arm64_builder_tags
+#        - .cmake_test_artifacts
+#        - .rules
+#    needs:
+#        - macos-arm64-kits-python-qt:build
+
 macos-x86_64-kits-python-qt:build:
     extends:
         - .macos_x86_64_kits_python_qt
@@ -2655,6 +2677,18 @@ macos-x86_64-kits-python-qt:build:
 macos-x86_64-kits-python-qt:test:
     extends:
         - .macos_x86_64_kits_python_qt
+        - .cmake_test_macos
+        - .macos_x86_64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - macos-x86_64-kits-python-qt:build
+    timeout: 2 hours
+
+macos-x86_64-kits-python-qt-serialization:test:
+    extends:
+        - .macos_x86_64_kits_python_qt_serialization
+        - .ctest_new_cdash_submission
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
@@ -3068,6 +3102,16 @@ windows-vs2022-mpi-python-qt:build:
 windows-vs2022-mpi-python-qt:test:
     extends:
         - .windows_vs2022_mpi_python_qt
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - windows-vs2022-mpi-python-qt:build
+
+windows-vs2022-mpi-python-qt-serialization:test:
+    extends:
+        - .windows_vs2022_mpi_python_qt_serialization
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
