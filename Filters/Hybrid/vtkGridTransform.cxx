@@ -5,7 +5,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
-#include "vtkImageInterpolatorInternals.h"
+#include "vtkInterpolationMath.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

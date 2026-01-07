@@ -10,6 +10,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkInterpolationMath.h"
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
@@ -17,8 +18,6 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
-
-#include "vtkImageInterpolatorInternals.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types

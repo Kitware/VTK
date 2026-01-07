@@ -45,6 +45,10 @@ set(classes
   vtkImageWrapPad
   vtkRTAnalyticSource)
 
+set(nowrap_headers
+  vtkInterpolationMath.h)
+
 vtk_module_add_module(VTK::ImagingCore
-  CLASSES ${classes})
+  CLASSES        ${classes}
+  NOWRAP_HEADERS ${nowrap_headers})
 vtk_add_test_mangling(VTK::ImagingCore)
