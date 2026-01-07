@@ -700,9 +700,17 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions(vtkOpenXRRenderWindo
 {
   // Fetch the list of extensions supported by the runtime.
   uint32_t extensionCount;
-  this->XrCheckOutput(vtkOpenXRManager::ErrorOutput,
+  bool countResult = this->XrCheckOutput(vtkOpenXRManager::ErrorOutput,
     xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr),
     "Failed to enumerate number of extension properties");
+
+  std::vector<const char*> enabledExtensions;
+
+  if (!countResult)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Cannot select extensions, unable to get an accurate count");
+    return enabledExtensions;
+  }
 
   std::vector<XrExtensionProperties> extensionProperties(
     extensionCount, { XR_TYPE_EXTENSION_PROPERTIES });
@@ -711,7 +719,6 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions(vtkOpenXRRenderWindo
       nullptr, extensionCount, &extensionCount, extensionProperties.data()),
     "Failed to enumerate extension properties");
 
-  std::vector<const char*> enabledExtensions;
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
   auto EnableExtensionIfSupported = [&](const char* extensionName)
   {
