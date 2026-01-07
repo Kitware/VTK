@@ -5,10 +5,10 @@
 
 #include "vtkImageData.h"
 #include "vtkImageInterpolator.h"
-#include "vtkImageInterpolatorInternals.h"
 #include "vtkImageSincInterpolator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkInterpolationMath.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

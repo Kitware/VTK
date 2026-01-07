@@ -5,7 +5,7 @@
 #include "vtkDataArray.h"
 #include "vtkImageBSplineInternals.h"
 #include "vtkImageData.h"
-#include "vtkImageInterpolatorInternals.h"
+#include "vtkInterpolationMath.h"
 #include "vtkObjectFactory.h"
 
 #include "vtkTemplateAliasMacro.h"

@@ -4,7 +4,7 @@
 #include "vtkAbstractImageInterpolator.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkImageInterpolatorInternals.h"
+#include "vtkInterpolationMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkPointData.h"
 #include "vtkTypeTraits.h"
@@ -73,7 +73,7 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   }
 
   this->OutValue = 0.0;
-  // VTK_INTERPOLATE_FLOOR_TOL is defined in vtkImageInterpolatorInternals.h
+  // VTK_INTERPOLATE_FLOOR_TOL is defined in vtkInterpolationMath.h
   this->Tolerance = VTK_INTERPOLATE_FLOOR_TOL;
   this->ComponentOffset = 0;
   this->ComponentCount = -1;

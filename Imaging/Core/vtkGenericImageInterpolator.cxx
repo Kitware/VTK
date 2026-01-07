@@ -6,7 +6,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkImageData.h"
-#include "vtkImageInterpolatorInternals.h"
+#include "vtkInterpolationMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTypeTraits.h"
 
