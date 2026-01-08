@@ -24,6 +24,12 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "(linux|macos|windows)[0-9]+t")
   # Python xarray deps not available yet for free threading
   set(VTK_MODULE_ENABLE_VTK_IONetCDF NO CACHE STRING "")
+
+  # CPython in Windows does not set the Py_GIL_DISABLED macro in free-thread builds:
+  # https://docs.python.org/3/howto/free-threading-extensions.html
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
+    set(VTK_NO_PYTHON_THREADS ON CACHE BOOL "")
+  endif()
 endif()
 
 set(VTK_WHEEL_BUILD ON CACHE BOOL "")
