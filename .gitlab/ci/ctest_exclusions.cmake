@@ -66,6 +66,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
     "^VTK::ViewsInfovisCxx-TestRenderView$"
+
+    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
@@ -98,6 +101,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     # Intermittent flakiness; may be related to CI runner OpenGL config.
     # Appears as a colormap or color-range failure:
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+
+    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
