@@ -114,7 +114,7 @@ void vtkONNXInference::SetTimeStepValues(const std::vector<double>& times)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 {
-  if (idx < 0 || static_cast<size_t>(idx) > this->TimeStepValues.size())
+  if (idx < 0 || static_cast<size_t>(idx) >= this->TimeStepValues.size())
   {
     vtkErrorMacro("Time step index is out of bounds.");
     return;
@@ -137,6 +137,14 @@ void vtkONNXInference::ClearTimeStepValues()
 {
   vtkDebugMacro("setting TimeStepValues to empty list");
   this->TimeStepValues.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetNumberOfInputShapeElements(vtkIdType nb)
+{
+  vtkDebugMacro("setting InputShape to nb");
+  this->InputShape.resize(nb);
   this->Modified();
 }
 
@@ -180,6 +188,30 @@ void vtkONNXInference::SetInputShape(const std::vector<int64_t>& shape)
 }
 
 //------------------------------------------------------------------------------
+void vtkONNXInference::SetInputShape(vtkIdType idx, int shapeElement)
+{
+  if (idx < 0 || static_cast<size_t>(idx) >= this->InputShape.size())
+  {
+    vtkErrorMacro("Input shape index is out of bounds.");
+    return;
+  }
+  vtkDebugMacro("setting InputShape index " << idx << " to " << shapeElement);
+  if (!this->FieldArrayInput && idx == 0)
+  {
+    this->InputParameters.resize(shapeElement);
+  }
+  this->InputShape[idx] = shapeElement;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetInputShape(vtkIdType nb)
+{
+  this->SetNumberOfInputShapeElements(1);
+  this->SetInputShape(0, nb);
+}
+
+//------------------------------------------------------------------------------
 const std::vector<int64_t>& vtkONNXInference::GetInputShape() const
 {
   return this->InputShape;
@@ -190,6 +222,14 @@ void vtkONNXInference::ClearInputParameters()
 {
   vtkDebugMacro("setting InputParameters to empty list");
   this->InputParameters.clear();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::ClearInputShape()
+{
+  vtkDebugMacro("setting InputShape to empty list");
+  this->InputShape.clear();
   this->Modified();
 }
 
