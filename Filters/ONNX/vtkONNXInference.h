@@ -112,20 +112,35 @@ public:
    */
   void SetInputParameter(vtkIdType idx, float InputParameter);
 
-  ///@{
-  /**
-   * Set/Get the shape of the input. Also, the first element of the shape defines the shape of
-   * InputParameters (default: {0})
-   */
-  void SetInputShape(const std::vector<int64_t>& shape);
-  const std::vector<int64_t>& GetInputShape() const;
-  ///@}
-
   /**
    * Clear the input parameters vector. Useful when loading a new model to reset the
    * internal state.
    */
   void ClearInputParameters();
+
+  ///@{
+  /**
+   * Set/Get the shape of the input. Also, the first element of the shape defines the shape of
+   * InputParameters (default: {0}).
+   * While passing a vector is more convenient, index/value API is required for ParaView support.
+   */
+  void SetInputShape(const std::vector<int64_t>& shape);
+  void SetInputShape(vtkIdType idx, int shapeElement);
+  void SetInputShape(vtkIdType nb);
+  const std::vector<int64_t>& GetInputShape() const;
+  ///@}
+
+  /**
+   * Set the number of input shape values. This basically resize the vector
+   * of input shape.
+   */
+  void SetNumberOfInputShapeElements(vtkIdType nb);
+
+  /**
+   * Clear the input shape vector. Useful when loading a new model to reset the
+   * internal state.
+   */
+  void ClearInputShape();
 
   ///@{
   /**
