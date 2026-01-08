@@ -1188,7 +1188,7 @@ void vtkPythonVoidFunc(void* arg)
     return;
   }
 
-#ifndef VTK_NO_PYTHON_THREADS
+#ifdef VTK_PYTHON_HAS_GIL
   vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
@@ -1225,7 +1225,7 @@ void vtkPythonVoidFuncArgDelete(void* arg)
     return;
   }
 
-#ifndef VTK_NO_PYTHON_THREADS
+#ifdef VTK_PYTHON_HAS_GIL
   vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
