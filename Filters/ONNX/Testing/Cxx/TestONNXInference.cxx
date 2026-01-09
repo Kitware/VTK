@@ -38,7 +38,7 @@ bool TestGaussianKernel(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetInputShape({ 3 });
+  filter->SetInputShape(3);
   filter->SetInputParameter(0, 0.25);
   filter->SetInputParameter(1, 0.6);
   filter->SetInputParameter(2, 1.0);
@@ -85,7 +85,7 @@ bool TestCompositeData(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(group->GetOutputPort());
-  filter->SetInputShape({ 3 });
+  filter->SetInputShape(3);
   filter->SetInputParameter(0, 0.25);
   filter->SetInputParameter(1, 0.6);
   filter->SetInputParameter(2, 1.0);
@@ -125,7 +125,7 @@ bool TestGaussianKernelOnPoints(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetInputShape({ 3 });
+  filter->SetInputShape(3);
   filter->SetInputParameter(0, 0.5);
   filter->SetInputParameter(1, 0.5);
   filter->SetInputParameter(2, 1.5);
@@ -165,7 +165,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetInputShape({ 3 });
+  filter->SetInputShape(3);
   filter->SetInputParameter(0, 0.9);
   filter->SetInputParameter(1, 0.1);
   filter->SetInputParameter(2, 1.1);
