@@ -496,6 +496,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 {
   vtkLogScopeFunction(TRACE);
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
+  this->SetVertexBuffers(passEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -727,6 +728,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 {
   vtkLog(TRACE, "record draw commands to bundle");
   bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
+  this->SetVertexBuffers(bundleEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -1846,10 +1848,12 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  const auto vertexBufferLayouts = this->GetVertexBufferLayouts();
 
   vtkWebGPURenderPipelineDescriptorInternals descriptor;
+  descriptor.vertex.buffers = vertexBufferLayouts.data();
+  descriptor.vertex.bufferCount = vertexBufferLayouts.size();
   descriptor.vertex.entryPoint = "vertexMain";
-  descriptor.vertex.bufferCount = 0;
   descriptor.cFragment.entryPoint = "fragmentMain";
   descriptor.EnableBlending(0);
   descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();

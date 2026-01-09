@@ -338,6 +338,11 @@ protected:
    */
   void SetupGraphicsPipelines(const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor);
 
+  virtual std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() { return {}; }
+
+  virtual void SetVertexBuffers(const wgpu::RenderPassEncoder& vtkNotUsed(passEncoder)) {}
+  virtual void SetVertexBuffers(const wgpu::RenderBundleEncoder& vtkNotUsed(bundleEncoder)) {}
+
   /**
    * Generates vertex and fragment shader code
    */
