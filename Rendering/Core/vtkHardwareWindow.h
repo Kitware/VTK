@@ -64,13 +64,23 @@ public:
   vtkSetStdStringFromCharMacro(Platform);
   ///@}
 
+  ///@{
+  /**
+   * Turn on/off rendering full screen window size.
+   */
+  virtual void SetFullScreen(vtkTypeBool) {}
+  vtkGetMacro(FullScreen, vtkTypeBool);
+  vtkBooleanMacro(FullScreen, vtkTypeBool);
+  ///@}
+
 protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
 
   vtkWeakPointer<vtkRenderWindowInteractor> Interactor = nullptr;
-  vtkTypeBool Coverable;
+  vtkTypeBool Coverable = false;
   std::string Platform = "Generic";
+  vtkTypeBool FullScreen = false;
 
 private:
   vtkHardwareWindow(const vtkHardwareWindow&) = delete;

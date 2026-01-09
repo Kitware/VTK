@@ -20,7 +20,6 @@ vtkStandardNewMacro(vtkWebAssemblyHardwareWindow);
 vtkWebAssemblyHardwareWindow::vtkWebAssemblyHardwareWindow()
 {
   this->SetCanvasSelector("#canvas");
-  this->SetStencilCapable(1);
 
   // set position to -1 to let SDL place the window
   // SetPosition will still work. Defaults of 0,0 result
