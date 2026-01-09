@@ -1,6 +1,7 @@
 vtk_add_test_python(
   ImageActor.py
   ImageActorStressed.py
+  ImageSliceMapper.py
   NoLightGeneration.py
   PolyDataMapperAllPolygons.py
   PolyDataMapperAllWireframe.py
