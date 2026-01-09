@@ -1166,6 +1166,14 @@ public:
       }
     } // end for each source data object
 
+    // rebuild all entries for this DataSet if it
+    // has been modified
+    if (glyphParametersCollection->BuildTime < inputDataSet->GetMTime() ||
+      glyphParametersCollection->BuildTime < this->Self->GetMTime() ||
+      glyphParametersCollection->BuildTime < this->BlockMTime)
+    {
+      rebuild = true;
+    }
     // get the mask array
     vtkBitArray* maskArray = nullptr;
     if (this->Self->Masking)
