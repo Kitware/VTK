@@ -378,7 +378,7 @@ protected:
   void UpdateInstanceAttributeBuffers(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration)
   {
     const char* instanceAttribLabels[InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES] = {
-      "instance_colors", "instanceNormals", "instance_normal_transforms", "instance_pick_ids"
+      "instance_colors", "instance_normals", "instance_normal_transforms", "instance_pick_ids"
     };
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
