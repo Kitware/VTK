@@ -2168,12 +2168,12 @@ wheel-vtk-sdk:upload:
           artifacts: false
         - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
-#        - wheel-macos-python39-arm64:build
-#        - job: wheel-macos-python39-arm64:test
-#          artifacts: false
-#        - wheel-macos-python39-x86_64:build
-#        - job: wheel-macos-python39-x86_64:test
-#          artifacts: false
+        - wheel-macos-python39-arm64:build
+        - job: wheel-macos-python39-arm64:test
+          artifacts: false
+        - wheel-macos-python39-x86_64:build
+        - job: wheel-macos-python39-x86_64:test
+          artifacts: false
         - wheel-macos-python310-arm64:build
         - job: wheel-macos-python310-arm64:test
           artifacts: false
@@ -2198,9 +2198,9 @@ wheel-vtk-sdk:upload:
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
+          artifacts: false
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false

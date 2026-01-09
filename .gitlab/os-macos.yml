@@ -344,8 +344,11 @@
         - venv/bin/python3 setup.py bdist_wheel
         - '[ -f dist/*_universal2.whl ] && exit 1 # universal2 wheels are not made; platform detection requires an override'
         - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py
+        # Grab the platform tag to apply to the vtk-sdk wheel from the vtk wheel.
+        - wheel_platform_tag=$(echo dist/vtk-*.whl | awk -F- '{ print $NF }' | sed 's/\.whl$//')
         - cd wheel_sdks
         - ../venv/bin/python3 -m pip wheel .
+        - ../venv/bin/python3 -m wheel tags --platform-tag "$wheel_platform_tag" --remove ./vtk_sdk-*.whl
         - cd ..
         # XXX: `delocate` can't handle `@loader_path` or do recursive
         # dependency scanning. Ignore it and just do it manually because
