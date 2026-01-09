@@ -47,10 +47,12 @@ public:
 
   void Initialize(vtkPolyData* mesh, int numPoints, std::vector<vtkTypeFloat32>* colors,
     std::vector<vtkTypeFloat32>* transforms, std::vector<vtkTypeFloat32>* normalTransforms,
-    vtkTypeUInt32 flatIndex, bool pickable, vtkMTimeType buildMTime)
+    std::vector<vtkIdType>* pickIds, vtkTypeUInt32 flatIndex, bool pickable,
+    vtkMTimeType buildMTime)
   {
     this->CurrentInput = this->CachedInput = mesh;
     this->NumberOfGlyphPoints = numPoints;
+    this->InstancePickIds = pickIds;
     this->InstanceColors = colors;
     this->InstanceTransforms = transforms;
     this->InstanceNormalTransforms = normalTransforms;
@@ -133,6 +135,14 @@ public:
       layouts.emplace_back(layout);
       instanceAttributesIdx += 3;
     }
+    {
+      wgpu::VertexBufferLayout layout = {};
+      layout.arrayStride = sizeof(vtkTypeUInt32);
+      layout.attributeCount = 1;
+      layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
+      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layouts.emplace_back(layout);
+    }
     return layouts;
   }
 
@@ -189,6 +199,7 @@ public:
     INSTANCE_COLORS = 0,
     INSTANCE_TRANSFORMS,
     INSTANCE_NORMAL_TRANSFORMS,
+    INSTANCE_PICK_IDS,
     NUM_INSTANCE_ATTRIBUTES,
     INSTANCE_UNDEFINED
   };
@@ -224,7 +235,12 @@ public:
         }
 
         break;
-
+      case InstanceDataAttributes::INSTANCE_PICK_IDS:
+        if (this->InstancePickIds)
+        {
+          return this->InstancePickIds->size() * sizeof(vtkTypeUInt32);
+        }
+        break;
       default:
         break;
     }
@@ -251,6 +267,9 @@ public:
       case INSTANCE_NORMAL_TRANSFORMS:
         result =
           this->GetInstanceAttributeByteSize(InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS);
+        break;
+      case INSTANCE_PICK_IDS:
+        result = this->GetInstanceAttributeByteSize(InstanceDataAttributes::INSTANCE_PICK_IDS);
         break;
       case NUM_INSTANCE_ATTRIBUTES:
       case INSTANCE_UNDEFINED:
@@ -292,6 +311,12 @@ protected:
       this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
       shaderLocation++;
     }
+
+    this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
+    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Uint32;
+    this->InstanceAttributes[shaderLocation].offset = 0;
+    this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
+    shaderLocation++;
   }
   ~vtkWebGPUGlyph3DMapperHelper() override = default;
 
@@ -303,11 +328,12 @@ protected:
   };
   wgpu::Buffer InstancePropertiesBuffer;
   AttributeBuffer InstanceAttributesBuffers[NUM_INSTANCE_ATTRIBUTES];
-  wgpu::VertexAttribute InstanceAttributes[1 + 4 + 3]; // matrices sent as column vectors
+  wgpu::VertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
 
   vtkTimeStamp InstanceAttributesBuildTimestamp[NUM_INSTANCE_ATTRIBUTES];
 
   std::uint32_t NumberOfGlyphPoints = 0;
+  std::vector<vtkIdType>* InstancePickIds;
   std::vector<vtkTypeFloat32>* InstanceColors;
   std::vector<vtkTypeFloat32>* InstanceTransforms;
   std::vector<vtkTypeFloat32>* InstanceNormalTransforms;
@@ -322,7 +348,7 @@ protected:
   const InstanceDataAttributes
     InstanceDataAttributesOrder[InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES] = {
       InstanceDataAttributes::INSTANCE_COLORS, InstanceDataAttributes::INSTANCE_TRANSFORMS,
-      InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS
+      InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS, InstanceDataAttributes::INSTANCE_PICK_IDS
     };
 
   std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
@@ -352,7 +378,7 @@ protected:
   void UpdateInstanceAttributeBuffers(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration)
   {
     const char* instanceAttribLabels[InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES] = {
-      "instance_colors", "instanceNormals", "instance_normal_transforms"
+      "instance_colors", "instanceNormals", "instance_normal_transforms", "instance_pick_ids"
     };
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
@@ -416,6 +442,21 @@ protected:
             wgpuConfiguration->WriteBuffer(this->InstanceAttributesBuffers[attributeIndex].Buffer,
               0, this->InstanceNormalTransforms->data(),
               this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32),
+              instanceAttribLabels[attributeIndex]);
+            this->InstanceAttributesBuildTimestamp[attributeIndex].Modified();
+          }
+          break;
+        case INSTANCE_PICK_IDS:
+          if (this->InstancePickIds &&
+            this->GlyphStructuresBuildTime > this->InstanceAttributesBuildTimestamp[attributeIndex])
+          {
+            // Copy is made because pickIds are vtkIdType, shader expects vtkTypeUInt32
+            std::vector<vtkTypeUInt32> copyOfPickIds;
+            copyOfPickIds.reserve(this->InstancePickIds->size());
+            std::copy(this->InstancePickIds->begin(), this->InstancePickIds->end(),
+              std::back_inserter(copyOfPickIds));
+            wgpuConfiguration->WriteBuffer(this->InstanceAttributesBuffers[attributeIndex].Buffer,
+              0, copyOfPickIds.data(), copyOfPickIds.size() * sizeof(vtkTypeUInt32),
               instanceAttribLabels[attributeIndex]);
             this->InstanceAttributesBuildTimestamp[attributeIndex].Modified();
           }
@@ -555,6 +596,7 @@ const TRIANGLE_VERTS = array(
   @location(5) glyph_normal_transform_row_1: vec3f,
   @location(6) glyph_normal_transform_row_2: vec3f,
   @location(7) glyph_normal_transform_row_3: vec3f,
+  @location(8) pick_id: u32,
   @builtin(instance_index) instance_id: u32,
   @builtin(vertex_index) vertex_id: u32
 };)",
@@ -683,7 +725,7 @@ const TRIANGLE_VERTS = array(
       R"(if (instance_properties.pickable == 1u)
   {
     // Write indices
-    output.cell_id = cell_id;
+    output.cell_id = vertex.pick_id;
     output.prop_id = actor.color_options.id;
     output.composite_id = instance_properties.composite_id;
     output.process_id = instance_properties.process_id;
@@ -889,6 +931,7 @@ class vtkWebGPUGlyph3DMapper::vtkInternals
   struct GlyphParameters
   {
     // As many as the no. of points on the input dataset which are glyphed with source.
+    std::vector<vtkIdType> PickIds;
     std::vector<vtkTypeFloat32> Colors;
     std::vector<vtkTypeFloat32> Transforms;       // transposed
     std::vector<vtkTypeFloat32> NormalTransforms; // transposed
@@ -1188,8 +1231,8 @@ public:
           // scalars are pre-mapped into glyphParameters->Colors using the ColorMapper
           mapper->ScalarVisibilityOff();
           mapper->Initialize(mesh, glyphParameters->NumberOfPoints, &glyphParameters->Colors,
-            &glyphParameters->Transforms, &glyphParameters->NormalTransforms, flatIndex, pickable,
-            glyphParameters->BuildTime);
+            &glyphParameters->Transforms, &glyphParameters->NormalTransforms,
+            &glyphParameters->PickIds, flatIndex, pickable, glyphParameters->BuildTime);
           mapper->RenderPiece(renderer, actor);
         }
 
@@ -1339,6 +1382,7 @@ public:
       }
     }
 
+    auto* selectionArray = mapper->GetSelectionIdArray(dataset);
     auto* indexArray = mapper->GetSourceIndexArray(dataset);
     auto* scaleArray = mapper->GetScaleArray(dataset);
 
@@ -1378,6 +1422,7 @@ public:
     for (std::size_t i = 0; i < glyphParametersCollection->Entries.size(); ++i)
     {
       auto& glyphParameters = glyphParametersCollection->Entries[i];
+      glyphParameters->PickIds.resize(numberOfPointsGlyphedPerSource[i]);
       glyphParameters->Colors.resize(numberOfPointsGlyphedPerSource[i] * 4);
       glyphParameters->Transforms.resize(numberOfPointsGlyphedPerSource[i] * 16);
       glyphParameters->NormalTransforms.resize(numberOfPointsGlyphedPerSource[i] * 9);
@@ -1566,6 +1611,22 @@ public:
           }
         } // if orientationArray
 
+        // Set pickid
+        // Use selectionArray value or glyph point ID.
+        vtkIdType selectionId = pointId;
+        if (mapper->UseSelectionIds)
+        {
+          if (selectionArray == nullptr || selectionArray->GetNumberOfTuples() == 0)
+          {
+            vtkWarningWithObjectMacro(mapper, << "UseSelectionIds is true, but selection array"
+                                                 " is invalid. Ignoring selection array.");
+          }
+          else
+          {
+            selectionId = static_cast<vtkIdType>(*selectionArray->GetTuple(pointId));
+          }
+        }
+        glyphParameters->PickIds[glyphParameters->NumberOfPoints] = selectionId;
         if (colors)
         {
           std::array<unsigned char, 4> ubColor;
