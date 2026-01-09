@@ -145,6 +145,16 @@ public:
   }
   ///@}
 
+  ///@{
+  /**
+   * Set/get the desired precision for the output polydata points. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  ///@}
+
 protected:
   vtkImageSliceMapper();
   ~vtkImageSliceMapper() override;
@@ -199,6 +209,8 @@ protected:
 private:
   vtkImageSliceMapper(const vtkImageSliceMapper&) = delete;
   void operator=(const vtkImageSliceMapper&) = delete;
+
+  int OutputPointsPrecision{ vtkAlgorithm::DesiredOutputPrecision::DEFAULT_PRECISION };
 
   friend class vtkImageResliceMapper;
 };

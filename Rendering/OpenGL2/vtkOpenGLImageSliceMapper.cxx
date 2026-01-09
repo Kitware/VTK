@@ -326,6 +326,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
   bool textured = (actor->GetTexture() != nullptr);
   vtkPolyData* poly = vtkPolyDataMapper::SafeDownCast(actor->GetMapper())->GetInput();
   vtkPoints* polyPoints = poly->GetPoints();
+  if (this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    polyPoints->SetDataTypeToDouble();
+  }
   vtkCellArray* tris = poly->GetPolys();
   vtkDataArray* polyTCoords = poly->GetPointData()->GetTCoords();
 
@@ -444,6 +448,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
 
   vtkPolyData* poly = vtkPolyDataMapper::SafeDownCast(actor->GetMapper())->GetInput();
   vtkPoints* polyPoints = poly->GetPoints();
+  if (this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    polyPoints->SetDataTypeToDouble();
+  }
   vtkCellArray* tris = poly->GetPolys();
 
   static double borderThickness = 1e6;
