@@ -20,7 +20,7 @@
 #ifndef vtkViewport_h
 #define vtkViewport_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
@@ -74,28 +74,13 @@ public:
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveAllViewProps();
 
-  ///@{
-  /**
-   * Add the given prop to the renderer. This is a synonym for AddViewProp.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Use AddViewProp() instead.")
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  void AddActor2D(vtkProp* p);
-
-  /**
-   * Remove the given prop from the renderer. This is a synonym for RemoveViewProp.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Use RemoveViewProp() instead.")
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  void RemoveActor2D(vtkProp* p);
-
   /**
    * Loops through the props and returns a collection of those
    * that are vtkActor2D (or one of its subclasses).
    */
+  VTK_DEPRECATED_IN_9_7_0("Use GetViewProps() instead.")
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkActor2DCollection* GetActors2D();
-  ///@}
 
   ///@{
   /**
@@ -484,7 +469,10 @@ protected:
   // End Ivars for picking
 
   vtkPropCollection* Props;
+
+  // VTK_DEPRECATED_IN_9_7_0
   vtkActor2DCollection* Actors2D;
+
   vtkWindow* VTKWindow;
   double Background[3];
   double Background2[3];

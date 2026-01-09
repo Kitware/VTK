@@ -7,7 +7,6 @@ set(classes
   vtkXMLPDataObjectWriter
   vtkXMLPDataSetWriter
   vtkXMLPDataWriter
-  vtkXMLPHierarchicalBoxDataWriter
   vtkXMLPHyperTreeGridWriter
   vtkXMLPImageDataWriter
   vtkXMLPMultiBlockDataWriter

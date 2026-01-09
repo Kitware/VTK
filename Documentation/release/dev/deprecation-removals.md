@@ -1,0 +1,33 @@
+## Deprecations/Removals
+
+- All APIs that were deprecated in 9.5 are now removed.
+- In CommonCore: many vtkType were removed: VTK_MULTIGROUP_DATA_SET, VTK_HIERARCHICAL_DATA_SET, VTK_HIERARCHICAL_BOX_DATA_SET, VTK_HYPER_OCTREE, VTK_TEMPORAL_DATA_SET, VTK_PISTON_DATA_OBJECT
+- In CommonCore: vtkScalarsToColors::UseMagnitude was removed
+- In CommonCore: vtkTypedDataArrayInstantiate, vtkMappedDataArray, vtkTypedDataArrayvtkTypedDataArrayIterator, were removed
+- In CommonDataModel: vtkAbstractCellLinks::SequentialProcessing and vtkStaticCellLinksTemplate::SequentialProcessing were removed
+- In CommonDataModel: vtkConvexPointSet::HasFixedTopology, vtkStaticCellLinksTemplate::SerialBuildLinksFromMultipleArrays and vtkStaticCellLinksTemplate::ThreadedBuildLinksFromMultipleArrays were removed
+- In CommonDataModel: vtkHierarchicalBoxDataSet, vtkStructuredDataType were removed
+- In CommonExecutionModel: vtkExtentSplitter::Min, vtkExtentSplitter::Max were removed
+- In CommonExecutionModel: vtkHierarchicalBoxDataSetAlgorithm was removed
+- In FiltersCore: vtkAppendPolyData::AppendData and vtkAppendPolyData::AppendCells were removed
+- In FiltersGeometry: vtkHierarchicalDataSetGeometryFilter was removed
+- In FiltersHybrid: Many method from vtkAdaptiveDataSetSurfaceFilter were removed
+- In FiltersHyperTree: vtkHyperTreeGridVisibleLeavesSize was removed
+- In FiltersModeling: vtkDijkstraImageGeodesicPath::GetImageDataInput was removed
+- In IOCatalystConduit: vtkConduitToDataObject::FillPartionedDataSet, vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray were removed
+- In IOExodus: vtkCPExodusIINodalCoordinatesTemplate, vtkCPExodusIIResultsArrayTemplate were removed
+- In IOGeometry: vtkFLUENTReader::ReadZone, vtkFLUENTReader::ParseCaseFile, vtkFLUENTReader::ParseDataFile were removed
+- In IOHDF: vtkHDFReader::MergeParts and all related API was removed
+- In IOLegacy: vtkCompositeDataWriter and vtkCompositeDataReader API for vtkHierarchicalBoxDataSet was removed
+- In IOParallelXML: vtkXMLPHierarchicalBoxDataWriter was removed
+- In IOParallelXML: vtkXMLPUnstructuredDataWriter::GetInputAsPointSet was removed
+- In IOXML: vtkXMLGenericDataObjectReader API related to vtkHierarchicalBoxDataSet was removed
+- In IOXML: vtkXMLHierarchicalBoxDataReader, vtkXMLHierarchicalBoxDataWriter, vtkXMLHierarchicalDataReader, vtkXMLMultiGroupDataReader were removed
+- In IOXML: vtkXMLWriter::GetInputAsDataSet, vtkXMLUnstructuredDataWriter::GetInputAsPointSet, vtkXMLTableWriter::GetInputAsTable, vtkXMLReader::Min, vtkXMLReader::Max were removed
+- In InteractionWidgets: Deprecated behavior of vtkCellCentersPointPlacer::HasProp, vtkPolyDataPointPlacer::HasProp have been removed
+- In ParallelMPI: vtkMPIUtilities::Printf, SynchronizedPrintf were removed
+- In RenderingAnnotation: Many vtkAxisActor member and methods were removed
+- In RenderingCore: vtkMapper::GetInputAsDataSet, vtkViewport::AddActor2D, vtkViewport::RemoveActor2D were removed
+- In RenderingImage: Deprecated behavior of vtkImageStack::HasProp was removed
+- In RenderingOpenXR: vtkOpenXRRenderWindow::SetUseDepthExtension and vtkOpenXRRenderWindow::GetUseDepthExtension were removed
+- In WebWebAssembly: vtkWasmSceneManager, vtkWasmSceneManager were removed

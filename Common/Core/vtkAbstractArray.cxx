@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
 // VTK_DEPRECATED_IN_9_6_0()
 #define VTK_DEPRECATION_LEVEL 0
 
@@ -591,10 +590,6 @@ const char* vtkAbstractArray::GetArrayTypeAsString(int arrayType)
       return "VTK_AOS_DATA_ARRAY";
     case vtkArrayTypes::VTK_SOA_DATA_ARRAY:
       return "VTK_SOA_DATA_ARRAY";
-    case vtkAbstractArray::TypedDataArray:
-      return "TypedDataArray";
-    case vtkAbstractArray::MappedDataArray:
-      return "MappedDataArray";
     case vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY:
       return "VTK_SCALED_SOA_DATA_ARRAY";
     case vtkArrayTypes::VTKM_DATA_ARRAY:

@@ -10,7 +10,6 @@
 
 #include "vtkIOCatalystConduitModule.h" // For windows import/export of shared libraries
 
-#include "vtkDeprecation.h"  // for VTK_DEPRECATED_IN_9_5_0
 #include "vtkObject.h"       // for ABI namespace
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
@@ -37,7 +36,6 @@ namespace vtkConduitToDataObject
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-///@{
 /**
  * Fill the vtkPartitionedDataSet input.
  * Create concrete vtkDataSet subclass to set it as partition and add arrays in its
@@ -48,10 +46,6 @@ VTK_ABI_NAMESPACE_BEGIN
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillPartitionedDataSet(
   vtkPartitionedDataSet* output, const conduit_cpp::Node& meshNode);
-VTK_DEPRECATED_IN_9_5_0("Use FillPartitionedDataSet instead.")
-VTKIOCATALYSTCONDUIT_EXPORT bool FillPartionedDataSet(
-  vtkPartitionedDataSet* output, const conduit_cpp::Node& meshNode);
-///@}
 
 /**
  * Fill the vtkOverlappingAMR input.

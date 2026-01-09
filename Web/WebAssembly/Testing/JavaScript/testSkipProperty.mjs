@@ -15,8 +15,7 @@ async function testSkipProperty() {
     });
 
     // Verify property was skipped
-    remoteSession.updateStateFromObject(1);
-    let state = remoteSession.getState(1);
+    let state = remoteSession.get(1);
     if (JSON.stringify(state.Position) == JSON.stringify([0, 1, 2])) {
         throw new Error("vtkCamera::Position did not get skipped!");
     }
@@ -29,8 +28,7 @@ async function testSkipProperty() {
     });
 
     // Verify property was deserialized
-    remoteSession.updateStateFromObject(1);
-    state = remoteSession.getState(1);
+    state = remoteSession.get(1);
     if (JSON.stringify(state.Position) != JSON.stringify([3, 4, 5])) {
         throw new Error("vtkCamera::Position did not get unskipped!");
     }

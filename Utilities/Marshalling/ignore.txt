@@ -164,8 +164,6 @@ Common/Core/vtkTypeList.h
 Common/Core/vtkTypeName.h
 Common/Core/vtkTypeTraits.h
 Common/Core/vtkTypedArray.h
-Common/Core/vtkTypedDataArray.h
-Common/Core/vtkTypedDataArrayIterator.h
 Common/Core/vtkUnsignedCharArray.h
 Common/Core/vtkUnsignedIntArray.h
 Common/Core/vtkUnsignedLongArray.h
@@ -295,7 +293,6 @@ Common/DataModel/vtkGraphEdge.h
 Common/DataModel/vtkGraphInternals.h
 Common/DataModel/vtkHexagonalPrism.h
 Common/DataModel/vtkHexahedron.h
-Common/DataModel/vtkHierarchicalBoxDataSet.h
 Common/DataModel/vtkHigherOrderCurve.h
 Common/DataModel/vtkHigherOrderHexahedron.h
 Common/DataModel/vtkHigherOrderInterpolation.h
@@ -470,7 +467,6 @@ Common/ExecutionModel/vtkExtentTranslator.h
 Common/ExecutionModel/vtkFilteringInformationKeyManager.h
 Common/ExecutionModel/vtkForEach.h
 Common/ExecutionModel/vtkGraphAlgorithm.h
-Common/ExecutionModel/vtkHierarchicalBoxDataSetAlgorithm.h
 Common/ExecutionModel/vtkHyperTreeGridAlgorithm.h
 Common/ExecutionModel/vtkImageInPlaceFilter.h
 Common/ExecutionModel/vtkImageProgressIterator.h

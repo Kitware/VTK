@@ -18,7 +18,6 @@
 #define vtkExtentSplitter_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -105,10 +104,6 @@ protected:
   // Internal utility methods.
   void SplitExtent(int* extent, int* subextent);
   int IntersectExtents(const int* extent1, const int* extent2, int* result);
-  VTK_DEPRECATED_IN_9_5_0("Use std::min instead")
-  int Min(int a, int b);
-  VTK_DEPRECATED_IN_9_5_0("Use std::max instead")
-  int Max(int a, int b);
 
   // Internal implementation data.
   vtkExtentSplitterInternals* Internal;

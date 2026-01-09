@@ -20,13 +20,11 @@ async function testBindRenderWindow() {
 
     remoteSession.bindRenderWindow(1, "#my-canvas-id");
 
-    remoteSession.updateStateFromObject(1);
-    if (remoteSession.getState(1).CanvasSelector !== "#my-canvas-id") {
+    if (remoteSession.get(1).CanvasSelector !== "#my-canvas-id") {
         throw new Error("CanvasSelector was not set correctly on RenderWindow.");
     }
 
-    remoteSession.updateStateFromObject(2);
-    if (remoteSession.getState(2).CanvasSelector !== "#my-canvas-id") {
+    if (remoteSession.get(2).CanvasSelector !== "#my-canvas-id") {
         throw new Error("CanvasSelector was not set correctly on RenderWindowInteractor.");
     }
 }

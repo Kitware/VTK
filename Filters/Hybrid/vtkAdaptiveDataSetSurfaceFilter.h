@@ -73,26 +73,6 @@ public:
   vtkGetMacro(FixedLevelMax, int);
   ///@}
 
-  VTK_DEPRECATED_IN_9_5_0("CircleSelection has been removed. Do not use.")
-  virtual void SetCircleSelection(bool _arg);
-  VTK_DEPRECATED_IN_9_5_0("CircleSelection has been removed. Do not use.")
-  virtual bool GetCircleSelection();
-
-  VTK_DEPRECATED_IN_9_5_0("BBSelection has been removed. Do not use.")
-  virtual void SetBBSelection(bool _arg);
-  VTK_DEPRECATED_IN_9_5_0("BBSelection has been removed. Do not use.")
-  virtual bool GetBBSelection();
-
-  VTK_DEPRECATED_IN_9_5_0("DynamicDecimateLevelMax has been removed. Do not use.")
-  virtual void SetDynamicDecimateLevelMax(int _arg);
-  VTK_DEPRECATED_IN_9_5_0("DynamicDecimateLevelMax has been removed. Do not use.")
-  virtual int GetDynamicDecimateLevelMax();
-
-  VTK_DEPRECATED_IN_9_5_0("Scale has been removed. Do not use.")
-  virtual void SetScale(double _arg);
-  VTK_DEPRECATED_IN_9_5_0("Scale has been removed. Do not use.")
-  virtual int GetScale();
-
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
   ~vtkAdaptiveDataSetSurfaceFilter() override;

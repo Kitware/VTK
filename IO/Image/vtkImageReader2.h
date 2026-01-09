@@ -29,7 +29,7 @@
 #ifndef vtkImageReader2_h
 #define vtkImageReader2_h
 
-#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_5_0
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 #include "vtkResourceStream.h" // For stream

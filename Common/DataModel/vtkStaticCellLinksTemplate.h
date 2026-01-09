@@ -34,7 +34,6 @@
 #define vtkStaticCellLinksTemplate_h
 
 #include "vtkABINamespace.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 
 #include <memory> // For shared_ptr
 #include <vector> // For vector
@@ -92,28 +91,6 @@ public:
   /**
    * Specialized methods for building links from cell array(S).
    */
-  VTK_DEPRECATED_IN_9_5_0("Use BuildLinksFromMultipleArrays instead.")
-  void SerialBuildLinksFromMultipleArrays(
-    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays)
-  {
-    this->BuildLinksFromMultipleArrays(numPts, numCells, cellArrays);
-  }
-  VTK_DEPRECATED_IN_9_5_0("Use BuildLinks instead.")
-  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
-  {
-    this->BuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
-  }
-  VTK_DEPRECATED_IN_9_5_0("Use BuildLinksFromMultipleArrays instead.")
-  void ThreadedBuildLinksFromMultipleArrays(
-    vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays)
-  {
-    this->BuildLinksFromMultipleArrays(numPts, numCells, cellArrays);
-  }
-  VTK_DEPRECATED_IN_9_5_0("Use BuildLinks instead.")
-  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
-  {
-    this->BuildLinksFromMultipleArrays(numPts, numCells, { cellArray });
-  }
   void BuildLinksFromMultipleArrays(
     vtkIdType numPts, vtkIdType numCells, std::vector<vtkCellArray*> cellArrays);
   void BuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray)
@@ -168,21 +145,9 @@ public:
    * Support vtkAbstractCellLinks API.
    */
   unsigned long GetActualMemorySize();
-  VTK_DEPRECATED_IN_9_5_0("Use DeepCopy(vtkStaticCellLinksTemplate instead.")
-  void DeepCopy(vtkAbstractCellLinks*) {}
   void DeepCopy(vtkStaticCellLinksTemplate* src);
   void ShallowCopy(vtkStaticCellLinksTemplate* src);
   void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection);
-  ///@}
-
-  ///@{
-  /**
-   * Control whether to thread or serial process.
-   */
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  void SetSequentialProcessing(vtkTypeBool seq) { this->SequentialProcessing = seq; }
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  vtkTypeBool GetSequentialProcessing() { return this->SequentialProcessing; }
   ///@}
 
 protected:
@@ -200,8 +165,6 @@ protected:
 
   // Support for execution
   int Type;
-  // VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  vtkTypeBool SequentialProcessing;
 
 private:
   vtkStaticCellLinksTemplate(const vtkStaticCellLinksTemplate&) = delete;

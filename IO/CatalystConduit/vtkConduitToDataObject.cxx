@@ -1,16 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Added due to deprecated vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkConduitToDataObject.h"
 
 #include "vtkAMRBox.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkConduitArrayUtilities.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantTypeUInt8Array.h"
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 #include "vtkConduitArrayUtilitiesDevice.h"
 #endif
@@ -162,7 +159,7 @@ void GatherInfos(LocalInfo& rankInfo, GlobalInfo& globalInfo)
 // init each bloc with nullptr
 void InitializeLocalAMR(GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
 {
-  std::vector<int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
+  std::vector<unsigned int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
   for (vtkIdType level = 0; level < globalInfo.NbOfLevels; level++)
   {
     for (int rank = 0; rank < globalInfo.NbOfProcesses; rank++)
@@ -171,10 +168,10 @@ void InitializeLocalAMR(GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
         globalInfo.BlocksPerLevelAndRank[level + rank * globalInfo.NbOfLevels];
     }
   }
-  amr->Initialize(globalInfo.NbOfLevels, blocksPerLevelGlobal.data());
+  amr->Initialize(blocksPerLevelGlobal);
   for (int level = 0; level < globalInfo.NbOfLevels; ++level)
   {
-    for (int block = 0; block < blocksPerLevelGlobal[level]; ++block)
+    for (unsigned int block = 0; block < blocksPerLevelGlobal[level]; ++block)
     {
       amr->SetDataSet(level, block, nullptr);
     }
@@ -535,17 +532,6 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
       }
       if (dataset_size > 0)
       {
-        // This code path should be removed once MCGhostArrayToVTKGhostArray is removed.
-        if (fieldname == "ascent_ghosts")
-        {
-          // convert ascent ghost information into VTK ghost information
-          // the VTK array is named vtkDataSetAttributes::GhostArrayName()
-          // and has different values.
-          auto array = vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
-            conduit_cpp::c_node(&values), dsa->IsA("vtkCellData"));
-          dsa->AddArray(array);
-          continue;
-        }
         std::string displayName;
         if (fieldNode.has_child("display_name"))
         {
@@ -632,12 +618,6 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
   }
 
   return true;
-}
-
-//----------------------------------------------------------------------------
-bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& meshNode)
-{
-  return FillPartitionedDataSet(output, meshNode);
 }
 
 //----------------------------------------------------------------------------
@@ -1145,7 +1125,7 @@ vtkSmartPointer<vtkPoints> CreatePoints(const conduit_cpp::Node& coords)
 void SetPolyhedralCells(
   vtkUnstructuredGrid* grid, vtkCellArray* elements, vtkCellArray* subelements)
 {
-  vtkNew<vtkConstantUnsignedCharArray> cellTypes;
+  vtkNew<vtkConstantTypeUInt8Array> cellTypes;
   cellTypes->SetNumberOfTuples(elements->GetNumberOfCells());
   cellTypes->ConstructBackend(VTK_POLYHEDRON);
   SetMixedPolyhedralCells(grid, cellTypes, elements, subelements);

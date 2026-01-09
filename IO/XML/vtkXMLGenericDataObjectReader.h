@@ -16,7 +16,6 @@
 #ifndef vtkXMLGenericDataObjectReader_h
 #define vtkXMLGenericDataObjectReader_h
 
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // for API
 #include "vtkXMLDataReader.h"
@@ -55,8 +54,6 @@ public:
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */
-  VTK_DEPRECATED_IN_9_5_0("This function is deprecated, use GetOverlappingAMROutput")
-  vtkHierarchicalBoxDataSet* GetHierarchicalBoxDataSetOutput();
   vtkOverlappingAMR* GetOverlappingAMROutput();
   vtkImageData* GetImageDataOutput();
   vtkMultiBlockDataSet* GetMultiBlockDataSetOutput();

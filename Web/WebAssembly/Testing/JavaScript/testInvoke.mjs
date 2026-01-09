@@ -7,8 +7,7 @@ async function testInvokeRemote() {
 
   remoteSession.updateObjectsFromStates();
 
-  remoteSession.updateStateFromObject(1);
-  let state = remoteSession.getState(1);
+  let state = remoteSession.get(1);
   if (JSON.stringify(state.Position) != JSON.stringify([0, 0, 1])) {
     throw new Error("Failed to initialize camera state");
   }
@@ -17,7 +16,7 @@ async function testInvokeRemote() {
   remoteSession.invoke(1, "Elevation", [10.0]);
 
   remoteSession.updateStateFromObject(1);
-  state = remoteSession.getState(1);
+  state = remoteSession.get(1);
   if (JSON.stringify(state.Position) != JSON.stringify([0, 0.17364817766693033, 0.9848077530122081])) {
     throw new Error("vtkCamera::Elevation(10) did not work!");
   }

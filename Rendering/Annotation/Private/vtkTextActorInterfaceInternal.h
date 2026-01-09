@@ -123,14 +123,14 @@ public:
    * Return the internal follower 3D.
    * This is here for backward compatibility, please do not add usage.
    */
-  // VTK_DEPRECATED_IN_9_5_0
+  // VTK_DEPRECATED_IN_9_6_0
   vtkProp3DAxisFollower* GetFollower3D() const;
 
   /**
    * Return the internal follower.
    * This is here for backward compatibility, please do not add usage.
    */
-  // VTK_DEPRECATED_IN_9_5_0
+  // VTK_DEPRECATED_IN_9_6_0
   vtkAxisFollower* GetFollower() const;
 
 private:

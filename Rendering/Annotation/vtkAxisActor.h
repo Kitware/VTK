@@ -42,7 +42,6 @@
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
-#include "vtkDeprecation.h"               // for Deprecation macro
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
@@ -504,25 +503,17 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  ///@{
   /**
    * Compute the max diagonal lentgh of the labels.
    * Camera and labels should have been set before.
    */
-  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
-  double ComputeMaxLabelLength(const double[3]) { return this->ComputeMaxLabelLength(); }
   double ComputeMaxLabelLength();
-  ///@}
 
-  ///@{
   /**
    * Compute the diagonal length of the Title text.
    * Camera and title should have been set before.
    */
-  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
-  double ComputeTitleLength(const double[3]) { return this->ComputeTitleLength(); }
   double ComputeTitleLength();
-  ///@}
 
   ///@{
   /**
@@ -538,18 +529,9 @@ public:
   /**
    * Set/Get the starting position for minor and major tick points,
    * and the delta values that determine their spacing.
-   *
-   * The "Minor" versions are not used anymore, will return 0.
    */
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetMinorStart(double){};
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetMinorStart() { return 0.; };
-
   double GetMajorStart(int axis);
   void SetMajorStart(int axis, double value);
-
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetDeltaMinor(double){};
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetDeltaMinor() { return 1.; };
-
   double GetDeltaMajor(int axis);
   void SetDeltaMajor(int axis, double value);
   ///@}
@@ -595,10 +577,8 @@ public:
 
   ///@{
   /**
-   * Get label actors responsigle for drawing label text.
+   * Get label actors responsible for drawing label text.
    */
-  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower instead.")
-  vtkAxisFollower** GetLabelActors();
   vtkAxisFollower* GetLabelFollower(int index);
   int GetNumberOfLabelFollowers() { return this->GetNumberOfLabelsBuilt(); }
   ///@}
@@ -615,8 +595,6 @@ public:
   /**
    * Get label actors responsigle for drawing label text.
    */
-  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower3D instead.")
-  vtkProp3DAxisFollower** GetLabelProps3D();
   vtkProp3DAxisFollower* GetLabelFollower3D(int index);
   int GetNumberOfLabelFollower3D() { return this->GetNumberOfLabelsBuilt(); }
   ///@}
@@ -635,28 +613,6 @@ public:
    * this count does not change.
    */
   vtkGetMacro(NumberOfLabelsBuilt, int);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get flag whether to calculate title offset.
-   * Default: false.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateTitleOffset, bool);
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateTitleOffset, bool);
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOn() {}
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOff() {}
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get flag whether to calculate label offset.
-   * Default: false.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateLabelOffset, bool);
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateLabelOffset, bool);
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOn() {}
-  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOff() {}
   ///@}
 
   ///@{
@@ -969,11 +925,6 @@ private:
   std::vector<std::shared_ptr<vtkTextActorInterfaceInternal>> LabelProps;
   vtkSmartPointer<vtkTextProperty> LabelTextProperty;
 
-  // VTK_DEPRECATED_IN_9_5_0
-  std::vector<vtkAxisFollower*> LabelActors;
-  // VTK_DEPRECATED_IN_9_5_0
-  std::vector<vtkProp3DAxisFollower*> LabelProps3D;
-
   // Main line axis
   vtkNew<vtkPolyData> AxisLines;
   vtkNew<vtkActor> AxisLinesActor;
@@ -1000,9 +951,6 @@ private:
   bool AxisOnOrigin = false;
 
   bool AxisHasZeroLength = false;
-
-  bool CalculateTitleOffset = false; // VTK_DEPRECATED_IN_9_5_0
-  bool CalculateLabelOffset = false; // VTK_DEPRECATED_IN_9_5_0
 
   /**
    * Use xy-axis only when Use2DMode=1:

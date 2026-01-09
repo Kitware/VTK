@@ -226,8 +226,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
     vtkStridedArrayInstantiate
     vtkSOADataArrayTemplateInstantiate
     vtkStdFunctionArrayInstantiate
-    vtkStructuredPointArrayInstantiate
-    vtkTypedDataArrayInstantiate)
+    vtkStructuredPointArrayInstantiate)
 
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
@@ -381,13 +380,11 @@ set(template_classes
   vtkArrayPrint
   vtkDenseArray
   vtkGenericDataArray
-  vtkMappedDataArray
   vtkScaledSOADataArrayTemplate
   vtkSOADataArrayTemplate
   vtkSparseArray
   vtkThreadedTaskQueue
-  vtkTypedArray
-  vtkTypedDataArray)
+  vtkTypedArray)
 
 set(nowrap_template_classes
   vtkCompositeImplicitBackend
@@ -493,7 +490,6 @@ set(headers
   vtkThreadedTaskQueue.h
   vtkType.h
   vtkTypeTraits.h
-  vtkTypedDataArrayIterator.h
   vtkValueFromString.h
   vtkVariantCast.h
   vtkVariantCreate.h
@@ -606,7 +602,7 @@ endforeach ()
 if (VTK_BUILD_VERSION LESS "20000101")
   set(VTK_EPOCH_VERSION "${VTK_BUILD_VERSION}")
 else ()
-  set(VTK_EPOCH_VERSION "20250514")
+  set(VTK_EPOCH_VERSION "20251220")
 endif ()
 
 set(nowrap_headers

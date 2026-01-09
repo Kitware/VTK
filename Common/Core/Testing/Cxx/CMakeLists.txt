@@ -113,7 +113,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   # TestCxxFeatures.cxx # This is in its own exe too.
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
-  TestDataArrayIterators.cxx
   TestDataArraySelection.cxx
   TestDataArrayTupleRange.cxx
   TestDataArrayValueRange.cxx

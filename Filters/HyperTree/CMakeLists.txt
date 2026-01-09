@@ -19,7 +19,6 @@ set(classes
   vtkHyperTreeGridToDualGrid
   vtkHyperTreeGridToUnstructuredGrid
   vtkHyperTreeGridValidCellStrategy
-  vtkHyperTreeGridVisibleLeavesSize
   vtkHyperTreeGridTotalVisibleVolumeStrategy
   vtkImageDataToHyperTreeGrid
 )

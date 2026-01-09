@@ -273,15 +273,6 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
 }
 
 //------------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxDataSet* amr)
-{
-  (void)fp;
-  (void)amr;
-  vtkErrorMacro("This isn't supported yet.");
-  return false;
-}
-
-//------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* oamr)
 {
   *fp << "GRID_DESCRIPTION " << oamr->GetGridDescription() << "\n";

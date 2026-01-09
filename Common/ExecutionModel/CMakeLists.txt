@@ -25,7 +25,6 @@ set(classes
   vtkFilteringInformationKeyManager
   vtkForEach
   vtkGraphAlgorithm
-  vtkHierarchicalBoxDataSetAlgorithm
   vtkHyperTreeGridAlgorithm
   vtkImageAlgorithm
   vtkImageInPlaceFilter

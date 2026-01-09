@@ -7,10 +7,11 @@ async function testOSMesaRenderWindowPatch() {
         SuperClassNames: ["vtkWindow", "vtkRenderWindow"],
         "vtk-object-manager-kept-alive": true,
     });
-    if (remoteSession.getState(1).ClassName !== "vtkRenderWindow") {
-        throw new Error("RenderWindow state was not created as vtkRenderWindow.");
-    }
     remoteSession.updateObjectsFromStates();
+    if (remoteSession.get(1).ClassName === "vtkOSOpenGLRenderWindow") {
+        throw new Error("RenderWindow state should not have vtkOSOpenGLRenderWindow.");
+    }
+
 
     remoteSession.updateObjectFromState({
         Id: 1,
@@ -18,8 +19,8 @@ async function testOSMesaRenderWindowPatch() {
         SuperClassNames: ["vtkWindow", "vtkRenderWindow"],
         "vtk-object-manager-kept-alive": true,
     });
-    if (remoteSession.getState(1).ClassName !== "vtkRenderWindow") {
-        throw new Error("RenderWindow state was not updated as vtkRenderWindow.");
+    if (remoteSession.get(1).ClassName === "vtkOSOpenGLRenderWindow") {
+        throw new Error("RenderWindow state should not have vtkOSOpenGLRenderWindow.");
     }
 }
 const tests = [

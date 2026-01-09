@@ -160,42 +160,10 @@ public:
    *
    * Internal cache is useful when reading temporal data to never re-read something that has
    * already been cached.
-   *
-   * @note Incompatible with MergeParts as vtkAppendDataSet which is used internally doesn't
-   * support static mesh.
    */
   vtkGetMacro(UseCache, bool);
   vtkSetMacro(UseCache, bool);
   vtkBooleanMacro(UseCache, bool);
-  ///@}
-
-  ///@{
-  /**
-   *  /!\ Now deprecated due to its limitations regarding cache, please do not use!
-   * Settings this flag will have no effect.
-   * This option can be replaced by the vtkMergeBlocks filter.
-   *
-   * Boolean property determining whether to merge partitions when reading unstructured data.
-   *
-   * Merging partitions (true) allows the reader to return either `vtkUnstructuredGrid` or
-   * `vtkPolyData` directly while not merging (false) them returns a `vtkPartitionedDataSet`. It is
-   * advised to set this value to false when using the internal cache (UseCache == true) since the
-   * partitions are what are stored in the cache and merging them before outputting would
-   * effectively double the memory constraints.
-   *
-   * Default is false
-   *
-   * @note Incompatible with UseCache as vtkAppendDataSet which is used internally doesn't
-   * support static mesh.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks or vtkAppendDataSets instead.")
-  vtkGetMacro(MergeParts, bool);
-  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
-  vtkSetMacro(MergeParts, bool);
-  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
-  virtual void MergePartsOn();
-  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
-  virtual void MergePartsOff();
   ///@}
 
   ///@{
@@ -325,13 +293,6 @@ protected:
   double TimeValue = 0.0;
   std::array<double, 2> TimeRange;
   ///@}
-
-  /**
-   * /!\ Now deprecated, do not use
-   * Determine whether to merge the partitions (true) or return a vtkPartitionedDataSet (false)
-   */
-  // VTK_DEPRECATED_IN_9_5_0( )
-  bool MergeParts = false;
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 

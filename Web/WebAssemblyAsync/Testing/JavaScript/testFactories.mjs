@@ -69,7 +69,7 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
   {
     Id: 7,
     ClassName: `vtk${graphicsAPI}PolyDataMapper`,
-    Input: { Id: 9 },
+    InputDataObjects: [[{ Id: 9 }]],
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
@@ -114,7 +114,7 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
   {
     Id: 11,
     ClassName: `vtk${graphicsAPI}Glyph3DMapper`,
-    Input: { Id: 13 },
+    InputDataObjects: [[{ Id: 13 }], [{ Id: 13 }]],
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
@@ -158,7 +158,7 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
   {
     Id: 15,
     ClassName: `vtk${graphicsAPI}PolyDataMapper2D`,
-    Input: { Id: 17 },
+    InputDataObjects: [[{ Id: 17 }]],
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
@@ -201,7 +201,7 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
   {
     Id: 19,
     ClassName: `vtkCompositePolyDataMapper`,
-    Input: { Id: 21 },
+    InputDataObjects: [[{ Id: 21 }]],
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
@@ -252,11 +252,10 @@ async function testOpenGLOverrides() {
     session.registerState(state);
   }
   session.updateObjectsFromStates();
-  session.updateStatesFromObjects();
   // Since the OpenGL backend is used, the classes with WebGPU in their names should have
   // be replaced with OpenGL overrides.
   for (const state of states) {
-    const objectState = session.getState(state.Id);
+    const objectState = session.get(state.Id);
     if (objectState.ClassName.includes("WebGPU") && !objectState.ClassName.includes("OpenGL")) {
       throw new Error(`Object ${JSON.stringify(objectState)} should include OpenGL instead of WebGPU`);
     }
@@ -280,11 +279,10 @@ async function testWebGPUOverrides() {
     session.registerState(state);
   }
   session.updateObjectsFromStates();
-  session.updateStatesFromObjects();
   // Since the WebGPU backend is used, the classes with OpenGL in their names should have
   // be replaced with WebGPU overrides.
   for (const state of states) {
-    const objectState = session.getState(state.Id);
+    const objectState = session.get(state.Id);
     if (objectState.ClassName.includes("OpenGL") && !objectState.ClassName.includes("WebGPU")) {
       throw new Error(`Object ${JSON.stringify(objectState)} should include WebGPU instead of OpenGL`);
     }

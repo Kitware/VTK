@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkCompositeDataReader.h"
 
 #include "vtkAMRBox.h"
@@ -12,7 +9,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkGenericDataObjectReader.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -140,7 +136,8 @@ int vtkCompositeDataReader::ReadOutputType()
     }
     if (strncmp(this->LowerCase(line), "hierarchical_box", strlen("hierarchical_box")) == 0)
     {
-      return VTK_HIERARCHICAL_BOX_DATA_SET;
+      // hierarchical_box is obsolete and superseded
+      return VTK_OVERLAPPING_AMR;
     }
     if (strncmp(
           this->LowerCase(line), "partitioned_collection", strlen("partitioned_collection")) == 0)
@@ -285,14 +282,6 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
   }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* amr)
-{
-  (void)amr;
-  vtkErrorMacro("This isn't supported yet.");
-  return false;
 }
 
 //------------------------------------------------------------------------------

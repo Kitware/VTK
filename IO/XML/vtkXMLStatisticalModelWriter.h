@@ -11,7 +11,6 @@
 #ifndef vtkXMLStatisticalModelWriter_h
 #define vtkXMLStatisticalModelWriter_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkScalarsToColors.h"
 
 #include "vtkAbstractArray.h"
@@ -47,11 +44,6 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->Annotations = nullptr;
   this->AnnotatedValueList = new vtkInternalAnnotatedValueList;
   this->IndexedLookup = 0;
-
-#if !defined(VTK_LEGACY_REMOVE)
-  // VTK_DEPRECATED_IN_9_5_0()
-  this->UseMagnitude = 0;
-#endif
 }
 
 //------------------------------------------------------------------------------

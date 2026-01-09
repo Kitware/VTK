@@ -534,54 +534,6 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-namespace
-{
-struct AppendDataWorker
-{
-  vtkIdType Offset;
-
-  AppendDataWorker(vtkIdType offset)
-    : Offset(offset)
-  {
-  }
-
-  template <typename Array1T, typename Array2T>
-  void operator()(Array1T* dest, Array2T* src)
-  {
-    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
-    const auto srcTuples = vtk::DataArrayTupleRange(src);
-
-    // Offset the dstTuple range to begin at this->Offset
-    auto dstTuples = vtk::DataArrayTupleRange(dest, this->Offset);
-
-    std::copy(srcTuples.cbegin(), srcTuples.cend(), dstTuples.begin());
-  }
-};
-} // end anon namespace
-
-//------------------------------------------------------------------------------
-void vtkAppendPolyData::AppendData(vtkDataArray* dest, vtkDataArray* src, vtkIdType offset)
-{
-  assert("Arrays have same number of components." &&
-    src->GetNumberOfComponents() == dest->GetNumberOfComponents());
-  assert("Destination array has enough tuples." &&
-    src->GetNumberOfTuples() + offset <= dest->GetNumberOfTuples());
-
-  AppendDataWorker worker(offset);
-  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dest, src, worker))
-  {
-    // Use vtkDataArray API when fast-path dispatch fails.
-    worker(dest, src);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkAppendPolyData::AppendCells(vtkCellArray* dst, vtkCellArray* src, vtkIdType offset)
-{
-  dst->Append(src, offset);
-}
-
-//------------------------------------------------------------------------------
 int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))

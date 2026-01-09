@@ -3,7 +3,7 @@
 #ifndef vtkMPIUtilities_h
 #define vtkMPIUtilities_h
 
-#include "vtkDeprecation.h"     // For VTK_DEPRECATED_IN_9_5_0
+#include "vtkDeprecation.h"     // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkMPIController.h"   // For vtkMPIController
 #include "vtkStringFormatter.h" // For vtk::print
 

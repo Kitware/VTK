@@ -20,7 +20,6 @@
 
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_5_0
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
@@ -35,14 +34,6 @@ public:
   static vtkConvexPointSet* New();
   vtkTypeMacro(vtkConvexPointSet, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * See vtkCell3D API for description of this method.
-   */
-#ifndef VTK_LEGACY_REMOVE
-  VTK_DEPRECATED_IN_9_5_0("HasFixedTopology() is always 0 and will be removed")
-  virtual vtkTypeBool HasFixedTopology() { return 0; }
-#endif
 
   ///@{
   /**

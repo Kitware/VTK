@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkCommunicator.h"
 
 #include "vtkBoundingBox.h"
@@ -173,11 +170,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, int tag)
     case VTK_POINT_SET:
     case VTK_UNIFORM_GRID:
     case VTK_GENERIC_DATA_SET:
-    case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete
-    case VTK_MULTIGROUP_DATA_SET:       // obsolete
-    case VTK_HIERARCHICAL_DATA_SET:     // obsolete
     default:
       vtkWarningMacro(<< "Cannot send " << data->GetClassName());
       return 0;
@@ -367,11 +360,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, in
     case VTK_POINT_SET:
     case VTK_UNIFORM_GRID:
     case VTK_GENERIC_DATA_SET:
-    case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete.
-    case VTK_MULTIGROUP_DATA_SET:       // obsolete.
-    case VTK_HIERARCHICAL_DATA_SET:     // obsolete.
     default:
       vtkWarningMacro(<< "Cannot receive "
                       << vtkDataObjectTypes::GetClassNameFromTypeId(data_type));
@@ -1199,11 +1188,7 @@ int vtkCommunicator::GatherV(
     case VTK_POINT_SET:
     case VTK_UNIFORM_GRID:
     case VTK_GENERIC_DATA_SET:
-    case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete
-    case VTK_MULTIGROUP_DATA_SET:       // obsolete
-    case VTK_HIERARCHICAL_DATA_SET:     // obsolete
     default:
       vtkErrorMacro(<< "Cannot gather " << sendData->GetClassName());
       return 0;

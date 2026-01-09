@@ -103,6 +103,8 @@ VTKIOHDF_EXPORT hid_t getH5TypeFromVtkType(int dataType);
 struct VTKIOHDF_EXPORT TemporalGeometryOffsets
 {
 public:
+  TemporalGeometryOffsets();
+
   VTK_DEPRECATED_IN_9_6_0("Member is deprecated. Please use GetOffsets instead.")
   bool Success = true;
 

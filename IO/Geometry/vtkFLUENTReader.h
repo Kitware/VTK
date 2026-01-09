@@ -37,7 +37,6 @@
 #ifndef vtkFLUENTReader_h
 #define vtkFLUENTReader_h
 
-#include "vtkDeprecation.h"      // For deprecation macro
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // For vtkNew
@@ -227,16 +226,6 @@ protected:
   virtual double GetDataBufferDouble(int ptr);
   virtual void GetData(int dataType);
   virtual bool ParallelCheckCell(int vtkNotUsed(i)) { return true; }
-
-  VTK_DEPRECATED_IN_9_5_0(
-    "ReadZone is deprecated. It was an internal method an should not be used.")
-  virtual void ReadZone();
-  VTK_DEPRECATED_IN_9_5_0(
-    "ParseCaseFile is deprecated. It was an internal method an should not be used.")
-  virtual bool ParseCaseFile();
-  VTK_DEPRECATED_IN_9_5_0(
-    "ParseDataFile is deprecated. It was an internal method an should not be used.")
-  virtual void ParseDataFile();
 
 private:
   /**

@@ -37,26 +37,6 @@ template <typename Type>
 using vtkConstantArray =
   vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;
 
-enum vtkStructuredDataType
-{
-  VTK_UNCHANGED VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
-    0,
-  VTK_SINGLE_POINT VTK_DEPRECATED_IN_9_5_0(
-    "Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 1,
-  VTK_X_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 2,
-  VTK_Y_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 3,
-  VTK_Z_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 4,
-  VTK_XY_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
-    5,
-  VTK_YZ_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
-    6,
-  VTK_XZ_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
-    7,
-  VTK_XYZ_GRID VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
-    8,
-  VTK_EMPTY VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 9
-};
-
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredData : public vtkObject
 {
 public:

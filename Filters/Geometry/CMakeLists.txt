@@ -6,7 +6,6 @@ set(classes
   vtkDataSetSurfaceFilter
   vtkExplicitStructuredGridSurfaceFilter
   vtkGeometryFilter
-  vtkHierarchicalDataSetGeometryFilter
   vtkImageDataGeometryFilter
   vtkImageDataToUniformGrid
   vtkLinearToQuadraticCellsFilter

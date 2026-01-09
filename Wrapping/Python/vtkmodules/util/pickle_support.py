@@ -89,7 +89,6 @@ copyreg.pickle(vtkCommonDataModel.vtkStructuredPoints, serialize_VTK_data_object
 
 copyreg.pickle(vtkCommonDataModel.vtkUniformGridAMR, serialize_VTK_data_object)
 copyreg.pickle(vtkCommonDataModel.vtkOverlappingAMR, serialize_VTK_data_object)
-copyreg.pickle(vtkCommonDataModel.vtkHierarchicalBoxDataSet, serialize_VTK_data_object) # VTK_DEPRECATED_IN_9_5_0
 copyreg.pickle(vtkCommonDataModel.vtkNonOverlappingAMR, serialize_VTK_data_object)
 
 copyreg.pickle(vtkCommonDataModel.vtkTable, serialize_VTK_data_object)
