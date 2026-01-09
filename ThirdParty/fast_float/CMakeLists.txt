@@ -13,7 +13,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
     HEADER_ONLY
   EXTERNAL
-    VERSION "7.0.0"
+    VERSION "8.0.0"
     PACKAGE FastFloat
     TARGETS FastFloat::fast_float
     STANDARD_INCLUDE_DIRS
