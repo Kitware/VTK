@@ -11,9 +11,11 @@ add_library(Eigen3::Eigen ALIAS Eigen3::Eigen3)
 vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE Boost COMPONENTS ALL)
 
-vtk_module_find_package(PRIVATE_IF_SHARED
-  PACKAGE IfcOpenShell)
-
+vtk_module_find_package(
+  PRIVATE_IF_SHARED
+  PACKAGE IfcOpenShell
+  VERSION 0.8.0
+)
 
 vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE OpenCASCADE)
