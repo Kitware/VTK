@@ -896,6 +896,7 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
     else if (auto data_array = vtkDataArray::SafeDownCast(array))
     {
       bool needDisplayName = false;
+      std::string displayName;
       if (conduit_node["fields"].has_child(name))
       {
         // Another field has the same name
@@ -909,6 +910,7 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
         }
         // rename current array
         vtkLogF(TRACE, "Renaming '%s' point and cell arrays.", name.c_str());
+        displayName = name;
         name += "_" + association;
         needDisplayName = true;
       }
@@ -920,7 +922,7 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       {
         // using display_name field property from the Conduit Blueprint Mesh Index Protocol
         // display_name stores the original name of the field
-        field_node["display_name"] = name;
+        field_node["display_name"] = displayName;
       }
 
       auto values_node = field_node["values"];
