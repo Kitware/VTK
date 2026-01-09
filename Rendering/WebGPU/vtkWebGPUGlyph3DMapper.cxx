@@ -594,6 +594,32 @@ const TRIANGLE_VERTS = array(
     }
   }
 
+  //------------------------------------------------------------------------------
+  void ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& vss) override
+  {
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        // Superclass assigns vertex.instance_id to primitive_id,
+        // however this mapper uses instance_id to denote multiple glyphs.
+        vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+          R"(let primitive_id: u32 = line_id;
+  let primitive_size: u32 = 2u;)",
+          /*all=*/true);
+        break;
+      default:
+        this->Superclass::ReplaceVertexShaderPrimitiveId(
+          pipelineType, wgpuRenderer, wgpuActor, vss);
+        break;
+    }
+  }
+
   void ReplaceVertexShaderPicking(GraphicsPipelineType vtkNotUsed(pipelineType),
     vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
     std::string& vss) override
@@ -734,7 +760,7 @@ const TRIANGLE_VERTS = array(
           // ReplaceShaderConstantsDef declares a quad with two triangles
           // when pipeline is specialized for shaped points.
           // total 6 imposter vertices
-          return { /*vertexCount=*/3 * bgInfo.VertexCount,
+          return { /*vertexCount=*/6 * bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
         break;
@@ -746,6 +772,11 @@ const TRIANGLE_VERTS = array(
           return { /*vertexCount=*/bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
+        // ReplaceShaderConstantsDef declares a quad with two triangles
+        // when pipeline is specialized for thick lines and miter joined lines.
+        // total 6 imposter vertices, but each line has two source vertices, so divide
+        // by 2.
+        // effectively, there are total 3 imposter vertices
         if (pipelineType == GFX_PIPELINE_LINES_THICK ||
           pipelineType == GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE)
         {
@@ -758,6 +789,7 @@ const TRIANGLE_VERTS = array(
           return { /*vertexCount=*/3 * bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
+        // Similar logic for effective total no. of imposter verts
         if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN ||
           pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE)
         {
