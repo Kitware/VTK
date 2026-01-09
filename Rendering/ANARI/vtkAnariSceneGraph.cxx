@@ -228,8 +228,12 @@ void vtkAnariSceneGraph::UpdateAnariFrameSize()
 {
   const uvec2 frameSize = { static_cast<uint32_t>(this->Size[0]),
     static_cast<uint32_t>(this->Size[1]) };
+  const size_t totalSize = this->Size[0] * this->Size[1];
   if ((uint32_t)this->Internal->ImageX == frameSize[0] &&
-    (uint32_t)this->Internal->ImageY == frameSize[1])
+    (uint32_t)this->Internal->ImageY == frameSize[1] && !this->Internal->ColorBuffer.empty() &&
+    !this->Internal->DepthBuffer.empty() &&
+    this->Internal->ColorBuffer.size() == totalSize * sizeof(float) &&
+    this->Internal->DepthBuffer.size() == totalSize)
   {
     return;
   }
@@ -237,7 +241,6 @@ void vtkAnariSceneGraph::UpdateAnariFrameSize()
   this->Internal->ImageX = frameSize[0];
   this->Internal->ImageY = frameSize[1];
 
-  const size_t totalSize = this->Size[0] * this->Size[1];
   this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
   this->Internal->DepthBuffer.resize(totalSize);
 

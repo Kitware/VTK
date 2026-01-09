@@ -278,7 +278,7 @@ public:
   anari::Geometry InitializeSpheres(vtkPolyData* polyData, vtkProperty* property,
     std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray, double pointSize,
     vtkDataArray* radiusArray, vtkPiecewiseFunction* scaleFunction,
-    std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
+    std::vector<vec2>& textureCoords, std::vector<vec2>& pointValueTextureCoords,
     std::vector<vec4>& pointColors, int cellFlag) override;
 
   const char* GetSpheresPostfix() const override;
@@ -333,7 +333,7 @@ vtkAnariGlyph3DMapperInheritInterface::GetBaseUpdateResponsibility() const
 anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPolyData* polyData,
   vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
   double pointSize, vtkDataArray* radiusArray, vtkPiecewiseFunction* scaleFunction,
-  std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
+  std::vector<vec2>& textureCoords, std::vector<vec2>& pointValueTextureCoords,
   std::vector<vec4>& pointColors, int cellFlag)
 {
   using MapperInternals = vtkAnariGlyph3DMapperNodeInternals;

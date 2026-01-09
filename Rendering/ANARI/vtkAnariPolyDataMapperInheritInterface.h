@@ -66,18 +66,18 @@ public:
   virtual anari::Geometry InitializeSpheres(vtkPolyData* polyData, vtkProperty* property,
     std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray, double pointSize,
     vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
-    std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
+    std::vector<vec2>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
   virtual anari::Geometry InitializeCurves(vtkPolyData* polyData, vtkProperty* property,
     std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray, double lineWidth,
     vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
-    std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
+    std::vector<vec2>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
   virtual anari::Geometry InitializeCylinders(vtkPolyData* polyData, vtkProperty* property,
     std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray, double lineWidth,
     vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
-    std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
+    std::vector<vec2>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag);
   virtual anari::Geometry InitializeTriangles(vtkPolyData* polyData, vtkProperty* property,
     std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray, std::vector<vec3>& normals,
-    std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
+    std::vector<vec2>& textureCoords, std::vector<vec2>& pointValueTextureCoords,
     std::vector<vec4>& pointColors, int cellFlag);
 
   /**
