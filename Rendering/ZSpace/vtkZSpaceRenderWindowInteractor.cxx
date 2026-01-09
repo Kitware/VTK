@@ -13,7 +13,6 @@
 #include "vtkTransform.h"
 #include "vtkZSpaceHardwarePicker.h"
 #include "vtkZSpaceInteractorStyle.h"
-#include "vtkZSpaceSDKManager.h"
 
 #include <cassert>
 #include <cmath>
@@ -71,109 +70,18 @@ void vtkZSpaceRenderWindowInteractor::ProcessEvents()
   // We only have one stylus
   ed3d->SetDevice(vtkEventDataDevice::RightController);
 
-  switch (sdkManager->GetLeftButtonState())
+  std::vector<vtkZSpaceSDKManager::ButtonIds> stylusButtons = { vtkZSpaceSDKManager::LeftButton,
+    vtkZSpaceSDKManager::MiddleButton, vtkZSpaceSDKManager::RightButton };
+  for (auto buttonId : stylusButtons)
   {
-    case vtkZSpaceSDKManager::Down:
-      this->OnLeftButtonDown(ed3d);
-      break;
-    case vtkZSpaceSDKManager::Up:
-      this->OnLeftButtonUp(ed3d);
-      break;
-    default:
-      break;
-  }
-
-  switch (sdkManager->GetMiddleButtonState())
-  {
-    case vtkZSpaceSDKManager::Down:
-      this->OnMiddleButtonDown(ed3d);
-      break;
-    case vtkZSpaceSDKManager::Up:
-      this->OnMiddleButtonUp(ed3d);
-      break;
-    default:
-      break;
-  }
-
-  switch (sdkManager->GetRightButtonState())
-  {
-    case vtkZSpaceSDKManager::Down:
-      this->OnRightButtonDown(ed3d);
-      break;
-    case vtkZSpaceSDKManager::Up:
-      this->OnRightButtonUp(ed3d);
-      break;
-    default:
-      break;
+    vtkZSpaceSDKManager::ButtonState buttonState = sdkManager->GetButtonState(buttonId);
+    this->ProcessNextButtonState(buttonId, buttonState);
+    this->DispatchStylusEvents(buttonId, buttonState, ed3d);
   }
 
   // Always a move event
   ed3d->SetType(vtkCommand::Move3DEvent);
   this->InvokeEvent(vtkCommand::Move3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnMiddleButtonDown(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetMiddleButtonState(vtkZSpaceSDKManager::Pressed);
-
-  ed3d->SetAction(vtkEventDataAction::Press);
-
-  this->InvokeEvent(vtkCommand::PositionProp3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnMiddleButtonUp(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetMiddleButtonState(vtkZSpaceSDKManager::None);
-
-  ed3d->SetAction(vtkEventDataAction::Release);
-
-  this->InvokeEvent(vtkCommand::PositionProp3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnRightButtonDown(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetRightButtonState(vtkZSpaceSDKManager::Pressed);
-
-  ed3d->SetType(vtkCommand::Select3DEvent);
-  ed3d->SetAction(vtkEventDataAction::Press);
-
-  // Start selecting some vtkWidgets that respond to this event
-  this->InvokeEvent(vtkCommand::Select3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnRightButtonUp(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetRightButtonState(vtkZSpaceSDKManager::None);
-
-  ed3d->SetType(vtkCommand::Select3DEvent);
-  ed3d->SetAction(vtkEventDataAction::Release);
-
-  // End selecting some vtkWidgets that respond to this event
-  this->InvokeEvent(vtkCommand::Select3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnLeftButtonDown(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetLeftButtonState(vtkZSpaceSDKManager::Pressed);
-
-  ed3d->SetAction(vtkEventDataAction::Press);
-
-  this->InvokeEvent(vtkCommand::Pick3DEvent, ed3d);
-}
-
-//------------------------------------------------------------------------------
-void vtkZSpaceRenderWindowInteractor::OnLeftButtonUp(vtkEventDataDevice3D* ed3d)
-{
-  vtkZSpaceSDKManager::GetInstance()->SetLeftButtonState(vtkZSpaceSDKManager::None);
-
-  ed3d->SetAction(vtkEventDataAction::Release);
-
-  this->InvokeEvent(vtkCommand::Pick3DEvent, ed3d);
 }
 
 //------------------------------------------------------------------------------
@@ -194,7 +102,7 @@ vtkEventDataDevice vtkZSpaceRenderWindowInteractor::GetPointerDevice()
   {
     return vtkEventDataDevice::RightController;
   }
-  if (this->PointerIndex == 1)
+  else if (this->PointerIndex == 1)
   {
     return vtkEventDataDevice::LeftController;
   }
@@ -209,6 +117,94 @@ void vtkZSpaceRenderWindowInteractor::StartEventLoop()
     this->ProcessEvents();
     this->Render();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceRenderWindowInteractor::ProcessNextButtonState(
+  vtkZSpaceSDKManager::ButtonIds buttonId, vtkZSpaceSDKManager::ButtonState buttonState)
+{
+  bool changeNextButtonState =
+    buttonState == vtkZSpaceSDKManager::Up || buttonState == vtkZSpaceSDKManager::Down;
+  if (!changeNextButtonState)
+  {
+    return;
+  }
+
+  // Switch next button state to be `Pressed` if the previous one is `Down` otherwise `None` by
+  // default. See `vtkZSpaceSDKManager` documentation for more information.
+  vtkZSpaceSDKManager::ButtonState nextButtonState = vtkZSpaceSDKManager::None;
+  if (buttonState == vtkZSpaceSDKManager::Down)
+  {
+    nextButtonState = vtkZSpaceSDKManager::Pressed;
+  }
+
+  vtkZSpaceSDKManager::GetInstance()->SetButtonState(buttonId, nextButtonState);
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceRenderWindowInteractor::DispatchStylusEvents(vtkZSpaceSDKManager::ButtonIds buttonId,
+  vtkZSpaceSDKManager::ButtonState buttonState, vtkEventDataDevice3D* ed3d)
+{
+  if (buttonState == vtkZSpaceSDKManager::None || buttonState == vtkZSpaceSDKManager::Pressed)
+  {
+    return;
+  }
+
+  if (vtkZSpaceSDKManager::GetInstance()->GetUseDefaultBehavior(buttonId))
+  {
+    this->CallDefaultStylusEvents(buttonId, buttonState, ed3d);
+  }
+  else
+  {
+    this->CallCustomStylusEvent(buttonId, buttonState);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceRenderWindowInteractor::CallDefaultStylusEvents(
+  vtkZSpaceSDKManager::ButtonIds buttonId, vtkZSpaceSDKManager::ButtonState buttonState,
+  vtkEventDataDevice3D* ed3d)
+{
+  vtkEventDataAction eventAction = vtkEventDataAction::Unknown;
+  switch (buttonState)
+  {
+    case vtkZSpaceSDKManager::Up:
+      eventAction = vtkEventDataAction::Release;
+      break;
+    case vtkZSpaceSDKManager::Down:
+      eventAction = vtkEventDataAction::Press;
+      break;
+    default:
+      break;
+  }
+
+  unsigned long eventType = vtkCommand::NoEvent;
+  switch (buttonId)
+  {
+    case vtkZSpaceSDKManager::LeftButton:
+      eventType = vtkCommand::Pick3DEvent;
+      break;
+    case vtkZSpaceSDKManager::MiddleButton:
+      eventType = vtkCommand::PositionProp3DEvent;
+      break;
+    case vtkZSpaceSDKManager::RightButton:
+      eventType = vtkCommand::Select3DEvent;
+      break;
+    default:
+      break;
+  }
+
+  ed3d->SetType(eventType);
+  ed3d->SetAction(eventAction);
+  this->InvokeEvent(eventType, ed3d);
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceRenderWindowInteractor::CallCustomStylusEvent(
+  vtkZSpaceSDKManager::ButtonIds buttonId, vtkZSpaceSDKManager::ButtonState buttonState)
+{
+  vtkZSpaceSDKManager::StylusEventData eventData(buttonId, buttonState);
+  this->InvokeEvent(StylusButtonEvent, &eventData);
 }
 
 VTK_ABI_NAMESPACE_END

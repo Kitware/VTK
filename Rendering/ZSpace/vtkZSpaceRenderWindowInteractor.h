@@ -16,6 +16,7 @@
 #include "vtkEventData.h" // For vtkEventDataDevice
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderingZSpaceModule.h" // For export macro
+#include "vtkZSpaceSDKManager.h"      // For ButtonIds, ButtonState
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -28,6 +29,14 @@ public:
   static vtkZSpaceRenderWindowInteractor* New();
   vtkTypeMacro(vtkZSpaceRenderWindowInteractor, vtkRenderWindowInteractor3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Custom events for zSpace environment.
+   */
+  enum CustomEvents
+  {
+    StylusButtonEvent = vtkCommand::UserEvent + 6703
+  };
 
   /**
    * These methods correspond to the Exit, User and Pick
@@ -46,35 +55,6 @@ public:
    */
   vtkEventDataDevice GetPointerDevice();
 
-  ///@{
-  /**
-   * LeftButton event function (invoke Button3DEvent)
-   * Initiate a clip : choose a clipping plane origin
-   * and normal with the stylus.
-   */
-  void OnLeftButtonDown(vtkEventDataDevice3D*);
-  void OnLeftButtonUp(vtkEventDataDevice3D*);
-  ///@}
-
-  ///@{
-  /**
-   * MiddleButton event function (invoke Button3DEvent)
-   * Allows to position a prop with the stylus.
-   */
-  void OnMiddleButtonDown(vtkEventDataDevice3D*);
-  void OnMiddleButtonUp(vtkEventDataDevice3D*);
-  ///@}
-
-  ///@{
-  /**
-   * LeftButton event function (invoke Button3DEvent)
-   * Perform an hardware picking with the stylus
-   * and show picked data if ShowPickedData is true.
-   */
-  void OnRightButtonDown(vtkEventDataDevice3D*);
-  void OnRightButtonUp(vtkEventDataDevice3D*);
-  ///@}
-
 protected:
   vtkZSpaceRenderWindowInteractor();
   ~vtkZSpaceRenderWindowInteractor() override = default;
@@ -88,6 +68,34 @@ protected:
 private:
   vtkZSpaceRenderWindowInteractor(const vtkZSpaceRenderWindowInteractor&) = delete;
   void operator=(const vtkZSpaceRenderWindowInteractor&) = delete;
+
+  /**
+   * Change the button state of the given `buttonId` depending on the current state. This ensures
+   * that the events are triggered once when the states are either `Pressed` or `Up`.
+   */
+  void ProcessNextButtonState(
+    vtkZSpaceSDKManager::ButtonIds buttonId, vtkZSpaceSDKManager::ButtonState buttonState);
+
+  /**
+   * Function call to invoke the default stylus event as well as custom stylus event if needed.
+   */
+  void DispatchStylusEvents(vtkZSpaceSDKManager::ButtonIds buttonId,
+    vtkZSpaceSDKManager::ButtonState buttonState, vtkEventDataDevice3D* ed3d);
+
+  /**
+   * Invoke the events for the default behavior of the stylus. In this case:
+   * - The left button will pick a cell and show its properties
+   * - The middle button will grab a data object in the scene if possible.
+   * - The right button will
+   */
+  void CallDefaultStylusEvents(vtkZSpaceSDKManager::ButtonIds buttonId,
+    vtkZSpaceSDKManager::ButtonState buttonState, vtkEventDataDevice3D* ed3d);
+
+  /**
+   * Call a `vtkCommand::UserEvent` with the `buttonId` and `buttonState` attached to it.
+   */
+  void CallCustomStylusEvent(
+    vtkZSpaceSDKManager::ButtonIds buttonId, vtkZSpaceSDKManager::ButtonState buttonState);
 };
 
 VTK_ABI_NAMESPACE_END

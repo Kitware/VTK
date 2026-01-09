@@ -259,6 +259,11 @@ public:
     NumberOfButtons = 3
   };
 
+  /**
+   * Helper function to convert a button enum value to a string.
+   */
+  static std::string ButtonToString(ButtonIds buttonId);
+
   enum ButtonState
   {
     Down = 0,
@@ -267,6 +272,31 @@ public:
     None = 3,
     NumberOfStates = 4
   };
+
+  /**
+   * Event data structure used for sending vtkCommand::UserEvent considered here also as custom
+   * stylus events.
+   */
+  struct StylusEventData
+  {
+    StylusEventData(ButtonIds button, ButtonState state)
+      : Button(button)
+      , State(state)
+    {
+    }
+
+    ButtonIds Button;
+    ButtonState State;
+  };
+
+  ///@{
+  /**
+   * Set/Get the button state associated to the given `buttonId`.
+   * The default value for each button is `ButtonState::None`.
+   */
+  ButtonState GetButtonState(ButtonIds buttonId) const;
+  void SetButtonState(ButtonIds buttonId, ButtonState buttonState);
+  ///@}
 
   ///@{
   /**
@@ -290,6 +320,15 @@ public:
    */
   vtkGetMacro(RightButtonState, int);
   vtkSetEnumMacro(RightButtonState, ButtonState);
+  ///@}
+
+  ///@{
+  /**
+   * Set whether or not to use the default behavior for the given `buttonId`.
+   * The default value for each button is `true`.
+   */
+  bool GetUseDefaultBehavior(ButtonIds buttonId) const;
+  void SetUseDefaultBehavior(ButtonIds buttonId, bool enabled);
   ///@}
 
 protected:
@@ -341,6 +380,9 @@ protected:
   // Store buttons state to iterate over them
   ButtonState* ButtonsState[NumberOfButtons] = { &MiddleButtonState, &RightButtonState,
     &LeftButtonState };
+
+  // Store whether or not to use the default behavior per button.
+  bool DefaultStylusButtonEventsEnabled[NumberOfButtons] = { true, true, true };
 
 private:
   vtkZSpaceSDKManager(const vtkZSpaceSDKManager&) = delete;

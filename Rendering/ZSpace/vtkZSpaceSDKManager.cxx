@@ -8,6 +8,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 
+#include <cassert>
+
 #if VTK_ZSPACE_USE_COMPAT_SDK
 #include "vtkZSpaceCoreCompatibilitySDKManager.h"
 #else
@@ -72,6 +74,52 @@ vtkMatrix4x4* vtkZSpaceSDKManager::GetStereoViewMatrix(bool leftEye)
 vtkMatrix4x4* vtkZSpaceSDKManager::GetStereoProjectionMatrix(bool leftEye)
 {
   return leftEye ? this->LeftEyeProjectionMatrix : this->RightEyeProjectionMatrix;
+}
+
+//------------------------------------------------------------------------------
+vtkZSpaceSDKManager::ButtonState vtkZSpaceSDKManager::GetButtonState(ButtonIds buttonId) const
+{
+  assert(buttonId < ButtonIds::NumberOfButtons);
+  return *this->ButtonsState[buttonId];
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceSDKManager::SetButtonState(ButtonIds buttonId, ButtonState buttonState)
+{
+  assert(buttonId < ButtonIds::NumberOfButtons);
+  *this->ButtonsState[buttonId] = buttonState;
+}
+
+//------------------------------------------------------------------------------
+bool vtkZSpaceSDKManager::GetUseDefaultBehavior(ButtonIds buttonId) const
+{
+  assert(buttonId >= 0 && buttonId < NumberOfButtons);
+
+  return this->DefaultStylusButtonEventsEnabled[buttonId];
+}
+
+//------------------------------------------------------------------------------
+void vtkZSpaceSDKManager::SetUseDefaultBehavior(ButtonIds buttonId, bool enabled)
+{
+  assert(buttonId >= 0 && buttonId < NumberOfButtons);
+
+  this->DefaultStylusButtonEventsEnabled[buttonId] = enabled;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkZSpaceSDKManager::ButtonToString(ButtonIds buttonId)
+{
+  switch (buttonId)
+  {
+    case ButtonIds::LeftButton:
+      return "Left";
+    case ButtonIds::MiddleButton:
+      return "Middle";
+    case ButtonIds::RightButton:
+      return "Right";
+    default:
+      return "Unknown";
+  }
 }
 
 //------------------------------------------------------------------------------
