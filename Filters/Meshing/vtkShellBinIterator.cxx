@@ -852,7 +852,7 @@ struct ShellBinIterator : public InternalShellBinIterator
     return true;
   }
 
-  bool Next(double rad2, vtkDoubleArray* spheres, vtkDist2TupleArray& results)
+  bool Next(double rad22, vtkDoubleArray* spheres, vtkDist2TupleArray& results)
   {
     // Grab points in the bin. Make sure there is something useful to
     // return.
@@ -868,7 +868,7 @@ struct ShellBinIterator : public InternalShellBinIterator
         }
         // Increasing to the next level
         this->ComputeMinD2(this->Level);
-        if (rad2 < this->MinD2)
+        if (rad22 < this->MinD2)
         {
           return false; // completed iteration
         }
@@ -890,7 +890,7 @@ struct ShellBinIterator : public InternalShellBinIterator
         // See if the bin is outside of the Circumflower / radius of security
         double min[3], max[3];
         this->Bins->GetBucketBounds(BIter.IJK[0], BIter.IJK[1], BIter.IJK[2], min, max);
-        if (!vtkBoundingBox::IntersectsSphere(min, max, this->X, rad2))
+        if (!vtkBoundingBox::IntersectsSphere(min, max, this->X, rad22))
         {
           continue;
         }
@@ -923,7 +923,7 @@ struct ShellBinIterator : public InternalShellBinIterator
         vtkIdType ptId = ids[0].PtId;
         pt = this->GetPoint(ptId);
         double d2 = vtkMath::Distance2BetweenPoints(this->X, pt);
-        if (d2 <= rad2)
+        if (d2 <= rad22)
         {
           results.emplace_back(ptId, d2);
         }
@@ -940,7 +940,7 @@ struct ShellBinIterator : public InternalShellBinIterator
           vtkIdType ptId = ids[i].PtId;
           pt = this->GetPoint(ptId);
           double d2 = vtkMath::Distance2BetweenPoints(this->X, pt);
-          if (d2 <= rad2)
+          if (d2 <= rad22)
           {
             results.emplace_back(ptId, d2);
             if (d2 < minR2)
