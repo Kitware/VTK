@@ -3,7 +3,7 @@
 
 /**
  * @class   vtkIFCReader
- * @brief   Reads an IFC file.
+ * @brief   Reads an IFC file using IFcOpenShell library
  *
  *
  * @sa
