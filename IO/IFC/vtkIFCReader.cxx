@@ -155,7 +155,7 @@ int vtkIFCReader::RequestData(
       throw std::runtime_error(std::string("Unable to parse") + this->FileName);
     }
     auto schema_version = file.schema()->name();
-    vtkLog(INFO, "File schema: " << schema_version);
+    vtkLog(INFO, "File schema: " << schema_version << " threads: " << this->NumberOfThreads);
     ifcopenshell::geometry::Settings settings;
     // no need to use the transform
     settings.get<ifcopenshell::geometry::settings::UseWorldCoords>().value = true;
@@ -163,12 +163,19 @@ int vtkIFCReader::RequestData(
       ifcopenshell::geometry::SURFACES_AND_SOLIDS;
     settings.get<ifcopenshell::geometry::settings::IteratorOutput>().value =
       ifcopenshell::geometry::TRIANGULATED;
-    // from ifcconvert
-    settings.get<ifcopenshell::geometry::settings::LengthUnit>().value = 0;
-    settings.get<ifcopenshell::geometry::settings::PlaneUnit>().value = 0;
-    settings.get<ifcopenshell::geometry::settings::Precision>().value = 0;
-    settings.get<ifcopenshell::geometry::settings::WeldVertices>().value = false;
-    settings.get<ifcopenshell::geometry::settings::OcctNoCleanTriangulation>().value = true;
+    // Try to get the reader to work as fast as IfcConvert to glb which
+    // runs in about 30s for 'Viadotto Acerno bridge.ifc' compared with about
+    // 2min for the reader.
+    // We copied the same settings as IfcConvert but that did not speed up
+    // the reader.
+    settings.get<ifcopenshell::geometry::settings::MesherLinearDeflection>().value = 0.001;
+    settings.get<ifcopenshell::geometry::settings::MesherAngularDeflection>().value = 0.5;
+    settings.get<ifcopenshell::geometry::settings::PrecisionFactor>().value = 1;
+    settings.get<ifcopenshell::geometry::settings::BooleanAttempt2d>().value = true;
+    settings.get<ifcopenshell::geometry::settings::ApplyDefaultMaterials>().value = true;
+    settings.get<ifcopenshell::geometry::settings::FunctionStepParam>().value = 0.5;
+    settings.get<ifcopenshell::geometry::settings::CgalSmoothAngleDegrees>().value = -1;
+    settings.get<ifcopenshell::geometry::settings::CircleSegments>().value = 16;
 
     std::vector<IfcGeom::filter_t> filter_funcs;
     std::set<std::string> entities = {
