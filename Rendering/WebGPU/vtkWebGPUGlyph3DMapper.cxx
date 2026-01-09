@@ -731,6 +731,9 @@ const TRIANGLE_VERTS = array(
         if (pipelineType == GFX_PIPELINE_POINTS_SHAPED ||
           pipelineType == GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE)
         {
+          // ReplaceShaderConstantsDef declares a quad with two triangles
+          // when pipeline is specialized for shaped points.
+          // total 6 imposter vertices
           return { /*vertexCount=*/3 * bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
@@ -774,8 +777,9 @@ const TRIANGLE_VERTS = array(
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgsForDrawingVertices(
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override
   {
+    // See comment in GetDrawCallArgs for explaination of 6 imposter verts.
     const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
-    return { /*VertexCount=*/3 * bgInfo.VertexCount, /*InstanceCount=*/this->NumberOfGlyphPoints };
+    return { /*VertexCount=*/6 * bgInfo.VertexCount, /*InstanceCount=*/this->NumberOfGlyphPoints };
   }
 
 private:
