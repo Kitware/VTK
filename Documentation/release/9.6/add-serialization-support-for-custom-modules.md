@@ -1,3 +1,0 @@
-## Add serialization support for custom modules.
-
-VTK now provides a new CMake function `vtk_module_add_serdes_wasm_package`. You can use it to enable (de)serialization for external VTK modules in WASM. It creates JavaScript bindings for `vtkRemoteSession` and `vtkStandaloneSession` and registers serialization handlers for the declared dependencies. Refer to official VTK documentation for full details. You can additionaly initialize addons (external VTK modules) in the object manager for Python by passing the module's `RegisterClass_vtkModuleName` python attribute to `vtkObjectManager.InitializeExtensionModuleHandler`
