@@ -80,7 +80,7 @@ async function testObservers() {
   const standaloneSession = new vtkWASM.vtkStandaloneSession();
   const actorId = standaloneSession.create("vtkActor");
   let observedChanges = 0;
-  const observerId = standaloneSession.observe(actorId, 'ModifiedEvent', (objId, propName, newValue) => {
+  const observerId = standaloneSession.observe(actorId, 'ModifiedEvent', (objId, eventName) => {
     observedChanges++;
   });
   standaloneSession.set(actorId, { Visibility: false });

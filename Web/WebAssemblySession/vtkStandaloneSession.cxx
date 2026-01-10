@@ -120,7 +120,8 @@ emscripten::val vtkStandaloneSession::Invoke(
 unsigned long vtkStandaloneSession::Observe(
   vtkObjectHandle object, const std::string& eventName, emscripten::val jsFunction)
 {
-  int fp = val::module_property("addFunction")(jsFunction, std::string("vii")).as<int>();
+  auto fp =
+    val::module_property("addFunction")(jsFunction, std::string("vip")).as<std::uintptr_t>();
   auto callback = reinterpret_cast<vtkSessionObserverCallbackFunc>(fp);
   return vtkSessionAddObserver(this->Session, object, eventName.c_str(), callback);
 }
