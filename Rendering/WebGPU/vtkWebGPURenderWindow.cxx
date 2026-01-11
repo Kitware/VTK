@@ -100,6 +100,8 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow()
 {
   this->ScreenSize[0] = 0;
   this->ScreenSize[1] = 0;
+  this->Size[0] = 300;
+  this->Size[1] = 300;
   this->WGPUConfiguration = vtk::TakeSmartPointer(vtkWebGPUConfiguration::New());
 }
 
