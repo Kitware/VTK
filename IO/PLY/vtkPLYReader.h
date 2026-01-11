@@ -50,10 +50,15 @@ public:
    */
   static vtkPLYReader* New();
 
+  ///@{
   /**
-   * A simple, non-exhaustive check to see if a file is a valid ply file.
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read. The stream version may move the
+   * stream cursor. Only checks that the first line of the file is `ply`
    */
-  static int CanReadFile(VTK_FILEPATH const char* filename);
+  static vtkTypeBool CanReadFile(VTK_FILEPATH const char* filename);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
 
   vtkGetObjectMacro(Comments, vtkStringArray);
 

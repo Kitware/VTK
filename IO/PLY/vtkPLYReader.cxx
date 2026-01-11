@@ -5,6 +5,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
@@ -17,6 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkResourceParser.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
@@ -171,6 +173,7 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->ReadFromInputStream)
   {
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     if (!(ply = vtkPLY::ply_read(this->Stream, &nelems, &elist)))
     {
       vtkWarningMacro(<< "Could not open PLY file");
@@ -626,18 +629,38 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-int vtkPLYReader::CanReadFile(const char* filename)
+//------------------------------------------------------------------------------
+vtkTypeBool vtkPLYReader::CanReadFile(const char* filename)
 {
-  FILE* fd = vtksys::SystemTools::Fopen(filename, "rb");
-  if (!fd)
-    return 0;
-
-  char line[4] = {};
-  const char* result = fgets(line, sizeof(line), fd);
-  fclose(fd);
-  return (result && strncmp(result, "ply", 3) == 0);
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkPLYReader::CanReadFile(stream);
 }
 
+//------------------------------------------------------------------------------
+bool vtkPLYReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+
+  std::string line;
+  if (asciiTester->ReadLine(line, 4) != vtkParseResult::EndOfLine)
+  {
+    return false;
+  }
+  return line == "ply";
+}
+
+//------------------------------------------------------------------------------
 void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
