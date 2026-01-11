@@ -33,11 +33,18 @@ public:
   vtkTypeMacro(vtkOpenVDBReader, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * @brief Returns whether a file can be read by the reader or not.
-   * The parameter is the path to the file.
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read. The stream version may move the
+   * stream cursor. The filename version should be static but is not for backward compatibility
+   * reasons. It does not modify nor uses members.
+   *
+   * Technically, this only check that the magic number 0x2042445600000000
    */
-  bool CanReadFile(VTK_FILEPATH const char*);
+  bool CanReadFile(VTK_FILEPATH const char* name);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
 
   /**
    * Get the file extensions for this format.
