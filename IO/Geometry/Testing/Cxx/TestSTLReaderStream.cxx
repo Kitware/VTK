@@ -28,6 +28,12 @@ int TestSTLReaderStream(int argc, char* argv[])
   vtkNew<vtkFileResourceStream> stream;
   stream->Open(inputFilename.c_str());
 
+  if (!vtkSTLReader::CanReadFile(stream))
+  {
+    std::cerr << "Unexpected CanReadFile result" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkSTLReader> reader;
   reader->SetStream(stream);
   reader->Update();

@@ -45,6 +45,19 @@ public:
    */
   static vtkSTLReader* New();
 
+  ///@{
+  /**
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read, except if using RelaxedConformance.
+   * The stream version may move the stream cursor.
+   * Check that the first chars are "solid", if not, assume the file is binary
+   * and skip the header of size 80, then read the number of triangles and
+   * then check it correspond to the number of triangle defined in the file.
+   */
+  static bool CanReadFile(VTK_FILEPATH const char* filename);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
+
   /**
    * Overload standard modified time function. If locator is modified,
    * then this object is modified as well.
@@ -141,6 +154,10 @@ private:
   bool ReadBinarySTL(vtkResourceStream* stream, vtkPoints*, vtkCellArray*);
   bool ReadASCIISTL(
     vtkResourceParser* parser, vtkPoints*, vtkCellArray*, vtkFloatArray* scalars = nullptr);
+
+  static bool ReadBinaryHeader(vtkResourceStream* stream, vtkUnsignedCharArray* header);
+  static bool ReadBinaryTrisField(vtkResourceStream* stream, uint32_t& numTrisField);
+  static bool ReadBinaryTrisFile(vtkResourceStream* stream, vtkTypeInt64& numTrisFile);
 };
 
 VTK_ABI_NAMESPACE_END
