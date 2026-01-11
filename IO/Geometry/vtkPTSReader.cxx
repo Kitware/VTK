@@ -481,4 +481,38 @@ vtkMTimeType vtkPTSReader::GetMTime()
   return mtime;
 }
 
+//------------------------------------------------------------------------------
+bool vtkPTSReader::CanReadFile(const char* filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkPTSReader::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkPTSReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+
+  std::string line;
+  if (asciiTester->ReadLine(line) != vtkParseResult::EndOfLine)
+  {
+    return false;
+  }
+
+  auto resultInt = vtk::scan_int<int>(line);
+  auto resultPoint = vtk::scan<double, double, double>(line, "{:f} {:f} {:f}");
+  return resultPoint || resultInt;
+}
+
 VTK_ABI_NAMESPACE_END
