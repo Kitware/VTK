@@ -62,6 +62,16 @@ public:
 
   ///@{
   /**
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read. The stream version may move the
+   * stream cursor. This only checks that the first chars of this file is "<?xml"
+   */
+  static bool CanReadFile(VTK_FILEPATH const char* name);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
+
+  ///@{
+  /**
    * Specify stream to read from
    * When both `Stream` and `Filename` are set, stream is used.
    */
