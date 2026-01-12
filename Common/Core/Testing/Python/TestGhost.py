@@ -20,12 +20,16 @@ Created on Aug 19, 2010 by David Gobbi
 
 """
 
+
 import sys
 from vtkmodules.vtkCommonCore import (
     vtkObject,
     vtkVariantArray,
 )
 from vtkmodules.test import Testing
+
+if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+    import gc
 
 class vtkCustomObject(vtkObject):
     pass
@@ -39,6 +43,12 @@ class TestGhost(Testing.vtkTest):
         a.InsertNextValue(o)
         i = id(o)
         del o
+
+        # Force garbage collection to ensure object is deallocated
+        # This is especially important in free-threading mode
+        if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+            gc.collect()
+
         o = vtkObject()
         o = a.GetValue(0).ToVTKObject()
         # make sure the id has changed, but dict the same
@@ -52,6 +62,12 @@ class TestGhost(Testing.vtkTest):
         a.InsertNextValue(o)
         i = id(o)
         del o
+
+        # Force garbage collection to ensure object is deallocated
+        # This is especially important in free-threading mode
+        if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+            gc.collect()
+
         o = vtkObject()
         o = a.GetValue(0).ToVTKObject()
         # make sure the id has changed, but class the same
