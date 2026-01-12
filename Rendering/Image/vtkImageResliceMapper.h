@@ -245,8 +245,8 @@ protected:
   /**
    * Override Update to handle some tricky details.
    */
-  void Update(int port) override;
-  void Update() override;
+  bool Update(int port) override;
+  bool Update() override;
   vtkTypeBool Update(int port, vtkInformationVector* requests) override;
   vtkTypeBool Update(vtkInformation* requests) override;
   ///@}

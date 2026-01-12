@@ -681,9 +681,9 @@ public:
    * Bring this algorithm's outputs up-to-date.
    */
   VTK_UNBLOCKTHREADS
-  virtual void Update(int port);
+  virtual bool Update(int port);
   VTK_UNBLOCKTHREADS
-  virtual void Update();
+  virtual bool Update();
   ///@}
 
   /**

@@ -135,22 +135,22 @@ int vtkCellGridMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
   return 1;
 }
 
-void vtkCellGridMapper::Update(int port)
+bool vtkCellGridMapper::Update(int port)
 {
   if (this->Static)
   {
-    return;
+    return true;
   }
-  this->Superclass::Update(port);
+  return this->Superclass::Update(port);
 }
 
-void vtkCellGridMapper::Update()
+bool vtkCellGridMapper::Update()
 {
   if (this->Static)
   {
-    return;
+    return true;
   }
-  this->Superclass::Update();
+  return this->Superclass::Update();
 }
 
 vtkTypeBool vtkCellGridMapper::Update(int port, vtkInformationVector* requests)
