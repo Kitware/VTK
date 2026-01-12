@@ -69,10 +69,10 @@ elseif(VTK_USE_COCOA)
     vtkCocoaRenderWindowInteractor.mm)
   list(APPEND headers
     vtkCocoaAutoreleasePool.h
-    vtkCocoaHardwareView.h
     vtkCocoaHardwareWindow.h
     vtkCocoaRenderWindowInteractor.h)
   list(APPEND nowrap_headers
+    vtkCocoaHardwareView.h
     vtkCocoaMacOSXSDKCompatibility.h)
   # Set specified Objective-C++ flags, if any.
   if(VTK_REQUIRED_OBJCXX_FLAGS)
