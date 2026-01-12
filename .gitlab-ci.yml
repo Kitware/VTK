@@ -506,6 +506,7 @@ wasm32-emscripten-windows-chrome:test-ext:
         CTEST_MAX_PARALLELISM: 4
     needs:
         - wasm32-emscripten-linux:build
+    retry: 2
     timeout: 8 hours
 
 ## Test the 'wasm64-emscripten' architecture on a windows host
@@ -520,6 +521,7 @@ wasm64-emscripten-windows-chrome:test-ext:
         CTEST_MAX_PARALLELISM: 4
     needs:
         - wasm64-emscripten-linux:build
+    retry: 2
     timeout: 8 hours
 
 ## Python x86_64 wheel builds
