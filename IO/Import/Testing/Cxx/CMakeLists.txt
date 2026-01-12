@@ -119,6 +119,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterTexCoord,TestGLTFImporter.cxx DATA{../Data/glTF/TexturedMonkey.glb} 0 -1 1 0 0 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   LOOSE_VALID
   TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} 0 -1 1 0 0 0
 )

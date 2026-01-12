@@ -1220,17 +1220,50 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
     pointData->SetScalars(primitive.AttributeValues["COLOR_0"]);
     primitive.AttributeValues.erase("COLOR_0");
   }
-  if (primitive.AttributeValues.count("TEXCOORD_0"))
+
+  // A GlTF material can have multiple textures, but, in VTK, "Using multiple texture coordinates
+  // for the same model is not supported." so we'll just pick one
+  int mainTexCoordSet = 0;
+  if (primitive.Material != -1)
   {
-    pointData->SetTCoords(primitive.AttributeValues["TEXCOORD_0"]);
-    primitive.AttributeValues.erase("TEXCOORD_0");
+    const auto& material = this->InternalModel->Materials[primitive.Material];
+    for (const vtkGLTFDocumentLoader::TextureInfo& info :
+      { material.PbrMetallicRoughness.BaseColorTexture, material.EmissiveTexture,
+        material.NormalTexture, material.OcclusionTexture,
+        material.PbrMetallicRoughness.MetallicRoughnessTexture })
+    {
+      if (info.Index != -1)
+      {
+        mainTexCoordSet = info.TexCoord;
+        break;
+      }
+    }
   }
-  if (primitive.AttributeValues.count("TEXCOORD_1"))
+
+  // Set the main TCoords
+  std::string mainTCoordName = "TEXCOORD_" + vtk::to_string(mainTexCoordSet);
+  if (primitive.AttributeValues.count(mainTCoordName))
   {
-    primitive.AttributeValues["TEXCOORD_1"]->SetName("texcoord_1");
-    pointData->AddArray(primitive.AttributeValues["TEXCOORD_1"]);
-    primitive.AttributeValues.erase("TEXCOORD_1");
+    pointData->SetTCoords(primitive.AttributeValues[mainTCoordName]);
+    primitive.AttributeValues.erase(mainTCoordName);
   }
+
+  // Add all other texture coordinates as secondary arrays, and then remove them
+  // from primitive.AttributeValues
+  for (auto it = primitive.AttributeValues.begin(); it != primitive.AttributeValues.end();)
+  {
+    if (it->first.rfind("TEXCOORD_", 0) == 0)
+    {
+      it->second->SetName(it->first.c_str());
+      pointData->AddArray(it->second);
+      it = primitive.AttributeValues.erase(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
   // Spec only requires 1 set of 4 joints/weights per vert.
   // only those are loaded for now.
   if (primitive.AttributeValues.count("JOINTS_0"))
