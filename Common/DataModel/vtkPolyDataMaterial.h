@@ -11,6 +11,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"                // For vtkObject
+#include "vtkSetGet.h"                // For vtkTypeMacro
 #include <vector>                     // for std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -35,6 +36,7 @@ class vtkDataObject;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataMaterial : public vtkObject
 {
 public:
+  vtkTypeMacro(vtkPolyDataMaterial, vtkObject);
   static vtkPolyDataMaterial* New();
 
   static inline const char* TEXTURE_URI = "texture_uri";
