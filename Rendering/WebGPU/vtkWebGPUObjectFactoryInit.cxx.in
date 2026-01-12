@@ -97,7 +97,6 @@ callbackCommand->SetCallback(
         }
         if (factory->HasOverride("vtkRenderWindow"))
         {
-          factory->SetEnableFlag(useWebGPU, "vtkRenderWindow", "vtkWebAssemblyWebGPURenderWindow");
           // disable/enable ALL opengl render window overrides.
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkOpenGLRenderWindow");
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkCocoaRenderWindow");

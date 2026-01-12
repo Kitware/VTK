@@ -126,9 +126,6 @@ The following features are currently implemented:
 - **Rendering Adjustments**:
   - Point size adjustments.
   - Line width adjustments for wireframe and surface with edges.
-- **Rendering Backends**:
-  - `vtkWebAssemblyWebGPURenderWindow`: A reference implementation of `vtkWebGPURenderWindow` for WebAssembly and desktop.
-  - `vtkXWebGPURenderWindow`: Implementation using X11 for Linux desktop rendering.
 - **Depth Testing**: Enables correct rendering of 3D objects.
 - **Selections**: Hardware selector can pick cells, composite datasets and actors.
 ---
