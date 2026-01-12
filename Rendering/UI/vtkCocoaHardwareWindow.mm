@@ -16,8 +16,9 @@
 @end
 
 @implementation vtkCocoaWindowDelegate
+@synthesize vtkWindow;
 // Called when the window is about to close.
-- (BOOL)windowShouldClose:(NSNotification*)notification
+- (BOOL)windowShouldClose:(NSWindow*)window
 {
   if (self.vtkWindow)
   {
@@ -113,7 +114,8 @@ void vtkCocoaHardwareWindow::Create()
     CGFloat initialHeight = (this->Size[1] > 0) ? this->Size[1] : 300;
 
     // Convert VTK's top-left coordinates to Cocoa's bottom-left coordinates for the window frame.
-    NSScreen* primaryScreen = [NSScreen mainScreen] ?: [NSScreen screens].firstObject;
+    NSScreen* mainScreen = [NSScreen mainScreen];
+    NSScreen* primaryScreen = mainScreen ? mainScreen : [NSScreen screens].firstObject;
     NSRect screenFrame = [primaryScreen frame];
     CGFloat initialY = screenFrame.size.height - this->Position[1] - initialHeight;
 
@@ -276,7 +278,11 @@ void vtkCocoaHardwareWindow::SetWindowName(const char* name)
   this->Superclass::SetWindowName(name);
   if (this->WindowId)
   {
-    [this->WindowId setTitle:[NSString stringWithUTF8String:name]];
+    NSString* title = [NSString stringWithUTF8String:name];
+    if (title)
+    {
+      [this->WindowId setTitle:title];
+    }
   }
 }
 
