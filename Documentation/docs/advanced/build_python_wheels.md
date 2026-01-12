@@ -55,5 +55,18 @@ set(VTK_VERSION_SUFFIX "dev0" CACHE STRING "")
 
 This is an optional step that may be useful if you need to build python extensions against the generated Python wheel.
 
-Once VTK is built, go to the `${CMAKE_BUILD_DIR}/wheel_sdks`. Then run the following command `python -m pip wheel .`.
-A `vtk_sdk` wheel will be generated in the `${CMAKE_BUILD_DIR}/wheel_sdks` folder.
+Before building the vtk-sdk wheel, one must ensure that:
+- `CMAKE_INSTALL_PREFIX` is defined to a meaningful value, DO **NOT** use the `--prefix` option of `cmake --install`!
+- *Optional*: `VTK_VERSION_SUFFIX` is set to some meaningful value, see above for more information.
+- Install prefix is clean, all files in the install prefix will be packaged!
+- VTK has been built with `VTK_WHEEL_BUILD=ON`.
+- VTK has been installed, using `cmake --install` or by "building" the install target.
+
+Then move to the `${CMAKE_BUILD_DIR}/wheel_sdks` directory and run the following command:</br>
+```sh
+python -m pip wheel .
+```
+
+A `vtk_sdk-<version>-<pyabi>-<platform-tag>.whl` wheel will be generated in the `${CMAKE_BUILD_DIR}/wheel_sdks` folder.</br>
+Generated wheel is only **guaranteed to be compatible with the VTK install tree and wheel that you may have generated using the same build**. This is due to VTK not having any ABI stability guarantees.</br>
+In practice, it is likely that it will be compatible with any generated VTK with same optimization level and same commit hash.
