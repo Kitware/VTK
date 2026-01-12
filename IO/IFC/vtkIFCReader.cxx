@@ -331,6 +331,8 @@ int vtkIFCReader::RequestData(
       }
       ++i;
       hasElements = iterator.next();
+      int progress = iterator.progress();
+      this->UpdateProgress(static_cast<double>(progress) / 100);
     } while (hasElements);
     output->SetNumberOfPartitionedDataSets(i);
     vtkLog(INFO, "Finished " << i << " partitioned datasets");
@@ -350,7 +352,7 @@ int vtkIFCReader::CanReadFile(const char* filename)
   {
     return 0;
   }
-  if (!vtksys::SystemTools::FileExists(this->FileName, true))
+  if (!vtksys::SystemTools::FileExists(filename, true))
   {
     return 0;
   }
