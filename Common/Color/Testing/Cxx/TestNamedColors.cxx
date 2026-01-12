@@ -14,8 +14,8 @@
 #include <vector>
 
 constexpr int NUMBER_OF_SYNONYMS = 81;
-constexpr int NUMBER_OF_COLORS = 283;
-constexpr int PRINT_SELF_STRING_SIZE = 9242;
+constexpr int NUMBER_OF_COLORS = 285;
+constexpr int PRINT_SELF_STRING_SIZE = 9325;
 // For comparing unsigned char converted to double precision.
 constexpr double EPS1 = 0.004; // 1/255 = 0.0039
 // For comparing two double precision numbers.

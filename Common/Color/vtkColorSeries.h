@@ -11,11 +11,11 @@
  * of what colors are returned. In essence a color scheme is set and then
  * the number of colors and individual color values may be requested.
  *
- * For a web page showcasing the default palettes, see:
+ * For a PDF or a web page showcasing the name, index and colors in the VTK Color Series see:
  * <a
- * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>;
- * <a
- * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
+ * href="https://examples.vtk.org/site/ColorNamesSeries/ColorSeriesPatches/">Color Series used in
+ * VTK</a>, <a
+ * href="https://examples.vtk.org/site/Python/Utilities/ColorSeriesPatches/">ColorSeriesPatches</a>
  * was used to generate this table.
  *
  * It is also possible to add schemes beyond the default palettes.

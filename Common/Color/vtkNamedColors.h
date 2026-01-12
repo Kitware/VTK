@@ -4,11 +4,11 @@
  * @class   vtkNamedColors
  * @brief   A class holding colors and their names.
  *
- * For a web page showcasing VTK Named Colors and their RGB values, see:
+ * For a PDF or a web page showcasing the names and RGB values of the VTK Named Colors see:
  * <a
- * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>;
- * <a
- * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/NamedColorPatches/">NamedColorPatches</a>
+ * href="https://examples.vtk.org/site/ColorNamesSeries/ColorNamePatches/">Color Names used in
+ * VTK</a>, <a
+ * href="https://examples.vtk.org/site/Python/Utilities/ColorNamePatches/">ColorNamePatches</a>
  * was used to generate this table.
  *
  * Color names are case insensitive and are stored as lower-case names
