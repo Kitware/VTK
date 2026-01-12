@@ -146,10 +146,6 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-set_source_files_properties(
-  TestEdgeFlags.cxx # fails on OpenGL Mesa
-  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-
 if (VTK_USE_X)
   set_tests_properties(VTK::RenderingCoreCxx-TestInteractorTimers
      PROPERTIES RUN_SERIAL ON)
