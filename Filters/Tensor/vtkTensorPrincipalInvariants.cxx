@@ -292,11 +292,11 @@ bool vtkTensorPrincipalInvariants::ComputePrincipalInvariants(vtkDataSet* output
     double s3 = ScaleVectors ? eigenvals[order[2]] : 1.0;
 
     sigma1Vector->SetTuple3(
-      idx, s1 * eigenvecs[order[0]][0], s1 * eigenvecs[order[0]][1], s1 * eigenvecs[order[0]][2]);
+      idx, s1 * eigenvecs[0][order[0]], s1 * eigenvecs[1][order[0]], s1 * eigenvecs[2][order[0]]);
     sigma2Vector->SetTuple3(
-      idx, s2 * eigenvecs[order[1]][0], s2 * eigenvecs[order[1]][1], s2 * eigenvecs[order[1]][2]);
+      idx, s2 * eigenvecs[0][order[1]], s2 * eigenvecs[1][order[1]], s2 * eigenvecs[2][order[1]]);
     sigma3Vector->SetTuple3(
-      idx, s3 * eigenvecs[order[2]][0], s3 * eigenvecs[order[2]][1], s3 * eigenvecs[order[2]][2]);
+      idx, s3 * eigenvecs[0][order[2]], s3 * eigenvecs[1][order[2]], s3 * eigenvecs[2][order[2]]);
     sigma1Value->SetValue(idx, eigenvals[order[0]]);
     sigma2Value->SetValue(idx, eigenvals[order[1]]);
     sigma3Value->SetValue(idx, eigenvals[order[2]]);
