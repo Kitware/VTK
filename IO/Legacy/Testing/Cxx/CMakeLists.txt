@@ -1,4 +1,5 @@
 vtk_add_test_cxx(vtkIOLegacyCxxTests tests
+  TestLegacyArrayInfNan.cxx,NO_DATA,NO_VALID
   TestLegacyArrayMetaData.cxx,NO_VALID
   TestLegacyCompositeDataReaderWriter.cxx,NO_VALID
   TestLegacyGhostCellsImport.cxx
