@@ -113,8 +113,27 @@ workflow:
 ###
 ## Rules shortcuts for wheels
 ###
+.wheels_retry_policy:
+  retry:
+    max: 2
+    # We need to explicitly specify gitlab-(runner/instance) errors to avoid
+    # triggering retries due to script_failures (devs errors). The reason for
+    # this is that Gitlab does not current currently support conditionals for
+    # retry, this is, we cannot set retry for scheduled jobs only. Thus,
+    # enabling script_failures would probably resulting in hogging our CI
+    # resources in MR pipelines.
+    when:
+      - api_failure
+      - data_integrity_failure
+      - job_execution_timeout
+      - runner_system_failure
+      - scheduler_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+
 .rules_variables_wheel_latest_build:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
@@ -122,10 +141,12 @@ workflow:
 # No-op but needed for consistency
 .rules_variables_wheel_latest_test:
     extends:
+        - .wheels_retry_policy
         - .rules
 
 .rules_variables_wheel_previous_build:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -133,12 +154,14 @@ workflow:
 
 .rules_variables_wheel_previous_test:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
 
 .rules_variables_wheel_older_build:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -147,6 +170,7 @@ workflow:
 
 .rules_variables_wheel_older_test:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -154,6 +178,7 @@ workflow:
 
 .rules_variables_wheel_weekly_build:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -162,6 +187,7 @@ workflow:
 
 .rules_variables_wheel_weekly_test:
     extends:
+        - .wheels_retry_policy
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
