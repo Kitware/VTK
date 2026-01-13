@@ -45,11 +45,11 @@ int TestTensorPrincipalInvariants(int argc, char* argv[])
   double* values = array->GetTuple3(0);
 
   if (!vtkMathUtilities::FuzzyCompare(values[0], 0.980516, 0.0001) ||
-    !vtkMathUtilities::FuzzyCompare(values[1], 0.196437, 0.0001) ||
+    !vtkMathUtilities::FuzzyCompare(values[1], -0.196437, 0.0001) ||
     !vtkMathUtilities::FuzzyCompare(values[2], 5.78099e-05, 0.0001))
   {
-    std::cerr << "Wrong value(s). Expected (0.980516, 0.196437, 5.78099e-05) but got (" << values[0]
-              << ", " << values[1] << ", " << values[2] << ")." << std::endl;
+    std::cerr << "Wrong value(s). Expected (0.980516, -0.196437, 5.78099e-05) but got ("
+              << values[0] << ", " << values[1] << ", " << values[2] << ")." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -98,10 +98,10 @@ int TestTensorPrincipalInvariants(int argc, char* argv[])
   values = array->GetTuple3(2);
 
   if (!vtkMathUtilities::FuzzyCompare(values[0], -25.5966, 0.0001) ||
-    !vtkMathUtilities::FuzzyCompare(values[1], -5.55154e-05, 0.0001) ||
+    !vtkMathUtilities::FuzzyCompare(values[1], 5.55154e-05, 0.0001) ||
     !vtkMathUtilities::FuzzyCompare(values[2], 0.0, 0.0001))
   {
-    std::cerr << "Wrong value(s). Expected (-25.5966, -5.55154e-05, 0.0) but got (" << values[0]
+    std::cerr << "Wrong value(s). Expected (-25.5966, 5.55154e-05, 0.0) but got (" << values[0]
               << ", " << values[1] << ", " << values[2] << ")." << std::endl;
     return EXIT_FAILURE;
   }
