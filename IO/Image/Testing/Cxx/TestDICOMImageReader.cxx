@@ -32,7 +32,7 @@ int TestDICOMImageReader(int argc, char* argv[])
   if (!DICOMReader->CanReadFile(filename.c_str()))
   {
     std::cerr << "CanReadFile failed for " << filename << "\n";
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   // Read the input image
