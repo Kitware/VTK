@@ -15,7 +15,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellArray* outVerts,
   vtkCellArray* outLines, vtkCellArray* outPolys, vtkPointData* inPd, vtkCellData* inCd,
-  vtkPointData* outPd, vtkCellData* outCd, int trisEstimatedSize, bool outputTriangles)
+  vtkPointData* outPd, vtkCellData* outCd, bool outputTriangles)
   : Locator(locator)
   , OutVerts(outVerts)
   , OutLines(outLines)
@@ -24,7 +24,6 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellA
   , InCd(inCd)
   , OutPd(outPd)
   , OutCd(outCd)
-  , TrisEstimatedSize(trisEstimatedSize)
   , OutputTriangles(outputTriangles)
 {
 }
