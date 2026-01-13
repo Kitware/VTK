@@ -3,6 +3,8 @@
 #include "vtkConvertToMultiBlockDataSet.h"
 
 #include "vtkCompositeDataIterator.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -40,7 +42,20 @@ int vtkConvertToMultiBlockDataSet::RequestData(
 //----------------------------------------------------------------------------
 bool vtkConvertToMultiBlockDataSet::Execute(vtkDataObject* input, vtkMultiBlockDataSet* output)
 {
-  if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
+  // Convert using PDC assembly when possible
+  auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(input);
+  if (inputPDC && inputPDC->GetDataAssembly() &&
+    std::string(inputPDC->GetDataAssembly()->GetAttributeOrDefault(
+      vtkDataAssembly::GetRootNode(), vtkDataAssemblyUtilities::CategoryHierarchyName(), "")) ==
+      vtkDataAssemblyUtilities::CategoryTransformedHierarchy())
+  {
+    if (auto mbresult = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+          inputPDC, inputPDC->GetDataAssembly()))
+    {
+      output->CompositeShallowCopy(mbresult);
+    }
+  }
+  else if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
     output->CopyStructure(inputCD);
     auto iter = vtk::TakeSmartPointer(inputCD->NewIterator());

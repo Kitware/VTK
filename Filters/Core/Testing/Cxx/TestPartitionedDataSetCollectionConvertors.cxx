@@ -96,12 +96,15 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   auto mb = p2m->GetOutput();
   // mb->Print(std::cout);
   VERIFY(mb != nullptr);
-  VERIFY(mb->GetNumberOfBlocks() == 5);
-  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(0))->GetNumberOfPieces() == 1);
-  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(1))->GetNumberOfPieces() == 1);
-  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(2))->GetNumberOfPieces() == 1);
-  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(3))->GetNumberOfPieces() == 1);
-  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(4))->GetNumberOfPieces() == 1);
+  VERIFY(mb->GetNumberOfBlocks() == 8);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(0))->GetNumberOfBlocks() == 2);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(1))->GetNumberOfBlocks() == 0);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(2))->GetNumberOfBlocks() == 0);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(3))->GetNumberOfBlocks() == 0);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(4))->GetNumberOfBlocks() == 1);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(5))->GetNumberOfBlocks() == 0);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(6))->GetNumberOfBlocks() == 0);
+  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(7))->GetNumberOfBlocks() == 2);
 
   return EXIT_SUCCESS;
 }

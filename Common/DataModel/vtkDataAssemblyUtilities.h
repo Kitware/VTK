@@ -40,6 +40,25 @@ public:
   static const char* HierarchyName() { return "Hierarchy"; }
 
   /**
+   * String used as the attribute name for data assembly nodes to identify
+   * data-assembly instances that represent a hierarchy.
+   */
+  static const char* CategoryHierarchyName() { return "vtk_category"; };
+
+  /**
+   * Value used for CategoryHierarchyName() attribute on the generate data assembly
+   * when it represents the hierarchy for the input dataset.
+   */
+  static const char* CategoryHierarchy() { return "hierarchy"; };
+
+  /**
+   * Value used for CategoryHierarchyName() attribute on the generated data assembly
+   * when the data assembly representation a hierarchy for the input with dataset indices
+   * pointing to the transformed `vtkPartitionedDataSetCollection` rather than the input.
+   */
+  static const char* CategoryTransformedHierarchy() { return "xformed_hierarchy"; };
+
+  /**
    * Convenience method to get a named vtkDataAssembly from a
    * vtkCompositeDataSet, if available. May return nullptr if none exists or
    * possible.
