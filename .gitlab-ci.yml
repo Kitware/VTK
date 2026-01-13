@@ -2756,7 +2756,7 @@ wheel-macos-python39-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python39-x86_64:test:
@@ -2795,7 +2795,7 @@ wheel-macos-python310-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python310-x86_64:test:
@@ -2834,7 +2834,7 @@ wheel-macos-python311-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python311-x86_64:test:
@@ -2873,7 +2873,7 @@ wheel-macos-python312-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python312-x86_64:test:
@@ -2913,7 +2913,7 @@ wheel-macos-python313-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_previous_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python313-x86_64:test:
@@ -2953,7 +2953,7 @@ wheel-macos-python314-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_latest_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python314-x86_64:test:
@@ -2973,7 +2973,7 @@ wheel-macos-python314-x86_64:test:
 #        - .macos_arm64_wheel_builder_tags
 #        - .cmake_wheel_artifacts
 #        - .rules_variables_wheel_weekly_build
-#    timeout: 90 minutes
+#    timeout: 120 minutes
 #    needs: []
 #
 #wheel-macos-python314t-arm64:test:
@@ -2993,7 +2993,7 @@ wheel-macos-python314t-x86_64:build:
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_weekly_build
-    timeout: 90 minutes
+    timeout: 120 minutes
     needs: []
 
 wheel-macos-python314t-x86_64:test:
