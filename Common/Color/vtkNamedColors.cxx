@@ -4,7 +4,6 @@
 #include "vtkNamedColors.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 
 #include <algorithm> // STL Header for transform
@@ -266,17 +265,17 @@ public:
     //          the format exactly matches those below.
     //          If you do not, the parsing into the map will most
     //          likely fail.
-    //          The names you add can have spaces in them however
-    //          the names MUST be all lower case.
+    //          Snake case or TitleCase(no spaces) can also be used.
     // Note: The colors in the last part of this table are from
     //       http://en.wikipedia.org/wiki/Web_colors.
-    //       The names and values here will tale precedence over
+    //       The names and values here will take precedence over
     //       earlier names.
     static const char* colorTable[] = {
       // Name, R, G, B, A
       // These colors should be exactly the same as the ones defined in
       // colors.py.
-      //  Whites
+      //
+      // Whites
       "antique_white,250,235,215,255",
       "azure,240,255,255,255",
       "bisque,255,228,196,255",
@@ -307,7 +306,7 @@ public:
       "white,255,255,255,255",
       "white_smoke,245,245,245,255",
       "zinc_white,252,247,255,255",
-      //  Greys
+      // Greys
       "cold_grey,128,138,135,255",
       "dim_grey,105,105,105,255",
       "grey,192,192,192,255",
@@ -316,11 +315,11 @@ public:
       "slate_grey_dark,47,79,79,255",
       "slate_grey_light,119,136,153,255",
       "warm_grey,128,128,105,255",
-      //  Blacks
+      // Blacks
       "black,0,0,0,255",
       "ivory_black,41,36,33,255",
       "lamp_black,46,71,59,255",
-      //  Reds
+      // Reds
       "alizarin_crimson,227,38,54,255",
       "brick,156,102,31,255",
       "cadmium_red_deep,227,23,13,255",
@@ -343,7 +342,7 @@ public:
       "salmon,250,128,114,255",
       "tomato,255,99,71,255",
       "venetian_red,212,26,31,255",
-      //  Browns
+      // Browns
       "beige,163,148,128,255",
       "brown,128,42,42,255",
       "brown_madder,219,41,41,255",
@@ -370,7 +369,7 @@ public:
       "sandy_brown,244,164,96,255",
       "tan,210,180,140,255",
       "van_dyke_brown,94,38,5,255",
-      //  Oranges
+      // Oranges
       "cadmium_orange,255,97,3,255",
       "cadmium_red_light,255,3,13,255",
       "carrot,237,145,33,255",
@@ -380,7 +379,7 @@ public:
       "orange,255,128,0,255",
       "orange_red,255,69,0,255",
       "yellow_ochre,227,130,23,255",
-      //  Yellows
+      // Yellows
       "aureoline_yellow,255,168,36,255",
       "banana,227,207,87,255",
       "cadmium_lemon,255,227,3,255",
@@ -396,7 +395,7 @@ public:
       "naples_yellow_deep,255,168,18,255",
       "yellow,255,255,0,255",
       "yellow_light,255,255,224,255",
-      //  Greens
+      // Greens
       "chartreuse,127,255,0,255",
       "chrome_oxide_green,102,128,20,255",
       "cinnabar_green,97,179,41,255",
@@ -424,7 +423,7 @@ public:
       "terre_verte,56,94,15,255",
       "viridian_light,110,255,112,255",
       "yellow_green,154,205,50,255",
-      //  Cyans
+      // Cyans
       "aquamarine,127,255,212,255",
       "aquamarine_medium,102,205,170,255",
       "cyan,0,255,255,255",
@@ -433,7 +432,7 @@ public:
       "turquoise_dark,0,206,209,255",
       "turquoise_medium,72,209,204,255",
       "turquoise_pale,175,238,238,255",
-      //  Blues
+      // Blues
       "alice_blue,240,248,255,255",
       "blue,0,0,255,255",
       "blue_light,173,216,230,255",
@@ -461,7 +460,7 @@ public:
       "steel_blue_light,176,196,222,255",
       "turquoise_blue,0,199,140,255",
       "ultramarine,18,10,143,255",
-      //  Magentas
+      // Magentas
       "blue_violet,138,43,226,255",
       "cobalt_violet_deep,145,33,158,255",
       "magenta,255,0,255,255",
@@ -478,7 +477,17 @@ public:
       "violet_red,208,32,144,255",
       "violet_red_medium,199,21,133,255",
       "violet_red_pale,219,112,147,255",
+      //
+      // ParaView Colors
+      //
+      // Blue colors
+      "ParaViewBlueGrayBkg,84,89,109,255",
+      // Gray colors
+      "ParaViewWarmGrayBkg,98,93,90,255",
+      //
+      // Web Colors
       // See: http://en.wikipedia.org/wiki/Web_colors
+      //
       // Red colors
       "IndianRed,205,92,92,255",
       "LightCoral,240,128,128,255",
