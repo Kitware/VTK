@@ -1,7 +1,7 @@
 function makeStatesForGraphicsAPI(graphicsAPI) {
   return [{
     Id: 1,
-    ClassName: `vtkWebAssembly${graphicsAPI}RenderWindow`,
+    ClassName: `vtk${graphicsAPI}RenderWindow`,
     Interactor: { Id: 2 },
     Renderers: { Id: 3 },
     Size: [800, 600],
@@ -9,8 +9,7 @@ function makeStatesForGraphicsAPI(graphicsAPI) {
       "vtkObjectBase",
       "vtkObject",
       "vtkWindow",
-      "vtkRenderWindow",
-      `vtk${graphicsAPI}RenderWindow`],
+      "vtkRenderWindow"],
     "vtk-object-manager-kept-alive": true,
   },
   {
