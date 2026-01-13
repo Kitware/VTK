@@ -1252,14 +1252,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     glBindBuffer(GL_ARRAY_BUFFER, this->CubeVBOId);
     glBufferData(GL_ARRAY_BUFFER,
       points->GetData()->GetDataSize() * points->GetData()->GetDataTypeSize(),
-      points->GetData()->GetVoidPointer(0), GL_STATIC_DRAW);
+      vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0),
+      GL_STATIC_DRAW);
 
     prog->EnableAttributeArray("in_vertexPos");
     prog->UseAttributeArray("in_vertexPos", 0, 0, VTK_FLOAT, 3, vtkShaderProgram::NoNormalize);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, polys->GetDataSize() * polys->GetDataTypeSize(),
-      polys->GetVoidPointer(0), GL_STATIC_DRAW);
+      polys->GetPointer(0), GL_STATIC_DRAW);
   }
   else
   {

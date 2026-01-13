@@ -158,6 +158,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestTimePointUtility.cxx
   TestValueFromString.cxx
   TestVariant.cxx
+  TestVariantArray.cxx
   TestVariantComparison.cxx
   TestVariantConversionFromString.cxx
   TestWeakPointer.cxx

@@ -540,12 +540,25 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray* array)
 
   // can we use the fast path and just upload the raw array?
   if (!this->GetCoordShiftAndScaleEnabled() && this->DataType == array->GetDataType() &&
-    extraComponents == 0)
+    array->HasStandardMemoryLayout() && extraComponents == 0)
   {
     this->NumberOfTuples = array->GetNumberOfTuples();
     this->PackedVBO.resize(0);
-    this->Upload(reinterpret_cast<float*>(array->GetVoidPointer(0)),
-      this->NumberOfTuples * this->Stride / sizeof(float), vtkOpenGLBufferObject::ArrayBuffer);
+    const size_t numElements = this->NumberOfTuples * this->Stride / sizeof(float);
+    if (auto floatArray = vtkAOSDataArrayTemplate<float>::FastDownCast(array))
+    {
+      this->Upload(floatArray->GetPointer(0), numElements, vtkOpenGLBufferObject::ArrayBuffer);
+    }
+    else if (auto ucharArray = vtkAOSDataArrayTemplate<unsigned char>::FastDownCast(array))
+    {
+      this->Upload(reinterpret_cast<float*>(ucharArray->GetPointer(0)), numElements,
+        vtkOpenGLBufferObject::ArrayBuffer);
+    }
+    else
+    {
+      vtkErrorMacro("Unsupported array type for fast path upload.");
+      return;
+    }
     this->UploadTime.Modified();
   }
   // otherwise use a worker to build the array to upload

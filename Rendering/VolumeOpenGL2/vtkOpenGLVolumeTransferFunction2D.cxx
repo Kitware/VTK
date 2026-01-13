@@ -3,6 +3,7 @@
 
 #include "vtkOpenGLVolumeTransferFunction2D.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageResize.h"
@@ -31,14 +32,16 @@ void vtkOpenGLVolumeTransferFunction2D::InternalUpdate(vtkObject* func, int vtkN
   }
   int* dims = transfer2D->GetDimensions();
   // Resample if there is a size restriction
-  void* data = transfer2D->GetPointData()->GetScalars()->GetVoidPointer(0);
+  auto transfer2DScalars = transfer2D->GetPointData()->GetScalars();
+  void* data = vtkAOSDataArrayTemplate<float>::FastDownCast(transfer2DScalars)->GetPointer(0);
   if (dims[0] != this->TextureWidth || dims[1] != this->TextureHeight)
   {
     this->ResizeFilter->SetInputData(transfer2D);
     this->ResizeFilter->SetResizeMethodToOutputDimensions();
     this->ResizeFilter->SetOutputDimensions(this->TextureWidth, this->TextureHeight, 1);
     this->ResizeFilter->Update();
-    data = this->ResizeFilter->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0);
+    auto resizedScalars = this->ResizeFilter->GetOutput()->GetPointData()->GetScalars();
+    data = vtkAOSDataArrayTemplate<float>::FastDownCast(resizedScalars)->GetPointer(0);
   }
 
   this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);

@@ -595,7 +595,7 @@ void* vtkmDataArray<T>::WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues
 {
   vtkIdType numTuples = (numValues + this->NumberOfComponents - 1) / this->NumberOfComponents;
   this->ReallocateTuples(numTuples);
-  return this->GetVoidPointer(valueIdx);
+  return this->GetPointer(valueIdx);
 }
 
 //-----------------------------------------------------------------------------

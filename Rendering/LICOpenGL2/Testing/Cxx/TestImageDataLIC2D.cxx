@@ -302,7 +302,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     filter->UpdatePiece(kk, num_partitions, 0);
 
     vtkImageData* licPieceDataSet = filter->GetOutput();
-    vtkDataArray* licPiece = licPieceDataSet->GetPointData()->GetScalars();
+    auto* licPiece = vtkFloatArray::FastDownCast(licPieceDataSet->GetPointData()->GetScalars());
 
     int tmp[6];
     licPieceDataSet->GetExtent(tmp);
@@ -311,8 +311,8 @@ int ImageDataLIC2D(int argc, char* argv[])
       tmp[2 * comp[0]], tmp[2 * comp[0] + 1], tmp[2 * comp[1]], tmp[2 * comp[1] + 1]);
 
     vtkPixelTransfer::Blit(licPieceExt, licPieceExt, licDataExt, licPieceExt,
-      licPiece->GetNumberOfComponents(), licPiece->GetDataType(), licPiece->GetVoidPointer(0),
-      licData->GetNumberOfComponents(), licData->GetDataType(), licData->GetVoidPointer(0));
+      licPiece->GetNumberOfComponents(), licPiece->GetDataType(), licPiece->GetPointer(0),
+      licData->GetNumberOfComponents(), licData->GetDataType(), licData->GetPointer(0));
   }
   probe = nullptr;
   filter = nullptr;
