@@ -7,6 +7,7 @@
 #include "vtkFieldData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkStringArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -100,6 +101,11 @@ std::vector<std::string> vtkPolyDataMaterial::GetField(vtkDataObject* obj, const
   for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
     result.push_back(sa->GetValue(i));
   return result;
+}
+
+void vtkPolyDataMaterial::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkObject::PrintSelf(os, indent);
 }
 
 VTK_ABI_NAMESPACE_END

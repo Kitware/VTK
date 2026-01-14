@@ -10,12 +10,12 @@
 #define vtkPolyDataMaterial_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkObject.h"                // For vtkObject
-#include "vtkSetGet.h"                // For vtkTypeMacro
-#include <vector>                     // for std::vector
+#include "vtkObject.h"
+#include "vtkSetGet.h" // For vtkTypeMacro
+#include <vector>      // for std::vector
+class vtkDataObject;
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataObject;
 
 /**
  * If the polydata has a texture, it should contain a TCOORDS point
@@ -60,6 +60,8 @@ public:
   static std::vector<float> GetField(
     vtkDataObject* obj, const char* name, const std::vector<float>& defaultRes);
   ///@}
+
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPolyDataMaterial() = default;
