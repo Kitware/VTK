@@ -191,8 +191,8 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
   outPd->InterpolateAllocate(inPd, estimatedSize, estimatedSize);
   outCd->CopyAllocate(inCd, estimatedSize, estimatedSize);
 
-  vtkContourHelper helper(locator, newVerts, newLines, newPolys, inPd, inCd, outPd, outCd,
-    estimatedSize, generateTriangles);
+  vtkContourHelper helper(
+    locator, newVerts, newLines, newPolys, inPd, inCd, outPd, outCd, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
   if (!useScalarTree)

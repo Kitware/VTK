@@ -522,7 +522,7 @@ int vtkContourFilter::RequestData(
     outCd->CopyAllocate(inCd, estimatedSize, estimatedSize);
 
     vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCd, outPd, outCd,
-      estimatedSize, this->GenerateTriangles != 0);
+      this->GenerateTriangles != 0);
     // If enabled, build a scalar tree to accelerate search
     //
     if (!this->UseScalarTree)
