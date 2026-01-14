@@ -80,8 +80,8 @@ std::vector<float> vtkPolyDataMaterial::GetField(
   std::transform(defaultResult.begin(), defaultResult.end(), std::back_inserter(d),
     [](float f) { return static_cast<double>(f); });
   r = GetField(obj, name, d);
-  std::transform(
-    r.begin(), r.end(), std::back_inserter(result), [](double d) { return static_cast<float>(d); });
+  std::transform(r.begin(), r.end(), std::back_inserter(result),
+    [](double value) { return static_cast<float>(value); });
   return result;
 }
 
