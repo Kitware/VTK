@@ -80,6 +80,19 @@ void vtkPLYWriter::WriteData()
   vtkSmartPointer<vtkUnsignedCharArray> cellColors, pointColors;
   PlyFile* ply;
   static const char* elemNames[] = { "vertex", "face" };
+  char* firstTextureCoordsName = "u";
+  char* secondTextureCoordsName = "v";
+  if (TextureCoordinatesName == VTK_TEXTURECOORDS_TEXTUREUV)
+  {
+    firstTextureCoordsName = "texture_u";
+    secondTextureCoordsName = "texture_v";
+  }
+  else if (TextureCoordinatesName == VTK_TEXTURECOORDS_ST)
+  {
+    firstTextureCoordsName = "s";
+    secondTextureCoordsName = "t";
+  }
+
   PlyProperty vertProps[] = {
     // property information for a vertex
     { "x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, x)), 0, 0, 0, 0 },
@@ -96,9 +109,9 @@ void vtkPLYWriter::WriteData()
     { "green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, green)), 0, 0, 0, 0 },
     { "blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, blue)), 0, 0, 0, 0 },
     { "alpha", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, alpha)), 0, 0, 0, 0 },
-    { (TextureCoordinatesName == 1) ? "texture_u" : "u", PLY_FLOAT, PLY_FLOAT,
-      static_cast<int>(offsetof(plyVertex, tex)), 0, 0, 0, 0 },
-    { (TextureCoordinatesName == 1) ? "texture_v" : "v", PLY_FLOAT, PLY_FLOAT,
+    { firstTextureCoordsName, PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, tex)), 0,
+      0, 0, 0 },
+    { secondTextureCoordsName, PLY_FLOAT, PLY_FLOAT,
       static_cast<int>(offsetof(plyVertex, tex) + sizeof(float)), 0, 0, 0, 0 },
   };
   static PlyProperty faceProps[] = {
