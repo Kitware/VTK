@@ -13,9 +13,9 @@
 #include "vtkObject.h"
 #include "vtkSetGet.h" // For vtkTypeMacro
 #include <vector>      // for std::vector
-class vtkDataObject;
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataObject;
 
 /**
  * If the polydata has a texture, it should contain a TCOORDS point
