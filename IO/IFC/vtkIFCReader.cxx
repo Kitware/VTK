@@ -160,7 +160,7 @@ int vtkIFCReader::RequestData(
     // no need to use the transform
     settings.get<ifcopenshell::geometry::settings::UseWorldCoords>().value = true;
     settings.get<ifcopenshell::geometry::settings::OutputDimensionality>().value =
-      ifcopenshell::geometry::SURFACES_AND_SOLIDS;
+      ifcopenshell::geometry::CURVES_SURFACES_AND_SOLIDS;
     settings.get<ifcopenshell::geometry::settings::IteratorOutput>().value =
       ifcopenshell::geometry::TRIANGULATED;
     // Try to get the reader to work as fast as IfcConvert to glb which
