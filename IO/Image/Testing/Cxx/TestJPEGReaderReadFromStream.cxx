@@ -38,16 +38,16 @@ int TestJPEGReaderReadFromStream(int argc, char* argv[])
 
   // Initialize reader
   vtkNew<vtkJPEGReader> jpegReader;
-  jpegReader->SetStream(stream);
 
   // Check the image can be read
-  if (!jpegReader->CanReadFile(filename.c_str()))
+  if (jpegReader->CanReadFile(stream) != 3)
   {
-    std::cerr << "CanReadFile failed for " << filename << "\n";
+    std::cerr << "CanReadFile failed for stream\n";
     return EXIT_FAILURE;
   }
 
   // Read the input image
+  jpegReader->SetStream(stream);
   jpegReader->Update();
 
   // Visualize
