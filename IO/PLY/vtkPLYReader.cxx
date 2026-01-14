@@ -322,6 +322,13 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
       vertProps[3].name = "texture_u";
       vertProps[4].name = "texture_v";
     }
+    else if (vtkPLY::find_property(elem, "s", &index) != nullptr &&
+      vtkPLY::find_property(elem, "t", &index) != nullptr)
+    {
+      texCoordsPointsAvailable = true;
+      vertProps[3].name = "s";
+      vertProps[4].name = "t";
+    }
 
     if (texCoordsPointsAvailable)
     {
