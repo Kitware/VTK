@@ -279,8 +279,7 @@ public:
   void SetCells(vtkDataArray* cellTypes, vtkCellArray* cells);
   void SetPolyhedralCells(
     vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces);
-  // VTK_DEPRECATED_IN_9_6_0
-  VTK_DEPRECATED_IN_9_5_0("This function is deprecated, use SetPolyhedralCells")
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
   void SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells, vtkIdTypeArray* faceLocations,
     vtkIdTypeArray* faces);
   ///@}

@@ -108,7 +108,6 @@ set(classes
   vtkGraphInternals
   vtkHexagonalPrism
   vtkHexahedron
-  vtkHierarchicalBoxDataSet
   vtkHigherOrderCurve
   vtkHigherOrderHexahedron
   vtkHigherOrderInterpolation

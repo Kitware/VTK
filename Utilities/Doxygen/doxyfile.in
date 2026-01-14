@@ -214,6 +214,7 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_DEPRECATED_IN_9_4_0(msg)=" \
                "VTK_DEPRECATED_IN_9_5_0(msg)=" \
                "VTK_DEPRECATED_IN_9_6_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_7_0(msg)=" \
                "VTK_EXPECTS(x)=" \
                "VTK_FILEPATH=" \
                "VTK_LEGACY(x)= x" \

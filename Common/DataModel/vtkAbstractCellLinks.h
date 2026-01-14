@@ -20,7 +20,6 @@
 #define vtkAbstractCellLinks_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -149,39 +148,6 @@ public:
 
   ///@{
   /**
-   * Force sequential processing (i.e. single thread) of the link building
-   * process. By default, sequential processing is off. Note this flag only
-   * applies if the class has been compiled with VTK_SMP_IMPLEMENTATION_TYPE
-   * set to something other than Sequential. (If set to Sequential, then the
-   * filter always runs in serial mode.) This flag is typically used for
-   * benchmarking purposes.
-   */
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  vtkSetMacro(SequentialProcessing, bool);
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  vtkGetMacro(SequentialProcessing, bool);
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  virtual void SequentialProcessingOn()
-  {
-    if (!this->SequentialProcessing)
-    {
-      this->SequentialProcessing = true;
-      this->Modified();
-    }
-  }
-  VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  virtual void SequentialProcessingOff()
-  {
-    if (this->SequentialProcessing)
-    {
-      this->SequentialProcessing = false;
-      this->Modified();
-    }
-  }
-  ///@}
-
-  ///@{
-  /**
    * Return the time of the last data structure build.
    */
   vtkGetMacro(BuildTime, vtkMTimeType);
@@ -198,9 +164,7 @@ protected:
   ~vtkAbstractCellLinks() override;
 
   vtkDataSet* DataSet;
-  // VTK_DEPRECATED_IN_9_5_0("No longer used.")
-  bool SequentialProcessing; // control whether to thread or not
-  int Type;                  // derived classes set this instance variable when constructed
+  int Type; // derived classes set this instance variable when constructed
 
   vtkTimeStamp BuildTime; // time at which links were built
 

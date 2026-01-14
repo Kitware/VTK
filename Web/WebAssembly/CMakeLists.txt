@@ -6,7 +6,4 @@ endif ()
 vtk_module_add_serdes_wasm_package(
   MODULE VTK::WebAssembly
   OUTPUT_NAME vtkWebAssembly
-  EXTRA_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkWasmSceneManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkWasmSceneManager.cxx
 )

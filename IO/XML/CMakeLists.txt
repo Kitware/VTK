@@ -8,16 +8,12 @@ set(classes
   vtkXMLFileReadTester
   vtkXMLGenericDataObjectReader
   vtkXMLHierarchicalBoxDataFileConverter
-  vtkXMLHierarchicalBoxDataReader
-  vtkXMLHierarchicalBoxDataWriter
-  vtkXMLHierarchicalDataReader
   vtkXMLHyperTreeGridReader
   vtkXMLHyperTreeGridWriter
   vtkXMLImageDataReader
   vtkXMLImageDataWriter
   vtkXMLMultiBlockDataReader
   vtkXMLMultiBlockDataWriter
-  vtkXMLMultiGroupDataReader
   vtkXMLPDataObjectReader
   vtkXMLPDataReader
   vtkXMLPHyperTreeGridReader

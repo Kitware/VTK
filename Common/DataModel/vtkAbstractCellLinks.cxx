@@ -16,7 +16,6 @@ vtkCxxSetObjectMacro(vtkAbstractCellLinks, DataSet, vtkDataSet);
 vtkAbstractCellLinks::vtkAbstractCellLinks()
 {
   this->DataSet = nullptr;
-  this->SequentialProcessing = false;
   this->Type = vtkAbstractCellLinks::LINKS_NOT_DEFINED;
 }
 
@@ -66,7 +65,6 @@ void vtkAbstractCellLinks::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "DataSet: (none)\n";
   }
-  os << indent << "Sequential Processing: " << (this->SequentialProcessing ? "true\n" : "false\n");
   os << indent << "Type: " << this->Type << "\n";
 }
 

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_5_0() warnings.
-#define VTK_DEPRECATION_LEVEL 0
-
 // clang-format off
 // Includes vtkModuleNameSerDes.h.
 @_vtk_serdes_include_libraries_registrar_headers@
@@ -164,7 +161,6 @@ EMSCRIPTEN_BINDINGS(bindings)
     .constructor(&makeRemoteSession, allow_raw_pointers())
     .function("registerState", &vtkRemoteSession::RegisterState)
     .function("unRegisterState", &vtkRemoteSession::UnRegisterState)
-    .function("getState", &vtkRemoteSession::GetState)
     .function("set", &vtkRemoteSession::Set)
     .function("get", &vtkRemoteSession::Get)
     .function("skipProperty", &vtkRemoteSession::SkipProperty)

@@ -8,9 +8,6 @@
 // Terry Jordan (terry.jordan@sa.netl.doe.gov)
 // & Doug McCorkle (mccdo@iastate.edu)
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkFLUENTReader.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
@@ -4753,69 +4750,6 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
 
       blockUG->InsertNextCell(tetraBuffer->GetCellType(), tetraBuffer->GetPointIds());
     }
-  }
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_5_0()
-void vtkFLUENTReader::ReadZone()
-{
-  vtkWarningMacro("ReadZone is deprecated. It was an internal method an should not be used.");
-  // zones format: (45 (zone-id zone-type zone-name domain-id)())
-  //            or (39 (zone-id zone-type zone-name domain-id)())
-  size_t start = this->FluentBuffer.find('(', 1);
-  size_t end = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(start + 1, end - start - 1);
-
-  std::string zoneIdString, zoneType, zoneName, domainIdString;
-  std::stringstream infoStream(info);
-  std::getline(infoStream, zoneIdString, ' ');
-  std::getline(infoStream, zoneType, ' ');
-  std::getline(infoStream, zoneName, ' ');
-  std::getline(infoStream, domainIdString, ' ');
-
-  ZoneSection zoneSection;
-  zoneSection.id = vtk::scan_int<int>(zoneIdString)->value();
-  zoneSection.name = zoneName;
-  zoneSection.type = zoneType;
-  zoneSection.domainId = !domainIdString.empty() ? vtk::scan_int<int>(domainIdString)->value() : 0;
-
-  this->ZoneSections.push_back(zoneSection);
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_5_0()
-bool vtkFLUENTReader::ParseCaseFile()
-{
-  vtkWarningMacro("ParseCaseFile is deprecated. It was an internal method an should not be used.");
-  this->FluentFile->clear();
-  this->FluentFile->seekg(0, ios::beg);
-
-  bool ret = true;
-  while (this->GetCaseChunk())
-  {
-    int index = this->GetCaseIndex();
-    if (index == 39 || index == 45)
-    {
-      this->ReadZone();
-    }
-    else
-    {
-      ParseZone(index);
-    }
-  }
-  return ret;
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_5_0()
-void vtkFLUENTReader::ParseDataFile()
-{
-  vtkWarningMacro("ParseDataFile is deprecated. It was an internal method an should not be used.");
-  while (this->GetDataChunk())
-  {
-    int index = this->GetDataIndex();
-    this->ParseDataZone(index);
   }
 }
 

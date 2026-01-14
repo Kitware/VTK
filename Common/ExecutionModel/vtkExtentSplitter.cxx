@@ -445,16 +445,4 @@ int vtkExtentSplitter::IntersectExtents(const int* extent1, const int* extent2, 
 
   return 1;
 }
-
-//------------------------------------------------------------------------------
-int vtkExtentSplitter::Min(int a, int b)
-{
-  return std::min(a, b);
-}
-
-//------------------------------------------------------------------------------
-int vtkExtentSplitter::Max(int a, int b)
-{
-  return std::max(a, b);
-}
 VTK_ABI_NAMESPACE_END

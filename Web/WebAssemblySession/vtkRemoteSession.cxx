@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_5_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkRemoteSession.h"
 
 #include "vtkLogger.h"
@@ -36,18 +33,6 @@ bool vtkRemoteSession::RegisterState(emscripten::val state)
 bool vtkRemoteSession::UnRegisterState(vtkTypeUInt32 object)
 {
   return vtkSessionUnRegisterState(this->Session, object) == vtkSessionResultSuccess;
-}
-
-//-------------------------------------------------------------------------------
-emscripten::val vtkRemoteSession::GetState(vtkTypeUInt32 object)
-{
-  vtkGenericWarningMacro(<< "Please use vtkRemoteSession::Get(vtkTypeUInt32 object) instead. "
-                            "vtkRemoteSession::GetState(vtkTypeUInt32 object) "
-                            "will be removed in a future release.");
-  auto resultImpl = vtkSessionGetState(this->Session, object);
-  auto result = std::move(resultImpl->JsonValue);
-  delete resultImpl;
-  return result;
 }
 
 //-------------------------------------------------------------------------------

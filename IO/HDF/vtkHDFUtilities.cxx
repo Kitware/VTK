@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Hide VTK_DEPRECATED_IN_9_6_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkHDFUtilities.h"
 
 #include "vtkCharArray.h"
@@ -1096,5 +1100,8 @@ vtkAbstractArray* vtkHDFUtilities::NewFieldArray(const std::array<hid_t, 3>& att
 
   return vtkHDFUtilities::NewArrayForGroup(dataset, nativeType, dims, fileExtent);
 }
+
+//------------------------------------------------------------------------------
+vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets() = default;
 
 VTK_ABI_NAMESPACE_END

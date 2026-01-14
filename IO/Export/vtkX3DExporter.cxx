@@ -85,9 +85,8 @@ void vtkX3DExporter::WriteData()
 {
   vtkSmartPointer<vtkX3DExporterWriter> writer;
   vtkActorCollection* ac;
-  vtkActor2DCollection* a2Dc;
   vtkActor *anActor, *aPart;
-  vtkActor2D *anTextActor2D, *aPart2D;
+  vtkActor2D* aPart2D;
   vtkLightCollection* lc;
   vtkLight* aLight;
   vtkCamera* cam;
@@ -246,7 +245,7 @@ void vtkX3DExporter::WriteData()
 
   //////////////////////////////////////////////
   // do the 2D actors now
-  a2Dc = ren->GetActors2D();
+  vtkPropCollection* a2Dc = ren->GetViewProps();
 
   if (a2Dc->GetNumberOfItems() != 0)
   {
@@ -266,7 +265,8 @@ void vtkX3DExporter::WriteData()
 
     vtkAssemblyPath* apath2D;
     vtkCollectionSimpleIterator ait2D;
-    for (a2Dc->InitTraversal(ait2D); (anTextActor2D = a2Dc->GetNextActor2D(ait2D));)
+    vtkProp* anTextActor2D;
+    for (a2Dc->InitTraversal(ait2D); (anTextActor2D = a2Dc->GetNextProp(ait2D));)
     {
 
       for (anTextActor2D->InitPathTraversal(); (apath2D = anTextActor2D->GetNextPath());)

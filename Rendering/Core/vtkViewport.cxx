@@ -83,6 +83,8 @@ vtkViewport::vtkViewport()
   this->PickedZ = 1.0;
 
   this->Props = vtkPropCollection::New();
+
+  // VTK_DEPRECATED_IN_9_7_0
   this->Actors2D = vtkActor2DCollection::New();
 
   this->LastComputeAspectSize.fill(-1);
@@ -93,6 +95,7 @@ vtkViewport::vtkViewport()
 //------------------------------------------------------------------------------
 vtkViewport::~vtkViewport()
 {
+  // VTK_DEPRECATED_IN_9_7_0
   this->Actors2D->Delete();
   this->Actors2D = nullptr;
 
@@ -116,19 +119,6 @@ vtkViewport::~vtkViewport()
   {
     this->PickResultProps->Delete();
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkViewport::AddActor2D(vtkProp* p)
-{
-  this->AddViewProp(p);
-}
-
-//------------------------------------------------------------------------------
-void vtkViewport::RemoveActor2D(vtkProp* p)
-{
-  this->Actors2D->RemoveItem(p);
-  this->RemoveViewProp(p);
 }
 
 //------------------------------------------------------------------------------
@@ -181,6 +171,7 @@ void vtkViewport::RemoveAllViewProps()
 
 //------------------------------------------------------------------------------
 // look through the props and get all the actors
+// VTK_DEPRECATED_IN_9_7_0
 vtkActor2DCollection* vtkViewport::GetActors2D()
 {
   vtkProp* aProp;
@@ -196,6 +187,7 @@ vtkActor2DCollection* vtkViewport::GetActors2D()
   return this->Actors2D;
 }
 
+//------------------------------------------------------------------------------
 // Convert display coordinates to view coordinates.
 void vtkViewport::DisplayToView()
 {

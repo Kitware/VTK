@@ -36,7 +36,6 @@
 #define vtkMapper_h
 
 #include "vtkAbstractMapper3D.h"
-#include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // needed for vtkSmartPointer.
 #include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
@@ -423,8 +422,6 @@ public:
    * C++ programmers should use GetInput() instead.
    */
   vtkDataSet* GetDataSetInput() { return this->GetInput(); }
-  VTK_DEPRECATED_IN_9_5_0("Use GetDataSetInput() instead.")
-  vtkDataSet* GetInputAsDataSet() { return this->GetDataSetInput(); }
   ///@}
 
   ///@{

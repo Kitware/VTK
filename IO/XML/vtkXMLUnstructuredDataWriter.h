@@ -11,7 +11,6 @@
 #ifndef vtkXMLUnstructuredDataWriter_h
 #define vtkXMLUnstructuredDataWriter_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
@@ -66,8 +65,6 @@ protected:
   ~vtkXMLUnstructuredDataWriter() override;
 
   vtkPointSet* GetPointSetInput();
-  VTK_DEPRECATED_IN_9_5_0("Use GetPointSetInput() instead.")
-  vtkPointSet* GetInputAsPointSet() { return this->GetPointSetInput(); }
   const char* GetDataSetName() override = 0;
   virtual void SetInputUpdateExtent(int piece, int numPieces, int ghostLevel);
 

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkDataObjectTypes.h"
 
 #include "vtkAMRDataObject.h"
@@ -20,7 +17,6 @@
 #include "vtkExplicitStructuredGrid.h"
 #include "vtkGenericDataSet.h"
 #include "vtkGraph.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
@@ -185,22 +181,9 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
       return vtkUniformGrid::New();
     case VTK_COMPOSITE_DATA_SET:
       return nullptr;
-    case VTK_MULTIGROUP_DATA_SET:
-      return nullptr;
     case VTK_MULTIBLOCK_DATA_SET:
       return vtkMultiBlockDataSet::New();
-    case VTK_HIERARCHICAL_DATA_SET:
-      return nullptr;
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-      // VTK_DEPRECATED_IN_9_5_0
-      vtkLogF(
-        WARNING, "VTK_HIERARCHICAL_BOX_DATA_SET is deprecated, use VTK_OVERLAPPING_AMR instead");
-      return vtkHierarchicalBoxDataSet::New();
     case VTK_GENERIC_DATA_SET:
-      return nullptr;
-    case VTK_HYPER_OCTREE:
-      return nullptr;
-    case VTK_TEMPORAL_DATA_SET:
       return nullptr;
     case VTK_TABLE:
       return vtkTable::New();
@@ -232,8 +215,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
       return vtkHyperTreeGrid::New();
     case VTK_MOLECULE:
       return vtkMolecule::New();
-    case VTK_PISTON_DATA_OBJECT:
-      return nullptr;
     case VTK_PATH:
       return vtkPath::New();
     case VTK_UNSTRUCTURED_GRID_BASE:
@@ -343,7 +324,6 @@ int vtkDataObjectTypes::Validate()
     vtkDataObjectTypes::TypeIdIsA(VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_POINT_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_DATA_SET) &&
-    vtkDataObjectTypes::TypeIdIsA(VTK_HIERARCHICAL_BOX_DATA_SET, VTK_UNIFORM_GRID_AMR) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_CELL_GRID, VTK_DATA_OBJECT) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_STATISTICAL_MODEL, VTK_DATA_OBJECT))
   {
@@ -406,7 +386,6 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
       { VTK_UNSTRUCTURED_GRID, VTK_UNSTRUCTURED_GRID_BASE }, { VTK_UNIFORM_GRID, VTK_IMAGE_DATA },
       { VTK_STRUCTURED_POINTS, VTK_IMAGE_DATA }, { VTK_UNIFORM_GRID_AMR, VTK_AMR_DATA_OBJECT },
       { VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
-      { VTK_HIERARCHICAL_BOX_DATA_SET, VTK_OVERLAPPING_AMR },
       { VTK_NON_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
       { VTK_DATA_OBJECT_TREE, VTK_COMPOSITE_DATA_SET },
       { VTK_PARTITIONED_DATA_SET_COLLECTION, VTK_DATA_OBJECT_TREE },

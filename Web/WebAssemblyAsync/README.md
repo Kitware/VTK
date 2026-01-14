@@ -50,7 +50,6 @@ new vtkRemoteSession()
 |--------------------------------------------------------------------------------|------------------------------------------------------------|
 | `registerState(state: object) => boolean`                                      | Registers a VTK object state.                              |
 | `unRegisterState(objectId: number) => boolean`                                 | Unregisters an object’s state.                             |
-| `getState(objectId: number) => object`                                         | [**Deprecated**] Retrieves the object's current state.     |
 | `set(objectId: number, properties: object) => undefined`                       | Apply properties from JSON object to the VTK object.       |
 | `get(objectId: number) => object`                                              | Retrieves the state of the given object.                   |
 | `skipProperty(className: string, propertyName: string) => void`                | Prevents a property from being (de)serialized.             |

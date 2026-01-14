@@ -18,7 +18,6 @@
 #ifndef vtkXMLWriter_h
 #define vtkXMLWriter_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriterBase.h"
 
@@ -163,8 +162,6 @@ protected:
 
   // Utility methods for subclasses.
   vtkDataSet* GetDataSetInput();
-  VTK_DEPRECATED_IN_9_5_0("Use GetDataSetInput() instead.")
-  vtkDataSet* GetInputAsDataSet() { return this->GetDataSetInput(); }
   virtual int StartFile();
   virtual void WriteFileAttributes();
   virtual int EndFile();

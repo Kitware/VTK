@@ -400,13 +400,6 @@ public:
   vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; }
   ///@}
 
-  VTK_DEPRECATED_IN_9_5_0(
-    "Use vtkOpenXRRenderWindow::SetUseDepthExtension instead. This has no effect!")
-  void SetUseDepthExtension(bool) {}
-  VTK_DEPRECATED_IN_9_5_0(
-    "Use vtkOpenXRRenderWindow::GetUseDepthExtension instead. This returns false!")
-  bool GetUseDepthExtension() const { return false; }
-
   /**
    * Return OpenXR System ID associated with the XrSession
    */

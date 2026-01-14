@@ -1704,18 +1704,6 @@ int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
 }
 
 //------------------------------------------------------------------------------
-int vtkXMLReader::Min(int a, int b)
-{
-  return std::min(a, b);
-}
-
-//------------------------------------------------------------------------------
-int vtkXMLReader::Max(int a, int b)
-{
-  return std::max(a, b);
-}
-
-//------------------------------------------------------------------------------
 void vtkXMLReader::ComputePointDimensions(int* extent, int* dimensions)
 {
   dimensions[0] = extent[1] - extent[0] + 1;

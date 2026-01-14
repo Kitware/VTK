@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGenericDataObjectWriter.h"
 
 #include "vtkCompositeDataSet.h"
@@ -77,18 +74,11 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_MOLECULE:
       writer = CreateWriter<vtkGraphWriter>(input);
       break;
-    case VTK_HIERARCHICAL_DATA_SET:
-      vtkErrorMacro(<< "Cannot write hierarchical data set");
-      return;
-    case VTK_HYPER_OCTREE:
-      vtkErrorMacro(<< "Cannot write hyper octree");
-      return;
     case VTK_IMAGE_DATA:
     case VTK_UNIFORM_GRID:
       writer = CreateWriter<vtkStructuredPointsWriter>(input);
       break;
     case VTK_MULTIBLOCK_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
     case VTK_OVERLAPPING_AMR:
     case VTK_NON_OVERLAPPING_AMR:
@@ -96,9 +86,6 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_PARTITIONED_DATA_SET_COLLECTION:
       writer = CreateWriter<vtkCompositeDataWriter>(input);
       break;
-    case VTK_MULTIGROUP_DATA_SET:
-      vtkErrorMacro(<< "Cannot write multigroup data set");
-      return;
     case VTK_PIECEWISE_FUNCTION:
       vtkErrorMacro(<< "Cannot write piecewise function");
       return;
@@ -126,9 +113,6 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_TREE:
       writer = CreateWriter<vtkTreeWriter>(input);
       break;
-    case VTK_TEMPORAL_DATA_SET:
-      vtkErrorMacro(<< "Cannot write temporal data set");
-      return;
     case VTK_UNSTRUCTURED_GRID_BASE:
     case VTK_UNSTRUCTURED_GRID:
       writer = CreateWriter<vtkUnstructuredGridWriter>(input);

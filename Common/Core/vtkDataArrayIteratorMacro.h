@@ -34,16 +34,7 @@
  * optimizations in the standard template library to occur (such as reducing
  * std::copy to memmove).
  *
- * For arrays that are subclasses of vtkTypedDataArray, a
- * vtkTypedDataArrayIterator is used.
- * Such iterators safely traverse the array using API calls and have
- * pointer-like semantics, but add about a 35% performance overhead compared
- * with iterating over the raw memory (measured by summing a vtkFloatArray
- * containing 10M values on GCC 4.8.1 with -O3 optimization using both iterator
- * types -- see TestDataArrayIterators).
- *
- * For arrays that are not subclasses of vtkTypedDataArray, there is no reliably
- * safe way to iterate over the array elements.
+ * For other arrays, there is no reliably safe way to iterate over the array elements.
  * In such cases, this macro performs the legacy behavior of casting
  * vtkAbstractArray::GetVoidPointer(...) to vtkDAValueType* to create the
  * iterators.
@@ -66,7 +57,7 @@
  *
  * @sa
  * vtkArrayDispatch vtkGenericDataArray
- * vtkTemplateMacro vtkTypedDataArrayIterator
+ * vtkTemplateMacro
  */
 
 #ifndef vtkDataArrayIteratorMacro_h
@@ -74,7 +65,6 @@
 
 #include "vtkAOSDataArrayTemplate.h" // For classes referred to in the macro
 #include "vtkSetGet.h"               // For vtkTemplateMacro
-#include "vtkTypedDataArray.h"       // For classes referred to in the macro
 
 // Silence 'unused typedef' warnings on GCC.
 // use of the typedef in question depends on the macro
@@ -95,15 +85,6 @@
       vtkDAIteratorType vtkDABegin(_dat->Begin());                                                 \
       vtkDAIteratorType vtkDAEnd(_dat->End());                                                     \
       (void)vtkDABegin; /* Prevent warnings when unused */                                         \
-      (void)vtkDAEnd;                                                                              \
-      _call;                                                                                       \
-    } else if (vtkTypedDataArray<VTK_TT>* _tda = vtkTypedDataArray<VTK_TT>::FastDownCast(_aa)) {   \
-      typedef VTK_TT vtkDAValueType;                                                               \
-      typedef vtkTypedDataArray<vtkDAValueType> vtkDAContainerType;                                \
-      typedef vtkDAContainerType::Iterator vtkDAIteratorType;                                      \
-      vtkDAIteratorType vtkDABegin(_tda->Begin());                                                 \
-      vtkDAIteratorType vtkDAEnd(_tda->End());                                                     \
-      (void)vtkDABegin;                                                                            \
       (void)vtkDAEnd;                                                                              \
       _call;                                                                                       \
     } else {                                                                                       \

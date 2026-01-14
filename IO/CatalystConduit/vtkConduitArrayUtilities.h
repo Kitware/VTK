@@ -16,7 +16,6 @@
 #ifndef vtkConduitArrayUtilities_h
 #define vtkConduitArrayUtilities_h
 
-#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOCatalystConduitModule.h" // for exports
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
@@ -54,21 +53,6 @@ public:
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArray(const conduit_node* mcarray);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArray(
     const conduit_node* mcarray, const std::string& arrayname);
-  ///@}
-
-  ///@{
-  /**
-   * Returns a vtkDataArray from a conduit node in the conduit mcarray protocol
-   * that is a conduit ghost array named ascent_ghosts.
-   *
-   * @deprecated: Instead of using this function, use the state/metadata/vtk_fields
-   * to define the attribute_type, values_to_replace and replacement_values instead for
-   * the ghost array.
-   */
-  VTK_DEPRECATED_IN_9_5_0("This function is deprecated, because in the future "
-                          "state/metadata/vtk_fields will only be used.")
-  static vtkSmartPointer<vtkDataArray> MCGhostArrayToVTKGhostArray(
-    const conduit_node* mcarray, bool is_cell_data);
   ///@}
 
   /**

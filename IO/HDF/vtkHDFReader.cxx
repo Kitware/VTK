@@ -1,8 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkHDFReader.h"
 #include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
@@ -372,18 +369,6 @@ vtkResourceStream* vtkHDFReader::GetStream()
 }
 
 //----------------------------------------------------------------------------
-void vtkHDFReader::MergePartsOn()
-{
-  this->SetMergeParts(true);
-}
-
-//----------------------------------------------------------------------------
-void vtkHDFReader::MergePartsOff()
-{
-  this->SetMergeParts(false);
-}
-
-//----------------------------------------------------------------------------
 void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -548,11 +533,6 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
                                      << " is higher than "
                                         "this reader supports "
                                      << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
-  }
-
-  if (this->MergeParts)
-  {
-    vtkWarningMacro("MergeParts option will be ignored. Please use vtkMergeBlocks instead.");
   }
 
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();

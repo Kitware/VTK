@@ -53,8 +53,6 @@ vtkStaticCellLinksTemplate<TIds>::vtkStaticCellLinksTemplate()
   {
     this->Type = vtkAbstractCellLinks::STATIC_CELL_LINKS_SPECIALIZED;
   }
-
-  this->SequentialProcessing = false;
 }
 
 //----------------------------------------------------------------------------

@@ -1,14 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkXMLGenericDataObjectReader.h"
 
 #include "vtkCommand.h"
 #include "vtkDataObjectTypes.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -93,11 +89,8 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(vtkXMLFileReadTester* tester, 
     if (cfileDataType != nullptr)
     {
       std::string fileDataType(cfileDataType);
-      if (fileDataType == "HierarchicalBoxDataSet" || fileDataType == "vtkHierarchicalBoxDataSet")
-      {
-        return VTK_HIERARCHICAL_BOX_DATA_SET;
-      }
-      if (fileDataType == "vtkOverlappingAMR")
+      if (fileDataType == "vtkOverlappingAMR" || fileDataType == "HierarchicalBoxDataSet" ||
+        fileDataType == "vtkHierarchicalBoxDataSet")
       {
         return VTK_OVERLAPPING_AMR;
       }
@@ -167,10 +160,7 @@ vtkSmartPointer<vtkXMLReader> vtkXMLGenericDataObjectReader::CreateReader(
 {
   switch (data_object_type)
   {
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-      return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
     case VTK_OVERLAPPING_AMR:
-      return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
     case VTK_NON_OVERLAPPING_AMR:
       return vtkSmartPointer<vtkXMLUniformGridAMRReader>::New();
     case VTK_IMAGE_DATA:
@@ -383,14 +373,6 @@ vtkDataObject* vtkXMLGenericDataObjectReader::GetOutput()
 vtkDataObject* vtkXMLGenericDataObjectReader::GetOutput(int idx)
 {
   return this->GetOutputDataObject(idx);
-}
-
-//------------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet* vtkXMLGenericDataObjectReader::GetHierarchicalBoxDataSetOutput()
-{
-  vtkLogF(
-    WARNING, "GetHierarchicalBoxDataSetOutput is deprecated, use GetOverlappingAMROutput instead");
-  return vtkHierarchicalBoxDataSet::SafeDownCast(this->GetOutput());
 }
 
 //------------------------------------------------------------------------------

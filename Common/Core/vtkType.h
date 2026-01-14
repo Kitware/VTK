@@ -4,9 +4,8 @@
 #define vtkType_h
 
 #include "vtkABINamespace.h"
-#include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
-#include "vtkOptions.h"     // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
+#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
@@ -56,14 +55,6 @@
 #define VTK_VARIANT 20
 #define VTK_OBJECT 21
 
-// vtkTypes.h can be included in C code directly, which does not support
-// deprecation of enum values
-#if defined(__cplusplus)
-#define VTK_DEPRECATED_IN_9_5_0_TYPE(reason) VTK_DEPRECATED_IN_9_5_0(reason)
-#else
-#define VTK_DEPRECATED_IN_9_5_0_TYPE(reason)
-#endif
-
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each native array type.  */
 // NOLINTNEXTLINE(readability-enum-initial-value)
@@ -102,8 +93,8 @@ enum vtkArrayTypes
 /*--------------------------------------------------------------------------*/
 // Define a unique integer identifier for each vtkDataObject type.
 // When adding a new data type here, make sure to update vtkDataObjectTypes as well.
-// Do not use values between 0 and current max, but add new values after the max,
-// as values in between may already have been used in the past and been removed since.
+// In case of deprecation removal, do not fully remove obsolete values between 0 and current max,
+// but meraly comment it out. New values should be added after the max.
 enum vtkTypesDataObject
 {
   VTK_POLY_DATA = 0,
@@ -118,17 +109,13 @@ enum vtkTypesDataObject
   VTK_POINT_SET = 9,
   VTK_UNIFORM_GRID = 10,
   VTK_COMPOSITE_DATA_SET = 11,
-  VTK_MULTIGROUP_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
-    12,
+  // VTK_MULTIGROUP_DATA_SET = 12 OBSOLETE
   VTK_MULTIBLOCK_DATA_SET = 13,
-  VTK_HIERARCHICAL_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE(
-    "This type has been removed, do not use.") = 14,
-  VTK_HIERARCHICAL_BOX_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE(
-    "This type has been removed, please use vtkOverlappingAMR instead.") = 15,
+  // VTK_HIERARCHICAL_DATA_SET = 14 OBSOLETE
+  // VTK_HIERARCHICAL_BOX_DATA_SET = 15 OBSOLETE
   VTK_GENERIC_DATA_SET = 16,
-  VTK_HYPER_OCTREE VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") = 17,
-  VTK_TEMPORAL_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
-    18,
+  // VTK_HYPER_OCTREE = 17 OBSOLETE
+  // VTK_TEMPORAL_DATA_SET = 18 OBSOLETE
   VTK_TABLE = 19,
   VTK_GRAPH = 20,
   VTK_TREE = 21,
@@ -144,8 +131,7 @@ enum vtkTypesDataObject
   VTK_OVERLAPPING_AMR = 31,
   VTK_HYPER_TREE_GRID = 32,
   VTK_MOLECULE = 33,
-  VTK_PISTON_DATA_OBJECT VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
-    34,
+  // VTK_PISTON_DATA_OBJECT = 34 OBSOLETE
   VTK_PATH = 35,
   VTK_UNSTRUCTURED_GRID_BASE = 36,
   VTK_PARTITIONED_DATA_SET = 37,

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkDataObjectTreeIterator.h"
 
 #include "vtkDataObjectTree.h"
@@ -299,7 +296,6 @@ bool vtkDataObjectTreeIterator::IsDataObjectTree(vtkDataObject* dataObject)
     case VTK_UNIFORM_GRID_AMR:
     case VTK_NON_OVERLAPPING_AMR:
     case VTK_OVERLAPPING_AMR:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // VTK_DEPRECATED_IN_9_5_0
       return true;
     default:
       return false;

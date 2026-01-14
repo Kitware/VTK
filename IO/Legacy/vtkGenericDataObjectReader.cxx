@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGenericDataObjectReader.h"
 
 #include "vtkCellGrid.h"
@@ -152,9 +149,6 @@ vtkDataObject* vtkGenericDataObjectReader::CreateOutput(vtkDataObject* currentOu
     case VTK_MULTIPIECE_DATA_SET:
       output = vtkMultiPieceDataSet::New();
       break;
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-      output = vtkOverlappingAMR::New();
-      break;
     case VTK_OVERLAPPING_AMR:
       output = vtkOverlappingAMR::New();
       break;
@@ -223,7 +217,6 @@ int vtkGenericDataObjectReader::ReadMetaDataSimple(
       reader = vtkLegacyStatisticalModelReader::New();
       break;
     case VTK_MULTIBLOCK_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
     case VTK_OVERLAPPING_AMR:
     case VTK_NON_OVERLAPPING_AMR:
@@ -336,12 +329,6 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname, vtkData
     {
       this->ReadData<vtkCompositeDataReader, vtkMultiPieceDataSet>(
         fname.c_str(), "vtkMultiPieceDataSet", output);
-      return 1;
-    }
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-    {
-      this->ReadData<vtkCompositeDataReader, vtkOverlappingAMR>(
-        fname.c_str(), "vtkOverlappingAMR", output);
       return 1;
     }
     case VTK_OVERLAPPING_AMR:
@@ -462,9 +449,10 @@ int vtkGenericDataObjectReader::ReadOutputType()
     {
       return VTK_MULTIPIECE_DATA_SET;
     }
-    if (!strncmp(this->LowerCase(line), "hierarchical_box", strlen("hierarchical_box")))
+    if (strncmp(this->LowerCase(line), "hierarchical_box", strlen("hierarchical_box")) == 0)
     {
-      return VTK_HIERARCHICAL_BOX_DATA_SET;
+      // hierarchical_box is obsolete and superseded
+      return VTK_OVERLAPPING_AMR;
     }
     if (strncmp(this->LowerCase(line), "overlapping_amr", strlen("overlapping_amr")) == 0)
     {

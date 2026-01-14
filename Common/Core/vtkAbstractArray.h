@@ -690,10 +690,6 @@ public:
     "Use vtkArrayTypes::VTK_AOS_DATA_ARRAY") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
   static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SOA_DATA_ARRAY;
-  static constexpr int TypedDataArray VTK_DEPRECATED_IN_9_5_0(
-    "TypedDataArray has been deprecated") = vtkArrayTypes::VTK_NUM_ARRAY_TYPES;
-  static constexpr int MappedDataArray VTK_DEPRECATED_IN_9_5_0(
-    "MappedDataArray has been deprecated") = vtkArrayTypes::VTK_NUM_ARRAY_TYPES + 1;
   static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
   static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(

@@ -308,9 +308,18 @@ int vtkXMLUniformGridAMRReader::RequestDataObject(vtkInformation* vtkNotUsed(req
   }
 
   vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
-  if (!output || !output->IsA(this->OutputDataType))
+
+  std::string type = this->OutputDataType;
+
+  // vtkHierarchicalBoxDataSet is obsolete
+  if (type == "vtkHierarchicalBoxDataSet")
   {
-    vtkDataObject* newDO = vtkDataObjectTypes::NewDataObject(this->OutputDataType);
+    type = "vtkOverlappingAMR";
+  }
+
+  if (!output || !output->IsA(type.c_str()))
+  {
+    vtkDataObject* newDO = vtkDataObjectTypes::NewDataObject(type.c_str());
     if (newDO)
     {
       outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), newDO);
