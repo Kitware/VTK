@@ -8,8 +8,9 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE Eigen3)
 add_library(Eigen3::Eigen ALIAS Eigen3::Eigen3)
 
-vtk_module_find_package(PRIVATE_IF_SHARED
+vtk_module_find_package(PRIVATE_IF_SHARED CONFIG_MODE
   PACKAGE Boost COMPONENTS ALL)
+
 
 vtk_module_find_package(
   PRIVATE_IF_SHARED
