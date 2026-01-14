@@ -1,6 +1,7 @@
 # Modules which require software not in the CI image.
 set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # zSpace
 set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt
+set(VTK_MODULE_ENABLE_VTK_IOIFC NO CACHE STRING "") # IFC based on IfcOpenShell
 # FindOpenVDB is not installed.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1997321
 set(VTK_MODULE_ENABLE_VTK_IOOpenVDB NO CACHE STRING "") # openvdb
