@@ -710,6 +710,7 @@ void ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkP
     outPts->SetNumberOfPoints(0);
     delete[] mergeEdges;
     delete[] originalCells;
+    return;
   }
 
   // There are two ways forward: do not merge coincident points; or merge
