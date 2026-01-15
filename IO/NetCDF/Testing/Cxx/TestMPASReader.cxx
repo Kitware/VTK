@@ -9,10 +9,12 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkExecutive.h"
+#include "vtkExtractGeometry.h"
 #include "vtkGeometryFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
+#include "vtkPlane.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -42,17 +44,33 @@ int TestMPASReader(int argc, char* argv[])
   delete[] fName;
   fName = nullptr;
 
-  // make 2 loops for 2 actors since the reader can read in the file
-  // as an sphere or as a plane
-  for (int i = 0; i < 2; i++)
+  // make loop for multiple actors for the multiple modes of the reader
+  for (int i = 0; i < 6; i++)
   {
+    bool primaryGrid = ((i & 0x01) != 0);
+    bool projectLatLon = ((i & 0x02) != 0);
+    bool multilayer = ((i & 0x04) != 0);
+
     // Create the reader.
     vtkNew<vtkMPASReader> reader;
     reader->SetFileName(fileName.c_str());
 
+    // Crinkle clip if creating layers
+    vtkNew<vtkExtractGeometry> extract;
+    if (multilayer)
+    {
+      vtkNew<vtkPlane> plane;
+      plane->SetOrigin(0.0, 0.0, 0.0);
+      plane->SetNormal(-0.866, 0.0, 0.5);
+
+      extract->SetInputConnection(reader->GetOutputPort());
+      extract->SetImplicitFunction(plane);
+    }
+
     // Convert to PolyData.
     vtkNew<vtkGeometryFilter> geometryFilter;
-    geometryFilter->SetInputConnection(reader->GetOutputPort());
+    geometryFilter->SetInputConnection(
+      multilayer ? extract->GetOutputPort() : reader->GetOutputPort());
 
     geometryFilter->UpdateInformation();
     vtkExecutive* executive = geometryFilter->GetExecutive();
@@ -63,7 +81,10 @@ int TestMPASReader(int argc, char* argv[])
     reader->Update();
     reader->EnableAllCellArrays();
     reader->EnableAllPointArrays();
-    reader->SetProjectLatLon((i != 0));
+    reader->SetProjectLatLon(projectLatLon);
+    reader->SetUsePrimaryGrid(primaryGrid);
+    reader->SetShowMultilayerView(multilayer);
+    reader->SetLayerThickness(1000000);
     reader->SetVerticalLevel(i);
     reader->Update();
 
@@ -92,26 +113,40 @@ int TestMPASReader(int argc, char* argv[])
     mapper->ScalarVisibilityOn();
     mapper->SetColorModeToMapScalars();
     mapper->SetScalarRange(0.0116, 199.9);
-    mapper->SetScalarModeToUsePointFieldData();
+    if (primaryGrid)
+    {
+      mapper->SetScalarModeToUseCellFieldData();
+    }
+    else
+    {
+      mapper->SetScalarModeToUsePointFieldData();
+    }
     mapper->SelectColorArray("ke");
 
     // Create the actor.
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
-    if (i == 1)
+    if (projectLatLon)
     {
       actor->SetScale(30000);
       actor->AddPosition(4370000, 0, 0);
     }
+    if (primaryGrid)
+    {
+      actor->AddPosition(0, 1.0e7, 0);
+    }
+    if (multilayer)
+    {
+      actor->AddPosition(-10000000, 0, 0);
+    }
     ren->AddActor(actor);
   }
 
-  vtkNew<vtkCamera> camera;
-  ren->ResetCamera(-4370000, 12370000, -6370000, 6370000, -6370000, 6370000);
-  camera->Zoom(8);
+  ren->ResetCamera(-14000000, 12370000, -6370000, 16370000, -6370000, 6370000);
+  ren->GetActiveCamera()->Zoom(2);
 
   ren->SetBackground(0, 0, 0);
-  renWin->SetSize(300, 300);
+  renWin->SetSize(350, 300);
 
   // interact with data
   renWin->Render();
