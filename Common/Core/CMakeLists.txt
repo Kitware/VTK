@@ -238,12 +238,12 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
   # generate cxx file to instantiate template with this type
   foreach (_prefix IN LISTS _list)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.inc.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx.inc"
       @ONLY)
 
     list(APPEND "bulk_instantiation_sources_${_suffix}"
-      "#include \"${_prefix}_${_suffix}.cxx\"")
+      "#include \"${_prefix}_${_suffix}.cxx.inc\"")
   endforeach ()
 endforeach ()
 
