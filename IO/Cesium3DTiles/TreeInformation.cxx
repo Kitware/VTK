@@ -2,12 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "TreeInformation.h"
 
-#include "vtkPolyDataMaterial.h"
-#include "vtk_libproj.h"
-
-#include <limits>
-#include <sstream>
-
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkArrayDispatch.h"
@@ -44,7 +38,11 @@
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/FStream.hxx>
 
+#include "vtk_libproj.h"
+
 #include <iostream>
+#include <limits>
+#include <sstream>
 
 using RegionType = std::array<int, 6>;
 
