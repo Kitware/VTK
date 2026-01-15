@@ -35,6 +35,14 @@ int TestPNGReaderReadFromStream(int argc, char* argv[])
 
   // Initialize reader
   vtkNew<vtkPNGReader> pngReader;
+
+  // Check the image can be read
+  if (!pngReader->CanReadFile(stream))
+  {
+    std::cerr << "CanReadFile failed for stream\n";
+    return EXIT_FAILURE;
+  }
+
   pngReader->SetStream(stream);
 
   // Visualize

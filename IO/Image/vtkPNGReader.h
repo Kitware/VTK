@@ -32,10 +32,16 @@ public:
   vtkTypeMacro(vtkPNGReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * Is the given file a PNG file?
+   * Return 3 if, after a quick check of file header, it looks like the provided file or stream
+   * can be read as a png file. Return 0 if it is sure it cannot be read. The stream version may
+   * move the stream cursor. This only checks the header is a valid png header and the lib is
+   * functional
    */
   int CanReadFile(VTK_FILEPATH const char* fname) override;
+  int CanReadFile(vtkResourceStream* stream) override;
+  ///@}
 
   /**
    * Get the file extensions for this format.
