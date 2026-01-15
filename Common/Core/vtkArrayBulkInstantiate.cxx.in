@@ -5,8 +5,4 @@
 #define VTK_DEPRECATION_LEVEL 0
 #include "vtkGenericDataArray.h"
 
-// NOLINTBEGIN(bugprone-suspicious-include)
-
 @BULK_INSTANTIATION_SOURCES@
-
-// NOLINTEND(bugprone-suspicious-include)
