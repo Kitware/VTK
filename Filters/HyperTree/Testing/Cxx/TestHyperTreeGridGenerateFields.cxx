@@ -211,6 +211,19 @@ bool TestDifferentVolumes()
   return true;
 }
 
+bool TestEmptyVolume()
+{
+  vtkNew<vtkRandomHyperTreeGridSource> htg;
+  htg->SetDimensions(0, 1, 1);
+  htg->Update();
+
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(htg->GetOutputPort());
+  generateFields->Update();
+
+  return true;
+}
+
 bool TestTotalVolume()
 {
   // Create a HTG
@@ -487,6 +500,7 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   result &= ::TestArrayDisabling();
   result &= ::TestValidCell();
   result &= ::TestMultiBlockHTG();
+  result &= ::TestEmptyVolume();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
