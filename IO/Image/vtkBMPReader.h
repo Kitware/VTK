@@ -22,7 +22,7 @@
  * The default behavior is to read a single file. In this case, the form
  * of the file is simply "FileName" (e.g., foo.bmp).
  *
- * This reader doesn't support reading from memory.
+ * This reader supports reading streams.
  *
  * @sa
  * vtkBMPWriter
@@ -51,10 +51,15 @@ public:
   vtkGetMacro(Depth, int);
   ///@}
 
+  ///@{
   /**
-   * Is the given file a BMP file?
+   * Return 1 if, after a quick check of file header, it looks like the provided file or stream
+   * can be read as a BMP file. Return 0 if it is sure it cannot be read. The stream version may
+   * move the stream cursor. This checks the magic "BM" and correct header InfoSize.
    */
   int CanReadFile(VTK_FILEPATH const char* fname) override;
+  int CanReadFile(vtkResourceStream* stream) override;
+  ///@}
 
   /**
    * Get the file extensions for this format.
@@ -104,6 +109,9 @@ protected:
 private:
   vtkBMPReader(const vtkBMPReader&) = delete;
   void operator=(const vtkBMPReader&) = delete;
+
+  static bool ReadAndCheckHeader(
+    vtkResourceStream* stream, bool quiet, vtkTypeInt32& offset, vtkTypeInt32& infoSize);
 };
 VTK_ABI_NAMESPACE_END
 #endif
