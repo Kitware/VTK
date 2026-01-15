@@ -80,8 +80,8 @@ void vtkPLYWriter::WriteData()
   vtkSmartPointer<vtkUnsignedCharArray> cellColors, pointColors;
   PlyFile* ply;
   static const char* elemNames[] = { "vertex", "face" };
-  char* firstTextureCoordsName = "u";
-  char* secondTextureCoordsName = "v";
+  const char* firstTextureCoordsName = "u";
+  const char* secondTextureCoordsName = "v";
   if (TextureCoordinatesName == VTK_TEXTURECOORDS_TEXTUREUV)
   {
     firstTextureCoordsName = "texture_u";

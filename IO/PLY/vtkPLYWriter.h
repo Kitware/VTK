@@ -211,7 +211,9 @@ public:
   ///@{
   /**
    * Choose the name used for the texture coordinates.
-   * (u, v) or (texture_u, texture_v) or (s, t)
+   * (u, v) or (texture_u, texture_v) or (s, t).
+   *
+   * Defaults to (u, v).
    */
   vtkSetClampMacro(TextureCoordinatesName, int, VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_ST);
   vtkGetMacro(TextureCoordinatesName, int);
