@@ -31,6 +31,7 @@ class vtkDataObject;
  * @sa
  * vtkCityGMLReader,
  * vtkGLTFWriter
+ * vtkCesium3DTilesWriter
  * vtkIFCReader
  */
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataMaterial : public vtkObject
@@ -39,11 +40,11 @@ public:
   vtkTypeMacro(vtkPolyDataMaterial, vtkObject);
   static vtkPolyDataMaterial* New();
 
-  static inline const char* TEXTURE_URI = "texture_uri";
-  static inline const char* DIFFUSE_COLOR = "diffuse_color";
-  static inline const char* SPECULAR_COLOR = "specular_color";
-  static inline const char* TRANSPARENCY = "transparency";
-  static inline const char* SHININESS = "shininess";
+  static const char* const TEXTURE_URI;
+  static const char* const DIFFUSE_COLOR;
+  static const char* const SPECULAR_COLOR;
+  static const char* const TRANSPARENCY;
+  static const char* const SHININESS;
 
   ///@{
   /**

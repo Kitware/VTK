@@ -13,6 +13,12 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataMaterial);
 
+const char* const vtkPolyDataMaterial::TEXTURE_URI = "texture_uri";
+const char* const vtkPolyDataMaterial::DIFFUSE_COLOR = "diffuse_color";
+const char* const vtkPolyDataMaterial::SPECULAR_COLOR = "specular_color";
+const char* const vtkPolyDataMaterial::TRANSPARENCY = "transparency";
+const char* const vtkPolyDataMaterial::SHININESS = "shininess";
+
 //------------------------------------------------------------------------------
 void vtkPolyDataMaterial::SetField(vtkDataObject* obj, const char* name, const char* value)
 {
