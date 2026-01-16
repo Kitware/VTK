@@ -51,8 +51,5 @@ ConfigSummary = {
 "JAVA_LIBRARY":
 "@JAVA_INCLUDE_PATH@",
 
-"VTK_LEGACY_REMOVE":
-"@VTK_LEGACY_REMOVE@",
-
 }
 ]#CSMarker

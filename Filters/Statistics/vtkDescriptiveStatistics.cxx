@@ -12,7 +12,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStatisticalModel.h"

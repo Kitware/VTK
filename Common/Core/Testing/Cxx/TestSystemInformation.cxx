@@ -68,9 +68,8 @@ int TestSystemInformation(int argc, char* argv[])
   const char* files[] = { "CMakeCache.txt", "CMakeFiles/CMakeError.log", "Common/Core/vtkBuild.h",
     "Common/Core/vtkConfigureDeprecated.h", "Common/Core/vtkDebug.h",
     "Common/Core/vtkDebugRangeIterators.h", "Common/Core/vtkEndian.h", "Common/Core/vtkFeatures.h",
-    "Common/Core/vtkLegacy.h", "Common/Core/vtkOptions.h", "Common/Core/vtkPlatform.h",
-    "Common/Core/vtkSMP.h", "Common/Core/vtkThreads.h", "VTKConfig.cmake",
-    "Testing/Temporary/ConfigSummary.txt", nullptr };
+    "Common/Core/vtkOptions.h", "Common/Core/vtkPlatform.h", "Common/Core/vtkSMP.h",
+    "Common/Core/vtkThreads.h", "VTKConfig.cmake", "Testing/Temporary/ConfigSummary.txt", nullptr };
 
   std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 

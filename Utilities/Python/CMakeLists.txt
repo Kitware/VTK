@@ -42,7 +42,7 @@ set_property(GLOBAL PROPERTY _vtk_python_version_major "${Python3_VERSION_MAJOR}
 set_property(GLOBAL PROPERTY _vtk_python_version_minor "${Python3_VERSION_MINOR}")
 
 # Check deprecated versions of Python
-if (NOT VTK_LEGACY_SILENT AND vtk_python_version VERSION_LESS vtk_python_version_support)
+if (vtk_python_version VERSION_LESS vtk_python_version_support)
   message(DEPRECATION
     "Python ${vtk_python_version} support is deprecated, use Python ${vtk_python_version_support}+")
 endif ()

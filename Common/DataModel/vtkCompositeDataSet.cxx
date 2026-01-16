@@ -11,7 +11,6 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
-#include "vtkLegacy.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
