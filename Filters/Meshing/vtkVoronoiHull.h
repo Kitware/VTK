@@ -368,21 +368,55 @@ public: // methods and data members purposely made public
   /**
    * Keep track of points and faces currently being operated on.
    */
+
   /**
-   * Unique list of faces (by id) that require processing. Note
-   * that we use a std::vector rather than a std::unordered_set
-   * (or equivalent). This is because the number of faces to
-   * process is usually small, and the unordered_set is much
-   * slower than a vector.
+   * Represent a face operations to perform.
    */
-  struct FaceProcessingArray : public std::vector<int>
+  struct FaceOperation
   {
-    void AddFace(int faceId)
+    std::function<void(vtkVoronoiHull& hull, int, int, int)> Function;
+    int FaceId;
+    int StartIdx;
+    int NumKeptPts;
+
+    // Constructor
+    FaceOperation(int faceId)
+      : FaceId(faceId)
+    {
+    }
+
+    // Support std::find()
+    bool operator==(int faceId) const { return (this->FaceId == faceId); }
+  };
+
+  /**
+   * Unique list of faces (by id) that require processing. Note that we use a
+   * std::vector rather than a std::unordered_set (or equivalent). This is
+   * because the number of faces to process is usually small, and the
+   * unordered_set is much slower than a vector.
+   */
+  struct FaceProcessingArray : public std::vector<FaceOperation>
+  {
+    bool AddFace(vtkVoronoiHull* hull, int faceId)
     {
       if (std::find(this->begin(), this->end(), faceId) == this->end())
       {
-        this->emplace_back(faceId);
+        FaceOperation& faceOp = this->emplace_back(faceId);
+        int numInts = hull->EvaluateFace(hull->GetFace(faceId), faceOp.StartIdx, faceOp.NumKeptPts);
+        if (numInts <= 0)
+        {
+          faceOp.Function = &vtkVoronoiHull::DeleteFace;
+        }
+        else if (numInts == 2)
+        {
+          faceOp.Function = &vtkVoronoiHull::RebuildFace;
+        }
+        else
+        {
+          return false;
+        }
       }
+      return true; // successfully added the face for processing
     }
   };
 
@@ -393,12 +427,19 @@ public: // methods and data members purposely made public
   {
     // Add a non-degenerate point, and connected faces, for
     // processing.
-    void AddPoint(vtkVoronoiHull* hull, vtkHullPoint& point, int ptId)
+    bool AddPoint(vtkVoronoiHull* hull, vtkHullPoint& point, int ptId)
     {
       this->emplace_back(ptId);
-      hull->InProcessFaces.AddFace(point.Faces[0]);
-      hull->InProcessFaces.AddFace(point.Faces[1]);
-      hull->InProcessFaces.AddFace(point.Faces[2]);
+      if (hull->InProcessFaces.AddFace(hull, point.Faces[0]) &&
+        hull->InProcessFaces.AddFace(hull, point.Faces[1]) &&
+        hull->InProcessFaces.AddFace(hull, point.Faces[2]))
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   };
 
@@ -460,16 +501,11 @@ public: // methods and data members purposely made public
   /**
    * Delete a face from the polyhedron. To avoid memory thrashing (i.e.,
    * avoid new/delete), the face is simply marked deleted, and the deleted
-   * face (and associated memory) will be reused in the future.
+   * face (and associated memory) will be reused in the future. This method
+   * is called when all points defining the face are evaluated outside after
+   * a clip operation.
    */
-  void DeleteFace(int faceId);
-
-  /**
-   * Given two point ids that form the edge of a polyhedron face, intersect
-   * the edge to produce a new intersection point. The id of the intersection
-   * point is returned.
-   */
-  int IntersectFaceEdge(int faceId, int p0, int p1);
+  void DeleteFace(int faceId, int vtkNotUsed(startIdx), int vtkNotUsed(numKeptPts));
 
   /**
    * Rebuild a convex, intersected face after a clipping operation. The
@@ -479,6 +515,13 @@ public: // methods and data members purposely made public
    * be invoked on convex faces with exactly two edge intersections.
    */
   void RebuildFace(int faceId, int startIdx, int numKeptPts);
+
+  /**
+   * Given two point ids that form the edge of a polyhedron face, intersect
+   * the edge to produce a new intersection point. The id of the intersection
+   * point is returned.
+   */
+  int IntersectFaceEdge(int faceId, int p0, int p1);
 
   /**
    * Internal memory operation to allocate space when adding
@@ -679,7 +722,7 @@ inline void vtkVoronoiHull::RebuildFacePoints(vtkHullFace* face, FaceScratchArra
 }
 
 //------------------------------------------------------------------------------
-inline void vtkVoronoiHull::DeleteFace(int faceId)
+inline void vtkVoronoiHull::DeleteFace(int faceId, int, int)
 {
   this->DeletedFaces.Push(faceId);
   this->Faces[faceId].Status = ProcessingStatus::Deleted;

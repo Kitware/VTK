@@ -290,9 +290,11 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
   this->RecomputePetals = true;
 
   // Revisit the evaluated points to assess whether there is a potential
-  // intersection of faces connected to each point. Be wary of degenerate
+  // intersection of faces connected to clipped points. Be wary of degenerate
   // points: while not common, degeneracies must be treated more carefully,
-  // while also providing a fast path for non-degenerate situations.
+  // while also providing a fast path for non-degenerate situations. At the
+  // same time, evaluate the connected faces to determine what operations
+  // must be performed on the faces to perform the clip.
   double tol = len * this->PruneTolerance;
   for (int ptId = 0; ptId < static_cast<int>(this->Points.size()); ++ptId)
   {
@@ -300,45 +302,37 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
     if (point.Status == ProcessingStatus::Valid)
     {
       val = point.Val;
-      if (val < -tol) // inside clip
+      // Points inside the clip are kept.
+      if (val < -tol)
       {
-        ; // no need to process the point
+        ;
       }
-      else if (val > tol) // outside clip, point will be clipped away
+      // If a point is outside the clip, it will be discarded. The faces
+      // attached to the point require further processing.
+      else if (val > tol)
       {
-        this->InProcessPoints.AddPoint(this, point, ptId);
+        if (!this->InProcessPoints.AddPoint(this, point, ptId))
+        {
+          return ClipIntersectionStatus::Numeric;
+        }
       }
-      else // degenerate
+      // We avoid degenerate situations.
+      else
       {
         return ClipIntersectionStatus::Numeric;
       }
     } // only process valid points
   }
 
-  // Process those faces which are connected to a clipped point.
-  for (auto& faceId : this->InProcessFaces)
+  // Process those faces which are connected to a clipped point. Since we've
+  // already determined what geometric operations need to be performed on
+  // each face, and avoided degeneracies, we can now modify the hull (i.e.,
+  // perform face operations). This ensures that the hull remains in a valid
+  // state.
+  for (auto& faceOp : this->InProcessFaces)
   {
-    vtkHullFace* face = this->GetFace(faceId);
-
-    int startIdx, numKeptPts;
-    int numInts = this->EvaluateFace(face, startIdx, numKeptPts);
-    if (numInts <= 0)
-    {
-      // All points of this face are outside, face should be clipped away
-      this->DeleteFace(faceId);
-    }
-    else if (numInts == 2)
-    {
-      // Face is partially clipped, and the clip is convex. Rebuild the face.
-      this->RebuildFace(faceId, startIdx, numKeptPts);
-      face->Status = ProcessingStatus::Valid;
-    }
-    else
-    {
-      // Face has non-convex clip (numerical degeneracy)
-      return ClipIntersectionStatus::Numeric;
-    }
-  } // for all candidate InProcess faces
+    faceOp.Function(*this, faceOp.FaceId, faceOp.StartIdx, faceOp.NumKeptPts);
+  }
 
   // Now build the new capping polygon from the edge / clipping plane
   // intersections.  All the intersection points must be circumferentially
@@ -350,7 +344,8 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
   // sort. However, for large numbers of points, which is rare, the method
   // will not scale well and may require an alternative method.)
 
-  // The number of vertices forming the capping polygon.
+  // The number of vertices forming the capping polygon. A numeric situation
+  // should never arise.
   int npts = static_cast<int>(this->InsertedEdgePoints.size());
   if (npts < 3)
   {
@@ -519,6 +514,7 @@ void vtkVoronoiHull::RebuildFace(int faceId, int startIdx, int numKeptPts)
   // Copy the list of point ids from the face ids buffer into the current
   // face points ids.
   this->RebuildFacePoints(face, this->FaceIdsBuffer);
+  face->Status = ProcessingStatus::Valid;
 } // RebuildFace()
 
 //------------------------------------------------------------------------------
