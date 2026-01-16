@@ -1432,9 +1432,6 @@ void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImage
 
     // Output can now be allocated.
     vtkIdType totalPts = numOutXPts + numOutYPts + numOutZPts;
-    vtkGenericWarningMacro(
-      "Contour Value: " << value << " # Tris: " << (numOutTris - startTris)
-                        << " # Pts: " << (totalPts - (startXPts + startYPts + startZPts)));
     if (totalPts > 0)
     {
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
