@@ -390,8 +390,8 @@ public:
 
    * This member function is thread safe.
    */
-  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat) override;
+  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat) override;
 
   /**
    * Copy the contents from another LookupTable.

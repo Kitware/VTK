@@ -108,9 +108,9 @@ protected:
    * Get the interpolation functions.
    */
   void GetInterpolationFunc(
-    void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
+    void (**doublefunc)(VTK_FUTURE_CONST vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
-    void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
+    void (**floatfunc)(VTK_FUTURE_CONST vtkInterpolationInfo*, const float[3], float*)) override;
   ///@}
 
   ///@{

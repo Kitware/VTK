@@ -796,8 +796,8 @@ namespace
 
 //------------------------------------------------------------------------------
 template <class T>
-void vtkLookupTableMapData(vtkLookupTable* self, T* input, unsigned char* output, int length,
-  int inIncr, int outFormat, TableParameters& p)
+void vtkLookupTableMapData(vtkLookupTable* self, VTK_FUTURE_CONST T* input, unsigned char* output,
+  int length, int inIncr, int outFormat, TableParameters& p)
 {
   int i = length;
   const double* range = self->GetTableRange();
@@ -1184,8 +1184,8 @@ void vtkLookupTableIndexedMapData(vtkLookupTable* self, const T* input, unsigned
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-  int numberOfValues, int inputIncrement, int outputFormat)
+void vtkLookupTable::MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
+  int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
 {
   if (this->IndexedLookup)
   {
@@ -1195,7 +1195,8 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
       {
         vtkIdType i, id;
         vtkBitArray* bitArray = vtkBitArray::New();
-        bitArray->SetVoidArray(input, numberOfValues, 1);
+        bitArray->SetVoidArray(
+          const_cast<void*>(input), numberOfValues, 1); // NOLINT(readability-redundant-casting)
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
         for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
@@ -1209,12 +1210,13 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
       }
       break;
 
-        vtkTemplateMacro(vtkLookupTableIndexedMapData(
-          this, static_cast<VTK_TT*>(input), output, numberOfValues, inputIncrement, outputFormat));
+        vtkTemplateMacro(
+          vtkLookupTableIndexedMapData(this, static_cast<VTK_FUTURE_CONST VTK_TT*>(input), output,
+            numberOfValues, inputIncrement, outputFormat));
 
       case VTK_STRING:
-        vtkLookupTableIndexedMapData(this, static_cast<vtkStdString*>(input), output,
-          numberOfValues, inputIncrement, outputFormat);
+        vtkLookupTableIndexedMapData(this, static_cast<VTK_FUTURE_CONST vtkStdString*>(input),
+          output, numberOfValues, inputIncrement, outputFormat);
         break;
 
       default:
@@ -1233,7 +1235,8 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
       {
         vtkIdType i, id;
         vtkBitArray* bitArray = vtkBitArray::New();
-        bitArray->SetVoidArray(input, numberOfValues, 1);
+        bitArray->SetVoidArray(
+          const_cast<void*>(input), numberOfValues, 1); // NOLINT(readability-redundant-casting)
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
         for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
@@ -1247,8 +1250,8 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
       }
       break;
 
-        vtkTemplateMacro(vtkLookupTableMapData(this, static_cast<VTK_TT*>(input), output,
-          numberOfValues, inputIncrement, outputFormat, p));
+        vtkTemplateMacro(vtkLookupTableMapData(this, static_cast<VTK_FUTURE_CONST VTK_TT*>(input),
+          output, numberOfValues, inputIncrement, outputFormat, p));
       default:
         vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input ScalarType");
         return;

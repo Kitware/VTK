@@ -100,16 +100,16 @@ int Test(ostream& strm)
   unsigned char* ucResult = new unsigned char[128 * 4];
   for (k = 1; k <= 4; k++)
   {
-    ctf2->MapScalarsThroughTable2((void*)cData, ucResult, VTK_CHAR, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)ucData, ucResult, VTK_UNSIGNED_CHAR, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)sData, ucResult, VTK_SHORT, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)usData, ucResult, VTK_UNSIGNED_SHORT, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)iData, ucResult, VTK_INT, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)uiData, ucResult, VTK_UNSIGNED_INT, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)lData, ucResult, VTK_LONG, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)ulData, ucResult, VTK_UNSIGNED_LONG, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)fData, ucResult, VTK_FLOAT, 128, 1, k);
-    ctf2->MapScalarsThroughTable2((void*)dData, ucResult, VTK_DOUBLE, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(cData, ucResult, VTK_CHAR, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(ucData, ucResult, VTK_UNSIGNED_CHAR, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(sData, ucResult, VTK_SHORT, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(usData, ucResult, VTK_UNSIGNED_SHORT, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(iData, ucResult, VTK_INT, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(uiData, ucResult, VTK_UNSIGNED_INT, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(lData, ucResult, VTK_LONG, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(ulData, ucResult, VTK_UNSIGNED_LONG, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(fData, ucResult, VTK_FLOAT, 128, 1, k);
+    ctf2->MapScalarsThroughTable2(dData, ucResult, VTK_DOUBLE, 128, 1, k);
   }
 
   ctf1->Delete();

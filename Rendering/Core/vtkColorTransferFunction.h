@@ -313,8 +313,8 @@ public:
   /**
    * Map a set of scalars through the lookup table.
    */
-  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputIncrement) override;
+  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputIncrement) override;
 
   ///@{
   /**

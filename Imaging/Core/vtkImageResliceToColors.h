@@ -86,8 +86,8 @@ protected:
 
   int ConvertScalarInfo(int& scalarType, int& numComponents) override;
 
-  void ConvertScalars(void* inPtr, void* outPtr, int inputType, int inputNumComponents, int count,
-    int idX, int idY, int idZ, int threadId) override;
+  void ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
+    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId) override;
 
 private:
   vtkImageResliceToColors(const vtkImageResliceToColors&) = delete;

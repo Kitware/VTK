@@ -313,8 +313,9 @@ vtkUnsignedCharArray* vtkScalarsToColors::MapScalars(
 
 //------------------------------------------------------------------------------
 // Map a set of vector values through the table
-void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* output, int scalarType,
-  int numValues, int inComponents, int outputFormat, int vectorComponent, int vectorSize)
+void vtkScalarsToColors::MapVectorsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
+  int scalarType, int numValues, int inComponents, int outputFormat, int vectorComponent,
+  int vectorSize)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
   {
@@ -365,7 +366,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* outp
   if (vectorComponent > 0)
   {
     int scalarSize = vtkDataArray::GetDataTypeSize(scalarType);
-    input = static_cast<unsigned char*>(input) + vectorComponent * scalarSize;
+    input = static_cast<VTK_FUTURE_CONST unsigned char*>(input) + vectorComponent * scalarSize;
   }
 
   // map according to the current vector mode
@@ -393,7 +394,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* outp
         this->MapVectorsToMagnitude(
           input, magValues, scalarType, numMagValues, inComponents, vectorSize);
         this->MapScalarsThroughTable(magValues, output, VTK_DOUBLE, numMagValues, 1, outputFormat);
-        input = static_cast<char*>(input) + numMagValues * inInc;
+        input = static_cast<VTK_FUTURE_CONST char*>(input) + numMagValues * inInc;
         output += numMagValues * outputFormat;
       }
     }
@@ -1016,12 +1017,12 @@ void vtkScalarsToColorsRGBAToRGBA(const T* inPtr, unsigned char* outPtr, vtkIdTy
 
 //------------------------------------------------------------------------------
 // Unpack an array of bits into an array of `unsigned char`.
-unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
+unsigned char* vtkScalarsToColorsUnpackBits(VTK_FUTURE_CONST void* inPtr, vtkIdType numValues)
 {
   unsigned char* newPtr = new unsigned char[numValues];
 
   unsigned char* tmpPtr = newPtr;
-  unsigned char* bitdata = static_cast<unsigned char*>(inPtr);
+  VTK_FUTURE_CONST unsigned char* bitdata = static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr);
   for (vtkIdType i = 0; i < numValues; i += 8)
   {
     unsigned char b = *bitdata++;
@@ -1040,8 +1041,8 @@ unsigned char* vtkScalarsToColorsUnpackBits(void* inPtr, vtkIdType numValues)
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, int inputDataType,
-  int numberOfTuples, int numberOfComponents, int inputFormat, int outputFormat)
+void vtkScalarsToColors::MapColorsToColors(VTK_FUTURE_CONST void* inPtr, unsigned char* outPtr,
+  int inputDataType, int numberOfTuples, int numberOfComponents, int inputFormat, int outputFormat)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
   {
@@ -1081,36 +1082,36 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
     {
       if (inputFormat == VTK_LUMINANCE)
       {
-        vtkScalarsToColorsLuminanceToRGBA(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents, alpha);
       }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
       {
-        vtkScalarsToColorsLuminanceAlphaToRGBA(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsLuminanceAlphaToRGBA(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents, alpha);
       }
       else if (inputFormat == VTK_RGB)
       {
-        vtkScalarsToColorsRGBToRGBA(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsRGBToRGBA(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr,
+          numberOfTuples, numberOfComponents, alpha);
       }
       else
       {
-        vtkScalarsToColorsRGBAToRGBA(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsRGBAToRGBA(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr,
+          numberOfTuples, numberOfComponents, alpha);
       }
     }
     else if (outputFormat == VTK_RGB)
     {
       if (inputFormat < VTK_RGB)
       {
-        vtkScalarsToColorsLuminanceToRGB(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+        vtkScalarsToColorsLuminanceToRGB(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents);
       }
       else
       {
-        vtkScalarsToColorsRGBToRGB(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+        vtkScalarsToColorsRGBToRGB(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr,
+          numberOfTuples, numberOfComponents);
       }
     }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
@@ -1118,35 +1119,37 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
       if (inputFormat == VTK_LUMINANCE)
       {
         vtkScalarsToColorsLuminanceToLuminanceAlpha(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+          static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr, numberOfTuples,
+          numberOfComponents, alpha);
       }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
       {
         vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+          static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr, numberOfTuples,
+          numberOfComponents, alpha);
       }
       else if (inputFormat == VTK_RGB)
       {
-        vtkScalarsToColorsRGBToLuminanceAlpha(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsRGBToLuminanceAlpha(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents, alpha);
       }
       else
       {
-        vtkScalarsToColorsRGBAToLuminanceAlpha(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        vtkScalarsToColorsRGBAToLuminanceAlpha(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents, alpha);
       }
     }
     else if (outputFormat == VTK_LUMINANCE)
     {
       if (inputFormat < VTK_RGB)
       {
-        vtkScalarsToColorsLuminanceToLuminance(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+        vtkScalarsToColorsLuminanceToLuminance(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents);
       }
       else
       {
-        vtkScalarsToColorsRGBToLuminance(
-          static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+        vtkScalarsToColorsRGBToLuminance(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+          outPtr, numberOfTuples, numberOfComponents);
       }
     }
   }
@@ -1159,32 +1162,36 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_TT*>(inPtr),
-            outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceAlphaToRGBA(static_cast<VTK_TT*>(inPtr),
-            outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsLuminanceAlphaToRGBA(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+              outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
       else if (inputFormat == VTK_RGB)
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBToRGBA(static_cast<VTK_TT*>(inPtr), outPtr,
-            numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBToRGBA(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
       else
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBAToRGBA(static_cast<VTK_TT*>(inPtr), outPtr,
-            numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBAToRGBA(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
     }
@@ -1194,16 +1201,18 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToRGB(
-            static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsLuminanceToRGB(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale));
         }
       }
       else
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBToRGB(
-            static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBToRGB(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale));
         }
       }
     }
@@ -1213,34 +1222,36 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(
-            vtkScalarsToColorsLuminanceToLuminanceAlpha(static_cast<VTK_TT*>(inPtr), outPtr,
-              numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToLuminanceAlpha(
+            static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr, numberOfTuples,
+            numberOfComponents, shift, scale, alpha));
         }
       }
       else if (inputFormat == VTK_LUMINANCE_ALPHA)
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(
-            vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(static_cast<VTK_TT*>(inPtr), outPtr,
-              numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
+            static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr, numberOfTuples,
+            numberOfComponents, shift, scale, alpha));
         }
       }
       else if (inputFormat == VTK_RGB)
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBToLuminanceAlpha(static_cast<VTK_TT*>(inPtr),
-            outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBToLuminanceAlpha(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+              outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
       else
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBAToLuminanceAlpha(static_cast<VTK_TT*>(inPtr),
-            outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBAToLuminanceAlpha(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+              outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
         }
       }
     }
@@ -1250,16 +1261,18 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToLuminance(
-            static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsLuminanceToLuminance(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+              outPtr, numberOfTuples, numberOfComponents, shift, scale));
         }
       }
       else
       {
         switch (inputDataType)
         {
-          vtkTemplateAliasMacro(vtkScalarsToColorsRGBToLuminance(
-            static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+          vtkTemplateAliasMacro(
+            vtkScalarsToColorsRGBToLuminance(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+              numberOfTuples, numberOfComponents, shift, scale));
         }
       }
     }
@@ -1288,8 +1301,8 @@ void vtkScalarsToColorsMapVectorsToMagnitude(
 }
 
 //------------------------------------------------------------------------------
-void vtkScalarsToColors::MapVectorsToMagnitude(void* inPtr, double* outPtr, int inputDataType,
-  int numberOfTuples, int numberOfComponents, int vectorSize)
+void vtkScalarsToColors::MapVectorsToMagnitude(VTK_FUTURE_CONST void* inPtr, double* outPtr,
+  int inputDataType, int numberOfTuples, int numberOfComponents, int vectorSize)
 {
   if (numberOfTuples <= 0)
   {
@@ -1313,15 +1326,16 @@ void vtkScalarsToColors::MapVectorsToMagnitude(void* inPtr, double* outPtr, int 
   switch (inputDataType)
   {
     vtkTemplateAliasMacro(vtkScalarsToColorsMapVectorsToMagnitude(
-      static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, vectorSize, inInc));
+      static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr, numberOfTuples, vectorSize, inInc));
   }
 
   delete[] newPtr;
 }
 
 //------------------------------------------------------------------------------
-void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* outPtr,
-  int inputDataType, int numberOfTuples, int numberOfComponents, int outputFormat)
+void vtkScalarsToColors::MapScalarsThroughTable2(VTK_FUTURE_CONST void* inPtr,
+  unsigned char* outPtr, int inputDataType, int numberOfTuples, int numberOfComponents,
+  int outputFormat)
 {
   if (outputFormat < VTK_LUMINANCE || outputFormat > VTK_RGBA)
   {
@@ -1354,23 +1368,24 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
   {
     if (outputFormat == VTK_RGBA)
     {
-      vtkScalarsToColorsLuminanceToRGBA(
-        static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+      vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr,
+        numberOfTuples, numberOfComponents, alpha);
     }
     else if (outputFormat == VTK_RGB)
     {
-      vtkScalarsToColorsLuminanceToRGB(
-        static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+      vtkScalarsToColorsLuminanceToRGB(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr,
+        numberOfTuples, numberOfComponents);
     }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
     {
       vtkScalarsToColorsLuminanceToLuminanceAlpha(
-        static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents, alpha);
+        static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr), outPtr, numberOfTuples,
+        numberOfComponents, alpha);
     }
     else if (outputFormat == VTK_LUMINANCE)
     {
-      vtkScalarsToColorsLuminanceToLuminance(
-        static_cast<unsigned char*>(inPtr), outPtr, numberOfTuples, numberOfComponents);
+      vtkScalarsToColorsLuminanceToLuminance(static_cast<VTK_FUTURE_CONST unsigned char*>(inPtr),
+        outPtr, numberOfTuples, numberOfComponents);
     }
   }
   else
@@ -1380,8 +1395,9 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
     {
       switch (inputDataType)
       {
-        vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_TT*>(inPtr), outPtr,
-          numberOfTuples, numberOfComponents, shift, scale, alpha));
+        vtkTemplateAliasMacro(
+          vtkScalarsToColorsLuminanceToRGBA(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+            numberOfTuples, numberOfComponents, shift, scale, alpha));
 
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
@@ -1392,8 +1408,9 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
     {
       switch (inputDataType)
       {
-        vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToRGB(
-          static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+        vtkTemplateAliasMacro(
+          vtkScalarsToColorsLuminanceToRGB(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr), outPtr,
+            numberOfTuples, numberOfComponents, shift, scale));
 
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
@@ -1405,8 +1422,8 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
       switch (inputDataType)
       {
         vtkTemplateAliasMacro(
-          vtkScalarsToColorsLuminanceToLuminanceAlpha(static_cast<VTK_TT*>(inPtr), outPtr,
-            numberOfTuples, numberOfComponents, shift, scale, alpha));
+          vtkScalarsToColorsLuminanceToLuminanceAlpha(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+            outPtr, numberOfTuples, numberOfComponents, shift, scale, alpha));
 
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
@@ -1417,8 +1434,9 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
     {
       switch (inputDataType)
       {
-        vtkTemplateAliasMacro(vtkScalarsToColorsLuminanceToLuminance(
-          static_cast<VTK_TT*>(inPtr), outPtr, numberOfTuples, numberOfComponents, shift, scale));
+        vtkTemplateAliasMacro(
+          vtkScalarsToColorsLuminanceToLuminance(static_cast<VTK_FUTURE_CONST VTK_TT*>(inPtr),
+            outPtr, numberOfTuples, numberOfComponents, shift, scale));
 
         default:
           vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");

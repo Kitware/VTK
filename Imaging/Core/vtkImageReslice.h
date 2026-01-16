@@ -565,11 +565,11 @@ protected:
    * of any type.  This method will be called from multiple threads,
    * so it must be thread-safe in derived classes.
    */
-  virtual void ConvertScalars(void* inPtr, void* outPtr, int inputType, int inputNumComponents,
-    int count, int idX, int idY, int idZ, int threadId);
+  virtual void ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
+    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId);
 
-  void ConvertScalarsBase(void* inPtr, void* outPtr, int inputType, int inputNumComponents,
-    int count, int idX, int idY, int idZ, int threadId)
+  void ConvertScalarsBase(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
+    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId)
   {
     this->ConvertScalars(
       inPtr, outPtr, inputType, inputNumComponents, count, idX, idY, idZ, threadId);

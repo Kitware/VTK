@@ -40,8 +40,9 @@ vtkCxxSetObjectMacro(vtkImageReslice, ResliceTransform, vtkAbstractTransform);
 
 //------------------------------------------------------------------------------
 // typedef for pixel converter method
-typedef void (vtkImageReslice::*vtkImageResliceConvertScalarsType)(void* outPtr, void* inPtr,
-  int inputType, int inNumComponents, int count, int idX, int idY, int idZ, int threadId);
+typedef void (vtkImageReslice::*vtkImageResliceConvertScalarsType)(VTK_FUTURE_CONST void* outPtr,
+  void* inPtr, int inputType, int inNumComponents, int count, int idX, int idY, int idZ,
+  int threadId);
 
 // typedef for the floating point type used by the code
 typedef double vtkImageResliceFloatingPointType;
@@ -575,9 +576,10 @@ int vtkImageReslice::ConvertScalarInfo(int& vtkNotUsed(scalarType), int& vtkNotU
 }
 
 //------------------------------------------------------------------------------
-void vtkImageReslice::ConvertScalars(void* vtkNotUsed(inPtr), void* vtkNotUsed(outPtr),
-  int vtkNotUsed(inputType), int vtkNotUsed(inputComponents), int vtkNotUsed(count),
-  int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ), int vtkNotUsed(threadId))
+void vtkImageReslice::ConvertScalars(VTK_FUTURE_CONST void* vtkNotUsed(inPtr),
+  void* vtkNotUsed(outPtr), int vtkNotUsed(inputType), int vtkNotUsed(inputComponents),
+  int vtkNotUsed(count), int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
+  int vtkNotUsed(threadId))
 {
 }
 

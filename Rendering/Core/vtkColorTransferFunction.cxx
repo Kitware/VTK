@@ -1806,8 +1806,9 @@ void vtkColorTransferFunctionIndexedMapData(vtkColorTransferFunction* self, T* i
 }
 
 //------------------------------------------------------------------------------
-void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned char* output,
-  int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
+void vtkColorTransferFunction::MapScalarsThroughTable2(VTK_FUTURE_CONST void* input,
+  unsigned char* output, int inputDataType, int numberOfValues, int inputIncrement,
+  int outputFormat)
 {
   if (this->GetSize() == 0)
   {
@@ -1819,8 +1820,9 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned cha
     switch (inputDataType)
     {
       // Use vtkExtendedTemplateMacro to cover case of VTK_STRING input
-      vtkExtendedTemplateMacro(vtkColorTransferFunctionIndexedMapData(this,
-        static_cast<VTK_TT*>(input), output, numberOfValues, inputIncrement, outputFormat, 1));
+      vtkExtendedTemplateMacro(
+        vtkColorTransferFunctionIndexedMapData(this, static_cast<VTK_FUTURE_CONST VTK_TT*>(input),
+          output, numberOfValues, inputIncrement, outputFormat, 1));
 
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
@@ -1831,8 +1833,9 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void* input, unsigned cha
   {
     switch (inputDataType)
     {
-      vtkTemplateMacro(vtkColorTransferFunctionMapData(this, static_cast<VTK_TT*>(input), output,
-        numberOfValues, inputIncrement, outputFormat, 1));
+      vtkTemplateMacro(
+        vtkColorTransferFunctionMapData(this, static_cast<VTK_FUTURE_CONST VTK_TT*>(input), output,
+          numberOfValues, inputIncrement, outputFormat, 1));
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
         return;

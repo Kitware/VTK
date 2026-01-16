@@ -28,14 +28,15 @@ namespace
 template <class F>
 struct vtkInterpolateNOP
 {
-  static void InterpolationFunc(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void InterpolationFunc(
+    VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
   static void RowInterpolationFunc(
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
 template <class F>
-void vtkInterpolateNOP<F>::InterpolationFunc(vtkInterpolationInfo*, const F[3], F*)
+void vtkInterpolateNOP<F>::InterpolationFunc(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*)
 {
 }
 
@@ -884,13 +885,13 @@ double vtkAbstractImageInterpolator::Interpolate(double x, double y, double z, i
 
 //------------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetInterpolationFunc(
-  void (**)(vtkInterpolationInfo*, const double[3], double*))
+  void (**)(VTK_FUTURE_CONST vtkInterpolationInfo*, const double[3], double*))
 {
 }
 
 //------------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::GetInterpolationFunc(
-  void (**)(vtkInterpolationInfo*, const float[3], float*))
+  void (**)(VTK_FUTURE_CONST vtkInterpolationInfo*, const float[3], float*))
 {
 }
 

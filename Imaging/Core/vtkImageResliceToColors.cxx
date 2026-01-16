@@ -148,9 +148,9 @@ int vtkImageResliceToColors::ConvertScalarInfo(int& scalarType, int& numComponen
 }
 
 //------------------------------------------------------------------------------
-void vtkImageResliceToColors::ConvertScalars(void* inPtr, void* outPtr, int inputType,
-  int inputComponents, int count, int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
-  int vtkNotUsed(threadId))
+void vtkImageResliceToColors::ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr,
+  int inputType, int inputComponents, int count, int vtkNotUsed(idX), int vtkNotUsed(idY),
+  int vtkNotUsed(idZ), int vtkNotUsed(threadId))
 {
   vtkScalarsToColors* table = this->LookupTable;
   if (!table)
