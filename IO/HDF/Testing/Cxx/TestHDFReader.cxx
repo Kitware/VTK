@@ -274,6 +274,11 @@ int TestPolyDataStream(const std::string& dataRoot)
   fileStream->Open(fileName.c_str());
 
   vtkNew<vtkHDFReader> reader;
+  if (!vtkHDFReader::CanReadFile(fileStream))
+  {
+    return EXIT_FAILURE;
+  }
+
   reader->SetStream(fileStream);
   reader->Update();
 

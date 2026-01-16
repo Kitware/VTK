@@ -6,6 +6,7 @@
 #include "vtkCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -891,12 +892,33 @@ bool vtkOpenVDBReader::LoadFile()
   return true;
 }
 
-//------------------------------------------------------------------------
-bool vtkOpenVDBReader::CanReadFile(const char* fileName)
+//------------------------------------------------------------------------------
+bool vtkOpenVDBReader::CanReadFile(const char* filename)
 {
-  // try to open the file and look at the return code
-  vtkOpenVDBReaderInternals::VdbFileContext resCtx = this->Internals->OpenFile(fileName);
-  return resCtx.File != nullptr;
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkOpenVDBReader::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenVDBReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  uint64_t magic;
+  if (stream->Read(&magic, 8) != 8)
+  {
+    return false;
+  }
+  // " BDV\0\0\0\0"
+  return magic == 0x0000000056444220;
 }
 
 //------------------------------------------------------------------------

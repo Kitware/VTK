@@ -8,6 +8,7 @@
 #include "vtkContourTriangulator.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -20,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkResourceParser.h"
 #include "vtkResourceStream.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -1188,6 +1190,38 @@ vtkMTimeType vtkCityGMLReader::GetMTime()
     mtime = std::max(mtime, this->Stream->GetMTime());
   }
   return mtime;
+}
+
+//------------------------------------------------------------------------------
+bool vtkCityGMLReader::CanReadFile(const char* filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkCityGMLReader::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkCityGMLReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+
+  std::string line;
+  if (asciiTester->ReadLine(line, 5) != vtkParseResult::Limit)
+  {
+    return false;
+  }
+
+  return line == "<?xml";
 }
 
 VTK_ABI_NAMESPACE_END

@@ -47,6 +47,17 @@ public:
 
   ///@{
   /**
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read. The stream version may move the
+   * stream cursor. This only checks that the first line of this file contains either an integer
+   * number (eg: "234") or three floats separated by spaces (eg: "1846.8  2725.1  61.6").
+   */
+  static bool CanReadFile(VTK_FILEPATH const char* name);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
+
+  ///@{
+  /**
    * Boolean value indicates whether or not to limit points read to a specified
    * (ReadBounds) region.
    */

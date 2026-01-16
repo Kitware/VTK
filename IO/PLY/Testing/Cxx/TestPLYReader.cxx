@@ -24,11 +24,20 @@ int TestPLYReader(int argc, char* argv[])
   const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
 
   // Test if the reader thinks it can open the file.
-  int canRead = vtkPLYReader::CanReadFile(fname);
-  (void)canRead;
+  if (!vtkPLYReader::CanReadFile(fname))
+  {
+    std::cerr << "Unexpected CanReadFile(fname) result" << std::endl;
+    return false;
+  }
 
   vtkNew<vtkFileResourceStream> stream;
   stream->Open(fname);
+
+  if (!vtkPLYReader::CanReadFile(stream))
+  {
+    std::cerr << "Unexpected CanReadFile(stream) result" << std::endl;
+    return false;
+  }
 
   // Create the reader.
   vtkPLYReader* reader = vtkPLYReader::New();

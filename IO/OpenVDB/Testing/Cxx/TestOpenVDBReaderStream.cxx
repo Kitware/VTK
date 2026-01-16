@@ -28,6 +28,12 @@ int TestOpenVDBReaderStream(int argc, char* argv[])
   vtkNew<vtkFileResourceStream> fileStream;
   fileStream->Open(fileName);
 
+  if (!vtkOpenVDBReader::CanReadFile(fileStream))
+  {
+    std::cerr << "Reader reports stream cannot be read.";
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkOpenVDBReader> reader;
   reader->SetStream(fileStream);
   reader->Update();

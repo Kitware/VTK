@@ -25,6 +25,12 @@ int TestPTSReaderStream(int argc, char* argv[])
   vtkNew<vtkFileResourceStream> stream;
   stream->Open(inputFilename.c_str());
 
+  if (!vtkPTSReader::CanReadFile(stream))
+  {
+    std::cerr << "Unexpected CanReadFile result" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkPTSReader> reader;
   reader->SetStream(stream);
   reader->SetLimitToMaxNumberOfPoints(true);

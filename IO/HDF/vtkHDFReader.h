@@ -93,14 +93,19 @@ public:
   vtkResourceStream* GetStream();
   ///@}
 
+  ///@{
   /**
-   * Test whether the file (type) with the given name can be read by this
-   * reader. If the file has a newer version than the reader, we still say
-   * we can read the file type and we fail later, when we try to read the file.
-   * This enables clients (ParaView) to distinguish between failures when we
-   * need to look for another reader and failures when we don't.
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read. The stream version may move the
+   * stream cursor. The filename version should be static but is not for backward compatibility
+   * reasons. It does not modify nor uses members. If the file has a newer version than the reader,
+   * this still returns true and the reader will fail on reading. This enables clients (ParaView) to
+   * distinguish between failures when we need to look for another reader and failures when we
+   * don't.
    */
-  virtual int CanReadFile(VTK_FILEPATH const char* name);
+  virtual vtkTypeBool CanReadFile(VTK_FILEPATH const char* name);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
 
   ///@{
   /**

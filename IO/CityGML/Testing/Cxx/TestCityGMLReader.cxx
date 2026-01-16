@@ -80,6 +80,12 @@ int TestCityGMLReader(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renWin);
 
+  if (!vtkCityGMLReader::CanReadFile(fname))
+  {
+    std::cerr << "Unexpected CanReadFile result" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkCityGMLReader> reader;
   reader->SetFileName(fname);
   reader->Update();

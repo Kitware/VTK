@@ -82,6 +82,12 @@ int TestCityGMLReaderStream(int argc, char* argv[])
   vtkNew<vtkFileResourceStream> fileStream;
   fileStream->Open(fname);
 
+  if (!vtkCityGMLReader::CanReadFile(fileStream))
+  {
+    std::cerr << "Unexpected CanReadFile result" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkCityGMLReader> reader;
   reader->SetStream(fileStream);
   reader->Update();

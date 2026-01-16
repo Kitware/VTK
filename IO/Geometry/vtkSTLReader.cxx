@@ -30,6 +30,16 @@
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+// fixed in STL file format
+constexpr int STL_HEADER_SIZE = 80;
+
+// twelve 32-bit-floating point numbers + 2 byte for attribute byte count = 50 bytes.
+constexpr vtkTypeInt64 STL_TRI_SIZE = 12 * sizeof(float) + sizeof(uint16_t);
+}
+
 vtkStandardNewMacro(vtkSTLReader);
 
 vtkCxxSetObjectMacro(vtkSTLReader, Locator, vtkIncrementalPointLocator);
@@ -220,6 +230,47 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+bool vtkSTLReader::ReadBinaryHeader(vtkResourceStream* stream, vtkUnsignedCharArray* header)
+{
+  header->SetNumberOfValues(::STL_HEADER_SIZE + 1); // allocate +1 byte for zero termination
+  header->FillValue(0);
+  if (stream->Read(header->GetPointer(0), ::STL_HEADER_SIZE) != ::STL_HEADER_SIZE)
+  {
+    return false;
+  }
+  // Remove extra zero termination from binary header
+  header->Resize(::STL_HEADER_SIZE);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSTLReader::ReadBinaryTrisField(vtkResourceStream* stream, uint32_t& numTrisField)
+{
+  if (stream->Read(&numTrisField, sizeof(numTrisField)) != sizeof(numTrisField))
+  {
+    return false;
+  }
+  vtkByteSwap::Swap4LE(&numTrisField);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSTLReader::ReadBinaryTrisFile(vtkResourceStream* stream, vtkTypeInt64& numTrisFile)
+{
+  // How many bytes are remaining in the file?
+  vtkTypeInt64 current = stream->Tell();
+  vtkTypeInt64 ulFileLength = stream->Seek(0, vtkResourceStream::SeekDirection::End);
+  stream->Seek(current, vtkResourceStream::SeekDirection::Begin);
+  ulFileLength -= ::STL_HEADER_SIZE + sizeof(uint32_t); // 80 byte - header, 4 byte - triangle count
+  if (ulFileLength < 0 || ulFileLength % ::STL_TRI_SIZE != 0)
+  {
+    return false;
+  }
+  numTrisFile = ulFileLength / ::STL_TRI_SIZE;
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkSTLReader::ReadBinarySTL(
   vtkResourceStream* stream, vtkPoints* newPts, vtkCellArray* newPolys)
 {
@@ -239,40 +290,26 @@ bool vtkSTLReader::ReadBinarySTL(
     vtkNew<vtkUnsignedCharArray> binaryHeader;
     this->SetBinaryHeader(binaryHeader);
   }
-  constexpr int headerSize = 80;                         // fixed in STL file format
-  this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination
-  this->BinaryHeader->FillValue(0);
-  if (stream->Read(this->BinaryHeader->GetPointer(0), headerSize) != headerSize)
+  if (!vtkSTLReader::ReadBinaryHeader(stream, this->BinaryHeader))
   {
     vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
     return false;
   }
   this->SetHeader(reinterpret_cast<char*>(this->BinaryHeader->GetPointer(0)));
-  // Remove extra zero termination from binary header
-  this->BinaryHeader->Resize(headerSize);
 
   uint32_t numTrisField;
-  if (stream->Read(&numTrisField, sizeof(numTrisField)) != sizeof(numTrisField))
+  if (!vtkSTLReader::ReadBinaryTrisField(stream, numTrisField))
   {
     vtkErrorMacro("STLReader error reading file. Premature EOF while reading triangle count.");
     return false;
   }
-  vtkByteSwap::Swap4LE(&numTrisField);
 
-  // twelve 32-bit-floating point numbers + 2 byte for attribute byte count = 50 bytes.
-  vtkTypeInt64 triSize = 12 * sizeof(float) + sizeof(uint16_t);
-
-  // How many bytes are remaining in the file?
-  vtkTypeInt64 current = stream->Tell();
-  vtkTypeInt64 ulFileLength = stream->Seek(0, vtkResourceStream::SeekDirection::End);
-  stream->Seek(current, vtkResourceStream::SeekDirection::Begin);
-  ulFileLength -= headerSize + sizeof(uint32_t); // 80 byte - header, 4 byte - triangle count
-  if (ulFileLength < 0 || ulFileLength % triSize != 0)
+  vtkTypeInt64 numTrisFile;
+  if (!vtkSTLReader::ReadBinaryTrisFile(stream, numTrisFile))
   {
     vtkErrorMacro("STLReader error reading file. Remaining file length bad.");
     return false;
   }
-  vtkTypeInt64 numTrisFile = ulFileLength / triSize;
 
   // Many .stl files contain bogus triangle count. Let's compare to the remaining file size. If
   // we're being strict, they should match.
@@ -288,7 +325,7 @@ bool vtkSTLReader::ReadBinarySTL(
   newPolys->AllocateEstimate(numTrisFile, 3);
 
   facet_t facet;
-  for (size_t i = 0; stream->Read(&facet, triSize) > 0; ++i)
+  for (size_t i = 0; stream->Read(&facet, ::STL_TRI_SIZE) > 0; ++i)
   {
     vtkByteSwap::Swap4LE(facet.n);
     vtkByteSwap::Swap4LE(facet.n + 1);
@@ -705,4 +742,59 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+
+//------------------------------------------------------------------------------
+bool vtkSTLReader::CanReadFile(const char* filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkSTLReader::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkSTLReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+
+  std::string solid;
+  if (asciiTester->ReadLine(solid, 5) != vtkParseResult::Limit)
+  {
+    return false;
+  }
+
+  if (solid != "solid")
+  {
+    // Skip binary header
+    stream->Seek(::STL_HEADER_SIZE, vtkResourceStream::SeekDirection::Begin);
+
+    uint32_t numTrisField;
+    if (!vtkSTLReader::ReadBinaryTrisField(stream, numTrisField))
+    {
+      return false;
+    }
+
+    vtkTypeInt64 numTrisFile;
+    if (!vtkSTLReader::ReadBinaryTrisFile(stream, numTrisFile))
+    {
+      return false;
+    }
+
+    if (numTrisFile != numTrisField)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 VTK_ABI_NAMESPACE_END

@@ -23,6 +23,11 @@ int TestSTLReader(int argc, char* argv[])
   }
 
   std::string inputFilename = argv[1];
+  if (!vtkSTLReader::CanReadFile(inputFilename.c_str()))
+  {
+    std::cerr << "Unexpected CanReadFile result" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkSTLReader> reader;
   reader->SetFileName(inputFilename.c_str());

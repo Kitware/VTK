@@ -13,6 +13,7 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkHDFReaderImplementation.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
@@ -427,23 +428,31 @@ int vtkHDFReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
   return (major > vtkHDFMajorVersion) ? 0 : 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkHDFReader::CanReadFile(const char* name)
+//------------------------------------------------------------------------------
+vtkTypeBool vtkHDFReader::CanReadFile(const char* filename)
 {
-  // First make sure the file exists.  This prevents an empty file
-  // from being created on older compilers.
-  vtksys::SystemTools::Stat_t fs;
-  if (vtksys::SystemTools::Stat(name, &fs) != 0)
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
   {
-    vtkErrorMacro("File does not exist: " << name);
-    return 0;
+    return 1;
   }
-  if (!this->Impl->Open(name))
+  return vtkHDFReader::CanReadFile(stream) ? 1 : 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
   {
-    return 0;
+    return false;
   }
-  this->Impl->Close();
-  return 1;
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkHDFReader> dummy;
+  vtkHDFReader::Implementation impl(dummy);
+  bool ret = impl.Open(stream);
+  impl.Close();
+  return ret;
 }
 
 //----------------------------------------------------------------------------
