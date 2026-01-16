@@ -250,17 +250,6 @@ protected:
   int CenterLon;
   int CenterLonRange[2];
 
-  enum GeometryType
-  {
-    SphericalDual,
-    SphericalPrimary,
-    ProjectedDual,
-    ProjectedPrimary,
-    Planar
-  };
-
-  GeometryType Geometry;
-
   bool ProjectLatLon;  // User option
   bool UsePrimaryGrid; // User option
   bool OnASphere;      // Data file attribute
@@ -274,6 +263,18 @@ protected:
 
   bool UseDimensionedArrayNames;
 
+private:
+  enum GeometryType
+  {
+    SphericalDual,
+    SphericalPrimary,
+    ProjectedDual,
+    ProjectedPrimary,
+    Planar
+  };
+
+  GeometryType Geometry;
+
   // geometry
   size_t MaximumNVertLevels;
   size_t NumberOfCells;
@@ -281,45 +282,33 @@ protected:
   int CellOffset;
   size_t PointOffset;
   size_t PointsPerCell;
-  size_t CurrentExtraPoint; // current extra point
-  size_t CurrentExtraCell;  // current extra cell
-  double* PointX;           // x coord of point
-  double* PointY;           // y coord of point
-  double* PointZ;           // z coord of point
-  size_t ModNumPoints;
-  size_t ModNumCells;
-  int* OrigConnections;     // original connections
-  int* ModConnections;      // modified connections
-  int* OrigNumPointsOnCell; // non-null when cells have variable sizes
-  int* ModNumPointsOnCell;  //
-  size_t* CellMap;          // maps from added cell to original cell #
-  size_t* PointMap;         // maps from added point to original point #
-  int* MaximumLevelPoint;   //
-  int MaximumCells;         // max cells
-  int MaximumPoints;        // max points
+  int MaximumCells;
+  int MaximumPoints;
+
+  struct LoadState;
 
   void SetDefaults();
   int GetNcDims();
   int GetNcAtts();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
-  int ReadAndOutputGrid();
+  int ReadAndOutputGrid(LoadState& state);
   int BuildVarArrays();
-  int AllocSphericalDualGeometry();
-  int AllocSphericalPrimaryGeometry();
-  int AllocProjectedDualGeometry();
-  int AllocProjectedPrimaryGeometry();
-  int AllocPlanarGeometry();
-  void ShiftLonData();
-  int AddMirrorPoint(int index, double dividerX, double offset);
-  void FixPoints();
-  int EliminateXWrap();
-  void OutputPoints();
-  void OutputCells();
+  int AllocSphericalDualGeometry(LoadState& state);
+  int AllocSphericalPrimaryGeometry(LoadState& state);
+  int AllocProjectedDualGeometry(LoadState& state);
+  int AllocProjectedPrimaryGeometry(LoadState& state);
+  int AllocPlanarGeometry(LoadState& state);
+  void ShiftLonData(LoadState& state);
+  int AddMirrorPoint(LoadState& state, int index, double dividerX, double offset);
+  void FixPoints(LoadState& state);
+  int EliminateXWrap(LoadState& state);
+  void OutputPoints(LoadState& state);
+  void OutputCells(LoadState& state);
   unsigned char GetCellType(int numPoints);
 
-  vtkDataArray* LoadPointVarData(int variable);
-  vtkDataArray* LoadCellVarData(int variable);
+  vtkDataArray* LoadPointVarData(LoadState& state, int variable);
+  vtkDataArray* LoadCellVarData(LoadState& state, int variable);
   vtkDataArray* LookupPointDataArray(int varIdx);
   vtkDataArray* LookupCellDataArray(int varIdx);
 
@@ -333,7 +322,6 @@ protected:
    */
   void LoadTimeFieldData(vtkUnstructuredGrid* dataset);
 
-private:
   vtkMPASReader(const vtkMPASReader&) = delete;
   void operator=(const vtkMPASReader&) = delete;
 
