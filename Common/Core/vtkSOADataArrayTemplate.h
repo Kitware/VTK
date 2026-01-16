@@ -119,17 +119,7 @@ public:
    */
   void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
-      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
-  {
-    if (this->StorageType == StorageTypeEnum::SOA)
-    {
-      this->Data[comp]->GetBuffer()[tupleIdx] = value;
-    }
-    else
-    {
-      this->AoSData->GetBuffer()[tupleIdx * this->GetNumberOfComponents() + comp] = value;
-    }
-  }
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents());
 
   /**
    * Set component @a comp of all tuples to @a value.

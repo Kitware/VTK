@@ -547,5 +547,20 @@ vtkSOADataArrayTemplate<ValueType>::GetTypedComponent(vtkIdType tupleIdx, int co
   return this->AoSData->GetBuffer()[tupleIdx * this->GetNumberOfComponents() + comp];
 }
 
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetTypedComponent(
+  vtkIdType tupleIdx, int comp, ValueType value)
+{
+  if (this->StorageType == StorageTypeEnum::SOA)
+  {
+    this->Data[comp]->GetBuffer()[tupleIdx] = value;
+  }
+  else
+  {
+    this->AoSData->GetBuffer()[tupleIdx * this->GetNumberOfComponents() + comp] = value;
+  }
+}
+
 VTK_ABI_NAMESPACE_END
 #endif
