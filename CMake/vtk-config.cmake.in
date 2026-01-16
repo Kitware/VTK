@@ -12,8 +12,6 @@ The following variables are provided by this module:
   * `VTK_BUILD_VERSION`: The build version of VTK found.
   * `VTK_AVAILABLE_COMPONENTS`: Components available with VTK.
   * `VTK_PREFIX_PATH`: Install prefix for VTK.
-  * `VTK_LEGACY_REMOVE`: Whether VTK's deprecated APIs are
-    compiled out or not.
   * `VTK_HAS_VTKm: [Deprecated, use VTK_HAS_VISKORES] If VTK provides VTK-m.
   * `VTK_HAS_VISKORES`: If VTK provides Viskores.
   * `VTK_OPENGL_HAS_EGL`: If VTK can use EGL for OpenGL context.
@@ -125,7 +123,8 @@ set("${CMAKE_FIND_PACKAGE_NAME}_VERSION" "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION
 set("${CMAKE_FIND_PACKAGE_NAME}_MAJOR_VERSION" "@VTK_MAJOR_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_MINOR_VERSION" "@VTK_MINOR_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_BUILD_VERSION" "@VTK_BUILD_VERSION@")
-set("${CMAKE_FIND_PACKAGE_NAME}_LEGACY_REMOVE" "@VTK_LEGACY_REMOVE@")
+# VTK_DEPRECATED_IN_9_7_0
+set("${CMAKE_FIND_PACKAGE_NAME}_LEGACY_REMOVE" "0")
 set("${CMAKE_FIND_PACKAGE_NAME}_AUTOINIT_INCLUDE" "\"vtkAutoInit.h\"")
 set("${CMAKE_FIND_PACKAGE_NAME}_SMP_BACKENDS" "@vtk_smp_backends@")
 

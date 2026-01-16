@@ -153,11 +153,20 @@ file(READ "${vtk_cmake_dir}/vtkRequireLargeFilesSupport.cxx"
 check_cxx_source_runs("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   VTK_REQUIRE_LARGE_FILE_SUPPORT)
 
-#-----------------------------------------------------------------------------
-# Provide compatibility options.
-option(VTK_LEGACY_REMOVE "Remove all legacy code completely." ON)
-option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
-mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
+if (DEFINED VTK_LEGACY_REMOVE)
+  message(DEPRECATION
+    "The `VTK_LEGACY_REMOVE` option is inert as of VTK 9.7 "
+    "and no longer needs to be specified. Removing from the "
+    "cache.")
+  unset(VTK_LEGACY_REMOVE CACHE)
+endif ()
+
+if (DEFINED VTK_LEGACY_SILENT)
+  message(DEPRECATION
+    "The `VTK_LEGACY_SILENT` option is inert as of VTK 9.7 "
+    "and has no effect. Removing from the cache.")
+  unset(VTK_LEGACY_SILENT CACHE)
+endif ()
 
 include(CheckTypeSize)
 

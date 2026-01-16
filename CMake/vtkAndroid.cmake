@@ -102,7 +102,6 @@ set(android_cmake_flags
   -DVTK_BUILD_TESTING:STRING=OFF
   -DVTK_BUILD_EXAMPLES:BOOL=${VTK_BUILD_EXAMPLES}
   -DVTK_ENABLE_LOGGING:BOOL=OFF
-  -DVTK_LEGACY_REMOVE:BOOL=ON
   -DVTK_ENABLE_WRAPPING:BOOL=OFF
   -DVTK_GROUP_ENABLE_Rendering:STRING=DONT_WANT
   -DVTK_GROUP_ENABLE_StandAlone:STRING=DONT_WANT
@@ -132,10 +131,6 @@ set(android_cmake_flags
   -DVTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2:STRING=YES
   ${VTK_ANDROID_USER_OPTIONS}
 )
-
-if (VTK_LEGACY_REMOVE)
-  list(APPEND android_cmake_flags -DVTK_LEGACY_REMOVE:BOOL=ON)
-endif()
 
 macro(crosscompile target api abi out_build_dir)
   set(_ANDROID_API "${api}")
