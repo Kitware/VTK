@@ -63,6 +63,7 @@ public:
    */
   const char* GetDescriptiveName() override { return "NIfTI"; }
 
+  using Superclass::CanReadFile;
   /**
    * Return true if this reader can read the given file.
    */

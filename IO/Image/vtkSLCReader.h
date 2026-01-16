@@ -32,6 +32,7 @@ public:
   vtkGetMacro(Error, int);
   ///@}
 
+  using Superclass::CanReadFile;
   /**
    * Is the given file an SLC file?
    */

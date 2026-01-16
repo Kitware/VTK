@@ -33,6 +33,7 @@ public:
   vtkTypeMacro(vtkGESignaReader, vtkMedicalImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   /**
    * Is the given file a GESigna file?
    */

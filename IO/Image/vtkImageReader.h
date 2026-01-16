@@ -83,6 +83,7 @@ public:
   vtkGetStringMacro(ScalarArrayName);
   ///@}
 
+  using Superclass::CanReadFile;
   /**
    * vtkImageReader itself can read raw binary files. That being the case,
    * we need to implement `CanReadFile` to return success for any file.

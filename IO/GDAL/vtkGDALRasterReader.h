@@ -42,6 +42,7 @@ public:
   vtkGDALRasterReader();
   ~vtkGDALRasterReader() override;
 
+  using Superclass::CanReadFile;
   /**
    * Is this file supported
    */

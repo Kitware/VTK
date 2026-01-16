@@ -33,6 +33,7 @@ public:
   static vtkNrrdReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   int CanReadFile(VTK_FILEPATH const char* filename) override;
 
 protected:
