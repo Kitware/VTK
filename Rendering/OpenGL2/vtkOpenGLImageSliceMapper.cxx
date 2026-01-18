@@ -4,37 +4,40 @@
 
 #include "vtk_glad.h"
 
+#include "vtkActor.h"
+#include "vtkCellArray.h"
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
+#include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLookupTable.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLHelper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOverrideAttribute.h"
-#include "vtkPoints.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTemplateAliasMacro.h"
-#include "vtkTimerLog.h"
-
-#include "vtkActor.h"
-#include "vtkCellArray.h"
-#include "vtkFloatArray.h"
-#include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkScalarsToColors.h"
+#include "vtkShaderProgram.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTexture.h"
 #include "vtkTrivialProducer.h"
 
@@ -44,6 +47,65 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
+
+/**
+ * Specialized shader to encode cell/point IDs into an RGB texture.
+ * The encoding uses 3 bytes (24 bits) to store the index.
+ * The index is calculated based on the texture coordinates and the
+ * image dimensions (used as stride).
+ */
+// ------------------------------------------------------------------------------------------------
+// Vertex Shader
+// ------------------------------------------------------------------------------------------------
+static const char* selVS = R"(
+  #version 150
+  in vec3 vertexMC; // Incoming World Coordinates (e.g. 0..512)
+  in vec2 tcoordMC; // Texture Coordinates (0..1)
+  out vec2 tcoordVC;
+
+  uniform mat4 MCDCMatrix; // Combined MVP Matrix
+
+  void main()
+  {
+    tcoordVC = tcoordMC;
+    // Force w=1.0 for the input vector to ensure translation applies
+    gl_Position = MCDCMatrix * vec4(vertexMC, 1.0);
+  }
+)";
+
+// ------------------------------------------------------------------------------------------------
+// Fragment Shader
+// ------------------------------------------------------------------------------------------------
+static const char* selFS = R"(
+  #version 150
+
+  in vec2 tcoordVC;
+  uniform vec2 imgDims;    // This should be the ID Stride dimensions
+  out vec4 fragOutput;
+
+  void main()
+  {
+    // Calculate index based on texture coordinates
+    int i = int(floor(tcoordVC.x * imgDims.x));
+    int j = int(floor(tcoordVC.y * imgDims.y));
+
+    // Clamp to valid index range
+    i = clamp(i, 0, int(imgDims.x) - 1);
+    j = clamp(j, 0, int(imgDims.y) - 1);
+
+    // Calculate linear ID using the correct stride
+    // For Cells, imgDims.x is (Width - 1). For Points, it is Width.
+    int pixelId = j * int(imgDims.x) + i;
+
+    // Encode the index into RGB
+    int idx = pixelId & 0xffffff;
+    float r = float((idx) & 0xff) / 255.0;
+    float g = float((idx >> 8) & 0xff) / 255.0;
+    float b = float((idx >> 16) & 0xff) / 255.0;
+
+    fragOutput = vec4(r, g, b, 1.0);
+  }
+)";
 
 //------------------------------------------------------------------------------
 // Initializes an instance, generates a unique index.
@@ -118,6 +180,8 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 
   this->LastOrientation = -1;
   this->LastSliceNumber = VTK_INT_MAX;
+
+  this->SelectionHelper = new vtkOpenGLHelper;
 }
 
 //------------------------------------------------------------------------------
@@ -127,6 +191,9 @@ vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
   this->BackgroundPolyDataActor->UnRegister(this);
   this->BackingPolyDataActor->UnRegister(this);
   this->PolyDataActor->UnRegister(this);
+
+  delete this->SelectionHelper;
+  this->SelectionHelper = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -611,10 +678,176 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2], vtkRenderer* re
 }
 
 //------------------------------------------------------------------------------
+// New method to render for hardware selection
+void vtkOpenGLImageSliceMapper::RenderForSelection(
+  vtkRenderer* ren, vtkImageSlice* prop, vtkHardwareSelector* selector)
+{
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkImageData* input = this->GetInput();
+
+  if (!renWin || !input)
+  {
+    return;
+  }
+
+  // Setup Shader Program
+  if (!this->SelectionHelper->Program)
+  {
+    this->SelectionHelper->Program = renWin->GetShaderCache()->ReadyShaderProgram(selVS, selFS, "");
+  }
+  else
+  {
+    renWin->GetShaderCache()->ReadyShaderProgram(this->SelectionHelper->Program);
+  }
+  vtkShaderProgram* prog = this->SelectionHelper->Program;
+
+  vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
+
+  // Key Matrices
+  vtkMatrix4x4* wcdc;
+  vtkMatrix4x4* wcvc;
+  vtkMatrix3x3* norms;
+  vtkMatrix4x4* vcdc;
+  cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
+  vtkMatrix4x4* mcwc = prop->GetMatrix();
+
+  if (!prop->GetIsIdentity())
+  {
+    vtkNew<vtkMatrix4x4> mcdc;
+    vtkMatrix4x4::Multiply4x4(wcdc, mcwc, mcdc);
+
+    if (prog->IsUniformUsed("MCDCMatrix"))
+    {
+      prog->SetUniformMatrix("MCDCMatrix", mcdc);
+    }
+  }
+  else
+  {
+    // If Actor is at Identity, Data Space == World Space, so just use WCDC
+    if (prog->IsUniformUsed("MCDCMatrix"))
+    {
+      prog->SetUniformMatrix("MCDCMatrix", wcdc);
+    }
+  }
+
+  int dims[3];
+  input->GetDimensions(dims);
+  float idDims[2];
+
+  if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+  {
+    // Cell Picking: Reduce dims by 1
+    // Ensure we don't go negative if dims are 0 or 1
+    idDims[0] = (dims[0] > 1) ? (float)(dims[0] - 1) : 1.0f;
+    idDims[1] = (dims[1] > 1) ? (float)(dims[1] - 1) : 1.0f;
+  }
+  else
+  {
+    // Point Picking (default): Use full dims
+    idDims[0] = (float)dims[0];
+    idDims[1] = (float)dims[1];
+  }
+
+  // Pass the dimensions to the shader
+  prog->SetUniform2f("imgDims", idDims);
+
+  int wholeExt[6];
+  input->GetExtent(wholeExt);
+
+  int* dispExt = this->DisplayExtent;
+
+  double origin[3];
+  double spacing[3];
+  input->GetOrigin(origin);
+  input->GetSpacing(spacing);
+
+  double zVal = origin[2] + (dispExt[4] * spacing[2]);
+
+  // Subtract 0.5 from min and add 0.5 to max to cover the full pixel area.
+  // This ensures the picking quad aligns perfectly with the rendered pixels.
+  float xMin = (float)(origin[0] + (dispExt[0] - 0.5) * spacing[0]);
+  float xMax = (float)(origin[0] + (dispExt[1] + 0.5) * spacing[0]);
+  float yMin = (float)(origin[1] + (dispExt[2] - 0.5) * spacing[1]);
+  float yMax = (float)(origin[1] + (dispExt[3] + 0.5) * spacing[1]);
+
+  float verts[] = {
+    xMin, yMin, (float)zVal, // BL
+    xMax, yMin, (float)zVal, // BR
+    xMin, yMax, (float)zVal, // TL
+    xMax, yMax, (float)zVal  // TR
+  };
+
+  // Map the visible "Display Extent" onto the quad.
+  // Total dimensions of the full input image
+  float wholeWidth = (float)(wholeExt[1] - wholeExt[0] + 1);
+  float wholeHeight = (float)(wholeExt[3] - wholeExt[2] + 1);
+
+  // Avoid division by zero
+  wholeWidth = (wholeWidth < 1.0f) ? 1.0f : wholeWidth;
+  wholeHeight = (wholeHeight < 1.0f) ? 1.0f : wholeHeight;
+
+  // Calculate UV fractions based on the Voxel Edges
+  // e.g. If Extent is 0..9 (10 pixels), map 0.0 to 10.0 / 10.0
+  float uMin = (float)(dispExt[0] - wholeExt[0]) / wholeWidth;
+  float uMax = (float)(dispExt[1] - wholeExt[0] + 1) / wholeWidth;
+  float vMin = (float)(dispExt[2] - wholeExt[2]) / wholeHeight;
+  float vMax = (float)(dispExt[3] - wholeExt[2] + 1) / wholeHeight;
+
+  float tcoords[] = {
+    uMin, vMin, // BL
+    uMax, vMin, // BR
+    uMin, vMax, // TL
+    uMax, vMax  // TR
+  };
+
+  // Render the quad
+  vtkOpenGLVertexArrayObject* vao = this->SelectionHelper->VAO;
+  vao->Bind();
+
+  // Upload the geometry and color data
+  vtkNew<vtkOpenGLBufferObject> vbo;
+  vbo->Upload(verts, 12, vtkOpenGLBufferObject::ArrayBuffer);
+  vao->AddAttributeArray(prog, vbo, "vertexMC", 0, 3 * sizeof(float), VTK_FLOAT, 3, false);
+
+  // Texture coordinates
+  vtkNew<vtkOpenGLBufferObject> tbo;
+  tbo->Upload(tcoords, 8, vtkOpenGLBufferObject::ArrayBuffer);
+  vao->AddAttributeArray(prog, tbo, "tcoordMC", 0, 2 * sizeof(float), VTK_FLOAT, 2, false);
+
+  // Draw
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  vao->Release();
+
+  // Update selector with number of points/cells
+  int* inputExtent = this->GetInput()->GetExtent();
+  unsigned int const numVoxels = (inputExtent[1] - inputExtent[0] + 1) *
+    (inputExtent[3] - inputExtent[2] + 1) * (inputExtent[5] - inputExtent[4] + 1);
+  selector->UpdateMaximumPointId(numVoxels);
+  selector->UpdateMaximumCellId(numVoxels);
+  selector->EndRenderProp();
+}
+
+//------------------------------------------------------------------------------
 // Set the modelview transform and load the texture
 void vtkOpenGLImageSliceMapper::Render(vtkRenderer* ren, vtkImageSlice* prop)
 {
   vtkOpenGLClearErrorMacro();
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  // Check if the selector is valid, is associated with cells, and if the current selection pass
+  // is one of the cell or point ID passes
+  if (selector != nullptr &&
+    selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS &&
+    (selector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_LOW24 ||
+      selector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_HIGH24 ||
+      selector->GetCurrentPass() == vtkHardwareSelector::POINT_ID_LOW24 ||
+      selector->GetCurrentPass() == vtkHardwareSelector::POINT_ID_HIGH24))
+  {
+    // Hardware selection: render cell/point IDs using texture coordinates
+    this->RenderForSelection(ren, prop, selector);
+    // we are in selection mode, do not render anything else
+    return;
+  }
 
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
