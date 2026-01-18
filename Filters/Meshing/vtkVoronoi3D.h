@@ -141,12 +141,12 @@
  * possible to "snip" out areas of interest, producing a sample of points
  * and processing them as an input point cloud.
  *
- * vtkJitterPoints can be used to improve the performance and quality of
- * the output mesh. Voronoi and Delaunay methods are known for their
- * sensitivity to numerical degeneracies (e.g., more than n+1 points
- * cospherical to a n-dimensional simplex in a n-dimensional Delaunay
- * trianglulation). The filter randomly perturbs (i.e., jitters) a point
- * set thereby removing degeneracies.
+ * vtkJogglePoints can be used to improve the performance and quality of the
+ * output mesh. Voronoi and Delaunay methods are known for their sensitivity
+ * to numerical degeneracies (e.g., more than n+1 points cospherical to a
+ * n-dimensional simplex in a n-dimensional Delaunay trianglulation). The
+ * filter randomly perturbs (i.e., joggles or jitters) a point set thereby
+ * removing degeneracies.
  * ```
  *
  * @warning
@@ -174,7 +174,7 @@
  * vtkVoronoiCore3D vtkGeneralizedSurfaceNets3D vtkShellBinIterator
  * vtkVoronoi2D vtkDelaunay2D vtkDelaunay3D vtkSurfaceNets3D
  * vtkSurfaceNets2D vtkConstrainedSmoothingFilter
- * vtkWindowedSincPolyDataFilter vtkJitterPoints
+ * vtkWindowedSincPolyDataFilter vtkJogglePoints
  * vtkLabeledImagePointSampler vtkFillPointCloud
  */
 

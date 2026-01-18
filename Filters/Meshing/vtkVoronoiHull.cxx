@@ -172,7 +172,7 @@ ClipIntersectionStatus vtkVoronoiHull::Clip(vtkIdType neiPtId, const double neiP
   // Now perform the plane clipping / intersection operation.
   ClipIntersectionStatus retStatus = this->IntersectWithPlane(origin, normal, neiPtId);
 
-  // In the rare case of numeric issues, jitter the normal to compute different
+  // In the rare case of numeric issues, joggle the normal to compute different
   // approximations to the Voronoi tessellation.
   int numBumps = 0;
   while (retStatus == ClipIntersectionStatus::Numeric && numBumps < 12)

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Classes, structs, and typedefs in support of Voronoi processing. Names
- * have been chosen to avoid collisions when mixing both 2D and 3D
+ * have been chosen to avoid namespace collisions when mixing both 2D and 3D
  * Voronoi algorithms in the same scope.
  *
  * Implementation note: perceptive reviewers will recognize that it is
@@ -10,9 +10,10 @@
  * points being processed (e.g., 2D,3D) including the tile/hull generation
  * process. However, certain properties (like the angle of 2D tiles summing
  * to 360, and optimal Delaunay triangulation properties) suggest differing
- * approaches (compared to a general n-D approach) in some situations. Also
- * the clarity of the code is somewhat improved by creating separate 2D and
- * 3D Voronoi-related classes. This of course may be changed in the future.
+ * approaches in some situations (as compared to a general n-D
+ * approach). Also the clarity of the code is somewhat improved by creating
+ * separate 2D and 3D Voronoi-related classes. This of course may be changed
+ * in the future.
  */
 
 #ifndef vtkVoronoiCore_h
@@ -31,7 +32,7 @@ VTK_ABI_NAMESPACE_BEGIN
 /**
  * Return values from a line/plane clip operation. Besides reporting no
  * intersection, or a valid intersection, rare degenerate cases may also be
- * reported-- this results in a prune, or a numeric condition.
+ * reported-- this can results in a prune, or a numeric condition.
  */
 enum class ClipIntersectionStatus
 {
@@ -440,6 +441,79 @@ struct vtkVoronoiRandom01Range
   void Seed(vtkIdType s) { this->RNG.seed(s); }
   double Next() { return this->Dist(RNG); }
 };
+
+// A convenience class and methods to randomly perturb (joggle or jitter)
+// point positions. Such jittering (even if very small) significantly
+// improves the numerical stability of Voronoi and Delaunay computations.
+struct vtkVoronoiJoggle
+{
+  // Joggle a single point at input position xIn to produce the output position
+  // xOut (xIn and xOut may be computed in-place). The radius is the allowable
+  // range of joggle in the sphere. A sequence is provided, assumed properly
+  // initialized, to produce random (0,1) values. Note that if this method is
+  // invoked in a thread, separate sequence instantiations (one per thread)
+  // should be provided.
+  static void JoggleXYZ(
+    double xIn[3], double xOut[3], double radius, vtkVoronoiRandom01Range& sequence)
+  {
+    double cosphi = 1 - 2 * sequence.Next();
+    double sinphi = sqrt(1 - cosphi * cosphi);
+    double rho = radius * pow(sequence.Next(), 0.33333333);
+    double R = rho * sinphi;
+    double theta = 2.0 * vtkMath::Pi() * sequence.Next();
+    xOut[0] = xIn[0] + R * cos(theta);
+    xOut[1] = xIn[1] + R * sin(theta);
+    xOut[2] = xIn[2] + rho * cosphi;
+  }
+
+  // Joggle a single point at input position xIn to produce the output
+  // position xOut (xIn and xOut may be computed in-place). The radius is the
+  // allowable range of joggle in the circle in the x-y plane. A sequence is
+  // provided, assumed properly initialized, to produce random (0,1) values.
+  // Note that if this method is invoked in a thread, separate sequence
+  // instantiations (one per thread) should be provided.
+  static void JoggleXY(
+    double xIn[3], double xOut[3], double radius, vtkVoronoiRandom01Range& sequence)
+  {
+    double R = radius * sequence.Next();
+    double theta = 2.0 * vtkMath::Pi() * sequence.Next();
+    xOut[0] = xIn[0] + R * cos(theta);
+    xOut[1] = xIn[1] + R * sin(theta);
+    xOut[2] = xIn[2];
+  }
+
+  // Joggle a single point at input position xIn to produce the output
+  // position xOut (xIn and xOut may be computed in-place). The radius is the
+  // allowable range of joggle in the circle in the x-z plane. A sequence is
+  // provided, assumed properly initialized, to produce random (0,1) values.
+  // Note that if this method is invoked in a thread, separate sequence
+  // instantiations (one per thread) should be provided.
+  static void JoggleXZ(
+    double xIn[3], double xOut[3], double radius, vtkVoronoiRandom01Range& sequence)
+  {
+    double R = radius * sequence.Next();
+    double theta = 2.0 * vtkMath::Pi() * sequence.Next();
+    xOut[0] = xIn[0] + R * cos(theta);
+    xOut[1] = xIn[1];
+    xOut[2] = xIn[2] + R * sin(theta);
+  }
+
+  // Joggle a single point at input position xIn to produce the output
+  // position xOut (xIn and xOut may be computed in-place). The radius is the
+  // allowable range of joggle in the circle in the y-z plane. A sequence is
+  // provided, assumed properly initialized, to produce random (0,1) values.
+  // Note that if this method is invoked in a thread, separate sequence
+  // instantiations (one per thread) should be provided.
+  static void JoggleYZ(
+    double xIn[3], double xOut[3], double radius, vtkVoronoiRandom01Range& sequence)
+  {
+    double R = radius * sequence.Next();
+    double theta = 2.0 * vtkMath::Pi() * sequence.Next();
+    xOut[0] = xIn[0];
+    xOut[1] = xIn[1] + R * cos(theta);
+    xOut[2] = xIn[2] + R * sin(theta);
+  }
+}; // vtkVoronoiJoggle
 
 VTK_ABI_NAMESPACE_END
 #include "vtkVoronoiCore.txx"

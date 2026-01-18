@@ -334,7 +334,7 @@ public: // methods and data members purposely made public
   vtkIdType NumClips;    // The total number of clip operations since Initialize()
   double PruneTolerance; // Specify the prune tolerance
 
-  // Support normal jitter in the case of degeneracies.
+  // Support normal joggle in the case of degeneracies.
   vtkVoronoiRandom01Range Bumper;
   void BumpNormal(int bumpNum, double normal[3], double bumpNormal[3]);
 
