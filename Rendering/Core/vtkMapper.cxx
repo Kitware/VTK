@@ -972,7 +972,7 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
       return;
     }
     CreateColorTextureCoordinatesFunctor functor;
-    if (vtkArrayDispatch::Dispatch::Execute(scalarsDA, functor, output, num, numComps,
+    if (!vtkArrayDispatch::Dispatch::Execute(scalarsDA, functor, output, num, numComps,
           scalarComponent, range, this->LookupTable->GetRange(),
           this->LookupTable->GetNumberOfAvailableColors(), use_log_scale))
     {

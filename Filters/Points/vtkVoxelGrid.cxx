@@ -238,7 +238,7 @@ int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPoints(points);
 
   SubsampleWorker worker;
-  if (vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
         vtkArrayDispatch::AOSPointArrays>::Execute(input->GetPoints()->GetData(), points->GetData(),
         worker, inPD, outPD, this->Locator, this->Kernel, binMap.data()))
   {
