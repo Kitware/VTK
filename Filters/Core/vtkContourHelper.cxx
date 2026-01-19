@@ -16,7 +16,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // VTK_DEPRECATED_IN_9_7_0
 vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellArray* outVerts,
   vtkCellArray* outLines, vtkCellArray* outPolys, vtkPointData* inPd, vtkCellData* inCd,
-  vtkPointData* outPd, vtkCellData* outCd, int trisEstimatedSize, bool outputTriangles)
+  vtkPointData* outPd, vtkCellData* outCd, int vtkNotUsed(trisEstimatedSize), bool outputTriangles)
   : vtkContourHelper(
       locator, outVerts, outLines, outPolys, inPd, inCd, outPd, outCd, outputTriangles)
 {
