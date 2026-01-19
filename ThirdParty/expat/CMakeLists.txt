@@ -16,7 +16,8 @@ vtk_module_third_party(
     PACKAGE EXPAT
     VERSION 2.2.1 # absolute minimun, correspending to version in macOS 10.13
     TARGETS EXPAT::EXPAT
-    STANDARD_INCLUDE_DIRS)
+    STANDARD_INCLUDE_DIRS
+    USE_VARIABLES EXPAT_VERSION)
 
 include(vtkDetectLibraryType)
 vtk_detect_library_shared(vtkexpat EXPAT::EXPAT)
@@ -42,9 +43,9 @@ vtk_module_install_headers(
 if(NOT DEFINED ENV{DASHBOARD_TEST_FROM_CTEST})
   # Check for deprecated versions of expat
   set(expat_deprecated_version "2.6.3")
-  if(VTK_MODULE_USE_EXTERNAL_vtkexpat AND EXPAT_VERSION_STRING VERSION_LESS expat_deprecated_version)
+  if(VTK_MODULE_USE_EXTERNAL_vtkexpat AND EXPAT_VERSION VERSION_LESS expat_deprecated_version)
     message(DEPRECATION
-      "External expat ${EXPAT_VERSION_STRING} is less than ${expat_deprecated_version} "
+      "External expat ${EXPAT_VERSION} is less than ${expat_deprecated_version} "
       "and (may) have known vulnerabilities. Consider upgrading.")
   endif()
 endif()
