@@ -12,11 +12,10 @@
  *
  * Serial and parallel reading are supported, with the possibility of piece selection.
  *
- * This reader provides an internal cache with the `UseCache` option,
- * improving read performance for temporal datasets when the geometry is constant between time
- * steps.
- *
- * For non-composite datasets, constant geometry does not change the MeshMTime between time steps.
+ * This reader uses an internal cache which avoid reading and modifying data when not needed, which
+ * increase reading performance for temporal datasets when the geometry is constant between time
+ * steps, with a constant MeshMTime. Please note this cache is not used when reading
+ * vtkOverlappingAMR and vtkHyperTreeGrid.
  *
  * Major version of the specification should be incremented when older readers can no
  * longer read files written for this reader. Minor versions are
@@ -32,6 +31,7 @@
 
 #include "vtkDataAssembly.h" // For vtkDataAssembly
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOHDFModule.h"  // For export macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -45,7 +45,6 @@ class vtkCallbackCommand;
 class vtkCellData;
 class vtkCommand;
 class vtkDataArraySelection;
-class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
@@ -161,14 +160,16 @@ public:
 
   ///@{
   /**
-   * Boolean property determining whether to use the internal cache or not (default is false).
-   *
-   * Internal cache is useful when reading temporal data to never re-read something that has
-   * already been cached.
+   * Boolean property determining whether to use the internal cache or not (default is true).
    */
-  vtkGetMacro(UseCache, bool);
-  vtkSetMacro(UseCache, bool);
-  vtkBooleanMacro(UseCache, bool);
+  VTK_DEPRECATED_IN_9_7_0("Do not use, cache is on by default and should not be disabled.")
+  virtual bool GetUseCache();
+  VTK_DEPRECATED_IN_9_7_0("Do not use, cache is on by default and should not be disabled.")
+  virtual void SetUseCache(bool use);
+  VTK_DEPRECATED_IN_9_7_0("Do not use, cache is on by default and should not be disabled.")
+  virtual void UseCacheOn();
+  VTK_DEPRECATED_IN_9_7_0("Do not use, cache is on by default and should not be disabled.")
+  virtual void UseCacheOff();
   ///@}
 
   ///@{
@@ -186,7 +187,9 @@ public:
   /**
    * Get or Set the Original id name of an attribute (POINT, CELL, FIELD...)
    */
+  VTK_DEPRECATED_IN_9_7_0("Do not use, will be removed.")
   std::string GetAttributeOriginalIdName(vtkIdType attribute);
+  VTK_DEPRECATED_IN_9_7_0("Do not use, will be removed.")
   void SetAttributeOriginalIdName(vtkIdType attribute, const std::string& name);
   ///@}
 
@@ -301,7 +304,7 @@ protected:
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 
-  bool UseCache = false;
+  bool UseCache = true;
   struct DataCache;
   std::shared_ptr<DataCache> Cache;
 
@@ -364,26 +367,7 @@ private:
    */
   bool RetrieveDataArraysFromAssembly();
 
-  /**
-   * Helper function to add Ids in the attribute arrays of a dataset.
-   * Those ids are used in the DataObjectMeshCache to restore the
-   * corresponding attributes when copying the content of the cache.
-   * It returns a boolean indicating if the array was correctly added.
-   * Also returns false if the array already exists.
-   */
-  bool AddOriginalIds(vtkDataSetAttributes* attributes, vtkIdType size, const std::string& name);
-
-  /**
-   * Removes the arrays for each partition from the object given in
-   * parameter containing the original ids use in the static mesh cache.
-   * It allows to avoid passing those arrays to subsequent pipeline
-   * elements.
-   */
-  void CleanOriginalIds(vtkPartitionedDataSet* output);
-
-  bool MeshGeometryChangedFromPreviousTimeStep = true;
-
-  vtkNew<vtkDataObjectMeshCache> MeshCache;
+  vtkSmartPointer<vtkDataObject> OutputCache;
 
   std::map<vtkIdType, std::string> AttributesOriginalIdName{
     { vtkDataObject::POINT, "__pointsOriginalIds__" },

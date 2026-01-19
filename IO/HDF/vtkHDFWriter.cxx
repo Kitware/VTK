@@ -1588,8 +1588,16 @@ void vtkHDFWriter::AppendIterDataObject(
   }
   else if (pds && pds->GetNumberOfPartitions() > 0)
   {
-    this->CompositeMeshMTime[leafIndex] =
-      vtkDataSet::SafeDownCast(pds->GetPartition(0))->GetMeshMTime();
+    vtkDataSet* part0 = pds->GetPartition(0);
+    if (!part0)
+    {
+      vtkWarningMacro("No partition available when recovering MeshMTime, skipping");
+    }
+    else
+    {
+      this->CompositeMeshMTime[leafIndex] =
+        vtkDataSet::SafeDownCast(pds->GetPartition(0))->GetMeshMTime();
+    }
   }
   else
   {
