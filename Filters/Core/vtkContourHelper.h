@@ -19,6 +19,7 @@
 
 #include "vtkCellArray.h"         // For complete type required by vtkNew
 #include "vtkCellData.h"          // For complete type required by vtkNew
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
@@ -34,6 +35,29 @@ class vtkDataArray;
 class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkContourHelper
 {
 public:
+  VTK_DEPRECATED_IN_9_7_0(
+    "Use vtkContourHelper(vtkIncrementalPointLocator*, vtkCellArray*, vtkCellArray*, "
+    "vtkCellArray*, vtkPointData*, vtkCellData*, vtkPointData*, vtkCellData*, bool) instead.")
+  /**
+   * Contour helper constructor.
+   *
+   * @param locator Locator used to "carry" and merge contour points (avoid duplicates)
+   * @param outVerts Contour vertices, incremented at each Contour call
+   * @param outLines Contour lines, incremented at each Contour call
+   * @param outPolys Contour polys, incremented at each Contour call
+   * @param inPd Input point data, that will be interpolated on output contour point data
+   * @param inCd Input cell data, that will be copied on output contour cell data
+   * @param outPd If not nullptr, will contains contour point data, interpolated from inPd
+   * @param outCd If not nullptr, will contains contour cell data, copied from inCd
+   * @param trisEstimatedSize used to allocate memory for temporary triangles created by
+   * contouring before merging them. Only used if outputTriangles is true.
+   * @param outputTriangles if true, the contour helper will output triangles directly and
+   * will not merge them.
+   */
+  vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellArray* outVerts,
+    vtkCellArray* outLines, vtkCellArray* outPolys, vtkPointData* inPd, vtkCellData* inCd,
+    vtkPointData* outPd, vtkCellData* outCd, int trisEstimatedSize, bool outputTriangles);
+
   /**
    * Contour helper constructor.
    *
