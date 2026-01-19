@@ -230,20 +230,6 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-bool vtkSTLReader::ReadBinaryHeader(vtkResourceStream* stream, vtkUnsignedCharArray* header)
-{
-  header->SetNumberOfValues(::STL_HEADER_SIZE + 1); // allocate +1 byte for zero termination
-  header->FillValue(0);
-  if (stream->Read(header->GetPointer(0), ::STL_HEADER_SIZE) != ::STL_HEADER_SIZE)
-  {
-    return false;
-  }
-  // Remove extra zero termination from binary header
-  header->Resize(::STL_HEADER_SIZE);
-  return true;
-}
-
-//------------------------------------------------------------------------------
 bool vtkSTLReader::ReadBinaryTrisField(vtkResourceStream* stream, uint32_t& numTrisField)
 {
   if (stream->Read(&numTrisField, sizeof(numTrisField)) != sizeof(numTrisField))
@@ -290,12 +276,25 @@ bool vtkSTLReader::ReadBinarySTL(
     vtkNew<vtkUnsignedCharArray> binaryHeader;
     this->SetBinaryHeader(binaryHeader);
   }
-  if (!vtkSTLReader::ReadBinaryHeader(stream, this->BinaryHeader))
+
+  // The 80 byte header need not be a null-terminated string, so allocate +1 byte for null
+  // termination.
+  this->BinaryHeader->SetNumberOfValues(::STL_HEADER_SIZE + 1);
+
+  // Zero fill everything so that null termination is guaranteed.
+  this->BinaryHeader->FillValue(0);
+
+  if (stream->Read(this->BinaryHeader->GetPointer(0), ::STL_HEADER_SIZE) != ::STL_HEADER_SIZE)
   {
     vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
     return false;
   }
+
+  // Even though this is a binary file, provide the header as a C string also.
   this->SetHeader(reinterpret_cast<char*>(this->BinaryHeader->GetPointer(0)));
+
+  // Remove the extra NULL termination from the binary header.
+  this->BinaryHeader->Resize(::STL_HEADER_SIZE);
 
   uint32_t numTrisField;
   if (!vtkSTLReader::ReadBinaryTrisField(stream, numTrisField))
