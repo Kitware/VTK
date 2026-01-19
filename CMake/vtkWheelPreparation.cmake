@@ -160,10 +160,18 @@ add_custom_target(vtk_wheel_sdk_copy ALL
   DEPENDS
     ${wheel_sdk_copied_files})
 
+# Determine wheel version. This code is similar to setup.py.in.
 set(VTK_WHEEL_SDK_VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
-if(NOT VTK_VERSION_SUFFIX STREQUAL "")
+
+# VTK_VERSION_SUFFIX is ignored on tags
+if (NOT DEFINED ENV{CI_COMMIT_TAG} AND NOT VTK_VERSION_SUFFIX STREQUAL "")
   string(APPEND VTK_WHEEL_SDK_VERSION ".${VTK_VERSION_SUFFIX}")
-endif()
+elseif ("$ENV{CI_COMMIT_TAG}" MATCHES "\.rc")
+  # add the RC tag if it exists
+  string(FIND "$ENV{CI_COMMIT_TAG}" "." last_dot_index REVERSE)
+  string(SUBSTRING "$ENV{CI_COMMIT_TAG}" ${last_dot_index} -1 rc_bit)
+  string(APPEND VTK_WHEEL_SDK_VERSION ${rc_bit})
+endif ()
 
 set(VTK_WHEEL_SDK_VTK_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}") # location to copy into the SDK
 configure_file(
