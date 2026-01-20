@@ -12,7 +12,6 @@ DEPENDS
   VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonCore
-  VTK::CommonExecutionModel
   VTK::CommonTransforms
   VTK::CommonSystem
   VTK::IOImage
