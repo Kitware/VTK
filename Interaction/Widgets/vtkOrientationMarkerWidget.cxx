@@ -991,7 +991,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 
   newPos[0] = std::max(newPos[0], currentViewport[0]);
   // Constrain the widget width to the minimum size.
-  newPos[0] = std::min(newPos[2], newPos[2] - actualMinDimensionSize);
+  newPos[0] = std::min(newPos[0], newPos[2] - actualMinDimensionSize);
   // Constrain the widget width to the maximum size if required.
   if (this->ShouldConstrainSize)
   {
