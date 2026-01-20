@@ -310,6 +310,7 @@ void vtkSLCReader::ExecuteDataWithInformation(
     fclose(fp);
     return;
   }
+  f[2] = resultSpacing2->value();
   output->SetSpacing(f);
 
   // Skip Over unit_type, data_origin, and data_modification
