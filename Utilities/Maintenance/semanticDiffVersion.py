@@ -143,9 +143,6 @@ class CompareVersions():
         # Setup the temporary working tree
         self.setup_src_dir()
 
-        # Get newly deprecated methods list
-        self.get_deprecated_methods()
-
         # Compare the two versions provided
         self.generate_ctags()
         self.get_diff()
@@ -273,28 +270,6 @@ class CompareVersions():
                     (self.version1, self.version2))
                 print(git_proc_stderr)
                 sys.exit(1)
-
-    def get_deprecated_methods(self):
-        fnameMatcher = re.compile('diff --git .* b/(.*)\n')
-        depMatcher = re.compile('^\+.*VTK_LEGACY\((.*)\).*\n')
-        rtDepMatcher = re.compile('^\+.*VTK_LEGACY_BODY\((.*),\s*"(.*)"\).*\n')
-        self.git_diff_versions()
-        fname = ''
-        with open(self._git_diff, "r+") as diff_file:
-            for line in diff_file:
-                fnamematch = fnameMatcher.search(line)
-                if fnamematch:
-                    fname = fnamematch.expand('\\1').strip()#.split('/')[-1]
-                if "vtkSetGet.h" in fname:
-                    continue
-                dep_diff = depMatcher.search(line)
-                if dep_diff:
-                    self.dep_methods[dep_diff.expand('\\1').strip()] = [fname, "?"]
-                else:
-                    dep_diff = rtDepMatcher.search(line)
-                    if dep_diff:
-                        self.dep_methods[dep_diff.expand('\\1').strip()] =\
-                            [fname, dep_diff.expand('\\2').strip()]
 
     def setup_src_dir(self):
         print("Setting up a clone of working tree (%s) in %s..." %\

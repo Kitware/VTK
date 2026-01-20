@@ -3,7 +3,6 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 set(VTK_ENABLE_WEBGPU ON CACHE BOOL "")
 set(VTK_BUILD_EXAMPLES OFF CACHE BOOL "")
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "")
-set(VTK_LEGACY_REMOVE ON CACHE BOOL "") # Hides many `-Wreserved-identifier` from legacy code.
 # Modules which do not build successfully or do not have required software in the docker image.
 set(VTK_GROUP_ENABLE_Qt NO CACHE STRING "") # no qt
 # ├── Common

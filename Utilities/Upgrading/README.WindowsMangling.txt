@@ -147,14 +147,6 @@ There are three backward-compatibility issues:
 2.) The virtual methods that have been renamed and replaced as
     described above must be renamed in user code.
 
-3.) All functions that fall victim to mangling have been deprecated.
-    User code will work (with warnings) but should be modified to call
-    the new non-mangled versions of the methods.  VTK 5.0 includes
-    support for the original names but it will be removed in a future
-    version.  Use the VTK_LEGACY_REMOVE setting when building VTK to
-    help make sure your application can build without using deprecated
-    code.
-
 Frequently Proposed Alternatives:
 
 Several people have proposed alternatives that they think solve the

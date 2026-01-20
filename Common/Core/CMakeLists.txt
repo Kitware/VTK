@@ -473,6 +473,7 @@ set(headers
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h
   vtkIOStreamFwd.h
+  vtkLegacy.h
   vtkInformationInternals.h
   vtkMathUtilities.h
   vtkMatrixUtilities.h
@@ -635,7 +636,6 @@ set(generated_headers
   vtkDebugRangeIterators.h
   vtkEndian.h
   vtkFeatures.h
-  vtkLegacy.h
   vtkOptions.h
   vtkPlatform.h
   vtkSMP.h

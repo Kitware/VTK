@@ -1,6 +1,5 @@
 # Force some VTK options for wheels.
 set(VTK_BUILD_TESTING OFF)
-set(VTK_LEGACY_SILENT ON)
 set(VTK_ENABLE_WRAPPING ON)
 set(VTK_WRAP_PYTHON ON)
 set(Python3_ARTIFACTS_INTERACTIVE ON)

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkLegacy.h"
-#include "vtkSetGet.h"
-
 #include "vtkCompositePolyDataMapper.h"
 
 #include "vtkActor.h"
@@ -31,6 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSetGet.h"
 #include "vtkTexture.h"
 
 #include <map>
