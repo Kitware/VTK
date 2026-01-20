@@ -956,11 +956,6 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
             return;
           }
 
-          /* Estimated size: estimated number of generated triangles (before merging them).
-           * Only used in that case. Unused here because we choose to output triangles.
-           */
-          constexpr int estimatedSize = 0;
-
           /* Instantiate a new contour helper
            * Needed because we have to change the input point data (now indexed on resultUG point
            * ids)
