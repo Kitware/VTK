@@ -34,6 +34,7 @@ public:
   vtkTypeMacro(vtkPNMReader, vtkImageReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   int CanReadFile(VTK_FILEPATH const char* fname) override;
   /**
    * .pnm .pgm .ppm

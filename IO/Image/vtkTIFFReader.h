@@ -25,6 +25,7 @@ public:
   vtkTypeMacro(vtkTIFFReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   /**
    * Is the given file name a tiff file?
    */

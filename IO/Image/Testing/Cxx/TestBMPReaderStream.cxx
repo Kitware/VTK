@@ -37,6 +37,14 @@ int TestBMPReaderStream(int argc, char* argv[])
 
   // Initialize reader
   vtkNew<vtkBMPReader> bmpReader;
+
+  // Check the image can be read
+  if (!bmpReader->CanReadFile(stream))
+  {
+    std::cerr << "CanReadFile failed for stream\n";
+    return EXIT_FAILURE;
+  }
+
   bmpReader->SetStream(stream);
   bmpReader->Allow8BitBMPOn();
   bmpReader->Update();

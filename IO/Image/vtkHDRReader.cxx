@@ -101,26 +101,34 @@ void vtkHDRReader::ExecuteInformation()
 }
 
 //------------------------------------------------------------------------------
-int vtkHDRReader::CanReadFile(const char* fname)
+int vtkHDRReader::CanReadFile(const char* filename)
 {
-  // get the magic number by reading in a file
-  vtksys::ifstream ifs(fname, vtksys::ifstream::in);
-
-  if (ifs.fail())
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
   {
-    vtkErrorMacro(<< "Could not open file " << fname);
+    return 0;
+  }
+  return this->CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+int vtkHDRReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
     return 0;
   }
 
-  // The file must begin with magic number #?
-  if ((ifs.get() != '#') && (ifs.get() != '?'))
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+
+  std::string line;
+  if (asciiTester->ReadLine(line, 11) != vtkParseResult::EndOfLine)
   {
-    ifs.close();
     return 0;
   }
-
-  ifs.close();
-  return 1;
+  return line == "#?RADIANCE" ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ public:
   vtkTypeMacro(vtkOMETIFFReader, vtkTIFFReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   ///@{
   int CanReadFile(VTK_FILEPATH const char* fname) override;
   const char* GetFileExtensions() override { return ".ome.tif .ome.tiff"; }

@@ -5,6 +5,7 @@
 #include "vtkDataArray.h"
 #include "vtkDirectory.h"
 #include "vtkErrorCode.h"
+#include "vtkFileResourceStream.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -77,25 +78,37 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkDICOMImageReader::CanReadFile(const char* fname)
+int vtkDICOMImageReader::CanReadFile(const char* filename)
 {
-  bool canOpen = this->Parser->OpenFile(fname);
-  if (!canOpen)
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
   {
-    vtkErrorMacro("DICOMParser couldn't open : " << fname);
     return 0;
   }
+  return this->CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+int vtkDICOMImageReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return 0;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  auto streambuf = stream->ToStreambuf();
+
+  // Parser takes ownership of istream
+  std::istream* iStream = new std::istream(streambuf.get());
+  if (!this->Parser->OpenStream(iStream))
+  {
+    return 0;
+  }
+
   bool canRead = this->Parser->IsDICOMFile();
   this->Parser->CloseFile();
-  if (canRead)
-  {
-    return 1;
-  }
-  else
-  {
-    vtkWarningMacro("DICOMParser couldn't parse : " << fname);
-    return 0;
-  }
+  return canRead ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------

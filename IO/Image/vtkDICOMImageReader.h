@@ -172,10 +172,15 @@ public:
    */
   float GetGantryAngle();
 
-  //
-  // Can I read the file?
-  //
+  ///@{
+  /**
+   * Return 1 if, after a quick check of file header, it looks like the provided file or stream
+   * can be read as a DICOM file. Return 0 if it is sure it cannot be read. The stream version may
+   * move the stream cursor.
+   */
   int CanReadFile(VTK_FILEPATH const char* fname) override;
+  int CanReadFile(vtkResourceStream* stream) override;
+  ///@}
 
   //
   // What file extensions are supported?

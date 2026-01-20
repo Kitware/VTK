@@ -34,6 +34,7 @@ public:
   vtkTypeMacro(vtkOpenSlideReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using Superclass::CanReadFile;
   /**
    * Is the given file supported ?
    */

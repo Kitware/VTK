@@ -29,15 +29,15 @@ int TestDICOMImageReaderStream(int argc, char* argv[])
 
   vtkSmartPointer<vtkDICOMImageReader> DICOMReader = vtkSmartPointer<vtkDICOMImageReader>::New();
 
-  // Check the image can be read
-  if (!DICOMReader->CanReadFile(filename.c_str()))
-  {
-    std::cerr << "CanReadFile failed for " << filename << "\n";
-    exit(1);
-  }
-
   vtkNew<vtkFileResourceStream> fileStream;
   fileStream->Open(filename.c_str());
+
+  // Check the image can be read
+  if (!DICOMReader->CanReadFile(fileStream))
+  {
+    std::cerr << "CanReadFile failed for stream\n";
+    return EXIT_FAILURE;
+  }
 
   // Read the input image
   DICOMReader->SetStream(fileStream);

@@ -30,6 +30,14 @@ int TestHDRReaderStream(int argc, char* argv[])
 
   // Initialize reader
   vtkNew<vtkHDRReader> reader;
+
+  // Check the image can be read
+  if (!reader->CanReadFile(stream))
+  {
+    std::cerr << "CanReadFile failed for " << filename << "\n";
+    return EXIT_FAILURE;
+  }
+
   reader->SetStream(stream);
   reader->UpdateInformation();
 

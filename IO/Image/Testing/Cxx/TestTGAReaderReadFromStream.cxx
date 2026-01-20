@@ -32,6 +32,14 @@ int TestTGAReaderReadFromStream(int argc, char* argv[])
 
   // Initialize and update reader
   vtkNew<vtkTGAReader> tgaReader;
+
+  // Check the image can be read
+  if (!tgaReader->CanReadFile(stream))
+  {
+    std::cerr << "CanReadFile failed for stream\n";
+    return EXIT_FAILURE;
+  }
+
   tgaReader->SetStream(stream);
   tgaReader->Update();
 

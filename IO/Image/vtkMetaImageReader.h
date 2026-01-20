@@ -97,6 +97,7 @@ public:
   vtkGetStringMacro(StudyUID);
   vtkGetStringMacro(TransferSyntaxUID);
 
+  using Superclass::CanReadFile;
   /**
    * Test whether the file with the given name can be read by this
    * reader.

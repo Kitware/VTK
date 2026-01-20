@@ -5,6 +5,7 @@
 #include "vtkTGAReader.h"
 
 #include "vtkDataArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkObjectFactory.h"
@@ -34,8 +35,8 @@ void vtkTGAReader::ExecuteInformation()
   if (this->GetStream())
   {
     vtkResourceStream* stream = this->GetStream();
-    stream->Read(header, ::HeaderSize);
     stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    stream->Read(header, ::HeaderSize);
   }
   else if (this->GetMemoryBuffer())
   {
@@ -184,20 +185,32 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
 //----------------------------------------------------------------------------
 int vtkTGAReader::CanReadFile(const char* fname)
 {
-  vtksys::ifstream file(fname, std::ios::binary);
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(fname))
+  {
+    return 0;
+  }
+  return this->CanReadFile(stream);
+}
 
-  if (!file.is_open())
+//----------------------------------------------------------------------------
+int vtkTGAReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
   {
     return 0;
   }
 
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
   char header[::HeaderSize];
-  file.read(header, ::HeaderSize * sizeof(char));
+  if (stream->Read(header, ::HeaderSize) != ::HeaderSize)
+  {
+    return 0;
+  }
 
   // only uncompressed RGB and RLE encoded RGB formats are supported
   if (header[2] != ::TGAFormat::RLE_RGB && header[2] != ::TGAFormat::Uncompressed_RGB)
   {
-    vtkWarningMacro("Only RLE RGB and uncompressed RGB TGA files are supported");
     return 0;
   }
 

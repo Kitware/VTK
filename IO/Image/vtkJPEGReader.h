@@ -28,10 +28,16 @@ public:
   vtkTypeMacro(vtkJPEGReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * Is the given file a JPEG file?
+   * Return 3 if, after a quick check of file header, it looks like the provided file or stream
+   * can be read as a jpeg file. Return 0 if it is sure it cannot be read. The stream version may
+   * move the stream cursor. This checks the magic bytes "FFD8" then check libjpeg is able to read
+   * the header.
    */
   int CanReadFile(VTK_FILEPATH const char* fname) override;
+  int CanReadFile(vtkResourceStream* stream) override;
+  ///@}
 
   /**
    * Get the file extensions for this format.
@@ -58,6 +64,8 @@ protected:
 private:
   vtkJPEGReader(const vtkJPEGReader&) = delete;
   void operator=(const vtkJPEGReader&) = delete;
+
+  static bool CheckMagicBytes(vtkResourceStream* stream);
 };
 VTK_ABI_NAMESPACE_END
 #endif

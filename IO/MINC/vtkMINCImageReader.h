@@ -65,6 +65,7 @@ public:
    */
   const char* GetDescriptiveName() override { return "MINC"; }
 
+  using Superclass::CanReadFile;
   /**
    * Test whether the specified file can be read.
    */

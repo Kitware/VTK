@@ -5,6 +5,7 @@
 #include "vtkJPEGReader.h"
 
 #include "vtkDataArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkImageData.h"
 #include "vtkMemoryResourceStream.h"
 #include "vtkObjectFactory.h"
@@ -434,14 +435,100 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInforma
   }
 }
 
-int vtkJPEGReader::CanReadFile(const char* fname)
+//------------------------------------------------------------------------------
+bool vtkJPEGReader::CheckMagicBytes(vtkResourceStream* stream)
 {
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  uint16_t magic;
+  if (stream->Read(&magic, 2) != 2)
+  {
+    return false;
+  }
+  return magic == 0xD8FF;
+}
+
+//------------------------------------------------------------------------------
+int vtkJPEGReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!vtkJPEGReader::CheckMagicBytes(stream))
+  {
+    return 0;
+  }
+
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
-  jerr.JPEGReader = this;
 
-  // reset the error code before reading
-  this->ErrorCode = 0;
+  // go back to the start of the file
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+  // magic number is ok, try and read the header
+  struct jpeg_decompress_struct cinfo;
+  cinfo.err = jpeg_std_error(&jerr.pub);
+  // for any jpeg error call vtk_jpeg_error_exit
+  jerr.pub.error_exit = vtk_jpeg_error_exit;
+  // for any output message call vtk_jpeg_error_exit
+  jerr.pub.output_message = vtk_jpeg_error_exit;
+  // set the jump point, if there is a jpeg error or warning
+  // this will evaluate to true
+  if (setjmp(jerr.setjmp_buffer))
+  {
+    // clean up
+    jpeg_destroy_decompress(&cinfo);
+    // this is not a valid jpeg file
+    return 0;
+  }
+  /* Now we can initialize the JPEG decompression object. */
+  jpeg_create_decompress(&cinfo);
+
+  /* Step 2: specify data source (eg, a stream) */
+  vtkSmartPointer<vtkMemoryResourceStream> tempMemStream;
+  vtkMemoryResourceStream* memStream = vtkMemoryResourceStream::SafeDownCast(this->GetStream());
+  if (!memStream)
+  {
+    tempMemStream = ToMemoryStream(stream);
+    memStream = tempMemStream.GetPointer();
+  }
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+  jMemSrc(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#else
+  jpeg_mem_src(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#endif
+
+  /* Step 3: read file parameters with jpeg_read_header() */
+  if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK)
+  {
+    jpeg_destroy_decompress(&cinfo);
+    return 0;
+  }
+
+  // if no errors have occurred yet, then it must be jpeg
+  jpeg_destroy_decompress(&cinfo);
+  return 3;
+}
+
+//------------------------------------------------------------------------------
+int vtkJPEGReader::CanReadFile(const char* fname)
+{
+  {
+    vtkNew<vtkFileResourceStream> stream;
+    if (!stream->Open(fname))
+    {
+      return 0;
+    }
+
+    if (!vtkJPEGReader::CheckMagicBytes(stream))
+    {
+      return 0;
+    }
+  }
+
+  // certain variables must be stored here for longjmp
+  struct vtk_jpeg_error_mgr jerr;
 
   // open the file
   jerr.fp = vtksys::SystemTools::Fopen(fname, "rb");
@@ -449,25 +536,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   {
     return 0;
   }
-  // read the first two bytes
-  char magic[2];
-  int n = static_cast<int>(fread(magic, sizeof(magic), 1, jerr.fp));
-  if (n != 1)
-  {
-    fclose(jerr.fp);
-    return 0;
-  }
-  // check for the magic stuff:
-  // 0xFF followed by 0xD8
-  if (((static_cast<unsigned char>(magic[0]) != 0xFF) ||
-        (static_cast<unsigned char>(magic[1]) != 0xD8)))
-  {
-    fclose(jerr.fp);
-    return 0;
-  }
-  // go back to the start of the file
-  fseek(jerr.fp, 0, SEEK_SET);
-  // magic number is ok, try and read the header
+
   struct jpeg_decompress_struct cinfo;
   cinfo.err = jpeg_std_error(&jerr.pub);
   // for any jpeg error call vtk_jpeg_error_exit
@@ -490,7 +559,12 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   /* Step 2: specify data source (eg, a file) */
   jpeg_stdio_src(&cinfo, jerr.fp);
   /* Step 3: read file parameters with jpeg_read_header() */
-  jpeg_read_header(&cinfo, TRUE);
+  if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK)
+  {
+    jpeg_destroy_decompress(&cinfo);
+    fclose(jerr.fp);
+    return 0;
+  }
 
   // if no errors have occurred yet, then it must be jpeg
   jpeg_destroy_decompress(&cinfo);
