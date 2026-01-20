@@ -12,7 +12,6 @@ DEPENDS
   VTK::IOXMLParser
   VTK::InteractionStyle
   VTK::InteractionWidgets
-  VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::RenderingVolumeOpenGL2
   VTK::RenderingVRModels

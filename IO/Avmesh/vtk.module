@@ -14,7 +14,6 @@ DEPENDS
   VTK::CommonCore
   VTK::IOCore
 PRIVATE_DEPENDS
-  VTK::CommonExecutionModel
   VTK::CommonDataModel
 TEST_DEPENDS
   VTK::CommonDataModel

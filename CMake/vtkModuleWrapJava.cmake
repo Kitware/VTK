@@ -26,6 +26,74 @@ APIs for wrapping modules for Java
 cmake_policy(PUSH)
 cmake_policy(SET CMP0053 NEW)
 
+#[==[
+Internal function to expand a list of module dependencies to include all
+transitive dependencies (depends, private_depends, optional_depends, implements).
+
+Arguments:
+  INPUT_DEPS: Initial list of dependencies to expand
+  OUTPUT_VAR: Name of the variable to store the expanded list
+  SKIP_MODULE: (Optional) Module name to skip during traversal (used to avoid self-references)
+#]==]
+function (_vtk_module_wrap_java_expand_transitive_deps)
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_java_expand
+    ""
+    "OUTPUT_VAR;SKIP_MODULE"
+    "INPUT_DEPS")
+
+  set(_vtk_java_all_deps ${_vtk_java_expand_INPUT_DEPS})
+  set(_vtk_java_to_process ${_vtk_java_expand_INPUT_DEPS})
+  set(_vtk_java_processed)
+
+  while (_vtk_java_to_process)
+    list(POP_FRONT _vtk_java_to_process _vtk_java_current)
+
+    if (_vtk_java_current IN_LIST _vtk_java_processed)
+      continue ()
+    endif ()
+    list(APPEND _vtk_java_processed "${_vtk_java_current}")
+
+    if (DEFINED _vtk_java_expand_SKIP_MODULE AND
+        _vtk_java_current STREQUAL _vtk_java_expand_SKIP_MODULE)
+      continue ()
+    endif ()
+
+    _vtk_module_get_module_property("${_vtk_java_current}"
+      PROPERTY  "depends"
+      VARIABLE  _vtk_java_trans_depends)
+    _vtk_module_get_module_property("${_vtk_java_current}"
+      PROPERTY  "private_depends"
+      VARIABLE  _vtk_java_trans_private_depends)
+    _vtk_module_get_module_property("${_vtk_java_current}"
+      PROPERTY  "optional_depends"
+      VARIABLE  _vtk_java_trans_optional_depends)
+    _vtk_module_get_module_property("${_vtk_java_current}"
+      PROPERTY  "implements"
+      VARIABLE  _vtk_java_trans_implements)
+
+    foreach (_vtk_java_trans_dep IN LISTS
+        _vtk_java_trans_depends
+        _vtk_java_trans_private_depends
+        _vtk_java_trans_implements)
+      if (NOT _vtk_java_trans_dep IN_LIST _vtk_java_all_deps)
+        list(APPEND _vtk_java_all_deps "${_vtk_java_trans_dep}")
+        list(APPEND _vtk_java_to_process "${_vtk_java_trans_dep}")
+      endif ()
+    endforeach ()
+
+    foreach (_vtk_java_trans_optional IN LISTS _vtk_java_trans_optional_depends)
+      if (TARGET "${_vtk_java_trans_optional}")
+        if (NOT _vtk_java_trans_optional IN_LIST _vtk_java_all_deps)
+          list(APPEND _vtk_java_all_deps "${_vtk_java_trans_optional}")
+          list(APPEND _vtk_java_to_process "${_vtk_java_trans_optional}")
+        endif ()
+      endif ()
+    endforeach ()
+  endwhile ()
+
+  set("${_vtk_java_expand_OUTPUT_VAR}" "${_vtk_java_all_deps}" PARENT_SCOPE)
+endfunction ()
+
 function (_vtk_module_wrap_java_sources module sources java_sources)
   _vtk_module_get_module_property("${module}"
     PROPERTY  "exclude_wrap"
@@ -39,21 +107,38 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
   set(_vtk_java_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java.$<CONFIGURATION>.args")
   set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_library_name}-java-init.data")
 
+  # Collect all transitive dependencies for hierarchy files.
+  # The wrapper generator needs type information from all dependencies.
   set(_vtk_java_hierarchy_depends "${module}")
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "depends"
+    VARIABLE  _vtk_java_depends)
   _vtk_module_get_module_property("${module}"
     PROPERTY  "private_depends"
     VARIABLE  _vtk_java_private_depends)
-  list(APPEND _vtk_java_hierarchy_depends
-    ${_vtk_java_private_depends})
   _vtk_module_get_module_property("${module}"
     PROPERTY  "optional_depends"
     VARIABLE  _vtk_java_optional_depends)
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "implements"
+    VARIABLE  _vtk_java_implements)
+
+  list(APPEND _vtk_java_hierarchy_depends
+    ${_vtk_java_depends}
+    ${_vtk_java_private_depends}
+    ${_vtk_java_implements})
+
   foreach (_vtk_java_optional_depend IN LISTS _vtk_java_optional_depends)
     if (TARGET "${_vtk_java_optional_depend}")
       list(APPEND _vtk_java_hierarchy_depends
         "${_vtk_java_optional_depend}")
     endif ()
   endforeach ()
+
+  # Expand to include transitive dependencies.
+  _vtk_module_wrap_java_expand_transitive_deps(
+    INPUT_DEPS  ${_vtk_java_hierarchy_depends}
+    OUTPUT_VAR  _vtk_java_hierarchy_depends)
 
   set(_vtk_java_command_depends)
   foreach (_vtk_java_hierarchy_depend IN LISTS _vtk_java_hierarchy_depends)
@@ -295,7 +380,16 @@ function (_vtk_module_wrap_java_library name)
       endif ()
     endforeach ()
 
-    foreach (_vtk_java_module_depend IN LISTS _vtk_java_module_depends)
+    # Collect all transitive dependencies for linking.
+    # The linker requires symbols to be resolvable at link time on Windows and
+    # macOS, so we must link against all Java wrapper libraries in the dependency
+    # chain to resolve symbols.
+    _vtk_module_wrap_java_expand_transitive_deps(
+      INPUT_DEPS   ${_vtk_java_module_depends}
+      OUTPUT_VAR   _vtk_java_all_depends
+      SKIP_MODULE  "${_vtk_java_module}")
+
+    foreach (_vtk_java_module_depend IN LISTS _vtk_java_all_depends)
       # Remove self dependency, this is needed for self-implementing modules
       if (_vtk_java_module_depend STREQUAL _vtk_java_module)
         continue()
