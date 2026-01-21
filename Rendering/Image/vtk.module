@@ -23,6 +23,8 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::FiltersModeling
   VTK::FiltersSources
+  VTK::FiltersGeometry
+  VTK::FiltersExtraction
   VTK::IOImage
   VTK::ImagingCore
   VTK::ImagingSources
