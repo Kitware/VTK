@@ -14,6 +14,7 @@
 #include "vtkDepthPeelingPass.h"
 #include "vtkDistributedDataFilter.h"
 #include "vtkImageRenderManager.h"
+#include "vtkIndependentViewerCollection.h"
 #include "vtkLightsPass.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -43,6 +44,7 @@
 
 #include <vtksys/CommandLineArguments.hxx>
 
+#include <cassert>
 #include <iostream>
 
 namespace
@@ -203,6 +205,9 @@ bool MyProcess::Execute(int argc, char** argv)
   syncRenderers->SetRootProcessId(this->IsServer ? 1 : 0);
   syncRenderers->SetImageReductionFactor(this->ImageReductionFactor);
 
+  vtkNew<vtkIndependentViewerCollection> independentViewers;
+  syncRenderers->SetIndependentViewers(independentViewers);
+
   this->CreatePipeline(renderer);
   this->SetupRenderPasses(renderer);
 
@@ -210,6 +215,10 @@ bool MyProcess::Execute(int argc, char** argv)
   if (!this->IsServer)
   {
     // CLIENT
+    independentViewers->SetNumberOfEyeSeparations(2);
+    independentViewers->SetEyeSeparation(0, 0.6);
+    independentViewers->SetEyeSeparation(1, 0.7);
+
     vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
     renWin->SwapBuffersOn();
@@ -229,6 +238,34 @@ bool MyProcess::Execute(int argc, char** argv)
   {
     // SERVER
     this->Controller->ProcessRMIs();
+
+    if (independentViewers->GetNumberOfEyeSeparations() != 2)
+    {
+      vtkErrorMacro(<< "Server received " << independentViewers->GetNumberOfEyeSeparations()
+                    << " eye separations, expected 2");
+      success = false;
+    }
+
+    if (independentViewers->GetEyeSeparation(0) != 0.6)
+    {
+      vtkErrorMacro(<< "Server received " << independentViewers->GetEyeSeparation(0)
+                    << " for eye separation 0, expected 0.6");
+      success = false;
+    }
+
+    if (independentViewers->GetEyeSeparation(1) != 0.7)
+    {
+      vtkErrorMacro(<< "Server received " << independentViewers->GetEyeSeparation(1)
+                    << " for eye separation 1, expected 0.7");
+      success = false;
+    }
+
+    if (independentViewers->GetNumberOfEyeTransforms() != 2)
+    {
+      vtkErrorMacro(<< "Server received " << independentViewers->GetNumberOfEyeSeparations()
+                    << " eye transforms, expected 2");
+      success = false;
+    }
   }
 
   renderer->Delete();

@@ -8,6 +8,7 @@ set(classes
   vtkCompositeZPass
   vtkCompressCompositer
   vtkImageRenderManager
+  vtkIndependentViewerCollection
   vtkParallelRenderManager
   vtkPHardwareSelector
   vtkSynchronizableActors
