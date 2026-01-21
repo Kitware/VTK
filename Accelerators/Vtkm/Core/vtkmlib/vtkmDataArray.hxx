@@ -529,7 +529,7 @@ viskores::cont::UnknownArrayHandle vtkmDataArray<T>::GetVtkmUnknownArrayHandle()
 
 //-----------------------------------------------------------------------------
 template <typename T>
-void* vtkmDataArray<T>::GetVoidPointer(vtkIdType valueIdx)
+T* vtkmDataArray<T>::GetPointer(vtkIdType valueIdx)
 {
   viskores::cont::ArrayHandleRuntimeVec<T> array{ this->GetNumberOfComponents() };
   if (this->GetVtkmUnknownArrayHandle().template CanConvert<decltype(array)>())
@@ -546,7 +546,14 @@ void* vtkmDataArray<T>::GetVoidPointer(vtkIdType valueIdx)
   // Get the write pointer to the data (since there is no way to know whether
   // this array will be written to).
   T* pointer = array.GetComponentsArray().GetWritePointer();
-  return &(pointer[valueIdx]);
+  return &pointer[valueIdx];
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+void* vtkmDataArray<T>::GetVoidPointer(vtkIdType valueIdx)
+{
+  return this->GetPointer(valueIdx);
 }
 
 //-----------------------------------------------------------------------------
