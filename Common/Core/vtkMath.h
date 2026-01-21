@@ -588,13 +588,13 @@ public:
    * Normalize (in place) a 3-vector. Returns norm of vector.
    * (float version)
    */
-  static float Normalize(float v[3]);
+  static inline float Normalize(float v[3]);
 
   /**
    * Normalize (in place) a 3-vector. Returns norm of vector
    * (double version).
    */
-  static double Normalize(double v[3]);
+  static inline double Normalize(double v[3]);
 
   ///@{
   /**
@@ -1653,7 +1653,7 @@ public:
   /**
    * Test if a number is equal to the special floating point value Not-A-Number (Nan).
    */
-  static vtkTypeBool IsNan(double x);
+  static inline vtkTypeBool IsNan(double x);
 
   /**
    * Test if a number has finite value i.e. it is normal, subnormal or zero, but not infinite or
@@ -1848,7 +1848,7 @@ inline T vtkMath::Max(const T& a, const T& b)
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Normalize(float v[3])
+float vtkMath::Normalize(float v[3])
 {
   float den = vtkMath::Norm(v);
   if (den != 0.0)
@@ -1862,7 +1862,7 @@ inline float vtkMath::Normalize(float v[3])
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Normalize(double v[3])
+double vtkMath::Normalize(double v[3])
 {
   double den = vtkMath::Norm(v);
   if (den != 0.0)
@@ -2281,7 +2281,7 @@ inline vtkTypeBool vtkMath::IsInf(double x)
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISNAN) || defined(VTK_HAS_STD_ISNAN)
 #define VTK_MATH_ISNAN_IS_INLINE
-inline vtkTypeBool vtkMath::IsNan(double x)
+vtkTypeBool vtkMath::IsNan(double x)
 {
 #if defined(VTK_HAS_STD_ISNAN)
   return std::isnan(x);

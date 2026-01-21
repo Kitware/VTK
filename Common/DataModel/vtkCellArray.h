@@ -680,7 +680,7 @@ public:
    * to guarantee thread safety.
    */
   using vtkAbstractCellArray::GetCellAtId;
-  void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints,
+  inline void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints,
     vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
 
@@ -689,7 +689,7 @@ public:
    * the cell ids (i.e., the list of points @a pts into the supplied
    * vtkIdList). This method is thread safe.
    */
-  void GetCellAtId(vtkIdType cellId, vtkIdList* pts)
+  inline void GetCellAtId(vtkIdType cellId, vtkIdList* pts)
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
 
   /**
@@ -699,8 +699,9 @@ public:
    * Note: the cellPoints need to have the correct size already allocated otherwise memory
    * issues can occur.
    */
-  void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints) VTK_SIZEHINT(
-    cellPoints, cellSize) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
+  inline void GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
+    VTK_SIZEHINT(cellPoints, cellSize)
+      VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) override;
 
   /**
    * Return the point id at @a cellPointIndex for the cell at @a cellId.
@@ -717,19 +718,19 @@ public:
   /**
    * Insert a cell object. Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(vtkCell* cell);
+  inline vtkIdType InsertNextCell(vtkCell* cell);
 
   /**
    * Create a cell by specifying the number of points and an array of point
    * id's.  Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts) VTK_SIZEHINT(pts, npts);
+  inline vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts) VTK_SIZEHINT(pts, npts);
 
   /**
    * Create a cell by specifying a list of point ids. Return the cell id of
    * the cell.
    */
-  vtkIdType InsertNextCell(vtkIdList* pts);
+  inline vtkIdType InsertNextCell(vtkIdList* pts);
 
   /**
    * Overload that allows `InsertNextCell({0, 1, 2})` syntax.
@@ -749,7 +750,7 @@ public:
    * don't know the count initially, use the method UpdateCellCount() to
    * complete the cell. Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(int npts);
+  inline vtkIdType InsertNextCell(int npts);
 
   /**
    * Used in conjunction with InsertNextCell(npts) to add another point
@@ -1804,20 +1805,20 @@ inline vtkIdType vtkCellArray::GetCellSize(const vtkIdType cellId) const
 }
 
 //----------------------------------------------------------------------------
-inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize,
-  vtkIdType const*& cellPoints, vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
+void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints,
+  vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
 {
   this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, ptIds);
 }
 
 //----------------------------------------------------------------------------
-inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdList* pts)
+void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdList* pts)
 {
   this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, pts);
 }
 
 //----------------------------------------------------------------------------
-inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
+void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
 {
   this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints);
 }
@@ -1831,8 +1832,7 @@ inline vtkIdType vtkCellArray::GetCellPointAtId(vtkIdType cellId, vtkIdType cell
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts)
-  VTK_SIZEHINT(pts, npts)
+vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts) VTK_SIZEHINT(pts, npts)
 {
   vtkIdType cellId;
   this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, pts, cellId);
@@ -1840,7 +1840,7 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* p
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(int npts)
+vtkIdType vtkCellArray::InsertNextCell(int npts)
 {
   vtkIdType cellId;
   this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, cellId);
@@ -1860,7 +1860,7 @@ inline void vtkCellArray::UpdateCellCount(int npts)
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(vtkIdList* pts)
+vtkIdType vtkCellArray::InsertNextCell(vtkIdList* pts)
 {
   vtkIdType cellId;
   this->Dispatch(
@@ -1869,7 +1869,7 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdList* pts)
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(vtkCell* cell)
+vtkIdType vtkCellArray::InsertNextCell(vtkCell* cell)
 {
   vtkIdList* pts = cell->GetPointIds();
   vtkIdType cellId;
