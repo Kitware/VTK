@@ -48,6 +48,15 @@ public:
   vtkGetMacro(NumberOfThreads, int);
   ///@}
 
+  ///@{
+  /**
+   * Include curves in the output. Default is false;
+   */
+  vtkSetMacro(IncludeCurves, bool);
+  vtkGetMacro(IncludeCurves, bool);
+  vtkBooleanMacro(IncludeCurves, bool);
+  ///@}
+
   /**
    * Returns true if it can read the IFC file, false otherwise
    */
@@ -57,8 +66,9 @@ protected:
   vtkIFCReader();
   ~vtkIFCReader() override;
 
-  char* FileName = nullptr;
+  char* FileName;
   int NumberOfThreads;
+  bool IncludeCurves;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

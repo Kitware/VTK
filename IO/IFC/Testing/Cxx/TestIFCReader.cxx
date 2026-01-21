@@ -155,6 +155,7 @@ int TestIFCReader(int argc, char* argv[])
 
   vtkNew<vtkIFCReader> reader;
   reader->SetFileName(fname);
+  reader->IncludeCurvesOn();
   reader->Update();
   vtkPartitionedDataSetCollection* pdc = reader->GetOutput();
 
