@@ -61,7 +61,9 @@ Finding the SQLite library and linking it to a project target:
 #]=======================================================================]
 
 cmake_policy(PUSH)
-cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+if (POLICY CMP0159)
+  cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+endif ()
 
 find_package(PkgConfig QUIET)
 if(PkgConfig_FOUND)
