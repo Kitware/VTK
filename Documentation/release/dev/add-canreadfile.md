@@ -1,6 +1,7 @@
 ## CanReadFile support
 
 CanReadFile support has been added or extented to the following readers:
+ - vtkDataSetReader (added)
  - vtkPTSReader (added)
  - vtkCityGMLReader (added)
  - vtkSTLReader (added)

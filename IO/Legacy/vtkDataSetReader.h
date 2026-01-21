@@ -53,6 +53,18 @@ public:
 
   ///@{
   /**
+   * Return true if, after a quick check of file header, it looks like the provided file or stream
+   * can be read. Return false if it is sure it cannot be read.
+   * The stream version may move the stream cursor.
+   * This only create a vtkDataSetReader and uses ReadHeader to ensure
+   * the file or stream contains a valid legacy header.
+   */
+  static bool CanReadFile(VTK_FILEPATH const char* filename);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
+
+  ///@{
+  /**
    * Get the output as various concrete types. This method is typically used
    * when you know exactly what type of data is being read.  Otherwise, use
    * the general GetOutput() method. If the wrong type is used nullptr is

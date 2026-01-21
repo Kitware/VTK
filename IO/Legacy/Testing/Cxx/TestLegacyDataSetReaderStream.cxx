@@ -20,8 +20,20 @@ bool TestAndCompare(int argc, char* argv[], const std::string& file)
   filename += "/Data/";
   filename += file;
 
+  if (!vtkDataSetReader::CanReadFile(filename.c_str()))
+  {
+    std::cerr << "Unexpected CanReadFile result with filename" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkFileResourceStream> fileStream;
   fileStream->Open(filename.c_str());
+
+  if (!vtkDataSetReader::CanReadFile(fileStream))
+  {
+    std::cerr << "Unexpected CanReadFile result with stream" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkDataSetReader> reader;
   reader->SetStream(fileStream);
