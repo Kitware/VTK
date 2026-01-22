@@ -88,8 +88,7 @@ inline vtkArrayComponents to_enumerant<vtkArrayComponents>(const std::string& en
 vtkSmartPointer<vtkAbstractArray> VTKCOMMONCORE_EXPORT ComponentOrNormAsArray(
   vtkAbstractArray* array, int compOrNorm);
 
-inline vtkSmartPointer<vtkDataArray> VTKCOMMONCORE_EXPORT ComponentOrNormAsDataArray(
-  vtkDataArray* array, int compOrNorm)
+inline vtkSmartPointer<vtkDataArray> ComponentOrNormAsDataArray(vtkDataArray* array, int compOrNorm)
 {
   // This variant only handles input data arrays, but returns a vtkDataArray
   // rather than forcing you to cast it afterward.

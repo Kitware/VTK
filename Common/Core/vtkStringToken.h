@@ -121,7 +121,7 @@ protected:
 /// The value \a jj must be an integer or string.
 /// If it is a string, it will be hashed into a token.
 /// If it is an integer, it will be treated as a hash.
-inline void VTKCOMMONCORE_EXPORT from_json(const nlohmann::json& jj, vtkStringToken& tt)
+inline void from_json(const nlohmann::json& jj, vtkStringToken& tt)
 {
   if (jj.is_number_integer())
   {
@@ -141,7 +141,7 @@ inline void VTKCOMMONCORE_EXPORT from_json(const nlohmann::json& jj, vtkStringTo
 ///
 /// If \a tt has a valid string, \a jj will be set to the string.
 /// Otherwise, \a jj will be set to the integer hash held by \a tt.
-inline void VTKCOMMONCORE_EXPORT to_json(nlohmann::json& jj, const vtkStringToken& tt)
+inline void to_json(nlohmann::json& jj, const vtkStringToken& tt)
 {
   if (tt.HasData())
   {
