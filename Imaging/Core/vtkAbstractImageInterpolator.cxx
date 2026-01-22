@@ -717,8 +717,14 @@ void vtkAbstractImageInterpolator::Update()
   vtkDataArray* scalars = this->Scalars;
 
   // check for scalars
-  if (!scalars)
+  if (!scalars || !scalars->HasStandardMemoryLayout())
   {
+    if (scalars && !scalars->HasStandardMemoryLayout())
+    {
+      vtkErrorMacro(
+        "vtkAbstractImageInterpolator can only be used with arrays having standard memory layout.");
+      return;
+    }
     this->InterpolationInfo->Pointer = nullptr;
     this->InterpolationInfo->NumberOfComponents = 1;
 
@@ -790,7 +796,7 @@ void vtkAbstractImageInterpolator::Update()
   component = ((component < ncomp) ? component : ncomp - 1);
 
   int dataSize = scalars->GetDataTypeSize();
-  void* inPtr = scalars->GetVoidPointer(0);
+  void* inPtr = scalars->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   info->Pointer = static_cast<char*>(inPtr) + component * dataSize;
 
   info->Array = scalars;

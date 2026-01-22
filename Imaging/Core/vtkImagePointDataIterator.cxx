@@ -388,7 +388,13 @@ void* vtkImagePointDataIterator::GetVoidPointer(
   {
     *pixelIncrement = n;
   }
-  return array->GetVoidPointer(i * n);
+  if (!array->HasStandardMemoryLayout())
+  {
+    vtkGenericWarningMacro(
+      "vtkImagePointDataIterator can only be used with arrays having standard memory layout.");
+    return nullptr;
+  }
+  return array->GetVoidPointer(i * n); // NOLINT(bugprone-unsafe-functions)
 }
 
 //------------------------------------------------------------------------------

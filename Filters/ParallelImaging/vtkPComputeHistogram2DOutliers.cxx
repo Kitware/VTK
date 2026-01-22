@@ -77,9 +77,11 @@ int vtkPComputeHistogram2DOutliers::RequestData(
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
   for (int i = 0; i < outputTable->GetNumberOfColumns(); i++)
   {
-    vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outputTable->GetColumn(i));
+    vtkDataArray* col = vtkArrayDownCast<vtkDataArray>(outputTable->GetColumn(i));
     if (!col)
+    {
       continue;
+    }
 
     vtkIdType myLength = col->GetNumberOfTuples();
     vtkIdType totalLength = 0;
@@ -99,11 +101,12 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     }
 
     // communicating this as a byte array :/
-    vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
+    vtkDataArray* received = vtkDataArray::CreateDataArray(col->GetDataType());
+    assert(received->HasStandardMemoryLayout() && "Array must have standard memory layout");
     received->SetNumberOfTuples(totalLength);
 
     char* sendBuf = (char*)col->GetVoidPointer(0);
-    char* recvBuf = (char*)received->GetVoidPointer(0);
+    char* recvBuf = (char*)received->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
     comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, recvLengths.data(), recvOffsets.data());
 

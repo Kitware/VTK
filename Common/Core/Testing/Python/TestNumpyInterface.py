@@ -12,7 +12,6 @@ from vtkmodules.vtkCommonCore import (
     vtkFloatArray,
     vtkIntArray,
     vtkPoints,
-    vtkSOADataArrayTemplate,
 )
 from vtkmodules.vtkCommonDataModel import (
     vtkDataSetAttributes,
@@ -342,21 +341,16 @@ numpy_c = numpy.matmul(a[0], b[0])
 c = algs.matmul(a, b)
 assert numpy.array_equal(c[0], numpy_c)
 
-# test matmul for AOS and SOA arrays
+# test matmul for AOS arrays
 
-aSOA = vtkSOADataArrayTemplate['float64']()
 aAOS = vtkDoubleArray()
-aSOA.SetNumberOfComponents(9)
-aSOA.SetNumberOfTuples(2)
 aAOS.SetNumberOfComponents(9)
 aAOS.SetNumberOfTuples(2)
 
 for t in range(2):
     for i in range(9):
-        aSOA.SetComponent(t, i, i)
         aAOS.SetComponent(t, i, i)
 
-aSOAVTK = dsa.vtkDataArrayToVTKArray(aSOA)
 aAOSVTK = dsa.vtkDataArrayToVTKArray(aAOS)
 
 xAOS = vtkDoubleArray()
@@ -365,7 +359,6 @@ xAOS.SetNumberOfTuples(2)
 xAOS.Fill(1)
 xAOSVTK = dsa.vtkDataArrayToVTKArray(xAOS)
 
-b1 = algs.matmul(aSOAVTK, xAOSVTK)
-b2 = algs.matmul(aAOSVTK, xAOSVTK)
+b = algs.matmul(aAOSVTK, xAOSVTK)
 
-assert numpy.array_equal(b1, b2)
+assert numpy.array_equal(b, [[9, 12, 15], [9, 12, 15]])

@@ -63,9 +63,11 @@ int vtkPBivariateLinearTableThreshold::RequestData(
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
   for (int i = 0; i < outRowDataTable->GetNumberOfColumns(); i++)
   {
-    vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outRowDataTable->GetColumn(i));
+    vtkDataArray* col = vtkArrayDownCast<vtkDataArray>(outRowDataTable->GetColumn(i));
     if (!col)
+    {
       continue;
+    }
 
     vtkIdType myLength = col->GetNumberOfTuples();
     vtkIdType totalLength = 0;
@@ -85,11 +87,12 @@ int vtkPBivariateLinearTableThreshold::RequestData(
     }
 
     // communicating this as a byte array :/
-    vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
+    vtkAbstractArray* received = vtkDataArray::CreateDataArray(col->GetDataType());
+    assert(received->HasStandardMemoryLayout() && "Array must have standard memory layout");
     received->SetNumberOfTuples(totalLength);
 
     char* sendBuf = (char*)col->GetVoidPointer(0);
-    char* recvBuf = (char*)received->GetVoidPointer(0);
+    char* recvBuf = (char*)received->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
     comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, recvLengths.data(), recvOffsets.data());
 
