@@ -21,10 +21,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <vector> // For std::vector
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkPoints;
-class vtkVoidArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkEdgeTable : public vtkObject
 {
@@ -156,19 +157,18 @@ protected:
   vtkEdgeTable();
   ~vtkEdgeTable() override;
 
-  vtkIdList** Table;
+  std::vector<vtkSmartPointer<vtkIdList>> Table;
   vtkIdType TableMaxId; // maximum point id inserted
-  vtkIdType TableSize;  // allocated size of table
   int Position[2];
   int Extend;
   vtkIdType NumberOfEdges;
   vtkPoints* Points; // support point insertion
 
-  int StoreAttributes;              //==0:no attributes stored;==1:vtkIdType;==2:void*
-  vtkIdList** Attributes;           // used to store IdTypes attributes
-  vtkVoidArray** PointerAttributes; // used to store void* pointers
+  int StoreAttributes; //==0:no attributes stored;==1:vtkIdType;==2:void*
+  std::vector<vtkSmartPointer<vtkIdList>> Attributes; // used to store IdTypes attributes
+  std::vector<std::vector<void*>> PointerAttributes;  // used to store void* pointers
 
-  vtkIdList** Resize(vtkIdType size);
+  void Resize(vtkIdType size);
 
 private:
   vtkEdgeTable(const vtkEdgeTable&) = delete;

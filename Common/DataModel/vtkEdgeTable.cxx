@@ -4,7 +4,6 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkVoidArray.h"
 
 #include <algorithm>
 
@@ -15,14 +14,8 @@ vtkStandardNewMacro(vtkEdgeTable);
 // Instantiate object based on maximum point id.
 vtkEdgeTable::vtkEdgeTable()
 {
-  this->Table = nullptr;
-  this->Attributes = nullptr;
-  this->PointerAttributes = nullptr;
   this->Points = nullptr;
-
   this->TableMaxId = -1;
-  this->TableSize = 0;
-
   this->Position[0] = 0;
   this->Position[1] = -1;
   this->NumberOfEdges = 0;
@@ -32,44 +25,18 @@ vtkEdgeTable::vtkEdgeTable()
 // Free memory and return to instantiated state.
 void vtkEdgeTable::Initialize()
 {
-  vtkIdType i;
-
-  if (this->Table)
+  if (!this->Table.empty())
   {
-    for (i = 0; i < this->TableSize; i++)
-    {
-      if (this->Table[i])
-      {
-        this->Table[i]->Delete();
-      }
-    }
-    delete[] this->Table;
-    this->Table = nullptr;
+    this->Table.clear();
     this->TableMaxId = -1;
 
     if (this->StoreAttributes == 1)
     {
-      for (i = 0; i < this->TableSize; i++)
-      {
-        if (this->Attributes[i])
-        {
-          this->Attributes[i]->Delete();
-        }
-      }
-      delete[] this->Attributes;
-      this->Attributes = nullptr;
+      this->Attributes.clear();
     }
     else if (this->StoreAttributes == 2)
     {
-      for (i = 0; i < this->TableSize; i++)
-      {
-        if (this->PointerAttributes[i])
-        {
-          this->PointerAttributes[i]->Delete();
-        }
-      }
-      delete[] this->PointerAttributes;
-      this->PointerAttributes = nullptr;
+      this->PointerAttributes.clear();
     }
   } // if table defined
 
@@ -79,7 +46,6 @@ void vtkEdgeTable::Initialize()
     this->Points = nullptr;
   }
 
-  this->TableSize = 0;
   this->NumberOfEdges = 0;
 }
 
@@ -87,35 +53,33 @@ void vtkEdgeTable::Initialize()
 // Free memory and return to instantiated state.
 void vtkEdgeTable::Reset()
 {
-  vtkIdType i;
-
-  if (this->Table)
+  if (!this->Table.empty())
   {
-    for (i = 0; i < this->TableSize; i++)
+    for (vtkSmartPointer<vtkIdList>& table : this->Table)
     {
-      if (this->Table[i])
+      if (table)
       {
-        this->Table[i]->Reset();
+        table->Reset();
       }
     }
 
-    if (this->StoreAttributes == 1 && this->Attributes)
+    if (this->StoreAttributes == 1 && !this->Attributes.empty())
     {
-      for (i = 0; i < this->TableSize; i++)
+      for (vtkSmartPointer<vtkIdList>& table : this->Attributes)
       {
-        if (this->Attributes[i])
+        if (table)
         {
-          this->Attributes[i]->Reset();
+          table->Reset();
         }
       }
     }
-    else if (this->StoreAttributes == 2 && this->PointerAttributes)
+    else if (this->StoreAttributes == 2 && !this->PointerAttributes.empty())
     {
-      for (i = 0; i < this->TableSize; i++)
+      for (std::vector<void*>& table : this->PointerAttributes)
       {
-        if (this->PointerAttributes[i])
+        if (!table.empty())
         {
-          this->PointerAttributes[i]->Reset();
+          table.clear();
         }
       }
     }
@@ -140,40 +104,25 @@ vtkEdgeTable::~vtkEdgeTable()
 //------------------------------------------------------------------------------
 int vtkEdgeTable::InitEdgeInsertion(vtkIdType numPoints, int storeAttributes)
 {
-  vtkIdType i;
-
-  numPoints = (numPoints < 1 ? 1 : numPoints);
+  numPoints = std::max<vtkIdType>(1, numPoints);
 
   // Discard old memory if not enough has been previously allocated
   this->StoreAttributes = storeAttributes;
   this->TableMaxId = -1;
 
-  if (numPoints > this->TableSize)
+  if (numPoints > static_cast<vtkIdType>(this->Table.size()))
   {
     this->Initialize();
-    this->Table = new vtkIdList*[numPoints];
-    for (i = 0; i < numPoints; i++)
-    {
-      this->Table[i] = nullptr;
-    }
+    this->Table.resize(numPoints, nullptr);
 
     if (this->StoreAttributes == 1)
     {
-      this->Attributes = new vtkIdList*[numPoints];
-      for (i = 0; i < numPoints; i++)
-      {
-        this->Attributes[i] = nullptr;
-      }
+      this->Attributes.resize(numPoints, nullptr);
     }
     else if (this->StoreAttributes == 2)
     {
-      this->PointerAttributes = new vtkVoidArray*[numPoints];
-      for (i = 0; i < numPoints; i++)
-      {
-        this->PointerAttributes[i] = nullptr;
-      }
+      this->PointerAttributes.resize(numPoints, std::vector<void*>());
     }
-    this->TableSize = numPoints;
   }
 
   // Otherwise, reuse the old memory
@@ -264,7 +213,7 @@ void vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2, void*& ptr)
     {
       if (this->StoreAttributes == 2)
       {
-        ptr = this->PointerAttributes[index]->GetVoidPointer(loc);
+        ptr = this->PointerAttributes[index][loc];
       }
       else
       {
@@ -292,7 +241,7 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
     search = p1;
   }
 
-  if (index >= this->TableSize)
+  if (index >= static_cast<vtkIdType>(this->Table.size()))
   {
     this->Resize(index + 1);
   }
@@ -301,15 +250,11 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
 
   if (this->Table[index] == nullptr)
   {
-    this->Table[index] = vtkIdList::New();
+    this->Table[index] = vtkSmartPointer<vtkIdList>::New();
     this->Table[index]->Allocate(6, 12);
     if (this->StoreAttributes == 1)
     {
-      if (this->Attributes[index])
-      {
-        this->Attributes[index]->Delete();
-      }
-      this->Attributes[index] = vtkIdList::New();
+      this->Attributes[index] = vtkSmartPointer<vtkIdList>::New();
       this->Attributes[index]->Allocate(6, 12);
     }
   }
@@ -340,7 +285,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, vtkIdType attributeId)
     search = p1;
   }
 
-  if (index >= this->TableSize)
+  if (index >= static_cast<vtkIdType>(this->Table.size()))
   {
     this->Resize(index + 1);
   }
@@ -349,11 +294,11 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, vtkIdType attributeId)
 
   if (this->Table[index] == nullptr)
   {
-    this->Table[index] = vtkIdList::New();
+    this->Table[index] = vtkSmartPointer<vtkIdList>::New();
     this->Table[index]->Allocate(6, 12);
     if (this->StoreAttributes == 1)
     {
-      this->Attributes[index] = vtkIdList::New();
+      this->Attributes[index] = vtkSmartPointer<vtkIdList>::New();
       this->Attributes[index]->Allocate(6, 12);
     }
   }
@@ -382,7 +327,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
     search = p1;
   }
 
-  if (index >= this->TableSize)
+  if (index >= static_cast<vtkIdType>(this->Table.size()))
   {
     this->Resize(index + 1);
   }
@@ -391,12 +336,11 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
 
   if (this->Table[index] == nullptr)
   {
-    this->Table[index] = vtkIdList::New();
+    this->Table[index] = vtkSmartPointer<vtkIdList>::New();
     this->Table[index]->Allocate(6, 12);
     if (this->StoreAttributes == 2)
     {
-      this->PointerAttributes[index] = vtkVoidArray::New();
-      this->PointerAttributes[index]->Allocate(6, 12);
+      this->PointerAttributes[index].reserve(6);
     }
   }
 
@@ -404,7 +348,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
   this->Table[index]->InsertNextId(search);
   if (this->StoreAttributes == 2)
   {
-    this->PointerAttributes[index]->InsertNextVoidPointer(ptr);
+    this->PointerAttributes[index].push_back(ptr);
   }
 }
 
@@ -470,65 +414,36 @@ int vtkEdgeTable::GetNextEdge(vtkIdType& p1, vtkIdType& p2, void*& ptr)
   return 0;
 }
 
-vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
+void vtkEdgeTable::Resize(vtkIdType size)
 {
-  vtkIdList** newTableArray;
-  vtkIdList** newAttributeArray;
-  vtkVoidArray** newPointerAttributeArray;
-  vtkIdType newSize, i;
-  vtkIdType extend = this->TableSize / 2 + 1;
+  vtkIdType extend = this->Table.size() / 2 + 1, newSize;
 
-  if (size >= this->TableSize)
+  if (size >= static_cast<vtkIdType>(this->Table.size()))
   {
-    newSize = this->TableSize + extend * (((size - this->TableSize) / extend) + 1);
+    newSize = this->Table.size() + extend * (((size - this->Table.size()) / extend) + 1);
   }
   else
   {
     newSize = size;
   }
 
-  size = (size < this->TableSize ? size : this->TableSize);
-  newTableArray = new vtkIdList*[newSize];
-  std::copy_n(this->Table, size, newTableArray);
-  for (i = size; i < newSize; i++)
-  {
-    newTableArray[i] = nullptr;
-  }
-  this->TableSize = newSize;
-  delete[] this->Table;
-  this->Table = newTableArray;
+  this->Table.resize(newSize);
 
   if (this->StoreAttributes == 1)
   {
-    newAttributeArray = new vtkIdList*[newSize];
-    std::copy_n(this->Attributes, size, newAttributeArray);
-    for (i = size; i < newSize; i++)
-    {
-      newAttributeArray[i] = nullptr;
-    }
-    delete[] this->Attributes;
-    this->Attributes = newAttributeArray;
+    this->Attributes.resize(newSize);
   }
   else if (this->StoreAttributes == 2)
   {
-    newPointerAttributeArray = new vtkVoidArray*[newSize];
-    std::copy_n(this->PointerAttributes, size, newPointerAttributeArray);
-    for (i = size; i < newSize; i++)
-    {
-      newPointerAttributeArray[i] = nullptr;
-    }
-    delete[] this->PointerAttributes;
-    this->PointerAttributes = newPointerAttributeArray;
+    this->PointerAttributes.resize(newSize);
   }
-
-  return this->Table;
 }
 
 //------------------------------------------------------------------------------
 int vtkEdgeTable::InitPointInsertion(vtkPoints* newPts, vtkIdType estSize)
 {
   // Initialize
-  if (this->Table)
+  if (!this->Table.empty())
   {
     this->Initialize();
   }
