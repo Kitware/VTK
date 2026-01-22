@@ -629,13 +629,13 @@ public:
           {
             Material material = this->Materials[materialIndex];
             vtkPolyDataMaterial::SetField(
-              polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, material.Diffuse.data(), 3);
+              polyData, vtkPolyDataMaterial::GetDiffuseColor(), material.Diffuse.data(), 3);
             vtkPolyDataMaterial::SetField(
-              polyData, vtkPolyDataMaterial::SPECULAR_COLOR, material.Specular.data(), 3);
+              polyData, vtkPolyDataMaterial::GetSpecularColor(), material.Specular.data(), 3);
             vtkPolyDataMaterial::SetField(
-              polyData, vtkPolyDataMaterial::TRANSPARENCY, &material.Transparency, 1);
+              polyData, vtkPolyDataMaterial::GetTransparency(), &material.Transparency, 1);
             vtkPolyDataMaterial::SetField(
-              polyData, vtkPolyDataMaterial::SHININESS, &material.Shininess, 1);
+              polyData, vtkPolyDataMaterial::GetShininess(), &material.Shininess, 1);
             break;
           }
           case PolygonType::NONE:

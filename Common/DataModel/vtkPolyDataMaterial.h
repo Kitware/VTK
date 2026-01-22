@@ -40,11 +40,16 @@ public:
   vtkTypeMacro(vtkPolyDataMaterial, vtkObject);
   static vtkPolyDataMaterial* New();
 
-  static const char* const TEXTURE_URI;
-  static const char* const DIFFUSE_COLOR;
-  static const char* const SPECULAR_COLOR;
-  static const char* const TRANSPARENCY;
-  static const char* const SHININESS;
+  ///@{
+  /**
+   * Names for fields stored in the vtkPolyData
+   */
+  static const char* GetTextureURI() { return "texture_uri"; }
+  static const char* GetDiffuseColor() { return "diffuse_color"; }
+  static const char* GetSpecularColor() { return "specular_color"; }
+  static const char* GetTransparency() { return "transparency"; }
+  static const char* GetShininess() { return "shininess"; }
+  ///@}
 
   ///@{
   /**

@@ -85,21 +85,21 @@ void setMaterial(vtkPolyData* polyData, ifcopenshell::geometry::taxonomy::style&
     }
   }
   vtkPolyDataMaterial::SetField(
-    polyData, vtkPolyDataMaterial::DIFFUSE_COLOR, color.components().data(), 3);
+    polyData, vtkPolyDataMaterial::GetDiffuseColor(), color.components().data(), 3);
   if (material.specular && !material.use_surface_color)
   {
     vtkPolyDataMaterial::SetField(
-      polyData, vtkPolyDataMaterial::SPECULAR_COLOR, material.specular.components().data(), 3);
+      polyData, vtkPolyDataMaterial::GetSpecularColor(), material.specular.components().data(), 3);
   }
   if (material.has_specularity())
   {
     vtkPolyDataMaterial::SetField(
-      polyData, vtkPolyDataMaterial::SHININESS, &material.specularity, 1);
+      polyData, vtkPolyDataMaterial::GetShininess(), &material.specularity, 1);
   }
   if (material.has_transparency())
   {
     vtkPolyDataMaterial::SetField(
-      polyData, vtkPolyDataMaterial::TRANSPARENCY, &material.transparency, 1);
+      polyData, vtkPolyDataMaterial::GetTransparency(), &material.transparency, 1);
   }
 }
 }
