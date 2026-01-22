@@ -81,6 +81,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestDirectSelectionRendering.cxx
   TestSimpleMotionBlur.cxx
   TestSkyboxRotation.cxx
+  TestSkyboxCubeRotation.cxx
   TestSkyboxRotationVectors.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx
