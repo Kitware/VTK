@@ -66,6 +66,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
     "^VTK::ViewsInfovisCxx-TestRenderView$"
+
+    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
@@ -98,6 +101,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     # Intermittent flakiness; may be related to CI runner OpenGL config.
     # Appears as a colormap or color-range failure:
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+
+    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
@@ -639,6 +645,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "^VTK::IOCGNSReaderCxx-TestCGNSUnsteadyTemporalSolution$"
     "^VTK::ParallelCoreCxx-TestThreadedCallbackQueue$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastLabelMapValidity$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
+  list(APPEND test_exclusions
+    # ANARI test requires the latest changes from anari-sdk PR
+    # (https://github.com/KhronosGroup/ANARI-SDK/pull/335)
+    "^VTK::RenderingAnariCxx-TestAnariPolyDataTexture$"
+    "^VTK::RenderingAnariCxx-TestAnariRenderMesh$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
