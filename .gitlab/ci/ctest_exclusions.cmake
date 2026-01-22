@@ -381,6 +381,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_aarch64")
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$" # also leaks
 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
+
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
     "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
