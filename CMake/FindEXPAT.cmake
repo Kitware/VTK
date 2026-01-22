@@ -43,25 +43,26 @@ if (EXPAT_INCLUDE_DIR AND EXISTS "${EXPAT_INCLUDE_DIR}/expat.h")
     file(STRINGS "${EXPAT_INCLUDE_DIR}/expat.h" expat_version_str
          REGEX "^#[\t ]*define[\t ]+XML_(MAJOR|MINOR|MICRO)_VERSION[\t ]+[0-9]+$")
 
-    unset(EXPAT_VERSION_STRING)
+    unset(EXPAT_VERSION)
     foreach(VPART MAJOR MINOR MICRO)
         foreach(VLINE ${expat_version_str})
             if(VLINE MATCHES "^#[\t ]*define[\t ]+XML_${VPART}_VERSION[\t ]+([0-9]+)$")
                 set(EXPAT_VERSION_PART "${CMAKE_MATCH_1}")
-                if(EXPAT_VERSION_STRING)
-                    string(APPEND EXPAT_VERSION_STRING ".${EXPAT_VERSION_PART}")
+                if(EXPAT_VERSION)
+                    string(APPEND EXPAT_VERSION ".${EXPAT_VERSION_PART}")
                 else()
-                    set(EXPAT_VERSION_STRING "${EXPAT_VERSION_PART}")
+                    set(EXPAT_VERSION "${EXPAT_VERSION_PART}")
                 endif()
             endif()
         endforeach()
     endforeach()
+    set(EXPAT_VERSION_STRING ${EXPAT_VERSION})
 endif ()
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(EXPAT
                                   REQUIRED_VARS EXPAT_LIBRARY EXPAT_INCLUDE_DIR
-                                  VERSION_VAR EXPAT_VERSION_STRING)
+                                  VERSION_VAR EXPAT_VERSION)
 
 # Copy the results to the output variables and target.
 if(EXPAT_FOUND)
