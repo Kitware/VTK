@@ -5,6 +5,8 @@ to modify include:
 
   * `BUILD_SHARED_LIBS` (default `ON`): If set, shared libraries will be
     built. This is usually what is wanted.
+  * `VTK_USE_PCH` (default `ON`): If set, VTK will use precompiled headers
+    to speed up compilation.
   * `VTK_USE_CUDA` (default `OFF`): Whether [CUDA][cuda] support will be available or
     not.
   * `VTK_USE_MPI` (default `OFF`): Whether [MPI][mpi] support will be available or

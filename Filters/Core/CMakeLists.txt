@@ -148,3 +148,8 @@ vtk_module_add_module(VTK::FiltersCore
   PRIVATE_HEADERS ${private_headers})
 
 vtk_add_test_mangling(VTK::FiltersCore)
+
+# Add precompiled header to improve build performance
+if(VTK_USE_PCH)
+  vtk_module_precompile_headers(VTK::FiltersCore PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/vtkFiltersCorePCH.h>")
+endif()
