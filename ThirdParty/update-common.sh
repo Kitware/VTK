@@ -210,7 +210,7 @@ readonly upstream_datetime
 upstream_date="$( echo "$upstream_datetime" | grep -o -e "$regex_date" )"
 readonly upstream_date
 if $do_shortlog && [ -n "$basehash" ]; then
-    upstream_old_short="$( git cat-file commit "$basehash" | sed -n '/'"$basehash_regex"'/ {s/.*(//;s/)//;p;}' | grep -E '^[0-9a-f]+$' )"
+    upstream_old_short="$( git -C "$toplevel_dir" cat-file commit "$basehash" | sed -n '/'"$basehash_regex"'/ {s/.*(//;s/)//;p;}' | grep -E '^[0-9a-f]+$' )"
     readonly upstream_old_short
 
     commit_shortlog="
