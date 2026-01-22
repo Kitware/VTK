@@ -21,8 +21,23 @@ endforeach()
 
 vtk_module_link(VTK::Java
   PUBLIC
-    ${JNI_LIBRARIES}
+    ${JAVA_JVM_LIBRARY}
 )
+
+# On Windows and macOS, we need to link against jawt for JAWT_GetAWT.
+# On Linux, avoid linking against AWT libraries - linking against
+# JAVA_AWT_LIBRARY causes early loading of libawt_xawt.so which fails with
+# "undefined symbol: JNU_ThrowNoSuchFieldError" on some JDK versions because
+# the JVM's internal symbols aren't yet available. JAWT is loaded dynamically
+# at runtime on Linux.
+if (APPLE OR NOT UNIX)
+  if (JAVA_AWT_LIBRARY)
+    vtk_module_link(VTK::Java
+      PUBLIC
+        ${JAVA_AWT_LIBRARY}
+    )
+  endif ()
+endif ()
 
 if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
   message(WARNING "Utilties::Java ABI does not not support the VTK_ABI_NAMESPACE_NAME "
