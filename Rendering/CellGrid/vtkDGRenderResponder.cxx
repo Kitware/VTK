@@ -564,9 +564,16 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
     int colorComp = -2;
     if (cmap)
     {
-      colorComp = cmap->GetVectorMode() == vtkScalarsToColors::VectorModes::COMPONENT
-        ? cmap->GetVectorComponent()
-        : -2;
+      if (this->Color->GetNumberOfComponents() > 1)
+      {
+        colorComp = cmap->GetVectorMode() == vtkScalarsToColors::VectorModes::COMPONENT
+          ? cmap->GetVectorComponent()
+          : -2;
+      }
+      else
+      {
+        colorComp = 0;
+      }
     }
     else
     {
