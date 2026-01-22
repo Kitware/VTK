@@ -45,6 +45,10 @@ else ()
   add_dependencies(vtkjava_tests vtkjava)
 endif ()
 
+# Create a custom target that tests can depend on to ensure the test JAR is
+# built
+add_custom_target(vtkjava_tests_jar ALL DEPENDS vtkjava_tests)
+
 set(vtk_test_classpath
   "$<TARGET_FILE:vtkjava_tests>"
   "$<TARGET_FILE:VTK::vtkjava>")
