@@ -374,7 +374,13 @@ std::string vtkMINCImageWriterCreateIdentString()
 
   // Get the local time
   std::time_t t = std::time(nullptr);
-  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", vtk::localtime(t));
+  tm local;
+#ifdef VTK_COMPILER_MSVC
+  localtime_s(&local, &t);
+#else
+  localtime_r(&t, &local);
+#endif
+  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", local);
   ident.append(date);
   ident.append(itemsep);
 
