@@ -604,7 +604,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
 
   // Instantiate a contour helper for convenience, with triangle generation on
   this->Helper = new vtkContourHelper(this->Locator, newVerts, newLines, newPolys, dualPointData,
-    nullptr, output->GetPointData(), nullptr, estimatedSize, true);
+    nullptr, output->GetPointData(), nullptr, true);
 
   // Create storage to keep track of selected cells
   this->SelectedCells = vtkBitArray::New();
@@ -956,17 +956,12 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
             return;
           }
 
-          /* Estimated size: estimated number of generated triangles (before merging them).
-           * Only used in that case. Unused here because we choose to output triangles.
-           */
-          constexpr int estimatedSize = 0;
-
           /* Instantiate a new contour helper
            * Needed because we have to change the input point data (now indexed on resultUG point
            * ids)
            */
           vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,
-            resultUG->GetPointData(), nullptr, outPointData, nullptr, estimatedSize, true);
+            resultUG->GetPointData(), nullptr, outPointData, nullptr, true);
 
           // Retrieve the contouring array in the resultUG
           auto contourScalars = resultUG->GetPointData()->GetArray(this->InScalars->GetName());

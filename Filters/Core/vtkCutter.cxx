@@ -538,7 +538,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
   //
   cell = vtkGenericCell::New();
   vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCD, outPD, outCD,
-    estimatedSize, this->GenerateTriangles != 0);
+    this->GenerateTriangles != 0);
   if (this->SortBy == VTK_SORT_BY_CELL)
   {
     vtkIdType numCuts = numContours * numCells;
@@ -789,7 +789,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   cellScalars->Allocate(maxCellSize * cutScalars->GetNumberOfComponents());
 
   vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCD, outPD, outCD,
-    estimatedSize, this->GenerateTriangles != 0);
+    this->GenerateTriangles != 0);
   if (this->SortBy == VTK_SORT_BY_CELL)
   {
     // Compute some information for progress methods
