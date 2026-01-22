@@ -62,7 +62,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
 
-#include <cassert>
+#include <cassert> // for assert
+#include <memory>  // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::VTK_DATA_ARRAY>
@@ -440,6 +441,9 @@ protected:
 private:
   vtkGenericDataArray(const vtkGenericDataArray&) = delete;
   void operator=(const vtkGenericDataArray&) = delete;
+
+  struct vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 VTK_ABI_NAMESPACE_END
 

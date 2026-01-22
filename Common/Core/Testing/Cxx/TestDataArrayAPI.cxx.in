@@ -901,6 +901,7 @@ int Test_voidPtr_GetVoidPointer()
         vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
     vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
 
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     ScalarT *ptr = static_cast<ScalarT*>(source->GetVoidPointer(t * comps));
 
     // Restore state:

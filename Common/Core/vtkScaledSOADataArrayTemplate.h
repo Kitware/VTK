@@ -207,12 +207,6 @@ public:
 #endif // __VTK_WRAP__
 
   /**
-   * Use of this method is discouraged, it creates a deep copy of the data into
-   * a contiguous AoS-ordered buffer and prints a warning.
-   */
-  void* GetVoidPointer(vtkIdType valueIdx) override;
-
-  /**
    * Export a copy of the data in AoS ordering to the preallocated memory
    * buffer.
    */
@@ -257,7 +251,6 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
 
   std::vector<vtkBuffer<ValueType>*> Data;
-  vtkBuffer<ValueType>* AoSCopy;
 
 private:
   vtkScaledSOADataArrayTemplate(const vtkScaledSOADataArrayTemplate&) = delete;

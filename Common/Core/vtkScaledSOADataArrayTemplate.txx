@@ -29,8 +29,7 @@ vtkScaledSOADataArrayTemplate<ValueType>* vtkScaledSOADataArrayTemplate<ValueTyp
 //-----------------------------------------------------------------------------
 template <class ValueType>
 vtkScaledSOADataArrayTemplate<ValueType>::vtkScaledSOADataArrayTemplate()
-  : AoSCopy(nullptr)
-  , Scale(1)
+  : Scale(1)
 {
 }
 
@@ -43,11 +42,6 @@ vtkScaledSOADataArrayTemplate<ValueType>::~vtkScaledSOADataArrayTemplate()
     this->Data[cc]->Delete();
   }
   this->Data.clear();
-  if (this->AoSCopy)
-  {
-    this->AoSCopy->Delete();
-    this->AoSCopy = nullptr;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -316,48 +310,6 @@ bool vtkScaledSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTup
     this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   return true;
-}
-
-//-----------------------------------------------------------------------------
-template <class ValueType>
-void* vtkScaledSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
-{
-  // Allow warnings to be silenced:
-  const char* silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  if (!silence)
-  {
-    vtkWarningMacro(<< "GetVoidPointer called. This is very expensive for "
-                       "non-array-of-structs subclasses, as the scalar array "
-                       "must be generated for each call. Using the "
-                       "vtkGenericDataArray API with vtkArrayDispatch are "
-                       "preferred. Define the environment variable "
-                       "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
-                       "this warning. Additionally, for the vtkScaledSOADataArrayTemplate "
-                       "class we also set Scale to 1 since we've scaled how "
-                       "we're storing the data in memory now. ");
-  }
-
-  size_t numValues = this->GetNumberOfValues();
-
-  if (!this->AoSCopy)
-  {
-    this->AoSCopy = vtkBuffer<ValueType>::New();
-  }
-
-  if (!this->AoSCopy->Allocate(static_cast<vtkIdType>(numValues)))
-  {
-    vtkErrorMacro(<< "Error allocating a buffer of " << numValues << " '"
-                  << this->GetDataTypeAsString() << "' elements.");
-    return nullptr;
-  }
-
-  this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy->GetBuffer()));
-
-  // This is the hacky thing with this class that we now need to set the scale
-  // to 1 since we internally are storing the memory in an unscaled manner
-  this->Scale = 1.0;
-
-  return static_cast<void*>(this->AoSCopy->GetBuffer() + valueIdx);
 }
 
 //-----------------------------------------------------------------------------
