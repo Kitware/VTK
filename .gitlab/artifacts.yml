@@ -62,6 +62,7 @@
             - build/ci-venv/
 
             # proj.db
+            - build/share/vtk/proj/proj.db
             - build/share/vtk-*/proj/proj.db
 
             # CMake logs
