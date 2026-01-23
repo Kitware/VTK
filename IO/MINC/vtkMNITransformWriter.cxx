@@ -371,7 +371,13 @@ int vtkMNITransformWriter::WriteFile()
 
   // Get the local time and write as first comment line
   std::time_t t = std::time(nullptr);
-  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", vtk::localtime(t));
+  tm local;
+#ifdef VTK_COMPILER_MSVC
+  localtime_s(&local, &t);
+#else
+  localtime_r(&t, &local);
+#endif
+  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", local);
 
   outfile << "% Creation time: " << date << "\n";
 
