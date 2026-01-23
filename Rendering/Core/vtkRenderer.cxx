@@ -2248,13 +2248,13 @@ void vtkRenderer::SetEnvironmentRotationMatrix(vtkMatrix3x3* rotationMatrix)
 //------------------------------------------------------------------------------
 void vtkRenderer::ComputeRotationMatrixForwardVector()
 {
-  double up[3] = { this->EnvironmentRotationMatrix->GetElement(0, 1),
-    this->EnvironmentRotationMatrix->GetElement(1, 1),
-    this->EnvironmentRotationMatrix->GetElement(2, 1) };
-
   double right[3] = { this->EnvironmentRotationMatrix->GetElement(0, 0),
     this->EnvironmentRotationMatrix->GetElement(1, 0),
     this->EnvironmentRotationMatrix->GetElement(2, 0) };
+
+  double up[3] = { this->EnvironmentRotationMatrix->GetElement(0, 1),
+    this->EnvironmentRotationMatrix->GetElement(1, 1),
+    this->EnvironmentRotationMatrix->GetElement(2, 1) };
 
   double forward[3];
   vtkMath::Cross(right, up, forward);

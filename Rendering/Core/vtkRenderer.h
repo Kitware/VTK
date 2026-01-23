@@ -1294,8 +1294,8 @@ private:
    * Tmp members to allow returning double* in GetEnvironmentUp/Right methods.
    * Can be removed if someday GetEnvironmentUp/Right returns a std::array.
    */
-  double EnvironmentUp[3] = { 0.0, 0.0, 0.0 };
-  double EnvironmentRight[3] = { 0.0, 0.0, 0.0 };
+  double EnvironmentUp[3] = { 0.0, 1.0, 0.0 };
+  double EnvironmentRight[3] = { 1.0, 0.0, 0.0 };
 
   vtkRenderer(const vtkRenderer&) = delete;
   void operator=(const vtkRenderer&) = delete;
