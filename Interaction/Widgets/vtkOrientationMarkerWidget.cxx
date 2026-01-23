@@ -128,10 +128,6 @@ void vtkOrientationMarkerWidget::BindOrientationMarker()
     this->Renderer->AddActor(this->OrientationMarker);
     this->OrientationMarkerBound = true;
   }
-  if (this->CurrentRenderer)
-  {
-    this->CurrentRenderer->AddViewProp(this->OutlineActor);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -142,10 +138,6 @@ void vtkOrientationMarkerWidget::UnBindOrientationMarker()
   {
     this->OrientationMarker->VisibilityOff();
     this->Renderer->RemoveActor(this->OrientationMarker);
-  }
-  if (this->CurrentRenderer)
-  {
-    this->CurrentRenderer->RemoveViewProp(this->OutlineActor);
   }
 }
 
@@ -158,6 +150,7 @@ void vtkOrientationMarkerWidget::BindRenderer()
   }
   if (this->CurrentRenderer && this->Renderer)
   {
+    this->CurrentRenderer->AddViewProp(this->OutlineActor);
     if (auto renWin = this->CurrentRenderer->GetRenderWindow())
     {
       renWin->AddRenderer(this->Renderer);
@@ -176,6 +169,7 @@ void vtkOrientationMarkerWidget::UnBindRenderer()
   this->RendererBound = false;
   if (this->CurrentRenderer && this->Renderer)
   {
+    this->CurrentRenderer->RemoveViewProp(this->OutlineActor);
     if (auto renWin = this->CurrentRenderer->GetRenderWindow())
     {
       renWin->RemoveRenderer(this->Renderer);
@@ -997,7 +991,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 
   newPos[0] = std::max(newPos[0], currentViewport[0]);
   // Constrain the widget width to the minimum size.
-  newPos[0] = std::min(newPos[2], newPos[2] - actualMinDimensionSize);
+  newPos[0] = std::min(newPos[0], newPos[2] - actualMinDimensionSize);
   // Constrain the widget width to the maximum size if required.
   if (this->ShouldConstrainSize)
   {
