@@ -286,7 +286,6 @@ fedora42-x86_64-java8:build:
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     timeout: 2 hours
     needs: []
@@ -300,7 +299,6 @@ fedora42-x86_64-java8:test:
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     needs:
         - fedora42-x86_64-java8:build
@@ -3430,7 +3428,6 @@ macos-arm64-java11:build:
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
@@ -3444,7 +3441,6 @@ macos-arm64-java11:test:
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     needs:
         - macos-arm64-java11:build
@@ -3488,7 +3484,6 @@ windows-x86_64-java11:build:
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
@@ -3502,7 +3497,6 @@ windows-x86_64-java11:test:
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     needs:
         - windows-x86_64-java11:build
