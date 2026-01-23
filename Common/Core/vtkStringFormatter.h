@@ -239,24 +239,6 @@ using fmt::format_to_n_result;
 using fmt::format_to_n;
 
 /**
- * Converts given time since epoch as ``std::time_t`` value into calendar time,
- * expressed in local time. Unlike ``std::localtime``, this function is
- * thread-safe on most platforms.
- *
- * @note The standard library provides this function, but it's not thread-safe.
- */
-using fmt::localtime;
-
-/**
- * Converts given time since epoch as ``std::time_t`` value into calendar time,
- * expressed in Coordinated Universal Time (UTC). Unlike ``std::gmtime``, this
- * function is thread-safe on most platforms.
- *
- * @note The standard library provides this function, but it's not thread-safe.
- */
-using fmt::gmtime;
-
-/**
  * Given a format and a set of numbers/variables print it to a file/stdout.
  *
  * @note The standard library provides this function as of C++23, but we support up to C++17.
