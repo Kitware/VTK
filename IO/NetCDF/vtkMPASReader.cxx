@@ -135,6 +135,42 @@ int nc_get_vara(int ncid, int varid, size_t start[], size_t count[], signed char
 } // end anon namespace
 
 //------------------------------------------------------------------------------
+//  Structure to hold the intermediate data and metadata while loading a
+//  dataset.
+//------------------------------------------------------------------------------
+struct vtkMPASReader::LoadState
+{
+  size_t CurrentExtraPoint = 0;       // current extra point
+  size_t CurrentExtraCell = 0;        // current extra cell
+  double* PointX = nullptr;           // x coord of point
+  double* PointY = nullptr;           // y coord of point
+  double* PointZ = nullptr;           // z coord of point
+  size_t ModNumPoints = 0;            //
+  size_t ModNumCells = 0;             //
+  int* OrigConnections = nullptr;     // original connections
+  int* ModConnections = nullptr;      // modified connections
+  int* OrigNumPointsOnCell = nullptr; // non-null when cells have variable sizes
+  int* ModNumPointsOnCell = nullptr;  //
+  size_t* CellMap = nullptr;          // maps from added cell to original cell #
+  size_t* PointMap = nullptr;         // maps from added point to original point #
+  int* MaximumLevelPoint = nullptr;   //
+
+  ~LoadState()
+  {
+    delete[] this->PointX;
+    delete[] this->PointY;
+    delete[] this->PointZ;
+    delete[] this->OrigConnections;
+    delete[] this->ModConnections;
+    delete[] this->OrigNumPointsOnCell;
+    delete[] this->ModNumPointsOnCell;
+    delete[] this->CellMap;
+    delete[] this->PointMap;
+    delete[] this->MaximumLevelPoint;
+  }
+};
+
+//------------------------------------------------------------------------------
 // Internal class to avoid name pollution
 //------------------------------------------------------------------------------
 
@@ -188,14 +224,14 @@ public:
   };
   int PointResult;
   template <typename TArray>
-  void operator()(TArray* array, int nc_var, Point);
+  void operator()(TArray* array, vtkMPASReader::LoadState& state, int nc_var, Point);
 
   struct Cell
   {
   };
   int CellResult;
   template <typename TArray>
-  void operator()(TArray* array, int nc_var, Cell);
+  void operator()(TArray* array, vtkMPASReader::LoadState& state, int nc_var, Cell);
 
   int nc_var_id(const char* name, bool msg_on_err = true) const;
   int nc_dim_id(const char* name, bool msg_on_err = true) const;
@@ -558,7 +594,8 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, TArray* array, bool resi
 
 //------------------------------------------------------------------------------
 template <typename TArray>
-void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Point)
+void vtkMPASReader::Internal::operator()(
+  TArray* array, vtkMPASReader::LoadState& state, int nc_var, Point)
 {
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->reader->MaximumPoints);
@@ -716,22 +753,22 @@ void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Point)
   vtkDebugWithObjectMacro(reader, << "Wrote next points.");
 
   vtkDebugWithObjectMacro(reader, << "NumberOfPoints: " << reader->NumberOfPoints << " "
-                                  << "CurrentExtraPoint: " << reader->CurrentExtraPoint);
+                                  << "CurrentExtraPoint: " << state.CurrentExtraPoint);
 
   // put out data for extra points
-  for (size_t j = reader->PointOffset + reader->NumberOfPoints; j < reader->CurrentExtraPoint; j++)
+  for (size_t j = reader->PointOffset + reader->NumberOfPoints; j < state.CurrentExtraPoint; j++)
   {
     // use map to find out what point data we are using
     if (!reader->ShowMultilayerView)
     {
-      k = reader->PointMap[j - reader->NumberOfPoints - reader->PointOffset];
+      k = state.PointMap[j - reader->NumberOfPoints - reader->PointOffset];
       assert(j < static_cast<size_t>(array->GetNumberOfTuples()));
       assert(k < static_cast<size_t>(array->GetNumberOfTuples()));
       dataBlock[j] = dataBlock[k];
     }
     else
     {
-      k = reader->PointMap[j - reader->NumberOfPoints - reader->PointOffset] *
+      k = state.PointMap[j - reader->NumberOfPoints - reader->PointOffset] *
         reader->MaximumNVertLevels;
       // write data for one point -- lowest level to highest
       assert(k + reader->MaximumNVertLevels <= static_cast<size_t>(reader->MaximumPoints));
@@ -751,7 +788,8 @@ void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Point)
 
 //------------------------------------------------------------------------------
 template <typename TArray>
-void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Cell)
+void vtkMPASReader::Internal::operator()(
+  TArray* array, vtkMPASReader::LoadState& state, int nc_var, Cell)
 {
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->reader->MaximumCells);
@@ -773,12 +811,12 @@ void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Cell)
   }
 
   // put out data for extra cells
-  for (size_t j = reader->CellOffset + reader->NumberOfCells; j < reader->CurrentExtraCell; j++)
+  for (size_t j = reader->CellOffset + reader->NumberOfCells; j < state.CurrentExtraCell; j++)
   {
     // use map to find out what cell data we are using
     if (!reader->ShowMultilayerView)
     {
-      size_t k = reader->CellMap[j - reader->NumberOfCells - reader->CellOffset];
+      size_t k = state.CellMap[j - reader->NumberOfCells - reader->CellOffset];
       assert(j < static_cast<size_t>(array->GetNumberOfTuples()));
       assert(k < static_cast<size_t>(array->GetNumberOfTuples()));
       dataBlock[j] = dataBlock[k];
@@ -786,8 +824,8 @@ void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Cell)
     else
     {
       size_t i = j * reader->MaximumNVertLevels;
-      size_t k = reader->CellMap[j - reader->NumberOfCells - reader->CellOffset] *
-        reader->MaximumNVertLevels;
+      size_t k =
+        state.CellMap[j - reader->NumberOfCells - reader->CellOffset] * reader->MaximumNVertLevels;
 
       // write data for one cell -- lowest level to highest
       assert(i < static_cast<size_t>(array->GetNumberOfTuples()));
@@ -962,15 +1000,6 @@ void vtkMPASReader::DestroyData()
 
   this->Internals->cellArrays.clear();
   this->Internals->pointArrays.clear();
-
-  delete[] this->CellMap;
-  this->CellMap = nullptr;
-
-  delete[] this->PointMap;
-  this->PointMap = nullptr;
-
-  delete[] this->MaximumLevelPoint;
-  this->MaximumLevelPoint = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -1020,28 +1049,6 @@ void vtkMPASReader::ReleaseNcData()
   this->PointDataArraySelection->RemoveAllArrays();
   this->CellDataArraySelection->RemoveAllArrays();
   this->UpdateDimensions(true); // Reset extra dimension list.
-
-  delete[] this->PointX;
-  this->PointX = nullptr;
-  delete[] this->PointY;
-  this->PointY = nullptr;
-  delete[] this->PointZ;
-  this->PointZ = nullptr;
-
-  delete[] this->OrigConnections;
-  this->OrigConnections = nullptr;
-  delete[] this->ModConnections;
-  this->ModConnections = nullptr;
-  delete[] this->OrigNumPointsOnCell;
-  this->OrigNumPointsOnCell = nullptr;
-  delete[] this->ModNumPointsOnCell;
-  this->ModNumPointsOnCell = nullptr;
-  delete[] this->CellMap;
-  this->CellMap = nullptr;
-  delete[] this->PointMap;
-  this->PointMap = nullptr;
-  delete[] this->MaximumLevelPoint;
-  this->MaximumLevelPoint = nullptr;
 
   this->Internals->close();
 }
@@ -1150,7 +1157,8 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->DestroyData();
-  if (!this->ReadAndOutputGrid())
+  LoadState state;
+  if (!this->ReadAndOutputGrid(state))
   {
     this->DestroyData();
     return 0;
@@ -1171,7 +1179,7 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
     {
-      vtkDataArray* array = this->LoadPointVarData(var);
+      vtkDataArray* array = this->LoadPointVarData(state, var);
       if (!array)
       {
         char name[NC_MAX_NAME + 1];
@@ -1199,7 +1207,7 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   {
     if (this->CellDataArraySelection->GetArraySetting(var))
     {
-      vtkDataArray* array = this->LoadCellVarData(var);
+      vtkDataArray* array = this->LoadCellVarData(state, var);
       if (!array)
       {
         char name[NC_MAX_NAME + 1];
@@ -1263,17 +1271,6 @@ void vtkMPASReader::SetDefaults()
   this->CenterRad = CenterLon * vtkMath::Pi() / 180.0;
 
   this->UseDimensionedArrayNames = false;
-
-  this->PointX = nullptr;
-  this->PointY = nullptr;
-  this->PointZ = nullptr;
-  this->OrigConnections = nullptr;
-  this->ModConnections = nullptr;
-  this->OrigNumPointsOnCell = nullptr;
-  this->ModNumPointsOnCell = nullptr;
-  this->CellMap = nullptr;
-  this->PointMap = nullptr;
-  this->MaximumLevelPoint = nullptr;
 
   this->FileName = nullptr;
   this->DTime = 0;
@@ -1633,58 +1630,58 @@ int vtkMPASReader::BuildVarArrays()
 //  vtk data structures for points and cells.
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::ReadAndOutputGrid()
+int vtkMPASReader::ReadAndOutputGrid(LoadState& state)
 {
   switch (this->Geometry)
   {
     case vtkMPASReader::SphericalDual:
-      if (!this->AllocSphericalDualGeometry())
+      if (!this->AllocSphericalDualGeometry(state))
       {
         return 0;
       }
-      this->FixPoints();
+      this->FixPoints(state);
       break;
 
     case vtkMPASReader::SphericalPrimary:
-      if (!this->AllocSphericalPrimaryGeometry())
+      if (!this->AllocSphericalPrimaryGeometry(state))
       {
         return 0;
       }
-      this->FixPoints();
+      this->FixPoints(state);
       break;
 
     case vtkMPASReader::ProjectedDual:
-      if (!this->AllocProjectedDualGeometry())
+      if (!this->AllocProjectedDualGeometry(state))
       {
         return 0;
       }
-      this->ShiftLonData();
-      this->FixPoints();
-      if (!this->EliminateXWrap())
+      this->ShiftLonData(state);
+      this->FixPoints(state);
+      if (!this->EliminateXWrap(state))
       {
         return 0;
       }
       break;
 
     case vtkMPASReader::ProjectedPrimary:
-      if (!this->AllocProjectedPrimaryGeometry())
+      if (!this->AllocProjectedPrimaryGeometry(state))
       {
         return 0;
       }
-      this->ShiftLonData();
-      this->FixPoints();
-      if (!this->EliminateXWrap())
+      this->ShiftLonData(state);
+      this->FixPoints(state);
+      if (!this->EliminateXWrap(state))
       {
         return 0;
       }
       break;
 
     case vtkMPASReader::Planar:
-      if (!this->AllocPlanarGeometry())
+      if (!this->AllocPlanarGeometry(state))
       {
         return 0;
       }
-      this->FixPoints();
+      this->FixPoints(state);
       break;
 
     default:
@@ -1692,8 +1689,8 @@ int vtkMPASReader::ReadAndOutputGrid()
       return 0;
   }
 
-  this->OutputPoints();
-  this->OutputCells();
+  this->OutputPoints(state);
+  this->OutputCells(state);
 
   return 1;
 }
@@ -1702,11 +1699,12 @@ int vtkMPASReader::ReadAndOutputGrid()
 // Allocate into sphere view of dual geometry
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::AllocSphericalDualGeometry()
+int vtkMPASReader::AllocSphericalDualGeometry(LoadState& state)
 {
   int varid;
   CHECK_VAR("xCell", varid);
-  this->PointX = new double[this->NumberOfPoints + this->PointOffset];
+  assert(state.PointX == nullptr);
+  state.PointX = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
@@ -1714,43 +1712,46 @@ int vtkMPASReader::AllocSphericalDualGeometry()
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointX + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointX[0] = 0.0;
+  state.PointX[0] = 0.0;
 
   CHECK_VAR("yCell", varid);
-  this->PointY = new double[this->NumberOfPoints + this->PointOffset];
+  assert(state.PointY == nullptr);
+  state.PointY = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointY + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointY[0] = 0.0;
+  state.PointY[0] = 0.0;
 
   CHECK_VAR("zCell", varid);
-  this->PointZ = new double[this->NumberOfPoints + this->PointOffset];
+  assert(state.PointZ == nullptr);
+  state.PointZ = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointZ + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointZ + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointZ[0] = 0.0;
+  state.PointZ[0] = 0.0;
 
   CHECK_VAR("cellsOnVertex", varid);
-  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
+  assert(state.OrigConnections == nullptr);
+  state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
   if (!this->Internals->ValidateDimensions(varid, false, 2, "nVertices", "vertexDegree"))
@@ -1760,7 +1761,7 @@ int vtkMPASReader::AllocSphericalDualGeometry()
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, this->OrigConnections)))
+        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
@@ -1768,33 +1769,34 @@ int vtkMPASReader::AllocSphericalDualGeometry()
   if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = new int[this->NumberOfPoints + this->PointOffset];
+    assert(state.MaximumLevelPoint == nullptr);
+    state.MaximumLevelPoint = new int[this->NumberOfPoints + this->PointOffset];
     if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
     {
       return 0;
     }
     if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start_pt, count_pt,
-          this->MaximumLevelPoint + this->PointOffset)))
+          state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
   }
 
-  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
-  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+  state.CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  state.CurrentExtraCell = this->NumberOfCells + this->CellOffset;
 
   if (this->ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     vtkDebugMacro(<< "alloc sphere: multilayer: setting MaximumCells to " << this->MaximumCells);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
     vtkDebugMacro(<< "alloc sphere: multilayer: setting MaximumPoints to " << this->MaximumPoints);
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
     vtkDebugMacro(<< "alloc sphere: singlelayer: setting MaximumPoints to " << this->MaximumPoints);
   }
 
@@ -1805,12 +1807,13 @@ int vtkMPASReader::AllocSphericalDualGeometry()
 // Allocate into sphere view of primary geometry
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::AllocSphericalPrimaryGeometry()
+int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
 {
   auto loadCoordArray = [&](const char* varName, double*& array)
   {
     int varid;
     CHECK_VAR(varName, varid);
+    assert(array == nullptr);
     array = new double[this->NumberOfPoints + this->PointOffset];
     if (!this->Internals->ValidateDimensions(varid, false, 1, "nVertices"))
     {
@@ -1827,15 +1830,16 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
     array[0] = 0.0;
     return 1;
   };
-  if (!(loadCoordArray("xVertex", this->PointX) && loadCoordArray("yVertex", this->PointY) &&
-        loadCoordArray("zVertex", this->PointZ)))
+  if (!(loadCoordArray("xVertex", state.PointX) && loadCoordArray("yVertex", state.PointY) &&
+        loadCoordArray("zVertex", state.PointZ)))
   {
     return 0;
   }
 
   int vertOnCellId;
   CHECK_VAR("verticesOnCell", vertOnCellId);
-  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
+  assert(state.OrigConnections == nullptr);
+  state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   if (!this->Internals->ValidateDimensions(vertOnCellId, false, 2, "nCells", "maxEdges"))
   {
     return 0;
@@ -1843,14 +1847,15 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
   const size_t start_conn[] = { 0, 0 };
   const size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, this->OrigConnections)))
+        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
   int numVertOnCellId;
   CHECK_VAR("nEdgesOnCell", numVertOnCellId);
-  this->OrigNumPointsOnCell = new int[this->NumberOfCells];
+  assert(state.OrigNumPointsOnCell == nullptr);
+  state.OrigNumPointsOnCell = new int[this->NumberOfCells];
   if (!this->Internals->ValidateDimensions(numVertOnCellId, false, 1, "nCells"))
   {
     return 0;
@@ -1858,7 +1863,7 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
   const size_t start_cell[] = { 0 };
   const size_t count_cell[] = { this->NumberOfCells };
   if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, numVertOnCellId, start_cell,
-        count_cell, this->OrigNumPointsOnCell)))
+        count_cell, state.OrigNumPointsOnCell)))
   {
     return 0;
   }
@@ -1867,7 +1872,8 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
   if ((maxLevelPerCellId = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = new int[this->NumberOfCells + this->CellOffset];
+    assert(state.MaximumLevelPoint == nullptr);
+    state.MaximumLevelPoint = new int[this->NumberOfCells + this->CellOffset];
     if (!this->Internals->ValidateDimensions(maxLevelPerCellId, false, 1, "nCells"))
     {
       return 0;
@@ -1875,27 +1881,27 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
     const size_t start_pt[] = { 0 };
     const size_t count_pt[] = { this->NumberOfPoints };
     if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, maxLevelPerCellId,
-          start_pt, count_pt, this->MaximumLevelPoint + this->PointOffset)))
+          start_pt, count_pt, state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
   }
 
-  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
-  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+  state.CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  state.CurrentExtraCell = this->NumberOfCells + this->CellOffset;
 
   if (this->ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     vtkDebugMacro(<< "alloc sphere: multilayer: setting MaximumCells to " << this->MaximumCells);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
     vtkDebugMacro(<< "alloc sphere: multilayer: setting MaximumPoints to " << this->MaximumPoints);
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
     vtkDebugMacro(<< "alloc sphere: singlelayer: setting MaximumPoints to " << this->MaximumPoints);
   }
 
@@ -1906,15 +1912,16 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry()
 // Allocate the lat/lon projection of dual geometry.
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::AllocProjectedDualGeometry()
+int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
 {
   constexpr float BLOATFACTOR = .5;
-  this->ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
-  this->ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
+  state.ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
+  state.ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
 
   int varid;
   CHECK_VAR("lonCell", varid);
-  this->PointX = new double[this->ModNumPoints];
+  assert(state.PointX == nullptr);
+  state.PointX = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
@@ -1922,29 +1929,31 @@ int vtkMPASReader::AllocProjectedDualGeometry()
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointX + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointX[0] = 0.0;
+  state.PointX[0] = 0.0;
 
   CHECK_VAR("latCell", varid);
-  this->PointY = new double[this->ModNumPoints];
+  assert(state.PointY == nullptr);
+  state.PointY = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointY + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointY[0] = 0.0;
+  state.PointY[0] = 0.0;
 
   CHECK_VAR("cellsOnVertex", varid);
-  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
+  assert(state.OrigConnections == nullptr);
+  state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
   if (!this->Internals->ValidateDimensions(varid, false, 2, "nVertices", "vertexDegree"))
@@ -1954,7 +1963,7 @@ int vtkMPASReader::AllocProjectedDualGeometry()
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, this->OrigConnections)))
+        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
@@ -1963,43 +1972,47 @@ int vtkMPASReader::AllocProjectedDualGeometry()
   // eliminating wraparound in the lat/lon projection) plus additional
   // cells added when mirroring cells that had previously wrapped around
 
-  this->ModConnections = new int[this->ModNumCells * this->PointsPerCell];
+  assert(state.ModConnections == nullptr);
+  state.ModConnections = new int[state.ModNumCells * this->PointsPerCell];
 
   // allocate an array to map the extra points and cells to the original
   // so that when obtaining data, we know where to get it
-  this->PointMap = new size_t[(size_t)floor(this->NumberOfPoints * BLOATFACTOR)];
-  this->CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
+  assert(state.PointMap == nullptr);
+  state.PointMap = new size_t[(size_t)floor(this->NumberOfPoints * BLOATFACTOR)];
+  assert(state.CellMap == nullptr);
+  state.CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
 
   if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
+    assert(state.MaximumLevelPoint == nullptr);
+    state.MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
     if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
     {
       return 0;
     }
     if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start_pt, count_pt,
-          this->MaximumLevelPoint + this->PointOffset)))
+          state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
   }
 
-  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
-  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+  state.CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  state.CurrentExtraCell = this->NumberOfCells + this->CellOffset;
 
   if (ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
     vtkDebugMacro(<< "alloc latlon: multilayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
     vtkDebugMacro(<< "alloc latlon: singlelayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
@@ -2011,15 +2024,16 @@ int vtkMPASReader::AllocProjectedDualGeometry()
 // Allocate the lat/lon projection of primary geometry.
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::AllocProjectedPrimaryGeometry()
+int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
 {
   constexpr float BLOATFACTOR = .5;
-  this->ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
-  this->ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
+  state.ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
+  state.ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
 
   int lonId;
   CHECK_VAR("lonVertex", lonId);
-  this->PointX = new double[this->ModNumPoints];
+  assert(state.PointX == nullptr);
+  state.PointX = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(lonId, false, 1, "nVertices"))
   {
     return 0;
@@ -2027,31 +2041,33 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry()
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, lonId, start_pt, count_pt, this->PointX + this->PointOffset)))
+        this->Internals->ncFile, lonId, start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointX[0] = 0.0;
+  state.PointX[0] = 0.0;
 
   int latId;
   CHECK_VAR("latVertex", latId);
-  this->PointY = new double[this->ModNumPoints];
+  assert(state.PointY == nullptr);
+  state.PointY = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(latId, false, 1, "nVertices"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, latId, start_pt, count_pt, this->PointY + this->PointOffset)))
+        this->Internals->ncFile, latId, start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointY[0] = 0.0;
+  state.PointY[0] = 0.0;
 
   int vertOnCellId;
   CHECK_VAR("verticesOnCell", vertOnCellId);
-  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
+  assert(state.OrigConnections == nullptr);
+  state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   if (!this->Internals->ValidateDimensions(vertOnCellId, false, 2, "nCells", "maxEdges"))
   {
     return 0;
@@ -2059,14 +2075,15 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry()
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, this->OrigConnections)))
+        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
   int numVertOnCellId;
   CHECK_VAR("nEdgesOnCell", numVertOnCellId);
-  this->OrigNumPointsOnCell = new int[this->NumberOfCells];
+  assert(state.OrigNumPointsOnCell == nullptr);
+  state.OrigNumPointsOnCell = new int[this->NumberOfCells];
   if (!this->Internals->ValidateDimensions(numVertOnCellId, false, 1, "nCells"))
   {
     return 0;
@@ -2074,7 +2091,7 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry()
   const size_t start_cell[] = { 0 };
   const size_t count_cell[] = { this->NumberOfCells };
   if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, numVertOnCellId, start_cell,
-        count_cell, this->OrigNumPointsOnCell)))
+        count_cell, state.OrigNumPointsOnCell)))
   {
     return 0;
   }
@@ -2083,45 +2100,50 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry()
   // eliminating wraparound in the lat/lon projection) plus additional
   // cells added when mirroring cells that had previously wrapped around
 
-  this->ModConnections = new int[this->ModNumCells * this->PointsPerCell];
-  this->ModNumPointsOnCell = new int[this->ModNumCells];
+  assert(state.ModConnections == nullptr);
+  state.ModConnections = new int[state.ModNumCells * this->PointsPerCell];
+  assert(state.ModNumPointsOnCell == nullptr);
+  state.ModNumPointsOnCell = new int[state.ModNumCells];
 
   // allocate an array to map the extra points and cells to the original
   // so that when obtaining data, we know where to get it
-  this->PointMap = new size_t[(size_t)floor(this->NumberOfPoints * BLOATFACTOR)];
-  this->CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
+  assert(state.PointMap == nullptr);
+  state.PointMap = new size_t[(size_t)floor(this->NumberOfPoints * BLOATFACTOR)];
+  assert(state.CellMap == nullptr);
+  state.CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
 
   int maxLevelPerCellId;
   if ((maxLevelPerCellId = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
+    assert(state.MaximumLevelPoint == nullptr);
+    state.MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
     if (!this->Internals->ValidateDimensions(maxLevelPerCellId, false, 1, "nCells"))
     {
       return 0;
     }
     if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, maxLevelPerCellId,
-          start_pt, count_pt, this->MaximumLevelPoint + this->PointOffset)))
+          start_pt, count_pt, state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
   }
 
-  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
-  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+  state.CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  state.CurrentExtraCell = this->NumberOfCells + this->CellOffset;
 
   if (ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
     vtkDebugMacro(<< "alloc latlon: multilayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
     vtkDebugMacro(<< "alloc latlon: singlelayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
@@ -2129,11 +2151,12 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry()
   return 1;
 }
 
-int vtkMPASReader::AllocPlanarGeometry()
+int vtkMPASReader::AllocPlanarGeometry(LoadState& state)
 {
   int varid;
   CHECK_VAR("xCell", varid);
-  this->PointX = new double[this->NumberOfPoints];
+  assert(state.PointX == nullptr);
+  state.PointX = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
@@ -2141,43 +2164,46 @@ int vtkMPASReader::AllocPlanarGeometry()
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointX + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointX[0] = 0.0;
+  state.PointX[0] = 0.0;
 
   CHECK_VAR("yCell", varid);
-  this->PointY = new double[this->NumberOfPoints];
+  assert(state.PointY == nullptr);
+  state.PointY = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointY + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointY[0] = 0.0;
+  state.PointY[0] = 0.0;
 
   CHECK_VAR("zCell", varid);
-  this->PointZ = new double[this->NumberOfPoints];
+  assert(state.PointZ == nullptr);
+  state.PointZ = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
   if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, this->PointZ + this->PointOffset)))
+        this->Internals->ncFile, varid, start_pt, count_pt, state.PointZ + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
-  this->PointZ[0] = 0.0;
+  state.PointZ[0] = 0.0;
 
   CHECK_VAR("cellsOnVertex", varid);
-  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
+  assert(state.OrigConnections == nullptr);
+  state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
   if (!this->Internals->ValidateDimensions(varid, false, 2, "nVertices", "vertexDegree"))
@@ -2187,7 +2213,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
   if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, this->OrigConnections)))
+        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
@@ -2195,7 +2221,8 @@ int vtkMPASReader::AllocPlanarGeometry()
   if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = new int[2 * this->NumberOfPoints];
+    assert(state.MaximumLevelPoint == nullptr);
+    state.MaximumLevelPoint = new int[2 * this->NumberOfPoints];
     if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
     {
       return 0;
@@ -2203,25 +2230,25 @@ int vtkMPASReader::AllocPlanarGeometry()
     size_t start[] = { 0 };
     size_t count[] = { this->NumberOfPoints };
     if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start, count,
-          this->MaximumLevelPoint + this->PointOffset)))
+          state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
   }
 
-  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
-  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+  state.CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  state.CurrentExtraCell = this->NumberOfCells + this->CellOffset;
 
   if (this->ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
   }
 
   return 1;
@@ -2231,7 +2258,7 @@ int vtkMPASReader::AllocPlanarGeometry()
 //  Shift data if center longitude needs to change.
 //------------------------------------------------------------------------------
 
-void vtkMPASReader::ShiftLonData()
+void vtkMPASReader::ShiftLonData(LoadState& state)
 {
   vtkDebugMacro(<< "In ShiftLonData..." << endl);
   // if atmospheric data, or zero centered, set center to 180 instead of 0
@@ -2240,9 +2267,9 @@ void vtkMPASReader::ShiftLonData()
     for (size_t j = this->PointOffset; j < this->NumberOfPoints + this->PointOffset; j++)
     {
       // need to shift over the point so center is at PI
-      if (this->PointX[j] < 0)
+      if (state.PointX[j] < 0)
       {
-        this->PointX[j] += 2 * vtkMath::Pi();
+        state.PointX[j] += 2 * vtkMath::Pi();
       }
     }
   }
@@ -2254,16 +2281,16 @@ void vtkMPASReader::ShiftLonData()
       // need to shift over the point if centerLon dictates
       if (this->CenterRad < vtkMath::Pi())
       {
-        if (this->PointX[j] > (this->CenterRad + vtkMath::Pi()))
+        if (state.PointX[j] > (this->CenterRad + vtkMath::Pi()))
         {
-          this->PointX[j] = -((2 * vtkMath::Pi()) - this->PointX[j]);
+          state.PointX[j] = -((2 * vtkMath::Pi()) - state.PointX[j]);
         }
       }
       else if (this->CenterRad > vtkMath::Pi())
       {
-        if (this->PointX[j] < (this->CenterRad - vtkMath::Pi()))
+        if (state.PointX[j] < (this->CenterRad - vtkMath::Pi()))
         {
-          this->PointX[j] += 2 * vtkMath::Pi();
+          state.PointX[j] += 2 * vtkMath::Pi();
         }
       }
     }
@@ -2276,10 +2303,10 @@ void vtkMPASReader::ShiftLonData()
 // projection.
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
+int vtkMPASReader::AddMirrorPoint(LoadState& state, int index, double dividerX, double offset)
 {
-  double X = this->PointX[index];
-  double Y = this->PointY[index];
+  double X = state.PointX[index];
+  double Y = state.PointY[index];
 
   // add on east
   if (X < dividerX)
@@ -2292,15 +2319,15 @@ int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
     X -= offset;
   }
 
-  assert(this->CurrentExtraPoint < this->ModNumPoints);
-  this->PointX[this->CurrentExtraPoint] = X;
-  this->PointY[this->CurrentExtraPoint] = Y;
+  assert(state.CurrentExtraPoint < state.ModNumPoints);
+  state.PointX[state.CurrentExtraPoint] = X;
+  state.PointY[state.CurrentExtraPoint] = Y;
 
-  size_t mirrorPoint = this->CurrentExtraPoint;
+  size_t mirrorPoint = state.CurrentExtraPoint;
 
   // record mapping
-  *(this->PointMap + (this->CurrentExtraPoint - this->NumberOfPoints - this->PointOffset)) = index;
-  this->CurrentExtraPoint++;
+  *(state.PointMap + (state.CurrentExtraPoint - this->NumberOfPoints - this->PointOffset)) = index;
+  state.CurrentExtraPoint++;
 
   return static_cast<int>(mirrorPoint);
 }
@@ -2309,20 +2336,20 @@ int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
 // Check for out-of-range values and do bugfix
 //------------------------------------------------------------------------------
 
-void vtkMPASReader::FixPoints()
+void vtkMPASReader::FixPoints(LoadState& state)
 {
   vtkDebugMacro(<< "In FixPoints..." << endl);
 
   for (size_t j = this->CellOffset; j < this->NumberOfCells + this->CellOffset; j++)
   {
-    // TODO: j is offset by this->CellOffset, but this->OrigConnections and
+    // TODO: j is offset by this->CellOffset, but state.OrigConnections and
     // this->NumPointsOnCell are allocated and filled without considering that.
     // This only works because CellOffset is only set to 0. This could be made
     // more robust by either getting rid of this->CellOffset or everything gets
     // allocated based on it.
-    int* conns = this->OrigConnections + (j * this->PointsPerCell);
+    int* conns = state.OrigConnections + (j * this->PointsPerCell);
     size_t pointsOnCell =
-      this->OrigNumPointsOnCell ? this->OrigNumPointsOnCell[j] : this->PointsPerCell;
+      state.OrigNumPointsOnCell ? state.OrigNumPointsOnCell[j] : this->PointsPerCell;
 
     // go through and make sure none of the referenced points are
     // out of range
@@ -2346,7 +2373,7 @@ void vtkMPASReader::FixPoints()
       constexpr double thresh = .06981317007977; // 4 degrees
       for (size_t k = 0; k < pointsOnCell; k++)
       {
-        double ydiff = std::abs(this->PointY[conns[k]] - this->PointY[conns[lastk]]);
+        double ydiff = std::abs(state.PointY[conns[k]] - state.PointY[conns[lastk]]);
         // Don't look at cells at map border
         if (ydiff > thresh)
         {
@@ -2366,7 +2393,7 @@ void vtkMPASReader::FixPoints()
 // Eliminate wraparound at east/west edges of lat/lon projection
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::EliminateXWrap()
+int vtkMPASReader::EliminateXWrap(LoadState& state)
 {
   if (this->NumberOfPoints == 0)
   {
@@ -2391,10 +2418,10 @@ int vtkMPASReader::EliminateXWrap()
     case vtkMPASReader::Planar:
     {
       // Determine the bounds in the x-dimension
-      double xRange[2] = { this->PointX[this->PointOffset], this->PointX[this->PointOffset] };
+      double xRange[2] = { state.PointX[this->PointOffset], state.PointX[this->PointOffset] };
       for (size_t i = 1; i < this->NumberOfPoints; ++i)
       {
-        double x = this->PointX[this->PointOffset + i];
+        double x = state.PointX[this->PointOffset + i];
         xRange[0] = std::min(xRange[0], x);
         xRange[1] = std::max(xRange[1], x);
       }
@@ -2415,18 +2442,18 @@ int vtkMPASReader::EliminateXWrap()
   // Add new points and cells where needed to account for wraparound.
   for (size_t j = this->CellOffset; j < this->NumberOfCells + this->CellOffset; j++)
   {
-    int* conns = this->OrigConnections + (j * this->PointsPerCell);
-    int* modConns = this->ModConnections + (j * this->PointsPerCell);
+    int* conns = state.OrigConnections + (j * this->PointsPerCell);
+    int* modConns = state.ModConnections + (j * this->PointsPerCell);
     size_t pointsOnCell =
-      this->OrigNumPointsOnCell ? this->OrigNumPointsOnCell[j] : this->PointsPerCell;
-    int* modNumPointsOnCell = this->ModNumPointsOnCell ? this->ModNumPointsOnCell + j : nullptr;
+      state.OrigNumPointsOnCell ? state.OrigNumPointsOnCell[j] : this->PointsPerCell;
+    int* modNumPointsOnCell = state.ModNumPointsOnCell ? state.ModNumPointsOnCell + j : nullptr;
 
     // Determine if we are wrapping in X direction
     size_t lastk = pointsOnCell - 1;
     bool xWrap = false;
     for (size_t k = 0; k < pointsOnCell; k++)
     {
-      if (std::abs(this->PointX[conns[k]] - this->PointX[conns[lastk]]) > tolerance)
+      if (std::abs(state.PointX[conns[k]] - state.PointX[conns[lastk]]) > tolerance)
       {
         xWrap = true;
         break;
@@ -2441,7 +2468,7 @@ int vtkMPASReader::EliminateXWrap()
         *modNumPointsOnCell = static_cast<int>(pointsOnCell);
 
       // first point is anchor it doesn't move
-      double anchorX = this->PointX[conns[0]];
+      double anchorX = state.PointX[conns[0]];
       modConns[0] = conns[0];
 
       // modify existing cell, so it doesn't wrap
@@ -2451,9 +2478,9 @@ int vtkMPASReader::EliminateXWrap()
         int neigh = conns[k];
 
         // add a new point, figure out east or west
-        if (std::abs(this->PointX[neigh] - anchorX) > tolerance)
+        if (std::abs(state.PointX[neigh] - anchorX) > tolerance)
         {
-          modConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
+          modConns[k] = this->AddMirrorPoint(state, neigh, anchorX, xLength);
         }
         else
         {
@@ -2462,10 +2489,10 @@ int vtkMPASReader::EliminateXWrap()
         }
       }
 
-      // move addedConns to this->ModConnections extra cells area
-      int* addedConns = this->ModConnections + (this->CurrentExtraCell * this->PointsPerCell);
+      // move addedConns to state.ModConnections extra cells area
+      int* addedConns = state.ModConnections + (state.CurrentExtraCell * this->PointsPerCell);
       int* addedNumPointsOnCell =
-        this->ModNumPointsOnCell ? this->ModNumPointsOnCell + this->CurrentExtraCell : nullptr;
+        state.ModNumPointsOnCell ? state.ModNumPointsOnCell + state.CurrentExtraCell : nullptr;
 
       // add a mirroring cell to other side
 
@@ -2473,8 +2500,8 @@ int vtkMPASReader::EliminateXWrap()
         *addedNumPointsOnCell = static_cast<int>(pointsOnCell);
 
       // add mirrored anchor first
-      addedConns[0] = this->AddMirrorPoint(conns[0], xCenter, xLength);
-      anchorX = this->PointX[addedConns[0]];
+      addedConns[0] = this->AddMirrorPoint(state, conns[0], xCenter, xLength);
+      anchorX = state.PointX[addedConns[0]];
 
       // add mirror cell points if needed
       for (size_t k = 1; k < pointsOnCell; k++)
@@ -2482,9 +2509,9 @@ int vtkMPASReader::EliminateXWrap()
         int neigh = conns[k];
 
         // add a new point for neighbor, figure out east or west
-        if (std::abs(this->PointX[neigh] - anchorX) > tolerance)
+        if (std::abs(state.PointX[neigh] - anchorX) > tolerance)
         {
-          addedConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
+          addedConns[k] = this->AddMirrorPoint(state, neigh, anchorX, xLength);
         }
         else
         {
@@ -2492,12 +2519,12 @@ int vtkMPASReader::EliminateXWrap()
           addedConns[k] = neigh;
         }
       }
-      *(this->CellMap + (this->CurrentExtraCell - this->NumberOfCells - this->CellOffset)) = j;
-      this->CurrentExtraCell++;
+      *(state.CellMap + (state.CurrentExtraCell - this->NumberOfCells - this->CellOffset)) = j;
+      state.CurrentExtraCell++;
     }
     else
     {
-      // just add cell "as is" to this->ModConnections
+      // just add cell "as is" to state.ModConnections
       if (modNumPointsOnCell)
         *modNumPointsOnCell = static_cast<int>(pointsOnCell);
       for (size_t k = 0; k < pointsOnCell; k++)
@@ -2505,12 +2532,12 @@ int vtkMPASReader::EliminateXWrap()
         modConns[k] = conns[k];
       }
     }
-    if (this->CurrentExtraCell > this->ModNumCells)
+    if (state.CurrentExtraCell > state.ModNumCells)
     {
       vtkErrorMacro(<< "Exceeded storage for extra cells!" << endl);
       return (0);
     }
-    if (this->CurrentExtraPoint > this->ModNumPoints)
+    if (state.CurrentExtraPoint > state.ModNumPoints)
     {
       vtkErrorMacro(<< "Exceeded storage for extra points!" << endl);
       return (0);
@@ -2519,16 +2546,16 @@ int vtkMPASReader::EliminateXWrap()
 
   if (!ShowMultilayerView)
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell);
-    this->MaximumPoints = static_cast<int>(this->CurrentExtraPoint);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell);
+    this->MaximumPoints = static_cast<int>(state.CurrentExtraPoint);
     vtkDebugMacro(<< "elim xwrap: singlelayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
   else
   {
-    this->MaximumCells = static_cast<int>(this->CurrentExtraCell * this->MaximumNVertLevels);
+    this->MaximumCells = static_cast<int>(state.CurrentExtraCell * this->MaximumNVertLevels);
     this->MaximumPoints =
-      static_cast<int>(this->CurrentExtraPoint * (this->MaximumNVertLevels + 1));
+      static_cast<int>(state.CurrentExtraPoint * (this->MaximumNVertLevels + 1));
     vtkDebugMacro(<< "elim xwrap: multilayer: setting this->MaximumPoints to "
                   << this->MaximumPoints << endl);
   }
@@ -2540,7 +2567,7 @@ int vtkMPASReader::EliminateXWrap()
 //  Add points to vtk data structures
 //------------------------------------------------------------------------------
 
-void vtkMPASReader::OutputPoints()
+void vtkMPASReader::OutputPoints(LoadState& state)
 {
   vtkUnstructuredGrid* output = this->GetOutput();
 
@@ -2551,7 +2578,7 @@ void vtkMPASReader::OutputPoints()
   points->Allocate(this->MaximumPoints);
   output->SetPoints(points);
 
-  for (size_t j = 0; j < this->CurrentExtraPoint; j++)
+  for (size_t j = 0; j < state.CurrentExtraPoint; j++)
   {
     double x, y, z;
 
@@ -2560,15 +2587,15 @@ void vtkMPASReader::OutputPoints()
       case vtkMPASReader::Planar:
       case vtkMPASReader::SphericalDual:
       case vtkMPASReader::SphericalPrimary:
-        x = this->PointX[j];
-        y = this->PointY[j];
-        z = this->PointZ[j];
+        x = state.PointX[j];
+        y = state.PointY[j];
+        z = state.PointZ[j];
         break;
 
       case vtkMPASReader::ProjectedDual:
       case vtkMPASReader::ProjectedPrimary:
-        x = this->PointX[j] * 180.0 / vtkMath::Pi();
-        y = this->PointY[j] * 180.0 / vtkMath::Pi();
+        x = state.PointX[j] * 180.0 / vtkMath::Pi();
+        y = state.PointY[j] * 180.0 / vtkMath::Pi();
         z = 0.0;
         break;
 
@@ -2619,22 +2646,6 @@ void vtkMPASReader::OutputPoints()
         points->InsertNextPoint(x, y, z);
       }
     }
-  }
-
-  if (this->PointX)
-  {
-    delete[] this->PointX;
-    this->PointX = nullptr;
-  }
-  if (this->PointY)
-  {
-    delete[] this->PointY;
-    this->PointY = nullptr;
-  }
-  if (this->PointZ)
-  {
-    delete[] this->PointZ;
-    this->PointZ = nullptr;
   }
 }
 
@@ -2687,7 +2698,7 @@ unsigned char vtkMPASReader::GetCellType(int numPoints)
 //  Add cells to vtk data structures
 //------------------------------------------------------------------------------
 
-void vtkMPASReader::OutputCells()
+void vtkMPASReader::OutputCells(LoadState& state)
 {
   vtkDebugMacro(<< "In OutputCells..." << endl);
   vtkUnstructuredGrid* output = GetOutput();
@@ -2702,17 +2713,17 @@ void vtkMPASReader::OutputCells()
 
   vtkNew<vtkIdList> polygonIds;
 
-  for (size_t j = 0; j < this->CurrentExtraCell; j++)
+  for (size_t j = 0; j < state.CurrentExtraCell; j++)
   {
 
     int* conns;
     if ((this->Geometry == ProjectedDual) || (this->Geometry == ProjectedPrimary))
     {
-      conns = this->ModConnections + (j * this->PointsPerCell);
+      conns = state.ModConnections + (j * this->PointsPerCell);
     }
     else
     {
-      conns = this->OrigConnections + (j * this->PointsPerCell);
+      conns = state.OrigConnections + (j * this->PointsPerCell);
     }
 
     int minLevel = 0;
@@ -2725,21 +2736,21 @@ void vtkMPASReader::OutputCells()
       // check if it is a mirror cell, if so, get original
       if (j >= this->NumberOfCells + this->CellOffset)
       {
-        origCellNum = *(this->CellMap + (j - this->NumberOfCells - this->CellOffset));
+        origCellNum = *(state.CellMap + (j - this->NumberOfCells - this->CellOffset));
       }
-      connections = this->OrigConnections + (origCellNum * this->PointsPerCell);
+      connections = state.OrigConnections + (origCellNum * this->PointsPerCell);
 
       if (this->UsePrimaryGrid)
       {
-        minLevel = this->MaximumLevelPoint[origCellNum];
+        minLevel = state.MaximumLevelPoint[origCellNum];
       }
       else
       {
-        // Take the min of the this->MaximumLevelPoint of each point
-        minLevel = this->MaximumLevelPoint[connections[0]];
+        // Take the min of the state.MaximumLevelPoint of each point
+        minLevel = state.MaximumLevelPoint[connections[0]];
         for (size_t k = 1; k < this->PointsPerCell; k++)
         {
-          minLevel = std::min(minLevel, this->MaximumLevelPoint[connections[k]]);
+          minLevel = std::min(minLevel, state.MaximumLevelPoint[connections[k]]);
         }
       }
     }
@@ -2748,13 +2759,13 @@ void vtkMPASReader::OutputCells()
     if (!this->ShowMultilayerView)
     {
       vtkIdType pointsOnCell;
-      if (this->ModNumPointsOnCell)
+      if (state.ModNumPointsOnCell)
       {
-        pointsOnCell = this->ModNumPointsOnCell[j];
+        pointsOnCell = state.ModNumPointsOnCell[j];
       }
-      else if (this->OrigNumPointsOnCell)
+      else if (state.OrigNumPointsOnCell)
       {
-        pointsOnCell = this->OrigNumPointsOnCell[j];
+        pointsOnCell = state.OrigNumPointsOnCell[j];
       }
       else
       {
@@ -2784,13 +2795,13 @@ void vtkMPASReader::OutputCells()
     else
     { // multilayer
       vtkIdType pointsOnFace;
-      if (this->ModNumPointsOnCell)
+      if (state.ModNumPointsOnCell)
       {
-        pointsOnFace = this->ModNumPointsOnCell[j];
+        pointsOnFace = state.ModNumPointsOnCell[j];
       }
-      else if (this->OrigNumPointsOnCell)
+      else if (state.OrigNumPointsOnCell)
       {
-        pointsOnFace = this->OrigNumPointsOnCell[j];
+        pointsOnFace = state.OrigNumPointsOnCell[j];
       }
       else
       {
@@ -2888,18 +2899,13 @@ void vtkMPASReader::OutputCells()
     }
   }
 
-  delete[] this->ModConnections;
-  this->ModConnections = nullptr;
-  delete[] this->OrigConnections;
-  this->OrigConnections = nullptr;
-
   vtkDebugMacro(<< "Leaving OutputCells..." << endl);
 }
 
 //------------------------------------------------------------------------------
 //  Load the data for a point variable
 //------------------------------------------------------------------------------
-vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
+vtkDataArray* vtkMPASReader::LoadPointVarData(LoadState& state, int variableIndex)
 {
   int varid = this->Internals->pointVars[variableIndex];
   char varname[NC_MAX_NAME + 1];
@@ -2931,13 +2937,13 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
   int success = false;
   if (!this->UsePrimaryGrid)
   {
-    success =
-      MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Point{});
+    success = MPASDispatcher::Execute(
+      array, *this->Internals, state, varid, vtkMPASReader::Internal::Point{});
   }
   else
   {
-    success =
-      MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Cell{});
+    success = MPASDispatcher::Execute(
+      array, *this->Internals, state, varid, vtkMPASReader::Internal::Cell{});
   }
   if (!success)
   {
@@ -2957,7 +2963,7 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
 //  Load the data for a cell variable
 //------------------------------------------------------------------------------
 
-vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
+vtkDataArray* vtkMPASReader::LoadCellVarData(LoadState& state, int variableIndex)
 {
   int varid = this->Internals->cellVars[variableIndex];
   char varname[NC_MAX_NAME + 1];
@@ -2989,13 +2995,13 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
   int success = false;
   if (!this->UsePrimaryGrid)
   {
-    success =
-      MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Cell{});
+    success = MPASDispatcher::Execute(
+      array, *this->Internals, state, varid, vtkMPASReader::Internal::Cell{});
   }
   else
   {
-    success =
-      MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Point{});
+    success = MPASDispatcher::Execute(
+      array, *this->Internals, state, varid, vtkMPASReader::Internal::Point{});
   }
 
   if (!success)
