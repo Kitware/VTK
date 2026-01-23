@@ -30,6 +30,28 @@ void vtkPolyDataMaterial::SetField(vtkDataObject* obj, const char* name, const c
 }
 
 //------------------------------------------------------------------------------
+void vtkPolyDataMaterial::SetField(
+  vtkDataObject* obj, const char* name, const std::vector<std::string>& values)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
+  {
+    vtkNew<vtkFieldData> newfd;
+    obj->SetFieldData(newfd);
+    fd = newfd;
+  }
+  vtkNew<vtkStringArray> sa;
+  sa->SetNumberOfTuples(values.size());
+  for (size_t i = 0; i < values.size(); ++i)
+  {
+    const std::string& value = values[i];
+    sa->SetValue(i, value);
+  }
+  sa->SetName(name);
+  fd->AddArray(sa);
+}
+
+//------------------------------------------------------------------------------
 std::vector<std::string> vtkPolyDataMaterial::GetField(vtkDataObject* obj, const char* name)
 {
   vtkFieldData* fd = obj->GetFieldData();

@@ -160,27 +160,6 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   return lonlatheight;
 }
 
-//------------------------------------------------------------------------------
-void SetField(vtkDataObject* obj, const char* name, const std::vector<std::string>& values)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    vtkNew<vtkFieldData> newfd;
-    obj->SetFieldData(newfd);
-    fd = newfd;
-  }
-  vtkNew<vtkStringArray> sa;
-  sa->SetNumberOfTuples(values.size());
-  for (size_t i = 0; i < values.size(); ++i)
-  {
-    const std::string& value = values[i];
-    sa->SetValue(i, value);
-  }
-  sa->SetName(name);
-  fd->AddArray(sa);
-}
-
 vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
 {
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(texturePath);
@@ -754,7 +733,8 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         append->Update();
         vtkPolyData* tileMeshWithTexture = vtkPolyData::SafeDownCast(append->GetOutput());
         b->SetBlock(meshBlockIndex++, tileMeshWithTexture);
-        SetField(tileMeshWithTexture, "texture_uri", mergedFileNames);
+        vtkPolyDataMaterial::SetField(
+          tileMeshWithTexture, vtkPolyDataMaterial::GetTextureURIName(), mergedFileNames);
         textureBaseDirectory = this->OutputDir + "/" + vtk::to_string(node->GetID());
       }
       else
@@ -1080,7 +1060,8 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
         }
       }
       tileMesh->GetPointData()->SetTCoords(tcoordsTile);
-      SetField(tileMesh, "texture_uri", tileTextureFileNames);
+      vtkPolyDataMaterial::SetField(
+        tileMesh, vtkPolyDataMaterial::GetTextureURIName(), tileTextureFileNames);
     }
     // store tileMesh into a multiblock
     vtkNew<vtkMultiBlockDataSet> buildings;

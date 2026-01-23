@@ -59,6 +59,8 @@ public:
    * Functions for string fields.
    */
   static void SetField(vtkDataObject* obj, const char* name, const char* value);
+  static void SetField(
+    vtkDataObject* obj, const char* name, const std::vector<std::string>& values);
   /**
    * It returns an empty vector if the field does not exist.
    */
