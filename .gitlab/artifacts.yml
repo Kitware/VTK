@@ -39,6 +39,7 @@
             - build/CMakeCache.txt
             - build/build.ninja
             - build/rules.ninja
+            - build/CMakeFiles/rules.ninja
             - build/cmake_install.cmake
             - build/**/cmake_install.cmake
 
