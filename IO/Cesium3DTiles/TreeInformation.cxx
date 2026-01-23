@@ -555,7 +555,7 @@ void TreeInformation::WriteTileTexture(
 void TreeInformation::SaveTilesMesh()
 {
   std::vector<std::string> textureFileNames =
-    vtkPolyDataMaterial::GetField(this->Mesh, vtkPolyDataMaterial::GetTextureURI());
+    vtkPolyDataMaterial::GetField(this->Mesh, vtkPolyDataMaterial::GetTextureURIName());
   vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
 
   std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
@@ -652,7 +652,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
           vtkPolyData* pd)
       {
         auto pdTextureFileNames =
-          vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURI());
+          vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURIName());
         if (pdTextureFileNames.empty())
         {
           meshes.push_back(pd);

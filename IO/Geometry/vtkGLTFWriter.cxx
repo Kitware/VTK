@@ -811,12 +811,13 @@ void WriteMaterial(
   }
 
   std::vector<float> dcolor =
-    GetField(pd, vtkPolyDataMaterial::GetDiffuseColor(), std::vector<float>{ 1, 1, 1 });
+    GetField(pd, vtkPolyDataMaterial::GetDiffuseColorName(), std::vector<float>{ 1, 1, 1 });
   std::vector<float> scolor =
-    GetField(pd, vtkPolyDataMaterial::GetSpecularColor(), std::vector<float>{ 0, 0, 0 });
+    GetField(pd, vtkPolyDataMaterial::GetSpecularColorName(), std::vector<float>{ 0, 0, 0 });
   float transparency =
-    GetField(pd, vtkPolyDataMaterial::GetTransparency(), std::vector<float>{ 0 })[0];
-  float shininess = GetField(pd, vtkPolyDataMaterial::GetShininess(), std::vector<float>{ 0 })[0];
+    GetField(pd, vtkPolyDataMaterial::GetTransparencyName(), std::vector<float>{ 0 })[0];
+  float shininess =
+    GetField(pd, vtkPolyDataMaterial::GetShininessName(), std::vector<float>{ 0 })[0];
   model["baseColorFactor"].emplace_back(dcolor[0]);
   model["baseColorFactor"].emplace_back(dcolor[1]);
   model["baseColorFactor"].emplace_back(dcolor[2]);
@@ -987,7 +988,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
           rendererNode["children"].emplace_back(nodes.size() - 1);
           size_t oldTextureCount = textures.size();
           std::vector<std::string> textureFileNames =
-            vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURI());
+            vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURIName());
           if (this->SaveTextures)
           {
             for (size_t i = 0; i < textureFileNames.size(); ++i)

@@ -45,27 +45,30 @@ public:
    * Names for fields stored in the vtkPolyData. These names
    * can be used for the 'name' parameter for SetField or GetField functions
    */
-  static const char* GetTextureURI() { return "texture_uri"; }
-  static const char* GetDiffuseColor() { return "diffuse_color"; }
-  static const char* GetSpecularColor() { return "specular_color"; }
-  static const char* GetTransparency() { return "transparency"; }
-  static const char* GetShininess() { return "shininess"; }
+  static const char* GetTextureURIName() { return "texture_uri"; }
+  static const char* GetDiffuseColorName() { return "diffuse_color"; }
+  static const char* GetSpecularColorName() { return "specular_color"; }
+  static const char* GetTransparencyName() { return "transparency"; }
+  static const char* GetShininessName() { return "shininess"; }
   ///@}
 
   ///@{
   /**
    * Helper functions for setting/getting field arrays. These are used to save
-   * texture paths or colors for vtkPolyData.
+   * texture paths for vtkPolyData.
    * Functions for string fields.
    */
   static void SetField(vtkDataObject* obj, const char* name, const char* value);
+  /**
+   * It returns an empty vector if the field does not exist.
+   */
   static std::vector<std::string> GetField(vtkDataObject* obj, const char* name);
   ///@}
 
   ///@{
   /**
    * Helper functions for setting/getting field arrays. These are used to save
-   * texture paths or colors for vtkPolyData.
+   * colors for vtkPolyData.
    * Functions for double fields.
    */
   static void SetField(

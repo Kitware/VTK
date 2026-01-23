@@ -51,13 +51,13 @@ void AddCompositePolyDataMapper(
     if (poly)
     {
       auto diffuse = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetDiffuseColor(), std::vector<double>{ 1, 1, 1 });
+        poly, vtkPolyDataMaterial::GetDiffuseColorName(), std::vector<double>{ 1, 1, 1 });
       auto specular = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetSpecularColor(), std::vector<double>{ 1, 1, 1 });
+        poly, vtkPolyDataMaterial::GetSpecularColorName(), std::vector<double>{ 1, 1, 1 });
       double shininess = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetShininess(), std::vector<double>{ 1 })[0];
+        poly, vtkPolyDataMaterial::GetShininessName(), std::vector<double>{ 1 })[0];
       double transparency = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetTransparency(), std::vector<double>{ 0 })[0];
+        poly, vtkPolyDataMaterial::GetTransparencyName(), std::vector<double>{ 0 })[0];
       mapper->SetBlockColor(flatIndex, diffuse.data());
       mapper->SetBlockOpacity(flatIndex, 1 - transparency);
 
@@ -92,13 +92,13 @@ void AddPolyDataMappers(
     if (poly)
     {
       auto diffuse = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetDiffuseColor(), std::vector<double>{ 1, 1, 1 });
+        poly, vtkPolyDataMaterial::GetDiffuseColorName(), std::vector<double>{ 1, 1, 1 });
       auto specular = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetSpecularColor(), std::vector<double>{ 1, 1, 1 });
+        poly, vtkPolyDataMaterial::GetSpecularColorName(), std::vector<double>{ 1, 1, 1 });
       double shininess = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetShininess(), std::vector<double>{ 1 })[0];
+        poly, vtkPolyDataMaterial::GetShininessName(), std::vector<double>{ 1 })[0];
       double transparency = vtkPolyDataMaterial::GetField(
-        poly, vtkPolyDataMaterial::GetTransparency(), std::vector<double>{ 0 })[0];
+        poly, vtkPolyDataMaterial::GetTransparencyName(), std::vector<double>{ 0 })[0];
       vtkNew<vtkPolyDataMapper> mapper;
       mapper->SetInputDataObject(poly);
 
