@@ -430,6 +430,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
     "^VTK::CommonDataModelPython-TestClipPolyhedra$"
     "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$")
+
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
+    # Unknown NSInternalInconsistencyException when using macos arm64
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19916
+    list(APPEND test_exclusions
+      "^vtkJavaTests-Regression$")
+  endif()
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
