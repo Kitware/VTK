@@ -47,7 +47,6 @@ configuration_flag(VTK_WRAP_JAVA "java")
 configuration_flag(VTK_BUILD_MAVEN_PKG "java")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
-  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
   set(JOGL_VERSION "2.6.0" CACHE STRING "")
 
   # Naming is <arch-platform-build_type> since some maven versions fail to
