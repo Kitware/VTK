@@ -512,8 +512,10 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Set the TimeStep on the H5 file
   H5SetStep(this->H5FileId, this->ActualTimeStep);
+  // first we unset any previous view so that we get the global number of points
+  H5PartSetView(this->H5FileId, -1, -1);
   // Get the number of points for this step
-  vtkIdType Nt = H5PartGetNumParticles(this->H5FileId);
+  vtkIdType Nt = H5PartGetNumItems(this->H5FileId);
   if (piece < Nt)
   {
     if (numPieces > 1)
@@ -525,10 +527,6 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
       vtkIdType myOffset = piece < rem ? (div + 1) * piece : (div + 1) * rem + div * (piece - rem);
       H5PartSetView(this->H5FileId, myOffset, myOffset + myNt - 1);
       Nt = myNt;
-    }
-    else
-    {
-      H5PartSetView(this->H5FileId, -1, -1);
     }
   }
   else
