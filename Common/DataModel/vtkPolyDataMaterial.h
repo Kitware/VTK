@@ -49,6 +49,10 @@ public:
   static const char* GetDiffuseColorName() { return "diffuse_color"; }
   static const char* GetSpecularColorName() { return "specular_color"; }
   static const char* GetTransparencyName() { return "transparency"; }
+  /**
+   * Field between 0 (matte, large highlight) and 1 (highly glossy,
+   * small/sharp highlight)
+   */
   static const char* GetShininessName() { return "shininess"; }
   ///@}
 
@@ -62,7 +66,7 @@ public:
   static void SetField(
     vtkDataObject* obj, const char* name, const std::vector<std::string>& values);
   /**
-   * It returns an empty vector if the field does not exist.
+   * It returns an empty vector if the field does not exists.
    */
   static std::vector<std::string> GetField(vtkDataObject* obj, const char* name);
   ///@}
@@ -75,8 +79,11 @@ public:
    */
   static void SetField(
     vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
+  /**
+   * It returns the defaultValue if the field does not exists.
+   */
   static std::vector<double> GetField(
-    vtkDataObject* obj, const char* name, const std::vector<double>& defaultResult);
+    vtkDataObject* obj, const char* name, const std::vector<double>& defaultValue);
   ///@}
 
   void PrintSelf(ostream& os, vtkIndent indent) override;

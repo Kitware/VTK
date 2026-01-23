@@ -7,20 +7,20 @@ class TestPolyDataMaterial(Testing.vtkTest):
 
     def testAPI(self):
         data = vtkPolyData()
-        print(vtkPolyDataMaterial.GetTextureURI())
+        print(vtkPolyDataMaterial.GetTextureURIName())
         imagePath = "/my/path/image.png"
-        vtkPolyDataMaterial.SetField(data, vtkPolyDataMaterial.GetTextureURI(), imagePath)
-        value = vtkPolyDataMaterial.GetField(data, vtkPolyDataMaterial.GetTextureURI())
+        vtkPolyDataMaterial.SetField(data, vtkPolyDataMaterial.GetTextureURIName(), imagePath)
+        value = vtkPolyDataMaterial.GetField(data, vtkPolyDataMaterial.GetTextureURIName())
         self.assertEqual(imagePath, value[0])
         color = (1., 0., 0.)
         defaultColor = (0., 1., 0.)
         value = vtkPolyDataMaterial.GetField(
-            data, vtkPolyDataMaterial.GetDiffuseColor(),
+            data, vtkPolyDataMaterial.GetDiffuseColorName(),
             defaultColor)
         self.assertEqual(value, defaultColor)
-        vtkPolyDataMaterial.SetField(data, vtkPolyDataMaterial.GetDiffuseColor(),
+        vtkPolyDataMaterial.SetField(data, vtkPolyDataMaterial.GetDiffuseColorName(),
                                      color, 3)
-        value = vtkPolyDataMaterial.GetField(data, vtkPolyDataMaterial.GetDiffuseColor(),
+        value = vtkPolyDataMaterial.GetField(data, vtkPolyDataMaterial.GetDiffuseColorName(),
                                              defaultColor)
         self.assertEqual(value, color)
 
