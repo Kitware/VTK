@@ -5,6 +5,7 @@ vtk_module_test_data(
   Data/bunny.ply
   Data/squareTextured.ply
   Data/squareTexturedFaces.ply
+  Data/squareTexturedWithST.ply
   Data/vtk.png
   Data/two_vtk_logos_stacked.png)
 

@@ -12,6 +12,10 @@ vtk_add_test_cxx(vtkIOPLYCxxTests tests
   vtk.png
 )
 vtk_add_test_cxx(vtkIOPLYCxxTests tests
+  TestPLYReaderTextureUVPointsWithST,TestPLYReaderTextureUV.cxx squareTexturedWithST.ply
+  vtk.png
+)
+vtk_add_test_cxx(vtkIOPLYCxxTests tests
   TestPLYReaderTextureUVFaces,TestPLYReaderTextureUV.cxx squareTexturedFaces.ply
   two_vtk_logos_stacked.png
 )
