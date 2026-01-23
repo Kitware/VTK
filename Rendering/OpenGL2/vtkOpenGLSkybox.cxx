@@ -130,6 +130,8 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
         "  vec3 diri = normalize(TexCoords - cameraPos);\n"
         "  vec3 dirv = rotationMatrix * diri;\n"
+        // As forward axis pointing to -Z instead of +Z, we need to negate it in case of cube map
+        "  dirv.z = -dirv.z;\n"
         "  vec4 color = textureLod(actortexture, dirv, 0.0);\n"
         "//VTK::Gamma::Impl\n");
     }
