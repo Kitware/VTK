@@ -18,6 +18,7 @@
 
 #include "XrConnectionExtensions.h" // Provides holographic remoting extensions
 
+#include <chrono>
 #include <thread> // used to sleep after connection
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -131,8 +132,7 @@ bool vtkOpenXRManagerRemoteConnection::ConnectToRemote(XrInstance instance, XrSy
   }
 
   // Make sure the connection is established before the event loop gets started
-  using namespace std::chrono_literals;
-  std::this_thread::sleep_for(2500ms);
+  std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 
   return true;
 }
