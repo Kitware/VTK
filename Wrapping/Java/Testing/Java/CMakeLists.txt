@@ -64,6 +64,9 @@ if (TARGET VTK::RenderingOpenGL2)
       ENVIRONMENT
         "VTK_TESTING=1"
         "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+  set_property(TEST vtkJavaTests-Regression APPEND
+    PROPERTY
+      REQUIRED_FILES "$<TARGET_FILE:vtkjava_tests>")
 endif ()
 
 foreach (java_simple_test IN LISTS java_simple_test_names)
@@ -73,4 +76,7 @@ foreach (java_simple_test IN LISTS java_simple_test_names)
             -classpath "${vtk_test_classpath}"
             "vtk.test.${java_simple_test}"
             -T "${CMAKE_BINARY_DIR}/Testing/Temporary")
+  set_property(TEST "vtkJavaTests-${java_simple_test}" APPEND
+    PROPERTY
+      REQUIRED_FILES "$<TARGET_FILE:vtkjava_tests>")
 endforeach ()
