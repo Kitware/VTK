@@ -59,9 +59,11 @@ if (TARGET VTK::RenderingOpenGL2)
             -D "${CMAKE_BINARY_DIR}/ExternalData"
             -V "DATA{../Data/Baseline/Cone.png}"
             -T "${CMAKE_BINARY_DIR}/Testing/Temporary")
-  set_property(TEST vtkJavaTests-Regression
+  set_property(TEST vtkJavaTests-Regression APPEND
     PROPERTY
-      ENVIRONMENT "VTK_TESTING=1;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+      ENVIRONMENT
+        "VTK_TESTING=1"
+        "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 endif ()
 
 foreach (java_simple_test IN LISTS java_simple_test_names)
