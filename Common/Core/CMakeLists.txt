@@ -263,7 +263,6 @@ set(classes
   vtkArrayWeights
   vtkAtomicMutex
   vtkBitArray
-  vtkBitArrayIterator
   vtkBoxMuellerRandomSequence
   vtkBreakPoint
   vtkByteSwap
@@ -464,6 +463,7 @@ set(headers
   vtkAssume.h
   vtkAutoInit.h
   vtkBatch.h
+  vtkBitArrayIterator.h
   vtkBuffer.h
   vtkCompiler.h
   vtkDataArrayIteratorMacro.h

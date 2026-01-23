@@ -119,26 +119,5 @@ class TestArrayArguments(Testing.vtkTest):
         t = info.Get(vtkDataObject.SPACING())
         self.assertEqual(t, spacing)
 
-    def testArrayIterator(self):
-        # try a string array
-        a = vtkStringArray()
-        a.InsertNextValue("hello")
-        i = a.NewIterator()
-        self.assertEqual(a.GetValue(0), i.GetValue(0))
-        # try the various data array subclasses
-        for arrayClass in arrays:
-            a = arrayClass()
-            a.SetNumberOfComponents(2)
-            a.SetNumberOfTuples(1)
-            tupleIn = (a.GetDataTypeValueMin(), a.GetDataTypeValueMax())
-            a.SetTypedTuple(0, tupleIn)
-            i = a.NewIterator()
-            # make sure iterator's GetTuple method is wrapped
-            tupleOut = i.GetTuple(0)
-            self.assertEqual(tupleIn, tupleOut)
-            # make sure the GetValue method returns expected result
-            self.assertEqual(tupleIn[0], i.GetValue(0))
-            self.assertEqual(tupleIn[1], i.GetValue(1))
-
 if __name__ == "__main__":
     Testing.main([(TestArrayArguments, 'test')])

@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkArrayIterator.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkMathUtilities.h"
 #include "vtkSOADataArrayTemplate.h"
 
@@ -66,23 +64,6 @@ bool HasCorrectValues(vtkDataArray* array, bool useVoidPointerData)
     }
   }
 
-  vtkArrayIteratorTemplate<double>* iter = vtkArrayIteratorTemplate<double>::New();
-  iter->Initialize(array);
-  for (int i = 0; i < numValues; i++)
-  {
-    values = iter->GetTuple(i);
-    if ((!vtkMathUtilities::NearlyEqual(values[0], first[i]) &&
-          !ValuesInfOrNaN(values[0], first[i])) ||
-      (numberOfComponents == 2 &&
-        (!vtkMathUtilities::NearlyEqual(values[1], second[i]) &&
-          !ValuesInfOrNaN(values[1], second[i]))))
-    {
-      std::cerr << "Incorrect values returned from NewIterator()\n";
-      return false;
-    }
-  }
-  iter->Delete();
-
   return true;
 }
 }
@@ -101,25 +82,6 @@ int TestSOADataArray(int, char*[])
     retVal++;
   }
 
-  // now test setting values through vtkArrayIterator
-  array->Fill(0);
-  vtkArrayIteratorTemplate<double>* iter = vtkArrayIteratorTemplate<double>::New();
-  iter->Initialize(array);
-  for (int i = 0; i < numValues; i++)
-  {
-    for (int j = 0; j < 2; j++)
-    {
-      double value = (j == 0 ? firstData[i] : secondData[i]);
-      iter->SetValue(i * 2 + j, value);
-    }
-  }
-  iter->Delete();
-  if (!HasCorrectValues(array, false))
-  {
-    std::cerr << "Setting values through vtkArrayIterator() failed\n";
-    retVal++;
-  }
-
   // this should switch to AOS storage
   double* ptr = static_cast<double*>(array->GetVoidPointer(0));
   std::copy(voidPointerData, voidPointerData + 2 * numValues, ptr);
@@ -135,20 +97,6 @@ int TestSOADataArray(int, char*[])
   if (!HasCorrectValues(array, false))
   {
     std::cerr << "Setting values through SetArray() failed\n";
-    retVal++;
-  }
-  // now test setting values through vtkArrayIterator
-  array->Fill(0);
-  iter = vtkArrayIteratorTemplate<double>::New();
-  iter->Initialize(array);
-  for (int i = 0; i < 2 * numValues; i++)
-  {
-    iter->SetValue(i, voidPointerData[i]);
-  }
-  iter->Delete();
-  if (!HasCorrectValues(array, true))
-  {
-    std::cerr << "Setting values through vtkArrayIterator() failed\n";
     retVal++;
   }
 
@@ -186,21 +134,6 @@ int TestSOADataArray(int, char*[])
     retVal++;
   }
 
-  // now test setting values through vtkArrayIterator
-  array->Fill(0);
-  iter = vtkArrayIteratorTemplate<double>::New();
-  iter->Initialize(array);
-  for (int i = 0; i < numValues; i++)
-  {
-    iter->SetValue(i, firstData[i]);
-  }
-  iter->Delete();
-  if (!HasCorrectValues(array, false))
-  {
-    std::cerr << "Setting single component values through vtkArrayIterator() failed\n";
-    retVal++;
-  }
-
   ptr = static_cast<double*>(array->GetVoidPointer(0));
   std::copy(voidPointerData, voidPointerData + numValues,
     ptr); // note that this changes values in firstData
@@ -215,20 +148,6 @@ int TestSOADataArray(int, char*[])
   if (!HasCorrectValues(array, false))
   {
     std::cerr << "Setting single component values through SetArray() failed\n";
-    retVal++;
-  }
-  // now test setting values through vtkArrayIterator
-  array->Fill(0);
-  iter = vtkArrayIteratorTemplate<double>::New();
-  iter->Initialize(array);
-  for (int i = 0; i < numValues; i++)
-  {
-    iter->SetValue(i, voidPointerData[i]);
-  }
-  iter->Delete();
-  if (!HasCorrectValues(array, true))
-  {
-    std::cerr << "Setting single component values through vtkArrayIterator() failed\n";
     retVal++;
   }
 

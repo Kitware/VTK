@@ -466,8 +466,8 @@ public:
    * Subclasses must override this method and provide the right kind
    * of templated vtkArrayIteratorTemplate.
    */
-  VTK_NEWINSTANCE
-  virtual vtkArrayIterator* NewIterator() = 0;
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
+  VTK_NEWINSTANCE virtual vtkArrayIterator* NewIterator() = 0;
 
   /**
    * Returns the size of the data in DataTypeSize units. Thus, the

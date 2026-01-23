@@ -218,6 +218,7 @@ public:
    */
   void ExportToVoidPointer(void* ptr) override;
 
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;

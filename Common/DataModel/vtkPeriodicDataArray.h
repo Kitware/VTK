@@ -66,6 +66,7 @@ public:
   /**
    * Not implemented
    */
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
   /**

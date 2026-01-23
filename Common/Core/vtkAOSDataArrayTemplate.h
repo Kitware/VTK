@@ -309,6 +309,7 @@ public:
   Iterator Begin() { return Iterator(this->GetPointer(0)); }
   Iterator End() { return Iterator(this->GetPointer(this->MaxId + 1)); }
 
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;

@@ -348,6 +348,7 @@ public:
   void ClearLookup() override;
   void DataChanged() override;
   void FillComponent(int compIdx, double value) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
 protected:

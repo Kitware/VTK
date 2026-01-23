@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLStructuredDataWriter.h"
 
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
@@ -455,32 +454,6 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   }
 
   return result;
-}
-
-//------------------------------------------------------------------------------
-template <class iterT>
-inline void vtkXMLStructuredDataWriterCopyTuples(
-  iterT* destIter, vtkIdType destTuple, iterT* srcIter, vtkIdType sourceTuple, vtkIdType numTuples)
-{
-  // for all contiguous-fixed component size arrays (except Bit).
-  int tupleSize = (srcIter->GetDataTypeSize() * srcIter->GetNumberOfComponents());
-
-  memcpy(destIter->GetTuple(destTuple), srcIter->GetTuple(sourceTuple), numTuples * tupleSize);
-}
-
-//------------------------------------------------------------------------------
-inline void vtkXMLStructuredDataWriterCopyTuples(vtkArrayIteratorTemplate<vtkStdString>* destIter,
-  vtkIdType destTuple, vtkArrayIteratorTemplate<vtkStdString>* srcIter, vtkIdType sourceTuple,
-  vtkIdType numTuples)
-{
-  vtkIdType numValues = numTuples * srcIter->GetNumberOfComponents();
-  vtkIdType destIndex = destTuple * destIter->GetNumberOfComponents();
-  vtkIdType srcIndex = sourceTuple * srcIter->GetNumberOfComponents();
-
-  for (vtkIdType cc = 0; cc < numValues; cc++)
-  {
-    destIter->GetValue(destIndex++) = srcIter->GetValue(srcIndex++);
-  }
 }
 
 //------------------------------------------------------------------------------

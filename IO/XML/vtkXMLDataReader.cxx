@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLDataReader.h"
 
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"

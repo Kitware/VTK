@@ -8,7 +8,7 @@
 #include "vtkActor2D.h"
 #include "vtkAnnotationLink.h"
 #include "vtkArray.h"
-#include "vtkArrayIteratorIncludes.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayToTable.h"
 #include "vtkAxisActor2D.h"
 #include "vtkBivariateLinearTableThreshold.h"
@@ -17,6 +17,7 @@
 #include "vtkConeSource.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -59,73 +60,76 @@ vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 // Esoteric template function that figures out the point positions for a single
 // array in the plot.  It would be easier (for me) to loop through row at-a-time
 // instead of array at-a-time, but this is more efficient.
-template <typename iterT>
-void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it, vtkIdTypeArray* idsToPlot,
-  int positionIdx, double xPosition, int numPositions, double ymin, double ymax, double amin,
-  double amax, vtkPoints* points)
+struct vtkParallelCoordinatesRepresentationBuildLinePoints
 {
-  vtkIdType numTuples = it->GetNumberOfTuples();
-  vtkIdType numComponents = it->GetNumberOfComponents();
-  double arange = amax - amin;
-  double yrange = ymax - ymin;
-  double x[3] = { xPosition, ymin + 0.5 * yrange, 0.0 };
-
-  // if there are no specific ids to plot, plot them all
-  if (!idsToPlot)
+  template <typename TArray>
+  void operator()(TArray* array, vtkIdTypeArray* idsToPlot, int positionIdx, double xPosition,
+    int numPositions, double ymin, double ymax, double amin, double amax, vtkPoints* points)
   {
-    if (arange == 0.0)
+    auto values = vtk::DataArrayValueRange(array);
+    vtkIdType numTuples = array->GetNumberOfTuples();
+    vtkIdType numComponents = array->GetNumberOfComponents();
+    double arange = amax - amin;
+    double yrange = ymax - ymin;
+    double x[3] = { xPosition, ymin + 0.5 * yrange, 0.0 };
+
+    // if there are no specific ids to plot, plot them all
+    if (!idsToPlot)
     {
-      for (vtkIdType ptId = positionIdx, i = 0; i < numTuples; i++, ptId += numPositions)
+      if (arange == 0.0)
       {
-        points->SetPoint(ptId, x);
+        for (vtkIdType ptId = positionIdx, i = 0; i < numTuples; i++, ptId += numPositions)
+        {
+          points->SetPoint(ptId, x);
+        }
+      }
+      else
+      {
+        // just a little optimization
+        double ydiva = yrange / arange;
+        vtkIdType ptId = positionIdx;
+
+        for (vtkIdType i = 0, arrayId = 0; i < numTuples;
+             i++, ptId += numPositions, arrayId += numComponents)
+        {
+          // map data value to screen position
+          vtkVariant v(values[arrayId]);
+          x[1] = ymin + (v.ToDouble() - amin) * ydiva;
+          points->SetPoint(ptId, x);
+        }
       }
     }
+    // received a list of ids to plot, so only do those.
     else
     {
-      // just a little optimization
-      double ydiva = yrange / arange;
-      vtkIdType ptId = positionIdx;
 
-      for (vtkIdType i = 0, arrayId = 0; i < numTuples;
-           i++, ptId += numPositions, arrayId += numComponents)
+      int numIdsToPlot = idsToPlot->GetNumberOfTuples();
+
+      if (arange == 0.0)
       {
-        // map data value to screen position
-        vtkVariant v(it->GetValue(arrayId));
-        x[1] = ymin + (v.ToDouble() - amin) * ydiva;
-        points->SetPoint(ptId, x);
+        for (vtkIdType ptId = positionIdx, i = 0; i < numIdsToPlot; i++, ptId += numPositions)
+        {
+          points->SetPoint(ptId, x);
+        }
+      }
+      else
+      {
+        // just a little optimization
+        double ydiva = yrange / arange;
+        vtkIdType ptId = positionIdx;
+
+        for (vtkIdType i = 0, arrayId = 0; i < numIdsToPlot; i++, ptId += numPositions)
+        {
+          // map data value to screen position
+          arrayId = idsToPlot->GetValue(i) * numComponents;
+          vtkVariant v(values[arrayId]);
+          x[1] = ymin + (v.ToDouble() - amin) * ydiva;
+          points->SetPoint(ptId, x);
+        }
       }
     }
   }
-  // received a list of ids to plot, so only do those.
-  else
-  {
-
-    int numIdsToPlot = idsToPlot->GetNumberOfTuples();
-
-    if (arange == 0.0)
-    {
-      for (vtkIdType ptId = positionIdx, i = 0; i < numIdsToPlot; i++, ptId += numPositions)
-      {
-        points->SetPoint(ptId, x);
-      }
-    }
-    else
-    {
-      // just a little optimization
-      double ydiva = yrange / arange;
-      vtkIdType ptId = positionIdx;
-
-      for (vtkIdType i = 0, arrayId = 0; i < numIdsToPlot; i++, ptId += numPositions)
-      {
-        // map data value to screen position
-        arrayId = idsToPlot->GetValue(i) * numComponents;
-        vtkVariant v(it->GetValue(arrayId));
-        x[1] = ymin + (v.ToDouble() - amin) * ydiva;
-        points->SetPoint(ptId, x);
-      }
-    }
-  }
-}
+};
 
 //------------------------------------------------------------------------------
 // Class that houses the STL ivars.  There can be an arbitrary number of
@@ -1079,16 +1083,16 @@ int vtkParallelCoordinatesRepresentation::PlaceLines(
     if (!array)
       return 0;
 
-    // start the iterator
-    vtkArrayIterator* iter = array->NewIterator();
-    switch (array->GetDataType())
+    vtkParallelCoordinatesRepresentationBuildLinePoints builder;
+    if (!vtkArrayDispatch::Dispatch::Execute(array, builder, idsToPlot, position,
+          this->Xs[position], this->NumberOfAxes, this->YMin, this->YMax,
+          this->Mins[position] + this->MinOffsets[position],
+          this->Maxs[position] + this->MaxOffsets[position], points))
     {
-      vtkArrayIteratorTemplateMacro(vtkParallelCoordinatesRepresentationBuildLinePoints(
-        static_cast<VTK_TT*>(iter), idsToPlot, position, this->Xs[position], this->NumberOfAxes,
-        this->YMin, this->YMax, this->Mins[position] + this->MinOffsets[position],
-        this->Maxs[position] + this->MaxOffsets[position], points));
+      builder(array, idsToPlot, position, this->Xs[position], this->NumberOfAxes, this->YMin,
+        this->YMax, this->Mins[position] + this->MinOffsets[position],
+        this->Maxs[position] + this->MaxOffsets[position], points);
     }
-    iter->Delete();
   }
 
   return 1;
@@ -1137,16 +1141,17 @@ int vtkParallelCoordinatesRepresentation::PlaceCurves(
     // start the iterator
     // this fills out a subset of the actual points, namely just the points
     // on the axes.  These get used later to fill in the rest
-    vtkArrayIterator* iter = array->NewIterator();
-    switch (array->GetDataType())
-    {
-      vtkArrayIteratorTemplateMacro(
-        vtkParallelCoordinatesRepresentationBuildLinePoints(static_cast<VTK_TT*>(iter), idsToPlot,
+    vtkParallelCoordinatesRepresentationBuildLinePoints builder;
+    if (!vtkArrayDispatch::Dispatch::Execute(array, builder, idsToPlot,
           this->CurveResolution * position, this->Xs[position], numPointsPerSample, this->YMin,
           this->YMax, this->Mins[position] + this->MinOffsets[position],
-          this->Maxs[position] + this->MaxOffsets[position], points));
+          this->Maxs[position] + this->MaxOffsets[position], points))
+    {
+      builder(array, idsToPlot, this->CurveResolution * position, this->Xs[position],
+        numPointsPerSample, this->YMin, this->YMax,
+        this->Mins[position] + this->MinOffsets[position],
+        this->Maxs[position] + this->MaxOffsets[position], points);
     }
-    iter->Delete();
   }
 
   // make a s-curve from (0,0) to (1,1) with the right number of segments.

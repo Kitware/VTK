@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLReader.h"
 
-#include "vtkArrayIteratorIncludes.h"
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCharArray.h"
@@ -32,6 +32,7 @@
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTypeList.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 #include "vtkXMLFileReadTester.h"
@@ -844,183 +845,177 @@ int vtkXMLReader::RequestData(vtkInformation* vtkNotUsed(request),
 namespace
 {
 //------------------------------------------------------------------------------
-template <class iterT>
-int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
-  vtkIdType arrayIndex, iterT* iter, vtkIdType startIndex, vtkIdType numValues)
+struct vtkXMLDataReaderReadArrayValuesWorker
 {
-  if (!iter)
+  template <class ValueType>
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* array, vtkXMLDataElement* da,
+    vtkXMLDataParser* xmlparser, vtkIdType arrayIndex, vtkIdType startIndex, vtkIdType numValues,
+    int& result)
   {
-    return 0;
-  }
-  vtkAbstractArray* array = iter->GetArray();
-  // XML Reader only creates AOS arrays.
-  auto aosArray = vtkAOSDataArrayTemplate<typename iterT::ValueType>::FastDownCast(array);
-  assert(aosArray != nullptr);
-  // Number of expected words:
-  size_t numWords = array->GetDataType() != VTK_BIT ? numValues : ((numValues + 7) / 8);
-  int result;
-  void* data = aosArray->GetPointer(arrayIndex);
-  if (da->GetAttribute("offset"))
-  {
-    vtkTypeInt64 offset = 0;
-    da->GetScalarAttribute("offset", offset);
-    result = (xmlparser->ReadAppendedData(
-                offset, data, startIndex, numWords, array->GetDataType()) == numWords);
-  }
-  else
-  {
-    int isAscii = 1;
-    const char* format = da->GetAttribute("format");
-    if (format && (strcmp(format, "binary") == 0))
+    if (!array)
     {
-      isAscii = 0;
+      result = 0;
+      return;
     }
-    result = (xmlparser->ReadInlineData(
-                da, isAscii, data, startIndex, numWords, array->GetDataType()) == numWords);
-  }
-  return result;
-}
 
-//------------------------------------------------------------------------------
-template <>
-int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
-  vtkIdType arrayIndex, vtkBitArrayIterator* iter, vtkIdType startIndex, vtkIdType numValues)
-{
-  // We need to handle bit array separately because the "word" concept is a bit
-  // different: a word size is in bits rather than bytes...
-  if (!iter)
-  {
-    return 0;
-  }
-  vtkBitArray* array = vtkArrayDownCast<vtkBitArray>(iter->GetArray());
-  // Number of expected words:
-  int bitShift = startIndex % 8;
-  size_t numBytes = (numValues + bitShift + 7) / 8;
-  size_t startByteIndex = startIndex / 8;
-  int result;
+    size_t numWords = numValues;
+    void* data = array->GetPointer(arrayIndex);
 
-  vtkNew<vtkBitArray> tmp;
-  tmp->SetNumberOfValues(numValues + bitShift);
-  tmp->SetNumberOfComponents(array->GetNumberOfComponents());
-
-  void* data = tmp->GetPointer(0);
-  if (da->GetAttribute("offset"))
-  {
-    vtkTypeInt64 offset = 0;
-    da->GetScalarAttribute("offset", offset);
-    result =
-      (xmlparser->ReadAppendedData(offset, data, startByteIndex, numBytes, VTK_BIT) == numBytes);
-  }
-  else
-  {
-    int isAscii = 1;
-    const char* format = da->GetAttribute("format");
-    if (format && (strcmp(format, "binary") == 0))
+    if (da->GetAttribute("offset"))
     {
-      isAscii = 0;
-    }
-    result =
-      (xmlparser->ReadInlineData(da, isAscii, data, startByteIndex, numBytes, VTK_BIT) == numBytes);
-  }
-
-  array->InsertTuples(arrayIndex, numValues / tmp->GetNumberOfComponents(), bitShift, tmp);
-  return result;
-}
-
-//------------------------------------------------------------------------------
-template <>
-int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
-  vtkIdType arrayIndex, vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex,
-  vtkIdType numValues)
-{
-  // now, for strings, we have to read from the start, as we don't have
-  // support for index array yet.
-  // So this specialization will read all strings starting from the beginning,
-  // start putting the strings at the requested indices into the array
-  // until the request numValues are put into the array.
-  vtkIdType bufstart = 0;
-  vtkIdType actualNumValues = startIndex + numValues;
-
-  int size = 1024;
-  char* buffer = new char[size + 1 + 7]; // +7 is leeway.
-  buffer[1024] = 0;                      // to avoid string reads beyond buffer size.
-
-  int inline_data = (da->GetAttribute("offset") == nullptr);
-
-  vtkTypeInt64 offset = 0;
-  if (inline_data == 0)
-  {
-    da->GetScalarAttribute("offset", offset);
-  }
-
-  int isAscii = 1;
-  const char* format = da->GetAttribute("format");
-  if (format && (strcmp(format, "binary") == 0))
-  {
-    isAscii = 0;
-  }
-
-  // Now read a buffer full of data,
-  // create strings out of it.
-  int result = 1;
-  vtkIdType inIndex = 0;
-  vtkIdType outIndex = arrayIndex;
-  std::string prev_string;
-  while (result && inIndex < actualNumValues)
-  {
-    size_t chars_read = 0;
-    if (inline_data)
-    {
-      chars_read = xmlparser->ReadInlineData(da, isAscii, buffer, bufstart, size, VTK_CHAR);
+      vtkTypeInt64 offset = 0;
+      da->GetScalarAttribute("offset", offset);
+      result = (xmlparser->ReadAppendedData(
+                  offset, data, startIndex, numWords, array->GetDataType()) == numWords);
     }
     else
     {
-      chars_read = xmlparser->ReadAppendedData(offset, buffer, bufstart, size, VTK_CHAR);
-    }
-    if (!chars_read)
-    {
-      // failed.
-      result = 0;
-      break;
-    }
-    bufstart += static_cast<vtkIdType>(chars_read);
-    // now read strings
-    const char* ptr = buffer;
-    const char* end_ptr = &buffer[chars_read];
-    buffer[chars_read] = 0;
-
-    while (ptr < end_ptr)
-    {
-      std::string temp_string = ptr; // will read in string until 0x0;
-      ptr += temp_string.size() + 1;
-      if (!prev_string.empty())
+      int isAscii = 1;
+      const char* format = da->GetAttribute("format");
+      if (format && (strcmp(format, "binary") == 0))
       {
-        temp_string = prev_string + temp_string;
-        prev_string = "";
+        isAscii = 0;
       }
-      // now decide if the string terminated or buffer was full.
-      if (ptr > end_ptr)
+      result = (xmlparser->ReadInlineData(
+                  da, isAscii, data, startIndex, numWords, array->GetDataType()) == numWords);
+    }
+  }
+
+  //------------------------------------------------------------------------------
+  void operator()(vtkBitArray* array, vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
+    vtkIdType arrayIndex, vtkIdType startIndex, vtkIdType numValues, int& result)
+  {
+    // We need to handle bit array separately because the "word" concept is a bit
+    // different: a word size is in bits rather than bytes...
+    if (!array)
+    {
+      result = 0;
+      return;
+    }
+    // Number of expected words:
+    int bitShift = startIndex % 8;
+    size_t numBytes = (numValues + bitShift + 7) / 8;
+    size_t startByteIndex = startIndex / 8;
+
+    vtkNew<vtkBitArray> tmp;
+    tmp->SetNumberOfValues(numValues + bitShift);
+    tmp->SetNumberOfComponents(array->GetNumberOfComponents());
+
+    void* data = tmp->GetPointer(0);
+    if (da->GetAttribute("offset"))
+    {
+      vtkTypeInt64 offset = 0;
+      da->GetScalarAttribute("offset", offset);
+      result =
+        (xmlparser->ReadAppendedData(offset, data, startByteIndex, numBytes, VTK_BIT) == numBytes);
+    }
+    else
+    {
+      int isAscii = 1;
+      const char* format = da->GetAttribute("format");
+      if (format && (strcmp(format, "binary") == 0))
       {
-        // buffer ended -- string is incomplete.
-        // keep the prefix in temp_string.
-        prev_string = temp_string;
+        isAscii = 0;
+      }
+      result = (xmlparser->ReadInlineData(da, isAscii, data, startByteIndex, numBytes, VTK_BIT) ==
+        numBytes);
+    }
+
+    array->InsertTuples(arrayIndex, numValues / tmp->GetNumberOfComponents(), bitShift, tmp);
+  }
+
+  //------------------------------------------------------------------------------
+  void operator()(vtkStringArray* array, vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
+    vtkIdType arrayIndex, vtkIdType startIndex, vtkIdType numValues, int& result)
+  {
+    // now, for strings, we have to read from the start, as we don't have
+    // support for index array yet.
+    // So this specialization will read all strings starting from the beginning,
+    // start putting the strings at the requested indices into the array
+    // until the request numValues are put into the array.
+    vtkIdType bufstart = 0;
+    vtkIdType actualNumValues = startIndex + numValues;
+
+    int size = 1024;
+    char* buffer = new char[size + 1 + 7]; // +7 is leeway.
+    buffer[1024] = 0;                      // to avoid string reads beyond buffer size.
+
+    int inline_data = (da->GetAttribute("offset") == nullptr);
+
+    vtkTypeInt64 offset = 0;
+    if (inline_data == 0)
+    {
+      da->GetScalarAttribute("offset", offset);
+    }
+
+    int isAscii = 1;
+    const char* format = da->GetAttribute("format");
+    if (format && (strcmp(format, "binary") == 0))
+    {
+      isAscii = 0;
+    }
+
+    // Now read a buffer full of data,
+    // create strings out of it.
+    result = 1;
+    vtkIdType inIndex = 0;
+    vtkIdType outIndex = arrayIndex;
+    std::string prev_string;
+    while (result && inIndex < actualNumValues)
+    {
+      size_t chars_read = 0;
+      if (inline_data)
+      {
+        chars_read = xmlparser->ReadInlineData(da, isAscii, buffer, bufstart, size, VTK_CHAR);
       }
       else
       {
-        // string read fully.
-        if (inIndex >= startIndex)
+        chars_read = xmlparser->ReadAppendedData(offset, buffer, bufstart, size, VTK_CHAR);
+      }
+      if (!chars_read)
+      {
+        // failed.
+        result = 0;
+        break;
+      }
+      bufstart += static_cast<vtkIdType>(chars_read);
+      // now read strings
+      const char* ptr = buffer;
+      const char* end_ptr = &buffer[chars_read];
+      buffer[chars_read] = 0;
+
+      while (ptr < end_ptr)
+      {
+        std::string temp_string = ptr; // will read in string until 0x0;
+        ptr += temp_string.size() + 1;
+        if (!prev_string.empty())
         {
-          // add string to the array.
-          iter->GetValue(outIndex) = temp_string; // copy the value.
-          outIndex++;
+          temp_string = prev_string + temp_string;
+          prev_string = "";
         }
-        inIndex++;
+        // now decide if the string terminated or buffer was full.
+        if (ptr > end_ptr)
+        {
+          // buffer ended -- string is incomplete.
+          // keep the prefix in temp_string.
+          prev_string = temp_string;
+        }
+        else
+        {
+          // string read fully.
+          if (inIndex >= startIndex)
+          {
+            // add string to the array.
+            array->SetValue(outIndex, temp_string); // copy the value.
+            outIndex++;
+          }
+          inIndex++;
+        }
       }
     }
+    delete[] buffer;
   }
-  delete[] buffer;
-  return result;
-}
+};
 
 }
 
@@ -1035,25 +1030,21 @@ int vtkXMLReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex,
   }
   this->InReadData = 1;
   int result;
-  vtkArrayIterator* iter = array->NewIterator();
   if (arrayIndex + numValues > array->GetNumberOfValues())
   {
     vtkErrorMacro("Array has " << array->GetNumberOfValues() << " allocated elements, but "
                                << arrayIndex + numValues << " were requested to be read");
     return 0;
   }
-  switch (array->GetDataType())
+  using Arrays =
+    vtkTypeList::Append<vtkArrayDispatch::AOSArrays, vtkBitArray, vtkStringArray>::Result;
+  vtkXMLDataReaderReadArrayValuesWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(
+        array, worker, da, this->XMLParser, arrayIndex, startIndex, numValues, result))
   {
-    vtkArrayIteratorTemplateMacro(result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
-                                    arrayIndex, static_cast<VTK_TT*>(iter), startIndex, numValues));
-    default:
-      result = 0;
+    // Fallback for arrays that cannot be dispatched
+    result = 0;
   }
-  if (iter)
-  {
-    iter->Delete();
-  }
-
   this->ConvertGhostLevelsToGhostType(fieldType, array, startIndex, numValues);
   // Marking the array modified is essential, since otherwise, when reading
   // multiple time-steps, the array does not realize that its contents may have

@@ -4,7 +4,6 @@
 #include "vtkExtractHistogram2D.h"
 //------------------------------------------------------------------------------
 #include "vtkArrayData.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"

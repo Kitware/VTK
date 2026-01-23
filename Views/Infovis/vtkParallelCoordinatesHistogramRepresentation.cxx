@@ -4,7 +4,6 @@
 #include "vtkParallelCoordinatesHistogramRepresentation.h"
 //------------------------------------------------------------------------------
 #include "vtkActor2D.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkComputeHistogram2DOutliers.h"

@@ -1608,47 +1608,6 @@ int Test_int_IsNumeric()
   DataArrayAPIFinish();
 }
 
-// vtkArrayIterator* NewIterator()
-// Just test that the returned iterator is non-nullptr and the data types match.
-template <typename ScalarT, typename ArrayT>
-int Test_vtkArrayIteratorPtr_NewIterator()
-{
-  DataArrayAPIInit("vtkArrayIterator* NewIterator()");
-
-  DataArrayAPICreateTestArray(source);
-
-  // Silence the void pointer warnings for these calls. The
-  // vtkArrayIteratorTemplate implementation relies on GetVoidPointer.
-  const char *oldWarning =
-      vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
-
-  vtkArrayIterator *iter = source->NewIterator();
-
-  // Restore state:
-  if (oldWarning)
-  {
-    std::ostringstream envArg;
-    envArg << "VTK_SILENCE_GET_VOID_POINTER_WARNINGS=" << oldWarning;
-    vtksys::SystemTools::PutEnv(envArg.str());
-  }
-  else
-  {
-    vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  }
-
-  DataArrayAPIAssert(iter != nullptr,
-                     "NewIterator() returns nullptr.");
-
-  int iterDataType = iter->GetDataType();
-  iter->Delete();
-
-  DataArrayAPIAssert(iterDataType == source->GetDataType(),
-                     "Iterator datatype does not match array.");
-
-  DataArrayAPIFinish();
-}
-
 // vtkIdType GetDataSize()
 // Same as GetNumberOfValues()
 // TODO this is another good candidate for deprecation.
@@ -3122,7 +3081,6 @@ int ExerciseDataArray()
   errors += Test_void_ExportToVoidPointer_voidPtr<ScalarT, ArrayT>();
   errors += Test_ulong_GetActualMemorySize<ScalarT, ArrayT>();
   errors += Test_int_IsNumeric<ScalarT, ArrayT>();
-  errors += Test_vtkArrayIteratorPtr_NewIterator<ScalarT, ArrayT>();
   errors += Test_vtkIdType_GetDataSize<ScalarT, ArrayT>();
   errors += Test_LookupValue_allSigs<ScalarT, ArrayT>();
   errors += Test_vtkVariant_GetVariantValue_valueIdx<ScalarT, ArrayT>();

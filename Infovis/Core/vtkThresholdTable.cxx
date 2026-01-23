@@ -4,7 +4,6 @@
 
 #include "vtkThresholdTable.h"
 
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

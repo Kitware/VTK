@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#ifndef vtkPeriodicDataArray_txx
+#define vtkPeriodicDataArray_txx
+
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkIdList.h"
 #include "vtkVariant.h"
@@ -726,3 +729,4 @@ vtkPeriodicDataArray<Scalar>::~vtkPeriodicDataArray()
   }
 }
 VTK_ABI_NAMESPACE_END
+#endif

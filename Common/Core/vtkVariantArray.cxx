@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
 #ifdef _MSC_VER

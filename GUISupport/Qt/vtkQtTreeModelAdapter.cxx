@@ -6,7 +6,6 @@
 
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkAnnotation.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkConvertSelection.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"

@@ -75,7 +75,19 @@
 #define _vtkDAIMUnused
 #endif
 
+// VTK_DEPRECATED_IN_9_7_0
+#if defined(__GNUC__) || defined(__clang__)
+#define VTK_MACRO_DEPRECATION_WARNING                                                              \
+  _Pragma("GCC warning \"vtkDataArrayIteratorMacro is deprecated in 9.7.0\"")
+#elif defined(_MSC_VER)
+#define VTK_MACRO_DEPRECATION_WARNING                                                              \
+  __pragma(message("warning: vtkDataArrayIteratorMacro is deprecated in 9.7.0"))
+#else
+#define VTK_MACRO_DEPRECATION_WARNING
+#endif
+
 #define vtkDataArrayIteratorMacro(_array, _call)                                                   \
+  VTK_MACRO_DEPRECATION_WARNING                                                                    \
   vtkTemplateMacro(                                                                                \
     vtkAbstractArray* _aa(_array); if (vtkAOSDataArrayTemplate<VTK_TT>* _dat =                     \
                                          vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(_aa)) {     \
@@ -92,7 +104,7 @@
       /* Cast the void pointer and hope for the best!                  */                          \
       typedef VTK_TT vtkDAValueType;                                                               \
       typedef vtkAbstractArray vtkDAContainerType _vtkDAIMUnused;                                  \
-      typedef vtkDAValueType* vtkDAIteratorType;                                                   \
+      typedef vtkDAValueType* vtkDAIteratorType; /* NOLINTNEXTLINE(bugprone-unsafe-functions) */   \
       vtkDAIteratorType vtkDABegin = static_cast<vtkDAIteratorType>(_aa->GetVoidPointer(0));       \
       vtkDAIteratorType vtkDAEnd = vtkDABegin + _aa->GetMaxId() + 1;                               \
       (void)vtkDABegin;                                                                            \

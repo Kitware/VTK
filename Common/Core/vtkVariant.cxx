@@ -5,8 +5,10 @@
 #include "vtkVariant.h"
 
 #include "vtkAbstractArray.h"
-#include "vtkArrayIteratorIncludes.h"
+#include "vtkArrayDispatch.h"
+#include "vtkBitArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectBase.h"
 #include "vtkSetGet.h"
@@ -629,24 +631,28 @@ void SetFormattingOnStream(int formatting, std::ostringstream& ostr)
   }
 }
 
-template <typename iterT>
-vtkStdString vtkVariantArrayToString(iterT* it, int formatting, int precision)
+struct vtkVariantArrayToString
 {
-  vtkIdType maxInd = it->GetNumberOfValues();
-  std::ostringstream ostr;
-  SetFormattingOnStream(formatting, ostr);
-  ostr << std::setprecision(precision);
-
-  for (vtkIdType i = 0; i < maxInd; ++i)
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array, int formatting, int precision, vtkStdString& result)
   {
-    if (i > 0)
+    vtkIdType maxInd = array->GetNumberOfValues();
+    std::ostringstream ostr;
+    SetFormattingOnStream(formatting, ostr);
+    ostr << std::setprecision(precision);
+    auto values = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(array);
+
+    for (vtkIdType i = 0; i < maxInd; ++i)
     {
-      ostr << " ";
+      if (i > 0)
+      {
+        ostr << " ";
+      }
+      ostr << static_cast<T>(values[i]);
     }
-    ostr << it->GetValue(i);
+    result = ostr.str();
   }
-  return ostr.str();
-}
+};
 
 vtkStdString vtkVariant::ToString(int formatting, int precision) const
 {
@@ -751,14 +757,26 @@ vtkStdString vtkVariant::ToString(int formatting, int precision) const
   if (this->IsArray())
   {
     vtkAbstractArray* arr = vtkAbstractArray::SafeDownCast(this->Data.VTKObject);
-    vtkArrayIterator* iter = arr->NewIterator();
-    std::string str;
-    switch (arr->GetDataType())
+    vtkVariantArrayToString worker;
+    vtkStdString str;
+    using Arrays =
+      vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkStringArray, vtkBitArray>::Result;
+    if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(
+          arr, worker, formatting, precision, str))
     {
-      vtkArrayIteratorTemplateMacro(
-        str = vtkVariantArrayToString(static_cast<VTK_TT*>(iter), formatting, precision));
+      if (auto da = vtkDataArray::SafeDownCast(arr))
+      {
+        switch (da->GetDataType())
+        {
+          vtkTemplateMacro(
+            (worker.template operator()<vtkDataArray, VTK_TT>(da, formatting, precision, str)));
+        }
+      }
+      else
+      {
+        vtkGenericWarningMacro(<< "ToString: Unsupported array type " << arr->GetClassName());
+      }
     }
-    iter->Delete();
     return str;
   }
   vtkGenericWarningMacro(<< "Cannot convert unknown type (" << this->GetTypeAsString()

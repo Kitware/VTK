@@ -5,7 +5,6 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkBitArray.h"
 #include "vtkByteSwap.h"
@@ -34,8 +33,8 @@
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
@@ -334,9 +333,8 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
 
 //------------------------------------------------------------------------------
 // Specialize for string arrays:
-int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
-  vtkArrayIteratorTemplate<vtkStdString>* iter, int wordType, size_t outWordSize, size_t numStrings,
-  int)
+int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer, vtkStringArray* iter, int wordType,
+  size_t outWordSize, size_t numStrings, int)
 {
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
   vtkStdString::value_type* allocated_buffer = nullptr;
@@ -1120,19 +1118,16 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
 
   if (wordType == VTK_STRING)
   {
-    vtkArrayIterator* aiter = a->NewIterator();
-    vtkArrayIteratorTemplate<vtkStdString>* iter =
-      vtkArrayIteratorTemplate<vtkStdString>::SafeDownCast(aiter);
-    if (iter)
+    auto array = vtkStringArray::SafeDownCast(a);
+    if (array)
     {
-      ret = vtkXMLWriterWriteBinaryDataBlocks(this, iter, wordType, outWordSize, numValues, 1);
+      ret = vtkXMLWriterWriteBinaryDataBlocks(this, array, wordType, outWordSize, numValues, 1);
     }
     else
     {
       vtkWarningMacro("Unsupported iterator for data type : " << wordType);
       ret = 0;
     }
-    aiter->Delete();
   }
   else if (vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(a))
   {
@@ -1926,59 +1921,74 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
 }
 
 //------------------------------------------------------------------------------
-template <class iterT>
-int vtkXMLWriteAsciiData(ostream& os, iterT* iter, vtkIndent indent)
+struct vtkXMLWriteAsciiDataWorker
 {
-  if (!iter)
+  template <class TArray, class T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array, ostream& os, vtkIndent indent, int& ret)
   {
-    return 0;
-  }
-  size_t columns = 6;
-  size_t length = iter->GetNumberOfTuples() * iter->GetNumberOfComponents();
+    if (!array)
+    {
+      ret = 0;
+      return;
+    }
+    size_t columns = 6;
+    size_t length = array->GetNumberOfTuples() * array->GetNumberOfComponents();
+    auto values = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(array);
 
-  size_t rows = length / columns;
-  size_t lastRowLength = length % columns;
-  vtkIdType index = 0;
-  for (size_t r = 0; r < rows; ++r)
-  {
-    os << indent;
-    vtkXMLWriteAsciiValue(os, iter->GetValue(index++));
-    for (size_t c = 1; c < columns; ++c)
+    size_t rows = length / columns;
+    size_t lastRowLength = length % columns;
+    vtkIdType index = 0;
+    for (size_t r = 0; r < rows; ++r)
     {
-      os << " ";
-      vtkXMLWriteAsciiValue(os, iter->GetValue(index++));
+      os << indent;
+      vtkXMLWriteAsciiValue(os, static_cast<T>(values[index++]));
+      for (size_t c = 1; c < columns; ++c)
+      {
+        os << " ";
+        vtkXMLWriteAsciiValue(os, static_cast<T>(values[index++]));
+      }
+      os << "\n";
     }
-    os << "\n";
-  }
-  if (lastRowLength > 0)
-  {
-    os << indent;
-    vtkXMLWriteAsciiValue(os, iter->GetValue(index++));
-    for (size_t c = 1; c < lastRowLength; ++c)
+    if (lastRowLength > 0)
     {
-      os << " ";
-      vtkXMLWriteAsciiValue(os, iter->GetValue(index++));
+      os << indent;
+      vtkXMLWriteAsciiValue(os, static_cast<T>(values[index++]));
+      for (size_t c = 1; c < lastRowLength; ++c)
+      {
+        os << " ";
+        vtkXMLWriteAsciiValue(os, static_cast<T>(values[index++]));
+      }
+      os << "\n";
     }
-    os << "\n";
+    ret = os ? 1 : 0;
   }
-  return os ? 1 : 0;
-}
+};
 
 //------------------------------------------------------------------------------
 int vtkXMLWriter::WriteAsciiData(vtkAbstractArray* a, vtkIndent indent)
 {
-  vtkArrayIterator* iter = a->NewIterator();
   ostream& os = *(this->Stream);
+  using Arrays =
+    vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray, vtkStringArray>::Result;
+  vtkXMLWriteAsciiDataWorker worker;
   int ret;
-  switch (a->GetDataType())
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(a, worker, os, indent, ret))
   {
-    vtkArrayIteratorTemplateMacro(
-      ret = vtkXMLWriteAsciiData(os, static_cast<VTK_TT*>(iter), indent));
-    default:
-      ret = 0;
-      break;
+    if (auto da = vtkArrayDownCast<vtkDataArray>(a))
+    {
+      switch (da->GetDataType())
+      {
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da, os, indent, ret)));
+        default:
+          vtkWarningMacro("Unsupported data type: " << a->GetDataType());
+          ret = 0;
+          break;
+      }
+      return ret;
+    }
+    vtkWarningMacro("Unsupported iterator for data type : " << a->GetDataType());
+    return 0;
   }
-  iter->Delete();
   return ret;
 }
 
