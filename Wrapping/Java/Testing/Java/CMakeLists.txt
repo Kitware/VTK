@@ -50,6 +50,31 @@ set(vtk_test_classpath
   "$<TARGET_FILE:VTK::vtkjava>")
 string(REPLACE ";" "${classpath_separator}" vtk_test_classpath "${vtk_test_classpath}")
 
+# Set up the PATH directory variables for Windows tests. Must be in native
+# format.
+if (WIN32)
+  file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JNILIBDIR}" vtk_jni_dir)
+  file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}" vtk_java_bin_dir)
+endif ()
+
+set(vtkjava_tests_need_envmod 0)
+function (vtkjava_test_env_properties testname)
+  if (WIN32)
+    set(vtkjava_tests_need_envmod 1 PARENT_SCOPE)
+    set_property(TEST "${testname}" APPEND
+      PROPERTY
+        ENVIRONMENT_MODIFICATION
+          "PATH=path_list_prepend:${vtk_java_bin_dir}"
+          "PATH=path_list_prepend:${vtk_jni_dir}")
+  elseif (APPLE)
+    set(vtkjava_tests_need_envmod 1 PARENT_SCOPE)
+    set_property(TEST "${testname}" APPEND
+      PROPERTY
+        ENVIRONMENT_MODIFICATION
+          "DYLD_LIBRARY_PATH=path_list_append:${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+  endif ()
+endfunction ()
+
 if (TARGET VTK::RenderingOpenGL2)
   ExternalData_add_test(VTKData
     NAME    vtkJavaTests-Regression
@@ -67,6 +92,7 @@ if (TARGET VTK::RenderingOpenGL2)
   set_property(TEST vtkJavaTests-Regression APPEND
     PROPERTY
       REQUIRED_FILES "$<TARGET_FILE:vtkjava_tests>")
+  vtkjava_test_env_properties(vtkJavaTests-Regression)
 endif ()
 
 foreach (java_simple_test IN LISTS java_simple_test_names)
@@ -79,4 +105,11 @@ foreach (java_simple_test IN LISTS java_simple_test_names)
   set_property(TEST "vtkJavaTests-${java_simple_test}" APPEND
     PROPERTY
       REQUIRED_FILES "$<TARGET_FILE:vtkjava_tests>")
+  vtkjava_test_env_properties("vtkJavaTests-${java_simple_test}")
 endforeach ()
+
+if (vtkjava_tests_need_envmod AND CMAKE_VERSION VERSION_LESS "3.22")
+  message(WARNING
+    "CMake 3.22+ is required to reliably set up the environment for Java "
+    "tests on macOS and Windows. Tests may fail due to missing libraries.")
+endif ()
