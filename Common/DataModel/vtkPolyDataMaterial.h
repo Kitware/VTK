@@ -42,7 +42,8 @@ public:
 
   ///@{
   /**
-   * Names for fields stored in the vtkPolyData
+   * Names for fields stored in the vtkPolyData. These names
+   * can be used for the 'name' parameter for SetField or GetField functions
    */
   static const char* GetTextureURI() { return "texture_uri"; }
   static const char* GetDiffuseColor() { return "diffuse_color"; }
@@ -53,18 +54,24 @@ public:
 
   ///@{
   /**
-   * Helper functions for setting field arrays. These are used to save
-   * texture paths or colors for polydata.
-   *
+   * Helper functions for setting/getting field arrays. These are used to save
+   * texture paths or colors for vtkPolyData.
+   * Functions for string fields.
    */
   static void SetField(vtkDataObject* obj, const char* name, const char* value);
   static std::vector<std::string> GetField(vtkDataObject* obj, const char* name);
+  ///@}
+
+  ///@{
+  /**
+   * Helper functions for setting/getting field arrays. These are used to save
+   * texture paths or colors for vtkPolyData.
+   * Functions for double fields.
+   */
   static void SetField(
     vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
   static std::vector<double> GetField(
     vtkDataObject* obj, const char* name, const std::vector<double>& defaultResult);
-  static std::vector<float> GetField(
-    vtkDataObject* obj, const char* name, const std::vector<float>& defaultRes);
   ///@}
 
   void PrintSelf(ostream& os, vtkIndent indent) override;

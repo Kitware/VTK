@@ -84,6 +84,20 @@ inline size_t GetPaddingAt4Bytes(size_t size)
   return (4 - size % 4) % 4;
 }
 
+//------------------------------------------------------------------------------
+std::vector<float> GetField(
+  vtkDataObject* obj, const char* name, const std::vector<float>& defaultResult)
+{
+  std::vector<float> result;
+  std::vector<double> r, d;
+  std::transform(defaultResult.begin(), defaultResult.end(), std::back_inserter(d),
+    [](float f) { return static_cast<double>(f); });
+  r = vtkPolyDataMaterial::GetField(obj, name, d);
+  std::transform(r.begin(), r.end(), std::back_inserter(result),
+    [](double value) { return static_cast<float>(value); });
+  return result;
+}
+
 VTK_ABI_NAMESPACE_END
 }
 
@@ -796,14 +810,13 @@ void WriteMaterial(
     model["baseColorTexture"] = tex;
   }
 
-  std::vector<float> dcolor = vtkPolyDataMaterial::GetField(
-    pd, vtkPolyDataMaterial::GetDiffuseColor(), std::vector<float>{ 1, 1, 1 });
-  std::vector<float> scolor = vtkPolyDataMaterial::GetField(
-    pd, vtkPolyDataMaterial::GetSpecularColor(), std::vector<float>{ 0, 0, 0 });
-  float transparency = vtkPolyDataMaterial::GetField(
-    pd, vtkPolyDataMaterial::GetTransparency(), std::vector<float>{ 0 })[0];
-  float shininess = vtkPolyDataMaterial::GetField(
-    pd, vtkPolyDataMaterial::GetShininess(), std::vector<float>{ 0 })[0];
+  std::vector<float> dcolor =
+    GetField(pd, vtkPolyDataMaterial::GetDiffuseColor(), std::vector<float>{ 1, 1, 1 });
+  std::vector<float> scolor =
+    GetField(pd, vtkPolyDataMaterial::GetSpecularColor(), std::vector<float>{ 0, 0, 0 });
+  float transparency =
+    GetField(pd, vtkPolyDataMaterial::GetTransparency(), std::vector<float>{ 0 })[0];
+  float shininess = GetField(pd, vtkPolyDataMaterial::GetShininess(), std::vector<float>{ 0 })[0];
   model["baseColorFactor"].emplace_back(dcolor[0]);
   model["baseColorFactor"].emplace_back(dcolor[1]);
   model["baseColorFactor"].emplace_back(dcolor[2]);
