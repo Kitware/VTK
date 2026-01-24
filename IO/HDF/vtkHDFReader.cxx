@@ -891,6 +891,105 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
+  vtkDataArraySelection* dataArraySelection[3], bool isTemporalData)
+{
+  for (unsigned int level = 0; level < maxLevel; level++)
+  {
+    this->Impl->OpenGroupAsVTKGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH); // Change root
+
+    std::string levelGroupName = "Level" + vtk::to_string(level);
+    if (!this->Impl->HasDataset(levelGroupName.c_str()))
+    {
+      vtkErrorMacro("Missing AMR level to read: " << level);
+      return false;
+    }
+
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + levelGroupName;
+    if (!this->Impl->RetrieveHDFInformation(
+          vtkHDFUtilities::VTKHDF_ROOT_PATH, "/" + levelGroupName))
+    {
+      vtkErrorMacro("Could not retrieve AMR level information: " << level);
+      return false;
+    }
+    this->Impl->OpenGroupAsVTKGroup(hdfPathName); // Change root
+
+    for (int attributeType = vtkDataObject::AttributeTypes::POINT;
+         attributeType <= vtkDataObject::AttributeTypes::CELL; ++attributeType)
+    {
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attributeType);
+      for (const std::string& name : arrayNames)
+      {
+        if (!dataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
+        {
+          continue;
+        }
+
+        // Iterate over all datasets, read data and assign attribute
+        hsize_t dataOffset = 0;
+        hsize_t dataSize = 0;
+        unsigned int numberOfDatasets = data->GetNumberOfBlocks(level);
+        for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
+        {
+          const vtkAMRBox& amrBox = data->GetAMRBox(level, dataSetIndex);
+          vtkImageData* dataSet = data->GetDataSetAsImageData(level, dataSetIndex);
+          if (dataSet == nullptr)
+          {
+            vtkErrorMacro(
+              "Error fetching dataset at level " << level << " and dataSetIndex " << dataSetIndex);
+            return false;
+          }
+
+          // Here dataSize is the size of the previous dataset read. Offset
+          // is incremented, and a new size is specified after the increment.
+          // This allows for reading AMR's where the size of the blocks vary
+          // inside each level.
+          dataOffset += dataSize;
+
+          switch (attributeType)
+          {
+            case vtkDataObject::AttributeTypes::POINT:
+              dataSize = amrBox.GetNumberOfNodes();
+              break;
+            case vtkDataObject::AttributeTypes::CELL:
+              dataSize = amrBox.GetNumberOfCells();
+              break;
+          }
+
+          hsize_t offset = 0;
+          if (isTemporalData)
+          {
+            if (!this->Impl->GetAMRTemporalOffsetForAttributeType(
+                  level, attributeType, name, offset))
+            {
+              vtkErrorMacro("Error fetching temporal offset at level "
+                << level << " for " << attributeType << " array named " << name);
+              return false;
+            }
+          }
+
+          // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
+          auto [cacheArray, array] =
+            ::ReadFromFileOrCache(this->Impl, this->UseCache ? this->Cache : nullptr, attributeType,
+              name, "_" + levelGroupName, offset + dataOffset, dataSize, false);
+          if (!array)
+          {
+            vtkErrorMacro("Error reading array " << name);
+            return false;
+          }
+          if (!cacheArray)
+          {
+            array->SetName(name.c_str());
+            dataSet->GetAttributesAsFieldData(attributeType)->AddArray(array);
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   const std::vector<vtkIdType>& numberOfCells,
   const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
@@ -1706,10 +1805,10 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   }
   data->SetOrigin(Origin);
 
-  unsigned int maxLevel = this->MaximumLevelsToReadByDefaultForAMR > 0
-    ? this->MaximumLevelsToReadByDefaultForAMR
-    : std::numeric_limits<unsigned int>::max();
+  // Get the number of levels
+  unsigned int maxLevel = this->Impl->GetAMRNumberOfLevels();
 
+  // Construct offsets and metadata
   if (this->GetHasTemporalData())
   {
     if (!this->Impl->ComputeAMROffsetsPerLevels(this->DataArraySelection, this->Step, maxLevel))
@@ -1725,15 +1824,20 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
     }
   }
 
-  unsigned int level = 0;
+  if (this->MaximumLevelsToReadByDefaultForAMR > 0 &&
+    this->MaximumLevelsToReadByDefaultForAMR < maxLevel)
+  {
+    maxLevel = this->MaximumLevelsToReadByDefaultForAMR;
+  }
 
-  if (!this->Impl->ReadAMRTopology(data, level, maxLevel, Origin, this->GetHasTemporalData()))
+  // Read AMR topology
+  if (!this->Impl->ReadAMRTopology(data, Origin, this->GetHasTemporalData()))
   {
     return 1;
   }
 
-  if (!this->Impl->ReadAMRData(
-        data, level, maxLevel, this->DataArraySelection, this->GetHasTemporalData()))
+  // Read the actual AMR data
+  if (!this->ReadAMRData(data, maxLevel, this->DataArraySelection, this->GetHasTemporalData()))
   {
     return 1;
   }

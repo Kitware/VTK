@@ -975,7 +975,7 @@ int TestOverlappingAMRTemporalBase(const std::string& dataRoot, const std::strin
     unsigned int numLevels = data->GetNumberOfLevels();
     if (numLevels != expectedData->GetNumberOfLevels())
     {
-      std::cerr << "Expected " << expectedData->GetNumberOfLevels() << "levels but got "
+      std::cerr << "Expected " << expectedData->GetNumberOfLevels() << " levels but got "
                 << numLevels << std::endl;
       return EXIT_FAILURE;
     }

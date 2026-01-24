@@ -31,7 +31,7 @@
 
 #include "vtkDataAssembly.h" // For vtkDataAssembly
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOHDFModule.h"  // For export macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -233,6 +233,7 @@ protected:
   /**
    * Read the field arrays from the file and add them to the dataset.
    */
+  VTK_DEPRECATED_IN_9_7_0("This method is deprecated, do not use")
   int AddFieldArrays(vtkDataObject* data);
 
   /**
@@ -322,6 +323,13 @@ private:
   bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
 
   /**
+   * Read the actual data into the provided amr up to maxLevel
+   * Return true on success, false otherwise
+   */
+  bool ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
+    vtkDataArraySelection* dataArraySelection[3], bool isTemporalData);
+
+  /**
    * Read 'pieceData' specified by 'filePiece' where
    * number of points, cells and connectivity ids
    * store those numbers for all pieces.
@@ -366,6 +374,11 @@ private:
    * Return true on success
    */
   bool RetrieveDataArraysFromAssembly();
+
+  /**
+   * Read the field arrays from the file and add them to the dataset.
+   */
+  bool ReadFieldArrays(vtkDataObject* data);
 
   vtkSmartPointer<vtkDataObject> OutputCache;
 

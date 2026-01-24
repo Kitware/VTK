@@ -599,6 +599,7 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   std::string dataRoot = testHelper->GetDataRoot();
+
   if (TestImageData(dataRoot))
   {
     return EXIT_FAILURE;
@@ -613,6 +614,7 @@ int TestHDFReader(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
+
   if (TestUnstructuredGridPolyhedron(dataRoot))
   {
     return EXIT_FAILURE;
