@@ -268,7 +268,7 @@ public:
    * includes the compositing data. The data is only available after the
    * Execute() method has been invoked.
    */
-  int GetNumberOfThreads() { return this->NumThreads; }
+  int GetNumberOfThreads() { return this->NumberOfThreads; }
   vtkVoronoi2DLocalData<TCompositor, TClassifier>* GetThreadData(int threadNum)
   {
     return this->ThreadMap[threadNum];
@@ -282,8 +282,8 @@ public:
    * number of points found in any tile; and the number of prunes
    * performed to remove degeneracies.
    */
-  int GetMaximumNumberOfTilePoints() { return this->MaxPoints; }
-  int GetNumberOfTilePrunes() { return this->NumPrunes; }
+  int GetMaximumNumberOfPoints() { return this->MaximumNumberOfPoints; }
+  int GetNumberOfPrunes() { return this->NumberOfPrunes; }
   ///@}
 
   /**
@@ -356,17 +356,6 @@ public:
    */
   vtkAlgorithm* Filter;
 
-  /**
-   * After algorithm execution, update some parameters. Typically used by
-   * filters to report information about processing.
-   */
-  void UpdateExecutionInfo(int& numThreads, int& maxPts, int& numPrunes)
-  {
-    numThreads = this->NumThreads;
-    maxPts = this->MaxPoints;
-    numPrunes = this->NumPrunes;
-  }
-
 private:
   vtkIdType NPts;                   // The number of input points
   vtkPoints* InPoints;              // Input points as data array
@@ -378,14 +367,14 @@ private:
   vtkIdType MaxClips;               // Limit the number of half-space clips
 
   // Enable pruning of spokes (equivalent to deletion of a degenerate tile edges)
-  bool Validate;         // Indicate whether to explicitly validate the mesh
-  vtkIdType NumPrunes;   // If pruning is on, keep track of the number of prunes
-  double PruneTolerance; // Specify the square spoke prune tolerance
+  bool Validate;            // Indicate whether to explicitly validate the mesh
+  vtkIdType NumberOfPrunes; // If pruning is on, keep track of the number of prunes
+  double PruneTolerance;    // Specify the square spoke prune tolerance
 
   // High-level information captured during processing
-  int NumThreads; // Keep track of the number of threads used durinf processing
-  int MaxPoints;  // Maximum number of points in a generated Voronoi tile (this
-                  // equals the maximum number of edges).
+  int NumberOfThreads;       // Keep track of the number of threads used durinf processing
+  int MaximumNumberOfPoints; // Maximum number of points in a generated Voronoi tile (this
+                             // equals the maximum number of edges).
 
   // Storage local to each thread, as well as working/scratch arrays. We
   // don't want to allocate working arrays on every thread invocation. Thread

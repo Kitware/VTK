@@ -663,6 +663,12 @@ public:
   static double Distance2BetweenPoints(const double p1[3], const double p2[3]);
 
   /**
+   * Compute distance squared between two 2D points p1 and p2.
+   * (double version).
+   */
+  static double Distance2BetweenPoints2D(const double p1[2], const double p2[2]);
+
+  /**
    * Compute angle in radians between two vectors.
    */
   static double AngleBetweenVectors(const double v1[3], const double v2[3]);
@@ -1945,6 +1951,12 @@ inline ReturnTypeT vtkMath::Distance2BetweenPoints(const TupleRangeT1& p1, const
 {
   return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) +
     (p1[2] - p2[2]) * (p1[2] - p2[2]));
+}
+
+//------------------------------------------------------------------------------
+inline double vtkMath::Distance2BetweenPoints2D(const double p1[2], const double p2[2])
+{
+  return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]));
 }
 
 //----------------------------------------------------------------------------

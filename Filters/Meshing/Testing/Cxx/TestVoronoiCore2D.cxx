@@ -227,9 +227,9 @@ int TestVoronoiCore2D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro->GetNumberOfThreads() << endl;
-  std::cout << "Max Tile Points: " << voro->GetMaximumNumberOfTilePoints() << endl;
-  std::cout << "Max Tile Edges: " << voro->GetMaximumNumberOfTilePoints() << endl;
-  std::cout << "Num Prunes: " << voro->GetNumberOfTilePrunes() << endl;
+  std::cout << "Max Tile Points: " << voro->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Max Tile Edges: " << voro->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Num Prunes: " << voro->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
   std::cout << endl;
@@ -257,9 +257,9 @@ int TestVoronoiCore2D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro1->GetNumberOfThreads() << endl;
-  std::cout << "Max Tile Points: " << voro1->GetMaximumNumberOfTilePoints() << endl;
-  std::cout << "Max Tile Edges: " << voro1->GetMaximumNumberOfTilePoints() << endl;
-  std::cout << "Num Prunes: " << voro1->GetNumberOfTilePrunes() << endl;
+  std::cout << "Max Tile Points: " << voro1->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Max Tile Edges: " << voro1->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Num Prunes: " << voro1->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro1->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro1->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
   std::cout << endl;
@@ -289,11 +289,11 @@ int TestVoronoiCore2D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro2->GetNumberOfThreads() << endl;
-  std::cout << "Max Tile Points: " << voro2->GetMaximumNumberOfTilePoints() << endl;
+  std::cout << "Max Tile Points: " << voro2->GetMaximumNumberOfPoints() << endl;
   std::cout << "Total tile points: " << voro2->Compositor.TotalNumPts << endl;
   std::cout << "Total merged points: " << numMergedPts << endl;
-  std::cout << "Max Tile Edges: " << voro2->GetMaximumNumberOfTilePoints() << endl;
-  std::cout << "Num Prunes: " << voro2->GetNumberOfTilePrunes() << endl;
+  std::cout << "Max Tile Edges: " << voro2->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Num Prunes: " << voro2->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro2->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro2->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
 

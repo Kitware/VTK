@@ -265,7 +265,7 @@ public:
    * includes the compositing data. The data is only available after the
    * Execute() method has been invoked.
    */
-  int GetNumberOfThreads() { return this->NumThreads; }
+  int GetNumberOfThreads() { return this->NumberOfThreads; }
   vtkVoronoi3DLocalData<TCompositor, TClassifier>* GetThreadData(int threadNum)
   {
     return this->ThreadMap[threadNum];
@@ -279,9 +279,9 @@ public:
    * number of points found in any hull; and the number of prunes
    * performed to remove degeneracies.
    */
-  int GetMaximumNumberOfHullPoints() { return this->MaxPoints; }
-  int GetMaximumNumberOfHullFaces() { return this->MaxFaces; }
-  int GetNumberOfHullPrunes() { return this->NumPrunes; }
+  int GetMaximumNumberOfPoints() { return this->MaximumNumberOfPoints; }
+  int GetMaximumNumberOfFaces() { return this->MaximumNumberOfFaces; }
+  int GetNumberOfPrunes() { return this->NumberOfPrunes; }
   ///@}
 
   /**
@@ -354,18 +354,6 @@ public:
    */
   vtkAlgorithm* Filter;
 
-  /**
-   * After algorithm execution, update some parameters. Typically used by
-   * filters to report information about processing.
-   */
-  void UpdateExecutionInfo(int& numThreads, int& maxPts, int& maxFaces, int& numPrunes)
-  {
-    numThreads = this->NumThreads;
-    maxPts = this->MaxPoints;
-    maxFaces = this->MaxFaces;
-    numPrunes = this->NumPrunes;
-  }
-
 private:
   vtkIdType NPts;                 // The number of input points
   vtkPoints* InPoints;            // Input points as data array
@@ -377,14 +365,14 @@ private:
   vtkIdType MaxClips;             // Limit the number of half-space clips
 
   // Enable pruning of spokes (equivalent to deletion of a degenerate hull face)
-  bool Validate;         // Indicate whether to explicitly validate the mesh
-  vtkIdType NumPrunes;   // If pruning is on, keep track of the number of prunes
-  double PruneTolerance; // Specify the spoke prune tolerance
+  bool Validate;            // Indicate whether to explicitly validate the mesh
+  vtkIdType NumberOfPrunes; // If pruning is on, keep track of the number of prunes
+  double PruneTolerance;    // Specify the spoke prune tolerance
 
   // High-level information captured during processing
-  int NumThreads; // Keep track of the number of threads used durinf processing
-  int MaxPoints;  // Maximum numper of points in a generated Voronoi hull
-  int MaxFaces;   // Maximum number of faces (i.e., spokes) in a generated Voronoi hull
+  int NumberOfThreads;       // Keep track of the number of threads used durinf processing
+  int MaximumNumberOfPoints; // Maximum numper of points in a generated Voronoi hull
+  int MaximumNumberOfFaces;  // Maximum number of faces (i.e., spokes) in a generated Voronoi hull
 
   // Storage local to each thread, as well as working/scratch arrays. We
   // don't want to allocate working arrays on every thread invocation. Thread

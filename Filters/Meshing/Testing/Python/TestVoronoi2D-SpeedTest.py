@@ -51,7 +51,7 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Voronoi tessellation: {0}".format(time))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 print("   Max number of points/edges in any tile: {0}".format(voronoi.GetMaximumNumberOfPoints()))
 
 # --- end of script --

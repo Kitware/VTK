@@ -75,7 +75,7 @@ print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Voronoi tessellation: {0}".format(time))
 print("   Number of output points: {0}".format(voronoi.GetOutput(0).GetNumberOfPoints()))
 print("   Number of output polygons: {0}".format(voronoi.GetOutput(0).GetNumberOfCells()))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(voronoi.GetOutputPort())
@@ -94,4 +94,5 @@ renWin.SetSize(300,300)
 renWin.Render()
 
 iren.Initialize()
+iren.Start()
 # --- end of script --

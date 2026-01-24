@@ -752,7 +752,7 @@ vtkVoronoi2D::vtkVoronoi2D()
   this->BatchSize = 1000;
   this->PruneTolerance = 1.0e-13;
 
-  this->NumberOfThreadsUsed = 0;
+  this->NumberOfThreads = 0;
   this->MaximumNumberOfPoints = 0;
   this->NumberOfPrunes = 0;
 
@@ -861,12 +861,75 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
   // of input points. (Implementation note: this could be expanded with
   // templates - not sure its worth the object bloat.)
   vtkSmartPointer<vtkIntArray> regionIds;
+  int* regions = nullptr;
 
-  // Limit processing to points of interested if so specified.
-  if ((this->PointOfInterest >= 0 && this->PointOfInterest < numPts) || this->PointsOfInterest)
+  vtkDataArray* rIds = this->GetInputArrayToProcess(0, inputVector);
+  regionIds = vtkIntArray::FastDownCast(rIds);
+  if (rIds && !regionIds)
+  {
+    vtkWarningMacro("Region Ids array must be of type vtkIntArray");
+    regionIds = ConvertRegionLabels(rIds);
+  }
+  if (regionIds && regionIds->GetNumberOfComponents() > 1)
+  {
+    vtkErrorMacro("Region Ids must have 1 component");
+    regionIds = nullptr;
+  }
+  if (regionIds)
+  {
+    regions = regionIds->GetPointer(0);
+  }
+
+  // Simple speed test process the input points to produce tiles. No compositing is
+  // performed. This is used for benchmarking / debugging. Note that includes
+  // validation and pruning (if enabled).
+  int outputType = this->GetOutputType();
+  if (outputType == vtkVoronoi2D::SPEED_TEST)
+  {
+    vtkEmptyVoronoi2DClassifier speedClasifier(regions);
+    auto speed =
+      vtkVoronoiCore2D<vtkEmptyVoronoi2DCompositor, vtkEmptyVoronoi2DClassifier>::Execute(this,
+        this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+        this->Validate, this->PruneTolerance, nullptr, &speedClasifier);
+
+    // Update execution parameters
+    this->UpdateExecutionInformation(speed.get());
+
+    return 1;
+  }
+
+  // Generate the 2D Voronoi tessellation.
+  vtkVoronoiClassifier2D initializeClassifier(regions);
+  auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
+    this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+    this->Validate, this->PruneTolerance, nullptr, &initializeClassifier);
+
+  // Update execution parameters
+  this->UpdateExecutionInformation(voro.get());
+
+  vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " tiles and "
+                << output->GetNumberOfPoints() << " points");
+
+  // If requested, produce the Voronoi output.
+  if (outputType == vtkVoronoi2D::VORONOI || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
+  {
+    OutputVoronoi::Execute(voro.get(), tInput, output);
+  } // Produce Voronoi output
+
+  // If requested, produce the Delaunay output.
+  if (outputType == vtkVoronoi2D::DELAUNAY || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
+  {
+    OutputDelaunay::Execute(voro.get(), tInput, delOutput);
+  } // Produce Voronoi output
+
+  // If requested, sample the Voronoi flower and place it into the third
+  // output. Create the debugging output (tile) for the PointOfInterest and
+  // place it in the fourth output.
+  if (!this->CheckAbort() && this->GenerateVoronoiFlower && this->PointOfInterest >= 0 &&
+    this->PointOfInterest < numPts)
   {
     regionIds = vtkSmartPointer<vtkIntArray>::New();
-    regionIds->SetName("Points of Interest");
+    regionIds->SetName("PointsOfInterest");
     regionIds->SetNumberOfTuples(numPts);
     vtkSMPTools::Fill(regionIds->GetPointer(0), regionIds->GetPointer(0) + numPts, -100);
     if (this->PointOfInterest >= 0)
@@ -885,79 +948,14 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
     }
-  }
-  else
-  {
-    vtkDataArray* rIds = this->GetInputArrayToProcess(0, inputVector);
-    regionIds = vtkIntArray::FastDownCast(rIds);
-    if (rIds && !regionIds)
-    {
-      vtkWarningMacro("Region Ids array must be of type vtkIntArray");
-      regionIds = ConvertRegionLabels(rIds);
-    }
-    if (regionIds)
-    {
-      if (regionIds->GetNumberOfComponents() > 1)
-      {
-        vtkErrorMacro("Region Ids must have 1 component");
-        regionIds = nullptr;
-      }
-    }
-  }
+    regions = regionIds->GetPointer(0);
 
-  // Simple speed test process the input points to produce tiles. No compositing is
-  // performed. This is used for benchmarking / debugging. Note that includes
-  // validation and pruning (if enabled).
-  int outputType = this->GetOutputType();
-  if (outputType == vtkVoronoi2D::SPEED_TEST)
-  {
-    auto speed =
-      vtkVoronoiCore2D<vtkEmptyVoronoi2DCompositor, vtkEmptyVoronoi2DClassifier>::Execute(this,
-        this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
-        this->Validate, this->PruneTolerance, nullptr, nullptr);
+    // Rerun with point of interest selected.
+    vtkVoronoiClassifier2D poiClassifier(regions);
+    auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
+      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->Validate, this->PruneTolerance, nullptr, &poiClassifier);
 
-    speed->UpdateExecutionInfo(
-      this->NumberOfThreadsUsed, this->MaximumNumberOfPoints, this->NumberOfPrunes);
-    return 1;
-  }
-
-  // Generate the 2D Voronoi tessellation.
-  auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
-    this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
-    this->Validate, this->PruneTolerance, nullptr, nullptr);
-
-  voro->UpdateExecutionInfo(
-    this->NumberOfThreadsUsed, this->MaximumNumberOfPoints, this->NumberOfPrunes);
-
-  vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " tiles and "
-                << output->GetNumberOfPoints() << " points");
-
-  // If requested, produce the Voronoi output.
-  if (outputType == vtkVoronoi2D::VORONOI || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
-  {
-    OutputVoronoi::Execute(voro.get(), tInput, output);
-  } // Produce Voronoi output
-
-  // If requested, produce the Delaunay output.
-  if (outputType == vtkVoronoi2D::DELAUNAY || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
-  {
-    OutputDelaunay::Execute(voro.get(), tInput, delOutput);
-  } // Produce Voronoi output
-
-  // If requested, sample the Voronoi flower and place it into
-  // the third output.
-  if (!this->CheckAbort() && this->GenerateVoronoiFlower && this->PointOfInterest >= 0 &&
-    this->PointOfInterest < numPts)
-  {
-
-  } // Produce sampled Voronoi flower
-
-  // If requested, sample the Voronoi flower and place it into
-  // the third output. Create the debugging output (tile) for the
-  // PointOfInterest and place it in the fourth output.
-  if (!this->CheckAbort() && this->GenerateVoronoiFlower && this->PointOfInterest >= 0 &&
-    this->PointOfInterest < numPts)
-  {
     vtkInformation* outInfo3 = outputVector->GetInformationObject(2);
     vtkPolyData* flowerOutput =
       vtkPolyData::SafeDownCast(outInfo3->Get(vtkDataObject::DATA_OBJECT()));

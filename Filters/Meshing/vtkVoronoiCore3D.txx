@@ -22,10 +22,10 @@ vtkVoronoiCore3D<TCompositor, TClassifier>::vtkVoronoiCore3D(vtkAlgorithm* filte
   , Padding(padding)
   , MaxClips(maxClips)
   , Validate(validate)
-  , NumPrunes(0)
-  , NumThreads(0)
-  , MaxPoints(0)
-  , MaxFaces(0)
+  , NumberOfThreads(0)
+  , MaximumNumberOfPoints(0)
+  , MaximumNumberOfFaces(0)
+  , NumberOfPrunes(0)
 {
   // Set up points for processing. The points must be of type double.
   this->NPts = this->InPoints->GetNumberOfPoints();
@@ -183,11 +183,11 @@ template <class TCompositor, class TClassifier>
 void vtkVoronoiCore3D<TCompositor, TClassifier>::Reduce()
 {
   // Build the wheels and spokes adjacency information.
-  this->NumThreads = 0;
+  this->NumberOfThreads = 0;
   vtkIdType numSpokes = 0;
-  this->MaxPoints = 0;
-  this->MaxFaces = 0;
-  this->NumPrunes = 0;
+  this->MaximumNumberOfPoints = 0;
+  this->MaximumNumberOfFaces = 0;
+  this->NumberOfPrunes = 0;
 
   // Gather information along with a prefix sum of some information
   // across all the threads.
@@ -195,11 +195,10 @@ void vtkVoronoiCore3D<TCompositor, TClassifier>::Reduce()
   {
     this->ThreadMap.push_back(&localData);
     numSpokes += localData.LocalSpokes.size();
-    this->NumThreads++;
-    this->MaxPoints =
-      (localData.MaxPoints > this->MaxPoints ? localData.MaxPoints : this->MaxPoints);
-    this->MaxFaces = (localData.MaxFaces > this->MaxFaces ? localData.MaxFaces : this->MaxFaces);
-    this->NumPrunes += localData.NumPrunes;
+    this->NumberOfThreads++;
+    this->MaximumNumberOfPoints = std::max(localData.MaxPoints, this->MaximumNumberOfPoints);
+    this->MaximumNumberOfFaces = std::max(localData.MaxFaces, this->MaximumNumberOfFaces);
+    this->NumberOfPrunes += localData.NumPrunes;
   } // loop over local thread output
 
   // Prefix sum over wheels to determine spokes offsets,
@@ -405,7 +404,7 @@ void vtkVoronoiCore3D<TCompositor, TClassifier>::ProduceWheelsAndSpokes::Execute
   vtkVoronoiCore3D<TCompositor, TClassifier>* vc)
 {
   vtkVoronoiCore3D<TCompositor, TClassifier>::ProduceWheelsAndSpokes genSpokes(vc);
-  vtkSMPTools::For(0, vc->NumThreads, genSpokes);
+  vtkSMPTools::For(0, vc->NumberOfThreads, genSpokes);
 }
 
 //----------------------------------------------------------------------------
@@ -529,7 +528,7 @@ vtkVoronoiCore3D<TCompositor, TClassifier>::TopologicalMerge::Execute(
   vtkVoronoiCore3D<TCompositor, TClassifier>* vc)
 {
   auto merge = std::make_unique<vtkVoronoiCore3D<TCompositor, TClassifier>::TopologicalMerge>(vc);
-  vtkSMPTools::For(0, vc->NumThreads, *merge);
+  vtkSMPTools::For(0, vc->NumberOfThreads, *merge);
   return merge;
 }
 

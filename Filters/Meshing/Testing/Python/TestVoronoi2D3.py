@@ -64,7 +64,8 @@ ptActor.SetMapper(ptMapper)
 ptActor.GetProperty().SetColor(0,0,0)
 ptActor.GetProperty().SetPointSize(2)
 
-# Tessellate them
+# Generate Voronoi tessellation and Voronoi flower for
+# specified hull.
 #
 voronoi = vtkVoronoi2D()
 voronoi.SetInputData(profile)
@@ -82,14 +83,14 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Voronoi tessellation: {0}".format(time))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 
 mapper = vtkPolyDataMapper()
-mapper.SetInputConnection(voronoi.GetOutputPort())
+mapper.SetInputConnection(voronoi.GetOutputPort(0))
 if voronoi.GetGenerateCellScalars() == 1:
     mapper.SetScalarRange(0,NPts)
 elif voronoi.GetGenerateCellScalars() == 2:
-    mapper.SetScalarRange(0,voronoi.GetNumberOfThreadsUsed())
+    mapper.SetScalarRange(0,voronoi.GetNumberOfThreads())
 else:
     mapper.ScalarVisibilityOff()
 print("Scalar Range: {}".format(mapper.GetScalarRange()))
@@ -217,6 +218,7 @@ if PointOfInterest >= 0:
     if GenerateFlower > 0:
          ren1.AddActor(cActor)
          ren0.AddActor(fActor)
+
 ren0.AddActor(actor)
 ren1.AddActor(actor)
 
@@ -248,5 +250,8 @@ picker.PickFromListOn()
 picker.AddPickList(ptActor)
 iren.SetPicker(picker)
 
+renWin.Render()
+
 iren.Initialize()
+iren.Start()
 # --- end of script --

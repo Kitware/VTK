@@ -57,18 +57,6 @@ class vtkSpheres;
 
 //======= Define the convex polygon class used to produce Voronoi tiles.
 
-//------------------------------------------------------------------------------
-inline double Distance2BetweenPoints2D(const double p1[2], const double p2[2])
-{
-  return ((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]));
-}
-
-//------------------------------------------------------------------------------
-inline double EvaluateLine(const double x[2], const double o[2], const double n[2])
-{
-  return ((x[0] - o[0]) * n[0] + (x[1] - o[1]) * n[1]);
-}
-
 // The data structure for representing a Voronoi tile vertex and implicitly,
 // the connected Voronoi tile edge. The tile vertex has a position X, and the
 // current value of the half-space clipping function. In the counterclockwise
@@ -87,7 +75,7 @@ struct vtkTilePoint
     , NeiId(neiId)
     , Val(0.0)
   {
-    this->R2 = Distance2BetweenPoints2D(X, tileX);
+    this->R2 = vtkMath::Distance2BetweenPoints2D(X, tileX);
   }
 
   vtkTilePoint(const vtkTilePoint& v) = default;
@@ -279,7 +267,7 @@ inline bool vtkVoronoiTile::InFlower(const double x[2])
   // Check against the flower petals
   for (const auto& p : this->Points)
   {
-    double r2 = Distance2BetweenPoints2D(p.X, x);
+    double r2 = vtkMath::Distance2BetweenPoints2D(p.X, x);
     if (r2 <= p.R2)
     {
       return true;

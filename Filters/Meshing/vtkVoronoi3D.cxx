@@ -245,8 +245,9 @@ void SpeedTestOutput(vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator*
     filter, batchSize, loc, tPoints, padding, maxClips, validate, pruneTol, nullptr,
     &initializeClassifier);
 
-  voro->UpdateExecutionInfo(filter->NumberOfThreadsUsed, filter->MaximumNumberOfPoints,
-    filter->MaximumNumberOfFaces, filter->NumberOfPrunes);
+  // Update execution parameters
+  filter->UpdateExecutionInformation(voro.get());
+
 } // SpeedTestOutput()
 
 // ============================================================================
@@ -441,8 +442,8 @@ struct AGOutput : public VOutput
     auto voro = vtkVoronoiCore3D<AGCompositor, vtkVoronoiClassifier3D>::Execute(filter, batchSize,
       loc, tPoints, padding, maxClips, validate, pruneTol, nullptr, &initializeClassifier);
 
-    voro->UpdateExecutionInfo(filter->NumberOfThreadsUsed, filter->MaximumNumberOfPoints,
-      filter->MaximumNumberOfFaces, filter->NumberOfPrunes);
+    // Update execution parameters
+    filter->UpdateExecutionInformation(voro.get());
 
     // Prepare to produce output
     AGOutput agout(voro.get(), input, filter);
@@ -724,8 +725,8 @@ struct DelOutput : public VOutput
       loc, tPoints, padding, maxClips, validate, pruneTol, &initializeCompositor,
       &initializeClassifier);
 
-    voro->UpdateExecutionInfo(filter->NumberOfThreadsUsed, filter->MaximumNumberOfPoints,
-      filter->MaximumNumberOfFaces, filter->NumberOfPrunes);
+    // Update execution parameters
+    filter->UpdateExecutionInformation(voro.get());
 
     // Prepare to produce output
     DelOutput delout(voro.get(), input, filter);
@@ -1108,8 +1109,8 @@ struct SurfaceOutput : public PtsOutput
       batchSize, loc, tPoints, padding, maxClips, validate, pruneTol, &initializeCompositor,
       &initializeClassifier);
 
-    voro->UpdateExecutionInfo(filter->NumberOfThreadsUsed, filter->MaximumNumberOfPoints,
-      filter->MaximumNumberOfFaces, filter->NumberOfPrunes);
+    // Update execution parameters
+    filter->UpdateExecutionInformation(voro.get());
 
     // Now access the composited information
     SurfaceCompositor& compositor = voro->Compositor;
@@ -1523,8 +1524,8 @@ struct PolyHOutput : public PtsOutput
       vtkVoronoiCore3D<PolyHCompositor, vtkVoronoiClassifier3D>::Execute(filter, batchSize, loc,
         tPoints, padding, maxClips, validate, pruneTol, nullptr, &initializeClassifier);
 
-    voro->UpdateExecutionInfo(filter->NumberOfThreadsUsed, filter->MaximumNumberOfPoints,
-      filter->MaximumNumberOfFaces, filter->NumberOfPrunes);
+    // Update execution parameters.
+    filter->UpdateExecutionInformation(voro.get());
 
     // Now access the composited information
     PolyHCompositor& compositor = voro->Compositor;
@@ -1665,7 +1666,7 @@ vtkVoronoi3D::vtkVoronoi3D()
 
   this->MaximumNumberOfPoints = 0;
   this->MaximumNumberOfFaces = 0;
-  this->NumberOfThreadsUsed = 0;
+  this->NumberOfThreads = 0;
   this->NumberOfPrunes = 0;
 
   // By default process active point scalars to obtain region ids
@@ -1762,7 +1763,7 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
   if ((this->PointOfInterest >= 0 && this->PointOfInterest < numPts) || this->PointsOfInterest)
   {
     regionIds = vtkSmartPointer<vtkIntArray>::New();
-    regionIds->SetName("Points of Interest");
+    regionIds->SetName("PointsOfInterest");
     regionIds->SetNumberOfTuples(numPts);
     vtkSMPTools::Fill(regionIds->GetPointer(0), regionIds->GetPointer(0) + numPts, -100);
     if (this->PointOfInterest >= 0)
@@ -1793,13 +1794,10 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
       vtkWarningMacro("Region Ids array must be of type vtkIntArray");
       regionIds = ConvertRegionLabels(rIds);
     }
-    if (regionIds)
+    if (regionIds && regionIds->GetNumberOfComponents() > 1)
     {
-      if (regionIds->GetNumberOfComponents() > 1)
-      {
-        vtkErrorMacro("Region Ids must have 1 component");
-        regionIds = nullptr;
-      }
+      vtkErrorMacro("Region Ids must have 1 component");
+      regionIds = nullptr;
     }
   }
   if (regionIds)

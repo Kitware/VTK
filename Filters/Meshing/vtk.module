@@ -26,6 +26,5 @@ TEST_DEPENDS
   VTK::IOLegacy
   VTK::IOXML
   VTK::InteractionStyle
-  VTK::RenderingCore
-  VTK::TestingCore
+  VTK::RenderingOpenGL2
   VTK::TestingRendering

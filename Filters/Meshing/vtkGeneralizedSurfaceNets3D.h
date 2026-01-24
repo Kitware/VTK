@@ -444,6 +444,15 @@ public:
 
   ///@{
   /**
+   * Specify a relative tolerance to determine which spokes (i.e., small hull
+   * facets) to prune. See vtkVoronoiHull for more information.
+   */
+  vtkSetClampMacro(PruneTolerance, double, 0.0, 0.5);
+  vtkGetMacro(PruneTolerance, double);
+  ///@}
+
+  ///@{
+  /**
    * Specify the number of input generating points in a batch, where a batch
    * defines a contiguous subset of the input points operated on during
    * threaded execution. Generally this is only used for debugging or
@@ -459,7 +468,7 @@ public:
    *  Return the number of threads actually used during execution. This is
    *  valid only after algorithm execution.
    */
-  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
+  int GetNumberOfThreads() { return this->NumberOfThreads; }
 
   /**
    *  Return the number of hull prunes performed during execution. This is
@@ -501,9 +510,10 @@ protected:
   vtkIdType PointOfInterest;             // specify a single input point to process
   vtkSmartPointer<vtkIdTypeArray> PointsOfInterest; // list of points of interest
   vtkIdType MaximumNumberOfHullClips;               // limit the number of hull clips
+  double PruneTolerance;                            // prune tiny faces
   unsigned int BatchSize;                           // process data in batches of specified size
-  int NumberOfThreadsUsed; // report on the number of threads used during processing
-  int NumberOfPrunes;      // If spoke pruning is enabled, report number of pruning operations
+  int NumberOfThreads; // report on the number of threads used during processing
+  int NumberOfPrunes;  // If spoke pruning is enabled, report number of pruning operations
 
   // Satisfy pipeline-related API
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

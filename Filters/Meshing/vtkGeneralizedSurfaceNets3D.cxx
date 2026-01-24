@@ -1006,8 +1006,9 @@ vtkGeneralizedSurfaceNets3D::vtkGeneralizedSurfaceNets3D()
   this->PointOfInterest = (-1);
   // this->PointsOfInterest empty on instantiation
   this->MaximumNumberOfHullClips = VTK_ID_MAX;
+  this->PruneTolerance = 1.0e-13;
   this->BatchSize = 1000;
-  this->NumberOfThreadsUsed = 0;
+  this->NumberOfThreads = 0;
 
   // By default process active point scalars to obtain region ids
   this->SetInputArrayToProcess(
@@ -1088,7 +1089,7 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   if ((this->PointOfInterest >= 0 && this->PointOfInterest < numPts) || this->PointsOfInterest)
   {
     regions = vtkSmartPointer<vtkIntArray>::New();
-    regions->SetName("Points of Interest");
+    regions->SetName("PointsOfInterest");
     regions->SetNumberOfTuples(numPts);
     vtkSMPTools::Fill(regions->GetPointer(0), regions->GetPointer(0) + numPts, -100);
     if (this->PointOfInterest >= 0)
@@ -1166,10 +1167,10 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   SNClassifier classifier(regions->GetPointer(0), labels, numLabels);
 
   auto voro = vtkVoronoiCore3D<SNCompositor, SNClassifier>::Execute(this, this->BatchSize,
-    this->Locator, tPoints, padding, this->MaximumNumberOfHullClips, this->Validate, 1.0e-13, &comp,
-    &classifier);
-  this->NumberOfThreadsUsed = voro->GetNumberOfThreads();
-  this->NumberOfPrunes = voro->GetNumberOfHullPrunes();
+    this->Locator, tPoints, padding, this->MaximumNumberOfHullClips, this->Validate,
+    this->PruneTolerance, &comp, &classifier);
+  this->NumberOfThreads = voro->GetNumberOfThreads();
+  this->NumberOfPrunes = voro->GetNumberOfPrunes();
 
   // If smoothing and/or point merging is requested, composite the
   // topological point 4-tuples, sort them, and then create a point

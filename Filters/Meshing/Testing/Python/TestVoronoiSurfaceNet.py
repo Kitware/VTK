@@ -45,7 +45,7 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Voronoi Surface Net tessellation: {0}".format(time))
-print("   Number of threads used: {0}".format(vsn.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(vsn.GetNumberOfThreads()))
 
 numCells = vsn.GetOutput().GetNumberOfCells()
 for cid in range(0, numCells):

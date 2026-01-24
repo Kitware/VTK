@@ -80,8 +80,7 @@ inline void vtkVoronoiAdjacencyGraph::CountFaces(const vtkVoronoiSpoke* spokes, 
 // vtkSMPTools threaded interface
 inline void vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph::Initialize()
 {
-  this->ThreadInvalid.Local() = 0;
-  this->ThreadAllValid.Local() = true;
+  this->ThreadNumInvalid.Local() = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -91,7 +90,7 @@ inline void vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph::operator()(
   vtkVoronoiWheel wheel(this->Graph.Wheels, this->Graph.Spokes);
   int spokeNum, numSpokes;
   vtkVoronoiSpoke* spoke;
-  vtkIdType& numInvalid = this->ThreadInvalid.Local();
+  vtkIdType& numInvalid = this->ThreadNumInvalid.Local();
 
   for (; wheelId < endWheelId; ++wheelId)
   {
@@ -116,18 +115,8 @@ inline void vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph::operator()(
 //----------------------------------------------------------------------------
 inline void vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph::Reduce()
 {
-  this->AllValid = true;
-  for (auto& localValid : this->ThreadAllValid)
-  {
-    if (localValid == 0)
-    {
-      this->AllValid = false;
-      break;
-    }
-  }
-
   this->NumInvalid = 0;
-  for (auto& localInvalid : this->ThreadInvalid)
+  for (auto& localInvalid : this->ThreadNumInvalid)
   {
     this->NumInvalid += localInvalid;
   }
@@ -150,7 +139,7 @@ inline bool vtkVoronoiAdjacencyGraph::Validate()
   {
     vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph validate(*this);
     vtkSMPTools::For(0, this->GetNumberOfWheels(), validate);
-    isValid = validate.AllValid;
+    isValid = (validate.NumInvalid <= 0);
   }
 
   vtkGenericWarningMacro("All Valid: " << (isValid ? "True\n" : "False\n"));

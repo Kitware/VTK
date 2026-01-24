@@ -141,14 +141,14 @@ voronoi.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("   Time to generate Voronoi tessellation: {0}".format(time))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(voronoi.GetOutputPort())
 if voronoi.GetGenerateCellScalars() == 1:
     mapper.SetScalarRange(0,NPts)
 elif voronoi.GetGenerateCellScalars() == 2:
-    mapper.SetScalarRange(0,voronoi.GetNumberOfThreadsUsed())
+    mapper.SetScalarRange(0,voronoi.GetNumberOfThreads())
 print("Scalar Range: {}".format(mapper.GetScalarRange()))
 
 actor = vtkActor()
@@ -215,4 +215,5 @@ picker.AddPickList(ptActor)
 iren.SetPicker(picker)
 
 iren.Initialize()
+iren.Start()
 # --- end of script --

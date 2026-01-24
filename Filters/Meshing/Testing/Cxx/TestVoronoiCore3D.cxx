@@ -226,9 +226,9 @@ int TestVoronoiCore3D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro->GetNumberOfThreads() << endl;
-  std::cout << "Max Hull Points: " << voro->GetMaximumNumberOfHullPoints() << endl;
-  std::cout << "Max Hull Faces: " << voro->GetMaximumNumberOfHullFaces() << endl;
-  std::cout << "Num Prunes: " << voro->GetNumberOfHullPrunes() << endl;
+  std::cout << "Max Hull Points: " << voro->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Max Hull Faces: " << voro->GetMaximumNumberOfFaces() << endl;
+  std::cout << "Num Prunes: " << voro->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
   std::cout << endl;
@@ -256,9 +256,9 @@ int TestVoronoiCore3D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro1->GetNumberOfThreads() << endl;
-  std::cout << "Max Hull Points: " << voro1->GetMaximumNumberOfHullPoints() << endl;
-  std::cout << "Max Hull Faces: " << voro1->GetMaximumNumberOfHullFaces() << endl;
-  std::cout << "Num Prunes: " << voro1->GetNumberOfHullPrunes() << endl;
+  std::cout << "Max Hull Points: " << voro1->GetMaximumNumberOfPoints() << endl;
+  std::cout << "Max Hull Faces: " << voro1->GetMaximumNumberOfFaces() << endl;
+  std::cout << "Num Prunes: " << voro1->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro1->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro1->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
   std::cout << endl;
@@ -288,11 +288,11 @@ int TestVoronoiCore3D(int, char*[])
 
   // Some output
   std::cout << "Num Threads: " << voro2->GetNumberOfThreads() << endl;
-  std::cout << "Max Hull Points: " << voro2->GetMaximumNumberOfHullPoints() << endl;
+  std::cout << "Max Hull Points: " << voro2->GetMaximumNumberOfPoints() << endl;
   std::cout << "Total hull points: " << voro2->Compositor.TotalNumPts << endl;
   std::cout << "Total merged points: " << numMergedPts << endl;
-  std::cout << "Max Hull Faces: " << voro2->GetMaximumNumberOfHullFaces() << endl;
-  std::cout << "Num Prunes: " << voro2->GetNumberOfHullPrunes() << endl;
+  std::cout << "Max Hull Faces: " << voro2->GetMaximumNumberOfFaces() << endl;
+  std::cout << "Num Prunes: " << voro2->GetNumberOfPrunes() << endl;
   std::cout << "Num Wheels: " << voro2->GetAdjacencyGraph().GetNumberOfWheels() << endl;
   std::cout << "Num Spokes: " << voro2->GetAdjacencyGraph().GetNumberOfSpokes() << endl;
 

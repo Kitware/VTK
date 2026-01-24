@@ -69,4 +69,5 @@ renWin.SetSize(500,500)
 renWin.Render()
 
 iren.Initialize()
+iren.Start()
 # --- end of script --

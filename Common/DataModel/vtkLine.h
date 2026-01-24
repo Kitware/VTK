@@ -144,6 +144,13 @@ public:
     double closestPt1[3], double closestPt2[3], double& t1, double& t2);
 
   /**
+   * Given the 2D (x-y) infinite line defined by an origin o and unit normal
+   * n, and a point x in 2D space, determine the perpendicular distance of x
+   * from the line. In other words, evaluate the line equation n(x-o)=0.
+   */
+  static double Evaluate(const double n[2], const double o[2], const double x[2]);
+
+  /**
    * Computes the shortest distance squared between two finite line segments
    * defined by their end points (l0,l1) and (m0,m1).
    * Upon return, the closest points on the two line segments will be stored
@@ -179,6 +186,12 @@ private:
   vtkLine(const vtkLine&) = delete;
   void operator=(const vtkLine&) = delete;
 };
+
+//----------------------------------------------------------------------------
+inline double vtkLine::Evaluate(const double n[2], const double o[2], const double x[2])
+{
+  return ((x[0] - o[0]) * n[0] + (x[1] - o[1]) * n[1]);
+}
 
 //----------------------------------------------------------------------------
 inline int vtkLine::GetParametricCenter(double pcoords[3])

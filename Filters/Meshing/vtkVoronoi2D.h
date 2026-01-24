@@ -508,19 +508,23 @@ public:
   vtkGetMacro(BatchSize, unsigned int);
   ///@}
 
+  ///@{
   /**
-   *  Return the maximum number of sides across all Voronoi tiles. This is
-   *  valid only after algorithm execution.
+   * Return the maximum number of sides across all Voronoi tiles.
+   *
+   * @note These methods are valid only after algorithm execution.
    */
   int GetMaximumNumberOfPoints() { return this->MaximumNumberOfPoints; }
   int GetMaximumNumberOfSides() { return this->MaximumNumberOfPoints; }
   int GetMaximumNumberOfEdges() { return this->MaximumNumberOfPoints; }
+  ///@}
 
   /**
-   *  Return the number of threads actually used during execution. This is
-   *  valid only after algorithm execution.
+   * Return the number of threads actually used during execution.
+   *
+   * @note This method is only valid after the filter executes.
    */
-  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
+  int GetNumberOfThreads() { return this->NumberOfThreads; }
 
   /**
    * Get the MTime of this object also considering the locator.
@@ -528,15 +532,24 @@ public:
   vtkMTimeType GetMTime() override;
 
   /**
-   * Execution parameters. Made public for updating by vtkVoronoiCore3D.
+   * Method used to update this filter's execution parameters after the
+   * internal, templated instance of vtkVoronoiCore2D completes execution.
    */
-  int NumberOfThreadsUsed;   // report on the number of threads used during processing
-  int MaximumNumberOfPoints; // maximum number of points found in any hull
-  int NumberOfPrunes;        // If spoke prining is enabled, report number of pruning operations
+  template <typename T>
+  void UpdateExecutionInformation(T* voro);
 
 protected:
   vtkVoronoi2D();
   ~vtkVoronoi2D() override = default;
+
+  // Satisfy pipeline-related API
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  // Specify that the input is of type vtkPointSet
+  int FillInputPortInformation(int, vtkInformation*) override;
+
+private:
+  vtkVoronoi2D(const vtkVoronoi2D&) = delete;
+  void operator=(const vtkVoronoi2D&) = delete;
 
   int OutputType;
   vtkTypeBool Validate;
@@ -557,15 +570,22 @@ protected:
   double PruneTolerance;
   unsigned int BatchSize;
 
-  // Satisfy pipeline-related API
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  // Specify that the input is of type vtkPointSet
-  int FillInputPortInformation(int, vtkInformation*) override;
-
-private:
-  vtkVoronoi2D(const vtkVoronoi2D&) = delete;
-  void operator=(const vtkVoronoi2D&) = delete;
+  /**
+   * Execution parameters. Updated after the internal vtkVoronoiCore3D executes.
+   */
+  int NumberOfThreads;       // report on the number of threads used during processing
+  int MaximumNumberOfPoints; // maximum number of points found in any hull
+  int NumberOfPrunes;        // If spoke prining is enabled, report number of pruning operations
 };
+
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkVoronoi2D::UpdateExecutionInformation(T* voro)
+{
+  this->NumberOfThreads = voro->GetNumberOfThreads();
+  this->MaximumNumberOfPoints = voro->GetMaximumNumberOfPoints();
+  this->NumberOfPrunes = voro->GetNumberOfPrunes();
+}
 
 VTK_ABI_NAMESPACE_END
 #endif

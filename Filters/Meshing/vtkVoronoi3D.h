@@ -289,7 +289,7 @@ public:
     POINT_IDS = 1,       // Output cell scalars are the generating point id (default)
     REGION_IDS = 2,      // The region the cell primitives originated from (if region ids available)
     NUMBER_FACES = 3,    // The number of faces in the Voronoi hull
-    PRIM_IDS = 4,        // The ids of face primitives
+    PRIM_IDS = 4,        // The ids of the hull face primitives
     THREAD_IDS =
       5,       // Scalars are the thread id used to produce output. This may change between runs.
     RANDOM = 6 // Scalars are pseudo random numbers between [0,64).
@@ -337,8 +337,9 @@ public:
    * a region of closest proximity to the generating point x).  FindHull()
    * returns the tile id/point id of a query location x.  Note that if the
    * query point x is outside of the bounds of the input point set, an id
-   * value <0 is returned. Also, these methods are only valid after the
-   * filter executes.
+   * value <0 is returned.
+   *
+   * @note This method is only valid after the filter executes.
    */
   vtkIdType FindHull(double x[3]);
   ///@}
@@ -437,26 +438,30 @@ public:
   ///@}
 
   /**
-   *  Return the maximum number of points in any Voronoi hull. This is valid
-   *  only after algorithm execution.
+   *  Return the maximum number of points in any Voronoi hull.
+   *
+   * @note This method is only valid after the filter executes.
    */
   int GetMaximumNumberOfPoints() { return this->MaximumNumberOfPoints; }
 
   /**
-   *  Return the maximum number of faces in any Voronoi hull. This is valid
-   *  only after algorithm execution.
+   *  Return the maximum number of faces in any Voronoi hull.
+   *
+   * @note This method is only valid after the filter executes.
    */
   int GetMaximumNumberOfFaces() { return this->MaximumNumberOfFaces; }
 
   /**
-   *  Return the number of threads actually used during execution. This is
-   *  valid only after algorithm execution.
+   *  Return the number of threads actually used during execution.
+   *
+   * @note This method is only valid after the filter executes.
    */
-  int GetNumberOfThreadsUsed() { return this->NumberOfThreadsUsed; }
+  int GetNumberOfThreads() { return this->NumberOfThreads; }
 
   /**
-   *  Return the number of prunes performed during execution. This is
-   *  valid only after algorithm execution.
+   *  Return the number of prunes performed during execution.
+   *
+   * @note This method is only valid after the filter executes.
    */
   int GetNumberOfPrunes() { return this->NumberOfPrunes; }
 
@@ -466,16 +471,24 @@ public:
   vtkMTimeType GetMTime() override;
 
   /**
-   * Execution parameters. Made public for updating by vtkVoronoiCore3D.
+   * Method used to update this filter's execution parameters after the
+   * internal, templated instance of vtkVoronoiCore3D completes execution.
    */
-  int NumberOfThreadsUsed;   // report on the number of threads used during processing
-  int MaximumNumberOfPoints; // maximum number of points found in any hull
-  int MaximumNumberOfFaces;  // maximum number of faces found in any hull
-  int NumberOfPrunes;        // If spoke pruning is enabled, report number of pruning operations
+  template <typename T>
+  void UpdateExecutionInformation(T* voro);
 
 protected:
   vtkVoronoi3D();
   ~vtkVoronoi3D() override = default;
+
+  // Satisfy pipeline-related API
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+
+private:
+  vtkVoronoi3D(const vtkVoronoi3D&) = delete;
+  void operator=(const vtkVoronoi3D&) = delete;
 
   int OutputType;            // specification of the filter output
   double Padding;            // amount to pad out input points bounding box
@@ -492,15 +505,24 @@ protected:
   unsigned int BatchSize;                           // process data in batches of specified size
   vtkTypeBool BoundaryCapping; // cap the domain boundary if OutputType is SURFACE_NET
 
-  // Satisfy pipeline-related API
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
-
-private:
-  vtkVoronoi3D(const vtkVoronoi3D&) = delete;
-  void operator=(const vtkVoronoi3D&) = delete;
+  /**
+   * Execution parameters. Updated after the internal vtkVoronoiCore3D executes.
+   */
+  int NumberOfThreads;       // report on the number of threads used during processing
+  int MaximumNumberOfPoints; // maximum number of points found in any hull
+  int MaximumNumberOfFaces;  // maximum number of faces found in any hull
+  int NumberOfPrunes;        // If spoke pruning is enabled, report number of pruning operations
 };
+
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkVoronoi3D::UpdateExecutionInformation(T* voro)
+{
+  this->NumberOfThreads = voro->GetNumberOfThreads();
+  this->MaximumNumberOfPoints = voro->GetMaximumNumberOfPoints();
+  this->MaximumNumberOfFaces = voro->GetMaximumNumberOfFaces();
+  this->NumberOfPrunes = voro->GetNumberOfPrunes();
+}
 
 VTK_ABI_NAMESPACE_END
 #endif

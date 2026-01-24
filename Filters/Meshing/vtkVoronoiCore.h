@@ -24,7 +24,8 @@
 #include "vtkSMPTools.h"  // SMP parallel processing
 
 #include <algorithm> // for std::sort
-#include <random>    // random generation of colors
+#include <iostream>
+#include <random> // random generation of colors
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -158,18 +159,15 @@ struct vtkVoronoiAdjacencyGraph
   {
     vtkVoronoiAdjacencyGraph& Graph;
     vtkIdType NumInvalid;
-    bool AllValid;
 
     ValidateAdjacencyGraph(vtkVoronoiAdjacencyGraph& graph)
       : Graph(graph)
       , NumInvalid(0)
-      , AllValid(false)
     {
     }
 
     // Keep track whether threads are non-degenerate.
-    vtkSMPThreadLocal<vtkIdType> ThreadInvalid;
-    vtkSMPThreadLocal<unsigned char> ThreadAllValid;
+    vtkSMPThreadLocal<vtkIdType> ThreadNumInvalid;
 
     // vtkSMPTools threaded interface
     void Initialize();
@@ -445,6 +443,9 @@ struct vtkVoronoiRandom01Range
 // A convenience class and methods to randomly perturb (joggle or jitter)
 // point positions. Such jittering (even if very small) significantly
 // improves the numerical stability of Voronoi and Delaunay computations.
+// Implementation note: these methods might be better added to vtkMath since
+// they can be used by other classes. Once they are demonstrated to be stable,
+// they may be moved.
 struct vtkVoronoiJoggle
 {
   // Joggle a single point at input position xIn to produce the output position
@@ -512,6 +513,44 @@ struct vtkVoronoiJoggle
     xOut[0] = xIn[0];
     xOut[1] = xIn[1] + R * cos(theta);
     xOut[2] = xIn[2] + R * sin(theta);
+  }
+
+  // Joggle a 3D vector. Specify an input normalized vector (vecIn), a angle
+  // of rotation theta (in radians, 0<theta<Pi/2), and a random
+  // sequence. Produce on output a normalized vector (vecOut) -- vecIn and
+  // vecOut may be computed in place. Note that if this method is invoked in
+  // a thread, separate sequence instantiations (one per thread) should be
+  // provided. The approach used here is to define a disk located at the tip
+  // of the (normalized) vecIn (the disc is normal to vecIn), and randomly
+  // select a vector from the edge/along the perimeter of the disc.
+  static void JoggleNormal(
+    double vecIn[3], double vecOut[3], double theta, vtkVoronoiRandom01Range& sequence)
+  {
+    // Find a vector orthogonal to the input vector.
+    double perp[3];
+    int iMax = (std::fabs(vecIn[0]) > std::fabs(vecIn[1]) ? 0 : 1);
+    iMax = (std::fabs(vecIn[iMax]) > std::fabs(vecIn[2]) ? iMax : 2);
+    perp[(iMax + 1) % 3] = 1.0;
+    perp[(iMax + 2) % 3] = 0.0;
+    perp[iMax] = -(vecIn[(iMax + 1) % 3] / vecIn[iMax]);
+    vtkMath::Normalize(perp);
+
+    // Now find third orthogonal vector. Since vecIn and perp are normalized and
+    // orthogonal, the resultant cross also a unit vector.
+    double cross[3];
+    vtkMath::Cross(vecIn, perp, cross);
+
+    // Compute a random vector
+    double radius = theta / (2.0 * vtkMath::Pi()); // small angle approximation
+    double t = 2.0 * vtkMath::Pi() * sequence.Next();
+    double x = radius * cos(t);
+    double y = radius * sin(t);
+
+    // Construct a vector along the disc/cone edge
+    vecOut[0] = vecIn[0] + x * perp[0] + y * cross[0];
+    vecOut[1] = vecIn[1] + x * perp[1] + y * cross[1];
+    vecOut[2] = vecIn[2] + x * perp[2] + y * cross[2];
+    vtkMath::Normalize(vecOut);
   }
 }; // vtkVoronoiJoggle
 

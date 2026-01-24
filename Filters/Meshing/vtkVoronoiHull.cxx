@@ -4,6 +4,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
@@ -12,19 +13,6 @@
 #include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
-
-namespace // anonymous
-{
-//======= Some convenience methods.
-// Evaluate the 3D plane equation for a given point x. Normal n is expected
-// to be a unit normal to the plane; o is a plane origin (i.e., point on
-// the plane).
-double EvaluatePlane(double x[3], double o[3], double n[3])
-{
-  return (((x[0] - o[0]) * n[0]) + ((x[1] - o[1]) * n[1]) + ((x[2] - o[2]) * n[2]));
-}
-
-} // anonymous namespace
 
 //------------------------------------------------------------------------------
 void vtkVoronoiHull::Initialize(vtkIdType genPtId, const double genPt[3], double bds[6])
@@ -172,15 +160,15 @@ ClipIntersectionStatus vtkVoronoiHull::Clip(vtkIdType neiPtId, const double neiP
   // Now perform the plane clipping / intersection operation.
   ClipIntersectionStatus retStatus = this->IntersectWithPlane(origin, normal, neiPtId);
 
-  // In the rare case of numeric issues, joggle the normal to compute different
+  // In the rare case of numeric issues, joggle the point to compute different
   // approximations to the Voronoi tessellation.
   int numBumps = 0;
   while (retStatus == ClipIntersectionStatus::Numeric && numBumps < 12)
   {
-    double bmpNormal[3];
-    this->BumpNormal(numBumps, normal, bmpNormal);
-    retStatus = this->IntersectWithPlane(origin, bmpNormal, neiPtId);
     numBumps++;
+    double bmpOrigin[3];
+    this->BumpOrigin(numBumps, origin, bmpOrigin);
+    retStatus = this->IntersectWithPlane(bmpOrigin, normal, neiPtId);
   }
 
   // Return the appropriate result.
@@ -201,6 +189,31 @@ ClipIntersectionStatus vtkVoronoiHull::Clip(vtkIdType neiPtId, const double neiP
 } // Clip()
 
 //------------------------------------------------------------------------------
+void vtkVoronoiHull::BumpOrigin(int bumpNum, double origin[3], double bumpOrigin[3])
+{
+  if (bumpNum == 0)
+  {
+    this->Bumper.Seed(this->PtId);
+  }
+
+  // Loop over hull points, find the most distant, and bump the origin in
+  // that direction.
+  double minR2 = VTK_FLOAT_MAX;
+  double minX[3];
+
+  for (const auto& pt : this->Points)
+  {
+    if (pt.Status == ProcessingStatus::Valid)
+    {
+      minR2 = std::min(minR2, pt.R2);
+    }
+  }
+
+  double radius = 1e3 * bumpNum * this->PruneTolerance * sqrt(minR2);
+  vtkVoronoiJoggle::JoggleXYZ(origin, bumpOrigin, radius, this->Bumper);
+}
+
+//------------------------------------------------------------------------------
 void vtkVoronoiHull::BumpNormal(int bumpNum, double normal[3], double bumpNormal[3])
 {
   // Make sure this operation is reproducible.
@@ -209,34 +222,9 @@ void vtkVoronoiHull::BumpNormal(int bumpNum, double normal[3], double bumpNormal
     this->Bumper.Seed(this->PtId);
   }
 
-  // std::cout << "Normal  In: " << "(" << std::setprecision(16) << normal[0]
-  //           << "," << std::setprecision(16) << normal[1]
-  //           << "," << std::setprecision(16) << normal[2] << ")\n";
-
-  // Find the maximum component of the current normal. Then randomly set the
-  // other two components. Note that because the random range of the vector
-  // components is [-1,1] with a mean of zero, we have to increase the bump
-  // amount with an empirical factor.
-  int iMax = (normal[0] > normal[1] ? 0 : 1);
-  iMax = (normal[iMax] > normal[2] ? iMax : 2);
-  double sum = 0.0;
-  for (auto i = 0; i < 3; ++i)
-  {
-    if (i != iMax)
-    {
-      bumpNormal[i] = (2.0 * this->Bumper.Next() - 1.0) * this->PruneTolerance * 1e+4;
-      sum += bumpNormal[i] * normal[i];
-    }
-  }
-  bumpNormal[iMax] = sum / normal[iMax];
-  bumpNormal[0] += normal[0];
-  bumpNormal[1] += normal[1];
-  bumpNormal[2] += normal[2];
-  vtkMath::Normalize(bumpNormal);
-
-  // std::cout << "Normal Out: " << "(" << std::setprecision(16) << bumpNormal[0]
-  //           << "," << std::setprecision(16) << bumpNormal[1]
-  //           << "," << std::setprecision(16) << bumpNormal[2] << ")\n";
+  // Use small angle approximation (recal |normal| == 1).
+  double theta = 1e-6 * vtkMath::Pi() / 180.0;
+  vtkVoronoiJoggle::JoggleNormal(normal, bumpNormal, theta, this->Bumper);
 }
 
 //------------------------------------------------------------------------------
@@ -252,7 +240,7 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
     vtkHullPoint& point = this->Points[ptId];
     if (point.Status == ProcessingStatus::Valid)
     {
-      val = EvaluatePlane(point.X, origin, normal);
+      val = vtkPlane::Evaluate(normal, origin, point.X);
       minVal = std::min(val, minVal);
       maxVal = std::max(val, maxVal);
       point.Val = val;
@@ -349,6 +337,7 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
   int npts = static_cast<int>(this->InsertedEdgePoints.size());
   if (npts < 3)
   {
+    vtkGenericWarningMacro("Numeric capping");
     return ClipIntersectionStatus::Numeric;
   }
 
@@ -390,7 +379,7 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
           continue;
         }
         x = this->Points[this->InsertedEdgePoints[j].Id].X;
-        if (EvaluatePlane(x, xO, sepN) > 0)
+        if (vtkPlane::Evaluate(sepN, xO, x) > 0)
         {
           idx++;
         }

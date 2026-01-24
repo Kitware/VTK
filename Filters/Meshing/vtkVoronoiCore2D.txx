@@ -22,9 +22,9 @@ vtkVoronoiCore2D<TCompositor, TClassifier>::vtkVoronoiCore2D(vtkAlgorithm* filte
   , Padding(padding)
   , MaxClips(maxClips)
   , Validate(validate)
-  , NumPrunes(0)
-  , NumThreads(0)
-  , MaxPoints(0)
+  , NumberOfThreads(0)
+  , MaximumNumberOfPoints(0)
+  , NumberOfPrunes(0)
 {
   // Set up points for processing.  The points must be of type double.
   this->NPts = this->InPoints->GetNumberOfPoints();
@@ -181,10 +181,10 @@ template <class TCompositor, class TClassifier>
 void vtkVoronoiCore2D<TCompositor, TClassifier>::Reduce()
 {
   // Build the wheels and spokes adjacency information.
-  this->NumThreads = 0;
+  this->NumberOfThreads = 0;
   vtkIdType numSpokes = 0;
-  this->MaxPoints = 0;
-  this->NumPrunes = 0;
+  this->MaximumNumberOfPoints = 0;
+  this->NumberOfPrunes = 0;
 
   // Gather information along with a prefix sum of some information
   // across all the threads.
@@ -192,10 +192,9 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::Reduce()
   {
     this->ThreadMap.push_back(&localData);
     numSpokes += localData.LocalSpokes.size();
-    this->NumThreads++;
-    this->MaxPoints =
-      (localData.MaxPoints > this->MaxPoints ? localData.MaxPoints : this->MaxPoints);
-    this->NumPrunes += localData.NumPrunes;
+    this->NumberOfThreads++;
+    this->MaximumNumberOfPoints = std::max(localData.MaxPoints, this->MaximumNumberOfPoints);
+    this->NumberOfPrunes += localData.NumPrunes;
   } // loop over local thread output
 
   // Prefix sum over wheels to determine spokes offsets,
@@ -400,7 +399,7 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::ProduceWheelsAndSpokes::Execute
   vtkVoronoiCore2D<TCompositor, TClassifier>* vc)
 {
   vtkVoronoiCore2D<TCompositor, TClassifier>::ProduceWheelsAndSpokes genSpokes(vc);
-  vtkSMPTools::For(0, vc->NumThreads, genSpokes);
+  vtkSMPTools::For(0, vc->NumberOfThreads, genSpokes);
 }
 
 //----------------------------------------------------------------------------
@@ -524,7 +523,7 @@ vtkVoronoiCore2D<TCompositor, TClassifier>::TopologicalMerge::Execute(
   vtkVoronoiCore2D<TCompositor, TClassifier>* vc)
 {
   auto merge = std::make_unique<vtkVoronoiCore2D<TCompositor, TClassifier>::TopologicalMerge>(vc);
-  vtkSMPTools::For(0, vc->NumThreads, *merge);
+  vtkSMPTools::For(0, vc->NumberOfThreads, *merge);
   return merge;
 }
 

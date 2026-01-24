@@ -74,12 +74,12 @@ enum class ProcessingStatus
  * position, the evaluated value against the current clipping plane, and
  * radius**2 of the distance of the point to the generating point (i.e., the
  * Voronoi petal radius**2).  Note: the id of the point is implicitly known
- * from its position in the PointsArray. The Faces[3] are the three faces
- * (defined by the three nearby point generators) whose separation planes
- * intersect to produce the point. If more than three faces meet at the point
- * then the point is degenerate. Note the Status member: due to the memory
- * management processes, the Status will change. Make sure to process only
- * points and faces with Status==ProcessingStatus::Valid.
+ * from its position in the vtkHullPointsArray. The Faces[3] are the three
+ * faces (defined by the three nearby point generators) whose separation
+ * planes intersect to produce the point. If more than three faces meet at
+ * the point then the point is degenerate. Note the Status member: due to the
+ * memory management processes, the Status will change. Make sure to process
+ * only points and faces with Status==ProcessingStatus::Valid.
  */
 struct VTKFILTERSMESHING_EXPORT vtkHullPoint
 {
@@ -216,19 +216,20 @@ struct vtkHullEdgeTuple
   }
 }; // vtkHullEdgeTuple
 
-using PointsArray = std::vector<vtkHullPoint>; // the polyhedral points (and associated attributes)
-using FacesArray = std::vector<vtkHullFace>;   // a list of polyhedral faces
-using FacePointsArray = std::vector<int>;      // the list of points (by id) defining the faces
-using FaceScratchArray = std::vector<int>;     // temporary face point ids array
-using InsertedEdgePointsArray = std::vector<vtkHullEdgeTuple>; // collect edge intersection points
-
 /**
  * The polyhedron class proper. Since it is a supporting class, it is
  * lightweight and not a subclass of vtkObject.
  */
 class VTKFILTERSMESHING_EXPORT vtkVoronoiHull
 {
-public: // methods and data members purposely made public
+public:
+  using vtkHullPointsArray =
+    std::vector<vtkHullPoint>; // the polyhedral points (and associated attributes)
+  using vtkHullFacesArray = std::vector<vtkHullFace>; // a list of polyhedral faces
+  using FacePointsArray = std::vector<int>;  // the list of points (by id) defining the faces
+  using FaceScratchArray = std::vector<int>; // temporary face point ids array
+  using InsertedEdgePointsArray = std::vector<vtkHullEdgeTuple>; // collect edge intersection points
+
   /**
    * Constructor. After instantiation, for each new point to process, make
    * sure to initialize the polyhedron with Initialize().
@@ -337,12 +338,13 @@ public: // methods and data members purposely made public
   // Support normal joggle in the case of degeneracies.
   vtkVoronoiRandom01Range Bumper;
   void BumpNormal(int bumpNum, double normal[3], double bumpNormal[3]);
+  void BumpOrigin(int bumpNum, double origin[3], double bumpOrigin[3]);
 
   // These data members represent the constructed polyhedron.
-  vtkIdType NumPts;   // The number of valid points in the points array
-  PointsArray Points; // Array of points defining this polyhedron
-  vtkIdType NumFaces; // The number of valid faces in the faces array
-  FacesArray Faces;   // A list of faces forming this polyhedron
+  vtkIdType NumPts;          // The number of valid points in the points array
+  vtkHullPointsArray Points; // Array of points defining this polyhedron
+  vtkIdType NumFaces;        // The number of valid faces in the faces array
+  vtkHullFacesArray Faces;   // A list of faces forming this polyhedron
 
   /**
    * A homebrew stack with a preferred API. It is used to keep track of

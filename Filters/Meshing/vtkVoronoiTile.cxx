@@ -3,6 +3,7 @@
 #include "vtkVoronoiTile.h"
 
 #include "vtkCellArray.h"
+#include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -163,7 +164,7 @@ ClipIntersectionStatus vtkVoronoiTile::IntersectWithLine(
   double val, minVal = 0, maxVal = 0;
   for (auto& p : this->Points)
   {
-    val = EvaluateLine(p.X, origin, normal);
+    val = vtkLine::Evaluate(normal, origin, p.X);
     minVal = std::min(val, minVal);
     maxVal = std::max(val, maxVal);
     p.Val = val;
@@ -254,7 +255,7 @@ void vtkVoronoiTile::ProducePolyData(vtkPolyData* pd, vtkSpheres* spheres)
   {
     points->SetPoint(ptId, v.X[0], v.X[1], this->X[2]);
     tile->InsertCellPoint(ptId);
-    double r = sqrt(Distance2BetweenPoints2D(v.X, this->X));
+    double r = sqrt(vtkMath::Distance2BetweenPoints2D(v.X, this->X));
     radii->SetTuple1(ptId++, r);
   }
 

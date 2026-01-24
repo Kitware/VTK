@@ -73,7 +73,7 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Delaunay tetrahedralization: {0}".format(time))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 print("   Number of tets produced: {0}".format(voronoi.GetOutput().GetNumberOfCells()))
 
 volMapper = vtk.vtkDataSetMapper()

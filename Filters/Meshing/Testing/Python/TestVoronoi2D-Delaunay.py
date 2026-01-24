@@ -73,7 +73,7 @@ print("Number of points processed: {0}".format(NPts))
 print("   Time to generate Delaunay triangulation: {0}".format(time))
 print("   Number of output points: {0}".format(voronoi.GetOutput(1).GetNumberOfPoints()))
 print("   Number of output triangles: {0}".format(voronoi.GetOutput(1).GetNumberOfCells()))
-print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreadsUsed()))
+print("   Number of threads used: {0}".format(voronoi.GetNumberOfThreads()))
 
 mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(voronoi.GetOutputPort(1))

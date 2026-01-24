@@ -14,7 +14,6 @@
 #include "vtkGeneralizedSurfaceNets3D.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -24,7 +23,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTesting.h"
+#include "vtkTestUtilities.h"
+
+#include <iostream>
 
 namespace
 {
@@ -101,8 +102,8 @@ void ProduceRandomPoints(int numSpheres, int numPts, vtkPolyData* randomPts)
 
 int TestGeneralizedSurfaceNets3D(int argc, char* argv[])
 {
-  int numSpheres = 50;
-  int numPts = 10000;
+  int numSpheres = 5;
+  int numPts = 1000000;
 
   vtkNew<vtkPolyData> randomPoints;
 
@@ -116,6 +117,10 @@ int TestGeneralizedSurfaceNets3D(int argc, char* argv[])
     surfaceNets->SetLabel(i, i);
   }
   surfaceNets->BoundaryCappingOn();
+  surfaceNets->SmoothingOn();
+  surfaceNets->SetNumberOfIterations(50);
+  surfaceNets->SetConstraintDistance(1);
+  surfaceNets->GenerateSmoothingStencilsOff();
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(surfaceNets->GetOutputPort());
