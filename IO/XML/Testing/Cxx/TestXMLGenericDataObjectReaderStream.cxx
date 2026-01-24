@@ -25,6 +25,12 @@ bool TestAndCompare(int argc, char* argv[], const std::string& file)
   fileStream->Open(filename.c_str());
 
   vtkNew<vtkXMLGenericDataObjectReader> reader;
+  if (!reader->CanReadFile(fileStream))
+  {
+    std::cerr << "Unexpected CanReadFile result with stream" << std::endl;
+    return false;
+  }
+
   reader->SetStream(fileStream);
   reader->ReadFromInputStreamOn();
   reader->Update();

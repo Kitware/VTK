@@ -81,6 +81,7 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parall
 int vtkXMLGenericDataObjectReader::ReadOutputType(vtkXMLFileReadTester* tester, bool& parallel)
 {
   parallel = false;
+  int type = -1;
 
   // Test if the file with the given name is a VTKFile with the given type.
   if (tester->TestReadFile())
@@ -89,68 +90,85 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(vtkXMLFileReadTester* tester, 
     if (cfileDataType != nullptr)
     {
       std::string fileDataType(cfileDataType);
-      if (fileDataType == "vtkOverlappingAMR" || fileDataType == "HierarchicalBoxDataSet" ||
-        fileDataType == "vtkHierarchicalBoxDataSet")
-      {
-        return VTK_OVERLAPPING_AMR;
-      }
-      if (fileDataType == "vtkNonOverlappingAMR")
-      {
-        return VTK_NON_OVERLAPPING_AMR;
-      }
-      if (fileDataType == "ImageData")
-      {
-        return VTK_IMAGE_DATA;
-      }
-      if (fileDataType == "PImageData")
+      if (fileDataType == "PImageData" || fileDataType == "PPolyData" ||
+        fileDataType == "PRectilinearGrid" || fileDataType == "PStructuredGrid" ||
+        fileDataType == "PUnstructuredGrid" || fileDataType == "PUnstructuredGridBase")
       {
         parallel = true;
-        return VTK_IMAGE_DATA;
       }
-      if (fileDataType == "vtkMultiBlockDataSet")
+
+      type = this->GetTypeIdFromClassName(fileDataType);
+
+      if (type == -1)
       {
-        return VTK_MULTIBLOCK_DATA_SET;
-      }
-      if (fileDataType == "PolyData")
-      {
-        return VTK_POLY_DATA;
-      }
-      if (fileDataType == "PPolyData")
-      {
-        parallel = true;
-        return VTK_POLY_DATA;
-      }
-      if (fileDataType == "RectilinearGrid")
-      {
-        return VTK_RECTILINEAR_GRID;
-      }
-      if (fileDataType == "PRectilinearGrid")
-      {
-        parallel = true;
-        return VTK_RECTILINEAR_GRID;
-      }
-      if (fileDataType == "StructuredGrid")
-      {
-        return VTK_STRUCTURED_GRID;
-      }
-      if (fileDataType == "PStructuredGrid")
-      {
-        parallel = true;
-        return VTK_STRUCTURED_GRID;
-      }
-      if (fileDataType == "UnstructuredGrid" || fileDataType == "UnstructuredGridBase")
-      {
-        return VTK_UNSTRUCTURED_GRID;
-      }
-      if (fileDataType == "PUnstructuredGrid" || fileDataType == "PUnstructuredGridBase")
-      {
-        parallel = true;
-        return VTK_UNSTRUCTURED_GRID;
+        vtkWarningMacro(<< "Unrecognised file type: " << fileDataType);
       }
     }
   }
 
-  vtkErrorMacro(<< "could not test output type");
+  if (type == -1)
+  {
+    vtkErrorMacro(<< "could not recover a proper output type");
+  }
+  return type;
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLGenericDataObjectReader::GetTypeIdFromClassName(const std::string& fileDataType)
+{
+  if (fileDataType == "vtkOverlappingAMR" || fileDataType == "HierarchicalBoxDataSet" ||
+    fileDataType == "vtkHierarchicalBoxDataSet")
+  {
+    return VTK_OVERLAPPING_AMR;
+  }
+  if (fileDataType == "vtkNonOverlappingAMR")
+  {
+    return VTK_NON_OVERLAPPING_AMR;
+  }
+  if (fileDataType == "ImageData")
+  {
+    return VTK_IMAGE_DATA;
+  }
+  if (fileDataType == "PImageData")
+  {
+    return VTK_IMAGE_DATA;
+  }
+  if (fileDataType == "vtkMultiBlockDataSet")
+  {
+    return VTK_MULTIBLOCK_DATA_SET;
+  }
+  if (fileDataType == "PolyData")
+  {
+    return VTK_POLY_DATA;
+  }
+  if (fileDataType == "PPolyData")
+  {
+    return VTK_POLY_DATA;
+  }
+  if (fileDataType == "RectilinearGrid")
+  {
+    return VTK_RECTILINEAR_GRID;
+  }
+  if (fileDataType == "PRectilinearGrid")
+  {
+    return VTK_RECTILINEAR_GRID;
+  }
+  if (fileDataType == "StructuredGrid")
+  {
+    return VTK_STRUCTURED_GRID;
+  }
+  if (fileDataType == "PStructuredGrid")
+  {
+    return VTK_STRUCTURED_GRID;
+  }
+  if (fileDataType == "UnstructuredGrid" || fileDataType == "UnstructuredGridBase")
+  {
+    return VTK_UNSTRUCTURED_GRID;
+  }
+  if (fileDataType == "PUnstructuredGrid" || fileDataType == "PUnstructuredGridBase")
+  {
+    return VTK_UNSTRUCTURED_GRID;
+  }
   return -1;
 }
 
@@ -460,4 +478,11 @@ vtkIdType vtkXMLGenericDataObjectReader::GetNumberOfCells()
   }
   return numCells;
 }
+
+//------------------------------------------------------------------------------
+int vtkXMLGenericDataObjectReader::CanReadFileWithDataType(const char* dsname)
+{
+  return this->GetTypeIdFromClassName(dsname) >= 0 ? 1 : 0;
+}
+
 VTK_ABI_NAMESPACE_END

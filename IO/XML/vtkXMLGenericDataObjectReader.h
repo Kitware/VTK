@@ -90,6 +90,11 @@ public:
    */
   static vtkSmartPointer<vtkXMLReader> CreateReader(int data_object_type, bool parallel);
 
+  /**
+   * Return 1 if provided dsname is supported, 0 otherwise.
+   */
+  int CanReadFileWithDataType(const char* dsname) override;
+
 protected:
   vtkXMLGenericDataObjectReader();
   ~vtkXMLGenericDataObjectReader() override;
@@ -115,6 +120,13 @@ private:
 
   int ReadOutputType(std::istream* stream, bool& parallel);
   int ReadOutputType(vtkXMLFileReadTester* tester, bool& parallel);
+
+  /**
+   * Return an actual vtkDataObjectType from a textual data object type
+   * taking retro compatibility into account.
+   * Returns -1 if not recognised.
+   */
+  int GetTypeIdFromClassName(const std::string& dsname);
 };
 
 VTK_ABI_NAMESPACE_END
