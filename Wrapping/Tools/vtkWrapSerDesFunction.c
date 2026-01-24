@@ -261,9 +261,9 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
   if (isVTKSmartPointer || (isVTKObject && isPointer))
   {
     fprintf(fp,
-      "    auto arg_%d = "
-      "reinterpret_cast<%s*>(objectFromContext%d.GetPointer());\n",
-      paramId, className, paramId);
+      "    auto* arg_%d = "
+      "reinterpret_cast<%s*>(args[%d].is_null() ? nullptr : objectFromContext%d.GetPointer());\n",
+      paramId, className, paramId, paramId);
     free(className);
     return;
   }
@@ -401,7 +401,7 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
       "    vtkTypeUInt32 identifier = "
       "context->GetId(reinterpret_cast<vtkObjectBase*>(methodReturnValue));\n");
     fprintf(fp,
-      "    if (identifier == 0)\n"
+      "    if (identifier == 0 && methodReturnValue != nullptr)\n"
       "    {\n"
       "      // NOLINTNEXTLINE(readability-redundant-casting)\n"
       "      context->RegisterObject(reinterpret_cast<vtkObjectBase*>(methodReturnValue), "

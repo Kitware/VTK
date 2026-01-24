@@ -74,16 +74,25 @@ static nlohmann::json Serialize_vtkShaderProperty(
   return state;
 }
 
-static void Deserialize_vtkShaderProperty(
+static bool Deserialize_vtkShaderProperty(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto object = vtkShaderProperty::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkShaderProperty");
+    return false;
+  }
 
   if (auto f = deserializer->GetHandler(typeid(vtkShaderProperty::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto iter = state.find("VertexShaderCode");
     if ((iter != state.end()) && !iter->is_null())
@@ -163,6 +172,7 @@ static void Deserialize_vtkShaderProperty(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkShaderPropertySerDesHelper(

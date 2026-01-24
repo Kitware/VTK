@@ -73,6 +73,7 @@ public:
    * Must only contain vtkPolyData instances on the OpenGL backend. May contain
    * vtkCompositeDataSets with vtkPolyData leaves on OpenGL2.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetSourceTableTree(vtkDataObjectTree* tree);
 
   /**
@@ -91,6 +92,7 @@ public:
   /**
    * Convenience method to get the source table tree, if it exists.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkDataObjectTree* GetSourceTableTree();
 
   ///@{

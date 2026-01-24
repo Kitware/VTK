@@ -43,38 +43,46 @@ static nlohmann::json Serialize_vtkDataSetAttributes(
   }
 }
 
-static void Deserialize_vtkDataSetAttributes(
+static bool Deserialize_vtkDataSetAttributes(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using nlohmann::json;
-  if (auto* dsa = vtkDataSetAttributes::SafeDownCast(object))
+  auto* dsa = vtkDataSetAttributes::SafeDownCast(object);
+  if (!dsa)
   {
-    if (auto superDeserializer = deserializer->GetHandler(typeid(vtkDataSetAttributes::Superclass)))
-    {
-      superDeserializer(state, object, deserializer);
-    }
-    const auto& attributeIndices = state["AttributeIndices"];
-    if (attributeIndices.size() != vtkDataSetAttributes::NUM_ATTRIBUTES)
-    {
-      vtkWarningWithObjectMacro(deserializer,
-        << "Failed to deserialize active attribute types in the dataset attributes object. "
-           "The number of attribute indices in state is not "
-           "equal to vtkDataSetAttributes::NUM_ATTRIBUTES("
-        << vtkDataSetAttributes::NUM_ATTRIBUTES << ")!");
-      return;
-    }
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkDataSetAttributes");
+    return false;
+  }
+  if (auto superDeserializer = deserializer->GetHandler(typeid(vtkDataSetAttributes::Superclass)))
+  {
+    success &= superDeserializer(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
+  }
+  const auto& attributeIndices = state["AttributeIndices"];
+  if (attributeIndices.size() != vtkDataSetAttributes::NUM_ATTRIBUTES)
+  {
+    vtkErrorWithObjectMacro(deserializer,
+      << "Failed to deserialize active attribute types in the dataset attributes object. "
+         "The number of attribute indices in state is not "
+         "equal to vtkDataSetAttributes::NUM_ATTRIBUTES("
+      << vtkDataSetAttributes::NUM_ATTRIBUTES << ")!");
+    return false;
+  }
 
-    std::vector<int> existingAttributeIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
-    dsa->GetAttributeIndices(existingAttributeIndices.data());
-    for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES;
-         ++attributeType)
+  std::vector<int> existingAttributeIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
+  dsa->GetAttributeIndices(existingAttributeIndices.data());
+  for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeType)
+  {
+    if (existingAttributeIndices[attributeType] != attributeIndices[attributeType])
     {
-      if (existingAttributeIndices[attributeType] != attributeIndices[attributeType])
-      {
-        dsa->SetActiveAttribute(attributeIndices[attributeType], attributeType);
-      }
+      dsa->SetActiveAttribute(attributeIndices[attributeType], attributeType);
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkDataSetAttributesSerDesHelper(

@@ -10,6 +10,7 @@ vtk_add_test_python(
   TestGlyph3DMapper.py
   TestInitialize.py,NO_VALID
   TestLabelMapper.py
+  TestNull.py,NO_VALID
   TestPolyDataMapperMTime.py,NO_VALID
   TestRendererActorCollection.py,NO_VALID
   TestScalarBarWidget.py

@@ -177,8 +177,8 @@ public:
   /**
    * Deserialize the state into vtk object.
    */
-  void UpdateObjectFromState(const std::string& state);
-  void UpdateObjectFromState(const nlohmann::json& state);
+  bool UpdateObjectFromState(const std::string& state);
+  bool UpdateObjectFromState(const nlohmann::json& state);
   ///@}
 
   /**

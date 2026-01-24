@@ -41,13 +41,23 @@ static nlohmann::json Serialize_vtkPiecewiseFunction(
   return state;
 }
 
-static void Deserialize_vtkPiecewiseFunction(
+static bool Deserialize_vtkPiecewiseFunction(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkPiecewiseFunction::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkPiecewiseFunction");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkPiecewiseFunction::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
   }
   VTK_DESERIALIZE_VALUE_FROM_STATE(Clamping, int, state, object);
   VTK_DESERIALIZE_VALUE_FROM_STATE(UseLogScale, bool, state, object);
@@ -62,6 +72,7 @@ static void Deserialize_vtkPiecewiseFunction(
       object->FillFromDataPointer(nb, elements.data());
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkPiecewiseFunctionSerDesHelper(

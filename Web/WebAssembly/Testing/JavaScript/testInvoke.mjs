@@ -14,8 +14,6 @@ async function testInvokeRemote() {
 
   // Invoke a method named "Elevation" on the camera with argument 10.0
   remoteSession.invoke(1, "Elevation", [10.0]);
-
-  remoteSession.updateStateFromObject(1);
   state = remoteSession.get(1);
   if (JSON.stringify(state.Position) != JSON.stringify([0, 0.17364817766693033, 0.9848077530122081])) {
     throw new Error("vtkCamera::Elevation(10) did not work!");

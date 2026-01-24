@@ -69,80 +69,89 @@ static nlohmann::json Serialize_vtkDiscretizableColorTransferFunction(
   }
 }
 
-static void Deserialize_vtkDiscretizableColorTransferFunction(
+static bool Deserialize_vtkDiscretizableColorTransferFunction(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using nlohmann::json;
-  if (auto* dctf = vtkDiscretizableColorTransferFunction::SafeDownCast(object))
+  auto* dctf = vtkDiscretizableColorTransferFunction::SafeDownCast(object);
+  if (!dctf)
   {
-    if (auto superDeserializer =
-          deserializer->GetHandler(typeid(vtkDiscretizableColorTransferFunction::Superclass)))
+    vtkErrorWithObjectMacro(
+      deserializer, << __func__ << ": object not a vtkDiscretizableColorTransferFunction");
+    return false;
+  }
+  if (auto superDeserializer =
+        deserializer->GetHandler(typeid(vtkDiscretizableColorTransferFunction::Superclass)))
+  {
+    success &= superDeserializer(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
+  }
+  {
+    const auto iter = state.find("NumberOfIndexedColors");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      superDeserializer(state, object, deserializer);
+      dctf->SetNumberOfIndexedColors(iter->get<unsigned int>());
     }
-
+  }
+  {
+    const auto iter = state.find("Discretize");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      const auto iter = state.find("NumberOfIndexedColors");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        dctf->SetNumberOfIndexedColors(iter->get<unsigned int>());
-      }
+      dctf->SetDiscretize(iter->get<int>());
     }
+  }
+  {
+    const auto iter = state.find("UseLogScale");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      const auto iter = state.find("Discretize");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        dctf->SetDiscretize(iter->get<int>());
-      }
+      dctf->SetUseLogScale(iter->get<int>());
     }
+  }
+  {
+    const auto iter = state.find("NumberOfValues");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      const auto iter = state.find("UseLogScale");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        dctf->SetUseLogScale(iter->get<int>());
-      }
+      dctf->SetNumberOfValues(iter->get<long long>());
     }
+  }
+  {
+    auto iter = state.find("ScalarOpacityFunction");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      const auto iter = state.find("NumberOfValues");
-      if ((iter != state.end()) && !iter->is_null())
+      const auto* context = deserializer->GetContext();
+      const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
+      auto subObject = context->GetObjectAtId(identifier);
+      success &= deserializer->DeserializeJSON(identifier, subObject);
+      if (auto* pwf = vtkPiecewiseFunction::SafeDownCast(subObject))
       {
-        dctf->SetNumberOfValues(iter->get<long long>());
-      }
-    }
-    {
-      auto iter = state.find("ScalarOpacityFunction");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        const auto* context = deserializer->GetContext();
-        const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
-        auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
-        if (auto* pwf = vtkPiecewiseFunction::SafeDownCast(subObject))
-        {
-          dctf->SetScalarOpacityFunction(pwf);
-        }
-      }
-    }
-    {
-      const auto iter = state.find("EnableOpacityMapping");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        dctf->SetEnableOpacityMapping(iter->get<bool>());
-      }
-    }
-
-    {
-      const auto iter = state.find("IndexedColors");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        auto indexedColors = iter->get<std::vector<std::vector<double>>>();
-        for (unsigned int i = 0; i < indexedColors.size(); ++i)
-        {
-          dctf->SetIndexedColorRGBA(i, indexedColors[i].data());
-        }
+        dctf->SetScalarOpacityFunction(pwf);
       }
     }
   }
+  {
+    const auto iter = state.find("EnableOpacityMapping");
+    if ((iter != state.end()) && !iter->is_null())
+    {
+      dctf->SetEnableOpacityMapping(iter->get<bool>());
+    }
+  }
+
+  {
+    const auto iter = state.find("IndexedColors");
+    if ((iter != state.end()) && !iter->is_null())
+    {
+      auto indexedColors = iter->get<std::vector<std::vector<double>>>();
+      for (unsigned int i = 0; i < indexedColors.size(); ++i)
+      {
+        dctf->SetIndexedColorRGBA(i, indexedColors[i].data());
+      }
+    }
+  }
+  return success;
 }
 
 int RegisterHandlers_vtkDiscretizableColorTransferFunctionSerDesHelper(

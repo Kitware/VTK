@@ -14,6 +14,8 @@ vtk_add_test_module_javascript_node(
   testBlobs.mjs
   testInitialize.mjs,NO_DATA
   testInvoke.mjs
+  testNull.mjs
   testOSMesaRenderWindowPatch.mjs
   testSkipProperty.mjs
-  testStates.mjs)
+  testStates.mjs
+  testStandaloneInterface.mjs)

@@ -87,20 +87,25 @@ static nlohmann::json Serialize_vtkGraph(vtkObjectBase* object, vtkSerializer* s
   }
 }
 
-static void Deserialize_vtkGraph(
+static bool Deserialize_vtkGraph(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* graph = vtkGraph::SafeDownCast(object);
   if (!graph)
   {
-    return;
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkGraph");
+    return false;
   }
 
   if (auto superDeserializer = deserializer->GetHandler(typeid(vtkGraph::Superclass)))
   {
-    superDeserializer(state, object, deserializer);
+    success &= superDeserializer(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   vtkGraphInternals* internals = graph->GetGraphInternals(true);
   std::vector<vtkVertexAdjacencyList> adjacency;
   for (const auto& adj : state["InternalAdjacency"])
@@ -140,7 +145,7 @@ static void Deserialize_vtkGraph(
           auto registrationId = identifier;
           context->RegisterObject(subObject, registrationId);
         }
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
       }
     }
   }
@@ -163,11 +168,12 @@ static void Deserialize_vtkGraph(
           auto registrationId = identifier;
           context->RegisterObject(subObject, registrationId);
         }
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
       }
     }
   }
   VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(Points, vtkPoints, state, graph, deserializer);
+  return success;
 }
 
 int RegisterHandlers_vtkGraphSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

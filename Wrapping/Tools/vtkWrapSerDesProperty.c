@@ -407,15 +407,9 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     fprintf(fp, "  {\n");
     fprintf(fp, "    auto value = object->%s(%s);\n", getterName, getterIdxStr);
     // serialize null values to preserve index
-    if (!isIndexed)
-    {
-      fprintf(fp, "    if (value)\n");
-    }
-    fprintf(fp, "    {\n");
-    fprintf(fp, "      state[\"%s\"]%s = ", keyName, stateIdxStr);
+    fprintf(fp, "    state[\"%s\"]%s = ", keyName, stateIdxStr);
     vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
     fprintf(fp, ";\n");
-    fprintf(fp, "    }\n");
     fprintf(fp, "  }\n");
     isWritten = 1;
   }
@@ -627,7 +621,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
         "          auto registrationId = identifier;\n"
         "          context->RegisterObject(subObject, registrationId);\n"
         "        }\n"
-        "        deserializer->DeserializeJSON(identifier, subObject);\n"
+        "        success &= deserializer->DeserializeJSON(identifier, subObject);\n"
         "      }\n");
       fprintf(fp, "    }\n");
       fprintf(fp, "  }\n");
@@ -711,7 +705,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "      {\n");
       fprintf(fp, "        const auto identifier = item.at(\"Id\").get<vtkTypeUInt32>();\n");
       fprintf(fp, "        auto subObject = context->GetObjectAtId(identifier);\n");
-      fprintf(fp, "        deserializer->DeserializeJSON(identifier, subObject);\n");
+      fprintf(fp, "        success &= deserializer->DeserializeJSON(identifier, subObject);\n");
       fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          itemStore.emplace_back(subObject);\n");
@@ -744,7 +738,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       "      const auto* context = deserializer->GetContext();\n"
       "      const auto identifier = iter->at(\"Id\").get<vtkTypeUInt32>();\n"
       "      auto subObject = context->GetObjectAtId(identifier);\n"
-      "      deserializer->DeserializeJSON(identifier, subObject);\n"
+      "      success &= deserializer->DeserializeJSON(identifier, subObject);\n"
       "      if (subObject != nullptr)\n");
     fprintf(fp, "      {\n");
     fprintf(fp, "      /* NOLINTNEXTLINE(bugprone-casting-through-void) */\n");
@@ -753,6 +747,17 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     callSetterEndMacro(fp);
     fprintf(fp, "      }\n");
     fprintf(fp, "    }\n");
+    if (!isIndexed)
+    {
+      // set nullptr only if the key is present and equals null.
+      fprintf(fp, "    else if (iter != state.end() && iter->is_null())\n");
+      fprintf(fp, "    {\n");
+      callSetterBeginMacro(fp, "      ");
+      callSetterParameterMacro(fp, "static_cast<%s*>(nullptr)", val->Class);
+      callSetterEndMacro(fp);
+      fprintf(fp, "    }\n");
+    }
+    // if not-null and not-found, leave object unchanged.
     fprintf(fp, "  }\n");
     isWritten = 1;
   }
@@ -958,7 +963,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "      {\n");
       fprintf(fp, "        const auto identifier = item.second.at(\"Id\").get<vtkTypeUInt32>();\n");
       fprintf(fp, "        auto subObject = context->GetObjectAtId(identifier);\n");
-      fprintf(fp, "        deserializer->DeserializeJSON(identifier, subObject);\n");
+      fprintf(fp, "        success &= deserializer->DeserializeJSON(identifier, subObject);\n");
       fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          subObject->Register(object);\n");

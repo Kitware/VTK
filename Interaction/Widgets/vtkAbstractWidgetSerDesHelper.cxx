@@ -142,14 +142,21 @@ static nlohmann::json Serialize_vtkAbstractWidget(
     widget_##vtkWidgetName->SetRepresentation(                                                     \
       vtkWidgetRepresentationName::SafeDownCast(subObject));                                       \
   }
-static void Deserialize_vtkAbstractWidget(
+static bool Deserialize_vtkAbstractWidget(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   auto* object = vtkAbstractWidget::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkAbstractWidget");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkAbstractWidget::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
+  if (success)
   {
     const auto iter = state.find("WidgetRepresentation");
     if ((iter != state.end()) && !iter->is_null())
@@ -157,7 +164,7 @@ static void Deserialize_vtkAbstractWidget(
       const auto* context = deserializer->GetContext();
       const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
+      success &= deserializer->DeserializeJSON(identifier, subObject);
       // (vtk/vtk#19274) VTK WidgetRepresentations do not implement shallow copy!
       // Either that gets improved or promote vtkAbstractWidget::SetWidgetRepresentation from
       // protected to public access.
@@ -210,14 +217,18 @@ static void Deserialize_vtkAbstractWidget(
       SET_WIDGET_REPRESENTATION(vtkTensorWidget, vtkTensorRepresentation)
     }
   }
-  VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(
-    Interactor, vtkRenderWindowInteractor, state, object, deserializer);
-  // order matters, must be after interactor is set.
-  VTK_DESERIALIZE_VALUE_FROM_STATE(Enabled, int, state, object);
-  VTK_DESERIALIZE_VALUE_FROM_STATE(ProcessEvents, int, state, object);
-  VTK_DESERIALIZE_VALUE_FROM_STATE(ManagesCursor, int, state, object);
-  VTK_DESERIALIZE_VALUE_FROM_STATE(Priority, float, state, object);
-  VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(Parent, vtkAbstractWidget, state, object, deserializer);
+  if (success)
+  {
+    VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(
+      Interactor, vtkRenderWindowInteractor, state, object, deserializer);
+    // order matters, must be after interactor is set.
+    VTK_DESERIALIZE_VALUE_FROM_STATE(Enabled, int, state, object);
+    VTK_DESERIALIZE_VALUE_FROM_STATE(ProcessEvents, int, state, object);
+    VTK_DESERIALIZE_VALUE_FROM_STATE(ManagesCursor, int, state, object);
+    VTK_DESERIALIZE_VALUE_FROM_STATE(Priority, float, state, object);
+    VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(Parent, vtkAbstractWidget, state, object, deserializer);
+  }
+  return success;
 }
 
 int RegisterHandlers_vtkAbstractWidgetSerDesHelper(

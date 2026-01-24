@@ -157,6 +157,7 @@ typedef struct vtkSessionDescriptor
 #define vtkSessionRemoveObserver VTK_ABI_NAMESPACE_MANGLE(vtkSessionRemoveObserver)
 #define vtkSessionImport VTK_ABI_NAMESPACE_MANGLE(vtkSessionImport)
 #define vtkSessionExport VTK_ABI_NAMESPACE_MANGLE(vtkSessionExport)
+#define vtkSessionPrintObjectToString VTK_ABI_NAMESPACE_MANGLE(vtkSessionPrintObjectToString)
 #define vtkSessionPrintSceneManagerInformation VTK_ABI_NAMESPACE_MANGLE(vtkSessionPrintSceneManagerInformation)
 #define vtkSessionSetDeserializerLogVerbosity VTK_ABI_NAMESPACE_MANGLE(vtkSessionSetDeserializerLogVerbosity)
 #define vtkSessionSetInvokerLogVerbosity VTK_ABI_NAMESPACE_MANGLE(vtkSessionSetInvokerLogVerbosity)
@@ -386,11 +387,12 @@ extern "C"
    * vtkCreateSession.
    * @param state The state to update the object from. The state must be valid json and must have
    * the required key value pairs.
+   * @return A vtkSessionResult indicating success or failure.
    * @note The state must be valid json and must have the required key value pairs. The state must
    *  1. be valid json.
    *  2. have atleast a key-value pair `{'Id': n}` where n is an integer of type vtkObjectHandle
    */
-  VTKSERIALIZATIONMANAGER_EXPORT void vtkSessionUpdateObjectFromState(
+  VTKSERIALIZATIONMANAGER_EXPORT vtkSessionResult vtkSessionUpdateObjectFromState(
     vtkSession session, vtkSessionJson state);
 
   /**
@@ -589,6 +591,19 @@ extern "C"
    */
   VTKSERIALIZATIONMANAGER_EXPORT size_t vtkSessionGetTotalVTKDataObjectMemoryUsage(
     vtkSession session);
+
+  /**
+   * Print the object information to the console.
+   * @param session The session to print the information from. The session must be created using
+   * vtkCreateSession.
+   * @param object The object to print the information for. The object must be registered using
+   * vtkSessionRegisterState or vtkSessionCreateObject or a dependent of objects created
+   * through either of those two methods.
+   * @return A string containing the object information. The caller is responsible for freeing the
+   * string using free() or delete[].
+   */
+  VTKSERIALIZATIONMANAGER_EXPORT char* vtkSessionPrintObjectToString(
+    vtkSession session, vtkObjectHandle object);
 
   /**
    * Print the scene manager information to the console.

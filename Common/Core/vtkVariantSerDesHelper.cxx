@@ -47,22 +47,34 @@ nlohmann::json Serialize_vtkVariant(const vtkVariant* variant, vtkSerializer* se
   return state;
 }
 
-void Deserialize_vtkVariant(
+bool Deserialize_vtkVariant(
   const nlohmann::json& state, vtkVariant* variant, vtkDeserializer* deserializer)
 {
-  int type = state["Type"];
-  auto iter = state.find("Value");
+  bool success = true;
+  auto typeIter = state.find("Type");
+  if (typeIter == state.end())
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": Missing 'Type' in JSON state.");
+    return false;
+  }
+  const int type = typeIter->get<int>();
+  auto valueIter = state.find("Value");
+  if (valueIter == state.end())
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": Missing 'Value' in JSON state.");
+    return false;
+  }
   if (type == VTK_STRING)
   {
-    *variant = vtkVariant(iter->get<std::string>());
+    *variant = vtkVariant(valueIter->get<std::string>());
   }
   else if (type == VTK_FLOAT)
   {
-    *variant = vtkVariant(iter->get<float>());
+    *variant = vtkVariant(valueIter->get<float>());
   }
   else if (type == VTK_DOUBLE)
   {
-    *variant = vtkVariant(iter->get<double>());
+    *variant = vtkVariant(valueIter->get<double>());
   }
   else if (type == VTK_OBJECT)
   {
@@ -72,8 +84,9 @@ void Deserialize_vtkVariant(
   }
   else
   {
-    *variant = vtkVariant(vtkVariant(iter->get<vtkTypeUInt64>()), type);
+    *variant = vtkVariant(vtkVariant(valueIter->get<vtkTypeUInt64>()), type);
   }
+  return success;
 }
 
 VTK_ABI_NAMESPACE_END

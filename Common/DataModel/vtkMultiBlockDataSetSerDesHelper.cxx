@@ -49,16 +49,25 @@ static nlohmann::json Serialize_vtkMultiBlockDataSet(
   return state;
 }
 
-static void Deserialize_vtkMultiBlockDataSet(
+static bool Deserialize_vtkMultiBlockDataSet(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto object = vtkMultiBlockDataSet::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkMultiBlockDataSet");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkMultiBlockDataSet::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto iter = state.find("Blocks");
     if (iter != state.end() && iter->is_array())
@@ -79,7 +88,7 @@ static void Deserialize_vtkMultiBlockDataSet(
           auto* context = deserializer->GetContext();
           const auto identifier = block.at("Id").get<vtkTypeUInt32>();
           auto subObject = context->GetObjectAtId(identifier);
-          deserializer->DeserializeJSON(identifier, subObject);
+          success &= deserializer->DeserializeJSON(identifier, subObject);
           object->SetBlock(i, vtkDataObject::SafeDownCast(subObject));
         }
         else
@@ -91,6 +100,7 @@ static void Deserialize_vtkMultiBlockDataSet(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkMultiBlockDataSetSerDesHelper(

@@ -19,7 +19,7 @@ class vtkVariant;
 nlohmann::json VTKCOMMONCORE_EXPORT Serialize_vtkVariant(
   const vtkVariant* variant, vtkSerializer* serializer);
 
-void VTKCOMMONCORE_EXPORT Deserialize_vtkVariant(
+bool VTKCOMMONCORE_EXPORT Deserialize_vtkVariant(
   const nlohmann::json& state, vtkVariant* variant, vtkDeserializer* deserializer);
 
 VTK_ABI_NAMESPACE_END

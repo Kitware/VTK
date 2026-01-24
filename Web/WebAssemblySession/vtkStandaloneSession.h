@@ -40,12 +40,12 @@ public:
   /**
    * Destroy a VTKObject
    */
-  void Destroy(vtkTypeUInt32 object);
+  bool Destroy(vtkTypeUInt32 object);
 
   /**
    * Set properties of a VTKObject
    */
-  void Set(vtkTypeUInt32 object, emscripten::val properties);
+  bool Set(vtkTypeUInt32 object, emscripten::val properties);
 
   /**
    * Get all properties of a VTKObject
@@ -68,6 +68,54 @@ public:
    * Remove an observer from a VTKObject.
    */
   bool UnObserve(vtkTypeUInt32 object, unsigned long tag);
+
+  /**
+   * @brief Retrieves the total memory usage of all blobs.
+   * @return The total memory usage in bytes.
+   */
+  std::size_t GetTotalBlobMemoryUsage();
+
+  /**
+   * @brief Retrieves the total memory usage of all VTK data objects.
+   * @return The total memory usage in bytes.
+   */
+  std::size_t GetTotalVTKDataObjectMemoryUsage();
+
+  /**
+   * @brief Prints information about a VTK object to a string.
+   * @param object The identifier of the VTK object.
+   * @return A string containing the result of vtkObject::Print() for the specified object.
+   */
+  std::string PrintObjectToString(vtkTypeUInt32 object);
+
+  /**
+   * @brief Prints information about the scene manager.
+   */
+  void PrintSceneManagerInformation();
+
+  /**
+   * @brief Sets the verbosity level for the deserializer log.
+   * @param verbosityLevel The desired verbosity level.
+   */
+  void SetDeserializerLogVerbosity(const std::string& verbosityLevel);
+
+  /**
+   * @brief Sets the verbosity level for the invoker log.
+   * @param verbosityLevel The desired verbosity level.
+   */
+  void SetInvokerLogVerbosity(const std::string& verbosityLevel);
+
+  /**
+   * @brief Sets the verbosity level for the object manager log.
+   * @param verbosityLevel The desired verbosity level.
+   */
+  void SetObjectManagerLogVerbosity(const std::string& verbosityLevel);
+
+  /**
+   * @brief Sets the verbosity level for the serializer log.
+   * @param verbosityLevel The desired verbosity level.
+   */
+  void SetSerializerLogVerbosity(const std::string& verbosityLevel);
 
   vtkSession Session;
 };

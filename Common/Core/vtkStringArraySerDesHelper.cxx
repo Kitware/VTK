@@ -37,16 +37,25 @@ static nlohmann::json Serialize_vtkStringArray(vtkObjectBase* objectBase, vtkSer
   return state;
 }
 
-static void Deserialize_vtkStringArray(
+static bool Deserialize_vtkStringArray(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto object = vtkStringArray::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkStringArray");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkStringArray::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto iter = state.find("Values");
     if (iter != state.end() && iter->is_array())
@@ -59,6 +68,7 @@ static void Deserialize_vtkStringArray(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkStringArraySerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

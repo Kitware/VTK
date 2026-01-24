@@ -3,6 +3,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkDeserializer.h"
 #include "vtkSerializer.h"
+#include "vtkSetGet.h"
 #include "vtkTable.h"
 
 // clang-format off
@@ -38,16 +39,25 @@ static nlohmann::json Serialize_vtkTable(vtkObjectBase* objectBase, vtkSerialize
   return state;
 }
 
-static void Deserialize_vtkTable(
+static bool Deserialize_vtkTable(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
-  auto object = vtkTable::SafeDownCast(objectBase);
+  auto* object = vtkTable::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkTable");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkTable::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   object->RemoveAllColumns();
   {
     const auto iter = state.find("Columns");
@@ -67,6 +77,7 @@ static void Deserialize_vtkTable(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkTableSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))

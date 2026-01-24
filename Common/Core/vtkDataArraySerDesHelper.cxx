@@ -321,7 +321,7 @@ struct vtkDataArrayDeserializer
 {
   template <typename ValueT>
   void operator()(vtkAffineArray<ValueT>* array, const nlohmann::json& state,
-    vtkDeserializer* vtkNotUsed(deserializer))
+    vtkDeserializer* vtkNotUsed(deserializer), bool& vtkNotUsed(success))
   {
     ValueT slope = state["Slope"].get<ValueT>();
     ValueT intercept = state["Intercept"].get<ValueT>();
@@ -330,7 +330,7 @@ struct vtkDataArrayDeserializer
 
   template <typename ValueT>
   void operator()(vtkConstantArray<ValueT>* array, const nlohmann::json& state,
-    vtkDeserializer* vtkNotUsed(deserializer))
+    vtkDeserializer* vtkNotUsed(deserializer), bool& vtkNotUsed(success))
   {
     ValueT value = state["Value"].get<ValueT>();
     array->SetBackend(std::make_shared<vtkConstantImplicitBackend<ValueT>>(value));
@@ -338,11 +338,12 @@ struct vtkDataArrayDeserializer
 
   template <typename ValueT>
   void operator()(vtkAOSDataArrayTemplate<ValueT>* array, const nlohmann::json& state,
-    vtkDeserializer* deserializer)
+    vtkDeserializer* deserializer, bool& success)
   {
     nlohmann::json blob;
     if (!Deserialize_Blob(blob, state, deserializer))
     {
+      success = false;
       return;
     }
     const auto& content = blob.get_binary();
@@ -353,11 +354,13 @@ struct vtkDataArrayDeserializer
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
-  void operator()(vtkDataArray* array, const nlohmann::json& state, vtkDeserializer* deserializer)
+  void operator()(
+    vtkDataArray* array, const nlohmann::json& state, vtkDeserializer* deserializer, bool& success)
   {
     nlohmann::json blob;
     if (!Deserialize_Blob(blob, state, deserializer))
     {
+      success = false;
       return;
     }
     const auto& content = blob.get_binary();
@@ -375,11 +378,13 @@ struct vtkDataArrayDeserializer
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
-  void operator()(vtkBitArray* array, const nlohmann::json& state, vtkDeserializer* deserializer)
+  void operator()(
+    vtkBitArray* array, const nlohmann::json& state, vtkDeserializer* deserializer, bool& success)
   {
     nlohmann::json blob;
     if (!Deserialize_Blob(blob, state, deserializer))
     {
+      success = false;
       return;
     }
     const auto& content = blob.get_binary();
@@ -424,28 +429,35 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
   return state;
 }
 
-static void Deserialize_vtkDataArray(
+static bool Deserialize_vtkDataArray(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
-  if (object == nullptr)
+  auto* da = vtkDataArray::SafeDownCast(object);
+  if (!da)
   {
-    return;
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkDataArray");
+    return false;
   }
+  bool success = true;
   if (const auto superDeserializer = deserializer->GetHandler(typeid(vtkDataArray::Superclass)))
   {
-    superDeserializer(state, object, deserializer);
+    success &= superDeserializer(state, object, deserializer);
   }
-  auto* da = vtkDataArray::SafeDownCast(object);
+  if (!success)
+  {
+    return false;
+  }
   if (!da->GetNumberOfValues())
   {
-    return;
+    return success;
   }
   vtkDataArrayDeserializer deserializeWorker;
   using Dispatch = vtkArrayDispatch::DispatchByArray<DispatchTypeList>;
-  if (!Dispatch::Execute(da, deserializeWorker, state, deserializer))
+  if (!Dispatch::Execute(da, deserializeWorker, state, deserializer, success))
   {
-    deserializeWorker(da, state, deserializer);
+    deserializeWorker(da, state, deserializer, success);
   }
+  return success;
 }
 
 int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invoker)

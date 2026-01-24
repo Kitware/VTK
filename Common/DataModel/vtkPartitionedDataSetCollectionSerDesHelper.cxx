@@ -60,16 +60,26 @@ static nlohmann::json Serialize_vtkPartitionedDataSetCollection(
   return state;
 }
 
-static void Deserialize_vtkPartitionedDataSetCollection(
+static bool Deserialize_vtkPartitionedDataSetCollection(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto object = vtkPartitionedDataSetCollection::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(
+      deserializer, << __func__ << ": object not a vtkPartitionedDataSetCollection");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkPartitionedDataSetCollection::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto iter = state.find("PartitionedDataSets");
     if (iter != state.end() && iter->is_array())
@@ -90,7 +100,7 @@ static void Deserialize_vtkPartitionedDataSetCollection(
         auto* context = deserializer->GetContext();
         const auto identifier = pds.at("Id").get<vtkTypeUInt32>();
         auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
+        success &= deserializer->DeserializeJSON(identifier, subObject);
         object->SetPartitionedDataSet(i, vtkPartitionedDataSet::SafeDownCast(subObject));
         object->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name);
         i++;
@@ -114,10 +124,11 @@ static void Deserialize_vtkPartitionedDataSetCollection(
       }
       else
       {
-        dataAssembly->InitializeFromXML(dataAssemblyState.c_str());
+        success &= dataAssembly->InitializeFromXML(dataAssemblyState.c_str());
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkPartitionedDataSetCollectionSerDesHelper(

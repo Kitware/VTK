@@ -85,6 +85,7 @@ bool vtkDeserializer::DeserializeJSON(
   const auto& state = this->Context->GetState(identifier);
   if (state.empty())
   {
+    vtkErrorMacro(<< "No state found at id=" << identifier);
     return false;
   }
   std::string className;
@@ -127,6 +128,8 @@ bool vtkDeserializer::DeserializeJSON(
     }
     else
     {
+      vtkErrorMacro(<< "Failed to construct object of type " << className
+                    << " at id=" << identifier);
       return false;
     }
   }
@@ -140,10 +143,12 @@ bool vtkDeserializer::DeserializeJSON(
   }
   else if (const auto& f = this->GetHandler(typeid(*objectPtr)))
   {
+    bool success = false;
     if (this->Context->IsProcessing(identifier))
     {
       vtkVLogF(this->GetDeserializerLogVerbosity(), "Prevented recursive deserialization for %s",
         objectPtr->GetObjectDescription().c_str());
+      success = true;
     }
     else
     {
@@ -152,7 +157,7 @@ bool vtkDeserializer::DeserializeJSON(
         vtkMarshalContext::ScopedParentTracker parentTracker(this->Context, identifier);
         vtkVLogScopeF(this->GetDeserializerLogVerbosity(), "Deserialize %s at identifier=%u",
           objectPtr->GetObjectDescription().c_str(), identifier);
-        f(state, objectPtr, this);
+        success = f(state, objectPtr, this);
       }
       catch (std::exception& e)
       {
@@ -162,7 +167,12 @@ bool vtkDeserializer::DeserializeJSON(
       }
     }
     this->Context->AddChild(identifier);
-    return true;
+    return success;
+  }
+  else
+  {
+    vtkErrorMacro(<< "No handler found to deserialize object of type " << objectPtr->GetClassName()
+                  << " at id=" << identifier);
   }
   return false;
 }

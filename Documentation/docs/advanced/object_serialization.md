@@ -47,7 +47,7 @@ The `vtkWrapSerDes` executable makes use of the `WrappingTools` package to autom
     ```
 
     ```c++
-    static void Deserialize_vtkClassName(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)
+    static bool Deserialize_vtkClassName(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)
     ```
 
 3. A invoker function with signature:

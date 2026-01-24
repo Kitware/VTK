@@ -67,11 +67,16 @@ public:
 
   /**
    * Set properties of a VTKObject
+   * @param object The handle of the VTK object.
+   * @param properties A JavaScript object representing the properties to set.
+   * @return True if the properties were successfully set, false otherwise.
    */
-  void Set(vtkTypeUInt32 object, emscripten::val properties);
+  bool Set(vtkTypeUInt32 object, emscripten::val properties);
 
   /**
    * Get all properties of a VTKObject
+   * @param object The handle of the VTK object.
+   * @return A JavaScript object representing the properties.
    */
   emscripten::val Get(vtkTypeUInt32 object);
 
@@ -130,8 +135,9 @@ public:
   /**
    * @brief Updates a VTK object from a given state.
    * @param state A JavaScript object representing the state.
+   * @return True if the object was successfully updated, false otherwise.
    */
-  void UpdateObjectFromState(emscripten::val state);
+  bool UpdateObjectFromState(emscripten::val state);
 
   /**
    * @brief Updates the state from a given VTK object.

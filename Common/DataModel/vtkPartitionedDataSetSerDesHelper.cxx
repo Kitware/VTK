@@ -6,6 +6,7 @@
 #include "vtkSerializer.h"
 
 // clang-format off
+#include "vtkSetGet.h"
 #include "vtk_nlohmannjson.h"
 #include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
@@ -49,16 +50,25 @@ static nlohmann::json Serialize_vtkPartitionedDataSet(
   return state;
 }
 
-static void Deserialize_vtkPartitionedDataSet(
+static bool Deserialize_vtkPartitionedDataSet(
   const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using json = nlohmann::json;
   auto object = vtkPartitionedDataSet::SafeDownCast(objectBase);
+  if (!object)
+  {
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkPartitionedDataSet");
+    return false;
+  }
   if (auto f = deserializer->GetHandler(typeid(vtkPartitionedDataSet::Superclass)))
   {
-    f(state, object, deserializer);
+    success &= f(state, object, deserializer);
   }
-
+  if (!success)
+  {
+    return false;
+  }
   {
     const auto iter = state.find("Partitions");
     if (iter != state.end() && iter->is_array())
@@ -79,7 +89,7 @@ static void Deserialize_vtkPartitionedDataSet(
           auto* context = deserializer->GetContext();
           const auto identifier = partition.at("Id").get<vtkTypeUInt32>();
           auto subObject = context->GetObjectAtId(identifier);
-          deserializer->DeserializeJSON(identifier, subObject);
+          success &= deserializer->DeserializeJSON(identifier, subObject);
           object->SetPartition(i, vtkDataObject::SafeDownCast(subObject));
           object->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name);
         }
@@ -91,6 +101,7 @@ static void Deserialize_vtkPartitionedDataSet(
       }
     }
   }
+  return success;
 }
 
 int RegisterHandlers_vtkPartitionedDataSetSerDesHelper(

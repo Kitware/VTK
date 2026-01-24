@@ -60,68 +60,79 @@ static nlohmann::json Serialize_vtkScalarsToColors(vtkObjectBase* object, vtkSer
   }
 }
 
-static void Deserialize_vtkScalarsToColors(
+static bool Deserialize_vtkScalarsToColors(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
+  bool success = true;
   using nlohmann::json;
-  if (auto* stc = vtkScalarsToColors::SafeDownCast(object))
+  auto* stc = vtkScalarsToColors::SafeDownCast(object);
+  if (!stc)
   {
-    if (auto superDeserializer = deserializer->GetHandler(typeid(vtkScalarsToColors::Superclass)))
+    vtkErrorWithObjectMacro(deserializer, << __func__ << ": object not a vtkScalarsToColors");
+    return false;
+  }
+  if (auto superDeserializer = deserializer->GetHandler(typeid(vtkScalarsToColors::Superclass)))
+  {
+    success &= superDeserializer(state, object, deserializer);
+  }
+  if (!success)
+  {
+    return false;
+  }
+  {
+    const auto iter = state.find("Range");
+    if ((iter != state.end()) && !iter->is_null())
     {
-      superDeserializer(state, object, deserializer);
-    }
-    {
-      const auto iter = state.find("Range");
-      if ((iter != state.end()) && !iter->is_null())
-      {
-        auto values = iter->get<std::vector<double>>();
-        stc->SetRange(values[0], values[1]);
-      }
-    }
-
-    VTK_DESERIALIZE_VALUE_FROM_STATE(VectorMode, int, state, stc);
-    VTK_DESERIALIZE_VALUE_FROM_STATE(VectorComponent, int, state, stc);
-    VTK_DESERIALIZE_VALUE_FROM_STATE(VectorSize, int, state, stc);
-    VTK_DESERIALIZE_VALUE_FROM_STATE(IndexedLookup, int, state, stc);
-    VTK_DESERIALIZE_VALUE_FROM_STATE(Alpha, double, state, stc);
-
-    if (!state["AnnotatedValues"].contains("Id") || !state["Annotations"].contains("Id"))
-    {
-      return;
-    }
-
-    vtkSmartPointer<vtkAbstractArray> av;
-    vtkSmartPointer<vtkStringArray> annotations;
-    const auto* context = deserializer->GetContext();
-    {
-      const auto identifier = state["AnnotatedValues"]["Id"].get<vtkTypeUInt32>();
-      auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
-      av = vtkAbstractArray::SafeDownCast(subObject);
-    }
-    {
-      const auto identifier = state["Annotations"]["Id"].get<vtkTypeUInt32>();
-      auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
-      annotations = vtkStringArray::SafeDownCast(subObject);
-    }
-    if (av == nullptr)
-    {
-      vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
-                                       << " gave AnnotatedValues=nullptr for "
-                                       << stc->GetObjectDescription());
-    }
-    else if (annotations == nullptr)
-    {
-      vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
-                                       << " gave Annotations=nullptr for "
-                                       << stc->GetObjectDescription());
-    }
-    else
-    {
-      stc->SetAnnotations(av, annotations);
+      auto values = iter->get<std::vector<double>>();
+      stc->SetRange(values[0], values[1]);
     }
   }
+
+  VTK_DESERIALIZE_VALUE_FROM_STATE(VectorMode, int, state, stc);
+  VTK_DESERIALIZE_VALUE_FROM_STATE(VectorComponent, int, state, stc);
+  VTK_DESERIALIZE_VALUE_FROM_STATE(VectorSize, int, state, stc);
+  VTK_DESERIALIZE_VALUE_FROM_STATE(IndexedLookup, int, state, stc);
+  VTK_DESERIALIZE_VALUE_FROM_STATE(Alpha, double, state, stc);
+
+  if (!state["AnnotatedValues"].contains("Id") || !state["Annotations"].contains("Id"))
+  {
+    return success;
+  }
+
+  vtkSmartPointer<vtkAbstractArray> av;
+  vtkSmartPointer<vtkStringArray> annotations;
+  const auto* context = deserializer->GetContext();
+  {
+    const auto identifier = state["AnnotatedValues"]["Id"].get<vtkTypeUInt32>();
+    auto subObject = context->GetObjectAtId(identifier);
+    success &= deserializer->DeserializeJSON(identifier, subObject);
+    av = vtkAbstractArray::SafeDownCast(subObject);
+  }
+  {
+    const auto identifier = state["Annotations"]["Id"].get<vtkTypeUInt32>();
+    auto subObject = context->GetObjectAtId(identifier);
+    success &= deserializer->DeserializeJSON(identifier, subObject);
+    annotations = vtkStringArray::SafeDownCast(subObject);
+  }
+  if (av == nullptr)
+  {
+    vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
+                                     << " gave AnnotatedValues=nullptr for "
+                                     << stc->GetObjectDescription());
+    success = false;
+  }
+  else if (annotations == nullptr)
+  {
+    vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription()
+                                     << " gave Annotations=nullptr for "
+                                     << stc->GetObjectDescription());
+    success = false;
+  }
+  else
+  {
+    stc->SetAnnotations(av, annotations);
+  }
+  return success;
 }
 
 int RegisterHandlers_vtkScalarsToColorsSerDesHelper(

@@ -20,6 +20,7 @@
 #include <string>
 
 #include <iostream>
+#include <sstream>
 
 struct vtkSessionImpl
 {
@@ -90,6 +91,17 @@ extern "C"
     {
       objectImpl = vtk::TakeSmartPointer(constructor());
       object = session->Manager->RegisterObject(objectImpl);
+      // Insert placeholder state, so that deserializer knows about this object.
+      auto stateJson = nlohmann::json::object();
+      stateJson["ClassName"] = className;
+      stateJson["Id"] = object;
+      if (!session->Manager->RegisterState(stateJson))
+      {
+        vtkLog(
+          ERROR, << "Failed to register state for newly created object of class: " << className);
+        session->Manager->UnRegisterObject(object);
+        object = 0;
+      }
     }
     else
     {
@@ -227,7 +239,7 @@ extern "C"
   }
 
   //-------------------------------------------------------------------------------
-  void vtkSessionUpdateObjectFromState(vtkSession session, vtkSessionJson state)
+  vtkSessionResult vtkSessionUpdateObjectFromState(vtkSession session, vtkSessionJson state)
   {
     char* stateJsonCString = session->StringifyJson(state);
     auto stateJson = nlohmann::json::parse(stateJsonCString, nullptr, false);
@@ -235,7 +247,7 @@ extern "C"
     if (stateJson.is_discarded())
     {
       vtkLog(ERROR, << "Failed to parse state!");
-      return;
+      return vtkSessionResultFailure;
     }
     else if (auto idIter = stateJson.find("Id"); idIter != stateJson.end())
     {
@@ -259,7 +271,8 @@ extern "C"
         }
       }
     }
-    session->Manager->UpdateObjectFromState(stateJson);
+    return session->Manager->UpdateObjectFromState(stateJson) ? vtkSessionResultSuccess
+                                                              : vtkSessionResultFailure;
   }
 
   //-------------------------------------------------------------------------------
@@ -529,6 +542,22 @@ extern "C"
   size_t vtkSessionGetTotalVTKDataObjectMemoryUsage(vtkSession session)
   {
     return session->Manager->GetTotalVTKDataObjectMemoryUsage();
+  }
+
+  //-------------------------------------------------------------------------------
+  char* vtkSessionPrintObjectToString(vtkSession session, vtkObjectHandle object)
+  {
+    std::ostringstream oss;
+    if (auto objectImpl = session->Manager->GetObjectAtId(object))
+    {
+      objectImpl->Print(oss);
+      auto str = oss.str();
+      return strdup(str.c_str());
+    }
+    else
+    {
+      return strdup("(null)");
+    }
   }
 
   //-------------------------------------------------------------------------------

@@ -29,24 +29,23 @@ vtkObjectHandle vtkStandaloneSession::Create(const std::string& className)
 }
 
 //-------------------------------------------------------------------------------
-void vtkStandaloneSession::Destroy(vtkObjectHandle object)
+bool vtkStandaloneSession::Destroy(vtkObjectHandle object)
 {
-  vtkSessionDestroyObject(this->Session, object);
+  return vtkSessionDestroyObject(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-void vtkStandaloneSession::Set(vtkObjectHandle object, emscripten::val properties)
+bool vtkStandaloneSession::Set(vtkObjectHandle object, emscripten::val properties)
 {
   // Ensure the ID is set in the JSON state before updating the object
   properties.set("Id", object);
   vtkSessionJsonImpl propertiesImpl{ properties };
-  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl);
+  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
 emscripten::val vtkStandaloneSession::Get(vtkObjectHandle object)
 {
-
   vtkSessionUpdateStateFromObject(this->Session, object);
   auto propertiesImpl = vtkSessionGetState(this->Session, object);
   auto result = std::move(propertiesImpl->JsonValue);
@@ -121,7 +120,8 @@ emscripten::val vtkStandaloneSession::Invoke(
 unsigned long vtkStandaloneSession::Observe(
   vtkObjectHandle object, const std::string& eventName, emscripten::val jsFunction)
 {
-  int fp = val::module_property("addFunction")(jsFunction, std::string("vii")).as<int>();
+  auto fp =
+    val::module_property("addFunction")(jsFunction, std::string("vip")).as<std::uintptr_t>();
   auto callback = reinterpret_cast<vtkSessionObserverCallbackFunc>(fp);
   return vtkSessionAddObserver(this->Session, object, eventName.c_str(), callback);
 }
@@ -132,4 +132,62 @@ bool vtkStandaloneSession::UnObserve(vtkObjectHandle object, unsigned long tag)
   return vtkSessionRemoveObserver(this->Session, object, tag) == vtkSessionResultSuccess;
 }
 
+//-------------------------------------------------------------------------------
+std::size_t vtkStandaloneSession::GetTotalBlobMemoryUsage()
+{
+  return vtkSessionGetTotalBlobMemoryUsage(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+std::size_t vtkStandaloneSession::GetTotalVTKDataObjectMemoryUsage()
+{
+  return vtkSessionGetTotalVTKDataObjectMemoryUsage(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+std::string vtkStandaloneSession::PrintObjectToString(vtkObjectHandle object)
+{
+  char* cstr = vtkSessionPrintObjectToString(this->Session, object);
+  if (cstr != nullptr)
+  {
+    std::string result(cstr);
+    free(cstr);
+    return result;
+  }
+  else
+  {
+    vtkLog(ERROR, << "Failed to print object with ID: " << object);
+    return {};
+  }
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::PrintSceneManagerInformation()
+{
+  return vtkSessionPrintSceneManagerInformation(this->Session);
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetDeserializerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetDeserializerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetInvokerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetInvokerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetObjectManagerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetObjectManagerLogVerbosity(this->Session, verbosityLevel.c_str());
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::SetSerializerLogVerbosity(const std::string& verbosityLevel)
+{
+  return vtkSessionSetSerializerLogVerbosity(this->Session, verbosityLevel.c_str());
+};
 VTK_ABI_NAMESPACE_END
