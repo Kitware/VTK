@@ -1,5 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// Hide VTK_DEPRECATED_IN_9_6_0() warnings for this file
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkGLTFWriter.h"
 #include "vtkDataArray.h"
 #include "vtkGLTFWriterUtils.h"
@@ -13,11 +16,9 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
-#include "vtkCollectionRange.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
@@ -26,7 +27,6 @@
 #include "vtkInformation.h"
 #include "vtkJPEGReader.h"
 #include "vtkLogger.h"
-#include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -34,10 +34,8 @@
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRendererCollection.h"
-#include "vtkStringArray.h"
+#include "vtkPolyDataMaterial.h"
+#include "vtkRenderer.h"
 #include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
@@ -84,6 +82,20 @@ struct ChunkHeader
 inline size_t GetPaddingAt4Bytes(size_t size)
 {
   return (4 - size % 4) % 4;
+}
+
+//------------------------------------------------------------------------------
+std::vector<float> GetField(
+  vtkDataObject* obj, const char* name, const std::vector<float>& defaultResult)
+{
+  std::vector<float> result;
+  std::vector<double> r, d;
+  std::transform(defaultResult.begin(), defaultResult.end(), std::back_inserter(d),
+    [](float f) { return static_cast<double>(f); });
+  r = vtkPolyDataMaterial::GetField(obj, name, d);
+  std::transform(r.begin(), r.end(), std::back_inserter(result),
+    [](double value) { return static_cast<float>(value); });
+  return result;
 }
 
 VTK_ABI_NAMESPACE_END
@@ -152,24 +164,6 @@ void FlipYTCoords(vtkDataArray* inOutArray)
     // Run the algorithm using the slower vtkDataArray double API instead:
     worker(inOutArray);
   }
-}
-
-std::vector<float> GetFieldAsFloat(
-  vtkDataObject* obj, const char* name, const std::vector<float>& d)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    return d;
-  }
-  vtkFloatArray* fa = vtkFloatArray::SafeDownCast(fd->GetAbstractArray(name));
-  if (!fa)
-  {
-    return d;
-  }
-  std::vector<float> v(d.size());
-  fa->GetTypedTuple(0, v.data());
-  return v;
 }
 
 vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
@@ -816,10 +810,14 @@ void WriteMaterial(
     model["baseColorTexture"] = tex;
   }
 
-  std::vector<float> dcolor = GetFieldAsFloat(pd, "diffuse_color", { 1, 1, 1 });
-  std::vector<float> scolor = GetFieldAsFloat(pd, "specular_color", { 0, 0, 0 });
-  float transparency = GetFieldAsFloat(pd, "transparency", { 0 })[0];
-  float shininess = GetFieldAsFloat(pd, "shininess", { 0 })[0];
+  std::vector<float> dcolor =
+    GetField(pd, vtkPolyDataMaterial::GetDiffuseColorName(), std::vector<float>{ 1, 1, 1 });
+  std::vector<float> scolor =
+    GetField(pd, vtkPolyDataMaterial::GetSpecularColorName(), std::vector<float>{ 0, 0, 0 });
+  float transparency =
+    GetField(pd, vtkPolyDataMaterial::GetTransparencyName(), std::vector<float>{ 0 })[0];
+  float shininess =
+    GetField(pd, vtkPolyDataMaterial::GetShininessName(), std::vector<float>{ 0 })[0];
   model["baseColorFactor"].emplace_back(dcolor[0]);
   model["baseColorFactor"].emplace_back(dcolor[1]);
   model["baseColorFactor"].emplace_back(dcolor[2]);
@@ -833,20 +831,7 @@ void WriteMaterial(
 
 std::vector<std::string> vtkGLTFWriter::GetFieldAsStringVector(vtkDataObject* obj, const char* name)
 {
-  vtkFieldData* fd = obj->GetFieldData();
-  std::vector<std::string> result;
-  if (!fd)
-  {
-    return result;
-  }
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(fd->GetAbstractArray(name));
-  if (!sa)
-  {
-    return result;
-  }
-  for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
-    result.push_back(sa->GetValue(i));
-  return result;
+  return vtkPolyDataMaterial::GetField(obj, name);
 }
 
 std::string vtkGLTFWriter::WriteToString()
@@ -1002,7 +987,8 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
             !extensions.empty(), binChunkOut, this->Binary, &binChunkOffset);
           rendererNode["children"].emplace_back(nodes.size() - 1);
           size_t oldTextureCount = textures.size();
-          std::vector<std::string> textureFileNames = GetFieldAsStringVector(pd, "texture_uri");
+          std::vector<std::string> textureFileNames =
+            vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURIName());
           if (this->SaveTextures)
           {
             for (size_t i = 0; i < textureFileNames.size(); ++i)

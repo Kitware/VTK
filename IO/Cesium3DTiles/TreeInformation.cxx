@@ -2,11 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "TreeInformation.h"
 
-#include "vtk_libproj.h"
-
-#include <limits>
-#include <sstream>
-
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkArrayDispatch.h"
@@ -33,6 +28,7 @@
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMaterial.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -42,7 +38,11 @@
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/FStream.hxx>
 
+#include "vtk_libproj.h"
+
 #include <iostream>
+#include <limits>
+#include <sstream>
 
 using RegionType = std::array<int, 6>;
 
@@ -158,27 +158,6 @@ std::array<double, 6> ToLonLatRadiansHeight(const char* crs, const std::array<do
   //           << lonlatheight[2] << " "
   //           << lonlatheight[3] << std::endl;
   return lonlatheight;
-}
-
-//------------------------------------------------------------------------------
-void SetField(vtkDataObject* obj, const char* name, const std::vector<std::string>& values)
-{
-  vtkFieldData* fd = obj->GetFieldData();
-  if (!fd)
-  {
-    vtkNew<vtkFieldData> newfd;
-    obj->SetFieldData(newfd);
-    fd = newfd;
-  }
-  vtkNew<vtkStringArray> sa;
-  sa->SetNumberOfTuples(values.size());
-  for (size_t i = 0; i < values.size(); ++i)
-  {
-    const std::string& value = values[i];
-    sa->SetValue(i, value);
-  }
-  sa->SetName(name);
-  fd->AddArray(sa);
 }
 
 vtkSmartPointer<vtkImageReader2> SetupTextureReader(const std::string& texturePath)
@@ -555,7 +534,7 @@ void TreeInformation::WriteTileTexture(
 void TreeInformation::SaveTilesMesh()
 {
   std::vector<std::string> textureFileNames =
-    vtkGLTFWriter::GetFieldAsStringVector(this->Mesh, "texture_uri");
+    vtkPolyDataMaterial::GetField(this->Mesh, vtkPolyDataMaterial::GetTextureURIName());
   vtkLog(INFO, "Input has " << textureFileNames.size() << " textures");
 
   std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
@@ -651,7 +630,8 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         [&meshes, &numberOfTextures, &meshTextureFileNames, &meshTCoords, &meshesWithTexture](
           vtkPolyData* pd)
       {
-        auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
+        auto pdTextureFileNames =
+          vtkPolyDataMaterial::GetField(pd, vtkPolyDataMaterial::GetTextureURIName());
         if (pdTextureFileNames.empty())
         {
           meshes.push_back(pd);
@@ -753,7 +733,8 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         append->Update();
         vtkPolyData* tileMeshWithTexture = vtkPolyData::SafeDownCast(append->GetOutput());
         b->SetBlock(meshBlockIndex++, tileMeshWithTexture);
-        SetField(tileMeshWithTexture, "texture_uri", mergedFileNames);
+        vtkPolyDataMaterial::SetField(
+          tileMeshWithTexture, vtkPolyDataMaterial::GetTextureURIName(), mergedFileNames);
         textureBaseDirectory = this->OutputDir + "/" + vtk::to_string(node->GetID());
       }
       else
@@ -1079,7 +1060,8 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
         }
       }
       tileMesh->GetPointData()->SetTCoords(tcoordsTile);
-      SetField(tileMesh, "texture_uri", tileTextureFileNames);
+      vtkPolyDataMaterial::SetField(
+        tileMesh, vtkPolyDataMaterial::GetTextureURIName(), tileTextureFileNames);
     }
     // store tileMesh into a multiblock
     vtkNew<vtkMultiBlockDataSet> buildings;

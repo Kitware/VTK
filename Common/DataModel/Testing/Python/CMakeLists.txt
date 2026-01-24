@@ -19,6 +19,7 @@ vtk_add_test_python(
   TestPartitionedData.py,NO_DATA,NO_VALID
   TestPointInPolygon.py,NO_DATA,NO_VALID
   TestPolyDataGetCellPoints.py,NO_DATA,NO_VALID
+  TestPolyDataMaterial.py,NO_DATA,NO_VALID
   TestQuadricClustering.py
   TestStaticPointLocator.py,NO_DATA,NO_VALID
   TestStaticPointLocator2.py,NO_DATA,NO_VALID
