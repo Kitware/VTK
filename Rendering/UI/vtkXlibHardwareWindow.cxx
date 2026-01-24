@@ -94,7 +94,6 @@ vtkXlibHardwareWindow::vtkXlibHardwareWindow()
   this->WindowId = static_cast<Window>(0);
   this->ColorMap = static_cast<Colormap>(0);
   this->OwnWindow = 0;
-  this->FullScreen = false;
   this->Platform = "X11";
 
   this->XCCrosshair = 0;
@@ -130,7 +129,6 @@ void vtkXlibHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ColorMap: " << this->ColorMap << "\n";
   os << indent << "OwnWindow: " << (this->OwnWindow ? "Y" : "N") << "\n";
   os << indent << "OwnDisplay: " << (this->OwnDisplay ? "Y" : "N") << "\n";
-  os << indent << "FullScreen: " << (this->FullScreen ? "Y" : "N") << "\n";
 }
 
 //-------------------------------------------------------------------------------------------------

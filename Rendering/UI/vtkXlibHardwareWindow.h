@@ -92,15 +92,6 @@ public:
   ///@}
 
   ///@{
-  /*
-   * Set/get whether the window should be fullscreen or not.
-   */
-  vtkGetMacro(FullScreen, vtkTypeBool);
-  vtkSetMacro(FullScreen, vtkTypeBool);
-  vtkBooleanMacro(FullScreen, vtkTypeBool);
-  ///@}
-
-  ///@{
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
@@ -155,7 +146,6 @@ protected:
   Colormap ColorMap;
   vtkTypeBool OwnDisplay;
   vtkTypeBool OwnWindow;
-  vtkTypeBool FullScreen;
   vtkTypeBool CursorHidden;
 
   // we must keep track of the cursors we are using

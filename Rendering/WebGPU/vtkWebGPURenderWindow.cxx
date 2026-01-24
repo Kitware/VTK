@@ -934,7 +934,7 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
     // We undefine preprocessor macro Success here and redefine it as a `constexpr auto` variable.
     constexpr auto Success_ = Success;
 #undef Success
-    constexpr auto Success = Success_;
+    [[maybe_unused]] constexpr auto Success = Success_;
 #endif
     if (status == wgpu::MapAsyncStatus::Success)
     {
