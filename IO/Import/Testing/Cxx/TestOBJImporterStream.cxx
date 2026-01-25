@@ -40,6 +40,12 @@ int TestOBJImporterStream(int argc, char* argv[])
   vtkNew<vtkFileResourceStream> texStream;
   texStream->Open(argv[4]);
 
+  if (!vtkOBJImporter::CanReadFile(fileStream))
+  {
+    std::cout << "CanReadFile(stream) unexpected failure" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkOBJImporter> importer;
   importer->SetStream(fileStream);
   importer->SetMTLStream(mtlStream);

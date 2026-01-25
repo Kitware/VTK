@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkOBJPolyDataProcessor);
 
 namespace
 {
-bool CanReadFile(vtkObject* that, const std::string& fname)
+bool CanOpenFile(vtkObject* that, const std::string& fname)
 {
   vtkNew<vtkFileResourceStream> file;
   if (!file->Open(fname.c_str()))
@@ -60,11 +60,11 @@ vtkOBJImporter::~vtkOBJImporter() = default;
 
 int vtkOBJImporter::ImportBegin()
 {
-  if (!this->GetStream() && !::CanReadFile(this, this->GetFileName()))
+  if (!this->GetStream() && !::CanOpenFile(this, this->GetFileName()))
   {
     return 0;
   }
-  if (!std::string(GetFileNameMTL()).empty() && !::CanReadFile(this, this->GetFileNameMTL()))
+  if (!std::string(GetFileNameMTL()).empty() && !::CanOpenFile(this, this->GetFileNameMTL()))
   {
     return 0;
   }
@@ -142,6 +142,55 @@ void vtkOBJImporter::SetTexturePath(const char* path)
 const char* vtkOBJImporter::GetTexturePath() const
 {
   return this->Impl->GetTexturePath().data();
+}
+
+//------------------------------------------------------------------------------
+bool vtkOBJImporter::CanReadFile(const std::string& filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename.c_str()))
+  {
+    return false;
+  }
+  return vtkOBJImporter::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOBJImporter::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+  bool ret = false;
+  std::string line;
+  vtkNew<vtkResourceParser> parser;
+  parser->SetStream(stream);
+  for (vtkParseResult res = vtkParseResult::Ok;
+       res != vtkParseResult::Error && res != vtkParseResult::EndOfStream;
+       res = parser->ReadLine(line))
+  {
+    // Read until we find a non-empty, non-space-starting, non-commented line
+    if (line[0] == '#' || line[0] == '\0' || line[0] == ' ')
+    {
+      continue;
+    }
+
+    // C++20: Use starts_with
+    if (line.rfind("mtllib ", 0) == 0 || line.rfind("usemtl ", 0) == 0 ||
+      line.rfind("v ", 0) == 0 || line.rfind("vt ", 0) == 0 || line.rfind("vn ", 0) == 0 ||
+      line.rfind("p ", 0) == 0 || line.rfind("l ", 0) == 0 || line.rfind("f ", 0) == 0 ||
+      line.rfind("o ", 0) == 0 || line.rfind("s ", 0) == 0)
+    {
+      ret = true;
+    }
+    // Check only the first line
+    break;
+  }
+  return ret;
 }
 
 //------------------------------------------------------------------------------

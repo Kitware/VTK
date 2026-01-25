@@ -42,6 +42,12 @@ int TestOBJImporter(int argc, char* argv[])
     }
   }
 
+  if (!vtkOBJImporter::CanReadFile(filenameOBJ))
+  {
+    std::cout << "CanReadFile(filename) unexpected failure" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkOBJImporter> importer;
   importer->SetFileName(filenameOBJ.data());
 
