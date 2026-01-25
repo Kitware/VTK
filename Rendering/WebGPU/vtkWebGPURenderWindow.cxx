@@ -908,6 +908,7 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
       vtkErrorMacro(
         << "Unhandled texture format in vtkWebGPUTextureDeviceResource::GetBytesPerPixel: "
         << int(format));
+      return;
   }
 
   // Bytes needs to be a multiple of 256
