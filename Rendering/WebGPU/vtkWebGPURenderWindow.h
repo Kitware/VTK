@@ -436,6 +436,32 @@ private:
    */
   void PostRasterizationRender();
 
+  struct ComponentMapping
+  {
+    int Map[4];
+    int InComponents;
+    int OutComponents;
+    bool Valid;
+  };
+
+  ComponentMapping GetComponentMapping(wgpu::TextureFormat format, int desiredOutComponents);
+
+  template <typename TOutput, typename TInput>
+  struct PixelReadbackCallbackData
+  {
+    TOutput* OutputValues;
+    uint32_t Width, Height;
+    ComponentMapping Mapping;
+    std::function<TOutput(TInput)> Converter;
+  };
+
+  template <typename TOutput, typename TInput>
+  TOutput* GetTextureDataInternal(wgpu::Texture texture, wgpu::TextureFormat format, int x1, int y1,
+    int x2, int y2, const ComponentMapping& componentMapping,
+    std::function<TOutput(TInput)> converter = nullptr);
+
+  std::uint32_t FlipY(std::uint32_t y);
+
   void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
     std::size_t mipLevel, wgpu::TextureAspect aspect, wgpu::Origin3D offsets,
     wgpu::Extent3D extents, TextureMapCallback callback, void* userData);
@@ -443,7 +469,7 @@ private:
   void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
     std::size_t mipLevel, wgpu::TextureAspect aspect, TextureMapCallback callback, void* userData);
 
-  void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32* values);
+  vtkTypeUInt32* GetIdsData(int x1, int y1, int x2, int y2);
   void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32Array* data);
 
   // Render textures acquired by the user on this render window. They are kept here in case the

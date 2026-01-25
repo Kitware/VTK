@@ -58,7 +58,7 @@ fn pointCloudRenderEntryPoint(@builtin(global_invocation_id) id: vec3<u32>, @bui
       projectedPoint.y *= f32(framebufferDims.y);
 
       let pixelIndex = u32(projectedPoint.x) + u32(projectedPoint.y) * framebufferDims.x;
-      let pixelIndexForDepthBuffer = u32(projectedPoint.x) + (framebufferDims.y - u32(projectedPoint.y)) * framebufferDims.x;
+      let pixelIndexForDepthBuffer = u32(projectedPoint.x) + u32(projectedPoint.y) * framebufferDims.x;
       let quantizedDepth = u32(projectedPoint.z * pow(2.0, 32));
       atomicMin(&pointDepthBuffer[pixelIndexForDepthBuffer], quantizedDepth);
 
@@ -66,10 +66,7 @@ fn pointCloudRenderEntryPoint(@builtin(global_invocation_id) id: vec3<u32>, @bui
       {
         // Only storing if we are the closest point
 
-        // Reversing the y-coordinate on storing here because we're using VTK's projection
-        // matrix which is OpenGL which has a y-up NDC space but Vulkan (and Metal/DX12)
-        // uses Y-down
-        let storeCoords = vec2u(u32(projectedPoint.x), framebufferDims.y - u32(projectedPoint.y));
+        let storeCoords = vec2u(u32(projectedPoint.x), u32(projectedPoint.y));
 
         var color = vec4f(0.8f, 0.8f, 0.8f, 1.0f);
         if (pointIndex < arrayLength(&pointColorBuffer))

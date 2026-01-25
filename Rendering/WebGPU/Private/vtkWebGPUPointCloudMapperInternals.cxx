@@ -194,7 +194,10 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   auto encoder = commandEncoder.BeginRenderPass(&renderPassDescriptor);
   encoder.SetLabel("Point cloud mapper - Encode copy point depth buffer to render window");
   encoder.SetViewport(0, 0, windowSize[0], windowSize[1], 0.0, 1.0);
-  encoder.SetScissorRect(0, 0, windowSize[0], windowSize[1]);
+  if (windowSize[0] > 0 && windowSize[1] > 0)
+  {
+    encoder.SetScissorRect(0, 0, windowSize[0], windowSize[1]);
+  }
   {
     vtkScopedEncoderDebugGroup(
       encoder, "Point cloud mapper - Copy point depth buffer to render window");
@@ -457,7 +460,7 @@ void vtkWebGPUPointCloudMapperInternals::UploadCameraVPMatrix(vtkRenderer* rende
 
   vtkMatrix4x4* viewMatrix = camera->GetModelViewTransformMatrix();
   vtkMatrix4x4* projectionMatrix =
-    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), -1, 1);
+    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), /*nearz=*/0, /*farz=*/1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
   // WebGPU uses column major matrices but VTK is row major
