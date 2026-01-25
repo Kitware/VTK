@@ -7,7 +7,6 @@
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCompositePolyDataMapper.h>
-#include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkGenerateProcessIds.h>
@@ -30,6 +29,10 @@
 #include <vtkSynchronizedRenderWindows.h>
 #else
 #include "vtkDummyController.h"
+#endif
+
+#if VTK_MODULE_ENABLE_VTK_RenderingParallel
+#include <vtkCompositedSynchronizedRenderers.h>
 #endif
 
 namespace
@@ -163,9 +166,11 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   syncWindows->SetIdentifier(1);
 #endif
 
+#if VTK_MODULE_ENABLE_VTK_RenderingParallel
   vtkNew<vtkCompositedSynchronizedRenderers> syncRenderers;
   syncRenderers->SetRenderer(ren);
   syncRenderers->SetParallelController(contr);
+#endif
 
   int retVal = EXIT_FAILURE;
   if (myId == 0)
