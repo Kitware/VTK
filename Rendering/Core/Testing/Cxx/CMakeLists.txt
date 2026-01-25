@@ -173,6 +173,18 @@ set(cxx_tests
   set(TestLineRenderingTranslucent_ARGS --translucent)
   list(APPEND cxx_tests TestLineRenderingTranslucent,TestLineRendering.cxx,NO_DATA)
 
+  set(TestImageMapper_1_ARGS --components 1)
+  list(APPEND cxx_tests TestImageMapper_1,TestImageMapper.cxx,NO_DATA)
+  
+  set(TestImageMapper_2_ARGS --components 2)
+  list(APPEND cxx_tests TestImageMapper_2,TestImageMapper.cxx,NO_DATA)
+  
+  set(TestImageMapper_3_ARGS --components 3)
+  list(APPEND cxx_tests TestImageMapper_3,TestImageMapper.cxx,NO_DATA)
+  
+  set(TestImageMapper_4_ARGS --components 4)
+  list(APPEND cxx_tests TestImageMapper_4,TestImageMapper.cxx,NO_DATA)
+  
   set(TestMixedGeometry_1_ARGS --point-size 0.5 --line-width 0.5)
   list(APPEND cxx_tests TestMixedGeometry_1,TestMixedGeometry.cxx,NO_DATA)
   
