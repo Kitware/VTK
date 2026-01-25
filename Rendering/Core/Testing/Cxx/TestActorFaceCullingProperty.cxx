@@ -10,6 +10,7 @@
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
@@ -36,7 +37,12 @@ int TestActorFaceCullingProperty(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renWin->Render();
 
+  vtkNew<vtkRenderWindowInteractor> interactor;
+  interactor->SetRenderWindow(renWin);
   int retVal = vtkRegressionTestImage(renWin);
-
+  if (retVal == vtkTesting::DO_INTERACTOR)
+  {
+    interactor->Start();
+  }
   return !retVal;
 }

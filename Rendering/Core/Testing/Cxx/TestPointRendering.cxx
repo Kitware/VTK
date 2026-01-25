@@ -13,6 +13,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStringScanner.h"
+#include "vtkTesting.h"
 
 int TestPointRendering(int argc, char* argv[])
 {
@@ -30,6 +31,11 @@ int TestPointRendering(int argc, char* argv[])
     }
   }
   vtkNew<vtkRenderWindow> renWin;
+  if (renWin->IsA("vtkOpenGLRenderWindow") && drawRoundPoints)
+  {
+    // Round points are not supported by the OpenGL mapper
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
 

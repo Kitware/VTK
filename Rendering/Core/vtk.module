@@ -34,6 +34,7 @@ PRIVATE_DEPENDS
   VTK::FiltersSources
   VTK::vtksys
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::CommonSystem
   VTK::FiltersExtraction
   VTK::FiltersGeneral
@@ -43,6 +44,7 @@ TEST_DEPENDS
   VTK::FiltersTexture
   VTK::ImagingSources
   VTK::InteractionStyle
+  VTK::InteractionWidgets
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOParallel

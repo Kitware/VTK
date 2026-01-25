@@ -3,18 +3,15 @@
 
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
-#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkConeSource.h"
-#include "vtkImplicitPlaneRepresentation.h"
-#include "vtkImplicitPlaneWidget2.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLineSource.h"
+#include "vtkMapper.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNamedColors.h"
 #include "vtkNew.h"
-#include "vtkPlane.h"
 #include "vtkPointSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -26,8 +23,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkWidgetRepresentation.h"
 
 #include <array>
 
@@ -46,32 +43,24 @@ vtkNew<vtkPolyLineSource> MakePolyLineSource(
   }
   return polylines;
 }
-
-void SetupPlaneWidgetCallback(
-  vtkImplicitPlaneWidget2* widget, vtkPlane* plane, double* widgetBounds)
-{
-  vtkNew<vtkCallbackCommand> onPlaneInteraction;
-  onPlaneInteraction->SetCallback(
-    [](vtkObject* sender, unsigned long, void* clientData, void*)
-    {
-      vtkImplicitPlaneWidget2* planeWidget = vtkImplicitPlaneWidget2::SafeDownCast(sender);
-      vtkImplicitPlaneRepresentation* rep =
-        vtkImplicitPlaneRepresentation::SafeDownCast(planeWidget->GetRepresentation());
-      rep->GetPlane(reinterpret_cast<vtkPlane*>(clientData));
-    });
-  onPlaneInteraction->SetClientData(plane);
-  widget->AddObserver(vtkCommand::InteractionEvent, onPlaneInteraction);
-
-  auto* rep = vtkImplicitPlaneRepresentation::SafeDownCast(widget->GetRepresentation());
-  rep->SetPlaceFactor(1.25);
-  rep->PlaceWidget(widgetBounds);
-  rep->SetPlane(plane);
-  widget->On();
 }
-} // namespace
 
-int TestPolyDataMapperClipPlanes(int argc, char* argv[])
+int TestMixedGeometry(int argc, char* argv[])
 {
+  vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  double pointSize = 1.0;
+  double lineWidth = 1.0;
+  for (int i = 0; i < argc; i++)
+  {
+    if (std::string(argv[i]) == "--point-size")
+    {
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++i], pointSize, EXIT_FAILURE);
+    }
+    if (std::string(argv[i]) == "--line-width")
+    {
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++i], lineWidth, EXIT_FAILURE);
+    }
+  }
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
@@ -144,8 +133,8 @@ int TestPolyDataMapperClipPlanes(int argc, char* argv[])
   mapper->SetColorModeToDirectScalars();
 
   vtkNew<vtkActor> actor;
-  actor->GetProperty()->SetPointSize(2);
-  actor->GetProperty()->SetLineWidth(2);
+  actor->GetProperty()->SetPointSize(pointSize);
+  actor->GetProperty()->SetLineWidth(lineWidth);
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 
@@ -158,23 +147,6 @@ int TestPolyDataMapperClipPlanes(int argc, char* argv[])
   style->SetDefaultRenderer(renderer);
 
   renWin->Render();
-
-  vtkNew<vtkPlane> plane1;
-  mapper->AddClippingPlane(plane1);
-  plane1->SetNormal(-0.024947, 0.908778, 0.416534);
-  plane1->SetOrigin(8.58869, 2.77203, 0.258529);
-
-  vtkNew<vtkPlane> plane2;
-  mapper->AddClippingPlane(plane2);
-  plane2->SetNormal(-0.1173493, -0.999757, -0.0135635);
-  plane2->SetOrigin(8.60057, 10.4484, 1.47082);
-
-  vtkNew<vtkImplicitPlaneWidget2> plane1Widget;
-  plane1Widget->SetInteractor(iren);
-  SetupPlaneWidgetCallback(plane1Widget, plane1, polydata->GetBounds());
-  vtkNew<vtkImplicitPlaneWidget2> plane2Widget;
-  plane2Widget->SetInteractor(iren);
-  SetupPlaneWidgetCallback(plane2Widget, plane2, polydata->GetBounds());
 
   const int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
