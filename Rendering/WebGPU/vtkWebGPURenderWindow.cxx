@@ -1216,11 +1216,10 @@ void vtkWebGPURenderWindow::FlushCommandBuffers(vtkTypeUInt32 count, wgpu::Comma
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::Start()
 {
-  int* size = this->GetSize();
-  vtkDebugMacro(<< __func__ << '(' << size[0] << ',' << size[1] << ')');
+  vtkDebugMacro(<< __func__ << '(' << this->Size[0] << ',' << this->Size[1] << ')');
 
-  this->Size[0] = (size[0] > 0 ? size[0] : 300);
-  this->Size[1] = (size[1] > 0 ? size[1] : 300);
+  this->Size[0] = (this->Size[0] > 0 ? this->Size[0] : 300);
+  this->Size[1] = (this->Size[1] > 0 ? this->Size[1] : 300);
 
   vtkDebugMacro(<< __func__ << " Initialized=" << this->Initialized);
 
