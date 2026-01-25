@@ -31,6 +31,7 @@ int TestGLTFImporter(int argc, char* argv[])
   VTK_FROM_CHARS_IF_ERROR_RETURN(argv[3], cameraIndex, EXIT_FAILURE);
 
   vtkNew<vtkGLTFImporter> importer;
+
   int useStream;
   VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], useStream, EXIT_FAILURE);
   if (useStream > 0)
@@ -48,11 +49,24 @@ int TestGLTFImporter(int argc, char* argv[])
       std::cerr << "Can not open test file " << argv[1] << std::endl;
       return EXIT_FAILURE;
     }
+
+    if (!vtkGLTFImporter::CanReadFile(file))
+    {
+      std::cerr << "Unexpected CanReadFile(stream) failure" << std::endl;
+      return EXIT_FAILURE;
+    }
+
     importer->SetStream(file);
     importer->SetStreamIsBinary(is_binary);
   }
   else
   {
+    if (!vtkGLTFImporter::CanReadFile(argv[1]))
+    {
+      std::cerr << "Unexpected CanReadFile(filename) failure" << std::endl;
+      return EXIT_FAILURE;
+    }
+
     importer->SetFileName(argv[1]);
   }
 

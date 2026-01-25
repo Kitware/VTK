@@ -138,6 +138,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  LOOSE_VALID
+  TestGLTFImporterNonBinaryStream,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1 1 1 0 2 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0 0 1 5 1 0
 )
 
