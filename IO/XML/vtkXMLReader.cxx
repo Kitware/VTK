@@ -12,6 +12,7 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
+#include "vtkFileResourceStream.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -1629,39 +1630,50 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 //------------------------------------------------------------------------------
 int vtkXMLReader::CanReadFile(const char* name)
 {
-  // First make sure the file exists.  This prevents an empty file
-  // from being created on older compilers.
-  vtksys::SystemTools::Stat_t fs;
-  if (vtksys::SystemTools::Stat(name, &fs) != 0)
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(name))
   {
     return 0;
   }
+  return this->CanReadFile(stream) ? 1 : 0;
+}
 
-  // Test if the file with the given name is a VTKFile with the given
+//------------------------------------------------------------------------------
+bool vtkXMLReader::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  auto streambuf = stream->ToStreambuf();
+  auto streamBuffer = std::make_unique<std::istream>(streambuf.get());
+
+  // Test if the file with the given stream is a VTKFile with the given
   // type.
-  vtkXMLFileReadTester* tester = vtkXMLFileReadTester::New();
-  tester->SetFileName(name);
+  vtkNew<vtkXMLFileReadTester> tester;
+  tester->SetStream(streamBuffer.get());
 
-  int result = 0;
+  bool result = false;
   if (tester->TestReadFile() && tester->GetFileDataType())
   {
     if (this->CanReadFileWithDataType(tester->GetFileDataType()))
     {
-      result = 1;
+      result = true;
     }
   }
 
-  tester->Delete();
   // sizeof(long) == 4 on _WIN32, check for Expat config that uses 'long long' instead
   if (VTK_SIZEOF_LONG == 4 && result)
   {
-    auto fileSize = fs.st_size;
+    stream->Seek(0, vtkResourceStream::SeekDirection::End);
+    auto fileSize = stream->Tell();
     if (fileSize > VTK_LONG_MAX && !vtkXMLParser::hasLargeOffsets())
     {
       vtkErrorMacro("Unable to read file, Expat must be configured with XML_LARGE_SIZE to read "
-                    "files > 2Gb: "
-        << name);
-      result = 0;
+                    "files > 2Gb");
+      result = false;
     }
   }
   return result;

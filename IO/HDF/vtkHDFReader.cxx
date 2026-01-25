@@ -398,7 +398,7 @@ vtkTypeBool vtkHDFReader::CanReadFile(const char* filename)
   vtkNew<vtkFileResourceStream> stream;
   if (!stream->Open(filename))
   {
-    return 1;
+    return 0;
   }
   return vtkHDFReader::CanReadFile(stream) ? 1 : 0;
 }
