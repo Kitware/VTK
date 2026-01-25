@@ -26,6 +26,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  3DSImport-Stream,Test3DSImporterStream.cxx
+    DATA{../../../../Testing/Data/iflamigm.3ds}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImport-mtllib-texturepath,TestOBJImporter.cxx
     DATA{../Data/Input/cube-scene.obj}
 )
