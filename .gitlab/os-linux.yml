@@ -934,6 +934,14 @@
         - *before_script_java_linux
         - *script_linux
 
+.cmake_test_java_linux:
+    stage: test
+    script:
+        - *before_script_linux
+        - *before_script_java_linux
+        - $LAUNCHER ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+    interruptible: true
+
 .cmake_source_tarballs:
     stage: build
     image: "fedora:42"

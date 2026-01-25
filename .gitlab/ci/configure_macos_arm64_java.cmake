@@ -3,6 +3,11 @@ set(VTK_JAVA_RELEASE_VERSION $ENV{VTK_JAVA_VERSION} CACHE STRING "" FORCE)
 set(VTK_WRAP_SERIALIZATION OFF CACHE BOOL "")
 include("${CMAKE_CURRENT_LIST_DIR}/configure_macos.cmake")
 
+# Disable modules with missing runtime dependencies on macOS
+set(VTK_MODULE_ENABLE_VTK_IOADIOS2 NO CACHE STRING "")
+set(VTK_MODULE_ENABLE_VTK_IOFides NO CACHE STRING "")
+set(VTK_MODULE_ENABLE_VTK_FiltersONNX NO CACHE STRING "")
+
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type)
 set(MAVEN_LOCAL_NATIVE_NAME "darwin-arm-${cmake_build_type}" CACHE STRING "" FORCE)
 unset(cmake_build_type)

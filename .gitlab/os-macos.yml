@@ -397,3 +397,11 @@
         - *before_script_java_macos
         - *before_script_macos_deps
         - *script_macos
+
+.cmake_test_java_macos:
+    stage: test
+    script:
+        - *before_script_macos
+        - *before_script_java_macos
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+    interruptible: true

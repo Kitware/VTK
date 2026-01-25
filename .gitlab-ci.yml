@@ -281,28 +281,52 @@ fedora42-x86_64-java8:build:
         - .fedora42_x86_64_java
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     timeout: 2 hours
     needs: []
+
+fedora42-x86_64-java8:test:
+    extends:
+        - .fedora42_x86_64_java
+        - .cmake_test_java_linux
+        - .linux_x86_64_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_JAVA_VERSION: 8
+    needs:
+        - fedora42-x86_64-java8:build
 
 fedora42-x86_64-java11:build:
     extends:
         - .fedora42_x86_64_java
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
         VTK_JAVA_VERSION: 11
     timeout: 2 hours
     needs: []
+
+fedora42-x86_64-java11:test:
+    extends:
+        - .fedora42_x86_64_java
+        - .cmake_test_java_linux
+        - .linux_x86_64_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_JAVA_VERSION: 11
+    needs:
+        - fedora42-x86_64-java11:build
 
 fedora42-x86_64-mpi-python-qt-tbb:build:
     extends:
@@ -3358,7 +3382,7 @@ macos-x86_64-java8:build:
         - .macos_x86_64_java
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -3367,13 +3391,27 @@ macos-x86_64-java8:build:
         VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
+
+macos-x86_64-java8:test:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_test_java_macos
+        - .macos_x86_64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 8
+    needs:
+        - macos-x86_64-java8:build
 
 macos-x86_64-java11:build:
     extends:
         - .macos_x86_64_java
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -3382,13 +3420,27 @@ macos-x86_64-java11:build:
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
+
+macos-x86_64-java11:test:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_test_java_macos
+        - .macos_x86_64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 11
+    needs:
+        - macos-x86_64-java11:build
 
 macos-arm64-java8:build:
     extends:
         - .macos_arm64_java
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -3397,28 +3449,54 @@ macos-arm64-java8:build:
         VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
+
+macos-arm64-java8:test:
+    extends:
+        - .macos_arm64_java
+        - .cmake_test_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 8
+    needs:
+        - macos-arm64-java8:build
 
 macos-arm64-java11:build:
     extends:
         - .macos_arm64_java
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
+
+macos-arm64-java11:test:
+    extends:
+        - .macos_arm64_java
+        - .cmake_test_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_JAVA_VERSION: 11
+    needs:
+        - macos-arm64-java11:build
 
 windows-x86_64-java8:build:
     extends:
         - .windows_vs2022_java
         - .cmake_build_java_windows
         - .windows_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
@@ -3428,20 +3506,46 @@ windows-x86_64-java8:build:
     timeout: 4 hours
     needs: []
 
+windows-x86_64-java8:test:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_test_java_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 8
+    needs:
+        - windows-x86_64-java8:build
+
 windows-x86_64-java11:build:
     extends:
         - .windows_vs2022_java
         - .cmake_build_java_windows
         - .windows_builder_tags
-        - .cmake_maven_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_RUN_MANUALLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
+
+windows-x86_64-java11:test:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_test_java_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_JAVA_VERSION: 11
+    needs:
+        - windows-x86_64-java11:build
 
 java8:upload:
     extends:
@@ -3454,9 +3558,17 @@ java8:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java8:build
+        - job: macos-x86_64-java8:test
+          artifacts: false
         - macos-arm64-java8:build
+        - job: macos-arm64-java8:test
+          artifacts: false
         - windows-x86_64-java8:build
+        - job: windows-x86_64-java8:test
+          artifacts: false
         - fedora42-x86_64-java8:build
+        - job: fedora42-x86_64-java8:test
+          artifacts: false
 
 java11:upload:
     extends:
@@ -3469,6 +3581,14 @@ java11:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java11:build
+        - job: macos-x86_64-java11:test
+          artifacts: false
         - macos-arm64-java11:build
+        - job: macos-arm64-java11:test
+          artifacts: false
         - windows-x86_64-java11:build
+        - job: windows-x86_64-java11:test
+          artifacts: false
         - fedora42-x86_64-java11:build
+        - job: fedora42-x86_64-java11:test
+          artifacts: false

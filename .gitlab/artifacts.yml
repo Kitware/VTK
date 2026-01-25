@@ -39,6 +39,7 @@
             - build/CMakeCache.txt
             - build/build.ninja
             - build/rules.ninja
+            - build/CMakeFiles/rules.ninja
             - build/cmake_install.cmake
             - build/**/cmake_install.cmake
 
@@ -61,6 +62,7 @@
             - build/ci-venv/
 
             # proj.db
+            - build/share/vtk/proj/proj.db
             - build/share/vtk-*/proj/proj.db
 
             # CMake logs
@@ -198,21 +200,6 @@
         paths:
             - release/
             - build/cdash-build-id
-
-.cmake_maven_artifacts:
-    artifacts:
-        expire_in: 2d
-        when: always
-        reports:
-            annotations:
-                - build/annotations.json
-        paths:
-            - build/CMakeCache.txt
-            - build/CMakeFiles/CMakeError.log
-            - build/CMakeFiles/CMakeOutput.log
-            - build/CMakeFiles/rules.ninja
-            - build/install
-            - compile_output.log
 
 .sphinx_artifacts:
     artifacts:

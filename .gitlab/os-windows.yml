@@ -485,3 +485,13 @@
         - *before_script_windows_openxr_deps
         - *before_script_java_windows
         - *script_windows
+
+.cmake_test_java_windows:
+    stage: test
+    script:
+        - *before_script_windows
+        - *before_script_windows_deps
+        - *before_script_java_windows
+        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+    interruptible: true
