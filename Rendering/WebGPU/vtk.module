@@ -19,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
   VTK::fmt
+  VTK::IOXML
 TEST_DEPENDS
   VTK::CommonColor
   VTK::CommonSystem

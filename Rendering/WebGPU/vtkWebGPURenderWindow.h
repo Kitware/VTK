@@ -142,6 +142,14 @@ public:
   int SetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
   ///@}
 
+  ///@{
+  /**
+   * Get the Ids data from the last render.
+   */
+  vtkTypeUInt32* GetIdsData(int x1, int y1, int x2, int y2);
+  void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32Array* data);
+  ///@}
+
   /**
    * Get the size of the color buffer.
    * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
@@ -407,8 +415,6 @@ protected:
 private:
   // For accessing SubmitCommandBuffer to submit custom prop render work
   friend class vtkWebGPUComputeOcclusionCuller;
-  // For accessing HardwareSelectorAttachment
-  friend class vtkWebGPUHardwareSelector;
 
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;
@@ -468,9 +474,6 @@ private:
 
   void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
     std::size_t mipLevel, wgpu::TextureAspect aspect, TextureMapCallback callback, void* userData);
-
-  vtkTypeUInt32* GetIdsData(int x1, int y1, int x2, int y2);
-  void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32Array* data);
 
   // Render textures acquired by the user on this render window. They are kept here in case the
   // render window is resized, in which case, we'll need to resize the render textures --> We need

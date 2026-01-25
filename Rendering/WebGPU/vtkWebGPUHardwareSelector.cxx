@@ -10,7 +10,28 @@
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
 
-#include <iterator>
+#if 0
+#include "vtkImageData.h"
+#include "vtkPointData.h"
+#include "vtkStringFormatter.h"
+#include "vtkXMLImageDataWriter.h"
+#define SAVE_SELECTION                                                                             \
+  do                                                                                               \
+  {                                                                                                \
+    vtkNew<vtkImageData> img;                                                                      \
+    img->SetExtent(this->Area[0], this->Area[2], this->Area[1], this->Area[3], 0, 0);              \
+    img->GetPointData()->SetScalars(this->IdBuffer);                                               \
+    vtkNew<vtkXMLImageDataWriter> writer;                                                          \
+    static int counter = 0;                                                                        \
+    std::string filename = "selection_" + vtk::to_string(counter++) + ".vti";                      \
+    writer->SetFileName(filename.c_str());                                                         \
+    writer->SetInputData(img);                                                                     \
+    writer->Write();                                                                               \
+    vtkLog(INFO, "Saved " << filename);                                                            \
+  } while (0)
+#else
+#define SAVE_SELECTION
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -41,49 +62,23 @@ bool vtkWebGPUHardwareSelector::CaptureBuffers()
   if (auto* wgpuRenderWindow =
         vtkWebGPURenderWindow::SafeDownCast(this->Renderer->GetRenderWindow()))
   {
-    if (auto wgpuConfiguration = wgpuRenderWindow->WGPUConfiguration)
+    this->BeginSelection();
+    if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
-      if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-      {
-        // render a second time and draw only points.
-        // mappers check if points need to be drawn for selection
-        // if the renderer has a selector and selector->GetFieldAssociation() ==
-        // vtkDataObject::FIELD_ASSOCIATION_POINTS)
-        wgpuRenderWindow->Render();
-      }
-      this->BeginSelection();
+      // render a second time and draw only points.
+      // mappers check if points need to be drawn for selection
+      // if the renderer has a selector and selector->GetFieldAssociation() ==
+      // vtkDataObject::FIELD_ASSOCIATION_POINTS)
+      wgpuRenderWindow->Render();
+    }
 
-      // Map a subset of the IDs texture into a buffer and copy the values into this->IdBuffer.
-      const auto& queryXMin = this->Area[0];
-      const auto& queryYMin = this->Area[1];
-      const auto& queryXMax = this->Area[2];
-      const auto& queryYMax = this->Area[3];
-      auto onTextureMapped = [queryYMax, queryYMin](
-                               const void* mappedData, int bytesPerRow, void* userData)
-      {
-        auto* idBuffer = reinterpret_cast<std::vector<Ids>*>(userData);
-        const Ids* mappedDataAsIds = reinterpret_cast<const Ids*>(mappedData);
-        std::copy(mappedDataAsIds,
-          mappedDataAsIds + ((queryYMax - queryYMin + 1) * bytesPerRow / sizeof(Ids)),
-          std::back_inserter(*idBuffer));
-      };
-      wgpuRenderWindow->ReadTextureFromGPU(wgpuRenderWindow->IdsAttachment.Texture,
-        wgpuRenderWindow->IdsAttachment.Format, /*mipLevel=*/0, wgpu::TextureAspect::All,
-        wgpu::Origin3D{ queryXMin, queryYMin, 0 },
-        wgpu::Extent3D{ queryXMax - queryXMin + 1, queryYMax - queryYMin + 1, 1 }, onTextureMapped,
-        reinterpret_cast<void*>(&(this->IdBuffer)));
-      // Wait for texture copy to buffer.
-      wgpuRenderWindow->WaitForCompletion();
-      this->BuildPropHitList(this->PixBuffer[ACTOR_PASS]);
-      this->EndSelection();
-      return true;
-    }
-    else
-    {
-      vtkErrorMacro("This selector's render window is not configured to use webgpu. Please call "
-                    "vtkWebGPURenderWindow::SetWGPUConfiguration().");
-      return false;
-    }
+    // Map a subset of the IDs texture into a buffer and copy the values into this->IdBuffer.
+    wgpuRenderWindow->GetIdsData(
+      this->Area[0], this->Area[1], this->Area[2], this->Area[3], this->IdBuffer);
+    SAVE_SELECTION;
+    this->BuildPropHitList(this->PixBuffer[ACTOR_PASS]);
+    this->EndSelection();
+    return true;
   }
   else
   {
@@ -141,7 +136,7 @@ vtkProp* vtkWebGPUHardwareSelector::GetPropFromID(int id)
 //------------------------------------------------------------------------------
 void vtkWebGPUHardwareSelector::ReleasePixBuffers()
 {
-  this->IdBuffer.clear();
+  this->IdBuffer->Reset();
 
   for (int i = MIN_KNOWN_PASS; i < MAX_KNOWN_PASS + 1; ++i)
   {
@@ -153,42 +148,44 @@ void vtkWebGPUHardwareSelector::ReleasePixBuffers()
 }
 
 //------------------------------------------------------------------------------
-int vtkWebGPUHardwareSelector::Convert(int x, int y, unsigned char* pb)
+int vtkWebGPUHardwareSelector::Convert(int xRelative, int yRelative, unsigned char* pb)
 {
   if (!pb)
   {
     return 0;
   }
-  if (this->IdBuffer.empty())
+  if (this->IdBuffer->GetNumberOfValues() == 0)
   {
     vtkErrorMacro(<< "Ids are not captured!");
     return 0;
   }
-  const auto& queryXMin = this->Area[0];
-  const auto& queryXMax = this->Area[2];
-  const auto queryWidth = queryXMax - queryXMin + 1;
-  std::size_t pixelLinearId = (y * queryWidth) + x;
-  const auto& ids = this->IdBuffer[pixelLinearId];
+  const int &x1 = this->Area[0], &x2 = this->Area[2];
+  const auto queryWidth = x2 - x1 + 1;
+  const std::size_t pixelOffset = yRelative * queryWidth + xRelative;
+  vtkTypeUInt32 rawIds[4] = {};
+  this->IdBuffer->GetTypedTuple(pixelOffset, rawIds);
+  static_assert(sizeof(rawIds) == sizeof(Ids));
+  const auto* const ids = reinterpret_cast<const Ids*>(rawIds);
   if (*pb == vtkHardwareSelector::ACTOR_PASS)
   {
-    return ids.PropId;
+    return ids->PropId;
   }
   else if (*pb == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
   {
-    return ids.CompositeId;
+    return ids->CompositeId;
   }
   else if (*pb == vtkHardwareSelector::POINT_ID_HIGH24 ||
     *pb == vtkHardwareSelector::POINT_ID_LOW24)
   {
-    return ids.AttributeId;
+    return ids->AttributeId;
   }
   else if (*pb == vtkHardwareSelector::PROCESS_PASS)
   {
-    return ids.ProcessId;
+    return ids->ProcessId;
   }
   else if (*pb == vtkHardwareSelector::CELL_ID_HIGH24 || *pb == vtkHardwareSelector::CELL_ID_LOW24)
   {
-    return ids.AttributeId;
+    return ids->AttributeId;
   }
   else
   {
@@ -207,7 +204,7 @@ vtkHardwareSelector::PixelInformation vtkWebGPUHardwareSelector::GetPixelInforma
   {
     return {};
   }
-  if (this->IdBuffer.empty())
+  if (this->IdBuffer->GetNumberOfValues() == 0)
   {
     return {};
   }
