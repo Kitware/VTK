@@ -21,10 +21,15 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"
 
+#define VTK_COLOR_MODE_DEFAULT 0
+#define VTK_COLOR_MODE_OFF 4
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkImageData;
 class vtkPolyData;
+class vtkUnsignedCharArray;
 
 class VTKIOGEOMETRY_EXPORT vtkOBJWriter : public vtkWriter
 {
@@ -60,15 +65,55 @@ public:
   vtkGetFilePathMacro(FileName);
   ///@}
 
+  ///@{
+  /**
+   * These methods enable the user to control how to add color into the OBJ
+   * output file. The default behavior is as follows. The user provides the
+   * name of an array and a component number. If the type of the array is
+   * three components, unsigned char, then the data is written as three
+   * separate "red", "green" and "blue" properties. If the type of the array is
+   * four components, unsigned char, then the data is written as three separate
+   * "red", "green" and "blue" properties, dropping the "alpha".
+   */
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
+  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToOff() // No color information is written
+  {
+    this->SetColorMode(VTK_COLOR_MODE_OFF);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Specify the array name to use to color the data.
+   */
+  vtkSetStringMacro(ArrayName);
+  vtkGetStringMacro(ArrayName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify the array component to use to color the data.
+   */
+  vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Component, int);
+  ///@}
+
 protected:
   vtkOBJWriter();
   ~vtkOBJWriter() override;
 
   bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
 
   char* FileName;
   char* TextureFileName;
+
+  char* ArrayName;
+  int Component;
+  int ColorMode;
 
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;

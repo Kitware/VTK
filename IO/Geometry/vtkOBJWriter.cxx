@@ -14,6 +14,7 @@
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -82,16 +83,31 @@ struct EndIndex
 };
 //----------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
-  const std::vector<vtkDataArray*>& tcoordsArray, std::vector<EndIndex>* endIndexes)
+  vtkSmartPointer<vtkUnsignedCharArray> pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
+  std::vector<EndIndex>* endIndexes)
 {
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
+  bool writeColors = false;
+  if (pointColors && pointColors->GetNumberOfComponents() >= 3 &&
+    pointColors->GetNumberOfTuples() == nbPts)
+  {
+    writeColors = true;
+  }
   // Positions
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << vtk::format("v {} {} {}\n", p[0], p[1], p[2]);
+    f << vtk::format("v {} {} {}", p[0], p[1], p[2]);
+    if (writeColors)
+    {
+      unsigned char color[4] = { 255, 255, 255, 255 };
+      pointColors->GetTypedTuple(i, color);
+      f << vtk::format(" {} {} {}", static_cast<float>(color[0] / 255.0f),
+        static_cast<float>(color[1] / 255.0f), static_cast<int>(color[2] / 255.0f));
+    }
+    f << "\n";
   }
 
   // Normals
@@ -167,6 +183,9 @@ vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
   this->TextureFileName = nullptr;
+  this->ArrayName = nullptr;
+  this->Component = 0;
+  this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -175,6 +194,7 @@ vtkOBJWriter::~vtkOBJWriter()
 {
   this->SetFileName(nullptr);
   this->SetTextureFileName(nullptr);
+  delete[] this->ArrayName;
 }
 
 //------------------------------------------------------------------------------
@@ -285,8 +305,11 @@ bool vtkOBJWriter::WriteDataAndReturn()
     }
   }
 
+  vtkSmartPointer<vtkUnsignedCharArray> pointColors =
+    this->GetColors(pts->GetNumberOfPoints(), input->GetPointData());
+
   std::vector<EndIndex> endIndexes;
-  ::WritePoints(f, pts, normals, tcoordsArray, &endIndexes);
+  ::WritePoints(f, pts, normals, pointColors, tcoordsArray, &endIndexes);
 
   // Decompose any triangle strips into triangles
   vtkNew<vtkCellArray> polyStrips;
@@ -372,6 +395,10 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->GetFileName() ? this->GetFileName() : "(none)") << endl;
   os << indent << "Input: " << this->GetInputGeometry() << endl;
 
+  os << indent << "Array Name: " << (this->ArrayName ? this->ArrayName : "(none)") << "\n";
+
+  os << indent << "Component: " << this->Component << "\n";
+
   vtkImageData* texture = this->GetInputTexture();
   if (texture)
   {
@@ -414,4 +441,54 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+
+vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(
+  vtkIdType num, vtkDataSetAttributes* dsa)
+{
+  unsigned char* c;
+  vtkIdType i;
+  int numComp;
+
+  if (this->ColorMode == VTK_COLOR_MODE_OFF)
+  {
+    return nullptr;
+  }
+  else // we will color based on data
+  {
+    vtkDataArray* da;
+    vtkUnsignedCharArray* rgbArray;
+
+    if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == nullptr ||
+      this->Component >= (numComp = da->GetNumberOfComponents()))
+    {
+      return nullptr;
+    }
+    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
+    { // have unsigned char array of three components, copy it
+      return rgbArray;
+    }
+    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
+    {
+      // have unsigned char array of four components (RGBA), copy it without the `A`.
+      vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      colors->SetNumberOfComponents(3);
+      colors->SetNumberOfTuples(num);
+      c = colors->WritePointer(0, 3 * num);
+      const unsigned char* rgba = rgbArray->GetPointer(0);
+      for (i = 0; i < num; i++)
+      {
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        rgba++;
+      }
+      return colors;
+    }
+    else // no color arrays
+    {
+      return nullptr;
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END

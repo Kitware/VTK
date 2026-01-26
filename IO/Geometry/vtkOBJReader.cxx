@@ -72,7 +72,7 @@ g <groupName>  [... <groupNameN]
 
     group name, primarily for faces
 
-v <x> <y> <z>
+v <x> <y> <z> <r> g> <b>
 
     vertex
 
@@ -150,6 +150,10 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   auto normals = vtkSmartPointer<vtkFloatArray>::New();
   normals->SetNumberOfComponents(3);
   normals->SetName("Normals");
+  // RBG point colors
+  auto pointColors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  pointColors->SetNumberOfComponents(3);
+  pointColors->SetName("RGB");
 
   // Cells (faces="f")
   // OBJ format enables indexing points, normals and tcoords independently from each other
@@ -328,6 +332,32 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
           vtkErrorMacro(<< "Failed to parse " << i << "th vertex value at L." << lineNumber);
           return 0;
         }
+      }
+
+      int pointColorComponentCount = 0;
+      std::array<double, 3> color;
+
+      for (std::size_t i = 0; i < 3; ++i)
+      {
+        result = parser->Parse(color[i]);
+        if (result == vtkParseResult::Ok)
+        {
+          ++pointColorComponentCount;
+        }
+      }
+      if (pointColorComponentCount == 3)
+      {
+        // only accept colors if no face was defined yet
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+          color[i] = std::clamp(color[i], 0.0, 1.0) * 255.0;
+        }
+        pointColors->InsertNextTuple3(static_cast<unsigned char>(color[0]),
+          static_cast<unsigned char>(color[1]), static_cast<unsigned char>(color[2]));
+      }
+      else
+      {
+        vtkWarningMacro(<< "Ignoring point color at L." << lineNumber);
       }
 
       // Check last value (which is optional)
@@ -980,6 +1010,12 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (normals->GetNumberOfTuples() > 0)
   {
     output->GetPointData()->SetNormals(normals);
+  }
+
+  if (pointColors->GetNumberOfTuples() == points->GetNumberOfPoints())
+  {
+    output->GetPointData()->AddArray(pointColors);
+    output->GetPointData()->SetActiveScalars("RGB");
   }
 
   if (groupId != -1 && faceScalars)
