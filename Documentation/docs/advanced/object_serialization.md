@@ -148,5 +148,5 @@ your custom `RegisterHandlers_vtkClassNameSerDesHelper`.
 ## Testing serialization code
 
 Serialization testing can be run on top of regular VTK C++ regression tests by performing an image comparison test after serializing and deserializing the test's render window.
-It is enabled via the environment varaible `VTK_SERIALIZATION_TESTING`. Setting `VTK_SERIALIZATION_TESTING=ON` will run the serialization/deserialization testing in addition to the normal regression test,
-while a value of `ONLY` will skip the original regression test so that only one regression is performed.
+When VTK is configured with `VTK_WRAP_SERIALIZAITON=ON`, serialization tests will be generated with the suffix `SerDes`. Specific tests can be excluded from serialization testing
+by adding the `NO_SERDES` argument to the test in `Some/Module/Testing/Cxx/CMakeLists.txt`.
