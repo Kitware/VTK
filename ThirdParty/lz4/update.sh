@@ -8,7 +8,7 @@ readonly name="lz4"
 readonly ownership="lz4 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/lz4.git"
-readonly tag="for/vtk-20251023-1.10.0"
+readonly tag="for/vtk-20260125-1.10.0"
 readonly paths="
 lib/*.c
 lib/*.h
