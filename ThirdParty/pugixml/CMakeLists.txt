@@ -4,7 +4,7 @@ vtk_third_party_extract(
     repo pugixml_repo
     tag  pugixml_tag
   VERSION_FROM_TAG
-    tag  pugixml_version "^for/vtk/[0-9]*-master-([0-9\\.]+)-g[0-9a-f]+$")
+    tag  pugixml_version "^for/vtk-[0-9]*-master-([0-9\\.]+)-g[0-9a-f]+$")
 
 vtk_module_third_party(
   INTERNAL
