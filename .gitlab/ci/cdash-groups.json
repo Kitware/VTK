@@ -23,7 +23,6 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_arm64_kits_python_qt]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_arm64_kits_python_qt_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt]" },
-        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt_stdthread]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_linux]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_windows_chrome_ext_vtk]" },

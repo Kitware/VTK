@@ -2676,16 +2676,16 @@ macos-arm64-kits-python-qt:test:
     needs:
         - macos-arm64-kits-python-qt:build
 
-#macos-arm64-kits-python-qt-serialization:test:
-#    extends:
-#        - .macos_arm64_kits_python_qt_serialization
-#        - .ctest_new_cdash_submission
-#        - .cmake_test_macos
-#        - .macos_arm64_builder_tags
-#        - .cmake_test_artifacts
-#        - .rules
-#    needs:
-#        - macos-arm64-kits-python-qt:build
+macos-arm64-kits-python-qt-serialization:test:
+   extends:
+       - .macos_arm64_kits_python_qt_serialization
+       - .ctest_new_cdash_submission
+       - .cmake_test_macos
+       - .macos_arm64_builder_tags
+       - .cmake_test_artifacts
+       - .rules
+   needs:
+       - macos-arm64-kits-python-qt:build
 
 macos-x86_64-kits-python-qt:build:
     extends:
@@ -2703,18 +2703,6 @@ macos-x86_64-kits-python-qt:build:
 macos-x86_64-kits-python-qt:test:
     extends:
         - .macos_x86_64_kits_python_qt
-        - .cmake_test_macos
-        - .macos_x86_64_builder_tags
-        - .cmake_test_artifacts
-        - .rules
-    needs:
-        - macos-x86_64-kits-python-qt:build
-    timeout: 2 hours
-
-macos-x86_64-kits-python-qt-serialization:test:
-    extends:
-        - .macos_x86_64_kits_python_qt_serialization
-        - .ctest_new_cdash_submission
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
