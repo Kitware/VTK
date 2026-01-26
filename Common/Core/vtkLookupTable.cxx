@@ -193,9 +193,9 @@ void vtkLookupTable::SetScale(int scale)
   {
     this->TableRange[0] = 1.0;
     this->TableRange[1] = 10.0;
-    vtkErrorMacro("Bad table range for log scale: [" << rmin << ", " << rmax
-                                                     << "], "
-                                                        "adjusting to [1, 10]");
+    vtkWarningMacro("Bad table range for log scale: [" << rmin << ", " << rmax
+                                                       << "], "
+                                                          "adjusting to [1, 10]");
     return;
   }
 }
