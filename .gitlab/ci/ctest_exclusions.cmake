@@ -58,7 +58,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
     "^VTK::FiltersModelingPython-TestCookieCutter$"
-    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
+    "^VTK::RenderingCoreCxx-OpenGL-TestTextureRGBADepthPeeling$" # seems to just not work here
 
     # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
     "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
@@ -298,7 +298,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
     "^VTK::GUISupportQtCxx"
     "^VTK::GUISupportQtQuickCxx"
     "^VTK::GUISupportQtSQLCxx-TestQtSQLDatabase$"
-    "^VTK::RenderingCoreCxx-TestInteractorTimers$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestInteractorTimers$"
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
     "^VTK::RenderingQtCxx-TestQtInitialization$"
     "^VTK::RenderingTkPython"
@@ -346,7 +346,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
-    "^VTK::RenderingCoreCxx-TestResizingWindowToImageFilter$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestResizingWindowToImageFilter$"
   )
 endif ()
 
@@ -484,7 +484,7 @@ if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen" AND "$ENV{CMAKE_CONFIGURATI
     "^VTK::InteractionStylePython-TestStyleJoystickCamera$"
     "^VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective$"
     "^VTK::InteractionStylePython-TestStyleTrackballCamera$"
-    "^VTK::RenderingCoreCxx-TestInteractorTimers$")
+    "^VTK::RenderingCoreCxx-OpenGL-TestInteractorTimers$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "egl")
@@ -590,13 +590,13 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
   list(APPEND test_exclusions
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperMixedGeometryEdges$"
-    "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperPartialFieldData$"
-    "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperVertices$"
-    "^VTK::RenderingCoreCxx-TestEdgeFlags$"
-    "^VTK::RenderingCoreCxx-TestLabeledContourMapperWithActorMatrix$"
-    "^VTK::RenderingCoreCxx-TestPolyDataMapperNormals$"
-    "^VTK::RenderingCoreCxx-TestTextureWrap$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryEdges$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperPartialFieldData$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperVertices$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestEdgeFlags$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestLabeledContourMapperWithActorMatrix$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPolyDataMapperNormals$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestTextureWrap$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
