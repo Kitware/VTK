@@ -595,8 +595,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperVertices$"
     "^VTK::RenderingCoreCxx-TestEdgeFlags$"
     "^VTK::RenderingCoreCxx-TestLabeledContourMapperWithActorMatrix$"
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19580
-    "^VTK::RenderingCoreCxx-TestMixedGeometryCellScalars$"
     "^VTK::RenderingCoreCxx-TestPolyDataMapperNormals$"
     "^VTK::RenderingCoreCxx-TestTextureWrap$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
