@@ -9,7 +9,6 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkViewport.h"
-#
 #include "vtkWindow.h"
 
 #include "vtkCellArray.h"
