@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtk3DSImporter.h"
 #include "vtkNew.h"
-#include "vtkOBJImporter.h"
 
 #include "vtkCamera.h"
 #include "vtkFileResourceStream.h"
@@ -18,38 +18,25 @@
 
 #include <iostream>
 
-int TestOBJImporterStream(int argc, char* argv[])
+int Test3DSImporterStream(int argc, char* argv[])
 {
-  // note that the executable name is stripped out already
-  // so argc argv will not have it
-
-  // Files for testing demonstrate updated functionality for OBJ import:
-  //       polydata + textures + actor properties all get loaded.
-  if (argc < 2)
+  if (argc < 1)
   {
-    std::cout << "expected TestName File1.obj [File2.obj.mtl]  [texture1]  ... " << std::endl;
+    std::cout << "expected TestName File1.3ds" << std::endl;
     return EXIT_FAILURE;
   }
 
   vtkNew<vtkFileResourceStream> fileStream;
   fileStream->Open(argv[1]);
 
-  vtkNew<vtkFileResourceStream> mtlStream;
-  mtlStream->Open(argv[2]);
-
-  vtkNew<vtkFileResourceStream> texStream;
-  texStream->Open(argv[4]);
-
-  if (!vtkOBJImporter::CanReadFile(fileStream))
+  if (!vtk3DSImporter::CanReadFile(fileStream))
   {
     std::cout << "CanReadFile(stream) unexpected failure" << std::endl;
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkOBJImporter> importer;
+  vtkNew<vtk3DSImporter> importer;
   importer->SetStream(fileStream);
-  importer->SetMTLStream(mtlStream);
-  importer->SetTextureStreams({ { argv[3], texStream } });
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;

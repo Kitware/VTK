@@ -10,6 +10,7 @@
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
 #include "vtkImageAppendComponents.h"
@@ -796,6 +797,34 @@ void vtkGLTFImporter::ApplyArmatureProperties(vtkActor* actor)
 {
   actor->GetProperty()->RenderPointsAsSpheresOn();
   actor->GetProperty()->RenderLinesAsTubesOn();
+}
+
+//------------------------------------------------------------------------------
+bool vtkGLTFImporter::CanReadFile(const std::string& filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename.c_str()))
+  {
+    return false;
+  }
+  return vtkGLTFImporter::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkGLTFImporter::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkGLTFDocumentLoader> loader;
+  if (!loader->LoadModelMetaDataFromStream(stream))
+  {
+    return false;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------

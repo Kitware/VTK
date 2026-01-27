@@ -59,6 +59,18 @@ public:
    */
   vtkResourceStream* GetTempStream() { return this->TempStream; }
 
+  ///@{
+  /**
+   * Return true if, after a quick check of file header, it looks like the provided stream
+   * can be read. Return false if it is sure it cannot be read. The stream version can move the
+   * stream cursor, the filename version calls the stream version.
+   *
+   * This only check the first chunk can be read and contains 0x4D4D
+   */
+  static bool CanReadFile(const std::string& filename);
+  static bool CanReadFile(vtkResourceStream* stream);
+  ///@}
+
   vtk3DSOmniLight* OmniList;
   vtk3DSSpotLight* SpotLightList;
   vtk3DSCamera* CameraList;

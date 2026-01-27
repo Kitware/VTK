@@ -103,6 +103,18 @@ public:
   vtkBooleanMacro(StreamIsBinary, bool);
   ///@}
 
+  ///@{
+  /**
+   * Return true if, after a quick check of file header, it looks like the provided stream
+   * can be read. Return false if it is sure it cannot be read. The stream version can move the
+   * stream cursor, the filename version calls the stream version.
+   *
+   * This only checks that the metadata of the file can be loaded using the document loader.
+   */
+  static bool CanReadFile(vtkResourceStream* stream);
+  static bool CanReadFile(const std::string& filename);
+  ///@}
+
   /**
    * glTF defines multiple camera objects, but no default behavior for which camera should be
    * used. The importer will by default apply the asset's first camera. This accessor lets you use

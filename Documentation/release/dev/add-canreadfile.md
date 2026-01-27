@@ -1,6 +1,6 @@
 ## CanReadFile support
 
-CanReadFile support has been added or extented to the following readers:
+CanReadFile support has been added or extented to the following readers and importers:
  - vtkDataSetReader (added)
  - vtkXMLReader (extended to stream)
  - vtkXMLGenericDataObjectReader (added)
@@ -16,3 +16,6 @@ CanReadFile support has been added or extented to the following readers:
  - vtkPNGReader (extended to stream)
  - vtkTGAReader (extended to stream)
  - vtkBMPReader (extended to stream)
+ - vtkGLTFImporter (added)
+ - vtkOBJImporter (added)
+ - vtk3DSImporter (added)

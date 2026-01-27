@@ -143,6 +143,32 @@ std::string vtk3DSImporter::GetOutputsDescription()
   return ss.str();
 }
 
+//------------------------------------------------------------------------------
+bool vtk3DSImporter::CanReadFile(const std::string& filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename.c_str()))
+  {
+    return false;
+  }
+  return vtk3DSImporter::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtk3DSImporter::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtk3DSChunk chunk;
+  start_chunk(stream, &chunk);
+  return chunk.tag == 0x4D4D ? true : false;
+}
+
+//------------------------------------------------------------------------------
 int vtk3DSImporter::Read3DS()
 {
   // Stream is higher priority than filename.
@@ -159,6 +185,7 @@ int vtk3DSImporter::Read3DS()
 
     this->TempStream = fileStream;
   }
+  this->TempStream->Seek(0, vtkResourceStream::SeekDirection::Begin);
 
   vtk3DSMatProp* aMaterial;
 
@@ -176,6 +203,7 @@ int vtk3DSImporter::Read3DS()
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtk3DSImporter::ImportActors(vtkRenderer* renderer)
 {
   vtk3DSMatProp* material;
