@@ -28,7 +28,7 @@
 #include "vtkCocoaHardwareWindow.h"
 #elif VTK_USE_Wayland
 #include "vtkWaylandHardwareWindow.h"
-#else
+#elif VTK_USE_X
 #include "vtkXlibHardwareWindow.h"
 #endif // _WIN32, __APPLE__, VTK_USE_Wayland, Xlib
 #else  // __EMSCRIPTEN__

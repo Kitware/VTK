@@ -40,7 +40,9 @@
 #include "vtkABINamespace.h" // For VTK_ABI_NAMESPACE_BEGIN/END
 #include "vtkx11Module.h"    // For export macro
 
+#ifndef VTK_USE_X
 #cmakedefine VTK_USE_X
+#endif
 #cmakedefine01 VTK_HAVE_XCURSOR
 #if defined(VTK_USE_X)
 #include <X11/X.h>

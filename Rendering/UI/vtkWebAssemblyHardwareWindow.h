@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWebAssemblyHardwareWindow
- * @brief   OpenGL rendering window
+ * @brief   WebAssembly hardware window that interfaces with HTML5 canvas.
  *
  * vtkWebAssemblyHardwareWindow is a concrete implementation of the abstract
- * class vtkRenderWindow.
+ * class vtkHardwareWindow. The class interfaces with an HTML5 canvas element
+ * to provide a drawing area for VTK renderers. It uses Emscripten APIs to
+ * manage the canvas.
+ *
+ * @sa vtkHardwareWindow vtkWebGPURenderWindow
  */
 
 #ifndef vtkWebAssemblyHardwareWindow_h
