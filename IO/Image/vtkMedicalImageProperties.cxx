@@ -790,7 +790,7 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char* iso, char* locale)
       {
         // convert to std::tm back using localtime to ensure the date is correct
         tm local;
-#ifdef VTK_COMPILER_MSVC
+#ifdef _WIN32
         localtime_s(&local, &t);
 #else
         localtime_r(&t, &local);
