@@ -121,7 +121,7 @@ public:
    * Computes the structured grid dimensions based on the given extent.
    * The dataDescription field is not used.
    */
-  static void GetDimensionsFromExtent(
+  static inline void GetDimensionsFromExtent(
     const int ext[6], int dims[3], int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
@@ -392,7 +392,7 @@ inline void vtkStructuredData::GetCellExtentFromPointExtent(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredData::GetDimensionsFromExtent(const int ext[6], int dims[3], int)
+void vtkStructuredData::GetDimensionsFromExtent(const int ext[6], int dims[3], int)
 {
   dims[0] = ext[1] - ext[0] + 1;
   dims[1] = ext[3] - ext[2] + 1;

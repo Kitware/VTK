@@ -85,7 +85,7 @@ public:
   /**
    * Standard vtkDataSet interface.
    */
-  vtkIdType GetNumberOfCells() override;
+  inline vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
   vtkCell* GetCell(vtkIdType cellId) override;
   void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
@@ -416,7 +416,7 @@ public:
    *
    * Note: This method MAY NOT be thread-safe. (See GetCellAtId at vtkCellArray)
    */
-  unsigned char GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts)
+  inline unsigned char GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts)
     VTK_SIZEHINT(pts, npts);
 
   /**
@@ -433,8 +433,8 @@ public:
    *
    * Note: This method is thread-safe.
    */
-  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
-    VTK_SIZEHINT(pts, npts) override;
+  inline void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts,
+    vtkIdList* ptIds) VTK_SIZEHINT(pts, npts) override;
 
   /**
    * Given three vertices, determine whether it's a triangle. Make sure
@@ -479,8 +479,8 @@ public:
    *
    * THIS METHOD IS THREAD SAFE IF BuildCells() IS FIRST CALLED FROM A SINGLE THREAD.
    */
-  void ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId);
-  void ReplaceCellPoint(
+  inline void ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId);
+  inline void ReplaceCellPoint(
     vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId, vtkIdList* cellPointIds);
   ///@}
 
@@ -735,7 +735,7 @@ private:
 };
 
 //------------------------------------------------------------------------------
-inline vtkIdType vtkPolyData::GetNumberOfCells()
+vtkIdType vtkPolyData::GetNumberOfCells()
 {
   return (this->GetNumberOfVerts() + this->GetNumberOfLines() + this->GetNumberOfPolys() +
     this->GetNumberOfStrips());
@@ -866,14 +866,14 @@ inline vtkCellArray* vtkPolyData::GetCellArrayInternal(vtkPolyData::TaggedCellId
 }
 
 //------------------------------------------------------------------------------
-inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId)
+void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId)
 {
   vtkNew<vtkIdList> ids;
   this->ReplaceCellPoint(cellId, oldPtId, newPtId, ids);
 }
 
 //------------------------------------------------------------------------------
-inline void vtkPolyData::ReplaceCellPoint(
+void vtkPolyData::ReplaceCellPoint(
   vtkIdType cellId, vtkIdType oldPtId, vtkIdType newPtId, vtkIdList* cellPointIds)
 {
   if (!this->Cells)
@@ -896,8 +896,7 @@ inline void vtkPolyData::ReplaceCellPoint(
 }
 
 //------------------------------------------------------------------------------
-inline unsigned char vtkPolyData::GetCellPoints(
-  vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts)
+unsigned char vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts)
 {
   if (!this->Cells)
   {
@@ -918,7 +917,7 @@ inline unsigned char vtkPolyData::GetCellPoints(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkPolyData::GetCellPoints(
+void vtkPolyData::GetCellPoints(
   vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
 {
   if (!this->Cells)
