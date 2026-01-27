@@ -183,9 +183,9 @@ vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
   this->TextureFileName = nullptr;
-  this->ArrayName = nullptr;
+  this->ArrayName = {};
   this->Component = 0;
-  this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+  this->ColorMode = false;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -194,7 +194,6 @@ vtkOBJWriter::~vtkOBJWriter()
 {
   this->SetFileName(nullptr);
   this->SetTextureFileName(nullptr);
-  delete[] this->ArrayName;
 }
 
 //------------------------------------------------------------------------------
@@ -395,8 +394,8 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->GetFileName() ? this->GetFileName() : "(none)") << endl;
   os << indent << "Input: " << this->GetInputGeometry() << endl;
 
-  os << indent << "Array Name: " << (this->ArrayName ? this->ArrayName : "(none)") << "\n";
-
+  os << indent << "Color Mode: " << (this->ColorMode ? "off" : "on") << "\n";
+  os << indent << "Array Name: " << (this->ArrayName.empty() ? this->ArrayName : "(none)") << "\n";
   os << indent << "Component: " << this->Component << "\n";
 
   vtkImageData* texture = this->GetInputTexture();
@@ -449,7 +448,7 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(
   vtkIdType i;
   int numComp;
 
-  if (this->ColorMode == VTK_COLOR_MODE_OFF)
+  if (!this->ColorMode)
   {
     return nullptr;
   }
@@ -458,7 +457,7 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(
     vtkDataArray* da;
     vtkUnsignedCharArray* rgbArray;
 
-    if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == nullptr ||
+    if (this->ArrayName.empty() || (da = dsa->GetArray(this->ArrayName.data())) == nullptr ||
       this->Component >= (numComp = da->GetNumberOfComponents()))
     {
       return nullptr;

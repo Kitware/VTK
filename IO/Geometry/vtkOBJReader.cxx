@@ -65,6 +65,7 @@ To find a full specification, search the net for "OBJ format", eg.:
     https://en.wikipedia.org/wiki/Wavefront_.obj_file
     http://netghost.narod.ru/gff/graphics/summary/waveobj.htm
     http://paulbourke.net/dataformats/obj/
+    https://paulbourke.net/dataformats/obj/colour.html
 
 We support the following types:
 
@@ -72,7 +73,7 @@ g <groupName>  [... <groupNameN]
 
     group name, primarily for faces
 
-v <x> <y> <z> <r> g> <b>
+v <x> <y> <z> [<r> g> <b>]
 
     vertex
 
@@ -334,21 +335,22 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
 
-      int pointColorComponentCount = 0;
-      std::array<double, 3> color;
+      constexpr auto kColorComponentCountRGB = 3u;
+      std::uint32_t colorComponentReadCount = 0u;
+      std::array<double, kColorComponentCountRGB> color;
 
-      for (std::size_t i = 0; i < 3; ++i)
+      for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
       {
         result = parser->Parse(color[i]);
         if (result == vtkParseResult::Ok)
         {
-          ++pointColorComponentCount;
+          ++colorComponentReadCount;
         }
       }
-      if (pointColorComponentCount == 3)
+      // only accept RGB values if we have all 3 components
+      if (colorComponentReadCount == kColorComponentCountRGB)
       {
-        // only accept colors if no face was defined yet
-        for (std::size_t i = 0; i < 3; ++i)
+        for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
         {
           color[i] = std::clamp(color[i], 0.0, 1.0) * 255.0;
         }
@@ -357,7 +359,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else
       {
-        vtkWarningMacro(<< "Ignoring point color at L." << lineNumber);
+        vtkWarningMacro(<< "Ignoring point color at L." << lineNumber << " for missing RGB values");
       }
 
       // Check last value (which is optional)

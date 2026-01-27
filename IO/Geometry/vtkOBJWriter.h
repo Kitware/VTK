@@ -21,9 +21,6 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"
 
-#define VTK_COLOR_MODE_DEFAULT 0
-#define VTK_COLOR_MODE_OFF 4
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetAttributes;
@@ -75,21 +72,17 @@ public:
    * four components, unsigned char, then the data is written as three separate
    * "red", "green" and "blue" properties, dropping the "alpha".
    */
-  vtkSetMacro(ColorMode, int);
-  vtkGetMacro(ColorMode, int);
-  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
-  void SetColorModeToOff() // No color information is written
-  {
-    this->SetColorMode(VTK_COLOR_MODE_OFF);
-  }
+  vtkSetMacro(ColorMode, bool);
+  vtkGetMacro(ColorMode, bool);
+  vtkBooleanMacro(ColorMode, bool);
   ///@}
 
   ///@{
   /**
    * Specify the array name to use to color the data.
    */
-  vtkSetStringMacro(ArrayName);
-  vtkGetStringMacro(ArrayName);
+  vtkSetMacro(ArrayName, std::string);
+  vtkGetMacro(ArrayName, std::string);
   ///@}
 
   ///@{
@@ -106,14 +99,16 @@ protected:
 
   bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+private:
   vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
 
   char* FileName;
   char* TextureFileName;
 
-  char* ArrayName;
+  std::string ArrayName;
   int Component;
-  int ColorMode;
+  bool ColorMode;
 
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;

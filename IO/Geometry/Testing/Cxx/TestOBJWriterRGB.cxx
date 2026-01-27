@@ -22,7 +22,7 @@ vtkSmartPointer<vtkPolyData> CreateTestData()
 
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(3);
-  colors->SetName("Colors");
+  colors->SetName("RGB");
 
   for (vtkIdType i = 0; i < polyData->GetNumberOfPoints(); ++i)
   {
@@ -33,7 +33,7 @@ vtkSmartPointer<vtkPolyData> CreateTestData()
   }
 
   polyData->GetPointData()->SetScalars(colors);
-  polyData->GetPointData()->SetActiveScalars("Colors");
+  polyData->GetPointData()->SetActiveScalars("RGB");
 
   return polyData;
 }
@@ -56,7 +56,7 @@ int CheckData(vtkPolyData* data)
   }
 
   // Check the presence of "Colors" array
-  auto rgbArray = data->GetPointData()->GetArray("Colors");
+  auto rgbArray = data->GetPointData()->GetArray("RGB");
   if (!rgbArray)
   {
     std::cerr << "Could not find Colors array" << std::endl;
@@ -96,27 +96,28 @@ int CheckData(vtkPolyData* data)
 }
 
 //------------------------------------------------------------------------------
-int TestOBJWriterRGB(int argc, char* argv[])
+int TestOBJReaderWriterRGB(int argc, char* argv[])
 {
   char* tname =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
   delete[] tname;
-  std::string filename = tmpDir + "/TestOBJWriterMultiTexture_write.obj";
+  std::string filename = tmpDir + "/TestOBJReaderWriterRGB_rw.obj";
 
+  // write test data to file by vtkOBJWriter with ColorModeOn
   auto polydata = CreateTestData();
   vtkNew<vtkOBJWriter> writer;
-  writer->SetFileName(filename.c_str());
-  writer->SetArrayName("Colors");
-  writer->SetColorModeToDefault();
+  writer->SetFileName(filename.data());
+  writer->SetArrayName("RGB");
+  writer->ColorModeOn();
   writer->SetInputData(0, polydata);
   writer->Write();
 
-  // read this file and compare with input
-  vtkNew<vtkOBJReader> reader2;
-  reader2->SetFileName(filename.c_str());
-  reader2->Update();
-  data = reader2->GetOutput();
+  // read this file and compare with input by vtkOBJReader
+  vtkNew<vtkOBJReader> reader;
+  reader->SetFileName(filename.data());
+  reader->Update();
+  data = reader->GetOutput();
 
   if (CheckData(data) == EXIT_FAILURE)
   {
