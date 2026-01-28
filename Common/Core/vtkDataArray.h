@@ -306,8 +306,7 @@ public:
    * only possible:
    * (a) if both arrays are the same data type
    * (b) if both arrays are the same array type (e.g. AOS vs. SOA)
-   * (c) if both arrays support shallow copies (e.g. vtkBitArray currently
-   * does not.)
+   * (c) if both arrays support shallow copies
    * If a shallow copy is not possible, a deep copy will be performed instead.
    */
   virtual void ShallowCopy(vtkDataArray* other);
