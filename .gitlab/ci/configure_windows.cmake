@@ -30,6 +30,10 @@ set(VTK_MODULE_ENABLE_VTK_IOUSD NO CACHE STRING "") # usd
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 set(VTK_OPENGL_HAS_EGL ON CACHE BOOL "") # egl
 
+# PCH causes issues on Windows CI.
+# vtk issue: https://gitlab.kitware.com/vtk/vtk/-/issues/19924
+set(VTK_USE_PCH OFF CACHE BOOL "")
+
 # Windows-only features
 set(VTK_USE_MICROSOFT_MEDIA_FOUNDATION ON CACHE BOOL "")
 set(VTK_USE_VIDEO_FOR_WINDOWS ON CACHE BOOL "")
