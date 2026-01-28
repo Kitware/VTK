@@ -838,8 +838,6 @@ if (VTK_BUILD_TESTING)
       target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
         # Keep Debug builds debuggable without shipping giant in-wasm DWARF sections.
         "$<$<CONFIG:Debug>:-gseparate-dwarf>"
-        # For stack trace to show human-readable function names
-        "--profiling-funcs"
         # we need emscripten to emit code that handles exit code and atexit(s)
         "-sEXIT_RUNTIME=1"
         # ENV holds the environment variables accessible by C getenv
