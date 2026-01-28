@@ -133,6 +133,15 @@ void vtkDataArray::ShallowCopy(vtkDataArray* other)
 }
 
 //------------------------------------------------------------------------------
+void vtkDataArray::ShallowCopy(vtkAbstractArray* other)
+{
+  if (auto* da = vtkDataArray::FastDownCast(other))
+  {
+    this->ShallowCopy(da);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkDataArray::SetTuple(vtkIdType i, const float* source)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)

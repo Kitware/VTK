@@ -305,6 +305,13 @@ void vtkAbstractArray::DeepCopy(vtkAbstractArray* da)
 }
 
 //------------------------------------------------------------------------------
+void vtkAbstractArray::ShallowCopy(vtkAbstractArray* src)
+{
+  // Deep copy by default. Subclasses may override this behavior.
+  this->DeepCopy(src);
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractArray::ExportToVoidPointer(void* dest)
 {
   if (this->MaxId > 0 && this->GetDataTypeSize() > 0)

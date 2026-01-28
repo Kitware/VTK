@@ -297,6 +297,13 @@ public:
   virtual void DeepCopy(vtkAbstractArray* da);
 
   /**
+   * This method will copy the data from the source array to this array.
+   * This is possible only if the data types are the same data type and array type.
+   * Otherwise, it will complain and change nothing if the array passed in is not the same.
+   */
+  virtual void ShallowCopy(vtkAbstractArray* src);
+
+  /**
    * Set the tuple at dstTupleIdx in this array to the interpolated tuple value,
    * given the ptIndices in the source array and associated interpolation
    * weights.

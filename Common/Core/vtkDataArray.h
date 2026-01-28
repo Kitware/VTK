@@ -300,6 +300,7 @@ public:
   virtual void DeepCopy(vtkDataArray* da);
   ///@}
 
+  ///@{
   /**
    * Create a shallow copy of other into this, if possible. Shallow copies are
    * only possible:
@@ -310,6 +311,8 @@ public:
    * If a shallow copy is not possible, a deep copy will be performed instead.
    */
   virtual void ShallowCopy(vtkDataArray* other);
+  void ShallowCopy(vtkAbstractArray* other) override;
+  ///@}
 
   /**
    * Fill a component of a data array with a specified value. This method

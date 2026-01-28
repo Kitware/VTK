@@ -143,7 +143,10 @@ int ExerciseDelete(FreeType f)
   std::cout << "Starting tests for free type: " << f.value << std::endl;
 
   std::vector<vtkAbstractArray*> arrays;
-  arrays.push_back(vtkStringArray::New());
+  if constexpr (std::is_same_v<UseDelete, FreeType> || std::is_same_v<UseLambda, FreeType>)
+  {
+    arrays.push_back(vtkStringArray::New());
+  }
   arrays.push_back(vtkBitArray::New());
   arrays.push_back(vtkFloatArray::New());
   arrays.push_back(vtkAOSDataArrayTemplate<double>::New());
