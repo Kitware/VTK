@@ -362,7 +362,10 @@ void vtkPolyData::ComputeCellsBounds()
               {
                 // memory_order_relaxed is safe here, since we're not using the atomics for
                 // synchronization.
-                ptUses[pts[ptIdx]].store(1, std::memory_order_relaxed);
+                if (pts[ptIdx] >= 0 && pts[ptIdx] < numPts)
+                {
+                  ptUses[pts[ptIdx]].store(1, std::memory_order_relaxed);
+                }
               }
             }
           }); // end lambda
@@ -389,7 +392,10 @@ void vtkPolyData::ComputeCellsBounds()
           cellArray->GetCellAtId(cellId, npts, pts, cellPointIds);
           for (ptIdx = 0; ptIdx < npts; ++ptIdx)
           {
-            ptUses[pts[ptIdx]] = 1;
+            if (pts[ptIdx] >= 0 && pts[ptIdx] < numPts)
+            {
+              ptUses[pts[ptIdx]] = 1;
+            }
           }
         }
       } // for all cell arrays
