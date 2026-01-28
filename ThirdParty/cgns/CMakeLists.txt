@@ -29,7 +29,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE CGNS
-    VERSION       "4.10"
+    VERSION "4.1.0"
     TARGETS CGNS::CGNS
     STANDARD_INCLUDE_DIRS)
 
