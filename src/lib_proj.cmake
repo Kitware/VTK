@@ -364,10 +364,11 @@ vtk_module_add_module(VTK::libproj
   SOURCES ${ALL_LIBPROJ_SOURCES}
   HEADERS ${ALL_LIBPROJ_HEADERS}
   HEADERS_SUBDIR "vtklibproj/src")
-target_compile_definitions(libproj PRIVATE NOMINMAX)
+vtk_module_definitions(VTK::libproj PRIVATE NOMINMAX)
 set(PROJ_CORE_TARGET libproj)
 include(GenerateExportHeader)
-generate_export_header(libproj
+generate_export_header(vtklibproj
+  BASE_NAME         LIBPROJ
   EXPORT_MACRO_NAME vtklibproj_EXPORT
   EXPORT_FILE_NAME  vtklibproj_export.h)
 vtk_module_include(VTK::libproj
@@ -376,11 +377,12 @@ vtk_module_include(VTK::libproj
 endif ()
 
 if(ENABLE_IPO)
-  set_property(TARGET proj
-    PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+  vtk_module_set_property(VTK::libproj
+    PROPERTY  INTERPROCEDURAL_OPTIMIZATION
+    VALUE     TRUE)
 endif()
 
-target_include_directories(libproj INTERFACE
+vtk_module_include(VTK::libproj INTERFACE
   $<INSTALL_INTERFACE:${INCLUDEDIR}>)
 
 if (FALSE) # XXX(kitware): Not necessary for VTK.
@@ -420,24 +422,24 @@ if(UNIX)
   find_library(M_LIB m)
   mark_as_advanced(M_LIB)
   if(M_LIB)
-    target_link_libraries(libproj PRIVATE -lm)
+    vtk_module_link(VTK::libproj PRIVATE -lm)
   endif()
   find_library(DL_LIB dl)
   mark_as_advanced(DL_LIB)
   if(DL_LIB)
-    target_link_libraries(libproj PRIVATE -ldl)
+    vtk_module_link(VTK::libproj PRIVATE -ldl)
   endif()
 endif()
 if(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
-  target_link_libraries(libproj PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+  vtk_module_link(VTK::libproj PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-target_include_directories(libproj PRIVATE ${SQLITE3_INCLUDE_DIR})
-target_link_libraries(libproj PRIVATE ${SQLITE3_LIBRARY})
+vtk_module_include(VTK::libproj PRIVATE ${SQLITE3_INCLUDE_DIR})
+vtk_module_link(VTK::libproj PRIVATE ${SQLITE3_LIBRARY})
 
 if(NLOHMANN_JSON STREQUAL "external")
-  target_compile_definitions(libproj PRIVATE EXTERNAL_NLOHMANN_JSON)
-  target_link_libraries(libproj PRIVATE "$<BUILD_INTERFACE:nlohmann_json::nlohmann_json>")
+  vtk_module_definitions(VTK::libproj PRIVATE EXTERNAL_NLOHMANN_JSON)
+  vtk_module_link(VTK::libproj PRIVATE "$<BUILD_INTERFACE:nlohmann_json::nlohmann_json>")
 endif()
 
 if(TIFF_ENABLED)
