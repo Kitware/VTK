@@ -109,8 +109,21 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow()
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow()
 {
   this->Finalize();
-  this->WGPUConfiguration = nullptr;
+  if (this->Initialized)
+  {
+    this->WGPUFinalize();
+  }
+  this->ReleaseGraphicsResources(this);
+
+  vtkRenderer* renderer;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ((renderer = this->Renderers->GetNextRenderer(rit)))
+  {
+    renderer->SetRenderWindow(nullptr);
+  }
   this->SetHardwareWindow(nullptr);
+  this->WGPUConfiguration = nullptr;
 }
 
 //------------------------------------------------------------------------------
