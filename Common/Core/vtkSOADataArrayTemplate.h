@@ -186,6 +186,7 @@ public:
    * Export a copy of the data in AoS ordering to the preallocated memory
    * buffer.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DeepCopy with an vtkAOSDataArrayTemplate array")
   void ExportToVoidPointer(void* ptr) override;
 
   /**

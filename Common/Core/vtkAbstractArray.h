@@ -411,6 +411,7 @@ public:
    * by the user.  It is up to the user to allocate enough memory for
    * the void pointer.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DeepCopy with an vtkAOSDataArrayTemplate array")
   virtual void ExportToVoidPointer(void* out_ptr);
 
   /**

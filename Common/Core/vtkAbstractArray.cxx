@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_6_0()
+// VTK_DEPRECATED_IN_9_7_0()
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkAbstractArray.h"
@@ -316,7 +316,7 @@ void vtkAbstractArray::ExportToVoidPointer(void* dest)
 {
   if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
   {
-    void* src = this->GetVoidPointer(0);
+    void* src = this->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
     memcpy(dest, src, ((this->MaxId + 1) * this->GetDataTypeSize()));
   }
 }

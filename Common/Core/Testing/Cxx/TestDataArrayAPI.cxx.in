@@ -1525,48 +1525,6 @@ int Test_void_Reset()
   DataArrayAPIFinish();
 }
 
-// void ExportToVoidPointer(void *out_ptr)
-template <typename ScalarT, typename ArrayT>
-int Test_void_ExportToVoidPointer_voidPtr()
-{
-  DataArrayAPIInit("void ExportToVoidPointer(void *out_ptr)");
-
-  DataArrayAPICreateTestArray(source);
-
-  // Initialize source array:
-  vtkIdType comps = 5;
-  vtkIdType tuples = 10;
-  source->SetNumberOfComponents(comps);
-  source->SetNumberOfTuples(tuples);
-  for (vtkIdType t = 0; t < tuples; ++t)
-  {
-    std::vector<ScalarT> tuple;
-    for (int c = 0; c < comps; ++c)
-    {
-      tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
-    }
-    source->SetTypedTuple(t, &tuple[0]);
-  }
-
-  std::vector<ScalarT> buffer(comps * tuples);
-  source->ExportToVoidPointer(static_cast<void*>(&buffer[0]));
-
-  // Verify:
-  for (vtkIdType t = 0; t < tuples; ++t)
-  {
-    for (int c = 0; c < comps; ++c)
-    {
-      ScalarT test = buffer[t * comps + c];
-      ScalarT ref = static_cast<ScalarT>(((t * comps) + c) % 17);
-      DataArrayAPIAssert(test == ref,
-                         "Data mismatch at tuple " << t << " component " << c
-                          << ": Expected " << ref << ", got " << test << ".");
-    }
-  }
-
-  DataArrayAPIFinish();
-}
-
 // unsigned long GetActualMemorySize()
 // Returns size in kibibytes (1024 bytes) for MaxId + 1 elements of ValueType.
 template <typename ScalarT, typename ArrayT>
@@ -3078,7 +3036,6 @@ int ExerciseDataArray()
   errors += Test_void_InterpolateTuple_i_id1_source1_id2_source2_t<ScalarT, ArrayT>();
   errors += Test_int_Resize_numTuples<ScalarT, ArrayT>();
   errors += Test_void_Reset<ScalarT, ArrayT>();
-  errors += Test_void_ExportToVoidPointer_voidPtr<ScalarT, ArrayT>();
   errors += Test_ulong_GetActualMemorySize<ScalarT, ArrayT>();
   errors += Test_int_IsNumeric<ScalarT, ArrayT>();
   errors += Test_vtkIdType_GetDataSize<ScalarT, ArrayT>();
