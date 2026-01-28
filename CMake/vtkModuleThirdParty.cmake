@@ -7,7 +7,7 @@ function (vtk_third_party_extract)
   cmake_parse_arguments(_vtk_third_party_extract
     ""
     "FILE"
-    "TAGS"
+    "TAGS;VERSION_FROM_TAG"
     ${ARGN})
 
   if (_vtk_third_party_extract_UNPARSED_ARGUMENTS)
@@ -53,6 +53,34 @@ function (vtk_third_party_extract)
   if (NOT _vtk_third_party_extract_key)
     message(FATAL_ERROR
       "`TAGS` must be given a set of tag/variable pairs.")
+  endif ()
+
+  if (DEFINED _vtk_third_party_extract_VERSION_FROM_TAG)
+    list(LENGTH _vtk_third_party_extract_VERSION_FROM_TAG _vtk_third_party_extract_vft_length)
+    if (NOT _vtk_third_party_extract_vft_length EQUAL "3")
+      message(FATAL_ERROR
+        "`VERSION_FROM_TAG` requires three arguments")
+    endif ()
+
+    list(GET _vtk_third_party_extract_VERSION_FROM_TAG 0 _vtk_third_party_extract_tag_key)
+    list(GET _vtk_third_party_extract_VERSION_FROM_TAG 1 _vtk_third_party_extract_tag_version)
+    list(GET _vtk_third_party_extract_VERSION_FROM_TAG 2 _vtk_third_party_extract_tag_regex)
+
+    if (NOT DEFINED _vtk_third_party_extract_key_${_vtk_third_party_extract_var})
+      message(FATAL_ERROR
+        "`VERSION_FROM_TAG` tag was not found")
+    endif ()
+    if (_vtk_third_party_extract_key_${_vtk_third_party_extract_var} MATCHES "${_vtk_third_party_extract_tag_regex}")
+      set("${_vtk_third_party_extract_tag_version}"
+        "${CMAKE_MATCH_1}"
+        PARENT_SCOPE)
+    else ()
+      message(FATAL_ERROR
+        "`VERSION_FROM_TAG` regex (`${_vtk_third_party_extract_tag_regex}`) "
+        "did not match the tag "
+        "(`${_vtk_third_party_extract_key_${_vtk_third_party_extract_var}}`) "
+        "was not found")
+    endif ()
   endif ()
 endfunction ()
 
