@@ -65,6 +65,7 @@ const OPERATION = operation;
 const LOCK = path.join(directory, 'vtkhttp.lock');
 const HTML_REGEX = new RegExp('.html$');
 const JS_REGEX = new RegExp('.js$');
+const WASM_REGEX = new RegExp('.wasm$');
 
 if (OPERATION == OPERATIONS.START) {
   console.log('starting server process..');
@@ -203,6 +204,21 @@ if (OPERATION == OPERATIONS.START) {
           response.writeHead(200, {
             ...headers,
             'Content-Type': contentType,
+          });
+          fileStream.pipe(response);
+        } else {
+          response.writeHead(404, 'File not found').end();
+        }
+      }
+      else if (WASM_REGEX.test(url.pathname)) {
+        const fileName = path.basename(url.pathname);
+        const filePath = path.join(binaryDirectory, fileName);
+        console.debug(`serving ${filePath}`);
+        if (fs.existsSync(filePath)) {
+          const fileStream = fs.createReadStream(filePath);
+          response.writeHead(200, {
+            ...headers,
+            'Content-Type': 'application/wasm',
           });
           fileStream.pipe(response);
         } else {
