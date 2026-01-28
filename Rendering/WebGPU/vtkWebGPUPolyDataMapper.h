@@ -17,6 +17,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
+class vtkOverrideAttribute;
 class vtkWebGPUActor;
 class vtkWebGPURenderWindow;
 class vtkWebGPURenderer;
@@ -28,6 +29,8 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper : public
 {
 public:
   static vtkWebGPUPolyDataMapper* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -605,5 +608,7 @@ private:
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
   void operator=(const vtkWebGPUPolyDataMapper&) = delete;
 };
+#define vtkWebGPUPolyDataMapper_OVERRIDE_ATTRIBUTES                                                \
+  vtkWebGPUPolyDataMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

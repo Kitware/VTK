@@ -28,6 +28,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -613,6 +614,13 @@ vtkOpenGLPointGaussianMapper::~vtkOpenGLPointGaussianMapper()
     }
   }
   this->Helpers.clear();
+}
+
+vtkOverrideAttribute* vtkOpenGLPointGaussianMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 void vtkOpenGLPointGaussianMapper::ReportReferences(vtkGarbageCollector* collector)

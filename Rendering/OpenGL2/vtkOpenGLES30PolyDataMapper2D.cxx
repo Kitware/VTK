@@ -19,6 +19,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyData2DFS.h"
@@ -128,6 +129,16 @@ vtkOpenGLES30PolyDataMapper2D::vtkOpenGLES30PolyDataMapper2D() = default;
 
 //------------------------------------------------------------------------------
 vtkOpenGLES30PolyDataMapper2D::~vtkOpenGLES30PolyDataMapper2D() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLES30PolyDataMapper2D::CreateOverrideAttributes()
+{
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "Embedded", nullptr);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", platformAttribute);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLES30PolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)

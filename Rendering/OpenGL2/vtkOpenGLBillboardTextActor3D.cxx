@@ -5,12 +5,21 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderer.h"
 
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLBillboardTextActor3D::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLBillboardTextActor3D::PrintSelf(std::ostream& os, vtkIndent indent)

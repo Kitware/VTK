@@ -35,6 +35,7 @@ public:
   vtkTypeMacro(vtkMockOverrideClass1, vtkMockOverridable);
   static vtkMockOverrideClass1* New() { VTK_STANDARD_NEW_BODY(vtkMockOverrideClass1); }
 
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes()
   {
     auto attrB = vtkOverrideAttribute::CreateAttributeChain("AttributeB", "M", nullptr);
@@ -101,6 +102,7 @@ public:
   vtkTypeMacro(vtkMockOverrideClass2, vtkMockOverridable);
   static vtkMockOverrideClass2* New() { VTK_STANDARD_NEW_BODY(vtkMockOverrideClass2); }
 
+  VTK_NEWINSTANCE
   static vtkOverrideAttribute* CreateOverrideAttributes()
   {
     auto attrB = vtkOverrideAttribute::CreateAttributeChain("AttributeB", "N", nullptr);

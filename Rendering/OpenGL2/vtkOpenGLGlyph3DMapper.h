@@ -30,11 +30,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGlyph3DHelper;
 class vtkBitArray;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLGlyph3DMapper : public vtkGlyph3DMapper
 {
 public:
   static vtkOpenGLGlyph3DMapper* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLGlyph3DMapper, vtkGlyph3DMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -138,5 +141,7 @@ private:
   RenderBlockState BlockState;
 };
 
+#define vtkOpenGLGlyph3DMapper_OVERRIDE_ATTRIBUTES                                                 \
+  vtkOpenGLGlyph3DMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

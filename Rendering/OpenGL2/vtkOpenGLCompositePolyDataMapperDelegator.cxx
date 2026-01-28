@@ -4,6 +4,7 @@
 #include "vtkOpenGLCompositePolyDataMapperDelegator.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 
 #ifdef GL_ES_VERSION_3_0
 #include "vtkOpenGLLowMemoryBatchedPolyDataMapper.h"
@@ -24,6 +25,21 @@ vtkOpenGLCompositePolyDataMapperDelegator::vtkOpenGLCompositePolyDataMapperDeleg
 
 //------------------------------------------------------------------------------
 vtkOpenGLCompositePolyDataMapperDelegator::~vtkOpenGLCompositePolyDataMapperDelegator() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLCompositePolyDataMapperDelegator::CreateOverrideAttributes()
+{
+#ifdef GL_ES_VERSION_3_0
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "Embedded", nullptr);
+#else
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "Desktop", nullptr);
+#endif
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", platformAttribute);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLCompositePolyDataMapperDelegator::PrintSelf(ostream& os, vtkIndent indent)

@@ -19,11 +19,13 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkCamera;
-
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPULight : public vtkLight
 {
 public:
   static vtkWebGPULight* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPULight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -59,5 +61,6 @@ private:
   void operator=(const vtkWebGPULight&) = delete;
 };
 
+#define vtkWebGPULight_OVERRIDE_ATTRIBUTES vtkWebGPULight::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

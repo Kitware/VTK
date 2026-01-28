@@ -6,12 +6,21 @@
 #include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkViewport.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLTextActor);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLTextActor::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLTextActor::PrintSelf(std::ostream& os, vtkIndent indent)

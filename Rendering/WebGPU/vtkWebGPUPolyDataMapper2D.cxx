@@ -4,6 +4,7 @@
 #include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkActor2D.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkProperty2D.h"
 #include "vtkViewport.h"
 #include "vtkWebGPURenderer.h"
@@ -23,6 +24,14 @@ vtkWebGPUPolyDataMapper2D::vtkWebGPUPolyDataMapper2D()
 
 //------------------------------------------------------------------------------
 vtkWebGPUPolyDataMapper2D::~vtkWebGPUPolyDataMapper2D() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUPolyDataMapper2D::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)

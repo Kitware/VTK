@@ -6,6 +6,7 @@
 #include "vtkGPUInfoListArray.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -31,6 +32,14 @@ vtkDummyGPUInfoList::vtkDummyGPUInfoList() = default;
 
 //------------------------------------------------------------------------------
 vtkDummyGPUInfoList::~vtkDummyGPUInfoList() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkDummyGPUInfoList::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkDummyGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)

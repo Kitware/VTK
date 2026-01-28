@@ -30,11 +30,14 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkIdList;
 class vtkEGLRenderWindowInternals;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkEGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkEGLRenderWindow* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkEGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -235,5 +238,6 @@ private:
   std::unique_ptr<vtkEGLRenderWindowInternals> Internals;
 };
 
+#define vtkEGLRenderWindow_OVERRIDE_ATTRIBUTES vtkEGLRenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

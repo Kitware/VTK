@@ -17,11 +17,13 @@
 #include <memory> // for unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
-
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUGlyph3DMapper : public vtkGlyph3DMapper
 {
 public:
   static vtkWebGPUGlyph3DMapper* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUGlyph3DMapper, vtkGlyph3DMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -46,6 +48,8 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+#define vtkWebGPUGlyph3DMapper_OVERRIDE_ATTRIBUTES                                                 \
+  vtkWebGPUGlyph3DMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 
 #endif

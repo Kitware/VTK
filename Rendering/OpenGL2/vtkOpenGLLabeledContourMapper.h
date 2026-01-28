@@ -17,12 +17,15 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLHelper;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLabeledContourMapper
   : public vtkLabeledContourMapper
 {
 public:
   static vtkOpenGLLabeledContourMapper* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -53,5 +56,7 @@ private:
   void operator=(const vtkOpenGLLabeledContourMapper&) = delete;
 };
 
+#define vtkOpenGLLabeledContourMapper_OVERRIDE_ATTRIBUTES                                          \
+  vtkOpenGLLabeledContourMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

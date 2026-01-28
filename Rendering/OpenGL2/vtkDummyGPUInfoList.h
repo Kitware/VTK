@@ -18,10 +18,13 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkDummyGPUInfoList : public vtkGPUInfoList
 {
 public:
   static vtkDummyGPUInfoList* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkDummyGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -44,6 +47,8 @@ private:
   vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) = delete;
   void operator=(const vtkDummyGPUInfoList&) = delete;
 };
+
+#define vtkDummyGPUInfoList_OVERRIDE_ATTRIBUTES vtkDummyGPUInfoList::CreateOverrideAttributes()
 
 VTK_ABI_NAMESPACE_END
 #endif

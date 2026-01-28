@@ -8,6 +8,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderer.h"
 
 #include <cmath>
@@ -30,6 +31,13 @@ vtkOpenGLCamera::~vtkOpenGLCamera()
   this->WCVCMatrix->Delete();
   this->NormalMatrix->Delete();
   this->VCDCMatrix->Delete();
+}
+
+vtkOverrideAttribute* vtkOpenGLCamera::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 // Implement base class method.

@@ -13,6 +13,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkQuaternion.h"
@@ -1570,6 +1571,14 @@ vtkWebGPUGlyph3DMapper::vtkWebGPUGlyph3DMapper()
 
 //------------------------------------------------------------------------------
 vtkWebGPUGlyph3DMapper::~vtkWebGPUGlyph3DMapper() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUGlyph3DMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)

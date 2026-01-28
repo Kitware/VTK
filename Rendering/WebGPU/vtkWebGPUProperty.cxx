@@ -4,6 +4,7 @@
 #include "vtkWebGPURenderer.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkTexture.h"
 
 #include <cassert>
@@ -16,6 +17,14 @@ vtkWebGPUProperty::vtkWebGPUProperty() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPUProperty::~vtkWebGPUProperty() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUProperty::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 // Implement base class method.

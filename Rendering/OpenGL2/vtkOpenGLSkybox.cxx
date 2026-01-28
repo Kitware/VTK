@@ -11,6 +11,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderProperty.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -71,6 +72,13 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
 }
 
 vtkOpenGLSkybox::~vtkOpenGLSkybox() = default;
+
+vtkOverrideAttribute* vtkOpenGLSkybox::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 void vtkOpenGLSkybox::SetMapper(vtkMapper* mapper)
 {

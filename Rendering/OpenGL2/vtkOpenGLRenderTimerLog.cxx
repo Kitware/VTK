@@ -5,6 +5,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderTimer.h"
+#include "vtkOverrideAttribute.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,6 +13,14 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLRenderTimerLog);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLRenderTimerLog::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimerLog::PrintSelf(std::ostream& os, vtkIndent indent)

@@ -14,6 +14,7 @@
 #import "vtkObjectFactory.h"
 #import "vtkOpenGLState.h"
 #import "vtkOpenGLVertexBufferObjectCache.h"
+#include "vtkOverrideAttribute.h"
 #import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
 #import "vtkStringScanner.h"
@@ -250,6 +251,18 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 
   // Release the cocoa object manager.
   this->SetCocoaManager(nullptr);
+}
+
+//----------------------------------------------------------------------------
+vtkOverrideAttribute* vtkCocoaRenderWindow::CreateOverrideAttributes()
+{
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "macOS", nullptr);
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "Cocoa", platformAttribute);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 //----------------------------------------------------------------------------

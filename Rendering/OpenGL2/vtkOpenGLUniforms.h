@@ -27,11 +27,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformInternals;
 class vtkShaderProgram;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLUniforms : public vtkUniforms
 {
 public:
   static vtkOpenGLUniforms* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLUniforms, vtkUniforms);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -173,5 +176,6 @@ private:
   vtkUniformInternals* Internals;
 };
 
+#define vtkOpenGLUniforms_OVERRIDE_ATTRIBUTES vtkOpenGLUniforms::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

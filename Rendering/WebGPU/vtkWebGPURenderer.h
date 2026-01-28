@@ -16,7 +16,7 @@
 class vtkAbstractMapper;
 class vtkRenderState;
 class vtkFrameBufferObjectBase;
-
+class vtkOverrideAttribute;
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPUComputeOcclusionCuller;
@@ -25,6 +25,8 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderer : public vtkRe
 {
 public:
   static vtkWebGPURenderer* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPURenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -344,5 +346,6 @@ private:
   std::unordered_set<vtkProp*> PropsRendered;
 };
 
+#define vtkWebGPURenderer_OVERRIDE_ATTRIBUTES vtkWebGPURenderer::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

@@ -4,6 +4,7 @@
 
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkTransform.h"
 #include "vtkWebGPURenderer.h"
 
@@ -11,6 +12,14 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPULight);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPULight::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPULight::Render(vtkRenderer* renderer, int)

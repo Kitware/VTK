@@ -27,6 +27,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOrderIndependentTranslucentPass.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPBRIrradianceTexture.h"
 #include "vtkPBRLUTTexture.h"
 #include "vtkPBRPrefilterTexture.h"
@@ -169,6 +170,14 @@ gl_FragData[0].xyz += vec3(noise);
     /*replaceAll=*/false);
 
   this->BackgroundTextureActor->SetMapper(this->BackgroundMapper);
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLRenderer::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 // Ask lights to load themselves into graphics pipeline.

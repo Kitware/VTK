@@ -10,6 +10,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkStringFormatter.h"
@@ -59,6 +60,14 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
 vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector() = default;
 vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector() = default;
 #endif
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLHardwareSelector::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::PreCapturePass(int pass)

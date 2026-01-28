@@ -4,6 +4,7 @@
 
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 
@@ -41,6 +42,18 @@ vtkWebAssemblyOpenGLRenderWindow::~vtkWebAssemblyOpenGLRenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebAssemblyOpenGLRenderWindow::CreateOverrideAttributes()
+{
+  auto* platformAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("Platform", "WebAssembly", nullptr);
+  auto* windowSystemAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("WindowSystem", "HTML5", platformAttribute);
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", windowSystemAttribute);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

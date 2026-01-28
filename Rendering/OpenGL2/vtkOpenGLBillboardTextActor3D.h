@@ -13,11 +13,13 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGL2PSHelper;
-
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBillboardTextActor3D : public vtkBillboardTextActor3D
 {
 public:
   static vtkOpenGLBillboardTextActor3D* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -34,5 +36,7 @@ private:
   void operator=(const vtkOpenGLBillboardTextActor3D&) = delete;
 };
 
+#define vtkOpenGLBillboardTextActor3D_OVERRIDE_ATTRIBUTES                                          \
+  vtkOpenGLBillboardTextActor3D::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLBillboardTextActor3D_h

@@ -27,6 +27,7 @@
 #include "vtkWrappingHints.h"                 // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLES30PolyDataMapper2D
   : public vtkOpenGLPolyDataMapper2D
@@ -34,6 +35,8 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLES30PolyDataMapper2D
 public:
   vtkTypeMacro(vtkOpenGLES30PolyDataMapper2D, vtkOpenGLPolyDataMapper2D);
   static vtkOpenGLES30PolyDataMapper2D* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // NOLINTNEXTLINE(readability-enum-initial-value)
@@ -105,5 +108,7 @@ private:
   void operator=(const vtkOpenGLES30PolyDataMapper2D&) = delete;
 };
 
+#define vtkOpenGLES30PolyDataMapper2D_OVERRIDE_ATTRIBUTES                                          \
+  vtkOpenGLES30PolyDataMapper2D::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

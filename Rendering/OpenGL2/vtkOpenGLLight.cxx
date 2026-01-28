@@ -3,9 +3,18 @@
 #include "vtkOpenGLLight.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLLight);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLLight::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)

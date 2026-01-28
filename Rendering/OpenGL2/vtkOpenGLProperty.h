@@ -16,10 +16,13 @@
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLProperty, vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -62,5 +65,6 @@ private:
   void operator=(const vtkOpenGLProperty&) = delete;
 };
 
+#define vtkOpenGLProperty_OVERRIDE_ATTRIBUTES vtkOpenGLProperty::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

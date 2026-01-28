@@ -4,6 +4,7 @@
 #include "vtkWebGPUCompositePolyDataMapperDelegator.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkWebGPUBatchedPolyDataMapper.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -20,6 +21,14 @@ vtkWebGPUCompositePolyDataMapperDelegator::vtkWebGPUCompositePolyDataMapperDeleg
 
 //------------------------------------------------------------------------------
 vtkWebGPUCompositePolyDataMapperDelegator::~vtkWebGPUCompositePolyDataMapperDelegator() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUCompositePolyDataMapperDelegator::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUCompositePolyDataMapperDelegator::PrintSelf(ostream& os, vtkIndent indent)

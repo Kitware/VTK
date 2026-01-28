@@ -20,11 +20,13 @@ class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
-
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLActor : public vtkActor
 {
 public:
   static vtkOpenGLActor* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -67,5 +69,6 @@ private:
   void operator=(const vtkOpenGLActor&) = delete;
 };
 
+#define vtkOpenGLActor_OVERRIDE_ATTRIBUTES vtkOpenGLActor::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

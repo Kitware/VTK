@@ -42,6 +42,7 @@
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPBRIrradianceTexture.h"
 #include "vtkPBRLUTTexture.h"
 #include "vtkPBRPrefilterTexture.h"
@@ -181,6 +182,14 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->VBOs = nullptr;
 
   delete TimerQuery;
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLPolyDataMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------

@@ -36,10 +36,13 @@
 #include <stack>                       // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkCocoaRenderWindow* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkCocoaRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -448,5 +451,6 @@ private:
   int DisplayIndex = 0;
 };
 
+#define vtkCocoaRenderWindow_OVERRIDE_ATTRIBUTES vtkCocoaRenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

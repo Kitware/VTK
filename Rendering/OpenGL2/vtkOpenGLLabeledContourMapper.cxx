@@ -14,6 +14,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextActor3D.h"
@@ -21,6 +22,14 @@
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLLabeledContourMapper);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLLabeledContourMapper::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLabeledContourMapper::PrintSelf(std::ostream& os, vtkIndent indent)

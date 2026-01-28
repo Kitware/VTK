@@ -34,10 +34,13 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkIOSRenderWindow* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkIOSRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -352,7 +355,6 @@ private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) = delete;
   void operator=(const vtkIOSRenderWindow&) = delete;
 
-private:
   vtkTypeBool WindowCreated;
   vtkTypeBool ViewCreated;
   vtkTypeBool CursorHidden;
@@ -360,5 +362,6 @@ private:
   vtkTypeBool ForceMakeCurrent;
 };
 
+#define vtkIOSRenderWindow_OVERRIDE_ATTRIBUTES vtkIOSRenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

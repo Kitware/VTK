@@ -23,6 +23,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOutputWindow.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderingOpenGLConfigure.h"
@@ -670,6 +671,14 @@ vtkOpenGLRenderWindow* vtkOpenGLRenderWindow::New()
   }
   // OSMesa support is always built, it might work if user has libOSMesa.so or osmesa.dll.
   return vtkOSOpenGLRenderWindow::New();
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLRenderWindow::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 #endif
 

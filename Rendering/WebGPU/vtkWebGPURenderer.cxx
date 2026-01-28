@@ -13,6 +13,7 @@
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
@@ -75,6 +76,14 @@ vtkWebGPURenderer::vtkWebGPURenderer() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderer::~vtkWebGPURenderer() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPURenderer::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent)

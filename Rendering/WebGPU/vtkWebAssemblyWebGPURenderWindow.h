@@ -21,11 +21,14 @@
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkOverrideAttribute;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebAssemblyWebGPURenderWindow
   : public vtkWebGPURenderWindow
 {
 public:
   static vtkWebAssemblyWebGPURenderWindow* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebAssemblyWebGPURenderWindow, vtkWebGPURenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -140,5 +143,7 @@ private:
   void operator=(const vtkWebAssemblyWebGPURenderWindow&) = delete;
 };
 
+#define vtkWebAssemblyWebGPURenderWindow_OVERRIDE_ATTRIBUTES                                       \
+  vtkWebAssemblyWebGPURenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

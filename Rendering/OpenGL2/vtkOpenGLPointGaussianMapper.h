@@ -18,12 +18,15 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLPointGaussianMapperHelper;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPointGaussianMapper
   : public vtkPointGaussianMapper
 {
 public:
   static vtkOpenGLPointGaussianMapper* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -109,5 +112,7 @@ private:
   void operator=(const vtkOpenGLPointGaussianMapper&) = delete;
 };
 
+#define vtkOpenGLPointGaussianMapper_OVERRIDE_ATTRIBUTES                                           \
+  vtkOpenGLPointGaussianMapper::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

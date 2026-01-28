@@ -23,6 +23,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2D;
+class vtkOverrideAttribute;
 class vtkPoints;
 class vtkWebGPUPolyDataMapper2DInternals;
 
@@ -32,6 +33,8 @@ class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper2D
 public:
   vtkTypeMacro(vtkWebGPUPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkWebGPUPolyDataMapper2D* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,5 +61,7 @@ private:
   std::unique_ptr<vtkWebGPUPolyDataMapper2DInternals> Internals;
 };
 
+#define vtkWebGPUPolyDataMapper2D_OVERRIDE_ATTRIBUTES                                              \
+  vtkWebGPUPolyDataMapper2D::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

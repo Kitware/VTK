@@ -20,6 +20,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkOverrideAttribute;
 class vtkWebGPUBatchedPolyDataMapper;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUCompositePolyDataMapperDelegator
@@ -27,6 +28,8 @@ class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUCompositePolyDataMapperDelegator
 {
 public:
   static vtkWebGPUCompositePolyDataMapperDelegator* New();
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPUCompositePolyDataMapperDelegator, vtkCompositePolyDataMapperDelegator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -70,5 +73,7 @@ private:
   void operator=(const vtkWebGPUCompositePolyDataMapperDelegator&) = delete;
 };
 
+#define vtkWebGPUCompositePolyDataMapperDelegator_OVERRIDE_ATTRIBUTES                              \
+  vtkWebGPUCompositePolyDataMapperDelegator::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

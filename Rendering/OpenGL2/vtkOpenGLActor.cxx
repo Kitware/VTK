@@ -15,6 +15,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
@@ -98,6 +99,14 @@ void vtkOpenGLActor::Render(vtkRenderer* ren, vtkMapper* mapper)
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLActor::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------
