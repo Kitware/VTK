@@ -269,7 +269,8 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   }
 
   // now send the raw array
-  this->SendVoidArray(data->GetVoidPointer(0), size, type, remoteHandle, tag);
+  auto aos = data->ToAOSDataArray(); // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  this->SendVoidArray(aos->GetVoidPointer(0), size, type, remoteHandle, tag);
   return 1;
 }
 
@@ -894,8 +895,9 @@ int vtkCommunicator::Broadcast(vtkDataArray* data, int srcProcessId)
     if (!this->Broadcast(name, nameLength, srcProcessId))
       return 0;
   }
-  if (!this->BroadcastVoidArray(
-        data->GetVoidPointer(0), numTuples * numComponents, data->GetDataType(), srcProcessId))
+  auto aos = data->ToAOSDataArray();
+  if (!this->BroadcastVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
+        aos->GetVoidPointer(0), numTuples * numComponents, data->GetDataType(), srcProcessId))
     return 0;
 
   // Cleanup
@@ -946,7 +948,8 @@ int vtkCommunicator::GatherVoidArray(
 int vtkCommunicator::Gather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId)
 {
   int type = sendBuffer->GetDataType();
-  const void* sb = sendBuffer->GetVoidPointer(0);
+  auto sbAOS = sendBuffer->ToAOSDataArray();
+  const void* sb = sbAOS->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   void* rb = nullptr;
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
@@ -1289,7 +1292,8 @@ int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
     vtkErrorMacro("GatherV only works with data arrays with standard memory layout.");
     return 0;
   }
-  return this->GatherVVoidArray(sendBuffer->GetVoidPointer(0),
+  auto sbAOS = sendBuffer->ToAOSDataArray();
+  return this->GatherVVoidArray(sbAOS->GetVoidPointer(0),   // NOLINT(bugprone-unsafe-functions)
     (recvBuffer ? recvBuffer->GetVoidPointer(0) : nullptr), // NOLINT(bugprone-unsafe-functions)
     (sendBuffer->GetNumberOfComponents() * sendBuffer->GetNumberOfTuples()), recvLengths, offsets,
     type, destProcessId);
@@ -1400,6 +1404,7 @@ int vtkCommunicator::Scatter(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
   void* rb = recvBuffer->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   int numComponents = recvBuffer->GetNumberOfComponents();
   vtkIdType numTuples = recvBuffer->GetNumberOfTuples();
+  vtkSmartPointer<vtkDataArray> sbAOS;
   if (this->LocalProcessId == srcProcessId)
   {
     if (type != sendBuffer->GetDataType())
@@ -1413,7 +1418,8 @@ int vtkCommunicator::Scatter(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
       vtkErrorMacro(<< "Send buffer not large enough for requested data.");
       return 0;
     }
-    sb = sendBuffer->GetVoidPointer(0);
+    sbAOS = sendBuffer->ToAOSDataArray();
+    sb = sbAOS->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   }
   return this->ScatterVoidArray(sb, rb, numComponents * numTuples, type, srcProcessId);
 }
@@ -1478,8 +1484,9 @@ int vtkCommunicator::AllGather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffe
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   recvBuffer->SetNumberOfComponents(numComponents);
   recvBuffer->SetNumberOfTuples(numTuples * this->NumberOfProcesses);
+  auto sbAOS = sendBuffer->ToAOSDataArray();
   return this->AllGatherVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
-    sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0), numComponents * numTuples, type);
+    sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0), numComponents * numTuples, type);
 }
 
 //------------------------------------------------------------------------------
@@ -1515,8 +1522,9 @@ int vtkCommunicator::AllGatherV(
     vtkErrorMacro("AllGatherV only works with data arrays with standard memory layout.");
     return 0;
   }
+  auto sbAOS = sendBuffer->ToAOSDataArray();
   // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return this->AllGatherVVoidArray(sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
+  return this->AllGatherVVoidArray(sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
     (sendBuffer->GetNumberOfComponents() * sendBuffer->GetNumberOfTuples()), recvLengths, offsets,
     type);
 }
@@ -1642,8 +1650,9 @@ int vtkCommunicator::Reduce(
     vtkErrorMacro("Reduce only works with data arrays with standard memory layout.");
     return 0;
   }
+  auto sbAOS = sendBuffer->ToAOSDataArray();
   // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return this->ReduceVoidArray(sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
+  return this->ReduceVoidArray(sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
     components * tuples, type, operation, destProcessId);
 }
 
@@ -1667,8 +1676,9 @@ int vtkCommunicator::Reduce(
     vtkErrorMacro("Reduce only works with data arrays with standard memory layout.");
     return 0;
   }
+  auto sbAOS = sendBuffer->ToAOSDataArray();
   // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return this->ReduceVoidArray(sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
+  return this->ReduceVoidArray(sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
     components * tuples, type, operation, destProcessId);
 }
 
@@ -1714,9 +1724,9 @@ int vtkCommunicator::AllReduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffe
     vtkErrorMacro("AllReduce only works with data arrays with standard memory layout.");
     return 0;
   }
-  // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return this->AllReduceVoidArray(sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
-    components * tuples, type, operation);
+  auto sbAOS = sendBuffer->ToAOSDataArray();
+  return this->AllReduceVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
+    sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0), components * tuples, type, operation);
 }
 
 //------------------------------------------------------------------------------
@@ -1739,9 +1749,9 @@ int vtkCommunicator::AllReduce(
     vtkErrorMacro("AllReduce only works with data arrays with standard memory layout.");
     return 0;
   }
-  // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return this->AllReduceVoidArray(sendBuffer->GetVoidPointer(0), recvBuffer->GetVoidPointer(0),
-    components * tuples, type, operation);
+  auto sbAOS = sendBuffer->ToAOSDataArray();
+  return this->AllReduceVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
+    sbAOS->GetVoidPointer(0), recvBuffer->GetVoidPointer(0), components * tuples, type, operation);
 }
 
 //------------------------------------------------------------------------------

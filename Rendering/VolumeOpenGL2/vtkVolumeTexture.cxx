@@ -336,7 +336,8 @@ bool vtkVolumeTexture::LoadTexture(int interpolation, VolumeBlock* volBlock)
     // Account for component offset
     // index = ( z0 * Dx * Dy + y0 * Dx + x0 ) * numComp
     vtkIdType const dataIdx = tupleIdx * noOfComponents;
-    void* dataPtr = this->Scalars->GetVoidPointer(dataIdx);
+    auto scalarsAOS = this->Scalars->ToAOSDataArray();
+    void* dataPtr = scalarsAOS->GetVoidPointer(dataIdx); // NOLINT(bugprone-unsafe-functions)
 
     if (this->StreamBlocks)
     {

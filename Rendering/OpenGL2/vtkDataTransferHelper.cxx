@@ -218,7 +218,8 @@ bool vtkDataTransferHelper::Upload(int components, int* componentList)
     this->GPUExtent[4] - this->CPUExtent[4] };
 
   vtkIdType ptId = vtkStructuredData::ComputePointId(cpudims, pt);
-  if (!pbo->Upload3D(this->Array->GetDataType(), this->Array->GetVoidPointer(ptId * numComps),
+  auto arrayAOS = this->Array->ToAOSDataArray(); // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  if (!pbo->Upload3D(this->Array->GetDataType(), arrayAOS->GetVoidPointer(ptId * numComps),
         reinterpret_cast<unsigned int*>(gpudims), numComps, continuousInc, components,
         componentList))
   {

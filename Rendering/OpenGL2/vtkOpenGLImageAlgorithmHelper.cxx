@@ -83,7 +83,8 @@ void vtkOpenGLImageAlgorithmHelper::Execute(vtkOpenGLImageAlgorithmCallback* cb,
   // send vector data to a texture
   int inputExt[6];
   inImage->GetExtent(inputExt);
-  void* inPtr = inArray->GetVoidPointer(0);
+  auto inAOS = inArray->ToAOSDataArray();
+  void* inPtr = inAOS->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
   // could do shortcut here if the input volume is
   // exactly what we want (updateExtent == wholeExtent)

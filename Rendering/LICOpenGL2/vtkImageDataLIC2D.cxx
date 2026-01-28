@@ -370,8 +370,10 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPixelBufferObject* vecPBO = vtkPixelBufferObject::New();
   vecPBO->SetContext(this->Context);
 
+  auto inVectorAOS = inVectors->ToAOSDataArray();
   vtkPixelTransfer::Blit(inVectorExtent, inVectorExtent, inVectorExtent, inVectorExtent, 3,
-    inVectors->GetDataType(), inVectors->GetVoidPointer(0), 4, VTK_FLOAT,
+    inVectors->GetDataType(), // NOLINTNEXTLINE(bugprone-unsafe-functions)
+    inVectorAOS->GetVoidPointer(0), 4, VTK_FLOAT,
     vecPBO->MapUnpackedBuffer(VTK_FLOAT, static_cast<unsigned int>(inVectorExtent.Size()), 4));
 
   vecPBO->UnmapUnpackedBuffer();
@@ -459,10 +461,11 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (inNoise->GetDataType() != VTK_FLOAT)
   {
-    vtkErrorMacro("noise dataset was not float");
+    vtkWarningMacro("noise dataset was not float");
   }
 
-  vtkPixelTransfer::Blit(noiseExt, noiseComp, inNoise->GetDataType(), inNoise->GetVoidPointer(0),
+  auto inNoiseAOS = inNoise->ToAOSDataArray(); // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  vtkPixelTransfer::Blit(noiseExt, noiseComp, inNoise->GetDataType(), inNoiseAOS->GetVoidPointer(0),
     VTK_FLOAT,
     noisePBO->MapUnpackedBuffer(VTK_FLOAT, static_cast<unsigned int>(noiseExt.Size()), noiseComp));
 
@@ -556,7 +559,7 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPixelBufferObject* licPBO = licTex->Download();
 
   vtkPixelTransfer::Blit<float, float>(magVectorExtent, magLicExtent, magLicExtent, magLicExtent, 4,
-    (float*)licPBO->MapPackedBuffer(), 3, licOut->GetPointer(0));
+    static_cast<float*>(licPBO->MapPackedBuffer()), 3, licOut->GetPointer(0));
 
   licPBO->UnmapPackedBuffer();
   licPBO->Delete();

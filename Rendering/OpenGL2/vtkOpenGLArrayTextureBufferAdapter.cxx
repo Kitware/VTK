@@ -68,9 +68,9 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
   std::vector<vtkSmartPointer<vtkDataArray>> arraysToUpload;
   // 1. Prepare a list of arrays to upload, also figuring out the size of the huge buffer
   // allocation.
-  for (auto& actualArray : this->Arrays)
+  for (vtkSmartPointer<vtkDataArray>& actualArray : this->Arrays)
   {
-    auto array = actualArray;
+    vtkSmartPointer<vtkDataArray> array = actualArray;
     // Narrow arrays of large values to a precision supported by base-OpenGL:
     switch (array->GetDataType())
     {
@@ -121,6 +121,7 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
         // Do nothing
         break;
     }
+    array = array->ToAOSDataArray();
     vtktype = array->GetDataType();
     nbytes += array->GetDataSize() * array->GetDataTypeSize();
     numberOfComponents = this->ScalarComponents ? 1 : array->GetNumberOfComponents();
@@ -139,11 +140,12 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
     std::cout << "Uploading Array: " << actualArray->GetObjectDescription()
               << "(name: " << actualArray->GetName() << ")" << std::endl;
 #endif
+    void* ptr = array->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
     // Now upload the array
     switch (array->GetDataType())
     {
-      vtkTemplateMacro(this->Buffer->UploadRange(static_cast<VTK_TT*>(array->GetVoidPointer(0)),
-        offset, array->GetMaxId() + 1, this->BufferType));
+      vtkTemplateMacro(this->Buffer->UploadRange(
+        static_cast<VTK_TT*>(ptr), offset, array->GetMaxId() + 1, this->BufferType));
     }
     offset += array->GetDataSize() * array->GetDataTypeSize();
   }

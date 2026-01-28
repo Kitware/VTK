@@ -91,7 +91,8 @@ int vtkPBivariateLinearTableThreshold::RequestData(
     assert(received->HasStandardMemoryLayout() && "Array must have standard memory layout");
     received->SetNumberOfTuples(totalLength);
 
-    char* sendBuf = (char*)col->GetVoidPointer(0);
+    auto colAOS = col->ToAOSDataArray();
+    char* sendBuf = (char*)colAOS->GetVoidPointer(0);   // NOLINT(bugprone-unsafe-functions)
     char* recvBuf = (char*)received->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
     comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, recvLengths.data(), recvOffsets.data());
