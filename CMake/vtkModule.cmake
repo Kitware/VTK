@@ -4966,9 +4966,15 @@ function (vtk_module_install_headers)
         get_filename_component(_vtk_install_headers_destination_directory_subdir "${_vtk_install_headers_directory}" DIRECTORY)
       endif ()
     endif ()
+    set(_vtk_install_headers_full_destination
+      "${_vtk_install_headers_destination}")
+    if (_vtk_install_headers_destination_directory_subdir)
+      string(APPEND _vtk_install_headers_full_destination
+        "/${_vtk_install_headers_destination_directory_subdir}")
+    endif ()
     install(
       DIRECTORY   "${_vtk_install_headers_directory}"
-      DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_directory_subdir}"
+      DESTINATION "${_vtk_install_headers_full_destination}"
       COMPONENT   "${_vtk_install_headers_headers_component}"
       ${_vtk_install_headers_exclude_from_all})
   endforeach ()
