@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo libxml2_repo
+    tag  libxml2_tag
+  VERSION_FROM_TAG
+    tag  libxml2_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (C) 1998-2012 Daniel Veillard"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/libxml2.git@for/vtk-20241206-2.13.5"
+      "git+${libxml2_repo}@${libxml2_tag}"
     VERSION
-      "2.13.5"
+      "${libxml2_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibXml2

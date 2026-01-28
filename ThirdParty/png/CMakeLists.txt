@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo png_repo
+    tag  png_tag
+  VERSION_FROM_TAG
+    tag  png_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -11,9 +19,9 @@ vtk_module_third_party(
       "Copyright (c) 1996-1997 Andreas Dilger."
       "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/png.git@for/vtk-20240416-1.6.44"
+      "git+${png_repo}@${png_tag}"
     VERSION
-      "1.6.44"
+      "${png_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE PNG

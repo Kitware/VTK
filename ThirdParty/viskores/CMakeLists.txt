@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo viskores_repo
+    tag  viskores_tag
+  VERSION_FROM_TAG
+    tag  viskores_version "^v([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
   INTERFACE
@@ -9,9 +17,9 @@ vtk_module_third_party(
       "Copyright (c) 2024-2025 Kitware Inc., National Technology & Engineering Solutions of Sandia, LLC (NTESS),"
       "UT-Battelle, LLC., Los Alamos National Security, LLC."
     SPDX_DOWNLOAD_LOCATION
-      "git+git@github.com:Viskores/viskores.git@v1.1.0"
+      "git+${viskores_repo}@${viskores_tag}"
     VERSION
-      "1.1.0"
+      "${viskores_version}"
     SUBDIRECTORY vtkviskores
     STANDARD_INCLUDE_DIRS
   EXTERNAL

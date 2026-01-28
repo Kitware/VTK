@@ -1,5 +1,13 @@
 set(HDF5_EXTERNALLY_CONFIGURED 1)
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo hdf5_repo
+    tag  hdf5_tag
+  VERSION_FROM_TAG
+    tag  hdf5_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -15,9 +23,9 @@ vtk_module_third_party(
       "Copyright (c) 2013-2022, UChicago Argonne, LLC and The HDF Group."
       "Copyright (c) 2022-2023, Intel Corporation."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/hdf5.git@for/vtk-20251119-1.14.6"
+      "git+${hdf5_repo}@${hdf5_tag}"
     VERSION
-      "1.14.6"
+      "${hdf5_version}"
     STANDARD_INCLUDE_DIRS
     INTERFACE
   EXTERNAL

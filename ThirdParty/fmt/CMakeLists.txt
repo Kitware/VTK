@@ -1,10 +1,18 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo fmt_repo
+    tag  fmt_tag
+  VERSION_FROM_TAG
+    tag  fmt_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES           "vtkfmt/LICENSE"
     SPDX_LICENSE_IDENTIFIER "MIT"
     SPDX_COPYRIGHT_TEXT     "Copyright (c) 2012 - present, Victor Zverovich"
-    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/fmt.git@for/vtk-20250317-11.1.4"
-    VERSION                 "11.1.4"
+    SPDX_DOWNLOAD_LOCATION  "git+${fmt_repo}@${fmt_tag}"
+    VERSION                 "${fmt_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE fmt

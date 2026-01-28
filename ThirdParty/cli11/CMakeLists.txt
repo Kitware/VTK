@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo cli11_repo
+    tag  cli11_tag
+  VERSION_FROM_TAG
+    tag  cli11_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2017-2019 University of Cincinnati, developed by Henry Schreiner under NSF AWARD 1414736"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/cli11.git@for/vtk-20241208-2.4.2"
+      "git+${cli11_repo}@${cli11_tag}"
     VERSION
-      "2.4.2"
+      "${cli11_version}"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL

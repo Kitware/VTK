@@ -6,6 +6,14 @@
 # https://gitlab.kitware.com/vtk/vtk/-/issues/18654
 # https://github.com/CGNS/CGNS/discussions/357
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo cgns_repo
+    tag  cgns_tag
+  VERSION_FROM_TAG
+    tag  cgns_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -15,9 +23,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "© Copyright 1991-2020, CGNS Steering Commmittee"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/cgns.git@for/vtk-20250124-4.5.0-2"
+      "git+${cgns_repo}@${cgns_tag}"
     VERSION
-      "4.50"
+      "${cgns_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE CGNS

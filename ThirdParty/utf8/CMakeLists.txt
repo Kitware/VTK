@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo utfcpp_repo
+    tag  utfcpp_tag
+  VERSION_FROM_TAG
+    tag  utfcpp_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
@@ -8,8 +16,8 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 2006 Nemanja Trifunovic"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/utfcpp.git@for/vtk-20181015-2.3.4"
-    VERSION       "2.3.4"
+      "git+${utfcpp_repo}@${utfcpp_tag}"
+    VERSION       "${utfcpp_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE utf8cpp

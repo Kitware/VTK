@@ -1,3 +1,9 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo exodusII_repo
+    tag  exodusII_tag)
+
 vtk_module_third_party_internal(
   LICENSE_FILES
     "vtkexodusII/COPYRIGHT"
@@ -6,7 +12,7 @@ vtk_module_third_party_internal(
   SPDX_COPYRIGHT_TEXT
     "Copyright (c) 2005-2017 National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
   SPDX_DOWNLOAD_LOCATION
-    "git+https://gitlab.kitware.com/third-party/seacas.git@exodus/for/vtk-20250313-v2025-02-27#packages/seacas/libraries/exodus"
+    "git+${exodusII_repo}@${exodusII_tag}#packages/seacas/libraries/exodus"
   VERSION
     "9.0.4"
   STANDARD_INCLUDE_DIRS)

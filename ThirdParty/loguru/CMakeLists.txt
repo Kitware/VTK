@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo loguru_repo
+    tag  loguru_tag
+  VERSION_FROM_TAG
+    tag  loguru_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party_internal(
     LICENSE_FILES
       "vtkloguru/LICENSE"
@@ -6,13 +14,13 @@ vtk_module_third_party_internal(
     SPDX_COPYRIGHT_TEXT
       "NONE"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/loguru.git@for/vtk-20230822-2.1.0"
+      "git+${loguru_repo}@${loguru_tag}"
     SPDX_CUSTOM_LICENSE_FILE
       "vtkloguru/LICENSE"
     SPDX_CUSTOM_LICENSE_NAME
       "PublicDomain-loguru"
     VERSION
-      "2.1"
+      "${loguru_version}"
     STANDARD_INCLUDE_DIRS)
 
 configure_file(

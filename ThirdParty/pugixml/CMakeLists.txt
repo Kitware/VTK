@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo pugixml_repo
+    tag  pugixml_tag
+  VERSION_FROM_TAG
+    tag  pugixml_version "^for/vtk/[0-9]*-master-([0-9\\.]+)-g[0-9a-f]+$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2006-2020 Arseny Kapoulkine"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/pugixml.git@for/vtk-20241202-1.14"
+      "git+${pugixml_repo}@${pugixml_tag}"
     VERSION
-      "1.14"
+      "${pugixml_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE pugixml

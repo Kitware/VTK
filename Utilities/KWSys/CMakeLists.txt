@@ -31,10 +31,15 @@ if(_vtk_build_INSTALL_HEADERS)
   set(KWSYS_INSTALL_INCLUDE_DIR ${_vtk_build_HEADERS_DESTINATION})
 endif()
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo kwsys_repo)
+
 vtk_module_third_party_internal(
   STANDARD_INCLUDE_DIRS
   LICENSE_FILES           "vtksys/Copyright.txt"
   SPDX_LICENSE_IDENTIFIER "BSD-3-Clause"
   SPDX_COPYRIGHT_TEXT     "Copyright 2000-2016 Kitware, Inc. and Contributors"
-  SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/utils/kwsys.git"
+  SPDX_DOWNLOAD_LOCATION  "git+${kwsys_repo}@d427a180"
   VERSION                 "master")

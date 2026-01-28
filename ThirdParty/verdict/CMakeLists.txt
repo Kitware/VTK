@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo verdict_repo
+    tag  verdict_tag
+  VERSION_FROM_TAG
+    tag  verdict_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 2003,2006,2019 National Technology & Engineering Solutions of Sandia, LLC (NTESS)."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/verdict.git@for/vtk-20251121-1.4.4"
+      "git+${verdict_repo}@${verdict_tag}"
     VERSION
-      "1.4.4"
+      "${verdict_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Verdict

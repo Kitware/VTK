@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo libproj_repo
+    tag  libproj_tag
+  VERSION_FROM_TAG
+    tag  libproj_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright Frank Warmerdam"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/proj.git@for/vtk-20230504-8.1.0"
+      "git+${libproj_repo}@${libproj_tag}"
     VERSION
-      "8.1.0"
+      "${libproj_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibPROJ

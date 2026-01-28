@@ -1,3 +1,9 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo diy2_repo
+    tag  diy2_tag)
+
 vtk_module_third_party_internal(
   HEADER_ONLY
   LICENSE_FILES
@@ -8,7 +14,7 @@ vtk_module_third_party_internal(
   SPDX_COPYRIGHT_TEXT
     "Copyright (c) 2015, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy)"
   SPDX_DOWNLOAD_LOCATION
-    "git+https://gitlab.kitware.com/third-party/diy2.git@for/vtk-20250313-e5f2edf6f"
+    "git+${diy2_repo}@${diy2_tag}"
   VERSION
     "3.6.0"
 )

@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo ogg_repo
+    tag  ogg_tag
+  VERSION_FROM_TAG
+    tag  ogg_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2002, Xiph.org Foundation"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/ogg.git@for/vtk-20210804-1.3.5"
+      "git+${ogg_repo}@${ogg_tag}"
     VERSION
-      "1.3.5"
+      "${ogg_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE OGG

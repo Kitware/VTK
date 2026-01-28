@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo netcdf_repo
+    tag  netcdf_tag
+  VERSION_FROM_TAG
+    tag  netcdf_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 2018 Unidata"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/netcdf.git@for/vtk-20251112-4.9.3"
+      "git+${netcdf_repo}@${netcdf_tag}"
     VERSION
-      "4.9.3"
+      "${netcdf_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE NetCDF

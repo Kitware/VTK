@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo nlohmannjson_repo
+    tag  nlohmannjson_tag
+  VERSION_FROM_TAG
+    tag  nlohmannjson_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     INTERFACE
@@ -8,9 +16,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2013-2021 Niels Lohmann"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/nlohmann_json.git@for/vtk-20240529-3.11.3"
+      "git+${nlohmannjson_repo}@${nlohmannjson_tag}"
     VERSION
-      "3.11.3"
+      "${nlohmannjson_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE nlohmann_json

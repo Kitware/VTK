@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo fast_float_repo
+    tag  fast_float_tag
+  VERSION_FROM_TAG
+    tag  fast_float_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2021 The fast_float authors"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/fast_float.git@for/vtk-20250313-8.0.2"
+      "git+${fast_float_repo}@${fast_float_tag}"
     VERSION
-      "8.0.2"
+      "${fast_float_version}"
     STANDARD_INCLUDE_DIRS
     HEADER_ONLY
   EXTERNAL

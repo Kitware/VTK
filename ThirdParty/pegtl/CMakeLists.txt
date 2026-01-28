@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo pegtl_repo
+    tag  pegtl_tag
+  VERSION_FROM_TAG
+    tag  pegtl_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
@@ -8,9 +16,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2007-2020 Dr. Colin Hirsch and Daniel Frey"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/pegtl.git@for/vtk-20201001-2.8.3"
+      "git+${pegtl_repo}@${pegtl_tag}"
     VERSION
-      "2.8.3"
+      "${pegtl_version}"
   EXTERNAL
     PACKAGE PEGTL
     VERSION 2.0.0

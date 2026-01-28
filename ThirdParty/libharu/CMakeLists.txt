@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo libharu_repo
+    tag  libharu_tag
+  VERSION_FROM_TAG
+    tag  libharu_version "^for/vtk-[0-9]*-([0-9\\.]+)-g[0-9a-f]+$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -8,9 +16,9 @@ vtk_module_third_party(
       "Copyright (C) 1999-2006 Takeshi Kanno"
       "Copyright (C) 2007-2009 Antony Dovgal"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/libharu.git@for/vtk-20241208-2.4.4"
+      "git+${libharu_repo}@${libharu_tag}"
     VERSION
-      "2.4.4"
+      "${libharu_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LibHaru

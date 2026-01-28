@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo ioss_repo
+    tag  ioss_tag
+  VERSION_FROM_TAG
+    tag  ioss_version "^ioss/for/vtk-[0-9]*-v([0-9-]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright(C) 1999-2017 National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/seacas.git@ioss/for/vtk-20250924-v2025-08-28/seacas/libraries/ioss/"
+      "git+${ioss_repo}@${ioss_tag}#packages/seacas/libraries/ioss"
     VERSION
-      "2025-08-28"
+      "${ioss_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE SEACASIoss
