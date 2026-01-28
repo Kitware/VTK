@@ -9,7 +9,6 @@
 #define vtkDataArrayTupleRange_Generic_h
 
 #include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
 
 #include <algorithm>
@@ -52,7 +51,7 @@ struct ConstComponentReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
   using APIType = GetAPIType<ArrayType>;
@@ -150,7 +149,7 @@ struct ComponentReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
   using APIType = GetAPIType<ArrayType>;
@@ -381,7 +380,7 @@ struct ConstComponentIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
 
@@ -565,7 +564,7 @@ struct ComponentIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
   using APIType = GetAPIType<ArrayType>;
@@ -755,7 +754,7 @@ struct ConstTupleReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
   using APIType = GetAPIType<ArrayType>;
@@ -972,7 +971,7 @@ struct TupleReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
   using APIType = GetAPIType<ArrayType>;
@@ -1353,7 +1352,7 @@ struct ConstTupleIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
 
@@ -1537,7 +1536,7 @@ struct TupleIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
 
@@ -1723,7 +1722,7 @@ struct TupleRange
 
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayTypeT>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayTypeT>::value, "Invalid array type.");
 
   using NumCompsType = GenericTupleSize<TupleSize>;
 
@@ -1893,7 +1892,7 @@ private:
 
 // Unimplemented, only used inside decltype in SelectTupleRange:
 template <typename ArrayType, ComponentIdType TupleSize>
-TupleRange<ArrayType, TupleSize> DeclareTupleRangeSpecialization(vtkDataArray*);
+TupleRange<ArrayType, TupleSize> DeclareTupleRangeSpecialization(vtkAbstractArray*);
 
 VTK_ABI_NAMESPACE_END
 } // end namespace detail

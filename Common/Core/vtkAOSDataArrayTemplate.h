@@ -224,7 +224,11 @@ public:
    * access to the array data, particularly useful for Python buffer protocol
    * support.
    */
+#ifdef __VTK_WRAP__
   vtkAbstractBuffer* GetBuffer() { return this->Buffer; }
+#else
+  vtkBuffer<ValueTypeT>* GetBuffer() { return this->Buffer; }
+#endif // __VTK_WRAP__
 
   ///@{
   /**

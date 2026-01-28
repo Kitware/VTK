@@ -111,12 +111,12 @@ private:
   using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
 
   static_assert(detail::IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(detail::IsVtkArray<ArrayType>::value, "Invalid array type.");
 
 public:
   using type =
-    typename std::decay<decltype(vtk::detail::DeclareTupleRangeSpecialization<ArrayType, TupleSize>(
-      std::declval<ArrayType*>()))>::type;
+    std::decay_t<decltype(vtk::detail::DeclareTupleRangeSpecialization<ArrayType, TupleSize>(
+      std::declval<ArrayType*>()))>;
 };
 
 template <typename ArrayTypePtr, ComponentIdType TupleSize,
@@ -128,12 +128,12 @@ private:
   using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
 
   static_assert(detail::IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(detail::IsVtkArray<ArrayType>::value, "Invalid array type.");
 
 public:
   using type =
-    typename std::remove_reference<decltype(vtk::detail::DeclareValueRangeSpecialization<ArrayType,
-      TupleSize, ForceValueTypeForVtkDataArray>(std::declval<ArrayType*>()))>::type;
+    std::remove_reference_t<decltype(vtk::detail::DeclareValueRangeSpecialization<ArrayType,
+      TupleSize, ForceValueTypeForVtkDataArray>(std::declval<ArrayType*>()))>;
 };
 
 VTK_ABI_NAMESPACE_END
