@@ -75,8 +75,9 @@ bool vtkmDataArrayUtilities::IsHipDevicePointer(const void* ptr)
   // clear last error so other error checking does not pick it up
   hipError_t error = hipGetLastError();
   (void)error;
-  return perr == hipSuccess &&
-    (atts.TYPE_ATTR == hipMemoryTypeDevice || atts.TYPE_ATTR == hipMemoryTypeUnified);
+  return (perr == hipSuccess) &&
+    ((atts.type == hipMemoryTypeDevice) || (atts.type == hipMemoryTypeManaged) ||
+      (atts.type == hipMemoryTypeUnified));
 #else
   (void)ptr;
   return false;
