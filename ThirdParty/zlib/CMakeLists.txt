@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo zlib_repo
+    tag  zlib_tag
+  VERSION_FROM_TAG
+    tag  zlib_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "(C) 1995-2024 Jean-loup Gailly and Mark Adler"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/zlib.git@for/vtk-20240416-1.3.1"
+      "git+${zlib_repo}@${zlib_tag}"
     VERSION
-      "1.3.1"
+      "${zlib_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE ZLIB

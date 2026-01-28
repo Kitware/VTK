@@ -14,6 +14,11 @@ set(BUILD_TESTING OFF)
 unset(CMAKE_CXX_VISIBILITY_PRESET)
 unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo metaio_repo)
+
 vtk_module_third_party_internal(
   LICENSE_FILES
     "vtkmetaio/License.txt"
@@ -23,7 +28,7 @@ vtk_module_third_party_internal(
     "Copyright 2000-2014 Insight Software Consortium"
     "Copyright (c) 1999-2007 Insight Software Consortium"
   SPDX_DOWNLOAD_LOCATION
-    "git+https://github.com/Kitware/MetaIO.git@ea2bb780"
+    "git+${metaio_repo}@2b39f16a"
   VERSION
     "master"
   STANDARD_INCLUDE_DIRS)

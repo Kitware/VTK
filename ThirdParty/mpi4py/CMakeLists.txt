@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo mpi4py_repo
+    tag  mpi4py_tag
+  VERSION_FROM_TAG
+    tag  mpi4py_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -8,9 +16,9 @@ vtk_module_third_party(
       "Copyright (c) 2021, Lisandro Dalcin"
       "Copyright (c) Sandia Corporation, Kitware Inc."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/mpi4py.git@for/vtk-20230424-3.1.4"
+      "git+${mpi4py_repo}@${mpi4py_tag}"
     VERSION
-      "3.1.4"
+      "${mpi4py_version}"
   EXTERNAL
     PACKAGE mpi4py
     TARGETS mpi4py::mpi4py)

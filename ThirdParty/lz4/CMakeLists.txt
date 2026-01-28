@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo lz4_repo
+    tag  lz4_tag
+  VERSION_FROM_TAG
+    tag  lz4_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2011-2016, Yann Collet"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/lz4.git@for/vtk-20210727-1.9.3"
+      "git+${lz4_repo}@${lz4_tag}"
     VERSION
-      "1.9.3"
+      "${lz4_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZ4

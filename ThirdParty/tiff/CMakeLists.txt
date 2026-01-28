@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo tiff_repo
+    tag  tiff_tag
+  VERSION_FROM_TAG
+    tag  tiff_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -8,9 +16,9 @@ vtk_module_third_party(
       "Copyright (c) 1988-1997 Sam Leffler"
       "Copyright (c) 1991-1997 Silicon Graphics, Inc."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/tiff.git@for/vtk-20241212-4.7.0"
+      "git+${tiff_repo}@${tiff_tag}"
     VERSION
-      "4.7.0"
+      "${tiff_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE TIFF

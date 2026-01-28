@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo expat_repo
+    tag  expat_tag
+  VERSION_FROM_TAG
+    tag  expat_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -8,9 +16,9 @@ vtk_module_third_party(
       "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper"
       "Copyright (c) 2001-2019 Expat maintainers"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/expat.git@for/vtk-20250317-2.7.0"
+      "git+${expat_repo}@${expat_tag}"
     VERSION
-    "2.7.0"
+      "${expat_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT

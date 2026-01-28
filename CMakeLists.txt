@@ -112,6 +112,7 @@ include(vtkWrapSettings)
 include(vtkCrossCompiling)
 include(vtkObjectFactory)
 include(vtkOpenGLOptions)
+include(vtkModuleThirdParty)
 
 option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
 mark_as_advanced(VTK_RELOCATABLE_INSTALL)

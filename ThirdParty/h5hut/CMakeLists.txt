@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo h5hut_repo
+    tag  h5hut_tag
+  VERSION_FROM_TAG
+    tag  h5hut_version "^for/vtk-[0-9]*-v([0-9\\.rc]+)$")
+
 # we don't support external h5hut
 vtk_module_third_party_internal(
   LICENSE_FILES
@@ -8,9 +16,9 @@ vtk_module_third_party_internal(
     "Copyright (c) 2006-2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any"
     "required approvals from the U.S. Dept. of Energy) and the Paul Scherrer Institut (Switzerland)."
   SPDX_DOWNLOAD_LOCATION
-    "git+https://gitlab.kitware.com/third-party/h5hut.git@for/vtk-20251227-v2.0.0rc7"
+    "git+${h5hut_repo}@${h5hut_tag}"
   VERSION
-    "2.0.0"
+    "${h5hut_version}"
   STANDARD_INCLUDE_DIRS)
 
 configure_file(

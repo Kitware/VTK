@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo jpeg_repo
+    tag  jpeg_tag
+  VERSION_FROM_TAG
+    tag  jpeg_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -9,9 +17,9 @@ vtk_module_third_party(
       "Copyright (C)2015 Viktor Szathmáry."
       "copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/libjpeg-turbo.git@for/vtk-20210727-2.1.0"
+      "git+${jpeg_repo}@${jpeg_tag}"
     VERSION
-      "2.1.0"
+      "${jpeg_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE JPEG

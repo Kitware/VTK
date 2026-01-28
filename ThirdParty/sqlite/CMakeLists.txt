@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo sqlite_repo
+    tag  sqlite_tag
+  VERSION_FROM_TAG
+    tag  sqlite_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "NONE"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/sqlite.git@for/vtk-20250102-3.47.2"
+      "git+${sqlite_repo}@${sqlite_tag}"
     VERSION
-      "3.47.2"
+      "${sqlite_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE SQLite3

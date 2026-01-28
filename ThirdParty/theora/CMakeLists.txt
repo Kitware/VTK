@@ -5,6 +5,14 @@ if (NOT WIN32 OR (WIN32 AND (MSYS OR MINGW)))
     THEORA::DEC)
 endif ()
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo theora_repo
+    tag  theora_tag
+  VERSION_FROM_TAG
+    tag  theora_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -14,9 +22,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (C) 2002-2009 Xiph.org Foundation"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/theora.git@for/vtk-20220517-1.1.1"
+      "git+${theora_repo}@${theora_tag}"
     VERSION
-      "1.1.1"
+      "${theora_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE THEORA

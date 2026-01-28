@@ -2,13 +2,21 @@
 unset(CMAKE_CXX_VISIBILITY_PRESET)
 unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
 
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo jsoncpp_repo
+    tag  jsoncpp_tag
+  VERSION_FROM_TAG
+    tag  jsoncpp_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES           "vtkjsoncpp/LICENSE"
     SPDX_LICENSE_IDENTIFIER "MIT"
     SPDX_COPYRIGHT_TEXT     "Copyright (c) 2007-2010 Baptiste Lepilleur and The JsonCpp Author"
-    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/jsoncpp.git@for/vtk-20241206-1.9.6"
-    VERSION                 "1.9.6"
+    SPDX_DOWNLOAD_LOCATION  "git+${jsoncpp_repo}@${jsoncpp_tag}"
+    VERSION                 "${jsoncpp_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE JsonCpp

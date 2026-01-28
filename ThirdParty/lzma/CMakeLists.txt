@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo lzma_repo
+    tag  lzma_tag
+  VERSION_FROM_TAG
+    tag  lzma_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,13 +15,13 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "NONE"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/lzma.git@for/vtk-20210728-5.2.5"
+      "git+${lzma_repo}@${lzma_tag}"
     SPDX_CUSTOM_LICENSE_FILE
       "vtklzma/COPYING"
     SPDX_CUSTOM_LICENSE_NAME
       "PublicDomain-lzma"
     VERSION
-      "5.2.5"
+      "${lzma_version}"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE LZMA

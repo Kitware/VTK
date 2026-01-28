@@ -1,3 +1,11 @@
+vtk_third_party_extract(
+  FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
+  TAGS
+    repo eigen_repo
+    tag  eigen_tag
+  VERSION_FROM_TAG
+    tag  eigen_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
@@ -7,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2011, Intel Corporation"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/eigen.git@for/vtk-20250101-3.4.0"
+      "git+${eigen_repo}@${eigen_tag}"
     VERSION
-      "3.4.0"
+      "${eigen_version}"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL
