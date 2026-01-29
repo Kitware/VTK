@@ -9,7 +9,7 @@
 * New behavior: `AddObserver` and `RemoveObserver` both use a binary search via `std::map`, i.e. `O(log n)` runtime per
   operation in all cases.
 
-![Microbenchmark results summary.](./optimize-vtkObserver-benchmark.png)
+![Microbenchmark results summary.](../imgs/9.6/optimize-vtkObserver-benchmark.png)
 
 Some notes on interpreting the microbenchmark results:
 

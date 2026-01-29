@@ -8,7 +8,6 @@ resulted in incorrectly sized bars when a shift or scale was active.
 
 VTK now applies the shift and scale to the x-coordinates before computing the
 width, ensuring the bar widths are rendered correctly.
-
 | Before | After |
 |:------:|:-----:|
 |![](./TestBarGraphShiftScale_bad.png) | ![](./TestBarGraphShiftScale.png) |
