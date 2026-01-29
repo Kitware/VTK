@@ -1,46 +1,54 @@
 <!--
-This template is for tracking a release of VTK. Please replace the
-following strings with the associated values:
+This template is for tracking a release of VTK.
 
-  - `@VERSION@` - replace with base version, e.g., 9.1.0
-  - `@RC@` - for release candidates, replace with ".rc?". For final, replace with "".
-  - `@MAJOR@` - replace with major version number
-  - `@MINOR@` - replace with minor version number
-  - `@PATCH@` - replace with patch version number
-  - `@BASEBRANCH@`: The branch to create the release on (for `x.y.0.rc1`,
-    `master`, otherwise `release`)
-  - `@BRANCHPOINT@`: The commit where the release should be started
+Process this file with the pyexpander script specifying the desired `version`:
+
+expander.py --eval 'version="9.4.0.rc1"' .gitlab/issue_templates/new-release.md.tmpl | xclip -selection c
 
 Please remove this comment.
 -->
+$py(parts = version.split("."))\
+$py(MAJOR=int(parts[0]))\
+$py(MINOR=int(parts[1]))\
+$py(PATCH=int(parts[2]))\
+$py(RC="." + parts[3] if len(parts) > 3 else "")\
+$py(VERSION=f"{MAJOR}.{MINOR}.{PATCH}")\
+$py(BASEBRANCH="master" if (PATCH == 0 and RC == ".rc1") else "release")\
 
 # Update VTK
 
-  - Update the local copy of `@BASEBRANCH@`.
-    - If `@PATCH@@RC@` is `0.rc1`, update `master`
+  - Update the local copy of `$(BASEBRANCH)`.
+$if(PATCH == 0 and RC == ".rc1")\
+    - If `$(PATCH)$(RC)` is `0.rc1`, update `master`
+$else\
     - Otherwise, update `release`
+$endif\
 ```
 git fetch origin
-git checkout @BASEBRANCH@
-git merge --ff-only origin/@BASEBRANCH@ # if this fails, there are local commits that need to be removed
+git checkout $(BASEBRANCH)
+git merge --ff-only origin/$(BASEBRANCH) # if this fails, there are local commits that need to be removed
 git submodule update --recursive --init
 ```
-  - If `@BASEBRANCH@` is not `master`, ensure merge requests which should be
+$if(BASEBRANCH != "master")\
+  - If `$(BASEBRANCH)` is not `master`, ensure merge requests which should be
     in the release have been merged. The [`backport-mrs.py`][backport-mrs]
     script can be used to find and ensure that merge requests assigned to the
     associated milestone are available on the `release` branch.
 
-  - Make a commit for each of these changes on a single topic (suggested branch
-    name: `update-to-v@VERSION@`):
-    - [ ] Move release note files to `Documentation/release/@MAJOR@.@MINOR@` folder.
-    - [ ] If `@BASEBRANCH@` is `master`, update the non-patch version in a
+$endif\
+  - [ ] Create update branch: `git checkout -b update-to-v$(VERSION)$(RC)`
+  - Make a commit for each of these changes on the update branch:
+    - [ ] Move release note files to `Documentation/release/$(MAJOR).$(MINOR)` folder.
+$if(BASEBRANCH == "master")\
+    - [ ] If `$(BASEBRANCH)` is `master`, update the non-patch version in a
           separate commit (so that `master` gets it as well).
-    - [ ] If `@BASEBRANCH@` is `master`, Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
+    - [ ] If `$(BASEBRANCH)` is `master`, Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
           groups
+$endif\
     - [ ] Update `CMake/vtkVersion.cmake` and tag the commit (tag this commit below)
 ```
-$EDITOR CMake/vtkVersion.cmake
-git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
+$("$")EDITOR CMake/vtkVersion.cmake
+git commit -m 'Update version number to $(VERSION)$(RC)' CMake/vtkVersion.cmake
 ```
   - Create a merge request targeting `release`
     - [ ] Obtain a GitLab API token for the `kwrobot.release.vtk` user (ask
@@ -58,29 +66,37 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
         extraction heuristics fail).
     - [ ] Get positive review
     - [ ] `Do: merge`
-    - [ ] If `@BASEBRANCH@` is `master` and `@PATCH@ == 0`, note the date this merge occurs, this is the SPLIT_DATE.
+$if(BASEBRANCH == "master" and PATCH == 0)\
+    - [ ] If `$(BASEBRANCH)` is `master` and `$(PATCH) == 0`, note the date this merge occurs, this is the SPLIT_DATE.
       - It can be recovered easily if needed by running `git log --first-parent --reverse origin/master '^origin/release'`
+$endif\
     - [ ] Push the tag to the main repository
-      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake`
-      - [ ] `git push origin v@VERSION@@RC@`
-  - [ ] If `@RC@` is `""`, Update `vtk.org/download` with the new release
+      - [ ] `git tag -a -m 'VTK $(VERSION)$(RC)' v$(VERSION)$(RC) commit-that-updated-vtkVersion.cmake`
+      - [ ] `git push origin v$(VERSION)$(RC)`
+$if(RC == "")\
+  - [ ] If `$(RC)` is `""`, Update `vtk.org/download` with the new release
       - Hashes can be found in the output of the `release-artifacts:upload` job
       - [ ] email `marketing@kitware.com` with filenames and hashes
-  - If `@PATCH@ == 0` Software process updates **these can all be done independently**
+$endif\
+$if(PATCH == 0)\
+  - If `$(PATCH) == 0` Software process updates **these can all be done independently**
     - [ ] Update kwrobot with the new `release` branch rules (@utils/maintainers/ghostflow)
     - [ ] Run [this script][cdash-update-groups] to update the CDash groups
       - This must be done after a nightly run to ensure all builds are in the `release` group
       - See the script itself for usage documentation
-    - Deprecation updates (if `@BASEBRANCH@` is `master`)
+$if(BASEBRANCH == "master")\
+    - Deprecation updates (if `$(BASEBRANCH)` is `master`)
       - This should be done as soon as possible after merging to not block development
-      - [ ] Update deprecation macros for the next release, use `VTK_VERSION_CHECK(@MAJOR@, @MINOR@, SPLIT_DATE)`
+      - [ ] Update deprecation macros for the next release, use `VTK_VERSION_CHECK($(MAJOR), $(MINOR), SPLIT_DATE)`
       - [ ] Update `VTK_EPOCH_VERSION` to the day *after* the SPLIT_DATE
       - [ ] Remove deprecated symbols from before the *prior* release
       - [ ] Update `VTK_MINIMUM_DEPRECATION_LEVEL` to be that of the *prior* release
-    - Assemble release notes from `Documentation/release/@MAJOR@.@MINOR@` into `Documentation/release/@MAJOR@.@MINOR@.md`.
+$endif\
+    - Assemble release notes from `Documentation/release/$(MAJOR).$(MINOR)` into `Documentation/release/$(MAJOR).$(MINOR).md`.
       - This can be done during the release cycles but must be done before the full release
       - [ ] Recover new .md files as they are being added during release cycles and incorporate them into a coherent release note.
-      - [ ] If `PATCH` is greater than 0, add items to the end of `@MAJOR@.@MINOR@.md` file.
+      - [ ] If `PATCH` is greater than 0, add items to the end of `$(MAJOR).$(MINOR).md` file.
+$endif\
 
 [backport-mrs]: https://gitlab.kitware.com/utils/release-utils/-/blob/master/backport-mrs.py
 [release-mr]: https://gitlab.kitware.com/utils/release-utils/-/blob/master/release-mr.py
@@ -96,5 +112,5 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 /cc @vbolea
 /cc @sankhesh
 /cc @mwestphal
-/milestone %"@VERSION@@RC@"
+/milestone %"$(VERSION)$(RC)"
 /label ~"priority:required"
