@@ -98,8 +98,8 @@ emcmake cmake \
   -B ${VTK_BUILD_DIR} \
   -G "Ninja" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_SHARED_LIBS:BOOL=OFF \
-  -DVTK_ENABLE_WEBGPU:BOOL=ON
+  "-DBUILD_SHARED_LIBS:BOOL=OFF" \
+  "-DVTK_ENABLE_WEBGPU:BOOL=ON"
 cmake --build ${VTK_BUILD_DIR}
 cmake --install ${VTK_BUILD_DIR} --prefix ${VTK_INSTALL_DIR}
 ```
@@ -112,9 +112,9 @@ emcmake cmake \
   -B ${VTK_BUILD_DIR} \
   -G "Ninja" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_SHARED_LIBS:BOOL=OFF \
-  -DVTK_ENABLE_WEBGPU:BOOL=ON \
-  -DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
+  "-DBUILD_SHARED_LIBS:BOOL=OFF" \
+  "-DVTK_ENABLE_WEBGPU:BOOL=ON" \
+  "-DVTK_WEBASSEMBLY_64_BIT:BOOL=ON"
 cmake --build ${VTK_BUILD_DIR}
 cmake --install ${VTK_BUILD_DIR} --prefix ${VTK_INSTALL_DIR}
 ```
@@ -128,8 +128,8 @@ emcmake cmake `
   -B $env:VTK_BUILD_DIR `
   -G "Ninja" `
   -DCMAKE_BUILD_TYPE=Release `
-  -DBUILD_SHARED_LIBS:BOOL=OFF `
-  -DVTK_ENABLE_WEBGPU:BOOL=ON
+  "-DBUILD_SHARED_LIBS:BOOL=OFF" `
+  "-DVTK_ENABLE_WEBGPU:BOOL=ON"
 cmake --build $env:VTK_BUILD_DIR
 cmake --install $env:VTK_BUILD_DIR --prefix $env:VTK_INSTALL_DIR
 ```
@@ -143,9 +143,9 @@ emcmake cmake `
   -B $env:VTK_BUILD_DIR `
   -G "Ninja" `
   -DCMAKE_BUILD_TYPE=Release `
-  -DBUILD_SHARED_LIBS:BOOL=OFF `
-  -DVTK_ENABLE_WEBGPU:BOOL=ON `
-  -DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
+  "-DBUILD_SHARED_LIBS:BOOL=OFF" `
+  "-DVTK_ENABLE_WEBGPU:BOOL=ON" `
+  "-DVTK_WEBASSEMBLY_64_BIT:BOOL=ON"
 cmake --build $env:VTK_BUILD_DIR
 cmake --install $env:VTK_BUILD_DIR --prefix $env:VTK_INSTALL_DIR
 ```

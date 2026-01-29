@@ -837,9 +837,8 @@ if (VTK_BUILD_TESTING)
       add_library(vtkWebAssemblyTestLinkOptions INTERFACE)
       add_library(VTK::vtkWebAssemblyTestLinkOptions ALIAS vtkWebAssemblyTestLinkOptions)
       target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
-        "-sSINGLE_FILE=1"
-        # For stack trace to show human-readable function names
-        "--profiling-funcs"
+        # Keep Debug builds debuggable without shipping giant in-wasm DWARF sections.
+        "$<$<CONFIG:Debug>:-gseparate-dwarf>"
         # we need emscripten to emit code that handles exit code and atexit(s)
         "-sEXIT_RUNTIME=1"
         # ENV holds the environment variables accessible by C getenv

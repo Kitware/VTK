@@ -65,6 +65,7 @@ const OPERATION = operation;
 const LOCK = path.join(directory, 'vtkhttp.lock');
 const HTML_REGEX = new RegExp('.html$');
 const JS_REGEX = new RegExp('.js$');
+const WASM_REGEX = new RegExp('.wasm$');
 
 if (OPERATION == OPERATIONS.START) {
   console.log('starting server process..');
@@ -115,8 +116,26 @@ if (OPERATION == OPERATIONS.START) {
       'Cross-Origin-Embedder-Policy': 'require-corp',
       /** add other headers as per requirement */
     };
+
+    const respondText = (statusCode, bodyText) => {
+      const body = Buffer.from(bodyText ?? '');
+      response
+        .writeHead(statusCode, {
+          ...headers,
+          'Content-Length': Buffer.byteLength(body),
+          'Content-Type': 'text/plain',
+        })
+        .end(body);
+    };
+
     const url = new URL(incomingMesssage.url, `http://${incomingMesssage.headers.host}/`);
     console.debug(`${incomingMesssage.method} ${url.toString()}`);
+
+    if (incomingMesssage.method === 'OPTIONS') {
+      response.writeHead(204, headers).end();
+      return;
+    }
+
     if (
       url.pathname === '/dump' &&
       incomingMesssage.method === 'POST'
@@ -172,10 +191,10 @@ if (OPERATION == OPERATIONS.START) {
           }
           else {
             console.error(`File not found: ${filePath}`);
-            response.writeHead(404, 'File not found').end();
+            respondText(404, 'File not found');
           }
         } else {
-          response.writeHead(400, 'Bad Request').end();
+          respondText(400, 'Bad Request');
         }
       }
       else if (HTML_REGEX.test(url.pathname)) {
@@ -190,7 +209,7 @@ if (OPERATION == OPERATIONS.START) {
           fileStream.pipe(response);
         } else {
           console.error(`File not found: ${filePath}`);
-          response.writeHead(404, 'File not found').end();
+          respondText(404, 'File not found');
         }
       }
       else if (JS_REGEX.test(url.pathname)) {
@@ -206,15 +225,35 @@ if (OPERATION == OPERATIONS.START) {
           });
           fileStream.pipe(response);
         } else {
-          response.writeHead(404, 'File not found').end();
+          respondText(404, 'File not found');
+        }
+      }
+      else if (WASM_REGEX.test(url.pathname)) {
+        const fileName = path.basename(url.pathname);
+        const filePath = path.join(binaryDirectory, fileName);
+        console.debug(`serving ${filePath}`);
+        if (fs.existsSync(filePath)) {
+          const fileStream = fs.createReadStream(filePath);
+          response.writeHead(200, {
+            ...headers,
+            'Content-Type': 'application/wasm',
+          });
+          fileStream.pipe(response);
+        } else {
+          respondText(404, 'File not found');
         }
       }
       else if (url.pathname === '/favicon.ico') {
         response.writeHead(200, {...headers, 'Content-Type': 'image/png'}).end("");
       }
+      else {
+        console.log(`no handler for GET ${url.pathname}`);
+        respondText(404, 'Not found');
+      }
     }
-    if (!response.writableEnded) {
-      // response.writeHead(403, 'Forbidden').end();
+    else {
+      console.log(`no handler for ${incomingMesssage.method} ${url.pathname}`);
+      respondText(404, 'Not found');
     }
   });
 
