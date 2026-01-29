@@ -443,4 +443,40 @@ void vtkMarshalContext::AddChild(vtkTypeUInt32 identifier)
   internals.CurrentTree[parent].insert(identifier);
 }
 
+//------------------------------------------------------------------------------
+bool vtkMarshalContext::CanReuseCachedState(
+  vtkObjectBase* objectBase, nlohmann::json::iterator& stateIter) const
+{
+  if (objectBase == nullptr)
+  {
+    return false;
+  }
+  auto* object = vtkObject::SafeDownCast(objectBase);
+  if (!object)
+  {
+    // if objectBase is not a vtkObject, we cannot determine MTime because GetMTime only exists on
+    // vtkObject and derived classes.
+    return false;
+  }
+  const auto id = this->GetId(objectBase);
+  if (id == 0)
+  {
+    return false;
+  }
+
+  auto& internals = (*this->Internals);
+  stateIter = internals.States.find(vtk::to_string(id));
+  if (stateIter != internals.States.end())
+  {
+    if (auto mTimeIter = stateIter->find("MTime"); mTimeIter != stateIter->end())
+    {
+      if (mTimeIter->is_number_unsigned() && mTimeIter->get<vtkMTimeType>() == object->GetMTime())
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 VTK_ABI_NAMESPACE_END

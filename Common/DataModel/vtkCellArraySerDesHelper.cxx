@@ -29,6 +29,14 @@ static nlohmann::json Serialize_vtkCellArray(vtkObjectBase* object, vtkSerialize
   using json = nlohmann::json;
   if (auto* cellArray = vtkCellArray::SafeDownCast(object))
   {
+    if (nlohmann::json::iterator stateIter; serializer->GetContext() &&
+        serializer->GetContext()->CanReuseCachedState(cellArray, stateIter))
+    {
+      vtkVLog(serializer->GetSerializerLogVerbosity(),
+        "Reusing cached state for " << object->GetObjectDescription() << " (id=" << stateIter.key()
+                                    << ")");
+      return stateIter.value();
+    }
     json state;
     if (auto superSerializer = serializer->GetHandler(typeid(vtkCellArray::Superclass)))
     {
