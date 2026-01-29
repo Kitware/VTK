@@ -3,7 +3,12 @@
 set -e
 
 readonly version="$1"
-shift
+readonly freethreading="$2"
+
+maybe_free_threading=""
+if [ "$freethreading" = "-t" ]; then
+  maybe_free_threading="t"
+fi
 
 if ! [ -d "relocatable-python" ]; then
     git clone "https://github.com/gregneagle/relocatable-python"
@@ -24,7 +29,7 @@ case "$version" in
 esac
 readonly os_version
 
-readonly dirname="python-$version-macos-x86_64"
+readonly dirname="python-${version}${maybe_free_threading}-macos-x86_64"
 
 touch requirements.txt
 ./make_relocatable_python_framework.py \

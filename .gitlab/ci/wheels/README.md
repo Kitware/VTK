@@ -16,6 +16,18 @@ the official installers.
 The `.tar.xz` that comes from the `prep_python_macos_$arch.sh` scripts is
 directly usable as an upload.
 
+### Free-threaded builds
+
+To create a free-threaded Python distribution (Python 3.13+), pass the `-t`
+flag:
+
+```sh
+./prep_python_macos_arm64.sh 3.13.1 -t
+```
+
+This will produce a tarball with `t` in the name (e.g.,
+`python-3.13.1t-macos-arm64.tar.xz`).
+
 ## Windows
 
 The official installers leave registry rubble around. The
@@ -25,6 +37,18 @@ created, move it to a Unix machine and unpack it into a directory with the
 basename of the `.zip` file. Then repack the `.zip` to include this directory.
 Also be sure to use the Windows Add/Remove Programs process to remove the
 installation made during this process.
+
+### Free-threaded builds
+
+To create a free-threaded Python distribution (Python 3.13+), pass the
+`-freethreading` flag:
+
+```powershell
+.\prep_python_windows.ps1 -version 3.13.1 -freethreading
+```
+
+This will produce a zip with `t` in the name (e.g.,
+`python-3.13.1t-windows-x86_64.zip`).
 
 ## Uploading
 
