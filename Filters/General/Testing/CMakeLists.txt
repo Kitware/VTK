@@ -24,7 +24,8 @@ vtk_module_test_data(
   Data/sphereMirror_1_0.vtp
   Data/structGrid.vts
   Data/waveletMaterial.vti
-  Data/ugWithGlobalIds.vtu)
+  Data/ugWithGlobalIds.vtu
+  Data/BoxIncorrectConnectivity.vtp)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)
