@@ -5,5 +5,6 @@ vtk_add_test_python(
   TestGraphWriterReader.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestLegacyCellGridWriterReader.py,NO_VALID,NO_OUTPUT
   TestLegacyCompositeCellGridWriterReader.py,NO_VALID,NO_OUTPUT
+  TestLocalePreservation.py,NO_DATA,NO_VALID
   TestVTKLegacy.py,NO_DATA,NO_VALID,NO_OUTPUT
 )
