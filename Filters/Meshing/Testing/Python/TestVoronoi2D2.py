@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonCore import (
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkCommonSystem import vtkTimerLog
 from vtkmodules.vtkFiltersCore import vtkStaticCleanPolyData
-from vtkmodules.vtkFiltersMeshing import vtkVoronoi2D
+from vtkmodules.vtkFiltersMeshing import vtkVoronoiFlower2D
 from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -126,7 +126,7 @@ ptActor.GetProperty().SetPointSize(3)
 
 # Tessellate them
 #
-voronoi = vtkVoronoi2D()
+voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
 voronoi.SetGenerateCellScalarsToPointIds()
 voronoi.SetPointOfInterest(PointOfInterest)

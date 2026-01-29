@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkVoronoi3D.h"
+#include "vtkVoronoiFlower3D.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -28,7 +28,7 @@
 #include <random>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkVoronoi3D);
+vtkStandardNewMacro(vtkVoronoiFlower3D);
 
 namespace // anonymous
 {
@@ -38,7 +38,7 @@ namespace // anonymous
 struct VOutput
 {
   vtkPointSet* Input;
-  vtkVoronoi3D* Filter;
+  vtkVoronoiFlower3D* Filter;
   const int* Regions; // optional segmentation labels
 
   vtkIdType* CellConn;    // Output cell connectivity
@@ -51,7 +51,7 @@ struct VOutput
   // Optionally generate random numbers for cell scalars.
   vtkSMPThreadLocal<vtkVoronoiRandomColors> LocalGenerator;
 
-  VOutput(vtkPointSet* input, vtkVoronoi3D* filter)
+  VOutput(vtkPointSet* input, vtkVoronoiFlower3D* filter)
     : Input(input)
     , Filter(filter)
     , Regions(nullptr)
@@ -90,22 +90,22 @@ struct VOutput
     vtkIdType s = 0;
     switch (this->GenerateCellScalars)
     {
-      case vtkVoronoi3D::POINT_IDS:
+      case vtkVoronoiFlower3D::POINT_IDS:
         s = ptId;
         break;
-      case vtkVoronoi3D::REGION_IDS:
+      case vtkVoronoiFlower3D::REGION_IDS:
         s = (this->Regions ? this->Regions[ptId] : 0);
         break;
-      case vtkVoronoi3D::NUMBER_FACES:
+      case vtkVoronoiFlower3D::NUMBER_FACES:
         s = numSpokes;
         break;
-      case vtkVoronoi3D::PRIM_IDS:
+      case vtkVoronoiFlower3D::PRIM_IDS:
         s = primId;
         break;
-      case vtkVoronoi3D::THREAD_IDS:
+      case vtkVoronoiFlower3D::THREAD_IDS:
         s = threadId;
         break;
-      case vtkVoronoi3D::RANDOM:
+      case vtkVoronoiFlower3D::RANDOM:
         auto& localGen = this->LocalGenerator.Local();
         // Make this repeatable, seed based on prim id
         if (firstRandomScalar)
@@ -138,8 +138,8 @@ struct PtsOutput : public VOutput
   // Used for merging points. Ensure that points are only written once.
   std::unique_ptr<PtsWrittenFlags> PtsWritten;
 
-  PtsOutput(
-    vtkPointSet* input, vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkVoronoi3D* filter)
+  PtsOutput(vtkPointSet* input, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
+    vtkVoronoiFlower3D* filter)
     : VOutput(input, filter)
     , InPoints(nullptr) // update in derived class
     , OutPoints(nullptr)
@@ -224,7 +224,7 @@ struct PtsOutput : public VOutput
   }
 }; // PtsOutput
 
-// The vtkVoronoi3D class produces different outputs depending on how it is
+// The vtkVoronoiFlower3D class produces different outputs depending on how it is
 // configured/instantiated. This means under the hood different Voronoi
 // compositors and classifiers are used in combination with the templated
 // vtkVoronoiCore3D class. In the following, these compositors and
@@ -236,7 +236,7 @@ struct PtsOutput : public VOutput
 // vtkEmptyVoronoi3DCompositor and vtkEmptyVoronoi3DClassifier are used.
 // This is used to assess the raw speed of Voronoi tessellation. It does not
 // produce any output.
-void SpeedTestOutput(vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator* loc,
+void SpeedTestOutput(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
   vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
   const int* regions)
 {
@@ -373,7 +373,7 @@ struct AGOutput : public VOutput
 {
   const vtkVoronoiCore3D<AGCompositor, vtkVoronoiClassifier3D>* VC;
   AGOutput(const vtkVoronoiCore3D<AGCompositor, vtkVoronoiClassifier3D>* vc, vtkPointSet* input,
-    vtkVoronoi3D* filter)
+    vtkVoronoiFlower3D* filter)
     : VOutput(input, filter)
     , VC(vc)
   {
@@ -434,7 +434,7 @@ struct AGOutput : public VOutput
 
   // Driver function to output the adjacency graph. It operates on the classified spokes
   // and outputs interior, forward spokes.
-  static void Execute(vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkPolyData* output)
   {
@@ -653,7 +653,7 @@ struct DelOutput : public VOutput
 {
   const vtkVoronoiCore3D<DelCompositor, vtkVoronoiClassifier3D>* VC;
   DelOutput(const vtkVoronoiCore3D<DelCompositor, vtkVoronoiClassifier3D>* vc, vtkPointSet* input,
-    vtkVoronoi3D* filter)
+    vtkVoronoiFlower3D* filter)
     : VOutput(input, filter)
     , VC(vc)
   {
@@ -715,7 +715,7 @@ struct DelOutput : public VOutput
   }             // operator()
 
   // Driver function to output the Delaunay triangulation.
-  static void Execute(vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkUnstructuredGrid* output)
   {
@@ -825,15 +825,15 @@ struct SurfaceCompositor
   SurfaceCompositor(int outputType, bool capping)
     : SurfaceCompositor()
   {
-    if (outputType == vtkVoronoi3D::POLYGONAL_COMPLEX)
+    if (outputType == vtkVoronoiFlower3D::POLYGONAL_COMPLEX)
     {
       this->MatchesFaceType = MatchesPolygonalComplex;
     }
-    else if (outputType == vtkVoronoi3D::SURFACE_NET)
+    else if (outputType == vtkVoronoiFlower3D::SURFACE_NET)
     {
       this->MatchesFaceType = MatchesSurfaceNet;
     }
-    else // outputType == vtkVoronoi3D::BOUNDARY
+    else // outputType == vtkVoronoiFlower3D::BOUNDARY
     {
       this->MatchesFaceType = MatchesBoundary;
     }
@@ -995,7 +995,7 @@ struct SurfaceOutput : public PtsOutput
   const vtkVoronoiCore3D<SurfaceCompositor, vtkVoronoiClassifier3D>* VC;
 
   SurfaceOutput(vtkVoronoiCore3D<SurfaceCompositor, vtkVoronoiClassifier3D>* vc, vtkPointSet* input,
-    vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkVoronoi3D* filter)
+    vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkVoronoiFlower3D* filter)
     : PtsOutput(input, mergeMap, numMergedPts, filter)
     , VC(vc)
   {
@@ -1099,9 +1099,9 @@ struct SurfaceOutput : public PtsOutput
   }           // operator()
 
   // Driver function for producing output surface primitives.
-  static void Execute(int faceType, vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator* loc,
-    vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
-    vtkPointSet* input, const int* regions, vtkPolyData* output)
+  static void Execute(int faceType, vtkVoronoiFlower3D* filter, int batchSize,
+    vtkStaticPointLocator* loc, vtkPoints* tPoints, double padding, vtkIdType maxClips,
+    bool validate, double pruneTol, vtkPointSet* input, const int* regions, vtkPolyData* output)
   {
     SurfaceCompositor initializeCompositor(faceType, filter->GetBoundaryCapping());
     vtkVoronoiClassifier3D initializeClassifier(regions);
@@ -1368,7 +1368,7 @@ struct PolyHOutput : public PtsOutput
   vtkIdType* LocOffsets;  // polyhedral face location offsets
 
   PolyHOutput(vtkVoronoiCore3D<PolyHCompositor, vtkVoronoiClassifier3D>* vc, vtkPointSet* input,
-    vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkVoronoi3D* filter)
+    vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkVoronoiFlower3D* filter)
     : PtsOutput(input, mergeMap, numMergedPts, filter)
     , VC(vc)
     , FaceConn(nullptr)
@@ -1515,7 +1515,7 @@ struct PolyHOutput : public PtsOutput
   }         // operator()
 
   // Driver function for polyhedral output.
-  static void Execute(vtkVoronoi3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkUnstructuredGrid* output)
   {
@@ -1645,9 +1645,9 @@ struct PolyHOutput : public PtsOutput
 //================= Begin VTK class proper =====================================
 //------------------------------------------------------------------------------
 // Construct object
-vtkVoronoi3D::vtkVoronoi3D()
+vtkVoronoiFlower3D::vtkVoronoiFlower3D()
 {
-  this->OutputType = vtkVoronoi3D::BOUNDARY;
+  this->OutputType = vtkVoronoiFlower3D::BOUNDARY;
   this->Padding = 0.001;
   this->Validate = false;
   this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
@@ -1675,7 +1675,7 @@ vtkVoronoi3D::vtkVoronoi3D()
 }
 
 //------------------------------------------------------------------------------
-int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkVoronoiFlower3D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
@@ -1689,7 +1689,8 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
   // Cast to proper output type
   vtkUnstructuredGrid* volOutput = nullptr;
   vtkPolyData* surfOutput = nullptr;
-  if (this->OutputType == vtkVoronoi3D::VORONOI || this->OutputType == vtkVoronoi3D::DELAUNAY)
+  if (this->OutputType == vtkVoronoiFlower3D::VORONOI ||
+    this->OutputType == vtkVoronoiFlower3D::DELAUNAY)
   {
     volOutput = vtkUnstructuredGrid::SafeDownCast(output);
   }
@@ -1814,20 +1815,20 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Perform a speed test. No output is produced, but all of the hulls (from
   // the input point generators) are processed.
-  if (this->OutputType == vtkVoronoi3D::SPEED_TEST)
+  if (this->OutputType == vtkVoronoiFlower3D::SPEED_TEST)
   {
     SpeedTestOutput(this, batchSize, loc, tPoints, padding, maxClips, validate, pruneTol, regions);
   }
 
   // Produce the (wheel and spokes) adjacency graph.
-  else if (this->OutputType == vtkVoronoi3D::ADJACENCY_GRAPH)
+  else if (this->OutputType == vtkVoronoiFlower3D::ADJACENCY_GRAPH)
   {
     AGOutput::Execute(this, batchSize, loc, tPoints, padding, maxClips, validate, pruneTol, tInput,
       regions, surfOutput);
   }
 
   // Produce a Delaunay triangulation of the input points.
-  else if (this->OutputType == vtkVoronoi3D::DELAUNAY)
+  else if (this->OutputType == vtkVoronoiFlower3D::DELAUNAY)
   {
     DelOutput::Execute(this, batchSize, loc, tPoints, padding, maxClips, validate, pruneTol, tInput,
       regions, volOutput);
@@ -1835,7 +1836,7 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Produce a polyhedral unstructured mesh. Each convex polyhedron is
   // produced from one generator point.
-  else if (this->OutputType == vtkVoronoi3D::VORONOI)
+  else if (this->OutputType == vtkVoronoiFlower3D::VORONOI)
   {
     PolyHOutput::Execute(this, batchSize, loc, tPoints, padding, maxClips, validate, pruneTol,
       tInput, regions, volOutput);
@@ -1857,7 +1858,7 @@ int vtkVoronoi3D::RequestData(vtkInformation* vtkNotUsed(request),
 } // RequestData
 
 //------------------------------------------------------------------------------
-vtkIdType vtkVoronoi3D::FindHull(double x[3])
+vtkIdType vtkVoronoiFlower3D::FindHull(double x[3])
 {
   // Make sure the filter has executed (i.e., a locator is available), and the
   // request is within the bounding box of the input points.
@@ -1879,16 +1880,17 @@ vtkIdType vtkVoronoi3D::FindHull(double x[3])
 }
 
 //------------------------------------------------------------------------------
-int vtkVoronoi3D::FillInputPortInformation(int, vtkInformation* info)
+int vtkVoronoiFlower3D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkVoronoi3D::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+int vtkVoronoiFlower3D::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  if (this->OutputType == vtkVoronoi3D::VORONOI || this->OutputType == vtkVoronoi3D::DELAUNAY)
+  if (this->OutputType == vtkVoronoiFlower3D::VORONOI ||
+    this->OutputType == vtkVoronoiFlower3D::DELAUNAY)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   }
@@ -1903,7 +1905,7 @@ int vtkVoronoi3D::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation
 //------------------------------------------------------------------------------
 // Since users have access to the locator we need to take into account the
 // locator's modified time.
-vtkMTimeType vtkVoronoi3D::GetMTime()
+vtkMTimeType vtkVoronoiFlower3D::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType time = this->Locator->GetMTime();
@@ -1911,7 +1913,7 @@ vtkMTimeType vtkVoronoi3D::GetMTime()
 }
 
 //------------------------------------------------------------------------------
-void vtkVoronoi3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVoronoiFlower3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

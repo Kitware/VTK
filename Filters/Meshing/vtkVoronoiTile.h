@@ -36,8 +36,8 @@
  * The tile is constructed in the x-y plane.
  *
  * @sa
- * vtkVoronoiHull vtkVoronoiCore2D vtkVoronoi2D vtkVoronoiCore3D vtkVoronoi3D
- * vtkGeneralizedSurfaceNets3D
+ * vtkVoronoiHull vtkVoronoiCore2D vtkVoronoiFlower2D vtkVoronoiCore3D
+ * vtkVoronoi3D vtkGeneralizedSurfaceNets3D
  */
 
 #ifndef vtkVoronoiTile_h

@@ -50,7 +50,7 @@ profile.GetPointData().AddArray(ids)
 profile.GetPointData().AddArray(regions)
 
 #
-voronoi = vtk.vtkVoronoi3D()
+voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.001)
 voronoi.SetGenerateCellScalarsToNone()

@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkVoronoi3D
+ * @class   vtkVoronoiFlower3D
  * @brief   create a 3D Voronoi tessellation of input points
  *
- * vtkVoronoi3D is a filter that constructs a 3D Voronoi tessellation of a
+ * vtkVoronoiFlower3D is a filter that constructs a 3D Voronoi tessellation of a
  * list of input points. The points are presumed to lie within 3D-space and
  * non-coincident. These points may be represented by any dataset of type
  * vtkPointSet and subclasses. Multiple different outputs of the filter are
@@ -120,14 +120,14 @@
  * Note that the class vtkGeneralizedSurfaceNets3D can also generate a
  * surface net. However the difference is that in vtkGeneralizedSurfaceNets3D
  * the label values are explicitly specified, only specified labels may
- * generate surfaces. The class vtkVoronoi3D will generate surfaces for each
+ * generate surfaces. The class vtkVoronoiFlower3D will generate surfaces for each
  * non-negative region id enumerated in the region ids array. In addition,
  * vtkGeneralizedSurfaceNets3D has the ability to smooth the resulting
  * surfaces, as well as perform auxiliary functions such as triangulating the
  * output polygons.
  *
  * @note
- * There are several utility classes that can be used with vtkVoronoi3D to
+ * There are several utility classes that can be used with vtkVoronoiFlower3D to
  * massage data and improve performance.
  * ```
  * vtkFillPointCloud can add points to a set of input points P. These points
@@ -136,7 +136,7 @@
  * improve the quality of the output mesh.
  *
  * vtkLabeledImagePointSampler can be used to transform a segmented image
- * into a point cloud suitable for processing by vtkVoronoi3D (and related
+ * into a point cloud suitable for processing by vtkVoronoiFlower3D (and related
  * filters). By using this filter along with image crop filters it is
  * possible to "snip" out areas of interest, producing a sample of points
  * and processing them as an input point cloud.
@@ -172,14 +172,14 @@
  *
  * @sa
  * vtkVoronoiCore3D vtkGeneralizedSurfaceNets3D vtkShellBinIterator
- * vtkVoronoi2D vtkDelaunay2D vtkDelaunay3D vtkSurfaceNets3D
+ * vtkVoronoiFlower2D vtkDelaunay2D vtkDelaunay3D vtkSurfaceNets3D
  * vtkSurfaceNets2D vtkConstrainedSmoothingFilter
  * vtkWindowedSincPolyDataFilter vtkJogglePoints
  * vtkLabeledImagePointSampler vtkFillPointCloud
  */
 
-#ifndef vtkVoronoi3D_h
-#define vtkVoronoi3D_h
+#ifndef vtkVoronoiFlower3D_h
+#define vtkVoronoiFlower3D_h
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersMeshingModule.h" // For export macro
@@ -190,15 +190,15 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkVoronoi3D : public vtkDataSetAlgorithm
+class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkVoronoiFlower3D : public vtkDataSetAlgorithm
 {
 public:
   ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
-  static vtkVoronoi3D* New();
-  vtkTypeMacro(vtkVoronoi3D, vtkDataSetAlgorithm);
+  static vtkVoronoiFlower3D* New();
+  vtkTypeMacro(vtkVoronoiFlower3D, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -478,8 +478,8 @@ public:
   void UpdateExecutionInformation(T* voro);
 
 protected:
-  vtkVoronoi3D();
-  ~vtkVoronoi3D() override = default;
+  vtkVoronoiFlower3D();
+  ~vtkVoronoiFlower3D() override = default;
 
   // Satisfy pipeline-related API
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -487,8 +487,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkVoronoi3D(const vtkVoronoi3D&) = delete;
-  void operator=(const vtkVoronoi3D&) = delete;
+  vtkVoronoiFlower3D(const vtkVoronoiFlower3D&) = delete;
+  void operator=(const vtkVoronoiFlower3D&) = delete;
 
   int OutputType;            // specification of the filter output
   double Padding;            // amount to pad out input points bounding box
@@ -516,7 +516,7 @@ private:
 
 //------------------------------------------------------------------------------
 template <typename T>
-void vtkVoronoi3D::UpdateExecutionInformation(T* voro)
+void vtkVoronoiFlower3D::UpdateExecutionInformation(T* voro)
 {
   this->NumberOfThreads = voro->GetNumberOfThreads();
   this->MaximumNumberOfPoints = voro->GetMaximumNumberOfPoints();

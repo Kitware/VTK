@@ -2,8 +2,8 @@ set(classes
   vtkAnnularBinIterator
   vtkGeneralizedSurfaceNets3D
   vtkShellBinIterator
-  vtkVoronoi2D
-  vtkVoronoi3D
+  vtkVoronoiFlower2D
+  vtkVoronoiFlower3D
   vtkVoronoiHull
   vtkVoronoiTile
   )

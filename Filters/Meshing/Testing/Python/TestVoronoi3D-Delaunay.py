@@ -55,7 +55,7 @@ ptActor.GetProperty().SetPointSize(2)
 
 # Tessellate them
 #
-voronoi = vtk.vtkVoronoi3D()
+voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.001)
 voronoi.SetGenerateCellScalarsToRandom()

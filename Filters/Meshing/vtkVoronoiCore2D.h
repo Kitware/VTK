@@ -96,7 +96,7 @@
  * points can be processed in well under one second elapsed time.
  *
  * @sa
- * vtkVoronoiTile vtkVoronoi2D vtkVoronoiHull vtkVoronoi3D
+ * vtkVoronoiTile vtkVoronoiFlower2D vtkVoronoiHull vtkVoronoi3D
  * vtkGeneralizedSurfaceNets3D
  */
 
@@ -125,7 +125,8 @@ VTK_ABI_NAMESPACE_BEGIN
  * members that represent Voronoi tile/hull points, and topological
  * coordinates.  To learn more (by way of examples), view the VTK tests
  * TestVoronoiCore2D.cxx and TestVoronoiCore3D.cxx, and the concrete VTK
- * filters vtkVoronoi2D, vtkVoronoi3D, and vtkGeneralizedSurfaceNets3D.
+ * filters vtkVoronoiFlower2D, vtkVoronoiFlower3D, and
+ * vtkGeneralizedSurfaceNets3D.
  */
 
 /**

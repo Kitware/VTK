@@ -30,7 +30,7 @@ output.GetPointData().SetScalars(regionIds)
 
 # Tessellate them
 #
-voronoi = vtk.vtkVoronoi3D()
+voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(output)
 voronoi.SetPadding(0.01)
 voronoi.SetGenerateCellScalarsToPointIds()

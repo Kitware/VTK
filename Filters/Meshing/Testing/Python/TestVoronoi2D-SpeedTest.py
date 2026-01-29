@@ -5,7 +5,7 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkCommonSystem import vtkTimerLog
-from vtkmodules.vtkFiltersMeshing import vtkVoronoi2D
+from vtkmodules.vtkFiltersMeshing import vtkVoronoiFlower2D
 
 import sys
 
@@ -36,7 +36,7 @@ profile.SetPoints(points)
 
 # Tessellate them
 #
-voronoi = vtkVoronoi2D()
+voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
 voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
 voronoi.SetGenerateCellScalarsToNone()

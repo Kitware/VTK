@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkVoronoiCore3D vtkVoronoi3D vtkGeneralizedSurfaceNets3D vtkVoronoiTile
- * vtkVoronoiCore2D vtkVoronoi2D
+ * vtkVoronoiCore2D vtkVoronoiFlower2D
  */
 
 #ifndef vtkVoronoiHull_h

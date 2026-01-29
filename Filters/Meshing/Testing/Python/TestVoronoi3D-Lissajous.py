@@ -24,7 +24,7 @@ lissa.Update()
 
 # Tessellate them
 #
-voronoi = vtk.vtkVoronoi3D()
+voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputConnection(lissa.GetOutputPort())
 voronoi.SetPadding(0.001)
 voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)

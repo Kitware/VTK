@@ -21,7 +21,7 @@ profile.SetPoints(points)
 
 # Tessellate them. Here we are only viewing one hull (the point of interest).
 #
-voronoi = vtk.vtkVoronoi3D()
+voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetGenerateCellScalarsToPrimIds()
 voronoi.SetOutputTypeToVoronoi()

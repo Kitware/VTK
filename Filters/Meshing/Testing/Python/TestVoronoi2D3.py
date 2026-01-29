@@ -14,7 +14,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkFlyingEdges2D,
     vtkGlyph3D,
 )
-from vtkmodules.vtkFiltersMeshing import vtkVoronoi2D
+from vtkmodules.vtkFiltersMeshing import vtkVoronoiFlower2D
 from vtkmodules.vtkFiltersSources import (
     vtkGlyphSource2D,
     vtkSphereSource,
@@ -67,7 +67,7 @@ ptActor.GetProperty().SetPointSize(2)
 # Generate Voronoi tessellation and Voronoi flower for
 # specified hull.
 #
-voronoi = vtkVoronoi2D()
+voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
 voronoi.SetOutputTypeToVoronoi()
 voronoi.SetGenerateCellScalarsToNone()

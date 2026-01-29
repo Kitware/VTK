@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkVoronoi2D
+ * @class   vtkVoronoiFlower2D
  * @brief   create 2D Voronoi convex tiling of input points
  *
- * vtkVoronoi2D is a filter that constructs a 2D Voronoi tessellation of a
+ * vtkVoronoiFlower2D is a filter that constructs a 2D Voronoi tessellation of a
  * set of input points. The points are assumed to lie in a plane. These
  * points may be represented by any dataset of type vtkPointSet and
  * subclasses. The output of the filter is a polygonal dataset. Each output
@@ -22,7 +22,7 @@
  * plane, and the z coordinate is ignored (although carried through to the
  * output). If you desire to tessellate in a different plane, you can use
  * the vtkTransformFilter to transform the points into and out of the x-y
- * plane, or you can specify a transform to vtkVoronoi2D directly.  In the
+ * plane, or you can specify a transform to vtkVoronoiFlower2D directly.  In the
  * latter case, the input points are transformed, the transformed points are
  * tessellated, and the output will use the tessellated topology for the
  * original (non-transformed) points.  This avoids transforming the data back
@@ -128,7 +128,7 @@
  * Delaunay triangulation and Voronoi adjacency graph).
  *
  * @note
- * There are several utility classes that can be used with vtkVoronoi2D (and
+ * There are several utility classes that can be used with vtkVoronoiFlower2D (and
  * related classes) to massage data and improve performance.
  * ```
  * vtkFillPointCloud can add points to a set of input points P. These points
@@ -180,8 +180,8 @@
  * vtkTransformFilter
  */
 
-#ifndef vtkVoronoi2D_h
-#define vtkVoronoi2D_h
+#ifndef vtkVoronoiFlower2D_h
+#define vtkVoronoiFlower2D_h
 
 #include "vtkAbstractTransform.h"    // For transforming input points
 #include "vtkFiltersMeshingModule.h" // For export macro
@@ -198,15 +198,15 @@ class vtkAbstractTransform;
 class vtkPointSet;
 class vtkSpheres;
 
-class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkVoronoi2D : public vtkPolyDataAlgorithm
+class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkVoronoiFlower2D : public vtkPolyDataAlgorithm
 {
 public:
   ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
-  static vtkVoronoi2D* New();
-  vtkTypeMacro(vtkVoronoi2D, vtkPolyDataAlgorithm);
+  static vtkVoronoiFlower2D* New();
+  vtkTypeMacro(vtkVoronoiFlower2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -539,8 +539,8 @@ public:
   void UpdateExecutionInformation(T* voro);
 
 protected:
-  vtkVoronoi2D();
-  ~vtkVoronoi2D() override = default;
+  vtkVoronoiFlower2D();
+  ~vtkVoronoiFlower2D() override = default;
 
   // Satisfy pipeline-related API
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -548,8 +548,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkVoronoi2D(const vtkVoronoi2D&) = delete;
-  void operator=(const vtkVoronoi2D&) = delete;
+  vtkVoronoiFlower2D(const vtkVoronoiFlower2D&) = delete;
+  void operator=(const vtkVoronoiFlower2D&) = delete;
 
   int OutputType;
   vtkTypeBool Validate;
@@ -580,7 +580,7 @@ private:
 
 //------------------------------------------------------------------------------
 template <typename T>
-void vtkVoronoi2D::UpdateExecutionInformation(T* voro)
+void vtkVoronoiFlower2D::UpdateExecutionInformation(T* voro)
 {
   this->NumberOfThreads = voro->GetNumberOfThreads();
   this->MaximumNumberOfPoints = voro->GetMaximumNumberOfPoints();

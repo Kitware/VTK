@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkVoronoi2D.h"
+#include "vtkVoronoiFlower2D.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -24,7 +24,7 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkVoronoi2D);
+vtkStandardNewMacro(vtkVoronoiFlower2D);
 
 //------------------------------------------------------------------------------
 namespace // anonymous
@@ -210,7 +210,7 @@ struct VOutput
   vtkPolyData* Output;
   const double* InPoints; // raw input points
   double* OutPoints;      // raw output points
-  vtkVoronoi2D* Filter;
+  vtkVoronoiFlower2D* Filter;
   const int* Regions; // optional segmentation labels
 
   const vtkMergeMapType* MergeMap; // used to merge points if requested
@@ -227,7 +227,8 @@ struct VOutput
   vtkIdType* CellScalars;
 
   VOutput(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
-    vtkVoronoi2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkPolyData* output)
+    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
+    vtkPolyData* output)
     : VC(vc)
     , Input(input)
     , Output(output)
@@ -274,22 +275,22 @@ struct VOutput
     vtkIdType s = 0;
     switch (this->GenerateCellScalars)
     {
-      case vtkVoronoi2D::POINT_IDS:
+      case vtkVoronoiFlower2D::POINT_IDS:
         s = ptId;
         break;
-      case vtkVoronoi2D::REGION_IDS:
+      case vtkVoronoiFlower2D::REGION_IDS:
         s = (this->Regions ? this->Regions[ptId] : 0);
         break;
-      case vtkVoronoi2D::NUMBER_SIDES:
+      case vtkVoronoiFlower2D::NUMBER_SIDES:
         s = numSpokes;
         break;
-      case vtkVoronoi2D::PRIM_IDS:
+      case vtkVoronoiFlower2D::PRIM_IDS:
         s = primId;
         break;
-      case vtkVoronoi2D::THREAD_IDS:
+      case vtkVoronoiFlower2D::THREAD_IDS:
         s = threadId;
         break;
-      case vtkVoronoi2D::RANDOM:
+      case vtkVoronoiFlower2D::RANDOM:
         auto& localGen = this->LocalGenerator.Local();
         // Make this repeatable, seed based on prim id
         localGen.Seed(primId);
@@ -334,7 +335,8 @@ struct OutputVoronoi : public VOutput
   double Z;
 
   OutputVoronoi(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
-    vtkVoronoi2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts, vtkPolyData* output)
+    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
+    vtkPolyData* output)
     : VOutput(vc, input, filter, mergeMap, numMergedPts, output)
   {
     // Allocate some point merging related structure if necessary.
@@ -486,7 +488,7 @@ struct OutputVoronoi : public VOutput
     Del2DCompositor& compositor = vc->Compositor;
     vtkIdType TotalPts = compositor.TotalNumPts;
     vtkIdType NumSpokes = vc->Graph.GetNumberOfSpokes();
-    vtkVoronoi2D* filter = static_cast<vtkVoronoi2D*>(vc->Filter);
+    vtkVoronoiFlower2D* filter = static_cast<vtkVoronoiFlower2D*>(vc->Filter);
 
     // Composite the data into the global filter output. Depending on merging, create
     // a merge map.
@@ -556,7 +558,7 @@ struct OutputVoronoi : public VOutput
 struct OutputDelaunay : public VOutput
 {
   OutputDelaunay(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
-    vtkVoronoi2D* filter, vtkPolyData* output)
+    vtkVoronoiFlower2D* filter, vtkPolyData* output)
     : VOutput(vc, input, filter, nullptr, 0, output)
   {
   }
@@ -615,7 +617,7 @@ struct OutputDelaunay : public VOutput
     // Grab some setup information
     Del2DCompositor& compositor = vc->Compositor;
     vtkIdType TotalTris = compositor.TotalNumTris;
-    vtkVoronoi2D* filter = static_cast<vtkVoronoi2D*>(vc->Filter);
+    vtkVoronoiFlower2D* filter = static_cast<vtkVoronoiFlower2D*>(vc->Filter);
 
     // Setup for generating Delaunay output
     OutputDelaunay dout(vc, input, filter, output);
@@ -730,7 +732,7 @@ struct OutputFlower
 //================= Begin VTK class proper =====================================
 //------------------------------------------------------------------------------
 // Construct object
-vtkVoronoi2D::vtkVoronoi2D()
+vtkVoronoiFlower2D::vtkVoronoiFlower2D()
 {
   this->OutputType = VORONOI; // Voronoi tessellation placed in output 0
   this->Validate = false;
@@ -766,7 +768,7 @@ vtkVoronoi2D::vtkVoronoi2D()
 }
 
 //------------------------------------------------------------------------------
-int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
@@ -884,7 +886,7 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
   // performed. This is used for benchmarking / debugging. Note that includes
   // validation and pruning (if enabled).
   int outputType = this->GetOutputType();
-  if (outputType == vtkVoronoi2D::SPEED_TEST)
+  if (outputType == vtkVoronoiFlower2D::SPEED_TEST)
   {
     vtkEmptyVoronoi2DClassifier speedClasifier(regions);
     auto speed =
@@ -911,13 +913,15 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
                 << output->GetNumberOfPoints() << " points");
 
   // If requested, produce the Voronoi output.
-  if (outputType == vtkVoronoi2D::VORONOI || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
+  if (outputType == vtkVoronoiFlower2D::VORONOI ||
+    outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
   {
     OutputVoronoi::Execute(voro.get(), tInput, output);
   } // Produce Voronoi output
 
   // If requested, produce the Delaunay output.
-  if (outputType == vtkVoronoi2D::DELAUNAY || outputType == vtkVoronoi2D::VORONOI_AND_DELAUNAY)
+  if (outputType == vtkVoronoiFlower2D::DELAUNAY ||
+    outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
   {
     OutputDelaunay::Execute(voro.get(), tInput, delOutput);
   } // Produce Voronoi output
@@ -977,7 +981,7 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkVoronoi2D::FindTile(double x[3])
+vtkIdType vtkVoronoiFlower2D::FindTile(double x[3])
 {
   // Make sure the filter has executed (i.e., a locator is available), and the
   // request is within the bounding box of the input points.
@@ -998,7 +1002,7 @@ vtkIdType vtkVoronoi2D::FindTile(double x[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkVoronoi2D::GetTileData(vtkIdType tileId, vtkPolyData* tileData)
+void vtkVoronoiFlower2D::GetTileData(vtkIdType tileId, vtkPolyData* tileData)
 {
   // Initialize the tile polydata
   if (tileData)
@@ -1013,8 +1017,8 @@ void vtkVoronoi2D::GetTileData(vtkIdType tileId, vtkPolyData* tileData)
   // Make sure the input is valid, a locator is available (i.e., the filter
   // has executed), and a Voronoi output has been produced.
   if (tileId < 0 || this->Locator == nullptr ||
-    (this->OutputType != vtkVoronoi2D::VORONOI &&
-      this->OutputType != vtkVoronoi2D::VORONOI_AND_DELAUNAY))
+    (this->OutputType != vtkVoronoiFlower2D::VORONOI &&
+      this->OutputType != vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY))
   {
     return;
   }
@@ -1048,7 +1052,7 @@ void vtkVoronoi2D::GetTileData(vtkIdType tileId, vtkPolyData* tileData)
 }
 
 //------------------------------------------------------------------------------
-int vtkVoronoi2D::FillInputPortInformation(int port, vtkInformation* info)
+int vtkVoronoiFlower2D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -1065,7 +1069,7 @@ int vtkVoronoi2D::FillInputPortInformation(int port, vtkInformation* info)
 //------------------------------------------------------------------------------
 // Since users have access to the locator we need to take into account the
 // locator's modified time.
-vtkMTimeType vtkVoronoi2D::GetMTime()
+vtkMTimeType vtkVoronoiFlower2D::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
   vtkMTimeType time = this->Locator->GetMTime();
@@ -1073,7 +1077,7 @@ vtkMTimeType vtkVoronoi2D::GetMTime()
 }
 
 //------------------------------------------------------------------------------
-void vtkVoronoi2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVoronoiFlower2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
