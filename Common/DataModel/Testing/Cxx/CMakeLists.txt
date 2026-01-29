@@ -152,6 +152,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestLagrangeTetra.cxx
   TestLagrangeWedge.cxx
   quadraticIntersection.cxx
+  TestPolyDataIncorrectConnectivity.cxx,NO_VALID,NO_OUTPUT
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT
   TestCellLocator.cxx,NO_DATA
   TestCellLocatorsEdgeCases.cxx,NO_VALID
