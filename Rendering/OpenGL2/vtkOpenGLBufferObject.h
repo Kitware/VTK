@@ -161,7 +161,8 @@ inline bool vtkOpenGLBufferObject::Upload(
     return false;
   }
 
-  return this->UploadInternal(&array[0], array.size() * sizeof(typename T::value_type), objectType);
+  return this->UploadInternal(
+    array.data(), array.size() * sizeof(typename T::value_type), objectType);
 }
 
 template <class T>
@@ -187,7 +188,7 @@ inline bool vtkOpenGLBufferObject::UploadRange(
   }
 
   return this->UploadRangeInternal(
-    &array[0], offset, array.size() * sizeof(typename T::value_type), objectType);
+    array.data(), offset, array.size() * sizeof(typename T::value_type), objectType);
 }
 template <class T>
 inline bool vtkOpenGLBufferObject::UploadRange(const T* array, ptrdiff_t offset, size_t numElements,
