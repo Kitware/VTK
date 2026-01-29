@@ -372,7 +372,7 @@ int vtkMNITransformWriter::WriteFile()
   // Get the local time and write as first comment line
   std::time_t t = std::time(nullptr);
   tm local;
-#ifdef VTK_COMPILER_MSVC
+#ifdef _WIN32
   localtime_s(&local, &t);
 #else
   localtime_r(&t, &local);
