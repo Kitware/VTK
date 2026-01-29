@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkArrayComponents.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
@@ -29,12 +30,6 @@
 #include <string>
 #include <vector>
 
-#ifndef vtkFloatingPointTemplateMacro
-#define vtkFloatingPointTemplateMacro(call)                                                        \
-  vtkTemplateMacroCase(VTK_DOUBLE, double, call);                                                  \
-  vtkTemplateMacroCase(VTK_FLOAT, float, call)
-#endif
-
 // Helper to compute range
 static void Range(vtkDataArray* S, double* range)
 {
@@ -44,36 +39,9 @@ static void Range(vtkDataArray* S, double* range)
   range[1] = Srange[1] > range[1] ? Srange[1] : range[1];
 }
 
-// helper to compute magnitude
-static vtkDataArray* Magnitude(vtkDataArray* V)
-{
-  vtkIdType nTups = V->GetNumberOfTuples();
-  vtkIdType nComps = V->GetNumberOfComponents();
-  vtkDataArray* magV = V->NewInstance();
-  magV->SetNumberOfTuples(nTups);
-  switch (V->GetDataType())
-  {
-    vtkFloatingPointTemplateMacro(VTK_TT* pV = (VTK_TT*)V->GetVoidPointer(0);
-                                  VTK_TT* pMagV = (VTK_TT*)magV->GetVoidPointer(0);
-                                  for (vtkIdType i = 0; i < nTups; ++i) {
-                                    VTK_TT mag = VTK_TT(0);
-                                    for (vtkIdType j = 0; j < nComps; ++j)
-                                    {
-                                      VTK_TT v = pV[i * nComps + j];
-                                      mag += v * v;
-                                    }
-                                    pMagV[i] = sqrt(mag);
-                                  });
-    default:
-      std::cerr << "ERROR: vectors must be float or double" << std::endl;
-      break;
-  }
-  return magV;
-}
-
 // Compute the magnitude of the named vector and add it to
 // dataset, return range.
-static vtkDataArray* Magnitude(vtkDataSet* ds, std::string& vectors)
+static vtkSmartPointer<vtkDataArray> Magnitude(vtkDataSet* ds, std::string& vectors)
 {
   vtkDataArray* V = nullptr;
   V = ds->GetPointData()->GetArray(vectors.c_str());
@@ -82,7 +50,7 @@ static vtkDataArray* Magnitude(vtkDataSet* ds, std::string& vectors)
     std::cerr << "ERROR: point vectors " << vectors << " not found" << std::endl;
     return nullptr;
   }
-  vtkDataArray* magV = Magnitude(V);
+  auto magV = vtk::ComponentOrNormAsDataArray(V, L2Norm);
   std::string magVName = "mag" + vectors;
   magV->SetName(magVName.c_str());
   return magV;
@@ -204,11 +172,10 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
         vtkDataSet* ds = dynamic_cast<vtkDataSet*>(iter->GetCurrentDataObject());
         if (ds && ds->GetNumberOfCells())
         {
-          vtkDataArray* magV = Magnitude(ds, vectors);
+          auto magV = Magnitude(ds, vectors);
           magVName = magV->GetName();
           Range(magV, range);
           ds->GetPointData()->SetScalars(magV);
-          magV->Delete();
         }
       }
       iter->Delete();
@@ -216,11 +183,10 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
     vtkDataSet* ds = dynamic_cast<vtkDataSet*>(dataObj);
     if (ds && ds->GetNumberOfCells())
     {
-      vtkDataArray* magV = Magnitude(ds, vectors);
+      auto magV = Magnitude(ds, vectors);
       magVName = magV->GetName();
       Range(magV, range);
       ds->GetPointData()->SetScalars(magV);
-      magV->Delete();
     }
     if (!magVName)
     {
