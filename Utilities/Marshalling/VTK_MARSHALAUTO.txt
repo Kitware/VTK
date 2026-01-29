@@ -620,12 +620,16 @@ Rendering/OpenGL2/vtkVolumetricPass.h
 Rendering/OpenGL2/vtkWebAssemblyOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkWin32OpenGLRenderWindow.h
 Rendering/OpenGL2/vtkXOpenGLRenderWindow.h
+Rendering/UI/vtkCocoaHardwareView.h
+Rendering/UI/vtkCocoaHardwareWindow.h
 Rendering/UI/vtkCocoaRenderWindowInteractor.h
 Rendering/UI/vtkGenericRenderWindowInteractor.h
+Rendering/UI/vtkWebAssemblyHardwareWindow.h
 Rendering/UI/vtkWebAssemblyRenderWindowInteractor.h
 Rendering/UI/vtkWin32HardwareWindow.h
 Rendering/UI/vtkWin32RenderWindowInteractor.h
 Rendering/UI/vtkXRenderWindowInteractor.h
+Rendering/UI/vtkXlibHardwareWindow.h
 Rendering/Volume/vtkFixedPointVolumeRayCastMapper.h
 Rendering/Volume/vtkGPUVolumeRayCastMapper.h
 Rendering/Volume/vtkProjectedTetrahedraMapper.h
@@ -637,7 +641,6 @@ Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkSmartVolumeMapper.h
-Rendering/WebGPU/vtkWebAssemblyWebGPURenderWindow.h
 Rendering/WebGPU/vtkWebGPUActor.h
 Rendering/WebGPU/vtkWebGPUCamera.h
 Rendering/WebGPU/vtkWebGPUComputeFrustumCuller.h
@@ -657,7 +660,6 @@ Rendering/WebGPU/vtkWebGPUShaderDatabase.h
 Rendering/WebGPU/vtkWebGPUShaderProperty.h
 Rendering/WebGPU/vtkWebGPUTextureDeviceResource.h
 Rendering/WebGPU/vtkWebGPUTextureView.h
-Rendering/WebGPU/vtkXWebGPURenderWindow.h
 Views/Context2D/vtkContextInteractorStyle.h
 Views/Context2D/vtkContextView.h
 Views/Core/vtkConvertSelectionDomain.h

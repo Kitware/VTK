@@ -34,24 +34,23 @@ class vtkTypeUInt32Array;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderWindow : public vtkRenderWindow
 {
 public:
+  /**
+   * Instantiate the class.
+   */
+  static vtkWebGPURenderWindow* New();
+
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Concrete render windows must create a platform window and initialize this->WindowId.
-   * Upon success, please call WGPUInit().
-   */
-  virtual bool WindowSetup() = 0;
-
-  /**
    * Create a not-off-screen window.
    */
-  virtual void CreateAWindow() = 0;
+  virtual void CreateAWindow();
 
   /**
    * Destroy a not-off-screen window.
    */
-  virtual void DestroyWindow() = 0;
+  virtual void DestroyWindow() {}
 
   /**
    * Creates the WebGPU context, swapchain, depth buffer, color attachment, ...
@@ -296,6 +295,21 @@ public:
   };
   vtkSmartPointer<vtkImageData> SaveAttachmentToVTI(AttachmentTypeForVTISnapshot type);
 
+  /**
+   * Set the interactor for the window
+   */
+  void SetInteractor(vtkRenderWindowInteractor*) override;
+
+  /**
+   * Ensure RenderWindow's display is opened
+   */
+  bool EnsureDisplay() override;
+
+  /**
+   * Get the generic display id for the window.
+   */
+  void* GetGenericDisplayId() override;
+
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;
@@ -308,11 +322,12 @@ protected:
    *     "Visualization Toolkit - Cocoa OpenGL"
    *     "Visualization Toolkit - Win32 D3D12"
    */
-  virtual std::string MakeDefaultWindowNameWithBackend() = 0;
+  virtual std::string MakeDefaultWindowNameWithBackend();
 
   bool WGPUInit();
   void WGPUFinalize();
 
+  void CreateSurface();
   void ConfigureSurface();
   void UnconfigureSurface();
 
@@ -331,6 +346,8 @@ protected:
   void RecreateComputeRenderTextures();
 
   void RenderOffscreenTexture();
+
+  virtual void SyncWithHardware();
 
   bool RenderTexturesSetup = false;
 

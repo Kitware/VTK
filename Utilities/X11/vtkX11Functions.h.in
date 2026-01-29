@@ -40,7 +40,9 @@
 #include "vtkABINamespace.h" // For VTK_ABI_NAMESPACE_BEGIN/END
 #include "vtkx11Module.h"    // For export macro
 
+#ifndef VTK_USE_X
 #cmakedefine VTK_USE_X
+#endif
 #cmakedefine01 VTK_HAVE_XCURSOR
 #if defined(VTK_USE_X)
 #include <X11/X.h>
@@ -83,6 +85,7 @@
 #define vtkXGetWindowProperty VTK_ABI_NAMESPACE_MANGLE(vtkXGetWindowProperty)
 #define vtkXGrabKeyboard VTK_ABI_NAMESPACE_MANGLE(vtkXGrabKeyboard)
 #define vtkXIfEvent VTK_ABI_NAMESPACE_MANGLE(vtkXIfEvent)
+#define vtkXInitThreads VTK_ABI_NAMESPACE_MANGLE(vtkXInitThreads)
 #define vtkXLookupString VTK_ABI_NAMESPACE_MANGLE(vtkXLookupString)
 #define vtkXMapWindow VTK_ABI_NAMESPACE_MANGLE(vtkXMapWindow)
 #define vtkXMoveWindow VTK_ABI_NAMESPACE_MANGLE(vtkXMoveWindow)
@@ -112,6 +115,8 @@
 #define vtkXRootWindowOfScreen VTK_ABI_NAMESPACE_MANGLE(vtkXRootWindowOfScreen)
 #define vtkXRootWindow VTK_ABI_NAMESPACE_MANGLE(vtkXRootWindow)
 #define vtkXGetVisualInfo VTK_ABI_NAMESPACE_MANGLE(vtkXGetVisualInfo)
+#define vtkXMatchVisualInfo VTK_ABI_NAMESPACE_MANGLE(vtkXMatchVisualInfo)
+#define vtkXGetErrorText VTK_ABI_NAMESPACE_MANGLE(vtkXGetErrorText)
 
 #if VTK_HAVE_XCURSOR
 #define vtkXcursorFilenameLoadCursor VTK_ABI_NAMESPACE_MANGLE(vtkXcursorFilenameLoadCursor)
@@ -125,6 +130,14 @@
 // we require C compatibility because this file is included in ThirdParty/glad/src/glx.c
 // which is compiled as C, not C++
 #ifdef __cplusplus
+#define vtkXTextProperty VTK_ABI_NAMESPACE_MANGLE(vtkXTextProperty)
+VTK_ABI_NAMESPACE_BEGIN
+#if defined(VTK_USE_X)
+struct vtkXVisualInfo : public XVisualInfo
+{
+};
+#endif // defined(VTK_USE_X)
+VTK_ABI_NAMESPACE_END
 extern "C"
 {
 #endif // __cplusplus
@@ -168,6 +181,7 @@ extern "C"
   typedef int (*vtkXGrabKeyboardType)(Display*, Window, Bool, int, int, Time);
   typedef int (*vtkXIfEventType)(
     Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
+  typedef Status (*vtkXInitThreadsType)(void);
   typedef int (*vtkXLookupStringType)(XKeyEvent*, char*, int, KeySym*, XComposeStatus*);
   typedef int (*vtkXMapWindowType)(Display*, Window);
   typedef int (*vtkXMoveWindowType)(Display*, Window, int, int);
@@ -199,6 +213,8 @@ extern "C"
   typedef Window (*vtkXRootWindowOfScreenType)(Screen*);
   typedef Window (*vtkXRootWindowType)(Display*, int);
   typedef XVisualInfo* (*vtkXGetVisualInfoType)(Display*, long, XVisualInfo*, int*);
+  typedef int (*vtkXMatchVisualInfoType)(Display*, int, int, int, XVisualInfo*);
+  typedef int (*vtkXGetErrorTextType)(Display*, int, char*, int);
   // Xcursor API
 #if VTK_HAVE_XCURSOR
   typedef Cursor (*vtkXcursorFilenameLoadCursorType)(Display*, const char*);
@@ -235,6 +251,7 @@ extern "C"
   VTKX11_EXPORT extern vtkXGetWindowPropertyType vtkXGetWindowProperty;
   VTKX11_EXPORT extern vtkXGrabKeyboardType vtkXGrabKeyboard;
   VTKX11_EXPORT extern vtkXIfEventType vtkXIfEvent;
+  VTKX11_EXPORT extern vtkXInitThreadsType vtkXInitThreads;
   VTKX11_EXPORT extern vtkXLookupStringType vtkXLookupString;
   VTKX11_EXPORT extern vtkXMapWindowType vtkXMapWindow;
   VTKX11_EXPORT extern vtkXMoveWindowType vtkXMoveWindow;
@@ -264,6 +281,8 @@ extern "C"
   VTKX11_EXPORT extern vtkXRootWindowOfScreenType vtkXRootWindowOfScreen;
   VTKX11_EXPORT extern vtkXRootWindowType vtkXRootWindow;
   VTKX11_EXPORT extern vtkXGetVisualInfoType vtkXGetVisualInfo;
+  VTKX11_EXPORT extern vtkXMatchVisualInfoType vtkXMatchVisualInfo;
+  VTKX11_EXPORT extern vtkXGetErrorTextType vtkXGetErrorText;
   // Xcursor API
 #if VTK_HAVE_XCURSOR
   VTKX11_EXPORT extern vtkXcursorFilenameLoadCursorType vtkXcursorFilenameLoadCursor;

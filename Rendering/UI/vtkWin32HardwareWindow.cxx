@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include "vtksys/Encoding.hxx"
+
 #include "vtkObjectFactory.h"
 
 //============================================================================
@@ -12,14 +14,15 @@ vtkStandardNewMacro(vtkWin32HardwareWindow);
 
 //------------------------------------------------------------------------------
 vtkWin32HardwareWindow::vtkWin32HardwareWindow()
-  : ApplicationInstance(0)
-  , ParentId(0)
-  , WindowId(0)
+  : ParentId(nullptr)
+  , WindowId(nullptr)
+  , ApplicationInstance(nullptr)
 {
+  this->Platform = "Win32";
 }
 
 //------------------------------------------------------------------------------
-vtkWin32HardwareWindow::~vtkWin32HardwareWindow() {}
+vtkWin32HardwareWindow::~vtkWin32HardwareWindow() = default;
 
 //------------------------------------------------------------------------------
 void vtkWin32HardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -27,41 +30,49 @@ void vtkWin32HardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+// ----------------------------------------------------------------------------
 HINSTANCE vtkWin32HardwareWindow::GetApplicationInstance()
 {
   return this->ApplicationInstance;
 }
 
+// ----------------------------------------------------------------------------
 HWND vtkWin32HardwareWindow::GetWindowId()
 {
   return this->WindowId;
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetDisplayId(void* arg)
 {
   this->ApplicationInstance = (HINSTANCE)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetWindowId(void* arg)
 {
   this->WindowId = (HWND)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetParentId(void* arg)
 {
   this->ParentId = (HWND)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericDisplayId()
 {
   return this->ApplicationInstance;
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericWindowId()
 {
   return this->WindowId;
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericParentId()
 {
   return this->ParentId;
@@ -89,6 +100,7 @@ void AdjustWindowRectForBorders(
 }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::Create()
 {
   // get the application instance if we don't have one already
@@ -107,17 +119,17 @@ void vtkWin32HardwareWindow::Create()
 
   // has the class been registered ?
   WNDCLASSA wndClass;
-  if (!GetClassInfoA(this->ApplicationInstance, "vtkOpenGL", &wndClass))
+  if (!GetClassInfoA(this->ApplicationInstance, "vtkWin32", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-    wndClass.lpfnWndProc = DefWindowProc;
+    wndClass.lpfnWndProc = vtkWin32HardwareWindow::WndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = this->ApplicationInstance;
     wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = nullptr;
-    wndClass.lpszClassName = "vtkOpenGL";
+    wndClass.lpszClassName = "vtkWin32";
     // vtk doesn't use the first extra vtkLONG's worth of bytes,
     // but app writers may want them, so we provide them. VTK
     // does use the second vtkLONG's worth of bytes of extra space.
@@ -136,7 +148,7 @@ void vtkWin32HardwareWindow::Create()
     if (this->ParentId)
     {
       this->WindowId =
-        CreateWindowA("vtkVulkan", "VTK - Vulkan", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        CreateWindowA("vtkWin32", "VTK - Win32", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height, this->ParentId, nullptr, this->ApplicationInstance, nullptr);
     }
     else
@@ -151,8 +163,8 @@ void vtkWin32HardwareWindow::Create()
         style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
       }
       RECT r;
-      AdjustWindowRectForBorders(0, style, x, y, width, height, r);
-      this->WindowId = CreateWindowA("vtkOpenGL", "VTK - Vulkan", style, x, y, r.right - r.left,
+      AdjustWindowRectForBorders(nullptr, style, x, y, width, height, r);
+      this->WindowId = CreateWindowA("vtkWin32", "VTK - Win32", style, x, y, r.right - r.left,
         r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
     }
 
@@ -173,10 +185,11 @@ void vtkWin32HardwareWindow::Create()
   }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::Destroy()
 {
   ::DestroyWindow(this->WindowId); // windows api
-  this->WindowId = 0;
+  this->WindowId = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -186,6 +199,11 @@ void vtkWin32HardwareWindow::SetSize(int x, int y)
   if ((this->Size[0] != x) || (this->Size[1] != y))
   {
     this->Superclass::SetSize(x, y);
+
+    if (this->Interactor)
+    {
+      this->Interactor->SetSize(x, y);
+    }
 
     if (!this->UseOffScreenBuffers)
     {
@@ -212,6 +230,7 @@ void vtkWin32HardwareWindow::SetSize(int x, int y)
   }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetPosition(int x, int y)
 {
   static bool resizing = false;
@@ -233,4 +252,187 @@ void vtkWin32HardwareWindow::SetPosition(int x, int y)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+LRESULT APIENTRY vtkWin32HardwareWindow::WndProc(
+  HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  LRESULT res;
+
+  vtkWin32HardwareWindow* me = (vtkWin32HardwareWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
+
+  if (me && me->GetReferenceCount() > 0)
+  {
+    me->Register(me);
+    res = me->MessageProc(hWnd, message, wParam, lParam);
+    me->UnRegister(me);
+  }
+  else
+  {
+    res = DefWindowProc(hWnd, message, wParam, lParam);
+  }
+
+  return res;
+}
+
+//------------------------------------------------------------------------------
+LRESULT vtkWin32HardwareWindow::MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  switch (message)
+  {
+    case WM_CREATE:
+    {
+      // nothing to be done here, opengl is initialized after the call to
+      // create now
+      return 0;
+    }
+    case WM_DESTROY:
+      return 0;
+    case WM_SIZE:
+      /* track window size changes */
+      if (this->WindowId)
+      {
+        this->SetSize((int)LOWORD(lParam), (int)HIWORD(lParam));
+        return 0;
+      }
+      break;
+    case WM_SETTEXT:
+    {
+      // Support for UTF-8, DefWindowProcW has to be called
+      // see https://stackoverflow.com/a/11515400
+      std::wstring wStr = vtksys::Encoding::ToWide((char*)(lParam));
+      return DefWindowProcW(hWnd, message, wParam, (LPARAM)wStr.c_str());
+    }
+    case WM_PALETTECHANGED:
+      /* realize palette if this is *not* the current window */
+      break;
+    case WM_QUERYNEWPALETTE:
+      break;
+    case WM_PAINT:
+      break;
+    case WM_ERASEBKGND:
+      return TRUE;
+    case WM_SETCURSOR:
+      if (HTCLIENT == LOWORD(lParam))
+      {
+        this->SetCurrentCursor(this->GetCurrentCursor());
+        return TRUE;
+      }
+      break;
+    default:
+      this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
+      break;
+  }
+  return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::HideCursor()
+{
+  if (this->CursorHidden)
+  {
+    return;
+  }
+  this->CursorHidden = 1;
+
+  ::ShowCursor(!this->CursorHidden);
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::ShowCursor()
+{
+  if (!this->CursorHidden)
+  {
+    return;
+  }
+  this->CursorHidden = 0;
+
+  ::ShowCursor(!this->CursorHidden);
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::SetCursorPosition(int x, int y)
+{
+  const int* size = this->GetSize();
+
+  POINT point;
+  point.x = x;
+  point.y = size[1] - y - 1;
+
+  if (ClientToScreen(this->WindowId, &point))
+  {
+    SetCursorPos(point.x, point.y);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::SetCurrentCursor(int shape)
+{
+  if (this->InvokeEvent(vtkCommand::CursorChangedEvent, &shape))
+  {
+    return;
+  }
+  this->Superclass::SetCurrentCursor(shape);
+  LPCTSTR cursorName = 0;
+  switch (shape)
+  {
+    case VTK_CURSOR_DEFAULT:
+    case VTK_CURSOR_ARROW:
+      cursorName = IDC_ARROW;
+      break;
+    case VTK_CURSOR_SIZENE:
+    case VTK_CURSOR_SIZESW:
+      cursorName = IDC_SIZENESW;
+      break;
+    case VTK_CURSOR_SIZENW:
+    case VTK_CURSOR_SIZESE:
+      cursorName = IDC_SIZENWSE;
+      break;
+    case VTK_CURSOR_SIZENS:
+      cursorName = IDC_SIZENS;
+      break;
+    case VTK_CURSOR_SIZEWE:
+      cursorName = IDC_SIZEWE;
+      break;
+    case VTK_CURSOR_SIZEALL:
+      cursorName = IDC_SIZEALL;
+      break;
+    case VTK_CURSOR_HAND:
+#if (WINVER >= 0x0500)
+      cursorName = IDC_HAND;
+#else
+      cursorName = IDC_ARROW;
+#endif
+      break;
+    case VTK_CURSOR_CROSSHAIR:
+      cursorName = IDC_CROSS;
+      break;
+    case VTK_CURSOR_CUSTOM:
+      cursorName = static_cast<LPCTSTR>(this->GetCursorFileName());
+      break;
+    default:
+      cursorName = 0;
+      break;
+  }
+
+  if (cursorName)
+  {
+    UINT fuLoad = LR_SHARED | LR_DEFAULTSIZE;
+    if (shape == VTK_CURSOR_CUSTOM)
+    {
+      fuLoad |= LR_LOADFROMFILE;
+    }
+    HANDLE cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, fuLoad);
+    if (!cursor)
+    {
+      vtkErrorMacro("failed to load requested cursor shape " << GetLastError());
+    }
+    else
+    {
+      SetCursor((HCURSOR)cursor);
+      DestroyCursor((HCURSOR)cursor);
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END

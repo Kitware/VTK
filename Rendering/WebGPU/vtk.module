@@ -13,6 +13,7 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
   VTK::RenderingCore
+  VTK::RenderingUI
   VTK::IOImage
 PRIVATE_DEPENDS
   VTK::CommonDataModel

@@ -53,7 +53,7 @@
 #include <vtkUnsignedCharArray.h>
 #include <vtkWebAssemblyOpenGLRenderWindow.h>
 #include <vtkWebAssemblyRenderWindowInteractor.h>
-#include <vtkWebAssemblyWebGPURenderWindow.h>
+#include <vtkWebGPURenderWindow.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkXMLMultiBlockDataReader.h>
 #include <vtkXMLPartitionedDataSetCollectionReader.h>
@@ -457,7 +457,7 @@ void GeometryViewer::Initialize()
   this->P->Window->SetInteractor(this->P->Interactor);
   auto iren = vtkWebAssemblyRenderWindowInteractor::SafeDownCast(this->P->Interactor);
   iren->SetCanvasSelector("#vtk-3d-canvas");
-  if (auto wasmWebGPURenderWindow = vtkWebAssemblyWebGPURenderWindow::SafeDownCast(this->P->Window))
+  if (auto wasmWebGPURenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->P->Window))
   {
     wasmWebGPURenderWindow->SetCanvasSelector("#vtk-3d-canvas");
   }

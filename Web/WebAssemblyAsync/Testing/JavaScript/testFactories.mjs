@@ -1,19 +1,18 @@
 function makeStatesForGraphicsAPI(graphicsAPI) {
   return [{
-    Id: 1,
-    ClassName: `vtkWebAssembly${graphicsAPI}RenderWindow`,
-    Interactor: { Id: 2 },
-    Renderers: { Id: 3 },
-    Size: [800, 600],
-    SuperClassNames: [
-      "vtkObjectBase",
-      "vtkObject",
-      "vtkWindow",
-      "vtkRenderWindow",
-      `vtk${graphicsAPI}RenderWindow`],
-    "vtk-object-manager-kept-alive": true,
-  },
-  {
+  //   Id: 1,
+  //   ClassName: `vtk${graphicsAPI}RenderWindow`,
+  //   Interactor: { Id: 2 },
+  //   Renderers: { Id: 3 },
+  //   Size: [800, 600],
+  //   SuperClassNames: [
+  //     "vtkObjectBase",
+  //     "vtkObject",
+  //     "vtkWindow",
+  //     "vtkRenderWindow"],
+  //   "vtk-object-manager-kept-alive": true,
+  // },
+  // {
     Id: 2,
     ClassName: "vtkRenderWindowInteractor",
     SuperClassNames: [

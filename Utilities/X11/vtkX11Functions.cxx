@@ -54,6 +54,7 @@ DEFINE_POINTER_TO_FUNCTION(vtkXGetWindowAttributes);
 DEFINE_POINTER_TO_FUNCTION(vtkXGetWindowProperty);
 DEFINE_POINTER_TO_FUNCTION(vtkXGrabKeyboard);
 DEFINE_POINTER_TO_FUNCTION(vtkXIfEvent);
+DEFINE_POINTER_TO_FUNCTION(vtkXInitThreads);
 DEFINE_POINTER_TO_FUNCTION(vtkXLookupString);
 DEFINE_POINTER_TO_FUNCTION(vtkXMapWindow);
 DEFINE_POINTER_TO_FUNCTION(vtkXMoveWindow);
@@ -83,6 +84,8 @@ DEFINE_POINTER_TO_FUNCTION(vtkXCreateWindow);
 DEFINE_POINTER_TO_FUNCTION(vtkXRootWindowOfScreen);
 DEFINE_POINTER_TO_FUNCTION(vtkXRootWindow);
 DEFINE_POINTER_TO_FUNCTION(vtkXGetVisualInfo);
+DEFINE_POINTER_TO_FUNCTION(vtkXMatchVisualInfo);
+DEFINE_POINTER_TO_FUNCTION(vtkXGetErrorText);
 
 // Xcursor API
 #if VTK_HAVE_XCURSOR
@@ -150,6 +153,7 @@ extern "C"
       LOAD_POINTER_TO_FUNCTION(libX11, XGetWindowProperty, vtkXGetWindowProperty);
       LOAD_POINTER_TO_FUNCTION(libX11, XGrabKeyboard, vtkXGrabKeyboard);
       LOAD_POINTER_TO_FUNCTION(libX11, XIfEvent, vtkXIfEvent);
+      LOAD_POINTER_TO_FUNCTION(libX11, XInitThreads, vtkXInitThreads);
       LOAD_POINTER_TO_FUNCTION(libX11, XLookupString, vtkXLookupString);
       LOAD_POINTER_TO_FUNCTION(libX11, XMapWindow, vtkXMapWindow);
       LOAD_POINTER_TO_FUNCTION(libX11, XMoveWindow, vtkXMoveWindow);
@@ -179,6 +183,8 @@ extern "C"
       LOAD_POINTER_TO_FUNCTION(libX11, XRootWindowOfScreen, vtkXRootWindowOfScreen);
       LOAD_POINTER_TO_FUNCTION(libX11, XRootWindow, vtkXRootWindow);
       LOAD_POINTER_TO_FUNCTION(libX11, XGetVisualInfo, vtkXGetVisualInfo);
+      LOAD_POINTER_TO_FUNCTION(libX11, XMatchVisualInfo, vtkXMatchVisualInfo);
+      LOAD_POINTER_TO_FUNCTION(libX11, XGetErrorText, vtkXGetErrorText);
 #if VTK_HAVE_XCURSOR
       for (const char** libName = XCURSOR_LIBRARY_NAMES; *libName != nullptr; ++libName)
       {
@@ -236,6 +242,7 @@ extern "C"
       NULLIFY_POINTER_TO_FUNCTION(vtkXGetWindowProperty);
       NULLIFY_POINTER_TO_FUNCTION(vtkXGrabKeyboard);
       NULLIFY_POINTER_TO_FUNCTION(vtkXIfEvent);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXInitThreads);
       NULLIFY_POINTER_TO_FUNCTION(vtkXLookupString);
       NULLIFY_POINTER_TO_FUNCTION(vtkXMapWindow);
       NULLIFY_POINTER_TO_FUNCTION(vtkXMoveWindow);
@@ -265,6 +272,8 @@ extern "C"
       NULLIFY_POINTER_TO_FUNCTION(vtkXRootWindowOfScreen);
       NULLIFY_POINTER_TO_FUNCTION(vtkXRootWindow);
       NULLIFY_POINTER_TO_FUNCTION(vtkXGetVisualInfo);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXMatchVisualInfo);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXGetErrorText);
 
 // Xcursor API
 #if VTK_HAVE_XCURSOR

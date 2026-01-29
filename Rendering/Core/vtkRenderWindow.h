@@ -37,10 +37,11 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkFloatArray;
-class vtkProp;
 class vtkCollection;
+class vtkFloatArray;
+class vtkHardwareWindow;
 class vtkMatrix4x4;
+class vtkProp;
 class vtkRenderTimerLog;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
@@ -61,19 +62,6 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_FAKE 10
 #define VTK_STEREO_EMULATE 11
 #define VTK_STEREO_ZSPACE_INSPIRE 12
-
-#define VTK_CURSOR_DEFAULT 0
-#define VTK_CURSOR_ARROW 1
-#define VTK_CURSOR_SIZENE 2
-#define VTK_CURSOR_SIZENW 3
-#define VTK_CURSOR_SIZESW 4
-#define VTK_CURSOR_SIZESE 5
-#define VTK_CURSOR_SIZENS 6
-#define VTK_CURSOR_SIZEWE 7
-#define VTK_CURSOR_SIZEALL 8
-#define VTK_CURSOR_HAND 9
-#define VTK_CURSOR_CROSSHAIR 10
-#define VTK_CURSOR_CUSTOM 11
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderWindow : public vtkWindow
 {
@@ -202,51 +190,11 @@ public:
 
   ///@{
   /**
-   * Hide or Show the mouse cursor, it is nice to be able to hide the
-   * default cursor if you want VTK to display a 3D cursor instead.
-   * Set cursor position in window (note that (0,0) is the lower left
-   * corner).
-   */
-  virtual void HideCursor() {}
-  virtual void ShowCursor() {}
-  virtual void SetCursorPosition(int, int) {}
-  ///@}
-
-  ///@{
-  /**
-   * Change the shape of the cursor.
-   */
-  vtkSetMacro(CurrentCursor, int);
-  vtkGetMacro(CurrentCursor, int);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the full path to the custom cursor.
-   * This is used when the current cursor is set to VTK_CURSOR_CUSTOM.
-   */
-  vtkSetFilePathMacro(CursorFileName);
-  vtkGetFilePathMacro(CursorFileName);
-  ///@}
-
-  ///@{
-  /**
    * Turn on/off rendering full screen window size.
    */
   virtual void SetFullScreen(vtkTypeBool) {}
   vtkGetMacro(FullScreen, vtkTypeBool);
   vtkBooleanMacro(FullScreen, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off window manager borders. Typically, you shouldn't turn the
-   * borders off, because that bypasses the window manager and can cause
-   * undesirable behavior.
-   */
-  vtkSetMacro(Borders, vtkTypeBool);
-  vtkGetMacro(Borders, vtkTypeBool);
-  vtkBooleanMacro(Borders, vtkTypeBool);
   ///@}
 
   ///@{
@@ -738,7 +686,7 @@ public:
   vtkBooleanMacro(UseSRGBColorSpace, bool);
   ///@}
 
-  enum
+  enum : vtkTypeUInt16
   {
     PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
   };
@@ -835,6 +783,15 @@ public:
   vtkBooleanMacro(EnableTranslucentSurface, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the platform hardware window associated with this window.
+   * Default is false.
+   */
+  virtual vtkHardwareWindow* GetHardwareWindow();
+  virtual void SetHardwareWindow(vtkHardwareWindow* win);
+  ///@}
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow() override;
@@ -843,7 +800,6 @@ protected:
 
   vtkRendererCollection* Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
-  vtkTypeBool Borders;
   vtkTypeBool Coverable;
   vtkTypeBool FullScreen;
   int OldScreen[5];
@@ -864,7 +820,6 @@ protected:
   int InRender;
   int NeverRendered;
   int NumberOfLayers;
-  int CurrentCursor;
   float AnaglyphColorSaturation;
   int AnaglyphColorMask[2];
   int MultiSamples;
@@ -873,7 +828,6 @@ protected:
   int DeviceIndex;
 
   bool UseSRGBColorSpace;
-  char* CursorFileName;
 
   /**
    * The universal time since the last abort check occurred.
@@ -894,6 +848,8 @@ protected:
   bool EnableTranslucentSurface = false;
 
   bool Initialized = false;
+
+  vtkSmartPointer<vtkHardwareWindow> HardwareWindow;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

@@ -18,7 +18,9 @@
 #ifndef vtkHardwareWindow_h
 #define vtkHardwareWindow_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderWindowInteractor.h" // For ivar
+#include "vtkRenderingCoreModule.h"    // For export macro
+#include "vtkWeakPointer.h"            // For ivar
 #include "vtkWindow.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -36,11 +38,49 @@ public:
   // destroy the window (not the instance)
   virtual void Destroy() {}
 
+  ///@{
+  /**
+   * Set/Get the interactor associated with this window
+   */
+  virtual void SetInteractor(vtkRenderWindowInteractor*);
+  vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get whether windows should be coverable (as opposed to always on
+   * top).
+   */
+  vtkGetMacro(Coverable, vtkTypeBool);
+  vtkBooleanMacro(Coverable, vtkTypeBool);
+  virtual void SetCoverable(vtkTypeBool coverable);
+  ///@}
+
+  ///@{
+  /**
+   * Get the platform name for this windowing system.
+   */
+  vtkGetCharFromStdStringMacro(Platform);
+  vtkSetStdStringFromCharMacro(Platform);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off rendering full screen window size.
+   */
+  virtual void SetFullScreen(vtkTypeBool) {}
+  vtkGetMacro(FullScreen, vtkTypeBool);
+  vtkBooleanMacro(FullScreen, vtkTypeBool);
+  ///@}
+
 protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
 
-  bool Borders;
+  vtkWeakPointer<vtkRenderWindowInteractor> Interactor = nullptr;
+  vtkTypeBool Coverable = false;
+  std::string Platform = "Generic";
+  vtkTypeBool FullScreen = false;
 
 private:
   vtkHardwareWindow(const vtkHardwareWindow&) = delete;

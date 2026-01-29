@@ -10,7 +10,6 @@ vtkObjectFactoryNewMacro(vtkHardwareWindow);
 
 vtkHardwareWindow::vtkHardwareWindow()
 {
-  this->Borders = true;
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
   this->ShowWindow = false;
   this->UseOffScreenBuffers = true;
@@ -20,13 +19,37 @@ vtkHardwareWindow::vtkHardwareWindow()
 }
 
 //------------------------------------------------------------------------------
-vtkHardwareWindow::~vtkHardwareWindow() = default;
+vtkHardwareWindow::~vtkHardwareWindow()
+{
+  this->SetInteractor(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Borders: " << this->Borders << "\n";
 }
+
+//------------------------------------------------------------------------------
+// Set the interactor that will work with this hardware window.
+void vtkHardwareWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
+{
+  this->Interactor = rwi;
+  if (this->Interactor && this->Interactor->GetHardwareWindow() != this)
+  {
+    this->Interactor->SetHardwareWindow(this);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHardwareWindow::SetCoverable(vtkTypeBool coverable)
+{
+  if (coverable)
+  {
+    vtkWarningMacro(<< "SetCoverable(" << coverable << ") is unsupported for "
+                    << this->GetClassName());
+  }
+}
+
+//------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_END
