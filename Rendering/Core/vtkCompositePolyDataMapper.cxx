@@ -31,6 +31,7 @@
 #include "vtkSetGet.h"
 #include "vtkTexture.h"
 
+#include <limits>
 #include <map>
 #include <stack>
 #include <vector>
@@ -74,6 +75,16 @@ public:
    */
   std::map<vtkPolyDataMapper::MapperHashType, vtkSmartPointer<vtkCompositePolyDataMapperDelegator>>
     BatchedDelegators;
+
+  /**
+   * Number of cells assigned to a delegator at a hash.
+   */
+  std::map<vtkPolyDataMapper::MapperHashType, vtkIdType> BatchedDelegatorsNumCells;
+
+  /**
+   * Maximum number of triangles that can be rendered in a vtkPolyDataMapper
+   */
+  vtkIdType MaximumNumberOfTriangles = std::numeric_limits<vtkIdType>::max();
 };
 
 //------------------------------------------------------------------------------
@@ -183,6 +194,7 @@ void vtkCompositePolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     delegator->GetDelegate()->ReleaseGraphicsResources(win);
   }
   internals.BatchedDelegators.clear();
+  internals.BatchedDelegatorsNumCells.clear();
   this->Modified();
   this->Superclass::ReleaseGraphicsResources(win);
 }
@@ -384,6 +396,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.Texture.emplace(nullptr);
 
     {
+      internals.BatchedDelegatorsNumCells.clear();
       unsigned int flatIndex = 0;
       this->BuildRenderValues(renderer, actor, input, flatIndex);
     }
@@ -465,7 +478,25 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
     return std::numeric_limits<MapperHashType>::max();
   }
   auto& internals = (*this->Internals);
-  const auto hash = this->GenerateHash(polydata);
+  auto hash = this->GenerateHash(polydata);
+
+  // Track the number of triangles assigned to this hash. Use an estimate for the number
+  // of rendered triangles based on the number of points. This may be an overestimate, but
+  // that's okay.
+  const vtkIdType numTriangles = 2 * polydata->GetNumberOfPoints();
+  internals.BatchedDelegatorsNumCells[hash] += numTriangles;
+  vtkDebugMacro(<< "Number of triangles at hash " << hash << " is "
+                << internals.BatchedDelegatorsNumCells[hash]);
+
+  // See if we need to create a new delegator because we have exceeded an upper threshold of cells
+  // per delegator.
+  const vtkIdType delegatorNumber =
+    internals.BatchedDelegatorsNumCells[hash] / internals.MaximumNumberOfTriangles;
+  vtkDebugMacro(<< "delegatorNumber is " << delegatorNumber);
+
+  // Modify high bits of the hash function with the delegator number determined above.
+  hash += (static_cast<vtkPolyDataMapper::MapperHashType>(delegatorNumber) << 12);
+
   // Find a mapper. If it doesn't exist, a new one is created.
   internals.BatchedDelegators.emplace(hash, nullptr);
   auto& delegator = internals.BatchedDelegators.at(hash);
@@ -654,6 +685,9 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       internals.BlockState.InterpolateScalarsBeforeMapping.top());
     this->PrototypeMapper->SetScalarRange(internals.BlockState.ScalarRange.top().GetData());
     this->PrototypeMapper->SetLookupTable(internals.BlockState.LookupTable.top());
+
+    internals.MaximumNumberOfTriangles =
+      this->PrototypeMapper->GetMaximumNumberOfTriangles(renderer);
 
     const auto hash = this->InsertPolyData(polydata, originalFlatIndex);
     if (hash == std::numeric_limits<MapperHashType>::max())
