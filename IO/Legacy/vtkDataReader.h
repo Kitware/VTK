@@ -588,7 +588,7 @@ protected:
   vtkTypeBool ReadAllTCoords;
   vtkTypeBool ReadAllFields;
 
-  std::locale CurrentLocale;
+  std::locale OriginalStreamLocale;
 
   void InitializeCharacteristics();
   int CharacterizeFile(); // read entire file, storing important characteristics

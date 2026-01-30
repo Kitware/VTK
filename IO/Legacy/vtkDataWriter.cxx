@@ -121,10 +121,6 @@ vtkDataWriter::~vtkDataWriter()
 // Open a vtk data file. Returns nullptr if error.
 ostream* vtkDataWriter::OpenVTKFile()
 {
-  // Save current locale settings and set standard one to
-  // avoid locale issues - for instance with the decimal separator.
-  this->CurrentLocale = std::locale::global(std::locale::classic());
-
   ostream* fptr;
 
   if ((!this->WriteToOutputString) && (!this->FileName))
@@ -180,6 +176,12 @@ ostream* vtkDataWriter::OpenVTKFile()
     delete fptr;
     return nullptr;
   }
+  // Save current locale settings and set standard one to
+  // avoid locale issues - for instance with the decimal separator.
+  // Assumption made here that each OpenVTKFile is matched with a
+  // CloseVTKFile and that no nested Open/Close calls are made.
+  this->OriginalStreamLocale = fptr->getloc();
+  fptr->imbue(std::locale::classic());
 
   return fptr;
 }
@@ -2299,9 +2301,6 @@ void vtkDataWriter::CloseVTKFile(ostream* fp)
 {
   vtkDebugMacro(<< "Closing vtk file\n");
 
-  // Restore the previous locale settings
-  std::locale::global(this->CurrentLocale);
-
   if (fp != nullptr)
   {
     if (this->WriteToOutputString)
@@ -2326,6 +2325,9 @@ void vtkDataWriter::CloseVTKFile(ostream* fp)
       }
       memcpy(this->OutputString, ostr->str().c_str(), this->OutputStringLength + 1);
     }
+    // Restore the previous locale settings
+    // The stream is deleted below, so this is done just to be tidy.
+    fp->imbue(this->OriginalStreamLocale);
     delete fp;
   }
 }
