@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellData.h"
+#include "vtkCubeSource.h"
+#include "vtkDataArray.h"
 #include "vtkNew.h"
 #include "vtkOBJReader.h"
 #include "vtkOBJWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
 #include <iostream>
@@ -17,21 +18,20 @@ namespace
 vtkSmartPointer<vtkPolyData> CreateTestData()
 {
   auto polyData = vtkSmartPointer<vtkPolyData>::New();
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->SetThetaResolution(8);
-  sphereSource->SetPhiResolution(8);
-  sphereSource->Update();
-  polyData->ShallowCopy(sphereSource->GetOutput());
-
+  vtkNew<vtkCubeSource> cubeSource;
+  cubeSource->SetXLength(1.0);
+  cubeSource->SetYLength(2.0);
+  cubeSource->SetZLength(3.0);
+  cubeSource->Update();
+  polyData->ShallowCopy(cubeSource->GetOutput());
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(3);
   colors->SetName("RGB");
 
   for (vtkIdType i = 0; i < polyData->GetNumberOfPoints(); ++i)
   {
-    unsigned char color[3] = { static_cast<unsigned char>(i % 255),
-      static_cast<unsigned char>((i / 255) % 255),
-      static_cast<unsigned char>((i / (255 * 255)) % 255) };
+    auto c = static_cast<unsigned char>((i << 6) % 255);
+    unsigned char color[3] = { c, c, c };
     colors->InsertNextTypedTuple(color);
   }
 
@@ -39,6 +39,17 @@ vtkSmartPointer<vtkPolyData> CreateTestData()
   polyData->GetPointData()->SetActiveScalars("RGB");
 
   return polyData;
+}
+
+void WriteTestData(const std::string& filename)
+{
+  auto polydata = CreateTestData();
+  vtkNew<vtkOBJWriter> writer;
+  writer->SetFileName(filename.data());
+  writer->SetArrayName("RGB");
+  writer->ColorModeOn();
+  writer->SetInputData(0, polydata);
+  writer->Write();
 }
 
 int CheckData(vtkPolyData* data)
@@ -89,9 +100,8 @@ int CheckData(vtkPolyData* data)
   {
     unsigned char color[3];
     array->GetTypedTuple(i, color);
-    unsigned char expectedColor[3] = { static_cast<unsigned char>(i % 255),
-      static_cast<unsigned char>((i / 255) % 255),
-      static_cast<unsigned char>((i / (255 * 255)) % 255) };
+    auto c = static_cast<unsigned char>((i << 6) % 255);
+    unsigned char expectedColor[3] = { c, c, c };
     if (color[0] != expectedColor[0] || color[1] != expectedColor[1] ||
       color[2] != expectedColor[2])
     {
@@ -106,36 +116,24 @@ int CheckData(vtkPolyData* data)
   return EXIT_SUCCESS;
 }
 
-vtkSmartPointer<vtkPolyData> ReadTestData(const std::string& filename)
-{
-  vtkNew<vtkOBJReader> reader;
-  reader->SetFileName(filename.data());
-  reader->Update();
-  return reader->GetOutput();
-}
-
 }
 
 //------------------------------------------------------------------------------
-int TestOBJWriterRGB(int argc, char* argv[])
+int TestOBJReaderRGB(int argc, char* argv[])
 {
   char* tname =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
   delete[] tname;
-  std::string filename = tmpDir + "/TestOBJWriterRGB_rw.obj";
+  std::string filename = tmpDir + "/TestOBJReaderRGB_rw.obj";
 
-  // write test data to file by vtkOBJWriter with ColorModeOn
-  auto polydata = CreateTestData();
-  vtkNew<vtkOBJWriter> writer;
-  writer->SetFileName(filename.data());
-  writer->SetArrayName("RGB");
-  writer->ColorModeOn();
-  writer->SetInputData(0, polydata);
-  writer->Write();
+  WriteTestData(filename);
 
   // read this file and compare with input by vtkOBJReader
-  auto data = ReadTestData(filename);
+  vtkNew<vtkOBJReader> reader;
+  reader->SetFileName(filename.data());
+  reader->Update();
+  auto data = reader->GetOutput();
 
   if (CheckData(data) == EXIT_FAILURE)
   {

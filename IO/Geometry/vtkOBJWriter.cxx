@@ -104,8 +104,8 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
     {
       unsigned char color[4] = { 255, 255, 255, 255 };
       pointColors->GetTypedTuple(i, color);
-      f << vtk::format(" {} {} {}", static_cast<float>(color[0] / 255.0f),
-        static_cast<float>(color[1] / 255.0f), static_cast<int>(color[2] / 255.0f));
+      f << vtk::format(" {} {} {}", static_cast<double>(color[0] / 255.0),
+        static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0));
     }
     f << "\n";
   }
