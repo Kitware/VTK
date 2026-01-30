@@ -702,7 +702,7 @@ XdmfTemplate::populateItem(const std::map<std::string, std::string> & itemProper
         ++iter) {
       if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
         // Pull hdf5 reference data from the first provided array
-        if (array->getNumberHeavyDataControllers() > 0 & !mHeavyWriter) {
+        if (array->getNumberHeavyDataControllers() > 0 && !mHeavyWriter) {
           mHeavyWriter = reader->generateHeavyDataWriter(array->getHeavyDataController(0)->getName(), array->getHeavyDataController(0)->getFilePath());
         }
         if (array->getName().compare("Data Description") == 0) {
