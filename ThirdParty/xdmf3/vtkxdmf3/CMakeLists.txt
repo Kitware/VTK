@@ -346,7 +346,7 @@ if(NOT XDMF_BUILD_CORE_ONLY)
       SOURCES ${sources}
       HEADERS ${headers}
       HEADERS_SUBDIR "vtkxdmf3")
-    target_link_libraries(xdmf3
+    vtk_module_link(VTK::xdmf3
       PUBLIC
         vtkxdmfcore)
   endif ()
@@ -354,8 +354,9 @@ if(NOT XDMF_BUILD_CORE_ONLY)
   if(WIN32)
     if (BUILD_SHARED_LIBS)
       # XXX(kitware) using correct target name
-      set_target_properties(xdmf3 PROPERTIES
-        DEFINE_SYMBOL XDMF_EXPORTS)
+      vtk_module_set_property(VTK::xdmf3
+        PROPERTY  DEFINE_SYMBOL
+        VALUE     XDMF_EXPORTS)
     endif ()
   endif()
 

@@ -485,7 +485,7 @@ XdmfFunction::chunk(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
   }
   else if (resultType == XdmfArrayType::Int64()) {
-    long sampleValue = 0;
+    int64_t sampleValue = 0;
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
   }
   else if (resultType == XdmfArrayType::UInt8()) {
@@ -1005,7 +1005,7 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
   }
   else if (resultType == XdmfArrayType::Int64()) {
-    long sampleValue = 0;
+    int64_t sampleValue = 0;
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
   }
   else if (resultType == XdmfArrayType::UInt8()) {
