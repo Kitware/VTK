@@ -43,5 +43,9 @@ class TestReaderPreservesLocale(Testing.vtkTest):
         self.assertEqual(e1, e2)
 
 if __name__ == "__main__":
-    Testing.main([(TestWriterPreservesLocale, 'test'),
-                 (TestReaderPreservesLocale, 'test')])
+    import sys
+    if sys.version_info < (3,11):
+        Testing.skip()
+    else:
+        Testing.main([(TestWriterPreservesLocale, 'test'),
+                     (TestReaderPreservesLocale, 'test')])
