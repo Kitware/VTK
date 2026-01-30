@@ -26,6 +26,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkOverrideAttribute;
 class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUConfiguration;
 class vtkWebGPUTextureCache;
@@ -38,7 +39,8 @@ public:
    * Instantiate the class.
    */
   static vtkWebGPURenderWindow* New();
-
+  VTK_NEWINSTANCE
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -450,5 +452,6 @@ private:
   std::vector<vtkSmartPointer<vtkWebGPUComputeRenderTexture>> ComputeRenderTextures;
 };
 
+#define vtkWebGPURenderWindow_OVERRIDE_ATTRIBUTES vtkWebGPURenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 #endif

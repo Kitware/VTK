@@ -12,6 +12,7 @@
 #include "vtkHardwareWindow.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkPointData.h"
 #include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
@@ -124,6 +125,14 @@ vtkWebGPURenderWindow::~vtkWebGPURenderWindow()
   }
   this->SetHardwareWindow(nullptr);
   this->WGPUConfiguration = nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPURenderWindow::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------
