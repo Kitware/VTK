@@ -25,8 +25,8 @@ macro(_generate_array_specialization array_prefix vtk_type concrete_type depreca
     @ONLY)
 
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/vtk${array_prefix}TypedArray.cxx.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtk${array_prefix}TypedArray.cxx.inc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx.inc"
     @ONLY)
 
   # append generated header to current module headers
@@ -42,7 +42,7 @@ macro(_generate_array_specialization array_prefix vtk_type concrete_type depreca
     string(REPLACE " " "_" _suffix "${concrete_type}")
   endif ()
   list(APPEND "bulk_instantiation_sources_${_suffix}"
-    "#include \"${_className}.cxx\"")
+    "#include \"${_className}.cxx.inc\"")
 
   unset(VTK_DEPRECATION)
   unset(VTK_TYPE_NAME)
@@ -113,8 +113,8 @@ foreach (type IN LISTS vtk_fixed_size_numeric_types)
       "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h"
       @ONLY)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.cxx.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.cxx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.cxx.inc.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.cxx.inc"
       @ONLY)
     # append generated header to current module headers
     list(APPEND headers
@@ -123,6 +123,6 @@ foreach (type IN LISTS vtk_fixed_size_numeric_types)
     vtk_get_fixed_size_type_mapping("${type}" numeric_type)
     string(REPLACE " " "_" _suffix "${numeric_type}")
     list(APPEND "bulk_instantiation_sources_${_suffix}"
-      "#include \"${type}Array.cxx\"")
+      "#include \"${type}Array.cxx.inc\"")
   endif ()
 endforeach ()
