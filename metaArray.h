@@ -159,10 +159,10 @@ public:
        bool         _autoFreeElementData = false);
 
   virtual bool
-  CanReadStream(std::ifstream * _stream) const;
+  CanReadStream(METAIO_STREAM::ifstream * _stream) const;
 
   virtual bool
-  ReadStream(std::ifstream * _stream,
+  ReadStream(METAIO_STREAM::ifstream * _stream,
              bool            _readElements = true,
              void *          _elementDataBuffer = nullptr,
              bool            _autoFreeElementData = false);
@@ -174,7 +174,7 @@ public:
         const void * _constElementData = nullptr);
 
   virtual bool
-  WriteStream(std::ofstream * _stream, bool _writeElements = true, const void * _constElementData = nullptr);
+  WriteStream(METAIO_STREAM::ofstream * _stream, bool _writeElements = true, const void * _constElementData = nullptr);
 
   // PROTECTED
 protected:
@@ -205,10 +205,10 @@ protected:
   M_Read() override;
 
   bool
-  M_ReadElements(std::ifstream * _fstream, void * _data, int _dataQuantity);
+  M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data, int _dataQuantity);
 
   bool
-  M_WriteElements(std::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
+  M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
 };
 
 #  if (METAIO_USE_NAMESPACE)

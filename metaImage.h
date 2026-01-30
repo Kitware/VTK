@@ -122,7 +122,8 @@ public:
                       MET_ValueEnumType _elementType,
                       int               _elementNumberOfChannels = 1,
                       void *            _elementData = nullptr,
-                      bool              _allocElementMemory = true);
+                      bool              _allocElementMemory = true,
+                      bool              _initializePosition = true);
 
   bool
   InitializeEssential(int               _nDims,
@@ -131,7 +132,8 @@ public:
                       MET_ValueEnumType _elementType,
                       int               _elementNumberOfChannels = 1,
                       void *            _elementData = nullptr,
-                      bool              _allocElementMemory = true);
+                      bool              _allocElementMemory = true,
+                      bool              _initializePosition = true);
 
   int
   HeaderSize() const;
@@ -251,6 +253,60 @@ public:
   void
   ElementToIntensityFunctionOffset(double _elementOffset);
 
+  // (Copied from ITK's definition of Direction and Origin)
+  //
+  //  The position and orientation of an image is defined by its "Origin"
+  // and its "Directions".  The "Origin" is the physical position of the
+  // pixel whose "Index" is all zeros. The "Direction" of an image is a
+  // matrix whose columns indicate the direction in physical space that
+  // each dimension of the image traverses. The first column defines the
+  // direction that the fastest moving index in the image traverses in
+  // physical space while the last column defines the direction that the
+  // slowest moving index in the image traverses in physical space.
+  //
+  // Set the direction cosines of the image. The direction cosines
+  // are vectors that point from one pixel to the next.
+  //
+  // Each column of the matrix indicates the direction cosines of the unit vector
+  // that is parallel to the lines of the image grid corresponding to that
+  // dimension. For example, an image with Direction matrix
+  //
+  //    0.866   0.500
+  //   -0.500   0.866
+  //
+  // has an image grid were the fastest changing index (dimension[0]) walks
+  // over a line that in physical space is oriented parallel to the vector
+  // (0.866, -0.5). The second fastest changing index (dimension[1]) walks along
+  // a line that in Physical space is oriented parallel to the vector
+  // (0.5, 0.866)
+  //
+  // The columns of the Direction matrix are expected to form an
+  // orthogonal right handed coordinate system.  But this is not
+  // checked nor enforced in itk::ImageBase.
+  //
+  // For details, please see:
+  //
+  // https://www.itk.org/Wiki/Proposals:Orientation#Some_notes_on_the_DICOM_convention_and_current_ITK_usage
+  const double *
+  ElementOrigin() const;
+  double
+  ElementOrigin(int _i) const;
+  void
+  ElementOrigin(const double * _position);
+  void
+  ElementOrigin(const float * _position);
+  void
+  ElementOrigin(int _i, double _value);
+
+  const double *
+  ElementDirection() const;
+  double
+  ElementDirection(int _i, int _j) const;
+  void
+  ElementDirection(const double * _direction);
+  void
+  ElementDirection(int _i, int _j, double _value);
+
   bool
   AutoFreeElementData() const;
   void
@@ -303,16 +359,16 @@ public:
 
 
   static bool
-  CanReadStream(std::ifstream * _stream) ;
+  CanReadStream(METAIO_STREAM::ifstream * _stream) ;
 
   bool
-  ReadStream(int _nDims, std::ifstream * _stream, bool _readElements = true, void * _buffer = nullptr);
+  ReadStream(int _nDims, METAIO_STREAM::ifstream * _stream, bool _readElements = true, void * _buffer = nullptr);
 
   bool
   ReadROIStream(int *           _indexMin,
                 int *           _indexMax,
                 int             _nDims,
-                std::ifstream * _stream,
+                METAIO_STREAM::ifstream * _stream,
                 bool            _readElements = true,
                 void *          _buffer = nullptr,
                 unsigned int    subSamplingFactor = 1);
@@ -340,7 +396,7 @@ public:
            bool         _append = false);
 
   bool
-  WriteStream(std::ofstream * _stream, bool _writeElements = true, const void * _constElementData = nullptr);
+  WriteStream(METAIO_STREAM::ofstream * _stream, bool _writeElements = true, const void * _constElementData = nullptr);
 
 
   bool
@@ -351,6 +407,8 @@ public:
 
   // PROTECTED
 protected:
+  static std::set<std::string> m_ImageReservedKeywords;
+
   MET_ImageModalityEnumType m_Modality;
 
 
@@ -378,6 +436,9 @@ protected:
   double m_ElementToIntensityFunctionSlope{};
   double m_ElementToIntensityFunctionOffset{};
 
+  double m_ElementOrigin[10]{};     // "ElementOrigin = "          0,0,0
+  double m_ElementDirection[100]{}; // "ElementDirection = " 1,0,0,0,1,0,0,0,1
+
   bool m_AutoFreeElementData{};
 
   void * m_ElementData{};
@@ -400,13 +461,13 @@ protected:
   // _dataQuantity is expressed in number of pixels. Internally it will be
   // scaled by the number of components and number of bytes per component.
   bool
-  M_ReadElements(std::ifstream * _fstream, void * _data, std::streamoff _dataQuantity);
+  M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data, std::streamoff _dataQuantity);
 
   // _totalDataQuantity and _dataQuantity are expressed in number of pixels.
   // Internally they will be scaled by the number of components and number of
   // bytes per component.
   bool
-  M_ReadElementsROI(std::ifstream * _fstream,
+  M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream,
                     void *          _data,
                     std::streamoff  _dataQuantity,
                     int *           _indexMin,
@@ -415,20 +476,20 @@ protected:
                     std::streamoff  _totalDataQuantity = 0);
 
   bool
-  M_ReadElementData(std::ifstream * _fstream, void * _data, std::streamoff _dataQuantity);
+  M_ReadElementData(METAIO_STREAM::ifstream * _fstream, void * _data, std::streamoff _dataQuantity);
 
   bool
-  M_WriteElements(std::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
+  M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
 
   bool
-  M_WriteElementsROI(std::ofstream * _fstream,
+  M_WriteElementsROI(METAIO_STREAM::ofstream * _fstream,
                      const void *    _data,
                      std::streampos  _dataPos,
                      const int *     _indexMin,
                      const int *     _indexMax);
 
   bool
-  M_WriteElementData(std::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
+  M_WriteElementData(METAIO_STREAM::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity);
 
   static bool
   M_FileExists(const char * filename) ;
@@ -448,6 +509,7 @@ private:
              MET_ValueEnumType _elementType,
              int               _elementNumberOfChannels,
              void *            _elementData);
+
 };
 
 #  if (METAIO_USE_NAMESPACE)

@@ -65,7 +65,7 @@ MetaGaussian::PrintInfo() const
   MetaObject::PrintInfo();
   std::cout << "\n"
             << "Maximum = " << m_Maximum << "\n"
-            << "Radius = " << m_Radius << "Sigma = " << m_Sigma << std::endl;
+            << "Radius = " << m_Radius << "Sigma = " << m_Sigma << '\n';
 }
 
 void
@@ -142,7 +142,7 @@ MetaGaussian::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaGaussian: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaGaussian: M_Read: Error parsing file" << '\n';
     return false;
   }
 
