@@ -24,6 +24,10 @@
 
 #include "fides_export.h"
 
+#ifdef FIDES_USE_MPI
+#include <mpi.h>
+#endif
+
 namespace fides
 {
 namespace io
@@ -64,11 +68,43 @@ public:
                 const Params& params = Params(),
                 bool createSharedPoints = false);
 
+  /// Constructor to set up the Fides reader
+  /// \param dataModel the value should be 1) a path
+  /// to a JSON file describing the data model to be used by the reader,
+  /// 2) a string containing valid JSON, 3) a path to a BP file containing attributes
+  /// that Fides can use to generate a data model, or 4) a path to a BP file that
+  /// contains a fides/schema attribute that contains the full JSON for the data model.
+  /// \param inputType specifies what is stored in the dataModel arg. Optional
+  /// \param streamSteps if true, the reader will be set up to use a streaming mode (even if BP engine)
+  /// \param params a map of ADIOS engine parameters to be
+  /// used for each data source. Optional
+  /// \sa DataModelInput
   DataSetReader(const std::string& dataModel,
                 DataModelInput inputType,
                 bool streamSteps,
                 const Params& params = Params(),
                 bool createSharedPoints = false);
+
+#ifdef FIDES_USE_MPI
+  /// Constructor to set up the Fides reader
+  /// \param dataModel the value should be 1) a path
+  /// to a JSON file describing the data model to be used by the reader,
+  /// 2) a string containing valid JSON, 3) a path to a BP file containing attributes
+  /// that Fides can use to generate a data model, or 4) a path to a BP file that
+  /// contains a fides/schema attribute that contains the full JSON for the data model.
+  /// \param inputType specifies what is stored in the dataModel arg. Optional
+  /// \param streamSteps if true, the reader will be set up to use a streaming mode (even if BP engine)
+  /// \param comm the MPI communicator to use
+  /// \param params a map of ADIOS engine parameters to be
+  /// used for each data source. Optional
+  /// \sa DataModelInput
+  DataSetReader(const std::string& dataModel,
+                DataModelInput inputType,
+                bool streamSteps,
+                MPI_Comm comm,
+                const Params& params = Params(),
+                bool createSharedPoints = false);
+#endif
 
   ~DataSetReader();
 
@@ -161,6 +197,9 @@ public:
   std::vector<std::string> GetDataSourceNames();
   /// Get all available group names.
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths);
+
+  /// Closes all open DataSources.
+  void Close();
 
 private:
   class DataSetReaderImpl;

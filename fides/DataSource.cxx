@@ -76,6 +76,40 @@ namespace fides
 namespace io
 {
 
+DataSource::DataSource()
+{
+#ifdef FIDES_USE_MPI
+  this->Comm = MPI_COMM_WORLD;
+#endif
+}
+
+#ifdef FIDES_USE_MPI
+DataSource::DataSource(MPI_Comm comm)
+{
+  this->Comm = comm;
+}
+#endif
+
+void DataSource::SetEngineType(const std::string engine_type)
+{
+  if (engine_type == "BPFile")
+  {
+    this->AdiosEngineType = EngineType::BPFile;
+  }
+  else if (engine_type == "SST")
+  {
+    this->AdiosEngineType = EngineType::SST;
+  }
+  else if (engine_type == "Inline")
+  {
+    this->AdiosEngineType = EngineType::Inline;
+  }
+  else
+  {
+    throw std::runtime_error("parameter engine_type must be BPFile, SST or Inline.");
+  }
+}
+
 void DataSource::SetDataSourceParameters(const DataSourceParams& params)
 {
   this->SourceParams = params;
@@ -94,7 +128,8 @@ void DataSource::SetDataSourceIO(void* io)
 
 void DataSource::SetDataSourceIO(const std::string& ioAddress)
 {
-  long long hexAddress = std::stoll(ioAddress, nullptr, 16);
+  uintptr_t hexAddress = static_cast<uintptr_t>(std::stoull(ioAddress, nullptr, 16));
+  // NOLINTNEXTLINE(performance-no-int-to-ptr)
   this->AdiosIO = *(reinterpret_cast<adios2::IO*>(hexAddress));
   this->SetupEngine();
   this->OpenSource(this->ReaderID);
@@ -103,25 +138,22 @@ void DataSource::SetDataSourceIO(const std::string& ioAddress)
 void DataSource::SetupEngine()
 {
   auto it = this->SourceParams.find("engine_type");
-  std::string engine = "BPFile";
   if (it != this->SourceParams.end())
   {
-    engine = it->second;
+    std::string engine = it->second;
+    this->SetEngineType(engine);
   }
 
-  if (engine == "BPFile")
+  if (this->AdiosEngineType == EngineType::BPFile)
   {
-    this->AdiosEngineType = EngineType::BPFile;
     this->AdiosIO.SetEngine("BPFile");
   }
-  else if (engine == "SST")
+  else if (this->AdiosEngineType == EngineType::SST)
   {
-    this->AdiosEngineType = EngineType::SST;
     this->AdiosIO.SetEngine("SST");
   }
-  else if (engine == "Inline")
+  else if (this->AdiosEngineType == EngineType::Inline)
   {
-    this->AdiosEngineType = EngineType::Inline;
     if (!this->AdiosIO)
     {
       throw std::runtime_error("Inline engine requires passing (to DataSetReader) "
@@ -224,7 +256,7 @@ void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
 #ifdef FIDES_USE_MPI
       if (useMPI)
       {
-        this->Adios.reset(new adios2::ADIOS(MPI_COMM_WORLD));
+        this->Adios.reset(new adios2::ADIOS(this->Comm));
       }
       else
       {
@@ -252,6 +284,14 @@ void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
 
   this->Reader = this->AdiosIO.Open(fname, mode);
   this->Refresh();
+}
+
+void DataSource::Close()
+{
+  if (this->Reader)
+  {
+    this->Reader.Close();
+  }
 }
 
 void DataSource::Refresh()
@@ -1097,6 +1137,18 @@ StepStatus DataSource::BeginStep()
 
   if (this->MostRecentStepStatus != StepStatus::EndOfStream)
   {
+    if (this->DoNotCallNextBeginStep)
+    {
+      // this is necessary so we can appropriately handle BP5/SST when streaming and
+      // the json info is in the adios file. if streaming, we have to call BeginStep
+      // before we can read the json info. We'll handle this internally to try not to
+      // complicate things for the user, so we need to make sure that when the user
+      // calls PrepareNextStep that we don't call it on that source again or we'll
+      // get an error about BeginStep being called twice.
+      this->DoNotCallNextBeginStep = false;
+      return this->MostRecentStepStatus;
+    }
+
     auto retVal = this->Reader.BeginStep();
     switch (retVal)
     {
@@ -1111,7 +1163,7 @@ StepStatus DataSource::BeginStep()
         this->MostRecentStepStatus = StepStatus::EndOfStream;
         break;
       case adios2::StepStatus::OtherError:
-        this->MostRecentStepStatus = StepStatus::NotReady;
+        this->MostRecentStepStatus = StepStatus::OtherError;
         break;
       default:
         throw std::runtime_error("DataSource::BeginStep received unknown StepStatus from ADIOS");

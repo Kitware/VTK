@@ -13,6 +13,12 @@ set(srcs
   Keys.cxx
   MetaData.cxx
   Value.cxx
+  predefined/DataModelHelperFunctions.cxx
+  predefined/DataModelFactory.cxx
+  predefined/InternalMetadataSource.cxx
+  predefined/PredefinedDataModel.cxx
+  predefined/SupportedDataModels.cxx
+  xgc/XGCCommon.cxx
 )
 
 set(headers
@@ -35,6 +41,18 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/fides_export.h"
 )
 
+set(headers_predefined
+  predefined/DataModelHelperFunctions.h
+  predefined/DataModelFactory.h
+  predefined/InternalMetadataSource.h
+  predefined/PredefinedDataModel.h
+  predefined/SupportedDataModels.h
+)
+
+set(headers_xgc
+  xgc/XGCCommon.h
+)
+
 include(${FIDES_SOURCE_DIR}/cmake/fides_generate_export_header.cmake)
 
 if (FALSE) # XXX(kitware): use vtk_module system
@@ -53,13 +71,13 @@ vtk_module_add_module(VTK::fides
   SOURCES ${srcs}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkfides/fides")
-viskores_add_target_information(fides
+viskores_add_target_information(vtkfides
     DROP_UNUSED_SYMBOLS
     MODIFY_CUDA_FLAGS
     DEVICE_SOURCES ${srcs})
 endif ()
 
-fides_generate_export_header(fides)
+fides_generate_export_header(vtkfides fides)
 
 if (FALSE) # XXX(kitware): use vtk_module system
 target_compile_definitions(fides PRIVATE ${MPI_DEFS} ${ADIOS_DEFS})
@@ -69,6 +87,8 @@ target_link_libraries(fides PUBLIC ${VISKORES_LIBS} adios2::adios2 PRIVATE
 
 target_include_directories(fides PUBLIC
   $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}/predefined>
+  $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}/xgc>
   $<BUILD_INTERFACE:${FIDES_BINARY_DIR}/fides>
   $<INSTALL_INTERFACE:include>
   )
@@ -82,7 +102,11 @@ endif()
 vtk_module_link(VTK::fides
   PRIVATE
     adios2::adios2
-    fides_rapidjson)
+    fides_rapidjson
+    # This is over-linking (just need ::worklet) but VTK doesn't forward the
+    # inner targets currently.
+    VTK::vtkviskores
+  )
 vtk_module_include(VTK::fides
   PUBLIC
     $<BUILD_INTERFACE:${FIDES_SOURCE_DIR}>
@@ -91,13 +115,10 @@ vtk_module_include(VTK::fides
   )
 
 include(GenerateExportHeader)
-generate_export_header(fides
+generate_export_header(vtkfides
   EXPORT_MACRO_NAME VTKFIDES_EXPORT
   EXPORT_FILE_NAME vtkfides_export.h)
 endif()
-
-add_subdirectory(xgc)
-add_subdirectory(predefined)
 
 #-------------------------------------------------------------------------------
 # generate the config file that includes the exports
@@ -123,4 +144,8 @@ export(EXPORT ${FIDES_EXPORT_NAME}
 
 install(FILES ${headers} ${CMAKE_CURRENT_BINARY_DIR}/fides_export.h
   DESTINATION ${FIDES_INSTALL_INCLUDE_DIR})
+install(FILES ${headers_predefined}
+  DESTINATION ${FIDES_INSTALL_INCLUDE_DIR}/predefined)
+install(FILES ${headers_xgc}
+  DESTINATION ${FIDES_INSTALL_INCLUDE_DIR}/xgc)
 endif ()

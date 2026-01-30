@@ -45,6 +45,11 @@ InternalMetadataSource::InternalMetadataSource(const std::string& filename)
   this->Source->OpenSource(filename);
 }
 
+InternalMetadataSource::InternalMetadataSource(std::shared_ptr<fides::io::DataSource> source)
+  : Source(source)
+{
+}
+
 InternalMetadataSource::~InternalMetadataSource() = default;
 
 std::string InternalMetadataSource::GetDataModelName(const std::string& attrName)
