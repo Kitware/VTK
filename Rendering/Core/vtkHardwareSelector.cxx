@@ -19,7 +19,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkSmartPointerBase.h"
 
 #include <cassert>
 #include <map>
