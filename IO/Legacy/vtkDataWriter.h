@@ -358,7 +358,7 @@ protected:
   char* PedigreeIdsName;
   char* EdgeFlagsName;
 
-  std::locale CurrentLocale;
+  std::locale OriginalStreamLocale;
 
   int Precision;
   std::string PrecisionFormat;

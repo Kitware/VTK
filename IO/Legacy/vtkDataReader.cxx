@@ -466,10 +466,6 @@ size_t vtkDataReader::Peek(char* str, size_t n)
 // Open a vtk data file. Returns zero if error.
 int vtkDataReader::OpenVTKFile(const char* fname)
 {
-  // Save current locale settings and set standard one to
-  // avoid locale issues - for instance with the decimal separator.
-  this->CurrentLocale = std::locale::global(std::locale::classic());
-
   if (!fname && this->GetNumberOfFileNames() > 0)
   {
     fname = this->GetFileName(0);
@@ -542,6 +538,12 @@ int vtkDataReader::OpenVTKFile(const char* fname)
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
     }
+    // Save current locale settings and set standard one to
+    // avoid locale issues - for instance with the decimal separator.
+    // Assumption made here that each OpenVTKFile is matched with a
+    // CloseVTKFile and that no nested Open/Close calls are made.
+    this->OriginalStreamLocale = this->IS->getloc();
+    this->IS->imbue(std::locale::classic());
     return 1;
   }
 
@@ -3452,7 +3454,11 @@ void vtkDataReader::CloseVTKFile()
   vtkDebugMacro(<< "Closing vtk file");
 
   // Restore the previous locale settings
-  std::locale::global(this->CurrentLocale);
+  // The stream is deleted below, so this is done just to be tidy.
+  if (this->IS != nullptr)
+  {
+    this->IS->imbue(this->OriginalStreamLocale);
+  }
 
   delete this->IS;
   this->IS = nullptr;
