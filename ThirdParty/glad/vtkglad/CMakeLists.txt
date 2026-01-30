@@ -35,16 +35,16 @@ vtk_module_add_module(VTK::glad
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkglad")
-target_include_directories(glad
+vtk_module_include(VTK::glad
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
 if (BUILD_SHARED_LIBS)
-  target_compile_definitions(glad
+  vtk_module_definitions(VTK::glad
     PUBLIC
       "GLAD_API_CALL_EXPORT")
-  set_target_properties(glad
-    PROPERTIES
-      DEFINE_SYMBOL "GLAD_API_CALL_EXPORT_BUILD")
+  vtk_module_set_property(VTK::glad
+    PROPERTY  DEFINE_SYMBOL
+    VALUE     "GLAD_API_CALL_EXPORT_BUILD")
 endif ()
 
 if (APPLE)
