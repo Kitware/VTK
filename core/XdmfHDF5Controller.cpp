@@ -265,7 +265,7 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
     datatype = H5T_NATIVE_INT;
   }
   else if(mType == XdmfArrayType::Int64()) {
-    datatype = H5T_NATIVE_LONG;
+    datatype = H5T_NATIVE_INT64;
   }
   else if(mType == XdmfArrayType::Float32()) {
     datatype = H5T_NATIVE_FLOAT;

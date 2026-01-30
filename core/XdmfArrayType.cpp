@@ -443,34 +443,24 @@ intToType(int type)
     switch (type) {
     case XDMF_ARRAY_TYPE_UINT8:
       return XdmfArrayType::UInt8();
-      break;
     case XDMF_ARRAY_TYPE_UINT16:
       return XdmfArrayType::UInt16();
-      break;
     case XDMF_ARRAY_TYPE_UINT32:
       return XdmfArrayType::UInt32();
-      break;
     case XDMF_ARRAY_TYPE_UINT64:
       return XdmfArrayType::UInt64();
-      break;
     case XDMF_ARRAY_TYPE_INT8:
       return XdmfArrayType::Int8();
-      break;
     case XDMF_ARRAY_TYPE_INT16:
       return XdmfArrayType::Int16();
-      break;
     case XDMF_ARRAY_TYPE_INT32:
       return XdmfArrayType::Int32();
-      break;
     case XDMF_ARRAY_TYPE_INT64:
       return XdmfArrayType::Int64();
-      break;
     case XDMF_ARRAY_TYPE_FLOAT32:
       return XdmfArrayType::Float32();
-      break;
     case XDMF_ARRAY_TYPE_FLOAT64:
       return XdmfArrayType::Float64();
-      break;
     default:
       XdmfError::message(XdmfError::FATAL,
                          "Error: Invalid ArrayType.");
@@ -508,33 +498,21 @@ typeToInt(shared_ptr<const XdmfArrayType> type)
   {
       return XDMF_ARRAY_TYPE_INT16;
   }
-  else if (typeName == XdmfArrayType::Int32()->getName() || typeName == XdmfArrayType::Int64()->getName())
+  else if (typeName == XdmfArrayType::Int32()->getName())
   {
-    if (typePrecision == 4)
-    {
       return XDMF_ARRAY_TYPE_INT32;
-    }
-    else if (typePrecision == 8)
-    {
-      return XDMF_ARRAY_TYPE_INT64;
-    }
-    else
-    {
-    }
   }
-  else if (typeName == XdmfArrayType::Float32()->getName() || typeName == XdmfArrayType::Float64()->getName())
+  else if (typeName == XdmfArrayType::Int64()->getName())
   {
-    if (typePrecision == 4)
-    {
+      return XDMF_ARRAY_TYPE_INT64;
+  }
+  else if (typeName == XdmfArrayType::Float32()->getName())
+  {
       return XDMF_ARRAY_TYPE_FLOAT32;
-    }
-    else if (typePrecision == 8)
-    {
+  }
+  else if (typeName == XdmfArrayType::Float64()->getName())
+  {
       return XDMF_ARRAY_TYPE_FLOAT64;
-    }
-    else
-    {
-    }
   }
   else if (typeName == XdmfArrayType::String()->getName())
   {
