@@ -27,14 +27,6 @@ static nlohmann::json Serialize_vtkPartitionedDataSet(
   using json = nlohmann::json;
   json state;
   auto object = vtkPartitionedDataSet::SafeDownCast(objectBase);
-  if (nlohmann::json::iterator stateIter; serializer->GetContext() &&
-      serializer->GetContext()->CanReuseCachedState(objectBase, stateIter))
-  {
-    vtkVLog(serializer->GetSerializerLogVerbosity(),
-      "Reusing cached state for " << object->GetObjectDescription() << " (id=" << stateIter.key()
-                                  << ")");
-    return stateIter.value();
-  }
   if (auto f = serializer->GetHandler(typeid(vtkPartitionedDataSet::Superclass)))
   {
     state = f(object, serializer);
