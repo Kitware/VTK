@@ -8,7 +8,7 @@ readonly name="fmt"
 readonly ownership="{fmt} Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/fmt.git"
-readonly tag="for/vtk-20250317-11.1.4"
+readonly tag="for/vtk-20260130-12.1.0"
 readonly paths="
 .gitattributes
 include/fmt/*.h
