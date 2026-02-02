@@ -243,6 +243,16 @@ public:
    */
   void PopParent();
 
+  /**
+   * Return `true` if the object registered at `identifier`
+   * can reuse the cached state, `false` otherwise.
+   * An iterator to the state in question is returned through `stateIter`.
+   * @note
+   * The decision is made by comparing the MTime of the object
+   * against the cached MTime stored when the state was last computed.
+   */
+  bool CanReuseCachedState(vtkObjectBase* objectBase, nlohmann::json::iterator& stateIter) const;
+
 protected:
   vtkMarshalContext();
   ~vtkMarshalContext() override;
