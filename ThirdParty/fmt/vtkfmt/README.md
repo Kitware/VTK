@@ -4,8 +4,9 @@
 [![image](https://github.com/fmtlib/fmt/workflows/macos/badge.svg)](https://github.com/fmtlib/fmt/actions?query=workflow%3Amacos)
 [![image](https://github.com/fmtlib/fmt/workflows/windows/badge.svg)](https://github.com/fmtlib/fmt/actions?query=workflow%3Awindows)
 [![fmt is continuously fuzzed at oss-fuzz](https://oss-fuzz-build-logs.storage.googleapis.com/badges/fmt.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?\%0Acolspec=ID%20Type%20Component%20Status%20Proj%20Reported%20Owner%20\%0ASummary&q=proj%3Dfmt&can=1)
-[![Ask questions at StackOverflow with the tag fmt](https://img.shields.io/badge/stackoverflow-fmt-blue.svg)](https://stackoverflow.com/questions/tagged/fmt)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8880/badge)](https://www.bestpractices.dev/projects/8880)
 [![image](https://api.securityscorecards.dev/projects/github.com/fmtlib/fmt/badge)](https://securityscorecards.dev/viewer/?uri=github.com/fmtlib/fmt)
+[![Ask questions at StackOverflow with the tag fmt](https://img.shields.io/badge/stackoverflow-fmt-blue.svg)](https://stackoverflow.com/questions/tagged/fmt)
 
 **{fmt}** is an open-source formatting library providing a fast and safe
 alternative to C stdio and C++ iostreams.
@@ -47,7 +48,7 @@ Try {fmt} in [Compiler Explorer](https://godbolt.org/z/8Mx1EW73v).
   hundred million integers to strings per
   second](http://www.zverovich.net/2020/06/13/fast-int-to-string-revisited.html)
 - Small code size both in terms of source code with the minimum
-  configuration consisting of just three files, `core.h`, `format.h`
+  configuration consisting of just three files, `base.h`, `format.h`
   and `format-inl.h`, and compiled code; see [Compile time and code
   bloat](#compile-time-and-code-bloat)
 - Reliability: the library has an extensive set of
@@ -74,7 +75,7 @@ See the [documentation](https://fmt.dev) for more details.
 **Print to stdout** ([run](https://godbolt.org/z/Tevcjh))
 
 ``` c++
-#include <fmt/core.h>
+#include <fmt/base.h>
 
 int main() {
   fmt::print("Hello, world!\n");
