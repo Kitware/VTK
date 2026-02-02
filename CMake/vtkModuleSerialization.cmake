@@ -639,7 +639,6 @@ if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoke
     CONTENT "globalThis.createVTKWASM = ${_vtk_serdes_OUTPUT_NAME};\n")
   set(emscripten_link_options)
   list(APPEND emscripten_link_options
-    "$<$<CONFIG:Debug>:-gseparate-dwarf>"
     "-lembind"
     "--extern-post-js=${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}.post.js"
     "-sALLOW_MEMORY_GROWTH=1"
