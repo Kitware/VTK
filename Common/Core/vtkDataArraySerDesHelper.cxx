@@ -83,7 +83,7 @@ struct ArrayTypeInfo
   }
 #define TTYPE_INFO_MACRO(className)                                                                \
   {                                                                                                \
-    typeid(className).name(), className::New, typeid(className)                                    \
+    #className, className::New, typeid(className)                                                  \
   }
 
 // clang-format off
@@ -113,6 +113,41 @@ struct ArrayTypeInfo
     TYPE_INFO_MACRO(type##TypeUInt64Array),                                                        \
     TYPE_INFO_MACRO(type##TypeFloat32Array),                                                       \
     TYPE_INFO_MACRO(type##TypeFloat64Array)
+
+// The templated types should match those in the TEMPLATED_ARRAY_TYPES_INFO_MACRO.
+#define TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, ValueType, valueTypeName)                   \
+  template <>                                                                                      \
+  const char* GetDemangledClassNameFor##className<ValueType>(const char* templateArrayClassName)   \
+  {                                                                                                \
+    if (!strcmp(templateArrayClassName, #className))                                               \
+    {                                                                                              \
+      return #className "<" #valueTypeName ">";                                                    \
+    }                                                                                              \
+    vtkLogF(ERROR, "Specialization missing for " #className "<" #ValueType ">");                   \
+    return nullptr;                                                                                \
+  }
+
+#define TEMPLATED_ARRAY_NAMES_DEMANGLE_MACRO(className)                                            \
+  template <typename ValueType>                                                                    \
+  const char* GetDemangledClassNameFor##className(const char* templateArrayClassName)              \
+  {                                                                                                \
+    (void)templateArrayClassName;                                                                  \
+    vtkLogF(ERROR, "Specialization missing for " #className "<ValueType>");                        \
+    return nullptr;                                                                                \
+  }                                                                                                \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, char, char);                                      \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, double, double);                                  \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, float, float);                                    \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, int, int);                                        \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, long, long);                                      \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, long long, long long);                            \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, short, short);                                    \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, signed char, signed char);                        \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned char, unsigned char);                    \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned int, unsigned int);                      \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned long, unsigned long);                    \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned long long, unsigned long long);          \
+  TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned short, unsigned short)
 
 std::vector<ArrayTypeInfo> ArrayTypes = {
   TYPE_INFO_MACRO(vtkBitArray),
@@ -179,6 +214,10 @@ typedef vtkTypeList::Append<vtkArrayDispatch::Arrays,
 
 // clang-format on
 
+TEMPLATED_ARRAY_NAMES_DEMANGLE_MACRO(vtkAOSDataArrayTemplate);
+TEMPLATED_ARRAY_NAMES_DEMANGLE_MACRO(vtkAffineArray);
+TEMPLATED_ARRAY_NAMES_DEMANGLE_MACRO(vtkConstantArray);
+
 void Serialize_Blob(vtkTypeUInt8Array* blob, nlohmann::json& state, vtkSerializer* serializer)
 {
   auto context = serializer->GetContext();
@@ -228,8 +267,18 @@ struct vtkDataArraySerializer
     {
       return;
     }
+    // demangle and record the actual templated class name
+    if (strstr(array->GetClassName(), "vtkImplicitArray"))
+    {
+      state["ClassName"] = GetDemangledClassNameForvtkAffineArray<ValueT>("vtkAffineArray");
+    }
 
     auto backend = array->GetBackend();
+    if (backend == nullptr)
+    {
+      vtkLogF(ERROR, "AffineArray backend is null");
+      return;
+    }
     state["Slope"] = backend->Slope;
     state["Intercept"] = backend->Intercept;
   }
@@ -242,8 +291,17 @@ struct vtkDataArraySerializer
     {
       return;
     }
-
+    // demangle and record the actual templated class name
+    if (strstr(array->GetClassName(), "vtkImplicitArray"))
+    {
+      state["ClassName"] = GetDemangledClassNameForvtkConstantArray<ValueT>("vtkConstantArray");
+    }
     auto backend = array->GetBackend();
+    if (backend == nullptr)
+    {
+      vtkLogF(ERROR, "ConstantArray backend is null");
+      return;
+    }
     state["Value"] = backend->Value;
   }
 
@@ -255,7 +313,15 @@ struct vtkDataArraySerializer
     {
       return;
     }
-    else if (!array->GetNumberOfValues())
+    // demangle and record the actual templated class name prior to early outs
+    // to ensure the deserializer on the other end can create the correct type.
+    if (strstr(array->GetClassName(), "vtkAOSDataArrayTemplate"))
+    {
+      // demangle and record the actual templated class name
+      state["ClassName"] =
+        GetDemangledClassNameForvtkAOSDataArrayTemplate<ValueT>("vtkAOSDataArrayTemplate");
+    }
+    if (!array->GetNumberOfValues())
     {
       return;
     }
