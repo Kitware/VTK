@@ -350,12 +350,12 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       // only accept RGB values if we have all 3 components
       if (colorComponentReadCount == kColorComponentCountRGB)
       {
+        std::array<unsigned char, kColorComponentCountRGB> rgb;
         for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
         {
-          color[i] = std::clamp(color[i], 0.0, 1.0) * 255.0;
+          rgb[i] = static_cast<unsigned char>(std::clamp(color[i], 0.0, 1.0) * 255.0);
         }
-        pointColors->InsertNextTuple3(static_cast<unsigned char>(color[0]),
-          static_cast<unsigned char>(color[1]), static_cast<unsigned char>(color[2]));
+        pointColors->InsertNextTypedTuple(rgb.data());
       }
       else
       {

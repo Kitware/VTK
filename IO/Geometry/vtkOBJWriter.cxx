@@ -184,8 +184,8 @@ vtkOBJWriter::vtkOBJWriter()
   this->FileName = nullptr;
   this->TextureFileName = nullptr;
   this->ArrayName = {};
-  this->Component = 0;
   this->ColorMode = false;
+  this->UseRelativeTexturePath = false;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -280,7 +280,12 @@ bool vtkOBJWriter::WriteDataAndReturn()
   if (texture || this->TextureFileName)
   {
     std::string textureFileName = texture ? baseName + ".png" : this->TextureFileName;
-    if (!::WriteMtl(baseName, textureFileName.c_str()))
+    std::string textureName = textureFileName;
+    if (this->UseRelativeTexturePath)
+    {
+      textureName = vtksys::SystemTools::GetFilenameName(textureFileName);
+    }
+    if (!::WriteMtl(baseName, textureName.c_str()))
     {
       vtkErrorMacro("Unable to create material file");
     }
@@ -396,8 +401,9 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Color Mode: " << (this->ColorMode ? "off" : "on") << "\n";
   os << indent << "Array Name: " << (this->ArrayName.empty() ? this->ArrayName : "(none)") << "\n";
-  os << indent << "Component: " << this->Component << "\n";
 
+  os << indent << "Use Relative Texture Path: " << (this->UseRelativeTexturePath ? "on" : "off")
+     << "\n";
   vtkImageData* texture = this->GetInputTexture();
   if (texture)
   {
@@ -458,7 +464,7 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(
     vtkUnsignedCharArray* rgbArray;
 
     if (this->ArrayName.empty() || (da = dsa->GetArray(this->ArrayName.data())) == nullptr ||
-      this->Component >= (numComp = da->GetNumberOfComponents()))
+      (numComp = da->GetNumberOfComponents()) == 0)
     {
       return nullptr;
     }

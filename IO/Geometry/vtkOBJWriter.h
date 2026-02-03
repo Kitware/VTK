@@ -66,11 +66,11 @@ public:
   /**
    * These methods enable the user to control how to add color into the OBJ
    * output file. The default behavior is as follows. The user provides the
-   * name of an array and a component number. If the type of the array is
-   * three components, unsigned char, then the data is written as three
-   * separate "red", "green" and "blue" properties. If the type of the array is
-   * four components, unsigned char, then the data is written as three separate
-   * "red", "green" and "blue" properties, dropping the "alpha".
+   * name of an array. If the type of the array is three components, unsigned
+   * char, then the data is written as three separate "red", "green" and "blue"
+   * properties. If the type of the array is four components, unsigned char,
+   * then the data is written as three separate "red", "green" and "blue"
+   * properties, dropping the "alpha".
    */
   vtkSetMacro(ColorMode, bool);
   vtkGetMacro(ColorMode, bool);
@@ -87,10 +87,12 @@ public:
 
   ///@{
   /**
-   * Specify the array component to use to color the data.
+   * Get/Set whether to use relative path for texture file in the .mtl file.
+   * Default is false.
    */
-  vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
-  vtkGetMacro(Component, int);
+  vtkSetMacro(UseRelativeTexturePath, bool);
+  vtkGetMacro(UseRelativeTexturePath, bool);
+  vtkBooleanMacro(UseRelativeTexturePath, bool);
   ///@}
 
 protected:
@@ -110,8 +112,9 @@ private:
   char* TextureFileName;
 
   std::string ArrayName;
-  int Component;
   bool ColorMode;
+
+  bool UseRelativeTexturePath;
 };
 
 VTK_ABI_NAMESPACE_END
