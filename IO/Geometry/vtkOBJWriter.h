@@ -106,7 +106,7 @@ private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;
   void operator=(const vtkOBJWriter&) = delete;
 
-  vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
+  vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkDataSetAttributes* dsa);
 
   char* FileName;
   char* TextureFileName;

@@ -104,8 +104,17 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
     {
       unsigned char color[4] = { 255, 255, 255, 255 };
       pointColors->GetTypedTuple(i, color);
-      f << vtk::format(" {} {} {}", static_cast<double>(color[0] / 255.0),
-        static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0));
+      if (pointColors->GetNumberOfComponents() == 3) // RGB
+      {
+        f << vtk::format(" {} {} {}", static_cast<double>(color[0] / 255.0),
+          static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0));
+      }
+      else if (pointColors->GetNumberOfComponents() == 4) // RGBA
+      {
+        f << vtk::format(" {} {} {} {}", static_cast<double>(color[0] / 255.0),
+          static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0),
+          static_cast<double>(color[3] / 255.0));
+      }
     }
     f << "\n";
   }
@@ -309,8 +318,7 @@ bool vtkOBJWriter::WriteDataAndReturn()
     }
   }
 
-  vtkSmartPointer<vtkUnsignedCharArray> pointColors =
-    this->GetColors(pts->GetNumberOfPoints(), input->GetPointData());
+  vtkSmartPointer<vtkUnsignedCharArray> pointColors = this->GetColors(input->GetPointData());
 
   std::vector<EndIndex> endIndexes;
   ::WritePoints(f, pts, normals, pointColors, tcoordsArray, &endIndexes);
@@ -447,47 +455,31 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
-vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(
-  vtkIdType num, vtkDataSetAttributes* dsa)
+vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttributes* dsa)
 {
-  unsigned char* c;
-  vtkIdType i;
-  int numComp;
-
   if (!this->ColorMode)
   {
     return nullptr;
   }
   else // we will color based on data
   {
-    vtkDataArray* da;
-    vtkUnsignedCharArray* rgbArray;
+    int numComp = 0;
+    vtkDataArray* da = nullptr;
+    vtkUnsignedCharArray* colorArray = nullptr;
 
     if (this->ArrayName.empty() || (da = dsa->GetArray(this->ArrayName.data())) == nullptr ||
       (numComp = da->GetNumberOfComponents()) == 0)
     {
       return nullptr;
     }
-    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
-    { // have unsigned char array of three components, copy it
-      return rgbArray;
+    else if ((colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
+    { // have unsigned char array of three components (RGB), copy it
+      return colorArray;
     }
-    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
+    else if ((colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
     {
-      // have unsigned char array of four components (RGBA), copy it without the `A`.
-      vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-      colors->SetNumberOfComponents(3);
-      colors->SetNumberOfTuples(num);
-      c = colors->WritePointer(0, 3 * num);
-      const unsigned char* rgba = rgbArray->GetPointer(0);
-      for (i = 0; i < num; i++)
-      {
-        *c++ = *rgba++;
-        *c++ = *rgba++;
-        *c++ = *rgba++;
-        rgba++;
-      }
-      return colors;
+      // have unsigned char array of four components (RGBA), copy it.
+      return colorArray;
     }
     else // no color arrays
     {

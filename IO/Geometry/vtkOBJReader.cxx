@@ -18,6 +18,12 @@
 #include <sstream>
 #include <unordered_map>
 
+// clang-format off
+#define VTK_OBJ_READER_COLOR_OFF  0
+#define VTK_OBJ_READER_COLOR_RGB  1
+#define VTK_OBJ_READER_COLOR_RGBA 2
+// clang-format on
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBJReader);
 
@@ -25,6 +31,7 @@ vtkStandardNewMacro(vtkOBJReader);
 vtkOBJReader::vtkOBJReader()
 {
   this->Comment = nullptr;
+  this->ColorMode = VTK_OBJ_READER_COLOR_OFF;
 }
 
 //------------------------------------------------------------------------------
@@ -73,7 +80,7 @@ g <groupName>  [... <groupNameN]
 
     group name, primarily for faces
 
-v <x> <y> <z> [<r> g> <b>]
+v <x> <y> <z> [<r> g> <b> [a]]
 
     vertex
 
@@ -153,8 +160,6 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   normals->SetName("Normals");
   // RBG point colors
   auto pointColors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-  pointColors->SetNumberOfComponents(3);
-  pointColors->SetName("RGB");
 
   // Cells (faces="f")
   // OBJ format enables indexing points, normals and tcoords independently from each other
@@ -336,10 +341,12 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
       constexpr auto kColorComponentCountRGB = 3u;
-      std::uint32_t colorComponentReadCount = 0u;
-      std::array<double, kColorComponentCountRGB> color;
+      constexpr auto kColorComponentCountRGBA = 4u;
 
-      for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
+      // try to read color components (optional)
+      std::uint32_t colorComponentReadCount = 0u;
+      std::array<double, kColorComponentCountRGBA> color;
+      for (std::size_t i = 0; i < kColorComponentCountRGBA; ++i)
       {
         result = parser->Parse(color[i]);
         if (result == vtkParseResult::Ok)
@@ -347,15 +354,56 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
           ++colorComponentReadCount;
         }
       }
-      // only accept RGB values if we have all 3 components
+
       if (colorComponentReadCount == kColorComponentCountRGB)
       {
-        std::array<unsigned char, kColorComponentCountRGB> rgb;
-        for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
+        // write RGB values if we have all 3 components
+        if (this->ColorMode == VTK_OBJ_READER_COLOR_OFF)
         {
-          rgb[i] = static_cast<unsigned char>(std::clamp(color[i], 0.0, 1.0) * 255.0);
+          pointColors->Initialize(); // reset any previous colors
+          this->ColorMode = VTK_OBJ_READER_COLOR_RGB;
+          pointColors->SetNumberOfComponents(kColorComponentCountRGB);
+          pointColors->SetName("RGB");
         }
-        pointColors->InsertNextTypedTuple(rgb.data());
+
+        if (this->ColorMode != VTK_OBJ_READER_COLOR_RGB)
+        {
+          std::array<unsigned char, kColorComponentCountRGB> rgb;
+          for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
+          {
+            rgb[i] = static_cast<unsigned char>(std::clamp(color[i], 0.0, 1.0) * 255.0);
+          }
+          pointColors->InsertNextTypedTuple(rgb.data());
+        }
+        else
+        {
+          vtkWarningMacro(<< "Color mode mismatch at L." << lineNumber);
+        }
+      }
+      else if (colorComponentReadCount == kColorComponentCountRGBA)
+      {
+        // write RGBA values if we have all 4 components
+        if (this->ColorMode == VTK_OBJ_READER_COLOR_OFF)
+        {
+          pointColors->Initialize(); // reset any previous colors
+          this->ColorMode = VTK_OBJ_READER_COLOR_RGBA;
+          pointColors->SetNumberOfComponents(kColorComponentCountRGBA);
+          pointColors->SetName("RGBA");
+        }
+
+        if (this->ColorMode == VTK_OBJ_READER_COLOR_RGBA)
+        {
+          std::array<unsigned char, kColorComponentCountRGBA> rgba;
+          for (std::size_t i = 0; i < kColorComponentCountRGBA; ++i)
+          {
+            rgba[i] = static_cast<unsigned char>(std::clamp(color[i], 0.0, 1.0) * 255.0);
+          }
+          pointColors->InsertNextTypedTuple(rgba.data());
+        }
+        else
+        {
+          vtkWarningMacro(<< "Color mode mismatch at L." << lineNumber);
+        }
       }
       else
       {
@@ -1014,10 +1062,18 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->GetPointData()->SetNormals(normals);
   }
 
-  if (pointColors->GetNumberOfTuples() == points->GetNumberOfPoints())
+  if (this->ColorMode != VTK_OBJ_READER_COLOR_OFF &&
+    pointColors->GetNumberOfTuples() == points->GetNumberOfPoints())
   {
     output->GetPointData()->AddArray(pointColors);
-    output->GetPointData()->SetActiveScalars("RGB");
+    if (this->ColorMode == VTK_OBJ_READER_COLOR_RGBA)
+    {
+      output->GetPointData()->SetActiveScalars("RGBA");
+    }
+    else
+    {
+      output->GetPointData()->SetActiveScalars("RGB");
+    }
   }
 
   if (groupId != -1 && faceScalars)

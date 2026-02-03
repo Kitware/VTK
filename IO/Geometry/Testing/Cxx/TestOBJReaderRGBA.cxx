@@ -25,18 +25,18 @@ vtkSmartPointer<vtkPolyData> CreateTestData()
   cubeSource->Update();
   polyData->ShallowCopy(cubeSource->GetOutput());
   vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetNumberOfComponents(3);
-  colors->SetName("RGB");
+  colors->SetNumberOfComponents(4);
+  colors->SetName("RGBA");
 
   for (vtkIdType i = 0; i < polyData->GetNumberOfPoints(); ++i)
   {
     auto c = static_cast<unsigned char>((i << 6) % 255);
-    unsigned char color[3] = { c, c, c };
+    unsigned char color[4] = { c, c, c, c };
     colors->InsertNextTypedTuple(color);
   }
 
   polyData->GetPointData()->SetScalars(colors);
-  polyData->GetPointData()->SetActiveScalars("RGB");
+  polyData->GetPointData()->SetActiveScalars("RGBA");
 
   return polyData;
 }
@@ -46,7 +46,7 @@ void WriteTestData(const std::string& filename)
   auto polydata = CreateTestData();
   vtkNew<vtkOBJWriter> writer;
   writer->SetFileName(filename.data());
-  writer->SetArrayName("RGB");
+  writer->SetArrayName("RGBA");
   writer->ColorModeOn();
   writer->SetInputData(0, polydata);
   writer->Write();
@@ -70,45 +70,46 @@ int CheckData(vtkPolyData* data)
   }
 
   // Check the presence of "Colors" array
-  auto rgbArray = data->GetPointData()->GetArray("RGB");
-  if (!rgbArray)
+  auto rgbaArray = data->GetPointData()->GetArray("RGBA");
+  if (!rgbaArray)
   {
     std::cerr << "Could not find Colors array" << std::endl;
     return EXIT_FAILURE;
   }
-  if (rgbArray->GetNumberOfComponents() != 3)
+  if (rgbaArray->GetNumberOfComponents() != 4)
   {
     std::cerr << "Invalid number of components for Colors array" << std::endl;
     return EXIT_FAILURE;
   }
-  if (rgbArray->GetNumberOfTuples() != data->GetNumberOfPoints())
+  if (rgbaArray->GetNumberOfTuples() != data->GetNumberOfPoints())
   {
     std::cerr << "Invalid number of tuples for Colors array" << std::endl;
     return EXIT_FAILURE;
   }
 
   // convert vtkDataArray to vtkUnsignedCharArray
-  auto array = vtkArrayDownCast<vtkUnsignedCharArray>(rgbArray);
+  auto array = vtkArrayDownCast<vtkUnsignedCharArray>(rgbaArray);
   if (!array)
   {
-    std::cerr << "RGB array is not of type vtkUnsignedCharArray" << std::endl;
+    std::cerr << "RGBA array is not of type vtkUnsignedCharArray" << std::endl;
     return EXIT_FAILURE;
   }
 
   // Check "Colors" array values
   for (vtkIdType i = 0; i < data->GetNumberOfPoints(); ++i)
   {
-    unsigned char color[3];
+    unsigned char color[4];
     array->GetTypedTuple(i, color);
     auto c = static_cast<unsigned char>((i << 6) % 255);
-    unsigned char expectedColor[3] = { c, c, c };
+    unsigned char expectedColor[4] = { c, c, c, c };
     if (color[0] != expectedColor[0] || color[1] != expectedColor[1] ||
-      color[2] != expectedColor[2])
+      color[2] != expectedColor[2] || color[3] != expectedColor[3])
     {
       std::cerr << "Invalid color value at index " << i << ": (" << (int)color[0] << ", "
-                << (int)color[1] << ", " << (int)color[2] << ") instead of ("
-                << (int)expectedColor[0] << ", " << (int)expectedColor[1] << ", "
-                << (int)expectedColor[2] << ")" << std::endl;
+                << (int)color[1] << ", " << (int)color[2] << ", " << (int)color[3]
+                << ") instead of (" << (int)expectedColor[0] << ", " << (int)expectedColor[1]
+                << ", " << (int)expectedColor[2] << ", " << (int)expectedColor[3] << ")"
+                << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -119,13 +120,13 @@ int CheckData(vtkPolyData* data)
 }
 
 //------------------------------------------------------------------------------
-int TestOBJReaderRGB(int argc, char* argv[])
+int TestOBJReaderRGBA(int argc, char* argv[])
 {
   char* tname =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string tmpDir(tname);
   delete[] tname;
-  std::string filename = tmpDir + "/TestOBJReaderRGB_rw.obj";
+  std::string filename = tmpDir + "/TestOBJReaderRGBA_rw.obj";
 
   WriteTestData(filename);
 
