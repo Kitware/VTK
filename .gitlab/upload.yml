@@ -39,6 +39,7 @@
     before_script:
         # Generate the artifact inventory before adding the wheels[+sdk] to the release dir since
         # we do not want to include them in it.
+        - dnf install -y --setopt=install_weak_deps=False python3
         - .gitlab/ci/generate-artifacts-inventory.py --artifacts-dir "${RSYNC_SOURCE}" --output-file "${RSYNC_SOURCE}/${CI_COMMIT_TAG}-artifacts.json"
         - . .gitlab/ci/prepare-release-env.sh
     variables:
