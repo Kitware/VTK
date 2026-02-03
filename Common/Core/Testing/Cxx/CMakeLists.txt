@@ -68,6 +68,13 @@ foreach(value_type ${value_types})
     "vtkScaledSOADataArrayTemplate<${value_type}>")
 endforeach()
 
+set(serdes_data_array_tests)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serdes_data_array_tests
+    TestDataArraySerDesDemangledNames.cxx
+  )
+endif ()
+
 # Tell TestSystemInformation where to find the build trees.
 set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 
@@ -166,6 +173,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   otherStringArray.cxx
 
   ${data_array_tests}
+  ${serdes_data_array_tests}
 
   TestAffineArray.cxx
   TestCompositeArray.cxx
