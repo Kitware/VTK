@@ -268,10 +268,11 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 
   float* scales;
   vtkIdType ns = numPts;
+  vtkSmartPointer<vtkDataArray> scaleArray;
   if (this->ScaleArray != nullptr && poly->GetPointData()->HasArray(this->ScaleArray))
   {
-    scales =
-      static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0));
+    scaleArray = poly->GetPointData()->GetArray(this->ScaleArray)->ToAOSDataArray();
+    scales = vtkAOSDataArrayTemplate<float>::FastDownCast(scaleArray)->GetPointer(0);
   }
   else
   {
