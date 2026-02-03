@@ -276,15 +276,8 @@ extern "C"
 #if VTK_MODULE_ENABLE_VTK_RenderingCore
     if (auto* renderWindow = vtkRenderWindow::SafeDownCast(objectImpl))
     {
-      if (auto* interactor = renderWindow->GetInteractor())
-      {
-        interactor->UpdateSize(width, height);
-        return vtkSessionResultSuccess;
-      }
-      else
-      {
-        vtkLog(ERROR, << objectImpl << " does not have an interactor!");
-      }
+      renderWindow->SetSize(width, height);
+      return vtkSessionResultSuccess;
     }
     else if (objectImpl != nullptr)
     {
