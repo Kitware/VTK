@@ -262,78 +262,117 @@ void vtkExplicitStructuredGrid::GetCellNeighbors(
   }
 }
 
-//------------------------------------------------------------------------------
-// Determine neighbors as follows. Find the (shortest) list of cells that
-// uses one of the points in ptIds. For each cell, in the list, see whether
-// it contains the other points in the ptIds list. If so, it's a neighbor.
+namespace
+{
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+template <class TLinks>
+struct GetCellNeighborsImpl : public vtkCellArray::DispatchUtilities
+{
+  // vtkCellArray::Visit entry point:
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, TLinks* links, vtkIdType cellId,
+    vtkIdType nPts, const vtkIdType* pts, vtkIdList* cellIds) const
+  {
+    using ValueType = GetAPIType<OffsetsT>;
+
+    // Find the shortest linked list
+    auto minPtId = pts[0];
+    auto minNumCells = links->GetNcells(minPtId);
+    vtkIdType numCells;
+    for (vtkIdType i = 1; i < nPts; ++i)
+    {
+      const auto& ptId = pts[i];
+      numCells = links->GetNcells(ptId);
+      if (numCells < minNumCells)
+      {
+        minNumCells = numCells;
+        minPtId = ptId;
+      }
+    }
+    const auto minCells = links->GetCells(minPtId);
+
+    // Now for each cell, see if it contains all the face points
+    // in the facePts list. If so, then this is not a boundary face.
+    const auto connRange = GetRange(conn);
+    const auto offsetsRange = GetRange(offsets);
+    bool match;
+    vtkIdType j;
+    ValueType k;
+    for (vtkIdType i = 0; i < minNumCells; ++i)
+    {
+      const auto& minCellId = minCells[i];
+      if (minCellId != cellId) // don't include current cell
+      {
+        // get cell points
+        const ValueType nCellPts = offsetsRange[minCellId + 1] - offsetsRange[minCellId];
+        const auto cellPts = connRange.begin() + offsetsRange[minCellId];
+        match = true;
+        for (j = 0; j < nPts && match; ++j) // for all pts in input boundary entity
+        {
+          const auto& ptId = pts[j];
+          if (ptId != minPtId) // of course minPtId is contained by cell
+          {
+            match = false;
+            for (k = 0; k < nCellPts; ++k) // for all points in candidate cell
+            {
+              if (ptId == cellPts[k])
+              {
+                match = true; // a match was found
+                break;
+              }
+            } // for all points in current cell
+          }   // if not guaranteed match
+        }     // for all input points
+        if (match)
+        {
+          cellIds->InsertNextId(minCellId);
+        }
+      } // if not the reference cell
+    }   // for each cell in minimum linked list
+  }
+};
+} // end anonymous namespace
+
+//----------------------------------------------------------------------------
+// Return the cells that use all of the ptIds provided. This is a set
+// (intersection) operation - it can have significant performance impacts on
+// certain filters like vtkGeometryFilter.
 void vtkExplicitStructuredGrid::GetCellNeighbors(
   vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
+  // Empty the list
+  cellIds->Reset();
+
+  // Ensure that a proper neighborhood request is made.
+  const vtkIdType npts = ptIds->GetNumberOfIds();
+  if (npts <= 0)
+  {
+    return;
+  }
+  const vtkIdType* pts = ptIds->GetPointer(0);
+
+  // Ensure that links are built.
   if (!this->Links)
   {
     this->BuildLinks();
   }
 
-  cellIds->Reset();
-
-  vtkIdType* minCells = nullptr;
-  vtkIdType minPtId = 0;
-
-  // Find the point used by the fewest number of cells
-
-  vtkIdType numPts = ptIds->GetNumberOfIds();
-  vtkIdType* pts = ptIds->GetPointer(0);
-  vtkIdType minNumCells = VTK_INT_MAX;
-  for (int i = 0; i < numPts; i++)
+  // Get the cell links based on the current state.
+  if (!this->Editable)
   {
-    vtkIdType ptId = pts[i];
-    vtkIdType numCells = 0;
-    vtkIdType* cells = nullptr;
-    //    vtkIdType numCells = this->Links->GetNcells(ptId);
-    // vtkIdType* cells = this->Links->GetCells(ptId);
-    if (numCells < minNumCells)
-    {
-      minNumCells = numCells;
-      minCells = cells;
-      minPtId = ptId;
-    }
+    using CellLinksType = vtkStaticCellLinks;
+    using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
+    auto links = static_cast<CellLinksType*>(this->Links.Get());
+    this->Cells->Dispatch(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
-
-  if (numPts == 0)
+  else
   {
-    vtkErrorMacro("input point ids empty.");
-    return;
+    using CellLinksType = vtkCellLinks;
+    using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
+    auto links = static_cast<CellLinksType*>(this->Links.Get());
+    this->Cells->Dispatch(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
-
-  // Now for each cell, see if it contains all the points
-  // in the ptIds list.
-  for (int i = 0; i < minNumCells; i++)
-  {
-    if (minCells[i] != cellId) // don't include current cell
-    {
-      vtkIdType* cellPts = this->GetCellPoints(minCells[i]);
-      bool match = true;
-      for (int j = 0; j < numPts && match; j++) // for all pts in input cell
-      {
-        if (pts[j] != minPtId) // of course minPtId is contained by cell
-        {
-          match = false;
-          for (int k = 0; k < 8; k++) // for all points in candidate cell
-          {
-            if (pts[j] == cellPts[k])
-            {
-              match = true; // a match was found
-              break;
-            }
-          } // for all points in current cell
-        }   // if not guaranteed match
-      }     // for all points in input cell
-      if (match)
-      {
-        cellIds->InsertNextId(minCells[i]);
-      }
-    } // if not the reference cell
-  }   // for all candidate cells attached to point
 }
 
 //------------------------------------------------------------------------------
