@@ -7,7 +7,7 @@
   </properties>
   <groupId>@MAVEN_VTK_GROUP_ID@</groupId>
   <artifactId>vtk@MAVEN_VTK_ARTIFACT_SUFFIX@</artifactId>
-  <version>@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@@MAVEN_VTK_SNAPSHOT@</version>
+  <version>@VTK_VERSION@@MAVEN_VTK_SNAPSHOT@</version>
   <packaging>pom</packaging>
   <name>VTK</name>
   <description>VTK java package</description>
@@ -140,7 +140,7 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>vtk-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.jar</file>
+                  <file>vtk-@VTK_VERSION@.jar</file>
                   <type>jar</type>
                 </artifact>
 @MAVEN_NATIVE_ARTIFACT_XML@
