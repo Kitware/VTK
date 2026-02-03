@@ -101,6 +101,9 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
+  vtkOBJWriter(const vtkOBJWriter&) = delete;
+  void operator=(const vtkOBJWriter&) = delete;
+
   vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
 
   char* FileName;
@@ -109,10 +112,6 @@ private:
   std::string ArrayName;
   int Component;
   bool ColorMode;
-
-private:
-  vtkOBJWriter(const vtkOBJWriter&) = delete;
-  void operator=(const vtkOBJWriter&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END
