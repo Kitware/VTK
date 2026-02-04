@@ -18,6 +18,7 @@
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include <cstdint> // For uintptr_t
+#include <limits>  // For std::numeric_limits<>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
@@ -51,6 +52,18 @@ public:
    * that are similar in terms of the availability of scalars, normals and tcoords.
    */
   virtual MapperHashType GenerateHash(vtkPolyData*) { return 0; }
+
+  /**
+   * Returns an estimate of the number of triangles that can be rendered by the underlying
+   * graphics implementation. Subclasses should override this to provide an estimate of
+   * the number of triangles that can be rendered by this mapper. The parameter is a vtkRenderer
+   * that provides access to information about the graphics implementation. Defaults to returning
+   * the maximum value representable by vtkIdType.
+   */
+  virtual vtkIdType GetMaximumNumberOfTriangles(vtkRenderer*)
+  {
+    return std::numeric_limits<vtkIdType>::max();
+  }
 
   ///@{
   /**

@@ -58,6 +58,12 @@ public:
    */
   MapperHashType GenerateHash(vtkPolyData* polydata) override;
 
+  /**
+   * Returns the maximum number of triangles renderable based on OpenGL limits.
+   * Returns the maximum buffer object size as the limit of triangles that can be rendered.
+   */
+  vtkIdType GetMaximumNumberOfTriangles(vtkRenderer* ren) override;
+
   vtkPolyData* CurrentInput = nullptr;
   void RenderPiece(vtkRenderer* renderer, vtkActor* actor) override;
   virtual void RenderPieceStart(vtkRenderer* renderer, vtkActor* actor);
