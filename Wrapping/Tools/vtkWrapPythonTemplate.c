@@ -252,7 +252,7 @@ int vtkWrapPython_WrapTemplatedClass(
         types = vtkParse_GetArrayTypes();
       }
       else if (strcmp(entry->Name, "vtkSOADataArrayTemplate") == 0 ||
-        strcmp(entry->Name, "vtkScaledSOADataArrayTemplate") == 0 ||
+        strcmp(entry->Name, "vtkScaledSOADataArrayTemplate") == 0 || // VTK_DEPRECATED_IN_9_7_0
         strcmp(entry->Name, "vtkBuffer") == 0)
       {
         types = vtkParse_GetTemplateMacroTypes();

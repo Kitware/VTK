@@ -8,7 +8,6 @@
 #include "vtkDebugRangeIterators.h"
 #include "vtkFloatArray.h"
 #include "vtkSOADataArrayTemplate.h"
-#include "vtkScaledSOADataArrayTemplate.h"
 #include "vtkVector.h"
 
 #include <algorithm>
@@ -2595,24 +2594,6 @@ struct UnitTestEdgeCases
 
     std::cerr << "AOS<float> <--> SOA<int>\n";
     DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<int>>();
-
-    std::cerr << "ScaleSOA<float> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float>>();
-
-    std::cerr << "AOS<float> <--> ScaleSOA<float>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<float>>();
-
-    std::cerr << "ScaleSOA<double> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<double>, vtkAOSDataArrayTemplate<float>>();
-
-    std::cerr << "AOS<float> <--> ScaleSOA<double>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<double>>();
-
-    std::cerr << "ScaleSOA<int> <--> AOS<float>\n";
-    DispatchTupleCompat<vtkScaledSOADataArrayTemplate<int>, vtkAOSDataArrayTemplate<float>>();
-
-    std::cerr << "AOS<float> <--> ScaleSOA<int>\n";
-    DispatchTupleCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<int>>();
   }
 
   static void TestSpecializations()
@@ -3090,8 +3071,6 @@ int TestDataArrayTupleRange(int, char*[])
   RunTestsForArray<vtkAOSDataArrayTemplate<float>>();
   std::cerr << "SOA:\n";
   RunTestsForArray<vtkSOADataArrayTemplate<float>>();
-  std::cerr << "ScaleSOA:\n";
-  RunTestsForArray<vtkScaledSOADataArrayTemplate<float>>();
   std::cerr << "vtkFloatArray:\n";
   RunTestsForArray<vtkFloatArray>();
 

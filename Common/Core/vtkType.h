@@ -4,8 +4,9 @@
 #define vtkType_h
 
 #include "vtkABINamespace.h"
-#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
+#include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
+#include "vtkOptions.h"     // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
@@ -55,6 +56,14 @@
 #define VTK_VARIANT 20
 #define VTK_OBJECT 21
 
+// vtkTypes.h can be included in C code directly, which does not support
+// deprecation of enum values
+#ifdef __cplusplus
+#define VTK_DEPRECATED_IN_9_7_0_TYPE(reason) VTK_DEPRECATED_IN_9_7_0(reason)
+#else
+#define VTK_DEPRECATED_IN_9_7_0_TYPE(reason)
+#endif
+
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each native array type.  */
 // NOLINTNEXTLINE(readability-enum-initial-value)
@@ -73,7 +82,7 @@ enum vtkArrayTypes
   // GenericDataArray subclasses
   VTK_AOS_DATA_ARRAY,
   VTK_SOA_DATA_ARRAY,
-  VTK_SCALED_SOA_DATA_ARRAY,
+  VTK_SCALED_SOA_DATA_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTKM_DATA_ARRAY,
   VTK_PERIODIC_DATA_ARRAY,
   VTK_IMPLICIT_ARRAY,

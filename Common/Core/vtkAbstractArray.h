@@ -699,14 +699,15 @@ public:
   static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SOA_DATA_ARRAY;
   static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
+    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") =
+    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
   static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_IMPLICIT_ARRAY") = vtkArrayTypes::VTK_IMPLICIT_ARRAY;
   static constexpr int DataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "DataArrayTemplate has been deprecated") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
   static constexpr int ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
-    vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
+    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
 
   /**
    * Method for type-checking in FastDownCast implementations. See also

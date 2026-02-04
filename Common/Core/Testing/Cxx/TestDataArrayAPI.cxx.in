@@ -14,7 +14,6 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkSOADataArrayTemplate.h"
-#include "vtkScaledSOADataArrayTemplate.h"
 #include "vtkType.h"
 #include "vtkTypeTraits.h"
 #include "vtkVariant.h"
@@ -969,21 +968,6 @@ struct CheckShallowCopy
   template <typename ValueType>
   bool operator()(vtkSOADataArrayTemplate<ValueType> *a1,
                   vtkSOADataArrayTemplate<ValueType> *a2)
-  {
-    assert(a1->GetNumberOfComponents() == a2->GetNumberOfComponents());
-    for (int c = 0; c < a1->GetNumberOfComponents(); ++c)
-    {
-      if (a1->GetComponentArrayPointer(c) != a2->GetComponentArrayPointer(c))
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-  // ScaleSOA same-ValueType case:
-  template <typename ValueType>
-  bool operator()(vtkScaledSOADataArrayTemplate<ValueType> *a1,
-                  vtkScaledSOADataArrayTemplate<ValueType> *a2)
   {
     assert(a1->GetNumberOfComponents() == a2->GetNumberOfComponents());
     for (int c = 0; c < a1->GetNumberOfComponents(); ++c)
@@ -2068,13 +2052,10 @@ int Test_voidptr_WriteVoidPointer_id_number()
   DataArrayAPIInit("void* WriteVoidPointer(vtkIdType id, vtkIdType number)");
 
   // Skip SoA and Scale SoA arrays, as they do not allow this:
-  if (typeid(ArrayT) == typeid(vtkSOADataArrayTemplate<ScalarT>) ||
-      typeid(ArrayT) == typeid(vtkScaledSOADataArrayTemplate<ScalarT>))
+  if (typeid(ArrayT) == typeid(vtkSOADataArrayTemplate<ScalarT>))
   {
     std::cerr << "Skipping WriteVoidPointer for "
-              << "vtkSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
-              << "or vtkScaledSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
-              << ">.\n";
+              << "vtkSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name() << "".\n";
     DataArrayAPIFinish();
   }
 
@@ -3081,20 +3062,6 @@ int ExerciseDataArray()
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long> >();
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long long> >();
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned short> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<float> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<double> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<vtkIdType> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<int> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<long long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<short> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<signed char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned int> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned long long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned short> >();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 1>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 2>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 3>();
