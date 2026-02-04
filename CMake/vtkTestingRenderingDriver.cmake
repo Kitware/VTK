@@ -56,6 +56,9 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
     // init logging
     vtkLogger::Init(ac, av, nullptr);
 
+    // init object factory preferences
+    vtkObjectFactory::InitializePreferencesFromCommandLineArgs(ac, av);
+
     // turn on windows stack traces if applicable
     vtkWindowsTestUtilitiesSetupForTesting();
 
