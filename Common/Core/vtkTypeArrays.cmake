@@ -56,7 +56,7 @@ foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
 endforeach ()
 
 # VTK_DEPRECATED_IN_9_7_0 to be removed later
-foreach (array_prefix IN ITEMS ScaledSOA)
+foreach (array_prefix IN ITEMS ScaledSOA StdFunction)
   foreach (type IN LISTS vtk_fixed_size_numeric_types)
     vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
     set(deprecation "VTK_DEPRECATED_IN_9_7_0(\"Use vtk${array_prefix}Type${without_vtk_prefix}Array instead\")")
@@ -64,7 +64,7 @@ foreach (array_prefix IN ITEMS ScaledSOA)
   endforeach ()
 endforeach ()
 
-foreach (array_prefix IN ITEMS Affine Composite Constant Indexed SOA StdFunction Strided)
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed SOA Strided)
   foreach (type IN LISTS vtk_fixed_size_numeric_types)
     vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
     _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" "")

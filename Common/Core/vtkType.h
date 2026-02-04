@@ -92,7 +92,7 @@ enum vtkArrayTypes
   VTK_COMPOSITE_ARRAY,
   VTK_CONSTANT_ARRAY,
   VTK_INDEXED_ARRAY,
-  VTK_STD_FUNCTION_ARRAY,
+  VTK_STD_FUNCTION_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTK_STRIDED_ARRAY,
   VTK_STRUCTURED_POINT_ARRAY,
 
@@ -453,6 +453,7 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<long long>, par>;                                                                    \
   decl0<decl1<unsigned long long>, par>
 
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, delc2)                                \
   decl0<decl1<float(delc2)>>;                                                                      \
   decl0<decl1<double(delc2)>>;                                                                     \
@@ -468,6 +469,7 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<long long(delc2)>>;                                                                  \
   decl0<decl1<unsigned long long(delc2)>>
 
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, delc2, par)              \
   decl0<decl1<float(delc2)>, par>;                                                                 \
   decl0<decl1<double(delc2)>, par>;                                                                \
@@ -490,15 +492,19 @@ VTK_ABI_NAMESPACE_END
   vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)                          \
   vtkInstantiateSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)                                     \
   vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, decl2)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)                   \
   vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #else
 #define vtkExternTemplateMacro(decl)
 #define vtkExternSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #endif
 

@@ -184,7 +184,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestIndexedArray.cxx
   TestIndexedImplicitBackend.cxx
   TestStridedArray.cxx
-  TestStdFunctionArray.cxx
   TestStructuredPointArray.cxx)
 
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")

@@ -15,6 +15,7 @@
 
 #include "vtkStdFunctionArray.h" // Real Superclass
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATION_9_7_0
 #include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.
@@ -22,7 +23,7 @@
 #define vtkDataArray vtkStdFunctionArray<@CONCRETE_TYPE@>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkStdFunction@VTK_TYPE_NAME@Array : public vtkDataArray
+class @VTK_DEPRECATION@ VTKCOMMONCORE_EXPORT vtkStdFunction@VTK_TYPE_NAME@Array : public vtkDataArray
 {
 public:
   vtkImplicitArrayTypeMacro(vtkStdFunction@VTK_TYPE_NAME@Array, vtkDataArray);
