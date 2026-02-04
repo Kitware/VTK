@@ -382,6 +382,7 @@ bool vtkObjectManager::RegisterState(const std::string& state)
     vtkErrorMacro(<< "Failed to parse state!");
     return false;
   }
+  vtkVLog(this->GetObjectManagerLogVerbosity(), << "Registering state: " << stateJson.dump());
   return this->RegisterState(stateJson);
 }
 
@@ -393,12 +394,14 @@ bool vtkObjectManager::RegisterState(const nlohmann::json& stateJson)
     vtkErrorMacro(<< "Failed to register state!");
     return false;
   }
+  vtkVLog(this->GetObjectManagerLogVerbosity(), << "Registering state: " << stateJson.dump());
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool vtkObjectManager::UnRegisterState(vtkTypeUInt32 identifier)
 {
+  vtkVLog(this->GetObjectManagerLogVerbosity(), << "Unregistering state at id=" << identifier);
   return this->Context->UnRegisterState(identifier);
 }
 
