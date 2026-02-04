@@ -249,6 +249,7 @@ endforeach ()
 
 set(classes
   vtkAbstractArray
+  vtkAbstractBuffer
   vtkAnimationCue
   vtkArchiver
   vtkArray

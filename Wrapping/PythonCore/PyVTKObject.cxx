@@ -19,6 +19,7 @@
 #include "PyVTKObject.h"
 #include "PyVTKMethodDescriptor.h"
 #include "vtkABINamespace.h"
+#include "vtkAbstractBuffer.h"
 #include "vtkDataArray.h"
 #include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
@@ -481,7 +482,7 @@ PyGetSetDef PyVTKObject_GetSet[] = { { pystr("__dict__"), PyVTKObject_GetDict, n
 
 //------------------------------------------------------------------------------
 // The following methods and struct define the "buffer" protocol
-// for PyVTKObject, so that python can read from a vtkDataArray.
+// for PyVTKObject, so that python can read from a vtkDataArray or vtkBuffer.
 // This is particularly useful for NumPy.
 
 //------------------------------------------------------------------------------
@@ -617,6 +618,50 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
         }
         PyBuffer_FillContiguousStrides(view->ndim, view->shape, view->strides, dsize, order);
       }
+    }
+    return 0;
+  }
+
+  // Check for vtkAbstractBuffer (vtkBuffer<T> template instantiations)
+  vtkAbstractBuffer* ab = vtkAbstractBuffer::SafeDownCast(self->vtk_ptr);
+  if (ab)
+  {
+    void* ptr = ab->GetVoidBuffer();
+    Py_ssize_t nelements = ab->GetNumberOfElements();
+    int dsize = ab->GetDataTypeSize();
+    const char* format = pythonTypeFormat(ab->GetDataType());
+    Py_ssize_t size = nelements * dsize;
+
+    // start by building a basic "unsigned char" buffer
+    if (PyBuffer_FillInfo(view, obj, ptr, size, 0, flags) == -1)
+    {
+      return -1;
+    }
+    // check if a dimensioned array was requested
+    if (format != nullptr && (flags & PyBUF_ND) != 0)
+    {
+      // vtkBuffer is always 1D
+      view->itemsize = dsize;
+      view->ndim = 1;
+      view->format = const_cast<char*>(format);
+
+      {
+        if (self->vtk_buffer && self->vtk_buffer[0] != view->ndim)
+        {
+          delete[] self->vtk_buffer;
+          self->vtk_buffer = nullptr;
+        }
+        if (self->vtk_buffer == nullptr)
+        {
+          self->vtk_buffer = new Py_ssize_t[2 * view->ndim + 1];
+          self->vtk_buffer[0] = view->ndim;
+        }
+        view->shape = &self->vtk_buffer[1];
+        view->strides = &self->vtk_buffer[view->ndim + 1];
+      }
+
+      view->shape[0] = nelements;
+      view->strides[0] = view->itemsize;
     }
     return 0;
   }

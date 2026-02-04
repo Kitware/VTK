@@ -32,5 +32,6 @@ vtk_add_test_python(
   TestTerminationCrash.py
   TestVariant.py
   TestVersion.py
+  TestVtkBufferNumpy.py
   TestWeakref.py
   )
