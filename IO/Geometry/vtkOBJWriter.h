@@ -69,8 +69,11 @@ public:
    * name of an array. If the type of the array is three components, unsigned
    * char, then the data is written as three separate "red", "green" and "blue"
    * properties. If the type of the array is four components, unsigned char,
-   * then the data is written as three separate "red", "green" and "blue"
-   * properties, dropping the "alpha".
+   * then the data is written as three separate "red", "green", "blue" and "alpha"
+   * properties. If the array is of any other type, then no color information is
+   * written.
+   * If ColorMode is off, no color information will be written into the OBJ file.
+   * Default is ColorMode off.
    */
   vtkSetMacro(ColorMode, bool);
   vtkGetMacro(ColorMode, bool);
