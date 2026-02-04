@@ -84,7 +84,8 @@ using KnownArrayTypeTagList =
     std::integral_constant<int,
       /* vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY */ 7>, // VTK_DEPRECATED_IN_9_7_0
     std::integral_constant<int, vtkArrayTypes::VTKM_DATA_ARRAY>,
-    std::integral_constant<int, vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>,
+    std::integral_constant<int,
+      /* vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY */ 9>, // VTK_DEPRECATED_IN_9_7_0
     std::integral_constant<int, vtkArrayTypes::VTK_AFFINE_ARRAY>,
     std::integral_constant<int, vtkArrayTypes::VTK_COMPOSITE_ARRAY>,
     std::integral_constant<int, vtkArrayTypes::VTK_CONSTANT_ARRAY>,

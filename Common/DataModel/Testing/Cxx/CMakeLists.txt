@@ -12,7 +12,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   BezierInterpolation.cxx
   CellTreeLocator.cxx
   TestBezier.cxx
-  TestAngularPeriodicDataArray.cxx
   TestArrayListTemplate.cxx
   TestCellInflation.cxx
   TestColor.cxx

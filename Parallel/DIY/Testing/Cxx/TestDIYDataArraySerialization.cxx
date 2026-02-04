@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAOSDataArrayTemplate.h"
-#include "vtkAngularPeriodicDataArray.h"
+#include "vtkAffineArray.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
@@ -13,7 +13,6 @@
 #include "vtkNew.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
-#include "vtkTypeFloat64Array.h"
 
 // clang-format off
 #include "vtk_diy2.h"
@@ -90,9 +89,11 @@ int TestDIYDataArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   const vtkNew<vtkAOSDataArrayTemplate<int>> intArray;
   rc |= TestTemplatedArray<13, 5>(intArray.GetPointer());
 
-  const vtkNew<vtkAngularPeriodicDataArray<double>> angularArray;
-  angularArray->InitializeArray(dblArray);
-  rc |= TestTemplatedArray<3, 14>(angularArray.GetPointer(), true);
+  const vtkNew<vtkAffineArray<double>> affineArray;
+  affineArray->ConstructBackend(1, 0);
+  affineArray->SetNumberOfComponents(3);
+  affineArray->SetNumberOfTuples(14);
+  rc |= TestTemplatedArray<3, 14>(affineArray.GetPointer(), true);
 
   return rc ? EXIT_SUCCESS : EXIT_FAILURE;
 }

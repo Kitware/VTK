@@ -167,6 +167,14 @@ private:
   double RotationAngle;
   int RotationAxis; // Axis to rotate around, 0 for X, 1 for Y, 2 for Z
   double Center[3]; // Center of rotation
+
+  /**
+   * Internal class to perform the angular periodic transformation on a data array.
+   * This class is used by vtkAngularPeriodicFilter to create a vtkImplicitArray which transforms
+   * data on-the-fly, when ComputeRotationsOnTheFly is enabled.
+   */
+  template <typename ValueType>
+  class vtkAngularPeriodicBackend;
 };
 
 VTK_ABI_NAMESPACE_END

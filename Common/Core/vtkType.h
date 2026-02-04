@@ -84,7 +84,7 @@ enum vtkArrayTypes
   VTK_SOA_DATA_ARRAY,
   VTK_SCALED_SOA_DATA_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTKM_DATA_ARRAY,
-  VTK_PERIODIC_DATA_ARRAY,
+  VTK_PERIODIC_DATA_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTK_IMPLICIT_ARRAY,
 
   // ImplicitArray subclasses/typedefs

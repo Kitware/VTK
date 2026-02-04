@@ -18,16 +18,19 @@
 #define vtkPeriodicDataArray_h
 
 #include "vtkAOSDataArrayTemplate.h" // Template
+#include "vtkDeprecation.h"          // VTK_DEPRECATED_IN_9_7_0
 #include "vtkGenericDataArray.h"     // Parent
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkPeriodicDataArray
+class VTK_DEPRECATED_IN_9_7_0(
+  "No longer needed because vtkAngularPeriodicFilter generates an "
+  "implicit array using an internally defined backend.") vtkPeriodicDataArray
   : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
-      vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>
+      /* vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY */ 9>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
-    vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>;
+    /* vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY */ 9>;
 
 public:
   using SelfType = vtkPeriodicDataArray<Scalar>;
