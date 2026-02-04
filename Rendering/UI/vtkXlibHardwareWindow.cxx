@@ -414,7 +414,7 @@ void vtkXlibHardwareWindow::Destroy()
   this->XCHand = 0;
   this->XCCustom = 0;
 
-  // this->CloseDisplay();
+  this->CloseDisplay();
 
   // make sure all other code knows we're not mapped anymore
   this->Mapped = 0;
