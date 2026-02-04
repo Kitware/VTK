@@ -10,8 +10,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(_vtk_test_cxx_wasm_enabled_in_browser ON)
 endif ()
 
-vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
-  ${extra_opengl2_tests}
+set(cxx_tests
   FrustumClip.cxx
   Mace.cxx
   otherCoordinate.cxx,NO_DATA,NO_VALID
@@ -146,16 +145,46 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-if (VTK_USE_X)
-  set_tests_properties(VTK::RenderingCoreCxx-TestInteractorTimers
-     PROPERTIES RUN_SERIAL ON)
+if (TARGET VTK::RenderingOpenGL2)
+  set(vtk_test_prefix "OpenGL-")
+  vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
+    --vtk-factory-prefer RenderingBackend=OpenGL
+    ${extra_opengl2_tests}
+    ${cxx_tests})
+  unset(vtk_test_prefix)
+  # Below, we set some special properties on OpenGL tests
+  if (VTK_USE_X)
+    set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestInteractorTimers
+      PROPERTIES RUN_SERIAL ON)
+  endif ()
+  # Extend the timeout because this test can take much longer on slow machines.
+  if (NOT VTK_TEST_TIMEOUT_TestManyRenderWindows)
+    set(VTK_TEST_TIMEOUT_TestManyRenderWindows 300)
+  endif()
+  set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestManyRenderWindows
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
 endif ()
 
-# Extend the timeout because this test can take much longer on slow machines.
-if (NOT VTK_TEST_TIMEOUT_TestManyRenderWindows)
-  set(VTK_TEST_TIMEOUT_TestManyRenderWindows 300)
-endif()
-set_tests_properties(VTK::RenderingCoreCxx-TestManyRenderWindows
-  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
+if (TARGET VTK::RenderingWebGPU)
+  set(vtk_test_prefix "WebGPU-")
+  vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
+    --vtk-factory-prefer RenderingBackend=WebGPU
+    ${cxx_tests})
+  unset(vtk_test_prefix)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # Enable JSPI for webgpu async API
+    target_link_options(vtkRenderingCoreCxxTests
+      PRIVATE
+        "-Wno-experimental"
+        "-sJSPI=1"
+        "-sJSPI_EXPORTS=['__wasm_call_ctors']")
+  endif ()
+  # Extend the timeout because this test can take much longer on slow machines.
+  if (NOT VTK_TEST_TIMEOUT_TestManyRenderWindows)
+    set(VTK_TEST_TIMEOUT_TestManyRenderWindows 300)
+  endif()
+  set_tests_properties(VTK::RenderingCoreCxx-WebGPU-TestManyRenderWindows
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
+endif ()
 
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)
