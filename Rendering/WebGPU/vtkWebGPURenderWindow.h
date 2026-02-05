@@ -50,7 +50,7 @@ public:
   /**
    * Destroy a not-off-screen window.
    */
-  virtual void DestroyWindow() {}
+  virtual void DestroyWindow();
 
   /**
    * Creates the WebGPU context, swapchain, depth buffer, color attachment, ...

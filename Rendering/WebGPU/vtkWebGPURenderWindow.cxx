@@ -244,6 +244,7 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   }
   this->ReleaseGraphicsResources(this);
   this->WGPUConfiguration->Finalize();
+  this->DestroyWindow();
   this->Initialized = false;
 }
 
@@ -2277,6 +2278,15 @@ void vtkWebGPURenderWindow::CreateAWindow()
   }
   this->SyncWithHardware();
   this->HardwareWindow->Create();
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::DestroyWindow()
+{
+  if (this->HardwareWindow)
+  {
+    this->HardwareWindow->Destroy();
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
