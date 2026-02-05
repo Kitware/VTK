@@ -993,7 +993,6 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
     bounds);
   bbox.SetBounds(bounds);
   {
-    GLBatchElement* prevGLBatchElement = nullptr;
     for (auto& iter : this->VTKPolyDataToGLBatchElement)
     {
       auto glBatchElement = iter.second.get();
@@ -1023,9 +1022,14 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
 
       vtkIdType vertexOffset = 0;
-      // vert cell offset starts at the end of the last block
-      glBatchElement->CellCellMap->SetStartOffset(
-        prevGLBatchElement ? prevGLBatchElement->CellCellMap->GetFinalOffset() : 0);
+      // Compute StartOffset from current index arrays. This avoids relying on previous element
+      // ordering which can differ between buffer building and other passes.
+      vtkIdType startOffset =
+        static_cast<vtkIdType>((this->IndexArray[vtkOpenGLPolyDataMapper::PrimitivePoints].size()) +
+          (this->IndexArray[vtkOpenGLPolyDataMapper::PrimitiveLines].size() / 2) +
+          (this->IndexArray[vtkOpenGLPolyDataMapper::PrimitiveTris].size() / 3) +
+          (this->IndexArray[vtkOpenGLPolyDataMapper::PrimitiveTriStrips].size() / 3));
+      glBatchElement->CellCellMap->SetStartOffset(startOffset);
       this->AppendOneBufferObject(
         renderer, actor, glBatchElement, vertexOffset, newColors, newNorms);
       glBatchElement->StartVertex = static_cast<unsigned int>(vertexOffset);
@@ -1035,7 +1039,6 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       {
         glBatchElement->NextIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
       }
-      prevGLBatchElement = glBatchElement;
     }
   }
 
