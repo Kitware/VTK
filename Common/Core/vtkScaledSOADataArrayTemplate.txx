@@ -265,6 +265,20 @@ vtkScaledSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
+vtkBuffer<ValueType>* vtkScaledSOADataArrayTemplate<ValueType>::GetComponentBuffer(int comp)
+{
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+  {
+    vtkErrorMacro("Invalid component number '" << comp << "' specified.");
+    return nullptr;
+  }
+
+  return this->Data[comp];
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
 bool vtkScaledSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)

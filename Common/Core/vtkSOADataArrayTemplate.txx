@@ -322,6 +322,25 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
+vtkBuffer<ValueType>* vtkSOADataArrayTemplate<ValueType>::GetComponentBuffer(int comp)
+{
+  if (this->StorageType == StorageTypeEnum::AOS)
+  {
+    vtkErrorMacro("Data is currently stored in AOS mode.");
+    return nullptr;
+  }
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+  {
+    vtkErrorMacro("Invalid component number '" << comp << "' specified.");
+    return nullptr;
+  }
+
+  return this->Data[comp];
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   if (this->StorageType == StorageTypeEnum::SOA)

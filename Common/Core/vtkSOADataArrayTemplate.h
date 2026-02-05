@@ -166,6 +166,17 @@ public:
   ValueType* GetComponentArrayPointer(int comp);
 
   /**
+   * Return the underlying buffer object for a particular component. This can
+   * be used for zero-copy access to the component data, particularly useful
+   * for Python buffer protocol support.
+   */
+#ifdef __VTK_WRAP__
+  vtkAbstractBuffer* GetComponentBuffer(int comp);
+#else
+  vtkBuffer<ValueTypeT>* GetComponentBuffer(int comp);
+#endif // __VTK_WRAP__
+
+  /**
    * Use of this method is discouraged, it creates a deep copy of the data into
    * a contiguous AoS-ordered buffer and prints a warning.
    */
@@ -273,6 +284,7 @@ VTK_ABI_NAMESPACE_END
   void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \
   vtkIdType InsertNextValue(T f);                                                                  \
   T* GetComponentArrayPointer(int id);                                                             \
+  vtkAbstractBuffer* GetComponentBuffer(int comp);                                                 \
   void SetArray(int comp, VTK_ZEROCOPY T* array, vtkIdType size, bool updateMaxId, bool save,      \
     int deleteMethod);
 

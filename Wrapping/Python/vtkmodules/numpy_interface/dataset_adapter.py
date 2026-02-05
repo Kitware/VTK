@@ -267,6 +267,11 @@ class VTKArray(numpy.ndarray):
         obj.Association = ArrayAssociation.FIELD
         # add the new attributes to the created instance
         obj.VTKObject = array
+        # Store a reference to the buffer to ensure the memory stays valid
+        # even if the VTK array reallocates (copy-on-reallocate pattern).
+        # This keeps the buffer alive as long as this VTKArray exists.
+        if array is not None and hasattr(array, 'GetBuffer'):
+            obj._buffer = array.GetBuffer()
         if dataset:
             obj._dataset = vtkWeakReference()
             if issubclass(type(dataset), vtkObject):
@@ -284,11 +289,13 @@ class VTKArray(numpy.ndarray):
         obj2 = _make_tensor_array_contiguous(obj)
 
         self.VTKObject = None
+        self._buffer = None
         try:
             # This line tells us that they are referring to the same buffer.
             # Much like two pointers referring to same memory location in C/C++.
             if buffer_shared(slf, obj2):
                 self.VTKObject = getattr(obj, 'VTKObject', None)
+                self._buffer = getattr(obj, '_buffer', None)
         except TypeError:
             pass
 
