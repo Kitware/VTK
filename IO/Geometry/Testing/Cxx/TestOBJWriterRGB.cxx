@@ -129,8 +129,8 @@ int TestOBJWriterRGB(int argc, char* argv[])
   auto polydata = CreateTestData();
   vtkNew<vtkOBJWriter> writer;
   writer->SetFileName(filename.data());
-  writer->SetArrayName("RGB");
-  writer->ColorModeOn();
+  writer->SetColorArrayName("RGB");
+  writer->WriteColorArrayOn();
   writer->SetInputData(0, polydata);
   writer->Write();
 

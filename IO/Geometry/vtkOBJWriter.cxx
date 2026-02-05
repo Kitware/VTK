@@ -192,8 +192,8 @@ vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
   this->TextureFileName = nullptr;
-  this->ArrayName = {};
-  this->ColorMode = false;
+  this->ColorArrayName = {};
+  this->WriteColorArray = false;
   this->UseRelativeTexturePath = false;
   this->SetNumberOfInputPorts(2);
 }
@@ -407,8 +407,10 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->GetFileName() ? this->GetFileName() : "(none)") << endl;
   os << indent << "Input: " << this->GetInputGeometry() << endl;
 
-  os << indent << "Color Mode: " << (this->ColorMode ? "off" : "on") << "\n";
-  os << indent << "Array Name: " << (this->ArrayName.empty() ? this->ArrayName : "(none)") << "\n";
+  os << indent << "Write Color Array: " << (this->WriteColorArray ? "off" : "on") << "\n";
+  os << indent
+     << "Color Array Name: " << (this->ColorArrayName.empty() ? this->ColorArrayName : "(none)")
+     << "\n";
 
   os << indent << "Use Relative Texture Path: " << (this->UseRelativeTexturePath ? "on" : "off")
      << "\n";
@@ -457,7 +459,7 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
 
 vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttributes* dsa)
 {
-  if (!this->ColorMode)
+  if (!this->WriteColorArray)
   {
     return nullptr;
   }
@@ -467,8 +469,9 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttribut
     vtkDataArray* da = nullptr;
     vtkUnsignedCharArray* colorArray = nullptr;
 
-    if (this->ArrayName.empty() || (da = dsa->GetArray(this->ArrayName.data())) == nullptr ||
-      (numComp = da->GetNumberOfComponents()) == 0)
+    if (this->ColorArrayName.empty() ||
+      (da = dsa->GetArray(this->ColorArrayName.data())) == nullptr ||
+      (numComp = da->GetNumberOfComponents()) < 3)
     {
       return nullptr;
     }

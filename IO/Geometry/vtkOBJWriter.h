@@ -72,20 +72,20 @@ public:
    * then the data is written as three separate "red", "green", "blue" and "alpha"
    * properties. If the array is of any other type, then no color information is
    * written.
-   * If ColorMode is off, no color information will be written into the OBJ file.
-   * Default is ColorMode off.
+   * If WriteColorArray is off, no color information will be written into the OBJ file.
+   * Default is WriteColorArray off.
    */
-  vtkSetMacro(ColorMode, bool);
-  vtkGetMacro(ColorMode, bool);
-  vtkBooleanMacro(ColorMode, bool);
+  vtkSetMacro(WriteColorArray, bool);
+  vtkGetMacro(WriteColorArray, bool);
+  vtkBooleanMacro(WriteColorArray, bool);
   ///@}
 
   ///@{
   /**
    * Specify the array name to use to color the data.
    */
-  vtkSetMacro(ArrayName, std::string);
-  vtkGetMacro(ArrayName, std::string);
+  vtkSetMacro(ColorArrayName, std::string);
+  vtkGetMacro(ColorArrayName, std::string);
   ///@}
 
   ///@{
@@ -114,8 +114,8 @@ private:
   char* FileName;
   char* TextureFileName;
 
-  std::string ArrayName;
-  bool ColorMode;
+  std::string ColorArrayName;
+  bool WriteColorArray;
 
   bool UseRelativeTexturePath;
 };

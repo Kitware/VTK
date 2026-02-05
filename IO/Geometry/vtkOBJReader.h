@@ -48,8 +48,6 @@ protected:
 
   char* Comment;
 
-  int ColorMode; // 0: NoColor, 1: RGB, 2: RGBA
-
 private:
   vtkSmartPointer<vtkResourceStream> Open();
 

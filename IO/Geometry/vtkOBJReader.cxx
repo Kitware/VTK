@@ -31,7 +31,6 @@ vtkStandardNewMacro(vtkOBJReader);
 vtkOBJReader::vtkOBJReader()
 {
   this->Comment = nullptr;
-  this->ColorMode = VTK_OBJ_READER_COLOR_OFF;
 }
 
 //------------------------------------------------------------------------------
@@ -212,6 +211,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   std::string command;      // the command, may be a comment
   std::string firstComment; // the first comment is stored
   int firstCommentLineCount = 0;
+  int colorMode = VTK_OBJ_READER_COLOR_OFF;
 
   std::string tcoordsName; // name of active tcoords
   int lineNumber = 0;      // current line number
@@ -353,20 +353,24 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           ++colorComponentReadCount;
         }
+        if (result == vtkParseResult::EndOfLine || result == vtkParseResult::EndOfStream)
+        {
+          break;
+        }
       }
 
       if (colorComponentReadCount == kColorComponentCountRGB)
       {
         // write RGB values if we have all 3 components
-        if (this->ColorMode == VTK_OBJ_READER_COLOR_OFF)
+        if (colorMode == VTK_OBJ_READER_COLOR_OFF)
         {
           pointColors->Initialize(); // reset any previous colors
-          this->ColorMode = VTK_OBJ_READER_COLOR_RGB;
+          colorMode = VTK_OBJ_READER_COLOR_RGB;
           pointColors->SetNumberOfComponents(kColorComponentCountRGB);
           pointColors->SetName("RGB");
         }
 
-        if (this->ColorMode != VTK_OBJ_READER_COLOR_RGB)
+        if (colorMode == VTK_OBJ_READER_COLOR_RGB)
         {
           std::array<unsigned char, kColorComponentCountRGB> rgb;
           for (std::size_t i = 0; i < kColorComponentCountRGB; ++i)
@@ -383,15 +387,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       else if (colorComponentReadCount == kColorComponentCountRGBA)
       {
         // write RGBA values if we have all 4 components
-        if (this->ColorMode == VTK_OBJ_READER_COLOR_OFF)
+        if (colorMode == VTK_OBJ_READER_COLOR_OFF)
         {
           pointColors->Initialize(); // reset any previous colors
-          this->ColorMode = VTK_OBJ_READER_COLOR_RGBA;
+          colorMode = VTK_OBJ_READER_COLOR_RGBA;
           pointColors->SetNumberOfComponents(kColorComponentCountRGBA);
           pointColors->SetName("RGBA");
         }
 
-        if (this->ColorMode == VTK_OBJ_READER_COLOR_RGBA)
+        if (colorMode == VTK_OBJ_READER_COLOR_RGBA)
         {
           std::array<unsigned char, kColorComponentCountRGBA> rgba;
           for (std::size_t i = 0; i < kColorComponentCountRGBA; ++i)
@@ -411,12 +415,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
       // Check last value (which is optional)
-      double w{};
-      result = parser->Parse(w);
-      if (result == vtkParseResult::Error)
+      if (result == vtkParseResult::Ok)
       {
-        vtkErrorMacro(<< "Unexpected token at L." << lineNumber);
-        return 0;
+        double w{};
+        result = parser->Parse(w);
+        if (result == vtkParseResult::Error)
+        {
+          vtkErrorMacro(<< "Unexpected token at L." << lineNumber);
+          return 0;
+        }
       }
 
       points->InsertNextPoint(point.data());
@@ -1062,11 +1069,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->GetPointData()->SetNormals(normals);
   }
 
-  if (this->ColorMode != VTK_OBJ_READER_COLOR_OFF &&
+  if (colorMode != VTK_OBJ_READER_COLOR_OFF &&
     pointColors->GetNumberOfTuples() == points->GetNumberOfPoints())
   {
     output->GetPointData()->AddArray(pointColors);
-    if (this->ColorMode == VTK_OBJ_READER_COLOR_RGBA)
+    if (colorMode == VTK_OBJ_READER_COLOR_RGBA)
     {
       output->GetPointData()->SetActiveScalars("RGBA");
     }
