@@ -22,6 +22,8 @@
 ##     Set to "true" when documentation upload jobs should be performed.
 ##   ENABLE_WEEKLY_UPLOAD
 ##     Set to "true" when weekly upload jobs should be performed.
+##   ENABLE_ONLY_JOBS
+##     Set to regex in the format of /regex/ that selects the only jobs to enable in the pipeline.
 ####
 
 
@@ -78,6 +80,11 @@ workflow:
 
 .rules:
     rules:
+        # Mechanism to only enable set of jobs
+        - if: '$ENABLE_ONLY_JOBS && $CI_JOB_NAME !~ $ENABLE_ONLY_JOBS'
+          when: never
+        - if: '$ENABLE_ONLY_JOBS && $CI_JOB_NAME =~ $ENABLE_ONLY_JOBS'
+          when: always
         # Some jobs always run.
         - if: '$VTK_CI_RUN_ALWAYS == "true"'
           when: always
