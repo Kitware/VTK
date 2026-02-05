@@ -571,7 +571,12 @@ set (H5_ENABLE_STATIC_LIB NO)
 option (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 set (H5_ENABLE_SHARED_LIB NO)
 else ()
-set(ONLY_SHARED_LIBS OFF)
+set(ONLY_SHARED_LIBS ${BUILD_SHARED_LIBS})
+if (BUILD_SHARED_LIBS)
+set(BUILD_STATIC_LIBS OFF)
+else ()
+set(BUILD_STATIC_LIBS ON)
+endif ()
 set(H5_ENABLE_STATIC_LIB NO)
 set(H5_ENABLE_SHARED_LIB NO)
 endif ()
@@ -584,18 +589,18 @@ endif ()
 
 # only shared libraries/tools is true if user forces static OFF
 if (NOT BUILD_STATIC_LIBS)
-  set (ONLY_SHARED_LIBS ON CACHE BOOL "Only Build Shared Libraries" FORCE)
+  set (ONLY_SHARED_LIBS ON)
 endif ()
 
 # only shared libraries is set ON by user then force settings
 if (ONLY_SHARED_LIBS)
   set (H5_ENABLE_STATIC_LIB NO)
-  set (BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared Libraries" FORCE)
-  set (BUILD_STATIC_LIBS OFF CACHE BOOL "Build Static Libraries" FORCE)
+  set (BUILD_SHARED_LIBS ON)
+  set (BUILD_STATIC_LIBS OFF)
   if (HDF5_BUILD_STATIC_TOOLS)
     #message (WARNING "Cannot build static tools without static libraries. Building shared tools.")
   endif ()
-  set (HDF5_BUILD_STATIC_TOOLS OFF CACHE BOOL "Build Static Tools NOT Shared Tools" FORCE)
+  set (HDF5_BUILD_STATIC_TOOLS OFF)
 endif ()
 
 if (NOT BUILD_SHARED_LIBS AND NOT HDF5_BUILD_STATIC_TOOLS)
@@ -1115,7 +1120,7 @@ endif ()
 if (HDF5_ENABLE_MAP_API)
   set (H5_HAVE_MAP_API 1)
 else ()
-  set (HDF5_ENABLE_MAP_API OFF CACHE BOOL "Build the map API" FORCE)
+  set (HDF5_ENABLE_MAP_API OFF)
 endif ()
 
 #-----------------------------------------------------------------------------
@@ -1389,7 +1394,7 @@ vtk_module_install_headers(
 
 vtk_module_add_module(VTK::hdf5
   HEADER_ONLY)
-target_link_libraries(hdf5
+vtk_module_link(VTK::hdf5
   INTERFACE
     vtkhdf5_src
     vtkhdf5_hl_src)

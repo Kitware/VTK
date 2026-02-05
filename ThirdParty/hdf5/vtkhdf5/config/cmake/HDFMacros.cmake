@@ -466,7 +466,7 @@ macro (HDF_DIR_PATHS package_prefix)
   if (NOT ${package_prefix}_INSTALL_DOC_DIR)
     set (${package_prefix}_INSTALL_DOC_DIR ${${package_prefix}_INSTALL_DATA_DIR})
   endif ()
-  message(STATUS "Final: ${${package_prefix}_INSTALL_DOC_DIR}")
+  # message(STATUS "Final: ${${package_prefix}_INSTALL_DOC_DIR}")
 
   if (FALSE) # XXX(kitware): VTK handles library naming.
   # Always use full RPATH, i.e. don't skip the full RPATH for the build tree
