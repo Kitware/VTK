@@ -319,10 +319,13 @@ vtk_module_add_module(VTK::pugixml
           "${CMAKE_CURRENT_BINARY_DIR}/src/pugiconfig.hpp"
           src/vtk_pugixml_mangle.h
   HEADERS_SUBDIR "vtkpugixml")
+vtk_module_set_property(VTK::pugixml
+  PROPERTY  DEFINE_SYMBOL
+  VALUE     pugixml_EXPORTS)
 vtk_module_include(VTK::pugixml
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>")
-target_compile_features(pugixml
+vtk_module_compile_features(VTK::pugixml
   PUBLIC
     cxx_std_11)
 endif () # XXX(kitware): Use the VTK module system.
