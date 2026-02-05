@@ -26,14 +26,14 @@ vtk_module_add_module(VTK::png
   HEADERS ${headers}
   HEADERS_SUBDIR vtkpng)
 if (WIN32)
-  set_target_properties(png
-    PROPERTIES
-      DEFINE_SYMBOL PNG_BUILD_DLL)
+  vtk_module_set_property(VTK::png
+    PROPERTY  DEFINE_SYMBOL
+    VALUE     PNG_BUILD_DLL)
 endif ()
 
 # Link against the math library
 if (UNIX)
-  target_link_libraries(png
+  vtk_module_link(VTK::png
     PRIVATE
       m)
 endif ()
