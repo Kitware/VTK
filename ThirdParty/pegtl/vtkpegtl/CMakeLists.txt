@@ -1,5 +1,5 @@
 # features used by the PEGTL
-target_compile_features(pegtl
+vtk_module_compile_features(VTK::pegtl
   INTERFACE
     cxx_std_11)
 
