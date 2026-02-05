@@ -513,7 +513,11 @@ endif ()
 #-----------------------------------------------------------------------------
 # Dashboard and Testing Settings
 #-----------------------------------------------------------------------------
+if (FALSE) # XXX(kitware): Hardcoded settings.
 option (CGNS_BUILD_TESTING "Build CGNS Testing" OFF)
+else ()
+set(CGNS_BUILD_TESTING OFF)
+endif ()
 if (CGNS_BUILD_TESTING)
   set (DART_TESTING_TIMEOUT "600"
       CACHE STRING
