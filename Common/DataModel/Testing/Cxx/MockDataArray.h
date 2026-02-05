@@ -3,6 +3,7 @@
 
 #include "vtkBuffer.h"
 #include "vtkGenericDataArray.h"
+#include "vtkNew.h"
 
 /**
  * This class is used in some unit tests to setup a mock data array which derives

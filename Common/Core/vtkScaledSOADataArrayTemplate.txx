@@ -14,6 +14,7 @@
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkBuffer.h"
+#include "vtkCommand.h"
 
 #include <cassert>
 
@@ -295,12 +296,24 @@ bool vtkScaledSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuple
 template <class ValueType>
 bool vtkScaledSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
+  bool bufferChanged = false;
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
   {
-    if (!this->Data[cc]->Reallocate(numTuples))
+    vtkIdType oldSize = this->Data[cc]->GetSize();
+    if (numTuples != oldSize)
     {
-      return false;
+      if (!this->Data[cc]->Reallocate(numTuples))
+      {
+        return false;
+      }
+      bufferChanged = true;
     }
+  }
+
+  // Notify observers that the buffer may have changed
+  if (bufferChanged)
+  {
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   return true;
 }

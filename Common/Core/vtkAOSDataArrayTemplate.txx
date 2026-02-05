@@ -12,6 +12,7 @@
 #include "vtkAOSDataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkCommand.h"
 
 //-----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -430,9 +431,17 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
 template <class ValueTypeT>
 bool vtkAOSDataArrayTemplate<ValueTypeT>::ReallocateTuples(vtkIdType numTuples)
 {
-  if (this->Buffer->Reallocate(numTuples * this->GetNumberOfComponents()))
+  vtkIdType newSize = numTuples * this->GetNumberOfComponents();
+  if (newSize == this->Size)
+  {
+    return true;
+  }
+
+  if (this->Buffer->Reallocate(newSize))
   {
     this->Size = this->Buffer->GetSize();
+    // Notify observers that the buffer may have changed
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
     return true;
   }
   return false;

@@ -6,6 +6,7 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkScaledSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"

@@ -69,7 +69,7 @@ NUMPY_MAJOR_VERSION = int(numpy.__version__.split('.')[0])
 from typing import Generator, Tuple, Union, List
 import operator
 import sys
-from ..vtkCommonCore import buffer_shared
+from ..vtkCommonCore import buffer_shared, vtkCommand
 from ..util import numpy_support
 from ..vtkCommonDataModel import vtkDataObject
 from ..vtkCommonCore import vtkWeakReference, vtkObject
@@ -267,11 +267,45 @@ class VTKArray(numpy.ndarray):
         obj.Association = ArrayAssociation.FIELD
         # add the new attributes to the created instance
         obj.VTKObject = array
+        obj._observer_id = None
+        obj._observer_array = None
+        obj._stale = False
+        obj._postarrival = None
         # Store a reference to the buffer to ensure the memory stays valid
         # even if the VTK array reallocates (copy-on-reallocate pattern).
         # This keeps the buffer alive as long as this VTKArray exists.
         if array is not None and hasattr(array, 'GetBuffer'):
             obj._buffer = array.GetBuffer()
+            # Add observer to detect buffer changes. If the VTK array
+            # reallocates, raise an exception immediately.
+            # Store observer_id in a list so the callback can access and clear it.
+            observer_id_holder = [None]
+            def on_buffer_changed(vtk_obj, event):
+                # Remove the observer so we only warn once
+                if observer_id_holder[0] is not None:
+                    vtk_obj.RemoveObserver(observer_id_holder[0])
+                    observer_id_holder[0] = None
+                raise RuntimeError(
+                    "The underlying VTK array has reallocated its buffer. "
+                    "The VTKArray wrapping it is now stale and points to invalid memory. "
+                    "Please retrieve a fresh VTKArray from the data source.")
+            observer_id = array.AddObserver(
+                vtkCommand.BufferChangedEvent, on_buffer_changed)
+            observer_id_holder[0] = observer_id
+            obj._observer_id = observer_id_holder
+            obj._observer_array = array
+            # Use weakref.finalize for reliable cleanup - more robust than __del__
+            # for numpy array subclasses. Use weak ref to array to avoid preventing
+            # its garbage collection.
+            weak_array = weakref.ref(array)
+            def cleanup(weak_arr, obs_id_holder):
+                arr = weak_arr()
+                if arr is not None and obs_id_holder[0] is not None:
+                    try:
+                        arr.RemoveObserver(obs_id_holder[0])
+                    except:
+                        pass
+            obj._postarrival = weakref.finalize(obj, cleanup, weak_array, observer_id_holder)
         if dataset:
             obj._dataset = vtkWeakReference()
             if issubclass(type(dataset), vtkObject):
@@ -290,12 +324,20 @@ class VTKArray(numpy.ndarray):
 
         self.VTKObject = None
         self._buffer = None
+        self._observer_id = None
+        self._observer_array = None
+        self._stale = False
+        self._postarrival = None
         try:
             # This line tells us that they are referring to the same buffer.
             # Much like two pointers referring to same memory location in C/C++.
             if buffer_shared(slf, obj2):
                 self.VTKObject = getattr(obj, 'VTKObject', None)
                 self._buffer = getattr(obj, '_buffer', None)
+                # Copy stale flag - if original is stale, so is the slice.
+                self._stale = getattr(obj, '_stale', False)
+                # Don't copy observer info - slices don't own the observer.
+                # Only the original VTKArray should remove the observer.
         except TypeError:
             pass
 
