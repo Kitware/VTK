@@ -7,14 +7,14 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderMalformed.cxx,NO_VALID
   TestOBJReaderDouble.cxx
   TestOBJPolyDataWriter.cxx
+  TestOBJReaderColorArray.cxx,NO_VALID
   TestOBJReaderComments.cxx,NO_VALID
   TestOBJReaderGroups.cxx,NO_VALID
   TestOBJReaderMaterials.cxx,NO_VALID
   TestOBJReaderMultiline.cxx,NO_VALID
   TestOBJReaderMultiTexture.cxx,NO_VALID
-  TestOBJReaderRGBA.cxx,NO_VALID
-  TestOBJWriterMultiTexture.cxx,NO_VALID
-  TestOBJWriterRGB.cxx,NO_VALID
+  TestOBJWriterColorArray.cxx,NO_VALID
+  TestOBJWriterMultiTexture.cxx,NO_VALID  
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
   TestOBJReaderRelative.cxx,NO_VALID
   TestOBJReaderSingleTexture.cxx,NO_VALID
