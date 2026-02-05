@@ -12,7 +12,9 @@
 #ifndef vtkTypeTraits_h
 #define vtkTypeTraits_h
 
+#include "vtkStdString.h"
 #include "vtkSystemIncludes.h"
+#include "vtkVariant.h"
 
 // Forward-declare template.  There is no primary template.
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,7 +27,7 @@ struct vtkTypeTraits;
   struct vtkTypeTraits<type>                                                                       \
   {                                                                                                \
     /* The type itself.  */                                                                        \
-    typedef type ValueType;                                                                        \
+    using ValueType = type;                                                                        \
                                                                                                    \
     /* the value defined for this type in vtkType */                                               \
     enum                                                                                           \
@@ -71,12 +73,37 @@ struct vtkTypeTraits;
     }                                                                                              \
                                                                                                    \
     /* A type to use for printing or parsing values in strings.  */                                \
-    typedef print PrintType;                                                                       \
+    using PrintType = print;                                                                       \
                                                                                                    \
     /* A format for parsing values from strings.  Use with PrintType.  */                          \
     static const char* ParseFormat()                                                               \
     {                                                                                              \
       return format;                                                                               \
+    }                                                                                              \
+  }
+
+// Define a macro to simplify trait definitions.
+#define VTK_NON_NUMERIC_TYPE_TRAITS(type, macro)                                                   \
+  template <>                                                                                      \
+  struct vtkTypeTraits<type>                                                                       \
+  {                                                                                                \
+    /* The type itself.  */                                                                        \
+    using ValueType = type;                                                                        \
+                                                                                                   \
+    /* the value defined for this type in vtkType */                                               \
+    enum                                                                                           \
+    {                                                                                              \
+      VTK_TYPE_ID = VTK_##macro                                                                    \
+    };                                                                                             \
+    static int VTKTypeID()                                                                         \
+    {                                                                                              \
+      return VTK_##macro;                                                                          \
+    }                                                                                              \
+                                                                                                   \
+    /* The common C++ name for the type (e.g. float, unsigned int, etc).*/                         \
+    static const char* Name()                                                                      \
+    {                                                                                              \
+      return #type;                                                                                \
     }                                                                                              \
   }
 
@@ -162,7 +189,14 @@ VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64, unsigned long
 #define VTK_TYPE_SIZED_ID_TYPE INT32
 #endif
 
+// Define traits for vtkStdString
+VTK_NON_NUMERIC_TYPE_TRAITS(vtkStdString, STRING);
+
+// Define traits for vtkVariant
+VTK_NON_NUMERIC_TYPE_TRAITS(vtkVariant, VARIANT);
+
 #undef VTK_TYPE_TRAITS
+#undef VTK_NON_NUMERIC_TYPE_TRAITS
 
 VTK_ABI_NAMESPACE_END
 #endif
