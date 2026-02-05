@@ -166,6 +166,14 @@ void vtkHyperTreeGridGenerateFields::ProcessFields(
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridGenerateFields::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
+  if (input->GetNumberOfCells() != input->GetCellData()->GetNumberOfTuples())
+  {
+    vtkErrorMacro("Input has " << input->GetNumberOfCells() << " cells but has "
+                               << input->GetCellData()->GetNumberOfTuples()
+                               << " tuples  in cell data, cannot generate fields");
+    return 0;
+  }
+
   this->InitializeFields();
 
   vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::SafeDownCast(outputDO);
