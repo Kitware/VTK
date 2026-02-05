@@ -1568,6 +1568,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 
     vtkDataObject* dataObject = nullptr;
     vtkPartitionedDataSet* pds = pdc->GetPartitionedDataSet(dsIndex);
+    pdc->GetMetaData(dsIndex)->Set(vtkCompositeDataSet::NAME(), datasetName);
 
     // Use partitions if already available
     int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
