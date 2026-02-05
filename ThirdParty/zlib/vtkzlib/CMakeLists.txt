@@ -7,7 +7,11 @@ project(zlib C)
 
 set(VERSION "1.3.1")
 
+if (FALSE) # XXX(kitware): hardcode settings
 option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
+else ()
+set(ZLIB_BUILD_EXAMPLES OFF)
+endif ()
 
 if (FALSE) # XXX(kitware): VTK handles installation.
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
@@ -122,7 +126,9 @@ vtk_module_add_module(VTK::zlib
     HEADERS ${ZLIB_PUBLIC_HDRS}
     PRIVATE_HEADERS ${ZLIB_PRIVATE_HDRS}
     HEADERS_SUBDIR "vtkzlib")
-set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+vtk_module_set_property(VTK::zlib
+    PROPERTY    DEFINE_SYMBOL
+    VALUE       ZLIB_DLL)
 
 if (FALSE) # XXX(kitware): skip all the original build/install commands
 
