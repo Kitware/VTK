@@ -721,6 +721,15 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   const std::string& rootName, std::array<int, 2>& version, int& dataSetType, int& numberOfPieces,
   std::array<hid_t, 3>& attributeDataGroup)
 {
+  return vtkHDFUtilities::RetrieveHDFInformation(
+    fileID, rootName, "", groupID, version, dataSetType, numberOfPieces, attributeDataGroup);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& rootID, const std::string& rootName,
+  const std::string& groupPrefix, hid_t& groupID, std::array<int, 2>& version, int& dataSetType,
+  int& numberOfPieces, std::array<hid_t, 3>& attributeDataGroup)
+{
   // turn off error logging and save error function
   H5E_auto_t f;
   void* client_data;
@@ -728,7 +737,7 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
 
   bool error = false;
-  if ((groupID = H5Gopen(fileID, rootName.c_str(), H5P_DEFAULT)) < 0)
+  if ((groupID = H5Gopen(rootID, rootName.c_str(), H5P_DEFAULT)) < 0)
   {
     // we try to read a non-VTKHDF file
     return false;
@@ -744,9 +753,12 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   std::fill(attributeDataGroup.begin(), attributeDataGroup.end(), -1);
   std::fill(version.begin(), version.end(), 0);
 
-  std::array<const char*, 3> groupNames = { "/PointData", "/CellData", "/FieldData" };
+  std::array<std::string, 3> groupNames = { groupPrefix + "/PointData", groupPrefix + "/CellData",
+    groupPrefix + "/FieldData" };
 
-  if (dataSetType == VTK_OVERLAPPING_AMR)
+  // XXX: This should be removed once VTK_OVERLAPPING_AMR spec is reworked
+  // https://gitlab.kitware.com/vtk/vtk/-/issues/19926
+  if (groupPrefix.empty() && dataSetType == VTK_OVERLAPPING_AMR)
   {
     groupNames = { "/Level0/PointData", "/Level0/CellData", "/Level0/FieldData" };
   }
@@ -755,7 +767,7 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   for (size_t i = 0; i < attributeDataGroup.size(); ++i)
   {
     std::string path = rootName + groupNames[i];
-    attributeDataGroup[i] = H5Gopen(fileID, path.c_str(), H5P_DEFAULT);
+    attributeDataGroup[i] = H5Gopen(rootID, path.c_str(), H5P_DEFAULT);
   }
   // turn on error logging and restore error function
   H5Eset_auto(H5E_DEFAULT, f, client_data);
@@ -783,7 +795,7 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
       {
         datasetName = rootName + "/NumberOfPoints";
       }
-      std::vector<hsize_t> dims = vtkHDFUtilities::GetDimensions(fileID, datasetName.c_str());
+      std::vector<hsize_t> dims = vtkHDFUtilities::GetDimensions(rootID, datasetName.c_str());
       if (dims.size() != 1)
       {
         throw std::runtime_error(datasetName + " dataset should have 1 dimension");

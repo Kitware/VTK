@@ -19,7 +19,7 @@ have ongoing discussions and may be specified when possible.
 | vtkMultiBlockDataSet            | specified       |
 | vtkPartitionedDataSet           | specified       |
 | vtkPartitionedDataSetCollection | specified       |
-| vtkOverlappingAMR               | specified       |
+| vtkOverlappingAMR               | partial [1](https://gitlab.kitware.com/vtk/vtk/-/issues/19926)[2](https://gitlab.kitware.com/vtk/vtk/-/issues/19927)  |
 | vtkPolyData                     | specified       |
 | vtkRectilinearGrid              | [not specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
 | vtkStructuredGrid               | [not specified](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
@@ -58,4 +58,4 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | Temporal                        | supported           | supported      |
 
 ¹: ability to reuse data instead of duplicating it to save disk space and performance.
-²: missing for overlapping AMR and HTG.
+²: missing for vtkHyperTreeGrid.

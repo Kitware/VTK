@@ -10,6 +10,7 @@
 #define vtkHDFUtilities_h
 
 #include "vtkDataArray.h"
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkIOHDFModule.h" // For export macro
 #include "vtkLogger.h"
@@ -188,9 +189,29 @@ VTKIOHDF_EXPORT std::vector<hsize_t> GetDimensions(hid_t fileID, const char* dat
 /**
  * Initialize meta information of the file.
  */
-VTKIOHDF_EXPORT bool RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
-  const std::string& rootName, std::array<int, 2>& version, int& dataSetType, int& numberOfPieces,
+VTK_DEPRECATED_IN_9_7_0("Deprecated. Please use the groupPrefix version instead.")
+VTKIOHDF_EXPORT
+bool RetrieveHDFInformation(hid_t& fileID, hid_t& groupID, const std::string& rootName,
+  std::array<int, 2>& version, int& dataSetType, int& numberOfPieces,
   std::array<hid_t, 3>& attributeDataGroup);
+
+/**
+ * Retrieve HDF information from provided rootId, rootName and groupPrefix
+ *
+ * @arg rootID The root to use to open a dataset from
+ * @arg rootName The path to open from the rootId
+ * @arg groupPrefix Prefix to add in front of the groupName like "Level0/" to access
+ * "Level0/FieldData"
+ * @arg groupId Set to the resulting id of the group being opened
+ * @arg version Set to the version of the file being opened
+ * @arg dataSetType Set to the type of the dataset being opened
+ * @arg numberOfPieces Set to the number of pieces in the dataset being opened
+ * @arg attributeDataGroup Set to the ids of the point/cell/field data group
+ * @return true on sucess, false otherwise
+ */
+VTKIOHDF_EXPORT bool RetrieveHDFInformation(hid_t& rootID, const std::string& rootName,
+  const std::string& groupPrefix, hid_t& groupID, std::array<int, 2>& version, int& dataSetType,
+  int& numberOfPieces, std::array<hid_t, 3>& attributeDataGroup);
 
 /**
  * Convenient callback method to retrieve a name when calling a H5Giterate()
