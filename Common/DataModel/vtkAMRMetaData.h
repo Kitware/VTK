@@ -97,7 +97,7 @@ public:
    * Deprecated, forward to GetAbsoluteBlockIndex
    */
   VTK_DEPRECATED_IN_9_6_0("Use GetAbsoluteBlockIndex(level, id) instead")
-  [[nodiscard]] int GetIndex(unsigned int level, unsigned int id) const
+  int GetIndex(unsigned int level, unsigned int id) const
   {
     return this->GetAbsoluteBlockIndex(level, id);
   }

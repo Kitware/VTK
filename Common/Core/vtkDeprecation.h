@@ -69,7 +69,27 @@
 #elif defined(__VTK_WRAP__)
 #define VTK_DEPRECATION(reason) [[vtk::deprecated(reason)]]
 #else
+#if defined(__clang__)
+// Clang 12 and before mix [[deprecated]] with visibility macros, and cause parser like below
+// error: expected identifier before '__attribute__'
+// class [[deprecated("deprecated")]] __attribute__((visibility("default"))) Foo {};
+#if (__clang_major__ <= 12)
+#define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
+#else
 #define VTK_DEPRECATION(reason) [[deprecated(reason)]]
+#endif
+#elif defined(__GNUC__)
+// GCC 12 and before mix [[deprecated]] with visibility macros, and cause parser like below
+// error: expected identifier before '__attribute__'
+// class [[deprecated("deprecated")]] __attribute__((visibility("default"))) Foo {};
+#if (__GNUC__ <= 12)
+#define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
+#else
+#define VTK_DEPRECATION(reason) [[deprecated(reason)]]
+#endif
+#else
+#define VTK_DEPRECATION(reason) [[deprecated(reason)]]
+#endif
 #endif
 
 // APIs deprecated in the next release.
