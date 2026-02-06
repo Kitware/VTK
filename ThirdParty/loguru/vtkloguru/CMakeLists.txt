@@ -33,8 +33,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif ()
 
 include(GenerateExportHeader)
-generate_export_header(loguru
-  EXPORT_MACRO_NAME LOGURU_EXPORT
+generate_export_header(vtkloguru
+  BASE_NAME         LOGURU
   EXPORT_FILE_NAME vtkloguru_export.h)
 
 vtk_module_find_package(PACKAGE Threads)
