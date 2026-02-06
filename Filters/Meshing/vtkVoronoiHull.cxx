@@ -199,7 +199,6 @@ void vtkVoronoiHull::BumpOrigin(int bumpNum, double origin[3], double bumpOrigin
   // Loop over hull points, find the most distant, and bump the origin in
   // that direction.
   double minR2 = VTK_FLOAT_MAX;
-  double minX[3];
 
   for (const auto& pt : this->Points)
   {

@@ -22,10 +22,10 @@ vtkVoronoiCore3D<TCompositor, TClassifier>::vtkVoronoiCore3D(vtkAlgorithm* filte
   , Padding(padding)
   , MaxClips(maxClips)
   , Validate(validate)
+  , NumberOfPrunes(0)
   , NumberOfThreads(0)
   , MaximumNumberOfPoints(0)
   , MaximumNumberOfFaces(0)
-  , NumberOfPrunes(0)
 {
   // Set up points for processing. The points must be of type double.
   this->NPts = this->InPoints->GetNumberOfPoints();

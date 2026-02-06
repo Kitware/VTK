@@ -956,7 +956,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Rerun with point of interest selected.
     vtkVoronoiClassifier2D poiClassifier(regions);
-    auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
+    auto voroPOI = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
       this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
       this->Validate, this->PruneTolerance, nullptr, &poiClassifier);
 

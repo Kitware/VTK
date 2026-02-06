@@ -292,8 +292,8 @@ Filters/Sources/vtkTessellatedBoxSource.h
 Filters/Sources/vtkTextSource.h
 Filters/Sources/vtkTexturedSphereSource.h
 Filters/Sources/vtkUniformHyperTreeGridSource.h
-Filters/Meshing/vtkVoronoi2D.h
-Filters/Meshing/vtkVoronoi3D.h
+Filters/Meshing/vtkVoronoiFlower2D.h
+Filters/Meshing/vtkVoronoiFlower3D.h
 Filters/Meshing/vtkGeneralizedSurfaceNets3D.h
 Imaging/Color/vtkImageMapToWindowLevelColors.h
 Imaging/Core/vtkAbstractImageInterpolator.h
