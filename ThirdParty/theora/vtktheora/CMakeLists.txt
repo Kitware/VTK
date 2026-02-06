@@ -43,16 +43,17 @@ vtk_module_add_module(VTK::theora
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtktheora")
-target_include_directories(theora
+vtk_module_include(VTK::theora
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include/theora>")
-set_target_properties(theora
-  PROPERTIES
-    C_VISIBILITY_PRESET "hidden")
+vtk_module_set_property(VTK::theora
+  PROPERTY  C_VISIBILITY_PRESET
+  VALUE     "hidden")
 
 include(GenerateExportHeader)
-generate_export_header(theora
+generate_export_header(vtktheora
+  BASE_NAME         THEORA
   EXPORT_MACRO_NAME VTKTHEORA_EXPORT
   EXPORT_FILE_NAME  include/theora/vtktheora_export.h)
 
@@ -60,7 +61,7 @@ include(CheckCCompilerFlag)
 function (vtktheora_suppress_warning warning)
   check_c_compiler_flag("-Wno-${warning}" "have_flag_${warning}")
   if (have_flag_${warning})
-    target_compile_options(theora
+    vtk_module_compile_options(VTK::theora
       PRIVATE
         "-Wno-${warning}")
   endif ()
