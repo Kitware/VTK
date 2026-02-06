@@ -291,17 +291,16 @@ vtk_module_add_module(VTK::lzma
   HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers}
   HEADERS_SUBDIR "vtklzma")
-set_target_properties(lzma
-  PROPERTIES
-    C_STANDARD 99
-    POSITION_INDEPENDENT_CODE 1)
+vtk_module_set_properties(VTK::lzma
+  C_STANDARD 99
+  POSITION_INDEPENDENT_CODE 1)
 
 if (BUILD_SHARED_LIBS)
-  set_target_properties(lzma
-    PROPERTIES
-      DEFINE_SYMBOL DLL_EXPORT)
+  vtk_module_set_property(VTK::lzma
+    PROPERTY  DEFINE_SYMBOL
+    VALUE     DLL_EXPORT)
   if (CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(lzma
+    vtk_module_link(VTK::lzma
       PRIVATE
         ${CMAKE_THREAD_LIBS_INIT})
   endif ()

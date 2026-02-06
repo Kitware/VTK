@@ -396,18 +396,18 @@ vtk_module_add_module(VTK::libxml2
   SOURCES ${LIBXML2_SRCS}
   HEADERS ${LIBXML2_HDRS}
   HEADERS_SUBDIR "vtklibxml2")
-target_compile_definitions(libxml2
+vtk_module_definitions(VTK::libxml2
   PRIVATE
     _GNU_SOURCE
     _REENTRANT)
 
 if(NOT BUILD_SHARED_LIBS)
-  target_compile_definitions(libxml2
+  vtk_module_definitions(VTK::libxml2
     PRIVATE
       LIBXML_STATIC)
 endif()
 
-target_include_directories(libxml2
+vtk_module_include(VTK::libxml2
   PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include/libxml"
     "${CMAKE_CURRENT_BINARY_DIR}/include/libxml"

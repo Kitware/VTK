@@ -8,7 +8,7 @@ readonly name="png"
 readonly ownership="Libpng Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/png.git"
-readonly tag="for/vtk-20241208-1.6.44"
+readonly tag="for/vtk-20260125-1.6.44"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt

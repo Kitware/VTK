@@ -28,16 +28,16 @@ vtk_module_add_module(VTK::kissfft
   HEADER_DIRECTORIES
   HEADERS_SUBDIR "vtkkissfft")
 
-target_compile_definitions(kissfft
+vtk_module_definitions(VTK::kissfft
   PUBLIC "kiss_fft_scalar=${KISSFFT_SCALAR_TYPE}")
 if (WIN32 AND BUILD_SHARED_LIBS)
-  target_compile_definitions(kissfft
+  vtk_module_definitions(VTK::kissfft
     PRIVATE
       KISSFFT_DLL_EXPORT=1
     INTERFACE
       KISSFFT_DLL_IMPORT=1)
 endif ()
-target_include_directories(kissfft
+vtk_module_include(VTK::kissfft
   PRIVATE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
 

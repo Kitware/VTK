@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 3.9.0)
 endif ()
 
 # Default policy is from 3.9.0
-cmake_policy(VERSION 3.9.0)
+cmake_policy(VERSION 3.9.0...3.12)
 
 # Find CMake modules in cmake/
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")

@@ -1,3 +1,7 @@
+# The import brings this in, but the support code has not been merged. See
+# !12286.
+set(VTK_JPEG_ENABLE_SIMD 0)
+
 vtk_third_party_extract(
   FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
   TAGS

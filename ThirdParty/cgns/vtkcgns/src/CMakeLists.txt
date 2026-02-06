@@ -23,7 +23,9 @@ elseif("${SIZEOF_LONG_LONG}" EQUAL "8")
 else()
   message(FATAL_ERROR "Can't find suitable int64_t")
 endif()
+if (FALSE) # XXX(kitware): silence configure noise
 message(STATUS "Found int64_t: ${CGLONGT}")
+endif ()
 
 set(BUILDLEGACY 0)
 set(BUILD64BIT 0)
@@ -722,7 +724,9 @@ install (TARGETS ${install_targets}
 else ()
 vtk_module_add_module(VTK::cgns
   SOURCES ${cgns_FILES})
-set_target_properties(cgns PROPERTIES DEFINE_SYMBOL BUILD_DLL)
+vtk_module_set_property(VTK::cgns
+  PROPERTY  DEFINE_SYMBOL
+  VALUE     BUILD_DLL)
 endif ()
 # Set the install path of the header files
 set(headers

@@ -4966,9 +4966,15 @@ function (vtk_module_install_headers)
         get_filename_component(_vtk_install_headers_destination_directory_subdir "${_vtk_install_headers_directory}" DIRECTORY)
       endif ()
     endif ()
+    set(_vtk_install_headers_full_destination
+      "${_vtk_install_headers_destination}")
+    if (_vtk_install_headers_destination_directory_subdir)
+      string(APPEND _vtk_install_headers_full_destination
+        "/${_vtk_install_headers_destination_directory_subdir}")
+    endif ()
     install(
       DIRECTORY   "${_vtk_install_headers_directory}"
-      DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_directory_subdir}"
+      DESTINATION "${_vtk_install_headers_full_destination}"
       COMPONENT   "${_vtk_install_headers_headers_component}"
       ${_vtk_install_headers_exclude_from_all})
   endforeach ()
@@ -5036,25 +5042,25 @@ function (_vtk_module_apply_properties target)
     string(APPEND _vtk_add_module_output_name "-${_vtk_build_LIBRARY_NAME_SUFFIX}")
   endif ()
 
-  set_target_properties("${target}"
-    PROPERTIES
+  set_property(TARGET "${target}"
+    PROPERTY
       OUTPUT_NAME "${_vtk_add_module_output_name}")
 
   if (_vtk_build_VERSION AND NOT _vtk_add_module_type STREQUAL "EXECUTABLE")
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         VERSION "${_vtk_build_VERSION}")
   endif ()
 
   if (_vtk_build_SOVERSION)
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         SOVERSION "${_vtk_build_SOVERSION}")
   endif ()
 
   if (WIN32 AND NOT DEFINED CMAKE_DEBUG_POSTFIX)
-    set_target_properties("${target}"
-      PROPERTIES
+    set_property(TARGET "${target}"
+      PROPERTY
         DEBUG_POSTFIX "d")
   endif ()
 
@@ -5207,7 +5213,6 @@ function (vtk_module_add_executable name)
   endif ()
 
   set(_vtk_add_executable_target_name "${name}")
-  set(_vtk_add_executable_library_name "${name}")
   if (name STREQUAL _vtk_build_module)
     if (_vtk_add_executable_NO_INSTALL)
       message(FATAL_ERROR
@@ -5221,8 +5226,6 @@ function (vtk_module_add_executable name)
     endif ()
     get_property(_vtk_add_executable_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
-    get_property(_vtk_add_executable_library_name GLOBAL
-      PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   endif ()
 
   if (_vtk_add_executable_DEVELOPMENT AND NOT _vtk_build_INSTALL_HEADERS)

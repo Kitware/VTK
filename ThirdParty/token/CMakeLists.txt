@@ -1,6 +1,8 @@
 # Override some configuration options before descending into vtktoken:
 set(token_NAMESPACE "vtktoken")
 set(token_PACKAGE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake")
+set(token_ENABLE_TESTING OFF)
+set(token_FORCE_OLD_DTAGS OFF)
 
 vtk_third_party_extract(
   FILE "${CMAKE_CURRENT_SOURCE_DIR}/update.sh"
@@ -21,3 +23,5 @@ vtk_module_third_party(
     TARGETS token
     STANDARD_INCLUDE_DIRS
 )
+
+unset(token_FORCE_OLD_DTAGS CACHE)

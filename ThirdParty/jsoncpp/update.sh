@@ -8,7 +8,7 @@ readonly name="jsoncpp"
 readonly ownership="JsonCpp Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/jsoncpp.git"
-readonly tag="for/vtk-20241206-1.9.6"
+readonly tag="for/vtk-20260125-1.9.6"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
