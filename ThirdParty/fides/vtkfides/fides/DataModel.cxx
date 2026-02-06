@@ -101,7 +101,7 @@ std::vector<viskores::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwne
 {
   std::vector<viskores::cont::UnknownArrayHandle> ownerlessUAHs;
   ownerlessUAHs.reserve(uahs.size());
-  for (auto& uah : uahs)
+  for (const auto& uah : uahs)
   {
     ownerlessUAHs.emplace_back(make_ArrayHandleWithoutDataOwnership(uah));
   }

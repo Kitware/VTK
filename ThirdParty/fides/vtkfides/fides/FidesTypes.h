@@ -58,7 +58,8 @@ enum class StepStatus
 {
   OK,
   NotReady,
-  EndOfStream
+  EndOfStream,
+  OtherError
 };
 
 /// Association for fields, based on Viskores's association enum, but

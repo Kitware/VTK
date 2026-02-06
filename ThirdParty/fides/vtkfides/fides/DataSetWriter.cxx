@@ -228,7 +228,10 @@ struct WriteExplicitCoordsFunctor
     adios2::Box<adios2::Dims> sel({ cOffset, 0 }, { numCoords, 3 });
 
     coordsVar.SetSelection(sel);
-    engine.template Put<T>(coordsVar, buff);
+    if (buff)
+    {
+      engine.template Put<T>(coordsVar, buff);
+    }
 
     cOffset += numCoords;
   }
@@ -485,15 +488,16 @@ public:
   GenericWriter(const viskores::cont::PartitionedDataSet& dataSets,
                 const std::string& fname,
                 const std::string& outputMode,
+                const std::string& adiosConfig,
                 const bool& appendMode = false)
     : DataSets(dataSets)
     , OutputFileName(fname)
 #ifdef FIDES_USE_MPI
     // leaving in this FIDES_USE_MPI check, as you could still use this ctor even if building with MPI
     , Comm(MPI_COMM_WORLD)
-    , Adios(Comm)
+    , Adios(adiosConfig, Comm)
 #else
-    , Adios()
+    , Adios(adiosConfig)
 #endif
     , FieldsToWriteSet(false)
   {
@@ -502,33 +506,56 @@ public:
     MPI_Comm_size(this->Comm, &this->NumRanks);
 #endif
 
-    this->IO = this->Adios.DeclareIO(outputMode);
-    this->IO.SetEngine(outputMode);
-    this->Engine = this->IO.Open(this->OutputFileName,
-                                 (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
+    this->SetupAdios(outputMode, adiosConfig, appendMode);
   }
 
 #ifdef FIDES_USE_MPI
   GenericWriter(const viskores::cont::PartitionedDataSet& dataSets,
                 const std::string& fname,
                 const std::string& outputMode,
+                const std::string& adiosConfig,
                 MPI_Comm comm,
                 const bool& appendMode = false)
     : DataSets(dataSets)
     , OutputFileName(fname)
     , Comm(comm)
-    , Adios(comm)
+    , Adios(adiosConfig, comm)
     , FieldsToWriteSet(false)
   {
     MPI_Comm_rank(this->Comm, &this->Rank);
     MPI_Comm_size(this->Comm, &this->NumRanks);
 
-    this->IO = this->Adios.DeclareIO(outputMode);
-    this->IO.SetEngine(outputMode);
-    this->Engine = this->IO.Open(this->OutputFileName,
-                                 (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
+    this->SetupAdios(outputMode, adiosConfig, appendMode);
   }
 #endif
+
+  void SetupAdios(const std::string& outputMode,
+                  const std::string& adiosConfig,
+                  const bool& appendMode = false)
+  {
+    // if adiosConfig file is provided, we will ignore outputMode
+    // if adiosConfig is not provided, we will use outputMode
+    if (!adiosConfig.empty())
+    {
+      // so we have to make sure to declare the IO with the same name in the adiosConfig file.
+      // we don't want to add parsing of the xml, so lets just require that the io is always named
+      // the same thing
+      this->IO = this->Adios.DeclareIO("fides-write-io");
+      this->Engine = this->IO.Open(this->OutputFileName,
+                                   (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
+    }
+    else if (!outputMode.empty())
+    {
+      this->IO = this->Adios.DeclareIO(outputMode);
+      this->IO.SetEngine(outputMode);
+      this->Engine = this->IO.Open(this->OutputFileName,
+                                   (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
+    }
+    else
+    {
+      throw std::runtime_error("Error: No output mode or adios config file provided.");
+    }
+  }
 
   void Close()
   {
@@ -593,6 +620,10 @@ public:
         {
           throw std::runtime_error("Variable " + varName + " not in datasset.");
         }
+        if (numPoints == 0)
+        {
+          continue;
+        }
         auto field = ds.GetField(varName).GetData();
         field.CastAndCallForTypes<viskores::TypeListCommon, VISKORES_DEFAULT_STORAGE_LIST>(
           WriteFieldFunctor{},
@@ -618,6 +649,11 @@ public:
         if (!ds.HasCellField(varName))
         {
           throw std::runtime_error("Variable " + varName + " not in datasset.");
+        }
+
+        if (numCells == 0)
+        {
+          continue;
         }
 
         auto field = ds.GetField(varName).GetData();
@@ -867,8 +903,9 @@ public:
   UniformDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                        const std::string& fname,
                        const std::string& outputMode,
+                       const std::string& adiosConfig,
                        const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, appendMode)
   {
   }
 
@@ -876,9 +913,10 @@ public:
   UniformDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                        const std::string& fname,
                        const std::string& outputMode,
+                       const std::string& adiosConfig,
                        MPI_Comm comm,
                        const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, comm, appendMode)
   {
   }
 #endif
@@ -888,7 +926,6 @@ public:
     std::vector<std::size_t> shape = { 3 * this->TotalNumberOfDataSets };
     std::vector<std::size_t> offset = { 3 * this->DataSetOffset };
     std::vector<std::size_t> size = { 3 * this->NumberOfDataSets };
-
 
     this->DimsVar = this->IO.DefineVariable<std::size_t>("dims", shape, offset, size);
     this->OriginsVar = this->IO.DefineVariable<double>("origin", shape, offset, size);
@@ -961,8 +998,9 @@ public:
   RectilinearDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                            const std::string& fname,
                            const std::string& outputMode,
+                           const std::string& adiosConfig,
                            const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, appendMode)
   {
   }
 
@@ -970,9 +1008,10 @@ public:
   RectilinearDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                            const std::string& fname,
                            const std::string& outputMode,
+                           const std::string& adiosConfig,
                            MPI_Comm comm,
                            const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, comm, appendMode)
   {
   }
 #endif
@@ -1133,8 +1172,9 @@ public:
   UnstructuredSingleTypeDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
                                       const std::string& outputMode,
+                                      const std::string& adiosConfig,
                                       const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, appendMode)
   {
   }
 
@@ -1142,9 +1182,10 @@ public:
   UnstructuredSingleTypeDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
                                       const std::string& outputMode,
+                                      const std::string& adiosConfig,
                                       MPI_Comm comm,
                                       const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, comm, appendMode)
   {
   }
 #endif
@@ -1165,7 +1206,9 @@ public:
     offset = { this->CellConnOffset };
     size = { this->NumCells * this->NumPointsInCell };
     const auto& cells = this->DataSets.GetPartition(0).GetCellSet();
-    cells.template CastAndCallForTypes<CellSetSingleTypeList>(
+    // need full explicit type list because it's possible that an empty dataset will show up as
+    // CellSetExplicit instead of CellSetSingleType
+    cells.template CastAndCallForTypes<FullCellSetExplicitList>(
       DefineCellsVariableFunctor{}, shape, offset, size, this->IO, "connectivity");
   }
 
@@ -1189,6 +1232,10 @@ public:
     for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
+      if (ds.GetNumberOfCells() == 0)
+      {
+        continue;
+      }
       ds.GetCellSet().template CastAndCallForTypes<CellSetSingleTypeList>(
         WriteSingleTypeCellsFunctor{}, this->IO, this->Engine, offset, this->TotalNumberOfConnIds);
     }
@@ -1216,6 +1263,10 @@ protected:
 
       const auto& cellSet = ds.GetCellSet();
       this->NumCells += cellSet.GetNumberOfCells();
+      if (this->NumCells == 0)
+      {
+        continue;
+      }
       if (i == 0)
       {
         this->NumPointsInCell = cellSet.GetNumberOfPointsInCell(0);
@@ -1265,6 +1316,12 @@ protected:
           throw std::runtime_error("Cell shape for CellSetSingleType is not consistent.");
         }
       }
+      else if (numCells[i] > 0 && this->NumCells == 0)
+      {
+        // this rank only has empty partitions, so we need to get some info from other ranks
+        this->NumPointsInCell = numPtsInCell[i];
+        this->CellShape = cellShape[i];
+      }
     }
     this->TotalNumberOfConnIds = this->TotalNumberOfCells * this->NumPointsInCell;
 
@@ -1295,8 +1352,9 @@ public:
   UnstructuredExplicitDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
                                     const std::string& outputMode,
+                                    const std::string& adiosConfig,
                                     const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, appendMode)
   {
     this->ValidatePartitionTypes(dataSets);
   }
@@ -1305,9 +1363,10 @@ public:
   UnstructuredExplicitDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
                                     const std::string& outputMode,
+                                    const std::string& adiosConfig,
                                     MPI_Comm comm,
                                     const bool& appendMode = false)
-    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+    : GenericWriter(dataSets, fname, outputMode, adiosConfig, comm, appendMode)
   {
     this->ValidatePartitionTypes(dataSets);
   }
@@ -1491,6 +1550,14 @@ unsigned char DataSetWriter::GetDataSetType(const viskores::cont::DataSet& ds)
     viskores::cont::ArrayHandle<viskores::FloatDefault>,
     viskores::cont::ArrayHandle<viskores::FloatDefault>>;
 
+  // if no points, then make it DATASET_TYPE_NONE
+  // we may have a rank with no data, so this will let that rank
+  // continue. it just won't end up writing anything out.
+  if (ds.GetNumberOfPoints() == 0)
+  {
+    return DATASET_TYPE_NONE;
+  }
+
   const viskores::cont::CoordinateSystem& coords = ds.GetCoordinateSystem();
   const viskores::cont::UnknownCellSet& cellSet = ds.GetCellSet();
 
@@ -1580,6 +1647,17 @@ void DataSetWriter::SetDataSetType(const viskores::cont::PartitionedDataSet& dat
 void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
                           const std::string& outputMode)
 {
+  this->WriteImpl(dataSets, outputMode);
+}
+
+void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets)
+{
+  this->WriteImpl(dataSets, "");
+}
+
+void DataSetWriter::WriteImpl(const viskores::cont::PartitionedDataSet& dataSets,
+                              const std::string& outputMode)
+{
   this->SetDataSetType(dataSets);
 
   if (this->DataSetType == DATASET_TYPE_NONE)
@@ -1590,9 +1668,10 @@ void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
   else if (this->DataSetType == DATASET_TYPE_UNIFORM)
   {
 #ifdef FIDES_USE_MPI
-    UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+    UniformDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
 #else
-    UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+    UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
 #endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
@@ -1603,9 +1682,11 @@ void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
 #ifdef FIDES_USE_MPI
-    RectilinearDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+    RectilinearDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
 #else
-    RectilinearDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+    RectilinearDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
 #endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
@@ -1616,9 +1697,10 @@ void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
   {
 #ifdef FIDES_USE_MPI
     UnstructuredSingleTypeDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->Comm);
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
 #else
-    UnstructuredSingleTypeDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+    UnstructuredSingleTypeDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
 #endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
@@ -1628,9 +1710,11 @@ void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
 #ifdef FIDES_USE_MPI
-    UnstructuredExplicitDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+    UnstructuredExplicitDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
 #else
-    UnstructuredExplicitDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+    UnstructuredExplicitDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
 #endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
@@ -1679,6 +1763,11 @@ void DataSetAppendWriter::Write(const viskores::cont::PartitionedDataSet& dataSe
   this->Writer->Write();
 }
 
+void DataSetAppendWriter::Write(const viskores::cont::PartitionedDataSet& dataSets)
+{
+  this->Write(dataSets, "");
+}
+
 void DataSetAppendWriter::Close()
 {
   this->IsInitialized = false;
@@ -1694,40 +1783,40 @@ void DataSetAppendWriter::Initialize(const viskores::cont::PartitionedDataSet& d
   {
 #ifdef FIDES_USE_MPI
     this->Writer.reset(new DataSetWriter::UniformDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->Comm, true));
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
 #else
-    this->Writer.reset(
-      new DataSetWriter::UniformDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+    this->Writer.reset(new DataSetWriter::UniformDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
 #endif
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
 #ifdef FIDES_USE_MPI
     this->Writer.reset(new DataSetWriter::RectilinearDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->Comm, true));
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
 #else
-    this->Writer.reset(
-      new DataSetWriter::RectilinearDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+    this->Writer.reset(new DataSetWriter::RectilinearDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
 #endif
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
 #ifdef FIDES_USE_MPI
     this->Writer.reset(new UnstructuredSingleTypeDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->Comm, true));
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
 #else
-    this->Writer.reset(
-      new UnstructuredSingleTypeDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+    this->Writer.reset(new UnstructuredSingleTypeDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
 #endif
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
 #ifdef FIDES_USE_MPI
     this->Writer.reset(new UnstructuredExplicitDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->Comm, true));
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
 #else
-    this->Writer.reset(
-      new UnstructuredExplicitDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+    this->Writer.reset(new UnstructuredExplicitDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
 #endif
   }
   else
@@ -1740,7 +1829,6 @@ void DataSetAppendWriter::Initialize(const viskores::cont::PartitionedDataSet& d
 
   this->IsInitialized = true;
 }
-
 
 } // end namespace io
 } // end namespace fides

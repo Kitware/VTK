@@ -40,6 +40,16 @@ namespace fides
 namespace io
 {
 
+namespace
+{
+
+std::string baseFileName(std::string const& path)
+{
+  return path.substr(path.find_last_of("/\\") + 1);
+}
+
+} // end anon namespace
+
 using DataSourceType = fides::io::DataSource;
 using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSourceType>>;
 
@@ -51,16 +61,48 @@ public:
                     bool streamSteps,
                     const Params& params,
                     bool createSharedPoints)
+    : StreamingMode(streamSteps)
   {
-    this->StreamingMode = streamSteps;
+#ifdef FIDES_USE_MPI
+    this->Comm = MPI_COMM_WORLD;
+#endif
+    this->SetupReader(dataModel, inputType, params, createSharedPoints);
+  }
+
+#ifdef FIDES_USE_MPI
+  DataSetReaderImpl(const std::string& dataModel,
+                    DataModelInput inputType,
+                    bool streamSteps,
+                    MPI_Comm comm,
+                    const Params& params,
+                    bool createSharedPoints)
+    : StreamingMode(streamSteps)
+  {
+    this->Comm = comm;
+    this->SetupReader(dataModel, inputType, params, createSharedPoints);
+  }
+#endif
+
+  virtual ~DataSetReaderImpl() { this->Cleanup(); }
+
+  void SetupReader(const std::string& dataModel,
+                   DataModelInput inputType,
+                   const Params& params,
+                   bool createSharedPoints)
+  {
     this->Cleanup();
     if (inputType == DataModelInput::BPFile)
     {
-      // in this case the bp file passed in becomes our MetadataSource
-      // which is used to select a predefined data model
-      this->MetadataSource.reset(new fides::predefined::InternalMetadataSource(dataModel));
-      auto dm = predefined::DataModelFactory::GetInstance().CreateDataModel(this->MetadataSource);
-      this->ReadJSON(dm->GetDOM());
+      this->ADIOSStreamSetup(dataModel, params);
+      // due to BP5 (also applies to SST), we have to make sure
+      // that we call BeginStep on this source before we can try
+      // to read the metadata from it. This only applies when
+      // we're using the streaming mode instead of random access.
+      if (this->StreamingMode)
+      {
+        this->InternalSourceBeginStep();
+      }
+      this->ParseDataModel();
     }
     else
     {
@@ -81,7 +123,7 @@ public:
         relativePath = "./";
       }
     }
-    for (auto it : this->DataSources)
+    for (const auto& it : this->DataSources)
     {
       it.second->CreateSharedPoints = createSharedPoints;
       it.second->RelativePath = relativePath;
@@ -90,7 +132,141 @@ public:
     this->SetDataSourceParameters(params);
   }
 
-  virtual ~DataSetReaderImpl() { this->Cleanup(); }
+  void ADIOSStreamSetup(const std::string& filename, const Params& params)
+  {
+    // need to check here for which engine is being used, but at this point we don't
+    // actually know which source name maps to the adios file we're opening (unless there's
+    // only one source).
+    // Because of this, we need to set some conditions. At least for now, we need to limit
+    // to a single SST source (but there can be a BP source with it as well).
+    // Also in the case of multiple sources where one is SST, we require that the JSON be provided
+    // in the BP file.
+    std::string engineType = "BPFile";
+    if (params.size() == 1)
+    {
+      const auto& source = params.begin()->second;
+      for (const auto& param : source)
+      {
+        if (param.first == "engine_type" && param.second == "SST")
+        {
+          engineType = "SST";
+        }
+      }
+    }
+    else if (params.size() > 1)
+    {
+      int numSST = 0;
+      for (const auto& source : params)
+      {
+        for (const auto& param : source.second)
+        {
+          if (param.first == "engine_type" && param.second == "SST")
+          {
+            numSST++;
+          }
+        }
+      }
+
+      if (numSST > 1)
+      {
+        throw std::runtime_error("Currently only one SST source is allowed.");
+      }
+    }
+
+    // when the filename is an ADIOS file/stream
+    // we need to create a temporary holder for this initial data source so we can open it
+    // and read the fides/schema attribute or other fides metadata from it.
+    // once we've processed the json, then we can set this source to the actual data source
+    // and get rid of this temporary holder for it. Note that it will still be the same
+    // DataSource object, because in cases like SST, we don't want to have to open another reader.
+#ifdef FIDES_USE_MPI
+    this->InternalSource = std::make_shared<DataSourceType>(this->Comm);
+#else
+    this->InternalSource = std::make_shared<DataSourceType>();
+#endif
+    this->InternalSource->Mode = fides::io::FileNameMode::Input;
+    this->InternalSource->FileName = filename;
+    this->InternalSource->StreamingMode = this->StreamingMode;
+    this->InternalSource->SetEngineType(engineType);
+    this->InternalSource->OpenSource(filename);
+  }
+
+  // Only used when we are loading JSON/metadata from an adios stream/file
+  void ParseDataModel()
+  {
+    // check first for fides/schema and use that if it exists
+    if (this->InternalSource->GetAttributeType("fides/schema") == "string")
+    {
+      auto schema = this->InternalSource->ReadAttribute<std::string>("fides/schema");
+      if (!schema.empty())
+      {
+        rapidjson::Document doc =
+          DataSetReaderImpl::GetJSONDocument(schema[0], DataModelInput::JSONString);
+        DataSetReaderImpl::ParsingChecks(doc, schema[0], DataModelInput::JSONString);
+        this->ReadJSON(doc);
+        this->UpdateDataSources();
+        return;
+      }
+    }
+
+    // fides/schema didn't exist, so see if we can find the fides metadata
+    // in this case the bp file passed in becomes our MetadataSource
+    // which is used to select a predefined data model
+    this->MetadataSource.reset(new fides::predefined::InternalMetadataSource(this->InternalSource));
+    auto dm = predefined::DataModelFactory::GetInstance().CreateDataModel(this->MetadataSource);
+    this->ReadJSON(dm->GetDOM());
+    this->UpdateDataSources();
+  }
+
+  void UpdateDataSources()
+  {
+    // we have InternalSource which is the source we opened to read the json, now we need to
+    // reconcile it with a source in DataSources. In the case of BP files, this isn't really that
+    // important, because we could open the file multiple times, but for other engines, we want to
+    // ensure we only open it once.
+    // Note: we have been supporting the case where the passed in BP file only contains the schema or
+    // metadata (for example, see the xgc test). So we may not necessarily match up InternalSource
+    // with one of the DataSources, but that's not an issue since we won't need to read any other data
+    // from that file.
+    if (!this->InternalSource)
+    {
+      return;
+    }
+
+    // the file that contains the json can use relative or input for filename_mode
+    int numInputFiles = 0;
+    std::string tmpName;
+    for (auto& ds : this->DataSources)
+    {
+      auto& source = ds.second;
+      if (source->Mode == FileNameMode::Input)
+      {
+        numInputFiles++;
+        if (numInputFiles > 1)
+        {
+          tmpName.clear();
+          continue;
+        }
+        tmpName = ds.first;
+      }
+      else
+      {
+        auto internalName = baseFileName(this->InternalSource->FileName);
+        auto sourceName = baseFileName(source->FileName);
+        if (internalName == sourceName)
+        {
+          this->DataSources[ds.first] = this->InternalSource;
+          this->InternalSource = nullptr;
+        }
+      }
+    }
+
+    if (!tmpName.empty() and this->InternalSource)
+    {
+      this->DataSources[tmpName] = this->InternalSource;
+      this->InternalSource = nullptr;
+    }
+  }
 
   void Cleanup()
   {
@@ -196,7 +372,11 @@ public:
       {
         throw std::runtime_error("data_source filename_mode must be a non-empty string.");
       }
+#ifdef FIDES_USE_MPI
+      auto source = std::make_shared<DataSourceType>(this->Comm);
+#else
       auto source = std::make_shared<DataSourceType>();
+#endif
       if (filename_mode == "input")
       {
         source->Mode = fides::io::FileNameMode::Input;
@@ -255,7 +435,7 @@ public:
       throw std::runtime_error("fields is not an array.");
     }
     auto fieldsArray = fields.GetArray();
-    for (auto& field : fieldsArray)
+    for (const auto& field : fieldsArray)
     {
       auto fieldPtr = this->ProcessField(field);
       this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] = fieldPtr;
@@ -366,14 +546,14 @@ public:
     {
       throw std::runtime_error("Missing coordinate_system member.");
     }
-    auto& cs = this->FindAndReturnObject(obj, "coordinate_system");
+    const auto& cs = this->FindAndReturnObject(obj, "coordinate_system");
     this->ProcessCoordinateSystem(cs);
 
     if (!obj.HasMember("cell_set"))
     {
       throw std::runtime_error("Missing cell_set member.");
     }
-    auto& cells = this->FindAndReturnObject(obj, "cell_set");
+    const auto& cells = this->FindAndReturnObject(obj, "cell_set");
     this->ProcessCellSet(cells);
 
     if (obj.HasMember("fields"))
@@ -636,12 +816,22 @@ public:
   // DataSources are at the end of their Streams.
   StepStatus BeginStep(const std::unordered_map<std::string, std::string>& paths)
   {
-    StepStatus retVal = StepStatus::EndOfStream;
+    // We can't have OpenSource and BeginStep in the same loop because if we have multiple
+    // sources and they are SST, we may get a hang depending on the settings of SST.
+    // Note that if the SST writer settings has RendezvousReaderCount >= 1, then we may
+    // still hang anyway.
     for (const auto& source : this->DataSources)
     {
       auto& ds = *(source.second);
       std::string name = source.first;
       ds.OpenSource(paths, name);
+    }
+
+    StepStatus retVal = StepStatus::EndOfStream;
+    for (const auto& source : this->DataSources)
+    {
+      auto& ds = *(source.second);
+      std::string name = source.first;
       auto rc = ds.BeginStep();
       while (rc == StepStatus::NotReady)
       {
@@ -651,7 +841,41 @@ public:
       {
         retVal = StepStatus::OK;
       }
+      else if (rc == StepStatus::OtherError)
+      {
+        // Before we were changing StepStatus to NotReady in this case, but it causes an infinite loop.
+        // The only time I've seen OtherError is in SST when the writer crashed or was interrupted by me.
+        // I think we should just warn the user that there was an OtherError but change it to EndOfStream
+        // and try to process other sources.
+        std::cerr << "WARNING: BeginStep for source '" << name << "' returned OtherError"
+                  << std::endl;
+        retVal = StepStatus::EndOfStream;
+      }
     }
+    return retVal;
+  }
+
+  StepStatus InternalSourceBeginStep()
+  {
+    // In the case of streaming mode (whether it's SST or BP5), we may only have the InternalSource
+    // at this point, so we need to BeginStep for it. This is separate so we can call it separately
+    // from other data sources. The DataSource has a flag for DoNotCallNextBeginStep, which we set to
+    // true in this case. Then when the user calls reader.PrepareNextStep(), BeginStep will only get
+    // called on the other DataSources, not the one that is the InternalSource.
+    StepStatus retVal = StepStatus::EndOfStream;
+    if (this->InternalSource)
+    {
+      auto rc = this->InternalSource->BeginStep();
+      while (rc == StepStatus::NotReady)
+      {
+        rc = this->InternalSource->BeginStep();
+      }
+      if (rc == StepStatus::OK)
+      {
+        retVal = StepStatus::OK;
+      }
+    }
+    this->InternalSource->DoNotCallNextBeginStep = true;
     return retVal;
   }
 
@@ -663,6 +887,10 @@ public:
     }
   }
 
+#ifdef FIDES_USE_MPI
+  MPI_Comm Comm;
+#endif
+
   DataSourcesType DataSources;
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
   std::shared_ptr<fides::datamodel::CoordinateSystem> CoordinateSystem = nullptr;
@@ -672,6 +900,8 @@ public:
   std::string StepSource;
   std::string TimeVariable;
   bool StreamingMode = false;
+
+  std::shared_ptr<DataSourceType> InternalSource = nullptr;
 };
 
 bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
@@ -721,55 +951,22 @@ DataSetReader::DataSetReader(const std::string& dataModel,
                              bool streamSteps,
                              const Params& params,
                              bool createSharedPoints /*=false*/)
-  : Impl(nullptr)
+  : Impl(new DataSetReaderImpl(dataModel, inputType, streamSteps, params, createSharedPoints))
 {
-  if (inputType != DataModelInput::BPFile)
-  {
-    this->Impl.reset(
-      new DataSetReaderImpl(dataModel, inputType, streamSteps, params, createSharedPoints));
-    return;
-  }
-
-  // we have a BPFile and we need to look for either Fides_Data_Model
-  // or fides/schema attributes
-  std::string fidesAttr = "Fides_Data_Model";
-  auto source = std::make_shared<DataSourceType>();
-  source->Mode = fides::io::FileNameMode::Relative;
-  source->FileName = dataModel; // in this case dataModel should be bp filename
-  // streaming mode should always be false in this case because
-  // we're simply reading an attribute
-  source->StreamingMode = false;
-  source->OpenSource(dataModel);
-  if (source->GetAttributeType(fidesAttr) == "string")
-  {
-    std::vector<std::string> result = source->ReadAttribute<std::string>(fidesAttr);
-    if (!result.empty())
-    {
-      if (predefined::DataModelSupported(result[0]))
-      {
-        this->Impl.reset(
-          new DataSetReaderImpl(dataModel, inputType, streamSteps, params, createSharedPoints));
-        return;
-      }
-    }
-  }
-
-  // Fides_Data_Model either not found or value was incorrect, now look for fides/schema
-  std::string schemaAttr = "fides/schema";
-  if (source->GetAttributeType(schemaAttr) == "string")
-  {
-    auto schema = source->ReadAttribute<std::string>(schemaAttr);
-    if (!schema.empty())
-    {
-      this->Impl.reset(new DataSetReaderImpl(
-        schema[0], DataModelInput::JSONString, streamSteps, params, createSharedPoints));
-      return;
-    }
-  }
-
-  throw std::runtime_error("InputType is a BP File, but valid 'Fides_Data_Model' or "
-                           "'fides/schema' attributes could not be found in the file.");
 }
+
+#ifdef FIDES_USE_MPI
+DataSetReader::DataSetReader(const std::string& dataModel,
+                             DataModelInput inputType,
+                             bool streamSteps,
+                             MPI_Comm comm,
+                             const Params& params,
+                             bool createSharedPoints /*=false*/)
+{
+  this->Impl.reset(
+    new DataSetReaderImpl(dataModel, inputType, streamSteps, comm, params, createSharedPoints));
+}
+#endif
 
 DataSetReader::~DataSetReader() = default;
 
@@ -860,8 +1057,8 @@ std::vector<viskores::cont::DataSet> DataSetReader::ReadDataSetInternal(
   if (selections.Has(fides::keys::FIELDS()))
   {
     using FieldInfoType = fides::metadata::Vector<fides::metadata::FieldInformation>;
-    auto& fields = selections.Get<FieldInfoType>(fides::keys::FIELDS());
-    for (auto& field : fields.Data)
+    const auto& fields = selections.Get<FieldInfoType>(fides::keys::FIELDS());
+    for (const auto& field : fields.Data)
     {
       auto itr = this->Impl->Fields.find(std::make_pair(field.Name, field.Association));
       if (itr != this->Impl->Fields.end())
@@ -929,6 +1126,14 @@ std::vector<std::string> DataSetReader::GetDataSourceNames()
     names.push_back(source.first);
   }
   return names;
+}
+
+void DataSetReader::Close()
+{
+  for (const auto& source : this->Impl->DataSources)
+  {
+    source.second->Close();
+  }
 }
 
 } // end namespace io
