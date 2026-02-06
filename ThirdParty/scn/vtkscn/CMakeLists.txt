@@ -37,11 +37,11 @@ vtk_module_include(VTK::scn
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 
 include(GenerateExportHeader)
-generate_export_header(scn
-  EXPORT_MACRO_NAME SCN_EXPORT
+generate_export_header(vtkscn
+  BASE_NAME        SCN
   EXPORT_FILE_NAME include/vtkscn/scn_export.h)
 
-set_target_properties(scn PROPERTIES
+vtk_module_set_properties(VTK::scn
   CXX_VISIBILITY_PRESET hidden
   VISIBILITY_INLINES_HIDDEN ON)
 
