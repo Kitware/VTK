@@ -43,7 +43,7 @@ namespace METAIO_NAMESPACE
 {
 #  endif
 
-class LandmarkPnt
+class METAIO_EXPORT LandmarkPnt
 {
 public:
   explicit LandmarkPnt(int dim);

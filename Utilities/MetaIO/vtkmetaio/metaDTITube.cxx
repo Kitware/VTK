@@ -133,22 +133,22 @@ void
 MetaDTITube::PrintInfo() const
 {
   MetaObject::PrintInfo();
-  std::cout << "ParentPoint = " << m_ParentPoint << std::endl;
+  std::cout << "ParentPoint = " << m_ParentPoint << '\n';
   if (m_Root)
   {
     std::cout << "Root = "
-              << "True" << std::endl;
+              << "True" << '\n';
   }
   else
   {
     std::cout << "Root = "
-              << "True" << std::endl;
+              << "True" << '\n';
   }
-  std::cout << "PointDim = " << m_PointDim.c_str() << std::endl;
-  std::cout << "NPoints = " << m_NPoints << std::endl;
+  std::cout << "PointDim = " << m_PointDim.c_str() << '\n';
+  std::cout << "NPoints = " << m_NPoints << '\n';
   char str[255];
   MET_TypeToString(m_ElementType, str);
-  std::cout << "ElementType = " << str << std::endl;
+  std::cout << "ElementType = " << str << '\n';
 }
 
 void
@@ -352,7 +352,7 @@ MetaDTITube::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaDTITube: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaDTITube: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -441,8 +441,8 @@ MetaDTITube::M_Read()
     int gc = static_cast<int>(m_ReadStream->gcount());
     if (gc != readSize)
     {
-      std::cout << "MetaLine: m_Read: data not read completely" << std::endl;
-      std::cout << "   ideal = " << readSize << " : actual = " << gc << std::endl;
+      std::cout << "MetaLine: m_Read: data not read completely" << '\n';
+      std::cout << "   ideal = " << readSize << " : actual = " << gc << '\n';
       delete[] _data;
       return false;
     }
@@ -528,13 +528,13 @@ MetaDTITube::M_Read()
 
       if (positionOfX < 0)
       {
-        std::cerr << "MetaDTITube: M_Read: 'x' not found." << std::endl;
+        std::cerr << "MetaDTITube: M_Read: 'x' not found." << '\n';
         return false;
       }
 
       if (positionOfY < 0)
       {
-        std::cerr << "MetaDTITube: M_Read: 'y' not found." << std::endl;
+        std::cerr << "MetaDTITube: M_Read: 'y' not found." << '\n';
         return false;
       }
 
@@ -548,7 +548,7 @@ MetaDTITube::M_Read()
 
         if (positionOfZ < 0)
         {
-          std::cerr << "MetaDTITube: M_Read: 'z' not found." << std::endl;
+          std::cerr << "MetaDTITube: M_Read: 'z' not found." << '\n';
           delete pnt;
           return false;
         }
@@ -639,7 +639,7 @@ MetaDTITube::M_Write()
 
   if (!MetaObject::M_Write())
   {
-    std::cout << "MetaDTITube: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaDTITube: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -722,7 +722,7 @@ MetaDTITube::M_Write()
         ++itFields;
       }
 
-      *m_WriteStream << std::endl;
+      *m_WriteStream << '\n';
       ++it;
     }
   }

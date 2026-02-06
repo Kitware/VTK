@@ -128,7 +128,7 @@ MetaCommand::SetOption(std::string        name,
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be"
               << " referred to as --LongTag and the short tag as -ShortTag."
-              << " Replace -" << shortTag.c_str() << " by --" << shortTag.c_str() << std::endl;
+              << " Replace -" << shortTag.c_str() << " by --" << shortTag.c_str() << '\n';
   }
 
   Option option;
@@ -173,7 +173,7 @@ MetaCommand::SetOption(const std::string&  name,
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be "
               << " referred to as --LongTag and the short tag as -ShortTag "
-              << " Replace -" << shortTag.c_str() << " by --" << shortTag.c_str() << std::endl;
+              << " Replace -" << shortTag.c_str() << " by --" << shortTag.c_str() << '\n';
   }
 
   Option option;
@@ -658,74 +658,74 @@ MetaCommand::ListOptions()
   int                          i = 0;
   while (it != m_OptionVector.end())
   {
-    std::cout << "Option #" << i << std::endl;
-    std::cout << "   Name: " << (*it).name.c_str() << std::endl;
+    std::cout << "Option #" << i << '\n';
+    std::cout << "   Name: " << (*it).name.c_str() << '\n';
     if (!(*it).tag.empty())
     {
-      std::cout << "   Tag: " << (*it).tag.c_str() << std::endl;
+      std::cout << "   Tag: " << (*it).tag.c_str() << '\n';
     }
     if (!(*it).longtag.empty())
     {
-      std::cout << "   LongTag: " << (*it).longtag.c_str() << std::endl;
+      std::cout << "   LongTag: " << (*it).longtag.c_str() << '\n';
     }
-    std::cout << "   Description: " << (*it).description.c_str() << std::endl;
+    std::cout << "   Description: " << (*it).description.c_str() << '\n';
     if ((*it).required)
     {
-      std::cout << "   Required: true" << std::endl;
+      std::cout << "   Required: true" << '\n';
     }
     else
     {
-      std::cout << "   Required: false" << std::endl;
+      std::cout << "   Required: false" << '\n';
     }
-    std::cout << "   Number of expected values: " << (*it).fields.size() << std::endl;
+    std::cout << "   Number of expected values: " << (*it).fields.size() << '\n';
 
     auto itField = (*it).fields.begin();
     while (itField != (*it).fields.end())
     {
-      std::cout << "      Field Name: " << (*itField).name.c_str() << std::endl;
-      std::cout << "      Description: " << (*itField).description.c_str() << std::endl;
-      std::cout << "      Type: " << MetaCommand::TypeToString((*itField).type).c_str() << std::endl;
-      std::cout << "      Value: " << (*itField).value.c_str() << std::endl;
+      std::cout << "      Field Name: " << (*itField).name.c_str() << '\n';
+      std::cout << "      Description: " << (*itField).description.c_str() << '\n';
+      std::cout << "      Type: " << MetaCommand::TypeToString((*itField).type).c_str() << '\n';
+      std::cout << "      Value: " << (*itField).value.c_str() << '\n';
       if ((*itField).type == ENUM)
       {
-        std::cout << "      Enum list: " << (*itField).rangeMin.c_str() << std::endl;
+        std::cout << "      Enum list: " << (*itField).rangeMin.c_str() << '\n';
       }
       else
       {
-        std::cout << "      RangeMin: " << (*itField).rangeMin.c_str() << std::endl;
-        std::cout << "      RangeMax: " << (*itField).rangeMax.c_str() << std::endl;
+        std::cout << "      RangeMin: " << (*itField).rangeMin.c_str() << '\n';
+        std::cout << "      RangeMax: " << (*itField).rangeMax.c_str() << '\n';
       }
 
       if ((*itField).externaldata)
       {
-        std::cout << "      External Data: true" << std::endl;
+        std::cout << "      External Data: true" << '\n';
       }
       else
       {
-        std::cout << "      External Data: false" << std::endl;
+        std::cout << "      External Data: false" << '\n';
       }
 
       if ((*itField).required)
       {
-        std::cout << "      Required: true" << std::endl;
+        std::cout << "      Required: true" << '\n';
       }
       else
       {
-        std::cout << "      Required: false" << std::endl;
+        std::cout << "      Required: false" << '\n';
       }
 
       if ((*itField).userDefined)
       {
-        std::cout << "      User Defined: true" << std::endl;
+        std::cout << "      User Defined: true" << '\n';
       }
       else
       {
-        std::cout << "      User Defined: false" << std::endl;
+        std::cout << "      User Defined: false" << '\n';
       }
 
       ++itField;
     }
-    std::cout << std::endl;
+    std::cout << '\n';
     i++;
     ++it;
   }
@@ -743,60 +743,60 @@ MetaCommand::ListOptionsXML()
   int                          i = 0;
   while (it != m_OptionVector.end())
   {
-    std::cout << "<option>" << std::endl;
-    std::cout << "<number>" << i << "</number>" << std::endl;
-    std::cout << "<name>" << (*it).name.c_str() << "</name>" << std::endl;
-    std::cout << "<tag>" << (*it).tag.c_str() << "</tag>" << std::endl;
-    std::cout << "<longtag>" << (*it).longtag.c_str() << "</longtag>" << std::endl;
-    std::cout << "<description>" << (*it).description.c_str() << "</description>" << std::endl;
+    std::cout << "<option>" << '\n';
+    std::cout << "<number>" << i << "</number>" << '\n';
+    std::cout << "<name>" << (*it).name.c_str() << "</name>" << '\n';
+    std::cout << "<tag>" << (*it).tag.c_str() << "</tag>" << '\n';
+    std::cout << "<longtag>" << (*it).longtag.c_str() << "</longtag>" << '\n';
+    std::cout << "<description>" << (*it).description.c_str() << "</description>" << '\n';
     std::cout << "<required>";
     if ((*it).required)
     {
-      std::cout << "1</required>" << std::endl;
+      std::cout << "1</required>" << '\n';
     }
     else
     {
-      std::cout << "0</required>" << std::endl;
+      std::cout << "0</required>" << '\n';
     }
 
-    std::cout << "<nvalues>" << (*it).fields.size() << "</nvalues>" << std::endl;
+    std::cout << "<nvalues>" << (*it).fields.size() << "</nvalues>" << '\n';
 
     auto itField = (*it).fields.begin();
     while (itField != (*it).fields.end())
     {
-      std::cout << "<field>" << std::endl;
-      std::cout << "<name>" << (*itField).name.c_str() << "</name>" << std::endl;
-      std::cout << "<description>" << (*itField).description.c_str() << "</description>" << std::endl;
-      std::cout << "<type>" << MetaCommand::TypeToString((*itField).type).c_str() << "</type>" << std::endl;
-      std::cout << "<value>" << (*itField).value.c_str() << "</value>" << std::endl;
+      std::cout << "<field>" << '\n';
+      std::cout << "<name>" << (*itField).name.c_str() << "</name>" << '\n';
+      std::cout << "<description>" << (*itField).description.c_str() << "</description>" << '\n';
+      std::cout << "<type>" << MetaCommand::TypeToString((*itField).type).c_str() << "</type>" << '\n';
+      std::cout << "<value>" << (*itField).value.c_str() << "</value>" << '\n';
       std::cout << "<external>";
       if ((*itField).externaldata == DATA_IN)
       {
-        std::cout << "1</external>" << std::endl;
+        std::cout << "1</external>" << '\n';
       }
       else if ((*itField).externaldata == DATA_OUT)
       {
-        std::cout << "2</external>" << std::endl;
+        std::cout << "2</external>" << '\n';
       }
       else
       {
-        std::cout << "0</external>" << std::endl;
+        std::cout << "0</external>" << '\n';
       }
       std::cout << "<required>";
       if ((*itField).required)
       {
-        std::cout << "1</required>" << std::endl;
+        std::cout << "1</required>" << '\n';
       }
       else
       {
-        std::cout << "0</required>" << std::endl;
+        std::cout << "0</required>" << '\n';
       }
 
 
-      std::cout << "</field>" << std::endl;
+      std::cout << "</field>" << '\n';
       ++itField;
     }
-    std::cout << "</option>" << std::endl;
+    std::cout << "</option>" << '\n';
     i++;
     ++it;
   }
@@ -842,10 +842,10 @@ MetaCommand::WriteXMLOptionToCout(const std::string& optionName, unsigned int & 
     optionType = MetaCommand::TypeToString((*itField).type);
   }
 
-  std::cout << "<" << optionType.c_str() << ">" << std::endl;
+  std::cout << "<" << optionType.c_str() << ">" << '\n';
 
 
-  std::cout << "<name>" << (*it).name.c_str() << "</name>" << std::endl;
+  std::cout << "<name>" << (*it).name.c_str() << "</name>" << '\n';
   // Label is the description for now
   std::string label = (*it).label;
   if (label.empty())
@@ -853,34 +853,34 @@ MetaCommand::WriteXMLOptionToCout(const std::string& optionName, unsigned int & 
     label = (*it).name;
   }
 
-  std::cout << "<label>" << label.c_str() << "</label>" << std::endl;
-  std::cout << "<description>" << (*it).description.c_str() << "</description>" << std::endl;
+  std::cout << "<label>" << label.c_str() << "</label>" << '\n';
+  std::cout << "<description>" << (*it).description.c_str() << "</description>" << '\n';
   if (!(*it).tag.empty()) // use the single by default flag if any
   {
-    std::cout << "<flag>" << (*it).tag.c_str() << "</flag>" << std::endl;
+    std::cout << "<flag>" << (*it).tag.c_str() << "</flag>" << '\n';
   }
   else if (!(*it).longtag.empty())
   {
-    std::cout << "<longflag>" << (*it).longtag.c_str() << "</longflag>" << std::endl;
+    std::cout << "<longflag>" << (*it).longtag.c_str() << "</longflag>" << '\n';
   }
   else
   {
-    std::cout << "<index>" << index << "</index>" << std::endl;
+    std::cout << "<index>" << index << "</index>" << '\n';
     index++;
   }
 
   if (!(*itField).value.empty())
   {
-    std::cout << "<default>" << (*itField).value.c_str() << "</default>" << std::endl;
+    std::cout << "<default>" << (*itField).value.c_str() << "</default>" << '\n';
   }
 
   if ((*itField).externaldata == MetaCommand::DATA_IN)
   {
-    std::cout << "<channel>input</channel>" << std::endl;
+    std::cout << "<channel>input</channel>" << '\n';
   }
   else if ((*itField).externaldata == MetaCommand::DATA_OUT)
   {
-    std::cout << "<channel>output</channel>" << std::endl;
+    std::cout << "<channel>output</channel>" << '\n';
   }
 
   if ((*itField).type == MetaCommand::ENUM)
@@ -891,33 +891,33 @@ MetaCommand::WriteXMLOptionToCout(const std::string& optionName, unsigned int & 
     itenum = enumVector.begin();
     while (itenum != enumVector.end())
     {
-      std::cout << "<element>" << (*itenum).c_str() << "</element>" << std::endl;
+      std::cout << "<element>" << (*itenum).c_str() << "</element>" << '\n';
       ++itenum;
     }
   }
 
   // Write out the closing tag
-  std::cout << "</" << optionType.c_str() << ">" << std::endl;
+  std::cout << "</" << optionType.c_str() << ">" << '\n';
 }
 
 /** List the current options in Slicer's xml format (www.slicer.org) */
 void
 MetaCommand::ListOptionsSlicerXML()
 {
-  std::cout << R"(<?xml version="1.0" encoding="utf-8"?>)" << std::endl;
-  std::cout << "<executable>" << std::endl;
-  std::cout << "  <category>" << m_Category.c_str() << "</category>" << std::endl;
-  std::cout << "  <title>" << m_Name.c_str() << "</title>" << std::endl;
-  std::cout << "  <description>" << std::endl;
-  std::cout << "  " << m_Description.c_str() << std::endl;
-  std::cout << "  </description>" << std::endl;
-  std::cout << "  <version>" << m_Version.c_str() << "</version>" << std::endl;
-  std::cout << "  <contributor>" << m_Author.c_str() << "</contributor>" << std::endl;
-  std::cout << "  <documentation-url></documentation-url>" << std::endl;
-  std::cout << "  <license></license>" << std::endl;
-  std::cout << "  <acknowledgements>" << std::endl;
-  std::cout << "  " << m_Acknowledgments.c_str() << std::endl;
-  std::cout << "  </acknowledgements>" << std::endl;
+  std::cout << R"(<?xml version="1.0" encoding="utf-8"?>)" << '\n';
+  std::cout << "<executable>" << '\n';
+  std::cout << "  <category>" << m_Category.c_str() << "</category>" << '\n';
+  std::cout << "  <title>" << m_Name.c_str() << "</title>" << '\n';
+  std::cout << "  <description>" << '\n';
+  std::cout << "  " << m_Description.c_str() << '\n';
+  std::cout << "  </description>" << '\n';
+  std::cout << "  <version>" << m_Version.c_str() << "</version>" << '\n';
+  std::cout << "  <contributor>" << m_Author.c_str() << "</contributor>" << '\n';
+  std::cout << "  <documentation-url></documentation-url>" << '\n';
+  std::cout << "  <license></license>" << '\n';
+  std::cout << "  <acknowledgements>" << '\n';
+  std::cout << "  " << m_Acknowledgments.c_str() << '\n';
+  std::cout << "  </acknowledgements>" << '\n';
 
   // Organize by group first
   // Keep a list of options
@@ -928,21 +928,21 @@ MetaCommand::ListOptionsSlicerXML()
   {
     if ((*itGroup).advanced == true)
     {
-      std::cout << " <parameters advanced=\"true\">" << std::endl;
+      std::cout << " <parameters advanced=\"true\">" << '\n';
     }
     else
     {
-      std::cout << " <parameters>" << std::endl;
+      std::cout << " <parameters>" << '\n';
     }
-    std::cout << "  <label>" << (*itGroup).name.c_str() << "</label>" << std::endl;
+    std::cout << "  <label>" << (*itGroup).name.c_str() << "</label>" << '\n';
 
     if ((*itGroup).description.empty())
     {
-      std::cout << "  <description>" << (*itGroup).name.c_str() << "</description>" << std::endl;
+      std::cout << "  <description>" << (*itGroup).name.c_str() << "</description>" << '\n';
     }
     else
     {
-      std::cout << "  <description>" << (*itGroup).description.c_str() << "</description>" << std::endl;
+      std::cout << "  <description>" << (*itGroup).description.c_str() << "</description>" << '\n';
     }
 
     auto itOption = (*itGroup).options.begin();
@@ -952,16 +952,16 @@ MetaCommand::ListOptionsSlicerXML()
       GroupedOptionVector.push_back(*itOption);
       ++itOption;
     }
-    std::cout << " </parameters>" << std::endl;
+    std::cout << " </parameters>" << '\n';
     ++itGroup;
   }
 
   // Then take the remaining options
   if (m_OptionVector.size() > GroupedOptionVector.size())
   {
-    std::cout << " <parameters>" << std::endl;
-    std::cout << "  <label>IO</label>" << std::endl;
-    std::cout << "  <description>Input/output parameters</description>" << std::endl;
+    std::cout << " <parameters>" << '\n';
+    std::cout << "  <label>IO</label>" << '\n';
+    std::cout << "  <description>Input/output parameters</description>" << '\n';
 
     OptionVector::const_iterator it = m_OptionVector.begin();
     while (it != m_OptionVector.end())
@@ -985,10 +985,10 @@ MetaCommand::ListOptionsSlicerXML()
       ++it;
     } // end loop option
 
-    std::cout << " </parameters>" << std::endl;
+    std::cout << " </parameters>" << '\n';
   } // end m_OptionVector.size()>GroupedOptionVector.size()
 
-  std::cout << "</executable>" << std::endl;
+  std::cout << "</executable>" << '\n';
 }
 
 
@@ -1100,27 +1100,27 @@ MetaCommand::ListOptionsSimplified(bool extended)
 {
   if (extended)
   {
-    std::cout << " System tags: " << std::endl
-              << "   [ -v ] or [ -h ]" << std::endl
-              << "      = List options in short format" << std::endl
-              << "   [ -V ] or [ -H ]" << std::endl
-              << "      = List options in long format" << std::endl
-              << "   [ -vxml ] or [ -hxml ] or [ -exportXML ]" << std::endl
-              << "      = List options in xml format for BatchMake" << std::endl
-              << "   [ --xml ]" << std::endl
-              << "      = List options in xml format for Slicer" << std::endl
-              << "   [ -vgad ] or [ -hgad ] or [ -exportGAD ]" << std::endl
-              << "      = List options in Grid Application Description format" << std::endl
-              << "   [ -version ]" << std::endl
-              << "      = return the version number" << std::endl
-              << "   [ -date ]" << std::endl
+    std::cout << " System tags: " << '\n'
+              << "   [ -v ] or [ -h ]" << '\n'
+              << "      = List options in short format" << '\n'
+              << "   [ -V ] or [ -H ]" << '\n'
+              << "      = List options in long format" << '\n'
+              << "   [ -vxml ] or [ -hxml ] or [ -exportXML ]" << '\n'
+              << "      = List options in xml format for BatchMake" << '\n'
+              << "   [ --xml ]" << '\n'
+              << "      = List options in xml format for Slicer" << '\n'
+              << "   [ -vgad ] or [ -hgad ] or [ -exportGAD ]" << '\n'
+              << "      = List options in Grid Application Description format" << '\n'
+              << "   [ -version ]" << '\n'
+              << "      = return the version number" << '\n'
+              << "   [ -date ]" << '\n'
               << "      = return the cvs checkout date"
 #ifdef METAIO_USE_LIBXML2
               << std::endl
               << "   [ --loadArguments filename ]"
               << "      = load the arguments from an XML file"
 #endif
-              << std::endl;
+              << '\n';
   }
 
   int                          count = 0;
@@ -1146,7 +1146,7 @@ MetaCommand::ListOptionsSimplified(bool extended)
     {
       if (ntags > 0)
       {
-        std::cout << " Command tags: " << std::endl;
+        std::cout << " Command tags: " << '\n';
       }
       else
       {
@@ -1157,7 +1157,7 @@ MetaCommand::ListOptionsSimplified(bool extended)
     {
       if (nfields > 0)
       {
-        std::cout << " Command fields: " << std::endl;
+        std::cout << " Command fields: " << '\n';
       }
       else
       {
@@ -1220,12 +1220,12 @@ MetaCommand::ListOptionsSimplified(bool extended)
         {
           std::cout << "]";
         }
-        std::cout << std::endl;
+        std::cout << '\n';
 
         if (!(*it).description.empty())
         {
           std::cout << "      = " << (*it).description.c_str();
-          std::cout << std::endl;
+          std::cout << '\n';
           itField = (*it).fields.begin();
           while (itField != (*it).fields.end())
           {
@@ -1240,7 +1240,7 @@ MetaCommand::ListOptionsSimplified(bool extended)
               {
                 std::cout << " (Default = " << (*itField).value.c_str() << ")";
               }
-              std::cout << std::endl;
+              std::cout << '\n';
             }
             ++itField;
           }
@@ -1356,14 +1356,14 @@ MetaCommand::ExportGAD(bool dynamic)
 
   if (m_Name.empty())
   {
-    std::cout << "Set the name of the application using SetName()" << std::endl;
+    std::cout << "Set the name of the application using SetName()" << '\n';
     return false;
   }
 
   std::string filename = m_Name;
   filename += ".gad.xml";
 
-  std::ofstream file;
+  METAIO_STREAM::ofstream file;
 #ifdef __sgi
   file.open(filename.c_str(), std::ios::out);
 #else
@@ -1371,19 +1371,19 @@ MetaCommand::ExportGAD(bool dynamic)
 #endif
   if (!file.rdbuf()->is_open())
   {
-    std::cout << "Cannot open file for writing: " << filename.c_str() << std::endl;
+    std::cout << "Cannot open file for writing: " << filename.c_str() << '\n';
     return false;
   }
 
-  file << R"(<?xml version="1.0" encoding="UTF-8" ?>)" << std::endl;
-  file << "<gridApplication" << std::endl;
-  file << "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << std::endl;
-  file << "xsi:noNamespaceSchemaLocation=\"grid-application-description.xsd\"" << std::endl;
-  file << "name=\"" << m_Name.c_str() << "\"" << std::endl;
-  file << "description=\"" << m_Description.c_str() << "\">" << std::endl;
-  file << R"(<applicationComponent name="Client" remoteExecution="true">)" << std::endl;
-  file << "<componentActionList>" << std::endl;
-  file << std::endl;
+  file << R"(<?xml version="1.0" encoding="UTF-8" ?>)" << '\n';
+  file << "<gridApplication" << '\n';
+  file << "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << '\n';
+  file << "xsi:noNamespaceSchemaLocation=\"grid-application-description.xsd\"" << '\n';
+  file << "name=\"" << m_Name.c_str() << "\"" << '\n';
+  file << "description=\"" << m_Description.c_str() << "\">" << '\n';
+  file << R"(<applicationComponent name="Client" remoteExecution="true">)" << '\n';
+  file << "<componentActionList>" << '\n';
+  file << '\n';
 
   unsigned int order = 1;
   // Write out the input data to be transferred
@@ -1395,13 +1395,13 @@ MetaCommand::ExportGAD(bool dynamic)
     {
       if ((*itFields).externaldata == DATA_IN)
       {
-        file << R"( <componentAction type="DataRelocation" order=")" << order << "\">" << std::endl;
-        file << R"(  <parameter name="Name" value=")" << (*itFields).name.c_str() << "\"/>" << std::endl;
-        file << R"(  <parameter name="Host" value="hostname"/>)" << std::endl;
-        file << R"(  <parameter name="Description" value=")" << (*itFields).description.c_str() << "\"/>" << std::endl;
-        file << R"(  <parameter name="Direction" value="In"/>)" << std::endl;
-        file << R"(  <parameter name="Protocol" value="gsiftp"/>)" << std::endl;
-        file << R"(  <parameter name="SourceDataPath" value=")" << (*itFields).value.c_str() << "\"/>" << std::endl;
+        file << R"( <componentAction type="DataRelocation" order=")" << order << "\">" << '\n';
+        file << R"(  <parameter name="Name" value=")" << (*itFields).name.c_str() << "\"/>" << '\n';
+        file << R"(  <parameter name="Host" value="hostname"/>)" << '\n';
+        file << R"(  <parameter name="Description" value=")" << (*itFields).description.c_str() << "\"/>" << '\n';
+        file << R"(  <parameter name="Direction" value="In"/>)" << '\n';
+        file << R"(  <parameter name="Protocol" value="gsiftp"/>)" << '\n';
+        file << R"(  <parameter name="SourceDataPath" value=")" << (*itFields).value.c_str() << "\"/>" << '\n';
 
         std::string datapath = (*itFields).value;
         auto        slash = static_cast<long int>(datapath.find_last_of('/'));
@@ -1414,9 +1414,9 @@ MetaCommand::ExportGAD(bool dynamic)
         {
           datapath = datapath.substr(static_cast<unsigned long>(slash + 1), datapath.size() - slash - 1);
         }
-        file << R"(  <parameter name="DestDataPath" value=")" << datapath.c_str() << "\"/>" << std::endl;
-        file << " </componentAction>" << std::endl;
-        file << std::endl;
+        file << R"(  <parameter name="DestDataPath" value=")" << datapath.c_str() << "\"/>" << '\n';
+        file << " </componentAction>" << '\n';
+        file << '\n';
         order++;
       }
       ++itFields;
@@ -1424,8 +1424,8 @@ MetaCommand::ExportGAD(bool dynamic)
     ++it;
   }
 
-  file << R"( <componentAction type="JobSubmission" order=")" << order << "\">" << std::endl;
-  file << R"(  <parameter name="Executable" value=")" << m_ExecutableName.c_str() << "\"/>" << std::endl;
+  file << R"( <componentAction type="JobSubmission" order=")" << order << "\">" << '\n';
+  file << R"(  <parameter name="Executable" value=")" << m_ExecutableName.c_str() << "\"/>" << '\n';
   file << R"(  <parameter name="Arguments"  value=")";
   // Write out the command line arguments
   it = options.begin();
@@ -1438,7 +1438,7 @@ MetaCommand::ExportGAD(bool dynamic)
     file << "{" << (*it).name.c_str() << "}";
     ++it;
   }
-  file << "\"/>" << std::endl;
+  file << "\"/>" << '\n';
   // Write out the arguments that are not data
   it = options.begin();
   while (it != options.end())
@@ -1497,7 +1497,7 @@ MetaCommand::ExportGAD(bool dynamic)
       }
     }
 
-    file << ">" << std::endl;
+    file << ">" << '\n';
 
     // Now writes the value of the arguments
     itFields = (*it).fields.begin();
@@ -1517,15 +1517,15 @@ MetaCommand::ExportGAD(bool dynamic)
       {
         file << " rangeMax=\"" << (*itFields).rangeMax.c_str() << "\"";
       }
-      file << "/>" << std::endl;
+      file << "/>" << '\n';
       ++itFields;
     }
-    file << "  </group>" << std::endl;
+    file << "  </group>" << '\n';
     ++it;
   }
-  file << " </componentAction>" << std::endl;
+  file << " </componentAction>" << '\n';
   order++;
-  file << std::endl;
+  file << '\n';
   // Write out the input data to be transferred
   it = options.begin();
   while (it != options.end())
@@ -1535,12 +1535,12 @@ MetaCommand::ExportGAD(bool dynamic)
     {
       if ((*itFields).externaldata == DATA_OUT)
       {
-        file << R"( <componentAction type="DataRelocation" order=")" << order << "\">" << std::endl;
-        file << R"(  <parameter name="Name" Value=")" << (*itFields).name.c_str() << "\"/>" << std::endl;
-        file << R"(  <parameter name="Host" Value="hostname"/>)" << std::endl;
-        file << R"(  <parameter name="Description" value=")" << (*itFields).description.c_str() << "\"/>" << std::endl;
-        file << R"(  <parameter name="Direction" value="Out"/>)" << std::endl;
-        file << R"(  <parameter name="Protocol" value="gsiftp"/>)" << std::endl;
+        file << R"( <componentAction type="DataRelocation" order=")" << order << "\">" << '\n';
+        file << R"(  <parameter name="Name" Value=")" << (*itFields).name.c_str() << "\"/>" << '\n';
+        file << R"(  <parameter name="Host" Value="hostname"/>)" << '\n';
+        file << R"(  <parameter name="Description" value=")" << (*itFields).description.c_str() << "\"/>" << '\n';
+        file << R"(  <parameter name="Direction" value="Out"/>)" << '\n';
+        file << R"(  <parameter name="Protocol" value="gsiftp"/>)" << '\n';
         std::string datapath = (*itFields).value;
         auto        slash = static_cast<long int>(datapath.find_last_of('/'));
         if (slash > 0)
@@ -1552,23 +1552,23 @@ MetaCommand::ExportGAD(bool dynamic)
         {
           datapath = datapath.substr(static_cast<unsigned long>(slash + 1), datapath.size() - slash - 1);
         }
-        file << R"(  <parameter name="SourceDataPath" value=")" << datapath.c_str() << "\"/>" << std::endl;
-        file << R"(  <parameter name="DestDataPath" value=")" << (*itFields).value.c_str() << "\"/>" << std::endl;
-        file << " </componentAction>" << std::endl;
-        file << std::endl;
+        file << R"(  <parameter name="SourceDataPath" value=")" << datapath.c_str() << "\"/>" << '\n';
+        file << R"(  <parameter name="DestDataPath" value=")" << (*itFields).value.c_str() << "\"/>" << '\n';
+        file << " </componentAction>" << '\n';
+        file << '\n';
         order++;
       }
       ++itFields;
     }
     ++it;
   }
-  file << "    </componentActionList>" << std::endl;
-  file << "  </applicationComponent>" << std::endl;
-  file << "</gridApplication>" << std::endl;
+  file << "    </componentActionList>" << '\n';
+  file << "  </applicationComponent>" << '\n';
+  file << "</gridApplication>" << '\n';
 
   file.close();
 
-  std::cout << "done" << std::endl;
+  std::cout << "done" << '\n';
   return true;
 }
 
@@ -1609,14 +1609,14 @@ MetaCommand::Parse(int argc, char ** const argv)
   {
     if (!strcmp(argv[i], "-V") || !strcmp(argv[i], "-H"))
     {
-      std::cout << "Usage : " << argv[0] << std::endl;
+      std::cout << "Usage : " << argv[0] << '\n';
       this->ListOptions();
       return true;
     }
     // List the options if using -v
     if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "-h"))
     {
-      std::cout << "Usage : " << argv[0] << std::endl;
+      std::cout << "Usage : " << argv[0] << '\n';
       this->ListOptionsSimplified();
       return true;
     }
@@ -1625,7 +1625,7 @@ MetaCommand::Parse(int argc, char ** const argv)
     {
       if ((i + 1) >= static_cast<unsigned int>(argc))
       {
-        std::cout << "--loadArguments expected a filename as argument" << std::endl;
+        std::cout << "--loadArguments expected a filename as argument" << '\n';
         return false;
       }
       MetaCommand::LoadArgumentsFromXML(argv[i + 1]);
@@ -1646,12 +1646,12 @@ MetaCommand::Parse(int argc, char ** const argv)
     }
     if (!strcmp(argv[i], "-version"))
     {
-      std::cout << "Version: " << m_Version.c_str() << std::endl;
+      std::cout << "Version: " << m_Version.c_str() << '\n';
       continue;
     }
     if (!strcmp(argv[i], "-date"))
     {
-      std::cout << "Date: " << m_Date.c_str() << std::endl;
+      std::cout << "Date: " << m_Date.c_str() << '\n';
       continue;
     }
     if (!strcmp(argv[i], "-exportGAD") || !strcmp(argv[i], "-vgad") || !strcmp(argv[i], "-hgad"))
@@ -1677,7 +1677,7 @@ MetaCommand::Parse(int argc, char ** const argv)
           }
           else
           {
-            std::cout << "Found tag " << argv[i] << " before end of value list!" << std::endl;
+            std::cout << "Found tag " << argv[i] << " before end of value list!" << '\n';
             return false;
           }
         }
@@ -1715,7 +1715,7 @@ MetaCommand::Parse(int argc, char ** const argv)
 
         if (currentOption < 0)
         {
-          std::cout << "Error processing tag " << tag.c_str() << ".  Tag exists but cannot find its Id." << std::endl;
+          std::cout << "Error processing tag " << tag.c_str() << ".  Tag exists but cannot find its Id." << '\n';
         }
         else
         {
@@ -1748,7 +1748,7 @@ MetaCommand::Parse(int argc, char ** const argv)
       {
         if (m_Verbose)
         {
-          std::cout << "The tag " << tag.c_str() << " is not a valid argument : skipping this tag" << std::endl;
+          std::cout << "The tag " << tag.c_str() << " is not a valid argument : skipping this tag" << '\n';
         }
         if (m_FailOnUnrecognizedOption)
         {
@@ -1782,7 +1782,7 @@ MetaCommand::Parse(int argc, char ** const argv)
       if (!found && m_Verbose)
       {
         std::cout << "Too many arguments specified in your command line! "
-                  << "Skipping extra argument: " << argv[i] << std::endl;
+                  << "Skipping extra argument: " << argv[i] << '\n';
       }
 
       inArgument = true;
@@ -1821,7 +1821,7 @@ MetaCommand::Parse(int argc, char ** const argv)
         if (this->OptionExistsByMinusTag(argv[i]))
         {
           std::cout << "Option " << m_OptionVector[currentOption].name.c_str()
-                    << " expect a value and got tag: " << argv[i] << std::endl;
+                    << " expect a value and got tag: " << argv[i] << '\n';
           this->ListOptionsSimplified(false);
           return false;
         }
@@ -1879,8 +1879,8 @@ MetaCommand::Parse(int argc, char ** const argv)
 
   if (valuesRemaining > 0)
   {
-    std::cout << "Not enough parameters for " << m_OptionVector[currentOption].name.c_str() << std::endl;
-    std::cout << "Usage: " << argv[0] << std::endl;
+    std::cout << "Not enough parameters for " << m_OptionVector[currentOption].name.c_str() << '\n';
+    std::cout << "Usage: " << argv[0] << '\n';
     this->ListOptionsSimplified(false);
     return false;
   }
@@ -1895,7 +1895,7 @@ MetaCommand::Parse(int argc, char ** const argv)
       // First check if the option is actually defined
       if (!(*it).userDefined)
       {
-        std::cout << "Option " << (*it).name.c_str() << " is required but not defined" << std::endl;
+        std::cout << "Option " << (*it).name.c_str() << " is required but not defined" << '\n';
         requiredAndNotDefined = true;
         ++it;
         continue;
@@ -1917,11 +1917,11 @@ MetaCommand::Parse(int argc, char ** const argv)
       {
         if (!(*it).tag.empty() || !(*it).longtag.empty())
         {
-          std::cout << "Field " << (*it).tag.c_str() << " is required but not defined" << std::endl;
+          std::cout << "Field " << (*it).tag.c_str() << " is required but not defined" << '\n';
         }
         else
         {
-          std::cout << "Field " << (*it).name.c_str() << " is required but not defined" << std::endl;
+          std::cout << "Field " << (*it).name.c_str() << " is required but not defined" << '\n';
         }
         requiredAndNotDefined = true;
       }
@@ -1956,7 +1956,7 @@ MetaCommand::Parse(int argc, char ** const argv)
           std::cout << (*itParsed).name.c_str() << "." << (*itFields).name.c_str() << " : Value ("
                     << (*itFields).value.c_str() << ") "
                     << "is not in the range [" << (*itFields).rangeMin.c_str() << "," << (*itFields).rangeMax.c_str()
-                    << "]" << std::endl;
+                    << "]" << '\n';
           valueInRange = false;
         }
       }
@@ -2128,7 +2128,7 @@ MetaCommand::SetParameterGroup(const std::string& optionName,
 
   if (!optionExists)
   {
-    std::cout << "The option " << optionName.c_str() << " doesn't exist" << std::endl;
+    std::cout << "The option " << optionName.c_str() << " doesn't exist" << '\n';
     return false;
   }
 
@@ -2211,7 +2211,7 @@ MetaCommand::LoadArgumentsFromXML(const char * filename, bool createMissingArgum
   }
   xmlFreeDoc(doc);
 #else
-  std::cout << "LoadArguments(" << filename << ") requires libxml2" << std::endl;
+  std::cout << "LoadArguments(" << filename << ") requires libxml2" << '\n';
   if (createMissingArguments)
   {
   }

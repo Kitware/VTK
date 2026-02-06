@@ -74,7 +74,7 @@ MetaEllipse::PrintInfo() const
   {
     std::cout << m_Radius[i] << " ";
   }
-  std::cout << std::endl;
+  std::cout << '\n';
 }
 
 void
@@ -179,7 +179,7 @@ MetaEllipse::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaEllipse: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaEllipse: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -188,7 +188,7 @@ MetaEllipse::M_Read()
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("Radius", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     for (int i = 0; i < m_NDims; i++)
     {

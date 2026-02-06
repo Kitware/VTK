@@ -120,25 +120,25 @@ MetaArray::PrintInfo() const
 {
   MetaForm::PrintInfo();
 
-  std::cout << "Length = " << m_Length << std::endl;
+  std::cout << "Length = " << m_Length << '\n';
 
-  std::cout << "BinaryData = " << ((m_BinaryData) ? "True" : "False") << std::endl;
+  std::cout << "BinaryData = " << ((m_BinaryData) ? "True" : "False") << '\n';
 
-  std::cout << "BinaryDataByteOrderMSB = " << ((m_BinaryDataByteOrderMSB) ? "True" : "False") << std::endl;
+  std::cout << "BinaryDataByteOrderMSB = " << ((m_BinaryDataByteOrderMSB) ? "True" : "False") << '\n';
 
   char str[255];
   MET_TypeToString(m_ElementType, str);
-  std::cout << "ElementType = " << str << std::endl;
+  std::cout << "ElementType = " << str << '\n';
 
-  std::cout << "ElementNumberOfChannels = " << m_ElementNumberOfChannels << std::endl;
+  std::cout << "ElementNumberOfChannels = " << m_ElementNumberOfChannels << '\n';
 
-  std::cout << "AutoFreeElementData = " << ((m_AutoFreeElementData) ? "True" : "False") << std::endl;
+  std::cout << "AutoFreeElementData = " << ((m_AutoFreeElementData) ? "True" : "False") << '\n';
 
-  std::cout << "CompressedElementDataSize = " << m_CompressedElementDataSize << std::endl;
+  std::cout << "CompressedElementDataSize = " << m_CompressedElementDataSize << '\n';
 
-  std::cout << "ElementDataFileName = " << m_ElementDataFileName << std::endl;
+  std::cout << "ElementDataFileName = " << m_ElementDataFileName << '\n';
 
-  std::cout << "ElementData = " << ((m_ElementData == nullptr) ? "NULL" : "Valid") << std::endl;
+  std::cout << "ElementData = " << ((m_ElementData == nullptr) ? "NULL" : "Valid") << '\n';
 }
 
 void
@@ -552,13 +552,9 @@ MetaArray::CanRead(const char * _headerName) const
   }
 
   // Now check the file content
-  std::ifstream inputStream;
+  METAIO_STREAM::ifstream inputStream;
 
-#ifdef __sgi
-  inputStream.open(_headerName, std::ios::in);
-#else
   inputStream.open(_headerName, std::ios::in | std::ios::binary);
-#endif
 
   if (!inputStream.rdbuf()->is_open())
   {
@@ -581,17 +577,13 @@ MetaArray::Read(const char * _headerName, bool _readElements, void * _elementDat
     m_FileName = _headerName;
   }
 
-  auto * tmpStream = new std::ifstream;
+  auto * tmpStream = new METAIO_STREAM::ifstream;
 
-#ifdef __sgi
-  tmpStream->open(m_FileName, std::ios::in);
-#else
-  tmpStream->open(m_FileName, std::ios::in | std::ios::binary);
-#endif
+  tmpStream->open(m_FileName.c_str(), std::ios::in | std::ios::binary);
 
   if (!tmpStream->rdbuf()->is_open())
   {
-    std::cout << "MetaArray: Read: Cannot open file _" << m_FileName << "_" << std::endl;
+    std::cout << "MetaArray: Read: Cannot open file _" << m_FileName << "_" << '\n';
     delete tmpStream;
     return false;
   }
@@ -612,7 +604,7 @@ MetaArray::Read(const char * _headerName, bool _readElements, void * _elementDat
 
 
 bool
-MetaArray::CanReadStream(std::ifstream * _stream) const
+MetaArray::CanReadStream(METAIO_STREAM::ifstream * _stream) const
 {
   if (!strncmp(MET_ReadForm(*_stream).c_str(), "Array", 5))
   {
@@ -622,7 +614,7 @@ MetaArray::CanReadStream(std::ifstream * _stream) const
 }
 
 bool
-MetaArray::ReadStream(std::ifstream * _stream, bool _readElements, void * _elementDataBuffer, bool _autoFreeElementData)
+MetaArray::ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements, void * _elementDataBuffer, bool _autoFreeElementData)
 {
   META_DEBUG_PRINT( "MetaArray: ReadStream" );
 
@@ -634,7 +626,7 @@ MetaArray::ReadStream(std::ifstream * _stream, bool _readElements, void * _eleme
 
   if (m_ReadStream)
   {
-    std::cout << "MetaArray: ReadStream: two files open?" << std::endl;
+    std::cout << "MetaArray: ReadStream: two files open?" << '\n';
     delete m_ReadStream;
   }
 
@@ -642,7 +634,7 @@ MetaArray::ReadStream(std::ifstream * _stream, bool _readElements, void * _eleme
 
   if (!M_Read())
   {
-    std::cout << "MetaArray: Read: Cannot parse file" << std::endl;
+    std::cout << "MetaArray: Read: Cannot parse file" << '\n';
     m_ReadStream = nullptr;
     return false;
   }
@@ -671,16 +663,12 @@ MetaArray::ReadStream(std::ifstream * _stream, bool _readElements, void * _eleme
       {
         fName = m_ElementDataFileName;
       }
-      auto * readStreamTemp = new std::ifstream;
+      auto * readStreamTemp = new METAIO_STREAM::ifstream;
 
-#ifdef __sgi
-      readStreamTemp->open(fName, std::ios::in);
-#else
-      readStreamTemp->open(fName, std::ios::binary | std::ios::in);
-#endif
+      readStreamTemp->open(fName.c_str(), std::ios::binary | std::ios::in);
       if (!readStreamTemp->rdbuf()->is_open())
       {
-        std::cout << "MetaArray: Read: Cannot open data file" << std::endl;
+        std::cout << "MetaArray: Read: Cannot open data file" << '\n';
         m_ReadStream = nullptr;
         return false;
       }
@@ -756,19 +744,9 @@ MetaArray::Write(const char * _headName, const char * _dataName, bool _writeElem
     }
   }
 
-  auto * tmpWriteStream = new std::ofstream;
+  auto * tmpWriteStream = new METAIO_STREAM::ofstream;
 
-// Some older sgi compilers have a error in the ofstream constructor
-// that requires a file to exist for output
-#ifdef __sgi
-  {
-    std::ofstream tFile(m_FileName, std::ios::out);
-    tFile.close();
-  }
-  tmpWriteStream->open(m_FileName, std::ios::out);
-#else
-  tmpWriteStream->open(m_FileName, std::ios::binary | std::ios::out);
-#endif
+  tmpWriteStream->open(m_FileName.c_str(), std::ios::binary | std::ios::out);
 
   if (!tmpWriteStream->rdbuf()->is_open())
   {
@@ -795,11 +773,11 @@ MetaArray::Write(const char * _headName, const char * _dataName, bool _writeElem
 }
 
 bool
-MetaArray::WriteStream(std::ofstream * _stream, bool _writeElements, const void * _constElementData)
+MetaArray::WriteStream(METAIO_STREAM::ofstream * _stream, bool _writeElements, const void * _constElementData)
 {
   if (m_WriteStream != nullptr)
   {
-    std::cout << "MetaArray: WriteStream: two files open?" << std::endl;
+    std::cout << "MetaArray: WriteStream: two files open?" << '\n';
     delete m_WriteStream;
   }
 
@@ -941,7 +919,7 @@ MetaArray::M_Read()
   META_DEBUG_PRINT( "MetaArray: M_Read: Loading Header" );
   if (!MetaForm::M_Read())
   {
-    std::cout << "MetaArray: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaArray: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -962,7 +940,7 @@ MetaArray::M_Read()
     }
     else
     {
-      std::cout << "MetaArray: M_Read: Error: Length required" << std::endl;
+      std::cout << "MetaArray: M_Read: Error: Length required" << '\n';
       return false;
     }
   }
@@ -989,7 +967,7 @@ MetaArray::M_Read()
 }
 
 bool
-MetaArray::M_ReadElements(std::ifstream * _fstream, void * _data, int _dataQuantity)
+MetaArray::M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data, int _dataQuantity)
 {
   META_DEBUG_PRINT( "MetaArray: M_ReadElements" );
 
@@ -1033,8 +1011,8 @@ MetaArray::M_ReadElements(std::ifstream * _fstream, void * _data, int _dataQuant
       int gc = static_cast<int>(_fstream->gcount());
       if (gc != readSize)
       {
-        std::cout << "MetaArray: M_ReadElements: data not read completely" << std::endl;
-        std::cout << "   ideal = " << readSize << " : actual = " << gc << std::endl;
+        std::cout << "MetaArray: M_ReadElements: data not read completely" << '\n';
+        std::cout << "   ideal = " << readSize << " : actual = " << gc << '\n';
         return false;
       }
     }
@@ -1044,10 +1022,10 @@ MetaArray::M_ReadElements(std::ifstream * _fstream, void * _data, int _dataQuant
 }
 
 bool
-MetaArray::M_WriteElements(std::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity)
+MetaArray::M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data, std::streamoff _dataQuantity)
 {
   bool            localData;
-  std::ofstream * tmpWriteStream;
+  METAIO_STREAM::ofstream * tmpWriteStream;
   if (m_ElementDataFileName == "LOCAL")
   {
     localData = true;
@@ -1056,7 +1034,7 @@ MetaArray::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
   else
   {
     localData = false;
-    tmpWriteStream = new std::ofstream;
+    tmpWriteStream = new METAIO_STREAM::ofstream;
 
     std::string dataFileName;
     std::string pathName;
@@ -1070,17 +1048,7 @@ MetaArray::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
       dataFileName = m_ElementDataFileName;
     }
 
-// Some older sgi compilers have a error in the ofstream constructor
-// that requires a file to exist for output
-#ifdef __sgi
-    {
-      std::ofstream tFile(dataFileName, std::ios::out);
-      tFile.close();
-    }
-    tmpWriteStream->open(dataFileName, std::ios::out);
-#else
-    tmpWriteStream->open(dataFileName, std::ios::binary | std::ios::out);
-#endif
+    tmpWriteStream->open(dataFileName.c_str(), std::ios::binary | std::ios::out);
   }
 
   if (!m_BinaryData)
@@ -1091,7 +1059,7 @@ MetaArray::M_WriteElements(std::ofstream * _fstream, const void * _data, std::st
       MET_ValueToDouble(m_ElementType, _data, i, &tf);
       if ((i + 1) / 10 == (i + 1.0) / 10.0)
       {
-        (*tmpWriteStream) << tf << std::endl;
+        (*tmpWriteStream) << tf << '\n';
       }
       else
       {

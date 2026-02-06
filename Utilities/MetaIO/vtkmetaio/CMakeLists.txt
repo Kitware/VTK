@@ -12,7 +12,7 @@
 
 if(METAIO_FOR_VTK)
   set(METAIO_NAMESPACE "vtkmetaio")
-  set(METAIO_TARGET "metaio")
+  set(METAIO_TARGET "vtkmetaio")
   set(METAIO_INSTALL_NO_LIBRARIES TRUE)
   set(METAIO_INSTALL_NO_DEVELOPMENT TRUE)
   if(BUILD_SHARED_LIBS)
@@ -20,8 +20,15 @@ if(METAIO_FOR_VTK)
   endif()
 elseif("${METAIO_NAMESPACE}" STREQUAL "ITKMetaIO")
   set(METAIO_FOR_ITK 1)
-elseif(NOT METAIO_NAMESPACE)
+  if(BUILD_SHARED_LIBS)
+      add_definitions(-Ditkmetaio_BUILD_SHARED_LIBS)
+  endif()
+elseif("${METAIO_NAMESPACE}" STREQUAL "MetaIO" OR NOT METAIO_NAMESPACE)
   set(METAIO_NAMESPACE MetaIO)
+  set(METAIO_FOR_METAIO 1)
+  if(BUILD_SHARED_LIBS)
+      add_definitions(-Dmetaio_BUILD_SHARED_LIBS)
+  endif()
 endif()
 
 if(NOT DEFINED METAIO_TARGET)
@@ -117,20 +124,22 @@ if (METAIO_FOR_VTK)
     SOURCES ${sources}
     HEADERS ${headers}
     HEADERS_SUBDIR "vtkmetaio")
+  vtk_module_set_property(VTK::metaio
+    PROPERTY  DEFINE_SYMBOL
+    VALUE     metaio_EXPORTS)
 else ()
   add_library(${METAIO_TARGET}
     ${sources}
     ${headers}
   )
+  if (METAIO_FOR_ITK)
+    target_link_libraries(${METAIO_TARGET} PUBLIC
+      itksys
+    )
+  endif (METAIO_FOR_ITK)
 endif ()
 
 include_regular_expression("^.*$")
-
-# Need nsl to resolve gethostbyname on SunOS-5.8
-# and socket also
-if(CMAKE_SYSTEM MATCHES "SunOS.*")
-  target_link_libraries(${METAIO_TARGET} PRIVATE socket nsl)
-endif()
 
 target_link_libraries(${METAIO_TARGET} PUBLIC
   ${METAIO_LIBXML2_LIBRARIES}
