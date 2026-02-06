@@ -142,7 +142,7 @@ set(private_sources
   src/h5core/private/h5t_store_trim.c)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
-	${CMAKE_CURRENT_BINARY_DIR}/src/include/config.h)
+  ${CMAKE_CURRENT_BINARY_DIR}/src/include/config.h)
 
 vtk_module_add_module(VTK::h5hut
   HEADER_DIRECTORIES
@@ -160,6 +160,6 @@ vtk_module_include(VTK::h5hut
     "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkh5hut/src/include>")
 
 include(GenerateExportHeader)
-generate_export_header(h5hut
+generate_export_header(vtkh5hut
   EXPORT_MACRO_NAME VTKH5HUT_EXPORT
   EXPORT_FILE_NAME src/include/vtkh5hut_export.h)
