@@ -53,32 +53,32 @@ endif ()
 
 vtk_module_add_module(VTK::freetype
   SOURCES ${sources})
-target_compile_definitions(freetype
+vtk_module_definitions(VTK::freetype
   PRIVATE
     FT2_BUILD_LIBRARY)
-target_include_directories(freetype
+vtk_module_include(VTK::freetype
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkfreetype/include>")
 if (UNIX)
-  target_include_directories(freetype
+  vtk_module_include(VTK::freetype
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
 endif ()
 
 if (WIN32)
-  target_compile_definitions(
-    freetype PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
+  vtk_module_definitions(
+    VTK::freetype PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
   if (BUILD_SHARED_LIBS)
-    target_compile_definitions(
-      freetype PRIVATE DLL_EXPORT)
+    vtk_module_definitions(
+      VTK::freetype PRIVATE DLL_EXPORT)
   endif ()
 endif ()
 
 # If we want freetype's Mac font support we need to link against
 # a couple of Mac OS X frameworks.
 if (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
-  target_link_libraries(freetype
+  vtk_module_link(VTK::freetype
     "-framework ApplicationServices -framework CoreServices")
 endif ()
 

@@ -360,7 +360,11 @@ if(NOT MSVC)
   set(EIGEN_TEST_ZVECTOR OFF)
   endif ()
 
+  if (FALSE) # XXX(kitware): hardcoding settings.
   option(EIGEN_TEST_Z14 "Enable/Disable S390X(zEC14) ZVECTOR in tests/examples" OFF)
+  else ()
+  set(EIGEN_TEST_Z14 OFF)
+  endif ()
   if(EIGEN_TEST_Z14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=z14 -mzvector")
     message(STATUS "Enabling S390X(zEC13) ZVECTOR in tests/examples")

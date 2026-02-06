@@ -24,12 +24,12 @@ vtk_module_add_module(VTK::vpic
   SOURCES ${sources}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkvpic")
-set_target_properties(vpic
-  PROPERTIES
-    DEFINE_SYMBOL VPIC_EXPORTS)
+vtk_module_set_property(VTK::vpic
+  PROPERTY  DEFINE_SYMBOL
+  VALUE     VPIC_EXPORTS)
 
 if (VTK_USING_MPI)
-  target_add_definitions(vpic
+  vtk_module_definitions(VTK::vpic
     PRIVATE
       USE_PARALLEL_VPIC)
 endif ()

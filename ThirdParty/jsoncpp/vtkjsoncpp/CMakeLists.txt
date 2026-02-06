@@ -20,19 +20,19 @@ vtk_module_add_module(VTK::jsoncpp
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkjsoncpp")
 if (VTK_REQUIRE_LARGE_FILE_SUPPORT)
-  target_compile_definitions(jsoncpp
+  vtk_module_definitions(VTK::jsoncpp
     PRIVATE
       _LARGEFILE_SOURCE
       _LARGEFILE64_SOURCE
       _LARGE_FILES
       _FILE_OFFSET_BITS=64)
 endif ()
-target_include_directories(jsoncpp
+vtk_module_include(VTK::jsoncpp
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/json>")
-target_compile_features(jsoncpp
+vtk_module_compile_features(VTK::jsoncpp
   PUBLIC
     cxx_std_11)
-set_target_properties(jsoncpp
-  PROPERTIES
-    DEFINE_SYMBOL JSON_DLL_BUILD)
+vtk_module_set_property(VTK::jsoncpp
+  PROPERTY  DEFINE_SYMBOL
+  VALUE     JSON_DLL_BUILD)

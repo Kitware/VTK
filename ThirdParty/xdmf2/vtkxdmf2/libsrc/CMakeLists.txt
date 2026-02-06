@@ -279,9 +279,9 @@ vtk_module_add_module(VTK::xdmf2
           XdmfExport.h
           "${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.h"
   HEADERS_SUBDIR "vtkxdmf2/libsrc")
-set_target_properties(xdmf2
-  PROPERTIES
-    DEFINE_SYMBOL Xdmf_EXPORTS)
+vtk_module_set_property(VTK::xdmf2
+  PROPERTY  DEFINE_SYMBOL
+  VALUE     Xdmf_EXPORTS)
 if (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|AppleClang|Clang)$")
   vtk_module_compile_options(VTK::xdmf2 PRIVATE -Wno-deprecated-declarations)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

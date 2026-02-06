@@ -107,11 +107,11 @@ else ()
   vtk_module_add_module(VTK::libharu
     SOURCES ${LIBHPDF_SRCS})
   if (WIN32)
-    set_target_properties(libharu
-      PROPERTIES
-        DEFINE_SYMBOL HPDF_DLL_MAKE)
+    vtk_module_set_property(VTK::libharu
+      PROPERTY  DEFINE_SYMBOL
+      VALUE     HPDF_DLL_MAKE)
   endif ()
-  target_include_directories(libharu
+  vtk_module_include(VTK::libharu
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>")
