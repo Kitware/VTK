@@ -237,10 +237,11 @@ vtk_module_add_module(VTK::ogg
     HEADERS ${OGG_HEADERS}
     HEADERS_SUBDIR "vtkogg")
 include(GenerateExportHeader)
-generate_export_header(ogg
+generate_export_header(vtkogg
+    BASE_NAME           OGG
     EXPORT_MACRO_NAME   vtkogg_EXPORT
     EXPORT_FILE_NAME    include/ogg/vtkogg_export.h)
-target_include_directories(ogg
+vtk_module_include(VTK::ogg
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
