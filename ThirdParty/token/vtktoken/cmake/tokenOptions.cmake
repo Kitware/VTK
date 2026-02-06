@@ -5,7 +5,8 @@ include(CheckIncludeFileCXX)
 # XXX(kitware): No need for this within VTK
 # find_package(nlohmann_json REQUIRED)
 
-# XXX(kitware): Do not build third-party tests in VTK.
+# XXX(kitware): Do not build tests or examples within VTK.
+option(token_ENABLE_EXAMPLES "Build examples?" OFF)
 option(token_ENABLE_TESTING "Build tests?" OFF)
 mark_as_advanced(token_ENABLE_TESTING)
 if (token_ENABLE_TESTING)

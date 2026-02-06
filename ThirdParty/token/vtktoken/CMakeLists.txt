@@ -24,6 +24,9 @@ include(tokenOptions)
 include(tokenPreInstall)
 
 add_subdirectory(token)
+if (token_ENABLE_EXAMPLES)
+  add_subdirectory(examples)
+endif()
 
 # XXX(kitware): install via VTK's module system
 # include(tokenPostInstall)
