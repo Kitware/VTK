@@ -1054,7 +1054,7 @@
             -s '/_:settings/servers/server' -t elem -n password -v '${vtk.github.token}'
             "$GIT_CLONE_PATH/.gitlab/m2/settings.xml"
         - cd build/install
-        - mvn deploy
+        - mvn --settings "$GIT_CLONE_PATH/.gitlab/m2/settings.xml" deploy
             -Dvtk.maven.repo=https://maven.pkg.github.com/kitware/vtk
             -Dvtk.maven.repo.id=github
             -Dvtk.github.username=$MAVEN_USERNAME
