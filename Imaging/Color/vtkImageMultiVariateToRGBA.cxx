@@ -10,6 +10,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -36,9 +37,9 @@ namespace
  * In this example, all channels are in the same modality, so they all
  * get normalized together.
  */
-struct NormalizeDataWorker
+struct NormalizeWorker
 {
-  NormalizeDataWorker(const std::vector<int>& indices, double newMin = 0, double newMax = 1)
+  NormalizeWorker(const std::vector<int>& indices, double newMin = 0, double newMax = 1)
     : Indices(indices)
     , NewMin(newMin)
     , NewMax(newMax)
@@ -46,21 +47,33 @@ struct NormalizeDataWorker
   }
 
   template <typename Input, typename Output>
-  void operator()(Input* inputArray, Output* outputArray)
+  void operator()(Input* scalarsArray, Output* normalizedArray)
   {
-    double minVal = inputArray->GetDataTypeMin();
-    double maxVal = inputArray->GetDataTypeMax();
-    vtkDataArrayAccessor<Input> input(inputArray);
-    vtkDataArrayAccessor<Output> output(outputArray);
-
-    vtkIdType n = inputArray->GetNumberOfTuples();
-    for (vtkIdType tupleIdx = 0; tupleIdx < n; ++tupleIdx)
+    double range[2];
+    double minValue = std::numeric_limits<double>::max(),
+           maxValue = std::numeric_limits<double>::lowest();
+    for (int k = 0; k < this->Indices.size(); ++k)
     {
-      for (int i = 0; i < this->Indices.size(); ++i)
+      scalarsArray->GetRange(range, this->Indices[k]);
+      if (range[0] < minValue)
       {
-        output.Set(tupleIdx, this->Indices[i],
-          (this->NewMax - this->NewMin) * (input.Get(tupleIdx, this->Indices[i]) - minVal) /
-              (maxVal - minVal) +
+        minValue = range[0];
+      }
+      if (range[1] > maxValue)
+      {
+        maxValue = range[1];
+      }
+    }
+    vtkDataArrayAccessor<Input> scalars(scalarsArray);
+    vtkDataArrayAccessor<Output> normalized(normalizedArray);
+    vtkIdType nTuples = scalarsArray->GetNumberOfTuples();
+    for (vtkIdType i = 0; i < nTuples; ++i)
+    {
+      for (int k = 0; k < this->Indices.size(); ++k)
+      {
+        normalized.Set(i, this->Indices[k],
+          (this->NewMax - this->NewMin) * (scalars.Get(i, this->Indices[k]) - minValue) /
+              (maxValue - minValue) +
             this->NewMin);
       }
     }
@@ -73,15 +86,17 @@ struct NormalizeDataWorker
 struct ComputeGBCWorker
 {
   template <typename Input, typename Output>
-  void operator()(Input* normalizedScalars, Output* gbcScalars)
+  void operator()(Input* normalizedArray, Output* gbcArray)
   {
-    vtkDataArrayAccessor<Input> data(normalizedScalars);
-    vtkDataArrayAccessor<Output> gbc(gbcScalars);
+    vtkDataArrayAccessor<Input> normalized(normalizedArray);
+    vtkDataArrayAccessor<Output> gbc(gbcArray);
 
-    vtkIdType nComponents = normalizedScalars->GetNumberOfComponents();
+    vtkIdType nComponents = normalizedArray->GetNumberOfComponents();
     std::vector<double> angle(nComponents);
     std::vector<std::array<double, 2>> components(nComponents);
     angle[0] = vtkMath::Pi() / 2;
+    components[0][0] = std::cos(angle[0]);
+    components[0][1] = std::sin(angle[0]);
     constexpr double adjustment = 0.997;
     for (int i = 1; i < nComponents; ++i)
     {
@@ -93,32 +108,34 @@ struct ComputeGBCWorker
     }
     std::sort(angle.begin(), angle.end());
 
-    vtkIdType nTuples = normalizedScalars->GetNumberOfTuples();
+    vtkIdType nTuples = normalizedArray->GetNumberOfTuples();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double tempsum = 0;
       for (int k = 0; k < nComponents; ++k)
       {
-        tempsum += data.Get(i, k);
+        tempsum += normalized.Get(i, k);
       }
-      if (tempsum > 0)
+      gbc.Set(i, 0, 0);
+      gbc.Set(i, 1, 0);
+      if (!vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
       {
-        for (int k = 0; k < nComponents; ++k)
+        for (int j = 0; j < 2; ++j)
         {
-          for (int j = 0; j < 2; ++j)
+          for (int k = 0; k < nComponents; ++k)
           {
-            gbc.Set(i, j, data.Get(i, k) * components[k][j] / tempsum);
+            gbc.Set(i, j, gbc.Get(i, j) + normalized.Get(i, k) * components[k][j] / tempsum);
           }
         }
         double tempangle = std::atan2(gbc.Get(i, 1), gbc.Get(i, 0));
-        tempangle = std::fmod(tempangle, vtkMath::Pi() * 2);
+        tempangle = std::fmod(tempangle, 2 * vtkMath::Pi());
 
         bool flag = false;
         double temp_a = 0;
         double temp_b = 0;
         for (int j = 0; j < nComponents - 1; ++j)
         {
-          if (angle[j] <= tempangle < angle[j + 1])
+          if (angle[j] <= tempangle && tempangle < angle[j + 1])
           {
             temp_a = angle[j + 1];
             temp_b = angle[j];
@@ -137,11 +154,6 @@ struct ComputeGBCWorker
         gbc.Set(i, 0, lth * std::cos(tempangle));
         gbc.Set(i, 1, lth * std::sin(tempangle));
       }
-      else
-      {
-        gbc.Set(i, 0, 0);
-        gbc.Set(i, 1, 0);
-      }
     }
   }
 };
@@ -153,6 +165,7 @@ struct GBCToHSLWorker
     , Lightness(lightness)
   {
   }
+
   template <typename Input, typename Output>
   void operator()(Input* gbcScalars, Output* hslScalars)
   {
@@ -246,7 +259,7 @@ struct ComputeAlphaWorker
   template <typename Input, typename Output>
   void operator()(Input* normalizedScalars, Output* rgbaScalars)
   {
-    vtkDataArrayAccessor<Input> norm(normalizedScalars);
+    vtkDataArrayAccessor<Input> normalized(normalizedScalars);
     vtkDataArrayAccessor<Output> rgba(rgbaScalars);
 
     vtkIdType nComponents = normalizedScalars->GetNumberOfComponents();
@@ -257,7 +270,7 @@ struct ComputeAlphaWorker
       double mean = 0;
       for (int k = 0; k < nComponents; ++k)
       {
-        mean += norm.Get(i, k);
+        mean += normalized.Get(i, k);
       }
       mean /= nComponents;
 
@@ -307,7 +320,6 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  outData->AllocateScalars(outInfo);
 
   int inExt[6];
   inData->GetExtent(inExt);
@@ -334,19 +346,21 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     std::iota(this->ModalityGroups[0].begin(), this->ModalityGroups[0].end(), 0);
   }
   vtkNew<vtkDoubleArray> normalizedScalars;
+  normalizedScalars->SetName("normalized");
   normalizedScalars->SetNumberOfComponents(scalars->GetNumberOfComponents());
   normalizedScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
   for (int i = 0; i < this->ModalityGroups.size(); ++i)
   {
-    NormalizeDataWorker worker(this->ModalityGroups[i]);
+    NormalizeWorker worker(this->ModalityGroups[i]);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars, normalizedScalars.GetPointer());
     }
   }
   vtkNew<vtkDoubleArray> gbcScalars;
+  gbcScalars->SetName("gbc");
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
@@ -357,6 +371,7 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   vtkNew<vtkDoubleArray> hslScalars;
+  hslScalars->SetName("hsl");
   hslScalars->SetNumberOfComponents(3);
   hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
@@ -367,6 +382,7 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   vtkNew<vtkDoubleArray> rgbaScalars;
+  rgbaScalars->SetName("rgba");
   rgbaScalars->SetNumberOfComponents(4);
   rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
@@ -383,7 +399,10 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
     }
   }
-
+  outData->GetPointData()->AddArray(normalizedScalars);
+  outData->GetPointData()->AddArray(gbcScalars);
+  outData->GetPointData()->AddArray(hslScalars);
+  outData->GetPointData()->AddArray(rgbaScalars);
   return 1;
 }
 
