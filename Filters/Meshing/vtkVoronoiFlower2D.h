@@ -561,7 +561,6 @@ private:
   int ProjectionPlaneMode; // selects the plane in 3D where the tessellation will be computed
   vtkSmartPointer<vtkStaticPointLocator2D> Locator;
   vtkSmartPointer<vtkAbstractTransform> Transform;
-  bool GenerateDelaunayTriangulation;
   vtkIdType PointOfInterest;
   vtkSmartPointer<vtkIdTypeArray> PointsOfInterest; // list of points of interest
   vtkIdType MaximumNumberOfTileClips;
