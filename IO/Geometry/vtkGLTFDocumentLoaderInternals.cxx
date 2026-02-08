@@ -111,7 +111,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
+bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::json& gltfRoot)
 {
   try
   {
@@ -125,6 +125,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
 
     if (magic == "glTF")
     {
+      binary = true;
       std::uint32_t version;
       std::uint32_t fileLength;
       std::vector<vtkGLTFUtils::ChunkInfoType> chunkInfo;
@@ -159,6 +160,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(nlohmann::json& gltfRoot)
     else
     {
       // Text gltf
+      binary = false;
       stream->Seek(0, vtkResourceStream::SeekDirection::End);
       const auto fileSize = static_cast<std::size_t>(stream->Tell()) - this->Self->GetGLBStart();
       stream->Seek(this->Self->GetGLBStart(), vtkResourceStream::SeekDirection::Begin);
@@ -1301,10 +1303,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
 
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
-  std::vector<std::string>& extensionsUsedByLoader)
+  bool& binary, std::vector<std::string>& extensionsUsedByLoader)
 {
   nlohmann::json root;
-  if (!this->LoadFileMetaData(root))
+  if (!this->LoadFileMetaData(binary, root))
   {
     vtkErrorWithObjectMacro(this->Self, "Failed to load file from stream");
     return false;

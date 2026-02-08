@@ -187,7 +187,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromStream(
   vtkGLTFDocumentLoaderInternals impl;
   impl.Self = this;
 
-  if (!impl.LoadModelMetaData(this->UsedExtensions))
+  if (!impl.LoadModelMetaData(this->IsBinary, this->UsedExtensions))
   {
     this->InternalModel = nullptr;
     return false;
@@ -1749,6 +1749,12 @@ std::vector<std::string> vtkGLTFDocumentLoader::GetSupportedExtensions()
 const std::vector<std::string>& vtkGLTFDocumentLoader::GetUsedExtensions()
 {
   return this->UsedExtensions;
+}
+
+//------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoader::GetIsBinary()
+{
+  return this->IsBinary;
 }
 
 /** types and enums **/
