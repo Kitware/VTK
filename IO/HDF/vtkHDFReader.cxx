@@ -797,7 +797,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
 
         if (!cacheHit)
         {
-          data->GetAttributesAsFieldData(attributeType)->AddArray(array);
+          vtkDataSetAttributes* attributes = data->GetAttributes(attributeType);
+          this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+          attributes->AddArray(array);
+
           // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
           if (this->UseCache)
           {
@@ -980,7 +983,9 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
           if (!cacheArray)
           {
             array->SetName(name.c_str());
-            dataSet->GetAttributesAsFieldData(attributeType)->AddArray(array);
+            vtkDataSetAttributes* attributes = dataSet->GetAttributes(attributeType);
+            this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+            attributes->AddArray(array);
           }
         }
       }
@@ -1198,7 +1203,9 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
         if (!cacheArray)
         {
           array->SetName(name.c_str());
-          pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
+          vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+          this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+          attributes->AddArray(array);
         }
       }
       else
@@ -1513,7 +1520,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
           if (!cacheArray)
           {
             array->SetName(name.c_str());
-            pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
+            vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+            this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+            attributes->AddArray(array);
           }
         }
         else

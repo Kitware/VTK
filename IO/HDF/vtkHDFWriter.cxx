@@ -1236,6 +1236,19 @@ bool vtkHDFWriter::AppendDataSetAttributes(
                       << " when creating: " << this->FileName);
         return false;
       }
+
+      if (this->CurrentTimeIndex == 0 && partId == 0)
+      {
+        // Write attribute if the array is a special one
+        int attrId = attributes->IsArrayAnAttribute(iArray);
+        if (attrId >= 0)
+        {
+          const char* attrName = attributes->GetAttributeTypeAsString(attrId);
+          vtkHDF::ScopedH5DHandle dataset =
+            this->Impl->OpenDataset(attributeGroup, arrayName.c_str());
+          this->Impl->CreateStringAttribute(dataset, "Attribute", attrName);
+        }
+      }
     }
   }
   return true;

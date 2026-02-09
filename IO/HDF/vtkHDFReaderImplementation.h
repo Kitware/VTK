@@ -10,6 +10,7 @@
 #define vtkHDFReaderImplementation_h
 
 #include "vtkAMRBox.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkHDFReader.h"
 #include "vtk_hdf5.h"
 
@@ -110,6 +111,14 @@ public:
   vtkAbstractArray* NewFieldArray(
     const char* name, vtkIdType offset = -1, vtkIdType size = -1, vtkIdType dimMaxSize = -1);
   ///@}
+
+  /**
+   * Given a named data array and an attribute type,
+   * read from the file the special array attribute (scalars, global ids, etc.) if any,
+   * and set in in the provided vtkDataSetAttributes object.
+   */
+  void AttachDatasetAttributeToArray(
+    int attributeType, vtkDataArray* array, vtkDataSetAttributes* attributes);
 
   ///@{
   /**

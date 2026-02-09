@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkHDFReaderImplementation.h"
-#include <stdexcept>
-#include <type_traits>
 
 #include "vtkAMRBox.h"
 #include "vtkAMRUtilities.h"
+#include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayRange.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObject.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFUtilities.h"
@@ -32,7 +31,7 @@
 
 #include <algorithm>
 #include <array>
-#include <numeric>
+#include <cctype>
 #include <sstream>
 
 //------------------------------------------------------------------------------
@@ -322,6 +321,41 @@ vtkDataArray* vtkHDFReader::Implementation::NewArray(
   std::vector<hsize_t> fileExtent = { offset, offset + size };
   return vtkHDFUtilities::NewArrayForGroup(
     this->AttributeDataGroup[attributeType], name, fileExtent);
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFReader::Implementation::AttachDatasetAttributeToArray(
+  int attributeType, vtkDataArray* array, vtkDataSetAttributes* attributes)
+{
+  if (!array->GetName())
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not retrieve array name");
+    return;
+  }
+
+  vtkHDF::ScopedH5DHandle arrayId =
+    H5Dopen(this->AttributeDataGroup[attributeType], array->GetName(), H5P_DEFAULT);
+  if (H5Aexists(arrayId, "Attribute") > 0)
+  {
+    std::string attributeName;
+    vtkHDFUtilities::GetStringAttribute(arrayId, "Attribute", attributeName);
+    std::transform(attributeName.begin(), attributeName.end(), attributeName.begin(),
+      [](unsigned char character) { return std::tolower(character); });
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+    {
+      std::string attributeNameRef = vtkDataSetAttributes::GetAttributeTypeAsString(i);
+      std::transform(attributeNameRef.begin(), attributeNameRef.end(), attributeNameRef.begin(),
+        [](unsigned char character) { return std::tolower(character); });
+      if (attributeNameRef == attributeName)
+      {
+        attributes->SetAttribute(array, i);
+        return;
+      }
+    }
+
+    vtkErrorWithObjectMacro(
+      this->Reader, << "Could not find matching attribute type for '" << array->GetName());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1145,7 +1179,10 @@ bool vtkHDFReader::Implementation::CreateHyperTreeGridCellArrays(vtkHyperTreeGri
 
       array->SetName(arrayName.c_str());
       array->Allocate(cellCount * array->GetNumberOfComponents());
-      htg->GetCellData()->AddArray(array);
+      vtkDataSetAttributes* cellData = htg->GetCellData();
+      cellData->AddArray(array);
+      this->AttachDatasetAttributeToArray(cellType, array, cellData);
+
       cellArrays.emplace_back(array);
     }
   }
