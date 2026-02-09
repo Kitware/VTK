@@ -1,4 +1,6 @@
 set(test_exclusions
+  # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
+  "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
   # Flaky when run with threads enabled. See #19471.
   "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
@@ -66,9 +68,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
     "^VTK::ViewsInfovisCxx-TestRenderView$"
-
-    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
-    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
@@ -101,9 +100,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     # Intermittent flakiness; may be related to CI runner OpenGL config.
     # Appears as a colormap or color-range failure:
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
-
-    # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
-    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     )
 endif ()
 
@@ -381,9 +377,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_aarch64")
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$" # also leaks
 
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19896
-    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
-
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
     "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
@@ -604,7 +597,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
     "^VTK::RenderingOpenGL2Cxx-TestFlipRenderFramebuffer$"
-    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestFramebufferHDR$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestGaussianBlurPass$"
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperEdges$"
