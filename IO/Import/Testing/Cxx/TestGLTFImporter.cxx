@@ -36,12 +36,6 @@ int TestGLTFImporter(int argc, char* argv[])
   VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], useStream, EXIT_FAILURE);
   if (useStream > 0)
   {
-    bool is_binary = false;
-    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(argv[1]);
-    if (extension == ".glb")
-    {
-      is_binary = true;
-    }
     vtkNew<vtkFileResourceStream> file;
     file->Open(argv[1]);
     if (file->EndOfStream())
@@ -57,7 +51,6 @@ int TestGLTFImporter(int argc, char* argv[])
     }
 
     importer->SetStream(file);
-    importer->SetStreamIsBinary(is_binary);
   }
   else
   {

@@ -583,6 +583,8 @@ public:
    */
   const std::vector<std::string>& GetUsedExtensions();
 
+  bool GetIsBinary();
+
   /**
    * Concatenate the current node's local transform to its parent's global transform, storing
    * the resulting transform in the node's globalTransform field. Then does the same for the current
@@ -712,6 +714,7 @@ private:
 
   static const std::vector<std::string> SupportedExtensions;
   std::vector<std::string> UsedExtensions;
+  bool IsBinary = false;
   vtkTypeInt64 GLBStart = 0;
 
   /**

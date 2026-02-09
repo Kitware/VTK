@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkGLTFImporter.h"
 
@@ -526,20 +527,20 @@ int vtkGLTFImporter::ImportBegin()
   std::vector<char> glbBuffer;
   if (stream != nullptr)
   {
+    if (!this->Loader->LoadModelMetaDataFromStream(stream, this->StreamURILoader))
+    {
+      vtkErrorMacro("Error loading model metadata");
+      return 0;
+    }
+
     // stream is defined.
-    if (this->StreamIsBinary)
+    if (this->Loader->GetIsBinary() || this->StreamIsBinary)
     {
       if (!this->Loader->LoadStreamBuffer(stream, glbBuffer))
       {
         vtkErrorMacro("Error loading binary data");
         return 0;
       }
-    }
-
-    if (!this->Loader->LoadModelMetaDataFromStream(stream, this->StreamURILoader))
-    {
-      vtkErrorMacro("Error loading model metadata");
-      return 0;
     }
   }
   else
@@ -797,6 +798,38 @@ void vtkGLTFImporter::ApplyArmatureProperties(vtkActor* actor)
 {
   actor->GetProperty()->RenderPointsAsSpheresOn();
   actor->GetProperty()->RenderLinesAsTubesOn();
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
+void vtkGLTFImporter::SetStreamIsBinary(bool val)
+{
+  if (this->StreamIsBinary != val)
+  {
+    this->StreamIsBinary = val;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
+bool vtkGLTFImporter::GetStreamIsBinary()
+{
+  return this->StreamIsBinary;
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
+void vtkGLTFImporter::StreamIsBinaryOn()
+{
+  this->SetStreamIsBinary(true);
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
+void vtkGLTFImporter::StreamIsBinaryOff()
+{
+  this->SetStreamIsBinary(false);
 }
 
 //------------------------------------------------------------------------------

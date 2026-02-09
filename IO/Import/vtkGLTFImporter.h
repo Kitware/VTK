@@ -48,7 +48,7 @@
  * When selecting the input method, `Stream` has a
  * higher priority than `FileName` i.e. if a stream is provided, the filename is ignored.
  * \note When readering from stream, if the stream contains non-data URIs, specifying a custom uri
- * loader is crucial. \sa SetStreamURILoader() \sa SetStreamIsBinary()
+ * loader is crucial. \sa SetStreamURILoader()
  *
  * @sa
  * vtkImporter
@@ -58,6 +58,7 @@
 #ifndef vtkGLTFImporter_h
 #define vtkGLTFImporter_h
 
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 #include "vtkSmartPointer.h" // For SmartPointer
@@ -86,7 +87,7 @@ public:
   ///@{
   /**
    * Specify a custom URI loader for non-data URIs in the input stream.
-   * \sa SetStream(), SetStreamIsBinary()
+   * \sa SetStream()
    */
   vtkSetSmartPointerMacro(StreamURILoader, vtkURILoader);
   vtkGetSmartPointerMacro(StreamURILoader, vtkURILoader);
@@ -98,9 +99,14 @@ public:
    *
    * \sa SetStream()
    */
-  vtkSetMacro(StreamIsBinary, bool);
-  vtkGetMacro(StreamIsBinary, bool);
-  vtkBooleanMacro(StreamIsBinary, bool);
+  VTK_DEPRECATED_IN_9_7_0("Do not use, binary stream is automatically detected")
+  void SetStreamIsBinary(bool val);
+  VTK_DEPRECATED_IN_9_7_0("Do not use, binary stream is automatically detected")
+  bool GetStreamIsBinary();
+  VTK_DEPRECATED_IN_9_7_0("Do not use, binary stream is automatically detected")
+  void StreamIsBinaryOn();
+  VTK_DEPRECATED_IN_9_7_0("Do not use, binary stream is automatically detected")
+  void StreamIsBinaryOff();
   ///@}
 
   ///@{
@@ -231,6 +237,8 @@ protected:
   virtual void ApplyArmatureProperties(vtkActor* actor);
 
   vtkSmartPointer<vtkURILoader> StreamURILoader;
+
+  VTK_DEPRECATED_IN_9_7_0("Do not use, binary stream is automatically detected")
   bool StreamIsBinary = false;
 
   std::map<int, vtkSmartPointer<vtkCamera>> Cameras;
