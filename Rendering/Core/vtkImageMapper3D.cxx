@@ -731,9 +731,11 @@ static VTK_THREAD_RETURN_TYPE vtkImageMapperMapColors(void* arg)
   // adjust pointers
   int firstRow = threadId * nrows / threadCount;
   int lastRow = (threadId + 1) * nrows / threadCount;
-  void* inputPtr = static_cast<char*>(imts->InputPtr) +
-    (imts->InIncX * ncols + imts->InIncY) * firstRow * scalarSize;
-  unsigned char* outputPtr = imts->OutputPtr + (imts->OutIncX * ncols + imts->OutIncY) * firstRow;
+  size_t inputRowOffset =
+    static_cast<size_t>(imts->InIncX * ncols + imts->InIncY) * firstRow * scalarSize;
+  void* inputPtr = static_cast<char*>(imts->InputPtr) + inputRowOffset;
+  size_t outputRowOffset = static_cast<size_t>(imts->OutIncX * ncols + imts->OutIncY) * firstRow;
+  unsigned char* outputPtr = imts->OutputPtr + outputRowOffset;
   nrows = lastRow - firstRow;
 
   // reformat the data for use as a texture
@@ -836,7 +838,8 @@ unsigned char* vtkImageMapper3D::MakeTextureData(vtkImageProperty* property, vtk
   // could not directly use input data, so allocate a new array
   reuseData = false;
 
-  unsigned char* outPtr = new unsigned char[ysize * xsize * bytesPerPixel];
+  unsigned char* outPtr = new unsigned char[static_cast<size_t>(ysize) *
+    static_cast<size_t>(xsize) * static_cast<size_t>(bytesPerPixel)];
 
   // output increments
   vtkIdType outIncY = bytesPerPixel * (xsize - imageSize[0]);
