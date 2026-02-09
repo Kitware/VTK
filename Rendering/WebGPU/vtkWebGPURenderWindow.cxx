@@ -156,14 +156,48 @@ bool vtkWebGPURenderWindow::WGPUInit()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetCustomSurfaceDescriptor(const wgpu::SurfaceDescriptor* descriptor)
+{
+  this->CustomSurfaceDescriptor = descriptor;
+}
+
+//------------------------------------------------------------------------------
+const wgpu::SurfaceDescriptor* vtkWebGPURenderWindow::GetCustomSurfaceDescriptor() const
+{
+  return this->CustomSurfaceDescriptor;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateSurface()
 {
-  if (!this->HardwareWindow)
+  vtkWebGPUCheckUnconfigured(this);
+
+  wgpu::Instance instance = this->WGPUConfiguration->GetInstance();
+  if (instance == nullptr)
   {
-    // vtkErrorMacro(<< "Cannot create surface without a hardware window.");
+    vtkErrorMacro(<< "Cannot create surface because WebGPU instance is not ready!");
     return;
   }
 
+  // Use custom surface descriptor if provided, bypassing hardware window entirely
+  if (this->CustomSurfaceDescriptor != nullptr)
+  {
+    this->Surface = instance.CreateSurface(this->CustomSurfaceDescriptor);
+    return;
+  }
+
+  // Create surface from hardware window
+  if (this->HardwareWindow == nullptr)
+  {
+    return;
+  }
+
+  this->Surface = this->CreateSurfaceFromHardwareWindow(instance);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Surface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(wgpu::Instance instance)
+{
 #ifdef __EMSCRIPTEN__
   if (auto* wasmhw = vtkWebAssemblyHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
@@ -172,7 +206,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK HTML5 surface";
     surfDesc.nextInChain = &htmlSurfDesc;
-    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+    return instance.CreateSurface(&surfDesc);
   }
 #elif _WIN32
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
@@ -183,7 +217,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Win32 surface";
     surfDesc.nextInChain = &winSurfDesc;
-    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+    return instance.CreateSurface(&surfDesc);
   }
 #elif defined VTK_USE_Wayland
   if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
@@ -194,7 +228,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Wayland surface";
     surfDesc.nextInChain = &waylandSurfDesc;
-    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+    return instance.CreateSurface(&surfDesc);
   }
 #elif defined __APPLE__
   if (auto* cocoahw = vtkCocoaHardwareWindow::SafeDownCast(this->HardwareWindow))
@@ -204,7 +238,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Cocoa surface";
     surfDesc.nextInChain = &metalSurfDesc;
-    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+    return instance.CreateSurface(&surfDesc);
   }
 #else // Xlib
   if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
@@ -216,9 +250,11 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Xlib surface";
     surfDesc.nextInChain = &xlibSurfDesc;
-    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+    return instance.CreateSurface(&surfDesc);
   }
 #endif
+
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
