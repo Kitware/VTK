@@ -344,8 +344,11 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     id->SetExtent(0, xsize - 1, 0, ysize - 1, 0, 0);
     vtkUnsignedCharArray* uca = vtkUnsignedCharArray::New();
     uca->SetNumberOfComponents(bytesPerPixel);
-    uca->SetArray(
-      data, xsize * ysize * bytesPerPixel, reuseData, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+    // Use size_t to avoid integer overflow for large images
+    uca->SetArray(data,
+      static_cast<vtkIdType>(static_cast<size_t>(xsize) * static_cast<size_t>(ysize) *
+        static_cast<size_t>(bytesPerPixel)),
+      reuseData, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
     id->GetPointData()->SetScalars(uca);
     uca->Delete();
 
