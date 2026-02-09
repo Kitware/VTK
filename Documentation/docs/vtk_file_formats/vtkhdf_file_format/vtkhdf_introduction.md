@@ -53,6 +53,10 @@ Do not hesitate to reach out on [discourse](https://discourse.vtk.org/) or [gitl
 ---
 ## Changelog
 
+### VTKHDF - 2.6
+
+- add specification for dataset attributes
+
 ### VTKHDF - 2.5
 
 - add specification for Unstructured Grid polyhedrons
