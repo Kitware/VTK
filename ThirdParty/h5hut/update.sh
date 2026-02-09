@@ -8,7 +8,7 @@ readonly name="h5hut"
 readonly ownership="H5hut Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/h5hut.git"
-readonly tag="for/vtk-20251227-v2.0.0rc7"
+readonly tag="for/vtk-20260125-v2.0.0rc7"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt

@@ -348,6 +348,6 @@ vtk_module_include(VTK::ioss
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/transform>")
 
 include(GenerateExportHeader)
-generate_export_header(ioss
-  EXPORT_MACRO_NAME IOSS_EXPORT
+generate_export_header(vtkioss
+  BASE_NAME        IOSS
   EXPORT_FILE_NAME ioss_export.h)

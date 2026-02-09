@@ -117,7 +117,7 @@ MetaGroup::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaGroup: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaGroup: M_Read: Error parsing file" << '\n';
     return false;
   }
 

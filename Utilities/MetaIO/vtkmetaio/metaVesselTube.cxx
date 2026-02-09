@@ -77,7 +77,7 @@ MetaVesselTube::Clear()
 void
 MetaVesselTube::PrintInfo() const
 {
-  std::cout << "VesselTube" << std::endl;
+  std::cout << "VesselTube" << '\n';
 
   MetaTube::PrintInfo();
 }

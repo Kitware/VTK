@@ -139,10 +139,10 @@ namespace literals
 /// a sequence of if-conditionals performing string
 /// comparisons.
 #if token_SPACE_BEFORE_SUFFIX
-inline constexpr TOKEN_EXPORT Hash operator"" _hash(
+constexpr TOKEN_EXPORT Hash operator"" _hash(
   const char* data, std::size_t size)
 #else
-inline constexpr TOKEN_EXPORT Hash operator""_hash(
+constexpr TOKEN_EXPORT Hash operator""_hash(
   const char* data, std::size_t size)
 #endif
 {
@@ -159,10 +159,10 @@ inline constexpr TOKEN_EXPORT Hash operator""_hash(
 /// ctor; else throws exception.
 /// ```
 #if token_SPACE_BEFORE_SUFFIX
-inline constexpr TOKEN_EXPORT Token operator"" _token(
+constexpr TOKEN_EXPORT Token operator"" _token(
   const char* data, std::size_t size)
 #else
-inline constexpr TOKEN_EXPORT Token operator""_token(
+constexpr TOKEN_EXPORT Token operator""_token(
   const char* data, std::size_t size)
 #endif
 {

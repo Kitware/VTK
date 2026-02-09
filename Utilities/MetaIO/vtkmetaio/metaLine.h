@@ -40,7 +40,7 @@ namespace METAIO_NAMESPACE
 {
 #  endif
 
-class LinePnt
+class METAIO_EXPORT LinePnt
 {
 public:
   explicit LinePnt(int dim);

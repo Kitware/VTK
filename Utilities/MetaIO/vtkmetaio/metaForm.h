@@ -159,23 +159,23 @@ public:
   Read(const char * _fileName = nullptr);
 
   static bool
-  CanReadStream(std::ifstream * _stream) ;
+  CanReadStream(METAIO_STREAM::ifstream * _stream) ;
 
   bool
-  ReadStream(std::ifstream * _stream);
+  ReadStream(METAIO_STREAM::ifstream * _stream);
 
   bool
   Write(const char * _fileName = nullptr);
 
   bool
-  WriteStream(std::ofstream * _stream);
+  WriteStream(METAIO_STREAM::ofstream * _stream);
 
   // PROTECTED
 protected:
   typedef std::vector<MET_FieldRecordType *> FieldsContainerType;
 
-  std::ifstream * m_ReadStream;
-  std::ofstream * m_WriteStream;
+  METAIO_STREAM::ifstream * m_ReadStream;
+  METAIO_STREAM::ofstream * m_WriteStream;
 
   std::string m_FileName;
 

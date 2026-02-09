@@ -8,7 +8,7 @@ readonly name="scn"
 readonly ownership="scnlib Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/scnlib.git"
-readonly tag="for/vtk-20250509-4.0.1"
+readonly tag="for/vtk-20260125-4.0.1"
 readonly paths="
 .gitattributes
 include/scn/*.h

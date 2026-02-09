@@ -74,7 +74,7 @@ void
 MetaScene::PrintInfo() const
 {
   MetaObject::PrintInfo();
-  std::cout << "Number of Objects = " << m_NObjects << std::endl;
+  std::cout << "Number of Objects = " << m_NObjects << '\n';
 }
 
 void
@@ -115,7 +115,7 @@ MetaScene::Read(const char * _headerName)
     strcpy(suf, &_headerName[i]);
   }
 
-MetaObject::M_Destroy();
+  MetaObject::M_Destroy();
 
   Clear();
 
@@ -130,17 +130,17 @@ MetaObject::M_Destroy();
 
   M_PrepareNewReadStream();
 
-  m_ReadStream->open(m_FileName, std::ios::binary | std::ios::in);
+  m_ReadStream->open(m_FileName.c_str(), std::ios::binary | std::ios::in);
 
   if (!m_ReadStream->rdbuf()->is_open())
   {
-    std::cout << "MetaScene: Read: Cannot open file" << std::endl;
+    std::cout << "MetaScene: Read: Cannot open file" << '\n';
     return false;
   }
 
   if (!M_Read())
   {
-    std::cout << "MetaScene: Read: Cannot parse file" << std::endl;
+    std::cout << "MetaScene: Read: Cannot parse file" << '\n';
     m_ReadStream->close();
     return false;
   }
@@ -166,19 +166,21 @@ MetaObject::M_Destroy();
     }
 
     const std::string objectType = MET_ReadType(*m_ReadStream);
-    if (!strncmp(objectType.c_str(), "Tube", 4) || ((objectType.empty()) && !strcmp(suf, "tre")))
+    if (objectType.find("Tube") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "tre")))
     {
-      char * subtype = MET_ReadSubType(*m_ReadStream);
-      if (!strncmp(subtype, "Vessel", 6))
+    const std::string subtype = MET_ReadSubType(*m_ReadStream);
+      if (subtype.find("Vessel") != std::string::npos)
       {
         auto * vesseltube = new MetaVesselTube();
+        vesseltube->APIVersion(m_APIVersion);
         vesseltube->SetEvent(m_Event);
         vesseltube->ReadStream(m_NDims, m_ReadStream);
         m_ObjectList.push_back(vesseltube);
       }
-      else if (!strncmp(subtype, "DTI", 3))
+      else if (subtype.find("DTI") != std::string::npos)
       {
         auto * dtitube = new MetaDTITube();
+        dtitube->APIVersion(m_APIVersion);
         dtitube->SetEvent(m_Event);
         dtitube->ReadStream(m_NDims, m_ReadStream);
         m_ObjectList.push_back(dtitube);
@@ -186,128 +188,143 @@ MetaObject::M_Destroy();
       else
       {
         auto * tube = new MetaTube();
+        tube->APIVersion(m_APIVersion);
         tube->SetEvent(m_Event);
         tube->ReadStream(m_NDims, m_ReadStream);
         m_ObjectList.push_back(tube);
       }
-      delete[] subtype;
     }
 
-    else if (!strncmp(objectType.c_str(), "Transform", 9))
+    else if (objectType.find("Transform") != std::string::npos)
     {
       auto * transform = new MetaTransform();
+      transform->APIVersion(m_APIVersion);
       transform->SetEvent(m_Event);
       transform->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(transform);
     }
 
-    else if (!strncmp(objectType.c_str(), "TubeGraph", 9))
+    else if (objectType.find("TubeGraph") != std::string::npos)
     {
       auto * tubeGraph = new MetaTubeGraph();
+      tubeGraph->APIVersion(m_APIVersion);
       tubeGraph->SetEvent(m_Event);
       tubeGraph->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(tubeGraph);
     }
 
-    else if (!strncmp(objectType.c_str(), "Ellipse", 7) || ((objectType.empty()) && !strcmp(suf, "elp")))
+    else if (objectType.find("Ellipse") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "elp")))
     {
       auto * ellipse = new MetaEllipse();
+      ellipse->APIVersion(m_APIVersion);
       ellipse->SetEvent(m_Event);
       ellipse->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(ellipse);
     }
 
-    else if (!strncmp(objectType.c_str(), "Contour", 7) || ((objectType.empty()) && !strcmp(suf, "ctr")))
+    else if (objectType.find("Contour") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "ctr")))
     {
       auto * contour = new MetaContour();
+      contour->APIVersion(m_APIVersion);
       contour->SetEvent(m_Event);
       contour->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(contour);
     }
 
-    else if (!strncmp(objectType.c_str(), "Arrow", 5))
+    else if (objectType.find("Arrow") != std::string::npos)
     {
       auto * arrow = new MetaArrow();
+      arrow->APIVersion(m_APIVersion);
       arrow->SetEvent(m_Event);
       arrow->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(arrow);
     }
 
-    else if (!strncmp(objectType.c_str(), "Gaussian", 8) || ((objectType.empty()) && !strcmp(suf, "gau")))
+    else if (objectType.find("Gaussian") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "gau")))
     {
       auto * gaussian = new MetaGaussian();
+      gaussian->APIVersion(m_APIVersion);
       gaussian->SetEvent(m_Event);
       gaussian->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(gaussian);
     }
 
-    else if (!strncmp(objectType.c_str(), "Image", 5) ||
+    else if (objectType.find("Image") != std::string::npos ||
              ((objectType.empty()) && (!strcmp(suf, "mhd") || !strcmp(suf, "mha"))))
     {
       auto * image = new MetaImage();
+      image->APIVersion(m_APIVersion);
       image->SetEvent(m_Event);
       image->ReadStream(m_NDims, m_ReadStream);
       image->ElementByteOrderFix();
       m_ObjectList.push_back(image);
     }
 
-    else if (!strncmp(objectType.c_str(), "Blob", 4) || ((objectType.empty()) && !strcmp(suf, "blb")))
+    else if (objectType.find("Blob") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "blb")))
     {
       auto * blob = new MetaBlob();
+      blob->APIVersion(m_APIVersion);
       blob->SetEvent(m_Event);
       blob->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(blob);
     }
 
-    else if (!strncmp(objectType.c_str(), "Landmark", 8) || ((objectType.empty()) && !strcmp(suf, "ldm")))
+    else if (objectType.find("Landmark") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "ldm")))
     {
       auto * landmark = new MetaLandmark();
+      landmark->APIVersion(m_APIVersion);
       landmark->SetEvent(m_Event);
       landmark->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(landmark);
     }
 
-    else if (!strncmp(objectType.c_str(), "Surface", 5) || ((objectType.empty()) && !strcmp(suf, "suf")))
+    else if (objectType.find("Surface") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "suf")))
     {
       auto * surface = new MetaSurface();
+      surface->APIVersion(m_APIVersion);
       surface->SetEvent(m_Event);
       surface->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(surface);
     }
 
-    else if (!strncmp(objectType.c_str(), "Line", 4) || ((objectType.empty()) && !strcmp(suf, "lin")))
+    else if (objectType.find("Line") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "lin")))
     {
       auto * line = new MetaLine();
+      line->APIVersion(m_APIVersion);
       line->SetEvent(m_Event);
       line->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(line);
     }
 
-    else if (!strncmp(objectType.c_str(), "Group", 5) || ((objectType.empty()) && !strcmp(suf, "grp")))
+    else if (objectType.find("Group") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "grp")))
     {
       auto * group = new MetaGroup();
+      group->APIVersion(m_APIVersion);
       group->SetEvent(m_Event);
       group->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(group);
     }
 
-    else if (!strncmp(objectType.c_str(), "AffineTransform", 15) || ((objectType.empty()) && !strcmp(suf, "trn")))
+    else if (objectType.find("AffineTransform") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "trn")))
     {
       auto * group = new MetaGroup();
+      group->APIVersion(m_APIVersion);
       group->SetEvent(m_Event);
       group->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(group);
     }
-    else if (!strncmp(objectType.c_str(), "Mesh", 4) || ((objectType.empty()) && !strcmp(suf, "msh")))
+    else if (objectType.find("Mesh") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "msh")))
     {
       auto * mesh = new MetaMesh();
+      mesh->APIVersion(m_APIVersion);
       mesh->SetEvent(m_Event);
       mesh->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(mesh);
     }
-    else if (!strncmp(objectType.c_str(), "FEMObject", 9) || ((objectType.empty()) && !strcmp(suf, "fem")))
+    else if (objectType.find("FEMObject") != std::string::npos || ((objectType.empty()) && !strcmp(suf, "fem")))
     {
       auto * femobject = new MetaFEMObject();
+      femobject->APIVersion(m_APIVersion);
       femobject->SetEvent(m_Event);
       femobject->ReadStream(m_NDims, m_ReadStream);
       m_ObjectList.push_back(femobject);
@@ -343,19 +360,10 @@ MetaScene::Write(const char * _headName)
 
   if (!m_WriteStream)
   {
-    m_WriteStream = new std::ofstream;
+    m_WriteStream = new METAIO_STREAM::ofstream;
   }
 
-#ifdef __sgi
-  // Create the file. This is required on some older sgi's
-  {
-    std::ofstream tFile(m_FileName, std::ios::out);
-    tFile.close();
-  }
-  m_WriteStream->open(m_FileName, std::ios::out);
-#else
-  m_WriteStream->open(m_FileName, std::ios::binary | std::ios::out);
-#endif
+  m_WriteStream->open(m_FileName.c_str(), std::ios::binary | std::ios::out);
 
   if (!m_WriteStream->rdbuf()->is_open())
   {
@@ -414,8 +422,7 @@ MetaScene::M_SetupReadFields()
   MET_FieldRecordType * mF;
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "NObjects", MET_INT, false);
-  mF->required = true;
+  MET_InitReadField(mF, "NObjects", MET_INT, true);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
 
@@ -430,16 +437,23 @@ MetaScene::M_SetupWriteFields()
 
   MET_FieldRecordType * mF;
 
+  mF = new MET_FieldRecordType;
+  MET_InitWriteField(mF, "ObjectType", MET_STRING, strlen(m_ObjectTypeName), m_ObjectTypeName);
+  m_Fields.push_back(mF);
+
+  if (m_FileFormatVersion > 0)
+  {
+    mF = new MET_FieldRecordType;
+    MET_InitWriteField(mF, "FileFormatVersion", MET_UINT, m_FileFormatVersion);
+    m_Fields.push_back(mF);
+  }
+
   if (strlen(m_Comment) > 0)
   {
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "Comment", MET_STRING, strlen(m_Comment), m_Comment);
     m_Fields.push_back(mF);
   }
-
-  mF = new MET_FieldRecordType;
-  MET_InitWriteField(mF, "ObjectType", MET_STRING, strlen(m_ObjectTypeName), m_ObjectTypeName);
-  m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "NDims", MET_INT, m_NDims);
@@ -464,7 +478,7 @@ MetaScene::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaScene: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaScene: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -473,7 +487,7 @@ MetaScene::M_Read()
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("NObjects", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     m_NObjects = static_cast<int>(mF->value[0]);
   }
@@ -486,7 +500,7 @@ MetaScene::M_Write()
 {
   if (!MetaObject::M_Write())
   {
-    std::cout << "MetaScene: M_Write: Error parsing file" << std::endl;
+    std::cout << "MetaScene: M_Write: Error parsing file" << '\n';
     return false;
   }
 

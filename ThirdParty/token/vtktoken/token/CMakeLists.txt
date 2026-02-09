@@ -51,7 +51,7 @@ if(FALSE) # XXX(kitware): Use VTK module system
 add_library(token SHARED ${sources} ${headers})
 target_link_libraries(token
   PUBLIC
-    nlohmann_json
+    nlohmann_json::nlohmann_json
 )
 else()
 
@@ -72,7 +72,7 @@ else()
 vtk_module_link(VTK::token PUBLIC VTK::nlohmannjson)
 endif()
 
-target_include_directories(token
+vtk_module_include(VTK::token
   PUBLIC
     $<BUILD_INTERFACE:${token_SOURCE_DIR}>
     $<BUILD_INTERFACE:${token_BINARY_DIR}>
@@ -82,7 +82,7 @@ target_include_directories(token
 if (FALSE) # XXX(kitware): VTK handles installation
 token_install_library(token)
 endif ()
-generate_export_header(token EXPORT_FILE_NAME Exports.h)
+generate_export_header(vtktoken BASE_NAME TOKEN EXPORT_FILE_NAME Exports.h)
 
 add_executable(tokenize
   tokenize.cxx

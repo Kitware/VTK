@@ -162,7 +162,7 @@ public:
     return std::make_pair(allBlocks, planesToRead);
   }
 
-  size_t GetNumberOfBlocks()
+  size_t GetNumberOfBlocks() const
   {
     if (!this->PlanesMapped)
     {

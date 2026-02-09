@@ -21,7 +21,7 @@
 //
 
 #ifdef DICOM_DLL
-#ifdef DICOMParser_EXPORTS
+#ifdef vtkDICOMParser_EXPORTS
 #define DICOM_EXPORT __declspec(dllexport)
 #define DICOM_EXPIMP_TEMPLATE
 #else

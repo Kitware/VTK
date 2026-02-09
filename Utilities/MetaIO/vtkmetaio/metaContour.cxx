@@ -37,10 +37,10 @@ ContourControlPnt::ContourControlPnt(int dim)
     m_V[i] = 0;
   }
   // Color is red by default
-  m_Color[0] = 1.0f;
-  m_Color[1] = 0.0f;
-  m_Color[2] = 0.0f;
-  m_Color[3] = 1.0f;
+  m_Color[0] = 1.0F;
+  m_Color[1] = 0.0F;
+  m_Color[2] = 0.0F;
+  m_Color[3] = 1.0F;
 }
 
 ContourControlPnt::~ContourControlPnt()
@@ -94,12 +94,12 @@ void
 MetaContour::PrintInfo() const
 {
   MetaObject::PrintInfo();
-  std::cout << "ControlPointDim = " << m_ControlPointDim << std::endl;
-  std::cout << "NControlPoints = " << m_NControlPoints << std::endl;
-  std::cout << "InterpolatedPointDim = " << m_InterpolatedPointDim << std::endl;
-  std::cout << "NInterpolatedPoints = " << m_NInterpolatedPoints << std::endl;
-  std::cout << "Display Orientation = " << m_DisplayOrientation << std::endl;
-  std::cout << "Attached to Slice = " << m_AttachedToSlice << std::endl;
+  std::cout << "ControlPointDim = " << m_ControlPointDim << '\n';
+  std::cout << "NControlPoints = " << m_NControlPoints << '\n';
+  std::cout << "InterpolatedPointDim = " << m_InterpolatedPointDim << '\n';
+  std::cout << "NInterpolatedPoints = " << m_NInterpolatedPoints << '\n';
+  std::cout << "Display Orientation = " << m_DisplayOrientation << '\n';
+  std::cout << "Attached to Slice = " << m_AttachedToSlice << '\n';
 }
 
 void
@@ -329,7 +329,7 @@ MetaContour::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaContour: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaContour: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -338,7 +338,7 @@ MetaContour::M_Read()
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("Closed", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     if (mF->value[0] != 0.0)
     {
@@ -347,7 +347,7 @@ MetaContour::M_Read()
   }
 
   mF = MET_GetFieldRecord("DisplayOrientation", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     if (mF->value[0] != 0.0)
     {
@@ -356,7 +356,7 @@ MetaContour::M_Read()
   }
 
   mF = MET_GetFieldRecord("PinToSlice", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     if (mF->value[0] != 0.0)
     {
@@ -365,13 +365,13 @@ MetaContour::M_Read()
   }
 
   mF = MET_GetFieldRecord("NControlPoints", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     m_NControlPoints = static_cast<int>(mF->value[0]);
   }
 
   mF = MET_GetFieldRecord("ControlPointDim", &m_Fields);
-  if (mF->defined)
+  if (mF && mF->defined)
   {
     strcpy(m_ControlPointDim, reinterpret_cast<char *>(mF->value));
   }
@@ -397,8 +397,8 @@ MetaContour::M_Read()
     int gc = static_cast<int>(m_ReadStream->gcount());
     if (gc != readSize)
     {
-      std::cout << "MetaContour: m_Read: data not read completely" << std::endl;
-      std::cout << "   ideal = " << readSize << " : actual = " << gc << std::endl;
+      std::cout << "MetaContour: m_Read: data not read completely" << '\n';
+      std::cout << "   ideal = " << readSize << " : actual = " << gc << '\n';
       delete[] _data;
       return false;
     }
@@ -597,8 +597,8 @@ MetaContour::M_Read()
       int gc = static_cast<int>(m_ReadStream->gcount());
       if (gc != readSize)
       {
-        std::cout << "MetaContour: m_Read: data not read completely" << std::endl;
-        std::cout << "   ideal = " << readSize << " : actual = " << gc << std::endl;
+        std::cout << "MetaContour: m_Read: data not read completely" << '\n';
+        std::cout << "   ideal = " << readSize << " : actual = " << gc << '\n';
         delete[] _data;
         return false;
       }
@@ -690,7 +690,7 @@ MetaContour::M_Read()
       delete[] v;
 
       char c = ' ';
-      while ((c != '\n') && (!m_ReadStream->eof()))
+      while ((c != '\n') && (c != -1) && (!m_ReadStream->eof()))
       {
         c = static_cast<char>(m_ReadStream->get()); // to avoid unrecognize charactere
       }
@@ -708,7 +708,7 @@ MetaContour::M_Write()
 
   if (!MetaObject::M_Write())
   {
-    std::cout << "MetaContour: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaContour: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -791,7 +791,7 @@ MetaContour::M_Write()
       {
         *m_WriteStream << (*it)->m_Color[d] << " ";
       }
-      *m_WriteStream << std::endl;
+      *m_WriteStream << '\n';
       ++it;
     }
   }
@@ -880,7 +880,7 @@ MetaContour::M_Write()
       {
         *m_WriteStream << (*it)->m_Color[d] << " ";
       }
-      *m_WriteStream << std::endl;
+      *m_WriteStream << '\n';
       ++it;
     }
   }

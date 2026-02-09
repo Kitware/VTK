@@ -85,6 +85,15 @@ public:
   const double *
   Direction() const;
 
+  const double *
+  Position() const override;
+  double
+  Position(int _i) const override;
+  void
+  Position(const double * position) override;
+  void
+  Position(int _i, double _value) override;
+
 
   // PROTECTED
 protected:
@@ -97,9 +106,11 @@ protected:
   bool
   M_Read() override;
 
-  float M_Length{1.0}; // default 1.0
+  float m_Length{1.0}; // default 1.0
 
-  double M_Direction[10]{};
+  double m_Direction[10]{};
+
+  double m_Position[10]{};
 };
 
 #  if (METAIO_USE_NAMESPACE)

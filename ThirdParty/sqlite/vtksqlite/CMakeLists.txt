@@ -7,14 +7,14 @@ vtk_module_add_module(VTK::sqlite
           "${CMAKE_CURRENT_BINARY_DIR}/vtksqlite_export.h"
   HEADERS_SUBDIR "vtksqlite")
 
-target_compile_definitions(sqlite
+vtk_module_definitions(VTK::sqlite
   PRIVATE
     SQLITE_THREADSAFE=1)
-target_link_libraries(sqlite
+vtk_module_link(VTK::sqlite
   PRIVATE
     ${CMAKE_DL_LIBS}
     Threads::Threads)
-target_include_directories(sqlite
+vtk_module_include(VTK::sqlite
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 
@@ -39,7 +39,8 @@ if (vtk_sqlite_build_binary)
 endif ()
 
 include(GenerateExportHeader)
-generate_export_header(sqlite
+generate_export_header(vtksqlite
+  BASE_NAME         SQLITE
   EXPORT_MACRO_NAME SQLITE_API
   EXPORT_FILE_NAME  vtksqlite_export.h
   DEPRECATED_MACRO_NAME VTKSQLITE_DEPRECATED)

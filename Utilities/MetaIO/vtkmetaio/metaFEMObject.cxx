@@ -78,29 +78,29 @@ MetaFEMObject::MetaFEMObject()
 
   MetaFEMObject::Clear();
 
-  this->m_ClassNameList.push_back("Node");
-  this->m_ClassNameList.push_back("MaterialLinearElasticity");
-  this->m_ClassNameList.push_back("Element2DC0LinearLineStress");
-  this->m_ClassNameList.push_back("Element2DC1Beam");
-  this->m_ClassNameList.push_back("Element2DC0LinearTriangularMembrane");
-  this->m_ClassNameList.push_back("Element2DC0LinearTriangularStrain");
-  this->m_ClassNameList.push_back("Element2DC0LinearTriangularStress");
-  this->m_ClassNameList.push_back("Element2DC0LinearQuadrilateralMembrane");
-  this->m_ClassNameList.push_back("Element2DC0LinearQuadrilateralStrain");
-  this->m_ClassNameList.push_back("Element2DC0LinearQuadrilateralStress");
-  this->m_ClassNameList.push_back("Element2DC0QuadraticTriangularStress");
-  this->m_ClassNameList.push_back("Element2DC0QuadraticTriangularStrain");
-  this->m_ClassNameList.push_back("Element3DC0LinearHexahedronMembrane");
-  this->m_ClassNameList.push_back("Element3DC0LinearHexahedronStrain");
-  this->m_ClassNameList.push_back("Element3DC0LinearTetrahedronMembrane");
-  this->m_ClassNameList.push_back("Element3DC0LinearTetrahedronStrain");
-  this->m_ClassNameList.push_back("LoadBC");
-  this->m_ClassNameList.push_back("LoadBCMFC");
-  this->m_ClassNameList.push_back("LoadNode");
-  this->m_ClassNameList.push_back("LoadEdge");
-  this->m_ClassNameList.push_back("LoadGravConst");
-  this->m_ClassNameList.push_back("LoadLandmark");
-  this->m_ClassNameList.push_back("LoadPoint");
+  this->m_ClassNameList.emplace_back("Node");
+  this->m_ClassNameList.emplace_back("MaterialLinearElasticity");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearLineStress");
+  this->m_ClassNameList.emplace_back("Element2DC1Beam");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearTriangularMembrane");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearTriangularStrain");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearTriangularStress");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearQuadrilateralMembrane");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearQuadrilateralStrain");
+  this->m_ClassNameList.emplace_back("Element2DC0LinearQuadrilateralStress");
+  this->m_ClassNameList.emplace_back("Element2DC0QuadraticTriangularStress");
+  this->m_ClassNameList.emplace_back("Element2DC0QuadraticTriangularStrain");
+  this->m_ClassNameList.emplace_back("Element3DC0LinearHexahedronMembrane");
+  this->m_ClassNameList.emplace_back("Element3DC0LinearHexahedronStrain");
+  this->m_ClassNameList.emplace_back("Element3DC0LinearTetrahedronMembrane");
+  this->m_ClassNameList.emplace_back("Element3DC0LinearTetrahedronStrain");
+  this->m_ClassNameList.emplace_back("LoadBC");
+  this->m_ClassNameList.emplace_back("LoadBCMFC");
+  this->m_ClassNameList.emplace_back("LoadNode");
+  this->m_ClassNameList.emplace_back("LoadEdge");
+  this->m_ClassNameList.emplace_back("LoadGravConst");
+  this->m_ClassNameList.emplace_back("LoadLandmark");
+  this->m_ClassNameList.emplace_back("LoadPoint");
   this->m_ElementDataFileName = "LOCAL";
 }
 
@@ -277,7 +277,7 @@ MetaFEMObject::M_Read()
 
   if (!MetaObject::M_Read())
   {
-    std::cout << "MetaFEMObject: M_Read: Error parsing file" << std::endl;
+    std::cout << "MetaFEMObject: M_Read: Error parsing file" << '\n';
     return false;
   }
 
@@ -286,7 +286,7 @@ MetaFEMObject::M_Read()
   // currently reader handles only ASCII data
   if (m_BinaryData)
   {
-    std::cout << "MetaFEMObject: M_Read: Data content should be in ASCII format" << std::endl;
+    std::cout << "MetaFEMObject: M_Read: Data content should be in ASCII format" << '\n';
     return false;
   }
 
@@ -326,7 +326,7 @@ MetaFEMObject::M_Read()
       errorMessage += "'.\nRest of line is '";
       errorMessage += rest;
       errorMessage += "'.\n";
-      std::cout << errorMessage << std::endl;
+      std::cout << errorMessage << '\n';
       return false; // the file is not in proper format
     }
     this->m_ReadStream->getline(buf, 256, '>'); // read up to 256 characters until '>' is reached.
@@ -364,7 +364,7 @@ MetaFEMObject::M_Read()
         errorMessage = s;
         errorMessage += "   is not a valid FEM data type";
         errorMessage += "'.";
-        std::cout << errorMessage << std::endl;
+        std::cout << errorMessage << '\n';
         return false; // class not found
       }
       /*
@@ -399,7 +399,7 @@ MetaFEMObject::M_Write()
 {
   if (!MetaObject::M_Write())
   {
-    std::cout << "MetaFEMObject: M_Write: Error parsing file" << std::endl;
+    std::cout << "MetaFEMObject: M_Write: Error parsing file" << '\n';
     return false;
   }
 
@@ -535,16 +535,16 @@ MetaFEMObject::M_Write_Load(FEMObjectLoad * Load)
   if (std::string(Load->m_LoadName) == "LoadBCMFC")
   {
     /** write the number of DOFs affected by this MFC */
-    *this->m_WriteStream << "\t" << Load->m_NumLHS << "\t% Number of DOFs in this MFC" << std::endl;
+    *this->m_WriteStream << "\t" << Load->m_NumLHS << "\t% Number of DOFs in this MFC" << '\n';
 
     /** write each term */
     *this->m_WriteStream << "\t  %==>\n";
     for (int i = 0; i < Load->m_NumLHS; i++)
     {
       auto * mfcTerm = dynamic_cast<FEMObjectMFCTerm *>(&*Load->m_LHS[i]);
-      *this->m_WriteStream << "\t  " << mfcTerm->m_ElementGN << "\t% GN of element" << std::endl;
-      *this->m_WriteStream << "\t  " << mfcTerm->m_DOF << "\t% DOF# in element" << std::endl;
-      *this->m_WriteStream << "\t  " << mfcTerm->m_Value << "\t% weight" << std::endl;
+      *this->m_WriteStream << "\t  " << mfcTerm->m_ElementGN << "\t% GN of element" << '\n';
+      *this->m_WriteStream << "\t  " << mfcTerm->m_DOF << "\t% DOF# in element" << '\n';
+      *this->m_WriteStream << "\t  " << mfcTerm->m_Value << "\t% weight" << '\n';
       *this->m_WriteStream << "\t  %==>\n";
     }
 
@@ -554,7 +554,7 @@ MetaFEMObject::M_Write_Load(FEMObjectLoad * Load)
     {
       *this->m_WriteStream << " " << Load->m_RHS[i];
     }
-    *this->m_WriteStream << "\t% rhs of MFC" << std::endl;
+    *this->m_WriteStream << "\t% rhs of MFC" << '\n';
     return;
   }
 
@@ -594,17 +594,17 @@ MetaFEMObject::M_Write_Load(FEMObjectLoad * Load)
     if (Load->m_NumElements > 0)
     {
       *this->m_WriteStream << "\t" << Load->m_NumElements;
-      *this->m_WriteStream << "\t% # of elements on which the load acts" << std::endl;
+      *this->m_WriteStream << "\t% # of elements on which the load acts" << '\n';
       *this->m_WriteStream << "\t";
       for (int i = 0; i < Load->m_NumElements; i++)
       {
         *this->m_WriteStream << Load->m_Elements[i] << " ";
       }
-      *this->m_WriteStream << "\t% GNs of elements" << std::endl;
+      *this->m_WriteStream << "\t% GNs of elements" << '\n';
     }
     else
     {
-      *this->m_WriteStream << "\t-1\t% Load acts on all elements" << std::endl;
+      *this->m_WriteStream << "\t-1\t% Load acts on all elements" << '\n';
     }
     /** then write the actual data force vector */
     *this->m_WriteStream << "\t" << Load->m_Dim << "\t% Size of the gravity force vector\n";
@@ -683,7 +683,7 @@ MetaFEMObject::M_Read_Node()
 
   if (GN == -1)
   {
-    std::cout << "Error reading Global Number" << std::endl;
+    std::cout << "Error reading Global Number" << '\n';
     return false;
   }
   /*
@@ -694,7 +694,7 @@ MetaFEMObject::M_Read_Node()
   *this->m_ReadStream >> n;
   if (!this->m_ReadStream)
   {
-    std::cout << "Error reading Node dimensions" << std::endl;
+    std::cout << "Error reading Node dimensions" << '\n';
     return false;
   }
   auto * node = new FEMObjectNode(n);
@@ -706,7 +706,7 @@ MetaFEMObject::M_Read_Node()
     *this->m_ReadStream >> coor[i];
     if (!this->m_ReadStream)
     {
-      std::cout << "Error reading Node coordinates" << std::endl;
+      std::cout << "Error reading Node coordinates" << '\n';
       return false;
     }
     node->m_X[i] = coor[i];
@@ -726,7 +726,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
 
   if (GN == -1)
   {
-    std::cout << "Error reading Global Number" << std::endl;
+    std::cout << "Error reading Global Number" << '\n';
     return false;
   }
   /*
@@ -766,7 +766,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
                                                 // reached. we read and discard the ':'
     if (!this->m_ReadStream)
     {
-      std::cout << "Error reading Material properties" << std::endl;
+      std::cout << "Error reading Material properties" << '\n';
       return false;
     } // no : was found
     s = std::string(buf);
@@ -800,7 +800,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material E property" << std::endl;
+        std::cout << "Error reading Material E property" << '\n';
         return false;
       }
       E = d;
@@ -812,7 +812,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material A property" << std::endl;
+        std::cout << "Error reading Material A property" << '\n';
         return false;
       }
       A = d;
@@ -825,7 +825,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material I property" << std::endl;
+        std::cout << "Error reading Material I property" << '\n';
         return false;
       }
       I = d;
@@ -838,7 +838,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material nu property" << std::endl;
+        std::cout << "Error reading Material nu property" << '\n';
         return false;
       }
       nu = d;
@@ -851,7 +851,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material h property" << std::endl;
+        std::cout << "Error reading Material h property" << '\n';
         return false;
       }
       h = d;
@@ -864,7 +864,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
       *this->m_ReadStream >> d;
       if (!this->m_ReadStream)
       {
-        std::cout << "Error reading Material RhoC property" << std::endl;
+        std::cout << "Error reading Material RhoC property" << '\n';
         return false;
       }
       RhoC = d;
@@ -897,7 +897,7 @@ MetaFEMObject::M_Read_Material(const std::string& material_name)
 
   if (!this->m_ReadStream)
   {
-    std::cout << "Error reading Material properties" << std::endl;
+    std::cout << "Error reading Material properties" << '\n';
     return false;
   }
   return true;
@@ -911,7 +911,7 @@ MetaFEMObject::M_Read_Element(const std::string& element_name)
   int          info[2];
   if (MetaFEMObject::GetElementDimensionAndNumberOfNodes(element_name, info) == nullptr)
   {
-    std::cout << "Invalid element_name" << std::endl;
+    std::cout << "Invalid element_name" << '\n';
     return false;
   }
 
@@ -919,7 +919,7 @@ MetaFEMObject::M_Read_Element(const std::string& element_name)
 
   if (GN == -1)
   {
-    std::cout << "Error reading Global Number" << std::endl;
+    std::cout << "Error reading Global Number" << '\n';
     return false;
   }
   /*
@@ -933,7 +933,7 @@ MetaFEMObject::M_Read_Element(const std::string& element_name)
     if (!this->m_ReadStream)
     {
       delete[] NodesId;
-      std::cout << "Error reading Element node numbers" << std::endl;
+      std::cout << "Error reading Element node numbers" << '\n';
       return false;
     }
     NodesId[p] = n;
@@ -945,7 +945,7 @@ MetaFEMObject::M_Read_Element(const std::string& element_name)
   if (!this->m_ReadStream)
   {
     delete[] NodesId;
-    std::cout << "Error reading Element global number" << std::endl;
+    std::cout << "Error reading Element global number" << '\n';
     return false;
   }
   // store the read information
@@ -984,7 +984,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
   if (GN == -1)
   {
     delete load;
-    std::cout << "Error reading Load definition - global number" << std::endl;
+    std::cout << "Error reading Load definition - global number" << '\n';
     return false;
   }
 
@@ -998,7 +998,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading Load definition - Element Global Number" << std::endl;
+      std::cout << "Error reading Load definition - Element Global Number" << '\n';
       return false;
     }
     load->m_ElementGN = elementGN;
@@ -1009,7 +1009,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading Load definition - Degrees of Freedom" << std::endl;
+      std::cout << "Error reading Load definition - Degrees of Freedom" << '\n';
       return false;
     }
     load->m_DOF = DOF;
@@ -1020,7 +1020,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading Load definition - Number of fixed degrees of freedom" << std::endl;
+      std::cout << "Error reading Load definition - Number of fixed degrees of freedom" << '\n';
       return false;
     }
     load->m_NumRHS = NumRHS;
@@ -1033,7 +1033,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading Load definition - Fixed degree of freedom" << std::endl;
+        std::cout << "Error reading Load definition - Fixed degree of freedom" << '\n';
         return false;
       }
     }
@@ -1046,7 +1046,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadNode definition - Element Global Number" << std::endl;
+      std::cout << "Error reading LoadNode definition - Element Global Number" << '\n';
       return false;
     }
     load->m_ElementGN = elementGN;
@@ -1057,7 +1057,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadNode definition - Node Number" << std::endl;
+      std::cout << "Error reading LoadNode definition - Node Number" << '\n';
       return false;
     }
     load->m_NodeNumber = NodeNumber;
@@ -1067,7 +1067,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadNode definition - Dimension" << std::endl;
+      std::cout << "Error reading LoadNode definition - Dimension" << '\n';
       return false;
     }
     load->m_Dim = Dim;
@@ -1080,7 +1080,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadNode definition - Force Vector" << std::endl;
+        std::cout << "Error reading LoadNode definition - Force Vector" << '\n';
         return false;
       }
     }
@@ -1093,7 +1093,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadBCMFC definition - Number of LHS terms" << std::endl;
+      std::cout << "Error reading LoadBCMFC definition - Number of LHS terms" << '\n';
       return false;
     }
 
@@ -1106,7 +1106,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadBCMFC definition - Element Global Number" << std::endl;
+        std::cout << "Error reading LoadBCMFC definition - Element Global Number" << '\n';
         return false;
       }
 
@@ -1116,7 +1116,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadBCMFC definition - Element Degree of Freedom" << std::endl;
+        std::cout << "Error reading LoadBCMFC definition - Element Degree of Freedom" << '\n';
         return false;
       }
 
@@ -1126,7 +1126,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadBCMFC definition - Weight" << std::endl;
+        std::cout << "Error reading LoadBCMFC definition - Weight" << '\n';
         return false;
       }
 
@@ -1142,7 +1142,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadBCMFC definition - Number of RHS terms" << std::endl;
+      std::cout << "Error reading LoadBCMFC definition - Number of RHS terms" << '\n';
       return false;
     }
 
@@ -1155,7 +1155,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadBCMFC definition - RHS Term" << std::endl;
+        std::cout << "Error reading LoadBCMFC definition - RHS Term" << '\n';
         return false;
       }
     }
@@ -1172,7 +1172,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadEdge definition - Element Global Number" << std::endl;
+      std::cout << "Error reading LoadEdge definition - Element Global Number" << '\n';
       return false;
     }
     load->m_ElementGN = elementGN;
@@ -1183,7 +1183,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadEdge definition - Edge Number" << std::endl;
+      std::cout << "Error reading LoadEdge definition - Edge Number" << '\n';
       return false;
     }
     load->m_EdgeNumber = edgeNum;
@@ -1194,7 +1194,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadEdge definition - Number of Rows" << std::endl;
+      std::cout << "Error reading LoadEdge definition - Number of Rows" << '\n';
       return false;
     }
 
@@ -1204,7 +1204,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadEdge definition - Number of Columns" << std::endl;
+      std::cout << "Error reading LoadEdge definition - Number of Columns" << '\n';
       return false;
     }
 
@@ -1218,7 +1218,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
         if (!this->m_ReadStream)
         {
           delete load;
-          std::cout << "Error reading LoadEdge definition - Force Matrix" << std::endl;
+          std::cout << "Error reading LoadEdge definition - Force Matrix" << '\n';
           return false;
         }
       }
@@ -1234,7 +1234,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadGravConst definition - Number of Elements" << std::endl;
+      std::cout << "Error reading LoadGravConst definition - Number of Elements" << '\n';
       return false;
     }
 
@@ -1245,7 +1245,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadGravConst definition - Element Global Number" << std::endl;
+        std::cout << "Error reading LoadGravConst definition - Element Global Number" << '\n';
         return false;
       }
       load->m_Elements.push_back(elementGN);
@@ -1257,7 +1257,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     if (!this->m_ReadStream)
     {
       delete load;
-      std::cout << "Error reading LoadGravConst definition - Dimension" << std::endl;
+      std::cout << "Error reading LoadGravConst definition - Dimension" << '\n';
       return false;
     }
 
@@ -1270,7 +1270,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading LoadGravConst definition - Force Vector" << std::endl;
+        std::cout << "Error reading LoadGravConst definition - Force Vector" << '\n';
         return false;
       }
       load->m_ForceVector.push_back(loadcomp);
@@ -1295,11 +1295,11 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     {
       this->SkipWhiteSpace();
       *this->m_ReadStream >> load->m_Undeformed[i];
-      std::cout << "  " << load->m_Undeformed[i] << std::endl;
+      std::cout << "  " << load->m_Undeformed[i] << '\n';
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading Loadlandmark definition - Undeformed point" << std::endl;
+        std::cout << "Error reading Loadlandmark definition - Undeformed point" << '\n';
         return false;
       }
     }
@@ -1317,11 +1317,11 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
     {
       this->SkipWhiteSpace();
       *this->m_ReadStream >> load->m_Deformed[i];
-      std::cout << "  " << load->m_Deformed[i] << std::endl;
+      std::cout << "  " << load->m_Deformed[i] << '\n';
       if (!this->m_ReadStream)
       {
         delete load;
-        std::cout << "Error reading Loadlandmark definition - Undeformed point" << std::endl;
+        std::cout << "Error reading Loadlandmark definition - Undeformed point" << '\n';
         return false;
       }
     }
@@ -1332,7 +1332,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
       delete load;
       std::cout
         << "Error reading Loadlandmark definition - Undeformed point and deformed point should have same dimension"
-        << std::endl;
+        << '\n';
       return false;
     }
     // read the square root of the m_Variance associated with this landmark
@@ -1342,7 +1342,7 @@ MetaFEMObject::M_Read_Load(const std::string& load_name)
   if (!this->m_ReadStream)
   {
     delete load;
-    std::cout << "Error reading Load definition" << std::endl;
+    std::cout << "Error reading Load definition" << '\n';
     return false;
   }
   this->m_LoadList.push_back(load);

@@ -33,6 +33,9 @@ public:
   /// information
   InternalMetadataSource(const std::string& filename);
 
+  /// Setup this instance with an already created DataSource
+  InternalMetadataSource(std::shared_ptr<fides::io::DataSource> source);
+
   ~InternalMetadataSource();
 
   /// Get the name of the data model for Fides to generate

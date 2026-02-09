@@ -115,7 +115,7 @@ public:
   virtual ~MeshDataBase() = default;
 
   virtual void
-  Write(std::ofstream * stream) = 0;
+  Write(METAIO_STREAM::ofstream * stream) = 0;
   virtual unsigned int
   GetSize() = 0;
   virtual MET_ValueEnumType
@@ -123,8 +123,8 @@ public:
   int m_Id;
 
 protected:
-  std::ifstream * m_ReadStream{};
-  std::ofstream * m_WriteStream{};
+  METAIO_STREAM::ifstream * m_ReadStream{};
+  METAIO_STREAM::ofstream * m_WriteStream{};
 };
 
 /** Mesh point data class for basic types (i.e int, float ... ) */
@@ -142,7 +142,7 @@ public:
   }
 
   void
-  Write(std::ofstream * stream) override
+  Write(METAIO_STREAM::ofstream * stream) override
   {
     // char* id = new char[sizeof(int)];
     // The file is written as LSB by default

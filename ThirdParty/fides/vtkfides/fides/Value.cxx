@@ -104,7 +104,7 @@ void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fide
   }
   this->Values.clear();
   this->Values.reserve(json["values"].GetArray().Capacity());
-  for (auto& v : json["values"].GetArray())
+  for (const auto& v : json["values"].GetArray())
   {
     this->Values.push_back(v.GetDouble());
   }

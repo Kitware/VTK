@@ -21,6 +21,10 @@
 #include <vector>
 #include <viskores/cont/UnknownArrayHandle.h>
 
+#ifdef FIDES_USE_MPI
+#include <mpi.h>
+#endif
+
 namespace fides
 {
 namespace io
@@ -73,7 +77,19 @@ struct DataSource
   /// with the use of shared points.
   bool CreateSharedPoints = false;
 
-  DataSource() = default;
+  /// Determines if we should call the next BeginStep() for this source.
+  /// Set to true by the DataSetReader when the schema is contained in a BP file
+  /// and it needs to get that from attributes. This is due to BP5 and SST engines
+  /// requiring that BeginStep() is called before reading the attributes (unless
+  /// we're using random access mode).
+  bool DoNotCallNextBeginStep = false;
+
+  DataSource();
+
+#ifdef FIDES_USE_MPI
+  DataSource(MPI_Comm comm);
+#endif
+
   DataSource& operator=(const DataSource& other)
   {
     if (this != &other)
@@ -96,6 +112,11 @@ struct DataSource
   }
 
   bool StreamingMode = true;
+
+  /// Set the engine type for this data source. This is really only necessary to call
+  /// when wanting to read the schema/metadata from a BP file and using SST engine.
+  /// It's fine to call in other situations, but not necessary.
+  void SetEngineType(const std::string engine_type);
 
   /// Set parameters needed by ADIOS. The \c params argument is a map of
   /// ADIOS engine parameters to be used. Currently, only the inline
@@ -222,7 +243,14 @@ struct DataSource
   template <typename AttributeType>
   std::vector<AttributeType> ReadAttribute(const std::string& attrName);
 
+  /// Closes the engine.
+  void Close();
+
 private:
+#ifdef FIDES_USE_MPI
+  MPI_Comm Comm;
+#endif
+
   std::unique_ptr<adios2::ADIOS> Adios = nullptr;
   adios2::IO AdiosIO;
   adios2::Engine Reader;

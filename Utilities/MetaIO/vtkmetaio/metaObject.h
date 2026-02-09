@@ -18,6 +18,7 @@
 #  include "metaEvent.h"
 
 #  include <string>
+#include <set>
 
 #  ifdef _MSC_VER
 #    pragma warning(disable : 4251)
@@ -33,15 +34,39 @@ class METAIO_EXPORT MetaObject
 {
   // PROTECTED
 protected:
+  std::set<std::string> m_ReservedKeywords = {
+    "FileFormatVersion",
+    "ObjectType",
+    "ObjectSubType",
+    "NDims",
+    "Offset",
+    "Position",
+    "Origin",
+    "TransformMatrix",
+    "CenterOfRotation",
+    "AnatomicalOrientation",
+    "DistanceUnits",
+    "ElementSpacing",
+    "Color",
+    "AcquisitionDate",
+    "BinaryData",
+    "BinaryDataByteOrderMSB",
+    "CompressedData",
+    "CompressionLevel"
+  };
+
   typedef std::vector<MET_FieldRecordType *> FieldsContainerType;
 
-  std::ifstream * m_ReadStream;
-  std::ofstream * m_WriteStream;
+  METAIO_STREAM::ifstream * m_ReadStream;
+  METAIO_STREAM::ofstream * m_WriteStream;
 
   FieldsContainerType m_Fields;
   FieldsContainerType m_UserDefinedWriteFields;
   FieldsContainerType m_UserDefinedReadFields;
   FieldsContainerType m_AdditionalReadFields;
+
+  unsigned int m_FileFormatVersion;
+  unsigned int m_APIVersion;
 
   std::string m_FileName;
 
@@ -85,6 +110,9 @@ protected:
 
   static void M_Destroy();
 
+  void
+  AddReservedKeywords(std::set<std::string> additionalKeywords);
+
   virtual void
   M_SetupReadFields();
 
@@ -115,6 +143,19 @@ public:
 
   virtual ~MetaObject();
 
+  std::set<std::string>
+  GetReservedKeywords() const;
+
+  void
+  FileFormatVersion(unsigned int _fileFormatVersion);
+  unsigned int
+  FileFormatVersion() const;
+
+  void
+  APIVersion(unsigned int _APIVersion);
+  unsigned int
+  APIVersion() const;
+
   void
   FileName(const char * _fileName);
   const char *
@@ -127,7 +168,7 @@ public:
   Read(const char * _fileName = nullptr);
 
   bool
-  ReadStream(int _nDims, std::ifstream * _stream);
+  ReadStream(int _nDims, METAIO_STREAM::ifstream * _stream);
 
   virtual bool
   Write(const char * _fileName = nullptr);
@@ -177,21 +218,21 @@ public:
   Offset(const double * _position);
   void
   Offset(int _i, double _value);
-  const double *
+  virtual const double *
   Position() const;
-  double
+  virtual double
   Position(int _i) const;
-  void
+  virtual void
   Position(const double * _position);
-  void
+  virtual void
   Position(int _i, double _value);
-  const double *
+  virtual const double *
   Origin() const;
-  double
+  virtual double
   Origin(int _i) const;
-  void
+  virtual void
   Origin(const double * _position);
-  void
+  virtual void
   Origin(int _i, double _value);
 
   //    TransformMatrix(...)
@@ -382,6 +423,12 @@ public:
                bool              _required = true,
                int               _dependsOn = -1)
   {
+    // if given field name is one of the reserved keywords,
+    // don't add it
+    if(m_ReservedKeywords.find(std::string(_fieldName)) != m_ReservedKeywords.end())
+    {
+    return false;
+    }
     // don't add the same field twice. In the unlikely event
     // a field of the same name gets added more than once,
     // over-write the existing FieldRecord

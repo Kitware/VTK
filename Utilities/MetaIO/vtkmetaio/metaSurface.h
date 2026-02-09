@@ -40,7 +40,7 @@ namespace METAIO_NAMESPACE
 {
 #  endif
 
-class SurfacePnt
+class METAIO_EXPORT SurfacePnt
 {
 public:
   explicit SurfacePnt(int dim);

@@ -3,5 +3,6 @@ NAME
 LIBRARY_NAME
   vtkmetaio
 PRIVATE_DEPENDS
+  VTK::vtksys
   VTK::zlib
 THIRD_PARTY
