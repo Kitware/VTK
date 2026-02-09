@@ -552,7 +552,7 @@ int vtkDataReader::OpenVTKFile(const char* fname)
 
 //------------------------------------------------------------------------------
 // Read the header of a vtk data file. Returns 0 if error.
-int vtkDataReader::ReadHeader(const char* fname)
+int vtkDataReader::ReadHeader(const char* fname, bool quiet)
 {
   if (!fname && this->GetNumberOfFileNames() > 0)
   {
@@ -560,38 +560,46 @@ int vtkDataReader::ReadHeader(const char* fname)
   }
   char line[256];
 
-  vtkDebugMacro(<< "Reading vtk file header");
   //
   // read header
   //
   if (!this->ReadLine(line))
   {
-    vtkErrorMacro(<< "Premature EOF reading first line! "
-                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    if (!quiet)
+    {
+      vtkErrorMacro(<< "Premature EOF reading first line! "
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
   constexpr int VERSION_PREFIX_LENGTH = 22;
   if (strncmp("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH) != 0)
   {
-    vtkErrorMacro(<< "Unrecognized file type: " << line
-                  << " for file: " << (fname ? fname : "(Null FileName)"));
-
+    if (!quiet)
+    {
+      vtkErrorMacro(<< "Unrecognized file type: " << line
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     return 0;
   }
   auto result = vtk::scan<int, int>(std::string_view(line + VERSION_PREFIX_LENGTH), "{:d}.{:d}");
   if (!result)
   {
-    vtkWarningMacro(<< "Cannot read file version: " << line
-                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    if (!quiet)
+    {
+      vtkWarningMacro(<< "Cannot read file version: " << line
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->FileMajorVersion = 0;
     this->FileMinorVersion = 0;
   }
   std::tie(this->FileMajorVersion, this->FileMinorVersion) = result->values();
-  if (this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
-    (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
-      this->FileMinorVersion > vtkLegacyReaderMinorVersion))
+  if ((this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
+        (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
+          this->FileMinorVersion > vtkLegacyReaderMinorVersion)) &&
+    !quiet)
   {
     // newer file than the reader version
     vtkWarningMacro(<< "Reading file version: " << this->FileMajorVersion << "."
@@ -606,8 +614,12 @@ int vtkDataReader::ReadHeader(const char* fname)
   //
   if (!this->ReadLine(line))
   {
-    vtkErrorMacro(<< "Premature EOF reading title! "
-                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    if (!quiet)
+    {
+
+      vtkErrorMacro(<< "Premature EOF reading title! "
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
@@ -615,14 +627,17 @@ int vtkDataReader::ReadHeader(const char* fname)
   this->Header = new char[strlen(line) + 1];
   strcpy(this->Header, line);
 
-  vtkDebugMacro(<< "Reading vtk file entitled: " << line);
   //
   // read type
   //
   if (!this->ReadString(line))
   {
-    vtkErrorMacro(<< "Premature EOF reading file type!"
-                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    if (!quiet)
+    {
+
+      vtkErrorMacro(<< "Premature EOF reading file type!"
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
@@ -637,8 +652,11 @@ int vtkDataReader::ReadHeader(const char* fname)
   }
   else
   {
-    vtkErrorMacro(<< "Unrecognized file type: " << line
-                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    if (!quiet)
+    {
+      vtkErrorMacro(<< "Unrecognized file type: " << line
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
+    }
     this->FileType = 0;
     this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     return 0;
@@ -648,7 +666,6 @@ int vtkDataReader::ReadHeader(const char* fname)
   // as a binary file.
   if (this->FileType == VTK_BINARY && this->ReadFromInputString == 0 && !this->ReadFromInputStream)
   {
-    vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
     this->IS = nullptr;
 #ifdef _WIN32
@@ -658,7 +675,10 @@ int vtkDataReader::ReadHeader(const char* fname)
 #endif
     if (this->IS->fail())
     {
-      vtkErrorMacro(<< "Unable to open file: " << fname);
+      if (!quiet)
+      {
+        vtkErrorMacro(<< "Unable to open file: " << fname);
+      }
       delete this->IS;
       this->IS = nullptr;
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
