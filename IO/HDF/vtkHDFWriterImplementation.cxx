@@ -62,33 +62,7 @@ bool ContainsAny(const std::string& path, const std::vector<std::string>& subpat
 bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 {
   // Write type attribute to root
-  std::string strType{ hdfType };
-  vtkHDF::ScopedH5SHandle scalarSpaceAttribute{ H5Screate(H5S_SCALAR) };
-  if (scalarSpaceAttribute == H5I_INVALID_HID)
-  {
-    return false;
-  }
-  vtkHDF::ScopedH5PHandle utf8PropertyList{ H5Pcreate(H5P_ATTRIBUTE_CREATE) };
-  if (utf8PropertyList == H5I_INVALID_HID)
-  {
-    return false;
-  }
-  if (H5Pset_char_encoding(utf8PropertyList, H5T_CSET_UTF8) < 0)
-  {
-    return false;
-  }
-  vtkHDF::ScopedH5THandle typeOfTypeAttr = H5Tcreate(H5T_STRING, strType.length());
-  if (typeOfTypeAttr == H5I_INVALID_HID)
-  {
-    return false;
-  }
-  vtkHDF::ScopedH5AHandle typeAttribute{ H5Acreate(
-    group, "Type", typeOfTypeAttr, scalarSpaceAttribute, utf8PropertyList, H5P_DEFAULT) };
-  if (typeAttribute == H5I_INVALID_HID)
-  {
-    return false;
-  }
-  if (H5Awrite(typeAttribute, typeOfTypeAttr, strType.c_str()) < 0)
+  if (!this->CreateStringAttribute(group, "Type", hdfType))
   {
     return false;
   }
@@ -322,19 +296,61 @@ vtkHDF::ScopedH5AHandle vtkHDFWriter::Implementation::CreateScalarAttribute(
     return H5I_INVALID_HID;
   }
 
-  vtkHDF::ScopedH5AHandle nStepsAttribute{ H5Acreate(
+  vtkHDF::ScopedH5AHandle attribute{ H5Acreate(
     group, name, H5T_STD_I64LE, scalarSpaceAttribute, H5P_DEFAULT, H5P_DEFAULT) };
-  if (nStepsAttribute == H5I_INVALID_HID)
+  if (attribute == H5I_INVALID_HID)
   {
     return H5I_INVALID_HID;
   }
 
-  if (H5Awrite(nStepsAttribute, H5T_NATIVE_INT, &value) < 0)
+  if (H5Awrite(attribute, H5T_NATIVE_INT, &value) < 0)
   {
     return H5I_INVALID_HID;
   }
 
-  return nStepsAttribute;
+  return attribute;
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5AHandle vtkHDFWriter::Implementation::CreateStringAttribute(
+  hid_t group, const char* name, const std::string& value)
+{
+  if (H5Aexists(group, name))
+  {
+    return H5Aopen_name(group, name);
+  }
+
+  vtkHDF::ScopedH5SHandle scalarSpaceAttribute{ H5Screate(H5S_SCALAR) };
+  if (scalarSpaceAttribute == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+  vtkHDF::ScopedH5PHandle utf8PropertyList{ H5Pcreate(H5P_ATTRIBUTE_CREATE) };
+  if (utf8PropertyList == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+  if (H5Pset_char_encoding(utf8PropertyList, H5T_CSET_UTF8) < 0)
+  {
+    return H5I_INVALID_HID;
+  }
+  vtkHDF::ScopedH5THandle typeOfTypeAttr = H5Tcreate(H5T_STRING, value.length());
+  if (typeOfTypeAttr == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+  vtkHDF::ScopedH5AHandle attribute{ H5Acreate(
+    group, name, typeOfTypeAttr, scalarSpaceAttribute, utf8PropertyList, H5P_DEFAULT) };
+  if (attribute == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+  if (H5Awrite(attribute, typeOfTypeAttr, value.c_str()) < 0)
+  {
+    return H5I_INVALID_HID;
+  }
+
+  return attribute;
 }
 
 //------------------------------------------------------------------------------
