@@ -177,6 +177,10 @@ bool TestDifferentVolumes()
     cursor->ToChild(0);
     levelIds[i] = cursor->GetGlobalNodeIndex();
   }
+  for (int i = 0; i < inputHTG->GetCellData()->GetNumberOfArrays(); i++)
+  {
+    inputHTG->GetCellData()->GetArray(i)->SetNumberOfTuples(inputHTG->GetNumberOfCells());
+  }
 
   // Apply our filter
   vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
