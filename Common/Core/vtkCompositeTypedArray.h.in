@@ -15,6 +15,7 @@
 
 #include "vtkCompositeArray.h"   // Real Superclass
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATION_9_6_0
 #include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.
@@ -24,7 +25,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArrayCollection;
 
-class VTKCOMMONCORE_EXPORT @VTK_DEPRECATION@ vtkComposite@VTK_TYPE_NAME@Array : public vtkDataArray
+class @VTK_DEPRECATION@ VTKCOMMONCORE_EXPORT vtkComposite@VTK_TYPE_NAME@Array : public vtkDataArray
 {
 public:
   vtkImplicitArrayTypeMacro(vtkComposite@VTK_TYPE_NAME@Array, vtkDataArray);
