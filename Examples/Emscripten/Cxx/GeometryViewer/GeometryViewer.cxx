@@ -51,9 +51,9 @@
 #include <vtkTubeFilter.h>
 #include <vtkType.h>
 #include <vtkUnsignedCharArray.h>
+#include <vtkWebAssemblyHardwareWindow.h>
 #include <vtkWebAssemblyOpenGLRenderWindow.h>
 #include <vtkWebAssemblyRenderWindowInteractor.h>
-#include <vtkWebGPURenderWindow.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkXMLMultiBlockDataReader.h>
 #include <vtkXMLPartitionedDataSetCollectionReader.h>
@@ -457,9 +457,10 @@ void GeometryViewer::Initialize()
   this->P->Window->SetInteractor(this->P->Interactor);
   auto iren = vtkWebAssemblyRenderWindowInteractor::SafeDownCast(this->P->Interactor);
   iren->SetCanvasSelector("#vtk-3d-canvas");
-  if (auto wasmWebGPURenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->P->Window))
+  if (auto wasmHardwareWindow =
+        vtkWebAssemblyHardwareWindow::SafeDownCast(this->P->Window->GetHardwareWindow()))
   {
-    wasmWebGPURenderWindow->SetCanvasSelector("#vtk-3d-canvas");
+    wasmHardwareWindow->SetCanvasSelector("#vtk-3d-canvas");
   }
   if (auto wasmOpenGLRenderWindow = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(this->P->Window))
   {
