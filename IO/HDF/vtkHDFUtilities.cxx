@@ -37,6 +37,23 @@ namespace
 const std::map<int, std::string> ARRAY_OFFSET_GROUPS = { { 0, "PointDataOffsets" },
   { 1, "CellDataOffsets" }, { 2, "FieldDataOffsets" } };
 
+// Scoped RAII to quiet/unquiet hdf5
+class ScopedH5EQuiet
+{
+public:
+  ScopedH5EQuiet()
+  {
+    // turn off error logging and save error function
+    H5Eget_auto(H5E_DEFAULT, &this->Func, &this->ClientData);
+    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+  }
+  virtual ~ScopedH5EQuiet() { H5Eset_auto(H5E_DEFAULT, this->Func, this->ClientData); }
+
+private:
+  H5E_auto_t Func;
+  void* ClientData;
+};
+
 /**
  * Used to store HDF native types in a map
  */
@@ -522,18 +539,33 @@ void vtkHDFUtilities::MakeObjectNameValid(std::string& objectName)
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
 bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID)
+{
+  return vtkHDFUtilities::Open(fileName, fileID, false);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID, bool quiet)
 {
   if (!fileName)
   {
-    vtkErrorWithObjectMacro(nullptr, "fileName is empty.");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(nullptr, "fileName is empty.");
+    }
     return false;
   }
 
+  ::ScopedH5EQuiet quietHandle;
   fileID = H5Fopen(fileName, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileID < 0)
   {
     // we try to read a non-HDF file
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(nullptr, "provided file is non-HDF");
+    }
     return false;
   }
 
@@ -541,19 +573,34 @@ bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID)
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0
 bool vtkHDFUtilities::Open(vtkMemoryResourceStream* stream, hid_t& fileImageID)
+{
+  return vtkHDFUtilities::Open(stream, fileImageID, false);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFUtilities::Open(vtkMemoryResourceStream* stream, hid_t& fileImageID, bool quiet)
 {
   if (!stream)
   {
-    vtkErrorWithObjectMacro(nullptr, "stream is nullptr.");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(nullptr, "stream is nullptr.");
+    }
     return false;
   }
 
+  ::ScopedH5EQuiet quietHandle;
   fileImageID = H5LTopen_file_image((void*)(stream->GetBuffer()), stream->GetSize(),
     H5LT_FILE_IMAGE_DONT_COPY | H5LT_FILE_IMAGE_DONT_RELEASE);
   if (fileImageID < 0)
   {
     // we try to read a non-HDF memory stream
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(nullptr, "provided stream is non-HDF");
+    }
     return false;
   }
 
@@ -730,56 +777,55 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& rootID, const std::string& r
   const std::string& groupPrefix, hid_t& groupID, std::array<int, 2>& version, int& dataSetType,
   int& numberOfPieces, std::array<hid_t, 3>& attributeDataGroup)
 {
-  // turn off error logging and save error function
-  H5E_auto_t f;
-  void* client_data;
-  H5Eget_auto(H5E_DEFAULT, &f, &client_data);
-  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
-
   bool error = false;
-  if ((groupID = H5Gopen(rootID, rootName.c_str(), H5P_DEFAULT)) < 0)
   {
-    // we try to read a non-VTKHDF file
-    return false;
+    ::ScopedH5EQuiet quiet;
+    if ((groupID = H5Gopen(rootID, rootName.c_str(), H5P_DEFAULT)) < 0)
+    {
+      // we try to read a non-VTKHDF file
+      return false;
+    }
   }
 
-  H5Eset_auto(H5E_DEFAULT, f, client_data);
   if (!vtkHDFUtilities::ReadDataSetType(groupID, dataSetType))
   {
     return false;
   }
-  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
 
-  std::fill(attributeDataGroup.begin(), attributeDataGroup.end(), -1);
-  std::fill(version.begin(), version.end(), 0);
-
-  std::array<std::string, 3> groupNames = { groupPrefix + "/PointData", groupPrefix + "/CellData",
-    groupPrefix + "/FieldData" };
-
-  // XXX: This should be removed once VTK_OVERLAPPING_AMR spec is reworked
-  // https://gitlab.kitware.com/vtk/vtk/-/issues/19926
-  if (groupPrefix.empty() && dataSetType == VTK_OVERLAPPING_AMR)
   {
-    groupNames = { "/Level0/PointData", "/Level0/CellData", "/Level0/FieldData" };
+    ::ScopedH5EQuiet quiet;
+    std::fill(attributeDataGroup.begin(), attributeDataGroup.end(), -1);
+    std::fill(version.begin(), version.end(), 0);
+
+    std::array<std::string, 3> groupNames = { groupPrefix + "/PointData", groupPrefix + "/CellData",
+      groupPrefix + "/FieldData" };
+
+    // XXX: This should be removed once VTK_OVERLAPPING_AMR spec is reworked
+    // https://gitlab.kitware.com/vtk/vtk/-/issues/19926
+    if (groupPrefix.empty() && dataSetType == VTK_OVERLAPPING_AMR)
+    {
+      groupNames = { "/Level0/PointData", "/Level0/CellData", "/Level0/FieldData" };
+    }
+
+    // try to open cell or point group. Its OK if they don't exist.
+    for (size_t i = 0; i < attributeDataGroup.size(); ++i)
+    {
+      std::string path = rootName + groupNames[i];
+      attributeDataGroup[i] = H5Gopen(rootID, path.c_str(), H5P_DEFAULT);
+    }
   }
 
-  // try to open cell or point group. Its OK if they don't exist.
-  for (size_t i = 0; i < attributeDataGroup.size(); ++i)
-  {
-    std::string path = rootName + groupNames[i];
-    attributeDataGroup[i] = H5Gopen(rootID, path.c_str(), H5P_DEFAULT);
-  }
-  // turn on error logging and restore error function
-  H5Eset_auto(H5E_DEFAULT, f, client_data);
   if (!vtkHDFUtilities::GetAttribute(groupID, "Version", version.size(), version.data()))
   {
     return false;
   }
 
-  H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
-  // get temporal information if there is any
-  vtkIdType nSteps = vtkHDFUtilities::GetNumberOfSteps(groupID);
-  H5Eset_auto(H5E_DEFAULT, f, client_data);
+  vtkIdType nSteps;
+  {
+    ::ScopedH5EQuiet quiet;
+    // get temporal information if there is any
+    nSteps = vtkHDFUtilities::GetNumberOfSteps(groupID);
+  }
 
   try
   {

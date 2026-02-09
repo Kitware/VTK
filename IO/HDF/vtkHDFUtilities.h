@@ -147,15 +147,32 @@ public:
 
 /**
  * Open a VTK HDF file and checks if it is valid.
+ * Set quiet to true to avoid displaying errors.
  * On success, fileID is set to a valid hid and the function returns true
  */
+VTK_DEPRECATED_IN_9_7_0("Deprecated. Please use the version with quiet arg.")
 VTKIOHDF_EXPORT bool Open(const char* fileName, hid_t& fileID);
 
 /**
+ * Open a VTK HDF file and checks if it is valid.
+ * On success, fileID is set to a valid hid and the function returns true
+ */
+VTKIOHDF_EXPORT bool Open(const char* fileName, hid_t& fileID, bool quiet);
+
+/**
  * Open a VTK HDF file image from memory and checks if it is valid.
+ * Set quiet to true to avoid displaying errors.
  * On success, fileImageID is set to a valid hid and the function returns true
  */
+VTK_DEPRECATED_IN_9_7_0("Deprecated. Please use the version with quiet arg.")
 VTKIOHDF_EXPORT bool Open(vtkMemoryResourceStream* stream, hid_t& fileImageID);
+
+/**
+ * Open a VTK HDF file image from memory and checks if it is valid.
+ * Set quiet to true to avoid displaying errors.
+ * On success, fileImageID is set to a valid hid and the function returns true
+ */
+VTKIOHDF_EXPORT bool Open(vtkMemoryResourceStream* stream, hid_t& fileImageID, bool quiet);
 
 /**
  * Convert C++ template type T to HDF5 native type
