@@ -143,9 +143,37 @@ void vtkFramebufferPass::Render(const vtkRenderState* s)
     this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
   ostate->vtkglScissor(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
 
+#if GL_ES_VERSION_3_0
+  bool drawIsMultisampled = false;
+  if (auto* drawFbo = vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer()))
+  {
+    drawIsMultisampled = (drawFbo && drawFbo->GetMultiSamples() > 0);
+  }
+  else
+  {
+    drawFbo = renWin->GetRenderFramebuffer();
+    drawIsMultisampled = (drawFbo && drawFbo->GetMultiSamples() > 0);
+  }
+
+  if (drawIsMultisampled)
+  {
+    // WebGL2 forbids blitting to a multisampled draw framebuffer.
+    this->ColorTexture->CopyToFrameBuffer(0, 0, this->ViewportWidth - 1, this->ViewportHeight - 1,
+      this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth - 1,
+      this->ViewportY + this->ViewportHeight - 1, this->ViewportWidth, this->ViewportHeight,
+      nullptr, nullptr);
+  }
+  else
+  {
+    ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
+      this->ViewportY, this->ViewportX + this->ViewportWidth,
+      this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  }
+#else
   ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
     this->ViewportY, this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight,
     GL_COLOR_BUFFER_BIT, GL_LINEAR);
+#endif
 
   ostate->PopReadFramebufferBinding();
 
