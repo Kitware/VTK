@@ -8,6 +8,11 @@
  * an unstructured grid dataset. It reads .cas.h5 and .dat.h5 files stored in FLUENT
  * CFF format (hdf5).
  *
+ * The name of the arrays can be renamed with a more meaningful name that correspond to what Fluent
+ * displays. The details for these renamings can be found here:
+ * https://ansyshelp.ansys.com/public/account/secured?returnurl=/Views/Secured/corp/v242/en/flu_udf/flu_udf_DataAccessMacros.html
+ * https://developer.ansys.com/docs/common-fluids-format-/_data_models_overview.html
+ *
  * @par Thanks:
  * Original author : Arthur Piquet
  *
@@ -61,6 +66,16 @@ public:
    */
   vtkSetMacro(FileName, std::string);
   vtkGetMacro(FileName, std::string);
+  //@}
+
+  //@{
+  /**
+   * Set/Get if we want to rename the arrays of the data with a more meaningful
+   * name from common fluids data model or not.
+   * False by default.
+   */
+  vtkSetMacro(RenameArrays, bool);
+  vtkGetMacro(RenameArrays, bool);
   //@}
 
   //@{
@@ -270,6 +285,7 @@ protected:
   //
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
   std::string FileName;
+  bool RenameArrays = false;
   vtkIdType NumberOfCells = 0;
   int NumberOfCellArrays = 0;
 
