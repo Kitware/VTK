@@ -63,9 +63,9 @@ int vtkWriter::Write()
 
   // always write even if the data hasn't changed
   this->Modified();
-  this->UpdateWholeExtent();
-
-  return (this->GetErrorCode() == vtkErrorCode::NoError);
+  bool ret = this->UpdateWholeExtent();
+  ret &= this->GetErrorCode() == vtkErrorCode::NoError;
+  return ret;
 }
 
 vtkTypeBool vtkWriter::ProcessRequest(

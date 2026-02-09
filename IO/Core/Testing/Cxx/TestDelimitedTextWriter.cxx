@@ -41,7 +41,12 @@ int TestDelimitedTextWriter(int, char*[])
   writer->SetUseStringDelimiter(true);
   writer->SetPrecision(2);
   writer->SetNotationToFixed();
-  writer->Write();
+
+  if (!writer->Write())
+  {
+    std::cerr << "Error: Failure on write." << std::endl;
+    return EXIT_FAILURE;
+  }
 
   const char* output = writer->RegisterAndGetOutputString();
 
@@ -53,6 +58,7 @@ int TestDelimitedTextWriter(int, char*[])
     outputStr.find("Strings") == std::string::npos)
   {
     std::cerr << "Error: Output string missing column names." << std::endl;
+    return EXIT_FAILURE;
   }
   // Check that there are 5 rows of data
   int rowCount = 0;
