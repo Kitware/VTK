@@ -111,7 +111,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
 }
 
 //------------------------------------------------------------------------------
-bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::json& gltfRoot)
+bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(
+  bool quiet, bool& binary, nlohmann::json& gltfRoot)
 {
   try
   {
@@ -134,7 +135,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::js
       {
         if (!vtkGLTFUtils::ValidateGLBFile(magic, version, fileLength, chunkInfo))
         {
-          vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
+          if (!quiet)
+          {
+            vtkErrorWithObjectMacro(this->Self, "Invalid binary glTF file");
+          }
           return false;
         }
 
@@ -150,7 +154,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::js
         JSONDataBuffer.resize(JSONChunkInfo.second);
         if (stream->Read(JSONDataBuffer.data(), JSONChunkInfo.second) != JSONChunkInfo.second)
         {
-          vtkErrorWithObjectMacro(this->Self, "Failed to read chunk 0.");
+          if (!quiet)
+          {
+            vtkErrorWithObjectMacro(this->Self, "Failed to read chunk 0.");
+          }
           return false;
         }
 
@@ -169,7 +176,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::js
       fileData.resize(fileSize);
       if (stream->Read(fileData.data(), fileData.size()) != fileData.size())
       {
-        vtkErrorWithObjectMacro(this->Self, "Failed to read GLTF file");
+        if (!quiet)
+        {
+          vtkErrorWithObjectMacro(this->Self, "Failed to read GLTF file");
+        }
         return false;
       }
 
@@ -178,7 +188,10 @@ bool vtkGLTFDocumentLoaderInternals::LoadFileMetaData(bool& binary, nlohmann::js
   }
   catch (nlohmann::json::parse_error& e)
   {
-    vtkErrorWithObjectMacro(this->Self, << e.what());
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Self, << e.what());
+    }
     return false;
   }
 
@@ -1303,12 +1316,15 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
 
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
-  bool& binary, std::vector<std::string>& extensionsUsedByLoader)
+  bool quiet, bool& binary, std::vector<std::string>& extensionsUsedByLoader)
 {
   nlohmann::json root;
-  if (!this->LoadFileMetaData(binary, root))
+  if (!this->LoadFileMetaData(quiet, binary, root))
   {
-    vtkErrorWithObjectMacro(this->Self, "Failed to load file from stream");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Self, "Failed to load file from stream");
+    }
     return false;
   }
 
@@ -1318,14 +1334,20 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
   nlohmann::json glTFAsset = root["asset"];
   if (glTFAsset.empty() || !glTFAsset.is_object())
   {
-    vtkErrorWithObjectMacro(this->Self, "Invalid asset value");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Self, "Invalid asset value");
+    }
     return false;
   }
 
   // check minversion and version
   if (!vtkGLTFUtils::CheckVersion(glTFAsset))
   {
-    vtkErrorWithObjectMacro(this->Self, "Unsupported or invalid glTF version");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Self, "Unsupported or invalid glTF version");
+    }
     return false;
   }
 
@@ -1335,8 +1357,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
   {
     if (!extensionRequiredByModel.is_string())
     {
-      vtkWarningWithObjectMacro(
-        this->Self, "Invalid extensions.extensionsRequired value. Ignoring this value.");
+      if (!quiet)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, "Invalid extensions.extensionsRequired value. Ignoring this value.");
+      }
       continue;
     }
     // This is only for warnings. extensionsRequired is a subset of extensionsUsed, which is what is
@@ -1345,10 +1370,13 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
           [&extensionRequiredByModel](const std::string& value)
           { return value == extensionRequiredByModel; }))
     {
-      vtkErrorWithObjectMacro(this->Self,
-        "glTF extension "
-          << extensionRequiredByModel.get<std::string>()
-          << " is required in this model, but not supported by this loader. Aborting");
+      if (!quiet)
+      {
+        vtkErrorWithObjectMacro(this->Self,
+          "glTF extension "
+            << extensionRequiredByModel.get<std::string>()
+            << " is required in this model, but not supported by this loader. Aborting");
+      }
       return false;
     }
   }
@@ -1356,8 +1384,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
   {
     if (!extensionUsedByModel.is_string())
     {
-      vtkWarningWithObjectMacro(
-        this->Self, "Invalid extensions.extensionsUsed value. Ignoring this value.");
+      if (!quiet)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, "Invalid extensions.extensionsUsed value. Ignoring this value.");
+      }
       continue;
     }
     if (std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
@@ -1366,7 +1397,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
     {
       extensionsUsedByLoader.push_back(extensionUsedByModel);
     }
-    else
+    else if (!quiet)
     {
       vtkWarningWithObjectMacro(this->Self,
         "glTF extension " << extensionUsedByModel.get<std::string>()

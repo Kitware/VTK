@@ -27,12 +27,14 @@ public:
 
   /**
    * Reset internal Model struct, and serialize glTF metadata (all json information) into it.
-   * Set binary to true if file is binary, set to false otherwise.
+   * Set quiet to true to avoid displaying errors.
+   * This method will set binary to true if file is binary, set to false otherwise.
    * Fill usedExtensions vector with the list of used and supported extensions in the glTF file.
    * To load buffers, use LoadModelData
    * Return true on success, false otherwise.
    */
-  bool LoadModelMetaData(bool& binary, std::vector<std::string>& extensionsUsedByLoader);
+  bool LoadModelMetaData(
+    bool quiet, bool& binary, std::vector<std::string>& extensionsUsedByLoader);
 
   /**
    * Reads the model's buffer metadata, then uses it to load all buffers into the model.
@@ -71,10 +73,11 @@ private:
   /**
    * Load a glTF file and parse it into a Json value. File extension can be either .gltf
    * or .glb. In case of a binary glTF file, only the Json part will be read.
-   * Set binary to true if file is binary, set to false otherwise.
+   * Set quiet to true to avoid displaying errors.
+   * This method set binary to true if file is binary, set to false otherwise.
    * Return true on success, false otherwise.
    */
-  bool LoadFileMetaData(bool& binary, nlohmann::json& gltfRoot);
+  bool LoadFileMetaData(bool quiet, bool& binary, nlohmann::json& gltfRoot);
 
   /**
    * Populate a Skin struct with data from a Json variable describing the object.
