@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
@@ -15,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
@@ -224,6 +228,47 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
       return false;
     }
   }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestDataSetAttributes(const std::string& tempDir)
+{
+  vtkNew<vtkUnstructuredGrid> ug;
+  vtkNew<vtkFloatArray> floats;
+  floats->SetName("scals");
+  ug->GetPointData()->SetScalars(floats);
+
+  vtkNew<vtkIdTypeArray> ids;
+  ids->SetName("GlobIds");
+  ug->GetCellData()->SetGlobalIds(ids);
+
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputData(ug);
+  const std::string filename = tempDir + "/HDFWriter_attrs.vtkhdf";
+  writer->SetFileName(filename.c_str());
+  writer->Write();
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+
+  vtkUnstructuredGrid* readUg = vtkUnstructuredGrid::SafeDownCast(reader->GetOutputAsDataSet());
+  vtkDataArray* readScalars = readUg->GetPointData()->GetScalars();
+  vtkDataArray* readGlobIds = readUg->GetCellData()->GetGlobalIds();
+
+  if (readScalars->GetName() != std::string("scals"))
+  {
+    std::cerr << "Expected scalars array 'scals'" << std::endl;
+    return false;
+  }
+
+  if (readGlobIds->GetName() != std::string("GlobIds"))
+  {
+    std::cerr << "Expected Global Ids array 'scals'" << std::endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -497,6 +542,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestSpherePolyData(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestDataSetAttributes(tempDir);
   testPasses &= TestSanitizeName(tempDir, dataRoot);
   testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
   testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
