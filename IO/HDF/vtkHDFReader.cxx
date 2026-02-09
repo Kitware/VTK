@@ -1270,13 +1270,13 @@ int vtkHDFReader::Read(
       return 0;
     }
     numberOfFaces = this->Impl->GetMetadata("NumberOfFaces", filePieceCount, geoOffs.PartOffset);
-    if (numberOfFaceConnectivityIds.empty())
+    if (numberOfFaces.empty())
     {
       return 0;
     }
     numberOfPolyhedronToFaceIds =
       this->Impl->GetMetadata("NumberOfPolyhedronToFaceIds", filePieceCount, geoOffs.PartOffset);
-    if (numberOfFaceConnectivityIds.empty())
+    if (numberOfPolyhedronToFaceIds.empty())
     {
       return 0;
     }
