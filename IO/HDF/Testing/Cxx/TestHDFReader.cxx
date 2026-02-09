@@ -364,7 +364,7 @@ int TestPartitionedPolyData(const std::string& dataRoot)
 }
 
 //----------------------------------------------------------------------------
-int TestOverlappingAMR(const std::string& dataRoot)
+int TestOverlappingAMR(const std::string& dataRoot, unsigned int maxLevel)
 {
   std::string fileName = dataRoot + "/Data/amr_gaussian_pulse.hdf";
   std::cout << "Testing: " << fileName << std::endl;
@@ -374,24 +374,25 @@ int TestOverlappingAMR(const std::string& dataRoot)
     return EXIT_FAILURE;
   }
   reader->SetFileName(fileName.c_str());
+  reader->SetMaximumLevelsToReadByDefaultForAMR(maxLevel);
   reader->Update();
   auto data = vtkOverlappingAMR::SafeDownCast(reader->GetOutput());
 
   vtkNew<vtkXMLUniformGridAMRReader> outputReader;
   std::string expectedFileName = dataRoot + "/Data/amr_gaussian_pulse.vthb";
   outputReader->SetFileName(expectedFileName.c_str());
-  outputReader->SetMaximumLevelsToReadByDefault(0);
+  outputReader->SetMaximumLevelsToReadByDefault(maxLevel);
   outputReader->Update();
   auto expectedData = vtkOverlappingAMR::SafeDownCast(outputReader->GetOutput());
 
-  if (data->GetNumberOfLevels() != expectedData->GetNumberOfLevels())
+  if (data->GetNumberOfLevels() != maxLevel)
   {
-    std::cerr << "Number of levels does not match. Expected: " << expectedData->GetNumberOfLevels()
+    std::cerr << "Number of levels does not match. Expected: " << maxLevel
               << " got: " << data->GetNumberOfLevels() << std::endl;
     return EXIT_FAILURE;
   }
 
-  for (unsigned int levelIndex = 0; levelIndex < expectedData->GetNumberOfLevels(); ++levelIndex)
+  for (unsigned int levelIndex = 0; levelIndex < maxLevel; ++levelIndex)
   {
     if (data->GetNumberOfBlocks(levelIndex) != expectedData->GetNumberOfBlocks(levelIndex))
     {
@@ -644,7 +645,12 @@ int TestHDFReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (TestOverlappingAMR(dataRoot))
+  if (TestOverlappingAMR(dataRoot, 2))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestOverlappingAMR(dataRoot, 1))
   {
     return EXIT_FAILURE;
   }

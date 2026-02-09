@@ -1831,7 +1831,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   }
 
   // Read AMR topology
-  if (!this->Impl->ReadAMRTopology(data, Origin, this->GetHasTemporalData()))
+  if (!this->Impl->ReadAMRTopology(data, maxLevel, Origin, this->GetHasTemporalData()))
   {
     return 1;
   }
