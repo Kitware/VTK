@@ -583,6 +583,9 @@ public:
    */
   const std::vector<std::string>& GetUsedExtensions();
 
+  /**
+   * Get if the current model contains binary data
+   */
   bool GetIsBinary();
 
   /**
