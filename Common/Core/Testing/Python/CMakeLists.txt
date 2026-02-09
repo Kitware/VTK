@@ -2,6 +2,7 @@ vtk_add_test_python(
   NO_DATA NO_VALID NO_OUTPUT
   PythonSmoke.py
   TestArrayArguments.py
+  TestBufferChangedEvent.py
   TestArrays.py
   TestBuffer.py
   TestCommand.py
@@ -32,5 +33,6 @@ vtk_add_test_python(
   TestTerminationCrash.py
   TestVariant.py
   TestVersion.py
+  TestVtkBufferNumpy.py
   TestWeakref.py
   )

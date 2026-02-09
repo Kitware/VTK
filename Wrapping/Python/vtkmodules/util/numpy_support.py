@@ -184,7 +184,11 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
         copy.DeepCopy(result_array)
         result_array = copy
     else:
-        result_array._numpy_reference = z
+        # Store the numpy reference on the buffer rather than the array.
+        # This ensures the numpy array stays alive as long as the buffer exists,
+        # which is important when the buffer is shared via buffer protocol or
+        # when the array reallocates (copy-on-reallocate creates a new buffer).
+        result_array.GetBuffer()._numpy_reference = z
     return result_array
 
 def numpy_to_vtkIdTypeArray(num_array, deep=0):

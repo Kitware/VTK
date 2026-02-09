@@ -14,6 +14,7 @@
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkBuffer.h"
+#include "vtkCommand.h"
 
 #include <array>
 #include <cassert>
@@ -322,6 +323,25 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
+vtkBuffer<ValueType>* vtkSOADataArrayTemplate<ValueType>::GetComponentBuffer(int comp)
+{
+  if (this->StorageType == StorageTypeEnum::AOS)
+  {
+    vtkErrorMacro("Data is currently stored in AOS mode.");
+    return nullptr;
+  }
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+  {
+    vtkErrorMacro("Invalid component number '" << comp << "' specified.");
+    return nullptr;
+  }
+
+  return this->Data[comp];
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   if (this->StorageType == StorageTypeEnum::SOA)
@@ -348,22 +368,40 @@ bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 template <class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
+  bool bufferChanged = false;
   if (this->StorageType == StorageTypeEnum::SOA)
   {
     for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
     {
-      if (!this->Data[cc]->Reallocate(numTuples))
+      vtkIdType oldSize = this->Data[cc]->GetSize();
+      if (numTuples != oldSize)
       {
-        return false;
+        if (!this->Data[cc]->Reallocate(numTuples))
+        {
+          return false;
+        }
+        bufferChanged = true;
       }
     }
   }
   else
   {
-    if (!this->AoSData->Reallocate(numTuples * this->GetNumberOfComponents()))
+    vtkIdType newSize = numTuples * this->GetNumberOfComponents();
+    vtkIdType oldSize = this->AoSData->GetSize();
+    if (newSize != oldSize)
     {
-      return false;
+      if (!this->AoSData->Reallocate(newSize))
+      {
+        return false;
+      }
+      bufferChanged = true;
     }
+  }
+
+  // Notify observers that the buffer may have changed
+  if (bufferChanged)
+  {
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   return true;
 }

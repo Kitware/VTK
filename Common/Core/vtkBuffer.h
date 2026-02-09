@@ -13,17 +13,18 @@
 #ifndef vtkBuffer_h
 #define vtkBuffer_h
 
-#include "vtkObject.h"
+#include "vtkAbstractBuffer.h"
 #include "vtkObjectFactory.h" // New() implementation
+#include "vtkTypeTraits.h"    // For vtkTypeTraits
 
 #include <algorithm> // for std::min and std::copy
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class ScalarTypeT>
-class vtkBuffer : public vtkObject
+class vtkBuffer : public vtkAbstractBuffer
 {
 public:
-  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject);
+  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkAbstractBuffer);
   typedef ScalarTypeT ScalarType;
 
   static vtkBuffer<ScalarTypeT>* New();
@@ -64,6 +65,16 @@ public:
    * Return the number of elements the current buffer can hold.
    */
   vtkIdType GetSize() const { return this->Size; }
+
+  ///@{
+  /**
+   * vtkAbstractBuffer interface implementation for Python buffer protocol support.
+   */
+  void* GetVoidBuffer() override { return this->Pointer; }
+  vtkIdType GetNumberOfElements() const override { return this->Size; }
+  int GetDataType() const override { return vtkTypeTraits<ScalarType>::VTKTypeID(); }
+  int GetDataTypeSize() const override { return sizeof(ScalarType); }
+  ///@}
 
   /**
    * Allocate a new buffer that holds @a size elements. Old data is not saved.

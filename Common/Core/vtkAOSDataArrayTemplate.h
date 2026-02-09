@@ -219,6 +219,13 @@ public:
   void* GetVoidPointer(vtkIdType valueIdx) override;
   ///@}
 
+  /**
+   * Return the underlying buffer object. This can be used for zero-copy
+   * access to the array data, particularly useful for Python buffer protocol
+   * support.
+   */
+  vtkAbstractBuffer* GetBuffer() { return this->Buffer; }
+
   ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
@@ -367,7 +374,8 @@ VTK_ABI_NAMESPACE_END
   T* WritePointer(vtkIdType id, vtkIdType number);                                                 \
   T* GetPointer(vtkIdType id);                                                                     \
   void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save);                                  \
-  void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save, int deleteMethod)
+  void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save, int deleteMethod);                \
+  vtkAbstractBuffer* GetBuffer()
 
 #endif // header guard
 
