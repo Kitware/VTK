@@ -388,8 +388,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       // the amount of light arriving at a surface point, assuming the light is
       // oriented towards to the surface, in W/m^2^
       float irradiance =
-        static_cast<float>((vtkAnariLightNode::GetLightScale(light) * light->GetIntensity()) /
-          vtkMath::Distance2BetweenPoints(position, focalPoint));
+        static_cast<float>(vtkAnariLightNode::GetLightScale(light) * light->GetIntensity());
       anari::setParameter(anariDevice, anariLight, "irradiance", irradiance);
 
       if (anariExtensions.ANARI_KHR_AREA_LIGHTS)
