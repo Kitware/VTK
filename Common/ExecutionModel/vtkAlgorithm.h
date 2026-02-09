@@ -749,12 +749,12 @@ public:
    * Bring the algorithm's information up-to-date.
    */
   VTK_UNBLOCKTHREADS
-  virtual void UpdateInformation();
+  virtual bool UpdateInformation();
 
   /**
    * Create output object(s).
    */
-  virtual void UpdateDataObject();
+  virtual bool UpdateDataObject();
 
   /**
    * Propagate meta-data upstream.
@@ -765,7 +765,7 @@ public:
    * Bring this algorithm's outputs up-to-date.
    */
   VTK_UNBLOCKTHREADS
-  virtual void UpdateWholeExtent();
+  virtual bool UpdateWholeExtent();
 
   /**
    * Convenience routine to convert from a linear ordering of input

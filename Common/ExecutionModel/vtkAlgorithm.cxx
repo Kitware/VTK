@@ -1745,37 +1745,39 @@ void vtkAlgorithm::PropagateUpdateExtent()
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::UpdateInformation()
+bool vtkAlgorithm::UpdateInformation()
 {
   vtkDemandDrivenPipeline* ddp = vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (ddp)
   {
-    ddp->UpdateInformation();
+    return static_cast<bool>(ddp->UpdateInformation());
   }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::UpdateDataObject()
+bool vtkAlgorithm::UpdateDataObject()
 {
   vtkDemandDrivenPipeline* ddp = vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (ddp)
   {
-    ddp->UpdateDataObject();
+    return static_cast<bool>(ddp->UpdateDataObject());
   }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::UpdateWholeExtent()
+bool vtkAlgorithm::UpdateWholeExtent()
 {
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (sddp)
   {
-    sddp->UpdateWholeExtent();
+    return static_cast<bool>(sddp->UpdateWholeExtent());
   }
   else
   {
-    this->Update();
+    return this->Update();
   }
 }
 
