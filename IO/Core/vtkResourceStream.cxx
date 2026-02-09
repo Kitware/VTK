@@ -76,7 +76,8 @@ protected:
     const std::ptrdiff_t available = parent_type::egptr() - parent_type::gptr();
     if (available > 0)
     {
-      std::copy_n(parent_type::gptr(), (std::min)(available, count), str);
+      std::copy_n(
+        parent_type::gptr(), (std::min)(available, static_cast<std::ptrdiff_t>(count)), str);
       // if we still have buffered input update gptr
       if (available > count)
       {
