@@ -12,11 +12,7 @@ if (navigator.gpu === undefined) {
     canvas.style.display = 'block';
 
     let cfg = {
-        arguments: [options.nx, options.ny, options.nz, options.mapperIsStatic],
-        preRun: [function (module) {
-            // select WEBGPU backend
-            module.ENV.VTK_GRAPHICS_BACKEND = 'WEBGPU';
-        }],
+        arguments: [options.nx, options.ny, options.nz, options.mapperIsStatic, "--vtk-factory-prefer", "RenderingBackend=WebGPU"],
     };
 
     let runtime = await createConeMultiBackendModule(cfg);

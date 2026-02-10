@@ -496,6 +496,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 {
   vtkLogScopeFunction(TRACE);
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
+  this->SetVertexBuffers(passEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -727,6 +728,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 {
   vtkLog(TRACE, "record draw commands to bundle");
   bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
+  this->SetVertexBuffers(bundleEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -1846,10 +1848,12 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  const auto vertexBufferLayouts = this->GetVertexBufferLayouts();
 
   vtkWebGPURenderPipelineDescriptorInternals descriptor;
+  descriptor.vertex.buffers = vertexBufferLayouts.data();
+  descriptor.vertex.bufferCount = vertexBufferLayouts.size();
   descriptor.vertex.entryPoint = "vertexMain";
-  descriptor.vertex.bufferCount = 0;
   descriptor.cFragment.entryPoint = "fragmentMain";
   descriptor.EnableBlending(0);
   descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
@@ -3283,8 +3287,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
       {
         basicColorFSImpl += R"(
   let lut_tex_color: vec4<f32> = textureSample(point_color_texture, point_color_sampler, vertex.lut_uv);
-  ambient_color = ambient_color * lut_tex_color.rgb;
-  diffuse_color = diffuse_color * lut_tex_color.rgb;
+  ambient_color = lut_tex_color.rgb;
+  diffuse_color = lut_tex_color.rgb;
   opacity = opacity * lut_tex_color.a;
 )";
       }
@@ -3508,7 +3512,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
-    R"(if scene_lights.count == 0u
+    R"(if scene_lights.count == 0u || !isLightingEnabled(actor.render_options.flags_2)
   {
     // allow post-processing this pixel.
     output.color = vec4<f32>(
@@ -3549,7 +3553,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
     );
   }
   // pre-multiply colors
-  output.color = vec4(output.color.rgb * opacity, opacity);)",
+  output.color = vec4(output.color.rgb, opacity);)",
     /*all=*/true);
 }
 

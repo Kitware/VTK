@@ -8,6 +8,7 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
@@ -21,6 +22,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkImageActor.h"
 #include "vtkInteractorStyleRubberBandPick.h"
+#include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
@@ -53,7 +55,7 @@ public:
   {
     assert("pre: renderer_exists" && this->Renderer != nullptr);
 
-    vtkHardwareSelector* sel = vtkHardwareSelector::New();
+    vtkNew<vtkHardwareSelector> sel;
     sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
     sel->SetRenderer(renderer);
 
@@ -64,9 +66,9 @@ public:
     sel->SetArea(static_cast<unsigned int>(x0), static_cast<unsigned int>(y0),
       static_cast<unsigned int>(x1), static_cast<unsigned int>(y1));
 
-    vtkSelection* res = sel->Select();
+    auto res = vtk::TakeSmartPointer(sel->Select());
 
-#if 1
+#if 0
     std::cerr << "x0 " << x0 << " y0 " << y0 << "\t";
     std::cerr << "x1 " << x1 << " y1 " << y1 << std::endl;
     res->Print(std::cout);
@@ -112,9 +114,6 @@ public:
       }
     }
     this->DataSet->Modified();
-
-    sel->Delete();
-    res->Delete();
   }
 
   void SetRenderer(vtkRenderer* r) { this->Renderer = r; }
@@ -133,39 +132,35 @@ protected:
 int TestGlyph3DMapperPicking(int argc, char* argv[])
 {
   int res = 6;
-  vtkPlaneSource* plane = vtkPlaneSource::New();
+  vtkNew<vtkPlaneSource> plane;
   plane->SetResolution(res, res);
-  vtkElevationFilter* colors = vtkElevationFilter::New();
+  vtkNew<vtkElevationFilter> colors;
   colors->SetInputConnection(plane->GetOutputPort());
-  plane->Delete();
   colors->SetLowPoint(-0.25, -0.25, -0.25);
   colors->SetHighPoint(0.25, 0.25, 0.25);
 
-  vtkSphereSource* squad = vtkSphereSource::New();
+  vtkNew<vtkSphereSource> squad;
   squad->SetPhiResolution(25);
   squad->SetThetaResolution(25);
 
-  vtkGlyph3DMapper* glypher = vtkGlyph3DMapper::New();
+  vtkNew<vtkGlyph3DMapper> glypher;
   glypher->SetInputConnection(colors->GetOutputPort());
-  colors->Delete();
   glypher->SetScaleFactor(0.1);
   glypher->SetSourceConnection(squad->GetOutputPort());
-  squad->Delete();
 
   // selection is performed on actor1
-  vtkActor* glyphActor1 = vtkActor::New();
+  vtkNew<vtkActor> glyphActor1;
   glyphActor1->SetMapper(glypher);
-  glypher->Delete();
   glyphActor1->PickableOn();
 
   // result of selection is on actor2
-  vtkActor* glyphActor2 = vtkActor::New();
+  vtkNew<vtkActor> glyphActor2;
   glyphActor2->PickableOff();
   colors->Update(); // make sure output is valid.
-  vtkDataSet* selection = colors->GetOutput()->NewInstance();
+  auto selection = vtk::TakeSmartPointer(colors->GetOutput()->NewInstance());
   selection->ShallowCopy(colors->GetOutput());
 
-  vtkBitArray* selectionMask = vtkBitArray::New();
+  vtkNew<vtkBitArray> selectionMask;
   selectionMask->SetName("mask");
   selectionMask->SetNumberOfComponents(1);
   selectionMask->SetNumberOfTuples(selection->GetNumberOfPoints());
@@ -178,9 +173,8 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
     ++i;
   }
   selection->GetPointData()->AddArray(selectionMask);
-  selectionMask->Delete();
 
-  vtkGlyph3DMapper* glypher2 = vtkGlyph3DMapper::New();
+  vtkNew<vtkGlyph3DMapper> glypher2;
   glypher2->SetMasking(true);
   glypher2->SetMaskArray("mask");
 
@@ -188,14 +182,14 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   glypher2->SetScaleFactor(0.1);
   glypher2->SetSourceConnection(squad->GetOutputPort());
   glyphActor2->SetMapper(glypher2);
-  glypher2->Delete();
 
   // Standard rendering classes
-  renderer = vtkRenderer::New();
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkNew<vtkRenderer> rendererNew;
+  renderer = rendererNew;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   // set up the view
@@ -204,26 +198,23 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
 
   // use the rubber band pick interactor style
   vtkRenderWindowInteractor* rwi = renWin->GetInteractor();
-  vtkInteractorStyleRubberBandPick* rbp = vtkInteractorStyleRubberBandPick::New();
+  vtkNew<vtkInteractorStyleRubberBandPick> rbp;
   rwi->SetInteractorStyle(rbp);
 
-  vtkRenderedAreaPicker* areaPicker = vtkRenderedAreaPicker::New();
+  vtkNew<vtkRenderedAreaPicker> areaPicker;
   rwi->SetPicker(areaPicker);
 
   renderer->AddActor(glyphActor1);
   renderer->AddActor(glyphActor2);
   glyphActor2->SetPosition(2, 0, 0);
-  glyphActor1->Delete();
-  glyphActor2->Delete();
 
   // pass pick events to the VisibleGlyphSelector
-  MyEndPickCommand* cbc = new MyEndPickCommand;
+  auto* cbc = new MyEndPickCommand;
   cbc->SetRenderer(renderer);
   cbc->SetMask(selectionMask);
   cbc->SetDataSet(selection);
   rwi->AddObserver(vtkCommand::EndPickEvent, cbc);
   cbc->Delete();
-
   ////////////////////////////////////////////////////////////
 
   // run the test
@@ -241,12 +232,5 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
     iren->Start();
   }
 
-  // Cleanup
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  rbp->Delete();
-  areaPicker->Delete();
-  selection->Delete();
   return !retVal;
 }

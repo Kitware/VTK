@@ -7,10 +7,7 @@
 #include "vtkActor.h"
 #include "vtkArrowSource.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkExecutive.h"
 #include "vtkExtractGrid.h"
-#include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPolyDataMapper.h"
@@ -37,7 +34,7 @@
 
 int TestGlyph3DMapperArrow(int argc, char* argv[])
 {
-  vtkMultiBlockPLOT3DReader* reader = vtkMultiBlockPLOT3DReader::New();
+  vtkNew<vtkMultiBlockPLOT3DReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
   reader->SetXYZFileName(fname);
   delete[] fname;
@@ -48,9 +45,8 @@ int TestGlyph3DMapperArrow(int argc, char* argv[])
   reader->SetVectorFunctionNumber(202);
   reader->Update();
 
-  vtkExtractGrid* eg = vtkExtractGrid::New();
+  vtkNew<vtkExtractGrid> eg;
   eg->SetInputData(reader->GetOutput()->GetBlock(0));
-  reader->Delete();
   eg->SetSampleRate(4, 4, 4);
   eg->Update();
 
@@ -58,59 +54,52 @@ int TestGlyph3DMapperArrow(int argc, char* argv[])
   std::cout << "eg cells=" << eg->GetOutput()->GetNumberOfCells() << std::endl;
 
   // create simple poly data so we can apply glyph
-  vtkArrowSource* arrow = vtkArrowSource::New();
+  vtkNew<vtkArrowSource> arrow;
   arrow->Update();
   std::cout << "pts=" << arrow->GetOutput()->GetNumberOfPoints() << std::endl;
   std::cout << "cells=" << arrow->GetOutput()->GetNumberOfCells() << std::endl;
 
 #ifdef USE_FILTER
-  vtkGlyph3D* glypher = vtkGlyph3D::New();
+  vtkNew<vtkGlyph3D> glypher;
 #else
-  vtkGlyph3DMapper* glypher = vtkGlyph3DMapper::New();
+  vtkNew<vtkGlyph3DMapper> glypher;
 #endif
   glypher->SetInputConnection(eg->GetOutputPort());
-  eg->Delete();
   glypher->SetSourceConnection(arrow->GetOutputPort());
   glypher->SetScaleFactor(2.0);
-  arrow->Delete();
 
 #ifdef USE_FILTER
-  vtkPolyDataMapper* glyphMapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> glyphMapper;
   glyphMapper->SetInputConnection(glypher->GetOutputPort());
 #endif
 
-  vtkActor* glyphActor = vtkActor::New();
+  vtkNew<vtkActor> glyphActor;
 #ifdef USE_FILTER
   glyphActor->SetMapper(glyphMapper);
-  glyphMapper->Delete();
 #else
   glyphActor->SetMapper(glypher);
 #endif
-  glypher->Delete();
 
   // Create the rendering stuff
 
-  vtkRenderer* ren = vtkRenderer::New();
-  vtkRenderWindow* win = vtkRenderWindow::New();
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> win;
   win->SetMultiSamples(0); // make sure regression images are the same on all platforms
   win->AddRenderer(ren);
-  ren->Delete();
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win);
-  win->Delete();
 
   ren->AddActor(glyphActor);
-  glyphActor->Delete();
   ren->SetBackground(0.5, 0.5, 0.5);
   win->SetSize(450, 450);
 
-  vtkCamera* cam = ren->GetActiveCamera();
+  auto* cam = ren->GetActiveCamera();
   cam->SetClippingRange(3.95297, 50);
   cam->SetFocalPoint(8.88908, 0.595038, 29.3342);
   cam->SetPosition(-12.3332, 31.7479, 41.2387);
   cam->SetViewUp(0.060772, -0.319905, 0.945498);
 
-  vtkTimerLog* timer = vtkTimerLog::New();
+  vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
@@ -121,14 +110,12 @@ int TestGlyph3DMapperArrow(int argc, char* argv[])
   win->Render();
   timer->StopTimer();
   std::cout << "second frame: " << timer->GetElapsedTime() << " seconds" << std::endl;
-  timer->Delete();
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
-  iren->Delete();
 
   return !retVal;
 }

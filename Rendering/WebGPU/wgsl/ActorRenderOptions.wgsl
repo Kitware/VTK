@@ -25,7 +25,9 @@ struct ActorRenderOptions {
   // Edge width in pixels - applicable when edges are visible and flags has the bit set for UseLineWidthForEdgeThickness
   edge_width: f32,
   // Integer/boolean options encoded inside flags. See below get methods.
-  flags: u32
+  flags: u32,
+  // Integer/boolean options encoded inside flags. See below get methods.
+  flags_2: u32,
 }
 
 // Extracts representation from flags. Returns of VTK_POINTS, VTK_WIREFRAME or VTK_SURFACE.
@@ -74,4 +76,12 @@ fn getPoint2DShape(flags: u32) -> u32
 {
   let result: u32 = (flags >> BIT_POSITION_POINT_2D_SHAPE) & 0x1;
   return select(POINT_2D_ROUND, POINT_2D_SQUARE, result == 1u);
+}
+
+// Extracts lighting enabled boolean from flags. Returns true/false
+// Be sure to use ActorRenderOptions.flags_2 here
+fn isLightingEnabled(flags_2: u32) -> bool
+{
+  let result: u32 = flags_2 & 0x1;
+  return select(false, true, result == 1u);
 }

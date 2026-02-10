@@ -40,7 +40,10 @@ public:
       vtkTypeFloat32 EdgeWidth = 0;
       // Custom flags used to encode various integer/boolean properties.
       vtkTypeUInt32 Flags = 0;
+      // Additional custom flags used to encode various integer/boolean properties.
+      vtkTypeUInt32 Flags2 = 0;
     } RenderOpts;
+    vtkTypeUInt32 Pad[3];
 
     struct ColorOptions
     {

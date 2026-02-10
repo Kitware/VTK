@@ -142,7 +142,7 @@ int TestCompositePolyDataMapperSpheres(int argc, char* argv[])
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   win->Render(); // get the window up
 
-  // modify the data to force a rebuild of OpenGL structs
+  // modify the data to force a rebuild of internal state
   // after rendering set one cylinder to white
   mapper->SetBlockColor(1011, 1.0, 1.0, 1.0);
   mapper->SetBlockOpacity(1011, 1.0);

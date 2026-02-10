@@ -7,6 +7,9 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 
   // init logging.
   vtkLogger::Init(ac, av);
+
+  // init object factory preferences
+  vtkObjectFactory::InitializePreferencesFromCommandLineArgs(ac, av);
 ")
 
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN

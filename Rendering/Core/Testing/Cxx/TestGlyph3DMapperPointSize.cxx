@@ -17,6 +17,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSuperquadricSource.h"
+#include "vtkTriangleFilter.h"
 
 int TestGlyph3DMapperPointSize(int argc, char* argv[])
 {
@@ -36,9 +37,11 @@ int TestGlyph3DMapperPointSize(int argc, char* argv[])
 
   // create simple poly data so we can apply glyph
   vtkNew<vtkSuperquadricSource> squad;
+  vtkNew<vtkTriangleFilter> triangulator;
+  triangulator->SetInputConnection(squad->GetOutputPort());
   vtkNew<vtkGlyph3DMapper> glypher;
   glypher->SetInputConnection(colors->GetOutputPort());
-  glypher->SetSourceConnection(squad->GetOutputPort());
+  glypher->SetSourceConnection(triangulator->GetOutputPort());
 
   vtkNew<vtkActor> glyphActor;
   glyphActor->SetMapper(glypher);

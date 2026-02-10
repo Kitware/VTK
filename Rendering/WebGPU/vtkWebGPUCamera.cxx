@@ -61,7 +61,7 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
     // since directx, vulkan and metal expect z-coordinate to lie in [0, 1] instead of [-1, 1],
     // webgpu culls fragments that have a z outside of [0, 1]; even for opengl backend.
     vtkMatrix4x4* projection =
-      this->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), 0, 1);
+      this->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), /*nearz=*/0, /*farz=*/1);
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -70,7 +70,6 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
         st.ProjectionMatrix[i][j] = projection->GetElement(j, i);
       }
     }
-    st.ProjectionMatrix[1][1] *= -1;
     // normal matrix
     for (int i = 0; i < 3; ++i)
     {
@@ -99,31 +98,42 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
         st.InvertedProjectionMatrix[i][j] = projection->GetElement(j, i);
       }
     }
-    int lowerLeft[2];
-    int width, height;
-    renderer->GetTiledSizeAndOrigin(&width, &height, &lowerLeft[0], &lowerLeft[1]);
-    st.Viewport[0] = lowerLeft[0];
-    st.Viewport[1] = lowerLeft[1];
+    auto [originX, originY, width, height] = this->ComputeYInvertedViewport(renderer);
+    st.Viewport[0] = originX;
+    st.Viewport[1] = originY;
     st.Viewport[2] = width;
     st.Viewport[3] = height;
-
     st.Flags = this->ParallelProjection ? 1u : 0u;
 
     this->KeyMatrixTime.Modified();
     this->LastRenderer = renderer;
   }
 }
+
+//------------------------------------------------------------------------------
+std::tuple<int, int, int, int> vtkWebGPUCamera::ComputeYInvertedViewport(vtkRenderer* renderer)
+{
+  int origin[2];
+  int width, height;
+  renderer->GetTiledSizeAndOrigin(&width, &height, &origin[0], &origin[1]);
+  if (auto* window = renderer->GetVTKWindow())
+  {
+    // origin, width and height are in the composited window coordinate system, so use actual size
+    // instead of the individual tile size.
+    int* actSize = window->GetActualSize();
+    origin[1] = actSize[1] - origin[1] - height;
+  }
+  return { origin[0], origin[1], width, height };
+}
+
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
 {
-  int lowerLeft[2];
-  int width, height;
-  renderer->GetTiledSizeAndOrigin(&width, &height, &lowerLeft[0], &lowerLeft[1]);
   auto rpassEncoder = reinterpret_cast<vtkWebGPURenderer*>(renderer)->GetRenderPassEncoder();
-
+  auto [originX, originY, width, height] = this->ComputeYInvertedViewport(renderer);
   // Set viewport frustum
   rpassEncoder.SetViewport(
-    lowerLeft[0], lowerLeft[1], static_cast<float>(width), static_cast<float>(height), 0.0, 1.0);
+    originX, originY, static_cast<float>(width), static_cast<float>(height), 0.0, 1.0);
   if (this->UseScissor)
   {
     // Set scissor rectangle
@@ -133,10 +143,12 @@ void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
       static_cast<uint32_t>(this->ScissorRect.GetHeight()));
     this->UseScissor = false;
   }
-  else
+  else if (width > 0 && height > 0)
   {
+    // zero width/height case causes validation error. it can happen for certail tiled
+    // configurations.
     rpassEncoder.SetScissorRect(
-      lowerLeft[0], lowerLeft[1], static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+      originX, originY, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
   }
 }
 

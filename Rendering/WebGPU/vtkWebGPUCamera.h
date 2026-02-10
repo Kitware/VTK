@@ -71,6 +71,8 @@ protected:
 private:
   vtkWebGPUCamera(const vtkWebGPUCamera&) = delete;
   void operator=(const vtkWebGPUCamera&) = delete;
+
+  std::tuple<int, int, int, int> ComputeYInvertedViewport(vtkRenderer* renderer);
 };
 
 #define vtkWebGPUCamera_OVERRIDE_ATTRIBUTES vtkWebGPUCamera::CreateOverrideAttributes()

@@ -6,10 +6,9 @@
 
 This module contains the WebGPU native backend for `RenderingCore`. Currently, it supports rendering polygonal geometry in different representations with point/cell scalar-mapped colors.
 
-When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the user must set the
-`VTK_GRAPHICS_BACKEND` environment variable to either `WEBGPU` or `OPENGL` in order to activate
-the intended object factories. In the future, we plan to enhance the object factory mechanism to accept command
-line arguments.
+When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the user must provide preferences to select the rendering backend at runtime. This can be done in two ways:
+1. Pass command line arguments to your application `--vtk-factory-prefer RenderingBackend=WebGPU` or `--vtk-factory-prefer RenderingBackend=OpenGL2`. Then, you will need to invoke `vtkObjectFactory::InitializePreferencesFromCommandLineArgs(argc, argv)` in your main function before creating any VTK object.
+2. Alternatively, set the `VTK_FACTORY_PREFER` environment variable to `RenderingBackend=WebGPU` or `RenderingBackend=OpenGL2`.
 
 ---
 
@@ -96,11 +95,17 @@ To run the `RenderingCore` tests with `VTK::RenderingWebGPU`, edit `vtk.module` 
 
 1. Uncomment the module name under `TEST_DEPENDS`.
 2. Rebuild and run the tests (only a few pass currently).
-3. Set the `VTK_GRAPHICS_BACKEND` environment variable to `WEBGPU`
+3. Set the `VTK_FACTORY_PREFER` environment variable to `RenderingBackend=WebGPU` or pass `--vtk-factory-prefer RenderingBackend=WebGPU` as command line arguments to the test executable.
 
 ```sh
-export VTK_GRAPHICS_BACKEND=WEBGPU
-./bin/vtkRenderingCoreCxxTests
+export VTK_FACTORY_PREFER="RenderingBackend=WebGPU"
+./bin/vtkRenderingCoreCxxTests Mace -I
+```
+
+or
+
+```sh
+./bin/vtkRenderingCoreCxxTests Mace -I --vtk-factory-prefer RenderingBackend=WebGPU
 ```
 
 ---

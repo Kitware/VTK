@@ -21,8 +21,8 @@ export function makeWebGPUConfig(webgpuCanvas, webgpuDevice) {
         return webgpuCanvas;
     })()
     cfg.preRun = [function (module) {
-        // select WEBGPU backend
-        module.ENV.VTK_GRAPHICS_BACKEND = 'WEBGPU';
+        // select WebGPU backend
+        module.ENV.VTK_FACTORY_PREFER = 'RenderingBackend=WebGPU';
     }];
     // Set the device from JS. This can be done in C++ as well.
     // See https://github.com/kainino0x/webgpu-cross-platform-demo/blob/main/main.cpp#L51

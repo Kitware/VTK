@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -13,7 +12,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSuperquadricSource.h"
+#include "vtkSphereSource.h"
 
 // If USE_FILTER is defined, glyph3D->PolyDataMapper is used instead of
 // Glyph3DMapper.
@@ -25,88 +24,74 @@
 #include "vtkGlyph3DMapper.h"
 #endif
 
-#include "vtkPlane.h"
-
 int TestGlyph3DMapper(int argc, char* argv[])
 {
   int res = 6;
-  vtkPlaneSource* plane = vtkPlaneSource::New();
+  vtkNew<vtkPlaneSource> plane;
   plane->SetResolution(res, res);
-  vtkElevationFilter* colors = vtkElevationFilter::New();
+  vtkNew<vtkElevationFilter> colors;
   colors->SetInputConnection(plane->GetOutputPort());
-  plane->Delete();
   colors->SetLowPoint(-0.25, -0.25, -0.25);
   colors->SetHighPoint(0.25, 0.25, 0.25);
-  vtkPolyDataMapper* planeMapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(colors->GetOutputPort());
-  colors->Delete();
 
-  vtkActor* planeActor = vtkActor::New();
+  vtkNew<vtkActor> planeActor;
   planeActor->SetMapper(planeMapper);
-  planeMapper->Delete();
   planeActor->GetProperty()->SetRepresentationToWireframe();
 
   // create simple poly data so we can apply glyph
-  vtkSuperquadricSource* squad = vtkSuperquadricSource::New();
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetRadius(0.1);
 
 #ifdef USE_FILTER
-  vtkGlyph3D* glypher = vtkGlyph3D::New();
+  vtkNew<vtkGlyph3D> glypher;
 #else
-  vtkGlyph3DMapper* glypher = vtkGlyph3DMapper::New();
+  vtkNew<vtkGlyph3DMapper> glypher;
 #endif
   glypher->SetInputConnection(colors->GetOutputPort());
-  glypher->SetSourceConnection(squad->GetOutputPort());
-  squad->Delete();
+  glypher->SetSourceConnection(sphere->GetOutputPort());
 
   // Useful code should you want to test clipping planes
   // with a glyph mapper, might should just uncomment
   // this and add a new valid image
-  // vtkPlane *cplane = vtkPlane::New();
+  // vtkNew<vtkPlane> cplane;
   // cplane->SetNormal(-0.5,0.5,0);
   // cplane->SetOrigin(0.2,0,0);
   // glypher->AddClippingPlane(cplane);
 
 #ifdef USE_FILTER
-  vtkPolyDataMapper* glyphMapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> glyphMapper;
   glyphMapper->SetInputConnection(glypher->GetOutputPort());
 #endif
 
-  vtkActor* glyphActor = vtkActor::New();
+  vtkNew<vtkActor> glyphActor;
 #ifdef USE_FILTER
   glyphActor->SetMapper(glyphMapper);
-  glyphMapper->Delete();
 #else
   glyphActor->SetMapper(glypher);
 #endif
-  glypher->Delete();
 
   // Create the rendering stuff
 
-  vtkRenderer* ren = vtkRenderer::New();
-  vtkRenderWindow* win = vtkRenderWindow::New();
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);
-  ren->Delete();
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win);
-  win->Delete();
 
   ren->AddActor(planeActor);
-  planeActor->Delete();
   ren->AddActor(glyphActor);
-  glyphActor->Delete();
   ren->SetBackground(0.5, 0.5, 0.5);
   win->SetSize(450, 450);
   win->Render();
   ren->GetActiveCamera()->Zoom(1.5);
-
-  win->Render();
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
-  iren->Delete();
 
   return !retVal;
 }

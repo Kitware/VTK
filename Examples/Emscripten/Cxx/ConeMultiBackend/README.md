@@ -6,7 +6,8 @@ The additional steps required are:
 
 1. Update `CMakeLists.txt` so that the `VTK::RenderingWebGPU` component is requested when finding VTK.
 2. Link your targets with `RenderingWebGPU`. There is no problem linking to both `RenderingWebGPU` and `RenderingOpenGL2`.
-3. Preload environment variable with `VTK_GRAPHICS_BACKEND` set to 'WEBGPU'.
+3. Pass "--vtk-factory-prefer RenderingBackend=WebGPU" as command line arguments when initializing the VTK WASM module to select the WebGPU backend at runtime.
+4. Call `vtkObjectFactory::InitializePreferencesFromCommandLineArgs(argc, argv)` in your main function before creating any VTK object. This will ensure that the rendering backend preference is set based on the command line arguments.
 
 ## Build
 

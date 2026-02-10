@@ -18,7 +18,8 @@
 #include "vtkHardwareSelector.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
+#include "vtkTypeUInt32Array.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOverrideAttribute;
@@ -98,7 +99,7 @@ private:
   };
 
   bool MapReady = false;
-  std::vector<Ids> IdBuffer;
+  vtkNew<vtkTypeUInt32Array> IdBuffer;
 
   vtkProp** PropArray = nullptr;
 

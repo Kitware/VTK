@@ -47,10 +47,12 @@ public:
 
   void Initialize(vtkPolyData* mesh, int numPoints, std::vector<vtkTypeFloat32>* colors,
     std::vector<vtkTypeFloat32>* transforms, std::vector<vtkTypeFloat32>* normalTransforms,
-    vtkTypeUInt32 flatIndex, bool pickable, vtkMTimeType buildMTime)
+    std::vector<vtkIdType>* pickIds, vtkTypeUInt32 flatIndex, bool pickable,
+    vtkMTimeType buildMTime)
   {
     this->CurrentInput = this->CachedInput = mesh;
     this->NumberOfGlyphPoints = numPoints;
+    this->InstancePickIds = pickIds;
     this->InstanceColors = colors;
     this->InstanceTransforms = transforms;
     this->InstanceNormalTransforms = normalTransforms;
@@ -98,6 +100,78 @@ public:
     }
   }
 
+  std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() override
+  {
+    // matCxR types are not allowed as vertex attributes.
+    // For this reason the columns of the matrices are
+    // sent as vertex attributes and the shader assembles
+    // matrices from the individual columns.
+    std::size_t instanceAttributesIdx = 0;
+    std::vector<wgpu::VertexBufferLayout> layouts;
+    {
+      wgpu::VertexBufferLayout layout = {};
+      layout.arrayStride = 4 * sizeof(vtkTypeFloat32);
+      layout.attributeCount = 1;
+      layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
+      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layouts.emplace_back(layout);
+      instanceAttributesIdx += 1;
+    }
+    {
+      wgpu::VertexBufferLayout layout = {};
+      layout.arrayStride = 4 * 4 * sizeof(vtkTypeFloat32);
+      layout.attributeCount = 4; // 1 attribute per column which is a vec4f
+      layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
+      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layouts.emplace_back(layout);
+      instanceAttributesIdx += 4;
+    }
+    {
+      wgpu::VertexBufferLayout layout = {};
+      layout.arrayStride = 3 * 3 * sizeof(vtkTypeFloat32);
+      layout.attributeCount = 3; // 1 attribute per column which is a vec3f
+      layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
+      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layouts.emplace_back(layout);
+      instanceAttributesIdx += 3;
+    }
+    {
+      wgpu::VertexBufferLayout layout = {};
+      layout.arrayStride = sizeof(vtkTypeUInt32);
+      layout.attributeCount = 1;
+      layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
+      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layouts.emplace_back(layout);
+    }
+    return layouts;
+  }
+
+  /**
+   * Overriden to pass instance attribtue buffers into the vertex buffer slots.
+   */
+  void SetVertexBuffers(const wgpu::RenderPassEncoder& encoder) override
+  {
+    for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
+         ++attributeIndex)
+    {
+      encoder.SetVertexBuffer(
+        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+    }
+  }
+
+  /**
+   * Overriden to pass instance attribtue buffers into the vertex buffer slots.
+   */
+  void SetVertexBuffers(const wgpu::RenderBundleEncoder& encoder) override
+  {
+    for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
+         ++attributeIndex)
+    {
+      encoder.SetVertexBuffer(
+        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+    }
+  }
+
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
@@ -125,6 +199,7 @@ public:
     INSTANCE_COLORS = 0,
     INSTANCE_TRANSFORMS,
     INSTANCE_NORMAL_TRANSFORMS,
+    INSTANCE_PICK_IDS,
     NUM_INSTANCE_ATTRIBUTES,
     INSTANCE_UNDEFINED
   };
@@ -160,7 +235,12 @@ public:
         }
 
         break;
-
+      case InstanceDataAttributes::INSTANCE_PICK_IDS:
+        if (this->InstancePickIds)
+        {
+          return this->InstancePickIds->size() * sizeof(vtkTypeUInt32);
+        }
+        break;
       default:
         break;
     }
@@ -188,6 +268,9 @@ public:
         result =
           this->GetInstanceAttributeByteSize(InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS);
         break;
+      case INSTANCE_PICK_IDS:
+        result = this->GetInstanceAttributeByteSize(InstanceDataAttributes::INSTANCE_PICK_IDS);
+        break;
       case NUM_INSTANCE_ATTRIBUTES:
       case INSTANCE_UNDEFINED:
         break;
@@ -198,7 +281,43 @@ public:
   }
 
 protected:
-  vtkWebGPUGlyph3DMapperHelper() = default;
+  vtkWebGPUGlyph3DMapperHelper()
+  {
+    std::uint32_t shaderLocation = 0;
+    this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
+    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+    this->InstanceAttributes[shaderLocation].offset = 0;
+    this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
+    shaderLocation++;
+
+    // matCxR types are not allowed as vertex attributes.
+    // For this reason the columns of the matrices are
+    // sent as vertex attributes and the shader assembles
+    // matrices from the individual columns.
+    for (int i = 0; i < 4; ++i)
+    {
+      this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
+      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+      this->InstanceAttributes[shaderLocation].offset = i * 4 * sizeof(float);
+      this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
+      shaderLocation++;
+    }
+
+    for (int i = 0; i < 3; ++i)
+    {
+      this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
+      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x3;
+      this->InstanceAttributes[shaderLocation].offset = i * 3 * sizeof(float);
+      this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
+      shaderLocation++;
+    }
+
+    this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
+    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Uint32;
+    this->InstanceAttributes[shaderLocation].offset = 0;
+    this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
+    shaderLocation++;
+  }
   ~vtkWebGPUGlyph3DMapperHelper() override = default;
 
   struct InstanceProperties
@@ -209,10 +328,12 @@ protected:
   };
   wgpu::Buffer InstancePropertiesBuffer;
   AttributeBuffer InstanceAttributesBuffers[NUM_INSTANCE_ATTRIBUTES];
+  wgpu::VertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
 
   vtkTimeStamp InstanceAttributesBuildTimestamp[NUM_INSTANCE_ATTRIBUTES];
 
   std::uint32_t NumberOfGlyphPoints = 0;
+  std::vector<vtkIdType>* InstancePickIds;
   std::vector<vtkTypeFloat32>* InstanceColors;
   std::vector<vtkTypeFloat32>* InstanceTransforms;
   std::vector<vtkTypeFloat32>* InstanceNormalTransforms;
@@ -227,7 +348,7 @@ protected:
   const InstanceDataAttributes
     InstanceDataAttributesOrder[InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES] = {
       InstanceDataAttributes::INSTANCE_COLORS, InstanceDataAttributes::INSTANCE_TRANSFORMS,
-      InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS
+      InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS, InstanceDataAttributes::INSTANCE_PICK_IDS
     };
 
   std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
@@ -239,12 +360,6 @@ protected:
     entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
       wgpu::BufferBindingType::Uniform });
-    for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
-         ++attributeIndex)
-    {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
-    }
     return entries;
   }
 
@@ -254,27 +369,16 @@ protected:
     auto entries = this->Superclass::GetMeshBindGroupEntries();
     std::uint32_t bindingId = entries.size();
 
-    {
-      const auto bindingInit =
-        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
-          this->InstancePropertiesBuffer, 0 };
-      entries.emplace_back(bindingInit.GetAsBinding());
-    }
-    for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
-         ++attributeIndex)
-    {
-      const auto bindingInit =
-        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
-          this->InstanceAttributesBuffers[attributeIndex].Buffer, 0 };
-      entries.emplace_back(bindingInit.GetAsBinding());
-    }
+    const auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
+      this->InstancePropertiesBuffer, 0 };
+    entries.emplace_back(bindingInit.GetAsBinding());
     return entries;
   }
 
   void UpdateInstanceAttributeBuffers(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration)
   {
     const char* instanceAttribLabels[InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES] = {
-      "instance_colors", "instanceNormals", "instance_normal_transforms"
+      "instance_colors", "instance_normals", "instance_normal_transforms", "instance_pick_ids"
     };
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
@@ -299,7 +403,7 @@ protected:
           this->CurrentInput->GetObjectDescription();
         descriptor.label = label.c_str();
         descriptor.mappedAtCreation = false;
-        descriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+        descriptor.usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
         this->InstanceAttributesBuffers[attributeIndex].Buffer =
           wgpuConfiguration->CreateBuffer(descriptor);
         this->InstanceAttributesBuffers[attributeIndex].Size = requiredBufferSize;
@@ -338,6 +442,21 @@ protected:
             wgpuConfiguration->WriteBuffer(this->InstanceAttributesBuffers[attributeIndex].Buffer,
               0, this->InstanceNormalTransforms->data(),
               this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32),
+              instanceAttribLabels[attributeIndex]);
+            this->InstanceAttributesBuildTimestamp[attributeIndex].Modified();
+          }
+          break;
+        case INSTANCE_PICK_IDS:
+          if (this->InstancePickIds &&
+            this->GlyphStructuresBuildTime > this->InstanceAttributesBuildTimestamp[attributeIndex])
+          {
+            // Copy is made because pickIds are vtkIdType, shader expects vtkTypeUInt32
+            std::vector<vtkTypeUInt32> copyOfPickIds;
+            copyOfPickIds.reserve(this->InstancePickIds->size());
+            std::copy(this->InstancePickIds->begin(), this->InstancePickIds->end(),
+              std::back_inserter(copyOfPickIds));
+            wgpuConfiguration->WriteBuffer(this->InstanceAttributesBuffers[attributeIndex].Buffer,
+              0, copyOfPickIds.data(), copyOfPickIds.size() * sizeof(vtkTypeUInt32),
               instanceAttribLabels[attributeIndex]);
             this->InstanceAttributesBuildTimestamp[attributeIndex].Modified();
           }
@@ -457,12 +576,6 @@ const TRIANGLE_VERTS = array(
     std::stringstream codeStream;
     codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
                << ") var<uniform> instance_properties: InstanceProperties;\n";
-    codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
-               << ") var<storage, read> instance_colors: array<f32>;\n";
-    codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
-               << ") var<storage, read> instance_transforms: array<f32>;\n";
-    codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
-               << ") var<storage, read> instance_normal_transforms: array<f32>;\n";
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Custom::Bindings", codeStream.str(),
       /*all=*/false);
     vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Custom::Bindings", codeStream.str(),
@@ -475,6 +588,15 @@ const TRIANGLE_VERTS = array(
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexInput::Def", R"(struct VertexInput
 {
+  @location(0) color: vec4f,
+  @location(1) glyph_transform_row_1: vec4f,
+  @location(2) glyph_transform_row_2: vec4f,
+  @location(3) glyph_transform_row_3: vec4f,
+  @location(4) glyph_transform_row_4: vec4f,
+  @location(5) glyph_normal_transform_row_1: vec3f,
+  @location(6) glyph_normal_transform_row_2: vec3f,
+  @location(7) glyph_normal_transform_row_3: vec3f,
+  @location(8) pick_id: u32,
   @builtin(instance_index) instance_id: u32,
   @builtin(vertex_index) vertex_id: u32
 };)",
@@ -487,26 +609,10 @@ const TRIANGLE_VERTS = array(
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Camera::Impl",
       R"(let glyph_transform = mat4x4<f32>(
-          vec4<f32>(
-            instance_transforms[16u * vertex.instance_id],
-            instance_transforms[16u * vertex.instance_id + 1u],
-            instance_transforms[16u * vertex.instance_id + 2u],
-            instance_transforms[16u * vertex.instance_id + 3u]),
-          vec4<f32>(
-            instance_transforms[16u * vertex.instance_id + 4u],
-            instance_transforms[16u * vertex.instance_id + 5u],
-            instance_transforms[16u * vertex.instance_id + 6u],
-            instance_transforms[16u * vertex.instance_id + 7u]),
-          vec4<f32>(
-            instance_transforms[16u * vertex.instance_id + 8u],
-            instance_transforms[16u * vertex.instance_id + 9u],
-            instance_transforms[16u * vertex.instance_id + 10u],
-            instance_transforms[16u * vertex.instance_id + 11u]),
-          vec4<f32>(
-            instance_transforms[16u * vertex.instance_id + 12u],
-            instance_transforms[16u * vertex.instance_id + 13u],
-            instance_transforms[16u * vertex.instance_id + 14u],
-            instance_transforms[16u * vertex.instance_id + 15u]),
+          vertex.glyph_transform_row_1,
+          vertex.glyph_transform_row_2,
+          vertex.glyph_transform_row_3,
+          vertex.glyph_transform_row_4,
         );
   let model_view_projection = scene_transform.projection * scene_transform.view * actor.transform.world * glyph_transform;)",
       /*all=*/true);
@@ -518,18 +624,9 @@ const TRIANGLE_VERTS = array(
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::NormalTransform::Impl",
       R"(let glyph_normal_transform = mat3x3<f32>(
-          vec3<f32>(
-            instance_normal_transforms[9u * vertex.instance_id],
-            instance_normal_transforms[9u * vertex.instance_id + 1u],
-            instance_normal_transforms[9u * vertex.instance_id + 2u]),
-          vec3<f32>(
-            instance_normal_transforms[9u * vertex.instance_id + 3u],
-            instance_normal_transforms[9u * vertex.instance_id + 4u],
-            instance_normal_transforms[9u * vertex.instance_id + 5u]),
-          vec3<f32>(
-            instance_normal_transforms[9u * vertex.instance_id + 6u],
-            instance_normal_transforms[9u * vertex.instance_id + 7u],
-            instance_normal_transforms[9u * vertex.instance_id + 8u]),
+        vertex.glyph_normal_transform_row_1,
+        vertex.glyph_normal_transform_row_2,
+        vertex.glyph_normal_transform_row_3,
         );
   let normal_model_view = scene_transform.normal * actor.transform.normal * glyph_normal_transform;)",
       /*all=*/true);
@@ -594,6 +691,32 @@ const TRIANGLE_VERTS = array(
     }
   }
 
+  //------------------------------------------------------------------------------
+  void ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& vss) override
+  {
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        // Superclass assigns vertex.instance_id to primitive_id,
+        // however this mapper uses instance_id to denote multiple glyphs.
+        vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+          R"(let primitive_id: u32 = line_id;
+  let primitive_size: u32 = 2u;)",
+          /*all=*/true);
+        break;
+      default:
+        this->Superclass::ReplaceVertexShaderPrimitiveId(
+          pipelineType, wgpuRenderer, wgpuActor, vss);
+        break;
+    }
+  }
+
   void ReplaceVertexShaderPicking(GraphicsPipelineType vtkNotUsed(pipelineType),
     vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
     std::string& vss) override
@@ -602,7 +725,7 @@ const TRIANGLE_VERTS = array(
       R"(if (instance_properties.pickable == 1u)
   {
     // Write indices
-    output.cell_id = cell_id;
+    output.cell_id = vertex.pick_id;
     output.prop_id = actor.color_options.id;
     output.composite_id = instance_properties.composite_id;
     output.process_id = instance_properties.process_id;
@@ -615,12 +738,7 @@ const TRIANGLE_VERTS = array(
     std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Colors::Impl",
-      R"(output.color = vec4<f32>(
-          instance_colors[4u * vertex.instance_id],
-          instance_colors[4u * vertex.instance_id + 1u],
-          instance_colors[4u * vertex.instance_id + 2u],
-          instance_colors[4u * vertex.instance_id + 3u],
-        );)",
+      "output.color = vertex.color;",
       /*all=*/true);
   }
 
@@ -731,7 +849,10 @@ const TRIANGLE_VERTS = array(
         if (pipelineType == GFX_PIPELINE_POINTS_SHAPED ||
           pipelineType == GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE)
         {
-          return { /*vertexCount=*/3 * bgInfo.VertexCount,
+          // ReplaceShaderConstantsDef declares a quad with two triangles
+          // when pipeline is specialized for shaped points.
+          // total 6 imposter vertices
+          return { /*vertexCount=*/6 * bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
         break;
@@ -743,6 +864,11 @@ const TRIANGLE_VERTS = array(
           return { /*vertexCount=*/bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
+        // ReplaceShaderConstantsDef declares a quad with two triangles
+        // when pipeline is specialized for thick lines and miter joined lines.
+        // total 6 imposter vertices, but each line has two source vertices, so divide
+        // by 2.
+        // effectively, there are total 3 imposter vertices
         if (pipelineType == GFX_PIPELINE_LINES_THICK ||
           pipelineType == GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE)
         {
@@ -755,6 +881,7 @@ const TRIANGLE_VERTS = array(
           return { /*vertexCount=*/3 * bgInfo.VertexCount,
             /*instanceCount=*/this->NumberOfGlyphPoints };
         }
+        // Similar logic for effective total no. of imposter verts
         if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN ||
           pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE)
         {
@@ -774,8 +901,9 @@ const TRIANGLE_VERTS = array(
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgsForDrawingVertices(
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override
   {
+    // See comment in GetDrawCallArgs for explaination of 6 imposter verts.
     const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
-    return { /*VertexCount=*/3 * bgInfo.VertexCount, /*InstanceCount=*/this->NumberOfGlyphPoints };
+    return { /*VertexCount=*/6 * bgInfo.VertexCount, /*InstanceCount=*/this->NumberOfGlyphPoints };
   }
 
 private:
@@ -803,6 +931,7 @@ class vtkWebGPUGlyph3DMapper::vtkInternals
   struct GlyphParameters
   {
     // As many as the no. of points on the input dataset which are glyphed with source.
+    std::vector<vtkIdType> PickIds;
     std::vector<vtkTypeFloat32> Colors;
     std::vector<vtkTypeFloat32> Transforms;       // transposed
     std::vector<vtkTypeFloat32> NormalTransforms; // transposed
@@ -1037,6 +1166,14 @@ public:
       }
     } // end for each source data object
 
+    // rebuild all entries for this DataSet if it
+    // has been modified
+    if (glyphParametersCollection->BuildTime < inputDataSet->GetMTime() ||
+      glyphParametersCollection->BuildTime < this->Self->GetMTime() ||
+      glyphParametersCollection->BuildTime < this->BlockMTime)
+    {
+      rebuild = true;
+    }
     // get the mask array
     vtkBitArray* maskArray = nullptr;
     if (this->Self->Masking)
@@ -1102,8 +1239,8 @@ public:
           // scalars are pre-mapped into glyphParameters->Colors using the ColorMapper
           mapper->ScalarVisibilityOff();
           mapper->Initialize(mesh, glyphParameters->NumberOfPoints, &glyphParameters->Colors,
-            &glyphParameters->Transforms, &glyphParameters->NormalTransforms, flatIndex, pickable,
-            glyphParameters->BuildTime);
+            &glyphParameters->Transforms, &glyphParameters->NormalTransforms,
+            &glyphParameters->PickIds, flatIndex, pickable, glyphParameters->BuildTime);
           mapper->RenderPiece(renderer, actor);
         }
 
@@ -1253,6 +1390,7 @@ public:
       }
     }
 
+    auto* selectionArray = mapper->GetSelectionIdArray(dataset);
     auto* indexArray = mapper->GetSourceIndexArray(dataset);
     auto* scaleArray = mapper->GetScaleArray(dataset);
 
@@ -1292,6 +1430,7 @@ public:
     for (std::size_t i = 0; i < glyphParametersCollection->Entries.size(); ++i)
     {
       auto& glyphParameters = glyphParametersCollection->Entries[i];
+      glyphParameters->PickIds.resize(numberOfPointsGlyphedPerSource[i]);
       glyphParameters->Colors.resize(numberOfPointsGlyphedPerSource[i] * 4);
       glyphParameters->Transforms.resize(numberOfPointsGlyphedPerSource[i] * 16);
       glyphParameters->NormalTransforms.resize(numberOfPointsGlyphedPerSource[i] * 9);
@@ -1480,6 +1619,22 @@ public:
           }
         } // if orientationArray
 
+        // Set pickid
+        // Use selectionArray value or glyph point ID.
+        vtkIdType selectionId = pointId;
+        if (mapper->UseSelectionIds)
+        {
+          if (selectionArray == nullptr || selectionArray->GetNumberOfTuples() == 0)
+          {
+            vtkWarningWithObjectMacro(mapper, << "UseSelectionIds is true, but selection array"
+                                                 " is invalid. Ignoring selection array.");
+          }
+          else
+          {
+            selectionId = static_cast<vtkIdType>(*selectionArray->GetTuple(pointId));
+          }
+        }
+        glyphParameters->PickIds[glyphParameters->NumberOfPoints] = selectionId;
         if (colors)
         {
           std::array<unsigned char, 4> ubColor;

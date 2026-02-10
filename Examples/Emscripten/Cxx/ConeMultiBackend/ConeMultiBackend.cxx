@@ -7,6 +7,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -23,6 +24,8 @@
 
 int main(int argc, char* argv[])
 {
+  // Initialize object factory preferences from command line arguments
+  vtkObjectFactory::InitializePreferencesFromCommandLineArgs(argc, argv);
   // Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;

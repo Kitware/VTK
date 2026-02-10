@@ -83,18 +83,22 @@ vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInt
     cFragment.targets = cTargets.data();
     descriptor->fragment = &cFragment;
 
-    wgpu::BlendComponent blendComponent;
-    blendComponent.srcFactor = wgpu::BlendFactor::One;
-    blendComponent.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
-    blendComponent.operation = wgpu::BlendOperation::Add;
+    wgpu::BlendComponent colorBlendComponent;
+    colorBlendComponent.srcFactor = wgpu::BlendFactor::SrcAlpha;
+    colorBlendComponent.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
+    colorBlendComponent.operation = wgpu::BlendOperation::Add;
+    wgpu::BlendComponent alphaBlendComponent;
+    alphaBlendComponent.srcFactor = wgpu::BlendFactor::One;
+    alphaBlendComponent.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
+    alphaBlendComponent.operation = wgpu::BlendOperation::Add;
 
     for (uint32_t i = 0; i < kMaxColorAttachments; ++i)
     {
       cTargets[i].format = wgpu::TextureFormat::RGBA8Unorm;
       cTargets[i].writeMask = wgpu::ColorWriteMask::All;
 
-      cBlends[i].color = blendComponent;
-      cBlends[i].alpha = blendComponent;
+      cBlends[i].color = colorBlendComponent;
+      cBlends[i].alpha = alphaBlendComponent;
     }
   }
 }
