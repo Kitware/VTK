@@ -528,21 +528,20 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
 
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
-  hid_t group, const char* name, vtkIdType value)
+  hid_t group, const char* name, const std::vector<vtkIdType>& values)
 {
-  std::vector<hsize_t> dimensions{ 1 };
   return this->CreateAndWriteHdfDataset(
-    group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, dimensions, &value);
+    group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, { values.size() }, values.data());
 }
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
-  hid_t dataset, vtkIdType value, bool offset, bool trim)
+  hid_t dataset, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
-  vtkDebugWithObjectMacro(this->Writer, "Adding 1 value to " << this->GetGroupName(dataset));
+  vtkDebugWithObjectMacro(this->Writer, "Adding 1 row to " << this->GetGroupName(dataset));
   // Create a new dataspace containing a single value
-  constexpr hsize_t addedDims[1] = { 1 };
-  vtkHDF::ScopedH5SHandle newDataspace = H5Screate_simple(1, addedDims, nullptr);
+  const hsize_t rowSize = values.size();
+  vtkHDF::ScopedH5SHandle newDataspace = H5Screate_simple(1, &rowSize, nullptr);
   if (newDataspace == H5I_INVALID_HID)
   {
     return false;
@@ -556,23 +555,31 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
   }
 
   // Retrieve current dataspace dimensions
-  hsize_t currentdims[1] = { 0 };
-  H5Sget_simple_extent_dims(currentDataspace, currentdims, nullptr);
-  const hsize_t newdims[1] = { currentdims[0] + addedDims[0] };
+  std::vector<hsize_t> currentSize(2, 0);
+  H5Sget_simple_extent_dims(currentDataspace, currentSize.data(), nullptr);
 
-  // Add the last value of the dataset if we want an offset (only for arrays of stride 1)
-  if (offset && currentdims[0] > 0)
+  // Add the last row values of the dataset if we want an offset
+  std::vector<vtkIdType> addedValues(values.begin(), values.end());
+  if (offset && currentSize[0] > 0)
   {
     std::vector<vtkIdType> allValues;
-    allValues.resize(currentdims[0]);
+    allValues.resize(currentSize[0] * rowSize);
     H5Dread(dataset, H5T_STD_I64LE, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
-    value += allValues.back();
+    for (hsize_t i = 0; i < rowSize; i++)
+    {
+      addedValues[i] += allValues[(currentSize[0] - 1) * rowSize + i];
+    }
   }
 
   // Resize dataset
+  std::vector<hsize_t> newDims{ currentSize[0] + 1 };
+  if (rowSize > 1)
+  {
+    newDims.emplace_back(rowSize);
+  }
   if (!trim)
   {
-    if (H5Dset_extent(dataset, newdims) < 0)
+    if (H5Dset_extent(dataset, newDims.data()) < 0)
     {
       return false;
     }
@@ -582,12 +589,18 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
       return false;
     }
   }
-  hsize_t start[1] = { currentdims[0] - trim };
-  hsize_t count[1] = { addedDims[0] };
-  H5Sselect_hyperslab(currentDataspace, H5S_SELECT_SET, start, nullptr, count, nullptr);
+  std::vector<hsize_t> startPos{ currentSize[0] - trim };
+  std::vector<hsize_t> count{ 1, rowSize };
+  if (rowSize > 1)
+  {
+    startPos.emplace_back(0); // Add at column 0
+  }
+  H5Sselect_hyperslab(
+    currentDataspace, H5S_SELECT_SET, startPos.data(), nullptr, count.data(), nullptr);
 
   // Write new data to the dataset
-  if (H5Dwrite(dataset, H5T_STD_I64LE, newDataspace, currentDataspace, H5P_DEFAULT, &value) < 0)
+  if (H5Dwrite(dataset, H5T_STD_I64LE, newDataspace, currentDataspace, H5P_DEFAULT,
+        addedValues.data()) < 0)
   {
     return false;
   }
@@ -681,7 +694,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
-  hid_t group, const char* name, vtkIdType value, bool offset, bool trim)
+  hid_t group, const char* name, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
@@ -689,7 +702,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   {
     if (this->SubFilesReady)
     {
-      return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, 1);
+      return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, values.size());
     }
     return true;
   }
@@ -697,7 +710,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   if (!H5Lexists(group, name, H5P_DEFAULT))
   {
     // Dataset needs to be created
-    return this->CreateSingleValueDataset(group, name, value) != H5I_INVALID_HID;
+    return this->CreateSingleValueDataset(group, name, values) != H5I_INVALID_HID;
   }
   else
   {
@@ -707,7 +720,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
     {
       return false;
     }
-    return this->AddSingleValueToDataset(dataset, value, offset, trim);
+    return this->AddSingleValueToDataset(dataset, values, offset, trim);
   }
 }
 
@@ -1297,7 +1310,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
         PATH::STEPS + "/" + std::string(name), part, step);
     }
 
-    if (!this->AddSingleValueToDataset(dataset, totalForTimeStep, false, false))
+    if (!this->AddSingleValueToDataset(dataset, { totalForTimeStep }, false, false))
     {
       return false;
     }

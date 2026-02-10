@@ -233,10 +233,11 @@ public:
 
   ///@{
   /**
-   * Creates a dataset and write a value to it.
+   * Creates a dataset and write a row of values to it.
    * Returned scoped handle may be invalid
    */
-  vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, vtkIdType value);
+  vtkHDF::ScopedH5DHandle CreateSingleValueDataset(
+    hid_t group, const char* name, const std::vector<vtkIdType>& values);
   ///@}
 
   /**
@@ -253,7 +254,8 @@ public:
    * of appending it to the dataset.
    * Return true if the write operation was successful.
    */
-  bool AddSingleValueToDataset(hid_t dataset, vtkIdType value, bool offset, bool trim = false);
+  bool AddSingleValueToDataset(
+    hid_t dataset, const std::vector<vtkIdType>& value, bool offset, bool trim = false);
 
   /**
    * Add a 2D value of integer type to an existing dataspace which represents the FieldDataSize.
@@ -279,14 +281,14 @@ public:
   bool AddOrCreateDataset(hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray);
 
   /**
-   * Append a single integer value to the dataset with name `name` in `group` group.
+   * Append a single row of integer values to the dataset with name `name` in `group` group.
    * Create the dataset and dataspace if it does not exist yet.
    * When offset is true, the value written to the dataset is offset by the previous value of the
    * dataspace.
    * Return true if the operation is successful.
    */
-  bool AddOrCreateSingleValueDataset(
-    hid_t group, const char* name, vtkIdType value, bool offset = false, bool trim = false);
+  bool AddOrCreateSingleValueDataset(hid_t group, const char* name,
+    const std::vector<vtkIdType>& value, bool offset = false, bool trim = false);
 
   /**
    * Append a 2D integer value to the dataset with name `FieldDataSize`.
