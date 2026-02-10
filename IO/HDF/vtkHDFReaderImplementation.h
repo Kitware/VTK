@@ -208,7 +208,8 @@ public:
   /**
    * Read the AMR topology based on offset data on AMRBlocks.
    */
-  bool ReadAMRTopology(vtkOverlappingAMR* data, double origin[3], bool isTemporalData);
+  bool ReadAMRTopology(
+    vtkOverlappingAMR* data, unsigned int maxLevel, double origin[3], bool isTemporalData);
 
   /**
    * Get the temporal offset for a specific attribute

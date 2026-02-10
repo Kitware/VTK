@@ -880,16 +880,17 @@ bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
 
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadAMRTopology(
-  vtkOverlappingAMR* data, double origin[3], bool isTemporalData)
+  vtkOverlappingAMR* data, unsigned int maxLevel, double origin[3], bool isTemporalData)
 {
-  if (this->AMRInformation.BlocksPerLevel.empty())
+  if (this->AMRInformation.BlocksPerLevel.empty() ||
+    maxLevel > this->AMRInformation.BlocksPerLevel.size())
   {
     return false;
   }
 
   std::vector<unsigned int> blocksPerLevel;
-  blocksPerLevel.reserve(this->AMRInformation.BlocksPerLevel.size());
-  for (size_t i = 0; i < this->AMRInformation.BlocksPerLevel.size(); i++)
+  blocksPerLevel.reserve(maxLevel);
+  for (size_t i = 0; i < maxLevel; i++)
   {
     blocksPerLevel.emplace_back(this->AMRInformation.BlocksPerLevel[i]);
   }
@@ -897,7 +898,7 @@ bool vtkHDFReader::Implementation::ReadAMRTopology(
   data->SetOrigin(origin);
   data->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 
-  for (unsigned int level = 0; level < this->AMRInformation.BlocksPerLevel.size(); level++)
+  for (unsigned int level = 0; level < maxLevel; level++)
   {
     std::string levelGroupName = "Level" + vtk::to_string(level);
     if (!this->ReadLevelTopology(level, levelGroupName, data, origin, isTemporalData))
