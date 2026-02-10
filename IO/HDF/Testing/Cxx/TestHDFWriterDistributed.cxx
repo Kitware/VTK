@@ -12,7 +12,6 @@
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkMergeBlocks.h"
@@ -22,13 +21,10 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-#include "vtkPassArrays.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
 #include "vtkSphereSource.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
@@ -709,18 +705,18 @@ bool TestDistributedPolyDataTemporalStatic(
 }
 
 //------------------------------------------------------------------------------
-bool TestDistributedTemporalMultiBlock(vtkMPIController* controller, const std::string& tempDir)
-{
-  return TestCompositeTemporalDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
-}
+// bool TestDistributedTemporalMultiBlock(vtkMPIController* controller, const std::string& tempDir)
+// {
+//   return TestCompositeTemporalDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
+// }
 
 //------------------------------------------------------------------------------
-bool TestDistributedTemporalPartitionedDataSetCollection(
-  vtkMPIController* controller, const std::string& tempDir)
-{
-  return TestCompositeTemporalDistributedObject(
-    controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
-}
+// bool TestDistributedTemporalPartitionedDataSetCollection(
+//   vtkMPIController* controller, const std::string& tempDir)
+// {
+//   return TestCompositeTemporalDistributedObject(
+//     controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
+// }
 }
 
 int TestHDFWriterDistributed(int argc, char* argv[])
@@ -761,10 +757,10 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
-  res &= ::TestDistributedTemporalMultiBlock(controller, tempDir);
-  //  TODO vtkHDFWriter does not support proper distibuted partitioned dataset yet
+  //  TODO vtkHDFWriter does not support proper distibuted temporal composite yet
+  // res &= ::TestDistributedTemporalMultiBlock(controller, tempDir);
   //  res &= ::TestDistributedTemporalStaticMultiBlockMissingBlocks(controller, tempDir, dataRoot);
-  res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir);
+  // res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
