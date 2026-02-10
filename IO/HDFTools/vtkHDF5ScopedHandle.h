@@ -3,6 +3,7 @@
 #ifndef vtkHDF5ScopedHandle_h
 #define vtkHDF5ScopedHandle_h
 
+#include "vtkABINamespace.h"
 #include "vtk_hdf5.h"
 
 #include <algorithm>

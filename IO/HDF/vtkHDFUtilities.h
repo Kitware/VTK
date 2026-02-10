@@ -11,13 +11,10 @@
 
 #include "vtkDataArray.h"
 #include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
-#include "vtkHDF5ScopedHandle.h"
 #include "vtkIOHDFModule.h" // For export macro
-#include "vtkLogger.h"
-#include "vtkPolyData.h"
-#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkType.h"
+#include "vtk_hdf5.h"
 
 #include <array>
 #include <string>

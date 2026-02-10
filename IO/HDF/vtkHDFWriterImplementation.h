@@ -13,9 +13,9 @@
 #include "vtkAbstractArray.h"
 #include "vtkCellArray.h"
 #include "vtkHDF5ScopedHandle.h"
-#include "vtkHDFUtilities.h"
 #include "vtkHDFWriter.h"
 #include "vtkType.h"
+#include "vtk_hdf5.h"
 
 #include <array>
 #include <string>

@@ -10,7 +10,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkDummyController.h"
-#include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFWriterImplementation.h"
@@ -21,14 +20,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkSmartPointer.h"
-#include "vtkStringFormatter.h"
-
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+#include <functional>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN

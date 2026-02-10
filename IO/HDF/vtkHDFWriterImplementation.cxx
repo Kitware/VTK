@@ -3,15 +3,15 @@
 #include "vtkHDFWriterImplementation.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkFieldData.h"
 #include "vtkHDF5ScopedHandle.h"
+#include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
 #include "vtkLogger.h"
+#include "vtkPolyData.h"
 #include "vtkStringFormatter.h"
 #include "vtkType.h"
 
-#include "vtk_hdf5.h"
-
-#include <algorithm>
 #include <numeric>
 #include <sstream>
 #include <vector>
