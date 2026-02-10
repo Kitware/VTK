@@ -295,10 +295,11 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
 }
 
 //------------------------------------------------------------------------------
-void vtkJSONDataSetWriter::WriteData()
+bool vtkJSONDataSetWriter::WriteDataAndReturn()
 {
   vtkDataSet* dataset = this->GetInput();
   this->Write(dataset);
+  return this->ValidDataSet;
 }
 
 //------------------------------------------------------------------------------

@@ -94,12 +94,12 @@ int vtkWriter::RequestData(vtkInformation*, vtkInformationVector**, vtkInformati
   }
 
   this->InvokeEvent(vtkCommand::StartEvent, nullptr);
-  this->WriteData();
+  bool ret = this->WriteDataAndReturn();
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   this->WriteTime.Modified();
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)

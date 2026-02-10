@@ -24,7 +24,7 @@ vtkSimplePointsWriter::vtkSimplePointsWriter()
   this->DecimalPrecision = fout.precision();
 }
 
-void vtkSimplePointsWriter::WriteData()
+bool vtkSimplePointsWriter::WriteDataAndReturn()
 {
   vtkPointSet* input = vtkPointSet::SafeDownCast(this->GetInput());
   vtkIdType numberOfPoints = 0;
@@ -38,7 +38,7 @@ void vtkSimplePointsWriter::WriteData()
   ostream* outfilep = this->OpenVTKFile();
   if (!outfilep)
   {
-    return;
+    return false;
   }
 
   ostream& outfile = *outfilep;
@@ -59,7 +59,9 @@ void vtkSimplePointsWriter::WriteData()
   {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     unlink(this->FileName);
+    return false;
   }
+  return true;
 }
 
 void vtkSimplePointsWriter::PrintSelf(ostream& os, vtkIndent indent)

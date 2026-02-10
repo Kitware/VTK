@@ -73,7 +73,7 @@ protected:
   bool OpenFile();
   void CloseFile();
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
   virtual void WriteTable(vtkTable* table, ostream* stream_ptr);
 
   // see algorithm for more info.

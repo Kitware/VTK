@@ -24,7 +24,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegacyStatisticalModelWriter);
 
-void vtkLegacyStatisticalModelWriter::WriteData()
+bool vtkLegacyStatisticalModelWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkStatisticalModel* input = vtkStatisticalModel::SafeDownCast(this->GetInput());
@@ -39,7 +39,7 @@ void vtkLegacyStatisticalModelWriter::WriteData()
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
-    return;
+    return false;
   }
 
   // Figure out how many table groups we will write:
@@ -129,6 +129,7 @@ void vtkLegacyStatisticalModelWriter::WriteData()
   }
   // *fp << "\n";
   this->CloseVTKFile(fp);
+  return true;
 }
 
 int vtkLegacyStatisticalModelWriter::FillInputPortInformation(int, vtkInformation* info)

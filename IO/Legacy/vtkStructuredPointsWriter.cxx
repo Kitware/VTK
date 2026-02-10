@@ -15,7 +15,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
-void vtkStructuredPointsWriter::WriteData()
+bool vtkStructuredPointsWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
@@ -33,7 +33,7 @@ void vtkStructuredPointsWriter::WriteData()
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
-    return;
+    return false;
   }
   //
   // Write structured points specific stuff
@@ -46,7 +46,7 @@ void vtkStructuredPointsWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   if (this->WriteExtent)
@@ -86,17 +86,18 @@ void vtkStructuredPointsWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
   if (!this->WritePointData(fp, input))
   {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   this->CloseVTKFile(fp);
+  return true;
 }
 
 int vtkStructuredPointsWriter::FillInputPortInformation(int, vtkInformation* info)

@@ -27,7 +27,7 @@ void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree)
   }
 }
 
-void vtkTreeWriter::WriteData()
+bool vtkTreeWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkTree* const input = this->GetInput();
@@ -50,7 +50,7 @@ void vtkTreeWriter::WriteData()
         vtkErrorMacro("Could not read memory header. ");
       }
     }
-    return;
+    return false;
   }
 
   *fp << "DATASET TREE\n";
@@ -93,9 +93,10 @@ void vtkTreeWriter::WriteData()
       vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
     }
-    return;
+    return false;
   }
   this->CloseVTKFile(fp);
+  return !error_occurred;
 }
 
 int vtkTreeWriter::FillInputPortInformation(int, vtkInformation* info)

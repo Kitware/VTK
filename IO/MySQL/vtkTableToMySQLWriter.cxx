@@ -25,23 +25,23 @@ vtkTableToMySQLWriter::vtkTableToMySQLWriter()
 vtkTableToMySQLWriter::~vtkTableToMySQLWriter() = default;
 
 //------------------------------------------------------------------------------
-void vtkTableToMySQLWriter::WriteData()
+bool vtkTableToMySQLWriter::WriteDataAndReturn()
 {
   // Make sure we have all the information we need to create a MySQL table
   if (!this->Database)
   {
     vtkErrorMacro(<< "No open database connection");
-    return;
+    return false;
   }
   if (!this->Database->IsA("vtkMySQLDatabase"))
   {
     vtkErrorMacro(<< "Wrong type of database for this writer");
-    return;
+    return false;
   }
   if (this->TableName.empty())
   {
     vtkErrorMacro(<< "No table name specified!");
-    return;
+    return false;
   }
 
   // converting this table to MySQL will require two queries: one to create
@@ -100,6 +100,8 @@ void vtkTableToMySQLWriter::WriteData()
   if (!query->Execute())
   {
     vtkErrorMacro(<< "Error performing 'create table' query");
+    query->Delete();
+    return false;
   }
 
   // iterate over the rows of the vtkTable to complete the insert query
@@ -121,11 +123,14 @@ void vtkTableToMySQLWriter::WriteData()
     if (!query->Execute())
     {
       vtkErrorMacro(<< "Error performing 'insert' query");
+      query->Delete();
+      return false;
     }
   }
 
   // cleanup and return
   query->Delete();
+  return true;
 }
 
 //------------------------------------------------------------------------------

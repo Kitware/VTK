@@ -23,7 +23,7 @@ vtkNewickTreeWriter::vtkNewickTreeWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkNewickTreeWriter::WriteData()
+bool vtkNewickTreeWriter::WriteDataAndReturn()
 {
   vtkDebugMacro(<< "Writing vtk tree data...");
 
@@ -37,7 +37,7 @@ void vtkNewickTreeWriter::WriteData()
   if (!fp)
   {
     vtkErrorMacro("Failed to open output stream");
-    return;
+    return false;
   }
 
   this->WriteVertex(fp, input, input->GetRoot());
@@ -46,6 +46,7 @@ void vtkNewickTreeWriter::WriteData()
   *fp << ";";
 
   this->CloseVTKFile(fp);
+  return true;
 }
 
 //------------------------------------------------------------------------------

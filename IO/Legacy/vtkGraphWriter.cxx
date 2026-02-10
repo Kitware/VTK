@@ -20,7 +20,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphWriter);
 
-void vtkGraphWriter::WriteData()
+bool vtkGraphWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkGraph* const input = this->GetInput();
@@ -43,7 +43,7 @@ void vtkGraphWriter::WriteData()
         vtkErrorMacro("Could not read memory header. ");
       }
     }
-    return;
+    return false;
   }
 
   vtkMolecule* mol = vtkMolecule::SafeDownCast(input);
@@ -104,9 +104,10 @@ void vtkGraphWriter::WriteData()
       vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
     }
-    return;
+    return false;
   }
   this->CloseVTKFile(fp);
+  return error_occurred == 0;
 }
 
 void vtkGraphWriter::WriteMoleculeData(std::ostream* fp, vtkMolecule* m)

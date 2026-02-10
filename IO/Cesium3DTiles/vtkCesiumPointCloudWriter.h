@@ -42,7 +42,7 @@ protected:
   vtkCesiumPointCloudWriter();
   ~vtkCesiumPointCloudWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;

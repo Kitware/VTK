@@ -70,7 +70,7 @@ typedef struct
   unsigned char alpha;
 } plyFace;
 
-void vtkPLYWriter::WriteData()
+bool vtkPLYWriter::WriteDataAndReturn()
 {
   vtkIdType i, j, idx;
   vtkPoints* inPts;
@@ -130,7 +130,7 @@ void vtkPLYWriter::WriteData()
   if (inPts == nullptr || polys == nullptr)
   {
     vtkErrorMacro(<< "No data to write!");
-    return;
+    return false;
   }
 
   // Open the file in appropriate way
@@ -155,7 +155,7 @@ void vtkPLYWriter::WriteData()
   {
     vtkErrorMacro(<< "Error opening PLY file");
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    return;
+    return false;
   }
 
   // compute colors, if any
@@ -275,7 +275,7 @@ void vtkPLYWriter::WriteData()
     polys->GetNextCell(npts, pts);
     if (npts > 256)
     {
-      vtkErrorMacro(<< "Ply file only supports polygons with <256 points");
+      vtkWarningMacro(<< "Ply file only supports polygons with <256 points");
     }
     else
     {
@@ -301,6 +301,7 @@ void vtkPLYWriter::WriteData()
 
   // close the PLY file
   vtkPLY::ply_close(ply);
+  return true;
 }
 
 vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(

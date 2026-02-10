@@ -39,7 +39,7 @@ protected:
   vtkGraphWriter() = default;
   ~vtkGraphWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   void WriteMoleculeData(ostream* fp, vtkMolecule* m);
 

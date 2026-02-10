@@ -185,7 +185,7 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
     return 1;
   }
 
-  this->WriteData();
+  bool ret = this->WriteDataAndReturn();
 
   if (this->IsTemporal)
   {
@@ -210,7 +210,7 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
     this->Impl->CloseFile();
   }
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::WriteData()
+bool vtkHDFWriter::WriteDataAndReturn()
 {
   this->Impl->SetSubFilesReady(false);
 
@@ -259,7 +259,7 @@ void vtkHDFWriter::WriteData()
       if (!this->Impl->CreateFile(this->Overwrite, this->FileName))
       {
         vtkErrorMacro(<< "Could not create file : " << this->FileName);
-        return;
+        return false;
       }
     }
   }
@@ -285,11 +285,12 @@ void vtkHDFWriter::WriteData()
     if (!writer->Write())
     {
       vtkErrorMacro(<< "Could not write timestep file " << subFilePath);
-      return;
+      return false;
     }
     if (!this->Impl->OpenSubfile(subFilePath))
     {
       vtkErrorMacro(<< "Could not open subfile" << subFilePath);
+      return false;
     }
     if (this->CurrentTimeIndex == this->NumberOfTimeSteps - 1)
     {
@@ -299,24 +300,25 @@ void vtkHDFWriter::WriteData()
     }
   }
 
-  this->DispatchDataObject(this->Impl->GetRoot(), input);
+  bool ret = this->DispatchDataObject(this->Impl->GetRoot(), input);
 
   this->UpdatePreviousStepMeshMTime(input);
 
   // Write the metafile for distributed datasets, gathering information from all timesteps
   if (this->NbPieces > 1)
   {
-    this->WriteDistributedMetafile(input);
+    ret &= this->WriteDistributedMetafile(input);
   }
+  return ret;
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
+bool vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 {
   // Only relevant on the last time step
   if (this->IsTemporal && this->CurrentTimeIndex != this->NumberOfTimeSteps - 1)
   {
-    return;
+    return true;
   }
 
   this->Impl->CloseFile();
@@ -324,6 +326,7 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
   // Make sure all processes have written and closed their associated subfile
   this->Controller->Barrier();
 
+  bool ret = true;
   if (this->CurrentPiece == 0)
   {
     this->Impl->CreateFile(this->Overwrite, this->FileName);
@@ -345,26 +348,27 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     instead of writing the data actually associated to the input data object,
     write commands will instead gather information from all previously written distributed
     pieces, and create virtual datasets referencing them. */
-    this->DispatchDataObject(this->Impl->GetRoot(), input);
+    ret = this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
 
   // Set the time value back to where it was, to stop executing
   this->CurrentTimeIndex = this->NumberOfTimeSteps - 1;
+  return ret;
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId)
+bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId)
 {
   if (!input)
   {
     vtkErrorMacro(<< "A vtkDataObject input is required.");
-    return;
+    return false;
   }
 
   if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use.");
-    return;
+    return false;
   }
 
   vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
@@ -373,9 +377,9 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     if (!this->WriteDatasetToFile(group, polydata, partId))
     {
       vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
-      return;
+      return false;
     }
-    return;
+    return true;
   }
   vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
   if (unstructuredGrid)
@@ -383,9 +387,9 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     if (!this->WriteDatasetToFile(group, unstructuredGrid, partId))
     {
       vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
-      return;
+      return false;
     }
-    return;
+    return true;
   }
   vtkPartitionedDataSet* partitioned = vtkPartitionedDataSet::SafeDownCast(input);
   if (partitioned)
@@ -393,9 +397,9 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     if (!this->WriteDatasetToFile(group, partitioned))
     {
       vtkErrorMacro(<< "Can't write partitionedDataSet to file:" << this->FileName);
-      return;
+      return false;
     }
-    return;
+    return true;
   }
   vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(input);
   if (tree)
@@ -403,12 +407,13 @@ void vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     if (!this->WriteDatasetToFile(group, tree))
     {
       vtkErrorMacro(<< "Can't write vtkDataObjectTree to file:" << this->FileName);
-      return;
+      return false;
     }
-    return;
+    return true;
   }
 
   vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -494,6 +499,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
+  bool ret = true;
   for (unsigned int partIndex = 0; partIndex < input->GetNumberOfPartitions(); partIndex++)
   {
     // Write individual partitions in different files
@@ -530,9 +536,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
 
     vtkDataSet* partition = input->GetPartition(partIndex);
-    this->DispatchDataObject(group, partition, partIndex);
+    ret &= this->DispatchDataObject(group, partition, partIndex);
   }
-  return true;
+  return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -1345,6 +1351,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc)
 {
+  bool ret = true;
   for (unsigned int datasetId = 0; datasetId < pdc->GetNumberOfPartitionedDataSets(); datasetId++)
   {
     vtkHDF::ScopedH5GHandle datasetGroup;
@@ -1370,7 +1377,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
         datasetGroup = this->Impl->OpenExistingGroup(group, currentName.c_str());
       }
       this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
-      this->DispatchDataObject(datasetGroup, currentBlock);
+      ret &= this->DispatchDataObject(datasetGroup, currentBlock);
       if (auto ds = vtkDataSet::SafeDownCast(currentBlock->GetPartition(0)))
       {
         this->CompositeMeshMTime[datasetId] = ds->GetMeshMTime();
@@ -1387,7 +1394,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     }
   }
 
-  return true;
+  return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -1551,13 +1558,18 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::AppendIterDataObject(
+bool vtkHDFWriter::AppendIterDataObject(
   vtkDataObjectTreeIterator* treeIter, const int& leafIndex, const std::string& uniqueSubTreeName)
 {
   this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
-  this->DispatchDataObject(
-    this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
-    treeIter->GetCurrentDataObject());
+
+  if (!this->DispatchDataObject(
+        this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
+        treeIter->GetCurrentDataObject()))
+  {
+    return false;
+  }
+
   auto ds = vtkDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
   auto pds = vtkPartitionedDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
   if (ds)
@@ -1581,10 +1593,11 @@ void vtkHDFWriter::AppendIterDataObject(
   {
     this->CompositeMeshMTime[leafIndex] = this->CurrentTimeIndex + 1;
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName)
+bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName)
 {
   // In multi-piece/distributed, it is possible that one piece is null for the rank 0
   // writing the virtual structure. We try to infer the actual type of the current
@@ -1599,24 +1612,26 @@ void vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
   vtkHDF::ScopedH5GHandle nonNullPart = this->Impl->GetSubfileNonNullPart(blockPath, type);
   if (nonNullPart == H5I_INVALID_HID)
   {
-    return; // Leaf is null for every subfile
+    return true; // Leaf is null for every subfile
   }
 
+  bool ret = false;
   if (type == VTK_UNSTRUCTURED_GRID)
   {
     // Get all arrays from the non null part
     vtkNew<vtkUnstructuredGrid> ug;
     this->Impl->CreateArraysFromNonNullPart(nonNullPart, ug);
-    this->DispatchDataObject(
+    ret = this->DispatchDataObject(
       this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), ug);
   }
   else if (type == VTK_POLY_DATA)
   {
     vtkNew<vtkPolyData> pd;
     this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
-    this->DispatchDataObject(
+    ret = this->DispatchDataObject(
       this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
   }
+  return ret;
 }
 
 //------------------------------------------------------------------------------

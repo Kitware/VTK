@@ -125,8 +125,7 @@ protected:
 
   bool OpenStream();
 
-  void WriteData() override;
-  virtual void WriteTable(vtkTable* table);
+  bool WriteDataAndReturn() override;
 
   // see algorithm for more info.
   // This writer takes in vtkTable.
@@ -144,6 +143,8 @@ protected:
 private:
   vtkDelimitedTextWriter(const vtkDelimitedTextWriter&) = delete;
   void operator=(const vtkDelimitedTextWriter&) = delete;
+
+  bool WriteTable(vtkTable* table);
 };
 
 VTK_ABI_NAMESPACE_END

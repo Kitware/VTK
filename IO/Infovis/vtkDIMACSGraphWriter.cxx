@@ -18,7 +18,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDIMACSGraphWriter);
 
-void vtkDIMACSGraphWriter::WriteData()
+bool vtkDIMACSGraphWriter::WriteDataAndReturn()
 {
   vtkGraph* const input = this->GetInput();
 
@@ -28,7 +28,7 @@ void vtkDIMACSGraphWriter::WriteData()
   if (!fp)
   {
     vtkErrorMacro("Failed to open output stream");
-    return;
+    return false;
   }
 
   *fp << "c vtkGraph as DIMACS format\n";
@@ -78,6 +78,7 @@ void vtkDIMACSGraphWriter::WriteData()
   //       from 1..n.
 
   this->CloseVTKFile(fp);
+  return true;
 }
 
 int vtkDIMACSGraphWriter::FillInputPortInformation(int, vtkInformation* info)

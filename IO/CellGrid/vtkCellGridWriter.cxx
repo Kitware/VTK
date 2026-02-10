@@ -388,26 +388,26 @@ bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
   return true;
 }
 
-void vtkCellGridWriter::WriteData()
+bool vtkCellGridWriter::WriteDataAndReturn()
 {
   if (!this->FileName || !this->FileName[0])
   {
     vtkErrorMacro("No filename set.");
-    return;
+    return false;
   }
 
   auto* grid = this->GetInput();
   if (!grid)
   {
     vtkErrorMacro("No input dataset to write to \"" << this->FileName << "\"");
-    return;
+    return false;
   }
 
   std::ofstream output(this->FileName);
   if (!output.good())
   {
     vtkErrorMacro("Could not open \"" << this->FileName << "\" for writing.");
-    return;
+    return false;
   }
 
   nlohmann::json data;
@@ -435,8 +435,10 @@ void vtkCellGridWriter::WriteData()
   else
   {
     vtkErrorMacro("Could not write JSON to \"" << this->FileName << "\".");
-    return; /* 0 */
+    return false;
   }
+
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END

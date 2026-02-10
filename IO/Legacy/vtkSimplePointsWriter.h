@@ -31,7 +31,7 @@ protected:
   vtkSimplePointsWriter();
   ~vtkSimplePointsWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   int DecimalPrecision;
 

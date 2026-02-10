@@ -27,7 +27,7 @@ vtkMCubesWriter::~vtkMCubesWriter()
 }
 
 // Write out data in MOVIE.BYU format.
-void vtkMCubesWriter::WriteData()
+bool vtkMCubesWriter::WriteDataAndReturn()
 {
   vtkPoints* pts;
   vtkDataArray* normals;
@@ -39,20 +39,20 @@ void vtkMCubesWriter::WriteData()
   if (pts == nullptr || polys == nullptr)
   {
     vtkErrorMacro(<< "No data to write!");
-    return;
+    return false;
   }
 
   normals = input->GetPointData()->GetNormals();
   if (normals == nullptr)
   {
     vtkErrorMacro(<< "No normals to write!: use vtkPolyDataNormals to generate them");
-    return;
+    return false;
   }
 
   if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to write");
-    return;
+    return false;
   }
 
   vtkDebugMacro("Writing MCubes tri file");
@@ -60,7 +60,7 @@ void vtkMCubesWriter::WriteData()
   if ((fp = vtksys::SystemTools::Fopen(this->FileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
-    return;
+    return false;
   }
   this->WriteMCubes(fp, pts, normals, polys);
   fclose(fp);
@@ -71,11 +71,12 @@ void vtkMCubesWriter::WriteData()
     if ((fp = vtksys::SystemTools::Fopen(this->LimitsFileName, "w")) == nullptr)
     {
       vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
-      return;
+      return false;
     }
     this->WriteLimits(fp, input->GetBounds());
     fclose(fp);
   }
+  return true;
 }
 
 void vtkMCubesWriter::WriteMCubes(

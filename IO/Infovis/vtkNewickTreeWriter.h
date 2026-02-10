@@ -61,7 +61,7 @@ protected:
   vtkNewickTreeWriter();
   ~vtkNewickTreeWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   /**
    * Write one vertex.  This function calls itself recursively for

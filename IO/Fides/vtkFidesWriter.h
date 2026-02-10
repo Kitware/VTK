@@ -149,7 +149,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
 private:
   vtkFidesWriter(const vtkFidesWriter&) = delete;

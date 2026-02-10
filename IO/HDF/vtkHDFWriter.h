@@ -210,19 +210,19 @@ private:
    * Open destination file and write the input dataset to the file specified by the filename
    * attribute in vtkHDF format.
    */
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   /**
    * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
    * Data will be written in the specified group, which must already exist.
    */
-  void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+  bool DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
   /**
    * For distributed datasets, write the meta-file referencing sub-files using Virtual Datasets.
    * This file is written only on process/piece 0
    */
-  void WriteDistributedMetafile(vtkDataObject* input);
+  bool WriteDistributedMetafile(vtkDataObject* input);
 
   ///@{
   /**
@@ -355,7 +355,7 @@ private:
    * Write the current non-null composite block with given index to the root group with the given
    * unique name, properly setting MeshMTime for the block
    */
-  void AppendIterDataObject(vtkDataObjectTreeIterator* treeIter, const int& leafIndex,
+  bool AppendIterDataObject(vtkDataObjectTreeIterator* treeIter, const int& leafIndex,
     const std::string& uniqueSubTreeName);
 
   /**
@@ -364,7 +364,7 @@ private:
    * composite block is null for rank 0 but not for other ranks, and block characteristics (type,
    * arrays) need to be deducted from non-null ranks first.
    */
-  void AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName);
+  bool AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName);
 
   ///@{
   /**

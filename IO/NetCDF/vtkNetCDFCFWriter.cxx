@@ -610,7 +610,7 @@ vtkNetCDFCFWriter::~vtkNetCDFCFWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkNetCDFCFWriter::WriteData()
+bool vtkNetCDFCFWriter::WriteDataAndReturn()
 {
   try
   {
@@ -708,7 +708,10 @@ void vtkNetCDFCFWriter::WriteData()
   catch (const std::runtime_error& e)
   {
     vtkErrorMacro(<< e.what());
+    return false;
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

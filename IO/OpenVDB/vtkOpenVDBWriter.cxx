@@ -447,8 +447,9 @@ int vtkOpenVDBWriter::ProcessRequest(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenVDBWriter::WriteData()
+bool vtkOpenVDBWriter::WriteDataAndReturn()
 {
+  bool ret = true;
   if (vtkImageData* imageData = vtkImageData::SafeDownCast(this->GetInput()))
   {
     this->WriteImageData(imageData);
@@ -457,7 +458,13 @@ void vtkOpenVDBWriter::WriteData()
   {
     this->WritePointSet(pointSet);
   }
+  else
+  {
+    vtkErrorMacro("Could not write a non-image, non-pointset data");
+    ret = false;
+  }
   this->Internals->CurrentTimeIndex++;
+  return ret;
 }
 
 //-----------------------------------------------------------------------------

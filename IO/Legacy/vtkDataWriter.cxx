@@ -2235,9 +2235,10 @@ int vtkDataWriter::WriteCells(ostream* fp, vtkCellArray* cells, const char* labe
 }
 
 //------------------------------------------------------------------------------
-void vtkDataWriter::WriteData()
+bool vtkDataWriter::WriteDataAndReturn()
 {
   vtkErrorMacro(<< "WriteData() should be implemented in concrete subclass");
+  return false;
 }
 
 //------------------------------------------------------------------------------

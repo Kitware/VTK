@@ -90,7 +90,11 @@ protected:
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  virtual void WriteData() = 0; // internal method subclasses must respond to
+  /*virtual void WriteData() = 0; // internal method subclasses must respond to
+  virtual bool WriteDataAndReturn() { this->WriteData(); return true; };
+  */
+  virtual bool WriteDataAndReturn() = 0;
+
   vtkTimeStamp WriteTime;
 
 private:

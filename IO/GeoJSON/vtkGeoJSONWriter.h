@@ -95,7 +95,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Implementation of Write()
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   // Helper for Write that writes attributes out
   void WriteScalar(vtkDataArray* da, vtkIdType ptId);

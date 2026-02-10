@@ -22,7 +22,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegacyCellGridWriter);
 
-void vtkLegacyCellGridWriter::WriteData()
+bool vtkLegacyCellGridWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkCellGrid* input = vtkCellGrid::SafeDownCast(this->GetInput());
@@ -37,7 +37,7 @@ void vtkLegacyCellGridWriter::WriteData()
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
-    return;
+    return false;
   }
   //
   // Write cell-grid specific stuff
@@ -52,7 +52,7 @@ void vtkLegacyCellGridWriter::WriteData()
       vtkErrorMacro("Could not write \"" << this->FileName << "\".");
       this->CloseVTKFile(fp);
       unlink(this->FileName);
-      return;
+      return false;
     }
     nlohmann::json::to_msgpack(data, contents);
   }
@@ -62,6 +62,7 @@ void vtkLegacyCellGridWriter::WriteData()
   *fp << "\n";
 
   this->CloseVTKFile(fp);
+  return true;
 }
 
 int vtkLegacyCellGridWriter::FillInputPortInformation(int, vtkInformation* info)

@@ -17,7 +17,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableWriter);
 
-void vtkTableWriter::WriteData()
+bool vtkTableWriter::WriteDataAndReturn()
 {
   ostream* fp = nullptr;
   vtkDebugMacro(<< "Writing vtk table data...");
@@ -30,17 +30,20 @@ void vtkTableWriter::WriteData()
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
-    return;
+    return false;
   }
   //
   // Write table specific stuff
   //
   *fp << "DATASET TABLE\n";
 
-  this->WriteFieldData(fp, this->GetInput()->GetFieldData());
-  this->WriteRowData(fp, this->GetInput());
+  int ret = 1;
+  ret &= this->WriteFieldData(fp, this->GetInput()->GetFieldData());
+  ret &= this->WriteRowData(fp, this->GetInput());
 
   this->CloseVTKFile(fp);
+
+  return ret == 1;
 }
 
 int vtkTableWriter::FillInputPortInformation(int, vtkInformation* info)

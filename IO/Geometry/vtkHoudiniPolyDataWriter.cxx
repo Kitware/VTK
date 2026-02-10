@@ -295,14 +295,14 @@ vtkHoudiniPolyDataWriter::~vtkHoudiniPolyDataWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkHoudiniPolyDataWriter::WriteData()
+bool vtkHoudiniPolyDataWriter::WriteDataAndReturn()
 {
   // Grab the input data
   vtkPolyData* input = vtkPolyData::SafeDownCast(this->GetInput());
   if (!input)
   {
     vtkErrorMacro(<< "Missing input polydata!");
-    return;
+    return false;
   }
 
   // Open the file for streaming
@@ -311,7 +311,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
   if (file.fail())
   {
     vtkErrorMacro(<< "Unable to open file: " << this->FileName);
-    return;
+    return false;
   }
 
   vtkIdType nPrims = 0;
@@ -563,6 +563,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
   file << "endExtra" << endl;
 
   file.close();
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -131,7 +131,7 @@ protected:
   int WritePolygonObject(vtkPolyData* output);
   int WriteLineObject(vtkPolyData* output);
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   char* FileName;
 

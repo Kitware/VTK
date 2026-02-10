@@ -133,7 +133,7 @@ protected:
   vtkIntArray* PatientIds;
   char* Comments;
 
-  void WriteData() override {}
+  bool WriteDataAndReturn() override { return false; }
   virtual void WriteData(vtkPointSet* inputs[2]);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;

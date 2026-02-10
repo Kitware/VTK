@@ -77,7 +77,6 @@ protected:
   vtkAbstractParticleWriter();
   ~vtkAbstractParticleWriter() override;
 
-  void WriteData() override = 0; // internal method subclasses must respond to
   int CollectiveIO;
   int TimeStep;
   double TimeValue;
