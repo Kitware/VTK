@@ -7,6 +7,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -431,6 +432,15 @@ int TestCompositeDataSet(const std::string& dataRoot)
   expectedReader->SetFileName(hdfPath.c_str());
   expectedReader->Update();
   auto expectedData = vtkPartitionedDataSetCollection::SafeDownCast(expectedReader->GetOutput());
+
+  // See https://gitlab.kitware.com/vtk/vtk/-/issues/19935
+  if (std::string(expectedData->GetMetaData(1)->Get(vtkCompositeDataSet::NAME())) != "Block1")
+  {
+    std::cerr << "Expected dataset name 'Block1' but got '"
+              << expectedData->GetMetaData(1)->Get(vtkCompositeDataSet::NAME()) << "' instead."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
 
   const std::string vtpcPath = dataRoot + "/Data/vtkHDF/test_composite.hdf_000000.vtpc";
   vtkNew<vtkXMLPartitionedDataSetCollectionReader> reader;
