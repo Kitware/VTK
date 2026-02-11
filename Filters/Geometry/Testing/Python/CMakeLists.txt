@@ -18,6 +18,7 @@ vtk_add_test_python(
   dataSetSurfaceFilter2.py,NO_DATA,NO_VALID,NO_OUTPUT
   geomFilter.py
   geometryFilterConvexPointSet.py,NO_VALID,NO_OUTPUT
+  geometryFilterGhosts.py
   LagrangeGeometricOperations.py,JUST_VALID
   officeStreamPoints.py
   rectGrid.py

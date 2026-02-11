@@ -34,6 +34,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
 
   def geomPipeline(self, reader):
     geomFilter = vtkGeometryFilter()
+    geomFilter.RemoveGhostInterfacesOff()
     geomFilter.SetInputConnection(reader.GetOutputPort())
     return geomFilter
 
