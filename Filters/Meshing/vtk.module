@@ -12,14 +12,19 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonExecutionModel
-PRIVATE_DEPENDS
+DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::CommonExecutionModel
   VTK::FiltersCore
+PRIVATE_DEPENDS
   VTK::FiltersGeometry
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::FiltersModeling
   VTK::FiltersSources
   VTK::IOLegacy
   VTK::IOXML
-  VTK::TestingCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

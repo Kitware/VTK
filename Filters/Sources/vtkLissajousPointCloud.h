@@ -169,6 +169,10 @@ protected:
   double Radius{ 0. };
   vtkTypeBool AddBackgroundPoints{ false };
   int BackgroundLabel{ -1 };
+
+private:
+  vtkLissajousPointCloud(const vtkLissajousPointCloud&) = delete;
+  void operator=(const vtkLissajousPointCloud&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

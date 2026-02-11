@@ -72,13 +72,18 @@
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
+ * vtkVoronoi2D is deprecated in favor of VTK/Filters/Meshing/vtkVoronoiFlower2D
+ * instead.
+ *
  * @sa
  * vtkDelaunay2D vtkTransformFilter vtkStaticPointLocator2D
+ * vtkVoronoiFlower2D
  */
 
 #ifndef vtkVoronoi2D_h
 #define vtkVoronoi2D_h
 
+#include "vtkDeprecation.h"       // For deprecation macro
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -89,7 +94,9 @@ class vtkAbstractTransform;
 class vtkPointSet;
 class vtkSpheres;
 
-class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkVoronoi2D : public vtkPolyDataAlgorithm
+class VTK_DEPRECATED_IN_9_7_0(
+  "Please use vtkVoronoiFlower2D.") VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkVoronoi2D
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

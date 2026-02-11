@@ -422,7 +422,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
     "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
     "^VTK::CommonDataModelPython-TestClipPolyhedra$"
-    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$")
+    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$"
+
+    # edge rendering issues (OpenGL support abandoned on macos)
+    "^VTK::FiltersMeshingPython-TestVoronoi3D-Lissajous$"
+    "^VTK::FiltersMeshingPython-TestVoronoi3D2$"
+    "^VTK::FiltersMeshingPython-TestVoronoi2D3$"
+    "^VTK::FiltersMeshingPython-TestVoronoi2D$")
 
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
     # Unknown NSInternalInconsistencyException when using macos arm64
