@@ -168,7 +168,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(const std::string& fileNam
 
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadModelMetaDataFromStream(
-  vtkResourceStream* stream, vtkURILoader* loader)
+  vtkResourceStream* stream, vtkURILoader* loader, bool quiet)
 {
   // Create new Model and delete previous one
   this->InternalModel = std::make_shared<Model>();
@@ -187,7 +187,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromStream(
   vtkGLTFDocumentLoaderInternals impl;
   impl.Self = this;
 
-  if (!impl.LoadModelMetaData(this->IsBinary, this->UsedExtensions))
+  if (!impl.LoadModelMetaData(quiet, this->IsBinary, this->UsedExtensions))
   {
     this->InternalModel = nullptr;
     return false;

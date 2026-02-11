@@ -853,7 +853,7 @@ bool vtkGLTFImporter::CanReadFile(vtkResourceStream* stream)
 
   stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
   vtkNew<vtkGLTFDocumentLoader> loader;
-  if (!loader->LoadModelMetaDataFromStream(stream))
+  if (!loader->LoadModelMetaDataFromStream(stream, nullptr, true))
   {
     return false;
   }
