@@ -28,6 +28,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <string>
 
@@ -37,11 +38,10 @@ vtkCxxSetObjectMacro(vtkHDFWriter, Controller, vtkMultiProcessController);
 
 namespace
 {
-constexpr int NUM_POLY_DATA_TOPOS = 4;
 constexpr hsize_t SINGLE_COLUMN = 1;
 
 // Used for chunked arrays with 4 columns (polydata primitive topologies)
-hsize_t PRIMITIVE_CHUNK[] = { 1, NUM_POLY_DATA_TOPOS };
+hsize_t PRIMITIVE_CHUNK[] = { 1, vtkHDFUtilities::NUM_POLY_DATA_TOPOS };
 hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are read one by one
 
 /**
@@ -661,9 +661,9 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input)
   bool result = true;
 
   // Retrieve current # of connectivity values and cells
-  std::vector<vtkIdType> numConnectivityIdsByTopo(NUM_POLY_DATA_TOPOS, 0);
+  std::vector<vtkIdType> numConnectivityIdsByTopo(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
-  for (int i = 0; i < NUM_POLY_DATA_TOPOS; i++)
+  for (std::size_t i = 0; i < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; i++)
   {
     numConnectivityIdsByTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
   }
@@ -681,13 +681,13 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input)
     result &=
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { -1 }, true, true);
 
-    std::vector<vtkIdType> negateNumConn(NUM_POLY_DATA_TOPOS);
+    std::vector<vtkIdType> negateNumConn(vtkHDFUtilities::NUM_POLY_DATA_TOPOS);
     std::transform(numConnectivityIdsByTopo.begin(), numConnectivityIdsByTopo.end(),
-      negateNumConn.begin(), std::negate<vtkIdType>());
+      negateNumConn.begin(), std::negate<>());
     result &= this->Impl->AddOrCreateSingleRowDataset(
       stepsGroup, "ConnectivityIdOffsets", negateNumConn, true, true);
 
-    std::vector<vtkIdType> negateNumCells(NUM_POLY_DATA_TOPOS);
+    std::vector<vtkIdType> negateNumCells(vtkHDFUtilities::NUM_POLY_DATA_TOPOS);
     std::transform(
       numCellsByTopo.begin(), numCellsByTopo.end(), negateNumCells.begin(), std::negate<>());
 
@@ -811,13 +811,13 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
     stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "CellOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "CellOffsets", H5T_STD_I64LE,
+    vtkHDFUtilities::NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE,
+    vtkHDFUtilities::NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
 
   // Add an initial 0 value in the offset arrays
-  std::vector<vtkIdType> emptyTopoArray(NUM_POLY_DATA_TOPOS, 0);
+  std::vector<vtkIdType> emptyTopoArray(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", emptyTopoArray);
