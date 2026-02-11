@@ -156,12 +156,13 @@ public:
   ///@}
 
   /**
-   * Compute the incircle of a polygon. While this method does not enforce that the
+   * Compute a circle interior to a polygon. While this method does not enforce that the
    * polygon is convex, concave polygons may produce unusual results. The incircle
    * algorithm is simple: first the centroid is determined, then the minimum radius
-   * from the centroid to the polygon edges is returned.
+   * from the centroid to the polygon edges is returned. If the polygon is regular,
+   * then the method will produce an incircle.
    */
-  static bool ComputeIncircle(
+  static bool ComputeInteriorCircle(
     vtkPoints* p, int numPts, const vtkIdType* ids, double center[3], double& radius2);
 
   /**

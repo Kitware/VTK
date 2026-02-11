@@ -2359,9 +2359,9 @@ bool vtkPolygon::ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* p, double c[3])
 }
 
 //------------------------------------------------------------------------------
-// Compute the incircle of the polygon from a points list and a list of point ids
+// Compute a circle interior to a polygon from a points list and a list of point ids
 // that index into the points list. Returns false if the computation is invalid.
-bool vtkPolygon::ComputeIncircle(
+bool vtkPolygon::ComputeInteriorCircle(
   vtkPoints* p, int numPts, const vtkIdType* ids, double center[3], double& radius2)
 {
   // First compute the centroid / center.

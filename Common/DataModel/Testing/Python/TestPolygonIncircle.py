@@ -118,7 +118,7 @@ cellSize = cellIds.GetNumberOfIds()
 pts = [i for i in range(cellSize)]
 
 triPolygon = vtkPolygon()
-triPolygon.ComputeIncircle(triPts,cellSize,pts,center,radius2)
+triPolygon.ComputeInteriorCircle(triPts,cellSize,pts,center,radius2)
 triCircle.SetCenter(center)
 triCircle.SetRadius(radius2**0.5)
 triCircleActor.GetProperty().SetLineWidth(4)
@@ -140,7 +140,7 @@ quadCircleActor.AddPosition(0,0,0.01) #avoid zbuffering issues
 cellSize = quadPolygon.GetPointIds().GetNumberOfIds()
 pts = [i for i in range(cellSize)]
 
-quadPolygon.ComputeIncircle(quadPts,cellSize,pts,center,radius2)
+quadPolygon.ComputeInteriorCircle(quadPts,cellSize,pts,center,radius2)
 quadCircle.SetCenter(center)
 quadCircle.SetRadius(radius2**0.5)
 
@@ -164,7 +164,7 @@ cellSize = cellIds.GetNumberOfIds()
 pts = [i for i in range(cellSize)]
 
 pentPolygon = vtkPolygon()
-pentPolygon.ComputeIncircle(pentPts,cellSize,pts,center,radius2)
+pentPolygon.ComputeInteriorCircle(pentPts,cellSize,pts,center,radius2)
 pentCircle.SetCenter(center)
 pentCircle.SetRadius(radius2**0.5)
 
