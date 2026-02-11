@@ -236,7 +236,7 @@ public:
    * Creates a dataset and write a row of values to it.
    * Returned scoped handle may be invalid
    */
-  vtkHDF::ScopedH5DHandle CreateSingleValueDataset(
+  vtkHDF::ScopedH5DHandle CreateSingleRowDataset(
     hid_t group, const char* name, const std::vector<vtkIdType>& values);
   ///@}
 
@@ -249,12 +249,12 @@ public:
     hsize_t chunkSize[], int compressionLevel = 0);
 
   /**
-   * Add a single value of integer type to an existing dataspace.
+   * Add a single row of integer type to an existing dataspace.
    * The trim parameter allows to overwrite the last data instead
    * of appending it to the dataset.
    * Return true if the write operation was successful.
    */
-  bool AddSingleValueToDataset(
+  bool AddSingleRowToDataset(
     hid_t dataset, const std::vector<vtkIdType>& value, bool offset, bool trim = false);
 
   /**
@@ -287,7 +287,7 @@ public:
    * dataspace.
    * Return true if the operation is successful.
    */
-  bool AddOrCreateSingleValueDataset(hid_t group, const char* name,
+  bool AddOrCreateSingleRowDataset(hid_t group, const char* name,
     const std::vector<vtkIdType>& value, bool offset = false, bool trim = false);
 
   /**

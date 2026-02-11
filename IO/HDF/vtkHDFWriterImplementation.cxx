@@ -527,7 +527,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
 }
 
 //------------------------------------------------------------------------------
-vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleRowDataset(
   hid_t group, const char* name, const std::vector<vtkIdType>& values)
 {
   return this->CreateAndWriteHdfDataset(
@@ -535,7 +535,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
+bool vtkHDFWriter::Implementation::AddSingleRowToDataset(
   hid_t dataset, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
   vtkDebugWithObjectMacro(this->Writer, "Adding 1 row to " << this->GetGroupName(dataset));
@@ -693,7 +693,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
+bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(
   hid_t group, const char* name, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
   // Assume that when subfiles are set, we don't need to write data unless
@@ -702,7 +702,8 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   {
     if (this->SubFilesReady)
     {
-      return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, values.size());
+      return this->CreateVirtualDataset(
+        group, name, H5T_STD_I64LE, static_cast<int>(values.size()));
     }
     return true;
   }
@@ -710,7 +711,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
   if (!H5Lexists(group, name, H5P_DEFAULT))
   {
     // Dataset needs to be created
-    return this->CreateSingleValueDataset(group, name, values) != H5I_INVALID_HID;
+    return this->CreateSingleRowDataset(group, name, values) != H5I_INVALID_HID;
   }
   else
   {
@@ -720,7 +721,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
     {
       return false;
     }
-    return this->AddSingleValueToDataset(dataset, values, offset, trim);
+    return this->AddSingleRowToDataset(dataset, values, offset, trim);
   }
 }
 
@@ -1310,7 +1311,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
         PATH::STEPS + "/" + std::string(name), part, step);
     }
 
-    if (!this->AddSingleValueToDataset(dataset, { totalForTimeStep }, false, false))
+    if (!this->AddSingleRowToDataset(dataset, { totalForTimeStep }, false, false))
     {
       return false;
     }
