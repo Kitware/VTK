@@ -3433,10 +3433,17 @@ bool vtkFLUENTReader::ReadZoneSection(int limit)
   }
 
   ZoneSection zoneSection;
-  zoneSection.id = vtk::scan_int<int>(tokens[0])->value();
+  zoneSection.id = vtk::scan_int<unsigned int>(tokens[0])->value();
   zoneSection.name = tokens[1];
   zoneSection.type = tokens[2];
-  zoneSection.domainId = !tokens[3].empty() ? vtk::scan_int<int>(tokens[3])->value() : 0;
+  if (auto scannedValue = vtk::scan_int<unsigned int>(tokens[3]))
+  {
+    zoneSection.domainId = scannedValue->value();
+  }
+  else
+  {
+    zoneSection.domainId = 0;
+  }
 
   this->ZoneSections.push_back(zoneSection);
   return true;
