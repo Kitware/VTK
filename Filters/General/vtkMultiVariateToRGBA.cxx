@@ -14,7 +14,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtk_fmt.h>
 // clang-format off
