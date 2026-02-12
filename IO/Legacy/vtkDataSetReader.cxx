@@ -460,7 +460,7 @@ bool vtkDataSetReader::CanReadFile(vtkResourceStream* stream)
   reader->SetStream(stream);
   reader->ReadFromInputStreamOn();
 
-  if (!reader->OpenVTKFile() || !reader->ReadHeader())
+  if (!reader->OpenVTKFile() || !reader->ReadHeader(nullptr, true))
   {
     return false;
   }

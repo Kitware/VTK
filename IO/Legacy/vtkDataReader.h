@@ -368,7 +368,7 @@ public:
   /**
    * Read the header of a vtk data file. Returns 0 if error.
    */
-  int ReadHeader(VTK_FILEPATH const char* fname = nullptr);
+  int ReadHeader(VTK_FILEPATH const char* fname = nullptr, bool quiet = false);
 
   /**
    * Read the cell data of a vtk data file. The number of cells (from the
