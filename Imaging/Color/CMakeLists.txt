@@ -4,7 +4,6 @@ set(classes
   vtkImageLuminance
   vtkImageMapToRGBA
   vtkImageMapToWindowLevelColors
-  vtkImageMultiVariateToRGBA
   vtkImageQuantizeRGBToIndex
   vtkImageRGBToHSI
   vtkImageRGBToHSV

@@ -1,28 +1,28 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkImageMultiVariateToRGBA
+ * @class   vtkMultiVariateToRGBA
  * @brief   generalized histograms up to 4 dimensions
  *
- * vtkImageMultiVariateToRGBA takes a 3 component RGB image as
+ * vtkMultiVariateToRGBA takes a 3 component RGB image as
  */
 
-#ifndef vtkImageMultiVariateToRGBA_h
-#define vtkImageMultiVariateToRGBA_h
+#ifndef vtkMultiVariateToRGBA_h
+#define vtkMultiVariateToRGBA_h
 
-#include "vtkImageAlgorithm.h"
-#include "vtkImagingColorModule.h" // For export macro
+#include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 #include <vector> // For modality groups
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
-class VTKIMAGINGCOLOR_EXPORT vtkImageMultiVariateToRGBA : public vtkImageAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkMultiVariateToRGBA : public vtkDataSetAlgorithm
 {
 public:
-  static vtkImageMultiVariateToRGBA* New();
-  vtkTypeMacro(vtkImageMultiVariateToRGBA, vtkImageAlgorithm);
+  static vtkMultiVariateToRGBA* New();
+  vtkTypeMacro(vtkMultiVariateToRGBA, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetMacro(ColorWheelRotation, double);
@@ -32,8 +32,8 @@ public:
   std::vector<std::vector<int>> GetModalityGroups() VTK_FUTURE_CONST;
 
 protected:
-  vtkImageMultiVariateToRGBA();
-  ~vtkImageMultiVariateToRGBA() override;
+  vtkMultiVariateToRGBA();
+  ~vtkMultiVariateToRGBA() override;
 
   double ColorWheelRotation = 0;
   std::vector<std::vector<int>> ModalityGroups;
@@ -41,8 +41,8 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-  vtkImageMultiVariateToRGBA(const vtkImageMultiVariateToRGBA&) = delete;
-  void operator=(const vtkImageMultiVariateToRGBA&) = delete;
+  vtkMultiVariateToRGBA(const vtkMultiVariateToRGBA&) = delete;
+  void operator=(const vtkMultiVariateToRGBA&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

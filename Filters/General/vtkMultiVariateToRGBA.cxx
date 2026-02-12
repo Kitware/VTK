@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkImageMultiVariateToRGBA.h"
+#include "vtkMultiVariateToRGBA.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayAccessor.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -26,7 +26,7 @@
 #include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkImageMultiVariateToRGBA);
+vtkStandardNewMacro(vtkMultiVariateToRGBA);
 
 namespace
 {
@@ -299,16 +299,16 @@ struct ComputeAlphaWorker
 }
 
 //==============================================================================
-vtkImageMultiVariateToRGBA::vtkImageMultiVariateToRGBA()
+vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
   this->ColorWheelRotation = 0;
 }
 
 //==============================================================================
-vtkImageMultiVariateToRGBA::~vtkImageMultiVariateToRGBA() {}
+vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() {}
 
 //==============================================================================
-void vtkImageMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& modalityGroups)
+void vtkMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& modalityGroups)
 {
   vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ModalityGroups));
   if (this->ModalityGroups != modalityGroups)
@@ -319,32 +319,21 @@ void vtkImageMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>
 }
 
 //==============================================================================
-std::vector<std::vector<int>> vtkImageMultiVariateToRGBA::GetModalityGroups() VTK_FUTURE_CONST
+std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetModalityGroups() VTK_FUTURE_CONST
 {
   vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ModalityGroups));
   return this->ModalityGroups;
 }
 
 //==============================================================================
-int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-
-  int inExt[6];
-  inData->GetExtent(inExt);
-  if (inExt[1] < inExt[0] || inExt[3] < inExt[2] || inExt[5] < inExt[4])
-  {
-    vtkErrorMacro("A scalar input with variables as a components "
-                  "is needed for this filter");
-    return 0;
-  }
+  vtkDataSet* inData = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* outData = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   auto* pointData = inData->GetPointData();
   vtkDataArray* scalars = pointData->GetScalars();
@@ -423,7 +412,7 @@ int vtkImageMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //==============================================================================
-void vtkImageMultiVariateToRGBA::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMultiVariateToRGBA::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

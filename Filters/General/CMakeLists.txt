@@ -62,6 +62,7 @@ set(classes
   vtkIconGlyphFilter
   vtkImageDataToPointSet
   vtkImageMarchingCubes
+  vtkMultiVariateToRGBA
   vtkInterpolateDataSetAttributes
   vtkInterpolatingSubdivisionFilter
   vtkIntersectionPolyDataFilter
