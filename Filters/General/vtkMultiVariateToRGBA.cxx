@@ -334,6 +334,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataSet* inData = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* outData = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  outData->CopyStructure(inData);
 
   auto* pointData = inData->GetPointData();
   vtkDataArray* scalars = pointData->GetScalars();
