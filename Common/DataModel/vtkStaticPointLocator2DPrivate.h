@@ -238,6 +238,10 @@ struct BucketList2D : public vtkBucketList2D
   // difference between the offsets into the sorted points array.
   vtkIdType GetNumberOfIds(vtkIdType bucketNum)
   {
+    if (bucketNum < 0 || bucketNum >= this->NumBuckets)
+    {
+      return 0;
+    }
     return (this->Offsets[bucketNum + 1] - this->Offsets[bucketNum]);
   }
 

@@ -428,7 +428,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::FiltersMeshingPython-TestVoronoi3D-Lissajous$"
     "^VTK::FiltersMeshingPython-TestVoronoi3D2$"
     "^VTK::FiltersMeshingPython-TestVoronoi2D3$"
-    "^VTK::FiltersMeshingPython-TestVoronoi2D$")
+    "^VTK::FiltersMeshingPython-TestVoronoi2D$"
+    "^VTK::FiltersMeshingCxx-TestVoronoiHull2(SerDes)?$"
+    "^VTK::FiltersMeshingCxx-TestVoronoi2DSurfaceNets(SerDes)?$")
 
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
     # Unknown NSInternalInconsistencyException when using macos arm64

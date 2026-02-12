@@ -66,16 +66,19 @@
  * enabled. The third output is a random sampling of points within the
  * flower; the fourth is the Voronoi tile of interest along with scalar
  * values corresponding to the Voronoi petals radii at each Voronoi tile
- * vertex point.
+ * vertex point. If the output type is specified as a surface net, then
+ * the surface net is output in filter output #0.
  *
  * This filter can be used to tessellate different regions using convex
  * polygons (i.e., Voronoi tiles), or create holes in Voronoi tessellations,
  * using a supplemental input single-component, signed integer, scalar data
  * array (i.e., the region ids array). The size of the region ids array must
- * match the number of input points. In this array, a region id value <0 means
- * the tile associated with its associated point is considered "outside" and so
- * is not produced on output. Otherwise, any non-negative region is indicates
- * which region a particular tile belongs to.
+ * match the number of input points. In this array, a region id value <0
+ * means the tile associated with its associated point is considered
+ * "outside" and so is not produced on output. Otherwise, any non-negative
+ * region is indicates which region a particular tile belongs to. If a
+ * surface net output is requested, then contours between regions, as well as
+ * optional boundary capping, are generated in output #0.
  *
  * Note that an important concept of this algorithm is a graphical
  * representation referred to as the adjacency graph, represented by the
@@ -144,10 +147,11 @@
  *
  * vtkJogglePoints can be used to improve the performance and quality of the
  * output mesh. Voronoi and Delaunay methods are known for their sensitivity
- * to numerical degeneracies (e.g., more than n+1 points cospherical to a
- * n-dimensional simplex in a n-dimensional Delaunay trianglulation). The
- * filter randomly perturbs (i.e., joggles or jitters) a point set thereby
- * removing degeneracies.
+ * to numerical degeneracies (e.g., Delaunay degeneracy: more than n+1 points
+ * cospherical to a n-dimensional simplex in a n-dimensional Delaunay
+ * triangulation; Voronoi degeneracy: a n-1 dimensional face approaches zero
+ * in area). This filter randomly perturbs (also referred to as joggle,
+ * jiggle, or jitter) a point set thereby removing degeneracies.
  * ```
  *
  * @warning
@@ -167,6 +171,14 @@
  * queries. While other locators could be used in principal (and may be added
  * in the future), they must support thread-safe operations and annular point
  * requests.
+ *
+ * @warning
+ * If a surface net output is produced, the surface net is not smoothed
+ * (the classic surface net algorithm includes smoothing, typically a
+ * constrained Laplacian algorithm). In this filter, just the line complex
+ * separating segmented regions is output. If smoothing is desired,
+ * simply process the surface net output with a smoothing filter such as
+ * vtkConstrainedSmoothingFilter.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -218,33 +230,39 @@ public:
     VORONOI = 0,
     DELAUNAY = 1,
     VORONOI_AND_DELAUNAY = 2,
-    SPEED_TEST = 3,
+    SURFACE_NET = 3,
+    SPEED_TEST = 4,
   };
 
   ///@{
   /**
-   * Control whether to produce an output Voronoi tessellation and/or an
-   * output Delaunay triangulation. (If enabled, the Voronoi tessellation
-   * is produced in filter output #0. If enabled, the Delaunay triangulation is
-   * produced in output #1.) Note that this OutputType data member just
-   * controls what is sent to the filter output--in all cases this filter
-   * computes an internal representation of the Voronoi tessellation. However
-   * if disabled, then the cost of memory and execution is reduced by not
-   * actually instantiating the Voronoi polygonal mesh. This can be useful
-   * for example if only the Delaunay triangulation is desired. By default,
-   * the filter only produces the Voronoi tessellation. If specified, the
-   * Delaunay triangulation is computed by extracting the dual of the
-   * Voronoi tessellation. (Note that the extraction process may include
-   * topological checks to ensure that the Voronoi tessellation is valid. See
-   * the Validate data member for more information.) An optional output type,
-   * SPEED_TEST, produces no output and is used for benchmarking. It simply
-   * generates the Voronoi tiles and returns.
+   * Control the type of output to generate: Voronoi, Delaunay,
+   * Voronoi+Delaunay, a surface net, or just an empty output (to measure
+   * algorithm performance). If enabled, the Voronoi tessellation is produced
+   * in filter output #0. If enabled, the Delaunay triangulation is produced
+   * in output #1. If selected, the surface net is produced in output
+   * #0. Note that this OutputType data member just controls what is sent to
+   * the filter output--in all cases this filter computes an internal
+   * representation of the Voronoi tessellation. However if disabled, then
+   * the cost of memory and execution is reduced by not actually
+   * instantiating the Voronoi polygonal mesh. This can be useful for example
+   * if only the Delaunay triangulation is desired. By default, the filter
+   * only produces the Voronoi tessellation. If specified, the Delaunay
+   * triangulation is computed by extracting the dual of the Voronoi
+   * tessellation. (Note that the extraction process may include topological
+   * checks to ensure that the Voronoi tessellation is valid. See the
+   * Validate data member for more information.) If SURFACE_NET is selected,
+   * then the edges between segmented regions, and optionally edges on the
+   * domain boundary, are output. An optional output type, SPEED_TEST,
+   * produces no output and is used for benchmarking. It simply generates the
+   * Voronoi tiles and returns.
    */
   vtkSetMacro(OutputType, int);
   vtkGetMacro(OutputType, int);
   void SetOutputTypeToVoronoi() { this->SetOutputType(VORONOI); }
   void SetOutputTypeToDelaunay() { this->SetOutputType(DELAUNAY); }
   void SetOutputTypeToVoronoiAndDelaunay() { this->SetOutputType(VORONOI_AND_DELAUNAY); }
+  void SetOutputTypeToSurfaceNet() { this->SetOutputType(SURFACE_NET); }
   void SetOutputTypeToSpeedTest() { this->SetOutputType(SPEED_TEST); }
   //@}
 
@@ -438,6 +456,16 @@ public:
 
   ///@{
   /**
+   * Specify whether to cap the surface net along the domain boundary. This
+   * only applies if the OutputType==SURFACE_NET.
+   */
+  vtkGetMacro(BoundaryCapping, vtkTypeBool);
+  vtkSetMacro(BoundaryCapping, vtkTypeBool);
+  vtkBooleanMacro(BoundaryCapping, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * These methods are for debugging or instructional purposes. When the
    * point of interest is specified (i.e., set to a non-negative number) then
    * the algorithm will process this single point (whose id is the
@@ -568,6 +596,7 @@ private:
   vtkSmartPointer<vtkSpheres> Spheres;
   double PruneTolerance;
   unsigned int BatchSize;
+  vtkTypeBool BoundaryCapping; // cap the domain boundary if OutputType is SURFACE_NET
 
   /**
    * Execution parameters. Updated after the internal vtkVoronoiCore3D executes.

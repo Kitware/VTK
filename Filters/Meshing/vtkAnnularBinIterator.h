@@ -26,6 +26,8 @@
 #include "vtkLocatorInterface.h"     // for array of (pt,d**2) tuples
 #include "vtkSystemIncludes.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkStaticPointLocator2D;
@@ -43,6 +45,13 @@ VTK_WRAPEXCLUDE struct VTKFILTERSMESHING_EXPORT vtkAnnularBinIteratorDispatch
     , Iterator(nullptr)
   {
   }
+  vtkAnnularBinIteratorDispatch(const vtkAnnularBinIteratorDispatch&)
+  {
+    this->LargeIds = false;
+    this->Iterator = nullptr;
+  }
+  vtkAnnularBinIteratorDispatch& operator=(const vtkAnnularBinIteratorDispatch&) { return *this; }
+
   vtkAnnularBinIteratorDispatch(vtkStaticPointLocator2D* loc) { this->Initialize(loc); }
   void Initialize(vtkStaticPointLocator2D* locator);
   bool Begin(vtkIdType pid, double x[3], vtkDist2TupleArray& results);
@@ -57,9 +66,11 @@ class VTKFILTERSMESHING_EXPORT vtkAnnularBinIterator
 {
 public:
   /**
-   * Construct default iterator.
+   * Construct default iterator. The copy constructor and operator= are needed by vtkSMPTools.
    */
   vtkAnnularBinIterator() = default;
+  vtkAnnularBinIterator(const vtkAnnularBinIterator&) {}
+  vtkAnnularBinIterator& operator=(const vtkAnnularBinIterator&) { return *this; }
 
   /**
    * Construct the iterator with a vtkStaticPointLocator2D. The

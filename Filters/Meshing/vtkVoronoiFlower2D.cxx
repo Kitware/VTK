@@ -30,7 +30,153 @@ vtkStandardNewMacro(vtkVoronoiFlower2D);
 namespace // anonymous
 {
 
-// The struct DelTri is the ordered connectivity of a Delaunay traingle.  It
+// Compositing information for the surface net. A surface net is represented
+// by a set of lines (i.e., edges). Here we insert pairs of points which
+// represent the lines. The total number of lines is numPts/2.
+struct SN2DCompositor
+{
+  vtkIdType NPts;        // The number of input point generators
+  vtkIdType TotalNumPts; // The total line points produced across all tiles
+  bool BoundaryCapping;  // Indicate whether to produce domain boundary edges
+
+  // Constructors
+  SN2DCompositor()
+    : NPts(0)
+    , TotalNumPts(0)
+    , BoundaryCapping(true)
+  {
+  }
+  SN2DCompositor(bool capping)
+    : SN2DCompositor()
+  {
+    this->BoundaryCapping = capping;
+  }
+
+  // Metadata needed for compositing.
+  struct vtkCompositeInfo
+  {
+    // Initially these are "number of.." that are transformed to offsets
+    // via a subsequent prefix sum operation.
+    vtkIdType NumPts; // number of points produced
+    vtkCompositeInfo()
+      : NumPts(0)
+    {
+    }
+
+    // Operator += provides support for prefix sum. Converts counts
+    // to offsets.
+    vtkCompositeInfo& operator+=(const vtkCompositeInfo& info)
+    {
+      this->NumPts += info.NumPts;
+      return *this;
+    }
+  };
+
+  /**
+   * This singleton array captures global information necessary for
+   * performing the compositing operation. vtkCompositeInformation is
+   * a required type for gathering global information.
+   */
+  using vtkCompositeInformation = std::vector<vtkCompositeInfo>;
+  vtkCompositeInformation Information;
+  /**
+   * Prepare to accumulate compositing information: specify the total
+   * number of points to be processed. Also configure any singletons such
+   * as compositing information.
+   */
+  void Initialize(vtkIdType numPts, SN2DCompositor* comp)
+  {
+    this->NPts = numPts;
+    this->Information.resize(numPts + 1);
+    this->BoundaryCapping = comp->BoundaryCapping;
+  }
+  /**
+   * After threaded execution, perform final processing from the
+   * compositing information. In this case, perform a prefix sum
+   * to determine the total number of points. TODO: for very large
+   * scale, the prefix sum could be threaded.
+   */
+  void Finalize()
+  {
+    vtkCompositeInfo info, totalInfo;
+    for (vtkIdType id = 0; id < this->NPts; ++id)
+    {
+      info = this->Information[id];
+      this->Information[id] = totalInfo;
+      totalInfo += info;
+    }
+    this->Information[this->NPts] = totalInfo;
+    this->TotalNumPts = totalInfo.NumPts;
+  }
+
+  /**
+   * This is the data extracted from the tiles and accumulated by the thread
+   * local data.
+   */
+  struct LocalData
+  {
+    vtkCompositeInformation* Info;         // singleton enables prefix sum compositing
+    vtkVoronoiTileVertexType Points;       // coordinates defining the hull vertices
+    vtkVoronoiTopoCoords2DType TopoCoords; // topological coordinates
+    bool BoundaryCapping;
+
+    LocalData()
+      : Info(nullptr)
+    {
+      this->Points.reserve(1024);
+      this->TopoCoords.reserve(1024);
+    }
+    void Initialize(SN2DCompositor* c)
+    {
+      this->Info = &(c->Information);
+      this->BoundaryCapping = c->BoundaryCapping;
+    }
+    /**
+     * This method is called after the Voronoi tile is generated, so that
+     * compositing information can be extracted and recorded.
+     */
+    void AddData(vtkVoronoiTile& tile, int vtkNotUsed(numSpokes), const vtkVoronoiSpoke* spokes)
+    {
+      // Generate output only if tile points exist
+      vtkIdType ptId = tile.GetGeneratorPointId();
+      int numPts = tile.GetNumberOfPoints();
+      if (numPts <= 0)
+      {
+        return;
+      }
+
+      // Gather the surface net points and associated topological
+      // coordinates. Recall that the number of edges == num hull points.
+      bool capping = this->BoundaryCapping;
+      const PointRingType& points = tile.GetPoints();
+      unsigned char classification;
+      constexpr unsigned char FORWARD_REGION_BOUNDARY_SPOKE =
+        vtkSpokeClassification::FORWARD_SPOKE | vtkSpokeClassification::REGION_BOUNDARY;
+      int numLines = 0;
+
+      for (int i = 0; i < numPts; ++i)
+      {
+        classification = spokes[i].Classification;
+        if (classification == FORWARD_REGION_BOUNDARY_SPOKE ||
+          (capping && (classification & vtkSpokeClassification::DOMAIN_BOUNDARY)))
+        {
+          numLines++;
+          const vtkTilePoint& pL = points[i == 0 ? numPts - 1 : i - 1];
+          const vtkTilePoint& p = points[i];
+          const vtkTilePoint& pR = points[i + 1 == numPts ? 0 : i + 1];
+          this->Points.emplace_back(p.X);
+          this->Points.emplace_back(pR.X);
+          this->TopoCoords.emplace_back(pL.NeiId, p.NeiId, ptId);
+          this->TopoCoords.emplace_back(p.NeiId, pR.NeiId, ptId);
+        }
+      } // for all tile points
+
+      (*this->Info)[ptId].NumPts = 2 * numLines;
+    } // AddData()
+  };
+}; // SN2DCompositor
+
+// The struct DelTri is the ordered connectivity of a Delaunay triangle.  It
 // is used when producing an output Delaunay triangulation. Note that unlike
 // the topological coordinates, we do not sort the tuple because we want to
 // preserve the winding order (consistent with the normal).
@@ -51,9 +197,10 @@ struct DelTri
 };                                      // DelTri
 using DelTriType = std::vector<DelTri>; // Delaunay triangles
 
-// Compositing information. Note that a lot of the information needed for
-// composition is represented in the adjacency graph (e.g., the number of
-// points/edges per output convex polygon).
+// Compositing information for Voronoi and/or Delaunay generation. Note that
+// a lot of the information needed for composition is represented in the
+// adjacency graph (e.g., the number of points/edges per output convex
+// polygon).
 struct Del2DCompositor
 {
   vtkIdType NPts;         // The number of input point generators
@@ -205,55 +352,47 @@ struct Del2DCompositor
 // Classes for generating the Voronoi and Delaunay output data.
 struct VOutput
 {
-  vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* VC;
   vtkPointSet* Input;
   vtkPolyData* Output;
-  const double* InPoints; // raw input points
-  double* OutPoints;      // raw output points
   vtkVoronoiFlower2D* Filter;
   const int* Regions; // optional segmentation labels
-
-  const vtkMergeMapType* MergeMap; // used to merge points if requested
-  vtkIdType NumMergedPts;          // the number of points after merging
 
   vtkIdType* Offsets;
   vtkIdType* Conn;
 
   bool PassPointData;
-  int GeneratePointScalars;
-  double* PointScalars;
-
   int GenerateCellScalars;
   vtkIdType* CellScalars;
 
-  VOutput(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
-    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
-    vtkPolyData* output)
-    : VC(vc)
-    , Input(input)
+  VOutput(vtkPointSet* input, vtkPolyData* output, vtkVoronoiFlower2D* filter)
+    : Input(input)
     , Output(output)
-    , InPoints(nullptr) // update in derived class
-    , OutPoints(nullptr)
     , Filter(filter)
     , Regions(nullptr)
-    , MergeMap(mergeMap)
-    , NumMergedPts(numMergedPts)
-    , Offsets(nullptr) // output polygons
+    , Offsets(nullptr) // output primitives
     , Conn(nullptr)
-    , PointScalars(nullptr)
     , CellScalars(nullptr)
   {
-    this->InPoints = vc->GetPoints();
-
-    this->Regions = vc->Classifier.Regions;
-
     this->PassPointData = filter->GetPassPointData();
-    this->GeneratePointScalars = filter->GetGeneratePointScalars();
     this->GenerateCellScalars = filter->GetGenerateCellScalars();
   }
 
   // Optionally generate random numbers for cell scalars.
   vtkSMPThreadLocal<vtkVoronoiRandomColors> LocalGenerator;
+
+  // Add a primitive cell to the output. This should be followed by
+  // AddPrimPoint() calls.
+  void AddPrim(vtkIdType primId, vtkIdType connOffset) { this->Offsets[primId] = connOffset; }
+
+  // Add a cell point to the output. This assumes that no point merging has
+  // occurred.
+  void AddPrimPoint(vtkIdType connOffset, vtkIdType pId) { this->Conn[connOffset] = pId; }
+
+  // Add a merged polygon cell point to the output.
+  void AddMergedPrimPoint(const vtkMergeMapType& mergeMap, vtkIdType connOffset, vtkIdType ptId)
+  {
+    this->Conn[connOffset] = mergeMap[ptId];
+  }
 
   // Create the output cell scalar array.
   void CreateCellScalars(vtkIdType numCells, vtkPolyData* output)
@@ -300,56 +439,40 @@ struct VOutput
     return s;
   } // Produce cell scalars
 
-  // Create the output point scalar array.
-  void CreatePointScalars(vtkIdType numPts, vtkPolyData* output)
-  {
-    vtkNew<vtkDoubleArray> pointScalars;
-    pointScalars->SetNumberOfComponents(1);
-    pointScalars->SetName("Voronoi Point Scalars");
-    pointScalars->SetNumberOfTuples(numPts);
-    int idx = output->GetPointData()->AddArray(pointScalars);
-    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    this->PointScalars = pointScalars->GetPointer(0);
-  }
-
-  // Produce a point attribute scalar based on distance to the hull
-  // generator. Typically this is only used when outputting a single Voronoi
-  // flower / tile. Otherwise merged points have multiple possible scalar
-  // values.
-  double ProducePointScalar(vtkIdType ptId, double hullVertX[3])
-  {
-    const double* generatorX = this->InPoints + 3 * ptId;
-    return (std::sqrt(vtkMath::Distance2BetweenPoints(generatorX, hullVertX)));
-  }
 }; // VOutput
 
 // Used to ensure merged output points are only written once. This is
 // important when point merging is enabled.
 using PtsWrittenFlags = std::vector<unsigned char>;
 
-// A class for outputting the Voronoi tessellation. Point numbering, defined
-// by an optional merge map, may be required if point merging is enabled.
-struct OutputVoronoi : public VOutput
+// This derived output class generates new points (merged or unmerged).
+struct PtsOutput : public VOutput
 {
-  std::unique_ptr<PtsWrittenFlags> PtsWritten;
-  double Z;
+  const double* InPoints; // input points
+  double* OutPoints;
+  double Z;                        // z-coordinate of 2D representation
+  const vtkMergeMapType* MergeMap; // used to merge points if requested
+  vtkIdType NumMergedPts;          // the number of points after merging
 
-  OutputVoronoi(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
-    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
-    vtkPolyData* output)
-    : VOutput(vc, input, filter, mergeMap, numMergedPts, output)
+  // Used for merging points. Ensure that points are only written once.
+  std::unique_ptr<PtsWrittenFlags> PtsWritten;
+
+  PtsOutput(vtkPointSet* input, vtkPolyData* output, vtkMergeMapType* mergeMap,
+    vtkIdType numMergedPts, vtkVoronoiFlower2D* filter)
+    : VOutput(input, output, filter)
+    , InPoints(nullptr) // update in derived class
+    , OutPoints(nullptr)
+    , MergeMap(mergeMap)
+    , NumMergedPts(numMergedPts)
   {
     // Allocate some point merging related structure if necessary.
     if (this->MergeMap)
     {
       this->PtsWritten = std::unique_ptr<PtsWrittenFlags>(new PtsWrittenFlags(numMergedPts, 0));
     }
-
-    this->InPoints = vc->GetPoints();
-    this->Z = this->InPoints[2];
   }
 
-  // Add a (non-merged) point to the output.
+  // Add a (non-merged) point to the output
   void AddPoint(vtkIdType ptId, double* x)
   {
     double* p = this->OutPoints + 3 * ptId;
@@ -358,15 +481,9 @@ struct OutputVoronoi : public VOutput
     *p = this->Z;
   }
 
-  // Add a primitive cell (polygon) to the output. This should be followed by
-  // AddPrimPoint() calls.
-  void AddPrim(vtkIdType primId, vtkIdType connOffset) { this->Offsets[primId] = connOffset; }
-
-  // Add a polygon cell point to the output. This assumes that no point
-  // merging has occured.
-  void AddPrimPoint(vtkIdType connOffset, vtkIdType pId) { this->Conn[connOffset] = pId; }
-
-  // Add a merged point to the output.
+  // Add a merged point to the output. We just write
+  // the value of the first vertex hull point - it's possible
+  // to average these conincident points - maybe if necessary.
   void AddMergedPoint(
     const vtkMergeMapType& mergeMap, PtsWrittenFlags& ptsWritten, vtkIdType ptId, double* x)
   {
@@ -380,11 +497,188 @@ struct OutputVoronoi : public VOutput
       ptsWritten[pId] = 1;
     }
   }
+}; // PtsOutput
 
-  // Add a merged polygon cell point to the output.
-  void AddMergedPrimPoint(const vtkMergeMapType& mergeMap, vtkIdType connOffset, vtkIdType ptId)
+// This class produces a surface net.
+struct OutputSurfaceNet : public PtsOutput
+{
+  vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>* VC;
+
+  OutputSurfaceNet(vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
+    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
+    vtkPolyData* output)
+    : PtsOutput(input, output, mergeMap, numMergedPts, filter)
+    , VC(vc)
   {
-    this->Conn[connOffset] = mergeMap[ptId];
+    this->Regions = vc->Classifier.Regions;
+    this->InPoints = vc->GetPoints();
+    this->Z = this->InPoints[2];
+  }
+
+  // Produce surface net edges by compositing local thread data.
+  void operator()(vtkIdType threadId, vtkIdType endThreadId)
+  {
+    const vtkVoronoiBatchManager& batcher = this->VC->Batcher;
+    vtkVoronoiAbortCheck abortCheck(threadId, endThreadId, this->Filter);
+
+    bool mergePts = this->MergeMap ? true : false;
+    const vtkMergeMapType& mergeMap = *(this->MergeMap);
+    PtsWrittenFlags& ptsWritten = *(this->PtsWritten);
+
+    for (; threadId < endThreadId; ++threadId)
+    {
+      if (abortCheck(threadId))
+      {
+        break;
+      }
+
+      // Get the current local thread data including the batches processed by
+      // this thread.
+      vtkVoronoi2DLocalData<SN2DCompositor, vtkVoronoiClassifier2D>& localData =
+        *(this->VC->ThreadMap[threadId]);
+      const SN2DCompositor& compositor = this->VC->Compositor;
+      const SN2DCompositor::vtkCompositeInformation& info = compositor.Information;
+      vtkVoronoiTileVertexType::iterator pItr = localData.Compositor.Points.begin();
+
+      // Process all point batches in the current thread. Recall that
+      // a batch consists of a set of contiguous point ids. Also recall
+      // that the point id and the tile id are the same (i.e., for every
+      // generating point, a tile is created).
+      for (auto& batchId : localData.LocalBatches)
+      {
+        vtkIdType ptId, endPtId;
+        batcher.GetBatchItemRange(batchId, ptId, endPtId);
+
+        // Obtain the starting point id, and the total number of points and lines in
+        // the entire batch of points.
+        vtkIdType startPtId = info[ptId].NumPts;
+        vtkIdType startLineId = startPtId / 2;
+        vtkIdType numPts = info[endPtId].NumPts - info[ptId].NumPts;
+        vtkIdType numLines = numPts / 2;
+
+        // Copy the local batch points into the global points
+        vtkIdType pId = startPtId;
+        if (!mergePts)
+        {
+          for (int i = 0; i < numPts; ++i, ++pId, ++pItr)
+          {
+            this->AddPoint(pId, pItr->X);
+          }
+        }
+        else
+        {
+          for (int i = 0; i < numPts; ++i, ++pId, ++pItr)
+          {
+            this->AddMergedPoint(mergeMap, ptsWritten, pId, pItr->X);
+          }
+        }
+
+        // Output the line connectivity. Also output optional cell data.
+        vtkIdType lineId = startLineId;
+        vtkIdType startConn = 2 * startLineId;
+        pId = startPtId;
+
+        for (vtkIdType line = 0; line < numLines; ++lineId, ++line)
+        {
+          this->AddPrim(lineId, startConn);
+
+          if (!mergePts)
+          {
+            this->AddPrimPoint(startConn++, pId++);
+            this->AddPrimPoint(startConn++, pId++);
+          }
+          else
+          {
+            this->AddMergedPrimPoint(mergeMap, startConn++, pId++);
+            this->AddMergedPrimPoint(mergeMap, startConn++, pId++);
+          }
+
+          if (this->CellScalars)
+          {
+            this->CellScalars[lineId] = this->ProduceCellScalar(ptId, 2, lineId, threadId);
+          } // if cell scalars
+        }   // for points in this batch
+      }     // for each batch in this thread
+    }       // for all local thread data
+  }         // operator()
+
+  // Factory method to produce a surface net.
+  static void Execute(vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>* vc,
+    vtkPointSet* input, vtkPolyData* output)
+  {
+    // Grab some setup information
+    SN2DCompositor& compositor = vc->Compositor;
+    vtkIdType TotalPts = compositor.TotalNumPts;
+    vtkIdType numLines = TotalPts / 2;
+    vtkVoronoiFlower2D* filter = static_cast<vtkVoronoiFlower2D*>(vc->Filter);
+
+    // Composite the data into the global filter output. Depending on merging, create
+    // a merge map.
+    vtkNew<vtkPoints> outPts;
+    outPts->SetDataTypeToDouble();
+
+    std::unique_ptr<vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>::TopologicalMerge>
+      topoMerge;
+    vtkMergeMapType* mergeMap = nullptr;
+    vtkIdType numMergedPts = 0;
+    if (filter->GetMergePoints())
+    {
+      topoMerge =
+        vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>::TopologicalMerge::Execute(vc);
+      mergeMap = &(topoMerge->MergeMap);
+      numMergedPts = topoMerge->GetNumberOfMergedPoints();
+      outPts->SetNumberOfPoints(numMergedPts);
+    }
+    else
+    {
+      outPts->SetNumberOfPoints(TotalPts);
+    }
+
+    // Prepare to produce Voronoi output
+    OutputSurfaceNet snout(vc, input, filter, mergeMap, numMergedPts, output);
+    snout.OutPoints = vtkDoubleArray::FastDownCast(outPts->GetData())->GetPointer(0);
+
+    // Structures for cell definitions. Directly create the offsets and
+    // connectivity for efficiency.
+    vtkNew<vtkIdTypeArray> connectivity;
+    connectivity->SetNumberOfTuples(TotalPts);
+    snout.Conn = connectivity->GetPointer(0);
+
+    vtkNew<vtkIdTypeArray> offsets;
+    offsets->SetNumberOfTuples(numLines + 1);
+    snout.Offsets = offsets->GetPointer(0);
+    snout.Offsets[numLines] = TotalPts;
+
+    vtkNew<vtkCellArray> lines;
+    lines->SetData(offsets, connectivity);
+
+    // Parallel copy the Voronoi-related local thread data (points, cells,
+    // scalars) into the filter output.
+    vtkIdType numThreads = vc->GetNumberOfThreads();
+    vtkSMPTools::For(0, numThreads, snout);
+
+    // Assemble the output
+    output->SetPoints(outPts);
+    output->SetLines(lines);
+  } // Execute()
+
+}; // OutputSurfaceNet
+
+// A class for generating the Voronoi tessellation. Point numbering, defined
+// by an optional merge map, may be required if point merging is enabled.
+struct OutputVoronoi : public PtsOutput
+{
+  vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* VC;
+
+  OutputVoronoi(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
+    vtkVoronoiFlower2D* filter, vtkMergeMapType* mergeMap, vtkIdType numMergedPts,
+    vtkPolyData* output)
+    : PtsOutput(input, output, mergeMap, numMergedPts, filter)
+    , VC(vc)
+  {
+    this->Regions = vc->Classifier.Regions;
+    this->InPoints = vc->GetPoints();
+    this->Z = this->InPoints[2];
   }
 
   // Produce Voronoi tiles by compositing local thread data.
@@ -557,9 +851,12 @@ struct OutputVoronoi : public VOutput
 // An class for outputting the Delaunay triangulation.
 struct OutputDelaunay : public VOutput
 {
+  vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* VC;
+
   OutputDelaunay(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc, vtkPointSet* input,
     vtkVoronoiFlower2D* filter, vtkPolyData* output)
-    : VOutput(vc, input, filter, nullptr, 0, output)
+    : VOutput(input, output, filter)
+    , VC(vc)
   {
   }
 
@@ -751,8 +1048,9 @@ vtkVoronoiFlower2D::vtkVoronoiFlower2D()
   this->MaximumNumberOfTileClips = VTK_ID_MAX;
   this->GenerateVoronoiFlower = false;
   this->Spheres = vtkSmartPointer<vtkSpheres>::New();
-  this->BatchSize = 1000;
   this->PruneTolerance = 1.0e-13;
+  this->BatchSize = 1000;
+  this->BoundaryCapping = true;
 
   this->NumberOfThreads = 0;
   this->MaximumNumberOfPoints = 0;
@@ -888,11 +1186,11 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   int outputType = this->GetOutputType();
   if (outputType == vtkVoronoiFlower2D::SPEED_TEST)
   {
-    vtkEmptyVoronoi2DClassifier speedClasifier(regions);
+    vtkEmptyVoronoi2DClassifier speedClassifier(regions);
     auto speed =
       vtkVoronoiCore2D<vtkEmptyVoronoi2DCompositor, vtkEmptyVoronoi2DClassifier>::Execute(this,
         this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
-        this->Validate, this->PruneTolerance, nullptr, &speedClasifier);
+        this->Validate, this->PruneTolerance, nullptr, &speedClassifier);
 
     // Update execution parameters
     this->UpdateExecutionInformation(speed.get());
@@ -900,31 +1198,52 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // Generate the 2D Voronoi tessellation.
-  vtkVoronoiClassifier2D initializeClassifier(regions);
-  auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
-    this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
-    this->Validate, this->PruneTolerance, nullptr, &initializeClassifier);
-
-  // Update execution parameters
-  this->UpdateExecutionInformation(voro.get());
-
-  vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " tiles and "
-                << output->GetNumberOfPoints() << " points");
-
-  // If requested, produce the Voronoi output.
-  if (outputType == vtkVoronoiFlower2D::VORONOI ||
-    outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
+  // If requested, produce the Voronoi output. Surface nets output supersedes
+  // the Voronoi and Delaunay output.
+  if (outputType == vtkVoronoiFlower2D::SURFACE_NET)
   {
-    OutputVoronoi::Execute(voro.get(), tInput, output);
-  } // Produce Voronoi output
+    // Generate the 2D surface net. All regions, except outside regions, are
+    // processed.
+    SN2DCompositor initializeCompositor(this->BoundaryCapping);
+    vtkVoronoiClassifier2D initializeClassifier(regions);
+    auto sn = vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
+      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->Validate, this->PruneTolerance, &initializeCompositor, &initializeClassifier);
 
-  // If requested, produce the Delaunay output.
-  if (outputType == vtkVoronoiFlower2D::DELAUNAY ||
-    outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
+    // Update execution parameters
+    this->UpdateExecutionInformation(sn.get());
+
+    OutputSurfaceNet::Execute(sn.get(), tInput, output);
+  } // Produce surface net
+
+  else // Produce a Voronoi and/or Delaunay output
   {
-    OutputDelaunay::Execute(voro.get(), tInput, delOutput);
-  } // Produce Voronoi output
+    // Generate the 2D Voronoi tessellation.
+    vtkVoronoiClassifier2D initializeClassifier(regions);
+    auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
+      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->Validate, this->PruneTolerance, nullptr, &initializeClassifier);
+
+    // Update execution parameters
+    this->UpdateExecutionInformation(voro.get());
+
+    if (outputType == vtkVoronoiFlower2D::VORONOI ||
+      outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
+    {
+      OutputVoronoi::Execute(voro.get(), tInput, output);
+      vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " tiles and "
+                    << output->GetNumberOfPoints() << " points");
+    } // Produce Voronoi output
+
+    // If requested, produce the Delaunay output.
+    if (outputType == vtkVoronoiFlower2D::DELAUNAY ||
+      outputType == vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY)
+    {
+      OutputDelaunay::Execute(voro.get(), tInput, delOutput);
+      vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " triangles and "
+                    << output->GetNumberOfPoints() << " points");
+    } // Produce Delaunay output
+  }   // Voronoi and/or Delaunay output
 
   // If requested, sample the Voronoi flower and place it into the third
   // output. Create the debugging output (tile) for the PointOfInterest and
@@ -1096,5 +1415,6 @@ void vtkVoronoiFlower2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Voronoi Flower: " << (this->GenerateVoronoiFlower ? "On\n" : "Off\n");
   os << indent << "Prune Tolerance: " << this->PruneTolerance << "\n";
   os << indent << "Batch Size: " << this->BatchSize << "\n";
+  os << indent << "Boundary Capping: " << (this->BoundaryCapping ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END

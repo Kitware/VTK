@@ -119,6 +119,33 @@ public:
   }
 
   /**
+   * vtkSMPTools require a proper operator= and copy constructor.
+   */
+  vtkVoronoiTile(const vtkVoronoiTile&)
+    : PtId(-1)
+    , X{ 0, 0, 0 } // z-component specifies location in z-plane
+    , NumClips(0)
+    , PruneTolerance(1.0e-13)
+    , RecomputeCircumFlower(true)
+    , RecomputePetals(true)
+    , CircumFlower2(0.0)
+    , MinRadius2(0.0)
+    , MaxRadius2(0.0)
+  {
+    // Preallocate some space
+    this->Points.reserve(256);
+    this->NewPoints.reserve(256);
+
+    // Each tile owns its own vtkDoubleArray.
+    this->SortP.reserve(256);
+    this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
+    this->Petals->SetNumberOfComponents(3); // x-y-R2
+    this->Petals->Allocate(256);            // initial allocation
+  }
+
+  vtkVoronoiTile& operator=(const vtkVoronoiTile&) { return *this; }
+
+  /**
    * Method to initiate the construction of the polygon. Define the
    * generator point id and position, and an initial bounding box in
    * which to place the generator.
