@@ -72,11 +72,14 @@ std::vector<hsize_t> vtkHDFReader::Implementation::GetDimensions(const char* dat
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFReader::Implementation::Open(const char* fileName)
+bool vtkHDFReader::Implementation::Open(const char* fileName, bool quiet)
 {
   if (!fileName)
   {
-    vtkErrorWithObjectMacro(this->Reader, "Invalid filename: " << fileName);
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Empty filename");
+    }
     return false;
   }
 
@@ -88,7 +91,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
       this->Close();
     }
 
-    if (!vtkHDFUtilities::Open(fileName, this->File))
+    if (!vtkHDFUtilities::Open(fileName, this->File, quiet))
     {
       return false;
     }
@@ -100,11 +103,14 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFReader::Implementation::Open(vtkResourceStream* stream)
+bool vtkHDFReader::Implementation::Open(vtkResourceStream* stream, bool quiet)
 {
   if (!stream)
   {
-    vtkErrorWithObjectMacro(this->Reader, "Stream is nullptr");
+    if (!quiet)
+    {
+      vtkErrorWithObjectMacro(this->Reader, "Stream is nullptr");
+    }
     return false;
   }
 
@@ -130,7 +136,7 @@ bool vtkHDFReader::Implementation::Open(vtkResourceStream* stream)
       memStream = this->LocalMemStream;
     }
 
-    if (!vtkHDFUtilities::Open(memStream, this->File))
+    if (!vtkHDFUtilities::Open(memStream, this->File, quiet))
     {
       return false;
     }

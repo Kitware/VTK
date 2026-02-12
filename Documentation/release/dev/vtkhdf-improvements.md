@@ -23,3 +23,8 @@ with empty (nullptr) partitions where other ranks have data.
 vtkOverlappingAMR does not specify properly how to handle temporal field data
 in the VTKHDF specifications, the implementation have been removed before a proper
 reimplementation.
+
+## Quiet support in vtkHDFUtilities::Open
+
+A new argument have been added to vtkHDFUtilities::Open
+to suppress all console output on error. The previous version has been deprecated.

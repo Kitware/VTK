@@ -414,7 +414,7 @@ bool vtkHDFReader::CanReadFile(vtkResourceStream* stream)
   stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
   vtkNew<vtkHDFReader> dummy;
   vtkHDFReader::Implementation impl(dummy);
-  bool ret = impl.Open(stream);
+  bool ret = impl.Open(stream, true);
   impl.Close();
   return ret;
 }
