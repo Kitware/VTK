@@ -790,6 +790,63 @@ void vtkCommunicator::Barrier()
 }
 
 //------------------------------------------------------------------------------
+int vtkCommunicator::AllToAllVVoidArray(const void* sendBuffer, const int* sendCounts,
+  const int* sendOffsets, void* recvBuffer, const int* recvCounts, const int* recvOffsets, int type)
+{
+  int result = 1;
+
+  int typeSize = 1;
+  switch (type)
+  {
+    vtkTemplateMacro(typeSize = sizeof(VTK_TT));
+  }
+
+  for (int pid = 0; pid < this->NumberOfProcesses; ++pid)
+  {
+    if (pid != this->LocalProcessId)
+    {
+      // Sending to other processes
+      if (sendCounts[pid] > 0)
+      {
+        result &=
+          this->SendVoidArray((void*)((const char*)(sendBuffer) + typeSize * sendOffsets[pid]),
+            sendCounts[pid], type, pid, ALL_TO_ALLV_TAG);
+      }
+    }
+    else
+    {
+      // Receiving from other processes
+      for (int spid = 0; spid < this->NumberOfProcesses; ++spid)
+      {
+        if (recvCounts[spid] > 0)
+        {
+          if (spid != this->LocalProcessId)
+          {
+            result &= this->ReceiveVoidArray(
+              (void*)((const char*)(recvBuffer) + typeSize * recvOffsets[spid]), recvCounts[spid],
+              type, spid, ALL_TO_ALLV_TAG);
+          }
+          else
+          {
+            // To receive the data from our process ID, we just have to copy what we sent
+            if (recvCounts[spid] != sendCounts[spid])
+            {
+              return false;
+            }
+
+            memcpy((void*)((const char*)(recvBuffer) + typeSize * recvOffsets[spid]),
+              (void*)((const char*)(sendBuffer) + typeSize * sendOffsets[spid]),
+              typeSize * sendCounts[spid]);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
 int vtkCommunicator::BroadcastVoidArray(void* data, vtkIdType length, int type, int srcProcessId)
 {
   if (srcProcessId == this->LocalProcessId)
