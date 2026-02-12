@@ -942,6 +942,7 @@ function (vtk_module_wrap_python)
   set(CMAKE_AUTORCC 0)
   set(CMAKE_AUTOUIC 0)
 
+  set(_vtk_python_all_modules_targets)
   set(_vtk_python_all_modules)
   set(_vtk_python_all_wrapped_modules)
   foreach (_vtk_python_module IN LISTS _vtk_python_sorted_modules_filtered)
@@ -951,14 +952,16 @@ function (vtk_module_wrap_python)
     _vtk_module_wrap_python_library("${_vtk_python_library_name}Python" "${_vtk_python_module}")
 
     if (TARGET "Py${_vtk_python_library_name}Python")
-      list(APPEND _vtk_python_all_modules
+      list(APPEND _vtk_python_all_modules_targets
         "Py${_vtk_python_library_name}Python")
+      list(APPEND _vtk_python_all_modules
+        "${_vtk_python_library_name}Python")
       list(APPEND _vtk_python_all_wrapped_modules
         "${_vtk_python_module}")
     endif ()
   endforeach ()
 
-  if (NOT _vtk_python_all_modules)
+  if (NOT _vtk_python_all_modules_targets)
     message(FATAL_ERROR
       "No modules given could be wrapped.")
   endif ()
@@ -1066,13 +1069,13 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
       # TODO: Install these targets.
       target_link_libraries("${_vtk_python_TARGET_NAME}"
         INTERFACE
-          ${_vtk_python_all_modules})
+          ${_vtk_python_all_modules_targets})
     endif ()
 
     if (_vtk_python_WRAP_TARGET)
       add_custom_target("${_vtk_python_WRAP_TARGET}"
         DEPENDS
-          ${_vtk_python_all_modules})
+          ${_vtk_python_all_modules_targets})
     endif ()
 
     if (_vtk_python_BUILD_STATIC)
