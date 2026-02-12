@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSocketCollection.h"
 
-#include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkSocket.h"
 
@@ -40,12 +39,10 @@ int vtkSocketCollection::SelectSockets(unsigned long msec /*=0*/)
   int* sockets_to_select = new int[max];
   int no_of_sockets = 0;
 
-  vtkCollectionIterator* iter = this->NewIterator();
-
   int index = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), index++)
+  for (auto iter : *this)
   {
-    vtkSocket* soc = vtkSocket::SafeDownCast(iter->GetCurrentObject());
+    vtkSocket* soc = vtkSocket::SafeDownCast(iter);
     if (!soc->GetConnected())
     {
       // skip not-connected sockets.
@@ -71,7 +68,6 @@ int vtkSocketCollection::SelectSockets(unsigned long msec /*=0*/)
     actual_index = socket_indices[index];
   }
 
-  iter->Delete();
   delete[] sockets_to_select;
   delete[] socket_indices;
 

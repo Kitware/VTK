@@ -87,8 +87,6 @@ protected:
   vtkActor2DCollection() = default;
   ~vtkActor2DCollection() override;
 
-  void DeleteElement(vtkCollectionElement*) override;
-
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
@@ -120,13 +118,14 @@ inline vtkActor2D* vtkActor2DCollection::GetNextActor2D()
 
 inline vtkActor2D* vtkActor2DCollection::GetLastActor2D()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkActor2D*>(this->Bottom->Item);
+    return static_cast<vtkActor2D*>(this->GetItemAsObject(numItems - 1));
   }
 }
 

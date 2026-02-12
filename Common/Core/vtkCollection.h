@@ -24,18 +24,11 @@
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+#include <algorithm>
+#include <functional>
+#include <vector>
+
 VTK_ABI_NAMESPACE_BEGIN
-class vtkCollectionElement //;prevents pick-up by man page generator
-{
-public:
-  vtkCollectionElement()
-    : Item(nullptr)
-    , Next(nullptr)
-  {
-  }
-  vtkObject* Item;
-  vtkCollectionElement* Next;
-};
 typedef void* vtkCollectionSimpleIterator;
 
 class vtkCollectionIterator;
@@ -63,6 +56,7 @@ public:
    * Insert given item into the collection after the i'th item. Does not prevent duplicate entries.
    * If the collection is empty, does nothing (regardless of parameters).
    * If i < 0 the given item is placed at the top (beginning) of the collection.
+   * If i is out-of-range (too large), this function does nothing.
    * Given item must not be nullptr.
    *
    * Note: it is undefined behaviour to invoke this during traversal of the collection.
@@ -125,7 +119,7 @@ public:
   /**
    * Return the number of items in the collection.
    */
-  int GetNumberOfItems() VTK_FUTURE_CONST { return this->NumberOfItems; }
+  int GetNumberOfItems() VTK_FUTURE_CONST { return static_cast<int>(this->Objects.size()); }
 
   /**
    * Get the i'th item in the collection. nullptr is returned if i is out
@@ -137,7 +131,7 @@ public:
    * Initialize the traversal of the collection. This means the next call to GetNextItemAsObject()
    * will return the first object in the collection.
    */
-  void InitTraversal() { this->Current = this->Top; }
+  void InitTraversal() { this->Current = this->Objects.begin(); }
 
   /**
    * A reentrant safe way to iterate through a collection.
@@ -145,7 +139,7 @@ public:
    */
   void InitTraversal(vtkCollectionSimpleIterator& cookie)
   {
-    cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);
+    cookie = static_cast<vtkCollectionSimpleIterator>(this->Objects.data());
   }
 
   /**
@@ -163,7 +157,24 @@ public:
   /**
    * Get an iterator to traverse the items in this collection.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::Range instead.")
   VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
+
+  /**
+   * Add support for C++11 range-based for loops.
+   */
+  std::vector<vtkObject*>::iterator begin() { return this->Objects.begin(); }
+  std::vector<vtkObject*>::iterator end() { return this->Objects.end(); }
+
+  /**
+   * Sort the collection according to a given std::function
+   * that should return true if the first vtkObject is
+   * considered strictly less than the second.
+   */
+  void Sort(std::function<bool(vtkObject*, vtkObject*)> f)
+  {
+    std::sort(this->Objects.begin(), this->Objects.end(), f);
+  }
 
   ///@{
   /**
@@ -176,52 +187,39 @@ protected:
   vtkCollection();
   ~vtkCollection() override;
 
-  virtual void RemoveElement(vtkCollectionElement* element, vtkCollectionElement* previous);
-  virtual void DeleteElement(vtkCollectionElement*);
-  int NumberOfItems;
-  vtkCollectionElement* Top;
-  vtkCollectionElement* Bottom;
-  vtkCollectionElement* Current;
-
-  friend class vtkCollectionIterator;
-
   // See vtkGarbageCollector.h:
   void ReportReferences(vtkGarbageCollector* collector) override;
 
 private:
+  std::vector<vtkObject*>::iterator Current;
+  std::vector<vtkObject*> Objects;
+
   vtkCollection(const vtkCollection&) = delete;
   void operator=(const vtkCollection&) = delete;
 };
 
 inline vtkObject* vtkCollection::GetNextItemAsObject()
 {
-  vtkCollectionElement* elem = this->Current;
-
-  if (elem != nullptr)
-  {
-    this->Current = elem->Next;
-    return elem->Item;
-  }
-  else
+  if (this->Current >= this->Objects.end())
   {
     return nullptr;
   }
+  vtkObject* obj = *this->Current;
+  this->Current++;
+  return obj;
 }
 
 inline vtkObject* vtkCollection::GetNextItemAsObject(
   vtkCollectionSimpleIterator& cookie) VTK_FUTURE_CONST
 {
-  vtkCollectionElement* elem = static_cast<vtkCollectionElement*>(cookie);
+  vtkObject** elem = static_cast<vtkObject**>(cookie);
 
-  if (elem != nullptr)
-  {
-    cookie = static_cast<vtkCollectionSimpleIterator>(elem->Next);
-    return elem->Item;
-  }
-  else
+  if (elem >= this->Objects.data() + this->Objects.size())
   {
     return nullptr;
   }
+  cookie = static_cast<vtkCollectionSimpleIterator>(elem + 1);
+  return *elem;
 }
 
 VTK_ABI_NAMESPACE_END

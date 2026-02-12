@@ -3,7 +3,6 @@
 #include "vtkAnimationScene.h"
 
 #include "vtkCollection.h"
-#include "vtkCollectionIterator.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
@@ -21,7 +20,6 @@ vtkAnimationScene::vtkAnimationScene()
   this->StopPlay = 0;
 
   this->AnimationCues = vtkCollection::New();
-  this->AnimationCuesIterator = this->AnimationCues->NewIterator();
   this->AnimationTimer = vtkTimerLog::New();
 }
 
@@ -33,7 +31,6 @@ vtkAnimationScene::~vtkAnimationScene()
     this->Stop();
   }
   this->AnimationCues->Delete();
-  this->AnimationCuesIterator->Delete();
   this->AnimationTimer->Delete();
 }
 
@@ -78,10 +75,9 @@ void vtkAnimationScene::SetTimeMode(int mode)
   {
     // If normalized time mode is being set on the scene,
     // ensure that none of the contained cues need relative times.
-    vtkCollectionIterator* it = this->AnimationCuesIterator;
-    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    for (vtkObject* obj : *(this->AnimationCues))
     {
-      vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
+      vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(obj);
       if (cue && cue->GetTimeMode() != vtkAnimationCue::TIMEMODE_NORMALIZED)
       {
         vtkErrorMacro("Scene contains a cue in relative mode. It must be removed "
@@ -97,10 +93,9 @@ void vtkAnimationScene::SetTimeMode(int mode)
 void vtkAnimationScene::InitializeChildren()
 {
   // run through all the cues and init them.
-  vtkCollectionIterator* it = this->AnimationCuesIterator;
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+  for (vtkObject* obj : *(this->AnimationCues))
   {
-    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
+    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(obj);
     if (cue)
     {
       cue->Initialize();
@@ -111,10 +106,9 @@ void vtkAnimationScene::InitializeChildren()
 //------------------------------------------------------------------------------
 void vtkAnimationScene::FinalizeChildren()
 {
-  vtkCollectionIterator* it = this->AnimationCuesIterator;
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+  for (vtkObject* obj : *(this->AnimationCues))
   {
-    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
+    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(obj);
     if (cue)
     {
       cue->Finalize();
@@ -214,10 +208,9 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime, doubl
   this->AnimationTime = currenttime;
   this->ClockTime = clocktime;
 
-  vtkCollectionIterator* iter = this->AnimationCuesIterator;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  for (vtkObject* obj : *(this->AnimationCues))
   {
-    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(iter->GetCurrentObject());
+    vtkAnimationCue* cue = vtkAnimationCue::SafeDownCast(obj);
     if (cue)
     {
       const PlayDirection dir = cue->GetDirection(); // back up cue's direction.

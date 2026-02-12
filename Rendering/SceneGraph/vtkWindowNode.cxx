@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWindowNode.h"
 
-#include "vtkCollectionIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"

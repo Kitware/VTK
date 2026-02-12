@@ -3,7 +3,6 @@
 
 #include "vtkOpenGLLowMemoryCellTypeAgent.h"
 #include "vtkCellGraphicsPrimitiveMap.h"
-#include "vtkCollectionIterator.h"
 #include "vtkDrawTexturedElements.h"
 #include "vtkGLSLModCamera.h"
 #include "vtkInformation.h"

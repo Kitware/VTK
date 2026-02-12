@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Hide VTK_DEPRECATED_IN_X_Y_Z() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCollectionIterator.h"
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
@@ -10,7 +14,6 @@ vtkStandardNewMacro(vtkCollectionIterator);
 //------------------------------------------------------------------------------
 vtkCollectionIterator::vtkCollectionIterator()
 {
-  this->Element = nullptr;
   this->Collection = nullptr;
 }
 
@@ -46,35 +49,31 @@ void vtkCollectionIterator::GoToFirstItem()
 {
   if (this->Collection)
   {
-    this->Element = this->Collection->Top;
-  }
-  else
-  {
-    this->Element = nullptr;
+    this->Iterator = this->Collection->begin();
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkCollectionIterator::GoToNextItem()
 {
-  if (this->Element)
+  if (this->Collection && this->Iterator < this->Collection->end())
   {
-    this->Element = this->Element->Next;
+    this->Iterator++;
   }
 }
 
 //------------------------------------------------------------------------------
 int vtkCollectionIterator::IsDoneWithTraversal()
 {
-  return (this->Element ? 0 : 1);
+  return (this->Iterator >= this->Collection->end());
 }
 
 //------------------------------------------------------------------------------
 vtkObject* vtkCollectionIterator::GetCurrentObject()
 {
-  if (this->Element)
+  if (this->Collection && this->Iterator < this->Collection->end())
   {
-    return this->Element->Item;
+    return *this->Iterator;
   }
   return nullptr;
 }

@@ -6,7 +6,6 @@
 #include "vtkActorNode.h"
 #include "vtkCamera.h"
 #include "vtkCameraNode.h"
-#include "vtkCollectionIterator.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkLightNode.h"

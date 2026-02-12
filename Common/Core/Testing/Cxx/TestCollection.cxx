@@ -14,6 +14,7 @@
 bool TestRegister();
 bool TestRemoveItem(int index, bool removeIndex);
 bool TestGeneral();
+bool TestRangeBasedForLoop();
 
 int TestCollection(int, char*[])
 {
@@ -30,6 +31,7 @@ int TestCollection(int, char*[])
   res = TestRemoveItem(8, true) && res;
   res = TestRemoveItem(9, true) && res;
   res = TestGeneral() && res;
+  res = TestRangeBasedForLoop() && res;
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -573,4 +575,27 @@ bool TestGeneral()
   // Now we have: a1,a4,a3
 
   return true;
+}
+
+bool TestRangeBasedForLoop()
+{
+  vtkNew<vtkCollection> collection;
+  std::vector<vtkSmartPointer<vtkIntArray>> objects;
+  constexpr int expectedCount = 10;
+  for (int i = 0; i < expectedCount; ++i)
+  {
+    vtkNew<vtkIntArray> object;
+    collection->AddItem(object);
+    objects.emplace_back(object.GetPointer());
+  }
+
+  unsigned int count = 0;
+  for (auto obj : *collection)
+  {
+    if (obj != objects[count])
+      return false;
+    count++;
+  }
+
+  return count == expectedCount;
 }

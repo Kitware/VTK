@@ -5,7 +5,6 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
 #include "vtkCollection.h"
-#include "vtkCollectionIterator.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataArray.h"
@@ -940,13 +939,10 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* newExecutive)
 vtkTypeBool vtkAlgorithm::ProcessRequest(
   vtkInformation* request, vtkCollection* inInfo, vtkInformationVector* outInfo)
 {
-  vtkSmartPointer<vtkCollectionIterator> iter;
-  iter.TakeReference(inInfo->NewIterator());
-
   std::vector<vtkInformationVector*> ivectors;
-  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  for (vtkObject* obj : *inInfo)
   {
-    vtkInformationVector* iv = vtkInformationVector::SafeDownCast(iter->GetCurrentObject());
+    vtkInformationVector* iv = vtkInformationVector::SafeDownCast(obj);
     if (!iv)
     {
       return 0;

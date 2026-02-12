@@ -7,7 +7,6 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCollectionIterator.h"
 #include "vtkConstantArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGLSLModCamera.h"
@@ -873,11 +872,10 @@ bool vtkOpenGLLowMemoryPolyDataMapper::IsShaderUpToDate(vtkRenderer* renderer, v
     return false;
   }
   // Have the mods changed?
-  auto modsIter = vtk::TakeSmartPointer(this->GetGLSLModCollection()->NewIterator());
   auto oglRen = static_cast<vtkOpenGLRenderer*>(renderer);
-  for (modsIter->InitTraversal(); !modsIter->IsDoneWithTraversal(); modsIter->GoToNextItem())
+  for (vtkObject* obj : *(this->GetGLSLModCollection()))
   {
-    auto mod = static_cast<vtkGLSLModifierBase*>(modsIter->GetCurrentObject());
+    auto mod = static_cast<vtkGLSLModifierBase*>(obj);
     if (!mod->IsUpToDate(oglRen, this, actor))
     {
       vtkDebugMacro(<< mod->GetClassName() << " is outdated");
@@ -3107,10 +3105,9 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdatePBRStateCache(vtkRenderer*, vtkActo
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::UpdateGLSLMods(vtkRenderer*, vtkActor*)
 {
-  auto modsIter = vtk::TakeSmartPointer(this->GLSLMods->NewIterator());
-  for (modsIter->InitTraversal(); !modsIter->IsDoneWithTraversal(); modsIter->GoToNextItem())
+  for (vtkObject* obj : *(this->GLSLMods))
   {
-    if (auto cameraMod = vtkGLSLModCamera::SafeDownCast(modsIter->GetCurrentObject()))
+    if (auto cameraMod = vtkGLSLModCamera::SafeDownCast(obj))
     {
       // camera mod needs additional information before they can set shader parameters.
       if (this->CoordinateShiftAndScaleInUse)

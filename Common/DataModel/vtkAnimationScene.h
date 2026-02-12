@@ -24,7 +24,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAnimationCue;
 class vtkCollection;
-class vtkCollectionIterator;
 class vtkTimerLog;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene : public vtkAnimationCue
@@ -134,7 +133,6 @@ protected:
   int StopPlay;
 
   vtkCollection* AnimationCues;
-  vtkCollectionIterator* AnimationCuesIterator;
   vtkTimerLog* AnimationTimer;
 
 private:

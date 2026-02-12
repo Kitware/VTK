@@ -57,12 +57,21 @@ vtkAssemblyNode* vtkAssemblyPath::GetNextNode()
 
 vtkAssemblyNode* vtkAssemblyPath::GetFirstNode()
 {
-  return this->Top ? static_cast<vtkAssemblyNode*>(this->Top->Item) : nullptr;
+  return (this->GetNumberOfItems() > 0) ? static_cast<vtkAssemblyNode*>(this->GetItemAsObject(0))
+                                        : nullptr;
 }
 
 vtkAssemblyNode* vtkAssemblyPath::GetLastNode()
 {
-  return this->Bottom ? static_cast<vtkAssemblyNode*>(this->Bottom->Item) : nullptr;
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
+  {
+    return nullptr;
+  }
+  else
+  {
+    return static_cast<vtkAssemblyNode*>(this->GetItemAsObject(numItems - 1));
+  }
 }
 
 void vtkAssemblyPath::DeleteLastNode()

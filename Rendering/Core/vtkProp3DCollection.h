@@ -77,13 +77,14 @@ inline vtkProp3D* vtkProp3DCollection::GetNextProp3D()
 
 inline vtkProp3D* vtkProp3DCollection::GetLastProp3D()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkProp3D*>(this->Bottom->Item);
+    return static_cast<vtkProp3D*>(this->GetItemAsObject(numItems - 1));
   }
 }
 

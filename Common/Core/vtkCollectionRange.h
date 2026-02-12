@@ -100,8 +100,8 @@ public:
   using pointer = typename GetCollectionItemType<CollectionType>::Type*;
   using reference = typename GetCollectionItemType<CollectionType>::Type*;
 
-  CollectionIterator() noexcept
-    : Element(nullptr)
+  CollectionIterator(std::vector<vtkObject*>::iterator iterator) noexcept
+    : Iterator(iterator)
   {
   }
 
@@ -116,9 +116,9 @@ public:
 
   CollectionIterator operator++(int) noexcept // postfix
   {
-    auto elem = this->Element;
+    auto it = this->Iterator;
     this->Increment();
-    return CollectionIterator{ elem };
+    return CollectionIterator{ it };
   }
 
   reference operator*() const noexcept { return this->GetItem(); }
@@ -127,37 +127,32 @@ public:
 
   friend bool operator==(const CollectionIterator& lhs, const CollectionIterator& rhs) noexcept
   {
-    return lhs.Element == rhs.Element;
+    return lhs.Iterator == rhs.Iterator;
   }
 
   friend bool operator!=(const CollectionIterator& lhs, const CollectionIterator& rhs) noexcept
   {
-    return lhs.Element != rhs.Element;
+    return lhs.Iterator != rhs.Iterator;
   }
 
   friend void swap(CollectionIterator& lhs, CollectionIterator& rhs) noexcept
   {
     using std::swap;
-    swap(lhs.Element, rhs.Element);
+    swap(lhs.Iterator, rhs.Iterator);
   }
 
   friend struct CollectionRange<CollectionType>;
 
 protected:
-  CollectionIterator(vtkCollectionElement* element) noexcept
-    : Element(element)
-  {
-  }
-
 private:
   void Increment() noexcept
   { // incrementing an invalid iterator is UB, no need to check for non-null.
-    this->Element = this->Element->Next;
+    this->Iterator++;
   }
 
-  ItemType* GetItem() const noexcept { return static_cast<ItemType*>(this->Element->Item); }
+  ItemType* GetItem() const noexcept { return static_cast<ItemType*>(*this->Iterator); }
 
-  vtkCollectionElement* Element;
+  std::vector<vtkObject*>::iterator Iterator;
 };
 
 //------------------------------------------------------------------------------
@@ -190,27 +185,15 @@ struct CollectionRange
 
   size_type size() const noexcept { return this->Collection->GetNumberOfItems(); }
 
-  iterator begin() const
-  {
-    vtkCollectionSimpleIterator cookie;
-    this->Collection->InitTraversal(cookie);
-    // The cookie is a linked list node pointer, vtkCollectionElement:
-    return iterator{ static_cast<vtkCollectionElement*>(cookie) };
-  }
+  iterator begin() const { return iterator{ this->Collection->begin() }; }
 
-  iterator end() const { return iterator{ nullptr }; }
+  iterator end() const { return iterator{ this->Collection->end() }; }
 
   // Note: These return mutable objects because const vtkObject are unusable.
-  const_iterator cbegin() const
-  {
-    vtkCollectionSimpleIterator cookie;
-    this->Collection->InitTraversal(cookie);
-    // The cookie is a linked list node pointer, vtkCollectionElement:
-    return const_iterator{ static_cast<vtkCollectionElement*>(cookie) };
-  }
+  const_iterator cbegin() const { return const_iterator{ this->Collection->begin() }; }
 
   // Note: These return mutable objects because const vtkObjects are unusable.
-  const_iterator cend() const { return const_iterator{ nullptr }; }
+  const_iterator cend() const { return const_iterator{ this->Collection->end() }; }
 
 private:
   vtkSmartPointer<CollectionType> Collection;

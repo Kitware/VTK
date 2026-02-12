@@ -17,13 +17,14 @@
 #define vtkCollectionIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
-class vtkCollectionElement;
 
-class VTKCOMMONCORE_EXPORT vtkCollectionIterator : public vtkObject
+class VTK_DEPRECATED_IN_9_7_0("Use vtk::Range instead.") VTKCOMMONCORE_EXPORT vtkCollectionIterator
+  : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollectionIterator, vtkObject);
@@ -72,12 +73,12 @@ protected:
   // The collection over which we are iterating.
   vtkCollection* Collection;
 
-  // The current iterator position.
-  vtkCollectionElement* Element;
-
   vtkObject* GetObjectInternal();
 
 private:
+  // The current iterator position.
+  std::vector<vtkObject*>::iterator Iterator;
+
   vtkCollectionIterator(const vtkCollectionIterator&) = delete;
   void operator=(const vtkCollectionIterator&) = delete;
 };

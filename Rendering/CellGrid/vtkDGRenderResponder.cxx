@@ -9,7 +9,6 @@
 #include "vtkCellGrid.h"
 #include "vtkCellGridMapper.h"
 #include "vtkCellMetadata.h"
-#include "vtkCollectionIterator.h"
 #include "vtkDGAttributeInformation.h"
 #include "vtkDGCell.h"
 #include "vtkGLSLModCamera.h"
@@ -235,11 +234,10 @@ bool vtkDGRenderResponder::CacheEntry::IsUpToDate(vtkRenderer* renderer, vtkActo
     vtkDebugWithObjectMacro(responder, << "Shader pipeline is outdated");
     return false;
   }
-  auto modsIter = vtk::TakeSmartPointer(this->RenderHelper->GetGLSLModCollection()->NewIterator());
   auto oglRen = static_cast<vtkOpenGLRenderer*>(renderer);
-  for (modsIter->InitTraversal(); !modsIter->IsDoneWithTraversal(); modsIter->GoToNextItem())
+  for (vtkObject* obj : *(this->RenderHelper->GetGLSLModCollection()))
   {
-    auto mod = static_cast<vtkGLSLModifierBase*>(modsIter->GetCurrentObject());
+    auto mod = static_cast<vtkGLSLModifierBase*>(obj);
     if (!mod->IsUpToDate(oglRen, mapper, actor))
     {
       vtkDebugWithObjectMacro(nullptr, << mod->GetClassName() << " is outdated");

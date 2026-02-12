@@ -64,8 +64,6 @@ protected:
   vtkImageSliceCollection() = default;
   ~vtkImageSliceCollection() override;
 
-  void DeleteElement(vtkCollectionElement*) override;
-
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }

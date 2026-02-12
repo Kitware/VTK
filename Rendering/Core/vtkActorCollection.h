@@ -94,13 +94,14 @@ inline vtkActor* vtkActorCollection::GetNextActor()
 
 inline vtkActor* vtkActorCollection::GetLastActor()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkActor*>(this->Bottom->Item);
+    return static_cast<vtkActor*>(this->GetItemAsObject(numItems - 1));
   }
 }
 
