@@ -30,9 +30,11 @@ vtkStandardNewMacro(vtkImageMultiVariateToRGBA);
 
 namespace
 {
+// Implement numpy.mod using std::fmod
+// std::fmod returns a remainder with the sign of the dividend (a) while
+// numpy.mod returns a reminder with he sign of the divisor (b)
 double numpy_mod(double a, double b)
 {
-  // fmod returns a remainder with the sign of the dividend (a)
   double r = std::fmod(a, b);
   // If remainder is non-zero and has a different sign than the divisor, adjust.
   if (r != 0.0 && ((r < 0.0) != (b < 0.0)))
