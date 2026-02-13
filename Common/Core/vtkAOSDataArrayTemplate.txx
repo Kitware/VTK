@@ -97,6 +97,55 @@ void vtkAOSDataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(v
 }
 
 //-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetBuffer(vtkAbstractBuffer* buffer, bool updateMaxId)
+{
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  vtkBuffer<ValueType>* typedBuffer = vtkBuffer<ValueType>::SafeDownCast(buffer);
+  if (typedBuffer == nullptr)
+  {
+    vtkErrorMacro("Buffer type does not match array type. Expected vtkBuffer<"
+      << this->GetDataTypeAsString() << ">.");
+    return;
+  }
+
+  this->SetBuffer(typedBuffer, updateMaxId);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetBuffer(vtkBuffer<ValueType>* buffer, bool updateMaxId)
+{
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  // Replace the old buffer with the new one
+  if (this->Buffer != buffer)
+  {
+    this->Buffer->Delete();
+    this->Buffer = buffer;
+    buffer->Register(nullptr);
+  }
+
+  if (updateMaxId)
+  {
+    this->Size = buffer->GetSize();
+    this->MaxId = this->Size - 1;
+  }
+
+  this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
+}
+
+//-----------------------------------------------------------------------------
 template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx, const float* tuple)
 {
