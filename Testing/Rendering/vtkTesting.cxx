@@ -1102,36 +1102,16 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
     testing->SetRenderWindow(rw);
 
 #if VTK_MODULE_ENABLE_VTK_SerializationManager
-    const char* serdesKey = "VTK_SERIALIZATION_TESTING";
-    bool doSerDesTest = false;
-    if (vtksys::SystemTools::HasEnv(serdesKey))
+    if (testing->IsFlagSpecified("--serdes"))
     {
-      const char* serdesTestingStr = vtksys::SystemTools::GetEnv(serdesKey);
-
-      if (!strcmp(serdesTestingStr, "ONLY"))
-      {
-        if (!testing->IsFlagSpecified("--serdes"))
-        {
-          return PASSED;
-        }
-        // Render should be called before serialization,
-        // it may not have when skipping the regular regression test
-        rw->Render();
-        return testing->SerDesTest(thresh);
-      }
-      doSerDesTest = !strcmp(serdesTestingStr, "ON");
+      // Render should be called before serialization,
+      // it may not have when skipping the regular regression test
+      rw->Render();
+      return testing->SerDesTest(thresh);
     }
 #endif
 
-    int res = testing->RegressionTest(thresh, std::cout);
-
-#if VTK_MODULE_ENABLE_VTK_SerializationManager
-    if (res == PASSED && doSerDesTest && testing->IsFlagSpecified("--serdes"))
-    {
-      res = testing->SerDesTest(thresh);
-    }
-#endif
-    return res;
+    return testing->RegressionTest(thresh, std::cout);
   }
   return NOT_RUN;
 }

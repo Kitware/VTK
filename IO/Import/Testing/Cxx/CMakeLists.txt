@@ -214,6 +214,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  NO_SERDES
   TestImport3DS,TestImportOBJ.cxx
   ${TEMP}/iflamigm.obj
   ${TEMP}/iflamigm.mtl
@@ -227,6 +228,7 @@ set_tests_properties(VTK::IOImportCxx-TestImport3DS
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  NO_SERDES
   TestImportGLFT,TestImportOBJ.cxx
   ${TEMP}/Avocado.obj
   ${TEMP}/Avocado.mtl

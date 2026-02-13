@@ -103,12 +103,20 @@ file(WRITE "${CTEST_SOURCE_DIRECTORY}/compile_num_warnings.log" "${num_warnings}
 # Default to a reasonable test timeout.
 set(CTEST_TEST_TIMEOUT 100)
 
+set(include_or_exclude_serdes "")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "serialization")
+  list(APPEND include_or_exclude_serdes INCLUDE_LABEL SERDES)
+else ()
+  list(APPEND include_or_exclude_serdes EXCLUDE_LABEL SERDES)
+endif ()
+
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
   TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
+  ${include_or_exclude_serdes}
   OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
   REPEAT UNTIL_PASS:3)
 ctest_submit(PARTS Test)

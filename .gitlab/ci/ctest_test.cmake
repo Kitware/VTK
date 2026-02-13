@@ -36,12 +36,20 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mangling")
   list(APPEND maybe_include_label_mangling INCLUDE_LABEL MANGLING)
 endif()
 
+set(include_or_exclude_serdes "")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "serialization")
+  list(APPEND include_or_exclude_serdes INCLUDE_LABEL SERDES)
+else ()
+  list(APPEND include_or_exclude_serdes EXCLUDE_LABEL SERDES)
+endif ()
+
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
   TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
   ${maybe_include_label_mangling}
+  ${include_or_exclude_serdes}
   OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
   REPEAT UNTIL_PASS:3)
 ctest_submit(PARTS Test)

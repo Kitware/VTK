@@ -362,8 +362,9 @@ C++ tests
     filesystem. If it does, a directory which may be written to is passed via
     the ``-T`` flag.
   - ``NO_SERDES``: The test does not do serialization/deserialization testing. If
-    it does, the flag ``--serdes`` is passed. Note that only tests that do a regression test on
-    a render window and pass ``--serdes`` will do serdes testing.
+    it does, a second test with the suffix ``SerDes` is created which passes the
+    ``--serdes`` flag. Note that only tests that do a regression test on a render
+    window and pass ``--serdes`` will do serdes testing.
 
   Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
   variable or the ``<NAME>_ARGS`` variable.
@@ -422,11 +423,6 @@ function (vtk_add_test_cxx exename _tests)
       set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
     endif ()
 
-    set(_S "")
-    if (VTK_WRAP_SERIALIZATION AND NOT local_NO_SERDES AND NOT local_NO_VALID)
-      set(_S "--serdes")
-    endif ()
-
     set(image_compare_method ${default_image_compare})
     if (local_LEGACY_VALID)
       set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
@@ -479,8 +475,23 @@ function (vtk_add_test_cxx exename _tests)
               "${args}"
               ${${_vtk_build_test}_ARGS}
               ${${test_name}_ARGS}
-              ${_D} ${_T} ${_V} ${_S})
-    set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+              ${_D} ${_T} ${_V})
+
+    set(test_list "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}")
+
+    if (VTK_WRAP_SERIALIZATION AND NOT local_NO_SERDES AND NOT local_NO_VALID)
+      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+      NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}SerDes"
+      COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
+              "${test_arg}"
+              "${args}"
+              ${${_vtk_build_test}_ARGS}
+              ${${test_name}_ARGS}
+              ${_D} ${_T} ${_V} "--serdes")
+      list(APPEND test_list "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}SerDes")
+    endif ()
+
+    set_tests_properties(${test_list}
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
@@ -489,15 +500,18 @@ function (vtk_add_test_cxx exename _tests)
         ENVIRONMENT "${vtk_testing}"
         SKIP_RETURN_CODE 125 # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
       )
+    if (VTK_WRAP_SERIALIZATION AND NOT local_NO_SERDES AND NOT local_NO_VALID)
+      set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}SerDes" APPEND PROPERTY LABELS SERDES)
+    endif()
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-      set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+      set_tests_properties(${test_list}
         PROPERTIES
           FIXTURES_REQUIRED "HTTP"
         )
     endif ()
     if (_vtk_testing_ld_preload)
-      set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
-        PROPERTY
+      set_tests_properties(${test_list}
+        PROPERTIES
           ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
     endif ()
     list(APPEND ${_tests} "${test_file}")

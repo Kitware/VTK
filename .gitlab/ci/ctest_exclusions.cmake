@@ -1,15 +1,15 @@
 set(test_exclusions
   # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
-  "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
+  "^VTK::RenderingOpenGL2Cxx-TestFluidMapper(SerDes)?$"
   # Flaky when run with threads enabled. See #19471.
-  "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
+  "^VTK::FiltersCellGridCxx-TestCellGridEvaluator(SerDes)?$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
-  "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
+  "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability(SerDes)?$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Flaky; timesout sometimes on macOS and Linux
-    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBoxWidget(SerDes)?$"
   )
 endif ()
 
@@ -22,27 +22,27 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Line rendering differences
     "^VTK::FiltersCorePython-contourCells$"
     "^VTK::FiltersCorePython-contourQuadraticCells$"
-    "^VTK::FiltersFlowPathsCxx-TestBSPTree$"
-    "^VTK::FiltersGeneralCxx-TestDensifyPolyData$" # valid image looks weird too
+    "^VTK::FiltersFlowPathsCxx-TestBSPTree(SerDes)?$"
+    "^VTK::FiltersGeneralCxx-TestDensifyPolyData(SerDes)?$" # valid image looks weird too
     "^VTK::FiltersGeneralPython-clipQuadraticCells$"
     "^VTK::FiltersGeneralPython-edgePoints$"
     "^VTK::FiltersGeneralPython-TestFEDiscreteClipper2D$"
-    "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContourMaterial$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DGeometryLargeMaterialBits$"
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual$"
+    "^VTK::FiltersGeometryCxx-TestLinearToQuadraticCellsFilter(SerDes)?$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DDualContourMaterial(SerDes)?$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DGeometryLargeMaterialBits(SerDes)?$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary3DPlaneCutterDual(SerDes)?$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter3$"
     "^VTK::FiltersModelingPython-TestImprintFilter6$"
     "^VTK::FiltersSourcesPython-TestStaticCellLocatorLineIntersection$"
-    "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets$"
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerWidgets(SerDes)?$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
-    "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
+    "^VTK::RenderingOpenGL2Cxx-TestCoincident(SerDes)?$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
-    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid(SerDes)?$"
 
     # Timeout; needs investigation
-    "^VTK::RenderingOpenGL2Cxx-TestFloor$"
+    "^VTK::RenderingOpenGL2Cxx-TestFloor(SerDes)?$"
 
     # Point rendering differences
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$" # other differences too
@@ -60,14 +60,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
     "^VTK::FiltersModelingPython-TestCookieCutter$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestTextureRGBADepthPeeling$" # seems to just not work here
+    "^VTK::RenderingCoreCxx-OpenGL-TestTextureRGBADepthPeeling(SerDes)?$" # seems to just not work here
 
     # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
-    "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
+    "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget(SerDes)?$"
 
     # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
-    "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
-    "^VTK::ViewsInfovisCxx-TestRenderView$"
+    "^VTK::ViewsInfovisCxx-TestGraphLayoutView(SerDes)?$"
+    "^VTK::ViewsInfovisCxx-TestRenderView(SerDes)?$"
     )
 endif ()
 
@@ -109,21 +109,21 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
 
     # Point rendering differences
-    "^VTK::IOLASCxx-TestLASReader_test_1$"
-    "^VTK::IOLASCxx-TestLASReader_test_2$"
-    "^VTK::IOPDALCxx-TestPDALReader_test_1$"
-    "^VTK::IOPDALCxx-TestPDALReader_test_2$"
+    "^VTK::IOLASCxx-TestLASReader_test_1(SerDes)?$"
+    "^VTK::IOLASCxx-TestLASReader_test_2(SerDes)?$"
+    "^VTK::IOPDALCxx-TestPDALReader_test_1(SerDes)?$"
+    "^VTK::IOPDALCxx-TestPDALReader_test_2(SerDes)?$"
 
     # Syntax error in generated shader program.
-    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow(SerDes)?$"
 
     # Flaky timeouts
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18984
-    "^VTK::ViewsInfovisCxx-TestGraphLayoutView$"
+    "^VTK::ViewsInfovisCxx-TestGraphLayoutView(SerDes)?$"
 
     # Rendering in the wrong order.
-    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget2$"
-    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget3$"
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget2(SerDes)?$"
+    "^VTK::InteractionWidgetsCxx-TestResliceCursorWidget3(SerDes)?$"
 
     # MPI detects bad memory handling
     "^VTK::IOPIOPython-MPI-TestPIOReader$"
@@ -304,9 +304,9 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Image size mismatches
-    "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors$"
+    "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors(SerDes)?$"
     "^VTK::FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter2$"
-    "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass$"
+    "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass(SerDes)?$"
 
     # PATH manipulations needed
     "^VTKExample-ImageProcessing/Cxx$"
@@ -332,17 +332,17 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # Flaky on windows for some reasons:
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18640
-    "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics$"
+    "^VTK::FiltersStatisticsCxx-TestMultiCorrelativeStatistics(SerDes)?$"
 
     # Fail to present D3D resources (see #18657)
-    "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow$"
+    "^VTK::RenderingOpenGL2Cxx-TestWin32OpenGLDXRenderWindow(SerDes)?$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19183
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
-    "^VTK::RenderingCoreCxx-OpenGL-TestResizingWindowToImageFilter$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestResizingWindowToImageFilter(SerDes)?$"
   )
 endif ()
 
@@ -385,12 +385,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions
     # floating point precision issues (fma optimizations change results)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
-    "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
-    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
-    "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
+    "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator(SerDes)?$"
+    "^VTK::ChartsCoreCxx-TestLinePlot3D(SerDes)?$"
+    "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube(SerDes)?$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
-    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
-    "^VTK::FiltersFlowPathsCxx-TestParticleTracers$"
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D(SerDes)?$"
+    "^VTK::FiltersFlowPathsCxx-TestParticleTracers(SerDes)?$"
     "^VTK::FiltersModelingPython-Hyper$"
     "^VTK::RenderingAnnotationPython-xyPlot$"
     "^VTK::RenderingAnnotationPython-xyPlot2$"
@@ -399,30 +399,30 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
 
     # Crowded geometry?
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
-    "^VTK::ViewsInfovisCxx-TestTreeMapView$"
+    "^VTK::ViewsInfovisCxx-TestTreeMapView(SerDes)?$"
 
     # Line rendering differences.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
-    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
-    "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
-    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes(SerDes)?$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxes3(SerDes)?$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines(SerDes)?$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
-    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles(SerDes)?$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   list(APPEND test_exclusions
     # line differences https://gitlab.kitware.com/vtk/vtk/-/issues/18229
-    "^VTK::FiltersSourcesCxx-TestHyperTreeGridPreConfiguredSource$"
-    "^VTK::FiltersSourcesCxx-TestRandomHyperTreeGridSource$"
+    "^VTK::FiltersSourcesCxx-TestHyperTreeGridPreConfiguredSource(SerDes)?$"
+    "^VTK::FiltersSourcesCxx-TestRandomHyperTreeGridSource(SerDes)?$"
 
     # geometry shader issues (observed on M4 hardware)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19555
-    "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
-    "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
+    "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS(SerDes)?$"
+    "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep(SerDes)?$"
     "^VTK::CommonDataModelPython-TestClipPolyhedra$"
-    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$"
+    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour(SerDes)?$"
 
     # edge rendering issues (OpenGL support abandoned on macos)
     "^VTK::FiltersMeshingPython-TestVoronoi3D-Lissajous$"

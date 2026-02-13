@@ -157,7 +157,6 @@
 
     variables:
         CMAKE_CONFIGURATION: macos_arm64_kits_python_qt_serialization
-        VTK_SERIALIZATION_TESTING: ONLY
 
 .macos_x86_64_kits_python_qt:
     extends: .macos_build
@@ -165,13 +164,6 @@
     variables:
         CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt
         VTK_INSTALL: 1
-
-.macos_x86_64_kits_python_qt_serialization:
-    extends: .macos_build
-
-    variables:
-        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_serialization
-        VTK_SERIALIZATION_TESTING: ONLY
 
 .macos_x86_64_kits_python_qt_stdthread:
     extends: .macos_build
