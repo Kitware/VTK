@@ -223,6 +223,7 @@ void vtkAlgorithm::UpdateProgress(double amount)
 // algorithm's AbortExecute is set. If either is set, return true.
 bool vtkAlgorithm::CheckAbort()
 {
+  this->InvokeEvent(vtkCommand::AbortCheckEvent, nullptr);
   if (this->GetAbortExecute())
   {
     this->LastAbortCheckTime.Modified();
