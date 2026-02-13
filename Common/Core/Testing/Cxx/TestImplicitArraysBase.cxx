@@ -159,17 +159,6 @@ int TestImplicitArraysBase(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     iArr++;
   }
 
-  int* vPtr = static_cast<int*>(arr42->GetVoidPointer(0));
-  for (iArr = 0; iArr < 100; iArr++)
-  {
-    if (vPtr[iArr] != 42)
-    {
-      res = EXIT_FAILURE;
-      std::cout << iArr << " void pointer entry is not equal to constant 42!" << std::endl;
-    }
-  }
-  arr42->Squeeze();
-
   vtkSmartPointer<vtkDataArray> newInstance;
   newInstance.TakeReference(arr42->NewInstance());
   if (!vtkAOSDataArrayTemplate<int>::SafeDownCast(newInstance))

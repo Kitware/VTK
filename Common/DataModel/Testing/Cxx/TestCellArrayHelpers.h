@@ -501,11 +501,11 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray)
   TEST_ASSERT(test->GetOffsetsArray() == offsets && offsets->GetMTime() == offsetsMTtime);
   TEST_ASSERT(test->GetConnectivityArray() == conn && conn->GetMTime() == connMTtime);
 
-  if (std::is_base_of_v<vtkAOSDataArrayTemplate<OffsetsValueType>, OffsetsArrayType> &&
+  if constexpr (std::is_base_of_v<vtkAOSDataArrayTemplate<OffsetsValueType>, OffsetsArrayType> &&
     std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType> &&
     std::is_same_v<OffsetsValueType, ConnectivityValueType>)
   {
-    if (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
+    if constexpr (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(test->IsStorage32Bit());
@@ -513,7 +513,7 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray)
       TEST_ASSERT(!test->IsStorageFixedSize32Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
     }
-    else if (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
+    else if constexpr (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
     {
       TEST_ASSERT(test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());
@@ -530,11 +530,11 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray)
       TEST_ASSERT(test->IsStorageGeneric());
     }
   }
-  else if (std::is_base_of_v<vtkAffineArray<OffsetsValueType>, OffsetsArrayType> &&
+  else if constexpr (std::is_base_of_v<vtkAffineArray<OffsetsValueType>, OffsetsArrayType> &&
     std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType> &&
     std::is_same_v<OffsetsValueType, ConnectivityValueType>)
   {
-    if (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
+    if constexpr (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());
@@ -542,7 +542,7 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray)
       TEST_ASSERT(!test->IsStorageFixedSize64Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
     }
-    else if (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
+    else if constexpr (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());

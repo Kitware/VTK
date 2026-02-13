@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExodusIIWriter.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
@@ -2804,16 +2803,6 @@ int vtkExodusIIWriter::WriteProperties()
   return (rc >= 0);
 }
 
-//========================================================================
-//   VARIABLE ARRAYS:
-//========================================================================
-template <typename iterT>
-double vtkExodusIIWriterGetComponent(iterT* it, vtkIdType ind)
-{
-  vtkVariant v(it->GetValue(ind));
-  return v.ToDouble();
-}
-
 //------------------------------------------------------------------------------
 double vtkExodusIIWriter::ExtractGlobalData(const char* name, int comp, int ts)
 {
@@ -2853,7 +2842,6 @@ void vtkExodusIIWriter::ExtractCellData(const char* name, int comp, vtkDataArray
     int ncells = this->FlattenedInput[i]->GetNumberOfCells();
     if (da)
     {
-      vtkArrayIterator* arrayIter = da->NewIterator();
       vtkIdType ncomp = da->GetNumberOfComponents();
       for (vtkIdType j = 0; j < ncells; j++)
       {
@@ -2865,13 +2853,8 @@ void vtkExodusIIWriter::ExtractCellData(const char* name, int comp, vtkDataArray
           continue;
         }
         int index = blockIter->second.ElementStartIndex + CellToElementOffset[i][j];
-        switch (da->GetDataType())
-        {
-          vtkArrayIteratorTemplateMacro(buffer->SetTuple1(index,
-            vtkExodusIIWriterGetComponent(static_cast<VTK_TT*>(arrayIter), j * ncomp + comp)));
-        }
+        buffer->SetTuple1(index, da->GetVariantValue(j * ncomp + comp).ToDouble());
       }
-      arrayIter->Delete();
     }
     else
     {
@@ -2901,18 +2884,12 @@ void vtkExodusIIWriter::ExtractPointData(const char* name, int comp, vtkDataArra
     vtkDataArray* da = this->FlattenedInput[i]->GetPointData()->GetArray(name);
     if (da)
     {
-      vtkArrayIterator* iter = da->NewIterator();
       vtkIdType ncomp = da->GetNumberOfComponents();
       vtkIdType nvals = ncomp * da->GetNumberOfTuples();
       for (vtkIdType j = comp; j < nvals; j += ncomp)
       {
-        switch (da->GetDataType())
-        {
-          vtkArrayIteratorTemplateMacro(buffer->SetTuple1(
-            index++, vtkExodusIIWriterGetComponent(static_cast<VTK_TT*>(iter), j)));
-        }
+        buffer->SetTuple1(index++, da->GetVariantValue(j).ToDouble());
       }
-      iter->Delete();
     }
     else
     {

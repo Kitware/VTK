@@ -13,10 +13,12 @@
 #define vtkVoidArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkVoidArray : public vtkObject
+class VTK_DEPRECATED_IN_9_7_0("No longer needed") VTKCOMMONCORE_EXPORT vtkVoidArray
+  : public vtkObject
 {
 public:
   /**

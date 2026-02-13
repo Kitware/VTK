@@ -27,7 +27,10 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 
 template <class Scalar>
-class vtkAngularPeriodicDataArray : public vtkPeriodicDataArray<Scalar>
+class VTK_DEPRECATED_IN_9_7_0(
+  "No longer needed because vtkAngularPeriodicFilter generates an "
+  "implicit array using an internally defined backend.") vtkAngularPeriodicDataArray
+  : public vtkPeriodicDataArray<Scalar>
 {
 public:
   vtkAbstractTemplateTypeMacro(vtkAngularPeriodicDataArray<Scalar>, vtkPeriodicDataArray<Scalar>);

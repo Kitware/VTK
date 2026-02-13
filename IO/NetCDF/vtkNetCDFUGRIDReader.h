@@ -15,7 +15,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 /**
- * @class   vtkNetCDFUGRIDeader
+ * @class   vtkNetCDFUGRIDReader
  * @brief   Read unstructured NetCDF UGRID files.
  *
  * This reader read a single 2D mesh for a NetCDF UGRID. It will extract points and cells

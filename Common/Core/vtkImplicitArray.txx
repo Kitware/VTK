@@ -7,16 +7,8 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-//-----------------------------------------------------------------------------
-template <class BackendT, int ArrayType>
-struct vtkImplicitArray<BackendT, ArrayType>::vtkInternals
-{
-  vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>> Cache;
-};
-
 //-----------------------------------------------------------------------------
 template <class BackendT, int ArrayType>
 vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::New()
@@ -28,7 +20,6 @@ vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::Ne
 //-----------------------------------------------------------------------------
 template <class BackendT, int ArrayType>
 vtkImplicitArray<BackendT, ArrayType>::vtkImplicitArray()
-  : Internals(new vtkInternals())
 {
   this->Initialize();
 }
@@ -56,27 +47,6 @@ template <class BackendT, int ArrayType>
 void vtkImplicitArray<BackendT, ArrayType>::SetTypedComponent(
   vtkIdType vtkNotUsed(idx), int vtkNotUsed(comp), ValueType vtkNotUsed(value))
 {
-}
-
-//-----------------------------------------------------------------------------
-template <class BackendT, int ArrayType>
-void* vtkImplicitArray<BackendT, ArrayType>::GetVoidPointer(vtkIdType idx)
-{
-  if (!this->Internals->Cache)
-  {
-    vtkLog(TRACE,
-      << "Calling GetVoidPointer on a vtkImplicitArray allocates memory for an explicit copy.");
-    this->Internals->Cache = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
-    this->Internals->Cache->DeepCopy(this);
-  }
-  return this->Internals->Cache->GetVoidPointer(idx);
-}
-
-//-----------------------------------------------------------------------------
-template <class BackendT, int ArrayType>
-void vtkImplicitArray<BackendT, ArrayType>::Squeeze()
-{
-  this->Internals->Cache = nullptr;
 }
 
 //-----------------------------------------------------------------------------

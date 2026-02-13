@@ -3,6 +3,9 @@
 // SPDX-FileCopyrightText: Copyright 2012 Sandia Corporation.
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #define vtkmlib_Portals_cxx
 #include "Portals.h"
 

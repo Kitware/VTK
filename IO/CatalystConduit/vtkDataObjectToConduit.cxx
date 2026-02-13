@@ -46,7 +46,7 @@
 #define conduit_set_array(node, arr, type, native_type, num_elem, offset, stride, external)        \
   {                                                                                                \
     auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(arr);                       \
-    if (arraySOA && arraySOA->GetStorageType() == arraySOA->StorageTypeEnum::SOA)                  \
+    if (arraySOA)                                                                                  \
     {                                                                                              \
       if (external)                                                                                \
       {                                                                                            \

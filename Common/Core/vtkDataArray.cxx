@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_6_0()
+// VTK_DEPRECATED_IN_9_7_0()
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkDataArray.h"
@@ -130,6 +130,15 @@ void vtkDataArray::ShallowCopy(vtkDataArray* other)
 {
   // Deep copy by default. Subclasses may override this behavior.
   this->DeepCopy(other);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataArray::ShallowCopy(vtkAbstractArray* other)
+{
+  if (auto* da = vtkDataArray::FastDownCast(other))
+  {
+    this->ShallowCopy(da);
+  }
 }
 
 //------------------------------------------------------------------------------

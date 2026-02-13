@@ -5,7 +5,6 @@
 #include "vtkPairwiseExtractHistogram2D.h"
 //------------------------------------------------------------------------------
 #include "vtkArrayData.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCollection.h"
 #include "vtkExtractHistogram2D.h"
 #include "vtkIdTypeArray.h"

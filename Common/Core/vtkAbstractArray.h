@@ -297,6 +297,13 @@ public:
   virtual void DeepCopy(vtkAbstractArray* da);
 
   /**
+   * This method will copy the data from the source array to this array.
+   * This is possible only if the data types are the same data type and array type.
+   * Otherwise, it will complain and change nothing if the array passed in is not the same.
+   */
+  virtual void ShallowCopy(vtkAbstractArray* src);
+
+  /**
    * Set the tuple at dstTupleIdx in this array to the interpolated tuple value,
    * given the ptIndices in the source array and associated interpolation
    * weights.
@@ -404,6 +411,7 @@ public:
    * by the user.  It is up to the user to allocate enough memory for
    * the void pointer.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DeepCopy with an vtkAOSDataArrayTemplate array")
   virtual void ExportToVoidPointer(void* out_ptr);
 
   /**
@@ -459,8 +467,8 @@ public:
    * Subclasses must override this method and provide the right kind
    * of templated vtkArrayIteratorTemplate.
    */
-  VTK_NEWINSTANCE
-  virtual vtkArrayIterator* NewIterator() = 0;
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
+  VTK_NEWINSTANCE virtual vtkArrayIterator* NewIterator() = 0;
 
   /**
    * Returns the size of the data in DataTypeSize units. Thus, the
@@ -691,14 +699,15 @@ public:
   static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SOA_DATA_ARRAY;
   static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
+    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") =
+    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
   static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(
     "Use vtkArrayTypes::VTK_IMPLICIT_ARRAY") = vtkArrayTypes::VTK_IMPLICIT_ARRAY;
   static constexpr int DataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "DataArrayTemplate has been deprecated") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
   static constexpr int ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
-    vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
+    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
 
   /**
    * Method for type-checking in FastDownCast implementations. See also

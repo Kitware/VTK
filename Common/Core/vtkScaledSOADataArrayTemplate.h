@@ -31,12 +31,13 @@
 // when we export instantiations of this class from vtkCommonCore.
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
-class VTKCOMMONCORE_EXPORT vtkScaledSOADataArrayTemplate
+class VTK_DEPRECATED_IN_9_7_0("Use vtkSOADataArrayTemplate and scale values yourself")
+  VTKCOMMONCORE_EXPORT vtkScaledSOADataArrayTemplate
   : public vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
-      vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY>
+      /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>,
-    ValueTypeT, vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY>;
+    ValueTypeT, /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7>;
 
 public:
   using SelfType = vtkScaledSOADataArrayTemplate<ValueTypeT>;
@@ -207,20 +208,17 @@ public:
 #endif // __VTK_WRAP__
 
   /**
-   * Use of this method is discouraged, it creates a deep copy of the data into
-   * a contiguous AoS-ordered buffer and prints a warning.
-   */
-  void* GetVoidPointer(vtkIdType valueIdx) override;
-
-  /**
    * Export a copy of the data in AoS ordering to the preallocated memory
    * buffer.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DeepCopy with an vtkAOSDataArrayTemplate array")
   void ExportToVoidPointer(void* ptr) override;
 
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;
+  using vtkAbstractArray::ShallowCopy;
 
   // Reimplemented for efficiency:
   void InsertTuples(
@@ -254,7 +252,6 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
 
   std::vector<vtkBuffer<ValueType>*> Data;
-  vtkBuffer<ValueType>* AoSCopy;
 
 private:
   vtkScaledSOADataArrayTemplate(const vtkScaledSOADataArrayTemplate&) = delete;

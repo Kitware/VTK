@@ -18,16 +18,19 @@
 #define vtkPeriodicDataArray_h
 
 #include "vtkAOSDataArrayTemplate.h" // Template
+#include "vtkDeprecation.h"          // VTK_DEPRECATED_IN_9_7_0
 #include "vtkGenericDataArray.h"     // Parent
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkPeriodicDataArray
+class VTK_DEPRECATED_IN_9_7_0(
+  "No longer needed because vtkAngularPeriodicFilter generates an "
+  "implicit array using an internally defined backend.") vtkPeriodicDataArray
   : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
-      vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>
+      /* vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY */ 9>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
-    vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>;
+    /* vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY */ 9>;
 
 public:
   using SelfType = vtkPeriodicDataArray<Scalar>;
@@ -66,6 +69,7 @@ public:
   /**
    * Not implemented
    */
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
   /**
@@ -307,12 +311,6 @@ public:
   vtkGetMacro(Normalize, bool);
   ///@}
 
-  /**
-   * Use of this method is discouraged, it creates a memory copy of the data into
-   * a contiguous AoS-ordered buffer internally.
-   */
-  void* GetVoidPointer(vtkIdType valueIdx) override;
-
 protected:
   vtkPeriodicDataArray();
   ~vtkPeriodicDataArray() override;
@@ -373,11 +371,10 @@ private:
 
   friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
 
-  Scalar* TempScalarArray;                // Temporary array used by GetTypedTuple methods
-  double* TempDoubleArray;                // Temporary array used by GetTuple vethods
-  vtkIdType TempTupleIdx;                 // Location of currently stored Temp Tuple to use as cache
-  vtkAOSDataArrayTemplate<Scalar>* Data;  // Original data
-  vtkAOSDataArrayTemplate<Scalar>* Cache; // Only used by void pointer
+  Scalar* TempScalarArray;               // Temporary array used by GetTypedTuple methods
+  double* TempDoubleArray;               // Temporary array used by GetTuple vethods
+  vtkIdType TempTupleIdx;                // Location of currently stored Temp Tuple to use as cache
+  vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
 
   bool InvalidRange = true;
   double PeriodicRange[6]; // Transformed periodic range

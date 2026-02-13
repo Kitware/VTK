@@ -3,13 +3,13 @@
 
 #include "vtkAngularPeriodicFilter.h"
 
-#include "vtkAngularPeriodicDataArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -24,6 +24,93 @@
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
+template <typename ValueType>
+class vtkAngularPeriodicFilter::vtkAngularPeriodicBackend
+{
+  vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>> Input;
+  double AngleInRadians;
+  int Axis;
+  double Center[3];
+  vtkIdType NumberOfComponents;
+  bool Normalize;
+  vtkNew<vtkMatrix3x3> RotationMatrix;
+
+public:
+  vtkAngularPeriodicBackend(vtkAOSDataArrayTemplate<ValueType>* input, double angleDegrees,
+    int axis, const double center[3], bool normalize = false)
+    : Input(input)
+    , Axis(axis)
+    , NumberOfComponents(input->GetNumberOfComponents())
+    , Normalize(normalize)
+  {
+    this->AngleInRadians = vtkMath::RadiansFromDegrees(angleDegrees);
+    std::copy(center, center + 3, this->Center);
+
+    // Precompute Rotation Matrix
+    this->RotationMatrix->Identity();
+    int axis0 = (this->Axis + 1) % 3;
+    int axis1 = (this->Axis + 2) % 3;
+    this->RotationMatrix->SetElement(this->Axis, this->Axis, 1.0);
+    this->RotationMatrix->SetElement(axis0, axis0, std::cos(this->AngleInRadians));
+    this->RotationMatrix->SetElement(axis0, axis1, -std::sin(this->AngleInRadians));
+    this->RotationMatrix->SetElement(axis1, axis0, std::sin(this->AngleInRadians));
+    this->RotationMatrix->SetElement(axis1, axis1, std::cos(this->AngleInRadians));
+  }
+
+  void Transform(ValueType* pos) const
+  {
+    if (this->NumberOfComponents == 3)
+    {
+      // Axis rotation
+      int axis0 = (this->Axis + 1) % this->NumberOfComponents;
+      int axis1 = (this->Axis + 2) % this->NumberOfComponents;
+      double posx = static_cast<double>(pos[axis0]) - this->Center[axis0];
+      double posy = static_cast<double>(pos[axis1]) - this->Center[axis1];
+
+      pos[axis0] = this->Center[axis0] +
+        static_cast<ValueType>(cos(this->AngleInRadians) * posx - sin(this->AngleInRadians) * posy);
+      pos[axis1] = this->Center[axis1] +
+        static_cast<ValueType>(sin(this->AngleInRadians) * posx + cos(this->AngleInRadians) * posy);
+      if (this->Normalize)
+      {
+        vtkMath::Normalize(pos);
+      }
+    }
+    else if (this->NumberOfComponents == 6 || this->NumberOfComponents == 9)
+    {
+      // Template type force a copy to a double array for tensor
+      double localPos[9];
+      double tmpMat[9];
+      double tmpMat2[9];
+      std::copy(pos, pos + this->NumberOfComponents, localPos);
+      if (this->NumberOfComponents == 6)
+      {
+        vtkMath::TensorFromSymmetricTensor(localPos);
+      }
+
+      vtkMatrix3x3::Transpose(this->RotationMatrix->GetData(), tmpMat);
+      vtkMatrix3x3::Multiply3x3(this->RotationMatrix->GetData(), localPos, tmpMat2);
+      vtkMatrix3x3::Multiply3x3(tmpMat2, tmpMat, localPos);
+      std::copy(localPos, localPos + this->NumberOfComponents, pos);
+    }
+  }
+
+  void mapTuple(vtkIdType tupleId, ValueType* tuple) const
+  {
+    this->Input->GetTypedTuple(tupleId, tuple);
+    this->Transform(tuple);
+  }
+
+  ValueType map(vtkIdType index) const
+  {
+    const auto div = std::div(index, this->NumberOfComponents);
+    ValueType tuple[9];
+    this->mapTuple(div.quot, tuple);
+    return tuple[div.rem];
+  }
+};
+
 vtkStandardNewMacro(vtkAngularPeriodicFilter);
 
 //------------------------------------------------------------------------------
@@ -33,7 +120,7 @@ vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
   this->RotationMode = VTK_ROTATION_MODE_DIRECT_ANGLE;
   this->RotationAngle = 180.;
   this->RotationArrayName = nullptr;
-  this->RotationAxis = VTK_PERIODIC_ARRAY_AXIS_X;
+  this->RotationAxis = 0;
   this->Center[0] = 0;
   this->Center[1] = 0;
   this->Center[2] = 0;
@@ -62,13 +149,13 @@ void vtkAngularPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
   switch (this->RotationAxis)
   {
-    case VTK_PERIODIC_ARRAY_AXIS_X:
+    case 0:
       os << indent << "Rotation Axis: X" << endl;
       break;
-    case VTK_PERIODIC_ARRAY_AXIS_Y:
+    case 1:
       os << indent << "Rotation Axis: Y" << endl;
       break;
-    case VTK_PERIODIC_ARRAY_AXIS_Z:
+    case 2:
       os << indent << "Rotation Axis: Z" << endl;
       break;
     default:
@@ -79,19 +166,19 @@ void vtkAngularPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToX()
 {
-  this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_X);
+  this->SetRotationAxis(0);
 }
 
 //------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToY()
 {
-  this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_Y);
+  this->SetRotationAxis(1);
 }
 
 //------------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetRotationAxisToZ()
 {
-  this->SetRotationAxis(VTK_PERIODIC_ARRAY_AXIS_Z);
+  this->SetRotationAxis(2);
 }
 
 //------------------------------------------------------------------------------
@@ -220,13 +307,13 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(
     vtkNew<vtkTransform> transform;
     switch (this->RotationAxis)
     {
-      case VTK_PERIODIC_ARRAY_AXIS_X:
+      case 0:
         transform->RotateX(pieceAngle);
         break;
-      case VTK_PERIODIC_ARRAY_AXIS_Y:
+      case 1:
         transform->RotateY(pieceAngle);
         break;
-      case VTK_PERIODIC_ARRAY_AXIS_Z:
+      case 2:
         transform->RotateZ(pieceAngle);
         break;
     }
@@ -245,19 +332,18 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
   vtkDataArray* inputArray, double angle, bool useCenter, bool normalize)
 {
   vtkDataArray* periodicArray = nullptr;
+  double defaultCenter[3] = { 0., 0., 0. };
   switch (inputArray->GetDataType())
   {
     case VTK_FLOAT:
     {
-      vtkAngularPeriodicDataArray<float>* pArray = vtkAngularPeriodicDataArray<float>::New();
-      pArray->SetAxis(this->RotationAxis);
-      pArray->SetAngle(angle);
-      if (useCenter)
-      {
-        pArray->SetCenter(this->Center);
-      }
-      pArray->SetNormalize(normalize);
-      pArray->InitializeArray(vtkArrayDownCast<vtkFloatArray>(inputArray));
+      auto array = vtkArrayDownCast<vtkAOSDataArrayTemplate<float>>(inputArray);
+      auto* pArray = vtkImplicitArray<vtkAngularPeriodicBackend<float>>::New();
+      pArray->ConstructBackend(
+        array, angle, this->RotationAxis, useCenter ? this->Center : defaultCenter, normalize);
+      pArray->SetName(inputArray->GetName());
+      pArray->SetNumberOfComponents(inputArray->GetNumberOfComponents());
+      pArray->SetNumberOfTuples(inputArray->GetNumberOfTuples());
       if (this->ComputeRotationsOnTheFly)
       {
         periodicArray = pArray;
@@ -273,15 +359,13 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
     }
     case VTK_DOUBLE:
     {
-      vtkAngularPeriodicDataArray<double>* pArray = vtkAngularPeriodicDataArray<double>::New();
-      pArray->SetAxis(this->RotationAxis);
-      pArray->SetAngle(angle);
-      if (useCenter)
-      {
-        pArray->SetCenter(this->Center);
-      }
-      pArray->SetNormalize(normalize);
-      pArray->InitializeArray(vtkArrayDownCast<vtkDoubleArray>(inputArray));
+      auto array = vtkArrayDownCast<vtkAOSDataArrayTemplate<double>>(inputArray);
+      auto* pArray = vtkImplicitArray<vtkAngularPeriodicBackend<double>>::New();
+      pArray->ConstructBackend(
+        array, angle, this->RotationAxis, useCenter ? this->Center : defaultCenter, normalize);
+      pArray->SetName(inputArray->GetName());
+      pArray->SetNumberOfComponents(inputArray->GetNumberOfComponents());
+      pArray->SetNumberOfTuples(inputArray->GetNumberOfTuples());
       if (this->ComputeRotationsOnTheFly)
       {
         periodicArray = pArray;

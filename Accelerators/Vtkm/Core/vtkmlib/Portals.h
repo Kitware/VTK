@@ -8,6 +8,7 @@
 
 #include "PortalTraits.h"
 #include "vtkAcceleratorsVTKmCoreModule.h"
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkmConfigCore.h" //required for general viskores setup
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -22,7 +23,7 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 template <typename Type, typename VTKDataArrayType_>
-class VISKORES_ALWAYS_EXPORT vtkArrayPortal
+class VTK_DEPRECATED_IN_9_7_0("No longer needed") VISKORES_ALWAYS_EXPORT vtkArrayPortal
 {
   static const int NUM_COMPONENTS = viskores::VecTraits<Type>::NUM_COMPONENTS;
 
@@ -66,7 +67,7 @@ private:
 };
 
 template <typename Type>
-class VISKORES_ALWAYS_EXPORT vtkPointsPortal
+class VTK_DEPRECATED_IN_9_7_0("No longer needed") VISKORES_ALWAYS_EXPORT vtkPointsPortal
 {
   static const int NUM_COMPONENTS = viskores::VecTraits<Type>::NUM_COMPONENTS;
 

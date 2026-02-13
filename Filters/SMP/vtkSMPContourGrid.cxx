@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkSMPContourGrid.h"
 
 #include "vtkCellArray.h"
@@ -293,6 +295,7 @@ public:
         cs->SetNumberOfTuples(pids->GetNumberOfIds());
         this->InScalars->GetTuples(pids, cs);
         int numCellScalars = cs->GetNumberOfComponents() * cs->GetNumberOfTuples();
+        // NOLINTNEXTLINE(bugprone-unsafe-functions)
         T* cellScalarPtr = static_cast<T*>(cs->GetVoidPointer(0));
 
         // find min and max values in scalar data

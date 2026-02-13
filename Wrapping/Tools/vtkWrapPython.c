@@ -226,7 +226,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     fprintf(fp,
       "#include \"vtkSOADataArrayTemplate.h\"\n"
       "#include \"vtkAOSDataArrayTemplate.h\"\n"
-      "#include \"vtkScaledSOADataArrayTemplate.h\"\n");
+      "#include \"vtkScaledSOADataArrayTemplate.h\"\n"); // VTK_DEPRECATED_IN_9_7_0
   }
   /* special case for the way vtkGenericDataArray template is used */
   if (data && strcmp(data->Name, "vtkAlgorithm") == 0)

@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
 #ifdef _MSC_VER
@@ -11,6 +14,7 @@
 #include "vtkVariantArray.h"
 
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -20,18 +24,17 @@
 #include "vtkVariant.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
-#include <map>
 #include <utility>
-
-// Map containing updates to a vtkVariantArray that have occurred
-// since we last build the vtkVariantArrayLookup.
-typedef std::multimap<vtkVariant, vtkIdType, vtkVariantLessThan> vtkVariantCachedUpdates;
 
 namespace
 {
-auto DefaultDeleteFunction = [](void* ptr) { delete[] reinterpret_cast<vtkVariant*>(ptr); };
+vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void* { return new vtkVariant[size]; };
+vtkFreeingFunction DefaultDeleteFunction = [](void* ptr)
+{ delete[] static_cast<vtkVariant*>(ptr); };
 }
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -59,7 +62,6 @@ public:
   }
   vtkVariantArray* SortedArray;
   vtkIdList* IndexArray;
-  vtkVariantCachedUpdates CachedUpdates;
   bool Rebuild;
 };
 
@@ -69,36 +71,86 @@ public:
 
 vtkStandardNewMacro(vtkVariantArray);
 vtkStandardExtendedNewMacro(vtkVariantArray);
-//------------------------------------------------------------------------------
-void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  if (this->Array)
-  {
-    os << indent << "Array: " << this->Array << "\n";
-  }
-  else
-  {
-    os << indent << "Array: (null)\n";
-  }
-}
 
 //------------------------------------------------------------------------------
 vtkVariantArray::vtkVariantArray()
 {
-  this->Array = nullptr;
-  this->DeleteFunction = DefaultDeleteFunction;
+  this->Buffer = vtkBuffer<ValueType>::New();
+  this->Buffer->SetMallocFunction(DefaultNewFunction);
+  this->Buffer->SetReallocFunction(nullptr);
+  this->Buffer->SetFreeFunction(false, DefaultDeleteFunction);
   this->Lookup = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkVariantArray::~vtkVariantArray()
 {
-  if (this->DeleteFunction)
-  {
-    this->DeleteFunction(this->Array);
-  }
+  this->Buffer->Delete();
   delete this->Lookup;
+}
+
+//------------------------------------------------------------------------------
+void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  if (this->Buffer)
+  {
+    this->Buffer->PrintSelf(os, indent);
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkVariantArray::AllocateTuples(vtkIdType numTuples)
+{
+  vtkIdType numValues = numTuples * this->GetNumberOfComponents();
+  if (this->Buffer->Allocate(numValues))
+  {
+    this->Size = this->Buffer->GetSize();
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkVariantArray::ReallocateTuples(vtkIdType numTuples)
+{
+  vtkIdType newSize = numTuples * this->GetNumberOfComponents();
+  if (newSize == this->Size)
+  {
+    return true;
+  }
+
+  if (this->Buffer->Reallocate(newSize))
+  {
+    this->Size = this->Buffer->GetSize();
+    // Notify observers that the buffer may have changed
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkVariantArray::EnsureAccessToTuple(vtkIdType tupleIdx)
+{
+  if (tupleIdx < 0)
+  {
+    return false;
+  }
+  vtkIdType minSize = (1 + tupleIdx) * this->NumberOfComponents;
+  vtkIdType expectedMaxId = minSize - 1;
+  if (this->MaxId < expectedMaxId)
+  {
+    if (this->Size < minSize)
+    {
+      if (!this->Resize(tupleIdx + 1))
+      {
+        return false;
+      }
+    }
+    this->MaxId = expectedMaxId;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -124,41 +176,43 @@ vtkVariantArray* vtkVariantArray::FastDownCast(vtkAbstractArray* source)
 //
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
+vtkTypeBool vtkVariantArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
-  if (sz > this->Size)
-  {
-    if (this->DeleteFunction)
-    {
-      this->DeleteFunction(this->Array);
-    }
-
-    this->Size = (sz > 0 ? sz : 1);
-    this->Array = new ValueType[this->Size];
-    if (!this->Array)
-    {
-      return 0;
-    }
-    this->DeleteFunction = DefaultDeleteFunction;
-  }
-
+  // Allocator must update this->MaxId properly.
   this->MaxId = -1;
-  this->DataChanged();
+  if (size > this->Size || size == 0)
+  {
+    this->Size = 0;
 
+    // let's keep the size an integral multiple of the number of components.
+    size = size < 0 ? 0 : size;
+    int numComps = this->GetNumberOfComponents() > 0 ? this->GetNumberOfComponents() : 1;
+    double ceilNum = ceil(static_cast<double>(size) / static_cast<double>(numComps));
+    vtkIdType numTuples = static_cast<vtkIdType>(ceilNum);
+    // NOTE: if numTuples is 0, AllocateTuples is expected to release the
+    // memory.
+    if (this->AllocateTuples(numTuples) == false)
+    {
+      vtkErrorMacro(
+        "Unable to allocate " << size << " elements of size " << sizeof(ValueType) << " bytes. ");
+#if !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that alloc failed by return
+      return 0;
+#endif
+    }
+    this->Size = numTuples * numComps;
+  }
+  this->DataChanged();
   return 1;
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::Initialize()
 {
-  if (this->DeleteFunction)
-  {
-    this->DeleteFunction(this->Array);
-  }
-  this->Array = nullptr;
-  this->Size = 0;
-  this->MaxId = -1;
-  this->DeleteFunction = DefaultDeleteFunction;
+  this->Resize(0);
   this->DataChanged();
 }
 
@@ -196,7 +250,7 @@ int vtkVariantArray::GetDataType() const
 //------------------------------------------------------------------------------
 int vtkVariantArray::GetDataTypeSize() const
 {
-  return static_cast<int>(sizeof(ValueType));
+  return sizeof(ValueType);
 }
 
 //------------------------------------------------------------------------------
@@ -209,12 +263,17 @@ int vtkVariantArray::GetElementComponentSize() const
 void vtkVariantArray::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(this->NumberOfComponents * number);
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
+  if (source->GetNumberOfComponents() != this->GetNumberOfComponents())
+  {
+    vtkErrorMacro("Number of components do not match: Source: "
+      << source->GetNumberOfComponents() << " Dest: " << this->GetNumberOfComponents());
+    return;
+  }
   if (source->IsA("vtkVariantArray"))
   {
     vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
@@ -230,14 +289,14 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
     vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    switch (a->GetDataType())
     {
-      // TODO : This just makes a double variant by default.
-      //        We really should make the appropriate type of variant
-      //        based on the subclass of vtkDataArray.
-      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
-      this->SetValue(loci + cur, ValueType(a->GetComponent(tuple, component)));
+      vtkTemplateMacro(for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++) {
+        vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
+        int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
+        this->SetValue(
+          loci + cur, ValueType(static_cast<VTK_TT>(a->GetComponent(tuple, component))));
+      });
     }
   }
   else if (source->IsA("vtkStringArray"))
@@ -254,63 +313,31 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
   {
     vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
   }
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
-  if (source->IsA("vtkVariantArray"))
-  {
-    vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
-    vtkIdType loci = i * this->NumberOfComponents;
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      this->InsertValue(loci + cur, a->GetValue(locj + cur));
-    }
-  }
-  else if (source->IsA("vtkDataArray"))
-  {
-    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
-    vtkIdType loci = i * this->NumberOfComponents;
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
-      this->InsertValue(loci + cur, ValueType(a->GetComponent(tuple, component)));
-    }
-  }
-  else if (source->IsA("vtkStringArray"))
-  {
-    vtkStringArray* a = vtkArrayDownCast<vtkStringArray>(source);
-    vtkIdType loci = i * this->NumberOfComponents;
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      this->InsertValue(loci + cur, ValueType(a->GetValue(locj + cur)));
-    }
-  }
-  else
-  {
-    vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
-  }
-  this->DataChanged();
+  this->EnsureAccessToTuple(i);
+  this->SetTuple(i, j, source);
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::InsertTuplesStartingAt(
   vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
-  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  if (!srcIds->GetNumberOfIds())
+  {
+    return;
+  }
+
+  if (this->GetNumberOfComponents() != source->GetNumberOfComponents())
   {
     vtkWarningMacro("Input and output component sizes do not match.");
     return;
   }
 
   vtkIdType numIds = srcIds->GetNumberOfIds();
-
   if (vtkVariantArray* va = vtkArrayDownCast<vtkVariantArray>(source))
   {
     for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
@@ -346,7 +373,7 @@ void vtkVariantArray::InsertTuplesStartingAt(
       vtkIdType dstLoc = (dstStart + idIndex) * this->NumberOfComponents;
       while (numComp-- > 0)
       {
-        this->InsertValue(dstLoc++, sa->GetVariantValue(srcLoc++));
+        this->InsertValue(dstLoc++, ValueType(sa->GetValue(srcLoc++)));
       }
     }
   }
@@ -354,14 +381,13 @@ void vtkVariantArray::InsertTuplesStartingAt(
   {
     vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
   }
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source)
 {
 
-  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  if (this->GetNumberOfComponents() != source->GetNumberOfComponents())
   {
     vtkWarningMacro("Input and output component sizes do not match.");
     return;
@@ -409,7 +435,7 @@ void vtkVariantArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbst
       vtkIdType dstLoc = dstIds->GetId(idIndex) * this->NumberOfComponents;
       while (numComp-- > 0)
       {
-        this->InsertValue(dstLoc++, sa->GetVariantValue(srcLoc++));
+        this->InsertValue(dstLoc++, ValueType(sa->GetValue(srcLoc++)));
       }
     }
   }
@@ -417,14 +443,13 @@ void vtkVariantArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbst
   {
     vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
   }
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::InsertTuples(
   vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
-  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  if (this->GetNumberOfComponents() != source->GetNumberOfComponents())
   {
     vtkWarningMacro("Input and output component sizes do not match.");
     return;
@@ -448,50 +473,14 @@ void vtkVariantArray::InsertTuples(
       this->InsertValue(dstLoc++, source->GetVariantValue(srcLoc++));
     }
   }
-
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
+vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType srcTupleIdx, vtkAbstractArray* source)
 {
-  if (source->IsA("vtkVariantArray"))
-  {
-    vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      this->InsertNextValue(a->GetValue(locj + cur));
-    }
-  }
-  else if (source->IsA("vtkDataArray"))
-  {
-    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      vtkIdType tuple = (locj + cur) / a->GetNumberOfComponents();
-      int component = static_cast<int>((locj + cur) % a->GetNumberOfComponents());
-      this->InsertNextValue(ValueType(a->GetComponent(tuple, component)));
-    }
-  }
-  else if (source->IsA("vtkStringArray"))
-  {
-    vtkStringArray* a = vtkArrayDownCast<vtkStringArray>(source);
-    vtkIdType locj = j * a->GetNumberOfComponents();
-    for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
-    {
-      this->InsertNextValue(ValueType(a->GetValue(locj + cur)));
-    }
-  }
-  else
-  {
-    vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
-    return -1;
-  }
-
-  this->DataChanged();
-  return (this->GetNumberOfTuples() - 1);
+  vtkIdType nextTuple = this->GetNumberOfTuples();
+  this->InsertTuple(nextTuple, srcTupleIdx, source);
+  return nextTuple;
 }
 
 //------------------------------------------------------------------------------
@@ -508,21 +497,6 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray* aa)
   {
     return;
   }
-
-  // Avoid self-copy.
-  if (this == aa)
-  {
-    return;
-  }
-
-  // If data type does not match, we can't copy.
-  if (aa->GetDataType() != this->GetDataType())
-  {
-    vtkErrorMacro(<< "Incompatible types: tried to copy an array of type "
-                  << aa->GetDataTypeAsString() << " into a variant array ");
-    return;
-  }
-
   vtkVariantArray* va = vtkArrayDownCast<vtkVariantArray>(aa);
   if (va == nullptr)
   {
@@ -530,23 +504,44 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray* aa)
     return;
   }
 
-  // Free our previous memory.
-  if (this->DeleteFunction)
+  // Avoid self-copy.
+  if (this != va)
   {
-    this->DeleteFunction(this->Array);
+    this->Superclass::DeepCopy(va); // copy Information object
+
+    this->SetNumberOfComponents(va->GetNumberOfComponents());
+    this->SetNumberOfTuples(va->GetNumberOfTuples());
+
+    std::copy_n(va->Buffer->GetBuffer(), va->GetNumberOfValues(), this->Buffer->GetBuffer());
+    this->DataChanged();
   }
+  this->Squeeze();
+}
 
-  // Copy the given array into new memory.
-  this->MaxId = va->GetMaxId();
-  this->Size = va->GetSize();
-  this->DeleteFunction = DefaultDeleteFunction;
-  this->Array = new ValueType[this->Size];
-
-  for (int i = 0; i < (this->MaxId + 1); ++i)
+//------------------------------------------------------------------------------
+void vtkVariantArray::ShallowCopy(vtkAbstractArray* src)
+{
+  vtkVariantArray* o = vtkVariantArray::FastDownCast(src);
+  if (o)
   {
-    this->Array[i] = va->Array[i];
+    this->Size = o->Size;
+    this->MaxId = o->MaxId;
+    this->SetName(o->Name);
+    this->SetNumberOfComponents(o->NumberOfComponents);
+    this->CopyComponentNames(o);
+
+    if (this->Buffer != o->Buffer)
+    {
+      this->Buffer->Delete();
+      this->Buffer = o->Buffer;
+      this->Buffer->Register(nullptr);
+    }
+    this->DataChanged();
   }
-  this->DataChanged();
+  else
+  {
+    vtkErrorMacro(<< "Shouldn't Happen: Couldn't downcast array into a vtkVariantArray.");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -581,7 +576,6 @@ void vtkVariantArray::InterpolateTuple(
   }
 
   this->InsertTuple(i, nearest, source);
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
@@ -607,77 +601,56 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractAr
     // Use p1.
     this->InsertTuple(i, id1, source1);
   }
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::Squeeze()
+vtkTypeBool vtkVariantArray::Resize(vtkIdType numTuples)
 {
-  this->ResizeAndExtend(this->MaxId + 1);
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkVariantArray::Resize(vtkIdType sz)
-{
-  ValueType* newArray;
-  vtkIdType newSize = sz * this->GetNumberOfComponents();
-
-  if (newSize == this->Size)
+  int numComps = this->GetNumberOfComponents();
+  vtkIdType curNumTuples = this->Size / (numComps > 0 ? numComps : 1);
+  if (numTuples > curNumTuples)
+  {
+    // Requested size is bigger than current size.  Allocate enough
+    // memory to fit the requested size and be more than double the
+    // currently allocated memory.
+    numTuples = curNumTuples + numTuples;
+  }
+  else if (numTuples == curNumTuples)
   {
     return 1;
   }
-
-  if (newSize <= 0)
+  else
   {
-    this->Initialize();
-    return 1;
+    // Requested size is smaller than current size.  Squeeze the
+    // memory.
+    this->DataChanged();
   }
 
-  newArray = new ValueType[newSize];
-  if (!newArray)
+  assert(numTuples >= 0);
+
+  if (!this->ReallocateTuples(numTuples))
   {
-    vtkErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro("Unable to allocate " << numTuples * numComps << " elements of size "
+                                        << sizeof(ValueType) << " bytes. ");
+#if !defined NDEBUG
+    // We're debugging, crash here preserving the stack
+    abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+    // We can throw something that has universal meaning
+    throw std::bad_alloc();
+#else
+    // We indicate that malloc failed by return
     return 0;
+#endif
   }
 
-  if (this->Array)
-  {
-    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
+  // Allocation was successful. Save it.
+  this->Size = numTuples * numComps;
 
-    for (vtkIdType i = 0; i < numCopy; ++i)
-    {
-      newArray[i] = this->Array[i];
-    }
+  // Update MaxId if we truncated:
+  this->MaxId = std::min(this->Size - 1, this->MaxId);
 
-    if (this->DeleteFunction)
-    {
-      this->DeleteFunction(this->Array);
-    }
-  }
-
-  if (newSize < this->Size)
-  {
-    this->MaxId = newSize - 1;
-  }
-  this->Size = newSize;
-  this->Array = newArray;
-  this->DeleteFunction = DefaultDeleteFunction;
-  this->DataChanged();
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkVariantArray::SetVoidArray(void* arr, vtkIdType size, int save)
-{
-  this->SetArray(static_cast<ValueType*>(arr), size, save);
-  this->DataChanged();
-}
-
-//------------------------------------------------------------------------------
-void vtkVariantArray::SetVoidArray(void* arr, vtkIdType size, int save, int deleteM)
-{
-  this->SetArray(static_cast<ValueType*>(arr), size, save, deleteM);
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
@@ -713,31 +686,66 @@ vtkArrayIterator* vtkVariantArray::NewIterator()
 //
 
 //------------------------------------------------------------------------------
-vtkVariantArray::ValueType& vtkVariantArray::GetValue(vtkIdType id) const
+vtkVariantArray::ValueType vtkVariantArray::GetTypedComponent(vtkIdType tupleIdx, int comp) const
 {
-  return this->Array[id];
+  return this->Buffer->GetBuffer()[this->NumberOfComponents * tupleIdx + comp];
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::SetValue(vtkIdType id, ValueType value)
+void vtkVariantArray::SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
 {
-  this->Array[id] = value;
-  this->DataElementChanged(id);
+  this->Buffer->GetBuffer()[this->NumberOfComponents * tupleIdx + comp] = value;
+  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::InsertValue(vtkIdType id, ValueType value)
+void vtkVariantArray::GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
 {
-  if (id >= this->Size)
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy_n(this->Buffer->GetBuffer() + valueIdx, this->NumberOfComponents, tuple);
+}
+
+//------------------------------------------------------------------------------
+void vtkVariantArray::SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+{
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy_n(tuple, this->NumberOfComponents, this->Buffer->GetBuffer() + valueIdx);
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+vtkVariantArray::ValueType& vtkVariantArray::GetValue(vtkIdType valueIdx) const
+{
+  return this->Buffer->GetBuffer()[valueIdx];
+}
+
+//------------------------------------------------------------------------------
+void vtkVariantArray::SetValue(vtkIdType valueIdx, ValueType value)
+{
+  this->Buffer->GetBuffer()[valueIdx] = value;
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+void vtkVariantArray::InsertValue(vtkIdType valueIdx, ValueType value)
+{
+  vtkIdType tuple = valueIdx / this->NumberOfComponents;
+  // Update MaxId to the inserted component (not the complete tuple) for
+  // compatibility with InsertNextValue.
+  vtkIdType newMaxId = valueIdx > this->MaxId ? valueIdx : this->MaxId;
+  if (this->EnsureAccessToTuple(tuple))
   {
-    if (!this->ResizeAndExtend(id + 1))
-    {
-      return;
-    }
+    assert("Sufficient space allocated." && this->MaxId >= newMaxId);
+    this->MaxId = newMaxId;
+    this->SetValue(valueIdx, value);
   }
-  this->Array[id] = value;
-  this->MaxId = std::max(id, this->MaxId);
-  this->DataElementChanged(id);
+}
+
+//------------------------------------------------------------------------------
+vtkVariant vtkVariantArray::GetVariantValue(vtkIdType id)
+{
+  return this->GetValue(id);
 }
 
 //------------------------------------------------------------------------------
@@ -755,128 +763,61 @@ void vtkVariantArray::InsertVariantValue(vtkIdType id, ValueType value)
 //------------------------------------------------------------------------------
 vtkIdType vtkVariantArray::InsertNextValue(ValueType value)
 {
-  this->InsertValue(++this->MaxId, value);
-  this->DataElementChanged(this->MaxId);
-  return this->MaxId;
+  vtkIdType nextValueIdx = this->MaxId + 1;
+  if (nextValueIdx >= this->Size)
+  {
+    vtkIdType tuple = nextValueIdx / this->NumberOfComponents;
+    this->EnsureAccessToTuple(tuple);
+    // Since EnsureAccessToTuple will update the MaxId to point to the last
+    // component in the last tuple, we move it back to support this method on
+    // multi-component arrays.
+    this->MaxId = nextValueIdx;
+  }
+
+  // Extending array without needing to reallocate:
+  this->MaxId = std::max(this->MaxId, nextValueIdx);
+
+  this->SetValue(nextValueIdx, value);
+  return nextValueIdx;
 }
 
 //------------------------------------------------------------------------------
 vtkVariantArray::ValueType* vtkVariantArray::GetPointer(vtkIdType id)
 {
-  return this->Array + id;
+  return this->Buffer->GetBuffer() + id;
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::SetArray(ValueType* arr, vtkIdType size, int save, int deleteMethod)
+void vtkVariantArray::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
-  if ((this->Array) && (this->DeleteFunction))
-  {
-    vtkDebugMacro(<< "Deleting the array...");
-    this->DeleteFunction(this->Array);
-  }
-  else
-  {
-    vtkDebugMacro(<< "Warning, array not deleted, but will point to new array.");
-  }
+  this->Buffer->SetBuffer(array, size);
 
-  vtkDebugMacro(<< "Setting array to: " << arr);
-
-  this->Array = arr;
-  this->Size = size;
-  this->MaxId = size - 1;
-
-  if (save != 0)
+  if (deleteMethod == VTK_DATA_ARRAY_DELETE || deleteMethod == VTK_DATA_ARRAY_USER_DEFINED)
   {
-    this->DeleteFunction = nullptr;
-  }
-  else if (deleteMethod == VTK_DATA_ARRAY_DELETE || deleteMethod == VTK_DATA_ARRAY_USER_DEFINED)
-  {
-    this->DeleteFunction = DefaultDeleteFunction;
+    this->Buffer->SetFreeFunction(save != 0, DefaultDeleteFunction);
   }
   else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
-    this->DeleteFunction = _aligned_free;
+    this->Buffer->SetFreeFunction(save != 0, _aligned_free);
 #else
-    this->DeleteFunction = free;
+    this->Buffer->SetFreeFunction(save != 0, free);
 #endif
   }
   else if (deleteMethod == VTK_DATA_ARRAY_FREE)
   {
-    this->DeleteFunction = free;
+    this->Buffer->SetFreeFunction(save != 0, free);
   }
 
+  this->Size = size;
+  this->MaxId = this->Size - 1;
   this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
 void vtkVariantArray::SetArrayFreeFunction(void (*callback)(void*))
 {
-  this->DeleteFunction = callback;
-}
-
-//------------------------------------------------------------------------------
-vtkVariantArray::ValueType* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
-{
-  ValueType* newArray;
-  vtkIdType newSize;
-
-  if (sz > this->Size)
-  {
-    // Requested size is bigger than current size.  Allocate enough
-    // memory to fit the requested size and be more than double the
-    // currently allocated memory.
-    newSize = this->Size + sz;
-  }
-  else if (sz == this->Size)
-  {
-    // Requested size is equal to current size.  Do nothing.
-    return this->Array;
-  }
-  else
-  {
-    // Requested size is smaller than current size.  Squeeze the
-    // memory.
-    newSize = sz;
-  }
-
-  if (newSize <= 0)
-  {
-    this->Initialize();
-    return nullptr;
-  }
-
-  newArray = new ValueType[newSize];
-  if (!newArray)
-  {
-    vtkErrorMacro("Cannot allocate memory\n");
-    return nullptr;
-  }
-
-  if (this->Array)
-  {
-    // can't use memcpy here
-    vtkIdType numCopy = (newSize < this->Size ? newSize : this->Size);
-    for (vtkIdType i = 0; i < numCopy; ++i)
-    {
-      newArray[i] = this->Array[i];
-    }
-    if (this->DeleteFunction)
-    {
-      this->DeleteFunction(this->Array);
-    }
-  }
-
-  if (newSize < this->Size)
-  {
-    this->MaxId = newSize - 1;
-  }
-  this->Size = newSize;
-  this->Array = newArray;
-  this->DeleteFunction = DefaultDeleteFunction;
-  this->DataChanged();
-
-  return this->Array;
+  this->Buffer->SetFreeFunction(false, callback);
 }
 
 //------------------------------------------------------------------------------
@@ -900,7 +841,6 @@ void vtkVariantArray::UpdateLookup()
     }
     vtkSortDataArray::Sort(this->Lookup->SortedArray, this->Lookup->IndexArray);
     this->Lookup->Rebuild = false;
-    this->Lookup->CachedUpdates.clear();
   }
 }
 
@@ -908,35 +848,6 @@ void vtkVariantArray::UpdateLookup()
 vtkIdType vtkVariantArray::LookupValue(ValueType value)
 {
   this->UpdateLookup();
-
-  // First look into the cached updates, to see if there were any
-  // cached changes. Find an equivalent element in the set of cached
-  // indices for this value. Some of the indices may have changed
-  // values since the cache was built, so we need to do this equality
-  // check.
-  typedef vtkVariantCachedUpdates::iterator CacheIterator;
-  CacheIterator cached = this->Lookup->CachedUpdates.lower_bound(value),
-                cachedEnd = this->Lookup->CachedUpdates.end();
-  while (cached != cachedEnd)
-  {
-    // Check that we are still in the same equivalence class as the
-    // value.
-    if (value == (*cached).first)
-    {
-      // Check that the value in the original array hasn't changed.
-      ValueType currentValue = this->GetValue(cached->second);
-      if (value == currentValue)
-      {
-        return (*cached).second;
-      }
-    }
-    else
-    {
-      break;
-    }
-
-    ++cached;
-  }
 
   // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->Lookup->SortedArray->GetNumberOfComponents();
@@ -981,25 +892,6 @@ void vtkVariantArray::LookupValue(ValueType value, vtkIdList* ids)
   this->UpdateLookup();
   ids->Reset();
 
-  // First look into the cached updates, to see if there were any
-  // cached changes. Find an equivalent element in the set of cached
-  // indices for this value. Some of the indices may have changed
-  // values since the cache was built, so we need to do this equality
-  // check.
-  typedef vtkVariantCachedUpdates::iterator CacheIterator;
-  std::pair<CacheIterator, CacheIterator> cached = this->Lookup->CachedUpdates.equal_range(value);
-  while (cached.first != cached.second)
-  {
-    // Check that the value in the original array hasn't changed.
-    ValueType currentValue = this->GetValue(cached.first->second);
-    if (cached.first->first == currentValue)
-    {
-      ids->InsertNextId(cached.first->second);
-    }
-
-    ++cached.first;
-  }
-
   // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
@@ -1035,7 +927,7 @@ void vtkVariantArray::DataChanged()
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::DataElementChanged(vtkIdType id)
+void vtkVariantArray::DataElementChanged(vtkIdType vtkNotUsed(id))
 {
   if (this->Lookup)
   {
@@ -1044,18 +936,7 @@ void vtkVariantArray::DataElementChanged(vtkIdType id)
       // We're already going to rebuild the lookup table. Do nothing.
       return;
     }
-
-    if (this->Lookup->CachedUpdates.size() > static_cast<size_t>(this->GetNumberOfTuples() / 10))
-    {
-      // At this point, just rebuild the full table.
-      this->Lookup->Rebuild = true;
-    }
-    else
-    {
-      // Insert this change into the set of cached updates
-      std::pair<const ValueType, vtkIdType> value(this->GetValue(id), id);
-      this->Lookup->CachedUpdates.insert(value);
-    }
+    this->Lookup->Rebuild = true;
   }
 }
 

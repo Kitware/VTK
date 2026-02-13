@@ -880,7 +880,7 @@ vtkSmartPointer<vtkDataArray> vtkNetCDFUGRIDReader::GetArrayData(
   }
 
   DataArrayExtractor worker{};
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>;
 
   auto output(MakeDataArray(type));
   if (!output)

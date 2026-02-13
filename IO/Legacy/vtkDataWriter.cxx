@@ -3,20 +3,18 @@
 
 #include "vtkDataWriter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkGraph.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -30,28 +28,19 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkIntArray.h"
 #include "vtkLegacyReaderVersion.h"
-#include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkSOADataArrayTemplate.h"
-#include "vtkScaledSOADataArrayTemplate.h"
-#include "vtkShortArray.h"
-#include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkTable.h"
-#include "vtkTypeInt64Array.h"
 #include "vtkTypeTraits.h"
-#include "vtkTypeUInt64Array.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <cstdio>
@@ -1002,86 +991,66 @@ namespace
 {
 // Template to handle writing data in ascii or binary
 // We could change the format into C++ io standard ...
-template <class T>
-void vtkWriteDataArray(
-  ostream* fp, T* data, int fileType, const char* format, vtkIdType num, vtkIdType numComp)
+struct vtkWriteDataArray
 {
-  vtkIdType i, j, idx, sizeT;
-  char str[1024];
-
-  sizeT = sizeof(T);
-
-  if (fileType == VTK_ASCII)
+  template <class TArray, class T = vtk::GetAPIType<TArray>>
+  void operator()(
+    TArray* array, ostream* fp, int fileType, const char* format, vtkIdType num, vtkIdType numComp)
   {
-    for (j = 0; j < num; j++)
+    auto data = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize>(array).begin();
+    vtkIdType i, j, idx, sizeT;
+    char str[1024];
+
+    sizeT = sizeof(T);
+
+    if (fileType == VTK_ASCII)
     {
-      for (i = 0; i < numComp; i++)
+      for (j = 0; j < num; j++)
       {
-        idx = i + j * numComp;
-        auto result = vtk::format_to_n(str, sizeof(str), format, *data++);
-        *result.out = '\0';
-        *fp << str;
-        if (!((idx + 1) % 9))
+        for (i = 0; i < numComp; i++)
         {
-          *fp << "\n";
+          idx = i + j * numComp;
+          auto result = vtk::format_to_n(str, sizeof(str), format, static_cast<T>(*data++));
+          *result.out = '\0';
+          *fp << str;
+          if (!((idx + 1) % 9))
+          {
+            *fp << "\n";
+          }
         }
       }
     }
-  }
-  else
-  {
-    if (num * numComp > 0)
+    else
     {
-      // need to byteswap ??
-      switch (sizeT)
+      vtkNew<vtkAOSDataArrayTemplate<T>> aosArray;
+      aosArray->ShallowCopy(array); // DeepCopy if needed internally
+      if (num * numComp > 0)
       {
-        case 2:
-          // no typecast needed here; method call takes void* data
-          vtkByteSwap::SwapWrite2BERange(data, num * numComp, fp);
-          break;
-        case 4:
-          // no typecast needed here; method call takes void* data
-          vtkByteSwap::SwapWrite4BERange(data, num * numComp, fp);
-          break;
-        case 8:
-          // no typecast needed here; method call takes void* data
-          vtkByteSwap::SwapWrite8BERange(data, num * numComp, fp);
-          break;
-        default:
-          fp->write(reinterpret_cast<char*>(data), sizeof(T) * (num * numComp));
-          break;
+        // need to byteswap ??
+        switch (sizeT)
+        {
+          case 2:
+            // no typecast needed here; method call takes void* data
+            vtkByteSwap::SwapWrite2BERange(aosArray->GetPointer(0), num * numComp, fp);
+            break;
+          case 4:
+            // no typecast needed here; method call takes void* data
+            vtkByteSwap::SwapWrite4BERange(aosArray->GetPointer(0), num * numComp, fp);
+            break;
+          case 8:
+            // no typecast needed here; method call takes void* data
+            vtkByteSwap::SwapWrite8BERange(aosArray->GetPointer(0), num * numComp, fp);
+            break;
+          default:
+            fp->write(
+              reinterpret_cast<char*>(aosArray->GetPointer(0)), sizeof(T) * (num * numComp));
+            break;
+        }
       }
     }
+    *fp << "\n";
   }
-  *fp << "\n";
-}
-
-//------------------------------------------------------------------------------
-template <class Value, class Array>
-Value* GetPointer(vtkAbstractArray* array)
-{
-  return static_cast<Array*>(array)->GetPointer(0);
-}
-
-//------------------------------------------------------------------------------
-// Returns a pointer to the data ordered in original VTK style ordering
-// of the data. If this is an SOA array it has to allocate the memory
-// for that in which case the calling function must delete it.
-template <class T, class Array>
-T* GetArrayRawPointer(vtkAbstractArray* array, int isAOSArray)
-{
-  if (isAOSArray)
-  {
-    return GetPointer<T, Array>(array);
-  }
-
-  auto nc = array->GetNumberOfComponents();
-  auto nt = array->GetNumberOfTuples();
-
-  T* data = new T[nc * nt];
-  array->ExportToVoidPointer(data);
-  return data;
-}
+};
 
 } // end anonymous namespace
 
@@ -1093,9 +1062,9 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
   vtkIdType i, j, idx;
   char str[1024];
 
-  bool isAOSArray = data->HasStandardMemoryLayout();
-
   char* outputFormat = new char[10];
+  auto da = vtkDataArray::SafeDownCast(data);
+  vtkWriteDataArray worker;
   switch (dataType)
   {
     case VTK_BIT:
@@ -1138,11 +1107,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "char");
       *result.out = '\0';
       *fp << str;
-      char* s = GetArrayRawPointer<char, vtkCharArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<char>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, char>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1152,11 +1121,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "signed_char");
       *result.out = '\0';
       *fp << str;
-      signed char* s = GetArrayRawPointer<signed char, vtkSignedCharArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<signed char>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, signed char>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1166,11 +1135,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_char");
       *result.out = '\0';
       *fp << str;
-      unsigned char* s = GetArrayRawPointer<unsigned char, vtkUnsignedCharArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned char>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, unsigned char>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1180,11 +1149,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "short");
       *result.out = '\0';
       *fp << str;
-      short* s = GetArrayRawPointer<short, vtkShortArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<short>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, short>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1194,12 +1163,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_short");
       *result.out = '\0';
       *fp << str;
-      unsigned short* s =
-        GetArrayRawPointer<unsigned short, vtkUnsignedShortArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned short>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, unsigned short>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1209,11 +1177,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "int");
       *result.out = '\0';
       *fp << str;
-      int* s = GetArrayRawPointer<int, vtkIntArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<int>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, int>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1223,11 +1191,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_int");
       *result.out = '\0';
       *fp << str;
-      unsigned int* s = GetArrayRawPointer<unsigned int, vtkUnsignedIntArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned int>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, unsigned int>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1237,11 +1205,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "long");
       *result.out = '\0';
       *fp << str;
-      long* s = GetArrayRawPointer<long, vtkLongArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<long>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, long>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1251,11 +1219,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_long");
       *result.out = '\0';
       *fp << str;
-      unsigned long* s = GetArrayRawPointer<unsigned long, vtkUnsignedLongArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned long>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, unsigned long>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1265,11 +1233,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "vtktypeint64");
       *result.out = '\0';
       *fp << str;
-      long long* s = GetArrayRawPointer<long long, vtkTypeInt64Array>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<long long>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, long long>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1279,12 +1247,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "vtktypeuint64");
       *result.out = '\0';
       *fp << str;
-      unsigned long long* s =
-        GetArrayRawPointer<unsigned long long, vtkTypeUInt64Array>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:d} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned long long>>::Execute(
+            data, worker, fp, this->FileType, "{:d} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, unsigned long long>(
+          da, fp, this->FileType, "{:d} ", num, numComp);
       }
     }
     break;
@@ -1294,11 +1261,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "float");
       *result.out = '\0';
       *fp << str;
-      float* s = GetArrayRawPointer<float, vtkFloatArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:g} ", num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<float>>::Execute(
+            data, worker, fp, this->FileType, "{:g} ", num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, float>(
+          da, fp, this->FileType, "{:g} ", num, numComp);
       }
     }
     break;
@@ -1308,11 +1275,11 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       auto result = vtk::format_to_n(str, sizeof(str), format, "double");
       *result.out = '\0';
       *fp << str;
-      double* s = GetArrayRawPointer<double, vtkDoubleArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, this->PrecisionFormat.c_str(), num, numComp);
-      if (!isAOSArray)
+      if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<double>>::Execute(
+            data, worker, fp, this->FileType, this->PrecisionFormat.c_str(), num, numComp))
       {
-        delete[] s;
+        worker.template operator()<vtkDataArray, double>(
+          da, fp, this->FileType, this->PrecisionFormat.c_str(), num, numComp);
       }
     }
     break;
@@ -1320,34 +1287,12 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
     case VTK_ID_TYPE:
     {
       // currently writing vtkIdType as int.
-      vtkIdType size = data->GetNumberOfTuples();
-      std::vector<int> intArray(size * numComp);
       auto result = vtk::format_to_n(str, sizeof(str), format, "vtkIdType");
       *result.out = '\0';
       *fp << str;
-      if (isAOSArray)
-      {
-        vtkIdType* s = static_cast<vtkIdTypeArray*>(data)->GetPointer(0);
-        for (vtkIdType jj = 0; jj < size * numComp; jj++)
-        {
-          intArray[jj] = s[jj];
-        }
-      }
-      else
-      {
-        vtkSOADataArrayTemplate<vtkIdType>* data2 =
-          static_cast<vtkSOADataArrayTemplate<vtkIdType>*>(data);
-        std::vector<vtkIdType> vals(numComp);
-        for (vtkIdType jj = 0; jj < size; jj++)
-        {
-          data2->GetTypedTuple(jj, vals.data());
-          for (i = 0; i < numComp; i++)
-          {
-            intArray[jj * numComp + i] = vals[i];
-          }
-        }
-      }
-      vtkWriteDataArray(fp, intArray.data(), this->FileType, "{:d} ", num, numComp);
+      vtkNew<vtkIntArray> intArray;
+      intArray->ShallowCopy(da); // DeepCopy if needed internally
+      worker(intArray.Get(), fp, this->FileType, "{:d} ", num, numComp);
     }
     break;
 

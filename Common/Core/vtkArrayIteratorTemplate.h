@@ -16,6 +16,7 @@
 
 #include "vtkArrayIterator.h"
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 
 #include "vtkCompiler.h"  // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkStdString.h" // For template instantiation
@@ -23,7 +24,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class T>
-class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
+class VTK_DEPRECATED_IN_9_7_0("Use vtkArrayDispatch") VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate
+  : public vtkArrayIterator
 {
 public:
   static vtkArrayIteratorTemplate<T>* New();

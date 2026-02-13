@@ -128,6 +128,7 @@
 #include "vtkAOSDataArrayTemplate.h" // Needed for inline methods
 #include "vtkAffineArray.h"          // Needed for inline methods
 #include "vtkCell.h"                 // Needed for inline methods
+#include "vtkDataArrayAccessor.h"    // Needed for inline methods
 #include "vtkDataArrayRange.h"       // Needed for inline methods
 #include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkFeatures.h"             // for VTK_USE_MEMKIND

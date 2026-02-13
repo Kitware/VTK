@@ -53,7 +53,7 @@ void vtkOpenGLInstanceCulling::DeleteLODs()
 //------------------------------------------------------------------------------
 void vtkOpenGLInstanceCulling::UploadCurrentState(InstanceLOD& lod, vtkPolyData* pd)
 {
-  float* ptr = static_cast<float*>(pd->GetPoints()->GetVoidPointer(0));
+  float* ptr = static_cast<float*>(pd->GetPoints()->GetData()->GetVoidPointer(0));
 
   std::vector<float> points(4 * pd->GetNumberOfPoints());
   for (vtkIdType i = 0; i < pd->GetNumberOfPoints(); i++)

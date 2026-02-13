@@ -7,15 +7,11 @@ include(vtkTypeLists)
 
 # Configure `.in` class files depending on the requested backend
 # and the concrete c++ type.
-macro(_generate_array_specialization array_prefix vtk_type concrete_type deprecated)
+macro(_generate_array_specialization array_prefix vtk_type concrete_type deprecation)
   # used inside .in files
   set(VTK_TYPE_NAME "${vtk_type}")
   set(CONCRETE_TYPE "${concrete_type}")
-  if ("${deprecated}")
-    set(VTK_DEPRECATION "VTK_DEPRECATED_IN_9_6_0(\"Use vtk${array_prefix}Type*Array instead\")")
-  else ()
-    set(VTK_DEPRECATION "")
-  endif ()
+  set(VTK_DEPRECATION "${deprecation}")
 
   set(_className "vtk${array_prefix}${VTK_TYPE_NAME}Array")
 
@@ -54,14 +50,24 @@ endmacro()
 foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
   foreach (type IN LISTS vtk_numeric_types)
     vtk_type_to_camel_case("${type}" cased_type)
-    _generate_array_specialization("${array_prefix}" "${cased_type}" "${type}" 1)
+    set(deprecation "VTK_DEPRECATED_IN_9_6_0(\"Use vtk${array_prefix}Type${cased_type}Array instead\")")
+    _generate_array_specialization("${array_prefix}" "${cased_type}" "${type}" "${deprecation}")
   endforeach ()
 endforeach ()
 
-foreach (array_prefix IN ITEMS Affine Composite Constant Indexed ScaledSOA SOA StdFunction Strided)
+# VTK_DEPRECATED_IN_9_7_0 to be removed later
+foreach (array_prefix IN ITEMS ScaledSOA StdFunction)
   foreach (type IN LISTS vtk_fixed_size_numeric_types)
     vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
-    _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" 0)
+    set(deprecation "VTK_DEPRECATED_IN_9_7_0(\"Use vtk${array_prefix}Type${without_vtk_prefix}Array instead\")")
+    _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" "${deprecation}")
+  endforeach ()
+endforeach ()
+
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed SOA Strided)
+  foreach (type IN LISTS vtk_fixed_size_numeric_types)
+    vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
+    _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" "")
   endforeach ()
 endforeach ()
 

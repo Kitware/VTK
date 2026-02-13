@@ -14,7 +14,6 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkSOADataArrayTemplate.h"
-#include "vtkScaledSOADataArrayTemplate.h"
 #include "vtkType.h"
 #include "vtkTypeTraits.h"
 #include "vtkVariant.h"
@@ -901,6 +900,7 @@ int Test_voidPtr_GetVoidPointer()
         vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
     vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
 
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     ScalarT *ptr = static_cast<ScalarT*>(source->GetVoidPointer(t * comps));
 
     // Restore state:
@@ -968,21 +968,6 @@ struct CheckShallowCopy
   template <typename ValueType>
   bool operator()(vtkSOADataArrayTemplate<ValueType> *a1,
                   vtkSOADataArrayTemplate<ValueType> *a2)
-  {
-    assert(a1->GetNumberOfComponents() == a2->GetNumberOfComponents());
-    for (int c = 0; c < a1->GetNumberOfComponents(); ++c)
-    {
-      if (a1->GetComponentArrayPointer(c) != a2->GetComponentArrayPointer(c))
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-  // ScaleSOA same-ValueType case:
-  template <typename ValueType>
-  bool operator()(vtkScaledSOADataArrayTemplate<ValueType> *a1,
-                  vtkScaledSOADataArrayTemplate<ValueType> *a2)
   {
     assert(a1->GetNumberOfComponents() == a2->GetNumberOfComponents());
     for (int c = 0; c < a1->GetNumberOfComponents(); ++c)
@@ -1525,48 +1510,6 @@ int Test_void_Reset()
   DataArrayAPIFinish();
 }
 
-// void ExportToVoidPointer(void *out_ptr)
-template <typename ScalarT, typename ArrayT>
-int Test_void_ExportToVoidPointer_voidPtr()
-{
-  DataArrayAPIInit("void ExportToVoidPointer(void *out_ptr)");
-
-  DataArrayAPICreateTestArray(source);
-
-  // Initialize source array:
-  vtkIdType comps = 5;
-  vtkIdType tuples = 10;
-  source->SetNumberOfComponents(comps);
-  source->SetNumberOfTuples(tuples);
-  for (vtkIdType t = 0; t < tuples; ++t)
-  {
-    std::vector<ScalarT> tuple;
-    for (int c = 0; c < comps; ++c)
-    {
-      tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
-    }
-    source->SetTypedTuple(t, &tuple[0]);
-  }
-
-  std::vector<ScalarT> buffer(comps * tuples);
-  source->ExportToVoidPointer(static_cast<void*>(&buffer[0]));
-
-  // Verify:
-  for (vtkIdType t = 0; t < tuples; ++t)
-  {
-    for (int c = 0; c < comps; ++c)
-    {
-      ScalarT test = buffer[t * comps + c];
-      ScalarT ref = static_cast<ScalarT>(((t * comps) + c) % 17);
-      DataArrayAPIAssert(test == ref,
-                         "Data mismatch at tuple " << t << " component " << c
-                          << ": Expected " << ref << ", got " << test << ".");
-    }
-  }
-
-  DataArrayAPIFinish();
-}
-
 // unsigned long GetActualMemorySize()
 // Returns size in kibibytes (1024 bytes) for MaxId + 1 elements of ValueType.
 template <typename ScalarT, typename ArrayT>
@@ -1604,47 +1547,6 @@ int Test_int_IsNumeric()
   {
     DataArrayAPIError("IsNumeric() is false.");
   }
-
-  DataArrayAPIFinish();
-}
-
-// vtkArrayIterator* NewIterator()
-// Just test that the returned iterator is non-nullptr and the data types match.
-template <typename ScalarT, typename ArrayT>
-int Test_vtkArrayIteratorPtr_NewIterator()
-{
-  DataArrayAPIInit("vtkArrayIterator* NewIterator()");
-
-  DataArrayAPICreateTestArray(source);
-
-  // Silence the void pointer warnings for these calls. The
-  // vtkArrayIteratorTemplate implementation relies on GetVoidPointer.
-  const char *oldWarning =
-      vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
-
-  vtkArrayIterator *iter = source->NewIterator();
-
-  // Restore state:
-  if (oldWarning)
-  {
-    std::ostringstream envArg;
-    envArg << "VTK_SILENCE_GET_VOID_POINTER_WARNINGS=" << oldWarning;
-    vtksys::SystemTools::PutEnv(envArg.str());
-  }
-  else
-  {
-    vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  }
-
-  DataArrayAPIAssert(iter != nullptr,
-                     "NewIterator() returns nullptr.");
-
-  int iterDataType = iter->GetDataType();
-  iter->Delete();
-
-  DataArrayAPIAssert(iterDataType == source->GetDataType(),
-                     "Iterator datatype does not match array.");
 
   DataArrayAPIFinish();
 }
@@ -2150,13 +2052,10 @@ int Test_voidptr_WriteVoidPointer_id_number()
   DataArrayAPIInit("void* WriteVoidPointer(vtkIdType id, vtkIdType number)");
 
   // Skip SoA and Scale SoA arrays, as they do not allow this:
-  if (typeid(ArrayT) == typeid(vtkSOADataArrayTemplate<ScalarT>) ||
-      typeid(ArrayT) == typeid(vtkScaledSOADataArrayTemplate<ScalarT>))
+  if (typeid(ArrayT) == typeid(vtkSOADataArrayTemplate<ScalarT>))
   {
     std::cerr << "Skipping WriteVoidPointer for "
-              << "vtkSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
-              << "or vtkScaledSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
-              << ">.\n";
+              << "vtkSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name() << "".\n";
     DataArrayAPIFinish();
   }
 
@@ -3119,10 +3018,8 @@ int ExerciseDataArray()
   errors += Test_void_InterpolateTuple_i_id1_source1_id2_source2_t<ScalarT, ArrayT>();
   errors += Test_int_Resize_numTuples<ScalarT, ArrayT>();
   errors += Test_void_Reset<ScalarT, ArrayT>();
-  errors += Test_void_ExportToVoidPointer_voidPtr<ScalarT, ArrayT>();
   errors += Test_ulong_GetActualMemorySize<ScalarT, ArrayT>();
   errors += Test_int_IsNumeric<ScalarT, ArrayT>();
-  errors += Test_vtkArrayIteratorPtr_NewIterator<ScalarT, ArrayT>();
   errors += Test_vtkIdType_GetDataSize<ScalarT, ArrayT>();
   errors += Test_LookupValue_allSigs<ScalarT, ArrayT>();
   errors += Test_vtkVariant_GetVariantValue_valueIdx<ScalarT, ArrayT>();
@@ -3165,20 +3062,6 @@ int ExerciseDataArray()
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long> >();
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long long> >();
   errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned short> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<float> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<double> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<vtkIdType> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<int> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<long long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<short> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<signed char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned char> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned int> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned long long> >();
-  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkScaledSOADataArrayTemplate<unsigned short> >();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 1>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 2>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 3>();

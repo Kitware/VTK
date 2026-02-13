@@ -224,7 +224,11 @@ public:
    * access to the array data, particularly useful for Python buffer protocol
    * support.
    */
+#ifdef __VTK_WRAP__
   vtkAbstractBuffer* GetBuffer() { return this->Buffer; }
+#else
+  vtkBuffer<ValueTypeT>* GetBuffer() { return this->Buffer; }
+#endif // __VTK_WRAP__
 
   ///@{
   /**
@@ -294,6 +298,7 @@ public:
    * TODO this is only defined for AOS (vtkDataArrayTemplate leftover).
    * Deprecate to favor DataChanged?
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DataChanged() instead")
   void DataElementChanged(vtkIdType) { this->DataChanged(); }
 
   /**
@@ -304,9 +309,11 @@ public:
   Iterator Begin() { return Iterator(this->GetPointer(0)); }
   Iterator End() { return Iterator(this->GetPointer(this->MaxId + 1)); }
 
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;
+  using vtkAbstractArray::ShallowCopy;
 
   // Reimplemented for efficiency:
   void InsertTuples(

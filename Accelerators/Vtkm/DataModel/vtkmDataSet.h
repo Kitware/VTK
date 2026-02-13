@@ -29,9 +29,9 @@ class vtkPoints;
 class vtkCell;
 class vtkGenericCell;
 
-class VTKACCELERATORSVTKMDATAMODEL_EXPORT VTK_DEPRECATED_IN_9_6_0(
+class VTK_DEPRECATED_IN_9_6_0(
   "This class has been made obsolete since all vtkmDataArrays can now be hold by vtkDataSet "
-  "subclasses.") vtkmDataSet : public vtkDataSet
+  "subclasses.") VTKACCELERATORSVTKMDATAMODEL_EXPORT vtkmDataSet : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkmDataSet, vtkDataSet);

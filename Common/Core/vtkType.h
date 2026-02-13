@@ -4,8 +4,9 @@
 #define vtkType_h
 
 #include "vtkABINamespace.h"
-#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
+#include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
+#include "vtkOptions.h"     // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
@@ -55,6 +56,14 @@
 #define VTK_VARIANT 20
 #define VTK_OBJECT 21
 
+// vtkTypes.h can be included in C code directly, which does not support
+// deprecation of enum values
+#ifdef __cplusplus
+#define VTK_DEPRECATED_IN_9_7_0_TYPE(reason) VTK_DEPRECATED_IN_9_7_0(reason)
+#else
+#define VTK_DEPRECATED_IN_9_7_0_TYPE(reason)
+#endif
+
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each native array type.  */
 // NOLINTNEXTLINE(readability-enum-initial-value)
@@ -73,9 +82,9 @@ enum vtkArrayTypes
   // GenericDataArray subclasses
   VTK_AOS_DATA_ARRAY,
   VTK_SOA_DATA_ARRAY,
-  VTK_SCALED_SOA_DATA_ARRAY,
+  VTK_SCALED_SOA_DATA_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTKM_DATA_ARRAY,
-  VTK_PERIODIC_DATA_ARRAY,
+  VTK_PERIODIC_DATA_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTK_IMPLICIT_ARRAY,
 
   // ImplicitArray subclasses/typedefs
@@ -83,7 +92,7 @@ enum vtkArrayTypes
   VTK_COMPOSITE_ARRAY,
   VTK_CONSTANT_ARRAY,
   VTK_INDEXED_ARRAY,
-  VTK_STD_FUNCTION_ARRAY,
+  VTK_STD_FUNCTION_ARRAY VTK_DEPRECATED_IN_9_7_0_TYPE("No longer needed"),
   VTK_STRIDED_ARRAY,
   VTK_STRUCTURED_POINT_ARRAY,
 
@@ -444,6 +453,7 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<long long>, par>;                                                                    \
   decl0<decl1<unsigned long long>, par>
 
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, delc2)                                \
   decl0<decl1<float(delc2)>>;                                                                      \
   decl0<decl1<double(delc2)>>;                                                                     \
@@ -459,6 +469,7 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<long long(delc2)>>;                                                                  \
   decl0<decl1<unsigned long long(delc2)>>
 
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, delc2, par)              \
   decl0<decl1<float(delc2)>, par>;                                                                 \
   decl0<decl1<double(delc2)>, par>;                                                                \
@@ -481,15 +492,19 @@ VTK_ABI_NAMESPACE_END
   vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)                          \
   vtkInstantiateSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)                                     \
   vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, decl2)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)                   \
   vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #else
 #define vtkExternTemplateMacro(decl)
 #define vtkExternSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)
+// VTK_DEPRECATED_IN_9_7_0
 #define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #endif
 

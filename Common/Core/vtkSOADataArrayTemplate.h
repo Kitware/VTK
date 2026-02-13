@@ -22,6 +22,7 @@
 #include "vtkBuffer.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkGenericDataArray.h"
 
 // The export macro below makes no sense, but is necessary for older compilers
@@ -59,10 +60,8 @@ public:
   ValueType GetValue(vtkIdType valueIdx) const
     VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
-    vtkIdType tupleIdx;
-    int comp;
-    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    return this->GetTypedComponent(tupleIdx, comp);
+    auto div = std::div(valueIdx, static_cast<vtkIdType>(this->NumberOfComponents));
+    return this->GetTypedComponent(div.quot, div.rem);
   }
   ///@}
 
@@ -73,10 +72,8 @@ public:
   void SetValue(vtkIdType valueIdx, ValueType value)
     VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
-    vtkIdType tupleIdx;
-    int comp;
-    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    this->SetTypedComponent(tupleIdx, comp, value);
+    auto div = std::div(valueIdx, static_cast<vtkIdType>(this->NumberOfComponents));
+    this->SetTypedComponent(div.quot, div.rem, value);
   }
   ///@}
 
@@ -92,18 +89,9 @@ public:
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
-    if (this->StorageType == StorageTypeEnum::SOA)
+    for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
-      for (size_t cc = 0; cc < this->Data.size(); ++cc)
-      {
-        this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
-      }
-    }
-    else
-    {
-      ValueType* buffer = this->AoSData->GetBuffer();
-      std::copy(tuple, tuple + this->GetNumberOfComponents(),
-        buffer + tupleIdx * this->GetNumberOfComponents());
+      this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
     }
   }
 
@@ -186,6 +174,7 @@ public:
    * Export a copy of the data in AoS ordering to the preallocated memory
    * buffer.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DeepCopy with an vtkAOSDataArrayTemplate array")
   void ExportToVoidPointer(void* ptr) override;
 
   /**
@@ -195,14 +184,17 @@ public:
    */
   enum StorageTypeEnum
   {
-    AOS,
-    SOA
+    AOS VTK_DEPRECATED_IN_9_7_0("The storage will always be SOA going forward.") = 0,
+    SOA VTK_DEPRECATED_IN_9_7_0("The storage will always be SOA going forward.") = 1
   };
-  StorageTypeEnum GetStorageType() { return this->StorageType; }
+  VTK_DEPRECATED_IN_9_7_0("The storage will always be SOA going forward.")
+  StorageTypeEnum GetStorageType() { return static_cast<StorageTypeEnum>(1); }
 
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;
+  using vtkAbstractArray::ShallowCopy;
 
   // Reimplemented for efficiency:
   void InsertTuples(
@@ -241,21 +233,10 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
 
   std::vector<vtkBuffer<ValueType>*> Data;
-  vtkBuffer<ValueType>* AoSData;
-
-  StorageTypeEnum StorageType;
-
-  void ClearSOAData();
 
 private:
   vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) = delete;
   void operator=(const vtkSOADataArrayTemplate&) = delete;
-
-  void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
-  {
-    tupleIdx = valueIdx / this->NumberOfComponents;
-    comp = valueIdx % this->NumberOfComponents;
-  }
 
   friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
 };

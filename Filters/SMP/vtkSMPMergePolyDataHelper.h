@@ -12,6 +12,7 @@
 #ifndef vtkSMPMergePolyDataHelper_h
 #define vtkSMPMergePolyDataHelper_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersSMPModule.h"
 
 #include <vector>
@@ -21,7 +22,8 @@ class vtkPolyData;
 class vtkSMPMergePoints;
 class vtkIdList;
 
-class VTKFILTERSSMP_EXPORT vtkSMPMergePolyDataHelper
+class VTK_DEPRECATED_IN_9_7_0(
+  "Please use `vtkAppendPolyData` instead.") VTKFILTERSSMP_EXPORT vtkSMPMergePolyDataHelper
 {
 public:
   ///@{

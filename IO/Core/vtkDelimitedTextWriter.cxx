@@ -4,18 +4,20 @@
 #include "vtkDelimitedTextWriter.h"
 
 #include "vtkAlgorithm.h"
-#include "vtkArrayIteratorIncludes.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkVariantArray.h"
 #include "vtksys/FStream.hxx"
 
 #include <sstream>
-#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDelimitedTextWriter);
@@ -104,62 +106,44 @@ bool vtkDelimitedTextWriter::OpenStream()
 }
 
 //------------------------------------------------------------------------------
-template <class iterT>
-void vtkDelimitedTextWriterGetDataString(
-  iterT* iter, vtkIdType tupleIndex, ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
+struct vtkDelimitedTextWriterGetDataString
 {
-  int numComps = iter->GetNumberOfComponents();
-  vtkIdType index = tupleIndex * numComps;
-  for (int cc = 0; cc < numComps; cc++)
+  template <class TArray, class T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array, vtkIdType tupleIndex, ostream* stream,
+    vtkDelimitedTextWriter* writer, bool* first)
   {
-    if ((index + cc) < iter->GetNumberOfValues())
+    auto values = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(array);
+    int numComps = array->GetNumberOfComponents();
+    vtkIdType index = tupleIndex * numComps;
+    for (int cc = 0; cc < numComps; cc++)
     {
-      if (!*first)
+      if ((index + cc) < array->GetNumberOfValues())
       {
-        (*stream) << writer->GetFieldDelimiter();
+        if (!*first)
+        {
+          (*stream) << writer->GetFieldDelimiter();
+        }
+        *first = false;
+        if constexpr (std::is_same_v<TArray, vtkStringArray>)
+        {
+          (*stream) << writer->GetString(values[numComps * index + cc]);
+        }
+        else
+        {
+          (*stream) << values[numComps * index + cc];
+        }
       }
-      *first = false;
-      (*stream) << iter->GetValue(index + cc);
-    }
-    else
-    {
-      if (!*first)
+      else
       {
-        (*stream) << writer->GetFieldDelimiter();
+        if (!*first)
+        {
+          (*stream) << writer->GetFieldDelimiter();
+        }
+        *first = false;
       }
-      *first = false;
     }
   }
-}
-
-//------------------------------------------------------------------------------
-template <>
-void vtkDelimitedTextWriterGetDataString(vtkArrayIteratorTemplate<vtkStdString>* iter,
-  vtkIdType tupleIndex, ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
-{
-  int numComps = iter->GetNumberOfComponents();
-  vtkIdType index = tupleIndex * numComps;
-  for (int cc = 0; cc < numComps; cc++)
-  {
-    if ((index + cc) < iter->GetNumberOfValues())
-    {
-      if (!*first)
-      {
-        (*stream) << writer->GetFieldDelimiter();
-      }
-      *first = false;
-      (*stream) << writer->GetString(iter->GetValue(index + cc));
-    }
-    else
-    {
-      if (!*first)
-      {
-        (*stream) << writer->GetFieldDelimiter();
-      }
-      *first = false;
-    }
-  }
-}
+};
 
 //------------------------------------------------------------------------------
 vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
@@ -197,8 +181,6 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     return;
   }
 
-  std::vector<vtkSmartPointer<vtkArrayIterator>> columnsIters;
-
   int cc;
   int numArrays = dsa->GetNumberOfArrays();
   bool first = true;
@@ -222,28 +204,28 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
       }
       (*this->Stream) << this->GetString(array_name.str());
     }
-    vtkArrayIterator* iter = array->NewIterator();
-    columnsIters.emplace_back(iter);
-    iter->Delete();
   }
   (*this->Stream) << "\n";
 
+  using Arrays =
+    vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkStringArray, vtkVariantArray>::Result;
+  vtkDelimitedTextWriterGetDataString getter;
   for (vtkIdType index = 0; index < numRows; index++)
   {
     first = true;
-    std::vector<vtkSmartPointer<vtkArrayIterator>>::iterator iter;
-    for (iter = columnsIters.begin(); iter != columnsIters.end(); ++iter)
+    for (cc = 0; cc < numArrays; cc++)
     {
-      switch ((*iter)->GetDataType())
+      vtkAbstractArray* array = dsa->GetAbstractArray(cc);
+      if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(
+            array, getter, index, this->Stream, this, &first))
       {
-        vtkArrayIteratorTemplateMacro(vtkDelimitedTextWriterGetDataString(
-          static_cast<VTK_TT*>(iter->GetPointer()), index, this->Stream, this, &first));
-        case VTK_VARIANT:
+        if (auto da = vtkDataArray::SafeDownCast(array))
         {
-          vtkDelimitedTextWriterGetDataString(
-            static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(iter->GetPointer()), index,
-            this->Stream, this, &first);
-          break;
+          switch (da->GetDataType())
+          {
+            vtkTemplateMacro((getter.template operator()<vtkDataArray, VTK_TT>(
+              da, index, this->Stream, this, &first)));
+          }
         }
       }
     }

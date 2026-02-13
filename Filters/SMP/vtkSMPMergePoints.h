@@ -21,6 +21,7 @@
 #ifndef vtkSMPMergePoints_h
 #define vtkSMPMergePoints_h
 
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkIdList.h"           // For inline functions
 #include "vtkMergePoints.h"
@@ -31,7 +32,9 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPointData;
 
-class VTKFILTERSSMP_EXPORT vtkSMPMergePoints : public vtkMergePoints
+class VTK_DEPRECATED_IN_9_7_0(
+  "Please use `vtkStaticPointLocator` instead.") VTKFILTERSSMP_EXPORT vtkSMPMergePoints
+  : public vtkMergePoints
 {
 public:
   vtkTypeMacro(vtkSMPMergePoints, vtkMergePoints);

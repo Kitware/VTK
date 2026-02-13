@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: Copyright 2008 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
-#include "vtkArrayIterator.h"
-#include "vtkArrayIteratorTemplate.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
@@ -339,20 +337,6 @@ int TestVariantArray(int, char*[])
       exit(1);
     }
   }
-
-  std::cerr << "Check using an iterator." << std::endl;
-  vtkArrayIteratorTemplate<vtkVariant>* iter =
-    static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
-  for (vtkIdType i = 0; i < iter->GetNumberOfValues(); i++)
-  {
-    double arrVal = iter->GetValue(i).ToDouble();
-    if (arrVal != vec[i])
-    {
-      std::cerr << "values do not match (" << arrVal << " != " << vec[i] << ")" << std::endl;
-      exit(1);
-    }
-  }
-  iter->Delete();
 
   std::cerr << "Check using array pointer." << std::endl;
   vtkVariant* pointer = reinterpret_cast<vtkVariant*>(arr->GetVoidPointer(0));

@@ -8,7 +8,6 @@
 #ifndef vtkDataArrayValueRange_Generic_h
 #define vtkDataArrayValueRange_Generic_h
 
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
 
 #include <algorithm>
@@ -222,7 +221,7 @@ struct ConstValueReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using IdStorageType = IdStorage<TupleSize>;
   using APIType = GetAPIType<ArrayType, ForceValueTypeForVtkDataArray>;
@@ -307,7 +306,7 @@ struct ValueReference
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using APIType = GetAPIType<ArrayType, ForceValueTypeForVtkDataArray>;
   using IdStorageType = IdStorage<TupleSize>;
@@ -526,7 +525,7 @@ struct ConstValueIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using APIType = GetAPIType<ArrayType, ForceValueTypeForVtkDataArray>;
   using IdStorageType = IdStorage<TupleSize>;
@@ -688,7 +687,7 @@ struct ValueIterator
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayType>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayType>::value, "Invalid array type.");
 
   using APIType = GetAPIType<ArrayType, ForceValueTypeForVtkDataArray>;
   using IdStorageType = IdStorage<TupleSize>;
@@ -857,7 +856,7 @@ struct ValueRange
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
-  static_assert(IsVtkDataArray<ArrayTypeT>::value, "Invalid array type.");
+  static_assert(IsVtkArray<ArrayTypeT>::value, "Invalid array type.");
 
   using IdStorageType = IdStorage<TupleSize>;
   using NumCompsType = GenericTupleSize<TupleSize>;
@@ -962,11 +961,13 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() noexcept
   {
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
   }
   VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() const noexcept
   {
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
   }
   ///@}
@@ -990,7 +991,7 @@ private:
 // Unimplemented, only used inside decltype in SelectValueRange:
 template <typename ArrayType, ComponentIdType TupleSize, typename ForceValueTypeForVtkDataArray>
 ValueRange<ArrayType, TupleSize, ForceValueTypeForVtkDataArray> DeclareValueRangeSpecialization(
-  vtkDataArray*);
+  vtkAbstractArray*);
 
 VTK_ABI_NAMESPACE_END
 } // end namespace detail

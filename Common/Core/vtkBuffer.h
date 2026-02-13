@@ -17,7 +17,8 @@
 #include "vtkObjectFactory.h" // New() implementation
 #include "vtkTypeTraits.h"    // For vtkTypeTraits
 
-#include <algorithm> // for std::min and std::copy
+#include <algorithm>   // for std::min and std::copy
+#include <type_traits> // for std::is_trivially_copyable
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class ScalarTypeT>
@@ -125,13 +126,25 @@ inline vtkBuffer<ScalarT>* vtkBuffer<ScalarT>::ExtendedNew()
 
 //------------------------------------------------------------------------------
 template <typename ScalarT>
-void vtkBuffer<ScalarT>::SetBuffer(typename vtkBuffer<ScalarT>::ScalarType* array, vtkIdType sz)
+void vtkBuffer<ScalarT>::SetBuffer(ScalarType* array, vtkIdType sz)
 {
   if (this->Pointer != array)
   {
     if (this->DeleteFunction)
     {
-      this->DeleteFunction(this->Pointer);
+      if (this->DeleteFunction != free)
+      {
+        this->DeleteFunction(this->Pointer);
+      }
+      else if constexpr (std::is_trivially_destructible_v<ScalarT>)
+      {
+        free(this->Pointer);
+      }
+      else
+      {
+        vtkErrorMacro("SetBuffer is not supported for non-trivially destructible types with free.");
+        return;
+      }
     }
     this->Pointer = array;
   }
@@ -172,14 +185,19 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
   this->SetBuffer(nullptr, 0);
   if (size > 0)
   {
-    ScalarType* newArray;
-    if (this->MallocFunction)
+    ScalarType* newArray = nullptr;
+    if (this->MallocFunction && this->MallocFunction != malloc)
     {
       newArray = static_cast<ScalarType*>(this->MallocFunction(size * sizeof(ScalarType)));
     }
-    else
+    else if constexpr (std::is_trivially_constructible_v<ScalarType>)
     {
       newArray = static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
+    }
+    else
+    {
+      vtkErrorMacro("Allocate is not supported for non-trivially constructible types with malloc.");
+      return false;
     }
     if (newArray)
     {
@@ -199,58 +217,61 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
 template <typename ScalarT>
 bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
 {
-  if (newsize == 0)
+  if (!this->Pointer || newsize == 0)
   {
-    return this->Allocate(0);
+    return this->Allocate(newsize);
   }
-
-  if (this->Pointer && this->DeleteFunction != free)
+  if (this->DeleteFunction != free)
   {
-    ScalarType* newArray;
-    bool forceFreeFunction = false;
-    if (this->MallocFunction)
+    ScalarType* newArray = nullptr;
+    if (this->MallocFunction && this->MallocFunction != malloc)
     {
       newArray = static_cast<ScalarType*>(this->MallocFunction(newsize * sizeof(ScalarType)));
-      if (this->MallocFunction == malloc)
-      {
-        // This must be done because the array passed in may have been
-        // allocated outside of the memory management of `vtkBuffer` and
-        // therefore have been registered with a `DeleteFunction` such as
-        // `delete` or `delete[]`. Since the memory is now allocated with
-        // `malloc` here, we must also reset `DeleteFunction` to something
-        // which matches.
-        forceFreeFunction = true;
-      }
+    }
+    else if constexpr (std::is_trivially_constructible_v<ScalarType>)
+    {
+      newArray = static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
     }
     else
     {
-      newArray = static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
+      vtkErrorMacro(
+        "Reallocate is not supported for non-trivially constructible types with malloc.");
+      return false;
     }
     if (!newArray)
     {
       return false;
     }
-    std::copy(this->Pointer, this->Pointer + (std::min)(this->Size, newsize), newArray);
+    std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize);
-    if (!this->MallocFunction || forceFreeFunction)
+    // The second check is needed because the array passed in may have been
+    // allocated outside the memory management of `vtkBuffer` and therefore
+    // have been registered with a `DeleteFunction` such as `delete` or
+    // `delete[]`. Since the memory is now allocated with `malloc` here,
+    // we must also reset `DeleteFunction` to something which matches.
+    if (!this->MallocFunction || this->MallocFunction == malloc)
     {
       this->DeleteFunction = free;
     }
   }
   else
   {
-    // Try to reallocate with minimal memory usage and possibly avoid
-    // copying.
+    // Try to reallocate with minimal memory usage and possibly avoid copying.
     ScalarType* newArray = nullptr;
-    if (this->ReallocFunction)
+    if (this->ReallocFunction && this->ReallocFunction != realloc)
     {
       newArray = static_cast<ScalarType*>(
         this->ReallocFunction(this->Pointer, newsize * sizeof(ScalarType)));
     }
-    else
+    else if constexpr (std::is_trivially_copyable_v<ScalarType>)
     {
       newArray = static_cast<ScalarType*>(realloc(this->Pointer, newsize * sizeof(ScalarType)));
+    }
+    else
+    {
+      vtkErrorMacro("Reallocate is not supported for non-trivially copyable types with realloc.");
+      return false;
     }
     if (!newArray)
     {

@@ -11,18 +11,12 @@
 # - VTK_DISPATCH_SOA_ARRAYS (default: OFF)
 #   Include vtkSOADataArrayTemplate<ValueType> for the basic types supported
 #   by VTK.
-# - VTK_DISPATCH_SCALED_SOA_ARRAYS (default: OFF)
-#   Include vtkScaledSOADataArrayTemplate<ValueType> for the basic types supported
-#   by VTK.
 #
 # - VTK_DISPATCH_AFFINE_ARRAYS (default: OFF)
 #   Include vtkAffineArray<ValueType> for the basic types supported
 #   by VTK.
 # - VTK_DISPATCH_CONSTANT_ARRAYS (default: OFF)
 #   Include vtkConstantArray<ValueType> for the basic types supported
-#   by VTK.
-# - VTK_DISPATCH_STD_FUNCTION_ARRAYS (default: OFF)
-#   Include vtkStdFunctionArray<ValueType> for the basic types supported
 #   by VTK.
 # - VTK_DISPATCH_STRIDED_ARRAYS (default: OFF)
 #   Include vtkStridedArray<ValueType> for the basic types supported
@@ -154,7 +148,6 @@ macro(vtkArrayDispatch_default_array_setup)
   # Set up regular arrays
   _vtkCreateArrayDispatch(VTK_DISPATCH_AOS_ARRAYS "vtkAOSDataArrayTemplate" "${vtk_numeric_types}")
   _vtkCreateArrayDispatch(VTK_DISPATCH_SOA_ARRAYS "vtkSOADataArrayTemplate" "${vtk_numeric_types}")
-  _vtkCreateArrayDispatch(VTK_DISPATCH_SCALED_SOA_ARRAYS "vtkScaledSOADataArrayTemplate" "${vtk_numeric_types}")
 
   # Helper macro for implicit arrays
   macro(_vtkCreateArrayDispatchImplicit var class types)
@@ -168,7 +161,6 @@ macro(vtkArrayDispatch_default_array_setup)
   # Set up implicit arrays
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_AFFINE_ARRAYS "vtkAffineArray" "${vtk_numeric_types}")
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_CONSTANT_ARRAYS "vtkConstantArray" "${vtk_numeric_types}")
-  _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STD_FUNCTION_ARRAYS "vtkStdFunctionArray" "${vtk_numeric_types}")
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STRIDED_ARRAYS "vtkStridedArray" "${vtk_numeric_types}")
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "vtkStructuredPointArray" "${vtk_numeric_types}")
 
@@ -183,7 +175,6 @@ macro(vtkArrayDispatch_generate_array_header result)
   # Create separate lists for each regular array type
   set(vtkAD_aos_arrays)
   set(vtkAD_soa_arrays)
-  set(vtkAD_scaled_soa_arrays)
   set(vtkAD_extra_arrays)
   # Process regular arrays
   foreach (container IN LISTS vtkArrayDispatch_containers)
@@ -193,8 +184,6 @@ macro(vtkArrayDispatch_generate_array_header result)
         list(APPEND vtkAD_aos_arrays "${container}<${value_type}>")
       elseif (container STREQUAL "vtkSOADataArrayTemplate")
         list(APPEND vtkAD_soa_arrays "${container}<${value_type}>")
-      elseif (container STREQUAL "vtkScaledSOADataArrayTemplate")
-        list(APPEND vtkAD_scaled_soa_arrays "${container}<${value_type}>")
       else ()
         list(APPEND vtkAD_extra_arrays "${container}<${value_type}>")
       endif ()
@@ -204,7 +193,6 @@ macro(vtkArrayDispatch_generate_array_header result)
   # Create separate lists for each implicit array type
   set(vtkAD_affine_arrays)
   set(vtkAD_constant_arrays)
-  set(vtkAD_std_function_arrays)
   set(vtkAD_strided_arrays)
   set(vtkAD_structured_point_arrays)
   set(vtkAD_implicit_extra_arrays)
@@ -216,8 +204,6 @@ macro(vtkArrayDispatch_generate_array_header result)
         list(APPEND vtkAD_affine_arrays "${container}<${value_type}>")
       elseif (container STREQUAL "vtkConstantArray")
         list(APPEND vtkAD_constant_arrays "${container}<${value_type}>")
-      elseif (container STREQUAL "vtkStdFunctionArray")
-        list(APPEND vtkAD_std_function_arrays "${container}<${value_type}>")
       elseif (container STREQUAL "vtkStridedArray")
         list(APPEND vtkAD_strided_arrays "${container}<${value_type}>")
       elseif (container STREQUAL "vtkStructuredPointArray")
@@ -274,7 +260,6 @@ macro(vtkArrayDispatch_generate_array_header result)
   # Generate individual array type lists
   _vtkGenerateTypeList(vtkAD_aos_arrays "AOSArrays")
   _vtkGenerateTypeList(vtkAD_soa_arrays "SOAArrays")
-  _vtkGenerateTypeList(vtkAD_scaled_soa_arrays "ScaledSOAArrays")
   _vtkGenerateTypeList(vtkAD_extra_arrays "ExtraArrays")
 
   # Combine all mutable arrays
@@ -282,14 +267,12 @@ macro(vtkArrayDispatch_generate_array_header result)
     "using Arrays = vtkTypeList::Append<\n"
     "  AOSArrays,\n"
     "  SOAArrays,\n"
-    "  ScaledSOAArrays,\n"
     "  ExtraArrays\n"
     ">::Result\;\n\n"
   )
 
   _vtkGenerateTypeList(vtkAD_affine_arrays "AffineArrays")
   _vtkGenerateTypeList(vtkAD_constant_arrays "ConstantArrays")
-  _vtkGenerateTypeList(vtkAD_std_function_arrays "StdFunctionArrays")
   _vtkGenerateTypeList(vtkAD_strided_arrays "StridedArrays")
   _vtkGenerateTypeList(vtkAD_structured_point_arrays "StructuredPointArrays")
   _vtkGenerateTypeList(vtkAD_implicit_extra_arrays "ImplicitExtraArrays")
@@ -299,7 +282,6 @@ macro(vtkArrayDispatch_generate_array_header result)
     "using ReadOnlyArrays = vtkTypeList::Append<\n"
     "  AffineArrays,\n"
     "  ConstantArrays,\n"
-    "  StdFunctionArrays,\n"
     "  StridedArrays,\n"
     "  StructuredPointArrays,\n"
     "  ImplicitExtraArrays\n"

@@ -35,14 +35,12 @@
  * message with no change to the backend itself. This may evolve in future versions of the class as
  * the needs of users become clearer.
  *
- * The `GetVoidPointer` method will create an internal vtkAOSDataArrayTemplate and populate it with
- * the values from the implicit array and can thus be very memory intensive. The `Squeeze` method
- * will destroy this internal memory array. Both deep and shallow copies to other types of arrays
- * will populate the other array with the implicit values contained in the implicit one. Deep and
- * shallow copies from other array into this one do not make sense and will result in undefined
- * behavior. Deep and shallow copies from implicit arrays of the same type will act the same way and
- * will transfer a shared backend object pointer. Deep and shallow copies from one type of implicit
- * array to a different type should result in a compile time error.
+ * Both deep and shallow copies to other types of arrays will populate the other array with the
+ * implicit values contained in the implicit one. Deep and shallow copies from other array into this
+ * one do not make sense and will result in undefined behavior. Deep and shallow copies from
+ * implicit arrays of the same type will act the same way and will transfer a shared backend object
+ * pointer. Deep and shallow copies from one type of implicit array to a different type should
+ * result in a compile time error.
  *
  * Constraints on the backend type are enforced through `implicit_array_traits` found in the
  * vtkImplicitArrayTraits header file. These traits use metaprogramming to check the proposed
@@ -242,22 +240,6 @@ public:
   }
 
   /**
-   * Use of this method is discouraged, it creates a memory copy of the data into
-   * a contiguous AoS-ordered buffer internally.
-   *
-   * Implicit array aims to limit memory consumption. Calling this method breaks
-   * this paradigm and can cause unexpected memory consumption,
-   * specially when called indirectly by some implementation details.
-   * E.g. when using the numpy wrapping, see #19304.
-   */
-  void* GetVoidPointer(vtkIdType valueIdx) override;
-
-  /**
-   * Release all extraneous internal memory including the void pointer used by `GetVoidPointer`
-   */
-  void Squeeze() override;
-
-  /**
    * Reset the array to default construction
    */
   void Initialize() override
@@ -347,9 +329,6 @@ protected:
   bool AllocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
   bool ReallocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
   ///@}
-
-  struct vtkInternals;
-  std::unique_ptr<vtkInternals> Internals;
 
   /**
    * The backend object actually mapping the indexes
@@ -616,55 +595,53 @@ VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
 
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<float(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<float(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<double(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<double(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<char(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<char(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
+  double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<signed char(int)>,
+                                   /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
+  double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(
+  VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<unsigned char(int)>,
+    /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<signed char(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<short(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
+  double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(
+  VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<unsigned short(int)>,
+    /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<unsigned char(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<int(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
+  double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(
+  VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<unsigned int(int)>,
+    /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<short(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    vtkImplicitArray<std::function<long(int)>, /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<unsigned short(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+  VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<unsigned long(int)>,
+    /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<int(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
-  double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<unsigned int(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
-  double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<long(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
-  double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<unsigned long(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
-  double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(
-  VTK_WRAP_TEMPLATE(
-    vtkImplicitArray<std::function<long long(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<long long(int)>,
+                                   /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(
   VTK_WRAP_TEMPLATE(vtkImplicitArray<std::function<unsigned long long(int)>,
-    vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),
+    /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>),
   double)
 VTK_ABI_NAMESPACE_END
 }

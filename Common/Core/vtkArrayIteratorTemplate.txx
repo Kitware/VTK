@@ -43,6 +43,7 @@ void vtkArrayIteratorTemplate<T>::Initialize(vtkAbstractArray* a)
   this->Pointer = nullptr;
   if (this->Array)
   {
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     this->Pointer = static_cast<T*>(this->Array->GetVoidPointer(0));
   }
 }

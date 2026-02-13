@@ -12,6 +12,7 @@
 #define vtkPoints_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -78,7 +79,11 @@ public:
    * Return a void pointer. For image pipeline interface and other
    * special pointer manipulation.
    */
-  void* GetVoidPointer(const int id) { return this->Data->GetVoidPointer(id); }
+  VTK_DEPRECATED_IN_9_7_0("Use vtkArrayDispatch")
+  void* GetVoidPointer(const int id)
+  {
+    return this->Data->GetVoidPointer(id); // NOLINT(bugprone-unsafe-functions)
+  }
 
   /**
    * Reclaim any extra memory.

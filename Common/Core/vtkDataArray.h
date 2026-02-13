@@ -300,16 +300,18 @@ public:
   virtual void DeepCopy(vtkDataArray* da);
   ///@}
 
+  ///@{
   /**
    * Create a shallow copy of other into this, if possible. Shallow copies are
    * only possible:
    * (a) if both arrays are the same data type
    * (b) if both arrays are the same array type (e.g. AOS vs. SOA)
-   * (c) if both arrays support shallow copies (e.g. vtkBitArray currently
-   * does not.)
+   * (c) if both arrays support shallow copies
    * If a shallow copy is not possible, a deep copy will be performed instead.
    */
   virtual void ShallowCopy(vtkDataArray* other);
+  void ShallowCopy(vtkAbstractArray* other) override;
+  ///@}
 
   /**
    * Fill a component of a data array with a specified value. This method

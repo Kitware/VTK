@@ -5,12 +5,20 @@
 
 #include "vtkGenericDataArray.h"
 
+#include "vtkBuffer.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkVariantCast.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 #ifndef __VTK_WRAP__
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+struct vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::vtkInternals
+{
+  vtkSmartPointer<vtkBuffer<ValueType>> Cache;
+};
+
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
 DerivedT* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FastDownCast(
@@ -296,10 +304,33 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::HasStandardMemoryLayo
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
-void* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetVoidPointer(vtkIdType)
+void* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetVoidPointer(vtkIdType idx)
 {
-  vtkErrorMacro("GetVoidPointer is not supported by this class.");
-  return nullptr;
+  if (!this->Internals->Cache)
+  {
+    const char* silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+    if (!silence)
+    {
+      vtkWarningMacro(<< "GetVoidPointer called. This is very expensive for "
+                         "non-array-of-structs subclasses, as the scalar array "
+                         "must be generated for each call. Using the "
+                         "vtkGenericDataArray API with vtkArrayDispatch are "
+                         "preferred. Define the environment variable "
+                         "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
+                         "this warning. Additionally, for the vtkScaledSOADataArrayTemplate "
+                         "class we also set Scale to 1 since we've scaled how "
+                         "we're storing the data in memory now. ");
+    }
+    const vtkIdType numValues = this->GetNumberOfValues();
+    this->Internals->Cache = vtkSmartPointer<vtkBuffer<ValueType>>::New();
+    this->Internals->Cache->Reallocate(numValues);
+    auto array = static_cast<DerivedT*>(this);
+    for (vtkIdType i = 0; i < numValues; ++i)
+    {
+      this->Internals->Cache->GetBuffer()[i] = array->GetValue(i);
+    }
+  }
+  return this->Internals->Cache->GetBuffer() + idx;
 }
 
 //-----------------------------------------------------------------------------
@@ -307,7 +338,7 @@ template <class DerivedT, class ValueTypeT, int ArrayType>
 typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
 vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetPointer(vtkIdType id)
 {
-  return static_cast<ValueType*>(this->GetVoidPointer(id));
+  return static_cast<ValueType*>(this->GetVoidPointer(id)); // NOLINT(bugprone-unsafe-functions)
 }
 
 //-----------------------------------------------------------------------------
@@ -522,6 +553,7 @@ template <class DerivedT, class ValueTypeT, int ArrayType>
 void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Squeeze()
 {
   this->Resize(this->GetNumberOfTuples());
+  this->Internals->Cache = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -1028,6 +1060,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FillComponent(int com
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
 vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::vtkGenericDataArray()
+  : Internals(new vtkInternals())
 {
   // Initialize internal data structures:
   this->Lookup.SetArray(this);

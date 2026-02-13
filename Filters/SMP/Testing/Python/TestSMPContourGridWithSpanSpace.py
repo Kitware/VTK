@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonExecutionModel import vtkSpanSpace
-from vtkmodules.vtkFiltersCore import vtkAssignAttribute
-from vtkmodules.vtkFiltersSMP import vtkSMPContourGrid
+from vtkmodules.vtkFiltersCore import vtkAssignAttribute, vtkContourFilter
 from vtkmodules.vtkIOExodus import vtkExodusIIReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -27,12 +26,10 @@ reader.Update()
 
 tree = vtkSpanSpace()
 
-contour = vtkSMPContourGrid()
-#contour = vtkContourGrid()
+contour = vtkContourFilter()
 contour.SetInputConnection(reader.GetOutputPort())
 contour.SetInputArrayToProcess(0, 0, 0, vtkAssignAttribute.POINT_DATA, "CH4")
 contour.SetValue(0, 0.000718448)
-contour.MergePiecesOff()
 contour.UseScalarTreeOn()
 contour.SetScalarTree(tree)
 contour.Update()

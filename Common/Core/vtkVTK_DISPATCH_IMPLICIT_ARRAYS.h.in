@@ -8,8 +8,6 @@
 #cmakedefine VTK_DISPATCH_AFFINE_ARRAYS
 // defined if VTK dispatches the vtkConstantArray class
 #cmakedefine VTK_DISPATCH_CONSTANT_ARRAYS
-// defined if VTK dispatches the vtkStdFunctionArray class
-#cmakedefine VTK_DISPATCH_STD_FUNCTION_ARRAYS
 // defined if VTK dispatches the vtkStridedArray class
 #cmakedefine VTK_DISPATCH_STRIDED_ARRAYS
 // defined if VTK dispatches the vtkStructuredPointArray class

@@ -62,7 +62,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
 
-#include <cassert>
+#include <cassert> // for assert
+#include <memory>  // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::VTK_DATA_ARRAY>
@@ -176,11 +177,13 @@ public:
    * supporting this API, they should override this method.
    */
   void* GetVoidPointer(vtkIdType valueIdx) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtkAOSDataArrayTemplate::GetPointer(valueIdx) instead")
   ValueType* GetPointer(vtkIdType valueIdx);
   void SetVoidArray(void*, vtkIdType, int) override;
   void SetVoidArray(void*, vtkIdType, int, int) override;
   void SetArrayFreeFunction(void (*callback)(void*)) override;
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtkAOSDataArrayTemplate::WritePointer(valueIdx, numValues) instead")
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   ///@}
 
@@ -346,6 +349,7 @@ public:
   void ClearLookup() override;
   void DataChanged() override;
   void FillComponent(int compIdx, double value) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtk::DataArrayValueRange, or the array directly")
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
 protected:
@@ -437,6 +441,9 @@ protected:
 private:
   vtkGenericDataArray(const vtkGenericDataArray&) = delete;
   void operator=(const vtkGenericDataArray&) = delete;
+
+  struct vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 VTK_ABI_NAMESPACE_END
 
