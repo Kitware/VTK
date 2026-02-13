@@ -146,7 +146,7 @@ struct ComputeGBCWorker
         {
           for (int k = 0; k < nComponents; ++k)
           {
-            gbc[i][j] = gbc[i][j] + normalized[i][k] * components[k][j] / tempsum;
+            gbc[i][j] += normalized[i][k] * components[k][j] / tempsum;
           }
         }
         double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
