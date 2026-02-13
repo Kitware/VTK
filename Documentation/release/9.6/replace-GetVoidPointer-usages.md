@@ -34,7 +34,7 @@ Moreover, 17% (25/146) of the remaining `GetVoidPointer()` usages have been mark
 `(bugprone-unsafe-functions)` when one of the following conditions is met:
 
 1. If array is `vtkDataArray`, but using `HasStandardMemoryLayout`, it has been verified that it actually is
-   `vtkSOADataArrayTemplate`, then `GetVoidPointer()` is _safe_ to use. This usually happens when the array was created
+   `vtkAOSDataArrayTemplate`, then `GetVoidPointer()` is _safe_ to use. This usually happens when the array was created
    using `vtkDataArray::CreateDataArray()` or `vtkAbstractArray::CreateArray()` by passing a standard VTK data type.
 2. If array is `vtkDataArray`, the data type is NOT known, but raw pointer to data is absolutely needed, use
    `auto aos = array->ToAOSDataArray()`, and then use `aos->GetVoidPointer()`, which is _safe_, being aware that this
