@@ -12,7 +12,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 constexpr int vtkHDFMajorVersion = 2;
-constexpr int vtkHDFMinorVersion = 5;
+constexpr int vtkHDFMinorVersion = 6;
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkHDFVersion_h

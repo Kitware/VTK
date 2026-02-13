@@ -121,6 +121,13 @@ public:
   vtkHDF::ScopedH5AHandle CreateScalarAttribute(hid_t group, const char* name, int value);
 
   /**
+   * Create a string attribute in the given group.
+   * Noop if the attribute already exists.
+   */
+  vtkHDF::ScopedH5AHandle CreateStringAttribute(
+    hid_t group, const char* name, const std::string& value);
+
+  /**
    * Create an unlimited HDF dataspace with a dimension of `0 * numCols`.
    * This dataspace can be attached to a chunked dataset and extended afterwards.
    * Returned scoped handle may be invalid

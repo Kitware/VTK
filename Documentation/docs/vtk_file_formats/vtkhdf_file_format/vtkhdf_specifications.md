@@ -61,6 +61,28 @@ digraph G {
 
 ```
 
+## Attribute Data
+
+Attribute data (point, cell, field) is stored in HDF5 datasets located in
+the `VTKHDF/[Point/Cell/Field]Data` groups.
+
+Each point and cell array can define the "Attribute" HDF5 attribute to mark the array as carrying a special meaning,
+corresponding to types defined in `vtkDataSetAttributes`.
+
+Possible values for "Attribute" are (case-insensitive):
+ - Scalars
+ - Vectors
+ - Normals
+ - TCoords
+ - Tensors
+ - GlobalIds
+ - PedigreeIds
+ - EdgeFlag
+ - Tangents
+ - RationalWeights
+ - HigherOrderDegrees
+ - ProcessIds
+
 ## Image data
 
 The format for image data is detailed in the Figure 1 where the `Type`
