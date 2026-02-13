@@ -261,8 +261,8 @@ public:
 
   friend VTK_ITER_INLINE void swap(ComponentReference lhs, ComponentReference rhs) noexcept
   { // Swap values, not references:
-    APIType tmp = std::move(static_cast<APIType>(lhs));
-    lhs = std::move(static_cast<APIType>(rhs));
+    APIType tmp = static_cast<APIType>(lhs);
+    lhs = static_cast<APIType>(rhs);
     rhs = std::move(tmp);
   }
 
@@ -274,14 +274,14 @@ public:
     static_assert(
       std::is_same<APIType, OAPIType>::value, "Cannot swap components with different types.");
 
-    APIType tmp = std::move(static_cast<APIType>(lhs));
-    lhs = std::move(static_cast<APIType>(rhs));
+    APIType tmp = static_cast<APIType>(lhs);
+    lhs = static_cast<APIType>(rhs);
     rhs = std::move(tmp);
   }
 
   friend VTK_ITER_INLINE void swap(ComponentReference lhs, APIType& rhs) noexcept
   {
-    APIType tmp = std::move(static_cast<APIType>(lhs));
+    APIType tmp = static_cast<APIType>(lhs);
     lhs = std::move(rhs);
     rhs = std::move(tmp);
   }
@@ -289,7 +289,7 @@ public:
   friend VTK_ITER_INLINE void swap(APIType& lhs, ComponentReference rhs) noexcept
   {
     APIType tmp = std::move(lhs);
-    lhs = std::move(static_cast<APIType>(rhs));
+    lhs = static_cast<APIType>(rhs);
     rhs = std::move(tmp);
   }
 
