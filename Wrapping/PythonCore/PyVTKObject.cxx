@@ -68,7 +68,8 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 #endif
       )
       {
-        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
+        const char* tpName = vtkPythonUtil::StripModuleFromType(tp);
+        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(tpName));
         if (c && tp == c->py_type)
         {
           std::string str("method requires overriding with a pure python subclass of ");
@@ -79,8 +80,9 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
         }
       }
 
-      // Set the override
-      PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+      // Set the override (use VTKClassName to translate Python name to C++ name
+      // for templated classes, whose Python and C++ names differ)
+      PyVTKClass* thecls = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(clsName.c_str()));
       if (!thecls)
       {
         std::string str("could not find class ");
@@ -102,8 +104,8 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
   }
   else if (type == Py_None)
   {
-    // Clear the override
-    PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+    // Clear the override (use VTKClassName for templated classes)
+    PyVTKClass* thecls = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(clsName.c_str()));
     if (thecls)
     {
       thecls->py_type = typeobj;
