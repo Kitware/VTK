@@ -4,7 +4,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
@@ -15,6 +15,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#include <algorithm>
 #include <vtk_fmt.h>
 // clang-format off
 #include VTK_FMT(fmt/format.h)
@@ -62,32 +63,40 @@ struct NormalizeWorker
   template <typename Input, typename Output>
   void operator()(Input* scalarsArray, Output* normalizedArray)
   {
-    double range[2];
-    double minValue = std::numeric_limits<double>::max(),
-           maxValue = std::numeric_limits<double>::lowest();
+    auto scalars = vtk::DataArrayTupleRange(scalarsArray);
+    auto normalized = vtk::DataArrayTupleRange(normalizedArray);
+    using ScalarsRangeType = decltype(scalars);
+    using ValueType = typename ScalarsRangeType::ComponentType;
+    using TupleReferenceType = typename ScalarsRangeType::TupleReferenceType;
+    using TupleIteratorType = typename ScalarsRangeType::TupleIteratorType;
+
+    ValueType minValue = std::numeric_limits<ValueType>::max(),
+              maxValue = std::numeric_limits<ValueType>::lowest();
     for (int k = 0; k < this->Indices.size(); ++k)
     {
-      scalarsArray->GetRange(range, this->Indices[k]);
-      if (range[0] < minValue)
+      auto comparator = [this, k](const TupleReferenceType& a, const TupleReferenceType& b)
+      { return a[this->Indices[k]] < b[this->Indices[k]]; };
+      TupleIteratorType minIt = std::min_element(scalars.begin(), scalars.end(), comparator);
+      ValueType minCurrent = (*minIt)[this->Indices[k]];
+      TupleIteratorType maxIt = std::max_element(scalars.begin(), scalars.end(), comparator);
+      ValueType maxCurrent = (*maxIt)[this->Indices[k]];
+      if (minCurrent < minValue)
       {
-        minValue = range[0];
+        minValue = minCurrent;
       }
-      if (range[1] > maxValue)
+      if (maxCurrent > maxValue)
       {
-        maxValue = range[1];
+        maxValue = maxCurrent;
       }
     }
-    vtkDataArrayAccessor<Input> scalars(scalarsArray);
-    vtkDataArrayAccessor<Output> normalized(normalizedArray);
-    vtkIdType nTuples = scalarsArray->GetNumberOfTuples();
+    vtkIdType nTuples = scalars.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       for (int k = 0; k < this->Indices.size(); ++k)
       {
-        normalized.Set(i, this->Indices[k],
-          (this->NewMax - this->NewMin) * (scalars.Get(i, this->Indices[k]) - minValue) /
-              (maxValue - minValue) +
-            this->NewMin);
+        normalized[i][this->Indices[k]] = (this->NewMax - this->NewMin) *
+            (scalars[i][this->Indices[k]] - minValue) / (maxValue - minValue) +
+          this->NewMin;
       }
     }
   }
@@ -101,10 +110,10 @@ struct ComputeGBCWorker
   template <typename Input, typename Output>
   void operator()(Input* normalizedArray, Output* gbcArray)
   {
-    vtkDataArrayAccessor<Input> normalized(normalizedArray);
-    vtkDataArrayAccessor<Output> gbc(gbcArray);
+    auto normalized = vtk::DataArrayTupleRange(normalizedArray);
+    auto gbc = vtk::DataArrayTupleRange(gbcArray);
 
-    vtkIdType nComponents = normalizedArray->GetNumberOfComponents();
+    vtkIdType nComponents = normalized.GetTupleSize();
     std::vector<double> angle(nComponents);
     std::vector<std::array<double, 2>> components(nComponents);
     angle[0] = vtkMath::Pi() / 2;
@@ -121,26 +130,26 @@ struct ComputeGBCWorker
     }
     std::sort(angle.begin(), angle.end());
 
-    vtkIdType nTuples = normalizedArray->GetNumberOfTuples();
+    vtkIdType nTuples = normalized.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double tempsum = 0;
       for (int k = 0; k < nComponents; ++k)
       {
-        tempsum += normalized.Get(i, k);
+        tempsum += normalized[i][k];
       }
-      gbc.Set(i, 0, 0);
-      gbc.Set(i, 1, 0);
+      gbc[i][0] = 0;
+      gbc[i][1] = 0;
       if (!vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
       {
         for (int j = 0; j < 2; ++j)
         {
           for (int k = 0; k < nComponents; ++k)
           {
-            gbc.Set(i, j, gbc.Get(i, j) + normalized.Get(i, k) * components[k][j] / tempsum);
+            gbc[i][j] = gbc[i][j] + normalized[i][k] * components[k][j] / tempsum;
           }
         }
-        double tempangle = std::atan2(gbc.Get(i, 1), gbc.Get(i, 0));
+        double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
         tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
 
         bool flag = false;
@@ -162,10 +171,10 @@ struct ComputeGBCWorker
           temp_b = angle[nComponents - 1];
         }
 
-        double lth = std::sqrt(std::pow(gbc.Get(i, 0), 2) + std::pow(gbc.Get(i, 1), 2)) /
+        double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) /
           std::cos((temp_a - temp_b) / 2) * std::cos(-(temp_a + temp_b) / 2 + tempangle);
-        gbc.Set(i, 0, lth * std::cos(tempangle));
-        gbc.Set(i, 1, lth * std::sin(tempangle));
+        gbc[i][0] = lth * std::cos(tempangle);
+        gbc[i][1] = lth * std::sin(tempangle);
       }
     }
   }
@@ -173,24 +182,23 @@ struct ComputeGBCWorker
 
 struct GBCToHSLWorker
 {
-  GBCToHSLWorker(vtkObject* filter, double lightness)
-    : Filter(filter)
-    , Lightness(lightness)
+  GBCToHSLWorker(double lightness)
+    : Lightness(lightness)
   {
   }
 
   template <typename Input, typename Output>
   void operator()(Input* gbcScalars, Output* hslScalars)
   {
-    vtkDataArrayAccessor<Input> gbc(gbcScalars);
-    vtkDataArrayAccessor<Output> hsl(hslScalars);
+    auto gbc = vtk::DataArrayTupleRange(gbcScalars);
+    auto hsl = vtk::DataArrayTupleRange(hslScalars);
 
     vtkIdType nComponents = gbcScalars->GetNumberOfComponents();
 
     vtkIdType nTuples = gbcScalars->GetNumberOfTuples();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      double gbcValue[2] = { gbc.Get(i, 0), gbc.Get(i, 1) };
+      double gbcValue[2] = { gbc[i][0], gbc[i][1] };
       double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
       if (radius > 1)
       {
@@ -200,12 +208,11 @@ struct GBCToHSLWorker
       double hue = std::atan2(gbcValue[1], gbcValue[0]) + vtkMath::Pi() / 2;
       hue = numpy_mod(hue, 2 * vtkMath::Pi()) / (2 * vtkMath::Pi());
       double saturation = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
-      hsl.Set(i, 0, hue);
-      hsl.Set(i, 1, saturation);
-      hsl.Set(i, 2, this->Lightness);
+      hsl[i][0] = hue;
+      hsl[i][1] = saturation;
+      hsl[i][2] = this->Lightness;
     }
   }
-  vtkObject* Filter;
   double Lightness;
 };
 
@@ -214,8 +221,8 @@ struct HSLToRGBWorker
   template <typename Input, typename Output>
   void operator()(Input* hslScalars, Output* rgbaScalars)
   {
-    vtkDataArrayAccessor<Input> hsl(hslScalars);
-    vtkDataArrayAccessor<Output> rgba(rgbaScalars);
+    auto hsl = vtk::DataArrayTupleRange(hslScalars);
+    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
     vtkIdType nComponents = hslScalars->GetNumberOfComponents();
 
@@ -223,24 +230,24 @@ struct HSLToRGBWorker
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double m2;
-      double l = hsl.Get(i, 2);
+      double l = hsl[i][2];
       if (l < 0.5)
       {
-        double lower_l = hsl.Get(i, 2);
-        double lower_s = hsl.Get(i, 1);
+        double lower_l = hsl[i][2];
+        double lower_s = hsl[i][1];
         m2 = lower_l * (1 + lower_s);
       }
       else
       {
-        double upper_l = hsl.Get(i, 2);
-        double upper_s = hsl.Get(i, 1);
+        double upper_l = hsl[i][2];
+        double upper_s = hsl[i][1];
         m2 = upper_l + upper_s - upper_l * upper_s;
       }
       double m1 = 2 * l - m2;
-      double h = hsl.Get(i, 0);
-      rgba.Set(i, 0, this->v(m1, m2, h + 1.0 / 3));
-      rgba.Set(i, 1, this->v(m1, m2, h));
-      rgba.Set(i, 2, this->v(m1, m2, h - 1.0 / 3));
+      double h = hsl[i][0];
+      rgba[i][0] = this->v(m1, m2, h + 1.0 / 3);
+      rgba[i][1] = this->v(m1, m2, h);
+      rgba[i][2] = this->v(m1, m2, h - 1.0 / 3);
     }
   }
 
@@ -274,8 +281,8 @@ struct ComputeAlphaWorker
   template <typename Input, typename Output>
   void operator()(Input* normalizedScalars, Output* rgbaScalars)
   {
-    vtkDataArrayAccessor<Input> normalized(normalizedScalars);
-    vtkDataArrayAccessor<Output> rgba(rgbaScalars);
+    auto normalized = vtk::DataArrayTupleRange(normalizedScalars);
+    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
     vtkIdType nComponents = normalizedScalars->GetNumberOfComponents();
 
@@ -285,12 +292,12 @@ struct ComputeAlphaWorker
       double mean = 0;
       for (int k = 0; k < nComponents; ++k)
       {
-        mean += normalized.Get(i, k);
+        mean += normalized[i][k];
       }
       mean /= nComponents;
 
       // Make nonzero voxels have an alpha of the mean of the channels.
-      rgba.Set(i, 3, mean);
+      rgba[i][3] = mean;
     }
   }
 };
@@ -380,7 +387,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   hslScalars->SetNumberOfComponents(3);
   hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    GBCToHSLWorker worker(this, 0.55);
+    GBCToHSLWorker worker(0.55);
     if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
     {
       worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
