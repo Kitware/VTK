@@ -65,6 +65,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::SetArray(
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
 }
 
 //-----------------------------------------------------------------------------
@@ -325,6 +326,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray* other)
       this->Buffer->Register(nullptr);
     }
     this->DataChanged();
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   else
   {
@@ -472,6 +474,7 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
   if (this->Buffer->Allocate(numValues))
   {
     this->Size = this->Buffer->GetSize();
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
     return true;
   }
   return false;
