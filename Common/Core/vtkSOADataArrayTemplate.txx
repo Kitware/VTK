@@ -83,6 +83,9 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
     this->Size = o->Size;
     this->MaxId = o->MaxId;
     this->SetName(o->Name);
+    // Set StorageType before SetNumberOfComponents so that the
+    // Data vector is resized correctly for SOA mode.
+    this->StorageType = o->StorageType;
     this->SetNumberOfComponents(o->NumberOfComponents);
     this->CopyComponentNames(o);
     assert(this->Data.size() == o->Data.size());
@@ -98,6 +101,7 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
       }
     }
     this->DataChanged();
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   else
   {
