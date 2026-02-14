@@ -93,6 +93,20 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       thecls->py_type = newtypeobj;
       // Store override in dict of old type, to keep a reference to it
       PyDict_SetItemString(typeobj->tp_dict, "__override__", type);
+
+      // Copy the override's __doc__ to the base type so that
+      // help(BaseType) shows the Python documentation at the top
+      // instead of only under __override__.
+      PyObject* overrideDoc = PyObject_GetAttrString(type, "__doc__");
+      if (overrideDoc && PyUnicode_Check(overrideDoc))
+      {
+        const char* docStr = PyUnicode_AsUTF8(overrideDoc);
+        if (docStr)
+        {
+          typeobj->tp_doc = strdup(docStr);
+        }
+      }
+      Py_XDECREF(overrideDoc);
     }
     else
     {
