@@ -10,6 +10,7 @@ endforeach ()
 set(python_tests
   TestAlgorithmNumberProtocol.py
   TestComposite.py
+  TestConstructorArgs.py
   TestConstructorKwargs.py
   TestChar.py
   TestDeprecated.py

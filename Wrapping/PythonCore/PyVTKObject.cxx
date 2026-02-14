@@ -305,27 +305,24 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* /*kwds*/)
 {
   // XXX(python3-abi3): all types will be heap types in abi3
-  // If type was subclassed within python, then skip arg checks and
-  // simply create a new object.
-  PyObject* o = nullptr;
+  // Handle SWIG pointer reconstruction: exactly one string argument
+  // containing an encoded pointer address.  All other arguments are
+  // passed through to tp_init (__init__) by type_call, allowing
+  // Python override classes to define rich constructors.
   if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
-    if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
+    if (PyTuple_GET_SIZE(args) == 1)
     {
-      return nullptr;
-    }
-
-    if (o)
-    {
-      // used to create a VTK object from a SWIG pointer
-      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
+      PyObject* o = PyTuple_GET_ITEM(args, 0);
+      if (PyUnicode_Check(o))
+      {
+        return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
+      }
     }
   }
 
   // if PyVTKObject_FromPointer gets nullptr, it creates a new object.
-  o = PyVTKObject_FromPointer(tp, nullptr, nullptr);
-
-  return o;
+  return PyVTKObject_FromPointer(tp, nullptr, nullptr);
 }
 
 //------------------------------------------------------------------------------
