@@ -31,14 +31,26 @@ class TestConstructorArgs(vtkTesting.vtkTest):
 
     def test_swig_pointer_with_override(self):
         """SWIG pointer reconstruction on a class with a Python override."""
-        pd = vtkPolyData()
-        pts = vtkPoints()
-        pts.InsertNextPoint(1, 2, 3)
-        pd.SetPoints(pts)
-        addr = pd.__this__
-        pd2 = vtkPolyData(addr)
-        self.assertIs(pd, pd2)
-        self.assertEqual(pd2.GetNumberOfPoints(), 1)
+        class MyPolyData(vtkPolyData):
+            def __init__(self, *args, **kwargs):
+                # Only pass SWIG pointer strings up; swallow everything else.
+                if args and isinstance(args[0], str):
+                    return
+                self.extra = args
+
+        vtkPolyData.override(MyPolyData)
+        try:
+            pd = vtkPolyData()
+            pts = vtkPoints()
+            pts.InsertNextPoint(1, 2, 3)
+            pd.SetPoints(pts)
+            addr = pd.__this__
+            pd2 = vtkPolyData(addr)
+            self.assertIs(pd, pd2)
+            self.assertEqual(pd2.GetNumberOfPoints(), 1)
+        finally:
+            # Remove the override so it doesn't affect other tests.
+            vtkPolyData.override(None)
 
     # ------------------------------------------------------------------
     # Multiple positional arguments with a custom override
@@ -76,22 +88,27 @@ class TestConstructorArgs(vtkTesting.vtkTest):
             self.assertEqual(c4.captured_args, (5,))
             self.assertEqual(c4.captured_kwargs, {"name": "test"})
         finally:
-            # Restore original type (remove override).  There is no
-            # public un-override API, but the test is isolated enough
-            # that this is acceptable.
-            pass
+            vtkCollection.override(None)
 
     def test_swig_pointer_with_custom_override(self):
         """SWIG pointer reconstruction still works after custom override."""
-        # vtkCollection already has the MyCollection override from the
-        # previous test (overrides are permanent per-process).
-        c = vtkCollection()
-        obj = vtkObject()
-        c.AddItem(obj)
-        addr = c.__this__
-        c2 = vtkCollection(addr)
-        self.assertIs(c, c2)
-        self.assertEqual(c2.GetNumberOfItems(), 1)
+        class MyCollection(vtkCollection):
+            def __init__(self, *args, **kwargs):
+                if args and isinstance(args[0], str):
+                    return
+                self.captured_args = args
+
+        vtkCollection.override(MyCollection)
+        try:
+            c = vtkCollection()
+            obj = vtkObject()
+            c.AddItem(obj)
+            addr = c.__this__
+            c2 = vtkCollection(addr)
+            self.assertIs(c, c2)
+            self.assertEqual(c2.GetNumberOfItems(), 1)
+        finally:
+            vtkCollection.override(None)
 
     # ------------------------------------------------------------------
     # Keyword arguments (existing VTK kwarg support in tp_init)

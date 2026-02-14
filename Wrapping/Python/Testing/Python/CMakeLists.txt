@@ -8,6 +8,7 @@ foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
 endforeach ()
 
 set(python_tests
+  TestAOSBracketNotation.py
   TestAlgorithmNumberProtocol.py
   TestComposite.py
   TestConstructorArgs.py
