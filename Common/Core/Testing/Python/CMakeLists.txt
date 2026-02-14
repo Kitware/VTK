@@ -25,6 +25,7 @@ vtk_add_test_python(
   TestPassByReference.py
   TestPointers.py
   TestSOADataArrays.py
+  TestSetBuffer.py
   TestSetGet.py
   TestSingleton.py
   TestStrings.py
