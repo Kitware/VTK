@@ -4,6 +4,7 @@ set(classes
   vtkPExtractGrid
   vtkPExtractRectilinearGrid
   vtkPExtractVOI
+  vtkPMultiVariateToRGBA
   vtkStructuredImplicitConnectivity)
 
 vtk_module_add_module(VTK::FiltersParallelMPI
