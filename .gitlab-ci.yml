@@ -507,33 +507,35 @@ wasm64-emscripten:vtk:upload:
     needs:
         - wasm64-emscripten:package
 
-## Test the 'wasm32-emscripten' architecture on a windows host
-wasm32-emscripten-windows-chrome:test-ext:
-    extends:
-        - .wasm32_emscripten_windows_chrome_ext_vtk
-        - .cmake_test_wasm_emscripten_windows_ext
-        - .windows_tester_tags
-        - .cmake_test_artifacts
-        - .rules
-    variables:
-        CTEST_MAX_PARALLELISM: 8
-    needs:
-        - wasm32-emscripten-linux:build
-    timeout: 4 hours
+# See https://gitlab.kitware.com/vtk/vtk/-/issues/19945
+# ## Test the 'wasm32-emscripten' architecture on a windows host
+# wasm32-emscripten-windows-chrome:test-ext:
+#     extends:
+#         - .wasm32_emscripten_windows_chrome_ext_vtk
+#         - .cmake_test_wasm_emscripten_windows_ext
+#         - .windows_tester_tags
+#         - .cmake_test_artifacts
+#         - .rules
+#     variables:
+#         CTEST_MAX_PARALLELISM: 8
+#     needs:
+#         - wasm32-emscripten-linux:build
+#     timeout: 4 hours
 
-## Test the 'wasm64-emscripten' architecture on a windows host
-wasm64-emscripten-windows-chrome:test-ext:
-    extends:
-        - .wasm64_emscripten_windows_chrome_ext_vtk
-        - .cmake_test_wasm_emscripten_windows_ext
-        - .windows_tester_tags
-        - .cmake_test_artifacts
-        - .rules
-    variables:
-        CTEST_MAX_PARALLELISM: 8
-    needs:
-        - wasm64-emscripten-linux:build
-    timeout: 5 hours
+# See https://gitlab.kitware.com/vtk/vtk/-/issues/19945
+# ## Test the 'wasm64-emscripten' architecture on a windows host
+# wasm64-emscripten-windows-chrome:test-ext:
+#     extends:
+#         - .wasm64_emscripten_windows_chrome_ext_vtk
+#         - .cmake_test_wasm_emscripten_windows_ext
+#         - .windows_tester_tags
+#         - .cmake_test_artifacts
+#         - .rules
+#     variables:
+#         CTEST_MAX_PARALLELISM: 8
+#     needs:
+#         - wasm64-emscripten-linux:build
+#     timeout: 5 hours
 
 ## Python x86_64 wheel builds
 
