@@ -89,7 +89,7 @@ class TestVariant(Testing.vtkTest):
         v = vtkVariant(o)
         self.assertEqual(v.GetType(), VTK_OBJECT)
         self.assertEqual(v.GetTypeAsString(), o.GetClassName())
-        self.assertEqual(v.ToVTKObject(), o)
+        self.assertIs(v.ToVTKObject(), o)
 
     def testTwoArgConstructor(self):
         """Construct with a specific type"""

@@ -19,10 +19,10 @@ class TestDataModel(vtkTesting.vtkTest):
         self.assertTrue('RTData' in wlt.point_data)
         self.assertTrue('RTData' in wlt.cell_data)
         rtdata = wlt.point_data['RTData']
-        self.assertTrue(issubclass(type(rtdata), numpy.ndarray))
+        self.assertTrue(hasattr(rtdata, '__array__'))
         self.assertTrue(rtdata.shape == (wlt.number_of_points,))
         rtdata = wlt.cell_data['RTData']
-        self.assertTrue(issubclass(type(rtdata), numpy.ndarray))
+        self.assertTrue(hasattr(rtdata, '__array__'))
         self.assertTrue(rtdata.shape == (wlt.number_of_cells,))
         wlt2 = wlt.NewInstance()
         wlt2.DeepCopy(wlt)
