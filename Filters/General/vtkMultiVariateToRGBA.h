@@ -13,7 +13,8 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
-#include <vector> // For modality groups
+#include <functional> // For std::function
+#include <vector>     // For modality groups
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
@@ -37,6 +38,8 @@ protected:
 
   double ColorWheelRotation = 0;
   std::vector<std::vector<int>> ModalityGroups;
+  std::function<double(double)> GlobalMin = nullptr;
+  std::function<double(double)> GlobalMax = nullptr;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

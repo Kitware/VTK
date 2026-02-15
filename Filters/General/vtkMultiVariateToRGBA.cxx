@@ -53,8 +53,12 @@ double numpy_mod(double a, double b)
  */
 struct NormalizeWorker
 {
-  NormalizeWorker(const std::vector<int>& indices, double newMin = 0, double newMax = 1)
+  NormalizeWorker(const std::vector<int>& indices,
+    std::function<double(double)> globalMin = nullptr,
+    std::function<double(double)> globalMax = nullptr, double newMin = 0, double newMax = 1)
     : Indices(indices)
+    , GlobalMin(globalMin)
+    , GlobalMax(globalMax)
     , NewMin(newMin)
     , NewMax(newMax)
   {
@@ -89,6 +93,14 @@ struct NormalizeWorker
         maxValue = maxCurrent;
       }
     }
+    if (this->GlobalMin)
+    {
+      minValue = this->GlobalMin(minValue);
+    }
+    if (this->GlobalMax)
+    {
+      maxValue = this->GlobalMax(maxValue);
+    }
     vtkIdType nTuples = scalars.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
@@ -103,6 +115,8 @@ struct NormalizeWorker
   std::vector<int> Indices;
   double NewMin = 0;
   double NewMax = 1;
+  std::function<double(double)> GlobalMin = nullptr;
+  std::function<double(double)> GlobalMax = nullptr;
 };
 
 struct ComputeGBCWorker
@@ -366,7 +380,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     Dispatcher;
   for (int i = 0; i < this->ModalityGroups.size(); ++i)
   {
-    NormalizeWorker worker(this->ModalityGroups[i]);
+    NormalizeWorker worker(this->ModalityGroups[i], this->GlobalMin, this->GlobalMax);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars, normalizedScalars.GetPointer());
