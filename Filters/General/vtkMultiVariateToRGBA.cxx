@@ -140,42 +140,43 @@ struct ComputeGBCWorker
       }
       gbc[i][0] = 0;
       gbc[i][1] = 0;
-      if (!vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
+      if (vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
+      {
+        continue;
+      }
+      for (int k = 0; k < nComponents; ++k)
       {
         for (int j = 0; j < 2; ++j)
         {
-          for (int k = 0; k < nComponents; ++k)
-          {
-            gbc[i][j] += normalized[i][k] * components[k][j] / tempsum;
-          }
+          gbc[i][j] += normalized[i][k] * components[k][j] / tempsum;
         }
-        double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
-        tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
-
-        bool flag = false;
-        double temp_a = 0;
-        double temp_b = 0;
-        for (int j = 0; j < nComponents - 1; ++j)
-        {
-          if (angle[j] <= tempangle && tempangle < angle[j + 1])
-          {
-            temp_a = angle[j + 1];
-            temp_b = angle[j];
-            flag = true;
-            break;
-          }
-        }
-        if (!flag)
-        {
-          temp_a = angle[0] + vtkMath::Pi() * 2;
-          temp_b = angle[nComponents - 1];
-        }
-
-        double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) /
-          std::cos((temp_a - temp_b) / 2) * std::cos(-(temp_a + temp_b) / 2 + tempangle);
-        gbc[i][0] = lth * std::cos(tempangle);
-        gbc[i][1] = lth * std::sin(tempangle);
       }
+      double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
+      tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
+
+      bool flag = false;
+      double temp_a = 0;
+      double temp_b = 0;
+      for (int j = 0; j < nComponents - 1; ++j)
+      {
+        if (angle[j] <= tempangle && tempangle < angle[j + 1])
+        {
+          temp_a = angle[j + 1];
+          temp_b = angle[j];
+          flag = true;
+          break;
+        }
+      }
+      if (!flag)
+      {
+        temp_a = angle[0] + vtkMath::Pi() * 2;
+        temp_b = angle[nComponents - 1];
+      }
+
+      double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) /
+        std::cos((temp_a - temp_b) / 2) * std::cos(-(temp_a + temp_b) / 2 + tempangle);
+      gbc[i][0] = lth * std::cos(tempangle);
+      gbc[i][1] = lth * std::sin(tempangle);
     }
   }
 };
@@ -193,9 +194,9 @@ struct GBCToHSLWorker
     auto gbc = vtk::DataArrayTupleRange(gbcScalars);
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
 
-    vtkIdType nComponents = gbcScalars->GetNumberOfComponents();
+    vtkIdType nComponents = gbc.GetTupleSize();
 
-    vtkIdType nTuples = gbcScalars->GetNumberOfTuples();
+    vtkIdType nTuples = gbc.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double gbcValue[2] = { gbc[i][0], gbc[i][1] };
@@ -224,9 +225,9 @@ struct HSLToRGBWorker
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
-    vtkIdType nComponents = hslScalars->GetNumberOfComponents();
+    vtkIdType nComponents = hsl.GetTupleSize();
 
-    vtkIdType nTuples = hslScalars->GetNumberOfTuples();
+    vtkIdType nTuples = hsl.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double m2;
@@ -284,9 +285,9 @@ struct ComputeAlphaWorker
     auto normalized = vtk::DataArrayTupleRange(normalizedScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
-    vtkIdType nComponents = normalizedScalars->GetNumberOfComponents();
+    vtkIdType nComponents = normalized.GetTupleSize();
 
-    vtkIdType nTuples = normalizedScalars->GetNumberOfTuples();
+    vtkIdType nTuples = normalized.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double mean = 0;
