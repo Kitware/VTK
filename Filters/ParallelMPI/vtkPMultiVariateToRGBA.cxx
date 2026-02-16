@@ -4,7 +4,6 @@
 
 // VTK includes
 #include "vtkMPIController.h"
-#include "vtkMPIUtilities.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
