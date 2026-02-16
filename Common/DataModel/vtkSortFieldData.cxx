@@ -55,23 +55,18 @@ vtkIdType* vtkSortFieldData::Sort(
   vtkIdType* idx = vtkSortDataArray::InitializeSortIndices(numKeys);
 
   // Sort and generate the sorting indices
-  void* dataIn = array->GetVoidPointer(0);
-  int dataType = array->GetDataType();
-  vtkSortDataArray::GenerateSortIndices(dataType, dataIn, numKeys, numComp, k, idx);
+  vtkSortDataArray::GenerateSortIndices(array, k, idx);
 
   // Now loop over all arrays in the field data. Those that are the
   // same length as the sorting indices are processed. Otherwise they
   // are skipped and remain unchanged.
-  int nc, numArrays = fd->GetNumberOfArrays();
+  int numArrays = fd->GetNumberOfArrays();
   for (int arrayNum = 0; arrayNum < numArrays; ++arrayNum)
   {
     array = fd->GetAbstractArray(arrayNum);
     if (array != nullptr && array->GetNumberOfTuples() == numKeys)
     { // process the array
-      dataIn = array->GetVoidPointer(0);
-      dataType = array->GetDataType();
-      nc = array->GetNumberOfComponents();
-      vtkSortDataArray::ShuffleArray(idx, dataType, numKeys, nc, array, dataIn, dir);
+      vtkSortDataArray::ShuffleArray(array, idx, dir);
     }
   }
 

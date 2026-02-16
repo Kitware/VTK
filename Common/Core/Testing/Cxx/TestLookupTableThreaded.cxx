@@ -23,7 +23,7 @@ VTK_THREAD_RETURN_TYPE ThreadedMethod(void*)
   int inputIncrement = 1;
   int outputFormat = VTK_RGBA;
 
-  lut->MapScalarsThroughTable2(
+  lut->MapScalarsThroughTable(
     input, output, inputType, numberOfValues, inputIncrement, outputFormat);
 
   delete[] input;

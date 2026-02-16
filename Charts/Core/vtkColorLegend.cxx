@@ -290,7 +290,7 @@ void vtkColorLegend::ComputeTexture()
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->ImageData->GetScalarPointer());
-  this->TransferFunction->MapScalarsThroughTable2(values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  this->TransferFunction->MapScalarsThroughTable(values, ptr, VTK_DOUBLE, dimension, 1, 4);
   delete[] values;
 }
 

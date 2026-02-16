@@ -35,9 +35,10 @@
 #define vtkArrayListTemplate_h
 
 #include "vtkAbstractArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 
 #include <algorithm>
@@ -98,17 +99,17 @@ struct BaseArrayPair
 };
 
 // Type specific interpolation on a matched pair of data arrays
-template <typename T>
+template <typename TInputArray, typename TOutputArray, typename T>
 struct ArrayPair : public BaseArrayPair
 {
-  T* Input;
-  T* Output;
+  vtk::detail::ValueRange<TInputArray, vtk::detail::DynamicTupleSize> Input;
+  vtk::detail::ValueRange<TOutputArray, vtk::detail::DynamicTupleSize> Output;
   T NullValue;
 
-  ArrayPair(T* in, T* out, vtkIdType num, int numComp, vtkAbstractArray* outArray, T null)
+  ArrayPair(TInputArray* inArray, TOutputArray* outArray, vtkIdType num, int numComp, T null)
     : BaseArrayPair(num, numComp, outArray)
-    , Input(in)
-    , Output(out)
+    , Input(vtk::DataArrayValueRange(inArray))
+    , Output(vtk::DataArrayValueRange(outArray))
     , NullValue(null)
   {
   }
@@ -295,22 +296,22 @@ public:
   {
     this->OutputArray->Resize(sze);
     this->OutputArray->SetNumberOfTuples(sze);
-    this->Output = static_cast<T*>(this->OutputArray->GetVoidPointer(0));
+    this->Output = vtk::DataArrayValueRange(TOutputArray::SafeDownCast(this->OutputArray));
   }
 };
 
 template <>
-struct ArrayPair<vtkStdString> : public BaseArrayPair
+struct ArrayPair<vtkStringArray, vtkStringArray, vtkStdString> : public BaseArrayPair
 {
   vtkStdString* Input;
   vtkStdString* Output;
-  double NullValue;
+  vtkStdString NullValue;
 
-  ArrayPair(vtkStdString* in, vtkStdString* out, vtkIdType num, int numComp,
-    vtkAbstractArray* outArray, double null)
+  ArrayPair(vtkStringArray* inArray, vtkStringArray* outArray, vtkIdType num, int numComp,
+    vtkStdString null)
     : BaseArrayPair(num, numComp, outArray)
-    , Input(in)
-    , Output(out)
+    , Input(inArray->GetPointer(0))
+    , Output(outArray->GetPointer(0))
     , NullValue(null)
   {
   }
@@ -362,213 +363,8 @@ protected:
     vtkStdString s;
     for (int j = 0; j < this->NumComp; ++j)
     {
-      s = std::string(this->Input[v0 * this->NumComp + j]) +
-        std::string(this->Input[v1 * this->NumComp + j]);
-      this->Output[outId * this->NumComp + j] = s;
-    }
-  }
-
-  template <typename IdTypeT>
-  void AssignNullValue(IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      this->Output[outId * this->NumComp + j] = vtk::to_string(this->NullValue);
-    }
-  }
-
-public:
-  void Copy(vtkIdType inId, vtkIdType outId) override { this->Copy<vtkIdType>(inId, outId); }
-  void Interpolate(
-    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) override
-  {
-    this->Interpolate<vtkIdType>(numWeights, ids, weights, outId);
-  }
-  void InterpolateOutput(
-    int numWeights, const vtkIdType* ids, const double* weights, vtkIdType outId) override
-  {
-    this->InterpolateOutput<vtkIdType>(numWeights, ids, weights, outId);
-  }
-  void Average(int numPts, const vtkIdType* ids, vtkIdType outId) override
-  {
-    this->Average<vtkIdType>(numPts, ids, outId);
-  }
-  void WeightedAverage(
-    int numPts, const vtkIdType* ids, const double* weights, vtkIdType outId) override
-  {
-    this->WeightedAverage<vtkIdType>(numPts, ids, weights, outId);
-  }
-  void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId) override
-  {
-    this->InterpolateEdge<vtkIdType>(v0, v1, t, outId);
-  }
-  void AssignNullValue(vtkIdType outId) override { this->AssignNullValue<vtkIdType>(outId); }
-#ifdef VTK_USE_64BIT_IDS
-  void Copy(unsigned int inId, unsigned int outId) override
-  {
-    this->Copy<unsigned int>(inId, outId);
-  }
-  void Interpolate(
-    int numWeights, const unsigned int* ids, const double* weights, unsigned int outId) override
-  {
-    this->Interpolate<unsigned int>(numWeights, ids, weights, outId);
-  }
-  void InterpolateOutput(
-    int numWeights, const unsigned int* ids, const double* weights, unsigned int outId) override
-  {
-    this->InterpolateOutput<unsigned int>(numWeights, ids, weights, outId);
-  }
-  void Average(int numPts, const unsigned int* ids, unsigned int outId) override
-  {
-    this->Average<unsigned int>(numPts, ids, outId);
-  }
-  void WeightedAverage(
-    int numPts, const unsigned int* ids, const double* weights, unsigned int outId) override
-  {
-    this->WeightedAverage<unsigned int>(numPts, ids, weights, outId);
-  }
-  void InterpolateEdge(unsigned int v0, unsigned int v1, double t, unsigned int outId) override
-  {
-    this->InterpolateEdge<unsigned int>(v0, v1, t, outId);
-  }
-  void AssignNullValue(unsigned int outId) override { this->AssignNullValue<unsigned int>(outId); }
-#endif
-  void Copy(unsigned short inId, unsigned short outId) override
-  {
-    this->Copy<unsigned short>(inId, outId);
-  }
-  void Interpolate(
-    int numWeights, const unsigned short* ids, const double* weights, unsigned short outId) override
-  {
-    this->Interpolate<unsigned short>(numWeights, ids, weights, outId);
-  }
-  void InterpolateOutput(
-    int numWeights, const unsigned short* ids, const double* weights, unsigned short outId) override
-  {
-    this->InterpolateOutput<unsigned short>(numWeights, ids, weights, outId);
-  }
-  void Average(int numPts, const unsigned short* ids, unsigned short outId) override
-  {
-    this->Average<unsigned short>(numPts, ids, outId);
-  }
-  void WeightedAverage(
-    int numPts, const unsigned short* ids, const double* weights, unsigned short outId) override
-  {
-    this->WeightedAverage<unsigned short>(numPts, ids, weights, outId);
-  }
-  void InterpolateEdge(
-    unsigned short v0, unsigned short v1, double t, unsigned short outId) override
-  {
-    this->InterpolateEdge<unsigned short>(v0, v1, t, outId);
-  }
-  void AssignNullValue(unsigned short outId) override
-  {
-    this->AssignNullValue<unsigned short>(outId);
-  }
-
-  void Realloc(vtkIdType sze) override
-  {
-    this->OutputArray->Resize(sze);
-    this->OutputArray->SetNumberOfTuples(sze);
-    this->Output = static_cast<vtkStdString*>(this->OutputArray->GetVoidPointer(0));
-  }
-};
-
-// Type specific interpolation on a pair of data arrays with different types, where the
-// output type is expected to be a real type (i.e., float or double).
-template <typename TInput, typename TOutput>
-struct RealArrayPair : public BaseArrayPair
-{
-  TInput* Input;
-  TOutput* Output;
-  TOutput NullValue;
-
-  RealArrayPair(
-    TInput* in, TOutput* out, vtkIdType num, int numComp, vtkAbstractArray* outArray, TOutput null)
-    : BaseArrayPair(num, numComp, outArray)
-    , Input(in)
-    , Output(out)
-    , NullValue(null)
-  {
-  }
-  ~RealArrayPair() override = default; // calm down some finicky compilers
-protected:
-  template <typename IdTypeT>
-  void Copy(IdTypeT inId, IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
       this->Output[outId * this->NumComp + j] =
-        static_cast<TOutput>(this->Input[inId * this->NumComp + j]);
-    }
-  }
-
-  template <typename IdTypeT>
-  void Interpolate(int numWeights, const IdTypeT* ids, const double* weights, IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      double v = 0.0;
-      for (int i = 0; i < numWeights; ++i)
-      {
-        v += weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
-      }
-      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
-    }
-  }
-
-  template <typename IdTypeT>
-  void InterpolateOutput(int numWeights, const IdTypeT* ids, const double* weights, IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      double v = 0.0;
-      for (int i = 0; i < numWeights; ++i)
-      {
-        v += weights[i] * static_cast<double>(this->Output[ids[i] * this->NumComp + j]);
-      }
-      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
-    }
-  }
-
-  template <typename IdTypeT>
-  void Average(int numPts, const IdTypeT* ids, IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      double v = 0.0;
-      for (int i = 0; i < numPts; ++i)
-      {
-        v += static_cast<double>(this->Input[ids[i] * this->NumComp + j]);
-      }
-      v /= static_cast<double>(numPts);
-      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
-    }
-  }
-
-  template <typename IdTypeT>
-  void WeightedAverage(int numPts, const IdTypeT* ids, const double* weights, IdTypeT outId)
-  {
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      double v = 0.0;
-      for (int i = 0; i < numPts; ++i)
-      {
-        v += (weights[i] * static_cast<double>(this->Input[ids[i] * this->NumComp + j]));
-      }
-      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
-    }
-  }
-
-  template <typename IdTypeT>
-  void InterpolateEdge(IdTypeT v0, IdTypeT v1, double t, IdTypeT outId)
-  {
-    double v;
-    for (int j = 0; j < this->NumComp; ++j)
-    {
-      v = this->Input[v0 * this->NumComp + j] +
-        t * (this->Input[v1 * this->NumComp + j] - this->Input[v0 * this->NumComp + j]);
-      this->Output[outId * this->NumComp + j] = static_cast<TOutput>(v);
+        this->Input[v0 * this->NumComp + j] + this->Input[v1 * this->NumComp + j];
     }
   }
 
@@ -674,16 +470,16 @@ public:
   {
     this->OutputArray->Resize(sze);
     this->OutputArray->SetNumberOfTuples(sze);
-    this->Output = static_cast<TOutput*>(this->OutputArray->GetVoidPointer(0));
+    this->Output = vtkStringArray::FastDownCast(this->OutputArray)->GetPointer(0);
   }
 };
 
 // Forward declarations. This makes working with vtkTemplateMacro easier.
 struct ArrayList;
 
-template <typename T>
+template <typename TArray, typename T>
 void CreateArrayPair(
-  ArrayList* list, T* inData, T* outData, vtkIdType numTuples, int numComp, T nullValue);
+  ArrayList* list, TArray* inData, TArray* outData, vtkIdType numTuples, int numComp, T nullValue);
 
 // A list of the arrays to interpolate, and a method to invoke interpolation on the list
 struct ArrayList

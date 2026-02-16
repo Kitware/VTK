@@ -8,11 +8,14 @@
 
 #include "vtkABINamespace.h"
 #include "vtkArrayDispatch.h"
-#include "vtkDataArrayRange.h"
+#include "vtkBitArray.h"
+#include "vtkDataArrayMeta.h"
 #include "vtkObjectManager.h"
 #include "vtkSession.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+using Arrays = vtkTypeList::Append<vtkArrayDispatch::AOSArrays, vtkBitArray>::Result;
 
 // Implement vtkSessionJsonImpl as a wrapper around emscripten::val
 struct vtkSessionJsonImpl
@@ -81,10 +84,8 @@ struct CopyJSArrayToVTKDataArray
   template <typename ArrayT>
   void operator()(ArrayT* dataArray, const emscripten::val& jsArray)
   {
-    using ValueType = vtk::GetAPIType<ArrayT>;
     const auto length = jsArray["length"].as<std::size_t>();
-    auto pointer = reinterpret_cast<ValueType*>(dataArray->GetVoidPointer(0));
-    auto memoryView = emscripten::val{ typed_memory_view(length, pointer) };
+    auto memoryView = emscripten::val{ typed_memory_view(length, dataArray->GetPointer(0)) };
     memoryView.call<void>("set", jsArray);
   }
 };

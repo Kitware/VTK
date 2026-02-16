@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSpanSpace.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCell.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -20,76 +22,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 { // begin anonymous namespace
-
-// Compute the scalar range a little faster
-template <typename T>
-struct ComputeRange
-{
-  struct LocalDataType
-  {
-    double Min;
-    double Max;
-  };
-
-  const T* Scalars;
-  double Min;
-  double Max;
-  vtkSMPThreadLocal<LocalDataType> LocalData;
-
-  ComputeRange(T* s)
-    : Scalars(s)
-    , Min(VTK_FLOAT_MAX)
-    , Max(VTK_FLOAT_MIN)
-  {
-  }
-
-  void Initialize()
-  {
-    LocalDataType& localData = this->LocalData.Local();
-    localData.Min = VTK_FLOAT_MAX;
-    localData.Max = VTK_FLOAT_MIN;
-  }
-
-  void operator()(vtkIdType idx, vtkIdType endIdx)
-  {
-    LocalDataType& localData = this->LocalData.Local();
-    double& min = localData.Min;
-    double& max = localData.Max;
-    const T* s = this->Scalars + idx;
-
-    for (; idx < endIdx; ++idx, ++s)
-    {
-      min = (*s < min ? *s : min);
-      max = (*s > max ? *s : max);
-    }
-  }
-
-  void Reduce()
-  {
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldItr;
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldEnd = this->LocalData.end();
-
-    this->Min = VTK_FLOAT_MAX;
-    this->Max = VTK_FLOAT_MIN;
-
-    double min, max;
-    for (ldItr = this->LocalData.begin(); ldItr != ldEnd; ++ldItr)
-    {
-      min = (*ldItr).Min;
-      max = (*ldItr).Max;
-      this->Min = (min < this->Min ? min : this->Min);
-      this->Max = (max > this->Max ? max : this->Max);
-    }
-  }
-
-  static void Execute(vtkIdType num, T* s, double range[2])
-  {
-    ComputeRange computeRange(s);
-    vtkSMPTools::For(0, num, computeRange);
-    range[0] = computeRange.Min;
-    range[1] = computeRange.Max;
-  }
-};
 
 //------------------------------------------------------------------------------
 // The following tuple is an interface between VTK class and internal class
@@ -359,14 +291,14 @@ struct MapToSpanSpace
 
 // Specialized method to map unstructured grid cells to span space. Uses
 // GetCellPoints() to retrieve points defining the cell.
-template <typename TS>
-struct MapUGridToSpanSpace
+template <typename TScalars>
+struct MapUGridToSpanSpaceFunctor
 {
   vtkInternalSpanSpace* SpanSpace;
   vtkUnstructuredGrid* Grid;
-  TS* Scalars;
+  TScalars* Scalars;
 
-  MapUGridToSpanSpace(vtkInternalSpanSpace* ss, vtkUnstructuredGrid* ds, TS* s)
+  MapUGridToSpanSpaceFunctor(vtkInternalSpanSpace* ss, vtkUnstructuredGrid* ds, TScalars* s)
     : SpanSpace(ss)
     , Grid(ds)
     , Scalars(s)
@@ -376,7 +308,7 @@ struct MapUGridToSpanSpace
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     vtkUnstructuredGrid* grid = this->Grid;
-    TS* scalars = this->Scalars;
+    auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     vtkIdType i, npts;
     const vtkIdType* pts;
     double s, sMin, sMax;
@@ -397,13 +329,18 @@ struct MapUGridToSpanSpace
       this->SpanSpace->SetSpanPoint(cellId, sMin, sMax);
     } // for all cells in this thread
   }
+}; // MapUGridToSpanSpace
 
-  static void Execute(vtkIdType numCells, vtkInternalSpanSpace* ss, vtkUnstructuredGrid* ds, TS* s)
+struct MapUGridToSpanSpaceWorker
+{
+  template <typename TScalars>
+  void operator()(
+    TScalars* s, vtkIdType numCells, vtkInternalSpanSpace* ss, vtkUnstructuredGrid* ds)
   {
-    MapUGridToSpanSpace map(ss, ds, s);
+    MapUGridToSpanSpaceFunctor<TScalars> map(ss, ds, s);
     vtkSMPTools::For(0, numCells, map);
   }
-}; // MapUGridToSpanSpace
+};
 
 } // anonymous namespace
 
@@ -496,18 +433,10 @@ void vtkSpanSpace::BuildTree()
     return;
   }
 
-  // We need a scalar range for the scalars. Do this in parallel for a small
-  // boost in performance.
   double range[2];
-  void* scalars = this->Scalars->GetVoidPointer(0);
-
   if (this->ComputeScalarRange)
   {
-    switch (this->Scalars->GetDataType())
-    {
-      vtkTemplateMacro(
-        ComputeRange<VTK_TT>::Execute(this->Scalars->GetNumberOfTuples(), (VTK_TT*)scalars, range));
-    }
+    this->Scalars->GetRange(range);
     this->ScalarRange[0] = range[0];
     this->ScalarRange[1] = range[1];
   }
@@ -544,10 +473,11 @@ void vtkSpanSpace::BuildTree()
   vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(this->DataSet);
   if (ugrid != nullptr)
   {
-    switch (this->Scalars->GetDataType())
+    MapUGridToSpanSpaceWorker mapWorker;
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          this->Scalars, mapWorker, numCells, this->SpanSpace, ugrid))
     {
-      vtkTemplateMacro(
-        MapUGridToSpanSpace<VTK_TT>::Execute(numCells, this->SpanSpace, ugrid, (VTK_TT*)scalars));
+      mapWorker(this->Scalars, numCells, this->SpanSpace, ugrid);
     }
   }
 

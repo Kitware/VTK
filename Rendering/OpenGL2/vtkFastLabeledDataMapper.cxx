@@ -4,6 +4,8 @@
 #include "vtkFastLabeledDataMapper.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -373,16 +375,6 @@ public:
 
 //----------------------------------------------------------------------
 vtkStandardNewMacro(vtkFastLabeledDataMapper);
-
-//----------------------------------------------------------------------
-
-template <typename T>
-void vtkFastLabeledDataMapper_PrintComponent(
-  char* output, size_t outputSize, const std::string_view format, int index, const T* array)
-{
-  auto result = vtk::format_to_n(output, outputSize, format, array[index]);
-  *result.out = '\0';
-}
 
 //----------------------------------------------------------------------------
 vtkFastLabeledDataMapper::vtkFastLabeledDataMapper()
@@ -1008,10 +1000,149 @@ void vtkFastLabeledDataMapper::MakeShaderArrays(int numCurLabels,
   this->Implementation->Framecolors->Modified();
 }
 
+struct vtkFastLabeledDataMapper::vtkFastLabeledDataMapperFunctor
+{
+  vtkFastLabeledDataMapper* Self;
+  vtkIntArray* TypeArr;
+  vtkDataSet* Input;
+  int NumCurLabels;
+  int RebuildCount;
+  int NumCurChars;
+  std::vector<std::string> Strings;
+
+  vtkFastLabeledDataMapperFunctor(
+    vtkFastLabeledDataMapper* self, vtkIntArray* typeArr, vtkDataSet* input, int numCurLabels)
+    : Self(self)
+    , TypeArr(typeArr)
+    , Input(input)
+    , NumCurLabels(numCurLabels)
+    , RebuildCount(0)
+    , NumCurChars(0)
+
+  {
+    this->Strings.resize(numCurLabels);
+  }
+
+  void SetFormattedString(int i, std::string_view resultString)
+  {
+    // std::cerr << "MAKING TEXTURES FOR " << ResultString << "\n";
+    for (std::size_t cidx = 0; cidx < resultString.size(); cidx++)
+    {
+#ifdef vtkFastLabeledDataMapper_DEBUG
+      this->NumCurChars++;
+#endif
+      auto c = std::string(resultString.substr(cidx, 1));
+      auto hasTexture = this->Self->Implementation->AllStrings.find(std::make_pair(c, 0));
+      if (hasTexture == this->Self->Implementation->AllStrings.end())
+      {
+        this->RebuildCount++;
+        for (int tid = 0; tid < MAXPROPS; ++tid)
+        {
+          vtkTextProperty* prop = this->Self->Implementation->TextProperties[tid];
+          if (prop)
+          {
+            WordRecord wr = this->Self->Implementation->MakeWordTexture(c, prop, tid);
+            this->Self->Implementation->AllStrings[std::make_pair(c, tid)] = wr;
+          }
+        }
+      }
+      else
+      {
+        // std::cerr << "reuse " << resultString << "\n";
+      }
+    }
+    this->Strings[i] = resultString;
+  }
+
+  void operator()(const std::string& FormatString)
+  {
+    char formatedString[1024];
+    for (int i = 0; i < this->NumCurLabels; i++)
+    {
+      auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString, i);
+      *result.out = '\0';
+      this->SetFormattedString(i, formatedString);
+    }
+  }
+
+  struct NumericComponent
+  {
+  };
+  template <class TArray>
+  void operator()(TArray* array, int activeComp, const std::string& FormatString, NumericComponent)
+  {
+    char formatedString[1024];
+    auto a = vtk::DataArrayTupleRange(array);
+    using ValueType = vtk::GetAPIType<TArray>;
+    for (int i = 0; i < this->NumCurLabels; i++)
+    {
+      auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
+        static_cast<ValueType>(a[i][activeComp]));
+      *result.out = '\0';
+      this->SetFormattedString(i, formatedString);
+    }
+  }
+
+  struct NumericVector
+  {
+  };
+  template <class TArray>
+  void operator()(TArray* array, int numComp, const std::string& FormatString, NumericVector)
+  {
+    char formatedString[1024];
+    std::string ResultString;
+    auto a = vtk::DataArrayTupleRange(array);
+    using ValueType = vtk::GetAPIType<TArray>;
+    for (int i = 0; i < this->NumCurLabels; i++)
+    {
+      ResultString = "(";
+
+      // Print each component in turn and add it to the string.
+      for (int j = 0; j < numComp; ++j)
+      {
+        auto result = vtk::format_to_n(
+          formatedString, sizeof(formatedString), FormatString, static_cast<ValueType>(a[i][j]));
+        *result.out = '\0';
+
+        ResultString += formatedString;
+        if (j < (numComp - 1))
+        {
+          ResultString += this->Self->GetComponentSeparator();
+        }
+        else
+        {
+          ResultString += ')';
+        }
+      }
+      this->SetFormattedString(i, ResultString);
+    }
+  }
+
+  void operator()(vtkStringArray* array, const std::string& FormatString)
+  {
+    char formatedString[1024];
+    for (int i = 0; i < this->NumCurLabels; i++)
+    {
+      // If the user hasn't given us a custom format string then just save the value.
+      if (!this->Self->LabelFormat || std::string_view(this->Self->LabelFormat).empty())
+      {
+        this->SetFormattedString(i, array->GetValue(i).c_str());
+      }
+      else // the user specified a label format
+      {
+        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
+          static_cast<std::string&>(array->GetValue(i)));
+        *result.out = '\0';
+        this->SetFormattedString(i, formatedString);
+      }
+    }
+  }
+};
+
 //----------------------------------------------------------------------------
 void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 {
-  int i, j, numComp = 0, pointIdLabels = 0, activeComp = 0;
+  int i, numComp = 0, pointIdLabels = 0, activeComp = 0;
   vtkAbstractArray* abstractData = nullptr;
   vtkDataArray* numericData = nullptr;
   vtkStringArray* stringData = nullptr;
@@ -1023,8 +1154,6 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 #ifdef vtkFastLabeledDataMapper_DEBUG
   vtkNew<vtkTimerLog> ttotal;
   ttotal->StartTimer();
-  vtkNew<vtkTimerLog> tfreetype;
-  double tfreetypet = 0;
   vtkNew<vtkTimerLog> tindex;
   vtkNew<vtkTimerLog> tappend;
   double tappendt = 0.0;
@@ -1191,147 +1320,63 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   }
 
   int numCurLabels = input->GetNumberOfPoints();
-#ifdef vtkFastLabeledDataMapper_DEBUG
-  int numCurChars = 0;
-#endif
   if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + numCurLabels))
   {
     vtkErrorMacro("Number of labels must be allocated before this method is called.");
     return;
   }
 
-  vtkIntArray* typeArr =
-    vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(0, input));
-  vtkFloatArray* fcolArr = nullptr;
-  if (this->FrameColorsName)
-  {
-    fcolArr =
-      vtkArrayDownCast<vtkFloatArray>(input->GetPointData()->GetArray(this->FrameColorsName));
-  }
+  auto* typeArr = vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(0, input));
+  auto* fcolArr =
+    vtkArrayDownCast<vtkFloatArray>(input->GetPointData()->GetAbstractArray(this->FrameColorsName));
 
   // ----------------------------------------
   // Now we actually construct the label strings
   //
-  vtkPolyData* asPD = vtkPolyData::SafeDownCast(input);
-  char tempString[1024];
 
-  int rebuildCount = 0;
-  std::vector<std::string> stringlist;
-  for (i = 0; i < numCurLabels; i++)
+  vtkFastLabeledDataMapperFunctor functor(this, typeArr, input, numCurLabels);
+  if (pointIdLabels)
   {
-    std::string resultString;
-    if (pointIdLabels)
+    functor(formatString);
+  }
+  else if (numericData)
+  {
+    if (numComp == 1)
     {
-      auto result = vtk::format_to_n(tempString, sizeof(tempString), formatString, i);
-      *result.out = '\0';
-      resultString = tempString;
+      if (!vtkArrayDispatch::Dispatch::Execute(numericData, functor, activeComp, formatString,
+            vtkFastLabeledDataMapperFunctor::NumericComponent()))
+      {
+        functor(numericData, activeComp, formatString,
+          vtkFastLabeledDataMapperFunctor::NumericComponent());
+      }
     }
     else
     {
-      if (numericData)
+      if (!vtkArrayDispatch::Dispatch::Execute(numericData, functor, numComp, formatString,
+            vtkFastLabeledDataMapperFunctor::NumericVector()))
       {
-        void* rawData = numericData->GetVoidPointer(i * numComp);
-
-        if (numComp == 1)
-        {
-          switch (numericData->GetDataType())
-          {
-            vtkTemplateMacro(vtkFastLabeledDataMapper_PrintComponent(tempString, sizeof(tempString),
-              formatString, activeComp, static_cast<VTK_TT*>(rawData)));
-          }
-          resultString = tempString;
-        }
-        else // numComp != 1
-        {
-          resultString = "(";
-
-          // Print each component in turn and add it to the string.
-          for (j = 0; j < numComp; ++j)
-          {
-            switch (numericData->GetDataType())
-            {
-              vtkTemplateMacro(vtkFastLabeledDataMapper_PrintComponent(
-                tempString, sizeof(tempString), formatString, j, static_cast<VTK_TT*>(rawData)));
-            }
-            resultString += tempString;
-
-            if (j < (numComp - 1))
-            {
-              resultString += this->GetComponentSeparator();
-            }
-            else
-            {
-              resultString += ')';
-            }
-          }
-        }
-      }
-      else // rendering string data
-      {
-        // If the user hasn't given us a custom format string then just save the value.
-        if (!this->LabelFormat || std::string_view(this->LabelFormat).empty())
-        {
-          resultString = stringData->GetValue(i);
-        }
-        else // the user specified a label format
-        {
-          auto result =
-            vtk::format_to_n(tempString, sizeof(tempString), formatString, stringData->GetValue(i));
-          *result.out = '\0';
-          resultString = tempString;
-        } // done printing strings with label format
-      }   // done printing strings
-    }     // done creating string
-
-    // std::cerr << "MAKING TEXTURES FOR " << ResultString << "\n";
-    for (std::size_t cidx = 0; cidx < resultString.size(); cidx++)
-    {
-#ifdef vtkFastLabeledDataMapper_DEBUG
-      numCurChars++;
-#endif
-      std::string c = resultString.substr(cidx, 1);
-      auto hasTexture = this->Implementation->AllStrings.find(std::make_pair(c, 0));
-      if (hasTexture == this->Implementation->AllStrings.end())
-      {
-        rebuildCount++;
-        for (int tid = 0; tid < MAXPROPS; ++tid)
-        {
-          vtkTextProperty* prop = this->Implementation->TextProperties[tid];
-          if (prop)
-          {
-#ifdef vtkFastLabeledDataMapper_DEBUG
-            std::cerr << "make a texture for " << c << " " << tid << "\n";
-            tfreetype->StartTimer();
-#endif
-            WordRecord wr = this->Implementation->MakeWordTexture(c, prop, tid);
-            this->Implementation->AllStrings[std::make_pair(c, tid)] = wr;
-#ifdef vtkFastLabeledDataMapper_DEBUG
-            tfreetype->StopTimer();
-            tfreetypet += tfreetype->GetElapsedTime();
-#endif
-          }
-        }
-      }
-      else
-      {
-        // std::cerr << "reuse " << ResultString << "\n";
+        functor(
+          numericData, numComp, formatString, vtkFastLabeledDataMapperFunctor::NumericVector());
       }
     }
-    stringlist.push_back(resultString);
+  }
+  else // rendering string data
+  {
+    functor(stringData, formatString);
   }
 
-  if ((asPD->GetMTime() > this->BuildTime) && !rebuildCount)
+  if ((input->GetMTime() > this->BuildTime) && !functor.RebuildCount)
   {
 #ifdef vtkFastLabeledDataMapper_DEBUG
     // the data has changed, but we don't need any new characters
     // rebuild the structure to get the data right
-    std::cerr << "RESIZE " << numCurLabels << " " << numCurChars << "\n";
+    std::cerr << "RESIZE " << numCurLabels << " " << functor.NumCurChars << "\n";
 #endif
 
     this->Implementation->FreshIPA();
-    this->MakeShaderArrays(numCurLabels, stringlist, typeArr, fcolArr);
+    this->MakeShaderArrays(numCurLabels, functor.Strings, typeArr, fcolArr);
   }
-  if (rebuildCount)
+  if (functor.RebuildCount)
   {
     // we need at least one new characters
     // rebuild the texture and then
@@ -1348,13 +1393,13 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     this->Implementation->FreshIPA();
     // add all of the characters to the grouped texture
     for (auto writ = this->Implementation->AllStrings.begin();
-         writ != this->Implementation->AllStrings.end(); writ++)
+         writ != this->Implementation->AllStrings.end(); ++writ)
     {
       int propIdx = writ->first.second;
       WordRecord wr = writ->second;
       this->Implementation->AppendToWordTexture(wr.Texture, propIdx, sx, sy, ex, ey);
     }
-    this->MakeShaderArrays(numCurLabels, stringlist, typeArr, fcolArr);
+    this->MakeShaderArrays(numCurLabels, functor.Strings, typeArr, fcolArr);
 #ifdef vtkFastLabeledDataMapper_DEBUG
     tappend->StartTimer();
 #endif
@@ -1381,18 +1426,20 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   const vtkMTimeType textureMTime = this->Implementation->GlyphsTO->GetMTime();
   const vtkMTimeType imageMTime = this->Implementation->WordsTexture->GetMTime();
 
-  if (rebuildCount || this->Implementation->GlyphsTO->GetHandle() == 0 || textureMTime < imageMTime)
+  if (functor.RebuildCount || this->Implementation->GlyphsTO->GetHandle() == 0 ||
+    textureMTime < imageMTime)
   {
     this->Implementation->UploadTexture();
   }
 
-  if (asPD->GetMTime() > this->BuildTime || rebuildCount)
+  if (input->GetMTime() > this->BuildTime || functor.RebuildCount)
   {
+    vtkPolyData* asPD = vtkPolyData::SafeDownCast(input);
     auto pts = vtkSmartPointer<vtkPoints>::New();
     this->Implementation->InputPlusArrays->SetPoints(pts);
     for (i = 0; i < numCurLabels; i++)
     {
-      const auto& wordString = stringlist[i];
+      const auto& wordString = functor.Strings[i];
       for (unsigned int cidx = 0; cidx < wordString.size(); cidx++)
       {
         pts->InsertNextPoint(asPD->GetPoints()->GetPoint(i));

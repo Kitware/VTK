@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h"
 #include "vtkFloatArray.h"
 
@@ -10,39 +11,34 @@
 #define vtkArrayListTemplate_txx
 
 //----------------------------------------------------------------------------
-// Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
+// Sort of a little object factory
 VTK_ABI_NAMESPACE_BEGIN
-template <typename T>
-void CreateArrayPair(ArrayList* list, T* inData, T* outData, vtkIdType numTuples, int numComp,
-  vtkAbstractArray* outArray, double nullValue)
+struct ArrayPairCreator
 {
-  ArrayPair<T>* pair = new ArrayPair<T>(inData, outData, numTuples, numComp, outArray, nullValue);
-  list->Arrays.push_back(pair);
-}
-
-//----------------------------------------------------------------------------
-// Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
-template <typename T>
-void CreateRealArrayPair(ArrayList* list, T* inData, float* outData, vtkIdType numTuples,
-  int numComp, vtkAbstractArray* outArray, float nullValue)
-{
-  RealArrayPair<T, float>* pair =
-    new RealArrayPair<T, float>(inData, outData, numTuples, numComp, outArray, nullValue);
-  list->Arrays.push_back(pair);
-}
+  template <typename TInputArray, typename TOutputArray,
+    typename T = std::conditional_t<std::is_same<TOutputArray, vtkStringArray>::value, vtkStdString,
+      vtk::GetAPIType<TOutputArray>>>
+  void operator()(TInputArray* inArray, TOutputArray* outArray, ArrayList* list,
+    vtkIdType numTuples, int numComp, T nullValue)
+  {
+    auto* pair =
+      new ArrayPair<TInputArray, TOutputArray, T>(inArray, outArray, numTuples, numComp, nullValue);
+    list->Arrays.push_back(pair);
+  }
+};
 
 //----------------------------------------------------------------------------
 // Indicate arrays not to process
 inline void ArrayList::ExcludeArray(vtkAbstractArray* da)
 {
-  ExcludedArrays.push_back(da);
+  this->ExcludedArrays.push_back(da);
 }
 
 //----------------------------------------------------------------------------
 // Has the specified array been excluded?
 inline vtkTypeBool ArrayList::IsExcluded(vtkAbstractArray* da)
 {
-  return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
+  return std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end();
 }
 
 //----------------------------------------------------------------------------
@@ -64,13 +60,15 @@ inline vtkAbstractArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkAbstrac
     outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
     outArray->SetNumberOfTuples(numTuples);
     outArray->SetName(outArrayName.c_str());
-    void* iD = inArray->GetVoidPointer(0);
-    void* oD = outArray->GetVoidPointer(0);
-    switch (iType)
+    ArrayPairCreator creator;
+    if (!vtkArrayDispatch::Dispatch::Execute(inArray, creator,
+          vtkAOSDataArrayTemplate<float>::FastDownCast(outArray), this, numTuples,
+          inArray->GetNumberOfComponents(), static_cast<float>(nullValue)))
     {
-      vtkTemplateMacro(CreateRealArrayPair(this, static_cast<VTK_TT*>(iD), static_cast<float*>(oD),
-        numTuples, inArray->GetNumberOfComponents(), outArray, static_cast<float>(nullValue)));
-    } // over all VTK types
+      creator(vtkDataArray::FastDownCast(inArray),
+        vtkAOSDataArrayTemplate<float>::FastDownCast(outArray), this, numTuples,
+        inArray->GetNumberOfComponents(), static_cast<float>(nullValue));
+    }
   }
   else
   {
@@ -78,14 +76,22 @@ inline vtkAbstractArray* ArrayList::AddArrayPair(vtkIdType numTuples, vtkAbstrac
     outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
     outArray->SetNumberOfTuples(numTuples);
     outArray->SetName(outArrayName.c_str());
-    void* iD = inArray->GetVoidPointer(0);
-    void* oD = outArray->GetVoidPointer(0);
-    switch (iType)
+    ArrayPairCreator creator;
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+          inArray, outArray, creator, this, numTuples, inArray->GetNumberOfComponents(), nullValue))
     {
-      vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT*>(iD), static_cast<VTK_TT*>(oD),
-        numTuples, inArray->GetNumberOfComponents(), outArray, static_cast<VTK_TT>(nullValue)));
-    } // over all VTK types
-  }   // promote integral types
+      if (inArray->IsA("vtkDataArray") && outArray->IsA("vtkDataArray"))
+      {
+        creator(vtkDataArray::FastDownCast(inArray), vtkDataArray::FastDownCast(outArray), this,
+          numTuples, inArray->GetNumberOfComponents(), nullValue);
+      }
+      else if (inArray->IsA("vtkStringArray") && outArray->IsA("vtkStringArray"))
+      {
+        creator(vtkStringArray::FastDownCast(inArray), vtkStringArray::FastDownCast(outArray), this,
+          numTuples, inArray->GetNumberOfComponents(), vtkStdString(vtk::to_string(nullValue)));
+      }
+    }
+  } // promote integral types
 
   assert(outArray->GetReferenceCount() > 1);
   outArray->FastDelete();
@@ -102,55 +108,58 @@ inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD
   // Build the vector of interpolation pairs. Note that
   // vtkDataSetAttributes::InterpolateAllocate or CopyAllocate() should have
   // been called at this point (i.e., output arrays created and allocated).
-  vtkAbstractArray *iArray, *oArray;
-  int iType, oType;
-  void *iD, *oD;
-  int iNumComp, oNumComp;
-
   for (auto& i : outPD->RequiredArrays)
   {
-    iArray = inPD->Data[i];
-    oArray = outPD->Data[outPD->TargetIndices[i]];
+    vtkAbstractArray* iArray = inPD->Data[i];
+    vtkAbstractArray* oArray = outPD->Data[outPD->TargetIndices[i]];
 
     if (iArray && oArray && !this->IsExcluded(oArray) && !this->IsExcluded(iArray))
     {
-      iType = iArray->GetDataType();
-      oType = oArray->GetDataType();
-      iNumComp = iArray->GetNumberOfComponents();
-      oNumComp = oArray->GetNumberOfComponents();
+      int iType = iArray->GetDataType();
+      int oType = oArray->GetDataType();
       if (promote && oType != VTK_FLOAT && oType != VTK_DOUBLE)
       {
         oType = VTK_FLOAT;
         vtkFloatArray* fArray = vtkFloatArray::New();
         fArray->SetName(oArray->GetName());
-        fArray->SetNumberOfComponents(oNumComp);
+        fArray->SetNumberOfComponents(oArray->GetNumberOfComponents());
         outPD->AddArray(fArray); // nasty side effect will replace current array in the same spot
         oArray = fArray;
         fArray->Delete();
       }
       oArray->SetNumberOfTuples(numOutPts);
 
-      assert(iNumComp == oNumComp);
+      assert(iArray->GetNumberOfComponents() == oArray->GetNumberOfComponents());
+      ArrayPairCreator creator;
       if (iType == oType)
       {
-        iD = iArray->GetVoidPointer(0);
-        oD = oArray->GetVoidPointer(0);
-        switch (iType)
+        if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+              iArray, oArray, creator, this, numOutPts, iArray->GetNumberOfComponents(), nullValue))
         {
-          vtkExtendedTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT*>(iD),
-            static_cast<VTK_TT*>(oD), numOutPts, oNumComp, oArray, nullValue));
-        }  // over all VTK types
+          if (iArray->IsA("vtkDataArray") && oArray->IsA("vtkDataArray"))
+          {
+            creator(vtkDataArray::FastDownCast(iArray), vtkDataArray::FastDownCast(oArray), this,
+              numOutPts, iArray->GetNumberOfComponents(), nullValue);
+          }
+          else if (iArray->IsA("vtkStringArray") && iArray->IsA("vtkStringArray"))
+          {
+            creator(vtkStringArray::FastDownCast(iArray), vtkStringArray::FastDownCast(oArray),
+              this, numOutPts, iArray->GetNumberOfComponents(),
+              vtkStdString(vtk::to_string(nullValue)));
+          }
+        }
       }    // if matching types
       else // promoted type
       {
-        iD = iArray->GetVoidPointer(0);
-        oD = oArray->GetVoidPointer(0);
-        switch (iType)
+        if (!vtkArrayDispatch::Dispatch::Execute(iArray, creator,
+              vtkAOSDataArrayTemplate<float>::FastDownCast(oArray), this, numOutPts,
+              iArray->GetNumberOfComponents(), static_cast<float>(nullValue)))
         {
-          vtkTemplateMacro(CreateRealArrayPair(this, static_cast<VTK_TT*>(iD),
-            static_cast<float*>(oD), numOutPts, iNumComp, oArray, static_cast<float>(nullValue)));
-        } // over all VTK types
-      }   // if promoted pair
+          creator(vtkDataArray::FastDownCast(iArray),
+            vtkAOSDataArrayTemplate<float>::FastDownCast(oArray), this, numOutPts,
+            iArray->GetNumberOfComponents(), static_cast<float>(nullValue));
+        }
+      } // if promoted pair
     }
   } // for each candidate array
 }
@@ -164,27 +173,29 @@ inline void ArrayList::AddSelfInterpolatingArrays(
 {
   // Build the vector of interpolation pairs. Note that CopyAllocate/InterpolateAllocate should have
   // been called at this point (output arrays created and allocated).
-  vtkAbstractArray* iArray;
-  int iType, iNumComp;
-  void* iD;
-  int i, numArrays = attr->GetNumberOfArrays();
-
-  for (i = 0; i < numArrays; ++i)
+  for (int i = 0; i < attr->GetNumberOfArrays(); ++i)
   {
-    iArray = attr->GetArray(i);
+    vtkAbstractArray* iArray = attr->GetArray(i);
     if (iArray && !this->IsExcluded(iArray))
     {
-      iType = iArray->GetDataType();
-      iNumComp = iArray->GetNumberOfComponents();
       iArray->Resize(numOutPts);
-      iD = iArray->GetVoidPointer(0);
-      switch (iType)
+      ArrayPairCreator creator;
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+            iArray, iArray, creator, this, numOutPts, iArray->GetNumberOfComponents(), nullValue))
       {
-        vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT*>(iD), static_cast<VTK_TT*>(iD),
-          numOutPts, iNumComp, iArray, static_cast<VTK_TT>(nullValue)));
-      } // over all VTK types
-    }   // if not excluded
-  }     // for each candidate array
+        if (iArray->IsA("vtkDataArray"))
+        {
+          creator(vtkDataArray::FastDownCast(iArray), vtkDataArray::FastDownCast(iArray), this,
+            numOutPts, iArray->GetNumberOfComponents(), nullValue);
+        }
+        else if (iArray->IsA("vtkStringArray"))
+        {
+          creator(vtkStringArray::FastDownCast(iArray), vtkStringArray::FastDownCast(iArray), this,
+            numOutPts, iArray->GetNumberOfComponents(), vtkStdString(vtk::to_string(nullValue)));
+        }
+      }
+    } // if not excluded
+  }   // for each candidate array
 }
 
 VTK_ABI_NAMESPACE_END

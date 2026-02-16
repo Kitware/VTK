@@ -5,20 +5,27 @@
 #include "vtkSortDataArray.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkArrayDispatch.h"
+#include "vtkBitArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
-#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+
 #include <functional> //std::greater
+#include <numeric>
 
 //------------------------------------------------------------------------------
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSortDataArray);
+
+//------------------------------------------------------------------------------
+using Arrays = vtkTypeList::Append<vtkArrayDispatch::Arrays, vtkStringArray, vtkVariantArray,
+  vtkBitArray>::Result;
 
 //------------------------------------------------------------------------------
 vtkSortDataArray::vtkSortDataArray() = default;
@@ -45,6 +52,26 @@ void vtkSortDataArray::Sort(vtkIdList* keys, int dir)
   }
 }
 
+struct SortAscending
+{
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array)
+  {
+    auto data = vtk::DataArrayValueRange<1, T>(array);
+    vtkSMPTools::Sort(data.begin(), data.end(), std::less<T>());
+  }
+};
+
+struct SortDescending
+{
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array)
+  {
+    auto data = vtk::DataArrayValueRange<1, vtk::GetAPIType<TArray>>(array);
+    vtkSMPTools::Sort(data.begin(), data.end(), std::greater<T>());
+  }
+};
+
 //------------------------------------------------------------------------------
 void vtkSortDataArray::Sort(vtkAbstractArray* keys, int dir)
 {
@@ -59,23 +86,32 @@ void vtkSortDataArray::Sort(vtkAbstractArray* keys, int dir)
     return;
   }
 
-  void* data = keys->GetVoidPointer(0);
-  vtkIdType numKeys = keys->GetNumberOfTuples();
-
   if (dir == 0)
   {
-    switch (keys->GetDataType())
+    SortAscending worker;
+    if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(keys, worker))
     {
-      vtkExtendedTemplateMacro(
-        vtkSMPTools::Sort(static_cast<VTK_TT*>(data), static_cast<VTK_TT*>(data) + numKeys));
+      if (auto da = vtkDataArray::SafeDownCast(keys))
+      {
+        switch (da->GetDataType())
+        {
+          vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da)));
+        }
+      }
     }
   }
   else
   {
-    switch (keys->GetDataType())
+    SortDescending worker;
+    if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(keys, worker))
     {
-      vtkExtendedTemplateMacro(vtkSMPTools::Sort(
-        static_cast<VTK_TT*>(data), static_cast<VTK_TT*>(data) + numKeys, std::greater<>()));
+      if (auto da = vtkDataArray::SafeDownCast(keys))
+      {
+        switch (da->GetDataType())
+        {
+          vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da)));
+        }
+      }
     }
   }
 }
@@ -90,35 +126,38 @@ namespace
 // We sort the indices based on a key value in another array. Produces sort
 // in ascending direction. Note that sort comparison operator is for single
 // component arrays.
-template <typename T>
+template <typename TArray, typename T>
 struct KeyComp
 {
-  const T* Array;
-  KeyComp(T* array)
-    : Array(array)
+  vtk::detail::ValueRange<TArray, 1, T> Array;
+  KeyComp(TArray* array)
+    : Array(vtk::DataArrayValueRange<1, T>(array))
   {
   }
-  bool operator()(vtkIdType idx0, vtkIdType idx1) const { return (Array[idx0] < Array[idx1]); }
+  bool operator()(vtkIdType idx0, vtkIdType idx1) const
+  {
+    return static_cast<T>(Array[idx0]) < static_cast<T>(Array[idx1]);
+  }
 };
 
 //------------------------------------------------------------------------------
 // Special comparison functor using tuple component as a key. Note that this
 // comparison function is for general arrays of n components.
-template <typename T>
+template <typename TArray, typename T>
 struct TupleComp
 {
-  const T* Array;
+  vtk::detail::ValueRange<TArray, vtk::detail::DynamicTupleSize, T> Array;
   int NumComp;
   int K;
-  TupleComp(T* array, int n, int k)
-    : Array(array)
-    , NumComp(n)
+  TupleComp(TArray* array, int k)
+    : Array(vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(array))
+    , NumComp(array->GetNumberOfComponents())
     , K(k)
   {
   }
   bool operator()(vtkIdType idx0, vtkIdType idx1) const
   {
-    return Array[idx0 * NumComp + K] < Array[idx1 * NumComp + K];
+    return static_cast<T>(Array[idx0 * NumComp + K]) < static_cast<T>(Array[idx1 * NumComp + K]);
   }
 };
 
@@ -129,66 +168,124 @@ struct TupleComp
 // reduce object file .obj size; e.g., running std::sort with a different
 // comparator function causes inline expansion to produce very large object
 // files.
-template <typename T>
-void Shuffle1Tuples(vtkIdType* idx, vtkIdType sze, vtkAbstractArray* arrayIn, T* preSort, int dir)
+struct Shuffle1Tuples
 {
-  T* postSort = new T[sze];
-
-  if (dir == 0) // ascending
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* arrayIn, vtkIdType* idx, int dir)
   {
-    for (vtkIdType i = 0; i < sze; ++i)
+    vtkIdType size = arrayIn->GetNumberOfTuples();
+    if (arrayIn->HasStandardMemoryLayout())
     {
-      postSort[i] = preSort[idx[i]];
+      auto arrayOut = vtk::TakeSmartPointer(
+        TArray::FastDownCast(vtkAbstractArray::CreateArray(arrayIn->GetDataType())));
+      arrayOut->SetNumberOfTuples(size);
+      auto in = vtk::DataArrayValueRange<1, T>(arrayIn);
+      auto out = vtk::DataArrayValueRange<1, T>(arrayOut);
+
+      if (dir == 0) // ascending
+      {
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[i]];
+        }
+      }
+      else // descending
+      {
+        vtkIdType end = size - 1;
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[end - i]];
+        }
+      }
+      arrayIn->ShallowCopy(arrayOut); // replace contents without
+    }
+    else
+    {
+      auto arrayInCopy = vtk::TakeSmartPointer(
+        TArray::FastDownCast(vtkAbstractArray::CreateArray(arrayIn->GetDataType())));
+      arrayInCopy->DeepCopy(arrayIn); // make a contiguous copy
+      auto in = vtk::DataArrayValueRange<1, T>(arrayInCopy);
+      auto out = vtk::DataArrayValueRange<1, T>(arrayIn);
+      if (dir == 0) // ascending
+      {
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[i]];
+        }
+      }
+      else // descending
+      {
+        vtkIdType end = size - 1;
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[end - i]];
+        }
+      }
     }
   }
-  else
-  {
-    vtkIdType end = sze - 1;
-    for (vtkIdType i = 0; i < sze; ++i)
-    {
-      postSort[i] = preSort[idx[end - i]];
-    }
-  }
-
-  arrayIn->SetVoidArray(postSort, sze, 0, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
-}
+};
 
 //------------------------------------------------------------------------------
 // Given a set of indices (after sorting), copy the data from a pre-sorted
 // data array to a final, post-sorted array. Note that the data array is
 // assumed to have arbitrary sized components.
-template <typename T>
-void ShuffleTuples(
-  vtkIdType* idx, vtkIdType sze, int numComp, vtkAbstractArray* arrayIn, T* preSort, int dir)
+struct ShuffleTuples
 {
-  T* postSort = new T[sze * numComp];
-
-  int k;
-  vtkIdType i;
-  if (dir == 0) // ascending
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* arrayIn, vtkIdType* idx, int dir)
   {
-    for (i = 0; i < sze; ++i)
+    vtkIdType size = arrayIn->GetNumberOfTuples();
+    if (arrayIn->HasStandardMemoryLayout())
     {
-      for (k = 0; k < numComp; ++k)
+      auto arrayOut = vtk::TakeSmartPointer(
+        TArray::FastDownCast(vtkAbstractArray::CreateArray(arrayIn->GetDataType())));
+      arrayOut->SetNumberOfComponents(arrayIn->GetNumberOfComponents());
+      arrayOut->SetNumberOfTuples(size);
+      auto in = vtk::DataArrayTupleRange(arrayIn);
+      auto out = vtk::DataArrayTupleRange(arrayOut);
+
+      if (dir == 0) // ascending
       {
-        postSort[i * numComp + k] = preSort[idx[i] * numComp + k];
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[i]];
+        }
+      }
+      else // descending
+      {
+        vtkIdType end = size - 1;
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[end - i]];
+        }
+      }
+      arrayIn->ShallowCopy(arrayOut); // replace contents without
+    }
+    else
+    {
+      auto arrayInCopy = vtk::TakeSmartPointer(
+        TArray::FastDownCast(vtkAbstractArray::CreateArray(arrayIn->GetDataType())));
+      arrayInCopy->DeepCopy(arrayIn); // make a contiguous copy
+      auto in = vtk::DataArrayTupleRange(arrayInCopy);
+      auto out = vtk::DataArrayTupleRange(arrayIn);
+      if (dir == 0) // ascending
+      {
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[i]];
+        }
+      }
+      else // descending
+      {
+        vtkIdType end = size - 1;
+        for (vtkIdType i = 0; i < size; ++i)
+        {
+          out[i] = in[idx[end - i]];
+        }
       }
     }
   }
-  else
-  {
-    vtkIdType end = sze - 1;
-    for (i = 0; i < sze; ++i)
-    {
-      for (k = 0; k < numComp; ++k)
-      {
-        postSort[i * numComp + k] = preSort[idx[end - i] * numComp + k];
-      }
-    }
-  }
-
-  arrayIn->SetVoidArray(postSort, sze * numComp, 0, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
-}
+};
 
 } // anonymous namespace
 
@@ -198,29 +295,77 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkIdType* vtkSortDataArray::InitializeSortIndices(vtkIdType num)
 {
   vtkIdType* idx = new vtkIdType[num];
-  for (vtkIdType i = 0; i < num; ++i)
-  {
-    idx[i] = i;
-  }
+  std::iota(idx, idx + num, static_cast<vtkIdType>(0));
   return idx;
 }
+
+struct Sort1Array
+{
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* arrayIn, vtkIdType* idx)
+  {
+    vtkIdType size = arrayIn->GetNumberOfTuples();
+    vtkSMPTools::Sort(idx, idx + size, KeyComp<TArray, T>(arrayIn));
+  }
+};
+
+struct SortArray
+{
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* arrayIn, vtkIdType* idx, int k)
+  {
+    vtkIdType size = arrayIn->GetNumberOfTuples();
+    vtkSMPTools::Sort(idx, idx + size, TupleComp<TArray, T>(arrayIn, k));
+  }
+};
 
 //------------------------------------------------------------------------------
 // Efficient function for generating sort ordering specialized to single
 // component arrays.
+void vtkSortDataArray::GenerateSort1Indices(vtkAbstractArray* arr, vtkIdType* idx)
+{
+  Sort1Array worker;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(arr, worker, idx))
+  {
+    if (auto da = vtkDataArray::SafeDownCast(arr))
+    {
+      switch (da->GetDataType())
+      {
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da, idx)));
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkSortDataArray::GenerateSort1Indices(
   int dataType, void* dataIn, vtkIdType numKeys, vtkIdType* idx)
 {
-  if (dataType == VTK_VARIANT)
+  auto arr = vtk::TakeSmartPointer(vtkAbstractArray::CreateArray(dataType));
+  arr->SetVoidArray(dataIn, numKeys, 1);
+  vtkSortDataArray::GenerateSort1Indices(arr, idx);
+}
+
+//------------------------------------------------------------------------------
+// Function for generating sort ordering for general arrays.
+void vtkSortDataArray::GenerateSortIndices(vtkAbstractArray* arr, int k, vtkIdType* idx)
+{
+  // Specialized and faster for single component arrays
+  if (arr->GetNumberOfComponents() == 1)
   {
-    vtkSMPTools::Sort(idx, idx + numKeys, KeyComp<vtkVariant>(static_cast<vtkVariant*>(dataIn)));
+    vtkSortDataArray::GenerateSort1Indices(arr, idx);
+    return;
   }
-  else
+
+  SortArray worker;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(arr, worker, idx, k))
   {
-    switch (dataType)
+    if (auto da = vtkDataArray::SafeDownCast(arr))
     {
-      vtkExtendedTemplateMacro(
-        vtkSMPTools::Sort(idx, idx + numKeys, KeyComp<VTK_TT>(static_cast<VTK_TT*>(dataIn))));
+      switch (da->GetDataType())
+      {
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da, idx, k)));
+      }
     }
   }
 }
@@ -230,70 +375,48 @@ void vtkSortDataArray::GenerateSort1Indices(
 void vtkSortDataArray::GenerateSortIndices(
   int dataType, void* dataIn, vtkIdType numKeys, int numComp, int k, vtkIdType* idx)
 {
-  // Specialized and faster for single component arrays
-  if (numComp == 1)
-  {
-    vtkSortDataArray::GenerateSort1Indices(dataType, dataIn, numKeys, idx);
-    return;
-  }
-
-  if (dataType == VTK_VARIANT)
-  {
-    vtkSMPTools::Sort(
-      idx, idx + numKeys, TupleComp<vtkVariant>(static_cast<vtkVariant*>(dataIn), numComp, k));
-  }
-  else
-  {
-    switch (dataType)
-    {
-      vtkExtendedTemplateMacro(vtkSMPTools::Sort(
-        idx, idx + numKeys, TupleComp<VTK_TT>(static_cast<VTK_TT*>(dataIn), numComp, k)));
-    }
-  }
+  auto arr = vtk::TakeSmartPointer(vtkAbstractArray::CreateArray(dataType));
+  arr->SetNumberOfComponents(numComp);
+  arr->SetVoidArray(dataIn, numKeys * numComp, 1);
+  vtkSortDataArray::GenerateSortIndices(arr, k, idx);
 }
 
 //------------------------------------------------------------------------------
 // Set up the actual templated shuffling operation. This method is for
 // VTK arrays that are precsisely one component.
-void vtkSortDataArray::Shuffle1Array(
-  vtkIdType* idx, int dataType, vtkIdType numKeys, vtkAbstractArray* arr, void* dataIn, int dir)
+void vtkSortDataArray::Shuffle1Array(vtkAbstractArray* arr, vtkIdType* idx, int dir)
 {
-  if (dataType == VTK_VARIANT)
+  Shuffle1Tuples worker;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(arr, worker, idx, dir))
   {
-    Shuffle1Tuples(idx, numKeys, arr, static_cast<vtkVariant*>(dataIn), dir);
-  }
-  else
-  {
-    switch (arr->GetDataType())
+    if (auto da = vtkDataArray::SafeDownCast(arr))
     {
-      vtkExtendedTemplateMacro(
-        Shuffle1Tuples(idx, numKeys, arr, static_cast<VTK_TT*>(dataIn), dir));
+      switch (da->GetDataType())
+      {
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(da, idx, dir)));
+      }
     }
   }
 }
 
 //------------------------------------------------------------------------------
 // Set up the actual templated shuffling operation
-void vtkSortDataArray::ShuffleArray(vtkIdType* idx, int dataType, vtkIdType numKeys, int numComp,
-  vtkAbstractArray* arr, void* dataIn, int dir)
+void vtkSortDataArray::ShuffleArray(vtkAbstractArray* arr, vtkIdType* idx, int dir)
 {
   // Specialized for single component arrays
-  if (numComp == 1)
+  if (arr->GetNumberOfComponents() == 1)
   {
-    vtkSortDataArray::Shuffle1Array(idx, dataType, numKeys, arr, dataIn, dir);
-    return;
-  }
-
-  if (dataType == VTK_VARIANT)
-  {
-    ShuffleTuples(idx, numKeys, numComp, arr, static_cast<vtkVariant*>(dataIn), dir);
+    vtkSortDataArray::Shuffle1Array(arr, idx, dir);
   }
   else
   {
-    switch (arr->GetDataType())
+    ShuffleTuples worker;
+    if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(arr, worker, idx, dir))
     {
-      vtkExtendedTemplateMacro(
-        ShuffleTuples(idx, numKeys, numComp, arr, static_cast<VTK_TT*>(dataIn), dir));
+      if (auto da = vtkDataArray::SafeDownCast(arr))
+      {
+        worker(da, idx, dir);
+      }
     }
   }
 }
@@ -352,18 +475,12 @@ void vtkSortDataArray::Sort(vtkAbstractArray* keys, vtkAbstractArray* values, in
   vtkIdType* idx = vtkSortDataArray::InitializeSortIndices(numKeys);
 
   // Generate the sorting index array
-  void* dataIn = keys->GetVoidPointer(0);
-  int numComp = 1;
-  int dataType = keys->GetDataType();
-  vtkSortDataArray::GenerateSortIndices(dataType, dataIn, numKeys, numComp, 0, idx);
+  vtkSortDataArray::GenerateSortIndices(keys, 0, idx);
 
   // Now shuffle data around based on sorted indices
-  vtkSortDataArray::ShuffleArray(idx, dataType, numKeys, numComp, keys, dataIn, dir);
+  vtkSortDataArray::ShuffleArray(keys, idx, dir);
 
-  dataIn = values->GetVoidPointer(0);
-  numComp = values->GetNumberOfComponents();
-  dataType = values->GetDataType();
-  vtkSortDataArray::ShuffleArray(idx, dataType, numKeys, numComp, values, dataIn, dir);
+  vtkSortDataArray::ShuffleArray(values, idx, dir);
 
   // Clean up
   delete[] idx;
@@ -394,13 +511,10 @@ void vtkSortDataArray::Sort(vtkAbstractArray* keys, vtkIdList* values, int dir)
   vtkIdType* idx = vtkSortDataArray::InitializeSortIndices(numKeys);
 
   // Generate the sorting index array
-  void* dataIn = keys->GetVoidPointer(0);
-  int numComp = 1;
-  int dataType = keys->GetDataType();
-  vtkSortDataArray::GenerateSortIndices(dataType, dataIn, numKeys, numComp, 0, idx);
+  vtkSortDataArray::GenerateSortIndices(keys, 0, idx);
 
   // Shuffle the keys
-  vtkSortDataArray::ShuffleArray(idx, dataType, numKeys, numComp, keys, dataIn, dir);
+  vtkSortDataArray::ShuffleArray(keys, idx, dir);
 
   // Now shuffle the ids to match the sort
   vtkIdType* ids = values->GetPointer(0);
@@ -431,11 +545,9 @@ void vtkSortDataArray::SortArrayByComponent(vtkAbstractArray* arr, int k, int di
   // Perform the sort
   vtkIdType* idx = vtkSortDataArray::InitializeSortIndices(numKeys);
 
-  void* dataIn = arr->GetVoidPointer(0);
-  int dataType = arr->GetDataType();
-  vtkSortDataArray::GenerateSortIndices(dataType, dataIn, numKeys, nc, k, idx);
+  vtkSortDataArray::GenerateSortIndices(arr, k, idx);
 
-  vtkSortDataArray::ShuffleArray(idx, dataType, numKeys, nc, arr, dataIn, dir);
+  vtkSortDataArray::ShuffleArray(arr, idx, dir);
 
   // Clean up
   delete[] idx;

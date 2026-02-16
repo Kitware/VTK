@@ -47,6 +47,7 @@
 #define vtkSortDataArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -153,10 +154,17 @@ public:
    * (i.e., free the idx array).
    */
   static vtkIdType* InitializeSortIndices(vtkIdType numKeys);
+  static void GenerateSortIndices(vtkAbstractArray* arr, int k, vtkIdType* idx);
+  VTK_DEPRECATED_IN_9_7_0("Use the overload that takes vtkAbstractArray*")
   static void GenerateSortIndices(
     int dataType, void* dataIn, vtkIdType numKeys, int numComp, int k, vtkIdType* idx);
-  static void ShuffleArray(vtkIdType* idx, int dataType, vtkIdType numKeys, int numComp,
-    vtkAbstractArray* arr, void* dataIn, int dir);
+  static void ShuffleArray(vtkAbstractArray* arr, vtkIdType* idx, int dir);
+  VTK_DEPRECATED_IN_9_7_0("Use the overload that takes vtkAbstractArray*")
+  static void ShuffleArray(vtkIdType* idx, int vtkNotUsed(dataType), vtkIdType vtkNotUsed(numKeys),
+    int vtkNotUsed(numComp), vtkAbstractArray* arr, void* vtkNotUsed(dataIn), int dir)
+  {
+    vtkSortDataArray::Shuffle1Array(arr, idx, dir);
+  }
   static void ShuffleIdList(
     vtkIdType* idx, vtkIdType sze, vtkIdList* arrayIn, vtkIdType* dataIn, int dir);
   ///@}
@@ -167,12 +175,19 @@ protected:
 
   // A more efficient sort for single component arrays. This is delegated to
   // by the methods above (if appropriate).
+  static void GenerateSort1Indices(vtkAbstractArray* arr, vtkIdType* idx);
+  VTK_DEPRECATED_IN_9_7_0("Use the overload that takes vtkAbstractArray*")
   static void GenerateSort1Indices(int dataType, void* dataIn, vtkIdType numKeys, vtkIdType* idx);
 
   // A more efficient shuffle for single component arrays. This is delegated to
   // by the methods above (if appropriate).
-  static void Shuffle1Array(
-    vtkIdType* idx, int dataType, vtkIdType numKeys, vtkAbstractArray* arr, void* dataIn, int dir);
+  static void Shuffle1Array(vtkAbstractArray* arr, vtkIdType* idx, int dir);
+  VTK_DEPRECATED_IN_9_7_0("Use the overload that does not take void*")
+  static void Shuffle1Array(vtkIdType* idx, int vtkNotUsed(dataType), vtkIdType vtkNotUsed(numKeys),
+    vtkAbstractArray* arr, void* vtkNotUsed(dataIn), int dir)
+  {
+    vtkSortDataArray::Shuffle1Array(arr, idx, dir);
+  }
 
 private:
   vtkSortDataArray(const vtkSortDataArray&) = delete;

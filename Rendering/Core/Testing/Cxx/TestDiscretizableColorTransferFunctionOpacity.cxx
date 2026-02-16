@@ -54,8 +54,7 @@ int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
   //--------------------------------------------------------------------------
 
   // Map void* array to opacity using first entry point
-  dctf->MapScalarsThroughTable(
-    inputScalars, mapScalarsThroughTableOutput, VTK_DOUBLE, 3, 1, VTK_RGB);
+  dctf->MapScalarsThroughTable(da, mapScalarsThroughTableOutput, 3, 1, 0, VTK_RGB);
   // Map data array to opacity using second entry point
   mapScalarsOutput.TakeReference(dctf->MapScalars(da, VTK_COLOR_MODE_DEFAULT, -1));
 
@@ -75,8 +74,7 @@ int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
   //--------------------------------------------------------------------------
 
   // Map void* array to opacity using first entry point
-  dctf->MapScalarsThroughTable(
-    inputScalars, mapScalarsThroughTableOutput, VTK_DOUBLE, 3, 1, VTK_RGBA);
+  dctf->MapScalarsThroughTable(da, mapScalarsThroughTableOutput, 3, 1, 0, VTK_RGBA);
   // Map data array to opacity using second entry point
   mapScalarsOutput.TakeReference(dctf->MapScalars(da, VTK_COLOR_MODE_MAP_SCALARS, -1));
 

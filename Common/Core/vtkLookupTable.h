@@ -26,8 +26,8 @@
  * should be returned. The colors in the lookup \a Table are assigned
  * to annotated values by taking the modulus of their index in the list
  * of annotations. \a IndexedLookup changes the behavior of \a GetIndex,
- * which in turn changes the way \a MapScalarsThroughTable2 behaves;
- * when \a IndexedLookup is true, \a MapScalarsThroughTable2 will search for
+ * which in turn changes the way \a MapScalarsThroughTable behaves;
+ * when \a IndexedLookup is true, \a MapScalarsThroughTable will search for
  * scalar values in \a AnnotatedValues and use the resulting index to
  * determine the color. If a scalar value is not present in \a AnnotatedValues,
  * then \a NanColor will be used.
@@ -385,13 +385,16 @@ public:
   vtkGetObjectMacro(Table, vtkUnsignedCharArray);
   ///@}
 
+  ///@{
   /**
    * Map a set of scalars through the lookup table.
 
    * This member function is thread safe.
    */
-  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat) override;
+  void MapScalarsThroughTable(vtkAbstractArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int outputFormat) override;
+  using vtkScalarsToColors::MapScalarsThroughTable;
+  ///@}
 
   /**
    * Copy the contents from another LookupTable.

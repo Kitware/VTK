@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageTransform.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
@@ -23,13 +26,13 @@ vtkStandardNewMacro(vtkImageTransform);
 namespace
 { // anonymous
 
-template <typename T>
-struct InPlaceTranslatePoints
+template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+struct InPlaceTranslatePointsFunctor
 {
-  T* Points;
+  TArray* Points;
   const double* Translation;
 
-  InPlaceTranslatePoints(const double t[3], T* pts)
+  InPlaceTranslatePointsFunctor(const double t[3], TArray* pts)
     : Points(pts)
     , Translation(t)
   {
@@ -37,32 +40,34 @@ struct InPlaceTranslatePoints
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    T* pIn = this->Points + 3 * ptId;
-    T* pOut = pIn;
+    auto pIn = vtk::DataArrayValueRange(this->Points, 3 * ptId).begin();
 
     for (; ptId < endPtId; ++ptId)
     {
-      *pIn++ = *pOut++ + this->Translation[0];
-      *pIn++ = *pOut++ + this->Translation[1];
-      *pIn++ = *pOut++ + this->Translation[2];
+      *pIn++ += this->Translation[0];
+      *pIn++ += this->Translation[1];
+      *pIn++ += this->Translation[2];
     }
-  }
-
-  // Interface to vtkSMPTools
-  static void Execute(const double t[3], vtkIdType num, T* pts)
-  {
-    InPlaceTranslatePoints<T> translate(t, pts);
-    vtkSMPTools::For(0, num, translate);
   }
 }; // InPlaceTransformPoints
 
-template <typename T>
-struct InPlaceTransformPoints
+struct InPlaceTranslatePointsWorker
 {
-  T* Points;
+  template <class TArray>
+  void operator()(TArray* normals, const double* m3)
+  {
+    InPlaceTranslatePointsFunctor<TArray> transform(m3, normals);
+    vtkSMPTools::For(0, normals->GetNumberOfTuples(), transform);
+  }
+};
+
+template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+struct InPlaceTransformPointsFunctor
+{
+  TArray* Points;
   const double* M4;
 
-  InPlaceTransformPoints(const double* m4, T* pts)
+  InPlaceTransformPointsFunctor(const double* m4, TArray* pts)
     : Points(pts)
     , M4(m4)
   {
@@ -70,7 +75,7 @@ struct InPlaceTransformPoints
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    T* pIn = this->Points + 3 * ptId;
+    auto pIn = vtk::DataArrayValueRange(this->Points, 3 * ptId).begin();
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -82,22 +87,25 @@ struct InPlaceTransformPoints
       *pIn++ = static_cast<T>(z);
     }
   }
+}; // InPlaceTransformPointsFunctor
 
-  // Interface to vtkSMPTools
-  static void Execute(const double* m4, vtkIdType num, T* pts)
-  {
-    InPlaceTransformPoints<T> transform(m4, pts);
-    vtkSMPTools::For(0, num, transform);
-  }
-}; // InPlaceTransformPoints
-
-template <typename T>
-struct InPlaceTransformNormals
+struct InPlaceTransformPointsWorker
 {
-  T* Normals;
+  template <class TArray>
+  void operator()(TArray* points, const double* m4d)
+  {
+    InPlaceTransformPointsFunctor<TArray> transform(m4d, points);
+    vtkSMPTools::For(0, points->GetNumberOfTuples(), transform);
+  }
+};
+
+template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+struct InPlaceTransformNormalsFunctor
+{
+  TArray* Normals;
   const double* M3;
 
-  InPlaceTransformNormals(const double* m3, T* n)
+  InPlaceTransformNormalsFunctor(const double* m3, TArray* n)
     : Normals(n)
     , M3(m3)
   {
@@ -105,7 +113,7 @@ struct InPlaceTransformNormals
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    T* nIn = this->Normals + 3 * ptId;
+    auto nIn = vtk::DataArrayValueRange(this->Normals, 3 * ptId).begin();
     double vec[3];
 
     for (; ptId < endPtId; ++ptId)
@@ -119,22 +127,25 @@ struct InPlaceTransformNormals
       *nIn++ = static_cast<T>(vec[2]);
     }
   }
-
-  // Interface to vtkSMPTools
-  static void Execute(const double* m3, vtkIdType num, T* n)
-  {
-    InPlaceTransformNormals<T> transform(m3, n);
-    vtkSMPTools::For(0, num, transform);
-  }
 }; // InPlaceTransformNormals
 
-template <typename T>
-struct InPlaceTransformVectors
+struct InPlaceTransformNormalsWorker
 {
-  T* Vectors;
+  template <class TArray>
+  void operator()(TArray* normals, const double* m3)
+  {
+    InPlaceTransformNormalsFunctor<TArray> transform(m3, normals);
+    vtkSMPTools::For(0, normals->GetNumberOfTuples(), transform);
+  }
+};
+
+template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+struct InPlaceTransformVectorsFunctor
+{
+  TArray* Vectors;
   const double* M3;
 
-  InPlaceTransformVectors(const double* m3, T* v)
+  InPlaceTransformVectorsFunctor(const double* m3, TArray* v)
     : Vectors(v)
     , M3(m3)
   {
@@ -142,7 +153,7 @@ struct InPlaceTransformVectors
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    T* nIn = this->Vectors + 3 * ptId;
+    auto nIn = vtk::DataArrayValueRange(this->Vectors, 3 * ptId).begin();
 
     for (; ptId < endPtId; ++ptId)
     {
@@ -154,14 +165,17 @@ struct InPlaceTransformVectors
       *nIn++ = static_cast<T>(z);
     }
   }
-
-  // Interface to vtkSMPTools
-  static void Execute(const double* m3, vtkIdType num, T* v)
-  {
-    InPlaceTransformVectors<T> transform(m3, v);
-    vtkSMPTools::For(0, num, transform);
-  }
 }; // InPlaceTransformVectors
+
+struct InPlaceTransformVectorsWorker
+{
+  template <class TArray>
+  void operator()(TArray* vectors, const double* m3)
+  {
+    InPlaceTransformVectorsFunctor<TArray> transform(m3, vectors);
+    vtkSMPTools::For(0, vectors->GetNumberOfTuples(), transform);
+  }
+};
 
 } // anonymous namespace
 
@@ -250,25 +264,21 @@ void vtkImageTransform::TransformPointSet(
 //------------------------------------------------------------------------------
 void vtkImageTransform::TranslatePoints(const double t[3], vtkDataArray* da)
 {
-  void* pts = da->GetVoidPointer(0);
-  vtkIdType num = da->GetNumberOfTuples();
-
-  switch (da->GetDataType())
+  InPlaceTranslatePointsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(da, worker, t))
   {
-    vtkTemplateMacro(InPlaceTranslatePoints<VTK_TT>::Execute(t, num, static_cast<VTK_TT*>(pts)));
+    worker(da, t);
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkImageTransform::TransformPoints(vtkMatrix4x4* m4, vtkDataArray* da)
 {
-  void* pts = da->GetVoidPointer(0);
-  vtkIdType num = da->GetNumberOfTuples();
   const double* m4d = m4->GetData();
-
-  switch (da->GetDataType())
+  InPlaceTransformPointsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(da, worker, m4d))
   {
-    vtkTemplateMacro(InPlaceTransformPoints<VTK_TT>::Execute(m4d, num, static_cast<VTK_TT*>(pts)));
+    worker(da, m4d);
   }
 }
 
@@ -299,12 +309,10 @@ void vtkImageTransform::TransformNormals(
     }
   }
 
-  void* n = da->GetVoidPointer(0);
-  vtkIdType num = da->GetNumberOfTuples();
-
-  switch (da->GetDataType())
+  InPlaceTransformNormalsWorker worker;
+  if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(da, worker, m3n))
   {
-    vtkTemplateMacro(InPlaceTransformNormals<VTK_TT>::Execute(m3n, num, static_cast<VTK_TT*>(n)));
+    worker(da, m3n);
   }
 }
 
@@ -334,12 +342,10 @@ void vtkImageTransform::TransformVectors(
     }
   }
 
-  void* v = da->GetVoidPointer(0);
-  vtkIdType num = da->GetNumberOfTuples();
-
-  switch (da->GetDataType())
+  InPlaceTransformVectorsWorker worker;
+  if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(da, worker, m3v))
   {
-    vtkTemplateMacro(InPlaceTransformVectors<VTK_TT>::Execute(m3v, num, static_cast<VTK_TT*>(v)));
+    worker(da, m3v);
   }
 }
 

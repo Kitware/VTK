@@ -80,11 +80,10 @@ emscripten::val vtkStandaloneSession::Invoke(
               const auto length = jsArray["length"].as<std::size_t>();
               dataArray->SetNumberOfValues(length);
               // Copy the data from the JS array to the VTK data array
-              using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-              if (!DispatchT::Execute(dataArray, CopyJSArrayToVTKDataArray{}, jsArray))
+              CopyJSArrayToVTKDataArray worker;
+              if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(dataArray, worker, jsArray))
               {
-                // Fallback to the default implementation if the DispatchT fails
-                CopyJSArrayToVTKDataArray{}(dataArray, jsArray);
+                vtkLog(ERROR, << dataArray->GetClassName() << " does not support SetArray");
               }
               return emscripten::val::undefined();
             }

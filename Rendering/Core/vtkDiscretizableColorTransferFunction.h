@@ -160,13 +160,16 @@ public:
    */
   double GetOpacity(double v) override;
 
+  ///@{
   /**
    * Map a set of scalars through the lookup table.
    * Overridden to map the opacity value. This internal method is inherited
    * from vtkScalarsToColors and should never be called directly.
    */
-  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat) override;
+  void MapScalarsThroughTable(vtkAbstractArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int outputFormat) override;
+  using vtkScalarsToColors::MapScalarsThroughTable;
+  ///@}
 
   /**
    * Specify an additional opacity (alpha) value to blend with. Values
