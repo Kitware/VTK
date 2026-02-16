@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkIOImage import vtkPNGReader
-from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingCore import vtkImageBinaryThreshold
 from vtkmodules.vtkImagingMorphological import vtkImageOpenClose3D
 from vtkmodules.vtkInteractionImage import vtkImageViewer
 import vtkmodules.vtkInteractionStyle
@@ -13,12 +13,15 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Image pipeline
 reader = vtkPNGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
-thresh = vtkImageThreshold()
+thresh = vtkImageBinaryThreshold()
 thresh.SetInputConnection(reader.GetOutputPort())
 thresh.SetOutputScalarTypeToUnsignedChar()
-thresh.ThresholdByUpper(2000.0)
+thresh.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_UPPER)
+thresh.SetLowerThreshold(2000.0)
 thresh.SetInValue(255)
 thresh.SetOutValue(0)
+thresh.ReplaceInOn()
+thresh.ReplaceOutOn()
 thresh.ReleaseDataFlagOff()
 my_close = vtkImageOpenClose3D()
 my_close.SetInputConnection(thresh.GetOutputPort())

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingCore import vtkImageBinaryThreshold
 from vtkmodules.vtkImagingGeneral import (
     vtkImageHybridMedian2D,
     vtkImageMedian3D,
@@ -52,18 +52,24 @@ shotNoiseSource.SetMinimum(0.0)
 shotNoiseSource.SetMaximum(1.0)
 shotNoiseSource.ReleaseDataFlagOff()
 
-shotNoiseThresh1 = vtkImageThreshold()
+shotNoiseThresh1 = vtkImageBinaryThreshold()
 shotNoiseThresh1.SetInputConnection(shotNoiseSource.GetOutputPort())
-shotNoiseThresh1.ThresholdByLower(1.0 - shotNoiseFraction)
+shotNoiseThresh1.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_LOWER)
+shotNoiseThresh1.SetUpperThreshold(1.0 - shotNoiseFraction)
 shotNoiseThresh1.SetInValue(0)
+shotNoiseThresh1.ReplaceInOn()
+shotNoiseThresh1.ReplaceOutOn()
 shotNoiseThresh1.SetOutValue(shotNoiseAmplitude)
 shotNoiseThresh1.Update()
 
-shotNoiseThresh2 = vtkImageThreshold()
+shotNoiseThresh2 = vtkImageBinaryThreshold()
 shotNoiseThresh2.SetInputConnection(shotNoiseSource.GetOutputPort())
-shotNoiseThresh2.ThresholdByLower(shotNoiseFraction)
+shotNoiseThresh2.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_LOWER)
+shotNoiseThresh2.SetUpperThreshold(shotNoiseFraction)
 shotNoiseThresh2.SetInValue(-shotNoiseAmplitude)
 shotNoiseThresh2.SetOutValue(0.0)
+shotNoiseThresh2.ReplaceInOn()
+shotNoiseThresh2.ReplaceOutOn()
 shotNoiseThresh2.Update()
 
 shotNoise = vtkImageMathematics()

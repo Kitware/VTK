@@ -8,11 +8,11 @@ from vtkmodules.vtkIOImage import (
     vtkTIFFReader,
 )
 from vtkmodules.vtkImagingCore import (
+    vtkImageBinaryThreshold,
     vtkImageAppendComponents,
     vtkImageBlend,
     vtkImageShiftScale,
     vtkImageShrink3D,
-    vtkImageThreshold,
 )
 from vtkmodules.vtkImagingColor import vtkImageLuminance
 from vtkmodules.vtkRenderingCore import (
@@ -86,11 +86,14 @@ class TestAllBlendsFloat(vtkmodules.test.Testing.vtkTest):
 
         # create an alpha mask
 
-        alpha = vtkImageThreshold()
+        alpha = vtkImageBinaryThreshold()
         alpha.SetInputConnection(luminance.GetOutputPort())
-        alpha.ThresholdByLower(0.9)
+        alpha.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_LOWER)
+        alpha.SetUpperThreshold(0.9)
         alpha.SetInValue(1.0)
         alpha.SetOutValue(0.0)
+        alpha.ReplaceInOn()
+        alpha.ReplaceOutOn()
 
         # make luminanceAlpha and colorAlpha versions
 

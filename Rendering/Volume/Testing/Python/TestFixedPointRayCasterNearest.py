@@ -5,9 +5,9 @@
 
 from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
 from vtkmodules.vtkImagingCore import (
+    vtkImageBinaryThreshold,
     vtkImageAppendComponents,
     vtkImageShiftScale,
-    vtkImageThreshold,
 )
 from vtkmodules.vtkImagingMorphological import vtkImageContinuousDilate3D
 from vtkmodules.vtkImagingSources import (
@@ -47,11 +47,12 @@ class FixedPointRayCasterNearest(object):
 
         # threshold to leave a gap that should show up for
         # gradient opacity
-        t = vtkImageThreshold()
+        t = vtkImageBinaryThreshold()
         t.SetInputConnection(gs.GetOutputPort())
         t.ReplaceInOn()
         t.SetInValue(0)
-        t.ThresholdBetween(150, 200)
+        t.SetLowerThreshold(150)
+        t.SetUpperThreshold(200)
 
         # Use a shift scale to convert to unsigned char
         ss = vtkImageShiftScale()
@@ -83,11 +84,12 @@ class FixedPointRayCasterNearest(object):
         gs1.SetStandardDeviation(4)
         gs1.SetCenter(5, 5, 5)
 
-        t1 = vtkImageThreshold()
+        t1 = vtkImageBinaryThreshold()
         t1.SetInputConnection(gs1.GetOutputPort())
         t1.ReplaceInOn()
         t1.SetInValue(0)
-        t1.ThresholdBetween(150, 256)
+        t1.SetLowerThreshold(150)
+        t1.SetUpperThreshold(256)
 
         gs2 = vtkImageGaussianSource()
         gs2.SetWholeExtent(0, 30, 0, 30, 0, 30)
@@ -101,11 +103,12 @@ class FixedPointRayCasterNearest(object):
         gs3.SetStandardDeviation(4)
         gs3.SetCenter(19, 19, 19)
 
-        t3 = vtkImageThreshold()
+        t3 = vtkImageBinaryThreshold()
         t3.SetInputConnection(gs3.GetOutputPort())
         t3.ReplaceInOn()
         t3.SetInValue(0)
-        t3.ThresholdBetween(150, 256)
+        t3.SetLowerThreshold(150)
+        t3.SetUpperThreshold(256)
 
         gs4 = vtkImageGaussianSource()
         gs4.SetWholeExtent(0, 30, 0, 30, 0, 30)

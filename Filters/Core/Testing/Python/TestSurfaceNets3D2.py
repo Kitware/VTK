@@ -46,9 +46,10 @@ while i < numBlobs:
     sampler.SetSampleDimensions(dim, dim, dim)
     sampler.SetModelBounds(-50, 50, -50, 50, -50, 50)
 
-    thres = vtk.vtkImageThreshold()
+    thres = vtk.vtkImageBinaryThreshold()
     thres.SetInputConnection(sampler.GetOutputPort())
-    thres.ThresholdByLower(radius * radius)
+    thres.SetThresholdFunction(vtk.vtkImageBinaryThreshold.THRESHOLD_LOWER)
+    thres.SetUpperThreshold(radius * radius)
     thres.ReplaceInOn()
     thres.ReplaceOutOn()
     thres.SetInValue(i + 1)
