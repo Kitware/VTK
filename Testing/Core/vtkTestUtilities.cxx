@@ -533,12 +533,10 @@ void DispatchArrays(vtkAbstractArray* array1, vtkAbstractArray* array2,
     {
       auto da1 = vtkArrayDownCast<vtkDataArray>(array1);
       auto da2 = vtkArrayDownCast<vtkDataArray>(array2);
-      using DataArrayDispatcher =
-        vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
       DataArrayMatchingDispatcher<LauncherT> dataArrayWorker;
 
       ProcessorT& processorR = processor;
-      if (!DataArrayDispatcher::Execute(
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
             da1, da2, dataArrayWorker, mapper1, mapper2, processorR, ghosts, ghostsToSkip))
       {
         dataArrayWorker(da1, da2, mapper1, mapper2, processorR, ghosts, ghostsToSkip);

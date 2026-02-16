@@ -232,9 +232,8 @@ int vtkThresholdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   this->Intervals->SetBackgroundLabel(this->BackgroundLabel);
   this->Intervals->Update();
 
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
   ThresholdWorker thWorker;
-  Dispatcher::Execute(inScalars, thWorker, numScalars, sPtr, *this->Intervals);
+  vtkArrayDispatch::Dispatch::Execute(inScalars, thWorker, numScalars, sPtr, *this->Intervals);
 
   // Populate the output with the new scalars
   int idx = outPD->AddArray(newScalars);

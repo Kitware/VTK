@@ -570,15 +570,12 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray* array)
     this->PackedVBO.resize(this->NumberOfTuples * this->Stride / sizeof(float));
 
     // Dispatch based on the array data type
-    typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
-    bool result = true;
     switch (this->DataType)
     {
       case VTK_FLOAT:
       {
         vtkAppendVBOWorker<float> worker(this, 0, this->GetShift(), this->GetScale());
-        // result = Dispatcher::Execute(array, worker);
-        if (!Dispatcher::Execute(array, worker))
+        if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
         {
           worker(array);
         }
@@ -587,18 +584,12 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray* array)
       case VTK_UNSIGNED_CHAR:
       {
         vtkAppendVBOWorker<unsigned char> worker(this, 0, this->GetShift(), this->GetScale());
-        // result = Dispatcher::Execute(array, worker);
-        if (!Dispatcher::Execute(array, worker))
+        if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
         {
           worker(array);
         }
         break;
       }
-    }
-
-    if (!result)
-    {
-      vtkErrorMacro(<< "Error filling VBO.");
     }
 
     this->Modified();
@@ -641,7 +632,7 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(vtkDataArray* array)
   this->PackedVBO.resize(this->NumberOfTuples * this->Stride / sizeof(float));
 
   // Dispatch based on the array data type
-  typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
+  typedef vtkArrayDispatch::Dispatch Dispatcher;
   bool result = true;
   switch (this->DataType)
   {

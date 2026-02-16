@@ -292,11 +292,8 @@ void ReplaceWithIndexedArray(const std::string& contourArrayName, vtkContourValu
     return;
   }
 
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
   ::ConvertToIndexedArrayWorker worker;
-
-  // Dispatch
-  if (!Dispatcher::Execute(contourArray, worker, contourValues, outputAttributes))
+  if (!vtkArrayDispatch::Dispatch::Execute(contourArray, worker, contourValues, outputAttributes))
   {
     vtkErrorWithObjectMacro(nullptr, "Unable to dispatch the contour array " << contourArrayName);
   }

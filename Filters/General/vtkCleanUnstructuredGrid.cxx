@@ -375,7 +375,6 @@ void WeightAttributes(vtkPointData* inPD, vtkPointData* outPD, vtkDoubleArray* w
   const std::vector<vtkIdType>& ptMap)
 {
   // better here to use a Dispatch2BySameArrayType, but that doesn't exist
-  using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
   WeighingWorklet worker;
   for (vtkIdType iArr = 0; iArr < inPD->GetNumberOfArrays(); ++iArr)
   {
@@ -419,7 +418,7 @@ void WeightAttributes(vtkPointData* inPD, vtkPointData* outPD, vtkDoubleArray* w
         "Output array " << inArr->GetName() << " is nullptr or not a vtkDataArray.");
       continue;
     }
-    if (!Dispatcher::Execute(inArr, outArr, worker, weights, ptMap))
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(inArr, outArr, worker, weights, ptMap))
     {
       auto inBitArr = vtkBitArray::SafeDownCast(inArr);
       auto outBitArr = vtkBitArray::SafeDownCast(outArr);
