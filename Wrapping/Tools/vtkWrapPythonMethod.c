@@ -805,7 +805,10 @@ void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction)
 static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunction,
   const ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
 {
-  char methodname[256];
+  char methodname_on_stack[256];
+  char* methodname_on_heap = NULL;
+  char* methodname = methodname_on_stack;
+  size_t methodname_size;
   const ValueInfo* arg;
   int totalArgs;
   int is_constructor;
@@ -860,28 +863,36 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
     }
   }
 
+  /* ensure methodname has sufficient storage space */
+  methodname_size = strlen(data->Name) + strlen(currentFunction->Name) + 7;
+  if (methodname_size > sizeof(methodname_on_stack))
+  {
+    methodname_on_heap = (char*)malloc(methodname_size);
+    methodname = methodname_on_heap;
+  }
+
   /* print the code that calls the method */
   for (k = 0; k < n; k++)
   {
     if (k == 1)
     {
       /* unbound method call */
-      snprintf(methodname, sizeof(methodname), "op->%s::%s", data->Name, currentFunction->Name);
+      snprintf(methodname, methodname_size, "op->%s::%s", data->Name, currentFunction->Name);
     }
     else if (currentFunction->IsStatic)
     {
       /* static method call */
-      snprintf(methodname, sizeof(methodname), "%s::%s", data->Name, currentFunction->Name);
+      snprintf(methodname, methodname_size, "%s::%s", data->Name, currentFunction->Name);
     }
     else if (is_constructor)
     {
       /* constructor call */
-      snprintf(methodname, sizeof(methodname), "new %s", currentFunction->Name);
+      snprintf(methodname, methodname_size, "new %s", currentFunction->Name);
     }
     else
     {
       /* standard bound method call */
-      snprintf(methodname, sizeof(methodname), "op->%s", currentFunction->Name);
+      snprintf(methodname, methodname_size, "op->%s", currentFunction->Name);
     }
 
     if (is_constructor)
@@ -999,6 +1010,8 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
       "#endif\n"
       "\n");
   }
+
+  free(methodname_on_heap);
 }
 
 /* -------------------------------------------------------------------- */
