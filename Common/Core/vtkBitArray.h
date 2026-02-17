@@ -324,11 +324,13 @@ public:
   vtkBuffer<ValueType>* GetBuffer() { return this->Buffer; }
 #endif // __VTK_WRAP__
 
+  ///@{
   /**
    * Deep copy of another bit array.
    */
   void DeepCopy(vtkDataArray* da) override;
   void DeepCopy(vtkAbstractArray* aa) override { this->Superclass::DeepCopy(aa); }
+  ///@}
 
   /**
    * Shallow copy of another bit array.

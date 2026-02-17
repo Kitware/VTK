@@ -126,14 +126,14 @@ int TestBareScalarsToColors(int argc, char* argv[])
       table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     tmparray->Delete();
 
-    table->MapVectorsThroughTable(inputs[inputc - 1]->GetPointer(0),
-      outputs[i]->WritePointer(0, 6400), VTK_UNSIGNED_CHAR, 0, inputc, outputc);
+    table->MapVectorsThroughTable(
+      inputs[inputc - 1], outputs[i]->WritePointer(0, 6400), 0, inputc, outputc);
 
     // now the real thing
     outputs[i]->SetNumberOfTuples(6400);
 
-    table->MapVectorsThroughTable(inputs[inputc - 1]->GetPointer(0),
-      outputs[i]->WritePointer(0, 6400), VTK_UNSIGNED_CHAR, 6400, inputc, outputc);
+    table->MapVectorsThroughTable(
+      inputs[inputc - 1], outputs[i]->WritePointer(0, 6400), 6400, inputc, outputc);
 
     vtkNew<vtkImageData> image;
     image->SetDimensions(80, 80, 1);

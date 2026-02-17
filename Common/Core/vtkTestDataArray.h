@@ -64,10 +64,7 @@ public:
     this->Array->SetTypedComponent(tupleIdx, compIdx, value);
   }
 
-  void* GetVoidPointer(vtkIdType valueIdx) override
-  {
-    return this->Array->GetVoidPointer(valueIdx);
-  }
+  void* GetVoidPointer(vtkIdType valueIdx) override { return this->Array->GetPointer(valueIdx); }
 
 protected:
   vtkTestDataArray() { this->Array = ArrayType::New(); }

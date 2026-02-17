@@ -90,6 +90,7 @@ public:
   /// Otherwise, it does a deep copy.
   void* GetVoidPointer(vtkIdType valueIdx) override;
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
+  T* GetPointer(vtkIdType valueIdx);
   vtkDataArray::MemorySpace GetMemorySpace() override;
   void* GetDeviceVoidPointer(vtkIdType valueIdx) override;
   ///@}

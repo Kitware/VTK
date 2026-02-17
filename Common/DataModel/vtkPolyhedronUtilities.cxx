@@ -145,8 +145,6 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   ::InitWorker initWorker;
   ::AccuWorker accuWorker;
   ::DivWorker divWorker;
-  typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
-  typedef vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes> Dispatcher2;
 
   const vtkPolyhedron::vtkPointIdMap& pointIdMap = polyhedron->PointIdMap;
   vtkIdList* pointIds = polyhedron->GetPointIds();
@@ -168,7 +166,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
       vtkDataArray* outArray = vtkDataArray::SafeDownCast(outAbstArray);
       if (inArray && outArray)
       {
-        if (!Dispatcher2::Execute(inArray, outArray, copyWorker, pointIds, pointIdMap))
+        if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+              inArray, outArray, copyWorker, pointIds, pointIdMap))
         {
           copyWorker(inArray, outArray, pointIds, pointIdMap); // Fallback for vtkDataArray subtypes
         }
@@ -206,7 +205,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
       vtkAbstractArray* abstArray = outPd->GetAbstractArray(arrayId);
       if (auto dataArray = vtkDataArray::SafeDownCast(abstArray))
       {
-        if (!Dispatcher::Execute(dataArray, initWorker))
+        if (!vtkArrayDispatch::Dispatch::Execute(dataArray, initWorker))
         {
           initWorker(dataArray); // Fallback for vtkDataArray subtypes
         }
@@ -245,7 +244,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
         vtkDataArray* outArray = vtkDataArray::SafeDownCast(outPd->GetAbstractArray(arrayId));
         if (inArray && outArray)
         {
-          if (!Dispatcher2::Execute(inArray, outArray, accuWorker, globalPtId))
+          if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+                inArray, outArray, accuWorker, globalPtId))
           {
             // We only need to fallback for vtkDataArray subtypes, other types
             // are just initialized and no mean value is computed.
@@ -268,7 +268,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     {
       if (auto array = vtkDataArray::SafeDownCast(outPd->GetAbstractArray(arrayId)))
       {
-        if (!Dispatcher::Execute(array, divWorker, nbFacePts))
+        if (!vtkArrayDispatch::Dispatch::Execute(array, divWorker, nbFacePts))
         {
           // Fallback for vtkDataArray subtypes only
           divWorker(array, nbFacePts);
@@ -302,7 +302,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     vtkDataArray* array = vtkDataArray::SafeDownCast(abstArray);
     if (array)
     {
-      if (!Dispatcher::Execute(array, initWorker))
+      if (!vtkArrayDispatch::Dispatch::Execute(array, initWorker))
       {
         initWorker(array); // Fallback for vtkDataArray subtypes
       }
@@ -324,7 +324,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     {
       if (array)
       {
-        if (!Dispatcher2::Execute(array, array, accuWorker, pointId))
+        if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(array, array, accuWorker, pointId))
         {
           // Fallback for vtkDataArray subtypes only
           accuWorker(array, array, pointId);
@@ -333,7 +333,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
     }
     if (array)
     {
-      if (!Dispatcher::Execute(array, divWorker, barycenters->GetNumberOfPoints()))
+      if (!vtkArrayDispatch::Dispatch::Execute(array, divWorker, barycenters->GetNumberOfPoints()))
       {
         // Fallback for vtkDataArray subtypes only
         divWorker(array, barycenters->GetNumberOfPoints());

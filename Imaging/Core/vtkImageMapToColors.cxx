@@ -213,7 +213,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* 
         }
         count++;
       }
-      lookupTable->MapScalarsThroughTable2(
+      lookupTable->MapScalarsThroughTable(
         inPtr1, outPtr1, dataType, extX, numberOfComponents, outputFormat);
       // Handle NaN color when mask
       if (inMask != nullptr)

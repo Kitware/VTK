@@ -438,8 +438,8 @@ void vtkOpenGLES30PolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* view
       return;
     }
     vtkExpandVertexAttributes worker;
-    using DispatchT = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
-    if (!DispatchT::Execute(src.Get(), dst.Get(), worker, indices, numIndices))
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+          src.Get(), dst.Get(), worker, indices, numIndices))
     {
       worker(src.Get(), dst.Get(), indices, numIndices);
     }

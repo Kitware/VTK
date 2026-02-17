@@ -146,6 +146,7 @@ CheckOptions:
       ^(std::put_time)$,vtk::format,is slow;
       ^(printf|printf_s|vprintf|vprintf_s)$,vtk::print or vtk::println,is unsafe and slow;
       ^(fprintf|fprintf_s|vfprintf|vfprintf_s)$,vtk::print or vtk::println,is unsafe and slow;
+      ^(vtkAbstractArray::GetVoidPointer|vtkDataArray::GetVoidPointer)$,GetPointer or vtkArrayDispatch, is unsafe and duplicates memory;
 
 #WarningsAsErrors: "*"
 ...

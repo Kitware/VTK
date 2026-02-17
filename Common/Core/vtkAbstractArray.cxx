@@ -524,22 +524,33 @@ bool vtkAbstractArray::IsIntegral() const
 }
 
 //------------------------------------------------------------------------------
-template <typename T>
-vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)
+struct vtkAbstractArrayGetVariantValue
 {
-  return vtkVariant(arr[index]);
-}
+  template <typename TArray>
+  void operator()(TArray* arr, vtkIdType index, vtkVariant& val)
+  {
+    val = arr->GetValue(index);
+  }
+};
 
 //------------------------------------------------------------------------------
 vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
 {
+  using ExtraExtendedArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkStringArray,
+    vtkVariantArray, vtkBitArray>::Result;
+  vtkAbstractArrayGetVariantValue valueGetter;
   vtkVariant val;
-  switch (this->GetDataType())
+  if (!vtkArrayDispatch::DispatchByArray<ExtraExtendedArrays>::Execute(
+        this, valueGetter, valueIdx, val))
   {
-    vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
-                                    static_cast<VTK_TT*>(this->GetVoidPointer(0)), valueIdx));
-    vtkTemplateMacroCase(
-      VTK_BIT, int, val = static_cast<VTK_TT>(static_cast<vtkBitArray*>(this)->GetValue(valueIdx)));
+    if (auto da = vtkDataArray::FastDownCast(this))
+    {
+      auto range = vtk::DataArrayValueRange(da);
+      switch (this->GetDataType())
+      {
+        vtkTemplateMacro(val = static_cast<VTK_TT>(range[valueIdx]));
+      }
+    }
   }
   return val;
 }
@@ -725,11 +736,12 @@ struct CompareWithNaN<T, false>
   bool operator()(T a, T b) const { return a < b; }
 };
 
-template <typename T>
-bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
+template <typename TArray, typename T>
+bool AccumulateSampleValues(TArray* input, int nc, vtkIdType begin, vtkIdType end,
   std::vector<std::set<T, CompareWithNaN<T>>>& uniques, std::set<std::vector<T>>& tupleUniques,
   unsigned int maxDiscreteValues)
 {
+  auto array = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(input);
   // number of discrete components remaining (tracked during iteration):
   int ndc = nc;
   std::pair<typename std::set<T>::iterator, bool> result;
@@ -748,7 +760,7 @@ bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
     {
       if (uniques[j].size() > maxDiscreteValues)
         continue;
-      T& val(array[i * nc + j]);
+      T val = array[i * nc + j];
       tuple[j] = val;
       result = uniques[j].insert(val);
       if (result.second)
@@ -771,66 +783,70 @@ bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
 }
 
 //------------------------------------------------------------------------------
-template <typename U>
-void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdType maxId, int nc,
-  vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr, unsigned int maxDiscreteValues)
+struct SampleProminentValues
 {
-  std::vector<std::set<U, CompareWithNaN<U>>> typeSpecificUniques;
-  std::set<std::vector<U>> typeSpecificUniqueTuples;
-  typeSpecificUniques.resize(nc);
-  // I. Accumulate samples for all components plus the tuple,
-  //    either for the full array or a random subset.
-  if (numberOfBlocks * blockSize > maxId / 2)
-  { // Awwww, just do the whole array already!
-    AccumulateSampleValues(
-      ptr, nc, 0, nt, typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
-  }
-  else
-  { // Choose random blocks
-    vtkNew<vtkMinimalStandardRandomSequence> seq;
-    // test different blocks each time we're called:
-    seq->SetSeed(static_cast<int>(seq->GetMTime()) ^ 0xdeadbeef);
-    vtkIdType totalBlockCount = nt / blockSize + (nt % blockSize ? 1 : 0);
-    std::set<vtkIdType> startTuples;
-    // Sort the list of blocks we'll search to maintain cache coherence.
-    for (int i = 0; i < numberOfBlocks; ++i, seq->Next())
-    {
-      vtkIdType startTuple = static_cast<vtkIdType>(seq->GetValue() * totalBlockCount) * blockSize;
-      startTuples.insert(startTuple);
-    }
-    // Now iterate over the blocks, accumulating unique values and tuples.
-    std::set<vtkIdType>::iterator blkIt;
-    for (blkIt = startTuples.begin(); blkIt != startTuples.end(); ++blkIt)
-    {
-      vtkIdType startTuple = *blkIt;
-      vtkIdType endTuple = startTuple + blockSize;
-      endTuple = endTuple < nt ? endTuple : nt;
-      bool endEarly = AccumulateSampleValues(ptr, nc, startTuple, endTuple, typeSpecificUniques,
-        typeSpecificUniqueTuples, maxDiscreteValues);
-      if (endEarly)
-        break;
-    }
-  }
-
-  // II. Convert type-specific sets of unique values into non-type-specific
-  //     vectors of vtkVariants for storage in array information.
-
-  // Handle per-component uniques first
-  for (int i = 0; i < nc; ++i)
+  template <typename TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array, std::vector<std::vector<vtkVariant>>& uniques, vtkIdType maxId,
+    int nc, vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, unsigned int maxDiscreteValues)
   {
-    std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[i]);
-    std::copy(typeSpecificUniques[i].begin(), typeSpecificUniques[i].end(), bi);
-  }
+    std::vector<std::set<T, CompareWithNaN<T>>> typeSpecificUniques;
+    std::set<std::vector<T>> typeSpecificUniqueTuples;
+    typeSpecificUniques.resize(nc);
+    // I. Accumulate samples for all components plus the tuple,
+    //    either for the full array or a random subset.
+    if (numberOfBlocks * blockSize > maxId / 2)
+    { // Awwww, just do the whole array already!
+      AccumulateSampleValues<TArray, T>(
+        array, nc, 0, nt, typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
+    }
+    else
+    { // Choose random blocks
+      vtkNew<vtkMinimalStandardRandomSequence> seq;
+      // test different blocks each time we're called:
+      seq->SetSeed(static_cast<int>(seq->GetMTime()) ^ 0xdeadbeef);
+      vtkIdType totalBlockCount = nt / blockSize + (nt % blockSize ? 1 : 0);
+      std::set<vtkIdType> startTuples;
+      // Sort the list of blocks we'll search to maintain cache coherence.
+      for (int i = 0; i < numberOfBlocks; ++i, seq->Next())
+      {
+        vtkIdType startTuple =
+          static_cast<vtkIdType>(seq->GetValue() * totalBlockCount) * blockSize;
+        startTuples.insert(startTuple);
+      }
+      // Now iterate over the blocks, accumulating unique values and tuples.
+      std::set<vtkIdType>::iterator blkIt;
+      for (blkIt = startTuples.begin(); blkIt != startTuples.end(); ++blkIt)
+      {
+        vtkIdType startTuple = *blkIt;
+        vtkIdType endTuple = startTuple + blockSize;
+        endTuple = endTuple < nt ? endTuple : nt;
+        bool endEarly = AccumulateSampleValues<TArray, T>(array, nc, startTuple, endTuple,
+          typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
+        if (endEarly)
+          break;
+      }
+    }
 
-  // Now squash any tuple-wide uniques into
-  // the final entry of the outer vector.
-  typename std::set<std::vector<U>>::iterator si;
-  for (si = typeSpecificUniqueTuples.begin(); si != typeSpecificUniqueTuples.end(); ++si)
-  {
-    std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[nc]);
-    std::copy(si->begin(), si->end(), bi);
+    // II. Convert type-specific sets of unique values into non-type-specific
+    //     vectors of vtkVariants for storage in array information.
+
+    // Handle per-component uniques first
+    for (int i = 0; i < nc; ++i)
+    {
+      std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[i]);
+      std::copy(typeSpecificUniques[i].begin(), typeSpecificUniques[i].end(), bi);
+    }
+
+    // Now squash any tuple-wide uniques into
+    // the final entry of the outer vector.
+    typename std::set<std::vector<T>>::iterator si;
+    for (si = typeSpecificUniqueTuples.begin(); si != typeSpecificUniqueTuples.end(); ++si)
+    {
+      std::back_insert_iterator<std::vector<vtkVariant>> bi(uniques[nc]);
+      std::copy(si->begin(), si->end(), bi);
+    }
   }
-}
+};
 } // End anonymous namespace.
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -889,13 +905,20 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   }
   // II. Sample the array.
   std::vector<std::vector<vtkVariant>> uniques(nc > 1 ? nc + 1 : nc);
-  switch (this->GetDataType())
+  using Arrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkStringArray, vtkVariantArray,
+    vtkBitArray>::Result;
+  SampleProminentValues worker;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(this, worker, uniques, this->MaxId, nc,
+        nt, blockSize, numberOfBlocks, this->MaxDiscreteValues))
   {
-    vtkExtraExtendedTemplateMacro(SampleProminentValues(uniques, this->MaxId, nc, nt, blockSize,
-      numberOfBlocks, static_cast<VTK_TT*>(this->GetVoidPointer(0)), this->MaxDiscreteValues));
-    default:
-      vtkErrorMacro("Array type " << this->GetClassName() << " not supported.");
-      break;
+    if (auto da = vtkDataArray::SafeDownCast(this))
+    {
+      switch (da->GetDataType())
+      {
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(
+          da, uniques, this->MaxId, nc, nt, blockSize, numberOfBlocks, this->MaxDiscreteValues)));
+      }
+    }
   }
 
   // III. Store the results in the array's vtkInformation.
@@ -948,9 +971,8 @@ void vtkAbstractArray::PrintValues(ostream& os)
 {
   if (auto* dataArray = vtkDataArray::SafeDownCast(this))
   {
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     ::PrintDataArrayWorker worker;
-    if (!Dispatcher::Execute(dataArray, worker, os))
+    if (!vtkArrayDispatch::Dispatch::Execute(dataArray, worker, os))
     {
       worker(dataArray, os);
     }

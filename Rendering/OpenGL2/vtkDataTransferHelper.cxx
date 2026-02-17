@@ -218,7 +218,8 @@ bool vtkDataTransferHelper::Upload(int components, int* componentList)
     this->GPUExtent[4] - this->CPUExtent[4] };
 
   vtkIdType ptId = vtkStructuredData::ComputePointId(cpudims, pt);
-  if (!pbo->Upload3D(this->Array->GetDataType(), this->Array->GetVoidPointer(ptId * numComps),
+  auto arrayAOS = this->Array->ToAOSDataArray(); // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  if (!pbo->Upload3D(this->Array->GetDataType(), arrayAOS->GetVoidPointer(ptId * numComps),
         reinterpret_cast<unsigned int*>(gpudims), numComps, continuousInc, components,
         componentList))
   {
@@ -475,6 +476,11 @@ bool vtkDataTransferHelper::DownloadAsync2()
     this->Array->SetNumberOfComponents(numComps);
     this->Array->SetNumberOfTuples(cpudims[0] * cpudims[1] * cpudims[2]);
   }
+  if (!this->Array->HasStandardMemoryLayout())
+  {
+    vtkErrorMacro("Array must have standard memory layout.");
+    return false;
+  }
 
   // We need to get the ContinuousIncrements as computed by the vtkImageData.
   // For that we create a dummy image data object,
@@ -493,7 +499,8 @@ bool vtkDataTransferHelper::DownloadAsync2()
     this->GPUExtent[4] - this->CPUExtent[4] };
 
   vtkIdType ptId = vtkStructuredData::ComputePointId(cpudims, pt);
-  bool reply = this->AsyncDownloadPBO->Download3D(this->Array->GetDataType(),
+  bool reply = this->AsyncDownloadPBO->Download3D(
+    this->Array->GetDataType(), // NOLINTNEXTLINE(bugprone-unsafe-functions)
     this->Array->GetVoidPointer(ptId * numComps), reinterpret_cast<unsigned int*>(gpudims),
     numComps, continuousInc);
   this->AsyncDownloadPBO = nullptr;

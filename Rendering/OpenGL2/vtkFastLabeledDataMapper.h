@@ -252,6 +252,8 @@ private:
   vtkFastLabeledDataMapper(const vtkFastLabeledDataMapper&) = delete;
   void operator=(const vtkFastLabeledDataMapper&) = delete;
 
+  struct vtkFastLabeledDataMapperFunctor;
+
 protected:
   void BuildShaders(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;

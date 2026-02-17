@@ -104,7 +104,7 @@ void vtkLookupTableItem::ComputeTexture()
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
-  this->LookupTable->MapScalarsThroughTable2(values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  this->LookupTable->MapScalarsThroughTable(values, ptr, VTK_DOUBLE, dimension, 1, 4);
   if (this->Opacity != 1.)
   {
     for (int i = 0; i < dimension; ++i)

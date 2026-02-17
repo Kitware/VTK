@@ -297,7 +297,7 @@ void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
 
       if (lookupTable)
       {
-        lookupTable->MapScalarsThroughTable2(
+        lookupTable->MapScalarsThroughTable(
           inPtr1, outPtr1, dataType, extX, numberOfComponents, outputFormat);
 
         for (idxX = 0; idxX < extX; idxX++)

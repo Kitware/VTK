@@ -191,9 +191,8 @@ nlohmann::json serializeArrayValues(vtkAbstractArray* arr)
 
   if (auto* darr = vtkDataArray::SafeDownCast(arr))
   {
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     WriteDataArrayWorker worker(result);
-    if (!Dispatcher::Execute(darr, worker))
+    if (!vtkArrayDispatch::Dispatch::Execute(darr, worker))
     {
       worker(darr);
     }

@@ -381,14 +381,19 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* vtkNot
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (selector != nullptr);
+  vtkSmartPointer<vtkDataArray> orientationArray =
+    poly->GetPointData()->GetArray(this->OrientationArray)->ToAOSDataArray();
+  vtkSmartPointer<vtkDataArray> scaleArray =
+    poly->GetPointData()->GetArray(this->ScaleArray)->ToAOSDataArray();
+  vtkSmartPointer<vtkDataArray> selectionIdArray =
+    picking ? poly->GetPointData()->GetArray(this->SelectionIdArray)->ToAOSDataArray() : nullptr;
 
   vtkOpenGLStickMapperCreateVBO(poly, poly->GetPoints()->GetNumberOfPoints(),
     this->Colors ? this->Colors->GetPointer(0) : nullptr,
     this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-    static_cast<float*>(poly->GetPointData()->GetArray(this->OrientationArray)->GetVoidPointer(0)),
-    static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0)),
-    picking ? static_cast<vtkIdType*>(
-                poly->GetPointData()->GetArray(this->SelectionIdArray)->GetVoidPointer(0))
+    vtkAOSDataArrayTemplate<float>::FastDownCast(orientationArray)->GetPointer(0),
+    vtkAOSDataArrayTemplate<float>::FastDownCast(scaleArray)->GetPointer(0),
+    picking ? vtkAOSDataArrayTemplate<vtkIdType>::FastDownCast(selectionIdArray)->GetPointer(0)
             : nullptr,
     this->VBOs, ren);
 

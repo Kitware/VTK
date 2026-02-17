@@ -143,7 +143,8 @@ public:
           {
             ostate->vtkglPixelStorei(GL_UNPACK_IMAGE_HEIGHT, dim[1] - cellFlag);
           }
-          void* dataPtr = scalars->GetVoidPointer(
+          auto scalarsAOS = scalars->ToAOSDataArray();
+          void* dataPtr = scalarsAOS->GetVoidPointer( // NOLINT(bugprone-unsafe-functions)
             ((textureExtent[4] * (dim[1] - cellFlag) + textureExtent[2]) * (dim[0] - cellFlag) +
               textureExtent[0]) *
             scalars->GetNumberOfComponents());

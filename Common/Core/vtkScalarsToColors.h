@@ -35,15 +35,15 @@
 #define vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 #include "vtkVariant.h"       // Set/get annotation methods require variants.
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
+class vtkBitArray;
 class vtkDataArray;
-class vtkUnsignedCharArray;
-class vtkAbstractArray;
 class vtkStringArray;
 class vtkUnsignedCharArray;
 
@@ -61,8 +61,8 @@ public:
    * signature will yield more accurate results.
    */
   virtual vtkTypeBool IsOpaque();
-  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
-  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int component,
+  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int vectorComponent);
+  virtual vtkTypeBool IsOpaque(vtkAbstractArray* scalars, int colorMode, int vectorComponent,
     vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip = 0xff);
   ///@}
 
@@ -148,15 +148,15 @@ public:
    * arrays are clamped in the range 0.0-1.0. Note 'char' does not have enough
    * values to represent a color so mapping this type is considered an error);
    * otherwise, the data is mapped through this instance of ScalarsToColors.
-   * The component argument is used for data arrays with more than one
+   * The vectorComponent argument is used for data arrays with more than one
    * component; it indicates which component to use to do the blending.
-   * When the component argument is -1, then the this object uses its own
+   * When the vectorComponent argument is -1, then the this object uses its own
    * selected technique to change a vector into a scalar to map.
    */
   virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
-    vtkDataArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
+    vtkDataArray* scalars, int colorMode, int vectorComponent, int outputFormat = VTK_RGBA);
   virtual VTK_NEWINSTANCE vtkUnsignedCharArray* MapScalars(
-    vtkAbstractArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
+    vtkAbstractArray* scalars, int colorMode, int vectorComponent, int outputFormat = VTK_RGBA);
   ///@}
 
   ///@{
@@ -200,6 +200,7 @@ public:
   vtkGetMacro(VectorSize, int);
   ///@}
 
+  ///@{
   /**
    * Map vectors through the lookup table.  Unlike MapScalarsThroughTable,
    * this method will use the VectorMode to decide how to map vectors.
@@ -208,15 +209,25 @@ public:
    * or VTK_LUMINANCE_ALPHA (2 components)
    */
   void MapVectorsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat,
+    int inputDataType, int numberOfTuples, int numberOfComponents, int outputFormat,
     int vectorComponent, int vectorSize);
   void MapVectorsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
+    int inputDataType, int numberOfTuples, int numberOfComponents, int outputFormat)
   {
     this->MapVectorsThroughTable(
-      input, output, inputDataType, numberOfValues, inputIncrement, outputFormat, -1, -1);
+      input, output, inputDataType, numberOfTuples, numberOfComponents, outputFormat, -1, -1);
   }
+  void MapVectorsThroughTable(vtkDataArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int vectorSize, int outputFormat);
+  void MapVectorsThroughTable(vtkDataArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int outputFormat)
+  {
+    this->MapVectorsThroughTable(
+      input, output, numberOfTuples, numberOfComponents, -1, -1, outputFormat);
+  }
+  ///@}
 
+  ///@{
   /**
    * Map a set of scalars through the lookup table in a single operation.
    * This method ignores the VectorMode and the VectorComponent.
@@ -230,20 +241,22 @@ public:
   {
     this->MapScalarsThroughTable(scalars, output, VTK_RGBA);
   }
-  void MapScalarsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
-  {
-    this->MapScalarsThroughTable2(
-      input, output, inputDataType, numberOfValues, inputIncrement, outputFormat);
-  }
+  ///@}
 
+  ///@{
   /**
    * An internal method typically not used in applications.  This should
    * be a protected function, but it must be kept public for backwards
    * compatibility.  Never call this method directly.
    */
+  virtual void MapScalarsThroughTable(vtkAbstractArray* input, unsigned char* output,
+    int numberOfTuples, int numberOfComponents, int vectorComponent, int outputFormat);
+  void MapScalarsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfTuples, int numberOfComponents, int outputFormat);
+  VTK_DEPRECATED_IN_9_7_0("Use the MapScalarsThroughTable overload instead")
   virtual void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat);
+    int inputDataType, int numberOfTuples, int numberOfComponents, int outputFormat);
+  ///@}
 
   /**
    * Copy the contents from another object.
@@ -390,6 +403,14 @@ protected:
   ~vtkScalarsToColors() override;
 
   /**
+   * An internal method to unpack bit arrays (vtkBitArray) into
+   * vtkUnsignedCharArray with 1 component.
+   */
+  static vtkSmartPointer<vtkUnsignedCharArray> UnpackBits(
+    vtkBitArray* colors, int numComp, vtkIdType numTuples);
+
+  ///@{
+  /**
    * An internal method that assumes that the input already has the right
    * colors, and only remaps the range to [0,255] and pads to the desired
    * output format.  If the input has 1 or 2 components, the first component
@@ -400,8 +421,12 @@ protected:
    * then the components will be combined to compute the luminance.
    * Any components past the fourth component will be ignored.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use the overload taking vtkDataArray* instead")
   void MapColorsToColors(VTK_FUTURE_CONST void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int numberOfComponents, int vectorSize, int outputFormat);
+    int numberOfTuples, int numberOfComponents, int vectorSize, int outputFormat);
+  void MapColorsToColors(vtkDataArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int vectorSize, int outputFormat);
+  ///@}
 
   /**
    * An internal method used to convert a color array to RGBA. The
@@ -411,12 +436,17 @@ protected:
   VTK_NEWINSTANCE vtkUnsignedCharArray* ConvertToRGBA(
     vtkDataArray* colors, int numComp, int numTuples);
 
+  ///@{
   /**
    * An internal method for converting vectors to magnitudes, used as
    * a preliminary step before doing magnitude mapping.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use the overload taking vtkDataArray* instead")
   void MapVectorsToMagnitude(VTK_FUTURE_CONST void* input, double* output, int inputDataType,
-    int numberOfValues, int numberOfComponents, int vectorSize);
+    int numberOfTuples, int numberOfComponents, int vectorSize);
+  void MapVectorsToMagnitude(vtkDataArray* input, double* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int vectorSize);
+  ///@}
 
   /**
    * Allocate annotation arrays if needed, then return the index of

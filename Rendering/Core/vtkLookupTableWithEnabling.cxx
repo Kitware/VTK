@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLookupTableWithEnabling.h"
+
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkVariant.h"
-#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
@@ -144,413 +146,409 @@ inline const unsigned char* vtkLinearLookup(
 //------------------------------------------------------------------------------
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
-template <class T>
-void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling* self, const T* input,
-  unsigned char* output, int length, int inIncr, int outFormat)
+struct vtkLookupTableWithEnablingMapData
 {
-  int i = length;
-  const double* range = self->GetTableRange();
-  double maxIndex = self->GetNumberOfColors() - 1;
-  double shift, scale;
-  const unsigned char* table = self->GetPointer(0);
-  const unsigned char* cptr;
-  double alpha;
-  unsigned char r, g, b;
-
-  bool hasEnabledArray = false;
-  if (self->GetEnabledArray() && self->GetEnabledArray()->GetNumberOfTuples() == length)
+  template <class TArray, class T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* inputArray, vtkLookupTableWithEnabling* self, unsigned char* output,
+    int length, int inIncr, int vectorComponent, int outFormat)
   {
-    hasEnabledArray = true;
-  }
+    auto input = vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, T>(inputArray).begin() +
+      vectorComponent;
+    int i = length;
+    const double* range = self->GetTableRange();
+    double maxIndex = self->GetNumberOfColors() - 1;
+    double shift, scale;
+    const unsigned char* table = self->GetPointer(0);
+    const unsigned char* cptr;
+    double alpha;
+    unsigned char r, g, b;
 
-  if ((alpha = self->GetAlpha()) >= 1.0) // no blending required
-  {
-    if (self->GetScale() == VTK_SCALE_LOG10)
+    bool hasEnabledArray = false;
+    if (self->GetEnabledArray() && self->GetEnabledArray()->GetNumberOfTuples() == length)
     {
-      double val;
-      double logRange[2];
-      vtkLookupTableWithEnablingLogRange(range, logRange);
-      shift = -logRange[0];
-      if (logRange[1] <= logRange[0])
-      {
-        scale = VTK_DOUBLE_MAX;
-      }
-      else
-      {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
-        scale = (maxIndex + 1) / (logRange[1] - logRange[0]);
-      }
-      if (outFormat == VTK_RGBA)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-            cptr += 3;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          *output++ = *cptr++;
-          input += inIncr;
-        }
-      }
-      else if (outFormat == VTK_RGB)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          input += inIncr;
-        }
-      }
-      else if (outFormat == VTK_LUMINANCE_ALPHA)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          *output++ = cptr[3];
-          input += inIncr;
-        }
-      }
-      else // outFormat == VTK_LUMINANCE
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          input += inIncr;
-        }
-      }
-    } // if log scale
+      hasEnabledArray = true;
+    }
 
-    else // not log scale
+    if ((alpha = self->GetAlpha()) >= 1.0) // no blending required
     {
-      shift = -range[0];
-      if (range[1] <= range[0])
+      if (self->GetScale() == VTK_SCALE_LOG10)
       {
-        scale = VTK_DOUBLE_MAX;
-      }
-      else
-      {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
-        scale = (maxIndex + 1) / (range[1] - range[0]);
-      }
-
-      if (outFormat == VTK_RGBA)
-      {
-        while (--i >= 0)
+        double val;
+        double logRange[2];
+        vtkLookupTableWithEnablingLogRange(range, logRange);
+        shift = -logRange[0];
+        if (logRange[1] <= logRange[0])
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-            cptr += 3;
-            *output++ = static_cast<unsigned char>((*cptr) * 0.2);
-            cptr++;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          input += inIncr;
+          scale = VTK_DOUBLE_MAX;
         }
-      }
-      else if (outFormat == VTK_RGB)
-      {
-        while (--i >= 0)
+        else
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          input += inIncr;
+          /* while this looks like the wrong scale, it is the correct scale
+           * taking into account the truncation to int that happens below. */
+          scale = (maxIndex + 1) / (logRange[1] - logRange[0]);
         }
-      }
-      else if (outFormat == VTK_LUMINANCE_ALPHA)
-      {
-        while (--i >= 0)
+        if (outFormat == VTK_RGBA)
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          *output++ = cptr[3];
-          input += inIncr;
-        }
-      }
-      else // outFormat == VTK_LUMINANCE
-      {
-        while (--i >= 0)
-        {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          input += inIncr;
-        }
-      }
-    } // if not log lookup
-  }   // if blending not needed
-
-  else // blend with the specified alpha
-  {
-    if (self->GetScale() == VTK_SCALE_LOG10)
-    {
-      double val;
-      double logRange[2];
-      vtkLookupTableWithEnablingLogRange(range, logRange);
-      shift = -logRange[0];
-      if (logRange[1] <= logRange[0])
-      {
-        scale = VTK_DOUBLE_MAX;
-      }
-      else
-      {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
-        scale = (maxIndex + 1) / (logRange[1] - logRange[0]);
-      }
-      if (outFormat == VTK_RGBA)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+          while (--i >= 0)
           {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-            cptr += 3;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          *output++ = static_cast<unsigned char>((*cptr) * alpha);
-          cptr++;
-          input += inIncr;
-        }
-      }
-      else if (outFormat == VTK_RGB)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-          }
-          input += inIncr;
-        }
-      }
-      else if (outFormat == VTK_LUMINANCE_ALPHA)
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          *output++ = static_cast<unsigned char>(alpha * cptr[3]);
-          input += inIncr;
-        }
-      }
-      else // outFormat == VTK_LUMINANCE
-      {
-        while (--i >= 0)
-        {
-          val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          input += inIncr;
-        }
-      }
-    } // log scale with blending
-
-    else // no log scale with blending
-    {
-      shift = -range[0];
-      if (range[1] <= range[0])
-      {
-        scale = VTK_DOUBLE_MAX;
-      }
-      else
-      {
-        /* while this looks like the wrong scale, it is the correct scale
-         * taking into account the truncation to int that happens below. */
-        scale = (maxIndex + 1) / (range[1] - range[0]);
-      }
-
-      if (outFormat == VTK_RGBA)
-      {
-        while (--i >= 0)
-        {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
-          {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
-            cptr += 3;
-            *output++ = static_cast<unsigned char>((*cptr) * alpha * 0.2);
-            cptr++;
-          }
-          else
-          {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            if (hasEnabledArray)
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
             {
-              *output++ = *cptr++;
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+              cptr += 3;
             }
             else
             {
-              *output++ = static_cast<unsigned char>((*cptr) * alpha);
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            *output++ = *cptr++;
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_RGB)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            *output++ = cptr[3];
+            input += inIncr;
+          }
+        }
+        else // outFormat == VTK_LUMINANCE
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
+        }
+      } // if log scale
+
+      else // not log scale
+      {
+        shift = -range[0];
+        if (range[1] <= range[0])
+        {
+          scale = VTK_DOUBLE_MAX;
+        }
+        else
+        {
+          /* while this looks like the wrong scale, it is the correct scale
+           * taking into account the truncation to int that happens below. */
+          scale = (maxIndex + 1) / (range[1] - range[0]);
+        }
+
+        if (outFormat == VTK_RGBA)
+        {
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+              cptr += 3;
+              *output++ = static_cast<unsigned char>((*cptr) * 0.2);
               cptr++;
             }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            input += inIncr;
           }
-          input += inIncr;
         }
-      }
-      else if (outFormat == VTK_RGB)
-      {
-        while (--i >= 0)
+        else if (outFormat == VTK_RGB)
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+          while (--i >= 0)
           {
-            self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
-            *output++ = r;
-            *output++ = g;
-            *output++ = b;
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            input += inIncr;
           }
-          else
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
           {
-            *output++ = *cptr++;
-            *output++ = *cptr++;
-            *output++ = *cptr++;
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            *output++ = cptr[3];
+            input += inIncr;
           }
-          input += inIncr;
         }
-      }
-      else if (outFormat == VTK_LUMINANCE_ALPHA)
-      {
-        while (--i >= 0)
+        else // outFormat == VTK_LUMINANCE
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          *output++ = static_cast<unsigned char>(cptr[3] * alpha);
-          input += inIncr;
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
         }
-      }
-      else // outFormat == VTK_LUMINANCE
+      } // if not log lookup
+    }   // if blending not needed
+
+    else // blend with the specified alpha
+    {
+      if (self->GetScale() == VTK_SCALE_LOG10)
       {
-        while (--i >= 0)
+        double val;
+        double logRange[2];
+        vtkLookupTableWithEnablingLogRange(range, logRange);
+        shift = -logRange[0];
+        if (logRange[1] <= logRange[0])
         {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
-          *output++ =
-            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
-          input += inIncr;
+          scale = VTK_DOUBLE_MAX;
         }
-      }
-    } // no log scale
-  }   // alpha blending
-}
+        else
+        {
+          /* while this looks like the wrong scale, it is the correct scale
+           * taking into account the truncation to int that happens below. */
+          scale = (maxIndex + 1) / (logRange[1] - logRange[0]);
+        }
+        if (outFormat == VTK_RGBA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+              cptr += 3;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            *output++ = static_cast<unsigned char>((*cptr) * alpha);
+            cptr++;
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_RGB)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            *output++ = static_cast<unsigned char>(alpha * cptr[3]);
+            input += inIncr;
+          }
+        }
+        else // outFormat == VTK_LUMINANCE
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplyLogScale(*input, range, logRange);
+            cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
+        }
+      } // log scale with blending
+
+      else // no log scale with blending
+      {
+        shift = -range[0];
+        if (range[1] <= range[0])
+        {
+          scale = VTK_DOUBLE_MAX;
+        }
+        else
+        {
+          /* while this looks like the wrong scale, it is the correct scale
+           * taking into account the truncation to int that happens below. */
+          scale = (maxIndex + 1) / (range[1] - range[0]);
+        }
+
+        if (outFormat == VTK_RGBA)
+        {
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+              cptr += 3;
+              *output++ = static_cast<unsigned char>((*cptr) * alpha * 0.2);
+              cptr++;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              if (hasEnabledArray)
+              {
+                *output++ = *cptr++;
+              }
+              else
+              {
+                *output++ = static_cast<unsigned char>((*cptr) * alpha);
+                cptr++;
+              }
+            }
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_RGB)
+        {
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            if (hasEnabledArray && !self->GetEnabledArray()->GetTuple1(length - i - 1))
+            {
+              self->DisableColor(cptr[0], cptr[1], cptr[2], &r, &g, &b);
+              *output++ = r;
+              *output++ = g;
+              *output++ = b;
+            }
+            else
+            {
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+              *output++ = *cptr++;
+            }
+            input += inIncr;
+          }
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            *output++ = static_cast<unsigned char>(cptr[3] * alpha);
+            input += inIncr;
+          }
+        }
+        else // outFormat == VTK_LUMINANCE
+        {
+          while (--i >= 0)
+          {
+            cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
+        }
+      } // no log scale
+    }   // alpha blending
+  }
+};
 
 //------------------------------------------------------------------------------
-void vtkLookupTableWithEnabling::MapScalarsThroughTable2(VTK_FUTURE_CONST void* input,
-  unsigned char* output, int inputDataType, int numberOfValues, int inputIncrement,
+void vtkLookupTableWithEnabling::MapScalarsThroughTable(vtkAbstractArray* input,
+  unsigned char* outPtr, int numberOfTuples, int numberOfComponents, int vectorComponent,
   int outputFormat)
 {
-  switch (inputDataType)
+  vtkLookupTableWithEnablingMapData worker;
+  using Arrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
+  if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(input, worker, this, outPtr,
+        numberOfTuples, numberOfComponents, vectorComponent, outputFormat))
   {
-    case VTK_BIT:
+    if (auto da = vtkDataArray::SafeDownCast(input))
     {
-      vtkIdType i, id;
-      vtkBitArray* bitArray = vtkBitArray::New();
-      bitArray->SetVoidArray(
-        const_cast<void*>(input), numberOfValues, 1); // NOLINT(readability-redundant-casting)
-      vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
-      newInput->SetNumberOfValues(numberOfValues);
-      for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
+      switch (da->GetDataType())
       {
-        newInput->SetValue(i, bitArray->GetValue(id));
+        vtkTemplateMacro((worker.template operator()<vtkDataArray, VTK_TT>(
+          da, this, outPtr, numberOfTuples, numberOfComponents, vectorComponent, outputFormat)));
       }
-      vtkLookupTableWithEnablingMapData(this, static_cast<unsigned char*>(newInput->GetPointer(0)),
-        output, numberOfValues, inputIncrement, outputFormat);
-      newInput->Delete();
-      bitArray->Delete();
     }
-    break;
-
-      vtkTemplateMacro(
-        vtkLookupTableWithEnablingMapData(this, static_cast<VTK_FUTURE_CONST VTK_TT*>(input),
-          output, numberOfValues, inputIncrement, outputFormat));
-    default:
-      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      return;
+    else
+    {
+      vtkErrorMacro(<< "MapScalarsThroughTable: Unknown input ScalarType "
+                    << input->GetDataTypeAsString());
+    }
   }
 }
 

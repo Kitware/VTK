@@ -4,7 +4,7 @@
 :maxdepth: 1
 :caption: Contents
 smptools
-array_dispatch
+ArrayDispatch
 data_assembly
 
 IOLegacyInformationFormat

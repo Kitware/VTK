@@ -856,8 +856,9 @@ void vtkSurfaceLICInterface::UpdateNoiseImage(vtkRenderWindow* renWin)
   unsigned int dataHeight = ext[3] - ext[2] + 1;
 
   vtkDataArray* noiseArray = noiseDataSet->GetPointData()->GetScalars();
+  auto noiseAOSArray = noiseArray->ToAOSDataArray();
   int dataType = noiseArray->GetDataType();
-  void* data = noiseArray->GetVoidPointer(0);
+  void* data = noiseAOSArray->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   int dataComps = noiseArray->GetNumberOfComponents();
   unsigned int dataSize = noiseArray->GetNumberOfTuples() * dataComps;
 

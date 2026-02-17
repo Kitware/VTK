@@ -143,7 +143,7 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
   std::cout << "Get data as raw array.\n";
   // This is a semi-deprecated way of accessing the data, but it should still work.
   ExpectedArrayType* typedArray = ExpectedArrayType::SafeDownCast(vtkArray);
-  ComponentType* rawArray = reinterpret_cast<ComponentType*>(typedArray->GetVoidPointer(0));
+  ComponentType* rawArray = typedArray->GetPointer(0);
   for (vtkIdType tupleI = 0; tupleI < length; ++tupleI)
   {
     auto vec = FlattenVec(vtkmPortal.Get(tupleI));

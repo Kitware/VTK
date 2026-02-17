@@ -2354,10 +2354,9 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
   // of output cells, and the associated cell data.
   if (this->OutputStyle != OUTPUT_STYLE_DEFAULT)
   {
-    using SelectDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     SelectWorker selectWorker;
-    SelectDispatch::Execute(output->GetCellData()->GetArray("BoundaryLabels"), selectWorker, output,
-      this->OutputStyle, this, cellSize);
+    vtkArrayDispatch::Dispatch::Execute(output->GetCellData()->GetArray("BoundaryLabels"),
+      selectWorker, output, this->OutputStyle, this, cellSize);
     vtkLog(TRACE, "Selected: " << output->GetNumberOfCells() << " cells");
   }
 

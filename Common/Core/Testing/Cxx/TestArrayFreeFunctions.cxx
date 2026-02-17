@@ -121,7 +121,8 @@ int assign_void_array(
   {
     const int save = vtkShouldFree ? 0 : 1;
     array->SetVoidArray(ptr, static_cast<vtkIdType>(size), save, FreeType::value);
-    testAssert(array->GetVoidPointer(0) == ptr, "assignment failed");
+    testAssert( // NOLINTNEXTLINE(bugprone-unsafe-functions)
+      array->HasStandardMemoryLayout() && array->GetVoidPointer(0) == ptr, "assignment failed");
   }
   return errors;
 }

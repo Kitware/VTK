@@ -551,9 +551,9 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
 {
   PyVTKObject* self = (PyVTKObject*)obj;
   vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
-  if (da)
+  if (da && da->HasStandardMemoryLayout())
   {
-    void* ptr = da->GetVoidPointer(0);
+    void* ptr = da->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
     Py_ssize_t ntuples = da->GetNumberOfTuples();
     int ncomp = da->GetNumberOfComponents();
     int dsize = da->GetDataTypeSize();

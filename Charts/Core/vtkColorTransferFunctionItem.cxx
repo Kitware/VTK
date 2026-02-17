@@ -116,7 +116,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     values[i] = dataBounds[0] + i * (dataBounds[1] - dataBounds[0]) / (dimension - 1);
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
-  this->ColorTransferFunction->MapScalarsThroughTable2(
+  this->ColorTransferFunction->MapScalarsThroughTable(
     values, ptr, VTK_DOUBLE, dimension, VTK_LUMINANCE, VTK_RGBA);
   if (this->Opacity != 1.0)
   {

@@ -936,7 +936,6 @@ protected:
     const size_t totalSize = std::accumulate(lIds.begin(), lIds.end(), static_cast<size_t>(0),
       [](size_t sum, const std::vector<vtkIdType>& ids) { return sum + ids.size(); });
 
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     const bool createAOS = numComponents <= 3 || numComponents == 6;
     PutFieldWorker<T> worker(numComponents, totalSize, createAOS);
     for (size_t dsIndex = 0; dsIndex < datasets.size(); ++dsIndex)
@@ -946,7 +945,7 @@ protected:
       worker.SetSourceIds(&lids);
       if (auto array = ds->GetAttributes(association)->GetArray(name.c_str()))
       {
-        if (!Dispatcher::Execute(array, worker))
+        if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
         {
           vtkLogF(ERROR, "Failed to dispatch array %s", name.c_str());
         }

@@ -46,11 +46,14 @@ public:
   virtual void SetEnabledArray(vtkDataArray* enabledArray);
   ///@}
 
+  ///@{
   /**
    * Map a set of scalars through the lookup table.
    */
-  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
-    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat) override;
+  void MapScalarsThroughTable(vtkAbstractArray* input, unsigned char* output, int numberOfTuples,
+    int numberOfComponents, int vectorComponent, int outputFormat) override;
+  using vtkScalarsToColors::MapScalarsThroughTable;
+  ///@}
 
   /**
    * A convenience method for taking a color and desaturating it.

@@ -966,7 +966,12 @@ void* vtkImageData::GetScalarPointer(int coordinate[3])
 void* vtkImageData::GetScalarPointer()
 {
   auto array = this->GetPointData()->GetScalars();
-  return array ? array->GetVoidPointer(0) : nullptr;
+  if (array && !array->HasStandardMemoryLayout())
+  {
+    vtkErrorMacro("GetScalarPointer() can only be used with arrays having standard memory layout.");
+    return nullptr;
+  }
+  return array ? array->GetVoidPointer(0) : nullptr; // NOLINT(bugprone-unsafe-functions)
 }
 
 //------------------------------------------------------------------------------
@@ -1454,6 +1459,12 @@ void* vtkImageData::GetArrayPointerForExtent(vtkDataArray* array, int extent[6])
 void* vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
 {
   vtkIdType valueIndex = this->GetValueIndex(array, coordinate);
+  if (array && !array->HasStandardMemoryLayout())
+  {
+    vtkErrorMacro("GetArrayPointer() can only be used with arrays having standard memory layout.");
+    return nullptr;
+  }
+  // NOLINTNEXTLINE(bugprone-unsafe-functions)
   return valueIndex >= 0 ? array->GetVoidPointer(valueIndex) : nullptr;
 }
 //------------------------------------------------------------------------------

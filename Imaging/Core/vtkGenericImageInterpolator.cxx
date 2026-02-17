@@ -395,13 +395,12 @@ void vtkGenericImageInterpolatorGetInterpolationFunc(
   void (**interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*), vtkDataArray* array,
   int interpolationMode)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
   switch (interpolationMode)
   {
     case VTK_NEAREST_INTERPOLATION:
     {
       GetNearestFuncWorker<F> worker;
-      if (!Dispatcher::Execute(array, worker))
+      if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
       {
         worker(array);
       }
@@ -411,7 +410,7 @@ void vtkGenericImageInterpolatorGetInterpolationFunc(
     case VTK_LINEAR_INTERPOLATION:
     {
       GetTrilinearFuncWorker<F> worker;
-      if (!Dispatcher::Execute(array, worker))
+      if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
       {
         worker(array);
       }
@@ -421,7 +420,7 @@ void vtkGenericImageInterpolatorGetInterpolationFunc(
     case VTK_CUBIC_INTERPOLATION:
     {
       GetTricubicFuncWorker<F> worker;
-      if (!Dispatcher::Execute(array, worker))
+      if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
       {
         worker(array);
       }
@@ -770,7 +769,7 @@ void vtkGenericImageInterpolatorGetRowInterpolationFunc(
   void (**summation)(vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n),
   vtkDataArray* array, int interpolationMode)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+  using Dispatcher = vtkArrayDispatch::Dispatch;
   switch (interpolationMode)
   {
     case VTK_NEAREST_INTERPOLATION:

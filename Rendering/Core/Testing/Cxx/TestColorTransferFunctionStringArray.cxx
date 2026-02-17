@@ -32,7 +32,7 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
   tfer->IndexedLookupOn();
 
   // Need to set some nodes to avoid prematurely returning from
-  // vtkColorTransferFunction::MapScalarsThroughTable2()
+  // vtkColorTransferFunction::MapScalarsThroughTable()
   tfer->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
   tfer->AddRGBPoint(1.0, 1.0, 0.0, 0.0);
   tfer->AddRGBPoint(2.0, 1.0, 0.0, 1.0);

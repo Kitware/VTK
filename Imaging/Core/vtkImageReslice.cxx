@@ -1962,7 +1962,7 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   }
 
   // extra scalar info for nearest-neighbor optimization
-  const void* inPtr = scalars->GetVoidPointer(0);
+  const void* inPtr = scalars->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
   int inputScalarSize = scalars->GetDataTypeSize();
   int inputScalarType = scalars->GetDataType();
   int inComponents = interpolator->GetNumberOfComponents();
@@ -3245,6 +3245,11 @@ void vtkImageReslice::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   if (!scalars)
   {
     // no data to reslice
+    return;
+  }
+  if (!scalars->HasStandardMemoryLayout())
+  {
+    vtkErrorMacro("vtkImageReslice can only be used with arrays having standard memory layout.");
     return;
   }
 

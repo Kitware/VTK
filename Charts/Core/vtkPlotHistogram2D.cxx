@@ -323,7 +323,7 @@ bool vtkPlotHistogram2D::UpdateCache()
     const int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
     unsigned char* output = reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
 
-    this->TransferFunction->MapScalarsThroughTable2(
+    this->TransferFunction->MapScalarsThroughTable(
       inputVoidArray, output, inputType, dimension, nbComponents, 4);
   }
 

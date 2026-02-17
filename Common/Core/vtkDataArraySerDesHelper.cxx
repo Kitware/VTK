@@ -103,16 +103,16 @@ struct ArrayTypeInfo
     TTYPE_INFO_MACRO(className<unsigned short>)
 
 #define CONCRETE_ARRAY_TYPES_INFO_MACRO(type)                                                      \
-    TYPE_INFO_MACRO(type##TypeInt8Array),                                                          \
-    TYPE_INFO_MACRO(type##TypeInt16Array),                                                         \
-    TYPE_INFO_MACRO(type##TypeInt32Array),                                                         \
-    TYPE_INFO_MACRO(type##TypeInt64Array),                                                         \
-    TYPE_INFO_MACRO(type##TypeUInt8Array),                                                         \
-    TYPE_INFO_MACRO(type##TypeUInt16Array),                                                        \
-    TYPE_INFO_MACRO(type##TypeUInt32Array),                                                        \
-    TYPE_INFO_MACRO(type##TypeUInt64Array),                                                        \
-    TYPE_INFO_MACRO(type##TypeFloat32Array),                                                       \
-    TYPE_INFO_MACRO(type##TypeFloat64Array)
+    TYPE_INFO_MACRO(type## TypeInt8Array),                                                          \
+    TYPE_INFO_MACRO(type## TypeInt16Array),                                                         \
+    TYPE_INFO_MACRO(type## TypeInt32Array),                                                         \
+    TYPE_INFO_MACRO(type## TypeInt64Array),                                                         \
+    TYPE_INFO_MACRO(type## TypeUInt8Array),                                                         \
+    TYPE_INFO_MACRO(type## TypeUInt16Array),                                                        \
+    TYPE_INFO_MACRO(type## TypeUInt32Array),                                                        \
+    TYPE_INFO_MACRO(type## TypeUInt64Array),                                                        \
+    TYPE_INFO_MACRO(type## TypeFloat32Array),                                                       \
+    TYPE_INFO_MACRO(type## TypeFloat64Array)
 
 // The templated types should match those in the TEMPLATED_ARRAY_TYPES_INFO_MACRO.
 #define TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, ValueType, valueTypeName)                   \
@@ -350,7 +350,14 @@ struct vtkDataArraySerializer
 
     auto blob = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
     vtkIdType arrSize = array->GetNumberOfValues() * array->GetDataTypeSize();
-    blob->SetArray(reinterpret_cast<vtkTypeUInt8*>(array->GetVoidPointer(0)), arrSize, 1);
+    // copy data into blob
+    blob->SetNumberOfValues(arrSize);
+    switch (array->GetDataType())
+    {
+      vtkTemplateMacro(
+        std::copy_n(vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin(),
+          array->GetNumberOfValues(), reinterpret_cast<VTK_TT*>(blob->GetPointer(0))));
+    }
     Serialize_Blob(blob, state, serializer);
 
     if (auto lt = array->GetLookupTable())
@@ -433,10 +440,9 @@ struct vtkDataArrayDeserializer
 
     switch (array->GetDataType())
     {
-      vtkTemplateMacro(const VTK_TT* c_ptr = reinterpret_cast<const VTK_TT*>(content.data());
-                       auto src = const_cast<VTK_TT*>(c_ptr);
-                       auto dst = reinterpret_cast<VTK_TT*>(array->GetVoidPointer(0));
-                       std::copy(src, src + array->GetNumberOfValues(), dst));
+      vtkTemplateMacro(
+        std::copy_n(reinterpret_cast<const VTK_TT*>(content.data()), array->GetNumberOfValues(),
+          vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin()));
     }
     // nifty memory savings below, unfortunately, doesn't work correctly when there are point
     // scalars.
