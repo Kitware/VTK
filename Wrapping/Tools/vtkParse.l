@@ -1687,17 +1687,97 @@ void print_parser_error(const char* text, const char* cp, size_t n)
 }
 
 /*
+ * Remove backslash-newline (line continuation indicators).
+ * Return a malloc'd string if removal occurred, else return NULL.
+ * The returned string will be null-terminated.
+ */
+char* join_continued_lines(const char* text, size_t l)
+{
+  size_t newlen = l;
+  char* newtext = NULL;
+  int state = 0;
+  size_t i;
+
+  /* compute new length (with continuation markers removed), */
+  /* search for <BACKSLASH><NL> and <BACKSLASH><CR><NL> */
+  for (i = 0; i < l; i++)
+  {
+    if (text[i] == '\n' && state != 0)
+    {
+      newlen -= state + 1;
+      state = 0;
+    }
+    else if (text[i] == '\r' && state == 1)
+    {
+      ++state;
+    }
+    else
+    {
+      state = (text[i] == '\\' ? 1 : 0);
+    }
+  }
+
+  /* handle leftovers before end of input */
+  newlen -= state;
+  state = 0;
+
+  if (newlen != l)
+  {
+    size_t j = 0;
+
+    /* make a copy with continuation markers removed */
+    newtext = (char*)malloc(newlen + 1);
+
+    for (i = 0; i < l; i++)
+    {
+      if (text[i] == '\n' && state != 0)
+      {
+        state = 0;
+      }
+      else if (text[i] == '\r' && state == 1)
+      {
+        ++state;
+      }
+      else
+      {
+        int newstate = (text[i] == '\\' ? 1 : 0);
+        while (state >= newstate)
+        {
+          newtext[j++] = text[i - state];
+          --state;
+        }
+        state = newstate;
+      }
+    }
+
+    newtext[j] = '\0';
+  }
+
+  return newtext;
+}
+
+/*
  * Execute a preprocessor directive.
  */
 void preprocessor_directive(const char* text, size_t l)
 {
   int result = 0;
   size_t n = 0;
-  const char* cp = text;
-  const char* ep = text + l;
+  const char* cp;
+  const char* ep;
   const char* directive = NULL;
 
+  /* handle line continuations, if present */
+  char* newtext = join_continued_lines(text, l);
+  if (newtext)
+  {
+    text = newtext;
+    l = strlen(newtext);
+  }
+
   /* find the directive, store its length in "n" */
+  cp = text;
+  ep = text + l;
   while (*cp == ' ' || *cp == '\t')
   {
     cp++;
@@ -1741,6 +1821,7 @@ void preprocessor_directive(const char* text, size_t l)
             push_include(dp);
             push_buffer();
             yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
+            free(newtext);
             return;
           }
         }
@@ -1760,6 +1841,7 @@ void preprocessor_directive(const char* text, size_t l)
     print_preprocessor_error(result, text, l);
     if ((result & VTK_PARSE_FATAL_ERROR) != 0)
     {
+      free(newtext);
       exit(1);
     }
   }
@@ -1788,6 +1870,8 @@ void preprocessor_directive(const char* text, size_t l)
       }
     }
   }
+
+  free(newtext);
 }
 
 // NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
