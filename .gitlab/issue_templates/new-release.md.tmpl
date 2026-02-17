@@ -14,15 +14,22 @@ $py(PATCH=int(parts[2]))\
 $py(RC="." + parts[3] if len(parts) > 3 else "")\
 $py(VERSION=f"{MAJOR}.{MINOR}.{PATCH}")\
 $py(BASEBRANCH="master" if (PATCH == 0 and RC == ".rc1") else "release")\
-
+$py(
+import re
+with open("CMake/vtkVersion.cmake") as f:
+  content = f.read()
+  prev_major_ver = re.search(r"set\(VTK_MAJOR_VERSION\s(\d+)\)", content).group(1)
+  prev_minor_ver = re.search(r"set\(VTK_MINOR_VERSION\s(\d+)\)", content).group(1)
+  PREVIOUS_VERSION = f"{prev_major_ver}.{prev_minor_ver}"
+)\
 
 # Preparatory steps
 
 $if(PATCH == 0 and RC == ".rc1")\
   - Finalize previous release branch
     - [ ] Update the local copy of `release`
-    - [ ] Create unannotated tag: `git tag vX.Y-final` where vX.Y is the last minor release of VTK
-    - [ ] Push the tag: `git push origin vX.Y-final`.
+    - [ ] Create unannotated tag: `git tag v$(PREVIOUS_VERSION)-final` where v$(PREVIOUS_VERSION) is the last minor release of VTK
+    - [ ] Push the tag: `git push origin v$(PREVIOUS_VERSION)-final`.
 $endif\
 
 # Update VTK
