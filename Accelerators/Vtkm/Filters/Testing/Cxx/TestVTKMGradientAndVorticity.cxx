@@ -5,6 +5,7 @@
 #include "vtkArrayCalculator.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -95,16 +96,16 @@ int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* corre
     return 0;
   }
 
-  vtkDataArrayAccessor<GradientArrayType> gradients(gradientsArray);
-  vtkDataArrayAccessor<CorrectArrayType> correct(correctArray);
+  auto gradients = vtk::DataArrayTupleRange(gradientsArray);
+  auto correct = vtk::DataArrayTupleRange(correctArray);
 
   for (vtkIdType i = 0; i < numberOfTuples; i++)
   {
     bool invalid = false;
     for (int j = 0; j < numberOfComponents; j++)
     {
-      double value = gradients.Get(i, j);
-      double expected = correct.Get(i, j);
+      double value = gradients[i][j];
+      double expected = correct[i][j];
 
       if (std::abs(value - expected) > Tolerance)
       {
@@ -117,7 +118,7 @@ int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* corre
       std::cout << "Gradient[ " << i << " ] should look like: " << std::endl;
       for (int j = 0; j < numberOfComponents; ++j)
       {
-        std::cout << correct.Get(i, j);
+        std::cout << correct[i][j];
         if ((j % 3) == 2)
         {
           std::cout << "\n";
@@ -127,7 +128,7 @@ int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* corre
       std::cout << "Gradient[ " << i << " ] actually looks like: " << std::endl;
       for (int j = 0; j < numberOfComponents; ++j)
       {
-        std::cout << gradients.Get(i, j);
+        std::cout << gradients[i][j];
         if ((j % 3) == 2)
         {
           std::cout << "\n";
@@ -189,11 +190,11 @@ int IsQCriterionCorrect(vtkDataArray* gradients, QCriterionType* qCriterionArray
     vtkGenericWarningMacro("Bad number of components.");
     return 0;
   }
-  vtkDataArrayAccessor<QCriterionType> qCriterion(qCriterionArray);
+  auto qCriterion = vtk::DataArrayValueRange<1>(qCriterionArray);
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double qc = qCriterion.Get(i, 0);
+    double qc = qCriterion[i];
 
     double t1 = .25 *
       ((g[7] - g[5]) * (g[7] - g[5]) + (g[3] - g[1]) * (g[3] - g[1]) +
@@ -226,11 +227,11 @@ int IsDivergenceCorrect(vtkDataArray* gradients, DivergenceType* divergenceArray
     vtkGenericWarningMacro("Bad number of components.");
     return 0;
   }
-  vtkDataArrayAccessor<DivergenceType> divergence(divergenceArray);
+  auto divergence = vtk::DataArrayValueRange<1>(divergenceArray);
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double div = divergence.Get(i, 0);
+    double div = divergence[i];
     double gValue = g[0] + g[4] + g[8];
 
     if (!test_equal(div, gValue))

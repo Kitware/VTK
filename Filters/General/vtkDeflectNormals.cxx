@@ -3,7 +3,7 @@
 #include "vtkDeflectNormals.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -59,8 +59,7 @@ struct vtkDeflectNormalsWorker
   template <typename VectorArrayT>
   void operator()(VectorArrayT* vectorArray)
   {
-    typedef vtkDataArrayAccessor<VectorArrayT> VectorAccessorT;
-    VectorAccessorT vectors(vectorArray);
+    auto vectors = vtk::DataArrayTupleRange<3>(vectorArray);
     const double* normal = this->Self->GetUserNormal();
     vtkSMPTools::For(0, vectorArray->GetNumberOfTuples(),
       [this, vectors, normal](vtkIdType begin, vtkIdType end)
@@ -76,8 +75,8 @@ struct vtkDeflectNormalsWorker
           {
             break;
           }
-          typename VectorAccessorT::APIType vec[3];
-          vectors.Get(t, vec);
+          vtk::GetAPIType<VectorArrayT> vec[3];
+          vectors.GetTuple(t, vec);
           this->ComputeTuple(t, vec, normal);
         }
       });
@@ -86,10 +85,8 @@ struct vtkDeflectNormalsWorker
   template <typename VectorArrayT, typename NormalArrayT>
   void operator()(VectorArrayT* vectorArray, NormalArrayT* normalArray)
   {
-    typedef vtkDataArrayAccessor<VectorArrayT> VectorAccessorT;
-    VectorAccessorT vectors(vectorArray);
-    typedef vtkDataArrayAccessor<NormalArrayT> NormalAccessorT;
-    NormalAccessorT normals(normalArray);
+    auto vectors = vtk::DataArrayTupleRange<3>(vectorArray);
+    auto normals = vtk::DataArrayTupleRange<3>(normalArray);
     vtkSMPTools::For(0, vectorArray->GetNumberOfTuples(),
       [this, vectors, normals](vtkIdType begin, vtkIdType end)
       {
@@ -104,10 +101,10 @@ struct vtkDeflectNormalsWorker
           {
             break;
           }
-          typename VectorAccessorT::APIType vec[3];
-          typename NormalAccessorT::APIType normal[3];
-          vectors.Get(t, vec);
-          normals.Get(t, normal);
+          vtk::GetAPIType<VectorArrayT> vec[3];
+          vtk::GetAPIType<NormalArrayT> normal[3];
+          vectors.GetTuple(t, vec);
+          normals.GetTuple(t, normal);
           this->ComputeTuple(t, vec, normal);
         }
       });
@@ -155,18 +152,17 @@ int vtkDeflectNormals::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkDeflectNormalsWorker worker(this, deflectedNormals);
-  using R = vtkArrayDispatch::Reals;
-
   if (userNormals)
   {
-    if (!vtkArrayDispatch::DispatchByValueType<R>::Execute(vectors, worker))
+    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(vectors, worker))
     {
       worker(vectors);
     }
   }
   else
   {
-    if (!vtkArrayDispatch::Dispatch2ByValueType<R, R>::Execute(vectors, normals, worker))
+    if (!vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals,
+          vtkArrayDispatch::Reals>::Execute(vectors, normals, worker))
     {
       worker(vectors, normals);
     }

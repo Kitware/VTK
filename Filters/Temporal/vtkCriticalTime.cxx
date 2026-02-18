@@ -9,8 +9,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
-#include "vtkDataObjectTreeRange.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
@@ -18,7 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkSMPTools.h"
 
@@ -102,12 +100,12 @@ struct CheckCriticalTimeComp : public CheckCriticalTimeWorker
   template <typename ArrayT>
   double ComputeMagnitude(ArrayT* inArray, vtkIdType tupleIdx)
   {
-    vtkDataArrayAccessor<ArrayT> inAcc(inArray);
+    auto in = vtk::DataArrayTupleRange(inArray);
 
     double squaredNorm = 0.0;
     for (int c = 0; c < inArray->GetNumberOfComponents(); ++c)
     {
-      const double value = static_cast<double>(inAcc.Get(tupleIdx, c));
+      const double value = static_cast<double>(in[tupleIdx][c]);
       squaredNorm += value * value;
     }
 
@@ -118,7 +116,7 @@ struct CheckCriticalTimeComp : public CheckCriticalTimeWorker
   void operator()(
     ArrayT* inArray, vtkDoubleArray* outArray, double currentTimeStep, int selectedComponent)
   {
-    vtkDataArrayAccessor<ArrayT> inAcc(inArray);
+    auto in = vtk::DataArrayTupleRange(inArray);
 
     vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
       [&](vtkIdType begin, vtkIdType end)
@@ -138,7 +136,7 @@ struct CheckCriticalTimeComp : public CheckCriticalTimeWorker
               outArray->SetValue(tupleIdx, currentTimeStep);
             }
           }
-          else if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, selectedComponent)))
+          else if ((this->*(this->ThresholdFunction))(in[tupleIdx][selectedComponent]))
           {
             outArray->SetValue(tupleIdx, currentTimeStep);
           }
@@ -159,7 +157,7 @@ struct CheckCriticalTimeAny : public CheckCriticalTimeWorker
   template <typename ArrayT>
   void operator()(ArrayT* inArray, vtkDoubleArray* outArray, double currentTimeStep) const
   {
-    vtkDataArrayAccessor<ArrayT> inAcc(inArray);
+    auto in = vtk::DataArrayTupleRange(inArray);
 
     vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
       [&](vtkIdType begin, vtkIdType end)
@@ -173,7 +171,7 @@ struct CheckCriticalTimeAny : public CheckCriticalTimeWorker
 
           for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
           {
-            if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
+            if ((this->*(this->ThresholdFunction))(in[tupleIdx][comp]))
             {
               outArray->SetValue(tupleIdx, currentTimeStep);
               break;
@@ -196,7 +194,7 @@ struct CheckCriticalTimeAll : public CheckCriticalTimeWorker
   template <typename ArrayT>
   void operator()(ArrayT* inArray, vtkDoubleArray* outArray, double currentTimeStep) const
   {
-    vtkDataArrayAccessor<ArrayT> inAcc(inArray);
+    auto in = vtk::DataArrayTupleRange(inArray);
 
     vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
       [&](vtkIdType begin, vtkIdType end)
@@ -211,7 +209,7 @@ struct CheckCriticalTimeAll : public CheckCriticalTimeWorker
           bool allExceed = true;
           for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
           {
-            if (!(this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
+            if (!(this->*(this->ThresholdFunction))(in[tupleIdx][comp]))
             {
               allExceed = false;
               break;

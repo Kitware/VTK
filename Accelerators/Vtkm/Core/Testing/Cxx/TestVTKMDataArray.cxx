@@ -3,7 +3,7 @@
 #include "vtkmDataArray.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
@@ -116,15 +116,14 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 
   auto dispatchCheck = [&](auto* dispatchedArray)
   {
-    vtkDataArrayAccessor<std::remove_pointer_t<decltype(dispatchedArray)>> accessor(
-      dispatchedArray);
+    auto data = vtk::DataArrayTupleRange(dispatchedArray);
 
     for (vtkIdType tupleI = 0; tupleI < length; ++tupleI)
     {
       auto vec = FlattenVec(vtkmPortal.Get(tupleI));
       for (int componentI = 0; componentI < numberOfComponents; ++componentI)
       {
-        TEST_VERIFY(IsEqualFloat(static_cast<double>(accessor.Get(tupleI, componentI)),
+        TEST_VERIFY(IsEqualFloat(static_cast<double>(data[tupleI][componentI]),
                       static_cast<double>(vec[componentI])),
           "values don't match");
       }

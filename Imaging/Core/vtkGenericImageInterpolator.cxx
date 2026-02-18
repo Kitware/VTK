@@ -4,13 +4,11 @@
 #include "vtkGenericImageInterpolator.h"
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInterpolationMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkTypeTraits.h"
 
-#include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types, because
 // they cannot be faithfully represented by doubles
 #undef VTK_USE_INT64
@@ -58,7 +56,7 @@ void vtkImageNLCInterpolate<F, T>::Nearest(
   VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   // const T* inPtr = static_cast<const T*>(info->Pointer);
-  vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(info->Array));
   vtkIdType inIdx = info->Index;
   const int* inExt = info->Extent;
   const vtkIdType* inInc = info->Increments;
@@ -94,7 +92,7 @@ void vtkImageNLCInterpolate<F, T>::Nearest(
   vtkIdType i = 0;
   do
   {
-    *outPtr++ = array.Get(inIdx, i++);
+    *outPtr++ = array[inIdx][i++];
   } while (--numscalars);
 }
 
@@ -103,7 +101,7 @@ template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Trilinear(
   VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
-  vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(info->Array));
   vtkIdType inIdx = info->Index;
   const int* inExt = info->Extent;
   const vtkIdType* inInc = info->Increments;
@@ -179,11 +177,11 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   do
   {
     *outPtr++ = (rx *
-        (ryrz * array.Get(inIdx0 + i00, i) + ryfz * array.Get(inIdx0 + i01, i) +
-          fyrz * array.Get(inIdx0 + i10, i) + fyfz * array.Get(inIdx0 + i11, i)) +
+        (ryrz * array[inIdx0 + i00][i] + ryfz * array[inIdx0 + i01][i] +
+          fyrz * array[inIdx0 + i10][i] + fyfz * array[inIdx0 + i11][i]) +
       fx *
-        (ryrz * array.Get(inIdx1 + i00, i) + ryfz * array.Get(inIdx1 + i01, i) +
-          fyrz * array.Get(inIdx1 + i10, i) + fyfz * array.Get(inIdx1 + i11, i)));
+        (ryrz * array[inIdx1 + i00][i] + ryfz * array[inIdx1 + i01][i] +
+          fyrz * array[inIdx1 + i10][i] + fyfz * array[inIdx1 + i11][i]));
     i++;
   } while (--numscalars);
 }
@@ -213,7 +211,7 @@ template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Tricubic(
   VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
-  vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(info->Array));
   vtkIdType inIdx = info->Index;
   const int* inExt = info->Extent;
   const vtkIdType* inInc = info->Increments;
@@ -342,8 +340,8 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
 
         const vtkIdType tmpIdx = inIdx + factzy;
         val += fzy *
-          (fX[0] * array.Get(tmpIdx + factX[0], i) + fX[1] * array.Get(tmpIdx + factX[1], i) +
-            fX[2] * array.Get(tmpIdx + factX[2], i) + fX[3] * array.Get(tmpIdx + factX[3], i));
+          (fX[0] * array[tmpIdx + factX[0]][i] + fX[1] * array[tmpIdx + factX[1]][i] +
+            fX[2] * array[tmpIdx + factX[2]][i] + fX[3] * array[tmpIdx + factX[3]][i]);
       } while (++j <= j2);
     } while (++k <= k2);
 
@@ -351,9 +349,6 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
     i++;
   } while (--numscalars);
 }
-
-template <typename F>
-using vtkDefaultImageNLCInterpolate = vtkImageNLCInterpolate<F, vtkDataArray>;
 
 template <class F>
 struct GetNearestFuncWorker
@@ -455,7 +450,7 @@ void vtkImageNLCRowInterpolate<F, T>::Nearest(
   const vtkIdType* iX = weights->Positions[0] + idX;
   const vtkIdType* iY = weights->Positions[1] + idY;
   const vtkIdType* iZ = weights->Positions[2] + idZ;
-  vtkDataArrayAccessor<T> array(static_cast<T*>(weights->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(weights->Array));
   vtkIdType inIdx = weights->Index + iY[0] + iZ[0];
 
   // get the number of components per pixel
@@ -470,7 +465,7 @@ void vtkImageNLCRowInterpolate<F, T>::Nearest(
     int m = numscalars;
     do
     {
-      *outPtr++ = array.Get(tmpIdx, c++);
+      *outPtr++ = array[tmpIdx][c++];
     } while (--m);
   }
 }
@@ -493,7 +488,7 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
   const vtkIdType* iX = weights->Positions[0] + idX;
   const vtkIdType* iY = weights->Positions[1] + idY;
   const vtkIdType* iZ = weights->Positions[2] + idZ;
-  vtkDataArrayAccessor<T> array(static_cast<T*>(weights->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(weights->Array));
   vtkIdType inIdx = weights->Index;
 
   // get the number of components per pixel
@@ -548,7 +543,7 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
         int m = numscalars;
         do
         {
-          *outPtr++ = array.Get(inIdx0, c++);
+          *outPtr++ = array[inIdx0][c++];
         } while (--m);
       }
     }
@@ -561,7 +556,7 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
         int m = numscalars;
         do
         {
-          *outPtr++ = (rz * array.Get(inIdx0 + i00, c) + fz * array.Get(inIdx0 + i01, c));
+          *outPtr++ = (rz * array[inIdx0 + i00][c] + fz * array[inIdx0 + i01][c]);
           c++;
         } while (--m);
       }
@@ -575,8 +570,8 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
         int m = numscalars;
         do
         {
-          *outPtr++ = (ryrz * array.Get(inIdx0 + i00, c) + ryfz * array.Get(inIdx0 + i01, c) +
-            fyrz * array.Get(inIdx0 + i10, c) + fyfz * array.Get(inIdx0 + i11, c));
+          *outPtr++ = (ryrz * array[inIdx0 + i00][c] + ryfz * array[inIdx0 + i01][c] +
+            fyrz * array[inIdx0 + i10][c] + fyfz * array[inIdx0 + i11][c]);
           c++;
         } while (--m);
       }
@@ -600,8 +595,8 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
       int m = numscalars;
       do
       {
-        *outPtr++ = (rx * (ry * array.Get(inIdx0 + i00, c) + fy * array.Get(inIdx0 + i10, c)) +
-          fx * (ry * array.Get(inIdx1 + i00, c) + fy * array.Get(inIdx1 + i10, c)));
+        *outPtr++ = (rx * (ry * array[inIdx0 + i00][c] + fy * array[inIdx0 + i10][c]) +
+          fx * (ry * array[inIdx1 + i00][c] + fy * array[inIdx1 + i10][c]));
         c++;
       } while (--m);
     }
@@ -625,11 +620,11 @@ void vtkImageNLCRowInterpolate<F, T>::Trilinear(
       do
       {
         *outPtr++ = (rx *
-            (ryrz * array.Get(inIdx0 + i00, c) + ryfz * array.Get(inIdx0 + i01, c) +
-              fyrz * array.Get(inIdx0 + i10, c) + fyfz * array.Get(inIdx0 + i11, c)) +
+            (ryrz * array[inIdx0 + i00][c] + ryfz * array[inIdx0 + i01][c] +
+              fyrz * array[inIdx0 + i10][c] + fyfz * array[inIdx0 + i11][c]) +
           fx *
-            (ryrz * array.Get(inIdx1 + i00, c) + ryfz * array.Get(inIdx1 + i01, c) +
-              fyrz * array.Get(inIdx1 + i10, c) + fyfz * array.Get(inIdx1 + i11, c)));
+            (ryrz * array[inIdx1 + i00][c] + ryfz * array[inIdx1 + i01][c] +
+              fyrz * array[inIdx1 + i10][c] + fyfz * array[inIdx1 + i11][c]));
         c++;
       } while (--m);
     }
@@ -654,7 +649,7 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
   const vtkIdType* iX = weights->Positions[0] + idX;
   const vtkIdType* iY = weights->Positions[1] + idY;
   const vtkIdType* iZ = weights->Positions[2] + idZ;
-  vtkDataArrayAccessor<T> array(static_cast<T*>(weights->Array));
+  auto array = vtk::DataArrayTupleRange(static_cast<T*>(weights->Array));
   vtkIdType inIdx = weights->Index;
 
   // get the number of components per pixel
@@ -713,8 +708,8 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
             const vtkIdType tmpIdx = inIdx0 + izy;
             // loop over x is unrolled (significant performance boost)
             result += fzy *
-              (fX0 * array.Get(tmpIdx + iX0, cc) + fX1 * array.Get(tmpIdx + iX1, cc) +
-                fX2 * array.Get(tmpIdx + iX2, cc) + fX3 * array.Get(tmpIdx + iX3, cc));
+              (fX0 * array[tmpIdx + iX0][cc] + fX1 * array[tmpIdx + iX1][cc] +
+                fX2 * array[tmpIdx + iX2][cc] + fX3 * array[tmpIdx + iX3][cc]);
           } while (++j < stepY);
         }
       } while (++k < stepZ);
