@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from vtkmodules.vtkIOImage import vtkImageReader
 from vtkmodules.vtkImagingCore import (
+    vtkImageBinaryThreshold,
     vtkImageCast,
     vtkImageMagnify,
-    vtkImageThreshold,
 )
 from vtkmodules.vtkImagingMath import vtkImageWeightedSum
 from vtkmodules.vtkInteractionImage import vtkImageViewer
@@ -25,11 +25,12 @@ mag = vtkImageMagnify()
 mag.SetInputConnection(reader.GetOutputPort())
 mag.SetMagnificationFactors(4, 4, 1)
 
-th = vtkImageThreshold()
+th = vtkImageBinaryThreshold()
 th.SetInputConnection(mag.GetOutputPort())
 th.SetReplaceIn(1)
 th.SetReplaceOut(1)
-th.ThresholdBetween(-1000, 1000)
+th.SetLowerThreshold(-1000)
+th.SetUpperThreshold(1000)
 th.SetOutValue(0)
 th.SetInValue(2000)
 

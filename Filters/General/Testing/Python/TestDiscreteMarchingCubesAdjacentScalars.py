@@ -12,7 +12,7 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkFiltersCore import vtkThreshold
 from vtkmodules.vtkFiltersGeneral import vtkDiscreteMarchingCubes
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
-from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingCore import vtkImageBinaryThreshold
 from vtkmodules.vtkImagingHybrid import vtkSampleFunction
 from vtkmodules.vtkImagingMath import vtkImageMathematics
 from vtkmodules.vtkRenderingCore import (
@@ -75,9 +75,10 @@ while i < n:
     sampler.SetSampleDimensions(51, 51, 51)
     sampler.SetModelBounds(-50, 50, -50, 50, -50, 50)
 
-    thres = vtkImageThreshold()
+    thres = vtkImageBinaryThreshold()
     thres.SetInputConnection(sampler.GetOutputPort())
-    thres.ThresholdByLower(radius * radius)
+    thres.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_LOWER)
+    thres.SetUpperThreshold(radius * radius)
     thres.ReplaceInOn()
     thres.ReplaceOutOn()
     thres.SetInValue(i + 1)

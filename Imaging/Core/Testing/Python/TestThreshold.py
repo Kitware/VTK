@@ -4,7 +4,7 @@
 
 
 from vtkmodules.vtkIOImage import vtkImageReader
-from vtkmodules.vtkImagingCore import vtkImageThreshold
+from vtkmodules.vtkImagingCore import vtkImageBinaryThreshold
 from vtkmodules.vtkRenderingCore import (
     vtkActor2D,
     vtkImageMapper,
@@ -42,7 +42,9 @@ class TestThreshold(vtkmodules.test.Testing.vtkTest):
                         "Short", "UnsignedShort", "Double", "Float", "Double", "Float"]
         replacein = ["ReplaceInOn", "ReplaceInOff"]
         replaceout = ["ReplaceOutOn", "ReplaceOutOff"]
-        thresholds = ["ThresholdByLower(800)", "ThresholdByUpper(1200)", "ThresholdBetween(800, 1200)"]
+        threshold_modes = [vtkImageBinaryThreshold.THRESHOLD_LOWER, vtkImageBinaryThreshold.THRESHOLD_UPPER, vtkImageBinaryThreshold.THRESHOLD_BETWEEN]
+        lower_thresholds = [None, 1200, 800]
+        upper_thresholds = [800, None, 1200]
 
         thresh = list()
         map = list()
@@ -52,15 +54,19 @@ class TestThreshold(vtkmodules.test.Testing.vtkTest):
         k = 0
         for rin in replacein:
             for rout in replaceout:
-                for t in thresholds:
+                for i in range(len(threshold_modes)):
 
-                    thresh.append(vtkImageThreshold())
+                    thresh.append(vtkImageBinaryThreshold())
                     thresh[k].SetInValue(2000)
                     thresh[k].SetOutValue(0)
                     eval('thresh[k].' + rin + '()')
                     eval('thresh[k].' + rout + '()')
                     thresh[k].SetInputConnection(reader.GetOutputPort())
-                    eval('thresh[k].' + t)
+                    thresh[k].SetThresholdFunction(threshold_modes[i])
+                    if lower_thresholds[i]:
+                        thresh[k].SetLowerThreshold(lower_thresholds[i])
+                    if upper_thresholds[i]:
+                        thresh[k].SetUpperThreshold(upper_thresholds[i])
                     eval('thresh[k].SetOutputScalarTypeTo' + outputtype[k] + '()')
 
                     map.append(vtkImageMapper())

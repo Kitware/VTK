@@ -12,10 +12,10 @@ from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
 from vtkmodules.vtkFiltersTexture import vtkTextureMapToPlane
 from vtkmodules.vtkIOImage import vtkTIFFReader
 from vtkmodules.vtkImagingCore import (
+    vtkImageBinaryThreshold,
     vtkImageConstantPad,
     vtkImageExtractComponents,
     vtkImageShrink3D,
-    vtkImageThreshold,
 )
 from vtkmodules.vtkImagingColor import vtkImageRGBToHSV
 from vtkmodules.vtkImagingGeneral import vtkImageGaussianSmooth
@@ -88,11 +88,14 @@ extractImage.SetInputConnection(toHSV.GetOutputPort())
 extractImage.SetComponents(2)
 extractImage.GetExecutive().SetReleaseDataFlag(0, 0)
 
-threshold1 = vtkImageThreshold()
+threshold1 = vtkImageBinaryThreshold()
 threshold1.SetInputConnection(extractImage.GetOutputPort())
-threshold1.ThresholdByUpper(230)
+threshold1.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_UPPER)
+threshold1.SetLowerThreshold(230)
 threshold1.SetInValue(255)
 threshold1.SetOutValue(0)
+threshold1.ReplaceInOn()
+threshold1.ReplaceOutOn()
 threshold1.Update()
 
 extent = threshold1.GetExecutive().GetWholeExtent(

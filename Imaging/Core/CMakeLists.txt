@@ -3,6 +3,7 @@ set(classes
   vtkExtractVOI
   vtkGenericImageInterpolator
   vtkImageAppendComponents
+  vtkImageBinaryThreshold
   vtkImageBlend
   vtkImageBSplineCoefficients
   vtkImageBSplineInternals

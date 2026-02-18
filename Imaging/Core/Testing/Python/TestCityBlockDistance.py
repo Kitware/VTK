@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from vtkmodules.vtkIOImage import vtkPNGReader
 from vtkmodules.vtkImagingCore import (
+    vtkImageBinaryThreshold,
     vtkImageCast,
-    vtkImageThreshold,
 )
 from vtkmodules.vtkImagingGeneral import vtkImageCityBlockDistance
 from vtkmodules.vtkInteractionImage import vtkImageViewer
@@ -21,11 +21,14 @@ reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 cast = vtkImageCast()
 cast.SetOutputScalarTypeToShort()
 cast.SetInputConnection(reader.GetOutputPort())
-thresh = vtkImageThreshold()
+thresh = vtkImageBinaryThreshold()
 thresh.SetInputConnection(cast.GetOutputPort())
-thresh.ThresholdByUpper(2000.0)
+thresh.SetThresholdFunction(vtkImageBinaryThreshold.THRESHOLD_UPPER)
+thresh.SetLowerThreshold(2000.0)
 thresh.SetInValue(0)
 thresh.SetOutValue(200)
+thresh.ReplaceInOn()
+thresh.ReplaceOutOn()
 thresh.ReleaseDataFlagOff()
 dist = vtkImageCityBlockDistance()
 dist.SetDimensionality(2)
