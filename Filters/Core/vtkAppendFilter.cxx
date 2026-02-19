@@ -113,7 +113,6 @@ struct AppendCellArray : public vtkCellArray::DispatchUtilities
     auto inputOffsets = GetRange(offsets);
     auto inputConnectivity = GetRange(conn);
     auto numberOfCells = inputOffsets.size() - 1;
-    auto numberOfConnectivityIds = inputConnectivity.size();
 
     // Copy the offsets and transform them using the cellConnectivityOffset
     std::transform(inputOffsets.begin(), inputOffsets.begin() + numberOfCells,
@@ -122,14 +121,14 @@ struct AppendCellArray : public vtkCellArray::DispatchUtilities
     if (!globalIndices.empty())
     {
       // Copy the connectivity and transform them using the pointOffset and globalIndices
-      std::transform(inputConnectivity.begin(), inputConnectivity.begin() + numberOfConnectivityIds,
+      std::transform(inputConnectivity.begin(), inputConnectivity.end(),
         outputConnectivity->GetPointer(cellConnectivityOffset),
         [&](ValueType ptId) { return static_cast<vtkIdType>(globalIndices[ptId + pointOffset]); });
     }
     else
     {
       // Copy the connectivity and transform them using the pointOffset
-      std::transform(inputConnectivity.begin(), inputConnectivity.begin() + numberOfConnectivityIds,
+      std::transform(inputConnectivity.begin(), inputConnectivity.end(),
         outputConnectivity->GetPointer(cellConnectivityOffset),
         [&](ValueType ptId) { return static_cast<vtkIdType>(ptId + pointOffset); });
     }
