@@ -7,10 +7,12 @@
 #include "vtkHDFUtilities.h"
 
 #include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
+#include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkHDF5ScopedHandle.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkLongArray.h"

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkHDF5ScopedHandle.h"
 #include "vtk_hdf5.h"
 
 VTK_ABI_NAMESPACE_BEGIN
