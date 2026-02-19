@@ -130,6 +130,18 @@ public:
   void SetArray(int comp, VTK_ZEROCOPY ValueType* array, vtkIdType size, bool updateMaxId = false,
     bool save = false, int deleteMethod = VTK_DATA_ARRAY_FREE);
 
+#ifndef __VTK_WRAP__
+  /**
+   * Use this API to pass an existing vtkBuffer to this instance. Since
+   * vtkSOADataArrayTemplate uses separate contiguous regions for each
+   * component, use this API to set the buffer for each component.
+   * The buffer's reference count will be incremented (Register is called).
+   * If updateMaxId is true, the array's MaxId will be updated based on
+   * the buffer's size and the number of components.
+   */
+  void SetBuffer(int comp, vtkBuffer<ValueType>* buffer, bool updateMaxId = false);
+#endif
+
   /**
    * Use this API to pass an existing vtkAbstractBuffer to this instance. Since
    * vtkSOADataArrayTemplate uses separate contiguous regions for each
@@ -140,18 +152,6 @@ public:
    * the buffer's size and the number of components.
    */
   void SetBuffer(int comp, vtkAbstractBuffer* buffer, bool updateMaxId = false);
-
-#ifndef __VTK_WRAP__
-  /**
-   * Use this API to pass an existing vtkBuffer to this instance. Since
-   * vtkSOADataArrayTemplate uses separate contiguous regions for each
-   * component, use this API to set the buffer for each component.
-   * The buffer's reference count will be incremented (Register is called).
-   * If updateMaxId is true, the array's MaxId will be updated based on
-   * the buffer's size and the number of components.
-   */
-  void SetBuffer(int comp, vtkBuffer<ValueType>* buffer, bool updateMaxId);
-#endif
 
   /**
    * This method allows the user to specify a custom free function to be

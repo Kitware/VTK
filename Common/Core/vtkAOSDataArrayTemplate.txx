@@ -321,12 +321,9 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray* other)
     this->CopyComponentNames(o);
     if (this->Buffer != o->Buffer)
     {
-      this->Buffer->Delete();
-      this->Buffer = o->Buffer;
-      this->Buffer->Register(nullptr);
+      this->SetBuffer(o->Buffer);
     }
     this->DataChanged();
-    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   else
   {

@@ -92,13 +92,10 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
       vtkBuffer<ValueType>* otherBuffer = o->Data[cc];
       if (thisBuffer != otherBuffer)
       {
-        thisBuffer->Delete();
-        this->Data[cc] = otherBuffer;
-        otherBuffer->Register(nullptr);
+        this->SetBuffer(cc, otherBuffer);
       }
     }
     this->DataChanged();
-    this->InvokeEvent(vtkCommand::BufferChangedEvent);
   }
   else
   {

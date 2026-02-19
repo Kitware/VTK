@@ -230,6 +230,16 @@ public:
   vtkBuffer<ValueTypeT>* GetBuffer() { return this->Buffer; }
 #endif // __VTK_WRAP__
 
+#ifndef __VTK_WRAP__
+  /**
+   * Use this API to pass an existing vtkBuffer to this instance.
+   * The buffer's reference count will be incremented (Register is called).
+   * If updateMaxId is true, the array's MaxId will be updated based on
+   * the buffer's size.
+   */
+  void SetBuffer(vtkBuffer<ValueType>* buffer, bool updateMaxId = false);
+#endif
+
   /**
    * Use this API to pass an existing vtkAbstractBuffer to this instance.
    * The buffer's data type must match the array's data type.
@@ -238,16 +248,6 @@ public:
    * the buffer's size.
    */
   void SetBuffer(vtkAbstractBuffer* buffer, bool updateMaxId = false);
-
-#ifndef __VTK_WRAP__
-  /**
-   * Use this API to pass an existing vtkBuffer to this instance.
-   * The buffer's reference count will be incremented (Register is called).
-   * If updateMaxId is true, the array's MaxId will be updated based on
-   * the buffer's size.
-   */
-  void SetBuffer(vtkBuffer<ValueType>* buffer, bool updateMaxId);
-#endif
 
   ///@{
   /**
