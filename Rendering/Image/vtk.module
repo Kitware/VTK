@@ -21,6 +21,7 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::ImagingCore
 TEST_DEPENDS
+  VTK::CommonSystem
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersGeometry

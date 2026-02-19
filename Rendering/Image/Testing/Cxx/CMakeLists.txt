@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkRenderingImageCxxTests tests
   TestImageSliceMapperBackground.cxx
   TestImageSliceMapperBorder.cxx
   TestImageSliceMapperInterpolation.cxx
+  TestImageSliceMapperLargeImage.cxx
   TestImageSliceMapperOrient2D.cxx
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperOriented3D.cxx
