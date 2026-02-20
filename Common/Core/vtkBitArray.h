@@ -70,11 +70,6 @@ public:
    */
   vtkTypeBool ReserveTuples(vtkIdType numTuples) override;
 
-  /**
-   * Release storage and reset array to initial state.
-   */
-  void Initialize() override;
-
   // satisfy vtkDataArray API
   int GetArrayType() const override { return vtkBitArray::ArrayTypeTag::value; }
   int GetDataType() const override { return vtkBitArray::DataTypeTag::value; }

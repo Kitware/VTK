@@ -277,14 +277,6 @@ vtkTypeBool vtkBitArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 }
 
 //------------------------------------------------------------------------------
-// Release storage and reset array to initial state.
-void vtkBitArray::Initialize()
-{
-  this->Allocate(0);
-  this->DataChanged();
-}
-
-//------------------------------------------------------------------------------
 // Deep copy of another bit array.
 void vtkBitArray::DeepCopy(vtkDataArray* da)
 {

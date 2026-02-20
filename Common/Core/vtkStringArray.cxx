@@ -237,15 +237,6 @@ vtkTypeBool vtkStringArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 }
 
 //------------------------------------------------------------------------------
-// Release storage and reset array to initial state.
-
-void vtkStringArray::Initialize()
-{
-  this->Allocate(0);
-  this->DataChanged();
-}
-
-//------------------------------------------------------------------------------
 bool vtkStringArray::CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent)
 {
   auto* source = vtkStringArray::SafeDownCast(src);

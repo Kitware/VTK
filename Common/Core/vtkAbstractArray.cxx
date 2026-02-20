@@ -313,6 +313,14 @@ void vtkAbstractArray::ShallowCopy(vtkAbstractArray* src)
 }
 
 //------------------------------------------------------------------------------
+void vtkAbstractArray::Initialize()
+{
+  this->Reset();
+  this->Squeeze();
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
 vtkTypeBool vtkAbstractArray::Resize(vtkIdType numTuples)
 {
   if (numTuples <= 0)

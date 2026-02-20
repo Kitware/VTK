@@ -115,7 +115,7 @@ public:
   /**
    * Release storage and reset array to initial state.
    */
-  virtual void Initialize() = 0;
+  virtual void Initialize();
 
   /**
    * Return the underlying data type. An integer indicating data type is

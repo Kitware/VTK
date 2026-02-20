@@ -210,13 +210,6 @@ vtkTypeBool vtkVariantArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 }
 
 //------------------------------------------------------------------------------
-void vtkVariantArray::Initialize()
-{
-  this->Allocate(0);
-  this->DataChanged();
-}
-
-//------------------------------------------------------------------------------
 bool vtkVariantArray::CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent)
 {
   auto* source = vtkVariantArray::SafeDownCast(src);

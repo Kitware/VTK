@@ -519,14 +519,6 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetNumberOfComponents
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
-void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Initialize()
-{
-  this->Allocate(0);
-  this->DataChanged();
-}
-
-//-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT, int ArrayType>
 void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Squeeze()
 {
   if (this->GetCapacity() > this->GetNumberOfValues())

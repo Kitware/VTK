@@ -289,7 +289,6 @@ public:
   vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;
   vtkTypeBool ReserveTuples(vtkIdType numTuples) override;
   void SetNumberOfComponents(int num) override;
-  void Initialize() override;
   void Squeeze() override;
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:

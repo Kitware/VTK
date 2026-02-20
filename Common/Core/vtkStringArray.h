@@ -64,11 +64,6 @@ public:
   int IsNumeric() const override { return 0; }
 
   /**
-   * Release storage and reset array to initial state.
-   */
-  void Initialize() override;
-
-  /**
    * Copy one component from \a src into a (potentially different) component
    * of this array. Note that \a src must be a vtkStringArray.
    */
