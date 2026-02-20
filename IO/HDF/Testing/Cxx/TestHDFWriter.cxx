@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellData.h"
+#include "vtkConeSource.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
@@ -518,6 +520,36 @@ bool TestFieldDataReadWrite(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
+bool TestWriteAfterReadComposite(const std::string& tempDir)
+{
+  // Test that HDF Reader and writer properly release the file lock after they are done
+  std::string writtenName = tempDir + "/pdc_read_write.hdf";
+
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkConeSource> cone;
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->AddInputConnection(sphere->GetOutputPort());
+  group->AddInputConnection(cone->GetOutputPort());
+  group->SetOutputTypeToMultiBlockDataSet();
+
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetFileName(writtenName.c_str());
+  writer->SetInputConnection(group->GetOutputPort());
+  writer->Write();
+
+  // Read the file we just wrote
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(writtenName.c_str());
+  reader->Update();
+
+  // Overwrite the file, check that reader correctly released resources
+  // Test errors if write operation did not finish because file lock was not released;
+  writer->Write();
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int TestHDFWriter(int argc, char* argv[])
 {
   // Get temporary testing directory
@@ -550,6 +582,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestMultiBlock(tempDir, dataRoot);
   testPasses &= TestMultiBlockIdenticalBlockNames(tempDir, dataRoot);
   testPasses &= TestFieldDataReadWrite(tempDir);
+  testPasses &= TestWriteAfterReadComposite(tempDir);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

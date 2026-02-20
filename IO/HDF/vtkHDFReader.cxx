@@ -2036,7 +2036,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   this->Impl->Close();
 
-  return 1;
+  return result ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
