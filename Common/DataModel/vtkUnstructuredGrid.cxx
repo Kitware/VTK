@@ -121,7 +121,6 @@ struct RemoveGhostCellsWorker
     {
       outputFacesOffsets->SetNumberOfValues(inputFacesOffsets->GetNumberOfValues());
       outputFaces->SetNumberOfValues(inputFaces->GetNumberOfValues());
-      outputFacesOffsets->Fill(0);
 
       outputFaceLocationsOffsets->SetNumberOfValues(inputFaceLocationsOffsets->GetNumberOfValues());
       outputFaceLocationsOffsets->Fill(-1);
@@ -146,9 +145,7 @@ struct RemoveGhostCellsWorker
     this->NewPointIdMap->Allocate(numPoints);
     this->NewCellIdMap->Allocate(types->GetNumberOfValues());
 
-    vtkIdType newPointsMaxId = -1;
-    ValueT startId = inputOffsetsRange[0];
-    vtkIdType newCellsMaxId = -1;
+    vtkIdType newCellsMaxId = 0;
     ValueT currentOutputOffset = 0;
     FacesValueT currentOutFacesOffset = 0;
     FacesLocationsValueT currentOutFaceLocsOffset = 0;
@@ -157,25 +154,23 @@ struct RemoveGhostCellsWorker
     {
       if (ghostCellsRange[cellId] & MASKED_CELL_VALUE)
       {
-        startId = inputOffsetsRange[cellId + 1];
         continue;
       }
 
       this->NewCellIdMap->InsertNextId(cellId);
 
+      const auto& startId = inputOffsetsRange[cellId];
       const auto& endId = inputOffsetsRange[cellId + 1];
-      ValueT size = endId - startId;
+      const ValueT size = endId - startId;
 
-      outputOffsetsRange[++newCellsMaxId] = currentOutputOffset;
-      outputOffsetsRange[newCellsMaxId + 1] = currentOutputOffset + size;
+      outputOffsetsRange[newCellsMaxId] = currentOutputOffset;
 
       for (ValueT cellPointId = 0; cellPointId < size; ++cellPointId)
       {
         const auto& pointId = inputConnectivityRange[startId + cellPointId];
         if (pointIdRedirectionMap[pointId] == -1)
         {
-          pointIdRedirectionMap[pointId] = ++newPointsMaxId;
-          this->NewPointIdMap->InsertNextId(pointId);
+          pointIdRedirectionMap[pointId] = this->NewPointIdMap->InsertNextId(pointId);
         }
         outputConnectivityRange[currentOutputOffset + cellPointId] = pointIdRedirectionMap[pointId];
       }
@@ -187,11 +182,11 @@ struct RemoveGhostCellsWorker
         FacesLocationsValueT numberOfFaces = endFaceId - startFaceId;
 
         outputFaceLocsOffsetRange[newCellsMaxId] = currentOutFaceLocsOffset;
-        outputFaceLocsOffsetRange[newCellsMaxId + 1] = currentOutFaceLocsOffset + numberOfFaces;
 
         for (FacesLocationsValueT faceLoc = 0; faceLoc < numberOfFaces; ++faceLoc)
         {
           const auto& faceId = inputFaceLocsRange[startFaceId + faceLoc];
+
           const auto& startFace = inputFacesOffsetsRange[faceId];
           const auto& endFace = inputFacesOffsetsRange[faceId + 1];
           FacesValueT faceSize = endFace - startFace;
@@ -199,8 +194,6 @@ struct RemoveGhostCellsWorker
           outputFaceLocsRange[currentOutFaceLocsOffset + faceLoc] =
             currentOutFaceLocsOffset + faceLoc;
           outputFacesOffsetRange[currentOutFaceLocsOffset + faceLoc] = currentOutFacesOffset;
-          outputFacesOffsetRange[currentOutFaceLocsOffset + faceLoc + 1] =
-            currentOutFacesOffset + faceSize;
 
           for (FacesValueT pointLoc = 0; pointLoc < faceSize; ++pointLoc)
           {
@@ -211,29 +204,33 @@ struct RemoveGhostCellsWorker
         }
         currentOutFaceLocsOffset += numberOfFaces;
       }
-
+      ++newCellsMaxId;
       currentOutputOffset += size;
-      startId = endId;
     }
+    // set the last offset
+    outputOffsetsRange[newCellsMaxId] = currentOutputOffset;
 
+    outputOffsets->SetNumberOfValues(newCellsMaxId + 1);
+    outputConnectivity->SetNumberOfValues(currentOutputOffset);
     if (currentOutFacesOffset > 0)
     {
+      // set the last offsets
+      outputFaceLocsOffsetRange[newCellsMaxId] = currentOutFaceLocsOffset;
+      outputFacesOffsetRange[currentOutFaceLocsOffset] = currentOutFacesOffset;
       // Fix cells not polyhedron in the face locations offset
       outputFaceLocsOffsetRange[0] = 0;
-      for (vtkIdType loc = 1; loc < newCellsMaxId + 2; ++loc)
+      for (vtkIdType loc = 1; loc < newCellsMaxId + 1; ++loc)
       {
         if (outputFaceLocsOffsetRange[loc] == -1)
         {
           outputFaceLocsOffsetRange[loc] = outputFaceLocsOffsetRange[loc - 1];
         }
       }
-      outputFaceLocationsOffsets->Resize(newCellsMaxId + 2);
-      outputFaceLocations->Resize(currentOutFaceLocsOffset);
-      outputFacesOffsets->Resize(currentOutFaceLocsOffset + 1);
-      outputFaces->Resize(currentOutFacesOffset);
+      outputFaceLocationsOffsets->SetNumberOfValues(newCellsMaxId + 1);
+      outputFaceLocations->SetNumberOfValues(currentOutFaceLocsOffset);
+      outputFacesOffsets->SetNumberOfValues(currentOutFaceLocsOffset + 1);
+      outputFaces->SetNumberOfValues(currentOutFacesOffset);
     }
-    outputOffsets->Resize(newCellsMaxId + 2);
-    outputConnectivity->Resize(currentOutputOffset + 1);
   }
 };
 } // anonymous namespace
@@ -1859,6 +1856,9 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   }
   vtkNew<vtkUnstructuredGrid> newGrid;
 
+  vtkNew<vtkCellArray> newCells;
+  this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
+
   vtkNew<vtkCellArray> newFaces;
   if (this->Faces)
   {
@@ -1889,27 +1889,45 @@ void vtkUnstructuredGrid::RemoveGhostCells()
       this->GetNumberOfCells(), FaceLocationsElements->GetNumberOfValues());
   }
 
-  vtkNew<vtkCellArray> newCells;
-  this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
-
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::OffsetsArrays,
-    vtkArrayDispatch::OffsetsArrays, vtkArrayDispatch::OffsetsArrays>;
   ::RemoveGhostCellsWorker worker;
-
-  if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(),
-        FaceLocationsOffset.Get(), worker, this->Connectivity->GetConnectivityArray(),
-        FacesElements.Get(), FaceLocationsElements.Get(), this->Types,
-        this->CellData->GetGhostArray(), this->GetNumberOfPoints(), newCells->GetOffsetsArray(),
-        newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
-        newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
-        newFaceLocations->GetConnectivityArray()))
+  if (!this->GetPolyhedronFaces())
   {
-    worker(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(), FaceLocationsOffset.Get(),
-      this->Connectivity->GetConnectivityArray(), FacesElements.Get(), FaceLocationsElements.Get(),
-      this->Types, this->CellData->GetGhostArray(), this->GetNumberOfPoints(),
-      newCells->GetOffsetsArray(), newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
-      newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
-      newFaceLocations->GetConnectivityArray());
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::OffsetsArrays>;
+    if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), worker, FacesOffset.Get(),
+          FaceLocationsOffset.Get(), this->Connectivity->GetConnectivityArray(),
+          FacesElements.Get(), FaceLocationsElements.Get(), this->Types,
+          this->CellData->GetGhostArray(), this->GetNumberOfPoints(), newCells->GetOffsetsArray(),
+          newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
+          newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
+          newFaceLocations->GetConnectivityArray()))
+    {
+      worker(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(), FaceLocationsOffset.Get(),
+        this->Connectivity->GetConnectivityArray(), FacesElements.Get(),
+        FaceLocationsElements.Get(), this->Types, this->CellData->GetGhostArray(),
+        this->GetNumberOfPoints(), newCells->GetOffsetsArray(), newCells->GetConnectivityArray(),
+        newFaces->GetOffsetsArray(), newFaces->GetConnectivityArray(),
+        newFaceLocations->GetOffsetsArray(), newFaceLocations->GetConnectivityArray());
+    }
+  }
+  else
+  {
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::OffsetsArrays,
+      vtkArrayDispatch::OffsetsArrays, vtkArrayDispatch::OffsetsArrays>;
+    if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(),
+          FaceLocationsOffset.Get(), worker, this->Connectivity->GetConnectivityArray(),
+          FacesElements.Get(), FaceLocationsElements.Get(), this->Types,
+          this->CellData->GetGhostArray(), this->GetNumberOfPoints(), newCells->GetOffsetsArray(),
+          newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
+          newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
+          newFaceLocations->GetConnectivityArray()))
+    {
+      worker(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(), FaceLocationsOffset.Get(),
+        this->Connectivity->GetConnectivityArray(), FacesElements.Get(),
+        FaceLocationsElements.Get(), this->Types, this->CellData->GetGhostArray(),
+        this->GetNumberOfPoints(), newCells->GetOffsetsArray(), newCells->GetConnectivityArray(),
+        newFaces->GetOffsetsArray(), newFaces->GetConnectivityArray(),
+        newFaceLocations->GetOffsetsArray(), newFaceLocations->GetConnectivityArray());
+    }
   }
 
   vtkNew<vtkUnsignedCharArray> newTypes;
