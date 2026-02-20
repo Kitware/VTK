@@ -115,6 +115,15 @@ public:
   vtkRenderer* GetParentRenderer();
   ///@}
 
+  ///@{
+  /**
+   * Enable/disable resetting the camera to the bounds of the scene
+   * after reorienting the camera. Default is true.
+   */
+  vtkSetMacro(ShouldResetCamera, bool);
+  vtkGetMacro(ShouldResetCamera, bool);
+  vtkBooleanMacro(ShouldResetCamera, bool);
+
 protected:
   vtkCameraOrientationWidget();
   ~vtkCameraOrientationWidget() override;
@@ -149,6 +158,7 @@ protected:
   vtkNew<vtkCameraInterpolator> CameraInterpolator;
 
   bool Animate = true;
+  bool ShouldResetCamera = true;
   int AnimatorTotalFrames = 20;
   int AnimatorCurrentFrame = 0;
   int AnimationTimerId = -1;
