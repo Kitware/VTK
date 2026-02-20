@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkIOHDFCxxTests tests
   TestHDFWriter.cxx,NO_VALID
   TestHDFWriterTemporal.cxx,NO_VALID
   TestHDFWriterChangingTopology.cxx,NO_VALID
+  TestHDFWriterPolyhedra.cxx,NO_VALID
   )
 
 if (TARGET VTK::ParallelMPI)
