@@ -73,7 +73,10 @@ bool vtkHyperTreeGridCellSizeStrategy::InsertSize(double cellSize, vtkIdType cur
     this->SizeDiscreteValues->InsertTuple1(this->SizeDiscreteValues->GetNumberOfTuples(), cellSize);
   }
   // New element or not, fill the indirection table
-  this->SizeIndirectionTable->SetTuple1(currentIndex, inserted.first->second);
+  if (currentIndex < this->SizeIndirectionTable->GetNumberOfTuples())
+  {
+    this->SizeIndirectionTable->SetTuple1(currentIndex, inserted.first->second);
+  }
   return inserted.first->second < std::numeric_limits<unsigned char>::max();
 }
 

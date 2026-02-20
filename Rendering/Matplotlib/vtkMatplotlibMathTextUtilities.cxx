@@ -1017,6 +1017,12 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
     {
       unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
+      if (ptr == nullptr)
+      {
+        vtkErrorMacro("image returned null ScalarPointer");
+        return false;
+      }
+
       // Background, do not load python data
       if (row > pythonRowStart || col < pythonColStart || row <= pythonRowEnd ||
         col >= pythonColEnd)
