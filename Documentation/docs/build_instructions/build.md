@@ -241,7 +241,7 @@ For general assistance, please see the documentation for
 [cmake-modules-find]: https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
 ```
 :::{hint}
-Different features can be enabled/disabled by setting the [Build Settings](build_settings.md) during the configure stage.
+Different features can be enabled/disabled by setting the [Build Settings](build_settings.md) during the configure stage, one can even use presets such as `default`, `mini` or `dev` with the `--preset=default` cmake argument.
 :::
 
 ## Building
