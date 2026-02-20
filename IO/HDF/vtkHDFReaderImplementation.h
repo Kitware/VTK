@@ -52,6 +52,12 @@ public:
    * Closes the VTK HDF file and releases any allocated resources.
    */
   void Close();
+
+  /**
+   * Close HDF5 groups stored as class members.
+   */
+  void CloseMemberGroups();
+
   /**
    * Type of vtkDataSet stored by the HDF file, such as VTK_IMAGE_DATA or
    * VTK_UNSTRUCTURED_GRID, from vtkTypes.h
