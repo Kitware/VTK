@@ -27,11 +27,17 @@
 #include "vtkStringFormatter.h"
 
 #include <cstddef>
+#include <cstdlib>
 #include <dictobject.h>
 #include <sstream>
+#include <unordered_map>
 
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject* PyVTKObject_Type = nullptr;
+
+// Map from type to original tp_doc, used to restore docstrings when overrides are cancelled.
+// If a type is in this map, its current tp_doc was allocated with strdup and must be freed.
+static std::unordered_map<PyTypeObject*, const char*> OriginalDocStrings;
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -103,6 +109,16 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
         const char* docStr = PyUnicode_AsUTF8(overrideDoc);
         if (docStr)
         {
+          // Save the original tp_doc on first override for this type
+          if (OriginalDocStrings.find(typeobj) == OriginalDocStrings.end())
+          {
+            OriginalDocStrings[typeobj] = typeobj->tp_doc;
+          }
+          else
+          {
+            // Free the previously strdup'd override doc
+            free(const_cast<char*>(typeobj->tp_doc));
+          }
           typeobj->tp_doc = strdup(docStr);
         }
       }
@@ -123,6 +139,14 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     if (thecls)
     {
       thecls->py_type = typeobj;
+    }
+    // Restore the original docstring if it was overridden
+    auto it = OriginalDocStrings.find(typeobj);
+    if (it != OriginalDocStrings.end())
+    {
+      free(const_cast<char*>(typeobj->tp_doc));
+      typeobj->tp_doc = it->second;
+      OriginalDocStrings.erase(it);
     }
     // Delete the __override__ attribute if it exists
     if (PyDict_DelItemString(typeobj->tp_dict, "__override__") == -1)
