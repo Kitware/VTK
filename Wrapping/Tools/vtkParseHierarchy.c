@@ -1114,6 +1114,7 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
   const HierarchyInfo* info, ValueInfo* val, StringCache* cache, const char* scope)
 {
   char* cp;
+  char* newclass;
   size_t n, m, l;
   HierarchyEntry* entry;
   int scope_needs_free = 0;
@@ -1193,7 +1194,34 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
     }
     else
     {
+      /* there is no entry for the type in the hierarchy files */
       result = 0;
+      /* but if it is "qualifier::type" maybe "qualifier" will be found */
+      l = vtkParse_IdentifierLength(val->Class);
+      if (val->Class[l] == ':' && val->Class[l + 1] == ':')
+      {
+        /* do a lookup on the qualifier */
+        cp = (char*)malloc(l + 1);
+        memcpy(cp, val->Class, l);
+        cp[l] = '\0';
+        entry = vtkParseHierarchy_FindEntryEx(info, cp, scope);
+        if (entry && entry->IsTypedef)
+        {
+          /* if the qualifier is a known typedef, expand it */
+          ValueInfo tmpval;
+          vtkParse_InitValue(&tmpval);
+          vtkParse_ValueInfoFromString(&tmpval, cache, cp);
+          vtkParseHierarchy_ExpandTypedefsInValue(info, &tmpval, cache, scope);
+          /* append "::type" to the expanded qualifier */
+          m = strlen(tmpval.Class);
+          newclass = vtkParse_NewString(cache, m + strlen(&val->Class[l]));
+          memcpy(newclass, tmpval.Class, m);
+          strcpy(&newclass[m], &val->Class[l]);
+          val->Class = newclass;
+          result = 1;
+        }
+        free(cp);
+      }
       break;
     }
   }
