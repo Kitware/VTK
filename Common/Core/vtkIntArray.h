@@ -27,6 +27,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkIntArray : public vtkDataArray
 {
+public:
   vtkTypeMacro(vtkIntArray, vtkDataArray);
 #ifndef __VTK_WRAP_JAVA__
 #undef vtkDataArray

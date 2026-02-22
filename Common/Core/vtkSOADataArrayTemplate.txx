@@ -86,7 +86,7 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
     this->SetNumberOfComponents(o->NumberOfComponents);
     this->CopyComponentNames(o);
     assert(this->Data.size() == o->Data.size());
-    for (size_t cc = 0; cc < this->Data.size(); ++cc)
+    for (int cc = 0; cc < static_cast<int>(this->Data.size()); ++cc)
     {
       vtkBuffer<ValueType>* thisBuffer = this->Data[cc];
       vtkBuffer<ValueType>* otherBuffer = o->Data[cc];
