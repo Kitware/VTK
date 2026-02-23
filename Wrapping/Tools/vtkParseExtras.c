@@ -569,6 +569,11 @@ size_t vtkParse_BasicTypeFromString(
       classname = "void";
       base_bits = VTK_PARSE_VOID;
     }
+    else if (n == 8 && strncmp(cp, "typename", n) == 0)
+    {
+      classname = NULL;
+      base_bits = 0;
+    }
     else
     {
       /* if type already found, break */
