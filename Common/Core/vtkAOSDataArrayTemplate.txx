@@ -65,6 +65,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::SetArray(
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
 }
 
 //-----------------------------------------------------------------------------
@@ -94,6 +95,55 @@ template <class ValueType>
 void vtkAOSDataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void*))
 {
   this->Buffer->SetFreeFunction(false, callback);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetBuffer(vtkAbstractBuffer* buffer, bool updateMaxId)
+{
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  vtkBuffer<ValueType>* typedBuffer = vtkBuffer<ValueType>::SafeDownCast(buffer);
+  if (typedBuffer == nullptr)
+  {
+    vtkErrorMacro("Buffer type does not match array type. Expected vtkBuffer<"
+      << this->GetDataTypeAsString() << ">.");
+    return;
+  }
+
+  this->SetBuffer(typedBuffer, updateMaxId);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetBuffer(vtkBuffer<ValueType>* buffer, bool updateMaxId)
+{
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  // Replace the old buffer with the new one
+  if (this->Buffer != buffer)
+  {
+    this->Buffer->Delete();
+    this->Buffer = buffer;
+    buffer->Register(nullptr);
+  }
+
+  if (updateMaxId)
+  {
+    this->Size = buffer->GetSize();
+    this->MaxId = this->Size - 1;
+  }
+
+  this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
 }
 
 //-----------------------------------------------------------------------------
@@ -271,9 +321,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray* other)
     this->CopyComponentNames(o);
     if (this->Buffer != o->Buffer)
     {
-      this->Buffer->Delete();
-      this->Buffer = o->Buffer;
-      this->Buffer->Register(nullptr);
+      this->SetBuffer(o->Buffer);
     }
     this->DataChanged();
   }
@@ -423,6 +471,7 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
   if (this->Buffer->Allocate(numValues))
   {
     this->Size = this->Buffer->GetSize();
+    this->InvokeEvent(vtkCommand::BufferChangedEvent);
     return true;
   }
   return false;

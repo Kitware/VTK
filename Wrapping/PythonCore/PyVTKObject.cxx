@@ -81,6 +81,13 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 
       // Set the override
       PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+      if (!thecls)
+      {
+        std::string str("could not find class ");
+        str += clsName;
+        PyErr_SetString(PyExc_TypeError, str.c_str());
+        return nullptr;
+      }
       thecls->py_type = newtypeobj;
       // Store override in dict of old type, to keep a reference to it
       PyDict_SetItemString(typeobj->tp_dict, "__override__", type);
@@ -97,7 +104,10 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
   {
     // Clear the override
     PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
-    thecls->py_type = typeobj;
+    if (thecls)
+    {
+      thecls->py_type = typeobj;
+    }
     // Delete the __override__ attribute if it exists
     if (PyDict_DelItemString(typeobj->tp_dict, "__override__") == -1)
     {

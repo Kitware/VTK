@@ -16,8 +16,8 @@
 #include "vtkCommonCoreModule.h"     // For export macro
 #include "vtkDataArray.h"
 
-// Fake the superclass for the wrappers.
-#ifndef __VTK_WRAP__
+// Fake the superclass for the Java wrappers.
+#ifndef __VTK_WRAP_JAVA__
 #define vtkDataArray vtkAOSDataArrayTemplate<float>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,10 +25,9 @@ class VTKCOMMONCORE_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkFloatArray, vtkDataArray);
-#ifndef __VTK_WRAP__
+#ifndef __VTK_WRAP_JAVA__
 #undef vtkDataArray
 #endif
-
   static vtkFloatArray* New();
   static vtkFloatArray* ExtendedNew();
   void PrintSelf(ostream& os, vtkIndent indent) override;

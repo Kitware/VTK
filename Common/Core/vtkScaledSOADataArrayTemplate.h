@@ -297,7 +297,6 @@ VTK_ABI_NAMESPACE_END
   vtkAbstractBuffer* GetComponentBuffer(int comp);                                                 \
   void SetArray(int comp, VTK_ZEROCOPY T* array, vtkIdType size, bool updateMaxId, bool save,      \
     int deleteMethod);
-
 #endif // header guard
 
 // This portion must be OUTSIDE the include blockers. This is used to tell

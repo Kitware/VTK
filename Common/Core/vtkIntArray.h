@@ -20,8 +20,8 @@
 #include "vtkCommonCoreModule.h"     // For export macro
 #include "vtkDataArray.h"
 
-// Fake the superclass for the wrappers.
-#ifndef __VTK_WRAP__
+// Fake the superclass for the Java wrappers.
+#ifndef __VTK_WRAP_JAVA__
 #define vtkDataArray vtkAOSDataArrayTemplate<int>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
@@ -29,7 +29,7 @@ class VTKCOMMONCORE_EXPORT vtkIntArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkIntArray, vtkDataArray);
-#ifndef __VTK_WRAP__
+#ifndef __VTK_WRAP_JAVA__
 #undef vtkDataArray
 #endif
   static vtkIntArray* New();

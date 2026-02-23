@@ -149,6 +149,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestSCN.cxx
   TestSMP.cxx
   TestSmartPointer.cxx
+  TestSetBuffer.cxx
   TestSOADataArray.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx

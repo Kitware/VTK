@@ -86,15 +86,13 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
     this->SetNumberOfComponents(o->NumberOfComponents);
     this->CopyComponentNames(o);
     assert(this->Data.size() == o->Data.size());
-    for (size_t cc = 0; cc < this->Data.size(); ++cc)
+    for (int cc = 0; cc < static_cast<int>(this->Data.size()); ++cc)
     {
       vtkBuffer<ValueType>* thisBuffer = this->Data[cc];
       vtkBuffer<ValueType>* otherBuffer = o->Data[cc];
       if (thisBuffer != otherBuffer)
       {
-        thisBuffer->Delete();
-        this->Data[cc] = otherBuffer;
-        otherBuffer->Register(nullptr);
+        this->SetBuffer(cc, otherBuffer);
       }
     }
     this->DataChanged();
@@ -220,6 +218,72 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(
   }
 
   this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetBuffer(
+  int comp, vtkAbstractBuffer* buffer, bool updateMaxId)
+{
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  vtkBuffer<ValueType>* typedBuffer = vtkBuffer<ValueType>::SafeDownCast(buffer);
+  if (typedBuffer == nullptr)
+  {
+    vtkErrorMacro("Buffer type does not match array type. Expected vtkBuffer<"
+      << this->GetDataTypeAsString() << ">.");
+    return;
+  }
+
+  this->SetBuffer(comp, typedBuffer, updateMaxId);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetBuffer(
+  int comp, vtkBuffer<ValueType>* buffer, bool updateMaxId)
+{
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+  {
+    vtkErrorMacro("Invalid component number '"
+      << comp
+      << "' specified. "
+         "Use `SetNumberOfComponents` first to set the number of components.");
+    return;
+  }
+
+  if (buffer == nullptr)
+  {
+    vtkErrorMacro("Cannot set a null buffer.");
+    return;
+  }
+
+  while (this->Data.size() < static_cast<size_t>(numComps))
+  {
+    this->Data.push_back(vtkBuffer<ValueType>::New());
+  }
+
+  // Replace the old buffer with the new one
+  if (this->Data[comp] != buffer)
+  {
+    this->Data[comp]->Delete();
+    this->Data[comp] = buffer;
+    buffer->Register(nullptr);
+  }
+
+  if (updateMaxId)
+  {
+    this->Size = numComps * buffer->GetSize();
+    this->MaxId = this->Size - 1;
+  }
+  this->DataChanged();
+  this->InvokeEvent(vtkCommand::BufferChangedEvent);
 }
 
 //-----------------------------------------------------------------------------
