@@ -305,7 +305,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     output->GetCellData()->CopyStructure(input->GetCellData());
   }
 
-  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this, this->Controller, input, output };
+  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this->Controller, input, output };
   subroutines.InitializeCellData();
   this->UpdateProgress(0.1);
 

@@ -163,7 +163,7 @@ public:
    * Exchange variable-sized messages between all processes
    */
   int AllToAllVVoidArray(const void* sendBuffer, const int* sendCounts, const int* sendOffsets,
-    void* recvBuffer, const int* recvCounts, const int* recvOffsets, int type);
+    void* recvBuffer, const int* recvCounts, const int* recvOffsets, int type) override;
 
   ///@{
   /**

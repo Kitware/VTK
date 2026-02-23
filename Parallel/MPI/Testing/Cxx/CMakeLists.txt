@@ -16,10 +16,16 @@ vtk_add_test_mpi(vtkParallelMPICxxTests-MPI 2_proc_tests
   TestProcess.cxx
   )
 
+set(vtkParallelMPICxxTests-MPI_NUMPROCS 4)
+vtk_add_test_mpi(vtkParallelMPICxxTests-MPI 4_proc_tests
+  TestAllToAllVoidArray.cxx
+  )
+
 set(all_tests
   ${tests}
   ${no_data_tests}
   ${2_proc_tests}
+  ${4_proc_tests}
   )
 vtk_test_cxx_executable(vtkParallelMPICxxTests-MPI all_tests
   TestExerciseMultiProcessController.cxx

@@ -37,12 +37,11 @@ class vtkHyperTreeGridGhostCellsGeneratorInternals
 
 public:
   /**
-   * @param self reference to the GCG object, used for debug and error prints
    * @param controller reference to the MPI controller used for parallel operations
    * @param inputHTG reference to the input HyperTreeGrid
    * @param outputHTG reference to the output HyperTreeGrid
    */
-  vtkHyperTreeGridGhostCellsGeneratorInternals(vtkHyperTreeGridGhostCellsGenerator* self,
+  vtkHyperTreeGridGhostCellsGeneratorInternals(
     vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG);
 
   /**
@@ -155,7 +154,6 @@ public:
   using CellDataAttributes = std::map<std::string, CellDataArray>;
 
 private:
-  vtkHyperTreeGridGhostCellsGenerator* Self = nullptr;
   vtkMultiProcessController* Controller = nullptr;
   vtkHyperTreeGrid* InputHTG = nullptr;
   vtkHyperTreeGrid* OutputHTG = nullptr;

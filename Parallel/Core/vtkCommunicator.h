@@ -68,7 +68,8 @@ public:
     SCATTER_TAG = 13,
     SCATTERV_TAG = 14,
     REDUCE_TAG = 15,
-    BARRIER_TAG = 16
+    BARRIER_TAG = 16,
+    ALL_TO_ALLV_TAG = 17
   };
 
   enum StandardOperations
@@ -300,6 +301,13 @@ public:
   ///@}
 
   //---------------------- Collective Operations ----------------------
+
+  /**
+   * Exchange variable-sized messages between all processes
+   */
+  virtual int AllToAllVVoidArray(const void* sendBuffer, const int* sendCounts,
+    const int* sendOffsets, void* recvBuffer, const int* recvCounts, const int* recvOffsets,
+    int type);
 
   /**
    * Will block the processes until all other processes reach the Barrier
