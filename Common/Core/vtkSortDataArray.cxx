@@ -176,11 +176,8 @@ struct Shuffle1Tuples
     vtkIdType size = arrayIn->GetNumberOfTuples();
     if (arrayIn->HasStandardMemoryLayout())
     {
-      auto arrayOut = vtk::TakeSmartPointer(
-        TArray::FastDownCast(vtkAbstractArray::CreateArray(arrayIn->GetDataType())));
-      arrayOut->SetNumberOfTuples(size);
       auto in = vtk::DataArrayValueRange<1, T>(arrayIn);
-      auto out = vtk::DataArrayValueRange<1, T>(arrayOut);
+      T* out = new T[size];
 
       if (dir == 0) // ascending
       {
@@ -197,7 +194,7 @@ struct Shuffle1Tuples
           out[i] = in[idx[end - i]];
         }
       }
-      arrayIn->ShallowCopy(arrayOut); // replace contents without
+      arrayIn->SetVoidArray(out, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
     }
     else
     {

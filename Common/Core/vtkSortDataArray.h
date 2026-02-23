@@ -143,7 +143,7 @@ public:
    * the sort, idx[0] indicates where in the array the tuple was originally
    * located prior to sorting.) This sorted index array can be used to
    * shuffle various types of VTK arrays (the types supported correspond to
-   * the various arrays which are subclasses of vtkDataArrayTemplate, use
+   * the various arrays which are concrete subclasses of vtkAbstractArray, use
    * ShuffleArray() or for vtkIdList, use ShuffleIdList()). Also, the sort
    * array, being an vtkIdType* (i.e., id list), can also be used to identify
    * points or cells in sorted order (based on the data in the originating
@@ -163,7 +163,7 @@ public:
   static void ShuffleArray(vtkIdType* idx, int vtkNotUsed(dataType), vtkIdType vtkNotUsed(numKeys),
     int vtkNotUsed(numComp), vtkAbstractArray* arr, void* vtkNotUsed(dataIn), int dir)
   {
-    vtkSortDataArray::Shuffle1Array(arr, idx, dir);
+    vtkSortDataArray::ShuffleArray(arr, idx, dir);
   }
   static void ShuffleIdList(
     vtkIdType* idx, vtkIdType sze, vtkIdList* arrayIn, vtkIdType* dataIn, int dir);
