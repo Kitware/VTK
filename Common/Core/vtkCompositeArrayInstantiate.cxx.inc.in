@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#define VTK_COMPOSITE_ARRAY_INSTANTIATING
-#include "vtkCompositeArray.h"
-VTK_INSTANTIATE_COMPOSITE_ARRAY(@INSTANTIATION_VALUE_TYPE@)
 
+// This file generates an instantiation of vtkCompositeArray.
+
+#define VTK_COMPOSITE_ARRAY_INSTANTIATING
 #include "vtkCompositeArray.txx"
-VTK_INSTANTIATE_COMPOSITE_ARRAY_FUNCTIONS(@INSTANTIATION_VALUE_TYPE@)
+
+VTK_COMPOSITE_ARRAY_INSTANTIATE(@INSTANTIATION_VALUE_TYPE@)

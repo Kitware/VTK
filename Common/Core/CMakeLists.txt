@@ -375,6 +375,7 @@ set(template_classes
   vtkArrayInterpolate
   vtkArrayIteratorTemplate
   vtkArrayPrint
+  vtkCompositeArray
   vtkDenseArray
   vtkGenericDataArray
   vtkScaledSOADataArrayTemplate
@@ -607,8 +608,6 @@ endif ()
 set(nowrap_headers
   vtkAffineImplicitBackend.h
   vtkCollectionRange.h
-  vtkCompositeArray.h
-  vtkConstantArray.h
   vtkConstantImplicitBackend.h
   vtkDataArrayAccessor.h
   vtkDataArrayTupleRange_AOS.h

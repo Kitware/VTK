@@ -16,12 +16,6 @@ vtkComposite@VTK_TYPE_NAME@Array::vtkComposite@VTK_TYPE_NAME@Array() = default;
 vtkComposite@VTK_TYPE_NAME@Array::~vtkComposite@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkComposite@VTK_TYPE_NAME@Array::ConstructBackend(vtkDataArrayCollection* arrays)
-{
-  this->RealSuperclass::ConstructBackend(arrays);
-}
-
-//------------------------------------------------------------------------------
 void vtkComposite@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);
