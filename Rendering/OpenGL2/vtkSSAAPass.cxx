@@ -34,6 +34,7 @@ vtkSSAAPass::vtkSSAAPass()
   this->SSAAHelper = nullptr;
   this->DelegatePass = nullptr;
   this->ColorFormat = vtkTextureObject::Fixed8;
+  this->SSAAHelper = new vtkOpenGLHelper;
 }
 
 //------------------------------------------------------------------------------
@@ -191,26 +192,14 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   // Use a subsample shader, do it horizontally. this->Pass1 is the source
   // (this->Pass2 is the fbo render target)
 
-  if (!this->SSAAHelper)
+  if (!this->SSAAHelper->Program)
   {
-    this->SSAAHelper = new vtkOpenGLHelper;
-    // build the shader source code
-    //    std::string VSSource = vtkSSAAPassVS;
-    std::string VSSource = vtkTextureObjectVS;
-    std::string FSSource = vtkSSAAPassFS;
-    std::string GSSource;
-
     // compile and bind it if needed
-    vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(
-      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+    vtkShaderProgram* newShader =
+      renWin->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS, vtkSSAAPassFS, nullptr);
 
-    // if the shader changed reinitialize the VAO
-    if (newShader != this->SSAAHelper->Program)
-    {
-      this->SSAAHelper->Program = newShader;
-      this->SSAAHelper->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-    }
-
+    this->SSAAHelper->Program = newShader;
+    this->SSAAHelper->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
     this->SSAAHelper->ShaderSourceTime.Modified();
   }
   else
