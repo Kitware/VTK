@@ -2165,16 +2165,6 @@ void vtkWebGPURenderWindow::DestroyWindow()
 }
 
 //-------------------------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
-{
-  this->Superclass::SetInteractor(rwi);
-  if (this->HardwareWindow)
-  {
-    this->HardwareWindow->SetInteractor(rwi);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------
 bool vtkWebGPURenderWindow::EnsureDisplay()
 {
   if (!this->HardwareWindow)

@@ -306,11 +306,6 @@ public:
   vtkSmartPointer<vtkImageData> SaveAttachmentToVTI(AttachmentTypeForVTISnapshot type);
 
   /**
-   * Set the interactor for the window
-   */
-  void SetInteractor(vtkRenderWindowInteractor*) override;
-
-  /**
    * Ensure RenderWindow's display is opened
    */
   bool EnsureDisplay() override;

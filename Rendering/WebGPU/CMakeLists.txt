@@ -25,6 +25,7 @@ set(classes
   vtkWebGPUGlyph3DMapper
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers
+  vtkWebGPUImageMapper
   vtkWebGPULight
   vtkWebGPUPolyDataMapper
   vtkWebGPUPolyDataMapper2D
@@ -85,7 +86,7 @@ set(webgpu_overrides
   CompositePolyDataMapperDelegator
   # NI: LabeledContourMapper
   HardwareSelector
-  # NI: ImageMapper
+  ImageMapper
   # NI: ImageSliceMapper
   Glyph3DMapper
   # NI: HyperTreeGridMapper
