@@ -32,19 +32,15 @@ public:
 #endif
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
+  // make up the interface of vtkConstantArray, which is ignored
   // by the wrappers.
 #if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
-  vtkCreateReadOnlyWrappedArrayInterface(@CONCRETE_TYPE@);
+  vtkCreateConstantWrappedArrayInterface(@CONCRETE_TYPE@);
 #endif
 
   static vtkConstant@VTK_TYPE_NAME@Array* New();
   static vtkConstant@VTK_TYPE_NAME@Array* ExtendedNew();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  // This macro expands to the set of method declarations that
-  // make up the interface of vtkImplicitArray, which is ignored
-  // by the wrappers.
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
@@ -53,11 +49,6 @@ public:
   {
     return static_cast<vtkConstant@VTK_TYPE_NAME@Array*>(Superclass::FastDownCast(source));
   }
-
-  /**
-   * Set the constant value for this array.
-   */
-  void ConstructBackend(@CONCRETE_TYPE@ value);
 
 protected:
   vtkConstant@VTK_TYPE_NAME@Array();

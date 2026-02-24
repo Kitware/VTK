@@ -16,12 +16,6 @@ vtkConstant@VTK_TYPE_NAME@Array::vtkConstant@VTK_TYPE_NAME@Array() = default;
 vtkConstant@VTK_TYPE_NAME@Array::~vtkConstant@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkConstant@VTK_TYPE_NAME@Array::ConstructBackend(@CONCRETE_TYPE@ value)
-{
-  this->RealSuperclass::ConstructBackend(value);
-}
-
-//------------------------------------------------------------------------------
 void vtkConstant@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

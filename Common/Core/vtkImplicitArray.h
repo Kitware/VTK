@@ -524,8 +524,6 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-struct vtkConstantImplicitBackend;
-template <typename ValueType>
 class vtkStructuredPointBackend;
 template <typename ValueType>
 class vtkIndexedImplicitBackend;
@@ -578,8 +576,6 @@ VTK_ABI_NAMESPACE_END
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
-VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
-  vtkConstantImplicitBackend, vtkArrayTypes::VTK_CONSTANT_ARRAY)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
   vtkStructuredPointBackend, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(

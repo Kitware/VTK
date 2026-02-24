@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#define VTK_CONSTANT_ARRAY_INSTANTIATING
-#include "vtkConstantArray.h"
 
-VTK_INSTANTIATE_CONSTANT_ARRAY(@INSTANTIATION_VALUE_TYPE@)
+// This file generates an instantiation of vtkConstantArray.
+
+#define VTK_CONSTANT_ARRAY_INSTANTIATING
+#include "vtkConstantArray.txx"
+
+VTK_CONSTANT_ARRAY_INSTANTIATE(@INSTANTIATION_VALUE_TYPE@)

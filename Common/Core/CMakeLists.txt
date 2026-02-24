@@ -376,6 +376,7 @@ set(template_classes
   vtkArrayIteratorTemplate
   vtkArrayPrint
   vtkCompositeArray
+  vtkConstantArray
   vtkDenseArray
   vtkGenericDataArray
   vtkScaledSOADataArrayTemplate
