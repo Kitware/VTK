@@ -185,7 +185,7 @@ foreach (type IN LISTS vtk_numeric_types)
   if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|AppleClang|Clang)$")
     # This silences the following warning:
     #     type attributes ignored after type is already defined [-Wattributes]
-    #     template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkStructuredPointBackend<ValueType>>;
+    #     template class VTKCOMMONCORE_EXPORT vtkStructuredPointArray<ValueType>;
     # This warning is caused by the vtkArrayDispatch instantiations,
     # controlled by the VTK_DISPATCH_*_ARRAYS cmake variables.
     # When ON, a vtkImplicitArray<vtk*Backend<ValueType>> will be indirectly instantiated
@@ -385,6 +385,7 @@ set(template_classes
   vtkSparseArray
   vtkStdFunctionArray
   vtkStridedArray
+  vtkStructuredPointArray
   vtkThreadedTaskQueue
   vtkTypedArray)
 
@@ -622,7 +623,6 @@ set(nowrap_headers
   vtkImplicitArrayTraits.h
   vtkInherits.h
   vtkMathPrivate.hxx
-  vtkStructuredPointArray.h
   vtkTypeName.h
   ${vtk_smp_nowrap_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_DISPATCH_IMPLICIT_ARRAYS.h"

@@ -64,7 +64,7 @@ foreach (array_prefix IN ITEMS ScaledSOA StdFunction)
   endforeach ()
 endforeach ()
 
-foreach (array_prefix IN ITEMS Affine Composite Constant Indexed SOA Strided)
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed SOA Strided StructuredPoint)
   foreach (type IN LISTS vtk_fixed_size_numeric_types)
     vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
     _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" "")
