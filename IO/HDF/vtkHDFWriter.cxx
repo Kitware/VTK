@@ -79,6 +79,15 @@ std::string GetExternalBlockFileName(const std::string&& filename, const std::st
   // <FileName>_<BlockName>.vtkhdf
   return filename + "_" + blockname + ".vtkhdf";
 }
+
+/**
+ * Check if the given unstructured grid has polyhedra cells.
+ */
+bool HasPolyhedra(vtkUnstructuredGrid* input)
+{
+  return input && input->GetPolyhedronFaces() != nullptr &&
+    input->GetPolyhedronFaces()->GetNumberOfCells() > 0;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -454,11 +463,20 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     return false;
   }
 
-  if ((this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1)) &&
-    !this->InitializeTemporalUnstructuredGrid(group))
+  if ((this->CurrentTimeIndex == 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1)))
   {
-    vtkErrorMacro(<< "Temporal initialization failed for Unstructured grid " << this->FileName);
-    return false;
+    if (!this->InitializeTemporalUnstructuredGrid(group))
+    {
+      vtkErrorMacro(<< "Temporal initialization failed for Unstructured grid " << this->FileName);
+      return false;
+    }
+
+    if (::HasPolyhedra(input) && !this->InitializeTemporalPolyhedra(group))
+    {
+      vtkErrorMacro(<< "Temporal initialization failed for polyhedra in Unstructured grid "
+                    << this->FileName);
+      return false;
+    }
   }
 
   vtkCellArray* cells = input->GetCells();
@@ -476,6 +494,18 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     writeSuccess &= this->AppendPoints(group, input);
     writeSuccess &= this->AppendCellTypes(group, input);
     writeSuccess &= this->AppendConnectivity(group, cells);
+
+    if (::HasPolyhedra(input))
+    {
+      writeSuccess &= this->AppendNumberOfFaceConnectivityIds(group, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendNumberOfFaces(group, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendFaceConnectivity(group, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendFaceOffsets(group, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendPolyhedronToFaces(group, input->GetPolyhedronFaceLocations());
+      writeSuccess &= this->AppendPolyhedronOffsets(group, input->GetPolyhedronFaceLocations());
+      writeSuccess &=
+        this->AppendNumberOfPolyhedronToFaceIds(group, input->GetPolyhedronFaceLocations());
+    }
     writeSuccess &= this->AppendOffsets(group, cells);
   }
 
@@ -624,6 +654,15 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input)
       { -input->GetCells()->GetNumberOfConnectivityIds() }, true, true);
     result &=
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { -1 }, true, true);
+    if (::HasPolyhedra(input))
+    {
+      result &= this->Impl->AddOrCreateSingleRowDataset(
+        stepsGroup, "FaceConnectivityOffsets", { -1 }, true);
+      result &=
+        this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets", { -1 }, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(
+        stepsGroup, "PolyhedronToFaceIdOffsets", { -1 }, true);
+    }
   }
 
   result &= this->Impl->AddOrCreateSingleRowDataset(
@@ -643,6 +682,16 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input)
     stepsGroup, "ConnectivityIdOffsets", { input->GetCells()->GetNumberOfConnectivityIds() }, true);
   result &= this->Impl->AddOrCreateSingleRowDataset(
     stepsGroup, "PartOffsets", { 1 }, true); // !12714: fix for multi-part
+
+  if (::HasPolyhedra(input))
+  {
+    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets",
+      { input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(
+      stepsGroup, "FaceOffsetsOffsets", { input->GetPolyhedronFaces()->GetNumberOfCells() }, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets",
+      { input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
+  }
 
   return result;
 }
@@ -777,6 +826,42 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
+{
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  vtkDebugMacro("Initialize Temporal polyhedra for file " << this->FileName);
+
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
+
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "FaceConnectivityOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "FaceOffsetsOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "PolyhedronToFaceIdOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets", { 0 });
+
+  if (!initResult)
+  {
+    vtkErrorMacro(<< "Could not initialize steps offset arrays for polyhedra when creating: "
+                  << this->FileName);
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 {
   if (!this->IsTemporal)
@@ -840,6 +925,14 @@ bool vtkHDFWriter::InitializeChunkedDatasets(hid_t group, vtkUnstructuredGrid* i
     !this->InitializePrimitiveDataset(group))
   {
     vtkErrorMacro(<< "Could not initialize datasets when creating: " << this->FileName);
+    return false;
+  }
+
+  bool hasPolyhedra =
+    input->GetPolyhedronFaces() != nullptr && input->GetPolyhedronFaces()->GetNumberOfCells() > 0;
+  if (hasPolyhedra && !this->InitializePolyhedraDatasets(group))
+  {
+    vtkErrorMacro(<< "Could not initialize polyhedra datasets when creating: " << this->FileName);
     return false;
   }
 
@@ -924,6 +1017,29 @@ bool vtkHDFWriter::InitializePrimitiveDataset(hid_t group)
     group, "Connectivity", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
   initResult &= this->Impl->InitDynamicDataset(
     group, "NumberOfConnectivityIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+
+  return initResult;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializePolyhedraDatasets(hid_t group)
+{
+  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(group, "FaceConnectivity", H5T_STD_I64LE,
+    SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
+  initResult &= this->Impl->InitDynamicDataset(
+    group, "NumberOfFaceConnectivityIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    group, "NumberOfFaces", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    group, "FaceOffsets", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
+  initResult &= this->Impl->InitDynamicDataset(group, "PolyhedronToFaces", H5T_STD_I64LE,
+    SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
+  initResult &= this->Impl->InitDynamicDataset(group, "PolyhedronOffsets", H5T_STD_I64LE,
+    SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
+  initResult &= this->Impl->InitDynamicDataset(
+    group, "NumberOfPolyhedronToFaceIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   return initResult;
 }
 
@@ -976,6 +1092,34 @@ bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendNumberOfFaceConnectivityIds(hid_t group, vtkCellArray* faces)
+{
+  vtkIdType nbFaceConn = faces ? faces->GetNumberOfConnectivityIds() : 0;
+  if (!this->Impl->AddOrCreateSingleRowDataset(
+        group, "NumberOfFaceConnectivityIds", { nbFaceConn }))
+  {
+    vtkErrorMacro(<< "Cannot create NumberOfFaceConnectivityIds dataset when creating: "
+                  << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendNumberOfFaces(hid_t group, vtkCellArray* faces)
+{
+#if 1
+  vtkIdType nbFaces = faces ? faces->GetNumberOfCells() : 0;
+  if (!this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfFaces", { nbFaces }))
+  {
+    vtkErrorMacro(<< "Cannot create NumberOfFaces dataset when creating: " << this->FileName);
+    return false;
+  }
+#endif
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 {
   vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
@@ -1012,6 +1156,104 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
   if (!this->Impl->AddOrCreateDataset(group, "Connectivity", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create Connectivity dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, vtkCellArray* faces)
+{
+  vtkSmartPointer<vtkDataArray> connArray = nullptr;
+  if (faces && faces->GetConnectivityArray())
+  {
+    connArray = faces->GetConnectivityArray();
+  }
+  else
+  {
+    connArray = vtkSmartPointer<vtkIntArray>::New();
+    connArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "FaceConnectivity", H5T_STD_I64LE, connArray))
+  {
+    vtkErrorMacro(<< "Can not create FaceConnectivity dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendFaceOffsets(hid_t group, vtkCellArray* faces)
+{
+  vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
+  if (faces && faces->GetOffsetsArray())
+  {
+    offsetsArray = faces->GetOffsetsArray();
+  }
+  else
+  {
+    offsetsArray = vtkSmartPointer<vtkIntArray>::New();
+    offsetsArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "FaceOffsets", H5T_STD_I64LE, offsetsArray))
+  {
+    vtkErrorMacro(<< "Can not create FaceOffsets dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendPolyhedronToFaces(hid_t group, vtkCellArray* polyhedrons)
+{
+  vtkSmartPointer<vtkDataArray> connArray = nullptr;
+  if (polyhedrons && polyhedrons->GetConnectivityArray())
+  {
+    connArray = polyhedrons->GetConnectivityArray();
+  }
+  else
+  {
+    connArray = vtkSmartPointer<vtkIntArray>::New();
+    connArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "PolyhedronToFaces", H5T_STD_I64LE, connArray))
+  {
+    vtkErrorMacro(<< "Can not create PolyhedronToFaces dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendPolyhedronOffsets(hid_t group, vtkCellArray* polyhedrons)
+{
+  vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
+  if (polyhedrons && polyhedrons->GetOffsetsArray())
+  {
+    offsetsArray = polyhedrons->GetOffsetsArray();
+  }
+  else
+  {
+    offsetsArray = vtkSmartPointer<vtkIntArray>::New();
+    offsetsArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "PolyhedronOffsets", H5T_STD_I64LE, offsetsArray))
+  {
+    vtkErrorMacro(<< "Can not create PolyhedronOffsets dataset when creating: " << this->FileName);
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* polyhedrons)
+{
+  vtkIdType nbPolyToFaceIds = polyhedrons ? polyhedrons->GetNumberOfConnectivityIds() : 0;
+  if (!this->Impl->AddOrCreateSingleRowDataset(
+        group, "NumberOfPolyhedronToFaceIds", { nbPolyToFaceIds }))
+  {
+    vtkErrorMacro(<< "Cannot create NumberOfPolyhedronToFaceIds dataset when creating: "
+                  << this->FileName);
     return false;
   }
   return true;

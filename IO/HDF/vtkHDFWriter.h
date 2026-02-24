@@ -250,6 +250,7 @@ private:
    */
   bool InitializeTemporalPolyData(hid_t group);
   bool InitializeTemporalUnstructuredGrid(hid_t group);
+  bool InitializeTemporalPolyhedra(hid_t group);
   ///@}
 
   ///@{
@@ -261,6 +262,7 @@ private:
   bool InitializeChunkedDatasets(hid_t group, vtkPolyData* input);
   bool InitializePointDatasets(hid_t group, vtkPoints* input);
   bool InitializePrimitiveDataset(hid_t group);
+  bool InitializePolyhedraDatasets(hid_t group);
   ///@}
 
   /**
@@ -280,6 +282,18 @@ private:
    * OpenRoot should succeed on this->Impl before calling this function
    */
   bool AppendNumberOfCells(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the number of face connectivity Ids to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendNumberOfFaceConnectivityIds(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the number of faces to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendNumberOfFaces(hid_t group, vtkCellArray* input);
 
   /**
    * Add the number of connectivity Ids to the file.
@@ -304,6 +318,36 @@ private:
    * OpenRoot should succeed on this->Impl before calling this function
    */
   bool AppendConnectivity(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the face connectivity array to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendFaceConnectivity(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the face offsets array to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendFaceOffsets(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the polyhedron to faces array to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendPolyhedronToFaces(hid_t group, vtkCellArray* input);
+
+  /**
+   * Add the polyhedron offsets array to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendPolyhedronOffsets(hid_t group, vtkCellArray* input);
+
+  /**
+   * Append the number of polyhedron to face Ids to the file.
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* input);
 
   /**
    * Add the cells of the polydata to the file
