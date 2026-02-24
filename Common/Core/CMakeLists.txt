@@ -384,6 +384,7 @@ set(template_classes
   vtkSOADataArrayTemplate
   vtkSparseArray
   vtkStdFunctionArray
+  vtkStridedArray
   vtkThreadedTaskQueue
   vtkTypedArray)
 
@@ -621,7 +622,6 @@ set(nowrap_headers
   vtkImplicitArrayTraits.h
   vtkInherits.h
   vtkMathPrivate.hxx
-  vtkStridedArray.h
   vtkStructuredPointArray.h
   vtkTypeName.h
   ${vtk_smp_nowrap_headers}

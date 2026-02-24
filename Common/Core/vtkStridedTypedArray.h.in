@@ -35,10 +35,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkImplicitArray, which is ignored
+  // make up the interface of vtkStridedArray, which is ignored
   // by the wrappers.
 #if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
-  vtkCreateReadOnlyWrappedArrayInterface(@CONCRETE_TYPE@);
+  vtkCreateStridedWrappedArrayInterface(@CONCRETE_TYPE@);
 #endif
 
   /**
@@ -48,15 +48,6 @@ public:
   {
     return static_cast<vtkStrided@VTK_TYPE_NAME@Array*>(Superclass::FastDownCast(source));
   }
-
-  ///@{
-  /**
-   * Set the parameters for the strided backend.
-   */
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components, vtkIdType offset);
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components);
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride);
-  ///@}
 
 protected:
   vtkStrided@VTK_TYPE_NAME@Array();
