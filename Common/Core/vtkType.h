@@ -453,38 +453,6 @@ VTK_ABI_NAMESPACE_END
   decl0<decl1<long long>, par>;                                                                    \
   decl0<decl1<unsigned long long>, par>
 
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, delc2)                                \
-  decl0<decl1<float(delc2)>>;                                                                      \
-  decl0<decl1<double(delc2)>>;                                                                     \
-  decl0<decl1<char(delc2)>>;                                                                       \
-  decl0<decl1<signed char(delc2)>>;                                                                \
-  decl0<decl1<unsigned char(delc2)>>;                                                              \
-  decl0<decl1<short(delc2)>>;                                                                      \
-  decl0<decl1<unsigned short(delc2)>>;                                                             \
-  decl0<decl1<int(delc2)>>;                                                                        \
-  decl0<decl1<unsigned int(delc2)>>;                                                               \
-  decl0<decl1<long(delc2)>>;                                                                       \
-  decl0<decl1<unsigned long(delc2)>>;                                                              \
-  decl0<decl1<long long(delc2)>>;                                                                  \
-  decl0<decl1<unsigned long long(delc2)>>
-
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, delc2, par)              \
-  decl0<decl1<float(delc2)>, par>;                                                                 \
-  decl0<decl1<double(delc2)>, par>;                                                                \
-  decl0<decl1<char(delc2)>, par>;                                                                  \
-  decl0<decl1<signed char(delc2)>, par>;                                                           \
-  decl0<decl1<unsigned char(delc2)>, par>;                                                         \
-  decl0<decl1<short(delc2)>, par>;                                                                 \
-  decl0<decl1<unsigned short(delc2)>, par>;                                                        \
-  decl0<decl1<int(delc2)>, par>;                                                                   \
-  decl0<decl1<unsigned int(delc2)>, par>;                                                          \
-  decl0<decl1<long(delc2)>, par>;                                                                  \
-  decl0<decl1<unsigned long(delc2)>, par>;                                                         \
-  decl0<decl1<long long(delc2)>, par>;                                                             \
-  decl0<decl1<unsigned long long(delc2)>, par>
-
 /** A macro to declare extern templates for all numerical types */
 #ifdef VTK_USE_EXTERN_TEMPLATE
 #define vtkExternTemplateMacro(decl) vtkInstantiateTemplateMacro(decl)
@@ -492,20 +460,10 @@ VTK_ABI_NAMESPACE_END
   vtkInstantiateSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)                          \
   vtkInstantiateSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)                                     \
-  vtkInstantiateStdFunctionTemplateMacro(decl0, decl1, decl2)
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)                   \
-  vtkInstantiateStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #else
 #define vtkExternTemplateMacro(decl)
 #define vtkExternSecondOrderTemplateMacro(decl0, decl1)
 #define vtkExternSecondOrderWithParameterTemplateMacro(decl0, decl1, par)
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkExternStdFunctionTemplateMacro(decl0, decl1, decl2)
-// VTK_DEPRECATED_IN_9_7_0
-#define vtkExternStdFunctionWithParameterTemplateMacro(decl0, decl1, decl2, par)
 #endif
 
 #endif
