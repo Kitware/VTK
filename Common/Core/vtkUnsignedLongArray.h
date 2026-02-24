@@ -22,8 +22,8 @@
 #include "vtkCommonCoreModule.h"     // For export macro
 #include "vtkDataArray.h"
 
-// Fake the superclass for the Java wrappers.
-#ifndef __VTK_WRAP_JAVA__
+// Fake the superclass for the wrappers.
+#ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<unsigned long>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
@@ -31,7 +31,7 @@ class VTKCOMMONCORE_EXPORT vtkUnsignedLongArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkUnsignedLongArray, vtkDataArray);
-#ifndef __VTK_WRAP_JAVA__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkUnsignedLongArray* New();
