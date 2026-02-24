@@ -114,7 +114,11 @@ void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
     grain = (estimateGrain > 0) ? estimateGrain : 1;
   }
 
+#if _OPENMP >= 201811 // 5.0
   omp_set_max_active_levels(nestedActivated);
+#else
+  omp_set_nested(nestedActivated);
+#endif
 
 #pragma omp single
   threadIdStack->emplace(omp_get_thread_num());
