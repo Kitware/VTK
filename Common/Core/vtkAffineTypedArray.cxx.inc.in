@@ -16,12 +16,6 @@ vtkAffine@VTK_TYPE_NAME@Array::vtkAffine@VTK_TYPE_NAME@Array() = default;
 vtkAffine@VTK_TYPE_NAME@Array::~vtkAffine@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkAffine@VTK_TYPE_NAME@Array::ConstructBackend(@CONCRETE_TYPE@ slope, @CONCRETE_TYPE@ intercept)
-{
-  this->RealSuperclass::ConstructBackend(slope, intercept);
-}
-
-//------------------------------------------------------------------------------
 void vtkAffine@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

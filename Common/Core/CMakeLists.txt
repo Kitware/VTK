@@ -369,6 +369,7 @@ set(classes
   vtkXMLFileOutputWindow)
 
 set(template_classes
+  vtkAffineArray
   vtkAOSDataArrayTemplate
   vtkArrayDispatch
   vtkArrayInterpolate
@@ -604,7 +605,6 @@ else ()
 endif ()
 
 set(nowrap_headers
-  vtkAffineArray.h
   vtkAffineImplicitBackend.h
   vtkCollectionRange.h
   vtkCompositeArray.h

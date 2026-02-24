@@ -524,8 +524,6 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-struct vtkAffineImplicitBackend;
-template <typename ValueType>
 class vtkCompositeImplicitBackend;
 template <typename ValueType>
 struct vtkConstantImplicitBackend;
@@ -582,8 +580,6 @@ VTK_ABI_NAMESPACE_END
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
-VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
-  vtkAffineImplicitBackend, vtkArrayTypes::VTK_AFFINE_ARRAY)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
   vtkConstantImplicitBackend, vtkArrayTypes::VTK_CONSTANT_ARRAY)
 VTK_DECLARE_VALUERANGE_IMPLICIT_BACKENDTYPE(
