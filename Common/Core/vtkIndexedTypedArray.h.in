@@ -36,10 +36,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkImplicitArray, which is ignored
+  // make up the interface of vtkIndexedArray, which is ignored
   // by the wrappers.
 #if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
-  vtkCreateReadOnlyWrappedArrayInterface(@CONCRETE_TYPE@);
+  vtkCreateIndexedWrappedArrayInterface(@CONCRETE_TYPE@);
 #endif
 
   /**
@@ -49,14 +49,6 @@ public:
   {
     return static_cast<vtkIndexed@VTK_TYPE_NAME@Array*>(Superclass::FastDownCast(source));
   }
-
-  ///@{
-  /**
-   * Set which indexes from array should be exposed.
-   */
-  void ConstructBackend(vtkIdList* indexes, vtkDataArray* array);
-  void ConstructBackend(vtkDataArray* indexes, vtkDataArray* array);
-  ///@}
 
 protected:
   vtkIndexed@VTK_TYPE_NAME@Array();

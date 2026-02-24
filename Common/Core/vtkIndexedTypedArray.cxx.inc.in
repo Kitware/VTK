@@ -16,18 +16,6 @@ vtkIndexed@VTK_TYPE_NAME@Array::vtkIndexed@VTK_TYPE_NAME@Array() = default;
 vtkIndexed@VTK_TYPE_NAME@Array::~vtkIndexed@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkIndexed@VTK_TYPE_NAME@Array::ConstructBackend(vtkIdList* indexes, vtkDataArray* array)
-{
-  this->RealSuperclass::ConstructBackend(indexes, array);
-}
-
-//------------------------------------------------------------------------------
-void vtkIndexed@VTK_TYPE_NAME@Array::ConstructBackend(vtkDataArray* indexes, vtkDataArray* array)
-{
-  this->RealSuperclass::ConstructBackend(indexes, array);
-}
-
-//------------------------------------------------------------------------------
 void vtkIndexed@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

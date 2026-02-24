@@ -379,6 +379,7 @@ set(template_classes
   vtkConstantArray
   vtkDenseArray
   vtkGenericDataArray
+  vtkIndexedArray
   vtkScaledSOADataArrayTemplate
   vtkSOADataArrayTemplate
   vtkSparseArray
@@ -617,7 +618,6 @@ set(nowrap_headers
   vtkDataArrayValueRange_Generic.h
   vtkHashCombiner.h
   vtkImplicitArrayTraits.h
-  vtkIndexedArray.h
   vtkInherits.h
   vtkMathPrivate.hxx
   vtkStridedArray.h
