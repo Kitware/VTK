@@ -20,8 +20,9 @@
 #include "vtkCommonCoreModule.h"     // For export macro
 #include "vtkDataArray.h"
 
-// Fake the superclass for the wrappers.
-#ifndef __VTK_WRAP__
+// Fake the superclass for non-Python wrappers.
+// Python can handle the templated superclass; Java and others cannot.
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
 #define vtkDataArray vtkAOSDataArrayTemplate<short>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
@@ -29,7 +30,7 @@ class VTKCOMMONCORE_EXPORT vtkShortArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkShortArray, vtkDataArray);
-#ifndef __VTK_WRAP__
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
 #undef vtkDataArray
 #endif
   static vtkShortArray* New();
@@ -39,7 +40,7 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
+#if (defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)) && !defined(__VTK_WRAP_PYTHON__)
   vtkCreateWrappedArrayInterface(short);
 #endif
 
