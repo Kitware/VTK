@@ -6,8 +6,8 @@
 #include "vtkArrayListTemplate.h"
 #include "vtkConstantArray.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -90,8 +90,8 @@ struct ArrayForwarder
     using SourceT = vtk::GetAPIType<ArrayType>;
     auto output = vtkSmartPointer<vtkConstantArray<SourceT>>::New();
 
-    vtkDataArrayAccessor<ArrayType> access(array);
-    output->ConstructBackend(access.Get(0, 0));
+    auto range = vtk::DataArrayValueRange(array);
+    output->ConstructBackend(range[0]);
     output->SetNumberOfComponents(1);
     output->SetNumberOfTuples(this->NumberOfTuples);
     output->SetName(array->GetName());

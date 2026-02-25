@@ -549,6 +549,11 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray* array)
     {
       this->Upload(floatArray->GetPointer(0), numElements, vtkOpenGLBufferObject::ArrayBuffer);
     }
+    else if (auto doubleArray = vtkAOSDataArrayTemplate<double>::FastDownCast(array))
+    {
+      this->Upload(reinterpret_cast<float*>(doubleArray->GetPointer(0)), numElements,
+        vtkOpenGLBufferObject::ArrayBuffer);
+    }
     else if (auto ucharArray = vtkAOSDataArrayTemplate<unsigned char>::FastDownCast(array))
     {
       this->Upload(reinterpret_cast<float*>(ucharArray->GetPointer(0)), numElements,
@@ -556,7 +561,7 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray* array)
     }
     else
     {
-      vtkErrorMacro("Unsupported array type for fast path upload.");
+      vtkErrorMacro("Unsupported array " << array->GetClassName() << " for fast path upload.");
       return;
     }
     this->UploadTime.Modified();

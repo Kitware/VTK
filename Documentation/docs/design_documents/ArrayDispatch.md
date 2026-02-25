@@ -354,6 +354,9 @@ following new features will be discussed:
 * `vtk::DataArrayTupleRange<TupleSize = vtk::detail::DynamicTupleSize>()`:
   Range-based for loop support for `vtkAbstractArray` subclasses that abstracts
   away storage details and allows efficient access of values.
+* `vtkDataArrayAccessor`: A helper class that provides a single API for accessing/inserting
+   values/tuples in any `vtkDataArray` subclass. This class was the predecessor of `vtk::DataArray(Value/Tuple)Range`.
+   It should only be used when inserting is required, and not for value/tuple access, because it's not as optimized.
 
 These will be discussed more fully, but as a preview, here's our familiar
 `calcMagnitude` example implemented using these new tools:
@@ -694,7 +697,7 @@ for both `vtkDataArray` and `vtkGenericDataArray`, without a loss of
 performance in the latter case. That worker looks like this:
 
 ```cpp
-// Better, uses vtkDataArrayAccessor:
+// Better, uses vtk::DataArrayTupleRange:
 struct FindMax
 {
   vtkIdType Tuple; // Result
@@ -1281,7 +1284,7 @@ This implementation:
   restrictions are not met.
 * Just because we don't want those other 572 cases to have special code
   generated doesn't necessarily mean that we wouldn't want them to run.
-* Thanks to `vtkDataArrayAccessor`, we have a fallback implementation that
+* Thanks to `vtk::DataArray(Value/Tuple)Range`, we have a fallback implementation that
   reuses our templated worker code.
 * In this case, the dispatch is really just a fast-path implementation for
   floating point output types.
@@ -1289,8 +1292,6 @@ This implementation:
 * The `vtkGenericDataArray` API is transparent to the compiler. The
   specialized instantiations of `operator()` can be heavily optimized since the
   memory access patterns are known and well-defined.
-* Using `VTK_ASSUME` tells the compiler that the arrays have known strides,
-  allowing further compile-time optimizations.
 
 ## Guidelines to remove/reduce vtkAbstractArray::GetVoidPointer() usages from your codebase
 

@@ -3,9 +3,8 @@
 #include "vtkNetCDFCFWriter.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
 #include "vtkCharArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -196,15 +195,8 @@ struct BlankToFillValueWorker
   template <typename DataArray1, typename DataArray2>
   void operator()(DataArray1* array, DataArray2* arrayFillValue)
   {
-    // This allows the compiler to optimize for the AOS array stride.
-    VTK_ASSUME(array->GetNumberOfComponents() == 1);
-    VTK_ASSUME(arrayFillValue->GetNumberOfComponents() == 1);
-
-    // These allow this single worker function to be used with both
-    // the vtkDataArray 'double' API and the more efficient
-    // vtkGenericDataArray APIs, depending on the template parameters:
-    vtkDataArrayAccessor<DataArray1> a(array);
-    vtkDataArrayAccessor<DataArray2> an(arrayFillValue);
+    auto a = vtk::DataArrayValueRange<1>(array);
+    auto an = vtk::DataArrayValueRange<1>(arrayFillValue);
 
     vtkIdType numTuples = array->GetNumberOfTuples();
     for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
@@ -213,11 +205,11 @@ struct BlankToFillValueWorker
       // vtkGenericDataArray subclasses.
       if (this->GhostType->GetValue(tupleIdx) & this->Hidden)
       {
-        an.Set(tupleIdx, 0, this->FillValue);
+        an[tupleIdx] = this->FillValue;
       }
       else
       {
-        an.Set(tupleIdx, 0, a.Get(tupleIdx, 0));
+        an[tupleIdx] = a[tupleIdx];
       }
     }
   }
@@ -250,8 +242,6 @@ void BlankToFillValue(vtkUnsignedCharArray* ghostType, vtkDataArray* array,
     // array is using an integral type. This is an uncommon case, so we won't
     // generate a fast path for these, but instead call an instantiation of
     // CalcMagnitudeWorker::operator()<vtkDataArray, vtkDataArray>.
-    // Through the use of vtkDataArrayAccessor, this falls back to using the
-    // vtkDataArray double API:
     worker(array, arrayFillValue);
   }
 }

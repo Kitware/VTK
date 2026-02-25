@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkDelimitedTextReader.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDelimitedTextCodecIteratorPrivate.h"
 #include "vtkIdTypeArray.h"

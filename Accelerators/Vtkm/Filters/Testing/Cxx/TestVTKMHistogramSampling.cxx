@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Sandia Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkImageData.h"

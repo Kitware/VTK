@@ -59,14 +59,12 @@ struct AddOriginToArrayWorker
   template <typename ArrayT>
   void operator()(ArrayT* array, const double origin[3])
   {
-    VTK_ASSUME(array->GetNumberOfComponents() == 3);
-
-    vtkDataArrayAccessor<ArrayT> a(array);
+    auto a = vtk::DataArrayTupleRange<3>(array);
     for (vtkIdType tupleIdx = 0; tupleIdx < array->GetNumberOfTuples(); ++tupleIdx)
     {
       for (vtkIdType compIdx = 0; compIdx < 3; ++compIdx)
       {
-        a.Set(tupleIdx, compIdx, a.Get(tupleIdx, compIdx) + origin[compIdx]);
+        a[tupleIdx][compIdx] += origin[compIdx];
       }
     }
   }

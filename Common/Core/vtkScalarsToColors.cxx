@@ -407,7 +407,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(VTK_FUTURE_CONST void* inPtr, un
 {
   auto input = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(scalarType));
   input->SetNumberOfComponents(numberOfComponents);
-  input->SetVoidArray(inPtr, numberOfTuples * numberOfComponents, 1);
+  input->SetVoidArray(const_cast<void*>(inPtr), numberOfTuples * numberOfComponents, 1);
   this->MapVectorsThroughTable(
     input, outPtr, numberOfTuples, numberOfComponents, vectorComponent, vectorSize, outputFormat);
 }
@@ -1480,7 +1480,7 @@ void vtkScalarsToColors::MapColorsToColors(VTK_FUTURE_CONST void* inPtr, unsigne
 {
   auto input = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(inputDataType));
   input->SetNumberOfComponents(numberOfComponents);
-  input->SetVoidArray(inPtr, numberOfTuples * numberOfComponents, 1);
+  input->SetVoidArray(const_cast<void*>(inPtr), numberOfTuples * numberOfComponents, 1);
   this->MapColorsToColors(
     input, outPtr, numberOfTuples, numberOfComponents, 0, vectorSize, outputFormat);
 }
@@ -1546,7 +1546,7 @@ void vtkScalarsToColors::MapVectorsToMagnitude(VTK_FUTURE_CONST void* inPtr, dou
 {
   auto input = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(inputDataType));
   input->SetNumberOfComponents(numberOfComponents);
-  input->SetVoidArray(inPtr, numberOfTuples * numberOfComponents, 1);
+  input->SetVoidArray(const_cast<void*>(inPtr), numberOfTuples * numberOfComponents, 1);
   this->MapVectorsToMagnitude(input, outPtr, numberOfTuples, numberOfComponents, 0, vectorSize);
 }
 
@@ -1693,7 +1693,7 @@ void vtkScalarsToColors::MapScalarsThroughTable(VTK_FUTURE_CONST void* inPtr, un
 {
   auto input = vtk::TakeSmartPointer(vtkAbstractArray::CreateArray(inputDataType));
   input->SetNumberOfComponents(numberOfComponents);
-  input->SetVoidArray(inPtr, numberOfTuples * numberOfComponents, 1);
+  input->SetVoidArray(const_cast<void*>(inPtr), numberOfTuples * numberOfComponents, 1);
   this->MapScalarsThroughTable(input, outPtr, numberOfTuples, numberOfComponents, 0, outputFormat);
 }
 

@@ -5,7 +5,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
@@ -34,9 +34,9 @@ struct vtkAnimateModesWorker
 
     const auto numTuples = inPoints->GetNumberOfTuples();
     const int numComps = inPoints->GetNumberOfComponents();
-    vtkDataArrayAccessor<PointsArray> ipts(inPoints);
-    vtkDataArrayAccessor<PointsArray> opts(outPoints);
-    vtkDataArrayAccessor<DisplacementsArray> disp(inDisplacements);
+    auto ipts = vtk::DataArrayTupleRange<3>(inPoints);
+    auto opts = vtk::DataArrayTupleRange<3>(outPoints);
+    auto disp = vtk::DataArrayTupleRange<3>(inDisplacements);
 
     auto scale = self->GetDisplacementMagnitude() * std::cos(2.0 * vtkMath::Pi() * modeShapeTime);
     if (self->GetDisplacementPreapplied())
@@ -60,7 +60,7 @@ struct vtkAnimateModesWorker
           }
           for (int comp = 0; comp < numComps; ++comp)
           {
-            opts.Set(cc, comp, ipts.Get(cc, comp) + disp.Get(cc, comp) * scale);
+            opts[cc][comp] = ipts[cc][comp] + disp[cc][comp] * scale;
           }
         }
       });
