@@ -27,11 +27,17 @@
 #include "vtkStringFormatter.h"
 
 #include <cstddef>
+#include <cstdlib>
 #include <dictobject.h>
 #include <sstream>
+#include <unordered_map>
 
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject* PyVTKObject_Type = nullptr;
+
+// Map from type to original tp_doc, used to restore docstrings when overrides are cancelled.
+// If a type is in this map, its current tp_doc was allocated with strdup and must be freed.
+static std::unordered_map<PyTypeObject*, const char*> OriginalDocStrings;
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -68,7 +74,8 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 #endif
       )
       {
-        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
+        const char* tpName = vtkPythonUtil::StripModuleFromType(tp);
+        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(tpName));
         if (c && tp == c->py_type)
         {
           std::string str("method requires overriding with a pure python subclass of ");
@@ -79,8 +86,9 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
         }
       }
 
-      // Set the override
-      PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+      // Set the override (use VTKClassName to translate Python name to C++ name
+      // for templated classes, whose Python and C++ names differ)
+      PyVTKClass* thecls = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(clsName.c_str()));
       if (!thecls)
       {
         std::string str("could not find class ");
@@ -91,6 +99,30 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       thecls->py_type = newtypeobj;
       // Store override in dict of old type, to keep a reference to it
       PyDict_SetItemString(typeobj->tp_dict, "__override__", type);
+
+      // Copy the override's __doc__ to the base type so that
+      // help(BaseType) shows the Python documentation at the top
+      // instead of only under __override__.
+      PyObject* overrideDoc = PyObject_GetAttrString(type, "__doc__");
+      if (overrideDoc && PyUnicode_Check(overrideDoc))
+      {
+        const char* docStr = PyUnicode_AsUTF8(overrideDoc);
+        if (docStr)
+        {
+          // Save the original tp_doc on first override for this type
+          if (OriginalDocStrings.find(typeobj) == OriginalDocStrings.end())
+          {
+            OriginalDocStrings[typeobj] = typeobj->tp_doc;
+          }
+          else
+          {
+            // Free the previously strdup'd override doc
+            free(const_cast<char*>(typeobj->tp_doc));
+          }
+          typeobj->tp_doc = strdup(docStr);
+        }
+      }
+      Py_XDECREF(overrideDoc);
     }
     else
     {
@@ -102,11 +134,19 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
   }
   else if (type == Py_None)
   {
-    // Clear the override
-    PyVTKClass* thecls = vtkPythonUtil::FindClass(clsName.c_str());
+    // Clear the override (use VTKClassName for templated classes)
+    PyVTKClass* thecls = vtkPythonUtil::FindClass(vtkPythonUtil::VTKClassName(clsName.c_str()));
     if (thecls)
     {
       thecls->py_type = typeobj;
+    }
+    // Restore the original docstring if it was overridden
+    auto it = OriginalDocStrings.find(typeobj);
+    if (it != OriginalDocStrings.end())
+    {
+      free(const_cast<char*>(typeobj->tp_doc));
+      typeobj->tp_doc = it->second;
+      OriginalDocStrings.erase(it);
     }
     // Delete the __override__ attribute if it exists
     if (PyDict_DelItemString(typeobj->tp_dict, "__override__") == -1)
@@ -303,27 +343,24 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* /*kwds*/)
 {
   // XXX(python3-abi3): all types will be heap types in abi3
-  // If type was subclassed within python, then skip arg checks and
-  // simply create a new object.
-  PyObject* o = nullptr;
+  // Handle SWIG pointer reconstruction: exactly one string argument
+  // containing an encoded pointer address.  All other arguments are
+  // passed through to tp_init (__init__) by type_call, allowing
+  // Python override classes to define rich constructors.
   if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
-    if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
+    if (PyTuple_GET_SIZE(args) == 1)
     {
-      return nullptr;
-    }
-
-    if (o)
-    {
-      // used to create a VTK object from a SWIG pointer
-      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
+      PyObject* o = PyTuple_GET_ITEM(args, 0);
+      if (PyUnicode_Check(o))
+      {
+        return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
+      }
     }
   }
 
   // if PyVTKObject_FromPointer gets nullptr, it creates a new object.
-  o = PyVTKObject_FromPointer(tp, nullptr, nullptr);
-
-  return o;
+  return PyVTKObject_FromPointer(tp, nullptr, nullptr);
 }
 
 //------------------------------------------------------------------------------

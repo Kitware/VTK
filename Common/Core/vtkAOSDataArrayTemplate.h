@@ -381,7 +381,7 @@ VTK_ABI_NAMESPACE_END
 
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper
-// can see them. The wrappers ignore vtkAOSDataArrayTemplate.
+// can see them.
 #define vtkCreateWrappedArrayInterface(T)                                                          \
   int GetDataType() const override;                                                                \
   T GetDataTypeValueMin() const;                                                                   \
