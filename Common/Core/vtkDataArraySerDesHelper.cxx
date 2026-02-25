@@ -102,7 +102,7 @@ struct ArrayTypeInfo
     TTYPE_INFO_MACRO(className<unsigned long long>),                                               \
     TTYPE_INFO_MACRO(className<unsigned short>)
 
-#define CONCRETE_ARRAY_TYPES_INFO_MACRO(type)                                                      \
+#define CONCRETE_ARRAY_TYPES_INFO_MACRO(type)                                                       \
     TYPE_INFO_MACRO(type## TypeInt8Array),                                                          \
     TYPE_INFO_MACRO(type## TypeInt16Array),                                                         \
     TYPE_INFO_MACRO(type## TypeInt32Array),                                                         \
@@ -117,7 +117,7 @@ struct ArrayTypeInfo
 // The templated types should match those in the TEMPLATED_ARRAY_TYPES_INFO_MACRO.
 #define TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, ValueType, valueTypeName)                   \
   template <>                                                                                      \
-  const char* GetDemangledClassNameFor##className<ValueType>(const char* templateArrayClassName)   \
+  const char* GetDemangledClassNameFor## className<ValueType>(const char* templateArrayClassName)  \
   {                                                                                                \
     if (!strcmp(templateArrayClassName, #className))                                               \
     {                                                                                              \
@@ -129,7 +129,7 @@ struct ArrayTypeInfo
 
 #define TEMPLATED_ARRAY_NAMES_DEMANGLE_MACRO(className)                                            \
   template <typename ValueType>                                                                    \
-  const char* GetDemangledClassNameFor##className(const char* templateArrayClassName)              \
+  const char* GetDemangledClassNameFor## className(const char* templateArrayClassName)             \
   {                                                                                                \
     (void)templateArrayClassName;                                                                  \
     vtkLogF(ERROR, "Specialization missing for " #className "<ValueType>");                        \
@@ -206,7 +206,7 @@ typedef vtkTypeList::Create<
   vtkConstantArray<unsigned short>>
   ConstantArrays;
 
-typedef vtkTypeList::Append<vtkArrayDispatch::Arrays,
+typedef vtkTypeList::Append<vtkArrayDispatch::AOSArrays,
   vtkBitArray,
   AffineArrays,
   ConstantArrays>::Result
@@ -267,20 +267,20 @@ struct vtkDataArraySerializer
     {
       return;
     }
-    // demangle and record the actual templated class name
-    if (strstr(array->GetClassName(), "vtkImplicitArray"))
+    // demangle and record the actual templated class name prior to early outs
+    // to ensure the deserializer on the other end can create the correct type.
+    if (strstr(array->GetClassName(), "vtkAffineArray"))
     {
+      // demangle and record the actual templated class name
       state["ClassName"] = GetDemangledClassNameForvtkAffineArray<ValueT>("vtkAffineArray");
     }
-
-    auto backend = array->GetBackend();
-    if (backend == nullptr)
+    if (array->GetBackend() == nullptr)
     {
       vtkLogF(ERROR, "AffineArray backend is null");
       return;
     }
-    state["Slope"] = backend->Slope;
-    state["Intercept"] = backend->Intercept;
+    state["Slope"] = array->GetSlope();
+    state["Intercept"] = array->GetIntercept();
   }
 
   template <typename ValueT>
@@ -291,18 +291,19 @@ struct vtkDataArraySerializer
     {
       return;
     }
-    // demangle and record the actual templated class name
-    if (strstr(array->GetClassName(), "vtkImplicitArray"))
+    // demangle and record the actual templated class name prior to early outs
+    // to ensure the deserializer on the other end can create the correct type.
+    if (strstr(array->GetClassName(), "vtkConstantArray"))
     {
+      // demangle and record the actual templated class name
       state["ClassName"] = GetDemangledClassNameForvtkConstantArray<ValueT>("vtkConstantArray");
     }
-    auto backend = array->GetBackend();
-    if (backend == nullptr)
+    if (array->GetBackend() == nullptr)
     {
       vtkLogF(ERROR, "ConstantArray backend is null");
       return;
     }
-    state["Value"] = backend->Value;
+    state["Value"] = array->GetConstantValue();
   }
 
   template <typename ValueT>
@@ -343,7 +344,7 @@ struct vtkDataArraySerializer
     {
       return;
     }
-    else if (!array->GetNumberOfValues())
+    if (!array->GetNumberOfValues())
     {
       return;
     }
@@ -372,7 +373,7 @@ struct vtkDataArraySerializer
     {
       return;
     }
-    else if (!array->GetNumberOfValues())
+    if (!array->GetNumberOfValues())
     {
       return;
     }
@@ -398,7 +399,7 @@ struct vtkDataArrayDeserializer
   {
     ValueT slope = state["Slope"].get<ValueT>();
     ValueT intercept = state["Intercept"].get<ValueT>();
-    array->SetBackend(std::make_shared<vtkAffineImplicitBackend<ValueT>>(slope, intercept));
+    array->ConstructBackend(slope, intercept);
   }
 
   template <typename ValueT>
@@ -406,7 +407,7 @@ struct vtkDataArrayDeserializer
     vtkDeserializer* vtkNotUsed(deserializer), bool& vtkNotUsed(success))
   {
     ValueT value = state["Value"].get<ValueT>();
-    array->SetBackend(std::make_shared<vtkConstantImplicitBackend<ValueT>>(value));
+    array->ConstructBackend(value);
   }
 
   template <typename ValueT>
@@ -420,10 +421,8 @@ struct vtkDataArrayDeserializer
       return;
     }
     const auto& content = blob.get_binary();
-    const ValueT* c_ptr = reinterpret_cast<const ValueT*>(content.data());
-    auto src = const_cast<ValueT*>(c_ptr);
-    auto dst = array->GetPointer(0);
-    std::copy(src, src + array->GetNumberOfValues(), dst);
+    std::copy_n(reinterpret_cast<const ValueT*>(content.data()), array->GetNumberOfValues(),
+      array->GetPointer(0));
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -437,16 +436,12 @@ struct vtkDataArrayDeserializer
       return;
     }
     const auto& content = blob.get_binary();
-
     switch (array->GetDataType())
     {
       vtkTemplateMacro(
         std::copy_n(reinterpret_cast<const VTK_TT*>(content.data()), array->GetNumberOfValues(),
           vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin()));
     }
-    // nifty memory savings below, unfortunately, doesn't work correctly when there are point
-    // scalars.
-    // array->SetVoidArray(const_cast<void*>(c_ptr), array->GetNumberOfValues(), 1);
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -460,8 +455,7 @@ struct vtkDataArrayDeserializer
       return;
     }
     const auto& content = blob.get_binary();
-    std::copy(content.data(), content.data() + ((array->GetNumberOfValues() + 7) / 8),
-      array->GetPointer(0));
+    std::copy_n(content.data(), (array->GetNumberOfValues() + 7) / 8, array->GetPointer(0));
     array->SetNumberOfValues(state["NumberOfBits"]);
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
