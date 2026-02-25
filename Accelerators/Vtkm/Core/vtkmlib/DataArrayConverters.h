@@ -10,12 +10,14 @@
 #include "vtkmConfigCore.h"                //required for general viskores setup
 
 #include "vtkAOSDataArrayTemplate.h"
+#include "vtkConstantArray.h"
 #include "vtkSOADataArrayTemplate.h"
 
 #include "vtkLogger.h"
 
 #include <viskores/cont/ArrayExtractComponent.h>
 #include <viskores/cont/ArrayHandleBasic.h>
+#include <viskores/cont/ArrayHandleConstant.h>
 #include <viskores/cont/ArrayHandleRecombineVec.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/ArrayHandleSOA.h>
@@ -139,6 +141,34 @@ viskores::cont::ArrayHandleRecombineVec<T> vtkDataArrayToArrayHandle(
   }
 
   return output;
+}
+
+template <typename VecT>
+viskores::cont::ArrayHandleConstant<VecT> vtkDataArrayToArrayHandle(
+  vtkConstantArray<typename viskores::VecTraits<VecT>::ComponentType>* input)
+{
+  return viskores::cont::ArrayHandleConstant<VecT>(
+    VecT{ input->GetBackend()->Value }, input->GetNumberOfTuples());
+}
+
+template <typename T>
+viskores::cont::UnknownArrayHandle vtkDataArrayToUnknownArrayHandle(vtkConstantArray<T>* input)
+{
+  switch (input->GetNumberOfComponents())
+  {
+    case 1:
+      return vtkDataArrayToArrayHandle<T>(input);
+    case 2:
+      return vtkDataArrayToArrayHandle<viskores::Vec<T, 2>>(input);
+    case 3:
+      return vtkDataArrayToArrayHandle<viskores::Vec<T, 3>>(input);
+    case 4:
+      return vtkDataArrayToArrayHandle<viskores::Vec<T, 4>>(input);
+    default:
+      vtkGenericWarningMacro(<< "Cannot convert constant array with "
+                             << input->GetNumberOfComponents() << " components.");
+      return viskores::cont::UnknownArrayHandle{};
+  }
 }
 
 template <typename DataArrayType>
