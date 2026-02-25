@@ -42,7 +42,7 @@ public:
    * is a pointer to the buffer data and @a size is the size of the buffer (in
    * number of elements).
    */
-  void SetBuffer(ScalarType* array, vtkIdType size);
+  void SetBuffer(VTK_ZEROCOPY ScalarType* array, vtkIdType size);
 
   /**
    * Set the malloc function to be used when allocating space inside this object.
@@ -60,7 +60,14 @@ public:
    * this vtkBuffer object is deleted or resize -- otherwise, @a deleteFunction
    * will be called to free the buffer
    **/
-  void SetFreeFunction(bool noFreeFunction, vtkFreeingFunction deleteFunction = free);
+  void SetFreeFunction(bool noFreeFunction, vtkFreeingFunction deleteFunction);
+
+  /**
+   * Set whether the buffer should be freed when this object is deleted or resized.
+   * If @a noFreeFunction is true, the buffer will not be freed.
+   * Otherwise, the default free function will be used.
+   */
+  void SetFreeFunction(bool noFreeFunction) { this->SetFreeFunction(noFreeFunction, free); }
 
   /**
    * Return the number of elements the current buffer can hold.
