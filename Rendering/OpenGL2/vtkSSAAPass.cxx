@@ -31,9 +31,10 @@ vtkSSAAPass::vtkSSAAPass()
   this->FrameBufferObject = nullptr;
   this->Pass1 = nullptr;
   this->Pass2 = nullptr;
-  this->SSAAProgram = nullptr;
+  this->SSAAHelper = nullptr;
   this->DelegatePass = nullptr;
   this->ColorFormat = vtkTextureObject::Fixed8;
+  this->SSAAHelper = new vtkOpenGLHelper;
 }
 
 //------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ vtkSSAAPass::~vtkSSAAPass()
     this->Pass2->Delete();
   }
 
-  delete this->SSAAProgram;
+  delete this->SSAAHelper;
 }
 
 //------------------------------------------------------------------------------
@@ -191,34 +192,22 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   // Use a subsample shader, do it horizontally. this->Pass1 is the source
   // (this->Pass2 is the fbo render target)
 
-  if (!this->SSAAProgram)
+  if (!this->SSAAHelper->Program)
   {
-    this->SSAAProgram = new vtkOpenGLHelper;
-    // build the shader source code
-    //    std::string VSSource = vtkSSAAPassVS;
-    std::string VSSource = vtkTextureObjectVS;
-    std::string FSSource = vtkSSAAPassFS;
-    std::string GSSource;
-
     // compile and bind it if needed
-    vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(
-      VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+    vtkShaderProgram* newShader =
+      renWin->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS, vtkSSAAPassFS, nullptr);
 
-    // if the shader changed reinitialize the VAO
-    if (newShader != this->SSAAProgram->Program)
-    {
-      this->SSAAProgram->Program = newShader;
-      this->SSAAProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-    }
-
-    this->SSAAProgram->ShaderSourceTime.Modified();
+    this->SSAAHelper->Program = newShader;
+    this->SSAAHelper->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
+    this->SSAAHelper->ShaderSourceTime.Modified();
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->SSAAProgram->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->SSAAHelper->Program);
   }
 
-  if (!this->SSAAProgram->Program)
+  if (!this->SSAAHelper->Program)
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
                   "shader or a driver bug.");
@@ -232,17 +221,17 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   int sourceId = this->Pass1->GetTextureUnit();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  this->SSAAProgram->Program->SetUniformi("source", sourceId);
+  this->SSAAHelper->Program->SetUniformi("source", sourceId);
   // The implementation uses four steps to cover 1.5 destination pixels
   // so the offset is 1.5/4.0 = 0.375
-  this->SSAAProgram->Program->SetUniformf("texelWidthOffset", 0.375 / width);
-  this->SSAAProgram->Program->SetUniformf("texelHeightOffset", 0.0);
+  this->SSAAHelper->Program->SetUniformf("texelWidthOffset", 0.375 / width);
+  this->SSAAHelper->Program->SetUniformf("texelHeightOffset", 0.0);
 
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_DEPTH_TEST);
 
   this->FrameBufferObject->RenderQuad(
-    0, width - 1, 0, h - 1, this->SSAAProgram->Program, this->SSAAProgram->VAO);
+    0, width - 1, 0, h - 1, this->SSAAHelper->Program, this->SSAAHelper->VAO);
 
   this->Pass1->Deactivate();
 
@@ -255,14 +244,14 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   sourceId = this->Pass2->GetTextureUnit();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  this->SSAAProgram->Program->SetUniformi("source", sourceId);
-  this->SSAAProgram->Program->SetUniformf("texelWidthOffset", 0.0);
-  this->SSAAProgram->Program->SetUniformf("texelHeightOffset", 0.375 / height);
+  this->SSAAHelper->Program->SetUniformi("source", sourceId);
+  this->SSAAHelper->Program->SetUniformf("texelWidthOffset", 0.0);
+  this->SSAAHelper->Program->SetUniformf("texelHeightOffset", 0.375 / height);
 
   // Use the same sample shader, this time vertical
 
   this->Pass2->CopyToFrameBuffer(0, 0, width - 1, h - 1, 0, 0, width - 1, height - 1, width, height,
-    this->SSAAProgram->Program, this->SSAAProgram->VAO);
+    this->SSAAHelper->Program, this->SSAAHelper->VAO);
 
   this->Pass2->Deactivate();
 
@@ -280,9 +269,9 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow* w)
 
   this->Superclass::ReleaseGraphicsResources(w);
 
-  if (this->SSAAProgram != nullptr)
+  if (this->SSAAHelper != nullptr)
   {
-    this->SSAAProgram->ReleaseGraphicsResources(w);
+    this->SSAAHelper->ReleaseGraphicsResources(w);
   }
   if (this->FrameBufferObject != nullptr)
   {

@@ -95,7 +95,7 @@ protected:
   vtkTextureObject* Pass2; // render target for the horizontal pass
 
   // Structures for the various cell types we render.
-  vtkOpenGLHelper* SSAAProgram;
+  vtkOpenGLHelper* SSAAHelper;
 
   vtkRenderPass* DelegatePass;
 
