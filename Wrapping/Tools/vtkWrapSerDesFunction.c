@@ -33,9 +33,17 @@ static int vtkWrapSerDes_CanMarshalValue(
   const int isStdVector = vtkWrap_IsStdVector(valInfo);
 
   int isAllowed = -1;
-  // vtkAOSDataArrayTemplate does not get recognized as a template class through valInfo->Template.
+  // Array classes do not get recognized as a template class through valInfo->Template.
   if (strstr(valInfo->Class, "vtkAOSDataArrayTemplate") != NULL ||
-    strstr(valInfo->Class, "vtkSOADataArrayTemplate") != NULL)
+    strstr(valInfo->Class, "vtkScaledSOADataArrayTemplate") != NULL || // VTK_DEPRECATED_IN_9_7_0
+    strstr(valInfo->Class, "vtkSOADataArrayTemplate") != NULL ||
+    strstr(valInfo->Class, "vtkAffineArray") != NULL ||
+    strstr(valInfo->Class, "vtkCompositeArray") != NULL ||
+    strstr(valInfo->Class, "vtkConstantArray") != NULL ||
+    strstr(valInfo->Class, "vtkIndexedArray") != NULL ||
+    strstr(valInfo->Class, "vtkStdFunctionArray") != NULL || // VTK_DEPRECATED_IN_9_7_0
+    strstr(valInfo->Class, "vtkStridedArray") != NULL ||
+    strstr(valInfo->Class, "vtkStructuredPointArray") != NULL)
   {
     isAllowed = 0;
   }

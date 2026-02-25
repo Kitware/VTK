@@ -29,20 +29,36 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTK_DEPRECATED_IN_9_7_0("No longer needed") VTKCOMMONCORE_EXPORT vtkStdFunctionArray
+#ifndef __VTK_WRAP__
   : public vtkImplicitArray<std::function<ValueTypeT(int)>,
       /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>
 {
   using ImplicitArrayType = vtkImplicitArray<std::function<ValueTypeT(int)>,
     /* vtkArrayTypes::VTK_STD_FUNCTION_ARRAY */ 15>;
-
+#else // Fake the superclass for the wrappers.
+  : public vtkDataArray
+{
+  using ImplicitArrayType = vtkDataArray;
+#endif
 public:
   using SelfType = vtkStdFunctionArray<ValueTypeT>;
   vtkImplicitArrayTypeMacro(SelfType, ImplicitArrayType);
+#ifndef __VTK_WRAP__
   using typename Superclass::ArrayTypeTag;
   using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
+#else
+  using ValueType = ValueTypeT;
+#endif
 
   static vtkStdFunctionArray* New();
+
+  // This macro expands to the set of method declarations that
+  // make up the interface of vtkImplicitArray, which is ignored
+  // by the wrappers.
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
+  vtkCreateImplicitWrappedArrayInterface(ValueTypeT);
+#endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.

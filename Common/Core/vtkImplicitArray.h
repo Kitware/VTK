@@ -159,13 +159,11 @@ class vtkImplicitArray
   : public vtkGenericDataArray<vtkImplicitArray<BackendT, ArrayType>,
       typename vtk::detail::implicit_array_traits<BackendT>::rtype, ArrayType>
 {
-  using trait = vtk::detail::implicit_array_traits<BackendT>;
-  static_assert(trait::can_read,
+  static_assert(vtk::detail::implicit_array_traits<BackendT>::can_read,
     "Supplied backend type does not have mandatory read trait. Must implement either map() const "
     "or operator() const.");
-  using ValueTypeT = typename trait::rtype;
-  using GenericDataArrayType =
-    vtkGenericDataArray<vtkImplicitArray<BackendT, ArrayType>, ValueTypeT, ArrayType>;
+  using GenericDataArrayType = vtkGenericDataArray<vtkImplicitArray<BackendT, ArrayType>,
+    typename vtk::detail::implicit_array_traits<BackendT>::rtype, ArrayType>;
 
 public:
   using SelfType = vtkImplicitArray<BackendT, ArrayType>;
