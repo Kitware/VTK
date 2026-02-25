@@ -137,8 +137,8 @@ VTK_ABI_NAMESPACE_END
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkStridedArray.
 #define vtkCreateStridedWrappedArrayInterface(T)                                                   \
-  vtkCreateReadOnlyWrappedArrayInterface(T) void ConstructBackend(                                 \
-    const T* buffer, vtkIdType stride, int components, vtkIdType offset);                          \
+  vtkCreateImplicitWrappedArrayInterface(T);                                                       \
+  void ConstructBackend(const T* buffer, vtkIdType stride, int components, vtkIdType offset);      \
   void ConstructBackend(const T* buffer, vtkIdType stride, int components);                        \
   void ConstructBackend(const T* buffer, vtkIdType stride);                                        \
   const T* GetBuffer() const;                                                                      \
@@ -162,7 +162,16 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT vtkStridedArray<T>;                                          \
   VTK_ABI_NAMESPACE_END
-
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#define VTK_STRIDED_ARRAY_INSTANTIATE_VALUERANGE(T)                                                \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkStridedArray<T>, T);                                     \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_STRIDED_ARRAY_EXTERN
 #define VTK_STRIDED_ARRAY_EXTERN
@@ -180,6 +189,11 @@ namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<long>, long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<unsigned long>, unsigned long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<long long>, long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<unsigned long long>, unsigned long long)
 // These are instantiated by vtkStridedArrayInstantiate_double.cxx.inc, e.t.c.
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<float>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStridedArray<double>, double)

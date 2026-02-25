@@ -6,7 +6,6 @@
 // lookup functions into this translation unit where we can encapsulate the
 // header.
 
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkGenericDataArray.h"
 
 #include "vtkDataArrayPrivate.txx"

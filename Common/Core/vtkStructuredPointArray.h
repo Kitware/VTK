@@ -75,7 +75,7 @@ VTK_ABI_NAMESPACE_END
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkStructuredPointArray.
 #define vtkCreateStructuredPointWrappedArrayInterface(T)                                           \
-  vtkCreateReadOnlyWrappedArrayInterface(T);                                                       \
+  vtkCreateImplicitWrappedArrayInterface(T);                                                       \
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
     int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
@@ -122,7 +122,16 @@ VTK_ABI_NAMESPACE_END
     int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
-
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#define VTK_STRUCTURED_POINT_ARRAY_INSTANTIATE_VALUERANGE(T)                                       \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<T>, T);                             \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_STRUCTURED_POINT_ARRAY_EXTERN
 #define VTK_STRUCTURED_POINT_ARRAY_EXTERN
@@ -140,6 +149,11 @@ namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long>, long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long>, unsigned long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long long>, long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long long>, unsigned long long)
 // These are instantiated by vtkStructuredPointArrayInstantiate_double.cxx.inc, e.t.c.
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<float>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<double>, double)

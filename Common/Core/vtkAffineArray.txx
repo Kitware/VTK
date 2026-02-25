@@ -5,9 +5,7 @@
 #define vtkAffineArray_txx
 
 #ifdef VTK_AFFINE_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkAffineArray.h"

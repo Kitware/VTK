@@ -5,9 +5,7 @@
 #define vtkStridedArray_txx
 
 #ifdef VTK_STRIDED_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkStridedArray.h"

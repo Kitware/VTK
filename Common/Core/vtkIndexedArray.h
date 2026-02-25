@@ -94,8 +94,8 @@ VTK_ABI_NAMESPACE_END
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkIndexedArray.
 #define vtkCreateIndexedWrappedArrayInterface(T)                                                   \
-  vtkCreateReadOnlyWrappedArrayInterface(T) void ConstructBackend(                                 \
-    vtkIdList* indexes, vtkDataArray* array);                                                      \
+  vtkCreateImplicitWrappedArrayInterface(T);                                                       \
+  void ConstructBackend(vtkIdList* indexes, vtkDataArray* array);                                  \
   void ConstructBackend(vtkDataArray* indexes, vtkDataArray* array);
 
 #endif // vtkIndexedArray_h
@@ -115,7 +115,16 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT vtkIndexedArray<T>;                                          \
   VTK_ABI_NAMESPACE_END
-
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#define VTK_INDEXED_ARRAY_INSTANTIATE_VALUERANGE(T)                                                \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<T>, T);                                     \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_INDEXED_ARRAY_EXTERN
 #define VTK_INDEXED_ARRAY_EXTERN
@@ -133,6 +142,11 @@ namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<long>, long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<unsigned long>, unsigned long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<long long>, long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<unsigned long long>, unsigned long long)
 // These are instantiated by vtkIndexedArrayInstantiate_double.cxx.inc, e.t.c.
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<float>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkIndexedArray<double>, double)

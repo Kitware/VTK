@@ -4,9 +4,7 @@
 #define vtkCompositeArray_txx
 
 #ifdef VTK_COMPOSITE_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkCompositeArray.h"

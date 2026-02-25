@@ -5,9 +5,7 @@
 #define vtkConstantArray_txx
 
 #ifdef VTK_CONSTANT_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkConstantArray.h"

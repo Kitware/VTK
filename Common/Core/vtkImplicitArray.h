@@ -497,15 +497,15 @@ vtkArrayDownCast_Template2FastCastMacro(vtkImplicitArray);
 
 VTK_ABI_NAMESPACE_END
 
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkImplicitArray.
+#define vtkCreateImplicitWrappedArrayInterface(T)                                                  \
+  vtkCreateWrappedArrayReadInterface(T);                                                           \
+  bool SetNumberOfValues(vtkIdType number) override;
+
 #include "vtkImplicitArray.txx"
 
-#define vtkCreateReadOnlyWrappedArrayInterface(T)                                                  \
-  int GetDataType() const override;                                                                \
-  T GetDataTypeValueMin() const;                                                                   \
-  T GetDataTypeValueMax() const;                                                                   \
-  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
-  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
-  T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
-  T* GetValueRange() VTK_SIZEHINT(2);
-
 #endif // vtkImplicitArray_h
+
+// VTK-HeaderTest-Exclude: vtkImplicitArray.h

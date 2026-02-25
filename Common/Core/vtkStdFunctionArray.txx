@@ -5,9 +5,7 @@
 #define vtkStdFunctionArray_txx
 
 #ifdef VTK_STD_FUNCTION_ARRAY_INSTANTIATING
-#define VTK_GDA_VALUERANGE_INSTANTIATING
 #include "vtkDataArrayPrivate.txx"
-#undef VTK_GDA_VALUERANGE_INSTANTIATING
 #endif
 
 #include "vtkStdFunctionArray.h"
