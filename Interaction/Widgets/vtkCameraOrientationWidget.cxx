@@ -282,7 +282,10 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
     }
     else
     {
-      self->ParentRenderer->ResetCamera();
+      if (self->ShouldResetCamera)
+      {
+        self->ParentRenderer->ResetCamera();
+      }
       self->Render();
     }
   }
@@ -317,7 +320,10 @@ void vtkCameraOrientationWidget::PlayAnimationSingleFrame(
     if (this->AnimatorCurrentFrame < this->AnimatorTotalFrames)
     {
       this->InterpolateCamera(this->AnimatorCurrentFrame);
-      this->ParentRenderer->ResetCamera();
+      if (this->ShouldResetCamera)
+      {
+        this->ParentRenderer->ResetCamera();
+      }
       this->Render();
       this->AnimatorCurrentFrame++;
     }
