@@ -22,6 +22,7 @@
 #include "vtkUndirectedGraph.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkEdgeListIterator;
 class vtkGraphEdge;
 
@@ -298,6 +299,16 @@ public:
    * Removes a collection of edges from the graph.
    */
   void RemoveEdges(vtkIdTypeArray* arr);
+
+  /**
+   * Replace all edges in the graph with the given edge array.
+   * The array must have exactly 2 components, where each tuple
+   * represents a (source, target) edge. Any integer array type
+   * is accepted (e.g. vtkIntArray, vtkIdTypeArray, vtkTypeInt64Array).
+   * The number of vertices is inferred from the maximum vertex id
+   * in the array (plus one). Any existing edges and vertices are cleared.
+   */
+  void SetEdges(vtkDataArray* edges);
 
 protected:
   vtkMutableUndirectedGraph();

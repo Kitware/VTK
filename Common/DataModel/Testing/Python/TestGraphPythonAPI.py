@@ -1,5 +1,7 @@
 """Tests for the Pythonic graph/tree API."""
 
+import numpy as np
+
 from vtkmodules.vtkCommonDataModel import (
     vtkMutableDirectedGraph,
     vtkMutableUndirectedGraph,
@@ -229,6 +231,90 @@ class TestGraphPythonAPI(Testing.vtkTest):
         self.assertEqual(len(edges), 4)
         self.assertIsNotNone(t.vertex_data)
         self.assertIsNotNone(t.edge_data)
+
+    # -- bulk edge setter: directed --
+
+    def test_set_edges_directed(self):
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2], [0, 3], [3, 4]])
+        self.assertEqual(len(g), 5)
+        self.assertEqual(g.GetNumberOfEdges(), 4)
+        edges = sorted(g.edges, key=lambda e: e.id)
+        self.assertEqual(edges, [
+            Edge(0, 1, 0), Edge(1, 2, 1), Edge(0, 3, 2), Edge(3, 4, 3)
+        ])
+
+    def test_set_edges_directed_roundtrip(self):
+        """Set edges, read them back, set again — should produce same result."""
+        g = vtkMutableDirectedGraph()
+        arr = np.array([[0, 1], [1, 2], [2, 0]])
+        g.edges = arr
+        edges1 = list(g.edges)
+        # Set again to verify reset works
+        g.edges = arr
+        edges2 = list(g.edges)
+        self.assertEqual(edges1, edges2)
+
+    def test_set_edges_directed_vertex_count(self):
+        """Vertex count should be max(vertex_id) + 1."""
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 5]])
+        self.assertEqual(len(g), 6)
+
+    # -- bulk edge setter: undirected --
+
+    def test_set_edges_undirected(self):
+        g = vtkMutableUndirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2], [0, 3]])
+        self.assertEqual(len(g), 4)
+        self.assertEqual(g.GetNumberOfEdges(), 3)
+        edges = list(g.edges)
+        self.assertEqual(len(edges), 3)
+
+    def test_set_edges_undirected_neighbors(self):
+        """Undirected edges should be traversable in both directions."""
+        g = vtkMutableUndirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2]])
+        self.assertEqual(sorted(g.neighbors(1)), [0, 2])
+
+    def test_set_edges_undirected_self_loop(self):
+        """Self-loops should not double-count in undirected graphs."""
+        g = vtkMutableUndirectedGraph()
+        g.edges = np.array([[0, 1], [1, 1]])
+        self.assertEqual(g.GetNumberOfEdges(), 2)
+        # vertex 1: edge to/from 0 (1 OutEdge entry) + self-loop (1 OutEdge entry) = degree 2
+        self.assertEqual(g.degree(1), 2)
+
+    # -- vertex_data / edge_data setters --
+
+    def test_vertex_data_setter(self):
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2]])
+        g.vertex_data = {"weight": np.array([1.0, 2.0, 3.0])}
+        vd = g.vertex_data
+        self.assertEqual(vd.GetNumberOfArrays(), 1)
+        self.assertEqual(vd.GetArray("weight").GetValue(0), 1.0)
+        self.assertEqual(vd.GetArray("weight").GetValue(2), 3.0)
+
+    def test_edge_data_setter(self):
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2]])
+        g.edge_data = {"cost": np.array([0.5, 1.5])}
+        ed = g.edge_data
+        self.assertEqual(ed.GetNumberOfArrays(), 1)
+        self.assertEqual(ed.GetArray("cost").GetValue(0), 0.5)
+        self.assertEqual(ed.GetArray("cost").GetValue(1), 1.5)
+
+    def test_vertex_data_setter_replaces(self):
+        """Setting vertex_data should replace existing arrays."""
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1]])
+        g.vertex_data = {"a": np.array([1.0, 2.0])}
+        g.vertex_data = {"b": np.array([3.0, 4.0])}
+        vd = g.vertex_data
+        self.assertEqual(vd.GetNumberOfArrays(), 1)
+        self.assertIsNone(vd.GetArray("a"))
+        self.assertIsNotNone(vd.GetArray("b"))
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Pythonic read-only API for VTK graph and tree classes.
+"""Pythonic API for VTK graph and tree classes.
 
 Adds iteration, len, repr, and convenient accessors::
 
@@ -10,6 +10,12 @@ Adds iteration, len, repr, and convenient accessors::
     for n in g.neighbors(5):        # adjacent vertex ids
     g.vertex_data                   # vtkDataSetAttributes
     g.edge_data                     # vtkDataSetAttributes
+
+    # Mutable graph construction:
+    g = vtkMutableDirectedGraph()
+    g.edges = np.array([[0, 1], [1, 2], [0, 3]])
+    g.vertex_data = {"weight": np.array([1.0, 2.0, 3.0, 4.0])}
+    g.edge_data = {"cost": np.array([0.5, 1.5, 2.5])}
 
     # Tree-specific:
     t.root                          # root vertex id
@@ -104,6 +110,88 @@ class _GraphMixin:
         return self.GetInDegree(v)
 
 
+class _MutableGraphMixin(_GraphMixin):
+    @property
+    def edges(self):
+        from vtkmodules.vtkCommonDataModel import vtkEdgeListIterator
+
+        it = vtkEdgeListIterator()
+        self.GetEdges(it)
+        while it.HasNext():
+            e = it.NextGraphEdge()
+            yield Edge(e.GetSource(), e.GetTarget(), e.GetId())
+
+    @edges.setter
+    def edges(self, edge_array):
+        """Set all edges from an (E, 2) array of [source, target].
+
+        Accepts a numpy array or any vtkDataArray with 2 components.
+        The number of vertices is inferred from the maximum vertex id.
+        Any existing edges and vertices are cleared.
+        """
+        import numpy
+
+        from vtkmodules.util.numpy_support import numpy_to_vtk
+
+        if isinstance(edge_array, numpy.ndarray):
+            edge_array = numpy.ascontiguousarray(edge_array)
+            vtk_arr = numpy_to_vtk(edge_array)
+            vtk_arr.SetNumberOfComponents(2)
+            vtk_arr.SetNumberOfTuples(len(edge_array))
+        else:
+            vtk_arr = edge_array
+        self.SetEdges(vtk_arr)
+
+    @property
+    def vertex_data(self):
+        return self.GetVertexData()
+
+    @vertex_data.setter
+    def vertex_data(self, arrays):
+        """Set vertex arrays from a dict of ``{name: array}``.
+
+        Each value can be a numpy array or a VTK data array.
+        Existing vertex arrays are removed first.
+        """
+        vd = self.GetVertexData()
+        vd.Initialize()
+        _set_arrays(vd, arrays, self.GetNumberOfVertices())
+
+    @property
+    def edge_data(self):
+        return self.GetEdgeData()
+
+    @edge_data.setter
+    def edge_data(self, arrays):
+        """Set edge arrays from a dict of ``{name: array}``.
+
+        Each value can be a numpy array or a VTK data array.
+        Existing edge arrays are removed first.
+        """
+        ed = self.GetEdgeData()
+        ed.Initialize()
+        _set_arrays(ed, arrays, self.GetNumberOfEdges())
+
+
+def _set_arrays(dsa, arrays, num_tuples):
+    """Populate a vtkDataSetAttributes from a dict of {name: array}."""
+    import numpy
+
+    from vtkmodules.util.numpy_support import numpy_to_vtk
+    from vtkmodules.vtkCommonCore import vtkAbstractArray
+
+    dsa.SetNumberOfTuples(num_tuples)
+    for name, arr in arrays.items():
+        if isinstance(arr, numpy.ndarray):
+            vtk_arr = numpy_to_vtk(arr)
+        elif isinstance(arr, vtkAbstractArray):
+            vtk_arr = arr
+        else:
+            vtk_arr = numpy_to_vtk(numpy.asarray(arr))
+        vtk_arr.SetName(name)
+        dsa.AddArray(vtk_arr)
+
+
 class _TreeMixin(_GraphMixin):
     @property
     def root(self):
@@ -136,7 +224,7 @@ class DirectedGraph(_GraphMixin, vtkDirectedGraph):
 
 
 @vtkMutableDirectedGraph.override
-class MutableDirectedGraph(_GraphMixin, vtkMutableDirectedGraph):
+class MutableDirectedGraph(_MutableGraphMixin, vtkMutableDirectedGraph):
     pass
 
 
@@ -146,7 +234,7 @@ class UndirectedGraph(_GraphMixin, vtkUndirectedGraph):
 
 
 @vtkMutableUndirectedGraph.override
-class MutableUndirectedGraph(_GraphMixin, vtkMutableUndirectedGraph):
+class MutableUndirectedGraph(_MutableGraphMixin, vtkMutableUndirectedGraph):
     pass
 
 
