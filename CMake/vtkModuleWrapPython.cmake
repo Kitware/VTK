@@ -1003,19 +1003,29 @@ function (vtk_module_wrap_python)
     set(_vtk_python_all_modules_include_file
       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_python_HEADERS_DESTINATION}/${_vtk_python_TARGET_NAME}.h")
     set(_vtk_python_all_modules_include_content
-      "#ifndef ${_vtk_python_TARGET_NAME}_h\n#define ${_vtk_python_TARGET_NAME}_h\n")
+      "#ifndef ${_vtk_python_TARGET_NAME}_h\n#define ${_vtk_python_TARGET_NAME}_h\n\n")
 
     if (_vtk_python_BUILD_STATIC)
+      string(APPEND _vtk_python_all_modules_include_content
+        "// Module initialization function headers.\n")
       foreach (_vtk_python_module IN LISTS _vtk_python_all_modules)
         string(APPEND _vtk_python_all_modules_include_content
           "#include \"${_vtk_python_module}.h\"\n")
       endforeach ()
+      string(APPEND _vtk_python_all_modules_include_content
+        "\n")
     endif ()
 
-    foreach (_vtk_python_depend IN LISTS _vtk_python_depends)
+    if (_vtk_python_depends)
       string(APPEND _vtk_python_all_modules_include_content
-        "#include \"${_vtk_python_depend}.h\"\n")
-    endforeach ()
+        "// Dependent bundles of Python modules.\n")
+      foreach (_vtk_python_depend IN LISTS _vtk_python_depends)
+        string(APPEND _vtk_python_all_modules_include_content
+          "#include \"${_vtk_python_depend}.h\"\n")
+      endforeach ()
+      string(APPEND _vtk_python_all_modules_include_content
+        "\n")
+    endif ()
 
     string(APPEND _vtk_python_all_modules_include_content
 "#define PY_APPEND_INIT(module) PyImport_AppendInittab(\"${_vtk_python_import_prefix}\" #module, PyInit_ ## module)
