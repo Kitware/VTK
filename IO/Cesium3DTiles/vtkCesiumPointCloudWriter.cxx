@@ -132,24 +132,24 @@ vtkCesiumPointCloudWriter::~vtkCesiumPointCloudWriter()
   this->SetPointIds(nullptr);
 }
 
-void vtkCesiumPointCloudWriter::WriteData()
+bool vtkCesiumPointCloudWriter::WriteDataAndReturn()
 {
   // make sure the user specified a FileName
   if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
-    return;
+    return false;
   }
   vtkPointSet* pointSet = vtkPointSet::SafeDownCast(this->GetInput());
   if (pointSet == nullptr)
   {
     vtkErrorMacro(<< "Please specify a vtkPointSet input");
-    return;
+    return false;
   }
   if (this->PointIds == nullptr)
   {
     vtkErrorMacro(<< "Please specify the point Ids to save");
-    return;
+    return false;
   }
   auto rgbArray = pointSet->GetPointData()->GetScalars();
   using RgbArrayTypes =
@@ -177,7 +177,7 @@ void vtkCesiumPointCloudWriter::WriteData()
   if (out.fail())
   {
     vtkErrorMacro(<< "Cannot open " << this->FileName << " for writing.");
-    return;
+    return false;
   }
   double bb[6];
   std::array<double, 3> origin;
@@ -262,6 +262,7 @@ void vtkCesiumPointCloudWriter::WriteData()
   {
     out.write(&c, sizeof(c));
   }
+  return true;
 }
 
 void vtkCesiumPointCloudWriter::PrintSelf(ostream& os, vtkIndent indent)

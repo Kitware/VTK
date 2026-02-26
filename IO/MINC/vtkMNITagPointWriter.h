@@ -133,7 +133,11 @@ protected:
   vtkIntArray* PatientIds;
   char* Comments;
 
-  void WriteData() override {}
+  bool WriteDataAndReturn() override { return false; }
+
+  // VTK_DEPRECATED_IN_9_7_0 remove using
+  using Superclass::WriteData;
+
   virtual void WriteData(vtkPointSet* inputs[2]);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;

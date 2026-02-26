@@ -63,9 +63,9 @@ int vtkWriter::Write()
 
   // always write even if the data hasn't changed
   this->Modified();
-  this->UpdateWholeExtent();
-
-  return (this->GetErrorCode() == vtkErrorCode::NoError);
+  bool ret = this->UpdateWholeExtent();
+  ret &= this->GetErrorCode() == vtkErrorCode::NoError;
+  return ret;
 }
 
 vtkTypeBool vtkWriter::ProcessRequest(
@@ -94,12 +94,12 @@ int vtkWriter::RequestData(vtkInformation*, vtkInformationVector**, vtkInformati
   }
 
   this->InvokeEvent(vtkCommand::StartEvent, nullptr);
-  this->WriteData();
+  bool ret = this->WriteDataAndReturn();
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   this->WriteTime.Modified();
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -188,4 +188,43 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     cc++;
   }
 }
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0 remove fully
+void vtkWriter::WriteData()
+{
+  if (!this->WriteDataFlag)
+  {
+    this->WriteDataAndReturn();
+  }
+  else
+  {
+    this->WriteDataOverrideError = true;
+  }
+};
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_7_0 remove fully
+bool vtkWriter::WriteDataAndReturn()
+{
+  if (!this->WriteDataFlag)
+  {
+    this->WriteDataFlag = true;
+    this->WriteData();
+  }
+  else
+  {
+    this->WriteDataOverrideError = true;
+  }
+
+  if (this->WriteDataOverrideError)
+  {
+    // This is a runtime override warning in order to provide retro-compatibility with WriteData
+    vtkErrorMacro(
+      "This writer doesn't have a WriteDataAndReturn override implementation, but it should");
+    return false;
+  }
+  return true;
+};
+
 VTK_ABI_NAMESPACE_END

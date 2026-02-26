@@ -52,7 +52,7 @@ protected:
   /**
    * Performs the actual writing.
    */
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
   ///@}
 

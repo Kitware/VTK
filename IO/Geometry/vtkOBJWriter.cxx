@@ -178,7 +178,7 @@ vtkOBJWriter::~vtkOBJWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkOBJWriter::WriteData()
+bool vtkOBJWriter::WriteDataAndReturn()
 {
   vtkPolyData* input = this->GetInputGeometry();
   vtkImageData* texture = this->GetInputTexture();
@@ -187,7 +187,7 @@ void vtkOBJWriter::WriteData()
   {
     vtkErrorMacro("No geometry to write!");
     this->SetErrorCode(vtkErrorCode::UnknownError);
-    return;
+    return false;
   }
 
   vtkPoints* pts = input->GetPoints();
@@ -223,14 +223,14 @@ void vtkOBJWriter::WriteData()
   {
     vtkErrorMacro("No data to write!");
     this->SetErrorCode(vtkErrorCode::UnknownError);
-    return;
+    return false;
   }
 
   if (this->FileName == nullptr)
   {
     vtkErrorMacro("Please specify FileName to write");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return;
+    return false;
   }
 
   vtkIdType npts = 0;
@@ -240,7 +240,7 @@ void vtkOBJWriter::WriteData()
   {
     vtkErrorMacro("Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    return;
+    return false;
   }
 
   // Write header
@@ -361,6 +361,7 @@ void vtkOBJWriter::WriteData()
   }
 
   f.close();
+  return true;
 }
 
 //------------------------------------------------------------------------------

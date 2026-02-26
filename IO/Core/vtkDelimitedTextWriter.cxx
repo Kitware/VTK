@@ -158,27 +158,30 @@ vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
 }
 
 //------------------------------------------------------------------------------
-void vtkDelimitedTextWriter::WriteData()
+bool vtkDelimitedTextWriter::WriteDataAndReturn()
 {
+  bool ret = false;
+  ;
   vtkTable* rg = vtkTable::SafeDownCast(this->GetInput());
   if (rg)
   {
-    this->WriteTable(rg);
+    ret = this->WriteTable(rg);
   }
   else
   {
     vtkErrorMacro(<< "CSVWriter can only write vtkTable.");
   }
+  return ret;
 }
 
 //------------------------------------------------------------------------------
-void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
+bool vtkDelimitedTextWriter::WriteTable(vtkTable* table)
 {
   vtkIdType numRows = table->GetNumberOfRows();
   vtkDataSetAttributes* dsa = table->GetRowData();
   if (!this->OpenStream())
   {
-    return;
+    return false;
   }
 
   int cc;
@@ -243,6 +246,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
   }
   delete this->Stream;
   this->Stream = nullptr;
+  return true;
 }
 
 //------------------------------------------------------------------------------

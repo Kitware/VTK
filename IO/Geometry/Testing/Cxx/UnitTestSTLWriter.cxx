@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cstdlib>
 
+#include "vtkCallbackCommand.h"
+#include "vtkExecutive.h"
+#include "vtkPlaneSource.h"
 #include "vtkSTLReader.h"
 #include "vtkSTLWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkStripper.h"
 #include "vtkTestErrorObserver.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
-
-#include "vtkPlaneSource.h"
-#include "vtkSphereSource.h"
-#include "vtkStripper.h"
-
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/SystemTools.hxx"
 
 #include <iostream>
 
@@ -209,7 +209,11 @@ int UnitTestSTLWriter(int argc, char* argv[])
   //
   vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  vtkNew<vtkCallbackCommand> nullCallback;
+  nullCallback->SetCallback([](vtkObject*, unsigned long, void*, void*) {});
+
   vtkSmartPointer<vtkSTLWriter> writer2 = vtkSmartPointer<vtkSTLWriter>::New();
+  writer2->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, nullCallback);
   writer2->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   writer2->SetFileName("foo");

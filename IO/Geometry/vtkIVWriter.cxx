@@ -16,7 +16,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIVWriter);
 
 //------------------------------------------------------------------------------
-void vtkIVWriter::WriteData()
+bool vtkIVWriter::WriteDataAndReturn()
 {
   FILE* fp;
 
@@ -24,7 +24,7 @@ void vtkIVWriter::WriteData()
   if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
-    return;
+    return false;
   }
 
   // try opening the files
@@ -32,7 +32,7 @@ void vtkIVWriter::WriteData()
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open OpenInventor file: " << this->FileName);
-    return;
+    return false;
   }
 
   //
@@ -45,7 +45,9 @@ void vtkIVWriter::WriteData()
   if (fclose(fp))
   {
     vtkErrorMacro(<< this->FileName << " did not close successfully. Check disk space.");
+    return false;
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------

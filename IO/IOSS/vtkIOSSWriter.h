@@ -605,7 +605,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
 private:
   vtkIOSSWriter(const vtkIOSSWriter&) = delete;

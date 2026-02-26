@@ -37,7 +37,7 @@ protected:
   vtkUnstructuredGridWriter() = default;
   ~vtkUnstructuredGridWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   int WriteCellsAndFaces(ostream* fp, vtkUnstructuredGridBase* grid, const char* label);
 

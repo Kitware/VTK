@@ -9,7 +9,7 @@
  * method. This method insures that there is input and input is up to date.
  *
  * @warning
- * Every subclass of vtkWriter must implement a WriteData() method. Most likely
+ * Every subclass of vtkWriter must implement a WriteDataAndReturn() method. Most likely
  * will have to create SetInput() method as well.
  *
  * @sa
@@ -20,7 +20,7 @@
 #define vtkWriter_h
 
 #include "vtkAlgorithm.h"
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_9_5_0
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_9_6_0 VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOCoreModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Write data to output. Method executes subclasses WriteData() method, as
+   * Write data to output. Method executes subclasses WriteDataAndReturn() method, as
    * well as StartMethod() and EndMethod() methods.
    * Returns 1 on success and 0 on failure.
    */
@@ -90,12 +90,28 @@ protected:
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  virtual void WriteData() = 0; // internal method subclasses must respond to
+  // When removing this deprecation remove this whole section and keep the section below instead
+  VTK_DEPRECATED_IN_9_7_0("Use and override WriteDataAndReturn instead.")
+  virtual void WriteData();
+  virtual bool WriteDataAndReturn();
+
+#if 0
+  /**
+   * Pure virtual method all vtkWriter implementation should override to implement
+   * the actual writing of the file
+   */
+  virtual bool WriteDataAndReturn() = 0;
+#endif
+
   vtkTimeStamp WriteTime;
 
 private:
   vtkWriter(const vtkWriter&) = delete;
   void operator=(const vtkWriter&) = delete;
+
+  // VTK_DEPRECATED_IN_9_7_0 remove both members
+  bool WriteDataFlag = true;
+  bool WriteDataOverrideError = false;
 };
 
 VTK_ABI_NAMESPACE_END

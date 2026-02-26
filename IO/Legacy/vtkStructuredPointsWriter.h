@@ -54,7 +54,7 @@ protected:
   }
   ~vtkStructuredPointsWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

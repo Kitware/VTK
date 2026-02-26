@@ -55,7 +55,7 @@ int vtkCompositeDataWriter::FillInputPortInformation(int, vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositeDataWriter::WriteData()
+bool vtkCompositeDataWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkCompositeDataSet* input = this->GetInput();
@@ -77,9 +77,10 @@ void vtkCompositeDataWriter::WriteData()
         vtkErrorMacro("Could not read memory header. ");
       }
     }
-    return;
+    return false;
   }
 
+  bool ret = true;
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(input);
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(input);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(input);
@@ -92,6 +93,7 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, mb))
     {
       vtkErrorMacro("Error writing multiblock dataset.");
+      ret = false;
     }
   }
   else if (oamr)
@@ -100,6 +102,7 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, oamr))
     {
       vtkErrorMacro("Error writing overlapping amr dataset.");
+      ret = false;
     }
   }
   else if (noamr)
@@ -108,6 +111,7 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, noamr))
     {
       vtkErrorMacro("Error writing non-overlapping amr dataset.");
+      ret = false;
     }
   }
   else if (mp)
@@ -116,6 +120,7 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, mp))
     {
       vtkErrorMacro("Error writing multi-piece dataset.");
+      ret = false;
     }
   }
   else if (pd)
@@ -124,6 +129,7 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, pd))
     {
       vtkErrorMacro("Error writing partitioned dataset.");
+      ret = false;
     }
   }
   else if (pdc)
@@ -132,21 +138,24 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, pdc))
     {
       vtkErrorMacro("Error writing partitioned dataset collection.");
+      ret = false;
     }
   }
   else
   {
     vtkErrorMacro("Unsupported input type: " << input->GetClassName());
+    ret = false;
   }
 
   // Try to write field data
   vtkFieldData* fieldData = input->GetFieldData();
   if (fieldData)
   {
-    this->WriteFieldData(fp, fieldData);
+    ret &= this->WriteFieldData(fp, fieldData) == 1;
   }
 
   this->CloseVTKFile(fp);
+  return ret;
 }
 
 //------------------------------------------------------------------------------

@@ -140,7 +140,7 @@ protected:
   vtkJSONDataSetWriter();
   ~vtkJSONDataSetWriter() override;
 
-  void WriteData() final;
+  bool WriteDataAndReturn() final;
   std::string WriteArray(vtkDataArray*, const char* className, const char* arrayName = nullptr);
   std::string WriteDataSetAttributes(vtkDataSetAttributes* fields, const char* className);
 

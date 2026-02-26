@@ -68,7 +68,7 @@ protected:
   ~vtkCellGridWriter() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   char* FileName{ nullptr };
   Format FileFormat{ Format::PlainText };

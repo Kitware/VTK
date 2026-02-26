@@ -84,7 +84,7 @@ protected:
   vtkSTLWriter();
   ~vtkSTLWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   void WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArray* strips);
   void WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArray* strips);

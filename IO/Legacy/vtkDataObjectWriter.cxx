@@ -20,7 +20,7 @@ vtkDataObjectWriter::~vtkDataObjectWriter()
 }
 
 // Write FieldData data to file
-void vtkDataObjectWriter::WriteData()
+bool vtkDataObjectWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkFieldData* f = this->GetInput()->GetFieldData();
@@ -31,16 +31,18 @@ void vtkDataObjectWriter::WriteData()
 
   if (!(fp = this->Writer->OpenVTKFile()) || !this->Writer->WriteHeader(fp))
   {
-    return;
+    return false;
   }
   //
   // Write FieldData data specific stuff
   //
-  this->Writer->WriteFieldData(fp, f);
+  int retFD = this->Writer->WriteFieldData(fp, f);
 
   this->Writer->CloseVTKFile(fp);
 
   this->Writer->SetInputData(nullptr);
+
+  return retFD == 1;
 }
 
 void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)

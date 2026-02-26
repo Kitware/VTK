@@ -102,7 +102,7 @@ protected:
   vtkBYUWriter();
   ~vtkBYUWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   char* GeometryFileName;
   char* DisplacementFileName;

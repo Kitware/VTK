@@ -171,7 +171,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Implementation of Write()
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   char* DirectoryName;
   char* TextureBaseDirectory;

@@ -15,7 +15,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataWriter);
 
-void vtkPolyDataWriter::WriteData()
+bool vtkPolyDataWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkPolyData* input = this->GetInput();
@@ -38,7 +38,7 @@ void vtkPolyDataWriter::WriteData()
         vtkErrorMacro("Could not read memory header. ");
       }
     }
-    return;
+    return false;
   }
   //
   // Write polygonal data specific stuff
@@ -108,9 +108,10 @@ void vtkPolyDataWriter::WriteData()
       vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
     }
-    return;
+    return false;
   }
   this->CloseVTKFile(fp);
+  return errorOccured == 0;
 }
 
 int vtkPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)

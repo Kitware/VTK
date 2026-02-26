@@ -48,7 +48,7 @@ protected:
 
   ~vtkIVWriter() override { delete[] this->FileName; }
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
   void WritePolyData(vtkPolyData* polyData, FILE* fp);
 
   char* FileName;

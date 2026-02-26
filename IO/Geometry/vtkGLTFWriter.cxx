@@ -841,7 +841,7 @@ std::string vtkGLTFWriter::WriteToString()
   return result.str();
 }
 
-void vtkGLTFWriter::WriteData()
+bool vtkGLTFWriter::WriteDataAndReturn()
 {
   vtksys::ofstream output;
 
@@ -849,7 +849,7 @@ void vtkGLTFWriter::WriteData()
   if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
-    return;
+    return false;
   }
 
   std::string extension = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
@@ -863,11 +863,12 @@ void vtkGLTFWriter::WriteData()
   if (!output.is_open())
   {
     vtkErrorMacro("Unable to open file for gltf output.");
-    return;
+    return false;
   }
 
   this->WriteToStream(output, this->GetInput());
   output.close();
+  return true;
 }
 
 void vtkGLTFWriter::WriteToStream(ostream& output, vtkDataObject* vtkNotUsed(data))

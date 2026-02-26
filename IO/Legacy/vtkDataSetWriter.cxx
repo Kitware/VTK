@@ -21,7 +21,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetWriter);
 
-void vtkDataSetWriter::WriteData()
+bool vtkDataSetWriter::WriteDataAndReturn()
 {
   int type;
   vtkDataWriter* writer;
@@ -68,7 +68,7 @@ void vtkDataSetWriter::WriteData()
   else
   {
     vtkErrorMacro(<< "Cannot write dataset type: " << type);
-    return;
+    return false;
   }
 
   writer->SetFileName(this->FileName);
@@ -84,7 +84,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetDebug(this->Debug);
   writer->SetWriteToOutputString(this->WriteToOutputString);
   writer->SetFileVersion(this->FileVersion);
-  writer->Write();
+  bool ret = writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
   {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
@@ -96,6 +96,7 @@ void vtkDataSetWriter::WriteData()
     this->OutputString = writer->RegisterAndGetOutputString();
   }
   writer->Delete();
+  return ret;
 }
 
 int vtkDataSetWriter::FillInputPortInformation(int, vtkInformation* info)

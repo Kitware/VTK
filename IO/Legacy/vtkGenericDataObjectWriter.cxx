@@ -45,7 +45,7 @@ vtkGenericDataObjectWriter::vtkGenericDataObjectWriter() = default;
 
 vtkGenericDataObjectWriter::~vtkGenericDataObjectWriter() = default;
 
-void vtkGenericDataObjectWriter::WriteData()
+bool vtkGenericDataObjectWriter::WriteDataAndReturn()
 {
   vtkDebugMacro(<< "Writing vtk data object ...");
 
@@ -56,19 +56,19 @@ void vtkGenericDataObjectWriter::WriteData()
   {
     case VTK_COMPOSITE_DATA_SET:
       vtkErrorMacro(<< "Cannot write composite data set");
-      return;
+      return false;
     case VTK_CELL_GRID:
       writer = CreateWriter<vtkLegacyCellGridWriter>(input);
       break;
     case VTK_DATA_OBJECT:
       vtkErrorMacro(<< "Cannot write data object");
-      return;
+      return false;
     case VTK_DATA_SET:
       vtkErrorMacro(<< "Cannot write data set");
-      return;
+      return false;
     case VTK_GENERIC_DATA_SET:
       vtkErrorMacro(<< "Cannot write generic data set");
-      return;
+      return false;
     case VTK_DIRECTED_GRAPH:
     case VTK_UNDIRECTED_GRAPH:
     case VTK_MOLECULE:
@@ -88,10 +88,10 @@ void vtkGenericDataObjectWriter::WriteData()
       break;
     case VTK_PIECEWISE_FUNCTION:
       vtkErrorMacro(<< "Cannot write piecewise function");
-      return;
+      return false;
     case VTK_POINT_SET:
       vtkErrorMacro(<< "Cannot write point set");
-      return;
+      return false;
     case VTK_POLY_DATA:
       writer = CreateWriter<vtkPolyDataWriter>(input);
       break;
@@ -122,7 +122,7 @@ void vtkGenericDataObjectWriter::WriteData()
   if (!writer)
   {
     vtkErrorMacro(<< "null data object writer");
-    return;
+    return false;
   }
 
   writer->SetFileName(this->FileName);
@@ -138,7 +138,7 @@ void vtkGenericDataObjectWriter::WriteData()
   writer->SetFileVersion(this->FileVersion);
   writer->SetDebug(this->Debug);
   writer->SetWriteToOutputString(this->WriteToOutputString);
-  writer->Write();
+  bool ret = writer->Write();
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
   {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
@@ -150,6 +150,7 @@ void vtkGenericDataObjectWriter::WriteData()
     this->OutputString = writer->RegisterAndGetOutputString();
   }
   writer->Delete();
+  return ret;
 }
 
 int vtkGenericDataObjectWriter::FillInputPortInformation(int, vtkInformation* info)

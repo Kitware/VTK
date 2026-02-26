@@ -55,7 +55,6 @@ public:
 protected:
   vtkTableToDatabaseWriter();
   ~vtkTableToDatabaseWriter() override;
-  void WriteData() override = 0;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

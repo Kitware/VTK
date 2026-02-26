@@ -39,7 +39,7 @@ protected:
   vtkLegacyCellGridWriter() = default;
   ~vtkLegacyCellGridWriter() override = default;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
 #if 0
   int WriteArrayGroups(ostream* fp, vtkCellGrid* grid);

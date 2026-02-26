@@ -892,7 +892,7 @@ int vtkMNIObjectWriter::WriteLineObject(vtkPolyData* output)
 }
 
 //------------------------------------------------------------------------------
-void vtkMNIObjectWriter::WriteData()
+bool vtkMNIObjectWriter::WriteDataAndReturn()
 {
   vtkPolyData* input = this->GetInput();
   int objType = 0;
@@ -905,13 +905,13 @@ void vtkMNIObjectWriter::WriteData()
   if (nverts != 0)
   {
     vtkErrorMacro("Unable to write vertices.");
-    return;
+    return false;
   }
 
   if ((npolys != 0 || nstrips != 0) && nlines != 0)
   {
     vtkErrorMacro("Unable to write a data set with multiple cell types.");
-    return;
+    return false;
   }
 
   if (npolys != 0 || nstrips != 0)
@@ -928,7 +928,7 @@ void vtkMNIObjectWriter::WriteData()
 
   if (!this->OutputStream)
   {
-    return;
+    return false;
   }
 
   // Write the type character
@@ -953,7 +953,9 @@ void vtkMNIObjectWriter::WriteData()
   {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     unlink(this->FileName);
+    return false;
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -87,7 +87,7 @@ protected:
   vtkOpenVDBWriter();
   ~vtkOpenVDBWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   void WriteImageData(vtkImageData* imageData);
   void WritePointSet(vtkPointSet* pointSet);

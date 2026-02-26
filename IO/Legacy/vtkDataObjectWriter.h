@@ -62,7 +62,7 @@ protected:
   vtkDataObjectWriter();
   ~vtkDataObjectWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
   vtkDataWriter* Writer;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;

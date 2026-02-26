@@ -24,7 +24,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
-void vtkUnstructuredGridWriter::WriteData()
+bool vtkUnstructuredGridWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkUnstructuredGridBase* input = vtkUnstructuredGridBase::SafeDownCast(this->GetInput());
@@ -40,7 +40,7 @@ void vtkUnstructuredGridWriter::WriteData()
       this->CloseVTKFile(fp);
       unlink(this->FileName);
     }
-    return;
+    return false;
   }
   //
   // Write unstructured grid specific stuff
@@ -53,7 +53,7 @@ void vtkUnstructuredGridWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   if (!this->WritePoints(fp, input->GetPoints()))
@@ -61,7 +61,7 @@ void vtkUnstructuredGridWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   // Handle face data:
@@ -70,7 +70,7 @@ void vtkUnstructuredGridWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   //
@@ -108,17 +108,18 @@ void vtkUnstructuredGridWriter::WriteData()
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
   if (!this->WritePointData(fp, input))
   {
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     this->CloseVTKFile(fp);
     unlink(this->FileName);
-    return;
+    return false;
   }
 
   this->CloseVTKFile(fp);
+  return true;
 }
 
 int vtkUnstructuredGridWriter::WriteCellsAndFaces(

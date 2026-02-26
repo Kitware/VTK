@@ -66,7 +66,7 @@ protected:
   vtkMCubesWriter();
   ~vtkMCubesWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   void WriteMCubes(FILE* fp, vtkPoints* pts, vtkDataArray* normals, vtkCellArray* polys);
   void WriteLimits(FILE* fp, double* bounds);

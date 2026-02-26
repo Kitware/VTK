@@ -127,8 +127,8 @@ int vtkEnSightWriter::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
-  this->WriteData();      // write geometry and variable files
-  this->WriteCaseFile(1); // write .case file with one timestep (0)
+  bool ret = this->WriteDataAndReturn(); // write geometry and variable files
+  this->WriteCaseFile(1);                // write .case file with one timestep (0)
 
   if (this->NumberOfProcesses > 1 && this->ProcessNumber == 0)
   {
@@ -140,7 +140,7 @@ int vtkEnSightWriter::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->WriteTime.Modified();
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ vtkUnstructuredGrid* vtkEnSightWriter::GetInput()
 }
 
 //------------------------------------------------------------------------------
-void vtkEnSightWriter::WriteData()
+bool vtkEnSightWriter::WriteDataAndReturn()
 {
   int i;
   unsigned int ui;
@@ -223,7 +223,7 @@ void vtkEnSightWriter::WriteData()
   if (!this->BaseName)
   {
     vtkErrorMacro("A FileName or Path/BaseName must be specified.");
-    return;
+    return false;
   }
 
   this->SanitizeFileName(this->BaseName);
@@ -242,7 +242,7 @@ void vtkEnSightWriter::WriteData()
   if (this->ShouldWriteGeometry())
   {
     if (!(fd = OpenFile(charBuffer)))
-      return;
+      return false;
   }
 
   // Get the FILE's for Point Data Fields
@@ -259,7 +259,7 @@ void vtkEnSightWriter::WriteData()
     if (!ftemp)
     {
       fclose(fd);
-      return;
+      return false;
     }
     pointArrayFiles.push_back(ftemp);
 
@@ -282,7 +282,7 @@ void vtkEnSightWriter::WriteData()
     if (!ftemp)
     {
       fclose(fd);
-      return;
+      return false;
     }
     cellArrayFiles.push_back(ftemp);
 
@@ -888,6 +888,7 @@ void vtkEnSightWriter::WriteData()
   {
     fclose(pointArrayFiles[ui]);
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------

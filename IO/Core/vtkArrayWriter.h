@@ -120,7 +120,7 @@ protected:
   ~vtkArrayWriter() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   char* FileName;
   vtkTypeBool Binary;

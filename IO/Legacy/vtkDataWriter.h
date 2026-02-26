@@ -336,7 +336,8 @@ protected:
   char* OutputString;
   vtkIdType OutputStringLength;
 
-  void WriteData() override; // dummy method to allow this class to be instantiated and delegated to
+  bool WriteDataAndReturn()
+    override; // dummy method to allow this class to be instantiated and delegated to
 
   char* FileName;
   int FileVersion;

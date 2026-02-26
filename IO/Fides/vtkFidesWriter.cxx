@@ -245,7 +245,7 @@ int vtkFidesWriter::RequestData(
     }
   }
 
-  this->WriteData();
+  bool ret = this->WriteDataAndReturn();
   vtkLog(TRACE, "wrote data for time step " << this->Impl->CurrentTimeStepIndex);
 
   ++this->Impl->CurrentTimeStepIndex;
@@ -258,11 +258,11 @@ int vtkFidesWriter::RequestData(
     this->Impl->Initialize();
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
   }
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
-void vtkFidesWriter::WriteData()
+bool vtkFidesWriter::WriteDataAndReturn()
 {
   vtkLogScopeFunction(TRACE);
 
@@ -289,7 +289,7 @@ void vtkFidesWriter::WriteData()
     if (!vtkDataAssemblyUtilities::GenerateHierarchy(mb, hierarchyUnused, pdc))
     {
       vtkErrorMacro("Failed to generate hierarchy for input!");
-      return;
+      return false;
     }
     inputDO = pdc;
   }
@@ -298,7 +298,7 @@ void vtkFidesWriter::WriteData()
   if (!inputPDC)
   {
     vtkErrorMacro("Invalid input data object!");
-    return;
+    return false;
   }
 
   std::vector<std::string> pathComponents;
@@ -369,7 +369,8 @@ void vtkFidesWriter::WriteData()
           vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
         if (!vtkComm->GetMPIComm())
         {
-          return;
+          vtkErrorMacro("Controller has not MPI communicator");
+          return false;
         }
         MPI_Comm comm = *(vtkComm->GetMPIComm()->GetHandle());
         this->Impl->Writers.insert(std::pair<std::string, fides::io::DataSetAppendWriter>(
@@ -397,7 +398,7 @@ void vtkFidesWriter::WriteData()
     if (this->Engine != EngineTypes::BPFile)
     {
       vtkErrorMacro("Unsupported engine type: " << this->Engine);
-      return;
+      return false;
     }
     try
     {
@@ -406,8 +407,10 @@ void vtkFidesWriter::WriteData()
     catch (const std::exception& e)
     {
       vtkErrorMacro("Exception encountered when trying to write data: " << e.what());
+      return false;
     }
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------

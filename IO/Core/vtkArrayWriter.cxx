@@ -270,16 +270,20 @@ int vtkArrayWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformatio
   return 1;
 }
 
-void vtkArrayWriter::WriteData()
+bool vtkArrayWriter::WriteDataAndReturn()
 {
+  bool ret;
   if (this->WriteToOutputString)
   {
-    this->OutputString = this->Write(this->Binary > 0);
+    std::ostringstream oss;
+    ret = this->Write(oss, this->Binary > 0);
+    this->OutputString = oss.str();
   }
   else
   {
-    this->Write(this->FileName ? this->FileName : "", this->Binary > 0);
+    ret = this->Write(this->FileName ? this->FileName : "", this->Binary > 0);
   }
+  return ret;
 }
 
 int vtkArrayWriter::Write()

@@ -38,7 +38,7 @@ protected:
   vtkHoudiniPolyDataWriter();
   ~vtkHoudiniPolyDataWriter() override;
 
-  void WriteData() override;
+  bool WriteDataAndReturn() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

@@ -14,6 +14,7 @@ vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
   TestTemporalSupport.cxx
   TestThreadedImageAlgorithmSplitExtent.cxx
   TestTrivialConsumer.cxx
+  TestUpdate.cxx
   UnitTestSimpleScalarTree.cxx
   )
 

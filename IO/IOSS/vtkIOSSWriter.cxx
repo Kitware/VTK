@@ -325,7 +325,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
     }
   }
 
-  this->WriteData();
+  bool ret = this->WriteDataAndReturn();
 
   ++internals.CurrentTimeStepIndex;
   if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
@@ -337,11 +337,11 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
     internals.Initialize();
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
   }
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSSWriter::WriteData()
+bool vtkIOSSWriter::WriteDataAndReturn()
 {
   vtkSmartPointer<vtkDataObject> inputDO = this->GetInput();
   if (vtkDataSet::SafeDownCast(inputDO))
@@ -362,7 +362,7 @@ void vtkIOSSWriter::WriteData()
   if (!inputPDC)
   {
     vtkErrorMacro("Incorrect input type!");
-    return;
+    return false;
   }
 
   auto& internals = (*this->Internals);
@@ -466,7 +466,7 @@ void vtkIOSSWriter::WriteData()
     if (dbase == nullptr || !dbase->ok(true))
     {
       vtkErrorMacro("Could not open database '" << fname << "'");
-      return;
+      return false;
     }
 
     // note: region takes ownership of `dbase` pointer.
@@ -490,6 +490,7 @@ void vtkIOSSWriter::WriteData()
     : 0.0;
 
   model.Transient(*internals.Region, /*time=*/currentTimeStep);
+  return true;
 }
 
 //----------------------------------------------------------------------------

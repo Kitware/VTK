@@ -166,7 +166,8 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  void WriteData() override; // method to allow this class to be instantiated and delegated to
+  bool WriteDataAndReturn()
+    override; // method to allow this class to be instantiated and delegated to
 
   virtual void WriteStringToFile(const char* string, FILE* file);
   virtual void WriteTerminatedStringToFile(const char* string, FILE* file);

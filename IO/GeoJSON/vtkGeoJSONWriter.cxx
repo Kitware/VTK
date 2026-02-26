@@ -230,7 +230,7 @@ void vtkGeoJSONWriter::WriteScalar(vtkDataArray* da, vtkIdType ptId)
 }
 
 //------------------------------------------------------------------------------
-void vtkGeoJSONWriter::WriteData()
+bool vtkGeoJSONWriter::WriteDataAndReturn()
 {
   ostream* fp;
   vtkPolyData* input = vtkPolyData::SafeDownCast(this->GetInput());
@@ -239,7 +239,7 @@ void vtkGeoJSONWriter::WriteData()
   fp = this->OpenFile();
   if (!fp)
   {
-    return;
+    return false;
   }
 
   this->WriterHelper->append("{\n");
@@ -499,9 +499,11 @@ void vtkGeoJSONWriter::WriteData()
     vtkErrorMacro("Problem writing result check disk space.");
     delete fp;
     fp = nullptr;
+    return false;
   }
 
   this->CloseFile(fp);
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ vtkBYUWriter::~vtkBYUWriter()
 }
 
 // Write out data in MOVIE.BYU format.
-void vtkBYUWriter::WriteData()
+bool vtkBYUWriter::WriteDataAndReturn()
 {
   FILE* geomFp;
   vtkPolyData* input = this->GetInput();
@@ -56,21 +56,21 @@ void vtkBYUWriter::WriteData()
   if (numPts < 1)
   {
     vtkErrorMacro(<< "No data to write!");
-    return;
+    return false;
   }
 
   if (!this->GeometryFileName)
   {
     vtkErrorMacro(<< "Geometry file name was not specified");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return;
+    return false;
   }
 
   if ((geomFp = vtksys::SystemTools::Fopen(this->GeometryFileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open geometry file: " << this->GeometryFileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    return;
+    return false;
   }
   else
   {
@@ -80,7 +80,7 @@ void vtkBYUWriter::WriteData()
       fclose(geomFp);
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->GeometryFileName);
       unlink(this->GeometryFileName);
-      return;
+      return false;
     }
   }
 
@@ -92,7 +92,7 @@ void vtkBYUWriter::WriteData()
     unlink(this->DisplacementFileName);
     vtkErrorMacro("Ran out of disk space; deleting files: " << this->GeometryFileName << " "
                                                             << this->DisplacementFileName);
-    return;
+    return false;
   }
   this->WriteScalarFile(numPts);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -112,7 +112,7 @@ void vtkBYUWriter::WriteData()
     unlink(this->ScalarFileName);
     errorMessage += this->ScalarFileName;
     vtkErrorMacro(<< errorMessage);
-    return;
+    return false;
   }
   this->WriteTextureFile(numPts);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -138,11 +138,12 @@ void vtkBYUWriter::WriteData()
     unlink(this->TextureFileName);
     errorMessage += this->TextureFileName;
     vtkErrorMacro(<< errorMessage);
-    return;
+    return false;
   }
 
   // Close the file
   fclose(geomFp);
+  return true;
 }
 
 void vtkBYUWriter::WriteGeometryFile(FILE* geomFile, int numPts)

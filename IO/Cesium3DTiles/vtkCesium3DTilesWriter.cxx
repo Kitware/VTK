@@ -248,7 +248,7 @@ int vtkCesium3DTilesWriter::FillInputPortInformation(int vtkNotUsed(port), vtkIn
 }
 
 //------------------------------------------------------------------------------
-void vtkCesium3DTilesWriter::WriteData()
+bool vtkCesium3DTilesWriter::WriteDataAndReturn()
 {
   auto root = this->GetInput(0);
   auto rootBuildings = vtkMultiBlockDataSet::SafeDownCast(root);
@@ -262,7 +262,7 @@ void vtkCesium3DTilesWriter::WriteData()
       {
         vtkLog(ERROR,
           "Expecting vtkMultiBlockDataSet but got " << (root ? root->GetClassName() : "nullptr"));
-        return;
+        return false;
       }
       std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
       vtkLog(TRACE, "Translate buildings...");
@@ -272,7 +272,7 @@ void vtkCesium3DTilesWriter::WriteData()
         vtkLog(ERROR,
           "No buildings read from the input file. "
           "Maybe buildings are on a different LOD. Try changing --lod parameter.");
-        return;
+        return false;
       }
       vtkLog(TRACE, "Processing " << buildings.size() << " buildings...");
       vtkDirectory::MakeDirectory(this->DirectoryName);
@@ -298,7 +298,7 @@ void vtkCesium3DTilesWriter::WriteData()
       {
         vtkLog(
           ERROR, "Expecting vtkPointSet but got " << (root ? root->GetClassName() : "nullptr"));
-        return;
+        return false;
       }
       vtkDirectory::MakeDirectory(this->DirectoryName);
       vtkSmartPointer<vtkPointSet> pc = TranslateMeshOrPoints(rootPoints, this->Offset);
@@ -322,7 +322,7 @@ void vtkCesium3DTilesWriter::WriteData()
       {
         vtkLog(ERROR,
           "Expecting vtkMultiBlockDataSet but got " << (root ? root->GetClassName() : "nullptr"));
-        return;
+        return false;
       }
 
       vtkPolyData* rootMesh = GetMesh(mbMesh);
@@ -344,5 +344,7 @@ void vtkCesium3DTilesWriter::WriteData()
       break;
     }
   }
+
+  return true;
 }
 VTK_ABI_NAMESPACE_END
