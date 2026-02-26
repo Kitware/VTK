@@ -16,9 +16,20 @@
 #include "vtkObject.h" // for legacy macros
 #include "vtkTuple.h"
 
+#include <algorithm> // for std::clamp
+#include <cmath>     // for std::round
+
+// Forward declarations for conversion methods.
+VTK_ABI_NAMESPACE_BEGIN
+class vtkColor3ub;
+class vtkColor3f;
+class vtkColor3d;
+class vtkColor4ub;
+class vtkColor4f;
+class vtkColor4d;
+
 // .NAME vtkColor3 - templated base type for storage of 3 component colors.
 //
-VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkColor3 : public vtkTuple<T, 3>
 {
@@ -212,6 +223,16 @@ public:
     : vtkColor3<unsigned char>(r, g, b)
   {
   }
+
+  /**
+   * Convert to vtkColor3f by scaling from [0,255] to [0.0,1.0].
+   */
+  inline vtkColor3f ToFloat() const;
+
+  /**
+   * Convert to vtkColor3d by scaling from [0,255] to [0.0,1.0].
+   */
+  inline vtkColor3d ToDouble() const;
 };
 
 class vtkColor3f : public vtkColor3<float>
@@ -230,6 +251,16 @@ public:
     : vtkColor3<float>(r, g, b)
   {
   }
+
+  /**
+   * Convert to vtkColor3ub by scaling from [0.0,1.0] to [0,255].
+   */
+  inline vtkColor3ub ToUnsignedChar() const;
+
+  /**
+   * Convert to vtkColor3d with a simple static_cast.
+   */
+  inline vtkColor3d ToDouble() const;
 };
 
 class vtkColor3d : public vtkColor3<double>
@@ -248,6 +279,16 @@ public:
     : vtkColor3<double>(r, g, b)
   {
   }
+
+  /**
+   * Convert to vtkColor3ub by scaling from [0.0,1.0] to [0,255].
+   */
+  inline vtkColor3ub ToUnsignedChar() const;
+
+  /**
+   * Convert to vtkColor3f with a simple static_cast.
+   */
+  inline vtkColor3f ToFloat() const;
 };
 
 class vtkColor4ub : public vtkColor4<unsigned char>
@@ -289,6 +330,16 @@ public:
     : vtkColor4<unsigned char>(c[0], c[1], c[2], 255)
   {
   }
+
+  /**
+   * Convert to vtkColor4f by scaling from [0,255] to [0.0,1.0].
+   */
+  inline vtkColor4f ToFloat() const;
+
+  /**
+   * Convert to vtkColor4d by scaling from [0,255] to [0.0,1.0].
+   */
+  inline vtkColor4d ToDouble() const;
 };
 
 class vtkColor4f : public vtkColor4<float>
@@ -307,6 +358,16 @@ public:
     : vtkColor4<float>(r, g, b, a)
   {
   }
+
+  /**
+   * Convert to vtkColor4ub by scaling from [0.0,1.0] to [0,255].
+   */
+  inline vtkColor4ub ToUnsignedChar() const;
+
+  /**
+   * Convert to vtkColor4d with a simple static_cast.
+   */
+  inline vtkColor4d ToDouble() const;
 };
 
 class vtkColor4d : public vtkColor4<double>
@@ -325,7 +386,109 @@ public:
     : vtkColor4<double>(r, g, b, a)
   {
   }
+
+  /**
+   * Convert to vtkColor4ub by scaling from [0.0,1.0] to [0,255].
+   */
+  inline vtkColor4ub ToUnsignedChar() const;
+
+  /**
+   * Convert to vtkColor4f with a simple static_cast.
+   */
+  inline vtkColor4f ToFloat() const;
 };
+
+// ---------- vtkColor3ub conversions ----------
+
+inline vtkColor3f vtkColor3ub::ToFloat() const
+{
+  return vtkColor3f(this->Data[0] / 255.0f, this->Data[1] / 255.0f, this->Data[2] / 255.0f);
+}
+
+inline vtkColor3d vtkColor3ub::ToDouble() const
+{
+  return vtkColor3d(this->Data[0] / 255.0, this->Data[1] / 255.0, this->Data[2] / 255.0);
+}
+
+// ---------- vtkColor3f conversions ----------
+
+inline vtkColor3ub vtkColor3f::ToUnsignedChar() const
+{
+  return vtkColor3ub(
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[0] * 255.0f, 0.0f, 255.0f))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[1] * 255.0f, 0.0f, 255.0f))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[2] * 255.0f, 0.0f, 255.0f))));
+}
+
+inline vtkColor3d vtkColor3f::ToDouble() const
+{
+  return vtkColor3d(static_cast<double>(this->Data[0]), static_cast<double>(this->Data[1]),
+    static_cast<double>(this->Data[2]));
+}
+
+// ---------- vtkColor3d conversions ----------
+
+inline vtkColor3ub vtkColor3d::ToUnsignedChar() const
+{
+  return vtkColor3ub(
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[0] * 255.0, 0.0, 255.0))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[1] * 255.0, 0.0, 255.0))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[2] * 255.0, 0.0, 255.0))));
+}
+
+inline vtkColor3f vtkColor3d::ToFloat() const
+{
+  return vtkColor3f(static_cast<float>(this->Data[0]), static_cast<float>(this->Data[1]),
+    static_cast<float>(this->Data[2]));
+}
+
+// ---------- vtkColor4ub conversions ----------
+
+inline vtkColor4f vtkColor4ub::ToFloat() const
+{
+  return vtkColor4f(
+    this->Data[0] / 255.0f, this->Data[1] / 255.0f, this->Data[2] / 255.0f, this->Data[3] / 255.0f);
+}
+
+inline vtkColor4d vtkColor4ub::ToDouble() const
+{
+  return vtkColor4d(
+    this->Data[0] / 255.0, this->Data[1] / 255.0, this->Data[2] / 255.0, this->Data[3] / 255.0);
+}
+
+// ---------- vtkColor4f conversions ----------
+
+inline vtkColor4ub vtkColor4f::ToUnsignedChar() const
+{
+  return vtkColor4ub(
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[0] * 255.0f, 0.0f, 255.0f))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[1] * 255.0f, 0.0f, 255.0f))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[2] * 255.0f, 0.0f, 255.0f))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[3] * 255.0f, 0.0f, 255.0f))));
+}
+
+inline vtkColor4d vtkColor4f::ToDouble() const
+{
+  return vtkColor4d(static_cast<double>(this->Data[0]), static_cast<double>(this->Data[1]),
+    static_cast<double>(this->Data[2]), static_cast<double>(this->Data[3]));
+}
+
+// ---------- vtkColor4d conversions ----------
+
+inline vtkColor4ub vtkColor4d::ToUnsignedChar() const
+{
+  return vtkColor4ub(
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[0] * 255.0, 0.0, 255.0))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[1] * 255.0, 0.0, 255.0))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[2] * 255.0, 0.0, 255.0))),
+    static_cast<unsigned char>(std::round(std::clamp(this->Data[3] * 255.0, 0.0, 255.0))));
+}
+
+inline vtkColor4f vtkColor4d::ToFloat() const
+{
+  return vtkColor4f(static_cast<float>(this->Data[0]), static_cast<float>(this->Data[1]),
+    static_cast<float>(this->Data[2]), static_cast<float>(this->Data[3]));
+}
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkColor_h

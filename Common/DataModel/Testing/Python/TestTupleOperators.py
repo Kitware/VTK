@@ -2,7 +2,10 @@
 
 from vtkmodules.vtkCommonDataModel import (
     vtkColor3d,
+    vtkColor3f,
     vtkColor3ub,
+    vtkColor4d,
+    vtkColor4f,
     vtkColor4ub,
     vtkVector2d,
     vtkVector2f,
@@ -221,6 +224,150 @@ class TestTupleOperators(Testing.vtkTest):
         self.assertEqual(v[0:10], (1.0, 2.0, 3.0))
         with self.assertRaises(IndexError):
             v[3]
+
+    # ---- color conversions ----
+
+    def test_color3ub_to_double(self):
+        c = vtkColor3ub(255, 128, 0)
+        d = c.ToDouble()
+        self.assertIsInstance(d, vtkColor3d)
+        self.assertAlmostEqual(d[0], 1.0, places=5)
+        self.assertAlmostEqual(d[1], 128 / 255.0, places=5)
+        self.assertAlmostEqual(d[2], 0.0, places=5)
+
+    def test_color3ub_to_float(self):
+        c = vtkColor3ub(255, 128, 0)
+        f = c.ToFloat()
+        self.assertIsInstance(f, vtkColor3f)
+        self.assertAlmostEqual(f[0], 1.0, places=5)
+        self.assertAlmostEqual(f[1], 128 / 255.0, places=5)
+        self.assertAlmostEqual(f[2], 0.0, places=5)
+
+    def test_color3d_to_unsigned_char(self):
+        d = vtkColor3d(1.0, 128 / 255.0, 0.0)
+        c = d.ToUnsignedChar()
+        self.assertIsInstance(c, vtkColor3ub)
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 128)
+        self.assertEqual(c[2], 0)
+
+    def test_color3d_to_float(self):
+        d = vtkColor3d(0.5, 0.25, 1.0)
+        f = d.ToFloat()
+        self.assertIsInstance(f, vtkColor3f)
+        self.assertAlmostEqual(f[0], 0.5, places=5)
+        self.assertAlmostEqual(f[1], 0.25, places=5)
+        self.assertAlmostEqual(f[2], 1.0, places=5)
+
+    def test_color3f_to_unsigned_char(self):
+        f = vtkColor3f(1.0, 0.5, 0.0)
+        c = f.ToUnsignedChar()
+        self.assertIsInstance(c, vtkColor3ub)
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 128)
+        self.assertEqual(c[2], 0)
+
+    def test_color3f_to_double(self):
+        f = vtkColor3f(0.5, 0.25, 1.0)
+        d = f.ToDouble()
+        self.assertIsInstance(d, vtkColor3d)
+        self.assertAlmostEqual(d[0], 0.5, places=5)
+        self.assertAlmostEqual(d[1], 0.25, places=5)
+        self.assertAlmostEqual(d[2], 1.0, places=5)
+
+    def test_color3ub_round_trip_via_double(self):
+        """ub -> double -> ub should be lossless for integer values."""
+        c = vtkColor3ub(100, 200, 50)
+        self.assertEqual(c.ToDouble().ToUnsignedChar(), c)
+
+    def test_color3ub_round_trip_via_float(self):
+        """ub -> float -> ub should be lossless for integer values."""
+        c = vtkColor3ub(100, 200, 50)
+        self.assertEqual(c.ToFloat().ToUnsignedChar(), c)
+
+    def test_color3d_clamping_high(self):
+        """Values > 1.0 should be clamped to 255."""
+        d = vtkColor3d(1.5, 2.0, 1.0)
+        c = d.ToUnsignedChar()
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 255)
+        self.assertEqual(c[2], 255)
+
+    def test_color3d_clamping_low(self):
+        """Negative values should be clamped to 0."""
+        d = vtkColor3d(-0.5, -1.0, 0.0)
+        c = d.ToUnsignedChar()
+        self.assertEqual(c[0], 0)
+        self.assertEqual(c[1], 0)
+        self.assertEqual(c[2], 0)
+
+    def test_color4ub_to_double(self):
+        c = vtkColor4ub(255, 128, 0, 200)
+        d = c.ToDouble()
+        self.assertIsInstance(d, vtkColor4d)
+        self.assertAlmostEqual(d[0], 1.0, places=5)
+        self.assertAlmostEqual(d[1], 128 / 255.0, places=5)
+        self.assertAlmostEqual(d[2], 0.0, places=5)
+        self.assertAlmostEqual(d[3], 200 / 255.0, places=5)
+
+    def test_color4ub_to_float(self):
+        c = vtkColor4ub(255, 128, 0, 200)
+        f = c.ToFloat()
+        self.assertIsInstance(f, vtkColor4f)
+        self.assertAlmostEqual(f[0], 1.0, places=5)
+        self.assertAlmostEqual(f[1], 128 / 255.0, places=5)
+        self.assertAlmostEqual(f[2], 0.0, places=5)
+        self.assertAlmostEqual(f[3], 200 / 255.0, places=5)
+
+    def test_color4d_to_unsigned_char(self):
+        d = vtkColor4d(1.0, 0.5, 0.0, 200 / 255.0)
+        c = d.ToUnsignedChar()
+        self.assertIsInstance(c, vtkColor4ub)
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 128)
+        self.assertEqual(c[2], 0)
+        self.assertEqual(c[3], 200)
+
+    def test_color4d_to_float(self):
+        d = vtkColor4d(0.5, 0.25, 1.0, 0.75)
+        f = d.ToFloat()
+        self.assertIsInstance(f, vtkColor4f)
+        self.assertAlmostEqual(f[0], 0.5, places=5)
+        self.assertAlmostEqual(f[1], 0.25, places=5)
+        self.assertAlmostEqual(f[2], 1.0, places=5)
+        self.assertAlmostEqual(f[3], 0.75, places=5)
+
+    def test_color4f_to_unsigned_char(self):
+        f = vtkColor4f(1.0, 0.5, 0.0, 200 / 255.0)
+        c = f.ToUnsignedChar()
+        self.assertIsInstance(c, vtkColor4ub)
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 128)
+        self.assertEqual(c[2], 0)
+        self.assertEqual(c[3], 200)
+
+    def test_color4f_to_double(self):
+        f = vtkColor4f(0.5, 0.25, 1.0, 0.75)
+        d = f.ToDouble()
+        self.assertIsInstance(d, vtkColor4d)
+        self.assertAlmostEqual(d[0], 0.5, places=5)
+        self.assertAlmostEqual(d[1], 0.25, places=5)
+        self.assertAlmostEqual(d[2], 1.0, places=5)
+        self.assertAlmostEqual(d[3], 0.75, places=5)
+
+    def test_color4ub_round_trip_via_double(self):
+        """4-component ub -> double -> ub round-trip."""
+        c = vtkColor4ub(100, 200, 50, 180)
+        self.assertEqual(c.ToDouble().ToUnsignedChar(), c)
+
+    def test_color4f_clamping(self):
+        """4-component clamping for out-of-range values."""
+        f = vtkColor4f(1.5, -0.5, 0.5, 2.0)
+        c = f.ToUnsignedChar()
+        self.assertEqual(c[0], 255)
+        self.assertEqual(c[1], 0)
+        self.assertEqual(c[2], 128)
+        self.assertEqual(c[3], 255)
 
     # ---- hash ----
 
