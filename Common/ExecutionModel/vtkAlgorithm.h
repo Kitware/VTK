@@ -216,7 +216,6 @@ public:
 
   /**
    * Checks to see if this filter should abort.
-   * This invoke AbortCheckEvent first.
    */
   bool CheckAbort();
 
