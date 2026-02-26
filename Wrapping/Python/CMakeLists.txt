@@ -160,6 +160,7 @@ set(python_files
   vtkmodules/util/data_model.py
   vtkmodules/util/execution_model.py
   vtkmodules/util/functions.py
+  vtkmodules/util/graph.py
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/numpy_support.py
