@@ -139,6 +139,14 @@ private:
     std::stack<vtkColor3d> Color;
   };
   RenderBlockState BlockState;
+
+  /**
+   * Clear cached entries for datasets that are not present in data object passed in.
+   *
+   * This is done on each render to ensure that we don't keep around entries for datasets
+   * that are no longer present in the input (e.g. due to changes in the input data object).
+   */
+  void ClearUnusedCachedEntries(vtkDataObject* inputDO);
 };
 
 #define vtkOpenGLGlyph3DMapper_OVERRIDE_ATTRIBUTES                                                 \
