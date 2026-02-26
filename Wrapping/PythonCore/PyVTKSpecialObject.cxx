@@ -51,7 +51,74 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
 {
   PyVTKSpecialObject* obj = (PyVTKSpecialObject*)self;
   PyTypeObject* type = Py_TYPE(self);
-  const char* name = vtkPythonUtil::GetTypeName(type);
+  const char* name = vtkPythonUtil::StripModuleFromType(type);
+
+  // If the type has a sequence protocol, format as TypeName(elem1, elem2, ...)
+#if PY_VERSION_HEX >= 0x030A0000
+  ssizeargfunc sq_item = (ssizeargfunc)PyType_GetSlot(type, Py_sq_item);
+  if (sq_item)
+#else
+  if (type->tp_as_sequence && type->tp_as_sequence->sq_item)
+#endif
+  {
+    Py_ssize_t n = PySequence_Size(self);
+    if (n >= 0)
+    {
+      PyObject* comma = PyUnicode_FromString(", ");
+      PyObject* s = PyUnicode_FromFormat("%s(", name);
+
+      for (Py_ssize_t i = 0; i < n && s != nullptr; i++)
+      {
+        if (i > 0)
+        {
+          PyObject* tmp = PyUnicode_Concat(s, comma);
+          Py_DECREF(s);
+          s = tmp;
+        }
+        PyObject* item = PySequence_GetItem(self, i);
+        PyObject* r = nullptr;
+        if (item)
+        {
+          r = PyObject_Repr(item);
+          Py_DECREF(item);
+        }
+        if (r)
+        {
+          PyObject* tmp = PyUnicode_Concat(s, r);
+          Py_DECREF(s);
+          Py_DECREF(r);
+          s = tmp;
+        }
+        else
+        {
+          Py_DECREF(s);
+          s = nullptr;
+        }
+      }
+
+      Py_XDECREF(comma);
+
+      // A single-element sequence needs a trailing comma to match Python's
+      // tuple repr convention, e.g. "TypeName(1,)" rather than "TypeName(1)".
+      if (s && n == 1)
+      {
+        PyObject* trailingComma = PyUnicode_FromString(",");
+        PyObject* tmp = PyUnicode_Concat(s, trailingComma);
+        Py_DECREF(s);
+        Py_XDECREF(trailingComma);
+        s = tmp;
+      }
+
+      if (s)
+      {
+        PyObject* paren = PyUnicode_FromString(")");
+        PyObject* result = PyUnicode_Concat(s, paren);
+        Py_DECREF(s);
+        Py_XDECREF(paren);
+        return result;
+      }
+    }
+  }
 
 #if PY_VERSION_HEX >= 0x030A0000
   while (PyType_GetSlot(type, Py_tp_base) && !PyType_GetSlot(type, Py_tp_str))
