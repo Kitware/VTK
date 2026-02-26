@@ -117,6 +117,12 @@ static viskores::cont::Field TryConvert(vtkDataArray* input, int association)
     return Convert(typedInConst, association);
   }
 
+  vtkAffineArray<VTK_TT>* typedInAffine = vtkAffineArray<VTK_TT>::SafeDownCast(input);
+  if (typedInAffine)
+  {
+    return Convert(typedInAffine, association);
+  }
+
   return viskores::cont::Field{};
 }
 

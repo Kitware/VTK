@@ -10,6 +10,7 @@
 #include "vtkmConfigCore.h"                //required for general viskores setup
 
 #include "vtkAOSDataArrayTemplate.h"
+#include "vtkAffineArray.h"
 #include "vtkConstantArray.h"
 #include "vtkSOADataArrayTemplate.h"
 
@@ -18,6 +19,8 @@
 #include <viskores/cont/ArrayExtractComponent.h>
 #include <viskores/cont/ArrayHandleBasic.h>
 #include <viskores/cont/ArrayHandleConstant.h>
+#include <viskores/cont/ArrayHandleCounting.h>
+#include <viskores/cont/ArrayHandleIndex.h>
 #include <viskores/cont/ArrayHandleRecombineVec.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/ArrayHandleSOA.h>
@@ -168,6 +171,32 @@ viskores::cont::UnknownArrayHandle vtkDataArrayToUnknownArrayHandle(vtkConstantA
       vtkGenericWarningMacro(<< "Cannot convert constant array with "
                              << input->GetNumberOfComponents() << " components.");
       return viskores::cont::UnknownArrayHandle{};
+  }
+}
+
+template <typename T>
+viskores::cont::UnknownArrayHandle vtkDataArrayToUnknownArrayHandle(vtkAffineArray<T>* input)
+{
+  if (input->GetNumberOfComponents() != 1)
+  {
+    vtkGenericWarningMacro(<< "Cannot convert affine array with " << input->GetNumberOfComponents()
+                           << " components.");
+    return viskores::cont::UnknownArrayHandle{};
+  }
+
+  T start = input->GetBackend()->Intercept;
+  T step = input->GetBackend()->Slope;
+  viskores::Id length = input->GetNumberOfValues();
+  if ((start == 0) && (step == 1))
+  {
+    // Represent as an index array, which is less versatile but faster and has
+    // better supported conversions. This could cause a type conversion, but all
+    // values are exactly integers.
+    return viskores::cont::ArrayHandleIndex(length);
+  }
+  else
+  {
+    return viskores::cont::ArrayHandleCounting<T>(start, step, length);
   }
 }
 
