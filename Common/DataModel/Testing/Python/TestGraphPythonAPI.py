@@ -317,5 +317,166 @@ class TestGraphPythonAPI(Testing.vtkTest):
         self.assertIsNotNone(vd.GetArray("b"))
 
 
+    # -- NetworkX interop --
+
+    def _skip_without_networkx(self):
+        try:
+            import networkx  # noqa: F401
+        except ImportError:
+            self.skipTest("networkx not installed")
+
+    def test_to_networkx_directed(self):
+        """Directed VTK graph exports as nx.DiGraph."""
+        self._skip_without_networkx()
+        import networkx as nx
+
+        g = self._build_directed_graph()
+        G = g.to_networkx()
+        self.assertIsInstance(G, nx.DiGraph)
+        self.assertEqual(G.number_of_nodes(), 5)
+        self.assertEqual(G.number_of_edges(), 4)
+        self.assertTrue(G.has_edge(0, 1))
+        self.assertTrue(G.has_edge(1, 2))
+        self.assertTrue(G.has_edge(0, 3))
+        self.assertTrue(G.has_edge(3, 4))
+
+    def test_to_networkx_undirected(self):
+        """Undirected VTK graph exports as nx.Graph."""
+        self._skip_without_networkx()
+        import networkx as nx
+
+        g = self._build_undirected_graph()
+        G = g.to_networkx()
+        self.assertIsInstance(G, nx.Graph)
+        self.assertNotIsInstance(G, nx.DiGraph)
+        self.assertEqual(G.number_of_nodes(), 5)
+        self.assertEqual(G.number_of_edges(), 4)
+
+    def test_to_networkx_vertex_data(self):
+        """Vertex data arrays are exported as node attributes."""
+        self._skip_without_networkx()
+
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2]])
+        g.vertex_data = {"weight": np.array([1.0, 2.0, 3.0])}
+        G = g.to_networkx()
+        self.assertEqual(G.nodes[0]["weight"], 1.0)
+        self.assertEqual(G.nodes[1]["weight"], 2.0)
+        self.assertEqual(G.nodes[2]["weight"], 3.0)
+
+    def test_to_networkx_edge_data(self):
+        """Edge data arrays are exported as edge attributes."""
+        self._skip_without_networkx()
+
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2]])
+        g.edge_data = {"cost": np.array([0.5, 1.5])}
+        G = g.to_networkx()
+        self.assertEqual(G.edges[0, 1]["cost"], 0.5)
+        self.assertEqual(G.edges[1, 2]["cost"], 1.5)
+
+    def test_to_networkx_empty(self):
+        """Empty graph converts to empty networkx graph."""
+        self._skip_without_networkx()
+
+        g = vtkMutableDirectedGraph()
+        G = g.to_networkx()
+        self.assertEqual(G.number_of_nodes(), 0)
+        self.assertEqual(G.number_of_edges(), 0)
+
+    def test_directed_roundtrip(self):
+        """VTK directed -> nx.DiGraph -> VTK directed preserves structure."""
+        self._skip_without_networkx()
+
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2], [0, 3]])
+        g.vertex_data = {"weight": np.array([1.0, 2.0, 3.0, 4.0])}
+        g.edge_data = {"cost": np.array([0.5, 1.5, 2.5])}
+
+        G = g.to_networkx()
+
+        g2 = vtkMutableDirectedGraph()
+        g2.from_networkx(G)
+
+        self.assertEqual(len(g2), 4)
+        self.assertEqual(g2.GetNumberOfEdges(), 3)
+
+        edges2 = sorted((s, t) for s, t, _ in g2.edges)
+        self.assertEqual(edges2, [(0, 1), (0, 3), (1, 2)])
+
+        vd = g2.vertex_data
+        w = vd.GetArray("weight")
+        self.assertAlmostEqual(w.GetValue(0), 1.0)
+        self.assertAlmostEqual(w.GetValue(3), 4.0)
+
+        ed = g2.edge_data
+        c = ed.GetArray("cost")
+        self.assertIsNotNone(c)
+        self.assertEqual(c.GetNumberOfTuples(), 3)
+
+    def test_undirected_roundtrip(self):
+        """VTK undirected -> nx.Graph -> VTK undirected preserves structure."""
+        self._skip_without_networkx()
+
+        g = vtkMutableUndirectedGraph()
+        g.edges = np.array([[0, 1], [1, 2], [0, 3]])
+
+        G = g.to_networkx()
+
+        g2 = vtkMutableUndirectedGraph()
+        g2.from_networkx(G)
+
+        self.assertEqual(len(g2), 4)
+        self.assertEqual(g2.GetNumberOfEdges(), 3)
+
+    def test_from_networkx_non_integer_nodes(self):
+        """from_networkx raises ValueError for non-contiguous integer nodes."""
+        self._skip_without_networkx()
+        import networkx as nx
+
+        G = nx.Graph()
+        G.add_edges_from([("a", "b"), ("b", "c")])
+
+        g = vtkMutableUndirectedGraph()
+        with self.assertRaises((ValueError, TypeError)):
+            g.from_networkx(G)
+
+    def test_from_networkx_non_contiguous_nodes(self):
+        """from_networkx raises ValueError for non-contiguous integer nodes."""
+        self._skip_without_networkx()
+        import networkx as nx
+
+        G = nx.Graph()
+        G.add_nodes_from([0, 2, 5])
+        G.add_edge(0, 2)
+
+        g = vtkMutableUndirectedGraph()
+        with self.assertRaises(ValueError):
+            g.from_networkx(G)
+
+    def test_from_networkx_empty(self):
+        """from_networkx with empty graph produces empty VTK graph."""
+        self._skip_without_networkx()
+        import networkx as nx
+
+        G = nx.DiGraph()
+        g = vtkMutableDirectedGraph()
+        g.from_networkx(G)
+        self.assertEqual(len(g), 0)
+        self.assertEqual(g.GetNumberOfEdges(), 0)
+
+    def test_roundtrip_multicomponent_vertex_data(self):
+        """Multi-component vertex data survives roundtrip as tuples."""
+        self._skip_without_networkx()
+
+        g = vtkMutableDirectedGraph()
+        g.edges = np.array([[0, 1]])
+        g.vertex_data = {"pos": np.array([[1.0, 2.0], [3.0, 4.0]])}
+
+        G = g.to_networkx()
+        self.assertEqual(G.nodes[0]["pos"], (1.0, 2.0))
+        self.assertEqual(G.nodes[1]["pos"], (3.0, 4.0))
+
+
 if __name__ == "__main__":
     Testing.main([(TestGraphPythonAPI, "test")])

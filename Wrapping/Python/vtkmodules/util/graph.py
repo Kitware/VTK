@@ -109,6 +109,63 @@ class _GraphMixin:
     def in_degree(self, v):
         return self.GetInDegree(v)
 
+    def to_networkx(self):
+        """Convert to a networkx graph.
+
+        Returns an ``nx.DiGraph`` for directed graphs or ``nx.Graph`` for
+        undirected graphs.  Vertex and edge data arrays are copied as
+        node/edge attributes.
+        """
+        try:
+            import networkx as nx
+        except ImportError:
+            raise ImportError(
+                "networkx is required for to_networkx(). "
+                "Install it with: pip install networkx"
+            )
+
+        from vtkmodules.util.numpy_support import vtk_to_numpy
+
+        if self.IsA("vtkDirectedGraph"):
+            G = nx.DiGraph()
+        else:
+            G = nx.Graph()
+
+        n_verts = self.GetNumberOfVertices()
+        G.add_nodes_from(range(n_verts))
+
+        # Copy vertex data
+        vd = self.GetVertexData()
+        for i in range(vd.GetNumberOfArrays()):
+            arr = vd.GetAbstractArray(i)
+            name = arr.GetName()
+            np_arr = vtk_to_numpy(arr)
+            if np_arr.ndim > 1:
+                attrs = {v: tuple(np_arr[v]) for v in range(n_verts)}
+            else:
+                attrs = {v: np_arr[v].item() for v in range(n_verts)}
+            nx.set_node_attributes(G, attrs, name)
+
+        # Build edge list with attributes
+        ed = self.GetEdgeData()
+        edge_arrays = []
+        for i in range(ed.GetNumberOfArrays()):
+            arr = ed.GetAbstractArray(i)
+            edge_arrays.append((arr.GetName(), vtk_to_numpy(arr)))
+
+        edge_list = []
+        for s, t, eid in self.edges:
+            attrs = {}
+            for name, np_arr in edge_arrays:
+                if np_arr.ndim > 1:
+                    attrs[name] = tuple(np_arr[eid])
+                else:
+                    attrs[name] = np_arr[eid].item()
+            edge_list.append((s, t, attrs))
+
+        G.add_edges_from(edge_list)
+        return G
+
 
 class _MutableGraphMixin(_GraphMixin):
     @property
@@ -171,6 +228,64 @@ class _MutableGraphMixin(_GraphMixin):
         ed = self.GetEdgeData()
         ed.Initialize()
         _set_arrays(ed, arrays, self.GetNumberOfEdges())
+
+    def from_networkx(self, nx_graph):
+        """Populate this graph from a networkx graph.
+
+        Nodes must be contiguous integers ``0..N-1``.  Use
+        ``networkx.convert_node_labels_to_integers()`` first if needed.
+
+        Existing vertices, edges, and data are replaced.
+        """
+        try:
+            import networkx  # noqa: F401
+        except ImportError:
+            raise ImportError(
+                "networkx is required for from_networkx(). "
+                "Install it with: pip install networkx"
+            )
+
+        import numpy as np
+
+        nodes = sorted(nx_graph.nodes())
+        n = len(nodes)
+        if n > 0 and (nodes[0] != 0 or nodes[-1] != n - 1 or len(set(nodes)) != n):
+            raise ValueError(
+                "NetworkX graph nodes must be contiguous integers 0..N-1. "
+                "Use networkx.convert_node_labels_to_integers() first."
+            )
+
+        # Set edges
+        if nx_graph.number_of_edges() > 0:
+            edge_arr = np.array(list(nx_graph.edges()), dtype=np.int64)
+            self.edges = edge_arr
+        else:
+            # Empty edge list — just add vertices
+            self.edges = np.empty((0, 2), dtype=np.int64)
+            for _ in range(n):
+                self.AddVertex()
+
+        # Collect and set vertex data
+        if n > 0:
+            # Discover attribute names from first node
+            first_attrs = nx_graph.nodes[0]
+            if first_attrs:
+                vdata = {}
+                for name in first_attrs:
+                    vdata[name] = np.array([nx_graph.nodes[v][name] for v in range(n)])
+                self.vertex_data = vdata
+
+        # Collect and set edge data
+        if nx_graph.number_of_edges() > 0:
+            edges_list = list(nx_graph.edges())
+            first_edge_attrs = nx_graph.edges[edges_list[0]]
+            if first_edge_attrs:
+                edata = {}
+                for name in first_edge_attrs:
+                    edata[name] = np.array(
+                        [nx_graph.edges[e][name] for e in edges_list]
+                    )
+                self.edge_data = edata
 
 
 def _set_arrays(dsa, arrays, num_tuples):
