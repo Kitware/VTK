@@ -1051,7 +1051,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         _vtk_module_get_module_property("${_vtk_python_module}"
           PROPERTY  "library_name"
           VARIABLE  _vtk_python_library_name)
-        if (TARGET "${_vtk_python_library_name}Python")
+        if (TARGET "Py${_vtk_python_library_name}Python")
           string(APPEND _vtk_python_all_modules_include_content
             "  PY_APPEND_INIT_OR_IMPORT(${_vtk_python_library_name}, do_import);\n")
         endif ()
