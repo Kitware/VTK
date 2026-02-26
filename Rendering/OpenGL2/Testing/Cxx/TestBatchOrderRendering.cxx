@@ -64,6 +64,7 @@ int TestBatchOrderRendering(int argc, char* argv[])
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputConnection(cutter->GetOutputPort());
+  mapper->ScalarVisibilityOff();
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
