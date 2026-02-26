@@ -47,11 +47,17 @@ public:
    * Encode the string so that the reader will not have problems.
    * The resulting string is up to three times the size of the input
    * string.
+   */
+  static void EncodeString(char* resname, const char* name);
+
+  /**
+   * Encode the string so that the reader will not have problems.
+   * The resulting string is up to three times the size of the input
+   * string.
    *
    * @deprecated doublePercent indicates whether to output a double '%' before
    * escaped characters so the string may be used as a printf format string.
    */
-  static void EncodeString(char* resname, const char* name);
   VTK_DEPRECATED_IN_9_6_0("Use the version without doublePercent instead.")
   static void EncodeString(char* resname, const char* name, bool doublePercent);
   ///@}
@@ -61,11 +67,17 @@ public:
    * Encode the string so that the reader will not have problems.
    * The resulting string is up to three times the size of the input
    * string.  Write the string to the output stream.
+   */
+  static void EncodeWriteString(ostream* out, const char* name);
+
+  /**
+   * Encode the string so that the reader will not have problems.
+   * The resulting string is up to three times the size of the input
+   * string.  Write the string to the output stream.
    *
    * @deprecated doublePercent indicates whether to output a double '%' before
    * escaped characters so the string may be used as a printf format string.
    */
-  static void EncodeWriteString(ostream* out, const char* name);
   VTK_DEPRECATED_IN_9_6_0("Use the version without doublePercent instead.")
   static void EncodeWriteString(ostream* out, const char* name, bool doublePercent);
   ///@}
