@@ -19,7 +19,15 @@ using vtkVariantExtract.
 """
 
 from vtkmodules.vtkCommonCore import vtkVariantArray
-from vtkmodules.util.vtkVariant import vtkVariantExtract
+
+_extract = None
+
+def _get_extract():
+    global _extract
+    if _extract is None:
+        from vtkmodules.util.vtkVariant import vtkVariantExtract
+        _extract = vtkVariantExtract
+    return _extract
 
 
 class _VariantArrayMixin:
@@ -48,7 +56,7 @@ class _VariantArrayMixin:
         if index < 0 or index >= n:
             raise IndexError(
                 "vtkVariantArray index %d out of range for size %d" % (index, n))
-        return vtkVariantExtract(self.GetValue(index))
+        return _get_extract()(self.GetValue(index))
 
     def __setitem__(self, index, value):
         n = self.GetNumberOfValues()
@@ -64,15 +72,15 @@ class _VariantArrayMixin:
 
     def __iter__(self):
         for i in range(self.GetNumberOfValues()):
-            yield vtkVariantExtract(self.GetValue(i))
+            yield _get_extract()(self.GetValue(i))
 
     # ---- repr ---------------------------------------------------------------
     def __repr__(self):
         n = self.GetNumberOfValues()
         if n <= 10:
-            items = [vtkVariantExtract(self.GetValue(i)) for i in range(n)]
+            items = [_get_extract()(self.GetValue(i)) for i in range(n)]
             return "vtkVariantArray(%r)" % items
-        items = [vtkVariantExtract(self.GetValue(i)) for i in range(10)]
+        items = [_get_extract()(self.GetValue(i)) for i in range(10)]
         return "vtkVariantArray(%r, ... %d total)" % (items, n)
 
     # ---- list-like mutators -------------------------------------------------

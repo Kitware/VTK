@@ -92,9 +92,15 @@ class VTKDataArrayMixin:
     # ---- hash (needed since all mixins define __eq__) -----------------------
     __hash__ = None
 
-    # ---- __len__ ------------------------------------------------------------
+    # ---- __len__ / __bool__ -------------------------------------------------
     def __len__(self):
         return self.GetNumberOfTuples()
+
+    def __bool__(self):
+        # VTK objects are always truthy.  Without this, Python falls back to
+        # __len__ and treats empty arrays as falsy, breaking code that uses
+        # ``if array:`` to test for a non-None reference.
+        return True
 
     # ---- reduction methods (delegate to numpy free functions) ----------------
     def sum(self, axis=None, **kwargs):
