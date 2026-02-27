@@ -35,6 +35,13 @@ public:
    */
   static void Register(vtkInformationKey* key);
 
+  /**
+   * Remove a key from the manager's deletion list.  Called from the
+   * key's destructor when the key is destroyed before static
+   * finalization (e.g. when Python releases a key created via MakeKey).
+   */
+  static void Unregister(vtkInformationKey* key);
+
 private:
   // Unimplemented
   vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&) = delete;

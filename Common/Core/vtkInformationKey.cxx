@@ -50,6 +50,15 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 //------------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
+  // If a manager registered a callback, call it so the manager
+  // removes this key from its deletion list.  This prevents
+  // double-free when the caller (e.g. Python via MakeKey) destroys
+  // the key before static finalization.
+  if (this->ManagerCallback)
+  {
+    this->ManagerCallback(this);
+  }
+
   // Avoid warnings from `vtkObjectBase` destructor.
   this->ClearReferenceCounts();
   this->SetName(nullptr);

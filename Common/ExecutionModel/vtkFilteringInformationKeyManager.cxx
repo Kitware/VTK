@@ -5,6 +5,7 @@
 #include "vtkCellMetadata.h"
 #include "vtkInformationKey.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -47,6 +48,21 @@ void vtkFilteringInformationKeyManager::Register(vtkInformationKey* key)
 {
   // Register this instance for deletion by the singleton.
   vtkFilteringInformationKeyManagerKeys->push_back(key);
+  key->SetManagerUnregisterCallback(&vtkFilteringInformationKeyManager::Unregister);
+}
+
+//------------------------------------------------------------------------------
+void vtkFilteringInformationKeyManager::Unregister(vtkInformationKey* key)
+{
+  if (vtkFilteringInformationKeyManagerKeys)
+  {
+    auto it = std::find(vtkFilteringInformationKeyManagerKeys->begin(),
+      vtkFilteringInformationKeyManagerKeys->end(), key);
+    if (it != vtkFilteringInformationKeyManagerKeys->end())
+    {
+      vtkFilteringInformationKeyManagerKeys->erase(it);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -93,12 +109,14 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
 
   if (vtkFilteringInformationKeyManagerKeys)
   {
-    // Delete information keys.
+    // Delete information keys.  Clear the callback first so the
+    // key destructor does not try to modify the vector during iteration.
     for (vtkFilteringInformationKeyManagerKeysType::iterator i =
            vtkFilteringInformationKeyManagerKeys->begin();
          i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
     {
       vtkInformationKey* key = *i;
+      key->SetManagerUnregisterCallback(nullptr);
       delete key;
     }
 

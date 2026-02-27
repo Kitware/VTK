@@ -139,6 +139,23 @@ public:
   {
   }
 
+  /**
+   * Callback type used by information key managers to unregister
+   * a key when it is destroyed (e.g. when Python releases a key
+   * created via MakeKey before static finalization).
+   */
+  using ManagerUnregisterCallback = void (*)(vtkInformationKey*);
+
+  /**
+   * Set the callback that will be invoked from the destructor to
+   * unregister this key from its manager.  Called automatically
+   * by the information key manager's Register method.
+   */
+  void SetManagerUnregisterCallback(ManagerUnregisterCallback callback)
+  {
+    this->ManagerCallback = callback;
+  }
+
 protected:
   char* Name;
   char* Location;
@@ -191,6 +208,8 @@ protected:
 private:
   vtkInformationKey(const vtkInformationKey&) = delete;
   void operator=(const vtkInformationKey&) = delete;
+
+  ManagerUnregisterCallback ManagerCallback = nullptr;
 };
 
 // Macros to define an information key instance in a C++ source file.

@@ -4,6 +4,7 @@
 
 #include "vtkInformationKey.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -44,6 +45,21 @@ void vtkCommonInformationKeyManager::Register(vtkInformationKey* key)
 {
   // Register this instance for deletion by the singleton.
   vtkCommonInformationKeyManagerKeys->push_back(key);
+  key->SetManagerUnregisterCallback(&vtkCommonInformationKeyManager::Unregister);
+}
+
+//------------------------------------------------------------------------------
+void vtkCommonInformationKeyManager::Unregister(vtkInformationKey* key)
+{
+  if (vtkCommonInformationKeyManagerKeys)
+  {
+    auto it = std::find(
+      vtkCommonInformationKeyManagerKeys->begin(), vtkCommonInformationKeyManagerKeys->end(), key);
+    if (it != vtkCommonInformationKeyManagerKeys->end())
+    {
+      vtkCommonInformationKeyManagerKeys->erase(it);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -64,12 +80,14 @@ void vtkCommonInformationKeyManager::ClassFinalize()
 {
   if (vtkCommonInformationKeyManagerKeys)
   {
-    // Delete information keys.
+    // Delete information keys.  Clear the callback first so the
+    // key destructor does not try to modify the vector during iteration.
     for (vtkCommonInformationKeyManagerKeysType::iterator i =
            vtkCommonInformationKeyManagerKeys->begin();
          i != vtkCommonInformationKeyManagerKeys->end(); ++i)
     {
       vtkInformationKey* key = *i;
+      key->SetManagerUnregisterCallback(nullptr);
       delete key;
     }
 
