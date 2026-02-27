@@ -342,7 +342,8 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     }
     else
     {
-      this->Internal->VolumeName = "vtk_volume_" + this->Internal->AnariSceneGraph->ReservePropId();
+      this->Internal->VolumeName =
+        "vtk_volume_" + std::to_string(this->Internal->AnariSceneGraph->ReservePropId());
     }
 
     if (this->Internal->AnariVolume == nullptr)
