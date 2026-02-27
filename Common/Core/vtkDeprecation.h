@@ -70,10 +70,12 @@
 #define VTK_DEPRECATION(reason) [[vtk::deprecated(reason)]]
 #else
 #if defined(__clang__)
-// Clang 12 and before mix [[deprecated]] with visibility macros, and cause parser like below
-// error: expected identifier before '__attribute__'
-// class [[deprecated("deprecated")]] __attribute__((visibility("default"))) Foo {};
-#if (__clang_major__ <= 12)
+// Clang 12 and AppleClang 13 and before mix [[deprecated]] with visibility macros, and cause parser
+// like below error: expected identifier before '__attribute__' class [[deprecated("deprecated")]]
+// __attribute__((visibility("default"))) Foo {};
+#if (defined(__apple_build_version__) && (__clang_major__ <= 13))
+#define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
+#elif (__clang_major__ <= 12)
 #define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
 #else
 #define VTK_DEPRECATION(reason) [[deprecated(reason)]]
