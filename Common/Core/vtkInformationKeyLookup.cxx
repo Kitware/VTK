@@ -33,6 +33,26 @@ vtkInformationKey* vtkInformationKeyLookup::Find(
 }
 
 //------------------------------------------------------------------------------
+vtkInformationKey* vtkInformationKeyLookup::FindByName(const std::string& name)
+{
+  KeyMap& keys = Keys();
+  vtkInformationKey* result = nullptr;
+  for (auto it = keys.begin(); it != keys.end(); ++it)
+  {
+    if (it->first.second == name)
+    {
+      if (result != nullptr)
+      {
+        // Multiple matches — ambiguous.
+        return nullptr;
+      }
+      result = it->second;
+    }
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
 vtkInformationKeyLookup::vtkInformationKeyLookup() = default;
 
 //------------------------------------------------------------------------------

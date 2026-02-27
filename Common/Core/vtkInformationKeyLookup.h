@@ -39,6 +39,13 @@ public:
    */
   static vtkInformationKey* Find(const std::string& name, const std::string& location);
 
+  /**
+   * Find an information key by name alone. Returns the key if exactly one
+   * key with the given name exists (regardless of location). Returns nullptr
+   * if zero or multiple keys match.
+   */
+  static vtkInformationKey* FindByName(const std::string& name);
+
 protected:
   vtkInformationKeyLookup();
   ~vtkInformationKeyLookup() override;

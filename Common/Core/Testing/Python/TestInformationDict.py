@@ -152,6 +152,9 @@ class TestInformationDict(Testing.vtkTest):
         self.info[STRING_KEY] = "hello"
         ks = self.info.keys()
         self.assertEqual(len(ks), 2)
+        self.assertTrue(all(isinstance(k, str) for k in ks))
+        self.assertIn("FIELD_ASSOCIATION", ks)
+        self.assertIn("FIELD_NAME", ks)
 
     def test_values(self):
         self.info[INT_KEY] = 42
@@ -163,6 +166,7 @@ class TestInformationDict(Testing.vtkTest):
         its = self.info.items()
         self.assertEqual(len(its), 1)
         key, val = its[0]
+        self.assertIsInstance(key, str)
         self.assertEqual(val, 42)
 
     # --- get ---
@@ -204,6 +208,43 @@ class TestInformationDict(Testing.vtkTest):
     def test_repr_empty(self):
         r = repr(self.info)
         self.assertEqual(r, "vtkInformation({})")
+
+    # --- string key lookup ---
+
+    def test_string_key_getset(self):
+        """String key names resolve to the correct vtkInformationKey."""
+        self.info["FIELD_NAME"] = "Pressure"
+        self.assertEqual(self.info["FIELD_NAME"], "Pressure")
+        # Cross-check with actual key object
+        self.assertEqual(self.info[STRING_KEY], "Pressure")
+
+    def test_string_key_contains(self):
+        self.assertNotIn("FIELD_NAME", self.info)
+        self.info["FIELD_NAME"] = "Velocity"
+        self.assertIn("FIELD_NAME", self.info)
+
+    def test_string_key_delitem(self):
+        self.info["FIELD_NAME"] = "Temp"
+        del self.info["FIELD_NAME"]
+        self.assertNotIn("FIELD_NAME", self.info)
+
+    def test_string_key_get(self):
+        self.assertIsNone(self.info.get("FIELD_NAME"))
+        self.info["FIELD_NAME"] = "test"
+        self.assertEqual(self.info.get("FIELD_NAME"), "test")
+
+    def test_string_key_integer(self):
+        self.info["FIELD_ASSOCIATION"] = 2
+        self.assertEqual(self.info["FIELD_ASSOCIATION"], 2)
+
+    def test_string_key_case_insensitive(self):
+        self.info["field_name"] = "LowerCase"
+        self.assertEqual(self.info["Field_Name"], "LowerCase")
+        self.assertEqual(self.info[STRING_KEY], "LowerCase")
+
+    def test_string_key_not_found(self):
+        with self.assertRaises(KeyError):
+            _ = self.info["NO_SUCH_KEY_EXISTS_XYZ"]
 
     # --- isinstance check ---
 

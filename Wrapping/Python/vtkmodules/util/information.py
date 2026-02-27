@@ -69,8 +69,27 @@ _OBJECT_VECTOR_KEY_TYPES = (
 )
 
 
+_key_cache = {}
+
+
+def _resolve_key(name_or_key):
+    """Resolve a string key name (case-insensitive) to its vtkInformationKey object."""
+    if not isinstance(name_or_key, str):
+        return name_or_key
+    upper = name_or_key.upper()
+    if upper in _key_cache:
+        return _key_cache[upper]
+    from vtkmodules.vtkCommonCore import vtkInformationKeyLookup
+    key = vtkInformationKeyLookup.FindByName(upper)
+    if key is None:
+        raise KeyError(name_or_key)
+    _key_cache[upper] = key
+    return key
+
+
 class _InformationMixin:
     def __getitem__(self, key):
+        key = _resolve_key(key)
         if not self.Has(key):
             raise KeyError(key)
         if isinstance(key, _SCALAR_KEY_TYPES):
@@ -91,6 +110,7 @@ class _InformationMixin:
         raise TypeError("Unsupported key type: %s" % type(key).__name__)
 
     def __setitem__(self, key, value):
+        key = _resolve_key(key)
         if isinstance(key, _SCALAR_KEY_TYPES):
             self.Set(key, value)
         elif isinstance(key, (vtkInformationIntegerVectorKey,
@@ -118,11 +138,13 @@ class _InformationMixin:
             raise TypeError("Unsupported key type: %s" % type(key).__name__)
 
     def __delitem__(self, key):
+        key = _resolve_key(key)
         if not self.Has(key):
             raise KeyError(key)
         self.Remove(key)
 
     def __contains__(self, key):
+        key = _resolve_key(key)
         return bool(self.Has(key))
 
     def __len__(self):
@@ -137,15 +159,16 @@ class _InformationMixin:
             it.GoToNextItem()
 
     def keys(self):
-        return list(self)
+        return [k.GetName() for k in self]
 
     def values(self):
         return [self[k] for k in self]
 
     def items(self):
-        return [(k, self[k]) for k in self]
+        return [(k.GetName(), self[k]) for k in self]
 
     def get(self, key, default=None):
+        key = _resolve_key(key)
         if self.Has(key):
             return self[key]
         return default
