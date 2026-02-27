@@ -1,0 +1,45 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default config",
+      "description": "Default release build of VTK with no other variables set",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": { "type": "STRING", "value": "Release" }
+      }
+    },
+    {
+      "name": "dev",
+      "displayName": "Developer config",
+      "description": "Full feature developer build in debug mode and with testing activated",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": { "type": "STRING", "value": "Debug" },
+        "VTK_WRAP_PYTHON": { "type": "BOOL", "value": "ON" },
+        "VTK_DEBUG_LEAKS": { "type": "BOOL", "value": "ON" },
+        "VTK_BUILD_TESTING": { "type": "STRING", "value": "WANT" },
+        "VTK_USE_MPI": { "type": "BOOL", "value": "ON" },
+        "VTK_EXTRA_COMPILER_WARNINGS": { "type": "BOOL", "value": "ON" },
+        "VTK_BUILD_EXAMPLES": { "type": "BOOL", "value": "ON" },
+        "VTK_ENABLE_EXTRA_BUILD_WARNINGS": { "type": "BOOL", "value": "ON" },
+        "VTK_GENERATE_SPDX": { "type": "BOOL", "value": "ON" },
+        "VTK_LINKER_FATAL_WARNINGS": { "type": "BOOL", "value": "ON" }
+      }
+    },
+    {
+      "name": "mini",
+      "displayName": "Minimalist",
+      "description": "Minimalist release build for a fast build of VTK",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": { "type": "STRING", "value": "Release" },
+        "VTK_GROUP_ENABLE_Imaging": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_GROUP_ENABLE_Parallel": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_GROUP_ENABLE_Qt": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_GROUP_ENABLE_StandAlone": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_GROUP_ENABLE_Views": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_GROUP_ENABLE_Web": { "type": "STRING", "value": "DONT_WANT" },
+        "VTK_SMP_ENABLE_STDTHREAD": { "type": "BOOL", "value": "OFF" }
+      }
+    }
+  ]
+}
