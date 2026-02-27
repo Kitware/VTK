@@ -166,6 +166,7 @@ set(python_files
   vtkmodules/util/keys.py
   vtkmodules/util/matrix.py
   vtkmodules/util/misc.py
+  vtkmodules/util/molecule.py
   vtkmodules/util/selection.py
   vtkmodules/util/string_array.py
   vtkmodules/util/variant_array.py
