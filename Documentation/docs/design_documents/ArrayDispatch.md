@@ -355,8 +355,8 @@ following new features will be discussed:
   Range-based for loop support for `vtkAbstractArray` subclasses that abstracts
   away storage details and allows efficient access of values.
 * `vtkDataArrayAccessor`: A helper class that provides a single API for accessing/inserting
-   values/tuples in any `vtkDataArray` subclass. This class was the predecessor of `vtk::DataArray(Value/Tuple)Range`.
-   It should only be used when inserting is required, and not for value/tuple access, because it's not as optimized.
+  values/tuples in any `vtkDataArray` subclass. This class was the predecessor of `vtk::DataArray(Value/Tuple)Range`.
+  It should only be used when inserting is required, and not for value/tuple access, because it's not as optimized.
 
 These will be discussed more fully, but as a preview, here's our familiar
 `calcMagnitude` example implemented using these new tools:
@@ -973,50 +973,6 @@ Dispatcher::Execute(input, output, someWorker);
 
 ---
 
-### vtkArrayDispatch::DispatchByArrayAndValueType
-
-This family of dispatchers takes a `vtkTypeList` of explicit array types to use
-during dispatching, and a `vtkTypeList` of ValueTypes to consider during dispatch.
-
-__Variations__:
-
-* `vtkArrayDispatch::DispatchByArrayAndValueType`: Single dispatch.
-* `vtkArrayDispatch::Dispatch2ByArrayAndValueType`: Double dispatch.
-* `vtkArrayDispatch::Dispatch3ByArrayAndValueType`: Triple dispatch.
-
-__Arrays considered__: All arrays explicitly listed in the parameter lists that also
-have ValueTypes in the ValueType typelists.
-
-__Restrictions__: Array must be explicitly listed in the dispatcher's type, and its ValueType
-must be in the ValueType typelist.
-
-__Use case__: Used when one or more arrays have known implementations, but those implementations
-have unknown ValueTypes, and the ValueTypes are restricted in some way.
-
-__Example Usage__:
-
-The example above can also be implemented using this family of dispatchers as follows:
-
-```cpp
-// input has an unknown implementation, but an integral ValueType.
-vtkDataArray *input = ...;
-
-// Output is always either vtkFloatArray or vtkDoubleArray:
-vtkDataArray *output = someCondition ? vtkFloatArray::New()
-                                     : vtkDoubleArray::New();
-
-// Define the valid ArrayTypes for input by filtering
-// vtkArrayDispatch::Arrays to remove non-integral types:
-using MyDispatch = vtkArrayDispatch::Dispatch2ByArrayAndValueType<
-  vtkArrayDispatch::Arrays, vtkArrayDispatch::Integrals,
-  vtkArrayDispatch::AOSArrays, vtkArrayDispatch::Reals>;
-
-// Execute the dispatch:
-MyDispatch::Execute(input, output, someWorker);
-```
-
----
-
 #### vtkArrayDispatch::DispatchByValueType
 
 This family of dispatchers takes a vtkTypeList of ValueTypes for each array and
@@ -1063,7 +1019,83 @@ Dispatcher::Execute(array1, array2, array3, someWorker);
 
 ---
 
-#### vtkArrayDispatch::DispatchByArrayWithSameValueType
+### vtkArrayDispatch::DispatchByArrayAndValueType
+
+This family of dispatchers takes a `vtkTypeList` of explicit array types to use
+during dispatching, and a `vtkTypeList` of ValueTypes to consider during dispatch.
+
+__Variations__:
+
+* `vtkArrayDispatch::DispatchByArrayAndValueType`: Single dispatch.
+* `vtkArrayDispatch::Dispatch2ByArrayAndValueType`: Double dispatch.
+* `vtkArrayDispatch::Dispatch3ByArrayAndValueType`: Triple dispatch.
+
+__Arrays considered__: All arrays explicitly listed in the parameter lists that also
+have ValueTypes in the ValueType typelists.
+
+__Restrictions__: Array must be explicitly listed in the dispatcher's type, and its ValueType
+must be in the ValueType typelist.
+
+__Use case__: Used when one or more arrays have known implementations, but those implementations
+have unknown ValueTypes, and the ValueTypes are restricted in some way.
+
+__Example Usage__:
+
+The example shown for `vtkArrayDispatch::DispatchByArray` can also be implemented using this family of dispatchers as
+follows:
+
+```cpp
+// input has an unknown implementation, but an integral ValueType.
+vtkDataArray *input = ...;
+
+// Output is always either vtkFloatArray or vtkDoubleArray:
+vtkDataArray *output = someCondition ? vtkFloatArray::New()
+                                     : vtkDoubleArray::New();
+
+// Define the valid ArrayTypes for input by filtering
+// vtkArrayDispatch::Arrays to remove non-integral types:
+using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayAndValueType<
+  vtkArrayDispatch::Arrays, vtkArrayDispatch::AOSArrays,
+  vtkArrayDispatch::Integrals, vtkArrayDispatch::Reals>;
+
+// Execute the dispatch:
+Dispatcher::Execute(input, output, someWorker);
+```
+
+---
+
+#### vtkArrayDispatch::Dispatch*SameValueType
+
+This family of dispatchers requires that all dispatched arrays share a
+ValueType, considering all arrays from `vtkArrayDispatch::Arrays` across
+`vtkArrayDispatch::AllTypes` with no additional ValueType restriction.
+
+__Variations__:
+
+* `vtkArrayDispatch::Dispatch2SameValueType`: Double dispatch using
+  `vtkArrayDispatch::AllTypes`.
+* `vtkArrayDispatch::Dispatch3SameValueType`: Triple dispatch using
+  `vtkArrayDispatch::AllTypes`.
+
+__Arrays considered__: All arrays in `vtkArrayDispatch::Arrays` across all
+ValueTypes in `vtkArrayDispatch::AllTypes`.
+
+__Restrictions__: Combinations of arrays with differing ValueTypes are
+eliminated.
+
+__Use case__: When all arrays are known to share the same ValueType but no
+further restriction on which ValueType is known, regardless of implementation.
+
+__Example Usage__:
+
+```cpp
+vtkArrayDispatch::Dispatch2SameValueType::Execute(a1, a2, worker);
+vtkArrayDispatch::Dispatch3SameValueType::Execute(a1, a2, a3, worker);
+```
+
+---
+
+#### vtkArrayDispatch::DispatchByArray*WithSameValueType
 
 This family of dispatchers takes a `vtkTypeList` of ArrayTypes for each array
 and restricts dispatch to only consider arrays from those typelists, with the
@@ -1087,27 +1119,23 @@ implementation.
 __Example Usage__:
 
 Let's consider a double array dispatch, with `array1` known to be one of four
-common array types (AOS `float`, `double`, `int`, and `vtkIdType` arrays), and
-the other is a complete unknown, although we know that it holds the same
-ValueType as `array1`.
+common array types (SOA `float`, `double`, `int`, and `vtkIdType` arrays), and
+the other is an AOS and we know that it holds the same ValueType as `array1`.
 
 ```cpp
-// AOS float, double, int, or vtkIdType array:
+// SOA float, double, int, or vtkIdType array:
 vtkDataArray *array1 = ...;
-// Unknown implementation, but the ValueType matches array1:
+// AOS implementation, but the ValueType matches array1:
 vtkDataArray *array2 = ...;
 
 // array1's possible types:
 using Array1Types =
-  vtkTypeList::Create<vtkFloatArray, vtkDoubleArray, vtkIntArray, vtkIdTypeArray>;
-
-// array2's possible types:
-using Array2Types = vtkArrayDispatch::FilterArraysByValueType<
-  vtkArrayDispatch::Arrays, vtkTypeList::Create<float, double, int, vtkIdType>>::Result;
+  vtkTypeList::Create<vtkSOADataArrayTemplate<float>, vtkSOADataArrayTemplate<double>,
+  vtkSOADataArrayTemplate<int>, vtkSOADataArrayTemplate<vtkIdType>>;
 
 // Typedef the dispatch to a more manageable name:
-using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<
-  Array1Types, Array2Types>;
+using Dispatcher =
+  vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<Array1Types, vtkArrayDispatch::AOSArrays>;
 
 // Execute the dispatch:
 Dispatcher::Execute(array1, array2, someWorker);
@@ -1115,7 +1143,7 @@ Dispatcher::Execute(array1, array2, someWorker);
 
 ---
 
-#### vtkArrayDispatch::DispatchBySameValueType
+#### vtkArrayDispatch::Dispatch*BySameValueType
 
 This family of dispatchers takes a single `vtkTypeList` of ValueType and
 restricts dispatch to only consider arrays from `vtkArrayDispatch::Arrays` with
@@ -1126,10 +1154,6 @@ __Variations__:
 
 * `vtkArrayDispatch::Dispatch2BySameValueType`: Double dispatch.
 * `vtkArrayDispatch::Dispatch3BySameValueType`: Triple dispatch.
-* `vtkArrayDispatch::Dispatch2SameValueType`: Double dispatch using
-  `vtkArrayDispatch::AllTypes`.
-* `vtkArrayDispatch::Dispatch3SameValueType`: Triple dispatch using
-  `vtkArrayDispatch::AllTypes`.
 
 __Arrays considered__: All arrays in `vtkArrayDispatch::Arrays` that meet the
 ValueType requirements.
@@ -1165,6 +1189,55 @@ Dispatcher::Execute(array1, array2, someWorker);
 
 ---
 
+#### vtkArrayDispatch::Dispatch*ByArrayAndSameValueType
+
+This family of dispatchers takes both a `vtkTypeList` of array types
+(`ArrayList`) and a `vtkTypeList` of ValueTypes (`ValueTypeList`), restricting
+dispatch to only consider array types found in `ArrayList` that have a ValueType
+contained in `ValueTypeList`, with the added requirement that all dispatched
+arrays share a ValueType.
+
+__Variations__:
+
+* `vtkArrayDispatch::Dispatch2ByArrayAndSameValueType`: Double dispatch.
+* `vtkArrayDispatch::Dispatch3ByArrayAndSameValueType`: Triple dispatch.
+
+__Arrays considered__: All arrays found in `ArrayList` whose ValueType is
+contained in `ValueTypeList`.
+
+__Restrictions__: Combinations of arrays with differing ValueTypes are
+eliminated.
+
+__Use case__: When all arrays are known to belong to a specific set of array
+implementations and ValueTypes, and all arrays are known to share the same
+ValueType. Use `vtkArrayDispatch::AllTypes` for `ValueTypeList` to consider all
+ValueTypes.
+
+__Example Usage__:
+
+Let's consider a double array dispatch, with `array1` and `array2` known to be
+AOS arrays with a ValueType of `float`, `double`, `int`, or `vtkIdType`, and
+`array2` known to have the same ValueType as `array1`.
+
+```cpp
+// Some AOS float, double, int, or vtkIdType array:
+vtkDataArray *array1 = ...;
+// Unknown, but the ValueType matches array1:
+vtkDataArray *array2 = ...;
+
+// The allowed ValueTypes:
+using ValidValueTypes = vtkTypeList::Create<float, double, int, vtkIdType>;
+
+// Typedef the dispatch to a more manageable name:
+using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayAndSameValueType
+    vtkArrayDispatch::AOSArrays, ValidValueTypes>;
+
+// Execute the dispatch:
+Dispatcher::Execute(array1, array2, someWorker);
+```
+
+---
+
 ## Advanced Usage
 
 ### Accessing Memory Buffers
@@ -1184,10 +1257,10 @@ struct DeepCopyWorker
 {
   // AoS --> AoS same-type specialization:
   template <typename ValueType>
-  void operator()(vtkAOSDataArrayTemplate<ValueType> *src,
-                  vtkAOSDataArrayTemplate<ValueType> *dst)
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* src,
+                  vtkAOSDataArrayTemplate<ValueType>* dst)
   {
-    std::copy(src->Begin(), src->End(), dst->Begin());
+    std::copy_n(src->GetPointer(0), src->GetNumberOfValues(), dst->GetPointer(0));
   }
 
   // SoA --> SoA same-type specialization:
@@ -1195,14 +1268,10 @@ struct DeepCopyWorker
   void operator()(vtkSOADataArrayTemplate<ValueType>* src,
                   vtkSOADataArrayTemplate<ValueType>* dst)
   {
-    vtkIdType numTuples = src->GetNumberOfTuples();
     for (int comp; comp < src->GetNumberOfComponents(); ++comp)
     {
-      ValueType *srcBegin = src->GetComponentArrayPointer(comp);
-      ValueType *srcEnd = srcBegin + numTuples;
-      ValueType *dstBegin = dst->GetComponentArrayPointer(comp);
-
-      std::copy(srcBegin, srcEnd, dstBegin);
+      std::copy_n(src->GetComponentArrayPointer(comp), src->GetNumberOfTuples(),
+        dst->GetComponentArrayPointer(comp));
     }
   }
 
