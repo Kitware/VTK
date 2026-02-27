@@ -19,5 +19,18 @@ automatically inherited by all ~23 subclasses of `vtkCollection`
 (e.g., `vtkRendererCollection`, `vtkDataArrayCollection`, etc.)
 without any additional Python code.
 
+Pythonic mutation methods are also available:
+
+```python
+collection.append(actor3)     # AddItem
+collection.insert(0, actor4)  # InsertItem
+collection.remove(actor1)     # RemoveItem
+collection.clear()            # RemoveAllItems
+```
+
+All of this is implemented at the C level and automatically inherited
+by all ~23 subclasses of `vtkCollection` (e.g., `vtkRendererCollection`,
+`vtkDataArrayCollection`, etc.) without any additional Python code.
+
 The existing iteration protocol (`for item in collection`) continues
 to work as before.

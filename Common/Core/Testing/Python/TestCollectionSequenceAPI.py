@@ -104,6 +104,64 @@ class TestCollectionSequenceAPI(Testing.vtkTest):
         self.assertIn(r1, rc)
         self.assertNotIn(vtkRenderer(), rc)
 
+    def test_append(self):
+        c = vtkCollection()
+        a = vtkObject()
+        b = vtkObject()
+        c.append(a)
+        c.append(b)
+        self.assertEqual(len(c), 2)
+        self.assertIs(c[0], a)
+        self.assertIs(c[1], b)
+
+    def test_insert(self):
+        c = vtkCollection()
+        a = vtkObject()
+        b = vtkObject()
+        d = vtkObject()
+        c.append(a)
+        c.append(b)
+        c.insert(1, d)
+        self.assertEqual(len(c), 3)
+        self.assertIs(c[0], a)
+        self.assertIs(c[1], d)
+        self.assertIs(c[2], b)
+
+    def test_remove(self):
+        c = vtkCollection()
+        a = vtkObject()
+        b = vtkObject()
+        c.append(a)
+        c.append(b)
+        c.remove(a)
+        self.assertEqual(len(c), 1)
+        self.assertIs(c[0], b)
+
+    def test_clear(self):
+        c = vtkCollection()
+        for _ in range(5):
+            c.append(vtkObject())
+        self.assertEqual(len(c), 5)
+        c.clear()
+        self.assertEqual(len(c), 0)
+
+    def test_append_type_error(self):
+        c = vtkCollection()
+        with self.assertRaises(TypeError):
+            c.append(42)
+        with self.assertRaises(TypeError):
+            c.append("hello")
+
+    def test_methods_inherited_by_subclass(self):
+        """Subclasses inherit append/insert/remove/clear."""
+        dac = vtkDataArrayCollection()
+        arr = vtkIntArray()
+        dac.append(arr)
+        self.assertEqual(len(dac), 1)
+        self.assertIs(dac[0], arr)
+        dac.clear()
+        self.assertEqual(len(dac), 0)
+
 
 if __name__ == "__main__":
     Testing.main([(TestCollectionSequenceAPI, 'test')])
