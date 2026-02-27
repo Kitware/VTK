@@ -481,8 +481,15 @@ void vtkWrapPython_GenerateObjectType(
   {
     fprintf(fp, "  nullptr, // tp_as_number\n");
   }
+  if (strcmp(classname, "vtkCollection") == 0)
+  {
+    fprintf(fp, "  &PyVTKObject_AsSequence, // tp_as_sequence\n");
+  }
+  else
+  {
+    fprintf(fp, "  nullptr, // tp_as_sequence\n");
+  }
   fprintf(fp,
-    "  nullptr, // tp_as_sequence\n"
     "  nullptr, // tp_as_mapping\n"
     "  nullptr, // tp_hash\n"
     "  %s, // tp_call\n"

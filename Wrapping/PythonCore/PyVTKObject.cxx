@@ -20,6 +20,7 @@
 #include "PyVTKMethodDescriptor.h"
 #include "vtkABINamespace.h"
 #include "vtkAbstractBuffer.h"
+#include "vtkCollection.h"
 #include "vtkDataArray.h"
 #include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
@@ -730,6 +731,83 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 PyBufferProcs PyVTKObject_AsBuffer = {
   PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
   PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
+};
+
+//------------------------------------------------------------------------------
+// Sequence protocol for vtkCollection (inherited by all subclasses)
+//------------------------------------------------------------------------------
+
+static Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (coll)
+  {
+    return static_cast<Py_ssize_t>(coll->GetNumberOfItems());
+  }
+  PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+  return -1;
+}
+
+static PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (!coll)
+  {
+    PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+    return nullptr;
+  }
+
+  // Python normalizes negative indices before calling sq_item,
+  // so any remaining negative index is truly out of range.
+  Py_ssize_t n = static_cast<Py_ssize_t>(coll->GetNumberOfItems());
+  if (index < 0 || index >= n)
+  {
+    PyErr_SetString(PyExc_IndexError, "index out of range");
+    return nullptr;
+  }
+
+  vtkObject* item = coll->GetItemAsObject(static_cast<int>(index));
+  return vtkPythonUtil::GetObjectFromPointer(item);
+}
+
+static int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (!coll)
+  {
+    PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+    return -1;
+  }
+
+  if (!PyVTKObject_Check(value))
+  {
+    return 0;
+  }
+
+  vtkObjectBase* valObj = ((PyVTKObject*)value)->vtk_ptr;
+  vtkObject* vtkObj = vtkObject::SafeDownCast(valObj);
+  if (!vtkObj)
+  {
+    return 0;
+  }
+
+  return coll->IsItemPresent(vtkObj) ? 1 : 0;
+}
+
+PySequenceMethods PyVTKObject_AsSequence = {
+  PyVTKObject_AsSequence_Length,   // sq_length
+  nullptr,                         // sq_concat
+  nullptr,                         // sq_repeat
+  PyVTKObject_AsSequence_GetItem,  // sq_item
+  nullptr,                         // sq_slice (deprecated)
+  nullptr,                         // sq_ass_item
+  nullptr,                         // sq_ass_slice (deprecated)
+  PyVTKObject_AsSequence_Contains, // sq_contains
+  nullptr,                         // sq_inplace_concat
+  nullptr,                         // sq_inplace_repeat
 };
 
 //------------------------------------------------------------------------------

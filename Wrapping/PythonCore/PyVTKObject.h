@@ -69,6 +69,7 @@ VTK_ABI_NAMESPACE_END
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyGetSetDef PyVTKObject_GetSet[];
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyBufferProcs PyVTKObject_AsBuffer;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PySequenceMethods PyVTKObject_AsSequence;
 
 extern "C"
 {
