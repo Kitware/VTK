@@ -122,6 +122,7 @@ MODULE_MAPPER = {
         "vtkmodules.numpy_interface.array_overrides",
         "vtkmodules.util.data_array_selection",
         "vtkmodules.util.information",
+        "vtkmodules.util.string_array",
     ],
     "vtkCommonDataModel": [
         "vtkmodules.util.data_model",

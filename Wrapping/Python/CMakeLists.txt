@@ -165,6 +165,7 @@ set(python_files
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/selection.py
+  vtkmodules/util/string_array.py
   vtkmodules/util/widgets.py
   vtkmodules/util/numpy_support.py
   vtkmodules/util/xarray_support.py
