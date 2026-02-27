@@ -123,6 +123,7 @@ MODULE_MAPPER = {
         "vtkmodules.util.data_array_selection",
         "vtkmodules.util.information",
         "vtkmodules.util.string_array",
+        "vtkmodules.util.variant_array",
     ],
     "vtkCommonDataModel": [
         "vtkmodules.util.data_model",
