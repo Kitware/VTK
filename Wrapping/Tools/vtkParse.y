@@ -1703,9 +1703,9 @@ static unsigned int add_indirection_to_array(unsigned int type)
    and five from '(' constructor_args ')' in initializer */
 %expect 10
 
-/* Expect 110 reduce/reduce conflicts, these can be cleared by removing
+/* Expect 111 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 110
+%expect-rr 111
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -3400,6 +3400,7 @@ common_bracket_item_no_scope_operator:
   | literal { postSig($<str>1); postSig(" "); }
   | primitive_type
   | type_name { chopSig(); postSig(" "); }
+  | ELLIPSIS { postSig("..."); }
 
 any_bracket_contents:
   | any_bracket_contents any_bracket_item
