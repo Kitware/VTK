@@ -225,6 +225,7 @@ typedef struct UsingInfo_
   const char* Name; /* null for using whole namespace */
   const char* Comment;
   const char* Scope; /* the namespace or class */
+  int IsType;        /* indicates that the name is a type */
 } UsingInfo;
 
 /**

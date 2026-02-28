@@ -4642,8 +4642,8 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
 
     case 158: /* using_id: TYPENAME id_expression  */
     {
-      ((*yyvalp).str) =
-        (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(0)].yystate.yysemantics.yyval.str);
+      ((*yyvalp).str) = vtkstrcat("typename ",
+        (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(0)].yystate.yysemantics.yyval.str));
     }
     break;
 
@@ -8734,6 +8734,11 @@ static void add_using(const char* name, int is_namespace)
   }
   else
   {
+    if (strncmp(name, "typename ", 9) == 0)
+    {
+      item->IsType = 1;
+      name += 9;
+    }
     i = strlen(name);
     while (i > 0 && name[i - 1] != ':')
     {

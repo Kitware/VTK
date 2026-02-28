@@ -285,6 +285,21 @@ static char* append_typedef_to_line(
 }
 
 /**
+ * Append using info
+ */
+static char* append_using_to_line(
+  char* line, size_t* m, size_t* maxlen, const UsingInfo* using_info)
+{
+  line = append_to_line(line, using_info->Name, m, maxlen);
+  line = append_to_line(line, " = ", m, maxlen);
+  line = append_scope_to_line(line, m, maxlen, using_info->Scope);
+  line = append_to_line(line, using_info->Name, m, maxlen);
+  line = append_to_line(line, " ", m, maxlen);
+
+  return line;
+}
+
+/**
  * Append all types in a class
  */
 static char** append_class_contents(char** lines, size_t* np, ClassInfo* data, const char* scope,
@@ -367,6 +382,19 @@ static char** append_class_contents(char** lines, size_t* np, ClassInfo* data, c
     {
       line = append_scope_to_line(line, &m, &maxlen, scope);
       line = append_typedef_to_line(line, &m, &maxlen, data->Typedefs[data->Items[i].Index]);
+    }
+    else if (data->Items[i].Type == VTK_USING_INFO)
+    {
+      UsingInfo* ui = data->Usings[data->Items[i].Index];
+      if (ui->Scope && ui->Name && ui->IsType)
+      {
+        line = append_scope_to_line(line, &m, &maxlen, scope);
+        line = append_using_to_line(line, &m, &maxlen, ui);
+      }
+      else
+      {
+        continue;
+      }
     }
     else
     {

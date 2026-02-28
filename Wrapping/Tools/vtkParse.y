@@ -2251,7 +2251,7 @@ using_declarator:
 using_id:
     id_expression
   | TYPENAME id_expression
-    { $<str>$ = $<str>2; }
+    { $<str>$ = vtkstrcat("typename ", $<str>2); }
   | nested_name_specifier operator_function_id
     { $<str>$ = vtkstrcat($<str>1, $<str>2); }
   | nested_name_specifier conversion_function_id
@@ -3725,6 +3725,11 @@ static void add_using(const char* name, int is_namespace)
   }
   else
   {
+    if (strncmp(name, "typename ", 9) == 0)
+    {
+      item->IsType = 1;
+      name += 9;
+    }
     i = strlen(name);
     while (i > 0 && name[i - 1] != ':')
     {
