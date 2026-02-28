@@ -2237,11 +2237,21 @@ typedef_declarator_id:
  */
 
 using_declaration:
-    USING using_id ';' { add_using($<str>2, 0); }
+    USING using_declarator_list ';'
+
+using_declarator_list:
+    using_declarator using_declarator_list_cont
+
+using_declarator_list_cont:
+  | using_declarator_list_cont ',' using_declarator
+
+using_declarator:
+    using_id { add_using($<str>1, 0); }
 
 using_id:
     id_expression
-  | TYPENAME id_expression { $<str>$ = $<str>2; }
+  | TYPENAME id_expression
+    { $<str>$ = $<str>2; }
   | nested_name_specifier operator_function_id
     { $<str>$ = vtkstrcat($<str>1, $<str>2); }
   | nested_name_specifier conversion_function_id
