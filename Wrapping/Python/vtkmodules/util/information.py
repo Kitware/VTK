@@ -1,4 +1,4 @@
-"""Dictionary interface for vtkInformation.
+"""Pythonic interfaces for vtkInformation and vtkInformationVector.
 
 Makes vtkInformation behave like a Python dictionary (key -> value)::
 
@@ -11,10 +11,19 @@ Makes vtkInformation behave like a Python dictionary (key -> value)::
     len(info)                                  # entry count
     for key in info: ...                       # iterate keys
     info.keys(), info.values(), info.items()   # dict views
+
+Makes vtkInformationVector behave like a Python list::
+
+    vec = vtkInformationVector()
+    vec.append(vtkInformation())
+    len(vec)          # 1
+    vec[0]            # vtkInformation
+    for info in vec:  # iterate
 """
 
 from vtkmodules.vtkCommonCore import (
     vtkInformation,
+    vtkInformationVector,
     vtkInformationIterator,
     vtkInformationDataObjectKey,
     vtkInformationDoubleKey,
@@ -197,4 +206,55 @@ class _InformationMixin:
 
 @vtkInformation.override
 class Information(_InformationMixin, vtkInformation):
+    pass
+
+
+class _InformationVectorMixin:
+    def __len__(self):
+        return self.GetNumberOfInformationObjects()
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return [self[i] for i in range(*index.indices(len(self)))]
+        if index < 0:
+            index += len(self)
+        if not 0 <= index < len(self):
+            raise IndexError("index %d out of range" % index)
+        return self.GetInformationObject(index)
+
+    def __setitem__(self, index, info):
+        if index < 0:
+            index += len(self)
+        if not 0 <= index < len(self):
+            raise IndexError("index %d out of range" % index)
+        self.SetInformationObject(index, info)
+
+    def __delitem__(self, index):
+        if index < 0:
+            index += len(self)
+        if not 0 <= index < len(self):
+            raise IndexError("index %d out of range" % index)
+        self.Remove(index)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self.GetInformationObject(i)
+
+    def __contains__(self, info):
+        for i in range(len(self)):
+            if self.GetInformationObject(i) is info:
+                return True
+        return False
+
+    def append(self, info):
+        self.Append(info)
+
+    def __repr__(self):
+        return "vtkInformationVector([%s])" % ", ".join(
+            repr(self.GetInformationObject(i)) for i in range(min(len(self), 8))
+        ) + (", ..." if len(self) > 8 else "")
+
+
+@vtkInformationVector.override
+class InformationVector(_InformationVectorMixin, vtkInformationVector):
     pass

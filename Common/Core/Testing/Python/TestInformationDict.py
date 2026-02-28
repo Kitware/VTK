@@ -253,5 +253,94 @@ class TestInformationDict(Testing.vtkTest):
         self.assertIsInstance(self.info, vtkInformation)
 
 
+class TestInformationVector(Testing.vtkTest):
+    def setUp(self):
+        self.vec = vtkInformationVector()
+
+    def test_len_empty(self):
+        self.assertEqual(len(self.vec), 0)
+
+    def test_append_and_len(self):
+        self.vec.append(vtkInformation())
+        self.vec.append(vtkInformation())
+        self.assertEqual(len(self.vec), 2)
+
+    def test_getitem(self):
+        info = vtkInformation()
+        info[STRING_KEY] = "hello"
+        self.vec.append(info)
+        self.assertEqual(self.vec[0][STRING_KEY], "hello")
+
+    def test_getitem_negative(self):
+        self.vec.append(vtkInformation())
+        info = vtkInformation()
+        info[INT_KEY] = 99
+        self.vec.append(info)
+        self.assertEqual(self.vec[-1][INT_KEY], 99)
+
+    def test_getitem_out_of_range(self):
+        with self.assertRaises(IndexError):
+            _ = self.vec[0]
+
+    def test_setitem(self):
+        self.vec.append(vtkInformation())
+        replacement = vtkInformation()
+        replacement[INT_KEY] = 42
+        self.vec[0] = replacement
+        self.assertEqual(self.vec[0][INT_KEY], 42)
+
+    def test_setitem_out_of_range(self):
+        with self.assertRaises(IndexError):
+            self.vec[0] = vtkInformation()
+
+    def test_delitem(self):
+        self.vec.append(vtkInformation())
+        self.vec.append(vtkInformation())
+        del self.vec[0]
+        self.assertEqual(len(self.vec), 1)
+
+    def test_delitem_negative(self):
+        self.vec.append(vtkInformation())
+        self.vec.append(vtkInformation())
+        del self.vec[-1]
+        self.assertEqual(len(self.vec), 1)
+
+    def test_delitem_out_of_range(self):
+        with self.assertRaises(IndexError):
+            del self.vec[0]
+
+    def test_iter(self):
+        for _ in range(3):
+            self.vec.append(vtkInformation())
+        items = list(self.vec)
+        self.assertEqual(len(items), 3)
+        self.assertIsInstance(items[0], vtkInformation)
+
+    def test_contains(self):
+        info = vtkInformation()
+        self.assertNotIn(info, self.vec)
+        self.vec.append(info)
+        self.assertIn(info, self.vec)
+
+    def test_slice(self):
+        for i in range(4):
+            info = vtkInformation()
+            info[INT_KEY] = i
+            self.vec.append(info)
+        sliced = self.vec[1:3]
+        self.assertEqual(len(sliced), 2)
+        self.assertEqual(sliced[0][INT_KEY], 1)
+        self.assertEqual(sliced[1][INT_KEY], 2)
+
+    def test_repr(self):
+        self.vec.append(vtkInformation())
+        r = repr(self.vec)
+        self.assertIn("vtkInformationVector", r)
+
+    def test_isinstance(self):
+        self.assertIsInstance(self.vec, vtkInformationVector)
+
+
 if __name__ == "__main__":
-    Testing.main([(TestInformationDict, "test")])
+    Testing.main([(TestInformationDict, "test"),
+                  (TestInformationVector, "test")])
