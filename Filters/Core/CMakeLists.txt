@@ -140,10 +140,13 @@ set(classes
 set(headers
   vtkDecimatePolylineStrategy.h)
 
+set(private_classes
+  vtkSurfaceNets3DNonManifoldCases)
+
 vtk_module_add_module(VTK::FiltersCore
   CLASSES ${classes}
   HEADERS ${headers}
-  PRIVATE_HEADERS ${private_headers})
+  PRIVATE_CLASSES ${private_classes})
 
 vtk_add_test_mangling(VTK::FiltersCore)
 
