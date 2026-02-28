@@ -126,6 +126,7 @@ MODULE_MAPPER = {
     "vtkCommonDataModel": [
         "vtkmodules.util.data_model",
         "vtkmodules.util.graph",
+        "vtkmodules.util.implicit_functions",
         "vtkmodules.util.selection",
     ],
     "vtkCommonExecutionModel": [
