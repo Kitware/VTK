@@ -162,6 +162,7 @@ set(python_files
   vtkmodules/util/functions.py
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
+  vtkmodules/util/widgets.py
   vtkmodules/util/numpy_support.py
   vtkmodules/util/xarray_support.py
   vtkmodules/util/pickle_support.py
