@@ -418,6 +418,7 @@ void vtkParse_InitUsing(UsingInfo* item)
   item->Name = NULL;
   item->Comment = NULL;
   item->Scope = NULL;
+  item->IsType = 0;
 }
 
 /* Copy a Using struct */
@@ -428,6 +429,7 @@ void vtkParse_CopyUsing(UsingInfo* item, const UsingInfo* orig)
   item->Name = orig->Name;
   item->Comment = orig->Comment;
   item->Scope = orig->Scope;
+  item->IsType = orig->IsType;
 }
 
 /* Free a Using struct */

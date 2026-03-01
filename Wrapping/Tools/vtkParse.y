@@ -1703,9 +1703,9 @@ static unsigned int add_indirection_to_array(unsigned int type)
    and five from '(' constructor_args ')' in initializer */
 %expect 10
 
-/* Expect 110 reduce/reduce conflicts, these can be cleared by removing
+/* Expect 111 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 110
+%expect-rr 111
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -2237,11 +2237,21 @@ typedef_declarator_id:
  */
 
 using_declaration:
-    USING using_id ';' { add_using($<str>2, 0); }
+    USING using_declarator_list ';'
+
+using_declarator_list:
+    using_declarator using_declarator_list_cont
+
+using_declarator_list_cont:
+  | using_declarator_list_cont ',' using_declarator
+
+using_declarator:
+    using_id { add_using($<str>1, 0); }
 
 using_id:
     id_expression
-  | TYPENAME id_expression { $<str>$ = $<str>2; }
+  | TYPENAME id_expression
+    { $<str>$ = vtkstrcat("typename ", $<str>2); }
   | nested_name_specifier operator_function_id
     { $<str>$ = vtkstrcat($<str>1, $<str>2); }
   | nested_name_specifier conversion_function_id
@@ -3400,6 +3410,7 @@ common_bracket_item_no_scope_operator:
   | literal { postSig($<str>1); postSig(" "); }
   | primitive_type
   | type_name { chopSig(); postSig(" "); }
+  | ELLIPSIS { postSig("..."); }
 
 any_bracket_contents:
   | any_bracket_contents any_bracket_item
@@ -3714,6 +3725,11 @@ static void add_using(const char* name, int is_namespace)
   }
   else
   {
+    if (strncmp(name, "typename ", 9) == 0)
+    {
+      item->IsType = 1;
+      name += 9;
+    }
     i = strlen(name);
     while (i > 0 && name[i - 1] != ':')
     {
