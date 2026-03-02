@@ -416,7 +416,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numNewPts);
+  newPts->Reserve(numNewPts);
   // Mask points preserves all attributes of the points, so copy all of them.
   outputPD->CopyAllOn();
   outputPD->CopyAllocate(pd, numNewPts);
@@ -572,7 +572,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         vtkPointData* dataCopy = vtkPointData::New();
         vtkPointData* tempData = vtkPointData::New();
 
-        pointCopy->Allocate(numPts);
+        pointCopy->Reserve(numPts);
         dataCopy->CopyAllOn();
         dataCopy->CopyAllocate(pd, numPts);
         for (vtkIdType i = 0; i < numPts; i = i + 1)

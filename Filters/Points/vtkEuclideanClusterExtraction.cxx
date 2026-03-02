@@ -38,7 +38,7 @@ vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
   this->Locator = vtkStaticPointLocator::New();
 
   this->NeighborScalars = vtkFloatArray::New();
-  this->NeighborScalars->Allocate(64);
+  this->NeighborScalars->ReserveValues(64);
 
   this->NeighborPointIds = vtkIdList::New();
   this->NeighborPointIds->Allocate(64);
@@ -125,7 +125,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
 
   newPts = vtkPoints::New();
   newPts->SetDataType(input->GetPoints()->GetDataType());
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // Traverse all points marking those visited.  Each new search
   // starts a new connected cluster. Connected clusters grow

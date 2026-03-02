@@ -163,7 +163,7 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid* output, idMapping& mapPo
 
   vtkPoints* points = vtkPoints::New();
   // don't know the number of points a priori -- just pick some number
-  points->Allocate(10000, 20000);
+  points->Reserve(10000);
 
   int lineNr = 2;
   float xyz[3];
@@ -272,7 +272,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
 
   // add a cellTableId array
   vtkIntArray* cellTableId = vtkIntArray::New();
-  cellTableId->Allocate(10000, 20000);
+  cellTableId->ReserveValues(10000);
   cellTableId->SetName("cellTableId");
 
   int shapeId, nLabels, tableId, typeId;

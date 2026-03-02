@@ -180,7 +180,7 @@ void vtkGridAxesPlaneActor2D::Update(vtkViewport* viewport)
     return;
   }
 
-  this->PolyDataPoints->Allocate(this->LineSegments.size() * 2);
+  this->PolyDataPoints->Reserve(this->LineSegments.size() * 2);
   this->PolyDataPoints->SetDataType(VTK_FLOAT);
   this->PolyDataLines->AllocateEstimate(static_cast<vtkIdType>(this->LineSegments.size()), 2);
   for (std::deque<LineSegmentType>::iterator iter = this->LineSegments.begin(),

@@ -28,18 +28,18 @@ vtkPDBReader::~vtkPDBReader() = default;
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {
   this->NumberOfAtoms = 0;
-  this->Points->Allocate(500);
-  this->AtomType->Allocate(500);
-  this->AtomTypeStrings->Allocate(500);
-  this->Model->Allocate(500);
+  this->Points->Reserve(500);
+  this->AtomType->ReserveValues(500);
+  this->AtomTypeStrings->ReserveValues(500);
+  this->Model->ReserveValues(500);
 
   vtkIntArray* Sheets = vtkIntArray::New();
   Sheets->SetNumberOfComponents(4);
-  Sheets->Allocate(500);
+  Sheets->ReserveTuples(500);
 
   vtkIntArray* Helix = vtkIntArray::New();
   Helix->SetNumberOfComponents(4);
-  Helix->Allocate(50);
+  Helix->ReserveTuples(50);
 
   vtkDebugMacro(<< "PDB File (" << this->HBScale << ", " << this->BScale << ")");
 

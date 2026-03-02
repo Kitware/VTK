@@ -505,7 +505,7 @@ void BuildSurface(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
   // this patch.
   vtkNew<vtkPoints> surfPoints;
   surfPoints->SetDataTypeToDouble();
-  surfPoints->Allocate(pnnode);
+  surfPoints->Reserve(pnnode);
   for (auto v : s2v)
   {
     auto pt = volPoints->GetPoint(v);

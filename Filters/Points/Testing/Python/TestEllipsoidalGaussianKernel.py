@@ -44,7 +44,7 @@ volume.SetOrigin(0,0,0)
 volume.SetSpacing(1,1,1)
 fa = vtkFloatArray()
 fa.SetName("scalars")
-fa.Allocate(res ** 3)
+fa.ReserveValues(res ** 3)
 volume.GetPointData().SetScalars(fa)
 
 center = volume.GetCenter()

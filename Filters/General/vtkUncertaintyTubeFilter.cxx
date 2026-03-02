@@ -212,7 +212,7 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDoubleArray* newNormals = vtkDoubleArray::New();
   newNormals->SetName("TubeNormals");
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(numPts);
+  newNormals->ReserveTuples(numPts);
 
   vtkIdType npts;
   const vtkIdType* pts;
@@ -328,11 +328,11 @@ int vtkUncertaintyTubeFilter::BuildTubes(
   // Allocate
   //
   newPts = vtkPoints::New();
-  newPts->Allocate(2500);
+  newPts->Reserve(2500);
 
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(7500);
+  newNormals->ReserveTuples(2500);
   newStrips = vtkCellArray::New();
   newStrips->AllocateEstimate(3 * this->NumberOfTubes, VTK_CELL_SIZE);
   //

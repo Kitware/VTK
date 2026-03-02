@@ -288,7 +288,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // Traverse all cells marking those visited.  Each new search
   // starts a new connected region. Connected region grows
@@ -447,7 +447,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     regionAreas = vtkSmartPointer<vtkFloatArray>::New();
     regionAreas->SetName("CellRegionArea");
-    regionAreas->Allocate(numCells);
+    regionAreas->ReserveValues(numCells);
     outputCD->AddArray(regionAreas);
   }
 
@@ -466,7 +466,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     cellRegionIds = vtkSmartPointer<vtkIdTypeArray>::New();
     cellRegionIds->SetName("RegionId");
-    cellRegionIds->Allocate(numCells);
+    cellRegionIds->ReserveValues(numCells);
     int idx = outputCD->AddArray(cellRegionIds);
     outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   }

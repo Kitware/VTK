@@ -35,7 +35,7 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
 
   this->CellScalars = vtkFloatArray::New();
-  this->CellScalars->Allocate(8);
+  this->CellScalars->ReserveValues(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
   this->NeighborCellPointIds->Allocate(8);
@@ -152,7 +152,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // Traverse all cells marking those visited.  Each new search
   // starts a new connected region. Connected region grows

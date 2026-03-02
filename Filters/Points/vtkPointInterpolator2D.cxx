@@ -126,7 +126,7 @@ struct ProbePoints
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); // allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
-    weights->Allocate(128);
+    weights->ReserveValues(128);
   }
 
   // When null point is encountered

@@ -109,7 +109,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd, (this->Resolution + 1) * numPts);
   newPts = vtkPoints::New();
-  newPts->Allocate((this->Resolution + 1) * numPts);
+  newPts->Reserve((this->Resolution + 1) * numPts);
   if ((ncells = inVerts->GetNumberOfCells()) > 0)
   {
     newLines = vtkCellArray::New();

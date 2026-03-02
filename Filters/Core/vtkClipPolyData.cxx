@@ -183,7 +183,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_DOUBLE);
   }
 
-  newPoints->Allocate(numPts, numPts / 2);
+  newPoints->Reserve(numPts);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
@@ -224,7 +224,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   cellScalars = vtkFloatArray::New();
-  cellScalars->Allocate(VTK_CELL_SIZE);
+  cellScalars->ReserveValues(VTK_CELL_SIZE);
 
   // perform clipping on cells
   bool abort = false;

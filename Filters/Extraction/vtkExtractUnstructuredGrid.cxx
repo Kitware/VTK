@@ -167,7 +167,7 @@ int vtkExtractUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Allocate
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   output->Allocate(numCells);
   outputPD->CopyAllocate(pd, numPts, numPts / 2);
   outputCD->CopyAllocate(cd, numCells, numCells / 2);

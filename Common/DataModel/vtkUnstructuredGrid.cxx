@@ -1488,7 +1488,7 @@ bool vtkUnstructuredGrid::AllocateExact(vtkIdType numCells, vtkIdType connectivi
   bool result = this->Connectivity->AllocateExact(numCells, connectivitySize);
   if (result)
   {
-    result = this->Types->Allocate(numCells) != 0;
+    result = this->Types->ReserveValues(numCells) != 0;
   }
   if (result)
   {

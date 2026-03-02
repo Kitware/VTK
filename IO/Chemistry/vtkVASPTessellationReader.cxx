@@ -455,10 +455,10 @@ bool vtkVASPTessellationReader::ReadTimeStep(
   // Cell attributes for the voronoi tessellation:
   vtkNew<vtkUnsignedShortArray> tessAtomicNumbers;
   tessAtomicNumbers->SetName("Atomic Numbers");
-  tessAtomicNumbers->Allocate(nAtoms);
+  tessAtomicNumbers->ReserveValues(nAtoms);
   vtkNew<vtkIdTypeArray> tessAtomIds;
   tessAtomIds->SetName("Atom Ids");
-  tessAtomIds->Allocate(nAtoms);
+  tessAtomIds->ReserveValues(nAtoms);
 
   // Estimate 10 unique points per atom:
   locator->InitPointInsertion(tessPoints, bounds, nAtoms * 10);

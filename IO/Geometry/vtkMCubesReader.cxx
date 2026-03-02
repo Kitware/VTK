@@ -199,7 +199,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   fseek(fp, this->HeaderSize, 0);
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts / 3, numPts / 3);
+  newPts->Reserve(numPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numTris, 3);
 
@@ -207,7 +207,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(numPts, numPts);
+    newNormals->ReserveTuples(numPts);
   }
 
   if (this->Locator == nullptr)

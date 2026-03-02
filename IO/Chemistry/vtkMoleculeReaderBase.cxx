@@ -233,7 +233,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
     this->RGB = vtkSmartPointer<vtkUnsignedCharArray>::New();
   }
   this->RGB->SetNumberOfComponents(3);
-  this->RGB->Allocate(3 * this->NumberOfAtoms);
+  this->RGB->ReserveTuples(this->NumberOfAtoms);
   this->RGB->SetName("rgb_colors");
 
   float rgb[3];
@@ -257,7 +257,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
     this->Radii = vtkSmartPointer<vtkFloatArray>::New();
   }
   this->Radii->SetNumberOfComponents(3);
-  this->Radii->Allocate(3 * this->NumberOfAtoms);
+  this->Radii->ReserveTuples(this->NumberOfAtoms);
   this->Radii->SetName("radius");
 
   // Assign atom radii

@@ -689,18 +689,18 @@ int vtkHyperStreamline::BuildTube(vtkDataSet* input, vtkPolyData* output)
   // Allocate
   //
   newPts = vtkPoints::New();
-  newPts->Allocate(2500);
+  newPts->Reserve(2500);
   if (input->GetPointData()->GetScalars())
   {
     newScalars = vtkFloatArray::New();
-    newScalars->Allocate(2500);
+    newScalars->ReserveValues(2500);
   }
   newVectors = vtkFloatArray::New();
   newVectors->SetNumberOfComponents(3);
-  newVectors->Allocate(7500);
+  newVectors->ReserveValues(7500);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(7500);
+  newNormals->ReserveValues(7500);
   newStrips = vtkCellArray::New();
   newStrips->AllocateEstimate(3 * this->NumberOfStreamers, VTK_CELL_SIZE);
   //

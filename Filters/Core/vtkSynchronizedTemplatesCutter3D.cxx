@@ -85,7 +85,7 @@ static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(estimatedSize, 3);
 

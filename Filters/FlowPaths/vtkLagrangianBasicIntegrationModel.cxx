@@ -1218,20 +1218,18 @@ void vtkLagrangianBasicIntegrationModel::InitializeParticleData(
 {
   vtkNew<vtkIntArray> particleStepNumArray;
   particleStepNumArray->SetName("StepNumber");
-  particleStepNumArray->SetNumberOfComponents(1);
-  particleStepNumArray->Allocate(maxTuple);
+  particleStepNumArray->ReserveValues(maxTuple);
   particleData->AddArray(particleStepNumArray);
 
   vtkNew<vtkDoubleArray> particleVelArray;
   particleVelArray->SetName("ParticleVelocity");
   particleVelArray->SetNumberOfComponents(3);
-  particleVelArray->Allocate(maxTuple * 3);
+  particleVelArray->ReserveTuples(maxTuple);
   particleData->AddArray(particleVelArray);
 
   vtkNew<vtkDoubleArray> particleIntegrationTimeArray;
   particleIntegrationTimeArray->SetName("IntegrationTime");
-  particleIntegrationTimeArray->SetNumberOfComponents(1);
-  particleIntegrationTimeArray->Allocate(maxTuple);
+  particleIntegrationTimeArray->ReserveValues(maxTuple);
   particleData->AddArray(particleIntegrationTimeArray);
 }
 

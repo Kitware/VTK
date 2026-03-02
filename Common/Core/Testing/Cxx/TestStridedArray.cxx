@@ -199,11 +199,12 @@ bool TestMemoryAllocations()
     // Check no-op methods
     // ---------
     // MaxId should be -1, GetNumberOfValues == 0
-    stridedArray->Allocate(0);
+    stridedArray->Reset();
+    stridedArray->Squeeze();
     vtkIdType nextNbOfTuples = stridedArray->GetNumberOfTuples();
-    if (nextNbOfTuples != 0) // is 0 after any allocate
+    if (nextNbOfTuples != 0) // is 0 after squeezing empty array
     {
-      std::cerr << "Allocate should reset number of tuples, but still has " << nextNbOfTuples
+      std::cerr << "Reset() should reset number of tuples, but still has " << nextNbOfTuples
                 << "\n";
       return false;
     }

@@ -390,7 +390,7 @@ int vtkMarchingSquares::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max(estimatedSize, 1024);
 
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(estimatedSize, 2);
 
@@ -402,7 +402,7 @@ int vtkMarchingSquares::RequestData(vtkInformation* vtkNotUsed(request),
   this->Locator->InitPointInsertion(newPts, input->GetBounds());
 
   newScalars = inScalars->NewInstance();
-  newScalars->Allocate(5000, 25000);
+  newScalars->ReserveValues(5000);
 
   ContourImageWorker worker;
   using Dispatcher = vtkArrayDispatch::Dispatch;

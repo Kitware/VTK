@@ -77,12 +77,12 @@ int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
   //
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numNewPts);
+  newTCoords->ReserveTuples(numNewPts);
 
   // Allocate
   //
   newPoints = vtkPoints::New();
-  newPoints->Allocate(numNewPts);
+  newPoints->Reserve(numNewPts);
 
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(polyAllocSize, 1);

@@ -621,7 +621,7 @@ void vtkDataSetAttributes::SetupForCopy(vtkDataSetAttributes* pd)
 // If sze=0, then use the input DataSetAttributes to create (i.e., find
 // initial size of) new objects; otherwise use the sze variable.
 void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ctype, vtkIdType sze,
-  vtkIdType ext, int shallowCopyArrays, bool createNewArrays)
+  vtkIdType vtkNotUsed(ext), int shallowCopyArrays, bool createNewArrays)
 {
   // Create various point data depending upon input
   //
@@ -674,11 +674,11 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ct
         }
         if (sze > 0)
         {
-          newAA->Allocate(sze * aa->GetNumberOfComponents(), ext);
+          newAA->ReserveTuples(sze);
         }
         else
         {
-          newAA->Allocate(aa->GetNumberOfTuples());
+          newAA->ReserveTuples(aa->GetNumberOfTuples());
         }
         vtkDataArray* newDA = vtkArrayDownCast<vtkDataArray>(newAA);
         if (newDA)

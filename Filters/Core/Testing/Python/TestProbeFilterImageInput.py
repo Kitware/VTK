@@ -65,7 +65,7 @@ outputData.SetOrigin(origin)
 outputData.SetSpacing(spacing)
 fa = vtkFloatArray()
 fa.SetName("scalars")
-fa.Allocate(dim ** 3)
+fa.ReserveValues(dim ** 3)
 outputData.GetPointData().SetScalars(fa)
 
 probe2 = vtkProbeFilter()

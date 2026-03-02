@@ -190,7 +190,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // we'll be needing these
   vtkIdType inCellID, newId;

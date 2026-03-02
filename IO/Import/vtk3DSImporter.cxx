@@ -282,7 +282,7 @@ vtkPolyData* vtk3DSImporter::GeneratePolyData(vtk3DSMesh* mesh)
   }
 
   mesh->aPoints = vertices = vtkPoints::New();
-  vertices->Allocate(mesh->vertices);
+  vertices->Reserve(mesh->vertices);
   for (i = 0; i < mesh->vertices; i++)
   {
     vertices->InsertPoint(i, (float*)mesh->vertex[i]);

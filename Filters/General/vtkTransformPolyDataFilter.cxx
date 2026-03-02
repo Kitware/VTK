@@ -89,14 +89,14 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   vtkSmartPointer<vtkFloatArray> newVectors;
   if (inVectors)
   {
     newVectors.TakeReference(vtkFloatArray::New());
     newVectors->SetNumberOfComponents(3);
-    newVectors->Allocate(3 * numPts);
+    newVectors->ReserveTuples(numPts);
     newVectors->SetName(inVectors->GetName());
   }
   vtkSmartPointer<vtkFloatArray> newNormals;
@@ -104,7 +104,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newNormals.TakeReference(vtkFloatArray::New());
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts);
+    newNormals->ReserveTuples(numPts);
     newNormals->SetName(inNormals->GetName());
   }
 
@@ -135,7 +135,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       newCellVectors.TakeReference(vtkFloatArray::New());
       newCellVectors->SetNumberOfComponents(3);
-      newCellVectors->Allocate(3 * numCells);
+      newCellVectors->ReserveTuples(numCells);
       newCellVectors->SetName(inCellVectors->GetName());
       lt->TransformVectors(inCellVectors, newCellVectors);
     }
@@ -143,7 +143,7 @@ int vtkTransformPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       newCellNormals.TakeReference(vtkFloatArray::New());
       newCellNormals->SetNumberOfComponents(3);
-      newCellNormals->Allocate(3 * numCells);
+      newCellNormals->ReserveTuples(numCells);
       newCellNormals->SetName(inCellNormals->GetName());
       lt->TransformNormals(inCellNormals, newCellNormals);
     }

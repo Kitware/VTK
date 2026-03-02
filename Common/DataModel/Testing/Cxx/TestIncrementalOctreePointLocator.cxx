@@ -185,7 +185,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
   ptIdList = vtkIdList::New();
   ptIdList->Allocate(numbPnts, numbPnts >> 1);
   insrtPts = vtkPoints::New();
-  insrtPts->Allocate(numbPnts, numbPnts >> 1);
+  insrtPts->Reserve(numbPnts);
   octLocat = vtkIncrementalOctreePointLocator::New();
 
   // =========================================================================

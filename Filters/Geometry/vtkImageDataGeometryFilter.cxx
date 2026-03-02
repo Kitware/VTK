@@ -125,7 +125,7 @@ int vtkImageDataGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     case 0: // --------------------- build point -----------------------
 
       newPts = vtkPoints::New();
-      newPts->Allocate(1);
+      newPts->Reserve(1);
       newVerts = vtkCellArray::New();
       newVerts->AllocateEstimate(1, 1);
       outPD->CopyAllocate(pd, 1);
@@ -151,7 +151,7 @@ int vtkImageDataGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       newPts = vtkPoints::New();
-      newPts->Allocate(totPoints);
+      newPts->Reserve(totPoints);
       newLines = vtkCellArray::New();
       newLines->AllocateEstimate(totPoints - 1, 2);
       outPD->CopyAllocate(pd, totPoints);
@@ -231,7 +231,7 @@ int vtkImageDataGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
       numPolys = diff[dir[0]] * diff[dir[1]];
 
       newPts = vtkPoints::New();
-      newPts->Allocate(totPoints);
+      newPts->Reserve(totPoints);
       newPolys = vtkCellArray::New();
       if (this->OutputTriangles)
       {
@@ -359,7 +359,7 @@ int vtkImageDataGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
       totPoints = (diff[0] + 1) * (diff[1] + 1) * (diff[2] + 1);
 
       newPts = vtkPoints::New();
-      newPts->Allocate(totPoints);
+      newPts->Reserve(totPoints);
       newVerts = vtkCellArray::New();
       newVerts->AllocateEstimate(totPoints, 1);
       outPD->CopyAllocate(pd, totPoints);

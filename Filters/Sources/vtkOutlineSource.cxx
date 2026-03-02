@@ -104,7 +104,7 @@ int vtkOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_FLOAT);
   }
 
-  newPts->Allocate(8);
+  newPts->Reserve(8);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(12, 2);
 

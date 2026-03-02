@@ -607,7 +607,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name, vtkCellIte
   this->ConvertCells(cellIter, numCells, cellSizeEstimate);
 
   vtkNew<vtkUnsignedCharArray> types;
-  types->Allocate(numCells);
+  types->ReserveValues(numCells);
   vtkIdType nPolyhedra(0);
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
   {
@@ -804,7 +804,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name, vtkCellI
   this->ConvertCells(cellIter, numCells, 3);
 
   vtkNew<vtkUnsignedCharArray> types;
-  types->Allocate(numCells);
+  types->ReserveValues(numCells);
   vtkIdType nPolyhedra(0);
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
   {
@@ -842,7 +842,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellIterator* cellI
   this->ConvertCells(cellIter, numCells, cellSizeEstimate);
 
   vtkNew<vtkUnsignedCharArray> types;
-  types->Allocate(this->CellOffsets->GetNumberOfTuples() + 1);
+  types->ReserveValues(this->CellOffsets->GetNumberOfTuples() + 1);
   int nPolyhedra(0);
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
   {
@@ -945,8 +945,8 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(
   conn->SetName("connectivity");
   offsets->SetName("offsets");
 
-  conn->Allocate(numCells * cellSizeEstimate);
-  offsets->Allocate(numCells);
+  conn->ReserveValues(numCells * cellSizeEstimate);
+  offsets->ReserveValues(numCells);
 
   // Offsets array skips the leading 0 and includes the connectivity array size
   // at the end.

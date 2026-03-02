@@ -151,7 +151,7 @@ int vtkSliceCubesContour(T* slice, S* scalars, int imageRange[2], int dims[3], d
   {
     sliceSize = dims[0] * dims[1];
     doubleScalars = vtkDoubleArray::New();
-    doubleScalars->Allocate(sliceSize);
+    doubleScalars->ReserveValues(sliceSize);
   }
 
   slice2scalars = scalars;

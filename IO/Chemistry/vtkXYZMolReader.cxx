@@ -256,8 +256,8 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
   float pos[3];
   char atom[maxlen];
 
-  this->AtomType->Allocate(1024);
-  this->Points->Allocate(1024);
+  this->AtomType->ReserveValues(1024);
+  this->Points->Reserve(1024);
 
   while ((lptr = this->GetNextLine(fp, buffer, maxlen)))
   {

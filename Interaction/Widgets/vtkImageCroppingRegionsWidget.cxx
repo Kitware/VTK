@@ -44,7 +44,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
   }
 
   vtkPoints* points = vtkPoints::New();
-  points->Allocate(16);
+  points->Reserve(16);
   for (i = 0; i < 16; i++)
   {
     points->InsertNextPoint(0.0, 0.0, 0.0);

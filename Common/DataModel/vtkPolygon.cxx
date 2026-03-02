@@ -43,7 +43,7 @@ vtkPolygon::vtkPolygon()
   this->Triangle = vtkTriangle::New();
   this->Quad = vtkQuad::New();
   this->TriScalars = vtkDoubleArray::New();
-  this->TriScalars->Allocate(3);
+  this->TriScalars->ReserveValues(3);
   this->Line = vtkLine::New();
   this->Tolerance = 1.0e-06;
   this->Tol = 0.0; // Internal tolerance derived from this->Tolerance
@@ -874,7 +874,7 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
   outTris->Allocate(3 * (2 * numPts - 4));
 
   vtkPoints* newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   vtkMergePoints* mergePoints = vtkMergePoints::New();
   mergePoints->InitPointInsertion(newPts, bounds);

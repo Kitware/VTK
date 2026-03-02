@@ -73,10 +73,10 @@ int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
   actualpts = actualpolys = 0;
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(maxPts);
+  newPoints->Reserve(maxPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * maxPts);
+  newNormals->ReserveTuples(maxPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(maxPolys, 4000 / this->OnRatio);
 

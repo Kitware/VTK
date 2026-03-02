@@ -200,8 +200,7 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::InitializeCellData()
       cdHandler.InternalArray = da;
       cdHandler.GhostCDBuffer = da->NewInstance();
       cdHandler.GhostCDBuffer->SetNumberOfComponents(da->GetNumberOfComponents());
-      cdHandler.GhostCDBuffer->SetNumberOfTuples(0);
-      cdHandler.GhostCDBuffer->Allocate(alloc);
+      cdHandler.GhostCDBuffer->ReserveTuples(alloc);
       this->ImplicitCD.emplace(da->GetName(), cdHandler);
     }
   }

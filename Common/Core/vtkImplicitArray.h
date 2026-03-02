@@ -324,6 +324,7 @@ protected:
   /**
    * No allocation necessary
    */
+  VTK_DEPRECATED_IN_9_7_0("No longer needed")
   bool AllocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
   bool ReallocateTuples(vtkIdType vtkNotUsed(numTuples)) { return true; }
   ///@}

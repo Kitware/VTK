@@ -83,10 +83,10 @@ int vtkRecursiveDividingCubes::RequestData(vtkInformation* vtkNotUsed(request),
 
   // creating points
   NewPts = vtkPoints::New();
-  NewPts->Allocate(50000, 100000);
+  NewPts->Reserve(50000);
   NewNormals = vtkDoubleArray::New();
   NewNormals->SetNumberOfComponents(3);
-  NewNormals->Allocate(50000, 100000);
+  NewNormals->ReserveTuples(50000);
   NewVerts = vtkCellArray::New();
   NewVerts->AllocateEstimate(50000, 1);
   NewVerts->InsertNextCell(0); // temporary cell count

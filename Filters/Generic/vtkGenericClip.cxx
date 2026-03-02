@@ -180,14 +180,14 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts, numPts / 2);
+  newPoints->Reserve(numPts);
 
   vtkCellArray* conn[2];
   conn[0] = vtkCellArray::New();
   conn[0]->AllocateEstimate(estimatedSize, 1);
   conn[0]->InitTraversal();
   types[0] = vtkUnsignedCharArray::New();
-  types[0]->Allocate(estimatedSize, estimatedSize / 2);
+  types[0]->ReserveValues(estimatedSize);
 
   if (this->GenerateClippedOutput)
   {
@@ -196,7 +196,7 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
     conn[1]->AllocateEstimate(estimatedSize, 1);
     conn[1]->InitTraversal();
     types[1] = vtkUnsignedCharArray::New();
-    types[1]->Allocate(estimatedSize, estimatedSize / 2);
+    types[1]->ReserveValues(estimatedSize);
   }
 
   // locator used to merge potentially duplicate points

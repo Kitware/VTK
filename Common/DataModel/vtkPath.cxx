@@ -34,7 +34,8 @@ vtkPath::~vtkPath() = default;
 //------------------------------------------------------------------------------
 void vtkPath::Allocate(vtkIdType size, int extSize)
 {
-  this->Points->Allocate(size, extSize);
+  this->Points->Initialize();
+  this->Points->Reserve(size);
   this->PointData->Allocate(size, extSize);
 }
 

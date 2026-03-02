@@ -139,11 +139,11 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numNewPts);
+  newPts->Reserve(numNewPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetName("TubeNormals");
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numNewPts);
+  newNormals->ReserveTuples(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->AllocateEstimate(1, numNewPts);
   vtkCellArray* singlePolyline = vtkCellArray::New();
@@ -156,7 +156,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(numNewPts);
+    newTCoords->ReserveTuples(numNewPts);
     outPD->CopyTCoordsOff();
   }
   outPD->CopyAllocate(pd, numNewPts);

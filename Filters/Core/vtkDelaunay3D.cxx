@@ -474,7 +474,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     points->SetDataType(VTK_DOUBLE);
   }
 
-  points->Allocate(numPoints + 6);
+  points->Reserve(numPoints + 6);
 
   Mesh = this->InitPointInsertion(center, this->Offset * tol, numPoints, points);
 

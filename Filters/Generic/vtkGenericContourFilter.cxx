@@ -122,7 +122,7 @@ int vtkGenericContourFilter::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   vtkCellArray* newVerts = vtkCellArray::New();
   newVerts->AllocateExact(estimatedSize, estimatedSize);
   vtkCellArray* newLines = vtkCellArray::New();

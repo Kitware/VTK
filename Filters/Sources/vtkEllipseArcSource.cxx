@@ -123,10 +123,10 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   vtkNew<vtkFloatArray> newTCoords;
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
+  newTCoords->ReserveTuples(numPts);
   newTCoords->SetName("Texture Coordinates");
   vtkNew<vtkCellArray> newLines;
   newLines->AllocateEstimate(numLines, 2);

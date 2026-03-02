@@ -49,15 +49,15 @@ int vtkAxes::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Creating x-y-z axes");
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(numLines, 2);
   newScalars = vtkFloatArray::New();
-  newScalars->Allocate(numPts);
+  newScalars->ReserveValues(numPts);
   newScalars->SetName("Axes");
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(numPts);
+  newNormals->ReserveTuples(numPts);
   newNormals->SetName("Normals");
 
   //

@@ -126,7 +126,8 @@ vtkIdTypeArray* vtkProbeFilter::GetValidPoints()
     char* maskArray = this->MaskPoints->GetPointer(0);
     vtkIdType numPts = this->MaskPoints->GetNumberOfTuples();
     vtkIdType numValidPoints = std::count(maskArray, maskArray + numPts, static_cast<char>(1));
-    this->ValidPoints->Allocate(numValidPoints);
+    this->ValidPoints->Initialize();
+    this->ValidPoints->ReserveValues(numValidPoints);
     for (vtkIdType i = 0; i < numPts; ++i)
     {
       if (maskArray[i])

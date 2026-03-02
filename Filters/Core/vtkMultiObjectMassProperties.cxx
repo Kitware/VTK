@@ -76,7 +76,7 @@ public:
     // allocate some memory
     auto& polygon = this->Polygon.Local();
     polygon->PointIds->Allocate(128);
-    polygon->Points->Allocate(128);
+    polygon->Points->Reserve(128);
 
     // allocate some memory
     auto& tris = this->Triangles.Local();

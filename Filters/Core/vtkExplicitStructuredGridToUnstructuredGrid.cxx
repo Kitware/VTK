@@ -55,23 +55,19 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   // CellArray which links the new cells ids with the old ones
   vtkNew<vtkIdTypeArray> originalCellIds;
   originalCellIds->SetName("vtkOriginalCellIds");
-  originalCellIds->SetNumberOfComponents(1);
-  originalCellIds->Allocate(nbCells);
+  originalCellIds->ReserveValues(nbCells);
 
   vtkNew<vtkIntArray> iArray;
   iArray->SetName("BLOCK_I");
-  iArray->SetNumberOfComponents(1);
-  iArray->Allocate(nbCells);
+  iArray->ReserveValues(nbCells);
 
   vtkNew<vtkIntArray> jArray;
   jArray->SetName("BLOCK_J");
-  jArray->SetNumberOfComponents(1);
-  jArray->Allocate(nbCells);
+  jArray->ReserveValues(nbCells);
 
   vtkNew<vtkIntArray> kArray;
   kArray->SetName("BLOCK_K");
-  kArray->SetNumberOfComponents(1);
-  kArray->Allocate(nbCells);
+  kArray->ReserveValues(nbCells);
 
   vtkNew<vtkCellArray> cells;
   cells->AllocateEstimate(nbCells, 8);

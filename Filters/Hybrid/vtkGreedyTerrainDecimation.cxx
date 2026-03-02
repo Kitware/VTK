@@ -771,7 +771,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkPoints* newPts = vtkPoints::New();
   newPts->SetDataTypeToDouble();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   this->Points = static_cast<vtkDoubleArray*>(newPts->GetData());
 
   // initialize the normals
@@ -779,7 +779,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->Normals = vtkFloatArray::New();
     this->Normals->SetNumberOfComponents(3);
-    this->Normals->Allocate(numPts * 3);
+    this->Normals->ReserveTuples(numPts);
     this->Normals->SetName("Normals");
   }
 
@@ -797,7 +797,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   // Begin the algorithm proper. The image is initially triangulated with two triangles whose
   // four vertices are located at the corners of the input image.
   //
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   inputPtId = 0;
   newPts->InsertPoint(0, bounds[0], bounds[2],

@@ -1975,8 +1975,7 @@ struct IdRecorder
     {
       this->Ids.TakeReference(vtkIdTypeArray::New());
       this->Ids->SetName(name);
-      this->Ids->SetNumberOfComponents(1);
-      this->Ids->Allocate(allocSize);
+      this->Ids->ReserveValues(allocSize);
       attrD->AddArray(this->Ids.Get());
     }
   }
@@ -2003,11 +2002,11 @@ struct IdRecorder
   }
   vtkIdType* GetPointer() { return this->Ids->GetPointer(0); }
   vtkTypeBool PassThru() { return this->Ids.Get() != nullptr; }
-  void Allocate(vtkIdType num)
+  void ReserveValues(vtkIdType num)
   {
     if (this->Ids.Get() != nullptr)
     {
-      this->Ids->Allocate(num);
+      this->Ids->ReserveValues(num);
     }
   }
   void SetNumberOfValues(vtkIdType num)
@@ -2572,8 +2571,8 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
 
   // Allocate
   //
-  origCellIds.Allocate(numCells);
-  origPointIds.Allocate(numPts);
+  origCellIds.ReserveValues(numCells);
+  origPointIds.ReserveValues(numPts);
 
   output->AllocateEstimate(numCells, 1);
   outputCD->CopyAllocate(cd, numCells, numCells / 2);

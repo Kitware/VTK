@@ -115,7 +115,7 @@ int vtkDateToNumeric::RequestData(
           std::string newName = inarray->GetName();
           newName += "_numeric";
           newArray->SetName(newName.c_str());
-          newArray->Allocate(inarray->GetNumberOfValues());
+          newArray->ReserveValues(inarray->GetNumberOfValues());
           for (vtkIdType i = 0; i < inarray->GetNumberOfValues(); ++i)
           {
             const std::string& inval = inarray->GetValue(i);

@@ -526,7 +526,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   geom = vtkPolyData::SafeDownCast(ds);
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(this->NumberOfMeasuredPoints);
+  newPoints->Reserve(this->NumberOfMeasuredPoints);
 
   for (i = 0; i < this->NumberOfMeasuredPoints; i++)
   {
@@ -681,9 +681,8 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
       moreScalars = numPts % 6;
 
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
 
       for (i = 0; i < numLines; i++)
       {
@@ -793,9 +792,8 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
       numLines = numPts / 2;
       moreVectors = ((numPts * 3) % 6) / 3;
       vectors = vtkFloatArray::New();
-      vectors->SetNumberOfTuples(numPts);
       vectors->SetNumberOfComponents(3);
-      vectors->Allocate(numPts * 3);
+      vectors->SetNumberOfTuples(numPts);
       for (i = 0; i < numLines; i++)
       {
         vtkEnSightGoldReaderRead6(
@@ -1112,9 +1110,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
     {
       auto vectors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // element type or "block"
-      vectors->SetNumberOfTuples(numCells);
       vectors->SetNumberOfComponents(3);
-      vectors->Allocate(numCells * 3);
+      vectors->SetNumberOfTuples(numCells);
 
       // For element data (aka cell data), "part" may be followed by "[element type]";
       // if so, we need to read data in chunks rather than whole.
@@ -1317,9 +1314,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
     {
       auto tensors = vtkFloatArray::New();
       this->ReadNextDataLine(line); // element type or "block"
-      tensors->SetNumberOfTuples(numCells);
       tensors->SetNumberOfComponents(6);
-      tensors->Allocate(numCells * 6);
+      tensors->SetNumberOfTuples(numCells);
 
       // For element data (aka cell data), "part" may be followed by "[element type]";
       // if so, we need to read data in chunks rather than whole.
@@ -1434,7 +1430,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
       numPts = vtk::scan_int<int>(std::string_view(line))->value();
       vtkDebugMacro("num. points: " << numPts);
 
-      points->Allocate(numPts);
+      points->Reserve(numPts);
 
       for (i = 0; i < numPts; i++)
       {
@@ -2514,7 +2510,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(
   std::tie(dimensions[0], dimensions[1], dimensions[2]) = resultDimensions->values();
   output->SetDimensions(dimensions);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
-  points->Allocate(numPts);
+  points->Reserve(numPts);
 
   for (i = 0; i < numPts; i++)
   {
@@ -2601,9 +2597,9 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(
   auto resultDimensions = vtk::scan<int, int, int>(std::string_view(line), " {:d} {:d} {:d}");
   std::tie(dimensions[0], dimensions[1], dimensions[2]) = resultDimensions->values();
   output->SetDimensions(dimensions);
-  xCoords->Allocate(dimensions[0]);
-  yCoords->Allocate(dimensions[1]);
-  zCoords->Allocate(dimensions[2]);
+  xCoords->ReserveValues(dimensions[0]);
+  yCoords->ReserveValues(dimensions[1]);
+  zCoords->ReserveValues(dimensions[2]);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
 
   float val = 1;

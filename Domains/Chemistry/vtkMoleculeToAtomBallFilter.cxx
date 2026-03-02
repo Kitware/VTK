@@ -55,9 +55,9 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   sphereSource->Update();
 
   // Preallocate memory
-  points->Allocate(numAtoms * sphereSource->GetOutput()->GetPoints()->GetNumberOfPoints());
+  points->Reserve(numAtoms * sphereSource->GetOutput()->GetPoints()->GetNumberOfPoints());
   polys->AllocateEstimate(numAtoms * sphereSource->GetOutput()->GetPolys()->GetNumberOfCells(), 3);
-  atomicNums->Allocate(numAtoms * sphereSource->GetOutput()->GetPoints()->GetNumberOfPoints());
+  atomicNums->ReserveTuples(numAtoms * sphereSource->GetOutput()->GetPoints()->GetNumberOfPoints());
 
   // Initialize some variables for later
   vtkIdType numCellPoints;

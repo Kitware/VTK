@@ -77,7 +77,7 @@ static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* i
   vtkIdType estimatedSize = (vtkIdType)pow(static_cast<double>(numCells), .75);
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(estimatedSize, 3);
 
@@ -96,13 +96,13 @@ static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* i
   if (normals)
   {
     normals->SetNumberOfComponents(3);
-    normals->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    normals->ReserveTuples(estimatedSize);
     normals->SetName("Normals");
   }
   if (gradients)
   {
     gradients->SetNumberOfComponents(3);
-    gradients->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    gradients->ReserveTuples(estimatedSize);
     gradients->SetName("Gradients");
   }
   if (scalars)

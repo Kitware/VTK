@@ -121,7 +121,7 @@ void vtkSimpleScalarTree::BuildTree()
 
   this->Initialize();
   cellScalars = vtkDoubleArray::New();
-  cellScalars->Allocate(100);
+  cellScalars->ReserveValues(100);
 
   // Compute the number of levels in the tree
   //

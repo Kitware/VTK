@@ -190,7 +190,7 @@ void ProjectElement::ProcessDataFields(
             auto stringArray = file->ReadStringArrayFromStream(valuesUID);
             vtkNew<vtkStringArray> stringData;
             stringData->SetName(name.c_str());
-            stringData->Allocate(dataArrayCasted->GetNumberOfValues());
+            stringData->ReserveValues(dataArrayCasted->GetNumberOfValues());
             for (int idx = 0; idx < dataArrayCasted->GetNumberOfValues(); ++idx)
             {
               auto val = dataArrayCasted->GetValue(idx);
@@ -490,7 +490,7 @@ void SurfaceElement::ProcessGeometry(
     sgrid->SetDimensions(dims[0], dims[1], dims[2]);
 
     vtkNew<vtkPoints> points;
-    points->Allocate(dims[0] * dims[1] * dims[2]);
+    points->Reserve(dims[0] * dims[1] * dims[2]);
     double pt[3];
     vtkIdType offsetWIdx = 0;
     for (int k = 0; k < dims[2]; ++k)
@@ -570,7 +570,7 @@ void VolumeElement::ProcessGeometry(
   sgrid->SetDimensions(dims[0], dims[1], dims[2]);
 
   vtkNew<vtkPoints> points;
-  points->Allocate(dims[0] * dims[1] * dims[2]);
+  points->Reserve(dims[0] * dims[1] * dims[2]);
   double pt[3];
   for (int k = 0; k < dims[2]; ++k)
   {

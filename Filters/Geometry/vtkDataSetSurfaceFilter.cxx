@@ -102,7 +102,7 @@ bool StructuredExecuteWithBlanking(
 
   vtkLogScopeF(TRACE, "StructuredExecuteWithBlanking (fastMode=%d)", (int)self->GetFastMode());
   vtkNew<vtkPoints> points;
-  points->Allocate(input->GetNumberOfPoints() / 2);
+  points->Reserve(input->GetNumberOfPoints() / 2);
   output->AllocateEstimate(input->GetNumberOfCells(), 4);
   output->SetPoints(points);
 
@@ -177,10 +177,10 @@ bool StructuredExecuteWithBlanking(
   std::unordered_map<vtkIdType, vtkIdType> pointMap;
 
   vtkNew<vtkIdTypeArray> originalPtIds;
-  originalPtIds->Allocate(input->GetNumberOfPoints());
+  originalPtIds->ReserveValues(input->GetNumberOfPoints());
 
   vtkNew<vtkIdTypeArray> originalCellIds;
-  originalCellIds->Allocate(input->GetNumberOfCells());
+  originalCellIds->ReserveValues(input->GetNumberOfCells());
 
   auto addFaceToOutput = [&](const std::array<vtkIdType, 4>& ptIds, vtkIdType inCellId)
   {
@@ -550,7 +550,7 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   // Lets figure out the max number of cells and points we are going to have
   numPoints = numCells = 0;
   this->EstimateStructuredDataArraySizes(ext, wholeExt, numPoints, numCells);
-  gridPnts->Allocate(numPoints);
+  gridPnts->Reserve(numPoints);
   gridCells->AllocateEstimate(numCells, 1);
   output->SetPoints(gridPnts);
   gridPnts->Delete();
@@ -567,16 +567,14 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   {
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName(this->GetOriginalCellIdsName());
-    this->OriginalCellIds->SetNumberOfComponents(1);
-    this->OriginalCellIds->Allocate(numCells);
+    this->OriginalCellIds->ReserveValues(numCells);
     output->GetCellData()->AddArray(this->OriginalCellIds);
   }
   if (this->PassThroughPointIds)
   {
     this->OriginalPointIds = vtkIdTypeArray::New();
     this->OriginalPointIds->SetName(this->GetOriginalPointIdsName());
-    this->OriginalPointIds->SetNumberOfComponents(1);
-    this->OriginalPointIds->Allocate(numPoints);
+    this->OriginalPointIds->ReserveValues(numPoints);
     output->GetPointData()->AddArray(this->OriginalPointIds);
   }
 
@@ -766,7 +764,7 @@ int vtkDataSetSurfaceFilter::StructuredExecuteNoBlanking(
   }
 
   outPoints->SetDataType(dataType);
-  outPoints->Allocate(numPoints);
+  outPoints->Reserve(numPoints);
   output->SetPoints(outPoints);
   outPoints->Delete();
 
@@ -780,16 +778,14 @@ int vtkDataSetSurfaceFilter::StructuredExecuteNoBlanking(
   {
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName(this->GetOriginalCellIdsName());
-    this->OriginalCellIds->SetNumberOfComponents(1);
-    this->OriginalCellIds->Allocate(cellArraySize);
+    this->OriginalCellIds->ReserveValues(cellArraySize);
     output->GetCellData()->AddArray(this->OriginalCellIds);
   }
   if (this->PassThroughPointIds)
   {
     this->OriginalPointIds = vtkIdTypeArray::New();
     this->OriginalPointIds->SetName(this->GetOriginalPointIdsName());
-    this->OriginalPointIds->SetNumberOfComponents(1);
-    this->OriginalPointIds->Allocate(numPoints);
+    this->OriginalPointIds->ReserveValues(numPoints);
     output->GetPointData()->AddArray(this->OriginalPointIds);
   }
 
@@ -1101,16 +1097,14 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
   {
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName(this->GetOriginalCellIdsName());
-    this->OriginalCellIds->SetNumberOfComponents(1);
-    this->OriginalCellIds->Allocate(numCells);
+    this->OriginalCellIds->ReserveValues(numCells);
     outputCD->AddArray(this->OriginalCellIds);
   }
   if (this->PassThroughPointIds)
   {
     this->OriginalPointIds = vtkIdTypeArray::New();
     this->OriginalPointIds->SetName(this->GetOriginalPointIdsName());
-    this->OriginalPointIds->SetNumberOfComponents(1);
-    this->OriginalPointIds->Allocate(numPts);
+    this->OriginalPointIds->ReserveValues(numPts);
     outputPD->AddArray(this->OriginalPointIds);
   }
 
@@ -1124,7 +1118,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
   newPts = vtkPoints::New();
   // we don't know what type of data the input points are so
   // we keep the output points to have the default type (float)
-  newPts->Allocate(numPts, numPts / 2);
+  newPts->Reserve(numPts);
   output->AllocateEstimate(numCells, 3);
   outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd, numPts, numPts / 2);
@@ -1480,7 +1474,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
   //
   newPts = vtkPoints::New();
   newPts->SetDataType(input->GetPoints()->GetData()->GetDataType());
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numCells, 3);
   newVerts = vtkCellArray::New();

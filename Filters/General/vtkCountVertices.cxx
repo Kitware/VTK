@@ -100,7 +100,7 @@ int vtkCountVertices::RequestData(
   else
   {
     vtkNew<vtkIdTypeArray> vertCount;
-    vertCount->Allocate(input->GetNumberOfCells());
+    vertCount->ReserveValues(input->GetNumberOfCells());
     vertCount->SetName(this->OutputArrayName);
     output->GetCellData()->AddArray(vertCount);
 

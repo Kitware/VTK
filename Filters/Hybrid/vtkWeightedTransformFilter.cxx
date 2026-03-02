@@ -426,18 +426,18 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   numCells = input->GetNumberOfCells();
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   if (inVectors)
   {
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
-    newVectors->Allocate(3 * numPts);
+    newVectors->ReserveTuples(numPts);
   }
   if (inNormals)
   {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts);
+    newNormals->ReserveTuples(numPts);
   }
 
   this->UpdateProgress(.2);
@@ -618,13 +618,13 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       newCellVectors = vtkFloatArray::New();
       newCellVectors->SetNumberOfComponents(3);
-      newCellVectors->Allocate(3 * numCells);
+      newCellVectors->ReserveTuples(numCells);
     }
     if (inCellNormals)
     {
       newCellNormals = vtkFloatArray::New();
       newCellNormals->SetNumberOfComponents(3);
-      newCellNormals->Allocate(3 * numCells);
+      newCellNormals->ReserveTuples(numCells);
     }
     transformIndices = nullptr;
     for (p = 0; p < numCells; p++)

@@ -34,7 +34,7 @@ class TestDataSetSurfaceFilter(Testing.vtkTest):
         #
         # create points and point data
         pts=vtkPoints()
-        pts.Allocate(21)
+        pts.Reserve(21)
         self.point_ids=vtkIdTypeArray()
         self.point_ids.SetName('point-ids')
         self.point_values=vtkFloatArray()

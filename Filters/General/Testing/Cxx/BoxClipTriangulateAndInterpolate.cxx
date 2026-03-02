@@ -27,7 +27,7 @@ constexpr int NumImagesY = 2;
 static void CreateHex(vtkUnstructuredGrid* hex)
 {
   VTK_CREATE(vtkPoints, points);
-  points->Allocate(24);
+  points->Reserve(24);
   points->InsertNextPoint(-0.5, -0.5, -0.5);
   points->InsertNextPoint(0.5, -0.5, -0.5);
   points->InsertNextPoint(0.5, 0.5, -0.5);
@@ -69,7 +69,7 @@ static void CreateHex(vtkUnstructuredGrid* hex)
 static void CreateQuad(vtkPolyData* quad)
 {
   VTK_CREATE(vtkPoints, points);
-  points->Allocate(12);
+  points->Reserve(12);
   points->InsertNextPoint(-0.5, -0.5, 0.0);
   points->InsertNextPoint(0.5, -0.5, 0.0);
   points->InsertNextPoint(0.5, 0.5, 0.0);
@@ -99,7 +99,7 @@ static void CreateQuad(vtkPolyData* quad)
 static void CreateLine(vtkPolyData* line)
 {
   VTK_CREATE(vtkPoints, points);
-  points->Allocate(12);
+  points->Reserve(12);
   points->InsertNextPoint(0.0, -0.5, 0.0);
   points->InsertNextPoint(0.0, -0.25, 0.0);
   points->InsertNextPoint(0.0, 0.25, 0.0);

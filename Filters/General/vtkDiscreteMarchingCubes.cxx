@@ -301,7 +301,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize / 2);
+  newPts->Reserve(estimatedSize);
 
   // compute bounds for merging points
   for (int i = 0; i < 3; i++)
@@ -322,7 +322,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newCellScalars = vtkFloatArray::New();
     newCellScalars->SetName("Scalars");
-    newCellScalars->Allocate(estimatedSize, 3);
+    newCellScalars->ReserveValues(estimatedSize);
   }
   else
   {
@@ -333,7 +333,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPointScalars = vtkFloatArray::New();
     newPointScalars->SetName("AdjacentScalars");
-    newPointScalars->Allocate(estimatedSize, estimatedSize / 2);
+    newPointScalars->ReserveValues(estimatedSize);
   }
   else
   {

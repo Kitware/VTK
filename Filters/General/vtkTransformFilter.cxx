@@ -162,14 +162,14 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   vtkSmartPointer<vtkDataArray> newVectors;
   if (inVectors)
   {
     newVectors.TakeReference(this->CreateNewDataArray(inVectors));
     newVectors->SetNumberOfComponents(3);
-    newVectors->Allocate(3 * numPts);
+    newVectors->ReserveTuples(numPts);
     newVectors->SetName(inVectors->GetName());
   }
   vtkSmartPointer<vtkDataArray> newNormals;
@@ -177,7 +177,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newNormals.TakeReference(this->CreateNewDataArray(inNormals));
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts);
+    newNormals->ReserveTuples(numPts);
     newNormals->SetName(inNormals->GetName());
   }
 
@@ -205,7 +205,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
         inVrsArr[nInputVectors] = tmpArray;
         tmpOutArray.TakeReference(this->CreateNewDataArray(tmpArray));
         tmpOutArray->SetNumberOfComponents(3);
-        tmpOutArray->Allocate(3 * numPts);
+        tmpOutArray->ReserveTuples(numPts);
         tmpOutArray->SetName(tmpArray->GetName());
         outVrsArr[nInputVectors] = tmpOutArray;
         outPD->AddArray(tmpOutArray);
@@ -237,7 +237,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       newCellVectors.TakeReference(this->CreateNewDataArray(inCellVectors));
       newCellVectors->SetNumberOfComponents(3);
-      newCellVectors->Allocate(3 * numCells);
+      newCellVectors->ReserveTuples(numCells);
       newCellVectors->SetName(inCellVectors->GetName());
       lt->TransformVectors(inCellVectors, newCellVectors);
     }
@@ -257,7 +257,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
         {
           tmpOutArray.TakeReference(this->CreateNewDataArray(tmpArray));
           tmpOutArray->SetNumberOfComponents(3);
-          tmpOutArray->Allocate(3 * numCells);
+          tmpOutArray->ReserveTuples(numCells);
           tmpOutArray->SetName(tmpArray->GetName());
           lt->TransformVectors(tmpArray, tmpOutArray);
           outCD->AddArray(tmpOutArray);
@@ -269,7 +269,7 @@ int vtkTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       newCellNormals.TakeReference(this->CreateNewDataArray(inCellNormals));
       newCellNormals->SetNumberOfComponents(3);
-      newCellNormals->Allocate(3 * numCells);
+      newCellNormals->ReserveTuples(numCells);
       newCellNormals->SetName(inCellNormals->GetName());
       lt->TransformNormals(inCellNormals, newCellNormals);
     }

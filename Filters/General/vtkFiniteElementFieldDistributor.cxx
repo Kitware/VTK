@@ -1294,7 +1294,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateGeometry(vtkPoints*
   newCellTypes->SetNumberOfComponents(1);
   newCellTypes->SetNumberOfValues(numCells);
   newCells->AllocateEstimate(numCells, maxCellSize);
-  newPoints->Allocate(maxNumPoints);
+  newPoints->Reserve(maxNumPoints);
   this->weights->SetNumberOfValues(maxCellSize);
 }
 
@@ -1316,7 +1316,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
       continue;
     }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, name, 1, 0));
-    arr->Allocate(maxNumPoints);
+    arr->ReserveValues(maxNumPoints);
     hGradFields->AddArray(arr);
   }
   // The new nodal form of HCurl fields will go into point data.
@@ -1330,7 +1330,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
       continue;
     }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
-    arr->Allocate(maxNumPoints);
+    arr->ReserveValues(maxNumPoints);
     hCurlFields->AddArray(arr);
   }
   // The new nodal form of HDiv fields will go into point data.
@@ -1344,7 +1344,7 @@ void vtkFiniteElementFieldDistributor::vtkInternals::AllocateFields(vtkPointData
       continue;
     }
     auto arr = vtk::TakeSmartPointer(::InitializeNewArray(inArr, fieldName, 3, 0));
-    arr->Allocate(maxNumPoints);
+    arr->ReserveValues(maxNumPoints);
     hDivFields->AddArray(arr);
   }
 }

@@ -2575,7 +2575,7 @@ void vtkMPASReader::OutputPoints(LoadState& state)
                                                      : static_cast<double>(this->LayerThickness);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  points->Allocate(this->MaximumPoints);
+  points->Reserve(this->MaximumPoints);
   output->SetPoints(points);
 
   for (size_t j = 0; j < state.CurrentExtraPoint; j++)
@@ -3149,7 +3149,7 @@ void vtkMPASReader::UpdateDimensions(bool force)
   }
 
   typedef std::set<std::string>::const_iterator SetIter;
-  this->Internals->extraDims->Allocate(static_cast<vtkIdType>(dimSet.size()));
+  this->Internals->extraDims->ReserveValues(static_cast<vtkIdType>(dimSet.size()));
   for (SetIter it = dimSet.begin(), itEnd = dimSet.end(); it != itEnd; ++it)
   {
     this->Internals->extraDims->InsertNextValue(it->c_str());

@@ -1464,7 +1464,7 @@ template <typename TIds>
 void BucketList<TIds>::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData* pd)
 {
   vtkNew<vtkPoints> pts;
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   vtkNew<vtkCellArray> polys;
   polys->AllocateEstimate(2048, 3);
   int ii, i, j, k, idx, offset[3], minusOffset[3], inside, sliceSize;

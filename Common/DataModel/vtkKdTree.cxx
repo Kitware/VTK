@@ -3147,7 +3147,7 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData* pd)
   }
 
   pts = vtkPoints::New();
-  pts->Allocate(npoints);
+  pts->Reserve(npoints);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(npolys, 4);
 
@@ -3360,7 +3360,7 @@ void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData* pd)
   }
 
   pts = vtkPoints::New();
-  pts->Allocate(npoints);
+  pts->Reserve(npoints);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(npolys, 4);
 
@@ -3509,7 +3509,7 @@ void vtkKdTree::GenerateRepresentation(int* regions, int len, vtkPolyData* pd)
   const vtkIdType npolys = 6 * len;
 
   pts = vtkPoints::New();
-  pts->Allocate(npoints);
+  pts->Reserve(npoints);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(npolys, 4);
 

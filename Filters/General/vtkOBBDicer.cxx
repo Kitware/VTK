@@ -132,7 +132,7 @@ int vtkOBBDicer::RequestData(
   // Create list of points
   //
   this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
+  this->PointsList->Reserve(numPts);
   ptIds = vtkIdList::New();
   ptIds->SetNumberOfIds(numPts);
   for (ptId = 0; ptId < numPts; ptId++)

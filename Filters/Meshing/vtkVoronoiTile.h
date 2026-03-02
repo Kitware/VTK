@@ -115,7 +115,7 @@ public:
     this->SortP.reserve(256);
     this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
     this->Petals->SetNumberOfComponents(3); // x-y-R2
-    this->Petals->Allocate(256);            // initial allocation
+    this->Petals->ReserveValues(256);       // initial allocation
   }
 
   /**
@@ -140,7 +140,7 @@ public:
     this->SortP.reserve(256);
     this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
     this->Petals->SetNumberOfComponents(3); // x-y-R2
-    this->Petals->Allocate(256);            // initial allocation
+    this->Petals->ReserveTuples(256);       // initial allocation
   }
 
   vtkVoronoiTile& operator=(const vtkVoronoiTile&) { return *this; }

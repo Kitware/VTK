@@ -44,13 +44,11 @@ void DataArray::ConvertTo3DVTK(const std::vector<double>& fillValues)
 
     // reallocate
     const size_t tuples = static_cast<size_t>(this->Data->GetNumberOfTuples());
-    const size_t newSize = 3 * tuples;
 
     const double fillValue = (fillValues.size() == 1) ? fillValues.front() : 0.;
 
     // set vtkDataArray to 3D
-    this->Data->Reset();
-    this->Data->Allocate(static_cast<vtkIdType>(newSize));
+    this->Data->Initialize();
     this->Data->SetNumberOfComponents(3);
     this->Data->SetNumberOfTuples(static_cast<vtkIdType>(tuples));
 

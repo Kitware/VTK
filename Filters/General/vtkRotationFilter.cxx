@@ -80,12 +80,12 @@ int vtkRotationFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->CopyInput)
   {
-    outPoints->Allocate((this->CopyInput + this->GetNumberOfCopies()) * numPts);
+    outPoints->Reserve((this->CopyInput + this->GetNumberOfCopies()) * numPts);
     output->Allocate((this->CopyInput + this->GetNumberOfCopies()) * numPts);
   }
   else
   {
-    outPoints->Allocate(this->GetNumberOfCopies() * numPts);
+    outPoints->Reserve(this->GetNumberOfCopies() * numPts);
     output->Allocate(this->GetNumberOfCopies() * numPts);
   }
 

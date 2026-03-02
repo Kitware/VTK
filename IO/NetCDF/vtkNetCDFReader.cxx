@@ -244,7 +244,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       double* newTime = currentTimeValues->GetPointer(0);
       double* oldTimeEnd = oldTime + timeValues->GetNumberOfTuples();
       double* newTimeEnd = newTime + currentTimeValues->GetNumberOfTuples();
-      compositeTimeValues->Allocate(
+      compositeTimeValues->ReserveValues(
         timeValues->GetNumberOfTuples() + currentTimeValues->GetNumberOfTuples());
       compositeTimeValues->SetNumberOfComponents(1);
       while ((oldTime < oldTimeEnd) || (newTime < newTimeEnd))

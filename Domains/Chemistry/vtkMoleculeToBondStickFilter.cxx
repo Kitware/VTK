@@ -48,9 +48,9 @@ int vtkMoleculeToBondStickFilter::RequestData(
   cylSource->Update();
 
   // Preallocate memory
-  points->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
+  points->Reserve(3 * numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
   polys->AllocateEstimate(numBonds * cylSource->GetOutput()->GetPolys()->GetNumberOfCells(), 3);
-  bondOrders->Allocate(3 * numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
+  bondOrders->ReserveTuples(numBonds * cylSource->GetOutput()->GetPoints()->GetNumberOfPoints());
 
   // Create a transform object to map the cylinder source to the bond
   vtkTransform* xform = vtkTransform::New();

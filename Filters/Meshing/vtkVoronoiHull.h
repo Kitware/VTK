@@ -258,7 +258,7 @@ public:
     this->SortP.reserve(256);
     this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
     this->Petals->SetNumberOfComponents(4); // x-y-z-R2
-    this->Petals->Allocate(256);            // initial allocation
+    this->Petals->ReserveValues(256);       // initial allocation
   }
 
   /**
@@ -288,7 +288,7 @@ public:
     this->SortP.reserve(256);
     this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
     this->Petals->SetNumberOfComponents(4); // x-y-z-R2
-    this->Petals->Allocate(256);            // initial allocation
+    this->Petals->ReserveTuples(256);       // initial allocation
   }
 
   vtkVoronoiHull& operator=(const vtkVoronoiHull&) { return *this; }

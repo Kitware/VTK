@@ -141,7 +141,7 @@ int vtkConeSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   // Create cone
   //

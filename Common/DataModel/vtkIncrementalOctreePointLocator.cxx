@@ -314,11 +314,11 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   }
 
   // collect the vertices and quads of each node
-  thePoints->Allocate(8 * static_cast<int>(nodesList.size()));
+  thePoints->Reserve(8 * static_cast<int>(nodesList.size()));
   nodeQuads->AllocateEstimate(static_cast<vtkIdType>(nodesList.size()) * 6, 4);
   vtkNew<vtkIntArray> nodeIndexes;
   nodeIndexes->SetName("Index");
-  nodeIndexes->Allocate(nodesList.size() * 6);
+  nodeIndexes->ReserveValues(nodesList.size() * 6);
   vtkIdType cellIndex = 0;
   for (std::list<vtkIncrementalOctreeNode*>::iterator lit = nodesList.begin();
        lit != nodesList.end(); ++lit)

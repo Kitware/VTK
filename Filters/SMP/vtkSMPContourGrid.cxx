@@ -194,7 +194,7 @@ public:
     estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
     estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
-    newPts->Allocate(estimatedSize, estimatedSize);
+    newPts->Reserve(estimatedSize);
 
     vertCellOffsets->Allocate(estimatedSize);
     vertConnOffsets->Allocate(estimatedSize);
@@ -221,7 +221,7 @@ public:
     vtkDataArray*& cellScalars = this->CellScalars.Local();
     cellScalars = this->InScalars->NewInstance();
     cellScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-    cellScalars->Allocate(VTK_CELL_SIZE * this->InScalars->GetNumberOfComponents());
+    cellScalars->ReserveTuples(VTK_CELL_SIZE);
 
     vtkPointData* outPd = output->GetPointData();
     vtkCellData* outCd = output->GetCellData();

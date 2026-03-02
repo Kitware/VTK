@@ -186,7 +186,7 @@ int vtkEnSight6Reader::ReadGeometryFile(
   this->ReadNextDataLine(line);
   this->NumberOfUnstructuredPoints = vtk::scan_int<int>(std::string_view(line))->value();
   this->UnstructuredPoints = vtkPoints::New();
-  this->UnstructuredPoints->Allocate(this->NumberOfUnstructuredPoints);
+  this->UnstructuredPoints->Reserve(this->NumberOfUnstructuredPoints);
 
   int* tmpIds = new int[this->NumberOfUnstructuredPoints];
 
@@ -362,7 +362,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(
   pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(this->NumberOfMeasuredPoints);
+  newPoints->Reserve(this->NumberOfMeasuredPoints);
 
   for (i = 0; i < this->NumberOfMeasuredPoints; i++)
   {
@@ -468,9 +468,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       allocatedScalars = 1;
     }
     else
@@ -567,9 +566,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       allocatedScalars = 1;
     }
     else
@@ -702,10 +700,9 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     numLines = numPts / 2;
     moreVectors = ((numPts * 3) % 6) / 3;
     vectors = vtkFloatArray::New();
-    vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
     vectors->SetName(description);
-    vectors->Allocate(numPts * 3);
+    vectors->SetNumberOfTuples(numPts);
     for (i = 0; i < numLines; i++)
     {
       vtkEnSight6ReaderRead6(
@@ -767,10 +764,9 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     numLines = numPts / 6;
     moreVectors = numPts % 6;
     vectors = vtkFloatArray::New();
-    vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
     vectors->SetName(description);
-    vectors->Allocate(numPts * 3);
+    vectors->SetNumberOfTuples(numPts);
 
     for (k = 0; k < 3; k++)
     {
@@ -896,10 +892,9 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     numPts = this->UnstructuredPoints->GetNumberOfPoints();
     numLines = numPts;
     tensors = vtkFloatArray::New();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
     tensors->SetName(description);
-    tensors->Allocate(numPts * 6);
+    tensors->SetNumberOfTuples(numPts);
     for (i = 0; i < numLines; i++)
     {
       vtkEnSight6ReaderRead6(
@@ -935,10 +930,9 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     numLines = numPts / 6;
     moreTensors = numPts % 6;
     tensors = vtkFloatArray::New();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
     tensors->SetName(description);
-    tensors->Allocate(numPts * 6);
+    tensors->SetNumberOfTuples(numPts);
 
     for (k = 0; k < 6; k++)
     {
@@ -1050,9 +1044,8 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numCells);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numCells * numberOfComponents);
+      scalars->SetNumberOfTuples(numCells);
     }
     else
     {
@@ -1221,10 +1214,9 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
-    vectors->SetNumberOfTuples(numCells);
     vectors->SetNumberOfComponents(3);
     vectors->SetName(description);
-    vectors->Allocate(numCells * 3);
+    vectors->SetNumberOfTuples(numCells);
 
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
@@ -1393,10 +1385,9 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
-    tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
     tensors->SetName(description);
-    tensors->Allocate(numCells * 6);
+    tensors->SetNumberOfTuples(numCells);
 
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
@@ -2088,7 +2079,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   std::tie(dimensions[0], dimensions[1], dimensions[2]) = resultDimensions->values();
   output->SetDimensions(dimensions);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
-  points->Allocate(numPts);
+  points->Reserve(numPts);
 
   numLines = numPts / 6; // integer division
   moreCoords = numPts % 6;

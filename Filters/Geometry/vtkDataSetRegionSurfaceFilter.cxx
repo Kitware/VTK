@@ -113,10 +113,10 @@ int vtkDataSetRegionSurfaceFilter::RequestData(
   // assume all tets, and that the tets are small relative to the size of the
   // regions (absolute max number of faces in output would be
   // input->GetNumberOfCells() * 4)
-  this->OrigCellIds->Reset();
-  this->OrigCellIds->Allocate(input->GetNumberOfCells());
-  this->CellFaceIds->Reset();
-  this->CellFaceIds->Allocate(input->GetNumberOfCells());
+  this->OrigCellIds->Initialize();
+  this->OrigCellIds->ReserveValues(input->GetNumberOfCells());
+  this->CellFaceIds->Initialize();
+  this->CellFaceIds->ReserveValues(input->GetNumberOfCells());
 
   this->Superclass::RequestData(request, inputVector, outputVector);
 
@@ -236,7 +236,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
   //
   newPts = vtkPoints::New();
   newPts->SetDataType(input->GetPoints()->GetData()->GetDataType());
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numCells, 3);
   newVerts = vtkCellArray::New();

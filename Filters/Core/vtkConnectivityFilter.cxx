@@ -30,7 +30,7 @@ vtkConnectivityFilter::vtkConnectivityFilter()
 {
   this->RegionSizes = vtkIdTypeArray::New();
 
-  this->CellScalars->Allocate(8);
+  this->CellScalars->ReserveValues(8);
   this->NeighborCellPointIds->Allocate(8);
 
   this->Seeds = vtkIdList::New();
@@ -187,7 +187,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // Traverse all cells marking those visited.  Each new search
   // starts a new connected region. Connected region grows

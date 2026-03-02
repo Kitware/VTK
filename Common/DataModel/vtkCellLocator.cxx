@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkCellLocator);
 //------------------------------------------------------------------------------
 vtkCellLocator::vtkNeighborCells::vtkNeighborCells(const int size)
 {
-  this->Points->Allocate(3 * size);
+  this->Points->ReserveValues(3 * size);
 }
 
 //------------------------------------------------------------------------------
@@ -865,7 +865,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData* pd)
   int numDivs = 1;
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(4096, 3);
 

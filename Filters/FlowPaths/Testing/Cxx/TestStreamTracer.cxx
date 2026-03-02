@@ -39,8 +39,7 @@ int TestFieldNames(int, char*[])
 
   vtkIdType numPts = image0->GetNumberOfPoints();
   vtkSmartPointer<vtkDoubleArray> arr0 = vtkSmartPointer<vtkDoubleArray>::New();
-  arr0->Allocate(numPts);
-  arr0->SetNumberOfComponents(1);
+  arr0->ReserveValues(numPts);
   arr0->SetNumberOfTuples(image0->GetNumberOfPoints());
   for (vtkIdType idx = 0; idx < numPts; idx++)
   {

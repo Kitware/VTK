@@ -1293,7 +1293,7 @@ void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkPoints* points, const int
 void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
-  points->Allocate(
+  points->Reserve(
     (extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) * (extent[5] - extent[4] + 1));
 
   vtkDependentDimensionInfo* info = this->FindDependentDimensionInfo(this->LoadingDimensions);
@@ -1368,7 +1368,7 @@ void vtkNetCDFCFReader::FakeStructuredCoordinates(vtkStructuredGrid* structuredO
 
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
-  points->Allocate(
+  points->Reserve(
     (extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) * (extent[5] - extent[4] + 1));
 
   for (int kIndex = extent[4]; kIndex <= extent[5]; kIndex++)
@@ -1411,7 +1411,7 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
 void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
-  points->Allocate(
+  points->Reserve(
     (extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) * (extent[5] - extent[4] + 1));
 
   vtkDoubleArray* coordArrays[3];
@@ -1491,7 +1491,7 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints* points, const int e
 void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints* points, const int extent[6])
 {
   points->SetDataTypeToDouble();
-  points->Allocate(
+  points->Reserve(
     (extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) * (extent[5] - extent[4] + 1));
 
   vtkDependentDimensionInfo* info = this->FindDependentDimensionInfo(this->LoadingDimensions);
@@ -1706,7 +1706,7 @@ void vtkNetCDFCFReader::AddUnstructuredRectilinearCoordinates(
 
   VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
-  points->Allocate(totalNumCells);
+  points->Reserve(totalNumCells);
 
   VTK_CREATE(vtkMergePoints, locator);
   locator->InitPointInsertion(points, bounds);

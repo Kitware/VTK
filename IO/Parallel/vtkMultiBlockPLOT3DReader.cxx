@@ -2973,7 +2973,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(void* vfp, int extent[6], int wextent[
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
 
       vtkFloatArray* tmpArray = vtkFloatArray::New();
-      tmpArray->Allocate(n);
+      tmpArray->ReserveValues(n);
       for (int component = 0; component < numDims; component++)
       {
         count += this->ReadValues(fp, n, tmpArray);
@@ -2989,7 +2989,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(void* vfp, int extent[6], int wextent[
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
 
       vtkDoubleArray* tmpArray = vtkDoubleArray::New();
-      tmpArray->Allocate(n);
+      tmpArray->ReserveValues(n);
       for (int component = 0; component < numDims; component++)
       {
         count += this->ReadValues(fp, n, tmpArray);

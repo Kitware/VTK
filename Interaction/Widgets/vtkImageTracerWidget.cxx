@@ -81,7 +81,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->TemporaryHandlePoints->SetNumberOfComponents(3);
 
   this->LinePoints = vtkPoints::New();
-  this->LinePoints->Allocate(1001);
+  this->LinePoints->Reserve(1001);
   this->LineCells = vtkCellArray::New();
   this->LineCells->AllocateEstimate(1000, 2);
   this->LineActor = vtkActor::New();

@@ -27,8 +27,7 @@ int TestComputePass(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputDataArray1;
-  inputDataArray1->SetNumberOfComponents(1);
-  inputDataArray1->Allocate(DATA_SIZE);
+  inputDataArray1->ReserveValues(DATA_SIZE);
   for (int i = 0; i < DATA_SIZE; i++)
   {
     inputDataArray1->InsertNextValue(i);

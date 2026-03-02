@@ -176,7 +176,7 @@ int otherFieldData(int, char*[])
     fa->SetName(name.c_str());
     // the tuples must be set before being read to avoid a UMR
     // this must have been a UMR in the past that was suppressed
-    fa->Allocate(20);
+    fa->ReserveValues(20);
     fa->InsertValue(0, 0.0);
     fa->InsertValue(1, 0.0);
     fa->InsertValue(2, 0.0);

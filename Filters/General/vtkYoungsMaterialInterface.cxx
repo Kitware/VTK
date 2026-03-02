@@ -770,13 +770,11 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                     << Mats[m].numberOfPoints << ", FillMaterial=" << this->FillMaterial << "\n");
       for (int i = 0; i < nCellData; i++)
       {
-        Mats[m].outCellArrays[i]->Allocate(
-          Mats[m].numberOfCells * Mats[m].outCellArrays[i]->GetNumberOfComponents());
+        Mats[m].outCellArrays[i]->ReserveTuples(Mats[m].numberOfCells);
       }
       for (int i = 0; i < nPointData; i++)
       {
-        Mats[m].outPointArrays[i]->Allocate(
-          Mats[m].numberOfPoints * Mats[m].outPointArrays[i]->GetNumberOfComponents());
+        Mats[m].outPointArrays[i]->ReserveTuples(Mats[m].numberOfPoints);
       }
       Mats[m].cellTypes.reserve(Mats[m].numberOfCells);
       Mats[m].cells.reserve(Mats[m].numberOfCells + Mats[m].numberOfPoints);

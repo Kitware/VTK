@@ -247,7 +247,6 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->AccumulateError)
   {
     this->VertexError = vtkDoubleArray::New();
-    this->VertexError->Allocate(numPts, static_cast<vtkIdType>(0.25 * numPts));
     this->VertexError->SetNumberOfValues(numPts);
     for (i = 0; i < numPts; i++)
     {

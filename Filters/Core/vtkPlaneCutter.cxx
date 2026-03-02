@@ -249,7 +249,7 @@ struct CuttingFunctor
     estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
     estimatedSize = (estimatedSize < 1024 ? 1024 : estimatedSize);
 
-    newPts->Allocate(estimatedSize, estimatedSize);
+    newPts->Reserve(estimatedSize);
 
     // bounds are not important for non-merging locator
     double bounds[6];
@@ -271,8 +271,7 @@ struct CuttingFunctor
 
     vtkDoubleArray*& cellScalars = this->CellScalars.Local();
     cellScalars = vtkDoubleArray::New();
-    cellScalars->SetNumberOfComponents(1);
-    cellScalars->Allocate(VTK_CELL_SIZE);
+    cellScalars->ReserveValues(VTK_CELL_SIZE);
 
     vtkPointData* outPd = output->GetPointData();
     vtkCellData* outCd = output->GetCellData();

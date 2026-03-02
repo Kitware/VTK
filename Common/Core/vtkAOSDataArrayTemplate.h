@@ -357,6 +357,7 @@ protected:
    * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
    * all data is freed.
    */
+  VTK_DEPRECATED_IN_9_7_0("No longer needed")
   bool AllocateTuples(vtkIdType numTuples);
 
   /**

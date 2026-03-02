@@ -127,7 +127,7 @@ struct FieldInfo
     return info;
   }
 
-  void InitializeArray(vtkAbstractArray* array, vtkIdType sz, vtkIdType ext) const
+  void InitializeArray(vtkAbstractArray* array, vtkIdType sz, vtkIdType vtkNotUsed(ext)) const
   {
     if (array)
     {
@@ -152,7 +152,7 @@ struct FieldInfo
       {
         darray->SetLookupTable(this->LUT);
       }
-      array->Allocate(sz, ext);
+      array->ReserveValues(sz);
     }
   }
 

@@ -1112,9 +1112,9 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   vtkSmartPointer<vtkIdList> leftPtIds = vtkSmartPointer<vtkIdList>::New();
   leftPtIds->Allocate(64);
   vtkNew<vtkPoints> rightTriPts;
-  rightTriPts->Allocate(64);
+  rightTriPts->Reserve(64);
   vtkNew<vtkPoints> leftTriPts;
-  leftTriPts->Allocate(64);
+  leftTriPts->Reserve(64);
 
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
   std::set<std::set<vtkIdType>> polysEdges;

@@ -1289,7 +1289,7 @@ bool vtkGLTFImporter::GetTemporalInformation(
 
     nbTimeStep = static_cast<int>(model->Animations[animationIndex].AllTimestamps.size());
     timeSteps->Initialize();
-    timeSteps->Allocate(nbTimeStep);
+    timeSteps->ReserveValues(nbTimeStep);
     for (const float& Timestamp : model->Animations[animationIndex].AllTimestamps)
     {
       timeSteps->InsertNextValue(Timestamp);

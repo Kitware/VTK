@@ -96,7 +96,7 @@ int vtkThresholdTextureCoords::RequestData(vtkInformation* vtkNotUsed(request),
   numPts = input->GetNumberOfPoints();
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * this->TextureDimension);
+  newTCoords->ReserveTuples(this->TextureDimension);
 
   // Check that the scalars of each point satisfy the threshold criterion
   for (ptId = 0; ptId < numPts; ptId++)

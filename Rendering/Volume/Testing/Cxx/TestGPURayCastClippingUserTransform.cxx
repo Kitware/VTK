@@ -186,8 +186,6 @@ int TestGPURayCastClippingUserTransform(int argc, char* argv[])
   //
   int volumeSizeInSlice = width * height * depth;
   vtkNew<vtkUnsignedShortArray> dataArrayMag;
-  dataArrayMag->Allocate(volumeSizeInSlice, 0);
-  dataArrayMag->SetNumberOfComponents(1);
   dataArrayMag->SetNumberOfTuples(volumeSizeInSlice);
   dataArrayMag->SetArray(shortData, volumeSizeInSlice, 1);
 

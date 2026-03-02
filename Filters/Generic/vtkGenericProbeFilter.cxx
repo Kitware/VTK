@@ -109,7 +109,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   output->CopyStructure(input);
 
   numPts = input->GetNumberOfPoints();
-  this->ValidPoints->Allocate(numPts);
+  this->ValidPoints->ReserveValues(numPts);
 
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();

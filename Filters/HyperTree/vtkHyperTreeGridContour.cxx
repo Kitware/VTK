@@ -567,7 +567,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
 
   // Create storage for output points
   vtkPoints* newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
 
   // Create storage for output vertices
   vtkNew<vtkCellArray> newVerts;
@@ -584,7 +584,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   // Create storage for output scalar values
   this->CellScalars = this->InScalars->NewInstance();
   this->CellScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-  this->CellScalars->Allocate(this->CellScalars->GetNumberOfComponents() * 8);
+  this->CellScalars->ReserveTuples(8);
 
   // Initialize point locator
   if (!this->Locator)

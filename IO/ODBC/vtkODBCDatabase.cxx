@@ -474,8 +474,8 @@ vtkStringArray* vtkODBCDatabase::GetTables()
 //------------------------------------------------------------------------------
 vtkStringArray* vtkODBCDatabase::GetRecord(const char* table)
 {
-  this->Record->Reset();
-  this->Record->Allocate(20);
+  this->Record->Initialize();
+  this->Record->ReserveValues(20);
 
   if (!this->IsOpen())
   {

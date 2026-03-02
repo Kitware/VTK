@@ -121,7 +121,7 @@ int TestVariantArray(int, char*[])
   // * void SetVoidArray(void *arr, vtkIdType size, int save);
   // * void SetArray(vtkVariant* arr, vtkIdType size, int save);
 
-  arr->Allocate(1000);
+  arr->ReserveValues(1000);
   if (arr->GetCapacity() != 1000 || arr->GetNumberOfTuples() != 0)
   {
     std::cerr << "1) Capacity (" << arr->GetCapacity() << ") should be 1000, "

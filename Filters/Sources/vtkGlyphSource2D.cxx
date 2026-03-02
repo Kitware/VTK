@@ -44,7 +44,7 @@ int vtkGlyphSource2D::RequestData(vtkInformation* vtkNotUsed(request),
     pts->SetDataType(VTK_FLOAT);
   }
 
-  pts->Allocate(6, 6);
+  pts->Reserve(6);
   vtkCellArray* verts = vtkCellArray::New();
   verts->AllocateEstimate(1, 1);
   vtkCellArray* lines = vtkCellArray::New();
@@ -53,7 +53,7 @@ int vtkGlyphSource2D::RequestData(vtkInformation* vtkNotUsed(request),
   polys->AllocateEstimate(1, 4);
   vtkUnsignedCharArray* colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);
-  colors->Allocate(2, 2);
+  colors->ReserveTuples(2);
   colors->SetName("Colors");
 
   this->ConvertColor();

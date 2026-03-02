@@ -59,7 +59,7 @@ int vtkSubdivideTetra::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Copy original points and point data
   newPts = vtkPoints::New();
-  newPts->Allocate(5 * numPts, numPts);
+  newPts->Reserve(5 * numPts);
   outputPD->InterpolateAllocate(pd, 5 * numPts, numPts);
 
   output->Allocate(numCells);

@@ -603,7 +603,7 @@ void vtkFLUENTCFFReader::GetNodesGlobal()
   CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &lastIndex));
   CHECK_HDF(H5Aclose(attr));
   CHECK_HDF(H5Gclose(group));
-  this->Points->Allocate(lastIndex);
+  this->Points->Reserve(lastIndex);
 }
 
 //------------------------------------------------------------------------------

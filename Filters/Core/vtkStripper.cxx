@@ -132,20 +132,16 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
   {
     OriginalCellIds = vtkIdTypeArray::New();
     OriginalCellIds->SetName("vtkOriginalCellIds");
-    OriginalCellIds->SetNumberOfComponents(1);
-    OriginalCellIds->Allocate(3 * numCells + 3);
+    OriginalCellIds->ReserveValues(3 * numCells + 3);
 
     origPolyIds = vtkIdTypeArray::New();
-    origPolyIds->SetNumberOfComponents(1);
-    origPolyIds->Allocate(inNumPolys + 1);
+    origPolyIds->ReserveValues(inNumPolys + 1);
 
     origLineIds = vtkIdTypeArray::New();
-    origLineIds->SetNumberOfComponents(1);
-    origLineIds->Allocate(inNumLines + 1);
+    origLineIds->ReserveValues(inNumLines + 1);
 
     origStripIds = vtkIdTypeArray::New();
-    origStripIds->SetNumberOfComponents(1);
-    origStripIds->Allocate(3 * inNumPolys + 3);
+    origStripIds->ReserveValues(3 * inNumPolys + 3);
   }
 
   // pre-load existing strips

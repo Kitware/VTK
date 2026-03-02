@@ -434,7 +434,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(siz
   // Now generate the bar polygons
   this->PlotData->Initialize(); // remove old polydata, if any
   vtkPoints* pts = vtkPoints::New();
-  pts->Allocate(this->N * 4);
+  pts->Reserve(this->N * 4);
   vtkCellArray* xaxis = vtkCellArray::New();
   xaxis->AllocateEstimate(1, 2);
   vtkCellArray* polys = vtkCellArray::New();

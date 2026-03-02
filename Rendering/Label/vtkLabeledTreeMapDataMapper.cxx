@@ -45,7 +45,7 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   this->VertexList = vtkIdList::New();
   this->VertexList->SetNumberOfIds(this->NumberOfLabelsAllocated);
   this->TextPoints = vtkPoints::New();
-  this->TextPoints->Allocate(this->NumberOfLabelsAllocated);
+  this->TextPoints->Reserve(this->NumberOfLabelsAllocated);
   this->VerticalLabelProperty = vtkTextProperty::New();
   this->VerticalLabelProperty->SetFontSize(12);
   this->VerticalLabelProperty->SetBold(1);
@@ -454,7 +454,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vt
       this->NumberOfLabelsAllocated = numVertices;
       this->TextMappers = new vtkTextMapper*[numVertices];
       this->VertexList->SetNumberOfIds(numVertices);
-      this->TextPoints->Allocate(numVertices);
+      this->TextPoints->Reserve(numVertices);
       for (i = 0; i < numVertices; i++)
       {
         this->TextMappers[i] = nullptr;

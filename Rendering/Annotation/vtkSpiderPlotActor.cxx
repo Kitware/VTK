@@ -561,7 +561,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
   // Now generate the web points
   this->WebData->Initialize(); // remove old polydata, if any
   vtkPoints* webPts = vtkPoints::New();
-  webPts->Allocate(this->NumberOfRings * VTK_RING_PTS);
+  webPts->Reserve(this->NumberOfRings * VTK_RING_PTS);
   vtkCellArray* webLines = vtkCellArray::New();
   webLines->AllocateEstimate(this->N + this->NumberOfRings, VTK_RING_PTS);
   this->WebData->SetPoints(webPts);
@@ -663,7 +663,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
   // Now generate the lines to plot
   this->PlotData->Initialize(); // remove old polydata, if any
   vtkPoints* pts = vtkPoints::New();
-  pts->Allocate(numRows * numColumns);
+  pts->Reserve(numRows * numColumns);
   vtkCellArray* lines = vtkCellArray::New();
   vtkUnsignedCharArray* colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);

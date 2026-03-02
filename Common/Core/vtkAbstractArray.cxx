@@ -206,14 +206,20 @@ int vtkAbstractArray::CopyComponentNames(vtkAbstractArray* da)
 }
 
 //------------------------------------------------------------------------------
-bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
+vtkTypeBool vtkAbstractArray::ReserveValues(vtkIdType numValues)
 {
   vtkIdType numTuples = numValues / this->NumberOfComponents;
   if (numValues % this->NumberOfComponents)
   {
     ++numTuples;
   }
-  if (!this->ReserveTuples(numTuples))
+  return this->ReserveTuples(numTuples);
+}
+
+//------------------------------------------------------------------------------
+bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
+{
+  if (!this->ReserveValues(numValues))
   {
     return false;
   }
@@ -317,7 +323,13 @@ void vtkAbstractArray::Initialize()
 {
   this->Reset();
   this->Squeeze();
-  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkAbstractArray::Allocate(vtkIdType numValues, vtkIdType vtkNotUsed(ext))
+{
+  this->Initialize();
+  return this->ReserveValues(numValues);
 }
 
 //------------------------------------------------------------------------------

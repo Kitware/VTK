@@ -78,20 +78,6 @@ vtkBitArray::~vtkBitArray()
 }
 
 //------------------------------------------------------------------------------
-bool vtkBitArray::AllocateTuples(vtkIdType numTuples)
-{
-  vtkIdType numBits = numTuples * this->GetNumberOfComponents();
-  vtkIdType numBytes = (numBits + 7) / 8; // Round up to nearest byte
-
-  if (this->Buffer->Allocate(numBytes))
-  {
-    this->Capacity = numBits; // Size in bits, not bytes
-    return true;
-  }
-  return false;
-}
-
-//------------------------------------------------------------------------------
 bool vtkBitArray::ReallocateTuples(vtkIdType numTuples)
 {
   vtkIdType numBits = numTuples * this->GetNumberOfComponents();
@@ -239,41 +225,6 @@ int vtkBitArray::GetValue(vtkIdType id) const
 {
   const auto div = std::div(id, static_cast<vtkIdType>(8));
   return (this->Buffer->GetBuffer()[div.quot] & (0x80 >> (div.rem))) != 0;
-}
-
-//------------------------------------------------------------------------------
-// Allocate memory for this array. Delete old storage only if necessary.
-vtkTypeBool vtkBitArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
-{
-  // Allocator must update this->MaxId properly.
-  this->MaxId = -1;
-  if (size > this->Capacity || size == 0)
-  {
-    this->Capacity = 0;
-
-    // let's keep the size an integral multiple of the number of components.
-    size = size < 0 ? 0 : size;
-    int numComps = this->GetNumberOfComponents() > 0 ? this->GetNumberOfComponents() : 1;
-    double ceilNum = ceil(static_cast<double>(size) / static_cast<double>(numComps));
-    vtkIdType numTuples = static_cast<vtkIdType>(ceilNum);
-    // NOTE: if numTuples is 0, AllocateTuples is expected to release the
-    // memory.
-    if (this->AllocateTuples(numTuples) == false)
-    {
-      vtkErrorMacro(
-        "Unable to allocate " << size << " elements of size " << sizeof(ValueType) << " bytes. ");
-#if !defined VTK_DONT_THROW_BAD_ALLOC
-      // We can throw something that has universal meaning
-      throw std::bad_alloc();
-#else
-      // We indicate that alloc failed by return
-      return 0;
-#endif
-    }
-    this->Capacity = numTuples * numComps;
-  }
-  this->DataChanged();
-  return 1;
 }
 
 //------------------------------------------------------------------------------

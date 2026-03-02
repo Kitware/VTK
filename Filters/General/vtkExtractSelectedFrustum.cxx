@@ -359,7 +359,7 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // the output is a new unstructured grid
     outputUG->Allocate(numCells / 4); // allocate storage for geometry/topology
-    newPts->Allocate(numPts / 4, numPts);
+    newPts->Reserve(numPts / 4);
     outputPD->SetCopyGlobalIds(1);
     outputPD->CopyFieldOff("vtkOriginalPointIds");
     outputPD->CopyAllocate(pd);

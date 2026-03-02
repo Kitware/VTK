@@ -164,10 +164,10 @@ int vtkArcSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   vtkFloatArray* newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
+  newTCoords->ReserveTuples(numPts);
   newTCoords->SetName("Texture Coordinates");
   vtkCellArray* newLines = vtkCellArray::New();
   newLines->AllocateEstimate(numLines, 2);

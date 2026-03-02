@@ -332,8 +332,7 @@ void vtkSegYReaderInternal::ExportData(
 
   vtkNew<vtkFloatArray> scalars;
   scalars->SetName("trace");
-  scalars->SetNumberOfComponents(1);
-  scalars->Allocate(dims[0] * dims[1] * dims[2]);
+  scalars->ReserveValues(dims[0] * dims[1] * dims[2]);
 
   int sign = this->VerticalCRS == 0 ? -1 : 1;
   int id = 0;

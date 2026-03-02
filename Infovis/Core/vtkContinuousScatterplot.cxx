@@ -311,7 +311,7 @@ int vtkContinuousScatterplot::RequestData(
   // In total, there will be maximal resX * resY number of new points in each edge.
   int estOutputPointSize = this->ResX * this->ResY * 4;
   // Allocate the memory for the fragment points.
-  newPoints->Allocate(estOutputPointSize);
+  newPoints->Reserve(estOutputPointSize);
 
   // main loop ...
   // For each tetrahedron in a grid
@@ -341,9 +341,9 @@ int vtkContinuousScatterplot::RequestData(
 
     // initialise data structure containing the scalar values of the whole fragment.
     fragScalar->Initialize();
-    fragScalar->Allocate(this->ResX * this->ResY);
     // two components are needed to store the bivariate fields of the fragment.
     fragScalar->SetNumberOfComponents(2);
+    fragScalar->ReserveTuples(this->ResX * this->ResY);
 
     // Initialise the scalar values in this tetrahedral cell.
     for (vtkIdType cellIndex = 0; cellIndex < cell->GetNumberOfIds(); cellIndex++)

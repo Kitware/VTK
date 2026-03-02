@@ -498,7 +498,7 @@ int vtkContourFilter::RequestData(
     {
       newPts->SetDataType(VTK_DOUBLE);
     }
-    newPts->Allocate(estimatedSize, estimatedSize);
+    newPts->Reserve(estimatedSize);
     newVerts = vtkCellArray::New();
     newVerts->AllocateEstimate(estimatedSize, 1);
     newLines = vtkCellArray::New();
@@ -507,7 +507,7 @@ int vtkContourFilter::RequestData(
     newPolys->AllocateEstimate(estimatedSize, 4);
     cellScalars = inScalars->NewInstance();
     cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    cellScalars->Allocate(cellScalars->GetNumberOfComponents() * VTK_CELL_SIZE);
+    cellScalars->ReserveTuples(VTK_CELL_SIZE);
 
     // locator used to merge potentially duplicate points
     this->Locator->InitPointInsertion(newPts, input->GetBounds(), input->GetNumberOfPoints());

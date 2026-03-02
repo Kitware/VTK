@@ -96,7 +96,7 @@ int vtkDiskSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   newPolys->AllocateEstimate(numPolys, 4);
 
   auto transform = this->GetTransformation();

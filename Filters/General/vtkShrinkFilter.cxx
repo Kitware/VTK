@@ -71,7 +71,7 @@ int vtkShrinkFilter::RequestData(
 
   // Allocate space for a new set of points.
   vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
-  newPts->Allocate(numPts * 8, numPts);
+  newPts->Reserve(numPts * 8);
 
   // Allocate space for data associated with the new set of points.
   vtkPointData* inPD = input->GetPointData();

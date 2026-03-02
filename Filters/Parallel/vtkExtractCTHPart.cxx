@@ -814,7 +814,7 @@ void vtkExtractCTHPart::ExtractExteriorSurface(
     outPolys->Delete();
 
     vtkPoints* outPoints = vtkPoints::New();
-    outPoints->Allocate(numPoints);
+    outPoints->Reserve(numPoints);
     output->SetPoints(outPoints);
     outPoints->Delete();
 

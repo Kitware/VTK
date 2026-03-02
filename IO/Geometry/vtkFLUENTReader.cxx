@@ -2947,7 +2947,7 @@ void vtkFLUENTReader::GetNodesAscii()
   }
   if (zoneId == 0)
   {
-    this->Points->Allocate(lastIndex);
+    this->Points->Reserve(lastIndex);
   }
   else
   {

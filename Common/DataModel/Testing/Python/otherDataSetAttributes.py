@@ -6,7 +6,7 @@ dsa = vtkDataSetAttributes()
 for array in "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt UnsignedLong UnsignedShort".split():
 
     var = eval('vtkmodules.vtkCommonCore.vtk'+ array +'Array')()
-    var.Allocate(1,1)
+    var.ReserveValues(1)
     var.SetNumberOfComponents(3)
     var.SetNumberOfTuples(4)
     var.SetName("a"+array+"Array")
@@ -29,7 +29,7 @@ for array in "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Unsi
     pass
 
 anotherFloatArray = vtkFloatArray()
-anotherFloatArray.Allocate(1,1)
+anotherFloatArray.ReserveValues(1)
 anotherFloatArray.SetNumberOfComponents(3)
 anotherFloatArray.SetNumberOfTuples(4)
 anotherFloatArray.SetName("anotherFloatArray")
@@ -45,7 +45,7 @@ del anotherFloatArray
 
 
 aFloatTensors = vtkFloatArray()
-aFloatTensors.Allocate(1,1)
+aFloatTensors.ReserveValues(1)
 aFloatTensors.SetNumberOfComponents(9)
 aFloatTensors.SetNumberOfTuples(4)
 aFloatTensors.SetName("aFloatTensors")

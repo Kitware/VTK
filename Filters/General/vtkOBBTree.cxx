@@ -252,7 +252,7 @@ void vtkOBBTree::ComputeOBB(
     this->InsertedPoints[i] = 0;
   }
   this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
+  this->PointsList->Reserve(numPts);
 
   cellList = vtkIdList::New();
   cellList->Allocate(numCells);
@@ -1070,7 +1070,7 @@ void vtkOBBTree::BuildLocatorInternal()
     this->InsertedPoints[i] = 0;
   }
   this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
+  this->PointsList->Reserve(numPts);
 
   //
   // Begin recursively creating OBB's
@@ -1295,7 +1295,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData* pd)
   vtkCellArray* polys;
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(5000, 1);
   this->GeneratePolygons(this->Tree, 0, level, pts, polys);

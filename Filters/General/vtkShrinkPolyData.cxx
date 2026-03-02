@@ -97,7 +97,6 @@ struct ShrinkWorker
     newPointsArray->SetNumberOfComponents(3);
     newPoints = input->GetPoints()->NewInstance();
     newPoints->SetData(newPointsArray);
-    newPoints->Allocate(numNewPts);
     newPoints->SetNumberOfPoints(numNewPts);
     vtkIdType outCount = 0;
 

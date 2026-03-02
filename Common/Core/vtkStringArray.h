@@ -161,12 +161,6 @@ public:
   void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* output) override;
 
   /**
-   * Allocate memory for this array. Delete old storage only if necessary.
-   * Note that ext is no longer used.
-   */
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
-
-  /**
    * Reserve the array to the requested number of tuples and preserve data.
    *
    * Increasing the array capacity may allocate extra memory beyond what was
@@ -407,12 +401,6 @@ public:
 protected:
   vtkStringArray();
   ~vtkStringArray() override;
-
-  /**
-   * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
-   * all data is freed.
-   */
-  bool AllocateTuples(vtkIdType numTuples);
 
   /**
    * Allocate space for numTuples. Old data is preserved. If numTuples == 0, all data is freed.

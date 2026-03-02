@@ -330,12 +330,12 @@ void vtkReflectionUtilities::ProcessUnstructuredGrid(vtkDataSet* input, vtkUnstr
 
   if (copyInput)
   {
-    outPoints->Allocate(2 * numPts);
+    outPoints->Reserve(2 * numPts);
     output->Allocate(numCells * 2);
   }
   else
   {
-    outPoints->Allocate(numPts);
+    outPoints->Reserve(numPts);
     output->Allocate(numCells);
   }
   outPD->CopyAllOn();
