@@ -4826,7 +4826,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
       : nullptr;
     unsigned char* chighdata = sel->GetPixelBuffer(vtkHardwareSelector::CELL_ID_HIGH24);
 
-    if (rawchighdata)
+    if (rawclowdata && rawchighdata)
     {
       this->CellCellMap->Update(prims, representation, poly->GetPoints());
 
