@@ -1514,6 +1514,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     }
 
     vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(dataObject);
+    pdc->GetMetaData(dsIndex)->Set(vtkCompositeDataSet::NAME(), datasetName);
     if (pds)
     {
       pdc->SetPartitionedDataSet(dsIndex, pds);
