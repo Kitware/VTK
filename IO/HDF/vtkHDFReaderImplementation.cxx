@@ -144,6 +144,11 @@ bool vtkHDFReader::Implementation::Open(vtkResourceStream* stream)
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::OpenGroupAsVTKGroup(const std::string& groupPath)
 {
+  if (this->VTKGroup >= 0)
+  {
+    H5Gclose(this->VTKGroup);
+    this->VTKGroup = -1;
+  }
   if ((this->VTKGroup = H5Gopen(this->File, groupPath.c_str(), H5P_DEFAULT)) < 0)
   {
     // the file doesn't exist or we try to read a non-VTKHDF file
@@ -156,6 +161,7 @@ bool vtkHDFReader::Implementation::OpenGroupAsVTKGroup(const std::string& groupP
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::RetrieveHDFInformation(const std::string& rootName)
 {
+  this->CloseMemberGroups();
   return vtkHDFUtilities::RetrieveHDFInformation(this->File, this->VTKGroup, rootName,
     this->Version, this->DataSetType, this->NumberOfPieces, this->AttributeDataGroup);
 }
@@ -195,7 +201,23 @@ void vtkHDFReader::Implementation::Close()
 {
   this->DataSetType = -1;
   this->NumberOfPieces = 0;
+  this->CloseMemberGroups();
   std::fill(this->Version.begin(), this->Version.end(), 0);
+  if (this->File >= 0)
+  {
+    H5Fclose(this->File);
+    this->File = -1;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFReader::Implementation::CloseMemberGroups()
+{
+  if (this->VTKGroup >= 0)
+  {
+    H5Gclose(this->VTKGroup);
+    this->VTKGroup = -1;
+  }
   for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
   {
     if (this->AttributeDataGroup[i] >= 0)
@@ -203,16 +225,6 @@ void vtkHDFReader::Implementation::Close()
       H5Gclose(this->AttributeDataGroup[i]);
       this->AttributeDataGroup[i] = -1;
     }
-  }
-  if (this->VTKGroup >= 0)
-  {
-    H5Gclose(this->VTKGroup);
-    this->VTKGroup = -1;
-  }
-  if (this->File >= 0)
-  {
-    H5Fclose(this->File);
-    this->File = -1;
   }
 }
 
