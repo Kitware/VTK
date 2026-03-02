@@ -7,8 +7,10 @@
 #include <pthread.h>
 
 #include "vtkCallbackCommand.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkImplicitPlaneWidget2.h"
 #include "vtkPlane.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
@@ -57,7 +59,8 @@ private:
   // It also constructs a plane widget for interactive clipping.
   static void* StartRendering(void* userdata);
 
-  void OnClipPlaneInteraction(vtkObject* caller, unsigned long, void*);
+  void OnClipPlaneInteractionStarted(vtkObject* caller, unsigned long, void*);
+  void OnClipPlaneInteractionEnded(vtkObject* caller, unsigned long, void*);
 
   // The ID of a canvas in DOM which will be used by VTK.
   // The canvas is transferred offscreen so that the render thread can draw
@@ -85,10 +88,14 @@ private:
   vtkSmartPointer<vtkPlane> m_ClipPlane;
   // VTK clip filter
   vtkSmartPointer<vtkTableBasedClipDataSet> m_Clipper;
+  // VTK Surface filter
+  vtkSmartPointer<vtkDataSetSurfaceFilter> m_SurfaceFilter;
   // VTK plane widget
   vtkSmartPointer<vtkImplicitPlaneWidget2> m_PlaneWidget;
   // VTK callback command
   vtkSmartPointer<vtkCallbackCommand> m_ClipPlaneCmd;
+  // actor showing the clipped mesh
+  vtkSmartPointer<vtkPolyDataMapper> m_ClipMapper;
 };
 
 EMSCRIPTEN_BINDINGS(WrappedAsyncClipperBindings)
