@@ -56,6 +56,7 @@ set(test_sources
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridEvaluateCoarse.cxx,NO_VALID,NO_OUTPUT
+  TestFeatureEdgesDispatcher.cxx
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGenerateFields.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
