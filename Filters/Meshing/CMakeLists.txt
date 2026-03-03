@@ -1,6 +1,9 @@
 set(classes
   vtkAnnularBinIterator
+  vtkFillPointCloud
   vtkGeneralizedSurfaceNets3D
+  vtkJogglePoints
+  vtkLabeledImagePointSampler
   vtkShellBinIterator
   vtkVoronoiFlower2D
   vtkVoronoiFlower3D

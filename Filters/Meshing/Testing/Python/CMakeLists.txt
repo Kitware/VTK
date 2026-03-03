@@ -1,5 +1,6 @@
 vtk_add_test_python(
   TestAnnularBinIterator.py,NO_VALID
+  TestFillPointCloud.py
   TestStaticCleanPolyData.py,NO_VALID
   TestVoronoi2D.py
   TestVoronoi2D2.py

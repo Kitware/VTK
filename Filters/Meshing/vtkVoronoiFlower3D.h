@@ -143,10 +143,11 @@
  *
  * vtkJogglePoints can be used to improve the performance and quality of the
  * output mesh. Voronoi and Delaunay methods are known for their sensitivity
- * to numerical degeneracies (e.g., more than n+1 points cospherical to a
- * n-dimensional simplex in a n-dimensional Delaunay trianglulation). The
- * filter randomly perturbs (i.e., joggles or jitters) a point set thereby
- * removing degeneracies.
+ * to numerical degeneracies (e.g., Delaunay degeneracy: more than n+1 points
+ * cospherical to a n-dimensional simplex in a n-dimensional Delaunay
+ * triangulation; Voronoi degeneracy: a n-1 dimensional face approaches zero
+ * in area). This filter randomly perturbs (also referred to as joggle,
+ * jiggle, or jitter) a point set thereby removing degeneracies.
  * ```
  *
  * @warning

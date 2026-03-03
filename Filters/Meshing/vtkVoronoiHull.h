@@ -262,6 +262,38 @@ public:
   }
 
   /**
+   * vtkSMPTools require a proper operator= and copy constructor.
+   */
+  vtkVoronoiHull(const vtkVoronoiHull&)
+    : PtId(-1)
+    , X{ 0, 0, 0 }
+    , NumClips(0)
+    , PruneTolerance(1.0e-13)
+    , RecomputeCircumFlower(true)
+    , RecomputePetals(true)
+    , CircumFlower2(0.0)
+    , MinRadius2(0.0)
+    , MaxRadius2(0.0)
+  {
+    // Preallocate some space
+    this->Points.reserve(256);
+    this->Faces.reserve(256);
+    this->FacePoints.reserve(2048);
+    this->InProcessPoints.reserve(256);
+    this->InProcessFaces.reserve(256);
+    this->DeletedPoints.Reserve(256);
+    this->DeletedFaces.Reserve(256);
+
+    // Each tile owns its own vtkDoubleArray
+    this->SortP.reserve(256);
+    this->Petals = vtkSmartPointer<vtkDoubleArray>::New();
+    this->Petals->SetNumberOfComponents(4); // x-y-z-R2
+    this->Petals->Allocate(256);            // initial allocation
+  }
+
+  vtkVoronoiHull& operator=(const vtkVoronoiHull&) { return *this; }
+
+  /**
    * Method to initiate the construction of the polyhedron. Define the
    * generator point id and its position, and an initial bounding box in
    * which to place the generator point.

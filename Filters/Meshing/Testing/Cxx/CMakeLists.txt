@@ -1,9 +1,14 @@
 vtk_add_test_cxx(vtkFiltersMeshingCxxTests tests
-  NO_DATA NO_VALID NO_OUTPUT
   TestGeneralizedSurfaceNets3D.cxx
   TestShellBinIterator.cxx,NO_VALID
+  TestLabeledImagePointSampler.cxx,
+  TestLabeledImagePointSampler2.cxx,
+  TestLabeledImagePointSampler3.cxx,
+  TestVoronoi2DSurfaceNets.cxx,
   TestVoronoiCore2D.cxx,NO_VALID
   TestVoronoiCore3D.cxx,NO_VALID
+  TestVoronoiHull2.cxx
+  TestVoronoi3DMapScalars.cxx
   )
 
 set(all_tests
