@@ -993,7 +993,7 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
     bounds);
   bbox.SetBounds(bounds);
   {
-    GLBatchElement* prevGLBatchElement = nullptr;
+    vtkIdType cumulativeOffset = 0;
     for (auto& iter : this->VTKPolyDataToGLBatchElement)
     {
       auto glBatchElement = iter.second.get();
@@ -1023,19 +1023,28 @@ void vtkOpenGLBatchedPolyDataMapper::BuildBufferObjects(vtkRenderer* renderer, v
       SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
 
       vtkIdType vertexOffset = 0;
-      // vert cell offset starts at the end of the last block
-      glBatchElement->CellCellMap->SetStartOffset(
-        prevGLBatchElement ? prevGLBatchElement->CellCellMap->GetFinalOffset() : 0);
+
+      glBatchElement->CellCellMap->SetStartOffset(cumulativeOffset);
       this->AppendOneBufferObject(
         renderer, actor, glBatchElement, vertexOffset, newColors, newNorms);
+
       glBatchElement->StartVertex = static_cast<unsigned int>(vertexOffset);
       glBatchElement->NextVertex =
         glBatchElement->StartVertex + batchElement.PolyData->GetPoints()->GetNumberOfPoints();
+
+      cumulativeOffset = newColors.size() / 4;
+      vtkProperty* prop = actor->GetProperty();
+      bool drawSurfaceWithEdges =
+        (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+      if (drawSurfaceWithEdges)
+      {
+        cumulativeOffset = this->EdgeValues.size();
+      }
+
       for (int i = 0; i < vtkOpenGLPolyDataMapper::PrimitiveEnd; i++)
       {
         glBatchElement->NextIndex[i] = static_cast<unsigned int>(this->IndexArray[i].size());
       }
-      prevGLBatchElement = glBatchElement;
     }
   }
 

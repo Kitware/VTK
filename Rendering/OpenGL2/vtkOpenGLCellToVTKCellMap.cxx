@@ -63,6 +63,12 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
     this->TempState.Append(representation, "representation");
     this->TempState.Append(points ? points->GetMTime() : 0, "points");
 
+    // include StartOffset in the state so that changes to the offset
+    // (which can happen when composing multiple pieces) force a rebuild
+    // of the support arrays. Without this the cached map may be reused
+    // with an incorrect offset resulting in bad mappings.
+    this->TempState.Append(this->StartOffset, "startOffset");
+
     if (this->MapBuildState != this->TempState)
     {
       this->CellCellMap.clear();
@@ -235,9 +241,10 @@ void vtkOpenGLCellToVTKCellMap::BuildCellSupportArrays(
         points->GetPoint(indices[i - 1], p2);
         double p3[3];
         points->GetPoint(indices[i], p3);
-        if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
+        bool valid = (p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
           (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
-          (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
+          (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]);
+        if (valid)
         {
           this->CellCellMap.push_back(vtkCellCount);
         }
@@ -272,6 +279,9 @@ void vtkOpenGLCellToVTKCellMap::Update(vtkCellArray** prims, int representation,
   this->TempState.Append(prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "strips");
   this->TempState.Append(representation, "representation");
   this->TempState.Append(points ? points->GetMTime() : 0, "points");
+
+  // ensure StartOffset is considered when deciding whether to rebuild
+  this->TempState.Append(this->StartOffset, "startOffset");
 
   if (this->MapBuildState != this->TempState)
   {

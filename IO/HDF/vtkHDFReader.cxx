@@ -591,6 +591,8 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
       }
     }
   }
+
+  this->Impl->Close();
   return 1;
 }
 
@@ -616,6 +618,7 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
   else if (!this->Impl->Open(this->FileName))
   {
+    this->Impl->Close();
     vtkErrorMacro("Could not open file " << this->FileName);
     return 0;
   }
@@ -623,11 +626,14 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
+    this->Impl->Close();
     vtkErrorMacro("Invalid output information object");
     return 0;
   }
 
-  return this->SetupInformation(outInfo);
+  bool res = this->SetupInformation(outInfo);
+  this->Impl->Close();
+  return res;
 }
 
 //------------------------------------------------------------------------------
@@ -1514,6 +1520,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     }
 
     vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(dataObject);
+    pdc->GetMetaData(dsIndex)->Set(vtkCompositeDataSet::NAME(), datasetName);
     if (pds)
     {
       pdc->SetPartitionedDataSet(dsIndex, pds);
@@ -1627,8 +1634,6 @@ bool vtkHDFReader::RetrieveDataArraysFromAssembly()
       return false;
     }
 
-    // Fill DataArray
-    this->Impl->RetrieveHDFInformation(hdfPathName);
     for (int attrIdx = vtkDataObject::AttributeTypes::POINT;
          attrIdx <= vtkDataObject::AttributeTypes::CELL; ++attrIdx)
     {
@@ -1901,11 +1906,13 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
+    this->Impl->Close();
     return 0;
   }
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!output)
   {
+    this->Impl->Close();
     return 0;
   }
 
