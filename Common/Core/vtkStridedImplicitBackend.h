@@ -65,6 +65,21 @@ public:
    */
   ValueType mapComponent(vtkIdType tupleIdx, int compIdx) const;
 
+  /**
+   * Return the memory size of the buffer in bytes.
+   */
+  const ValueType* GetBuffer() const { return this->Buffer; }
+
+  /**
+   * Return the stride of the buffer in number of values.
+   */
+  vtkIdType GetStride() const { return this->Stride; }
+
+  /**
+   * Return the offset of the buffer in number of values.
+   */
+  vtkIdType GetOffset() const { return this->Offset; }
+
 private:
   const ValueType* Buffer = nullptr;
   vtkIdType Stride = 1;

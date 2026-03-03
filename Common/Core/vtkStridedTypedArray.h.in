@@ -17,8 +17,9 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
-// Fake the superclass for the wrappers.
-#ifndef __VTK_WRAP__
+// Fake the superclass for non-Python wrappers.
+// Python can handle the templated superclass; Java and others cannot.
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
 #define vtkDataArray vtkStridedArray<@CONCRETE_TYPE@>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
@@ -26,7 +27,7 @@ class VTKCOMMONCORE_EXPORT vtkStrided@VTK_TYPE_NAME@Array : public vtkDataArray
 {
 public:
   vtkImplicitArrayTypeMacro(vtkStrided@VTK_TYPE_NAME@Array, vtkDataArray);
-#ifndef __VTK_WRAP__
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
 #undef vtkDataArray
 #endif
 
@@ -35,10 +36,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkImplicitArray, which is ignored
+  // make up the interface of vtkStridedArray, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
-  vtkCreateReadOnlyWrappedArrayInterface(@CONCRETE_TYPE@);
+#if (defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)) && !defined(__VTK_WRAP_PYTHON__)
+  vtkCreateStridedWrappedArrayInterface(@CONCRETE_TYPE@);
 #endif
 
   /**
@@ -48,15 +49,6 @@ public:
   {
     return static_cast<vtkStrided@VTK_TYPE_NAME@Array*>(Superclass::FastDownCast(source));
   }
-
-  ///@{
-  /**
-   * Set the parameters for the strided backend.
-   */
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components, vtkIdType offset);
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components);
-  void ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride);
-  ///@}
 
 protected:
   vtkStrided@VTK_TYPE_NAME@Array();

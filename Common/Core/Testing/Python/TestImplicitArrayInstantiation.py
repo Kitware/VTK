@@ -4,7 +4,7 @@ import vtkmodules.vtkCommonCore
 
 import math
 
-NUMERIC_TYPES = [
+VTK_NUMERIC_TYPES = [
     'TypeFloat32',
     'TypeFloat64',
     'TypeInt8',
@@ -16,12 +16,31 @@ NUMERIC_TYPES = [
     'TypeUInt32',
     'TypeUInt64']
 
+NUMERIC_TYPES = [
+    'float32',
+    'float64',
+    'int8',
+    'int16',
+    'int32',
+    'int64',
+    'uint8',
+    'uint16',
+    'uint32',
+    'uint64',
+]
+
 
 # ------------------------------------------------------------------------------
 # Get an instance of the corresponding class
-def GetArray(backend, dataType):
+def GetConcreteArray(backend, dataType):
     vtkClass = 'vtk' + backend + dataType + 'Array'
     return getattr(vtkmodules.vtkCommonCore, vtkClass)()
+
+
+# ------------------------------------------------------------------------------
+# Get an instance of the corresponding template class
+def GetTemplateArray(vtkTemplatedArray, dataType):
+    return getattr(vtkmodules.vtkCommonCore, vtkTemplatedArray)[dataType]()
 
 
 # ------------------------------------------------------------------------------
@@ -78,7 +97,7 @@ def TestCompositeArray(compositeArray, arrayList):
     second = arrayList[1]
     secondsize = 14
     for idx in range(firstsize):
-        first.InsertNextValue(firstsize + idx)
+        second.InsertNextValue(firstsize + idx)
     arrays.AddItem(second)
 
     compositeArray.SetNumberOfTuples(firstsize + secondsize)
@@ -89,24 +108,45 @@ def TestCompositeArray(compositeArray, arrayList):
 
 
 # ------------------------------------------------------------------------------
-def InstantiateNumericTypes():
-    for dataType in NUMERIC_TYPES:
-        constantArray = GetArray("Constant", dataType)
+def InstantiateConcreteNumericTypes():
+    for dataType in VTK_NUMERIC_TYPES:
+        constantArray = GetConcreteArray("Constant", dataType)
         TestConstantArray(constantArray, 13)
 
-        affineArray = GetArray("Affine", dataType)
+        affineArray = GetConcreteArray("Affine", dataType)
         TestAffineArray(affineArray, 1, 2)
 
-        indexedArray = GetArray("Indexed", dataType)
-        originalData = GetArray("", dataType)
+        indexedArray = GetConcreteArray("Indexed", dataType)
+        originalData = GetConcreteArray("", dataType)
         for val in range(100):
             originalData.InsertNextValue(val)
         TestIndexedArray(indexedArray, originalData)
 
-        compositeArray = GetArray("Composite", dataType)
-        first = GetArray("", dataType)
-        second = GetArray("", dataType)
+        compositeArray = GetConcreteArray("Composite", dataType)
+        first = GetConcreteArray("", dataType)
+        second = GetConcreteArray("", dataType)
         TestCompositeArray(compositeArray, [first, second])
 
 
-InstantiateNumericTypes()
+def InstantiateTemplatedNumericTypes():
+    for dataType in NUMERIC_TYPES:
+        constantArray = GetTemplateArray("vtkConstantArray", dataType)
+        TestConstantArray(constantArray, 13)
+
+        affineArray = GetTemplateArray("vtkAffineArray", dataType)
+        TestAffineArray(affineArray, 1, 2)
+
+        indexedArray = GetTemplateArray("vtkIndexedArray", dataType)
+        originalData = GetTemplateArray("vtkAOSDataArrayTemplate", dataType)
+        for val in range(100):
+            originalData.InsertNextValue(val)
+        TestIndexedArray(indexedArray, originalData)
+
+        compositeArray = GetTemplateArray("vtkCompositeArray", dataType)
+        first = GetTemplateArray("vtkAOSDataArrayTemplate", dataType)
+        second = GetTemplateArray("vtkAOSDataArrayTemplate", dataType)
+        TestCompositeArray(compositeArray, [first, second])
+
+
+InstantiateConcreteNumericTypes()
+InstantiateTemplatedNumericTypes()

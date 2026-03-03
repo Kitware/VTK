@@ -16,25 +16,6 @@ vtkStrided@VTK_TYPE_NAME@Array::vtkStrided@VTK_TYPE_NAME@Array() = default;
 vtkStrided@VTK_TYPE_NAME@Array::~vtkStrided@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(
-  const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components, vtkIdType offset)
-{
-  this->RealSuperclass::ConstructBackend(buffer, stride, components, offset);
-}
-
-//------------------------------------------------------------------------------
-void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components)
-{
-  this->RealSuperclass::ConstructBackend(buffer, stride, components);
-}
-
-//------------------------------------------------------------------------------
-void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride)
-{
-  this->RealSuperclass::ConstructBackend(buffer, stride);
-}
-
-//------------------------------------------------------------------------------
 void vtkStrided@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

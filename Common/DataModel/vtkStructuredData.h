@@ -28,14 +28,8 @@ class vtkIdList;
 class vtkPoints;
 class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
-
-template <typename T, int ArrayType>
-class vtkImplicitArray;
-template <typename Type>
-struct vtkConstantImplicitBackend;
-template <typename Type>
-using vtkConstantArray =
-  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;
+template <typename T>
+class vtkConstantArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredData : public vtkObject
 {

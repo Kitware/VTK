@@ -16,12 +16,6 @@ vtkStdFunction@VTK_TYPE_NAME@Array::vtkStdFunction@VTK_TYPE_NAME@Array() = defau
 vtkStdFunction@VTK_TYPE_NAME@Array::~vtkStdFunction@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkStdFunction@VTK_TYPE_NAME@Array::ConstructBackend(std::function<@CONCRETE_TYPE@(int)> func)
-{
-  this->RealSuperclass::ConstructBackend(func);
-}
-
-//------------------------------------------------------------------------------
 void vtkStdFunction@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);

@@ -1,35 +1,101 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+/**
+ * @class   vtkStructuredPointArray
+ * @brief   A structured point array used by vtkCartesianGrid subclasses.
+ *
+ * This class is used by vtkCartesianGrid subclasses to represent
+ * the implicit function of the structured point array. It is templated over the
+ * type of the point array.
+ *
+ * @sa
+ * vtkImplicitArray vtkStructuredPointBackend
+ */
+
 #ifndef vtkStructuredPointArray_h
 #define vtkStructuredPointArray_h
 
-#ifdef VTK_STRUCTURED_POINT_ARRAY_INSTANTIATING
-#define VTK_IMPLICIT_VALUERANGE_INSTANTIATING
-#include "vtkDataArrayPrivate.txx"
-#endif
-
 #include "vtkCommonCoreModule.h"       // For export macro
+#include "vtkCompiler.h"               // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkImplicitArray.h"          // For vtkImplicitArray
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 #include "vtkStructuredPointBackend.h" // For vtkStructuredPointBackend
 
-#ifdef VTK_STRUCTURED_POINT_ARRAY_INSTANTIATING
-#undef VTK_IMPLICIT_VALUERANGE_INSTANTIATING
+VTK_ABI_NAMESPACE_BEGIN
+template <class ValueTypeT>
+class VTKCOMMONCORE_EXPORT vtkStructuredPointArray
+#ifndef __VTK_WRAP__
+  : public vtkImplicitArray<vtkStructuredPointBackend<ValueTypeT>,
+      vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>
+{
+  using ImplicitArrayType = vtkImplicitArray<vtkStructuredPointBackend<ValueTypeT>,
+    vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>;
+#else // Fake the superclass for the wrappers.
+  : public vtkDataArray
+{
+  using ImplicitArrayType = vtkDataArray;
+#endif
+public:
+  using SelfType = vtkStructuredPointArray<ValueTypeT>;
+  vtkImplicitArrayTypeMacro(SelfType, ImplicitArrayType);
+#ifndef __VTK_WRAP__
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
+  using typename Superclass::ValueType;
+#else
+  using ValueType = ValueTypeT;
 #endif
 
-/**
- * @class   vtkStructuredPointArray
- * @brief   An structured point array used by structured datasets subclasses.
- *
- * This class is used by structured datasets subclasses to represent
- * the implicit function of the structured point array. It is templated over the
- * type of the point array.
- */
-VTK_ABI_NAMESPACE_BEGIN
-template <typename ValueType>
-using vtkStructuredPointArray =
-  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>;
+  static vtkStructuredPointArray* New();
+
+  // This macro expands to the set of method declarations that
+  // make up the interface of vtkImplicitArray, which is ignored
+  // by the wrappers.
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
+  vtkCreateImplicitWrappedArrayInterface(ValueTypeT);
+#endif
+
+  /**
+   * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+   */
+  static vtkStructuredPointArray<ValueType>* FastDownCast(vtkAbstractArray* source)
+  {
+    return static_cast<vtkStructuredPointArray<ValueType>*>(Superclass::FastDownCast(source));
+  }
+
+  ///@{
+  /**
+   * Set the parameters for the strided backend.
+   */
+  void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
+    int extent[6], int dataDescription, double dirMatrix[9]);
+  void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
+    int extent[6], int dataDescription);
+  ///@}
+
+protected:
+  vtkStructuredPointArray() = default;
+  ~vtkStructuredPointArray() override = default;
+
+private:
+  vtkStructuredPointArray(const vtkStructuredPointArray&) = delete;
+  void operator=(const vtkStructuredPointArray&) = delete;
+};
+
+// Declare vtkArrayDownCast implementations for StructuredPoint arrays:
+vtkArrayDownCast_TemplateFastCastMacro(vtkStructuredPointArray);
+
 VTK_ABI_NAMESPACE_END
+
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkStructuredPointArray.
+#define vtkCreateStructuredPointWrappedArrayInterface(T)                                           \
+  vtkCreateImplicitWrappedArrayInterface(T);                                                       \
+  void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
+    int extent[6], int dataDescription, double dirMatrix[9]);                                      \
+  void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
+    int extent[6], int dataDescription);
 
 namespace vtk
 {
@@ -40,66 +106,97 @@ VTK_ABI_NAMESPACE_BEGIN
  * extent is the extent of the dataset. dataDescription is the data description of the dataset.
  * dirMatrix is the direction matrix of the dataset (if any, else provide a homogeneous matrix).
  */
-template <typename ValueType>
-vtkSmartPointer<
-  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>
-CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
-  int extent[6], int dataDescription, double dirMatrix[9]);
+template <typename ValueTypeT>
+vtkSmartPointer<vtkStructuredPointArray<ValueTypeT>> CreateStructuredPointArray(
+  vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords, int extent[6],
+  int dataDescription, double dirMatrix[9]);
 VTK_ABI_NAMESPACE_END
 }
 
 #endif // vtkStructuredPointArray_h
 
+// This portion must be OUTSIDE the include blockers. This is used to tell
+// libraries other than vtkCommonCore that instantiations of
+// vtkStructuredPointArray can be found externally. This prevents each library
+// from instantiating these on their own.
 #ifdef VTK_STRUCTURED_POINT_ARRAY_INSTANTIATING
-// The instantiation is separated in two functions because the .txx includes vtkArrayDispatch.h
-// which when Dispatching is enabled, it instantiates a class with a value type, before exporting it
-#define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_EXPORT(ValueType)                                   \
-  VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkStructuredPointBackend<ValueType>,       \
-    vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>;                                                    \
-  VTK_ABI_NAMESPACE_END
-
-#define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_FUNCTIONS(ValueType)                                \
-  namespace vtk                                                                                    \
-  {                                                                                                \
-  VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template VTKCOMMONCORE_EXPORT vtkSmartPointer<vtkImplicitArray<                                  \
-    vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>              \
-  CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,  \
-    int extent[6], int dataDescription, double dirMatrix[9]);                                      \
-  VTK_ABI_NAMESPACE_END                                                                            \
-  }                                                                                                \
+#define VTK_STRUCTURED_POINT_ARRAY_INSTANTIATE(T)                                                  \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
-    VTK_WRAP_TEMPLATE(vtkImplicitArray<vtkStructuredPointBackend<ValueType>,                       \
-      vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>),                                                 \
-    double)                                                                                        \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<T>, double);                        \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template class VTKCOMMONCORE_EXPORT vtkStructuredPointArray<T>;                                  \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  namespace vtk                                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  template VTKCOMMONCORE_EXPORT vtkSmartPointer<vtkStructuredPointArray<T>>                        \
+  CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,  \
+    int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
-
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#define VTK_STRUCTURED_POINT_ARRAY_INSTANTIATE_VALUERANGE(T)                                       \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<T>, T);                             \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
-#ifndef VTK_STRUCTURED_POINT_ARRAY_TEMPLATE_EXTERN
-#define VTK_STRUCTURED_POINT_ARRAY_TEMPLATE_EXTERN
+#ifndef VTK_STRUCTURED_POINT_ARRAY_EXTERN
+#define VTK_STRUCTURED_POINT_ARRAY_EXTERN
 #ifdef _MSC_VER
 #pragma warning(push)
-// The following is needed when the vtkCompositeArray is declared
+// The following is needed when the vtkStructuredPointArray is declared
 // dllexport and is used from another class in vtkCommonCore
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-vtkExternSecondOrderWithParameterTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
-  vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY);
+vtkExternTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkStructuredPointArray);
+VTK_ABI_NAMESPACE_END
+
+namespace vtkDataArrayPrivate
+{
+VTK_ABI_NAMESPACE_BEGIN
+
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long>, long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long>, unsigned long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long long>, long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long long>, unsigned long long)
+// These are instantiated by vtkStructuredPointArrayInstantiate_double.cxx.inc, e.t.c.
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<float>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<double>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<signed char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<short>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned short>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<int>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned int>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<long long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkStructuredPointArray<unsigned long long>, double)
+
+VTK_ABI_NAMESPACE_END
+} // namespace vtkDataArrayPrivate
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-VTK_ABI_NAMESPACE_END
-#endif // VTK_STRUCTURED_POINT_ARRAY_TEMPLATE_EXTERN
-// The following clause is only for MSVC 2008 and 2010
+#endif // VTK_STRUCTURED_POINT_ARRAY_EXTERN
+
+// The following clause is only for MSVC
 #elif defined(_MSC_VER) && !defined(VTK_BUILD_SHARED_LIBS)
 #pragma warning(push)
+
 // C4091: 'extern ' : ignored on left of 'int' when no variable is declared
 #pragma warning(disable : 4091)
 
@@ -122,11 +219,11 @@ VTK_ABI_NAMESPACE_END
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateSecondOrderWithParameterTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
-  vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY);
+vtkInstantiateTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkStructuredPointArray);
+VTK_ABI_NAMESPACE_END
 
 #pragma warning(pop)
 
-VTK_ABI_NAMESPACE_END
 #endif
+
+// VTK-HeaderTest-Exclude: vtkStructuredPointArray.h

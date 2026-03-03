@@ -279,20 +279,8 @@ VTK_ABI_NAMESPACE_END
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkScaledSOADataArrayTemplate.
 #define vtkCreateScaledSOAWrappedArrayInterface(T)                                                 \
-  int GetDataType() const override;                                                                \
-  T GetDataTypeValueMin() const;                                                                   \
-  T GetDataTypeValueMax() const;                                                                   \
-  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
-  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
-  T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
-  T* GetValueRange() VTK_SIZEHINT(2);                                                              \
-  void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
-  void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
-  vtkIdType InsertNextTypedTuple(const T* tuple);                                                  \
-  void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
-  bool SetNumberOfValues(vtkIdType number) override;                                               \
-  void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \
-  vtkIdType InsertNextValue(T f);                                                                  \
+  vtkCreateWrappedArrayReadInterface(T);                                                           \
+  vtkCreateWrappedArrayWriteInterface(T);                                                          \
   T* GetComponentArrayPointer(int id);                                                             \
   vtkAbstractBuffer* GetComponentBuffer(int comp);                                                 \
   void SetArray(int comp, VTK_ZEROCOPY T* array, vtkIdType size, bool updateMaxId, bool save,      \
@@ -314,7 +302,16 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT vtkScaledSOADataArrayTemplate<T>;                            \
   VTK_ABI_NAMESPACE_END
-
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#define VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE_VALUERANGE(T)                               \
+  namespace vtkDataArrayPrivate                                                                    \
+  {                                                                                                \
+  VTK_ABI_NAMESPACE_BEGIN                                                                          \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<T>, T);                       \
+  VTK_ABI_NAMESPACE_END                                                                            \
+  }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
 #ifndef VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_EXTERN
 #define VTK_SCALED_SOA_DATA_ARRAY_TEMPLATE_EXTERN
@@ -331,6 +328,13 @@ VTK_ABI_NAMESPACE_END
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
+// These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long>, long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long>, unsigned long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long long>, long long)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(
+  vtkScaledSOADataArrayTemplate<unsigned long long>, unsigned long long)
+// These are instantiated in vtkScaledSOADataArrayTemplateInstantiate${i}.cxx
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<float>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<double>, double)
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<char>, double)
