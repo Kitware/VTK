@@ -115,6 +115,8 @@ async function loadFileByName(filename) {
 }
 
 async function onResetSession() {
+  let inputEl = document.getElementById('vtk-input');
+  inputEl.value = "";
   await viewer.removeAllActors();
 }
 
