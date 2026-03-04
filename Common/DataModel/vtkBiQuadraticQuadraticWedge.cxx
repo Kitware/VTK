@@ -478,8 +478,48 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine(
 //------------------------------------------------------------------------------
 int vtkBiQuadraticQuadraticWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->SetNumberOfIds(48);
-  std::copy(&LinearWedges[0][0], &LinearWedges[0][0] + 48, ptIds->begin());
+  // Split into 8 linear sub-wedges using the 3 face-center nodes (15,16,17)
+  // and the 3 vertical mid-edge nodes (12,13,14).
+  // The 8 sub-wedges are arranged in 2 layers of 4:
+  //   Bottom layer (nodes 0-8, 12-17): 1 central + 3 corner wedges -> 4 * 3 = 12 tets
+  //   Top layer    (nodes 3-5, 9-17):  1 central + 3 corner wedges -> 4 * 3 = 12 tets
+  // Total: 24 tets, all 18 nodes used.
+  constexpr vtkIdType ids[24][4] = {
+    // W0: corner near 0 (bottom layer)
+    { 8, 0, 6, 17 },
+    { 0, 6, 17, 12 },
+    { 6, 17, 12, 15 },
+    // W1: central (bottom layer)
+    { 8, 6, 7, 17 },
+    { 6, 7, 17, 15 },
+    { 7, 17, 15, 16 },
+    // W2: corner near 1 (bottom layer)
+    { 7, 6, 1, 16 },
+    { 6, 1, 16, 15 },
+    { 1, 16, 15, 13 },
+    // W3: corner near 2 (bottom layer)
+    { 2, 8, 7, 14 },
+    { 8, 7, 14, 17 },
+    { 7, 14, 17, 16 },
+    // W4: corner near 3 (top layer)
+    { 17, 12, 15, 11 },
+    { 12, 15, 11, 3 },
+    { 15, 11, 3, 9 },
+    // W5: central (top layer)
+    { 17, 15, 16, 11 },
+    { 15, 16, 11, 9 },
+    { 16, 11, 9, 10 },
+    // W6: corner near 4 (top layer)
+    { 16, 15, 13, 10 },
+    { 15, 13, 10, 9 },
+    { 13, 10, 9, 4 },
+    // W7: corner near 5 (top layer)
+    { 14, 17, 16, 5 },
+    { 17, 16, 5, 11 },
+    { 16, 5, 11, 10 },
+  };
+  ptIds->SetNumberOfIds(96);
+  std::copy_n(&ids[0][0], 96, ptIds->begin());
   return 1;
 }
 
