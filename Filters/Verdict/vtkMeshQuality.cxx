@@ -2092,6 +2092,16 @@ double vtkMeshQuality::WedgeVolume(vtkCell* cell, bool vtkNotUsed(linearApproxim
 
 // Hexahedral quality metrics
 
+// Mapping for up to 27 nodes (Triquadratic Hexahedron)
+// Index = VTK Node ID, Value = Verdict Node ID
+static constexpr int vtkHexToVerdictHexMap[27] = { // 0-11: Direct mapping
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+  // 12-19: Mid-edge nodes (VTK 12-15 map to Verdict 16-19, VTK 16-19 map to Verdict 12-15)
+  16, 17, 18, 19, 12, 13, 14, 15,
+  // 20-26: Face and body centers
+  23, 24, 25, 26, 21, 22, 20
+};
+
 //----------------------------------------------------------------------------
 double vtkMeshQuality::HexCondition(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
@@ -2121,11 +2131,18 @@ double vtkMeshQuality::HexDistortion(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON) && !linearApproximation
-    ? points->GetNumberOfTuples()
-    : 8;
+  int numPts = 8;
+  if (!linearApproximation && (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON))
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_distortion(numPts, pc);
 }
 
@@ -2150,9 +2167,18 @@ double vtkMeshQuality::HexJacobian(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    ct == VTK_TRIQUADRATIC_HEXAHEDRON && !linearApproximation ? points->GetNumberOfTuples() : 8;
+  int numPts = 8;
+  if (!linearApproximation && ct == VTK_TRIQUADRATIC_HEXAHEDRON)
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_jacobian(numPts, pc);
 }
 
@@ -2288,11 +2314,18 @@ double vtkMeshQuality::HexVolume(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON) && !linearApproximation
-    ? points->GetNumberOfTuples()
-    : 8;
+  int numPts = 8;
+  if (!linearApproximation && (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON))
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_volume(numPts, pc);
 }
 VTK_ABI_NAMESPACE_END
