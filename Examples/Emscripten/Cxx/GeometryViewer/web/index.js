@@ -1,5 +1,3 @@
-import { maxSize } from "./ArrayBufferLimits.js";
-import { chunkify } from "./chunkify.js";
 import { hexToRgb } from "./hexToRgb.js";
 import { getConfiguration } from './wasmConfigure.js';
 import { download } from "./fileDownload.js";
@@ -55,13 +53,20 @@ let supportsWebGPU = false;
 let colorByArraysController = null;
 
 // Utility functions
+/**
+ * Writes the contents of a File object to the WebAssembly module's memory.
+ * @param {File} file
+ * @returns {Promise<number>} Pointer to the start of the file data in WASM memory
+ */
 async function writeFileToWASMMemory(file) {
   if (!wasmModule) return 0;
-  let chunks = chunkify(file, Number(maxSize));
-  let offset = 0;
   let ptr = wasmModule._malloc(file.size);
-  for (let chunk of chunks) {
-    let data = new Uint8Array(await chunk.arrayBuffer());
+  const reader = file.stream().getReader();
+  let offset = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    let data = new Uint8Array(value);
     wasmModule.HEAPU8.set(data, ptr + offset);
     offset += data.byteLength;
   }
@@ -110,6 +115,8 @@ async function loadFileByName(filename) {
 }
 
 async function onResetSession() {
+  let inputEl = document.getElementById('vtk-input');
+  inputEl.value = "";
   await viewer.removeAllActors();
 }
 
