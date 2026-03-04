@@ -21,9 +21,35 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticQuadraticWedge);
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* BiQuadraticQuadraticWedgeTopology = R"(
+   Bi-Quadratic Quadratic Wedge topology:
+              2
+             /|\
+            / | \
+           /  |  \
+          8   |   7
+         /    14   \
+        /     |     \
+       /      |      \
+      0-------6-------1    ← back triangle
+      |   17  |   18  |
+      |       5       |
+      |      / \      |
+      |     /   \     |
+      12   /  15 \    13
+      |   11      10  |
+      |  /         \  |
+      | /           \ |
+      |/             \|
+      3-------9-------4    ← front triangle
+)";
+}
+
 //------------------------------------------------------------------------------
 // Construct the biquadratic quadratic wedge with 18 points
-
 vtkBiQuadraticQuadraticWedge::vtkBiQuadraticQuadraticWedge()
 {
   this->Points->SetNumberOfPoints(18);
