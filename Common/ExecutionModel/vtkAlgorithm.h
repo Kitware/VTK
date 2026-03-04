@@ -242,6 +242,7 @@ public:
    */
   vtkSetMacro(AbortOutput, bool);
   vtkGetMacro(AbortOutput, bool);
+  vtkBooleanMacro(AbortOutput, bool);
   ///@}
 
   ///@{
