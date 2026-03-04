@@ -32,13 +32,11 @@ htg.Initialize()
 
 scalarArray = vtkDoubleArray()
 scalarArray.SetName('scalar')
-scalarArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(scalarArray)
 htg.GetCellData().SetActiveScalars('scalar')
 
 vecArray = vtkDoubleArray()
 vecArray.SetName('vector')
-vecArray.SetNumberOfValues(0)
 vecArray.SetNumberOfComponents(3)
 htg.GetCellData().AddArray(vecArray)
 htg.GetCellData().SetActiveScalars('vector')

@@ -32,7 +32,6 @@ htg.Initialize()
 
 scalarArray = vtkUnsignedCharArray()
 scalarArray.SetName('scalar')
-scalarArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(scalarArray)
 htg.GetCellData().SetActiveScalars('scalar')
 

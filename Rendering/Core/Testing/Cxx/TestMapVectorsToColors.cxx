@@ -92,7 +92,6 @@ int TestMapVectorsToColors(int argc, char* argv[])
 
     outputs[i] = vtkSmartPointer<vtkUnsignedCharArray>::New();
     outputs[i]->SetNumberOfComponents(4);
-    outputs[i]->SetNumberOfTuples(0);
 
     // test mapping with a count of zero
     vtkUnsignedCharArray* tmparray =

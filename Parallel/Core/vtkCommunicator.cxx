@@ -495,11 +495,9 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
 int vtkCommunicator::MarshalDataObject(vtkDataObject* object, vtkCharArray* buffer)
 {
   buffer->Initialize();
-  buffer->SetNumberOfComponents(1);
 
   if (object == nullptr)
   {
-    buffer->SetNumberOfTuples(0);
     return 1;
   }
 

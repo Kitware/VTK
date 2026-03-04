@@ -85,8 +85,6 @@ int TestSetBuffer(int, char*[])
     buffer->Allocate(10);
 
     vtkNew<vtkAOSDataArrayTemplate<double>> arr;
-    arr->SetNumberOfComponents(1);
-    arr->SetNumberOfTuples(0);
     arr->SetBuffer(buffer, false);
 
     if (arr->GetNumberOfTuples() != 0)

@@ -861,7 +861,6 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       array = vtk::TakeSmartPointer(vtkDataArray::CreateArray(dataType));
       array->SetName(name.c_str());
       array->SetNumberOfComponents(numComp);
-      array->SetNumberOfTuples(0);
     }
 
     if (association.empty())

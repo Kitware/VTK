@@ -253,8 +253,6 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
     for (i = 0; i < this->NumberOfVertexWeights; i++)
     {
       vtkDoubleArray* da = vtkDoubleArray::New();
-      da->SetNumberOfTuples(0);
-      da->SetNumberOfComponents(1);
       da->SetName(this->GetVertexWeightArrayName(i + 1));
       output->GetPointData()->AddArray(da);
       da->Delete();
@@ -268,8 +266,6 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
     for (i = 0; i < this->NumberOfEdgeWeights; i++)
     {
       vtkDoubleArray* da = vtkDoubleArray::New();
-      da->SetNumberOfTuples(0);
-      da->SetNumberOfComponents(1);
       da->SetName(this->GetEdgeWeightArrayName(i + 1));
       output->GetCellData()->AddArray(da);
       da->Delete();
@@ -281,8 +277,6 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
   if (this->GetGenerateGlobalElementIdArray())
   {
     vtkIntArray* ia = vtkIntArray::New();
-    ia->SetNumberOfTuples(0);
-    ia->SetNumberOfComponents(1);
     ia->SetName(vtkPChacoReader::GetGlobalElementIdArrayName());
     output->GetCellData()->AddArray(ia);
   }
@@ -290,8 +284,6 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
   if (this->GetGenerateGlobalNodeIdArray())
   {
     vtkIntArray* ia = vtkIntArray::New();
-    ia->SetNumberOfTuples(0);
-    ia->SetNumberOfComponents(1);
     ia->SetName(vtkPChacoReader::GetGlobalNodeIdArrayName());
     output->GetPointData()->AddArray(ia);
   }
