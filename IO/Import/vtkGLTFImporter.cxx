@@ -677,6 +677,11 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     }
     const int dasmNode = this->SceneHierarchy->AddNode(dasmNodeName.c_str(), dasmParent);
 
+    if (!node.Name.empty())
+    {
+      this->SceneHierarchy->SetAttribute(dasmNode, "label", node.Name.c_str());
+    }
+
     // Import node's geometry
     if (node.Mesh >= 0)
     {
@@ -755,6 +760,11 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
           this->SceneHierarchy->AddNode(meshNodeName.c_str(), /*parent=*/dasmNode);
         this->SceneHierarchy->SetAttribute(actorNode, "parent_node_name", dasmNodeName.c_str());
         this->SceneHierarchy->SetAttribute(actorNode, "flat_actor_id", flatActorId++);
+
+        if (!mesh.Name.empty())
+        {
+          this->SceneHierarchy->SetAttribute(actorNode, "label", mesh.Name.c_str());
+        }
 
         this->InvokeEvent(vtkCommand::UpdateDataEvent);
       }
