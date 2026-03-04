@@ -21,9 +21,35 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticLinearWedge);
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* QuadraticLinearWedgeTopology = R"(
+   Quadratic Linear Wedge topology:
+              2
+             /|\
+            / | \
+           /  |  \
+          8   |   7
+         /    |    \
+        /     |     \
+       /      |      \
+      0-------6-------1    ← back triangle
+      |       |       |
+      |       5       |
+      |      / \      |
+      |     /   \     |
+      |    /     \    |
+      |   11      10  |
+      |  /         \  |
+      | /           \ |
+      |/             \|
+      3-------9-------4    ← front triangle
+)";
+}
+
 //------------------------------------------------------------------------------
 // Construct the quadratic linear wedge with 12 points
-
 vtkQuadraticLinearWedge::vtkQuadraticLinearWedge()
 {
   this->Points->SetNumberOfPoints(12);
@@ -41,7 +67,7 @@ vtkQuadraticLinearWedge::vtkQuadraticLinearWedge()
   this->Wedge = vtkWedge::New();
 
   this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(6); // num of linear wedge vetices
+  this->Scalars->SetNumberOfTuples(6); // num of linear wedge vertices
 }
 
 //------------------------------------------------------------------------------
