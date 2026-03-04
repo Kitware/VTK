@@ -18,6 +18,33 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticWedge);
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* QuadraticWedgeTopology = R"(
+   Quadratic Wedge topology:
+              2
+             /|\
+            / | \
+           /  |  \
+          8   |   7
+         /    14   \
+        /     |     \
+       /      |      \
+      0-------6-------1    ← back triangle
+      |       |       |
+      |       5       |
+      |      / \      |
+      |     /   \     |
+      12   /     \    13
+      |   11      10  |
+      |  /         \  |
+      | /           \ |
+      |/             \|
+      3-------9-------4    ← front triangle
+)";
+}
+
 //------------------------------------------------------------------------------
 // Construct the wedge with 15 points + 3 extra points for internal
 // computation.
