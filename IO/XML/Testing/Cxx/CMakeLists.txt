@@ -28,6 +28,7 @@ set(all_tests
   TestXMLGenericDataObjectReaderStream.cxx,NO_VALID,NO_OUTPUT
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestXMLLegacyFileReadIdTypeArrays.cxx,NO_VALID,NO_OUTPUT
+  TestXMLWriteError.cxx,NO_VALID
   TestXMLWriteTimeValue.cxx,NO_VALID
   )
 

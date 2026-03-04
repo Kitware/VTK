@@ -184,8 +184,7 @@ int vtkXMLWriterBase::Write()
 
   // always write even if the data hasn't changed
   this->Modified();
-  this->Update();
-  return 1;
+  return this->Update() ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
