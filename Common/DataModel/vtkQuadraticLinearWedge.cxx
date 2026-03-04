@@ -84,11 +84,11 @@ vtkQuadraticLinearWedge::~vtkQuadraticLinearWedge()
 
 //------------------------------------------------------------------------------
 // We are using 4 linear wedge
-static int LinearWedges[4][6] = {
-  { 0, 6, 8, 3, 9, 11 },
-  { 6, 7, 8, 9, 10, 11 },
-  { 6, 1, 7, 9, 4, 10 },
-  { 8, 7, 2, 11, 10, 5 },
+static vtkIdType LinearWedges[4][6] = {
+  { 8, 0, 6, 11, 3, 9 },
+  { 8, 6, 7, 11, 9, 10 },
+  { 7, 6, 1, 10, 9, 4 },
+  { 2, 8, 7, 5, 11, 10 },
 };
 
 // We use 2 quadratic triangles and 3 quadratic-linear quads
