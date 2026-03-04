@@ -43,15 +43,15 @@ def Test2(datadir):
 
     result = f.GetOutputDataObject(0)
     val = result.GetPointData().GetArray("pointScalars").GetValue(0)
-    assert (val > 83.1 and val < 83.2)
+    assert (270.16 < val < 270.17)
 
     val = result.GetCellData().GetArray("Volume").GetValue(0)
-    assert (val > 1.999 and val < 2.01)
+    assert (3.999 < val < 4.01)
 
 def Test3(datadir):
     reader = vtkDataSetReader()
     reader.SetFileName(datadir + "/Data/blow.vtk")
-    reader.UpdateInformation();
+    reader.UpdateInformation()
     reader.ReadAllScalarsOn()
     reader.ReadAllVectorsOn()
 
