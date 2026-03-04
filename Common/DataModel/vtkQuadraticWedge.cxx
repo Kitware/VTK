@@ -531,17 +531,30 @@ int vtkQuadraticWedge::IntersectWithLine(
 //------------------------------------------------------------------------------
 int vtkQuadraticWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  // A quadratic wedge can be divided into 4 wedges.
-  // The central one is linear and is divided into 3 tets
-  // Each of the 3 wedges around the central one are divided into 4 tets since each of these
-  // wedges have a node in the middle of one of their edges.
-  // This leads to a total of 15 tets
-  constexpr vtkIdType ids[15][4] = { { 0, 8, 6, 12 }, { 1, 6, 7, 13 }, { 2, 7, 8, 14 },
-    { 3, 9, 11, 12 }, { 4, 10, 9, 13 }, { 5, 11, 10, 14 }, { 6, 8, 7, 9 }, { 7, 9, 11, 10 },
-    { 7, 8, 11, 9 }, { 6, 8, 9, 12 }, { 11, 9, 8, 12 }, { 6, 9, 7, 13 }, { 10, 7, 9, 13 },
-    { 8, 7, 11, 14 }, { 10, 11, 7, 14 } };
-  ptIds->SetNumberOfIds(60);
-  std::copy(&ids[0][0], &ids[0][0] + 60, ptIds->begin());
+  // Split into 1 central linear wedge (6,7,8/9,10,11) -> 3 tets,
+  // plus 3 corner regions each split into 3 irregular tets using
+  // the vertical midpoints 12, 13, 14.
+  // Total: 12 tets, all 15 nodes used.
+  constexpr vtkIdType ids[12][4] = {
+    // Central wedge: 6,7,8 / 9,10,11
+    { 6, 7, 8, 9 },
+    { 7, 8, 9, 10 },
+    { 8, 9, 10, 11 },
+    // Corner region 0: 0,6,8 / 3,9,11  using mid=12
+    { 0, 6, 8, 3 },
+    { 0, 6, 8, 9 },
+    { 6, 9, 11, 12 },
+    // Corner region 1: 1,7,6 / 4,10,9  using mid=13
+    { 1, 7, 6, 4 },
+    { 1, 7, 6, 10 },
+    { 7, 10, 9, 13 },
+    // Corner region 2: 2,8,7 / 5,11,10  using mid=14
+    { 2, 8, 7, 5 },
+    { 2, 8, 7, 11 },
+    { 8, 11, 10, 14 },
+  };
+  ptIds->SetNumberOfIds(48);
+  std::copy_n(&ids[0][0], 48, ptIds->begin());
   return 1;
 }
 
