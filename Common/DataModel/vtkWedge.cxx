@@ -55,11 +55,11 @@ vtkIdType edges[vtkWedge::NumberOfEdges][2] = {
   { 2, 5 }, // 8
 };
 vtkIdType faces[vtkWedge::NumberOfFaces][vtkWedge::MaximumFaceSize + 1] = {
-  { 0, 1, 2, -1, -1 }, // 0
-  { 3, 5, 4, -1, -1 }, // 1
-  { 0, 3, 4, 1, -1 },  // 2
-  { 1, 4, 5, 2, -1 },  // 3
-  { 2, 5, 3, 0, -1 },  // 4
+  { 0, 2, 1, -1, -1 }, // 0
+  { 3, 4, 5, -1, -1 }, // 1
+  { 0, 1, 4, 3, -1 },  // 2
+  { 1, 2, 5, 4, -1 },  // 3
+  { 2, 0, 3, 5, -1 },  // 4
 };
 constexpr vtkIdType edgeToAdjacentFaces[vtkWedge::NumberOfEdges][2] = {
   { 0, 2 }, // 0
