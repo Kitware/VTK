@@ -207,12 +207,12 @@ int vtkXdmf3Writer::Write()
   }
   this->Internal->Init();
 
-  this->Update();
+  bool ret = this->Update();
 
   delete this->Internal;
   this->Internal = nullptr;
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
