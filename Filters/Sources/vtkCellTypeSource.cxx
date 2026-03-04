@@ -905,19 +905,23 @@ void vtkCellTypeSource::GenerateWedges(vtkUnstructuredGrid* output, int extent[6
     {
       for (int i = 0; i < xDim; i++)
       {
-        vtkIdType wedgeIds[6] = { i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
-          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+        vtkIdType wedgeIds[6] = {
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
           i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
-          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
-          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
-          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1) };
-        output->InsertNextCell(VTK_WEDGE, 6, wedgeIds);
-        vtkIdType wedgeIds2[6] = { i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
           i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
-          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
           i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
           i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
-          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1) };
+        };
+        output->InsertNextCell(VTK_WEDGE, 6, wedgeIds);
+        vtkIdType wedgeIds2[6] = {
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+        };
         output->InsertNextCell(VTK_WEDGE, 6, wedgeIds2);
       }
     }
