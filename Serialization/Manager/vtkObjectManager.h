@@ -111,11 +111,10 @@ public:
   /**
    * Returns a non-empty vector of identifiers of all objects that depend on an object with the
    * given identifier. Returns an empty vector if there are no dependents.
-   * When the root string is empty, the entire dependency tree is returned as a flat vector of
-   * identifiers.
-   * The overload which returns a vector<vtkTypeUInt32> is convenient for Python bindings.
-   * The overload which returns a vtkTypeUInt32Array is convenient for C
-   * bindings that can take ownership of memory from the vtkAOSDataArrayTemplate.
+   * When the identifier=vtkObjectManager::ROOT(), the entire dependency tree is returned as a flat
+   * vector of identifiers. The overload which returns a vector<vtkTypeUInt32> is convenient for
+   * Python bindings. The overload which returns a vtkTypeUInt32Array is convenient for C bindings
+   * that can take ownership of memory from the vtkAOSDataArrayTemplate.
    */
   std::vector<vtkTypeUInt32> GetAllDependencies(vtkTypeUInt32 identifier);
   vtkSmartPointer<vtkTypeUInt32Array> GetAllDependenciesAsVTKDataArray(vtkTypeUInt32 identifier);

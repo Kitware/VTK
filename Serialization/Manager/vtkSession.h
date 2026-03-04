@@ -155,6 +155,8 @@ typedef struct vtkSessionDescriptor
 #define vtkSessionStopEventLoop VTK_ABI_NAMESPACE_MANGLE(vtkSessionStopEventLoop)
 #define vtkSessionAddObserver VTK_ABI_NAMESPACE_MANGLE(vtkSessionAddObserver)
 #define vtkSessionRemoveObserver VTK_ABI_NAMESPACE_MANGLE(vtkSessionRemoveObserver)
+#define vtkSessionRemoveAllObservers VTK_ABI_NAMESPACE_MANGLE(vtkSessionRemoveAllObservers)
+#define vtkSessionRemoveAllObserversFromAllObjects VTK_ABI_NAMESPACE_MANGLE(vtkSessionRemoveAllObserversFromAllObjects)
 #define vtkSessionImport VTK_ABI_NAMESPACE_MANGLE(vtkSessionImport)
 #define vtkSessionExport VTK_ABI_NAMESPACE_MANGLE(vtkSessionExport)
 #define vtkSessionPrintObjectToString VTK_ABI_NAMESPACE_MANGLE(vtkSessionPrintObjectToString)
@@ -511,6 +513,26 @@ extern "C"
    */
   VTKSERIALIZATIONMANAGER_EXPORT vtkSessionResult vtkSessionRemoveObserver(
     vtkSession session, vtkObjectHandle object, unsigned long tag);
+
+  /**
+   * Remove all observers from the given object in the session.
+   * @param session The session to remove the observer from. The session must be created using
+   * vtkCreateSession.
+   * @param object The object to remove the observers from. The object must be registered using
+   * vtkSessionRegisterState or vtkSessionCreateObject or a dependent of objects created
+   * through either of those two methods.
+   * @return A vtkSessionResult indicating success or failure.
+   */
+  VTKSERIALIZATIONMANAGER_EXPORT vtkSessionResult vtkSessionRemoveAllObservers(
+    vtkSession session, vtkObjectHandle object);
+
+  /**
+   * Remove all observers from all objects in the session.
+   * @param session The session to remove the observers from. The session must be created using
+   * vtkCreateSession.
+   */
+  VTKSERIALIZATIONMANAGER_EXPORT void vtkSessionRemoveAllObserversFromAllObjects(
+    vtkSession session);
 
   /**
    * Writes state of all registered objects to `fileName.states.json`

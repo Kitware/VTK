@@ -70,6 +70,16 @@ public:
   bool UnObserve(vtkTypeUInt32 object, unsigned long tag);
 
   /**
+   * Remove all observers from a specific object.
+   */
+  bool UnObserveAll(vtkTypeUInt32 object);
+
+  /**
+   * Remove all observers from all objects in the session.
+   */
+  void UnObserveAllObjects();
+
+  /**
    * @brief Retrieves the total memory usage of all blobs.
    * @return The total memory usage in bytes.
    */

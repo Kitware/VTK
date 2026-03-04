@@ -132,6 +132,18 @@ bool vtkStandaloneSession::UnObserve(vtkObjectHandle object, unsigned long tag)
 }
 
 //-------------------------------------------------------------------------------
+bool vtkStandaloneSession::UnObserveAll(vtkObjectHandle object)
+{
+  return vtkSessionRemoveAllObservers(this->Session, object) == vtkSessionResultSuccess;
+}
+
+//-------------------------------------------------------------------------------
+void vtkStandaloneSession::UnObserveAllObjects()
+{
+  vtkSessionRemoveAllObserversFromAllObjects(this->Session);
+}
+
+//-------------------------------------------------------------------------------
 std::size_t vtkStandaloneSession::GetTotalBlobMemoryUsage()
 {
   return vtkSessionGetTotalBlobMemoryUsage(this->Session);

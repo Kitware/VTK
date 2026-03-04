@@ -271,6 +271,18 @@ bool vtkRemoteSession::UnObserve(vtkTypeUInt32 object, unsigned long tag)
 }
 
 //-------------------------------------------------------------------------------
+bool vtkRemoteSession::UnObserveAll(vtkObjectHandle object)
+{
+  return vtkSessionRemoveAllObservers(this->Session, object) == vtkSessionResultSuccess;
+}
+
+//-------------------------------------------------------------------------------
+void vtkRemoteSession::UnObserveAllObjects()
+{
+  vtkSessionRemoveAllObserversFromAllObjects(this->Session);
+}
+
+//-------------------------------------------------------------------------------
 void vtkRemoteSession::Export(const std::string& fileName)
 {
   return vtkSessionExport(this->Session, fileName.c_str());
