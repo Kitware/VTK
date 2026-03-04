@@ -566,7 +566,7 @@ bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID, bool quiet)
     // we try to read a non-HDF file
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, "provided file is non-HDF");
+      vtkErrorWithObjectMacro(nullptr, << "provided file" << fileName << " is non-HDF");
     }
     return false;
   }

@@ -1566,7 +1566,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 
 //------------------------------------------------------------------------------
 std::vector<int> vtkHDFReader::GetPieceAssignmentForDistribution(
-  int pieceIdx, int numDatasets, int numPieces)
+  int pieceIdx, int numDatasets, int numPieces) const
 {
   int div = numDatasets / numPieces;
   int mod = numDatasets % numPieces;

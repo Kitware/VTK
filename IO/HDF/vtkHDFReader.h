@@ -98,6 +98,7 @@ public:
     Interleave
   };
 
+  ///@{
   /**
    * Set the strategy for assigning files to parallel readers. The default is
    * @a Block.
@@ -112,7 +113,7 @@ public:
    */
   vtkSetClampMacro(PieceDistribution, int, Block, Interleave);
   vtkGetMacro(PieceDistribution, int);
-  /**@}*/
+  ///@}
 
   /**
    * Return true if, after a quick check of file header, it looks like the provided file or stream
@@ -385,7 +386,8 @@ private:
    * numDatasets: total number of datasets (pieces) present in the file
    * numPieces: total number of pieces to be read.
    */
-  std::vector<int> GetPieceAssignmentForDistribution(int pieceIdx, int numDatasets, int numPieces);
+  std::vector<int> GetPieceAssignmentForDistribution(
+    int pieceIdx, int numDatasets, int numPieces) const;
 
   /**
    * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in

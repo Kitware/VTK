@@ -215,6 +215,7 @@ private:
   /**
    * Dispatch the input vtkDataObject to the right writing function, depending on its dynamic type.
    * Data will be written in the specified group, which must already exist.
+   * Return true on success.
    */
   bool DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
@@ -238,9 +239,10 @@ private:
   ///@{
   /**
    * For temporal data, update the steps group with information relevant to the current timestep.
+   * return true if the operation was successful.
    */
-  bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input);
-  bool UpdateStepsGroup(hid_t group, vtkPolyData* input);
+  bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId);
+  bool UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned int partId);
   ///@}
 
   ///@{
@@ -415,9 +417,9 @@ private:
    * Append the offset data in the steps group for the current array for temporal data
    */
   bool AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* array, const std::string& arrayName,
-    const std::string& offsetsGroupName);
+    const std::string& offsetsGroupName, unsigned int partId);
   bool AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* array,
-    const std::string& arrayName, const std::string& offsetsGroupName);
+    const std::string& arrayName, const std::string& offsetsGroupName, unsigned int partId);
   ///@}
 
   /**
