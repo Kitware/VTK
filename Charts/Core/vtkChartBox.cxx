@@ -265,7 +265,7 @@ void vtkChartBox::SetColumnVisibility(vtkIdType column, bool visible)
 void vtkChartBox::SetColumnVisibilityAll(bool visible)
 {
   // We always need to clear the current visible columns.
-  this->VisibleColumns->SetNumberOfTuples(0);
+  this->VisibleColumns->Initialize();
   this->SelectedColumn = -1;
   if (visible)
   {

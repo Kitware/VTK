@@ -735,12 +735,10 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
   if (this->ShowSelectedNodes && this->SelectedNodesGlypher)
   {
     this->SelectedNodesGlypher->SetScaleFactor(distance * this->HandleSize);
-    this->FocalPoint->Reset();
-    this->FocalPoint->SetNumberOfPoints(0);
-    this->FocalData->GetPointData()->GetNormals()->SetNumberOfTuples(0);
-    this->SelectedNodesPoints->Reset();
-    this->SelectedNodesPoints->SetNumberOfPoints(0);
-    this->SelectedNodesData->GetPointData()->GetNormals()->SetNumberOfTuples(0);
+    this->FocalPoint->Initialize();
+    this->FocalData->GetPointData()->GetNormals()->Initialize();
+    this->SelectedNodesPoints->Initialize();
+    this->SelectedNodesData->GetPointData()->GetNormals()->Initialize();
     for (i = 0; i < numPoints; i++)
     {
       if (i != this->ActiveNode)

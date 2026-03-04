@@ -1737,7 +1737,7 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
   this->UseEulerTimeSteps = false;
   if (this->EulerTimeSteps)
   {
-    this->EulerTimeSteps->SetNumberOfTuples(0);
+    this->EulerTimeSteps->Initialize();
   }
 
   // this should be EnSight Rigid Body

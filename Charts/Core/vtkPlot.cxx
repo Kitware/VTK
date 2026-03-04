@@ -232,7 +232,7 @@ bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 {
   if (this->Selection)
   {
-    this->Selection->SetNumberOfTuples(0);
+    this->Selection->Initialize();
   }
   return false;
 }
@@ -242,7 +242,7 @@ bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon&)
 {
   if (this->Selection)
   {
-    this->Selection->SetNumberOfTuples(0);
+    this->Selection->Initialize();
   }
   return false;
 }

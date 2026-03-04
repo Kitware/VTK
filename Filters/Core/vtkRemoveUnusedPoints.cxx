@@ -177,7 +177,6 @@ int vtkRemoveUnusedPoints::RequestData(vtkInformation* vtkNotUsed(request),
 
     vtkNew<vtkPoints> pts;
     pts->SetDataType(input->GetPoints()->GetDataType());
-    pts->SetNumberOfPoints(0);
     output->SetPoints(pts);
     return 1;
   }

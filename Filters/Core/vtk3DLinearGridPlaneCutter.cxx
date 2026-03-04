@@ -707,7 +707,7 @@ void ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkP
   // Make sure data was produced
   if (numTris <= 0)
   {
-    outPts->SetNumberOfPoints(0);
+    outPts->Initialize();
     delete[] mergeEdges;
     delete[] originalCells;
     return;

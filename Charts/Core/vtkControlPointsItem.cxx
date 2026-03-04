@@ -339,7 +339,7 @@ void vtkControlPointsItem::ComputePoints()
 
   if (this->Selection && this->GetNumberOfPoints() == 0)
   {
-    this->Selection->SetNumberOfTuples(0);
+    this->Selection->Initialize();
   }
 
   const int selectedPointCount = this->Selection ? this->Selection->GetNumberOfTuples() : 0;
@@ -640,7 +640,7 @@ void vtkControlPointsItem::DeselectAllPoints()
   {
     return;
   }
-  this->Selection->SetNumberOfTuples(0);
+  this->Selection->Initialize();
   this->GetScene()->SetDirty(true);
 }
 

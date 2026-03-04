@@ -635,7 +635,6 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
     outPD->CopyAllocate(inPD, 1);
     outCD->CopyAllocate(inCD, 1);
     vtkNew<vtkPoints> pts;
-    pts->SetNumberOfPoints(0);
     output->SetPoints(pts);
     return 1;
   }

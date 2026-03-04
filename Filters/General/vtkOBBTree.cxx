@@ -680,7 +680,7 @@ int vtkOBBTree::IntersectWithLine(
   {
     if (points)
     {
-      points->SetNumberOfPoints(0);
+      points->Reset();
     }
     if (cellIds)
     {
@@ -885,7 +885,7 @@ int vtkOBBTree::IntersectWithLine(
   {
     if (points)
     {
-      points->SetNumberOfPoints(0);
+      points->Initialize();
     }
     if (cellIds)
     {

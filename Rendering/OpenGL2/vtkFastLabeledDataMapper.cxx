@@ -121,11 +121,11 @@ public:
   {
     this->InputPlusArrays->Initialize();
     this->InputPlusArrays->Allocate();
-    this->GlyphExtents->SetNumberOfTuples(0);
-    this->Coff->SetNumberOfTuples(0);
-    this->PId->SetNumberOfTuples(0);
-    this->PropId->SetNumberOfTuples(0);
-    this->Framecolors->SetNumberOfTuples(0);
+    this->GlyphExtents->Initialize();
+    this->Coff->Initialize();
+    this->PId->Initialize();
+    this->PropId->Initialize();
+    this->Framecolors->Initialize();
   }
 
   //----------------------------------------------------------------------------

@@ -1314,7 +1314,6 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
   else
   {
     points = vtkSmartPointer<vtkPoints>::New();
-    points->SetNumberOfPoints(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData()))
   {

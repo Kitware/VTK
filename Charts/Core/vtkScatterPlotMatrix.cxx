@@ -998,7 +998,7 @@ void vtkScatterPlotMatrix::SetColumnVisibilityAll(bool visible)
   else
   {
     this->SetSize(vtkVector2i(0, 0));
-    this->VisibleColumns->SetNumberOfTuples(0);
+    this->VisibleColumns->Initialize();
   }
 
   this->Private->VisibleColumnsModified = true;
@@ -1014,7 +1014,7 @@ void vtkScatterPlotMatrix::SetVisibleColumns(vtkStringArray* visColumns)
   if (!visColumns || visColumns->GetNumberOfTuples() == 0)
   {
     this->SetSize(vtkVector2i(0, 0));
-    this->VisibleColumns->SetNumberOfTuples(0);
+    this->VisibleColumns->Initialize();
   }
   else
   {

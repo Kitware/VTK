@@ -1259,8 +1259,7 @@ bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double fr
     if (frameRate > 0)
     {
       nbTimeSteps = 0;
-      timeSteps->SetNumberOfComponents(1);
-      timeSteps->SetNumberOfTuples(0);
+      timeSteps->Initialize();
 
       std::vector<double> ts;
       double period = (1.0 / frameRate);

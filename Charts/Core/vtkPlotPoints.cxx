@@ -323,7 +323,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   {
     this->Selection = vtkIdTypeArray::New();
   }
-  this->Selection->SetNumberOfTuples(0);
+  this->Selection->Initialize();
 
   // Set up our search array, use the STL lower_bound algorithm
   VectorPIMPL::iterator low;
@@ -379,7 +379,7 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon& polygon)
   else
   {
     // clear previous selection
-    this->Selection->SetNumberOfValues(0);
+    this->Selection->Initialize();
   }
 
   for (vtkIdType pointId = 0; pointId < this->Points->GetNumberOfPoints(); pointId++)
@@ -825,7 +825,7 @@ void vtkPlotPoints::FindBadPoints()
     }
     else
     {
-      this->BadPoints->SetNumberOfTuples(0);
+      this->BadPoints->Initialize();
     }
     for (std::set<vtkIdType>::const_iterator it = bad.begin(); it != bad.end(); ++it)
     {

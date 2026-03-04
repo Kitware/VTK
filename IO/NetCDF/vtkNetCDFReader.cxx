@@ -709,7 +709,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
 {
   int numVar = this->GetNumberOfVariableArrays();
   this->VariableDimensions->SetNumberOfValues(numVar);
-  this->AllDimensions->SetNumberOfValues(0);
+  this->AllDimensions->Initialize();
 
   for (int i = 0; i < numVar; i++)
   {
@@ -744,7 +744,9 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
       }
     }
     if (unique && dimEncoding != "()")
+    {
       this->AllDimensions->InsertNextValue(dimEncoding);
+    }
   }
 
   return 1;

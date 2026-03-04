@@ -154,7 +154,7 @@ bool vtkCellGridEvaluator::Initialize()
 
   // Reset our state.
   this->Allocations.clear();
-  this->InterpolatedValues->SetNumberOfTuples(0);
+  this->InterpolatedValues->Initialize();
   return ok;
 }
 

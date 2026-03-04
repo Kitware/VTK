@@ -35,7 +35,7 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
   this->PolyLinePen->SetLineType(vtkPen::NO_PEN);
 
   this->Shape->SetDataTypeToFloat();
-  this->Shape->SetNumberOfPoints(0);
+  this->Shape->Initialize();
 
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkScalarsToColorsItem::OnScalarsToColorsModified);
