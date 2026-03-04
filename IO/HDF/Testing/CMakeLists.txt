@@ -17,9 +17,10 @@ vtk_module_test_data(
   Data/vtkHDF/temporal_partitioned_polydata_cache.vtkhdf
   Data/vtkHDF/temporal_polydata_field_data.vtkhdf
   Data/vtkHDF/temporal_partitioned_ug.vtkhdf
-  Data/temporal_unstructured_grid.vtkhdf
-  Data/transient_harmonics.hdf
-  Data/transient_sphere.hdf
+  Data/vtkHDF/temporal_unstructured_grid.vtkhdf
+  Data/vtkHDF/temporal_harmonics.vtkhdf
+  Data/vtkHDF/temporal_sphere.vtkhdf
+
   Data/wavelet_cell_data.hdf
   Data/wavelet_cell_data.vti
   Data/hdf_poly_data_twin.vtp
@@ -142,6 +143,7 @@ vtk_module_test_data(
 
   Data/vtkHDF/multipiece_temporal_htg.vtkhdf
   Data/vtkHDF/sphere_onepiece.vtkhdf
+  Data/vtkHDF/sph4_mb.vtkhdf
   Data/vtkHDF/multipiece_htg.hdf
   Data/vtkHDF/randomhtg.hdf
   Data/vtkHDF/simple_htg.hdf
