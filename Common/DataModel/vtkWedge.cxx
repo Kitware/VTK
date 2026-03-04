@@ -26,18 +26,23 @@ namespace
 {
 constexpr double VTK_DIVERGED = 1.e6;
 //------------------------------------------------------------------------------
-// Wedge topology:
-//
-//         2
-//        /|\.
-//       / | \.
-//      /  |  \.
-//     /  /5\  \.
-//    |  /___\  |
-//    | /3   4\ |
-//    |/_______\|
-//    0         1
-//
+[[maybe_unused]] constexpr const char* WedgeTopology = R"(
+   Wedge topology:
+
+           2
+          /|\
+         / | \
+        /  |  \
+       /   |   \
+      0----|----1    ← back triangle
+      |    5    |
+      |   / \   |
+      |  /   \  |
+      | /     \ |
+      |/       \|
+      3---------4    ← front triangle
+)";
+
 vtkIdType edges[vtkWedge::NumberOfEdges][2] = {
   { 0, 1 }, // 0
   { 1, 2 }, // 1
