@@ -2698,6 +2698,8 @@ macos-x86_64-kits-python-qt:build:
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     # Some of the macOS runners are not very powerful.
     timeout: 150 minutes
     needs: []
@@ -2709,6 +2711,9 @@ macos-x86_64-kits-python-qt:test:
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
@@ -2722,6 +2727,9 @@ macos-x86_64-kits-python-qt-stdthread:test:
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
