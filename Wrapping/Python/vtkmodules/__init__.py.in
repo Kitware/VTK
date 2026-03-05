@@ -156,4 +156,11 @@ def on_vtk_module_init_completed():
     for module_name in pending:
         LOADED_MODULES.add(module_name)
         for import_name in MODULE_MAPPER.get(module_name, []):
-            importlib.import_module(import_name)
+            try:
+                importlib.import_module(import_name)
+            except ImportError:
+                # The module may not be available (e.g. numpy not installed
+                # or Python files not yet copied during the build).  Skip
+                # the override registration silently; core VTK functionality
+                # is unaffected.
+                pass
