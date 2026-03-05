@@ -211,7 +211,7 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::CreateStepsGroup(hid_t group)
 {
-  if (!H5Lexists(group, PATH::STEPS.c_str(), H5P_DEFAULT))
+  if (H5Lexists(group, PATH::STEPS.c_str(), H5P_DEFAULT) <= 0)
   {
     vtkHDF::ScopedH5GHandle stepsGroup{ H5Gcreate(
       group, PATH::STEPS.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
@@ -393,34 +393,50 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateUnlimitedSimpleDatas
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroup(hid_t group, const char* name)
 {
-  return H5Gcreate(group, name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  {
+    return H5Gcreate(group, name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  }
+  return this->OpenExistingGroup(group, name);
 }
 
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroupWithLinkOrder(
   hid_t group, const char* name)
 {
-  vtkHDF::ScopedH5PHandle plist = H5Pcreate(H5P_GROUP_CREATE);
-  if (plist == H5I_INVALID_HID)
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
-    return H5I_INVALID_HID;
+    vtkHDF::ScopedH5PHandle plist = H5Pcreate(H5P_GROUP_CREATE);
+    if (plist == H5I_INVALID_HID)
+    {
+      return H5I_INVALID_HID;
+    }
+    H5Pset_link_creation_order(plist, H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED);
+    return H5Gcreate(group, name, H5P_DEFAULT, plist, H5P_DEFAULT);
   }
-  H5Pset_link_creation_order(plist, H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED);
-  return H5Gcreate(group, name, H5P_DEFAULT, plist, H5P_DEFAULT);
+  return this->OpenExistingGroup(group, name);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::CreateSoftLink(
   hid_t group, const char* groupName, const char* targetLink)
 {
-  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT) >= 0;
+  if (H5Lexists(group, groupName, H5P_DEFAULT) <= 0)
+  {
+    return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT) >= 0;
+  }
+  return true; // Ignore if already exists
 }
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::CreateExternalLink(
   hid_t group, const char* filename, const char* source, const char* targetLink)
 {
-  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT) >= 0;
+  if (H5Lexists(group, targetLink, H5P_DEFAULT) <= 0)
+  {
+    return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT) >= 0;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -723,7 +739,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(
     return true;
   }
 
-  if (!H5Lexists(group, name, H5P_DEFAULT))
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
     // Dataset needs to be created
     return this->CreateSingleRowDataset(group, name, values) != H5I_INVALID_HID;
@@ -754,7 +770,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateFieldDataSizeValueDataset(
     }
     return true;
   }
-  if (!H5Lexists(group, name, H5P_DEFAULT))
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
     // Dataset needs to be created
     std::vector<hsize_t> dimensions{ 2 };
@@ -924,7 +940,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
     return true;
   }
 
-  if (!H5Lexists(group, name, H5P_DEFAULT))
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
     // Dataset needs to be created
     return this->CreateDatasetFromDataArray(group, name, type, dataArray) != H5I_INVALID_HID;
@@ -1585,6 +1601,12 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
   // When writing data externally, don't create a dynamic dataset,
   // But create a virtual one based on the subfiles on the last step or partition.
   if (!this->Subfiles.empty() && group != this->StepsGroup)
+  {
+    return true;
+  }
+
+  // Skip if dataset already exists
+  if (H5Lexists(group, name, H5P_DEFAULT) > 0)
   {
     return true;
   }
