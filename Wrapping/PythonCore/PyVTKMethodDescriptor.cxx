@@ -14,12 +14,6 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-// Required for Python 2.5 through Python 2.7
-#ifndef PyDescr_TYPE
-#define PyDescr_TYPE(x) (((PyDescrObject*)(x))->d_type)
-#define PyDescr_NAME(x) (((PyDescrObject*)(x))->d_name)
-#endif
-
 //------------------------------------------------------------------------------
 // C API
 
