@@ -2343,8 +2343,6 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
     }
     else if (strncmp(line, "penta6", 6) == 0)
     {
-      constexpr unsigned char wedgeMap[6] = { 0, 2, 1, 3, 5, 4 };
-
       vtkDebugMacro("penta6");
       cellType = vtkEnSightReader::PENTA6;
 
@@ -2372,7 +2370,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
         for (j = 0; j < 6; j++)
         {
           intIds[j]--;
-          nodeIds[wedgeMap[j]] = intIds[j];
+          nodeIds[j] = intIds[j];
         }
         cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
@@ -2381,8 +2379,6 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
     }
     else if (strncmp(line, "penta15", 7) == 0)
     {
-      constexpr unsigned char wedgeMap[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13 };
-
       vtkDebugMacro("penta15");
       cellType = vtkEnSightReader::PENTA15;
 
@@ -2414,7 +2410,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(
         for (j = 0; j < 15; j++)
         {
           intIds[j]--;
-          nodeIds[wedgeMap[j]] = intIds[j];
+          nodeIds[j] = intIds[j];
         }
         cellId = output->InsertNextCell(VTK_QUADRATIC_WEDGE, 15, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
