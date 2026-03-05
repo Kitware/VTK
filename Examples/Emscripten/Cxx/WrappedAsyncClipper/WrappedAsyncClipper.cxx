@@ -12,11 +12,9 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSMPTools.h"
-#include "vtkUnstructuredGrid.h"
 
 #include <array>
 #include <map>
-#include <thread>
 
 #include <emscripten/eventloop.h>
 #include <emscripten/stack.h>
@@ -58,9 +56,15 @@ WrappedAsyncClipper::~WrappedAsyncClipper() = default;
 void WrappedAsyncClipper::Abort()
 {
   LOG(__func__);
-  if (this->m_Clipper != nullptr)
+  if (this->m_SurfaceFilter != nullptr)
   {
-    this->m_Clipper->SetAbortExecuteAndUpdateTime();
+    this->m_SurfaceFilter->SetAbortExecuteAndUpdateTime();
+  }
+  if (this->m_ClipMapper != nullptr)
+  {
+    // clear mapper input to skip any render requests due to the abort flag being set on the surface
+    // filter.
+    this->m_ClipMapper->SetInputDataObject(0, nullptr);
   }
 }
 
@@ -68,9 +72,19 @@ void WrappedAsyncClipper::Abort()
 void WrappedAsyncClipper::ResetAbortFlag()
 {
   LOG(__func__);
-  if (this->m_Clipper != nullptr)
+  if (this->m_SurfaceFilter != nullptr)
   {
-    this->m_Clipper->SetAbortExecute(false);
+    if (this->m_SurfaceFilter->GetAbortExecute())
+    {
+      this->m_SurfaceFilter->SetAbortExecute(false);
+    }
+    // run the surface filter
+    this->m_SurfaceFilter->Update();
+    if (this->m_ClipMapper != nullptr)
+    {
+      // restore the mapper's input after the surface filter has been updated.
+      this->m_ClipMapper->SetInputDataObject(0, this->m_SurfaceFilter->GetOutputDataObject(0));
+    }
   }
 }
 
@@ -101,8 +115,6 @@ void WrappedAsyncClipper::SyncRender()
       [this]()
       {
         LOG("WrappedAsyncClipper::RenderWindow::Render");
-        // Clear abort execute flag in case filter was aborted.
-        this->m_Clipper->SetAbortExecute(false);
         this->m_RenderWindow->Render();
       });
   }
@@ -118,8 +130,6 @@ void WrappedAsyncClipper::AsyncRender()
       [this]()
       {
         LOG("vtkRenderWindow::Render");
-        // Clear abort execute flag in case filter was aborted.
-        this->m_Clipper->SetAbortExecute(false);
         this->m_RenderWindow->Render();
       });
   }
@@ -182,25 +192,32 @@ void* WrappedAsyncClipper::StartRendering(void* userdata)
 
   auto* self = reinterpret_cast<WrappedAsyncClipper*>(userdata);
 
+  LOG("Starting event loop");
+  self->m_RenderWindow = vtk::TakeSmartPointer(vtkRenderWindow::New());
+  self->m_Interactor = vtk::TakeSmartPointer(vtkRenderWindowInteractor::New());
+  self->m_Interactor->SetRenderWindow(self->m_RenderWindow);
+  auto* istyleSwitch =
+    vtkInteractorStyleSwitch::SafeDownCast(self->m_Interactor->GetInteractorStyle());
+  istyleSwitch->SetCurrentStyleToTrackballCamera();
+  self->m_Interactor->Start();
+
+  LOG("Resizing to window");
+  self->m_Queue.proxyAsync(
+    self->m_UIThread, []() { EM_ASM(window.dispatchEvent(new Event('resize'))); });
+
+  LOG("Setting up pipeline");
   // Create pipeline
-  vtkNew<vtkCellTypeSource> ugridSource;
-  ugridSource->SetCellType(VTK_HEXAHEDRON);
-  ugridSource->SetBlocksDimensions(200, 200, 200);
-  ugridSource->Update();
-  auto* inputMesh = ugridSource->GetOutput();
-
-  std::array<double, 6> bounds = {};
-  inputMesh->GetBounds(bounds.data());
-
+  std::array<double, 6> bounds = { 0, 200, 0, 200, 0, 200 };
   std::array<double, 3> origin;
   for (int i = 0; i < 3; ++i)
   {
     origin[i] = 0.5 * (bounds[i * 2] + bounds[i * 2 + 1]);
   }
-
+  vtkNew<vtkCellTypeSource> ugridSource;
+  ugridSource->SetCellType(VTK_HEXAHEDRON);
+  ugridSource->SetBlocksDimensions(bounds[1], bounds[3], bounds[5]);
   vtkNew<vtkDataSetMapper> ugridMapper;
-  ugridMapper->SetInputData(inputMesh);
-
+  ugridMapper->SetInputConnection(ugridSource->GetOutputPort());
   vtkNew<vtkActor> ugridActor;
   ugridActor->SetMapper(ugridMapper);
   ugridActor->GetProperty()->SetOpacity(0.3);
@@ -209,40 +226,29 @@ void* WrappedAsyncClipper::StartRendering(void* userdata)
   self->m_ClipPlane = vtk::TakeSmartPointer(vtkPlane::New());
   self->m_ClipPlane->SetOrigin(origin.data());
   self->m_Clipper->SetClipFunction(self->m_ClipPlane);
-  self->m_Clipper->SetInputDataObject(inputMesh);
+  self->m_Clipper->SetInputConnection(ugridSource->GetOutputPort());
+
+  self->m_SurfaceFilter = vtk::TakeSmartPointer(vtkDataSetSurfaceFilter::New());
+  self->m_SurfaceFilter->SetInputConnection(self->m_Clipper->GetOutputPort());
 
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkNew<vtkDataSetMapper> clippedMapper;
-  clippedMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(1, 1);
-  clippedMapper->SetInputConnection(self->m_Clipper->GetOutputPort());
+  self->m_ClipMapper = vtk::TakeSmartPointer(vtkPolyDataMapper::New());
+  self->m_ClipMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(1, 1);
+  self->m_ClipMapper->SetInputConnection(self->m_SurfaceFilter->GetOutputPort());
 
   vtkNew<vtkActor> clippedActor;
-  clippedActor->SetMapper(clippedMapper);
+  clippedActor->SetMapper(self->m_ClipMapper);
   clippedActor->GetProperty()->SetEdgeVisibility(true);
   clippedActor->GetProperty()->SetEdgeColor(0, 0, 1);
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(clippedActor);
   renderer->AddActor(ugridActor);
-
-  self->m_RenderWindow = vtk::TakeSmartPointer(vtkRenderWindow::New());
   self->m_RenderWindow->AddRenderer(renderer);
-
-  renderer->GetActiveCamera()->Azimuth(-60);
-  renderer->GetActiveCamera()->Elevation(30);
-  renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(0.75);
-  self->m_RenderWindow->Render();
-
-  self->m_Interactor = vtk::TakeSmartPointer(vtkRenderWindowInteractor::New());
-  self->m_Interactor->SetRenderWindow(self->m_RenderWindow);
-  auto* istyleSwitch =
-    vtkInteractorStyleSwitch::SafeDownCast(self->m_Interactor->GetInteractorStyle());
-  istyleSwitch->SetCurrentStyleToTrackballCamera();
 
   vtkNew<vtkImplicitPlaneRepresentation> planeWidgetRep;
   planeWidgetRep->SetPlaceFactor(1.25);
-  planeWidgetRep->PlaceWidget(inputMesh->GetBounds());
+  planeWidgetRep->PlaceWidget(bounds.data());
   planeWidgetRep->SetPlane(self->m_ClipPlane);
   planeWidgetRep->SetDrawOutline(false);
 
@@ -250,8 +256,9 @@ void* WrappedAsyncClipper::StartRendering(void* userdata)
   self->m_PlaneWidget->SetInteractor(self->m_Interactor);
   self->m_PlaneWidget->SetRepresentation(planeWidgetRep);
   self->m_PlaneWidget->AddObserver(
-    vtkCommand::InteractionEvent, self, &WrappedAsyncClipper::OnClipPlaneInteraction);
-  self->m_PlaneWidget->On();
+    vtkCommand::StartInteractionEvent, self, &WrappedAsyncClipper::OnClipPlaneInteractionStarted);
+  self->m_PlaneWidget->AddObserver(
+    vtkCommand::EndInteractionEvent, self, &WrappedAsyncClipper::OnClipPlaneInteractionEnded);
 
   if (self->m_ClipPlaneCmd)
   {
@@ -259,12 +266,13 @@ void* WrappedAsyncClipper::StartRendering(void* userdata)
       self->m_ClipPlane->AddObserver(vtkCommand::ModifiedEvent, self->m_ClipPlaneCmd);
   }
 
-  self->m_Interactor->Start();
-
-  self->m_Queue.proxyAsync(
-    self->m_UIThread, []() { EM_ASM(window.dispatchEvent(new Event('resize'))); });
-
-  LOG("Started event loop");
+  LOG("Rendering for the first time, please wait...");
+  self->m_PlaneWidget->On();
+  renderer->GetActiveCamera()->Azimuth(-60);
+  renderer->GetActiveCamera()->Elevation(30);
+  renderer->ResetCamera();
+  renderer->GetActiveCamera()->Zoom(0.75);
+  self->m_RenderWindow->Render();
 
   return nullptr;
 }
@@ -317,10 +325,22 @@ void WrappedAsyncClipper::AddClipPlaneModifiedUIObserver(ClipPlaneModifiedCallba
 }
 
 //---------------------------------------------------------------------
-void WrappedAsyncClipper::OnClipPlaneInteraction(vtkObject* caller, unsigned long, void*)
+void WrappedAsyncClipper::OnClipPlaneInteractionStarted(vtkObject* caller, unsigned long, void*)
+{
+  LOG(__func__);
+  if (this->m_ClipMapper != nullptr)
+  {
+    // remove the input geometry for the old clipped actor
+    this->m_ClipMapper->SetInputDataObject(0, nullptr);
+  }
+}
+
+//---------------------------------------------------------------------
+void WrappedAsyncClipper::OnClipPlaneInteractionEnded(vtkObject* caller, unsigned long, void*)
 {
   LOG(__func__);
   auto* planeWidget = reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
   auto* rep = reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
   rep->GetPlane(vtkPlane::SafeDownCast(this->m_Clipper->GetClipFunction()));
+  this->ResetAbortFlag();
 }

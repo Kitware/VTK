@@ -67,8 +67,11 @@
         <output>1</output>
       </div>
     </div>
+    <button id="abort" onclick="if (demoApp) {demoApp.Abort(); } ">Abort</button>
+    <button id="resetAbort" onclick="if (demoApp) {demoApp.ResetAbortFlag(); demoApp.AsyncRender();} ">Reset Abort
+      Flag</button>
   </div>
-  <textarea title="Console output" id="logs" cols="32" rows="20"></textarea>
+  <textarea title="Console output" id="logs" cols="32" rows="5"></textarea>
   <script type='text/javascript'>
     var vtkWasmRuntime = null;
     var demoApp = null;
@@ -122,20 +125,6 @@
         canvas.setAttribute('tabindex', '0');
         // grab focus when the render window region receives mouse clicks.
         canvas.addEventListener('click', () => canvas.focus());
-        canvas.addEventListener('mousedown', (e) => {
-          mouseDown = true;
-          demoApp.Abort();
-          e.preventDefault();
-        });
-        canvas.addEventListener('mousemove', () => {
-          if (mouseDown) {
-            demoApp.Abort();
-          }
-        });
-        canvas.addEventListener('mouseup', (e) => {
-          mouseDown = false;
-          demoApp.ResetAbortFlag();
-        });
       }
     };
 
@@ -150,6 +139,7 @@
       }
       demoApp.Abort();
       demoApp.UpdateClipPlaneNormal(Number(nx.value), Number(ny.value), Number(nz.value));
+      demoApp.ResetAbortFlag();
       demoApp.AsyncRender();
     }
     nx.oninput = onClipPlaneNormalChange;
