@@ -269,7 +269,7 @@ int vtkXdmfWriter::Write()
   this->DomainMemoryHandler = new vtkXdmfWriterDomainMemoryHandler();
   this->DomainMemoryHandler->InsertIntoRoot(root);
 
-  this->Update();
+  bool ret = this->Update();
 
   root.Build();
   this->DOM->Write();
@@ -277,7 +277,7 @@ int vtkXdmfWriter::Write()
   delete this->DomainMemoryHandler;
   this->DomainMemoryHandler = nullptr;
 
-  return 1;
+  return ret ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
