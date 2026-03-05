@@ -494,19 +494,6 @@ public:
         else if (list[5] == list[6])
         { /* wedge element */
           // std::cerr << "W" << endl;
-          i = list[1];
-          list[1] = list[3];
-          list[3] = i; /* swap 1 and 3 */
-          i = list[2];
-          list[2] = list[4];
-          list[4] = i; /* swap 2 and 4 */
-          /* Convert from Exodus ordering to VTK / XDMF ordering */
-          i = list[1];
-          list[1] = list[2];
-          list[2] = i; /* swap 1 and 2 */
-          i = list[4];
-          list[4] = list[5];
-          list[5] = i; /* swap 4 and 5 */
           for (i = 0; i < 6; i++)
           {
             list[i] = list[i] - 1;
