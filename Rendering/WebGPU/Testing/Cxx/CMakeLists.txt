@@ -37,4 +37,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       "-Wno-experimental"
       "-sJSPI=1"
       "-sJSPI_EXPORTS=['__wasm_call_ctors']")
+  if (VTK_WEBASSEMBLY_THREADS)
+    # Proxy to pthreads is required to ensure threads can be created asynchronously.
+    target_link_options(vtkRenderingWebGPUCxxTests
+      PRIVATE
+        "-sPROXY_TO_PTHREAD=1")
+  endif ()
 endif ()

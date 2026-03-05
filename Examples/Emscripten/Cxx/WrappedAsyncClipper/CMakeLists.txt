@@ -17,6 +17,7 @@ find_package(VTK
     CommonColor
     FiltersGeneral
     FiltersSources
+    FiltersGeometry
     InteractionStyle
     InteractionWidgets
     RenderingOpenGL2
