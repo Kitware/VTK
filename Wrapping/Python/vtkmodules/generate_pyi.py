@@ -35,16 +35,12 @@ To generate pyi files for your own modules in your own package:
 
 """
 
-from vtkmodules.vtkCommonCore import vtkObjectBase, vtkSOADataArrayTemplate
-from keyword import iskeyword
-
 import sys
 import os
 import re
 import ast
 import argparse
 import builtins
-import inspect
 import importlib.util
 
 # ==== Cancel any module overrides ====
@@ -54,6 +50,10 @@ import vtkmodules
 vtkmodules.MODULE_MAPPER = {}
 
 # ==== For type inspection ====
+
+from vtkmodules.vtkCommonCore import vtkObjectBase, vtkSOADataArrayTemplate
+from keyword import iskeyword
+import inspect
 
 # list expected non-vtk type names
 types = set()
