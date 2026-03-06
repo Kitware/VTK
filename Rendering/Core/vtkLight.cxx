@@ -95,6 +95,7 @@ vtkLight* vtkLight::ShallowClone()
   result->Positional = this->Positional;
   result->Exponent = this->Exponent;
   result->ConeAngle = this->ConeAngle;
+  result->ShadowAttenuation = this->ShadowAttenuation;
   result->LightType = this->LightType;
 
   result->TransformMatrix = this->TransformMatrix;
