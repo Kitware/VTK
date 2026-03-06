@@ -46,8 +46,11 @@ double numpy_mod(double a, double b)
 
 /**
  * Normalize each modality group together.
+ *
  * For example, if Indices `[0, 1, 2]` are the same modality, we will
- * normalize them all together.
+ * normalize them all together, meaning we compute the min/max over
+ * all three scalars.
+ *
  * In this example, all channels are in the same modality, so they all
  * get normalized together.
  */
@@ -119,6 +122,9 @@ struct NormalizeWorker
   std::function<double(double)> GlobalMax = nullptr;
 };
 
+/**
+ * Generalized Barycentric Coordinate interpolation
+ */
 struct ComputeGBCWorker
 {
   template <typename Input, typename Output>
@@ -376,6 +382,10 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   normalizedScalars->SetName("normalized");
   normalizedScalars->SetNumberOfComponents(scalars->GetNumberOfComponents());
   normalizedScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+  for (int i = 0; i < scalars->GetNumberOfComponents(); ++i)
+  {
+    normalizedScalars->SetComponentName(i, scalars->GetComponentName(i));
+  }
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
   for (int i = 0; i < this->ModalityGroups.size(); ++i)
