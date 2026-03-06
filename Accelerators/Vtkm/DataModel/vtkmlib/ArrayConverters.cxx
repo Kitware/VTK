@@ -37,6 +37,12 @@ void ProcessFields(vtkDataSet* input, viskores::cont::DataSet& dataset, tovtkm::
 
       viskores::cont::Field pfield =
         tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      if (array->GetName() != pfield.GetName())
+      {
+        vtkGenericWarningMacro(<< "Could not convert point field `" << array->GetName()
+                               << "` for Viskores filter.");
+        continue;
+      }
       dataset.AddField(pfield);
     }
   }
@@ -53,6 +59,12 @@ void ProcessFields(vtkDataSet* input, viskores::cont::DataSet& dataset, tovtkm::
       }
 
       viskores::cont::Field cfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      if (array->GetName() != cfield.GetName())
+      {
+        vtkGenericWarningMacro(<< "Could not convert cell field `" << array->GetName()
+                               << "` for Viskores filter.");
+        continue;
+      }
       dataset.AddField(cfield);
     }
   }
@@ -76,6 +88,44 @@ viskores::cont::Field Convert(vtkmDataArray<T>* input, int association)
   return viskores::cont::Field();
 }
 
+template <typename VTK_TT>
+static viskores::cont::Field TryConvert(vtkDataArray* input, int association)
+{
+  vtkAOSDataArrayTemplate<VTK_TT>* typedInAos =
+    vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(input);
+  if (typedInAos)
+  {
+    return Convert(typedInAos, association);
+  }
+
+  vtkSOADataArrayTemplate<VTK_TT>* typedInSoa =
+    vtkSOADataArrayTemplate<VTK_TT>::FastDownCast(input);
+  if (typedInSoa)
+  {
+    return Convert(typedInSoa, association);
+  }
+
+  vtkmDataArray<VTK_TT>* typedInVtkm = vtkmDataArray<VTK_TT>::SafeDownCast(input);
+  if (typedInVtkm)
+  {
+    return Convert(typedInVtkm, association);
+  }
+
+  vtkConstantArray<VTK_TT>* typedInConst = vtkConstantArray<VTK_TT>::SafeDownCast(input);
+  if (typedInConst)
+  {
+    return Convert(typedInConst, association);
+  }
+
+  vtkAffineArray<VTK_TT>* typedInAffine = vtkAffineArray<VTK_TT>::SafeDownCast(input);
+  if (typedInAffine)
+  {
+    return Convert(typedInAffine, association);
+  }
+
+  return viskores::cont::Field{};
+}
+
 // determine the type and call the proper Convert routine
 viskores::cont::Field Convert(vtkDataArray* input, int association)
 {
@@ -93,25 +143,7 @@ viskores::cont::Field Convert(vtkDataArray* input, int association)
   viskores::cont::Field field;
   switch (input->GetDataType())
   {
-    vtkTemplateMacro(
-      vtkAOSDataArrayTemplate<VTK_TT>* typedIn1 =
-        vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(input);
-      if (typedIn1) { field = Convert(typedIn1, association); } else {
-        vtkSOADataArrayTemplate<VTK_TT>* typedIn2 =
-          vtkSOADataArrayTemplate<VTK_TT>::FastDownCast(input);
-        if (typedIn2)
-        {
-          field = Convert(typedIn2, association);
-        }
-        else
-        {
-          vtkmDataArray<VTK_TT>* typedIn3 = vtkmDataArray<VTK_TT>::SafeDownCast(input);
-          if (typedIn3)
-          {
-            field = Convert(typedIn3, association);
-          }
-        }
-      });
+    vtkTemplateMacro(field = TryConvert<VTK_TT>(input, association););
     // end vtkTemplateMacro
   }
   return field;
