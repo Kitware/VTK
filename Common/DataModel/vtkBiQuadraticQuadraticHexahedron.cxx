@@ -517,33 +517,48 @@ int vtkBiQuadraticQuadraticHexahedron::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkBiQuadraticQuadraticHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
+int vtkBiQuadraticQuadraticHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  // Triangulation varies depending upon index See vtkHexahedron::TriangulateLocalIds
-  ptIds->SetNumberOfIds(8 * 20);
-  if ((index % 2))
+  // 12 wedges x 3 tets = 36 tets
+  // Split into 2 layers (bottom z=0->0.5, top z=0.5->1),
+  // each layer split into 6 wedges using face midpoints.
+  static int wedges[12][6] = {
+    // Bottom layer
+    { 0, 8, 11, 16, 22, 20 },
+    { 8, 1, 9, 22, 17, 21 },
+    { 9, 2, 10, 21, 18, 23 },
+    { 10, 3, 11, 23, 19, 20 },
+    { 8, 9, 11, 22, 21, 20 },
+    { 9, 10, 11, 21, 23, 20 },
+    // Top layer
+    { 16, 22, 20, 4, 12, 15 },
+    { 22, 17, 21, 12, 5, 13 },
+    { 21, 18, 23, 13, 6, 14 },
+    { 23, 19, 20, 14, 7, 15 },
+    { 22, 21, 20, 12, 13, 15 },
+    { 21, 23, 20, 13, 14, 15 },
+  };
+
+  ptIds->SetNumberOfIds(12 * 3 * 4);
+  int idx = 0;
+  for (int wi = 0; wi < 12; wi++)
   {
-    constexpr std::array<vtkIdType, 20> linearHexPtIds{ 0, 1, 3, 4, 1, 4, 5, 6, 1, 4, 6, 3, 1, 3, 6,
-      2, 3, 6, 7, 4 };
-    for (int linear_hex_i = 0; linear_hex_i < 8; linear_hex_i++)
-    {
-      for (int node_i = 0; node_i < 20; node_i++)
-      {
-        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
-      }
-    }
-  }
-  else
-  {
-    constexpr std::array<vtkIdType, 20> linearHexPtIds{ 2, 1, 5, 0, 0, 2, 3, 7, 2, 5, 6, 7, 0, 7, 4,
-      5, 0, 2, 7, 5 };
-    for (int linear_hex_i = 0; linear_hex_i < 8; linear_hex_i++)
-    {
-      for (int node_i = 0; node_i < 20; node_i++)
-      {
-        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
-      }
-    }
+    const int* w = wedges[wi];
+    // wedge(a,b,c/d,e,f) -> 3 tets: (a,b,c,d), (b,c,d,e), (c,d,e,f)
+    ptIds->SetId(idx++, w[0]);
+    ptIds->SetId(idx++, w[1]);
+    ptIds->SetId(idx++, w[2]);
+    ptIds->SetId(idx++, w[3]);
+
+    ptIds->SetId(idx++, w[1]);
+    ptIds->SetId(idx++, w[2]);
+    ptIds->SetId(idx++, w[3]);
+    ptIds->SetId(idx++, w[4]);
+
+    ptIds->SetId(idx++, w[2]);
+    ptIds->SetId(idx++, w[3]);
+    ptIds->SetId(idx++, w[4]);
+    ptIds->SetId(idx++, w[5]);
   }
   return 1;
 }
