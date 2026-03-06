@@ -119,10 +119,10 @@ GROUP "/" {
 The unstructured grid is the can example (only the can, not the brick) from ParaView, partitioned in three:
 
 <details>
-<summary>can-pvtu.hdf</summary>
+<summary>can-pvtu.vtkhdf</summary>
 
 ```
-HDF5 "ExternalData/Testing/Data/can-pvtu.hdf" {
+HDF5 "ExternalData/Testing/Data/vtkHDF/can-pvtu.vtkhdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
@@ -271,13 +271,13 @@ GROUP "/" {
 
 ## PolyData
 
-The poly data is the `test_poly_data.hdf` from the `VTK` testing data:
+The poly data is the `test_poly_data.vtkhdf` from the `VTK` testing data:
 
 <details>
-<summary>test_poly_data.hdf</summary>
+<summary>test_poly_data.vtkhdf</summary>
 
 ```
-HDF5 "ExternalData/Testing/Data/test_poly_data.hdf" {
+HDF5 "ExternalData/Testing/Data/vtkHDF/test_poly_data.vtkhdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Type" {
@@ -402,10 +402,10 @@ The Overlapping AMR data file is an AMR Gaussian Pulse source with two levels
 `Data` are not displayed for readability.
 
 <details>
-<summary>amr_gaussian_pulse.hdf</summary>
+<summary>amr_gaussian_pulse.vtkhdf</summary>
 
 ```
-HDF5 "ExternalData/Testing/Data/amr_gaussian_pulse.hdf" {
+HDF5 "ExternalData/Testing/Data/vtkHDF/amr_gaussian_pulse.vtkhdf" {
 GROUP "/" {
    GROUP "VTKHDF" {
       ATTRIBUTE "Origin" {

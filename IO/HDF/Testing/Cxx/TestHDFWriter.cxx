@@ -316,10 +316,10 @@ bool TestSanitizeName(const std::string& tempDir, const std::string& dataRoot)
 //----------------------------------------------------------------------------
 bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::string& dataRoot)
 {
-  std::string baseName = "can-pvtu.hdf";
+  std::string baseName = "can-pvtu.vtkhdf";
 
   // Get an Partitioned Unstructured grid from a VTKHDF file
-  const std::string basePath = dataRoot + "/Data/" + baseName;
+  const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
   baseReader->Update();
@@ -343,10 +343,10 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
 //----------------------------------------------------------------------------
 bool TestPartitionedPolyData(const std::string& tempDir, const std::string& dataRoot)
 {
-  std::string baseName = "test_poly_data.hdf";
+  std::string baseName = "test_poly_data.vtkhdf";
 
   // Get an Partitioned PolyData from a VTKHDF file
-  const std::string basePath = dataRoot + "/Data/" + baseName;
+  const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
   baseReader->Update();
@@ -397,8 +397,8 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 //----------------------------------------------------------------------------
 bool TestMultiBlockIdenticalBlockNames(const std::string& tempDir, const std::string& dataRoot)
 {
-  std::string baseName = "test_poly_data.hdf";
-  const std::string basePath = dataRoot + "/Data/" + baseName;
+  std::string baseName = "test_poly_data.vtkhdf";
+  const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
   baseReader->Update();
