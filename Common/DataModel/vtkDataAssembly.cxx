@@ -429,7 +429,7 @@ std::string vtkDataAssembly::MakeValidNodeName(const char* name)
   }
 
   constexpr char sorted_valid_chars[] =
-    ".-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+    "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
   const auto sorted_valid_chars_len = strlen(sorted_valid_chars);
 
   std::string result;
