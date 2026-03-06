@@ -611,96 +611,26 @@ int TestHDFReader(int argc, char* argv[])
 
   std::string dataRoot = testHelper->GetDataRoot();
 
-  if (TestImageData(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
+  int failure = EXIT_SUCCESS;
+  failure |= TestImageData(dataRoot);
+  failure |= TestImageCellData(dataRoot);
+  failure |= TestUnstructuredGrid(dataRoot, false);
+  failure |= TestUnstructuredGridPolyhedron(dataRoot);
+  failure |= TestUnstructuredGrid(dataRoot, true);
+  failure |= TestPolyData(dataRoot);
+  failure |= TestPolyDataStream(dataRoot);
+  failure |= TestNullTerminatedString(dataRoot);
+  failure |= TestUTF8Type(dataRoot);
+  failure |= TestOverlappingAMR(dataRoot, 2);
+  failure |= TestOverlappingAMR(dataRoot, 1);
+  failure |= TestPartitionedPolyData(dataRoot);
+  failure |= TestPartitionedUnstructuredGrid(dataRoot, false);
+  failure |= TestPartitionedUnstructuredGrid(dataRoot, true);
+  failure |= TestCompositeDataSet(dataRoot);
+  failure |= TestSimpleHyperTreeGrid(dataRoot);
+  failure |= TestRandomHyperTreeGrid(dataRoot);
+  failure |= TestPartitionedHyperTreeGrid(dataRoot);
+  failure |= TestHyperTreeGridWithInterfaces(dataRoot);
 
-  if (TestImageCellData(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestUnstructuredGrid(dataRoot, false))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestUnstructuredGridPolyhedron(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-  if (TestUnstructuredGrid(dataRoot, true))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestPolyData(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestPolyDataStream(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestNullTerminatedString(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestUTF8Type(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestOverlappingAMR(dataRoot, 2))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestOverlappingAMR(dataRoot, 1))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestPartitionedPolyData(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestPartitionedUnstructuredGrid(dataRoot, false))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestPartitionedUnstructuredGrid(dataRoot, true))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestCompositeDataSet(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (TestSimpleHyperTreeGrid(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-  if (TestRandomHyperTreeGrid(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-  if (TestPartitionedHyperTreeGrid(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-  if (TestHyperTreeGridWithInterfaces(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
+  return failure;
 }
