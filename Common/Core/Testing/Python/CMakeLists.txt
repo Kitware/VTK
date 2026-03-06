@@ -17,6 +17,7 @@ vtk_add_test_python(
   TestExecuteMethodFinalizeCrash.py
   TestExpects.py
   TestFilePath.py
+  TestFunctions.py
   TestGhost.py
   TestImplicitArrayInstantiation.py
   TestInvokeEvent.py
