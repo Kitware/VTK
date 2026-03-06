@@ -53,6 +53,11 @@ public:
    */
   vtkRenderer* GetInternalRenderer() const { return this->InternalRenderer; }
 
+  /**
+   * Get the internal ANARI render pass.
+   */
+  vtkAnariPass* GetAnariPass() const { return this->InternalAnariPass; }
+
   //@{
   /**
    * Set/Get whether ANARI has been initialized.

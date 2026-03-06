@@ -114,7 +114,7 @@ public:
   std::string VolumeName;
 
   vtkAnariVolumeMapperNode* Owner{ nullptr };
-  vtkAnariSceneGraph* AnariRendererNode{ nullptr };
+  vtkAnariSceneGraph* AnariSceneGraph{ nullptr };
   anari::Device AnariDevice{ nullptr };
   anari::Volume AnariVolume{ nullptr };
   std::unique_ptr<anari_structured::TransferFunction> TransferFunction;
@@ -140,9 +140,9 @@ void vtkAnariVolumeMapperNodeInternals::StageVolume()
   vtkAnariProfiling startProfiling(
     "vtkAnariVolumeMapperNode::RenderVolumes", vtkAnariProfiling::GREEN);
 
-  if (this->AnariRendererNode != nullptr)
+  if (this->AnariSceneGraph != nullptr)
   {
-    this->AnariRendererNode->AddVolume(this->AnariVolume);
+    this->AnariSceneGraph->AddVolume(this->AnariVolume);
   }
 }
 
@@ -321,9 +321,9 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
       sa = sca;
     }
 
-    this->Internal->AnariRendererNode =
+    this->Internal->AnariSceneGraph =
       static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-    auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
+    auto anariDevice = this->Internal->AnariSceneGraph->GetDeviceHandle();
 
     if (!this->Internal->AnariDevice)
     {
@@ -343,7 +343,7 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     else
     {
       this->Internal->VolumeName =
-        "vtk_volume_" + std::to_string(this->Internal->AnariRendererNode->ReservePropId());
+        "vtk_volume_" + std::to_string(this->Internal->AnariSceneGraph->ReservePropId());
     }
 
     if (this->Internal->AnariVolume == nullptr)
@@ -488,9 +488,9 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
 
     if (this->Internal->AnariVolume != nullptr)
     {
-      this->Internal->AnariRendererNode =
+      this->Internal->AnariSceneGraph =
         static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-      auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
+      auto anariDevice = this->Internal->AnariSceneGraph->GetDeviceHandle();
       anari::release(anariDevice, this->Internal->AnariVolume);
       this->Internal->AnariVolume = nullptr;
     }
@@ -517,11 +517,13 @@ void vtkAnariVolumeMapperNode::Render(bool prepass)
   this->Internal->StageVolume();
 }
 
+//----------------------------------------------------------------------------
 vtkVolume* vtkAnariVolumeMapperNode::GetVtkVolume() const
 {
   return static_cast<vtkVolume*>(this->Renderable);
 }
 
+//----------------------------------------------------------------------------
 bool vtkAnariVolumeMapperNode::VolumeWasModified() const
 {
   return this->RenderTime < GetVtkVolume()->GetMTime();

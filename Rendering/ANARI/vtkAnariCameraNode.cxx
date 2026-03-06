@@ -145,11 +145,20 @@ void vtkAnariCameraNode::UpdateAnariCameraParameters()
   }
 
   int* const ts = this->Internals->RendererNode->GetScale();
+  vtkHomogeneousTransform* transform = cam->GetUserTransform();
+  double zoomFactor = 1.0;
+
+  // Support zooming
+  if (transform != nullptr)
+  {
+    auto matrix = transform->GetMatrix();
+    zoomFactor = matrix->GetElement(0, 0);
+  }
 
   if (this->Internals->IsParallelProjection)
   {
     // height of the image plane in world units
-    double height = cam->GetParallelScale() * 2 * ts[0];
+    double height = (cam->GetParallelScale() * 2 * ts[0]) / zoomFactor;
     anari::setParameter(this->Internals->AnariDevice, this->Internals->AnariCamera, "height",
       static_cast<float>(height));
   }
@@ -157,6 +166,7 @@ void vtkAnariCameraNode::UpdateAnariCameraParameters()
   {
     // The field of view (angle in radians) of the frame's height
     float fovyDegrees = static_cast<float>(cam->GetViewAngle()) * static_cast<float>(ts[0]);
+    fovyDegrees /= static_cast<float>(zoomFactor);
     float fovyRadians = vtkMath::RadiansFromDegrees(fovyDegrees);
     anari::setParameter(
       this->Internals->AnariDevice, this->Internals->AnariCamera, "fovy", fovyRadians);
@@ -235,26 +245,29 @@ void vtkAnariCameraNode::UpdateAnariCameraParameters()
   anari::setParameter(
     this->Internals->AnariDevice, this->Internals->AnariCamera, "direction", cameraDirection);
 
-  // Additional world-space transformation matrix
-  vtkHomogeneousTransform* transform = cam->GetUserTransform();
-
-  if (transform != nullptr)
-  {
-    double* matrix = transform->GetMatrix()->GetData();
-    float matrixF[16];
-
-    for (int i = 0; i < 16; i++)
-    {
-      matrixF[i] = static_cast<float>(matrix[i]);
-    }
-
-    anari::setParameter(
-      this->Internals->AnariDevice, this->Internals->AnariCamera, "transform", matrixF);
-  }
-
   // Region of the sensor in normalized screen-space coordinates
   double viewPort[4] = { 0, 0, 1, 1 };
   this->Internals->RendererNode->GetViewport(viewPort);
+
+  // Support image panning in applications (e.g. VisIt)
+  if (!cam->GetUseExplicitProjectionTransformMatrix())
+  {
+    // Convert VTK camera window center in viewport coordinates (range is: [-1,+1],[-1,+1])
+    // to normalized screen-space coordinates (range is: [0,1],[0,1]).
+    auto windowCenter = cam->GetWindowCenter();
+    double wcx = windowCenter[0] / 2.0 + 0.5;
+    double wcy = windowCenter[1] / 2.0 + 0.5;
+
+    // Offset based on the width of the current viewport
+    double offsetX = (viewPort[2] - viewPort[0]) / 2.0;
+    double offsetY = (viewPort[3] - viewPort[1]) / 2.0;
+
+    // Adjust viewport to center around window center
+    viewPort[0] = wcx - offsetX;
+    viewPort[1] = wcy - offsetY;
+    viewPort[2] = wcx + offsetX;
+    viewPort[3] = wcy + offsetY;
+  }
 
   box2 imageRegion = { vec2{ static_cast<float>(viewPort[0]), static_cast<float>(viewPort[1]) },
     vec2{ static_cast<float>(viewPort[2]), static_cast<float>(viewPort[3]) } };

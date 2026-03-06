@@ -1,6 +1,6 @@
 vtk_module_find_package(
   PACKAGE anari
-  VERSION 0.9.1
+  VERSION 0.12.1
   FORWARD_VERSION_REQ MINOR
   CONFIG_MODE)
 
