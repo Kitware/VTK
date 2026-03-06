@@ -1539,6 +1539,8 @@ wheel:pypi:upload:
     variables:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
+        # If you update this list, you probably need to update the list of:
+        # wheel:vtk:upload, wheel-sdk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -1681,6 +1683,8 @@ wheel:vtk:upload:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
+        # If you update this list, you probably need to update the list of:
+        # wheel:pypi:upload, wheel-sdk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -1895,6 +1899,8 @@ wheel-sdk:upload:
         RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
         RSYNC_DESTINATION: wheel-sdks/
     needs:
+        # If you update this list, you probably need to update the list of:
+        # wheel:pypi:upload, wheel:vtk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -2092,10 +2098,12 @@ wheel-vtk-sdk:upload:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         # The wheel location is the name of the PIP package. It is important that the last component is the same as the package name.
-        # as `pip install vtk-sdk -f vtk.org/files/wheel-sdks` will look into `vtk.org/files/wheel-sdks/vtk-sdk`.
+        # as `pip install vtk-sdk --extra-index-url "vtk.org/files/wheel-sdks"` will look into `vtk.org/files/wheel-sdks/vtk-sdk`.
         RSYNC_SOURCE: build/wheel_sdks/*.whl
         RSYNC_DESTINATION: wheel-sdks/vtk-sdk
     needs:
+        # If you update this list, you probably need to update the list of:
+        # wheel:pypi:upload, wheel:vtk:upload, wheel-sdk:upload and release-artifacts:upload
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -2160,6 +2168,32 @@ wheel-vtk-sdk:upload:
         - job: wheel-linux-python313-x86_64-egl:test
           artifacts: false
         - job: wheel-linux-python313-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python314-x86_64:build
+        - job: wheel-linux-python314-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python314t-x86_64:build
+        - job: wheel-linux-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test-x11
           artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
@@ -2232,6 +2266,12 @@ wheel-vtk-sdk:upload:
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false
+#        - wheel-macos-python314t-arm64:build
+#        - job: wheel-macos-python314t-arm64:test
+#          artifacts: false
+        - wheel-macos-python314t-x86_64:build
+        - job: wheel-macos-python314t-x86_64:test
+          artifacts: false
         - wheel-windows-python39-x86_64:build
         - job: wheel-windows-python39-x86_64:test
           artifacts: false
@@ -2256,6 +2296,16 @@ wheel-vtk-sdk:upload:
         - job: wheel-windows-python313-x86_64:test
           artifacts: false
         - job: wheel-windows-python313-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python314-x86_64:build
+        - job: wheel-windows-python314-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python314-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python314t-x86_64:build
+        - job: wheel-windows-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python314t-x86_64-osmesa:test
           artifacts: false
 
 ## Static analysis builds
@@ -2393,6 +2443,8 @@ release-artifacts:upload:
         VTK_CI_RELEASE_ONLY: "true"
         RSYNC_SOURCE: release/
     needs:
+        # If you update this list, you probably need to update the list of:
+        # wheel:pypi:upload, wheel:vtk:upload, wheel-sdk:upload and wheel-vtk-sdk:upload
         - source:build
         - documentation:release-prep
         - wheel-linux-python39-x86_64:build

@@ -40,7 +40,7 @@ Discussions = "https://discourse.vtk.org"
 Changelog = "https://gitlab.kitware.com/vtk/vtk/-/tree/master/Documentation/release"
 
 [project.entry-points."cmake.prefix"]
-any = "vtk_sdk.cmake"
+vtksdk = "vtk_sdk.cmake"
 
 [project.optional-dependencies]
 test = [
