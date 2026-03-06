@@ -94,10 +94,21 @@ def test_properties_single_component():
 # -------------------------------------------------------------------
 def test_to_numpy():
     soa, comp_arrays = make_soa(5, 3)
-    comps = soa.to_numpy()
-    check(len(comps) == 3, f"to_numpy: expected 3 components, got {len(comps)}")
-    for i, (got, expected) in enumerate(zip(comps, comp_arrays)):
-        check(np.allclose(got, expected), f"to_numpy component {i} mismatch")
+    arr = soa.to_numpy()
+    expected = np.column_stack(comp_arrays)
+    check(isinstance(arr, np.ndarray), f"to_numpy should return ndarray, got {type(arr).__name__}")
+    check(arr.shape == (5, 3), f"to_numpy shape: expected (5, 3), got {arr.shape}")
+    check(np.allclose(arr, expected), "to_numpy values mismatch")
+
+    # Single component
+    soa1, comp1 = make_soa(4, 1)
+    arr1 = soa1.to_numpy()
+    check(arr1.shape == (4,), f"to_numpy single-comp shape: expected (4,), got {arr1.shape}")
+    check(np.allclose(arr1, comp1[0]), "to_numpy single-comp values mismatch")
+
+    # dtype conversion
+    arr32 = soa.to_numpy(dtype=np.float32)
+    check(arr32.dtype == np.float32, f"to_numpy dtype: expected float32, got {arr32.dtype}")
 
 
 # -------------------------------------------------------------------

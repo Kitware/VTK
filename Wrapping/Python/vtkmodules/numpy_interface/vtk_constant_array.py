@@ -185,6 +185,10 @@ class VTKConstantArray(VTKDataArrayMixin):
         return self.size * self.dtype.itemsize
 
     # ---- numpy protocol -----------------------------------------------------
+    def to_numpy(self, dtype=None):
+        """Return the full materialized array as a numpy ndarray."""
+        return self.__array__(dtype=dtype)
+
     def __array__(self, dtype=None, copy=None):
         """Materialize the full array when numpy needs it explicitly."""
         dt = dtype or self.dtype

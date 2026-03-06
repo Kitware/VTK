@@ -228,6 +228,10 @@ class VTKAOSArray(VTKDataArrayMixin):
         return self.GetNumberOfTuples() * self.GetNumberOfComponents() * self.GetDataTypeSize()
 
     # ---- numpy protocol -----------------------------------------------------
+    def to_numpy(self, dtype=None):
+        """Return the array as a numpy ndarray."""
+        return self.__array__(dtype=dtype)
+
     def __array__(self, dtype=None, copy=None):
         view = self._array_view
         if view is None:

@@ -215,6 +215,10 @@ class VTKAffineArray(VTKDataArrayMixin):
         return repr(self)
 
     # ---- numpy protocol -----------------------------------------------------
+    def to_numpy(self, dtype=None):
+        """Return the full materialized array as a numpy ndarray."""
+        return self.__array__(dtype=dtype)
+
     def __array__(self, dtype=None, **kwargs):
         """Materialize the full array."""
         indices = numpy.arange(self._num_values, dtype=self._dtype)

@@ -260,10 +260,9 @@ class VTKSOAArray(VTKDataArrayMixin):
         comps = self._component_arrays
         return list(comps) if comps else []
 
-    def to_numpy(self):
-        """Return tuple of per-component numpy arrays (zero-copy)."""
-        comps = self._component_arrays
-        return tuple(comps) if comps else ()
+    def to_numpy(self, dtype=None):
+        """Return the full materialized array as a numpy ndarray."""
+        return self.__array__(dtype=dtype)
 
     # ---- static helper to build from result arrays --------------------------
     @staticmethod
