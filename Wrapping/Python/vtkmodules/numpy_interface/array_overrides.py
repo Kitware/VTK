@@ -14,6 +14,7 @@ with suppress(ImportError):
     from vtkmodules.numpy_interface import vtk_affine_array as _affine  # noqa: F401
     from vtkmodules.numpy_interface import vtk_strided_array as _stride  # noqa: F401
     from vtkmodules.numpy_interface import vtk_indexed_array as _idx  # noqa: F401
+    from vtkmodules.numpy_interface import vtk_composite_array as _comp  # noqa: F401
     # Fallback for implicit arrays and any other vtkDataArray subclass
     # without a dedicated override.  Must be imported AFTER AOS/SOA so
     # that their more-specific overrides are registered first.

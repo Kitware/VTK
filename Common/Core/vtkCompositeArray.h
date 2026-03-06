@@ -86,6 +86,21 @@ public:
    */
   void ConstructBackend(vtkDataArrayCollection* arrays);
 
+  /**
+   * Get the number of original arrays composing this composite array.
+   */
+  vtkIdType GetNumberOfArrays();
+
+  /**
+   * Get the original array at the given index.
+   */
+  vtkDataArray* GetArray(vtkIdType idx);
+
+  /**
+   * Get the tuple offset of the array at the given index.
+   */
+  vtkIdType GetOffset(vtkIdType idx);
+
 protected:
   vtkCompositeArray() = default;
   ~vtkCompositeArray() override = default;
@@ -105,7 +120,10 @@ VTK_ABI_NAMESPACE_END
 // can see them. The wrappers ignore vtkCompositeArray.
 #define vtkCreateCompositeWrappedArrayInterface(T)                                                 \
   vtkCreateImplicitWrappedArrayInterface(T);                                                       \
-  void ConstructBackend(vtkDataArrayCollection* arrays);
+  void ConstructBackend(vtkDataArrayCollection* arrays);                                           \
+  vtkIdType GetNumberOfArrays();                                                                   \
+  vtkDataArray* GetArray(vtkIdType idx);                                                           \
+  vtkIdType GetOffset(vtkIdType idx);
 
 namespace vtk
 {

@@ -35,6 +35,7 @@ vtk_add_test_python(
   TestSOADataArrays.py
   TestStridedArrayPython.py
   TestIndexedArrayPython.py
+  TestCompositeArrayPython.py
   TestSOAMemorySafety.py
   TestSetBuffer.py
   TestSetGet.py

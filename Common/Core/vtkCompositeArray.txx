@@ -24,6 +24,30 @@ void vtkCompositeArray<ValueTypeT>::ConstructBackend(vtkDataArrayCollection* arr
   this->Superclass::ConstructBackend(arrays);
 }
 
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkIdType vtkCompositeArray<ValueTypeT>::GetNumberOfArrays()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetNumberOfArrays() : 0;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkCompositeArray<ValueTypeT>::GetArray(vtkIdType idx)
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetArray(idx) : nullptr;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkIdType vtkCompositeArray<ValueTypeT>::GetOffset(vtkIdType idx)
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetOffset(idx) : 0;
+}
+
 VTK_ABI_NAMESPACE_END
 
 //-----------------------------------------------------------------------
