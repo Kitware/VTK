@@ -478,6 +478,30 @@ extern "C"
   }
 
   //-------------------------------------------------------------------------------
+  vtkSessionResult vtkSessionRemoveAllObservers(vtkSession session, vtkObjectHandle object)
+  {
+    auto* objectImpl = vtkObject::SafeDownCast(session->Manager->GetObjectAtId(object));
+    if (objectImpl == nullptr)
+    {
+      return vtkSessionResultFailure;
+    }
+    objectImpl->RemoveAllObservers();
+    return vtkSessionResultSuccess;
+  }
+
+  //-------------------------------------------------------------------------------
+  void vtkSessionRemoveAllObserversFromAllObjects(vtkSession session)
+  {
+    for (const auto& id : session->Manager->GetAllDependencies(vtkObjectManager::ROOT()))
+    {
+      if (auto* objectImpl = vtkObject::SafeDownCast(session->Manager->GetObjectAtId(id)))
+      {
+        objectImpl->RemoveAllObservers();
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------------
   void vtkSessionExport(vtkSession session, const char* fileName)
   {
     session->Manager->Export(fileName);

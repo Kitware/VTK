@@ -209,6 +209,18 @@ public:
   bool UnObserve(vtkTypeUInt32 object, unsigned long tag);
 
   /**
+   * @brief Remove all observers from a specific object.
+   * @param object The handle of the VTK object.
+   * @return True if all observers were successfully removed, false otherwise.
+   */
+  bool UnObserveAll(vtkTypeUInt32 object);
+
+  /**
+   * @brief Remove all observers from all objects in the session.
+   */
+  void UnObserveAllObjects();
+
+  /**
    * @brief Exports states into `fileName.states.json` and blobs into
    * `fileName.blobs.json`.
    * @param fileName The name of the file.
