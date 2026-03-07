@@ -31,7 +31,7 @@ with suppress(ImportError):
     import numpy
     from vtkmodules.util import numpy_support
     from vtkmodules.numpy_interface.utils import NoneArray
-    from vtkmodules.numpy_interface import dataset_adapter as dsa
+    from vtkmodules.numpy_interface.vtk_partitioned_array import VTKPartitionedArray
 
     NUMPY_AVAILABLE = True
 
@@ -391,16 +391,16 @@ class CompositeDataSetAttributes(object):
             return
 
         added = False
-        if not isinstance(narray, dsa.VTKCompositeDataArray):  # Scalar input
+        if not isinstance(narray, VTKPartitionedArray):  # Scalar input
             for ds in self.dataset:
                 ds.GetAttributesAsFieldData(self.association).set_array(name, narray)
                 added = True
             if added:
                 self.array_names.append(name)
                 # don't add the narray since it's a scalar. GetArray() will create a
-                # VTKCompositeDataArray on-demand.
+                # VTKPartitionedArray on-demand.
         else:
-            for ds, array in zip(self.dataset, narray.Arrays):
+            for ds, array in zip(self.dataset, narray.arrays):
                 if array is not None:
                     ds.GetAttributesAsFieldData(self.association).set_array(name, array)
                     added = True
@@ -409,7 +409,7 @@ class CompositeDataSetAttributes(object):
                 self.arrays[name] = weakref.ref(narray)
 
     def get_array(self, idx):
-        """Given a name, returns a VTKCompositeDataArray."""
+        """Given a name, returns a VTKPartitionedArray."""
         arrayname = idx
 
         if not NUMPY_AVAILABLE:
@@ -419,7 +419,7 @@ class CompositeDataSetAttributes(object):
         if arrayname not in self.array_names:
             return NoneArray
         if arrayname not in self.arrays or self.arrays[arrayname]() is None:
-            array = dsa.VTKCompositeDataArray(
+            array = VTKPartitionedArray(
                 dataset=self.dataset, name=arrayname, association=self.association
             )
             self.arrays[arrayname] = weakref.ref(array)
@@ -812,7 +812,7 @@ class CompositeDataSetBase(object):
 
     Provides ``point_data``, ``cell_data``, ``field_data``, and
     ``points`` properties that return ``CompositeDataSetAttributes``
-    or ``VTKCompositeDataArray`` instances spanning all leaf datasets.
+    or ``VTKPartitionedArray`` instances spanning all leaf datasets.
     Iteration yields the non-empty leaf ``vtkDataObject`` instances.
 
     This is the base class for ``vtkMultiBlockDataSet``,
@@ -865,7 +865,7 @@ class CompositeDataSetBase(object):
 
     @property
     def points(self):
-        "Returns the points as a VTKCompositeDataArray instance."
+        "Returns the points as a VTKPartitionedArray instance."
         if not NUMPY_AVAILABLE:
             # don't know how to handle composite dataset when numpy not around
             raise NotImplementedError("Only available with numpy")
@@ -885,7 +885,7 @@ class CompositeDataSetBase(object):
             if len(pts) == 0 or all([a is NoneArray for a in pts]):
                 cpts = NoneArray
             else:
-                cpts = dsa.VTKCompositeDataArray(pts, dataset=self)
+                cpts = VTKPartitionedArray(pts, dataset=self)
             self._Points = weakref.ref(cpts)
         return self._Points()
 
