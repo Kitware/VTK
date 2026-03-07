@@ -2,8 +2,8 @@
 
 Provides:
 - ``VTKDataArrayMixin`` — base class with metadata management, shape properties,
-  reduction method stubs, and shape/layout methods shared across all four VTK
-  array mixins (AOS, SOA, Affine, Constant).
+  reduction method stubs, and shape/layout methods shared across the VTK
+  array mixins (AOS, SOA).
 - ``make_override_registry()`` — create an ``__array_function__`` override dict
   and decorator pair.
 - ``register_template_overrides()`` — register a mixin as override for all
@@ -15,7 +15,7 @@ from ..util import numpy_support
 
 
 class VTKDataArrayMixin:
-    """Shared base for VTK data array Python mixins (AOS, SOA, Affine, Constant).
+    """Shared base for VTK data array Python mixins (AOS, SOA).
 
     Subclasses must provide ``__array__()``, ``GetNumberOfTuples()``,
     ``GetNumberOfComponents()``, and ``GetDataType()`` (inherited from the
@@ -52,7 +52,7 @@ class VTKDataArrayMixin:
     def association(self, value):
         self._association = value
 
-    # ---- _wrap_result (AOS, Affine, Constant — NOT SOA) ---------------------
+    # ---- _wrap_result (AOS — NOT SOA) ----------------------------------------
     def _wrap_result(self, result):
         """Wrap a numpy result as VTKAOSArray preserving metadata.
 

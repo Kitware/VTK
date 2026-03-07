@@ -1,9 +1,9 @@
 """Shared utilities for the new VTK array classes.
 
 This module provides common definitions used across VTKAOSArray,
-VTKSOAArray, VTKConstantArray, VTKCompositeArray, and
-VTKNoneArray.  It is intentionally independent of ``dataset_adapter``
-so that the new array classes do not depend on the legacy module.
+VTKSOAArray, VTKCompositeArray, and VTKNoneArray.  It is intentionally
+independent of ``dataset_adapter`` so that the new array classes do not
+depend on the legacy module.
 """
 import numpy
 

@@ -128,8 +128,6 @@ class VTKAOSArray(VTKDataArrayMixin):
     See Also
     --------
     VTKSOAArray : Mixin for structure-of-arrays VTK arrays.
-    VTKConstantArray : Mixin for implicit constant arrays.
-    VTKAffineArray : Mixin for implicit affine arrays.
     """
 
     # ---- construction -------------------------------------------------------

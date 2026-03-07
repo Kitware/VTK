@@ -21,12 +21,10 @@ _UNINITIALIZED = object()
 SOA_OVERRIDE, _override_numpy_soa = make_override_registry()
 
 def _to_ndarray(x):
-    """Materialise a VTKSOAArray to ndarray, bypassing C-level buffer protocol.
+    """Materialise a VTKSOAArray to ndarray via ``__array__()``.
 
-    ``numpy.asarray()`` prefers the inherited ``tp_as_buffer`` slot (which
-    calls ``GetVoidPointer`` and converts SOA -> AOS) over the Python-level
-    ``__array__`` method.  Call ``__array__()`` directly for VTKSOAArray
-    to preserve SOA storage.
+    Calls ``__array__()`` directly for VTKSOAArray to ensure
+    per-component column_stack materialisation.
     """
     if isinstance(x, VTKSOAArray):
         return x.__array__()
@@ -117,8 +115,6 @@ class VTKSOAArray(VTKDataArrayMixin):
     See Also
     --------
     VTKAOSArray : Mixin for array-of-structures VTK arrays.
-    VTKConstantArray : Mixin for implicit constant arrays.
-    VTKAffineArray : Mixin for implicit affine arrays.
     """
 
     # ---- construction -------------------------------------------------------
@@ -306,11 +302,11 @@ class VTKSOAArray(VTKDataArrayMixin):
         return arr
 
     def __buffer__(self, flags):
-        """Override C-level buffer protocol to avoid GetVoidPointer.
+        """Override C-level buffer protocol for SOA arrays.
 
-        The inherited ``tp_as_buffer`` calls ``GetVoidPointer`` which
-        destructively converts SOA storage to AOS.  This Python-level
-        override (PEP 688) materialises via ``__array__`` instead.
+        Materialises an AOS copy via ``__array__`` so that callers
+        expecting a contiguous buffer get correct results without
+        altering the underlying SOA storage.
         """
         return memoryview(self.__array__())
 
