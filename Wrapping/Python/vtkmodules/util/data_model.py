@@ -48,7 +48,7 @@ class FieldDataBase(object):
         return self.set_array(name, value)
 
     def get_array(self, idx):
-        "Given an index or name, returns a VTKArray."
+        "Given an index or name, returns a VTK array with metadata."
         if isinstance(idx, int) and idx >= self.GetNumberOfArrays():
             raise IndexError("array index out of range")
         vtkarray = super().GetArray(idx)
@@ -61,6 +61,14 @@ class FieldDataBase(object):
             if vtkarray:
                 return vtkarray
             return dsa.NoneArray
+
+        from vtkmodules.numpy_interface._vtk_array_mixin import VTKDataArrayMixin
+        if isinstance(vtkarray, VTKDataArrayMixin):
+            vtkarray._set_dataset(self.dataset)
+            vtkarray._association = self.association
+            return vtkarray
+
+        # Fallback for arrays without mixin overrides.
         array = dsa.vtkDataArrayToVTKArray(vtkarray, self.dataset)
         array.Association = self.association
         return array
@@ -112,6 +120,11 @@ class FieldDataBase(object):
         if narray is dsa.NoneArray:
             # if NoneArray, nothing to do.
             return
+
+        # Convert VTK array mixins (VTKAOSArray, VTKSOADataArray, etc.)
+        # to numpy for uniform handling below.
+        if not isinstance(narray, numpy.ndarray) and hasattr(narray, '__array__'):
+            narray = narray.__array__()
 
         if self.association == vtkDataObject.POINT:
             arrLength = self.dataset.GetNumberOfPoints()

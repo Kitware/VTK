@@ -91,8 +91,13 @@ def get_vtk_to_numpy_typemap():
 
 def get_numpy_array_type(vtk_array_type):
     """Returns a numpy array typecode given a VTK array type."""
-    return get_vtk_to_numpy_typemap()[vtk_array_type]
-
+    tp = get_vtk_to_numpy_typemap()[vtk_array_type]
+    # Handle the case where int32 and intc are different types
+    # (on Windows) and VTK_INT actually matches numpy.intc.
+    if tp == numpy.int32 and numpy.int32 != numpy.intc:
+        if numpy.dtype(numpy.int32).itemsize == numpy.dtype(numpy.intc).itemsize:
+            return numpy.intc
+    return tp
 
 def create_vtk_array(vtk_arr_type):
     """Internal function used to create a VTK data array from another
@@ -254,3 +259,96 @@ def vtk_to_numpy(vtk_array):
            result = numpy.empty(shape, dtype=dtype)
         else: raise
     return result
+
+def vtk_soa_to_numpy(vtk_array):
+    """Convert a vtkSOADataArrayTemplate in SOA mode to per-component numpy arrays.
+
+    Returns a list of 1-D numpy arrays (one per component), each
+    zero-copy sharing memory with the underlying VTK buffer.
+
+    Parameters
+    ----------
+    vtk_array : vtkSOADataArrayTemplate or vtkScaledSOADataArrayTemplate
+
+    Returns
+    -------
+    list of numpy.ndarray
+        One 1-D array per component, each of length GetNumberOfTuples().
+
+    Raises
+    ------
+    TypeError
+        If the array does not support per-component buffer access.
+    """
+    if not hasattr(vtk_array, 'GetComponentBuffer'):
+        raise TypeError(
+            "vtk_soa_to_numpy requires a vtkSOADataArrayTemplate or "
+            "vtkScaledSOADataArrayTemplate, "
+            f"got {type(vtk_array).__name__}")
+
+    n_comps = vtk_array.GetNumberOfComponents()
+    # GetComponentBuffer returns a vtkAbstractBuffer which supports the Python
+    # buffer protocol, so we can use numpy.asarray directly for zero-copy.
+    return [numpy.asarray(vtk_array.GetComponentBuffer(c))
+            for c in range(n_comps)]
+
+def numpy_to_vtk_soa(arrays, name=""):
+    """Create a vtkSOADataArrayTemplate from a list of per-component numpy arrays.
+
+    Each element of *arrays* must be a contiguous 1-D numpy array of the same
+    dtype and length.  The VTK array will share memory with the numpy arrays
+    (zero-copy), so the caller must keep the numpy arrays alive.
+
+    Parameters
+    ----------
+    arrays : list of numpy.ndarray
+        One 1-D array per component.
+    name : str, optional
+        Name to assign to the resulting VTK array.
+
+    Returns
+    -------
+    vtkSOADataArrayTemplate
+        A VTK SOA array backed by the provided numpy buffers.
+    """
+    from vtkmodules.vtkCommonCore import vtkSOADataArrayTemplate
+
+    if not arrays:
+        raise ValueError("arrays must be a non-empty list of numpy arrays")
+
+    n_tuples = len(arrays[0])
+    dtype = arrays[0].dtype
+    for i, a in enumerate(arrays):
+        if len(a) != n_tuples:
+            raise ValueError(
+                f"All component arrays must have the same length; "
+                f"component 0 has {n_tuples}, component {i} has {len(a)}")
+        if a.dtype != dtype:
+            raise ValueError(
+                f"All component arrays must have the same dtype; "
+                f"component 0 is {dtype}, component {i} is {a.dtype}")
+
+    vtk_array = vtkSOADataArrayTemplate[dtype]()
+    vtk_array.SetNumberOfComponents(len(arrays))
+    vtk_array.SetNumberOfTuples(n_tuples)
+
+    # Ensure contiguity and keep references to the actual buffers passed to VTK
+    contiguous_arrays = [numpy.ascontiguousarray(arr) for arr in arrays]
+    for comp, arr in enumerate(contiguous_arrays):
+        vtk_array.SetArray(comp, arr, n_tuples, True, True)
+
+    if name:
+        vtk_array.SetName(name)
+
+    # Store references on individual component buffers for memory safety.
+    # This ensures numpy arrays stay alive even if the VTK array reallocates
+    # (copy-on-reallocate pattern creates new buffers but old ones stay valid).
+    for comp, arr in enumerate(contiguous_arrays):
+        buf = vtk_array.GetComponentBuffer(comp)
+        if buf is not None:
+            buf._numpy_reference = arr
+
+    # Keep array-level reference for backward compatibility
+    vtk_array._numpy_refs = contiguous_arrays
+
+    return vtk_array

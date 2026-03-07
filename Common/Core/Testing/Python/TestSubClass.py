@@ -45,7 +45,7 @@ class vtkCustomObject(vtkObject):
     def SetExtraObject(self, o):
         """Setter method."""
         # make sure it is "None" or a vtkobject instance
-        if o == None or isinstance(o, vtkObjectBase):
+        if o is None or isinstance(o, vtkObjectBase):
             self._ExtraObject = o
             self.Modified()
         else:
@@ -54,7 +54,7 @@ class vtkCustomObject(vtkObject):
     def GetMTime(self):
         """Override a method (only works when called from Python)"""
         t = vtkObject.GetMTime(self)
-        if self._ExtraObject:
+        if self._ExtraObject is not None:
             t = max(t, self._ExtraObject.GetMTime())
         return t
 
