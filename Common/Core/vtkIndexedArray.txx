@@ -32,5 +32,21 @@ void vtkIndexedArray<ValueTypeT>::ConstructBackend(vtkDataArray* indexes, vtkDat
   this->Superclass::ConstructBackend(indexes, array);
 }
 
+//------------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkIndexedArray<ValueTypeT>::GetBaseArray()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetBaseArray() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkIndexedArray<ValueTypeT>::GetIndexArray()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetIndexArray() : nullptr;
+}
+
 VTK_ABI_NAMESPACE_END
 #endif // header guard
