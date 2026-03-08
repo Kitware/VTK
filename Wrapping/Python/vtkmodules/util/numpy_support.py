@@ -232,6 +232,19 @@ def vtk_to_numpy(vtk_array):
 
     # Get the data via the buffer interface
     dtype = get_numpy_array_type(typ)
+
+    # Implicit VTK arrays (vtkImplicitArray<BackendT>) compute values on
+    # the fly and don't expose the C-level buffer protocol (tp_as_buffer).
+    # Python 3.12+ added a __buffer__ dunder (PEP 688) that our mixin
+    # implements, but on Python < 3.12 numpy.frombuffer cannot reach it.
+    # Use __array__ when available — it works on all Python versions and
+    # handles both implicit and explicit arrays correctly.
+    if hasattr(vtk_array, '__array__'):
+        result = numpy.asarray(vtk_array)
+        if shape[1] == 1:
+            shape = (shape[0], )
+        return result.reshape(shape)
+
     try:
         if typ != vtkConstants.VTK_BIT:
             result = numpy.frombuffer(vtk_array, dtype=dtype)
@@ -244,21 +257,12 @@ def vtk_to_numpy(vtk_array):
         # handles that issue.
         if shape[0] == 0:
             # create an empty array with the given shape.
-            result = numpy.empty(shape, dtype=dtype)
+            return numpy.empty(shape, dtype=dtype)
         else:
             raise
     if shape[1] == 1:
         shape = (shape[0], )
-    try:
-        result.shape = shape
-    except ValueError:
-        if shape[0] == 0:
-           # Refer to https://github.com/numpy/numpy/issues/2536 .
-           # For empty array, reshape fails. Create the empty array explicitly
-           # if that happens.
-           result = numpy.empty(shape, dtype=dtype)
-        else: raise
-    return result
+    return result.reshape(shape)
 
 def vtk_soa_to_numpy(vtk_array):
     """Convert a vtkSOADataArrayTemplate in SOA mode to per-component numpy arrays.
