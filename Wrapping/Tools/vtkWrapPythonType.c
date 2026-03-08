@@ -634,7 +634,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   }
 
   /* get the superclass */
-  name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
+  name = vtkWrapPython_GetSuperClass(data, finfo, hinfo, &supermodule);
   if (name)
   {
     has_superclass = 1;

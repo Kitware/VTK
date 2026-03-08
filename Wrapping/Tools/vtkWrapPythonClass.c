@@ -27,16 +27,17 @@
 /* prototypes for the methods used by the python wrappers */
 
 /* declare the exports and imports for a VTK/Python class */
-static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const HierarchyInfo* hinfo);
+static void vtkWrapPython_ExportVTKClass(
+  FILE* fp, ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo);
 
 /* generate the New method for a vtkObjectBase object */
-static void vtkWrapPython_GenerateObjectNew(
-  FILE* fp, const char* classname, ClassInfo* data, const HierarchyInfo* hinfo, int class_has_new);
+static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, ClassInfo* data,
+  FileInfo* file_info, const HierarchyInfo* hinfo, int class_has_new);
 
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
 const char* vtkWrapPython_GetSuperClass(
-  ClassInfo* data, const HierarchyInfo* hinfo, const char** supermodule)
+  ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo, const char** supermodule)
 {
   const char* supername = NULL;
   const char* module = NULL;
@@ -46,7 +47,10 @@ const char* vtkWrapPython_GetSuperClass(
   /* if there are multiple superclasses, we just need the relevant one */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
-    supername = data->SuperClasses[i];
+    /* for templated superclass, ensure args are fully resolved */
+    supername = vtkParseHierarchy_ExpandTypedefsInTemplateArgs(
+      hinfo, data->SuperClasses[i], file_info->Strings, NULL);
+
     if (vtkWrap_IsClassWrapped(hinfo, supername))
     {
       if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
@@ -172,7 +176,7 @@ void vtkWrapPython_ClassDoc(
   }
 
   /* only consider superclasses that are wrapped */
-  supername = vtkWrapPython_GetSuperClass(data, hinfo, NULL);
+  supername = vtkWrapPython_GetSuperClass(data, file_info, hinfo, NULL);
   if (supername)
   {
     vtkWrapPython_PyTemplateName(supername, pythonname);
@@ -276,7 +280,8 @@ void vtkWrapPython_ClassDoc(
 
 /* -------------------------------------------------------------------- */
 /* Declare the exports and imports for a VTK/Python class */
-static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const HierarchyInfo* hinfo)
+static void vtkWrapPython_ExportVTKClass(
+  FILE* fp, ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo)
 {
   char classname[1024];
   const char* supername;
@@ -289,7 +294,7 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const Hierar
   fprintf(fp, "extern \"C\" { %s PyObject *Py%s_ClassNew(); }\n\n", "VTK_ABI_HIDDEN", classname);
 
   /* declare ClassNew method for superclass, if it is in the same module */
-  supername = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
+  supername = vtkWrapPython_GetSuperClass(data, file_info, hinfo, &supermodule);
   if (supername && !supermodule)
   {
     vtkWrapText_PythonName(supername, classname);
@@ -304,8 +309,8 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const Hierar
 
 /* -------------------------------------------------------------------- */
 /* generate the New method for a vtkObjectBase object */
-static void vtkWrapPython_GenerateObjectNew(
-  FILE* fp, const char* classname, ClassInfo* data, const HierarchyInfo* hinfo, int class_has_new)
+static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, ClassInfo* data,
+  FileInfo* file_info, const HierarchyInfo* hinfo, int class_has_new)
 {
   char superclassname[1024];
   const char* name;
@@ -368,7 +373,7 @@ static void vtkWrapPython_GenerateObjectNew(
     "  }\n\n");
 
   /* find the first superclass that is a VTK class, create it first */
-  name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
+  name = vtkWrapPython_GetSuperClass(data, file_info, hinfo, &supermodule);
   if (name)
   {
     vtkWrapText_PythonName(name, superclassname);
@@ -571,7 +576,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   /* declare items to be exported or imported */
   if (is_vtkobject)
   {
-    vtkWrapPython_ExportVTKClass(fp, data, hinfo);
+    vtkWrapPython_ExportVTKClass(fp, data, file_info, hinfo);
   }
 
   /* check for New() function */
@@ -621,7 +626,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
     fprintf(fp, ";\n\n");
 
     vtkWrapPython_GenerateObjectType(fp, module, classname, hasNumberProtocol);
-    vtkWrapPython_GenerateObjectNew(fp, classname, data, hinfo, class_has_new);
+    vtkWrapPython_GenerateObjectNew(fp, classname, data, file_info, hinfo, class_has_new);
   }
 
   /* output the class initialization function for special objects */

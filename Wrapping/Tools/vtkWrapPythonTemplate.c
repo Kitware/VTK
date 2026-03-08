@@ -7,6 +7,7 @@
 #include "vtkWrapPythonType.h"
 
 #include "vtkParseExtras.h"
+#include "vtkParseHierarchy.h"
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
@@ -309,6 +310,17 @@ int vtkWrapPython_WrapTemplatedClass(
 
         if (name_with_args)
         {
+          /* fully resolve any typedefs prior to instantiation */
+          const char* newname = vtkParseHierarchy_ExpandTypedefsInTemplateArgs(
+            hinfo, name_with_args, file_info->Strings, NULL);
+          if (strcmp(newname, name_with_args) != 0)
+          {
+            cp = (char*)malloc(strlen(newname) + 1);
+            strcpy(cp, newname);
+            free((char*)name_with_args);
+            name_with_args = cp;
+          }
+
           /* append to the list of instantiations if not present yet */
           for (k = 0; k < ninstantiations; k++)
           {
