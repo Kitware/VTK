@@ -1,0 +1,24 @@
+NAME
+  VTK::GUISupportQtWebGPU
+LIBRARY_NAME
+  vtkGUISupportQtWebGPU
+DESCRIPTION
+  Make VTK WebGPU render-windows available to Qt applications.
+GROUPS
+  Qt
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  VTK::RenderingWebGPU
+  VTK::GUISupportQt
+PRIVATE_DEPENDS
+  VTK::InteractionStyle
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::TestingCore
+  VTK::TestingRendering
+EXCLUDE_WRAP
