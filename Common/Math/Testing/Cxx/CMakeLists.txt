@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkCommonMathCxxTests tests
   TestQuaternion.cxx
   TestQuaternionInterpolator.cxx
   TestReservoirSampler.cxx
+  TestTuple.cxx
   UnitTestFFT.cxx
   )
 vtk_test_cxx_executable(vtkCommonMathCxxTests tests)
