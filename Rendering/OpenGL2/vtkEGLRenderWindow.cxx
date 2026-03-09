@@ -260,13 +260,6 @@ void vtkEGLRenderWindow::WindowInitialize()
   // Initialize OpenGL state
   this->OpenGLInit();
 
-#if !defined(__ANDROID__) && !defined(ANDROID) && defined(GL_POINT_SPRITE)
-  if (this->Initialized && !this->ShowWindow)
-  {
-    glEnable(GL_POINT_SPRITE);
-  }
-#endif
-
   // Notify renderers
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
