@@ -241,7 +241,7 @@ int vtkCollectGraph::RequestData(vtkInformation* vtkNotUsed(request),
         for (vtkIdType i = 0; i < wholePointData->GetNumberOfArrays(); i++)
         {
           vtkAbstractArray* arr = wholePointData->GetAbstractArray(i);
-          arr->Resize(newSize);
+          arr->ReserveTuples(newSize);
         }
       }
 

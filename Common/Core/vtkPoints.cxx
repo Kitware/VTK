@@ -1,5 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPoints.h"
 
 #include "vtkArrayDispatch.h"
@@ -247,6 +250,18 @@ void vtkPoints::ShallowCopy(vtkPoints* da)
 unsigned long vtkPoints::GetActualMemorySize()
 {
   return this->Data->GetActualMemorySize();
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkPoints::Resize(vtkIdType numPoints)
+{
+  if (numPoints != this->Data->GetNumberOfTuples())
+  {
+    this->Data->SetNumberOfComponents(3);
+    this->Modified();
+    return this->Data->Resize(numPoints);
+  }
+  return 1;
 }
 
 //------------------------------------------------------------------------------

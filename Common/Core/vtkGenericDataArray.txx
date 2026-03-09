@@ -469,7 +469,7 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Allocate(
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
-vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdType numTuples)
+vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ReserveTuples(vtkIdType numTuples)
 {
   int numComps = this->GetNumberOfComponents();
   vtkIdType curNumTuples = this->Capacity / (numComps > 0 ? numComps : 1);
@@ -480,15 +480,9 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdTy
     // currently allocated memory.
     numTuples = curNumTuples + numTuples;
   }
-  else if (numTuples == curNumTuples)
-  {
-    return 1;
-  }
   else
   {
-    // Requested size is smaller than current size.  Squeeze the
-    // memory.
-    this->DataChanged();
+    return 1;
   }
 
   assert(numTuples >= 0);
@@ -512,12 +506,6 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdTy
   // Allocation was successful. Save it.
   this->Capacity = numTuples * numComps;
 
-  // Update MaxId if we truncated:
-  if ((this->Capacity - 1) < this->MaxId)
-  {
-    this->MaxId = (this->Capacity - 1);
-  }
-
   return 1;
 }
 
@@ -531,20 +519,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetNumberOfComponents
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
-void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetNumberOfTuples(vtkIdType number)
-{
-  vtkIdType newSize = number * this->NumberOfComponents;
-  if (this->Allocate(newSize, 0))
-  {
-    this->MaxId = newSize - 1;
-  }
-}
-
-//-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT, int ArrayType>
 void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Initialize()
 {
-  this->Resize(0);
+  this->Allocate(0);
   this->DataChanged();
 }
 
@@ -552,7 +529,27 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Initialize()
 template <class DerivedT, class ValueTypeT, int ArrayType>
 void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Squeeze()
 {
-  this->Resize(this->GetNumberOfTuples());
+  if (this->GetCapacity() > this->GetNumberOfValues())
+  {
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    int numComps = this->GetNumberOfComponents() > 0 ? this->GetNumberOfComponents() : 1;
+    if (!this->ReallocateTuples(this->GetNumberOfTuples()))
+    {
+      vtkErrorMacro("Unable to allocate " << numTuples * numComps << " elements of size "
+                                          << sizeof(ValueType) << " bytes. ");
+#if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that malloc failed by return
+      return;
+#endif
+    }
+    this->Capacity = this->GetNumberOfValues();
+  }
   this->Internals->Cache = nullptr;
 }
 
@@ -643,9 +640,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuples(
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("ReserveTuples failed.");
       return;
     }
   }
@@ -715,9 +712,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuplesStartingA
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("ReserveTuples failed.");
       return;
     }
   }
@@ -918,7 +915,7 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextValue(
     this->MaxId = nextValueIdx;
   }
 
-  // Extending array without needing to reallocate:
+  // Extending array without needing to ReserveTuples:
   if (this->MaxId < nextValueIdx)
   {
     this->MaxId = nextValueIdx;
@@ -1085,7 +1082,7 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::EnsureAccessToTuple(v
   {
     if (this->Capacity < minSize)
     {
-      if (!this->Resize(tupleIdx + 1))
+      if (!this->ReserveTuples(tupleIdx + 1))
       {
         return false;
       }

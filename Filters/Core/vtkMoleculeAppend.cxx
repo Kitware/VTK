@@ -176,7 +176,7 @@ int vtkMoleculeAppend::RequestData(
     {
       vtkAbstractArray* inArray = input->GetAtomData()->GetAbstractArray(ai);
       vtkAbstractArray* outArray = output->GetAtomData()->GetAbstractArray(inArray->GetName());
-      outArray->Resize(previousNbOfAtoms + nbOfAtoms);
+      outArray->ReserveTuples(previousNbOfAtoms + nbOfAtoms);
     }
 
     for (vtkIdType ai = 0; ai < input->GetBondData()->GetNumberOfArrays(); ai++)
@@ -188,7 +188,7 @@ int vtkMoleculeAppend::RequestData(
         continue;
       }
       vtkAbstractArray* outArray = output->GetBondData()->GetAbstractArray(inArray->GetName());
-      outArray->Resize(previousNbOfBonds + nbOfBonds);
+      outArray->ReserveTuples(previousNbOfBonds + nbOfBonds);
     }
 
     // --------------------

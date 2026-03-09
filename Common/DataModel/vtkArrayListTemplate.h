@@ -294,7 +294,6 @@ public:
 
   void Realloc(vtkIdType sze) override
   {
-    this->OutputArray->Resize(sze);
     this->OutputArray->SetNumberOfTuples(sze);
     this->Output = vtk::DataArrayValueRange(TOutputArray::SafeDownCast(this->OutputArray));
   }
@@ -468,7 +467,7 @@ public:
 
   void Realloc(vtkIdType sze) override
   {
-    this->OutputArray->Resize(sze);
+    this->OutputArray->ReserveTuples(sze);
     this->OutputArray->SetNumberOfTuples(sze);
     this->Output = vtkStringArray::FastDownCast(this->OutputArray)->GetPointer(0);
   }

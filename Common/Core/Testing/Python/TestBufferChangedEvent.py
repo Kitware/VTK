@@ -31,7 +31,7 @@ class TestBufferChangedEvent(Testing.vtkTest):
     # ------------------------------------------------------------------
 
     def testAOSBufferChangedOnResize(self):
-        """AOS: BufferChangedEvent fires when Resize causes reallocation."""
+        """AOS: BufferChangedEvent fires when ReserveTuples causes reallocation."""
         arr = vtkFloatArray()
         arr.SetNumberOfComponents(1)
         arr.SetNumberOfTuples(4)
@@ -39,8 +39,8 @@ class TestBufferChangedEvent(Testing.vtkTest):
         cb, state = self._make_observer()
         arr.AddObserver(vtkCommand.BufferChangedEvent, cb)
 
-        # Resize to a significantly larger size to trigger reallocation
-        arr.Resize(1000)
+        # ReserveTuples to a significantly larger size to trigger reallocation
+        arr.ReserveTuples(1000)
         self.assertGreater(state["count"], 0,
                            "BufferChangedEvent should fire when AOS array is resized")
 
@@ -86,7 +86,7 @@ class TestBufferChangedEvent(Testing.vtkTest):
         cb, state = self._make_observer()
         arr.AddObserver(vtkCommand.BufferChangedEvent, cb)
 
-        arr.Resize(1000)
+        arr.ReserveTuples(1000)
         self.assertGreater(state["count"], 0,
                            "BufferChangedEvent should fire when SOA array is resized")
 
@@ -130,12 +130,12 @@ class TestBufferChangedEvent(Testing.vtkTest):
         cb, state = self._make_observer()
         obs_id = arr.AddObserver(vtkCommand.BufferChangedEvent, cb)
 
-        arr.Resize(1000)
+        arr.ReserveTuples(1000)
         count_after_first = state["count"]
         self.assertGreater(count_after_first, 0)
 
         arr.RemoveObserver(obs_id)
-        arr.Resize(10000)
+        arr.ReserveTuples(10000)
         self.assertEqual(state["count"], count_after_first,
                          "BufferChangedEvent should not fire after observer is removed")
 

@@ -430,8 +430,8 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           vtkCharArray* charArray = vtkCharArray::New();
           // The netcdf standard doesn't enforce null-termination
           // of string attributes, so we add a null here.
-          charArray->Resize(static_cast<vtkIdType>(attlength + 1));
-          char* dest = charArray->WritePointer(0, static_cast<vtkIdType>(attlength));
+          charArray->SetNumberOfValues(static_cast<vtkIdType>(attlength) + 1);
+          char* dest = charArray->GetPointer(0);
           nc_get_att_text(ncid, varid, attname, dest);
           dest[attlength] = '\0';
           dataArray = charArray;

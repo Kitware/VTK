@@ -709,7 +709,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ct
     for (const auto& i : this->RequiredArrays)
     {
       aa = pd->GetAbstractArray(i);
-      aa->Resize(sze);
+      aa->ReserveTuples(sze);
       this->TargetIndices[i] = i;
     }
   }
@@ -905,7 +905,7 @@ void vtkDataSetAttributes::CopyData(
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
       if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
-        array->Resize(numberOfTuples); // this preserves already existing data
+        array->ReserveTuples(numberOfTuples); // this preserves already existing data
       }
       if (numberOfTuples > array->GetNumberOfTuples())
       {
@@ -944,7 +944,7 @@ void vtkDataSetAttributes::CopyData(
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
       if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
-        array->Resize(numberOfTuples); // this preserves already existing data
+        array->ReserveTuples(numberOfTuples); // this preserves already existing data
       }
       if (numberOfTuples > array->GetNumberOfTuples())
       {
@@ -982,7 +982,7 @@ void vtkDataSetAttributes::CopyData(
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
       if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
-        array->Resize(numberOfTuples); // this preserves already existing data
+        array->ReserveTuples(numberOfTuples); // this preserves already existing data
       }
       if (numberOfTuples > array->GetNumberOfTuples())
       {

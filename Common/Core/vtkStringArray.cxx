@@ -127,7 +127,7 @@ bool vtkStringArray::EnsureAccessToTuple(vtkIdType tupleIdx)
   {
     if (this->Capacity < minSize)
     {
-      if (!this->Resize(tupleIdx + 1))
+      if (!this->ReserveTuples(tupleIdx + 1))
       {
         return false;
       }
@@ -241,7 +241,7 @@ vtkTypeBool vtkStringArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 
 void vtkStringArray::Initialize()
 {
-  this->Resize(0);
+  this->Allocate(0);
   this->DataChanged();
 }
 
@@ -402,8 +402,35 @@ void vtkStringArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
+void vtkStringArray::Squeeze()
 {
+  if (this->GetCapacity() > this->GetNumberOfValues())
+  {
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    int numComps = this->GetNumberOfComponents() > 0 ? this->GetNumberOfComponents() : 1;
+    if (!this->ReallocateTuples(this->GetNumberOfTuples()))
+    {
+      vtkErrorMacro("Unable to allocate " << numTuples * numComps << " elements of size "
+                                          << sizeof(ValueType) << " bytes. ");
+#if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that malloc failed by return
+      return;
+#endif
+    }
+    this->Capacity = this->GetNumberOfValues();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkStringArray::ReserveTuples(vtkIdType numTuples)
+{
+  assert(numTuples >= 0);
   int numComps = this->GetNumberOfComponents();
   vtkIdType curNumTuples = this->Capacity / (numComps > 0 ? numComps : 1);
   if (numTuples > curNumTuples)
@@ -413,18 +440,10 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
     // currently allocated memory.
     numTuples = curNumTuples + numTuples;
   }
-  else if (numTuples == curNumTuples)
+  else
   {
     return 1;
   }
-  else
-  {
-    // Requested size is smaller than current size.  Squeeze the
-    // memory.
-    this->DataChanged();
-  }
-
-  assert(numTuples >= 0);
 
   if (!this->ReallocateTuples(numTuples))
   {
@@ -445,9 +464,6 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
   // Allocation was successful. Save it.
   this->Capacity = numTuples * numComps;
 
-  // Update MaxId if we truncated:
-  this->MaxId = std::min(this->Capacity - 1, this->MaxId);
-
   return 1;
 }
 
@@ -457,7 +473,7 @@ vtkStringArray::ValueType* vtkStringArray::WritePointer(vtkIdType valueIdx, vtkI
   vtkIdType newSize = valueIdx + numValues;
   if (newSize > this->Capacity)
   {
-    if (!this->Resize(newSize / this->NumberOfComponents + 1))
+    if (!this->ReserveTuples(newSize / this->NumberOfComponents + 1))
     {
       return nullptr;
     }
@@ -636,9 +652,9 @@ void vtkStringArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstr
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("Reallocate failed.");
       return;
     }
   }
@@ -706,9 +722,9 @@ void vtkStringArray::InsertTuplesStartingAt(
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("Reallocate failed.");
       return;
     }
   }
@@ -771,9 +787,9 @@ void vtkStringArray::InsertTuples(
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("Reallocate failed.");
       return;
     }
   }

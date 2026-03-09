@@ -319,8 +319,8 @@ def test_memory_safety():
     check(view1 is not None, "initial view should not be None")
     check(view1.shape == (5, 3), f"initial shape should be (5, 3), got {view1.shape}")
 
-    # Resize to much larger (triggers BufferChangedEvent via ReallocateTuples)
-    vtk_arr.Resize(1000)
+    # ReserveTuples to much larger (triggers BufferChangedEvent via ReallocateTuples)
+    vtk_arr.ReserveTuples(1000)
     vtk_arr.SetNumberOfTuples(1000)
 
     # Cache should be invalidated

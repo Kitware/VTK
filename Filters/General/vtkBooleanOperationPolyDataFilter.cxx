@@ -183,14 +183,14 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   vtkIdType i;
   i = pointSourceLabel->GetNumberOfTuples();
-  pointSourceLabel->Resize(outputSurface->GetNumberOfPoints());
+  pointSourceLabel->ReserveTuples(outputSurface->GetNumberOfPoints());
   for (; i < outputSurface->GetNumberOfPoints(); i++)
   {
     pointSourceLabel->InsertValue(i, 1);
   }
 
   i = cellSourceLabel->GetNumberOfTuples();
-  cellSourceLabel->Resize(outputSurface->GetNumberOfCells());
+  cellSourceLabel->ReserveTuples(outputSurface->GetNumberOfCells());
   for (; i < outputSurface->GetNumberOfCells(); i++)
   {
     cellSourceLabel->InsertValue(i, 1);

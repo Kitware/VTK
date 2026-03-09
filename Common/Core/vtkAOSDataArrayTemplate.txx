@@ -212,7 +212,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertComponent(
   const vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
   if (newMaxId >= this->Capacity)
   {
-    if (!this->Resize(newMaxId / this->NumberOfComponents + 1))
+    if (!this->ReserveTuples(newMaxId / this->NumberOfComponents + 1))
     {
       return;
     }
@@ -230,7 +230,7 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>::InsertNextTuple(const float* tupl
   const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
   if (newMaxId >= this->Capacity)
   {
-    if (!this->Resize(tupleIdx + 1))
+    if (!this->ReserveTuples(tupleIdx + 1))
     {
       return -1;
     }
@@ -254,7 +254,7 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>::InsertNextTuple(const double* tup
   const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
   if (newMaxId >= this->Capacity)
   {
-    if (!this->Resize(tupleIdx + 1))
+    if (!this->ReserveTuples(tupleIdx + 1))
     {
       return -1;
     }
@@ -372,9 +372,9 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(maxDstTupleId + 1))
+    if (!this->ReserveTuples(maxDstTupleId + 1))
     {
-      vtkErrorMacro("Resize failed.");
+      vtkErrorMacro("ReserveTuples failed.");
       return;
     }
   }
@@ -425,7 +425,7 @@ vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType valueIdx, vtkIdType 
   vtkIdType newSize = valueIdx + numValues;
   if (newSize > this->Capacity)
   {
-    if (!this->Resize(newSize / this->NumberOfComponents + 1))
+    if (!this->ReserveTuples(newSize / this->NumberOfComponents + 1))
     {
       return nullptr;
     }

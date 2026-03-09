@@ -1110,13 +1110,13 @@ void vtkMFIXReader::ReadRestartFile()
 
   // C , C_name and nmax
 
-  this->NMax->Resize(this->MMAX + 1);
+  this->NMax->ReserveTuples(this->MMAX + 1);
   for (int lc = 0; lc < this->MMAX + 1; ++lc)
   {
     this->NMax->InsertValue(lc, 1);
   }
 
-  this->C->Resize(this->DimensionC);
+  this->C->ReserveTuples(this->DimensionC);
 
   if (this->VersionNumber > 1.04)
   {
@@ -1144,9 +1144,9 @@ void vtkMFIXReader::ReadRestartFile()
     }
   }
 
-  this->Dx->Resize(this->IMaximum2);
-  this->Dy->Resize(this->JMaximum2);
-  this->Dz->Resize(this->KMaximum2);
+  this->Dx->ReserveTuples(this->IMaximum2);
+  this->Dy->ReserveTuples(this->JMaximum2);
+  this->Dz->ReserveTuples(this->KMaximum2);
 
   this->GetBlockOfDoubles(in, this->Dx, this->IMaximum2);
   this->GetBlockOfDoubles(in, this->Dy, this->JMaximum2);
@@ -1191,7 +1191,7 @@ void vtkMFIXReader::ReadRestartFile()
 
   if (this->VersionNumber >= 1.04)
   {
-    this->TempD->Resize(this->NMax->GetValue(0));
+    this->TempD->ReserveTuples(this->NMax->GetValue(0));
     this->GetBlockOfDoubles(in, this->TempD, this->NMax->GetValue(0)); // MW_g
     for (int i = 0; i < this->MMAX; ++i)
     {
@@ -1202,8 +1202,8 @@ void vtkMFIXReader::ReadRestartFile()
   in.read(this->DataBuffer, 512); // D_p etc.
 
   // read in the "DimensionIc" variables (and ignore ... not used by ani_mfix)
-  this->TempI->Resize(this->DimensionIc);
-  this->TempD->Resize(this->DimensionIc);
+  this->TempI->ReserveTuples(this->DimensionIc);
+  this->TempD->ReserveTuples(this->DimensionIc);
 
   this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_x_w
   this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_x_e
@@ -1264,8 +1264,8 @@ void vtkMFIXReader::ReadRestartFile()
   }
 
   // read in the "DimensionBc" variables (and ignore ... not used by ani_mfix)
-  this->TempI->Resize(this->DimensionBc);
-  this->TempD->Resize(this->DimensionBc);
+  this->TempI->ReserveTuples(this->DimensionBc);
+  this->TempD->ReserveTuples(this->DimensionBc);
 
   this->GetBlockOfDoubles(in, this->TempD, this->DimensionBc); // bc_x_w
   this->GetBlockOfDoubles(in, this->TempD, this->DimensionBc); // bc_x_e
@@ -1344,12 +1344,12 @@ void vtkMFIXReader::ReadRestartFile()
     }
   }
 
-  this->Flag->Resize(this->IJKMaximum2);
+  this->Flag->ReserveTuples(this->IJKMaximum2);
   this->GetBlockOfInts(in, this->Flag, this->IJKMaximum2);
 
   // DimensionIs variables (not needed by ani_mfix)
-  this->TempI->Resize(this->DimensionIs);
-  this->TempD->Resize(this->DimensionIs);
+  this->TempI->ReserveTuples(this->DimensionIs);
+  this->TempD->ReserveTuples(this->DimensionIs);
 
   if (this->VersionNumber >= 1.04)
   {
@@ -1407,7 +1407,7 @@ void vtkMFIXReader::ReadRestartFile()
       in.read(this->DataBuffer, 512); // species_eq
     }
 
-    this->TempD->Resize(dimensionUsr);
+    this->TempD->ReserveTuples(dimensionUsr);
 
     this->GetBlockOfDoubles(in, this->TempD, dimensionUsr); // usr_dt
     this->GetBlockOfDoubles(in, this->TempD, dimensionUsr); // usr x w
@@ -1422,7 +1422,7 @@ void vtkMFIXReader::ReadRestartFile()
       in.read(this->DataBuffer, 512); // usr_ext etc.
     }
 
-    this->TempD->Resize(this->DimensionIc);
+    this->TempD->ReserveTuples(this->DimensionIc);
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_p_star
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_l_scale
     for (int lc = 0; lc < this->DimensionIc; ++lc)
@@ -1430,7 +1430,7 @@ void vtkMFIXReader::ReadRestartFile()
       in.read(this->DataBuffer, 512); // ic_type
     }
 
-    this->TempD->Resize(DimensionBc);
+    this->TempD->ReserveTuples(DimensionBc);
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionBc); // bc_dt_0
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionBc); // bc_jet_g0
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionBc); // bc_dt_h
@@ -1482,7 +1482,7 @@ void vtkMFIXReader::ReadRestartFile()
   {
     in.read(this->DataBuffer, 512); // k_g0 , etc.
 
-    this->TempD->Resize(this->DimensionIc);
+    this->TempD->ReserveTuples(this->DimensionIc);
 
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_gama_rg
     this->GetBlockOfDoubles(in, this->TempD, this->DimensionIc); // ic_t_rg
@@ -1508,7 +1508,7 @@ void vtkMFIXReader::ReadRestartFile()
     this->GetInt(in, DIM_tmp);
     this->SkipBytes(in, 512 - sizeof(double) - 2 * sizeof(int));
 
-    this->TempI->Resize(DIM_tmp);
+    this->TempI->ReserveTuples(DIM_tmp);
     this->GetBlockOfInts(in, this->TempI, DIM_tmp); // Phase4Scalar;
   }
 

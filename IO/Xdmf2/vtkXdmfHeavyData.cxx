@@ -688,7 +688,8 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     offsets->SetValue(numCells, offset); // final offset value
 
     // Resize the Array to the Proper Size
-    conn->Resize(connIndex);
+    conn->SetNumberOfValues(connIndex);
+    conn->Squeeze();
 
     // Create and set the cell array:
     vtkNew<vtkCellArray> cells;

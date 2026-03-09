@@ -101,6 +101,18 @@ public:
   virtual vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext = 1000) = 0;
 
   /**
+   * Reserve the array to the requested number of tuples and preserve data.
+   *
+   * Increasing the array capacity may allocate extra memory beyond what was
+   * requested. MaxId will not be modified when increasing array size.
+   *
+   * Decreasing the array capacity is effectively a no-op.
+   *
+   * Returns 1 if resizing succeeded and 0 otherwise.
+   */
+  virtual vtkTypeBool ReserveTuples(vtkIdType numTuples) = 0;
+
+  /**
    * Release storage and reset array to initial state.
    */
   virtual void Initialize() = 0;
@@ -180,11 +192,12 @@ public:
   /**
    * Set the number of tuples (a component group) in the array. Note that
    * this may allocate space depending on the number of components.
-   * Also note that if allocation is performed no copy is performed so
-   * existing data will be lost (if data conservation is sought, one may
-   * use the Resize method instead).
+   * Preserves existing data.
    */
-  virtual void SetNumberOfTuples(vtkIdType numTuples) = 0;
+  virtual void SetNumberOfTuples(vtkIdType numTuples)
+  {
+    this->SetNumberOfValues(this->NumberOfComponents * numTuples);
+  }
 
   /**
    * Specify the number of values (tuples * components) for this object to
@@ -326,21 +339,22 @@ public:
 
   /**
    * Free any unnecessary memory.
-   * Description:
    * Resize object to just fit data requirement. Reclaims extra memory.
    */
   virtual void Squeeze() = 0;
 
   /**
    * Resize the array to the requested number of tuples and preserve data.
-   * Increasing the array size may allocate extra memory beyond what was
+   *
+   * Increasing the array capacity may allocate extra memory beyond what was
    * requested. MaxId will not be modified when increasing array size.
    * Decreasing the array size will trim memory to the requested size and
    * may update MaxId if the valid id range is truncated.
    * Requesting an array size of 0 will free all memory.
    * Returns 1 if resizing succeeded and 0 otherwise.
    */
-  virtual vtkTypeBool Resize(vtkIdType numTuples) = 0;
+  VTK_DEPRECATED_IN_9_7_0("Use ReserveTuples, Squeeze or Initialize")
+  virtual vtkTypeBool Resize(vtkIdType numTuples);
 
   ///@{
   /**

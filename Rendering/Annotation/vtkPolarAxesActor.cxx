@@ -1391,7 +1391,6 @@ void vtkPolarAxesActor::StoreTicksPtsFromParamEllipse(
   }
 
   vtkIdType nPoints = tickPts->GetNumberOfPoints();
-  tickPts->Resize(nPoints + 4);
   tickPts->SetNumberOfPoints(nPoints + 4);
   tickPts->SetPoint(nPoints, planeInPt);
   tickPts->SetPoint(nPoints + 1, planeOutPt);

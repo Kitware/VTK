@@ -294,7 +294,8 @@ bool vtkSTLReader::ReadBinarySTL(
   this->SetHeader(reinterpret_cast<char*>(this->BinaryHeader->GetPointer(0)));
 
   // Remove the extra NULL termination from the binary header.
-  this->BinaryHeader->Resize(::STL_HEADER_SIZE);
+  this->BinaryHeader->SetNumberOfTuples(::STL_HEADER_SIZE);
+  this->BinaryHeader->Squeeze();
 
   uint32_t numTrisField;
   if (!vtkSTLReader::ReadBinaryTrisField(stream, numTrisField))

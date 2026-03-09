@@ -84,8 +84,6 @@ void MergePoints(
     numPts += (*itr).Output->GetNumberOfPoints();
     ++itr;
   }
-  // Resize preserves existing data on reallocation
-  outPts->Resize(numPts);
   outPts->SetNumberOfPoints(numPts);
 
   // Find non-empty buckets for best load balancing. We don't
@@ -132,8 +130,6 @@ void MergePoints(
     int numArrays = mergePoints.OutputPointData->GetNumberOfArrays();
     for (int i = 0; i < numArrays; i++)
     {
-      // Resize preserves existing data on reallocation
-      mergePoints.OutputPointData->GetArray(i)->Resize(numPts);
       mergePoints.OutputPointData->GetArray(i)->SetNumberOfTuples(numPts);
     }
     mergePoints.InputPointDatas = pds.data();
@@ -429,8 +425,6 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
   int numCellArrays = outCellData->GetNumberOfArrays();
   for (int i = 0; i < numCellArrays; i++)
   {
-    // Resize preserves existing data on reallocation
-    outCellData->GetArray(i)->Resize(numOutCells);
     outCellData->GetArray(i)->SetNumberOfTuples(numOutCells);
   }
 

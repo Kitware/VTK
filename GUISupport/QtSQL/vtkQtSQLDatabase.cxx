@@ -166,7 +166,7 @@ vtkStringArray* vtkQtSQLDatabase::GetTables()
 vtkStringArray* vtkQtSQLDatabase::GetRecord(const char* table)
 {
   // Clear any existing records
-  currentRecord->Resize(0);
+  currentRecord->Initialize();
 
   QSqlRecord columns = this->QtDatabase.record(table);
   for (int i = 0; i < columns.count(); i++)

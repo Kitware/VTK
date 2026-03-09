@@ -490,7 +490,8 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataArray* outScalars = nullptr;
   if (this->ColorRegions && (outScalars = output->GetPointData()->GetScalars()))
   {
-    outScalars->Resize(output->GetNumberOfPoints());
+    outScalars->SetNumberOfTuples(output->GetNumberOfPoints());
+    outScalars->Squeeze();
   }
 
 #ifndef NDEBUG

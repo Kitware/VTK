@@ -11,6 +11,7 @@
 #ifndef vtkPolyPointSource_h
 #define vtkPolyPointSource_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -36,7 +37,13 @@ public:
   /**
    * Resize while preserving data.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Reserve")
   void Resize(vtkIdType numPoints);
+
+  /**
+   * Reserve while preserving data.
+   */
+  void Reserve(vtkIdType numPoints);
 
   /**
    * Set a point location.

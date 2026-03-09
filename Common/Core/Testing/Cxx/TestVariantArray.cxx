@@ -116,7 +116,7 @@ int TestVariantArray(int, char*[])
   // * void Initialize();
   // * void SetNumberOfTuples(vtkIdType number);
   // * void Squeeze();
-  // * vtkTypeBool Resize(vtkIdType numTuples);
+  // * vtkTypeBool ReserveTuples(vtkIdType numTuples);
   // * void SetNumberOfValues(vtkIdType number);
   // * void SetVoidArray(void *arr, vtkIdType size, int save);
   // * void SetArray(vtkVariant* arr, vtkIdType size, int save);
@@ -156,6 +156,7 @@ int TestVariantArray(int, char*[])
   }
 
   arr->SetNumberOfTuples(500);
+  arr->Squeeze();
   if (arr->GetCapacity() != 1500 || arr->GetNumberOfTuples() != 500)
   {
     std::cerr << "5) Capacity (" << arr->GetCapacity() << ") should be 1500, "
@@ -179,7 +180,8 @@ int TestVariantArray(int, char*[])
     return EXIT_FAILURE;
   }
 
-  arr->Resize(500);
+  arr->SetNumberOfTuples(500);
+  arr->Squeeze();
   if (arr->GetCapacity() != 1500 || arr->GetNumberOfTuples() != 500)
   {
     std::cerr << "8) Capacity=" << arr->GetCapacity() << ", should be 1500, "

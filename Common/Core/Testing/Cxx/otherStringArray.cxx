@@ -39,20 +39,20 @@ int doStringArrayTest(ostream& strm, int size)
     strings[i] = "string entry " + vtk::to_string(i);
   }
 
-  strm << "\tResize(0)...";
-  ptr->Resize(0);
+  strm << "\tReserveTuples(0)...";
+  ptr->ReserveTuples(0);
   strm << "OK" << std::endl;
 
-  strm << "\tResize(10)...";
-  ptr->Resize(10);
+  strm << "\tReserveTuples(10)...";
+  ptr->ReserveTuples(10);
   strm << "OK" << std::endl;
 
-  strm << "\tResize(5)...";
-  ptr->Resize(5);
+  strm << "\tReserveTuples(5)...";
+  ptr->ReserveTuples(5);
   strm << "OK" << std::endl;
 
-  strm << "\tResize(size)...";
-  ptr->Resize(size);
+  strm << "\tReserveTuples(size)...";
+  ptr->ReserveTuples(size);
   strm << "OK" << std::endl;
 
   strm << "\tSetNumberOfValues...";

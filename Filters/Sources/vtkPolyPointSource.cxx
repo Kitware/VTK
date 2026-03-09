@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkPolyPointSource.h"
 
 #include "vtkCellArray.h"
@@ -87,6 +89,21 @@ void vtkPolyPointSource::Resize(vtkIdType numPoints)
   if (numPoints != this->GetNumberOfPoints())
   {
     this->Points->Resize(numPoints);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyPointSource::Reserve(vtkIdType numPoints)
+{
+  if (!this->Points)
+  {
+    this->SetNumberOfPoints(numPoints);
+  }
+
+  if (numPoints != this->GetNumberOfPoints())
+  {
+    this->Points->Reserve(numPoints);
     this->Modified();
   }
 }

@@ -113,7 +113,7 @@ int TestUnstructuredGrid(int argc, char* argv[])
 
   // Test PolyLine
   vtkNew<vtkPolyLineSource> polylines;
-  polylines->Resize(3);
+  polylines->SetNumberOfPoints(3);
   polylines->SetClosed(false);
   for (vtkIdType i = 0; i < 3; ++i)
   {
@@ -292,7 +292,7 @@ int TestPolyData(int argc, char* argv[])
 
   // Test PolyLine
   vtkNew<vtkPolyLineSource> polylines;
-  polylines->Resize(3);
+  polylines->SetNumberOfPoints(3);
   polylines->SetClosed(false);
   for (vtkIdType i = 0; i < 3; ++i)
   {
@@ -317,7 +317,7 @@ int TestPolyData(int argc, char* argv[])
 
   // Test PolyVertex
   vtkNew<vtkPolyPointSource> polyPoints;
-  polyPoints->Resize(2);
+  polyPoints->SetNumberOfPoints(2);
   polyPoints->SetPoint(0, 0, 0, 0);
   polyPoints->SetPoint(1, 1, 0, 0);
   vtkSmartPointer<vtkPartitionedDataSetCollection> output3 =

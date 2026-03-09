@@ -178,7 +178,7 @@ inline void ArrayList::AddSelfInterpolatingArrays(
     vtkAbstractArray* iArray = attr->GetArray(i);
     if (iArray && !this->IsExcluded(iArray))
     {
-      iArray->Resize(numOutPts);
+      iArray->ReserveTuples(numOutPts);
       ArrayPairCreator creator;
       if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
             iArray, iArray, creator, this, numOutPts, iArray->GetNumberOfComponents(), nullValue))

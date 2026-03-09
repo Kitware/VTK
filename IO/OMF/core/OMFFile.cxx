@@ -50,7 +50,6 @@ struct DecompressToDataArrayWorker
     do
     {
       // preserve data already added
-      array->Resize(totalTuplesRead + numTuples);
       zStream->next_out = reinterpret_cast<unsigned char*>(array->WritePointer(destPos, numValues));
       zStream->avail_out = bufSizeBytes;
       auto err = inflate(zStream, Z_NO_FLUSH);
@@ -69,8 +68,9 @@ struct DecompressToDataArrayWorker
     } while (zStream->avail_in > 0);
     inflateEnd(zStream);
 
-    // Perform resize because otherwise we may have some junk values at the end
-    array->Resize(totalTuplesRead);
+    // Perform SetNumberOfTuples/Squeeze because otherwise we may have some junk values at the end
+    array->SetNumberOfTuples(totalTuplesRead);
+    array->Squeeze();
   }
 };
 

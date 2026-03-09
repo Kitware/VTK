@@ -166,7 +166,7 @@ void vtkDataArray::InsertTuple(
   vtkIdType newSize = (dstTupleIdx + 1) * this->NumberOfComponents;
   if (this->Capacity < newSize)
   {
-    if (!this->Resize(dstTupleIdx + 1))
+    if (!this->ReserveTuples(dstTupleIdx + 1))
     {
       vtkErrorMacro("Resize failed.");
       return;
@@ -1079,7 +1079,8 @@ void vtkDataArray::RemoveLastTuple()
 {
   if (this->GetNumberOfTuples() > 0)
   {
-    this->Resize(this->GetNumberOfTuples() - 1);
+    this->SetNumberOfTuples(this->GetNumberOfTuples() - 1);
+    this->Squeeze();
   }
 }
 

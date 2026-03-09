@@ -190,7 +190,7 @@ void ProjectElement::ProcessDataFields(
             auto stringArray = file->ReadStringArrayFromStream(valuesUID);
             vtkNew<vtkStringArray> stringData;
             stringData->SetName(name.c_str());
-            stringData->Resize(dataArrayCasted->GetNumberOfValues());
+            stringData->Allocate(dataArrayCasted->GetNumberOfValues());
             for (int idx = 0; idx < dataArrayCasted->GetNumberOfValues(); ++idx)
             {
               auto val = dataArrayCasted->GetValue(idx);

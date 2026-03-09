@@ -152,7 +152,7 @@ public:
   /**
    * Read only container, not supported.
    */
-  vtkTypeBool Resize(vtkIdType numTuples) override;
+  vtkTypeBool ReserveTuples(vtkIdType numTuples) override;
 
   /**
    * Read only container, not supported.
@@ -262,11 +262,6 @@ public:
    * Read only container, not supported.
    */
   void RemoveFirstTuple() override;
-
-  /**
-   * Read only container, not supported.
-   */
-  void RemoveLastTuple() override;
 
   /**
    * Read only container, not supported.

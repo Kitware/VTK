@@ -303,7 +303,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
 
   for (int i = 0; i < this->OutData->GetNumberOfArrays(); i++)
   {
-    this->OutData->GetAbstractArray(i)->Resize(output->GetNumberOfCells());
+    this->OutData->GetAbstractArray(i)->ReserveTuples(output->GetNumberOfCells());
   }
 
   this->Points->Delete();

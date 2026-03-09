@@ -692,8 +692,9 @@ void vtkHyperTreeGridRedistribute::ExchangeHyperTreeMetaData(vtkBitArray* descri
 
     // Make sure that we're starting the partition on a full byte
     int byteAlignedSize = ::GetNumberOfBytes(descriptorSizeCum) * 8;
-    descriptorSendBuffer->Resize(
+    descriptorSendBuffer->SetNumberOfTuples(
       descriptorSendBuffer->GetNumberOfTuples() + (byteAlignedSize - descriptorSizeCum));
+    descriptorSendBuffer->Squeeze();
 
     this->NbDescriptorsBytesPerPart[part] = byteAlignedSize / 8;
     if (part > 0)

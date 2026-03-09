@@ -213,7 +213,7 @@ bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
   {
     ++numTuples;
   }
-  if (!this->Resize(numTuples))
+  if (!this->ReserveTuples(numTuples))
   {
     return false;
   }
@@ -310,6 +310,24 @@ void vtkAbstractArray::ShallowCopy(vtkAbstractArray* src)
 {
   // Deep copy by default. Subclasses may override this behavior.
   this->DeepCopy(src);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkAbstractArray::Resize(vtkIdType numTuples)
+{
+  if (numTuples <= 0)
+  {
+    this->Initialize();
+    return true;
+  }
+  vtkIdType numValues = numTuples * this->NumberOfComponents;
+  if (this->GetCapacity() > numValues)
+  {
+    this->MaxId = numValues - 1;
+    this->Squeeze();
+    return true;
+  }
+  return this->ReserveTuples(numTuples);
 }
 
 //------------------------------------------------------------------------------

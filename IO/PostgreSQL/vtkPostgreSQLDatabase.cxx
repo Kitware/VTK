@@ -393,7 +393,7 @@ bool vtkPostgreSQLDatabase::ParseURL(const char* URL)
 //------------------------------------------------------------------------------
 vtkStringArray* vtkPostgreSQLDatabase::GetTables()
 {
-  this->Tables->Resize(0);
+  this->Tables->Initialize();
   if (!this->Connection)
   {
     vtkErrorMacro(<< this->GetLastErrorText());

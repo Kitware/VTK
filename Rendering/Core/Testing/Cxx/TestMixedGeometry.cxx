@@ -34,7 +34,7 @@ vtkNew<vtkPolyLineSource> MakePolyLineSource(
   vtkIdType numPts, bool closed, double offsetX, double offsetY)
 {
   vtkNew<vtkPolyLineSource> polylines;
-  polylines->Resize(numPts);
+  polylines->SetNumberOfPoints(numPts);
   polylines->SetClosed(closed);
   for (vtkIdType i = 0; i < numPts; ++i)
   {

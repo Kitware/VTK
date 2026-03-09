@@ -348,7 +348,7 @@ vtkSQLQuery* vtkSQLiteDatabase::GetQueryInstance()
 //------------------------------------------------------------------------------
 vtkStringArray* vtkSQLiteDatabase::GetTables()
 {
-  this->Tables->Resize(0);
+  this->Tables->Initialize();
   if (this->Internal->SQLiteInstance == nullptr)
   {
     vtkErrorMacro(<< "GetTables(): Database is not open!");

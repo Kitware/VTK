@@ -176,11 +176,6 @@ vtkIdType vtkTable::GetNumberOfRows()
 //------------------------------------------------------------------------------
 void vtkTable::SetNumberOfRows(vtkIdType n)
 {
-  // to preserve data first call Resize() on all arrays
-  for (int i = 0; i < this->GetNumberOfColumns(); i++)
-  {
-    this->GetColumn(i)->Resize(n);
-  }
   this->RowData->SetNumberOfTuples(n);
 }
 
@@ -412,14 +407,7 @@ void vtkTable::RemoveAllRows()
   for (vtkIdType i = 0; i < ncol; i++)
   {
     vtkAbstractArray* arr = this->GetColumn(i);
-    if (vtkArrayDownCast<vtkDataArray>(arr))
-    {
-      arr->SetNumberOfTuples(0);
-    }
-    else
-    {
-      arr->SetNumberOfValues(0);
-    }
+    arr->Initialize();
   }
 }
 

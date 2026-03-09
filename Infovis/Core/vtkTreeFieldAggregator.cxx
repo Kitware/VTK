@@ -83,7 +83,7 @@ int vtkTreeFieldAggregator::RequestData(vtkInformation* vtkNotUsed(request),
     if (oldArr->IsA("vtkStringArray"))
     {
       vtkDoubleArray* doubleArr = vtkDoubleArray::New();
-      doubleArr->Resize(oldArr->GetNumberOfTuples());
+      doubleArr->ReserveTuples(oldArr->GetNumberOfTuples());
       for (vtkIdType i = 0; i < oldArr->GetNumberOfTuples(); i++)
       {
         doubleArr->InsertNextTuple1(vtkTreeFieldAggregator::GetDoubleValue(oldArr, i));

@@ -447,7 +447,7 @@ vtkTypeBool vtkPeriodicDataArray<Scalar>::Allocate(vtkIdType, vtkIdType)
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-vtkTypeBool vtkPeriodicDataArray<Scalar>::Resize(vtkIdType)
+vtkTypeBool vtkPeriodicDataArray<Scalar>::ReserveTuples(vtkIdType)
 {
   vtkErrorMacro("Read only container.");
   return 0;
@@ -601,13 +601,6 @@ void vtkPeriodicDataArray<Scalar>::RemoveTuple(vtkIdType)
 //------------------------------------------------------------------------------
 template <class Scalar>
 void vtkPeriodicDataArray<Scalar>::RemoveFirstTuple()
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar>
-void vtkPeriodicDataArray<Scalar>::RemoveLastTuple()
 {
   vtkErrorMacro("Read only container.");
 }
