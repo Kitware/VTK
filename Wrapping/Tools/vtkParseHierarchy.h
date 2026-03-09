@@ -164,6 +164,15 @@ extern "C"
     const HierarchyInfo* info, const char* text, const char* scope);
 
   /**
+   * Expand all typedefs in the template args of a type.
+   * Return a cached string (or the original string if no change).
+   * Set scope to NULL to use global scope.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  const char* vtkParseHierarchy_ExpandTypedefsInTemplateArgs(
+    const HierarchyInfo* info, const char* name, StringCache* cache, const char* scope);
+
+  /**
    * Check whether the named type is an enum type that appears either in
    * the HierarchyInfo or within the ClassInfo.  If the enum type is found,
    * its qualified name is returned, otherwise NULL is returned.
