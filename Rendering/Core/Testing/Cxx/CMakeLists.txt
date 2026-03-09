@@ -92,6 +92,7 @@ set(cxx_tests
   TestHomogeneousTransformOfActor.cxx
   TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
+  TestLightShallowClone.cxx,NO_DATA,NO_VALID
   TestLabeledContourMapper.cxx
   TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
