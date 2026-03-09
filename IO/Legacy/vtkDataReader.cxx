@@ -60,6 +60,181 @@
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
+// Heavily adapted from:
+// https://stackoverflow.com/questions/11420263/is-it-possible-to-read-infinity-or-nan-values-using-input-streams
+// Note that we do not accept "nan(…)" where "…" is a sequence of any characters. This is
+// allowed by the specification but since we must preserve the character sequence for putback()
+// if there is no terminating parenthesis and no limit is placed on the sequence length, we choose
+// not to accept it as part of the VTK format.
+template <typename Number>
+void parse_on_fail(std::istream& stream, Number& xx, bool neg)
+{
+  static const char* allowed[] = { "", "infinity", "nan" };
+  const char* aa = allowed[0];
+  int ll = 0;
+  char putback_buffer[10]; // enough space for "-infinity" plus 1 character beyond
+  char* cc = putback_buffer;
+  if (neg)
+  {
+    *cc++ = '-';
+  }
+  stream.clear();
+  stream.get(*cc);
+  if (!stream.good())
+  {
+    return;
+  }
+  switch (std::tolower(*cc))
+  {
+    case 'i':
+      ll = 1;
+      aa = allowed[ll];
+      break;
+    case 'n':
+      ll = 2;
+      aa = allowed[ll];
+      break;
+  }
+  while (*aa && std::tolower(*cc) == *aa)
+  {
+    if (aa - allowed[ll] == 2)
+    {
+      break;
+    }
+    ++aa;
+    stream.get(*++cc);
+    if (!stream.good())
+    {
+      break;
+    }
+  }
+  // If we matched the first 3 characters, we may be done:
+  bool ok = true;
+  if (stream.good() && std::tolower(*cc) == *aa)
+  {
+    int pp = stream.peek();
+    switch (ll)
+    {
+      case 1:
+      {
+        if (std::isspace(pp) || pp == std::istream::traits_type::eof())
+        {
+          // A space or EOF beyond "inf" means we have matched "inf":
+          xx = std::numeric_limits<Number>::infinity();
+        }
+        else
+        {
+          // We need to consume "inity" (modulo capitalization) if it is present.
+          while (*aa && std::tolower(*cc) == *aa)
+          {
+            if (aa - allowed[ll] == 7)
+            {
+              break;
+            }
+            ++aa;
+            stream.get(*++cc);
+            if (!stream.good())
+            {
+              break;
+            }
+          }
+          if (stream.good() && std::tolower(*cc) == *aa)
+          {
+            pp = stream.peek();
+            if (std::isspace(pp) || pp == std::istream::traits_type::eof())
+            {
+              // A space or EOF means we have matched "infinity":
+              xx = std::numeric_limits<Number>::infinity();
+            }
+            else
+            {
+              ok = false;
+            }
+          }
+          else
+          {
+            ok = false;
+            if (stream.good())
+            {
+              stream.putback(*cc);
+              --cc;
+            }
+          }
+        }
+      }
+      break;
+      case 2:
+        if (std::isspace(pp) || pp == std::istream::traits_type::eof())
+        {
+          // A space or EOF beyond "nan" means we have matched "nan":
+          xx = std::numeric_limits<Number>::quiet_NaN();
+        }
+        else
+        {
+          ok = false;
+        }
+        break;
+    }
+    if (ok)
+    {
+      if (neg)
+      {
+        xx = -xx;
+      }
+      return;
+    }
+  }
+  else if (!stream.good())
+  {
+    if (!stream.fail())
+    {
+      return;
+    }
+    stream.clear();
+    --cc;
+  }
+  // Failure to match means we must put back the characters we read
+  // and set the failure bit.
+  do
+  {
+    stream.putback(*cc);
+  } while (cc-- != putback_buffer);
+  stream.setstate(std::ios_base::failbit);
+}
+
+// Adapted from:
+// https://stackoverflow.com/questions/11420263/is-it-possible-to-read-infinity-or-nan-values-using-input-streams
+template <typename Number>
+void read_stream_fp(std::istream& stream, Number& xx)
+{
+  bool neg = false;
+  char cc;
+  if (!stream.good())
+  {
+    return;
+  }
+  while (isspace(cc = stream.peek()))
+  {
+    stream.get();
+  }
+  if (cc == '-')
+  {
+    neg = true;
+  }
+  stream >> xx;
+  if (!stream.fail())
+  {
+    return;
+  }
+  parse_on_fail<Number>(stream, xx, neg);
+}
+
+} // anonmyous namespace
+
 static int my_getline(istream& in, std::string& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
@@ -422,7 +597,7 @@ int vtkDataReader::Read(unsigned long long* result)
 //------------------------------------------------------------------------------
 int vtkDataReader::Read(float* result)
 {
-  *this->IS >> *result;
+  read_stream_fp(*this->IS, *result);
   if (this->IS->fail())
   {
     return 0;
@@ -433,7 +608,7 @@ int vtkDataReader::Read(float* result)
 //------------------------------------------------------------------------------
 int vtkDataReader::Read(double* result)
 {
-  *this->IS >> *result;
+  read_stream_fp(*this->IS, *result);
   if (this->IS->fail())
   {
     return 0;
@@ -1565,8 +1740,9 @@ int vtkReadASCIIData(vtkDataReader* self, T* data, vtkIdType numTuples, vtkIdTyp
     {
       if (!self->Read(data++))
       {
-        vtkGenericWarningMacro(<< "Error reading ascii data. Possible mismatch of "
-                                  "datasize with declaration.");
+        vtkErrorWithObjectMacro(self,
+          "Error reading ascii data. Possible mismatch of "
+          "datasize with declaration.");
         return 0;
       }
     }
@@ -1838,7 +2014,12 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
     else
     {
-      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      if (!vtkReadASCIIData(this, ptr, numTuples, numComp))
+      {
+        array->Delete();
+        free(type);
+        return nullptr;
+      }
     }
   }
 
@@ -1854,7 +2035,12 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
     else
     {
-      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      if (!vtkReadASCIIData(this, ptr, numTuples, numComp))
+      {
+        array->Delete();
+        free(type);
+        return nullptr;
+      }
     }
   }
 
