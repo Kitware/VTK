@@ -328,7 +328,7 @@ def numpy_to_vtk_soa(arrays, name=""):
                 f"All component arrays must have the same dtype; "
                 f"component 0 is {dtype}, component {i} is {a.dtype}")
 
-    vtk_array = vtkSOADataArrayTemplate[dtype]()
+    vtk_array = vtkSOADataArrayTemplate[dtype.type]()
     vtk_array.SetNumberOfComponents(len(arrays))
     vtk_array.SetNumberOfTuples(n_tuples)
 

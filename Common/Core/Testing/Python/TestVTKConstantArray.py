@@ -377,7 +377,7 @@ def test_array_function():
 # Test different dtypes
 # -------------------------------------------------------------------
 def test_dtypes():
-    for dtype in ['float32', 'float64', 'int32', 'int64']:
+    for dtype in [np.float32, np.float64, np.int32, np.int64]:
         c = make_const_array(7, 5, 1, dtype=dtype)
         np_arr = np.arange(5, dtype=dtype)
         result = c + np_arr
@@ -472,7 +472,7 @@ def test_shallow_copy():
 # -------------------------------------------------------------------
 def test_constructor_with_shape_and_value():
     # shape as int (single-component)
-    c = vtkConstantArray['float64'](10, 3.14)
+    c = vtkConstantArray[np.float64](10, 3.14)
     check(isinstance(c, VTKConstantArray),
           "Constructor result should be VTKConstantArray")
     check_close(c.GetConstantValue(), 3.14, "Constructor value")
@@ -480,12 +480,12 @@ def test_constructor_with_shape_and_value():
     check(c.GetNumberOfComponents() == 1, "Constructor ncomps (default)")
 
     # shape as tuple (multi-component)
-    c2 = vtkConstantArray['float64']((5, 3), 7.0)
+    c2 = vtkConstantArray[np.float64]((5, 3), 7.0)
     check(c2.shape == (5, 3), f"Constructor shape: {c2.shape}")
     check_close(c2.value, 7.0, "Constructor value (tuple shape)")
 
     # no arguments — valid empty array
-    c3 = vtkConstantArray['float64']()
+    c3 = vtkConstantArray[np.float64]()
     check(c3.GetNumberOfTuples() == 0, "Default constructor ntuples")
     check_close(c3.GetConstantValue(), 0.0, "Default constructor value")
 

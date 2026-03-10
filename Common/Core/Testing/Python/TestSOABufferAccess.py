@@ -30,7 +30,7 @@ def check(condition, msg):
 # Test basic SOA buffer access
 # -------------------------------------------------------------------
 def test_basic_soa():
-    a = vtkSOADataArrayTemplate['float64']()
+    a = vtkSOADataArrayTemplate[np.float64]()
     a.SetNumberOfComponents(3)
     a.SetNumberOfTuples(5)
 
@@ -57,7 +57,7 @@ def test_basic_soa():
 # Test zero-copy: modification through numpy is visible in VTK
 # -------------------------------------------------------------------
 def test_zero_copy():
-    a = vtkSOADataArrayTemplate['float64']()
+    a = vtkSOADataArrayTemplate[np.float64]()
     a.SetNumberOfComponents(2)
     a.SetNumberOfTuples(4)
 
@@ -86,7 +86,7 @@ def test_zero_copy():
 # Test multiple dtypes
 # -------------------------------------------------------------------
 def test_dtypes():
-    for dtype_str in ['float32', 'float64', 'int32']:
+    for dtype_str in [np.float32, np.float64, np.int32]:
         a = vtkSOADataArrayTemplate[dtype_str]()
         a.SetNumberOfComponents(2)
         a.SetNumberOfTuples(3)
@@ -114,7 +114,7 @@ def test_dtypes():
 # Test single component
 # -------------------------------------------------------------------
 def test_single_component():
-    a = vtkSOADataArrayTemplate['float64']()
+    a = vtkSOADataArrayTemplate[np.float64]()
     a.SetNumberOfComponents(1)
     a.SetNumberOfTuples(4)
 
@@ -145,7 +145,7 @@ def test_type_error():
 # Test GetComponentBuffer directly - returns vtkAbstractBuffer
 # -------------------------------------------------------------------
 def test_direct_buffer():
-    a = vtkSOADataArrayTemplate['float64']()
+    a = vtkSOADataArrayTemplate[np.float64]()
     a.SetNumberOfComponents(2)
     a.SetNumberOfTuples(3)
 
@@ -163,7 +163,7 @@ def test_direct_buffer():
     check(np.allclose(arr, x), f"Buffer values: {arr} != {x}")
 
     # SetTuple-populated arrays also use SOA storage
-    b = vtkSOADataArrayTemplate['float64']()
+    b = vtkSOADataArrayTemplate[np.float64]()
     b.SetNumberOfComponents(1)
     b.SetNumberOfTuples(2)
     b.SetTuple(0, (1.0,))

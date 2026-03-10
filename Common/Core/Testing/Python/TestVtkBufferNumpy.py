@@ -25,7 +25,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferFloat64(self):
         """Test vtkBuffer with float64 (double) type."""
-        buf = vtkBuffer['float64']()
+        buf = vtkBuffer[numpy.float64]()
         buf.Allocate(10)
 
         arr = numpy.asarray(buf)
@@ -41,7 +41,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferFloat32(self):
         """Test vtkBuffer with float32 (float) type."""
-        buf = vtkBuffer['float32']()
+        buf = vtkBuffer[numpy.float32]()
         buf.Allocate(5)
 
         arr = numpy.asarray(buf)
@@ -54,7 +54,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferInt32(self):
         """Test vtkBuffer with int32 type."""
-        buf = vtkBuffer['int32']()
+        buf = vtkBuffer[numpy.int32]()
         buf.Allocate(8)
 
         arr = numpy.asarray(buf)
@@ -67,7 +67,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferUint8(self):
         """Test vtkBuffer with uint8 (unsigned char) type."""
-        buf = vtkBuffer['uint8']()
+        buf = vtkBuffer[numpy.uint8]()
         buf.Allocate(256)
 
         arr = numpy.asarray(buf)
@@ -80,7 +80,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferInt64(self):
         """Test vtkBuffer with int64 type."""
-        buf = vtkBuffer['int64']()
+        buf = vtkBuffer[numpy.int64]()
         buf.Allocate(4)
 
         arr = numpy.asarray(buf)
@@ -95,7 +95,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferInt16(self):
         """Test vtkBuffer with int16 (short) type."""
-        buf = vtkBuffer['int16']()
+        buf = vtkBuffer[numpy.int16]()
         buf.Allocate(3)
 
         arr = numpy.asarray(buf)
@@ -108,7 +108,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testBufferUint16(self):
         """Test vtkBuffer with uint16 (unsigned short) type."""
-        buf = vtkBuffer['uint16']()
+        buf = vtkBuffer[numpy.uint16]()
         buf.Allocate(3)
 
         arr = numpy.asarray(buf)
@@ -121,7 +121,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testZeroCopySemantics(self):
         """Test that numpy arrays share memory with vtkBuffer (zero-copy)."""
-        buf = vtkBuffer['float64']()
+        buf = vtkBuffer[numpy.float64]()
         buf.Allocate(5)
 
         arr1 = numpy.asarray(buf)
@@ -144,7 +144,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testMemoryView(self):
         """Test that memoryview works with vtkBuffer."""
-        buf = vtkBuffer['int32']()
+        buf = vtkBuffer[numpy.int32]()
         buf.Allocate(4)
 
         # Get memoryview
@@ -162,7 +162,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testEmptyBuffer(self):
         """Test vtkBuffer with zero size."""
-        buf = vtkBuffer['float64']()
+        buf = vtkBuffer[numpy.float64]()
         buf.Allocate(0)
 
         arr = numpy.asarray(buf)
@@ -171,7 +171,7 @@ class TestVtkBufferNumpy(Testing.vtkTest):
 
     def testReallocate(self):
         """Test that buffer protocol works after reallocation."""
-        buf = vtkBuffer['float64']()
+        buf = vtkBuffer[numpy.float64]()
         buf.Allocate(5)
 
         arr = numpy.asarray(buf)
@@ -188,16 +188,16 @@ class TestVtkBufferNumpy(Testing.vtkTest):
     def testAllScalarTypes(self):
         """Test all supported scalar types have correct numpy dtype mapping."""
         type_map = {
-            'float32': numpy.float32,
-            'float64': numpy.float64,
-            'int8': numpy.int8,
-            'uint8': numpy.uint8,
-            'int16': numpy.int16,
-            'uint16': numpy.uint16,
-            'int32': numpy.int32,
-            'uint32': numpy.uint32,
-            'int64': numpy.int64,
-            'uint64': numpy.uint64,
+            numpy.float32: numpy.float32,
+            numpy.float64: numpy.float64,
+            numpy.int8: numpy.int8,
+            numpy.uint8: numpy.uint8,
+            numpy.int16: numpy.int16,
+            numpy.uint16: numpy.uint16,
+            numpy.int32: numpy.int32,
+            numpy.uint32: numpy.uint32,
+            numpy.int64: numpy.int64,
+            numpy.uint64: numpy.uint64,
         }
 
         for vtk_type, np_dtype in type_map.items():

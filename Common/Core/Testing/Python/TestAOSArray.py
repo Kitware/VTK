@@ -77,7 +77,7 @@ test_override_concrete()
 # -------------------------------------------------------------------
 def test_template_access():
     from vtkmodules.vtkCommonCore import vtkAOSDataArrayTemplate
-    for dt in ['float32', 'float64', 'int32', 'int64']:
+    for dt in [np.float32, np.float64, np.int32, np.int64]:
         a = vtkAOSDataArrayTemplate[dt]()
         check(isinstance(a, VTKAOSArray),
               f"vtkAOSDataArrayTemplate[{dt}]() should be VTKAOSArray")

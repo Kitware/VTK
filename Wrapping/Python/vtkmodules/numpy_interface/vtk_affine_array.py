@@ -54,10 +54,10 @@ class VTKAffineArray(VTKDataArrayMixin):
         from vtkmodules.vtkCommonCore import vtkAffineArray
 
         # [0, 1, 2, ..., 99]
-        a = vtkAffineArray['float64'](100, 1.0, 0.0)
+        a = vtkAffineArray[numpy.float64](100, 1.0, 0.0)
 
         # [10, 12, 14, ..., 30]  (11 elements)
-        b = vtkAffineArray['float64'](11, 2.0, 10.0)
+        b = vtkAffineArray[numpy.float64](11, 2.0, 10.0)
 
     Available dtypes: ``'float32'``, ``'float64'``, ``'int8'``, ``'int16'``,
     ``'int32'``, ``'int64'``, ``'uint8'``, ``'uint16'``, ``'uint32'``,
@@ -113,20 +113,6 @@ class VTKAffineArray(VTKDataArrayMixin):
     VTKConstantArray : Similar lazy evaluation for uniform-value arrays.
     VTKAOSArray : Mixin for regular (array-of-structures) VTK arrays.
     """
-
-    # Map numpy dtype to VTK type string for creating new arrays
-    _dtype_map = {
-        numpy.float32: 'float32',
-        numpy.float64: 'float64',
-        numpy.int8: 'int8',
-        numpy.int16: 'int16',
-        numpy.int32: 'int32',
-        numpy.int64: 'int64',
-        numpy.uint8: 'uint8',
-        numpy.uint16: 'uint16',
-        numpy.uint32: 'uint32',
-        numpy.uint64: 'uint64',
-    }
 
     # ---- construction -------------------------------------------------------
     def __init__(self, shape=None, slope=0, intercept=0, **kwargs):
@@ -199,9 +185,8 @@ class VTKAffineArray(VTKDataArrayMixin):
         from vtkmodules.vtkCommonCore import vtkAffineArray as _vtkAffineArray
 
         dtype_key = numpy.dtype(dtype).type
-        vtk_type = cls._dtype_map.get(dtype_key, 'float64')
 
-        arr = _vtkAffineArray[vtk_type](num_values, dtype(slope), dtype(intercept))
+        arr = _vtkAffineArray[dtype_key](num_values, dtype(slope), dtype(intercept))
         if name:
             arr.SetName(name)
         return arr

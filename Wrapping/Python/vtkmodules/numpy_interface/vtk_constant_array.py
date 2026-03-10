@@ -47,10 +47,10 @@ class VTKConstantArray(VTKDataArrayMixin):
         from vtkmodules.vtkCommonCore import vtkConstantArray
 
         # 1-component, 1 million tuples, all 5.0
-        a = vtkConstantArray['float64'](1000000, 5.0)
+        a = vtkConstantArray[numpy.float64](1000000, 5.0)
 
         # 3-component, 100 tuples, all 5.0
-        b = vtkConstantArray['float64']((100, 3), 5.0)
+        b = vtkConstantArray[numpy.float64]((100, 3), 5.0)
 
     Available dtypes: ``'float32'``, ``'float64'``, ``'int8'``, ``'int16'``,
     ``'int32'``, ``'int64'``, ``'uint8'``, ``'uint16'``, ``'uint32'``,
@@ -164,7 +164,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         from ..vtkCommonCore import vtkConstantArray
 
         dt = numpy.dtype(dtype) if dtype is not None else self.dtype
-        vtk_arr = vtkConstantArray[dt.name](self.shape, dt.type(value))
+        vtk_arr = vtkConstantArray[dt.type](self.shape, dt.type(value))
         vtk_arr._dataset = self._dataset
         vtk_arr._association = self._association
         return vtk_arr
@@ -281,7 +281,7 @@ class VTKConstantArray(VTKDataArrayMixin):
             return self.dtype.type(self.GetConstantValue())
 
         from ..vtkCommonCore import vtkConstantArray
-        return vtkConstantArray[self.dtype.name](
+        return vtkConstantArray[self.dtype.type](
             sliced.shape, self.dtype.type(self.GetConstantValue()))
 
     def __setitem__(self, key, value):
