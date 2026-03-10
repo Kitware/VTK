@@ -327,7 +327,7 @@ VTK_ABI_NAMESPACE_BEGIN
   template <class T, class U>                                                                      \
   inline bool operator op(const vtkSmartPointer<T>& l, const vtkNew<U>& r)                         \
   {                                                                                                \
-    return (l.GetPointer() op r.GetPointer);                                                       \
+    return (l.GetPointer() op r.GetPointer());                                                     \
   }
 
 /**

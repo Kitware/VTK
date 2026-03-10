@@ -219,7 +219,7 @@ int TestMultiCorrelativeStatistics(int, char*[])
 
   for (vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++r)
   {
-    if (outputData->GetValue(r, tableIdx[2]).ToDouble() > threshold)
+    if (outputData->GetValue(r, tableIdx[2]).ToDouble() > threshold && ghostArray[r] == 0)
     {
       ++nOutliers;
 

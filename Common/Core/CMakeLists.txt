@@ -501,6 +501,7 @@ set(headers
   vtkVariantExtract.h
   vtkVariantInlineOperators.h
   vtkWeakPointer.h
+  vtkWeakPtr.h
   vtkWin32Header.h
   vtkWindows.h
   vtkWrappingHints.h

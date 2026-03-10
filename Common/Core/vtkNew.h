@@ -26,7 +26,7 @@
  *
  *
  * @sa
- * vtkSmartPointer vtkWeakPointer
+ * vtkSmartPointer vtkWeakPointer vtkWeakPtr
  */
 
 #ifndef vtkNew_h
