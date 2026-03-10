@@ -1473,7 +1473,7 @@ int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
     face->TriangulateIds(0, ptIds);
 
     // Allocate space for the new triangles
-    newFaces->Resize(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
+    newFaces->Reserve(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
 
     // Insert triangles from triangulation
     const auto nbOfTriangles = ptIds->GetNumberOfIds() / 3;

@@ -238,8 +238,8 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   newPts->SetNumberOfPoints(numPoints);
-  pointIdList->Resize(numPoints);
-  cellIdList->Resize(numPoints);
+  pointIdList->SetNumberOfIds(numPoints);
+  cellIdList->SetNumberOfIds(numPoints);
   output->SetPoints(newPts);
 
   if (this->CopyArrays)

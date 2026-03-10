@@ -12,6 +12,8 @@
 #ifndef vtkIdList_h
 #define vtkIdList_h
 
+#include "vtkAbstractArray.h"    // For vtkAbstractArray::DeleteMethod
+#include "vtkBuffer.h"           // For vtkBuffer
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -20,6 +22,14 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkIdList : public vtkObject
 {
 public:
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE = vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE = vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+  };
+
   ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
@@ -35,11 +45,24 @@ public:
   void Initialize();
 
   /**
-   * Allocate a capacity for sz ids in the list and
-   * set the number of stored ids in the list to 0.
-   * strategy is not used.
+   * Allocate memory for this id list. Delete old storage only if necessary.
+   * Note that strategy is no longer used.
+   * This method will reset NumberOfIds to 0 and change the id list's capacity such that
+   * this->Capacity >= size.
+   * If size is 0, all memory will be freed.
+   * Return 1 on success, 0 on failure.
    */
-  int Allocate(vtkIdType sz, int strategy = 0);
+  vtkTypeBool Allocate(vtkIdType size, int strategy = 0);
+
+  /**
+   * Reserve the id list to the requested number of ids and preserve data.
+   *
+   * Increasing the id list capacity may allocate extra memory beyond what was
+   * requested. NumberOfIds will not be modified when increasing id list size.
+   *
+   * Returns 1 if resizing succeeded and 0 otherwise.
+   */
+  vtkTypeBool Reserve(vtkIdType size);
 
   /**
    * Return the number of id's in the list.
@@ -49,7 +72,10 @@ public:
   /**
    * Return the id at location i.
    */
-  vtkIdType GetId(vtkIdType i) VTK_EXPECTS(0 <= i && i < GetNumberOfIds()) { return this->Ids[i]; }
+  vtkIdType GetId(vtkIdType i) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
+  {
+    return this->Buffer->GetBuffer()[i];
+  }
 
   /**
    * Find the location i of the provided id.
@@ -57,14 +83,19 @@ public:
   vtkIdType FindIdLocation(const vtkIdType id)
   {
     for (int i = 0; i < this->NumberOfIds; i++)
-      if (this->Ids[i] == id)
+    {
+      if (this->Buffer->GetBuffer()[i] == id)
+      {
         return i;
+      }
+    }
     return -1;
   }
 
   /**
    * Specify the number of ids for this object to hold. Does an
    * allocation as well as setting the number of ids.
+   * Preserves existing data.
    */
   void SetNumberOfIds(vtkIdType number);
 
@@ -73,27 +104,27 @@ public:
    * faster than InsertId. Make sure you use SetNumberOfIds() to allocate
    * memory prior to using SetId().
    */
-  void SetId(vtkIdType i, vtkIdType vtkid) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
+  void SetId(vtkIdType i, vtkIdType id) VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
   {
-    this->Ids[i] = vtkid;
+    this->Buffer->GetBuffer()[i] = id;
   }
 
   /**
    * Set the id at location i. Does range checking and allocates memory
    * as necessary.
    */
-  void InsertId(vtkIdType i, vtkIdType vtkid) VTK_EXPECTS(0 <= i);
+  void InsertId(vtkIdType i, vtkIdType id) VTK_EXPECTS(0 <= i);
 
   /**
    * Add the id specified to the end of the list. Range checking is performed.
    */
-  vtkIdType InsertNextId(vtkIdType vtkid);
+  vtkIdType InsertNextId(vtkIdType id);
 
   /**
    * If id is not already in list, insert it and return location in
    * list. Otherwise return just location in list.
    */
-  vtkIdType InsertUniqueId(vtkIdType vtkid);
+  vtkIdType InsertUniqueId(vtkIdType id);
 
   /**
    * Sort the ids in the list in ascending id order. This method uses
@@ -110,7 +141,7 @@ public:
   /**
    * Get a pointer to a particular data index.
    */
-  vtkIdType* GetPointer(vtkIdType i) { return this->Ids + i; }
+  vtkIdType* GetPointer(vtkIdType i) { return this->Buffer->GetBuffer() + i; }
 
   /**
    * Get a pointer to a particular data index. Make sure data is allocated
@@ -122,9 +153,17 @@ public:
   /**
    * Specify an array of vtkIdType to use as the id list. This replaces the
    * underlying array. This instance of vtkIdList takes ownership of the
-   * array, meaning that it deletes it on destruction (using delete[]).
+   * array, meaning that it deletes it on destruction (using delete[]). The class
+   * uses the actual array provided; it does not copy the data from the
+   * supplied array. If specified, the delete method determines how the data
+   * array will be deallocated. If the delete method is
+   * VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
+   * VTK_DATA_ARRAY_DELETE, delete[] will be used. If the delete method is
+   * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on Windows, while
+   * free() will be used everywhere else. The default is VTK_DATA_ARRAY_DELETE.
    */
-  void SetArray(vtkIdType* array, vtkIdType size, bool save = true);
+  void SetArray(
+    vtkIdType* array, vtkIdType size, bool save = true, int deleteMethod = VTK_DATA_ARRAY_DELETE);
 
   /**
    * Reset to an empty state but retain previously allocated memory.
@@ -134,7 +173,13 @@ public:
   /**
    * Free any unused memory.
    */
-  void Squeeze() { this->Resize(this->NumberOfIds); }
+  void Squeeze();
+
+  /**
+   * Copy an id list by copying the internal buffer pointer.
+   * Note that this is a shallow copy, so the internal buffer is shared between the two id lists.
+   */
+  void ShallowCopy(vtkIdList* list);
 
   /**
    * Copy an id list by explicitly copying the internal array.
@@ -144,13 +189,13 @@ public:
   /**
    * Delete specified id from list. Will remove all occurrences of id in list.
    */
-  void DeleteId(vtkIdType vtkid);
+  void DeleteId(vtkIdType id);
 
   /**
    * Return -1 if id specified is not contained in the list; otherwise return
    * the position in the list.
    */
-  vtkIdType IsId(vtkIdType vtkid) VTK_FUTURE_CONST;
+  vtkIdType IsId(vtkIdType id) VTK_FUTURE_CONST;
 
   /**
    * Intersect this list with another vtkIdList. Updates current list according
@@ -162,6 +207,7 @@ public:
    * Adjust the size of the id list while maintaining its content (except
    * when being truncated).
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Reserve, Squeeze or Initialize")
   vtkIdType* Resize(vtkIdType sz);
 
 #ifndef __VTK_WRAP__
@@ -174,14 +220,20 @@ public:
   vtkIdType* Release();
 #endif
 
+  /**
+   * Get the capacity of the id list.  This returns the number of id slots
+   * in the id list's allocated storage.
+   */
+  vtkIdType GetCapacity() const { return this->Buffer->GetNumberOfElements(); }
+
   ///@{
   /**
    * To support range-based `for` loops
    */
-  vtkIdType* begin() { return this->Ids; }
-  vtkIdType* end() { return this->Ids + this->NumberOfIds; }
-  const vtkIdType* begin() const { return this->Ids; }
-  const vtkIdType* end() const { return this->Ids + this->NumberOfIds; }
+  vtkIdType* begin() { return this->Buffer->GetBuffer(); }
+  vtkIdType* end() { return this->Buffer->GetBuffer() + this->NumberOfIds; }
+  const vtkIdType* begin() const { return this->Buffer->GetBuffer(); }
+  const vtkIdType* end() const { return this->Buffer->GetBuffer() + this->NumberOfIds; }
   ///@}
 protected:
   vtkIdList();
@@ -190,16 +242,17 @@ protected:
   /**
    * Allocate ids and set the number of ids.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Allocate and SetNumberOfIds instead")
   bool AllocateInternal(vtkIdType sz, vtkIdType numberOfIds);
   /**
    * Release memory.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Allocate(0) instead")
   void InitializeMemory();
 
   vtkIdType NumberOfIds;
-  vtkIdType Size;
-  vtkIdType* Ids;
-  bool ManageMemory;
+  vtkBuffer<vtkIdType>* Buffer;
+  vtkIdType Size VTK_DEPRECATED_IN_9_7_0("Use GetCapacity() instead");
 
 private:
   vtkIdList(const vtkIdList&) = delete;
@@ -207,13 +260,13 @@ private:
 };
 
 // In-lined for performance
-inline void vtkIdList::InsertId(const vtkIdType i, const vtkIdType vtkid)
+inline void vtkIdList::InsertId(const vtkIdType i, const vtkIdType id)
 {
-  if (i >= this->Size)
+  if (i >= this->GetCapacity())
   {
-    this->Resize(i + 1);
+    this->Reserve(i + 1);
   }
-  this->Ids[i] = vtkid;
+  this->Buffer->GetBuffer()[i] = id;
   if (i >= this->NumberOfIds)
   {
     this->NumberOfIds = i + 1;
@@ -221,30 +274,29 @@ inline void vtkIdList::InsertId(const vtkIdType i, const vtkIdType vtkid)
 }
 
 // In-lined for performance
-inline vtkIdType vtkIdList::InsertNextId(const vtkIdType vtkid)
+inline vtkIdType vtkIdList::InsertNextId(const vtkIdType id)
 {
-  if (this->NumberOfIds >= this->Size)
+  if (this->NumberOfIds >= this->GetCapacity())
   {
-    if (!this->Resize(2 * this->NumberOfIds + 1)) // grow by factor of 2
+    if (!this->Reserve(this->NumberOfIds + 1))
     {
       return this->NumberOfIds - 1;
     }
   }
-  this->Ids[this->NumberOfIds++] = vtkid;
+  this->Buffer->GetBuffer()[this->NumberOfIds++] = id;
   return this->NumberOfIds - 1;
 }
 
-inline vtkIdType vtkIdList::IsId(vtkIdType vtkid) VTK_FUTURE_CONST
+inline vtkIdType vtkIdList::IsId(vtkIdType id) VTK_FUTURE_CONST
 {
-  vtkIdType *ptr, i;
-  for (ptr = this->Ids, i = 0; i < this->NumberOfIds; i++, ptr++)
+  for (vtkIdType i = 0; i < this->NumberOfIds; ++i)
   {
-    if (vtkid == *ptr)
+    if (this->Buffer->GetBuffer()[i] == id)
     {
       return i;
     }
   }
-  return (-1);
+  return -1;
 }
 
 VTK_ABI_NAMESPACE_END

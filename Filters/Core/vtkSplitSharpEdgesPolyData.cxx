@@ -316,7 +316,6 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
     }
     const auto numberOfOldPoints = this->Map->GetNumberOfIds();
     const auto numberOfNewPoints = numberOfOldPoints + numberOfExtraNewPoints;
-    this->Map->Resize(numberOfNewPoints);
     this->Map->SetNumberOfIds(numberOfNewPoints);
     //  we will override the old cell array with the new one
     vtkNew<vtkCellArray> outPolys;

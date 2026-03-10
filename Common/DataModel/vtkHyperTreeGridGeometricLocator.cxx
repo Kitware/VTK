@@ -429,7 +429,7 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
     unsigned int initCells = this->GlobCellIds->GetNumberOfIds();
     this->GlobTs->resize(nT);
     this->GlobPts->Reserve(initPoints + nPoints);
-    this->GlobCellIds->Resize(initCells + nCells);
+    this->GlobCellIds->Reserve(initCells + nCells);
     nT = 0;
     nPoints = initPoints;
     nCells = initCells;

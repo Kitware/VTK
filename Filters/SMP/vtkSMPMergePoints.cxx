@@ -129,7 +129,7 @@ void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator, vtkIdType idx, vtkPoin
   // points have to be added
   vtkIdType numberOfInsertions = oldIdToMerge->GetNumberOfIds();
   vtkIdType firstId = this->AtomicInsertionId.fetch_add(numberOfInsertions);
-  bucket->Resize(bucket->GetNumberOfIds() + numberOfInsertions);
+  bucket->Reserve(bucket->GetNumberOfIds() + numberOfInsertions);
   for (vtkIdType i = 0; i < numberOfInsertions; ++i)
   {
     vtkIdType newId = firstId + i, oldId = oldIdToMerge->GetId(i);

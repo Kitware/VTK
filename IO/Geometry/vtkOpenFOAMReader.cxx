@@ -10281,7 +10281,8 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - nUsed)
                << " out-of-range elements\n";
     }
@@ -10424,7 +10425,8 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       if (nLabels != (nUsed + nNonOwner))
       {
         warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - (nUsed + nNonOwner))
@@ -10555,7 +10557,8 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - nUsed)
                << " out-of-range elements\n";
     }

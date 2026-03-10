@@ -60,7 +60,6 @@
 #define vtkAbstractArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkIdList.h"           // For InsertTuples
 #include "vtkObject.h"
 #include "vtkVariant.h"       // for variant arguments
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
