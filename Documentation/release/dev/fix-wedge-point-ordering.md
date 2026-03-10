@@ -31,30 +31,33 @@ faces with incorrect outward normals. The fixes are mentioned below:
    - `LinearWedges` now produce positive volume wedges
    - `TriangulateLocalIds` now generates tetrahedrons (previously generated linear wedges)
 
-5. `vtkBiQuadraticQuadraticHexahedron`
+5. `vtkHigherOrderWedge`/`vtkBezierWedge`/`vtkLagrangeWedge`
+   - Fix documentation to mention that it now shares the same point ordering as `vtkWedge`
+
+6. `vtkBiQuadraticQuadraticHexahedron`
    - `TriangulateLocalIds` now generates tetrahedrons with valid points.
 
-6. `vtkCellTypeSource`
+7. `vtkCellTypeSource`
    - Fix `vtkWedge` point ordering to match parametric coordinates
    - Fix `vtkQuadraticWedge` wedge point ordering to match parametric coordinates
 
-7. `vtkEnsigh*Reader`
+8. `vtkEnsigh*Reader`
    - Fix `vtkWedge` point ordering to match parametric coordinates
    - Fix `vtkQuadraticWedge` wedge point ordering to match parametric coordinates
 
-8. `vtkAvmeshReader`
+9. `vtkAvmeshReader`
    - Fix `vtkWedge` point ordering to match parametric coordinates
 
-9. `vtkIOSSReader/Writer`
-   - Fix `vtkWedge` point ordering to match parametric coordinates
-   - Fix `vtkQuadraticWedge` wedge point ordering to match parametric coordinates
-   - Fix `vtkBiQuadraticQuadraticWedge` point ordering to match parametric coordinates
-   - Fix `vtkLagrangeWedge` point ordering to match parametric coordinates
+10. `vtkIOSSReader/Writer`
+    - Fix `vtkWedge` point ordering to match parametric coordinates
+    - Fix `vtkQuadraticWedge` wedge point ordering to match parametric coordinates
+    - Fix `vtkBiQuadraticQuadraticWedge` point ordering to match parametric coordinates
+    - Fix `vtkLagrangeWedge` point ordering to match parametric coordinates
 
-10. `vtkTRUCHASReader`
+11. `vtkTRUCHASReader`
     - Fix `vtkWedge` point ordering to match parametric coordinates
 
-11. `vtkMeshQuality`
+12. `vtkMeshQuality`
     - Revert previous `vtkWedge` point ordering fix, superseded by the above changes
     - Fix `vtkQuadraticHexahedron`/`vtkTriQuadraticHexahedron` point ordering to account for differing
       conventions between VTK and Exodus/Patran (used by verdict)
