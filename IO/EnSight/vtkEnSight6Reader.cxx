@@ -1983,7 +1983,6 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
       numElements = vtk::scan_int<int>(std::string_view(line))->value();
       lineRead = this->ReadNextDataLine(line);
 
-      constexpr unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
       for (i = 0; i < numElements; i++)
       {
         const std::string_view lineView(line);
@@ -2026,7 +2025,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
         }
         for (j = 0; j < 6; j++)
         {
-          nodeIds[penta6Map[j]] = intIds[j];
+          nodeIds[j] = intIds[j];
         }
         cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);

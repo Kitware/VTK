@@ -1127,10 +1127,10 @@ void CreateWedgeAndPyramidUnstructuredMesh(
 
           elemConnectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, k, nptsX, nptsY);
           elemConnectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
-          elemConnectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
-          elemConnectivity[idx + 3] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
-          elemConnectivity[idx + 4] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
-          elemConnectivity[idx + 5] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 2] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 3] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 4] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 5] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
 
           idxElem += 1;
           idx += wedgePointCount;

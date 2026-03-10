@@ -752,20 +752,18 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   // case, we need to transform them.
   // Here, using the indexes specified in Ioss docs (which are 1-based), just
   // add them so that the cell is ordered correctly in VTK.
-  // ref: https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html
+  // ref: https://sandialabs.github.io/seacas-docs/html/element_types.html,
   std::vector<int> ordering_transform;
   switch (vtk_topology_type)
   {
-    case VTK_WEDGE:
-      ordering_transform = std::vector<int>{ 4, 5, 6, 1, 2, 3 };
-      break;
-
     case VTK_QUADRATIC_WEDGE: // wedge-15
       // clang-format off
       ordering_transform = std::vector<int>{
-        4, 5, 6, 1, 2, 3,
-        13, 14, 15,
+        /* 2 triangles */
+        1, 2, 3, 4, 5, 6,
+        /* edge centers */
         7, 8, 9,
+        13, 14, 15,
         10, 11, 12
       };
       // clang-format on
@@ -775,13 +773,11 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
       // clang-format off
       ordering_transform = std::vector<int>{
         /* 2 triangles */
-        4, 5, 6, 1, 2, 3,
-
+        1, 2, 3, 4, 5, 6,
         /* edge centers */
-        13, 14, 15,
         7, 8, 9,
+        13, 14, 15,
         10, 11, 12,
-
         /* quad-centers */
         16, 17, 18
       };
@@ -794,19 +790,15 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
         // clang-format off
         ordering_transform = std::vector<int>{
           /* 2 triangles */
-          4, 5, 6, 1, 2, 3,
-
+          1, 2, 3, 4, 5, 6,
           /* edge centers */
-          13, 14, 15,
           7, 8, 9,
+          13, 14, 15,
           10, 11, 12,
-
           /* triangle centers */
           18, 17,
-
           /* quad-centers */
           21, 19, 20,
-
           /* body center */
           16
         };
@@ -821,14 +813,11 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
         ordering_transform = std::vector<int>{
           /* corner points */
           1, 2, 3, 4,
-
           /* edge centers */
           5, 6, 7,
           8, 9, 10,
-
           /* triangle centers */
           12, 15, 13, 14,
-
           /* body center */
           11
         };
@@ -842,7 +831,6 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
         /* 8 corners */
         1, 2, 3, 4,
         5, 6, 7, 8,
-
         /* 12 mid-edge nodes */
         9, 10, 11, 12,
         17, 18, 19, 20,
@@ -857,15 +845,12 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
         /* 8 corners */
         1, 2, 3, 4,
         5, 6, 7, 8,
-
         /* 12 mid-edge nodes */
         9, 10, 11, 12,
         17, 18, 19, 20,
         13, 14, 15, 16,
-
         /* 6 mid-face nodes */
         24, 25, 26, 27, 22, 23,
-
         /* mid-volume node*/
         21
       };

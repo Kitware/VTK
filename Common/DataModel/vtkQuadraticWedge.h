@@ -10,11 +10,11 @@
  * isoparametric shape function. The cell includes a mid-edge node. The
  * ordering of the fifteen points defining the cell is point ids (0-5,6-14)
  * where point ids 0-5 are the six corner vertices of the wedge, defined
- * analogously to the six points in vtkWedge (points (0,1,2) form the base of
+ * analogously to the six points in vtkWedge (points (0,2,1) form the base of
  * the wedge which, using the right hand rule, forms a triangle whose normal
- * points away from the triangular face (3,4,5)); followed by nine midedge
- * nodes (6-14). Note that these midedge nodes correspond lie on the edges
- * defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3), (1,4), (2,5).
+ * points away from the triangular face (3,4,5) which points outwards); followed
+ * by nine midedge nodes (6-14). Note that these midedge nodes correspond lie on the
+ * edges defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3), (1,4), (2,5).
  *
  * @sa
  * vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra

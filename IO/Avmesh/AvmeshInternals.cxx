@@ -429,16 +429,6 @@ void Read3DVolumeConnFast(
     conn[i]--;
   }
 
-  // Fix the node order of prisms (wedges), which are the only cell type for
-  // which AVMESH and VTK have different conventions.
-  n = nhex + ntet;
-  for (int i = 0; i < npri; ++i, ++n)
-  {
-    int* pri = conn + offsets[n];
-    std::swap(pri[1], pri[2]);
-    std::swap(pri[4], pri[5]);
-  }
-
   ugrid->SetCells(cellTypesArr, cells);
 }
 
@@ -454,11 +444,6 @@ void Read3DVolumeConnOfType(BinaryFile& fin, int etype, int ncell, vtkUnstructur
     for (int j = 0; j < nNodesPerCell; ++j)
     {
       nodeids[j] = cell[j] - 1; // convert to 0-based connectivity
-    }
-    if (etype == VTK_WEDGE) // wedges are the only cell type with a winding
-    {                       // order that doesn't match VTK's
-      std::swap(nodeids[1], nodeids[2]);
-      std::swap(nodeids[4], nodeids[5]);
     }
     ugrid->InsertNextCell(etype, nNodesPerCell, nodeids);
   }

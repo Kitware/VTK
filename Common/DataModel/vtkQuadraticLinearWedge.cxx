@@ -21,9 +21,35 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticLinearWedge);
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* QuadraticLinearWedgeTopology = R"(
+   Quadratic Linear Wedge topology:
+              2
+             /|\
+            / | \
+           /  |  \
+          8   |   7
+         /    |    \
+        /     |     \
+       /      |      \
+      0-------6-------1    ← back triangle
+      |       |       |
+      |       5       |
+      |      / \      |
+      |     /   \     |
+      |    /     \    |
+      |   11      10  |
+      |  /         \  |
+      | /           \ |
+      |/             \|
+      3-------9-------4    ← front triangle
+)";
+}
+
 //------------------------------------------------------------------------------
 // Construct the quadratic linear wedge with 12 points
-
 vtkQuadraticLinearWedge::vtkQuadraticLinearWedge()
 {
   this->Points->SetNumberOfPoints(12);
@@ -41,7 +67,7 @@ vtkQuadraticLinearWedge::vtkQuadraticLinearWedge()
   this->Wedge = vtkWedge::New();
 
   this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(6); // num of linear wedge vetices
+  this->Scalars->SetNumberOfTuples(6); // num of linear wedge vertices
 }
 
 //------------------------------------------------------------------------------
@@ -58,11 +84,11 @@ vtkQuadraticLinearWedge::~vtkQuadraticLinearWedge()
 
 //------------------------------------------------------------------------------
 // We are using 4 linear wedge
-static int LinearWedges[4][6] = {
-  { 0, 6, 8, 3, 9, 11 },
-  { 6, 7, 8, 9, 10, 11 },
-  { 6, 1, 7, 9, 4, 10 },
-  { 8, 7, 2, 11, 10, 5 },
+static vtkIdType LinearWedges[4][6] = {
+  { 8, 0, 6, 11, 3, 9 },
+  { 8, 6, 7, 11, 9, 10 },
+  { 7, 6, 1, 10, 9, 4 },
+  { 2, 8, 7, 5, 11, 10 },
 };
 
 // We use 2 quadratic triangles and 3 quadratic-linear quads
@@ -462,8 +488,28 @@ int vtkQuadraticLinearWedge::IntersectWithLine(
 //------------------------------------------------------------------------------
 int vtkQuadraticLinearWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  ptIds->SetNumberOfIds(24);
-  std::copy(&LinearWedges[0][0], &LinearWedges[0][0] + 24, ptIds->begin());
+  // Split into 4 linear sub-wedges (1 central + 3 corner), each split into 3 tets.
+  // Total: 12 tets, all 12 nodes used.
+  constexpr vtkIdType ids[12][4] = {
+    // W0: corner near 0
+    { 8, 0, 6, 11 },
+    { 0, 6, 11, 3 },
+    { 6, 11, 3, 9 },
+    // W1: central
+    { 8, 6, 7, 11 },
+    { 6, 7, 11, 9 },
+    { 7, 11, 9, 10 },
+    // W2: corner near 1
+    { 7, 6, 1, 10 },
+    { 6, 1, 10, 9 },
+    { 1, 10, 9, 4 },
+    // W3: corner near 2
+    { 2, 8, 7, 5 },
+    { 8, 7, 5, 11 },
+    { 7, 5, 11, 10 },
+  };
+  ptIds->SetNumberOfIds(48);
+  std::copy_n(&ids[0][0], 48, ptIds->begin());
   return 1;
 }
 

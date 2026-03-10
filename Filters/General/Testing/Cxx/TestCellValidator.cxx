@@ -873,11 +873,11 @@ vtkSmartPointer<vtkWedge> MakeWedge()
   }
 
   aWedge->GetPoints()->SetPoint(0, 0.0, 1.0, 0.0);
-  aWedge->GetPoints()->SetPoint(1, 0.0, 0.0, 0.0);
-  aWedge->GetPoints()->SetPoint(2, 0.0, 0.5, 0.5);
+  aWedge->GetPoints()->SetPoint(1, 0.0, 0.5, 0.5);
+  aWedge->GetPoints()->SetPoint(2, 0.0, 0.0, 0.0);
   aWedge->GetPoints()->SetPoint(3, 1.0, 1.0, 0.0);
-  aWedge->GetPoints()->SetPoint(4, 1.0, 0.0, 0.0);
-  aWedge->GetPoints()->SetPoint(5, 1.0, 0.5, 0.5);
+  aWedge->GetPoints()->SetPoint(4, 1.0, 0.5, 0.5);
+  aWedge->GetPoints()->SetPoint(5, 1.0, 0.0, 0.0);
 
   return aWedge;
 }

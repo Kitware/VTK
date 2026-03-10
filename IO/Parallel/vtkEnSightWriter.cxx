@@ -46,11 +46,6 @@
 // If we are building against a slightly older VTK version,
 // these cell types are not defined, and won't occur in the input
 
-#ifndef VTK_QUADRATIC_WEDGE
-#define VTK_QUADRATIC_WEDGE 26
-#define VTK_QUADRATIC_PYRAMID 27
-#endif
-
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSightWriter);
@@ -743,8 +738,6 @@ bool vtkEnSightWriter::WriteDataAndReturn()
             // EnSight element types which all use the simple representation. VTK and EnSight
             // mostly agree on implicit ordering of nodes, except for the following:
             // - "bar3" (VTK_QUADRATIC_EDGE)
-            // - "penta6" (VTK_WEDGE)
-            // - "penta15" (VTK_QUADRATIC_WEDGE)
             // See the code in vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput.
             for (k = 0; k < CellsByElement[elementType].size(); k++)
             {
@@ -752,9 +745,6 @@ bool vtkEnSightWriter::WriteDataAndReturn()
               vtkIdList* PointIds = input->GetCell(CellId)->GetPointIds();
 
               constexpr unsigned char bar3Map[3] = { 0, 2, 1 };
-              constexpr unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
-              constexpr unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12,
-                14, 13 };
 
               // write nodes for each cell, converting to EnSight ordering where necessary
               for (int m = 0; m < PointIds->GetNumberOfIds(); m++)
@@ -764,12 +754,6 @@ bool vtkEnSightWriter::WriteDataAndReturn()
                 {
                   case VTK_QUADRATIC_EDGE:
                     n = bar3Map[m];
-                    break;
-                  case VTK_WEDGE:
-                    n = penta6Map[m];
-                    break;
-                  case VTK_QUADRATIC_WEDGE:
-                    n = penta15Map[m];
                     break;
                   default:
                     break;

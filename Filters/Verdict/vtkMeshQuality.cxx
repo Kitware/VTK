@@ -2006,13 +2006,7 @@ double vtkMeshQuality::PyramidVolume(vtkCell* cell, bool vtkNotUsed(linearApprox
 double vtkMeshQuality::WedgeCondition(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_condition(6, pc);
 }
 
@@ -2020,13 +2014,7 @@ double vtkMeshQuality::WedgeCondition(vtkCell* cell, bool vtkNotUsed(linearAppro
 double vtkMeshQuality::WedgeDistortion(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_distortion(6, pc);
 }
 
@@ -2034,13 +2022,7 @@ double vtkMeshQuality::WedgeDistortion(vtkCell* cell, bool vtkNotUsed(linearAppr
 double vtkMeshQuality::WedgeEdgeRatio(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_edge_ratio(6, pc);
 }
 
@@ -2048,13 +2030,7 @@ double vtkMeshQuality::WedgeEdgeRatio(vtkCell* cell, bool vtkNotUsed(linearAppro
 double vtkMeshQuality::WedgeEquiangleSkew(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_equiangle_skew(6, pc);
 }
 
@@ -2062,13 +2038,7 @@ double vtkMeshQuality::WedgeEquiangleSkew(vtkCell* cell, bool vtkNotUsed(linearA
 double vtkMeshQuality::WedgeJacobian(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_jacobian(6, pc);
 }
 
@@ -2076,13 +2046,7 @@ double vtkMeshQuality::WedgeJacobian(vtkCell* cell, bool vtkNotUsed(linearApprox
 double vtkMeshQuality::WedgeMaxAspectFrobenius(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_max_aspect_frobenius(6, pc);
 }
 
@@ -2090,13 +2054,7 @@ double vtkMeshQuality::WedgeMaxAspectFrobenius(vtkCell* cell, bool vtkNotUsed(li
 double vtkMeshQuality::WedgeMaxStretch(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_max_stretch(6, pc);
 }
 
@@ -2104,13 +2062,7 @@ double vtkMeshQuality::WedgeMaxStretch(vtkCell* cell, bool vtkNotUsed(linearAppr
 double vtkMeshQuality::WedgeMeanAspectFrobenius(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_mean_aspect_frobenius(6, pc);
 }
 
@@ -2118,13 +2070,7 @@ double vtkMeshQuality::WedgeMeanAspectFrobenius(vtkCell* cell, bool vtkNotUsed(l
 double vtkMeshQuality::WedgeScaledJacobian(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_scaled_jacobian(6, pc);
 }
 
@@ -2132,13 +2078,7 @@ double vtkMeshQuality::WedgeScaledJacobian(vtkCell* cell, bool vtkNotUsed(linear
 double vtkMeshQuality::WedgeShape(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_shape(6, pc);
 }
 
@@ -2146,17 +2086,21 @@ double vtkMeshQuality::WedgeShape(vtkCell* cell, bool vtkNotUsed(linearApproxima
 double vtkMeshQuality::WedgeVolume(vtkCell* cell, bool vtkNotUsed(linearApproximation))
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
-  double pc[6][3];
-  points->GetTypedTuple(1, pc[0]);
-  points->GetTypedTuple(0, pc[1]);
-  points->GetTypedTuple(2, pc[2]);
-  points->GetTypedTuple(4, pc[3]);
-  points->GetTypedTuple(3, pc[4]);
-  points->GetTypedTuple(5, pc[5]);
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
   return verdict::wedge_volume(6, pc);
 }
 
 // Hexahedral quality metrics
+
+// Mapping for up to 27 nodes (Triquadratic Hexahedron)
+// Index = VTK Node ID, Value = Verdict Node ID
+static constexpr int vtkHexToVerdictHexMap[27] = { // 0-11: Direct mapping
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+  // 12-19: Mid-edge nodes (VTK 12-15 map to Verdict 16-19, VTK 16-19 map to Verdict 12-15)
+  16, 17, 18, 19, 12, 13, 14, 15,
+  // 20-26: Face and body centers
+  23, 24, 25, 26, 21, 22, 20
+};
 
 //----------------------------------------------------------------------------
 double vtkMeshQuality::HexCondition(vtkCell* cell, bool vtkNotUsed(linearApproximation))
@@ -2187,11 +2131,18 @@ double vtkMeshQuality::HexDistortion(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON) && !linearApproximation
-    ? points->GetNumberOfTuples()
-    : 8;
+  int numPts = 8;
+  if (!linearApproximation && (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON))
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_distortion(numPts, pc);
 }
 
@@ -2216,9 +2167,18 @@ double vtkMeshQuality::HexJacobian(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    ct == VTK_TRIQUADRATIC_HEXAHEDRON && !linearApproximation ? points->GetNumberOfTuples() : 8;
+  int numPts = 8;
+  if (!linearApproximation && ct == VTK_TRIQUADRATIC_HEXAHEDRON)
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_jacobian(numPts, pc);
 }
 
@@ -2354,11 +2314,18 @@ double vtkMeshQuality::HexVolume(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  double pcVerdict[27 /*max*/][3];
   const int ct = cell->GetCellType();
-  const int numPts =
-    (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON) && !linearApproximation
-    ? points->GetNumberOfTuples()
-    : 8;
+  int numPts = 8;
+  if (!linearApproximation && (ct == VTK_QUADRATIC_HEXAHEDRON || ct == VTK_TRIQUADRATIC_HEXAHEDRON))
+  {
+    numPts = points->GetNumberOfTuples();
+    for (int i = 0; i < numPts; ++i)
+    {
+      points->GetTypedTuple(i, pcVerdict[vtkHexToVerdictHexMap[i]]);
+    }
+    pc = pcVerdict;
+  }
   return verdict::hex_volume(numPts, pc);
 }
 VTK_ABI_NAMESPACE_END

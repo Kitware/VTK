@@ -26,18 +26,23 @@ namespace
 {
 constexpr double VTK_DIVERGED = 1.e6;
 //------------------------------------------------------------------------------
-// Wedge topology:
-//
-//         2
-//        /|\.
-//       / | \.
-//      /  |  \.
-//     /  /5\  \.
-//    |  /___\  |
-//    | /3   4\ |
-//    |/_______\|
-//    0         1
-//
+[[maybe_unused]] constexpr const char* WedgeTopology = R"(
+   Wedge topology:
+
+           2
+          /|\
+         / | \
+        /  |  \
+       /   |   \
+      0----|----1    ← back triangle
+      |    5    |
+      |   / \   |
+      |  /   \  |
+      | /     \ |
+      |/       \|
+      3---------4    ← front triangle
+)";
+
 vtkIdType edges[vtkWedge::NumberOfEdges][2] = {
   { 0, 1 }, // 0
   { 1, 2 }, // 1
@@ -50,11 +55,11 @@ vtkIdType edges[vtkWedge::NumberOfEdges][2] = {
   { 2, 5 }, // 8
 };
 vtkIdType faces[vtkWedge::NumberOfFaces][vtkWedge::MaximumFaceSize + 1] = {
-  { 0, 1, 2, -1, -1 }, // 0
-  { 3, 5, 4, -1, -1 }, // 1
-  { 0, 3, 4, 1, -1 },  // 2
-  { 1, 4, 5, 2, -1 },  // 3
-  { 2, 5, 3, 0, -1 },  // 4
+  { 0, 2, 1, -1, -1 }, // 0
+  { 3, 4, 5, -1, -1 }, // 1
+  { 0, 1, 4, 3, -1 },  // 2
+  { 1, 2, 5, 4, -1 },  // 3
+  { 2, 0, 3, 5, -1 },  // 4
 };
 constexpr vtkIdType edgeToAdjacentFaces[vtkWedge::NumberOfEdges][2] = {
   { 0, 2 }, // 0
@@ -820,11 +825,11 @@ int vtkWedge::IntersectWithLine(const double p1[3], const double p2[3], double t
 //------------------------------------------------------------------------------
 int vtkWedge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
-  // one wedge (or prism) is decomposed into 3 tetrahedrons and four
-  // pairs of (pointId, pointCoordinates) are provided for each tetrahedron
+  // one wedge (or prism) is decomposed into 3 tetrahedrons
+  // and four pairs of (pointId, pointCoordinates) are provided for each tetrahedron
   ptIds->SetNumberOfIds(12);
-  constexpr vtkIdType ids[3][4] = { { 0, 2, 1, 3 }, { 1, 3, 5, 4 }, { 1, 2, 5, 3 } };
-  std::copy(&ids[0][0], &ids[0][0] + 12, ptIds->begin());
+  constexpr vtkIdType ids[3][4] = { { 0, 1, 2, 3 }, { 1, 4, 5, 3 }, { 1, 3, 5, 2 } };
+  std::copy_n(&ids[0][0], 12, ptIds->begin());
   return 1;
 }
 
