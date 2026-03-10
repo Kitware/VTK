@@ -125,7 +125,9 @@ set(python_files
   vtkmodules/numpy_interface/__init__.py
   vtkmodules/numpy_interface/_vtk_array_mixin.py
   vtkmodules/numpy_interface/array_overrides.py
+  vtkmodules/numpy_interface/vtk_affine_array.py
   vtkmodules/numpy_interface/vtk_aos_array.py
+  vtkmodules/numpy_interface/vtk_constant_array.py
   vtkmodules/numpy_interface/vtk_none_array.py
   vtkmodules/numpy_interface/vtk_soa_array.py
   vtkmodules/numpy_interface/utils.py

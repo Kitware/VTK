@@ -10,3 +10,5 @@ from contextlib import suppress
 with suppress(ImportError):
     from vtkmodules.numpy_interface import vtk_aos_array as _aos  # noqa: F401
     from vtkmodules.numpy_interface import vtk_soa_array as _soa  # noqa: F401
+    from vtkmodules.numpy_interface import vtk_constant_array as _const  # noqa: F401
+    from vtkmodules.numpy_interface import vtk_affine_array as _affine  # noqa: F401
