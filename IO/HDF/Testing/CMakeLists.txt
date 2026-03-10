@@ -144,6 +144,10 @@ vtk_module_test_data(
   Data/vtkHDF/multipiece_temporal_htg.vtkhdf
   Data/vtkHDF/sphere_onepiece.vtkhdf
   Data/vtkHDF/sph4_mb.vtkhdf
+  Data/vtkHDF/sph4_mb_part0.vtkhdf
+  Data/vtkHDF/sph4_mb_part1.vtkhdf
+  Data/vtkHDF/sph4_mb_part2.vtkhdf
+  Data/vtkHDF/sph4_mb_part3.vtkhdf
   Data/vtkHDF/multipiece_htg.hdf
   Data/vtkHDF/randomhtg.hdf
   Data/vtkHDF/simple_htg.hdf
