@@ -15,6 +15,7 @@
 #define vtkCellType_h
 
 #include "vtkABINamespace.h"
+#include "vtkType.h" // For VTK_DEPRECATED_IN_9_7_0_TYPE
 
 // To add a new cell type, define a new integer type flag here, then
 // create a subclass of vtkCell to implement the proper behavior. You
@@ -79,7 +80,7 @@ typedef enum
   VTK_POLYHEDRON = 42,
 
   // Higher order cells in parametric form
-  VTK_PARAMETRIC_CURVE = 51,
+  VTK_PARAMETRIC_CURVE VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 51,
   VTK_PARAMETRIC_SURFACE = 52,
   VTK_PARAMETRIC_TRI_SURFACE = 53,
   VTK_PARAMETRIC_QUAD_SURFACE = 54,

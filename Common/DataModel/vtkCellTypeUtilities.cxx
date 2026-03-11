@@ -33,7 +33,6 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_QUADRATIC_POLYGON, "vtkQuadraticPolygon" },
   { VTK_TRIQUADRATIC_PYRAMID, "vtkTriQuadraticPyramid" },
   { VTK_CONVEX_POINT_SET, "vtkConvexPointSet" }, { VTK_POLYHEDRON, "vtkPolyhedron" },
-  { VTK_PARAMETRIC_CURVE, "vtkParametricCurve" },
   { VTK_PARAMETRIC_SURFACE, "vtkParametricSurface" },
   { VTK_PARAMETRIC_TRI_SURFACE, "vtkParametricTriSurface" },
   { VTK_PARAMETRIC_QUAD_SURFACE, "vtkParametricQuadSurface" },
@@ -173,7 +172,6 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
     case VTK_POLY_LINE:
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
-    case VTK_PARAMETRIC_CURVE:
     case VTK_HIGHER_ORDER_EDGE:
     case VTK_LAGRANGE_CURVE:
     case VTK_BEZIER_CURVE:
