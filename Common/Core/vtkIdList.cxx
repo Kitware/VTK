@@ -184,29 +184,35 @@ vtkIdType* vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool save, int deleteMethod)
+void vtkIdList::SetList(vtkIdType* array, vtkIdType size, bool save, int deleteMethod)
 {
   this->Buffer->SetBuffer(array, size);
 
   if (deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Buffer->SetFreeFunction(!save, ::operator delete[]);
+    this->Buffer->SetFreeFunction(save, ::operator delete[]);
   }
   else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
-    this->Buffer->SetFreeFunction(!save, _aligned_free);
+    this->Buffer->SetFreeFunction(save, _aligned_free);
 #else
-    this->Buffer->SetFreeFunction(!save, free);
+    this->Buffer->SetFreeFunction(save, free);
 #endif
   }
   else if (deleteMethod == VTK_DATA_ARRAY_USER_DEFINED || deleteMethod == VTK_DATA_ARRAY_FREE)
   {
-    this->Buffer->SetFreeFunction(!save, free);
+    this->Buffer->SetFreeFunction(save, free);
   }
 
   this->Size = size; // VTK_DEPRECATED_IN_9_7_0
   this->NumberOfIds = size;
+}
+
+//------------------------------------------------------------------------------
+void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool manageMemory)
+{
+  this->SetList(array, size, !manageMemory, VTK_DATA_ARRAY_DELETE);
 }
 
 //------------------------------------------------------------------------------

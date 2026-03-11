@@ -151,13 +151,12 @@ bool StructuredExecuteWithBlanking(
     outputDSA->CopyAllocate(inputDSA, numValues);
 
     vtkNew<vtkIdList> fromIds;
-    fromIds->SetArray(originalIds->GetPointer(0), numValues); // don't forget to call `Release`
+    fromIds->SetList(originalIds->GetPointer(0), numValues, /*save*/ true);
 
     vtkNew<vtkIdList> toIds;
     toIds->SetNumberOfIds(numValues);
     std::iota(toIds->begin(), toIds->end(), 0);
     outputDSA->CopyData(inputDSA, fromIds, toIds);
-    fromIds->Release(); // necessary to avoid double delete.
 
     // unmark global ids, if any since we don't really preserve input global
     // ids.

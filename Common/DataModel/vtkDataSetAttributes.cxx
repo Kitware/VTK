@@ -806,7 +806,7 @@ struct CopyDataExplicitToImplicitWorker
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     auto& sourceIds = this->TLSourceIds.Local();
-    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    sourceIds->SetList(this->SourceIds->GetPointer(startId), endId - startId, true /* save */);
     for (const int i : this->RequiredArrays)
     {
       vtkAbstractArray* target = this->Dest->GetAbstractArray(this->TargetIndices[i]);
@@ -844,9 +844,9 @@ struct CopyDataExplicitToExplicitWorker
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     auto& sourceIds = this->TLSourceIds.Local();
-    sourceIds->SetArray(this->SourceIds->GetPointer(startId), endId - startId, false /* save */);
+    sourceIds->SetList(this->SourceIds->GetPointer(startId), endId - startId, true /* save */);
     auto& destIds = this->TLDestinationIds.Local();
-    destIds->SetArray(this->DestIds->GetPointer(startId), endId - startId, false /* save */);
+    destIds->SetList(this->DestIds->GetPointer(startId), endId - startId, true /* save */);
 
     for (const int i : this->RequiredArrays)
     {

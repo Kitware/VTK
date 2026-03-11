@@ -252,12 +252,12 @@ public:
   ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
-   * array argument is a pointer to the data.  size is the size of the
+   * array argument is a pointer to the data. Size is the size of the
    * array supplied by the user (as number of values, not in bytes).
    * Set save to 1 to prevent the class from
    * deleting the array when it cleans up or reallocates memory.  The class
    * uses the actual array provided; it does not copy the data from the
-   * suppled array. If specified, the delete method determines how the data
+   * supplied array. If specified, the delete method determines how the data
    * array will be deallocated. If the delete method is
    * VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
    * VTK_DATA_ARRAY_DELETE, delete[] will be used. If the delete method is

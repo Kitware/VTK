@@ -442,7 +442,7 @@ void vtkSortDataArray::ShuffleIdList(
     }
   }
 
-  arrayIn->SetArray(postSort, sze);
+  arrayIn->SetList(postSort, sze, /*save*/ false);
 }
 
 //------------------------------------------------------------------------------

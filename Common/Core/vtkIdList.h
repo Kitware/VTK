@@ -151,9 +151,11 @@ public:
   vtkIdType* WritePointer(vtkIdType i, vtkIdType number);
 
   /**
-   * Specify an array of vtkIdType to use as the id list. This replaces the
-   * underlying array. This instance of vtkIdList takes ownership of the
-   * array, meaning that it deletes it on destruction (using delete[]). The class
+   * This method let's the user specify data to be held by the id list. The
+   * array argument is a pointer to the data. Size is the size of the array
+   * supplied by the user (as number of ids, not in bytes).
+   * Set save to 1 to prevent the class from
+   * deleting the array when it cleans up or reallocates memory.  The class
    * uses the actual array provided; it does not copy the data from the
    * supplied array. If specified, the delete method determines how the data
    * array will be deallocated. If the delete method is
@@ -162,8 +164,15 @@ public:
    * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on Windows, while
    * free() will be used everywhere else. The default is VTK_DATA_ARRAY_DELETE.
    */
-  void SetArray(
-    vtkIdType* array, vtkIdType size, bool save = true, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+  void SetList(
+    vtkIdType* array, vtkIdType size, bool save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+
+  /**
+   * This method does the same as SetList but the save and manageMemory are opposite.
+   * It was deprecated to promote uniformity between vtkIdList and vtkAOSDataArrayTemplate APIs.
+   */
+  VTK_DEPRECATED_IN_9_7_0("Use SetList instead")
+  void SetArray(vtkIdType* array, vtkIdType size, bool manageMemory = true);
 
   /**
    * Reset to an empty state but retain previously allocated memory.

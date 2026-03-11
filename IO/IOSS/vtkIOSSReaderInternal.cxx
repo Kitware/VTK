@@ -2033,7 +2033,8 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
     // subset the field.
     vtkNew<vtkIdList> list;
     // this is a shallow copy.
-    list->SetArray(ids_to_extract->GetPointer(0), ids_to_extract->GetNumberOfTuples());
+    list->SetList(
+      ids_to_extract->GetPointer(0), ids_to_extract->GetNumberOfTuples(), /*save*/ true);
 
     vtkSmartPointer<vtkAbstractArray> clone;
     clone.TakeReference(full_field->NewInstance());
@@ -2041,9 +2042,6 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
     clone->SetNumberOfComponents(full_field->GetNumberOfComponents());
     clone->SetNumberOfTuples(list->GetNumberOfIds());
     full_field->GetTuples(list, clone);
-
-    // get back the data pointer from the idlist
-    list->Release();
 
     // convert field if needed for VTK e.g. ids have to be `vtkIdTypeArray`.
     clone = this->ConvertFieldForVTK(clone);
