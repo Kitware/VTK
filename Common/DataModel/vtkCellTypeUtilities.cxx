@@ -33,7 +33,7 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_QUADRATIC_POLYGON, "vtkQuadraticPolygon" },
   { VTK_TRIQUADRATIC_PYRAMID, "vtkTriQuadraticPyramid" },
   { VTK_CONVEX_POINT_SET, "vtkConvexPointSet" }, { VTK_POLYHEDRON, "vtkPolyhedron" },
-  { VTK_HIGHER_ORDER_EDGE, "vtkHigherOrderEdge" },
+  { VTK_HIGHER_ORDER_CURVE, "vtkHigherOrderCurve" },
   { VTK_HIGHER_ORDER_TRIANGLE, "vtkHigherOrderTriangle" },
   { VTK_HIGHER_ORDER_QUAD, "vtkHigherOrderQuad" },
   { VTK_HIGHER_ORDER_POLYGON, "vtkHigherOrderPolygon" },
@@ -73,8 +73,8 @@ std::map<int, std::string> CellTypesName = { { VTK_EMPTY_CELL, "Empty Cell" },
   { VTK_BIQUADRATIC_QUADRATIC_WEDGE, "Bi-Quadratic Quadratic Wedge" },
   { VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, "Bi-Quadratic Quadratic Hexahedron" },
   { VTK_BIQUADRATIC_TRIANGLE, "Bi-Quadratic Triangle" }, { VTK_CUBIC_LINE, "Cubic Line" },
-  { VTK_CONVEX_POINT_SET, "Convex Pointset" }, { VTK_LAGRANGE_CURVE, "Lagrange Curve" },
-  { VTK_LAGRANGE_TRIANGLE, "Lagrange Triangle" },
+  { VTK_CONVEX_POINT_SET, "Convex Pointset" }, { VTK_HIGHER_ORDER_CURVE, "Higher Order Curve" },
+  { VTK_LAGRANGE_CURVE, "Lagrange Curve" }, { VTK_LAGRANGE_TRIANGLE, "Lagrange Triangle" },
   { VTK_LAGRANGE_QUADRILATERAL, "Lagrange Quadrilateral" },
   { VTK_LAGRANGE_TETRAHEDRON, "Lagrange Tetrahedron" },
   { VTK_LAGRANGE_HEXAHEDRON, "Lagrange Hexahedron" }, { VTK_LAGRANGE_WEDGE, "Lagrange Wedge" },
@@ -167,7 +167,6 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
     case VTK_POLY_LINE:
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
-    case VTK_HIGHER_ORDER_EDGE:
     case VTK_LAGRANGE_CURVE:
     case VTK_BEZIER_CURVE:
       return 1;

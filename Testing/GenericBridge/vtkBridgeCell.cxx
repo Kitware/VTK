@@ -83,7 +83,7 @@ int vtkBridgeCell::IsInDataSet()
 //------------------------------------------------------------------------------
 // Description:
 // Type of the current cell.
-// \post (result==VTK_HIGHER_ORDER_EDGE)||
+// \post (result==VTK_HIGHER_ORDER_CURVE)||
 //       (result==VTK_HIGHER_ORDER_TRIANGLE)||
 //       (result==VTK_HIGHER_ORDER_TETRAHEDRON)
 int vtkBridgeCell::GetType()

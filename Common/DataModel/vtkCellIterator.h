@@ -332,7 +332,7 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
     case VTK_BIQUADRATIC_TRIANGLE:
     case VTK_CUBIC_LINE:
     case VTK_CONVEX_POINT_SET:
-    case VTK_HIGHER_ORDER_EDGE:
+    case VTK_HIGHER_ORDER_CURVE:
     case VTK_HIGHER_ORDER_TRIANGLE:
     case VTK_HIGHER_ORDER_QUAD:
     case VTK_HIGHER_ORDER_POLYGON:
