@@ -12,3 +12,7 @@ with suppress(ImportError):
     from vtkmodules.numpy_interface import vtk_soa_array as _soa  # noqa: F401
     from vtkmodules.numpy_interface import vtk_constant_array as _const  # noqa: F401
     from vtkmodules.numpy_interface import vtk_affine_array as _affine  # noqa: F401
+    # Fallback for implicit arrays and any other vtkDataArray subclass
+    # without a dedicated override.  Must be imported AFTER AOS/SOA so
+    # that their more-specific overrides are registered first.
+    from vtkmodules.numpy_interface import vtk_implicit_array as _implicit  # noqa: F401

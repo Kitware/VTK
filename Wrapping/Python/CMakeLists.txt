@@ -130,6 +130,7 @@ set(python_files
   vtkmodules/numpy_interface/vtk_constant_array.py
   vtkmodules/numpy_interface/vtk_none_array.py
   vtkmodules/numpy_interface/vtk_soa_array.py
+  vtkmodules/numpy_interface/vtk_implicit_array.py
   vtkmodules/numpy_interface/utils.py
   vtkmodules/numpy_interface/algorithms.py
   vtkmodules/numpy_interface/dataset_adapter.py
