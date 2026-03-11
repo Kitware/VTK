@@ -22,6 +22,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
+class vtkResourceStream;
 
 class VTKIOCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 {
@@ -44,6 +45,16 @@ public:
    */
   vtkSetStdStringFromCharMacro(FileName);
   vtkGetCharFromStdStringMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * A simple, non-exhaustive check to see if the given file or stream is a
+   * valid XYZ Molecule file. Returns true if the content begins with a
+   * positive integer, i.e. the atom count.
+   */
+  static bool CanReadFile(VTK_FILEPATH const char* filename);
+  static bool CanReadFile(vtkResourceStream* stream);
   ///@}
 
 protected:
