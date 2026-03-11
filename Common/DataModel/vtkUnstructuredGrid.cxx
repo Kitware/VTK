@@ -1769,7 +1769,6 @@ int vtkUnstructuredGrid::GetCellNumberOfFaces(
 
     case VTK_TETRA:
     case VTK_QUADRATIC_TETRA:
-    case VTK_PARAMETRIC_TETRA_REGION:
     case VTK_HIGHER_ORDER_TETRAHEDRON:
     case VTK_LAGRANGE_TETRAHEDRON:
     case VTK_BEZIER_TETRAHEDRON:
