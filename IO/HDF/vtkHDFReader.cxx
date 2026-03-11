@@ -1227,16 +1227,16 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
 int vtkHDFReader::Read(
   vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData)
 {
-  int filePieceCount = this->Impl->GetNumberOfPieces();
+  int numPartsInFile = this->Impl->GetNumberOfPieces();
   if (this->GetHasTemporalData())
   {
-    filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+    numPartsInFile = this->Impl->GetNumberOfPieces(this->Step);
   }
 
   if (pData)
   {
     // Make sure there is the right number of partitions
-    pData->SetNumberOfPartitions(filePieceCount);
+    pData->SetNumberOfPartitions(numPartsInFile);
   }
 
   vtkHDFUtilities::TemporalGeometryOffsets geoOffs;
@@ -1251,19 +1251,19 @@ int vtkHDFReader::Read(
   }
 
   std::vector<vtkIdType> numberOfPoints =
-    this->Impl->GetMetadata("NumberOfPoints", filePieceCount, geoOffs.PartOffset);
+    this->Impl->GetMetadata("NumberOfPoints", numPartsInFile, geoOffs.PartOffset);
   if (numberOfPoints.empty())
   {
     return 0;
   }
   std::vector<vtkIdType> numberOfCells =
-    this->Impl->GetMetadata("NumberOfCells", filePieceCount, geoOffs.PartOffset);
+    this->Impl->GetMetadata("NumberOfCells", numPartsInFile, geoOffs.PartOffset);
   if (numberOfCells.empty())
   {
     return 0;
   }
   std::vector<vtkIdType> numberOfConnectivityIds =
-    this->Impl->GetMetadata("NumberOfConnectivityIds", filePieceCount, geoOffs.PartOffset);
+    this->Impl->GetMetadata("NumberOfConnectivityIds", numPartsInFile, geoOffs.PartOffset);
   if (numberOfConnectivityIds.empty())
   {
     return 0;
@@ -1277,18 +1277,18 @@ int vtkHDFReader::Read(
   if (HasNumFaceConn && HasNumFace && HasNumPolyhToFace)
   {
     numberOfFaceConnectivityIds =
-      this->Impl->GetMetadata("NumberOfFaceConnectivityIds", filePieceCount, geoOffs.PartOffset);
+      this->Impl->GetMetadata("NumberOfFaceConnectivityIds", numPartsInFile, geoOffs.PartOffset);
     if (numberOfFaceConnectivityIds.empty())
     {
       return 0;
     }
-    numberOfFaces = this->Impl->GetMetadata("NumberOfFaces", filePieceCount, geoOffs.PartOffset);
+    numberOfFaces = this->Impl->GetMetadata("NumberOfFaces", numPartsInFile, geoOffs.PartOffset);
     if (numberOfFaces.empty())
     {
       return 0;
     }
     numberOfPolyhedronToFaceIds =
-      this->Impl->GetMetadata("NumberOfPolyhedronToFaceIds", filePieceCount, geoOffs.PartOffset);
+      this->Impl->GetMetadata("NumberOfPolyhedronToFaceIds", numPartsInFile, geoOffs.PartOffset);
     if (numberOfPolyhedronToFaceIds.empty())
     {
       return 0;
@@ -1301,15 +1301,27 @@ int vtkHDFReader::Read(
     return 0;
   }
 
-  int memoryPieceCount = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  if (memoryPieceCount == 0)
+  int numPiecesPipeline = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int localPieceIdx = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  if (numPiecesPipeline == 0)
   {
-    vtkErrorMacro("Number of pieces per process was set to 0");
+    vtkErrorMacro("Number of pieces requested was set to 0");
     return 0;
   }
 
-  for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
+  std::vector<int> localPieceNums{ this->GetPieceAssignmentForDistribution(
+    localPieceIdx, numPartsInFile, numPiecesPipeline) };
+
+  // Set unread parts to null. Needed when changing piece distribution.
+  for (int part = 0; part < numPartsInFile; part++)
+  {
+    if (pData && pData->GetPartition(part) &&
+      std::find(localPieceNums.begin(), localPieceNums.end(), part) == localPieceNums.end())
+    {
+      pData->SetPartition(part, nullptr);
+    }
+  }
+  for (const auto& filePiece : localPieceNums)
   {
     vtkUnstructuredGrid* pieceData = data;
     if (pData)
@@ -1338,16 +1350,16 @@ int vtkHDFReader::Read(
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData)
 {
   // The number of pieces in this step
-  int filePieceCount = this->Impl->GetNumberOfPieces();
+  int numPartsInFile = this->Impl->GetNumberOfPieces();
   if (this->GetHasTemporalData())
   {
-    filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+    numPartsInFile = this->Impl->GetNumberOfPieces(this->Step);
   }
 
   if (pData)
   {
     // Make sure there is the right number of partitions
-    pData->SetNumberOfPartitions(filePieceCount);
+    pData->SetNumberOfPartitions(numPartsInFile);
   }
 
   // The initial offsetting with which to read the step in particular
@@ -1374,7 +1386,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 
   // extract the array containing the number of points for this step
   std::vector<vtkIdType> numberOfPoints =
-    this->Impl->GetMetadata("NumberOfPoints", filePieceCount, partOffset);
+    this->Impl->GetMetadata("NumberOfPoints", numPartsInFile, partOffset);
   if (numberOfPoints.empty())
   {
     vtkErrorMacro("Error in reading NumberOfPoints");
@@ -1388,7 +1400,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   {
     // extract the array containing the number of cells of this topology for this step
     numberOfCells[name] =
-      this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), filePieceCount, partOffset);
+      this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), numPartsInFile, partOffset);
     numberOfCellsBefore[name] =
       this->Impl->GetMetadata((name + "/NumberOfCells").c_str(), partOffset, 0);
     if (numberOfCells[name].empty())
@@ -1398,7 +1410,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     }
     // extract the array containing the number of connectivity ids of this topology for this step
     numberOfConnectivityIds[name] = this->Impl->GetMetadata(
-      (name + "/NumberOfConnectivityIds").c_str(), filePieceCount, partOffset);
+      (name + "/NumberOfConnectivityIds").c_str(), numPartsInFile, partOffset);
     if (numberOfConnectivityIds[name].empty())
     {
       vtkErrorMacro("Error in reading NumberOfConnectivityIds for " + name);
@@ -1406,20 +1418,31 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     }
   }
   // determine the stride to use when updating pieces
-  int memoryPieceCount = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int numPiecesPipeline = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   // determine the initial piece number to update
-  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int localPieceIdx = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
-  if (memoryPieceCount == 0)
+  if (numPiecesPipeline == 0)
   {
-    vtkErrorMacro("Number of pieces per process was set to 0");
+    vtkErrorMacro("Number of pieces requested was set to 0");
     return 0;
   }
-  std::vector<vtkSmartPointer<vtkPolyData>> pieces;
-  pieces.reserve(filePieceCount / memoryPieceCount);
+
   vtkIdType startingCellOffset =
     std::accumulate(startingCellOffsets.begin(), startingCellOffsets.end(), 0);
-  for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
+  std::vector<int> localPieceNums{ this->GetPieceAssignmentForDistribution(
+    localPieceIdx, numPartsInFile, numPiecesPipeline) };
+
+  // Set unread parts to null
+  for (int part = 0; part < numPartsInFile; part++)
+  {
+    if (pData && pData->GetPartition(part) &&
+      std::find(localPieceNums.begin(), localPieceNums.end(), part) == localPieceNums.end())
+    {
+      pData->SetPartition(part, nullptr);
+    }
+  }
+  for (const auto& filePiece : localPieceNums)
   {
     // determine the exact offsetting for the piece that needs to be read
     vtkIdType pointOffset =
@@ -1539,6 +1562,40 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     }
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkHDFReader::GetPieceAssignmentForDistribution(
+  int pieceIdx, int numDatasets, int numPieces) const
+{
+  int div = numDatasets / numPieces;
+  int mod = numDatasets % numPieces;
+
+  // Given 7 datasets and 4 pieces, 7%4=3, idx 0,1,2 get 2 pieces, and idx 3 gets 1
+  int localNumPieces = div;
+  if (pieceIdx < mod && mod > 0)
+  {
+    localNumPieces++;
+  }
+  std::vector<int> localPiecesIds(localNumPieces);
+  if (this->PieceDistribution == Interleave)
+  {
+    for (int id = 0; id < localNumPieces; id++)
+    {
+      localPiecesIds[id] = pieceIdx + id * numPieces;
+    }
+  }
+  else
+  {
+    int localOffset = pieceIdx * div;
+    if (mod > 0)
+    {
+      localOffset += std::min(mod, pieceIdx);
+    }
+    std::iota(localPiecesIds.begin(), localPiecesIds.end(), localOffset);
+  }
+
+  return localPiecesIds;
 }
 
 //------------------------------------------------------------------------------

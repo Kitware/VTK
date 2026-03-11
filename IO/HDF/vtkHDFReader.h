@@ -92,7 +92,29 @@ public:
   vtkResourceStream* GetStream();
   ///@}
 
+  enum
+  {
+    Block,
+    Interleave
+  };
+
   ///@{
+  /**
+   * Set the strategy for assigning files to parallel readers. The default is
+   * @a Block.
+   *
+   * Let @a X be the rank of a specific reader, and @a N be the number of
+   * reader, then:
+   * @arg @c Block Each processor is assigned a contiguous block of files,
+   *      [@a X * @a N, ( @a X + 1) * @a N ).
+   * @arg @c Interleave The files are interleaved across readers,
+   * @a i * @a N + @a X.
+   * @{
+   */
+  vtkSetClampMacro(PieceDistribution, int, Block, Interleave);
+  vtkGetMacro(PieceDistribution, int);
+  ///@}
+
   /**
    * Return true if, after a quick check of file header, it looks like the provided file or stream
    * can be read. Return false if it is sure it cannot be read. The stream version may move the
@@ -359,7 +381,17 @@ private:
   void SetHasTemporalData(bool useTemporalData);
 
   /**
-   * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in Assembly.
+   * Return the list of file block ids to read, using the selected PieceDistribution mode.
+   * pieceIdx: index of the piece to be retrieved by the reader
+   * numDatasets: total number of datasets (pieces) present in the file
+   * numPieces: total number of pieces to be read.
+   */
+  std::vector<int> GetPieceAssignmentForDistribution(
+    int pieceIdx, int numDatasets, int numPieces) const;
+
+  /**
+   * Generate the vtkDataAssembly used for vtkPartitionedDataSetCollection and store it in
+   * Assembly.
    */
   void GenerateAssembly();
 
@@ -389,6 +421,7 @@ private:
 
   bool HasTemporalData = false;
   std::string CompositeCachePath; // Identifier for the current composite piece
+  int PieceDistribution = Interleave;
 };
 
 VTK_ABI_NAMESPACE_END

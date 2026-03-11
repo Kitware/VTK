@@ -368,5 +368,7 @@ int TestHDFWriterChangingTopology(int argc, char* argv[])
   bool testPasses = true;
   testPasses &= TestChangingTopologyUG(tempDir);
   testPasses &= TestChangingTopologyPD(tempDir);
+  // TODO: Add partitioned testing, polyhedron testing
+  // Cf https://gitlab.kitware.com/vtk/vtk/-/issues/19976
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }
