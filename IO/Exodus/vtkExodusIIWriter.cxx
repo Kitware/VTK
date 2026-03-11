@@ -1256,9 +1256,6 @@ char* vtkExodusIIWriter::GetCellTypeName(int t)
     case VTK_CONVEX_POINT_SET:
       strcpy(nm, "convex point set");
       break;
-    case VTK_PARAMETRIC_QUAD_SURFACE:
-      strcpy(nm, "parametric quad surface");
-      break;
     case VTK_PARAMETRIC_TETRA_REGION:
       strcpy(nm, "parametric tetra region");
       break;
