@@ -182,8 +182,20 @@ void vtkImageData::BuildPoints()
       axisCoords[i]->SetValue(1, this->Origin[i] + this->Spacing[i]);
     }
   }
-  this->SetStructuredPoints(vtkStructuredData::GetPoints(
-    xCoords, yCoords, zCoords, extent, this->DirectionMatrix->GetData()));
+  // Update the existing structured point array in place so that external
+  // pointers obtained via GetPoints() or GetPoints()->GetData() remain valid.
+  vtkPoints* pts = this->GetPoints();
+  auto* spa = vtkStructuredPointArray<double>::FastDownCast(pts->GetData());
+  if (!spa)
+  {
+    vtkErrorMacro("GetPoints()->GetData() is not a vtkStructuredPointArray. "
+                  "Cannot update points in place.");
+    return;
+  }
+  int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
+  spa->ConstructBackend(
+    xCoords, yCoords, zCoords, extent, dataDescription, this->DirectionMatrix->GetData());
+  spa->SetNumberOfTuples(vtkStructuredData::GetNumberOfPoints(extent));
 }
 
 //------------------------------------------------------------------------------

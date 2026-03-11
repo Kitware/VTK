@@ -102,6 +102,11 @@ vtkPoints* vtkCartesianGrid::GetPoints()
 {
   if (this->StructuredPoints == nullptr)
   {
+    auto pts = vtkSmartPointer<vtkPoints>::New();
+    auto spa = vtkSmartPointer<vtkStructuredPointArray<double>>::New();
+    spa->SetNumberOfComponents(3);
+    pts->SetData(spa);
+    this->SetStructuredPoints(pts);
     this->BuildPoints();
   }
   return this->StructuredPoints.Get();

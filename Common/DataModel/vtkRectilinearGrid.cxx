@@ -148,8 +148,21 @@ void vtkRectilinearGrid::BuildPoints()
   static double identityMatrix[9] = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 };
   if (this->XCoordinates && this->YCoordinates && this->ZCoordinates)
   {
-    this->SetStructuredPoints(vtkStructuredData::GetPoints(this->XCoordinates, this->YCoordinates,
-      this->ZCoordinates, this->GetExtent(), identityMatrix));
+    // Update the existing structured point array in place so that external
+    // pointers obtained via GetPoints() or GetPoints()->GetData() remain valid.
+    vtkPoints* pts = this->GetPoints();
+    auto* spa = vtkStructuredPointArray<double>::FastDownCast(pts->GetData());
+    if (!spa)
+    {
+      vtkErrorMacro("GetPoints()->GetData() is not a vtkStructuredPointArray. "
+                    "Cannot update points in place.");
+      return;
+    }
+    int* extent = this->GetExtent();
+    int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
+    spa->ConstructBackend(this->XCoordinates, this->YCoordinates, this->ZCoordinates, extent,
+      dataDescription, identityMatrix);
+    spa->SetNumberOfTuples(vtkStructuredData::GetNumberOfPoints(extent));
   }
 }
 
