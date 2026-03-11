@@ -1256,9 +1256,6 @@ char* vtkExodusIIWriter::GetCellTypeName(int t)
     case VTK_CONVEX_POINT_SET:
       strcpy(nm, "convex point set");
       break;
-    case VTK_PARAMETRIC_HEX_REGION:
-      strcpy(nm, "paramertric hex region");
-      break;
     default:
       strcpy(nm, "unknown cell type");
       break;
