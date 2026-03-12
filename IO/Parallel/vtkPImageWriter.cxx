@@ -80,15 +80,17 @@ void vtkPImageWriter::RecursiveWrite(
     {
       if (this->FilePrefix)
       {
-        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, this->FilePrefix, this->FileNumber);
-        *result.out = '\0';
+        VTK_FORMAT_IF_ERROR_RETURN(
+          auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+            this->FilePattern, this->FilePrefix, this->FileNumber);
+          *result.out = '\0', );
       }
       else
       {
-        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, "", this->FileNumber);
-        *result.out = '\0';
+        VTK_FORMAT_IF_ERROR_RETURN(
+          auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+            this->FilePattern, "", this->FileNumber);
+          *result.out = '\0', );
       }
     }
     // Open the file

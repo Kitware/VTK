@@ -1161,9 +1161,9 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
       title.setf(std::ios::fixed, std::ios::floatfield);
       std::string radialAngleFormat =
         this->RadialAngleFormat ? vtk::to_std_format(this->RadialAngleFormat) : "";
-      auto result =
-        vtk::format_to_n(titleValue, sizeof(titleValue), radialAngleFormat, actualAngle);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                                   titleValue, sizeof(titleValue), radialAngleFormat, actualAngle);
+                                 *result.out = '\0', );
       title << titleValue << (this->RadialUnits ? " deg" : "");
       axis->SetTitle(title.str());
 
@@ -1595,8 +1595,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      auto result = vtk::format_to_n(label, sizeof(label), polarLabelFormat, *itList);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(label, sizeof(label), polarLabelFormat, *itList);
+        *result.out = '\0', );
       labels->SetValue(i, label);
     }
   }
@@ -1829,8 +1830,9 @@ void vtkPolarAxesActor::BuildLabelsLog()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+        *result.out = '\0', );
       labels->SetValue(i, label);
     }
   }
@@ -1966,8 +1968,9 @@ void vtkPolarAxesActor::GetSignificantPartFromValues(
     char label[64];
     if (this->ExponentLocation == VTK_EXPONENT_LABELS)
     {
-      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+        *result.out = '\0', );
       valuesStr->SetValue(i, label);
     }
     else

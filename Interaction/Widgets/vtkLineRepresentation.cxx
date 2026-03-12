@@ -758,7 +758,8 @@ void vtkLineRepresentation::BuildRepresentation()
     double x[3] = { (x1[0] + x2[0]) / 2.0, (x1[1] + x2[1]) / 2.0, (x1[2] + x2[2]) / 2.0 };
     std::string distanceAnnotationFormat =
       this->DistanceAnnotationFormat ? vtk::to_std_format(this->DistanceAnnotationFormat) : "";
-    auto string = vtk::format(distanceAnnotationFormat, this->Distance);
+    std::string string;
+    VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(distanceAnnotationFormat, this->Distance), );
     this->TextInput->SetText(string.c_str());
     this->TextActor->SetPosition(x);
     if (this->Renderer)

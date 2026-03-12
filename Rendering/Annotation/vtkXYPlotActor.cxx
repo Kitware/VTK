@@ -2213,11 +2213,12 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2
   // In the meantime, let's try with the min and max
   std::string axisYLabelFormat =
     axisY->GetLabelFormat() ? vtk::to_std_format(axisY->GetLabelFormat()) : "";
-  auto result =
-    vtk::format_to_n(str1, sizeof(str1), axisYLabelFormat, axisY->GetAdjustedRange()[0]);
-  *result.out = '\0';
-  result = vtk::format_to_n(str2, sizeof(str2), axisYLabelFormat, axisY->GetAdjustedRange()[1]);
-  *result.out = '\0';
+  VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                               str1, sizeof(str1), axisYLabelFormat, axisY->GetAdjustedRange()[0]);
+                             *result.out = '\0', );
+  VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                               str2, sizeof(str2), axisYLabelFormat, axisY->GetAdjustedRange()[1]);
+                             *result.out = '\0', );
   tprop->ShallowCopy(axisY->GetLabelTextProperty());
   textMapper->SetInput(strlen(str1) > strlen(str2) ? str1 : str2);
   vtkTextMapper::SetRelativeFontSize(
@@ -2227,8 +2228,9 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2
   // use the min for example
   std::string axisXLabelFormat =
     axisX->GetLabelFormat() ? vtk::to_std_format(axisX->GetLabelFormat()) : "";
-  result = vtk::format_to_n(str1, sizeof(str1), axisXLabelFormat, axisX->GetAdjustedRange()[0]);
-  *result.out = '\0';
+  VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                               str1, sizeof(str1), axisXLabelFormat, axisX->GetAdjustedRange()[0]);
+                             *result.out = '\0', );
   tprop->ShallowCopy(axisX->GetLabelTextProperty());
   textMapper->SetInput(str1);
   vtkTextMapper::SetRelativeFontSize(
