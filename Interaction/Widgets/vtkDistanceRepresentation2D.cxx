@@ -175,7 +175,8 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
 
     std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
-    auto string = vtk::format(labelFormat, this->Distance * this->Scale);
+    std::string string;
+    VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(labelFormat, this->Distance * this->Scale), );
     this->AxisActor->SetTitle(string.c_str());
 
     this->BuildTime.Modified();

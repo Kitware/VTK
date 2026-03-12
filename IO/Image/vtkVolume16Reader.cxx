@@ -265,14 +265,15 @@ void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalar
   // build the file name. if there is no prefix, just use the slice number
   if (this->FilePrefix)
   {
-    auto result = vtk::format_to_n(
-      filename, sizeof(filename), this->FilePattern, this->FilePrefix, sliceNumber);
-    *result.out = '\0';
+    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
+                                 this->FilePattern, this->FilePrefix, sliceNumber);
+                               *result.out = '\0', );
   }
   else
   {
-    auto result = vtk::format_to_n(filename, sizeof(filename), this->FilePattern, "", sliceNumber);
-    *result.out = '\0';
+    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                                 filename, sizeof(filename), this->FilePattern, "", sliceNumber);
+                               *result.out = '\0', );
   }
   if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
   {
@@ -331,14 +332,15 @@ void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* s
     // build the file name. if there is no prefix, just use the slice number
     if (this->FilePrefix)
     {
-      auto result = vtk::format_to_n(
-        filename, sizeof(filename), this->FilePattern, this->FilePrefix, fileNumber);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
+                                   this->FilePattern, this->FilePrefix, fileNumber);
+                                 *result.out = '\0', );
     }
     else
     {
-      auto result = vtk::format_to_n(filename, sizeof(filename), this->FilePattern, "", fileNumber);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                                   filename, sizeof(filename), this->FilePattern, "", fileNumber);
+                                 *result.out = '\0', );
     }
     if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
     {

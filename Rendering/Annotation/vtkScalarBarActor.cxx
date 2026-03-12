@@ -1356,8 +1356,8 @@ void vtkScalarBarActor::LayoutTicks()
     }
 
     std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
-    auto result = vtk::format_to_n(string, 512, labelFormat, val);
-    *result.out = '\0'; // null terminate the string
+    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(string, 512, labelFormat, val);
+                               *result.out = '\0', ); // null terminate the string
     this->P->TextActors[i]->SetInput(string);
 
     // Shallow copy here so that the size of the label prop is not affected

@@ -113,8 +113,9 @@ struct vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapperFunctor
     char formatedString[1024];
     for (int i = 0; i < this->Self->NumberOfLabels; i++)
     {
-      auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString, i);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString, i);
+        *result.out = '\0', );
       this->SetFormattedString(i, formatedString);
     }
   }
@@ -130,9 +131,10 @@ struct vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapperFunctor
     using ValueType = vtk::GetAPIType<TArray>;
     for (int i = 0; i < this->Self->NumberOfLabels; i++)
     {
-      auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
-        static_cast<ValueType>(a[i][activeComp]));
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
+          static_cast<ValueType>(a[i][activeComp]));
+        *result.out = '\0', );
       this->SetFormattedString(i, formatedString);
     }
   }
@@ -154,9 +156,10 @@ struct vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapperFunctor
       // Print each component in turn and add it to the string.
       for (int j = 0; j < numComp; ++j)
       {
-        auto result = vtk::format_to_n(
-          formatedString, sizeof(formatedString), FormatString, static_cast<ValueType>(a[i][j]));
-        *result.out = '\0';
+        VTK_FORMAT_IF_ERROR_RETURN(
+          auto result = vtk::format_to_n(
+            formatedString, sizeof(formatedString), FormatString, static_cast<ValueType>(a[i][j]));
+          *result.out = '\0', );
 
         ResultString += formatedString;
         if (j < (numComp - 1))
@@ -184,9 +187,10 @@ struct vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapperFunctor
       }
       else // the user specified a label format
       {
-        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
-          static_cast<std::string&>(array->GetValue(i)));
-        *result.out = '\0';
+        VTK_FORMAT_IF_ERROR_RETURN(
+          auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
+            static_cast<std::string&>(array->GetValue(i)));
+          *result.out = '\0', );
         this->SetFormattedString(i, formatedString);
       }
     }
