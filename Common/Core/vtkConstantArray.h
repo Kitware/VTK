@@ -75,6 +75,14 @@ public:
     return const_cast<vtkConstantArray<ValueType>*>(this)->GetBackend()->Value;
   }
 
+  /**
+   * Check whether the backend has been constructed.
+   */
+  bool IsBackendConstructed() const
+  {
+    return const_cast<vtkConstantArray<ValueType>*>(this)->GetBackend() != nullptr;
+  }
+
 protected:
   vtkConstantArray() = default;
   ~vtkConstantArray() override = default;
@@ -95,7 +103,8 @@ VTK_ABI_NAMESPACE_END
 #define vtkCreateConstantWrappedArrayInterface(T)                                                  \
   vtkCreateImplicitWrappedArrayInterface(T);                                                       \
   void ConstructBackend(T value);                                                                  \
-  T GetConstantValue() const;
+  T GetConstantValue() const;                                                                      \
+  bool IsBackendConstructed() const;
 
 #endif // vtkConstantArray_h
 

@@ -133,6 +133,11 @@ class VTKAffineArray(VTKDataArrayMixin):
         # existing object; skip mixin init to avoid clobbering state.
         if isinstance(shape, str):
             return
+        # Wrapping a pre-existing C++ object (e.g. from a filter output):
+        # __init__ is called with no args.  If the backend is already
+        # constructed by C++, skip to avoid clobbering its values.
+        if shape is None and not kwargs and self.IsBackendConstructed():
+            return
         super().__init__(**kwargs)
         self._dataset = None
         self._association = None
@@ -148,18 +153,26 @@ class VTKAffineArray(VTKDataArrayMixin):
                 ncomps = 1
             self.SetNumberOfComponents(ncomps)
             self.SetNumberOfTuples(ntuples)
-        # Always construct the backend.  C++ GetSlope()/GetIntercept()
-        # check for null backend, but ConstructBackend ensures a valid
-        # state for all operations.
+        # Always construct the backend so that GetSlope()/GetIntercept()
+        # never dereference a null pointer.
         self.ConstructBackend(slope, intercept)
 
     # ---- properties delegating to self (we ARE the VTK object) --------------
+    def _require_backend(self):
+        """Raise if backend is not constructed."""
+        if not self.IsBackendConstructed():
+            raise RuntimeError(
+                "Cannot operate on a VTKAffineArray whose backend has not "
+                "been constructed. Provide shape, slope and intercept arguments.")
+
     @property
     def _slope(self):
+        self._require_backend()
         return self.GetSlope()
 
     @property
     def _intercept(self):
+        self._require_backend()
         return self.GetIntercept()
 
     @property
@@ -208,6 +221,9 @@ class VTKAffineArray(VTKDataArrayMixin):
         return self.size * numpy.dtype(self._dtype).itemsize
 
     def __repr__(self):
+        if not self.IsBackendConstructed():
+            return (f"VTKAffineArray(uninitialized, "
+                    f"num_values={self._num_values}, dtype={self._dtype})")
         return (f"VTKAffineArray(slope={self._slope}, intercept={self._intercept}, "
                 f"num_values={self._num_values}, dtype={self._dtype})")
 

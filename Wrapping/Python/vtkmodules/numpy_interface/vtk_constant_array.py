@@ -138,6 +138,11 @@ class VTKConstantArray(VTKDataArrayMixin):
         # existing object; skip mixin init to avoid clobbering state.
         if isinstance(shape, str):
             return
+        # Wrapping a pre-existing C++ object (e.g. from GetCellTypes()):
+        # __init__ is called with no args.  If the backend is already
+        # constructed by C++, skip to avoid clobbering its value.
+        if shape is None and not kwargs and self.IsBackendConstructed():
+            return
         super().__init__(**kwargs)
         self._dataset = None
         self._association = None
@@ -153,9 +158,8 @@ class VTKConstantArray(VTKDataArrayMixin):
                 ncomps = 1
             self.SetNumberOfComponents(ncomps)
             self.SetNumberOfTuples(ntuples)
-        # Always construct the backend.  C++ GetConstantValue()
-        # dereferences the backend pointer without a null check, so an
-        # uninitialised constant array would segfault on any access.
+        # Always construct the backend so that GetConstantValue()
+        # never dereferences a null pointer.
         self.ConstructBackend(value)
 
     # ---- factory helpers ----------------------------------------------------
@@ -173,6 +177,8 @@ class VTKConstantArray(VTKDataArrayMixin):
     @property
     def value(self):
         """The constant scalar value."""
+        if not self.IsBackendConstructed():
+            return None
         return self.GetConstantValue()
 
     @property
@@ -188,6 +194,8 @@ class VTKConstantArray(VTKDataArrayMixin):
     def __array__(self, dtype=None, copy=None):
         """Materialize the full array when numpy needs it explicitly."""
         dt = dtype or self.dtype
+        if not self.IsBackendConstructed():
+            return numpy.empty(self.shape, dtype=dt)
         return numpy.full(self.shape, self.GetConstantValue(), dtype=dt)
 
     def __buffer__(self, flags):
@@ -217,6 +225,8 @@ class VTKConstantArray(VTKDataArrayMixin):
         first_const = None
         for inp in inputs:
             if isinstance(inp, VTKConstantArray):
+                if not inp.IsBackendConstructed():
+                    return NotImplemented
                 if first_const is None:
                     first_const = inp
                 new_inputs.append(inp.GetConstantValue())
@@ -276,6 +286,10 @@ class VTKConstantArray(VTKDataArrayMixin):
             strides=(0,) * self.ndim,
         )
         sliced = dummy[key]
+        if not self.IsBackendConstructed():
+            raise RuntimeError(
+                "Cannot index a VTKConstantArray whose backend has not "
+                "been constructed. Provide shape and value arguments.")
         if (numpy.isscalar(sliced)
                 or (isinstance(sliced, numpy.ndarray) and sliced.ndim == 0)):
             return self.dtype.type(self.GetConstantValue())
@@ -318,6 +332,13 @@ class VTKConstantArray(VTKDataArrayMixin):
 
     # ---- O(1) reduction overrides -------------------------------------------
 
+    def _require_backend(self):
+        """Raise if backend is not constructed."""
+        if not self.IsBackendConstructed():
+            raise RuntimeError(
+                "Cannot operate on a VTKConstantArray whose backend has not "
+                "been constructed. Provide shape and value arguments.")
+
     def _axis_full(self, axis, value):
         """Build a result array of the correct shape for a reduction."""
         nt = self.GetNumberOfTuples()
@@ -331,6 +352,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return None
 
     def sum(self, axis=None, **kwargs):
+        self._require_backend()
         v = self.GetConstantValue()
         nt = self.GetNumberOfTuples()
         nc = self.GetNumberOfComponents()
@@ -343,6 +365,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).sum(axis=axis, **kwargs)
 
     def mean(self, axis=None, **kwargs):
+        self._require_backend()
         v = self.dtype.type(self.GetConstantValue())
         if axis is None:
             return v
@@ -352,6 +375,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).mean(axis=axis, **kwargs)
 
     def min(self, axis=None, **kwargs):
+        self._require_backend()
         if self.size == 0:
             raise ValueError("zero-size array has no minimum")
         v = self.dtype.type(self.GetConstantValue())
@@ -363,6 +387,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).min(axis=axis, **kwargs)
 
     def max(self, axis=None, **kwargs):
+        self._require_backend()
         if self.size == 0:
             raise ValueError("zero-size array has no maximum")
         v = self.dtype.type(self.GetConstantValue())
@@ -390,6 +415,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).var(axis=axis, **kwargs)
 
     def any(self, axis=None, **kwargs):
+        self._require_backend()
         v = bool(self.GetConstantValue())
         if axis is None:
             return v
@@ -399,6 +425,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).any(axis=axis, **kwargs)
 
     def all(self, axis=None, **kwargs):
+        self._require_backend()
         v = bool(self.GetConstantValue())
         if axis is None:
             return v
@@ -408,6 +435,7 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).all(axis=axis, **kwargs)
 
     def prod(self, axis=None, **kwargs):
+        self._require_backend()
         v = self.GetConstantValue()
         nt = self.GetNumberOfTuples()
         nc = self.GetNumberOfComponents()
@@ -420,10 +448,12 @@ class VTKConstantArray(VTKDataArrayMixin):
         return numpy.asarray(self).prod(axis=axis, **kwargs)
 
     def astype(self, dtype):
+        self._require_backend()
         return self._new_like(self.GetConstantValue(), dtype)
 
     # ---- utilities ----------------------------------------------------------
     def __iter__(self):
+        self._require_backend()
         val = self.dtype.type(self.GetConstantValue())
         nc = self.GetNumberOfComponents()
         if nc == 1:
@@ -435,6 +465,9 @@ class VTKConstantArray(VTKDataArrayMixin):
                 yield row.copy()
 
     def __repr__(self):
+        if not self.IsBackendConstructed():
+            return (f"VTKConstantArray(uninitialized, "
+                    f"shape={self.shape}, dtype={self.dtype})")
         return (f"VTKConstantArray(value={self.GetConstantValue()}, "
                 f"shape={self.shape}, dtype={self.dtype})")
 
