@@ -124,7 +124,6 @@ void vtkSimpleBondPerceiver::ComputeBonds(vtkMolecule* molecule)
     double covalentRadius = this->GetCovalentRadiusWithTolerance(periodicTable, atomicNumber);
     double atomPosition[3];
     atomPositions->GetPoint(i, atomPosition);
-    neighborsIdsList->SetNumberOfIds(0);
     locator->FindPointsWithinRadius(2 * covalentRadius, atomPosition, neighborsIdsList.Get());
 
     vtkIdType nbNeighbors = neighborsIdsList->GetNumberOfIds();

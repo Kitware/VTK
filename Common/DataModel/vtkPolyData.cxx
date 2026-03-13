@@ -909,7 +909,7 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
   const TaggedCellId tag = this->Cells->GetTag(cellId);
   if (tag.IsDeleted())
   {
-    ptIds->SetNumberOfIds(0);
+    ptIds->Initialize();
   }
   else
   {

@@ -453,7 +453,7 @@ void vtkDIYAggregateDataSetFilter::ComputeProcessesIReceiveFrom(
   int myRank = controller->GetLocalProcessId();
   int numberOfProcesses = controller->GetNumberOfProcesses();
   int dimensions[3] = { 0, 0, 0 };
-  processesIReceiveFrom->SetNumberOfIds(0);
+  processesIReceiveFrom->Initialize();
   for (int i = 0; i < 3; i++)
   {
     if (wholeExtent[2 * i] < wholeExtent[2 * i + 1])

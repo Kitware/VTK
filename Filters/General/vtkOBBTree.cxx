@@ -684,7 +684,7 @@ int vtkOBBTree::IntersectWithLine(
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Reset();
     }
     return 0;
   }
@@ -817,7 +817,7 @@ int vtkOBBTree::IntersectWithLine(
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Initialize();
     }
     double ptol = this->Tolerance / sqrt(vtkMath::Dot(v12, v12));
     double lastDistance = 0.0;
@@ -889,7 +889,7 @@ int vtkOBBTree::IntersectWithLine(
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Initialize();
     }
   }
 
