@@ -1447,9 +1447,9 @@ void vtkLookupTable::GetIndexedColor(vtkIdType idx, double rgba[4])
 void vtkLookupTable::ResizeTableForSpecialColors()
 {
   vtkIdType neededColors = this->NumberOfColors + vtkLookupTable::NUMBER_OF_SPECIAL_COLORS;
-  if (this->Table->GetSize() < neededColors * this->Table->GetNumberOfComponents())
+  if (this->Table->GetCapacity() < neededColors * this->Table->GetNumberOfComponents())
   {
-    this->Table->Resize(neededColors);
+    this->Table->ReserveTuples(neededColors);
   }
 }
 VTK_ABI_NAMESPACE_END

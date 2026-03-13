@@ -105,7 +105,7 @@ bool vtkVariantArray::AllocateTuples(vtkIdType numTuples)
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
   if (this->Buffer->Allocate(numValues))
   {
-    this->Size = this->Buffer->GetSize();
+    this->Capacity = this->Buffer->GetSize();
     return true;
   }
   return false;
@@ -115,14 +115,14 @@ bool vtkVariantArray::AllocateTuples(vtkIdType numTuples)
 bool vtkVariantArray::ReallocateTuples(vtkIdType numTuples)
 {
   vtkIdType newSize = numTuples * this->GetNumberOfComponents();
-  if (newSize == this->Size)
+  if (newSize == this->Capacity)
   {
     return true;
   }
 
   if (this->Buffer->Reallocate(newSize))
   {
-    this->Size = this->Buffer->GetSize();
+    this->Capacity = this->Buffer->GetSize();
     // Notify observers that the buffer may have changed
     this->InvokeEvent(vtkCommand::BufferChangedEvent);
     return true;
@@ -141,9 +141,9 @@ bool vtkVariantArray::EnsureAccessToTuple(vtkIdType tupleIdx)
   vtkIdType expectedMaxId = minSize - 1;
   if (this->MaxId < expectedMaxId)
   {
-    if (this->Size < minSize)
+    if (this->Capacity < minSize)
     {
-      if (!this->Resize(tupleIdx + 1))
+      if (!this->ReserveTuples(tupleIdx + 1))
       {
         return false;
       }
@@ -180,9 +180,9 @@ vtkTypeBool vtkVariantArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
   // Allocator must update this->MaxId properly.
   this->MaxId = -1;
-  if (size > this->Size || size == 0)
+  if (size > this->Capacity || size == 0)
   {
-    this->Size = 0;
+    this->Capacity = 0;
 
     // let's keep the size an integral multiple of the number of components.
     size = size < 0 ? 0 : size;
@@ -203,17 +203,10 @@ vtkTypeBool vtkVariantArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
       return 0;
 #endif
     }
-    this->Size = numTuples * numComps;
+    this->Capacity = numTuples * numComps;
   }
   this->DataChanged();
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkVariantArray::Initialize()
-{
-  this->Resize(0);
-  this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
@@ -257,12 +250,6 @@ int vtkVariantArray::GetDataTypeSize() const
 int vtkVariantArray::GetElementComponentSize() const
 {
   return this->GetDataTypeSize();
-}
-
-//------------------------------------------------------------------------------
-void vtkVariantArray::SetNumberOfTuples(vtkIdType number)
-{
-  this->SetNumberOfValues(this->NumberOfComponents * number);
 }
 
 //------------------------------------------------------------------------------
@@ -524,7 +511,7 @@ void vtkVariantArray::ShallowCopy(vtkAbstractArray* src)
   vtkVariantArray* o = vtkVariantArray::FastDownCast(src);
   if (o)
   {
-    this->Size = o->Size;
+    this->Capacity = o->Capacity;
     this->MaxId = o->MaxId;
     this->SetName(o->Name);
     this->SetNumberOfComponents(o->NumberOfComponents);
@@ -604,10 +591,37 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractAr
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkVariantArray::Resize(vtkIdType numTuples)
+void vtkVariantArray::Squeeze()
 {
+  if (this->GetCapacity() > this->GetNumberOfValues())
+  {
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    int numComps = this->GetNumberOfComponents() > 0 ? this->GetNumberOfComponents() : 1;
+    if (!this->ReallocateTuples(this->GetNumberOfTuples()))
+    {
+      vtkErrorMacro("Unable to allocate " << numTuples * numComps << " elements of size "
+                                          << sizeof(ValueType) << " bytes. ");
+#if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that malloc failed by return
+      return;
+#endif
+    }
+    this->Capacity = this->GetNumberOfValues();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkVariantArray::ReserveTuples(vtkIdType numTuples)
+{
+  assert(numTuples >= 0);
   int numComps = this->GetNumberOfComponents();
-  vtkIdType curNumTuples = this->Size / (numComps > 0 ? numComps : 1);
+  vtkIdType curNumTuples = this->Capacity / (numComps > 0 ? numComps : 1);
   if (numTuples > curNumTuples)
   {
     // Requested size is bigger than current size.  Allocate enough
@@ -615,18 +629,10 @@ vtkTypeBool vtkVariantArray::Resize(vtkIdType numTuples)
     // currently allocated memory.
     numTuples = curNumTuples + numTuples;
   }
-  else if (numTuples == curNumTuples)
+  else
   {
     return 1;
   }
-  else
-  {
-    // Requested size is smaller than current size.  Squeeze the
-    // memory.
-    this->DataChanged();
-  }
-
-  assert(numTuples >= 0);
 
   if (!this->ReallocateTuples(numTuples))
   {
@@ -645,10 +651,7 @@ vtkTypeBool vtkVariantArray::Resize(vtkIdType numTuples)
   }
 
   // Allocation was successful. Save it.
-  this->Size = numTuples * numComps;
-
-  // Update MaxId if we truncated:
-  this->MaxId = std::min(this->Size - 1, this->MaxId);
+  this->Capacity = numTuples * numComps;
 
   return 1;
 }
@@ -658,7 +661,7 @@ unsigned long vtkVariantArray::GetActualMemorySize() const
 {
   // NOTE: Currently does not take into account the "pointed to" data.
   size_t totalSize = 0;
-  size_t numPrims = static_cast<size_t>(this->GetSize());
+  size_t numPrims = static_cast<size_t>(this->GetCapacity());
 
   totalSize = numPrims * sizeof(ValueType);
 
@@ -764,7 +767,7 @@ void vtkVariantArray::InsertVariantValue(vtkIdType id, ValueType value)
 vtkIdType vtkVariantArray::InsertNextValue(ValueType value)
 {
   vtkIdType nextValueIdx = this->MaxId + 1;
-  if (nextValueIdx >= this->Size)
+  if (nextValueIdx >= this->Capacity)
   {
     vtkIdType tuple = nextValueIdx / this->NumberOfComponents;
     this->EnsureAccessToTuple(tuple);
@@ -809,8 +812,8 @@ void vtkVariantArray::SetArray(ValueType* array, vtkIdType size, int save, int d
     this->Buffer->SetFreeFunction(save != 0, free);
   }
 
-  this->Size = size;
-  this->MaxId = this->Size - 1;
+  this->Capacity = size;
+  this->MaxId = this->Capacity - 1;
   this->DataChanged();
 }
 

@@ -428,8 +428,8 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
     unsigned int initPoints = this->GlobPts->GetNumberOfPoints();
     unsigned int initCells = this->GlobCellIds->GetNumberOfIds();
     this->GlobTs->resize(nT);
-    this->GlobPts->Resize(initPoints + nPoints);
-    this->GlobCellIds->Resize(initCells + nCells);
+    this->GlobPts->Reserve(initPoints + nPoints);
+    this->GlobCellIds->Reserve(initCells + nCells);
     nT = 0;
     nPoints = initPoints;
     nCells = initCells;
@@ -440,10 +440,7 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
       it->LocTs.resize(0);
       this->GlobPts->InsertPoints(nPoints, it->LocPts->GetNumberOfPoints(), 0, it->LocPts);
       nPoints += it->LocPts->GetNumberOfPoints();
-      if (it->LocPts->Resize(0) == 0)
-      {
-        vtkErrorWithObjectMacro(nullptr, << "Could not release local point memory.");
-      }
+      it->LocPts->Initialize();
       for (unsigned int i = 0; i < static_cast<unsigned int>(it->LocCellIds->GetNumberOfIds()); i++)
       {
         this->GlobCellIds->InsertId(nCells + i, it->LocCellIds->GetId(i));

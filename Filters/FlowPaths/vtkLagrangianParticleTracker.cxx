@@ -680,7 +680,7 @@ bool vtkLagrangianParticleTracker::FinalizeOutputs(
     for (int i = 0; i < particlePathsPointData->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = particlePathsPointData->GetArray(i);
-      array->Resize(particlePathsPoints->GetNumberOfPoints());
+      array->SetNumberOfTuples(particlePathsPoints->GetNumberOfPoints());
       array->Squeeze();
     }
   }

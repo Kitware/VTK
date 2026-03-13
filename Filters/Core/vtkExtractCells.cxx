@@ -491,7 +491,8 @@ public:
       {
         auto smallest = this->begin();
         auto largest = std::upper_bound(this->begin(), this->end(), numInputCells - 1);
-        this->Resize(static_cast<vtkIdType>(std::distance(smallest, largest)));
+        this->SetNumberOfIds(std::distance(smallest, largest));
+        this->Squeeze();
       }
       else
       {
@@ -501,7 +502,8 @@ public:
           ? std::upper_bound(this->begin(), this->end(), numInputCells - 1)
           : this->end();
         std::copy(smallest, largest, this->begin());
-        this->Resize(static_cast<vtkIdType>(std::distance(this->begin(), largest)));
+        this->SetNumberOfIds(std::distance(this->begin(), largest));
+        this->Squeeze();
       }
     }
     return this->GetNumberOfIds();
@@ -568,10 +570,6 @@ void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
   auto& cellIds = this->CellList;
   const vtkIdType oldSize = cellIds->GetNumberOfIds();
   const vtkIdType newSize = oldSize + numValues;
-  if (oldSize != 0)
-  {
-    cellIds->Resize(newSize);
-  }
   cellIds->SetNumberOfIds(newSize);
   vtkSMPTools::For(0, numValues,
     [&](vtkIdType begin, vtkIdType end)
@@ -596,10 +594,6 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
   const vtkIdType oldSize = cellIds->GetNumberOfIds();
   const vtkIdType numValues = to - from;
   const vtkIdType newSize = oldSize + numValues;
-  if (oldSize != 0)
-  {
-    cellIds->Resize(newSize);
-  }
   cellIds->SetNumberOfIds(newSize);
   vtkSMPTools::For(0, numValues,
     [&](vtkIdType begin, vtkIdType end)

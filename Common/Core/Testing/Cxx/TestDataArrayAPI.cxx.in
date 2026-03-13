@@ -1369,28 +1369,28 @@ int Test_void_InterpolateTuple_i_id1_source1_id2_source2_t()
   DataArrayAPIFinish();
 }
 
-// vtkTypeBool Resize(vtkIdType numTuples)
+// vtkTypeBool ReserveTuples(vtkIdType numTuples)
 // Preserve data
 // Return 1 on success, 0 otherwise
 template <typename ScalarT, typename ArrayT>
-int Test_int_Resize_numTuples()
+int Test_int_ReserveTuples_numTuples()
 {
-  DataArrayAPIInit("vtkTypeBool Resize(vtkIdType numTuples)");
+  DataArrayAPIInit("vtkTypeBool ReserveTuples(vtkIdType numTuples)");
   DataArrayAPICreateTestArray(array);
   int comps = 5;
   vtkIdType tuples = 0;
   array->SetNumberOfComponents(comps);
 
-  int success = array->Resize(tuples);
-  DataArrayAPIAssert(success, "Resize failed.");
+  int success = array->ReserveTuples(tuples);
+  DataArrayAPIAssert(success, "ReserveTuples failed.");
   DataArrayAPIAssert(array->GetSize() == tuples * comps,
                      "Invalid Size (" << array->GetSize() << ").");
   DataArrayAPIAssert(array->GetMaxId() == -1,
                      "Invalid MaxId (" << array->GetMaxId() << ").");
 
   tuples = 100;
-  success = array->Resize(tuples);
-  DataArrayAPIAssert(success, "Resize failed.");
+  success = array->ReserveTuples(tuples);
+  DataArrayAPIAssert(success, "ReserveTuples failed.");
   // May be larger than requested for size increases:
   DataArrayAPIAssert(array->GetSize() >= tuples * comps,
                      "Invalid Size (" << array->GetSize() << ").");
@@ -1416,8 +1416,8 @@ int Test_int_Resize_numTuples()
 
   // resize larger
   tuples = 200;
-  success = array->Resize(tuples);
-  DataArrayAPIAssert(success, "Resize failed.");
+  success = array->ReserveTuples(tuples);
+  DataArrayAPIAssert(success, "ReserveTuples failed.");
   // May be larger than requested for size increases:
   DataArrayAPIAssert(array->GetSize() >= tuples * comps,
                      "Invalid Size (" << array->GetSize() << ").");
@@ -1441,8 +1441,8 @@ int Test_int_Resize_numTuples()
 
   // resize smaller
   filledTuples = tuples = 50;
-  success = array->Resize(tuples);
-  DataArrayAPIAssert(success, "Resize failed.");
+  success = array->ReserveTuples(tuples);
+  DataArrayAPIAssert(success, "ReserveTuples failed.");
   // Both Size and MaxId should be truncated to the exact new size.
   DataArrayAPIAssert(array->GetSize() == tuples * comps,
                      "Invalid Size (" << array->GetSize() << ").");
@@ -1465,8 +1465,8 @@ int Test_int_Resize_numTuples()
 
   // Set to zero, should delete array
   filledTuples = tuples = 0;
-  success = array->Resize(tuples);
-  DataArrayAPIAssert(success, "Resize failed.");
+  success = array->ReserveTuples(tuples);
+  DataArrayAPIAssert(success, "ReserveTuples failed.");
   DataArrayAPIAssert(array->GetSize() == 0,
                      "Invalid Size (" << array->GetSize() << ").");
   DataArrayAPIAssert(array->GetMaxId() == -1,
@@ -3016,7 +3016,7 @@ int ExerciseDataArray()
   errors += Test_void_DeepCopy_array<ScalarT, ArrayT, vtkDataArray, unsigned short>();
   errors += Test_void_InterpolateTuple_i_indices_source_weights<ScalarT, ArrayT>();
   errors += Test_void_InterpolateTuple_i_id1_source1_id2_source2_t<ScalarT, ArrayT>();
-  errors += Test_int_Resize_numTuples<ScalarT, ArrayT>();
+  errors += Test_int_ReserveTuples_numTuples<ScalarT, ArrayT>();
   errors += Test_void_Reset<ScalarT, ArrayT>();
   errors += Test_ulong_GetActualMemorySize<ScalarT, ArrayT>();
   errors += Test_int_IsNumeric<ScalarT, ArrayT>();

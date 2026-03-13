@@ -242,7 +242,8 @@ void vtkCartesianGrid::GetCellNeighbors(
     vtkIdType* pCellIds = cellIds->GetPointer(0);
     vtkIdType* end =
       std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
-    cellIds->Resize(std::distance(pCellIds, end));
+    cellIds->SetNumberOfIds(std::distance(pCellIds, end));
+    cellIds->Squeeze();
   }
 }
 

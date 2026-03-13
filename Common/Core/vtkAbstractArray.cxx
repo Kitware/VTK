@@ -84,8 +84,9 @@ class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentN
 //------------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray()
+  : Size(Capacity) // Size member is VTK_DEPRECATED_IN_9_7_0
 {
-  this->Size = 0;
+  this->Capacity = 0;
   this->MaxId = -1;
   this->NumberOfComponents = 1;
   this->Name = nullptr;
@@ -212,7 +213,7 @@ bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
   {
     ++numTuples;
   }
-  if (!this->Resize(numTuples))
+  if (!this->ReserveTuples(numTuples))
   {
     return false;
   }
@@ -309,6 +310,32 @@ void vtkAbstractArray::ShallowCopy(vtkAbstractArray* src)
 {
   // Deep copy by default. Subclasses may override this behavior.
   this->DeepCopy(src);
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractArray::Initialize()
+{
+  this->Reset();
+  this->Squeeze();
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkAbstractArray::Resize(vtkIdType numTuples)
+{
+  if (numTuples <= 0)
+  {
+    this->Initialize();
+    return true;
+  }
+  vtkIdType numValues = numTuples * this->NumberOfComponents;
+  if (this->GetCapacity() > numValues)
+  {
+    this->MaxId = numValues - 1;
+    this->Squeeze();
+    return true;
+  }
+  return this->ReserveTuples(numTuples);
 }
 
 //------------------------------------------------------------------------------
@@ -570,7 +597,7 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Name: (none)\n";
   }
   os << indent << "Data type: " << this->GetDataTypeAsString() << "\n";
-  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "Capacity: " << this->Capacity << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   if (this->ComponentNames)

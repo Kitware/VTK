@@ -513,8 +513,8 @@ void vtkmDataArray<T>::SetVtkmArrayHandle(const viskores::cont::UnknownArrayHand
   this->Helper = fromvtkm::MakeArrayHandleHelperUnknown<T>(ah);
 
   this->SetNumberOfComponents(this->Helper->GetNumberOfComponents());
-  this->Size = ah.GetNumberOfValues() * this->GetNumberOfComponents();
-  this->MaxId = this->Size - 1;
+  this->Capacity = ah.GetNumberOfValues() * this->GetNumberOfComponents();
+  this->MaxId = this->Capacity - 1;
 }
 
 template <typename T>
@@ -726,7 +726,7 @@ bool vtkmDataArray<T>::AllocateTuples(vtkIdType numberOfTuples)
   // Reset helper since any held portals have been invalidated.
   this->Helper = fromvtkm::MakeArrayHandleHelperUnknown<T>(arrayHandle);
 
-  // Size and MaxId are updated by the caller
+  // Capacity and MaxId are updated by the caller
   return true;
 }
 
@@ -736,7 +736,7 @@ bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
 {
   if (this->Helper)
   {
-    // Size and MaxId are updated by the caller
+    // Capacity and MaxId are updated by the caller
     try
     {
       this->Helper->Reallocate(this, numberOfTuples);

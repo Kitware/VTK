@@ -241,7 +241,7 @@ void vtkAttributeDataToTableFilter::PassFieldData(vtkFieldData* output, vtkField
     }
 
     const vtkIdType current_count = arr->GetNumberOfTuples();
-    if ((current_count != max_count) && arr->Resize(max_count))
+    if ((current_count != max_count) && arr->ReserveTuples(max_count))
     {
       arr->SetNumberOfTuples(max_count);
 

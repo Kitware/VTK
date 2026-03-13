@@ -266,13 +266,13 @@ void TestAllocate(vtkSmartPointer<vtkCellArray> cellArray)
 
   cellArray->Initialize();
   cellArray->AllocateEstimate(100, 4);
-  TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == 101);
-  TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() == 400);
+  TEST_ASSERT(cellArray->GetOffsetsArray()->GetCapacity() == 101);
+  TEST_ASSERT(cellArray->GetConnectivityArray()->GetCapacity() == 400);
 
   cellArray->Initialize();
   cellArray->AllocateExact(100, 256);
-  TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == 101);
-  TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() == 256);
+  TEST_ASSERT(cellArray->GetOffsetsArray()->GetCapacity() == 101);
+  TEST_ASSERT(cellArray->GetConnectivityArray()->GetCapacity() == 256);
 }
 
 void TestResize(vtkSmartPointer<vtkCellArray> cellArray)
@@ -294,8 +294,8 @@ void TestInitialize(vtkSmartPointer<vtkCellArray> cellArray)
   cellArray->Initialize();
   TEST_ASSERT(cellArray->GetOffsetsArray()->GetNumberOfValues() == 1);
   TEST_ASSERT(cellArray->GetConnectivityArray()->GetNumberOfValues() == 0);
-  TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == 1);
-  TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() == 0);
+  TEST_ASSERT(cellArray->GetOffsetsArray()->GetCapacity() == 1);
+  TEST_ASSERT(cellArray->GetConnectivityArray()->GetCapacity() == 0);
 }
 
 template <bool FixedSize>
@@ -312,8 +312,8 @@ void TestSqueeze(vtkSmartPointer<vtkCellArray> cellArray)
 
   TEST_ASSERT(cellArray->GetOffsetsArray()->GetNumberOfValues() == 4);
   TEST_ASSERT(cellArray->GetConnectivityArray()->GetNumberOfValues() == (FixedSize ? 9 : 14));
-  TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == 4);
-  TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() == (FixedSize ? 9 : 14));
+  TEST_ASSERT(cellArray->GetOffsetsArray()->GetCapacity() == 4);
+  TEST_ASSERT(cellArray->GetConnectivityArray()->GetCapacity() == (FixedSize ? 9 : 14));
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 3);
   ValidateCellArray<FixedSize>(cellArray);
@@ -328,8 +328,8 @@ void TestReset(vtkSmartPointer<vtkCellArray> cellArray)
   cellArray->Reset();
   TEST_ASSERT(cellArray->GetOffsetsArray()->GetNumberOfValues() == 1);
   TEST_ASSERT(cellArray->GetConnectivityArray()->GetNumberOfValues() == 0);
-  TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() >= 129);
-  TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() >= 256);
+  TEST_ASSERT(cellArray->GetOffsetsArray()->GetCapacity() >= 129);
+  TEST_ASSERT(cellArray->GetConnectivityArray()->GetCapacity() >= 256);
 }
 
 template <bool FixedSize>

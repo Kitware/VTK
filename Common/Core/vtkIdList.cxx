@@ -1,8 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h" //for parallel sort
+
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdList);
@@ -10,26 +15,23 @@ vtkStandardNewMacro(vtkIdList);
 //------------------------------------------------------------------------------
 vtkIdList::vtkIdList()
 {
+  this->Size = 0; // VTK_DEPRECATED_IN_9_7_0
   this->NumberOfIds = 0;
-  this->Size = 0;
-  this->Ids = nullptr;
-  this->ManageMemory = true;
+  this->Buffer = vtkBuffer<vtkIdType>::New();
 }
 
 //------------------------------------------------------------------------------
 vtkIdList::~vtkIdList()
 {
-  if (this->ManageMemory)
-  {
-    delete[] this->Ids;
-  }
+  this->Buffer->Delete();
 }
 
 //------------------------------------------------------------------------------
 vtkIdType* vtkIdList::Release()
 {
-  auto retval = this->Ids;
-  this->Ids = nullptr;
+  auto retval = this->Buffer->GetBuffer();
+  // don't free the buffer when the vtkBuffer is deleted
+  this->Buffer->SetFreeFunction(/*noFreeFunction*/ true, nullptr);
   this->Initialize();
   return retval;
 }
@@ -37,116 +39,193 @@ vtkIdType* vtkIdList::Release()
 //------------------------------------------------------------------------------
 void vtkIdList::InitializeMemory()
 {
-  if (this->ManageMemory)
-  {
-    delete[] this->Ids;
-  }
-  this->ManageMemory = true;
-  this->Ids = nullptr;
+  this->Buffer->Allocate(0);
 }
 
 //------------------------------------------------------------------------------
 void vtkIdList::Initialize()
 {
-  this->InitializeMemory();
-  this->NumberOfIds = 0;
-  this->Size = 0;
+  this->Reset();
+  this->Squeeze();
 }
 
 //------------------------------------------------------------------------------
 bool vtkIdList::AllocateInternal(vtkIdType sz, vtkIdType numberOfIds)
 {
-  if (sz > this->Size)
+  if (this->Allocate(sz))
   {
-    this->InitializeMemory();
-    this->Size = (sz > 0 ? sz : 1);
-    this->Ids = new vtkIdType[this->Size];
-    if (this->Ids == nullptr)
+    this->NumberOfIds = numberOfIds;
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkIdList::Allocate(const vtkIdType size, const int vtkNotUsed(strategy))
+{
+  this->NumberOfIds = 0;
+  if (size > this->GetCapacity() || size == 0)
+  {
+    this->Size = 0; // VTK_DEPRECATED_IN_9_7_0
+
+    if (this->Buffer->Allocate(size))
     {
-      vtkErrorMacro("Could not allocate memory for " << this->Size << " ids.");
-      this->NumberOfIds = 0;
-      return false;
+      this->Size = size; // VTK_DEPRECATED_IN_9_7_0
+    }
+    else
+    {
+      vtkErrorMacro(
+        "Unable to allocate " << size << " elements of size " << sizeof(vtkIdType) << " bytes. ");
+#if !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that alloc failed by return
+      return 0;
+#endif
     }
   }
-  this->NumberOfIds = numberOfIds;
-  return true;
+  return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
+vtkTypeBool vtkIdList::Reserve(vtkIdType size)
 {
-  return this->AllocateInternal(sz, 0) ? 1 : 0;
+  if (size <= this->GetCapacity())
+  {
+    return 1;
+  }
+  // Requested size is bigger than current size.  Allocate enough
+  // memory to fit the requested size and be more than double the
+  // currently allocated memory.
+  vtkIdType numIds = this->GetCapacity() + size;
+  if (this->Buffer->Reallocate(numIds))
+  {
+    this->Size = numIds; // VTK_DEPRECATED_IN_9_7_0
+  }
+  else
+  {
+    vtkErrorMacro(
+      "Unable to allocate " << numIds << " elements of size " << sizeof(vtkIdType) << " bytes. ");
+#if !defined NDEBUG
+    // We're debugging, crash here preserving the stack
+    abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+    // We can throw something that has universal meaning
+    throw std::bad_alloc();
+#else
+    // We indicate that malloc failed by return
+    return 0;
+#endif
+  }
+  return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::SetNumberOfIds(const vtkIdType number)
+void vtkIdList::Squeeze()
 {
-  this->AllocateInternal(number, number);
+  if (this->GetCapacity() > this->NumberOfIds)
+  {
+    if (this->Buffer->Reallocate(this->NumberOfIds))
+    {
+      this->Size = this->NumberOfIds; // VTK_DEPRECATED_IN_9_7_0
+    }
+    else
+    {
+      vtkErrorMacro("Unable to allocate " << this->NumberOfIds << " elements of size "
+                                          << sizeof(vtkIdType) << " bytes. ");
+#if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that malloc failed by return
+      return;
+#endif
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkIdList::InsertUniqueId(const vtkIdType vtkid)
+void vtkIdList::SetNumberOfIds(const vtkIdType size)
+{
+  if (this->Reserve(size))
+  {
+    this->NumberOfIds = size;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkIdList::InsertUniqueId(const vtkIdType id)
 {
   for (vtkIdType i = 0; i < this->NumberOfIds; i++)
   {
-    if (vtkid == this->Ids[i])
+    if (id == this->Buffer->GetBuffer()[i])
     {
       return i;
     }
   }
 
-  return this->InsertNextId(vtkid);
+  return this->InsertNextId(id);
 }
 
 //------------------------------------------------------------------------------
 vtkIdType* vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
 {
   vtkIdType newSize = i + number;
-  if (newSize > this->Size)
+  if (newSize > this->GetCapacity())
   {
-    this->Resize(newSize);
+    this->Reserve(newSize);
   }
   this->NumberOfIds = std::max(newSize, this->NumberOfIds);
-  return this->Ids + i;
+  return this->Buffer->GetBuffer() + i;
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool save)
+void vtkIdList::SetList(vtkIdType* array, vtkIdType size, bool save, int deleteMethod)
 {
-  if (this->ManageMemory)
+  this->Buffer->SetBuffer(array, size);
+
+  if (deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    delete[] this->Ids;
+    this->Buffer->SetFreeFunction(save, ::operator delete[]);
   }
-  if (!array)
+  else if (deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
-    if (size)
-    {
-      vtkWarningMacro(<< "Passed a nullptr with a non-zero size... Setting size to 0.");
-      size = 0;
-    }
-    if (!save)
-    {
-      vtkWarningMacro(<< "Passed a nullptr while setting save to false... Setting save to true.");
-      save = true;
-    }
+#ifdef _WIN32
+    this->Buffer->SetFreeFunction(save, _aligned_free);
+#else
+    this->Buffer->SetFreeFunction(save, free);
+#endif
   }
-  this->ManageMemory = save;
-  this->Ids = array;
+  else if (deleteMethod == VTK_DATA_ARRAY_USER_DEFINED || deleteMethod == VTK_DATA_ARRAY_FREE)
+  {
+    this->Buffer->SetFreeFunction(save, free);
+  }
+
+  this->Size = size; // VTK_DEPRECATED_IN_9_7_0
   this->NumberOfIds = size;
-  this->Size = size;
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::DeleteId(vtkIdType vtkid)
+void vtkIdList::SetArray(vtkIdType* array, vtkIdType size, bool manageMemory)
+{
+  this->SetList(array, size, !manageMemory, VTK_DATA_ARRAY_DELETE);
+}
+
+//------------------------------------------------------------------------------
+void vtkIdList::DeleteId(vtkIdType id)
 {
   vtkIdType i = 0;
 
-  // while loop is necessary to delete all occurrences of vtkid
+  // while loop is necessary to delete all occurrences of id
   while (i < this->NumberOfIds)
   {
     for (; i < this->NumberOfIds; i++)
     {
-      if (this->Ids[i] == vtkid)
+      if (this->Buffer->GetBuffer()[i] == id)
       {
         break;
       }
@@ -155,9 +234,22 @@ void vtkIdList::DeleteId(vtkIdType vtkid)
     // if found; replace current id with last
     if (i < this->NumberOfIds)
     {
-      this->SetId(i, this->Ids[this->NumberOfIds - 1]);
+      this->SetId(i, this->Buffer->GetBuffer()[this->NumberOfIds - 1]);
       this->NumberOfIds--;
     }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkIdList::ShallowCopy(vtkIdList* list)
+{
+  this->NumberOfIds = list->NumberOfIds;
+  this->Size = list->Size; // VTK_DEPRECATED_IN_9_7_0
+  if (list->Buffer && this->Buffer != list->Buffer)
+  {
+    this->Buffer->Delete();
+    this->Buffer = list->Buffer;
+    this->Buffer->Register(this);
   }
 }
 
@@ -167,66 +259,35 @@ void vtkIdList::DeepCopy(vtkIdList* ids)
   this->SetNumberOfIds(ids->NumberOfIds);
   if (ids->NumberOfIds > 0)
   {
-    std::copy(ids->Ids, ids->Ids + ids->NumberOfIds, this->Ids);
+    std::copy_n(ids->Buffer->GetBuffer(), ids->NumberOfIds, this->Buffer->GetBuffer());
   }
   this->Squeeze();
 }
 
 //------------------------------------------------------------------------------
-vtkIdType* vtkIdList::Resize(const vtkIdType sz)
+vtkIdType* vtkIdList::Resize(const vtkIdType size)
 {
-  vtkIdType* newIds;
-  vtkIdType newSize;
-
-  if (sz > this->Size)
-  {
-    newSize = this->Size + sz;
-  }
-  else if (sz == this->Size)
-  {
-    return this->Ids;
-  }
-  else
-  {
-    newSize = sz;
-  }
-
-  if (newSize <= 0)
+  if (size <= 0)
   {
     this->Initialize();
     return nullptr;
   }
-
-  if ((newIds = new vtkIdType[newSize]) == nullptr)
+  if (this->GetCapacity() >= size)
   {
-    vtkErrorMacro(<< "Cannot allocate memory\n");
-    return nullptr;
+    this->NumberOfIds = size;
+    this->Squeeze();
+    return this->Buffer->GetBuffer();
   }
-
-  this->NumberOfIds = std::min(this->NumberOfIds, newSize);
-
-  if (this->Ids)
-  {
-    memcpy(newIds, this->Ids,
-      static_cast<size_t>(sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
-    if (this->ManageMemory)
-    {
-      delete[] this->Ids;
-    }
-  }
-  this->ManageMemory = true;
-
-  this->Size = newSize;
-  this->Ids = newIds;
-  return this->Ids;
+  this->Reserve(size);
+  return this->Buffer->GetBuffer();
 }
 
 //------------------------------------------------------------------------------
-#define VTK_TMP_ARRAY_SIZE 500
 // Intersect this list with another vtkIdList. Updates current list according
 // to result of intersection operation.
 void vtkIdList::IntersectWith(vtkIdList* otherIds)
 {
+  static constexpr vtkIdType VTK_TMP_ARRAY_SIZE = 500;
   // Fast method due to Dr. Andreas Mueller of ISE Integrated Systems
   // Engineering (CH).
   vtkIdType thisNumIds = this->GetNumberOfIds();
@@ -234,61 +295,54 @@ void vtkIdList::IntersectWith(vtkIdList* otherIds)
   if (thisNumIds <= VTK_TMP_ARRAY_SIZE)
   { // Use fast method if we can fit in temporary storage
     vtkIdType thisIds[VTK_TMP_ARRAY_SIZE];
-    vtkIdType i, vtkid;
-
-    for (i = 0; i < thisNumIds; i++)
+    for (vtkIdType i = 0; i < thisNumIds; i++)
     {
       thisIds[i] = this->GetId(i);
     }
-    for (this->Reset(), i = 0; i < thisNumIds; i++)
+    this->Reset();
+    for (vtkIdType i = 0; i < thisNumIds; i++)
     {
-      vtkid = thisIds[i];
-      if (otherIds->IsId(vtkid) != (-1))
+      vtkIdType& id = thisIds[i];
+      if (otherIds->IsId(id) != -1)
       {
-        this->InsertNextId(vtkid);
+        this->InsertNextId(id);
       }
     }
   }
-  else
-  { // use slower method for extreme cases
-    vtkIdType* thisIds = new vtkIdType[thisNumIds];
-    vtkIdType i, vtkid;
-
-    for (i = 0; i < thisNumIds; i++)
+  else // use slower method for extreme cases
+  {
+    std::vector<vtkIdType> thisIds(this->begin(), this->end());
+    this->Reset();
+    for (vtkIdType i = 0; i < thisNumIds; i++)
     {
-      *(thisIds + i) = this->GetId(i);
-    }
-    for (this->Reset(), i = 0; i < thisNumIds; i++)
-    {
-      vtkid = *(thisIds + i);
-      if (otherIds->IsId(vtkid) != (-1))
+      vtkIdType& id = thisIds[i];
+      if (otherIds->IsId(id) != -1)
       {
-        this->InsertNextId(vtkid);
+        this->InsertNextId(id);
       }
     }
-    delete[] thisIds;
   }
 }
-#undef VTK_TMP_ARRAY_SIZE
 
 //------------------------------------------------------------------------------
 void vtkIdList::Sort()
 {
-  if (this->Ids == nullptr || this->NumberOfIds < 2)
+  if (this->Buffer->GetBuffer() == nullptr || this->NumberOfIds < 2)
   {
     return;
   }
-  vtkSMPTools::Sort(this->Ids, this->Ids + this->NumberOfIds);
+  vtkSMPTools::Sort(this->Buffer->GetBuffer(), this->Buffer->GetBuffer() + this->NumberOfIds);
 }
 
 //------------------------------------------------------------------------------
 void vtkIdList::Fill(vtkIdType value)
 {
-  if (this->Ids == nullptr || this->NumberOfIds < 1)
+  if (this->Buffer->GetBuffer() == nullptr || this->NumberOfIds < 1)
   {
     return;
   }
-  vtkSMPTools::Fill(this->Ids, this->Ids + this->NumberOfIds, value);
+  vtkSMPTools::Fill(
+    this->Buffer->GetBuffer(), this->Buffer->GetBuffer() + this->NumberOfIds, value);
 }
 
 //------------------------------------------------------------------------------

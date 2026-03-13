@@ -397,8 +397,8 @@ void vtkQuadraticWedge::Subdivide(
 
   // Interpolate new values
   double p[3];
-  this->Points->Resize(18);
-  this->CellScalars->Resize(18);
+  this->Points->Reserve(18);
+  this->CellScalars->ReserveTuples(18);
   for (numMidPts = 0; numMidPts < 3; numMidPts++)
   {
     vtkQuadraticWedge::InterpolationFunctions(MidPoints[numMidPts], weights);

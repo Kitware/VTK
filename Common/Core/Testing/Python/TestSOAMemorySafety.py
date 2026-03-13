@@ -66,8 +66,8 @@ class TestSOAMemorySafety(Testing.vtkTest):
 
         arr.AddObserver(vtkCommand.BufferChangedEvent, on_buffer_changed)
 
-        # Resize should fire BufferChangedEvent (triggers ReallocateTuples)
-        arr.Resize(100)
+        # ReserveTuples should fire BufferChangedEvent (triggers ReallocateTuples)
+        arr.ReserveTuples(100)
 
         self.assertTrue(event_fired[0],
             "BufferChangedEvent should fire when ReallocateTuples() changes buffer")
@@ -129,8 +129,8 @@ class TestSOAMemorySafety(Testing.vtkTest):
         # Track observer ID
         observer_id = arr._observer_id
 
-        # Resizing triggers BufferChangedEvent, invalidating cache
-        arr.Resize(100)
+        # ReserveTuples triggers BufferChangedEvent, invalidating cache
+        arr.ReserveTuples(100)
 
         # Observer should have removed itself after firing
         self.assertIsNone(observer_id[0],

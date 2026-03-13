@@ -3971,7 +3971,8 @@ void vtkFoamEntryValue::ReadLabelListList(vtkFoamIOobject& io)
     this->Superclass::LabelListListPtr->SetOffset(listLen, nTotalElems);
 
     // Shrink to the actually used size
-    this->Superclass::LabelListListPtr->GetConnectivityArray()->Resize(nTotalElems);
+    this->Superclass::LabelListListPtr->GetConnectivityArray()->SetNumberOfValues(nTotalElems);
+    this->Superclass::LabelListListPtr->GetConnectivityArray()->Squeeze();
     io.ReadExpecting(')');
   }
   else
@@ -6559,7 +6560,8 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
           this->TimeNames->SetValue(oldTimei - 1, this->TimeNames->GetValue(oldTimei));
         }
         --nTimes;
-        this->TimeNames->Resize(nTimes);
+        this->TimeNames->SetNumberOfValues(nTimes);
+        this->TimeNames->Squeeze();
       }
     }
   }
@@ -6971,7 +6973,8 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
           ++nInternalFaces;
         }
       }
-      this->FaceNeigh->Resize(nInternalFaces);
+      this->FaceNeigh->SetNumberOfTuples(nInternalFaces);
+      this->FaceNeigh->Squeeze();
     }
 
     const vtkIdType nInternalFaces = this->FaceNeigh->GetNumberOfTuples();
@@ -8451,7 +8454,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     // shrink to the number of internal points
     if (nInternalPoints > 0)
     {
-      this->InternalPoints->Resize(nInternalPoints);
+      this->InternalPoints->SetNumberOfTuples(nInternalPoints);
+      this->InternalPoints->Squeeze();
     }
     else
     {
@@ -8503,7 +8507,7 @@ bool vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   {
     const auto& addCellPoints = this->AdditionalCellPoints;
     const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
-    pointArray->Resize(this->NumPoints + nAddPoints);
+    pointArray->ReserveTuples(this->NumPoints + nAddPoints);
 
     const bool cellPoints64Bit = ::Is64BitArray(this->AdditionalCellPoints.front());
 
@@ -9195,7 +9199,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       // Add values for decomposed cells
       const vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
       vtkIdType newCelli = this->NumCells;
-      iData->Resize(this->NumCells + this->NumTotalAdditionalCells);
+      iData->ReserveTuples(this->NumCells + this->NumTotalAdditionalCells);
 
       for (vtkIdType tupleI = 0; tupleI < nTuples; tupleI++)
       {
@@ -9725,7 +9729,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       // The point-to-cell interpolation to additional cell centroidal points for decomposed cells
       const auto& addCellPoints = this->AdditionalCellPoints;
       const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
-      iData->Resize(this->NumPoints + nAddPoints);
+      iData->ReserveTuples(this->NumPoints + nAddPoints);
 
       const bool cellPoints64Bit =
         (nAddPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints.front()));
@@ -10277,7 +10281,8 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - nUsed)
                << " out-of-range elements\n";
     }
@@ -10420,7 +10425,8 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       if (nLabels != (nUsed + nNonOwner))
       {
         warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - (nUsed + nNonOwner))
@@ -10551,7 +10557,8 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
     }
     if (nLabels != nUsed)
     {
-      elemIds->Resize(nUsed);
+      elemIds->SetNumberOfIds(nUsed);
+      elemIds->Squeeze();
       warnings << zonePrefix << '/' << zoneName << " had " << (nLabels - nUsed)
                << " out-of-range elements\n";
     }

@@ -79,14 +79,14 @@ bool TestGhostCellsAndGhostPoints()
 
   auto* ghostPointArray =
     dataset->GetPartition(0)->GetGhostArray(vtkDataObject::AttributeTypes::POINT);
-  if (!ghostPointArray || ghostPointArray->GetSize() != ghostPoints->GetSize())
+  if (!ghostPointArray || ghostPointArray->GetMaxId() != ghostPoints->GetMaxId())
   {
     std::cerr << "No ghost point array found in:\n" << node.to_string() << std::endl;
     return false;
   }
   auto* ghostCellArray =
     dataset->GetPartition(0)->GetGhostArray(vtkDataObject::AttributeTypes::CELL);
-  if (!ghostCellArray || ghostCellArray->GetSize() != ghostCells->GetSize())
+  if (!ghostCellArray || ghostCellArray->GetMaxId() != ghostCells->GetMaxId())
   {
     std::cerr << "No ghost cell array found in:\n" << node.to_string() << std::endl;
     return false;

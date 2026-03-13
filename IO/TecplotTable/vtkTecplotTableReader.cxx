@@ -92,7 +92,7 @@ public:
       if (this->OutputTable->GetColumn(i)->GetNumberOfTuples() !=
         this->OutputTable->GetColumn(0)->GetNumberOfTuples())
       {
-        this->OutputTable->GetColumn(i)->Resize(
+        this->OutputTable->GetColumn(i)->SetNumberOfTuples(
           this->OutputTable->GetColumn(0)->GetNumberOfTuples());
       }
     }

@@ -50,7 +50,7 @@ for array in arrayType:
             k += 1
 
     b.InsertComponent(2001, 0, 1)
-    b.Resize(3000)
+    b.ReserveTuples(3000)
 
     a.Squeeze()
     a.Initialize()

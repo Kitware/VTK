@@ -15,7 +15,7 @@ int TestAbstractArraySize(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkStringArray> stringArray;
   stringArray->SetNumberOfComponents(2);
   stringArray->SetNumberOfTuples(1);
-  std::cout << "Size is now " << stringArray->GetSize() << "\n";
+  std::cout << "Capacity is now " << stringArray->GetCapacity() << "\n";
   if (stringArray->GetMaxId() < 1)
   {
     std::cerr << "Allocation failed: number of tuples requested not provided.\n";
@@ -27,8 +27,8 @@ int TestAbstractArraySize(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Test for desired behavior
   stringArray->SetNumberOfValues(3);
-  std::cout << "Size is now " << stringArray->GetSize() << "\n";
-  if (stringArray->GetSize() < 4)
+  std::cout << "Capacity is now " << stringArray->GetCapacity() << "\n";
+  if (stringArray->GetCapacity() < 4)
   {
     std::cerr
       << "Allocation failed: SetNumberOfValues should always allocate to a tuple boundary.\n";
@@ -38,7 +38,7 @@ int TestAbstractArraySize(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkDoubleArray> doubleArray;
   doubleArray->SetNumberOfComponents(3);
   doubleArray->SetNumberOfValues(7);
-  if (doubleArray->GetSize() != 9)
+  if (doubleArray->GetCapacity() != 9)
   {
     std::cerr
       << "Allocation failed: SetNumberOfValues should always allocate to a tuple boundary.\n";

@@ -1250,7 +1250,8 @@ void OrderEdges(const std::vector<vtkIdType>& faceEdges,
     }
   }
 
-  face->Resize(face->GetNumberOfIds() - 1);
+  face->SetNumberOfIds(face->GetNumberOfIds() - 1);
+  face->Squeeze();
 }
 
 void vtkTecplotReader::GetPolygonalGridCells(

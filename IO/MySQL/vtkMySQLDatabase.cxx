@@ -184,7 +184,7 @@ vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 //------------------------------------------------------------------------------
 vtkStringArray* vtkMySQLDatabase::GetTables()
 {
-  this->Tables->Resize(0);
+  this->Tables->Initialize();
   if (!this->IsOpen())
   {
     vtkErrorMacro(<< "GetTables(): Database is closed!");

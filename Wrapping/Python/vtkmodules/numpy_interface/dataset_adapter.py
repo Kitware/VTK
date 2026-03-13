@@ -585,7 +585,7 @@ class VTKCompositeDataArray(object):
         size = numpy.int64(0)
         for a in self._Arrays:
             try:
-                size += a.size
+                size += a.GetNumberOfValues()
             except AttributeError:
                 pass
         return size

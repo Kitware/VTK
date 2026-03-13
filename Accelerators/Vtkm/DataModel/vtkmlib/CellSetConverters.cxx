@@ -734,7 +734,8 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
 
   const vtkIdType connSize = static_cast<vtkIdType>(connIter - connBegin);
   offsetsArray->SetValue(static_cast<vtkIdType>(numCells), connSize);
-  connArray->Resize(connSize);
+  connArray->SetNumberOfValues(connSize);
+  connArray->Squeeze();
   cells->SetData(offsetsArray, connArray);
   typesDAArray = typesArray;
 

@@ -179,8 +179,8 @@ void vtkQuadraticHexahedron::Subdivide(
 
   // Interpolate new values
   double p[3];
-  this->Points->Resize(27);
-  this->CellScalars->Resize(27);
+  this->Points->Reserve(27);
+  this->CellScalars->ReserveTuples(27);
   for (numMidPts = 0; numMidPts < 7; numMidPts++)
   {
     vtkQuadraticHexahedron::InterpolationFunctions(MidPoints[numMidPts], weights);

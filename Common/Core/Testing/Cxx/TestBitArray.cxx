@@ -69,7 +69,7 @@ int TestBitArray(int, char*[])
     return EXIT_FAILURE;
   }
 
-  array->Resize(2);
+  array->SetNumberOfValues(2);
   data = array->GetPointer(0);
   str = std::bitset<8>(data[0]).to_string();
   if (str != "11000000")
@@ -80,7 +80,7 @@ int TestBitArray(int, char*[])
   }
 
   // Test GetVariantValue accessor
-  array->Resize(4);
+  array->SetNumberOfValues(4);
   array->SetValue(0, 0);
   array->SetValue(1, 1);
   array->SetValue(2, 1);

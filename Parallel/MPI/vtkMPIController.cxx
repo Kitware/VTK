@@ -347,7 +347,7 @@ int vtkMPIController::WaitSome(
   int N = 0;
   int rc = myMPICommunicator->WaitSome(count, rqsts, N, completed->GetPointer(0));
   assert("post: Number of completed requests must N > 0" && (N > 0) && (N < (count - 1)));
-  completed->Resize(N);
+  completed->SetNumberOfTuples(N);
 
   return (rc);
 }
@@ -395,12 +395,12 @@ bool vtkMPIController::TestSome(
 
   if (N > 0)
   {
-    completed->Resize(N);
+    completed->ReserveTuples(N);
     return true;
   }
   else
   {
-    completed->Resize(0);
+    completed->Initialize();
     return false;
   }
 }

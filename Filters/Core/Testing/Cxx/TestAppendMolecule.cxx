@@ -261,7 +261,7 @@ int TestAppendMolecule(int, char*[])
   // the ghost bond is not duplicated in output.
   nbOfExpectedBonds = fullMolecule1->GetNumberOfBonds() + fullMolecule2->GetNumberOfBonds() +
     fullMolecule3->GetNumberOfBonds() - 1;
-  expectedResultValues->Resize(nbOfExpectedAtoms);
+  expectedResultValues->ReserveTuples(nbOfExpectedAtoms);
   expectedResultValues->InsertValue(
     4, fullMolecule3->GetAtomData()->GetArray("Data")->GetTuple1(0));
   expectedResultValues->InsertValue(

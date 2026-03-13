@@ -875,7 +875,8 @@ int vtkOBBTree::IntersectWithLine(
     {
       if (points)
       {
-        points->GetData()->Resize(nPoints);
+        points->GetData()->SetNumberOfTuples(nPoints);
+        points->GetData()->Squeeze();
       }
     }
     // done!

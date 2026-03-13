@@ -352,7 +352,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
   outputPoints->DeepCopy(polyhedron->GetPoints());
 
   // Add the new points (barycenters) to the output UG
-  outputPoints->Resize(polyhedron->GetNumberOfPoints() + barycenters->GetNumberOfPoints() + 1);
+  outputPoints->Reserve(polyhedron->GetNumberOfPoints() + barycenters->GetNumberOfPoints() + 1);
   for (vtkIdType newPtId = 0; newPtId < barycenters->GetNumberOfPoints(); newPtId++)
   {
     outputPoints->InsertNextPoint(barycenters->GetPoint(newPtId));

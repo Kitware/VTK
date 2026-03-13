@@ -1473,7 +1473,7 @@ int vtkPolyhedron::TriangulateFaces(vtkIdList* newFaces)
     face->TriangulateIds(0, ptIds);
 
     // Allocate space for the new triangles
-    newFaces->Resize(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
+    newFaces->Reserve(newFaces->GetNumberOfIds() + ptIds->GetNumberOfIds());
 
     // Insert triangles from triangulation
     const auto nbOfTriangles = ptIds->GetNumberOfIds() / 3;
@@ -1518,7 +1518,7 @@ int vtkPolyhedron::TriangulateFaces(vtkCellArray* newFaces)
     face->TriangulateIds(0, ptIds);
 
     // Allocate space for the new triangles
-    newFaces->GetConnectivityArray()->Resize(
+    newFaces->GetConnectivityArray()->ReserveTuples(
       newFaces->GetNumberOfConnectivityIds() + ptIds->GetNumberOfIds());
 
     // Insert triangles from triangulation
@@ -1531,6 +1531,7 @@ int vtkPolyhedron::TriangulateFaces(vtkCellArray* newFaces)
         newFaces->InsertCellPoint(ptIds->GetId(3 * i + j));
       }
     }
+    newFaces->GetConnectivityArray()->Squeeze();
   }
 
   return 1;

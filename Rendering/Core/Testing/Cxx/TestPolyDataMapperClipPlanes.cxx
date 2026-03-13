@@ -25,7 +25,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWidgetRepresentation.h"
 
@@ -37,7 +36,7 @@ vtkNew<vtkPolyLineSource> MakePolyLineSource(
   vtkIdType numPts, bool closed, double offsetX, double offsetY)
 {
   vtkNew<vtkPolyLineSource> polylines;
-  polylines->Resize(numPts);
+  polylines->SetNumberOfPoints(numPts);
   polylines->SetClosed(closed);
   for (vtkIdType i = 0; i < numPts; ++i)
   {

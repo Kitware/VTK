@@ -627,7 +627,7 @@ void vtkMergeCells::Finish()
   if (this->NumberOfPoints < this->TotalNumberOfPoints)
   {
     // if we don't do this, grid->GetNumberOfPoints() gives the wrong value
-    grid->GetPoints()->GetData()->Resize(this->NumberOfPoints);
+    grid->GetPoints()->SetNumberOfPoints(this->NumberOfPoints);
   }
 
   grid->Squeeze();

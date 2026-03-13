@@ -718,14 +718,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
 {
-  // resize first so that if you already have data, you don't lose them
-  this->OutputCoordinates->Resize(numTuples);
-  this->ParticleCellsConnectivity->Resize(numTuples);
-  for (int i = 0; i < this->OutputPointData->GetNumberOfArrays(); ++i)
-  {
-    this->OutputPointData->GetArray(i)->Resize(numTuples);
-  }
-  // set number number of tuples because resize does not do that
+  // set number number of tuples and keep the existing data
   this->OutputCoordinates->SetNumberOfPoints(numTuples);
   this->ParticleCellsConnectivity->SetNumberOfValues(numTuples);
   this->OutputPointData->SetNumberOfTuples(numTuples);

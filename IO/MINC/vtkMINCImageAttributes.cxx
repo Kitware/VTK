@@ -268,7 +268,8 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
       resultStr = charArray->GetPointer(0);
       // Check to see if string has a terminal null (the null might be
       // part of the attribute, or stored in the following byte)
-      if ((n > 0 && resultStr[n - 1] == '\0') || (charArray->GetSize() > n && resultStr[n] == '\0'))
+      if ((n > 0 && resultStr[n - 1] == '\0') ||
+        (charArray->GetCapacity() > n && resultStr[n] == '\0'))
       {
         return resultStr;
       }
@@ -828,7 +829,6 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
 
   vtkCharArray* array = vtkCharArray::New();
   // Allocate an extra byte to store a null terminator.
-  array->Resize(static_cast<vtkIdType>(length + 1));
   char* dest = array->WritePointer(0, static_cast<vtkIdType>(length));
   strcpy(dest, value);
   this->SetAttributeValueAsArray(variable, attribute, array);

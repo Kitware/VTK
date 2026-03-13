@@ -218,20 +218,23 @@ bool TestMemoryAllocations()
       localBuffer.data(), strided::stride, strided::nbOfComponents, strided::offset);
 
     // increasing size is no-op
-    stridedArray->Resize(buffer::totalSize * 2);
+    stridedArray->ReserveTuples(buffer::totalSize * 2);
     vtkIdType nextNbOfValues = stridedArray->GetNumberOfValues();
     if (nextNbOfValues != strided::nbOfComponents * strided::nbOfTuples)
     {
-      std::cerr << "Resize should reset number of tuples, but still has " << nextNbOfValues << "\n";
+      std::cerr << "ReserveTuples should reset number of tuples, but still has " << nextNbOfValues
+                << "\n";
       return false;
     }
 
     // shrinking array. Memory is untouched but MaxId / Size are updated.
-    stridedArray->Resize(2);
+    stridedArray->SetNumberOfTuples(2);
+    stridedArray->Squeeze();
     nextNbOfValues = stridedArray->GetNumberOfValues();
     if (nextNbOfValues != 4)
     {
-      std::cerr << "Resize should reset number of tuples, but still has " << nextNbOfValues << "\n";
+      std::cerr << "ReserveTuples should reset number of tuples, but still has " << nextNbOfValues
+                << "\n";
       return false;
     }
   }

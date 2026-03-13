@@ -444,8 +444,8 @@ void vtkQuadraticPyramid::ResizeArrays(vtkIdType newSize)
   }
   else
   {
-    this->Points->Resize(newSize);
-    this->PointIds->Resize(newSize);
+    this->Points->Reserve(newSize);
+    this->PointIds->Reserve(newSize);
   }
 }
 

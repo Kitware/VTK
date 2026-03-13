@@ -1,21 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPoints2D.h"
 
-#include "vtkBitArray.h"
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -192,6 +183,18 @@ void vtkPoints2D::ShallowCopy(vtkPoints2D* da)
 unsigned long vtkPoints2D::GetActualMemorySize()
 {
   return this->Data->GetActualMemorySize();
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkPoints2D::Resize(vtkIdType numPoints)
+{
+  if (numPoints != this->Data->GetNumberOfTuples())
+  {
+    this->Data->SetNumberOfComponents(3);
+    this->Modified();
+    return this->Data->Resize(numPoints);
+  }
+  return 1;
 }
 
 void vtkPoints2D::PrintSelf(ostream& os, vtkIndent indent)
