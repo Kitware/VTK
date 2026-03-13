@@ -36,7 +36,6 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_HIGHER_ORDER_CURVE, "vtkHigherOrderCurve" },
   { VTK_HIGHER_ORDER_TRIANGLE, "vtkHigherOrderTriangle" },
   { VTK_HIGHER_ORDER_QUADRILATERAL, "vtkHigherOrderQuadrilateral" },
-  { VTK_HIGHER_ORDER_POLYGON, "vtkHigherOrderPolygon" },
   { VTK_HIGHER_ORDER_TETRAHEDRON, "vtkHigherOrderTetra" },
   { VTK_HIGHER_ORDER_WEDGE, "vtkHigherOrderWedge" },
   { VTK_HIGHER_ORDER_PYRAMID, "vtkHigherOrderPyramid" },
@@ -185,7 +184,6 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
     case VTK_BIQUADRATIC_TRIANGLE:
     case VTK_HIGHER_ORDER_TRIANGLE:
     case VTK_HIGHER_ORDER_QUADRILATERAL:
-    case VTK_HIGHER_ORDER_POLYGON:
     case VTK_LAGRANGE_TRIANGLE:
     case VTK_LAGRANGE_QUADRILATERAL:
     case VTK_BEZIER_TRIANGLE:
