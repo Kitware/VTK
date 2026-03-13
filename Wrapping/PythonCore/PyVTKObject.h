@@ -64,6 +64,7 @@ struct PyVTKGetSet
 {
   PyCFunction get;
   PyCFunction set;
+  PyCFunction add; // for Add/RemoveAll sequence properties
 };
 VTK_ABI_NAMESPACE_END
 
@@ -124,6 +125,9 @@ extern "C"
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods);
 }
 
 #endif

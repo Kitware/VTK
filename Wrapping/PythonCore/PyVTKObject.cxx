@@ -392,8 +392,10 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
           getset->set = superGetSet->set;
           if (getset->closure)
           {
-            static_cast<PyVTKGetSet*>(getset->closure)->set =
-              static_cast<PyVTKGetSet*>(superGetSet->closure)->set;
+            auto* subClosure = static_cast<PyVTKGetSet*>(getset->closure);
+            auto* superClosure = static_cast<PyVTKGetSet*>(superGetSet->closure);
+            subClosure->set = superClosure->set;
+            subClosure->add = superClosure->add;
           }
         }
         Py_DECREF(key);
@@ -609,6 +611,50 @@ int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods)
     return -1;
   }
   Py_DECREF(result);
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Setter for Add/RemoveAll sequence properties (e.g. renderer.lights = [l1, l2])
+
+int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods)
+{
+  PyVTKGetSet* getset = static_cast<PyVTKGetSet*>(methods);
+
+  // First call RemoveAll (stored in 'set') with no arguments
+  PyObject* emptyArgs = PyTuple_New(0);
+  PyObject* result = getset->set(op, emptyArgs);
+  Py_DECREF(emptyArgs);
+  if (result == nullptr)
+  {
+    return -1;
+  }
+  Py_DECREF(result);
+
+  // Iterate the sequence and call Add (stored in 'add') for each item
+  PyObject* seq = PySequence_Fast(value, "expected a sequence");
+  if (seq == nullptr)
+  {
+    return -1;
+  }
+
+  Py_ssize_t n = PySequence_Fast_GET_SIZE(seq);
+  for (Py_ssize_t i = 0; i < n; i++)
+  {
+    PyObject* item = PySequence_Fast_GET_ITEM(seq, i);
+    PyObject* args = PyTuple_Pack(1, item);
+    result = getset->add(op, args);
+    Py_DECREF(args);
+    if (result == nullptr)
+    {
+      Py_DECREF(seq);
+      return -1;
+    }
+    Py_DECREF(result);
+  }
+
+  Py_DECREF(seq);
   return 0;
 }
 
