@@ -1010,7 +1010,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Title: " << (this->Title.empty() ? this->Title : "(none)") << "\n";
+  os << indent << "Title: " << (!this->Title.empty() ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
 
