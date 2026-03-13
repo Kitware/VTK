@@ -106,7 +106,7 @@ int vtkExtractUserDefinedPiece::RequestData(vtkInformation* vtkNotUsed(request),
   cellTags = vtkIntArray::New();
   cellTags->ReserveValues(input->GetNumberOfCells());
   pointOwnership = vtkIdList::New();
-  pointOwnership->Allocate(input->GetNumberOfPoints());
+  pointOwnership->Reserve(input->GetNumberOfPoints());
 
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.

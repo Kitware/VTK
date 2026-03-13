@@ -443,7 +443,7 @@ vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(vtkIdList* pointMap)
 {
   const auto numberOfInputPoints = pointMap->GetNumberOfIds();
   vtkNew<vtkIdList> srcIds;
-  srcIds->Allocate(numberOfInputPoints);
+  srcIds->Reserve(numberOfInputPoints);
   auto pointMapPtr = pointMap->GetPointer(0);
   for (vtkIdType cc = 0; cc < numberOfInputPoints; ++cc)
   {

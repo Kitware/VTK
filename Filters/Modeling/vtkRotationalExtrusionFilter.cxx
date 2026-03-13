@@ -249,7 +249,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   if (inLines->GetNumberOfCells() || inPolys->GetNumberOfCells() || inStrips->GetNumberOfCells())
   {
     cellIds = vtkIdList::New();
-    cellIds->Allocate(VTK_CELL_SIZE);
+    cellIds->Reserve(VTK_CELL_SIZE);
     vtkGenericCell* cell = vtkGenericCell::New();
 
     for (cellId = 0; cellId < numCells && !abort; cellId++)

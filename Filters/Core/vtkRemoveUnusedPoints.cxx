@@ -182,7 +182,7 @@ int vtkRemoveUnusedPoints::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkNew<vtkIdList> originalIds;
-  originalIds->Allocate(numPoints);
+  originalIds->Reserve(numPoints);
 
   std::vector<vtkIdType> pointMap(numPoints, -1);
   vtkIdType nextPtId = 0;

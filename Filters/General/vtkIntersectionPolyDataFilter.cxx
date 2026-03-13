@@ -540,8 +540,8 @@ int vtkIntersectionPolyDataFilter::Impl ::SplitMesh(
         continue;
       }
 
-      cellsToCheck->Reset();
-      cellsToCheck->Allocate(nptsX + 1);
+      cellsToCheck->Initialize();
+      cellsToCheck->Reserve(nptsX + 1);
       cellsToCheck->InsertNextId(cellIdX);
 
       // Collect the cells relevant for splitting this cell.  If the

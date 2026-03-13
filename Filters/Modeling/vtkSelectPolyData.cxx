@@ -126,7 +126,7 @@ void vtkSelectPolyData::GreedyEdgeSearch(vtkPolyData* mesh, vtkIdList* edgePoint
   // end point is closest to the line. Continue until loop closes in on
   // itself.
   vtkNew<vtkIdList> neighbors;
-  neighbors->Allocate(10000);
+  neighbors->Reserve(10000);
   for (vtkIdType loopPointIndex = 0; loopPointIndex < numLoopPts; loopPointIndex++)
   {
     if (this->CheckAbort())
@@ -312,7 +312,7 @@ int vtkSelectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Get a list of point IDs of the mesh that forms a continuous closed loop
   vtkNew<vtkIdList> edgePointIds;
-  edgePointIds->Allocate(numLoopPts * 10, 1000);
+  edgePointIds->Reserve(numLoopPts * 10);
   switch (this->EdgeSearchMode)
   {
     case VTK_GREEDY_EDGE_SEARCH:
@@ -539,7 +539,7 @@ void vtkSelectPolyData::FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePoin
   cellMarks->SetValue(cellIdInSelectedRegion, fillValue);
 
   vtkNew<vtkIdList> neighbors;
-  neighbors->Allocate(10000);
+  neighbors->Reserve(10000);
   vtkIdType numCellsInFront;
   while ((numCellsInFront = currentFront->GetNumberOfIds()) > 0)
   {
@@ -712,7 +712,7 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
   // Compute signed distance to loop for boundary points.
   vtkIdType numMeshLoopPts = edgePointIds->GetNumberOfIds();
   vtkNew<vtkIdList> neighbors;
-  neighbors->Allocate(10000);
+  neighbors->Reserve(10000);
   for (vtkIdType edgePointIndex = 0; edgePointIndex < numMeshLoopPts; edgePointIndex++)
   {
     if (this->CheckAbort())

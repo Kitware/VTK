@@ -115,7 +115,7 @@ struct vtkGenerateNormalsFunctor
   void Initialize()
   {
     vtkIdList*& pIds = this->PIds.Local();
-    pIds->Allocate(128); // allocate some memory
+    pIds->Reserve(128); // allocate some memory
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
@@ -242,9 +242,9 @@ struct vtkOrientNormalsWorker
     vtkIdType numPts = inPts->GetNumberOfTuples();
     std::vector<char> pointMap(numPts, 0);
     vtkNew<vtkIdList> wave;
-    wave->Allocate(numPts / 4 + 1, numPts);
+    wave->Reserve(numPts / 4 + 1);
     vtkNew<vtkIdList> wave2;
-    wave2->Allocate(numPts / 4 + 1, numPts);
+    wave2->Reserve(numPts / 4 + 1);
     for (vtkIdType ptId = 0; ptId < numPts; ptId++)
     {
       if (pointMap[ptId] == 0)

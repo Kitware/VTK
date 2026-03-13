@@ -207,7 +207,7 @@ vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(
     return pointIds;
   }
 
-  pointIds->Allocate(inputPoints->GetNumberOfPoints());
+  pointIds->Reserve(inputPoints->GetNumberOfPoints());
 
   double p[3];
 
@@ -1915,10 +1915,10 @@ void InitializeInformationIdsForUnstructuredData(vtkPolyData* input, ::PolyDataI
     vtkIdList* polyIds = info.OutputToInputPolyCellIdRedirectionMap;
     vtkIdList* stripIds = info.OutputToInputStripCellIdRedirectionMap;
 
-    vertIds->Allocate(input->GetNumberOfVerts());
-    lineIds->Allocate(input->GetNumberOfVerts());
-    polyIds->Allocate(input->GetNumberOfVerts());
-    stripIds->Allocate(input->GetNumberOfVerts());
+    vertIds->Reserve(input->GetNumberOfVerts());
+    lineIds->Reserve(input->GetNumberOfVerts());
+    polyIds->Reserve(input->GetNumberOfVerts());
+    stripIds->Reserve(input->GetNumberOfVerts());
 
     for (vtkIdType id = 0; id < cellIds->GetNumberOfIds(); ++id)
     {
@@ -2107,7 +2107,7 @@ void InitializeBlocksForUnstructuredData(diy::Master& master, std::vector<PointS
       // We start by remapping ghost points.
       vtkSmartPointer<vtkIdList>& pointIdMap = information.OutputToInputPointIdRedirectionMap;
       pointIdMap = vtkSmartPointer<vtkIdList>::New();
-      pointIdMap->Allocate(numberOfInputPoints);
+      pointIdMap->Reserve(numberOfInputPoints);
 
       vtkSmartPointer<vtkIdList>& pointIdInverseMap =
         information.InputToOutputPointIdRedirectionMap;
@@ -2139,7 +2139,7 @@ void InitializeBlocksForUnstructuredData(diy::Master& master, std::vector<PointS
 
       vtkSmartPointer<vtkIdList>& cellIdMap = information.OutputToInputCellIdRedirectionMap;
       cellIdMap = vtkSmartPointer<vtkIdList>::New();
-      cellIdMap->Allocate(numberOfInputCells);
+      cellIdMap->Reserve(numberOfInputCells);
 
       for (vtkIdType cellId = 0; cellId < numberOfInputCells; ++cellId)
       {
@@ -2242,7 +2242,7 @@ struct MatchingPointExtractor
       auto gidRange = vtk::DataArrayValueRange<1>(globalPointIds);
 
       inverseMap.reserve(gidRange.size());
-      this->MatchingSourcePointIds->Allocate(gidRange.size());
+      this->MatchingSourcePointIds->Reserve(gidRange.size());
 
       using ConstRef = typename decltype(gidRange)::ConstReferenceType;
 
@@ -2262,7 +2262,7 @@ struct MatchingPointExtractor
       auto pointsRange = vtk::DataArrayTupleRange<3>(points);
 
       inverseMap.reserve(pointsRange.size());
-      this->MatchingSourcePointIds->Allocate(pointsRange.size());
+      this->MatchingSourcePointIds->Reserve(pointsRange.size());
 
       using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
       using ValueType = typename ConstPointRef::value_type;
@@ -2288,7 +2288,7 @@ struct MatchingPointExtractor
       }
     }
 
-    this->RemappedMatchingReceivedPointIdsSortedLikeTarget->Allocate(inverseMap.size());
+    this->RemappedMatchingReceivedPointIdsSortedLikeTarget->Reserve(inverseMap.size());
     std::sort(inverseMap.begin(), inverseMap.end());
 
     if (this->InputToOutputPointIdMap)
@@ -5294,8 +5294,8 @@ void RemoveDuplicatePointIds(
   BlockT* block, vtkIdList* pointIds, vtkIdList* pointIdsWithNoDuplicate, vtkIdList* remapping)
 {
   vtkUnsignedCharArray* ghostPoints = block->GhostPointArray;
-  pointIdsWithNoDuplicate->Allocate(pointIds->GetNumberOfIds());
-  remapping->Allocate(pointIds->GetNumberOfIds());
+  pointIdsWithNoDuplicate->Reserve(pointIds->GetNumberOfIds());
+  remapping->Reserve(pointIds->GetNumberOfIds());
 
   for (vtkIdType id = 0; id < pointIds->GetNumberOfIds(); ++id)
   {

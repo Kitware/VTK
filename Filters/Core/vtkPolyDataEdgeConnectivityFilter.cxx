@@ -303,9 +303,9 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   maxCellsInRegion = 0;
 
   this->CellIds = vtkSmartPointer<vtkIdList>::New();
-  this->CellIds->Allocate(8, VTK_CELL_SIZE);
+  this->CellIds->Reserve(8);
   this->PointIds = vtkSmartPointer<vtkIdList>::New();
-  this->PointIds->Allocate(8, VTK_CELL_SIZE);
+  this->PointIds->Reserve(8);
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&
     this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&

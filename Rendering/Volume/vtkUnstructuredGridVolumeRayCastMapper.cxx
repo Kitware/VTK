@@ -392,7 +392,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume*
     if (this->CellScalars)
     {
       this->IntersectedCellsBuffer[i] = vtkIdList::New();
-      this->IntersectedCellsBuffer[i]->Allocate(
+      this->IntersectedCellsBuffer[i]->Reserve(
         this->RayCastIterators[i]->GetMaxNumberOfIntersections());
       this->FarIntersectionsBuffer[i] = this->NearIntersectionsBuffer[i];
     }

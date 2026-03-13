@@ -81,7 +81,7 @@ vtkSmartPointer<vtkIdList> get_ids(vtkDataSetAttributes* source, unsigned char g
   }
 
   vtkNew<vtkIdList> ids;
-  ids->Allocate(mask->GetNumberOfTuples());
+  ids->Reserve(mask->GetNumberOfTuples());
   for (vtkIdType cc = 0; cc < mask->GetNumberOfTuples(); ++cc)
   {
     if ((mask->GetTypedComponent(cc, 0) & ghostFlag) != ghostFlag)

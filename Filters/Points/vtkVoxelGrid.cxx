@@ -62,7 +62,7 @@ struct SubsampleFunctor
   void Initialize()
   {
     vtkIdList*& pIds = this->PIds.Local();
-    pIds->Allocate(128); // allocate some memory
+    pIds->Reserve(128); // allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->ReserveValues(128);
   }

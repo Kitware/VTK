@@ -196,12 +196,12 @@ public:
 
     newPts->Reserve(estimatedSize);
 
-    vertCellOffsets->Allocate(estimatedSize);
-    vertConnOffsets->Allocate(estimatedSize);
-    lineCellOffsets->Allocate(estimatedSize);
-    lineConnOffsets->Allocate(estimatedSize);
-    polyCellOffsets->Allocate(estimatedSize);
-    polyConnOffsets->Allocate(estimatedSize);
+    vertCellOffsets->Reserve(estimatedSize);
+    vertConnOffsets->Reserve(estimatedSize);
+    lineCellOffsets->Reserve(estimatedSize);
+    lineConnOffsets->Reserve(estimatedSize);
+    polyCellOffsets->Reserve(estimatedSize);
+    polyConnOffsets->Reserve(estimatedSize);
 
     // locator->SetPoints(newPts);
     locator->InitPointInsertion(newPts, this->Input->GetBounds(), this->Input->GetNumberOfPoints());

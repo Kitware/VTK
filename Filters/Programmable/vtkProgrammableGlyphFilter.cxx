@@ -105,7 +105,7 @@ int vtkProgrammableGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   pts = vtkIdList::New();
-  pts->Allocate(VTK_CELL_SIZE);
+  pts->Reserve(VTK_CELL_SIZE);
   sourcePD = source->GetPointData();
   sourceCD = source->GetCellData();
   numSourcePts = source->GetNumberOfPoints();

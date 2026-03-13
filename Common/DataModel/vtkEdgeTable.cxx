@@ -251,11 +251,11 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
   if (this->Table[index] == nullptr)
   {
     this->Table[index] = vtkSmartPointer<vtkIdList>::New();
-    this->Table[index]->Allocate(6, 12);
+    this->Table[index]->Reserve(6);
     if (this->StoreAttributes == 1)
     {
       this->Attributes[index] = vtkSmartPointer<vtkIdList>::New();
-      this->Attributes[index]->Allocate(6, 12);
+      this->Attributes[index]->Reserve(6);
     }
   }
 
@@ -295,11 +295,11 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, vtkIdType attributeId)
   if (this->Table[index] == nullptr)
   {
     this->Table[index] = vtkSmartPointer<vtkIdList>::New();
-    this->Table[index]->Allocate(6, 12);
+    this->Table[index]->Reserve(6);
     if (this->StoreAttributes == 1)
     {
       this->Attributes[index] = vtkSmartPointer<vtkIdList>::New();
-      this->Attributes[index]->Allocate(6, 12);
+      this->Attributes[index]->Reserve(6);
     }
   }
 
@@ -337,7 +337,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
   if (this->Table[index] == nullptr)
   {
     this->Table[index] = vtkSmartPointer<vtkIdList>::New();
-    this->Table[index]->Allocate(6, 12);
+    this->Table[index]->Reserve(6);
     if (this->StoreAttributes == 2)
     {
       this->PointerAttributes[index].reserve(6);

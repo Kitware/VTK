@@ -133,7 +133,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType& id)
   {
     // create a bucket point list and insert the point
     bucket = vtkIdList::New();
-    bucket->Allocate(this->NumberOfPointsPerBucket / 2, this->NumberOfPointsPerBucket / 3);
+    bucket->Reserve(this->NumberOfPointsPerBucket / 2);
     this->HashTable[idx] = bucket;
   }
 

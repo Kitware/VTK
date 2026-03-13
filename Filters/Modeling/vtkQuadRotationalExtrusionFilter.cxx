@@ -393,7 +393,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
         inStrips->GetNumberOfCells())
       {
         cellIds = vtkIdList::New();
-        cellIds->Allocate(VTK_CELL_SIZE);
+        cellIds->Reserve(VTK_CELL_SIZE);
         vtkGenericCell* cell = vtkGenericCell::New();
 
         for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)

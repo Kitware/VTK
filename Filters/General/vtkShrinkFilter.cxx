@@ -63,8 +63,8 @@ int vtkShrinkFilter::RequestData(
   // Allocate working space for new and old cell point lists.
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   vtkSmartPointer<vtkIdList> newPtIds = vtkSmartPointer<vtkIdList>::New();
-  ptIds->Allocate(VTK_CELL_SIZE);
-  newPtIds->Allocate(VTK_CELL_SIZE);
+  ptIds->Reserve(VTK_CELL_SIZE);
+  newPtIds->Reserve(VTK_CELL_SIZE);
 
   // Allocate approximately the space needed for the output cells.
   output->Allocate(numCells);

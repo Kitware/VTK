@@ -184,11 +184,11 @@ struct FitCellsFunctor
   void Initialize()
   {
     vtkGenericCell*& cell = this->Cell.Local();
-    cell->PointIds->Allocate(128);
+    cell->PointIds->Reserve(128);
     cell->Points->Reserve(128);
 
     vtkIdList*& prims = this->Prims.Local();
-    prims->Allocate(128); // allocate some memory
+    prims->Reserve(128); // allocate some memory
 
     vtkPoints*& primPts = this->PrimPts.Local();
     primPts->Reserve(128); // allocate some memory

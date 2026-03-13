@@ -159,7 +159,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
   vtkDebugMacro(<< "Generating glyphs");
 
   pts = vtkIdList::New();
-  pts->Allocate(VTK_CELL_SIZE);
+  pts->Reserve(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
   inNormals = this->GetInputArrayToProcess(2, input);

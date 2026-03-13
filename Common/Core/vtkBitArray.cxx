@@ -741,8 +741,8 @@ void vtkBitArray::UpdateLookup()
   {
     int numComps = this->GetNumberOfComponents();
     vtkIdType numTuples = this->GetNumberOfTuples();
-    this->Lookup->ZeroArray->Allocate(numComps * numTuples);
-    this->Lookup->OneArray->Allocate(numComps * numTuples);
+    this->Lookup->ZeroArray->Reserve(numComps * numTuples);
+    this->Lookup->OneArray->Reserve(numComps * numTuples);
     for (vtkIdType i = 0; i < numComps * numTuples; i++)
     {
       if (this->GetValue(i))
@@ -754,6 +754,8 @@ void vtkBitArray::UpdateLookup()
         this->Lookup->ZeroArray->InsertNextId(i);
       }
     }
+    this->Lookup->ZeroArray->Squeeze();
+    this->Lookup->OneArray->Squeeze();
     this->Lookup->Rebuild = false;
   }
 }

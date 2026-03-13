@@ -113,7 +113,7 @@ void MergePoints(
   {
     pds.push_back((*itr).Output->GetPointData());
     vtkIdList* idMap = vtkIdList::New();
-    idMap->Allocate((*itr).Output->GetNumberOfPoints());
+    idMap->Reserve((*itr).Output->GetNumberOfPoints());
     idMaps.push_back(idMap);
     ++itr;
   }

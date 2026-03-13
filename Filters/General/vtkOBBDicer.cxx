@@ -50,9 +50,9 @@ void vtkOBBDicer::BuildTree(vtkIdList* ptIds, vtkOBBNode* OBBptr, vtkDataSet* in
     OBBptr->Kids[0] = LHnode;
     OBBptr->Kids[1] = RHnode;
     vtkIdList* LHlist = vtkIdList::New();
-    LHlist->Allocate(numPts / 2);
+    LHlist->Reserve(numPts / 2);
     vtkIdList* RHlist = vtkIdList::New();
-    RHlist->Allocate(numPts / 2);
+    RHlist->Reserve(numPts / 2);
     LHnode->Parent = OBBptr;
     RHnode->Parent = OBBptr;
     double n[3], p[3], x[3], val;

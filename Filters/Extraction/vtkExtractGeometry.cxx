@@ -299,7 +299,7 @@ struct EvaluateCells
 
   void Reduce()
   {
-    this->KeptCellsList->Allocate(this->NumberOfCells);
+    this->KeptCellsList->Reserve(this->NumberOfCells);
     for (vtkIdType cellId = 0; cellId < this->NumberOfCells; ++cellId)
     {
       if (this->InsidenessCellsArray->GetValue(cellId))

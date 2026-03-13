@@ -223,7 +223,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     pts = vtkIdList::New();
-    pts->Allocate(VTK_CELL_SIZE);
+    pts->Reserve(VTK_CELL_SIZE);
     trans = vtkTransform::New();
   }
 

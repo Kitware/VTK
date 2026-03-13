@@ -182,7 +182,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
     // create a point ghost level array for this case before,
     // I will leave it the way it was.
     pointOwnership = vtkIdList::New();
-    pointOwnership->Allocate(numPts);
+    pointOwnership->Reserve(numPts);
     pointGhostLevels = vtkUnsignedCharArray::New();
     pointGhostLevels->ReserveValues(numPts);
   }

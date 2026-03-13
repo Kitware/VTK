@@ -2080,7 +2080,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
 
         vtkIdType maxNumberOfIds =
           std::pow(4, this->NonlinearSubdivisionLevel - 1) * pts->GetNumberOfIds();
-        pts2->Allocate(maxNumberOfIds);
+        pts2->Reserve(maxNumberOfIds);
         // We are going to need parametric coordinates to further subdivide.
         parametricCoords.resize(maxNumberOfIds * 3);
         std::copy(&pc[0], &pc[0] + numFacePts * 3, parametricCoords.begin());

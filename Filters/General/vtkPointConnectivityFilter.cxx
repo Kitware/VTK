@@ -48,7 +48,7 @@ struct UpdateConnectivityCount
   void Initialize()
   {
     vtkIdList*& cellIds = this->CellIds.Local();
-    cellIds->Allocate(128); // allocate some memory
+    cellIds->Reserve(128); // allocate some memory
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)

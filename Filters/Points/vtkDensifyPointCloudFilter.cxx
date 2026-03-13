@@ -60,7 +60,7 @@ struct CountPointsFunctor
   void Initialize()
   {
     vtkIdList*& pIds = this->PIds.Local();
-    pIds->Allocate(128); // allocate some memory
+    pIds->Reserve(128); // allocate some memory
   }
 
   void operator()(vtkIdType pointId, vtkIdType endPointId)
@@ -159,7 +159,7 @@ struct GeneratePointsFunctor
   void Initialize()
   {
     vtkIdList*& pIds = this->PIds.Local();
-    pIds->Allocate(128); // allocate some memory
+    pIds->Reserve(128); // allocate some memory
   }
 
   void operator()(vtkIdType pointId, vtkIdType endPointId)

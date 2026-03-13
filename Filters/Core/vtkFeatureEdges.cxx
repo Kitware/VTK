@@ -270,7 +270,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   neighbors = vtkIdList::New();
-  neighbors->Allocate(VTK_CELL_SIZE);
+  neighbors->Reserve(VTK_CELL_SIZE);
 
   bool abort = false;
   vtkIdType progressInterval = newPolys->GetNumberOfCells() / 20 + 1;

@@ -203,7 +203,7 @@ struct MarkPolys : MarkCellBoundary
   {
     this->CellIter.Local().TakeReference(this->Polys->NewIterator());
     this->Neighbors.Local().TakeReference(vtkIdList::New());
-    this->Neighbors.Local()->Allocate(2);
+    this->Neighbors.Local()->Reserve(2);
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)

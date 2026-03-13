@@ -250,7 +250,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
   sliceSize = numICells * numJCells;
 
   tetraIds = vtkIdList::New();
-  tetraIds->Allocate(20);
+  tetraIds->Reserve(20);
   cellScalars = vtkFloatArray::New();
   cellScalars->ReserveValues(8);
   tetraPts = vtkPoints::New();

@@ -26,7 +26,7 @@ vtkImplicitVolume::vtkImplicitVolume()
   this->OutGradient[2] = 1.0;
 
   this->PointIds = vtkIdList::New();
-  this->PointIds->Allocate(8);
+  this->PointIds->Reserve(8);
 }
 
 //------------------------------------------------------------------------------

@@ -87,7 +87,7 @@ struct ExtractInOutCheck
   void Initialize()
   {
     vtkIdList*& cellIds = this->CellIds.Local();
-    cellIds->Allocate(512);
+    cellIds->Reserve(512);
     vtkIntersectionCounter& counter = this->Counter.Local();
     counter.SetTolerance(this->Tolerance);
   }

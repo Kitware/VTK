@@ -688,9 +688,9 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray* scalars, int di
 
   // set up the connected traversal
   wave = vtkIdList::New();
-  wave->Allocate(static_cast<int>(numPixels / 4.0), static_cast<int>(numPixels / 4.0));
+  wave->Reserve(static_cast<int>(numPixels / 4.0));
   wave2 = vtkIdList::New();
-  wave2->Allocate(static_cast<int>(numPixels / 4.0), static_cast<int>(numPixels / 4.0));
+  wave2->Reserve(static_cast<int>(numPixels / 4.0));
 
   // visit connected pixels. Pixels are connected if they are topologically
   // adjacent and they have "equal" color values.

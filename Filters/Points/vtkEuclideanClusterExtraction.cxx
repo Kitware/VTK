@@ -41,7 +41,7 @@ vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
   this->NeighborScalars->ReserveValues(64);
 
   this->NeighborPointIds = vtkIdList::New();
-  this->NeighborPointIds->Allocate(64);
+  this->NeighborPointIds->Reserve(64);
 
   this->Seeds = vtkIdList::New();
   this->SpecifiedClusterIds = vtkIdList::New();
@@ -132,16 +132,16 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   // using a connected wave propagation.
   //
   this->Wave = vtkIdList::New();
-  this->Wave->Allocate(numPts / 4 + 1, numPts);
+  this->Wave->Reserve(numPts / 4 + 1);
   this->Wave2 = vtkIdList::New();
-  this->Wave2->Allocate(numPts / 4 + 1, numPts);
+  this->Wave2->Reserve(numPts / 4 + 1);
 
   this->PointNumber = 0;
   this->ClusterNumber = 0;
   maxPointsInCluster = 0;
 
   this->PointIds = vtkIdList::New();
-  this->PointIds->Allocate(8, VTK_CELL_SIZE);
+  this->PointIds->Reserve(8);
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_CLUSTERS &&
     this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_CLUSTER)

@@ -54,7 +54,7 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
   vtkDebugMacro(<< "Generating 2D glyphs");
 
   pts = vtkIdList::New();
-  pts->Allocate(VTK_CELL_SIZE);
+  pts->Reserve(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
 

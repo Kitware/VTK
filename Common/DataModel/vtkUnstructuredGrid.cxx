@@ -142,8 +142,8 @@ struct RemoveGhostCellsWorker
 
     std::vector<vtkIdType> pointIdRedirectionMap(numPoints, -1);
 
-    this->NewPointIdMap->Allocate(numPoints);
-    this->NewCellIdMap->Allocate(types->GetNumberOfValues());
+    this->NewPointIdMap->Reserve(numPoints);
+    this->NewCellIdMap->Reserve(types->GetNumberOfValues());
 
     vtkIdType newCellsMaxId = 0;
     ValueT currentOutputOffset = 0;

@@ -802,7 +802,7 @@ void vtkCellLocator::BuildLocatorInternal()
           if (!this->Tree[idx])
           {
             this->Tree[idx] = vtkSmartPointer<vtkIdList>::New();
-            this->Tree[idx]->Allocate(numCellsPerBucket, numCellsPerBucket / 2);
+            this->Tree[idx]->Reserve(numCellsPerBucket);
           }
           this->Tree[idx]->InsertNextId(cellId);
         }

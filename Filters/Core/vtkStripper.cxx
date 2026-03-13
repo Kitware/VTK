@@ -98,7 +98,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
 
   pts = new vtkIdType[this->MaximumLength + 2]; // working array
   cellIds = vtkIdList::New();
-  cellIds->Allocate(this->MaximumLength + 2);
+  cellIds->Reserve(this->MaximumLength + 2);
 
   // The new field data object that maintains the transformed cell data.
   if (this->PassCellDataAsFieldData)

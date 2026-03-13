@@ -414,7 +414,7 @@ void vtkGreedyTerrainDecimation::CheckEdge(
   this->GetPoint(p2, x2);
 
   neighbors = vtkIdList::New();
-  neighbors->Allocate(2);
+  neighbors->Reserve(2);
 
   this->Mesh->GetCellEdgeNeighbors(tri, p1, p2, neighbors);
   numNei = neighbors->GetNumberOfIds();
@@ -757,7 +757,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Scratch data structures
   this->Neighbors = vtkIdList::New();
-  this->Neighbors->Allocate(2);
+  this->Neighbors->Reserve(2);
 
   // Top element of VTK's priority queue returns the minimum error value. Since we want the
   // maximum error, we use 1/error relationship to insert errors.

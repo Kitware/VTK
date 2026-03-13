@@ -92,7 +92,6 @@ int vtkRecursiveDividingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   NewVerts->InsertNextCell(0); // temporary cell count
 
   voxelPts = vtkIdList::New();
-  voxelPts->Allocate(8);
   voxelPts->SetNumberOfIds(8);
 
   voxelScalars = vtkDoubleArray::New();

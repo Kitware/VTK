@@ -425,7 +425,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     double normal[3], neiNormal[3];
 
     vtkNew<vtkIdList> neighbors;
-    neighbors->Allocate(VTK_CELL_SIZE);
+    neighbors->Reserve(VTK_CELL_SIZE);
 
     vtkNew<vtkPolyData> inMesh;
     inMesh->SetPoints(inPts);
@@ -462,12 +462,12 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (Verts[p1].edges == nullptr)
         {
           Verts[p1].edges = vtkIdList::New();
-          Verts[p1].edges->Allocate(16, 6);
+          Verts[p1].edges->Reserve(16);
         }
         if (Verts[p2].edges == nullptr)
         {
           Verts[p2].edges = vtkIdList::New();
-          Verts[p2].edges->Allocate(16, 6);
+          Verts[p2].edges->Reserve(16);
         }
 
         Mesh->GetCellEdgeNeighbors(cellId, p1, p2, neighbors);

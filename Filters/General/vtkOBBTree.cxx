@@ -255,7 +255,7 @@ void vtkOBBTree::ComputeOBB(
   this->PointsList->Reserve(numPts);
 
   cellList = vtkIdList::New();
-  cellList->Allocate(numCells);
+  cellList->Reserve(numCells);
   for (i = 0; i < numCells; i++)
   {
     cellList->InsertId(i, i);
@@ -1076,7 +1076,7 @@ void vtkOBBTree::BuildLocatorInternal()
   // Begin recursively creating OBB's
   //
   cellList = vtkIdList::New();
-  cellList->Allocate(numCells);
+  cellList->Reserve(numCells);
   for (i = 0; i < numCells; i++)
   {
     cellList->InsertId(i, i);
@@ -1133,9 +1133,9 @@ void vtkOBBTree::BuildTree(vtkIdList* cells, vtkOBBNode* OBBptr, int level)
   if (level < this->MaxLevel && numCells > this->NumberOfCellsPerNode)
   {
     vtkIdList* LHlist = vtkIdList::New();
-    LHlist->Allocate(cells->GetNumberOfIds() / 2);
+    LHlist->Reserve(cells->GetNumberOfIds() / 2);
     vtkIdList* RHlist = vtkIdList::New();
-    RHlist->Allocate(cells->GetNumberOfIds() / 2);
+    RHlist->Reserve(cells->GetNumberOfIds() / 2);
     double n[3], p[3], c[3], x[3], val, ratio, bestRatio;
     int negative, positive, splitAcceptable, splitPlane;
     int foundBestSplit, bestPlane = 0, numPts;

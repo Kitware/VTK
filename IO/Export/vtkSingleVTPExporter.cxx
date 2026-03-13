@@ -293,7 +293,7 @@ vtkPolyData* vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData* ipd)
     newPolys->AllocateEstimate(cells->GetNumberOfCells(), 3);
     opd->SetPolys(newPolys);
     vtkIdList* ptIds = vtkIdList::New();
-    ptIds->Allocate(VTK_CELL_SIZE);
+    ptIds->Reserve(VTK_CELL_SIZE);
 
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)
     {

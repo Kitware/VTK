@@ -257,9 +257,9 @@ public:
   int InterpolatePointDataWithMask(vtkCellDataToPointData* filter, T* input, vtkDataSet* output)
   {
     vtkNew<vtkIdList> allCellIds;
-    allCellIds->Allocate(8);
+    allCellIds->Reserve(8);
     vtkNew<vtkIdList> cellIds;
-    cellIds->Allocate(8);
+    cellIds->Reserve(8);
 
     const vtkIdType numberOfPoints = input->GetNumberOfPoints();
 
@@ -722,7 +722,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* output)
 {
   vtkNew<vtkIdList> cellIds;
-  cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
+  cellIds->Reserve(VTK_MAX_CELLS_PER_POINT);
 
   const vtkIdType numberOfPoints = input->GetNumberOfPoints();
 

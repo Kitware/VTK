@@ -245,7 +245,7 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet* set, vtkIdType* idMap)
   vtkCellData* setCD = set->GetCellData();
 
   vtkNew<vtkIdList> cellPoints;
-  cellPoints->Allocate(VTK_CELL_SIZE);
+  cellPoints->Reserve(VTK_CELL_SIZE);
 
   for (vtkIdType oldCellId = 0; oldCellId < numCells; oldCellId++)
   {

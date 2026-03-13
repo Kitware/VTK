@@ -942,7 +942,7 @@ void vtkExtractSelection::ExtractSelectedCells(
   {
     // convert insideness array to cell ids to extract.
     vtkNew<vtkIdList> ids;
-    ids->Allocate(numCells);
+    ids->Reserve(numCells);
     vtkUnsignedCharArray* ghostArray = input->GetCellGhostArray();
     for (vtkIdType cc = 0; cc < numCells; ++cc)
     {
@@ -994,7 +994,7 @@ void vtkExtractSelection::ExtractSelectedPoints(
       newPts->SetDataType(pointSet->GetPoints()->GetDataType());
     }
     vtkNew<vtkIdList> ids;
-    ids->Allocate(numPts);
+    ids->Reserve(numPts);
     vtkUnsignedCharArray* ghostArray = input->GetPointGhostArray();
     for (vtkIdType cc = 0; cc < numPts; ++cc)
     {
