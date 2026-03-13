@@ -35,9 +35,9 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_CONVEX_POINT_SET, "vtkConvexPointSet" }, { VTK_POLYHEDRON, "vtkPolyhedron" },
   { VTK_HIGHER_ORDER_CURVE, "vtkHigherOrderCurve" },
   { VTK_HIGHER_ORDER_TRIANGLE, "vtkHigherOrderTriangle" },
-  { VTK_HIGHER_ORDER_QUAD, "vtkHigherOrderQuad" },
+  { VTK_HIGHER_ORDER_QUADRILATERAL, "vtkHigherOrderQuadrilateral" },
   { VTK_HIGHER_ORDER_POLYGON, "vtkHigherOrderPolygon" },
-  { VTK_HIGHER_ORDER_TETRAHEDRON, "vtkHigherOrderTetrahedron" },
+  { VTK_HIGHER_ORDER_TETRAHEDRON, "vtkHigherOrderTetra" },
   { VTK_HIGHER_ORDER_WEDGE, "vtkHigherOrderWedge" },
   { VTK_HIGHER_ORDER_PYRAMID, "vtkHigherOrderPyramid" },
   { VTK_HIGHER_ORDER_HEXAHEDRON, "vtkHigherOrderHexahedron" },
@@ -74,8 +74,9 @@ std::map<int, std::string> CellTypesName = { { VTK_EMPTY_CELL, "Empty Cell" },
   { VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, "Bi-Quadratic Quadratic Hexahedron" },
   { VTK_BIQUADRATIC_TRIANGLE, "Bi-Quadratic Triangle" }, { VTK_CUBIC_LINE, "Cubic Line" },
   { VTK_CONVEX_POINT_SET, "Convex Pointset" }, { VTK_HIGHER_ORDER_CURVE, "Higher Order Curve" },
-  { VTK_HIGHER_ORDER_TRIANGLE, "Higher Order Triangle" }, { VTK_LAGRANGE_CURVE, "Lagrange Curve" },
-  { VTK_LAGRANGE_TRIANGLE, "Lagrange Triangle" },
+  { VTK_HIGHER_ORDER_TRIANGLE, "Higher Order Triangle" },
+  { VTK_HIGHER_ORDER_QUADRILATERAL, "Higher Order Quadrilateral" },
+  { VTK_LAGRANGE_CURVE, "Lagrange Curve" }, { VTK_LAGRANGE_TRIANGLE, "Lagrange Triangle" },
   { VTK_LAGRANGE_QUADRILATERAL, "Lagrange Quadrilateral" },
   { VTK_LAGRANGE_TETRAHEDRON, "Lagrange Tetrahedron" },
   { VTK_LAGRANGE_HEXAHEDRON, "Lagrange Hexahedron" }, { VTK_LAGRANGE_WEDGE, "Lagrange Wedge" },
@@ -183,7 +184,7 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
     case VTK_BIQUADRATIC_QUAD:
     case VTK_BIQUADRATIC_TRIANGLE:
     case VTK_HIGHER_ORDER_TRIANGLE:
-    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_HIGHER_ORDER_QUADRILATERAL:
     case VTK_HIGHER_ORDER_POLYGON:
     case VTK_LAGRANGE_TRIANGLE:
     case VTK_LAGRANGE_QUADRILATERAL:

@@ -267,7 +267,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues* contourValues, vtkImplicit
         linearCell = this->Triangle;
         ptsCount = 3;
         break;
-      case VTK_HIGHER_ORDER_QUAD:
+      case VTK_HIGHER_ORDER_QUADRILATERAL:
         linearCell = this->Quad;
         ptsCount = 4;
         break;
@@ -499,7 +499,7 @@ void vtkGenericAdaptorCell::Clip(double value, vtkImplicitFunction* f,
         linearCell = this->Triangle;
         ptsCount = 3;
         break;
-      case VTK_HIGHER_ORDER_QUAD:
+      case VTK_HIGHER_ORDER_QUADRILATERAL:
         linearCell = this->Quad;
         ptsCount = 4;
         break;
@@ -717,7 +717,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection* attributes
         linearCellType = VTK_TRIANGLE;
         numVerts = 3;
         break;
-      case VTK_HIGHER_ORDER_QUAD:
+      case VTK_HIGHER_ORDER_QUADRILATERAL:
         linearCellType = VTK_QUAD;
         numVerts = 4;
         break;

@@ -799,7 +799,7 @@ int MeshQuality(int argc, char* argv[])
   };
 
   constexpr int QuadTypes[] = { VTK_QUADRATIC_QUAD, VTK_QUADRATIC_LINEAR_QUAD, VTK_BIQUADRATIC_QUAD,
-    VTK_HIGHER_ORDER_QUAD, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_QUADRILATERAL };
+    VTK_HIGHER_ORDER_QUADRILATERAL, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_QUADRILATERAL };
   constexpr vtkMeshQuality::QualityMeasureTypes QuadraticQuadMetrics[] = {
     vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION
   };
