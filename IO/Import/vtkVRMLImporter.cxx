@@ -209,6 +209,7 @@ int vtkVRMLImporter::ImportBegin()
   {
     this->ActorCollection->RemoveAllItems();
     this->LightCollection->RemoveAllItems();
+    this->SceneHierarchy = vtkSmartPointer<vtkDataAssembly>::New();
 
     if (this->CurrentTransform)
     {
@@ -507,6 +508,17 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
     this->CurrentActor->SetOrientation(this->CurrentTransform->GetOrientation());
     this->CurrentActor->SetPosition(this->CurrentTransform->GetPosition());
     this->CurrentActor->SetScale(this->CurrentTransform->GetScale());
+
+    int nodeid = this->SceneHierarchy->AddNode("shape");
+    this->SceneHierarchy->SetAttribute(
+      nodeid, "flat_actor_id", this->ActorCollection->GetNumberOfItems());
+
+    if (this->Parser->creatingDEF && this->Parser->curDEFName != nullptr &&
+      this->Parser->curDEFName[0] != '\0')
+    {
+      this->SceneHierarchy->SetAttribute(nodeid, "label", this->Parser->curDEFName);
+    }
+
     // Add actor to renderer
     this->Renderer->AddActor(this->CurrentActor);
     this->ActorCollection->AddItem(this->CurrentActor);

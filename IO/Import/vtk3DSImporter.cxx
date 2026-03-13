@@ -215,6 +215,7 @@ void vtk3DSImporter::ImportActors(vtkRenderer* renderer)
   vtkActor* actor;
 
   this->ActorCollection->RemoveAllItems();
+  this->SceneHierarchy = vtkSmartPointer<vtkDataAssembly>::New();
 
   // walk the list of meshes, creating actors
   for (mesh = this->MeshList; mesh != nullptr; mesh = (vtk3DSMesh*)mesh->next)
@@ -239,6 +240,15 @@ void vtk3DSImporter::ImportActors(vtkRenderer* renderer)
     else
     {
       polyStripper->SetInputData(polyData);
+    }
+
+    int nodeid = this->SceneHierarchy->AddNode("mesh");
+    this->SceneHierarchy->SetAttribute(
+      nodeid, "flat_actor_id", this->ActorCollection->GetNumberOfItems());
+
+    if (mesh->name[0] != '\0')
+    {
+      this->SceneHierarchy->SetAttribute(nodeid, "label", mesh->name);
     }
 
     polyMapper->SetInputConnection(polyStripper->GetOutputPort());
