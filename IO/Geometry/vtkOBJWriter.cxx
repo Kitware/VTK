@@ -457,6 +457,7 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttributes* dsa)
 {
   if (!this->WriteColorArray)

@@ -71,12 +71,19 @@ int CheckData(vtkPolyData* data, const std::string& arrayName)
     return EXIT_FAILURE;
   }
 
-  // The output must have only one arrays, "Colors"
+  // The output must have three arrays, "Colors", "Normals" and "TCoords", vtkCubeSource produces
+  // Normals and TCoords arrays, so we expect to have "Colors" array in addition to these two.
 
   // Check the number of arrays
-  if (data->GetPointData()->GetNumberOfArrays() <= 0)
+
+  if (data->GetPointData()->GetNumberOfArrays() != 3)
   {
-    std::cerr << "Invalid number of arrays" << std::endl;
+    std::cerr << "Invalid number of arrays: " << data->GetPointData()->GetNumberOfArrays()
+              << std::endl;
+    for (auto i = 0; i < data->GetPointData()->GetNumberOfArrays(); ++i)
+    {
+      std::cerr << "Array " << i << ": " << data->GetPointData()->GetArrayName(i) << std::endl;
+    }
     return EXIT_FAILURE;
   }
 
@@ -159,7 +166,7 @@ int TestOBJReaderColorArray(int argc, char* argv[])
   {
     const int N = 3;
     const std::string& arrayName = "RGB";
-    if (!ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGB_rw.obj", arrayName))
+    if (!::ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGB_rw.obj", arrayName))
     {
       return EXIT_FAILURE;
     }
@@ -170,7 +177,7 @@ int TestOBJReaderColorArray(int argc, char* argv[])
     const int N = 4;
     const std::string& arrayName = "RGBA";
 
-    if (!ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGBA_rw.obj", arrayName))
+    if (!::ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGBA_rw.obj", arrayName))
     {
       return EXIT_FAILURE;
     }
