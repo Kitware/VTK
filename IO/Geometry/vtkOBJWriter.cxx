@@ -83,14 +83,13 @@ struct EndIndex
 };
 //----------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
-  vtkSmartPointer<vtkUnsignedCharArray> pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
+  vtkUnsignedCharArray* pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
   std::vector<EndIndex>* endIndexes)
 {
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
   bool writeColors = false;
-  if (pointColors && pointColors->GetNumberOfComponents() >= 3 &&
-    pointColors->GetNumberOfTuples() == nbPts)
+  if (pointColors && pointColors->GetNumberOfTuples() == nbPts)
   {
     writeColors = true;
   }
@@ -463,29 +462,18 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttribut
   }
   else // we will color based on data
   {
-    int numComp = 0;
-    vtkDataArray* da = nullptr;
-    vtkUnsignedCharArray* colorArray = nullptr;
-
-    if (this->ColorArrayName.empty() ||
-      (da = dsa->GetArray(this->ColorArrayName.data())) == nullptr ||
-      (numComp = da->GetNumberOfComponents()) < 3)
+    if (this->ColorArrayName.empty())
     {
       return nullptr;
     }
-    else if ((colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
-    { // have unsigned char array of three components (RGB), copy it
-      return colorArray;
-    }
-    else if ((colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
+    if (vtkUnsignedCharArray* colorArray =
+          vtkArrayDownCast<vtkUnsignedCharArray>(dsa->GetArray(this->ColorArrayName.data()));
+        colorArray != nullptr)
     {
-      // have unsigned char array of four components (RGBA), copy it.
-      return colorArray;
+      int numComp = colorArray->GetNumberOfComponents();
+      return (numComp == 3 || numComp == 4) ? colorArray : nullptr;
     }
-    else // no color arrays
-    {
-      return nullptr;
-    }
+    return nullptr;
   }
 }
 

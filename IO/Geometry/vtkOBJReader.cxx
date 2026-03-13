@@ -387,6 +387,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
           // color mode mismatch, we have some RGB values but now we see some value not consistent
           // with RGB, so we can't use any of the color values
           vtkErrorMacro(<< "Color mode mismatch at L." << lineNumber);
+          return 0;
         }
       }
       else if (colorComponentReadCount == kColorComponentCountRGBA)
@@ -415,6 +416,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
           // color mode mismatch, we have some RGBA values but now we see some value not consistent
           // with RGBA, so we can't use any of the color values
           vtkErrorMacro(<< "Color mode mismatch at L." << lineNumber);
+          return 0;
         }
       }
       else
@@ -1082,14 +1084,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     pointColors->GetNumberOfTuples() == points->GetNumberOfPoints())
   {
     output->GetPointData()->AddArray(pointColors);
-    if (colorMode == VTK_OBJ_READER_COLOR_RGBA)
-    {
-      output->GetPointData()->SetActiveScalars("RGBA");
-    }
-    else
-    {
-      output->GetPointData()->SetActiveScalars("RGB");
-    }
+    output->GetPointData()->SetActiveScalars(pointColors->GetName());
   }
 
   if (groupId != -1 && faceScalars)
