@@ -192,9 +192,6 @@ vtkOBJWriter::vtkOBJWriter()
 {
   this->FileName = nullptr;
   this->TextureFileName = nullptr;
-  this->ColorArrayName = {};
-  this->WriteColorArray = false;
-  this->UseRelativeTexturePath = false;
   this->SetNumberOfInputPorts(2);
 }
 

@@ -114,10 +114,10 @@ private:
   char* FileName;
   char* TextureFileName;
 
-  std::string ColorArrayName;
-  bool WriteColorArray;
+  std::string ColorArrayName{};
+  bool WriteColorArray{ false };
 
-  bool UseRelativeTexturePath;
+  bool UseRelativeTexturePath{ false };
 };
 
 VTK_ABI_NAMESPACE_END
