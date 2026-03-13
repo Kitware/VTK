@@ -66,6 +66,8 @@ typedef struct
   int HasMultiSetter;
   int HasAddSetter;      /* for Add/RemoveAll sequence properties */
   const char* AddSuffix; /* e.g. "Light" for AddLight (singular form) */
+  int IsEnum;
+  const char** EnumNames; /* null-terminated array from PropertyInfo */
 } GetSetDefInfo;
 
 /* Returns a new zero-filled GetSetDefInfo, increments the count.
@@ -168,6 +170,16 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
         getSetInfo->HasGetter |= isGetter;
         getSetInfo->HasSetter |= isSetter;
         getSetInfo->HasMultiSetter |= vtkWrapPython_IsMultiSetter(properties->MethodTypes[i]);
+        if (isGetter && !getSetInfo->IsEnum)
+        {
+          int propIdx = properties->MethodProperties[i];
+          PropertyInfo* prop = properties->Properties[propIdx];
+          if (prop->EnumConstantNames && (prop->PublicMethods & VTK_METHOD_SET_VALUE_TO))
+          {
+            getSetInfo->IsEnum = 1;
+            getSetInfo->EnumNames = prop->EnumConstantNames;
+          }
+        }
       }
     }
   }
@@ -227,6 +239,22 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
 
   if (propCount > 0)
   {
+    /* generate static enum name arrays for enum properties */
+    for (j = 0; j < propCount; ++j)
+    {
+      getSetInfo = getSetsInfo[j];
+      if (getSetInfo->IsEnum && getSetInfo->EnumNames)
+      {
+        int k;
+        fprintf(fp, "static const char* Py%s_%s_EnumNames[] = {\n", classname, getSetInfo->Name);
+        for (k = 0; getSetInfo->EnumNames[k] != NULL; k++)
+        {
+          fprintf(fp, "  \"%s\",\n", getSetInfo->EnumNames[k]);
+        }
+        fprintf(fp, "  nullptr\n};\n\n");
+      }
+    }
+
     /* generate a table of the class getter/setter methods */
     fprintf(fp, "static PyVTKGetSet Py%s_GetSetMethods[] = {\n", classname);
 
@@ -271,7 +299,15 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
         adder = "nullptr";
       }
 
-      fprintf(fp, "  { %s, %s, %s },\n", getter, setter, adder);
+      if (getSetInfo->IsEnum && getSetInfo->EnumNames)
+      {
+        fprintf(fp, "  { %s, %s, %s, \"%s\", Py%s_%s_EnumNames },\n", getter, setter, adder,
+          getSetInfo->Name, classname, getSetInfo->Name);
+      }
+      else
+      {
+        fprintf(fp, "  { %s, %s, %s, nullptr, nullptr },\n", getter, setter, adder);
+      }
     }
 
     fprintf(fp, "};\n\n");
@@ -319,6 +355,10 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     {
       fprintf(fp, "    PyVTKObject_SetPropertySequence, // set\n");
     }
+    else if (getSetInfo->IsEnum && getSetInfo->HasSetter)
+    {
+      fprintf(fp, "    PyVTKObject_SetPropertyEnum, // set\n");
+    }
     else if (getSetInfo->HasMultiSetter)
     {
       fprintf(fp, "    PyVTKObject_SetPropertyMulti, // set\n");
@@ -342,6 +382,20 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     {
       fprintf(fp, "    pystr(\"write-only, calls Add%s/RemoveAll%s\\n\"), // doc\n",
         getSetInfo->AddSuffix, getSetInfo->Name);
+    }
+    else if (getSetInfo->IsEnum && getSetInfo->HasGetter && getSetInfo->HasSetter)
+    {
+      int k;
+      fprintf(fp, "    pystr(\"read-write (");
+      for (k = 0; getSetInfo->EnumNames[k] != NULL; k++)
+      {
+        if (k > 0)
+        {
+          fprintf(fp, "|");
+        }
+        fprintf(fp, "%s", getSetInfo->EnumNames[k]);
+      }
+      fprintf(fp, "), calls Get%s/Set%s\\n\"), // doc\n", getSetInfo->Name, getSetInfo->Name);
     }
     else if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
     {
