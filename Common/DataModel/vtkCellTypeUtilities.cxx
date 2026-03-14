@@ -11,16 +11,16 @@
 
 namespace
 {
-std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCell" },
-  { VTK_VERTEX, "vtkVertex" }, { VTK_POLY_VERTEX, "vtkPolyVertex" }, { VTK_LINE, "vtkLine" },
-  { VTK_POLY_LINE, "vtkPolyLine" }, { VTK_TRIANGLE, "vtkTriangle" },
-  { VTK_TRIANGLE_STRIP, "vtkTriangleStrip" }, { VTK_POLYGON, "vtkPolygon" },
-  { VTK_PIXEL, "vtkPixel" }, { VTK_QUAD, "vtkQuad" }, { VTK_TETRA, "vtkTetra" },
-  { VTK_VOXEL, "vtkVoxel" }, { VTK_HEXAHEDRON, "vtkHexahedron" }, { VTK_WEDGE, "vtkWedge" },
-  { VTK_PYRAMID, "vtkPyramid" }, { VTK_PENTAGONAL_PRISM, "vtkPentagonalPrism" },
-  { VTK_HEXAGONAL_PRISM, "vtkHexagonalPrism" }, { VTK_QUADRATIC_EDGE, "vtkQuadraticEdge" },
-  { VTK_QUADRATIC_TRIANGLE, "vtkQuadraticTriangle" }, { VTK_QUADRATIC_QUAD, "vtkQuadraticQuad" },
-  { VTK_QUADRATIC_TETRA, "vtkQuadraticTetra" },
+std::map<int, std::string> CellTypesClasseName = {
+  { VTK_EMPTY_CELL, "vtkEmptyCell" }, { VTK_VERTEX, "vtkVertex" },
+  { VTK_POLY_VERTEX, "vtkPolyVertex" }, { VTK_LINE, "vtkLine" }, { VTK_POLY_LINE, "vtkPolyLine" },
+  { VTK_TRIANGLE, "vtkTriangle" }, { VTK_TRIANGLE_STRIP, "vtkTriangleStrip" },
+  { VTK_POLYGON, "vtkPolygon" }, { VTK_PIXEL, "vtkPixel" }, { VTK_QUAD, "vtkQuad" },
+  { VTK_TETRA, "vtkTetra" }, { VTK_VOXEL, "vtkVoxel" }, { VTK_HEXAHEDRON, "vtkHexahedron" },
+  { VTK_WEDGE, "vtkWedge" }, { VTK_PYRAMID, "vtkPyramid" },
+  { VTK_PENTAGONAL_PRISM, "vtkPentagonalPrism" }, { VTK_HEXAGONAL_PRISM, "vtkHexagonalPrism" },
+  { VTK_QUADRATIC_EDGE, "vtkQuadraticEdge" }, { VTK_QUADRATIC_TRIANGLE, "vtkQuadraticTriangle" },
+  { VTK_QUADRATIC_QUAD, "vtkQuadraticQuad" }, { VTK_QUADRATIC_TETRA, "vtkQuadraticTetra" },
   { VTK_QUADRATIC_HEXAHEDRON, "vtkQuadraticHexahedron" },
   { VTK_QUADRATIC_WEDGE, "vtkQuadraticWedge" }, { VTK_QUADRATIC_PYRAMID, "vtkQuadraticPyramid" },
   { VTK_BIQUADRATIC_QUAD, "vtkBiQuadraticQuad" },
@@ -49,11 +49,12 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_BEZIER_CURVE, "vtkBezierCurve" }, { VTK_BEZIER_QUADRILATERAL, "vtkBezierQuadrilateral" },
   { VTK_BEZIER_TRIANGLE, "vtkBezierTriangle" }, { VTK_BEZIER_TETRAHEDRON, "vtkBezierTetra" },
   { VTK_BEZIER_HEXAHEDRON, "vtkBezierHexahedron" }, { VTK_BEZIER_WEDGE, "vtkBezierWedge" },
-  { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" } };
+  // { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" }
+};
 
-std::map<int, std::string> CellTypesName = { { VTK_EMPTY_CELL, "Empty Cell" },
-  { VTK_VERTEX, "Vertex" }, { VTK_POLY_VERTEX, "Polyvertex" }, { VTK_LINE, "Line" },
-  { VTK_POLY_LINE, "Polyline" }, { VTK_TRIANGLE, "Triangle" },
+std::map<int, std::string> CellTypesName = {
+  { VTK_EMPTY_CELL, "Empty Cell" }, { VTK_VERTEX, "Vertex" }, { VTK_POLY_VERTEX, "Polyvertex" },
+  { VTK_LINE, "Line" }, { VTK_POLY_LINE, "Polyline" }, { VTK_TRIANGLE, "Triangle" },
   { VTK_TRIANGLE_STRIP, "Triangle Strip" }, { VTK_POLYGON, "Polygon" }, { VTK_PIXEL, "Pixel" },
   { VTK_QUAD, "Quadrilateral" }, { VTK_TETRA, "Tetrahedron" }, { VTK_VOXEL, "Voxel" },
   { VTK_HEXAHEDRON, "Hexahedron" }, { VTK_WEDGE, "Wedge" }, { VTK_PYRAMID, "Pyramid" },
@@ -87,7 +88,9 @@ std::map<int, std::string> CellTypesName = { { VTK_EMPTY_CELL, "Empty Cell" },
   { VTK_BEZIER_CURVE, "Bezier Curve" }, { VTK_BEZIER_TRIANGLE, "Bezier Triangle" },
   { VTK_BEZIER_QUADRILATERAL, "Bezier Quadrilateral" },
   { VTK_BEZIER_TETRAHEDRON, "Bezier Tetrahedron" }, { VTK_BEZIER_HEXAHEDRON, "Bezier Hexahedron" },
-  { VTK_BEZIER_WEDGE, "Bezier Wedge" }, { VTK_BEZIER_PYRAMID, "Bezier Pyramid" } };
+  { VTK_BEZIER_WEDGE, "Bezier Wedge" },
+  // { VTK_BEZIER_PYRAMID, "Bezier Pyramid" }
+};
 
 } // anonymous namespace
 

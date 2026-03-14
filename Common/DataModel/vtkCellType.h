@@ -116,7 +116,7 @@ typedef enum
   VTK_BEZIER_TETRAHEDRON = 78,
   VTK_BEZIER_HEXAHEDRON = 79,
   VTK_BEZIER_WEDGE = 80,
-  VTK_BEZIER_PYRAMID = 81,
+  VTK_BEZIER_PYRAMID = 81, // Not Implemented yet, kept as placeholder.
 
   VTK_NUMBER_OF_CELL_TYPES = 82
 } VTKCellType;
