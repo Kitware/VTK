@@ -97,7 +97,7 @@ typedef enum
   VTK_HIGHER_ORDER_POLYGON VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 63,
   VTK_HIGHER_ORDER_TETRAHEDRON = 64,
   VTK_HIGHER_ORDER_WEDGE = 65,
-  VTK_HIGHER_ORDER_PYRAMID = 66,
+  VTK_HIGHER_ORDER_PYRAMID = 66, // Not Implemented yet, kept as placeholder.
   VTK_HIGHER_ORDER_HEXAHEDRON = 67,
 
   // Arbitrary order Lagrange elements (formulated separated from generic higher order cells)
