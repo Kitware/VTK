@@ -245,7 +245,7 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
 int vtkCellTypeUtilities::IsLinear(unsigned char type)
 {
   return (
-    (type < VTK_HEXAGONAL_PRISM) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
+    (type <= VTK_HEXAGONAL_PRISM) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
 }
 
 VTK_ABI_NAMESPACE_END
