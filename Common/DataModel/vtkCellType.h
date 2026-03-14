@@ -107,7 +107,7 @@ typedef enum
   VTK_LAGRANGE_TETRAHEDRON = 71,
   VTK_LAGRANGE_HEXAHEDRON = 72,
   VTK_LAGRANGE_WEDGE = 73,
-  VTK_LAGRANGE_PYRAMID = 74,
+  VTK_LAGRANGE_PYRAMID = 74, // Not Implemented yet, kept as placeholder.
 
   // Arbitrary order Bezier elements (formulated separated from generic higher order cells)
   VTK_BEZIER_CURVE = 75,

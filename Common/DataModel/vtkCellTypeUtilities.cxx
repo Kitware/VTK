@@ -45,8 +45,8 @@ std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCe
   { VTK_LAGRANGE_TRIANGLE, "vtkLagrangeTriangle" },
   { VTK_LAGRANGE_TETRAHEDRON, "vtkLagrangeTetra" },
   { VTK_LAGRANGE_HEXAHEDRON, "vtkLagrangeHexahedron" }, { VTK_LAGRANGE_WEDGE, "vtkLagrangeWedge" },
-  { VTK_LAGRANGE_PYRAMID, "vtkLagrangePyramid" }, { VTK_BEZIER_CURVE, "vtkBezierCurve" },
-  { VTK_BEZIER_QUADRILATERAL, "vtkBezierQuadrilateral" },
+  // { VTK_LAGRANGE_PYRAMID, "vtkLagrangePyramid" },
+  { VTK_BEZIER_CURVE, "vtkBezierCurve" }, { VTK_BEZIER_QUADRILATERAL, "vtkBezierQuadrilateral" },
   { VTK_BEZIER_TRIANGLE, "vtkBezierTriangle" }, { VTK_BEZIER_TETRAHEDRON, "vtkBezierTetra" },
   { VTK_BEZIER_HEXAHEDRON, "vtkBezierHexahedron" }, { VTK_BEZIER_WEDGE, "vtkBezierWedge" },
   { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" } };
@@ -83,8 +83,9 @@ std::map<int, std::string> CellTypesName = { { VTK_EMPTY_CELL, "Empty Cell" },
   { VTK_LAGRANGE_QUADRILATERAL, "Lagrange Quadrilateral" },
   { VTK_LAGRANGE_TETRAHEDRON, "Lagrange Tetrahedron" },
   { VTK_LAGRANGE_HEXAHEDRON, "Lagrange Hexahedron" }, { VTK_LAGRANGE_WEDGE, "Lagrange Wedge" },
-  { VTK_LAGRANGE_PYRAMID, "Lagrange Pyramid" }, { VTK_BEZIER_CURVE, "Bezier Curve" },
-  { VTK_BEZIER_TRIANGLE, "Bezier Triangle" }, { VTK_BEZIER_QUADRILATERAL, "Bezier Quadrilateral" },
+  // { VTK_LAGRANGE_PYRAMID, "Lagrange Pyramid" },
+  { VTK_BEZIER_CURVE, "Bezier Curve" }, { VTK_BEZIER_TRIANGLE, "Bezier Triangle" },
+  { VTK_BEZIER_QUADRILATERAL, "Bezier Quadrilateral" },
   { VTK_BEZIER_TETRAHEDRON, "Bezier Tetrahedron" }, { VTK_BEZIER_HEXAHEDRON, "Bezier Hexahedron" },
   { VTK_BEZIER_WEDGE, "Bezier Wedge" }, { VTK_BEZIER_PYRAMID, "Bezier Pyramid" } };
 
