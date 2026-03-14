@@ -48,7 +48,7 @@ public:
   vtkTypeMacro(vtkHigherOrderWedge, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override = 0;
+  int GetCellType() override { return VTK_HIGHER_ORDER_WEDGE; }
   int GetCellDimension() override { return 3; }
   int RequiresInitialization() override { return 1; }
   int GetNumberOfEdges() override { return 9; }
