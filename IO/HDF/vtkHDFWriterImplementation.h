@@ -135,20 +135,20 @@ public:
   vtkHDF::ScopedH5SHandle CreateUnlimitedSimpleDataspace(hsize_t numCols);
 
   /**
-   * Create a group in the given group from a dataspace.
-   * Returned scoped handle may be invalid.
+   * Retrieve group if it exists, create it if needed.
+   * Returned scoped handle may be invalid when group could not be created
    */
   vtkHDF::ScopedH5GHandle CreateHdfGroup(hid_t group, const char* name);
 
   /**
-   * Create a group that keeps track of link creation order
-   * Returned scoped handle may be invalid.
+   * Retrieve or create a group that keeps track of link creation order
+   * Returned scoped handle may be invalid when group could not be created
    */
   vtkHDF::ScopedH5GHandle CreateHdfGroupWithLinkOrder(hid_t group, const char* name);
 
   /**
    * Create a soft link to the real group containing the block dataset.
-   * Return true if the operation succeeded.
+   * Return true if the operation succeeded or if it already exists.
    */
   bool CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
 
