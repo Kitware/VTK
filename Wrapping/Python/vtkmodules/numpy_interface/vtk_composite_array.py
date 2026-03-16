@@ -22,7 +22,7 @@ from ._vtk_array_mixin import (
 
 
 # Registry for __array_function__ overrides
-COMPOSITE_OVERRIDE, _override_composite_numpy = make_override_registry()
+_COMPOSITE_OVERRIDE, _override_composite_numpy = make_override_registry()
 
 
 class VTKCompositeArray(VTKDataArrayMixin):
@@ -197,8 +197,8 @@ class VTKCompositeArray(VTKDataArrayMixin):
 
     def __array_function__(self, func, types, args, kwargs):
         """Dispatch numpy functions with per-sub-array overrides where possible."""
-        if func in COMPOSITE_OVERRIDE:
-            return COMPOSITE_OVERRIDE[func](*args, **kwargs)
+        if func in _COMPOSITE_OVERRIDE:
+            return _COMPOSITE_OVERRIDE[func](*args, **kwargs)
 
         warnings.warn(
             f"numpy.{func.__name__}() is not optimized for "

@@ -22,7 +22,7 @@ from ._vtk_array_mixin import (
 
 
 # Registry for __array_function__ overrides
-AFFINE_OVERRIDE, _override_affine_numpy = make_override_registry()
+_AFFINE_OVERRIDE, _override_affine_numpy = make_override_registry()
 
 
 class VTKAffineArray(VTKDataArrayMixin):
@@ -358,8 +358,8 @@ class VTKAffineArray(VTKDataArrayMixin):
 
     def __array_function__(self, func, types, args, kwargs):
         """Handle numpy functions like sum, min, max, mean with optimized paths."""
-        if func in AFFINE_OVERRIDE:
-            return AFFINE_OVERRIDE[func](*args, **kwargs)
+        if func in _AFFINE_OVERRIDE:
+            return _AFFINE_OVERRIDE[func](*args, **kwargs)
 
         warnings.warn(
             f"numpy.{func.__name__}() is not optimized for "

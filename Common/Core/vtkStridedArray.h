@@ -174,7 +174,7 @@ private:
    * Stored reference to the buffer source, if constructed via the
    * vtkAbstractBuffer overload.  Keeps the buffer memory alive.
    */
-  vtkSmartPointer<vtkAbstractBuffer> BufferSource;
+  vtkSmartPointer<vtkBuffer<ValueType>> BufferSource;
 };
 
 // Declare vtkArrayDownCast implementations for STRIDED arrays:

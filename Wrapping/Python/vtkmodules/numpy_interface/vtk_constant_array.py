@@ -19,7 +19,7 @@ from ._vtk_array_mixin import (
 
 
 # Registry for __array_function__ overrides
-CONSTANT_OVERRIDE, _override_constant_numpy = make_override_registry()
+_CONSTANT_OVERRIDE, _override_constant_numpy = make_override_registry()
 
 
 class VTKConstantArray(VTKDataArrayMixin):
@@ -246,8 +246,8 @@ class VTKConstantArray(VTKDataArrayMixin):
 
     def __array_function__(self, func, types, args, kwargs):
         """Dispatch numpy functions with O(1) overrides where possible."""
-        if func in CONSTANT_OVERRIDE:
-            return CONSTANT_OVERRIDE[func](*args, **kwargs)
+        if func in _CONSTANT_OVERRIDE:
+            return _CONSTANT_OVERRIDE[func](*args, **kwargs)
 
         warnings.warn(
             f"numpy.{func.__name__}() is not optimized for "

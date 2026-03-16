@@ -21,22 +21,22 @@ from ._vtk_array_mixin import VTKDataArrayMixin
 
 
 # Registry for __array_function__ overrides for the dataset-level wrapper
-STRUCTURED_POINT_OVERRIDE = {}
+_STRUCTURED_POINT_OVERRIDE = {}
 
 # Registry for __array_function__ overrides for the VTK mixin
-STRUCTURED_POINT_MIXIN_OVERRIDE = {}
+_STRUCTURED_POINT_MIXIN_OVERRIDE = {}
 
 def _override_mixin_numpy(numpy_function):
     """Register an __array_function__ override for VTKStructuredPointArrayMixin."""
     def decorator(func):
-        STRUCTURED_POINT_MIXIN_OVERRIDE[numpy_function] = func
+        _STRUCTURED_POINT_MIXIN_OVERRIDE[numpy_function] = func
         return func
     return decorator
 
 def _override_structured_point_numpy(numpy_function):
     """Register an __array_function__ implementation for VTKStructuredPointArray."""
     def decorator(func):
-        STRUCTURED_POINT_OVERRIDE[numpy_function] = func
+        _STRUCTURED_POINT_OVERRIDE[numpy_function] = func
         return func
     return decorator
 
@@ -451,8 +451,8 @@ class VTKStructuredPointArray:
 
     def __array_function__(self, func, types, args, kwargs):
         """Handle numpy functions with optimized paths."""
-        if func in STRUCTURED_POINT_OVERRIDE:
-            return STRUCTURED_POINT_OVERRIDE[func](*args, **kwargs)
+        if func in _STRUCTURED_POINT_OVERRIDE:
+            return _STRUCTURED_POINT_OVERRIDE[func](*args, **kwargs)
         new_args = []
         for a in args:
             if isinstance(a, VTKStructuredPointArray):
@@ -727,8 +727,8 @@ class VTKStructuredPointArrayMixin(VTKDataArrayMixin):
         return self._wrap_result(result)
 
     def __array_function__(self, func, types, args, kwargs):
-        if func in STRUCTURED_POINT_MIXIN_OVERRIDE:
-            return STRUCTURED_POINT_MIXIN_OVERRIDE[func](*args, **kwargs)
+        if func in _STRUCTURED_POINT_MIXIN_OVERRIDE:
+            return _STRUCTURED_POINT_MIXIN_OVERRIDE[func](*args, **kwargs)
         new_args = []
         for a in args:
             if isinstance(a, VTKStructuredPointArrayMixin):

@@ -24,7 +24,7 @@ from ._vtk_array_mixin import (
 
 
 # Registry for __array_function__ overrides
-INDEXED_OVERRIDE, _override_indexed_numpy = make_override_registry()
+_INDEXED_OVERRIDE, _override_indexed_numpy = make_override_registry()
 
 
 class VTKIndexedArray(VTKDataArrayMixin):
@@ -211,8 +211,8 @@ class VTKIndexedArray(VTKDataArrayMixin):
 
     def __array_function__(self, func, types, args, kwargs):
         """Dispatch numpy functions via override registry."""
-        if func in INDEXED_OVERRIDE:
-            return INDEXED_OVERRIDE[func](*args, **kwargs)
+        if func in _INDEXED_OVERRIDE:
+            return _INDEXED_OVERRIDE[func](*args, **kwargs)
 
         warnings.warn(
             f"numpy.{func.__name__}() is not optimized for "

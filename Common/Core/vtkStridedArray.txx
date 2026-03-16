@@ -48,7 +48,7 @@ template <class ValueTypeT>
 void vtkStridedArray<ValueTypeT>::ConstructBackend(
   vtkAbstractBuffer* buffer, vtkIdType stride, int components, vtkIdType offset)
 {
-  this->BufferSource = buffer;
+  this->BufferSource = static_cast<vtkBuffer<ValueTypeT>*>(buffer);
   this->SetNumberOfComponents(components);
   vtkIdType bufferSize = buffer->GetNumberOfElements();
   vtkIdType ntuples = (bufferSize - offset - components) / stride + 1;
