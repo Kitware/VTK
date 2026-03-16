@@ -1232,7 +1232,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
   fileNameNum = -10000;
 
   // 'filename numbers: ...'
-  if (subLine == "numbers")
+  if (subLine.substr(0, 7) == "numbers")
   {
     // The filename number(s) may be provided on the line(s) following
     // 'filename numbers:', as is usually the case --- not "inline". Thus we
