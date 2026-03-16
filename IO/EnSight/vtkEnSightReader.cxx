@@ -1420,11 +1420,13 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
     strncmp(line, "VARIABLE", 8) != 0 && strncmp(line, "TIME", 4) != 0 &&
     strncmp(line, "FILE", 4) != 0)
   {
-    vtkIdList* filenameNums = vtkIdList::New();
-    vtkIdList* numSteps = vtkIdList::New();
-    auto resultFileSet =
-      vtk::scan<std::string_view, std::string_view, int>(std::string_view(line), "{:s} {:s} {:d}");
-    int fileSet = std::get<2>(resultFileSet->values());
+    vtkNew<vtkIdList> filenameNums, numSteps;
+    auto resultFileSet = vtk::scan<int>(std::string_view(line), "file set: {:d}");
+    if (!resultFileSet)
+    {
+      break;
+    }
+    int fileSet = resultFileSet->value();
     this->FileSets->InsertNextId(fileSet);
     lineRead = this->ReadNextDataLine(line);
     if (strncmp(line, "filename", 8) == 0)
@@ -1447,17 +1449,14 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
     }
     else
     {
-      auto resultNumSteps = vtk::scan<std::string_view, std::string_view, std::string_view, int>(
-        std::string_view(line), "{:s} {:s} {:s} {:d}");
-      numTimeSteps = std::get<3>(resultNumSteps->values());
+      auto resultNumSteps = vtk::scan<int>(std::string_view(line), "number of steps: {:d}");
+      numTimeSteps = resultNumSteps->value();
+
       numSteps->InsertNextId(numTimeSteps);
       lineRead = this->ReadNextDataLine(line);
     }
 
     this->FileSetNumberOfSteps->AddItem(numSteps);
-
-    filenameNums->Delete();
-    numSteps->Delete();
   }
 
   return lineRead;
