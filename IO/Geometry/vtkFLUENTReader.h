@@ -211,9 +211,6 @@ protected:
   virtual void GetPartitionInfo() {}
   virtual void CleanCells();
   virtual void PopulateCellNodes();
-  virtual int GetCaseBufferInt(int ptr);
-  virtual float GetCaseBufferFloat(int ptr);
-  virtual double GetCaseBufferDouble(int ptr);
   virtual void PopulateTriangleCell(size_t cellIdx);
   virtual void PopulateTetraCell(size_t cellIdx);
   virtual void PopulateQuadCell(size_t cellIdx);
@@ -221,13 +218,17 @@ protected:
   virtual void PopulatePyramidCell(size_t cellIdx);
   virtual void PopulateWedgeCell(size_t cellIdx);
   virtual void PopulatePolyhedronCell(size_t cellIdx);
-  virtual int GetDataBufferInt(int ptr);
-  virtual float GetDataBufferFloat(int ptr);
-  virtual double GetDataBufferDouble(int ptr);
   virtual void GetData(int dataType);
   virtual bool ParallelCheckCell(int vtkNotUsed(i)) { return true; }
 
 private:
+  int GetCaseBufferInt(size_t ptr);
+  float GetCaseBufferFloat(size_t ptr);
+  double GetCaseBufferDouble(size_t ptr);
+  int GetDataBufferInt(size_t ptr);
+  float GetDataBufferFloat(size_t ptr);
+  double GetDataBufferDouble(size_t ptr);
+
   /**
    * Check whether all cell zones are disabled.
    */
