@@ -158,17 +158,14 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // If removing unused points, traverse the connectivity array to mark the
   // points that are used by one or more cells. This requires processing all
   // for input arrays.
-  std::unique_ptr<PointUses[]> uPtUses; // reference counted to prevent leakage
-  PointUses* ptUses = nullptr;
+  std::vector<PointUses> ptUses;
   if (this->RemoveUnusedPoints)
   {
-    uPtUses = std::unique_ptr<PointUses[]>(new PointUses[numPts]);
-    ptUses = uPtUses.get();
-    std::fill_n(ptUses, numPts, 0);
-    vtkStaticCleanUnstructuredGrid::MarkPointUses(inVerts, mergeMap.data(), ptUses);
-    vtkStaticCleanUnstructuredGrid::MarkPointUses(inLines, mergeMap.data(), ptUses);
-    vtkStaticCleanUnstructuredGrid::MarkPointUses(inPolys, mergeMap.data(), ptUses);
-    vtkStaticCleanUnstructuredGrid::MarkPointUses(inStrips, mergeMap.data(), ptUses);
+    ptUses.resize(numPts, 0);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inVerts, mergeMap.data(), ptUses.data());
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inLines, mergeMap.data(), ptUses.data());
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inPolys, mergeMap.data(), ptUses.data());
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inStrips, mergeMap.data(), ptUses.data());
   }
 
   // Create a map that maps old point ids into new, renumbered point
@@ -184,7 +181,7 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Build the map from old points to new points.
   vtkIdType numNewPts =
-    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses, mergeMap);
+    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses.data(), mergeMap);
 
   // Create new points of the appropriate type
   vtkNew<vtkPoints> newPts;

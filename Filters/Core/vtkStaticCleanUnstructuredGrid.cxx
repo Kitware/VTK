@@ -292,17 +292,14 @@ struct UpdateCellArrayConnectivity : public vtkCellArray::DispatchUtilities
   template <class OffsetsT, class ConnectivityT>
   void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* connectivity, vtkIdType* ptMap)
   {
-    vtkIdType numConn = connectivity->GetNumberOfValues();
-    vtkSMPTools::For(0, numConn,
-      [&, ptMap](vtkIdType id, vtkIdType endId)
+    auto connRange = GetRange(connectivity);
+    vtkSMPTools::For(0, connectivity->GetNumberOfValues(),
+      [&](vtkIdType beginId, vtkIdType endId)
       {
-        auto connRange = GetRange(connectivity);
-        for (; id < endId; ++id)
-        {
-          connRange[id] = ptMap[connRange[id]];
-        }
+        std::transform(connRange.begin() + beginId, connRange.begin() + endId,
+          connRange.begin() + beginId, [&ptMap](vtkIdType ptId) { return ptMap[ptId]; });
       }); // end lambda
-  };
+  }
 };
 
 } // anonymous namespace
@@ -421,14 +418,11 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 
   // If removing unused points, traverse the connectivity array to mark the
   // points that are used by one or more cells.
-  std::unique_ptr<PointUses[]> uPtUses; // reference counted to prevent leakage
-  PointUses* ptUses = nullptr;
+  std::vector<PointUses> ptUses;
   if (this->RemoveUnusedPoints)
   {
-    uPtUses = std::unique_ptr<PointUses[]>(new PointUses[numPts]);
-    ptUses = uPtUses.get();
-    std::fill_n(ptUses, numPts, 0);
-    vtkStaticCleanUnstructuredGrid::MarkPointUses(inCells, mergeMap.data(), ptUses);
+    ptUses.resize(numPts, 0);
+    vtkStaticCleanUnstructuredGrid::MarkPointUses(inCells, mergeMap.data(), ptUses.data());
   }
 
   // Create a map that maps old point ids into new, renumbered point
@@ -444,7 +438,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 
   // Build the map from old points to new points.
   vtkIdType numNewPts =
-    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses, mergeMap);
+    vtkStaticCleanUnstructuredGrid::BuildPointMap(numPts, pmap, ptUses.data(), mergeMap);
 
   // Create new points of the appropriate type
   vtkNew<vtkPoints> newPts;
