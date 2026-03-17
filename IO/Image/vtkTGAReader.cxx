@@ -214,6 +214,13 @@ int vtkTGAReader::CanReadFile(vtkResourceStream* stream)
     return 0;
   }
 
+  // only 24 and 32 bits per pixel are supported
+  unsigned char bitsPerPixel = static_cast<unsigned char>(header[16]);
+  if (bitsPerPixel != 24 && bitsPerPixel != 32)
+  {
+    return 0;
+  }
+
   return 1;
 }
 

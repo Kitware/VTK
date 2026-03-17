@@ -30,10 +30,10 @@ public:
   /**
    * Return 1 if, after a quick check of file header, it looks like the provided file or stream
    * can be read as a tga file. Return 0 if it is sure it cannot be read. The stream version may
-   * move the stream cursor. This only checks the header can be read and the second byte of the
-   * header contain either the code for compressed or uncompressed RGB images which are the only
-   * supported formats. Please note any binary data could make this method return 1 if they satisfy
-   * above condition.
+   * move the stream cursor. This checks that the header can be read, byte 2 contains either the
+   * code for compressed or uncompressed RGB images (the only supported formats), and byte 16
+   * (bits per pixel) is 24 or 32. Please note any binary data could make this method return 1
+   * if they satisfy the above conditions.
    */
   int CanReadFile(VTK_FILEPATH const char* fname) override;
   int CanReadFile(vtkResourceStream* stream) override;

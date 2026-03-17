@@ -113,6 +113,11 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestTGAReaderReadFromStream.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.tga}")
 
+# autzen.zip from PDAL Copyright (c) 2025, Hobu, Inc.
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestTGACanReadFileError.cxx,NO_VALID,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/autzen.zip}")
+
 vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestPNGReaderReadFromMemory.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
