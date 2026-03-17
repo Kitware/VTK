@@ -10,6 +10,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringScanner.h"
 
 #include "vtksys/SystemTools.hxx"
 
@@ -20,9 +21,9 @@
 
 int Test3DSImporterStream(int argc, char* argv[])
 {
-  if (argc < 1)
+  if (argc < 3)
   {
-    std::cout << "expected TestName File1.3ds" << std::endl;
+    std::cout << "expected TestName File1.3ds <hierarchy_node_count>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -57,6 +58,15 @@ int Test3DSImporterStream(int argc, char* argv[])
     importer->GetImportedActors()->GetNumberOfItems() < 1)
   {
     std::cout << "failed to get an actor created?!" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkDataAssembly* sceneHierarchy = importer->GetSceneHierarchy();
+
+  if (sceneHierarchy->GetNumberOfChildren(vtkDataAssembly::GetRootNode()) !=
+    vtk::scan_int<int>(argv[2])->value())
+  {
+    std::cout << "expected " << argv[2] << " scene hierarchy nodes" << std::endl;
     return EXIT_FAILURE;
   }
 

@@ -51,6 +51,14 @@ int TestVRMLImporter(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  vtkDataAssembly* sceneHierarchy = importer->GetSceneHierarchy();
+
+  if (sceneHierarchy->GetNumberOfChildren(vtkDataAssembly::GetRootNode()) != 1)
+  {
+    std::cout << "expected a single scene hierarchy node\n";
+    return EXIT_FAILURE;
+  }
+
   // delete the importer and see if it can be run again
   importer->Delete();
 
