@@ -22,6 +22,7 @@ vtkObjectFactoryNewMacro(vtkAggregateDataSetFilter);
 vtkAggregateDataSetFilter::vtkAggregateDataSetFilter()
 {
   this->NumberOfTargetProcesses = 1;
+  this->TargetProcess = vtkAggregateDataSetFilter::PROCESS_WITH_MOST_POINTS;
 }
 
 //------------------------------------------------------------------------------
@@ -122,16 +123,19 @@ int vtkAggregateDataSetFilter::RequestData(
   vtkIdType numPoints = input->GetNumberOfPoints();
   subController->AllGather(&numPoints, pointCount.data(), 1);
 
-  // The first process in the subcontroller to have points is the one that data will
-  // be aggregated to. All the other processes send their data set to that process.
   int receiveProc = 0;
-  vtkIdType maxVal = 0;
-  for (int i = 0; i < subNumProcs; i++)
+  if (this->TargetProcess == vtkAggregateDataSetFilter::PROCESS_WITH_MOST_POINTS)
   {
-    if (pointCount[i] > maxVal)
+    // The first process in the subcontroller to have points is the one that data will
+    // be aggregated to. All the other processes send their data set to that process.
+    vtkIdType maxVal = 0;
+    for (int i = 0; i < subNumProcs; i++)
     {
-      maxVal = pointCount[i];
-      receiveProc = i;
+      if (pointCount[i] > maxVal)
+      {
+        maxVal = pointCount[i];
+        receiveProc = i;
+      }
     }
   }
 
