@@ -35,6 +35,7 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <algorithm>
 #include <optional>
 #include <sstream>
 
@@ -140,7 +141,7 @@ vtkMTimeType vtkFLUENTReader::GetMTime()
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::DisableZones(
-  std::vector<unsigned int>& disabledZones, bool& areAllZonesDisabled)
+  std::unordered_set<unsigned int>& disabledZones, bool& areAllZonesDisabled)
 {
   for (const auto& zoneSection : this->ZoneSections)
   {
@@ -151,7 +152,7 @@ void vtkFLUENTReader::DisableZones(
       (zoneSection.type + ":" + zoneSection.name).c_str());
     if (!isEnabled)
     {
-      disabledZones.push_back(zoneSection.id);
+      disabledZones.insert(zoneSection.id);
       if (position != this->CurrentZoneSections.end())
       {
         this->CurrentZoneSections.erase(position);
@@ -208,7 +209,7 @@ bool vtkFLUENTReader::AreCellsEnabled()
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::InitOutputBlocks(vtkMultiBlockDataSet* output,
-  std::vector<size_t>& zoneIDToBlockIdx,
+  std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   output->SetNumberOfBlocks(static_cast<unsigned int>(this->CurrentZoneSections.size()));
@@ -225,35 +226,7 @@ void vtkFLUENTReader::InitOutputBlocks(vtkMultiBlockDataSet* output,
     output->SetBlock(zoneIdx, blockUG);
     output->GetMetaData(zoneIdx)->Set(vtkCompositeDataSet::NAME(), blockName);
 
-    // Populate lookup map
-    if (zoneSection.id >= zoneIDToBlockIdx.size())
-    {
-      zoneIDToBlockIdx.resize(zoneSection.id + 1);
-    }
     zoneIDToBlockIdx[zoneSection.id] = zoneIdx;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkFLUENTReader::DisableCellsAndFaces(std::vector<unsigned int>& disabledZones)
-{
-  this->CurrentCells.clear();
-  for (Cell& cell : this->Cells)
-  {
-    if (cell.zoneId != 0 &&
-      std::find(disabledZones.begin(), disabledZones.end(), cell.zoneId) == disabledZones.end())
-    {
-      this->CurrentCells.push_back(cell);
-    }
-  }
-  // Fill CurrentFaces with faces from enabled zone sections
-  this->CurrentFaces.clear();
-  for (Face& face : this->Faces)
-  {
-    if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) == disabledZones.end())
-    {
-      this->CurrentFaces.push_back(face);
-    }
   }
 }
 
@@ -278,15 +251,20 @@ void vtkFLUENTReader::GetArraysFromSubSections()
 }
 
 //------------------------------------------------------------------------------
-bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
-  std::vector<size_t>& zoneIDToBlockIdx,
+bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZones,
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
   // In this case, we generate a multiblock using the faces information so we can
   // still display the surface of this mesh.
-  if (this->CurrentCells.empty() && !this->CurrentFaces.empty() &&
-    this->Points->GetNumberOfPoints() > 0)
+  bool noCellEnabled = std::none_of(this->Cells.begin(), this->Cells.end(),
+    [&disabledZones](Cell& cell)
+    { return cell.zoneId != 0 && disabledZones.find(cell.zoneId) == disabledZones.end(); });
+  bool atLeastOneFaceEnabled = std::any_of(this->Faces.begin(), this->Faces.end(),
+    [&disabledZones](Face& face)
+    { return disabledZones.find(face.zoneId) == disabledZones.end(); });
+  if (noCellEnabled && atLeastOneFaceEnabled && this->Points->GetNumberOfPoints() > 0)
   {
     this->FillMultiBlockFromFaces(blockUGs, zoneIDToBlockIdx, disabledZones);
     return true;
@@ -301,12 +279,12 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
   vtkNew<vtkWedge> wedgeBuffer;
   vtkNew<vtkPolyhedron> polyhedronBuffer;
 
-  for (Cell& cell : this->CurrentCells)
+  for (Cell& cell : this->Cells)
   {
     vtkIdList* newCellPointIDs = nullptr;
     int newCellType = -1;
 
-    if (std::find(disabledZones.begin(), disabledZones.end(), cell.zoneId) != disabledZones.end())
+    if (disabledZones.find(cell.zoneId) != disabledZones.end())
     {
       continue;
     }
@@ -385,18 +363,18 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
     }
 
     // Insert main cell
-    size_t blockIdx = zoneIDToBlockIdx[cell.zoneId];
+    size_t blockIdx = zoneIDToBlockIdx.at(cell.zoneId);
     blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
 
     // Insert faces cells
     for (int faceIdx : cell.faceIndices)
     {
       const Face& face = this->Faces[faceIdx];
-      if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) != disabledZones.end())
+      if (disabledZones.find(face.zoneId) != disabledZones.end())
       {
         continue;
       }
-      blockIdx = zoneIDToBlockIdx[face.zoneId];
+      blockIdx = zoneIDToBlockIdx.at(face.zoneId);
       blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
     }
   }
@@ -404,19 +382,18 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::FillMultiblockData(std::vector<unsigned int>& disabledZones,
-  std::vector<size_t>& zoneIDToBlockIdx,
+void vtkFLUENTReader::FillMultiblockData(std::unordered_set<unsigned int>& disabledZones,
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   // Scalar Data
   for (const ScalarDataChunk& dataChunk : this->ScalarDataChunks)
   {
-    if (std::find(disabledZones.begin(), disabledZones.end(), dataChunk.zoneSectionId) !=
-      disabledZones.end())
+    if (disabledZones.find(dataChunk.zoneSectionId) != disabledZones.end())
     {
       continue;
     }
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneSectionId];
+    size_t blockIdx = zoneIDToBlockIdx.at(dataChunk.zoneSectionId);
     if (blockUGs[blockIdx]->GetNumberOfCells() == 0)
     {
       continue;
@@ -434,12 +411,11 @@ void vtkFLUENTReader::FillMultiblockData(std::vector<unsigned int>& disabledZone
   // Vector Data
   for (const VectorDataChunk& dataChunk : this->VectorDataChunks)
   {
-    if (std::find(disabledZones.begin(), disabledZones.end(), dataChunk.zoneSectionId) !=
-      disabledZones.end())
+    if (disabledZones.find(dataChunk.zoneSectionId) != disabledZones.end())
     {
       continue;
     }
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneSectionId];
+    size_t blockIdx = zoneIDToBlockIdx.at(dataChunk.zoneSectionId);
     if (blockUGs[blockIdx]->GetNumberOfCells() == 0)
     {
       continue;
@@ -467,7 +443,7 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
-  std::vector<unsigned int> disabledZones;
+  std::unordered_set<unsigned int> disabledZones;
   bool areAllZonesDisabled = true;
   this->DisableZones(disabledZones, areAllZonesDisabled);
 
@@ -498,14 +474,12 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->GetArraysFromSubSections();
 
   // zone ID -> block idx lookup map
-  std::vector<size_t> zoneIDToBlockIdx(this->CurrentZoneSections.size());
+  std::map<unsigned int, size_t> zoneIDToBlockIdx;
 
   // fast access to block UGs to avoid unnecessary SafeDowncast while looping over cells/faces
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>> blockUGs(this->CurrentZoneSections.size());
 
   this->InitOutputBlocks(output, zoneIDToBlockIdx, blockUGs);
-
-  this->DisableCellsAndFaces(disabledZones);
 
   this->FillMultiblock(disabledZones, zoneIDToBlockIdx, blockUGs);
 
@@ -515,8 +489,6 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->IsFilePreParsed = false;
     this->Cells.clear();
-    this->CurrentCells.clear();
-    this->CurrentFaces.clear();
     this->CurrentZoneSections.clear();
     this->DataZones.clear();
     this->Faces.clear();
@@ -4712,21 +4684,23 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::FillMultiBlockFromFaces(
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
-  const std::vector<size_t>& zoneIDToBlockIdx, std::vector<unsigned int> disabledZones)
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
+  std::unordered_set<unsigned int>& disabledZones)
 {
   vtkNew<vtkLine> lineBuffer;
   vtkNew<vtkTriangle> triangleBuffer;
   vtkNew<vtkTetra> tetraBuffer;
-  for (size_t i = 0; i < this->CurrentFaces.size(); ++i)
+  for (size_t i = 0; i < this->Faces.size(); ++i)
   {
-    auto& face = this->CurrentFaces[i];
-    auto blockIdx = zoneIDToBlockIdx[face.zoneId];
-    auto& blockUG = blockUGs[blockIdx];
-
-    if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) != disabledZones.end())
+    auto& face = this->Faces[i];
+    if (disabledZones.find(face.zoneId) != disabledZones.end() ||
+      !(face.type == 2 || face.type == 3 || face.type == 4))
     {
       continue;
     }
+
+    auto blockIdx = zoneIDToBlockIdx.at(face.zoneId);
+    auto& blockUG = blockUGs[blockIdx];
 
     if (face.type == 2)
     {
@@ -4737,8 +4711,7 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
 
       blockUG->InsertNextCell(lineBuffer->GetCellType(), lineBuffer->GetPointIds());
     }
-
-    if (face.type == 3)
+    else if (face.type == 3)
     {
       for (int j = 0; j < 3; j++)
       {
@@ -4747,7 +4720,6 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
 
       blockUG->InsertNextCell(triangleBuffer->GetCellType(), triangleBuffer->GetPointIds());
     }
-
     else if (face.type == 4)
     {
       for (int j = 0; j < 4; j++)

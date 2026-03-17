@@ -41,8 +41,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // For vtkNew
 
-#include <set>
-#include <unordered_map>
+#include <map>
+#include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
@@ -234,24 +234,20 @@ private:
    */
   bool AreCellsEnabled();
   /**
-   * Fill CurrentCells/CurrentFaces with cells/faces from enabled zone sections.
-   */
-  void DisableCellsAndFaces(std::vector<unsigned int>& disabledZones);
-  /**
    * Disable the zones that belong to disabled zone sections.
    */
-  void DisableZones(std::vector<unsigned int>& disabledZones, bool& areAllZonesDisabled);
+  void DisableZones(std::unordered_set<unsigned int>& disabledZones, bool& areAllZonesDisabled);
   /**
    * Fill output multiblock with cells
    */
-  bool FillMultiblock(std::vector<unsigned int>& disabledZones,
-    std::vector<size_t>& zoneIDToBlockIdx,
+  bool FillMultiblock(std::unordered_set<unsigned int>& disabledZones,
+    const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
     std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
   /**
    * Fill output multiblock with data scalars and vectors
    */
-  void FillMultiblockData(std::vector<unsigned int>& disabledZones,
-    std::vector<size_t>& zoneIDToBlockIdx,
+  void FillMultiblockData(std::unordered_set<unsigned int>& disabledZones,
+    const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
     std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
   /**
    * Get arrays from SubSections.
@@ -260,7 +256,8 @@ private:
   /**
    * Create a block per zone section.
    */
-  void InitOutputBlocks(vtkMultiBlockDataSet* output, std::vector<size_t>& zoneIDToBlockIdx,
+  void InitOutputBlocks(vtkMultiBlockDataSet* output,
+    std::map<unsigned int, size_t>& zoneIDToBlockIdx,
     std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
   /**
    * Parse the data zone according to its index.
@@ -325,10 +322,11 @@ private:
    *
    * @param blockUGs per-bloc unstructured grid objects
    * @param zoneIDToBlockIdx Lookup map used to convert zone ID to block index.
-   * @param disabledZones List of disabled zone ids
+   * @param disabledZones Set of disabled zone ids
    */
   void FillMultiBlockFromFaces(std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
-    const std::vector<size_t>& zoneIDToBlockIdx, std::vector<unsigned int> disabledZones);
+    const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
+    std::unordered_set<unsigned int>& disabledZones);
 
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
@@ -369,8 +367,6 @@ private:
 
   std::vector<Zone> Zones;
   std::vector<Zone> DataZones;
-  std::vector<Cell> CurrentCells;
-  std::vector<Face> CurrentFaces;
   std::vector<ZoneSection> CurrentZoneSections;
 
   bool IsFilePreParsed = false;
