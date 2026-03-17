@@ -340,6 +340,16 @@ private:
   vtkGeometryFilterDispatcher(const vtkGeometryFilterDispatcher&) = delete;
   void operator=(const vtkGeometryFilterDispatcher&) = delete;
 
+  /**
+   * Add vtkBlockColors and vtkCompositeIndex arrays to output vtkDataObjectTrees.
+   * The realInput is needed to get the correct flat index when the input has been
+   * converted to a vtkPartitionedDataSetCollection.
+   */
+  void AddDataObjectTreeArrays(vtkDataObjectTree* realInput, vtkDataObjectTree* output);
+
+  /**
+   * Adds a point and cell data array called "vtkCompositeIndex" to a vtkPolyData.
+   */
   void AddCompositeIndex(vtkPolyData* pd, unsigned int index);
   ///@{
   /**

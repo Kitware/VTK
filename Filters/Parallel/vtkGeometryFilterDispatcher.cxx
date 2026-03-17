@@ -479,6 +479,13 @@ bool vtkGeometryFilterDispatcher::UseCacheIfPossible(vtkDataObject* input, vtkDa
   {
     this->MeshCache->CopyCacheToDataObject(output);
     ::CleanupTemporaryOriginalIds(output);
+
+    auto inputTree = vtkDataObjectTree::SafeDownCast(input);
+    auto outputTree = vtkDataObjectTree::SafeDownCast(output);
+    if (inputTree && outputTree)
+    {
+      this->AddDataObjectTreeArrays(inputTree, outputTree);
+    }
     return true;
   }
 
@@ -880,12 +887,6 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
 
   vtkTimerLog::MarkStartEvent("vtkGeometryFilterDispatcher::ExecuteCompositeDataSet");
 
-  // An iterator to traverse the real input data is needed to get the correct flat index
-  // when the real input has been converted to a vtkPartitionedDataSetCollection.
-  auto realInput = vtkDataObjectTree::GetData(inputVector[0], 0);
-  auto realInIter = vtk::TakeSmartPointer(realInput->NewTreeIterator());
-  realInIter->VisitOnlyLeavesOn();
-  realInIter->SkipEmptyNodesOn();
   auto inIter = vtk::TakeSmartPointer(input->NewTreeIterator());
   inIter->VisitOnlyLeavesOn();
   inIter->SkipEmptyNodesOn();
@@ -900,9 +901,7 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
   int* wholeExtent =
     vtkStreamingDemandDrivenPipeline::GetWholeExtent(inputVector[0]->GetInformationObject(0));
   int numInputs = 0;
-  for (inIter->InitTraversal(), realInIter->InitTraversal();
-       !inIter->IsDoneWithTraversal() && !realInIter->IsDoneWithTraversal();
-       inIter->GoToNextItem(), realInIter->GoToNextItem())
+  for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
   {
     vtkDataObject* block = inIter->GetCurrentDataObject();
     if (!block)
@@ -925,7 +924,6 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
     if (tmpOut->GetNumberOfPoints() > 0)
     {
       output->SetDataSet(inIter, tmpOut);
-      this->AddCompositeIndex(tmpOut, realInIter->GetCurrentFlatIndex());
     }
     this->UpdateProgress(static_cast<float>(++numInputs) / totalNumberOfBlocks);
   }
@@ -973,13 +971,55 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
           reduced_non_null_leaves[index] != 0)
         {
           vtkNew<vtkPolyData> trivalInput;
-          this->AddCompositeIndex(trivalInput, index);
           output->SetDataSet(outIter, trivalInput);
         }
       }
     }
   }
 
+  auto realInput = vtkDataObjectTree::GetData(inputVector[0], 0);
+  this->AddDataObjectTreeArrays(realInput, output);
+
+  vtkTimerLog::MarkEndEvent("vtkGeometryFilterDispatcher::RequestDataObjectTree");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryFilterDispatcher::AddDataObjectTreeArrays(
+  vtkDataObjectTree* realInput, vtkDataObjectTree* output)
+{
+  if (!output)
+  {
+    // Nothing to do.
+    return;
+  }
+
+  // 1. Add vtkCompositeIndex arrays
+
+  // An iterator to traverse the real input data is needed to get the correct flat index
+  // when the real input has been converted to a vtkPartitionedDataSetCollection.
+  auto realInIter = vtk::TakeSmartPointer(realInput->NewTreeIterator());
+  realInIter->VisitOnlyLeavesOn();
+  realInIter->SkipEmptyNodesOff();
+  auto outIter = vtk::TakeSmartPointer(output->NewTreeIterator());
+  outIter->VisitOnlyLeavesOn();
+  outIter->SkipEmptyNodesOff();
+
+  for (realInIter->InitTraversal(), outIter->InitTraversal(); !realInIter->IsDoneWithTraversal();
+       realInIter->GoToNextItem(), outIter->GoToNextItem())
+  {
+    vtkDataObject* block = realInIter->GetCurrentDataObject();
+    if (!block)
+    {
+      continue;
+    }
+    if (auto pd = vtkPolyData::SafeDownCast(outIter->GetCurrentDataObject()))
+    {
+      this->AddCompositeIndex(pd, realInIter->GetCurrentFlatIndex());
+    }
+  }
+
+  // 2. Add vtkBlockColors array
   unsigned int block_id = 0;
   if (auto outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(output))
   {
@@ -996,7 +1036,7 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
   else // vtkMultiBlockDataSet
   {
     // At this point, all ranks have consistent tree structure with leaf nodes non-nullptr
-    // at exactly same locations. This is a good point to assign block colors.
+    // at exactly the same locations
     outIter->SkipEmptyNodesOff();
     outIter->VisitOnlyLeavesOff();
     for (outIter->InitTraversal(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
@@ -1032,9 +1072,6 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
     // Add block colors to root-node's field data to keep it from being flagged as partial.
     this->AddBlockColors(output, 0);
   }
-
-  vtkTimerLog::MarkEndEvent("vtkGeometryFilterDispatcher::RequestDataObjectTree");
-  return 1;
 }
 
 //----------------------------------------------------------------------------
