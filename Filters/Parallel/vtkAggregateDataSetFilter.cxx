@@ -32,8 +32,9 @@ void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)
 {
   if (tp != this->NumberOfTargetProcesses)
   {
-    int numProcs = vtkMultiProcessController::GetGlobalController()->GetNumberOfProcesses();
-    if (tp > 0 && tp <= numProcs)
+    const int numberOfProcesses =
+      vtkMultiProcessController::GetGlobalController()->GetNumberOfProcesses();
+    if (tp > 0 && tp <= numberOfProcesses)
     {
       this->NumberOfTargetProcesses = tp;
       this->Modified();
@@ -43,9 +44,9 @@ void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)
       this->NumberOfTargetProcesses = 1;
       this->Modified();
     }
-    else if (tp > numProcs && this->NumberOfTargetProcesses != numProcs)
+    else if (tp > numberOfProcesses && this->NumberOfTargetProcesses != numberOfProcesses)
     {
-      this->NumberOfTargetProcesses = numProcs;
+      this->NumberOfTargetProcesses = numberOfProcesses;
       this->Modified();
     }
   }
@@ -71,16 +72,16 @@ int vtkAggregateDataSetFilter::RequestData(
   {
     input = vtkDataSet::GetData(inputVector[0], 0);
   }
+  if (!input)
+  {
+    return 1;
+  }
 
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-
-  int numberOfProcesses = controller->GetNumberOfProcesses();
+  const int numberOfProcesses = controller->GetNumberOfProcesses();
   if (numberOfProcesses == this->NumberOfTargetProcesses)
   {
-    if (input)
-    {
-      output->ShallowCopy(input);
-    }
+    output->ShallowCopy(input);
     return 1;
   }
 
@@ -102,13 +103,14 @@ int vtkAggregateDataSetFilter::RequestData(
   }
   else
   {
-    int localProcessId = controller->GetLocalProcessId();
-    int numberOfProcessesPerGroup = numberOfProcesses / this->NumberOfTargetProcesses;
+    // group processes in round robin-fashion
+    const int localProcessId = controller->GetLocalProcessId();
+    const auto divResult = std::div(numberOfProcesses, this->NumberOfTargetProcesses);
+    const int numberOfProcessesPerGroup = divResult.quot;
     int localColor = localProcessId / numberOfProcessesPerGroup;
-    if (numberOfProcesses % this->NumberOfTargetProcesses)
+    if (divResult.rem)
     {
-      double d = 1. * numberOfProcesses / this->NumberOfTargetProcesses;
-      localColor = int(localProcessId / d);
+      localColor = static_cast<int>(localProcessId / (1.0 * numberOfProcessesPerGroup));
     }
     subController.TakeReference(controller->PartitionController(localColor, 0));
   }
@@ -121,7 +123,7 @@ int vtkAggregateDataSetFilter::RequestData(
   subController->AllGather(&numPoints, pointCount.data(), 1);
 
   // The first process in the subcontroller to have points is the one that data will
-  // be aggregated to. All of the other processes send their data set to that process.
+  // be aggregated to. All the other processes send their data set to that process.
   int receiveProc = 0;
   vtkIdType maxVal = 0;
   for (int i = 0; i < subNumProcs; i++)
@@ -162,10 +164,9 @@ int vtkAggregateDataSetFilter::RequestData(
     else if (input->IsA("vtkPolyData"))
     {
       vtkNew<vtkAppendPolyData> appendFilter;
-      for (std::vector<vtkSmartPointer<vtkDataObject>>::iterator it = recvBuffer.begin();
-           it != recvBuffer.end(); ++it)
+      for (const vtkSmartPointer<vtkDataObject>& dObj : recvBuffer)
       {
-        appendFilter->AddInputData(vtkPolyData::SafeDownCast(*it));
+        appendFilter->AddInputData(vtkPolyData::SafeDownCast(dObj));
       }
       appendFilter->Update();
       output->ShallowCopy(appendFilter->GetOutput());
@@ -174,10 +175,9 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->SetMergePoints(this->MergePoints);
-      for (std::vector<vtkSmartPointer<vtkDataObject>>::iterator it = recvBuffer.begin();
-           it != recvBuffer.end(); ++it)
+      for (const vtkSmartPointer<vtkDataObject>& dObj : recvBuffer)
       {
-        appendFilter->AddInputData(*it);
+        appendFilter->AddInputData(dObj);
       }
       appendFilter->Update();
       output->ShallowCopy(appendFilter->GetOutput());
