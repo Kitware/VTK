@@ -72,6 +72,8 @@ vtkIOSSReader::vtkIOSSReader()
   this->SetController(vtkMultiProcessController::GetGlobalController());
   // default - treat numeric suffixes as separate vtk data arrays.
   this->AddProperty("IGNORE_REALN_FIELDS", "on");
+  // default - treat x, y, z scalars as components of vector arrays
+  this->AddProperty("ENABLE_FIELD_RECOGNITION", "on");
   // default - empty field suffix separators, fieldX, fieldY, fieldZ are recognized
   this->AddProperty("FIELD_SUFFIX_SEPARATOR", "");
 }
@@ -138,7 +140,6 @@ bool vtkIOSSReader::GetGroupAlphabeticVectorFieldComponents()
 //----------------------------------------------------------------------------
 void vtkIOSSReader::SetFieldSuffixSeparator(const char* value)
 {
-  vtkDebugMacro("Setting FIELD_SUFFIX_SEPARATOR " << (value ? "on" : "off"));
   this->AddProperty("FIELD_SUFFIX_SEPARATOR", value);
 }
 
