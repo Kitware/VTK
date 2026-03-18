@@ -104,14 +104,13 @@ protected:
 
   bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkDataSetAttributes* dsa);
 
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;
   void operator=(const vtkOBJWriter&) = delete;
 
-  char* FileName;
-  char* TextureFileName;
+  char* FileName{ nullptr };
+  char* TextureFileName{ nullptr };
 
   std::string ColorArrayName{};
   bool WriteColorArray{ false };

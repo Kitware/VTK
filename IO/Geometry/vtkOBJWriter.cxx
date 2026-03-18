@@ -81,6 +81,31 @@ struct EndIndex
   // for that material
   vtkIdType PointEndIndex;
 };
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* GetColorArray(vtkOBJWriter* writer, vtkDataSetAttributes* dsa)
+{
+  if (!writer->GetWriteColorArray())
+  {
+    return nullptr;
+  }
+  else // we will color based on data
+  {
+    if (writer->GetColorArrayName().empty())
+    {
+      return nullptr;
+    }
+    if (vtkUnsignedCharArray* colorArray =
+          vtkArrayDownCast<vtkUnsignedCharArray>(dsa->GetArray(writer->GetColorArrayName().data()));
+        colorArray != nullptr)
+    {
+      int numComp = colorArray->GetNumberOfComponents();
+      return (numComp == 3 || numComp == 4) ? colorArray : nullptr;
+    }
+    return nullptr;
+  }
+}
+
 //----------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
   vtkUnsignedCharArray* pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
@@ -189,8 +214,6 @@ vtkStandardNewMacro(vtkOBJWriter);
 //------------------------------------------------------------------------------
 vtkOBJWriter::vtkOBJWriter()
 {
-  this->FileName = nullptr;
-  this->TextureFileName = nullptr;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -314,7 +337,7 @@ bool vtkOBJWriter::WriteDataAndReturn()
     }
   }
 
-  vtkSmartPointer<vtkUnsignedCharArray> pointColors = this->GetColors(input->GetPointData());
+  vtkUnsignedCharArray* pointColors = GetColorArray(this, input->GetPointData());
 
   std::vector<EndIndex> endIndexes;
   ::WritePoints(f, pts, normals, pointColors, tcoordsArray, &endIndexes);
@@ -451,30 +474,6 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
     return 1;
   }
   return 0;
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkUnsignedCharArray> vtkOBJWriter::GetColors(vtkDataSetAttributes* dsa)
-{
-  if (!this->WriteColorArray)
-  {
-    return nullptr;
-  }
-  else // we will color based on data
-  {
-    if (this->ColorArrayName.empty())
-    {
-      return nullptr;
-    }
-    if (vtkUnsignedCharArray* colorArray =
-          vtkArrayDownCast<vtkUnsignedCharArray>(dsa->GetArray(this->ColorArrayName.data()));
-        colorArray != nullptr)
-    {
-      int numComp = colorArray->GetNumberOfComponents();
-      return (numComp == 3 || numComp == 4) ? colorArray : nullptr;
-    }
-    return nullptr;
-  }
 }
 
 VTK_ABI_NAMESPACE_END
