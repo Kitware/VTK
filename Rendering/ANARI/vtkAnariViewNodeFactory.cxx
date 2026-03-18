@@ -16,6 +16,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+namespace
+{
+
 vtkViewNode* ren_maker()
 {
   vtkAnariSceneGraph* vn = vtkAnariSceneGraph::New();
@@ -75,6 +78,8 @@ vtkViewNode* fol_maker()
   vtkAnariFollowerNode* vn = vtkAnariFollowerNode::New();
   return vn;
 }
+
+} // end anonymous namespace
 
 //============================================================================
 vtkStandardNewMacro(vtkAnariViewNodeFactory);
