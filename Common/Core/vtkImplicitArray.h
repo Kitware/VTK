@@ -226,6 +226,7 @@ public:
     this->Modified();
   }
   std::shared_ptr<BackendT> GetBackend() { return this->Backend; }
+  bool IsBackendConstructed() const { return this->Backend != nullptr; }
   ///@}
 
   /**

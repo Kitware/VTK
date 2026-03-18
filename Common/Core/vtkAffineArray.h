@@ -84,6 +84,14 @@ public:
     return const_cast<vtkAffineArray<ValueType>*>(this)->GetBackend()->Intercept;
   }
 
+  /**
+   * Check whether the backend has been constructed.
+   */
+  bool IsBackendConstructed() const
+  {
+    return const_cast<vtkAffineArray<ValueType>*>(this)->GetBackend() != nullptr;
+  }
+
 protected:
   vtkAffineArray() = default;
   ~vtkAffineArray() override = default;
@@ -105,7 +113,8 @@ VTK_ABI_NAMESPACE_END
   vtkCreateImplicitWrappedArrayInterface(T);                                                       \
   void ConstructBackend(T slope, T intercept);                                                     \
   T GetSlope() const;                                                                              \
-  T GetIntercept() const;
+  T GetIntercept() const;                                                                          \
+  bool IsBackendConstructed() const;
 
 #endif // vtkAffineArray_h
 
