@@ -63,6 +63,8 @@ typedef struct
   int HasGetter;
   int HasSetter;
   int HasMultiSetter;
+  int HasAddSetter;      /* for Add/RemoveAll sequence properties */
+  const char* AddSuffix; /* e.g. "Light" for AddLight (singular form) */
 } GetSetDefInfo;
 
 /* Returns a new zero-filled GetSetDefInfo, increments the count.
@@ -169,6 +171,59 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     }
   }
 
+  /* Second pass: find Add/RemoveAll pairs and attach as sequence setters.
+   * For each Add method whose property also has RemoveAll, find the
+   * matching getter property (plural name) and attach the setter. */
+  for (i = 0; i < classInfo->NumberOfFunctions; ++i)
+  {
+    int propIdx, k;
+    PropertyInfo* prop;
+    const char* addSuffix;
+    const char* removeAllSuffix;
+
+    theFunc = classInfo->Functions[i];
+    if (!vtkWrapPython_IsWrappable(classInfo, theFunc, hinfo))
+    {
+      continue;
+    }
+    if (!properties->MethodHasProperty[i])
+    {
+      continue;
+    }
+    /* Only process Add methods (single-argument) */
+    if (properties->MethodTypes[i] != VTK_METHOD_ADD &&
+      properties->MethodTypes[i] != VTK_METHOD_ADD_NODISCARD)
+    {
+      continue;
+    }
+    /* Check if the property also has a RemoveAll method */
+    propIdx = properties->MethodProperties[i];
+    prop = properties->Properties[propIdx];
+    if (!(prop->PublicMethods & VTK_METHOD_REMOVE_ALL))
+    {
+      continue;
+    }
+    /* Find the RemoveAll method in the same property to get the plural name */
+    addSuffix = &theFunc->Name[3]; /* e.g. "Light" from "AddLight" */
+    for (k = 0; k < classInfo->NumberOfFunctions; ++k)
+    {
+      if (properties->MethodHasProperty[k] && properties->MethodProperties[k] == propIdx &&
+        properties->MethodTypes[k] == VTK_METHOD_REMOVE_ALL &&
+        vtkWrapPython_IsWrappable(classInfo, classInfo->Functions[k], hinfo))
+      {
+        removeAllSuffix = &classInfo->Functions[k]->Name[9]; /* e.g. "Lights" */
+        /* Look for existing getter property with this plural name */
+        getSetInfo = vtkWrapPython_FindGetSet(removeAllSuffix, &getSetsInfo, &propCount);
+        if (!getSetInfo->HasSetter && !getSetInfo->HasMultiSetter)
+        {
+          getSetInfo->HasAddSetter = 1;
+          getSetInfo->AddSuffix = addSuffix;
+        }
+        break;
+      }
+    }
+  }
+
   if (propCount > 0)
   {
     /* generate a table of the class getter/setter methods */
@@ -176,20 +231,46 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
 
     for (j = 0; j < propCount; ++j)
     {
+      const char* getter;
+      const char* setter;
+      const char* adder;
+      char getterBuf[256];
+      char setterBuf[256];
+      char adderBuf[256];
+
       getSetInfo = getSetsInfo[j];
-      if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
+
+      if (getSetInfo->HasGetter)
       {
-        fprintf(fp, "  { Py%s_Get%s, nullptr },\n", classname, getSetInfo->Name);
-      }
-      else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
-      {
-        fprintf(fp, "  { nullptr, Py%s_Set%s },\n", classname, getSetInfo->Name);
+        snprintf(getterBuf, sizeof(getterBuf), "Py%s_Get%s", classname, getSetInfo->Name);
+        getter = getterBuf;
       }
       else
       {
-        fprintf(fp, "  { Py%s_Get%s, Py%s_Set%s },\n", classname, getSetInfo->Name, classname,
-          getSetInfo->Name);
+        getter = "nullptr";
       }
+
+      if (getSetInfo->HasAddSetter)
+      {
+        /* For Add/RemoveAll: set=RemoveAll, add=Add */
+        snprintf(setterBuf, sizeof(setterBuf), "Py%s_RemoveAll%s", classname, getSetInfo->Name);
+        setter = setterBuf;
+        snprintf(adderBuf, sizeof(adderBuf), "Py%s_Add%s", classname, getSetInfo->AddSuffix);
+        adder = adderBuf;
+      }
+      else if (getSetInfo->HasSetter)
+      {
+        snprintf(setterBuf, sizeof(setterBuf), "Py%s_Set%s", classname, getSetInfo->Name);
+        setter = setterBuf;
+        adder = "nullptr";
+      }
+      else
+      {
+        setter = "nullptr";
+        adder = "nullptr";
+      }
+
+      fprintf(fp, "  { %s, %s, %s },\n", getter, setter, adder);
     }
 
     fprintf(fp, "};\n\n");
@@ -233,7 +314,11 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     {
       fprintf(fp, "    nullptr, // get\n");
     }
-    if (getSetInfo->HasMultiSetter)
+    if (getSetInfo->HasAddSetter)
+    {
+      fprintf(fp, "    PyVTKObject_SetPropertySequence, // set\n");
+    }
+    else if (getSetInfo->HasMultiSetter)
     {
       fprintf(fp, "    PyVTKObject_SetPropertyMulti, // set\n");
     }
@@ -247,7 +332,17 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     }
 
     /* Define the doc string */
-    if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
+    if (getSetInfo->HasAddSetter && getSetInfo->HasGetter)
+    {
+      fprintf(fp, "    pystr(\"read-write, calls Get%s/Add%s/RemoveAll%s\\n\"), // doc\n",
+        getSetInfo->Name, getSetInfo->AddSuffix, getSetInfo->Name);
+    }
+    else if (getSetInfo->HasAddSetter && !getSetInfo->HasGetter)
+    {
+      fprintf(fp, "    pystr(\"write-only, calls Add%s/RemoveAll%s\\n\"), // doc\n",
+        getSetInfo->AddSuffix, getSetInfo->Name);
+    }
+    else if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
     {
       fprintf(fp, "    pystr(\"read-only, calls Get%s\\n\"), // doc\n", getSetInfo->Name);
     }

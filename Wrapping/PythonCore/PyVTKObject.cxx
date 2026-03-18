@@ -20,6 +20,7 @@
 #include "PyVTKMethodDescriptor.h"
 #include "vtkABINamespace.h"
 #include "vtkAbstractBuffer.h"
+#include "vtkCollection.h"
 #include "vtkDataArray.h"
 #include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
@@ -181,6 +182,124 @@ static PyMethodDef PyVTKClass_override_def = { "override", PyVTKClass_override, 
   "convenience functionality.\n" };
 
 //------------------------------------------------------------------------------
+// Pythonic methods for vtkCollection (append, insert, remove, clear).
+// Defined here so they are available to PyVTKClass_Add below.
+//------------------------------------------------------------------------------
+
+static PyObject* PyVTKCollection_Append(PyObject* self, PyObject* args)
+{
+  PyObject* obj;
+  if (!PyArg_ParseTuple(args, "O", &obj))
+  {
+    return nullptr;
+  }
+
+  if (!PyVTKObject_Check(obj))
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a VTK object");
+    return nullptr;
+  }
+
+  vtkCollection* coll = vtkCollection::SafeDownCast(((PyVTKObject*)self)->vtk_ptr);
+  vtkObject* item = vtkObject::SafeDownCast(((PyVTKObject*)obj)->vtk_ptr);
+  if (!item)
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a vtkObject");
+    return nullptr;
+  }
+
+  coll->AddItem(item);
+  Py_RETURN_NONE;
+}
+
+static PyObject* PyVTKCollection_Insert(PyObject* self, PyObject* args)
+{
+  int index;
+  PyObject* obj;
+  if (!PyArg_ParseTuple(args, "iO", &index, &obj))
+  {
+    return nullptr;
+  }
+
+  if (!PyVTKObject_Check(obj))
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a VTK object");
+    return nullptr;
+  }
+
+  vtkCollection* coll = vtkCollection::SafeDownCast(((PyVTKObject*)self)->vtk_ptr);
+  vtkObject* item = vtkObject::SafeDownCast(((PyVTKObject*)obj)->vtk_ptr);
+  if (!item)
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a vtkObject");
+    return nullptr;
+  }
+
+  // Python's list.insert(i, x) inserts before position i.
+  // vtkCollection::InsertItem(i, x) inserts after position i.
+  // Map: insert(i, x) -> InsertItem(i-1, x), with i >= n -> AddItem.
+  int n = coll->GetNumberOfItems();
+  if (index < 0)
+  {
+    index += n;
+  }
+  if (index <= 0)
+  {
+    coll->InsertItem(-1, item);
+  }
+  else if (index >= n)
+  {
+    coll->AddItem(item);
+  }
+  else
+  {
+    coll->InsertItem(index - 1, item);
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject* PyVTKCollection_Remove(PyObject* self, PyObject* args)
+{
+  PyObject* obj;
+  if (!PyArg_ParseTuple(args, "O", &obj))
+  {
+    return nullptr;
+  }
+
+  if (!PyVTKObject_Check(obj))
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a VTK object");
+    return nullptr;
+  }
+
+  vtkCollection* coll = vtkCollection::SafeDownCast(((PyVTKObject*)self)->vtk_ptr);
+  vtkObject* item = vtkObject::SafeDownCast(((PyVTKObject*)obj)->vtk_ptr);
+  if (!item)
+  {
+    PyErr_SetString(PyExc_TypeError, "argument must be a vtkObject");
+    return nullptr;
+  }
+
+  coll->RemoveItem(item);
+  Py_RETURN_NONE;
+}
+
+static PyObject* PyVTKCollection_Clear(PyObject* self, PyObject* /*args*/)
+{
+  vtkCollection* coll = vtkCollection::SafeDownCast(((PyVTKObject*)self)->vtk_ptr);
+  coll->RemoveAllItems();
+  Py_RETURN_NONE;
+}
+
+static PyMethodDef PyVTKCollection_Methods[] = {
+  { "append", PyVTKCollection_Append, METH_VARARGS, "Append an item to the collection." },
+  { "insert", PyVTKCollection_Insert, METH_VARARGS, "Insert an item at a given index." },
+  { "remove", PyVTKCollection_Remove, METH_VARARGS, "Remove the first occurrence of an item." },
+  { "clear", PyVTKCollection_Clear, METH_NOARGS, "Remove all items from the collection." },
+  { nullptr, nullptr, 0, nullptr },
+};
+
+//------------------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
 PyTypeObject* PyVTKClass_Add(
@@ -225,6 +344,17 @@ PyTypeObject* PyVTKClass_Add(
     PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
     Py_DECREF(func);
   }
+
+  // Add Pythonic methods to vtkCollection (inherited by all subclasses)
+  if (strcmp(classname, "vtkCollection") == 0)
+  {
+    for (PyMethodDef* meth = PyVTKCollection_Methods; meth->ml_name; meth++)
+    {
+      PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
+      PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+      Py_DECREF(func);
+    }
+  }
   return pytype;
 }
 
@@ -262,8 +392,10 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
           getset->set = superGetSet->set;
           if (getset->closure)
           {
-            static_cast<PyVTKGetSet*>(getset->closure)->set =
-              static_cast<PyVTKGetSet*>(superGetSet->closure)->set;
+            auto* subClosure = static_cast<PyVTKGetSet*>(getset->closure);
+            auto* superClosure = static_cast<PyVTKGetSet*>(superGetSet->closure);
+            subClosure->set = superClosure->set;
+            subClosure->add = superClosure->add;
           }
         }
         Py_DECREF(key);
@@ -479,6 +611,50 @@ int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods)
     return -1;
   }
   Py_DECREF(result);
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Setter for Add/RemoveAll sequence properties (e.g. renderer.lights = [l1, l2])
+
+int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods)
+{
+  PyVTKGetSet* getset = static_cast<PyVTKGetSet*>(methods);
+
+  // First call RemoveAll (stored in 'set') with no arguments
+  PyObject* emptyArgs = PyTuple_New(0);
+  PyObject* result = getset->set(op, emptyArgs);
+  Py_DECREF(emptyArgs);
+  if (result == nullptr)
+  {
+    return -1;
+  }
+  Py_DECREF(result);
+
+  // Iterate the sequence and call Add (stored in 'add') for each item
+  PyObject* seq = PySequence_Fast(value, "expected a sequence");
+  if (seq == nullptr)
+  {
+    return -1;
+  }
+
+  Py_ssize_t n = PySequence_Fast_GET_SIZE(seq);
+  for (Py_ssize_t i = 0; i < n; i++)
+  {
+    PyObject* item = PySequence_Fast_GET_ITEM(seq, i);
+    PyObject* args = PyTuple_Pack(1, item);
+    result = getset->add(op, args);
+    Py_DECREF(args);
+    if (result == nullptr)
+    {
+      Py_DECREF(seq);
+      return -1;
+    }
+    Py_DECREF(result);
+  }
+
+  Py_DECREF(seq);
   return 0;
 }
 
@@ -730,6 +906,83 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 PyBufferProcs PyVTKObject_AsBuffer = {
   PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
   PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
+};
+
+//------------------------------------------------------------------------------
+// Sequence protocol for vtkCollection (inherited by all subclasses)
+//------------------------------------------------------------------------------
+
+static Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (coll)
+  {
+    return static_cast<Py_ssize_t>(coll->GetNumberOfItems());
+  }
+  PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+  return -1;
+}
+
+static PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (!coll)
+  {
+    PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+    return nullptr;
+  }
+
+  // Python normalizes negative indices before calling sq_item,
+  // so any remaining negative index is truly out of range.
+  Py_ssize_t n = static_cast<Py_ssize_t>(coll->GetNumberOfItems());
+  if (index < 0 || index >= n)
+  {
+    PyErr_SetString(PyExc_IndexError, "index out of range");
+    return nullptr;
+  }
+
+  vtkObject* item = coll->GetItemAsObject(static_cast<int>(index));
+  return vtkPythonUtil::GetObjectFromPointer(item);
+}
+
+static int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value)
+{
+  vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
+  vtkCollection* coll = vtkCollection::SafeDownCast(ob);
+  if (!coll)
+  {
+    PyErr_SetString(PyExc_TypeError, "object is not a vtkCollection");
+    return -1;
+  }
+
+  if (!PyVTKObject_Check(value))
+  {
+    return 0;
+  }
+
+  vtkObjectBase* valObj = ((PyVTKObject*)value)->vtk_ptr;
+  vtkObject* vtkObj = vtkObject::SafeDownCast(valObj);
+  if (!vtkObj)
+  {
+    return 0;
+  }
+
+  return coll->IsItemPresent(vtkObj) ? 1 : 0;
+}
+
+PySequenceMethods PyVTKObject_AsSequence = {
+  PyVTKObject_AsSequence_Length,   // sq_length
+  nullptr,                         // sq_concat
+  nullptr,                         // sq_repeat
+  PyVTKObject_AsSequence_GetItem,  // sq_item
+  nullptr,                         // sq_slice (deprecated)
+  nullptr,                         // sq_ass_item
+  nullptr,                         // sq_ass_slice (deprecated)
+  PyVTKObject_AsSequence_Contains, // sq_contains
+  nullptr,                         // sq_inplace_concat
+  nullptr,                         // sq_inplace_repeat
 };
 
 //------------------------------------------------------------------------------
