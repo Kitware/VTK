@@ -1750,6 +1750,16 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
 void vtkOpenGLState::vtkglBlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0,
   int dstY0, int dstX1, int dstY1, unsigned int mask, unsigned int filter)
 {
+  // Check framebuffer completeness before blitting to avoid GL_INVALID_FRAMEBUFFER_OPERATION
+  // Silently skip if framebuffers aren't ready (common during initialization)
+  GLenum readStatus = ::glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
+  GLenum drawStatus = ::glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+  if (readStatus != GL_FRAMEBUFFER_COMPLETE || drawStatus != GL_FRAMEBUFFER_COMPLETE)
+  {
+    // Framebuffers not ready - skip blit to avoid GL errors
+    return;
+  }
+
   // ON APPLE MACOS you must turn off scissor test for DEPTH blits to work
   vtkOpenGLState::ScopedglEnableDisable stsaver(this, GL_SCISSOR_TEST);
   this->vtkglDisable(GL_SCISSOR_TEST);
