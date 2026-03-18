@@ -211,6 +211,21 @@ using fmt::formatted_size;
  */
 using fmt::format;
 
+#define VTK_FORMAT_IF_ERROR_COMMAND(formatCommand, command)                                        \
+  try                                                                                              \
+  {                                                                                                \
+    formatCommand;                                                                                 \
+  }                                                                                                \
+  catch (const std::exception& e)                                                                  \
+  {                                                                                                \
+    vtkLog(ERROR, "Formatting error: " << e.what());                                               \
+    command;                                                                                       \
+  }                                                                                                \
+  static_assert(true)
+#define VTK_FORMAT_IF_ERROR_RETURN(formatCommand, returnValue)                                     \
+  VTK_FORMAT_IF_ERROR_COMMAND(formatCommand, return returnValue)
+#define VTK_FORMAT_IF_ERROR_BREAK(formatCommand) VTK_FORMAT_IF_ERROR_COMMAND(formatCommand, break)
+
 /**
  * The result type of a format_to operation.
  */

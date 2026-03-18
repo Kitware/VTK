@@ -320,7 +320,8 @@ void vtkAngleRepresentation3D::BuildRepresentation()
 
       double scaledAngle = vtkMath::DegreesFromRadians(this->Angle) * this->Scale;
       std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
-      auto string = vtk::format(labelFormat, scaledAngle);
+      std::string string;
+      VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(labelFormat, scaledAngle), );
 
       this->TextInput->SetText(string.c_str());
       this->TextActor->SetCamera(this->Renderer->GetActiveCamera());

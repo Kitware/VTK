@@ -217,8 +217,9 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport* viewport)
     {
       std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
       char string[512];
-      auto result = vtk::format_to_n(string, sizeof(string), labelFormat, this->Length);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(string, sizeof(string), labelFormat, this->Length);
+        *result.out = '\0', );
       this->LabelMapper->SetInput(string);
     }
     else
@@ -542,8 +543,9 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
     {
       std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
       char string[512];
-      auto result = vtk::format_to_n(string, sizeof(string), labelFormat, this->Angle);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(string, sizeof(string), labelFormat, this->Angle);
+        *result.out = '\0', );
       this->LabelMapper->SetInput(string);
     }
     else

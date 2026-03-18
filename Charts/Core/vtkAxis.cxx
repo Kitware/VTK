@@ -1534,13 +1534,13 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
 vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string& format)
 {
   // the format is expected to be in printf style format, so it's converted to std::format
-  return vtk::format(vtk::printf_to_std_format(format), value);
+  VTK_FORMAT_IF_ERROR_RETURN(return vtk::format(vtk::printf_to_std_format(format), value), "");
 }
 
 //------------------------------------------------------------------------------
 vtkStdString vtkAxis::GenerateStdFormatLabel(double value, const std::string& format)
 {
-  return vtk::format(format, value);
+  VTK_FORMAT_IF_ERROR_RETURN(return vtk::format(format, value), "");
 }
 
 //------------------------------------------------------------------------------
