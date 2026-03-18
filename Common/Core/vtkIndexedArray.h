@@ -92,6 +92,16 @@ public:
   void ConstructBackend(vtkDataArray* indexes, vtkDataArray* array);
   ///@}
 
+  /**
+   * Get the original base array used for value lookup.
+   */
+  vtkDataArray* GetBaseArray();
+
+  /**
+   * Get the original index array used for indirection.
+   */
+  vtkDataArray* GetIndexArray();
+
 protected:
   vtkIndexedArray() = default;
   ~vtkIndexedArray() override = default;
@@ -112,7 +122,9 @@ VTK_ABI_NAMESPACE_END
 #define vtkCreateIndexedWrappedArrayInterface(T)                                                   \
   vtkCreateImplicitWrappedArrayInterface(T);                                                       \
   void ConstructBackend(vtkIdList* indexes, vtkDataArray* array);                                  \
-  void ConstructBackend(vtkDataArray* indexes, vtkDataArray* array);
+  void ConstructBackend(vtkDataArray* indexes, vtkDataArray* array);                               \
+  vtkDataArray* GetBaseArray();                                                                    \
+  vtkDataArray* GetIndexArray();
 
 #endif // vtkIndexedArray_h
 

@@ -153,6 +153,38 @@ void vtkStructuredPointArray<ValueTypeT>::ConstructBackend(vtkDataArray* xCoords
   static double identityMatrix[9] = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 };
   this->ConstructBackend(xCoords, yCoords, zCoords, extent, dataDescription, identityMatrix);
 }
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkStructuredPointArray<ValueTypeT>::GetXCoordinates()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetXCoordinates() : nullptr;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkStructuredPointArray<ValueTypeT>::GetYCoordinates()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetYCoordinates() : nullptr;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkDataArray* vtkStructuredPointArray<ValueTypeT>::GetZCoordinates()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetZCoordinates() : nullptr;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+bool vtkStructuredPointArray<ValueTypeT>::GetUsesDirectionMatrix()
+{
+  auto backend = this->GetBackend();
+  return backend ? backend->GetUsesDirectionMatrix() : false;
+}
 VTK_ABI_NAMESPACE_END
 
 //-----------------------------------------------------------------------

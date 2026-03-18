@@ -18,7 +18,7 @@ from ._vtk_array_mixin import (
 
 _UNINITIALIZED = object()
 
-SOA_OVERRIDE, _override_numpy_soa = make_override_registry()
+_SOA_OVERRIDE, _override_numpy_soa = make_override_registry()
 
 def _to_ndarray(x):
     """Materialise a VTKSOAArray to ndarray via ``__array__()``.
@@ -232,7 +232,7 @@ class VTKSOAArray(VTKDataArrayMixin):
             if buf is not None:
                 self._buffers.append(buf)
 
-    # ---- compatibility properties (used by SOA_OVERRIDE functions) ----------
+    # ---- compatibility properties (used by _SOA_OVERRIDE functions) ----------
     @property
     def _num_tuples(self):
         return self.GetNumberOfTuples()
@@ -260,10 +260,9 @@ class VTKSOAArray(VTKDataArrayMixin):
         comps = self._component_arrays
         return list(comps) if comps else []
 
-    def to_numpy(self):
-        """Return tuple of per-component numpy arrays (zero-copy)."""
-        comps = self._component_arrays
-        return tuple(comps) if comps else ()
+    def to_numpy(self, dtype=None):
+        """Return the full materialized array as a numpy ndarray."""
+        return self.__array__(dtype=dtype)
 
     # ---- static helper to build from result arrays --------------------------
     @staticmethod
@@ -392,8 +391,8 @@ class VTKSOAArray(VTKDataArrayMixin):
 
     # ---- array function dispatch --------------------------------------------
     def __array_function__(self, func, types, args, kwargs):
-        if func in SOA_OVERRIDE:
-            return SOA_OVERRIDE[func](*args, **kwargs)
+        if func in _SOA_OVERRIDE:
+            return _SOA_OVERRIDE[func](*args, **kwargs)
 
         warnings.warn(
             f"numpy.{func.__name__}() is not optimized for "

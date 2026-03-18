@@ -607,11 +607,27 @@ class ImageData(DataSet, vtkImageData):
     """Python-friendly ``vtkImageData`` with numpy access.
 
     Adds ``point_data``, ``cell_data``, and ``field_data`` properties
-    for dict-like array access.
+    for dict-like array access.  The ``points`` property returns a
+    lazy ``VTKStructuredPointArray`` that avoids materializing the
+    full coordinate array.
     """
     def __init__(self, *args, **kwargs):
         DataSet.__init__(self, *args, **kwargs)
         vtkImageData.__init__(self, **kwargs)
+        if args and isinstance(args[0], str):
+            return
+        self._numpy_attrs = getattr(self, '_numpy_attrs', [])
+        self._numpy_attrs.append("points")
+
+    @property
+    def points(self):
+        """Returns the points as a VTKStructuredPointArray instance."""
+        if not NUMPY_AVAILABLE:
+            return None
+        from vtkmodules.numpy_interface.vtk_structured_point_array import (
+            VTKStructuredPointArray,
+        )
+        return VTKStructuredPointArray.from_image_data(self)
 
 
 @vtkPolyData.override
@@ -690,15 +706,28 @@ class PolyData(PointSet, vtkPolyData):
 class RectilinearGrid(DataSet, vtkRectilinearGrid):
     """Python-friendly ``vtkRectilinearGrid`` with numpy access.
 
-    Adds ``x_coordinates``, ``y_coordinates``, and ``z_coordinates``
-    properties that can be get/set with numpy arrays or VTK arrays.
+    Adds ``x_coordinates``, ``y_coordinates``, ``z_coordinates``, and
+    ``points`` properties.  The ``points`` property returns a lazy
+    ``VTKStructuredPointArray`` that avoids materializing the full
+    coordinate array.
     """
     def __init__(self, *args, **kwargs) -> None:
         DataSet.__init__(self, *args, **kwargs)
         vtkRectilinearGrid.__init__(self, **kwargs)
         if args and isinstance(args[0], str):
             return
-        self._numpy_attrs.extend(["x_coordinates", "y_coordinates", "z_coordinates"])
+        self._numpy_attrs.extend([
+            "x_coordinates", "y_coordinates", "z_coordinates", "points"])
+
+    @property
+    def points(self):
+        """Returns the points as a VTKStructuredPointArray instance."""
+        if not NUMPY_AVAILABLE:
+            return None
+        from vtkmodules.numpy_interface.vtk_structured_point_array import (
+            VTKStructuredPointArray,
+        )
+        return VTKStructuredPointArray.from_rectilinear_grid(self)
 
     @property
     def x_coordinates(self):

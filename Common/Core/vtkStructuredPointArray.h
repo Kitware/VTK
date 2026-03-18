@@ -73,6 +73,20 @@ public:
     int extent[6], int dataDescription);
   ///@}
 
+  ///@{
+  /**
+   * Get the coordinate arrays used to construct the backend.
+   */
+  vtkDataArray* GetXCoordinates();
+  vtkDataArray* GetYCoordinates();
+  vtkDataArray* GetZCoordinates();
+  ///@}
+
+  /**
+   * Return true if a non-identity direction matrix is being used.
+   */
+  bool GetUsesDirectionMatrix();
+
 protected:
   vtkStructuredPointArray() = default;
   ~vtkStructuredPointArray() override = default;
@@ -95,7 +109,11 @@ VTK_ABI_NAMESPACE_END
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
     int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,       \
-    int extent[6], int dataDescription);
+    int extent[6], int dataDescription);                                                           \
+  vtkDataArray* GetXCoordinates();                                                                 \
+  vtkDataArray* GetYCoordinates();                                                                 \
+  vtkDataArray* GetZCoordinates();                                                                 \
+  bool GetUsesDirectionMatrix();
 
 namespace vtk
 {

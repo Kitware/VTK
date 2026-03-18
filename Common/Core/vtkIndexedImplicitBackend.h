@@ -78,6 +78,16 @@ public:
    */
   unsigned long getMemorySize() const;
 
+  /**
+   * Get the original base array used for value lookup.
+   */
+  vtkDataArray* GetBaseArray() const;
+
+  /**
+   * Get the original index array used for indirection.
+   */
+  vtkDataArray* GetIndexArray() const;
+
 private:
   struct Internals;
   std::unique_ptr<Internals> Internal;

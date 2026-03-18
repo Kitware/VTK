@@ -58,7 +58,12 @@
 #include "vtkCommonCoreModule.h" // for export macro
 #include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkImplicitArray.h"
+#include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkStridedImplicitBackend.h" // for the array backend
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractBuffer;
+VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
@@ -103,13 +108,35 @@ public:
 
   ///@{
   /**
-   * Set the parameters for the strided backend.
+   * Set the parameters for the strided backend using a vtkBuffer (via
+   * vtkAbstractBuffer) as the buffer source.  The buffer is stored with
+   * reference counting to keep the memory alive.  This is the preferred
+   * overload when constructing from Python.
+   */
+  void ConstructBackend(
+    vtkAbstractBuffer* buffer, vtkIdType stride, int components, vtkIdType offset);
+  void ConstructBackend(vtkAbstractBuffer* buffer, vtkIdType stride, int components);
+  void ConstructBackend(vtkAbstractBuffer* buffer, vtkIdType stride);
+  ///@}
+
+  ///@{
+  /**
+   * Set the parameters for the strided backend from a raw pointer.
+   * @warning The buffer is not owned — the caller must ensure the memory
+   * outlives the vtkStridedArray.
    */
   void ConstructBackend(
     const ValueType* buffer, vtkIdType stride, int components, vtkIdType offset);
   void ConstructBackend(const ValueType* buffer, vtkIdType stride, int components);
   void ConstructBackend(const ValueType* buffer, vtkIdType stride);
   ///@}
+
+  /**
+   * Get the buffer source object, if one was provided via the
+   * vtkAbstractBuffer overload of ConstructBackend.  Returns nullptr
+   * if the array was constructed from a raw pointer.
+   */
+  vtkAbstractBuffer* GetBufferSource() const { return this->BufferSource; }
 
   /**
    * Get the buffer of the strided backend.
@@ -142,6 +169,12 @@ protected:
 private:
   vtkStridedArray(const vtkStridedArray&) = delete;
   void operator=(const vtkStridedArray&) = delete;
+
+  /**
+   * Stored reference to the buffer source, if constructed via the
+   * vtkAbstractBuffer overload.  Keeps the buffer memory alive.
+   */
+  vtkSmartPointer<vtkBuffer<ValueType>> BufferSource;
 };
 
 // Declare vtkArrayDownCast implementations for STRIDED arrays:
@@ -154,10 +187,15 @@ VTK_ABI_NAMESPACE_END
 // can see them. The wrappers ignore vtkStridedArray.
 #define vtkCreateStridedWrappedArrayInterface(T)                                                   \
   vtkCreateImplicitWrappedArrayInterface(T);                                                       \
+  void ConstructBackend(                                                                           \
+    vtkAbstractBuffer* buffer, vtkIdType stride, int components, vtkIdType offset);                \
+  void ConstructBackend(vtkAbstractBuffer* buffer, vtkIdType stride, int components);              \
+  void ConstructBackend(vtkAbstractBuffer* buffer, vtkIdType stride);                              \
   void ConstructBackend(const T* buffer, vtkIdType stride, int components, vtkIdType offset);      \
   void ConstructBackend(const T* buffer, vtkIdType stride, int components);                        \
   void ConstructBackend(const T* buffer, vtkIdType stride);                                        \
   const T* GetBuffer() const;                                                                      \
+  vtkAbstractBuffer* GetBufferSource() const;                                                      \
   vtkIdType GetStride() const;                                                                     \
   vtkIdType GetOffset() const;
 

@@ -149,31 +149,47 @@ struct vtkCompositeImplicitBackend<ValueType>::Internals
 
   std::vector<vtkSmartPointer<CachedArray>> CachedArrays;
   std::vector<vtkIdType> Offsets;
+  std::vector<vtkSmartPointer<vtkDataArray>> OriginalArrays;
+  std::vector<vtkIdType> TupleOffsets;
 
 private:
   template <class Iterator>
   void Initialize(Iterator first, Iterator last)
   {
-    this->CachedArrays.resize(std::distance(first, last));
-    std::transform(first, last, this->CachedArrays.begin(),
-      [](vtkDataArray* arr)
-      {
-        vtkNew<CachedArray> newCache;
-        newCache->SetBackend(std::make_shared<CachedBackend>(arr));
-        newCache->SetNumberOfComponents(1);
-        if (arr)
-        {
-          newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
-        }
-        else
-        {
-          newCache->SetNumberOfTuples(0);
-        }
-        return newCache;
-      });
-    if (this->CachedArrays.size() > 0)
+    auto nArrays = std::distance(first, last);
+    this->CachedArrays.resize(nArrays);
+    this->OriginalArrays.resize(nArrays);
+    this->TupleOffsets.resize(nArrays);
+
+    vtkIdType tupleOffset = 0;
+    auto it = first;
+    for (std::size_t i = 0; it != last; ++it, ++i)
     {
-      this->Offsets.resize(this->CachedArrays.size() - 1);
+      vtkDataArray* arr = *it;
+      this->OriginalArrays[i] = arr;
+      this->TupleOffsets[i] = tupleOffset;
+      if (arr)
+      {
+        tupleOffset += arr->GetNumberOfTuples();
+      }
+
+      vtkNew<CachedArray> newCache;
+      newCache->SetBackend(std::make_shared<CachedBackend>(arr));
+      newCache->SetNumberOfComponents(1);
+      if (arr)
+      {
+        newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
+      }
+      else
+      {
+        newCache->SetNumberOfTuples(0);
+      }
+      this->CachedArrays[i] = newCache;
+    }
+
+    if (nArrays > 0)
+    {
+      this->Offsets.resize(nArrays - 1);
       std::size_t runningSum = 0;
       std::transform(this->CachedArrays.begin(), this->CachedArrays.end() - 1,
         this->Offsets.begin(),
@@ -226,6 +242,27 @@ unsigned long vtkCompositeImplicitBackend<ValueType>::getMemorySize() const
   }
 
   return arraySizeSum;
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkIdType vtkCompositeImplicitBackend<ValueType>::GetNumberOfArrays() const
+{
+  return static_cast<vtkIdType>(this->Internal->OriginalArrays.size());
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkDataArray* vtkCompositeImplicitBackend<ValueType>::GetArray(vtkIdType idx) const
+{
+  return this->Internal->OriginalArrays[idx];
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkIdType vtkCompositeImplicitBackend<ValueType>::GetOffset(vtkIdType idx) const
+{
+  return this->Internal->TupleOffsets[idx];
 }
 
 VTK_ABI_NAMESPACE_END

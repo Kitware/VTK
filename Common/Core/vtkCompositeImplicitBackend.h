@@ -77,6 +77,22 @@ public:
    */
   unsigned long getMemorySize() const;
 
+  /**
+   * Get the number of original arrays composing this backend.
+   */
+  vtkIdType GetNumberOfArrays() const;
+
+  /**
+   * Get the original array at the given index.
+   */
+  vtkDataArray* GetArray(vtkIdType idx) const;
+
+  /**
+   * Get the tuple offset of the array at the given index.
+   * TupleOffset[i] = cumulative number of tuples in arrays 0..i-1.
+   */
+  vtkIdType GetOffset(vtkIdType idx) const;
+
 protected:
   struct Internals;
   std::unique_ptr<Internals> Internal;

@@ -5,6 +5,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImplicitArray.h"
 #include "vtkTypeList.h"
 
@@ -141,6 +142,16 @@ struct vtkIndexedImplicitBackend<ValueType>::Internals
     newHandles->SetNumberOfTuples(indexes->GetNumberOfIds());
     this->Handles = this->TypeCacheArray<vtkIdType>(newHandles);
     this->Array = this->TypeCacheArray<ValueType>(array);
+    this->OriginalArray = array;
+    // Convert vtkIdList to vtkIdTypeArray for Python accessibility
+    vtkNew<vtkIdTypeArray> idxArray;
+    idxArray->SetNumberOfComponents(1);
+    idxArray->SetNumberOfTuples(indexes->GetNumberOfIds());
+    for (vtkIdType i = 0; i < indexes->GetNumberOfIds(); ++i)
+    {
+      idxArray->SetValue(i, indexes->GetId(i));
+    }
+    this->OriginalIndexes = idxArray;
   }
 
   Internals(vtkDataArray* indexes, vtkDataArray* array)
@@ -158,6 +169,8 @@ struct vtkIndexedImplicitBackend<ValueType>::Internals
     }
     this->Handles = this->TypeCacheArray<vtkIdType>(indexes);
     this->Array = this->TypeCacheArray<ValueType>(array);
+    this->OriginalArray = array;
+    this->OriginalIndexes = indexes;
   }
 
   template <typename VT>
@@ -182,6 +195,8 @@ struct vtkIndexedImplicitBackend<ValueType>::Internals
   vtkSmartPointer<vtkImplicitArray<
     vtkIndexedImplicitBackendDetail::TypedCacheWrapper<InternalArrayList, vtkIdType>>>
     Handles;
+  vtkSmartPointer<vtkDataArray> OriginalArray;
+  vtkSmartPointer<vtkDataArray> OriginalIndexes;
 };
 
 //-----------------------------------------------------------------------
@@ -216,5 +231,19 @@ unsigned long vtkIndexedImplicitBackend<ValueType>::getMemorySize() const
 {
   return this->Internal->Array->GetActualMemorySize() +
     this->Internal->Handles->GetActualMemorySize();
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkDataArray* vtkIndexedImplicitBackend<ValueType>::GetBaseArray() const
+{
+  return this->Internal->OriginalArray;
+}
+
+//-----------------------------------------------------------------------
+template <typename ValueType>
+vtkDataArray* vtkIndexedImplicitBackend<ValueType>::GetIndexArray() const
+{
+  return this->Internal->OriginalIndexes;
 }
 VTK_ABI_NAMESPACE_END
