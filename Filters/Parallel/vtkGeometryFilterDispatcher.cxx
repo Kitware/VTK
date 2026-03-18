@@ -174,21 +174,6 @@ vtkCxxSetObjectMacro(vtkGeometryFilterDispatcher, Controller, vtkMultiProcessCon
 //----------------------------------------------------------------------------
 vtkGeometryFilterDispatcher::vtkGeometryFilterDispatcher()
 {
-  this->OutlineFlag = 0;
-  this->UseOutline = 1;
-  this->GenerateFeatureEdges = false;
-  this->BlockColorsDistinctValues = 7;
-  // generating cell normals by default really slows down paraview
-  // it is especially noticeable with the OpenGL2 backend.  Leaving
-  // it on for the old backend as some tests rely on the cell normals
-  // to be there as they use them for other purposes/etc.
-  this->GenerateCellNormals = false;
-  this->GeneratePointNormals = false;
-  this->Splitting = true;
-  this->FeatureAngle = 30.0;
-  this->Triangulate = false;
-  this->NonlinearSubdivisionLevel = 1;
-
   this->GeometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
   // we're prepping geometry for rendering
   // fast mode might generate wrong results because of certain assumptions that don't always hold
@@ -224,17 +209,10 @@ vtkGeometryFilterDispatcher::vtkGeometryFilterDispatcher()
   this->PolyDataNormals->AddObserver(
     vtkCommand::ProgressEvent, this, &vtkGeometryFilterDispatcher::HandleGeometryFilterProgress);
 
-  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->GenerateProcessIds = (this->Controller && this->Controller->GetNumberOfProcesses() > 1);
 
   this->OutlineSource = vtkSmartPointer<vtkOutlineSource>::New();
-
-  this->PassThroughCellIds = 1;
-  this->PassThroughPointIds = 1;
-
-  this->HideInternalAMRFaces = true;
-  this->UseNonOverlappingAMRMetaDataForOutlines = true;
 
   this->MeshCache->SetConsumer(this);
   this->MeshCache->AddOriginalIds(vtkDataObject::POINT, ::TEMP_ORIGINAL_IDS);
@@ -388,21 +366,21 @@ void vtkGeometryFilterDispatcher::ExecuteAMRBlockOutline(
   output->SetPoints(points);
   output->SetPolys(lines);
 
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 }
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ExecuteAMRBlock(
   vtkCartesianGrid* input, vtkPolyData* output, const bool extractface[6])
 {
-  assert(input != nullptr && output != nullptr && this->UseOutline == 0);
+  assert(input != nullptr && output != nullptr && !this->UseOutline);
   if (input->GetNumberOfCells() > 0)
   {
     int extent[6];
     input->GetExtent(extent);
     this->GeometryFilter->StructuredExecute(input, output, extent, const_cast<bool*>(extractface));
   }
-  this->OutlineFlag = 0;
+  this->OutlineFlag = false;
 }
 
 //----------------------------------------------------------------------------
@@ -724,11 +702,11 @@ int vtkGeometryFilterDispatcher::RequestAMRData(
     for (unsigned int partitionIdx = 0; partitionIdx < num_datasets; ++partitionIdx)
     {
       vtkCartesianGrid* cg = amr->GetDataSetAsCartesianGrid(level, partitionIdx);
-      if (!cg && ((this->UseOutline == 0) || (!overlappingAMR)))
+      if (!cg && (!this->UseOutline || !overlappingAMR))
       {
-        // if this->UseOutline == 0, we need uniform grid to be present.
+        // if !this->UseOutline, we need uniform grid to be present.
 
-        // if this->UseOutline ==1, we need ug only for non-overlapping AMR. For
+        // if this->UseOutline, we need ug only for non-overlapping AMR. For
         // overlapping AMR, we can generate outline using the meta-data
         // available.
         continue;
@@ -1146,7 +1124,7 @@ void vtkGeometryFilterDispatcher::GenericDataSetExecute(
 
   if (!this->UseOutline)
   {
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
 
     // Geometry filter
     this->GenericGeometryFilter->SetInputData(input);
@@ -1157,7 +1135,7 @@ void vtkGeometryFilterDispatcher::GenericDataSetExecute(
   }
 
   // Just outline
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 
   if (!doCommunicate && input->GetNumberOfPoints() == 0)
   {
@@ -1259,10 +1237,10 @@ void vtkGeometryFilterDispatcher::ImageDataExecute(
       this->GeometryFilter->StructuredExecute(
         input, output, const_cast<int*>(ext), nullptr, nullptr);
     }
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
     return;
   }
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 
   // Otherwise, let OutlineSource do all the work
   if (ext[1] >= ext[0] && ext[3] >= ext[2] && ext[5] >= ext[4] &&
@@ -1307,10 +1285,10 @@ void vtkGeometryFilterDispatcher::StructuredGridExecute(vtkStructuredGrid* input
     {
       this->GeometryFilter->StructuredExecute(input, output, wholeExtent, nullptr, nullptr);
     }
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
     return;
   }
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 
   vtkNew<vtkTrivialProducer> producer;
   producer->SetOutput(input);
@@ -1335,10 +1313,10 @@ void vtkGeometryFilterDispatcher::RectilinearGridExecute(vtkRectilinearGrid* inp
       this->GeometryFilter->StructuredExecute(
         input, output, const_cast<int*>(wholeExtent), nullptr, nullptr);
     }
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
     return;
   }
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 
   vtkNew<vtkTrivialProducer> producer;
   producer->SetOutput(input);
@@ -1357,9 +1335,9 @@ void vtkGeometryFilterDispatcher::UnstructuredGridExecute(
 {
   if (!this->UseOutline)
   {
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
 
-    bool handleSubdivision = (this->Triangulate != 0) && (input->GetNumberOfCells() > 0);
+    bool handleSubdivision = this->Triangulate && (input->GetNumberOfCells() > 0);
     if (!handleSubdivision && (this->NonlinearSubdivisionLevel > 0))
     {
       // Check to see if the data actually has nonlinear cells.  Handling
@@ -1503,7 +1481,7 @@ void vtkGeometryFilterDispatcher::UnstructuredGridExecute(
     return;
   }
 
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
 
   this->DataSetExecute(input, output, doCommunicate);
 }
@@ -1514,7 +1492,7 @@ void vtkGeometryFilterDispatcher::PolyDataExecute(
 {
   if (!this->UseOutline)
   {
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
     output->ShallowCopy(input);
     if (this->PassThroughCellIds)
     {
@@ -1569,7 +1547,7 @@ void vtkGeometryFilterDispatcher::PolyDataExecute(
     return;
   }
 
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
   this->DataSetExecute(input, output, doCommunicate);
 }
 
@@ -1579,7 +1557,7 @@ void vtkGeometryFilterDispatcher::HyperTreeGridExecute(
 {
   if (!this->UseOutline)
   {
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
 
     vtkNew<vtkHyperTreeGridGeometry> internalFilter;
     vtkNew<vtkHyperTreeGrid> htgCopy;
@@ -1592,7 +1570,7 @@ void vtkGeometryFilterDispatcher::HyperTreeGridExecute(
     return;
   }
 
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
   double bds[6];
   int procid = 0;
   if (!doCommunicate && input->GetNumberOfCells() == 0)
@@ -1646,7 +1624,7 @@ void vtkGeometryFilterDispatcher::ExplicitStructuredGridExecute(
 
   if (!this->UseOutline)
   {
-    this->OutlineFlag = 0;
+    this->OutlineFlag = false;
 
     vtkNew<vtkExplicitStructuredGridSurfaceFilter> internalFilter;
     internalFilter->SetPassThroughPointIds(this->PassThroughPointIds);
@@ -1658,7 +1636,7 @@ void vtkGeometryFilterDispatcher::ExplicitStructuredGridExecute(
   }
   auto in = vtkExplicitStructuredGrid::SafeDownCast(producer->GetOutputDataObject(0));
 
-  this->OutlineFlag = 1;
+  this->OutlineFlag = true;
   this->DataSetExecute(in, out, doCommunicate);
 }
 
@@ -1726,9 +1704,9 @@ void vtkGeometryFilterDispatcher::SetGenerateFeatureEdges(bool val)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeometryFilterDispatcher::SetGenerateCellNormals(int val)
+void vtkGeometryFilterDispatcher::SetGenerateCellNormals(bool val)
 {
-  if (this->GenerateCellNormals != static_cast<bool>(val))
+  if (this->GenerateCellNormals != val)
   {
     this->GenerateCellNormals = val;
     if (this->PolyDataNormals)
@@ -1782,7 +1760,7 @@ void vtkGeometryFilterDispatcher::SetFeatureAngle(double val)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeometryFilterDispatcher::SetPassThroughCellIds(int newvalue)
+void vtkGeometryFilterDispatcher::SetPassThroughCellIds(bool newvalue)
 {
   this->PassThroughCellIds = newvalue;
   if (this->GeometryFilter)
@@ -1796,7 +1774,7 @@ void vtkGeometryFilterDispatcher::SetPassThroughCellIds(int newvalue)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeometryFilterDispatcher::SetPassThroughPointIds(int newvalue)
+void vtkGeometryFilterDispatcher::SetPassThroughPointIds(bool newvalue)
 {
   this->PassThroughPointIds = newvalue;
   if (this->GeometryFilter)

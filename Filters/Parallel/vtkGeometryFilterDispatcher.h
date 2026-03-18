@@ -56,15 +56,16 @@ public:
    * This flag is set during the execute method.  It indicates
    * that the input was 3d and an outline representation was used.
    */
-  vtkGetMacro(OutlineFlag, int);
+  vtkGetMacro(OutlineFlag, bool);
   ///@}
 
   ///@{
   /**
    * Set/get whether to produce outline (vs. surface).
    */
-  vtkSetMacro(UseOutline, int);
-  vtkGetMacro(UseOutline, int);
+  vtkSetMacro(UseOutline, bool);
+  vtkGetMacro(UseOutline, bool);
+  vtkBooleanMacro(UseOutline, bool);
   ///@}
 
   ///@{
@@ -90,9 +91,9 @@ public:
    *
    * The default value is false.
    */
-  void SetGenerateCellNormals(int);
-  vtkGetMacro(GenerateCellNormals, int);
-  vtkBooleanMacro(GenerateCellNormals, int);
+  void SetGenerateCellNormals(bool);
+  vtkGetMacro(GenerateCellNormals, bool);
+  vtkBooleanMacro(GenerateCellNormals, bool);
   ///@}
 
   ///@{
@@ -125,7 +126,8 @@ public:
    * The default value is true.
    */
   void SetSplitting(bool);
-  vtkBooleanMacro(Splitting, vtkTypeBool);
+  vtkGetMacro(Splitting, bool);
+  vtkBooleanMacro(Splitting, bool);
   ///@}
 
   ///@{
@@ -135,9 +137,9 @@ public:
    * This option has no effect when using OpenGL2 rendering backend. OpenGL2
    * rendering always triangulates polygonal meshes.
    */
-  vtkSetMacro(Triangulate, int);
-  vtkGetMacro(Triangulate, int);
-  vtkBooleanMacro(Triangulate, int);
+  vtkSetMacro(Triangulate, bool);
+  vtkGetMacro(Triangulate, bool);
+  vtkBooleanMacro(Triangulate, bool);
   ///@}
 
   ///@{
@@ -177,9 +179,9 @@ public:
    * holds the cell index of the original 3D cell that produced each output
    * cell. This is useful for picking but it takes memory. The default is on.
    */
-  void SetPassThroughCellIds(int);
-  vtkGetMacro(PassThroughCellIds, int);
-  vtkBooleanMacro(PassThroughCellIds, int);
+  void SetPassThroughCellIds(bool);
+  vtkGetMacro(PassThroughCellIds, bool);
+  vtkBooleanMacro(PassThroughCellIds, bool);
   ///@}
 
   ///@{
@@ -188,9 +190,9 @@ public:
    * holds the point index of the original vertex that produced each output
    * vertex. This is useful for picking but it takes memory. The default is on.
    */
-  void SetPassThroughPointIds(int);
-  vtkGetMacro(PassThroughPointIds, int);
-  vtkBooleanMacro(PassThroughPointIds, int);
+  void SetPassThroughPointIds(bool);
+  vtkGetMacro(PassThroughPointIds, bool);
+  vtkBooleanMacro(PassThroughPointIds, bool);
   ///@}
 
   ///@{
@@ -296,18 +298,18 @@ protected:
   void CleanupOutputData(vtkPolyData* output);
   ///@}
 
-  int OutlineFlag;
-  int UseOutline;
-  int BlockColorsDistinctValues;
-  bool GenerateCellNormals;
-  bool GeneratePointNormals;
-  bool Splitting;
-  double FeatureAngle;
-  int Triangulate;
-  int NonlinearSubdivisionLevel;
+  bool OutlineFlag = false;
+  bool UseOutline = true;
+  int BlockColorsDistinctValues = 7;
+  bool GenerateCellNormals = false;
+  bool GeneratePointNormals = false;
+  bool Splitting = true;
+  double FeatureAngle = 30.0;
+  bool Triangulate = false;
+  int NonlinearSubdivisionLevel = 1;
   int MatchBoundariesIgnoringCellOrder = 0;
 
-  vtkMultiProcessController* Controller;
+  vtkMultiProcessController* Controller = nullptr;
   vtkSmartPointer<vtkOutlineSource> OutlineSource;
   vtkSmartPointer<vtkGeometryFilter> GeometryFilter;
   vtkSmartPointer<vtkGenericGeometryFilter> GenericGeometryFilter;
@@ -329,12 +331,12 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) override;
 
-  bool GenerateProcessIds;
-  int PassThroughCellIds;
-  int PassThroughPointIds;
-  bool HideInternalAMRFaces;
-  bool UseNonOverlappingAMRMetaDataForOutlines;
-  bool GenerateFeatureEdges;
+  bool GenerateProcessIds = false;
+  bool PassThroughCellIds = true;
+  bool PassThroughPointIds = true;
+  bool HideInternalAMRFaces = true;
+  bool UseNonOverlappingAMRMetaDataForOutlines = true;
+  bool GenerateFeatureEdges = false;
 
 private:
   vtkGeometryFilterDispatcher(const vtkGeometryFilterDispatcher&) = delete;
