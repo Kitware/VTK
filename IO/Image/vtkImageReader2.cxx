@@ -131,16 +131,17 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     {
       size_t size = strlen(this->FilePrefix) + filePattern.size() + 10;
       this->InternalFileName = new char[size];
-      auto result =
-        vtk::format_to_n(this->InternalFileName, size, filePattern, this->FilePrefix, slicenum);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(this->InternalFileName, size,
+                                   filePattern, this->FilePrefix, slicenum);
+                                 *result.out = '\0', );
     }
     else if (!filePattern.empty())
     {
       size_t size = filePattern.size() + 10;
       this->InternalFileName = new char[size];
-      auto result = vtk::format_to_n(this->InternalFileName, size, filePattern, "", slicenum);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(this->InternalFileName, size, filePattern, "", slicenum);
+        *result.out = '\0', );
     }
     else
     {

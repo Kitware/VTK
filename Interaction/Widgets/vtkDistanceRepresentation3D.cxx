@@ -286,8 +286,10 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
 
     // Label
     std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
-    auto string = vtk::format(labelFormat, this->Distance, std::abs(p1[0] - p2[0]),
-      std::abs(p1[1] - p2[1]), std::abs(p1[2] - p2[2]));
+    std::string string;
+    VTK_FORMAT_IF_ERROR_RETURN(
+      string = vtk::format(labelFormat, this->Distance, std::abs(p1[0] - p2[0]),
+        std::abs(p1[1] - p2[1]), std::abs(p1[2] - p2[2])), );
     this->LabelText->SetText(string.c_str());
     this->UpdateLabelPosition();
     if (this->Renderer) // make the label face the camera

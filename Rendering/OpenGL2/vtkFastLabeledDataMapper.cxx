@@ -380,8 +380,8 @@ template <typename T>
 void vtkFastLabeledDataMapper_PrintComponent(
   char* output, size_t outputSize, const std::string_view format, int index, const T* array)
 {
-  auto result = vtk::format_to_n(output, outputSize, format, array[index]);
-  *result.out = '\0';
+  VTK_FORMAT_IF_ERROR_RETURN(
+    auto result = vtk::format_to_n(output, outputSize, format, array[index]); *result.out = '\0', );
 }
 
 //----------------------------------------------------------------------------
@@ -1222,8 +1222,9 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     std::string resultString;
     if (pointIdLabels)
     {
-      auto result = vtk::format_to_n(tempString, sizeof(tempString), formatString, i);
-      *result.out = '\0';
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(tempString, sizeof(tempString), formatString, i);
+        *result.out = '\0', );
       resultString = tempString;
     }
     else
@@ -1275,9 +1276,9 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         }
         else // the user specified a label format
         {
-          auto result =
-            vtk::format_to_n(tempString, sizeof(tempString), formatString, stringData->GetValue(i));
-          *result.out = '\0';
+          VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(tempString, sizeof(tempString),
+                                       formatString, stringData->GetValue(i));
+                                     *result.out = '\0', );
           resultString = tempString;
         } // done printing strings with label format
       }   // done printing strings

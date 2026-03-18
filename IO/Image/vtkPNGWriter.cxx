@@ -115,17 +115,17 @@ void vtkPNGWriter::Write()
       {
         if (this->FilePrefix)
         {
-          auto result = vtk::format_to_n(this->InternalFileName, internalFileNameSize,
-            this->FilePattern, this->FilePrefix, this->FileNumber);
-          *result.out = '\0';
-          bytes_printed = result.size;
+          VTK_FORMAT_IF_ERROR_RETURN(
+            auto result = vtk::format_to_n(this->InternalFileName, internalFileNameSize,
+              this->FilePattern, this->FilePrefix, this->FileNumber);
+            *result.out = '\0'; bytes_printed = result.size, );
         }
         else
         {
-          auto result = vtk::format_to_n(
-            this->InternalFileName, internalFileNameSize, this->FilePattern, "", this->FileNumber);
-          *result.out = '\0';
-          bytes_printed = result.size;
+          VTK_FORMAT_IF_ERROR_RETURN(
+            auto result = vtk::format_to_n(this->InternalFileName, internalFileNameSize,
+              this->FilePattern, "", this->FileNumber);
+            *result.out = '\0'; bytes_printed = result.size, );
         }
       }
       if (bytes_printed >= internalFileNameSize)
