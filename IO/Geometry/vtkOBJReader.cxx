@@ -81,7 +81,7 @@ g <groupName>  [... <groupNameN]
 
     group name, primarily for faces
 
-v <x> <y> <z> [<r> g> <b> [a]]
+v <x> <y> <z> [<r> <g> <b> [a]]
 
     vertex
 

@@ -112,7 +112,7 @@ private:
   char* FileName{ nullptr };
   char* TextureFileName{ nullptr };
 
-  std::string ColorArrayName{};
+  std::string ColorArrayName;
   bool WriteColorArray{ false };
 
   bool UseRelativeTexturePath{ false };

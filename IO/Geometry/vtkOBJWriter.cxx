@@ -83,30 +83,6 @@ struct EndIndex
 };
 
 //----------------------------------------------------------------------------
-vtkUnsignedCharArray* GetColorArray(vtkOBJWriter* writer, vtkDataSetAttributes* dsa)
-{
-  if (!writer->GetWriteColorArray())
-  {
-    return nullptr;
-  }
-  else // we will color based on data
-  {
-    if (writer->GetColorArrayName().empty())
-    {
-      return nullptr;
-    }
-    if (vtkUnsignedCharArray* colorArray =
-          vtkArrayDownCast<vtkUnsignedCharArray>(dsa->GetArray(writer->GetColorArrayName().data()));
-        colorArray != nullptr)
-    {
-      int numComp = colorArray->GetNumberOfComponents();
-      return (numComp == 3 || numComp == 4) ? colorArray : nullptr;
-    }
-    return nullptr;
-  }
-}
-
-//----------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
   vtkUnsignedCharArray* pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
   std::vector<EndIndex>* endIndexes)
@@ -337,7 +313,17 @@ bool vtkOBJWriter::WriteDataAndReturn()
     }
   }
 
-  vtkUnsignedCharArray* pointColors = GetColorArray(this, input->GetPointData());
+  vtkUnsignedCharArray* pointColors = nullptr;
+  if (this->GetWriteColorArray() && !this->GetColorArrayName().empty())
+  {
+    vtkUnsignedCharArray* colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
+      input->GetPointData()->GetArray(this->GetColorArrayName().data()));
+    if (colorArray)
+    {
+      int numComp = colorArray->GetNumberOfComponents();
+      pointColors = (numComp == 3 || numComp == 4) ? colorArray : nullptr;
+    }
+  }
 
   std::vector<EndIndex> endIndexes;
   ::WritePoints(f, pts, normals, pointColors, tcoordsArray, &endIndexes);
