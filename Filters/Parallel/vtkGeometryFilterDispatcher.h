@@ -263,14 +263,14 @@ protected:
   void ExecuteAMRBlockOutline(
     const double bounds[6], vtkPolyData* output, const bool extractface[6]);
 
-  void ExecuteBlock(vtkDataObject* input, vtkPolyData* output, int doCommunicate, int updatePiece,
+  void ExecuteBlock(vtkDataObject* input, vtkPolyData* output, bool doCommunicate, int updatePiece,
     int updateNumPieces, int updateGhosts, const int* wholeExtent);
 
-  void DataSetExecute(vtkDataSet* input, vtkPolyData* output, int doCommunicate);
-  void GenericDataSetExecute(vtkGenericDataSet* input, vtkPolyData* output, int doCommunicate);
+  void DataSetExecute(vtkDataSet* input, vtkPolyData* output, bool doCommunicate);
+  void GenericDataSetExecute(vtkGenericDataSet* input, vtkPolyData* output, bool doCommunicate);
 
   void ImageDataExecute(
-    vtkImageData* input, vtkPolyData* output, int doCommunicate, int updatePiece, const int* ext);
+    vtkImageData* input, vtkPolyData* output, bool doCommunicate, int updatePiece, const int* ext);
 
   void StructuredGridExecute(vtkStructuredGrid* input, vtkPolyData* output, int updatePiece,
     int updateNumPieces, int updateGhosts, const int* wholeExtent);
@@ -279,16 +279,16 @@ protected:
     int updateNumPieces, int updateGhosts, const int* wholeExtent);
 
   void UnstructuredGridExecute(
-    vtkUnstructuredGridBase* input, vtkPolyData* output, int doCommunicate);
+    vtkUnstructuredGridBase* input, vtkPolyData* output, bool doCommunicate);
 
-  void PolyDataExecute(vtkPolyData* input, vtkPolyData* output, int doCommunicate);
+  void PolyDataExecute(vtkPolyData* input, vtkPolyData* output, bool doCommunicate);
 
-  void HyperTreeGridExecute(vtkHyperTreeGrid* input, vtkPolyData* output, int doCommunicate);
+  void HyperTreeGridExecute(vtkHyperTreeGrid* input, vtkPolyData* output, bool doCommunicate);
 
   void ExplicitStructuredGridExecute(
-    vtkExplicitStructuredGrid* input, vtkPolyData* out, int doCommunicate, const int* wholeExtent);
+    vtkExplicitStructuredGrid* input, vtkPolyData* out, bool doCommunicate, const int* wholeExtent);
 
-  void CellGridExecute(vtkCellGrid* input, vtkPolyData* output, int doCommunicate);
+  void CellGridExecute(vtkCellGrid* input, vtkPolyData* output, bool doCommunicate);
 
   ///@{
   /**

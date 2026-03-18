@@ -385,7 +385,8 @@ void vtkGeometryFilterDispatcher::ExecuteAMRBlock(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ExecuteBlock(vtkDataObject* input, vtkPolyData* output,
-  int doCommunicate, int updatePiece, int updateNumPieces, int updateGhosts, const int* wholeExtent)
+  bool doCommunicate, int updatePiece, int updateNumPieces, int updateGhosts,
+  const int* wholeExtent)
 {
   // Copy field data from the input block to the output block
   output->GetFieldData()->PassData(input->GetFieldData());
@@ -529,7 +530,7 @@ int vtkGeometryFilterDispatcher::RequestData(
     }
     else
     {
-      this->ExecuteBlock(modifiedInput, output, 1, procid, numProcs, 0, wholeExtent);
+      this->ExecuteBlock(modifiedInput, output, true, procid, numProcs, 0, wholeExtent);
       this->CleanupOutputData(output);
     }
   }
@@ -895,7 +896,7 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
     }
     else
     {
-      this->ExecuteBlock(block, tmpOut, 0, 0, 1, 0, wholeExtent);
+      this->ExecuteBlock(block, tmpOut, false, 0, 1, 0, wholeExtent);
       this->CleanupOutputData(tmpOut);
     }
     // skip empty nodes.
@@ -1071,7 +1072,7 @@ void vtkGeometryFilterDispatcher::ExecuteNormalsComputation(vtkPolyData* output)
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::DataSetExecute(
-  vtkDataSet* input, vtkPolyData* output, int doCommunicate)
+  vtkDataSet* input, vtkPolyData* output, bool doCommunicate)
 {
   double bds[6];
   int procid = 0;
@@ -1117,7 +1118,7 @@ void vtkGeometryFilterDispatcher::DataSetExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::GenericDataSetExecute(
-  vtkGenericDataSet* input, vtkPolyData* output, int doCommunicate)
+  vtkGenericDataSet* input, vtkPolyData* output, bool doCommunicate)
 {
   double bds[6];
   int procid = 0;
@@ -1175,7 +1176,7 @@ void vtkGeometryFilterDispatcher::GenericDataSetExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::CellGridExecute(
-  vtkCellGrid* input, vtkPolyData* output, int doCommunicate)
+  vtkCellGrid* input, vtkPolyData* output, bool doCommunicate)
 {
   double bounds[6];
   int procid = 0;
@@ -1221,7 +1222,7 @@ void vtkGeometryFilterDispatcher::CellGridExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ImageDataExecute(
-  vtkImageData* input, vtkPolyData* output, int doCommunicate, int updatePiece, const int* ext)
+  vtkImageData* input, vtkPolyData* output, bool doCommunicate, int updatePiece, const int* ext)
 {
   // If doCommunicate is false, use extent because the block is
   // entirely contained in this process.
@@ -1331,7 +1332,7 @@ void vtkGeometryFilterDispatcher::RectilinearGridExecute(vtkRectilinearGrid* inp
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::UnstructuredGridExecute(
-  vtkUnstructuredGridBase* input, vtkPolyData* output, int doCommunicate)
+  vtkUnstructuredGridBase* input, vtkPolyData* output, bool doCommunicate)
 {
   if (!this->UseOutline)
   {
@@ -1488,7 +1489,7 @@ void vtkGeometryFilterDispatcher::UnstructuredGridExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::PolyDataExecute(
-  vtkPolyData* input, vtkPolyData* output, int doCommunicate)
+  vtkPolyData* input, vtkPolyData* output, bool doCommunicate)
 {
   if (!this->UseOutline)
   {
@@ -1553,7 +1554,7 @@ void vtkGeometryFilterDispatcher::PolyDataExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::HyperTreeGridExecute(
-  vtkHyperTreeGrid* input, vtkPolyData* output, int doCommunicate)
+  vtkHyperTreeGrid* input, vtkPolyData* output, bool doCommunicate)
 {
   if (!this->UseOutline)
   {
@@ -1614,7 +1615,7 @@ void vtkGeometryFilterDispatcher::HyperTreeGridExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ExplicitStructuredGridExecute(
-  vtkExplicitStructuredGrid* input, vtkPolyData* out, int doCommunicate, const int* wholeExtent)
+  vtkExplicitStructuredGrid* input, vtkPolyData* out, bool doCommunicate, const int* wholeExtent)
 {
   vtkNew<vtkTrivialProducer> producer;
   producer->SetOutput(input);
