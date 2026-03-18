@@ -83,7 +83,7 @@ int vtkBridgeCell::IsInDataSet()
 //------------------------------------------------------------------------------
 // Description:
 // Type of the current cell.
-// \post (result==VTK_HIGHER_ORDER_EDGE)||
+// \post (result==VTK_HIGHER_ORDER_CURVE)||
 //       (result==VTK_HIGHER_ORDER_TRIANGLE)||
 //       (result==VTK_HIGHER_ORDER_TETRAHEDRON)
 int vtkBridgeCell::GetType()
@@ -98,7 +98,7 @@ int vtkBridgeCell::GetType()
       break;
     case VTK_QUAD:
     case VTK_QUADRATIC_QUAD:
-      result = VTK_HIGHER_ORDER_QUAD;
+      result = VTK_HIGHER_ORDER_QUADRILATERAL;
       break;
     case VTK_TETRA:
     case VTK_QUADRATIC_TETRA:
@@ -840,7 +840,7 @@ const vtkIdType* vtkBridgeCell::GetEdgeArray(vtkIdType edgeId)
     case VTK_HIGHER_ORDER_TRIANGLE:
       result = triangleEdges[edgeId];
       break;
-    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_HIGHER_ORDER_QUADRILATERAL:
       result = quadEdges[edgeId];
       break;
     case VTK_HIGHER_ORDER_TETRAHEDRON:

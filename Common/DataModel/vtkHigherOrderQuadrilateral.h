@@ -32,7 +32,7 @@ public:
   vtkTypeMacro(vtkHigherOrderQuadrilateral, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override = 0;
+  int GetCellType() override { return VTK_HIGHER_ORDER_QUADRILATERAL; }
   int GetCellDimension() override { return 2; }
   int RequiresInitialization() override { return 0; }
   int GetNumberOfEdges() override { return 4; }

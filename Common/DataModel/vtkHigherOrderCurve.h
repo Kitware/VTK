@@ -29,7 +29,7 @@ public:
   vtkTypeMacro(vtkHigherOrderCurve, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override = 0;
+  int GetCellType() override { return VTK_HIGHER_ORDER_CURVE; }
   int GetCellDimension() override { return 1; }
   int RequiresInitialization() override { return 1; }
   int GetNumberOfEdges() override { return 0; }

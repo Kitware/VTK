@@ -15,6 +15,7 @@
 #define vtkCellType_h
 
 #include "vtkABINamespace.h"
+#include "vtkType.h" // For VTK_DEPRECATED_IN_9_7_0_TYPE
 
 // To add a new cell type, define a new integer type flag here, then
 // create a subclass of vtkCell to implement the proper behavior. You
@@ -79,21 +80,24 @@ typedef enum
   VTK_POLYHEDRON = 42,
 
   // Higher order cells in parametric form
-  VTK_PARAMETRIC_CURVE = 51,
-  VTK_PARAMETRIC_SURFACE = 52,
-  VTK_PARAMETRIC_TRI_SURFACE = 53,
-  VTK_PARAMETRIC_QUAD_SURFACE = 54,
-  VTK_PARAMETRIC_TETRA_REGION = 55,
-  VTK_PARAMETRIC_HEX_REGION = 56,
+  VTK_PARAMETRIC_CURVE VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 51,
+  VTK_PARAMETRIC_SURFACE VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 52,
+  VTK_PARAMETRIC_TRI_SURFACE VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 53,
+  VTK_PARAMETRIC_QUAD_SURFACE VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 54,
+  VTK_PARAMETRIC_TETRA_REGION VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 55,
+  VTK_PARAMETRIC_HEX_REGION VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 56,
 
   // Higher order cells
-  VTK_HIGHER_ORDER_EDGE = 60,
+  VTK_HIGHER_ORDER_EDGE VTK_DEPRECATED_IN_9_7_0_TYPE("Replaced by VTK_HIGHER_ORDER_CURVE") = 60,
+  VTK_HIGHER_ORDER_CURVE = 60,
   VTK_HIGHER_ORDER_TRIANGLE = 61,
-  VTK_HIGHER_ORDER_QUAD = 62,
-  VTK_HIGHER_ORDER_POLYGON = 63,
+  VTK_HIGHER_ORDER_QUAD VTK_DEPRECATED_IN_9_7_0_TYPE("Replaced by VTK_HIGHER_ORDER_QUADRILATERAL") =
+    62,
+  VTK_HIGHER_ORDER_QUADRILATERAL = 62,
+  VTK_HIGHER_ORDER_POLYGON VTK_DEPRECATED_IN_9_7_0_TYPE("No longer used") = 63,
   VTK_HIGHER_ORDER_TETRAHEDRON = 64,
   VTK_HIGHER_ORDER_WEDGE = 65,
-  VTK_HIGHER_ORDER_PYRAMID = 66,
+  VTK_HIGHER_ORDER_PYRAMID = 66, // Not Implemented yet, kept as placeholder.
   VTK_HIGHER_ORDER_HEXAHEDRON = 67,
 
   // Arbitrary order Lagrange elements (formulated separated from generic higher order cells)
@@ -103,7 +107,7 @@ typedef enum
   VTK_LAGRANGE_TETRAHEDRON = 71,
   VTK_LAGRANGE_HEXAHEDRON = 72,
   VTK_LAGRANGE_WEDGE = 73,
-  VTK_LAGRANGE_PYRAMID = 74,
+  VTK_LAGRANGE_PYRAMID = 74, // Not Implemented yet, kept as placeholder.
 
   // Arbitrary order Bezier elements (formulated separated from generic higher order cells)
   VTK_BEZIER_CURVE = 75,
@@ -112,7 +116,7 @@ typedef enum
   VTK_BEZIER_TETRAHEDRON = 78,
   VTK_BEZIER_HEXAHEDRON = 79,
   VTK_BEZIER_WEDGE = 80,
-  VTK_BEZIER_PYRAMID = 81,
+  VTK_BEZIER_PYRAMID = 81, // Not Implemented yet, kept as placeholder.
 
   VTK_NUMBER_OF_CELL_TYPES = 82
 } VTKCellType;
