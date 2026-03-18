@@ -41,6 +41,33 @@ public:
   vtkGetMacro(NumberOfTargetProcesses, int);
   ///@}
 
+  enum TargetProcessType
+  {
+    ROOT_PROCESS = 0,
+    PROCESS_WITH_MOST_POINTS = 1
+  };
+  ///@{
+  /**
+   * Get/Set the target process for the aggregate operation.
+   *
+   * - `ROOT_PROCESS`: data from all processes is aggregated to the root process
+   *   of the (sub)controller. This ensures consistent aggregation across timesteps
+   *   even when point counts change over time.
+   *
+   * - `PROCESS_WITH_MOST_POINTS` (default): data from all processes is aggregated
+   *   to the process that currently has the most points, minimizing the amount of
+   *   data sent over the network. Note that if the process with the most points
+   *   changes over time, the aggregation target may vary across timesteps.
+   */
+  vtkSetClampMacro(TargetProcess, int, ROOT_PROCESS, PROCESS_WITH_MOST_POINTS);
+  vtkGetMacro(TargetProcess, int);
+  void SetTargetProcessToRootProcess() { this->SetTargetProcess(ROOT_PROCESS); }
+  void SetTargetProcessToProcessWithMostPoints()
+  {
+    this->SetTargetProcess(PROCESS_WITH_MOST_POINTS);
+  }
+  ///@}
+
   ///@{
   /**
    * Get/Set if the filter should merge coincidental points
@@ -68,6 +95,8 @@ protected:
 private:
   vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) = delete;
   void operator=(const vtkAggregateDataSetFilter&) = delete;
+
+  int TargetProcess;
 };
 
 VTK_ABI_NAMESPACE_END
