@@ -17,6 +17,10 @@
 #include "vtkOSPRayVolumeNode.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
 vtkViewNode* ren_maker()
 {
   vtkOSPRayRendererNode* vn = vtkOSPRayRendererNode::New();
@@ -87,6 +91,8 @@ vtkViewNode* particle_maker()
   vtkOSPRayPointGaussianMapperNode* vn = vtkOSPRayPointGaussianMapperNode::New();
   return vn;
 }
+
+} // end anonymous namespace
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
