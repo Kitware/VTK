@@ -23,7 +23,7 @@ int TestGeometryFilterDispatcher(int argc, char* argv[])
   // Geometry filter dispatcher — surface extraction mode
   vtkNew<vtkGeometryFilterDispatcher> geometry;
   geometry->SetInputConnection(wavelet->GetOutputPort());
-  geometry->SetUseOutline(0);
+  geometry->SetUseOutline(false);
 
   // Mapper
   vtkNew<vtkPolyDataMapper> mapper;
