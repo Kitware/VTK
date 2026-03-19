@@ -95,6 +95,7 @@ public:
     vtkQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
   }
   ///@}
+
   ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
@@ -116,15 +117,15 @@ public:
 
 protected:
   vtkQuadraticHexahedron();
-  ~vtkQuadraticHexahedron() override;
+  ~vtkQuadraticHexahedron() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticQuad* Face;
-  vtkHexahedron* Hex;
-  vtkPointData* PointData;
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticQuad> Face;
+  vtkSmartPointer<vtkHexahedron> Hex;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
   void Subdivide(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);

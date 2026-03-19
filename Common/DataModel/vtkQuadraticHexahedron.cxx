@@ -15,6 +15,103 @@
 
 #include <algorithm> //std::copy
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   QuadraticHexahedron topology:
+
+             7------14------6
+            /|             /|
+          15 |           13 |
+         /   19         /   18
+        4------12------5    |
+        |    |         |    |
+        |    3-----10--|----2
+       16   /          17  /
+        |  11          |  9
+        | /            | /
+        0------8-------1
+)";
+
+//------------------------------------------------------------------------------
+double ParametricCoords[60] = {
+  0.0, 0.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  1.0, 1.0, 0.0, //
+  0.0, 1.0, 0.0, //
+  0.0, 0.0, 1.0, //
+  1.0, 0.0, 1.0, //
+  1.0, 1.0, 1.0, //
+  0.0, 1.0, 1.0, //
+  0.5, 0.0, 0.0, //
+  1.0, 0.5, 0.0, //
+  0.5, 1.0, 0.0, //
+  0.0, 0.5, 0.0, //
+  0.5, 0.0, 1.0, //
+  1.0, 0.5, 1.0, //
+  0.5, 1.0, 1.0, //
+  0.0, 0.5, 1.0, //
+  0.0, 0.0, 0.5, //
+  1.0, 0.0, 0.5, //
+  1.0, 1.0, 0.5, //
+  0.0, 1.0, 0.5  //
+};
+
+//------------------------------------------------------------------------------
+constexpr double MidPoints[7][3] = {
+  { 0.0, 0.5, 0.5 }, // 20
+  { 1.0, 0.5, 0.5 }, // 21
+  { 0.5, 0.0, 0.5 }, // 22
+  { 0.5, 1.0, 0.5 }, // 23
+  { 0.5, 0.5, 0.0 }, // 24
+  { 0.5, 0.5, 1.0 }, // 25
+  { 0.5, 0.5, 0.5 }, // 26
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Edges[12][3] = {
+  { 0, 1, 8 },
+  { 1, 2, 9 },
+  { 3, 2, 10 },
+  { 0, 3, 11 },
+  { 4, 5, 12 },
+  { 5, 6, 13 },
+  { 7, 6, 14 },
+  { 4, 7, 15 },
+  { 0, 4, 16 },
+  { 1, 5, 17 },
+  { 3, 7, 19 },
+  { 2, 6, 18 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Faces[6][8] = {
+  { 0, 4, 7, 3, 16, 15, 19, 11 },
+  { 1, 2, 6, 5, 9, 18, 13, 17 },
+  { 0, 1, 5, 4, 8, 17, 12, 16 },
+  { 3, 7, 6, 2, 19, 14, 18, 10 },
+  { 0, 3, 2, 1, 11, 10, 9, 8 },
+  { 4, 5, 6, 7, 12, 13, 14, 15 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType LinearCells[8][8] = {
+  { 0, 8, 24, 11, 16, 22, 26, 20 },
+  { 8, 1, 9, 24, 22, 17, 21, 26 },
+  { 11, 24, 10, 3, 20, 26, 23, 19 },
+  { 24, 9, 2, 10, 26, 21, 18, 23 },
+  { 16, 22, 26, 20, 4, 12, 25, 15 },
+  { 22, 17, 21, 26, 12, 5, 13, 25 },
+  { 20, 26, 23, 19, 15, 25, 14, 7 },
+  { 26, 21, 18, 23, 25, 13, 6, 14 },
+};
+
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_MAX_ITERATIONS = 20;
+constexpr double VTK_CONVERGED = 1.e-04;
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
@@ -35,97 +132,27 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
   this->Points->SetNumberOfPoints(20);
   this->PointIds->SetNumberOfIds(20);
 
-  this->Edge = vtkQuadraticEdge::New();
-  this->Face = vtkQuadraticQuad::New();
-  this->Hex = vtkHexahedron::New();
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->Face = vtkSmartPointer<vtkQuadraticQuad>::New();
+  this->Hex = vtkSmartPointer<vtkHexahedron>::New();
 
-  this->PointData = vtkPointData::New();
-  this->CellData = vtkCellData::New();
-  this->CellScalars = vtkDoubleArray::New();
+  this->PointData = vtkSmartPointer<vtkPointData>::New();
+  this->CellData = vtkSmartPointer<vtkCellData>::New();
+  this->CellScalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->CellScalars->SetNumberOfTuples(27);
-  this->Scalars = vtkDoubleArray::New();
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->Scalars->SetNumberOfTuples(8);
-}
-
-//------------------------------------------------------------------------------
-vtkQuadraticHexahedron::~vtkQuadraticHexahedron()
-{
-  this->Edge->Delete();
-  this->Face->Delete();
-  this->Hex->Delete();
-
-  this->PointData->Delete();
-  this->CellData->Delete();
-  this->Scalars->Delete();
-  this->CellScalars->Delete();
-}
-
-static int LinearHexs[8][8] = {
-  { 0, 8, 24, 11, 16, 22, 26, 20 },
-  { 8, 1, 9, 24, 22, 17, 21, 26 },
-  { 11, 24, 10, 3, 20, 26, 23, 19 },
-  { 24, 9, 2, 10, 26, 21, 18, 23 },
-  { 16, 22, 26, 20, 4, 12, 25, 15 },
-  { 22, 17, 21, 26, 12, 5, 13, 25 },
-  { 20, 26, 23, 19, 15, 25, 14, 7 },
-  { 26, 21, 18, 23, 25, 13, 6, 14 },
-};
-
-static constexpr vtkIdType HexFaces[6][8] = {
-  { 0, 4, 7, 3, 16, 15, 19, 11 },
-  { 1, 2, 6, 5, 9, 18, 13, 17 },
-  { 0, 1, 5, 4, 8, 17, 12, 16 },
-  { 3, 7, 6, 2, 19, 14, 18, 10 },
-  { 0, 3, 2, 1, 11, 10, 9, 8 },
-  { 4, 5, 6, 7, 12, 13, 14, 15 },
-};
-
-static constexpr vtkIdType HexEdges[12][3] = {
-  { 0, 1, 8 },
-  { 1, 2, 9 },
-  { 3, 2, 10 },
-  { 0, 3, 11 },
-  { 4, 5, 12 },
-  { 5, 6, 13 },
-  { 7, 6, 14 },
-  { 4, 7, 15 },
-  { 0, 4, 16 },
-  { 1, 5, 17 },
-  { 3, 7, 19 },
-  { 2, 6, 18 },
-};
-
-static double MidPoints[7][3] = {
-  { 0.0, 0.5, 0.5 }, // 20
-  { 1.0, 0.5, 0.5 }, // 21
-  { 0.5, 0.0, 0.5 }, // 22
-  { 0.5, 1.0, 0.5 }, // 23
-  { 0.5, 0.5, 0.0 }, // 24
-  { 0.5, 0.5, 1.0 }, // 25
-  { 0.5, 0.5, 0.5 }, // 26
-};
-
-//------------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
-{
-  return HexEdges[edgeId];
-}
-//------------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
-{
-  return HexFaces[faceId];
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticHexahedron::GetEdge(int edgeId)
 {
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, 11);
+  edgeId = std::clamp(edgeId, 0, 11);
 
   for (int i = 0; i < 3; i++)
   {
-    this->Edge->PointIds->SetId(i, this->PointIds->GetId(HexEdges[edgeId][i]));
-    this->Edge->Points->SetPoint(i, this->Points->GetPoint(HexEdges[edgeId][i]));
+    this->Edge->PointIds->SetId(i, this->PointIds->GetId(Edges[edgeId][i]));
+    this->Edge->Points->SetPoint(i, this->Points->GetPoint(Edges[edgeId][i]));
   }
 
   return this->Edge;
@@ -134,26 +161,34 @@ vtkCell* vtkQuadraticHexahedron::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = std::max(faceId, 0);
-  faceId = std::min(faceId, 5);
+  faceId = std::clamp(faceId, 0, 5);
 
   for (int i = 0; i < 8; i++)
   {
-    this->Face->PointIds->SetId(i, this->PointIds->GetId(HexFaces[faceId][i]));
-    this->Face->Points->SetPoint(i, this->Points->GetPoint(HexFaces[faceId][i]));
+    this->Face->PointIds->SetId(i, this->PointIds->GetId(Faces[faceId][i]));
+    this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceId][i]));
   }
 
   return this->Face;
 }
 
 //------------------------------------------------------------------------------
+const vtkIdType* vtkQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+
+//------------------------------------------------------------------------------
+const vtkIdType* vtkQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
+{
+  return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
 void vtkQuadraticHexahedron::Subdivide(
   vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars)
 {
-  int numMidPts, i, j;
-  double weights[20];
-  double x[3];
-  double s;
+  double weights[20], x[3];
 
   // Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
@@ -167,12 +202,12 @@ void vtkQuadraticHexahedron::Subdivide(
   this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd, 27);
   this->CellData->CopyAllocate(inCd, 8);
-  for (i = 0; i < 20; i++)
+  for (int i = 0; i < 20; i++)
   {
     this->PointData->CopyData(inPd, this->PointIds->GetId(i), i);
     this->CellScalars->SetValue(i, cellScalars->GetTuple1(i));
   }
-  for (i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
   {
     this->CellData->CopyData(inCd, cellId, i);
   }
@@ -181,16 +216,16 @@ void vtkQuadraticHexahedron::Subdivide(
   double p[3];
   this->Points->Reserve(27);
   this->CellScalars->ReserveTuples(27);
-  for (numMidPts = 0; numMidPts < 7; numMidPts++)
+  for (int numMidPts = 0; numMidPts < 7; numMidPts++)
   {
     vtkQuadraticHexahedron::InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
-    s = 0.0;
-    for (i = 0; i < 20; i++)
+    double s = 0.0;
+    for (int i = 0; i < 20; i++)
     {
       this->Points->GetPoint(i, p);
-      for (j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++)
       {
         x[j] += p[j] * weights[i];
       }
@@ -203,10 +238,6 @@ void vtkQuadraticHexahedron::Subdivide(
 }
 
 //------------------------------------------------------------------------------
-static constexpr double VTK_DIVERGED = 1.e6;
-static constexpr int VTK_HEX_MAX_ITERATION = 20;
-static constexpr double VTK_HEX_CONVERGED = 1.e-04;
-
 int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
@@ -223,13 +254,12 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
   const double* pts = pointsArray->GetPointer(0);
 
   // compute a bound on the volume to get a scale for an acceptable determinant
-  vtkIdType diagonals[4][2] = { { 0, 6 }, { 1, 7 }, { 2, 4 }, { 3, 5 } };
+  static constexpr vtkIdType diagonals[4][2] = { { 0, 6 }, { 1, 7 }, { 2, 4 }, { 3, 5 } };
   double longestDiagonal = 0;
   for (int i = 0; i < 4; i++)
   {
-    const double *pt0, *pt1;
-    pt0 = pts + 3 * diagonals[i][0];
-    pt1 = pts + 3 * diagonals[i][1];
+    const double* pt0 = pts + 3 * diagonals[i][0];
+    const double* pt1 = pts + 3 * diagonals[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     longestDiagonal = std::max(longestDiagonal, d2);
   }
@@ -243,7 +273,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
 
   //  enter iteration loop
   int converged = 0;
-  for (int iteration = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
+  for (int iteration = 0; !converged && iteration < VTK_MAX_ITERATIONS; iteration++)
   {
     //  calculate element interpolation functions and derivatives
     vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
@@ -271,7 +301,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
 
     //  compute determinants and generate improvements
     double d = vtkMath::Determinant3x3(rcol, scol, tcol);
-    if (fabs(d) < determinantTolerance)
+    if (std::abs(d) < determinantTolerance)
     {
       vtkDebugMacro(<< "Determinant incorrect, iteration " << iteration);
       return -1;
@@ -282,20 +312,18 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     pcoords[2] = params[2] - 0.5 * vtkMath::Determinant3x3(rcol, scol, fcol) / d;
 
     //  check for convergence
-    if (((fabs(pcoords[0] - params[0])) < VTK_HEX_CONVERGED) &&
-      ((fabs(pcoords[1] - params[1])) < VTK_HEX_CONVERGED) &&
-      ((fabs(pcoords[2] - params[2])) < VTK_HEX_CONVERGED))
+    if (std::abs(pcoords[0] - params[0]) < VTK_CONVERGED &&
+      std::abs(pcoords[1] - params[1]) < VTK_CONVERGED &&
+      std::abs(pcoords[2] - params[2]) < VTK_CONVERGED)
     {
       converged = 1;
     }
-
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || (fabs(pcoords[1]) > VTK_DIVERGED) ||
-      (fabs(pcoords[2]) > VTK_DIVERGED))
+    else if (std::abs(pcoords[0]) > VTK_DIVERGED || std::abs(pcoords[1]) > VTK_DIVERGED ||
+      std::abs(pcoords[2]) > VTK_DIVERGED)
     {
       return -1;
     }
-
     //  if not converged, repeat
     else
     {
@@ -357,9 +385,6 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
 void vtkQuadraticHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i, j;
-  const double* pt;
-
   vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   // Efficient point access
@@ -371,10 +396,10 @@ void vtkQuadraticHexahedron::EvaluateLocation(
   }
   const double* pts = pointsArray->GetPointer(0);
   x[0] = x[1] = x[2] = 0.0;
-  for (i = 0; i < 20; i++)
+  for (int i = 0; i < 20; i++)
   {
-    pt = pts + 3 * i;
-    for (j = 0; j < 3; j++)
+    const double* pt = pts + 3 * i;
+    for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
     }
@@ -406,9 +431,9 @@ void vtkQuadraticHexahedron::Contour(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 8; j++) // For each of the eight vertices of the hexhedron
     {
-      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j, LinearHexs[i][j]);
-      this->Scalars->SetValue(j, this->CellScalars->GetValue(LinearHexs[i][j]));
+      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Hex->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, this->CellScalars->GetValue(LinearCells[i][j]));
     }
     this->Hex->Contour(value, this->Scalars, locator, verts, lines, polys, this->PointData, outPd,
       this->CellData, i, outCd);
@@ -424,14 +449,13 @@ int vtkQuadraticHexahedron::IntersectWithLine(
   int intersection = 0;
   double tTemp;
   double pc[3], xTemp[3];
-  int faceNum;
 
   t = VTK_DOUBLE_MAX;
-  for (faceNum = 0; faceNum < 6; faceNum++)
+  for (int faceNum = 0; faceNum < 6; faceNum++)
   {
     for (int i = 0; i < 8; i++)
     {
-      this->Face->Points->SetPoint(i, this->Points->GetPoint(HexFaces[faceNum][i]));
+      this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceNum][i]));
     }
 
     if (this->Face->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId))
@@ -476,6 +500,7 @@ int vtkQuadraticHexahedron::IntersectWithLine(
             break;
 
           case 5:
+          default:
             pcoords[0] = pc[0];
             pcoords[1] = pc[1];
             pcoords[2] = 1.0;
@@ -497,7 +522,7 @@ int vtkQuadraticHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList
     { 15, 11, 12, 16 }, { 9, 12, 8, 17 }, { 12, 13, 5, 17 }, { 13, 12, 9, 17 }, { 13, 9, 10, 18 },
     { 13, 14, 6, 18 }, { 14, 13, 10, 18 }, { 11, 14, 10, 19 }, { 14, 15, 7, 19 },
     { 15, 14, 11, 19 } };
-  std::copy(&localPtIds[0][0], &localPtIds[0][0] + 88, ptIds->begin());
+  std::copy_n(&localPtIds[0][0], 88, ptIds->begin());
   return 1;
 }
 
@@ -508,7 +533,6 @@ int vtkQuadraticHexahedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList
 void vtkQuadraticHexahedron::JacobianInverse(
   const double pcoords[3], double** inverse, double derivs[60])
 {
-  int i, j;
   double *m[3], m0[3], m1[3], m2[3];
   double x[3];
 
@@ -519,15 +543,15 @@ void vtkQuadraticHexahedron::JacobianInverse(
   m[0] = m0;
   m[1] = m1;
   m[2] = m2;
-  for (i = 0; i < 3; i++) // initialize matrix
+  for (int i = 0; i < 3; i++) // initialize matrix
   {
     m0[i] = m1[i] = m2[i] = 0.0;
   }
 
-  for (j = 0; j < 20; j++)
+  for (int j = 0; j < 20; j++)
   {
     this->Points->GetPoint(j, x);
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[20 + j];
@@ -549,7 +573,6 @@ void vtkQuadraticHexahedron::Derivatives(
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[60], sum[3];
-  int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0;
@@ -558,16 +581,16 @@ void vtkQuadraticHexahedron::Derivatives(
   this->JacobianInverse(pcoords, jI, functionDerivs);
 
   // now compute derivates of values provided
-  for (k = 0; k < dim; k++) // loop over values per vertex
+  for (int k = 0; k < dim; k++) // loop over values per vertex
   {
     sum[0] = sum[1] = sum[2] = 0.0;
-    for (i = 0; i < 20; i++) // loop over interp. function derivatives
+    for (int i = 0; i < 20; i++) // loop over interp. function derivatives
     {
       sum[0] += functionDerivs[i] * values[dim * i + k];
       sum[1] += functionDerivs[20 + i] * values[dim * i + k];
       sum[2] += functionDerivs[40 + i] * values[dim * i + k];
     }
-    for (j = 0; j < 3; j++) // loop over derivative directions
+    for (int j = 0; j < 3; j++) // loop over derivative directions
     {
       derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
     }
@@ -589,9 +612,9 @@ void vtkQuadraticHexahedron::Clip(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 8; j++) // For each of the eight vertices of the hexhedron
     {
-      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j, LinearHexs[i][j]);
-      this->Scalars->SetValue(j, this->CellScalars->GetValue(LinearHexs[i][j]));
+      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Hex->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, this->CellScalars->GetValue(LinearCells[i][j]));
     }
     this->Hex->Clip(value, this->Scalars, locator, tets, this->PointData, outPd, this->CellData, i,
       outCd, insideOut);
@@ -730,35 +753,15 @@ void vtkQuadraticHexahedron::InterpolationDerivs(const double pcoords[3], double
 
   // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 60; i++)
+  {
     derivs[i] *= 2;
+  }
 }
 
 //------------------------------------------------------------------------------
-static double vtkQHexCellPCoords[60] = {
-  0.0, 0.0, 0.0, //
-  1.0, 0.0, 0.0, //
-  1.0, 1.0, 0.0, //
-  0.0, 1.0, 0.0, //
-  0.0, 0.0, 1.0, //
-  1.0, 0.0, 1.0, //
-  1.0, 1.0, 1.0, //
-  0.0, 1.0, 1.0, //
-  0.5, 0.0, 0.0, //
-  1.0, 0.5, 0.0, //
-  0.5, 1.0, 0.0, //
-  0.0, 0.5, 0.0, //
-  0.5, 0.0, 1.0, //
-  1.0, 0.5, 1.0, //
-  0.5, 1.0, 1.0, //
-  0.0, 0.5, 1.0, //
-  0.0, 0.0, 0.5, //
-  1.0, 0.0, 0.5, //
-  1.0, 1.0, 0.5, //
-  0.0, 1.0, 0.5  //
-};
 double* vtkQuadraticHexahedron::GetParametricCoords()
 {
-  return vtkQHexCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
@@ -776,6 +779,8 @@ void vtkQuadraticHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   this->PointData->PrintSelf(os, indent.GetNextIndent());
   os << indent << "CellData:\n";
   this->CellData->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "CellScalars:\n";
+  this->CellScalars->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
