@@ -128,17 +128,17 @@ public:
 
 protected:
   vtkQuadraticPyramid();
-  ~vtkQuadraticPyramid() override;
+  ~vtkQuadraticPyramid() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticTriangle* TriangleFace;
-  vtkQuadraticQuad* Face;
-  vtkTetra* Tetra;
-  vtkPyramid* Pyramid;
-  vtkPointData* PointData;
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> TriangleFace;
+  vtkSmartPointer<vtkQuadraticQuad> Face;
+  vtkSmartPointer<vtkTetra> Tetra;
+  vtkSmartPointer<vtkPyramid> Pyramid;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
   ///@{
   /**
@@ -155,7 +155,7 @@ protected:
    * Resize the superclasses' member arrays to newSize where newSize should either be
    * 13 or 14. Call with 13 to reset the reallocation done in the Subdivide()
    * method or call with 14 to add one extra tuple for the generated point in
-   * Subdivice. For efficiency it only resizes the superclasses' arrays.
+   * Subdivide. For efficiency, it only resizes the superclasses' arrays.
    **/
   void ResizeArrays(vtkIdType newSize);
   ///@}
