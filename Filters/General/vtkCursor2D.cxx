@@ -82,7 +82,7 @@ int vtkCursor2D::RequestData(vtkInformation* vtkNotUsed(request),
   if (numPts)
   {
     newPts = vtkPoints::New();
-    newPts->Allocate(numPts);
+    newPts->Reserve(numPts);
   }
   else
   {

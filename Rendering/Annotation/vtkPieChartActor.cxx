@@ -441,7 +441,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(siz
   // Now generate the web points
   this->WebData->Initialize(); // remove old polydata, if any
   vtkPoints* webPts = vtkPoints::New();
-  webPts->Allocate(this->N + 1);
+  webPts->Reserve(this->N + 1);
   vtkCellArray* webLines = vtkCellArray::New();
   webLines->AllocateEstimate(this->N, 2);
   this->WebData->SetPoints(webPts);
@@ -539,7 +539,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(siz
   // Now generate the pie polygons
   this->PlotData->Initialize(); // remove old polydata, if any
   vtkPoints* pts = vtkPoints::New();
-  pts->Allocate(this->N * 2);
+  pts->Reserve(this->N * 2);
   vtkCellArray* polys = vtkCellArray::New();
   vtkUnsignedCharArray* colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);

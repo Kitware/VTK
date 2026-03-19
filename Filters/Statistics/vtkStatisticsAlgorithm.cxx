@@ -761,7 +761,7 @@ std::size_t vtkStatisticsAlgorithm::ConsumeStringTuple(
 std::size_t vtkStatisticsAlgorithm::ConsumeStringTuple(
   const std::string& source, vtkStringArray* tuple)
 {
-  tuple->SetNumberOfValues(0);
+  tuple->Initialize();
   std::vector<std::string> strvec;
   std::size_t sz = vtkStatisticsAlgorithm::ConsumeStringTuple(source, strvec);
   if (sz == 0)

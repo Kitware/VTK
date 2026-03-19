@@ -185,7 +185,6 @@ void vtkRendererSource::RequestData(
     if (this->DepthValues)
     {
       vtkFloatArray* zArray = vtkFloatArray::New();
-      zArray->Allocate(numOutPts);
       zArray->SetNumberOfTuples(numOutPts);
       float* zPtr = zArray->WritePointer(0, numOutPts);
       memcpy(zPtr, zBuf, numOutPts * sizeof(float));

@@ -22,7 +22,6 @@
  * - [public] ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
  * - [public] void SetTypedComponent(vtkIdType tupleIdx, int compIdx,
  *                                   ValueType value)
- * - [protected] bool AllocateTuples(vtkIdType numTuples)
  * - [protected] bool ReallocateTuples(vtkIdType numTuples)
  *
  * Note that these methods use the CRTP idiom, which provides static binding to
@@ -286,7 +285,6 @@ public:
   ValueType GetDataTypeValueMax() const;
   int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() const override;
-  vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;
   vtkTypeBool ReserveTuples(vtkIdType numTuples) override;
   void SetNumberOfComponents(int num) override;
   void Squeeze() override;
@@ -346,16 +344,6 @@ public:
 protected:
   vtkGenericDataArray();
   ~vtkGenericDataArray() override;
-
-  /**
-   * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
-   * all data is freed.
-   * @ingroup vtkGDAConceptMethods
-   */
-  bool AllocateTuples(vtkIdType numTuples)
-  {
-    return static_cast<DerivedT*>(this)->AllocateTuples(numTuples);
-  }
 
   /**
    * Allocate space for numTuples. Old data is preserved. If numTuples == 0,

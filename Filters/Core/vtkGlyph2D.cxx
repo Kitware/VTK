@@ -54,7 +54,7 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
   vtkDebugMacro(<< "Generating 2D glyphs");
 
   pts = vtkIdList::New();
-  pts->Allocate(VTK_CELL_SIZE);
+  pts->Reserve(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
 
@@ -195,37 +195,37 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
   }
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts * numSourcePts);
+  newPts->Reserve(numPts * numSourcePts);
   if (this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars)
   {
     newScalars = inScalars->NewInstance();
     newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    newScalars->Allocate(inScalars->GetNumberOfComponents() * numPts * numSourcePts);
+    newScalars->ReserveTuples(numPts * numSourcePts);
   }
   else if ((this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
   {
     newScalars = vtkDoubleArray::New();
-    newScalars->Allocate(numPts * numSourcePts);
+    newScalars->ReserveValues(numPts * numSourcePts);
     newScalars->SetName("GlyphScale");
   }
   else if ((this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
   {
     newScalars = vtkDoubleArray::New();
-    newScalars->Allocate(numPts * numSourcePts);
+    newScalars->ReserveValues(numPts * numSourcePts);
     newScalars->SetName("VectorMagnitude");
   }
   if (haveVectors)
   {
     newVectors = vtkDoubleArray::New();
     newVectors->SetNumberOfComponents(3);
-    newVectors->Allocate(3 * numPts * numSourcePts);
+    newVectors->ReserveTuples(numPts * numSourcePts);
     newVectors->SetName("GlyphVector");
   }
   if (haveNormals)
   {
     newNormals = vtkDoubleArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts * numSourcePts);
+    newNormals->ReserveTuples(numPts * numSourcePts);
     newNormals->SetName("Normals");
   }
 

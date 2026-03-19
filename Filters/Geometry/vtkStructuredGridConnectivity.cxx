@@ -1066,7 +1066,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(int gridID)
   }
   else
   {
-    this->GhostedPointGhostArray[gridID]->Reset();
+    this->GhostedPointGhostArray[gridID]->Initialize();
   }
 
   if (this->GhostedCellGhostArray[gridID] == nullptr)
@@ -1075,7 +1075,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(int gridID)
   }
   else
   {
-    this->GhostedCellGhostArray[gridID]->Reset();
+    this->GhostedCellGhostArray[gridID]->Initialize();
   }
 
   // STEP 1: Get the ghosted extent
@@ -1091,8 +1091,8 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(int gridID)
   int numCells = vtkStructuredData::GetNumberOfCells(ghostedExtent, this->DataDescription);
 
   // STEP 3: Allocated the ghosted node and cell arrays and initialize them
-  this->GhostedPointGhostArray[gridID]->Allocate(numNodes);
-  this->GhostedCellGhostArray[gridID]->Allocate(numCells);
+  this->GhostedPointGhostArray[gridID]->ReserveValues(numNodes);
+  this->GhostedCellGhostArray[gridID]->ReserveValues(numCells);
 
   // Initialize the arrays
   unsigned char* pnodes = this->GhostedPointGhostArray[gridID]->WritePointer(0, numNodes);

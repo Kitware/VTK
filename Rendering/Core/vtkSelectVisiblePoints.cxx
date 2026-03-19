@@ -95,7 +95,7 @@ int vtkSelectVisiblePoints::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkPoints* outPts = vtkPoints::New();
-  outPts->Allocate(numPts / 2 + 1);
+  outPts->Reserve(numPts / 2 + 1);
   outPD->CopyAllocate(inPD);
 
   vtkCellArray* outputVertices = vtkCellArray::New();

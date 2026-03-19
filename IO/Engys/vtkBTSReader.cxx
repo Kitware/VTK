@@ -296,7 +296,6 @@ bool vtkBTSReader::ReadPoints(vtkPolyData* polyData)
 
   vtkNew<vtkPoints> points;
   points->SetDataTypeToFloat();
-  points->Allocate(numberOfPoints);
   points->SetNumberOfPoints(numberOfPoints);
 
   float coordinates[3];

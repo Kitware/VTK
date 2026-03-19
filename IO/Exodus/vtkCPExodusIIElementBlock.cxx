@@ -150,11 +150,10 @@ int vtkCPExodusIIElementBlockImpl::GetMaxCellSize()
 //------------------------------------------------------------------------------
 void vtkCPExodusIIElementBlockImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 {
-  array->Reset();
+  array->Initialize();
   if (type == this->CellType)
   {
-    array->SetNumberOfComponents(1);
-    array->Allocate(this->NumberOfCells);
+    array->ReserveValues(this->NumberOfCells);
     for (vtkIdType i = 0; i < this->NumberOfCells; ++i)
     {
       array->InsertNextValue(i);

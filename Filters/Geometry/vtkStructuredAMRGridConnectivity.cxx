@@ -977,7 +977,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
   }
   else
   {
-    this->GhostedPointGhostArray[gridID]->Reset();
+    this->GhostedPointGhostArray[gridID]->Initialize();
   }
 
   if (this->GhostedCellGhostArray[gridID] == nullptr)
@@ -986,7 +986,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
   }
   else
   {
-    this->GhostedCellGhostArray[gridID]->Reset();
+    this->GhostedCellGhostArray[gridID]->Initialize();
   }
 
   // STEP 1: Get the ghosted extent
@@ -998,8 +998,8 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
   int numCells = vtkStructuredData::GetNumberOfCells(ghostExtent, this->DataDescription);
 
   // STEP 3: Allocate the ghosted node and cell arrays
-  this->GhostedPointGhostArray[gridID]->Allocate(numNodes);
-  this->GhostedCellGhostArray[gridID]->Allocate(numCells);
+  this->GhostedPointGhostArray[gridID]->ReserveValues(numNodes);
+  this->GhostedCellGhostArray[gridID]->ReserveValues(numCells);
 
   // STEP 4: Get the registered extent of the grid
   int registeredGridExtent[6];

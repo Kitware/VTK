@@ -166,7 +166,7 @@ int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
     points->SetDataType(VTK_FLOAT);
   }
 
-  points->Allocate(numberOfPoints);
+  points->Reserve(numberOfPoints);
   double coord[3];
   for (int k = extent[4]; k < extent[5] + 1; k++)
   {

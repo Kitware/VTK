@@ -446,7 +446,7 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
         this->GlobCellIds->InsertId(nCells + i, it->LocCellIds->GetId(i));
       }
       nCells += it->LocCellIds->GetNumberOfIds();
-      it->LocCellIds->SetNumberOfIds(0);
+      it->LocCellIds->Initialize();
     }
   }
 };

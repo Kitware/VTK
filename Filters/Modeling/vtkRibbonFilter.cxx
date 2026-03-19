@@ -94,10 +94,10 @@ int vtkRibbonFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Create the geometry and topology
   numNewPts = 2 * numPts;
   newPts = vtkPoints::New();
-  newPts->Allocate(numNewPts);
+  newPts->Reserve(numNewPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numNewPts);
+  newNormals->ReserveTuples(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->AllocateEstimate(1, numNewPts);
   vtkCellArray* singlePolyline = vtkCellArray::New();
@@ -110,7 +110,7 @@ int vtkRibbonFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(numNewPts);
+    newTCoords->ReserveTuples(numNewPts);
     outPD->CopyTCoordsOff();
   }
   outPD->CopyAllocate(pd, numNewPts);

@@ -101,7 +101,7 @@ int vtkCountFaces::RequestData(
   else
   {
     vtkNew<vtkIdTypeArray> faceCount;
-    faceCount->Allocate(input->GetNumberOfCells());
+    faceCount->ReserveValues(input->GetNumberOfCells());
     faceCount->SetName(this->OutputArrayName);
     output->GetCellData()->AddArray(faceCount);
 

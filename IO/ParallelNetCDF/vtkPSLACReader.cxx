@@ -607,7 +607,7 @@ int vtkPSLACReader::ReadConnectivity(
   // can just copy it into a block of memory.  We are only calculating the
   // local to global id map for now.  We will fill the global to local id
   // later when we iterate over the local ids.
-  this->PInternal->LocalToGlobalIds->Allocate(
+  this->PInternal->LocalToGlobalIds->ReserveValues(
     static_cast<vtkIdType>(this->PInternal->GlobalToLocalIds.size()));
   vtkInternal::GlobalToLocalIdType::iterator itr;
   for (itr = this->PInternal->GlobalToLocalIds.begin();
@@ -649,8 +649,7 @@ int vtkPSLACReader::ReadConnectivity(
   for (int process = 0; process < this->NumberOfPieces; process++)
   {
     vtkNew<vtkIdTypeArray> pointList;
-    pointList->Allocate(this->NumberOfGlobalPoints / this->NumberOfPieces,
-      this->NumberOfGlobalPoints / this->NumberOfPieces);
+    pointList->ReserveValues(this->NumberOfGlobalPoints / this->NumberOfPieces);
     vtkIdType lastId = this->EndPointRead(process);
     for (; (localId < numLocalIds); localId++)
     {

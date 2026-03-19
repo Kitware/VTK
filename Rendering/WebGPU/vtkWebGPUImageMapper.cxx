@@ -84,7 +84,7 @@ struct ColorTextureFallbackProcessor
     // reformat data into unsigned char
     vtkNew<vtkUnsignedCharArray> uCharPixels;
     uCharPixels->SetNumberOfComponents(4);
-    uCharPixels->Allocate(width * height * 4);
+    uCharPixels->ReserveTuples(width * height);
     auto offset = bpp *
       image->GetScalarIndex(
         mapper->DisplayExtent[0], mapper->DisplayExtent[2], mapper->DisplayExtent[4]);
@@ -216,7 +216,7 @@ struct ColorTextureShiftScaleProcessor
 
     vtkNew<vtkUnsignedCharArray> uCharPixels;
     uCharPixels->SetNumberOfComponents(4);
-    uCharPixels->Allocate(width * height * 4);
+    uCharPixels->ReserveTuples(width * height);
     auto offset = bpp *
       image->GetScalarIndex(
         mapper->DisplayExtent[0], mapper->DisplayExtent[2], mapper->DisplayExtent[4]);
@@ -333,7 +333,7 @@ struct ColorTextureSimpleProcessor
     }
     vtkNew<vtkUnsignedCharArray> uCharPixels;
     uCharPixels->SetNumberOfComponents(4);
-    uCharPixels->Allocate(width * height * 4);
+    uCharPixels->ReserveTuples(width * height);
     auto offset = bpp *
       image->GetScalarIndex(
         mapper->DisplayExtent[0], mapper->DisplayExtent[2], mapper->DisplayExtent[4]);

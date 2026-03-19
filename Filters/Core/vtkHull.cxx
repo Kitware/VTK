@@ -760,7 +760,7 @@ void vtkHull::GenerateHull(vtkPolyData* pd, double* bounds)
   // Create a new set of points and polygons into which the results will
   // be stored
   vtkNew<vtkPoints> newPoints;
-  newPoints->Allocate(numPlanes * 3);
+  newPoints->Reserve(numPlanes * 3);
   vtkNew<vtkCellArray> newPolys;
   newPolys->AllocateEstimate(numPlanes, 3);
 

@@ -57,7 +57,7 @@ int vtkOutlineCornerSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_FLOAT);
   }
 
-  newPts->Allocate(32);
+  newPts->Reserve(32);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(24, 2);
 

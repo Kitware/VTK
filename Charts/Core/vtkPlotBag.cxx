@@ -118,9 +118,9 @@ bool vtkPlotBag::UpdateCache()
   std::sort(ids.begin(), ids.end());
 
   vtkNew<vtkPointsProjectedHull> q3Points;
-  q3Points->Allocate(nbPoints);
+  q3Points->Reserve(nbPoints);
   vtkNew<vtkPointsProjectedHull> medianPoints;
-  medianPoints->Allocate(nbPoints);
+  medianPoints->Reserve(nbPoints);
 
   // Compute total density sum
   double densitySum = 0.0;

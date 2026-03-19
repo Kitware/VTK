@@ -66,7 +66,7 @@ int TestProbeFilterImageInput(int argc, char* argv[])
   outputData->SetSpacing(spacing);
   vtkNew<vtkFloatArray> fa;
   fa->SetName("scalars");
-  fa->Allocate(dim * dim * dim);
+  fa->ReserveValues(dim * dim * dim);
   outputData->GetPointData()->SetScalars(fa);
 
   vtkNew<vtkProbeFilter> probe2;

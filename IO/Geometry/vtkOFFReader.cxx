@@ -149,8 +149,8 @@ int vtkOFFReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // allocate points
   auto points = vtkSmartPointer<vtkPoints>::New();
-  points->Allocate(numPoints);
   points->SetDataTypeToDouble();
+  points->Reserve(numPoints);
 
   // allocate polygons
   auto polys = vtkSmartPointer<vtkCellArray>::New();

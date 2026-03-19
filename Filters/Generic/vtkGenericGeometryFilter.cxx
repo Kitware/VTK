@@ -127,7 +127,6 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIdType cellId;
   int i, j;
-  vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   char* cellVis;
   vtkGenericAdaptorCell* cell;
@@ -214,7 +213,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPoints* newPts = vtkPoints::New();
   vtkCellArray* cellArray = vtkCellArray::New();
 
-  newPts->Allocate(estimatedSize, numPts);
+  newPts->Reserve(estimatedSize);
   cellArray->AllocateEstimate(numCells, 1);
 
   // prepare the output attributes

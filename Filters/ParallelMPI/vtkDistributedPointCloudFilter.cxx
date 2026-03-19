@@ -438,7 +438,7 @@ void vtkDistributedPointCloudFilter::GetPointsInsideBounds(vtkMPIController* con
   // with polydata containing closest points to local data bounding box
   for (int partner = 0; partner < np; partner++)
   {
-    idArray->SetNumberOfTuples(0);
+    idArray->Initialize();
     vtkIdType nPoints = 0;
     vtkIdType* ids = nullptr;
     if (!emptyData)

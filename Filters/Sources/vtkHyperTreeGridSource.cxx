@@ -1553,7 +1553,7 @@ vtkMTimeType vtkHyperTreeGridSource::GetMTime()
 vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray(const std::string& str)
 {
   vtkBitArray* desc = vtkBitArray::New();
-  desc->Allocate(static_cast<vtkIdType>(str.length()));
+  desc->ReserveValues(static_cast<vtkIdType>(str.length()));
 
   for (std::string::const_iterator dit = str.begin(); dit != str.end(); ++dit)
   {

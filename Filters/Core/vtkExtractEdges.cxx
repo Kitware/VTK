@@ -440,7 +440,7 @@ int vtkExtractEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkEdgeTable> edgeTable;
   edgeTable->InitEdgeInsertion(numPts);
   vtkNew<vtkPoints> newPts;
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   vtkNew<vtkCellArray> newLines;
   newLines->AllocateEstimate(numPts * 4, 2);
 

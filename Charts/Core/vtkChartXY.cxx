@@ -2358,7 +2358,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
                 int columnID = plot->GetInput()->GetColumnIndex(column->GetName());
                 if (plotSelection->GetNumberOfTuples() != column->GetNumberOfTuples())
                 {
-                  plotSelection->SetNumberOfTuples(0);
+                  plotSelection->Initialize();
                   for (vtkIdType k = 0; k < column->GetNumberOfTuples(); ++k)
                   {
                     plotSelection->InsertNextValue(k);

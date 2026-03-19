@@ -169,9 +169,9 @@ void vtkPlotSurface::GenerateSurface()
 {
   // clear out and initialize our surface & colors
   this->Surface->SetNumberOfPoints(this->NumberOfVertices);
-  this->Colors->Reset();
+  this->Colors->Initialize();
   this->Colors->SetNumberOfComponents(this->ColorComponents);
-  this->Colors->Allocate(this->NumberOfVertices);
+  this->Colors->ReserveTuples(this->NumberOfVertices);
 
   // collect vertices of triangles
   float* data = vtkArrayDownCast<vtkFloatArray>(this->Surface->GetData())->GetPointer(0);

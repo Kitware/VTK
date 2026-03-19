@@ -1381,7 +1381,7 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->Connectivity = vtkCellArray::New();
   this->Polygon = vtkPolygon::New();
   this->TriangleIds = vtkIdList::New();
-  this->TriangleIds->Allocate(VTK_CELL_SIZE);
+  this->TriangleIds->Reserve(VTK_CELL_SIZE);
 }
 
 //------------------------------------------------------------------------------

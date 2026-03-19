@@ -153,7 +153,7 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
   numSourceCells = source->GetNumberOfCells();
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numDirs * numPts * numSourcePts);
+  newPts->Reserve(numDirs * numPts * numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
   if ((sourceCells = source->GetVerts())->GetNumberOfCells() > 0)
@@ -193,7 +193,7 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
       (inScalars && (this->ColorMode == COLOR_BY_SCALARS))))
   {
     newScalars = vtkFloatArray::New();
-    newScalars->Allocate(numDirs * numPts * numSourcePts);
+    newScalars->ReserveValues(numDirs * numPts * numSourcePts);
     if (this->ColorMode == COLOR_BY_EIGENVALUES)
     {
       newScalars->SetName("MaxEigenvalue");
@@ -214,7 +214,7 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetName("Normals");
-    newNormals->Allocate(numDirs * 3 * numPts * numSourcePts);
+    newNormals->ReserveTuples(numDirs * numPts * numSourcePts);
   }
   //
   // First copy all topology (transformation independent)

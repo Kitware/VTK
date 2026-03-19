@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkCellLocator);
 //------------------------------------------------------------------------------
 vtkCellLocator::vtkNeighborCells::vtkNeighborCells(const int size)
 {
-  this->Points->Allocate(3 * size);
+  this->Points->ReserveValues(3 * size);
 }
 
 //------------------------------------------------------------------------------
@@ -802,7 +802,7 @@ void vtkCellLocator::BuildLocatorInternal()
           if (!this->Tree[idx])
           {
             this->Tree[idx] = vtkSmartPointer<vtkIdList>::New();
-            this->Tree[idx]->Allocate(numCellsPerBucket, numCellsPerBucket / 2);
+            this->Tree[idx]->Reserve(numCellsPerBucket);
           }
           this->Tree[idx]->InsertNextId(cellId);
         }
@@ -865,7 +865,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData* pd)
   int numDivs = 1;
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(4096, 3);
 

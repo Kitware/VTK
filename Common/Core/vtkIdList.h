@@ -52,6 +52,7 @@ public:
    * If size is 0, all memory will be freed.
    * Return 1 on success, 0 on failure.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Reserve() to allocate or Initialize() to deallocate.")
   vtkTypeBool Allocate(vtkIdType size, int strategy = 0);
 
   /**
@@ -59,6 +60,8 @@ public:
    *
    * Increasing the id list capacity may allocate extra memory beyond what was
    * requested. NumberOfIds will not be modified when increasing id list size.
+   *
+   * Decreasing the id list capacity is effectively a no-op.
    *
    * Returns 1 if resizing succeeded and 0 otherwise.
    */

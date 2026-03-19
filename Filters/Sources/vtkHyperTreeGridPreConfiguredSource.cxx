@@ -158,8 +158,6 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* h
 
   vtkNew<vtkDoubleArray> levels;
   levels->SetName("Depth");
-  levels->SetNumberOfComponents(1);
-  levels->SetNumberOfTuples(0);
   htg->GetCellData()->AddArray(levels);
 
   auto cursor = vtk::TakeSmartPointer(htg->NewNonOrientedCursor(0, true));
@@ -201,8 +199,6 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateBalanced(vtkHyperTreeGrid* htg
 
   vtkNew<vtkDoubleArray> levels;
   levels->SetName("Depth");
-  levels->SetNumberOfComponents(1);
-  levels->SetNumberOfTuples(0);
   htg->GetCellData()->AddArray(levels);
 
   vtkIdType treeOffset = 0;

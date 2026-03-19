@@ -130,11 +130,11 @@ vtkDelaunay3D::vtkDelaunay3D()
 
   // added for performance
   this->Tetras = vtkIdList::New();
-  this->Tetras->Allocate(5);
+  this->Tetras->Reserve(5);
   this->Faces = vtkIdList::New();
-  this->Faces->Allocate(15);
+  this->Faces->Reserve(15);
   this->CheckedTetras = vtkIdList::New();
-  this->CheckedTetras->Allocate(25);
+  this->CheckedTetras->Reserve(25);
 }
 
 //------------------------------------------------------------------------------
@@ -449,9 +449,9 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   cells = vtkIdList::New();
-  cells->Allocate(64);
+  cells->Reserve(64);
   holeTetras = vtkIdList::New();
-  holeTetras->Allocate(12);
+  holeTetras->Reserve(12);
 
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
@@ -474,7 +474,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     points->SetDataType(VTK_DOUBLE);
   }
 
-  points->Allocate(numPoints + 6);
+  points->Reserve(numPoints + 6);
 
   Mesh = this->InitPointInsertion(center, this->Offset * tol, numPoints, points);
 

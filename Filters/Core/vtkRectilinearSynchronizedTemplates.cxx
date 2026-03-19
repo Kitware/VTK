@@ -75,7 +75,7 @@ static void vtkRectilinearSynchronizedTemplatesInitializeOutput(TArray* inScalar
     (int)pow((double)((ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1)), .75);
   estimatedSize = std::max<long>(estimatedSize, 1024);
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(estimatedSize, 3);
 
@@ -94,13 +94,13 @@ static void vtkRectilinearSynchronizedTemplatesInitializeOutput(TArray* inScalar
   if (normals)
   {
     normals->SetNumberOfComponents(3);
-    normals->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
-    normals->SetName("Normals");
+    normals->ReserveTuples(estimatedSize);
+    normals->SetName("Gradients");
   }
   if (gradients)
   {
     gradients->SetNumberOfComponents(3);
-    gradients->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    gradients->ReserveTuples(estimatedSize);
     gradients->SetName("Gradients");
   }
   if (scalars)

@@ -443,13 +443,13 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
   // Note: since we use the output scalars in the execution of the algorithm,
   // the output point scalars MUST BE double or bad things happen due to
   // numerical precision issues.
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   outPD->CopyScalarsOff();
   outPD->CopyFieldOff(inScalars->GetName());
   outPD->InterpolateAllocate(pd, 3 * numPts, numPts);
   vtkNew<vtkDoubleArray> outScalars;
   outScalars->SetName(inScalars->GetName());
-  outScalars->Allocate(3 * numPts, numPts);
+  outScalars->ReserveValues(3 * numPts);
   outPD->SetScalars(outScalars);
 
   for (int i = 0; i < numPts; i++)
@@ -462,7 +462,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
   // These are the new cell scalars
   vtkNew<vtkFloatArray> newScalars;
-  newScalars->Allocate(numCells * 5, numCells);
+  newScalars->ReserveValues(numCells * 5);
   newScalars->SetName("Scalars");
 
   // Used to keep track of intersections

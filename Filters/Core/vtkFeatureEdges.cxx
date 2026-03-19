@@ -229,14 +229,14 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numPts / 10, numPts);
+  newPts->Reserve(numPts / 10);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(numPts / 20, 2);
   if (this->Coloring)
   {
     newScalars = vtkFloatArray::New();
     newScalars->SetName("Edge Types");
-    newScalars->Allocate(numCells / 10, numCells);
+    newScalars->ReserveValues(numCells / 10);
   }
 
   outPD->CopyAllocate(pd, numPts);
@@ -257,7 +257,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   {
     polyNormals = vtkFloatArray::New();
     polyNormals->SetNumberOfComponents(3);
-    polyNormals->Allocate(3 * newPolys->GetNumberOfCells());
+    polyNormals->ReserveTuples(newPolys->GetNumberOfCells());
 
     vtkIdType cellId;
     for (cellId = 0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts); cellId++)
@@ -270,7 +270,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   neighbors = vtkIdList::New();
-  neighbors->Allocate(VTK_CELL_SIZE);
+  neighbors->Reserve(VTK_CELL_SIZE);
 
   bool abort = false;
   vtkIdType progressInterval = newPolys->GetNumberOfCells() / 20 + 1;

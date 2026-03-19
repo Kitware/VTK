@@ -147,11 +147,6 @@ public:
   /**
    * Read only container, not supported.
    */
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext) override;
-
-  /**
-   * Read only container, not supported.
-   */
   vtkTypeBool ReserveTuples(vtkIdType numTuples) override;
 
   /**
@@ -314,7 +309,6 @@ protected:
   /**
    * Read only container, not supported.
    */
-  bool AllocateTuples(vtkIdType numTuples);
   bool ReallocateTuples(vtkIdType numTuples);
   ///@}
 

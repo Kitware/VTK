@@ -127,7 +127,6 @@ void VTXSchema::InitDataArray(
   const std::string& name, size_t elements, size_t components, types::DataArray& dataArray)
 {
   dataArray.Data = helper::NewDataArray<T>();
-  dataArray.Data->Allocate(elements);
   dataArray.Data->SetNumberOfComponents(static_cast<int>(components));
   dataArray.Data->SetNumberOfTuples(elements / components);
   dataArray.Data->SetName(name.c_str());

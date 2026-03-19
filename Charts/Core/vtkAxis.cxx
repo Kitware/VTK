@@ -939,15 +939,15 @@ bool vtkAxis::SetCustomTickPositions(vtkDoubleArray* positions, vtkStringArray* 
   {
     this->CustomTickLabels = false;
     this->TickMarksDirty = true;
-    this->TickPositions->SetNumberOfTuples(0);
-    this->TickLabels->SetNumberOfTuples(0);
+    this->TickPositions->Initialize();
+    this->TickLabels->Initialize();
     this->Modified();
     return true;
   }
   else if (positions && !labels)
   {
     this->TickPositions->DeepCopy(positions);
-    this->TickLabels->SetNumberOfTuples(0);
+    this->TickLabels->Initialize();
     this->CustomTickLabels = true;
     this->TickMarksDirty = false;
     this->Modified();
@@ -1146,8 +1146,8 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     return;
   }
   // Now calculate the tick labels, and positions within the axis range
-  this->TickPositions->SetNumberOfTuples(0);
-  this->TickLabels->SetNumberOfTuples(0);
+  this->TickPositions->Initialize();
+  this->TickLabels->Initialize();
 
   // We generate a logarithmic scale when logarithmic axis is activated and the
   // order of magnitude of the axis is higher than 0.6.
@@ -1320,7 +1320,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
 //------------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels()
 {
-  this->TickLabels->SetNumberOfTuples(0);
+  this->TickLabels->Initialize();
   for (vtkIdType i = 0; i < this->TickPositions->GetNumberOfTuples(); ++i)
   {
     double value = this->TickPositions->GetValue(i);

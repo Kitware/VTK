@@ -316,13 +316,14 @@ void vtkFieldData::SetGhostsToSkip(unsigned char ghostsToSkip)
 
 //------------------------------------------------------------------------------
 // Allocate data for each array.
-vtkTypeBool vtkFieldData::Allocate(vtkIdType sz, vtkIdType ext)
+vtkTypeBool vtkFieldData::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
   int status = 0;
 
   for (int i = 0; i < this->GetNumberOfArrays(); ++i)
   {
-    if ((status = this->Data[i]->Allocate(sz, ext)) == 0)
+    this->Data[i]->Initialize();
+    if ((status = this->Data[i]->ReserveValues(sz)) == 0)
     {
       break;
     }

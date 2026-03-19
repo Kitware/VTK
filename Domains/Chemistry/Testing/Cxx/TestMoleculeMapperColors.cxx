@@ -56,7 +56,7 @@ int TestMoleculeMapperColors(int, char*[])
   vtkNew<vtkDoubleArray> colors;
   colors->SetName("Colors");
   colors->SetNumberOfComponents(3);
-  colors->Allocate(3 * mol->GetNumberOfAtoms());
+  colors->ReserveTuples(mol->GetNumberOfAtoms());
   for (vtkIdType i = 0; i < mol->GetNumberOfAtoms(); i++)
   {
     double c[3] = { 0., 0., 0. };

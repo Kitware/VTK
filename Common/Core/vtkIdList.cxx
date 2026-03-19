@@ -52,7 +52,8 @@ void vtkIdList::Initialize()
 //------------------------------------------------------------------------------
 bool vtkIdList::AllocateInternal(vtkIdType sz, vtkIdType numberOfIds)
 {
-  if (this->Allocate(sz))
+  this->Initialize();
+  if (this->Reserve(sz))
   {
     this->NumberOfIds = numberOfIds;
     return true;

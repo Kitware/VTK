@@ -187,11 +187,11 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<char> visited;
   visited.resize(numberOfCells, VTK_CELL_NOT_VISITED);
   vtkNew<vtkIdList> wave, wave2, cellPointIds, cellIds, neighborPointIds;
-  wave->Allocate(numberOfCells / 4 + 1, numberOfCells);
-  wave2->Allocate(numberOfCells / 4 + 1, numberOfCells);
-  cellPointIds->Allocate(VTK_CELL_SIZE);
-  cellIds->Allocate(VTK_CELL_SIZE);
-  neighborPointIds->Allocate(VTK_CELL_SIZE);
+  wave->Reserve(numberOfCells / 4 + 1);
+  wave2->Reserve(numberOfCells / 4 + 1);
+  cellPointIds->Reserve(VTK_CELL_SIZE);
+  cellIds->Reserve(VTK_CELL_SIZE);
+  neighborPointIds->Reserve(VTK_CELL_SIZE);
 
   if (this->AutoOrientNormals)
   {

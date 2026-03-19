@@ -124,7 +124,7 @@ int vtkTextureMapToCylinder::RequestData(vtkInformation* vtkNotUsed(request),
   newTCoords = vtkFloatArray::New();
   newTCoords->SetName("Texture Coordinates");
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
+  newTCoords->ReserveTuples(numPts);
 
   // loop over all points computing spherical coordinates
   for (ptId = 0; ptId < numPts; ptId++)

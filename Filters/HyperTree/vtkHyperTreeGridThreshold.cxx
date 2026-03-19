@@ -115,8 +115,6 @@ public:
     , IndirectionMap(vtkSmartPointer<vtkIdTypeArray>::New())
   {
     this->OutputData->CopyAllocate(this->InputData, 1, 1);
-    this->IndirectionMap->SetNumberOfComponents(1);
-    this->IndirectionMap->SetNumberOfTuples(0);
     using SupportedArrays = vtkArrayDispatch::Arrays;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
     for (vtkIdType iArr = 0; iArr < this->InputData->GetNumberOfArrays(); ++iArr)

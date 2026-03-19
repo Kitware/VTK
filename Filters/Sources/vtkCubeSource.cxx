@@ -67,14 +67,14 @@ int vtkCubeSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(numPts);
+  newNormals->ReserveTuples(numPts);
   newNormals->SetName("Normals");
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(numPts);
+  newTCoords->ReserveTuples(numPts);
   newTCoords->SetName("TCoords");
 
   newPolys = vtkCellArray::New();

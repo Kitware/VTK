@@ -201,12 +201,12 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
   switch (tetraPerCell)
   {
     case (VTK_VOXEL_TO_5_TET):
-      NodePoints->Allocate(numPts);
+      NodePoints->Reserve(numPts);
       TetList->AllocateEstimate(numPts * 5, 4);
       break;
     case (VTK_VOXEL_TO_5_AND_12_TET):
     case (VTK_VOXEL_TO_12_TET):
-      NodePoints->Allocate(numPts * 2);
+      NodePoints->Reserve(numPts * 2);
       TetList->AllocateEstimate(numPts * 12, 4);
       break;
   }
@@ -224,7 +224,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid* RectGrid,
   if (rememberVoxelId)
   {
     TetOriginalVoxel = vtkIntArray::New();
-    TetOriginalVoxel->Allocate(12 * numRec);
+    TetOriginalVoxel->ReserveValues(12 * numRec);
   }
 
   // 9 ids, 8 corners and a possible center to be added later

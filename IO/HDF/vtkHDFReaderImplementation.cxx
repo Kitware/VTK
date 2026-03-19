@@ -1010,7 +1010,7 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridData(vtkHyperTreeGrid* htg,
   if (hasMask)
   {
     vtkNew<vtkBitArray> mask;
-    mask->Allocate(cellCount);
+    mask->ReserveValues(cellCount);
     htg->SetMask(mask);
   }
 
@@ -1196,7 +1196,7 @@ bool vtkHDFReader::Implementation::CreateHyperTreeGridCellArrays(vtkHyperTreeGri
       }
 
       array->SetName(arrayName.c_str());
-      array->Allocate(cellCount * array->GetNumberOfComponents());
+      array->ReserveTuples(cellCount);
       vtkDataSetAttributes* cellData = htg->GetCellData();
       cellData->AddArray(array);
       this->AttachDatasetAttributeToArray(cellType, array, cellData);

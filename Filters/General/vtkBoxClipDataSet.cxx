@@ -200,7 +200,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   conn[0]->AllocateEstimate(estimatedSize, 1);
   conn[0]->InitTraversal();
   types[0] = vtkUnsignedCharArray::New();
-  types[0]->Allocate(estimatedSize, estimatedSize / 2);
+  types[0]->ReserveValues(estimatedSize);
 
   if (this->GenerateClippedOutput)
   {
@@ -209,11 +209,11 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     conn[1]->AllocateEstimate(estimatedSize, 1);
     conn[1]->InitTraversal();
     types[1] = vtkUnsignedCharArray::New();
-    types[1]->Allocate(estimatedSize, estimatedSize / 2);
+    types[1]->ReserveValues(estimatedSize);
   }
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts, numPts / 2);
+  newPoints->Reserve(numPts);
 
   // locator used to merge potentially duplicate points
   if (this->Locator == nullptr)

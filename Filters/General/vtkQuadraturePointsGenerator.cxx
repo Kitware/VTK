@@ -248,8 +248,8 @@ int vtkQuadraturePointsGenerator::Generate(
   // Create the result array.
   vtkDoubleArray* qPts = vtkDoubleArray::New();
   vtkIdType nCells = datasetIn->GetNumberOfCells();
-  qPts->Allocate(3 * nCells); // Expect at least one point per cell
   qPts->SetNumberOfComponents(3);
+  qPts->ReserveTuples(nCells); // Expect at least one point per cell
 
   // For all cells interpolate.
   using Dispatcher = vtkArrayDispatch::Dispatch;

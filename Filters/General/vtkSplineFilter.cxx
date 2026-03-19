@@ -112,7 +112,7 @@ int vtkSplineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
-  newPts->Allocate(numNewPts);
+  newPts->Reserve(numNewPts);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(1, numNewPts);
 
@@ -124,12 +124,12 @@ int vtkSplineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     genTCoords = this->GenerateTCoords;
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(numNewPts);
+    newTCoords->ReserveTuples(numNewPts);
     newTCoords->SetName("TCoords");
     outPD->CopyTCoordsOff();
   }
   outPD->InterpolateAllocate(pd, numNewPts);
-  this->TCoordMap->Allocate(VTK_CELL_SIZE);
+  this->TCoordMap->ReserveTuples(VTK_CELL_SIZE);
 
   // Copy cell data
   numNewCells = numLines;

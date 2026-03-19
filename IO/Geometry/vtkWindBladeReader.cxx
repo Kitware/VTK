@@ -1752,7 +1752,7 @@ void vtkWindBladeReader::ReadBladeData(std::stringstream& inStr)
 {
   char inBuf[LINE_SIZE];
   // Allocate space for points and cells
-  this->BPoints->Allocate(this->NumberOfBladePoints, this->NumberOfBladePoints);
+  this->BPoints->Reserve(this->NumberOfBladePoints);
   vtkUnstructuredGrid* blade = GetBladeOutput();
   blade->Allocate(this->NumberOfBladeCells, this->NumberOfBladeCells);
   blade->SetPoints(this->BPoints);

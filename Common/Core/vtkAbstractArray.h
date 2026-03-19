@@ -97,7 +97,8 @@ public:
    * If numValues is 0, all memory will be freed.
    * Return 1 on success, 0 on failure.
    */
-  virtual vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext = 1000) = 0;
+  VTK_DEPRECATED_IN_9_7_0("Use ReserveValues/Tuples() to allocate or Initialize() to deallocate.")
+  virtual vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext = 1000);
 
   /**
    * Reserve the array to the requested number of tuples and preserve data.
@@ -110,6 +111,18 @@ public:
    * Returns 1 if resizing succeeded and 0 otherwise.
    */
   virtual vtkTypeBool ReserveTuples(vtkIdType numTuples) = 0;
+
+  /**
+   * Reserve the array to the requested number of values and preserve data.
+   *
+   * Increasing the array capacity may allocate extra memory beyond what was
+   * requested. MaxId will not be modified when increasing array size.
+   *
+   * Decreasing the array capacity is effectively a no-op.
+   *
+   * Returns 1 if resizing succeeded and 0 otherwise.
+   */
+  vtkTypeBool ReserveValues(vtkIdType numValues);
 
   /**
    * Release storage and reset array to initial state.

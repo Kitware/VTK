@@ -904,7 +904,7 @@ void vtkPointLocator::BuildLocatorInternal()
     if (!bucket)
     {
       bucket = vtkIdList::New();
-      bucket->Allocate(this->NumberOfPointsPerBucket, this->NumberOfPointsPerBucket / 3);
+      bucket->Reserve(this->NumberOfPointsPerBucket);
       this->HashTable[idx] = bucket;
     }
     bucket->InsertNextId(i);
@@ -1204,7 +1204,7 @@ vtkIdType vtkPointLocator::InsertNextPoint(const double x[3])
   if (!(bucket = this->HashTable[idx]))
   {
     bucket = vtkIdList::New();
-    bucket->Allocate(this->NumberOfPointsPerBucket / 2, this->NumberOfPointsPerBucket / 3);
+    bucket->Reserve(this->NumberOfPointsPerBucket / 2);
     this->HashTable[idx] = bucket;
   }
 
@@ -1230,7 +1230,7 @@ void vtkPointLocator::InsertPoint(vtkIdType ptId, const double x[3])
   if (!(bucket = this->HashTable[idx]))
   {
     bucket = vtkIdList::New();
-    bucket->Allocate(this->NumberOfPointsPerBucket, this->NumberOfPointsPerBucket / 3);
+    bucket->Reserve(this->NumberOfPointsPerBucket);
     this->HashTable[idx] = bucket;
   }
 
@@ -1465,7 +1465,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData*
   }
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(2048, 3);
 

@@ -148,26 +148,23 @@ vtkSmartPointer<vtkDataArray> CreateDataArray()
 
 //------------------------vtkAbstactArray API-----------------------------------
 
-// vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext=1000)
-// Sets MaxId == -1
+// vtkTypeBool ReserveValues(vtkIdType numValues, vtkIdType ext=1000)
 // Sets Size >= numValues
-// If numValues == 0, delete the array.
-// ext is not used.
 // Result is 1/0 for success/failure.
 template <typename ScalarT, typename ArrayT>
-int Test_int_Allocate_numValues_ext()
+int Test_int_ReserveValues_numValues_ext()
 {
-  DataArrayAPIInit("vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext)");
+  DataArrayAPIInit("vtkTypeBool ReserveValues(vtkIdType numValues, vtkIdType ext)");
   DataArrayAPICreateTestArray(array);
 
-  int success = array->Allocate(0);
+  int success = array->ReserveValues(0);
   DataArrayAPIAssert(success, "Allocation failed.");
   DataArrayAPIAssert(array->GetSize() == 0,
                      "Invalid Size (" << array->GetSize() << ").");
   DataArrayAPIAssert(array->GetMaxId() == -1,
                      "Invalid MaxId (" << array->GetMaxId() << ").");
 
-  success = array->Allocate(100);
+  success = array->ReserveValues(100);
   DataArrayAPIAssert(success, "Allocation failed.");
   DataArrayAPIAssert(array->GetSize() >= 100,
                      "Invalid Size (" << array->GetSize() << ").");
@@ -179,7 +176,7 @@ int Test_int_Allocate_numValues_ext()
   DataArrayAPIAssert(array->GetMaxId() == 49,
                      "Invalid MaxId (" << array->GetMaxId() << ").");
 
-  success = array->Allocate(0);
+  success = array->ReserveValues(0);
   DataArrayAPIAssert(success, "Allocation failed.");
   DataArrayAPIAssert(array->GetSize() == 0,
                      "Invalid Size (" << array->GetSize() << ").");
@@ -2969,7 +2966,7 @@ int ExerciseDataArray()
   int errors = 0;
 
   // vtkAbstractArray API:
-  errors += Test_int_Allocate_numValues_ext<ScalarT, ArrayT>();
+  errors += Test_int_ReserveValues_numValues_ext<ScalarT, ArrayT>();
   errors += Test_void_Initialize<ScalarT, ArrayT>();
   errors += Test_int_GetDataType<ScalarT, ArrayT>();
   errors += Test_int_GetDataTypeSize<ScalarT, ArrayT>();

@@ -1002,8 +1002,8 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
       // Construct array with all non outofdomains ids and terminations
       vtkNew<vtkLongLongArray> idTermination;
       vtkNew<vtkLongLongArray> allIdTermination;
-      idTermination->Allocate(particlePathsOutput->GetNumberOfCells());
       idTermination->SetNumberOfComponents(2);
+      idTermination->ReserveTuples(particlePathsOutput->GetNumberOfCells());
       vtkIntArray* terminations =
         vtkIntArray::SafeDownCast(particlePathsOutput->GetCellData()->GetArray("Termination"));
       vtkLongLongArray* ids =

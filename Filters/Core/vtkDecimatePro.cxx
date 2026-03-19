@@ -52,7 +52,7 @@ static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3]
 vtkDecimatePro::vtkDecimatePro()
 {
   this->Neighbors = vtkIdList::New();
-  this->Neighbors->Allocate(VTK_MAX_TRIS_PER_VERTEX);
+  this->Neighbors->Reserve(VTK_MAX_TRIS_PER_VERTEX);
   this->V = new vtkDecimatePro::VertexArray(VTK_MAX_TRIS_PER_VERTEX + 1);
   this->T = new vtkDecimatePro::TriArray(VTK_MAX_TRIS_PER_VERTEX + 1);
   this->EdgeLengths = vtkPriorityQueue::New();
@@ -247,7 +247,6 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->AccumulateError)
   {
     this->VertexError = vtkDoubleArray::New();
-    this->VertexError->Allocate(numPts, static_cast<vtkIdType>(0.25 * numPts));
     this->VertexError->SetNumberOfValues(numPts);
     for (i = 0; i < numPts; i++)
     {
@@ -284,7 +283,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.25); // 25% spent inserting
 
   CollapseTris = vtkIdList::New();
-  CollapseTris->Allocate(100, 100);
+  CollapseTris->Reserve(100);
 
   // While the priority queue is not empty, retrieve the top vertex from the
   // queue and attempt to delete it by performing an edge collapse. This
@@ -995,9 +994,9 @@ void vtkDecimatePro::SplitVertex(
     vtkIdList* cellIds = vtkIdList::New();
     vtkIdList* group = vtkIdList::New();
 
-    triangles->Allocate(VTK_MAX_TRIS_PER_VERTEX);
-    cellIds->Allocate(5, 10);
-    group->Allocate(VTK_MAX_TRIS_PER_VERTEX);
+    triangles->Reserve(VTK_MAX_TRIS_PER_VERTEX);
+    cellIds->Reserve(5);
+    group->Reserve(VTK_MAX_TRIS_PER_VERTEX);
 
     // changes in group size control how to split loop
     if (numTris <= 1)

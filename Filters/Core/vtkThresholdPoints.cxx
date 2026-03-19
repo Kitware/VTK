@@ -230,7 +230,7 @@ int vtkThresholdPoints::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_DOUBLE);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);

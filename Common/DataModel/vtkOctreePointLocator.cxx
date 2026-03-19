@@ -1038,7 +1038,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
   const vtkIdType npolys = 6 * static_cast<vtkIdType>(nodesAtLevel.size());
 
   vtkPoints* pts = vtkPoints::New();
-  pts->Allocate(npoints);
+  pts->Reserve(npoints);
   vtkCellArray* polys = vtkCellArray::New();
   polys->AllocateEstimate(npolys, 4);
 

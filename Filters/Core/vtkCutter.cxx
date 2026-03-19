@@ -492,7 +492,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
-  newPoints->Allocate(estimatedSize, estimatedSize / 2);
+  newPoints->Reserve(estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
@@ -738,7 +738,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
-  newPoints->Allocate(estimatedSize, estimatedSize / 2);
+  newPoints->Reserve(estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
@@ -786,7 +786,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   cellScalars = cutScalars->NewInstance();
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   int maxCellSize = input->GetMaxCellSize();
-  cellScalars->Allocate(maxCellSize * cutScalars->GetNumberOfComponents());
+  cellScalars->ReserveTuples(maxCellSize);
 
   vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCD, outPD, outCD,
     this->GenerateTriangles != 0);

@@ -653,8 +653,8 @@ int vtkMNIObjectWriter::WriteCells(vtkPolyData* data, int cellType)
     vtkIdType numCells = cellArray->GetNumberOfCells();
     vtkIdType numCellIndices = cellArray->GetNumberOfConnectivityIds();
 
-    endIndices->Allocate(numCells);
-    cellIndices->Allocate(numCellIndices);
+    endIndices->ReserveValues(numCells);
+    cellIndices->ReserveValues(numCellIndices);
 
     vtkIdType endIndex = 0;
     for (vtkIdType i = 0; i < numCells; i++)

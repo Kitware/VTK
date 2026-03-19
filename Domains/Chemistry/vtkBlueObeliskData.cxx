@@ -359,13 +359,11 @@ bool vtkBlueObeliskData::GenerateHeaderFromXML(std::istream& xml, std::ostream& 
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkBlueObeliskData::Allocate(vtkIdType sz, vtkIdType ext)
+vtkTypeBool vtkBlueObeliskData::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
-  for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
-                                                it_end = this->Arrays->end();
-       it != it_end; ++it)
+  for (auto& array : *this->Arrays)
   {
-    if ((*it)->Allocate(sz * (*it)->GetNumberOfComponents(), ext) == 0)
+    if (array->ReserveTuples(sz) == 0)
     {
       return 0;
     }

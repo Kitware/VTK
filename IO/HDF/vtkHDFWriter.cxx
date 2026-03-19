@@ -1180,7 +1180,6 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
   else
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
-    offsetsArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, offsetsArray))
   {
@@ -1201,7 +1200,6 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
   else
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
-    connArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "Connectivity", H5T_STD_I64LE, connArray))
   {
@@ -1222,7 +1220,6 @@ bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, vtkCellArray* faces)
   else
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
-    connArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "FaceConnectivity", H5T_STD_I64LE, connArray))
   {
@@ -1243,7 +1240,6 @@ bool vtkHDFWriter::AppendFaceOffsets(hid_t group, vtkCellArray* faces)
   else
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
-    offsetsArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "FaceOffsets", H5T_STD_I64LE, offsetsArray))
   {
@@ -1264,7 +1260,6 @@ bool vtkHDFWriter::AppendPolyhedronToFaces(hid_t group, vtkCellArray* polyhedron
   else
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
-    connArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "PolyhedronToFaces", H5T_STD_I64LE, connArray))
   {
@@ -1285,7 +1280,6 @@ bool vtkHDFWriter::AppendPolyhedronOffsets(hid_t group, vtkCellArray* polyhedron
   else
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
-    offsetsArray->SetNumberOfValues(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "PolyhedronOffsets", H5T_STD_I64LE, offsetsArray))
   {
@@ -1320,7 +1314,6 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
   else
   {
     points = vtkSmartPointer<vtkPoints>::New();
-    points->SetNumberOfPoints(0);
   }
   if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData()))
   {

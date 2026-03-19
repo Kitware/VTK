@@ -52,7 +52,7 @@ public:
     this->Input->GetCell(0, cell);
   }
 
-  void Initialize() { this->TLCellPts.Local()->Allocate(128); }
+  void Initialize() { this->TLCellPts.Local()->Reserve(128); }
 
   void operator()(vtkIdType beginCellId, vtkIdType endCellId)
   {
@@ -245,7 +245,7 @@ public:
   void Initialize()
   {
     this->TLHistogram.Local().Initialize(this->MaxCellSize);
-    this->TLCellPts.Local()->Allocate(this->MaxCellSize);
+    this->TLCellPts.Local()->Reserve(this->MaxCellSize);
   }
 
   void operator()(vtkIdType beginCellId, vtkIdType endCellId)

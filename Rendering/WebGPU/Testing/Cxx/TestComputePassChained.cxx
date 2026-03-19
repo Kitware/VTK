@@ -27,8 +27,7 @@ int TestComputePassChained(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputDataArray;
-  inputDataArray->SetNumberOfComponents(1);
-  inputDataArray->Allocate(DATA_SIZE);
+  inputDataArray->ReserveValues(DATA_SIZE);
   for (int i = 0; i < DATA_SIZE; i++)
   {
     inputDataArray->InsertNextValue(i);

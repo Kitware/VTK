@@ -57,7 +57,7 @@ int vtkStringToCategory::RequestData(
     vtkArrayDownCast<vtkStringArray>(stringTable->GetColumnByName("Strings"));
   if (strings)
   {
-    strings->SetNumberOfTuples(0);
+    strings->Initialize();
   }
   else
   {

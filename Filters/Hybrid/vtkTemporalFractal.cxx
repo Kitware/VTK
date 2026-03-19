@@ -972,7 +972,6 @@ void vtkTemporalFractal::AddTestArray(vtkOverlappingAMR* output)
 
       vtkDoubleArray* array = vtkDoubleArray::New();
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
       array->SetNumberOfTuples(numCells);
       double* arrayPtr = static_cast<double*>(array->GetPointer(0));
       double spacing[3];
@@ -1037,7 +1036,6 @@ void vtkTemporalFractal::AddVectorArray(vtkOverlappingAMR* output)
       vtkDoubleArray* array = vtkDoubleArray::New();
       array->SetNumberOfComponents(3);
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
       array->SetNumberOfTuples(numCells);
       double* arrayPtr = static_cast<double*>(array->GetPointer(0));
       double spacing[3];
@@ -1101,7 +1099,6 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
       vtkDoubleArray* array = vtkDoubleArray::New();
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
       array->SetNumberOfTuples(numCells);
       double* arrayPtr = static_cast<double*>(array->GetPointer(0));
       double spacing[3];
@@ -1152,7 +1149,6 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
       vtkDoubleArray* array = vtkDoubleArray::New();
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
       array->SetNumberOfTuples(numCells);
       double* arrayPtr = static_cast<double*>(array->GetPointer(0));
 
@@ -1184,7 +1180,7 @@ void vtkTemporalFractal::AddBlockIdArray(vtkOverlappingAMR* output)
 
       vtkIntArray* array = vtkIntArray::New();
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
+      array->ReserveValues(numCells);
       int cell = 0;
       while (cell < numCells)
       {
@@ -1218,7 +1214,7 @@ void vtkTemporalFractal::AddDepthArray(vtkOverlappingAMR* output)
 
       vtkIntArray* array = vtkIntArray::New();
       int numCells = grid->GetNumberOfCells();
-      array->Allocate(numCells);
+      array->ReserveValues(numCells);
       int cell = 0;
       while (cell < numCells)
       {

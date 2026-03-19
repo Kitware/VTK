@@ -13,7 +13,7 @@ vtkCxxSetObjectMacro(vtkContourValues, Contours, vtkDoubleArray);
 vtkContourValues::vtkContourValues()
 {
   this->Contours = vtkDoubleArray::New();
-  this->Contours->Allocate(64);
+  this->Contours->ReserveValues(64);
   this->Contours->InsertValue(0, 0.0);
 }
 

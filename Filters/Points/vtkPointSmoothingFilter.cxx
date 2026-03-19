@@ -643,7 +643,7 @@ struct BuildConnectivity
   {
   }
 
-  void Initialize() { this->LocalNeighbors.Local()->Allocate(this->NeiSize + 1); }
+  void Initialize() { this->LocalNeighbors.Local()->Reserve(this->NeiSize + 1); }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {

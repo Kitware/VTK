@@ -40,7 +40,7 @@ vtkEllipsoidTensorProbeRepresentation ::vtkEllipsoidTensorProbeRepresentation()
   this->TensorSource->SetPoints(points);
   vtkDoubleArray* tensor = vtkDoubleArray::New();
   tensor->SetNumberOfComponents(9);
-  tensor->Allocate(9);
+  tensor->ReserveTuples(1);
   double t[9];
   t[0] = .01; // Component(0,0)
   t[4] = .01; // Component(1,1);

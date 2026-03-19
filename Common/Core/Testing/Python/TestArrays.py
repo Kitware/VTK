@@ -11,7 +11,7 @@ for array in arrayType:
     print(array + ' array')
     vtkClass = 'vtk' + array + 'Array'
     a = getattr(vtkmodules.vtkCommonCore, vtkClass)()
-    a.Allocate(1,1)
+    a.ReserveValues(1)
     a.SetNumberOfComponents(3)
     a.SetNumberOfTuples(4)
 
@@ -31,7 +31,7 @@ for array in arrayType:
 
     # DeepCopy
     b = getattr(vtkmodules.vtkCommonCore, vtkClass)()
-    b.Allocate(1000, 100)
+    b.ReserveValues(1000)
     # force a resize
     b.InsertComponent(2001, 0, 1)
     b.DeepCopy(a)

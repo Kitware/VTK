@@ -72,10 +72,10 @@ int vtkPSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   numPolys = this->PhiResolution * 2 * localThetaResolution;
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numPts);
+  newNormals->ReserveTuples(numPts);
 
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numPolys, 3);

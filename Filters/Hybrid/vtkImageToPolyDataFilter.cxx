@@ -273,8 +273,8 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray* pixels, int 
   newPolys->AllocateEstimate(dims[0] * dims[1] / 10, 4);
 
   polyColors = vtkUnsignedCharArray::New();
-  polyColors->Allocate(3 * dims[0] * dims[1] / 10); // for rgb
   polyColors->SetNumberOfComponents(3);
+  polyColors->ReserveTuples(dims[0] * dims[1] / 10); // for rgb
 
   // Loop over row-by-row generating quad polygons
   x[2] = 0.0;
@@ -366,7 +366,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray* pixels, i
   //
   this->PolyColors = vtkUnsignedCharArray::New();
   this->PolyColors->SetNumberOfComponents(3);
-  this->PolyColors->Allocate(5000);
+  this->PolyColors->ReserveTuples(5000);
 
   numPolys = this->ProcessImage(pixels, dims);
   vtkDebugMacro(<< "Visited regions..." << numPolys << " polygons");
@@ -375,10 +375,10 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray* pixels, i
   // junction points where 3 or 4 polygons meet.
   //
   vtkPoints* points = vtkPoints::New();
-  points->Allocate(numPixels / 2, numPixels / 2);
+  points->Reserve(numPixels / 2);
 
   vtkUnsignedCharArray* pointDescr = vtkUnsignedCharArray::New();
-  pointDescr->Allocate(numPixels / 2, numPixels / 2);
+  pointDescr->ReserveValues(numPixels / 2);
 
   vtkCellArray* edgeConn = vtkCellArray::New();
   edgeConn->AllocateEstimate(numPixels / 2, 1);
@@ -688,9 +688,9 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray* scalars, int di
 
   // set up the connected traversal
   wave = vtkIdList::New();
-  wave->Allocate(static_cast<int>(numPixels / 4.0), static_cast<int>(numPixels / 4.0));
+  wave->Reserve(static_cast<int>(numPixels / 4.0));
   wave2 = vtkIdList::New();
-  wave2->Allocate(static_cast<int>(numPixels / 4.0), static_cast<int>(numPixels / 4.0));
+  wave2->Reserve(static_cast<int>(numPixels / 4.0));
 
   // visit connected pixels. Pixels are connected if they are topologically
   // adjacent and they have "equal" color values.
@@ -829,7 +829,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray* vtkNotUsed(pixels
 
   this->EdgeUses = vtkIntArray::New();
   this->EdgeUses->SetNumberOfComponents(2);
-  this->EdgeUses->Allocate(4 * dims[0] * dims[1], dims[0] * dims[1]);
+  this->EdgeUses->ReserveTuples(2 * dims[0] * dims[1]);
 
   // Generate corner points of image
   x[0] = origin[0] + (dims[0] - 1) * spacing[0];

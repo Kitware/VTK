@@ -46,7 +46,7 @@ void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator, vtkIdType idx, vtkPoin
   if (!(bucket = this->HashTable[idx]))
   {
     this->HashTable[idx] = bucket = vtkIdList::New();
-    bucket->Allocate(this->NumberOfPointsPerBucket / 2, this->NumberOfPointsPerBucket / 3);
+    bucket->Reserve(this->NumberOfPointsPerBucket / 2);
     oldIdToMerge = locator->HashTable[idx];
     oldIdToMerge->Register(this);
     if (this->Points->GetData()->GetDataType() == VTK_FLOAT)
@@ -60,7 +60,7 @@ void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator, vtkIdType idx, vtkPoin
 
     vtkIdType nbOfIds = bucket->GetNumberOfIds();
     vtkIdType nbOfOldIds = locator->HashTable[idx]->GetNumberOfIds();
-    oldIdToMerge->Allocate(nbOfOldIds);
+    oldIdToMerge->Reserve(nbOfOldIds);
 
     vtkDataArray* dataArray = this->Points->GetData();
     vtkDataArray* oldDataArray = locator->Points->GetData();

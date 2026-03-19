@@ -350,7 +350,7 @@ vtkCell* vtkDataSet::FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId
 void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
 {
   vtkNew<vtkIdList> otherCells;
-  otherCells->Allocate(VTK_CELL_SIZE);
+  otherCells->Reserve(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
   this->GetPointCells(ptIds->GetId(0), cellIds);

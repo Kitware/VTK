@@ -310,7 +310,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPts->SetDataTypeToFloat();
   }
-  newPts->Allocate(targetNumPts);
+  newPts->Reserve(targetNumPts);
 
   vtkNew<vtkUnsignedCharArray> colors;
   vtkNew<vtkFloatArray> intensities;
@@ -327,7 +327,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     colors->SetNumberOfComponents(3);
     colors->SetName("Color");
-    colors->Allocate(targetNumPts * 3);
+    colors->ReserveTuples(targetNumPts);
     output->GetPointData()->SetScalars(colors);
     if (!this->IncludeColorAndLuminance)
     {
@@ -338,8 +338,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (wantIntensities)
   {
     intensities->SetName("Intensities");
-    intensities->SetNumberOfComponents(1);
-    intensities->Allocate(targetNumPts);
+    intensities->ReserveValues(targetNumPts);
     output->GetPointData()->AddArray(intensities);
   }
 

@@ -175,21 +175,21 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
   if (ghostLevel > 0 && this->CreateGhostCells)
   {
     cellGhostLevels = vtkUnsignedCharArray::New();
-    cellGhostLevels->Allocate(numCells);
+    cellGhostLevels->ReserveValues(numCells);
     // We may want to create point ghost levels even
     // if there are no ghost cells.  Since it cost extra,
     // and no filter really uses it, and the filter did not
     // create a point ghost level array for this case before,
     // I will leave it the way it was.
     pointOwnership = vtkIdList::New();
-    pointOwnership->Allocate(numPts);
+    pointOwnership->Reserve(numPts);
     pointGhostLevels = vtkUnsignedCharArray::New();
-    pointGhostLevels->Allocate(numPts);
+    pointGhostLevels->ReserveValues(numPts);
   }
 
   // Break up cells based on which piece they belong to.
   cellTags = vtkIntArray::New();
-  cellTags->Allocate(input->GetNumberOfCells(), 1000);
+  cellTags->ReserveValues(input->GetNumberOfCells());
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
   this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces, input);
@@ -208,7 +208,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
 
   output->Allocate(input->GetNumberOfCells());
   newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);

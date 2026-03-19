@@ -106,12 +106,12 @@ void vtkIncrementalOctreeNode::DeleteChildNodes()
 }
 
 //------------------------------------------------------------------------------
-void vtkIncrementalOctreeNode::CreatePointIdSet(int initSize, int growSize)
+void vtkIncrementalOctreeNode::CreatePointIdSet(int initSize, int vtkNotUsed(growSize))
 {
   if (this->PointIdSet == nullptr)
   {
     this->PointIdSet = vtkIdList::New();
-    this->PointIdSet->Allocate(initSize, growSize);
+    this->PointIdSet->Reserve(initSize);
   }
 }
 
@@ -481,7 +481,7 @@ int vtkIncrementalOctreeNode::InsertPoint(vtkPoints* points, const double newPnt
     // there has been no any point index registered in this leaf node
     OCTREENODE_INSERTPOINT[ptMode](points, pntId, newPnt);
     this->PointIdSet = vtkIdList::New();
-    this->PointIdSet->Allocate((maxPts >> 2), (maxPts >> 1));
+    this->PointIdSet->Reserve((maxPts >> 2));
     this->PointIdSet->InsertNextId(*pntId);
     this->UpdateCounterAndDataBoundsRecursively(newPnt, 1, 1, nullptr);
   }

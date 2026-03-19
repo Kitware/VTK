@@ -110,7 +110,6 @@ htg.SetBranchFactor(2)
 
 sideArray = vtkUnsignedCharArray()
 sideArray.SetName("sideArray")
-sideArray.SetNumberOfValues(0)
 sideArray.SetNumberOfComponents(1)
 htg.GetCellData().AddArray(sideArray)
 

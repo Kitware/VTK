@@ -467,7 +467,7 @@ int vtkIntersectionPolyDataFilter::Impl ::SplitMesh(
   //
   vtkIdType inputNumPoints = input->GetPoints()->GetNumberOfPoints();
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  points->Allocate(100);
+  points->Reserve(100);
   output->SetPoints(points);
 
   //
@@ -540,8 +540,8 @@ int vtkIntersectionPolyDataFilter::Impl ::SplitMesh(
         continue;
       }
 
-      cellsToCheck->Reset();
-      cellsToCheck->Allocate(nptsX + 1);
+      cellsToCheck->Initialize();
+      cellsToCheck->Reserve(nptsX + 1);
       cellsToCheck->InsertNextId(cellIdX);
 
       // Collect the cells relevant for splitting this cell.  If the
@@ -888,9 +888,9 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl ::SplitCell(vtkPolyData* input
   // For each point on an edge, compute it's relative angle about n.
   vtkSmartPointer<vtkIdTypeArray> edgePtIdList = vtkSmartPointer<vtkIdTypeArray>::New();
   vtkSmartPointer<vtkIdTypeArray> interPtIdList = vtkSmartPointer<vtkIdTypeArray>::New();
-  edgePtIdList->Allocate(points->GetNumberOfPoints());
+  edgePtIdList->ReserveValues(points->GetNumberOfPoints());
   vtkSmartPointer<vtkDoubleArray> angleList = vtkSmartPointer<vtkDoubleArray>::New();
-  angleList->Allocate(points->GetNumberOfPoints());
+  angleList->ReserveValues(points->GetNumberOfPoints());
   bool* interPtBool = new bool[points->GetNumberOfPoints()];
 
   for (vtkIdType ptId = 0; ptId < points->GetNumberOfPoints(); ptId++)

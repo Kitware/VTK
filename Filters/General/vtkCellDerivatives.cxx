@@ -100,11 +100,11 @@ struct CellDerivatives
     if (this->ComputeScalarDerivs)
     {
       this->CellScalars.Local()->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-      this->CellScalars.Local()->Allocate(this->NumComp * VTK_CELL_SIZE);
+      this->CellScalars.Local()->ReserveTuples(VTK_CELL_SIZE);
     }
     this->CellVectors.Local().TakeReference(vtkDoubleArray::New());
     this->CellVectors.Local()->SetNumberOfComponents(3);
-    this->CellVectors.Local()->Allocate(3 * VTK_CELL_SIZE);
+    this->CellVectors.Local()->ReserveTuples(VTK_CELL_SIZE);
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)

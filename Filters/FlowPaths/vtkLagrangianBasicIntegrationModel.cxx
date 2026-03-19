@@ -1097,7 +1097,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayTypes()
 //------------------------------------------------------------------------------
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
 {
-  this->SurfaceArrayNames->SetNumberOfValues(0);
+  this->SurfaceArrayNames->Initialize();
   for (auto it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
   {
@@ -1109,7 +1109,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
 //------------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayComps()
 {
-  this->SurfaceArrayComps->SetNumberOfValues(0);
+  this->SurfaceArrayComps->Initialize();
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
@@ -1128,7 +1128,7 @@ int vtkLagrangianBasicIntegrationModel::GetWeightsSize()
 //------------------------------------------------------------------------------
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
 {
-  this->SurfaceArrayEnumValues->SetNumberOfValues(0);
+  this->SurfaceArrayEnumValues->Initialize();
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
@@ -1148,7 +1148,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
 //------------------------------------------------------------------------------
 vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues()
 {
-  this->SurfaceArrayDefaultValues->SetNumberOfValues(0);
+  this->SurfaceArrayDefaultValues->Initialize();
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
@@ -1167,7 +1167,7 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
 //------------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
 {
-  this->SurfaceArrayTypes->SetNumberOfValues(0);
+  this->SurfaceArrayTypes->Initialize();
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
@@ -1218,20 +1218,18 @@ void vtkLagrangianBasicIntegrationModel::InitializeParticleData(
 {
   vtkNew<vtkIntArray> particleStepNumArray;
   particleStepNumArray->SetName("StepNumber");
-  particleStepNumArray->SetNumberOfComponents(1);
-  particleStepNumArray->Allocate(maxTuple);
+  particleStepNumArray->ReserveValues(maxTuple);
   particleData->AddArray(particleStepNumArray);
 
   vtkNew<vtkDoubleArray> particleVelArray;
   particleVelArray->SetName("ParticleVelocity");
   particleVelArray->SetNumberOfComponents(3);
-  particleVelArray->Allocate(maxTuple * 3);
+  particleVelArray->ReserveTuples(maxTuple);
   particleData->AddArray(particleVelArray);
 
   vtkNew<vtkDoubleArray> particleIntegrationTimeArray;
   particleIntegrationTimeArray->SetName("IntegrationTime");
-  particleIntegrationTimeArray->SetNumberOfComponents(1);
-  particleIntegrationTimeArray->Allocate(maxTuple);
+  particleIntegrationTimeArray->ReserveValues(maxTuple);
   particleData->AddArray(particleIntegrationTimeArray);
 }
 

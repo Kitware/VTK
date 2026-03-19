@@ -1247,9 +1247,9 @@ void vtkImplicitFrustumRepresentation::BuildFrustum()
   };
 
   vtkNew<vtkIdList> nearPlanePointIndices;
-  nearPlanePointIndices->Allocate(4);
+  nearPlanePointIndices->Reserve(4);
   vtkNew<vtkIdList> farPlanePointIndices;
-  farPlanePointIndices->Allocate(4);
+  farPlanePointIndices->Reserve(4);
 
   vtkNew<vtkTransform> transform;
   transform->Identity();

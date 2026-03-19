@@ -122,12 +122,12 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (solid == "solid")
   {
     // First word is "solid", which means the data should be ASCII.
-    newPts->Allocate(5000);
+    newPts->Reserve(5000);
     newPolys->AllocateEstimate(10000, 1);
     if (this->ScalarTags)
     {
       newScalars = vtkSmartPointer<vtkFloatArray>::New();
-      newScalars->Allocate(5000);
+      newScalars->ReserveValues(5000);
     }
 
     vtkNew<vtkResourceParser> parser;
@@ -166,13 +166,13 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Merging)
   {
     mergedPts = vtkSmartPointer<vtkPoints>::New();
-    mergedPts->Allocate(newPts->GetNumberOfPoints() / 2);
+    mergedPts->Reserve(newPts->GetNumberOfPoints() / 2);
     mergedPolys = vtkSmartPointer<vtkCellArray>::New();
     mergedPolys->AllocateCopy(newPolys);
     if (newScalars)
     {
       mergedScalars = vtkSmartPointer<vtkFloatArray>::New();
-      mergedScalars->Allocate(newPolys->GetNumberOfCells());
+      mergedScalars->ReserveValues(newPolys->GetNumberOfCells());
     }
 
     vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
@@ -321,7 +321,7 @@ bool vtkSTLReader::ReadBinarySTL(
 
   // now allocate the memory we need for the triangles.
   // note we ignore the triangle count field and read until end of file.
-  newPts->Allocate(numTrisFile * 3);
+  newPts->Reserve(numTrisFile * 3);
   newPolys->AllocateEstimate(numTrisFile, 3);
 
   facet_t facet;

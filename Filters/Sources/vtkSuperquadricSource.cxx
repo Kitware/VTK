@@ -207,14 +207,14 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   newNormals = vtkSmartPointer<vtkFloatArray>::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numPts);
+  newNormals->ReserveTuples(numPts);
   newNormals->SetName("Normals");
   newTCoords = vtkSmartPointer<vtkFloatArray>::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
+  newTCoords->ReserveTuples(numPts);
   newTCoords->SetName("TextureCoords");
 
   newPolys = vtkSmartPointer<vtkCellArray>::New();

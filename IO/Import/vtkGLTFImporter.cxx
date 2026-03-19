@@ -1259,8 +1259,7 @@ bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double fr
     if (frameRate > 0)
     {
       nbTimeSteps = 0;
-      timeSteps->SetNumberOfComponents(1);
-      timeSteps->SetNumberOfTuples(0);
+      timeSteps->Initialize();
 
       std::vector<double> ts;
       double period = (1.0 / frameRate);
@@ -1289,7 +1288,7 @@ bool vtkGLTFImporter::GetTemporalInformation(
 
     nbTimeStep = static_cast<int>(model->Animations[animationIndex].AllTimestamps.size());
     timeSteps->Initialize();
-    timeSteps->Allocate(nbTimeStep);
+    timeSteps->ReserveValues(nbTimeStep);
     for (const float& Timestamp : model->Animations[animationIndex].AllTimestamps)
     {
       timeSteps->InsertNextValue(Timestamp);

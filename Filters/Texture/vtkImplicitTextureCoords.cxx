@@ -89,12 +89,12 @@ int vtkImplicitTextureCoords::RequestData(vtkInformation* vtkNotUsed(request),
   if (tcoordDim == 1) // force 2D map to be created
   {
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(2 * numPts);
+    newTCoords->ReserveTuples(numPts);
   }
   else
   {
     newTCoords->SetNumberOfComponents(tcoordDim);
-    newTCoords->Allocate(tcoordDim * numPts);
+    newTCoords->ReserveTuples(numPts);
   }
   //
   // Compute implicit function values -> insert as initial texture coordinate

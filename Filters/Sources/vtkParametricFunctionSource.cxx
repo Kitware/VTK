@@ -287,7 +287,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector* output)
   if (this->GenerateTextureCoordinates != 0)
   {
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(2 * totPts);
+    newTCoords->ReserveTuples(totPts);
     newTCoords->SetName("Textures");
   }
 

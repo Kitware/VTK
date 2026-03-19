@@ -121,16 +121,14 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   if (this->PassThroughCellIds)
   {
     originalCellIds->SetName(this->GetOriginalCellIdsName());
-    originalCellIds->SetNumberOfComponents(1);
-    originalCellIds->Allocate(numCells);
+    originalCellIds->ReserveValues(numCells);
     outputCD->AddArray(originalCellIds.GetPointer());
   }
   vtkNew<vtkIdTypeArray> originalPointIds;
   if (this->PassThroughPointIds)
   {
     originalPointIds->SetName(this->GetOriginalPointIdsName());
-    originalPointIds->SetNumberOfComponents(1);
-    originalPointIds->Allocate(numPts);
+    originalPointIds->ReserveValues(numPts);
     outputPD->AddArray(originalPointIds.GetPointer());
   }
 
@@ -159,7 +157,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   // Allocate
   vtkNew<vtkPoints> newPts;
   newPts->SetDataType(points->GetDataType());
-  newPts->Allocate(numPts, numPts / 2);
+  newPts->Reserve(numPts);
   output->SetPoints(newPts);
 
   vtkNew<vtkCellArray> newCells;

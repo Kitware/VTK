@@ -84,14 +84,14 @@ int vtkCylinderSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   vtkNew<vtkFloatArray> newNormals;
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(numPts);
+  newNormals->ReserveTuples(numPts);
   newNormals->SetName("Normals");
   vtkNew<vtkFloatArray> newTCoords;
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(numPts);
+  newTCoords->ReserveTuples(numPts);
   newTCoords->SetName("TCoords");
 
   vtkNew<vtkCellArray> newPolys;

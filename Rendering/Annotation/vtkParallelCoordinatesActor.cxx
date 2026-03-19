@@ -471,7 +471,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport* viewport, const int* vtk
   // Now generate the lines to plot
   this->PlotData->Initialize(); // remove old polydata, if any
   vtkPoints* pts = vtkPoints::New();
-  pts->Allocate(numRows * numColumns);
+  pts->Reserve(numRows * numColumns);
   vtkCellArray* lines = vtkCellArray::New();
   this->PlotData->SetPoints(pts);
   this->PlotData->SetLines(lines);

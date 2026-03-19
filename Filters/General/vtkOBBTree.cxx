@@ -252,10 +252,10 @@ void vtkOBBTree::ComputeOBB(
     this->InsertedPoints[i] = 0;
   }
   this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
+  this->PointsList->Reserve(numPts);
 
   cellList = vtkIdList::New();
-  cellList->Allocate(numCells);
+  cellList->Reserve(numCells);
   for (i = 0; i < numCells; i++)
   {
     cellList->InsertId(i, i);
@@ -680,11 +680,11 @@ int vtkOBBTree::IntersectWithLine(
   {
     if (points)
     {
-      points->SetNumberOfPoints(0);
+      points->Reset();
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Reset();
     }
     return 0;
   }
@@ -817,7 +817,7 @@ int vtkOBBTree::IntersectWithLine(
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Initialize();
     }
     double ptol = this->Tolerance / sqrt(vtkMath::Dot(v12, v12));
     double lastDistance = 0.0;
@@ -885,11 +885,11 @@ int vtkOBBTree::IntersectWithLine(
   {
     if (points)
     {
-      points->SetNumberOfPoints(0);
+      points->Initialize();
     }
     if (cellIds)
     {
-      cellIds->SetNumberOfIds(0);
+      cellIds->Initialize();
     }
   }
 
@@ -1070,13 +1070,13 @@ void vtkOBBTree::BuildLocatorInternal()
     this->InsertedPoints[i] = 0;
   }
   this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
+  this->PointsList->Reserve(numPts);
 
   //
   // Begin recursively creating OBB's
   //
   cellList = vtkIdList::New();
-  cellList->Allocate(numCells);
+  cellList->Reserve(numCells);
   for (i = 0; i < numCells; i++)
   {
     cellList->InsertId(i, i);
@@ -1133,9 +1133,9 @@ void vtkOBBTree::BuildTree(vtkIdList* cells, vtkOBBNode* OBBptr, int level)
   if (level < this->MaxLevel && numCells > this->NumberOfCellsPerNode)
   {
     vtkIdList* LHlist = vtkIdList::New();
-    LHlist->Allocate(cells->GetNumberOfIds() / 2);
+    LHlist->Reserve(cells->GetNumberOfIds() / 2);
     vtkIdList* RHlist = vtkIdList::New();
-    RHlist->Allocate(cells->GetNumberOfIds() / 2);
+    RHlist->Reserve(cells->GetNumberOfIds() / 2);
     double n[3], p[3], c[3], x[3], val, ratio, bestRatio;
     int negative, positive, splitAcceptable, splitPlane;
     int foundBestSplit, bestPlane = 0, numPts;
@@ -1295,7 +1295,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData* pd)
   vtkCellArray* polys;
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(5000, 1);
   this->GeneratePolygons(this->Tree, 0, level, pts, polys);

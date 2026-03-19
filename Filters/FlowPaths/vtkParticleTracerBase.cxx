@@ -678,7 +678,7 @@ struct ParticleTracerFunctor
     if (this->PT->ComputeVorticity)
     {
       cellVectors->SetNumberOfComponents(3);
-      cellVectors->Allocate(3 * VTK_CELL_SIZE);
+      cellVectors->ReserveTuples(VTK_CELL_SIZE);
     }
   }
 
@@ -762,7 +762,7 @@ int vtkParticleTracerBase::Initialize(
 
     this->CellVectors->SetName("CellVectors");
     this->CellVectors->SetNumberOfComponents(3);
-    this->CellVectors->Allocate(3 * VTK_CELL_SIZE);
+    this->CellVectors->ReserveTuples(VTK_CELL_SIZE);
     this->ParticleVorticity->SetName("Vorticity");
     this->ParticleRotation->SetName("Rotation");
     this->ParticleAngularVel->SetName("AngularVelocity");

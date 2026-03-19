@@ -382,7 +382,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     this->Impl->AvailVars = this->Impl->AdiosIO.AvailableVariables();
     this->Impl->AvailAtts = this->Impl->AdiosIO.AvailableAttributes();
     // Populate the array selection
-    this->Impl->AvailableArray->Allocate(static_cast<vtkIdType>(this->Impl->AvailVars.size()));
+    this->Impl->AvailableArray->ReserveValues(static_cast<vtkIdType>(this->Impl->AvailVars.size()));
     for (auto& iter : this->Impl->AvailVars)
     {
       this->Impl->ArraySelection->EnableArray(iter.first.c_str());

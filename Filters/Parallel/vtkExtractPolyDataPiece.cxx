@@ -132,15 +132,15 @@ int vtkExtractPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   {
     cellGhostLevels = vtkUnsignedCharArray::New();
     pointGhostLevels = vtkUnsignedCharArray::New();
-    cellGhostLevels->Allocate(input->GetNumberOfCells());
-    pointGhostLevels->Allocate(input->GetNumberOfPoints());
+    cellGhostLevels->ReserveValues(input->GetNumberOfCells());
+    pointGhostLevels->ReserveValues(input->GetNumberOfPoints());
   }
 
   // Break up cells based on which piece they belong to.
   cellTags = vtkIntArray::New();
-  cellTags->Allocate(input->GetNumberOfCells(), 1000);
+  cellTags->ReserveValues(input->GetNumberOfCells());
   pointOwnership = vtkIdList::New();
-  pointOwnership->Allocate(input->GetNumberOfPoints());
+  pointOwnership->Reserve(input->GetNumberOfPoints());
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
   this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces, input);
@@ -159,7 +159,7 @@ int vtkExtractPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   numPts = input->GetNumberOfPoints();
   output->AllocateCopy(input);
   newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   pointMap = vtkIdList::New(); // maps old point ids into new
   pointMap->SetNumberOfIds(numPts);

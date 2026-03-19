@@ -78,7 +78,7 @@ int vtkExtractPointCloudPiece::RequestData(vtkInformation* vtkNotUsed(request),
   outPD->CopyAllocate(pd, numPts);
 
   vtkNew<vtkPoints> newPoints;
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   newPoints->SetNumberOfPoints(numPts);
 

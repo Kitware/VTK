@@ -343,7 +343,18 @@ struct AllocateExactImpl : public vtkCellArray::DispatchUtilities
   {
     using ValueType = GetAPIType<OffsetsT>;
     using AccessorType = vtkDataArrayAccessor<OffsetsT>;
-    result = (offsets->Allocate(numCells + 1) && conn->Allocate(connectivitySize));
+    conn->Initialize();
+    if (offsets->GetArrayType() == vtkArrayTypes::VTK_AFFINE_ARRAY)
+    {
+      // AffineArray's Initialize destroys the backend of the offsets array,
+      offsets->Reset();   // Changed only Max Id
+      offsets->Squeeze(); // Change Capacity too
+    }
+    else
+    {
+      offsets->Initialize();
+    }
+    result = (offsets->ReserveValues(numCells + 1) && conn->ReserveValues(connectivitySize));
     if (result)
     {
       AccessorType accessor(offsets);
@@ -1459,7 +1470,8 @@ void vtkCellArray::ExportLegacyFormat(vtkIdTypeArray* data)
 {
   vtkIdType size;
   this->Dispatch(GetLegacyDataSizeImpl{}, size);
-  data->Allocate(size);
+  data->Initialize();
+  data->ReserveValues(size);
 
   auto it = vtk::TakeSmartPointer(this->NewIterator());
 

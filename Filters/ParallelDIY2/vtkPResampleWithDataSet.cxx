@@ -841,7 +841,7 @@ void PerformResampling(
 
       vtkNew<vtkPoints> pts;
       pts->SetDataTypeToDouble();
-      pts->Allocate(totalPoints);
+      pts->Reserve(totalPoints);
       for (vtkIdType j = 0; j < totalPoints; ++j)
       {
         pts->InsertNextPoint(points[j].Position);

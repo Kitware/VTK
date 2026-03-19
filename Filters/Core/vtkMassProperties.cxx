@@ -62,7 +62,7 @@ int vtkMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
-  ptIds->Allocate(VTK_CELL_SIZE);
+  ptIds->Reserve(VTK_CELL_SIZE);
 
   // Traverse all cells, obtaining node coordinates.
   //

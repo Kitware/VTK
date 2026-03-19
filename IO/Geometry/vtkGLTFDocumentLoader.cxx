@@ -236,7 +236,7 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
     // element.
     size_t step = this->ByteStride == 0 ? this->NumberOfComponents * size : this->ByteStride;
 
-    output->Allocate(this->NumberOfComponents * this->Count);
+    output->ReserveTuples(this->Count);
 
     // keeps track of the last tuple's index. Only used if this->NormalizeTuples is set to true
     int tupleCount = 0;
@@ -439,7 +439,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
       if (accessor.BufferView < 0)
       {
         output->SetNumberOfComponents(accessor.NumberOfComponents);
-        output->Allocate(accessor.Count * accessor.NumberOfComponents);
+        output->ReserveTuples(accessor.Count);
         output->Fill(0);
       }
 

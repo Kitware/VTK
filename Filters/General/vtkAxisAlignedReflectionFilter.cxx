@@ -409,7 +409,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
-  outPoints->Allocate(numPts);
+  outPoints->Reserve(numPts);
   outPD->CopyAllOn();
   outPD->CopyAllocate(inPD);
 
@@ -483,7 +483,7 @@ void vtkAxisAlignedReflectionFilter::ProcessStructuredGrid(vtkStructuredGrid* in
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
-  outPoints->Allocate(numPts);
+  outPoints->Reserve(numPts);
   outPD->CopyAllOn();
   outPD->CopyAllocate(inPD);
 
@@ -538,7 +538,7 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   outStrips->AllocateExact(
     input->GetNumberOfStrips(), input->GetStrips()->GetNumberOfConnectivityIds());
 
-  outPoints->Allocate(numPts);
+  outPoints->Reserve(numPts);
   outPD->CopyAllOn();
   outPD->CopyAllocate(inPD);
   outCD->CopyAllOn();

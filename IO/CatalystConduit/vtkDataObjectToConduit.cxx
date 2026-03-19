@@ -396,9 +396,9 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologiesNode)
   vtkNew<vtkIdTypeArray> sizes;
 
   const vtkIdType totalCells = dataset->GetNumberOfCells();
-  shapes->Allocate(totalCells);
-  offsets->Allocate(totalCells);
-  sizes->Allocate(totalCells);
+  shapes->ReserveValues(totalCells);
+  offsets->ReserveValues(totalCells);
+  sizes->ReserveValues(totalCells);
 
   vtkIdType startOffset = 0;
   for (const auto& topo : topos)
@@ -781,8 +781,8 @@ bool FillFieldArrayValues(vtkDataSet* data_set, conduit_cpp::Node& values_node,
       { VTK_TRIANGLE_STRIP, 3 } };
 
     auto newArray = vtkSmartPointer<vtkDataArray>::NewInstance(data_array);
-    newArray->Allocate(data_array->GetNumberOfTuples());
     newArray->SetNumberOfComponents(data_array->GetNumberOfComponents());
+    newArray->ReserveTuples(data_array->GetNumberOfTuples());
     for (vtkIdType i = 0; i < pointSet->GetNumberOfCells(); i++)
     {
       auto type = pointSet->GetCellType(i);
@@ -861,7 +861,6 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       array = vtk::TakeSmartPointer(vtkDataArray::CreateArray(dataType));
       array->SetName(name.c_str());
       array->SetNumberOfComponents(numComp);
-      array->SetNumberOfTuples(0);
     }
 
     if (association.empty())

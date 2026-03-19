@@ -78,11 +78,11 @@ int vtkGenericDataSetTessellator::RequestData(vtkInformation* vtkNotUsed(request
 
   // Copy original points and point data
   vtkPoints* newPts = vtkPoints::New();
-  newPts->Allocate(2 * numPts, numPts);
+  newPts->Reserve(2 * numPts);
 
   // loop over region
   vtkUnsignedCharArray* types = vtkUnsignedCharArray::New();
-  types->Allocate(numCells);
+  types->ReserveValues(numCells);
   vtkCellArray* conn = vtkCellArray::New();
   conn->AllocateEstimate(numCells, 1);
 

@@ -34,6 +34,7 @@ public:
   /**
    * Allocate initial memory size. ext is no longer used.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use Reserve() to allocate or Initialize() to deallocate.")
   virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**

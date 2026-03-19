@@ -116,7 +116,7 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(estimatedSize, 3);
   o->SetPoints(newPts);
@@ -140,18 +140,18 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   if (normals)
   {
     normals->SetNumberOfComponents(3);
-    normals->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    normals->ReserveTuples(estimatedSize);
     normals->SetName("Normals");
   }
   if (gradients)
   {
     gradients->SetNumberOfComponents(3);
-    gradients->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    gradients->ReserveTuples(estimatedSize);
     gradients->SetName("Gradients");
   }
   if (scalars)
   {
-    scalars->Allocate(estimatedSize, estimatedSize / 2);
+    scalars->ReserveTuples(estimatedSize);
     scalars->SetName("Scalars");
   }
 
@@ -880,7 +880,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   {
     vtkNew<vtkDoubleArray> image;
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    image->Allocate(dataSize * image->GetNumberOfComponents());
+    image->ReserveTuples(dataSize);
     inScalars->GetTuples(0, dataSize, image);
     using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
     ContourGridFunctor<vtk::detail::DynamicTupleSize> functor;

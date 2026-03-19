@@ -982,7 +982,7 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
   if (cFiles > 0)
   {
     vtkNew<vtkStringArray> filePaths;
-    filePaths->Allocate(cFiles);
+    filePaths->ReserveValues(cFiles);
 
     for (UINT i = 0; i < cFiles; i++)
     {

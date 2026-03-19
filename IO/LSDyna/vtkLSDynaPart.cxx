@@ -525,7 +525,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
   {
     newPoints->SetDataTypeToFloat();
   }
-  newPoints->Allocate(this->NumberOfPoints);
+  newPoints->Reserve(this->NumberOfPoints);
 
   vtkIdList* pointMap = vtkIdList::New();
   pointMap->SetNumberOfIds(this->NumberOfPoints);

@@ -59,7 +59,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(requ
   // Allocate storage and create outline
   //
   newPts = vtkPoints::New();
-  newPts->Allocate(24);
+  newPts->Reserve(24);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(12, 2);
 

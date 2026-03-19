@@ -20,7 +20,8 @@ vtkPriorityQueue::vtkPriorityQueue()
 // queue (if reallocation required).
 void vtkPriorityQueue::Allocate(vtkIdType sz, vtkIdType ext)
 {
-  this->ItemLocation->Allocate(sz, ext);
+  this->ItemLocation->Initialize();
+  this->ItemLocation->ReserveValues(sz);
   this->Size = (sz > 0 ? sz : 1);
   delete[] this->Array;
   this->Array = new vtkPriorityQueue::Item[sz];

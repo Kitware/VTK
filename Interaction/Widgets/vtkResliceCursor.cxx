@@ -378,7 +378,7 @@ void vtkResliceCursor::BuildPolyData()
   const double ht[3] = { this->Thickness[0] / 2.0, this->Thickness[1] / 2.0,
     this->Thickness[2] / 2.0 };
 
-  points->Allocate(24);
+  points->Reserve(24);
   lines->AllocateEstimate(18, 4);
 
   double pts[30][3];

@@ -55,7 +55,7 @@ int PolyDataTest()
   std::cout << "Testing validator on polydata\n";
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
-  points->Allocate(5);
+  points->Reserve(5);
   points->InsertNextPoint(0, 0, 0);
   points->InsertNextPoint(0, 0, 1);
   points->InsertNextPoint(0, 1, 1);

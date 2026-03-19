@@ -106,12 +106,10 @@ htg.SetBranchFactor(2)
 #Scalar Level
 levelArray = vtkUnsignedCharArray()
 levelArray.SetName('level')
-levelArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(levelArray)
 
 scalarArray = vtkDoubleArray()
 scalarArray.SetName('scalar')
-scalarArray.SetNumberOfValues(0)
 htg.GetCellData().AddArray(scalarArray)
 
 xValues = vtkDoubleArray() #x

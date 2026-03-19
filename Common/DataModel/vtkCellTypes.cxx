@@ -28,7 +28,7 @@ vtkCellTypes::vtkCellTypes()
 }
 
 //------------------------------------------------------------------------------
-int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
+int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
   this->MaxId = -1;
 
@@ -36,7 +36,8 @@ int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
   {
     this->TypeArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
   }
-  this->TypeArray->Allocate(sz, ext);
+  this->TypeArray->Initialize();
+  this->TypeArray->ReserveValues(sz);
 
   return 1;
 }

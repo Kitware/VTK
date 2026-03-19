@@ -16,10 +16,10 @@ vtkStandardNewMacro(vtkClosestPointStrategy);
 vtkClosestPointStrategy::vtkClosestPointStrategy()
 {
   // Preallocate for performance
-  this->PointIds->Allocate(16);
-  this->Neighbors->Allocate(32);
-  this->CellIds->Allocate(32);
-  this->NearPointIds->Allocate(32);
+  this->PointIds->Reserve(16);
+  this->Neighbors->Reserve(32);
+  this->CellIds->Reserve(32);
+  this->NearPointIds->Reserve(32);
 
   this->PointLocator = nullptr;
 }

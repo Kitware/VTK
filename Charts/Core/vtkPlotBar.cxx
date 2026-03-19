@@ -1029,7 +1029,7 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   {
     this->Selection = vtkIdTypeArray::New();
   }
-  this->Selection->SetNumberOfTuples(0);
+  this->Selection->Initialize();
 
   return this->Private->SelectPoints(min, max, this->Width, this->Offset, this->Orientation);
 }

@@ -145,25 +145,25 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkDebugMacro(<< "Estimated number of points/triangles: " << estimatedSize);
   this->Points = vtkPoints::New();
-  this->Points->Allocate(estimatedSize, estimatedSize / 2);
+  this->Points->Reserve(estimatedSize);
   this->Triangles = vtkCellArray::New();
   this->Triangles->AllocateEstimate(estimatedSize, 1);
   if (this->ComputeScalars)
   {
     this->Scalars = vtkFloatArray::New();
-    this->Scalars->Allocate(estimatedSize, estimatedSize / 2);
+    this->Scalars->ReserveValues(estimatedSize);
   }
   if (this->ComputeNormals)
   {
     this->Normals = vtkFloatArray::New();
     this->Normals->SetNumberOfComponents(3);
-    this->Normals->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    this->Normals->ReserveTuples(estimatedSize);
   }
   if (this->ComputeGradients)
   {
     this->Gradients = vtkFloatArray::New();
     this->Gradients->SetNumberOfComponents(3);
-    this->Gradients->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
+    this->Gradients->ReserveTuples(estimatedSize);
   }
 
   // Initialize the internal point locator (edge table for one image of cubes).

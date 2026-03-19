@@ -176,12 +176,12 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   newPoints = vtkPoints::New();
-  newPoints->Allocate(estimatedSize / 2, estimatedSize / 2);
+  newPoints->Reserve(estimatedSize / 2);
   this->NumberOfCells = 0;
   this->Connectivity = vtkCellArray::New();
   this->Connectivity->AllocateEstimate(estimatedSize * 2, 1); // allocate storage for cells
   this->Types = vtkUnsignedCharArray::New();
-  this->Types->Allocate(estimatedSize);
+  this->Types->ReserveValues(estimatedSize);
 
   // locator used to merge potentially duplicate points
   if (this->Locator == nullptr)
@@ -195,7 +195,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ClipFunction)
   {
     vtkFloatArray* tmpScalars = vtkFloatArray::New();
-    tmpScalars->Allocate(numPts);
+    tmpScalars->ReserveValues(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());
     if (this->GenerateClipScalars)
@@ -239,7 +239,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
     this->ClippedConnectivity = vtkCellArray::New();
     this->ClippedConnectivity->AllocateEstimate(estimatedSize, 1); // storage for cells
     this->ClippedTypes = vtkUnsignedCharArray::New();
-    this->ClippedTypes->Allocate(estimatedSize);
+    this->ClippedTypes->ReserveValues(estimatedSize);
   }
 
   // perform clipping on voxels - compute appropriate numbers
@@ -250,11 +250,11 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
   sliceSize = numICells * numJCells;
 
   tetraIds = vtkIdList::New();
-  tetraIds->Allocate(20);
+  tetraIds->Reserve(20);
   cellScalars = vtkFloatArray::New();
-  cellScalars->Allocate(8);
+  cellScalars->ReserveValues(8);
   tetraPts = vtkPoints::New();
-  tetraPts->Allocate(20);
+  tetraPts->Reserve(20);
   vtkGenericCell* cell = vtkGenericCell::New();
   vtkTetra* clipTetra = vtkTetra::New();
 

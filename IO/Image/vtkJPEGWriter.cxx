@@ -138,7 +138,7 @@ extern "C"
         self->SetResult(uc);
         uc->Delete();
         // start out with 10K as a guess for the image size
-        uc->Allocate(10000);
+        uc->ReserveValues(10000);
       }
       cinfo->dest->next_output_byte = uc->GetPointer(0);
       cinfo->dest->free_in_buffer = uc->GetCapacity();

@@ -221,7 +221,7 @@ void vtkPlotBox::SetInputData(vtkTable* table)
   else if (parent && updateVisibility)
   {
     // No table, therefore no visible columns
-    parent->GetVisibleColumns()->SetNumberOfTuples(0);
+    parent->GetVisibleColumns()->Initialize();
   }
   // Create a default lookup table is non set yet
   if (!this->LookupTable)

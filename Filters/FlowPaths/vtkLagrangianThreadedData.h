@@ -40,7 +40,7 @@ struct VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianThreadedData
   vtkLagrangianThreadedData()
   {
     this->BilinearQuadIntersection = new vtkBilinearQuadIntersection;
-    this->IdList->Allocate(10);
+    this->IdList->Reserve(10);
   }
 
   ~vtkLagrangianThreadedData() { delete this->BilinearQuadIntersection; }

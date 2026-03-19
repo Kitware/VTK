@@ -449,7 +449,7 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
   vtkNew<vtkTypeInt64Array> conn;
   int nn = cellType->GetNumberOfCorners();
   conn->SetNumberOfComponents(nn);
-  conn->Allocate(it->second * nn);
+  conn->ReserveTuples(it->second);
   conn->SetName("conn");
   std::vector<vtkTypeInt64> element;
   element.resize(nn);

@@ -114,7 +114,7 @@ int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   newPts->SetDataTypeToDouble();
 
   vtkDoubleArray* radii = vtkDoubleArray::New();
-  radii->Allocate(numCells);
+  radii->ReserveValues(numCells);
 
   vtkIntArray* levels = nullptr; // in case they are needed
 
@@ -122,7 +122,7 @@ int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ExtractionMode == VTK_SPHERE_TREE_LEVELS)
   {
     levels = vtkIntArray::New();
-    levels->Allocate(numCells);
+    levels->ReserveValues(numCells);
 
     // Create a point per cell. Create a scalar per cell (the radius).
     if (this->Level < 0 || this->Level == (numLevels - 1))

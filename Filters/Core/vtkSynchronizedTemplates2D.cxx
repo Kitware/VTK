@@ -447,7 +447,7 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
     estimatedSize = 1024;
   }
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize);
+  newPts->Reserve(estimatedSize);
   newLines = vtkCellArray::New();
   newLines->AllocateEstimate(estimatedSize, 2);
 
@@ -460,7 +460,7 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
     newScalars = inScalars->NewInstance();
     newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     newScalars->SetName(inScalars->GetName());
-    newScalars->Allocate(5000, 25000);
+    newScalars->ReserveValues(5000);
   }
 
   vtkIdType incs[3];

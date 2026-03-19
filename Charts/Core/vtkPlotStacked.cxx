@@ -196,7 +196,7 @@ public:
     }
     else
     {
-      this->BadPoints->SetNumberOfTuples(0);
+      this->BadPoints->Initialize();
     }
 
     // Scan through and find any bad points.
@@ -659,7 +659,7 @@ bool vtkPlotStacked::SelectPoints(const vtkVector2f& min, const vtkVector2f& max
   {
     this->Selection = vtkIdTypeArray::New();
   }
-  this->Selection->SetNumberOfTuples(0);
+  this->Selection->Initialize();
 
   this->Private->SelectPoints(min, max, this->Selection);
 

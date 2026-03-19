@@ -61,7 +61,7 @@ int vtkRegularPolygonSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   if (this->GeneratePolyline)
   {

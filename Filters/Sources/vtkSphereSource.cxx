@@ -117,13 +117,13 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
 
   if (this->GenerateNormals)
   {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts);
+    newNormals->ReserveTuples(numPts);
     newNormals->SetName("Normals");
   }
 

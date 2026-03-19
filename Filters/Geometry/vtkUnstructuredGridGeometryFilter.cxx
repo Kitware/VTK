@@ -949,7 +949,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   vtkIdList* cellIds = vtkIdList::New();
   vtkPoints* newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   output->Allocate(numCells);
   outputPD->CopyAllocate(pd, numPts, numPts / 2);
   vtkSmartPointer<vtkIdTypeArray> originalPointIds;
@@ -958,8 +958,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();
     originalPointIds->SetName(this->GetOriginalPointIdsName());
-    originalPointIds->SetNumberOfComponents(1);
-    originalPointIds->Allocate(numPts, numPts / 2);
+    originalPointIds->ReserveValues(numPts);
   }
 
   outputCD->CopyAllocate(cd, numCells, numCells / 2);
@@ -968,8 +967,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     originalCellIds = vtkSmartPointer<vtkIdTypeArray>::New();
     originalCellIds->SetName(this->GetOriginalCellIdsName());
-    originalCellIds->SetNumberOfComponents(1);
-    originalCellIds->Allocate(numCells, numCells / 2);
+    originalCellIds->ReserveValues(numCells);
   }
 
   vtkIdType* pointMap = nullptr;

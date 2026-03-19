@@ -22,7 +22,7 @@ vtkNew<vtkPolyData> MakeTetrahedron()
   vtkNew<vtkPolyData> tet;
 
   vtkNew<vtkPoints> points;
-  points->Allocate(4);
+  points->Reserve(4);
   points->InsertNextPoint(0.00, 0.00, 0.00);
   points->InsertNextPoint(0.10, 0.45, 0.55);
   points->InsertNextPoint(0.10, 0.55, 0.45);

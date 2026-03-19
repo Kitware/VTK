@@ -714,7 +714,7 @@ vtkStringArray* vtkPNGReader::GetTextKeys()
 {
   auto keys = this->Internals->TextKeys.GetPointer();
   keys->Initialize();
-  keys->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  keys->ReserveValues(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
   for (auto& key : this->Internals->TextKeyValue)
   {
     keys->InsertNextValue(key.first);
@@ -733,7 +733,7 @@ vtkStringArray* vtkPNGReader::GetTextValues()
 {
   auto values = this->Internals->TextValues.GetPointer();
   values->Initialize();
-  values->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  values->ReserveValues(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
   for (auto& value : this->Internals->TextKeyValue)
   {
     values->InsertNextValue(value.second);

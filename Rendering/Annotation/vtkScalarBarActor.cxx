@@ -2328,8 +2328,8 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(double barX, double barY,
   vtkUnsignedCharArray* llcolors = vtkUnsignedCharArray::New();
   llcolors->SetName("Leader Line Colors");
   llcolors->SetNumberOfComponents(3);
-  llcolors->Allocate(numNotes);
-  lpts->Allocate(2 * numNotes);
+  llcolors->ReserveTuples(numNotes);
+  lpts->Reserve(2 * numNotes);
   llines->AllocateEstimate(numNotes, 2);
   this->P->AnnotationLeaders->Initialize();
   this->P->AnnotationLeaders->SetPoints(lpts);
@@ -2680,9 +2680,9 @@ int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   vtkUnsignedCharArray* llcolors = vtkUnsignedCharArray::New();
   llcolors->SetName("Leader Line Color");
   llcolors->SetNumberOfComponents(3);
-  llcolors->Allocate(numNotes * numNotes);
+  llcolors->ReserveTuples(numNotes * numNotes);
   // TODO: Improve estimates, but we don't know how many breaks there will be:
-  lpts->Allocate(numNotes * numNotes);
+  lpts->Reserve(numNotes * numNotes);
   llines->AllocateEstimate(numNotes * numNotes, 2);
   this->P->AnnotationLeaders->Initialize();
   this->P->AnnotationLeaders->SetPoints(lpts);

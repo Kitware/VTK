@@ -1492,7 +1492,7 @@ void BucketList2D<TIds>::GenerateRepresentation(int vtkNotUsed(level), vtkPolyDa
   int offset[3] = { 0, 0, 0 }, minusOffset[3] = { 0, 0, 0 };
 
   pts = vtkPoints::New();
-  pts->Allocate(5000);
+  pts->Reserve(5000);
   polys = vtkCellArray::New();
   polys->AllocateEstimate(2048, 3);
 

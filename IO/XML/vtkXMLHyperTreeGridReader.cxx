@@ -823,7 +823,6 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
         {
           outArray = this->CreateArray(eNested);
           outArray->SetNumberOfComponents(numberOfComponents);
-          outArray->SetNumberOfTuples(0);
           pointData->AddArray(outArray);
           pointData->SetActiveScalars(ename);
           outArray->Delete();

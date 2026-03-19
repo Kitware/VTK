@@ -43,7 +43,7 @@ void DartThrower(
   std::shuffle(candidates.begin(), candidates.end(), rng);
 
   vtkNew<vtkIdList> pickedPoints;
-  pickedPoints->Allocate(candidates.size());
+  pickedPoints->Reserve(candidates.size());
   vtkNew<vtkBitArray> alreadyProcessed;
   alreadyProcessed->SetNumberOfValues(candidates.size());
   alreadyProcessed->Fill(false);

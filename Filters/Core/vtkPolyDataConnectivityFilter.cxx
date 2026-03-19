@@ -35,10 +35,10 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
 
   this->CellScalars = vtkFloatArray::New();
-  this->CellScalars->Allocate(8);
+  this->CellScalars->ReserveValues(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
-  this->NeighborCellPointIds->Allocate(8);
+  this->NeighborCellPointIds->Reserve(8);
 
   this->Seeds = vtkIdList::New();
   this->SpecifiedRegionIds = vtkIdList::New();
@@ -152,7 +152,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     newPts->SetDataType(VTK_DOUBLE);
   }
 
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
 
   // Traverse all cells marking those visited.  Each new search
   // starts a new connected region. Connected region grows
@@ -166,9 +166,9 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   maxCellsInRegion = 0;
 
   this->CellIds = vtkIdList::New();
-  this->CellIds->Allocate(8, VTK_CELL_SIZE);
+  this->CellIds->Reserve(8);
   this->PointIds = vtkIdList::New();
-  this->PointIds->Allocate(8, VTK_CELL_SIZE);
+  this->PointIds->Reserve(8);
   vtkIdType checkAbortInterval = 0;
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&

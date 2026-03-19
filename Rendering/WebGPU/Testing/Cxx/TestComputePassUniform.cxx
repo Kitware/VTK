@@ -26,8 +26,7 @@ int TestComputePassUniform(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inuputDataArray;
-  inuputDataArray->SetNumberOfComponents(1);
-  inuputDataArray->Allocate(DATA_SIZE);
+  inuputDataArray->ReserveValues(DATA_SIZE);
   for (int i = 0; i < DATA_SIZE; i++)
   {
     inuputDataArray->InsertNextValue(i);

@@ -138,7 +138,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject* outp, vtkInformatio
   origin = output->GetOrigin();
   newTensors = vtkFloatArray::New();
   newTensors->SetNumberOfComponents(9);
-  newTensors->Allocate(9 * numPts);
+  newTensors->ReserveTuples(numPts);
   newTensors->SetName("PointLoadTensors");
 
   //

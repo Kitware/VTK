@@ -96,7 +96,6 @@ void vtkPolyPlane::ComputeNormals()
 
     this->Normals = vtkDoubleArray::New();
     this->Normals->SetNumberOfComponents(3);
-    this->Normals->Allocate(3 * nLines);
     this->Normals->SetName("Normals");
     this->Normals->SetNumberOfTuples(nLines);
 

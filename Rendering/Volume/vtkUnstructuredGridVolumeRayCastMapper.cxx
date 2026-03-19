@@ -384,15 +384,15 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume*
   {
     this->RayCastIterators[i] = this->RayCastFunction->NewIterator();
     this->IntersectionLengthsBuffer[i] = vtkDoubleArray::New();
-    this->IntersectionLengthsBuffer[i]->Allocate(
+    this->IntersectionLengthsBuffer[i]->ReserveValues(
       this->RayCastIterators[i]->GetMaxNumberOfIntersections());
     this->NearIntersectionsBuffer[i] = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-    this->NearIntersectionsBuffer[i]->Allocate(
+    this->NearIntersectionsBuffer[i]->ReserveValues(
       this->RayCastIterators[i]->GetMaxNumberOfIntersections());
     if (this->CellScalars)
     {
       this->IntersectedCellsBuffer[i] = vtkIdList::New();
-      this->IntersectedCellsBuffer[i]->Allocate(
+      this->IntersectedCellsBuffer[i]->Reserve(
         this->RayCastIterators[i]->GetMaxNumberOfIntersections());
       this->FarIntersectionsBuffer[i] = this->NearIntersectionsBuffer[i];
     }
@@ -400,7 +400,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume*
     {
       this->IntersectedCellsBuffer[i] = nullptr;
       this->FarIntersectionsBuffer[i] = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-      this->FarIntersectionsBuffer[i]->Allocate(
+      this->FarIntersectionsBuffer[i]->ReserveValues(
         this->RayCastIterators[i]->GetMaxNumberOfIntersections());
     }
   }

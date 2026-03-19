@@ -86,7 +86,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
 
   // We also create the points.
   vtkPoints* points = vtkPoints::New();
-  points->Allocate(dims[0] * dims[1] * dims[2]);
+  points->Reserve(dims[0] * dims[1] * dims[2]);
 
   for (k = 0; k < dims[2]; k++)
   {

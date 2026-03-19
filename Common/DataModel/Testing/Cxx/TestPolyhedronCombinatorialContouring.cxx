@@ -152,7 +152,6 @@ int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char* vtkNotUsed
 
   vtkNew<vtkDoubleArray> data;
   data->SetName("AirVolumeFraction");
-  data->Allocate(NPOINTS);
   data->SetNumberOfTuples(NPOINTS);
 
   // assign 0 to even points and 1 to odd points, then contour at 0.5

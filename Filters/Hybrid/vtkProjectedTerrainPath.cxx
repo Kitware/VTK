@@ -145,7 +145,7 @@ int vtkProjectedTerrainPath::RequestData(
 
   this->Points = vtkPoints::New();
   this->Points->SetDataTypeToDouble();
-  this->Points->Allocate(numPts);
+  this->Points->Reserve(numPts);
   output->SetPoints(this->Points);
   this->Points->Delete(); // ok reference counting
 

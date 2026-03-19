@@ -278,7 +278,7 @@ void vtkPolyDataToImageStencil::PolyDataSelector(
   vtkCellArray* lines = input->GetLines();
   vtkPoints* newPoints = vtkPoints::New();
   newPoints->SetDataType(points->GetDataType());
-  newPoints->Allocate(333);
+  newPoints->Reserve(333);
   vtkCellArray* newLines = vtkCellArray::New();
   newLines->AllocateEstimate(1000, 1);
 
@@ -345,7 +345,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
   vtkCellArray* inputStrips = input->GetStrips();
   vtkPoints* newPoints = vtkPoints::New();
   newPoints->SetDataType(points->GetDataType());
-  newPoints->Allocate(333);
+  newPoints->Reserve(333);
   vtkCellArray* newLines = vtkCellArray::New();
   newLines->AllocateEstimate(1000, 1);
 

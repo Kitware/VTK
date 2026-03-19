@@ -144,7 +144,7 @@ int vtkLinearExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   cellIds = vtkIdList::New();
-  cellIds->Allocate(VTK_CELL_SIZE);
+  cellIds->Reserve(VTK_CELL_SIZE);
 
   // Allocate memory for output. We don't copy normals because surface geometry
   // is modified. Copy all points - this is the usual requirement and it makes

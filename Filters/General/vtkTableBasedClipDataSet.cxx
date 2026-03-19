@@ -603,7 +603,7 @@ struct EvaluateCells
   void Initialize()
   {
     // initialize list size
-    this->TLIdList.Local()->Allocate(MAX_CELL_SIZE);
+    this->TLIdList.Local()->Reserve(MAX_CELL_SIZE);
     // initialize edges
     this->TLEdges.Local().reserve(static_cast<size_t>(this->Input->GetNumberOfPoints() * 0.001));
   }
@@ -888,7 +888,7 @@ struct ExtractCells
   void Initialize()
   {
     // initialize list size
-    this->TLIdList.Local()->Allocate(MAX_CELL_SIZE);
+    this->TLIdList.Local()->Reserve(MAX_CELL_SIZE);
   }
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)

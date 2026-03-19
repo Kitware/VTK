@@ -346,8 +346,8 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(int inExt[6], int ou
   if (!canCopyRange)
   {
     vtkIdType bufferSize = IMAX(outExt) - IMIN(outExt) + 1;
-    srcIds->Allocate(bufferSize);
-    dstIds->Allocate(bufferSize);
+    srcIds->Reserve(bufferSize);
+    dstIds->Reserve(bufferSize);
   }
 
   int ijk[3];
@@ -458,8 +458,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(
   if (!canCopyRange)
   {
     vtkIdType bufferSize = IMAX(outCellExt) - IMIN(outCellExt) + 1;
-    srcIds->Allocate(bufferSize);
-    dstIds->Allocate(bufferSize);
+    srcIds->Reserve(bufferSize);
+    dstIds->Reserve(bufferSize);
   }
 
   int ijk[3];

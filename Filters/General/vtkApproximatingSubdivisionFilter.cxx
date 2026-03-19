@@ -71,7 +71,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
     // include even points (computed from old points) and
     // odd points (inserted on edges)
     outputPts = vtkPoints::New();
-    outputPts->Allocate(numPts);
+    outputPts->Reserve(numPts);
 
     // Copy pointdata structure from input
     outputPD = vtkPointData::New();

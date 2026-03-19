@@ -439,14 +439,6 @@ unsigned long int vtkPeriodicDataArray<Scalar>::GetActualMemorySize() const
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-vtkTypeBool vtkPeriodicDataArray<Scalar>::Allocate(vtkIdType, vtkIdType)
-{
-  vtkErrorMacro("Read only container.");
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar>
 vtkTypeBool vtkPeriodicDataArray<Scalar>::ReserveTuples(vtkIdType)
 {
   vtkErrorMacro("Read only container.");
@@ -654,14 +646,6 @@ template <class Scalar>
 void vtkPeriodicDataArray<Scalar>::InsertValue(vtkIdType, Scalar)
 {
   vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar>
-bool vtkPeriodicDataArray<Scalar>::AllocateTuples(vtkIdType)
-{
-  vtkErrorMacro("Read only container.");
-  return false;
 }
 
 //------------------------------------------------------------------------------

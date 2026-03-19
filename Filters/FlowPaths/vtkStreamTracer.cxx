@@ -745,7 +745,7 @@ struct vtkLocalThreadOutput
 
     this->CellVectors.TakeReference(vtkDoubleArray::New());
     this->CellVectors->SetNumberOfComponents(3);
-    this->CellVectors->Allocate(3 * VTK_CELL_SIZE);
+    this->CellVectors->ReserveTuples(VTK_CELL_SIZE);
 
     this->Vorticity.TakeReference(vtkDoubleArray::New());
     this->Vorticity->SetNumberOfComponents(3);

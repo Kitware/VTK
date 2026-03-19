@@ -121,7 +121,7 @@ int TransformEmptyPolyData()
   }
 
   // Test if 0 input points produces empty output
-  inputPolyData->GetPoints()->SetNumberOfPoints(0);
+  inputPolyData->GetPoints()->Initialize();
   if (!IsFilterOutputEmpty(transformPolyDataFilter))
   {
     std::cerr << "Transformed output should be empty if 0 points in input" << std::endl;

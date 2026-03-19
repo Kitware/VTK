@@ -226,7 +226,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
         maxId = std::max(maxId, pointIds[i]);
       }
 
-      this->UnstructuredNodeIds->Allocate(maxId);
+      this->UnstructuredNodeIds->ReserveValues(maxId);
       this->UnstructuredNodeIds->FillComponent(0, -1);
 
       for (i = 0; i < this->NumberOfUnstructuredPoints; i++)
@@ -810,7 +810,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
 
   pointIds = new int[this->NumberOfMeasuredPoints];
   coords = new float[this->NumberOfMeasuredPoints * 3];
-  points->Allocate(this->NumberOfMeasuredPoints);
+  points->Reserve(this->NumberOfMeasuredPoints);
   pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
 
   this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
@@ -980,9 +980,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       allocatedScalars = 1;
     }
     else
@@ -1064,9 +1063,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName, const char
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       allocatedScalars = 1;
     }
     else
@@ -1219,10 +1217,9 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char
     }
 
     vectors = vtkFloatArray::New();
-    vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
+    vectors->SetNumberOfTuples(numPts);
     vectors->SetName(description);
-    vectors->Allocate(numPts * 3);
     vectorsRead = new float[numPts * 3];
     this->ReadFloatArray(vectorsRead, numPts * 3);
     for (i = 0; i < numPts; i++)
@@ -1273,10 +1270,9 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName, const char
     this->ReadLine(line); // block
     numPts = output->GetNumberOfPoints();
     vectors = vtkFloatArray::New();
-    vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
+    vectors->SetNumberOfTuples(numPts);
     vectors->SetName(description);
-    vectors->Allocate(numPts * 3);
     vectorsRead = new float[numPts * 3];
 
     this->ReadFloatArray(vectorsRead, numPts * 3);
@@ -1410,10 +1406,9 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char
     this->BinaryIFile->seekg(pos, ios::beg);
     numPts = this->UnstructuredPoints->GetNumberOfPoints();
     tensors = vtkFloatArray::New();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
+    tensors->SetNumberOfTuples(numPts);
     tensors->SetName(description);
-    tensors->Allocate(numPts * 6);
     tensorsRead = new float[numPts * 6];
     this->ReadFloatArray(tensorsRead, numPts * 6);
     for (i = 0; i < numPts; i++)
@@ -1450,10 +1445,9 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName, const char
     this->ReadLine(line); // block
     numPts = output->GetNumberOfPoints();
     tensors = vtkFloatArray::New();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
+    tensors->SetNumberOfTuples(numPts);
     tensors->SetName(description);
-    tensors->Allocate(numPts * 6);
     tensorsRead = new float[numPts * 6];
     this->ReadFloatArray(tensorsRead, numPts * 6);
 
@@ -1598,9 +1592,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName, const c
     if (component == 0)
     {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numCells);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numCells * numberOfComponents);
+      scalars->SetNumberOfTuples(numCells);
       allocatedScalars = 1;
     }
     else
@@ -1787,10 +1780,9 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName, const c
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numCells = output->GetNumberOfCells();
     lineRead = this->ReadLine(line); // element type or "block"
-    vectors->SetNumberOfTuples(numCells);
     vectors->SetNumberOfComponents(3);
+    vectors->SetNumberOfTuples(numCells);
     vectors->SetName(description);
-    vectors->Allocate(numCells * 3);
 
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
@@ -1976,10 +1968,9 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName, const c
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numCells = output->GetNumberOfCells();
     lineRead = this->ReadLine(line); // element type or "block"
-    tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
+    tensors->SetNumberOfTuples(numCells);
     tensors->SetName(description);
-    tensors->Allocate(numCells * 6);
 
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
@@ -2651,7 +2642,7 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
     return -1;
   }
   output->SetDimensions(dimensions);
-  points->Allocate(numPts);
+  points->Reserve(numPts);
 
   coordsRead = new float[numPts * 3];
   this->ReadFloatArray(coordsRead, numPts * 3);

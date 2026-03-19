@@ -84,12 +84,12 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   newPts = vtkPoints::New();
-  newPts->Allocate(estimatedSize, estimatedSize / 2);
+  newPts->Reserve(estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-  cellScalars->Allocate(VTK_CELL_SIZE * inScalars->GetNumberOfComponents());
+  cellScalars->ReserveTuples(VTK_CELL_SIZE);
 
   this->Locator->InitPointInsertion(newPts, input->GetBounds());
 

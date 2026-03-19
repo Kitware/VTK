@@ -142,8 +142,8 @@ struct RemoveGhostCellsWorker
 
     std::vector<vtkIdType> pointIdRedirectionMap(numPoints, -1);
 
-    this->NewPointIdMap->Allocate(numPoints);
-    this->NewCellIdMap->Allocate(types->GetNumberOfValues());
+    this->NewPointIdMap->Reserve(numPoints);
+    this->NewCellIdMap->Reserve(types->GetNumberOfValues());
 
     vtkIdType newCellsMaxId = 0;
     ValueT currentOutputOffset = 0;
@@ -1488,7 +1488,7 @@ bool vtkUnstructuredGrid::AllocateExact(vtkIdType numCells, vtkIdType connectivi
   bool result = this->Connectivity->AllocateExact(numCells, connectivitySize);
   if (result)
   {
-    result = this->Types->Allocate(numCells) != 0;
+    result = this->Types->ReserveValues(numCells) != 0;
   }
   if (result)
   {

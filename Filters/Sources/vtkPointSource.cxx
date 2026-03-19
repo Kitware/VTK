@@ -71,7 +71,7 @@ int vtkPointSource::RequestData(vtkInformation* vtkNotUsed(request),
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-  newPoints->Allocate(this->NumberOfPoints);
+  newPoints->Reserve(this->NumberOfPoints);
 
   // Create the output poly vertices. These are needed for rendering and
   // some filters only operate on vertex cells.

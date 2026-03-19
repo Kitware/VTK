@@ -223,7 +223,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     pts = vtkIdList::New();
-    pts->Allocate(VTK_CELL_SIZE);
+    pts->Reserve(VTK_CELL_SIZE);
     trans = vtkTransform::New();
   }
 
@@ -273,7 +273,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
     defaultSource = vtkPolyData::New();
     defaultSource->AllocateExact(1024, 1024);
     vtkPoints* defaultPoints = vtkPoints::New();
-    defaultPoints->Allocate(6);
+    defaultPoints->Reserve(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
     defaultPoints->InsertNextPoint(1, 0, 0);
     vtkIdType defaultPointIds[2];
@@ -326,12 +326,12 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts * numSourcePts);
+  newPts->Reserve(numPts * numSourcePts);
   if (this->GeneratePointIds)
   {
     pointIds = vtkIdTypeArray::New();
     pointIds->SetName(this->PointIdsName);
-    pointIds->Allocate(numPts * numSourcePts);
+    pointIds->ReserveValues(numPts * numSourcePts);
     outputPD->AddArray(pointIds);
   }
   if (this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars)
@@ -339,13 +339,13 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
     //    newScalars = inScalars->NewInstance();
     newScalars = vtkDoubleArray::New();
     newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    newScalars->Allocate(inScalars->GetNumberOfComponents() * numPts * numSourcePts);
+    newScalars->ReserveTuples(numPts * numSourcePts);
     newScalars->SetName(inScalars->GetName());
   }
   else if ((this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
   {
     newScalars = vtkDoubleArray::New();
-    newScalars->Allocate(numPts * numSourcePts);
+    newScalars->ReserveValues(numPts * numSourcePts);
     newScalars->SetName("GlyphScale");
     if (this->ScaleMode == VTK_SCALE_BY_SCALAR)
     {
@@ -355,21 +355,21 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
   else if ((this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
   {
     newScalars = vtkDoubleArray::New();
-    newScalars->Allocate(numPts * numSourcePts);
+    newScalars->ReserveValues(numPts * numSourcePts);
     newScalars->SetName("VectorMagnitude");
   }
   if (haveVectors)
   {
     newVectors = vtkDoubleArray::New();
     newVectors->SetNumberOfComponents(3);
-    newVectors->Allocate(3 * numPts * numSourcePts);
+    newVectors->ReserveTuples(numPts * numSourcePts);
     newVectors->SetName("GlyphVector");
   }
   if (haveNormals)
   {
     newNormals = vtkDoubleArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3 * numPts * numSourcePts);
+    newNormals->ReserveTuples(numPts * numSourcePts);
     newNormals->SetName("Normals");
   }
 

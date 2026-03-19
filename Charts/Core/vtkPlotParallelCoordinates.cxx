@@ -251,7 +251,7 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
   this->Storage->SelectionInitialized = false;
   if (this->Selection)
   {
-    this->Selection->SetNumberOfTuples(0);
+    this->Selection->Initialize();
   }
   return true;
 }
@@ -280,7 +280,7 @@ void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
   else if (parent && updateVisibility)
   {
     // No table, therefore no visible columns
-    parent->GetVisibleColumns()->SetNumberOfTuples(0);
+    parent->GetVisibleColumns()->Initialize();
   }
 }
 

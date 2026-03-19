@@ -129,7 +129,7 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   pts = vtkIdList::New();
-  pts->Allocate(VTK_CELL_SIZE);
+  pts->Reserve(VTK_CELL_SIZE);
 
   //
   // Read header (not using fixed format! - potential problem in some files.)
@@ -208,7 +208,7 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   // Allocate data objects
   //
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Reserve(numPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numPolys + numEdges, 1);
   //

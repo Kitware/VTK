@@ -107,7 +107,7 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
         totalCellCount += entry.second.NumberOfCells;
         totalConnCount += entry.second.NumberOfConnectivityEntries;
       }
-      cellTypes->Allocate(totalCellCount);
+      cellTypes->ReserveValues(totalCellCount);
       cellArray->AllocateExact(totalCellCount, totalConnCount);
     }
     break;

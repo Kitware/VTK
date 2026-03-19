@@ -238,7 +238,7 @@ bool vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdTy
   this->GetPoint(p2, x2);
 
   vtkNew<vtkIdList> neighbors;
-  neighbors->Allocate(2);
+  neighbors->Reserve(2);
 
   this->Mesh->GetCellEdgeNeighbors(tri, p1, p2, neighbors);
   numNei = neighbors->GetNumberOfIds();
@@ -401,9 +401,9 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkNew<vtkIdList> neighbors;
-  neighbors->Allocate(2);
+  neighbors->Reserve(2);
   vtkNew<vtkIdList> cells;
-  cells->Allocate(64);
+  cells->Reserve(64);
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
@@ -1096,9 +1096,9 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   int success = 0, nbPts;
 
   vtkNew<vtkIdList> cells;
-  cells->Allocate(64);
+  cells->Reserve(64);
   vtkNew<vtkIdList> tris;
-  tris->Allocate(64);
+  tris->Reserve(64);
   vtkNew<vtkPolygon> rightPoly;
   vtkNew<vtkPolygon> leftPoly;
   vtkIdList* leftChain = leftPoly->GetPointIds();
@@ -1106,15 +1106,15 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   vtkPoints* leftChainX = leftPoly->GetPoints();
   vtkPoints* rightChainX = rightPoly->GetPoints();
   vtkNew<vtkIdList> neis;
-  neis->Allocate(4);
+  neis->Reserve(4);
   vtkSmartPointer<vtkIdList> rightPtIds = vtkSmartPointer<vtkIdList>::New();
-  rightPtIds->Allocate(64);
+  rightPtIds->Reserve(64);
   vtkSmartPointer<vtkIdList> leftPtIds = vtkSmartPointer<vtkIdList>::New();
-  leftPtIds->Allocate(64);
+  leftPtIds->Reserve(64);
   vtkNew<vtkPoints> rightTriPts;
-  rightTriPts->Allocate(64);
+  rightTriPts->Reserve(64);
   vtkNew<vtkPoints> leftTriPts;
-  leftTriPts->Allocate(64);
+  leftTriPts->Reserve(64);
 
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
   std::set<std::set<vtkIdType>> polysEdges;
@@ -1287,7 +1287,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   success &= (rightPoly->BoundedTriangulate(rightPtIds, this->Tolerance));
   {
     vtkNew<vtkIdList> ids;
-    ids->Allocate(64);
+    ids->Reserve(64);
     for (i = 0; i < rightPtIds->GetNumberOfIds(); i++)
     {
       ids->InsertId(i, rightPoly->PointIds->GetId(rightPtIds->GetId(i)));
@@ -1299,7 +1299,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   success &= (leftPoly->BoundedTriangulate(leftPtIds, this->Tolerance));
   {
     vtkNew<vtkIdList> ids;
-    ids->Allocate(64);
+    ids->Reserve(64);
     for (i = 0; i < leftPtIds->GetNumberOfIds(); i++)
     {
       ids->InsertId(i, leftPoly->PointIds->GetId(leftPtIds->GetId(i)));

@@ -70,13 +70,13 @@ int vtkTexturedSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetDataType(VTK_FLOAT);
   }
 
-  newPoints->Allocate(numPts);
+  newPoints->Reserve(numPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3 * numPts);
+  newNormals->ReserveTuples(numPts);
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2 * numPts);
+  newTCoords->ReserveTuples(numPts);
   newPolys = vtkCellArray::New();
   newPolys->AllocateEstimate(numPolys, 3);
   //

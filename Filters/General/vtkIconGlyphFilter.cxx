@@ -100,14 +100,14 @@ int vtkIconGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
   int j, k;
 
   vtkPoints* outPoints = vtkPoints::New();
-  outPoints->Allocate(4 * numPoints);
+  outPoints->Reserve(4 * numPoints);
 
   vtkCellArray* outCells = vtkCellArray::New();
   outCells->AllocateEstimate(numPoints, 4);
 
   vtkFloatArray* outTCoords = vtkFloatArray::New();
   outTCoords->SetNumberOfComponents(2);
-  outTCoords->Allocate(8 * numPoints);
+  outTCoords->ReserveTuples(4 * numPoints);
 
   // Copy point data to cell data
   vtkPointData* inPD = input->GetPointData();
