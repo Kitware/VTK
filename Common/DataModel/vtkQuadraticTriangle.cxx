@@ -12,6 +12,47 @@
 #include <algorithm> //std::copy
 #include <array>
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   QuadraticTriangle topology:
+
+              2
+             / \
+            /   \
+           5     4
+          /       \
+         /         \
+        0-----3-----1
+)";
+
+//------------------------------------------------------------------------------
+double ParametricCoords[18] = {
+  0.0, 0.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  0.0, 1.0, 0.0, //
+  0.5, 0.0, 0.0, //
+  0.5, 0.5, 0.0, //
+  0.0, 0.5, 0.0  //
+};
+
+constexpr vtkIdType Edges[3][3] = {
+  { 0, 1, 3 }, // edge 0, midpoint 3
+  { 1, 2, 4 }, // edge 1, midpoint 4
+  { 2, 0, 5 }, // edge 2, midpoint 5
+};
+
+//------------------------------------------------------------------------------
+// order picked carefully for parametric coordinate conversion
+vtkIdType LinearCells[4][3] = {
+  { 0, 3, 5 },
+  { 3, 1, 4 },
+  { 5, 4, 2 },
+  { 4, 5, 3 },
+};
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
@@ -19,11 +60,10 @@ vtkStandardNewMacro(vtkQuadraticTriangle);
 // Construct the line with two points.
 vtkQuadraticTriangle::vtkQuadraticTriangle()
 {
-  this->Edge = vtkQuadraticEdge::New();
-  this->Face = vtkTriangle::New();
-  this->Scalars = vtkDoubleArray::New();
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->Face = vtkSmartPointer<vtkTriangle>::New();
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->Scalars->SetNumberOfTuples(3);
-
   this->Points->SetNumberOfPoints(6);
   this->PointIds->SetNumberOfIds(6);
   for (int i = 0; i < 6; i++)
@@ -34,47 +74,30 @@ vtkQuadraticTriangle::vtkQuadraticTriangle()
 }
 
 //------------------------------------------------------------------------------
-vtkQuadraticTriangle::~vtkQuadraticTriangle()
-{
-  this->Edge->Delete();
-  this->Face->Delete();
-  this->Scalars->Delete();
-}
-
-//------------------------------------------------------------------------------
 vtkCell* vtkQuadraticTriangle::GetEdge(int edgeId)
 {
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, 2);
-  int p = (edgeId + 1) % 3;
+  edgeId = std::clamp(edgeId, 0, 2);
+  const vtkIdType* verts = Edges[edgeId];
 
   // load point id's
-  this->Edge->PointIds->SetId(0, this->PointIds->GetId(edgeId));
-  this->Edge->PointIds->SetId(1, this->PointIds->GetId(p));
-  this->Edge->PointIds->SetId(2, this->PointIds->GetId(edgeId + 3));
+  this->Edge->PointIds->SetId(0, this->PointIds->GetId(verts[0]));
+  this->Edge->PointIds->SetId(1, this->PointIds->GetId(verts[1]));
+  this->Edge->PointIds->SetId(2, this->PointIds->GetId(verts[2]));
 
   // load coordinates
-  this->Edge->Points->SetPoint(0, this->Points->GetPoint(edgeId));
-  this->Edge->Points->SetPoint(1, this->Points->GetPoint(p));
-  this->Edge->Points->SetPoint(2, this->Points->GetPoint(edgeId + 3));
+  this->Edge->Points->SetPoint(0, this->Points->GetPoint(verts[0]));
+  this->Edge->Points->SetPoint(1, this->Points->GetPoint(verts[1]));
+  this->Edge->Points->SetPoint(2, this->Points->GetPoint(verts[2]));
 
   return this->Edge;
 }
 
 //------------------------------------------------------------------------------
-// order picked carefully for parametric coordinate conversion
-static int LinearTris[4][3] = {
-  { 0, 3, 5 },
-  { 3, 1, 4 },
-  { 5, 4, 2 },
-  { 4, 5, 3 },
-};
-
 int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[3], int& subId,
   double pcoords[3], double& minDist2, double weights[])
 {
   double pc[3], dist2;
-  int ignoreId, i, returnStatus = 0, status;
+  int ignoreId, returnStatus = 0;
   double tempWeights[3];
   double closest[3];
 
@@ -88,13 +111,14 @@ int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[
   const double* pts = pointsArray->GetPointer(0);
 
   // four linear triangles are used
-  for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 4; i++)
+  minDist2 = VTK_DOUBLE_MAX;
+  for (int i = 0; i < 4; i++)
   {
-    this->Face->Points->SetPoint(0, pts + 3 * LinearTris[i][0]);
-    this->Face->Points->SetPoint(1, pts + 3 * LinearTris[i][1]);
-    this->Face->Points->SetPoint(2, pts + 3 * LinearTris[i][2]);
+    this->Face->Points->SetPoint(0, pts + 3 * LinearCells[i][0]);
+    this->Face->Points->SetPoint(1, pts + 3 * LinearCells[i][1]);
+    this->Face->Points->SetPoint(2, pts + 3 * LinearCells[i][2]);
 
-    status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
+    int status = this->Face->EvaluatePosition(x, closest, ignoreId, pc, dist2, tempWeights);
     if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
@@ -148,9 +172,6 @@ int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[
 void vtkQuadraticTriangle::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i;
-  const double *a0, *a1, *a2, *a3, *a4, *a5;
-
   // Efficient point access
   const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
   if (!pointsArray)
@@ -160,16 +181,16 @@ void vtkQuadraticTriangle::EvaluateLocation(
   }
   const double* pts = pointsArray->GetPointer(0);
 
-  a0 = pts;
-  a1 = pts + 3;
-  a2 = pts + 6;
-  a3 = pts + 9;
-  a4 = pts + 12;
-  a5 = pts + 15;
+  const double* a0 = pts;
+  const double* a1 = pts + 3;
+  const double* a2 = pts + 6;
+  const double* a3 = pts + 9;
+  const double* a4 = pts + 12;
+  const double* a5 = pts + 15;
 
   vtkQuadraticTriangle::InterpolationFunctions(pcoords, weights);
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     x[i] = a0[i] * weights[0] + a1[i] * weights[1] + a2[i] * weights[2] + a3[i] * weights[3] +
       a4[i] * weights[4] + a5[i] * weights[5];
@@ -190,20 +211,20 @@ void vtkQuadraticTriangle::Contour(double value, vtkDataArray* cellScalars,
 {
   for (int i = 0; i < 4; i++)
   {
-    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearTris[i][0]));
-    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearTris[i][1]));
-    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearTris[i][2]));
+    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearCells[i][0]));
+    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearCells[i][1]));
+    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearCells[i][2]));
 
     if (outPd)
     {
-      this->Face->PointIds->SetId(0, this->PointIds->GetId(LinearTris[i][0]));
-      this->Face->PointIds->SetId(1, this->PointIds->GetId(LinearTris[i][1]));
-      this->Face->PointIds->SetId(2, this->PointIds->GetId(LinearTris[i][2]));
+      this->Face->PointIds->SetId(0, this->PointIds->GetId(LinearCells[i][0]));
+      this->Face->PointIds->SetId(1, this->PointIds->GetId(LinearCells[i][1]));
+      this->Face->PointIds->SetId(2, this->PointIds->GetId(LinearCells[i][2]));
     }
 
-    this->Scalars->SetTuple(0, cellScalars->GetTuple(LinearTris[i][0]));
-    this->Scalars->SetTuple(1, cellScalars->GetTuple(LinearTris[i][1]));
-    this->Scalars->SetTuple(2, cellScalars->GetTuple(LinearTris[i][2]));
+    this->Scalars->SetTuple(0, cellScalars->GetTuple(LinearCells[i][0]));
+    this->Scalars->SetTuple(1, cellScalars->GetTuple(LinearCells[i][1]));
+    this->Scalars->SetTuple(2, cellScalars->GetTuple(LinearCells[i][2]));
 
     this->Face->Contour(
       value, this->Scalars, locator, verts, lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -216,14 +237,14 @@ void vtkQuadraticTriangle::Contour(double value, vtkDataArray* cellScalars,
 int vtkQuadraticTriangle::IntersectWithLine(
   const double* p1, const double* p2, double tol, double& t, double* x, double* pcoords, int& subId)
 {
-  int subTest, i;
+  int subTest;
   subId = 0;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearTris[i][0]));
-    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearTris[i][1]));
-    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearTris[i][2]));
+    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearCells[i][0]));
+    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearCells[i][1]));
+    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearCells[i][2]));
 
     if (this->Face->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest))
     {
@@ -323,17 +344,17 @@ void vtkQuadraticTriangle::Clip(double value, vtkDataArray* cellScalars,
 {
   for (int i = 0; i < 4; i++)
   {
-    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearTris[i][0]));
-    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearTris[i][1]));
-    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearTris[i][2]));
+    this->Face->Points->SetPoint(0, this->Points->GetPoint(LinearCells[i][0]));
+    this->Face->Points->SetPoint(1, this->Points->GetPoint(LinearCells[i][1]));
+    this->Face->Points->SetPoint(2, this->Points->GetPoint(LinearCells[i][2]));
 
-    this->Face->PointIds->SetId(0, this->PointIds->GetId(LinearTris[i][0]));
-    this->Face->PointIds->SetId(1, this->PointIds->GetId(LinearTris[i][1]));
-    this->Face->PointIds->SetId(2, this->PointIds->GetId(LinearTris[i][2]));
+    this->Face->PointIds->SetId(0, this->PointIds->GetId(LinearCells[i][0]));
+    this->Face->PointIds->SetId(1, this->PointIds->GetId(LinearCells[i][1]));
+    this->Face->PointIds->SetId(2, this->PointIds->GetId(LinearCells[i][2]));
 
-    this->Scalars->SetTuple(0, cellScalars->GetTuple(LinearTris[i][0]));
-    this->Scalars->SetTuple(1, cellScalars->GetTuple(LinearTris[i][1]));
-    this->Scalars->SetTuple(2, cellScalars->GetTuple(LinearTris[i][2]));
+    this->Scalars->SetTuple(0, cellScalars->GetTuple(LinearCells[i][0]));
+    this->Scalars->SetTuple(1, cellScalars->GetTuple(LinearCells[i][1]));
+    this->Scalars->SetTuple(2, cellScalars->GetTuple(LinearCells[i][2]));
 
     this->Face->Clip(
       value, this->Scalars, locator, polys, inPd, outPd, inCd, cellId, outCd, insideOut);
@@ -344,7 +365,6 @@ void vtkQuadraticTriangle::Clip(double value, vtkDataArray* cellScalars,
 // Compute maximum parametric distance to cell
 double vtkQuadraticTriangle::GetParametricDistance(const double pcoords[3])
 {
-  int i;
   double pDist, pDistMax = 0.0;
   double pc[3];
 
@@ -352,7 +372,7 @@ double vtkQuadraticTriangle::GetParametricDistance(const double pcoords[3])
   pc[1] = pcoords[1];
   pc[2] = 1.0 - pcoords[0] - pcoords[1];
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     if (pc[i] < 0.0)
     {
@@ -414,17 +434,9 @@ void vtkQuadraticTriangle::InterpolationDerivs(const double pcoords[3], double d
 }
 
 //------------------------------------------------------------------------------
-static double vtkQTriangleCellPCoords[18] = {
-  0.0, 0.0, 0.0, //
-  1.0, 0.0, 0.0, //
-  0.0, 1.0, 0.0, //
-  0.5, 0.0, 0.0, //
-  0.5, 0.5, 0.0, //
-  0.0, 0.5, 0.0  //
-};
 double* vtkQuadraticTriangle::GetParametricCoords()
 {
-  return vtkQTriangleCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
@@ -434,8 +446,8 @@ void vtkQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Edge:\n";
   this->Edge->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Edge:\n";
-  this->Edge->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Face:\n";
+  this->Face->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }

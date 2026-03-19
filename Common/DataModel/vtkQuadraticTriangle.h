@@ -107,11 +107,11 @@ public:
 
 protected:
   vtkQuadraticTriangle();
-  ~vtkQuadraticTriangle() override;
+  ~vtkQuadraticTriangle() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkTriangle* Face;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkTriangle> Face;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticTriangle(const vtkQuadraticTriangle&) = delete;
