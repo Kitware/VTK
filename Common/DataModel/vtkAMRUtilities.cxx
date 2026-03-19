@@ -433,14 +433,21 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
           const int* loCorner = ibox.GetLoCorner();
           int hi[3];
           ibox.GetValidHiCorner(hi);
+          const int* boxLo = box.GetLoCorner();
+          int gridExtent[6];
+          grid->GetExtent(gridExtent);
           for (int iz = loCorner[2]; iz <= hi[2]; iz++)
           {
             for (int iy = loCorner[1]; iy <= hi[1]; iy++)
             {
               for (int ix = loCorner[0]; ix <= hi[0]; ix++)
               {
-                vtkIdType id =
-                  vtkAMRBox::GetCellLinearIndex(box, ix, iy, iz, grid->GetDimensions());
+                // Convert AMR global coords to extent coords.
+                // Extent index 0 = AMR box lo corner, so subtracting
+                // boxLo gives the extent coordinate. ComputeCellIdForExtent
+                // handles the offset to ghost cells at negative indices.
+                int ijk[3] = { ix - boxLo[0], iy - boxLo[1], iz - boxLo[2] };
+                vtkIdType id = vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk);
                 ghosts->SetValue(id, ghosts->GetValue(id) | vtkDataSetAttributes::REFINEDCELL);
               } // END for x
             }   // END for y
