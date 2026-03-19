@@ -53,7 +53,7 @@ public:
    * override superclasses' Pick() method.
    */
   int Pick(double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer) override;
-  int Pick(double selectionPt[3], vtkRenderer* renderer)
+  int Pick(VTK_FUTURE_CONST double selectionPt[3], vtkRenderer* renderer)
   {
     return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], renderer);
   }
@@ -63,7 +63,7 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DPoint(double selectionPt[3], vtkRenderer* ren) override;
+  int Pick3DPoint(VTK_FUTURE_CONST double selectionPt[3], vtkRenderer* ren) override;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -71,26 +71,29 @@ public:
    * to get the instance of vtkProp that was picked.  Props are picked from
    * the renderers list of pickable Props.
    */
-  int PickProp3DPoint(double pos[3], vtkRenderer* renderer);
+  int PickProp3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer);
 
   /**
    * Perform a pick from the user-provided list of vtkProps and not from the
    * list of vtkProps that the render maintains.
    */
-  int PickProp3DPoint(double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom);
+  int PickProp3DPoint(
+    VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom);
 
   /**
    * Perform a pick from the user-provided list of vtkProps.
    */
-  virtual int PickProp3DRay(double selectionPt[3], double eventWorldOrientation[4],
-    vtkRenderer* renderer, vtkPropCollection* pickfrom);
+  virtual int PickProp3DRay(VTK_FUTURE_CONST double selectionPt[3],
+    VTK_FUTURE_CONST double eventWorldOrientation[4], vtkRenderer* renderer,
+    vtkPropCollection* pickfrom);
 
   /**
    * Perform pick operation with selection point provided. The
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer* ren) override;
+  int Pick3DRay(VTK_FUTURE_CONST double selectionPt[3], VTK_FUTURE_CONST double orient[4],
+    vtkRenderer* ren) override;
 
 protected:
   vtkPropPicker();

@@ -65,7 +65,7 @@ vtkPicker::~vtkPicker()
 //------------------------------------------------------------------------------
 // Update state when prop3D is picked.
 void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
-  vtkAbstractMapper3D* m, double tMin, double mapperPos[3])
+  vtkAbstractMapper3D* m, double tMin, VTK_FUTURE_CONST double mapperPos[3])
 {
   vtkMapper* mapper;
   vtkAbstractVolumeMapper* volumeMapper;
@@ -89,8 +89,10 @@ void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
   }
 }
 
-void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin, double mapperPos[3],
-  vtkAbstractMapper3D* mapper, vtkDataSet* input, vtkIdType flatIndex)
+//------------------------------------------------------------------------------
+void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin,
+  VTK_FUTURE_CONST double mapperPos[3], vtkAbstractMapper3D* mapper, vtkDataSet* input,
+  vtkIdType flatIndex)
 {
   this->SetPath(path);
   this->GlobalTMin = tMin;
@@ -109,25 +111,15 @@ void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin, double mapper
   this->FlatBlockIndex = flatIndex;
 }
 
-int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
+//------------------------------------------------------------------------------
+int vtkPicker::Pick3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer)
 {
-  int i;
-  vtkProp* prop;
-  vtkAbstractMapper3D* mapper = nullptr;
-  int winSize[2] = { 1, 1 };
-  double x, y;
-  double* viewport;
-  int pickable;
-  int LODId;
   double windowLowerLeft[4], windowUpperRight[4];
-  double bounds[6], tol;
   vtkActor* actor;
   vtkLODProp3D* prop3D;
   vtkVolume* volume;
   vtkImageSlice* imageSlice = nullptr;
-  vtkAssemblyPath* path;
   vtkProperty* tempProperty;
-  vtkCollectionSimpleIterator pit;
 
   //  Initialize picking process
   this->Initialize();
@@ -136,6 +128,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
+  double bounds[6];
   bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5] = 0;
 
   // Compute the tolerance in world coordinates.  Do this by
@@ -143,7 +136,8 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
   // window, computing the width of the window in world coordinates, and
   // multiplying by the tolerance.
   //
-  viewport = renderer->GetViewport();
+  int winSize[2] = { 1, 1 };
+  const double* viewport = renderer->GetViewport();
   if (renderer->GetRenderWindow())
   {
     const int* winSizePtr = renderer->GetRenderWindow()->GetSize();
@@ -153,8 +147,8 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
       winSize[1] = winSizePtr[1];
     }
   }
-  x = winSize[0] * viewport[0];
-  y = winSize[1] * viewport[1];
+  double x = winSize[0] * viewport[0];
+  double y = winSize[1] * viewport[1];
   renderer->SetDisplayPoint(x, y, 0.0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(windowLowerLeft);
@@ -165,7 +159,8 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(windowUpperRight);
 
-  for (tol = 0.0, i = 0; i < 3; i++)
+  double tol = 0.0;
+  for (int i = 0; i < 3; i++)
   {
     tol += (windowUpperRight[i] - windowLowerLeft[i]) * (windowUpperRight[i] - windowLowerLeft[i]);
   }
@@ -188,27 +183,32 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
     props = renderer->GetViewProps();
   }
 
+  bool pickable;
+  vtkAbstractMapper3D* mapper = nullptr;
+  vtkCollectionSimpleIterator pit;
+  vtkProp* prop;
   for (props->InitTraversal(pit); (prop = props->GetNextProp(pit));)
   {
+    vtkAssemblyPath* path;
     for (prop->InitPathTraversal(); (path = prop->GetNextPath());)
     {
-      pickable = 0;
+      pickable = false;
       actor = nullptr;
       propCandidate = path->GetLastNode()->GetViewProp();
       if (propCandidate->GetPickable() && propCandidate->GetVisibility())
       {
-        pickable = 1;
+        pickable = true;
         if ((actor = vtkActor::SafeDownCast(propCandidate)) != nullptr)
         {
           mapper = actor->GetMapper();
           if (actor->GetProperty()->GetOpacity() <= 0.0)
           {
-            pickable = 0;
+            pickable = false;
           }
         }
         else if ((prop3D = vtkLODProp3D::SafeDownCast(propCandidate)) != nullptr)
         {
-          LODId = prop3D->GetPickLODID();
+          int LODId = prop3D->GetPickLODID();
           mapper = prop3D->GetLODMapper(LODId);
 
           // if the mapper is a vtkMapper (as opposed to a vtkVolumeMapper),
@@ -218,7 +218,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
             prop3D->GetLODProperty(LODId, &tempProperty);
             if (tempProperty->GetOpacity() <= 0.0)
             {
-              pickable = 0;
+              pickable = false;
             }
           }
         }
@@ -232,7 +232,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
         }
         else
         {
-          pickable = 0; // only vtkProp3D's (actors and volumes) can be picked
+          pickable = false; // only vtkProp3D's (actors and volumes) can be picked
         }
       }
 
@@ -292,7 +292,8 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-int vtkPicker::Pick3DPoint(double selectionPt[3], double focalPt[3], vtkRenderer* ren)
+int vtkPicker::Pick3DPoint(
+  VTK_FUTURE_CONST double selectionPt[3], VTK_FUTURE_CONST double focalPt[3], vtkRenderer* ren)
 {
   // Initialize the picking process
   this->Initialize();
@@ -429,7 +430,9 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ, vtk
   return result;
 }
 
-int vtkPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
+//------------------------------------------------------------------------------
+int vtkPicker::Pick3DRay(
+  VTK_FUTURE_CONST double pos[3], VTK_FUTURE_CONST double wori[4], vtkRenderer* renderer)
 {
   //  Initialize picking process
   this->Initialize();
@@ -464,17 +467,16 @@ int vtkPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
   return result;
 }
 
-int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p2World[4])
+//------------------------------------------------------------------------------
+int vtkPicker::Pick3DInternal(
+  vtkRenderer* renderer, VTK_FUTURE_CONST double p1World[4], VTK_FUTURE_CONST double p2World[4])
 {
   int i;
-  vtkProp* prop;
-  vtkAbstractMapper3D* mapper = nullptr;
   double p1Mapper[4], p2Mapper[4];
   int winSize[2] = { 1, 1 };
   double x, y, t;
-  double* viewport;
   double ray[3];
-  int pickable;
+  bool pickable;
   int LODId;
   double windowLowerLeft[4], windowUpperRight[4];
   double bounds[6], tol;
@@ -499,7 +501,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
   double* displayCoords = renderer->GetDisplayPoint();
   double tolZ = displayCoords[2];
 
-  viewport = renderer->GetViewport();
+  const double* viewport = renderer->GetViewport();
   if (renderer->GetRenderWindow())
   {
     const int* winSizePtr = renderer->GetRenderWindow()->GetSize();
@@ -553,22 +555,24 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
   this->Transform->PostMultiply();
   vtkCollectionSimpleIterator pit;
   double scale[3];
+  vtkAbstractMapper3D* mapper = nullptr;
+  vtkProp* prop;
   for (props->InitTraversal(pit); (prop = props->GetNextProp(pit));)
   {
     for (prop->InitPathTraversal(); (path = prop->GetNextPath());)
     {
-      pickable = 0;
+      pickable = false;
       actor = nullptr;
       propCandidate = path->GetLastNode()->GetViewProp();
       if (propCandidate->GetPickable() && propCandidate->GetVisibility())
       {
-        pickable = 1;
+        pickable = true;
         if ((actor = vtkActor::SafeDownCast(propCandidate)) != nullptr)
         {
           mapper = actor->GetMapper();
           if (actor->GetProperty()->GetOpacity() <= 0.0)
           {
-            pickable = 0;
+            pickable = false;
           }
         }
         else if ((prop3D = vtkLODProp3D::SafeDownCast(propCandidate)) != nullptr)
@@ -583,7 +587,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
             prop3D->GetLODProperty(LODId, &tempProperty);
             if (tempProperty->GetOpacity() <= 0.0)
             {
-              pickable = 0;
+              pickable = false;
             }
           }
         }
@@ -597,7 +601,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
         }
         else
         {
-          pickable = 0; // only vtkProp3D's (actors and volumes) can be picked
+          pickable = false; // only vtkProp3D's (actors and volumes) can be picked
         }
       }
 
@@ -799,6 +803,7 @@ double vtkPicker::IntersectWithLine(const double p1[3], const double p2[3], doub
   return t;
 }
 
+//------------------------------------------------------------------------------
 bool vtkPicker::CalculateRay(
   const double p1[3], const double p2[3], double ray[3], double& rayFactor)
 {

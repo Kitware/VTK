@@ -98,7 +98,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY, vtkRenderer* r
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
+int vtkPropPicker::Pick3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer)
 {
   if (this->PickFromList)
   {
@@ -112,7 +112,7 @@ int vtkPropPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
 
 // Pick from the given collection
 int vtkPropPicker::PickProp3DPoint(
-  double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom)
+  VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp3DPoint(pos, renderer);
@@ -122,7 +122,7 @@ int vtkPropPicker::PickProp3DPoint(
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer* renderer)
+int vtkPropPicker::PickProp3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer)
 {
   //  Initialize picking process
   this->Initialize();
@@ -183,7 +183,8 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer* renderer)
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
+int vtkPropPicker::Pick3DRay(
+  VTK_FUTURE_CONST double pos[3], VTK_FUTURE_CONST double wori[4], vtkRenderer* renderer)
 {
   // Compute event orientation
   if (this->PickFromList)
@@ -197,8 +198,8 @@ int vtkPropPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* rendere
 }
 
 // Pick from the given collection
-int vtkPropPicker::PickProp3DRay(
-  double selectionPt[3], double wori[4], vtkRenderer* renderer, vtkPropCollection* propCollection)
+int vtkPropPicker::PickProp3DRay(VTK_FUTURE_CONST double selectionPt[3],
+  VTK_FUTURE_CONST double wori[4], vtkRenderer* renderer, vtkPropCollection* propCollection)
 {
   //  Initialize picking process
   this->Initialize();

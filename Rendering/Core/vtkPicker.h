@@ -30,6 +30,7 @@
 #define vtkPicker_h
 
 #include "vtkAbstractPropPicker.h"
+#include "vtkDeprecation.h"         // For VTK_DEPRECATED_9_7_0
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
@@ -110,6 +111,7 @@ public:
    * This collection is not sorted. (This is a convenience method
    * to maintain backward compatibility.)
    */
+  VTK_DEPRECATED_IN_9_7_0("Use GetProp3Ds instead.")
   vtkActorCollection* GetActors();
 
   /**
@@ -132,7 +134,7 @@ public:
    * two values for the selection point are x-y pixel coordinate, and the
    * third value is =0. Return non-zero if something was successfully picked.
    */
-  int Pick(double selectionPt[3], vtkRenderer* ren)
+  int Pick(VTK_FUTURE_CONST double selectionPt[3], vtkRenderer* ren)
   {
     return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren);
   }
@@ -142,7 +144,7 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DPoint(double selectionPt[3], vtkRenderer* ren) override;
+  int Pick3DPoint(VTK_FUTURE_CONST double selectionPt[3], vtkRenderer* ren) override;
 
   /*
    * Pick a point in the scene with the selection point and focal point
@@ -150,24 +152,27 @@ public:
    *
    * Returns non-zero if something was successfully picked.
    */
-  virtual int Pick3DPoint(double p1World[3], double p2World[3], vtkRenderer* ren);
+  virtual int Pick3DPoint(
+    VTK_FUTURE_CONST double p1World[3], VTK_FUTURE_CONST double p2World[3], vtkRenderer* ren);
   /**
    * Perform pick operation with selection point and orientation provided.
    * The selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer* ren) override;
+  int Pick3DRay(VTK_FUTURE_CONST double selectionPt[3], VTK_FUTURE_CONST double orient[4],
+    vtkRenderer* ren) override;
 
 protected:
   vtkPicker();
   ~vtkPicker() override;
 
   // shared code for picking
-  virtual int Pick3DInternal(vtkRenderer* ren, double p1World[4], double p2World[4]);
+  virtual int Pick3DInternal(
+    vtkRenderer* ren, VTK_FUTURE_CONST double p1World[4], VTK_FUTURE_CONST double p2World[4]);
 
-  void MarkPicked(
-    vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m, double tMin, double mapperPos[3]);
-  void MarkPickedData(vtkAssemblyPath* path, double tMin, double mapperPos[3],
+  void MarkPicked(vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m, double tMin,
+    VTK_FUTURE_CONST double mapperPos[3]);
+  void MarkPickedData(vtkAssemblyPath* path, double tMin, VTK_FUTURE_CONST double mapperPos[3],
     vtkAbstractMapper3D* mapper, vtkDataSet* input, vtkIdType flatBlockIndex = -1);
   virtual double IntersectWithLine(const double p1[3], const double p2[3], double tol,
     vtkAssemblyPath* path, vtkProp3D* p, vtkAbstractMapper3D* m);

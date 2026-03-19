@@ -228,7 +228,8 @@ int vtkCellPicker::Pick(
 }
 
 //------------------------------------------------------------------------------
-int vtkCellPicker::Pick3DRay(double pos[3], double orient[4], vtkRenderer* renderer)
+int vtkCellPicker::Pick3DRay(
+  VTK_FUTURE_CONST double pos[3], VTK_FUTURE_CONST double orient[4], vtkRenderer* renderer)
 {
   int pickResult = 0;
 
