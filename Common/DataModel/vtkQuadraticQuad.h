@@ -100,18 +100,19 @@ public:
 
 protected:
   vtkQuadraticQuad();
-  ~vtkQuadraticQuad() override;
+  ~vtkQuadraticQuad() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuad* Quad;
-  vtkPointData* PointData;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuad> Quad;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
   // In order to achieve some functionality we introduce a fake center point
-  // which require to have some extra functionalities compare to other non-linar
-  // cells
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
+  // which require to have some extra functionalities compare to other non-linear cells
+
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+
   void Subdivide(double* weights);
   void InterpolateAttributes(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);
