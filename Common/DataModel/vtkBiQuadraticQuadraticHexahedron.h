@@ -151,16 +151,16 @@ public:
 
 protected:
   vtkBiQuadraticQuadraticHexahedron();
-  ~vtkBiQuadraticQuadraticHexahedron() override;
+  ~vtkBiQuadraticQuadraticHexahedron() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticQuad* Face;
-  vtkBiQuadraticQuad* BiQuadFace;
-  vtkHexahedron* Hex;
-  vtkPointData* PointData;
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticQuad> Face;
+  vtkSmartPointer<vtkBiQuadraticQuad> BiQuadFace;
+  vtkSmartPointer<vtkHexahedron> Hex;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
   void Subdivide(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);
