@@ -1471,13 +1471,26 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     toString.clear();
     toString.str("");
 
-    toString << "  // In IBL, we assume that v=n, so the amount of light reflected is\n"
-                "  // the reflectance F0\n"
-                "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
-                "  vec3 iblSpecular = prefilteredSpecularColor * specularBrdf;\n"
-                // no diffuse for metals
-                "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * albedo;\n"
-                "  vec3 color = iblDiffuse + iblSpecular;\n"
+    if (hasIBL)
+    {
+      toString << "  // Multi-scatter approximation: see https://bruop.github.io/ibl/\n"
+                  "  diffuse = (1.0 - metallic) * (1.0 - 0.04) * albedo;\n"
+                  "  vec3 Fr = max(vec3(1 - roughness), F0) - F0;\n"
+                  "  vec3 k_S = F0 + Fr * pow(1.0 - NdV, 5.0);\n"
+                  "  vec3 FssEss = k_S * brdf.r + F90 * brdf.g;\n"
+                  "  float Ems = 1.0 - (brdf.r + brdf.g);\n"
+                  "  vec3 F_avg = F0 + (1.0 - F0) / 21.0;\n"
+                  "  vec3 FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3(1e-5));\n"
+                  "  vec3 k_D = diffuse * (1.0 - FssEss - FmsEms);\n"
+                  "  vec3 iblSpecular = FssEss * prefilteredSpecularColor;\n"
+                  "  vec3 iblDiffuse = (FmsEms + k_D) * irradiance;\n";
+    }
+    else
+    {
+      toString << "  vec3 iblSpecular = vec3(0.0);\n"
+                  "  vec3 iblDiffuse = vec3(0.0);\n";
+    }
+    toString << "  vec3 color = iblDiffuse + iblSpecular;\n"
                 "\n";
 
     if (hasClearCoat)
