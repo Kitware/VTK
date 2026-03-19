@@ -153,12 +153,12 @@ public:
 
 protected:
   vtkTriQuadraticHexahedron();
-  ~vtkTriQuadraticHexahedron() override;
+  ~vtkTriQuadraticHexahedron() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkBiQuadraticQuad* Face;
-  vtkHexahedron* Hex;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkBiQuadraticQuad> Face;
+  vtkSmartPointer<vtkHexahedron> Hex;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
 private:
   vtkTriQuadraticHexahedron(const vtkTriQuadraticHexahedron&) = delete;

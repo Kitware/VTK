@@ -16,61 +16,62 @@
 #include <algorithm>
 #include <array>
 
-VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkTriQuadraticHexahedron);
-
-//------------------------------------------------------------------------------
-// Construct the triquadhex with 27 nodes
-vtkTriQuadraticHexahedron::vtkTriQuadraticHexahedron()
+namespace
 {
-  this->Points->SetNumberOfPoints(27);
-  this->PointIds->SetNumberOfIds(27);
-  for (int i = 0; i < 27; i++)
-  {
-    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    this->PointIds->SetId(i, 0);
-  }
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* QuadraticHexahedronTopology = R"(
+   TriQuadraticHexahedron topology:
 
-  this->Edge = vtkQuadraticEdge::New();
-  this->Face = vtkBiQuadraticQuad::New();
-  this->Hex = vtkHexahedron::New();
-
-  this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(8); // vertices of a linear hexahedron
-}
+              7---------14--------6
+             / |                / |
+            /  |               /  |
+           15  |     25       13  |
+          /    19      23    /    18
+         /     |            /     |
+        4--------12--------5      |
+        |  20  |     26    |  21  |
+        |      3-------10--|------2
+        |     /            |     /
+       16    /   22        17   /
+        |   11       24    |   9
+        |  /               |  /
+        | /                | /
+        0---------8--------1
+)";
 
 //------------------------------------------------------------------------------
-vtkTriQuadraticHexahedron::~vtkTriQuadraticHexahedron()
-{
-  this->Edge->Delete();
-  this->Face->Delete();
-  this->Hex->Delete();
-
-  this->Scalars->Delete();
-}
-
-//------------------------------------------------------------------------------
-static int LinearHexs[8][8] = {
-  { 0, 8, 24, 11, 16, 22, 26, 20 },
-  { 8, 1, 9, 24, 22, 17, 21, 26 },
-  { 11, 24, 10, 3, 20, 26, 23, 19 },
-  { 24, 9, 2, 10, 26, 21, 18, 23 },
-  { 16, 22, 26, 20, 4, 12, 25, 15 },
-  { 22, 17, 21, 26, 12, 5, 13, 25 },
-  { 20, 26, 23, 19, 15, 25, 14, 7 },
-  { 26, 21, 18, 23, 25, 13, 6, 14 },
+double ParametricCoords[81] = {
+  0.0, 0.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  1.0, 1.0, 0.0, //
+  0.0, 1.0, 0.0, //
+  0.0, 0.0, 1.0, //
+  1.0, 0.0, 1.0, //
+  1.0, 1.0, 1.0, //
+  0.0, 1.0, 1.0, //
+  0.5, 0.0, 0.0, //
+  1.0, 0.5, 0.0, //
+  0.5, 1.0, 0.0, //
+  0.0, 0.5, 0.0, //
+  0.5, 0.0, 1.0, //
+  1.0, 0.5, 1.0, //
+  0.5, 1.0, 1.0, //
+  0.0, 0.5, 1.0, //
+  0.0, 0.0, 0.5, //
+  1.0, 0.0, 0.5, //
+  1.0, 1.0, 0.5, //
+  0.0, 1.0, 0.5, //
+  0.0, 0.5, 0.5, // 20
+  1.0, 0.5, 0.5, // 21
+  0.5, 0.0, 0.5, // 22
+  0.5, 1.0, 0.5, // 23
+  0.5, 0.5, 0.0, // 24
+  0.5, 0.5, 1.0, // 25
+  0.5, 0.5, 0.5  // 26
 };
 
-static constexpr vtkIdType HexFaces[6][9] = {
-  { 0, 4, 7, 3, 16, 15, 19, 11, 20 },
-  { 1, 2, 6, 5, 9, 18, 13, 17, 21 },
-  { 0, 1, 5, 4, 8, 17, 12, 16, 22 },
-  { 3, 7, 6, 2, 19, 14, 18, 10, 23 },
-  { 0, 3, 2, 1, 11, 10, 9, 8, 24 },
-  { 4, 5, 6, 7, 12, 13, 14, 15, 25 },
-};
-
-static constexpr vtkIdType HexEdges[12][3] = {
+//------------------------------------------------------------------------------
+constexpr vtkIdType Edges[12][3] = {
   { 0, 1, 8 },
   { 1, 2, 9 },
   { 3, 2, 10 },
@@ -86,26 +87,64 @@ static constexpr vtkIdType HexEdges[12][3] = {
 };
 
 //------------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
-{
-  return HexEdges[edgeId];
-}
+constexpr vtkIdType Faces[6][9] = {
+  { 0, 4, 7, 3, 16, 15, 19, 11, 20 },
+  { 1, 2, 6, 5, 9, 18, 13, 17, 21 },
+  { 0, 1, 5, 4, 8, 17, 12, 16, 22 },
+  { 3, 7, 6, 2, 19, 14, 18, 10, 23 },
+  { 0, 3, 2, 1, 11, 10, 9, 8, 24 },
+  { 4, 5, 6, 7, 12, 13, 14, 15, 25 },
+};
+
 //------------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
+constexpr vtkIdType LinearCells[8][8] = {
+  { 0, 8, 24, 11, 16, 22, 26, 20 },
+  { 8, 1, 9, 24, 22, 17, 21, 26 },
+  { 11, 24, 10, 3, 20, 26, 23, 19 },
+  { 24, 9, 2, 10, 26, 21, 18, 23 },
+  { 16, 22, 26, 20, 4, 12, 25, 15 },
+  { 22, 17, 21, 26, 12, 5, 13, 25 },
+  { 20, 26, 23, 19, 15, 25, 14, 7 },
+  { 26, 21, 18, 23, 25, 13, 6, 14 },
+};
+
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_MAX_ITERATIONS = 20;
+constexpr double VTK_CONVERGED = 1.e-04;
+}
+
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkTriQuadraticHexahedron);
+
+//------------------------------------------------------------------------------
+// Construct the triquadhex with 27 nodes
+vtkTriQuadraticHexahedron::vtkTriQuadraticHexahedron()
 {
-  return HexFaces[faceId];
+  this->Points->SetNumberOfPoints(27);
+  this->PointIds->SetNumberOfIds(27);
+  for (int i = 0; i < 27; i++)
+  {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    this->PointIds->SetId(i, 0);
+  }
+
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->Face = vtkSmartPointer<vtkBiQuadraticQuad>::New();
+  this->Hex = vtkSmartPointer<vtkHexahedron>::New();
+
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
+  this->Scalars->SetNumberOfTuples(8); // vertices of a linear hexahedron
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticHexahedron::GetEdge(int edgeId)
 {
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, 11);
+  edgeId = std::clamp(edgeId, 0, 11);
 
   for (int i = 0; i < 3; i++)
   {
-    this->Edge->PointIds->SetId(i, this->PointIds->GetId(HexEdges[edgeId][i]));
-    this->Edge->Points->SetPoint(i, this->Points->GetPoint(HexEdges[edgeId][i]));
+    this->Edge->PointIds->SetId(i, this->PointIds->GetId(Edges[edgeId][i]));
+    this->Edge->Points->SetPoint(i, this->Points->GetPoint(Edges[edgeId][i]));
   }
 
   return this->Edge;
@@ -114,30 +153,35 @@ vtkCell* vtkTriQuadraticHexahedron::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = std::max(faceId, 0);
-  faceId = std::min(faceId, 5);
+  faceId = std::clamp(faceId, 0, 5);
 
   for (int i = 0; i < 9; i++)
   {
-    this->Face->PointIds->SetId(i, this->PointIds->GetId(HexFaces[faceId][i]));
-    this->Face->Points->SetPoint(i, this->Points->GetPoint(HexFaces[faceId][i]));
+    this->Face->PointIds->SetId(i, this->PointIds->GetId(Faces[faceId][i]));
+    this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceId][i]));
   }
 
   return this->Face;
 }
 
 //------------------------------------------------------------------------------
-static constexpr double VTK_DIVERGED = 1.e6;
-static constexpr int VTK_HEX_MAX_ITERATION = 10;
-static constexpr double VTK_HEX_CONVERGED = 1.e-03;
+const vtkIdType* vtkTriQuadraticHexahedron::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+//------------------------------------------------------------------------------
+const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
+{
+  return Faces[faceId];
+}
 
+//------------------------------------------------------------------------------
 int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closestPoint, int& subId,
   double pcoords[3], double& dist2, double* weights)
 {
-  int iteration, converged;
+  int converged;
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
   const double* pt;
   double derivs[81];
   double hexweights[8];
@@ -146,15 +190,13 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.5;
   subId = 0;
 
-  // Use a tri-linear hexahederon to get good starting values
-  vtkHexahedron* hex = vtkHexahedron::New();
-  for (i = 0; i < 8; i++)
+  // Use a tri-linear hexahedron to get good starting values
+  for (int i = 0; i < 8; i++)
   {
-    hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
+    this->Hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
   }
 
-  hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
-  hex->Delete();
+  this->Hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
 
   params[0] = pcoords[0];
   params[1] = pcoords[1];
@@ -170,21 +212,21 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   const double* pts = pointsArray->GetPointer(0);
 
   //  enter iteration loop
-  for (iteration = converged = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
+  for (int iteration = converged = 0; !converged && (iteration < VTK_MAX_ITERATIONS); iteration++)
   {
     //  calculate element interpolation functions and derivatives
     vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
     vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
     }
-    for (i = 0; i < 27; i++)
+    for (int i = 0; i < 27; i++)
     {
       pt = pts + 3 * i;
-      for (j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
@@ -193,14 +235,14 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
       }
     }
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       fcol[i] -= x[i];
     }
 
     //  compute determinants and generate improvements
     double d = vtkMath::Determinant3x3(rcol, scol, tcol);
-    if (fabs(d) < 1.e-20)
+    if (std::abs(d) < 1.e-20)
     {
       vtkDebugMacro(<< "Determinant incorrect, iteration " << iteration);
       return -1;
@@ -211,20 +253,18 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
     pcoords[2] = params[2] - 0.5 * vtkMath::Determinant3x3(rcol, scol, fcol) / d;
 
     //  check for convergence
-    if (((fabs(pcoords[0] - params[0])) < VTK_HEX_CONVERGED) &&
-      ((fabs(pcoords[1] - params[1])) < VTK_HEX_CONVERGED) &&
-      ((fabs(pcoords[2] - params[2])) < VTK_HEX_CONVERGED))
+    if (std::abs(pcoords[0] - params[0]) < VTK_CONVERGED &&
+      std::abs(pcoords[1] - params[1]) < VTK_CONVERGED &&
+      std::abs(pcoords[2] - params[2]) < VTK_CONVERGED)
     {
       converged = 1;
     }
-
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || (fabs(pcoords[1]) > VTK_DIVERGED) ||
-      (fabs(pcoords[2]) > VTK_DIVERGED))
+    else if (std::abs(pcoords[0]) > VTK_DIVERGED || std::abs(pcoords[1]) > VTK_DIVERGED ||
+      std::abs(pcoords[2]) > VTK_DIVERGED)
     {
       return -1;
     }
-
     //  if not converged, repeat
     else
     {
@@ -260,7 +300,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
     double pc[3], w[27];
     if (closestPoint)
     {
-      for (i = 0; i < 3; i++) // only approximate, not really true for warped hexa
+      for (int i = 0; i < 3; i++) // only approximate, not really true for warped hexa
       {
         if (pcoords[i] < 0.0)
         {
@@ -286,9 +326,6 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
 void vtkTriQuadraticHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i, j;
-  const double* pt;
-
   vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   // Efficient point access
@@ -301,10 +338,10 @@ void vtkTriQuadraticHexahedron::EvaluateLocation(
   const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
-  for (i = 0; i < 27; i++)
+  for (int i = 0; i < 27; i++)
   {
-    pt = pts + 3 * i;
-    for (j = 0; j < 3; j++)
+    const double* pt = pts + 3 * i;
+    for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
     }
@@ -328,9 +365,9 @@ void vtkTriQuadraticHexahedron::Contour(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 8; j++)
     {
-      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j, this->PointIds->GetId(LinearHexs[i][j]));
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearHexs[i][j]));
+      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Hex->PointIds->SetId(j, this->PointIds->GetId(LinearCells[i][j]));
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Hex->Contour(
       value, this->Scalars, locator, verts, lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -349,9 +386,9 @@ void vtkTriQuadraticHexahedron::Clip(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 8; j++)
     {
-      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j, this->PointIds->GetId(LinearHexs[i][j]));
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearHexs[i][j]));
+      this->Hex->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Hex->PointIds->SetId(j, this->PointIds->GetId(LinearCells[i][j]));
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Hex->Clip(
       value, this->Scalars, locator, tets, inPd, outPd, inCd, cellId, outCd, insideOut);
@@ -367,15 +404,14 @@ int vtkTriQuadraticHexahedron::IntersectWithLine(
   int intersection = 0;
   double tTemp;
   double pc[3], xTemp[3];
-  int faceNum;
 
   t = VTK_DOUBLE_MAX;
-  for (faceNum = 0; faceNum < 6; faceNum++)
+  for (int faceNum = 0; faceNum < 6; faceNum++)
   {
     for (int i = 0; i < 9; i++)
     {
-      this->Face->PointIds->SetId(i, this->PointIds->GetId(HexFaces[faceNum][i]));
-      this->Face->Points->SetPoint(i, this->Points->GetPoint(HexFaces[faceNum][i]));
+      this->Face->PointIds->SetId(i, this->PointIds->GetId(Faces[faceNum][i]));
+      this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceNum][i]));
     }
 
     if (this->Face->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId))
@@ -420,6 +456,7 @@ int vtkTriQuadraticHexahedron::IntersectWithLine(
             break;
 
           case 5:
+          default:
             pcoords[0] = pc[0];
             pcoords[1] = pc[1];
             pcoords[2] = 1.0;
@@ -444,7 +481,7 @@ int vtkTriQuadraticHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
     {
       for (int node_i = 0; node_i < 20; node_i++)
       {
-        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
+        ptIds->SetId(linear_hex_i * 20 + node_i, LinearCells[linear_hex_i][linearHexPtIds[node_i]]);
       }
     }
   }
@@ -456,7 +493,7 @@ int vtkTriQuadraticHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
     {
       for (int node_i = 0; node_i < 20; node_i++)
       {
-        ptIds->SetId(linear_hex_i * 20 + node_i, LinearHexs[linear_hex_i][linearHexPtIds[node_i]]);
+        ptIds->SetId(linear_hex_i * 20 + node_i, LinearCells[linear_hex_i][linearHexPtIds[node_i]]);
       }
     }
   }
@@ -470,7 +507,6 @@ int vtkTriQuadraticHexahedron::TriangulateLocalIds(int index, vtkIdList* ptIds)
 void vtkTriQuadraticHexahedron::JacobianInverse(
   const double pcoords[3], double** inverse, double derivs[81])
 {
-  int i, j;
   double *m[3], m0[3], m1[3], m2[3];
   double x[3];
 
@@ -481,15 +517,15 @@ void vtkTriQuadraticHexahedron::JacobianInverse(
   m[0] = m0;
   m[1] = m1;
   m[2] = m2;
-  for (i = 0; i < 3; i++) // initialize matrix
+  for (int i = 0; i < 3; i++) // initialize matrix
   {
     m0[i] = m1[i] = m2[i] = 0.0;
   }
 
-  for (j = 0; j < 27; j++)
+  for (int j = 0; j < 27; j++)
   {
     this->Points->GetPoint(j, x);
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[27 + j];
@@ -511,7 +547,6 @@ void vtkTriQuadraticHexahedron::Derivatives(
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[81], sum[3];
-  int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0;
@@ -520,16 +555,16 @@ void vtkTriQuadraticHexahedron::Derivatives(
   this->JacobianInverse(pcoords, jI, functionDerivs);
 
   // now compute derivates of values provided
-  for (k = 0; k < dim; k++) // loop over values per vertex
+  for (int k = 0; k < dim; k++) // loop over values per vertex
   {
     sum[0] = sum[1] = sum[2] = 0.0;
-    for (i = 0; i < 27; i++) // loop over interp. function derivatives
+    for (int i = 0; i < 27; i++) // loop over interp. function derivatives
     {
       sum[0] += functionDerivs[i] * values[dim * i + k];
       sum[1] += functionDerivs[27 + i] * values[dim * i + k];
       sum[2] += functionDerivs[54 + i] * values[dim * i + k];
     }
-    for (j = 0; j < 3; j++) // loop over derivative directions
+    for (int j = 0; j < 3; j++) // loop over derivative directions
     {
       derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
     }
@@ -717,45 +752,17 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs(const double pcoords[3], dou
   derivs[79] = g2r * g2s * g3t_t;
   derivs[80] = g2r * g2s * g2t_t;
 
-  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [0; 1]
   for (int i = 0; i < 81; i++)
+  {
     derivs[i] *= 2;
+  }
 }
 
 //------------------------------------------------------------------------------
-static double vtkQHexCellPCoords[81] = {
-  0.0, 0.0, 0.0, //
-  1.0, 0.0, 0.0, //
-  1.0, 1.0, 0.0, //
-  0.0, 1.0, 0.0, //
-  0.0, 0.0, 1.0, //
-  1.0, 0.0, 1.0, //
-  1.0, 1.0, 1.0, //
-  0.0, 1.0, 1.0, //
-  0.5, 0.0, 0.0, //
-  1.0, 0.5, 0.0, //
-  0.5, 1.0, 0.0, //
-  0.0, 0.5, 0.0, //
-  0.5, 0.0, 1.0, //
-  1.0, 0.5, 1.0, //
-  0.5, 1.0, 1.0, //
-  0.0, 0.5, 1.0, //
-  0.0, 0.0, 0.5, //
-  1.0, 0.0, 0.5, //
-  1.0, 1.0, 0.5, //
-  0.0, 1.0, 0.5, //
-  0.0, 0.5, 0.5, // 20
-  1.0, 0.5, 0.5, // 21
-  0.5, 0.0, 0.5, // 22
-  0.5, 1.0, 0.5, // 23
-  0.5, 0.5, 0.0, // 24
-  0.5, 0.5, 1.0, // 25
-  0.5, 0.5, 0.5  // 26
-};
-
 double* vtkTriQuadraticHexahedron::GetParametricCoords()
 {
-  return vtkQHexCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
