@@ -124,16 +124,16 @@ public:
 
 protected:
   vtkQuadraticWedge();
-  ~vtkQuadraticWedge() override;
+  ~vtkQuadraticWedge() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticTriangle* TriangleFace;
-  vtkQuadraticQuad* Face;
-  vtkWedge* Wedge;
-  vtkPointData* PointData;
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> TriangleFace;
+  vtkSmartPointer<vtkQuadraticQuad> Face;
+  vtkSmartPointer<vtkWedge> Wedge;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
   void Subdivide(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);
