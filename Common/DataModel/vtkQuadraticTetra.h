@@ -141,12 +141,12 @@ public:
 
 protected:
   vtkQuadraticTetra();
-  ~vtkQuadraticTetra() override;
+  ~vtkQuadraticTetra() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticTriangle* Face;
-  vtkTetra* Tetra;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> Face;
+  vtkSmartPointer<vtkTetra> Tetra;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticTetra(const vtkQuadraticTetra&) = delete;

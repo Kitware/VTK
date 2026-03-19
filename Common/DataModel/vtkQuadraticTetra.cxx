@@ -16,6 +16,72 @@
 #include "vtkTetra.h"
 #include <algorithm> //std::copy
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   QuadraticTetra topology:
+
+            3
+           /|\
+          / 7 \
+         /  |  \
+        8   0   9
+       /  /   \  \
+      / 4       6 \
+     //           \\
+    1-------5-------2
+)";
+
+//------------------------------------------------------------------------------
+double ParametricCoords[30] = {
+  0.0, 0.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  0.0, 1.0, 0.0, //
+  0.0, 0.0, 1.0, //
+  0.5, 0.0, 0.0, //
+  0.5, 0.5, 0.0, //
+  0.0, 0.5, 0.0, //
+  0.0, 0.0, 0.5, //
+  0.5, 0.0, 0.5, //
+  0.0, 0.5, 0.5  //
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Edges[6][3] = {
+  { 0, 1, 4 },
+  { 1, 2, 5 },
+  { 2, 0, 6 },
+  { 0, 3, 7 },
+  { 1, 3, 8 },
+  { 2, 3, 9 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Faces[4][6] = {
+  { 0, 1, 3, 4, 8, 7 },
+  { 1, 2, 3, 5, 9, 8 },
+  { 2, 0, 3, 6, 7, 9 },
+  { 0, 2, 1, 6, 5, 4 },
+};
+
+//------------------------------------------------------------------------------
+// clip each of the four vertices; the remaining octahedron is
+// divided into four tetrahedron.
+constexpr vtkIdType LinearCells[3][8][4] = {
+  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 6, 4, 5, 8 }, { 6, 5, 9, 8 },
+    { 6, 9, 7, 8 }, { 6, 7, 4, 8 } },
+  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 4, 8, 5, 9 }, { 4, 5, 6, 9 },
+    { 4, 6, 7, 9 }, { 4, 7, 8, 9 } },
+  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 5, 9, 6, 7 }, { 5, 6, 4, 7 },
+    { 5, 4, 8, 7 }, { 5, 8, 9, 7 } },
+};
+
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_MAX_ITERATIONS = 20;
+constexpr double VTK_CONVERGED = 1.e-04;
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticTetra);
 
@@ -23,12 +89,11 @@ vtkStandardNewMacro(vtkQuadraticTetra);
 // Construct the tetra with ten points.
 vtkQuadraticTetra::vtkQuadraticTetra()
 {
-  this->Edge = vtkQuadraticEdge::New();
-  this->Face = vtkQuadraticTriangle::New();
-  this->Tetra = vtkTetra::New();
-  this->Scalars = vtkDoubleArray::New();
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->Face = vtkSmartPointer<vtkQuadraticTriangle>::New();
+  this->Tetra = vtkSmartPointer<vtkTetra>::New();
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->Scalars->SetNumberOfTuples(4);
-
   this->Points->SetNumberOfPoints(10);
   this->PointIds->SetNumberOfIds(10);
   for (int i = 0; i < 10; i++)
@@ -39,68 +104,19 @@ vtkQuadraticTetra::vtkQuadraticTetra()
 }
 
 //------------------------------------------------------------------------------
-vtkQuadraticTetra::~vtkQuadraticTetra()
-{
-  this->Edge->Delete();
-  this->Face->Delete();
-  this->Tetra->Delete();
-  this->Scalars->Delete();
-}
-
-//------------------------------------------------------------------------------
-// clip each of the four vertices; the remaining octahedron is
-// divided into four tetrahedron.
-static int LinearTetras[3][8][4] = {
-  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 6, 4, 5, 8 }, { 6, 5, 9, 8 },
-    { 6, 9, 7, 8 }, { 6, 7, 4, 8 } },
-  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 4, 8, 5, 9 }, { 4, 5, 6, 9 },
-    { 4, 6, 7, 9 }, { 4, 7, 8, 9 } },
-  { { 0, 4, 6, 7 }, { 4, 1, 5, 8 }, { 6, 5, 2, 9 }, { 7, 8, 9, 3 }, { 5, 9, 6, 7 }, { 5, 6, 4, 7 },
-    { 5, 4, 8, 7 }, { 5, 8, 9, 7 } },
-};
-
-static constexpr vtkIdType TetraFaces[4][6] = {
-  { 0, 1, 3, 4, 8, 7 },
-  { 1, 2, 3, 5, 9, 8 },
-  { 2, 0, 3, 6, 7, 9 },
-  { 0, 2, 1, 6, 5, 4 },
-};
-
-static constexpr vtkIdType TetraEdges[6][3] = {
-  { 0, 1, 4 },
-  { 1, 2, 5 },
-  { 2, 0, 6 },
-  { 0, 3, 7 },
-  { 1, 3, 8 },
-  { 2, 3, 9 },
-};
-
-//------------------------Tuple1----------------------------------------------------
-const vtkIdType* vtkQuadraticTetra::GetEdgeArray(vtkIdType edgeId)
-{
-  return TetraEdges[edgeId];
-}
-//------------------------------------------------------------------------------
-const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
-{
-  return TetraFaces[faceId];
-}
-
-//------------------------------------------------------------------------------
 vtkCell* vtkQuadraticTetra::GetEdge(int edgeId)
 {
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, 5);
+  edgeId = std::clamp(edgeId, 0, 5);
 
   // load point id's
-  this->Edge->PointIds->SetId(0, this->PointIds->GetId(TetraEdges[edgeId][0]));
-  this->Edge->PointIds->SetId(1, this->PointIds->GetId(TetraEdges[edgeId][1]));
-  this->Edge->PointIds->SetId(2, this->PointIds->GetId(TetraEdges[edgeId][2]));
+  this->Edge->PointIds->SetId(0, this->PointIds->GetId(Edges[edgeId][0]));
+  this->Edge->PointIds->SetId(1, this->PointIds->GetId(Edges[edgeId][1]));
+  this->Edge->PointIds->SetId(2, this->PointIds->GetId(Edges[edgeId][2]));
 
   // load coordinates
-  this->Edge->Points->SetPoint(0, this->Points->GetPoint(TetraEdges[edgeId][0]));
-  this->Edge->Points->SetPoint(1, this->Points->GetPoint(TetraEdges[edgeId][1]));
-  this->Edge->Points->SetPoint(2, this->Points->GetPoint(TetraEdges[edgeId][2]));
+  this->Edge->Points->SetPoint(0, this->Points->GetPoint(Edges[edgeId][0]));
+  this->Edge->Points->SetPoint(1, this->Points->GetPoint(Edges[edgeId][1]));
+  this->Edge->Points->SetPoint(2, this->Points->GetPoint(Edges[edgeId][2]));
 
   return this->Edge;
 }
@@ -108,27 +124,31 @@ vtkCell* vtkQuadraticTetra::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticTetra::GetFace(int faceId)
 {
-  faceId = std::max(faceId, 0);
-  faceId = std::min(faceId, 3);
+  faceId = std::clamp(faceId, 0, 3);
 
   // load point id's and coordinates
   for (int i = 0; i < 6; i++)
   {
-    this->Face->PointIds->SetId(i, this->PointIds->GetId(TetraFaces[faceId][i]));
-    this->Face->Points->SetPoint(i, this->Points->GetPoint(TetraFaces[faceId][i]));
+    this->Face->PointIds->SetId(i, this->PointIds->GetId(Faces[faceId][i]));
+    this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceId][i]));
   }
 
   return this->Face;
 }
 
 //------------------------------------------------------------------------------
-namespace
+const vtkIdType* vtkQuadraticTetra::GetEdgeArray(vtkIdType edgeId)
 {
-constexpr double VTK_DIVERGED = 1.e6;
-constexpr int VTK_TETRA_MAX_ITERATION = 20;
-constexpr double VTK_TETRA_CONVERGED = 1.e-05;
+  return Edges[edgeId];
 }
 
+//------------------------------------------------------------------------------
+const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
+{
+  return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
 int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
@@ -146,11 +166,10 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
 
   // compute a bound on the volume to get a scale for an acceptable determinant
   double longestEdge = 0;
-  const double *pt0, *pt1;
   for (int i = 0; i < 6; i++)
   {
-    pt0 = pts + 3 * TetraEdges[i][0];
-    pt1 = pts + 3 * TetraEdges[i][1];
+    const double* pt0 = pts + 3 * Edges[i][0];
+    const double* pt1 = pts + 3 * Edges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     longestEdge = std::max(longestEdge, d2);
   }
@@ -163,7 +182,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
   pcoords[0] = pcoords[1] = pcoords[2] = 0.25;
   //  enter iteration loop
   int converged = 0;
-  for (int iteration = 0; !converged && (iteration < VTK_TETRA_MAX_ITERATION); iteration++)
+  for (int iteration = 0; !converged && iteration < VTK_MAX_ITERATIONS; iteration++)
   {
     //  calculate element interpolation functions and derivatives
     vtkQuadraticTetra::InterpolationFunctions(pcoords, weights);
@@ -191,7 +210,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
 
     //  compute determinants and generate improvements
     double d = vtkMath::Determinant3x3(rcol, scol, tcol);
-    if (fabs(d) < determinantTolerance)
+    if (std::abs(d) < determinantTolerance)
     {
       return -1;
     }
@@ -201,20 +220,18 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
     pcoords[2] = params[2] - 0.5 * vtkMath::Determinant3x3(rcol, scol, fcol) / d;
 
     //  check for convergence
-    if (((fabs(pcoords[0] - params[0])) < VTK_TETRA_CONVERGED) &&
-      ((fabs(pcoords[1] - params[1])) < VTK_TETRA_CONVERGED) &&
-      ((fabs(pcoords[2] - params[2])) < VTK_TETRA_CONVERGED))
+    if (std::abs(pcoords[0] - params[0]) < VTK_CONVERGED &&
+      std::abs(pcoords[1] - params[1]) < VTK_CONVERGED &&
+      std::abs(pcoords[2] - params[2]) < VTK_CONVERGED)
     {
       converged = 1;
     }
-
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || (fabs(pcoords[1]) > VTK_DIVERGED) ||
-      (fabs(pcoords[2]) > VTK_DIVERGED))
+    else if (std::abs(pcoords[0]) > VTK_DIVERGED || std::abs(pcoords[1]) > VTK_DIVERGED ||
+      std::abs(pcoords[2]) > VTK_DIVERGED)
     {
       return -1;
     }
-
     //  if not converged, repeat
     else
     {
@@ -265,7 +282,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
           pc[i] = pcoords[i];
         }
       }
-      this->EvaluateLocation(subId, pc, closestPoint, static_cast<double*>(w));
+      this->EvaluateLocation(subId, pc, closestPoint, w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
     }
     return 0;
@@ -276,9 +293,6 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
 void vtkQuadraticTetra::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i, j;
-  const double* pt;
-
   vtkQuadraticTetra::InterpolationFunctions(pcoords, weights);
 
   // Efficient point access
@@ -291,10 +305,10 @@ void vtkQuadraticTetra::EvaluateLocation(
   const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
-  for (i = 0; i < 10; i++)
+  for (int i = 0; i < 10; i++)
   {
-    pt = pts + 3 * i;
-    for (j = 0; j < 3; j++)
+    const double* pt = pts + 3 * i;
+    for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
     }
@@ -318,11 +332,10 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
   vtkCellData* outCd)
 {
-  // Determine how to tessellate. This will depend on the scalars (to try and minimize
-  // artifacts).
-  double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
-  double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
-  double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  // Determine how to tessellate. This will depend on the scalars (to try and minimize artifacts).
+  double sDiff0 = std::abs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  double sDiff1 = std::abs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  double sDiff2 = std::abs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
   // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
@@ -330,9 +343,9 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
     {
-      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearTetras[dir][i][j]));
-      this->Tetra->PointIds->SetId(j, this->PointIds->GetId(LinearTetras[dir][i][j]));
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearTetras[dir][i][j]));
+      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearCells[dir][i][j]));
+      this->Tetra->PointIds->SetId(j, this->PointIds->GetId(LinearCells[dir][i][j]));
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[dir][i][j]));
     }
     this->Tetra->Contour(
       value, this->Scalars, locator, verts, lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -348,14 +361,13 @@ int vtkQuadraticTetra::IntersectWithLine(
   int intersection = 0;
   double tTemp;
   double pc[3], xTemp[3];
-  int faceNum;
 
   t = VTK_DOUBLE_MAX;
-  for (faceNum = 0; faceNum < 4; faceNum++)
+  for (int faceNum = 0; faceNum < 4; faceNum++)
   {
     for (int i = 0; i < 6; i++)
     {
-      this->Face->Points->SetPoint(i, this->Points->GetPoint(TetraFaces[faceNum][i]));
+      this->Face->Points->SetPoint(i, this->Points->GetPoint(Faces[faceNum][i]));
     }
 
     if (this->Face->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId))
@@ -388,6 +400,7 @@ int vtkQuadraticTetra::IntersectWithLine(
             break;
 
           case 3:
+          default:
             pcoords[0] = pc[0];
             pcoords[1] = pc[1];
             pcoords[2] = pc[2];
@@ -403,7 +416,8 @@ int vtkQuadraticTetra::IntersectWithLine(
 int vtkQuadraticTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(32);
-  std::copy(&LinearTetras[0][0][0], &LinearTetras[0][0][0] + 32, ptIds->begin());
+  static constexpr auto& LinearCells0 = LinearCells[0];
+  std::copy_n(&LinearCells0[0][0], 32, ptIds->begin());
   return 1;
 }
 
@@ -414,7 +428,6 @@ int vtkQuadraticTetra::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptI
 void vtkQuadraticTetra::JacobianInverse(
   const double pcoords[3], double** inverse, double derivs[30])
 {
-  int i, j;
   double *m[3], m0[3], m1[3], m2[3];
   double x[3];
 
@@ -425,15 +438,15 @@ void vtkQuadraticTetra::JacobianInverse(
   m[0] = m0;
   m[1] = m1;
   m[2] = m2;
-  for (i = 0; i < 3; i++) // initialize matrix
+  for (int i = 0; i < 3; i++) // initialize matrix
   {
     m0[i] = m1[i] = m2[i] = 0.0;
   }
 
-  for (j = 0; j < 10; j++)
+  for (int j = 0; j < 10; j++)
   {
     this->Points->GetPoint(j, x);
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       m0[i] += x[i] * derivs[j];
       m1[i] += x[i] * derivs[10 + j];
@@ -455,7 +468,6 @@ void vtkQuadraticTetra::Derivatives(
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[30], sum[3];
-  int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0;
@@ -464,16 +476,16 @@ void vtkQuadraticTetra::Derivatives(
   this->JacobianInverse(pcoords, jI, functionDerivs);
 
   // now compute derivates of values provided
-  for (k = 0; k < dim; k++) // loop over values per vertex
+  for (int k = 0; k < dim; k++) // loop over values per vertex
   {
     sum[0] = sum[1] = sum[2] = 0.0;
-    for (i = 0; i < 10; i++) // loop over interp. function derivatives
+    for (int i = 0; i < 10; i++) // loop over interp. function derivatives
     {
       sum[0] += functionDerivs[i] * values[dim * i + k];
       sum[1] += functionDerivs[10 + i] * values[dim * i + k];
       sum[2] += functionDerivs[20 + i] * values[dim * i + k];
     }
-    for (j = 0; j < 3; j++) // loop over derivative directions
+    for (int j = 0; j < 3; j++) // loop over derivative directions
     {
       derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
     }
@@ -489,9 +501,9 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
 {
   // Determine how to tessellate. This will depend on the scalars (to try and minimize
   // artifacts).
-  double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
-  double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
-  double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  double sDiff0 = std::abs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  double sDiff1 = std::abs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  double sDiff2 = std::abs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
   // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
@@ -499,9 +511,9 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
     {
-      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearTetras[dir][i][j]));
-      this->Tetra->PointIds->SetId(j, this->PointIds->GetId(LinearTetras[dir][i][j]));
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearTetras[dir][i][j]));
+      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearCells[dir][i][j]));
+      this->Tetra->PointIds->SetId(j, this->PointIds->GetId(LinearCells[dir][i][j]));
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[dir][i][j]));
     }
     this->Tetra->Clip(
       value, this->Scalars, locator, tetras, inPd, outPd, inCd, cellId, outCd, insideOut);
@@ -515,9 +527,9 @@ bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
 {
   // Determine how to tessellate. This will depend on the scalars (to try and minimize
   // artifacts).
-  const double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
-  const double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
-  const double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  const double sDiff0 = std::abs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  const double sDiff1 = std::abs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  const double sDiff2 = std::abs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
   // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   const int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
@@ -529,7 +541,7 @@ bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
   {
     for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
     {
-      const double scalar = cellScalars->GetTuple1(LinearTetras[dir][i][j]);
+      const double scalar = cellScalars->GetTuple1(LinearCells[dir][i][j]);
       totallyInside = totallyInside && (scalar > value);
       totallyOutside = totallyOutside && (scalar < value);
     }
@@ -640,7 +652,6 @@ void vtkQuadraticTetra::InterpolationDerivs(const double pcoords[3], double deri
 //------------------------------------------------------------------------------
 double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
 {
-  int i;
   double pDist, pDistMax = 0.0;
   double pc[4];
 
@@ -649,7 +660,7 @@ double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
   pc[2] = pcoords[2];
   pc[3] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
     if (pc[i] < 0.0)
     {
@@ -670,22 +681,9 @@ double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
 }
 
 //------------------------------------------------------------------------------
-static double vtkQTetraCellPCoords[30] = {
-  0.0, 0.0, 0.0, //
-  1.0, 0.0, 0.0, //
-  0.0, 1.0, 0.0, //
-  0.0, 0.0, 1.0, //
-  0.5, 0.0, 0.0, //
-  0.5, 0.5, 0.0, //
-  0.0, 0.5, 0.0, //
-  0.0, 0.0, 0.5, //
-  0.5, 0.0, 0.5, //
-  0.0, 0.5, 0.5  //
-};
-
 double* vtkQuadraticTetra::GetParametricCoords()
 {
-  return vtkQTetraCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
