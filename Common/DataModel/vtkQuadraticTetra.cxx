@@ -34,6 +34,20 @@ namespace
 )";
 
 //------------------------------------------------------------------------------
+constexpr vtkNonLinearCell3D::PointType PointTypes[10] = {
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 0
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 1
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 2
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 3
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 4
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 5
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 6
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 7
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 8
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 9
+};
+
+//------------------------------------------------------------------------------
 double ParametricCoords[30] = {
   0.0, 0.0, 0.0, //
   1.0, 0.0, 0.0, //
@@ -63,6 +77,66 @@ constexpr vtkIdType Faces[4][6] = {
   { 1, 2, 3, 5, 9, 8 },
   { 2, 0, 3, 6, 7, 9 },
   { 0, 2, 1, 6, 5, 4 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType EdgeToAdjacentFaces[6][2] = {
+  { 0, 3 }, // edge 0: corners 0,1
+  { 1, 3 }, // edge 1: corners 1,2
+  { 2, 3 }, // edge 2: corners 2,0
+  { 0, 2 }, // edge 3: corners 0,3
+  { 0, 1 }, // edge 4: corners 1,3
+  { 1, 2 }, // edge 5: corners 2,3
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType FaceToAdjacentFaces[4][3] = {
+  { 1, 2, 3 }, // face 0: corners [0, 1, 3]
+  { 0, 2, 3 }, // face 1: corners [1, 2, 3]
+  { 0, 1, 3 }, // face 2: corners [2, 0, 3]
+  { 0, 1, 2 }, // face 3: corners [0, 2, 1]
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentEdges[10][3] = {
+  { 0, 2, 3 },   // point 0: corner
+  { 0, 1, 4 },   // point 1: corner
+  { 1, 2, 5 },   // point 2: corner
+  { 3, 4, 5 },   // point 3: corner
+  { 0, -1, -1 }, // point 4: mid-edge
+  { 1, -1, -1 }, // point 5: mid-edge
+  { 2, -1, -1 }, // point 6: mid-edge
+  { 3, -1, -1 }, // point 7: mid-edge
+  { 4, -1, -1 }, // point 8: mid-edge
+  { 5, -1, -1 }, // point 9: mid-edge
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentFaces[10][3] = {
+  { 0, 2, 3 },  // point 0: corner, 3 faces
+  { 0, 1, 3 },  // point 1: corner, 3 faces
+  { 1, 2, 3 },  // point 2: corner, 3 faces
+  { 0, 1, 2 },  // point 3: corner, 3 faces
+  { 0, 3, -1 }, // point 4: mid-edge, 2 faces
+  { 1, 3, -1 }, // point 5: mid-edge, 2 faces
+  { 2, 3, -1 }, // point 6: mid-edge, 2 faces
+  { 0, 2, -1 }, // point 7: mid-edge, 2 faces
+  { 0, 1, -1 }, // point 8: mid-edge, 2 faces
+  { 1, 2, -1 }, // point 9: mid-edge, 2 faces
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToOneRingPoints[10][6] = {
+  { 3, 7, 2, 6, 1, 4 },     // point 0: corner
+  { 0, 4, 2, 5, 3, 8 },     // point 1: corner
+  { 1, 5, 0, 6, 3, 9 },     // point 2: corner
+  { 1, 8, 2, 9, 0, 7 },     // point 3: corner
+  { 0, 1, -1, -1, -1, -1 }, // point 4: mid-edge
+  { 1, 2, -1, -1, -1, -1 }, // point 5: mid-edge
+  { 2, 0, -1, -1, -1, -1 }, // point 6: mid-edge
+  { 0, 3, -1, -1, -1, -1 }, // point 7: mid-edge
+  { 1, 3, -1, -1, -1, -1 }, // point 8: mid-edge
+  { 2, 3, -1, -1, -1, -1 }, // point 9: mid-edge
 };
 
 //------------------------------------------------------------------------------
@@ -146,6 +220,66 @@ const vtkIdType* vtkQuadraticTetra::GetEdgeArray(vtkIdType edgeId)
 const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
 {
   return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
+vtkNonLinearCell3D::PointType vtkQuadraticTetra::GetPointType(vtkIdType pointId)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  return PointTypes[pointId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
+{
+  pts = vtkQuadraticTetra::GetEdgeArray(edgeId);
+  return 3;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+{
+  pts = vtkQuadraticTetra::GetFaceArray(faceId);
+  return 6;
+}
+
+//------------------------------------------------------------------------------
+void vtkQuadraticTetra::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds)
+{
+  assert(edgeId < GetNumberOfEdges() && "edgeId too large");
+  faceIds = EdgeToAdjacentFaces[edgeId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds)
+{
+  assert(faceId < GetNumberOfFaces() && "faceId too large");
+  faceIds = FaceToAdjacentFaces[faceId];
+  return 3;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  edgeIds = PointToIncidentEdges[pointId];
+  return pointId < /*corner points*/ 4 ? 3 : 1;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  faceIds = PointToIncidentFaces[pointId];
+  return pointId < /*corner points*/ 4 ? 3 : 2;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticTetra::GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  pts = PointToOneRingPoints[pointId];
+  return pointId < /*corner points*/ 4 ? 6 : 2;
 }
 
 //------------------------------------------------------------------------------

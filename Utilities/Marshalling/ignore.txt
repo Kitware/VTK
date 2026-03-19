@@ -381,6 +381,7 @@ Common/DataModel/vtkMolecule.h
 Common/DataModel/vtkMutableDirectedGraph.h
 Common/DataModel/vtkMutableUndirectedGraph.h
 Common/DataModel/vtkNonLinearCell.h
+Common/DataModel/vtkNonLinearCell3D.h
 Common/DataModel/vtkNonMergingPointLocator.h
 Common/DataModel/vtkNonOverlappingAMR.h
 Common/DataModel/vtkOctreePointLocator.h

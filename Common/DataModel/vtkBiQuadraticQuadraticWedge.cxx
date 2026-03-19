@@ -48,6 +48,29 @@ namespace
 )";
 
 //------------------------------------------------------------------------------
+// vtkBiQuadraticQuadraticWedge
+constexpr vtkNonLinearCell3D::PointType PointTypes[18] = {
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 0
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 1
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 2
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 3
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 4
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 5
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 6
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 7
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 8
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 9
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 10
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 11
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 12
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 13
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 14
+  vtkNonLinearCell3D::PointType::FaceMidPoint, // point 15
+  vtkNonLinearCell3D::PointType::FaceMidPoint, // point 16
+  vtkNonLinearCell3D::PointType::FaceMidPoint, // point 17
+};
+
+//------------------------------------------------------------------------------
 double ParametricCoords[54] = {
   0.0, 0.0, 0.0, //
   1.0, 0.0, 0.0, //
@@ -91,6 +114,94 @@ constexpr vtkIdType Faces[5][9] = {
   { 0, 1, 4, 3, 6, 13, 9, 12, 15 },   // 1. biquad quad
   { 1, 2, 5, 4, 7, 14, 10, 13, 16 },  // 2. biquad quad
   { 2, 0, 3, 5, 8, 12, 11, 14, 17 },  // 3. biquad quad
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType EdgeToAdjacentFaces[9][2] = {
+  { 0, 2 }, // edge 0: corners 0,1
+  { 0, 3 }, // edge 1: corners 1,2
+  { 0, 4 }, // edge 2: corners 2,0
+  { 1, 2 }, // edge 3: corners 3,4
+  { 1, 3 }, // edge 4: corners 4,5
+  { 1, 4 }, // edge 5: corners 5,3
+  { 2, 4 }, // edge 6: corners 0,3
+  { 2, 3 }, // edge 7: corners 1,4
+  { 3, 4 }, // edge 8: corners 2,5
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType FaceToAdjacentFaces[5][4] = {
+  { 2, 3, 4, -1 }, // face 0: tri
+  { 2, 3, 4, -1 }, // face 1: tri
+  { 0, 1, 3, 4 },  // face 2: biquad quad
+  { 0, 1, 2, 4 },  // face 3: biquad quad
+  { 0, 1, 2, 3 },  // face 4: biquad quad
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentEdges[18][3] = {
+  { 0, 2, 6 },    // point 0:  corner
+  { 0, 1, 7 },    // point 1:  corner
+  { 1, 2, 8 },    // point 2:  corner
+  { 3, 5, 6 },    // point 3:  corner
+  { 3, 4, 7 },    // point 4:  corner
+  { 4, 5, 8 },    // point 5:  corner
+  { 0, -1, -1 },  // point 6:  mid-edge
+  { 1, -1, -1 },  // point 7:  mid-edge
+  { 2, -1, -1 },  // point 8:  mid-edge
+  { 3, -1, -1 },  // point 9:  mid-edge
+  { 4, -1, -1 },  // point 10: mid-edge
+  { 5, -1, -1 },  // point 11: mid-edge
+  { 6, -1, -1 },  // point 12: mid-edge
+  { 7, -1, -1 },  // point 13: mid-edge
+  { 8, -1, -1 },  // point 14: mid-edge
+  { -1, -1, -1 }, // point 15: mid-face
+  { -1, -1, -1 }, // point 16: mid-face
+  { -1, -1, -1 }, // point 17: mid-face
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentFaces[18][3] = {
+  { 0, 2, 4 },   // point 0:  corner, 3 faces
+  { 0, 2, 3 },   // point 1:  corner, 3 faces
+  { 0, 3, 4 },   // point 2:  corner, 3 faces
+  { 1, 2, 4 },   // point 3:  corner, 3 faces
+  { 1, 2, 3 },   // point 4:  corner, 3 faces
+  { 1, 3, 4 },   // point 5:  corner, 3 faces
+  { 0, 2, -1 },  // point 6:  mid-edge, 2 faces
+  { 0, 3, -1 },  // point 7:  mid-edge, 2 faces
+  { 0, 4, -1 },  // point 8:  mid-edge, 2 faces
+  { 1, 2, -1 },  // point 9:  mid-edge, 2 faces
+  { 1, 3, -1 },  // point 10: mid-edge, 2 faces
+  { 1, 4, -1 },  // point 11: mid-edge, 2 faces
+  { 2, 4, -1 },  // point 12: mid-edge, 2 faces
+  { 2, 3, -1 },  // point 13: mid-edge, 2 faces
+  { 3, 4, -1 },  // point 14: mid-edge, 2 faces
+  { 2, -1, -1 }, // point 15: mid-face, 1 face
+  { 3, -1, -1 }, // point 16: mid-face, 1 face
+  { 4, -1, -1 }, // point 17: mid-face, 1 face
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToOneRingPoints[18][6] = {
+  { 1, 6, 3, 12, 2, 8 },      // point 0:  corner
+  { 2, 7, 4, 13, 0, 6 },      // point 1:  corner
+  { 0, 8, 5, 14, 1, 7 },      // point 2:  corner
+  { 5, 11, 0, 12, 4, 9 },     // point 3:  corner
+  { 3, 9, 1, 13, 5, 10 },     // point 4:  corner
+  { 4, 10, 2, 14, 3, 11 },    // point 5:  corner
+  { 0, 1, -1, -1, -1, -1 },   // point 6:  mid-edge
+  { 1, 2, -1, -1, -1, -1 },   // point 7:  mid-edge
+  { 2, 0, -1, -1, -1, -1 },   // point 8:  mid-edge
+  { 3, 4, -1, -1, -1, -1 },   // point 9:  mid-edge
+  { 4, 5, -1, -1, -1, -1 },   // point 10: mid-edge
+  { 5, 3, -1, -1, -1, -1 },   // point 11: mid-edge
+  { 0, 3, -1, -1, -1, -1 },   // point 12: mid-edge
+  { 1, 4, -1, -1, -1, -1 },   // point 13: mid-edge
+  { 2, 5, -1, -1, -1, -1 },   // point 14: mid-edge
+  { -1, -1, -1, -1, -1, -1 }, // point 15: mid-face
+  { -1, -1, -1, -1, -1, -1 }, // point 16: mid-face
+  { -1, -1, -1, -1, -1, -1 }, // point 17: mid-face
 };
 
 //------------------------------------------------------------------------------
@@ -183,6 +294,104 @@ const vtkIdType* vtkBiQuadraticQuadraticWedge::GetEdgeArray(vtkIdType edgeId)
 const vtkIdType* vtkBiQuadraticQuadraticWedge::GetFaceArray(vtkIdType faceId)
 {
   return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
+vtkNonLinearCell3D::PointType vtkBiQuadraticQuadraticWedge::GetPointType(vtkIdType pointId)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  return PointTypes[pointId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
+{
+  pts = vtkBiQuadraticQuadraticWedge::GetEdgeArray(edgeId);
+  return 3;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+{
+  pts = vtkBiQuadraticQuadraticWedge::GetFaceArray(faceId);
+  return faceId < 2 ? 6 : 9; // tri faces have 6 points, quad faces have 9
+}
+
+//------------------------------------------------------------------------------
+void vtkBiQuadraticQuadraticWedge::GetEdgeToAdjacentFaces(
+  vtkIdType edgeId, const vtkIdType*& faceIds)
+{
+  assert(edgeId < GetNumberOfEdges() && "edgeId too large");
+  faceIds = EdgeToAdjacentFaces[edgeId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetFaceToAdjacentFaces(
+  vtkIdType faceId, const vtkIdType*& faceIds)
+{
+  assert(faceId < GetNumberOfFaces() && "faceId too large");
+  faceIds = FaceToAdjacentFaces[faceId];
+  return faceId < 2 ? 3 : 4; // tri faces have 3 adjacent faces, quad faces have 4
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetPointToIncidentEdges(
+  vtkIdType pointId, const vtkIdType*& edgeIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  edgeIds = PointToIncidentEdges[pointId];
+  if (pointId < /*corner points*/ 6)
+  {
+    return 3;
+  }
+  else if (pointId < /*mid-edge*/ 15)
+  {
+    return 1;
+  }
+  else /*mid face*/
+  {
+    return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetPointToIncidentFaces(
+  vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  faceIds = PointToIncidentFaces[pointId];
+  if (pointId < /*corner points*/ 6)
+  {
+    return 3;
+  }
+  else if (pointId < /*mid-edge*/ 15)
+  {
+    return 2;
+  }
+  else /*mid face*/
+  {
+    return 1;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkBiQuadraticQuadraticWedge::GetPointToOneRingPoints(
+  vtkIdType pointId, const vtkIdType*& pts)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  pts = PointToOneRingPoints[pointId];
+  if (pointId < /*corner points*/ 6)
+  {
+    return 6;
+  }
+  else if (pointId < /*mid-edge*/ 15)
+  {
+    return 2;
+  }
+  else /*mid face*/
+  {
+    return 0;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -176,6 +176,7 @@ set(classes
   vtkMutableDirectedGraph
   vtkMutableUndirectedGraph
   vtkNonLinearCell
+  vtkNonLinearCell3D
   vtkNonMergingPointLocator
   vtkNonOverlappingAMR
   vtkOctreePointLocator

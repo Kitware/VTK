@@ -79,8 +79,7 @@
 #define vtkTriQuadraticPyramid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNew.h"                   // initialize cells that are used for the implementation
-#include "vtkNonLinearCell.h"
+#include "vtkNonLinearCell3D.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
@@ -90,11 +89,11 @@ class vtkTetra;
 class vtkPyramid;
 class vtkDoubleArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkTriQuadraticPyramid : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkTriQuadraticPyramid : public vtkNonLinearCell3D
 {
 public:
   static vtkTriQuadraticPyramid* New();
-  vtkTypeMacro(vtkTriQuadraticPyramid, vtkNonLinearCell);
+  vtkTypeMacro(vtkTriQuadraticPyramid, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -103,7 +102,6 @@ public:
    * of these methods.
    */
   int GetCellType() override { return VTK_TRIQUADRATIC_PYRAMID; }
-  int GetCellDimension() override { return 3; }
   int GetNumberOfEdges() override { return 8; }
   int GetNumberOfFaces() override { return 5; }
   vtkCell* GetEdge(int edgeId) override;
@@ -184,6 +182,21 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
+  ///@}
+
+  ///@{
+  /**
+   * Implement the vtkNonLinearCell3D API. See the vtkNonLinearCell3D API for descriptions
+   * of these methods.
+   */
+  PointType GetPointType(vtkIdType pointId) override;
+  vtkIdType GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) override;
+  vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
   ///@}
 
 protected:

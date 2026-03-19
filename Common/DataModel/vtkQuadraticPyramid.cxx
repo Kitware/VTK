@@ -43,6 +43,23 @@ namespace
 )";
 
 //------------------------------------------------------------------------------
+constexpr vtkNonLinearCell3D::PointType PointTypes[13] = {
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 0
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 1
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 2
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 3
+  vtkNonLinearCell3D::PointType::CornerPoint,  // point 4
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 5
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 6
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 7
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 8
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 9
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 10
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 11
+  vtkNonLinearCell3D::PointType::EdgeMidPoint, // point 12
+};
+
+//------------------------------------------------------------------------------
 double ParametricCoords[39] = {
   0.0, 0.0, 0.0, //
   1.0, 0.0, 0.0, //
@@ -78,6 +95,78 @@ constexpr vtkIdType Faces[5][8] = {
   { 1, 2, 4, 6, 11, 10, -1, -1 },
   { 2, 3, 4, 7, 12, 11, -1, -1 },
   { 3, 0, 4, 8, 9, 12, -1, -1 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType EdgeToAdjacentFaces[8][2] = {
+  { 0, 1 }, // edge 0: corners 0,1
+  { 0, 2 }, // edge 1: corners 1,2
+  { 0, 3 }, // edge 2: corners 2,3
+  { 0, 4 }, // edge 3: corners 3,0
+  { 1, 4 }, // edge 4: corners 0,4
+  { 1, 2 }, // edge 5: corners 1,4
+  { 2, 3 }, // edge 6: corners 2,4
+  { 3, 4 }, // edge 7: corners 3,4
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType FaceToAdjacentFaces[5][4] = {
+  { 1, 2, 3, 4 },  // face 0: quad base
+  { 0, 2, 4, -1 }, // face 1: tri
+  { 0, 1, 3, -1 }, // face 2: tri
+  { 0, 2, 4, -1 }, // face 3: tri
+  { 0, 1, 3, -1 }, // face 4: tri
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentEdges[13][4] = {
+  { 0, 3, 4, -1 },   // point 0:  corner
+  { 0, 1, 5, -1 },   // point 1:  corner
+  { 1, 2, 6, -1 },   // point 2:  corner
+  { 2, 3, 7, -1 },   // point 3:  corner
+  { 4, 5, 6, 7 },    // point 4:  corner (apex)
+  { 0, -1, -1, -1 }, // point 5:  mid-edge
+  { 1, -1, -1, -1 }, // point 6:  mid-edge
+  { 2, -1, -1, -1 }, // point 7:  mid-edge
+  { 3, -1, -1, -1 }, // point 8:  mid-edge
+  { 4, -1, -1, -1 }, // point 9:  mid-edge
+  { 5, -1, -1, -1 }, // point 10: mid-edge
+  { 6, -1, -1, -1 }, // point 11: mid-edge
+  { 7, -1, -1, -1 }, // point 12: mid-edge
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToIncidentFaces[13][4] = {
+  { 0, 1, 4, -1 },  // point 0:  corner, 3 faces
+  { 0, 1, 2, -1 },  // point 1:  corner, 3 faces
+  { 0, 2, 3, -1 },  // point 2:  corner, 3 faces
+  { 0, 3, 4, -1 },  // point 3:  corner, 3 faces
+  { 1, 2, 3, 4 },   // point 4:  corner (apex), 4 faces
+  { 0, 1, -1, -1 }, // point 5:  mid-edge, 2 faces
+  { 0, 2, -1, -1 }, // point 6:  mid-edge, 2 faces
+  { 0, 3, -1, -1 }, // point 7:  mid-edge, 2 faces
+  { 0, 4, -1, -1 }, // point 8:  mid-edge, 2 faces
+  { 1, 4, -1, -1 }, // point 9:  mid-edge, 2 faces
+  { 1, 2, -1, -1 }, // point 10: mid-edge, 2 faces
+  { 2, 3, -1, -1 }, // point 11: mid-edge, 2 faces
+  { 3, 4, -1, -1 }, // point 12: mid-edge, 2 faces
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType PointToOneRingPoints[13][8] = {
+  { 1, 5, 4, 9, 3, 8, -1, -1 },     // point 0:  corner
+  { 2, 6, 4, 10, 0, 5, -1, -1 },    // point 1:  corner
+  { 3, 7, 4, 11, 1, 6, -1, -1 },    // point 2:  corner
+  { 0, 8, 4, 12, 2, 7, -1, -1 },    // point 3:  corner
+  { 1, 10, 2, 11, 3, 12, 0, 9 },    // point 4:  corner (apex)
+  { 0, 1, -1, -1, -1, -1, -1, -1 }, // point 5:  mid-edge
+  { 1, 2, -1, -1, -1, -1, -1, -1 }, // point 6:  mid-edge
+  { 2, 3, -1, -1, -1, -1, -1, -1 }, // point 7:  mid-edge
+  { 3, 0, -1, -1, -1, -1, -1, -1 }, // point 8:  mid-edge
+  { 0, 4, -1, -1, -1, -1, -1, -1 }, // point 9:  mid-edge
+  { 1, 4, -1, -1, -1, -1, -1, -1 }, // point 10: mid-edge
+  { 2, 4, -1, -1, -1, -1, -1, -1 }, // point 11: mid-edge
+  { 3, 4, -1, -1, -1, -1, -1, -1 }, // point 12: mid-edge
 };
 
 //------------------------------------------------------------------------------
@@ -186,6 +275,99 @@ const vtkIdType* vtkQuadraticPyramid::GetEdgeArray(vtkIdType edgeId)
 const vtkIdType* vtkQuadraticPyramid::GetFaceArray(vtkIdType faceId)
 {
   return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
+vtkNonLinearCell3D::PointType vtkQuadraticPyramid::GetPointType(vtkIdType pointId)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  return PointTypes[pointId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts)
+{
+  pts = vtkQuadraticPyramid::GetEdgeArray(edgeId);
+  return 3;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+{
+  pts = vtkQuadraticPyramid::GetFaceArray(faceId);
+  return faceId == 0 ? 8 : 6; // tri faces have 6 points, quad faces have 8
+}
+
+//------------------------------------------------------------------------------
+void vtkQuadraticPyramid::GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds)
+{
+  assert(edgeId < GetNumberOfEdges() && "edgeId too large");
+  faceIds = EdgeToAdjacentFaces[edgeId];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds)
+{
+  assert(faceId < GetNumberOfFaces() && "faceId too large");
+  faceIds = FaceToAdjacentFaces[faceId];
+  return faceId == 0 ? 4 : 3; // tri faces have 3 adjacent faces, quad faces have 4
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  edgeIds = PointToIncidentEdges[pointId];
+  if (pointId < /*base corner points*/ 4)
+  {
+    return 3;
+  }
+  else if (pointId == /*apex*/ 4)
+  {
+    return 4;
+  }
+  else // mid edge points
+  {
+    return 1;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  faceIds = PointToIncidentFaces[pointId];
+  if (pointId < /*base corner points*/ 4)
+  {
+    return 3;
+  }
+  else if (pointId == /*apex*/ 4)
+  {
+    return 4;
+  }
+  else // mid edge points
+  {
+    return 2;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkQuadraticPyramid::GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
+{
+  assert(pointId < GetNumberOfPoints() && "pointId too large");
+  pts = PointToOneRingPoints[pointId];
+  if (pointId < /*base corner points*/ 4)
+  {
+    return 6;
+  }
+  else if (pointId == /*apex*/ 4)
+  {
+    return 8;
+  }
+  else // mid edge points
+  {
+    return 2;
+  }
 }
 
 //------------------------------------------------------------------------------

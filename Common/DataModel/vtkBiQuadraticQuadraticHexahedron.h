@@ -57,7 +57,7 @@
 #define vtkBiQuadraticQuadraticHexahedron_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNonLinearCell.h"
+#include "vtkNonLinearCell3D.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
@@ -66,11 +66,11 @@ class vtkBiQuadraticQuad;
 class vtkHexahedron;
 class vtkDoubleArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkBiQuadraticQuadraticHexahedron : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkBiQuadraticQuadraticHexahedron : public vtkNonLinearCell3D
 {
 public:
   static vtkBiQuadraticQuadraticHexahedron* New();
-  vtkTypeMacro(vtkBiQuadraticQuadraticHexahedron, vtkNonLinearCell);
+  vtkTypeMacro(vtkBiQuadraticQuadraticHexahedron, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -79,7 +79,6 @@ public:
    * of these methods.
    */
   int GetCellType() override { return VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON; }
-  int GetCellDimension() override { return 3; }
   int GetNumberOfEdges() override { return 12; }
   int GetNumberOfFaces() override { return 6; }
   vtkCell* GetEdge(int) override;
@@ -140,6 +139,21 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
+  ///@}
+
+  ///@{
+  /**
+   * Implement the vtkNonLinearCell3D API. See the vtkNonLinearCell3D API for descriptions
+   * of these methods.
+   */
+  PointType GetPointType(vtkIdType pointId) override;
+  vtkIdType GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) override;
+  vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
   ///@}
 
   /**
