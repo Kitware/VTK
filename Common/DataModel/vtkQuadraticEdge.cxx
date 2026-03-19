@@ -11,6 +11,23 @@
 #include <algorithm> //std::copy
 #include <array>
 
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   QuadraticEdge topology:
+
+      0-----------2-----------1
+)";
+
+//------------------------------------------------------------------------------
+double ParametricCoords[9] = {
+  0.0, 0.0, 0.0, //
+  1.0, 0.0, 0.0, //
+  0.5, 0.0, 0.0  //
+};
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticEdge);
 
@@ -18,7 +35,7 @@ vtkStandardNewMacro(vtkQuadraticEdge);
 // Construct the line with two points.
 vtkQuadraticEdge::vtkQuadraticEdge()
 {
-  this->Scalars = vtkDoubleArray::New();
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->Scalars->SetNumberOfTuples(2);
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
@@ -27,14 +44,7 @@ vtkQuadraticEdge::vtkQuadraticEdge()
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i, 0);
   }
-  this->Line = vtkLine::New();
-}
-
-//------------------------------------------------------------------------------
-vtkQuadraticEdge::~vtkQuadraticEdge()
-{
-  this->Line->Delete();
-  this->Scalars->Delete();
+  this->Line = vtkSmartPointer<vtkLine>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -43,7 +53,7 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
 {
   double closest[3];
   double pc[3], dist2;
-  int ignoreId, i, returnStatus, status;
+  int ignoreId, i;
   double lineWeights[2];
 
   // Efficient point access
@@ -57,7 +67,7 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
 
   pcoords[1] = pcoords[2] = 0.0;
 
-  returnStatus = -1;
+  int returnStatus = -1;
   weights[0] = 0.0;
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 2; i++)
   {
@@ -72,7 +82,7 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
       this->Line->Points->SetPoint(1, pts + 3 * 1);
     }
 
-    status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
+    int status = this->Line->EvaluatePosition(x, closest, ignoreId, pc, dist2, lineWeights);
     if (status != -1 && ((dist2 < minDist2) || ((dist2 == minDist2) && (returnStatus == 0))))
     {
       returnStatus = status;
@@ -112,9 +122,6 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
 void vtkQuadraticEdge::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i;
-  const double *a0, *a1, *a2;
-
   // Efficient point access
   const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
   if (!pointsArray)
@@ -123,13 +130,13 @@ void vtkQuadraticEdge::EvaluateLocation(
     return;
   }
   const double* pts = pointsArray->GetPointer(0);
-  a0 = pts;
-  a1 = pts + 3;
-  a2 = pts + 6; // midside node
+  const double* a0 = pts;
+  const double* a1 = pts + 3;
+  const double* a2 = pts + 6; // midside node
 
   vtkQuadraticEdge::InterpolationFunctions(pcoords, weights);
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     x[i] = a0[i] * weights[0] + a1[i] * weights[1] + a2[i] * weights[2];
   }
@@ -206,12 +213,20 @@ int vtkQuadraticEdge::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptId
 }
 
 //------------------------------------------------------------------------------
-void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3],
-  const double* vtkNotUsed(values), int vtkNotUsed(dim), double* vtkNotUsed(derivs))
+void vtkQuadraticEdge::Derivatives(
+  int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  // TODO - if the effort is justified, someone should implement a correct
-  // version of this method
-  vtkErrorMacro("Derivatives() is not implemented for this cell.");
+  double dNdr[3];
+  vtkQuadraticEdge::InterpolationDerivs(pcoords, dNdr);
+
+  for (int i = 0; i < dim; ++i)
+  {
+    derivs[i] = 0.0;
+    for (int j = 0; j < 3; ++j)
+    {
+      derivs[i] += dNdr[j] * values[j * dim + i];
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -257,10 +272,9 @@ void vtkQuadraticEdge::InterpolationDerivs(const double pcoords[3], double deriv
 }
 
 //------------------------------------------------------------------------------
-static double vtkQEdgeCellPCoords[9] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.5, 0.0, 0.0 };
 double* vtkQuadraticEdge::GetParametricCoords()
 {
-  return vtkQEdgeCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
@@ -270,5 +284,7 @@ void vtkQuadraticEdge::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Line:\n";
   this->Line->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Scalars:\n";
+  this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
 VTK_ABI_NAMESPACE_END

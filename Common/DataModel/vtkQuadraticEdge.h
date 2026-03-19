@@ -95,10 +95,10 @@ public:
 
 protected:
   vtkQuadraticEdge();
-  ~vtkQuadraticEdge() override;
+  ~vtkQuadraticEdge() override = default;
 
-  vtkLine* Line;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkLine> Line;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
 private:
   vtkQuadraticEdge(const vtkQuadraticEdge&) = delete;
