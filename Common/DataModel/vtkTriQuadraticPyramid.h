@@ -188,15 +188,15 @@ public:
 
 protected:
   vtkTriQuadraticPyramid();
-  ~vtkTriQuadraticPyramid() override;
+  ~vtkTriQuadraticPyramid() override = default;
 
-  vtkNew<vtkQuadraticEdge> Edge;
-  vtkNew<vtkBiQuadraticTriangle> TriangleFace;
-  vtkNew<vtkBiQuadraticTriangle> TriangleFace2;
-  vtkNew<vtkBiQuadraticQuad> QuadFace;
-  vtkNew<vtkTetra> Tetra;
-  vtkNew<vtkPyramid> Pyramid;
-  vtkNew<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkBiQuadraticTriangle> TriangleFace;
+  vtkSmartPointer<vtkBiQuadraticTriangle> TriangleFace2;
+  vtkSmartPointer<vtkBiQuadraticQuad> QuadFace;
+  vtkSmartPointer<vtkTetra> Tetra;
+  vtkSmartPointer<vtkPyramid> Pyramid;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkTriQuadraticPyramid(const vtkTriQuadraticPyramid&) = delete;

@@ -18,9 +18,131 @@
 #include <algorithm> //std::copy
 #include <cstddef>
 
-VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   TriQuadraticPyramid topology:
+
+      3--------7--------2
+      | \             / |
+      |  \           /  |
+      |   \    16   /   |
+      |    12      11   |
+      |     \     /     |
+      |      \   /      |
+      |       \ /       |
+      8  17    4   15   6  +  13 (mid-face of 0-3) and 18 (centroid)
+      |       / \       |
+      |      /   \      |
+      |     /     \     |
+      |    9       10   |
+      |   /    14   \   |
+      |  /           \  |
+      | /             \ |
+      0--------5--------1
+)";
+
+//------------------------------------------------------------------------------
+double ParametricCoords[57] = {
+  // corner nodes
+  0.0, 0.0, 0.5, //
+  1.0, 0.0, 0.5, //
+  1.0, 1.0, 0.5, //
+  0.0, 1.0, 0.5, //
+  0.5, 0.5, 1.0, //
+  // mid-edge nodes
+  0.5, 0.0, 0.5,    //
+  1.0, 0.5, 0.5,    //
+  0.5, 1.0, 0.5,    //
+  0.0, 0.5, 0.5,    //
+  0.25, 0.25, 0.75, //
+  0.75, 0.25, 0.75, //
+  0.75, 0.75, 0.75, //
+  0.25, 0.75, 0.75, //
+  // mid-face nodes
+  0.5, 0.5, 0.5,             //
+  0.5, 1.0 / 6.0, 4.0 / 6.0, //
+  5.0 / 6.0, 0.5, 4.0 / 6.0, //
+  0.5, 5.0 / 6.0, 4.0 / 6.0, //
+  1.0 / 6.0, 0.5, 4.0 / 6.0, //
+  // volumetric centroid node
+  0.5, 0.5, 5.0 / 8.0 //
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Edges[8][3] = {
+  { 0, 1, 5 },
+  { 1, 2, 6 },
+  { 2, 3, 7 },
+  { 3, 0, 8 },
+  { 0, 4, 9 },
+  { 1, 4, 10 },
+  { 2, 4, 11 },
+  { 3, 4, 12 },
+};
+
+//------------------------------------------------------------------------------
+constexpr vtkIdType Faces[5][9] = {
+  { 0, 3, 2, 1, 8, 7, 6, 5, 13 },
+  { 0, 1, 4, 5, 10, 9, 14, -1, -1 },
+  { 1, 2, 4, 6, 11, 10, 15, -1, -1 },
+  { 2, 3, 4, 7, 12, 11, 16, -1, -1 },
+  { 3, 0, 4, 8, 9, 12, 17, -1, -1 },
+};
+
+//------------------------------------------------------------------------------
+// LinearCells are used by Contour() and Clip() methods.
+// 14 pyramids + 4 tetrahedra.
+constexpr vtkIdType LinearCells[18][5] = {
+  // 14 pyramids (base0, base1, base2, base3, apex)
+  { 11, 18, 9, 4, 12 },
+  { 4, 9, 18, 11, 10 },
+  { 15, 18, 13, 6, 10 },
+  { 5, 13, 18, 14, 10 },
+  { 13, 17, 9, 14, 18 },
+  { 15, 11, 16, 13, 18 },
+  { 13, 18, 16, 7, 12 },
+  { 8, 17, 18, 13, 12 },
+  { 13, 5, 1, 6, 10 },
+  { 3, 8, 13, 7, 12 },
+  { 6, 15, 11, 2, 13 },
+  { 0, 9, 14, 5, 13 },
+  { 2, 11, 16, 7, 13 },
+  { 0, 8, 17, 9, 13 },
+  // 4 tetrahedra
+  { 11, 15, 10, 18, -1 },
+  { 10, 14, 9, 18, -1 },
+  { 12, 16, 11, 18, -1 },
+  { 9, 17, 12, 18, -1 },
+};
+
+//------------------------------------------------------------------------------
+// 32-tetrahedron triangulation for TriangulateLocalIds(). Each pyramid above is
+// split into 2 tetrahedra, followed by the 4 tetrahedra.
+// clang-format off
+constexpr vtkIdType LinearTetrahedra[32][4] = {
+  { 11, 18,  9, 12 }, { 11,  9,  4, 12 }, // pyramid 0
+  {  4,  9, 18, 10 }, {  4, 18, 11, 10 }, // pyramid 1
+  { 15, 18, 13, 10 }, { 15, 13,  6, 10 }, // pyramid 2
+  {  5, 13, 18, 10 }, {  5, 18, 14, 10 }, // pyramid 3
+  { 13, 17,  9, 18 }, { 13,  9, 14, 18 }, // pyramid 4
+  { 15, 11, 16, 18 }, { 15, 16, 13, 18 }, // pyramid 5
+  { 13, 18, 16, 12 }, { 13, 16,  7, 12 }, // pyramid 6
+  {  8, 17, 18, 12 }, {  8, 18, 13, 12 }, // pyramid 7
+  { 13,  5,  1, 10 }, { 13,  1,  6, 10 }, // pyramid 8
+  {  3,  8, 13, 12 }, {  3, 13,  7, 12 }, // pyramid 9
+  {  6, 15, 11, 13 }, {  6, 11,  2, 13 }, // pyramid 10
+  {  0,  9, 14, 13 }, {  0, 14,  5, 13 }, // pyramid 11
+  {  2, 11, 16, 13 }, {  2, 16,  7, 13 }, // pyramid 12
+  {  0,  8, 17, 13 }, {  0, 17,  9, 13 }, // pyramid 13
+  { 11, 15, 10, 18 },
+  { 10, 14,  9, 18 },
+  { 12, 16, 11, 18 },
+  {  9, 17, 12, 18 },
+};
+// clang-format on
+
 // defined constants used in interpolation functions and their partial derivatives
 constexpr double TOL1M20 = 1e-20;
 constexpr double ZERO = 0;
@@ -46,126 +168,15 @@ constexpr double K15A = TWENTYSEVEN / EIGHT;
 constexpr double K15B = -TWENTYSEVEN / EIGHT;
 constexpr double K19 = -SIXTEENTHIRDS;
 
-constexpr vtkIdType PyramidFaces[5][9] = {
-  { 0, 3, 2, 1, 8, 7, 6, 5, 13 },
-  { 0, 1, 4, 5, 10, 9, 14, 0, 0 },
-  { 1, 2, 4, 6, 11, 10, 15, 0, 0 },
-  { 2, 3, 4, 7, 12, 11, 16, 0, 0 },
-  { 3, 0, 4, 8, 9, 12, 17, 0, 0 },
-};
-
-constexpr vtkIdType PyramidEdges[8][3] = {
-  { 0, 1, 5 },
-  { 1, 2, 6 },
-  { 2, 3, 7 },
-  { 3, 0, 8 },
-  { 0, 4, 9 },
-  { 1, 4, 10 },
-  { 2, 4, 11 },
-  { 3, 4, 12 },
-};
-
-constexpr double VTK_DIVERGED = 1.e6;
-constexpr int VTK_MAX_ITERATION = 20;
-constexpr double VTK_CONVERGED = 1.e-03;
-
-// LinearPyramids are used by Contour() and Clip() methods.
-constexpr vtkIdType LinearPyramids[26][5] = {
-  // 6 pyramids
-  { 0, 5, 13, 8, 9 },
-  { 5, 1, 6, 13, 10 },
-  { 8, 13, 7, 3, 12 },
-  { 13, 6, 2, 7, 11 },
-  { 9, 10, 11, 12, 4 },
-  { 9, 12, 11, 10, 18 },
-  // 20 tetrahedra
-  { 13, 6, 11, 15, 0 },
-  { 5, 13, 9, 14, 0 },
-  { 10, 13, 5, 14, 0 },
-  { 7, 13, 11, 16, 0 },
-  { 9, 13, 8, 17, 0 },
-  { 6, 13, 10, 15, 0 },
-  { 12, 13, 7, 16, 0 },
-  { 13, 12, 8, 17, 0 },
-  { 15, 13, 10, 18, 0 },
-  { 13, 14, 10, 18, 0 },
-  { 14, 13, 9, 18, 0 },
-  { 15, 11, 13, 18, 0 },
-  { 16, 13, 11, 18, 0 },
-  { 13, 17, 9, 18, 0 },
-  { 16, 12, 13, 18, 0 },
-  { 17, 13, 12, 18, 0 },
-  { 11, 15, 10, 18, 0 },
-  { 10, 14, 9, 18, 0 },
-  { 12, 16, 11, 18, 0 },
-  { 9, 17, 12, 18, 0 },
-};
-
-constexpr vtkIdType triangulationPointIds[32][4] = {
-  { 13, 6, 11, 15 },
-  { 6, 11, 7, 13 },
-  { 5, 13, 9, 14 },
-  { 6, 5, 1, 10 },
-  { 7, 6, 2, 11 },
-  { 8, 7, 3, 12 },
-  { 5, 8, 0, 9 },
-  { 8, 9, 5, 13 },
-  { 10, 13, 5, 14 },
-  { 7, 12, 8, 13 },
-  { 5, 10, 6, 13 },
-  { 7, 13, 11, 16 },
-  { 9, 13, 8, 17 },
-  { 6, 13, 10, 15 },
-  { 12, 13, 7, 16 },
-  { 13, 12, 8, 17 },
-  { 10, 14, 4, 18 },
-  { 15, 13, 10, 18 },
-  { 4, 15, 10, 18 },
-  { 13, 14, 10, 18 },
-  { 11, 15, 4, 18 },
-  { 4, 14, 9, 18 },
-  { 14, 13, 9, 18 },
-  { 15, 11, 13, 18 },
-  { 4, 16, 11, 18 },
-  { 16, 13, 11, 18 },
-  { 13, 17, 9, 18 },
-  { 9, 17, 4, 18 },
-  { 12, 16, 4, 18 },
-  { 16, 12, 13, 18 },
-  { 4, 17, 12, 18 },
-  { 17, 13, 12, 18 },
-};
-
 // this array is used in shape functions/derivatives to swap values
 constexpr int startSwapId[4] = { 0, 5, 9, 14 };
 
-double vtkTQPyramidCellPCoords[57] = {
-  // corner nodes
-  0.0, 0.0, 0.5, //
-  1.0, 0.0, 0.5, //
-  1.0, 1.0, 0.5, //
-  0.0, 1.0, 0.5, //
-  0.5, 0.5, 1.0, //
-  // mid-edge nodes
-  0.5, 0.0, 0.5,    //
-  1.0, 0.5, 0.5,    //
-  0.5, 1.0, 0.5,    //
-  0.0, 0.5, 0.5,    //
-  0.25, 0.25, 0.75, //
-  0.75, 0.25, 0.75, //
-  0.75, 0.75, 0.75, //
-  0.25, 0.75, 0.75, //
-  // mid-face nodes
-  0.5, 0.5, 0.5,             //
-  0.5, 1.0 / 6.0, 4.0 / 6.0, //
-  5.0 / 6.0, 0.5, 4.0 / 6.0, //
-  0.5, 5.0 / 6.0, 4.0 / 6.0, //
-  1.0 / 6.0, 0.5, 4.0 / 6.0, //
-  // volumetric centroid node
-  0.5, 0.5, 5.0 / 8.0 //
-};
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_MAX_ITERATIONS = 20;
+constexpr double VTK_CONVERGED = 1.e-04;
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriQuadraticPyramid);
 
 //------------------------------------------------------------------------------
@@ -182,33 +193,25 @@ vtkTriQuadraticPyramid::vtkTriQuadraticPyramid()
     this->PointIds->SetId(i, 0);
   }
 
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->TriangleFace = vtkSmartPointer<vtkBiQuadraticTriangle>::New();
+  this->TriangleFace2 = vtkSmartPointer<vtkBiQuadraticTriangle>::New();
+  this->QuadFace = vtkSmartPointer<vtkBiQuadraticQuad>::New();
+  this->Tetra = vtkSmartPointer<vtkTetra>::New();
+  this->Pyramid = vtkSmartPointer<vtkPyramid>::New();
+  this->Scalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->Scalars->SetNumberOfTuples(5); // vertices of a linear pyramid
-}
-
-//------------------------------------------------------------------------------
-vtkTriQuadraticPyramid::~vtkTriQuadraticPyramid() = default;
-
-//------------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticPyramid::GetEdgeArray(vtkIdType edgeId)
-{
-  return PyramidEdges[edgeId];
-}
-//------------------------------------------------------------------------------
-const vtkIdType* vtkTriQuadraticPyramid::GetFaceArray(vtkIdType faceId)
-{
-  return PyramidFaces[faceId];
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticPyramid::GetEdge(int edgeId)
 {
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, 7);
+  edgeId = std::clamp(edgeId, 0, 7);
 
   for (int i = 0; i < 3; i++)
   {
-    this->Edge->PointIds->SetId(i, this->PointIds->GetId(PyramidEdges[edgeId][i]));
-    this->Edge->Points->SetPoint(i, this->Points->GetPoint(PyramidEdges[edgeId][i]));
+    this->Edge->PointIds->SetId(i, this->PointIds->GetId(Edges[edgeId][i]));
+    this->Edge->Points->SetPoint(i, this->Points->GetPoint(Edges[edgeId][i]));
   }
 
   return this->Edge;
@@ -217,8 +220,7 @@ vtkCell* vtkTriQuadraticPyramid::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticPyramid::GetFace(int faceId)
 {
-  faceId = std::max(faceId, 0);
-  faceId = std::min(faceId, 4);
+  faceId = std::clamp(faceId, 0, 4);
 
   // load point id's and coordinates
   // be careful with the first one:
@@ -227,8 +229,8 @@ vtkCell* vtkTriQuadraticPyramid::GetFace(int faceId)
   {
     for (int i = 0; i < 7; i++)
     {
-      this->TriangleFace->PointIds->SetId(i, this->PointIds->GetId(PyramidFaces[faceId][i]));
-      this->TriangleFace->Points->SetPoint(i, this->Points->GetPoint(PyramidFaces[faceId][i]));
+      this->TriangleFace->PointIds->SetId(i, this->PointIds->GetId(Faces[faceId][i]));
+      this->TriangleFace->Points->SetPoint(i, this->Points->GetPoint(Faces[faceId][i]));
     }
     return this->TriangleFace;
   }
@@ -236,13 +238,25 @@ vtkCell* vtkTriQuadraticPyramid::GetFace(int faceId)
   {
     for (int i = 0; i < 9; i++)
     {
-      this->QuadFace->PointIds->SetId(i, this->PointIds->GetId(PyramidFaces[faceId][i]));
-      this->QuadFace->Points->SetPoint(i, this->Points->GetPoint(PyramidFaces[faceId][i]));
+      this->QuadFace->PointIds->SetId(i, this->PointIds->GetId(Faces[faceId][i]));
+      this->QuadFace->Points->SetPoint(i, this->Points->GetPoint(Faces[faceId][i]));
     }
     return this->QuadFace;
   }
 }
 
+//------------------------------------------------------------------------------
+const vtkIdType* vtkTriQuadraticPyramid::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+//------------------------------------------------------------------------------
+const vtkIdType* vtkTriQuadraticPyramid::GetFaceArray(vtkIdType faceId)
+{
+  return Faces[faceId];
+}
+
+//------------------------------------------------------------------------------
 int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
@@ -258,8 +272,7 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
 
   // There are problems searching for the apex point, so we check if
   // we are there first before doing the full parametric inversion.
-  const double* apexPoint;
-  apexPoint = pts + 3 * 4;
+  const double* apexPoint = pts + 3 * 4;
   dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
   double baseMidpoint[3] = { pts[0], pts[1], pts[2] };
   for (int i = 1; i < 4; i++)
@@ -282,13 +295,13 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
   // square it here because we're looking at dist2^2.
   if (dist2 == 0. || (length2 != 0. && dist2 / length2 < 1.e-6))
   {
-    pcoords[0] = vtkTQPyramidCellPCoords[3 * 4 + 0]; // apex-X
-    pcoords[1] = vtkTQPyramidCellPCoords[3 * 4 + 1]; // apex-Y
-    pcoords[2] = vtkTQPyramidCellPCoords[3 * 4 + 2]; // apex-Z
+    pcoords[0] = ParametricCoords[3 * 4 + 0]; // apex-X
+    pcoords[1] = ParametricCoords[3 * 4 + 1]; // apex-Y
+    pcoords[2] = ParametricCoords[3 * 4 + 2]; // apex-Z
     vtkTriQuadraticPyramid::InterpolationFunctions(pcoords, weights);
     if (closestPoint)
     {
-      memcpy(closestPoint, x, 3 * sizeof(double));
+      std::copy_n(x, 3, closestPoint);
       dist2 = 0.;
     }
     return 1;
@@ -298,11 +311,10 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
 
   // compute a bound on the volume to get a scale for an acceptable determinant
   double longestEdge = 0;
-  const double *pt0, *pt1;
   for (int i = 0; i < 8; i++)
   {
-    pt0 = pts + 3 * PyramidEdges[i][0];
-    pt1 = pts + 3 * PyramidEdges[i][1];
+    const double* pt0 = pts + 3 * Edges[i][0];
+    const double* pt1 = pts + 3 * Edges[i][1];
     longestEdge = std::max(longestEdge, vtkMath::Distance2BetweenPoints(pt0, pt1));
   }
   // longestEdge value is already squared
@@ -315,7 +327,7 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
 
   //  enter iteration loop
   int converged = 0;
-  for (int iteration = 0; !converged && (iteration < VTK_MAX_ITERATION); iteration++)
+  for (int iteration = 0; !converged && iteration < VTK_MAX_ITERATIONS; iteration++)
   {
     //  calculate element interpolation functions and derivatives
     vtkTriQuadraticPyramid::InterpolationFunctions(pcoords, weights);
@@ -355,15 +367,15 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
     pcoords[2] = params[2] - 0.5 * vtkMath::Determinant3x3(rcol, scol, fcol) / d;
 
     //  check for convergence
-    if (((std::abs(pcoords[0] - params[0])) < VTK_CONVERGED) &&
-      ((std::abs(pcoords[1] - params[1])) < VTK_CONVERGED) &&
-      ((std::abs(pcoords[2] - params[2])) < VTK_CONVERGED))
+    if (std::abs(pcoords[0] - params[0]) < VTK_CONVERGED &&
+      std::abs(pcoords[1] - params[1]) < VTK_CONVERGED &&
+      std::abs(pcoords[2] - params[2]) < VTK_CONVERGED)
     {
       converged = 1;
     }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((std::abs(pcoords[0]) > VTK_DIVERGED) || (std::abs(pcoords[1]) > VTK_DIVERGED) ||
-      (std::abs(pcoords[2]) > VTK_DIVERGED))
+    else if (std::abs(pcoords[0]) > VTK_DIVERGED || std::abs(pcoords[1]) > VTK_DIVERGED ||
+      std::abs(pcoords[2]) > VTK_DIVERGED)
     {
       return -1;
     }
@@ -436,9 +448,6 @@ int vtkTriQuadraticPyramid::EvaluatePosition(const double* x, double closestPoin
 void vtkTriQuadraticPyramid::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  int i, j;
-  const double* pt;
-
   vtkTriQuadraticPyramid::InterpolationFunctions(pcoords, weights);
 
   // Efficient point access
@@ -451,10 +460,10 @@ void vtkTriQuadraticPyramid::EvaluateLocation(
   const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
-  for (i = 0; i < 19; i++)
+  for (int i = 0; i < 19; i++)
   {
-    pt = pts + 3 * i;
-    for (j = 0; j < 3; j++)
+    const double* pt = pts + 3 * i;
+    for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
     }
@@ -471,7 +480,7 @@ int vtkTriQuadraticPyramid::CellBoundary(int subId, const double pcoords[3], vtk
 
   for (int j = 0; j < 5; j++) // for each point of pyramid
   {
-    this->Pyramid->Points->SetPoint(j, vtkTQPyramidCellPCoords + (static_cast<ptrdiff_t>(3 * j)));
+    this->Pyramid->Points->SetPoint(j, ParametricCoords + (static_cast<ptrdiff_t>(3 * j)));
     this->Pyramid->PointIds->SetId(j, j);
   }
 
@@ -492,13 +501,13 @@ void vtkTriQuadraticPyramid::Contour(double value, vtkDataArray* cellScalars,
 
   // contour each linear pyramid separately
   this->Scalars->SetNumberOfTuples(5); // num of vertices
-  for (int i = 0; i < 6; i++)          // for each pyramid
+  for (int i = 0; i < 14; i++)         // for each pyramid
   {
     for (int j = 0; j < 5; j++) // for each point of pyramid
     {
-      this->Pyramid->Points->SetPoint(j, this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Pyramid->PointIds->SetId(j, LinearPyramids[i][j]);
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Pyramid->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Pyramid->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Pyramid->Contour(
       value, this->Scalars, locator, verts, lines, polys, inPd, outPd, inCd, i, outCd);
@@ -506,13 +515,13 @@ void vtkTriQuadraticPyramid::Contour(double value, vtkDataArray* cellScalars,
 
   // contour each linear tetra separately
   this->Scalars->SetNumberOfTuples(4); // num of vertices
-  for (int i = 6; i < 26; i++)         // for each tetra
+  for (int i = 14; i < 18; i++)        // for each tetra
   {
     for (int j = 0; j < 4; j++) // for each point of tetra
     {
-      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Tetra->PointIds->SetId(j, LinearPyramids[i][j]);
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Tetra->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Tetra->Contour(
       value, this->Scalars, locator, verts, lines, polys, inPd, outPd, inCd, i, outCd);
@@ -541,13 +550,13 @@ int vtkTriQuadraticPyramid::IntersectWithLine(
       for (int i = 0; i < 7; i++)
       {
         // global points
-        this->Points->GetPoint(PyramidFaces[faceNum][i], point);
+        this->Points->GetPoint(Faces[faceNum][i], point);
         this->TriangleFace->Points->SetPoint(i, point);
-        this->TriangleFace->PointIds->SetId(i, this->PointIds->GetId(PyramidFaces[faceNum][i]));
+        this->TriangleFace->PointIds->SetId(i, this->PointIds->GetId(Faces[faceNum][i]));
         // parametric points
         this->TriangleFace2->Points->SetPoint(
-          i, vtkTQPyramidCellPCoords + static_cast<ptrdiff_t>(3 * PyramidFaces[faceNum][i]));
-        this->TriangleFace2->PointIds->SetId(i, this->PointIds->GetId(PyramidFaces[faceNum][i]));
+          i, ParametricCoords + static_cast<ptrdiff_t>(3 * Faces[faceNum][i]));
+        this->TriangleFace2->PointIds->SetId(i, this->PointIds->GetId(Faces[faceNum][i]));
       }
       inter = this->TriangleFace->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId);
     }
@@ -555,9 +564,9 @@ int vtkTriQuadraticPyramid::IntersectWithLine(
     {
       for (int i = 0; i < 9; i++)
       {
-        this->Points->GetPoint(PyramidFaces[faceNum][i], point);
+        this->Points->GetPoint(Faces[faceNum][i], point);
         this->QuadFace->Points->SetPoint(i, point);
-        this->QuadFace->PointIds->SetId(i, this->PointIds->GetId(PyramidFaces[faceNum][i]));
+        this->QuadFace->PointIds->SetId(i, this->PointIds->GetId(Faces[faceNum][i]));
       }
       inter = this->QuadFace->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId);
     }
@@ -600,7 +609,7 @@ int vtkTriQuadraticPyramid::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList
 {
   // split into 32 tetrahedra
   ptIds->SetNumberOfIds(32 * 4);
-  std::copy(&triangulationPointIds[0][0], &triangulationPointIds[0][0] + 32 * 4, ptIds->begin());
+  std::copy_n(&LinearTetrahedra[0][0], 32 * 4, ptIds->begin());
   return 1;
 }
 
@@ -690,26 +699,26 @@ void vtkTriQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
 
   // contour each linear pyramid separately
   this->Scalars->SetNumberOfTuples(5); // num of vertices
-  for (int i = 0; i < 6; i++)          // for each subdivided pyramid
+  for (int i = 0; i < 14; i++)         // for each subdivided pyramid
   {
     for (int j = 0; j < 5; j++) // for each of the five vertices of the pyramid
     {
-      this->Pyramid->Points->SetPoint(j, this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Pyramid->PointIds->SetId(j, LinearPyramids[i][j]);
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Pyramid->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Pyramid->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Pyramid->Clip(
       value, this->Scalars, locator, tets, inPd, outPd, inCd, i, outCd, insideOut);
   }
 
   this->Scalars->SetNumberOfTuples(4); // num of vertices
-  for (int i = 6; i < 26; i++)         // for each subdivided tetra
+  for (int i = 14; i < 18; i++)        // for each subdivided tetra
   {
     for (int j = 0; j < 4; j++) // for each of the four vertices of the tetra
     {
-      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Tetra->PointIds->SetId(j, LinearPyramids[i][j]);
-      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearPyramids[i][j]));
+      this->Tetra->Points->SetPoint(j, this->Points->GetPoint(LinearCells[i][j]));
+      this->Tetra->PointIds->SetId(j, LinearCells[i][j]);
+      this->Scalars->SetValue(j, cellScalars->GetTuple1(LinearCells[i][j]));
     }
     this->Tetra->Clip(value, this->Scalars, locator, tets, inPd, outPd, inCd, i, outCd, insideOut);
   }
@@ -1015,7 +1024,7 @@ void vtkTriQuadraticPyramid::InterpolationDerivs(const double pcoords[3], double
 //------------------------------------------------------------------------------
 double* vtkTriQuadraticPyramid::GetParametricCoords()
 {
-  return vtkTQPyramidCellPCoords;
+  return ParametricCoords;
 }
 
 //------------------------------------------------------------------------------
@@ -1023,10 +1032,9 @@ double* vtkTriQuadraticPyramid::GetParametricCoords()
 // because the parametric coordinates on the Z axis are between 0.5 and 1.
 double vtkTriQuadraticPyramid::GetParametricDistance(const double pcoords[3])
 {
-  int i;
   double pDist, pDistMax = 0.0;
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     if (i < 2 && pcoords[i] < 0.0) // this is for X and Y
     {
