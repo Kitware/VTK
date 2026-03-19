@@ -135,14 +135,14 @@ public:
 
 protected:
   vtkQuadraticLinearWedge();
-  ~vtkQuadraticLinearWedge() override;
+  ~vtkQuadraticLinearWedge() override = default;
 
-  vtkQuadraticEdge* QuadEdge;
-  vtkLine* Edge;
-  vtkQuadraticTriangle* TriangleFace;
-  vtkQuadraticLinearQuad* Face;
-  vtkWedge* Wedge;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> QuadEdge;
+  vtkSmartPointer<vtkLine> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> TriangleFace;
+  vtkSmartPointer<vtkQuadraticLinearQuad> Face;
+  vtkSmartPointer<vtkWedge> Wedge;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticLinearWedge(const vtkQuadraticLinearWedge&) = delete;
