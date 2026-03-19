@@ -107,20 +107,17 @@ public:
    *
    * @note The return type changed. It used to be int*, it is now const vtkIdType*.
    * This is so ids are unified between vtkCell and vtkPoints.
-   *
-   * @note The return type changed. It used to be int*, it is now const vtkIdType*.
-   * This is so ids are unified between vtkCell and vtkPoints.
    */
-  static int* GetEdgeArray(vtkIdType edgeId);
+  static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
 
 protected:
   vtkQuadraticLinearQuad();
-  ~vtkQuadraticLinearQuad() override;
+  ~vtkQuadraticLinearQuad() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkLine* LinEdge;
-  vtkQuad* Quad;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkLine> LinearEdge;
+  vtkSmartPointer<vtkQuad> Quad;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
 private:
   vtkQuadraticLinearQuad(const vtkQuadraticLinearQuad&) = delete;
