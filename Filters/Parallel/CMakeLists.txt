@@ -16,6 +16,7 @@ set(classes
   vtkExtractUnstructuredGridPiece
   vtkExtractUserDefinedPiece
   vtkGenerateProcessIds
+  vtkGeometryFilterDispatcher
   vtkHyperTreeGridGenerateGlobalIds
   vtkHyperTreeGridGenerateProcessIds
   vtkHyperTreeGridGhostCellsGenerator

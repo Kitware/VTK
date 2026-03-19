@@ -33,6 +33,8 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::FiltersGeneric
+  VTK::FiltersTemporal
   VTK::IOLegacy
 TEST_DEPENDS
   VTK::FiltersFlowPaths
