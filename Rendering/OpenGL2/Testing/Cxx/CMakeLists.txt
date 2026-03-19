@@ -66,7 +66,9 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPBRMaterials.cxx
   TestPBRMaterialsCoat.cxx
   TestPBRTextureInterpolateScalars.cxx
+  TestPBRMultipleScatteringIBL.cxx
   TestPointFillPass.cxx
+
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperAnisotropic.cxx
   TestPointGaussianMapperOpacity.cxx
