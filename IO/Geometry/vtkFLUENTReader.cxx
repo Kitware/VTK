@@ -35,6 +35,7 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <algorithm>
 #include <optional>
 #include <sstream>
 
@@ -49,7 +50,7 @@ struct vtkFLUENTReader::Cell
 {
   int type;
   int zoneId;
-  std::vector<int> faceIndices;
+  std::vector<size_t> faceIndices;
   int parent;
   int child;
   std::vector<int> nodeIndices;
@@ -107,7 +108,7 @@ struct vtkFLUENTReader::VectorDataChunk
 struct vtkFLUENTReader::SubSection
 {
   int id;
-  int size;
+  size_t size;
   std::vector<int> zoneSectionIds;
 };
 
@@ -140,7 +141,7 @@ vtkMTimeType vtkFLUENTReader::GetMTime()
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::DisableZones(
-  std::vector<unsigned int>& disabledZones, bool& areAllZonesDisabled)
+  std::unordered_set<unsigned int>& disabledZones, bool& areAllZonesDisabled)
 {
   for (const auto& zoneSection : this->ZoneSections)
   {
@@ -151,7 +152,7 @@ void vtkFLUENTReader::DisableZones(
       (zoneSection.type + ":" + zoneSection.name).c_str());
     if (!isEnabled)
     {
-      disabledZones.push_back(zoneSection.id);
+      disabledZones.insert(zoneSection.id);
       if (position != this->CurrentZoneSections.end())
       {
         this->CurrentZoneSections.erase(position);
@@ -208,10 +209,10 @@ bool vtkFLUENTReader::AreCellsEnabled()
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::InitOutputBlocks(vtkMultiBlockDataSet* output,
-  std::vector<size_t>& zoneIDToBlockIdx,
+  std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
-  output->SetNumberOfBlocks(static_cast<int>(this->CurrentZoneSections.size()));
+  output->SetNumberOfBlocks(static_cast<unsigned int>(this->CurrentZoneSections.size()));
   for (unsigned int zoneIdx = 0; zoneIdx < this->CurrentZoneSections.size(); ++zoneIdx)
   {
     const auto& zoneSection = this->CurrentZoneSections[zoneIdx];
@@ -225,35 +226,7 @@ void vtkFLUENTReader::InitOutputBlocks(vtkMultiBlockDataSet* output,
     output->SetBlock(zoneIdx, blockUG);
     output->GetMetaData(zoneIdx)->Set(vtkCompositeDataSet::NAME(), blockName);
 
-    // Populate lookup map
-    if (zoneSection.id >= zoneIDToBlockIdx.size())
-    {
-      zoneIDToBlockIdx.resize(zoneSection.id + 1);
-    }
     zoneIDToBlockIdx[zoneSection.id] = zoneIdx;
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkFLUENTReader::DisableCellsAndFaces(std::vector<unsigned int>& disabledZones)
-{
-  this->CurrentCells.clear();
-  for (Cell& cell : this->Cells)
-  {
-    if (cell.zoneId != 0 &&
-      std::find(disabledZones.begin(), disabledZones.end(), cell.zoneId) == disabledZones.end())
-    {
-      this->CurrentCells.push_back(cell);
-    }
-  }
-  // Fill CurrentFaces with faces from enabled zone sections
-  this->CurrentFaces.clear();
-  for (Face& face : this->Faces)
-  {
-    if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) == disabledZones.end())
-    {
-      this->CurrentFaces.push_back(face);
-    }
   }
 }
 
@@ -278,15 +251,20 @@ void vtkFLUENTReader::GetArraysFromSubSections()
 }
 
 //------------------------------------------------------------------------------
-bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
-  std::vector<size_t>& zoneIDToBlockIdx,
+bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZones,
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
   // In this case, we generate a multiblock using the faces information so we can
   // still display the surface of this mesh.
-  if (this->CurrentCells.empty() && !this->CurrentFaces.empty() &&
-    this->Points->GetNumberOfPoints() > 0)
+  bool noCellEnabled = std::none_of(this->Cells.begin(), this->Cells.end(),
+    [&disabledZones](Cell& cell)
+    { return cell.zoneId != 0 && disabledZones.find(cell.zoneId) == disabledZones.end(); });
+  bool atLeastOneFaceEnabled = std::any_of(this->Faces.begin(), this->Faces.end(),
+    [&disabledZones](Face& face)
+    { return disabledZones.find(face.zoneId) == disabledZones.end(); });
+  if (noCellEnabled && atLeastOneFaceEnabled && this->Points->GetNumberOfPoints() > 0)
   {
     this->FillMultiBlockFromFaces(blockUGs, zoneIDToBlockIdx, disabledZones);
     return true;
@@ -301,12 +279,12 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
   vtkNew<vtkWedge> wedgeBuffer;
   vtkNew<vtkPolyhedron> polyhedronBuffer;
 
-  for (Cell& cell : this->CurrentCells)
+  for (Cell& cell : this->Cells)
   {
     vtkIdList* newCellPointIDs = nullptr;
     int newCellType = -1;
 
-    if (std::find(disabledZones.begin(), disabledZones.end(), cell.zoneId) != disabledZones.end())
+    if (disabledZones.find(cell.zoneId) != disabledZones.end())
     {
       continue;
     }
@@ -385,18 +363,18 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
     }
 
     // Insert main cell
-    size_t blockIdx = zoneIDToBlockIdx[cell.zoneId];
+    size_t blockIdx = zoneIDToBlockIdx.at(cell.zoneId);
     blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
 
     // Insert faces cells
     for (int faceIdx : cell.faceIndices)
     {
       const Face& face = this->Faces[faceIdx];
-      if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) != disabledZones.end())
+      if (disabledZones.find(face.zoneId) != disabledZones.end())
       {
         continue;
       }
-      blockIdx = zoneIDToBlockIdx[face.zoneId];
+      blockIdx = zoneIDToBlockIdx.at(face.zoneId);
       blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
     }
   }
@@ -404,19 +382,18 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::FillMultiblockData(std::vector<unsigned int>& disabledZones,
-  std::vector<size_t>& zoneIDToBlockIdx,
+void vtkFLUENTReader::FillMultiblockData(std::unordered_set<unsigned int>& disabledZones,
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   // Scalar Data
   for (const ScalarDataChunk& dataChunk : this->ScalarDataChunks)
   {
-    if (std::find(disabledZones.begin(), disabledZones.end(), dataChunk.zoneSectionId) !=
-      disabledZones.end())
+    if (disabledZones.find(dataChunk.zoneSectionId) != disabledZones.end())
     {
       continue;
     }
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneSectionId];
+    size_t blockIdx = zoneIDToBlockIdx.at(dataChunk.zoneSectionId);
     if (blockUGs[blockIdx]->GetNumberOfCells() == 0)
     {
       continue;
@@ -434,12 +411,11 @@ void vtkFLUENTReader::FillMultiblockData(std::vector<unsigned int>& disabledZone
   // Vector Data
   for (const VectorDataChunk& dataChunk : this->VectorDataChunks)
   {
-    if (std::find(disabledZones.begin(), disabledZones.end(), dataChunk.zoneSectionId) !=
-      disabledZones.end())
+    if (disabledZones.find(dataChunk.zoneSectionId) != disabledZones.end())
     {
       continue;
     }
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneSectionId];
+    size_t blockIdx = zoneIDToBlockIdx.at(dataChunk.zoneSectionId);
     if (blockUGs[blockIdx]->GetNumberOfCells() == 0)
     {
       continue;
@@ -467,7 +443,7 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
-  std::vector<unsigned int> disabledZones;
+  std::unordered_set<unsigned int> disabledZones;
   bool areAllZonesDisabled = true;
   this->DisableZones(disabledZones, areAllZonesDisabled);
 
@@ -498,14 +474,12 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->GetArraysFromSubSections();
 
   // zone ID -> block idx lookup map
-  std::vector<size_t> zoneIDToBlockIdx(this->CurrentZoneSections.size());
+  std::map<unsigned int, size_t> zoneIDToBlockIdx;
 
   // fast access to block UGs to avoid unnecessary SafeDowncast while looping over cells/faces
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>> blockUGs(this->CurrentZoneSections.size());
 
   this->InitOutputBlocks(output, zoneIDToBlockIdx, blockUGs);
-
-  this->DisableCellsAndFaces(disabledZones);
 
   this->FillMultiblock(disabledZones, zoneIDToBlockIdx, blockUGs);
 
@@ -515,8 +489,6 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->IsFilePreParsed = false;
     this->Cells.clear();
-    this->CurrentCells.clear();
-    this->CurrentFaces.clear();
     this->CurrentZoneSections.clear();
     this->DataZones.clear();
     this->Faces.clear();
@@ -2930,10 +2902,11 @@ void vtkFLUENTReader::GetNodesAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned zoneId, firstIndex, lastIndex;
+  unsigned zoneId;
+  size_t firstIndex, lastIndex;
   int type;
   std::optional<int> nd;
-  auto result = vtk::scan<unsigned, unsigned, unsigned, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
+  auto result = vtk::scan<unsigned, size_t, size_t, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
   if (result.has_value())
   {
     // ND parameter is present
@@ -2942,7 +2915,7 @@ void vtkFLUENTReader::GetNodesAscii()
   else
   {
     // ND parameter is ommited
-    auto result2 = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+    auto result2 = vtk::scan<unsigned, size_t, size_t, int>(info, "{:x} {:x} {:x} {:d}");
     std::tie(zoneId, firstIndex, lastIndex, type) = result2->values();
   }
   if (zoneId == 0)
@@ -2959,7 +2932,7 @@ void vtkFLUENTReader::GetNodesAscii()
     double x, y, z;
     if (this->GridDimension == 3)
     {
-      for (unsigned int i = firstIndex; i <= lastIndex; i++)
+      for (size_t i = firstIndex; i <= lastIndex; i++)
       {
         pdatastream >> x;
         pdatastream >> y;
@@ -2969,7 +2942,7 @@ void vtkFLUENTReader::GetNodesAscii()
     }
     else
     {
-      for (unsigned int i = firstIndex; i <= lastIndex; i++)
+      for (size_t i = firstIndex; i <= lastIndex; i++)
       {
         pdatastream >> x;
         pdatastream >> y;
@@ -2987,7 +2960,7 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+  auto result = vtk::scan<unsigned, size_t, size_t, int>(info, "{:x} {:x} {:x} {:d}");
   auto& [zoneId, firstIndex, lastIndex, type] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -2996,27 +2969,27 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
   double x, y, z;
   if (this->GridDimension == 3)
   {
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
-      x = this->GetCaseBufferFloat(static_cast<int>(ptr));
+      x = this->GetCaseBufferFloat(ptr);
       ptr = ptr + 4;
 
-      y = this->GetCaseBufferFloat(static_cast<int>(ptr));
+      y = this->GetCaseBufferFloat(ptr);
       ptr = ptr + 4;
 
-      z = this->GetCaseBufferFloat(static_cast<int>(ptr));
+      z = this->GetCaseBufferFloat(ptr);
       ptr = ptr + 4;
       this->Points->InsertPoint(i - 1, x, y, z);
     }
   }
   else
   {
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
-      x = this->GetCaseBufferFloat(static_cast<int>(ptr));
+      x = this->GetCaseBufferFloat(ptr);
       ptr = ptr + 4;
 
-      y = this->GetCaseBufferFloat(static_cast<int>(ptr));
+      y = this->GetCaseBufferFloat(ptr);
       ptr = ptr + 4;
 
       z = 0.0;
@@ -3034,7 +3007,7 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+  auto result = vtk::scan<unsigned, size_t, size_t, int>(info, "{:x} {:x} {:x} {:d}");
   auto& [zoneId, firstIndex, lastIndex, type] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3042,27 +3015,27 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
 
   if (this->GridDimension == 3)
   {
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
-      double x = this->GetCaseBufferDouble(static_cast<int>(ptr));
+      double x = this->GetCaseBufferDouble(ptr);
       ptr = ptr + 8;
 
-      double y = this->GetCaseBufferDouble(static_cast<int>(ptr));
+      double y = this->GetCaseBufferDouble(ptr);
       ptr = ptr + 8;
 
-      double z = this->GetCaseBufferDouble(static_cast<int>(ptr));
+      double z = this->GetCaseBufferDouble(ptr);
       ptr = ptr + 8;
       this->Points->InsertPoint(i - 1, x, y, z);
     }
   }
   else
   {
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
-      double x = this->GetCaseBufferDouble(static_cast<int>(ptr));
+      double x = this->GetCaseBufferDouble(ptr);
       ptr = ptr + 8;
 
-      double y = this->GetCaseBufferDouble(static_cast<int>(ptr));
+      double y = this->GetCaseBufferDouble(ptr);
       ptr = ptr + 8;
 
       this->Points->InsertPoint(i - 1, x, y, 0.0);
@@ -3080,14 +3053,13 @@ void vtkFLUENTReader::GetCellsAscii()
 
   if (info[0] == '0')
   { // Cell Info
-    auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+    auto result = vtk::scan<unsigned, size_t, size_t, int>(info, "{:x} {:x} {:x} {:d}");
     auto& [zoneId, firstIndex, lastIndex, type] = result->values();
     this->Cells.resize(lastIndex);
   }
   else
   { // Cell Definitions
-    auto result =
-      vtk::scan<unsigned, unsigned, unsigned, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
+    auto result = vtk::scan<unsigned, size_t, size_t, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
     auto& [zoneId, firstIndex, lastIndex, type, elementType] = result->values();
 
     if (elementType == 0)
@@ -3096,7 +3068,7 @@ void vtkFLUENTReader::GetCellsAscii()
       size_t dend = this->FluentBuffer.find(')', dstart + 1);
       std::string pdata = this->FluentBuffer.substr(dstart + 1, dend - infoStart - 1);
       std::stringstream pdatastream(pdata);
-      for (unsigned int i = firstIndex; i <= lastIndex; i++)
+      for (size_t i = firstIndex; i <= lastIndex; i++)
       {
         Cell& cell = this->Cells[i - 1];
 
@@ -3108,7 +3080,7 @@ void vtkFLUENTReader::GetCellsAscii()
     }
     else
     {
-      for (unsigned int i = firstIndex; i <= lastIndex; i++)
+      for (size_t i = firstIndex; i <= lastIndex; i++)
       {
         Cell& cell = this->Cells[i - 1];
 
@@ -3130,18 +3102,18 @@ void vtkFLUENTReader::GetCellsBinary()
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
   auto result =
-    vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+    vtk::scan<unsigned, size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
   auto& [zoneId, firstIndex, lastIndex, type, elementType] = result->values();
 
   if (elementType == 0)
   {
     size_t dstart = this->FluentBuffer.find('(', infoEnd);
     size_t ptr = dstart + 1;
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
       Cell& cell = this->Cells[i - 1];
 
-      cell.type = this->GetCaseBufferInt(static_cast<int>(ptr));
+      cell.type = this->GetCaseBufferInt(ptr);
       cell.zoneId = zoneId;
       cell.parent = 0;
       cell.child = 0;
@@ -3151,7 +3123,7 @@ void vtkFLUENTReader::GetCellsBinary()
   }
   else
   {
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
       Cell& cell = this->Cells[i - 1];
 
@@ -3173,7 +3145,7 @@ bool vtkFLUENTReader::GetFacesAscii()
 
   if (info[0] == '0')
   { // Face Info
-    auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+    auto result = vtk::scan<unsigned, size_t, size_t, unsigned>(info, "{:x} {:x} {:x} {:x}");
     auto& [zoneId, firstIndex, lastIndex, bcType] = result->values();
 
     this->Faces.resize(lastIndex);
@@ -3181,7 +3153,7 @@ bool vtkFLUENTReader::GetFacesAscii()
   else
   { // Face Definitions
     auto result =
-      vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+      vtk::scan<unsigned, size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
     auto& [zoneId, firstIndex, lastIndex, bcType, faceType] = result->values();
 
     size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3190,7 +3162,7 @@ bool vtkFLUENTReader::GetFacesAscii()
     std::stringstream pdatastream(pdata);
 
     int numberOfNodesInFace = 0;
-    for (unsigned int i = firstIndex; i <= lastIndex; i++)
+    for (size_t i = firstIndex; i <= lastIndex; i++)
     {
       if (faceType == 0 || faceType == 5)
       {
@@ -3261,17 +3233,17 @@ void vtkFLUENTReader::GetFacesBinary()
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
   auto result =
-    vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+    vtk::scan<unsigned, size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
   auto& [zoneId, firstIndex, lastIndex, bcType, faceType] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   int numberOfNodesInFace = 0;
   size_t ptr = dstart + 1;
-  for (unsigned int i = firstIndex; i <= lastIndex; i++)
+  for (size_t i = firstIndex; i <= lastIndex; i++)
   {
     if ((faceType == 0) || (faceType == 5))
     {
-      numberOfNodesInFace = this->GetCaseBufferInt(static_cast<int>(ptr));
+      numberOfNodesInFace = this->GetCaseBufferInt(ptr);
       ptr = ptr + 4;
     }
     else
@@ -3285,14 +3257,14 @@ void vtkFLUENTReader::GetFacesBinary()
 
     for (int k = 0; k < numberOfNodesInFace; k++)
     {
-      face.nodeIndices[k] = this->GetCaseBufferInt(static_cast<int>(ptr));
+      face.nodeIndices[k] = this->GetCaseBufferInt(ptr);
       face.nodeIndices[k]--;
       ptr = ptr + 4;
     }
 
-    face.c0 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    face.c0 = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
-    face.c1 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    face.c1 = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     face.c0--;
     face.c1--;
@@ -3433,10 +3405,17 @@ bool vtkFLUENTReader::ReadZoneSection(int limit)
   }
 
   ZoneSection zoneSection;
-  zoneSection.id = vtk::scan_int<int>(tokens[0])->value();
+  zoneSection.id = vtk::scan_int<unsigned int>(tokens[0])->value();
   zoneSection.name = tokens[1];
   zoneSection.type = tokens[2];
-  zoneSection.domainId = !tokens[3].empty() ? vtk::scan_int<int>(tokens[3])->value() : 0;
+  if (auto scannedValue = vtk::scan_int<unsigned int>(tokens[3]))
+  {
+    zoneSection.domainId = scannedValue->value();
+  }
+  else
+  {
+    zoneSection.domainId = 0;
+  }
 
   this->ZoneSections.push_back(zoneSection);
   return true;
@@ -3450,7 +3429,7 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [firstIndex, lastIndex, periodicZone, shadowZone] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3458,8 +3437,8 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   std::string pdata = this->FluentBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
-  int faceIndex1, faceIndex2;
-  for (unsigned int i = firstIndex; i <= lastIndex; i++)
+  size_t faceIndex1, faceIndex2;
+  for (size_t i = firstIndex; i <= lastIndex; i++)
   {
     pdatastream >> hex >> faceIndex1;
     pdatastream >> hex >> faceIndex2;
@@ -3475,20 +3454,20 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [firstIndex, lastIndex, periodicZone, shadowZone] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   // int faceIndex1, faceIndex2;
-  for (unsigned int i = firstIndex; i <= lastIndex; i++)
+  for (size_t i = firstIndex; i <= lastIndex; i++)
   {
     // faceIndex1 = this->GetCaseBufferInt(ptr);
-    this->GetCaseBufferInt(static_cast<int>(ptr));
+    this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     // faceIndex2 = this->GetCaseBufferInt(ptr);
-    this->GetCaseBufferInt(static_cast<int>(ptr));
+    this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
   }
 }
@@ -3501,7 +3480,7 @@ void vtkFLUENTReader::GetCellTreeAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [cellId0, cellId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3510,7 +3489,7 @@ void vtkFLUENTReader::GetCellTreeAscii()
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
-  for (unsigned int i = cellId0; i <= cellId1; i++)
+  for (size_t i = cellId0; i <= cellId1; i++)
   {
     this->Cells[i - 1].parent = 1;
     pdatastream >> hex >> numberOfKids;
@@ -3525,27 +3504,26 @@ void vtkFLUENTReader::GetCellTreeAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellTreeBinary()
 {
-
   const size_t infoStart = this->FluentBuffer.find('(', 1);
   const size_t infoEnd = this->FluentBuffer.find(')', 1);
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [cellId0, cellId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
-  for (unsigned int i = cellId0; i <= cellId1; i++)
+  for (size_t i = cellId0; i <= cellId1; i++)
   {
     this->Cells[i - 1].parent = 1;
-    numberOfKids = this->GetCaseBufferInt(static_cast<int>(ptr));
+    numberOfKids = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
     {
-      kid = this->GetCaseBufferInt(static_cast<int>(ptr));
+      kid = this->GetCaseBufferInt(ptr);
       ptr = ptr + 4;
       this->Cells[kid - 1].child = 1;
     }
@@ -3560,7 +3538,7 @@ void vtkFLUENTReader::GetFaceTreeAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [faceId0, faceId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3569,7 +3547,7 @@ void vtkFLUENTReader::GetFaceTreeAscii()
   std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
-  for (unsigned int i = faceId0; i <= faceId1; i++)
+  for (size_t i = faceId0; i <= faceId1; i++)
   {
     this->Faces[i - 1].parent = 1;
     pdatastream >> hex >> numberOfKids;
@@ -3589,21 +3567,21 @@ void vtkFLUENTReader::GetFaceTreeBinary()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto result = vtk::scan<size_t, size_t, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
   auto& [faceId0, faceId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int numberOfKids, kid;
-  for (unsigned int i = faceId0; i <= faceId1; i++)
+  for (size_t i = faceId0; i <= faceId1; i++)
   {
     this->Faces[i - 1].parent = 1;
-    numberOfKids = this->GetCaseBufferInt(static_cast<int>(ptr));
+    numberOfKids = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     for (int j = 0; j < numberOfKids; j++)
     {
-      kid = this->GetCaseBufferInt(static_cast<int>(ptr));
+      kid = this->GetCaseBufferInt(ptr);
       ptr = ptr + 4;
       this->Faces[kid - 1].child = 1;
     }
@@ -3618,7 +3596,7 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned>(info, "{:x} {:x}");
+  auto result = vtk::scan<size_t, size_t>(info, "{:x} {:x}");
   auto& [faceId0, faceId1] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3626,8 +3604,8 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   std::string pdata = this->FluentBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
-  int parentId0, parentId1;
-  for (unsigned int i = faceId0; i <= faceId1; i++)
+  size_t parentId0, parentId1;
+  for (size_t i = faceId0; i <= faceId1; i++)
   {
     pdatastream >> hex >> parentId0;
     pdatastream >> hex >> parentId1;
@@ -3645,18 +3623,18 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<unsigned, unsigned>(info, "{:x} {:x}");
+  auto result = vtk::scan<size_t, size_t>(info, "{:x} {:x}");
   auto& [faceId0, faceId1] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int parentId0, parentId1;
-  for (unsigned int i = faceId0; i <= faceId1; i++)
+  for (size_t i = faceId0; i <= faceId1; i++)
   {
-    parentId0 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    parentId0 = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
-    parentId1 = this->GetCaseBufferInt(static_cast<int>(ptr));
+    parentId1 = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     this->Faces[parentId0 - 1].interfaceFaceParent = 1;
     this->Faces[parentId1 - 1].interfaceFaceParent = 1;
@@ -3672,7 +3650,7 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<int, int, int>(info, "{:d} {:d} {:d}");
+  auto result = vtk::scan<size_t, size_t, size_t>(info, "{:d} {:d} {:d}");
   auto& [kidId, parentId, numberOfFaces] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
@@ -3680,8 +3658,8 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   std::string pdata = this->FluentBuffer.substr(dstart + 1, dend - infoStart - 1);
   std::stringstream pdatastream(pdata);
 
-  int child, parent;
-  for (int i = 0; i < numberOfFaces; i++)
+  size_t child, parent;
+  for (size_t i = 0; i < numberOfFaces; i++)
   {
     pdatastream >> hex >> child;
     pdatastream >> hex >> parent;
@@ -3698,18 +3676,18 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
   const auto info =
     std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  auto result = vtk::scan<int, int, int>(info, "{:d} {:d} {:d}");
+  auto result = vtk::scan<size_t, size_t, size_t>(info, "{:d} {:d} {:d}");
   auto& [kidId, parentId, numberOfFaces] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
 
   int child, parent;
-  for (int i = 0; i < numberOfFaces; i++)
+  for (size_t i = 0; i < numberOfFaces; i++)
   {
-    child = this->GetCaseBufferInt(static_cast<int>(ptr));
+    child = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
-    parent = this->GetCaseBufferInt(static_cast<int>(ptr));
+    parent = this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     this->Faces[child - 1].ncgChild = 1;
     this->Faces[parent - 1].ncgParent = 1;
@@ -3793,7 +3771,7 @@ void vtkFLUENTReader::PopulateCellNodes()
 }
 
 //------------------------------------------------------------------------------
-int vtkFLUENTReader::GetCaseBufferInt(int ptr)
+int vtkFLUENTReader::GetCaseBufferInt(size_t ptr)
 {
   union mix_i
   {
@@ -3816,7 +3794,7 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 }
 
 //------------------------------------------------------------------------------
-float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
+float vtkFLUENTReader::GetCaseBufferFloat(size_t ptr)
 {
   union mix_f
   {
@@ -3839,7 +3817,7 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 }
 
 //------------------------------------------------------------------------------
-double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
+double vtkFLUENTReader::GetCaseBufferDouble(size_t ptr)
 {
   union mix_i
   {
@@ -4416,7 +4394,7 @@ void vtkFLUENTReader::PopulatePolyhedronCell(size_t cellIdx)
 }
 
 //------------------------------------------------------------------------------
-int vtkFLUENTReader::GetDataBufferInt(int ptr)
+int vtkFLUENTReader::GetDataBufferInt(size_t ptr)
 {
   union mix_i
   {
@@ -4439,7 +4417,7 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
 }
 
 //------------------------------------------------------------------------------
-float vtkFLUENTReader::GetDataBufferFloat(int ptr)
+float vtkFLUENTReader::GetDataBufferFloat(size_t ptr)
 {
   union mix_f
   {
@@ -4462,7 +4440,7 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 }
 
 //------------------------------------------------------------------------------
-double vtkFLUENTReader::GetDataBufferDouble(int ptr)
+double vtkFLUENTReader::GetDataBufferDouble(size_t ptr)
 {
   union mix_i
   {
@@ -4491,7 +4469,8 @@ void vtkFLUENTReader::GetData(int dataType)
   size_t infoEnd = this->DataBuffer.find(')', 1);
   std::string info = this->DataBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
   std::stringstream infostream(info);
-  int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
+  int subSectionId, zoneId, nTimeLevels, nPhases;
+  size_t size, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >> firstId >> lastId;
 
   // Set up stream or pointer to data
@@ -4528,7 +4507,7 @@ void vtkFLUENTReader::GetData(int dataType)
     this->ScalarDataChunks.resize(this->ScalarDataChunks.size() + 1);
     this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].subsectionId = subSectionId;
     this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].zoneSectionId = zoneId;
-    for (int i = firstId; i <= lastId; i++)
+    for (size_t i = firstId; i <= lastId; i++)
     {
       double temp;
       if (dataType == 1)
@@ -4537,12 +4516,12 @@ void vtkFLUENTReader::GetData(int dataType)
       }
       else if (dataType == 2)
       {
-        temp = this->GetDataBufferFloat(static_cast<int>(ptr));
+        temp = this->GetDataBufferFloat(ptr);
         ptr = ptr + 4;
       }
       else
       {
-        temp = this->GetDataBufferDouble(static_cast<int>(ptr));
+        temp = this->GetDataBufferDouble(ptr);
         ptr = ptr + 8;
       }
       this->ScalarDataChunks[this->ScalarDataChunks.size() - 1].scalarData.push_back(temp);
@@ -4554,7 +4533,7 @@ void vtkFLUENTReader::GetData(int dataType)
     this->VectorDataChunks.resize(this->VectorDataChunks.size() + 1);
     this->VectorDataChunks[this->VectorDataChunks.size() - 1].subsectionId = subSectionId;
     this->VectorDataChunks[this->VectorDataChunks.size() - 1].zoneSectionId = zoneId;
-    for (int i = firstId; i <= lastId; i++)
+    for (size_t i = firstId; i <= lastId; i++)
     {
       double tempx, tempy, tempz;
 
@@ -4566,20 +4545,20 @@ void vtkFLUENTReader::GetData(int dataType)
       }
       else if (dataType == 2)
       {
-        tempx = this->GetDataBufferFloat(static_cast<int>(ptr));
+        tempx = this->GetDataBufferFloat(ptr);
         ptr = ptr + 4;
-        tempy = this->GetDataBufferFloat(static_cast<int>(ptr));
+        tempy = this->GetDataBufferFloat(ptr);
         ptr = ptr + 4;
-        tempz = this->GetDataBufferFloat(static_cast<int>(ptr));
+        tempz = this->GetDataBufferFloat(ptr);
         ptr = ptr + 4;
       }
       else
       {
-        tempx = this->GetDataBufferDouble(static_cast<int>(ptr));
+        tempx = this->GetDataBufferDouble(ptr);
         ptr = ptr + 8;
-        tempy = this->GetDataBufferDouble(static_cast<int>(ptr));
+        tempy = this->GetDataBufferDouble(ptr);
         ptr = ptr + 8;
-        tempz = this->GetDataBufferDouble(static_cast<int>(ptr));
+        tempz = this->GetDataBufferDouble(ptr);
         ptr = ptr + 8;
       }
       this->VectorDataChunks[this->VectorDataChunks.size() - 1].iComponentData.push_back(tempx);
@@ -4705,21 +4684,23 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::FillMultiBlockFromFaces(
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
-  const std::vector<size_t>& zoneIDToBlockIdx, std::vector<unsigned int> disabledZones)
+  const std::map<unsigned int, size_t>& zoneIDToBlockIdx,
+  std::unordered_set<unsigned int>& disabledZones)
 {
   vtkNew<vtkLine> lineBuffer;
   vtkNew<vtkTriangle> triangleBuffer;
   vtkNew<vtkTetra> tetraBuffer;
-  for (size_t i = 0; i < this->CurrentFaces.size(); ++i)
+  for (size_t i = 0; i < this->Faces.size(); ++i)
   {
-    auto& face = this->CurrentFaces[i];
-    auto blockIdx = zoneIDToBlockIdx[face.zoneId];
-    auto& blockUG = blockUGs[blockIdx];
-
-    if (std::find(disabledZones.begin(), disabledZones.end(), face.zoneId) != disabledZones.end())
+    auto& face = this->Faces[i];
+    if (disabledZones.find(face.zoneId) != disabledZones.end() ||
+      !(face.type == 2 || face.type == 3 || face.type == 4))
     {
       continue;
     }
+
+    auto blockIdx = zoneIDToBlockIdx.at(face.zoneId);
+    auto& blockUG = blockUGs[blockIdx];
 
     if (face.type == 2)
     {
@@ -4730,8 +4711,7 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
 
       blockUG->InsertNextCell(lineBuffer->GetCellType(), lineBuffer->GetPointIds());
     }
-
-    if (face.type == 3)
+    else if (face.type == 3)
     {
       for (int j = 0; j < 3; j++)
       {
@@ -4740,7 +4720,6 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
 
       blockUG->InsertNextCell(triangleBuffer->GetCellType(), triangleBuffer->GetPointIds());
     }
-
     else if (face.type == 4)
     {
       for (int j = 0; j < 4; j++)
