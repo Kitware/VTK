@@ -9,7 +9,7 @@
  *
  * There are two modes of extraction depending on the data member
  * UseAllPoints, If UseAllPoints is enabled, then the output points contain
- * all of the input points, and the point ids of the output lines (i.e.,
+ * all the input points, and the point ids of the output lines (i.e.,
  * edges) remain unchanged from the input point numbering.  If UseAllPoints
  * is disabled (which is the default), then the numbering of the output points
  * may change, and any unused points are omitted from the filter output.
@@ -18,7 +18,7 @@
  * If present in the filter input, output cell data is produced for the
  * output edges. Since an edge may be used by more than one cell, this is
  * potentially an undefined behavior. To ensure deterministic output, the
- * cell data from the cell with smallest cell id is copied to the output
+ * cell data from the cell with the smallest cell id is copied to the output
  * edge.
  *
  * @sa
@@ -28,6 +28,7 @@
 #ifndef vtkExtractEdges_h
 #define vtkExtractEdges_h
 
+#include "vtkDeprecation.h"             // VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h"       // For export macro
 #include "vtkIncrementalPointLocator.h" // Support vtkSmartPointer<>
 #include "vtkPolyDataAlgorithm.h"
@@ -53,13 +54,16 @@ public:
    * Set / get a spatial locator for merging points. By default an instance
    * of vtkMergePoints is used.
    */
+  VTK_DEPRECATED_IN_9_7_0("No longer needed")
   vtkSetSmartPointerMacro(Locator, vtkIncrementalPointLocator);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed")
   vtkGetSmartPointerMacro(Locator, vtkIncrementalPointLocator);
   ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.
    */
+  VTK_DEPRECATED_IN_9_7_0("No longer needed")
   void CreateDefaultLocator();
 
   ///@{
