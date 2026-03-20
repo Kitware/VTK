@@ -484,7 +484,7 @@ struct AnnularBinIterator : public InternalAnnularBinIterator
       if (this->Level >= this->LEVEL_QUERY_THRESHOLD)
       {
         // See if the bin is outside of the Circumflower / radius of security
-        double min[2], max[2];
+        double min[3], max[3];
         this->Bins->GetBucketBounds(PIter.IJ[0], PIter.IJ[1], min, max);
         if (!IntersectsCircle(min, max, this->X, rad22))
         {
