@@ -702,7 +702,7 @@ void vtkDataSetAttributesFieldList::InterpolatePoint(int inputIndex, vtkDataSetA
       {
         vtkIdType numIds = inputIds->GetNumberOfIds();
         vtkIdType maxId = inputIds->GetId(0);
-        vtkIdType maxWeight = 0.;
+        double maxWeight = 0.;
         for (int j = 0; j < numIds; j++)
         {
           if (weights[j] > maxWeight)
