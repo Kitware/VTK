@@ -53,7 +53,7 @@ class _DataArraySelectionMixin:
     def __repr__(self):
         n = self.GetNumberOfArrays()
         enabled = sum(1 for i in range(n) if self.GetArraySetting(i))
-        return "vtkDataArraySelection(%d arrays, %d enabled)" % (n, enabled)
+        return f"vtkDataArraySelection({n} arrays, {enabled} enabled)"
 
 
 @vtkDataArraySelection.override
