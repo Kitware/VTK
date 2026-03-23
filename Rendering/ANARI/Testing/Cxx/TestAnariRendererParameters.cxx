@@ -8,10 +8,46 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRenderer.h"
 #include "vtkLogger.h"
+#include "vtkStringFormatter.h"
 #include "vtkTesting.h"
+
 #include <anari/frontend/anari_enums.h>
 
 #include <iostream>
+
+namespace
+{
+
+/**
+ * Use this function to print a parameter that may be non existent (aka parameterValue == nullptr).
+ */
+void PrintOptionalParameterInfo(
+  const std::string& parameterName, int parameterType, const void* parameterValue)
+{
+  std::string parameterValueStr = "non existent";
+  if (parameterValue)
+  {
+    switch (parameterType)
+    {
+      case ANARI_BOOL:
+        parameterValueStr = *(static_cast<const int*>(parameterValue)) ? "true" : "false";
+        break;
+      case ANARI_INT16:
+        parameterValueStr = vtk::to_string(*static_cast<const int*>(parameterValue));
+        break;
+      case ANARI_FLOAT16:
+        parameterValueStr = vtk::to_string(*static_cast<const float*>(parameterValue));
+        break;
+      case ANARI_STRING:
+        parameterValueStr = *static_cast<const char*>(parameterValue);
+        break;
+    }
+  }
+
+  vtkLogF(INFO, "\t%s: %s", parameterName.c_str(), parameterValueStr.c_str());
+}
+
+}
 
 int TestAnariRendererParameters(int argc, char* argv[])
 {
@@ -54,41 +90,24 @@ int TestAnariRendererParameters(int argc, char* argv[])
   vtkLogF(INFO, "Found %zu renderer parameters.", renParams.size());
   for (auto iter = renParams.cbegin(); iter != renParams.cend(); ++iter)
   {
+    int parameterType = iter->second;
+
     vtkLogF(INFO, "----------------------------------------");
     vtkLogF(INFO, "Parameter: %s", iter->first.c_str());
     vtkLogF(INFO, "\tType: %d", iter->second);
-    vtkLogF(INFO, "\tDescription: %s", aren->GetRendererParameterDescription((*iter)).c_str());
+    std::string parameterDescription = aren->GetRendererParameterDescription(*iter);
+    ::PrintOptionalParameterInfo("Description", parameterType,
+      parameterDescription.empty() ? nullptr : parameterDescription.c_str());
     vtkLogF(INFO, "\tRequired: %s", aren->IsRendererParameterRequired((*iter)) ? "true" : "false");
-    switch (iter->second)
+
+    ::PrintOptionalParameterInfo("Default", parameterType, aren->GetRendererParameterValue(*iter));
+    ::PrintOptionalParameterInfo("Value", parameterType, aren->GetRendererParameterValue(*iter));
+    if (parameterType == ANARI_INT16 || parameterType == ANARI_FLOAT16)
     {
-      case ANARI_BOOL:
-        vtkLogF(INFO, "\tDefault: %s",
-          (*(static_cast<const int*>(aren->GetRendererParameterDefault((*iter))))) ? "true"
-                                                                                   : "false");
-        break;
-      case ANARI_INT16:
-        vtkLogF(INFO, "\tDefault: %d",
-          *(static_cast<const int*>(aren->GetRendererParameterDefault((*iter)))));
-        vtkLogF(INFO, "\tMinimum: %d",
-          *(static_cast<const int*>(aren->GetRendererParameterMinimum((*iter)))));
-        vtkLogF(INFO, "\tMaximum: %d",
-          *(static_cast<const int*>(aren->GetRendererParameterMaximum((*iter)))));
-        break;
-      case ANARI_FLOAT16:
-        vtkLogF(INFO, "\tDefault: %f",
-          *(static_cast<const float*>(aren->GetRendererParameterDefault((*iter)))));
-        vtkLogF(INFO, "\tMinimum: %f",
-          *(static_cast<const float*>(aren->GetRendererParameterMinimum((*iter)))));
-        vtkLogF(INFO, "\tMaximum: %f",
-          *(static_cast<const float*>(aren->GetRendererParameterMaximum((*iter)))));
-        break;
-      case ANARI_STRING:
-        vtkLogF(INFO, "\tDefault: %s",
-          static_cast<const char*>(aren->GetRendererParameterDefault((*iter))));
-        break;
-      default:
-        vtkLogF(INFO, "\tNot printing default/value/minimum/maximum for this type.");
-        break;
+      ::PrintOptionalParameterInfo(
+        "Minimum", parameterType, aren->GetRendererParameterMinimum(*iter));
+      ::PrintOptionalParameterInfo(
+        "Maximum", parameterType, aren->GetRendererParameterMaximum(*iter));
     }
   }
 
