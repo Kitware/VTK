@@ -13,7 +13,7 @@ If an application requires two observers to execute in a particular relative ord
 those observers with appropriate priorities. The behavior described here is maintained for legacy compatibility reasons
 only, and may be modified in the future.
 
-### Example Ordering
+## Example Ordering
 
 For example, adding four observers with default priority results in invocation order:
 
