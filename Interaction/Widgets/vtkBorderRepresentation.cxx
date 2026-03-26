@@ -13,7 +13,7 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
@@ -93,7 +93,7 @@ void vtkBorderRepresentation::ComputeRoundCorners()
   this->BWTransformFilter->Update();
 
   // Create round corners after the transform as we do not want to scale the corners
-  vtkPolyData* pd = this->BWTransformFilter->GetOutput();
+  vtkPolyData* pd = this->BWTransformFilter->GetPolyDataOutput();
   vtkNew<vtkPoints> pdPoints;
   pdPoints->DeepCopy(pd->GetPoints());
 

@@ -42,7 +42,7 @@ class vtkTextMapper;
 class vtkTextProperty;
 class vtkTexturedActor2D;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkProperty2D;
 
 class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkLegendBoxActor : public vtkActor2D
@@ -244,13 +244,13 @@ protected:
 
   vtkPolyData** Symbol;
   vtkTransform** Transform;
-  vtkTransformPolyDataFilter** SymbolTransform;
+  vtkTransformFilter** SymbolTransform;
   vtkPolyDataMapper2D** SymbolMapper;
   vtkActor2D** SymbolActor;
 
   vtkPlaneSource** Icon;
   vtkTransform** IconTransform;
-  vtkTransformPolyDataFilter** IconTransformFilter;
+  vtkTransformFilter** IconTransformFilter;
   vtkPolyDataMapper2D** IconMapper;
   vtkTexturedActor2D** IconActor;
   vtkImageData** IconImage;

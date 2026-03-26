@@ -24,7 +24,7 @@
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 
 #include <cmath>
@@ -83,8 +83,7 @@ int TestStencilWithPolyDataSurface(int, char*[])
   transform->Translate(9.111, -7.56, 1.0);
   transform->RotateWXYZ(30, 1.0, 0.5, 0.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
   transformFilter->SetTransform(transform);
   transformFilter->SetInputConnection(stripper->GetOutputPort());
 

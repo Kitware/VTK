@@ -19,7 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 //------------------------------------------------------------------------------
 int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -75,8 +75,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkSmartPointer<vtkMatrixToLinearTransform>::New();
   transform->SetInput(affineMatrix);
   transform->Update();
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
   transformFilter->SetTransform(transform);
   transformFilter->SetInputConnection(cube->GetOutputPort());
   transformFilter->Update();

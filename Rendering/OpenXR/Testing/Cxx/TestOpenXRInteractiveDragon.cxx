@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 //------------------------------------------------------------------------------
 int TestOpenXRInteractiveDragon(int argc, char* argv[])
@@ -56,7 +56,7 @@ int TestOpenXRInteractiveDragon(int argc, char* argv[])
   vtkNew<vtkTransform> trans;
   trans->Translate(10.0, 20.0, 30.0);
 
-  vtkNew<vtkTransformPolyDataFilter> tf;
+  vtkNew<vtkTransformFilter> tf;
   tf->SetTransform(trans);
   tf->SetInputConnection(reader->GetOutputPort());
 

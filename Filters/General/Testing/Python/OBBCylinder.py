@@ -4,7 +4,7 @@ from vtkmodules.vtkFiltersCore import vtkExtractEdges
 from vtkmodules.vtkFiltersGeneral import (
     vtkOBBTree,
     vtkSpatialRepresentationFilter,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersSources import vtkCylinderSource
 from vtkmodules.vtkRenderingCore import (
@@ -32,7 +32,7 @@ foo.RotateY(10)
 foo.RotateZ(27)
 foo.Scale(1, .7, .3)
 
-transPD = vtkTransformPolyDataFilter()
+transPD = vtkTransformFilter()
 transPD.SetInputConnection(cylinder.GetOutputPort())
 transPD.SetTransform(foo)
 

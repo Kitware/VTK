@@ -5,7 +5,7 @@ from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
 from vtkmodules.vtkFiltersGeneral import (
     vtkMultiBlockDataGroupFilter,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersHybrid import (
     vtkPCAAnalysisFilter,
@@ -42,11 +42,11 @@ transform1.Scale(1.3,1.1,0.8)
 transform2 = vtkTransform()
 transform2.Translate(0.3,0.7,0.1)
 transform2.Scale(1.0,0.1,1.8)
-transformer1 = vtkTransformPolyDataFilter()
+transformer1 = vtkTransformFilter()
 transformer1.SetInputConnection(sphere.GetOutputPort())
 transformer1.SetTransform(transform1)
 transformer1.Update()
-transformer2 = vtkTransformPolyDataFilter()
+transformer2 = vtkTransformFilter()
 transformer2.SetInputConnection(sphere.GetOutputPort())
 transformer2.SetTransform(transform2)
 transformer2.Update()

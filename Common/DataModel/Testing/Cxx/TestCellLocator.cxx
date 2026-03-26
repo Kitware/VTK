@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 
 #include "vtkRegressionTestImage.h"
@@ -44,8 +44,7 @@ int TestFindCellsAlongLine()
   trans->RotateY(9);
   trans->RotateZ(3);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformer = vtkSmartPointer<vtkTransformFilter>::New();
   transformer->SetInputConnection(clean->GetOutputPort());
   transformer->SetTransform(trans);
 

@@ -20,7 +20,7 @@
  * @sa
  * vtkGeneralTransform vtkWarpTransform vtkHomogeneousTransform
  * vtkLinearTransform vtkIdentityTransform
- * vtkTransformPolyDataFilter vtkTransformFilter vtkImageReslice
+ * vtkTransformFilter vtkTransformFilter vtkImageReslice
  * vtkImplicitFunction
  */
 

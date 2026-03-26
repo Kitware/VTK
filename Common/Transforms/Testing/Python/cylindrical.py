@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonTransforms import vtkCylindricalTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.vtkIOImage import vtkPNMReader
 from vtkmodules.vtkRenderingCore import (
@@ -32,14 +32,14 @@ plane.SetPoint2(1.0,0.0,1.0)
 plane.SetXResolution(19)
 plane.SetYResolution(9)
 transform = vtkCylindricalTransform()
-tpoly = vtkTransformPolyDataFilter()
+tpoly = vtkTransformFilter()
 tpoly.SetInputConnection(plane.GetOutputPort())
 tpoly.SetTransform(transform)
-tpoly2 = vtkTransformPolyDataFilter()
+tpoly2 = vtkTransformFilter()
 tpoly2.SetInputConnection(tpoly.GetOutputPort())
 tpoly2.SetTransform(transform.GetInverse())
 # also cover the inverse transformation by going back and forth
-tpoly3 = vtkTransformPolyDataFilter()
+tpoly3 = vtkTransformFilter()
 tpoly3.SetInputConnection(tpoly2.GetOutputPort())
 tpoly3.SetTransform(transform)
 mapper = vtkDataSetMapper()

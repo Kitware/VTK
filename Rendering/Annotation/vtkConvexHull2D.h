@@ -48,7 +48,7 @@ class vtkPolygon;
 class vtkPolyLine;
 class vtkRenderer;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 
 class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkConvexHull2D : public vtkPolyDataAlgorithm
 {
@@ -154,7 +154,7 @@ private:
   vtkSmartPointer<vtkCoordinate> Coordinate;
   vtkSmartPointer<vtkTransform> Transform;
   vtkSmartPointer<vtkTransform> OutputTransform;
-  vtkSmartPointer<vtkTransformPolyDataFilter> OutputTransformFilter;
+  vtkSmartPointer<vtkTransformFilter> OutputTransformFilter;
   vtkSmartPointer<vtkPolyLine> OutlineSource;
   vtkSmartPointer<vtkPolygon> HullSource;
 };

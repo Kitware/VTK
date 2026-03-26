@@ -12,7 +12,7 @@ from vtkmodules.vtkFiltersCore import (
 )
 from vtkmodules.vtkFiltersGeneral import (
     vtkDiscreteFlyingEdges2D,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersModeling import vtkContourLoopExtraction
 from vtkmodules.vtkImagingCore import vtkImageExtractComponents
@@ -105,7 +105,7 @@ transform = vtkTransform()
 transform.RotateZ(17)
 transform.Translate(0.1,0,0)
 
-xform = vtkTransformPolyDataFilter()
+xform = vtkTransformFilter()
 xform.SetInputData(pd)
 xform.SetTransform(transform)
 

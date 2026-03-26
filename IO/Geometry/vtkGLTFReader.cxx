@@ -14,15 +14,17 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkWeightedTransformFilter.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -411,7 +413,7 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       // Add material information to fieldData
       AddMaterialToFieldData(primitive.Material, meshPolyData->GetFieldData(), m);
 
-      vtkNew<vtkTransformPolyDataFilter> filter;
+      vtkNew<vtkTransformFilter> filter;
       filter->SetOutputPointsPrecision(outputPointsPrecision);
 
       // Morphing
@@ -451,7 +453,8 @@ bool BuildMultiBlockDatasetFromMesh(vtkGLTFDocumentLoader::Model& m, unsigned in
       }
       else
       {
-        filter->SetOutput(vtkPolyData::SafeDownCast(meshDataSet->GetBlock(blockId)));
+        filter->GetExecutive()->SetOutputData(
+          0, vtkPolyData::SafeDownCast(meshDataSet->GetBlock(blockId)));
       }
       filter->Update();
     }

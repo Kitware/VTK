@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkVolume16Reader.h"
 
 #include <iostream>

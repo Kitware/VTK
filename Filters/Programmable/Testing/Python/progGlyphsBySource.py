@@ -2,7 +2,7 @@
 from vtkmodules.vtkCommonExecutionModel import vtkCastToConcrete
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkElevationFilter
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersProgrammable import vtkProgrammableGlyphFilter
 from vtkmodules.vtkFiltersSources import (
     vtkPlaneSource,
@@ -42,7 +42,7 @@ squadColors.SetHighPoint(0.25,0.25,0.25)
 squadCaster = vtkCastToConcrete()
 squadCaster.SetInputConnection(squadColors.GetOutputPort())
 squadTransform = vtkTransform()
-transformSquad = vtkTransformPolyDataFilter()
+transformSquad = vtkTransformFilter()
 transformSquad.SetInputConnection(squadColors.GetOutputPort())
 transformSquad.SetTransform(squadTransform)
 transformSquad.Update()

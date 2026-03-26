@@ -26,7 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
@@ -120,14 +120,14 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   vtkTransform* t = vtkTransform::New();
   t->RotateZ(90.0);
 
-  vtkTransformPolyDataFilter* tpd = vtkTransformPolyDataFilter::New();
+  vtkTransformFilter* tpd = vtkTransformFilter::New();
   tpd->SetInputConnection(clean->GetOutputPort());
   tpd->SetTransform(t);
   clean->Delete();
   cylinder->Delete();
 
   tpd->Update();
-  this->SetActiveCursorShape(tpd->GetOutput());
+  this->SetActiveCursorShape(tpd->GetPolyDataOutput());
   tpd->Delete();
   t->Delete();
 

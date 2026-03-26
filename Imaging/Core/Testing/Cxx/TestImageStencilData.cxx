@@ -19,7 +19,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 #include "vtkTesting.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTrivialProducer.h"
 
 #include <iostream>
@@ -59,7 +59,7 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
   constexpr double m[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0, 0, 1 };
   vtkMatrixToLinearTransform* linearTransform = vtkMatrixToLinearTransform::New();
   linearTransform->GetMatrix()->DeepCopy(m);
-  vtkTransformPolyDataFilter* transformPolyData = vtkTransformPolyDataFilter::New();
+  vtkTransformFilter* transformPolyData = vtkTransformFilter::New();
   transformPolyData->SetInputConnection(extrudeFilter->GetOutputPort());
   transformPolyData->SetTransform(linearTransform);
   transformPolyData->Update();

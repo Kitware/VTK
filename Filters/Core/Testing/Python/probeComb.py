@@ -6,7 +6,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkProbeFilter,
     vtkStructuredGridOutlineFilter,
 )
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.vtkIOParallel import vtkMultiBlockPLOT3DReader
@@ -47,7 +47,7 @@ transP1 = vtkTransform()
 transP1.Translate(3.7,0.0,28.37)
 transP1.Scale(5,5,5)
 transP1.RotateY(90)
-tpd1 = vtkTransformPolyDataFilter()
+tpd1 = vtkTransformFilter()
 tpd1.SetInputConnection(plane.GetOutputPort())
 tpd1.SetTransform(transP1)
 outTpd1 = vtkOutlineFilter()
@@ -61,7 +61,7 @@ transP2 = vtkTransform()
 transP2.Translate(9.2,0.0,31.20)
 transP2.Scale(5,5,5)
 transP2.RotateY(90)
-tpd2 = vtkTransformPolyDataFilter()
+tpd2 = vtkTransformFilter()
 tpd2.SetInputConnection(plane.GetOutputPort())
 tpd2.SetTransform(transP2)
 outTpd2 = vtkOutlineFilter()
@@ -75,7 +75,7 @@ transP3 = vtkTransform()
 transP3.Translate(13.27,0.0,33.30)
 transP3.Scale(5,5,5)
 transP3.RotateY(90)
-tpd3 = vtkTransformPolyDataFilter()
+tpd3 = vtkTransformFilter()
 tpd3.SetInputConnection(plane.GetOutputPort())
 tpd3.SetTransform(transP3)
 outTpd3 = vtkOutlineFilter()

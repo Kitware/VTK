@@ -37,7 +37,7 @@ class vtkPropCollection;
 class vtkWindow;
 class vtkViewport;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkTextProperty;
 class vtkTextActor;
 
@@ -231,7 +231,7 @@ protected:
   vtkPoints* Points;
 
   vtkPolyData* Ring;
-  vtkTransformPolyDataFilter* RingXForm;
+  vtkTransformFilter* RingXForm;
   vtkPolyDataMapper2D* RingMapper;
   vtkActor2D* RingActor;
   vtkProperty2D* RingProperty;

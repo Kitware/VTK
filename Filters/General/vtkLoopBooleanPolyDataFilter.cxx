@@ -26,7 +26,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -620,15 +620,14 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
   vtkTriangle::TriangleCenter(points[0], points[1], points[2], center);
   transform->Translate(-center[0], -center[1], -center[2]);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformer = vtkSmartPointer<vtkTransformFilter>::New();
   transformer->SetInputData(cellPD);
   transformer->SetTransform(transform);
   transformer->SetContainerAlgorithm(this->ParentFilter);
   transformer->Update();
 
   vtkSmartPointer<vtkPolyData> transPD = vtkSmartPointer<vtkPolyData>::New();
-  transPD = transformer->GetOutput();
+  transPD = transformer->GetPolyDataOutput();
   transPD->BuildLinks();
 
   double area = 0;

@@ -32,7 +32,7 @@
 #include "vtkSimpleCellTessellator.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -128,7 +128,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
   vtkTransform* transp = vtkTransform::New();
   transp->Translate(0.5, 0.5, 0);
   transp->Scale(5, 5, 5);
-  vtkTransformPolyDataFilter* tpd = vtkTransformPolyDataFilter::New();
+  vtkTransformFilter* tpd = vtkTransformFilter::New();
   tpd->SetInputConnection(0, plane->GetOutputPort(0));
   plane->Delete();
   tpd->SetTransform(transp);

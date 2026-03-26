@@ -23,7 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTubeFilter.h"
 
 constexpr char TestOMWidgetEventLog[] = "# StreamVersion 1\n"
@@ -379,8 +379,7 @@ int TestOrientationMarkerWidget(int, char*[])
 
   vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
   vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
   transformFilter->SetTransform(transform);
 

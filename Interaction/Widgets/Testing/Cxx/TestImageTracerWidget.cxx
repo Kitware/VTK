@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkSplineWidget.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkVolume16Reader.h"
 
 #include "vtkTestUtilities.h"
@@ -472,8 +472,7 @@ int TestImageTracerWidget(int argc, char* argv[])
   extrude->SetExtrusionTypeToNormalExtrusion();
   extrude->SetVector(1, 0, 0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> filter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> filter = vtkSmartPointer<vtkTransformFilter>::New();
   filter->SetInputConnection(extrude->GetOutputPort());
   vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
   transform->Translate(-0.5, 0, 0);

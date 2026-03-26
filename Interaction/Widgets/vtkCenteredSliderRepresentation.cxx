@@ -22,7 +22,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
@@ -59,7 +59,7 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->Tube = nullptr;
   this->BuildTube();
 
-  this->TubeXForm = vtkTransformPolyDataFilter::New();
+  this->TubeXForm = vtkTransformFilter::New();
   this->TubeXForm->SetInputData(this->Tube);
   this->TubeXForm->SetTransform(this->XForm);
 
@@ -87,7 +87,7 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->Slider->SetPoints(this->Points);
   this->Slider->SetPolys(this->SliderCells);
 
-  this->SliderXForm = vtkTransformPolyDataFilter::New();
+  this->SliderXForm = vtkTransformFilter::New();
   this->SliderXForm->SetInputData(this->Slider);
   this->SliderXForm->SetTransform(XForm);
 

@@ -16,7 +16,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 
 static vtkSmartPointer<vtkActor> GetCubeBooleanOperationActor(double x, int operation)
@@ -129,8 +129,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   vtkSmartPointer<vtkTransform> rotator1 = vtkSmartPointer<vtkTransform>::New();
   rotator1->RotateWXYZ(degangle, rotateaxis);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> polyDataRotator1 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> polyDataRotator1 = vtkSmartPointer<vtkTransformFilter>::New();
   polyDataRotator1->SetInputData(cylinder1->GetOutput());
   polyDataRotator1->SetTransform(rotator1);
   polyDataRotator1->Update();
@@ -138,8 +137,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   vtkSmartPointer<vtkTransform> mover1 = vtkSmartPointer<vtkTransform>::New();
   mover1->Translate(x, -4.0, 0.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> polyDataMover1 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> polyDataMover1 = vtkSmartPointer<vtkTransformFilter>::New();
   polyDataMover1->SetInputData(polyDataRotator1->GetOutput());
   polyDataMover1->SetTransform(mover1);
   polyDataMover1->Update();
@@ -163,8 +161,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   vtkSmartPointer<vtkTransform> rotator2 = vtkSmartPointer<vtkTransform>::New();
   rotator2->RotateWXYZ(degangle, rotateaxis);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> polyDataRotator2 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> polyDataRotator2 = vtkSmartPointer<vtkTransformFilter>::New();
   polyDataRotator2->SetInputData(cylinder2->GetOutput());
   polyDataRotator2->SetTransform(rotator2);
   polyDataRotator2->Update();
@@ -172,8 +169,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   vtkSmartPointer<vtkTransform> mover2 = vtkSmartPointer<vtkTransform>::New();
   mover2->Translate(x, -4.0, 0.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> polyDataMover2 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> polyDataMover2 = vtkSmartPointer<vtkTransformFilter>::New();
   polyDataMover2->SetInputData(polyDataRotator2->GetOutput());
   polyDataMover2->SetTransform(mover2);
   polyDataMover2->Update();

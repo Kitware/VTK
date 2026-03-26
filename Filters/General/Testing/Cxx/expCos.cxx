@@ -18,7 +18,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkWarpScalar.h"
 
 int expCos(int, char*[])
@@ -42,8 +42,7 @@ int expCos(int, char*[])
   vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
   transform->Scale(10.0, 10.0, 1.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transF =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transF = vtkSmartPointer<vtkTransformFilter>::New();
   transF->SetInputConnection(plane->GetOutputPort());
   transF->SetTransform(transform);
   transF->Update();
@@ -51,7 +50,7 @@ int expCos(int, char*[])
   // compute Bessel function and derivatives. This portion could be
   // encapsulated into source or filter object.
   //
-  vtkSmartPointer<vtkPolyData> input = transF->GetOutput();
+  vtkSmartPointer<vtkPolyData> input = transF->GetPolyDataOutput();
   numPts = input->GetNumberOfPoints();
 
   vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();

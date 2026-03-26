@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonTransforms import vtkSphericalTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.vtkIOImage import vtkPNMReader
 from vtkmodules.vtkRenderingCore import (
@@ -35,16 +35,16 @@ plane.SetYResolution(9)
 
 transform = vtkSphericalTransform()
 
-tpoly = vtkTransformPolyDataFilter()
+tpoly = vtkTransformFilter()
 tpoly.SetInputConnection(plane.GetOutputPort())
 tpoly.SetTransform(transform)
 
 # also cover the inverse transformation by going back and forth
-tpoly2 = vtkTransformPolyDataFilter()
+tpoly2 = vtkTransformFilter()
 tpoly2.SetInputConnection(tpoly.GetOutputPort())
 tpoly2.SetTransform(transform.GetInverse())
 
-tpoly3 = vtkTransformPolyDataFilter()
+tpoly3 = vtkTransformFilter()
 tpoly3.SetInputConnection(tpoly2.GetOutputPort())
 tpoly3.SetTransform(transform)
 

@@ -15,7 +15,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 #include <algorithm>
 
@@ -36,7 +36,7 @@ vtkConvexHull2D::vtkConvexHull2D()
   this->Coordinate = vtkSmartPointer<vtkCoordinate>::New();
   this->Transform = vtkSmartPointer<vtkTransform>::New();
   this->OutputTransform = vtkSmartPointer<vtkTransform>::New();
-  this->OutputTransformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  this->OutputTransformFilter = vtkSmartPointer<vtkTransformFilter>::New();
   this->OutputTransformFilter->SetTransform(this->OutputTransform);
   this->OutlineSource = vtkSmartPointer<vtkPolyLine>::New();
   this->HullSource = vtkSmartPointer<vtkPolygon>::New();
@@ -270,7 +270,7 @@ int vtkConvexHull2D::RequestData(vtkInformation* vtkNotUsed(request),
   this->OutputTransform->Translate(-centre[0], -centre[1], -centre[2]);
   this->OutputTransformFilter->SetInputData(hullPolyData);
   this->OutputTransformFilter->Update();
-  hullPolyData = this->OutputTransformFilter->GetOutput();
+  hullPolyData = this->OutputTransformFilter->GetPolyDataOutput();
 
   // Account for current camera zoom level
   this->ResizeHullToMinimumInDisplay(hullPolyData);

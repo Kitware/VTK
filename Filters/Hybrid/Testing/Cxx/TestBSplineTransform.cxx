@@ -31,7 +31,7 @@
 #include <vtkSphereSource.h>
 #include <vtkTestUtilities.h>
 #include <vtkThinPlateSplineTransform.h>
-#include <vtkTransformPolyDataFilter.h>
+#include <vtkTransformFilter.h>
 #include <vtkTransformToGrid.h>
 
 int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -85,8 +85,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   thin->SetBasisToR2LogR();
 
   // First pane: thin-plate, no normals
-  vtkSmartPointer<vtkTransformPolyDataFilter> f11 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f11 = vtkSmartPointer<vtkTransformFilter>::New();
   f11->SetInputData(sphereData);
   f11->SetTransform(thin);
 
@@ -105,8 +104,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->AddRenderer(ren11);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f12 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f12 = vtkSmartPointer<vtkTransformFilter>::New();
   f12->SetInputData(sphereData);
   f12->SetTransform(thin->GetInverse());
 
@@ -138,8 +136,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkBSplineTransform> t2 = vtkSmartPointer<vtkBSplineTransform>::New();
   t2->SetCoefficientConnection(coeffs->GetOutputPort());
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> f21 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f21 = vtkSmartPointer<vtkTransformFilter>::New();
   f21->SetInputData(sphereData);
   f21->SetTransform(t2);
 
@@ -158,8 +155,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->AddRenderer(ren21);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f22 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f22 = vtkSmartPointer<vtkTransformFilter>::New();
   f22->SetInputData(sphereData);
   f22->SetTransform(t2->GetInverse());
 
@@ -178,8 +174,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->AddRenderer(ren22);
 
   // Third pane: thin-plate, no normals
-  vtkSmartPointer<vtkTransformPolyDataFilter> f31 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f31 = vtkSmartPointer<vtkTransformFilter>::New();
   f31->SetInputConnection(sphere->GetOutputPort());
   f31->SetTransform(thin);
 
@@ -198,8 +193,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->AddRenderer(ren31);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f32 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f32 = vtkSmartPointer<vtkTransformFilter>::New();
   f32->SetInputConnection(sphere->GetOutputPort());
   f32->SetTransform(thin->GetInverse());
 
@@ -221,8 +215,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkBSplineTransform> t4 = vtkSmartPointer<vtkBSplineTransform>::New();
   t4->SetCoefficientConnection(coeffs->GetOutputPort());
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> f41 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f41 = vtkSmartPointer<vtkTransformFilter>::New();
   f41->SetInputConnection(sphere->GetOutputPort());
   f41->SetTransform(t4);
 
@@ -241,8 +234,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   renWin->AddRenderer(ren41);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f42 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> f42 = vtkSmartPointer<vtkTransformFilter>::New();
   f42->SetInputConnection(sphere->GetOutputPort());
   f42->SetTransform(t4->GetInverse());
 

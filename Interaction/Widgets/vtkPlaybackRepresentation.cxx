@@ -15,7 +15,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaybackRepresentation);
@@ -148,7 +148,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   lines->Delete();
   polys->Delete();
 
-  this->TransformFilter = vtkTransformPolyDataFilter::New();
+  this->TransformFilter = vtkTransformFilter::New();
   this->TransformFilter->SetTransform(this->BWTransform);
   this->TransformFilter->SetInputData(this->PolyData);
 

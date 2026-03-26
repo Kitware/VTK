@@ -5,7 +5,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkCleanPolyData,
     vtkHedgeHog,
 )
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkConeSource
 from vtkmodules.vtkIOGeometry import vtkOBJReader
 from vtkmodules.vtkRenderingCore import (
@@ -50,7 +50,7 @@ cone.SetRadius(.1)
 
 transform = vtkTransform()
 transform.Translate(0.5, 0.0, 0.0)
-transformF = vtkTransformPolyDataFilter()
+transformF = vtkTransformFilter()
 transformF.SetInputConnection(cone.GetOutputPort())
 transformF.SetTransform(transform)
 

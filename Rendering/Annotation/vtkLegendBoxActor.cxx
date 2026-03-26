@@ -18,7 +18,7 @@
 #include "vtkTexture.h"
 #include "vtkTexturedActor2D.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkViewport.h"
 
 #include <iostream>
@@ -243,14 +243,14 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
     // Symbol
     vtkPolyData** symbol = new vtkPolyData*[num];
     vtkTransform** transform = new vtkTransform*[num];
-    vtkTransformPolyDataFilter** symbolTransform = new vtkTransformPolyDataFilter*[num];
+    vtkTransformFilter** symbolTransform = new vtkTransformFilter*[num];
     vtkPolyDataMapper2D** symbolMapper = new vtkPolyDataMapper2D*[num];
     vtkActor2D** symbolActor = new vtkActor2D*[num];
 
     // Icon.
     vtkPlaneSource** icon = new vtkPlaneSource*[num];
     vtkTransform** iconTransform = new vtkTransform*[num];
-    vtkTransformPolyDataFilter** iconTransformFilter = new vtkTransformPolyDataFilter*[num];
+    vtkTransformFilter** iconTransformFilter = new vtkTransformFilter*[num];
     vtkPolyDataMapper2D** iconMapper = new vtkPolyDataMapper2D*[num];
     vtkTexturedActor2D** iconActor = new vtkTexturedActor2D*[num];
     vtkImageData** iconImage = new vtkImageData*[num];
@@ -318,7 +318,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       // Symbol.
       symbol[i] = nullptr;
       transform[i] = vtkTransform::New();
-      symbolTransform[i] = vtkTransformPolyDataFilter::New();
+      symbolTransform[i] = vtkTransformFilter::New();
       symbolTransform[i]->SetTransform(transform[i]);
       symbolMapper[i] = vtkPolyDataMapper2D::New();
       symbolMapper[i]->SetInputConnection(symbolTransform[i]->GetOutputPort());
@@ -336,7 +336,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
 
       iconTransform[i] = vtkTransform::New();
 
-      iconTransformFilter[i] = vtkTransformPolyDataFilter::New();
+      iconTransformFilter[i] = vtkTransformFilter::New();
       iconTransformFilter[i]->SetTransform(iconTransform[i]);
 
       iconMapper[i] = vtkPolyDataMapper2D::New();

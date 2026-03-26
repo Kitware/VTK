@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkCylinderSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -14,7 +14,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This example demonstrates how to set up flexible joints using
-# the transformation pipeline and vtkTransformPolyDataFilter.
+# the transformation pipeline and vtkTransformFilter.
 # create a rendering window and renderer
 ren1 = vtkRenderer()
 renWin = vtkRenderWindow()
@@ -25,7 +25,7 @@ c1.SetHeight(1.6)
 c1.SetRadius(0.2)
 c1.SetCenter(0,0.8,0)
 t1 = vtkTransform()
-f1 = vtkTransformPolyDataFilter()
+f1 = vtkTransformFilter()
 f1.SetInputConnection(c1.GetOutputPort())
 f1.SetTransform(t1)
 m1 = vtkDataSetMapper()
@@ -45,7 +45,7 @@ t2 = vtkTransform()
 t2.SetInput(t1)
 t2.Translate(0,1.6,0)
 t2.Concatenate(joint1)
-f2 = vtkTransformPolyDataFilter()
+f2 = vtkTransformFilter()
 f2.SetInputConnection(c2.GetOutputPort())
 f2.SetTransform(t2)
 m2 = vtkDataSetMapper()
@@ -65,7 +65,7 @@ t3 = vtkTransform()
 t3.SetInput(t2)
 t3.Translate(0,1.6,0)
 t3.Concatenate(joint2)
-f3 = vtkTransformPolyDataFilter()
+f3 = vtkTransformFilter()
 f3.SetInputConnection(c3.GetOutputPort())
 f3.SetTransform(t3)
 m3 = vtkDataSetMapper()

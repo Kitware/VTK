@@ -55,7 +55,7 @@ public:
    * vtkConnectivityFilter, vtkDecimatePolylineFilter, vtkDecimatePro, vtkDelaunay3D,
    * vtkFeatureEdges, vtkGlyph3D, vtkHedgeHog, vtkMaskPoints, vtkPolyDataConnectivityFilter,
    * vtkSmoothPolyDataFilter, vtkStaticCleanPolyData, vtkThresholdPoints, vtkTubeFilter,
-   * vtkAppendPoints, vtkTransformFilter, vtkTransformPolyDataFilter,
+   * vtkAppendPoints, vtkTransformFilter,
    * vtkLinearToQuadraticCellsFilter, vtkProcrustesAlignmentFilter,
    * vtkAdaptiveSubdivisionFilter, vtkBoundedPointSource, vtkArcSource, vtkConeSource,
    * vtkCubeSource, vtkCylinderSource, vtkDiskSource, vtkEllipseArcSource,

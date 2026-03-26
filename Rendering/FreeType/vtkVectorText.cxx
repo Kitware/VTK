@@ -8,7 +8,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkTransformPolyDataFilter.h"
 
 #include <clocale>
 

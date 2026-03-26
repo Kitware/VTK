@@ -10,7 +10,7 @@
  * which the transformation occurs.
  *
  * @sa
- * vtkCoordinate vtkTransformFilter vtkTransformPolyData vtkPolyDataMapper2D
+ * vtkCoordinate vtkTransformFilter vtkPolyDataMapper2D
  */
 
 #ifndef vtkTransformCoordinateSystems_h

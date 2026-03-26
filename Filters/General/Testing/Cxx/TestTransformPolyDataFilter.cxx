@@ -3,9 +3,11 @@
 
 #include <vtkCellArray.h>
 #include <vtkMinimalStandardRandomSequence.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
-#include <vtkTransformPolyDataFilter.h>
+#include <vtkTransformFilter.h>
 
 #include <iostream>
 
@@ -80,8 +82,8 @@ int TransformPolyData(int dataType, int outputPointsPrecision)
   vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
   InitializeTransform(transform);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformPolyDataFilter =
+    vtkSmartPointer<vtkTransformFilter>::New();
   transformPolyDataFilter->SetOutputPointsPrecision(outputPointsPrecision);
 
   transformPolyDataFilter->SetTransform(transform);
@@ -89,13 +91,13 @@ int TransformPolyData(int dataType, int outputPointsPrecision)
 
   transformPolyDataFilter->Update();
 
-  vtkSmartPointer<vtkPolyData> outputPolyData = transformPolyDataFilter->GetOutput();
+  vtkSmartPointer<vtkPolyData> outputPolyData = transformPolyDataFilter->GetPolyDataOutput();
   vtkSmartPointer<vtkPoints> points = outputPolyData->GetPoints();
 
   return points->GetDataType();
 }
 
-bool IsFilterOutputEmpty(vtkTransformPolyDataFilter* transformPolyDataFilter)
+bool IsFilterOutputEmpty(vtkTransformFilter* transformPolyDataFilter)
 {
   transformPolyDataFilter->Update();
   vtkPoints* points = transformPolyDataFilter->GetOutput()->GetPoints();
@@ -104,7 +106,7 @@ bool IsFilterOutputEmpty(vtkTransformPolyDataFilter* transformPolyDataFilter)
 
 int TransformEmptyPolyData()
 {
-  vtkNew<vtkTransformPolyDataFilter> transformPolyDataFilter;
+  vtkNew<vtkTransformFilter> transformPolyDataFilter;
 
   vtkNew<vtkPolyData> inputPolyData;
   InitializePolyData(inputPolyData, VTK_DOUBLE);

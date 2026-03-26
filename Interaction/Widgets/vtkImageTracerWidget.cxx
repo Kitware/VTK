@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageTracerWidget);
@@ -70,7 +70,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->HandleGenerator->FilledOff();
   this->HandleGenerator->SetCenter(0, 0, 0);
 
-  this->TransformFilter = vtkTransformPolyDataFilter::New();
+  this->TransformFilter = vtkTransformFilter::New();
   this->Transform = vtkTransform::New();
   this->TransformFilter->SetTransform(this->Transform);
   this->Transform->Identity();

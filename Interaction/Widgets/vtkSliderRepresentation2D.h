@@ -33,7 +33,7 @@ class vtkPropCollection;
 class vtkWindow;
 class vtkViewport;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkTextProperty;
 class vtkTextMapper;
 class vtkTextActor;
@@ -156,21 +156,21 @@ protected:
 
   vtkCellArray* SliderCells;
   vtkPolyData* Slider;
-  vtkTransformPolyDataFilter* SliderXForm;
+  vtkTransformFilter* SliderXForm;
   vtkPolyDataMapper2D* SliderMapper;
   vtkActor2D* SliderActor;
   vtkProperty2D* SliderProperty;
 
   vtkCellArray* TubeCells;
   vtkPolyData* Tube;
-  vtkTransformPolyDataFilter* TubeXForm;
+  vtkTransformFilter* TubeXForm;
   vtkPolyDataMapper2D* TubeMapper;
   vtkActor2D* TubeActor;
   vtkProperty2D* TubeProperty;
 
   vtkCellArray* CapCells;
   vtkPolyData* Cap;
-  vtkTransformPolyDataFilter* CapXForm;
+  vtkTransformFilter* CapXForm;
   vtkPolyDataMapper2D* CapMapper;
   vtkActor2D* CapActor;
   vtkProperty2D* CapProperty;

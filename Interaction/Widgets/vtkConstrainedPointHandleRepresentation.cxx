@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
@@ -97,13 +97,12 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
   t->RotateZ(90.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> tpd =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> tpd = vtkSmartPointer<vtkTransformFilter>::New();
   tpd->SetInputConnection(0, clean->GetOutputPort(0));
   tpd->SetTransform(t);
   tpd->Update();
 
-  this->SetActiveCursorShape(tpd->GetOutput());
+  this->SetActiveCursorShape(tpd->GetPolyDataOutput());
 
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());

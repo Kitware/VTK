@@ -6,7 +6,7 @@ from vtkmodules.vtkFiltersCore import (
 )
 from vtkmodules.vtkFiltersGeneral import (
     vtkRemovePolyData,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersSources import (
     vtkPlaneSource,
@@ -46,7 +46,7 @@ sphere.Update()
 xform = vtkTransform()
 xform.Translate(0,0,-2)
 
-xformF = vtkTransformPolyDataFilter()
+xformF = vtkTransformFilter()
 xformF.SetInputConnection(plane.GetOutputPort())
 xformF.SetTransform(xform)
 

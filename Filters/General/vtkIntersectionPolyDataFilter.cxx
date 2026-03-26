@@ -23,7 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
@@ -975,13 +975,12 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl ::SplitCell(vtkPolyData* input
   fullpd->SetLines(lines);
   SplittingPD->DeepCopy(fullpd);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformer = vtkSmartPointer<vtkTransformFilter>::New();
   vtkSmartPointer<vtkPolyData> transformedpd = vtkSmartPointer<vtkPolyData>::New();
   transformer->SetInputData(fullpd);
   transformer->SetTransform(transform);
   transformer->Update();
-  transformedpd = transformer->GetOutput();
+  transformedpd = transformer->GetPolyDataOutput();
   transformedpd->BuildLinks();
 
   // If the triangle has intersecting lines and new points
@@ -1723,8 +1722,7 @@ int vtkIntersectionPolyDataFilter::Impl::GetLoopOrientation(
       testPoints->SetPoint(1, this->SplittingPD->GetPoint(ptId2));
     }
 
-    vtkSmartPointer<vtkTransformPolyDataFilter> newTransformer =
-      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    vtkSmartPointer<vtkTransformFilter> newTransformer = vtkSmartPointer<vtkTransformFilter>::New();
     newTransformer->SetInputData(testPD);
     newTransformer->SetTransform(newTransform);
     newTransformer->Update();
@@ -1756,14 +1754,13 @@ void vtkIntersectionPolyDataFilter::Impl ::Orient(
   // Orient this loop in a counter clockwise direction in preparation for
   // cell splitting. For delaunay2d, the polygon should be in CCW order, but
   // also for ear clipping method, it is nice to have also in CCW order.
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformer = vtkSmartPointer<vtkTransformFilter>::New();
   vtkSmartPointer<vtkPolyData> transformedpd = vtkSmartPointer<vtkPolyData>::New();
 
   transformer->SetInputData(pd);
   transformer->SetTransform(transform);
   transformer->Update();
-  transformedpd = transformer->GetOutput();
+  transformedpd = transformer->GetPolyDataOutput();
 
   double area = 0;
   double tedgept1[3];

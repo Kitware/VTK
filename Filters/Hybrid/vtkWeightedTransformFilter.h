@@ -53,7 +53,7 @@
  *
  *
  * @sa
- * vtkAbstractTransform vtkLinearTransform vtkTransformPolyDataFilter vtkActor
+ * vtkAbstractTransform vtkLinearTransform vtkTransformFilter vtkActor
  */
 
 #ifndef vtkWeightedTransformFilter_h
