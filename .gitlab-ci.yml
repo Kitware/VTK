@@ -2417,6 +2417,16 @@ documentation:upload:
         RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
 
+documentation:release-upload:
+    extends:
+        - .rsync_upload_versioned_docs
+        - .rules
+    needs:
+        - documentation:build
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+        RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
+
 source:build:
     extends:
         - .cmake_source_tarballs
