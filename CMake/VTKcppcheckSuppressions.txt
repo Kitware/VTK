@@ -498,6 +498,7 @@ unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
 uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
 variableScope:*/Wrapping/Tools/lex.yy.c
 variableScope:*/Wrapping/Tools/vtkParse.tab.c
+redundantInitialization:*/Wrapping/Tools/vtkParse.tab.c
 
 // 18 warnings
 redundantAssignment:*/Filters/General/vtkBoxClipDataSet.cxx

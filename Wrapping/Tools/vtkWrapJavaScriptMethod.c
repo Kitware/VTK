@@ -380,7 +380,7 @@ static void vtkWrapJavaScript_WriteSignature(FILE* fp, FunctionInfo* functionInf
   for (int i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
     ValueInfo* parameter = functionInfo->Parameters[i];
-    const char* tpname = "";
+    const char* tpname;
     const char* prefix = "";
     const char* ref_suffix = "";
     const char* ptr_suffix = "";

@@ -981,7 +981,7 @@ static void vtkWrapText_PythonTypeSignature(
 {
   char text[256];
   const char* dimension;
-  const char* classname = "";
+  const char* classname;
 
   if (vtkWrap_IsVoid(arg))
   {
