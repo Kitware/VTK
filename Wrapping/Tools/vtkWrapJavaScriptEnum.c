@@ -27,7 +27,7 @@
 
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */
-int vtkWrapJavaScript_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
+int vtkWrapJavaScript_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname)
 {
   int rval = 0;
   HierarchyEntry* entry;
@@ -46,7 +46,7 @@ int vtkWrapJavaScript_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
 
 /* -------------------------------------------------------------------- */
 /* find and mark all enum parameters by setting IsEnum=1 */
-void vtkWrapJavaScript_MarkAllEnums(NamespaceInfo* contents, HierarchyInfo* hinfo)
+void vtkWrapJavaScript_MarkAllEnums(NamespaceInfo* contents, const HierarchyInfo* hinfo)
 {
   FunctionInfo* currentFunction;
   int i, j, n, m, ii, nn;

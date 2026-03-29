@@ -10,7 +10,7 @@
 
 /* generate code that adds a constant value to a python dict */
 void vtkWrapPython_AddConstant(FILE* fp, const char* indent, const char* dictvar,
-  const char* objvar, const char* scope, ValueInfo* val);
+  const char* objvar, const char* scope, const ValueInfo* val);
 
 /* generate code that adds all public constants in a namespace */
 void vtkWrapPython_AddPublicConstants(

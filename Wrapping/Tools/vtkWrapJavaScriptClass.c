@@ -30,12 +30,12 @@
 #define DLOG(...) printf(__VA_ARGS__);
 #endif
 
-static int vtkWrapJavaScript_IsSpecialTypeWrappable(ClassInfo* data);
+static int vtkWrapJavaScript_IsSpecialTypeWrappable(const ClassInfo* data);
 
 /* -------------------------------------------------------------------- */
 /* For classes that aren't derived from vtkObjectBase, check to see if
  * they are wrappable */
-int vtkWrapJavaScript_IsSpecialTypeWrappable(ClassInfo* data)
+int vtkWrapJavaScript_IsSpecialTypeWrappable(const ClassInfo* data)
 {
   /* wrapping templates is only possible after template instantiation */
   if (data->Template)
@@ -55,7 +55,7 @@ int vtkWrapJavaScript_IsSpecialTypeWrappable(ClassInfo* data)
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
 const char* vtkWrapJavaScript_GetSuperClass(
-  ClassInfo* data, HierarchyInfo* hinfo, const char** supermodule)
+  ClassInfo* data, const HierarchyInfo* hinfo, const char** supermodule)
 {
   const char* supername = NULL;
   const char* module = NULL;

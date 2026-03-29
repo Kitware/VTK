@@ -29,7 +29,7 @@ int vtkWrapJavaScript_WrapOneClass(FILE* fp, const char* module, const char* cla
    then also provide the name of the module.  The "supermodule" will be set
    to NULL if the superclass is in the same module as the class. */
 const char* vtkWrapJavaScript_GetSuperClass(
-  ClassInfo* data, HierarchyInfo* hinfo, const char** supermodule);
+  ClassInfo* data, const HierarchyInfo* hinfo, const char** supermodule);
 
 /* generate the class docstring and write it to "fp" */
 void vtkWrapJavaScript_ClassDoc(

@@ -46,7 +46,7 @@
 
 /* -------------------------------------------------------------------- */
 /* Get the module for the specified class */
-static const char* vtkWrapJavaScript_ClassModule(HierarchyInfo* hinfo, const char* classname)
+static const char* vtkWrapJavaScript_ClassModule(const HierarchyInfo* hinfo, const char* classname)
 {
   HierarchyEntry* entry;
 
@@ -65,7 +65,7 @@ static const char* vtkWrapJavaScript_ClassModule(HierarchyInfo* hinfo, const cha
 
 /* -------------------------------------------------------------------- */
 /* Get the header file for the specified class */
-static const char* vtkWrapJavaScript_ClassHeader(HierarchyInfo* hinfo, const char* classname)
+static const char* vtkWrapJavaScript_ClassHeader(const HierarchyInfo* hinfo, const char* classname)
 {
   HierarchyEntry* entry;
 
@@ -85,7 +85,7 @@ static const char* vtkWrapJavaScript_ClassHeader(HierarchyInfo* hinfo, const cha
 /* -------------------------------------------------------------------- */
 /* generate includes for any special types that are used */
 static void vtkWrapJavaScript_GenerateSpecialHeaders(
-  FILE* fp, FileInfo* file_info, HierarchyInfo* hinfo)
+  FILE* fp, FileInfo* file_info, const HierarchyInfo* hinfo)
 {
   const char** types;
   int numTypes = 0;

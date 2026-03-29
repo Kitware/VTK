@@ -855,7 +855,7 @@ static void vtkWrapText_PythonPODSignature(
 static void vtkWrapText_PythonStdVectorSignature(
   struct vtkWPString* result, const ValueInfo* arg, const char* braces[2]);
 
-static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, ValueInfo* arg);
+static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, const ValueInfo* arg);
 
 const char* vtkWrapText_PythonSignature(FunctionInfo* currentFunction)
 {
@@ -1126,7 +1126,7 @@ static void vtkWrapText_PythonStdVectorSignature(
   vtkParse_FreeStringCache(&cache);
 }
 
-static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, ValueInfo* arg)
+static void vtkWrapText_PythonValueSignature(struct vtkWPString* result, const ValueInfo* arg)
 {
   const char* valstring = "...";
   size_t l;

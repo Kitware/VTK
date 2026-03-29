@@ -16,11 +16,11 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
    then also provide the name of the module.  The "supermodule" will be set
    to NULL if the superclass is in the same module as the class. */
 const char* vtkWrapPython_GetSuperClass(
-  ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo, const char** supermodule);
+  const ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo, const char** supermodule);
 
 /* generate the class docstring and write it to "fp" */
 void vtkWrapPython_ClassDoc(
-  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo);
+  FILE* fp, FileInfo* file_info, const ClassInfo* data, const HierarchyInfo* hinfo);
 
 #endif /* vtkWrapPythonClass_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonClass.h */

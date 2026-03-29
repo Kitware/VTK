@@ -13,7 +13,7 @@
 // NOLINTBEGIN(bugprone-unsafe-functions)
 
 static int vtkWrapSerDes_CanMarshalValue(
-  ValueInfo* valInfo, ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
+  ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
   if (isReturnValue == 1 && vtkWrap_IsVoid(valInfo))
   {
@@ -132,7 +132,7 @@ static int vtkWrapSerDes_CanMarshalValue(
   return isAllowed;
 }
 
-static int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, ClassInfo* classInfo,
+static int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const ClassInfo* classInfo,
   const HierarchyInfo* hinfo, const char** rejectReason, int* rejectedParameterId)
 {
   *rejectedParameterId = -1;
@@ -209,7 +209,7 @@ static char* vtkWrapSerDes_SmartPointerTypeTemplateArg(const char* name)
 }
 
 static int vtkWrapSerDes_DecomposeTemplatedTuple(
-  ValueInfo* valInfo, char** elementType, const HierarchyInfo* hinfo)
+  const ValueInfo* valInfo, char** elementType, const HierarchyInfo* hinfo)
 {
   const HierarchyEntry* entry;
   const char* classname = NULL;
@@ -239,7 +239,7 @@ static void vtkWrapSerDes_FreeTemplatedTupleDecomposition(char** elementType)
 }
 
 static void vtkWrapSerDes_WriteArgumentDeserializer(
-  FILE* fp, int paramId, ValueInfo* valInfo, ClassInfo* classInfo, const HierarchyInfo* hinfo)
+  FILE* fp, int paramId, ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo)
 {
   const int isVTKObject = vtkWrap_IsVTKObjectBaseType(hinfo, valInfo->Class);
   const int isVTKSmartPointer = vtkWrap_IsVTKSmartPointer(valInfo);
@@ -581,7 +581,7 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
 }
 
 static void vtkWrapSerDes_WriteArgumentCheck(
-  FILE* fp, FunctionInfo* functionInfo, ClassInfo* classInfo, const HierarchyInfo* hinfo)
+  FILE* fp, FunctionInfo* functionInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo)
 {
   int i = 0;
   for (i = 0; i < functionInfo->NumberOfParameters; ++i)
@@ -711,7 +711,7 @@ static void vtkWrapSerDes_WriteArgumentCheck(
 }
 
 static int vtkWrapSerDes_WriteMemberFunctionCall(
-  FILE* fp, ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
+  FILE* fp, const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
 {
   int i = 0;
   fprintf(fp, "  {\n"); // some arguments need locals, so scope them.
