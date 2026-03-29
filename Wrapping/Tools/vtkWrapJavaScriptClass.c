@@ -156,11 +156,6 @@ int vtkWrapJavaScript_WrapOneClass(FILE* fp, const char* module, const char* cla
       !vtkWrap_IsInheritedMethod(data, func))
     {
       class_has_new = 1;
-      if (func->IsDeprecated)
-      {
-        // skip class with deprecated ::New method
-        return 0;
-      }
     }
   }
 
