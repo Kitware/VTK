@@ -466,12 +466,10 @@ static parse_attribute_t split_attribute(
   const char* attr, const char** argp, PreprocessInfo* preprocessor)
 {
   parse_attribute_t attrId;
-  size_t l = 0;
-  size_t la = 0;
   const char* args = NULL;
 
   /* get the attribute's enum value */
-  l = vtkParse_SkipId(attr);
+  size_t l = vtkParse_SkipId(attr);
   while (attr[l] == ':' && attr[l + 1] == ':')
   {
     l += 2;
@@ -488,7 +486,7 @@ static parse_attribute_t split_attribute(
     {
       args++;
     }
-    la = strlen(args);
+    size_t la = strlen(args);
     while (la > 0 && args[la - 1] == ' ')
     {
       la--;

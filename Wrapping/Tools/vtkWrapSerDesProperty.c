@@ -292,7 +292,6 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     return 0;
   }
 
-  int i = 0;
   const int isMappedProperty = functionInfo->MarshalPropertyName != NULL;
   const int isRHSGetter = vtkWrapSerDes_MethodTypeMatches(methodType, VTK_METHOD_GET_RHS) ||
     vtkWrapSerDes_MethodTypeMatches(methodType, VTK_METHOD_GET_IDX_RHS);
@@ -354,7 +353,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     fprintf(fp, "  {\n");
     fprintf(fp, "    std::vector<%s> values(%d);\n", propertyInfo->ClassName, propertyInfo->Count);
     fprintf(fp, "    object->%s(%svalues[0]", getterName, getterIdxStr);
-    for (i = 1; i < propertyInfo->Count; ++i)
+    for (int i = 1; i < propertyInfo->Count; ++i)
     {
       fprintf(fp, ", values[%d]", i);
     }
@@ -789,8 +788,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       if ((propertyInfo->PublicMethods & VTK_METHOD_SET_MULTI) == VTK_METHOD_SET_MULTI)
       {
         callSetterBeginMacro(fp, "      ");
-        int i = 0;
-        for (i = 0; i < propertyInfo->Count; ++i)
+        for (int i = 0; i < propertyInfo->Count; ++i)
         {
           if (i != 0)
           {
@@ -1012,14 +1010,13 @@ void vtkWrapSerDes_Properties(
 {
   ClassProperties* properties = vtkParseProperties_Create(classInfo, hinfo);
   int i = 0, j = 0;
-  unsigned int methodType = 0;
   FunctionInfo* theFunc = NULL;
   PropertyInfo* theProp = NULL;
   int* isWritten = calloc(properties->NumberOfProperties, sizeof(int));
   for (i = 0; i < classInfo->NumberOfFunctions; ++i)
   {
     theFunc = classInfo->Functions[i];
-    methodType = properties->MethodTypes[i];
+    unsigned int methodType = properties->MethodTypes[i];
     /* Ignore inaccessible methods*/
     if (!theFunc->IsPublic)
     {
