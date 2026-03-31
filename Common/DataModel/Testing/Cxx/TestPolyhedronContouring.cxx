@@ -10,7 +10,110 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include "vtkCellData.h"
+#include "vtkCellIterator.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkPolyhedron.h"
+#include "vtkSmartPointer.h"
+
+#include <algorithm>
 #include <iostream>
+
+// Normalize polyhedron face winding to outward-pointing normals.
+// Builds a new grid with corrected face winding for all polyhedra.
+static vtkSmartPointer<vtkUnstructuredGrid> NormalizePolyhedronWinding(vtkUnstructuredGrid* input)
+{
+  vtkNew<vtkUnstructuredGrid> output;
+  output->SetPoints(input->GetPoints());
+  output->GetPointData()->ShallowCopy(input->GetPointData());
+  output->GetCellData()->CopyAllocate(input->GetCellData());
+  output->Allocate(input->GetNumberOfCells());
+
+  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId)
+  {
+    if (input->GetCellType(cellId) != VTK_POLYHEDRON)
+    {
+      // Copy non-polyhedron cells as-is
+      vtkNew<vtkIdList> ptIds;
+      input->GetCellPoints(cellId, ptIds);
+      output->InsertNextCell(input->GetCellType(cellId), ptIds);
+      output->GetCellData()->CopyData(input->GetCellData(), cellId, cellId);
+      continue;
+    }
+
+    vtkCell* cell = input->GetCell(cellId);
+    int nFaces = cell->GetNumberOfFaces();
+
+    // Compute cell centroid from points
+    double centroid[3] = { 0, 0, 0 };
+    for (vtkIdType i = 0; i < cell->GetNumberOfPoints(); ++i)
+    {
+      double pt[3];
+      cell->GetPoints()->GetPoint(i, pt);
+      for (int d = 0; d < 3; ++d)
+        centroid[d] += pt[d];
+    }
+    for (int d = 0; d < 3; ++d)
+      centroid[d] /= cell->GetNumberOfPoints();
+
+    // Build corrected face stream
+    vtkNew<vtkIdList> faceStream;
+    faceStream->InsertNextId(nFaces);
+    for (int fi = 0; fi < nFaces; ++fi)
+    {
+      vtkCell* face = cell->GetFace(fi);
+      int nFacePts = face->GetNumberOfPoints();
+      std::vector<vtkIdType> facePtIds(nFacePts);
+      for (int j = 0; j < nFacePts; ++j)
+        facePtIds[j] = face->GetPointId(j);
+
+      // Check normal direction
+      if (nFacePts >= 3)
+      {
+        double p0[3], p1[3], p2[3];
+        input->GetPoint(facePtIds[0], p0);
+        input->GetPoint(facePtIds[1], p1);
+        input->GetPoint(facePtIds[2], p2);
+        double e1[3] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
+        double e2[3] = { p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2] };
+        double normal[3];
+        vtkMath::Cross(e1, e2, normal);
+
+        double faceCtr[3] = { 0, 0, 0 };
+        for (int j = 0; j < nFacePts; ++j)
+        {
+          double pt[3];
+          input->GetPoint(facePtIds[j], pt);
+          for (int d = 0; d < 3; ++d)
+            faceCtr[d] += pt[d];
+        }
+        for (int d = 0; d < 3; ++d)
+          faceCtr[d] /= nFacePts;
+
+        double outward[3] = { faceCtr[0] - centroid[0], faceCtr[1] - centroid[1],
+          faceCtr[2] - centroid[2] };
+
+        if (vtkMath::Dot(normal, outward) < 0)
+          std::reverse(facePtIds.begin(), facePtIds.end());
+      }
+
+      faceStream->InsertNextId(nFacePts);
+      for (int j = 0; j < nFacePts; ++j)
+        faceStream->InsertNextId(facePtIds[j]);
+    }
+
+    // Get point ids
+    vtkNew<vtkIdList> ptIds;
+    input->GetCellPoints(cellId, ptIds);
+
+    output->InsertNextCell(VTK_POLYHEDRON, ptIds->GetNumberOfIds(), ptIds->GetPointer(0),
+      faceStream->GetId(0), faceStream->GetPointer(1));
+    output->GetCellData()->CopyData(input->GetCellData(), cellId, cellId);
+  }
+
+  return output;
+}
 
 int TestPolyhedronContouring(int argc, char* argv[])
 {
@@ -24,10 +127,10 @@ int TestPolyhedronContouring(int argc, char* argv[])
     r->SetFileName(fname);
     r->Update();
 
-    vtkUnstructuredGrid* grid = r->GetOutput();
+    auto grid = NormalizePolyhedronWinding(r->GetOutput());
     cf->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
-    cf->SetInputData(grid);
+    cf->SetInputData(grid.Get());
     cf->SetValue(0, 0.5);
     cf->Update();
 
@@ -49,7 +152,7 @@ int TestPolyhedronContouring(int argc, char* argv[])
     }
 
     vtkNew<vtkClipDataSet> cd;
-    cd->SetInputData(grid);
+    cd->SetInputData(grid.Get());
     cd->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cd->SetValue(0.5);
@@ -57,28 +160,18 @@ int TestPolyhedronContouring(int argc, char* argv[])
     cd->Update();
 
     vtkUnstructuredGrid* clip = cd->GetOutput();
-    if (clip->GetNumberOfCells() != 2)
+    if (clip->GetNumberOfCells() != 1)
     {
-      std::cerr << "Number of 'less' clipped cells not 2 (as expected), but "
+      std::cerr << "Number of 'less' clipped cells not 1 (as expected), but "
                 << clip->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
     vtkCell* clipCell0 = clip->GetCell(0);
     int nFaces0 = clipCell0->GetNumberOfFaces();
-    if (nFaces0 != 4 && nFaces0 != 6)
+    if (nFaces0 != 10)
     {
-      std::cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces0
-                << " faces." << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    vtkCell* clipCell1 = clip->GetCell(1);
-    int nFaces1 = clipCell1->GetNumberOfFaces();
-    if (nFaces1 != 4 && nFaces1 != 6)
-    {
-      std::cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces1
-                << " faces." << std::endl;
+      std::cerr << "Expected clipped cell with 10 faces, got " << nFaces0 << " faces." << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -94,10 +187,11 @@ int TestPolyhedronContouring(int argc, char* argv[])
     }
 
     vtkCell* clipCell = clip->GetCell(0);
-    if (clipCell->GetNumberOfFaces() != 10)
+    // Outside clip: 8 side faces + 2 cap polygons. Faces with multiple outside segments are merged.
+    if (clipCell->GetNumberOfFaces() != 11)
     {
-      std::cerr << "Expected one clipped cell with 10 faces, got " << clipCell->GetNumberOfFaces()
-                << "faces." << std::endl;
+      std::cerr << "Expected one clipped cell with 11 faces, got " << clipCell->GetNumberOfFaces()
+                << " faces." << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -129,9 +223,9 @@ int TestPolyhedronContouring(int argc, char* argv[])
     p->SetPoints(pts);
     p->Allocate(1);
 
-    vtkIdType faceStream[] = { 6, 8, 3, 4, 5, 9, 10, 4, 8, 3, 6, 11, 6, 3, 6, 0, 7, 5, 4, 4, 9, 5,
-      7, 12, 4, 10, 9, 12, 13, 4, 13, 12, 1, 2, 4, 12, 7, 0, 1, 5, 8, 11, 2, 13, 10, 5, 11, 6, 0, 1,
-      2 };
+    vtkIdType faceStream[] = { 6, 8, 3, 4, 5, 9, 10, 4, 11, 6, 3, 8, 6, 3, 6, 0, 7, 5, 4, 4, 9, 5,
+      7, 12, 4, 10, 9, 12, 13, 4, 13, 12, 1, 2, 4, 12, 7, 0, 1, 5, 10, 13, 2, 11, 8, 5, 2, 1, 0, 6,
+      11 };
 
     p->InsertNextCell(VTK_POLYHEDRON, 9, faceStream);
 
@@ -177,8 +271,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     r->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cell_12851_26.vtu"));
     r->Update();
 
-    vtkUnstructuredGrid* cell_12851 = r->GetOutput();
-    cf->SetInputData(cell_12851);
+    auto cell_12851 = NormalizePolyhedronWinding(r->GetOutput());
+    cf->SetInputData(cell_12851.Get());
     cf->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cf->SetValue(0, 0.5);
@@ -232,9 +326,9 @@ int TestPolyhedronContouring(int argc, char* argv[])
 
     ba->GetPointData()->AddArray(data);
 
-    vtkIdType faceStream[] = { 5, 4, 8, 1, 3, 9, 4, 9, 3, 2, 0, 5, 4, 8, 1, 7, 10, 5, 1, 7, 5, 2, 3,
+    vtkIdType faceStream[] = { 5, 9, 3, 1, 8, 4, 4, 0, 2, 3, 9, 5, 10, 7, 1, 8, 4, 5, 3, 2, 5, 7, 1,
 
-      4, 0, 2, 5, 6, 4, 9, 0, 6, 11, 4, 4, 9, 11, 10, 5, 10, 7, 5, 6, 11 };
+      4, 6, 5, 2, 0, 4, 11, 6, 0, 9, 4, 10, 11, 9, 4, 5, 10, 7, 5, 6, 11 };
 
     ba->InsertNextCell(VTK_POLYHEDRON, 8, faceStream);
 
@@ -253,9 +347,9 @@ int TestPolyhedronContouring(int argc, char* argv[])
     }
     vtkCell* contourCell = result->GetCell(0);
 
-    if (contourCell->GetNumberOfPoints() != 7)
+    if (contourCell->GetNumberOfPoints() != 6)
     {
-      std::cerr << "Expected contour with 7 points, got " << contourCell->GetNumberOfPoints()
+      std::cerr << "Expected contour with 6 points, got " << contourCell->GetNumberOfPoints()
                 << std::endl;
       return EXIT_FAILURE;
     }

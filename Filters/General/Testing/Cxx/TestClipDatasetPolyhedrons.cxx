@@ -28,15 +28,15 @@ int TestClipDatasetPolyhedrons(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Check number of cells / points
   vtkPoints* points = clip->GetOutput()->GetPoints();
-  if (int nPoints = points->GetNumberOfPoints(); nPoints != 30465)
+  if (int nPoints = points->GetNumberOfPoints(); nPoints != 29589)
   {
-    vtkLogF(ERROR, "Number of points: expecting 30465 got %i", nPoints);
+    vtkLogF(ERROR, "Number of points: expecting 29589 got %i", nPoints);
     return EXIT_FAILURE;
   }
   vtkCellArray* cells = clip->GetOutput()->GetCells();
-  if (int nCells = cells->GetNumberOfCells(); nCells != 26714)
+  if (int nCells = cells->GetNumberOfCells(); nCells != 26636)
   {
-    vtkLogF(ERROR, "Number of points: expecting 26714 got %i", nCells);
+    vtkLogF(ERROR, "Number of points: expecting 26636 got %i", nCells);
     return EXIT_FAILURE;
   }
 

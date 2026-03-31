@@ -172,13 +172,13 @@ int TestPlaneCutter(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterUnmapped(6))
+  if (!TestPlaneCutterUnmapped(4))
   {
     std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterMapped(6))
+  if (!TestPlaneCutterMapped(4))
   {
     std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;

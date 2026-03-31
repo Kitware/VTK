@@ -345,12 +345,12 @@ void vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(vtkUnstructure
   ids->InsertNextId(8);
 
   vtkNew<vtkCellArray> faces;
-  // top face of four points
+  // base face with outward normal (points away from apex 8)
   faces->InsertNextCell(4);
   faces->InsertCellPoint(4);
-  faces->InsertCellPoint(5);
-  faces->InsertCellPoint(6);
   faces->InsertCellPoint(7);
+  faces->InsertCellPoint(6);
+  faces->InsertCellPoint(5);
 
   // four triangle side faces, each of three points
   faces->InsertNextCell(3);
@@ -395,26 +395,26 @@ void vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(vtkUnstructure
   faces->InsertCellPoint(2);
   faces->InsertCellPoint(3);
 
-  // four side faces, each of three points
+  // four triangle side faces with outward normals
   faces->InsertNextCell(3);
   faces->InsertCellPoint(0);
+  faces->InsertCellPoint(9);
+  faces->InsertCellPoint(1);
+
+  faces->InsertNextCell(3);
   faces->InsertCellPoint(1);
   faces->InsertCellPoint(9);
-
-  faces->InsertNextCell(3);
-  faces->InsertCellPoint(1);
   faces->InsertCellPoint(2);
-  faces->InsertCellPoint(9);
 
   faces->InsertNextCell(3);
   faces->InsertCellPoint(2);
-  faces->InsertCellPoint(3);
   faces->InsertCellPoint(9);
+  faces->InsertCellPoint(3);
 
   faces->InsertNextCell(3);
   faces->InsertCellPoint(3);
+  faces->InsertCellPoint(9);
   faces->InsertCellPoint(0);
-  faces->InsertCellPoint(9);
 
   // insert the cell. We now have two pyramids with a cube in between
   ug->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), faces);

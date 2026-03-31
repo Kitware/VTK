@@ -2029,9 +2029,9 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
       faces->InsertNextCell(4); // 4 points per face.
       // Bottom face
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 0));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 1));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 1));
 
       faces->InsertNextCell(4); // 4 points per face.
       // Top face
@@ -2050,16 +2050,16 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
       faces->InsertNextCell(4); // 4 points per face.
       // Back face
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 7));
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 7));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 3));
 
       faces->InsertNextCell(4); // 4 points per face.
       // Left face
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 0));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
-      faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
       faces->InsertCellPoint(connectivity->GetValue(offsetId + 4));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 6));
+      faces->InsertCellPoint(connectivity->GetValue(offsetId + 2));
 
       faces->InsertNextCell(4); // 4 points per face.
       // Right face

@@ -5,6 +5,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkDataArray.h"
 #include "vtkIdListCollection.h"
 #include "vtkIncrementalPointLocator.h"
@@ -42,7 +43,44 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator* locator, vtkCellA
 void vtkContourHelper::Contour(
   vtkCell* cell, double value, vtkDataArray* cellScalars, vtkIdType cellId)
 {
-  if (!this->OutputTriangles && cell->GetCellDimension() == 3)
+  if (cell->GetCellType() == VTK_POLYHEDRON)
+  {
+    // vtkPolyhedron outputs polygons (not triangles) from its contour algorithm.
+    // This must be checked before the general 3D cell path below, which assumes
+    // triangle output and feeds it through PolygonBuilder.
+    // When GenerateTriangles is on, we triangulate the polygons here.
+    vtkNew<vtkCellArray> tempPolys;
+    vtkNew<vtkCellData> tempCd;
+    tempCd->Initialize();
+
+    cell->Contour(value, cellScalars, this->Locator, this->OutVerts, this->OutLines, tempPolys,
+      this->InPd, this->OutPd, this->InCd, cellId, tempCd);
+
+    vtkIdType npts = 0;
+    const vtkIdType* pts = nullptr;
+    tempPolys->InitTraversal();
+    while (tempPolys->GetNextCell(npts, pts))
+    {
+      if (!this->OutputTriangles || npts <= 3)
+      {
+        vtkIdType outCellId = this->OutPolys->InsertNextCell(npts, pts);
+        this->OutCd->CopyData(this->InCd, cellId,
+          outCellId + this->OutVerts->GetNumberOfCells() + this->OutLines->GetNumberOfCells());
+      }
+      else
+      {
+        // Fan-triangulate polygon
+        for (vtkIdType i = 1; i + 1 < npts; ++i)
+        {
+          vtkIdType tri[3] = { pts[0], pts[i], pts[i + 1] };
+          vtkIdType outCellId = this->OutPolys->InsertNextCell(3, tri);
+          this->OutCd->CopyData(this->InCd, cellId,
+            outCellId + this->OutVerts->GetNumberOfCells() + this->OutLines->GetNumberOfCells());
+        }
+      }
+    }
+  }
+  else if (!this->OutputTriangles && cell->GetCellDimension() == 3)
   {
 
     // Retrieve the output triangles of the contour in temporary structures.
@@ -95,7 +133,7 @@ void vtkContourHelper::Contour(
   }
   else
   {
-    // We do not need to merge output triangles, so we call the contour method directly.
+    // All other cell types output triangles directly.
     cell->Contour(value, cellScalars, this->Locator, this->OutVerts, this->OutLines, this->OutPolys,
       this->InPd, this->OutPd, this->InCd, cellId, this->OutCd);
   }

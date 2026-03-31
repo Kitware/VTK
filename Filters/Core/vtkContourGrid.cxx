@@ -143,7 +143,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
   numCells = input->GetNumberOfCells();
-
   //
   // Create objects to hold output of contour operation. First estimate
   // allocation size.

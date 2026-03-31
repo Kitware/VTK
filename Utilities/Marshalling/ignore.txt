@@ -408,6 +408,7 @@ Common/DataModel/vtkPolyPlane.h
 Common/DataModel/vtkPolyVertex.h
 Common/DataModel/vtkPolygon.h
 Common/DataModel/vtkPolyhedron.h
+Common/DataModel/vtkPolyhedronContour.h
 Common/DataModel/vtkPolyhedronUtilities.h
 Common/DataModel/vtkPyramid.h
 Common/DataModel/vtkQuad.h

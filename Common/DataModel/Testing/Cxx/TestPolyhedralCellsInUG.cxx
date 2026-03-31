@@ -116,12 +116,13 @@ int TestPolyhedralCellsInUG(int argc, char* argv[])
   vtkIdType pointIds[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
   vtkNew<vtkCellArray> faces;
-  vtkIdType face0[4] = { 0, 2, 6, 4 };
-  vtkIdType face1[4] = { 1, 3, 7, 5 };
-  vtkIdType face2[4] = { 0, 1, 3, 2 };
-  vtkIdType face3[4] = { 4, 5, 7, 6 };
-  vtkIdType face4[4] = { 0, 1, 5, 4 };
-  vtkIdType face5[4] = { 2, 3, 7, 6 };
+  // Face winding must be CCW when viewed from outside (outward normals)
+  vtkIdType face0[4] = { 0, 4, 6, 2 }; // -x face
+  vtkIdType face1[4] = { 1, 3, 7, 5 }; // +x face
+  vtkIdType face2[4] = { 0, 2, 3, 1 }; // -z face
+  vtkIdType face3[4] = { 4, 5, 7, 6 }; // +z face
+  vtkIdType face4[4] = { 0, 1, 5, 4 }; // -y face
+  vtkIdType face5[4] = { 2, 6, 7, 3 }; // +y face
   faces->InsertNextCell(4, face0);
   faces->InsertNextCell(4, face1);
   faces->InsertNextCell(4, face2);

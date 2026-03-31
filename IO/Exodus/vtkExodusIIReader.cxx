@@ -1125,6 +1125,12 @@ void vtkExodusIIReaderPrivate::InsertBlockPolyhedra(
   // points per cell (across all its faces), which Exodus does
   // not provide.
 
+  // Get coordinate array for face winding correction.
+  // Hold a smart pointer reference to prevent LRU cache eviction during
+  // GetPolyhedronFaceConnectivity calls which may load other cached arrays.
+  vtkSmartPointer<vtkDataArray> coordArray =
+    this->GetCacheOrRead(vtkExodusIICacheKey(-1, vtkExodusIIReader::NODAL_COORDS, 0, 0));
+
   // II. Insert cells using face-point connectivity.
   vtkIdType curCell = 0;
   vtkIdType curCellCurFace = 0;
@@ -1133,20 +1139,96 @@ void vtkExodusIIReaderPrivate::InsertBlockPolyhedra(
   {
     vtkCellPts.clear();
     int numFacesThisCell = facesPerCell->GetValue(curCell++);
+
+    // Collect raw (unsqueezed) face connectivity for winding correction
+    struct RawFace
+    {
+      std::vector<vtkIdType> pts; // original/global node IDs
+    };
+    std::vector<RawFace> rawFaces(numFacesThisCell);
+
     for (vtkIdType j = 0; j < numFacesThisCell; ++j)
     {
       vtkIdType curFace = exoCellConn->GetValue(curCellCurFace++);
-      // std::vector<vtkIdType>& curFacePts(facePointLists[curFace]);
       vtkIdType* facePtsRaw;
       vtkIdType numFacePts = this->GetPolyhedronFaceConnectivity(curFace, facePtsRaw);
-      // Copy face connectivity, optionally (and usually) mapping to squeezed-points for the block
-      vtkCellPts.push_back(numFacePts);
-      for (vtkIdType pp = 0; pp < numFacePts; ++pp)
+      rawFaces[j].pts.assign(facePtsRaw, facePtsRaw + numFacePts);
+    }
+
+    // Fix face winding: ensure outward-pointing normals for each face.
+    // Exodus shares faces between elements, so a face may point inward for
+    // one element. For each face, check if its normal points away from the
+    // cell centroid; if not, reverse the face vertex ordering.
+    if (coordArray)
+    {
+      // Collect unique nodes and compute cell centroid
+      std::set<vtkIdType> uniqueNodes;
+      for (const auto& face : rawFaces)
+        for (vtkIdType nid : face.pts)
+          uniqueNodes.insert(nid);
+
+      double centroid[3] = { 0.0, 0.0, 0.0 };
+      for (vtkIdType nid : uniqueNodes)
       {
-        vtkCellPts.push_back(
-          this->SqueezePoints ? this->GetSqueezePointId(binfo, facePtsRaw[pp]) : facePtsRaw[pp]);
+        double pt[3];
+        coordArray->GetTuple(nid, pt);
+        centroid[0] += pt[0];
+        centroid[1] += pt[1];
+        centroid[2] += pt[2];
+      }
+      double invN = 1.0 / static_cast<double>(uniqueNodes.size());
+      centroid[0] *= invN;
+      centroid[1] *= invN;
+      centroid[2] *= invN;
+
+      for (auto& face : rawFaces)
+      {
+        if (face.pts.size() < 3)
+          continue;
+
+        double v0[3], v1[3], v2[3];
+        coordArray->GetTuple(face.pts[0], v0);
+        coordArray->GetTuple(face.pts[1], v1);
+        coordArray->GetTuple(face.pts[2], v2);
+
+        double e1[3] = { v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2] };
+        double e2[3] = { v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2] };
+        double normal[3];
+        vtkMath::Cross(e1, e2, normal);
+
+        // Face centroid
+        double fc[3] = { 0.0, 0.0, 0.0 };
+        for (vtkIdType nid : face.pts)
+        {
+          double pt[3];
+          coordArray->GetTuple(nid, pt);
+          fc[0] += pt[0];
+          fc[1] += pt[1];
+          fc[2] += pt[2];
+        }
+        double invF = 1.0 / static_cast<double>(face.pts.size());
+        fc[0] *= invF;
+        fc[1] *= invF;
+        fc[2] *= invF;
+
+        double outward[3] = { fc[0] - centroid[0], fc[1] - centroid[1], fc[2] - centroid[2] };
+        if (vtkMath::Dot(normal, outward) < 0.0)
+        {
+          std::reverse(face.pts.begin(), face.pts.end());
+        }
       }
     }
+
+    // Build vtkCellPts with corrected winding, applying squeeze mapping
+    for (const auto& face : rawFaces)
+    {
+      vtkCellPts.push_back(static_cast<vtkIdType>(face.pts.size()));
+      for (vtkIdType nid : face.pts)
+      {
+        vtkCellPts.push_back(this->SqueezePoints ? this->GetSqueezePointId(binfo, nid) : nid);
+      }
+    }
+
     binfo->CachedConnectivity->InsertNextCell(VTK_POLYHEDRON, numFacesThisCell, vtkCellPts.data());
   }
   this->FreePolyhedronFaceArrays();
