@@ -16,7 +16,9 @@
 #include "vtkPoints.h"
 #include "vtkQuadric.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <limits>
 #include <numeric> //std::iota
 
@@ -1635,4 +1637,90 @@ void vtkTriangle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line:\n";
   this->Line->PrintSelf(os, indent.GetNextIndent());
 }
+
+//------------------------------------------------------------------------------
+double vtkTriangle::DistanceToTriangle(
+  const double x[3], const double p1[3], const double p2[3], const double p3[3])
+{
+  double unusedT;
+  double e1[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+  double e2[3] = { p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2] };
+  double n[3];
+  vtkMath::Cross(e1, e2, n);
+
+  const double n2 = vtkMath::Dot(n, n);
+  if (n2 <= 0.0)
+  {
+    // Degenerate triangle -- fall back to edge distances.
+    return std::min({ vtkLine::DistanceToLine(x, p1, p2, unusedT, nullptr),
+      vtkLine::DistanceToLine(x, p2, p3, unusedT, nullptr),
+      vtkLine::DistanceToLine(x, p3, p1, unusedT, nullptr) });
+  }
+
+  const double invLenN = 1.0 / std::sqrt(n2);
+
+  // Signed distance to the triangle plane.
+  double p1x[3] = { x[0] - p1[0], x[1] - p1[1], x[2] - p1[2] };
+  const double distPlane = vtkMath::Dot(p1x, n) * invLenN;
+
+  // Project x onto the plane.
+  double xp[3] = { x[0] - distPlane * n[0] * invLenN, x[1] - distPlane * n[1] * invLenN,
+    x[2] - distPlane * n[2] * invLenN };
+
+  // Barycentric test using dot products.
+  double v0[3], v1[3], v2[3];
+  vtkMath::Subtract(p3, p1, v0);
+  vtkMath::Subtract(p2, p1, v1);
+  vtkMath::Subtract(xp, p1, v2);
+
+  const double dot00 = vtkMath::Dot(v0, v0);
+  const double dot01 = vtkMath::Dot(v0, v1);
+  const double dot02 = vtkMath::Dot(v0, v2);
+  const double dot11 = vtkMath::Dot(v1, v1);
+  const double dot12 = vtkMath::Dot(v1, v2);
+
+  const double denom = dot00 * dot11 - dot01 * dot01;
+  if (denom != 0.0)
+  {
+    const double invDenom = 1.0 / denom;
+    const double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    const double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+    if (u >= 0.0 && v >= 0.0 && (u + v) <= 1.0)
+    {
+      return distPlane * distPlane;
+    }
+  }
+
+  // Outside the triangle -- closest point lies on an edge.
+  return std::min({ vtkLine::DistanceToLine(x, p1, p2, unusedT, nullptr),
+    vtkLine::DistanceToLine(x, p2, p3, unusedT, nullptr),
+    vtkLine::DistanceToLine(x, p3, p1, unusedT, nullptr) });
+}
+
+//------------------------------------------------------------------------------
+double vtkTriangle::SolidAngle(
+  const double x[3], const double p1[3], const double p2[3], const double p3[3])
+{
+  // Van Oosterom-Strackee formula for the signed solid angle of a triangle.
+  double a[3] = { p1[0] - x[0], p1[1] - x[1], p1[2] - x[2] };
+  double b[3] = { p2[0] - x[0], p2[1] - x[1], p2[2] - x[2] };
+  double c[3] = { p3[0] - x[0], p3[1] - x[1], p3[2] - x[2] };
+
+  const double la = vtkMath::Norm(a);
+  const double lb = vtkMath::Norm(b);
+  const double lc = vtkMath::Norm(c);
+
+  // det = a . (b x c)
+  double bxc[3];
+  vtkMath::Cross(b, c, bxc);
+  const double det = vtkMath::Dot(a, bxc);
+
+  const double denom =
+    la * lb * lc + vtkMath::Dot(a, b) * lc + vtkMath::Dot(a, c) * lb + vtkMath::Dot(b, c) * la;
+
+  // atan2 handles denom ~ 0 robustly.
+  return 2.0 * std::atan2(det, denom);
+}
+
 VTK_ABI_NAMESPACE_END

@@ -213,6 +213,26 @@ public:
    */
   static bool ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, double centroid[3]);
 
+  /**
+   * Compute the squared distance from point @a x to the triangle defined
+   * by vertices @a p1, @a p2, @a p3.  If the projection of x onto the
+   * triangle plane lies inside the triangle the perpendicular distance is
+   * returned; otherwise the minimum squared distance to the three edges is
+   * returned.  Degenerate triangles fall back to edge distances.
+   */
+  static double DistanceToTriangle(
+    const double x[3], const double p1[3], const double p2[3], const double p3[3]);
+
+  /**
+   * Compute the signed solid angle subtended by the triangle (@a p1, @a p2,
+   * @a p3) as seen from @a x, using the Van Oosterom-Strackee formula.
+   * The result is in steradians and its sign depends on the winding of the
+   * triangle relative to @a x.  Summing over all faces of a closed surface
+   * yields \\f$\\pm 4\\pi\\f$ when @a x is inside and 0 when outside.
+   */
+  static double SolidAngle(
+    const double x[3], const double p1[3], const double p2[3], const double p3[3]);
+
 protected:
   vtkTriangle();
   ~vtkTriangle() override = default;

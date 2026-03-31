@@ -591,6 +591,7 @@ double vtkLine::DistanceToLine(const double x[3], const double p1[3], const doub
 }
 
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkLine::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
