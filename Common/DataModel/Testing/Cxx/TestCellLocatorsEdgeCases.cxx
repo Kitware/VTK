@@ -5,6 +5,7 @@
 #include "vtkCellTreeLocator.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
@@ -28,7 +29,7 @@ static bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3
   return static_cast<bool>(cell->IntersectWithLine(x1, x2, tol, t, x, pcoords, subId));
 }
 
-static bool TestLocator(vtkDataSet* ds, vtkAbstractCellLocator* loc)
+static bool TestLocatorIntersectWithLine(vtkDataSet* ds, vtkAbstractCellLocator* loc)
 {
   std::cout << "\nTesting " << loc->GetClassName() << std::endl;
   loc->SetDataSet(ds);
@@ -77,16 +78,10 @@ static bool TestLocator(vtkDataSet* ds, vtkAbstractCellLocator* loc)
   return foundIntersectWithLineBest && foundIntersectWithLineAll && foundFindCellAlongLine;
 }
 
-static bool TestCellLocatorEvaluatePosition(char* fname)
+static bool TestLocatorFindClosestPointWithinRadius(vtkDataSet* ds, vtkAbstractCellLocator* loc)
 {
-  vtkNew<vtkXMLPolyDataReader> poly_reader;
-  poly_reader->SetFileName(fname);
-  poly_reader->Update();
-
-  vtkNew<vtkCellLocator> loc;
-  loc->SetDataSet(poly_reader->GetOutput());
+  loc->SetDataSet(ds);
   loc->CacheCellBoundsOn();
-  loc->SetNumberOfCellsPerNode(2);
   loc->BuildLocator();
 
   double test_point[] = { -5.091451e-02, -1.800857e-01, 1.153756e+00 };
@@ -117,19 +112,11 @@ static bool TestCellLocatorEvaluatePosition(char* fname)
   return false;
 }
 
-static bool TestCellLocatorFindCell(vtkAbstractCellLocator* loc)
+static bool TestCellLocatorFindCell(vtkDataSet* ds, vtkAbstractCellLocator* loc)
 {
   std::cout << "\nTesting " << loc->GetClassName() << "::FindCell" << std::endl;
 
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->SetCenter(0., 0., 0.);
-  sphereSource->SetRadius(0.5);
-  sphereSource->SetThetaResolution(8);
-  sphereSource->SetPhiResolution(8);
-  sphereSource->Update();
-  vtkPolyData* sphere = sphereSource->GetOutput();
-
-  loc->SetDataSet(sphere);
+  loc->SetDataSet(ds);
   loc->CacheCellBoundsOn();
   loc->AutomaticOn();
   loc->BuildLocator();
@@ -187,33 +174,61 @@ static bool TestCellLocatorFindCell(vtkAbstractCellLocator* loc)
 
 int TestCellLocatorsEdgeCases(int argc, char* argv[])
 {
-  //===========
-  // Test Setup
-  //===========
-  vtkNew<vtkXMLPolyDataReader> reader;
+  // create locators
+  vtkNew<vtkCellLocator> cl;
+  cl->SetNumberOfCellsPerNode(2);
+  vtkNew<vtkStaticCellLocator> scl;
+  vtkNew<vtkCellTreeLocator> ctl;
+  vtkNew<vtkModifiedBSPTree> mbsp;
+  vtkNew<vtkJumpAndWalkCellLocator> jwcl;
+
+  //=====================
+  // Create/Read DataSets
+  //=====================
+  vtkNew<vtkXMLPolyDataReader> test_surface_reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/test_surface.vtp");
-  reader->SetFileName(fname);
-  reader->Update();
-  vtkDataSet* data = reader->GetOutput();
+  test_surface_reader->SetFileName(fname);
+  delete[] fname;
+  test_surface_reader->Update();
+  vtkPolyData* test_surface = test_surface_reader->GetOutput();
+
+  vtkNew<vtkXMLPolyDataReader> coneReader;
+  char* fname2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cone.vtp");
+  coneReader->SetFileName(fname2);
+  delete[] fname2;
+  coneReader->Update();
+  vtkPolyData* cone = coneReader->GetOutput();
+
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->SetCenter(0., 0., 0.);
+  sphereSource->SetRadius(0.5);
+  sphereSource->SetThetaResolution(8);
+  sphereSource->SetPhiResolution(8);
+  sphereSource->Update();
+  vtkSmartPointer<vtkPolyData> sphere = sphereSource->GetOutput();
 
   bool allTestsPassed = true;
-  vtkNew<vtkCellLocator> cl;
-  allTestsPassed &= TestLocator(data, cl);
-  vtkNew<vtkStaticCellLocator> scl;
-  allTestsPassed &= TestLocator(data, scl);
-  vtkNew<vtkCellTreeLocator> ctl;
-  allTestsPassed &= TestLocator(data, ctl);
-  // can't test vtkModifiedBSPTree because of the peculiarities
-  // of how this test is executed
-  vtkNew<vtkModifiedBSPTree> mbsp;
-  // allTestsPassed &= TestLocator(data, mbsp);
-  allTestsPassed &= TestCellLocatorEvaluatePosition(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cone.vtp"));
 
-  allTestsPassed &= TestCellLocatorFindCell(cl);
-  allTestsPassed &= TestCellLocatorFindCell(scl);
-  allTestsPassed &= TestCellLocatorFindCell(ctl);
-  allTestsPassed &= TestCellLocatorFindCell(mbsp);
+  // TestLocatorIntersectWithLine
+  allTestsPassed &= TestLocatorIntersectWithLine(test_surface, cl);
+  allTestsPassed &= TestLocatorIntersectWithLine(test_surface, scl);
+  allTestsPassed &= TestLocatorIntersectWithLine(test_surface, ctl);
+  // vtkJumpAndWalkCellLocator does not support IntersectWithLine
+  allTestsPassed &= TestLocatorIntersectWithLine(test_surface, mbsp);
+
+  // TestLocatorFindClosestPointWithinRadius
+  allTestsPassed &= TestLocatorFindClosestPointWithinRadius(cone, cl);
+  allTestsPassed &= TestLocatorFindClosestPointWithinRadius(cone, scl);
+  // vtkCellTreeLocator does not support FindClosestPointWithinRadius
+  // vtkModifiedBSPTree does not support FindClosestPointWithinRadius
+  allTestsPassed &= TestLocatorFindClosestPointWithinRadius(cone, jwcl);
+
+  // TestCellLocatorFindCell
+  allTestsPassed &= TestCellLocatorFindCell(sphere, cl);
+  allTestsPassed &= TestCellLocatorFindCell(sphere, scl);
+  allTestsPassed &= TestCellLocatorFindCell(sphere, ctl);
+  allTestsPassed &= TestCellLocatorFindCell(sphere, mbsp);
+  allTestsPassed &= TestCellLocatorFindCell(sphere, jwcl);
 
   //====================
   // Final Tests Outcome

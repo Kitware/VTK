@@ -4,6 +4,7 @@
 #include "vtkCellLocator.h"
 #include "vtkCellTreeLocator.h"
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkLinearTransformCellLocator.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkNew.h"
@@ -156,5 +157,8 @@ int TestCellLocatorsLinearTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   vtkNew<vtkModifiedBSPTree> bsp;
   testPassed &= TestCellLocators(
     dataset, transformedDataset, transformedRandomPoints, bsp, acceptableAccuracyPercentage);
+  vtkNew<vtkJumpAndWalkCellLocator> jwcl;
+  testPassed &= TestCellLocators(
+    dataset, transformedDataset, transformedRandomPoints, jwcl, acceptableAccuracyPercentage);
   return testPassed ? EXIT_SUCCESS : EXIT_FAILURE;
 }

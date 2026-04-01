@@ -150,6 +150,7 @@ set(classes
   vtkIncrementalPointLocator
   vtkInformationQuadratureSchemeDefinitionVectorKey
   vtkIterativeClosestPointTransform
+  vtkJumpAndWalkCellLocator
   vtkKdNode
   vtkKdTree
   vtkKdTreePointLocator

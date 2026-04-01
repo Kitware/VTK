@@ -11,6 +11,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkGenericCell,
     vtkPlane,
     vtkStaticCellLocator,
+    vtkJumpAndWalkCellLocator,
 )
 from vtkmodules.vtkCommonSystem import vtkTimerLog
 from vtkmodules.vtkFiltersFlowPaths import vtkModifiedBSPTree
@@ -77,8 +78,8 @@ staticClosest = vtkIdList()
 staticClosest.SetNumberOfIds(numProbes)
 bspClosest = vtkIdList()
 bspClosest.SetNumberOfIds(numProbes)
-obbClosest = vtkIdList()
-obbClosest.SetNumberOfIds(numProbes)
+jawClosest = vtkIdList()
+jawClosest.SetNumberOfIds(numProbes)
 dsClosest = vtkIdList()
 dsClosest.SetNumberOfIds(numProbes)
 
@@ -215,22 +216,20 @@ print("    BSP Tree Locator (Total): {0}".format(time+opTime+time2))
 print("\n")
 
 #############################################################
-# Time the creation and building of the obb tree
-locator4 = vtkOBBTree()
+# Time the creation and building of the jump and walk cell locator
+locator4 = vtkJumpAndWalkCellLocator()
 locator4.SetDataSet(output)
-locator4.AutomaticOn()
 
 timer.StartTimer()
 locator4.BuildLocator()
 timer.StopTimer()
 time = timer.GetElapsedTime()
-print("Build OBB Locator: {0}".format(time))
+print("Build Jump And Walk Cell Locator:: {0}".format(time))
 
 # Probe the dataset with FindClosestPoint() and time it
 timer.StartTimer()
 for i in range (0,numProbes):
-    print(i)
-    obbClosest.SetId(i, locator4.FindCell(ProbeCells.GetPoint(i),0.001,genCell,pc,weights))
+    jawClosest.SetId(i, locator4.FindCell(ProbeCells.GetPoint(i),0.001,genCell,pc,weights))
 timer.StopTimer()
 opTime = timer.GetElapsedTime()
 print("    Find cell probing: {0}".format(opTime))
@@ -241,8 +240,8 @@ timer.StartTimer()
 del locator4
 timer.StopTimer()
 time2 = timer.GetElapsedTime()
-print("    Delete OBB Locator: {0}".format(time2))
-print("    OBB Locator (Total): {0}".format(time+opTime+time2))
+print("    Delete Jump And Walk Cell Locator: {0}".format(time2))
+print("    Jump And Walk Cell Locator (Total): {0}".format(time+opTime+time2))
 print("\n")
 
 #############################################################
