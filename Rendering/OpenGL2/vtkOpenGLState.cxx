@@ -2127,11 +2127,49 @@ void vtkOpenGLState::InitializeTextureInternalFormats()
   this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][4] = GL_RGBA;
 #endif
 
+#ifdef GL_ES_VERSION_3_0
+  // GL ES 3.0 core does not include GL_R16 normalized formats.
+  // Check for GL_EXT_texture_norm16 at runtime; if present we can use GL_R16
+  // with GL_UNSIGNED_SHORT data exactly as on desktop OpenGL.
+  // NOTE: glGetString(GL_EXTENSIONS) returns NULL on GLES 3.0+; use glGetStringi instead.
+  {
+    GLint numExts = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &numExts);
+    for (GLint i = 0; i < numExts; ++i)
+    {
+      const char* ext = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+      if (ext && strcmp(ext, "GL_EXT_texture_norm16") == 0)
+      {
+        this->SupportsTextureNorm16 = true;
+        // Use numeric values directly: GL_R16/GL_RG16/GL_RGB16/GL_RGBA16 are not
+        // defined in GLES3/gl3.h (e.g. Emscripten) even when the extension is present.
+        this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][1] = 0x822A; // GL_R16
+        this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][2] = 0x822C; // GL_RG16
+        this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][3] = 0x8054; // GL_RGB16
+        this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][4] = 0x805B; // GL_RGBA16
+        break;
+      }
+    }
+  }
+  // Without GL_EXT_texture_norm16, fall back to GL_R32F. Callers must convert
+  // VTK_UNSIGNED_SHORT source data to normalized GL_FLOAT before uploading.
+  if (!this->SupportsTextureNorm16)
+  {
+#ifdef GL_R32F
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][1] = GL_R32F;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][2] = GL_RG32F;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][3] = GL_RGB32F;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][4] = GL_RGBA32F;
+#endif
+  }
+#else
 #ifdef GL_R16
+  this->SupportsTextureNorm16 = true;
   this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][1] = GL_R16;
   this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][2] = GL_RG16;
   this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][3] = GL_RGB16;
   this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][4] = GL_RGBA16;
+#endif
 #endif
 
 #ifdef GL_R8_SNORM

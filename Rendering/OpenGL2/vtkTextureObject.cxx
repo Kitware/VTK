@@ -24,6 +24,7 @@
 #include "vtkOpenGLHelper.h"
 
 #include <cassert>
+#include <vector>
 
 // #define VTK_TO_DEBUG
 // #define VTK_TO_TIMING
@@ -36,6 +37,28 @@
 #include "vtkTextureObjectVS.h" // a pass through shader
 
 #define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
+
+#ifdef GL_ES_VERSION_3_0
+// On GLES 3.0, VTK_UNSIGNED_SHORT data must be converted to normalized float when
+// GL_EXT_texture_norm16 is absent and the internal format falls back to GL_R32F.
+// Returns a non-empty vector with converted values when conversion is needed,
+// or an empty vector when the original data pointer should be used as-is.
+static std::vector<float> ConvertUShortToNormalizedFloat(
+  int dataType, GLenum glType, const void* data, size_t numValues)
+{
+  if (dataType != VTK_UNSIGNED_SHORT || glType != GL_FLOAT || !data)
+  {
+    return {};
+  }
+  std::vector<float> result(numValues);
+  const unsigned short* src = static_cast<const unsigned short*>(data);
+  for (size_t i = 0; i < numValues; ++i)
+  {
+    result[i] = src[i] / 65535.0f;
+  }
+  return result;
+}
+#endif
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //------------------------------------------------------------------------------
@@ -870,6 +893,14 @@ int vtkTextureObject::GetDefaultDataType(int vtk_scalar_type)
       return GL_SHORT;
 
     case VTK_UNSIGNED_SHORT:
+#ifdef GL_ES_VERSION_3_0
+      // On GLES 3.0 without GL_EXT_texture_norm16 the internal format falls back
+      // to GL_R32F, which requires GL_FLOAT data. Callers handle the conversion.
+      if (this->Context && !this->Context->GetState()->GetSupportsTextureNorm16())
+      {
+        return GL_FLOAT;
+      }
+#endif
       return GL_UNSIGNED_SHORT;
 
     case VTK_INT:
@@ -1210,8 +1241,11 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
   this->CreateTexture();
   this->Bind();
 
+  std::vector<float> convertedData =
+    ConvertUShortToNormalizedFloat(dataType, this->Type, data, (size_t)width * numComps);
+  const void* uploadData = convertedData.empty() ? data : convertedData.data();
   glTexImage2D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width), 1, 0,
-    this->Format, this->Type, static_cast<const GLvoid*>(data));
+    this->Format, this->Type, static_cast<const GLvoid*>(uploadData));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
 
@@ -1543,9 +1577,16 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
   // Source texture data from the PBO.
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+#ifdef GL_ES_VERSION_3_0
+  std::vector<float> convertedData = ConvertUShortToNormalizedFloat(
+    dataType, this->Type, data, (size_t)width * height * depth * numComps);
+  const void* uploadData = convertedData.empty() ? data : convertedData.data();
+#else
+  const void* uploadData = data;
+#endif
   glTexImage3D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width),
     static_cast<GLsizei>(this->Height), static_cast<GLsizei>(this->Depth), 0, this->Format,
-    this->Type, static_cast<const GLvoid*>(data));
+    this->Type, static_cast<const GLvoid*>(uploadData));
 
   this->Deactivate();
 
@@ -1627,9 +1668,16 @@ bool vtkTextureObject::Create2DFromRaw(
   // Source texture data from the PBO.
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+#ifdef GL_ES_VERSION_3_0
+  std::vector<float> convertedData =
+    ConvertUShortToNormalizedFloat(dataType, this->Type, data, (size_t)width * height * numComps);
+  const void* uploadData = convertedData.empty() ? data : convertedData.data();
+#else
+  const void* uploadData = data;
+#endif
   glTexImage2D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width),
     static_cast<GLsizei>(this->Height), 0, this->Format, this->Type,
-    static_cast<const GLvoid*>(data));
+    static_cast<const GLvoid*>(uploadData));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
 
@@ -1669,9 +1717,16 @@ bool vtkTextureObject::Create2DArrayFromRaw(
   // Source texture data from the PBO.
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+#ifdef GL_ES_VERSION_3_0
+  std::vector<float> convertedData = ConvertUShortToNormalizedFloat(
+    dataType, this->Type, data, (size_t)width * height * nbLayers * numComps);
+  const void* uploadData = convertedData.empty() ? data : convertedData.data();
+#else
+  const void* uploadData = data;
+#endif
   glTexImage3D(GL_TEXTURE_2D_ARRAY, /*level=*/0, this->InternalFormat,
     static_cast<GLsizei>(this->Width), static_cast<GLsizei>(this->Height),
-    static_cast<GLsizei>(this->Depth), /*border=*/0, this->Format, this->Type, data);
+    static_cast<GLsizei>(this->Depth), /*border=*/0, this->Format, this->Type, uploadData);
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage3D");
 

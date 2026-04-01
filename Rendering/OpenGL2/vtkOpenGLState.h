@@ -386,6 +386,13 @@ public:
    */
   std::string const& GetRenderer() { return this->Renderer; }
 
+  /**
+   * Return whether GL_R16 normalized formats are available for VTK_UNSIGNED_SHORT data.
+   * On desktop OpenGL this is always true. On GL ES 3.0 it requires GL_EXT_texture_norm16.
+   * When false, callers uploading VTK_UNSIGNED_SHORT data must convert to float first.
+   */
+  bool GetSupportsTextureNorm16() { return this->SupportsTextureNorm16; }
+
 protected:
   vtkOpenGLState(); // set initial values
   ~vtkOpenGLState() override;
@@ -397,6 +404,7 @@ protected:
   void Viewport(std::array<int, 4> val);
 
   int TextureInternalFormats[VTK_OBJECT + 1][3][5];
+  bool SupportsTextureNorm16 = false;
   void InitializeTextureInternalFormats();
 
   vtkTextureUnitManager* TextureUnitManager;
