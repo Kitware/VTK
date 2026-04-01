@@ -325,11 +325,17 @@ void vtkLinearTransformCellLocator::ForceBuildLocator()
 //------------------------------------------------------------------------------
 void vtkLinearTransformCellLocator::BuildLocatorInternal()
 {
+  if (!this->DataSet || this->DataSet->GetNumberOfCells() < 1)
+  {
+    vtkErrorMacro(<< "No cells to build");
+    return;
+  }
   if (!this->CellLocator)
   {
     vtkErrorMacro("Cell Locator not set");
     return;
   }
+  this->FreeSearchStructure();
   this->IsLinearTransformation = this->ComputeTransformation();
   this->BuildTime.Modified();
 }
@@ -341,6 +347,7 @@ void vtkLinearTransformCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   if (!cellLocator)
   {
     vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to " << this->GetClassName());
+    return;
   }
   // we only copy what's actually used by vtkLinearTransformCellLocator
   this->SetCellLocator(cellLocator->GetCellLocator());
