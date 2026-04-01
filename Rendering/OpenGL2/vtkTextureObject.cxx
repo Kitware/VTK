@@ -39,24 +39,38 @@
 #define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
 
 #ifdef GL_ES_VERSION_3_0
-// On GLES 3.0, VTK_UNSIGNED_SHORT data must be converted to normalized float when
-// GL_EXT_texture_norm16 is absent and the internal format falls back to GL_R32F.
-// Returns a non-empty vector with converted values when conversion is needed,
+// On GLES 3.0, VTK_UNSIGNED_SHORT and VTK_SHORT data must be converted to
+// normalized float when GL_EXT_texture_norm16 is absent and the internal format
+// falls back to GL_R32F. Returns a non-empty vector when conversion is needed,
 // or an empty vector when the original data pointer should be used as-is.
-static std::vector<float> ConvertUShortToNormalizedFloat(
+static std::vector<float> ConvertIntegerToNormalizedFloat(
   int dataType, GLenum glType, const void* data, size_t numValues)
 {
-  if (dataType != VTK_UNSIGNED_SHORT || glType != GL_FLOAT || !data)
+  if (glType != GL_FLOAT || !data)
   {
     return {};
   }
-  std::vector<float> result(numValues);
-  const unsigned short* src = static_cast<const unsigned short*>(data);
-  for (size_t i = 0; i < numValues; ++i)
+  if (dataType == VTK_UNSIGNED_SHORT)
   {
-    result[i] = src[i] / 65535.0f;
+    std::vector<float> result(numValues);
+    const unsigned short* src = static_cast<const unsigned short*>(data);
+    for (size_t i = 0; i < numValues; ++i)
+    {
+      result[i] = src[i] / 65535.0f;
+    }
+    return result;
   }
-  return result;
+  if (dataType == VTK_SHORT)
+  {
+    std::vector<float> result(numValues);
+    const short* src = static_cast<const short*>(data);
+    for (size_t i = 0; i < numValues; ++i)
+    {
+      result[i] = src[i] / 32767.0f;
+    }
+    return result;
+  }
+  return {};
 }
 #endif
 
@@ -890,6 +904,14 @@ int vtkTextureObject::GetDefaultDataType(int vtk_scalar_type)
       return GL_UNSIGNED_BYTE;
 
     case VTK_SHORT:
+#ifdef GL_ES_VERSION_3_0
+      // On GLES 3.0 without GL_EXT_texture_norm16 the internal format falls back
+      // to GL_R32F, which requires GL_FLOAT data. Callers handle the conversion.
+      if (this->Context && !this->Context->GetState()->GetSupportsTextureNorm16())
+      {
+        return GL_FLOAT;
+      }
+#endif
       return GL_SHORT;
 
     case VTK_UNSIGNED_SHORT:
@@ -1242,7 +1264,7 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
   this->Bind();
 
   std::vector<float> convertedData =
-    ConvertUShortToNormalizedFloat(dataType, this->Type, data, (size_t)width * numComps);
+    ConvertIntegerToNormalizedFloat(dataType, this->Type, data, (size_t)width * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
   glTexImage2D(this->Target, 0, this->InternalFormat, static_cast<GLsizei>(this->Width), 1, 0,
     this->Format, this->Type, static_cast<const GLvoid*>(uploadData));
@@ -1578,7 +1600,7 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
-  std::vector<float> convertedData = ConvertUShortToNormalizedFloat(
+  std::vector<float> convertedData = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * depth * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
 #else
@@ -1670,7 +1692,7 @@ bool vtkTextureObject::Create2DFromRaw(
 
 #ifdef GL_ES_VERSION_3_0
   std::vector<float> convertedData =
-    ConvertUShortToNormalizedFloat(dataType, this->Type, data, (size_t)width * height * numComps);
+    ConvertIntegerToNormalizedFloat(dataType, this->Type, data, (size_t)width * height * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
 #else
   const void* uploadData = data;
@@ -1718,7 +1740,7 @@ bool vtkTextureObject::Create2DArrayFromRaw(
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
-  std::vector<float> convertedData = ConvertUShortToNormalizedFloat(
+  std::vector<float> convertedData = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * nbLayers * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
 #else
