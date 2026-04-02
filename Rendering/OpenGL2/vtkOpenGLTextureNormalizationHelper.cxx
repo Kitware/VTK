@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @file vtkOpenGLTextureNormalizationHelper.cxx
  * @brief GPU-based texture normalization implementation for GLES 3.0
@@ -179,13 +181,13 @@ uniform float scaleFactor;
 
 void main() {
   ivec2 coord = ivec2(gl_GlobalInvocationID.xy);
-  
+
   // Read 16-bit unsigned integer
   uint value = imageLoad(inputImage, coord).x;
-  
+
   // Normalize
   float normalized = float(value) * scaleFactor;
-  
+
   // Write to output
   imageStore(outputImage, coord, vec4(normalized, 0.0, 0.0, 1.0));
 }
@@ -398,10 +400,10 @@ uniform float scaleFactor;
 void main() {
   // Read unsigned integer value
   uint value = texture(inputTexture, texCoord).x;
-  
+
   // Normalize to float
   float normalized = float(value) * scaleFactor;
-  
+
   fragColor = vec4(normalized, 0.0, 0.0, 1.0);
 }
 )";

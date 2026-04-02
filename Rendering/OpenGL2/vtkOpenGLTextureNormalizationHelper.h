@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @file vtkOpenGLTextureNormalizationHelper.h
  * @brief GPU-based texture normalization for GLES 3.0 without GL_EXT_texture_norm16
@@ -12,6 +14,7 @@
 #include "vtkRenderingOpenGL2Module.h"
 #include "vtk_glad.h"
 #include <memory>
+#include <vector>
 
 class vtkOpenGLRenderWindow;
 
