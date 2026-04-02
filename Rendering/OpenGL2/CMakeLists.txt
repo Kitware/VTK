@@ -71,6 +71,7 @@ set(classes
   vtkOpenGLSkybox
   vtkOpenGLSphereMapper
   vtkOpenGLState
+  vtkOpenGLTextureNormalizationHelper
   vtkOpenGLStickMapper
   vtkOpenGLTextActor
   vtkOpenGLTextActor3D
