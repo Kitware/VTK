@@ -33,6 +33,7 @@
 #include "vtkTimerLog.h"
 #endif
 
+#include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkTextureObjectFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
@@ -1263,6 +1264,20 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
   this->CreateTexture();
   this->Bind();
 
+  // Try GPU-assisted conversion first
+  auto helper = this->Context->GetState()->GetTextureNormalizationHelper();
+  if (helper && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  {
+    if (dataType == VTK_UNSIGNED_SHORT)
+      helper->ConvertUShortToFloat(
+        data, (size_t)width * numComps, numComps, this->Handle, width, 1);
+    else
+      helper->ConvertShortToFloat(data, (size_t)width * numComps, numComps, this->Handle, width, 1);
+    this->Deactivate();
+    return true;
+  }
+
+  // Fall back to CPU conversion if GPU not available
   std::vector<float> convertedData =
     ConvertIntegerToNormalizedFloat(dataType, this->Type, data, (size_t)width * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
@@ -1600,9 +1615,24 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
-  std::vector<float> convertedData = ConvertIntegerToNormalizedFloat(
+  // Try GPU-assisted conversion first
+  auto helper3D = this->Context->GetState()->GetTextureNormalizationHelper();
+  if (helper3D && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  {
+    if (dataType == VTK_UNSIGNED_SHORT)
+      helper3D->ConvertUShortToFloat(data, (size_t)width * height * depth * numComps, numComps,
+        this->Handle, width, height * depth);
+    else
+      helper3D->ConvertShortToFloat(data, (size_t)width * height * depth * numComps, numComps,
+        this->Handle, width, height * depth);
+    this->Deactivate();
+    return vtkOpenGLCheckErrors("Failed to allocate 3D texture.");
+  }
+
+  // Fall back to CPU conversion if GPU not available
+  std::vector<float> convertedData3D = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * depth * numComps);
-  const void* uploadData = convertedData.empty() ? data : convertedData.data();
+  const void* uploadData = convertedData3D.empty() ? data : convertedData3D.data();
 #else
   const void* uploadData = data;
 #endif
@@ -1691,6 +1721,21 @@ bool vtkTextureObject::Create2DFromRaw(
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
+  // Try GPU-assisted conversion first
+  auto helper2D = this->Context->GetState()->GetTextureNormalizationHelper();
+  if (helper2D && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  {
+    if (dataType == VTK_UNSIGNED_SHORT)
+      helper2D->ConvertUShortToFloat(
+        data, (size_t)width * height * numComps, numComps, this->Handle, width, height);
+    else
+      helper2D->ConvertShortToFloat(
+        data, (size_t)width * height * numComps, numComps, this->Handle, width, height);
+    this->Deactivate();
+    return true;
+  }
+
+  // Fall back to CPU conversion if GPU not available
   std::vector<float> convertedData =
     ConvertIntegerToNormalizedFloat(dataType, this->Type, data, (size_t)width * height * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
@@ -1740,6 +1785,21 @@ bool vtkTextureObject::Create2DArrayFromRaw(
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
+  // Try GPU-assisted conversion first
+  auto helper2DA = this->Context->GetState()->GetTextureNormalizationHelper();
+  if (helper2DA && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  {
+    if (dataType == VTK_UNSIGNED_SHORT)
+      helper2DA->ConvertUShortToFloat(data, (size_t)width * height * nbLayers * numComps, numComps,
+        this->Handle, width, height * nbLayers);
+    else
+      helper2DA->ConvertShortToFloat(data, (size_t)width * height * nbLayers * numComps, numComps,
+        this->Handle, width, height * nbLayers);
+    this->Deactivate();
+    return true;
+  }
+
+  // Fall back to CPU conversion if GPU not available
   std::vector<float> convertedData = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * nbLayers * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
