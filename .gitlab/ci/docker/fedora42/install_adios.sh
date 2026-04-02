@@ -3,14 +3,13 @@
 set -e
 
 readonly adios_repo="https://github.com/ornladios/ADIOS2"
-readonly adios_commit="7cb3f7c8141eb85054bf099c8fa9c14832491db4" # Commit just passed of v2.12.0, needed due to a build error in arm64
+readonly adios_commit="v2.12.1"
 
 readonly adios_root="$HOME/adios"
 readonly adios_src="$adios_root/src"
 readonly adios_build_root="$adios_root/build"
 
-(git clone "$adios_repo" "$adios_src" && cd "$adios_src" && git checkout "$adios_commit")
-sed -i '/#include <sstream>/a #include <cstdint>' "${adios_src}/thirdparty/yaml-cpp/yaml-cpp/src/emitterutils.cpp"
+git clone -b "$adios_commit" "$adios_repo" "$adios_src"
 
 adios_build () {
     local subdir="$1"
