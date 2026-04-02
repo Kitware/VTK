@@ -119,6 +119,7 @@ private:
   mutable std::vector<float> ConversionBuffer;
 };
 
+#ifdef GL_COMPUTE_SHADER
 /**
  * GPU compute shader implementation (if compute shaders available)
  */
@@ -146,6 +147,7 @@ private:
   bool RunNormalizationCompute(
     int numComps, GLuint targetTexture, unsigned int width, unsigned int height);
 };
+#endif // GL_COMPUTE_SHADER
 
 /**
  * Framebuffer-based shader conversion (fallback for devices without compute shaders)

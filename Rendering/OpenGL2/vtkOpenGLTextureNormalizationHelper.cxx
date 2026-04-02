@@ -89,7 +89,7 @@ bool vtkOpenGLTextureCPUNormalization::ConvertUShortToFloat(const void* sourceDa
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F + (numComps - 1), static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, format, GL_FLOAT, dst);
 
-  vtkOpenGLCheckErrorMacro("Failed to upload converted texture data");
+  vtkOpenGLStaticCheckErrorMacro("Failed to upload converted texture data");
   return true;
 }
 
@@ -124,13 +124,15 @@ bool vtkOpenGLTextureCPUNormalization::ConvertShortToFloat(const void* sourceDat
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F + (numComps - 1), static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, format, GL_FLOAT, dst);
 
-  vtkOpenGLCheckErrorMacro("Failed to upload converted texture data");
+  vtkOpenGLStaticCheckErrorMacro("Failed to upload converted texture data");
   return true;
 }
 
 // =============================================================================
 // vtkOpenGLTextureComputeShaderNormalization - Compute Shader Implementation
 // =============================================================================
+
+#ifdef GL_COMPUTE_SHADER
 
 vtkOpenGLTextureComputeShaderNormalization::vtkOpenGLTextureComputeShaderNormalization(
   vtkOpenGLRenderWindow* context)
@@ -198,7 +200,7 @@ void main() {
   glGetShaderiv(computeShader, GL_COMPILE_STATUS, &compiled);
   if (!compiled)
   {
-    vtkOpenGLCheckErrorMacro("Failed to compile compute shader");
+    vtkOpenGLStaticCheckErrorMacro("Failed to compile compute shader");
     glDeleteShader(computeShader);
     return false;
   }
@@ -214,7 +216,7 @@ void main() {
 
   if (!linked)
   {
-    vtkOpenGLCheckErrorMacro("Failed to link compute program");
+    vtkOpenGLStaticCheckErrorMacro("Failed to link compute program");
     glDeleteProgram(this->ComputeProgram);
     this->ComputeProgram = 0;
     return false;
@@ -240,7 +242,7 @@ bool vtkOpenGLTextureComputeShaderNormalization::UploadToIntermediateTexture(con
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, sourceData);
 
-  vtkOpenGLCheckErrorMacro("Failed to upload intermediate texture");
+  vtkOpenGLStaticCheckErrorMacro("Failed to upload intermediate texture");
   return true;
 }
 
@@ -270,7 +272,7 @@ bool vtkOpenGLTextureComputeShaderNormalization::RunNormalizationCompute(
   // Wait for computation
   glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT);
 
-  vtkOpenGLCheckErrorMacro("Compute shader normalization failed");
+  vtkOpenGLStaticCheckErrorMacro("Compute shader normalization failed");
   return true;
 }
 
@@ -316,6 +318,8 @@ bool vtkOpenGLTextureComputeShaderNormalization::ConvertShortToFloat(const void*
   return cpuConverter->ConvertShortToFloat(
     sourceData, numValues, numComps, targetTexture, width, height);
 }
+
+#endif // GL_COMPUTE_SHADER
 
 // =============================================================================
 // vtkOpenGLTextureFramebufferNormalization - Framebuffer-based Conversion
@@ -413,9 +417,17 @@ void main() {
   // Check compilation
   GLint compiled = 0;
   glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compiled);
-  if (!compiled || !glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compiled))
+  if (!compiled)
   {
-    vtkOpenGLCheckErrorMacro("Failed to compile conversion shaders");
+    vtkOpenGLStaticCheckErrorMacro("Failed to compile vertex shader");
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    return false;
+  }
+  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compiled);
+  if (!compiled)
+  {
+    vtkOpenGLStaticCheckErrorMacro("Failed to compile fragment shader");
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     return false;
@@ -434,7 +446,7 @@ void main() {
 
   if (!linked)
   {
-    vtkOpenGLCheckErrorMacro("Failed to link conversion program");
+    vtkOpenGLStaticCheckErrorMacro("Failed to link conversion program");
     glDeleteProgram(this->ConversionProgram);
     this->ConversionProgram = 0;
     return false;
@@ -464,7 +476,7 @@ bool vtkOpenGLTextureFramebufferNormalization::UploadToIntermediateTexture(const
   glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, dataFormat, GL_UNSIGNED_SHORT, sourceData);
 
-  vtkOpenGLCheckErrorMacro("Failed to upload intermediate texture");
+  vtkOpenGLStaticCheckErrorMacro("Failed to upload intermediate texture");
   return true;
 }
 
@@ -483,7 +495,7 @@ bool vtkOpenGLTextureFramebufferNormalization::PerformFramebufferConversion(
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE)
   {
-    vtkOpenGLCheckErrorMacro("Framebuffer not complete");
+    vtkOpenGLStaticCheckErrorMacro("Framebuffer not complete");
     return false;
   }
 
@@ -505,7 +517,7 @@ bool vtkOpenGLTextureFramebufferNormalization::PerformFramebufferConversion(
   glBindVertexArray(this->ConversionVAO);
   glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-  vtkOpenGLCheckErrorMacro("Framebuffer conversion render failed");
+  vtkOpenGLStaticCheckErrorMacro("Framebuffer conversion render failed");
   return true;
 }
 
