@@ -2,25 +2,16 @@
 
 set -e
 
-readonly alembic_version="1.8.8"
-readonly alembic_tarball="$alembic_version.tar.gz"
-readonly alembic_sha256sum="ba1f34544608ef7d3f68cafea946ec9cc84792ddf9cda3e8d5590821df71f6c6"
+readonly alembic_repo="https://github.com/alembic/alembic.git"
+readonly alembic_commit="1.8.11"
 
 readonly alembic_root="$HOME/alembic"
-
 readonly alembic_src="$alembic_root/src"
 readonly alembic_build="$alembic_root/build"
 
-mkdir -p "$alembic_root" \
-    "$alembic_src" "$alembic_build"
-cd "$alembic_root"
+git clone -b "$alembic_commit" "$alembic_repo" "$alembic_src"
 
-echo "$alembic_sha256sum  $alembic_tarball" > alembic.sha256sum
-curl -OL "https://github.com/alembic/alembic/archive/refs/tags/$alembic_tarball"
-sha256sum --check alembic.sha256sum
-
-tar -C "$alembic_src" --strip-components=1 -xf "$alembic_tarball"
-
+mkdir -p "$alembic_build"
 cd "$alembic_build"
 
 # depends on Imath already being installed
