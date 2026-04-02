@@ -8,6 +8,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRenderer.h"
 #include "vtkTextureUnitManager.h"
@@ -1535,10 +1536,16 @@ void vtkOpenGLState::Pop()
 
 // make the hardware openglstate match the
 // state ivars
-void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
+void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow* renWin)
 {
   this->TextureUnitManager->Initialize();
   this->InitializeTextureInternalFormats();
+#ifdef GL_ES_VERSION_3_0
+  if (!this->SupportsTextureNorm16)
+  {
+    this->TextureNormalizationHelper = vtkOpenGLTextureNormalizationHelper::Create(renWin);
+  }
+#endif
   auto& cs = this->Stack.top();
 
   cs.Blend ? ::glEnable(GL_BLEND) : ::glDisable(GL_BLEND);

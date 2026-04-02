@@ -56,6 +56,7 @@
 #include <array>                       // for ivar
 #include <list>                        // for ivar
 #include <map>                         // for ivar
+#include <memory>                      // for ivar
 #include <stack>                       // for ivar
 #include <string>                      // for ivar
 
@@ -64,6 +65,7 @@ class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
+class vtkOpenGLTextureNormalizationHelper;
 class vtkTextureObject;
 class vtkTextureUnitManager;
 
@@ -393,6 +395,15 @@ public:
    */
   bool GetSupportsTextureNorm16() { return this->SupportsTextureNorm16; }
 
+  /**
+   * Get the texture normalization helper for GLES 3.0 without norm16 extension.
+   * Returns nullptr if no GPU-assisted conversion is available or on desktop OpenGL.
+   */
+  vtkOpenGLTextureNormalizationHelper* GetTextureNormalizationHelper()
+  {
+    return this->TextureNormalizationHelper.get();
+  }
+
 protected:
   vtkOpenGLState(); // set initial values
   ~vtkOpenGLState() override;
@@ -408,6 +419,7 @@ protected:
   void InitializeTextureInternalFormats();
 
   vtkTextureUnitManager* TextureUnitManager;
+  std::shared_ptr<vtkOpenGLTextureNormalizationHelper> TextureNormalizationHelper;
   std::map<const vtkTextureObject*, int> TextureResourceIds;
 
   /**
