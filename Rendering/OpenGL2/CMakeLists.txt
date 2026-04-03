@@ -14,18 +14,19 @@ set(classes
   vtkEquirectangularToCubeMapTexture
   vtkFastLabeledDataMapper
   vtkFramebufferPass
-  vtkGaussianBlurPass
-  vtkGenericOpenGLRenderWindow
   vtkGLSLModCamera
   vtkGLSLModCoincidentTopology
   vtkGLSLModLight
   vtkGLSLModPixelDebugger
   vtkGLSLModifierBase
   vtkGLSLModifierFactory
+  vtkGaussianBlurPass
+  vtkGenericOpenGLRenderWindow
   vtkHiddenLineRemovalPass
   vtkImageProcessingPass
   vtkLightingMapPass
   vtkLightsPass
+  vtkOSOpenGLRenderWindow
   vtkOpaquePass
   vtkOpenGLActor
   vtkOpenGLArrayTextureBufferAdapter
@@ -71,19 +72,21 @@ set(classes
   vtkOpenGLSkybox
   vtkOpenGLSphereMapper
   vtkOpenGLState
-  vtkOpenGLTextureNormalizationHelper
   vtkOpenGLStickMapper
   vtkOpenGLTextActor
   vtkOpenGLTextActor3D
   vtkOpenGLTextMapper
   vtkOpenGLTexture
+  vtkOpenGLTextureCPUNormalization
+  vtkOpenGLTextureComputeShaderNormalization
+  vtkOpenGLTextureFramebufferNormalization
+  vtkOpenGLTextureNormalizationHelper
   vtkOpenGLUniforms
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
   vtkOpenGLVertexBufferObjectCache
   vtkOpenGLVertexBufferObjectGroup
   vtkOrderIndependentTranslucentPass
-  vtkOSOpenGLRenderWindow
   vtkOutlineGlowPass
   vtkOverlayPass
   vtkPBRIrradianceTexture

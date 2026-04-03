@@ -1,25 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @file vtkOpenGLTextureNormalizationHelper.h
+ * @class vtkOpenGLTextureNormalizationHelper
  * @brief GPU-based texture normalization for GLES 3.0 without GL_EXT_texture_norm16
  *
  * This helper provides zero-copy conversion of 16-bit integer texture data
  * to normalized float format using GPU-assisted operations on GLES 3.0.
- */
-
-#ifndef vtkOpenGLTextureNormalizationHelper_h
-#define vtkOpenGLTextureNormalizationHelper_h
-
-#include "vtkRenderingOpenGL2Module.h"
-#include "vtk_glad.h"
-#include <memory>
-#include <vector>
-
-class vtkOpenGLRenderWindow;
-
-/**
- * GPU-based texture normalization helper for GLES 3.0 without norm16 extension
  *
  * When GL_EXT_texture_norm16 is unavailable on GLES 3.0, this helper converts
  * 16-bit integer texture data to normalized 32-bit float format using GPU operations
@@ -29,10 +15,30 @@ class vtkOpenGLRenderWindow;
  *  - VTK_UNSIGNED_SHORT -> GL_R32F (dividing by 65535.0)
  *  - VTK_SHORT -> GL_R32F (dividing by 32767.0)
  *  - Multi-channel variants (RG32F, RGB32F, RGBA32F)
+ *
+ * Use Create() to obtain a concrete subclass appropriate for the current OpenGL context.
+ * Concrete implementations are:
+ *  - vtkOpenGLTextureCPUNormalization: CPU-based fallback
+ *  - vtkOpenGLTextureComputeShaderNormalization: GPU compute shader (GL 4.3+)
+ *  - vtkOpenGLTextureFramebufferNormalization: Framebuffer-based shader conversion
  */
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureNormalizationHelper
+
+#ifndef vtkOpenGLTextureNormalizationHelper_h
+#define vtkOpenGLTextureNormalizationHelper_h
+
+#include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // For ivar
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkOpenGLRenderWindow;
+
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureNormalizationHelper : public vtkObject
 {
 public:
+  vtkAbstractTypeMacro(vtkOpenGLTextureNormalizationHelper, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   enum class ConversionMode
   {
     CPU,           // CPU conversion (fallback)
@@ -42,12 +48,11 @@ public:
   };
 
   /**
-   * Create a helper instance for the given OpenGL context
+   * Create a helper instance appropriate for the given OpenGL context.
+   * Selects the best available implementation based on OpenGL capabilities.
    */
-  static std::shared_ptr<vtkOpenGLTextureNormalizationHelper> Create(
+  static vtkSmartPointer<vtkOpenGLTextureNormalizationHelper> Create(
     vtkOpenGLRenderWindow* context);
-
-  virtual ~vtkOpenGLTextureNormalizationHelper() = default;
 
   /**
    * Get the preferred conversion mode for this context
@@ -74,7 +79,7 @@ public:
    * @return true if conversion succeeded
    */
   virtual bool ConvertUShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) = 0;
+    unsigned int targetTexture, unsigned int width, unsigned int height) = 0;
 
   /**
    * Convert signed short texture data to float in GPU memory
@@ -88,103 +93,18 @@ public:
    * @return true if conversion succeeded
    */
   virtual bool ConvertShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) = 0;
+    unsigned int targetTexture, unsigned int width, unsigned int height) = 0;
 
 protected:
-  vtkOpenGLTextureNormalizationHelper(ConversionMode mode)
-    : Mode(mode)
-  {
-  }
+  vtkOpenGLTextureNormalizationHelper() = default;
+  ~vtkOpenGLTextureNormalizationHelper() override = default;
 
-  ConversionMode Mode;
-};
-
-/**
- * CPU-based fallback implementation (current approach)
- */
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureCPUNormalization
-  : public vtkOpenGLTextureNormalizationHelper
-{
-public:
-  vtkOpenGLTextureCPUNormalization()
-    : vtkOpenGLTextureNormalizationHelper(ConversionMode::CPU)
-  {
-  }
-
-  bool ConvertUShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
-
-  bool ConvertShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
+  ConversionMode Mode = ConversionMode::CPU;
 
 private:
-  // Reusable buffer to avoid allocations
-  mutable std::vector<float> ConversionBuffer;
+  vtkOpenGLTextureNormalizationHelper(const vtkOpenGLTextureNormalizationHelper&) = delete;
+  void operator=(const vtkOpenGLTextureNormalizationHelper&) = delete;
 };
 
-#ifdef GL_COMPUTE_SHADER
-/**
- * GPU compute shader implementation (if compute shaders available)
- */
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureComputeShaderNormalization
-  : public vtkOpenGLTextureNormalizationHelper
-{
-public:
-  vtkOpenGLTextureComputeShaderNormalization(vtkOpenGLRenderWindow* context);
-  ~vtkOpenGLTextureComputeShaderNormalization() override;
-
-  bool ConvertUShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
-
-  bool ConvertShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
-
-private:
-  vtkOpenGLRenderWindow* Context = nullptr;
-  GLuint ComputeProgram = 0;
-  GLuint IntermediateStorageTexture = 0;
-
-  bool InitializeComputeProgram();
-  bool UploadToIntermediateTexture(const void* sourceData, size_t numValues, int numComps,
-    unsigned int width, unsigned int height, GLenum sourceFormat);
-  bool RunNormalizationCompute(
-    int numComps, GLuint targetTexture, unsigned int width, unsigned int height);
-};
-#endif // GL_COMPUTE_SHADER
-
-/**
- * Framebuffer-based shader conversion (fallback for devices without compute shaders)
- *
- * Strategy:
- * 1. Upload integer data to temporary R16UI/R16I texture
- * 2. Use shader program that samples from R16UI and writes to R32F
- * 3. Render fullscreen quad to perform conversion
- */
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureFramebufferNormalization
-  : public vtkOpenGLTextureNormalizationHelper
-{
-public:
-  vtkOpenGLTextureFramebufferNormalization(vtkOpenGLRenderWindow* context);
-  ~vtkOpenGLTextureFramebufferNormalization() override;
-
-  bool ConvertUShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
-
-  bool ConvertShortToFloat(const void* sourceData, size_t numValues, int numComps,
-    GLuint targetTexture, unsigned int width, unsigned int height) override;
-
-private:
-  vtkOpenGLRenderWindow* Context = nullptr;
-  GLuint ConversionProgram = 0;
-  GLuint IntermediateTexture = 0;
-  GLuint ConversionFramebuffer = 0;
-  GLuint ConversionVAO = 0;
-
-  bool InitializeConversionShader();
-  bool UploadToIntermediateTexture(const void* sourceData, size_t numValues, int numComps,
-    unsigned int width, unsigned int height, GLenum internalFormat, GLenum dataFormat);
-  bool PerformFramebufferConversion(
-    GLuint targetTexture, int numComps, unsigned int width, unsigned int height, float scaleFactor);
-};
-
+VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLTextureNormalizationHelper_h
