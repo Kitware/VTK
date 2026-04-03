@@ -56,7 +56,6 @@
 #include <array>                       // for ivar
 #include <list>                        // for ivar
 #include <map>                         // for ivar
-#include <memory>                      // for ivar
 #include <stack>                       // for ivar
 #include <string>                      // for ivar
 
@@ -64,8 +63,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLShaderCache;
-class vtkOpenGLVertexBufferObjectCache;
 class vtkOpenGLTextureNormalizationHelper;
+class vtkOpenGLVertexBufferObjectCache;
 class vtkTextureObject;
 class vtkTextureUnitManager;
 
@@ -401,7 +400,7 @@ public:
    */
   vtkOpenGLTextureNormalizationHelper* GetTextureNormalizationHelper()
   {
-    return this->TextureNormalizationHelper.get();
+    return this->TextureNormalizationHelper;
   }
 
 protected:
@@ -419,7 +418,7 @@ protected:
   void InitializeTextureInternalFormats();
 
   vtkTextureUnitManager* TextureUnitManager;
-  std::shared_ptr<vtkOpenGLTextureNormalizationHelper> TextureNormalizationHelper;
+  vtkOpenGLTextureNormalizationHelper* TextureNormalizationHelper = nullptr;
   std::map<const vtkTextureObject*, int> TextureResourceIds;
 
   /**

@@ -1543,7 +1543,13 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow* renWin)
 #ifdef GL_ES_VERSION_3_0
   if (!this->SupportsTextureNorm16)
   {
-    this->TextureNormalizationHelper = vtkOpenGLTextureNormalizationHelper::Create(renWin);
+    auto helper = vtkOpenGLTextureNormalizationHelper::Create(renWin);
+    if (helper)
+    {
+      this->TextureNormalizationHelper = helper.GetPointer();
+      // Register so the object survives when the temporary smart pointer is destroyed
+      this->TextureNormalizationHelper->Register(this);
+    }
   }
 #endif
   auto& cs = this->Stack.top();
@@ -2001,6 +2007,11 @@ vtkOpenGLState::~vtkOpenGLState()
   this->SetTextureUnitManager(nullptr);
   this->VBOCache->Delete();
   this->ShaderCache->Delete();
+  if (this->TextureNormalizationHelper)
+  {
+    this->TextureNormalizationHelper->UnRegister(this);
+    this->TextureNormalizationHelper = nullptr;
+  }
 }
 
 void vtkOpenGLState::PushDrawFramebufferBinding()
