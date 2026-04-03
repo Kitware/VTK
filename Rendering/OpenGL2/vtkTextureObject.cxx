@@ -33,10 +33,12 @@
 #include "vtkTimerLog.h"
 #endif
 
+#include "vtkLogger.h"
 #include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkTextureObjectFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+VTK_ABI_NAMESPACE_BEGIN
 #define BUFFER_OFFSET(i) (reinterpret_cast<char*>(i))
 
 #ifdef GL_ES_VERSION_3_0
@@ -77,7 +79,6 @@ static std::vector<float> ConvertIntegerToNormalizedFloat(
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //------------------------------------------------------------------------------
-VTK_ABI_NAMESPACE_BEGIN
 static GLint OpenGLDepthTextureCompareFunction[8] = { GL_LEQUAL, GL_GEQUAL, GL_LESS, GL_GREATER,
   GL_EQUAL, GL_NOTEQUAL, GL_ALWAYS, GL_NEVER };
 
@@ -1269,15 +1270,21 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
   if (helper && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
   {
     if (dataType == VTK_UNSIGNED_SHORT)
+    {
       helper->ConvertUShortToFloat(
         data, (size_t)width * numComps, numComps, this->Handle, width, 1);
+    }
     else
+    {
       helper->ConvertShortToFloat(data, (size_t)width * numComps, numComps, this->Handle, width, 1);
+    }
     this->Deactivate();
     return true;
   }
 
   // Fall back to CPU conversion if GPU not available
+  vtkLogF(
+    INFO, "GPU-assisted texture normalization not available. Falling back to CPU conversion.");
   std::vector<float> convertedData =
     ConvertIntegerToNormalizedFloat(dataType, this->Type, data, (size_t)width * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
