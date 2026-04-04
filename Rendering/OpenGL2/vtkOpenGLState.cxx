@@ -10,7 +10,6 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
-#include "vtkRenderer.h"
 #include "vtkTextureUnitManager.h"
 
 // must be included after a vtkObject subclass
@@ -1551,6 +1550,8 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow* renWin)
       this->TextureNormalizationHelper->Register(this);
     }
   }
+#else
+  (void)renWin; // not needed for desktop OpenGL
 #endif
   auto& cs = this->Stack.top();
 
