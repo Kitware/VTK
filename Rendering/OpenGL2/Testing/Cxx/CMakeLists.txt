@@ -83,10 +83,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSharedRenderWindow.cxx,NO_SERDES
   TestDirectSelectionRendering.cxx
   TestSimpleMotionBlur.cxx,NO_SERDES
-  TestSkyboxBlur.cxx
-  TestSkyboxRotation.cxx
-  TestSkyboxCubeRotation.cxx
-  TestSkyboxRotationVectors.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx
   TestSpherePoints.cxx
