@@ -227,10 +227,19 @@ bool vtkOpenGLTextureFramebufferNormalization::ConvertUShortToFloat(const void* 
   }
 
   // Pre-allocate target texture
-  GLenum outputFormat = (numComps == 1) ? GL_R32F
-    : (numComps == 2)                   ? GL_RG32F
-    : (numComps == 3)                   ? GL_RGB32F
-                                        : GL_RGBA32F;
+  GLenum outputFormat = GL_R32F;
+  if (numComps == 2)
+  {
+    outputFormat = GL_RG32F;
+  }
+  else if (numComps == 3)
+  {
+    outputFormat = GL_RGB32F;
+  }
+  else
+  {
+    outputFormat = GL_RGBA32F;
+  }
   glBindTexture(GL_TEXTURE_2D, targetTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -238,10 +247,19 @@ bool vtkOpenGLTextureFramebufferNormalization::ConvertUShortToFloat(const void* 
     static_cast<GLsizei>(height), 0, GL_RED, GL_FLOAT, nullptr);
 
   // Upload to intermediate R16UI texture
-  GLenum intermediateFormat = (numComps == 1) ? GL_R16UI
-    : (numComps == 2)                         ? GL_RG16UI
-    : (numComps == 3)                         ? GL_RGB16UI
-                                              : GL_RGBA16UI;
+  GLenum intermediateFormat = GL_R16UI;
+  if (numComps == 2)
+  {
+    intermediateFormat = GL_RG16UI;
+  }
+  else if (numComps == 3)
+  {
+    intermediateFormat = GL_RGB16UI;
+  }
+  else
+  {
+    intermediateFormat = GL_RGBA16UI;
+  }
   if (!this->UploadToIntermediateTexture(
         sourceData, numValues, numComps, width, height, intermediateFormat, GL_RED_INTEGER))
   {
@@ -263,10 +281,19 @@ bool vtkOpenGLTextureFramebufferNormalization::ConvertShortToFloat(const void* s
   }
 
   // Pre-allocate target texture
-  GLenum outputFormat = (numComps == 1) ? GL_R32F
-    : (numComps == 2)                   ? GL_RG32F
-    : (numComps == 3)                   ? GL_RGB32F
-                                        : GL_RGBA32F;
+  GLenum outputFormat = GL_R32F;
+  if (numComps == 2)
+  {
+    outputFormat = GL_RG32F;
+  }
+  else if (numComps == 3)
+  {
+    outputFormat = GL_RGB32F;
+  }
+  else
+  {
+    outputFormat = GL_RGBA32F;
+  }
   glBindTexture(GL_TEXTURE_2D, targetTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -274,10 +301,19 @@ bool vtkOpenGLTextureFramebufferNormalization::ConvertShortToFloat(const void* s
     static_cast<GLsizei>(height), 0, GL_RED, GL_FLOAT, nullptr);
 
   // Upload to intermediate R16I texture
-  GLenum intermediateFormat = (numComps == 1) ? GL_R16I
-    : (numComps == 2)                         ? GL_RG16I
-    : (numComps == 3)                         ? GL_RGB16I
-                                              : GL_RGBA16I;
+  GLenum intermediateFormat = GL_R16I;
+  if (numComps == 2)
+  {
+    intermediateFormat = GL_RG16I;
+  }
+  else if (numComps == 3)
+  {
+    intermediateFormat = GL_RGB16I;
+  }
+  else
+  {
+    intermediateFormat = GL_RGBA16I;
+  }
   if (!this->UploadToIntermediateTexture(
         sourceData, numValues, numComps, width, height, intermediateFormat, GL_RED_INTEGER))
   {

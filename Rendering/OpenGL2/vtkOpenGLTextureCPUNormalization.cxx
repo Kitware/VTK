@@ -44,10 +44,19 @@ bool vtkOpenGLTextureCPUNormalization::ConvertUShortToFloat(const void* sourceDa
 
   // Upload converted data
   glBindTexture(GL_TEXTURE_2D, targetTexture);
-  GLenum format = (numComps == 1) ? GL_RED
-    : (numComps == 2)             ? GL_RG
-    : (numComps == 3)             ? GL_RGB
-                                  : GL_RGBA;
+  GLenum format = GL_RED;
+  if (numComps == 2)
+  {
+    format = GL_RG;
+  }
+  else if (numComps == 3)
+  {
+    format = GL_RGB;
+  }
+  else
+  {
+    format = GL_RGBA;
+  }
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F + (numComps - 1), static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, format, GL_FLOAT, dst);
 
@@ -79,12 +88,21 @@ bool vtkOpenGLTextureCPUNormalization::ConvertShortToFloat(const void* sourceDat
 
   // Upload converted data
   glBindTexture(GL_TEXTURE_2D, targetTexture);
-  GLenum format = (numComps == 1) ? GL_RED
-    : (numComps == 2)             ? GL_RG
-    : (numComps == 3)             ? GL_RGB
-                                  : GL_RGBA;
+  GLenum format2 = GL_RED;
+  if (numComps == 2)
+  {
+    format2 = GL_RG;
+  }
+  else if (numComps == 3)
+  {
+    format2 = GL_RGB;
+  }
+  else
+  {
+    format2 = GL_RGBA;
+  }
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F + (numComps - 1), static_cast<GLsizei>(width),
-    static_cast<GLsizei>(height), 0, format, GL_FLOAT, dst);
+    static_cast<GLsizei>(height), 0, format2, GL_FLOAT, dst);
 
   vtkOpenGLStaticCheckErrorMacro("Failed to upload converted texture data");
   return true;

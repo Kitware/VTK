@@ -145,10 +145,19 @@ bool vtkOpenGLTextureComputeShaderNormalization::RunNormalizationCompute(
   glBindImageTexture(0, this->IntermediateStorageTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16UI);
 
   // Bind output texture
-  GLenum outputFormat = (numComps == 1) ? GL_R32F
-    : (numComps == 2)                   ? GL_RG32F
-    : (numComps == 3)                   ? GL_RGB32F
-                                        : GL_RGBA32F;
+  GLenum outputFormat = GL_R32F;
+  if (numComps == 2)
+  {
+    outputFormat = GL_RG32F;
+  }
+  else if (numComps == 3)
+  {
+    outputFormat = GL_RGB32F;
+  }
+  else
+  {
+    outputFormat = GL_RGBA32F;
+  }
   glBindImageTexture(1, targetTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, outputFormat);
 
   // Set scale factor
@@ -176,10 +185,19 @@ bool vtkOpenGLTextureComputeShaderNormalization::ConvertUShortToFloat(const void
   }
 
   // Pre-allocate target texture
-  GLenum outputFormat = (numComps == 1) ? GL_R32F
-    : (numComps == 2)                   ? GL_RG32F
-    : (numComps == 3)                   ? GL_RGB32F
-                                        : GL_RGBA32F;
+  GLenum outputFormat = GL_R32F;
+  if (numComps == 2)
+  {
+    outputFormat = GL_RG32F;
+  }
+  else if (numComps == 3)
+  {
+    outputFormat = GL_RGB32F;
+  }
+  else
+  {
+    outputFormat = GL_RGBA32F;
+  }
   glBindTexture(GL_TEXTURE_2D, targetTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, outputFormat, static_cast<GLsizei>(width),
     static_cast<GLsizei>(height), 0, GL_RED, GL_FLOAT, nullptr);
