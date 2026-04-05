@@ -37,6 +37,7 @@ set(classes
   vtkWebGPURenderer
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
+  vtkWebGPUSkybox
   vtkWebGPUTexture
   vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView)
@@ -99,7 +100,7 @@ set(webgpu_overrides
   # NI: Uniforms
   Renderer
   # NI: RenderTimerLog
-  # NI: Skybox
+  Skybox
   # NI: TextActor
   # NI: TextActor3D
   # NI: TextMapper
