@@ -107,6 +107,7 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
   int dataType = firstInputScalars->GetDataType();
   if (this->CubeMap)
   {
+    inputs.emplace_back(input);
     for (int i = 1; i < this->GetNumberOfInputPorts(); ++i)
     {
       vtkImageData* image = vtkImageData::SafeDownCast(this->GetInputDataObject(i, 0));
@@ -257,6 +258,67 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
           }
           needToDeleteDataPlane[i] = true;
         }
+        // WebGPU does not support 3-component texture formats. Convert RGB to RGBA.
+        if (numComponents == 3 && dataPlanes[i])
+        {
+          auto numTuples = inputScalars->GetNumberOfTuples();
+          if (dataType == VTK_UNSIGNED_CHAR)
+          {
+            auto* src = static_cast<unsigned char*>(dataPlanes[i]);
+            auto* dst = new unsigned char[numTuples * 4];
+            for (vtkIdType t = 0; t < numTuples; ++t)
+            {
+              dst[t * 4 + 0] = src[t * 3 + 0];
+              dst[t * 4 + 1] = src[t * 3 + 1];
+              dst[t * 4 + 2] = src[t * 3 + 2];
+              dst[t * 4 + 3] = 255;
+            }
+            if (needToDeleteDataPlane[i])
+            {
+              delete[] src;
+            }
+            dataPlanes[i] = dst;
+            needToDeleteDataPlane[i] = true;
+          }
+          else if (dataType == VTK_FLOAT)
+          {
+            auto* src = static_cast<float*>(dataPlanes[i]);
+            auto* dstBytes = new unsigned char[numTuples * 4 * sizeof(float)];
+            auto* dst = reinterpret_cast<float*>(dstBytes);
+            for (vtkIdType t = 0; t < numTuples; ++t)
+            {
+              dst[t * 4 + 0] = src[t * 3 + 0];
+              dst[t * 4 + 1] = src[t * 3 + 1];
+              dst[t * 4 + 2] = src[t * 3 + 2];
+              dst[t * 4 + 3] = 1.0f;
+            }
+            if (needToDeleteDataPlane[i])
+            {
+              delete[] static_cast<unsigned char*>(dataPlanes[i]);
+            }
+            dataPlanes[i] = dstBytes;
+            needToDeleteDataPlane[i] = true;
+          }
+          else if (dataType == VTK_UNSIGNED_SHORT)
+          {
+            auto* src = static_cast<unsigned short*>(dataPlanes[i]);
+            auto* dstBytes = new unsigned char[numTuples * 4 * sizeof(unsigned short)];
+            auto* dst = reinterpret_cast<unsigned short*>(dstBytes);
+            for (vtkIdType t = 0; t < numTuples; ++t)
+            {
+              dst[t * 4 + 0] = src[t * 3 + 0];
+              dst[t * 4 + 1] = src[t * 3 + 1];
+              dst[t * 4 + 2] = src[t * 3 + 2];
+              dst[t * 4 + 3] = 65535;
+            }
+            if (needToDeleteDataPlane[i])
+            {
+              delete[] static_cast<unsigned char*>(dataPlanes[i]);
+            }
+            dataPlanes[i] = dstBytes;
+            needToDeleteDataPlane[i] = true;
+          }
+        }
       }
       else
       {
@@ -269,6 +331,11 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
         dataType = VTK_UNSIGNED_CHAR;
         numComponents = 4;
       }
+    }
+    // Update numComponents to 4 if we converted from 3-component data.
+    if (numComponents == 3)
+    {
+      numComponents = 4;
     }
     auto format = this->GetTextureFormatFromImageData(numComponents, dataType);
     deviceResource->SetFormat(format);
