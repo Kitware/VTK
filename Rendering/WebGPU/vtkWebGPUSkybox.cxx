@@ -152,6 +152,7 @@ fn get_rotation_matrix() -> mat3x3<f32> {
 
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
+  @location(1) ids: vec4<u32>,
 }
 )";
 
@@ -246,10 +247,10 @@ fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_co
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* wgpuRenderWindow)
+void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
 {
-  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
-  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
+  auto* wgpuPipelineCache = renWin->GetWGPUPipelineCache();
+  auto* wgpuConfiguration = renWin->GetWGPUConfiguration();
   const auto& device = wgpuConfiguration->GetDevice();
 
   // Group 0: skybox uniforms + sampler + texture
@@ -297,10 +298,13 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* wgpuRenderWindow)
   pipelineDescriptor.vertex.entryPoint = "vertexMain";
   pipelineDescriptor.vertex.bufferCount = 0;
   pipelineDescriptor.cFragment.entryPoint = "fragmentMain";
-  pipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  pipelineDescriptor.cTargets[0].format = renWin->GetPreferredSurfaceTextureFormat();
+  // Prepare selection ids output.
+  pipelineDescriptor.cTargets[1].format = renWin->GetPreferredSelectorIdsTextureFormat();
+  pipelineDescriptor.cFragment.targetCount++;
+  pipelineDescriptor.DisableBlending(1);
 
-  auto depthState =
-    pipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+  auto depthState = pipelineDescriptor.EnableDepthStencil(renWin->GetDepthStencilFormat());
   depthState->depthWriteEnabled = false;
   depthState->depthCompare = wgpu::CompareFunction::LessEqual;
 
@@ -318,8 +322,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* wgpuRenderWindow)
   }
 
   this->PipelineKey = wgpuPipelineCache->GetPipelineKey(&pipelineDescriptor, shaderSource.c_str());
-  wgpuPipelineCache->CreateRenderPipeline(
-    &pipelineDescriptor, wgpuRenderWindow, shaderSource.c_str());
+  wgpuPipelineCache->CreateRenderPipeline(&pipelineDescriptor, renWin, shaderSource.c_str());
   this->Pipeline = wgpuPipelineCache->GetRenderPipeline(this->PipelineKey);
 
   this->LastProjection = this->Projection;
@@ -402,21 +405,23 @@ void vtkWebGPUSkybox::UpdateUniformBuffer(
   uniforms.LeftEye = ren->GetActiveCamera()->GetLeftEye() ? 1.0f : 0.0f;
   uniforms.Padding = 0.0f;
 
-  // Rotation matrix: store columns with vec4 stride for WGSL alignment
+  // Rotation matrix: VTK stores row-major data. OpenGL sends this directly to
+  // glUniformMatrix3fv without transpose, so GLSL interprets rows as columns (i.e. the
+  // matrix is effectively transposed). Match that behavior by storing rows as WGSL columns.
   double* rotData = this->RotationMatrix->GetData();
-  // Column 0
+  // WGSL column 0 = VTK row 0
   uniforms.RotationMatrix[0] = static_cast<float>(rotData[0]);
-  uniforms.RotationMatrix[1] = static_cast<float>(rotData[3]);
-  uniforms.RotationMatrix[2] = static_cast<float>(rotData[6]);
+  uniforms.RotationMatrix[1] = static_cast<float>(rotData[1]);
+  uniforms.RotationMatrix[2] = static_cast<float>(rotData[2]);
   uniforms.RotationMatrix[3] = 0.0f;
-  // Column 1
-  uniforms.RotationMatrix[4] = static_cast<float>(rotData[1]);
+  // WGSL column 1 = VTK row 1
+  uniforms.RotationMatrix[4] = static_cast<float>(rotData[3]);
   uniforms.RotationMatrix[5] = static_cast<float>(rotData[4]);
-  uniforms.RotationMatrix[6] = static_cast<float>(rotData[7]);
+  uniforms.RotationMatrix[6] = static_cast<float>(rotData[5]);
   uniforms.RotationMatrix[7] = 0.0f;
-  // Column 2
-  uniforms.RotationMatrix[8] = static_cast<float>(rotData[2]);
-  uniforms.RotationMatrix[9] = static_cast<float>(rotData[5]);
+  // WGSL column 2 = VTK row 2
+  uniforms.RotationMatrix[8] = static_cast<float>(rotData[6]);
+  uniforms.RotationMatrix[9] = static_cast<float>(rotData[7]);
   uniforms.RotationMatrix[10] = static_cast<float>(rotData[8]);
   uniforms.RotationMatrix[11] = 0.0f;
 
@@ -442,15 +447,15 @@ void vtkWebGPUSkybox::UpdateUniformBuffer(
 //------------------------------------------------------------------------------
 void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
 {
-  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
-  if (!wgpuRenderer)
+  auto* wgpuRen = vtkWebGPURenderer::SafeDownCast(ren);
+  if (!wgpuRen)
   {
     vtkErrorMacro("The renderer passed to vtkWebGPUSkybox::Render is not a WebGPU renderer.");
     return;
   }
 
-  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
-  if (!wgpuRenderWindow)
+  auto* renWin = vtkWebGPURenderWindow::SafeDownCast(wgpuRen->GetRenderWindow());
+  if (!renWin)
   {
     vtkErrorMacro("RenderWindow is not a vtkWebGPURenderWindow.");
     return;
@@ -462,8 +467,8 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
     return;
   }
 
-  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
-  auto renderStage = wgpuRenderer->GetRenderStage();
+  auto* wgpuConfiguration = renWin->GetWGPUConfiguration();
+  auto renderStage = wgpuRen->GetRenderStage();
 
   if (renderStage == vtkWebGPURenderer::SyncDeviceResources)
   {
@@ -477,7 +482,7 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
     if (this->LastProjection != this->Projection || this->LastGammaCorrect != this->GammaCorrect ||
       !this->Pipeline)
     {
-      this->CreatePipeline(wgpuRenderWindow);
+      this->CreatePipeline(renWin);
       // Force bind group recreation since pipeline layout changed
       this->BindGroup = nullptr;
     }
@@ -507,11 +512,13 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
       return;
     }
 
-    auto renderPassEncoder = wgpuRenderer->GetRenderPassEncoder();
+    auto renderPassEncoder = wgpuRen->GetRenderPassEncoder();
     renderPassEncoder.SetPipeline(this->Pipeline);
     renderPassEncoder.SetBindGroup(0, this->BindGroup);
     renderPassEncoder.SetBindGroup(1, this->MatrixBindGroup);
     renderPassEncoder.Draw(4);
+    // Restore the scene bind group so subsequent actors find the correct layout.
+    renderPassEncoder.SetBindGroup(0, wgpuRen->GetSceneBindGroup());
   }
 }
 

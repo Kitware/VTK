@@ -16,11 +16,12 @@
 #ifndef vtkWebGPUSkybox_h
 #define vtkWebGPUSkybox_h
 
+#include "vtkSkybox.h"
+
 #include "vtkNew.h"                   // for ivars
 #include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkSkybox.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"         // for webgpu
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
+#include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
