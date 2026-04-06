@@ -14,6 +14,7 @@
 #include "vtksys/SystemInformation.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <sstream>
@@ -968,8 +969,13 @@ void vtkWebGPUConfiguration::WriteTexture(wgpu::Texture texture, uint32_t bytesP
   const auto textureDataLayout =
     vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow, srcOffset);
 
-  wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(),
-    texture.GetDepthOrArrayLayers() };
+  // Compute the number of layers to copy from the data size rather than the full texture depth.
+  // This ensures individual array layer writes (e.g. cube map faces) copy only 1 layer.
+  const uint32_t rowsPerImage = texture.GetHeight();
+  const uint32_t layerSizeBytes = bytesPerRow * rowsPerImage;
+  const uint32_t depthOrArrayLayers =
+    layerSizeBytes > 0 ? std::max(1u, sizeBytes / layerSizeBytes) : 1;
+  wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(), depthOrArrayLayers };
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write texture {description: \"" << (description ? description : "null")
                                      << "\", size: " << sizeBytes << "}");
