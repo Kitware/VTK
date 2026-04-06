@@ -9,8 +9,10 @@ bugprone-*,\
 -bugprone-casting-through-void,\
 -bugprone-crtp-constructor-accessibility,\
 -bugprone-copy-constructor-init,\
+-bugprone-derived-method-shadowing-base-method,\
 -bugprone-easily-swappable-parameters,\
 -bugprone-empty-catch,\
+-bugprone-exception-copy-constructor-throws,\
 -bugprone-exception-escape,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
@@ -18,6 +20,7 @@ bugprone-*,\
 -bugprone-incorrect-roundings,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
+-bugprone-invalid-enum-default-initialization,\
 -bugprone-macro-parentheses,\
 -bugprone-misplaced-widening-cast,\
 -bugprone-misplaced-operator-in-strlen-in-alloc,\
@@ -41,8 +44,10 @@ bugprone-*,\
 -bugprone-suspicious-string-compare,\
 -bugprone-switch-missing-default-case,\
 -bugprone-throw-keyword-missing,\
+-bugprone-throwing-static-initialization,\
 -bugprone-too-small-loop-variable,\
 -bugprone-unchecked-optional-access,\
+-bugprone-unchecked-string-to-number-conversion,\
 -bugprone-unhandled-self-assignment,\
 -bugprone-unsafe-functions,\
 -bugprone-unused-local-non-trivial-variable,\
