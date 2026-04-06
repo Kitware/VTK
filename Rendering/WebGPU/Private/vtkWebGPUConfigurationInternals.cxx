@@ -136,5 +136,8 @@ void vtkWebGPUConfigurationInternals::PopulateRequiredFeatures()
   // http://vulkan.gpuinfo.org/listoptimaltilingformats.php
   // CTRL+F "B8G8R8A8_UNORM"
   RequiredFeatures.push_back(wgpu::FeatureName::BGRA8UnormStorage);
+  // Required for bilinear filtering of float32 textures (e.g. HDR environment maps used by
+  // skybox rendering).
+  RequiredFeatures.push_back(wgpu::FeatureName::Float32Filterable);
 }
 VTK_ABI_NAMESPACE_END
