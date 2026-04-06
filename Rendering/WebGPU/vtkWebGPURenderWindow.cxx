@@ -14,6 +14,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverrideAttribute.h"
 #include "vtkPointData.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeUInt32Array.h"
@@ -2347,6 +2348,16 @@ void* vtkWebGPURenderWindow::GetGenericDisplayId()
     return this->HardwareWindow->GetGenericDisplayId();
   }
   return this->Superclass::GetGenericDisplayId();
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
+{
+  this->Superclass::SetInteractor(rwi);
+  if (this->HardwareWindow)
+  {
+    this->HardwareWindow->SetInteractor(rwi);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
