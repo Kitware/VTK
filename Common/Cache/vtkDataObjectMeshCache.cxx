@@ -330,7 +330,6 @@ bool vtkDataObjectMeshCache::IsSupportedData(vtkDataObject* dataobject) const
   SupportedDataWorker supportWorker;
   supportWorker.Compute(dataobject);
 
-  vtkCacheLog(INFO, "Return IsSupportedData: " << supportWorker.Supported());
   return supportWorker.Supported();
 }
 
@@ -346,8 +345,12 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
   if (this->IsSupportedData(input))
   {
     if (this->OriginalCompositeDataSet &&
-      strcmp(this->OriginalCompositeDataSet->GetClassName(), input->GetClassName()) == 0)
+      !input->IsA(this->OriginalCompositeDataSet->GetClassName()))
     {
+      vtkCacheLog(WARNING,
+        "Concrete input composite type changed from "
+          << this->OriginalCompositeDataSet->GetClassName() << " to " << input->GetClassName()
+          << ", invalidate the cache.");
       this->InvalidateCache();
     }
 
@@ -553,7 +556,6 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkCacheLog(INFO, "Cache does not have requested ids");
   }
 
-  vtkCacheLog(INFO, "Returning status");
   return status;
 }
 

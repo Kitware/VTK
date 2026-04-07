@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"         // for smart pointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkExplicitStructuredGrid;
@@ -128,8 +129,8 @@ public:
   vtkMTimeType GetMTime() override;
 
 protected:
-  vtkAxisAlignedReflectionFilter() = default;
-  ~vtkAxisAlignedReflectionFilter() override = default;
+  vtkAxisAlignedReflectionFilter();
+  ~vtkAxisAlignedReflectionFilter() override;
 
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -200,6 +201,13 @@ private:
     double constant[3], int mirrorDir[3], int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9]);
   ///@}
 
+  /**
+   * Compute the mirror vector and tensors values from PlaneMode.
+   * Those are used in the `ProcessXXX` methods.
+   */
+  bool GetMirrorValues(
+    double bounds[6], int mirrorDir[3], int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9]);
+
   bool CopyInput = true;
   bool ReflectAllInputArrays = false;
   int PlaneMode = PLANE;
@@ -207,6 +215,8 @@ private:
 
   PlaneAxis PlaneAxisInternal = X_PLANE;
   double PlaneOriginInternal[3] = { 0.0, 0.0, 0.0 };
+
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END
