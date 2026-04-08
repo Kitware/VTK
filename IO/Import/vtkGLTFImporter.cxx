@@ -449,16 +449,7 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
 
   // extension KHR_materials_unlit
   actor->GetProperty()->SetLighting(!material.Unlit);
-  if (material.Unlit)
-  {
-    // the polydata mapper does not convert to sRGB when Unlit, so convert it there
-    double r, g, b;
-    actor->GetProperty()->GetColor(r, g, b);
-    r = pow(r, 1.f / 2.2f);
-    g = pow(g, 1.f / 2.2f);
-    b = pow(b, 1.f / 2.2f);
-    actor->GetProperty()->SetColor(r, g, b);
-  }
+
   return true;
 }
 
