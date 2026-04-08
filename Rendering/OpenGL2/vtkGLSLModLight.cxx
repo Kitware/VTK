@@ -134,7 +134,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::TCoord::Impl", "");
 
     // get albedo from textures
-    auto textures = actor->GetProperty()->GetAllTextures();
+    const auto& textures = actor->GetProperty()->GetAllTextures();
     bool albedo = false;
 
     if (this->UsePBRTextures)
@@ -165,7 +165,6 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
       vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Dec", vtkPBRFunctions);
 
       // get material/emissive from textures
-      auto textures = actor->GetProperty()->GetAllTextures();
       bool material = false;
       bool emissive = false;
 
