@@ -124,12 +124,13 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   }
 
   // if we already have an Interactor then stop observing it
-  if (this->Interactor)
+  vtkRenderWindowInteractor* oldInteractor = this->Interactor;
+  if (oldInteractor)
   {
     this->SetEnabled(0); // disable the old interactor
-    this->Interactor->RemoveObserver(this->CharObserverTag);
+    oldInteractor->RemoveObserver(this->CharObserverTag);
     this->CharObserverTag = 0;
-    this->Interactor->RemoveObserver(this->DeleteObserverTag);
+    oldInteractor->RemoveObserver(this->DeleteObserverTag);
     this->DeleteObserverTag = 0;
   }
 
@@ -142,11 +143,24 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
       i->AddObserver(vtkCommand::CharEvent, this->KeyPressCallbackCommand, this->Priority);
     this->DeleteObserverTag =
       i->AddObserver(vtkCommand::DeleteEvent, this->KeyPressCallbackCommand, this->Priority);
+    i->AddInteractorObserver(this);
 
     this->RegisterPickers();
   }
 
   this->Modified();
+
+  // Remove from old interactor's tracked observer list LAST.
+  // The interactor holds strong references to its observers. Removing may drop
+  // the last reference and trigger destruction of 'this'. By this point,
+  // this->Interactor has already been set to the new value (or nullptr), so the
+  // destructor's SetInteractor(nullptr) will see this->Interactor == nullptr == i
+  // and return early, preventing re-entrant destruction.
+  // WARNING: Do NOT access any member variables after this call.
+  if (oldInteractor)
+  {
+    oldInteractor->RemoveInteractorObserver(this);
+  }
 }
 
 //------------------------------------------------------------------------------
