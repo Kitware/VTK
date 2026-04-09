@@ -920,7 +920,7 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
       }
 
       // Stream out of domain particles
-      std::lock_guard<std::mutex> guard(this->StreamManagerMutex);
+      std::scoped_lock<std::mutex> guard(this->StreamManagerMutex);
       this->StreamManager->SendParticle(particle, this->ForcePManualShift);
     }
   }
@@ -1165,7 +1165,7 @@ void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* partic
   else
   {
     // store the particle to be deleted later
-    std::lock_guard<std::mutex> guard(this->OutOfDomainParticleMapMutex);
+    std::scoped_lock<std::mutex> guard(this->OutOfDomainParticleMapMutex);
     this->OutOfDomainParticleMap[particle->GetId()] = particle;
   }
 }

@@ -102,7 +102,7 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
   int* fsize = cbd.Caller->GetFrameSize();
   if (fsize[1] != this->Height)
   {
-    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    const std::scoped_lock<std::mutex> lock(this->TextureUpdateMutex);
     (void)lock;
     for (int i = 0; i < 6; ++i)
     {
@@ -135,7 +135,7 @@ void vtkOpenGLMovieSphere::VideoCallback(vtkFFMPEGVideoSourceVideoCallbackData c
   }
 
   {
-    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    const std::scoped_lock<std::mutex> lock(this->TextureUpdateMutex);
     (void)lock;
     this->ReadIndex = this->WriteIndex;
   }
@@ -259,7 +259,7 @@ void vtkOpenGLMovieSphere::Render(vtkRenderer* ren, vtkMapper* mapper)
 
   if (this->NewData.load() == 1)
   {
-    const std::lock_guard<std::mutex> lock(this->TextureUpdateMutex);
+    const std::scoped_lock<std::mutex> lock(this->TextureUpdateMutex);
     (void)lock;
     this->Textures[this->BuildIndex]->Create2DFromRaw(
       this->Width, this->Height, 1, VTK_UNSIGNED_CHAR, this->TextureData[this->ReadIndex]);

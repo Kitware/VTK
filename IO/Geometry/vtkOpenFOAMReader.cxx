@@ -5822,7 +5822,7 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const std::string& timePat
           this->LagrangianPaths->InsertNextValue(displayName);
         }
         this->GetFieldNames(cloudPath, true);
-        std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
+        std::scoped_lock<std::mutex> lock(this->Parent->ArraySelectionMutex);
         this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
       }
 #if VTK_OPENFOAM_TIME_PROFILING
@@ -6098,7 +6098,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 
       if (addInternalSelection && !skipComputingMetaData)
       {
-        std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
+        std::scoped_lock<std::mutex> lock(this->Parent->ArraySelectionMutex);
         this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
       }
       this->InternalMeshSelectionStatus =
@@ -6139,7 +6139,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
         }
         else if (!skipComputingMetaData)
         {
-          std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
+          std::scoped_lock<std::mutex> lock(this->Parent->ArraySelectionMutex);
           // Add to list with selection status == off.
           this->Parent->PatchDataArraySelection->DisableArray(displayName.c_str());
         }
@@ -6168,7 +6168,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
         }
         else if (!skipComputingMetaData)
         {
-          std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
+          std::scoped_lock<std::mutex> lock(this->Parent->ArraySelectionMutex);
           // Add to list with selection status == off.
           // The patch is added to list even if its size is zero
           this->Parent->PatchDataArraySelection->DisableArray(displayName.c_str());
@@ -11829,7 +11829,7 @@ void vtkOpenFOAMReader::CreateCasePath(vtkStdString& casePath, vtkStdString& con
 void vtkOpenFOAMReader::AddSelectionNames(
   vtkDataArraySelection* selections, vtkStringArray* objects)
 {
-  std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
+  std::scoped_lock<std::mutex> lock(this->Parent->ArraySelectionMutex);
   objects->Squeeze();
   vtkSortDataArray::Sort(objects);
   for (int nameI = 0; nameI < objects->GetNumberOfValues(); nameI++)
@@ -12134,7 +12134,7 @@ void vtkOpenFOAMReader::UpdateProgress(vtkOpenFOAMReaderPrivate* reader, double 
   // Update progress for the reader
   reader->SetProgress(amount);
   // lock the progress mutex
-  std::lock_guard<std::mutex> lock(this->ProgressMutex);
+  std::scoped_lock<std::mutex> lock(this->ProgressMutex);
   // update the progress
   this->vtkAlgorithm::UpdateProgress(this->GetProgress());
 }

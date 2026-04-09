@@ -1043,7 +1043,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
           }
           else
           {
-            const std::lock_guard<std::mutex> lock(eraseMutex);
+            const std::scoped_lock<std::mutex> lock(eraseMutex);
             this->EnqueueParticleToAnotherProcess(info);
             this->ParticleHistories.erase(it);
           }
@@ -1100,7 +1100,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
         }
         else
         {
-          const std::lock_guard<std::mutex> lock(eraseMutex);
+          const std::scoped_lock<std::mutex> lock(eraseMutex);
           this->EnqueueParticleToAnotherProcess(info);
           this->ParticleHistories.erase(it);
         }
@@ -1121,7 +1121,7 @@ void vtkParticleTracerBase::IntegrateParticle(ParticleListIterator& it, double c
         }
         else
         {
-          const std::lock_guard<std::mutex> lock(eraseMutex);
+          const std::scoped_lock<std::mutex> lock(eraseMutex);
           this->ParticleHistories.erase(it);
         }
         particleGood = false;

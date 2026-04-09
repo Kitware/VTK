@@ -186,7 +186,7 @@ void vtkDebugLeaksTraceManager::PrintObjects(std::ostream& vtkNotUsed(os)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
 {
-  const std::lock_guard<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
+  const std::scoped_lock<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
   (void)lock; // To avoid compiler warning on unused variables.
   vtkDebugLeaks::MemoryTable->IncrementCount(object->GetDebugClassName());
   vtkDebugLeaks::TraceManager->RegisterObject(object);
@@ -199,7 +199,7 @@ void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::ConstructClass(const char* className)
 {
-  const std::lock_guard<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
+  const std::scoped_lock<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
   (void)lock; // To avoid compiler warning on unused variables.
   vtkDebugLeaks::MemoryTable->IncrementCount(className);
 }
@@ -213,7 +213,7 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
 {
   bool need_warning = false;
   {
-    const std::lock_guard<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
+    const std::scoped_lock<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
     (void)lock; // To avoid compiler warning on unused variables.
 
     // Ensure the trace manager has not yet been deleted.
@@ -246,7 +246,7 @@ void vtkDebugLeaks::DestructClass(const char* className)
 {
   bool need_warning = false;
   {
-    const std::lock_guard<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
+    const std::scoped_lock<std::mutex> lock(*vtkDebugLeaks::CriticalSection);
     (void)lock; // To avoid compiler warning on unused variables.
 
     // Due to globals being deleted, this table may already have

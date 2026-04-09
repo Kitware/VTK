@@ -235,7 +235,7 @@ public:
     {
       // Ensure that while we're working on the block, another thread does not
       // make `obj` `nullptr` behind us.
-      std::lock_guard<std::mutex> guard(this->Block->Mutex);
+      std::scoped_lock<std::mutex> guard(this->Block->Mutex);
       (void)guard;
 
       if (T* obj = static_cast<T*>(this->Block->Object))

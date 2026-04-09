@@ -79,7 +79,7 @@ One important performance trick with thread local storage, is that temporary var
 ### Atomics
 Another very useful tool when developing shared memory parallel algorithms is atomic integers. Atomic integers provide the ability to manipulate integer values in a way that can’t be interrupted by other threads. A very common use case for atomic integers is implementing global counters. For example, in VTK, the modified time (MTime) global counter and vtkObject’s reference count are implemented as atomic integers.
 
-Prior to C++11, vtkSMPTools had an internal implementation for atomic integers. However, this implementation is now obsolete in favor of `std::atomic<>`. C++ also provides `std::mutex' and 'std::lock_guard<>`; and VTK provides a lightweight spinlock `vtkAtomicMutex` which may be faster than using mutexes.
+Prior to C++11, vtkSMPTools had an internal implementation for atomic integers. However, this implementation is now obsolete in favor of `std::atomic<>`. C++ also provides `std::mutex' and 'std::scoped_lock<>`; and VTK provides a lightweight spinlock `vtkAtomicMutex` which may be faster than using mutexes.
 
 ## Implementation Examples
 In the subsections below, we describe the SMP framework in more detail and provide examples of how it can be used.

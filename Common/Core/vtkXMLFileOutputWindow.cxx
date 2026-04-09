@@ -121,31 +121,31 @@ void vtkXMLFileOutputWindow::DisplayXML(const char* tag, const char* text)
 
 void vtkXMLFileOutputWindow::DisplayText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkXMLFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkXMLFileOutputWindowMutex);
   this->DisplayXML("Text", text);
 }
 
 void vtkXMLFileOutputWindow::DisplayErrorText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkXMLFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkXMLFileOutputWindowMutex);
   this->DisplayXML("Error", text);
 }
 
 void vtkXMLFileOutputWindow::DisplayWarningText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkXMLFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkXMLFileOutputWindowMutex);
   this->DisplayXML("Warning", text);
 }
 
 void vtkXMLFileOutputWindow::DisplayGenericWarningText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkXMLFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkXMLFileOutputWindowMutex);
   this->DisplayXML("GenericWarning", text);
 }
 
 void vtkXMLFileOutputWindow::DisplayDebugText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkXMLFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkXMLFileOutputWindowMutex);
   this->DisplayXML("Debug", text);
 }
 VTK_ABI_NAMESPACE_END

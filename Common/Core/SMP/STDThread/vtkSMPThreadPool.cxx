@@ -312,7 +312,7 @@ bool vtkSMPThreadPool::GetSingleThread() const
   auto* threadData = GetCallerThreadData();
   if (threadData)
   {
-    std::lock_guard<std::mutex> lock{ threadData->Mutex };
+    std::scoped_lock<std::mutex> lock{ threadData->Mutex };
     assert(threadData->RunningJob != NoRunningJob && "Invalid state");
     return threadData->Jobs[threadData->RunningJob].Proxy->Threads[0].Thread == threadData;
   }

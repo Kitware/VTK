@@ -30,7 +30,7 @@ public:
     while (this->Pop())
     {
     }
-    std::lock_guard<std::mutex> lock(this->Queue->ControlMutex);
+    std::scoped_lock<std::mutex> lock(this->Queue->ControlMutex);
     this->Queue->ThreadIdToIndex.erase(std::this_thread::get_id());
   }
 
@@ -106,9 +106,9 @@ vtkThreadedCallbackQueue::vtkThreadedCallbackQueue()
 vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 {
   {
-    std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
+    std::scoped_lock<std::mutex> destroyLock(this->DestroyMutex);
     {
-      std::lock_guard<std::mutex> lock(this->Mutex);
+      std::scoped_lock<std::mutex> lock(this->Mutex);
       this->Destroying = true;
     }
   }
@@ -125,7 +125,7 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
     {
       int size = static_cast<int>(this->Threads.size());
 
-      std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
+      std::scoped_lock<std::mutex> destroyLock(this->DestroyMutex);
       if (this->Destroying)
       {
         return;
@@ -148,7 +148,7 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
               std::make_shared<std::atomic_int>(static_cast<int>(this->Threads.size()));
             auto thread = std::thread(ThreadWorker(this, threadIndex));
             {
-              std::lock_guard<std::mutex> threadIdLock(this->ThreadIdToIndexMutex);
+              std::scoped_lock<std::mutex> threadIdLock(this->ThreadIdToIndexMutex);
               this->ThreadIdToIndex.emplace(thread.get_id(), threadIndex);
             }
             return thread;
@@ -179,7 +179,7 @@ void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
         }
 
         {
-          std::lock_guard<std::mutex> lock(this->Mutex);
+          std::scoped_lock<std::mutex> lock(this->Mutex);
           this->NumberOfThreads = numberOfThreads;
         }
         this->ConditionVariable.notify_all();
@@ -224,7 +224,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
     // We are iterating on our dependents, which mean we cannot let any dependent add themselves to
     // this container. At this point we're "ready" anyway so no dependents should be waiting in most
     // cases.
-    std::lock_guard<std::mutex> lock(invoker->Mutex);
+    std::scoped_lock<std::mutex> lock(invoker->Mutex);
 
     for (auto& dependent : invoker->Dependents)
     {
@@ -255,7 +255,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
   }
   if (!invokersToLaunch.empty())
   {
-    std::lock_guard<std::mutex> lock(this->Mutex);
+    std::scoped_lock<std::mutex> lock(this->Mutex);
     // We need to handle the invoker index.
     // If the InvokerQueue is empty, then we set it such that after this look, the front has index
     // 0.
@@ -266,7 +266,7 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
       assert(inv->Status.load(std::memory_order_acquire) == ON_HOLD && "Status should be ON_HOLD");
       inv->InvokerIndex = --index;
 
-      std::lock_guard<std::mutex> stateLock(inv->Mutex);
+      std::scoped_lock<std::mutex> stateLock(inv->Mutex);
       inv->Status.store(ENQUEUED, std::memory_order_release);
 
       // This dependent has been waiting enough, let's give him some priority.
@@ -293,14 +293,14 @@ bool vtkThreadedCallbackQueue::TryInvoke(vtkSharedFutureBase* invoker)
           return false;
         }
 
-        std::lock_guard<std::mutex> lock(this->Mutex);
+        std::scoped_lock<std::mutex> lock(this->Mutex);
 
         if (this->InvokerQueue.empty())
         {
           return false;
         }
 
-        std::lock_guard<std::mutex> invLock(invoker->Mutex);
+        std::scoped_lock<std::mutex> invLock(invoker->Mutex);
 
         if (invoker->Status.load(std::memory_order_acquire) != ENQUEUED)
         {
@@ -349,7 +349,7 @@ void vtkThreadedCallbackQueue::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  std::lock_guard<std::mutex> lock1(this->Mutex);
+  std::scoped_lock<std::mutex> lock1(this->Mutex);
   os << indent << "Threads: " << this->NumberOfThreads << std::endl;
   os << indent << "Callback queue size: " << this->InvokerQueue.size() << std::endl;
 }

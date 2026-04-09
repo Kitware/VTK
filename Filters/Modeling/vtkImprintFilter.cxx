@@ -1082,7 +1082,7 @@ struct vtkTargetPointClassifier
       for (auto i = 0; i < npts; ++i)
       {
         vtkIdType pId = pts[i];
-        std::lock_guard<vtkAtomicMutex> pointLockGuard(this->PtLocks[pId]);
+        std::scoped_lock<vtkAtomicMutex> pointLockGuard(this->PtLocks[pId]);
         if (this->PtClassification[pId] == PointClassification::Unknown)
         {
           this->CandidatePoints->GetPoint(pId, x);

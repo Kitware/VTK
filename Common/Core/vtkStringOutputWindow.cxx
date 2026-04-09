@@ -26,7 +26,7 @@ void vtkStringOutputWindow::Initialize()
 
 void vtkStringOutputWindow::DisplayText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkStringOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkStringOutputWindowMutex);
   if (!text)
   {
     return;

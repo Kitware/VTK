@@ -533,7 +533,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessChild(
 void vtkHyperTreeGridThreshold::SafeInsertOutMask(vtkIdType tupleIdx, double value)
 {
   assert("pre: ArrayMutexSize not null" && this->ArrayMutexSize > 0);
-  const std::lock_guard<std::mutex> lock(this->OutMaskMutexes[tupleIdx / this->ArrayMutexSize]);
+  const std::scoped_lock<std::mutex> lock(this->OutMaskMutexes[tupleIdx / this->ArrayMutexSize]);
   this->OutMask->InsertTuple1(tupleIdx, value);
 }
 VTK_ABI_NAMESPACE_END

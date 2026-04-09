@@ -52,7 +52,7 @@ void vtkCommonInformationKeyManager::Register(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
+  std::scoped_lock<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
   vtkCommonInformationKeyManagerKeys->push_back(key);
   key->SetManagerUnregisterCallback(&vtkCommonInformationKeyManager::Unregister);
 }
@@ -64,7 +64,7 @@ void vtkCommonInformationKeyManager::Unregister(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
+  std::scoped_lock<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
   auto it = std::find(
     vtkCommonInformationKeyManagerKeys->begin(), vtkCommonInformationKeyManagerKeys->end(), key);
   if (it != vtkCommonInformationKeyManagerKeys->end())
@@ -104,7 +104,7 @@ void vtkCommonInformationKeyManager::ClassFinalize()
     // rather than relying on the callback being cleared in time.
     std::vector<vtkInformationKey*> doomedKeys;
     {
-      std::lock_guard<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
+      std::scoped_lock<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
       doomedKeys.swap(*vtkCommonInformationKeyManagerKeys);
     }
     for (vtkInformationKey* key : doomedKeys)

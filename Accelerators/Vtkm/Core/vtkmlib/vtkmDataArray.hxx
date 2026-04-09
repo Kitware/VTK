@@ -298,7 +298,7 @@ template <typename T>
 void ArrayHandleHelperUnknown<T>::GetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, T* values) const
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for reading
   if (self->Helper->GetHelperType() != HelperType::Read &&
     self->Helper->GetHelperType() != HelperType::Write)
@@ -312,7 +312,7 @@ template <typename T>
 void ArrayHandleHelperUnknown<T>::SetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values)
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for writing
   if (self->Helper->GetHelperType() != HelperType::Write)
   {
@@ -325,7 +325,7 @@ template <typename T>
 T ArrayHandleHelperUnknown<T>::GetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx) const
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for reading
   if (self->Helper->GetHelperType() != HelperType::Read &&
     self->Helper->GetHelperType() != HelperType::Write)
@@ -339,7 +339,7 @@ template <typename T>
 void ArrayHandleHelperUnknown<T>::SetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx, const T& value)
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for writing
   if (self->Helper->GetHelperType() != HelperType::Write)
   {
@@ -533,7 +533,7 @@ template <typename ArrayHandleType>
 void ArrayHandleHelperRead<ArrayHandleType>::SetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values)
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for writing
   if (self->Helper->GetHelperType() != HelperType::Write)
   {
@@ -556,7 +556,7 @@ template <typename ArrayHandleType>
 void ArrayHandleHelperRead<ArrayHandleType>::SetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx, const T& value)
 {
-  std::lock_guard<std::mutex> lock(self->Mutex);
+  std::scoped_lock<std::mutex> lock(self->Mutex);
   // Check if we already have a suitable helper for writing
   if (self->Helper->GetHelperType() != HelperType::Write)
   {

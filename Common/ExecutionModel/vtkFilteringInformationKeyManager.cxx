@@ -55,7 +55,7 @@ void vtkFilteringInformationKeyManager::Register(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
+  std::scoped_lock<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
   vtkFilteringInformationKeyManagerKeys->push_back(key);
   key->SetManagerUnregisterCallback(&vtkFilteringInformationKeyManager::Unregister);
 }
@@ -67,7 +67,7 @@ void vtkFilteringInformationKeyManager::Unregister(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
+  std::scoped_lock<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
   auto it = std::find(vtkFilteringInformationKeyManagerKeys->begin(),
     vtkFilteringInformationKeyManagerKeys->end(), key);
   if (it != vtkFilteringInformationKeyManagerKeys->end())
@@ -131,7 +131,7 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     // the lookup table's separate mutex (via UnregisterKey), so there
     // is no nested-lock conflict on this manager's mutex.
     {
-      std::lock_guard<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
+      std::scoped_lock<std::mutex> lock(vtkFilteringInformationKeyManagerKeys->Mutex);
       for (vtkFilteringInformationKeyManagerKeysType::iterator i =
              vtkFilteringInformationKeyManagerKeys->begin();
            i != vtkFilteringInformationKeyManagerKeys->end(); ++i)

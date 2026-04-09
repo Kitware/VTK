@@ -514,7 +514,7 @@ bool vtkLagrangianBasicIntegrationModel::BreakParticle(vtkLagrangianParticle* pa
 
   // push new particle in queue
   // Mutex Locked Area
-  std::lock_guard<std::mutex> guard(this->ParticleQueueMutex);
+  std::scoped_lock<std::mutex> guard(this->ParticleQueueMutex);
   particles.push(particle1);
   particles.push(particle2);
   return true;
