@@ -419,7 +419,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
           return 0;
         }
       }
-      else
+      else if (colorComponentReadCount > 0)
       {
         vtkWarningMacro(<< "Ignoring point color at L." << lineNumber
                         << " for missing color values");
