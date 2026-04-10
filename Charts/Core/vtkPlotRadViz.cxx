@@ -6,14 +6,18 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkBrush.h"
+#include "vtkCellData.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMultiVariateToRGBA.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderingCoreEnums.h"
 #include "vtkTable.h"
@@ -62,6 +66,11 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
 }
 
+void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
+{
+  this->Data->SetInputDataObject(0, dataset);
+}
+
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
@@ -73,15 +82,35 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   computeGBC->SetStoreRGBA(false);
   computeGBC->Update();
   vtkTable* table = vtkTable::SafeDownCast(computeGBC->GetOutputDataObject(0));
-  if (!table)
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(computeGBC->GetOutputDataObject(0));
+  vtkFloatArray* a = nullptr;
+  if (table)
   {
-    vtkErrorMacro("vtkMultiVariateToRGBA output is not a table");
-    return false;
+    a = vtkFloatArray::FastDownCast(table->GetColumnByName("gbc"));
+    if (!a)
+    {
+      vtkErrorMacro("Cannot find gbc array");
+      return false;
+    }
   }
-  vtkFloatArray* a = vtkFloatArray::FastDownCast(table->GetColumnByName("gbc"));
-  if (!a)
+  else if (dataset)
   {
-    vtkErrorMacro("Cannot find gbc array");
+    vtkDataSetAttributes* pd = dataset->GetPointData();
+    vtkDataSetAttributes* cd = dataset->GetCellData();
+    a = vtkFloatArray::FastDownCast(pd->GetArray("gbc"));
+    if (!a)
+    {
+      a = vtkFloatArray::FastDownCast(cd->GetArray("gbc"));
+    }
+    if (!a)
+    {
+      vtkErrorMacro("Cannot find gbc array");
+      return false;
+    }
+  }
+  else
+  {
+    vtkErrorMacro("vtkMultiVariateToRGBA output is not a table or a dataset");
     return false;
   }
 
@@ -110,8 +139,8 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     (*this->Internals)(a, points);
   }
   painter->GetPen()->SetColor({ 0, 0, 0 });
-  painter->GetPen()->SetOpacity(255);
-  painter->GetPen()->SetWidth(4);
+  painter->GetPen()->SetOpacity(20);
+  painter->GetPen()->SetWidth(2);
   painter->DrawMarkers(marker, true /*highlight*/, points);
 
   this->PaintChildren(painter);

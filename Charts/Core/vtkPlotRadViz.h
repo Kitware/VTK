@@ -21,6 +21,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkColorSeries;
 class vtkPoints2D;
+class vtkDataSet;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotRadViz : public vtkPlot
 {
@@ -30,6 +31,7 @@ public:
 
   static vtkPlotRadViz* New();
 
+  void SetInputData(vtkDataSet* dataset);
   /**
    * Paint event for the item.
    */
