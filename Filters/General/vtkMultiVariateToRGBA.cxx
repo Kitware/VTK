@@ -3,10 +3,13 @@
 #include "vtkMultiVariateToRGBA.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -14,6 +17,8 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSOADataArrayTemplate.h"
+#include "vtkTable.h"
 
 #include <algorithm>
 #include <vtk_fmt.h>
@@ -123,10 +128,14 @@ struct NormalizeWorker
 };
 
 /**
- * Generalized Barycentric Coordinate interpolation
+ * Generalized Barycentric Coordinate (GBC) interpolation
  */
 struct ComputeGBCWorker
 {
+  ComputeGBCWorker(double colorWheelRotation)
+    : Angle(vtkMath::RadiansFromDegrees(colorWheelRotation))
+  {
+  }
   template <typename Input, typename Output>
   void operator()(Input* normalizedArray, Output* gbcArray)
   {
@@ -197,8 +206,16 @@ struct ComputeGBCWorker
         std::cos((temp_a - temp_b) / 2) * std::cos(-(temp_a + temp_b) / 2 + tempangle);
       gbc[i][0] = lth * std::cos(tempangle);
       gbc[i][1] = lth * std::sin(tempangle);
+
+      // rotate the gbc points Angle
+      // m is
+      std::array<std::array<double, 2>, 2> m{ { { cos(this->Angle), -sin(this->Angle) },
+        { sin(this->Angle), cos(this->Angle) } } };
+      gbc[i][0] = m[0][0] * gbc[i][0] + m[1][0] * gbc[i][1];
+      gbc[i][1] = m[0][1] * gbc[i][0] + m[1][1] * gbc[i][1];
     }
   }
+  double Angle;
 };
 
 struct GBCToHSLWorker
@@ -323,6 +340,92 @@ struct ComputeAlphaWorker
   }
 };
 
+template <typename DataType>
+vtkSmartPointer<vtkDataArray> createSOAArray(vtkDataSetAttributes* attributes)
+{
+  vtkAOSDataArrayTemplate<DataType>* a0 =
+    vtkAOSDataArrayTemplate<DataType>::FastDownCast(attributes->GetArray(0));
+  vtkIdType size = a0->GetNumberOfTuples();
+  auto soaArray = vtkSmartPointer<vtkSOADataArrayTemplate<DataType>>::New();
+  soaArray->SetNumberOfComponents(attributes->GetNumberOfArrays());
+  soaArray->SetNumberOfTuples(size);
+  for (int i = 0; i < attributes->GetNumberOfArrays(); ++i)
+  {
+    vtkAOSDataArrayTemplate<DataType>* a =
+      vtkAOSDataArrayTemplate<DataType>::FastDownCast(attributes->GetArray(i));
+    if (!a)
+    {
+      // arrays in attributes are of different type
+      return nullptr;
+    }
+    soaArray->SetArray(i, a->GetPointer(0), size, false /*updateMaxId*/, true /*save*/);
+  }
+  return soaArray;
+}
+
+struct CreateSOAWorker
+{
+  CreateSOAWorker(vtkDataSetAttributes* attributes)
+    : Attributes(attributes)
+  {
+  }
+  template <typename Input>
+  void operator()(Input* scalarsArray)
+  {
+    auto scalars = vtk::DataArrayTupleRange(scalarsArray);
+    using ScalarsRangeType = decltype(scalars);
+    using ValueType = typename ScalarsRangeType::ComponentType;
+    this->SOAArray = createSOAArray<ValueType>(this->Attributes);
+  }
+  vtkDataSetAttributes* Attributes;
+  vtkSmartPointer<vtkDataArray> SOAArray;
+};
+
+std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> getAttributesAndScalars(
+  vtkDataObject* input)
+{
+  vtkTable* table = vtkTable::SafeDownCast(input);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+  vtkDataSetAttributes* attributes = nullptr;
+  if (table)
+  {
+    attributes = table->GetRowData();
+  }
+  else if (dataset)
+  {
+    attributes = dataset->GetPointData();
+    if (!attributes)
+    {
+      attributes = dataset->GetCellData();
+    }
+  }
+  if (!attributes || !attributes->GetNumberOfArrays())
+  {
+    vtkErrorWithObjectMacro(
+      input, "Input type not supported: " << input->GetClassName() << " or attributes not found");
+    return { attributes, nullptr };
+  }
+  auto* array0 = attributes->GetArray(0);
+  int dataType = array0->GetDataType();
+  if (attributes->GetNumberOfArrays() > 1)
+  {
+    typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
+    CreateSOAWorker worker(attributes);
+    if (!Dispatcher::Execute(array0, worker))
+    {
+      vtkErrorWithObjectMacro(input, "Array type not supported: " << dataType);
+      return { attributes, nullptr };
+    }
+    else
+    {
+      return { attributes, worker.SOAArray };
+    }
+  }
+  else
+  {
+    return { attributes, array0 };
+  }
+}
 }
 
 //==============================================================================
@@ -352,22 +455,49 @@ std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetModalityGroups() VTK_FUT
   return this->ModalityGroups;
 }
 
-//==============================================================================
-int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+//------------------------------------------------------------------------------
+int vtkMultiVariateToRGBA::RequestDataObject(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkDataSet* inData = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* outData = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  outData->CopyStructure(inData);
-
-  auto* pointData = inData->GetPointData();
-  vtkDataArray* scalars = pointData->GetScalars();
-  if (!pointData || !scalars)
+  vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkTable* table = vtkTable::SafeDownCast(inData);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(inData);
+  if (table)
   {
-    vtkErrorMacro("A scalar input with variables as a components is needed for this filter");
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), table->NewInstance());
+  }
+  else if (dataset)
+  {
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), dataset->NewInstance());
+  }
+  else
+  {
+    vtkErrorMacro("Input type not supported: " << inData->GetClassName());
+  }
+  return 1;
+}
+
+//==============================================================================
+int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (!this->StoreGBC && !this->StoreRGBA)
+  {
+    vtkErrorMacro("You cannot have both StoreGBC and StoreRGBA set to false");
+    return 0;
+  }
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  outData->ShallowCopy(inData);
+  auto [attributes, scalars] = getAttributesAndScalars(outData);
+  if (!scalars)
+  {
     return 0;
   }
   int numComponents = scalars->GetNumberOfComponents();
@@ -393,53 +523,57 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     NormalizeWorker worker(this->ModalityGroups[i], this->GlobalMin, this->GlobalMax);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
-      worker(scalars, normalizedScalars.GetPointer());
+      worker(scalars.GetPointer(), normalizedScalars.GetPointer());
     }
   }
-  vtkNew<vtkDoubleArray> gbcScalars;
+  vtkNew<vtkFloatArray> gbcScalars;
   gbcScalars->SetName("gbc");
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    ComputeGBCWorker worker;
+    ComputeGBCWorker worker(this->ColorWheelRotation);
     if (!Dispatcher::Execute(normalizedScalars, gbcScalars, worker))
     {
       worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
     }
   }
-  vtkNew<vtkDoubleArray> hslScalars;
-  hslScalars->SetName("hsl");
-  hslScalars->SetNumberOfComponents(3);
-  hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+  if (this->StoreGBC)
   {
-    GBCToHSLWorker worker(0.55);
-    if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
-    {
-      worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
-    }
+    attributes->AddArray(gbcScalars);
   }
-  vtkNew<vtkDoubleArray> rgbaScalars;
-  rgbaScalars->SetName("rgba");
-  rgbaScalars->SetNumberOfComponents(4);
-  rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+  if (this->StoreRGBA)
   {
-    HSLToRGBWorker worker;
-    if (!Dispatcher::Execute(hslScalars, rgbaScalars, worker))
+    vtkNew<vtkDoubleArray> hslScalars;
+    hslScalars->SetName("hsl");
+    hslScalars->SetNumberOfComponents(3);
+    hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
-      worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
+      GBCToHSLWorker worker(0.55);
+      if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
+      {
+        worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
+      }
     }
-  }
-  {
-    ComputeAlphaWorker worker;
-    if (!Dispatcher::Execute(normalizedScalars, rgbaScalars, worker))
+    vtkNew<vtkDoubleArray> rgbaScalars;
+    rgbaScalars->SetName("rgba");
+    rgbaScalars->SetNumberOfComponents(4);
+    rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
-      worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
+      HSLToRGBWorker worker;
+      if (!Dispatcher::Execute(hslScalars, rgbaScalars, worker))
+      {
+        worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
+      }
     }
+    {
+      ComputeAlphaWorker worker;
+      if (!Dispatcher::Execute(normalizedScalars, rgbaScalars, worker))
+      {
+        worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
+      }
+    }
+    attributes->AddArray(rgbaScalars);
   }
-  outData->GetPointData()->AddArray(normalizedScalars);
-  outData->GetPointData()->AddArray(gbcScalars);
-  outData->GetPointData()->AddArray(hslScalars);
-  outData->GetPointData()->AddArray(rgbaScalars);
   return 1;
 }
 
