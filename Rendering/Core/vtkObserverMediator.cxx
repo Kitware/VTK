@@ -96,7 +96,10 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver* w, int reques
   if (this->ObserverMap->empty() && requestedShape == VTK_CURSOR_DEFAULT &&
     this->CurrentCursorShape != VTK_CURSOR_DEFAULT)
   {
-    this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+    if (auto* window = this->Interactor->GetRenderWindow())
+    {
+      window->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+    }
     this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
     return 1;
   }
@@ -111,7 +114,10 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver* w, int reques
       --iter; // this is the observer with the highest priority
       // Have to set the current cursor repeatedly or it reverts back to default
       // (at least on windows it does).
-      this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
+      if (auto* window = this->Interactor->GetRenderWindow())
+      {
+        window->SetCurrentCursor((*iter).second);
+      }
       if (this->CurrentCursorShape != (*iter).second)
       {
         this->CurrentCursorShape = (*iter).second;
