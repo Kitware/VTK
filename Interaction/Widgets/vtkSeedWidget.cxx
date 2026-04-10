@@ -312,12 +312,12 @@ void vtkSeedWidget::SetProcessEvents(vtkTypeBool pe)
 //------------------------------------------------------------------------------
 void vtkSeedWidget::SetInteractor(vtkRenderWindowInteractor* rwi)
 {
-  this->Superclass::SetInteractor(rwi);
   vtkSeedListIterator iter = this->Seeds->begin();
   for (; iter != this->Seeds->end(); ++iter)
   {
     (*iter)->SetInteractor(rwi);
   }
+  this->Superclass::SetInteractor(rwi);
 }
 
 //------------------------------------------------------------------------------
