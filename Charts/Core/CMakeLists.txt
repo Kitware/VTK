@@ -9,6 +9,7 @@ set(classes
   vtkChartMatrix
   vtkChartParallelCoordinates
   vtkChartPie
+  vtkChartRadViz
   vtkChartXY
   vtkChartXYZ
   vtkColorLegend
@@ -40,6 +41,7 @@ set(classes
   vtkPlotPie
   vtkPlotPoints
   vtkPlotPoints3D
+  vtkPlotRadViz
   vtkPlotRangeHandlesItem
   vtkPlotStacked
   vtkPlotSurface
