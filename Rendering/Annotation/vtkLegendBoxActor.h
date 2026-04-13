@@ -27,6 +27,7 @@
 #define vtkLegendBoxActor_h
 
 #include "vtkActor2D.h"
+#include "vtkNew.h"                       // for vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
@@ -34,6 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkDoubleArray;
 class vtkImageData;
+class vtkLegendBoxEntryInternal;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
@@ -235,25 +237,7 @@ protected:
   vtkTypeBool ScalarVisibility;
   double BoxOpacity;
 
-  // Internal actors, mappers, data to represent the legend
   int NumberOfEntries;
-  int Size; // allocation size
-  vtkDoubleArray* Colors;
-  vtkTextMapper** TextMapper;
-  vtkActor2D** TextActor;
-
-  vtkPolyData** Symbol;
-  vtkTransform** Transform;
-  vtkTransformFilter** SymbolTransform;
-  vtkPolyDataMapper2D** SymbolMapper;
-  vtkActor2D** SymbolActor;
-
-  vtkPlaneSource** Icon;
-  vtkTransform** IconTransform;
-  vtkTransformFilter** IconTransformFilter;
-  vtkPolyDataMapper2D** IconMapper;
-  vtkTexturedActor2D** IconActor;
-  vtkImageData** IconImage;
 
   vtkPolyData* BorderPolyData;
   vtkPolyDataMapper2D* BorderMapper;
@@ -281,6 +265,8 @@ protected:
 private:
   vtkLegendBoxActor(const vtkLegendBoxActor&) = delete;
   void operator=(const vtkLegendBoxActor&) = delete;
+
+  std::vector<std::unique_ptr<vtkLegendBoxEntryInternal>> Entries;
 };
 
 VTK_ABI_NAMESPACE_END

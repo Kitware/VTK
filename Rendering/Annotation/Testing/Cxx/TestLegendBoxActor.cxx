@@ -56,10 +56,10 @@ int TestLegendBoxActor(int argc, char* argv[])
 
   // Create a test pipeline
   //
+  vtkNew<vtkLineSource> ls;
+  ls->Update();
   for (int i = 0; i < 5; ++i)
   {
-    vtkSmartPointer<vtkLineSource> ls(vtkSmartPointer<vtkLineSource>::New());
-    ls->Update();
     vtkSmartPointer<vtkPolyData> pd = ls->GetOutput();
     actor->SetEntry(i, pd, text[i], textColor[i]);
   }

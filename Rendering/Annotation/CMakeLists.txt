@@ -29,6 +29,7 @@ set(private_classes
 "Private/vtkArcGridActorInternal"
 "Private/vtkAxisGridActorInternal"
 "Private/vtkFollowerTextPropertyAdaptor"
+"Private/vtkLegendBoxEntryInternal"
 "Private/vtkTextActorInterfaceInternal")
 
 set(nowrap_headers
