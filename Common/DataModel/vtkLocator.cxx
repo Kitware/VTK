@@ -13,7 +13,6 @@ vtkCxxSetObjectMacro(vtkLocator, DataSet, vtkDataSet);
 vtkLocator::vtkLocator()
 {
   this->DataSet = nullptr;
-  this->Tolerance = 0.001;
   this->Automatic = 1;
   this->MaxLevel = 8;
   this->Level = 8;
@@ -64,7 +63,6 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Automatic: " << (this->Automatic ? "On\n" : "Off\n");
-  os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
   os << indent << "MaxLevel: " << this->MaxLevel << "\n";
   os << indent << "Level: " << this->Level << "\n";

@@ -74,7 +74,6 @@
  *
  * vtkModifiedBSPTree does NOT utilize the following parameters:
  * - Automatic
- * - Tolerance
  * - RetainCellLists
  *
  * NB. The following reference has been sent to me

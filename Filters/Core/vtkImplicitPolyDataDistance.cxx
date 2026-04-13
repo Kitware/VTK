@@ -62,7 +62,6 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
 
     this->CreateDefaultLocator();
     this->Locator->SetDataSet(this->Input);
-    this->Locator->SetTolerance(this->Tolerance);
     this->Locator->SetNumberOfCellsPerBucket(10);
     this->Locator->CacheCellBoundsOn();
     this->Locator->AutomaticOn();

@@ -14,6 +14,7 @@ vtkAbstractPointLocator::vtkAbstractPointLocator()
     this->Bounds[i] = 0;
   }
   this->NumberOfBuckets = 0;
+  this->Tolerance = 0.001;
 }
 
 //------------------------------------------------------------------------------

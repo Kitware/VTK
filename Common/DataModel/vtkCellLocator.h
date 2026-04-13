@@ -23,7 +23,6 @@
  * - UseExistingSearchStructure  (default false)
  *
  * vtkCellLocator does NOT utilize the following parameters:
- * - Tolerance
  * - RetainCellLists
  *
  * @sa

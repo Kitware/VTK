@@ -30,7 +30,6 @@
  * - UseExistingSearchStructure  (default false)
  *
  * vtkOBBTree does NOT utilize the following parameters:
- * - Tolerance
  * - Automatic
  * - CacheCellBounds
  *

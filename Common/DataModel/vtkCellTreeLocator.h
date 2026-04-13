@@ -22,7 +22,6 @@
  * - Automatic
  * - Level
  * - MaxLevel
- * - Tolerance
  * - RetainCellLists
  *
  * @warning

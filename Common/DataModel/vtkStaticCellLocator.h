@@ -21,7 +21,6 @@
  *
  * vtkStaticCellLocator does NOT utilize the following parameters:
  * - CacheCellBounds             (always cached)
- * - Tolerance
  * - Level
  * - MaxLevel
  * - RetainCellLists
