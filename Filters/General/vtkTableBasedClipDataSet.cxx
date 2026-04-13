@@ -616,7 +616,7 @@ struct EvaluateCells
     vtkIdType numberOfPoints, cellId, pointId;
     TInputIdType pointIndex1, pointIndex2;
     int cellType;
-    double grdDiffs[8], point1ToPoint2, point1ToIso, point1Weight;
+    double grdDiffs[8], point1ToPoint2, point1ToIso, t;
     uint8_t caseIndex, *thisCase, numberOfOutputCells, outputCellId, shape, numberOfCellPoints, p;
     uint8_t pointIndex, point1Index, point2Index;
     const typename TBCCases::EDGEIDXS* edgeVertices = nullptr;
@@ -697,24 +697,25 @@ struct EvaluateCells
               const auto& edgePoints = edgeVertices[pointIndex - TBCCases::EA];
               point1Index = edgePoints[0];
               point2Index = edgePoints[1];
-              if (point1Index > point2Index)
+              point1ToPoint2 = grdDiffs[point2Index] - grdDiffs[point1Index];
+              if (point1ToPoint2 < 0)
               {
                 std::swap(point1Index, point2Index);
+                point1ToPoint2 = -point1ToPoint2;
               }
-
-              point1ToPoint2 = grdDiffs[point2Index] - grdDiffs[point1Index];
               point1ToIso = 0.0 - grdDiffs[point1Index];
-              point1Weight = 1.0 - point1ToIso / point1ToPoint2;
+              t = point1ToPoint2 != 0 ? point1ToIso / point1ToPoint2 : 0;
 
               pointIndex1 = static_cast<TInputIdType>(pointIndices[point1Index]);
               pointIndex2 = static_cast<TInputIdType>(pointIndices[point2Index]);
+              // swap because edges are expected to be smallest,largest, t
               if (pointIndex1 > pointIndex2)
               {
                 std::swap(pointIndex1, pointIndex2);
-                point1Weight = 1.0 - point1Weight;
+                t = 1.0 - t;
               }
 
-              edges.emplace_back(pointIndex1, pointIndex2, point1Weight);
+              edges.emplace_back(pointIndex1, pointIndex2, t);
             }
           }
           if (shape != TBCCases::ST_PNT) // normal cell
@@ -1165,20 +1166,28 @@ struct ExtractPointsWorker
           }
         }
         const TEdge& edge = edges[edgeId];
+        auto v0 = edge.V0;
+        auto v1 = edge.V1;
+        auto t = edge.Data;
+        // edges are expected to be smallest,largest, t, and t may be swapped to satisfy that
+        // therefore, swap because t is expected to be in [0,1]
+        if (t < 0 || t > 1)
+        {
+          std::swap(v0, v1);
+          t = 1.0 - t;
+        }
         // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
         // we do that since the input points can be implicit points, and GetTypedTuple is faster
         // than accessing the component of the TupleReference using GetTypedComponent internally.
-        inPts.GetTuple(edge.V0, edgePoint1);
-        inPts.GetTuple(edge.V1, edgePoint2);
+        inPts.GetTuple(v0, edgePoint1);
+        inPts.GetTuple(v1, edgePoint2);
         outputEdgePointId = numberOfKeptPoints + edgeId;
         auto outputPoint = outPts[outputEdgePointId];
 
-        const double& percentage = edge.Data;
-        const double bPercentage = 1.0 - percentage;
-        outputPoint[0] = edgePoint1[0] * percentage + edgePoint2[0] * bPercentage;
-        outputPoint[1] = edgePoint1[1] * percentage + edgePoint2[1] * bPercentage;
-        outputPoint[2] = edgePoint1[2] * percentage + edgePoint2[2] * bPercentage;
-        pointDataArrays.InterpolateEdge(edge.V0, edge.V1, bPercentage, outputEdgePointId);
+        outputPoint[0] = edgePoint1[0] + t * (edgePoint2[0] - edgePoint1[0]);
+        outputPoint[1] = edgePoint1[1] + t * (edgePoint2[1] - edgePoint1[1]);
+        outputPoint[2] = edgePoint1[2] + t * (edgePoint2[2] - edgePoint1[2]);
+        pointDataArrays.InterpolateEdge(v0, v1, t, outputEdgePointId);
       }
     };
     vtkSMPTools::For(0, numberOfEdges, extractEdgePoints);
