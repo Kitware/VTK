@@ -9,6 +9,7 @@
 #include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -16,7 +17,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkWarpScalar.h"
@@ -27,22 +27,21 @@ int expCos(int, char*[])
   double x[3];
   double r, deriv;
 
-  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren);
 
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   // create plane to warp
-  vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
+  vtkNew<vtkPlaneSource> plane;
   plane->SetResolution(300, 300);
 
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   transform->Scale(10.0, 10.0, 1.0);
 
-  vtkSmartPointer<vtkTransformFilter> transF = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> transF;
   transF->SetInputConnection(plane->GetOutputPort());
   transF->SetTransform(transform);
   transF->Update();
@@ -50,16 +49,16 @@ int expCos(int, char*[])
   // compute Bessel function and derivatives. This portion could be
   // encapsulated into source or filter object.
   //
-  vtkSmartPointer<vtkPolyData> input = transF->GetPolyDataOutput();
+  vtkPolyData* input = transF->GetPolyDataOutput();
   numPts = input->GetNumberOfPoints();
 
-  vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> newPts;
   newPts->SetNumberOfPoints(numPts);
 
-  vtkSmartPointer<vtkFloatArray> derivs = vtkSmartPointer<vtkFloatArray>::New();
+  vtkNew<vtkFloatArray> derivs;
   derivs->SetNumberOfTuples(numPts);
 
-  vtkSmartPointer<vtkPolyData> bessel = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> bessel;
   bessel->CopyStructure(input);
   bessel->SetPoints(newPts);
   bessel->GetPointData()->SetScalars(derivs);
@@ -75,19 +74,19 @@ int expCos(int, char*[])
   }
 
   // warp plane
-  vtkSmartPointer<vtkWarpScalar> warp = vtkSmartPointer<vtkWarpScalar>::New();
+  vtkNew<vtkWarpScalar> warp;
   warp->SetInputData(bessel);
   warp->XYPlaneOn();
   warp->SetScaleFactor(0.5);
 
   // mapper and actor
-  vtkSmartPointer<vtkDataSetMapper> mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkNew<vtkDataSetMapper> mapper;
   mapper->SetInputConnection(warp->GetOutputPort());
   double tmp[2];
   bessel->GetScalarRange(tmp);
   mapper->SetScalarRange(tmp[0], tmp[1]);
 
-  vtkSmartPointer<vtkActor> carpet = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> carpet;
   carpet->SetMapper(mapper);
 
   // assign our actor to the renderer

@@ -14,6 +14,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
@@ -26,7 +27,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
@@ -54,7 +54,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->FocalPoint->SetNumberOfPoints(1);
   this->FocalPoint->SetPoint(0, 0.0, 0.0, 0.0);
 
-  vtkSmartPointer<vtkDoubleArray> normals = vtkSmartPointer<vtkDoubleArray>::New();
+  vtkNew<vtkDoubleArray> normals;
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(1);
 
@@ -76,28 +76,28 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
 
   // The transformation of the cursor will be done via vtkGlyph3D
   // By default a vtkCursor2D will be used to define the cursor shape
-  vtkSmartPointer<vtkCursor2D> cursor2D = vtkSmartPointer<vtkCursor2D>::New();
+  vtkNew<vtkCursor2D> cursor2D;
   cursor2D->AllOff();
   cursor2D->PointOn();
   cursor2D->Update();
   this->SetCursorShape(cursor2D->GetOutput());
 
-  vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkNew<vtkCylinderSource> cylinder;
   cylinder->SetResolution(64);
   cylinder->SetRadius(1.0);
   cylinder->SetHeight(0.0);
   cylinder->CappingOff();
   cylinder->SetCenter(0, 0, 0);
 
-  vtkSmartPointer<vtkCleanPolyData> clean = vtkSmartPointer<vtkCleanPolyData>::New();
+  vtkNew<vtkCleanPolyData> clean;
   clean->PointMergingOn();
   clean->CreateDefaultLocator();
   clean->SetInputConnection(0, cylinder->GetOutputPort(0));
 
-  vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> t;
   t->RotateZ(90.0);
 
-  vtkSmartPointer<vtkTransformFilter> tpd = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> tpd;
   tpd->SetInputConnection(0, clean->GetOutputPort(0));
   tpd->SetTransform(t);
   tpd->Update();
@@ -480,7 +480,7 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(
   this->GetProjectionNormal(normal);
   this->GetProjectionOrigin(origin);
 
-  vtkSmartPointer<vtkCellPicker> picker = vtkSmartPointer<vtkCellPicker>::New();
+  vtkNew<vtkCellPicker> picker;
 
   picker->Pick(eventPos[0], eventPos[1], 0, renderer);
 

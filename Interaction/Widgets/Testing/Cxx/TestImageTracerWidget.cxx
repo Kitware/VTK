@@ -366,7 +366,7 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   // Start by loading some data.
   //
-  vtkSmartPointer<vtkVolume16Reader> v16 = vtkSmartPointer<vtkVolume16Reader>::New();
+  vtkNew<vtkVolume16Reader> v16;
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -378,25 +378,23 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   delete[] fname;
 
-  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderer> ren2 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren1;
+  vtkNew<vtkRenderer> ren2;
 
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(ren1);
   renWin->AddRenderer(ren2);
 
-  vtkSmartPointer<vtkInteractorStyleImage> interactorStyle =
-    vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkNew<vtkInteractorStyleImage> interactorStyle;
 
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetInteractorStyle(interactorStyle);
   iren->SetRenderWindow(renWin);
 
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkSmartPointer<vtkImageShiftScale> shifter = vtkSmartPointer<vtkImageShiftScale>::New();
+  vtkNew<vtkImageShiftScale> shifter;
   shifter->SetShift(-1.0 * range[0]);
   shifter->SetScale(255.0 / (range[1] - range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
@@ -406,20 +404,20 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   // Display a y-z plane.
   //
-  vtkSmartPointer<vtkImageActor> imageActor1 = vtkSmartPointer<vtkImageActor>::New();
+  vtkNew<vtkImageActor> imageActor1;
   imageActor1->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor1->VisibilityOn();
   imageActor1->SetDisplayExtent(31, 31, 0, 63, 0, 92);
   imageActor1->InterpolateOff();
 
-  vtkSmartPointer<vtkExtractVOI> extract = vtkSmartPointer<vtkExtractVOI>::New();
+  vtkNew<vtkExtractVOI> extract;
   extract->SetVOI(imageActor1->GetDisplayExtent());
   extract->SetSampleRate(1, 1, 1);
   extract->SetInputConnection(shifter->GetOutputPort());
   extract->ReleaseDataFlagOff();
   extract->Update();
 
-  vtkSmartPointer<vtkImageActor> imageActor2 = vtkSmartPointer<vtkImageActor>::New();
+  vtkNew<vtkImageActor> imageActor2;
   imageActor2->GetMapper()->SetInputConnection(extract->GetOutputPort());
   imageActor2->VisibilityOn();
   imageActor2->SetDisplayExtent(extract->GetVOI());
@@ -427,8 +425,7 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   // Set up the image tracer widget
   //
-  vtkSmartPointer<vtkImageTracerWidget> imageTracerWidget =
-    vtkSmartPointer<vtkImageTracerWidget>::New();
+  vtkNew<vtkImageTracerWidget> imageTracerWidget;
   imageTracerWidget->SetDefaultRenderer(ren1);
   imageTracerWidget->SetCaptureRadius(1.5);
   imageTracerWidget->GetGlyphSource()->SetColor(1, 0, 0);
@@ -448,7 +445,7 @@ int TestImageTracerWidget(int argc, char* argv[])
   // Set up a vtkSplineWidget in the second renderer and have
   // its handles set by the tracer widget.
   //
-  vtkSmartPointer<vtkSplineWidget> splineWidget = vtkSmartPointer<vtkSplineWidget>::New();
+  vtkNew<vtkSplineWidget> splineWidget;
   splineWidget->SetCurrentRenderer(ren2);
   splineWidget->SetDefaultRenderer(ren2);
   splineWidget->SetInputConnection(extract->GetOutputPort());
@@ -458,28 +455,26 @@ int TestImageTracerWidget(int argc, char* argv[])
   splineWidget->SetProjectionNormalToXAxes();
   splineWidget->SetProjectionPosition(imageActor2->GetBounds()[0]);
 
-  vtkSmartPointer<vtkPolyData> pathPoly = vtkSmartPointer<vtkPolyData>::New();
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkPolyData> splinePoly = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> pathPoly;
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkPolyData> splinePoly;
 
   // Set up a pipeline to demonstrate extraction of a 2D
   // region of interest.
   //
-  vtkSmartPointer<vtkLinearExtrusionFilter> extrude =
-    vtkSmartPointer<vtkLinearExtrusionFilter>::New();
+  vtkNew<vtkLinearExtrusionFilter> extrude;
   extrude->SetInputData(splinePoly);
   extrude->SetScaleFactor(1);
   extrude->SetExtrusionTypeToNormalExtrusion();
   extrude->SetVector(1, 0, 0);
 
-  vtkSmartPointer<vtkTransformFilter> filter = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> filter;
   filter->SetInputConnection(extrude->GetOutputPort());
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   transform->Translate(-0.5, 0, 0);
   filter->SetTransform(transform);
 
-  vtkSmartPointer<vtkPolyDataToImageStencil> dataToStencil =
-    vtkSmartPointer<vtkPolyDataToImageStencil>::New();
+  vtkNew<vtkPolyDataToImageStencil> dataToStencil;
   dataToStencil->SetInputConnection(filter->GetOutputPort());
 
   dataToStencil->SetInformationInput(extract->GetOutput());
@@ -489,7 +484,7 @@ int TestImageTracerWidget(int argc, char* argv[])
   // dataToStencil->SetOutputOrigin( extract->GetOutput()->GetOrigin() );
   // dataToStencil->SetOutputWholeExtent( extract->GetOutput()->GetWholeExtent() );
 
-  vtkSmartPointer<vtkImageStencil> stencil = vtkSmartPointer<vtkImageStencil>::New();
+  vtkNew<vtkImageStencil> stencil;
   stencil->SetInputConnection(extract->GetOutputPort());
   stencil->SetStencilConnection(dataToStencil->GetOutputPort());
   stencil->ReverseStencilOff();
@@ -497,7 +492,7 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   // Set up callbacks for widget interactions.
   //
-  vtkSmartPointer<vtkITWCallback> itwCallback = vtkSmartPointer<vtkITWCallback>::New();
+  vtkNew<vtkITWCallback> itwCallback;
   itwCallback->SplineWidget = splineWidget;
   itwCallback->Actor = imageActor2;
   itwCallback->Stencil = stencil;
@@ -507,7 +502,7 @@ int TestImageTracerWidget(int argc, char* argv[])
 
   imageTracerWidget->AddObserver(vtkCommand::EndInteractionEvent, itwCallback);
 
-  vtkSmartPointer<vtkSW2Callback> swCallback = vtkSmartPointer<vtkSW2Callback>::New();
+  vtkNew<vtkSW2Callback> swCallback;
   swCallback->Points = points;
   swCallback->TracerWidget = imageTracerWidget;
   swCallback->Actor = imageActor2;
@@ -544,8 +539,7 @@ int TestImageTracerWidget(int argc, char* argv[])
   cam->Dolly(1.7);
   ren2->ResetCameraClippingRange();
 
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
+  vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(ImageTracerWidgetEventLog);

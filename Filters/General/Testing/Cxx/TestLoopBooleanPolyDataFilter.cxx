@@ -9,6 +9,7 @@
 #include "vtkLinearSubdivisionFilter.h"
 #include "vtkLoopBooleanPolyDataFilter.h"
 #include "vtkMath.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -21,55 +22,51 @@
 
 static vtkSmartPointer<vtkActor> GetCubeBooleanOperationActor(double x, int operation)
 {
-  vtkSmartPointer<vtkCubeSource> cube1 = vtkSmartPointer<vtkCubeSource>::New();
+  vtkNew<vtkCubeSource> cube1;
   cube1->SetCenter(x, 4.0, 0.0);
   cube1->SetXLength(1.0);
   cube1->SetYLength(1.0);
   cube1->SetZLength(1.0);
   cube1->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangulator1 = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangulator1;
   triangulator1->SetInputData(cube1->GetOutput());
   triangulator1->Update();
 
-  vtkSmartPointer<vtkLinearSubdivisionFilter> subdivider1 =
-    vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
+  vtkNew<vtkLinearSubdivisionFilter> subdivider1;
   subdivider1->SetInputData(triangulator1->GetOutput());
   subdivider1->Update();
 
-  vtkSmartPointer<vtkCubeSource> cube2 = vtkSmartPointer<vtkCubeSource>::New();
+  vtkNew<vtkCubeSource> cube2;
   cube2->SetCenter(x + 0.3, 4.3, 0.3);
   cube2->SetXLength(1.0);
   cube2->SetYLength(1.0);
   cube2->SetZLength(1.0);
   cube2->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangulator2 = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangulator2;
   triangulator2->SetInputData(cube2->GetOutput());
   triangulator2->Update();
 
-  vtkSmartPointer<vtkLinearSubdivisionFilter> subdivider2 =
-    vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
+  vtkNew<vtkLinearSubdivisionFilter> subdivider2;
   subdivider2->SetInputData(triangulator2->GetOutput());
   subdivider2->Update();
 
-  vtkSmartPointer<vtkLoopBooleanPolyDataFilter> boolFilter =
-    vtkSmartPointer<vtkLoopBooleanPolyDataFilter>::New();
+  vtkNew<vtkLoopBooleanPolyDataFilter> boolFilter;
   boolFilter->SetOperation(operation);
   boolFilter->SetInputConnection(0, subdivider1->GetOutputPort());
   boolFilter->SetInputConnection(1, subdivider2->GetOutputPort());
   boolFilter->Update();
 
-  vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
-  output = boolFilter->GetOutput();
+  vtkPolyData* output = boolFilter->GetOutput();
   output->GetCellData()->SetActiveScalars("FreeEdge");
-  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(output);
   mapper->SetScalarRange(0, 1);
   mapper->SetScalarModeToUseCellData();
   mapper->ScalarVisibilityOn();
 
-  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
   return actor;
@@ -78,29 +75,27 @@ static vtkSmartPointer<vtkActor> GetCubeBooleanOperationActor(double x, int oper
 static vtkSmartPointer<vtkActor> GetSphereBooleanOperationActor(double x, int operation)
 {
   double centerSeparation = 0.15;
-  vtkSmartPointer<vtkSphereSource> sphere1 = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere1;
   sphere1->SetCenter(-centerSeparation + x, 0.0, 0.0);
 
-  vtkSmartPointer<vtkSphereSource> sphere2 = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere2;
   sphere2->SetCenter(centerSeparation + x, 0.0, 0.0);
 
-  vtkSmartPointer<vtkLoopBooleanPolyDataFilter> boolFilter =
-    vtkSmartPointer<vtkLoopBooleanPolyDataFilter>::New();
+  vtkNew<vtkLoopBooleanPolyDataFilter> boolFilter;
   boolFilter->SetOperation(operation);
   boolFilter->SetInputConnection(0, sphere1->GetOutputPort());
   boolFilter->SetInputConnection(1, sphere2->GetOutputPort());
   boolFilter->Update();
 
-  vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
-  output = boolFilter->GetOutput();
+  vtkPolyData* output = boolFilter->GetOutput();
   output->GetCellData()->SetActiveScalars("FreeEdge");
-  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(output);
   mapper->SetScalarRange(0, 1);
   mapper->SetScalarModeToUseCellData();
   mapper->ScalarVisibilityOn();
 
-  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
   return actor;
@@ -118,7 +113,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   vec[2] = 0.0;
   double rotateaxis[3];
   vtkMath::Cross(axis, vec, rotateaxis);
-  vtkSmartPointer<vtkCylinderSource> cylinder1 = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkNew<vtkCylinderSource> cylinder1;
   cylinder1->SetCenter(0.0, 0.0, 0.0);
   cylinder1->SetHeight(2.0);
   cylinder1->SetRadius(0.5);
@@ -126,23 +121,23 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   cylinder1->Update();
   double radangle = vtkMath::AngleBetweenVectors(axis, vec);
   double degangle = vtkMath::DegreesFromRadians(radangle);
-  vtkSmartPointer<vtkTransform> rotator1 = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rotator1;
   rotator1->RotateWXYZ(degangle, rotateaxis);
 
-  vtkSmartPointer<vtkTransformFilter> polyDataRotator1 = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> polyDataRotator1;
   polyDataRotator1->SetInputData(cylinder1->GetOutput());
   polyDataRotator1->SetTransform(rotator1);
   polyDataRotator1->Update();
 
-  vtkSmartPointer<vtkTransform> mover1 = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> mover1;
   mover1->Translate(x, -4.0, 0.0);
 
-  vtkSmartPointer<vtkTransformFilter> polyDataMover1 = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> polyDataMover1;
   polyDataMover1->SetInputData(polyDataRotator1->GetOutput());
   polyDataMover1->SetTransform(mover1);
   polyDataMover1->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangulator1 = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangulator1;
   triangulator1->SetInputData(polyDataMover1->GetOutput());
   triangulator1->Update();
 
@@ -150,7 +145,7 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   axis[1] = 0.0;
   axis[2] = 0.0;
   vtkMath::Cross(axis, vec, rotateaxis);
-  vtkSmartPointer<vtkCylinderSource> cylinder2 = vtkSmartPointer<vtkCylinderSource>::New();
+  vtkNew<vtkCylinderSource> cylinder2;
   cylinder2->SetCenter(0.0, 0.0, 0.0);
   cylinder2->SetHeight(2.0);
   cylinder2->SetRadius(0.5);
@@ -158,43 +153,41 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
   cylinder2->Update();
   radangle = vtkMath::AngleBetweenVectors(axis, vec);
   degangle = vtkMath::DegreesFromRadians(radangle);
-  vtkSmartPointer<vtkTransform> rotator2 = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rotator2;
   rotator2->RotateWXYZ(degangle, rotateaxis);
 
-  vtkSmartPointer<vtkTransformFilter> polyDataRotator2 = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> polyDataRotator2;
   polyDataRotator2->SetInputData(cylinder2->GetOutput());
   polyDataRotator2->SetTransform(rotator2);
   polyDataRotator2->Update();
 
-  vtkSmartPointer<vtkTransform> mover2 = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> mover2;
   mover2->Translate(x, -4.0, 0.0);
 
-  vtkSmartPointer<vtkTransformFilter> polyDataMover2 = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> polyDataMover2;
   polyDataMover2->SetInputData(polyDataRotator2->GetOutput());
   polyDataMover2->SetTransform(mover2);
   polyDataMover2->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangulator2 = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangulator2;
   triangulator2->SetInputData(polyDataMover2->GetOutput());
   triangulator2->Update();
 
-  vtkSmartPointer<vtkLoopBooleanPolyDataFilter> boolFilter =
-    vtkSmartPointer<vtkLoopBooleanPolyDataFilter>::New();
+  vtkNew<vtkLoopBooleanPolyDataFilter> boolFilter;
   boolFilter->SetOperation(operation);
   boolFilter->SetInputConnection(0, triangulator1->GetOutputPort());
   boolFilter->SetInputConnection(1, triangulator2->GetOutputPort());
   boolFilter->Update();
 
-  vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
-  output = boolFilter->GetOutput();
+  vtkPolyData* output = boolFilter->GetOutput();
   output->GetCellData()->SetActiveScalars("FreeEdge");
-  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(output);
   mapper->SetScalarRange(0, 1);
   mapper->SetScalarModeToUseCellData();
   mapper->ScalarVisibilityOn();
 
-  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
   return actor;
@@ -202,12 +195,11 @@ static vtkSmartPointer<vtkActor> GetCylinderBooleanOperationActor(double x, int 
 
 int TestLoopBooleanPolyDataFilter(int, char*[])
 {
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
 
-  vtkSmartPointer<vtkRenderWindowInteractor> renWinInteractor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> renWinInteractor;
   renWinInteractor->SetRenderWindow(renWin);
 
   // Sphere

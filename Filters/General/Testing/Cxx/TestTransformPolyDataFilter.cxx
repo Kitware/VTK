@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkNew.h"
 #include <vtkCellArray.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 #include <vtkTransformFilter.h>
 
@@ -15,12 +15,11 @@ namespace
 {
 void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkCellArray> verts;
   verts->InsertNextCell(4);
 
   if (dataType == VTK_DOUBLE)
@@ -60,8 +59,7 @@ void InitializePolyData(vtkPolyData* polyData, int dataType)
 
 void InitializeTransform(vtkTransform* transform)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
-    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
   randomSequence->SetSeed(1);
 
   double elements[16];
@@ -76,14 +74,13 @@ void InitializeTransform(vtkTransform* transform)
 
 int TransformPolyData(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> inputPolyData;
   InitializePolyData(inputPolyData, dataType);
 
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   InitializeTransform(transform);
 
-  vtkSmartPointer<vtkTransformFilter> transformPolyDataFilter =
-    vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> transformPolyDataFilter;
   transformPolyDataFilter->SetOutputPointsPrecision(outputPointsPrecision);
 
   transformPolyDataFilter->SetTransform(transform);
@@ -91,8 +88,8 @@ int TransformPolyData(int dataType, int outputPointsPrecision)
 
   transformPolyDataFilter->Update();
 
-  vtkSmartPointer<vtkPolyData> outputPolyData = transformPolyDataFilter->GetPolyDataOutput();
-  vtkSmartPointer<vtkPoints> points = outputPolyData->GetPoints();
+  vtkPolyData* outputPolyData = transformPolyDataFilter->GetPolyDataOutput();
+  vtkPoints* points = outputPolyData->GetPoints();
 
   return points->GetDataType();
 }

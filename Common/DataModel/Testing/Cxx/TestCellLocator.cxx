@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkDataArray.h"
-#include "vtkGenericCell.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-
 #include "vtkActor.h"
 #include "vtkCellLocator.h"
 #include "vtkCleanPolyData.h"
 #include "vtkCubeSource.h"
+#include "vtkDataArray.h"
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLinearSubdivisionFilter.h"
 #include "vtkMaskFields.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -23,45 +23,42 @@
 #include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 
-#include "vtkRegressionTestImage.h"
-
 #include <iostream>
 
 // This test reproduces the cell locator bug in FindCellsAlongLine
 int TestFindCellsAlongLine()
 { // returns 1 for success and 0 for failure
   // Generate a surface mesh
-  vtkSmartPointer<vtkCubeSource> source = vtkSmartPointer<vtkCubeSource>::New();
-  vtkSmartPointer<vtkMaskFields> removearrays = vtkSmartPointer<vtkMaskFields>::New();
+  vtkNew<vtkCubeSource> source;
+  vtkNew<vtkMaskFields> removearrays;
   removearrays->SetInputConnection(source->GetOutputPort());
   removearrays->CopyAllOff();
 
-  vtkSmartPointer<vtkCleanPolyData> clean = vtkSmartPointer<vtkCleanPolyData>::New();
+  vtkNew<vtkCleanPolyData> clean;
   clean->SetInputConnection(removearrays->GetOutputPort());
 
-  vtkSmartPointer<vtkTransform> trans = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> trans;
   trans->RotateX(6);
   trans->RotateY(9);
   trans->RotateZ(3);
 
-  vtkSmartPointer<vtkTransformFilter> transformer = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkNew<vtkTransformFilter> transformer;
   transformer->SetInputConnection(clean->GetOutputPort());
   transformer->SetTransform(trans);
 
-  vtkSmartPointer<vtkTriangleFilter> triangulator = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangulator;
   triangulator->SetInputConnection(transformer->GetOutputPort());
 
-  vtkSmartPointer<vtkLinearSubdivisionFilter> subdivide =
-    vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
+  vtkNew<vtkLinearSubdivisionFilter> subdivide;
   subdivide->SetInputConnection(triangulator->GetOutputPort());
   subdivide->SetNumberOfSubdivisions(4);
   subdivide->Update();
 
-  vtkSmartPointer<vtkPolyData> surface = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> surface;
   surface->DeepCopy(subdivide->GetOutput());
 
   // Create the standard locator
-  vtkSmartPointer<vtkCellLocator> cellLocator = vtkSmartPointer<vtkCellLocator>::New();
+  vtkNew<vtkCellLocator> cellLocator;
   cellLocator->SetDataSet(surface);
   cellLocator->BuildLocator();
 
@@ -69,7 +66,7 @@ int TestFindCellsAlongLine()
   // generated above reproduces the bug
   double p1[] = { 0.897227, 0.0973691, 0.0389687 };
   double p2[] = { 0.342117, 0.492077, 0.423446 };
-  vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
+  vtkNew<vtkIdList> cellIds;
   cellLocator->FindCellsAlongLine(p1, p2, 0.0, cellIds);
 
   if (cellIds->GetNumberOfIds() != 4)
@@ -100,14 +97,14 @@ int TestCellLocator(int argc, char* argv[])
   // vtkCellLocator::IntersectWithLine(...9 params...)
 
   // sphere1: the outer sphere
-  vtkSmartPointer<vtkSphereSource> sphere1 = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere1;
   sphere1->SetThetaResolution(100);
   sphere1->SetPhiResolution(100);
   sphere1->SetRadius(1);
   sphere1->Update();
 
   // sphere2: the inner sphere
-  vtkSmartPointer<vtkSphereSource> sphere2 = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere2;
   sphere2->SetThetaResolution(100);
   sphere2->SetPhiResolution(100);
   sphere2->SetRadius(0.8);
@@ -117,7 +114,7 @@ int TestCellLocator(int argc, char* argv[])
   vtkDataArray* sphereNormals = sphere1->GetOutput()->GetPointData()->GetNormals();
 
   // the cell locator
-  vtkSmartPointer<vtkCellLocator> locator = vtkSmartPointer<vtkCellLocator>::New();
+  vtkNew<vtkCellLocator> locator;
   locator->SetDataSet(sphere2->GetOutput());
   locator->CacheCellBoundsOn();
   locator->AutomaticOn();
@@ -130,7 +127,7 @@ int TestCellLocator(int argc, char* argv[])
   vtkIdType cell_id;
   double param_t, intersect[3], paraCoord[3];
   double sourcePnt[3], destinPnt[3], normalVec[3];
-  vtkSmartPointer<vtkGenericCell> cell = vtkSmartPointer<vtkGenericCell>::New();
+  vtkNew<vtkGenericCell> cell;
 
   // this loop traverses each point on the outer sphere (sphere1)
   // and  looks for an intersection on the inner sphere (sphere2)
@@ -178,35 +175,34 @@ int TestCellLocator(int argc, char* argv[])
 
   // below: the initial tests
 
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(8);
   sphere->SetPhiResolution(8);
   sphere->SetRadius(1.0);
   sphere->Update();
 
-  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> sphereActor;
   sphereActor->SetMapper(sphereMapper);
 
-  vtkSmartPointer<vtkSphereSource> spot = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> spot;
   spot->SetPhiResolution(6);
   spot->SetThetaResolution(6);
   spot->SetRadius(0.1);
 
-  vtkSmartPointer<vtkPolyDataMapper> spotMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> spotMapper;
   spotMapper->SetInputConnection(spot->GetOutputPort());
 
   // Build a locator
-  vtkSmartPointer<vtkCellLocator> cellLocator = vtkSmartPointer<vtkCellLocator>::New();
+  vtkNew<vtkCellLocator> cellLocator;
   cellLocator->SetDataSet(sphere->GetOutput());
   cellLocator->BuildLocator();
 
@@ -218,7 +214,7 @@ int TestCellLocator(int argc, char* argv[])
   int subId;
   cellLocator->IntersectWithLine(p1, p2, 0.001, t, ptline, pcoords, subId);
 
-  vtkSmartPointer<vtkActor> intersectLineActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> intersectLineActor;
   intersectLineActor->SetMapper(spotMapper);
   intersectLineActor->SetPosition(ptline[0], ptline[1], ptline[2]);
   intersectLineActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
@@ -229,7 +225,7 @@ int TestCellLocator(int argc, char* argv[])
   p1[0] = -2.4;
   p1[1] = -0.9;
   cellLocator->FindClosestPoint(p1, ptline, cellId, subId, dist);
-  vtkSmartPointer<vtkActor> closestPointActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> closestPointActor;
   closestPointActor->SetMapper(spotMapper);
   closestPointActor->SetPosition(ptline[0], ptline[1], ptline[2]);
   closestPointActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
@@ -240,7 +236,7 @@ int TestCellLocator(int argc, char* argv[])
   p1[1] = 1.0;
   p1[2] = 1.0;
   cellLocator->FindClosestPointWithinRadius(p1, radius, ptline, cellId, subId, dist);
-  vtkSmartPointer<vtkActor> closestPointActor2 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> closestPointActor2;
   closestPointActor2->SetMapper(spotMapper);
   closestPointActor2->SetPosition(ptline[0], ptline[1], ptline[2]);
   closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
