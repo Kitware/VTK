@@ -1376,7 +1376,6 @@ private:
 };
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkPStreamTracer, Interpolator, vtkAbstractInterpolatedVelocityField);
 vtkStandardNewMacro(vtkPStreamTracer);
 
 //------------------------------------------------------------------------------
@@ -1385,7 +1384,6 @@ vtkPStreamTracer::vtkPStreamTracer()
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
-  this->Interpolator = nullptr;
   this->GenerateNormalsInIntegrate = false;
 
   this->EmptyData = 0;
@@ -1399,7 +1397,6 @@ vtkPStreamTracer::vtkPStreamTracer()
 vtkPStreamTracer::~vtkPStreamTracer()
 {
   this->SetController(nullptr);
-  this->SetInterpolator(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -1523,8 +1520,6 @@ int vtkPStreamTracer::RequestData(
   else
   {
     func->SetCaching(false);
-    this->SetInterpolator(func);
-    func->Delete();
   }
 
   if (vtkOverlappingAMR::SafeDownCast(this->InputData))
@@ -1649,6 +1644,11 @@ int vtkPStreamTracer::RequestData(
           seedIds->SetTypedComponent(cc, 0, originalSeedIds->GetId(seedIdx));
         }
       });
+  }
+  if (func)
+  {
+    func->Delete();
+    func = nullptr;
   }
 
 #ifdef DEBUGTRACE

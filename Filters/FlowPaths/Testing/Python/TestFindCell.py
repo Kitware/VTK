@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonCore import vtkFloatArray
 from vtkmodules.vtkCommonDataModel import (
-    vtkClosestNPointsStrategy,
+    vtkJumpAndWalkCellLocator,
     vtkImageData,
 )
 from vtkmodules.vtkCommonMath import vtkRungeKutta4
@@ -89,9 +89,10 @@ line.SetPoint2(pt2)
 line.Update()
 
 rk4 = vtkRungeKutta4()
-strategy = vtkClosestNPointsStrategy()
+cellLocator = vtkJumpAndWalkCellLocator()
+cellLocator.SetNumberOfClosestPoints(9)
 ivp = vtkCompositeInterpolatedVelocityField()
-ivp.SetFindCellStrategy(strategy)
+ivp.SetCellLocator(cellLocator)
 
 streamer = vtkStreamTracer()
 streamer.SetInputConnection(append.GetOutputPort())

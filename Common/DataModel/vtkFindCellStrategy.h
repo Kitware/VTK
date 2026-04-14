@@ -42,6 +42,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkGenericCell;
+class vtkAbstractCellLocator;
 class vtkPointSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkFindCellStrategy : public vtkObject
@@ -54,6 +55,13 @@ public:
   vtkTypeMacro(vtkFindCellStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+  /**
+   * Convert FindCellStrategy to cellLocator.
+   *
+   * @note The cell locator may need to be built.
+   */
+  virtual vtkSmartPointer<vtkAbstractCellLocator> ConvertToCellLocator() = 0;
 
   /**
    * All subclasses of this class must provide an initialize method.  This

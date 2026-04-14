@@ -116,15 +116,15 @@ bool vtkResampleWithDataSet::GetPassPartialArrays()
 }
 
 //------------------------------------------------------------------------------
-void vtkResampleWithDataSet::SetCellLocatorPrototype(vtkAbstractCellLocator* locator)
+void vtkResampleWithDataSet::SetCellLocator(vtkAbstractCellLocator* locator)
 {
-  this->Prober->SetCellLocatorPrototype(locator);
+  this->Prober->SetCellLocator(locator);
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocatorPrototype() const
+vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocator() const
 {
-  return this->Prober->GetCellLocatorPrototype();
+  return this->Prober->GetCellLocator();
 }
 
 //------------------------------------------------------------------------------

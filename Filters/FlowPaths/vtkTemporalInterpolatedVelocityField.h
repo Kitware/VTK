@@ -35,6 +35,7 @@
 #ifndef vtkTemporalInterpolatedVelocityField_h
 #define vtkTemporalInterpolatedVelocityField_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
@@ -43,6 +44,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLinks;
+class vtkAbstractCellLocator;
 class vtkCompositeDataSet;
 class vtkCompositeInterpolatedVelocityField;
 class vtkDataArray;
@@ -205,8 +207,21 @@ public:
    * input is a composite dataset then the strategy will be used to clone
    * one strategy per leaf dataset.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator() instead.")
   virtual void SetFindCellStrategy(vtkFindCellStrategy*);
-  vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
+  VTK_DEPRECATED_IN_9_7_0(
+    "GetFindCellStrategy() always returns nullptr. Use GetCellLocator() instead.")
+  virtual vtkFindCellStrategy* GetFindCellStrategy() { return nullptr; }
+  ///@}
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation. This
+   * cell locator is used when operating on vtkPointSet subclasses. Note if the
+   * input is a composite dataset then the cell locator will be used
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   ///@}
 
 protected:
@@ -217,17 +232,19 @@ protected:
 
   int MeshOverTime = MeshOverTimeTypes::DIFFERENT;
 
-  void InitializeWithLocators(vtkCompositeInterpolatedVelocityField* ivf,
-    const std::vector<vtkDataSet*>& datasets, vtkFindCellStrategy* strategy,
-    const std::vector<vtkSmartPointer<vtkLocator>>& locators,
+  void InitializeWithCellLocators(vtkCompositeInterpolatedVelocityField* ivf,
+    const std::vector<vtkDataSet*>& datasets, vtkAbstractCellLocator* cellLocatorPrototype,
+    const std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators,
     const std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links);
 
-  void CreateLocators(const std::vector<vtkDataSet*>& datasets, vtkFindCellStrategy* strategy,
-    std::vector<vtkSmartPointer<vtkLocator>>& locators);
+  void CreateCellLocators(const std::vector<vtkDataSet*>& datasets,
+    vtkAbstractCellLocator* cellLocatorProtoType,
+    std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators);
   void CreateLinks(const std::vector<vtkDataSet*>& datasets,
     std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links);
-  void CreateLinearTransformCellLocators(const std::vector<vtkSmartPointer<vtkLocator>>& locators,
-    std::vector<vtkSmartPointer<vtkLocator>>& linearCellLocators);
+  void CreateLinearTransformCellLocators(
+    const std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators,
+    std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& linearCellLocators);
 
   double Vals1[3];
   double Vals2[3];
@@ -245,12 +262,12 @@ protected:
   double ScaleCoeff;
 
   vtkSmartPointer<vtkCompositeInterpolatedVelocityField> IVF[2];
-  std::vector<vtkSmartPointer<vtkLocator>> Locators[2];
-  std::vector<vtkSmartPointer<vtkLocator>> InitialCellLocators;
+  std::vector<vtkSmartPointer<vtkAbstractCellLocator>> CellLocators[2];
+  std::vector<vtkSmartPointer<vtkAbstractCellLocator>> InitialCellLocators;
   std::vector<vtkSmartPointer<vtkAbstractCellLinks>> Links[2];
   std::vector<size_t> MaxCellSizes[2];
 
-  vtkFindCellStrategy* FindCellStrategy;
+  vtkAbstractCellLocator* CellLocator;
 
 private:
   // Hide this since we need multiple time steps and are using a different

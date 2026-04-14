@@ -6,8 +6,6 @@
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -19,6 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkModifiedBSPTree.h"
@@ -38,7 +37,6 @@
 
 #include <algorithm>
 #include <array>
-#include <iostream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -491,18 +489,15 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
   vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
   if (interpType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
   {
-    // create an interpolator equipped with a cell locator
-    vtkNew<vtkCellLocatorStrategy> strategy;
-    // specify the type of the cell locator attached to the interpolator
+    // specify the interpolator's cell locator type
     vtkNew<vtkModifiedBSPTree> cellLocType;
-    strategy->SetCellLocator(cellLocType);
-    cIVF->SetFindCellStrategy(strategy);
+    cIVF->SetCellLocator(cellLocType);
   }
   else
   {
-    // create an interpolator equipped with a point locator (by default)
-    vtkNew<vtkClosestPointStrategy> strategy;
-    cIVF->SetFindCellStrategy(strategy);
+    // specify the interpolator's cell locator type which uses a point locator (by default)
+    vtkNew<vtkJumpAndWalkCellLocator> cellLocType;
+    cIVF->SetCellLocator(cellLocType);
   }
   this->SetInterpolatorPrototype(cIVF);
 }

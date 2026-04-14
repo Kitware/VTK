@@ -46,7 +46,7 @@ public:
     pointDataResampler->SetSourceConnection(keepOnlyPointArrays->GetOutputPort());
     pointDataResampler->SetInputConnection(stripAllArrays->GetOutputPort());
     pointDataResamplerLocator->SetAutomatic(true);
-    pointDataResampler->SetCellLocatorPrototype(pointDataResamplerLocator);
+    pointDataResampler->SetCellLocator(pointDataResamplerLocator);
 
     cellCenters->SetInputConnection(stripAllArrays->GetOutputPort());
     cellCenters->SetVertexCells(true);
@@ -54,7 +54,7 @@ public:
     cellDataResampler->SetSourceConnection(keepOnlyCellArrays->GetOutputPort());
     cellDataResampler->SetInputConnection(cellCenters->GetOutputPort());
     cellDataResamplerLocator->SetAutomatic(true);
-    cellDataResampler->SetCellLocatorPrototype(cellDataResamplerLocator);
+    cellDataResampler->SetCellLocator(cellDataResamplerLocator);
 
     pointToCell->SetInputConnection(cellDataResampler->GetOutputPort());
     pointToCell->ProcessAllArraysOn();

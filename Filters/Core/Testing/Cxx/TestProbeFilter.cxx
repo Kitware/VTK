@@ -74,15 +74,15 @@ bool TestProbeFilterThreshold()
   {
     return false;
   }
-  // turn off computing tolerance and set it to 11 times what is was.
-  // 11 is magic number to get all the points within line1 selected.
+  // turn off computing tolerance and set it to 12 times what is was.
+  // 12 is magic number to get all 12 points within line1 selected.
   probe->SetComputeTolerance(false);
-  probe->SetTolerance(11 * probe->GetTolerance());
+  probe->SetTolerance(12 * probe->GetTolerance());
   probe->Update();
 
   int validNext = GetNumberOfValidPoints(probe->GetOutput());
 
-  if (validNext != 11)
+  if (validNext != 12)
   {
     return false;
   }
@@ -164,13 +164,14 @@ bool TestProbeFilterWithPolyDataSource()
   line->SetPoint2(0.2357023, 0.4714045, -0.45);
   line->SetResolution(6);
 
+  vtkNew<vtkCellLocator> cellLocator;
   vtkNew<vtkProbeFilter> probe;
   probe->SetInputConnection(line->GetOutputPort());
   probe->SetSourceConnection(calc->GetOutputPort());
   probe->ComputeToleranceOff();
   probe->SetTolerance(1e-6);
   probe->SnapToCellWithClosestPointOn();
-  probe->SetCellLocatorPrototype(vtkNew<vtkCellLocator>());
+  probe->SetCellLocator(cellLocator);
   probe->Update();
 
   constexpr double valuesGT[7] = { -0.12365478, -0.01496942, 0.15683462, 0.35355338, 0.47838341,

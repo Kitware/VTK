@@ -4,13 +4,13 @@
 
 #include "vtkAbstractCellLocator.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkFindCellStrategy.h"
 #include "vtkGenericCell.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -20,7 +20,16 @@
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
-vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
+vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, CellLocator, vtkAbstractCellLocator);
+void vtkAbstractInterpolatedVelocityField::SetFindCellStrategy(
+  vtkFindCellStrategy* findCellStrategy)
+{
+  if (findCellStrategy)
+  {
+    auto cellLocator = findCellStrategy->ConvertToCellLocator();
+    this->SetCellLocator(cellLocator);
+  }
+}
 
 //------------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-12;
@@ -53,7 +62,7 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->SurfaceDataset = false;
 
   this->InitializationState = NOT_INITIALIZED;
-  this->FindCellStrategy = nullptr;
+  this->CellLocator = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -65,23 +74,24 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   this->LastDataSet = nullptr;
   this->SetVectorsSelection(nullptr);
 
-  // Need to free strategies and other information associated with each
-  // dataset. There is a special case where the strategy cannot be deleted
+  // Need to free cell locators and other information associated with each
+  // dataset. There is a special case where the cell locator cannot be deleted
   // because is has been specified by the user.
   for (auto& datasetInfo : this->DataSetsInfo)
   {
-    if (datasetInfo.Strategy != nullptr)
+    if (datasetInfo.CellLocator != nullptr)
     {
-      datasetInfo.Strategy->Delete();
+      datasetInfo.CellLocator->Delete();
     }
   }
   this->DataSetsInfo.clear();
 
-  this->SetFindCellStrategy(nullptr);
+  this->SetCellLocator(nullptr);
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compDS, int initStrategy)
+void vtkAbstractInterpolatedVelocityField::Initialize(
+  vtkCompositeDataSet* compDS, int initCellLocator)
 {
   // Clear the datasets info, subclasses may want to put stuff into it.
   this->DataSetsInfo.clear();
@@ -93,23 +103,23 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
   }
 
   // Proceed to initialize the composite dataset
-  this->InitializationState = initStrategy;
+  this->InitializationState = initCellLocator;
 
-  // Obtain this find cell strategy or create the default one as necessary
-  vtkSmartPointer<vtkFindCellStrategy> strategy = this->FindCellStrategy;
-  vtkFindCellStrategy* strategyClone;
-  if (strategy == nullptr)
+  // Obtain this cell locator or create the default one as necessary
+  vtkSmartPointer<vtkAbstractCellLocator> cellLocatorPrototype = this->CellLocator;
+  if (!cellLocatorPrototype)
   {
-    strategy = vtkSmartPointer<vtkClosestPointStrategy>::New(); // default strategy if not provided
+    cellLocatorPrototype =
+      vtkSmartPointer<vtkJumpAndWalkCellLocator>::New(); // default cell locator if not provided
   }
 
   // These are the datasets to process from the input to the filter.
   auto datasets = vtkCompositeDataSet::GetDataSets(compDS);
 
-  // For each dataset in the list of datasets, make sure a FindCell
-  // strategy has been defined and initialized. The potential for composite
+  // For each dataset in the list of datasets, make sure a cell locator
+  // has been defined and initialized. The potential for composite
   // datasets which may contain instances of (vtkPointSet) make the process
-  // more complex. We only care about find cell strategies if the dataset is
+  // more complex. We only care about cell locators if the dataset is
   // a vtkPointSet because the other dataset types (e.g., volumes) have their
   // own built-in FindCell() methods.
   vtkDataArray* vectors;
@@ -126,41 +136,50 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
         dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection);
     }
 
-    strategyClone = nullptr;
-    if (vtkPointSet::SafeDownCast(dataset))
+    vtkAbstractCellLocator* cellLocator = nullptr;
+    if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
     {
-      strategyClone = strategy->NewInstance();
+      cellLocator = cellLocatorPrototype->NewInstance();
+      cellLocator->SetDataSet(pointSet);
+      if (auto jumpAndWalkCellLocator = vtkJumpAndWalkCellLocator::SafeDownCast(cellLocator))
+      {
+        auto jumpAndWalkCellLocatorPrototype =
+          vtkJumpAndWalkCellLocator::SafeDownCast(cellLocatorPrototype);
+        // if point locator is set, create a new instance of it and set it on jumpAndWalkCellLocator
+        if (auto pointLocator = jumpAndWalkCellLocatorPrototype->GetPointLocator())
+        {
+          auto newPointLocator = vtk::TakeSmartPointer(pointLocator->NewInstance());
+          newPointLocator->SetDataSet(pointSet);
+          newPointLocator->BuildLocator();
+          jumpAndWalkCellLocator->SetPointLocator(newPointLocator);
+        }
+        jumpAndWalkCellLocator->SetNumberOfClosestPoints(
+          jumpAndWalkCellLocatorPrototype->GetNumberOfClosestPoints());
+      }
+      auto existingCellLocator = pointSet->GetCellLocator();
+      // if the existing locator is the same type as the one provided
+      if (existingCellLocator && existingCellLocator->IsA(cellLocator->GetClassName()))
+      {
+        // use the existing one because it will be most probably already built
+        existingCellLocator->BuildLocator();
+        // create a copy of it
+        cellLocator->ShallowCopy(existingCellLocator);
+      }
+      else
+      {
+        // create a copy
+        auto datasetCellLocator = vtk::TakeSmartPointer(cellLocator->NewInstance());
+        datasetCellLocator->SetDataSet(pointSet);
+        // set it as the dataset's locator to allow other filters to reuse the locator.
+        pointSet->SetCellLocator(datasetCellLocator);
+        // build the requested locator
+        cellLocator->BuildLocator();
+        // create a copy of it
+        datasetCellLocator->ShallowCopy(cellLocator);
+      }
     }
-    this->AddToDataSetsInfo(dataset, strategyClone, vectors);
+    this->AddToDataSetsInfo(dataset, cellLocator, vectors);
   } // for all datasets of composite dataset
-
-  // Now initialize the new strategies
-  for (auto& datasetInfo : this->DataSetsInfo)
-  {
-    if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
-    {
-      if (auto closestPointStrategy = vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
-      {
-        auto providedClosestPointStrategy = vtkClosestPointStrategy::SafeDownCast(strategy);
-        // if locator is set, create a new instance of it and set it on the strategy
-        if (auto pointLocator = providedClosestPointStrategy->GetPointLocator())
-        {
-          closestPointStrategy->SetPointLocator(vtk::TakeSmartPointer(pointLocator->NewInstance()));
-        }
-      }
-      else if (auto cellLocatorStrategy =
-                 vtkCellLocatorStrategy::SafeDownCast(datasetInfo.Strategy))
-      {
-        auto providedCellLocatorStrategy = vtkCellLocatorStrategy::SafeDownCast(strategy);
-        // if locator is set, create a new instance of it and set it on the strategy
-        if (auto cellLocator = providedCellLocatorStrategy->GetCellLocator())
-        {
-          cellLocatorStrategy->SetCellLocator(vtk::TakeSmartPointer(cellLocator->NewInstance()));
-        }
-      }
-      datasetInfo.Strategy->Initialize(pointSet);
-    }
-  }
 
   // Now perform initialization on certain data sets
   for (auto& datasetInfo : this->DataSetsInfo)
@@ -168,13 +187,13 @@ void vtkAbstractInterpolatedVelocityField::Initialize(vtkCompositeDataSet* compD
     datasetInfo.DataSet->ComputeBounds();
     if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
-      // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
+      // build cells if needed
       if (polyData->NeedToBuildCells())
       {
         polyData->BuildCells();
       }
     }
-    if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
+    if (vtkJumpAndWalkCellLocator::SafeDownCast(datasetInfo.CellLocator))
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
       {
@@ -321,7 +340,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
   const vtkDataSetInformation& dsInfo, double* x)
 {
   vtkDataSet* dataset = dsInfo.DataSet;
-  vtkFindCellStrategy* strategy = dsInfo.Strategy;
+  vtkAbstractCellLocator* cellLocator = dsInfo.CellLocator;
   const double tol2 =
     dsInfo.SampledMaxCellLength2 * vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
   const auto radius =
@@ -332,15 +351,15 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
   int inside;
   vtkCell* lastCell =
     this->LastCellId != -1 && this->Caching ? this->CurrentCell->GetRepresentativeCell() : nullptr;
-  if (strategy)
+  if (cellLocator)
   {
-    // strategies are used for subclasses of vtkPointSet
-    newCellId = strategy->FindCell(x, lastCell, this->CurrentCell, this->LastCellId, tol2,
+    // cellLocators are used for subclasses of vtkPointSet
+    newCellId = cellLocator->FindCell(x, lastCell, this->CurrentCell, this->LastCellId, tol2,
       this->LastSubId, this->LastPCoords, this->Weights.data());
   }
   else
   {
-    // the classes that do not use a strategy are vtkImageData, vtkRectilinearGrid
+    // the classes that do not use a cellLocator are vtkImageData, vtkRectilinearGrid
     newCellId = dataset->FindCell(x, lastCell, this->CurrentCell, this->LastCellId, tol2,
       this->LastSubId, this->LastPCoords, this->Weights.data());
   }
@@ -367,12 +386,12 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
   else
   {
     this->LastCellId = -1;
-    if (this->SurfaceDataset && strategy)
+    if (this->SurfaceDataset && cellLocator)
     {
-      // if we are on a surface dataset, we can use the strategy to find the closest point
+      // if we are on a surface dataset, we can use the cellLocator to find the closest point
       vtkIdType closestPointFound =
-        strategy->FindClosestPointWithinRadius(x, radius, this->LastClosestPoint, this->CurrentCell,
-          this->LastCellId, this->LastSubId, dist2, inside);
+        cellLocator->FindClosestPointWithinRadius(x, radius, this->LastClosestPoint,
+          this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
       if (closestPointFound == 1)
       {
         // Previously computed lastPCoords are not valid, so we need to compute
@@ -472,45 +491,45 @@ void vtkAbstractInterpolatedVelocityField::CopyParameters(
   vtkAbstractInterpolatedVelocityField* from)
 {
   this->Caching = from->Caching;
-  this->SetFindCellStrategy(from->GetFindCellStrategy());
+  this->SetCellLocator(from->GetCellLocator());
   this->NormalizeVector = from->NormalizeVector;
   this->ForceSurfaceTangentVector = from->ForceSurfaceTangentVector;
   this->SurfaceDataset = from->SurfaceDataset;
   this->VectorsType = from->VectorsType;
   this->SetVectorsSelection(from->VectorsSelection);
 
-  // Copy the datasets' info, including possibly strategies, from the
-  // prototype. In a threaded situation, there must be separate strategies
-  // for each interpolated velocity field.
+  // Copy the datasets' info, including possibly cell locators, from the prototype.
+  // In a threaded situation, there must be separate cell locator
+  // for each interpolated velocity field, so the original is shallow-copied.
   this->InitializationState = from->InitializationState;
   this->DataSetsInfo.clear();
   for (const auto& datasetInfo : from->DataSetsInfo)
   {
-    vtkFindCellStrategy* strategy = nullptr;
-    if (datasetInfo.Strategy != nullptr)
+    vtkAbstractCellLocator* cellLocatorClone = nullptr;
+    if (datasetInfo.CellLocator != nullptr)
     {
-      strategy = datasetInfo.Strategy->NewInstance();
-      strategy->CopyParameters(datasetInfo.Strategy);
-      strategy->Initialize(vtkPointSet::SafeDownCast(datasetInfo.DataSet));
+      cellLocatorClone = datasetInfo.CellLocator->NewInstance();
+      cellLocatorClone->SetDataSet(datasetInfo.DataSet);
+      cellLocatorClone->ShallowCopy(datasetInfo.CellLocator);
     }
-    this->AddToDataSetsInfo(datasetInfo.DataSet, strategy, datasetInfo.Vectors);
+    this->AddToDataSetsInfo(datasetInfo.DataSet, cellLocatorClone, datasetInfo.Vectors);
   }
 }
 
 //------------------------------------------------------------------------------
 vtkAbstractInterpolatedVelocityField::vtkDataSetInformation::vtkDataSetInformation(
-  vtkDataSet* dataSet, vtkFindCellStrategy* strategy, vtkDataArray* vectors)
+  vtkDataSet* dataSet, vtkAbstractCellLocator* cellLocator, vtkDataArray* vectors)
   : DataSet(dataSet)
   , SampledMaxCellLength2(dataSet->GetSampledMaxCellLength2(100))
   , Length2(dataSet->GetLength2())
-  , Strategy(strategy)
+  , CellLocator(cellLocator)
   , Vectors(vectors)
 {
 }
 
 //------------------------------------------------------------------------------
 void vtkAbstractInterpolatedVelocityField::AddToDataSetsInfo(
-  vtkDataSet* ds, vtkFindCellStrategy* s, vtkDataArray* vectors)
+  vtkDataSet* ds, vtkAbstractCellLocator* s, vtkDataArray* vectors)
 {
   this->DataSetsInfo.emplace_back(ds, s, vectors);
 }
@@ -565,7 +584,7 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
     os << indent << this->Weights[i] << ", ";
   }
   os << endl;
-  os << indent << "FindCell Strategy: " << endl;
-  this->FindCellStrategy->PrintSelf(os, indent);
+  os << indent << "Cell Locator: " << endl;
+  this->CellLocator->PrintSelf(os, indent);
 }
 VTK_ABI_NAMESPACE_END

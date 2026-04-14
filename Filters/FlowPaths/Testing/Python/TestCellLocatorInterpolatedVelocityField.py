@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonDataModel import (
-    vtkCellLocatorStrategy,
     vtkCellTreeLocator,
     vtkDataObject,
     vtkStaticCellLocator,
@@ -62,8 +61,7 @@ psActor.GetProperty().SetRepresentationToWireframe()
 rk4 = vtkRungeKutta4()
 treeLoc = vtkCellTreeLocator()
 ivp = vtkCompositeInterpolatedVelocityField()
-ivp.SetFindCellStrategy(vtkCellLocatorStrategy())
-ivp.GetFindCellStrategy().SetCellLocator(treeLoc)
+ivp.SetCellLocator(treeLoc)
 streamer = vtkStreamTracer()
 streamer.SetInputData(output)
 streamer.SetSourceData(ps.GetOutput())
@@ -96,8 +94,7 @@ outlineActor.SetMapper(outlineMapper)
 # Use a vtkStaticCellLocator
 staticLoc = vtkStaticCellLocator()
 ivp2 = vtkCompositeInterpolatedVelocityField()
-ivp2.SetFindCellStrategy(vtkCellLocatorStrategy())
-ivp2.GetFindCellStrategy().SetCellLocator(staticLoc)
+ivp2.SetCellLocator(staticLoc)
 streamer2 = vtkStreamTracer()
 streamer2.SetInputData(output)
 streamer2.SetSourceData(ps.GetOutput())

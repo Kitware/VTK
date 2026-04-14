@@ -6,8 +6,6 @@
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -20,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -34,6 +33,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 
 #include <algorithm>
 #include <vector>
@@ -563,15 +563,15 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
       func = vtkCompositeInterpolatedVelocityField::New();
       if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
       {
-        // create an interpolator equipped with a cell locator
-        vtkNew<vtkCellLocatorStrategy> strategy;
-        func->SetFindCellStrategy(strategy);
+        // specify the interpolator's cell locator type
+        vtkNew<vtkStaticCellLocator> cellLocator;
+        func->SetCellLocator(cellLocator);
       }
       else
       {
-        // create an interpolator equipped with a point locator (by default)
-        vtkNew<vtkClosestPointStrategy> strategy;
-        func->SetFindCellStrategy(strategy);
+        // specify the interpolator's cell locator type which uses a point locator (by default)
+        vtkNew<vtkJumpAndWalkCellLocator> cellLocator;
+        func->SetCellLocator(cellLocator);
       }
     }
   }

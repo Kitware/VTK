@@ -3,8 +3,6 @@
 #include "vtkTemporalInterpolatedVelocityField.h"
 
 #include "vtkAbstractCellLinks.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeInterpolatedVelocityField.h"
 #include "vtkDataArray.h"
@@ -12,6 +10,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFindCellStrategy.h"
 #include "vtkGenericCell.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkLinearTransformCellLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -28,7 +27,16 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 
 //------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkTemporalInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
+vtkCxxSetObjectMacro(vtkTemporalInterpolatedVelocityField, CellLocator, vtkAbstractCellLocator);
+void vtkTemporalInterpolatedVelocityField::SetFindCellStrategy(
+  vtkFindCellStrategy* findCellStrategy)
+{
+  if (findCellStrategy)
+  {
+    auto cellLocator = findCellStrategy->ConvertToCellLocator();
+    this->SetCellLocator(cellLocator);
+  }
+}
 
 //------------------------------------------------------------------------------
 const double vtkTemporalInterpolatedVelocityField::WEIGHT_TO_TOLERANCE = 1E-3;
@@ -46,7 +54,7 @@ vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
   this->CurrentWeight = 0.0;
   this->OneMinusWeight = 1.0;
   this->ScaleCoeff = 1.0;
-  this->FindCellStrategy = nullptr;
+  this->CellLocator = nullptr;
 
   this->Vals1[0] = this->Vals1[1] = this->Vals1[2] = 0.0;
   this->Vals2[0] = this->Vals2[1] = this->Vals2[2] = 0.0;
@@ -59,7 +67,7 @@ vtkTemporalInterpolatedVelocityField::~vtkTemporalInterpolatedVelocityField()
   this->NumFuncs = 0;
   this->NumIndepVars = 0;
   this->SetVectorsSelection(nullptr);
-  this->SetFindCellStrategy(nullptr);
+  this->SetCellLocator(nullptr);
   this->IVF[0] = nullptr;
   this->IVF[1] = nullptr;
 }
@@ -107,47 +115,69 @@ void vtkTemporalInterpolatedVelocityField::SetVectorsSelection(const char* v)
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalInterpolatedVelocityField::CreateLocators(const std::vector<vtkDataSet*>& datasets,
-  vtkFindCellStrategy* strategy, std::vector<vtkSmartPointer<vtkLocator>>& locators)
+void vtkTemporalInterpolatedVelocityField::CreateCellLocators(
+  const std::vector<vtkDataSet*>& datasets, vtkAbstractCellLocator* cellLocatorPrototype,
+  std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators)
 {
-  locators.clear();
-  locators.reserve(datasets.size());
+  cellLocators.clear();
+  cellLocators.reserve(datasets.size());
   for (const auto& dataset : datasets)
   {
     if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
     {
-      if (vtkCellLocatorStrategy::SafeDownCast(strategy))
+      auto cellLocator = vtk::TakeSmartPointer(cellLocatorPrototype->NewInstance());
+      cellLocator->SetDataSet(pointSet);
+      // if cache cell bounds were not on, enable them and compute cell bounds
+      if (cellLocator->GetCacheCellBounds() == 0)
       {
-        if (!pointSet->GetCellLocator())
+        cellLocator->CacheCellBoundsOn();
+        cellLocator->ComputeCellBounds();
+      }
+      if (auto jumpAndWalkCellLocator = vtkJumpAndWalkCellLocator::SafeDownCast(cellLocator))
+      {
+        auto jumpAndWalkCellLocatorPrototype =
+          vtkJumpAndWalkCellLocator::SafeDownCast(cellLocatorPrototype);
+        // if point locator is set, create a new instance of it and set it on jumpAndWalkCellLocator
+        if (auto pointLocator = jumpAndWalkCellLocatorPrototype->GetPointLocator())
         {
-          pointSet->BuildCellLocator();
+          auto newPointLocator = vtk::TakeSmartPointer(pointLocator->NewInstance());
+          newPointLocator->SetDataSet(pointSet);
+          newPointLocator->BuildLocator();
+          jumpAndWalkCellLocator->SetPointLocator(newPointLocator);
         }
-        auto cellLocator = pointSet->GetCellLocator();
-        // if cache cell bounds were not on, enable them and compute cell bounds
-        if (cellLocator->GetCacheCellBounds() == 0)
-        {
-          cellLocator->CacheCellBoundsOn();
-          cellLocator->ComputeCellBounds();
-        }
+        jumpAndWalkCellLocator->SetNumberOfClosestPoints(
+          jumpAndWalkCellLocatorPrototype->GetNumberOfClosestPoints());
+      }
+      auto existingCellLocator = pointSet->GetCellLocator();
+      // if the existing locator is the same type as the one provided
+      if (existingCellLocator && existingCellLocator->IsA(cellLocator->GetClassName()))
+      {
+        // use the existing one because it will be most probably already built
+        existingCellLocator->BuildLocator();
         cellLocator->SetUseExistingSearchStructure(
           this->MeshOverTime != MeshOverTimeTypes::DIFFERENT);
-        locators.emplace_back(cellLocator);
+        // create a copy of it
+        cellLocator->ShallowCopy(existingCellLocator);
       }
-      else // vtkClosestPointStrategy
+      else
       {
-        if (!pointSet->GetPointLocator())
-        {
-          pointSet->BuildPointLocator();
-        }
-        auto pointLocator = pointSet->GetPointLocator();
-        pointLocator->SetUseExistingSearchStructure(
+        // create a copy
+        auto datasetCellLocator = vtk::TakeSmartPointer(cellLocator->NewInstance());
+        datasetCellLocator->SetDataSet(pointSet);
+        // set it as the dataset's locator to allow other filters to reuse the locator.
+        pointSet->SetCellLocator(datasetCellLocator);
+        // build the requested locator
+        cellLocator->BuildLocator();
+        cellLocator->SetUseExistingSearchStructure(
           this->MeshOverTime != MeshOverTimeTypes::DIFFERENT);
-        locators.emplace_back(pointLocator);
+        // create a copy of it
+        datasetCellLocator->ShallowCopy(cellLocator);
       }
+      cellLocators.emplace_back(cellLocator);
     }
     else
     {
-      locators.emplace_back(nullptr);
+      cellLocators.emplace_back(nullptr);
     }
   }
 }
@@ -189,14 +219,14 @@ void vtkTemporalInterpolatedVelocityField::CreateLinks(const std::vector<vtkData
 
 //------------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::CreateLinearTransformCellLocators(
-  const std::vector<vtkSmartPointer<vtkLocator>>& locators,
-  std::vector<vtkSmartPointer<vtkLocator>>& linearCellLocators)
+  const std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators,
+  std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& linearCellLocators)
 {
   linearCellLocators.clear();
-  linearCellLocators.reserve(locators.size());
-  for (const auto& locator : locators)
+  linearCellLocators.reserve(cellLocators.size());
+  for (const auto& cellLocator : cellLocators)
   {
-    if (auto cellLocator = vtkAbstractCellLocator::SafeDownCast(locator))
+    if (cellLocator)
     {
       auto linearTransformCellLocator = vtkSmartPointer<vtkLinearTransformCellLocator>::New();
       linearTransformCellLocator->SetCellLocator(cellLocator);
@@ -210,9 +240,10 @@ void vtkTemporalInterpolatedVelocityField::CreateLinearTransformCellLocators(
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
+void vtkTemporalInterpolatedVelocityField::InitializeWithCellLocators(
   vtkCompositeInterpolatedVelocityField* ivf, const std::vector<vtkDataSet*>& datasets,
-  vtkFindCellStrategy* strategy, const std::vector<vtkSmartPointer<vtkLocator>>& locators,
+  vtkAbstractCellLocator* cellLocatorPrototype,
+  const std::vector<vtkSmartPointer<vtkAbstractCellLocator>>& cellLocators,
   const std::vector<vtkSmartPointer<vtkAbstractCellLinks>>& links)
 {
   // Clear the datasets info, subclasses may want to put stuff into it.
@@ -221,14 +252,15 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
   // Proceed to initialize the composite dataset
   ivf->InitializationState = vtkCompositeInterpolatedVelocityField::INITIALIZE_ALL_DATASETS;
 
-  // For each dataset in the list of datasets, make sure a FindCell
-  // strategy has been defined and initialized. The potential for composite
+  assert(datasets.size() == cellLocators.size());
+
+  // For each dataset in the list of datasets, make sure a cellLocator
+  // has been defined and initialized. The potential for composite
   // datasets which may contain instances of (vtkPointSet) make the process
-  // more complex. We only care about find cell strategies if the dataset is
+  // more complex. We only care about cellLocators if the dataset is
   // a vtkPointSet because the other dataset types (e.g., volumes) have their
   // own built-in FindCell() methods.
   vtkDataArray* vectors;
-  vtkFindCellStrategy* strategyClone;
   for (size_t i = 0; i < datasets.size(); ++i)
   {
     auto& dataset = datasets[i];
@@ -243,34 +275,17 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
         dataset->GetAttributesAsFieldData(ivf->VectorsType)->GetArray(ivf->VectorsSelection);
     }
 
-    strategyClone = nullptr;
-    if (vtkPointSet::SafeDownCast(dataset))
+    vtkAbstractCellLocator* cellLocator = nullptr;
+    if (auto pointSet = vtkPointSet::SafeDownCast(dataset))
     {
-      strategyClone = strategy->NewInstance();
+      cellLocator = cellLocatorPrototype->NewInstance();
+      cellLocator->SetDataSet(pointSet);
+      cellLocator->ShallowCopy(cellLocators[i]);
+      cellLocator->BuildLocator();
     }
-    ivf->AddToDataSetsInfo(dataset, strategyClone, vectors);
+    ivf->AddToDataSetsInfo(dataset, cellLocator, vectors);
   } // for all datasets of composite dataset
 
-  // Now initialize the new strategies
-  for (size_t i = 0; i < datasets.size(); ++i)
-  {
-    assert(datasets.size() == locators.size());
-
-    auto& datasetInfo = ivf->DataSetsInfo[i];
-    if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
-    {
-      if (auto cellLocatorStrategy = vtkCellLocatorStrategy::SafeDownCast(datasetInfo.Strategy))
-      {
-        cellLocatorStrategy->SetCellLocator(vtkAbstractCellLocator::SafeDownCast(locators[i]));
-      }
-      else // vtkClosestPointStrategy
-      {
-        auto pointLocatorStrategy = vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy);
-        pointLocatorStrategy->SetPointLocator(vtkAbstractPointLocator::SafeDownCast(locators[i]));
-      }
-      datasetInfo.Strategy->Initialize(pointSet);
-    }
-  }
   // Now perform initialization on certain data sets
   for (size_t i = 0; i < datasets.size(); ++i)
   {
@@ -278,13 +293,13 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
     datasetInfo.DataSet->ComputeBounds();
     if (auto polyData = vtkPolyData::SafeDownCast(datasetInfo.DataSet))
     {
-      // build cells is needed for both vtkClosestPointStrategy and vtkCellLocatorStrategy
+      // build cells if needed
       if (polyData->NeedToBuildCells())
       {
         polyData->BuildCells();
       }
     }
-    if (vtkClosestPointStrategy::SafeDownCast(datasetInfo.Strategy))
+    if (vtkJumpAndWalkCellLocator::SafeDownCast(datasetInfo.CellLocator))
     {
       if (auto ugrid = vtkUnstructuredGrid::SafeDownCast(datasetInfo.DataSet))
       {
@@ -302,37 +317,37 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
 void vtkTemporalInterpolatedVelocityField::Initialize(
   vtkCompositeDataSet* t0, vtkCompositeDataSet* t1)
 {
-  vtkSmartPointer<vtkFindCellStrategy> strategy = this->FindCellStrategy;
-  if (strategy == nullptr)
+  vtkSmartPointer<vtkAbstractCellLocator> cellLocatorPrototype = this->CellLocator;
+  if (!cellLocatorPrototype)
   {
-    strategy = vtkSmartPointer<vtkCellLocatorStrategy>::New(); // default strategy if not provided
+    cellLocatorPrototype =
+      vtkSmartPointer<vtkStaticCellLocator>::New(); // default locator if not provided
   }
 
   std::vector<vtkDataSet*> datasets[2];
   datasets[1] = vtkCompositeDataSet::GetDataSets(t1);
   if (t0 == t1) // First time calling this method
   {
-    if (vtkClosestPointStrategy::SafeDownCast(strategy))
+    if (vtkJumpAndWalkCellLocator::SafeDownCast(cellLocatorPrototype))
     {
       this->CreateLinks(datasets[1], this->Links[1]);
     }
     // create one set of locators
-    this->CreateLocators(datasets[1], strategy, this->Locators[1]);
-    this->InitializeWithLocators(
-      this->IVF[0], datasets[1], strategy, this->Locators[1], this->Links[1]);
-    this->InitializeWithLocators(
-      this->IVF[1], datasets[1], strategy, this->Locators[1], this->Links[1]);
-    if (this->MeshOverTime == MeshOverTimeTypes::LINEAR_TRANSFORMATION &&
-      vtkCellLocatorStrategy::SafeDownCast(strategy))
+    this->CreateCellLocators(datasets[1], cellLocatorPrototype, this->CellLocators[1]);
+    this->InitializeWithCellLocators(
+      this->IVF[0], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
+    this->InitializeWithCellLocators(
+      this->IVF[1], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
+    if (this->MeshOverTime == MeshOverTimeTypes::LINEAR_TRANSFORMATION)
     {
       // save initial cell locators
-      this->InitialCellLocators = std::move(this->Locators[1]);
-      this->CreateLinearTransformCellLocators(this->InitialCellLocators, this->Locators[1]);
+      this->InitialCellLocators = std::move(this->CellLocators[1]);
+      this->CreateLinearTransformCellLocators(this->InitialCellLocators, this->CellLocators[1]);
     }
   }
   else // t0 != t1
   {
-    if (this->Locators[1].size() != datasets[1].size())
+    if (this->CellLocators[1].size() != datasets[1].size())
     {
       vtkErrorMacro("Locators have not been initialized as expected, aborting");
       return;
@@ -342,49 +357,40 @@ void vtkTemporalInterpolatedVelocityField::Initialize(
     switch (this->MeshOverTime)
     {
       case MeshOverTimeTypes::DIFFERENT:
-        if (vtkClosestPointStrategy::SafeDownCast(strategy))
+        if (vtkJumpAndWalkCellLocator::SafeDownCast(cellLocatorPrototype))
         {
           this->Links[0] = std::move(this->Links[1]);
           this->CreateLinks(datasets[1], this->Links[1]);
         }
-        this->Locators[0] = std::move(this->Locators[1]);
-        this->InitializeWithLocators(
-          this->IVF[0], datasets[0], strategy, this->Locators[0], this->Links[0]);
-        this->CreateLocators(datasets[1], strategy, this->Locators[1]);
-        this->InitializeWithLocators(
-          this->IVF[1], datasets[1], strategy, this->Locators[1], this->Links[1]);
+        this->CellLocators[0] = std::move(this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[0], datasets[0], cellLocatorPrototype, this->CellLocators[0], this->Links[0]);
+        this->CreateCellLocators(datasets[1], cellLocatorPrototype, this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[1], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
         break;
       case MeshOverTimeTypes::STATIC:
-        this->InitializeWithLocators(
-          this->IVF[0], datasets[0], strategy, this->Locators[1], this->Links[1]);
-        this->InitializeWithLocators(
-          this->IVF[1], datasets[1], strategy, this->Locators[1], this->Links[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[0], datasets[0], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[1], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
         break;
       case MeshOverTimeTypes::LINEAR_TRANSFORMATION:
-        this->Locators[0] = std::move(this->Locators[1]);
-        this->InitializeWithLocators(
-          this->IVF[0], datasets[0], strategy, this->Locators[0], this->Links[1]);
-        if (vtkCellLocatorStrategy::SafeDownCast(strategy))
-        {
-          // Cell Locators support MeshOverTimeTypes::LINEAR_TRANSFORMATION
-          this->CreateLinearTransformCellLocators(this->InitialCellLocators, this->Locators[1]);
-        }
-        else // vtkClosestPointStrategy
-        {
-          // PointLocators don't support MeshOverTimeTypes::LINEAR_TRANSFORMATION
-          this->CreateLocators(datasets[1], strategy, this->Locators[1]);
-        }
-        this->InitializeWithLocators(
-          this->IVF[1], datasets[1], strategy, this->Locators[1], this->Links[1]);
+        this->CellLocators[0] = std::move(this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[0], datasets[0], cellLocatorPrototype, this->CellLocators[0], this->Links[1]);
+        this->CreateLinearTransformCellLocators(this->InitialCellLocators, this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[1], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
         break;
       case MeshOverTimeTypes::SAME_TOPOLOGY:
         // point locators can preserve the same links since the topology is the same
-        this->Locators[0] = std::move(this->Locators[1]);
-        this->InitializeWithLocators(
-          this->IVF[0], datasets[0], strategy, this->Locators[0], this->Links[1]);
-        this->CreateLocators(datasets[1], strategy, this->Locators[1]);
-        this->InitializeWithLocators(
-          this->IVF[1], datasets[1], strategy, this->Locators[1], this->Links[1]);
+        this->CellLocators[0] = std::move(this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[0], datasets[0], cellLocatorPrototype, this->CellLocators[0], this->Links[1]);
+        this->CreateCellLocators(datasets[1], cellLocatorPrototype, this->CellLocators[1]);
+        this->InitializeWithCellLocators(
+          this->IVF[1], datasets[1], cellLocatorPrototype, this->CellLocators[1], this->Links[1]);
         break;
       default:
         vtkErrorMacro("MeshOverTime type not supported.");
@@ -397,11 +403,11 @@ void vtkTemporalInterpolatedVelocityField::CopyParameters(
   vtkTemporalInterpolatedVelocityField* from)
 {
   this->MeshOverTime = from->MeshOverTime;
-  this->SetFindCellStrategy(from->FindCellStrategy);
+  this->SetCellLocator(from->CellLocator);
   this->IVF[0]->CopyParameters(from->IVF[0]);
   this->IVF[1]->CopyParameters(from->IVF[1]);
-  this->Locators[0] = from->Locators[0];
-  this->Locators[1] = from->Locators[1];
+  this->CellLocators[0] = from->CellLocators[0];
+  this->CellLocators[1] = from->CellLocators[1];
   this->InitialCellLocators = from->InitialCellLocators;
   this->Links[0] = from->Links[0];
   this->Links[1] = from->Links[1];
@@ -690,10 +696,10 @@ void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
       os << "UNKNOWN" << endl;
       break;
   }
-  os << indent << "FindCellStrategy: ";
-  if (this->FindCellStrategy)
+  os << indent << "CellLocator: ";
+  if (this->CellLocator)
   {
-    os << this->FindCellStrategy << endl;
+    os << this->CellLocator << endl;
   }
   else
   {

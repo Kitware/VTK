@@ -1,10 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkClosestPointStrategy.h"
 
 #include "vtkAbstractPointLocator.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
@@ -15,12 +18,6 @@ vtkStandardNewMacro(vtkClosestPointStrategy);
 //------------------------------------------------------------------------------
 vtkClosestPointStrategy::vtkClosestPointStrategy()
 {
-  // Preallocate for performance
-  this->PointIds->Reserve(16);
-  this->Neighbors->Reserve(32);
-  this->CellIds->Reserve(32);
-  this->NearPointIds->Reserve(32);
-
   this->PointLocator = nullptr;
 }
 
@@ -32,6 +29,16 @@ vtkClosestPointStrategy::~vtkClosestPointStrategy()
     this->PointLocator->Delete();
     this->PointLocator = nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkAbstractCellLocator> vtkClosestPointStrategy::ConvertToCellLocator()
+{
+  vtkNew<vtkJumpAndWalkCellLocator> jumpAndWalkLocator;
+  jumpAndWalkLocator->SetNumberOfClosestPoints(1);
+  jumpAndWalkLocator->SetDataSet(this->PointSet);
+  jumpAndWalkLocator->SetPointLocator(this->GetPointLocator());
+  return jumpAndWalkLocator;
 }
 
 //------------------------------------------------------------------------------

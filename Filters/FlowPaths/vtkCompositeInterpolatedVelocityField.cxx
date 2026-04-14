@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCompositeInterpolatedVelocityField.h"
 
-#include "vtkClosestPointStrategy.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkCompositeInterpolatedVelocityField);
 //------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
-  this->SetFindCellStrategy(vtkSmartPointer<vtkClosestPointStrategy>::New());
+  this->SetCellLocator(vtkSmartPointer<vtkJumpAndWalkCellLocator>::New());
   this->LastDataSetIndex = 0;
   this->CacheDataSetHit = 0;
   this->CacheDataSetMiss = 0;
