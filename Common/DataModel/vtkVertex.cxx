@@ -207,7 +207,7 @@ void vtkVertex::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoin
 
   s = cellScalars->GetComponent(0, 0);
 
-  if ((!insideOut && s > value) || (insideOut && s <= value))
+  if ((!insideOut && s >= value) || (insideOut && s < value))
   {
     this->Points->GetPoint(0, x);
     if (locator->InsertUniquePoint(x, pts[0]))

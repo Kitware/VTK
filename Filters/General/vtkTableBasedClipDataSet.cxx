@@ -403,7 +403,7 @@ struct EvaluatePoints
 
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> PointsMap;
 
-  static constexpr TInputIdType InsideOutValues[2] = { TInsideOut ? 1 : -1, TInsideOut ? -1 : 1 };
+  static constexpr TInputIdType IsKeptValues[2] = { -1, 1 };
 
   TableBasedPointBatches PointBatches;
   TInputIdType NumberOfKeptPoints;
@@ -428,8 +428,6 @@ struct EvaluatePoints
   {
     const auto& scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
-    vtkIdType pointId;
-    double grdDiff;
 
     const bool isFirst = vtkSMPTools::GetSingleThread();
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -444,12 +442,13 @@ struct EvaluatePoints
       }
       TableBasedPointBatch& batch = this->PointBatches[batchId];
       auto& batchNumberOfPoints = batch.Data.PointsOffset;
-      for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+      for (vtkIdType pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
       {
         // Outside points are marked with -1, others with 1
-        grdDiff = scalars[pointId] - this->IsoValue;
-        pointsMap[pointId] = EvaluatePoints::InsideOutValues[grdDiff >= 0.0];
-        batchNumberOfPoints += (pointsMap[pointId] > 0);
+        const auto grdDiff = scalars[pointId] - this->IsoValue;
+        const bool isKept = TInsideOut ? grdDiff < 0 : grdDiff >= 0;
+        pointsMap[pointId] = IsKeptValues[isKept];
+        batchNumberOfPoints += pointsMap[pointId] > 0;
       }
     }
   }
@@ -469,9 +468,7 @@ struct EvaluatePoints
     vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
       [&](vtkIdType beginBatchId, vtkIdType endBatchId)
       {
-        vtkIdType pointId;
         TInputIdType pointsMapValues[2] = { -1 /*always the same*/, 0 /*offset*/ };
-        bool isKept;
 
         const bool isFirst = vtkSMPTools::GetSingleThread();
         for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -486,9 +483,9 @@ struct EvaluatePoints
           }
           TableBasedPointBatch& batch = this->PointBatches[batchId];
           pointsMapValues[1] = static_cast<TInputIdType>(batch.Data.PointsOffset);
-          for (pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
+          for (vtkIdType pointId = batch.BeginId; pointId < batch.EndId; ++pointId)
           {
-            isKept = pointsMap[pointId] > 0;
+            const bool isKept = pointsMap[pointId] > 0;
             pointsMap[pointId] = pointsMapValues[isKept];
             pointsMapValues[1] += isKept;
           }
