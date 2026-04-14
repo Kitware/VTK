@@ -167,10 +167,11 @@ public:
 
   ///@{
   /**
-   * Build the internal point locator . In a multi-threaded environment, call
-   * this method in a single thread before using FindCell() or FindPoint().
+   * Build the point locator. In a multi-threaded environment,
+   * call this method in a single thread before using FindPoint().
    */
   void BuildPointLocator();
+  VTK_DEPRECATED_IN_9_7_0("Use BuildPointLocator() instead.")
   void BuildLocator() { this->BuildPointLocator(); }
   ///@}
 
