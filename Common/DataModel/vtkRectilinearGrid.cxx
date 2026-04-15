@@ -296,9 +296,8 @@ vtkIdType vtkRectilinearGrid::FindPoint(double x[3])
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
-  vtkIdType vtkNotUsed(cellId), double vtkNotUsed(tol2), int& subId, double pcoords[3],
-  double* weights)
+vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell,
+  vtkIdType cellId, double vtkNotUsed(tol2), int& subId, double pcoords[3], double* weights)
 {
   int loc[3];
 
@@ -312,16 +311,20 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
     vtkVoxel::InterpolationFunctions(pcoords, weights);
   }
 
-  //
-  //  From this location get the cell id
-  //
+  // From this location get the cell id
   subId = 0;
-  const vtkIdType cellId = this->ComputeCellId(loc);
-  if (!this->IsCellVisible(cellId))
+  const vtkIdType newCellId = this->ComputeCellId(loc);
+  if (!this->IsCellVisible(newCellId))
   {
     return -1;
   }
-  return cellId;
+  // if cell is requested, and we don't already have it
+  if (genCell && (newCellId != cellId || genCell->GetRepresentativeCell() != cell))
+  {
+    // extract the new cell
+    this->GetCell(newCellId, genCell);
+  }
+  return newCellId;
 }
 
 //------------------------------------------------------------------------------

@@ -262,7 +262,7 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   virtual vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double* weights) = 0;
+    double pcoords[3], double* weights);
 
   /**
    * This is a version of the above method that can be used with

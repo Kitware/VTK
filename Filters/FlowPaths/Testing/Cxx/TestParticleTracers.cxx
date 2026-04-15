@@ -78,7 +78,7 @@ bool TestParticleTracersInput(
   temporal->SetInputConnection(gradient->GetOutputPort());
 
   bool retVal = true;
-  ::Execute<vtkParticleTracer>(
+  retVal &= ::Execute<vtkParticleTracer>(
     temporal, seeds, vorticity, getBaseline(std::string(prefix) + "tracer.vtp"));
   retVal &= ::Execute<vtkParticlePathFilter>(
     temporal, seeds, vorticity, getBaseline(std::string(prefix) + "pathline.vtp"));

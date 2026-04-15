@@ -106,8 +106,7 @@ public:
   vtkIdType GetNumberOfPoints() override;
   void GetPoint(vtkIdType ptId, double x[3]) override { this->Points->GetPoint(ptId, x); }
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double* weights) override;
+  using Superclass::FindCell;
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
   ///@}

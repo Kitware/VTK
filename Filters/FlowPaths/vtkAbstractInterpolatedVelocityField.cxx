@@ -328,114 +328,69 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
     std::sqrt(dsInfo.Length2 * vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE);
 
   double dist2 = 0;
+  vtkIdType newCellId;
   int inside;
-  vtkIdType closestPointFound;
-  bool foundInCache = false;
-  // See if the point is in the cached cell
-  if (this->Caching && this->LastCellId != -1)
+  vtkCell* lastCell =
+    this->LastCellId != -1 && this->Caching ? this->CurrentCell->GetRepresentativeCell() : nullptr;
+  if (strategy)
   {
-    // Use cache cell only if point is inside
-    inside = this->CurrentCell->EvaluatePosition(
-      x, this->LastClosestPoint, this->LastSubId, this->LastPCoords, dist2, this->Weights.data());
-
-    // check if point is inside the cell
-    if (inside == 1)
+    // strategies are used for subclasses of vtkPointSet
+    newCellId = strategy->FindCell(x, lastCell, this->CurrentCell, this->LastCellId, tol2,
+      this->LastSubId, this->LastPCoords, this->Weights.data());
+  }
+  else
+  {
+    // the classes that do not use a strategy are vtkImageData, vtkRectilinearGrid
+    newCellId = dataset->FindCell(x, lastCell, this->CurrentCell, this->LastCellId, tol2,
+      this->LastSubId, this->LastPCoords, this->Weights.data());
+  }
+  if (this->Caching)
+  {
+    if (newCellId != -1 && newCellId == this->LastCellId)
     {
       this->CacheHit++;
-      foundInCache = true;
-    }
-  }
-  if (!foundInCache)
-  {
-    if (strategy)
-    {
-      // strategies are used for subclasses of vtkPointSet
-      if (vtkCellLocatorStrategy::SafeDownCast(strategy))
-      {
-        // this location strategy uses a vtkStaticCellLocator which is a 3D grid with bins
-        // and each bin has the cellIds that are inside this bin (robust but possibly slower)
-        this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
-          this->LastSubId, this->LastPCoords, this->Weights.data());
-        // this strategy once it finds a cell where the given point is inside it stops
-        // immediately, so this->CurrentCell contains the cell we want
-      }
-      else // vtkClosestPointStrategy
-      {
-        // this location strategy will first look at the neighbor cells of the cached cell (if any)
-        // and if that fails it will use jump and walk technique (not robust but possibly faster)
-        if (this->Caching && this->LastCellId != -1)
-        {
-          // closest-point cell location can benefit from the initial cached cell, so we extract it
-          dataset->GetCell(this->LastCellId, this->LastCell);
-          this->LastCellId = strategy->FindCell(x, this->LastCell, this->CurrentCell,
-            this->LastCellId, tol2, this->LastSubId, this->LastPCoords, this->Weights.data());
-          foundInCache = this->LastCellId != -1;
-        }
-        else
-        {
-          this->LastCellId = strategy->FindCell(x, nullptr, this->CurrentCell, -1, tol2,
-            this->LastSubId, this->LastPCoords, this->Weights.data());
-        }
-        // this strategy once it finds a cell where the given point is inside it stops
-        // immediately, so this->CurrentCell contains the cell we want
-      }
-    }
-    else
-    {
-      // the classes that do not use a strategy are vtkUniformGrid, vtkImageData, vtkRectilinearGrid
-      this->LastCellId = dataset->FindCell(
-        x, nullptr, nullptr, -1, tol2, this->LastSubId, this->LastPCoords, this->Weights.data());
-      // these classes don't use CurrentCell, so we will need to extract it if we found something
-    }
-    // if we found a cell
-    if (this->LastCellId != -1)
-    {
-      if (foundInCache)
-      {
-        this->CacheHit++;
-      }
-      else
-      {
-        this->CacheMiss++;
-      }
-      // extract the cell that we found if we didn't use a strategy
-      if (!strategy)
-      {
-        dataset->GetCell(this->LastCellId, this->CurrentCell);
-      }
-      // pcoords, weights and subid are all valid, so we can compute the closest point
-      // using EvaluateLocation
-      this->CurrentCell->EvaluateLocation(
-        this->LastSubId, this->LastPCoords, this->LastClosestPoint, this->Weights.data());
     }
     else
     {
       this->CacheMiss++;
-      if (this->SurfaceDataset && strategy)
+    }
+  }
+  // if we found a cell
+  if (newCellId != -1)
+  {
+    // pcoords, weights and subId are all valid, so we can compute the closest point
+    // using EvaluateLocation
+    this->CurrentCell->EvaluateLocation(
+      this->LastSubId, this->LastPCoords, this->LastClosestPoint, this->Weights.data());
+    this->LastCellId = newCellId;
+  }
+  else
+  {
+    this->LastCellId = -1;
+    if (this->SurfaceDataset && strategy)
+    {
+      // if we are on a surface dataset, we can use the strategy to find the closest point
+      vtkIdType closestPointFound =
+        strategy->FindClosestPointWithinRadius(x, radius, this->LastClosestPoint, this->CurrentCell,
+          this->LastCellId, this->LastSubId, dist2, inside);
+      if (closestPointFound == 1)
       {
-        // if we are on a surface dataset, we can use the strategy to find the closest point
-        closestPointFound =
-          strategy->FindClosestPointWithinRadius(x, radius, this->LastClosestPoint,
-            this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
-        if (closestPointFound == 1)
-        {
-          // Previously computed lastPCoords are not valid, so we need to compute
-          // them along with the weights from the lastClosestPoint.
-          this->CurrentCell->EvaluatePosition(this->LastClosestPoint, nullptr, this->LastSubId,
-            this->LastPCoords, dist2, this->Weights.data());
-          // The use of the nullptr avoids the unnecessary recalculation of the closest point.
-        }
-        else
-        {
-          this->LastCellId = -1;
-          return false;
-        }
+        // Previously computed lastPCoords are not valid, so we need to compute
+        // them along with the weights from the lastClosestPoint.
+        this->CurrentCell->EvaluatePosition(this->LastClosestPoint, nullptr, this->LastSubId,
+          this->LastPCoords, dist2, this->Weights.data());
+        // The use of the nullptr avoids the unnecessary recalculation of the closest point.
       }
       else
       {
         this->LastCellId = -1;
         return false;
       }
+    }
+    else
+    {
+      this->LastCellId = -1;
+      return false;
     }
   }
   return true;
@@ -598,8 +553,6 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inde
   os << indent << "Cache Miss: " << this->CacheMiss << endl;
   os << indent << "Last Dataset: " << this->LastDataSet << endl;
   os << indent << "Last Cell Id: " << this->LastCellId << endl;
-  os << indent << "Last Cell: " << endl;
-  this->LastCell->PrintSelf(os, indent);
   os << indent << "Current Cell: " << endl;
   this->CurrentCell->PrintSelf(os, indent);
   os << indent << "Last P-Coords: " << this->LastPCoords[0] << ", " << this->LastPCoords[1] << ", "

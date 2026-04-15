@@ -4,7 +4,6 @@
 
 #include "vtkCell.h"
 #include "vtkCellLocator.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -95,7 +94,7 @@ void vtkPointSet::ComputeBounds()
 {
   if (this->Points)
   {
-    // only depends on tyhis->Points so only check this->Points mtime
+    // only depends on this->Points so only check this->Points mtime
     // The generic mtime check includes Field/Cell/PointData also
     // which has no impact on the bounds
     if (this->Points->GetMTime() >= this->ComputeTime)
@@ -201,31 +200,11 @@ vtkIdType vtkPointSet::FindPoint(double x[3])
 }
 
 //------------------------------------------------------------------------------
-// This FindCell() method is based on using a locator (either point or
-// cell). In this application, point locators are typically faster to build
-// and operate on than cell locator, yet do not always produce the correct
-// result. The basic idea is that we find one or more close points to the
-// query point, and we assume that one of the cells attached to one of the
-// close points contains the query point. However this approach is not 100%
-// reliable, in which case a slower cell locator must be used. The algorithm
-// below (based on a point locator) uses progressively more complex (and
-// expensive) approaches to identify close points near the query point (and
-// connected cells). If a point locator approach proves unreliable, then a
-// cell locator strategy should be used. Use subclasses of
-// vtkFindCellStrategy to control the strategies.
-vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
-  vtkNew<vtkClosestPointStrategy> strategy;
-  strategy->Initialize(this);
-  return strategy->FindCell(x, cell, gencell, cellId, tol2, subId, pcoords, weights);
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
-  int& subId, double pcoords[3], double* weights)
-{
-  return this->FindCell(x, cell, nullptr, cellId, tol2, subId, pcoords, weights);
+  this->BuildCellLocator();
+  return this->CellLocator->FindCell(x, cell, genCell, cellId, tol2, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

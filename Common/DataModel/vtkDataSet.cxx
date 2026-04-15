@@ -352,19 +352,19 @@ vtkMTimeType vtkDataSet::GetMTime()
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkDataSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
+  int& subId, double pcoords[3], double* weights)
+{
+  return this->FindCell(x, cell, this->GenericCell, cellId, tol2, subId, pcoords, weights);
+}
+
+//------------------------------------------------------------------------------
 vtkCell* vtkDataSet::FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
   int& subId, double pcoords[3], double* weights)
 {
-  vtkIdType newCell = this->FindCell(x, cell, cellId, tol2, subId, pcoords, weights);
-  if (newCell >= 0)
-  {
-    cell = this->GetCell(newCell);
-  }
-  else
-  {
-    return nullptr;
-  }
-  return cell;
+  return this->FindCell(x, cell, this->GenericCell, cellId, tol2, subId, pcoords, weights) >= 0
+    ? this->GenericCell->GetRepresentativeCell()
+    : nullptr;
 }
 
 //------------------------------------------------------------------------------

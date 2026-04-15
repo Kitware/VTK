@@ -283,19 +283,20 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
   return pointId;
 }
 
-// non thread-safe version
-vtkIdType vtkmDataSet::FindCell(
-  double x[3], vtkCell*, vtkIdType, double, int& subId, double pcoords[3], double* weights)
-{
-  // just call the thread-safe version
-  return this->FindCell(x, nullptr, nullptr, -1, 0.0, subId, pcoords, weights);
-}
-
 // thread-safe version
-vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdType, double,
-  int& subId, double pcoords[3], double* weights)
+vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell,
+  vtkIdType cellId, double vtkNotUsed(tol2), int& subId, double pcoords[3], double* weights)
 {
+  double closestPoint[3], dist2;
   auto& locator = this->Internals->CellLocator;
+  if (cell && cellId > 0)
+  {
+    int inside = cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+    if (inside == 1)
+    {
+      return cellId;
+    }
+  }
   // critical section
   {
     std::lock_guard<std::mutex> lock(locator.lock);
@@ -314,19 +315,24 @@ vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdTyp
 
   viskores::Vec<viskores::FloatDefault, 3> point(x[0], x[1], x[2]);
   viskores::Vec<viskores::FloatDefault, 3> pc;
-  viskores::Id cellId = -1;
+  viskores::Id newCellId = -1;
   // exec object created for the Serial device can be called directly
-  execLocator.FindCell(point, cellId, pc);
+  execLocator.FindCell(point, newCellId, pc);
 
-  if (cellId >= 0)
+  if (newCellId >= 0)
   {
-    double closestPoint[3], dist2;
-    vtkNew<vtkGenericCell> vtkcell;
-    this->GetCell(cellId, vtkcell);
-    vtkcell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+    if (newCellId == cellId && genCell->GetRepresentativeCell() == cell)
+    {
+      genCell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+    }
+    else
+    {
+      this->GetCell(newCellId, genCell);
+      genCell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+    }
+    return newCellId;
   }
-
-  return cellId;
+  return -1;
 }
 
 void vtkmDataSet::Squeeze()

@@ -278,7 +278,6 @@ protected:
   double LastClosestPoint[3];
   vtkIdType LastCellId;
   vtkDataSet* LastDataSet;
-  vtkNew<vtkGenericCell> LastCell;
   vtkNew<vtkGenericCell> CurrentCell;
   vtkNew<vtkIdList> PointIds;
 

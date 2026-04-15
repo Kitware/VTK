@@ -2212,11 +2212,6 @@ void vtkLabelHierarchy::GetCellPoints(vtkIdType, vtkIdList*) {}
 
 void vtkLabelHierarchy::GetPointCells(vtkIdType, vtkIdList*) {}
 
-vtkIdType vtkLabelHierarchy::FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*)
-{
-  return -1;
-}
-
 vtkIdType vtkLabelHierarchy::FindCell(
   double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*)
 {

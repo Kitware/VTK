@@ -33,6 +33,7 @@
 #include <vector> // For Weights
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkCell;
 class vtkCellArray;
 class vtkGenericCell;
 class vtkIdList;
@@ -298,10 +299,24 @@ public:
    * THIS FUNCTION IS THREAD SAFE.
    */
   vtkIdType FindCell(
-    double x[3], double tol2, vtkGenericCell* GenCell, double pcoords[3], double* weights);
-  virtual vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
+    double x[3], double tol2, vtkGenericCell* genCell, double pcoords[3], double* weights);
+  virtual vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* genCell, int& subId,
     double pcoords[3], double* weights);
   ///@}
+
+  ///@{
+  /**
+   * Find the cell containing a given point. returns -1 if no cell found
+   * the cell parameters are copied into the supplied variables, a cell must
+   * be provided to store the information.
+   *
+   * If cell and cellId is non-nullptr, then search starts from this cell, to avoid
+   * using the actual locator, hoping that a follow-up query is close to the last one.
+   *
+   * THIS FUNCTION IS THREAD SAFE.
+   */
+  virtual vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights);
 
   /**
    * Quickly test if a point is inside the bounds of a particular cell.

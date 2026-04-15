@@ -149,28 +149,10 @@ void vtkCartesianGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCartesianGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
-  vtkGenericCell* vtkNotUsed(gencell), vtkIdType vtkNotUsed(cellId), double tol2, int& subId,
-  double pcoords[3], double* weights)
+vtkIdType vtkCartesianGrid::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
+  int& subId, double pcoords[3], double* weights)
 {
-  return this->FindCell(x, nullptr, 0, tol2, subId, pcoords, weights);
-}
-
-//------------------------------------------------------------------------------
-vtkCell* vtkCartesianGrid::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cell),
-  vtkIdType vtkNotUsed(cellId), double tol2, int& subId, double pcoords[3], double* weights)
-{
-  const vtkIdType cellId = this->FindCell(x, nullptr, 0, tol2, subId, pcoords, nullptr);
-
-  if (cellId < 0)
-  {
-    return nullptr;
-  }
-
-  vtkCell* cell = this->GetCell(cellId);
-  cell->InterpolateFunctions(pcoords, weights);
-
-  return cell;
+  return this->FindCell(x, cell, nullptr, cellId, tol2, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------
