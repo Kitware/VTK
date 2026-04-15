@@ -23,7 +23,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAbstractInterpolatedVelocityField, FindCellStrategy, vtkFindCellStrategy);
 
 //------------------------------------------------------------------------------
-const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
+const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-12;
 const double vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE = 1.0E-5;
 
 //------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
   // Compute function values for the dataset
   f[0] = f[1] = f[2] = 0.0;
 
-  if (!this->FindAndUpdateCell(dataset, datasetInfoIter->Strategy, x))
+  if (!this->FindAndUpdateCell(*datasetInfoIter, x))
   {
     vectors = nullptr;
     return 0;
@@ -318,13 +318,14 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset, do
 
 //------------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
-  vtkDataSet* dataset, vtkFindCellStrategy* strategy, double* x)
+  const vtkDataSetInformation& dsInfo, double* x)
 {
-  const double diagonalLength2 = dataset->GetLength2();
-  const double tol2 = diagonalLength2 *
-    (this->SurfaceDataset ? vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE
-                          : vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE);
-  const double tol = std::sqrt(tol2);
+  vtkDataSet* dataset = dsInfo.DataSet;
+  vtkFindCellStrategy* strategy = dsInfo.Strategy;
+  const double tol2 =
+    dsInfo.SampledMaxCellLength2 * vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
+  const auto radius =
+    std::sqrt(dsInfo.Length2 * vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE);
 
   double dist2 = 0;
   int inside;
@@ -413,8 +414,9 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
       if (this->SurfaceDataset && strategy)
       {
         // if we are on a surface dataset, we can use the strategy to find the closest point
-        closestPointFound = strategy->FindClosestPointWithinRadius(x, tol, this->LastClosestPoint,
-          this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
+        closestPointFound =
+          strategy->FindClosestPointWithinRadius(x, radius, this->LastClosestPoint,
+            this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
         if (closestPointFound == 1)
         {
           // Previously computed lastPCoords are not valid, so we need to compute
@@ -538,6 +540,17 @@ void vtkAbstractInterpolatedVelocityField::CopyParameters(
     }
     this->AddToDataSetsInfo(datasetInfo.DataSet, strategy, datasetInfo.Vectors);
   }
+}
+
+//------------------------------------------------------------------------------
+vtkAbstractInterpolatedVelocityField::vtkDataSetInformation::vtkDataSetInformation(
+  vtkDataSet* dataSet, vtkFindCellStrategy* strategy, vtkDataArray* vectors)
+  : DataSet(dataSet)
+  , SampledMaxCellLength2(dataSet->GetSampledMaxCellLength2(100))
+  , Length2(dataSet->GetLength2())
+  , Strategy(strategy)
+  , Vectors(vectors)
+{
 }
 
 //------------------------------------------------------------------------------

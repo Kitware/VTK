@@ -295,15 +295,13 @@ protected:
   struct vtkDataSetInformation
   {
     vtkDataSet* DataSet;
+    const double SampledMaxCellLength2;
+    const double Length2;
     vtkFindCellStrategy* Strategy;
     vtkDataArray* Vectors;
 
-    vtkDataSetInformation(vtkDataSet* dataSet, vtkFindCellStrategy* strategy, vtkDataArray* vectors)
-      : DataSet(dataSet)
-      , Strategy(strategy)
-      , Vectors(vectors)
-    {
-    }
+    vtkDataSetInformation(
+      vtkDataSet* dataSet, vtkFindCellStrategy* strategy, vtkDataArray* vectors);
   };
   ///@{
   /**
@@ -341,7 +339,7 @@ protected:
    * Then testing globally. Then, only if surface is activated finding the
    * closest cell using FindClosestPointWithinRadius
    */
-  virtual bool FindAndUpdateCell(vtkDataSet* ds, vtkFindCellStrategy* strategy, double* x);
+  virtual bool FindAndUpdateCell(const vtkDataSetInformation& dsInfo, double* x);
 
   friend class vtkTemporalInterpolatedVelocityField;
   ///@{
