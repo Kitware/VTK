@@ -358,6 +358,23 @@ public:
   double GetLength2();
 
   /**
+   * @brief Samples max squared cell length using strided indexing.
+   *
+   * Avoids bias from localized mesh refinement by sampling evenly across
+   * the entire dataset. Uses 'max' to ensure tolerance is robust enough
+   * for coarse regions and floating-point jitter.
+   *
+   * @note Sampling by id/stride does have bias for dataset of unequal refinement.
+   *
+   * @param numSamples Target number of cells to check.
+   * @return Maximum squared cell length found.
+   *
+   * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+   * THE DATASET IS NOT MODIFIED
+   */
+  double GetSampledMaxCellLength2(vtkIdType numSamples = 100);
+
+  /**
    * Restore data object to initial state.
    * THIS METHOD IS NOT THREAD SAFE.
    */

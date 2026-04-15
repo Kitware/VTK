@@ -317,6 +317,27 @@ double vtkDataSet::GetLength2()
 }
 
 //------------------------------------------------------------------------------
+double vtkDataSet::GetSampledMaxCellLength2(vtkIdType numSamples)
+{
+  double maxCellLength2 = 0;
+  const vtkIdType numCells = this->GetNumberOfCells();
+  if (numCells > 0)
+  {
+    // Calculate stride to pick 100 cells evenly across the whole dataset
+    const vtkIdType stride = numCells > numSamples ? numCells / numSamples : 1;
+    for (vtkIdType i = 0; i < numCells; i += stride)
+    {
+      double bounds[6];
+      this->GetCellBounds(i, bounds);
+      vtkBoundingBox bbox(bounds);
+      const double cellLength2 = bbox.GetDiagonalLength2();
+      maxCellLength2 = std::max(maxCellLength2, cellLength2);
+    }
+  }
+  return maxCellLength2;
+}
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkDataSet::GetMTime()
 {
   vtkMTimeType mtime, result;

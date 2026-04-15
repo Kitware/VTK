@@ -673,19 +673,11 @@ void vtkProbeFilter::ProbeEmptyPoints(
 
   if (this->ComputeTolerance)
   {
-    // to compute a reasonable starting tolerance we use
-    // a fraction of the largest cell length we come across
-    // out of the first few cells. Tolerance is meant
-    // to be an epsilon for cases such as probing 2D
-    // cells where the XYZ may be a tad off the surface
-    // but "close enough"
-    double sLength2 = 0;
-    for (vtkIdType i = 0; i < 20 && i < source->GetNumberOfCells(); i++)
-    {
-      double cLength2 = source->GetCell(i)->GetLength2();
-      sLength2 = std::max(sLength2, cLength2);
-    }
-    // use 1% of the diagonal (1% has to be squared)
+    // To compute a reasonable starting tolerance we use a fraction of the largest cell length
+    // we come across after sampling 100 cells. Tolerance is meant to be an epsilon for cases,
+    // such as probing 2D cells where the XYZ may be a tad off the surface but "close enough".
+    double sLength2 = source->GetSampledMaxCellLength2(100);
+    // use 0.1% of the diagonal (CELL_TOLERANCE_FACTOR_SQR = 1e-6, since 0.1% has to be squared)
     tol2 = sLength2 * CELL_TOLERANCE_FACTOR_SQR;
   }
   else
