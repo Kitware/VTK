@@ -250,7 +250,7 @@ public:
    * metallic texture index is 2.
    */
   anari::Sampler ExtractORMFromVTK(std::string name, int textureIdx, std::string inAttribute,
-    mat4 inTransform, vtkImageData* imageData, bool sRGB);
+    mat4 inTransform, vtkTexture* texture);
 
   /**
    * Utility function for applying a transform to VTK normals and placing in a container
@@ -397,57 +397,57 @@ void vtkAnariPolyDataMapperNodeInternals::VTKToAnariNormals(
 
 //----------------------------------------------------------------------------
 anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::string name,
-  const int textureIdx, std::string inAttribute, mat4 inTransform, vtkImageData* imageData,
-  bool sRGB)
+  const int textureIdx, std::string inAttribute, mat4 inTransform, vtkTexture* texture)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::ExtractORMFromVTK", vtkAnariProfiling::LIME);
+
+  if (textureIdx < 0 || textureIdx > 2)
+  {
+    vtkWarningWithObjectMacro(
+      this->Owner, << "Invalid texture index for ORM extraction: " << textureIdx);
+    return nullptr;
+  }
+
+  if (texture == nullptr)
+  {
+    return nullptr;
+  }
+
+  // Update the texture to ensure the image data is current
+  texture->Update();
+  vtkImageData* imageData = texture->GetInput();
 
   if (imageData == nullptr)
   {
     return nullptr;
   }
 
-  if (sRGB)
+  // VTK spec states that the ORM texture must be in linear color space.
+  // If the texture is in sRGB color space, we cannot guarantee the correctness of the extracted
+  // data, so we return null and skip the extraction.
+  if (texture->GetUseSRGBColorSpace())
   {
-    return nullptr;
-  }
-
-  auto anariSampler = anari::newObject<anari::Sampler>(this->AnariDevice, "image2D");
-
-  std::string samplerName = this->ActorName + "_" + name;
-  anari::setParameter(this->AnariDevice, anariSampler, "name", ANARI_STRING, samplerName.c_str());
-  anari::setParameter(this->AnariDevice, anariSampler, "inAttribute", inAttribute);
-  anari::setParameter(this->AnariDevice, anariSampler, "inTransform", inTransform);
-  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode1", "clampToEdge");
-  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode2", "clampToEdge");
-  anari::setParameter(this->AnariDevice, anariSampler, "filter", "linear");
-
-  // Get the needed image data attributes
-  const int* const imageSize = imageData->GetDimensions();
-  const int xsize = imageSize[0];
-  const int ysize = imageSize[1];
-
-  if (xsize <= 0 || ysize <= 0)
-  {
-    vtkWarningWithObjectMacro(this->Owner, << "Invalid image data extent.");
     vtkWarningWithObjectMacro(
-      this->Owner, << "[ExtractORMFromVTK] Invalid image data extent: " << xsize << "x" << ysize);
-    anari::release(this->AnariDevice, anariSampler);
+      this->Owner, << "ORM texture is in sRGB color space; cannot extract linear RGB channels.");
     return nullptr;
   }
 
-  std::vector<float> floatData;
+  auto anariSampler = this->VTKToAnariSampler(name, inAttribute, inTransform, texture);
 
-  for (int i = 0; i < ysize; i++)
+  if (anariSampler == nullptr)
   {
-    for (int j = 0; j < xsize; j++)
-    {
-      floatData.push_back(imageData->GetScalarComponentAsFloat(j, i, 0, textureIdx));
-    }
+    return nullptr;
   }
 
-  anari::setParameterArray2D(
-    this->AnariDevice, anariSampler, "image", floatData.data(), xsize, ysize);
+  // Create a swizzle transform to extract the correct channel for the given texture index
+  mat4 swizzleTransform = { vec4{ 0.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 0.0f },
+    vec4{ 0.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 0.0f } };
+
+  swizzleTransform[textureIdx][0] =
+    1.f; // Set the appropriate channel to be copied to the red channel of the output sampler
+  swizzleTransform[3][3] = 1.f; // Preserve the original alpha channel
+
+  anari::setParameter(this->AnariDevice, anariSampler, "outTransform", swizzleTransform);
   anari::commitParameters(this->AnariDevice, anariSampler);
 
   return anariSampler;
@@ -519,8 +519,6 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
   switch (scalarType)
   {
     case VTK_UNSIGNED_CHAR:
-    case VTK_CHAR:
-    case VTK_SIGNED_CHAR:
     {
       anari::DataType anariColorFormats[4] = { ANARI_UFIXED8, ANARI_UFIXED8_VEC2,
         ANARI_UFIXED8_VEC3, ANARI_UFIXED8_VEC4 };
@@ -531,6 +529,10 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
 
       if (comps > 4)
       {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
         const int originalComps = comps;
         comps = 4;
         uint8_t* imageDataPtr = (uint8_t*)imageData->GetScalarPointer(0, 0, 0);
@@ -557,6 +559,44 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         this->AnariDevice, anariSampler, "image", dataType, appMemory, xsize, ysize);
       break;
     }
+    case VTK_CHAR:
+    case VTK_SIGNED_CHAR:
+    {
+      anari::DataType anariColorFormats[4] = { ANARI_FIXED8, ANARI_FIXED8_VEC2, ANARI_FIXED8_VEC3,
+        ANARI_FIXED8_VEC4 };
+      std::vector<int8_t> charData;
+
+      if (comps > 4)
+      {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
+        const int originalComps = comps;
+        comps = 4;
+        int8_t* imageDataPtr = (int8_t*)imageData->GetScalarPointer(0, 0, 0);
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            for (int k = 0; k < comps; k++)
+            {
+              charData.emplace_back(imageDataPtr[k]);
+            }
+
+            imageDataPtr += originalComps;
+          }
+        }
+      }
+
+      const auto* appMemory = charData.empty() ? imageData->GetScalarPointer() : charData.data();
+      auto dataType = anariColorFormats[comps - 1];
+
+      anari::setParameterArray2D(
+        this->AnariDevice, anariSampler, "image", dataType, appMemory, xsize, ysize);
+      break;
+    }
     case VTK_FLOAT:
     {
       anari::DataType anariColorFormats[4] = { ANARI_FLOAT32, ANARI_FLOAT32_VEC2,
@@ -566,6 +606,10 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
 
       if (comps > 4)
       {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
         comps = 4;
 
         for (int i = 0; i < ysize; i++)
@@ -585,7 +629,6 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         anariColorFormats[comps - 1], appMemory, xsize, ysize);
       break;
     }
-    case VTK_SHORT:
     case VTK_UNSIGNED_SHORT:
     {
       anari::DataType anariColorFormats[4] = { ANARI_UFIXED16, ANARI_UFIXED16_VEC2,
@@ -595,6 +638,10 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
 
       if (comps > 4)
       {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
         const int originalComps = comps;
         comps = 4;
 
@@ -619,13 +666,131 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
         anariColorFormats[comps - 1], appMemory, xsize, ysize);
       break;
     }
+    case VTK_SHORT:
+    {
+      anari::DataType anariColorFormats[4] = { ANARI_FIXED16, ANARI_FIXED16_VEC2,
+        ANARI_FIXED16_VEC3, ANARI_FIXED16_VEC4 };
+
+      std::vector<int16_t> shortData;
+
+      if (comps > 4)
+      {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
+        const int originalComps = comps;
+        comps = 4;
+
+        int16_t* imageDataPtr = reinterpret_cast<int16_t*>(imageData->GetScalarPointer(0, 0, 0));
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            for (int k = 0; k < comps; k++)
+            {
+              shortData.emplace_back(imageDataPtr[k]);
+            }
+
+            imageDataPtr += originalComps;
+          }
+        }
+      }
+
+      const auto* appMemory = shortData.empty() ? imageData->GetScalarPointer() : shortData.data();
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], appMemory, xsize, ysize);
+      break;
+    }
+    case VTK_UNSIGNED_INT:
+    {
+      anari::DataType anariColorFormats[4] = { ANARI_UFIXED32, ANARI_UFIXED32_VEC2,
+        ANARI_UFIXED32_VEC3, ANARI_UFIXED32_VEC4 };
+
+      std::vector<uint32_t> intData;
+
+      if (comps > 4)
+      {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
+        const int originalComps = comps;
+        comps = 4;
+
+        uint32_t* imageDataPtr = reinterpret_cast<uint32_t*>(imageData->GetScalarPointer(0, 0, 0));
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            for (int k = 0; k < comps; k++)
+            {
+              intData.emplace_back(imageDataPtr[k]);
+            }
+
+            imageDataPtr += originalComps;
+          }
+        }
+      }
+
+      const auto* appMemory = intData.empty() ? imageData->GetScalarPointer() : intData.data();
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], appMemory, xsize, ysize);
+      break;
+    }
+    case VTK_INT:
+    {
+      anari::DataType anariColorFormats[4] = { ANARI_FIXED32, ANARI_FIXED32_VEC2,
+        ANARI_FIXED32_VEC3, ANARI_FIXED32_VEC4 };
+
+      std::vector<int32_t> intData;
+
+      if (comps > 4)
+      {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
+        const int originalComps = comps;
+        comps = 4;
+
+        int32_t* imageDataPtr = reinterpret_cast<int32_t*>(imageData->GetScalarPointer(0, 0, 0));
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            for (int k = 0; k < comps; k++)
+            {
+              intData.emplace_back(imageDataPtr[k]);
+            }
+
+            imageDataPtr += originalComps;
+          }
+        }
+      }
+
+      const auto* appMemory = intData.empty() ? imageData->GetScalarPointer() : intData.data();
+      anari::setParameterArray2D(this->AnariDevice, anariSampler, "image",
+        anariColorFormats[comps - 1], appMemory, xsize, ysize);
+      break;
+    }
     default: // All other types are converted to float
     {
       anari::DataType anariColorFormats[4] = { ANARI_FLOAT32, ANARI_FLOAT32_VEC2,
         ANARI_FLOAT32_VEC3, ANARI_FLOAT32_VEC4 };
-
-      comps = comps > 4 ? 4 : comps;
       std::vector<float> floatData;
+
+      if (comps > 4)
+      {
+        vtkWarningWithObjectMacro(
+          this->Owner, << "Received image data with " << comps << " components. "
+                       << "Image data with more than four components is not supported. "
+                       << "Using only the first four components.");
+        comps = 4;
+      }
 
       for (int i = 0; i < ysize; i++)
       {
@@ -759,10 +924,8 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
   if (ormTexture)
   {
-    ormTexture->Update();
-    vtkImageData* ormImageData = ormTexture->GetInput();
     auto metallicSampler =
-      this->ExtractORMFromVTK("metallicTex", 2, "attribute0", inTransform, ormImageData, false);
+      this->ExtractORMFromVTK("metallicTex", 2, "attribute0", inTransform, ormTexture);
 
     if (metallicSampler != nullptr)
     {
@@ -770,6 +933,9 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
     }
     else
     {
+      vtkWarningWithObjectMacro(
+        this->Owner, << "Failed to extract metallic texture from the provided "
+                        "ORM texture. Using metallic value from vtkProperty instead.");
       anari::setParameter(this->AnariDevice, anariMaterial, "metallic", metallic);
     }
   }
@@ -783,9 +949,8 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
   if (ormTexture)
   {
-    vtkImageData* ormImageData = ormTexture->GetInput();
     auto roughnessSampler =
-      this->ExtractORMFromVTK("roughnessTex", 1, "attribute0", inTransform, ormImageData, false);
+      this->ExtractORMFromVTK("roughnessTex", 1, "attribute0", inTransform, ormTexture);
 
     if (roughnessSampler != nullptr)
     {
@@ -794,6 +959,9 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
     }
     else
     {
+      vtkWarningWithObjectMacro(
+        this->Owner, << "Failed to extract roughness texture from the provided "
+                        "ORM texture. Using roughness value from vtkProperty instead.");
       anari::setParameter(this->AnariDevice, anariMaterial, "roughness", roughness);
     }
   }
@@ -833,14 +1001,19 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
   // occlusion map
   if (ormTexture)
   {
-    vtkImageData* ormImageData = ormTexture->GetInput();
     auto occlusionSampler =
-      this->ExtractORMFromVTK("occlusionTex", 0, "attribute0", inTransform, ormImageData, false);
+      this->ExtractORMFromVTK("occlusionTex", 0, "attribute0", inTransform, ormTexture);
 
     if (occlusionSampler != nullptr)
     {
       anari::setAndReleaseParameter(
         this->AnariDevice, anariMaterial, "occlusion", occlusionSampler);
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(
+        this->Owner, << "Failed to extract occlusion texture from the provided "
+                        "ORM texture. Skipping occlusion map for this material.");
     }
   }
 
@@ -875,7 +1048,13 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
     if (coatNormalSampler != nullptr)
     {
       anari::setAndReleaseParameter(
-        this->AnariDevice, anariMaterial, "clearCoatNormal", coatNormalSampler);
+        this->AnariDevice, anariMaterial, "clearcoatNormal", coatNormalSampler);
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(
+        this->Owner, << "Failed to convert coat normal texture to an ANARI sampler. "
+                        "Skipping clearcoat normal map for this material.");
     }
   }
 

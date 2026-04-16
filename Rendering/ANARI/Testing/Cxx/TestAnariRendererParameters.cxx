@@ -27,8 +27,10 @@ int TestAnariRendererParameters(int argc, char* argv[])
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
+
   vtkNew<vtkAnariPass> anariPass;
   auto* adev = anariPass->GetAnariDevice();
+
   if (useDebugDevice)
   {
     vtkNew<vtkTesting> testing;
@@ -37,15 +39,10 @@ int TestAnariRendererParameters(int argc, char* argv[])
     traceDir += "TestAnariRendererParameters";
     adev->SetAnariDebugConfig(traceDir.c_str(), "code");
   }
+
+  adev->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+
   auto* aren = anariPass->GetAnariRenderer();
-
-  // Ensure that we use the helide implementation for this test.
-  adev->SetupAnariDeviceFromLibrary("helide", "default", useDebugDevice);
-
-  // Uncomment the following line to test a different implementation provided by ANARI_LIBRARY
-  // environment variable.
-  // adev->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
-
   auto renParams = aren->GetRendererParameters();
 
   int retVal = EXIT_SUCCESS;
@@ -68,15 +65,10 @@ int TestAnariRendererParameters(int argc, char* argv[])
         vtkLogF(INFO, "\tDefault: %s",
           (*(static_cast<const int*>(aren->GetRendererParameterDefault((*iter))))) ? "true"
                                                                                    : "false");
-        vtkLogF(INFO, "\tValue: %s",
-          (*(static_cast<const int*>(aren->GetRendererParameterValue((*iter))))) ? "true"
-                                                                                 : "false");
         break;
       case ANARI_INT16:
         vtkLogF(INFO, "\tDefault: %d",
           *(static_cast<const int*>(aren->GetRendererParameterDefault((*iter)))));
-        vtkLogF(INFO, "\tValue: %d",
-          *(static_cast<const int*>(aren->GetRendererParameterValue((*iter)))));
         vtkLogF(INFO, "\tMinimum: %d",
           *(static_cast<const int*>(aren->GetRendererParameterMinimum((*iter)))));
         vtkLogF(INFO, "\tMaximum: %d",
@@ -85,8 +77,6 @@ int TestAnariRendererParameters(int argc, char* argv[])
       case ANARI_FLOAT16:
         vtkLogF(INFO, "\tDefault: %f",
           *(static_cast<const float*>(aren->GetRendererParameterDefault((*iter)))));
-        vtkLogF(INFO, "\tValue: %f",
-          *(static_cast<const float*>(aren->GetRendererParameterValue((*iter)))));
         vtkLogF(INFO, "\tMinimum: %f",
           *(static_cast<const float*>(aren->GetRendererParameterMinimum((*iter)))));
         vtkLogF(INFO, "\tMaximum: %f",
@@ -95,8 +85,6 @@ int TestAnariRendererParameters(int argc, char* argv[])
       case ANARI_STRING:
         vtkLogF(INFO, "\tDefault: %s",
           static_cast<const char*>(aren->GetRendererParameterDefault((*iter))));
-        vtkLogF(
-          INFO, "\tValue: %s", static_cast<const char*>(aren->GetRendererParameterValue((*iter))));
         break;
       default:
         vtkLogF(INFO, "\tNot printing default/value/minimum/maximum for this type.");
