@@ -885,4 +885,520 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
   }
 }
 
+//------------------------------------------------------------------------------
+// New-style CountClip: takes vtkCellArray* faces + vtkDataArray* scalars.
+// Points are not needed for counting (only scalar classification and edge
+// endpoint IDs are required). A zero-filled dummy coordinate array is used
+// to satisfy RunLopezTrace's signature; positions are not accessed for count.
+//------------------------------------------------------------------------------
+void vtkPolyhedronContour::CountClip(vtkIdType numPointIds, const vtkIdType* pointIds,
+  vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
+  vtkIdType& numOutputCells, vtkIdType& numOutputCellConnectivity, vtkIdType& numOutputFaces,
+  vtkIdType& numOutputFacesConnectivity,
+  std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
+{
+  numOutputCells = 0;
+  numOutputCellConnectivity = 0;
+  numOutputFaces = 0;
+  numOutputFacesConnectivity = 0;
+  intersectedEdges.clear();
+
+  // Per-thread workspace — all per-cell scratch buffers amortize allocation
+  // across cells processed by the same worker thread.
+  thread_local PolyhedronWorkspace ws;
+
+  // Build raw scalar array indexed by local index (0..numPointIds-1).
+  auto& localScalars = ws.LocalScalars;
+  localScalars.resize(numPointIds);
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    localScalars[i] = scalars->GetComponent(pointIds[i], 0);
+  }
+
+  // Build global->local map for remapping face stream IDs.
+  auto& globalToLocal = ws.GlobalToLocal;
+  BuildLocalMap(pointIds, numPointIds, globalToLocal);
+
+  // Build raw face stream from vtkCellArray, remapping global IDs to local.
+  const vtkIdType nFaces = polyhedronFaces->GetNumberOfCells();
+  auto& localFaceStream = ws.LocalFaceStream;
+  polyhedronFaces->Dispatch(PolyhedronFacesToLocalFaceStream{}, globalToLocal, localFaceStream);
+
+  auto& trace = ws.Trace;
+  trace.Clear(nFaces);
+  int numInside = 0, numOutside = 0;
+  ClassifyVertices(trace, localScalars, isoValue, numInside, numOutside);
+  // skip cells that don't straddle the iso-value.
+  if (numInside == 0 || numOutside == 0)
+  {
+    return;
+  }
+
+  RunLopezTraceInto(trace, nFaces, localFaceStream.data(), localScalars, isoValue);
+
+  const int keepTag = insideOut ? 0 : 1;
+
+  // RunLopezTraceInto classifies on-surface vertices (s == isoValue) as tag=1,
+  // so they are kept when !insideOut (keepTag=1) and dropped when insideOut
+  // (keepTag=0). This matches TBC's pointsMap convention for !insideOut.
+  // For insideOut=true, on-surface verts are NOT kept — the existing face
+  // walker and coincidence fold in EmitClip handle that case correctly (iso-
+  // vertices at t=0 at the on-surface endpoint route via the edge locator).
+
+  vtkIdType nSurviving = 0;
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    if (trace.VertexTags[i] == keepTag)
+    {
+      ++nSurviving;
+    }
+  }
+
+  vtkIdType nIso = 0;
+  for (const auto& iv : trace.IsoVertices)
+  {
+    if (trace.VertexTags[iv.OutsideVertex] != trace.VertexTags[iv.InsideVertex])
+    {
+      ++nIso;
+    }
+  }
+  // A valid output polyhedron needs at least 3 vertices (degenerate flat
+  // polygon is still a valid output face). Fewer indicates a truly degenerate
+  // sliver — emit nothing.
+  if (nSurviving + nIso < 3)
+  {
+    intersectedEdges.clear();
+    return;
+  }
+
+  numOutputCells = 1;
+
+  // Populate intersected edges. Skip two kinds of iso-vertices:
+  //  (1) Degenerate: endpoints share a tag after re-tag.
+  //  (2) Coincident: weight 0 or 1 with the coincident endpoint on-surface AND
+  //      kept by TBC. Registering would allocate a second output point at the
+  //      same spatial location, breaking face stitching.
+  for (const auto& iv : trace.IsoVertices)
+  {
+    if (trace.VertexTags[iv.OutsideVertex] == trace.VertexTags[iv.InsideVertex])
+    {
+      continue;
+    }
+    const bool outsideOnSurface = (localScalars[iv.OutsideVertex] == isoValue);
+    const bool insideOnSurface = (localScalars[iv.InsideVertex] == isoValue);
+    const bool outsideKept = (trace.VertexTags[iv.OutsideVertex] == keepTag);
+    const bool insideKept = (trace.VertexTags[iv.InsideVertex] == keepTag);
+    if ((iv.Weight == 0.0 && outsideOnSurface && outsideKept) ||
+      (iv.Weight == 1.0 && insideOnSurface && insideKept))
+    {
+      continue;
+    }
+    vtkIdType g0 = pointIds[iv.OutsideVertex];
+    vtkIdType g1 = pointIds[iv.InsideVertex];
+    if (g0 > g1)
+    {
+      std::swap(g0, g1);
+      intersectedEdges.emplace_back(g0, g1, 1.0 - iv.Weight);
+    }
+    else
+    {
+      intersectedEdges.emplace_back(g0, g1, iv.Weight);
+    }
+  }
+  // numOutputCellConnectivity counts ALL non-degenerate iso-vertices (nIso),
+  // not just those registered with the edge locator (nIsoRegistered). Coincident
+  // iso-verts (weight=0/1 at on-surface kept endpoint) skip locator registration
+  // but EmitClip still pushes them to the cell connectivity via the coincidence
+  // fold (folded to the kept endpoint's pointMap ID).
+  numOutputCellConnectivity = nSurviving + nIso;
+
+  // Count output faces. Mirror EmitClip's actual piece-building algorithm so
+  // the two passes stay in lockstep.
+  // Build the iso-vertex edge-key set so the face walker knows exactly which
+  // tag-differing edges will produce an iso-vertex (a degenerate one after
+  // re-tag will NOT, and CountClip must not reserve a slot for it).
+  auto& liveIsoEdgeKeys = ws.LiveIsoEdgeKeys;
+  liveIsoEdgeKeys.clear();
+  for (const auto& iv : trace.IsoVertices)
+  {
+    if (trace.VertexTags[iv.OutsideVertex] != trace.VertexTags[iv.InsideVertex])
+    {
+      liveIsoEdgeKeys.insert(MakeEdgeKey(iv.OutsideVertex, iv.InsideVertex));
+    }
+  }
+
+  // localFaceStream was already built with local IDs (0..N-1), so no further
+  // remapping is needed in the face walker — stream values ARE local indices.
+  auto& pieceSizes = ws.PieceSizes;
+  const vtkIdType* fs = localFaceStream.data();
+  for (vtkIdType faceIdx = 0; faceIdx < nFaces; ++faceIdx)
+  {
+    vtkIdType numFaceVerts = *fs++;
+    pieceSizes.clear();
+    vtkIdType currentPieceSize = 0;
+    bool flushedAny = false;
+    size_t firstPieceIdx = 0;
+
+    for (vtkIdType i = 0; i < numFaceVerts; ++i)
+    {
+      int loc0 = static_cast<int>(fs[i]);
+      int loc1 = static_cast<int>(fs[(i + 1) % numFaceVerts]);
+      // Values above numPointIds indicate a stream entry we couldn't remap
+      // (shouldn't happen for valid polyhedra, but defend).
+      if (loc0 < 0 || loc0 >= numPointIds || loc1 < 0 || loc1 >= numPointIds)
+      {
+        continue;
+      }
+
+      if (trace.VertexTags[loc0] == keepTag)
+      {
+        ++currentPieceSize;
+      }
+
+      if (trace.VertexTags[loc0] != trace.VertexTags[loc1])
+      {
+        if (liveIsoEdgeKeys.count(MakeEdgeKey(loc0, loc1)))
+        {
+          ++currentPieceSize;
+        }
+        if (trace.VertexTags[loc0] == keepTag)
+        {
+          pieceSizes.push_back(currentPieceSize);
+          if (!flushedAny)
+          {
+            firstPieceIdx = pieceSizes.size() - 1;
+            flushedAny = true;
+          }
+          currentPieceSize = 0;
+        }
+      }
+    }
+    if (currentPieceSize > 0 && flushedAny && firstPieceIdx < pieceSizes.size())
+    {
+      pieceSizes[firstPieceIdx] += currentPieceSize;
+    }
+    else if (currentPieceSize > 0)
+    {
+      pieceSizes.push_back(currentPieceSize);
+    }
+
+    for (vtkIdType sz : pieceSizes)
+    {
+      if (sz >= 3)
+      {
+        ++numOutputFaces;
+        numOutputFacesConnectivity += sz;
+      }
+    }
+    fs += numFaceVerts;
+  }
+  for (const auto& poly : trace.IsoPolygons)
+  {
+    vtkIdType nv = static_cast<vtkIdType>(poly.size());
+    if (nv < 3)
+    {
+      continue;
+    }
+    // Mirror EmitClip's cap-face validity check: a cap face is only emitted if
+    // every iso-vertex has a valid output ID. A degenerate iso-vertex (endpoints
+    // sharing a tag after the boundary re-tag) folds onto the kept endpoint; if
+    // neither endpoint is kept (both have tag != keepTag, i.e. both were dropped
+    // by TBC), the iso-vertex has no valid output ID and the whole cap face is
+    // dropped. Reserving a slot for it here would leave a hole in the output
+    // face arrays.
+    bool capValid = true;
+    for (int ivIdx : poly)
+    {
+      const auto& iv = trace.IsoVertices[ivIdx];
+      int tOut = trace.VertexTags[iv.OutsideVertex];
+      int tIn = trace.VertexTags[iv.InsideVertex];
+      if (tOut == tIn)
+      {
+        // Degenerate: only valid if the shared-tag endpoint is kept.
+        if (tOut != keepTag)
+        {
+          capValid = false;
+          break;
+        }
+      }
+      // Non-degenerate iso-vertices are always valid (they resolve via the
+      // global edge locator in EmitClip; intersectedEdges above registered them).
+    }
+    if (!capValid)
+    {
+      continue;
+    }
+    ++numOutputFaces;
+    numOutputFacesConnectivity += nv;
+  }
+}
+
+//------------------------------------------------------------------------------
+// New-style EmitClip: takes vtkCellArray* faces + vtkDataArray* scalars.
+// Uses pointMap (input global ID -> output ID) and edgeLocator for iso-vertices.
+//------------------------------------------------------------------------------
+void vtkPolyhedronContour::EmitClip(vtkIdType numPointIds, const vtkIdType* pointIds,
+  vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
+  vtkDataArray* pointMap, vtkIdType numberOfKeptPoints,
+  const vtkStaticEdgeLocatorTemplate<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
+  vtkCellArray* outputFaces)
+{
+  outputCells->Reset();
+  outputFaces->Reset();
+
+  // Per-thread workspace — see CountClip for the rationale.
+  thread_local PolyhedronWorkspace ws;
+
+  // Build local scalars indexed 0..numPointIds-1
+  auto& localScalars = ws.LocalScalars;
+  localScalars.resize(numPointIds);
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    localScalars[i] = scalars->GetComponent(pointIds[i], 0);
+  }
+
+  // Build global->local map for remapping face stream IDs.
+  auto& globalToLocal = ws.GlobalToLocal;
+  BuildLocalMap(pointIds, numPointIds, globalToLocal);
+
+  // Build raw face stream, remapping global IDs to local.
+  const vtkIdType nFaces = polyhedronFaces->GetNumberOfCells();
+  auto& localFaceStream = ws.LocalFaceStream;
+  polyhedronFaces->Dispatch(PolyhedronFacesToLocalFaceStream{}, globalToLocal, localFaceStream);
+
+  auto& trace = ws.Trace;
+  trace.Clear(nFaces);
+  int numInside = 0, numOutside = 0;
+  ClassifyVertices(trace, localScalars, isoValue, numInside, numOutside);
+  // skip cells that don't straddle the iso-value.
+  if (numInside == 0 || numOutside == 0)
+  {
+    return;
+  }
+
+  RunLopezTraceInto(trace, nFaces, localFaceStream.data(), localScalars, isoValue);
+
+  const int keepTag = insideOut ? 0 : 1;
+
+  // RunLopezTraceInto classifies on-surface vertices as tag=1 — see CountClip
+  // for the matching comment. The logic below (face walker, iso-vertex output
+  // ID mapping, and coincidence fold) handles on-surface verts correctly
+  // because they show up in the face walker as kept (for !insideOut) and the
+  // (below,on) edge iso-vertices at t=1 route via the edge locator.
+
+  // Build local->output ID map for surviving vertices (via pointMap lookup).
+  // Iso-vertex output IDs come through isoToOutputId (built next).
+  auto& localToOutputId = ws.LocalToOutputId;
+  localToOutputId.assign(numPointIds, -1);
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    if (trace.VertexTags[i] == keepTag)
+    {
+      localToOutputId[i] = static_cast<vtkIdType>(pointMap->GetComponent(pointIds[i], 0));
+    }
+  }
+
+  // Map iso-vertices to output IDs. Three cases:
+  //  (1) Degenerate (endpoints share a tag after re-tag): fold onto the kept endpoint.
+  //  (2) Coincident (weight 0 or 1, on-surface endpoint kept by TBC):
+  //      fold onto that kept endpoint — must match CountClip which skipped locator
+  //      registration for this iso-vertex.
+  //  (3) Normal crossing: resolve via the edge locator to (numberOfKeptPoints + edgeId).
+  auto& isoToOutputId = ws.IsoToOutputId;
+  isoToOutputId.assign(trace.IsoVertices.size(), -1);
+  for (size_t i = 0; i < trace.IsoVertices.size(); ++i)
+  {
+    const auto& iv = trace.IsoVertices[i];
+    if (trace.VertexTags[iv.OutsideVertex] == trace.VertexTags[iv.InsideVertex])
+    {
+      vtkIdType keptLocal =
+        (trace.VertexTags[iv.OutsideVertex] == keepTag) ? iv.OutsideVertex : iv.InsideVertex;
+      if (trace.VertexTags[keptLocal] == keepTag)
+      {
+        isoToOutputId[i] = localToOutputId[keptLocal];
+      }
+      continue;
+    }
+    // Coincidence check — MUST match CountClip exactly.
+    const bool outsideOnSurface = (localScalars[iv.OutsideVertex] == isoValue);
+    const bool insideOnSurface = (localScalars[iv.InsideVertex] == isoValue);
+    const bool outsideKept = (trace.VertexTags[iv.OutsideVertex] == keepTag);
+    const bool insideKept = (trace.VertexTags[iv.InsideVertex] == keepTag);
+    if (iv.Weight == 0.0 && outsideOnSurface && outsideKept)
+    {
+      isoToOutputId[i] = localToOutputId[iv.OutsideVertex];
+    }
+    else if (iv.Weight == 1.0 && insideOnSurface && insideKept)
+    {
+      isoToOutputId[i] = localToOutputId[iv.InsideVertex];
+    }
+    else
+    {
+      vtkIdType g0 = pointIds[iv.OutsideVertex];
+      vtkIdType g1 = pointIds[iv.InsideVertex];
+      vtkIdType edgeId = edgeLocator.IsInsertedEdge(g0, g1);
+      if (edgeId >= 0)
+      {
+        isoToOutputId[i] = numberOfKeptPoints + edgeId;
+      }
+    }
+  }
+
+  // Build edge key -> iso output ID map for face walking
+  auto& edgeToOutputId = ws.EdgeToOutputId;
+  edgeToOutputId.clear();
+  for (size_t i = 0; i < trace.IsoVertices.size(); ++i)
+  {
+    const auto& iv = trace.IsoVertices[i];
+    if (isoToOutputId[i] >= 0)
+    {
+      edgeToOutputId[MakeEdgeKey(iv.OutsideVertex, iv.InsideVertex)] = isoToOutputId[i];
+    }
+  }
+
+  // Collect output point IDs for the cell connectivity (output IDs — TBC copies directly).
+  // Skip degenerate iso-vertices: they fold onto a kept vertex already listed above.
+  auto& cellPts = ws.CellPts;
+  cellPts.clear();
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    if (trace.VertexTags[i] == keepTag)
+    {
+      cellPts.push_back(localToOutputId[i]);
+    }
+  }
+  for (size_t i = 0; i < trace.IsoVertices.size(); ++i)
+  {
+    const auto& iv = trace.IsoVertices[i];
+    if (trace.VertexTags[iv.OutsideVertex] == trace.VertexTags[iv.InsideVertex])
+    {
+      continue;
+    }
+    if (isoToOutputId[i] >= 0)
+    {
+      cellPts.push_back(isoToOutputId[i]);
+    }
+  }
+  // Match CountClip's degeneracy guard.
+  if (cellPts.size() < 3)
+  {
+    return;
+  }
+  outputCells->InsertNextCell(static_cast<vtkIdType>(cellPts.size()), cellPts.data());
+
+  // Emit clipped faces. localFaceStream holds local indices already.
+  auto& pieces = ws.Pieces;
+  auto& currentPiece = ws.CurrentPiece;
+  const vtkIdType* fs = localFaceStream.data();
+  for (vtkIdType faceIdx = 0; faceIdx < nFaces; ++faceIdx)
+  {
+    vtkIdType numFaceVerts = *fs++;
+    // Clear + reuse inner pieces. pieces.clear() retains outer capacity;
+    // inner piece buffers are kept via manual clear-each.
+    for (auto& p : pieces)
+    {
+      p.clear();
+    }
+    pieces.clear();
+    currentPiece.clear();
+    bool flushedAny = false;
+    size_t firstPieceIdx = 0;
+
+    for (vtkIdType i = 0; i < numFaceVerts; ++i)
+    {
+      int loc0 = static_cast<int>(fs[i]);
+      int loc1 = static_cast<int>(fs[(i + 1) % numFaceVerts]);
+      if (loc0 < 0 || loc0 >= numPointIds || loc1 < 0 || loc1 >= numPointIds)
+      {
+        continue;
+      }
+
+      if (trace.VertexTags[loc0] == keepTag)
+      {
+        currentPiece.push_back(localToOutputId[loc0]);
+      }
+
+      if (trace.VertexTags[loc0] != trace.VertexTags[loc1])
+      {
+        vtkIdType outsideLocal = (trace.VertexTags[loc0] == 0) ? loc0 : loc1;
+        vtkIdType insideLocal = (trace.VertexTags[loc0] == 1) ? loc0 : loc1;
+        auto eit = edgeToOutputId.find(MakeEdgeKey(outsideLocal, insideLocal));
+        if (eit != edgeToOutputId.end())
+        {
+          currentPiece.push_back(eit->second);
+        }
+
+        if (trace.VertexTags[loc0] == keepTag)
+        {
+          pieces.push_back(std::move(currentPiece));
+          if (!flushedAny)
+          {
+            firstPieceIdx = pieces.size() - 1;
+            flushedAny = true;
+          }
+          currentPiece.clear();
+        }
+      }
+    }
+    if (!currentPiece.empty() && flushedAny && firstPieceIdx < pieces.size())
+    {
+      pieces[firstPieceIdx].insert(
+        pieces[firstPieceIdx].begin(), currentPiece.begin(), currentPiece.end());
+    }
+    else if (!currentPiece.empty())
+    {
+      pieces.push_back(std::move(currentPiece));
+    }
+
+    for (const auto& piece : pieces)
+    {
+      if (piece.size() >= 3)
+      {
+        outputFaces->InsertNextCell(static_cast<vtkIdType>(piece.size()), piece.data());
+      }
+    }
+
+    fs += numFaceVerts;
+  }
+
+  // Cap faces from iso-polygons — write iso-vertex output IDs directly.
+  auto& capFace = ws.CapFace;
+  for (const auto& poly : trace.IsoPolygons)
+  {
+    vtkIdType nv = static_cast<vtkIdType>(poly.size());
+    if (nv < 3)
+    {
+      continue;
+    }
+    capFace.resize(nv);
+    if (keepTag == 1)
+    {
+      for (vtkIdType j = 0; j < nv; ++j)
+      {
+        capFace[j] = isoToOutputId[poly[j]];
+      }
+    }
+    else
+    {
+      for (vtkIdType j = 0; j < nv; ++j)
+      {
+        capFace[j] = isoToOutputId[poly[nv - 1 - j]];
+      }
+    }
+    bool valid = true;
+    for (auto id : capFace)
+    {
+      if (id < 0)
+      {
+        valid = false;
+        break;
+      }
+    }
+    if (valid)
+    {
+      outputFaces->InsertNextCell(nv, capFace.data());
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END

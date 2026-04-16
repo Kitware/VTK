@@ -27,13 +27,15 @@
 #ifndef vtkPolyhedronContour_h
 #define vtkPolyhedronContour_h
 
-#include "vtkCommonDataModelModule.h"     // For export macro
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkType.h"                  // For vtkIdType
+
 #include "vtkStaticEdgeLocatorTemplate.h" // For vtkStaticEdgeLocatorTemplate
-#include "vtkType.h"                      // For vtkIdType
 
 #include <array>         // For array
 #include <cstdint>       // For int64_t
 #include <unordered_map> // For unordered_map
+#include <unordered_set> // For unordered_set
 #include <vector>        // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -142,6 +144,54 @@ public:
     vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool generateTriangles,
     std::vector<vtkIdType>& polygonsSize,
     std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges);
+
+  /**
+   * Pass 1: Count clip output sizes for a single polyhedron.
+   *
+   * @param numPointIds                 Number of unique points in this cell
+   * @param pointIds                    Global point IDs for this cell, [numPointIds]
+   * @param polyhedronFaces             Polyhedron faces
+   * @param scalars                     Scalar array (indexed by global point ID)
+   * @param isoValue                    Clip value
+   * @param insideOut                   If true, retain the outside portion
+   * @param numOutputCells              [out] Number of output cells (0 or 1)
+   * @param numOutputCellConnectivity   [out] Total output points (surviving + iso-vertices)
+   * @param numOutputFaces              [out] Number of output faces (clipped originals + caps)
+   * @param numOutputFacesConnectivity  [out] Total face stream connectivity size
+   * @param intersectedEdges            [out] Intersected Edges defined as (globalPtId0,
+   *                                    globalPtId1, t). Make sure to clear it before adding.
+   */
+  static void CountClip(vtkIdType numPointIds, const vtkIdType* pointIds,
+    vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
+    vtkIdType& numOutputCells, vtkIdType& numOutputCellConnectivity, vtkIdType& numOutputFaces,
+    vtkIdType& numOutputFacesConnectivity,
+    std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges);
+
+  /**
+   * Pass 2: Emit clipped polyhedron for a single cell.
+   *
+   * @param numPointIds         Number of unique points in this cell
+   * @param pointIds            Global point IDs for this cell, [numPointIds]
+   * @param polyhedronFaces     Polyhedron faces
+   * @param scalars             Scalar array (indexed by global point ID)
+   * @param isoValue            Clip value
+   * @param insideOut           If true, retain the outside portion
+   * @param pointMap            Map that returns the output point id of an input point
+   *                            Use GetIntegerTuple to access its values
+   * @param numberOfKeptPoints  Number of input points that are retained in the output)
+   * @param edgeLocator         Edge locator to get the edge id for a pair of point ids
+   *                            Use IsEdgeInserted to get the output edge id.
+   *                            To compute the output edge point id, add numberOfKeptPoints to it.
+   * @param outputCells         [out] Global point IDs of each output cell (polyhedron has only 1)
+   *                            Make sure to Reset it before adding anything to it.
+   * @param outputFaces         [out] Faces of the single output polyhedron
+   *                            Make sure to Reset it before adding anything to it.
+   */
+  static void EmitClip(vtkIdType numPointIds, const vtkIdType* pointIds,
+    vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
+    vtkDataArray* pointMap, vtkIdType numberOfKeptPoints,
+    const vtkStaticEdgeLocatorTemplate<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
+    vtkCellArray* outputFaces);
 
 private:
   //============================================================================
@@ -291,7 +341,16 @@ private:
     std::vector<double> LocalScalars;
     std::vector<vtkIdType> LocalFaceStream; // face-stream remap: global ID -> local 0..N-1
     std::unordered_map<vtkIdType, int> GlobalToLocal;
-    TraceResult Trace; // RunLopezTrace output reused
+    TraceResult Trace;                           // RunLopezTrace output reused
+    std::unordered_set<int64_t> LiveIsoEdgeKeys; // CountClip: edges with non-degenerate iso-verts
+    std::vector<vtkIdType> PieceSizes;           // CountClip face-walker scratch
+    std::vector<vtkIdType> LocalToOutputId;      // EmitClip: local vertex -> output point ID
+    std::vector<vtkIdType> IsoToOutputId;        // EmitClip: iso-vertex index -> output point ID
+    std::unordered_map<int64_t, vtkIdType> EdgeToOutputId; // EmitClip face-walker lookup
+    std::vector<vtkIdType> CellPts;                        // EmitClip cell-connectivity scratch
+    std::vector<std::vector<vtkIdType>> Pieces;            // EmitClip face-walker output pieces
+    std::vector<vtkIdType> CurrentPiece;                   // EmitClip face-walker active piece
+    std::vector<vtkIdType> CapFace;                        // EmitClip cap-face scratch
   };
 };
 

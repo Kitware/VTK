@@ -245,13 +245,13 @@ public:
     vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
 
   /**
-   * Satisfy the vtkCell API. This method clips the input polyhedron and outputs
-   * a new polyhedron. The face information of the output polyhedron is encoded
-   * in the output vtkCellArray using a special format:
-   * CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
-   * Use the static method vtkUnstructuredGrid::DecomposePolyhedronCellArray
-   * to convert it into a standard format.
-   * @warning The current implementation assumes water-tight and manifold polyhedron cells.
+   * Satisfy the vtkCell API. Clips the input polyhedron and encodes the output
+   * face information in the connectivity vtkCellArray using a legacy embedded
+   * format: CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
+   * Use vtkUnstructuredGrid::DecomposePolyhedronCellArray to convert to the
+   * standard split-face format. Prefer ClipWithContext() for new code — it writes
+   * directly into separate outFaces/outFaceLocs arrays and avoids this conversion.
+   * @warning Assumes water-tight and manifold polyhedron cells.
    */
   void Clip(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
