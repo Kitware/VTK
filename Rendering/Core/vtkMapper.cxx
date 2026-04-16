@@ -732,8 +732,10 @@ namespace
 //------------------------------------------------------------------------------
 template <class T>
 void ScalarToTextureCoordinate(T scalar_value, // Input scalar
-  double range_min,                            // range[0]
-  double inv_range_width,                      // 1/(range[1]-range[0])
+  double texel_width,                          // Width of a texel for this color map
+  double scalar_range[2],                      // Color map range of scalar values
+  double padded_range[2],                      // Range padded to account for above/below colors
+  double inv_padded_range_width,               // 1/(padded_range[1]-padded_range[0])
   float& tex_coord_s,                          // 1st tex coord
   float& tex_coord_t)                          // 2nd tex coord
 {
@@ -753,8 +755,39 @@ void ScalarToTextureCoordinate(T scalar_value, // Input scalar
     // the NaN value.
     tex_coord_t = 0.49;
 
-    double ranged_scalar = (scalar_value - range_min) * inv_range_width;
-    tex_coord_s = static_cast<float>(ranged_scalar);
+    double texture_scalar = (scalar_value - padded_range[0]) * inv_padded_range_width;
+    double texture_range_min = texel_width;
+    double texture_range_max = 1.0 - texel_width;
+    constexpr double epsilon = 1e-6;
+
+    // Create an epsilon-sized "bubble" around the range min and range max texture coordinates
+    if (scalar_value >= scalar_range[0] && scalar_value <= scalar_range[1])
+    {
+      if (texture_scalar < texture_range_min + epsilon)
+      {
+        // Nudge up the texture_scalar a bit to get above the below-range color (first texel).
+        texture_scalar = texture_range_min + epsilon;
+      }
+      else if (texture_scalar > texture_range_max - epsilon)
+      {
+        // Nudge down the texture_scalar a bit to get below the above-range color (last texel).
+        texture_scalar = texture_range_max - epsilon;
+      }
+    }
+    else if (scalar_value < scalar_range[0])
+    {
+      // Ensure the texture_scalar is at or below the scalar range. We don't set it to 0.0
+      // because we want the texture map to be interpolated accurately.
+      texture_scalar = std::min(texture_scalar, texture_range_min - epsilon);
+    }
+    else if (scalar_value > scalar_range[1])
+    {
+      // Ensure the texture_scalar is at or above the scalar range. We don't set it to 1.0
+      // because we want the texture map to be interpolated accurately.
+      texture_scalar = std::max(texture_scalar, texture_range_max + epsilon);
+    }
+
+    tex_coord_s = texture_scalar;
   }
 
   // Some implementations apparently don't handle relatively large
@@ -789,7 +822,8 @@ struct CreateColorTextureCoordinatesFunctor
     double padded_range[2];
     padded_range[0] = range[0] - scalar_texel_width;
     padded_range[1] = range[1] + scalar_texel_width;
-    double inv_range_width = 1.0 / (padded_range[1] - padded_range[0]);
+    double texel_width = 1.0 / static_cast<double>(tableNumberOfColors + 2);
+    double inv_padded_range_width = 1.0 / (padded_range[1] - padded_range[0]);
     auto input = vtk::DataArrayValueRange(array).begin();
 
     if (component < 0 || component >= numComps)
@@ -807,8 +841,8 @@ struct CreateColorTextureCoordinatesFunctor
         {
           magnitude = vtkLookupTable::ApplyLogScale(magnitude, table_range, range);
         }
-        ScalarToTextureCoordinate(
-          magnitude, padded_range[0], inv_range_width, output[0], output[1]);
+        ScalarToTextureCoordinate(magnitude, texel_width, range, padded_range,
+          inv_padded_range_width, output[0], output[1]);
         output += 2;
       }
     }
@@ -822,8 +856,8 @@ struct CreateColorTextureCoordinatesFunctor
         {
           input_value = vtkLookupTable::ApplyLogScale(input_value, table_range, range);
         }
-        ScalarToTextureCoordinate(
-          input_value, padded_range[0], inv_range_width, output[0], output[1]);
+        ScalarToTextureCoordinate(input_value, texel_width, range, padded_range,
+          inv_padded_range_width, output[0], output[1]);
         output += 2;
       }
     }
