@@ -715,6 +715,7 @@ private:
     bool LastWideLines = false;
     vtkProperty::LineJoinType LastLineJoin = vtkProperty::LineJoinType::NoJoin;
     bool LastSelectingPoints = false;
+    bool LastRendererUseIBL = false;
   };
   std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 };

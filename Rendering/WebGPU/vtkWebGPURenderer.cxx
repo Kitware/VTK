@@ -35,6 +35,11 @@
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPUTexture.h"
+
+#include "vtkCamera.h"
+#include "vtkMatrix4x4.h"
+
 #include <algorithm>
 #include <cstring>
 
@@ -42,6 +47,13 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+struct IBLBlock
+{
+  float EnvRotation[3][4] = {};
+  float PrefilterLevels = 0.0f;
+  float Pad[3] = {};
+};
+
 const char* backgroundShaderSource = R"(
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
@@ -240,6 +252,45 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::WriteIBLUniformBuffer()
+{
+  if (!this->IBLUniformBuffer)
+  {
+    return;
+  }
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
+
+  IBLBlock uniforms = {};
+
+  vtkMatrix4x4* viewMat = this->GetActiveCamera()->GetModelViewTransformMatrix();
+  const double* vd = viewMat->GetData();
+  uniforms.EnvRotation[0][0] = static_cast<float>(vd[0]);
+  uniforms.EnvRotation[0][1] = static_cast<float>(vd[1]);
+  uniforms.EnvRotation[0][2] = static_cast<float>(vd[2]);
+  uniforms.EnvRotation[0][3] = 0.0f;
+  uniforms.EnvRotation[1][0] = static_cast<float>(vd[4]);
+  uniforms.EnvRotation[1][1] = static_cast<float>(vd[5]);
+  uniforms.EnvRotation[1][2] = static_cast<float>(vd[6]);
+  uniforms.EnvRotation[1][3] = 0.0f;
+  uniforms.EnvRotation[2][0] = static_cast<float>(vd[8]);
+  uniforms.EnvRotation[2][1] = static_cast<float>(vd[9]);
+  uniforms.EnvRotation[2][2] = static_cast<float>(vd[10]);
+  uniforms.EnvRotation[2][3] = 0.0f;
+
+  if (auto* wgpuTex = vtkWebGPUTexture::SafeDownCast(this->GetEnvironmentTexture()))
+  {
+    if (auto devRc = wgpuTex->GetDeviceResource())
+    {
+      uniforms.PrefilterLevels = static_cast<float>(devRc->GetMipLevelCount() - 1);
+    }
+  }
+
+  const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
+  wgpuConfiguration->WriteBuffer(this->IBLUniformBuffer, 0, &uniforms, iblSize, "IBLUniformUpdate");
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::CreateBuffers()
 {
   const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
@@ -287,6 +338,22 @@ void vtkWebGPURenderer::CreateBuffers()
       static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
       label.c_str());
     this->AllocatedLightsBufferSize = lightSizePadded;
+  }
+
+  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture())
+  {
+    const vtkMTimeType envMTime = this->GetEnvironmentTexture()->GetMTime();
+    if (this->IBLUniformBuffer == nullptr || envMTime != this->LastEnvTextureMTime)
+    {
+      this->LastEnvTextureMTime = envMTime;
+      vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
+      const std::string label = "IBLUniforms-" + this->GetObjectDescription();
+      const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
+      this->IBLUniformBuffer = wgpuConfiguration->CreateBuffer(iblSize,
+        static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
+        label.c_str());
+      createSceneBindGroup = true;
+    }
   }
 
   if (createSceneBindGroup)
@@ -712,6 +779,10 @@ void vtkWebGPURenderer::UpdateBuffers()
   this->CreateBuffers();
   this->WriteSceneTransformsBuffer();
   this->WriteLightsBuffer();
+  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture())
+  {
+    this->WriteIBLUniformBuffer();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1199,6 +1270,7 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneTransformBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneLightsBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
@@ -1322,26 +1394,40 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
 {
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   WGPUDevice device = wgpuRenderWindow->GetDevice();
-  if (this->SceneBindGroupLayout == nullptr)
+  const bool useIBL = this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() != nullptr;
+  if (this->SceneBindGroupLayout == nullptr || useIBL != this->LastUseIBL)
   {
-    vtkWebGPU::BindGroupLayout layout = vtkWebGPU::BindGroupLayout::Acquire(
-      vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
-        {
-          // clang-format off
-          // SceneTransforms
-          { 0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform },
-          // SceneLights
-          { 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage },
-          // Deep framebuffer head pointers
-          { 2, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage },
-          // Deep framebuffer fragment nodes
-          { 3, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage },
-          // Deep framebuffer fragment counter
-          { 4, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage }
-          // clang-format on
-        },
-        "SceneBindGroupLayout"));
-    this->SceneBindGroupLayout = layout.Release();
+    this->LastUseIBL = useIBL;
+    vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
+    vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
+    vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
+    std::vector<WGPUBindGroupLayoutEntry> entries;
+    // SceneTransforms
+    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
+    // SceneLights
+    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
+    // Deep framebuffer head pointers, fragment nodes and fragment counter
+    for (std::uint32_t binding = 2; binding < 5; ++binding)
+    {
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        binding, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage });
+    }
+
+    if (useIBL)
+    {
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        5, WGPUShaderStage_Fragment, WGPUSamplerBindingType_Filtering });
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ 6,
+        WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_Cube,
+        false });
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        7, WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
+    }
+
+    this->SceneBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
+      device, entries, "SceneBindGroupLayout");
   }
 }
 
@@ -1409,6 +1495,21 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
     abufferEntry.size = wgpuBufferGetSize(abuffers[abufferBinding]);
     entries.push_back(abufferEntry);
   }
+  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() && this->IBLUniformBuffer)
+  {
+    if (auto* wgpuTex = vtkWebGPUTexture::SafeDownCast(this->GetEnvironmentTexture()))
+    {
+      if (auto devRc = wgpuTex->GetDeviceResource())
+      {
+        entries.emplace_back(devRc->MakeSamplerBindGroupEntry(5));
+        entries.emplace_back(devRc->MakeTextureViewBindGroupEntry(6));
+        const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
+        entries.emplace_back(vtkWebGPUBindGroupInternals::BindingInitializationHelper{
+          7, this->IBLUniformBuffer, 0, iblSize }
+                               .GetAsBinding());
+      }
+    }
+  }
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "SceneBindGroup", WGPU_STRLEN };
@@ -1416,6 +1517,7 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
 
+  vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   this->SceneBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
 }
 

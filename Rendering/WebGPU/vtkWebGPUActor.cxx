@@ -421,6 +421,7 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
     }
     so.Metallic = static_cast<vtkTypeFloat32>(displayProperty->GetMetallic());
     so.Roughness = static_cast<vtkTypeFloat32>(displayProperty->GetRoughness());
+    so.InterpolationType = static_cast<vtkTypeUInt32>(displayProperty->GetInterpolation());
     internals.ShadingOptionsLastUpdated.Modified();
     return true;
   }

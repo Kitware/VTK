@@ -7,6 +7,7 @@
 #include "vtkPBRIrradianceTexture.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
@@ -59,7 +60,11 @@ int TestPBRIrradianceHDR(int argc, char* argv[])
 
   renderer->GetActiveCamera()->Zoom(1.6);
 
-  iren->Start();
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
 
-  return 0;
+  return !retVal;
 }

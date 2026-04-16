@@ -290,6 +290,7 @@ private:
 
   std::size_t WriteLightsBuffer(std::size_t offset = 0);
   std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
+  void WriteIBLUniformBuffer();
 
   /**
    * Sets the device and adapter of the render window of this renderer to the given pipeline
@@ -369,6 +370,7 @@ private:
   WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
   WGPUBuffer SceneTransformBuffer = nullptr;
   WGPUBuffer SceneLightsBuffer = nullptr;
+  WGPUBuffer IBLUniformBuffer = nullptr;
   // Holds the two gradient stop colors, the gradient mode and the dither flag
   // for the background quad drawn by Clear(). Only allocated when a gradient
   // background is requested.
@@ -376,6 +378,8 @@ private:
 
   WGPUBindGroup SceneBindGroup = nullptr;
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
+  bool LastUseIBL = false;
+  vtkMTimeType LastEnvTextureMTime = 0;
 
   bool UseDeepFramebufferTransparency = true;
   bool DeepFramebufferPopulated = false;

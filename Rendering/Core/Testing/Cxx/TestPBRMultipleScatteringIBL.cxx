@@ -1,11 +1,12 @@
 #include "vtkActor.h"
 #include "vtkHDRReader.h"
-#include "vtkOpenGLSkybox.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
@@ -19,7 +20,7 @@ int TestPBRMultipleScatteringIBL(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   renderWindow->SetInteractor(interactor);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
   vtkNew<vtkHDRReader> hdrReader;
   vtkNew<vtkTesting> testing;
   std::string hdrFile =
@@ -60,7 +61,12 @@ int TestPBRMultipleScatteringIBL(int argc, char* argv[])
   renderer->ResetCamera();
 
   renderWindow->Render();
-  interactor->Start();
 
-  return EXIT_SUCCESS;
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    interactor->Start();
+  }
+
+  return !retVal;
 }

@@ -36,4 +36,16 @@ struct ActorColorOptions {
   metallic: f32,
   // PBR roughness factor (0.0 = mirror-smooth, 1.0 = fully rough)
   roughness: f32,
+  // Clear coat strength (0.0 = none, 1.0 = full)
+  coat_strength: f32,
+  // Clear coat roughness factor
+  coat_roughness: f32,
+  // Anisotropy amount (0.0 = none, 1.0 = full)
+  anisotropy: f32,
+  // Anisotropy rotation in radians
+  anisotropy_rotation: f32,
+  // Emissive color factor
+  emissive_factor: f32,
+  // Coat normal scale for normal mapping
+  coat_normal_scale: f32,
 }
