@@ -419,6 +419,8 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
       so.EdgeColor[i] = displayProperty->GetEdgeColor()[i];
       so.VertexColor[i] = displayProperty->GetVertexColor()[i];
     }
+    so.Metallic = static_cast<vtkTypeFloat32>(displayProperty->GetMetallic());
+    so.Roughness = static_cast<vtkTypeFloat32>(displayProperty->GetRoughness());
     internals.ShadingOptionsLastUpdated.Modified();
     return true;
   }

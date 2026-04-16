@@ -87,6 +87,22 @@ public:
       vtkTypeUInt32 InterpolationType = VTK_FLAT;
       // Id to color by
       vtkTypeUInt32 Id = 0;
+      // PBR metallic factor (0.0 = dielectric, 1.0 = metallic)
+      vtkTypeFloat32 Metallic = 0.0f;
+      // PBR roughness factor (0.0 = smooth, 1.0 = rough)
+      vtkTypeFloat32 Roughness = 0.5f;
+      // PBR clear coat strength (0.0 = none, 1.0 = full)
+      vtkTypeFloat32 CoatStrength = 0.0f;
+      // PBR clear coat roughness factor
+      vtkTypeFloat32 CoatRoughness = 0.0f;
+      // PBR anisotropy amount (0.0 = none, 1.0 = full)
+      vtkTypeFloat32 Anisotropy = 0.0f;
+      // PBR anisotropy rotation in radians
+      vtkTypeFloat32 AnisotropyRotation = 0.0f;
+      // PBR emissive color factor
+      vtkTypeFloat32 EmissiveFactor = 0.0f;
+      // PBR coat normal scale for normal mapping
+      vtkTypeFloat32 CoatNormalScale = 0.0f;
     } ColorOpts;
   };
 

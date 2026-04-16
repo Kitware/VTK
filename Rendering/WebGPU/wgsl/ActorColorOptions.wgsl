@@ -32,4 +32,8 @@ struct ActorColorOptions {
   interpolation_type: u32,
   // Id to color by
   id: u32,
+  // PBR metallic factor (0.0 = dielectric, 1.0 = fully metallic)
+  metallic: f32,
+  // PBR roughness factor (0.0 = mirror-smooth, 1.0 = fully rough)
+  roughness: f32,
 }
