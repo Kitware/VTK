@@ -369,6 +369,15 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
         }
       }
     }
+    else if (PyObject_HasAttrString(o, "char"))
+    {
+      // assume this is a numpy dtype
+      o = PyObject_GetAttrString(o, "char");
+      if (PyUnicode_Check(o))
+      {
+        tname = PyUnicode_AsUTF8AndSize(o, nullptr);
+      }
+    }
     else
     {
       // else convert into an ASCII string

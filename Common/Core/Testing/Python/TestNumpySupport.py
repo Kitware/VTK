@@ -12,7 +12,18 @@ import sys
 from vtkmodules.vtkCommonCore import (
     VTK_INT,
     vtkBitArray,
+    vtkSignedCharArray,
+    vtkUnsignedCharArray,
+    vtkShortArray,
+    vtkUnsignedShortArray,
+    vtkIntArray,
+    vtkUnsignedIntArray,
     vtkLongArray,
+    vtkUnsignedLongArray,
+    vtkLongLongArray,
+    vtkUnsignedLongLongArray,
+    vtkFloatArray,
+    vtkDoubleArray,
 )
 from vtkmodules.test import Testing
 try:
@@ -92,6 +103,30 @@ class TestNumpySupport(Testing.vtkTest):
         self._check_arrays(res, vtk_arr)
         vtk_arr = numpy_to_vtk(res)
         self._check_arrays(res, vtk_arr)
+
+    def testNumpyRoundtrip(self):
+        "Test that VTK arrays roundtrip via numpy"
+        test_arrays = [
+           # vtkCharArray does not rountrip (no 'char' in numpy)
+           vtkSignedCharArray(),
+           vtkUnsignedCharArray(),
+           vtkShortArray(),
+           vtkUnsignedShortArray(),
+           vtkIntArray(),
+           vtkUnsignedIntArray(),
+           vtkLongArray(),
+           vtkUnsignedLongArray(),
+           vtkLongLongArray(),
+           vtkUnsignedLongLongArray(),
+           # vtkIdTypeArray does not roundtrip (no 'vtkIdType' in numpy)
+           vtkFloatArray(),
+           vtkDoubleArray(),
+        ]
+        for array in test_arrays:
+           # check that data type stays the same
+           numpy_array = vtk_to_numpy(array)
+           roundtrip = numpy_to_vtk(numpy_array)
+           self.assertEqual(array.GetDataType(), roundtrip.GetDataType())
 
     def testNumpyView(self):
         "Test if the numpy and VTK array share the same data."
