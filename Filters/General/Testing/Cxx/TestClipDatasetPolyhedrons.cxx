@@ -3,11 +3,11 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellTypeSource.h"
-#include "vtkClipDataSet.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
+#include "vtkTableBasedClipDataSet.h"
 #include "vtkUnstructuredGrid.h"
 
 int TestClipDatasetPolyhedrons(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -21,22 +21,22 @@ int TestClipDatasetPolyhedrons(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   plane->SetOrigin(8, 2, 4);
   plane->SetNormal(0.5, 0.5, 0.5);
 
-  vtkNew<vtkClipDataSet> clip;
+  vtkNew<vtkTableBasedClipDataSet> clip;
   clip->SetInputConnection(cellTypeSource->GetOutputPort());
   clip->SetClipFunction(plane);
   clip->Update();
 
   // Check number of cells / points
   vtkPoints* points = clip->GetOutput()->GetPoints();
-  if (int nPoints = points->GetNumberOfPoints(); nPoints != 29589)
+  if (int nPoints = points->GetNumberOfPoints(); nPoints != 29231)
   {
-    vtkLogF(ERROR, "Number of points: expecting 29589 got %i", nPoints);
+    vtkLogF(ERROR, "Number of points: expecting 29231 got %i", nPoints);
     return EXIT_FAILURE;
   }
   vtkCellArray* cells = clip->GetOutput()->GetCells();
-  if (int nCells = cells->GetNumberOfCells(); nCells != 26636)
+  if (int nCells = cells->GetNumberOfCells(); nCells != 26714)
   {
-    vtkLogF(ERROR, "Number of points: expecting 26636 got %i", nCells);
+    vtkLogF(ERROR, "Number of cells: expecting 26714 got %i", nCells);
     return EXIT_FAILURE;
   }
 

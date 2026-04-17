@@ -165,6 +165,7 @@ class vtkMarchingCellsClipCases<false> : public vtkMarchingCellsClipCasesBase
 {
 public:
   static constexpr uint8_t DISCARDED_CELL_CASE = 0;
+  static constexpr uint8_t KEPT_CELL_CASE = 255;
 
 private:
   // clip table for all cases of each cell
@@ -4826,6 +4827,7 @@ class vtkMarchingCellsClipCases<true> : public vtkMarchingCellsClipCasesBase
 {
 public:
   static constexpr uint8_t DISCARDED_CELL_CASE = 255;
+  static constexpr uint8_t KEPT_CELL_CASE = 0;
 
 private:
   //  clip table for all cases of each cell
