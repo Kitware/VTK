@@ -1,26 +1,21 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test covers switch from perspective to parallel projection.
-// This test volume renders a synthetic dataset with unsigned char values,
-// with the composite method.
+/**
+ * This test covers switch from perspective to parallel projection.
+ * This test renders a cube with a 45 degree camera angle on the pitch and yaw. With this view
+ * angle, we can easily check if the parallel projection works correctly.
+ */
 
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkDataArray.h"
+#include "vtkCubeSource.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
-#include "vtkImageShiftScale.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSampleFunction.h"
-#include "vtkSphere.h"
-#include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
@@ -43,100 +38,45 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
     }
   }
 
-  // Create a spherical implicit function.
-  vtkNew<vtkSphere> shape;
-  shape->SetRadius(0.1);
-  shape->SetCenter(0.0, 0.0, 0.0);
+  vtkNew<vtkCubeSource> source;
 
-  vtkNew<vtkSampleFunction> source;
-  source->SetImplicitFunction(shape);
-  source->SetOutputScalarTypeToDouble();
-  source->SetSampleDimensions(127, 127, 127); // intentional NPOT dimensions.
-  source->SetModelBounds(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-  source->SetCapping(false);
-  source->SetComputeNormals(false);
-  source->SetScalarArrayName("values");
-  source->Update();
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(source->GetOutputPort());
 
-  vtkDataArray* a = source->GetOutput()->GetPointData()->GetScalars("values");
-  double range[2];
-  a->GetRange(range);
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
 
-  vtkNew<vtkImageShiftScale> imageShiftScale;
-  imageShiftScale->SetInputConnection(source->GetOutputPort());
-  imageShiftScale->SetShift(-range[0]);
-  double magnitude = range[1] - range[0];
+  vtkNew<vtkRenderer> renderer;
+  renderer->SetBackground(0.1, 0.4, 0.2);
+  renderer->AddActor(actor);
 
-  if (magnitude == 0.0)
-  {
-    magnitude = 1.0;
-  }
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->AddRenderer(renderer);
 
-  imageShiftScale->SetScale(255.0 / magnitude);
-  imageShiftScale->SetOutputScalarTypeToUnsignedChar();
-  imageShiftScale->Update();
-
-  vtkNew<vtkRenderer> ren1;
-  ren1->SetBackground(0.1, 0.4, 0.2);
-
-  vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1);
-  renWin->SetSize(301, 300); // intentional odd and NPOT  width/height
-
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin);
-
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
-  volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetInputConnection(imageShiftScale->GetOutputPort());
-
-  vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->ShadeOff();
-  volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-
-  vtkNew<vtkPiecewiseFunction> compositeOpacity;
-  compositeOpacity->AddPoint(0.0, 0.0);
-  compositeOpacity->AddPoint(80.0, 1.0);
-  compositeOpacity->AddPoint(80.1, 0.0);
-  compositeOpacity->AddPoint(255.0, 0.0);
-  volumeProperty->SetScalarOpacity(compositeOpacity);
-
-  vtkNew<vtkColorTransferFunction> color;
-  color->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-  color->AddRGBPoint(40.0, 1.0, 0.0, 0.0);
-  color->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
-  volumeProperty->SetColor(color);
-
-  vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper);
-  volume->SetProperty(volumeProperty);
-  ren1->AddViewProp(volume);
+  vtkNew<vtkRenderWindowInteractor> interactor;
+  interactor->SetRenderWindow(renderWindow);
 
   // Attach ANARI render pass
   vtkNew<vtkAnariPass> anariPass;
-  ren1->SetPass(anariPass);
+  renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariPerspectiveParallel");
+  renderer->GetActiveCamera()->ParallelProjectionOn();
+  renderer->GetActiveCamera()->Pitch(45.0);
+  renderer->GetActiveCamera()->Yaw(45.0);
+  renderer->ResetCamera();
+  renderWindow->Render();
 
-  ren1->ResetCamera();
-  // Render composite. Default camera is perspective.
-  renWin->Render();
-
-  // Switch to parallel
-  vtkCamera* camera = ren1->GetActiveCamera();
-  camera->SetParallelProjection(true);
-  renWin->Render();
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPerspectiveParallel");
 
   auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = anariRendererNode->GetAnariDeviceExtensions();
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+    int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      iren->Start();
+      interactor->Start();
     }
 
     return !retVal;
