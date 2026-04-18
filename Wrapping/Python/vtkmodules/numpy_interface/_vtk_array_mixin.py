@@ -214,8 +214,8 @@ def register_template_overrides(mixin_cls, template_cls, name_prefix,
     """
     _dtype_strings = [
         'float32', 'float64',
-        'int8', 'int16', 'int32', 'int64',
-        'uint8', 'uint16', 'uint32', 'uint64',
+        'int8', 'int16', 'int32', 'int', 'int64',
+        'uint8', 'uint16', 'uint32', 'uint', 'uint64',
     ]
     for dt in _dtype_strings:
         base = template_cls[dt]
