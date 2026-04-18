@@ -308,17 +308,32 @@ PyTypeObject PyVTKTemplate_Type = {
 PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
 {
   // python type names
-  static const char* typenames[] = { "bool", "char", "int8", "uint8", "int16", "uint16", "int32",
-    "uint32", "int", "uint", "int64", "uint64", "float32", "float64", "float", "str", "unicode",
-    nullptr };
+  static const char* typenames[] = { //
+    // native C types (use numpy naming convention)
+    "char", "byte", "ubyte", "short", "ushort", "intc", "uintc", "long", "ulong", "longlong",
+    "ulonglong", "single", "double",
+    // sized integer and floating-point types
+    "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float32", "float64",
+    // an alias for "ulong" used by numpy
+    "uint",
+    // native python types
+    "bool", "int", "float", "str", "unicode", nullptr
+  };
 
   // python type codes
-  static const char typecodes[] = { '?', 'c', 'b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q', 'f',
-    'd', 'd', '\0', '\0', '\0' };
-
+  static const char typecodes[] = {                                  //
+    'c', 'b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q', 'f', 'd', //
+    'b', 'B', 'h', 'H', 'i', 'I', 'q', 'Q', 'f', 'd',                //
+    'L',                                                             //
+    '?', 'l', 'd', '\0', '\0', '\0'
+  };
   // ia64 ABI type codes
-  static const char typechars[] = { 'b', 'c', 'a', 'h', 's', 't', 'i', 'j', 'l', 'm', 'x', 'y', 'f',
-    'd', 'd', '\0', '\0', '\0' };
+  static const char typechars[] = {                                  //
+    'c', 'a', 'h', 's', 't', 'i', 'j', 'l', 'm', 'x', 'y', 'f', 'd', //
+    'a', 'h', 's', 't', 'i', 'j', 'x', 'y', 'f', 'd',                //
+    'm',                                                             //
+    'b', 'l', 'd', '\0', '\0', '\0'
+  };
 
   // get name of the template (skip any namespaces)
   const char* tname = PyModule_GetName(self);
@@ -638,40 +653,40 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         case 'c':
           ptype = "char";
           break;
-        case 'a':
+        case 'a': // "byte"
           ptype = "int8";
           break;
-        case 'h':
+        case 'h': // "ubyte"
           ptype = "uint8";
           break;
-        case 's':
+        case 's': // "short"
           ptype = "int16";
           break;
-        case 't':
+        case 't': // "ushort"
           ptype = "uint16";
           break;
-        case 'i':
+        case 'i': // "intc"
           ptype = "int32";
           break;
-        case 'j':
+        case 'j': // "uintc"
           ptype = "uint32";
           break;
-        case 'l':
-          ptype = "int"; // python int is C long
+        case 'l': // "long" (or python "int")
+          ptype = "int";
           break;
-        case 'm':
+        case 'm': // "ulong"
           ptype = "uint";
           break;
-        case 'x':
+        case 'x': // "longlong"
           ptype = "int64";
           break;
-        case 'y':
+        case 'y': // "ulonglong"
           ptype = "uint64";
           break;
-        case 'f':
+        case 'f': // "single"
           ptype = "float32";
           break;
-        case 'd':
+        case 'd': // "double"
           ptype = "float64";
           break;
       }
