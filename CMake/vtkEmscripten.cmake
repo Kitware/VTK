@@ -15,6 +15,8 @@ else ()
   set(CMAKE_CXX_SIZEOF_DATA_PTR 4)
 endif ()
 
+option(VTK_WEBASSEMBLY_LEGACY_EXCEPTIONS "Build with the legacy Wasm EH proposal instead of the standardized one. Defaults to ON to match emscripten's historical default; set OFF when the whole link must use the standardized proposal." ON)
+
 option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." OFF)
 if (VTK_WEBASSEMBLY_THREADS)
   set(VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE 0 CACHE STRING "Limit the maximum number of threads in the WASM backend (default:0, runtime hardware concurrency).")
