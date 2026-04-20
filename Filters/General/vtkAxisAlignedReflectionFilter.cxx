@@ -537,7 +537,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   vtkNew<vtkIdList> cellPts;
   for (vtkIdType i = 0; i < numCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -580,7 +580,7 @@ void vtkAxisAlignedReflectionFilter::ProcessStructuredGrid(vtkStructuredGrid* in
 
   for (vtkIdType i = numPts - 1; i >= 0; i--)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -629,7 +629,7 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   for (vtkIdType i = 0; i < numPts; i++)
   {
     double point[3];
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -637,7 +637,6 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
     outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
       mirrorDir[1] * point[1] + constant[1], mirrorDir[2] * point[2] + constant[2]);
   }
-
   output->SetPoints(outPoints);
 
   vtkReflectionUtilities::CopyAndReflect(
@@ -646,7 +645,7 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   vtkNew<vtkIdList> cellPts;
   for (vtkIdType i = 0; i < numCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
