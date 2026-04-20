@@ -626,15 +626,6 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
     input->GetNumberOfStrips(), input->GetStrips()->GetNumberOfConnectivityIds());
 
   outPoints->Reserve(numPts);
-  outPD->CopyAllOn();
-  outPD->CopyAllocate(inPD);
-  outCD->CopyAllOn();
-  outCD->CopyAllocate(inCD);
-
-  std::vector<std::pair<vtkIdType, int>> reflectableArrays;
-  vtkReflectionUtilities::FindAllReflectableArrays(
-    reflectableArrays, inPD, this->ReflectAllInputArrays);
-
   for (vtkIdType i = 0; i < numPts; i++)
   {
     double point[3];
@@ -643,15 +634,14 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       break;
     }
     input->GetPoint(i, point);
-    vtkIdType ptId = outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
+    outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
       mirrorDir[1] * point[1] + constant[1], mirrorDir[2] * point[2] + constant[2]);
-    outPD->CopyData(inPD, i, ptId);
-
-    vtkReflectionUtilities::ReflectReflectableArrays(reflectableArrays, inPD, outPD, i, mirrorDir,
-      mirrorSymmetricTensorDir, mirrorTensorDir, ptId);
   }
 
   output->SetPoints(outPoints);
+
+  vtkReflectionUtilities::CopyAndReflect(
+    inPD, outPD, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
 
   vtkNew<vtkIdList> cellPts;
   for (vtkIdType i = 0; i < numCells; i++)
@@ -664,7 +654,6 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
     int cellType = input->GetCellType(i);
     input->GetCellPoints(i, cellPts);
     int numCellPts = cellPts->GetNumberOfIds();
-    vtkIdType newCellId;
 
     if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
     {
@@ -683,7 +672,7 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       {
         newCellPts[j] = cellPts->GetId(j - 1) + pointIdOffset;
       }
-      newCellId = outStrips->InsertNextCell(numCellPts, newCellPts.data());
+      outStrips->InsertNextCell(numCellPts, newCellPts.data());
     }
     else
     {
@@ -706,21 +695,20 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       {
         case VTK_VERTEX:
         case VTK_POLY_VERTEX:
-          newCellId = outVerts->InsertNextCell(numCellPts, newCellPts.data());
+          outVerts->InsertNextCell(numCellPts, newCellPts.data());
           break;
         case VTK_LINE:
         case VTK_POLY_LINE:
-          newCellId = outLines->InsertNextCell(numCellPts, newCellPts.data());
+          outLines->InsertNextCell(numCellPts, newCellPts.data());
           break;
         case VTK_TRIANGLE_STRIP:
-          newCellId = outStrips->InsertNextCell(numCellPts, newCellPts.data());
+          outStrips->InsertNextCell(numCellPts, newCellPts.data());
           break;
         default:
-          newCellId = outPolys->InsertNextCell(numCellPts, newCellPts.data());
+          outPolys->InsertNextCell(numCellPts, newCellPts.data());
           break;
       }
     }
-    outCD->CopyData(inCD, i, newCellId);
   }
 
   output->SetVerts(outVerts);
@@ -728,15 +716,8 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   output->SetPolys(outPolys);
   output->SetStrips(outStrips);
 
-  reflectableArrays.clear();
-  vtkReflectionUtilities::FindAllReflectableArrays(
-    reflectableArrays, inCD, this->ReflectAllInputArrays);
-
-  for (vtkIdType i = 0; i < numCells; i++)
-  {
-    vtkReflectionUtilities::ReflectReflectableArrays(
-      reflectableArrays, inCD, outCD, i, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, i);
-  }
+  vtkReflectionUtilities::CopyAndReflect(
+    inCD, outCD, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
 }
 
 //------------------------------------------------------------------------------
