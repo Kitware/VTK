@@ -26,6 +26,7 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonMisc
 PRIVATE_DEPENDS
+  VTK::CommonCache
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
