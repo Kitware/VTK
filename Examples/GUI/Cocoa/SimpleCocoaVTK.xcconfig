@@ -28,5 +28,5 @@ CLANG_ENABLE_OBJC_ARC = YES
 // User headers will only be accessible with #include "header.h"-style.
 ALWAYS_SEARCH_USER_PATHS = NO
 
-// VTK requires at least C++11.
-CLANG_CXX_LANGUAGE_STANDARD = c++11
+// VTK requires at least C++17.
+CLANG_CXX_LANGUAGE_STANDARD = c++17
