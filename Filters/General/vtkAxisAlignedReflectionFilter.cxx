@@ -492,7 +492,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   output->SetExtent(input->GetExtent());
 
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
@@ -522,7 +522,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   output->SetPoints(outPoints);
 
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkSmartPointer<vtkCellArray> outCells = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> outCells;
   outCells->UseFixedSize64BitStorage(8);
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
@@ -566,7 +566,7 @@ void vtkAxisAlignedReflectionFilter::ProcessStructuredGrid(vtkStructuredGrid* in
   output->SetExtent(input->GetExtent());
 
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
@@ -606,16 +606,16 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
 
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
 
-  vtkSmartPointer<vtkCellArray> outVerts = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outLines = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outPolys = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outStrips = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> outVerts;
+  vtkNew<vtkCellArray> outLines;
+  vtkNew<vtkCellArray> outPolys;
+  vtkNew<vtkCellArray> outStrips;
   outVerts->AllocateExact(
     input->GetNumberOfVerts(), input->GetVerts()->GetNumberOfConnectivityIds());
   outLines->AllocateExact(
@@ -857,7 +857,7 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
 
     // Create array for reflected coordinates
     ++size;
-    vtkDoubleArray* outCoords = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outCoords;
     outCoords->SetNumberOfTuples(size);
 
     // Reflect point coordinate
@@ -880,9 +880,6 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
       case 2:
         output->SetZCoordinates(outCoords);
     } // switch ( direction )
-
-    // Clean up
-    outCoords->Delete();
   }
 
   // Retrieve interface arrays if available
@@ -901,19 +898,16 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
     }
   }
 
-  // Create arrays for reflected interface if present
-  vtkDoubleArray* outNormals = nullptr;
-  vtkDoubleArray* outIntercepts = nullptr;
   if (hasInterface)
   {
     vtkIdType nTuples = inNormals->GetNumberOfTuples();
-    outNormals = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outNormals;
     outNormals->SetNumberOfComponents(3);
     outNormals->SetNumberOfTuples(nTuples);
     outNormals->SetName("outNormals");
     output->SetInterfaceNormalsName(outNormals->GetName());
 
-    outIntercepts = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outIntercepts;
     outIntercepts->SetNumberOfComponents(3);
     outIntercepts->SetNumberOfTuples(nTuples);
     outIntercepts->SetName("outIntercepts");
@@ -944,18 +938,11 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
       }
 
       outIntercepts->SetTuple3(i, inter[0], inter[1], inter[2]);
-    } // i
+    }
 
     // Assign new interface arrays if available
     outCD->SetVectors(outNormals);
     outCD->AddArray(outIntercepts);
-  } // if ( hasInterface )
-
-  // Clean up
-  if (hasInterface)
-  {
-    outNormals->Delete();
-    outIntercepts->Delete();
   }
 
   // Update HTGs scale
