@@ -390,7 +390,10 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
     return 0;
   }
 
-  this->ExchangeHTGMetadata();
+  if (!this->ExchangeHTGMetadata())
+  {
+    return 0;
+  }
 
   if (input->HasMask())
   {
@@ -456,7 +459,7 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
+bool vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
 {
   // Make sure all ranks share the same HTG metadata.
   // Metadata mismatch can happen, for instance, when we read a HTG from a .htg file in parallel;
@@ -469,6 +472,13 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
   int processInit = bounds[0] <= bounds[1] ? this->Controller->GetLocalProcessId()
                                            : std::numeric_limits<int>::max();
   this->Controller->AllReduce(&processInit, &metadataSourceProcess, 1, vtkCommunicator::MIN_OP);
+
+  if (metadataSourceProcess == std::numeric_limits<int>::max())
+  {
+    vtkDebugMacro("No valid HTG found in any process");
+    return false;
+  }
+
   vtkDebugMacro("Metadata source process is " << metadataSourceProcess);
 
   this->OutputHTG->Initialize();
@@ -590,6 +600,8 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
     this->OutputHTG->GetCellData()->AddArray(arr);
     arr->FastDelete();
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
