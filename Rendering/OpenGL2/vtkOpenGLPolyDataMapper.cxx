@@ -4163,6 +4163,13 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
   // construct a string of values that impact the IBO and see if that string has
   // changed
 
+  // Clear TempState so the IBO cache key isn't contaminated by whatever the
+  // caller left in it. Notably, BuildBufferObjects leaves poly->GetMTime()
+  // in it via the CellTexture state check; without this Clear(), any bump
+  // of the polydata MTime (e.g. from a cell-scalar change) would force the
+  // IBO to rebuild on every update even though the cell arrays themselves
+  // are unchanged.
+  this->TempState.Clear();
   // So...polydata can return a dummy CellArray when there are no lines
   this->TempState.Append(prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0, "prim0 mtime");
   this->TempState.Append(prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0, "prim1 mtime");
