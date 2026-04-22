@@ -32,9 +32,13 @@
 #define vtkExtractGeometry_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
+#include "vtkNew.h"                     // for vtkNew
 #include "vtkUnstructuredGridAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkDataObjectMeshCache;
+class vtkDataObjectTree;
 class vtkImplicitFunction;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractGeometry : public vtkUnstructuredGridAlgorithm
@@ -92,7 +96,11 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   vtkImplicitFunction* ImplicitFunction;
   vtkTypeBool ExtractInside;
@@ -102,6 +110,28 @@ protected:
 private:
   vtkExtractGeometry(const vtkExtractGeometry&) = delete;
   void operator=(const vtkExtractGeometry&) = delete;
+
+  /**
+   * Create UnstructuredGrid for each leaf.
+   */
+  void InitializeOutput(vtkDataObjectTree* input, vtkDataObjectTree* output);
+
+  /**
+   * Process one leaf.
+   * We use vtkInformation objects because the ProcessRequest is actually
+   * delegated to some internal filter.
+   */
+  int ExtractLeaf(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+
+  /**
+   * Duplicate the vtkInformationVector but replace DATA_OBJECT
+   * with the given one in the first vtkInformation.
+   */
+  vtkSmartPointer<vtkInformationVector> DuplicateInfoForLeaf(
+    vtkInformationVector* inputInfo, vtkDataObject* leaf);
+
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END

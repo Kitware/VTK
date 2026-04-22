@@ -69,6 +69,11 @@ vtkTypeBool vtkUnstructuredGridAlgorithm::ProcessRequest(
     return this->RequestData(request, inputVector, outputVector);
   }
 
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  {
+    return this->RequestDataObject(request, inputVector, outputVector);
+  }
+
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
@@ -145,6 +150,21 @@ int vtkUnstructuredGridAlgorithm::RequestData(vtkInformation* vtkNotUsed(request
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
   return 0;
+}
+
+//------------------------------------------------------------------------------
+int vtkUnstructuredGridAlgorithm::RequestDataObject(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+{
+  if (!vtkUnstructuredGrid::GetData(outputVector))
+  {
+    auto outInfo = outputVector->GetInformationObject(0);
+    auto newOutput = vtkUnstructuredGrid::New();
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    newOutput->FastDelete();
+  }
+
+  return 1;
 }
 
 //------------------------------------------------------------------------------
