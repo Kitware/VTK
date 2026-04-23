@@ -14,6 +14,7 @@ set(classes
   vtkGaussianKernel
   vtkGeneralizedKernel
   vtkHierarchicalBinningFilter
+  vtkHilbertCurveSorter
   vtkInterpolationKernel
   vtkLinearKernel
   vtkMaskPointsFilter
