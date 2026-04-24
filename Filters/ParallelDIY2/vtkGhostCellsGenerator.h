@@ -35,6 +35,15 @@
  * this feature to work, the input must already have GlobalIds and ProcessIds arrays. Otherwise,
  * the filter will fallback on its default behavior.
  *
+ * If 'UseImplicitArray' is On, the point data and cell data of the output will use an implicit
+ * array with an IndexedBackend of a composite array. This will avoid deep copy of all the array
+ * in the output and save memory but it may slightly slow the access to the arrays. The array values
+ * of the ghost points/cells are put in a new array, then a composite array is created between the
+ * array of the input and this new array. Finally, an id list is created and map the index of the
+ * output to the corresponding point/cell in the composite array. Two vtkIdList are created : one
+ * for all the CellData and one for all the PointData. The vtkGhostType array and the processIds /
+ * globalIds are not implicit array.
+ *
  * To ease the subsequent use of the synchronization mechanism, two other options can be enabled
  * to generate GlobalIds and ProcessIds on points/cells, via `GenerateGlobalIds` and
  * `GenerateProcessIds`.
@@ -176,6 +185,18 @@ public:
   vtkBooleanMacro(UseStaticMeshCache, bool);
   ///@}
 
+  ///@{
+  /**
+   * Specify if the filter should use implicit array or not.
+   * Using implicit array improves the execution time of the filter and
+   * reduce the memory consumption of the output. However, accessing arrays
+   * can be slower. Default to false
+   */
+  vtkSetMacro(UseImplicitArrays, bool);
+  vtkGetMacro(UseImplicitArrays, bool);
+  vtkBooleanMacro(UseImplicitArrays, bool);
+  ///@}
+
 protected:
   vtkGhostCellsGenerator();
   ~vtkGhostCellsGenerator() override;
@@ -222,6 +243,8 @@ private:
 
   bool UseStaticMeshCache = true;
   vtkNew<vtkDataObjectMeshCache> MeshCache;
+
+  bool UseImplicitArrays = false;
 };
 
 VTK_ABI_NAMESPACE_END
