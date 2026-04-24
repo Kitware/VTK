@@ -7,5 +7,6 @@ The filters concerned by this change are :
 - **vtkAppendDataSets**
 - **vtkAppendFilter**
 - **vtkAppendPolyData**
+- **vtkGhostCellsGenerator** (only for structured data)
 
 This is optionnal and set to false by default, use `UseImplicitArrayOn` to enable it.
