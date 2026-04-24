@@ -55,6 +55,14 @@ struct VTKTESTINGCORE_EXPORT vtkTestUtilities
   static inline char* GetDataRoot(int argc, char* argv[]);
 
   /**
+   * Return the test temporary directory.
+   * Try the -T command line argument or VTK_TEMP_DIR environment or a default Testing/Temporary
+   * relative directory
+   * The returned string has to be deleted (with delete[]) by the user.
+   */
+  static inline char* GetTemporaryDir(int argc, char* argv[]);
+
+  /**
    * Given a file name, this function returns a new string which is (in theory)
    * the full path. This path is constructed by prepending the file name with a
    * command line argument (-D path) or VTK_DATA_ROOT env. variable. If slash
@@ -158,6 +166,60 @@ struct VTKTESTINGCORE_EXPORT vtkTestUtilities
     double toleranceFactor = 1.0, vtkUnsignedCharArray* ghosts = nullptr,
     unsigned char ghostsToSkip = 0);
 
+  /**
+   * Perform a regression test on input, comparing to the baseline data read at filepath.
+   * Return true if comparison succeed.
+   *
+   * Use argc and argv from test run to extract runtime directories (data root and temporary dir).
+   * If any error (like file not found, or comparison failure), returns false and write
+   * input as a VTKHDF file in the temporary directory (see `GetTemporaryDir()`).
+   * This means that the test *may* write an output. Thus you should declare your test
+   * without the `NO_OUTPUT` flag so `GetTemporaryDir()` works properly.
+   *
+   * To avoid disk size issues, data bigger than a threshold (10MiB) are not written.
+   * Also for implementation details, note that the data is deepcopied in the write process.
+   * Anyway, this is testing so please try to use small representative data.
+   * Or simply call CompareWithFile.
+   *
+   * @arg argc
+   * @arg argv is the arguments list from test main, used to find data root directory and temporary
+   * directory (see VTK_DATA_ROOT and VTK_TEMP_DIR).
+   * @arg input is the tested input data
+   * @arg filepath is the path to the data baseline, relative to DataRoot. VTKHDF file expected.
+   * @arg tolerance is a tolerance factor for numerical comparison used in CompareDataObject.
+   *
+   * @see GetDataRoot(), GetTemporaryDir(), CompareDataObject(), CompareWithFile()
+   */
+  static bool RegressionTest(int argc, char* argv[], vtkDataObject* input,
+    const std::string& filepath, double tolerance = 1.);
+
+  /**
+   * Compare input with VTKHDF data read at filepath, and return true if comparison succeed.
+   *
+   * @arg argc
+   * @arg argv is the arguments list from test main, used to find data root directory
+   * @arg input is the tested input data
+   * @arg filepath is the path to the data baseline, relative to DataRoot. VTKHDF file expected.
+   * @arg tolerance is a tolerance factor for numerical comparison in CompareDataObject.
+   *
+   * @see GetDataRoot(), CompareDataObject(), RegressionFileTest()
+   */
+  static bool CompareWithFile(int argc, char* argv[], vtkDataObject* input,
+    const std::string& filepath, double tolerance = 1.);
+
+  /**
+   * Compare input with VTKHDF data baseline read at absolutefilepath,
+   * and return true if comparison succeed.
+   *
+   * @arg input is the tested input data
+   * @arg filepath is the absolute path to the data baseline. VTKHDF file expected.
+   * @arg tolerance is a tolerance factor for numerical comparison in CompareDataObject.
+   *
+   * @see CompareDataObject(), RegressionTest()
+   */
+  static bool CompareWithFile(
+    vtkDataObject* input, const std::string& absolutefilepath, double tolerance = 1.);
+
 #ifdef __EMSCRIPTEN__
   static void PreloadDataFile(const char* fileName, const char* sandboxName);
 #endif
@@ -167,6 +229,12 @@ inline char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 {
   return vtkTestUtilities::GetArgOrEnvOrDefault(
     "-D", argc, argv, "VTK_DATA_ROOT", "../../../../VTKData");
+}
+
+inline char* vtkTestUtilities::GetTemporaryDir(int argc, char* argv[])
+{
+  return vtkTestUtilities::GetArgOrEnvOrDefault(
+    "-T", argc, argv, "VTK_TEMP_DIR", "../../../Testing/Temporary");
 }
 
 inline char* vtkTestUtilities::ExpandDataFileName(

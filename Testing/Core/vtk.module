@@ -15,6 +15,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersHyperTree
+  VTK::IOHDF
 TEST_DEPENDS
   VTK::FiltersCore
   VTK::FiltersSources
