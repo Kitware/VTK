@@ -531,6 +531,12 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned
     }
   }
 
+  if (this->UseExternalTimeSteps)
+  {
+    vtkErrorMacro(<< "External time steps are not supported for ImageData " << this->FileName);
+    return false;
+  }
+
   bool writeSuccess = true;
   writeSuccess &= this->Impl->WriteHeader(group, "ImageData");
 
