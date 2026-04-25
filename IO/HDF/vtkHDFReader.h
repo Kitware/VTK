@@ -57,7 +57,9 @@ class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkPointData;
 class vtkPolyData;
+class vtkRectilinearGrid;
 class vtkResourceStream;
+class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
 namespace vtkHDFUtilities
@@ -236,6 +238,8 @@ protected:
    * Returns 1 if successful, 0 otherwise.
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
+  int Read(vtkInformation* outInfo, vtkRectilinearGrid* data);
+  int Read(vtkInformation* outInfo, vtkStructuredGrid* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkHyperTreeGrid* data, vtkPartitionedDataSet* pData);
@@ -343,6 +347,14 @@ private:
    * following the type of 'data'.
    */
   bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
+
+  /**
+   * Read structured data (image, rectilinear grid, structured grid) into the provided
+   * dataset and according to the provided dimensions.
+   * Return true on success, false otherwise
+   */
+  bool ReadStructuredData(
+    vtkDataSet* data, const int* WholeExtent, const std::vector<int>& updateExtent);
 
   /**
    * Read the actual data into the provided amr up to maxLevel

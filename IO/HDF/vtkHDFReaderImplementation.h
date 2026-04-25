@@ -133,6 +133,7 @@ public:
    * specified with (offset, size). For an error we return nullptr or an
    * empty vector.
    */
+  vtkDataArray* NewMetadataArray(const char* name, const std::vector<hsize_t>& fileExtent);
   vtkDataArray* NewMetadataArray(const char* name, hsize_t offset, hsize_t size);
   std::vector<vtkIdType> GetMetadata(const char* name, hsize_t size, hsize_t offset = 0);
   ///@}
@@ -195,6 +196,12 @@ public:
    * Return false on failure.
    */
   bool GetImageAttributes(int WholeExtent[6], double Origin[3], double Spacing[3]);
+
+  /**
+   * Retrieve the dimensions attribute and store it (used by StructuredGrid and RectilinearGrid).
+   * Return false on failure.
+   */
+  bool GetDimensionsAttribute(int Dimensions[3]);
 
   ///@{
   /**

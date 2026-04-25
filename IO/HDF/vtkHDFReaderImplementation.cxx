@@ -25,7 +25,9 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStringFormatter.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -385,10 +387,17 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
+  const char* name, const std::vector<hsize_t>& fileExtent)
+{
+  return vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, name, fileExtent);
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
   const char* name, hsize_t offset, hsize_t size)
 {
   std::vector<hsize_t> fileExtent = { offset, offset + size };
-  return vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, name, fileExtent);
+  return this->NewMetadataArray(name, fileExtent);
 }
 
 //------------------------------------------------------------------------------
@@ -583,6 +592,17 @@ bool vtkHDFReader::Implementation::GetImageAttributes(
     return false;
   }
 
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::GetDimensionsAttribute(int Dimensions[3])
+{
+  if (!this->GetAttribute("Dimensions", 3, Dimensions))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not get Dimensions attribute");
+    return false;
+  }
   return true;
 }
 
@@ -1348,6 +1368,14 @@ vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
   else if (dataSetType == VTK_IMAGE_DATA)
   {
     newOutput = vtkSmartPointer<vtkImageData>::New();
+  }
+  else if (dataSetType == VTK_RECTILINEAR_GRID)
+  {
+    newOutput = vtkSmartPointer<vtkRectilinearGrid>::New();
+  }
+  else if (dataSetType == VTK_STRUCTURED_GRID)
+  {
+    newOutput = vtkSmartPointer<vtkStructuredGrid>::New();
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
