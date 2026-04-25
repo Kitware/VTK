@@ -495,6 +495,12 @@ int TestHDFWriterTemporal(int argc, char* argv[])
     }
   }
 
+  // Only test single file writes for structured data
+  for (const auto& baseName : { "temporal_image.vtkhdf" })
+  {
+    result &= TestTemporalData(tempDir, dataRoot, baseName, configs[0], -1);
+  }
+
   // Use a modified version of temporal_harmonics to make sure that the time values match
   // between both datasets
   std::vector<std::string> baseNamesComposite = { "temporal_sphere", "temporal_harmonics" };

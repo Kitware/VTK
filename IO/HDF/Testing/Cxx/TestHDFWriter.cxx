@@ -245,6 +245,40 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
 }
 
 //----------------------------------------------------------------------------
+bool TestImageDataWriteRead(const std::string& tempDir)
+{
+  vtkNew<vtkImageData> imageData;
+  imageData->SetExtent(0, 3, 0, 2, 0, 1);
+  imageData->SetOrigin(1.0, 2.0, 3.0);
+  imageData->SetSpacing(0.5, 1.0, 2.0);
+
+  vtkIdType numPoints = imageData->GetNumberOfPoints();
+  vtkNew<vtkDoubleArray> scalars;
+  scalars->SetName("PointScalars");
+  scalars->SetNumberOfComponents(1);
+  scalars->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    scalars->SetValue(idx, static_cast<double>(idx));
+  }
+  imageData->GetPointData()->SetScalars(scalars);
+
+  vtkNew<vtkDoubleArray> vectors;
+  vectors->SetName("PointVectors");
+  vectors->SetNumberOfComponents(3);
+  vectors->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    double tuple[3] = { 1.0 * idx, 2.0 * idx, 3.0 * idx };
+    vectors->SetTypedTuple(idx, tuple);
+  }
+  imageData->GetPointData()->SetVectors(vectors);
+
+  std::string filePath = tempDir + "/HDFWriter_imageData.vtkhdf";
+  return TestWriteAndRead(imageData, filePath);
+}
+
+//----------------------------------------------------------------------------
 bool TestDataSetAttributes(const std::string& tempDir)
 {
   vtkNew<vtkUnstructuredGrid> ug;
@@ -695,6 +729,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestPDCCompositeHTG(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
+  testPasses &= TestImageDataWriteRead(tempDir);
   testPasses &= TestDataSetAttributes(tempDir);
   testPasses &= TestSanitizeName(tempDir, dataRoot);
   testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);

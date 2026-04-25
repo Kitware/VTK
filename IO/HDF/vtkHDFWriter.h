@@ -45,6 +45,7 @@ class vtkCellArray;
 class vtkDataObjectTree;
 class vtkDataSet;
 class vtkHyperTreeGrid;
+class vtkImageData;
 class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
@@ -231,6 +232,7 @@ private:
    * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
+  bool WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsigned int partId = 0);
@@ -369,10 +371,11 @@ private:
    * OpenRoot should succeed on this->Impl before calling this function
    * cellIdMap is an IdList giving the cell ids in Breadth-first order, used to rearange the arrays
    * before being written. Used exclusively for HTG for now.
+   * dims provides the dimensions of the structured dataset. Used only for ImageData for now.
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
-  bool AppendDataSetAttributes(
-    hid_t group, vtkDataObject* input, unsigned int partId = 0, vtkIdList* cellIdMap = nullptr);
+  bool AppendDataSetAttributes(hid_t group, vtkDataObject* input, unsigned int partId = 0,
+    vtkIdList* cellIdMap = nullptr, const int* dims = nullptr);
   bool AppendFieldDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
   ///@}
 
@@ -426,7 +429,7 @@ private:
    * Append the offset data in the steps group for the current array for temporal data
    */
   bool AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* array, const std::string& arrayName,
-    const std::string& offsetsGroupName, unsigned int partId);
+    const std::string& offsetsGroupName, unsigned int partId, bool isStructured = false);
   bool AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* array,
     const std::string& arrayName, const std::string& offsetsGroupName, unsigned int partId);
   ///@}
