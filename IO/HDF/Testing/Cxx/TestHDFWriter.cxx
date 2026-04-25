@@ -27,9 +27,12 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkSphereSource.h"
+#include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
@@ -276,6 +279,115 @@ bool TestImageDataWriteRead(const std::string& tempDir)
 
   std::string filePath = tempDir + "/HDFWriter_imageData.vtkhdf";
   return TestWriteAndRead(imageData, filePath);
+}
+
+//----------------------------------------------------------------------------
+bool TestRectilinearGridWriteRead(const std::string& tempDir)
+{
+  vtkNew<vtkRectilinearGrid> rectilinearGrid;
+  int dimensions[3] = { 4, 3, 2 };
+  rectilinearGrid->SetDimensions(dimensions);
+
+  vtkNew<vtkDoubleArray> xCoords;
+  xCoords->SetName("XCoordinates");
+  xCoords->SetNumberOfTuples(dimensions[0]);
+  for (int i = 0; i < dimensions[0]; ++i)
+  {
+    xCoords->SetValue(i, static_cast<double>(i));
+  }
+
+  vtkNew<vtkDoubleArray> yCoords;
+  yCoords->SetName("YCoordinates");
+  yCoords->SetNumberOfTuples(dimensions[1]);
+  for (int j = 0; j < dimensions[1]; ++j)
+  {
+    yCoords->SetValue(j, static_cast<double>(j) * 2.0);
+  }
+
+  vtkNew<vtkDoubleArray> zCoords;
+  zCoords->SetName("ZCoordinates");
+  zCoords->SetNumberOfTuples(dimensions[2]);
+  for (int k = 0; k < dimensions[2]; ++k)
+  {
+    zCoords->SetValue(k, static_cast<double>(k) * 3.0);
+  }
+
+  rectilinearGrid->SetXCoordinates(xCoords);
+  rectilinearGrid->SetYCoordinates(yCoords);
+  rectilinearGrid->SetZCoordinates(zCoords);
+
+  vtkIdType numPoints = static_cast<vtkIdType>(dimensions[0]) * dimensions[1] * dimensions[2];
+  vtkNew<vtkDoubleArray> scalars;
+  scalars->SetName("PointScalars");
+  scalars->SetNumberOfComponents(1);
+  scalars->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    scalars->SetValue(idx, static_cast<double>(idx));
+  }
+  rectilinearGrid->GetPointData()->SetScalars(scalars);
+
+  vtkNew<vtkDoubleArray> vectors;
+  vectors->SetName("PointVectors");
+  vectors->SetNumberOfComponents(3);
+  vectors->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    double tuple[3] = { 1.0 * idx, 2.0 * idx, 3.0 * idx };
+    vectors->SetTypedTuple(idx, tuple);
+  }
+  rectilinearGrid->GetPointData()->SetVectors(vectors);
+
+  std::string filePath = tempDir + "/HDFWriter_rectilinearGrid.vtkhdf";
+  return TestWriteAndRead(rectilinearGrid, filePath);
+}
+
+//----------------------------------------------------------------------------
+bool TestStructuredGridWriteRead(const std::string& tempDir)
+{
+  vtkNew<vtkStructuredGrid> structuredGrid;
+  int dimensions[3] = { 3, 3, 2 };
+  structuredGrid->SetDimensions(dimensions);
+
+  vtkNew<vtkPoints> points;
+  vtkIdType numPoints = static_cast<vtkIdType>(dimensions[0]) * dimensions[1] * dimensions[2];
+  points->SetNumberOfPoints(numPoints);
+  vtkIdType pointIndex = 0;
+  for (int k = 0; k < dimensions[2]; ++k)
+  {
+    for (int j = 0; j < dimensions[1]; ++j)
+    {
+      for (int i = 0; i < dimensions[0]; ++i)
+      {
+        points->SetPoint(pointIndex++, i * 1.0, j * 2.0, k * 3.0);
+      }
+    }
+  }
+  structuredGrid->SetPoints(points);
+
+  vtkNew<vtkDoubleArray> scalars;
+  scalars->SetName("PointScalars");
+  scalars->SetNumberOfComponents(1);
+  scalars->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    scalars->SetValue(idx, static_cast<double>(idx));
+  }
+  structuredGrid->GetPointData()->SetScalars(scalars);
+
+  vtkNew<vtkDoubleArray> vectors;
+  vectors->SetName("PointVectors");
+  vectors->SetNumberOfComponents(3);
+  vectors->SetNumberOfTuples(numPoints);
+  for (vtkIdType idx = 0; idx < numPoints; ++idx)
+  {
+    double tuple[3] = { 1.0 * idx, 2.0 * idx, 3.0 * idx };
+    vectors->SetTypedTuple(idx, tuple);
+  }
+  structuredGrid->GetPointData()->SetVectors(vectors);
+
+  std::string filePath = tempDir + "/HDFWriter_structuredGrid.vtkhdf";
+  return TestWriteAndRead(structuredGrid, filePath);
 }
 
 //----------------------------------------------------------------------------
@@ -730,6 +842,8 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
   testPasses &= TestImageDataWriteRead(tempDir);
+  testPasses &= TestRectilinearGridWriteRead(tempDir);
+  testPasses &= TestStructuredGridWriteRead(tempDir);
   testPasses &= TestDataSetAttributes(tempDir);
   testPasses &= TestSanitizeName(tempDir, dataRoot);
   testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);

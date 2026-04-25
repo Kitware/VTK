@@ -30,10 +30,12 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
+#include "vtkStructuredGrid.h"
 #include "vtkType.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnstructuredGrid.h"
@@ -236,6 +238,8 @@ int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
@@ -433,6 +437,26 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     }
     return true;
   }
+  vtkRectilinearGrid* rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
+  if (rectilinearGrid)
+  {
+    if (!this->WriteDatasetToFile(group, rectilinearGrid, partId))
+    {
+      vtkErrorMacro(<< "Can't write rectilinearGrid to file:" << this->FileName);
+      return false;
+    }
+    return true;
+  }
+  vtkStructuredGrid* structuredGrid = vtkStructuredGrid::SafeDownCast(input);
+  if (structuredGrid)
+  {
+    if (!this->WriteDatasetToFile(group, structuredGrid, partId))
+    {
+      vtkErrorMacro(<< "Can't write structuredGrid to file:" << this->FileName);
+      return false;
+    }
+    return true;
+  }
   vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
   if (polydata)
   {
@@ -532,6 +556,89 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned
   int dims[3];
   input->GetDimensions(dims);
 
+  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
+  return writeSuccess;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, unsigned int partId)
+{
+  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
+  {
+    if (!this->Impl->CreateStepsGroup(group))
+    {
+      vtkErrorMacro("Could not create steps group");
+      return false;
+    }
+
+    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
+    {
+      vtkErrorMacro(<< "Could not initialize temporal time values for RectilinearGrid "
+                    << this->FileName);
+      return false;
+    }
+  }
+
+  if (this->UseExternalTimeSteps)
+  {
+    vtkErrorMacro(<< "External time steps are not supported for RectilinearGrid "
+                  << this->FileName);
+    return false;
+  }
+
+  int dims[3];
+  input->GetDimensions(dims);
+
+  bool writeSuccess = true;
+  writeSuccess &= this->Impl->WriteHeader(group, "RectilinearGrid");
+  writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
+    H5I_INVALID_HID;
+
+  if (!this->IsTemporal || this->CurrentTimeIndex == 0)
+  {
+    writeSuccess &= this->AppendRectilinearCoordinates(group, input);
+  }
+  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
+  return writeSuccess;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, unsigned int partId)
+{
+  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
+  {
+    if (!this->Impl->CreateStepsGroup(group))
+    {
+      vtkErrorMacro("Could not create steps group");
+      return false;
+    }
+
+    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
+    {
+      vtkErrorMacro(<< "Could not initialize temporal time values for StructuredGrid "
+                    << this->FileName);
+      return false;
+    }
+  }
+
+  if (this->UseExternalTimeSteps)
+  {
+    vtkErrorMacro(<< "External time steps are not supported for StructuredGrid " << this->FileName);
+    return false;
+  }
+
+  int dims[3];
+  input->GetDimensions(dims);
+
+  bool writeSuccess = true;
+  writeSuccess &= this->Impl->WriteHeader(group, "StructuredGrid");
+  writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
+    H5I_INVALID_HID;
+
+  if (!this->IsTemporal || this->CurrentTimeIndex == 0)
+  {
+    writeSuccess &= this->AppendPoints(group, input, dims);
+  }
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
@@ -1501,6 +1608,26 @@ bool vtkHDFWriter::InitializePolyhedraDatasets(hid_t group)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid* input)
+{
+  auto appendCoordinates = [&](const char* name, vtkDataArray* array)
+  {
+    hid_t dataType = vtkHDFUtilities::getH5TypeFromVtkType(array->GetDataType());
+    return this->Impl->AddOrCreateDataset(group, name, dataType, array);
+  };
+
+  if (!appendCoordinates("XCoordinates", input->GetXCoordinates()) ||
+    !appendCoordinates("YCoordinates", input->GetYCoordinates()) ||
+    !appendCoordinates("ZCoordinates", input->GetZCoordinates()))
+  {
+    vtkErrorMacro(<< "Could not create rectilinear grid coordinate arrays for " << this->FileName);
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
 {
   if (!this->Impl->AddOrCreateSingleRowDataset(
@@ -1711,7 +1838,7 @@ bool vtkHDFWriter::AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
+bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input, const int* dims)
 {
   vtkSmartPointer<vtkPoints> points = nullptr;
   if (input && input->GetPoints())
@@ -1722,7 +1849,15 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
   {
     points = vtkSmartPointer<vtkPoints>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData()))
+
+  std::vector<hsize_t> dsetDims;
+  if (dims != nullptr)
+  {
+    dsetDims = { static_cast<hsize_t>(dims[2]), static_cast<hsize_t>(dims[1]),
+      static_cast<hsize_t>(dims[0]) };
+  }
+
+  if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData(), dsetDims))
   {
     vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
     return false;
