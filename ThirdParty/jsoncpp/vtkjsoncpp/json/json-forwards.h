@@ -86,26 +86,25 @@ license you like.
 #ifndef JSON_VERSION_H_INCLUDED
 #define JSON_VERSION_H_INCLUDED
 
-// Note: version must be updated in four places when doing a release. This
+// Note: version must be updated in three places when doing a release. This
 // annoying process ensures that amalgamate, CMake, and meson all report the
 // correct version.
 // 1. /meson.build
 // 2. /include/json/version.h
 // 3. /CMakeLists.txt
-// 4. /MODULE.bazel
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.7"
+#define JSONCPP_VERSION_STRING "1.9.6"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 7
+#define JSONCPP_VERSION_PATCH 6
 #define JSONCPP_VERSION_QUALIFIER
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
    (JSONCPP_VERSION_PATCH << 8))
 
 #if !defined(JSONCPP_USE_SECURE_MEMORY)
-#define JSONCPP_USE_SECURE_MEMORY 0
+#define JSONCPP_USING_SECURE_MEMORY 0
 #endif
 // If non-zero, the library zeroes any memory that it has allocated before
 // it frees its memory.
@@ -136,7 +135,6 @@ license you like.
 #ifndef JSON_ALLOCATOR_H_INCLUDED
 #define JSON_ALLOCATOR_H_INCLUDED
 
-#include <algorithm>
 #include <cstring>
 #include <memory>
 
@@ -169,16 +167,8 @@ public:
    * The memory block is filled with zeroes before being released.
    */
   void deallocate(pointer p, size_type n) {
-    // These constructs will not be removed by the compiler during optimization,
-    // unlike memset.
-#if defined(HAVE_MEMSET_S)
+    // memset_s is used because memset may be optimized away by the compiler
     memset_s(p, n * sizeof(T), 0, n * sizeof(T));
-#elif defined(_WIN32)
-    RtlSecureZeroMemory(p, n * sizeof(T));
-#else
-    std::fill_n(reinterpret_cast<volatile unsigned char*>(p), n, 0);
-#endif
-
     // free using "global operator delete"
     ::operator delete(p);
   }
@@ -373,7 +363,7 @@ using LargestUInt = UInt64;
 
 template <typename T>
 using Allocator =
-    typename std::conditional<JSONCPP_USE_SECURE_MEMORY, SecureAllocator<T>,
+    typename std::conditional<JSONCPP_USING_SECURE_MEMORY, SecureAllocator<T>,
                               std::allocator<T>>::type;
 using String = std::basic_string<char, std::char_traits<char>, Allocator<char>>;
 using IStringStream =

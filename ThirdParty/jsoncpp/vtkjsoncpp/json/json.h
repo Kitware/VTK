@@ -85,26 +85,25 @@ license you like.
 #ifndef JSON_VERSION_H_INCLUDED
 #define JSON_VERSION_H_INCLUDED
 
-// Note: version must be updated in four places when doing a release. This
+// Note: version must be updated in three places when doing a release. This
 // annoying process ensures that amalgamate, CMake, and meson all report the
 // correct version.
 // 1. /meson.build
 // 2. /include/json/version.h
 // 3. /CMakeLists.txt
-// 4. /MODULE.bazel
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.7"
+#define JSONCPP_VERSION_STRING "1.9.6"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 7
+#define JSONCPP_VERSION_PATCH 6
 #define JSONCPP_VERSION_QUALIFIER
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
    (JSONCPP_VERSION_PATCH << 8))
 
 #if !defined(JSONCPP_USE_SECURE_MEMORY)
-#define JSONCPP_USE_SECURE_MEMORY 0
+#define JSONCPP_USING_SECURE_MEMORY 0
 #endif
 // If non-zero, the library zeroes any memory that it has allocated before
 // it frees its memory.
@@ -135,7 +134,6 @@ license you like.
 #ifndef JSON_ALLOCATOR_H_INCLUDED
 #define JSON_ALLOCATOR_H_INCLUDED
 
-#include <algorithm>
 #include <cstring>
 #include <memory>
 
@@ -168,16 +166,8 @@ public:
    * The memory block is filled with zeroes before being released.
    */
   void deallocate(pointer p, size_type n) {
-    // These constructs will not be removed by the compiler during optimization,
-    // unlike memset.
-#if defined(HAVE_MEMSET_S)
+    // memset_s is used because memset may be optimized away by the compiler
     memset_s(p, n * sizeof(T), 0, n * sizeof(T));
-#elif defined(_WIN32)
-    RtlSecureZeroMemory(p, n * sizeof(T));
-#else
-    std::fill_n(reinterpret_cast<volatile unsigned char*>(p), n, 0);
-#endif
-
     // free using "global operator delete"
     ::operator delete(p);
   }
@@ -372,7 +362,7 @@ using LargestUInt = UInt64;
 
 template <typename T>
 using Allocator =
-    typename std::conditional<JSONCPP_USE_SECURE_MEMORY, SecureAllocator<T>,
+    typename std::conditional<JSONCPP_USING_SECURE_MEMORY, SecureAllocator<T>,
                               std::allocator<T>>::type;
 using String = std::basic_string<char, std::char_traits<char>, Allocator<char>>;
 using IStringStream =
@@ -581,25 +571,12 @@ public:
 #endif
 #endif
 
-#ifndef JSONCPP_HAS_STRING_VIEW
-#if __cplusplus >= 201703L
-#define JSONCPP_HAS_STRING_VIEW 1
-#endif
-#endif
-
 #include <array>
 #include <exception>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
-// Forward declaration for testing.
-struct ValueTest;
-
-#ifdef JSONCPP_HAS_STRING_VIEW
-#include <string_view>
-#endif
 
 // Disable warning C4251: <data member>: <type> needs to have dll-interface to
 // be used by...
@@ -761,7 +738,6 @@ private:
  */
 class JSON_API Value {
   friend class ValueIteratorBase;
-  friend struct ::ValueTest;
 
 public:
   using Members = std::vector<String>;
@@ -827,7 +803,7 @@ public:
 private:
 #endif
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
-  class JSON_API CZString {
+  class CZString {
   public:
     enum DuplicationPolicy { noDuplication = 0, duplicate, duplicateOnCopy };
     CZString(ArrayIndex index);
@@ -911,9 +887,6 @@ public:
    */
   Value(const StaticString& value);
   Value(const String& value);
-#ifdef JSONCPP_HAS_STRING_VIEW
-  Value(std::string_view value);
-#endif
   Value(bool value);
   Value(std::nullptr_t ptr) = delete;
   Value(const Value& other);
@@ -947,7 +920,7 @@ public:
   int compare(const Value& other) const;
 
   const char* asCString() const; ///< Embedded zeroes could cause you trouble!
-#if JSONCPP_USE_SECURE_MEMORY
+#if JSONCPP_USING_SECURE_MEMORY
   unsigned getCStringLength() const; // Allows you to understand the length of
                                      // the CString
 #endif
@@ -956,12 +929,6 @@ public:
    *  \return false if !string. (Seg-fault if str or end are NULL.)
    */
   bool getString(char const** begin, char const** end) const;
-#ifdef JSONCPP_HAS_STRING_VIEW
-  /** Get string_view of string-value.
-   *  \return false if !string. (Seg-fault if str is NULL.)
-   */
-  bool getString(std::string_view* str) const;
-#endif
   Int asInt() const;
   UInt asUInt() const;
 #if defined(JSON_HAS_INT64)
@@ -1048,15 +1015,6 @@ public:
   bool insert(ArrayIndex index, const Value& newValue);
   bool insert(ArrayIndex index, Value&& newValue);
 
-#ifdef JSONCPP_HAS_STRING_VIEW
-  /// Access an object value by name, create a null member if it does not exist.
-  /// \param key may contain embedded nulls.
-  Value& operator[](std::string_view key);
-  /// Access an object value by name, returns null if there is no member with
-  /// that name.
-  /// \param key may contain embedded nulls.
-  const Value& operator[](std::string_view key) const;
-#else
   /// Access an object value by name, create a null member if it does not exist.
   /// \note Because of our implementation, keys are limited to 2^30 -1 chars.
   /// Exceeding that will cause an exception.
@@ -1071,7 +1029,6 @@ public:
   /// that name.
   /// \param key may contain embedded nulls.
   const Value& operator[](const String& key) const;
-#endif
   /** \brief Access an object value by name, create a null member if it does not
    * exist.
    *
@@ -1085,24 +1042,18 @@ public:
    *   \endcode
    */
   Value& operator[](const StaticString& key);
-#ifdef JSONCPP_HAS_STRING_VIEW
-  /// Return the member named key if it exist, defaultValue otherwise.
-  /// \note deep copy
-  Value get(std::string_view key, const Value& defaultValue) const;
-#else
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
   Value get(const char* key, const Value& defaultValue) const;
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
-  /// \param key may contain embedded nulls.
-  Value get(const String& key, const Value& defaultValue) const;
-#endif
-  /// Return the member named key if it exist, defaultValue otherwise.
-  /// \note deep copy
   /// \note key may contain embedded nulls.
   Value get(const char* begin, const char* end,
             const Value& defaultValue) const;
+  /// Return the member named key if it exist, defaultValue otherwise.
+  /// \note deep copy
+  /// \param key may contain embedded nulls.
+  Value get(const String& key, const Value& defaultValue) const;
   /// Most general and efficient version of isMember()const, get()const,
   /// and operator[]const
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
@@ -1110,29 +1061,6 @@ public:
   /// Most general and efficient version of isMember()const, get()const,
   /// and operator[]const
   Value const* find(const String& key) const;
-
-  /// Calls find and only returns a valid pointer if the type is found
-  template <typename T, bool (T::*TMemFn)() const>
-  Value const* findValue(const String& key) const {
-    Value const* found = find(key);
-    if (!found || !(found->*TMemFn)())
-      return nullptr;
-    return found;
-  }
-
-  Value const* findNull(const String& key) const;
-  Value const* findBool(const String& key) const;
-  Value const* findInt(const String& key) const;
-  Value const* findInt64(const String& key) const;
-  Value const* findUInt(const String& key) const;
-  Value const* findUInt64(const String& key) const;
-  Value const* findIntegral(const String& key) const;
-  Value const* findDouble(const String& key) const;
-  Value const* findNumeric(const String& key) const;
-  Value const* findString(const String& key) const;
-  Value const* findArray(const String& key) const;
-  Value const* findObject(const String& key) const;
-
   /// Most general and efficient version of object-mutators.
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
   /// \return non-zero, but JSON_ASSERT if this is neither object nor nullValue.
@@ -1142,28 +1070,20 @@ public:
   /// Do nothing if it did not exist.
   /// \pre type() is objectValue or nullValue
   /// \post type() is unchanged
-#if JSONCPP_HAS_STRING_VIEW
-  void removeMember(std::string_view key);
-#else
   void removeMember(const char* key);
   /// Same as removeMember(const char*)
   /// \param key may contain embedded nulls.
   void removeMember(const String& key);
-#endif
+  /// Same as removeMember(const char* begin, const char* end, Value* removed),
+  /// but 'key' is null-terminated.
+  bool removeMember(const char* key, Value* removed);
   /** \brief Remove the named map member.
    *
    *  Update 'removed' iff removed.
    *  \param key may contain embedded nulls.
    *  \return true iff removed (no exceptions)
    */
-#if JSONCPP_HAS_STRING_VIEW
-  bool removeMember(std::string_view key, Value* removed);
-#else
   bool removeMember(String const& key, Value* removed);
-  /// Same as removeMember(const char* begin, const char* end, Value* removed),
-  /// but 'key' is null-terminated.
-  bool removeMember(const char* key, Value* removed);
-#endif
   /// Same as removeMember(String const& key, Value* removed)
   bool removeMember(const char* begin, const char* end, Value* removed);
   /** \brief Remove the indexed array element.
@@ -1174,18 +1094,12 @@ public:
    */
   bool removeIndex(ArrayIndex index, Value* removed);
 
-#ifdef JSONCPP_HAS_STRING_VIEW
-  /// Return true if the object has a member named key.
-  /// \param key may contain embedded nulls.
-  bool isMember(std::string_view key) const;
-#else
   /// Return true if the object has a member named key.
   /// \note 'key' must be null-terminated.
   bool isMember(const char* key) const;
   /// Return true if the object has a member named key.
   /// \param key may contain embedded nulls.
   bool isMember(const String& key) const;
-#endif
   /// Same as isMember(String const& key)const
   bool isMember(const char* begin, const char* end) const;
 
@@ -1693,10 +1607,7 @@ public:
    * document.
    *
    * \param      beginDoc        Pointer on the beginning of the UTF-8 encoded
-   *                             string of the document to read. The pointed-to
-   *                             buffer must outlive this Reader if error
-   *                             methods (e.g. getFormattedErrorMessages()) are
-   *                             called after parse() returns.
+   *                             string of the document to read.
    * \param      endDoc          Pointer on the end of the UTF-8 encoded string
    *                             of the document to read.  Must be >= beginDoc.
    * \param[out] root            Contains the root value of the document if it
