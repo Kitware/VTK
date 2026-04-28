@@ -10,6 +10,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
+#include "vtkONNXUtils.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <numeric>
@@ -19,20 +20,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkONNXInference);
-
-namespace
-{
-//------------------------------------------------------------------------------
-Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
-{
-  int64_t numberElements = std::accumulate(shape.begin(), shape.end(), 1LL, std::multiplies<>());
-  Ort::MemoryInfo memInfo =
-    Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-  Ort::Value tensor =
-    Ort::Value::CreateTensor<float>(memInfo, data, numberElements, shape.data(), shape.size());
-  return tensor;
-}
-} // anonymous namespace
 
 //------------------------------------------------------------------------------
 vtkONNXInference::vtkONNXInference()
@@ -442,7 +429,7 @@ bool vtkONNXInference::GenerateInputTensorFromParameters(
   }
   try
   {
-    inputTensor = ::RawToTensor(parameters.data(), { this->InputShape[0] });
+    inputTensor = vtkONNXUtils::RawToTensor(parameters.data(), { this->InputShape[0] });
   }
   catch (const Ort::Exception& exception)
   {
@@ -477,7 +464,7 @@ bool vtkONNXInference::GenerateInputTensorFromFieldArray(
 
   try
   {
-    inputTensor = ::RawToTensor(modelInputData, this->InputShape);
+    inputTensor = vtkONNXUtils::RawToTensor(modelInputData, this->InputShape);
   }
   catch (const Ort::Exception& exception)
   {
