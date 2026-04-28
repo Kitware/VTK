@@ -379,6 +379,14 @@ public:
 
   ///@{
   /**
+   * Get/set whether the labels are allowed to overlap.
+   */
+  vtkSetMacro(OverlappingLabels, bool);
+  vtkGetMacro(OverlappingLabels, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get/set whether the tick marks should be visible.
    */
   vtkSetMacro(TicksVisible, bool);
@@ -702,6 +710,7 @@ protected:
   bool LabelsVisible;               // Should the axis labels be visible
   bool RangeLabelsVisible;          // Should range labels be visible?
   float LabelOffset;                // Offset of label from the tick mark
+  bool OverlappingLabels;           // Allow labels to overlap
   bool TicksVisible;                // Should the tick marks be visible.
   bool AxisVisible;                 // Should the axis line be visible.
   bool TitleVisible;                // Should the title be visible.
