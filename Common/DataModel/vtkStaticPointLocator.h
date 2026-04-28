@@ -58,6 +58,7 @@
 
 #include "vtkAbstractPointLocator.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_7_0
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
@@ -340,8 +341,11 @@ public:
    * in tight loops and avoid MTime checks. Typically, StaticOn() is invoked after
    * BuildLocator(), and then StaticOff() is invoked after the end of processing.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use UseExistingSearchStructureOn instead.")
   void StaticOn() { this->Static = true; }
+  VTK_DEPRECATED_IN_9_7_0("Use UseExistingSearchStructureOff instead.")
   void StaticOff() { this->Static = false; }
+  VTK_DEPRECATED_IN_9_7_0("Use GetUseExistingSearchStructure instead.")
   vtkGetMacro(Static, vtkTypeBool);
   ///@}
 

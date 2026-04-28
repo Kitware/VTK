@@ -1428,17 +1428,19 @@ bool vtkStaticCellLocator::InsideCellBounds(double x[3], vtkIdType cellId, doubl
 //------------------------------------------------------------------------------
 void vtkStaticCellLocator::BuildLocator()
 {
-  // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Binner && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  // if a search structure already exists
+  if (this->Binner)
   {
-    return;
-  }
-  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
-  if (this->Binner && this->UseExistingSearchStructure)
-  {
-    this->BuildTime.Modified();
-    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
-    return;
+    // don't rebuild if UseExistingSearchStructure is ON
+    if (this->UseExistingSearchStructure)
+    {
+      return;
+    }
+    // don't rebuild if build time is newer than modified and dataset modified time
+    if (this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+    {
+      return;
+    }
   }
   this->BuildLocatorInternal();
 }

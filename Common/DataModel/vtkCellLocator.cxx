@@ -682,17 +682,19 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 //------------------------------------------------------------------------------
 void vtkCellLocator::BuildLocator()
 {
-  // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Tree && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+  // if a search structure already exists
+  if (this->Tree)
   {
-    return;
-  }
-  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
-  if (this->Tree && this->UseExistingSearchStructure)
-  {
-    this->BuildTime.Modified();
-    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
-    return;
+    // don't rebuild if UseExistingSearchStructure is ON
+    if (this->UseExistingSearchStructure)
+    {
+      return;
+    }
+    // don't rebuild if build time is newer than modified and dataset modified time
+    if (this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+    {
+      return;
+    }
   }
   this->BuildLocatorInternal();
 }

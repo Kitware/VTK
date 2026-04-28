@@ -1594,22 +1594,19 @@ void vtkStaticPointLocator::FreeSearchStructure()
 //------------------------------------------------------------------------------
 void vtkStaticPointLocator::BuildLocator()
 {
-  // Short circuit mtime query process in tight loops
-  if (this->Static)
+  // if a search structure already exists
+  if (this->Buckets)
   {
-    return;
-  }
-  // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Buckets && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
-  {
-    return;
-  }
-  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
-  if (this->Buckets && this->UseExistingSearchStructure)
-  {
-    this->BuildTime.Modified();
-    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
-    return;
+    // don't rebuild if UseExistingSearchStructure is ON
+    if (this->UseExistingSearchStructure)
+    {
+      return;
+    }
+    // don't rebuild if build time is newer than modified and dataset modified time
+    if (this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+    {
+      return;
+    }
   }
   this->BuildLocatorInternal();
 }
