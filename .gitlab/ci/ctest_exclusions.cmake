@@ -503,8 +503,6 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
   list(APPEND test_exclusions
     # Test is flaky with STDThread
-    # See #18555
-    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19741
     "^VTK::FiltersVerdictCxx-TestCellQuality$"
     )

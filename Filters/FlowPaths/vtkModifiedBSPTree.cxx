@@ -141,7 +141,7 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
 
   // create the root node
   this->mRoot = std::make_shared<BSPNode>();
-  this->mRoot->mAxis = rand() % 3;
+  this->mRoot->mAxis = 0;
   this->mRoot->depth = 0;
 
   this->ComputeCellBounds();
@@ -199,6 +199,22 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
   // NOTE: this->mRoot->Bounds is set here
   node->setMin(lists->Mins[0][0].min, lists->Mins[1][0].min, lists->Mins[2][0].min);
   node->setMax(lists->Maxs[0][0].max, lists->Maxs[1][0].max, lists->Maxs[2][0].max);
+  // Set axis to longest bounding box dimension for deterministic, geometry-aware splitting
+  double dx = node->Bounds[1] - node->Bounds[0];
+  double dy = node->Bounds[3] - node->Bounds[2];
+  double dz = node->Bounds[5] - node->Bounds[4];
+  if (dx >= dy && dx >= dz)
+  {
+    node->mAxis = 0;
+  }
+  else if (dy >= dz)
+  {
+    node->mAxis = 1;
+  }
+  else
+  {
+    node->mAxis = 2;
+  }
   // Update depth info
   if (node->depth > MaxDepth)
   {
@@ -256,7 +272,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
       {
         node->mChild[i] = new BSPNode();
         node->mChild[i]->depth = node->depth + 1;
-        node->mChild[i]->mAxis = rand() % 3;
+        node->mChild[i]->mAxis = 0;
       }
       Daxis = node->mAxis;
       Sorted_cell_extents_Lists* left = new Sorted_cell_extents_Lists(nCells);

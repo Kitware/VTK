@@ -110,8 +110,7 @@ int TestCellLocatorsLinearTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)
 {
   constexpr double bound = 10;
   constexpr vtkIdType numberOfRandomPointsPoints = 100000;
-  // Generally the accuracy is around 99% except bsp tree
-  constexpr double acceptableAccuracyPercentage = 90;
+  constexpr double acceptableAccuracyPercentage = 98;
 
   // create a dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
