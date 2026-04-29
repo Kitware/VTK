@@ -1,23 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridContour.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkTesting.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -50,28 +41,13 @@ int TestHyperTreeGridBinary3DContourImplicitInteger(int argc, char* argv[])
   contour->SetUseImplicitArrays(true);
   contour->Update();
 
-  // Open baseline contour polydata
-  vtkNew<vtkTesting> testHelper;
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified." << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  std::string dataRoot = testHelper->GetDataRoot();
-  std::string baselineName = "TestHyperTreeGridBinary3DContourImplicitInteger.vtp";
-  const std::string baselinePath = dataRoot + "/Data/" + baselineName;
-
-  vtkNew<vtkXMLPolyDataReader> pdReader;
-  pdReader->SetFileName(baselinePath.c_str());
-  pdReader->Update();
+  const std::string baselinePath =
+    "/Data/vtkHDF/TestHyperTreeGridBinary3DContourImplicitInteger.vtkhdf";
 
   // Compare generated contour with baseline contour
   vtkPolyData* contourPd = contour->GetPolyDataOutput();
-  vtkPolyData* expectedContourPd = pdReader->GetOutput();
 
-  if (!vtkTestUtilities::CompareDataObjects(contourPd, expectedContourPd))
+  if (!vtkTestUtilities::RegressionTest(argc, argv, contourPd, baselinePath))
   {
     std::cerr << "The generated contour does not match expected one." << std::endl;
     return EXIT_FAILURE;

@@ -1,7 +1,7 @@
 vtk_module_test_data(
   Data/CuspySurface.vtp
   Data/Delaunay/,REGEX:.*
-  Data/HTG/generate_ids.htg
+  Data/HTG/generate_ids.vtkhdf
   Data/beach.jpg
   Data/can.ex2
   Data/cow.vtp

@@ -5,18 +5,12 @@
 #include "vtkGenerateIds.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkIdTypeArray.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkTesting.h"
-#include "vtkXMLHyperTreeGridReader.h"
-
-#include "vtkXMLHyperTreeGridWriter.h"
-
-#include <string>
 
 #include <iostream>
+#include <string>
 
 //------------------------------------------------------------------------------
 /**
@@ -62,15 +56,6 @@ bool TestIdArray(vtkCellData* cellData, vtkIdType expectedSize)
 //------------------------------------------------------------------------------
 int TestGenerateIdsHTG(int argc, char* argv[])
 {
-  vtkNew<vtkTesting> testHelper;
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified.";
-    return EXIT_FAILURE;
-  }
-  std::string dataRoot = testHelper->GetDataRoot();
-
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
   htgSource->SetSeed(42);
   htgSource->SetMaxDepth(3);
@@ -104,13 +89,7 @@ int TestGenerateIdsHTG(int argc, char* argv[])
   }
 
   // Never hurt to do regression test on the whole dataset
-  const std::string baselinePath = dataRoot + "/Data/HTG/generate_ids.htg";
-  vtkNew<vtkXMLHyperTreeGridReader> reader;
-  reader->SetFileName(baselinePath.c_str());
-  reader->Update();
-  auto expectedData = reader->GetOutput();
-
-  if (!vtkTestUtilities::CompareDataObjects(data, expectedData))
+  if (!vtkTestUtilities::RegressionTest(argc, argv, data, "/Data/HTG/generate_ids.vtkhdf"))
   {
     return EXIT_FAILURE;
   }
