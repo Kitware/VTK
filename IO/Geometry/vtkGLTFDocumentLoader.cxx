@@ -907,8 +907,16 @@ bool vtkGLTFDocumentLoader::LoadImageData()
 
       if (!reader)
       {
-        vtkErrorMacro("No supported reader found for image " << image.Name);
-        return false;
+        // It is valid to declare image types supported by extensions,
+        // as long as they are not required by the scene, so this is not considered an error.
+        // Instead, we set the image data to null and continue. If the image is actually used by the
+        // scene, an error will occur later when we attempt to render it. However, if it is not
+        // used, there is no reason to fail the entire loading process just because we cannot read
+        // an unused image.
+        vtkWarningMacro("No reader found for image with mime type '"
+          << image.MimeType << "' and uri '" << image.Uri << "'. Image will be set to null.");
+        image.ImageData = nullptr;
+        continue;
       }
     }
 
