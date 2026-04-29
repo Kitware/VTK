@@ -77,6 +77,7 @@
 #ifndef vtkEvenlySpacedStreamlines2D_h
 #define vtkEvenlySpacedStreamlines2D_h
 
+#include "vtkDeprecation.h"            // VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -146,12 +147,14 @@ public:
    * Set the velocity field interpolator type to the one involving
    * a dataset point locator.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToJumpAndWalkCellLocator() instead")
   void SetInterpolatorTypeToDataSetPointLocator();
 
   /**
    * Set the velocity field interpolator type to the one involving
    * a cell locator.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToModifiedBSPTree() instead")
   void SetInterpolatorTypeToCellLocator();
 
   /**
@@ -251,6 +254,7 @@ public:
    * The object used to interpolate the velocity field during
    * integration is of the same class as this prototype.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField* ivf);
 
   /**
@@ -261,7 +265,20 @@ public:
    * vtkModifiedBSPTree) is more robust then the former (through vtkDataSet /
    * vtkPointSet::FindCell() coupled with vtkPointLocator).
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorType(int interpType);
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation for vtkPointSet. When
+   * specified, the cell locator is used in preference of the default cell locator
+   * vtkJumpAndWalkCellLocator.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  virtual void SetCellLocatorToModifiedBSPTree();
+  virtual void SetCellLocatorToJumpAndWalkCellLocator();
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
+  ///@}
 
 protected:
   vtkEvenlySpacedStreamlines2D();
@@ -340,7 +357,7 @@ protected:
 
   bool ComputeVorticity;
 
-  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
+  vtkAbstractCellLocator* CellLocator;
 
   vtkCompositeDataSet* InputData;
   // grid superposed over InputData. The grid cell height and width is

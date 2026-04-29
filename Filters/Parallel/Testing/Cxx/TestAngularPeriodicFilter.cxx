@@ -66,7 +66,7 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
   vtkNew<vtkStreamTracer> streamTracer;
   streamTracer->SetInputConnection(angularPeriodicFilter->GetOutputPort());
   streamTracer->SetInputArrayToProcess(0, 0, 0, 0, "Result");
-  streamTracer->SetInterpolatorType(0);
+  streamTracer->SetCellLocatorToJumpAndWalkCellLocator();
   streamTracer->SetIntegrationDirection(2);
   streamTracer->SetIntegratorType(2);
   streamTracer->SetIntegrationStepUnit(2);

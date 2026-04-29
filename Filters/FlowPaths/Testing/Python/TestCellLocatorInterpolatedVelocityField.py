@@ -7,7 +7,6 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkCommonMath import vtkRungeKutta4
 from vtkmodules.vtkFiltersCore import vtkStructuredGridOutlineFilter
 from vtkmodules.vtkFiltersFlowPaths import (
-    vtkCompositeInterpolatedVelocityField,
     vtkStreamTracer,
 )
 from vtkmodules.vtkFiltersModeling import vtkRibbonFilter
@@ -60,8 +59,6 @@ psActor.GetProperty().SetRepresentationToWireframe()
 # Use the vtkCellTreeLocator
 rk4 = vtkRungeKutta4()
 treeLoc = vtkCellTreeLocator()
-ivp = vtkCompositeInterpolatedVelocityField()
-ivp.SetCellLocator(treeLoc)
 streamer = vtkStreamTracer()
 streamer.SetInputData(output)
 streamer.SetSourceData(ps.GetOutput())
@@ -70,7 +67,7 @@ streamer.SetInitialIntegrationStep(.2)
 streamer.SetIntegrationDirectionToForward()
 streamer.SetComputeVorticity(1)
 streamer.SetIntegrator(rk4)
-streamer.SetInterpolatorPrototype(ivp)
+streamer.SetCellLocator(treeLoc)
 
 rf = vtkRibbonFilter()
 rf.SetInputConnection(streamer.GetOutputPort())
@@ -93,8 +90,6 @@ outlineActor.SetMapper(outlineMapper)
 
 # Use a vtkStaticCellLocator
 staticLoc = vtkStaticCellLocator()
-ivp2 = vtkCompositeInterpolatedVelocityField()
-ivp2.SetCellLocator(staticLoc)
 streamer2 = vtkStreamTracer()
 streamer2.SetInputData(output)
 streamer2.SetSourceData(ps.GetOutput())
@@ -103,7 +98,7 @@ streamer2.SetInitialIntegrationStep(.2)
 streamer2.SetIntegrationDirectionToForward()
 streamer2.SetComputeVorticity(1)
 streamer2.SetIntegrator(rk4)
-streamer2.SetInterpolatorPrototype(ivp2)
+streamer2.SetCellLocator(staticLoc)
 streamer2.Update()
 
 rf2 = vtkRibbonFilter()

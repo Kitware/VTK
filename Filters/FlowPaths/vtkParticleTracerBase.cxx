@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkParticleTracerBase.h"
 
@@ -7,6 +9,7 @@
 #include "vtkAppendDataSets.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellLocator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDoubleArray.h"
@@ -175,32 +178,47 @@ void vtkParticleTracerBase::SetMeshOverTime(int meshOverTime)
 }
 
 //------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetCellLocator(vtkAbstractCellLocator* cellLocator)
+{
+  this->Interpolator->SetCellLocator(cellLocator);
+}
+
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetCellLocatorToStaticCellLocator()
+{
+  this->Interpolator->SetCellLocator(vtkNew<vtkStaticCellLocator>());
+}
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::SetCellLocatorToJumpAndWalkCellLocator()
+{
+  this->Interpolator->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
+}
+
+//------------------------------------------------------------------------------
 void vtkParticleTracerBase::SetInterpolatorType(int interpolatorType)
 {
   if (interpolatorType == INTERPOLATOR_WITH_CELL_LOCATOR)
   {
     // specify the interpolator's cell locator type (by default)
-    vtkNew<vtkStaticCellLocator> cellLocator;
-    this->Interpolator->SetCellLocator(cellLocator);
+    this->SetCellLocatorToStaticCellLocator();
   }
   else
   {
     // specify the interpolator's cell locator type which uses a point locator
-    vtkNew<vtkJumpAndWalkCellLocator> cellLocator;
-    this->Interpolator->SetCellLocator(cellLocator);
+    this->SetCellLocatorToJumpAndWalkCellLocator();
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkParticleTracerBase::SetInterpolatorTypeToDataSetPointLocator()
 {
-  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_DATASET_POINT_LOCATOR));
+  this->SetCellLocatorToJumpAndWalkCellLocator();
 }
 
 //------------------------------------------------------------------------------
 void vtkParticleTracerBase::SetInterpolatorTypeToCellLocator()
 {
-  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_CELL_LOCATOR));
+  this->SetCellLocatorToStaticCellLocator();
 }
 
 //------------------------------------------------------------------------------
@@ -238,7 +256,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
   if (this->Interpolator->GetCellLocator() == nullptr)
   {
     // cell locator is the default;
-    this->SetInterpolatorTypeToCellLocator();
+    this->SetCellLocatorToStaticCellLocator();
   }
   this->Interpolator->SelectVectors(vecname);
 

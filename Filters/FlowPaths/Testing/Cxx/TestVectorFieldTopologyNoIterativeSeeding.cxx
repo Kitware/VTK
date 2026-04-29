@@ -5,22 +5,16 @@
 #include "vtkDataSetMapper.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
-#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkPointSource.h"
-#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRegularPolygonSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStreamSurface.h"
 #include "vtkVectorFieldTopology.h"
-#include "vtkWarpScalar.h"
 
 int TestVectorFieldTopologyNoIterativeSeeding(int argc, char* argv[])
 {

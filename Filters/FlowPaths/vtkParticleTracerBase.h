@@ -238,8 +238,10 @@ public:
 
   enum
   {
-    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
-    INTERPOLATOR_WITH_CELL_LOCATOR
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR VTK_DEPRECATED_IN_9_7_0(
+      "Use SetCellLocatorToJumpAndWalkCellLocator() instead"),
+    INTERPOLATOR_WITH_CELL_LOCATOR VTK_DEPRECATED_IN_9_7_0(
+      "Use SetCellLocatorToStaticCellLocator() instead")
   };
 
   /**
@@ -253,7 +255,19 @@ public:
    *
    * Default is INTERPOLATOR_WITH_CELL_LOCATOR (to maintain backwards compatibility).
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorType(int interpolatorType);
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation for vtkPointSet. When
+   * specified, the cell locator is used in preference of the default cell locator
+   * vtkStaticCellLocator.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  virtual void SetCellLocatorToStaticCellLocator();
+  virtual void SetCellLocatorToJumpAndWalkCellLocator();
+  ///@}
 
   /**
    * Set the velocity field interpolator type to one that uses a point
@@ -262,6 +276,7 @@ public:
    * correct cells enclosing a point. This is particularly true with meshes
    * that are disjoint at seams, or abut meshes in an incompatible manner.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToJumpAndWalkCellLocator() instead")
   void SetInterpolatorTypeToDataSetPointLocator();
 
   /**
@@ -270,6 +285,7 @@ public:
    * the correct results, but it can be much slower that point locator-based
    * searches. * By default a cell locator is used.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToStaticCellLocator() instead")
   void SetInterpolatorTypeToCellLocator();
 
   ///@{
