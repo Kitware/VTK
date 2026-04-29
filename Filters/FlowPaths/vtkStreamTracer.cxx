@@ -157,12 +157,6 @@ void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 }
 
 //------------------------------------------------------------------------------
-void vtkStreamTracer::SetInterpolatorType(int interpType)
-{
-  this->InterpolatorType = interpType;
-}
-
-//------------------------------------------------------------------------------
 void vtkStreamTracer::SetIntegratorType(int type)
 {
   vtkInitialValueProblemSolver* ivp = nullptr;
@@ -471,50 +465,6 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    if (vtkOverlappingAMR::SafeDownCast(this->InputData))
-    {
-      vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(this->InputData);
-      amr->GenerateParentChildInformation();
-    }
-
-    // Set Interplation Type
-    if (vtkOverlappingAMR::SafeDownCast(this->InputData))
-    {
-      vtkNew<vtkAMRInterpolatedVelocityField> cIVF;
-      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
-      {
-        // create an interpolator equipped with a cell locator
-        vtkNew<vtkCellLocatorStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-      else
-      {
-        // create an interpolator equipped with a point locator (by default)
-        vtkNew<vtkClosestPointStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-
-      this->SetInterpolatorPrototype(cIVF);
-    }
-    else
-    {
-      vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
-      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
-      {
-        // create an interpolator equipped with a cell locator
-        vtkNew<vtkCellLocatorStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-      else
-      {
-        // create an interpolator equipped with a point locator (by default)
-        vtkNew<vtkClosestPointStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-
-      this->SetInterpolatorPrototype(cIVF);
-    }
-
     // The data that is interpolated comes from the "shape" of the input
     // point data.  This gets tricky when the data is composite, we need to
     // find a leaf dataset which defines the shape.
@@ -574,6 +524,10 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
   }
 
   vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(this->InputData);
+  if (amrData)
+  {
+    amrData->GenerateParentChildInformation();
+  }
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(this->InputData->NewIterator());
@@ -607,22 +561,31 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
     else
     {
       func = vtkCompositeInterpolatedVelocityField::New();
+      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
+      {
+        // create an interpolator equipped with a cell locator
+        vtkNew<vtkCellLocatorStrategy> strategy;
+        func->SetFindCellStrategy(strategy);
+      }
+      else
+      {
+        // create an interpolator equipped with a point locator (by default)
+        vtkNew<vtkClosestPointStrategy> strategy;
+        func->SetFindCellStrategy(strategy);
+      }
     }
   }
   else
   {
-    if (amrData &&
-      vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype) == nullptr)
+    if (amrData && !vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype))
     {
-      this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
+      func = vtkAMRInterpolatedVelocityField::New();
     }
-    func = this->InterpolatorPrototype->NewInstance();
-  }
-
-  // Copy information from interpolator.
-  if (this->InterpolatorPrototype)
-  {
-    func->CopyParameters(this->InterpolatorPrototype);
+    else
+    {
+      // Copy information from interpolator.
+      func->CopyParameters(this->InterpolatorPrototype);
+    }
   }
 
   // Tweak special cases.

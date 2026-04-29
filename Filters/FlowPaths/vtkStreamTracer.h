@@ -404,7 +404,8 @@ public:
    * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
    * can be much faster and produce adequate results.
    */
-  void SetInterpolatorType(int interpType);
+  vtkSetClampMacro(
+    InterpolatorType, int, INTERPOLATOR_WITH_DATASET_POINT_LOCATOR, INTERPOLATOR_WITH_CELL_LOCATOR);
 
   ///@{
   /**
