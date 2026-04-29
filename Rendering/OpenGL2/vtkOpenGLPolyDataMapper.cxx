@@ -3875,10 +3875,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*
       {
         uint32_t src =
           *reinterpret_cast<const uint32_t*>(colorPtr + this->FieldDataTupleId * numComp);
-        for (size_t i = 0; i < cSize; i++)
-        {
-          out32[i] = src;
-        }
+        std::fill(out32, out32 + cSize, src);
       }
       else
       {
