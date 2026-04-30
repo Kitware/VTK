@@ -144,6 +144,32 @@ public:
 
   ///@{
   /**
+   * Set/Get the permutation between the VTK array and the model input. The memory layout does
+   * not necessarily matches and can require a permutation (default: empty, meaning no permutation).
+   * A valid permutation has the same numbers of elements as the input shape, and is composed of
+   * integers from 0 to n-1.
+   * Example :
+   * The shape (a, b, c, d) can be mapped to (c, a, b, d) with permutation (2, 0, 1, 3).
+   */
+  void SetInputPermutation(const std::vector<int>& shape);
+  const std::vector<int>& GetInputPermutation() const;
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the permutation between the model output and a VTK array. The memory layout does
+   * not necessarily matches and can require a permutation (default: empty, meaning no permutation).
+   * A valid permutation has the same numbers of elements as the output model shape, and is composed
+   * of integers from 0 to n-1.
+   * Example :
+   * The shape (a, b, c, d) can be mapped to (c, a, b, d) with permutation (2, 0, 1, 3).
+   */
+  void SetOutputPermutation(const std::vector<int>& permutation);
+  const std::vector<int>& GetOutputPermutation() const;
+  ///@}
+
+  ///@{
+  /**
    * Set/Get whether the model input comes from prescribed parameters given through the
    * SetInputParameters API or if an existing cell/point data is used. (default: false)
    */
@@ -239,11 +265,14 @@ private:
   int TimeStepIndex = -1;
   bool FieldArrayInput = false;
   std::string ProcessedFieldArrayName;
+  std::vector<int> InputPermutation;
 
   // Output related parameters
   int OutputDimension = 1;
+  std::vector<int> OutputPermutation;
 
   int ArrayAssociation = vtkDataObject::CELL;
+  std::vector<float> InputDataBuffer;
 
   bool Initialized = false;
   std::unique_ptr<vtkONNXInferenceInternals> Internals;
