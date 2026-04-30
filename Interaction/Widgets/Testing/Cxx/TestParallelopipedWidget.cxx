@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkSmartPointer.h"
-
 #include "vtkAppendPolyData.h"
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
@@ -10,6 +8,7 @@
 #include "vtkGlyph3D.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMatrixToLinearTransform.h"
+#include "vtkNew.h"
 #include "vtkParallelopipedRepresentation.h"
 #include "vtkParallelopipedWidget.h"
 #include "vtkPoints.h"
@@ -19,38 +18,37 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 //------------------------------------------------------------------------------
 int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
   renderer->SetBackground(0.8, 0.8, 1.0);
   renWin->SetSize(800, 600);
 
-  vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
+  vtkNew<vtkConeSource> cone;
   cone->SetResolution(6);
-  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(8);
   sphere->SetPhiResolution(8);
-  vtkSmartPointer<vtkGlyph3D> glyph = vtkSmartPointer<vtkGlyph3D>::New();
+  vtkNew<vtkGlyph3D> glyph;
   glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
 
-  vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkNew<vtkAppendPolyData> append;
   append->AddInputConnection(glyph->GetOutputPort());
   append->AddInputConnection(sphere->GetOutputPort());
   append->Update();
 
-  vtkSmartPointer<vtkCubeSource> cube = vtkSmartPointer<vtkCubeSource>::New();
+  vtkNew<vtkCubeSource> cube;
   double bounds[6];
   append->GetOutput()->GetBounds(bounds);
   bounds[0] -= (bounds[1] - bounds[0]) * 0.25;
@@ -67,30 +65,28 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   bounds[5] = 1.0;
   cube->SetBounds(bounds);
 
-  vtkSmartPointer<vtkMatrix4x4> affineMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  vtkNew<vtkMatrix4x4> affineMatrix;
   constexpr double m[] = { 1.0, 0.1, 0.2, 0.0, 0.1, 1.0, 0.1, 0.0, 0.2, 0.1, 1.0, 0.0, 0.0, 0.0,
     0.0, 1.0 };
   affineMatrix->DeepCopy(m);
-  vtkSmartPointer<vtkMatrixToLinearTransform> transform =
-    vtkSmartPointer<vtkMatrixToLinearTransform>::New();
+  vtkNew<vtkMatrixToLinearTransform> transform;
   transform->SetInput(affineMatrix);
   transform->Update();
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetTransform(transform);
   transformFilter->SetInputConnection(cube->GetOutputPort());
   transformFilter->Update();
 
-  vtkSmartPointer<vtkPoints> parallelopipedPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> parallelopipedPoints;
   parallelopipedPoints->DeepCopy(transformFilter->GetOutput()->GetPoints());
 
   transformFilter->SetInputConnection(append->GetOutputPort());
   transformFilter->Update();
 
-  vtkSmartPointer<vtkPolyDataMapper> maceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> maceMapper;
   maceMapper->SetInputConnection(transformFilter->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> maceActor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> maceActor;
   maceActor->SetMapper(maceMapper);
 
   renderer->AddActor(maceActor);
@@ -105,9 +101,8 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   parallelopipedPoints->GetPoint(6, parallelopipedPts[7]);
   parallelopipedPoints->GetPoint(7, parallelopipedPts[6]);
 
-  vtkSmartPointer<vtkParallelopipedWidget> widget = vtkSmartPointer<vtkParallelopipedWidget>::New();
-  vtkSmartPointer<vtkParallelopipedRepresentation> rep =
-    vtkSmartPointer<vtkParallelopipedRepresentation>::New();
+  vtkNew<vtkParallelopipedWidget> widget;
+  vtkNew<vtkParallelopipedRepresentation> rep;
   widget->SetRepresentation(rep);
   widget->SetInteractor(iren);
   rep->SetPlaceFactor(0.5);
@@ -118,7 +113,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   widget->EnabledOn();
 
-  vtkSmartPointer<vtkCubeAxesActor2D> axes = vtkSmartPointer<vtkCubeAxesActor2D>::New();
+  vtkNew<vtkCubeAxesActor2D> axes;
   axes->SetInputConnection(transformFilter->GetOutputPort());
   axes->SetCamera(renderer->GetActiveCamera());
   axes->SetLabelFormat("{:6.1f}");

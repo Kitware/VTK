@@ -11,7 +11,7 @@ from vtkmodules.vtkFiltersCore import (
 )
 from vtkmodules.vtkFiltersGeneral import (
     vtkTransformFilter,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
     vtkWarpTo,
 )
 from vtkmodules.vtkFiltersHybrid import vtkImplicitModeller
@@ -165,7 +165,7 @@ a4Actor.GetProperty().SetDiffuse(0.8)
 arrowT2 = vtkTransform()
 arrowT2.Scale(1,0.6,1)
 arrowT2.RotateY(90)
-arrowTF2 = vtkTransformPolyDataFilter()
+arrowTF2 = vtkTransformFilter()
 arrowTF2.SetInputData(pd2)
 arrowTF2.SetTransform(arrowT2)
 arrowREF = vtkRotationalExtrusionFilter()

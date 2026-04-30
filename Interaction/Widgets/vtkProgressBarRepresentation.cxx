@@ -13,7 +13,7 @@
 #include "vtkPropCollection.h"
 #include "vtkProperty2D.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -73,7 +73,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
 
   // Add a transform to position progress bar
   // and a mapper and actor
-  vtkNew<vtkTransformPolyDataFilter> transformFilter;
+  vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetTransform(this->BWTransform);
   transformFilter->SetInputData(polydata);
   vtkNew<vtkPolyDataMapper2D> mapper;
@@ -92,7 +92,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   vtkNew<vtkPolyData> framePolydata;
   framePolydata->SetPoints(this->Points);
   framePolydata->SetLines(lines);
-  vtkNew<vtkTransformPolyDataFilter> frameTransformFilter;
+  vtkNew<vtkTransformFilter> frameTransformFilter;
   frameTransformFilter->SetTransform(this->BWTransform);
   frameTransformFilter->SetInputData(framePolydata);
   vtkNew<vtkPolyDataMapper2D> frameMapper;
@@ -117,7 +117,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   backgroundPolydata->GetPointData()->SetScalars(this->ProgressBarData);
 
   // Add transform, mapper and actor
-  vtkNew<vtkTransformPolyDataFilter> backgroundTransformFilter;
+  vtkNew<vtkTransformFilter> backgroundTransformFilter;
   backgroundTransformFilter->SetTransform(this->BWTransform);
   backgroundTransformFilter->SetInputData(backgroundPolydata);
   vtkNew<vtkPolyDataMapper2D> backgroundMapper;

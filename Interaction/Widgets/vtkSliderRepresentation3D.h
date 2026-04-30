@@ -31,7 +31,7 @@ class vtkCylinderSource;
 class vtkVectorText;
 class vtkAssembly;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkMatrix4x4;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation3D : public vtkSliderRepresentation
@@ -194,7 +194,7 @@ protected:
 
   // Cylinder used by other objects
   vtkCylinderSource* CylinderSource;
-  vtkTransformPolyDataFilter* Cylinder;
+  vtkTransformFilter* Cylinder;
 
   // The tube
   vtkPolyDataMapper* TubeMapper;

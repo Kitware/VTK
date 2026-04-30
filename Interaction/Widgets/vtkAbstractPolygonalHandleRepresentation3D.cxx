@@ -21,7 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
 #include <cassert>
@@ -35,7 +35,7 @@ vtkAbstractPolygonalHandleRepresentation3D ::vtkAbstractPolygonalHandleRepresent
 {
   this->InteractionState = vtkHandleRepresentation::Outside;
 
-  this->HandleTransformFilter = vtkTransformPolyDataFilter::New();
+  this->HandleTransformFilter = vtkTransformFilter::New();
   this->HandleTransform = vtkMatrixToLinearTransform::New();
   this->HandleTransformMatrix = vtkMatrix4x4::New();
   this->HandleTransformMatrix->Identity();

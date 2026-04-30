@@ -4,6 +4,9 @@
  * @class   vtkTransformPolyDataFilter
  * @brief   transform points and associated normals and vectors for polygonal dataset
  *
+ * @deprecated vtkTransformPolyDataFilter is deprecated in favor of vtkTransformFilter.
+ * To get the output vtkPolyData, you should simply replace `GetOutput()` by `GetPolyDataOutput()`.
+ *
  * vtkTransformPolyDataFilter is a filter to transform point
  * coordinates and associated point and cell normals and
  * vectors. Other point and cell data is passed through the filter
@@ -25,13 +28,16 @@
 #ifndef vtkTransformPolyDataFilter_h
 #define vtkTransformPolyDataFilter_h
 
+#include "vtkDeprecation.h"          // for deprecation macro
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractTransform;
 
-class VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAlgorithm
+class VTK_DEPRECATED_IN_9_7_0(
+  "Replaced by vtkTransformFilter.") VTKFILTERSGENERAL_EXPORT vtkTransformPolyDataFilter
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

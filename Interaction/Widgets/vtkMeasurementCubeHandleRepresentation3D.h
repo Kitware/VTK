@@ -18,7 +18,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty;
 class vtkPolyDataMapper;
 class vtkCellPicker;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkMatrixToLinearTransform;
 class vtkMatrix4x4;
 class vtkPolyData;
@@ -213,7 +213,7 @@ protected:
 
   vtkActor* Actor;
   vtkPolyDataMapper* Mapper;
-  vtkTransformPolyDataFilter* HandleTransformFilter;
+  vtkTransformFilter* HandleTransformFilter;
   vtkMatrixToLinearTransform* HandleTransform;
   vtkMatrix4x4* HandleTransformMatrix;
   vtkCellPicker* HandlePicker;

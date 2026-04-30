@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersGeneral import (
     vtkGroupTimeStepsFilter,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersSources import (
     vtkPartitionedDataSetCollectionSource,
@@ -77,7 +77,7 @@ class MovingPDC(VTKPythonAlgorithmBase):
         transform.Identity()
         transform.Translate(2, t*2, 0)
 
-        xform = vtkTransformPolyDataFilter()
+        xform = vtkTransformFilter()
         xform.SetTransform(transform)
         xform.SetInputConnection(source.GetOutputPort())
         xform.Update()

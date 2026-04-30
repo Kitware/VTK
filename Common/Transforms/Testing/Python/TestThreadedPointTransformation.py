@@ -5,7 +5,7 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.vtkCommonSystem import vtkTimerLog
 from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
@@ -47,7 +47,7 @@ xForm.RotateX(10)
 xForm.RotateY(20)
 xForm.RotateZ(30)
 
-xFormF = vtkTransformPolyDataFilter()
+xFormF = vtkTransformFilter()
 xFormF.SetInputData(output)
 xFormF.SetTransform(xForm)
 

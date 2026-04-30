@@ -12,6 +12,7 @@
 #include "vtkImageSliceMapper.h"
 #include "vtkImageStencil.h"
 #include "vtkInteractorStyleImage.h"
+#include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -20,11 +21,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangleFilter.h"
 
 #include <cmath>
@@ -32,7 +32,7 @@
 
 int TestStencilWithPolyDataSurface(int, char*[])
 {
-  vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
+  vtkNew<vtkImageData> image;
   double spacing[3] = { 0.9765625, 0.9765625, 3.0 };
   double origin[3] = { -124.51171875, -124.51171875, -105.0 };
   int extent[6] = { 0, 255, 0, 255, 0, 70 };
@@ -43,23 +43,22 @@ int TestStencilWithPolyDataSurface(int, char*[])
   unsigned char* vptr = static_cast<unsigned char*>(image->GetScalarPointer());
   memset(vptr, 255, image->GetNumberOfPoints());
 
-  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphereSource;
   sphereSource->SetRadius(100);
   sphereSource->SetPhiResolution(21);
   sphereSource->SetThetaResolution(41);
   sphereSource->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangleFilter = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkNew<vtkTriangleFilter> triangleFilter;
   triangleFilter->SetInputConnection(sphereSource->GetOutputPort());
   triangleFilter->Update();
 
   // add some noise to the point positions
-  vtkSmartPointer<vtkBoxMuellerRandomSequence> randomSequence =
-    vtkSmartPointer<vtkBoxMuellerRandomSequence>::New();
-  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkBoxMuellerRandomSequence> randomSequence;
+  vtkNew<vtkPolyData> polyData;
   polyData->DeepCopy(triangleFilter->GetOutput());
   vtkPoints* points = polyData->GetPoints();
-  vtkSmartPointer<vtkPoints> newPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> newPoints;
   newPoints->SetNumberOfPoints(points->GetNumberOfPoints());
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
   {
@@ -75,43 +74,40 @@ int TestStencilWithPolyDataSurface(int, char*[])
   polyData->SetPoints(newPoints);
 
   // make sure triangle strips can be used as input
-  vtkSmartPointer<vtkStripper> stripper = vtkSmartPointer<vtkStripper>::New();
+  vtkNew<vtkStripper> stripper;
   stripper->SetInputConnection(triangleFilter->GetOutputPort());
 
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   transform->Scale(0.49, 0.5, 0.6);
   transform->Translate(9.111, -7.56, 1.0);
   transform->RotateWXYZ(30, 1.0, 0.5, 0.0);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetTransform(transform);
   transformFilter->SetInputConnection(stripper->GetOutputPort());
 
   // use append to make sure nested surfaces are handled
-  vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkNew<vtkAppendPolyData> append;
   append->SetInputData(polyData);
   append->AddInputConnection(transformFilter->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataToImageStencil> stencilSource =
-    vtkSmartPointer<vtkPolyDataToImageStencil>::New();
+  vtkNew<vtkPolyDataToImageStencil> stencilSource;
   stencilSource->SetOutputOrigin(origin);
   stencilSource->SetOutputSpacing(spacing);
   stencilSource->SetOutputWholeExtent(extent);
   stencilSource->SetInputConnection(append->GetOutputPort());
 
-  vtkSmartPointer<vtkImageStencil> stencil = vtkSmartPointer<vtkImageStencil>::New();
+  vtkNew<vtkImageStencil> stencil;
   stencil->SetInputData(image);
   stencil->SetStencilConnection(stencilSource->GetOutputPort());
   stencil->Update();
 
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(256 * 3, 256 * 2);
 
-  vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkNew<vtkInteractorStyleImage> style;
 
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
@@ -120,38 +116,38 @@ int TestStencilWithPolyDataSurface(int, char*[])
     int zIdx = 3 + 11 * i;
     double z = zIdx * spacing[2] + origin[2];
 
-    vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+    vtkNew<vtkPlane> plane;
     plane->SetNormal(0.0, 0.0, 1.0);
     plane->SetOrigin(0.0, 0.0, z);
 
-    vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+    vtkNew<vtkCutter> cutter;
     cutter->SetInputConnection(append->GetOutputPort());
     cutter->SetCutFunction(plane);
     cutter->GenerateCutScalarsOff();
 
-    vtkSmartPointer<vtkPolyDataMapper> polyMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkNew<vtkPolyDataMapper> polyMapper;
     polyMapper->SetInputConnection(cutter->GetOutputPort());
     polyMapper->ScalarVisibilityOff();
 
-    vtkSmartPointer<vtkActor> polyActor = vtkSmartPointer<vtkActor>::New();
+    vtkNew<vtkActor> polyActor;
     polyActor->SetMapper(polyMapper);
     polyActor->GetProperty()->SetDiffuse(0.0);
     polyActor->GetProperty()->SetAmbient(1.0);
     polyActor->GetProperty()->SetColor(0.1, 0.6, 0.1);
     polyActor->SetPosition(0.0, 0.0, 1.0); // zbuffer offset
 
-    vtkSmartPointer<vtkImageSliceMapper> mapper = vtkSmartPointer<vtkImageSliceMapper>::New();
+    vtkNew<vtkImageSliceMapper> mapper;
     mapper->SetOrientation(2);
     mapper->SetSliceNumber(zIdx);
     mapper->SetInputConnection(stencil->GetOutputPort());
 
-    vtkSmartPointer<vtkImageSlice> actor = vtkSmartPointer<vtkImageSlice>::New();
+    vtkNew<vtkImageSlice> actor;
     actor->GetProperty()->SetColorWindow(255.0);
     actor->GetProperty()->SetColorLevel(127.5);
     actor->GetProperty()->SetInterpolationTypeToLinear();
     actor->SetMapper(mapper);
 
-    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    vtkNew<vtkRenderer> renderer;
     int j = i % 3;
     int k = 1 - (i / 3);
     renderer->SetViewport(j / 3.0, k / 2.0, (j + 1) / 3.0, (k + 1) / 2.0);

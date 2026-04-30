@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonTransforms import (
     vtkTransform,
 )
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -131,7 +131,7 @@ tGeneral.Translate(10,0.1,0.3)
 tGeneral.Translate(-10,-0.1,-0.3)
 #--------------------------
 # identity transform
-f11 = vtkTransformPolyDataFilter()
+f11 = vtkTransformFilter()
 f11.SetInputConnection(ap.GetOutputPort())
 f11.SetTransform(tLinear)
 m11 = vtkDataSetMapper()
@@ -146,7 +146,7 @@ ren11.ResetCamera(-0.5,0.5,-0.5,0.5,-1,1)
 ren11.AddActor(a11)
 renWin.AddRenderer(ren11)
 # inverse identity transform
-f12 = vtkTransformPolyDataFilter()
+f12 = vtkTransformFilter()
 f12.SetInputConnection(ap.GetOutputPort())
 f12.SetTransform(tLinear.GetInverse())
 m12 = vtkDataSetMapper()
@@ -162,7 +162,7 @@ ren12.AddActor(a12)
 renWin.AddRenderer(ren12)
 #--------------------------
 # linear transform
-f21 = vtkTransformPolyDataFilter()
+f21 = vtkTransformFilter()
 f21.SetInputConnection(ap.GetOutputPort())
 f21.SetTransform(tPerspective)
 m21 = vtkDataSetMapper()
@@ -177,7 +177,7 @@ ren21.ResetCamera(-0.5,0.5,-0.5,0.5,-1,1)
 ren21.AddActor(a21)
 renWin.AddRenderer(ren21)
 # inverse linear transform
-f22 = vtkTransformPolyDataFilter()
+f22 = vtkTransformFilter()
 f22.SetInputConnection(ap.GetOutputPort())
 f22.SetTransform(tPerspective.GetInverse())
 m22 = vtkDataSetMapper()
@@ -197,7 +197,7 @@ matrix = vtkMatrix4x4()
 matrix.SetElement(3,0,0.1)
 matrix.SetElement(3,1,0.2)
 matrix.SetElement(3,2,0.5)
-f31 = vtkTransformPolyDataFilter()
+f31 = vtkTransformFilter()
 f31.SetInputConnection(ap.GetOutputPort())
 f31.SetTransform(tNew)
 m31 = vtkDataSetMapper()
@@ -212,7 +212,7 @@ ren31.ResetCamera(-0.5,0.5,-0.5,0.5,-1,1)
 ren31.AddActor(a31)
 renWin.AddRenderer(ren31)
 # inverse linear transform
-f32 = vtkTransformPolyDataFilter()
+f32 = vtkTransformFilter()
 f32.SetInputConnection(ap.GetOutputPort())
 f32.SetTransform(tNew.GetInverse())
 m32 = vtkDataSetMapper()
@@ -228,7 +228,7 @@ ren32.AddActor(a32)
 renWin.AddRenderer(ren32)
 #--------------------------
 # perspective transform concatenation
-f41 = vtkTransformPolyDataFilter()
+f41 = vtkTransformFilter()
 f41.SetInputConnection(ap.GetOutputPort())
 f41.SetTransform(tGeneral)
 m41 = vtkDataSetMapper()
@@ -243,7 +243,7 @@ ren41.ResetCamera(-0.5,0.5,-0.5,0.5,-1,1)
 ren41.AddActor(a41)
 renWin.AddRenderer(ren41)
 # inverse linear transform
-f42 = vtkTransformPolyDataFilter()
+f42 = vtkTransformFilter()
 f42.SetInputConnection(ap.GetOutputPort())
 f42.SetTransform(tGeneral.GetInverse())
 m42 = vtkDataSetMapper()

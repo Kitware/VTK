@@ -58,7 +58,7 @@ int TestLegendBoxActor2(int argc, char* argv[])
   //
   for (int i = 0; i < 5; ++i)
   {
-    vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+    vtkNew<vtkSphereSource> sphere;
     sphere->SetRadius(static_cast<double>(10 * (i + 1)));
     sphere->Update();
     actor->SetEntry(i, sphere->GetOutput(), text[i], textColor[i]);

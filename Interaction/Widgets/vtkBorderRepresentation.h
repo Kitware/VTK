@@ -38,7 +38,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPolyData;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkPolyDataMapper2D;
 class vtkActor2D;
 class vtkProperty2D;
@@ -447,7 +447,7 @@ protected:
   vtkNew<vtkPolyData> PolyDataEdges;
   vtkNew<vtkPolyData> PolyDataPolygon;
   vtkNew<vtkTransform> BWTransform;
-  vtkNew<vtkTransformPolyDataFilter> BWTransformFilter;
+  vtkNew<vtkTransformFilter> BWTransformFilter;
   vtkNew<vtkPolyDataMapper2D> BWMapperEdges;
   vtkNew<vtkPolyDataMapper2D> BWMapperPolygon;
   vtkNew<vtkActor2D> BWActorEdges;

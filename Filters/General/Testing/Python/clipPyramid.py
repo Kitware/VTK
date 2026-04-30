@@ -16,7 +16,7 @@ from vtkmodules.vtkFiltersCore import (
 from vtkmodules.vtkFiltersGeneral import (
     vtkClipDataSet,
     vtkShrinkFilter,
-    vtkTransformPolyDataFilter,
+    vtkTransformFilter,
 )
 from vtkmodules.vtkFiltersSources import (
     vtkCubeSource,
@@ -165,7 +165,7 @@ aLabelTransform.Identity()
 aLabelTransform.Translate(-.2, 0, 1.25)
 aLabelTransform.Scale(.05, .05, .05)
 
-labelTransform = vtkTransformPolyDataFilter()
+labelTransform = vtkTransformFilter()
 labelTransform.SetTransform(aLabelTransform)
 labelTransform.SetInputConnection(caseLabel.GetOutputPort())
 

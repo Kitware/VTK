@@ -9,7 +9,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedPolygonalHandleRepresentation3D);

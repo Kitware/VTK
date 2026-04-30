@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 #include <algorithm>
 #include <sstream>
@@ -41,7 +41,7 @@ vtkMeasurementCubeHandleRepresentation3D::vtkMeasurementCubeHandleRepresentation
 {
   this->InteractionState = vtkHandleRepresentation::Outside;
 
-  this->HandleTransformFilter = vtkTransformPolyDataFilter::New();
+  this->HandleTransformFilter = vtkTransformFilter::New();
   this->HandleTransform = vtkMatrixToLinearTransform::New();
   this->HandleTransformMatrix = vtkMatrix4x4::New();
   this->HandleTransformMatrix->Identity();

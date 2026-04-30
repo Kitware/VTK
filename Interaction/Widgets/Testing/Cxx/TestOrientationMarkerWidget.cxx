@@ -10,6 +10,7 @@
 #include "vtkCellArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkOrientationMarkerWidget.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -20,10 +21,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTubeFilter.h"
 
 constexpr char TestOMWidgetEventLog[] = "# StreamVersion 1\n"
@@ -322,8 +322,8 @@ int TestOrientationMarkerWidget(int, char*[])
   int nPoints = 120;
   double dx = 0.8 / nPoints;
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> line = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkCellArray> line;
   line->InsertNextCell(nPoints + 80);
 
   int i = 0;
@@ -349,11 +349,11 @@ int TestOrientationMarkerWidget(int, char*[])
     t += dt;
   } while (++i < nPoints + 80);
 
-  vtkSmartPointer<vtkPolyData> wiggle = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> wiggle;
   wiggle->SetPoints(points);
   wiggle->SetLines(line);
 
-  vtkSmartPointer<vtkTubeFilter> tube = vtkSmartPointer<vtkTubeFilter>::New();
+  vtkNew<vtkTubeFilter> tube;
   tube->SetInputData(wiggle);
   tube->SetGenerateTCoordsToOff();
   tube->CappingOff();
@@ -365,7 +365,7 @@ int TestOrientationMarkerWidget(int, char*[])
   // part 2 is generated from vtkAnnotatedCubeActor to test
   // vtkAxesActor SetUserDefinedTip
   //
-  vtkSmartPointer<vtkAnnotatedCubeActor> cube = vtkSmartPointer<vtkAnnotatedCubeActor>::New();
+  vtkNew<vtkAnnotatedCubeActor> cube;
   cube->SetXPlusFaceText("V");
   cube->SetXMinusFaceText("K");
   cube->SetYPlusFaceText("T");
@@ -374,14 +374,13 @@ int TestOrientationMarkerWidget(int, char*[])
   cube->SetYMinusFaceText("");
   cube->SetFaceTextScale(0.666667);
 
-  vtkSmartPointer<vtkPropCollection> props = vtkSmartPointer<vtkPropCollection>::New();
+  vtkNew<vtkPropCollection> props;
   cube->GetActors(props);
 
-  vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkNew<vtkAppendPolyData> append;
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransformFilter> transformFilter;
+  vtkNew<vtkTransform> transform;
   transformFilter->SetTransform(transform);
 
   vtkCollectionSimpleIterator sit;
@@ -406,7 +405,7 @@ int TestOrientationMarkerWidget(int, char*[])
         transform->Scale(2.0, 2.0, 2.0);
         transformFilter->Update();
 
-        vtkSmartPointer<vtkPolyData> newpoly = vtkSmartPointer<vtkPolyData>::New();
+        vtkNew<vtkPolyData> newpoly;
         newpoly->DeepCopy(transformFilter->GetOutput());
         append->AddInputData(newpoly);
       }
@@ -417,7 +416,7 @@ int TestOrientationMarkerWidget(int, char*[])
 
   // the final actor the widget will follow
   //
-  vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+  vtkNew<vtkAxesActor> axes;
 
   axes->SetTotalLength(1.2, 1.2, 1.2);
   axes->SetUserDefinedTip(append->GetOutput());
@@ -448,15 +447,14 @@ int TestOrientationMarkerWidget(int, char*[])
 
   // set up the renderer, window, and interactor
   //
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0980, 0.0980, 0.4392);
 
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->AddRenderer(renderer);
   renWin->SetSize(400, 400);
 
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   renderer->AddViewProp(axes);
@@ -517,7 +515,7 @@ int TestOrientationMarkerWidget(int, char*[])
   property->SetColor(1, 0, 0);
   property->SetInterpolationToFlat();
 
-  vtkSmartPointer<vtkAxesActor> axes2 = vtkSmartPointer<vtkAxesActor>::New();
+  vtkNew<vtkAxesActor> axes2;
 
   // simulate a left-handed coordinate system
   //
@@ -544,14 +542,13 @@ int TestOrientationMarkerWidget(int, char*[])
 
   // combine orientation markers into one with an assembly
   //
-  vtkSmartPointer<vtkPropAssembly> assembly = vtkSmartPointer<vtkPropAssembly>::New();
+  vtkNew<vtkPropAssembly> assembly;
   assembly->AddPart(axes2);
   assembly->AddPart(cube);
 
   // set up the widget
   //
-  vtkSmartPointer<vtkOrientationMarkerWidget> widget =
-    vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+  vtkNew<vtkOrientationMarkerWidget> widget;
   widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
   widget->SetOrientationMarker(assembly);
   widget->SetInteractor(iren);
@@ -562,8 +559,7 @@ int TestOrientationMarkerWidget(int, char*[])
 
   // recorder to play back previously events
   //
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
+  vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
   //  recorder->SetFileName("record.log");
   //  recorder->SetKeyPressActivationValue('b');

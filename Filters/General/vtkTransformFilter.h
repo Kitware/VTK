@@ -20,7 +20,7 @@
  * (e.g., vtkProbeFilter) that require point coordinates as input.
  *
  * @sa
- * vtkAbstractTransform vtkTransformPolyDataFilter vtkActor
+ * vtkAbstractTransform vtkTransformFilter vtkActor
  */
 
 #ifndef vtkTransformFilter_h

@@ -58,7 +58,7 @@ class vtkProp;
 class vtkProperty;
 class vtkPropPicker;
 class vtkTransform;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 
 #define VTK_ITW_PROJECTION_YZ 0
 #define VTK_ITW_PROJECTION_XZ 1
@@ -317,7 +317,7 @@ protected:
   vtkGlyphSource2D* HandleGenerator;
 
   // Transforms required as 2D glyphs are generated in the x-y plane
-  vtkTransformPolyDataFilter* TransformFilter;
+  vtkTransformFilter* TransformFilter;
   vtkTransform* Transform;
   vtkFloatArray* TemporaryHandlePoints;
 

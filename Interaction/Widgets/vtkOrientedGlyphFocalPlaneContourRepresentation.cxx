@@ -25,7 +25,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
@@ -97,38 +97,33 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
 
   // The transformation of the cursor will be done via vtkGlyph3D
   // By default a vtkCursor2D will be used to define the cursor shape
-  vtkCursor2D* cursor2D = vtkCursor2D::New();
+  vtkNew<vtkCursor2D> cursor2D;
   cursor2D->AllOff();
   cursor2D->PointOn();
   cursor2D->Update();
   this->SetCursorShape(cursor2D->GetOutput());
-  cursor2D->Delete();
 
-  vtkCylinderSource* cylinder = vtkCylinderSource::New();
+  vtkNew<vtkCylinderSource> cylinder;
   cylinder->SetResolution(64);
   cylinder->SetRadius(0.5);
   cylinder->SetHeight(0.0);
   cylinder->CappingOff();
   cylinder->SetCenter(0, 0, 0);
 
-  vtkCleanPolyData* clean = vtkCleanPolyData::New();
+  vtkNew<vtkCleanPolyData> clean;
   clean->PointMergingOn();
   clean->CreateDefaultLocator();
   clean->SetInputConnection(cylinder->GetOutputPort());
 
-  vtkTransform* t = vtkTransform::New();
+  vtkNew<vtkTransform> t;
   t->RotateZ(90.0);
 
-  vtkTransformPolyDataFilter* tpd = vtkTransformPolyDataFilter::New();
+  vtkNew<vtkTransformFilter> tpd;
   tpd->SetInputConnection(clean->GetOutputPort());
   tpd->SetTransform(t);
-  clean->Delete();
-  cylinder->Delete();
 
   tpd->Update();
-  this->SetActiveCursorShape(tpd->GetOutput());
-  tpd->Delete();
-  t->Delete();
+  this->SetActiveCursorShape(tpd->GetPolyDataOutput());
 
   this->Glypher->SetSourceData(this->CursorShape);
   this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
@@ -527,8 +522,8 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::CreateDefaultProperties()
 //------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 {
-  vtkPoints* points = vtkPoints::New();
-  vtkCellArray* lines = vtkCellArray::New();
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkCellArray> lines;
 
   int i, j;
   vtkIdType index = 0;
@@ -586,9 +581,6 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 
   this->Lines->SetPoints(points);
   this->Lines->SetLines(lines);
-
-  points->Delete();
-  lines->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -637,8 +629,8 @@ vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourReprese
 {
   // Get the points in this contour as a vtkPolyData.
 
-  vtkPoints* points = vtkPoints::New();
-  vtkCellArray* lines = vtkCellArray::New();
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkCellArray> lines;
 
   int i, j;
   vtkIdType index = 0;
@@ -696,9 +688,6 @@ vtkPolyData* vtkOrientedGlyphFocalPlaneContourRepresentation ::GetContourReprese
 
   this->LinesWorldCoordinates->SetPoints(points);
   this->LinesWorldCoordinates->SetLines(lines);
-
-  points->Delete();
-  lines->Delete();
 
   return this->LinesWorldCoordinates;
 }

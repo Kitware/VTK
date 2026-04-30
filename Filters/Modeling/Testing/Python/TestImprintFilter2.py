@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersModeling import vtkImprintFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 from vtkmodules.vtkRenderingCore import (
@@ -37,7 +37,7 @@ plane2.SetPoint2(2.25,7.25,0)
 xForm = vtkTransform()
 xForm.RotateZ(-25)
 
-xFormF = vtkTransformPolyDataFilter()
+xFormF = vtkTransformFilter()
 xFormF.SetInputConnection(plane2.GetOutputPort())
 xFormF.SetTransform(xForm)
 

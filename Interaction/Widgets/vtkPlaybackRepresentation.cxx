@@ -15,7 +15,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaybackRepresentation);
@@ -78,7 +78,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   this->Points->SetPoint(41, 11.7, 0.2, 0.0);
   this->Points->SetPoint(42, 11.7, 1.8, 0.0);
 
-  vtkCellArray* lines = vtkCellArray::New();
+  vtkNew<vtkCellArray> lines;
   lines->InsertNextCell(2); // left jump
   lines->InsertCellPoint(0);
   lines->InsertCellPoint(1);
@@ -98,7 +98,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   lines->InsertCellPoint(41);
   lines->InsertCellPoint(42);
 
-  vtkCellArray* polys = vtkCellArray::New();
+  vtkNew<vtkCellArray> polys;
   polys->InsertNextCell(3); // left jump
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
@@ -145,10 +145,8 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   this->PolyData->SetPoints(this->Points);
   this->PolyData->SetLines(lines);
   this->PolyData->SetPolys(polys);
-  lines->Delete();
-  polys->Delete();
 
-  this->TransformFilter = vtkTransformPolyDataFilter::New();
+  this->TransformFilter = vtkTransformFilter::New();
   this->TransformFilter->SetTransform(this->BWTransform);
   this->TransformFilter->SetInputData(this->PolyData);
 

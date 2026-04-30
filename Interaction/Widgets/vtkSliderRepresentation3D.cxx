@@ -24,7 +24,7 @@
 #include "vtkSphereSource.h"
 #include "vtkStringFormatter.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
@@ -51,7 +51,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
 
   vtkTransform* xform = vtkTransform::New();
   xform->RotateZ(90.0);
-  this->Cylinder = vtkTransformPolyDataFilter::New(); // align the axis along the x-axis
+  this->Cylinder = vtkTransformFilter::New(); // align the axis along the x-axis
   this->Cylinder->SetInputConnection(this->CylinderSource->GetOutputPort());
   this->Cylinder->SetTransform(xform);
   xform->Delete();

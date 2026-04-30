@@ -35,7 +35,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTrivialProducer.h"
 
 #include <array>
@@ -47,7 +47,7 @@ struct TestContextData
 {
   // Fast Labels
   vtkNew<vtkPlaneSource> plane;
-  vtkNew<vtkTransformPolyDataFilter> xform;
+  vtkNew<vtkTransformFilter> xform;
   vtkNew<vtkTransform> matrix;
   vtkNew<vtkGenerateIds> ids;
   vtkNew<vtkFastLabeledDataMapper> labelMapper;

@@ -22,7 +22,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
@@ -73,7 +73,7 @@ vtkCompassRepresentation::vtkCompassRepresentation()
 
   this->BuildRing();
 
-  this->RingXForm = vtkTransformPolyDataFilter::New();
+  this->RingXForm = vtkTransformFilter::New();
   this->RingXForm->SetInputData(this->Ring);
   this->RingXForm->SetTransform(this->XForm);
 

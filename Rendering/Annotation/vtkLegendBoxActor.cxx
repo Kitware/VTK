@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLegendBoxActor.h"
 
-#include "vtkActor.h"
+#include "Private/vtkLegendBoxEntryInternal.h"
 #include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneSource.h"
@@ -17,8 +16,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTexturedActor2D.h"
-#include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
 #include <iostream>
@@ -53,24 +50,7 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->Box = 0;
   this->Padding = 3;
 
-  // Symbols and text strings
   this->NumberOfEntries = 0;
-  this->Size = 0;
-  this->Colors = nullptr;
-  this->Symbol = nullptr;
-  this->Transform = nullptr;
-  this->SymbolTransform = nullptr;
-  this->SymbolMapper = nullptr;
-  this->SymbolActor = nullptr;
-  this->TextMapper = nullptr;
-  this->TextActor = nullptr;
-
-  this->Icon = nullptr;
-  this->IconActor = nullptr;
-  this->IconMapper = nullptr;
-  this->IconTransformFilter = nullptr;
-  this->IconTransform = nullptr;
-  this->IconImage = nullptr;
 
   // Construct the border
   this->BorderPolyData = vtkPolyData::New();
@@ -125,8 +105,6 @@ vtkLegendBoxActor::vtkLegendBoxActor()
 //------------------------------------------------------------------------------
 vtkLegendBoxActor::~vtkLegendBoxActor()
 {
-  this->InitializeEntries();
-
   if (this->BorderActor)
   {
     this->BorderActor->Delete();
@@ -154,66 +132,7 @@ vtkLegendBoxActor::~vtkLegendBoxActor()
 //------------------------------------------------------------------------------
 void vtkLegendBoxActor::InitializeEntries()
 {
-  int i;
-
-  if (this->Size > 0)
-  {
-    this->Colors->Delete();
-    for (i = 0; i < this->Size; i++)
-    {
-      if (this->Symbol[i])
-      {
-        this->Symbol[i]->Delete();
-      }
-      this->Transform[i]->Delete();
-      this->SymbolTransform[i]->Delete();
-      this->SymbolMapper[i]->Delete();
-      this->SymbolActor[i]->Delete();
-      if (this->TextMapper[i])
-      {
-        this->TextMapper[i]->Delete();
-        this->TextActor[i]->Delete();
-      }
-
-      if (this->IconImage[i])
-      {
-        this->IconImage[i]->Delete();
-      }
-
-      this->Icon[i]->Delete();
-      this->IconTransform[i]->Delete();
-      this->IconTransformFilter[i]->Delete();
-      this->IconMapper[i]->Delete();
-      this->IconActor[i]->Delete();
-    } // for all entries
-    delete[] this->Symbol;
-    this->Symbol = nullptr;
-    delete[] this->Transform;
-    this->Transform = nullptr;
-    delete[] this->SymbolTransform;
-    this->SymbolTransform = nullptr;
-    delete[] this->SymbolMapper;
-    this->SymbolMapper = nullptr;
-    delete[] this->SymbolActor;
-    this->SymbolActor = nullptr;
-    delete[] this->TextMapper;
-    this->TextMapper = nullptr;
-    delete[] this->TextActor;
-    this->TextActor = nullptr;
-
-    delete[] this->IconImage;
-    this->IconImage = nullptr;
-    delete[] this->Icon;
-    this->Icon = nullptr;
-    delete[] this->IconActor;
-    this->IconActor = nullptr;
-    delete[] this->IconMapper;
-    this->IconMapper = nullptr;
-    delete[] this->IconTransform;
-    this->IconTransform = nullptr;
-    delete[] this->IconTransformFilter;
-    this->IconTransformFilter = nullptr;
-  } // if entries have been defined
+  this->Entries.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -224,151 +143,13 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
     return;
   }
 
-  else if (num < this->Size)
+  this->Entries.resize(num);
+  for (int newIdx = this->NumberOfEntries; newIdx < num; newIdx++)
   {
-    this->NumberOfEntries = num;
+    this->Entries[newIdx] = std::make_unique<vtkLegendBoxEntryInternal>();
   }
 
-  else // allocate space
-  {
-    int i;
-
-    // Create internal actors, etc.
-    vtkDoubleArray* colors = vtkDoubleArray::New();
-    colors->SetNumberOfComponents(3);
-    colors->SetNumberOfTuples(num);
-    vtkTextMapper** textMapper = new vtkTextMapper*[num];
-    vtkActor2D** textActor = new vtkActor2D*[num];
-
-    // Symbol
-    vtkPolyData** symbol = new vtkPolyData*[num];
-    vtkTransform** transform = new vtkTransform*[num];
-    vtkTransformPolyDataFilter** symbolTransform = new vtkTransformPolyDataFilter*[num];
-    vtkPolyDataMapper2D** symbolMapper = new vtkPolyDataMapper2D*[num];
-    vtkActor2D** symbolActor = new vtkActor2D*[num];
-
-    // Icon.
-    vtkPlaneSource** icon = new vtkPlaneSource*[num];
-    vtkTransform** iconTransform = new vtkTransform*[num];
-    vtkTransformPolyDataFilter** iconTransformFilter = new vtkTransformPolyDataFilter*[num];
-    vtkPolyDataMapper2D** iconMapper = new vtkPolyDataMapper2D*[num];
-    vtkTexturedActor2D** iconActor = new vtkTexturedActor2D*[num];
-    vtkImageData** iconImage = new vtkImageData*[num];
-
-    // copy old values
-    for (i = 0; i < this->NumberOfEntries; i++)
-    {
-      colors->SetTuple(i, this->Colors->GetTuple(i));
-      textMapper[i] = this->TextMapper[i];
-      textMapper[i]->Register(this);
-      textActor[i] = this->TextActor[i];
-      textActor[i]->Register(this);
-
-      // Symbol.
-      symbol[i] = this->Symbol[i];
-      if (symbol[i])
-      {
-        symbol[i]->Register(this);
-      }
-
-      transform[i] = this->Transform[i];
-      transform[i]->Register(this);
-
-      symbolTransform[i] = this->SymbolTransform[i];
-      symbolTransform[i]->Register(this);
-
-      symbolMapper[i] = this->SymbolMapper[i];
-      symbolMapper[i]->Register(this);
-
-      symbolActor[i] = this->SymbolActor[i];
-      symbolActor[i]->Register(this);
-
-      // Icon.
-      icon[i] = this->Icon[i];
-      icon[i]->Register(this);
-
-      iconTransform[i] = this->IconTransform[i];
-      iconTransform[i]->Register(this);
-
-      iconTransformFilter[i] = this->IconTransformFilter[i];
-      iconTransformFilter[i]->Register(this);
-
-      iconMapper[i] = this->IconMapper[i];
-      iconMapper[i]->Register(this);
-
-      iconActor[i] = this->IconActor[i];
-      iconActor[i]->Register(this);
-
-      iconImage[i] = this->IconImage[i];
-      if (iconImage[i])
-      {
-        iconImage[i]->Register(this);
-      }
-    }
-
-    // initialize data values
-    static double color[3] = { -1.0, -1.0, -1.0 };
-    for (i = this->NumberOfEntries; i < num; i++) // initialize
-    {
-      colors->SetTuple(i, color);
-      textMapper[i] = vtkTextMapper::New();
-      textActor[i] = vtkActor2D::New();
-      textActor[i]->SetMapper(textMapper[i]);
-
-      // Symbol.
-      symbol[i] = nullptr;
-      transform[i] = vtkTransform::New();
-      symbolTransform[i] = vtkTransformPolyDataFilter::New();
-      symbolTransform[i]->SetTransform(transform[i]);
-      symbolMapper[i] = vtkPolyDataMapper2D::New();
-      symbolMapper[i]->SetInputConnection(symbolTransform[i]->GetOutputPort());
-      symbolActor[i] = vtkActor2D::New();
-      symbolActor[i]->SetMapper(symbolMapper[i]);
-
-      // Icon.
-      iconImage[i] = nullptr;
-
-      icon[i] = vtkPlaneSource::New();
-      icon[i]->SetPoint1(1.0, 0.0, 0.0);
-      icon[i]->SetPoint2(0, 1.0, 0.0);
-      icon[i]->SetOrigin(0.0, 0.0, 0.0);
-      icon[i]->SetResolution(1, 1);
-
-      iconTransform[i] = vtkTransform::New();
-
-      iconTransformFilter[i] = vtkTransformPolyDataFilter::New();
-      iconTransformFilter[i]->SetTransform(iconTransform[i]);
-
-      iconMapper[i] = vtkPolyDataMapper2D::New();
-      iconMapper[i]->SetInputConnection(iconTransformFilter[i]->GetOutputPort());
-
-      iconActor[i] = vtkTexturedActor2D::New();
-      iconActor[i]->SetMapper(iconMapper[i]);
-    }
-
-    // Clear out the old stuff
-    this->InitializeEntries();
-
-    // Bring everything up to date
-    this->NumberOfEntries = this->Size = num;
-    this->Colors = colors;
-    this->TextMapper = textMapper;
-    this->TextActor = textActor;
-
-    this->Symbol = symbol;
-    this->Transform = transform;
-    this->SymbolTransform = symbolTransform;
-    this->SymbolMapper = symbolMapper;
-    this->SymbolActor = symbolActor;
-
-    this->Icon = icon;
-    this->IconTransform = iconTransform;
-    this->IconTransformFilter = iconTransformFilter;
-    this->IconMapper = iconMapper;
-    this->IconActor = iconActor;
-    this->IconImage = iconImage;
-  }
-
+  this->NumberOfEntries = num;
   this->Modified();
 }
 
@@ -410,20 +191,10 @@ void vtkLegendBoxActor::SetEntrySymbol(int i, vtkPolyData* symbol)
 {
   if (i >= 0 && i < this->NumberOfEntries)
   {
-    if (this->Symbol[i] == symbol)
+    if (this->Entries[i]->SetSymbol(symbol))
     {
-      return;
+      this->Modified();
     }
-    if (this->Symbol[i])
-    {
-      this->Symbol[i]->Delete();
-    }
-    this->Symbol[i] = symbol;
-    if (this->Symbol[i])
-    {
-      this->Symbol[i]->Register(this);
-    }
-    this->Modified();
   }
 }
 
@@ -432,20 +203,10 @@ void vtkLegendBoxActor::SetEntryIcon(int i, vtkImageData* icon)
 {
   if (i >= 0 && i < this->NumberOfEntries)
   {
-    if (this->IconImage[i] == icon)
+    if (this->Entries[i]->SetIcon(icon))
     {
-      return;
+      this->Modified();
     }
-    if (this->IconImage[i])
-    {
-      this->IconImage[i]->Delete();
-    }
-    this->IconImage[i] = icon;
-    if (this->IconImage[i])
-    {
-      this->IconImage[i]->Register(this);
-    }
-    this->Modified();
   }
 }
 
@@ -454,13 +215,10 @@ void vtkLegendBoxActor::SetEntryString(int i, const char* string)
 {
   if (i >= 0 && i < this->NumberOfEntries)
   {
-    if (this->TextMapper[i]->GetInput() && string &&
-      (!strcmp(this->TextMapper[i]->GetInput(), string)))
+    if (this->Entries[i]->SetText(string))
     {
-      return;
+      this->Modified();
     }
-    this->TextMapper[i]->SetInput(string);
-    this->Modified();
   }
 }
 
@@ -469,12 +227,8 @@ void vtkLegendBoxActor::SetEntryColor(int i, double color[3])
 {
   if (i >= 0 && i < this->NumberOfEntries)
   {
-    double oldColor[3];
-    this->Colors->GetTuple(i, oldColor);
-
-    if (oldColor[0] != color[0] || oldColor[1] != color[1] || oldColor[2] != color[2])
+    if (this->Entries[i]->SetColor(color))
     {
-      this->Colors->SetTuple3(i, color[0], color[1], color[2]);
       this->Modified();
     }
   }
@@ -499,7 +253,7 @@ vtkPolyData* vtkLegendBoxActor::GetEntrySymbol(int i)
   }
   else
   {
-    return this->Symbol[i];
+    return this->Entries[i]->GetSymbol();
   }
 }
 
@@ -512,7 +266,7 @@ vtkImageData* vtkLegendBoxActor::GetEntryIcon(int i)
   }
   else
   {
-    return this->IconImage[i];
+    return this->Entries[i]->GetIcon();
   }
 }
 
@@ -525,7 +279,7 @@ const char* vtkLegendBoxActor::GetEntryString(int i)
   }
   else
   {
-    return this->TextMapper[i]->GetInput();
+    return this->Entries[i]->GetText();
   }
 }
 
@@ -538,7 +292,7 @@ double* vtkLegendBoxActor::GetEntryColor(int i)
   }
   else
   {
-    return vtkArrayDownCast<vtkDoubleArray>(this->Colors)->GetPointer(i * 3);
+    return this->Entries[i]->GetColor();
   }
 }
 
@@ -563,11 +317,9 @@ void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow* win)
     this->BoxActor->ReleaseGraphicsResources(win);
   }
 
-  for (int i = 0; i < this->Size; i++)
+  for (int i = 0; i < this->NumberOfEntries; i++)
   {
-    this->TextActor[i]->ReleaseGraphicsResources(win);
-    this->SymbolActor[i]->ReleaseGraphicsResources(win);
-    this->IconActor[i]->ReleaseGraphicsResources(win);
+    this->Entries[i]->ReleaseGraphicsResources(win);
   }
 }
 
@@ -599,16 +351,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport* viewport)
   {
     for (int i = 0; i < this->NumberOfEntries; i++)
     {
-      if (this->Symbol[i])
-      {
-        renderedSomething += this->SymbolActor[i]->RenderOverlay(viewport);
-      }
-      if (this->IconImage[i])
-      {
-        renderedSomething += this->IconActor[i]->RenderOverlay(viewport);
-      }
-
-      renderedSomething += this->TextActor[i]->RenderOverlay(viewport);
+      this->Entries[i]->RenderOverlay(viewport);
     }
   }
 
@@ -649,7 +392,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
       for (i = 0; i < this->NumberOfEntries; i++)
       {
-        this->TextMapper[i]->GetTextProperty()->ShallowCopy(this->EntryTextProperty);
+        this->Entries[i]->CopyTextProperty(this->EntryTextProperty);
       }
     }
 
@@ -678,19 +421,21 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
 
     for (swr = 0.0, maxLength = i = 0; i < this->NumberOfEntries; i++)
     {
-      this->TextMapper[i]->GetTextProperty()->SetFontSize(12);
-      length = this->TextMapper[i]->GetWidth(viewport);
+      this->Entries[i]->SetFontSize(12);
+      int size[2];
+      this->Entries[i]->GetSize(viewport, size);
+      length = size[0];
       if (length > maxLength)
       {
         maxLength = length;
         maxTextMapper = i;
       }
 
-      if (this->Symbol[i]) // if there is a symbol
+      if (this->Entries[i]->HasSymbol()) // if there is a symbol
       {
         symbolExists = true;
         // this->Symbol[i]->Update();
-        bounds = this->Symbol[i]->GetBounds();
+        bounds = this->Entries[i]->GetSymbolBounds();
         if ((bounds[3] - bounds[2]) == 0.0)
         {
           sf = 1.0;
@@ -704,11 +449,11 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
 
       // We pick the one with highest ratio if both symbol and icon
       // exists.
-      if (this->IconImage[i])
+      if (this->Entries[i]->HasIcon())
       {
         iconExists = true;
 
-        bounds = this->IconImage[i]->GetBounds();
+        bounds = this->Entries[i]->GetIconBounds();
         if ((bounds[3] - bounds[2]) == 0.0)
         {
           sf = 1.0;
@@ -723,8 +468,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
 
     // Compute the final proportion (symbol width to text width)
     fontSize = 12;
-    this->TextMapper[maxTextMapper]->GetTextProperty()->SetFontSize(fontSize);
-    this->TextMapper[maxTextMapper]->GetSize(viewport, tempi);
+    this->Entries[maxTextMapper]->SetFontSize(fontSize);
+    this->Entries[maxTextMapper]->GetSize(viewport, tempi);
 
     if (maxLength > 0) // make sure that tempi is not 0, to avoid a
                        // divide-by-zero floating-point exception.
@@ -748,8 +493,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
     size[0] = (int)((1.0 - symbolSize) * (p2[0] - p1[0] - 2.0 * this->Padding));
     size[1] = (int)((p2[1] - p1[1] - 2.0 * this->Padding) / this->NumberOfEntries);
 
-    fontSize = this->TextMapper[maxTextMapper]->SetConstrainedFontSize(viewport, size[0], size[1]);
-    this->TextMapper[maxTextMapper]->GetSize(viewport, tempi);
+    fontSize = this->Entries[maxTextMapper]->SetConstrainedFontSize(viewport, size);
+    this->Entries[maxTextMapper]->GetSize(viewport, tempi);
 
     // don't draw anything if it's too small
     if (size[1] > 0 && fontSize > 0)
@@ -796,141 +541,39 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
       this->BorderActor->SetProperty(this->GetProperty());
     }
 
-    // Place text strings
-    double color[3];
-    double posY;
-    double posX = p1[0] + this->Padding + symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding);
-    for (i = 0; i < this->NumberOfEntries; i++)
-    {
-      posY = p2[1] - this->Padding - (double)i * size[1] - 0.5 * size[1];
-      this->TextActor[i]->SetPosition(posX, posY);
-      this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
-      this->TextMapper[i]->GetTextProperty()->SetVerticalJustification(VTK_TEXT_CENTERED);
-      this->TextMapper[i]->GetTextProperty()->SetJustification(VTK_TEXT_LEFT);
-      this->Colors->GetTuple(i, color);
-      if (color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0)
-      {
-        this->TextMapper[i]->GetTextProperty()->SetColor(color[0], color[1], color[2]);
-      }
-    }
+    // Place entries
+    const double sizeFraction = (symbolExists && iconExists) ? 0.5 : 1.;
+    const double symbolsPositionFraction = (symbolExists && iconExists) ? 0.25 : 0.5;
+    // NOLINTBEGIN(readability-avoid-nested-conditional-operator)
+    const double iconsPositionFraction = (symbolExists && iconExists) ? 0.625
+      : iconExists                                                    ? 0.5
+                                                                      : 0.0;
+    // NOLINTEND(readability-avoid-nested-conditional-operator)
 
-    double sizeFraction = 1.0;
-
-    double symbolsPositionFraction = 0.5;
-    double iconsPositionFraction = 0.0;
-
-    if (symbolExists && iconExists)
-    {
-      symbolsPositionFraction = 0.25;
-      iconsPositionFraction = 0.625;
-
-      sizeFraction = 0.5;
-    }
-    else if (iconExists)
-    {
-      iconsPositionFraction = 0.5;
-    }
-    else
-    {
-      // Do nothing.
-    }
-
-    // Place symbols
-    //
     // Find the x-y bounds of the symbols...we'll be scaling these as well
-    size[0] = (int)(sizeFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding));
-    posX = p1[0] + this->Padding +
+    int entryHeight = size[1];
+    double entryYStart = p2[1] - this->Padding - 0.5 * entryHeight;
+    double textPosX = p1[0] + this->Padding + symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding);
+
+    int symbolWidth = (int)(sizeFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding));
+    double symbolX = p1[0] + this->Padding +
       symbolsPositionFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding);
-    for (i = 0; i < this->NumberOfEntries; i++)
-    {
-      if (this->Symbol[i])
-      {
-        this->SymbolTransform[i]->SetInputData(this->Symbol[i]);
-        bounds = this->Symbol[i]->GetBounds();
-
-        if ((bounds[1] - bounds[0]) == 0.0)
-        {
-          sf = VTK_DOUBLE_MAX;
-        }
-        else
-        {
-          sf = size[0] / (bounds[1] - bounds[0]);
-        }
-
-        if ((bounds[3] - bounds[2]) == 0.0)
-        {
-          if (sf >= VTK_DOUBLE_MAX)
-          {
-            sf = 1.0;
-          }
-        }
-        else if ((size[1] / (bounds[3] - bounds[2])) < sf)
-        {
-          sf = size[1] / (bounds[3] - bounds[2]);
-        }
-
-        posY = p2[1] - this->Padding - (double)i * size[1] - 0.5 * size[1] - 0.25 * tempi[1];
-        this->Transform[i]->Identity();
-        this->Transform[i]->Translate(posX, posY, 0.0);
-        this->Transform[i]->Scale(0.5 * sf, 0.5 * sf, 0);
-        this->SymbolMapper[i]->SetScalarVisibility(this->ScalarVisibility);
-        this->SymbolActor[i]->GetProperty()->DeepCopy(this->GetProperty());
-        this->Colors->GetTuple(i, color);
-        if (color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0)
-        {
-          this->SymbolActor[i]->GetProperty()->SetColor(color[0], color[1], color[2]);
-        }
-      } // if symbol defined
-      else
-      {
-        std::cout << "Symbol is not defined: \n";
-      }
-    }
 
     // Place icons.
-    size[0] = (int)(sizeFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding));
-    posX = p1[0] + this->Padding +
+    int iconWidth = (int)(sizeFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding));
+    double iconX = p1[0] + this->Padding +
       iconsPositionFraction * symbolSize * (p2[0] - p1[0] - 2.0 * this->Padding);
+
     for (i = 0; i < this->NumberOfEntries; i++)
     {
-      if (this->IconImage[i])
-      {
-        vtkTexture* texture(vtkTexture::New());
-        texture->SetInputData(this->IconImage[i]);
-        this->IconActor[i]->SetTexture(texture);
-        texture->Delete();
-        this->Icon[i]->Update();
-        this->IconTransformFilter[i]->SetInputConnection(this->Icon[i]->GetOutputPort());
-        this->IconTransformFilter[i]->Update();
-        bounds = this->Icon[i]->GetOutput(0)->GetBounds();
+      double textPosY = entryYStart - (double)i * size[1];
+      this->Entries[i]->SetTextPosition(textPosX, textPosY);
+      this->Entries[i]->SetFontSize(fontSize);
 
-        if ((bounds[1] - bounds[0]) == 0.0)
-        {
-          sf = VTK_DOUBLE_MAX;
-        }
-        else
-        {
-          sf = size[0] / (bounds[1] - bounds[0]);
-        }
-
-        if ((bounds[3] - bounds[2]) == 0.0)
-        {
-          if (sf >= VTK_DOUBLE_MAX)
-          {
-            sf = 1.0;
-          }
-        }
-        else if ((size[1] / (bounds[3] - bounds[2])) < sf)
-        {
-          sf = size[1] / (bounds[3] - bounds[2]);
-        }
-
-        posY = p2[1] - this->Padding - (double)i * size[1] - 0.5 * size[1] - 0.25 * tempi[1];
-        this->IconTransform[i]->Identity();
-        this->IconTransform[i]->Translate(posX, posY, 0.0);
-        this->IconTransform[i]->Scale(0.5 * sf, 0.5 * sf, 1);
-        this->IconMapper[i]->SetScalarVisibility(this->ScalarVisibility);
-      } // If icon is defined.
+      double entryY = textPosY - 0.25 * tempi[1];
+      this->Entries[i]->UpdateIconTransform(iconWidth, entryHeight, iconX, entryY);
+      this->Entries[i]->UpdateSymbolTransform(symbolWidth, entryHeight, symbolX, entryY);
+      this->Entries[i]->UpdateProperties(this->ScalarVisibility, this->GetProperty());
     }
     this->BuildTime.Modified();
   } // rebuild legend box
@@ -957,15 +600,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
   {
     for (i = 0; i < this->NumberOfEntries; i++)
     {
-      if (this->Symbol[i])
-      {
-        renderedSomething += this->SymbolActor[i]->RenderOpaqueGeometry(viewport);
-      }
-      if (this->IconImage[i])
-      {
-        renderedSomething += this->IconActor[i]->RenderOpaqueGeometry(viewport);
-      }
-      renderedSomething += this->TextActor[i]->RenderOpaqueGeometry(viewport);
+      this->Entries[i]->RenderOpaqueGeometry(viewport);
     }
   }
 

@@ -22,7 +22,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
@@ -71,7 +71,7 @@ vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
   this->GlyphCylinder->SetHeight(0.1);
   this->GlyphCylinder->SetResolution(12);
   vtkSmartPointer<vtkTransform> xform = vtkSmartPointer<vtkTransform>::New();
-  this->GlyphXForm = vtkTransformPolyDataFilter::New();
+  this->GlyphXForm = vtkTransformFilter::New();
   this->GlyphXForm->SetInputConnection(this->GlyphCylinder->GetOutputPort());
   this->GlyphXForm->SetTransform(xform);
   xform->RotateZ(90);

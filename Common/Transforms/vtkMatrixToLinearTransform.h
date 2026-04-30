@@ -7,7 +7,7 @@
  *
  * This is a very simple class which allows a vtkMatrix4x4 to be used in
  * place of a vtkLinearTransform or vtkAbstractTransform.  For example,
- * if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
+ * if you use it as a proxy between a matrix and vtkTransformFilter
  * then any modifications to the matrix will automatically be reflected in
  * the output of the filter.
  * @sa

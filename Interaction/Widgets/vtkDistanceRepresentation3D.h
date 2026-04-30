@@ -32,7 +32,7 @@ class vtkBox;
 class vtkCylinderSource;
 class vtkGlyph3D;
 class vtkDoubleArray;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkProperty;
 
 class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkDistanceRepresentation3D
@@ -199,7 +199,7 @@ protected:
   vtkDoubleArray* GlyphVectors;
   vtkPolyData* GlyphPolyData;
   vtkCylinderSource* GlyphCylinder;
-  vtkTransformPolyDataFilter* GlyphXForm;
+  vtkTransformFilter* GlyphXForm;
   vtkGlyph3D* Glyph3D;
   vtkPolyDataMapper* GlyphMapper;
   vtkActor* GlyphActor;

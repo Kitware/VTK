@@ -7,7 +7,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkStructuredGridOutlineFilter,
     vtkTubeFilter,
 )
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import (
     vtkGlyphSource2D,
     vtkLineSource,
@@ -44,7 +44,7 @@ transL1 = vtkTransform()
 transL1.Translate(3.7,0.0,28.37)
 transL1.Scale(5,5,5)
 transL1.RotateY(90)
-tf = vtkTransformPolyDataFilter()
+tf = vtkTransformFilter()
 tf.SetInputConnection(line.GetOutputPort())
 tf.SetTransform(transL1)
 probe = vtkProbeFilter()
@@ -55,7 +55,7 @@ transL2 = vtkTransform()
 transL2.Translate(9.2,0.0,31.20)
 transL2.Scale(5,5,5)
 transL2.RotateY(90)
-tf2 = vtkTransformPolyDataFilter()
+tf2 = vtkTransformFilter()
 tf2.SetInputConnection(line.GetOutputPort())
 tf2.SetTransform(transL2)
 probe2 = vtkProbeFilter()
@@ -66,7 +66,7 @@ transL3 = vtkTransform()
 transL3.Translate(13.27,0.0,33.40)
 transL3.Scale(4.5,4.5,4.5)
 transL3.RotateY(90)
-tf3 = vtkTransformPolyDataFilter()
+tf3 = vtkTransformFilter()
 tf3.SetInputConnection(line.GetOutputPort())
 tf3.SetTransform(transL3)
 probe3 = vtkProbeFilter()

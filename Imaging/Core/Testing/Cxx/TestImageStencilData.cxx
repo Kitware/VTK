@@ -19,7 +19,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 #include "vtkTesting.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTrivialProducer.h"
 
 #include <iostream>
@@ -29,9 +29,9 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
 {
   // Create two stencil data from polydata's
 
-  vtkPolyData* pd = vtkPolyData::New();
+  vtkNew<vtkPolyData> pd;
   pd->AllocateEstimate(1, 4);
-  vtkPoints* points = vtkPoints::New();
+  vtkNew<vtkPoints> points;
   points->InsertNextPoint(d1, d1, 0.0);
   points->InsertNextPoint(d2, d1, 0.0);
   points->InsertNextPoint(d2, d2, 0.0);
@@ -43,10 +43,9 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
   ptIds[2] = 2;
   ptIds[3] = 3;
   pd->InsertNextCell(VTK_QUAD, 4, ptIds);
-  points->Delete();
 
   // Extrude the contour along the normal to the plane the contour lies on.
-  vtkLinearExtrusionFilter* extrudeFilter = vtkLinearExtrusionFilter::New();
+  vtkNew<vtkLinearExtrusionFilter> extrudeFilter;
   extrudeFilter->SetInputData(pd);
   extrudeFilter->SetScaleFactor(1);
   extrudeFilter->SetExtrusionTypeToNormalExtrusion();
@@ -57,39 +56,31 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
   // the z coordinate.
 
   constexpr double m[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0, 0, 1 };
-  vtkMatrixToLinearTransform* linearTransform = vtkMatrixToLinearTransform::New();
+  vtkNew<vtkMatrixToLinearTransform> linearTransform;
   linearTransform->GetMatrix()->DeepCopy(m);
-  vtkTransformPolyDataFilter* transformPolyData = vtkTransformPolyDataFilter::New();
+  vtkNew<vtkTransformFilter> transformPolyData;
   transformPolyData->SetInputConnection(extrudeFilter->GetOutputPort());
   transformPolyData->SetTransform(linearTransform);
   transformPolyData->Update();
-  linearTransform->Delete();
 
   // Rasterize the polydata (sweep it along the plane the contour lies on,
   // bounded by the extrusion) and get extents into a stencil
-  vtkPolyDataToImageStencil* contourStencilFilter = vtkPolyDataToImageStencil::New();
+  vtkNew<vtkPolyDataToImageStencil> contourStencilFilter;
   contourStencilFilter->SetInputConnection(transformPolyData->GetOutputPort());
 
-  vtkImageData* image = vtkImageData::New();
+  vtkNew<vtkImageData> image;
   image->SetSpacing(1.0, 1.0, 1.0);
   image->SetOrigin(0.0, 0.0, 0.0);
   image->SetExtent(static_cast<int>(d1) - 2, static_cast<int>(d2) + 2, static_cast<int>(d1) - 2,
     static_cast<int>(d2) + 2, 0, 0);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
-  vtkImageStencil* stencil = vtkImageStencil::New();
+  vtkNew<vtkImageStencil> stencil;
   stencil->SetInputData(image);
   stencil->SetStencilConnection(contourStencilFilter->GetOutputPort());
   stencil->SetBackgroundValue(0);
   stencil->Update();
-  vtkSmartPointer<vtkImageStencilData> stencilData = contourStencilFilter->GetOutput();
-
-  extrudeFilter->Delete();
-  transformPolyData->Delete();
-  contourStencilFilter->Delete();
-  stencil->Delete();
-  image->Delete();
-  pd->Delete();
+  vtkImageStencilData* stencilData = contourStencilFilter->GetOutput();
 
   return stencilData;
 }
@@ -197,7 +188,7 @@ int TestImageStencilData(int argc, char* argv[])
     return VTK_SKIP_RETURN_CODE;
   }
 
-  vtkSmartPointer<vtkTrivialProducer> producer = vtkSmartPointer<vtkTrivialProducer>::New();
+  vtkNew<vtkTrivialProducer> producer;
   producer->SetOutput(image);
   int retval = testing->RegressionTest(producer, 0.05);
 

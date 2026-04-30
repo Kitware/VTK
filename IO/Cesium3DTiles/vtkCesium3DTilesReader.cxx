@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <vtk_nlohmannjson.h>
@@ -220,7 +220,7 @@ vtkCesium3DTilesReader::Tileset::ReadTile(std::string tileFileName, vtkTransform
   {
     throw std::runtime_error("Invalid extension for tile: " + extension);
   }
-  vtkNew<vtkTransformPolyDataFilter> transformFilter;
+  vtkNew<vtkTransformFilter> transformFilter;
   transformFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   transformFilter->SetTransform(transform);
   transformFilter->SetInputDataObject(mb);

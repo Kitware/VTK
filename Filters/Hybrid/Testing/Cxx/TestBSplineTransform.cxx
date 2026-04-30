@@ -31,28 +31,28 @@
 #include <vtkSphereSource.h>
 #include <vtkTestUtilities.h>
 #include <vtkThinPlateSplineTransform.h>
-#include <vtkTransformPolyDataFilter.h>
+#include <vtkTransformFilter.h>
 #include <vtkTransformToGrid.h>
 
 int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 300);
 
   // Make a sphere
-  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+  vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(20);
   sphere->SetPhiResolution(20);
   sphere->Update();
 
   // Make another sphere, with no normals
-  vtkSmartPointer<vtkPolyData> sphereData = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> sphereData;
   sphereData->SetPoints(sphere->GetOutput()->GetPoints());
   sphereData->SetPolys(sphere->GetOutput()->GetPolys());
 
   // ---------------------------
   // start with a thin plate spline transform
-  vtkSmartPointer<vtkPoints> spoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> spoints;
   spoints->SetNumberOfPoints(10);
   spoints->SetPoint(0, 0.000, 0.000, 0.500);
   spoints->SetPoint(1, 0.000, 0.000, -0.500);
@@ -65,7 +65,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   spoints->SetPoint(8, 0.000, -0.433, 0.250);
   spoints->SetPoint(9, 0.000, -0.433, -0.250);
 
-  vtkSmartPointer<vtkPoints> tpoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> tpoints;
   tpoints->SetNumberOfPoints(10);
   tpoints->SetPoint(0, 0.000, 0.000, 0.800);
   tpoints->SetPoint(1, 0.000, 0.000, -0.200);
@@ -78,183 +78,173 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   tpoints->SetPoint(8, 0.000, -0.233, 0.350);
   tpoints->SetPoint(9, 0.000, -0.433, -0.150);
 
-  vtkSmartPointer<vtkThinPlateSplineTransform> thin =
-    vtkSmartPointer<vtkThinPlateSplineTransform>::New();
+  vtkNew<vtkThinPlateSplineTransform> thin;
   thin->SetSourceLandmarks(spoints);
   thin->SetTargetLandmarks(tpoints);
   thin->SetBasisToR2LogR();
 
   // First pane: thin-plate, no normals
-  vtkSmartPointer<vtkTransformPolyDataFilter> f11 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f11;
   f11->SetInputData(sphereData);
   f11->SetTransform(thin);
 
-  vtkSmartPointer<vtkPolyDataMapper> m11 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m11;
   m11->SetInputConnection(f11->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a11 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a11;
   a11->SetMapper(m11);
   a11->RotateY(90);
   a11->GetProperty()->SetColor(1, 0, 0);
 
-  vtkSmartPointer<vtkRenderer> ren11 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren11;
   ren11->SetViewport(0.0, 0.5, 0.25, 1.0);
   ren11->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren11->AddActor(a11);
   renWin->AddRenderer(ren11);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f12 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f12;
   f12->SetInputData(sphereData);
   f12->SetTransform(thin->GetInverse());
 
-  vtkSmartPointer<vtkPolyDataMapper> m12 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m12;
   m12->SetInputConnection(f12->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a12 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a12;
   a12->SetMapper(m12);
   a12->RotateY(90);
   a12->GetProperty()->SetColor(0.9, 0.9, 0);
 
-  vtkSmartPointer<vtkRenderer> ren12 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren12;
   ren12->SetViewport(0.0, 0.0, 0.25, 0.5);
   ren12->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren12->AddActor(a12);
   renWin->AddRenderer(ren12);
 
   // Second pane: b-spline transform, no normals
-  vtkSmartPointer<vtkTransformToGrid> transformToGrid = vtkSmartPointer<vtkTransformToGrid>::New();
+  vtkNew<vtkTransformToGrid> transformToGrid;
   transformToGrid->SetInput(thin);
   transformToGrid->SetGridOrigin(-1.5, -1.5, -1.5);
   transformToGrid->SetGridExtent(0, 60, 0, 60, 0, 60);
   transformToGrid->SetGridSpacing(0.05, 0.05, 0.05);
 
-  vtkSmartPointer<vtkImageBSplineCoefficients> coeffs =
-    vtkSmartPointer<vtkImageBSplineCoefficients>::New();
+  vtkNew<vtkImageBSplineCoefficients> coeffs;
   coeffs->SetInputConnection(transformToGrid->GetOutputPort());
 
-  vtkSmartPointer<vtkBSplineTransform> t2 = vtkSmartPointer<vtkBSplineTransform>::New();
+  vtkNew<vtkBSplineTransform> t2;
   t2->SetCoefficientConnection(coeffs->GetOutputPort());
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> f21 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f21;
   f21->SetInputData(sphereData);
   f21->SetTransform(t2);
 
-  vtkSmartPointer<vtkPolyDataMapper> m21 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m21;
   m21->SetInputConnection(f21->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a21 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a21;
   a21->SetMapper(m21);
   a21->RotateY(90);
   a21->GetProperty()->SetColor(1, 0, 0);
 
-  vtkSmartPointer<vtkRenderer> ren21 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren21;
   ren21->SetViewport(0.25, 0.5, 0.50, 1.0);
   ren21->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren21->AddActor(a21);
   renWin->AddRenderer(ren21);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f22 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f22;
   f22->SetInputData(sphereData);
   f22->SetTransform(t2->GetInverse());
 
-  vtkSmartPointer<vtkPolyDataMapper> m22 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m22;
   m22->SetInputConnection(f22->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a22 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a22;
   a22->SetMapper(m22);
   a22->RotateY(90);
   a22->GetProperty()->SetColor(0.9, 0.9, 0);
 
-  vtkSmartPointer<vtkRenderer> ren22 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren22;
   ren22->SetViewport(0.25, 0.0, 0.50, 0.5);
   ren22->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren22->AddActor(a22);
   renWin->AddRenderer(ren22);
 
   // Third pane: thin-plate, no normals
-  vtkSmartPointer<vtkTransformPolyDataFilter> f31 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f31;
   f31->SetInputConnection(sphere->GetOutputPort());
   f31->SetTransform(thin);
 
-  vtkSmartPointer<vtkPolyDataMapper> m31 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m31;
   m31->SetInputConnection(f31->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a31 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a31;
   a31->SetMapper(m31);
   a31->RotateY(90);
   a31->GetProperty()->SetColor(1, 0, 0);
 
-  vtkSmartPointer<vtkRenderer> ren31 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren31;
   ren31->SetViewport(0.50, 0.5, 0.75, 1.0);
   ren31->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren31->AddActor(a31);
   renWin->AddRenderer(ren31);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f32 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f32;
   f32->SetInputConnection(sphere->GetOutputPort());
   f32->SetTransform(thin->GetInverse());
 
-  vtkSmartPointer<vtkPolyDataMapper> m32 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m32;
   m32->SetInputConnection(f32->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a32 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a32;
   a32->SetMapper(m32);
   a32->RotateY(90);
   a32->GetProperty()->SetColor(0.9, 0.9, 0);
 
-  vtkSmartPointer<vtkRenderer> ren32 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren32;
   ren32->SetViewport(0.5, 0.0, 0.75, 0.5);
   ren32->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren32->AddActor(a32);
   renWin->AddRenderer(ren32);
 
   // Third pane: b-spline, normals
-  vtkSmartPointer<vtkBSplineTransform> t4 = vtkSmartPointer<vtkBSplineTransform>::New();
+  vtkNew<vtkBSplineTransform> t4;
   t4->SetCoefficientConnection(coeffs->GetOutputPort());
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> f41 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f41;
   f41->SetInputConnection(sphere->GetOutputPort());
   f41->SetTransform(t4);
 
-  vtkSmartPointer<vtkPolyDataMapper> m41 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m41;
   m41->SetInputConnection(f41->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a41 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a41;
   a41->SetMapper(m41);
   a41->RotateY(90);
   a41->GetProperty()->SetColor(1, 0, 0);
 
-  vtkSmartPointer<vtkRenderer> ren41 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren41;
   ren41->SetViewport(0.75, 0.5, 1.0, 1.0);
   ren41->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren41->AddActor(a41);
   renWin->AddRenderer(ren41);
 
   // Invert the transform
-  vtkSmartPointer<vtkTransformPolyDataFilter> f42 =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> f42;
   f42->SetInputConnection(sphere->GetOutputPort());
   f42->SetTransform(t4->GetInverse());
 
-  vtkSmartPointer<vtkPolyDataMapper> m42 = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> m42;
   m42->SetInputConnection(f42->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> a42 = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> a42;
   a42->SetMapper(m42);
   a42->RotateY(90);
   a42->GetProperty()->SetColor(0.9, 0.9, 0);
 
-  vtkSmartPointer<vtkRenderer> ren42 = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkRenderer> ren42;
   ren42->SetViewport(0.75, 0.0, 1.0, 0.5);
   ren42->ResetCamera(-0.5, 0.5, -0.5, 0.5, -1, 1);
   ren42->AddActor(a42);
@@ -262,8 +252,7 @@ int TestBSplineTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // you MUST NOT call renderWindow->Render() before
   // iren->SetRenderWindow(renderWindow);
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   // render and interact

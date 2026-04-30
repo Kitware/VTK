@@ -7,7 +7,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkPolyDataNormals,
     vtkReverseSense,
 )
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkIOGeometry import vtkOBJReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -57,7 +57,7 @@ cellNormals.ComputeCellNormalsOn()
 reflect = vtkTransform()
 reflect.Scale(-1, 1, 1)
 
-cowReflect = vtkTransformPolyDataFilter()
+cowReflect = vtkTransformFilter()
 cowReflect.SetTransform(reflect)
 cowReflect.SetInputConnection(cellNormals.GetOutputPort())
 

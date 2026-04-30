@@ -28,7 +28,7 @@ class vtkCamera;
 class vtkCameraInterpolator;
 class vtkPoints;
 class vtkPolyData;
-class vtkTransformPolyDataFilter;
+class vtkTransformFilter;
 class vtkPolyDataMapper2D;
 class vtkProperty2D;
 class vtkActor2D;
@@ -135,7 +135,7 @@ protected:
   // representation of the camera
   vtkPoints* Points;
   vtkPolyData* PolyData;
-  vtkTransformPolyDataFilter* TransformFilter;
+  vtkTransformFilter* TransformFilter;
   vtkPolyDataMapper2D* Mapper;
   vtkProperty2D* Property;
   vtkActor2D* Actor;

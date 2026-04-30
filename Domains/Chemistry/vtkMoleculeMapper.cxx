@@ -26,7 +26,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
@@ -75,7 +75,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   // rather than the y-axis. This makes glyph orientation much easier.
   vtkNew<vtkTransform> cylXform;
   cylXform->RotateWXYZ(90, 0.0, 0.0, 1.0);
-  vtkNew<vtkTransformPolyDataFilter> cylXformFilter;
+  vtkNew<vtkTransformFilter> cylXformFilter;
   cylXformFilter->SetInputConnection(cylinder->GetOutputPort());
   cylXformFilter->SetTransform(cylXform);
   cylXformFilter->Update();

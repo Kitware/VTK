@@ -11,7 +11,7 @@
  * that modify one surface to best match the other (in a least square sense).
  * This has to be iterated to get proper convergence of the surfaces.
  * @attention
- * Use vtkTransformPolyDataFilter to apply the resulting ICP transform to
+ * Use vtkTransformFilter to apply the resulting ICP transform to
  * your data. You might also set it to your actor's user transform.
  * @attention
  * This class makes use of vtkLandmarkTransform internally to compute the

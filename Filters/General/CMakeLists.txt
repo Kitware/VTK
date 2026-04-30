@@ -125,8 +125,8 @@ set(classes
   vtkTemporalStatistics
   vtkTessellatorFilter
   vtkTimeSourceExample
-  vtkTransformFilter
   vtkTransformPolyDataFilter
+  vtkTransformFilter
   vtkUncertaintyTubeFilter
   vtkVertexGlyphFilter
   vtkVolumeContourSpectrumFilter

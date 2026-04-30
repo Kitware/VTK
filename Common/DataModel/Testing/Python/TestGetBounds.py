@@ -8,7 +8,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkAppendPolyData,
     vtkFeatureEdges,
 )
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkPlaneSource
 import sys
 
@@ -40,13 +40,13 @@ edges.FeatureEdgesOff()
 
 t1 = vtkTransform()
 t1.Translate(-1.0,0,0)
-tf1 = vtkTransformPolyDataFilter()
+tf1 = vtkTransformFilter()
 tf1.SetInputConnection(edges.GetOutputPort())
 tf1.SetTransform(t1)
 
 t2 = vtkTransform()
 t2.Translate(1.0,0,0)
-tf2 = vtkTransformPolyDataFilter()
+tf2 = vtkTransformFilter()
 tf2.SetInputConnection(edges.GetOutputPort())
 tf2.SetTransform(t2)
 

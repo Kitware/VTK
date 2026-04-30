@@ -6,7 +6,7 @@ from vtkmodules.vtkCommonDataModel import (
 )
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersModeling import vtkRuledSurfaceFilter
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -48,7 +48,7 @@ profile.SetLines(lines)
 xfm = vtkTransform()
 xfm.Translate(0,0,8)
 xfm.RotateZ(90)
-xfmPd = vtkTransformPolyDataFilter()
+xfmPd = vtkTransformFilter()
 xfmPd.SetInputData(profile)
 xfmPd.SetTransform(xfm)
 appendPD = vtkAppendPolyData()

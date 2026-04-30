@@ -25,7 +25,7 @@
  * vtkButtonSource vtkEllipticalButtonSource
  *
  * @warning
- * The button is defined in the x-y plane. Use vtkTransformPolyDataFilter
+ * The button is defined in the x-y plane. Use vtkTransformFilter
  * or vtkGlyph3D to orient the button in a different direction.
  */
 

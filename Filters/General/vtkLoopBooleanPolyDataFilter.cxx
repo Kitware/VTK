@@ -20,13 +20,15 @@
 #include "vtkIntersectionPolyDataFilter.h"
 #include "vtkMath.h"
 #include "vtkMergeCells.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -471,7 +473,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::Initialize()
 void vtkLoopBooleanPolyDataFilter::Impl::GetBooleanRegions(
   int inputIndex, std::vector<simLoop>* loops)
 {
-  vtkSmartPointer<vtkPolyData> tmpPolyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> tmpPolyData;
   tmpPolyData->DeepCopy(this->Mesh[inputIndex]);
   tmpPolyData->BuildLinks();
 
@@ -558,15 +560,15 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
       cellPtId2 = pts[j];
     }
   }
-  vtkSmartPointer<vtkPoints> cellPts = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> cellPts;
   cellPts->InsertNextPoint(pd->GetPoint(cellPtId0));
   cellPts->InsertNextPoint(pd->GetPoint(cellPtId1));
   cellPts->InsertNextPoint(pd->GetPoint(cellPtId2));
 
-  vtkSmartPointer<vtkPolyData> cellPD = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> cellPD;
   cellPD->SetPoints(cellPts);
 
-  vtkSmartPointer<vtkCellArray> cellLines = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> cellLines;
   for (int j = 0; j < npts; j++)
   {
     int spot1 = j;
@@ -579,7 +581,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
 
   // Set up a transform that will rotate the points to the
   // XY-plane (normal aligned with z-axis).
-  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   double zaxis[3] = { 0.0, 0.0, 1.0 };
   double rotationAxis[3], normal[3], center[3], rotationAngle;
 
@@ -620,15 +622,13 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
   vtkTriangle::TriangleCenter(points[0], points[1], points[2], center);
   transform->Translate(-center[0], -center[1], -center[2]);
 
-  vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
-    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  vtkNew<vtkTransformFilter> transformer;
   transformer->SetInputData(cellPD);
   transformer->SetTransform(transform);
   transformer->SetContainerAlgorithm(this->ParentFilter);
   transformer->Update();
 
-  vtkSmartPointer<vtkPolyData> transPD = vtkSmartPointer<vtkPolyData>::New();
-  transPD = transformer->GetOutput();
+  vtkPolyData* transPD = transformer->GetPolyDataOutput();
   transPD->BuildLinks();
 
   double area = 0;
@@ -694,8 +694,8 @@ void vtkLoopBooleanPolyDataFilter::Impl::SetBoundaryArrays()
   // Variables used in the function
   // Point locator to find points on mesh that are the points on the boundary
   // lines
-  vtkSmartPointer<vtkPointLocator> pointLocator1 = vtkSmartPointer<vtkPointLocator>::New();
-  vtkSmartPointer<vtkPointLocator> pointLocator2 = vtkSmartPointer<vtkPointLocator>::New();
+  vtkNew<vtkPointLocator> pointLocator1;
+  vtkNew<vtkPointLocator> pointLocator2;
   pointLocator1->SetDataSet(this->Mesh[0]);
   pointLocator1->BuildLocator();
   pointLocator2->SetDataSet(this->Mesh[1]);
@@ -812,8 +812,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   }
 
   // Get intersected versions
-  vtkSmartPointer<vtkIntersectionPolyDataFilter> polydataIntersection =
-    vtkSmartPointer<vtkIntersectionPolyDataFilter>::New();
+  vtkNew<vtkIntersectionPolyDataFilter> polydataIntersection;
   polydataIntersection->SetInputConnection(0, this->GetInputConnection(0, 0));
   polydataIntersection->SetInputConnection(1, this->GetInputConnection(1, 0));
   polydataIntersection->SplitFirstOutputOn();
@@ -887,7 +886,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
       {
         vtkDebugMacro(<< "Keeping both");
 
-        vtkSmartPointer<vtkAppendPolyData> appender = vtkSmartPointer<vtkAppendPolyData>::New();
+        vtkNew<vtkAppendPolyData> appender;
         appender->AddInputData(impl->Mesh[0]);
         appender->AddInputData(impl->Mesh[1]);
         appender->SetContainerAlgorithm(this);
@@ -944,7 +943,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   outputSurface->GetCellData()->GetArray("FreeEdge")->GetRange(fullfreeedge, 0);
 
   // Add Normals
-  vtkSmartPointer<vtkPolyDataNormals> normaler = vtkSmartPointer<vtkPolyDataNormals>::New();
+  vtkNew<vtkPolyDataNormals> normaler;
   normaler->SetInputData(outputSurface);
   normaler->AutoOrientNormalsOn();
   normaler->SetContainerAlgorithm(this);
@@ -1351,7 +1350,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
   // surfacer->Update();
   // surfaces[3]->DeepCopy(surfacer->GetOutput());
 
-  vtkSmartPointer<vtkAppendPolyData> appender = vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkNew<vtkAppendPolyData> appender;
 
   // If open intersection case, make sure correct region is taken
   if (this->IntersectionCase == 2)

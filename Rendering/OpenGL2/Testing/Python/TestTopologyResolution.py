@@ -2,7 +2,7 @@
 from vtkmodules.vtkCommonDataModel import vtkMultiBlockDataSet
 from vtkmodules.vtkCommonExecutionModel import vtkTrivialProducer
 from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersGeneral import vtkTransformPolyDataFilter
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkFiltersSources import vtkCubeSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -42,7 +42,7 @@ transform = vtkTransform()
 transform.Identity()
 transform.RotateX(45)
 transform.RotateY(45)
-transformer=vtkTransformPolyDataFilter()
+transformer=vtkTransformFilter()
 transformer.SetInputConnection(cube.GetOutputPort())
 transformer.SetTransform(transform)
 transformer.Update()

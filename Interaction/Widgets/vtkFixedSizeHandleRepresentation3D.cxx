@@ -9,7 +9,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedSizeHandleRepresentation3D);

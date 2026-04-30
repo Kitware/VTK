@@ -27,7 +27,7 @@
  * libraries use left handed coordinate systems and rotations.
  * @sa
  * vtkPerspectiveTransform vtkGeneralTransform vtkMatrix4x4
- * vtkTransformCollection vtkTransformFilter vtkTransformPolyDataFilter
+ * vtkTransformCollection vtkTransformFilter vtkTransformFilter
  * vtkImageReslice
  */
 

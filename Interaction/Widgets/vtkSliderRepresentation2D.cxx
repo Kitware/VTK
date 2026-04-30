@@ -17,7 +17,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
@@ -65,7 +65,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Slider->SetPoints(this->Points);
   this->Slider->SetPolys(this->SliderCells);
 
-  this->SliderXForm = vtkTransformPolyDataFilter::New();
+  this->SliderXForm = vtkTransformFilter::New();
   this->SliderXForm->SetInputData(this->Slider);
   this->SliderXForm->SetTransform(XForm);
 
@@ -91,7 +91,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Tube->SetPoints(this->Points);
   this->Tube->SetPolys(this->TubeCells);
 
-  this->TubeXForm = vtkTransformPolyDataFilter::New();
+  this->TubeXForm = vtkTransformFilter::New();
   this->TubeXForm->SetInputData(this->Tube);
   this->TubeXForm->SetTransform(XForm);
 
@@ -125,7 +125,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Cap->SetPoints(this->Points);
   this->Cap->SetPolys(this->CapCells);
 
-  this->CapXForm = vtkTransformPolyDataFilter::New();
+  this->CapXForm = vtkTransformFilter::New();
   this->CapXForm->SetInputData(this->Cap);
   this->CapXForm->SetTransform(XForm);
 

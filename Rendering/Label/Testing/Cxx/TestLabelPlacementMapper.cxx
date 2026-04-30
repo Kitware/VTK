@@ -32,7 +32,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
@@ -88,7 +88,7 @@ int TestLabelPlacementMapper(int argc, char* argv[])
     xmlPolyDataReader->SetFileName(fname);
     delete[] fname;
 
-    vtkNew<vtkTransformPolyDataFilter> transformToCenter;
+    vtkNew<vtkTransformFilter> transformToCenter;
     transformToCenter->SetInputConnection(xmlPolyDataReader->GetOutputPort());
     vtkNew<vtkTransform> transformToCenterTransform;
     transformToCenterTransform->Translate(center);
