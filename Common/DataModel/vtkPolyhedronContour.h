@@ -27,8 +27,9 @@
 #ifndef vtkPolyhedronContour_h
 #define vtkPolyhedronContour_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkType.h"                  // For vtkIdType
+#include "vtkCommonDataModelModule.h"     // For export macro
+#include "vtkStaticEdgeLocatorTemplate.h" // For vtkStaticEdgeLocatorTemplate
+#include "vtkType.h"                      // For vtkIdType
 
 #include <array>         // For array
 #include <cstdint>       // For int64_t
@@ -112,6 +113,36 @@ public:
     vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkCellArray* outFaces = nullptr,
     vtkCellArray* outFaceLocs = nullptr);
 
+  //
+  // Bulk API for integration with threaded filters (vtkContour3DLinearGrid,
+  // vtkTableBasedClipDataSet). Operates on raw point coordinates and face
+  // streams without instantiating vtkPolyhedron objects.
+  //
+  // - Contour: single-call ContourCell helper below.
+  // - Clip: two-pass CountClip / EmitClip, where CountClip produces the edge
+  //   intersection list fed into a shared vtkStaticEdgeLocatorTemplate before
+  //   EmitClip writes final geometry with deduplicated iso-vertex IDs.
+  //============================================================================
+
+  /**
+   * ContourCell for a single polyhedron.
+   *
+   * @param numPointIds                 Number of unique points in this cell
+   * @param pointIds                    Global point IDs for this cell, [numPointIds]
+   * @param polyhedronFaces             Polyhedron faces
+   * @param scalars                     Scalar array (indexed by global point ID)
+   * @param isoValue                    Clip value
+   * @param generateTriangles           If true, output.PolyConn is triangle soup.
+   * @param polygonsSize                [out] Polygon vertex counts (num vertices per polygon, size
+   *                                    NPolys). Make sure to clear it before adding.
+   * @param intersectedEdges            [out] Intersected Edges defined as (globalPtId0,
+   *                                    globalPtId1, t). Make sure to clear it before adding.
+   */
+  static void ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
+    vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool generateTriangles,
+    std::vector<vtkIdType>& polygonsSize,
+    std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges);
+
 private:
   //============================================================================
   // Data Structures
@@ -180,7 +211,8 @@ private:
   TraceResult Result;
 
   //============================================================================
-  // Internal Methods
+  // Shared algorithm core (static — used by both the instance path and the
+  // bulk static API).
   //============================================================================
 
   /**
@@ -245,6 +277,22 @@ private:
    */
   void InterpolatePositionsAndInsertPoints(vtkPolyhedron* cell, vtkIncrementalPointLocator* locator,
     vtkPointData* inPd, vtkPointData* outPd);
+
+  //============================================================================
+  // Internal Data structured for ContourCell/CountClip/EmitClip
+  //============================================================================
+
+  // Per-cell scratch for the bulk Contour/clip API. Held in a
+  // thread_local so allocations amortize across cells processed by the
+  // same worker thread. Capacities grow to the largest cell seen and are
+  // retained thereafter.
+  struct PolyhedronWorkspace
+  {
+    std::vector<double> LocalScalars;
+    std::vector<vtkIdType> LocalFaceStream; // face-stream remap: global ID -> local 0..N-1
+    std::unordered_map<vtkIdType, int> GlobalToLocal;
+    TraceResult Trace; // RunLopezTrace output reused
+  };
 };
 
 VTK_ABI_NAMESPACE_END

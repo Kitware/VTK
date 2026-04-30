@@ -770,4 +770,119 @@ void vtkPolyhedronContour::OutputClip(vtkPolyhedron* cell, vtkCellArray* connect
   }
 }
 
+//------------------------------------------------------------------------------
+// Cell-array ContourCell: takes vtkCellArray* faces + vtkDataArray* scalars.
+// Produces a flat polygon-traversal-order list of intersected edges plus a
+// per-polygon vertex-count array. Designed for integration with threaded
+// filters (vtkContour3DLinearGrid) that drive iso-vertex deduplication through
+// their own shared edge locator.
+//------------------------------------------------------------------------------
+void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
+  vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool generateTriangles,
+  std::vector<vtkIdType>& polygonsSize, std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
+{
+  polygonsSize.clear();
+  intersectedEdges.clear();
+
+  if (numPointIds < 4 || polyhedronFaces == nullptr || scalars == nullptr)
+  {
+    return;
+  }
+
+  // Per-thread workspace — all per-cell scratch buffers amortize allocation
+  // across cells processed by the same worker thread.
+  thread_local PolyhedronWorkspace ws;
+
+  // Build raw scalar array indexed by local index (0..numPointIds-1).
+  auto& localScalars = ws.LocalScalars;
+  localScalars.resize(numPointIds);
+  for (vtkIdType i = 0; i < numPointIds; ++i)
+  {
+    localScalars[i] = scalars->GetComponent(pointIds[i], 0);
+  }
+
+  // Classify before building the face stream.
+  auto& trace = ws.Trace;
+  const vtkIdType nFaces = polyhedronFaces->GetNumberOfCells();
+  trace.Clear(nFaces);
+  int numInside = 0, numOutside = 0;
+  ClassifyVertices(trace, localScalars, isoValue, numInside, numOutside);
+  // skip cells that don't straddle the iso-value.
+  if (numInside == 0 || numOutside == 0)
+  {
+    return;
+  }
+
+  // Build global->local map for remapping face stream IDs.
+  auto& globalToLocal = ws.GlobalToLocal;
+  BuildLocalMap(pointIds, numPointIds, globalToLocal);
+
+  // Build raw face stream from vtkCellArray, remapping global IDs to local.
+  auto& localFaceStream = ws.LocalFaceStream;
+  polyhedronFaces->Dispatch(PolyhedronFacesToLocalFaceStream{}, globalToLocal, localFaceStream);
+
+  RunLopezTraceInto(trace, nFaces, localFaceStream.data(), localScalars, isoValue);
+
+  if (trace.IsoPolygons.empty())
+  {
+    return;
+  }
+
+  // Helper: push one iso-vertex (by trace-local iso-vertex index) as an edge
+  // tuple in normalized (g0 < g1) form into intersectedEdges.
+  auto pushEdge = [&](int isoIdx)
+  {
+    const auto& iv = trace.IsoVertices[isoIdx];
+    vtkIdType g0 = pointIds[iv.OutsideVertex];
+    vtkIdType g1 = pointIds[iv.InsideVertex];
+    if (g0 < g1)
+    {
+      intersectedEdges.emplace_back(g0, g1, iv.Weight);
+    }
+    else
+    {
+      intersectedEdges.emplace_back(g1, g0, 1.0 - iv.Weight);
+    }
+  };
+
+  // Walk iso-polygons; emit edges and polygon sizes.
+  if (generateTriangles)
+  {
+    for (const auto& poly : trace.IsoPolygons)
+    {
+      const vtkIdType nv = static_cast<vtkIdType>(poly.size());
+      if (nv < 3)
+      {
+        continue;
+      }
+      // Fan-triangulate from poly[0]: triangles (poly[0], poly[i+1], poly[i+2])
+      // for i in 0..nv-3. Each triangle = 3 edges (one per iso-vertex).
+      const vtkIdType nTris = nv - 2;
+      for (vtkIdType t = 0; t < nTris; ++t)
+      {
+        pushEdge(poly[0]);
+        pushEdge(poly[t + 1]);
+        pushEdge(poly[t + 2]);
+        polygonsSize.push_back(3);
+      }
+    }
+  }
+  else
+  {
+    for (const auto& poly : trace.IsoPolygons)
+    {
+      const vtkIdType nv = static_cast<vtkIdType>(poly.size());
+      if (nv < 3)
+      {
+        continue;
+      }
+      for (vtkIdType j = 0; j < nv; ++j)
+      {
+        pushEdge(poly[j]);
+      }
+      polygonsSize.push_back(nv);
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END
