@@ -254,7 +254,6 @@ Iter fixZerosInTheEnd(Iter begin, Iter end, unsigned int precision) {
 #include <cstring>
 #include <iostream>
 #include <istream>
-#include <iterator>
 #include <limits>
 #include <memory>
 #include <set>
@@ -262,6 +261,13 @@ Iter fixZerosInTheEnd(Iter begin, Iter end, unsigned int precision) {
 #include <utility>
 
 #include <cstdio>
+#if __cplusplus >= 201103L
+
+#if !defined(sscanf)
+#define sscanf std::sscanf
+#endif
+
+#endif //__cplusplus
 
 #if defined(_MSC_VER)
 #if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
@@ -277,7 +283,7 @@ Iter fixZerosInTheEnd(Iter begin, Iter end, unsigned int precision) {
 // Define JSONCPP_DEPRECATED_STACK_LIMIT as an appropriate integer at compile
 // time to change the stack limit
 #if !defined(JSONCPP_DEPRECATED_STACK_LIMIT)
-#define JSONCPP_DEPRECATED_STACK_LIMIT 256
+#define JSONCPP_DEPRECATED_STACK_LIMIT 1000
 #endif
 
 static size_t const stackLimit_g =
@@ -285,7 +291,11 @@ static size_t const stackLimit_g =
 
 namespace Json {
 
+#if __cplusplus >= 201103L || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
 using CharReaderPtr = std::unique_ptr<CharReader>;
+#else
+using CharReaderPtr = std::auto_ptr<CharReader>;
+#endif
 
 // Implementation of class Features
 // ////////////////////////////////
@@ -326,10 +336,15 @@ bool Reader::parse(const std::string& document, Value& root,
 }
 
 bool Reader::parse(std::istream& is, Value& root, bool collectComments) {
-  document_.assign(std::istreambuf_iterator<char>(is),
-                   std::istreambuf_iterator<char>());
-  return parse(document_.data(), document_.data() + document_.size(), root,
-               collectComments);
+  // std::istream_iterator<char> begin(is);
+  // std::istream_iterator<char> end;
+  // Those would allow streamed input from a file, if parse() were a
+  // template function.
+
+  // Since String is reference-counted, this at least does not
+  // create an extra copy.
+  String doc(std::istreambuf_iterator<char>(is), {});
+  return parse(doc.data(), doc.data() + doc.size(), root, collectComments);
 }
 
 bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root,
@@ -377,12 +392,7 @@ bool Reader::readValue() {
   // after calling readValue(). parse() executes one nodes_.push(), so > instead
   // of >=.
   if (nodes_.size() > stackLimit_g)
-#if JSON_USE_EXCEPTION
     throwRuntimeError("Exceeded stackLimit in readValue().");
-#else
-    // throwRuntimeError aborts. Don't abort here.
-    return false;
-#endif
 
   Token token;
   readTokenSkippingComments(token);
@@ -816,7 +826,6 @@ bool Reader::decodeDouble(Token& token) {
 bool Reader::decodeDouble(Token& token, Value& decoded) {
   double value = 0;
   IStringStream is(String(token.start_, token.end_));
-  is.imbue(std::locale::classic());
   if (!(is >> value)) {
     if (value == std::numeric_limits<double>::max())
       value = std::numeric_limits<double>::infinity();
@@ -888,8 +897,6 @@ bool Reader::decodeString(Token& token, String& decoded) {
         return addError("Bad escape sequence in string", token, current);
       }
     } else {
-      if (static_cast<unsigned char>(c) < 0x20)
-        return addError("Control character in string", token, current - 1);
       decoded += c;
     }
   }
@@ -1853,7 +1860,6 @@ bool OurReader::decodeDouble(Token& token) {
 bool OurReader::decodeDouble(Token& token, Value& decoded) {
   double value = 0;
   IStringStream is(String(token.start_, token.end_));
-  is.imbue(std::locale::classic());
   if (!(is >> value)) {
     if (value == std::numeric_limits<double>::max())
       value = std::numeric_limits<double>::infinity();
@@ -1925,8 +1931,6 @@ bool OurReader::decodeString(Token& token, String& decoded) {
         return addError("Bad escape sequence in string", token, current);
       }
     } else {
-      if (static_cast<unsigned char>(c) < 0x20)
-        return addError("Control character in string", token, current - 1);
       decoded += c;
     }
   }
@@ -2171,7 +2175,7 @@ void CharReaderBuilder::strictMode(Json::Value* settings) {
   (*settings)["allowDroppedNullPlaceholders"] = false;
   (*settings)["allowNumericKeys"] = false;
   (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 256;
+  (*settings)["stackLimit"] = 1000;
   (*settings)["failIfExtra"] = true;
   (*settings)["rejectDupKeys"] = true;
   (*settings)["allowSpecialFloats"] = false;
@@ -2188,7 +2192,7 @@ void CharReaderBuilder::setDefaults(Json::Value* settings) {
   (*settings)["allowDroppedNullPlaceholders"] = false;
   (*settings)["allowNumericKeys"] = false;
   (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 256;
+  (*settings)["stackLimit"] = 1000;
   (*settings)["failIfExtra"] = false;
   (*settings)["rejectDupKeys"] = false;
   (*settings)["allowSpecialFloats"] = false;
@@ -2204,7 +2208,7 @@ void CharReaderBuilder::ecma404Mode(Json::Value* settings) {
   (*settings)["allowDroppedNullPlaceholders"] = false;
   (*settings)["allowNumericKeys"] = false;
   (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 256;
+  (*settings)["stackLimit"] = 1000;
   (*settings)["failIfExtra"] = true;
   (*settings)["rejectDupKeys"] = false;
   (*settings)["allowSpecialFloats"] = false;
@@ -2451,10 +2455,6 @@ ValueIterator& ValueIterator::operator=(const SelfType& other) {
 #include <sstream>
 #include <utility>
 
-#ifdef JSONCPP_HAS_STRING_VIEW
-#include <string_view>
-#endif
-
 // Provide implementation equivalent of std::snprintf for older _MSC compilers
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #include <stdarg.h>
@@ -2525,8 +2525,7 @@ template <typename T, typename U>
 static inline bool InRange(double d, T min, U max) {
   // The casts can lose precision, but we are looking only for
   // an approximate range. Might fail on edge cases though. ~cdunn
-  return d >= static_cast<double>(min) && d <= static_cast<double>(max) &&
-         !(static_cast<U>(d) == min && d != static_cast<double>(min));
+  return d >= static_cast<double>(min) && d <= static_cast<double>(max);
 }
 #else  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 static inline double integerToDouble(Json::UInt64 value) {
@@ -2540,8 +2539,7 @@ template <typename T> static inline double integerToDouble(T value) {
 
 template <typename T, typename U>
 static inline bool InRange(double d, T min, U max) {
-  return d >= integerToDouble(min) && d <= integerToDouble(max) &&
-         !(static_cast<U>(d) == min && d != integerToDouble(min));
+  return d >= integerToDouble(min) && d <= integerToDouble(max);
 }
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 
@@ -2603,7 +2601,7 @@ inline static void decodePrefixedString(bool isPrefixed, char const* prefixed,
 /** Free the string duplicated by
  * duplicateStringValue()/duplicateAndPrefixStringValue().
  */
-#if JSONCPP_USE_SECURE_MEMORY
+#if JSONCPP_USING_SECURE_MEMORY
 static inline void releasePrefixedStringValue(char* value) {
   unsigned length = 0;
   char const* valueDecoded;
@@ -2618,10 +2616,10 @@ static inline void releaseStringValue(char* value, unsigned length) {
   memset(value, 0, size);
   free(value);
 }
-#else  // !JSONCPP_USE_SECURE_MEMORY
+#else  // !JSONCPP_USING_SECURE_MEMORY
 static inline void releasePrefixedStringValue(char* value) { free(value); }
 static inline void releaseStringValue(char* value, unsigned) { free(value); }
-#endif // JSONCPP_USE_SECURE_MEMORY
+#endif // JSONCPP_USING_SECURE_MEMORY
 
 } // namespace Json
 
@@ -2687,29 +2685,20 @@ Value::CZString::CZString(const CZString& other) {
   cstr_ = (other.storage_.policy_ != noDuplication && other.cstr_ != nullptr
                ? duplicateStringValue(other.cstr_, other.storage_.length_)
                : other.cstr_);
-  if (other.cstr_) {
-    storage_.policy_ =
-        static_cast<unsigned>(
-            other.cstr_
-                ? (static_cast<DuplicationPolicy>(other.storage_.policy_) ==
-                           noDuplication
-                       ? noDuplication
-                       : duplicate)
-                : static_cast<DuplicationPolicy>(other.storage_.policy_)) &
-        3U;
-    storage_.length_ = other.storage_.length_;
-  } else {
-    index_ = other.index_;
-  }
+  storage_.policy_ =
+      static_cast<unsigned>(
+          other.cstr_
+              ? (static_cast<DuplicationPolicy>(other.storage_.policy_) ==
+                         noDuplication
+                     ? noDuplication
+                     : duplicate)
+              : static_cast<DuplicationPolicy>(other.storage_.policy_)) &
+      3U;
+  storage_.length_ = other.storage_.length_;
 }
 
-Value::CZString::CZString(CZString&& other) noexcept : cstr_(other.cstr_) {
-  if (other.cstr_) {
-    storage_.policy_ = other.storage_.policy_;
-    storage_.length_ = other.storage_.length_;
-  } else {
-    index_ = other.index_;
-  }
+Value::CZString::CZString(CZString&& other) noexcept
+    : cstr_(other.cstr_), index_(other.index_) {
   other.cstr_ = nullptr;
 }
 
@@ -2735,16 +2724,8 @@ Value::CZString& Value::CZString::operator=(const CZString& other) {
 }
 
 Value::CZString& Value::CZString::operator=(CZString&& other) noexcept {
-  if (cstr_ && storage_.policy_ == duplicate) {
-    releasePrefixedStringValue(const_cast<char*>(cstr_));
-  }
   cstr_ = other.cstr_;
-  if (other.cstr_) {
-    storage_.policy_ = other.storage_.policy_;
-    storage_.length_ = other.storage_.length_;
-  } else {
-    index_ = other.index_;
-  }
+  index_ = other.index_;
   other.cstr_ = nullptr;
   return *this;
 }
@@ -2874,14 +2855,6 @@ Value::Value(const String& value) {
   value_.string_ = duplicateAndPrefixStringValue(
       value.data(), static_cast<unsigned>(value.length()));
 }
-
-#ifdef JSONCPP_HAS_STRING_VIEW
-Value::Value(std::string_view value) {
-  initBasic(stringValue, true);
-  value_.string_ = duplicateAndPrefixStringValue(
-      value.data(), static_cast<unsigned>(value.length()));
-}
-#endif
 
 Value::Value(const StaticString& value) {
   initBasic(stringValue);
@@ -3064,7 +3037,7 @@ const char* Value::asCString() const {
   return this_str;
 }
 
-#if JSONCPP_USE_SECURE_MEMORY
+#if JSONCPP_USING_SECURE_MEMORY
 unsigned Value::getCStringLength() const {
   JSON_ASSERT_MESSAGE(type() == stringValue,
                       "in Json::Value::asCString(): requires stringValue");
@@ -3089,21 +3062,6 @@ bool Value::getString(char const** begin, char const** end) const {
   *end = *begin + length;
   return true;
 }
-
-#ifdef JSONCPP_HAS_STRING_VIEW
-bool Value::getString(std::string_view* str) const {
-  if (type() != stringValue)
-    return false;
-  if (value_.string_ == nullptr)
-    return false;
-  const char* begin;
-  unsigned length;
-  decodePrefixedString(this->isAllocated(), this->value_.string_, &length,
-                       &begin);
-  *str = std::string_view(begin, length);
-  return true;
-}
-#endif
 
 String Value::asString() const {
   switch (type()) {
@@ -3162,7 +3120,7 @@ Value::UInt Value::asUInt() const {
     JSON_ASSERT_MESSAGE(isUInt(), "LargestUInt out of UInt range");
     return UInt(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0u, maxUInt),
+    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt),
                         "double out of UInt range");
     return UInt(value_.real_);
   case nullValue:
@@ -3185,11 +3143,6 @@ Value::Int64 Value::asInt64() const {
     JSON_ASSERT_MESSAGE(isInt64(), "LargestUInt out of Int64 range");
     return Int64(value_.uint_);
   case realValue:
-    // If the double value is in proximity to minInt64, it will be rounded to
-    // minInt64. The correct value in this scenario is indeterminable
-    JSON_ASSERT_MESSAGE(
-        value_.real_ != minInt64,
-        "Double value is minInt64, precise value cannot be determined");
     JSON_ASSERT_MESSAGE(InRange(value_.real_, minInt64, maxInt64),
                         "double out of Int64 range");
     return Int64(value_.real_);
@@ -3211,7 +3164,7 @@ Value::UInt64 Value::asUInt64() const {
   case uintValue:
     return UInt64(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0u, maxUInt64),
+    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt64),
                         "double out of UInt64 range");
     return UInt64(value_.real_);
   case nullValue:
@@ -3322,7 +3275,7 @@ bool Value::isConvertibleTo(ValueType other) const {
            type() == booleanValue || type() == nullValue;
   case uintValue:
     return isUInt() ||
-           (type() == realValue && InRange(value_.real_, 0u, maxUInt)) ||
+           (type() == realValue && InRange(value_.real_, 0, maxUInt)) ||
            type() == booleanValue || type() == nullValue;
   case realValue:
     return isNumeric() || type() == booleanValue || type() == nullValue;
@@ -3580,61 +3533,12 @@ Value const* Value::find(char const* begin, char const* end) const {
 Value const* Value::find(const String& key) const {
   return find(key.data(), key.data() + key.length());
 }
-
-Value const* Value::findNull(const String& key) const {
-  return findValue<Value, &Value::isNull>(key);
-}
-Value const* Value::findBool(const String& key) const {
-  return findValue<Value, &Value::isBool>(key);
-}
-Value const* Value::findInt(const String& key) const {
-  return findValue<Value, &Value::isInt>(key);
-}
-Value const* Value::findInt64(const String& key) const {
-  return findValue<Value, &Value::isInt64>(key);
-}
-Value const* Value::findUInt(const String& key) const {
-  return findValue<Value, &Value::isUInt>(key);
-}
-Value const* Value::findUInt64(const String& key) const {
-  return findValue<Value, &Value::isUInt64>(key);
-}
-Value const* Value::findIntegral(const String& key) const {
-  return findValue<Value, &Value::isIntegral>(key);
-}
-Value const* Value::findDouble(const String& key) const {
-  return findValue<Value, &Value::isDouble>(key);
-}
-Value const* Value::findNumeric(const String& key) const {
-  return findValue<Value, &Value::isNumeric>(key);
-}
-Value const* Value::findString(const String& key) const {
-  return findValue<Value, &Value::isString>(key);
-}
-Value const* Value::findArray(const String& key) const {
-  return findValue<Value, &Value::isArray>(key);
-}
-Value const* Value::findObject(const String& key) const {
-  return findValue<Value, &Value::isObject>(key);
-}
-
 Value* Value::demand(char const* begin, char const* end) {
   JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
                       "in Json::Value::demand(begin, end): requires "
                       "objectValue or nullValue");
   return &resolveReference(begin, end);
 }
-#ifdef JSONCPP_HAS_STRING_VIEW
-const Value& Value::operator[](std::string_view key) const {
-  Value const* found = find(key.data(), key.data() + key.length());
-  if (!found)
-    return nullSingleton();
-  return *found;
-}
-Value& Value::operator[](std::string_view key) {
-  return resolveReference(key.data(), key.data() + key.length());
-}
-#else
 const Value& Value::operator[](const char* key) const {
   Value const* found = find(key, key + strlen(key));
   if (!found)
@@ -3655,7 +3559,6 @@ Value& Value::operator[](const char* key) {
 Value& Value::operator[](const String& key) {
   return resolveReference(key.data(), key.data() + key.length());
 }
-#endif
 
 Value& Value::operator[](const StaticString& key) {
   return resolveReference(key.c_str());
@@ -3695,18 +3598,12 @@ Value Value::get(char const* begin, char const* end,
   Value const* found = find(begin, end);
   return !found ? defaultValue : *found;
 }
-#ifdef JSONCPP_HAS_STRING_VIEW
-Value Value::get(std::string_view key, const Value& defaultValue) const {
-  return get(key.data(), key.data() + key.length(), defaultValue);
-}
-#else
 Value Value::get(char const* key, Value const& defaultValue) const {
   return get(key, key + strlen(key), defaultValue);
 }
 Value Value::get(String const& key, Value const& defaultValue) const {
   return get(key.data(), key.data() + key.length(), defaultValue);
 }
-#endif
 
 bool Value::removeMember(const char* begin, const char* end, Value* removed) {
   if (type() != objectValue) {
@@ -3722,31 +3619,12 @@ bool Value::removeMember(const char* begin, const char* end, Value* removed) {
   value_.map_->erase(it);
   return true;
 }
-#ifdef JSONCPP_HAS_STRING_VIEW
-bool Value::removeMember(std::string_view key, Value* removed) {
-  return removeMember(key.data(), key.data() + key.length(), removed);
-}
-#else
 bool Value::removeMember(const char* key, Value* removed) {
   return removeMember(key, key + strlen(key), removed);
 }
 bool Value::removeMember(String const& key, Value* removed) {
   return removeMember(key.data(), key.data() + key.length(), removed);
 }
-#endif
-
-#ifdef JSONCPP_HAS_STRING_VIEW
-void Value::removeMember(std::string_view key) {
-  JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
-                      "in Json::Value::removeMember(): requires objectValue");
-  if (type() == nullValue)
-    return;
-
-  CZString actualKey(key.data(), unsigned(key.length()),
-                     CZString::noDuplication);
-  value_.map_->erase(actualKey);
-}
-#else
 void Value::removeMember(const char* key) {
   JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
                       "in Json::Value::removeMember(): requires objectValue");
@@ -3757,7 +3635,6 @@ void Value::removeMember(const char* key) {
   value_.map_->erase(actualKey);
 }
 void Value::removeMember(const String& key) { removeMember(key.c_str()); }
-#endif
 
 bool Value::removeIndex(ArrayIndex index, Value* removed) {
   if (type() != arrayValue) {
@@ -3787,18 +3664,12 @@ bool Value::isMember(char const* begin, char const* end) const {
   Value const* value = find(begin, end);
   return nullptr != value;
 }
-#ifdef JSONCPP_HAS_STRING_VIEW
-bool Value::isMember(std::string_view key) const {
-  return isMember(key.data(), key.data() + key.length());
-}
-#else
 bool Value::isMember(char const* key) const {
   return isMember(key, key + strlen(key));
 }
 bool Value::isMember(String const& key) const {
   return isMember(key.data(), key.data() + key.length());
 }
-#endif
 
 Value::Members Value::getMemberNames() const {
   JSON_ASSERT_MESSAGE(
@@ -3878,12 +3749,8 @@ bool Value::isInt64() const {
     // Note that maxInt64 (= 2^63 - 1) is not exactly representable as a
     // double, so double(maxInt64) will be rounded up to 2^63. Therefore we
     // require the value to be strictly less than the limit.
-    // minInt64 is -2^63 which can be represented as a double, but since double
-    // values in its proximity are also rounded to -2^63, we require the value
-    // to be strictly greater than the limit to avoid returning 'true' for
-    // values that are not in the range
-    return value_.real_ > double(minInt64) && value_.real_ < double(maxInt64) &&
-           IsIntegral(value_.real_);
+    return value_.real_ >= double(minInt64) &&
+           value_.real_ < double(maxInt64) && IsIntegral(value_.real_);
   default:
     break;
   }
@@ -3921,11 +3788,7 @@ bool Value::isIntegral() const {
     // Note that maxUInt64 (= 2^64 - 1) is not exactly representable as a
     // double, so double(maxUInt64) will be rounded up to 2^64. Therefore we
     // require the value to be strictly less than the limit.
-    // minInt64 is -2^63 which can be represented as a double, but since double
-    // values in its proximity are also rounded to -2^63, we require the value
-    // to be strictly greater than the limit to avoid returning 'true' for
-    // values that are not in the range
-    return value_.real_ > double(minInt64) &&
+    return value_.real_ >= double(minInt64) &&
            value_.real_ < maxUInt64AsDouble && IsIntegral(value_.real_);
 #else
     return value_.real_ >= minInt && value_.real_ <= maxUInt &&
@@ -4235,14 +4098,73 @@ Value& Path::make(Value& root) const {
 #include <algorithm>
 #include <cassert>
 #include <cctype>
-#include <cmath>
-#include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <memory>
 #include <set>
 #include <sstream>
 #include <utility>
+
+#if __cplusplus >= 201103L
+#include <cmath>
+#include <cstdio>
+
+#if !defined(isnan)
+#define isnan std::isnan
+#endif
+
+#if !defined(isfinite)
+#define isfinite std::isfinite
+#endif
+
+#else
+#include <cmath>
+#include <cstdio>
+
+#if defined(_MSC_VER)
+#if !defined(isnan)
+#include <float.h>
+#define isnan _isnan
+#endif
+
+#if !defined(isfinite)
+#include <float.h>
+#define isfinite _finite
+#endif
+
+#if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
+#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
+#endif //_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
+
+#endif //_MSC_VER
+
+#if defined(__sun) && defined(__SVR4) // Solaris
+#if !defined(isfinite)
+#include <ieeefp.h>
+#define isfinite finite
+#endif
+#endif
+
+#if defined(__hpux)
+#if !defined(isfinite)
+#if defined(__ia64) && !defined(finite)
+#define isfinite(x)                                                            \
+  ((sizeof(x) == sizeof(float) ? _Isfinitef(x) : _IsFinite(x)))
+#endif
+#endif
+#endif
+
+#if !defined(isnan)
+// IEEE standard states that NaN values will not compare to themselves
+#define isnan(x) ((x) != (x))
+#endif
+
+#if !defined(__APPLE__)
+#if !defined(isfinite)
+#define isfinite finite
+#endif
+#endif
+#endif
 
 #if defined(_MSC_VER)
 // Disable warning about strdup being deprecated.
@@ -4251,7 +4173,11 @@ Value& Path::make(Value& root) const {
 
 namespace Json {
 
+#if __cplusplus >= 201103L || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
 using StreamWriterPtr = std::unique_ptr<StreamWriter>;
+#else
+using StreamWriterPtr = std::auto_ptr<StreamWriter>;
+#endif
 
 String valueToString(LargestInt value) {
   UIntToStringBuffer buffer;
@@ -4291,12 +4217,12 @@ String valueToString(double value, bool useSpecialFloats,
   // Print into the buffer. We need not request the alternative representation
   // that always has a decimal point because JSON doesn't distinguish the
   // concepts of reals and integers.
-  if (!std::isfinite(value)) {
-    if (std::isnan(value))
-      return useSpecialFloats ? "NaN" : "null";
-    if (value < 0)
-      return useSpecialFloats ? "-Infinity" : "-1e+9999";
-    return useSpecialFloats ? "Infinity" : "1e+9999";
+  if (!isfinite(value)) {
+    static const char* const reps[2][3] = {{"NaN", "-Infinity", "Infinity"},
+                                           {"null", "-1e+9999", "1e+9999"}};
+    return reps[useSpecialFloats ? 0 : 1][isnan(value)  ? 0
+                                          : (value < 0) ? 1
+                                                        : 2];
   }
 
   String buffer(size_t(36), '\0');
