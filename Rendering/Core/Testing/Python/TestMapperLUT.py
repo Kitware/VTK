@@ -57,6 +57,58 @@ class TestMapperLUT(Testing.vtkTest):
         ret = m.MapScalars(0.5)
         self.assertEqual(l.GetAlpha(), 1.0)
 
+    def testAboveAndBelowRange(self):
+        """Test if the mapper handles values above and below the scalar range correctly."""
+
+        # Known failure case of 10 colors in the lookup table and data range [0, 10]
+        number_of_table_colors = 10
+        range_minimum = 0.0
+        range_maximum = 10.0
+        p = vtkPolyData()
+        pts = vtkPoints()
+        pts.InsertNextPoint((0,0,0))
+        sc = vtkFloatArray()
+        sc.SetName("Scalars")
+        sc.InsertNextValue(0.0)
+        p.SetPoints(pts)
+        p.GetPointData().SetScalars(sc)
+        l = vtkLookupTable()
+        l.SetNumberOfTableValues(number_of_table_colors)
+        l.SetRange(range_minimum, range_maximum)
+        l.Build()
+        for i in range(number_of_table_colors):
+            l.SetTableValue(i, 0, 0, 0, 1.0)
+
+        l.SetBelowRangeColor(0.3, 0.3, 0.3, 1)
+        l.UseBelowRangeColorOn()
+        l.SetAboveRangeColor(0.7, 0.7, 0.7, 1)
+        l.UseAboveRangeColorOn()
+
+        m = vtkPolyDataMapper()
+        m.SetInputData(p)
+        m.UseLookupTableScalarRangeOn()
+        m.SetScalarRange(0.0, 10.0)
+        m.SetLookupTable(l)
+        m.InterpolateScalarsBeforeMappingOn()
+        m.SetInputArrayToProcess(0, 0, 0, 0, "Scalars")
+        alpha = 1.0
+        m.MapScalars(alpha)
+
+        # Check value of the texel coordinate for the scalar at the lower end of the range
+        texels = m.GetColorCoordinates()
+        texel_width = 1.0 / (number_of_table_colors + 2); # +2 for below/above range
+        # Value should be at least equal to the width of one texel but not too much above it
+        self.assertTrue(texels.GetValue(0) >= texel_width)
+        self.assertTrue(abs(texels.GetValue(0) - texel_width) < 1e-5)
+
+        # Check value of the texel coordinate for the scalar at the upper end of the range
+        sc.SetValue(0, 10.0)
+        p.Modified()
+        m.MapScalars(alpha)
+        texels = m.GetColorCoordinates()
+        self.assertTrue(texels.GetValue(0) <= 1.0 - texel_width)
+        self.assertTrue(abs(texels.GetValue(0) - (1.0 - texel_width)) < 1e-5)
+
     def testImagePlaneWidget(self):
         "A more rigorous test using the image plane widget."
         # This test is largely copied from
