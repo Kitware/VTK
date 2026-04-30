@@ -156,8 +156,6 @@ int vtkAMRResampleFilter::RequestInformation(vtkInformation* vtkNotUsed(rqst),
 int vtkAMRResampleFilter::RequestData(vtkInformation* vtkNotUsed(rqst),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  std::cerr << "Running Resampler\n";
-
   // STEP 0: Get input object
   vtkInformation* input = inputVector[0]->GetInformationObject(0);
   assert("pre: Null information object!" && (input != nullptr));
