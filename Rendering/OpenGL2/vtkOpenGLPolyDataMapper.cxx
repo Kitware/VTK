@@ -1435,55 +1435,60 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
   }
 
-  if (actor->GetProperty()->GetInterpolation() == VTK_PBR && isLightingUsed)
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
   {
     toString.clear();
     toString.str("");
 
-    if (hasIBL)
+    if (isLightingUsed)
     {
-      toString << "  // Multi-scatter approximation: see https://bruop.github.io/ibl/\n"
-                  "  diffuse = (1.0 - metallic) * (1.0 - 0.04) * albedo;\n"
-                  "  vec3 Fr = max(vec3(1 - roughness), F0) - F0;\n"
-                  "  vec3 k_S = F0 + Fr * pow(1.0 - NdV, 5.0);\n"
-                  "  vec3 FssEss = k_S * brdf.r + F90 * brdf.g;\n"
-                  "  float Ems = 1.0 - (brdf.r + brdf.g);\n"
-                  "  vec3 F_avg = F0 + (1.0 - F0) / 21.0;\n"
-                  "  vec3 FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3(1e-5));\n"
-                  "  vec3 k_D = diffuse * (1.0 - FssEss - FmsEms);\n"
-                  "  vec3 iblSpecular = FssEss * prefilteredSpecularColor;\n"
-                  "  vec3 iblDiffuse = (FmsEms + k_D) * irradiance;\n";
-    }
-    else
-    {
-      toString << "  vec3 iblSpecular = vec3(0.0);\n"
-                  "  vec3 iblDiffuse = vec3(0.0);\n";
-    }
-    toString << "  vec3 color = iblDiffuse + iblSpecular;\n"
-                "\n";
+      if (hasIBL)
+      {
+        toString << "  // Multi-scatter approximation: see https://bruop.github.io/ibl/\n"
+                    "  diffuse = (1.0 - metallic) * (1.0 - 0.04) * albedo;\n"
+                    "  vec3 Fr = max(vec3(1 - roughness), F0) - F0;\n"
+                    "  vec3 k_S = F0 + Fr * pow(1.0 - NdV, 5.0);\n"
+                    "  vec3 FssEss = k_S * brdf.r + F90 * brdf.g;\n"
+                    "  float Ems = 1.0 - (brdf.r + brdf.g);\n"
+                    "  vec3 F_avg = F0 + (1.0 - F0) / 21.0;\n"
+                    "  vec3 FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3(1e-5));\n"
+                    "  vec3 k_D = diffuse * (1.0 - FssEss - FmsEms);\n"
+                    "  vec3 iblSpecular = FssEss * prefilteredSpecularColor;\n"
+                    "  vec3 iblDiffuse = (FmsEms + k_D) * irradiance;\n";
+      }
+      else
+      {
+        toString << "  vec3 iblSpecular = vec3(0.0);\n"
+                    "  vec3 iblDiffuse = vec3(0.0);\n";
+      }
+      toString << "  vec3 color = iblDiffuse + iblSpecular;\n"
+                  "\n";
 
-    if (hasClearCoat)
-    {
-      toString
-        << "  // Clear coat attenuation\n"
-           "  Fc = F_Schlick(coatF0, coatF90, coatNdV) * coatStrength;\n"
-           "  iblSpecular *= (1.0 - Fc);\n"
-           "  iblDiffuse *= (1.0 - Fc) * (1.0 - Fc);\n"
-           "  // Clear coat specular\n"
-           "  vec3 iblSpecularClearCoat = prefilteredSpecularCoatColor * (coatF0 * coatBrdf.r + "
-           "coatBrdf.g) * Fc;\n"
-           // Color absorption by the coat layer
-           "  color *= coatColorFactor;\n"
-           "  color += iblSpecularClearCoat;\n"
-           "\n";
+      if (hasClearCoat)
+      {
+        toString
+          << "  // Clear coat attenuation\n"
+             "  Fc = F_Schlick(coatF0, coatF90, coatNdV) * coatStrength;\n"
+             "  iblSpecular *= (1.0 - Fc);\n"
+             "  iblDiffuse *= (1.0 - Fc) * (1.0 - Fc);\n"
+             "  // Clear coat specular\n"
+             "  vec3 iblSpecularClearCoat = prefilteredSpecularCoatColor * (coatF0 * coatBrdf.r + "
+             "coatBrdf.g) * Fc;\n"
+             // Color absorption by the coat layer
+             "  color *= coatColorFactor;\n"
+             "  color += iblSpecularClearCoat;\n"
+             "\n";
+      }
+
+      toString << "  color += Lo;\n"
+                  "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
+                  "  color += emissiveColor;\n"                            // emissive
+                  "  gl_FragData[0] = vec4(color, opacity);\n";
     }
 
-    toString << "  color += Lo;\n"
-                "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
-                "  color += emissiveColor;\n"                            // emissive
-                "  color = pow(color, vec3(1.0/2.2));\n"                 // to sRGB color space
-                "  gl_FragData[0] = vec4(color, opacity);\n"
-                "  //VTK::Light::Impl";
+    toString
+      << "  gl_FragData[0].rgb = pow(gl_FragData[0].rgb, vec3(1.0/2.2));\n" // to sRGB color space
+         "  //VTK::Light::Impl";
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl", toString.str(), false);
   }
