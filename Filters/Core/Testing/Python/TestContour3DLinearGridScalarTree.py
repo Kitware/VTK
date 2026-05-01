@@ -70,7 +70,6 @@ contour = vtkContour3DLinearGrid()
 contour.SetInputData(grid)
 contour.SetValue(0, 0.5)
 contour.SetValue(1, 0.75)
-contour.SetMergePoints(mergePoints)
 contour.SetSequentialProcessing(serialProcessing)
 contour.SetInterpolateAttributes(interpolateAttr);
 contour.SetComputeNormals(computeNormals);
@@ -80,7 +79,6 @@ contourST = vtkContour3DLinearGrid()
 contourST.SetInputData(grid)
 contourST.SetValue(0, 0.5)
 contourST.SetValue(1, 0.75)
-contourST.SetMergePoints(mergePoints)
 contourST.SetSequentialProcessing(serialProcessing)
 contourST.SetInterpolateAttributes(interpolateAttr);
 contourST.SetComputeNormals(computeNormals);
@@ -92,7 +90,6 @@ contourSTZero = vtkContour3DLinearGrid()
 contourSTZero.SetInputData(grid)
 contourSTZero.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "zero")
 contourSTZero.SetValue(0, 0.5)
-contourSTZero.SetMergePoints(mergePoints)
 contourSTZero.SetInterpolateAttributes(interpolateAttr);
 contourSTZero.SetComputeNormals(computeNormals);
 contourSTZero.UseScalarTreeOn()

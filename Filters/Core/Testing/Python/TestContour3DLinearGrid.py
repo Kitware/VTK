@@ -64,7 +64,6 @@ contour = vtkContour3DLinearGrid()
 contour.SetInputConnection(clip.GetOutputPort())
 contour.SetValue(0, 0.5)
 contour.SetValue(1, 0.9)
-contour.SetMergePoints(0)
 contour.SetSequentialProcessing(serialProcessing)
 contour.SetInterpolateAttributes(0);
 contour.SetComputeNormals(0);
@@ -90,7 +89,6 @@ contour2 = vtkContour3DLinearGrid()
 contour2.SetInputConnection(extract2.GetOutputPort())
 contour2.SetValue(0, 0.5)
 contour2.SetValue(1, 0.9)
-contour2.SetMergePoints(mergePoints)
 contour2.SetSequentialProcessing(serialProcessing)
 contour2.SetInterpolateAttributes(interpolateAttr);
 contour2.SetComputeNormals(computeNormals);
@@ -132,7 +130,6 @@ extract3.Update()
 contour3 = vtkContour3DLinearGrid()
 contour3.SetInputConnection(extract3.GetOutputPort())
 contour3.SetValue(0, 0.5)
-contour3.SetMergePoints(mergePoints)
 contour3.SetSequentialProcessing(serialProcessing)
 contour3.SetInterpolateAttributes(interpolateAttr);
 contour3.SetComputeNormals(computeNormals);

@@ -18,7 +18,6 @@ contour.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, 
 contour.SetValue(0, 4)
 contour.SetValue(1, 5)
 contour.SetValue(2, 6)
-contour.SetMergePoints(1)
 contour.SetSequentialProcessing(0)
 contour.SetInterpolateAttributes(1);
 contour.SetComputeNormals(1);
