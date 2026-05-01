@@ -17,7 +17,9 @@ vtk_module_add_module(VTK::IOCatalystConduit
   PRIVATE_CLASSES ${private_classes})
 
 _vtk_module_real_target(vtkm_accel_target VTK::IOCatalystConduit)
-vtk_add_viskores_device_target_information(${vtkm_accel_target})
+if (TARGET VTK::vtkviskores)
+  vtk_add_viskores_device_target_information(${vtkm_accel_target})
+endif()
 
 vtk_add_test_mangling(VTK::IOCatalystConduit)
 add_subdirectory(Catalyst)
