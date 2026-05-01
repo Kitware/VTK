@@ -1,12 +1,12 @@
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.15 with the flags below.
+// at least on macOS with cppcheck 2.20 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
-// cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 -I Common/Core .
+// cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j22 -I Common/Core .
 // or
 // cd /path/to/VTK-bin/
-// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8
+// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --check-level=exhaustive --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j22
 
 // Suppress everything from ThirdParty.
 *:*/ThirdParty/*
@@ -16,77 +16,48 @@
 *:*/Utilities/KWSys/*
 *:*/Utilities/MetaIO/*
 *:*/Utilities/DICOMParser/*
-*:*/Remote/WikiExamples/*
-*:*/Remote/vtkDICOM/*
-
-// If cppcheck itself crashes, well, that's its problem, ignore that.
-cppcheckError
+*:*/Remote/*
 
 // Tests contain lots of hardcoded values, etc. They overwhelm reporting of issues
-// in the implementation files. So for now suppress the tests' issues so we can focus
-// on implementation issues
+// in the implementation files. So suppress some warnings in tests.
+accessMoved:*/Common/Core/Testing/Cxx/TestNew.cxx
+accessMoved:*/Common/Core/Testing/Cxx/TestSmartPointer.cxx
+accessMoved:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
 constArgument:*/Testing/Cxx/*
 duplicateCondition:*/Testing/Cxx/*
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestNew.cxx
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestObserversPerformance.cxx
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
+knownConditionTrueFalse:*/Common/Core/Testing/Cxx/UnitTestMath.cxx
 knownConditionTrueFalse:*/Testing/Cxx/*
+mismatchingContainerExpression:*/Common/Core/Testing/Cxx/TestDataArrayTupleRange.cxx
 redundantAssignment:*/Testing/*
 unreadVariable:*/Testing/Cxx/*
+useStlAlgorithm:*/Testing/Cxx/*
 
 // When analyzing different define possibilities, it will sometimes hit a #error line
 preprocessorErrorDirective
-
-// strdup() is more portable than the suggested _strdup().
-strdupCalled
-
-// The suggested readdir_r isn't recommended either.
-readdirCalled
-
-// Can't fix in portable way for all VTK-supported platforms.
-duplicateExpression:*/IO/PostgreSQL/vtkPostgreSQLQuery.cxx
-unpreciseMathCall
 
 // Same expression 'methTypeLong&&propertyTypeLongLong' found multiple times in chain of '||' operators because 'methTypeLong&&propertyTypeLongLong' and 'propertyTypeLongLong&&methTypeLong' represent the same value.
 // This is due to the long and long long being the same type on some platforms, but not others, so hard to fix portably
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParseProperties.c
 
-// Using reallocf() would be a good solution, but it's not available on all platforms.
-memleakOnRealloc
+// Would require a public API change.
+functionStatic:*/vtkSegYIOUtils.cxx
+functionStatic:*/vtkSegYIOUtils.h
+functionStatic:*/vtkSegYTraceReader.cxx
 
-// Using strtok_r() would be a good solution, but it's not available on all platforms.
-strtokCalled
+// There are many of these. They are not so much bugs as stylistic.
+constVariablePointer:*/Wrapping/*
+memleakOnRealloc:*/Wrapping/*
+nullPointerArithmeticOutOfMemory:*/Wrapping/*
+nullPointerOutOfMemory:*/Wrapping/*
+unreadVariable:*/Wrapping/*
+variableScope:*/Wrapping/*
 
-// VTK assumes IEEE 754 floats, so this warning isn't useful.
-memsetClassFloat
-
-// These are too stylistic
-useStlAlgorithm
-
-// Gives too many false positives.
-assertWithSideEffect
-argumentSize
-
-// There are many of these.  Can we assume C99 now?
-variableScope:*/Wrapping/Tools/vtkParseData.c
-variableScope:*/Wrapping/Tools/vtkParseExtras.c
-variableScope:*/Wrapping/Tools/vtkParseHierarchy.c
-variableScope:*/Wrapping/Tools/vtkParseJava.c
-variableScope:*/Wrapping/Tools/vtkParseMain.c
-variableScope:*/Wrapping/Tools/vtkParseMangle.c
-variableScope:*/Wrapping/Tools/vtkParseMerge.c
-variableScope:*/Wrapping/Tools/vtkParsePreprocess.c
-variableScope:*/Wrapping/Tools/vtkParseString.c
-variableScope:*/Wrapping/Tools/vtkParseSystem.c
-variableScope:*/Wrapping/Tools/vtkWrap.c
-variableScope:*/Wrapping/Tools/vtkWrapHierarchy.c
-variableScope:*/Wrapping/Tools/vtkWrapJava.c
-variableScope:*/Wrapping/Tools/vtkWrapPython.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonClass.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonEnum.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonMethod.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonOverload.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonTemplate.c
-variableScope:*/Wrapping/Tools/vtkWrapPythonType.c
-variableScope:*/Wrapping/Tools/vtkWrapText.c
+// 2 warnings
+noExplicitConstructor:*/Utilities/Python/vtkPython.h
+noExplicitConstructor:*/Wrapping/PythonCore/vtkSmartPyObject.h
 
 // Many warnings
 uninitMemberVar:*/Charts/Core/vtkChart.cxx
@@ -393,10 +364,6 @@ uninitMemberVar:*/Web/WebGLExporter/vtkWebGLObject.cxx
 uninitMemberVar:*/Web/WebGLExporter/vtkWebGLWidget.cxx
 uninitMemberVar:*/Wrapping/PythonCore/vtkPythonOverload.cxx
 
-// 2 warnings
-noExplicitConstructor:*/Utilities/Python/vtkPython.h
-noExplicitConstructor:*/Wrapping/PythonCore/vtkSmartPyObject.h
-
 // Many warnings
 unreadVariable:*/Charts/Core/Testing/Cxx/TestFreeTypeRender.cxx
 unreadVariable:*/CMake/vtkTestvfw32Capture.cxx
@@ -478,20 +445,19 @@ unreadVariable:*/Web/WebGLExporter/vtkWebGLWidget.cxx
 unreadVariable:*/Wrapping/PythonCore/PyVTKObject.cxx
 unreadVariable:*/Wrapping/PythonCore/vtkPythonOverload.cxx
 
-// 48 warnings
-noOperatorEq
-
 // These are generated files.
 constParameter:*/Wrapping/Tools/vtkParse.tab.c
 constParameterPointer:*/vtkParse.tab.c
-constVariablePointer:*/Wrapping/Tools/vtkParse.tab.c
 constVariablePointer:*/Wrapping/Tools/lex.yy.c
+constVariablePointer:*/Wrapping/Tools/vtkParse.tab.c
+duplicateBreak:*/Wrapping/Tools/lex.yy.c
 duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:*/Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:*Wrapping/Tools/lex.yy.c
 nullPointer:*/Wrapping/Tools/lex.yy.c
 redundantContinue:*/Wrapping/Tools/vtkParse.tab.c
 redundantInitialization:*/Wrapping/Tools/lex.yy.c
+redundantInitialization:*/Wrapping/Tools/vtkParse.tab.c
 unreachableCode:*/Wrapping/Tools/vtkParse.tab.c
 unreadVariable:*/Wrapping/Tools/lex.yy.c
 unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
@@ -499,42 +465,5 @@ uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
 variableScope:*/Wrapping/Tools/lex.yy.c
 variableScope:*/Wrapping/Tools/vtkParse.tab.c
 
-// 18 warnings
-redundantAssignment:*/Filters/General/vtkBoxClipDataSet.cxx
-
-// intentional use of std::move for Testing
-accessMoved:*/Common/Core/Testing/Cxx/TestNew.cxx
-accessMoved:*/Common/Core/Testing/Cxx/TestSmartPointer.cxx
-accessMoved:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestNew.cxx
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestWeakPointer.cxx
-
-// simplified testing code
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/TestObserversPerformance.cxx
-
-// intentional comparison of different container types
-mismatchingContainerExpression:*/Common/Core/Testing/Cxx/TestDataArrayTupleRange.cxx
-
-// lots of placeholder code for future tests
-knownConditionTrueFalse:*/Common/Core/Testing/Cxx/UnitTestMath.cxx
-
-// true useless assignments but kept for code clarity
-// and preventing bugs should the vars be used in future changes
-uselessAssignmentArg:*/Common/DataModel/vtkReebGraph.cxx
-
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
-constParameter:*/vtkWrapHierarchy.c
 knownConditionTrueFalse:*/IO/SegY/vtkSegYIOUtils.h
-unreadVariable:*/Wrapping/Tools/vtkParseExtras.c
-unreadVariable:*/Wrapping/Tools/vtkParseHierarchy.c
-unreadVariable:*/Wrapping/Tools/vtkParseMain.c
-unreadVariable:*/Wrapping/Tools/vtkParseMerge.c
-unreadVariable:*/Wrapping/Tools/vtkParsePreprocess.c
-unreadVariable:*/Wrapping/Tools/vtkParseString.c
-unreadVariable:*/Wrapping/Tools/vtkWrapHierarchy.c
-unreadVariable:*/Wrapping/Tools/vtkWrapJava.c
-unreadVariable:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
-unreadVariable:*/Wrapping/Tools/vtkWrapText.c
-
-// false positive
-nullPointerRedundantCheck:*/Wrapping/Tools/vtkParseSystem.c

@@ -38,7 +38,7 @@
 /* prototypes for utility methods */
 
 /* convenient function for const char* tests */
-static int vtkWrapJavaScript_IsConstCharPointer(ValueInfo* val);
+static int vtkWrapJavaScript_IsConstCharPointer(const ValueInfo* val);
 
 /* print out any custom methods */
 static void vtkWrapJavaScript_CustomMethods(const char* classname, ClassInfo* data);
@@ -80,14 +80,14 @@ static int vtkWrapJavaScript_NeedsToReturnMemoryView(FunctionInfo* functionInfo)
 static int vtkWrapJavaScript_NeedsToReturnMemoryAddress(FunctionInfo* functionInfo);
 
 /* Whether arguments have non-const lvalue refs */
-static int vtkWrapJavaScript_HasNonConstRefParameters(FunctionInfo* functionInfo);
+static int vtkWrapJavaScript_HasNonConstRefParameters(const FunctionInfo* functionInfo);
 
 /* Whether arguments have non-const lvalue refs */
-static int vtkWrapJavaScript_HasFunctionPointerParameters(FunctionInfo* functionInfo);
+static int vtkWrapJavaScript_HasFunctionPointerParameters(const FunctionInfo* functionInfo);
 
 /* -------------------------------------------------------------------- */
 /* Convenient method tests whether a value is a const char* */
-static int vtkWrapJavaScript_IsConstCharPointer(ValueInfo* val)
+static int vtkWrapJavaScript_IsConstCharPointer(const ValueInfo* val)
 {
   return vtkWrap_IsConst(val) && vtkWrap_IsCharPointer(val);
 }
@@ -380,7 +380,7 @@ static void vtkWrapJavaScript_WriteSignature(FILE* fp, FunctionInfo* functionInf
   for (int i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
     ValueInfo* parameter = functionInfo->Parameters[i];
-    const char* tpname = "";
+    const char* tpname;
     const char* prefix = "";
     const char* ref_suffix = "";
     const char* ptr_suffix = "";
@@ -665,7 +665,7 @@ static int vtkWrapJavaScript_NeedsToReturnMemoryAddress(FunctionInfo* functionIn
 
 /* -------------------------------------------------------------------- */
 /* Whether arguments have non-const lvalue refs */
-static int vtkWrapJavaScript_HasNonConstRefParameters(FunctionInfo* functionInfo)
+static int vtkWrapJavaScript_HasNonConstRefParameters(const FunctionInfo* functionInfo)
 {
   for (int i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
@@ -679,7 +679,7 @@ static int vtkWrapJavaScript_HasNonConstRefParameters(FunctionInfo* functionInfo
 
 /* -------------------------------------------------------------------- */
 /* Whether an argument is a function pointer */
-static int vtkWrapJavaScript_HasFunctionPointerParameters(FunctionInfo* functionInfo)
+static int vtkWrapJavaScript_HasFunctionPointerParameters(const FunctionInfo* functionInfo)
 {
   for (int i = 0; i < functionInfo->NumberOfParameters; ++i)
   {

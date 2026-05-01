@@ -30,7 +30,7 @@
 */
 void vtkWrapPython_AddConstantHelper(FILE* fp, const char* indent, const char* dictvar,
   const char* objvar, const char* scope, const char* pythonscope, const char* attrib,
-  const char* attribval, ValueInfo* val)
+  const char* attribval, const ValueInfo* val)
 {
   unsigned int valtype;
   const char* valname;
@@ -319,7 +319,7 @@ void vtkWrapPython_AddPublicConstants(
 /* This method adds one constant defined in the file to the module */
 
 void vtkWrapPython_AddConstant(FILE* fp, const char* indent, const char* dictvar,
-  const char* objvar, const char* scope, ValueInfo* val)
+  const char* objvar, const char* scope, const ValueInfo* val)
 {
   vtkWrapPython_AddConstantHelper(fp, indent, dictvar, objvar, scope, scope, NULL, NULL, val);
 }

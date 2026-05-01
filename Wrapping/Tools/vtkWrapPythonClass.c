@@ -28,7 +28,7 @@
 
 /* declare the exports and imports for a VTK/Python class */
 static void vtkWrapPython_ExportVTKClass(
-  FILE* fp, ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo);
+  FILE* fp, const ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo);
 
 /* generate the New method for a vtkObjectBase object */
 static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, ClassInfo* data,
@@ -37,7 +37,7 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
 const char* vtkWrapPython_GetSuperClass(
-  ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo, const char** supermodule)
+  const ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo, const char** supermodule)
 {
   const char* supername = NULL;
   const char* module = NULL;
@@ -97,7 +97,7 @@ const char* vtkWrapPython_GetSuperClass(
 /* -------------------------------------------------------------------- */
 /* Create the docstring for a class, and print it to fp */
 void vtkWrapPython_ClassDoc(
-  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo)
+  FILE* fp, FileInfo* file_info, const ClassInfo* data, const HierarchyInfo* hinfo)
 {
   char pythonname[1024];
   const char* supername;
@@ -281,7 +281,7 @@ void vtkWrapPython_ClassDoc(
 /* -------------------------------------------------------------------- */
 /* Declare the exports and imports for a VTK/Python class */
 static void vtkWrapPython_ExportVTKClass(
-  FILE* fp, ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo)
+  FILE* fp, const ClassInfo* data, FileInfo* file_info, const HierarchyInfo* hinfo)
 {
   char classname[1024];
   const char* supername;

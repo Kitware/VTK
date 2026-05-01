@@ -131,7 +131,7 @@ static int vtkWrapPython_IsMultiSetter(const unsigned int methodType)
 
 /* Calls vtkWrapPython_MethodCheck to figure out the wrappability of the method. */
 static int vtkWrapPython_IsWrappable(
-  const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
+  const ClassInfo* classInfo, const FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
 {
   const int isWrappable = vtkWrapPython_MethodCheck(classInfo, functionInfo, hinfo);
   return isWrappable;

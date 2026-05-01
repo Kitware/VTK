@@ -225,7 +225,7 @@ static void vtkWrapSerDes_EndDeserializer(FILE* fp)
 }
 
 /* begin invoker */
-static void vtkWrapSerDes_BeginInvoker(FILE* fp, ClassInfo* classInfo)
+static void vtkWrapSerDes_BeginInvoker(FILE* fp, const ClassInfo* classInfo)
 {
   fprintf(fp,
     "static nlohmann::json Invoke_%s(vtkInvoker* invoker, vtkObjectBase* "

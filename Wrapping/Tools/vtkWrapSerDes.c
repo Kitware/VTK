@@ -280,7 +280,6 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   FileInfo* file_info = NULL;
   FILE* fp = NULL;
   const char* name = NULL;
-  int i = 0;
   size_t k, m = 0;
   char* name_from_file = NULL;
 
@@ -351,11 +350,11 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   int exitCode = 0;
   if (hinfo)
   {
-    for (i = 0; i < contents->NumberOfClasses; i++)
+    for (int i = 0; i < contents->NumberOfClasses; i++)
     {
       vtkWrap_MergeSuperClasses(contents->Classes[i], file_info, hinfo);
     }
-    for (i = 0; i < contents->NumberOfClasses; i++)
+    for (int i = 0; i < contents->NumberOfClasses; i++)
     {
       vtkWrap_ExpandTypedefs(contents->Classes[i], file_info, hinfo);
     }
@@ -372,7 +371,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         name);
     }
     /* generate serializers and deserializers */
-    for (i = 0; i < contents->NumberOfClasses; ++i)
+    for (int i = 0; i < contents->NumberOfClasses; ++i)
     {
       classInfo = contents->Classes[i];
       const int isVTKObject = vtkWrap_IsTypeOf(hinfo, classInfo->Name, "vtkObjectBase");
@@ -394,7 +393,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       vtkWrapSerDes_Class(fp, hinfo, classInfo);
     }
     /* generate handler code for templates/unmarshalled classes */
-    for (i = 0; i < contents->NumberOfClasses; ++i)
+    for (int i = 0; i < contents->NumberOfClasses; ++i)
     {
       classInfo = contents->Classes[i];
       const int isVTKObject = vtkWrap_IsTypeOf(hinfo, classInfo->Name, "vtkObjectBase");

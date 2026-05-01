@@ -30,7 +30,7 @@
    val->Value is used.
 */
 void vtkWrapJavaScript_AddConstantHelper(
-  FILE* fp, const char* indent, const char* attrib, const char* attribval, ValueInfo* val)
+  FILE* fp, const char* indent, const char* attrib, const char* attribval, const ValueInfo* val)
 {
   unsigned int valtype;
   const char* valstring;
@@ -276,7 +276,7 @@ void vtkWrapJavaScript_GenerateConstants(
 /* -------------------------------------------------------------------- */
 /* This method adds one constant defined in the file to the module */
 
-void vtkWrapJavaScript_AddConstant(FILE* fp, const char* indent, ValueInfo* val)
+void vtkWrapJavaScript_AddConstant(FILE* fp, const char* indent, const ValueInfo* val)
 {
   vtkWrapJavaScript_AddConstantHelper(fp, indent, NULL, NULL, val);
 }

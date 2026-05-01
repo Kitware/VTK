@@ -25,7 +25,7 @@ void vtkWrapJavaScript_GenerateConstants(
   FILE* fp, const char* module, const char* basename, const char* indent, NamespaceInfo* data);
 
 /* generate code that adds a constant value to the binding file */
-void vtkWrapJavaScript_AddConstant(FILE* fp, const char* indent, ValueInfo* val);
+void vtkWrapJavaScript_AddConstant(FILE* fp, const char* indent, const ValueInfo* val);
 
 #endif /* vtkWrapJavaScriptConstant_h */
 // VTK-HeaderTest-Exclude: vtkWrapJavaScriptConstant.h
