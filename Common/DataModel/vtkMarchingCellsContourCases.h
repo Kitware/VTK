@@ -16,25 +16,39 @@
  * by marching cells algorithms to generate contours (isosurfaces/isolines)
  * for each supported cell type.
  *
- * For each cell type, a case index is computed by treating each vertex as a
- * bit in a bitmask: bit i is set if vertex i's scalar value is greater than
- * or equal to the contour value. This case index is then used to look up a
- * list of edges that the contour surface intersects.
+ * @section CaseIndex Case Index Computation
  *
- * Each case entry is an array of edge indices terminated by -1. For surface
- * cells (3D), edges are grouped into triangles (3 edges per triangle). For
- * line cells (2D), edges are grouped into line segments (2 edges per segment).
- * Edge indices refer to the cell type's own edge numbering convention, as
- * returned by GetCellEdges().
+ * For each cell, a case index is computed as a bitmask where bit i is set
+ * if vertex i's scalar value is strictly greater than the isovalue. This
+ * index is then used to look up the edges that the contour intersects.
  *
  * The number of cases per cell type is 2^N where N is the number of vertices:
- * - Line:        2^2  =   4 cases
- * - Triangle:    2^3  =   8 cases
- * - Pixel/Quad:  2^4  =  16 cases
- * - Tetra:       2^4  =  16 cases
- * - Voxel/Hex:   2^8  = 256 cases
- * - Wedge:       2^6  =  64 cases
- * - Pyramid:     2^5  =  32 cases
+ *
+ * | Cell type      | Vertices | Cases |
+ * |----------------|----------|-------|
+ * | Line           |        2 |     4 |
+ * | Triangle       |        3 |     8 |
+ * | Pixel / Quad   |        4 |    16 |
+ * | Tetra          |        4 |    16 |
+ * | Voxel / Hex    |        8 |   256 |
+ * | Wedge          |        6 |    64 |
+ * | Pyramid        |        5 |    32 |
+ *
+ * @section TriangleFormat Triangle/Line Format
+ *
+ * The triangle and line tables (accessed via GetCellCase()) encode output
+ * primitives as a flat array of cell-local edge indices, padded with -1:
+ *
+ * - 3D cells: edges grouped in triples, each triple defines one triangle.
+ * - 2D cells: edges grouped in pairs, each pair defines one line segment.
+ *
+ * @section PolygonFormat Polygon Segment Format
+ *
+ * The polygon tables (accessed via GetCellCaseWithPolygons()) merge coplanar
+ * triangles into polygons for 3D cells, reducing the output primitive count.
+ *
+ * In both formats, edge indices refer to the cell-local edge numbering
+ * convention as returned by GetCellEdges().
  *
  * @sa vtkMarchingCellsClipCases
  */
@@ -45,10 +59,11 @@ public:
   ///@{
   /**
    * Case tables for a line cell (VTK_LINE).
-   * Each case entry is an array of 2 ints: one edge index followed by -1.
+   * Each case entry is an array of 3 ints: one edge index followed by -1,
+   * or { -1, -1 } if the cell produces no output.
    * There are 4 cases (2^2 vertices).
    */
-  using LineCase = int[2];
+  using LineCase = int[3];
   static const LineCase* GetLineCases();
   static const LineCase& GetLineCase(uint8_t caseIndex);
   ///@}
@@ -56,8 +71,9 @@ public:
   ///@{
   /**
    * Case tables for a triangle cell (VTK_TRIANGLE).
-   * Each case entry is an array of 3 ints: edge indices grouped into line
-   * segments, terminated by -1. There are 8 cases (2^3 vertices).
+   * Each case entry is an array of 3 ints: one pair of edge indices defining
+   * a line segment, followed by -1, or { -1, -1, -1 } if no output.
+   * There are 8 cases (2^3 vertices).
    */
   using TriangleCase = int[3];
   static const TriangleCase* GetTriangleCases();
@@ -68,7 +84,7 @@ public:
   /**
    * Case tables for a pixel cell (VTK_PIXEL).
    * Each case entry is an array of 5 ints: edge indices grouped into line
-   * segments, terminated by -1. There are 16 cases (2^4 vertices).
+   * segments (2 per segment), terminated by -1. There are 16 cases (2^4 vertices).
    * Note: vtkPixel uses a different point ordering than vtkQuad
    * (points 2 and 3 are swapped), so this table differs from QuadCases.
    */
@@ -81,7 +97,7 @@ public:
   /**
    * Case tables for a quad cell (VTK_QUAD).
    * Each case entry is an array of 5 ints: edge indices grouped into line
-   * segments, terminated by -1. There are 16 cases (2^4 vertices).
+   * segments (2 per segment), terminated by -1. There are 16 cases (2^4 vertices).
    */
   using QuadCase = int[5];
   static const QuadCase* GetQuadCases();
@@ -126,17 +142,6 @@ public:
 
   ///@{
   /**
-   * Case tables for a hexahedron cell with polygon output (VTK_HEXAHEDRON).
-   * Each case entry is an array of 17 ints: edge indices grouped into polygons,
-   * terminated by -1. There are 256 cases (2^8 vertices).
-   */
-  using HexahedronWithPolygonCase = int[17];
-  static const HexahedronWithPolygonCase* GetHexahedronWithPolygonCases();
-  static const HexahedronWithPolygonCase& GetHexahedronWithPolygonCase(uint8_t caseIndex);
-  ///@}
-
-  ///@{
-  /**
    * Case tables for a wedge cell (VTK_WEDGE).
    * Each case entry is an array of 13 ints: edge indices grouped into triangles
    * (3 edges per triangle), terminated by -1. There are 64 cases (2^6 vertices).
@@ -167,10 +172,101 @@ public:
   using CellCase = const int*;
   static CellCase GetCellCase(int cellType, uint8_t caseIndex);
 
+  ///@{
+  /**
+   * Polygon case tables for a tetrahedron cell (VTK_TETRA).
+   * Each case entry is an array of 6 ints encoding zero or one polygon
+   * in the polygon format: { nPts, e0, ..., e(nPts-1), -1 } or { -1, ... }.
+   * The maximum polygon size is a quad (nPts=4): { 4, e0, e1, e2, e3, -1 }.
+   * There are 16 cases (2^4 vertices).
+   */
+  using TetraCaseWithPolygons = int[6];
+  static const TetraCaseWithPolygons* GetTetraCasesWithPolygons();
+  static const TetraCaseWithPolygons& GetTetraCaseWithPolygons(uint8_t caseIndex);
+  ///@}
+
+  ///@{
+  /**
+   * Polygon case tables for a voxel cell (VTK_VOXEL).
+   * Each case entry is an array of 17 ints encoding zero or more polygons
+   * in the polygon format, terminated by -1. There are 256 cases (2^8 vertices).
+   * Note: vtkVoxel uses a different point ordering than vtkHexahedron
+   * (points 2 and 3 are swapped, as are points 6 and 7), so this table
+   * differs from HexahedronCasesWithPolygons.
+   */
+  using VoxelCaseWithPolygons = int[17];
+  static const VoxelCaseWithPolygons* GetVoxelCasesWithPolygons();
+  static const VoxelCaseWithPolygons& GetVoxelCaseWithPolygons(uint8_t caseIndex);
+  ///@}
+
+  ///@{
+  /**
+   * Polygon case tables for a hexahedron cell (VTK_HEXAHEDRON).
+   * Each case entry is an array of 17 ints encoding zero or more polygons
+   * in the polygon format, terminated by -1. There are 256 cases (2^8 vertices).
+   */
+  using HexahedronCaseWithPolygons = int[17];
+  static const HexahedronCaseWithPolygons* GetHexahedronCasesWithPolygons();
+  static const HexahedronCaseWithPolygons& GetHexahedronCaseWithPolygons(uint8_t caseIndex);
+  ///@}
+
+  ///@{
+  /**
+   * Polygon case tables for a wedge cell (VTK_WEDGE).
+   * Each case entry is an array of 10 ints encoding zero or more polygons
+   * in the polygon format, terminated by -1.
+   * The worst case is one quad and one triangle: { 4, e0..e3, 3, e4..e6, -1 }.
+   * There are 64 cases (2^6 vertices).
+   */
+  using WedgeCaseWithPolygons = int[10];
+  static const WedgeCaseWithPolygons* GetWedgeCasesWithPolygons();
+  static const WedgeCaseWithPolygons& GetWedgeCaseWithPolygons(uint8_t caseIndex);
+  ///@}
+
+  ///@{
+  /**
+   * Polygon case tables for a pyramid cell (VTK_PYRAMID).
+   * Each case entry is an array of 9 ints encoding zero or more polygons
+   * in the polygon format, terminated by -1.
+   * The worst case is two triangles: { 3, e0..e2, 3, e3..e5, -1 }.
+   * There are 32 cases (2^5 vertices).
+   */
+  using PyramidCaseWithPolygons = int[9];
+  static const PyramidCaseWithPolygons* GetPyramidCasesWithPolygons();
+  static const PyramidCaseWithPolygons& GetPyramidCaseWithPolygons(uint8_t caseIndex);
+  ///@}
+
+  /**
+   * Generic interface to retrieve a contour case entry that generates polygons
+   * or line segments for any supported cell type.
+   *
+   * @param cellType   A VTK cell type constant (e.g. VTK_TETRA, VTK_HEXAHEDRON).
+   * @param caseIndex  The marching case index, computed as a bitmask where bit i is set
+   *                   if vertex i is above the isovalue.
+   *
+   * @return A pointer into the case table. The encoding is as follows:
+   *
+   *   Empty case (cell entirely inside or outside):
+   *     [ -1, ... ]
+   *
+   *   Non-empty case — one or more output polygons/line segments:
+   *     [ nPts0, e0, e1, ..., e(nPts0-1),
+   *       nPts1, e0, e1, ..., e(nPts1-1),
+   *       ...
+   *       -1 ]
+   *
+   *   where each eN is a cell-local edge index.
+   *
+   * @note Returns nullptr for unsupported cell types (e.g. VTK_POLYGON, VTK_POLY_LINE).
+   */
+  using CellCaseWithPolygons = const int*;
+  static CellCaseWithPolygons GetCellCaseWithPolygons(int cellType, uint8_t caseIndex);
+
   /**
    * Returns the edge definitions for the given cell type as an array of
-   * (point index pairs), where each pair defines one edge of the cell.
-   * The array is terminated by a { -1, -1 } sentinel.
+   * point index pairs, where each pair defines one edge of the cell.
+   * The array is indexed by edge id, matching the edge indices used in the
+   * case tables above.
    * Returns nullptr if the cell type is not supported.
    */
   using Edge = int[2];
