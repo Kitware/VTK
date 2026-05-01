@@ -196,7 +196,8 @@
 #define vtkSetStringMacro(name)                                                                    \
   virtual void Set##name(const char* _arg) vtkSetStringBodyMacro(name, _arg)
 #define vtkSetStringMacroOverride(name)                                                            \
-  void Set##name(const char* _arg) vtkSetStringBodyMacro(name, _arg) override
+  void Set##name(const char* _arg) vtkSetStringBodyMacro(name, _arg)                               \
+  override
 
 //
 // Set a string token. Creates member Set"name"()
@@ -209,7 +210,8 @@
 #define vtkSetFilePathMacro(name)                                                                  \
   virtual void Set##name(VTK_FILEPATH const char* _arg) vtkSetStringBodyMacro(name, _arg)
 #define vtkSetFilePathMacroOverride(name)                                                          \
-  void Set##name(VTK_FILEPATH const char* _arg) vtkSetStringBodyMacro(name, _arg) override
+  void Set##name(VTK_FILEPATH const char* _arg) vtkSetStringBodyMacro(name, _arg)                  \
+  override
 
 // This macro defines a body of set string macro. It can be used either in
 // the header file using vtkSetStringMacro or in the implementation.
@@ -521,6 +523,17 @@
 // This is only an alias and is similar to vtkGetObjectMacro.
 //
 #define vtkGetSmartPointerMacro(name, type) vtkGetObjectMacro(name, type)
+
+//
+// Get const pointer to object.  Creates member Get"name"() (e.g., GetPoints()).
+// This macro should be used in the header file.
+//
+#define vtkGetConstObjectMacro(name, type)                                                         \
+  virtual const type* Get##name() const                                                            \
+  {                                                                                                \
+    vtkDebugMacro(<< " returning " #name " address " << this->name);                               \
+    return this->name;                                                                             \
+  }
 
 //
 // Create members "name"On() and "name"Off() (e.g., DebugOn() DebugOff()).
