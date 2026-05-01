@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkPolyhedronContour.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
@@ -196,6 +197,10 @@ struct ExtractEdgesBase
   struct LocalDataType
   {
     vtkSmartPointer<vtkIdList> LocalPointIds;
+
+    vtkSmartPointer<vtkCellArray> PolyhedronFaces;
+    std::vector<vtkIdType> OutputPolyhedronPolySize;
+    std::vector<EdgeTuple<vtkIdType, double>> IntersectedEdges;
   };
 
   vtkContour3DLinearGrid* Filter;
@@ -240,6 +245,7 @@ struct ExtractEdgesBase
   {
     auto& localData = this->LocalData.Local();
     localData.LocalPointIds = vtkSmartPointer<vtkIdList>::New();
+    localData.PolyhedronFaces = vtkSmartPointer<vtkCellArray>::New();
   }
 
   // operator() provided by subclass
@@ -413,6 +419,9 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
   {
     auto& localData = this->LocalData.Local();
     auto& lPointIds = localData.LocalPointIds;
+    auto& lPolyhedronFaces = localData.PolyhedronFaces;
+    auto& lIntersectedEdges = localData.IntersectedEdges;
+    auto& lOutputPolyhedronPolySize = localData.OutputPolyhedronPolySize;
     vtkIdType npts, i;
     const vtkIdType* pts = nullptr;
     uint8_t isoCase;
@@ -484,6 +493,39 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
             }
           } // for all polygons in this case
         }
+        else if (cellType == VTK_POLYHEDRON)
+        {
+          this->Input->GetCellPoints(cellId, npts, pts, lPointIds);
+          // count how many points are inside
+          vtkIdType insidePoints = 0;
+          for (i = 0; i < npts; ++i)
+          {
+            insidePoints += (scalars[pts[i]] - value) >= 0.0;
+          }
+          // skip cells that all points are either all in or all out
+          if (insidePoints == 0 || insidePoints == npts)
+          {
+            continue;
+          }
+          this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
+          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(), this->Scalars, value,
+            GenerateTriangles, lOutputPolyhedronPolySize, lIntersectedEdges);
+          size_t edgeOffset = 0;
+          for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
+          {
+            const int numEdgePoints = GenerateTriangles ? 3 : lOutputPolyhedronPolySize[polyId];
+            for (int edgeId = 0; edgeId < numEdgePoints; ++edgeId, ++edgeOffset)
+            {
+              const auto& edge = lIntersectedEdges[edgeOffset];
+              batchEdges.emplace_back(edge.V0, edge.V1, edge.Data);
+            } // for all edges in this polygon
+            batchOriginalCellIds.push_back(static_cast<IDType>(cellId));
+            if constexpr (!GenerateTriangles)
+            {
+              batchOutputPolySize.push_back(numEdgePoints);
+            }
+          } // for all polygons in this case
+        }
       } // for all cells in this batch
       batchNumberOfCells = batchOriginalCellIds.size();
       batchPolyConnectivity = batchEdges.size();
@@ -532,6 +574,9 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
   {
     auto& localData = this->LocalData.Local();
     auto& lPointIds = localData.LocalPointIds;
+    auto& lPolyhedronFaces = localData.PolyhedronFaces;
+    auto& lIntersectedEdges = localData.IntersectedEdges;
+    auto& lOutputPolyhedronPolySize = localData.OutputPolyhedronPolySize;
     vtkIdType npts, i;
     const vtkIdType* pts = nullptr;
     uint8_t isoCase;
@@ -569,7 +614,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
       {
         const auto& cellId = cellIds[idx];
         int cellType = this->Input->GetCellType(cellId);
-        if (cellType < VTK_TETRA || cellType > VTK_PYRAMID)
+        if (cellType >= VTK_TETRA && cellType <= VTK_PYRAMID)
         {
           this->Input->GetCellPoints(cellId, npts, pts, lPointIds);
           // Compute case by repeated masking of scalar value
@@ -600,6 +645,39 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
               t = (pts[v0] < pts[v1] ? t : (1.0 - t));      // edges (v0,v1) must have v0<v1
               batchEdges.emplace_back(pts[v0], pts[v1], t); // edge constructor may swap v0<->v1
             }                                               // for all edges in this polygon
+            batchOriginalCellIds.push_back(static_cast<IDType>(cellId));
+            if constexpr (!GenerateTriangles)
+            {
+              batchOutputPolySize.push_back(numEdgePoints);
+            }
+          } // for all polygons in this case
+        }
+        else if (cellType == VTK_POLYHEDRON)
+        {
+          this->Input->GetCellPoints(cellId, npts, pts, lPointIds);
+          // count how many points are inside
+          vtkIdType insidePoints = 0;
+          for (i = 0; i < npts; ++i)
+          {
+            insidePoints += (scalars[pts[i]] - value) >= 0.0;
+          }
+          // skip cells that all points are either all in or all out
+          if (insidePoints == 0 || insidePoints == npts)
+          {
+            continue;
+          }
+          this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
+          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(), this->Scalars, value,
+            GenerateTriangles, lOutputPolyhedronPolySize, lIntersectedEdges);
+          size_t edgeOffset = 0;
+          for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
+          {
+            const int numEdgePoints = GenerateTriangles ? 3 : lOutputPolyhedronPolySize[polyId];
+            for (int edgeId = 0; edgeId < numEdgePoints; ++edgeId, ++edgeOffset)
+            {
+              const auto& edge = lIntersectedEdges[edgeOffset];
+              batchEdges.emplace_back(edge.V0, edge.V1, edge.Data);
+            } // for all edges in this polygon
             batchOriginalCellIds.push_back(static_cast<IDType>(cellId));
             if constexpr (!GenerateTriangles)
             {
@@ -1301,7 +1379,7 @@ void vtkContour3DLinearGrid::SetMergePointsOff()
 
 //------------------------------------------------------------------------------
 // Specialized contouring filter to handle unstructured grids with 3D linear
-// cells (tetrahedras, hexes, wedges, pyradmids, voxels).
+// cells (tetrahedras, hexes, wedges, pyradmids, voxels, polyhedrons)
 //
 void vtkContour3DLinearGrid::ProcessPiece(
   vtkUnstructuredGrid* input, vtkDataArray* inScalars, vtkPolyData* output)
@@ -1615,7 +1693,8 @@ bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
       {
         unsigned char cellType = cellTypes->GetValue(i);
         if (cellType != VTK_EMPTY_CELL && cellType != VTK_VOXEL && cellType != VTK_TETRA &&
-          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID &&
+          cellType != VTK_POLYHEDRON)
         {
           // Unsupported cell type, can't process data
           return false;

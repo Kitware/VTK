@@ -195,7 +195,7 @@ void vtk3DLinearGridPlaneCutter::SetMergePointsOff()
 
 //------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
-// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
+// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels, polyhedrons)
 //
 int vtk3DLinearGridPlaneCutter::ProcessPiece(
   vtkUnstructuredGrid* input, vtkPlane* plane, vtkPolyData* output)
@@ -298,7 +298,7 @@ int vtk3DLinearGridPlaneCutter::RequestDataObject(
 
 //------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
-// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
+// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels, polyhedrons)
 //
 int vtk3DLinearGridPlaneCutter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -389,7 +389,8 @@ bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object
       {
         unsigned char cellType = cellTypes->GetValue(i);
         if (cellType != VTK_EMPTY_CELL && cellType != VTK_VOXEL && cellType != VTK_TETRA &&
-          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID &&
+          cellType != VTK_POLYHEDRON)
         {
           // Unsupported cell type, can't process data
           return false;
