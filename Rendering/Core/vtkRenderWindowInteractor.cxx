@@ -1477,7 +1477,10 @@ void vtkRenderWindowInteractor::AddInteractorObserver(vtkInteractorObserver* int
     vtkErrorMacro(<< "Cannot add interactor observer because collection is null!");
     return;
   }
-  this->InteractorObservers->AddItem(interactorObserver);
+  if (!this->InteractorObservers->IsItemPresent(interactorObserver))
+  {
+    this->InteractorObservers->AddItem(interactorObserver);
+  }
 }
 
 //------------------------------------------------------------------
