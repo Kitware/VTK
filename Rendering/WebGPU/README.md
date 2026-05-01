@@ -1,8 +1,6 @@
 # VTK::RenderingWebGPU
 
-## vtkRenderingWebGPU - WebGPU Backend for Rendering
-
-### Description
+## Description
 
 This module contains the WebGPU native backend for `RenderingCore`. Currently, it supports rendering polygonal geometry in different representations with point/cell scalar-mapped colors.
 
@@ -12,105 +10,185 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
 
 ---
 
-### Building VTK with Dawn (Highly Experimental)
+## Building VTK with Dawn (Highly Experimental)
 
-#### Prerequisites
+### Prerequisites
 
 - Git
 - tools for building VTK
 
-This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm (automatically fetched by emscripten with `--use-port=emdawnwebgpu` flag)
+### Desktop
+On desktop (Linux, macOS, and Windows), this module uses Dawn's C++ WebGPU implementation. You can get Dawn with any of these two methods:
 
-#### Cloning and Building Dawn
+1. Build Dawn from source.
+2. Fetch pre-built Dawn binaries built in release mode.
 
-Dawn should be built at tag [v20250621.085109](https://github.com/google/dawn/tree/v20250621.085109).
+These two methods are supported on all three operating systems. Pre-build Dawn binaries are available only
+for linux-x86_64, windows-x86_64, macos-x86_64 and macos-arm64. If you are on a different platform, you will need to build Dawn from source.
+
+Here, `VTK_SOURCE_DIR` is the path to the root of the VTK source directory, and `VTK_BUILD_DIR` is the path to the directory where you want to build VTK.
+
+#### Build Dawn from source
+
+Dawn should be built at tag [v20251002.162335](https://github.com/google/dawn/tree/v20251002.162335).
+Here, `DAWN_INSTALL_DIR` should point to the directory where Dawn is installed (should contain `lib` and `include` directories).
 
 ```sh
 # Clone the repo and checkout the required version
 git clone https://github.com/google/dawn dawn && cd dawn
-git checkout v20250621.085109
-```
-
-##### Build Dawn with `CMake` and `Ninja`
-
-```sh
+git checkout v20251002.162335
 cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
 cmake --build out/Debug
-cmake --install out/Debug --prefix /path/to/install/dawn
+cmake --install out/Debug --prefix ${DAWN_INSTALL_DIR}
 ```
 
-#### Configuring and Building VTK
+#### Fetch pre-built Dawn binaries
 
-When configuring VTK's build for wasm, configure with:
+Run the following command to fetch pre-built Dawn binaries. This will download and install Dawn to `VTK_SOURCE_DIR/.gitlab`.
 
+::::{tab-set}
+
+:::{tab-item} Linux
+```sh
+cd "${VTK_SOURCE_DIR}"
+CMAKE_CONFIGURATION="fedora" cmake -P .gitlab/ci/download_dawn.cmake
+export DAWN_INSTALL_DIR="${VTK_SOURCE_DIR}/.gitlab/dawn"
+```
+:::
+
+:::{tab-item} macOS-arm64
+```sh
+cd "${VTK_SOURCE_DIR}"
+CMAKE_CONFIGURATION="macos_arm64" cmake -P .gitlab/ci/download_dawn.cmake
+export DAWN_INSTALL_DIR="${VTK_SOURCE_DIR}/.gitlab/dawn"
+```
+:::
+
+:::{tab-item} macOS-x86_64
+```sh
+cd "${VTK_SOURCE_DIR}"
+CMAKE_CONFIGURATION="macos_x86_64" cmake -P .gitlab/ci/download_dawn.cmake
+export DAWN_INSTALL_DIR="${VTK_SOURCE_DIR}/.gitlab/dawn"
+```
+:::
+
+:::{tab-item} Windows
+```pwsh
+cd "$env:VTK_SOURCE_DIR"
+$env:CMAKE_CONFIGURATION="windows"; cmake -P .gitlab/ci/download_dawn.cmake
+$env:DAWN_INSTALL_DIR="$env:VTK_SOURCE_DIR\.gitlab\dawn"
+```
+:::
+::::
+
+After you are finished, you should see a new directory `VTK_SOURCE_DIR/.gitlab/dawn` which contains the pre-built Dawn binaries. Set `DAWN_INSTALL_DIR` to `VTK_SOURCE_DIR/.gitlab/dawn` so that you can pass it to CMake when configuring VTK's build.
+
+#### Configure and build VTK
+
+Run the following commands to configure and build VTK with WebGPU support.
+
+::::{tab-set}
+:::{tab-item} Linux/macOS
 ```sh
 cmake \
--S /path/to/vtk/src \
--B /path/to/vtk/build \
+-S "${VTK_SOURCE_DIR}" \
+-B "${VTK_BUILD_DIR}" \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
+-DDawn_DIR="${DAWN_INSTALL_DIR}/lib/cmake/Dawn" \
 -DVTK_BUILD_TESTING=ON
 
-cmake --build
+cmake --build "${VTK_BUILD_DIR}"
+```
+:::
+
+:::{tab-item} Windows
+```pwsh
+cmake `
+-S "$env:VTK_SOURCE_DIR" `
+-B "$env:VTK_BUILD_DIR" `
+-DCMAKE_BUILD_TYPE=Release `
+-GNinja `
+-DVTK_ENABLE_WEBGPU=ON `
+-DDawn_DIR="$env:DAWN_INSTALL_DIR/lib/cmake/Dawn" `
+-DVTK_BUILD_TESTING=ON
+
+cmake --build "$env:VTK_BUILD_DIR"
+```
+:::
+::::
+
+```{warning}
+When copy pasting the commands on Windows, please paste them into a Powershell window and not a Command prompt!
 ```
 
-When building on desktop (x86_64/aarch64), configure with:
+```{warning}
+On Windows, ensure that you are using the same `CMAKE_BUILD_TYPE` for both building Dawn and configuring VTK. Or else, you will see a linker error `LNK2038: mismatch detected for '_ITERATOR_DEBUG_LEVEL': value '0' doesn't match value '2' in vtkRenderingWebGPUObjectFactory.cxx.obj`.
+```
+
+### WebAssembly
+On WebAssembly, this module uses the WebGPU implementation provided by the browser. You do not need to build Dawn from source or fetch pre-built Dawn binaries. You just need to configure and build VTK with Emscripten. It takes care of linking the WebGPU implementation provided by the browser (with the `--use-port=emdawnwebgpu` flag).
+
+#### Configure and build VTK
+
+Run the following commands to configure and build VTK for WASM with WebGPU support.
 
 ```sh
-cmake \
--S /path/to/vtk/src \
--B /path/to/vtk/build \
+emcmake cmake \
+-S "${VTK_SOURCE_DIR}" \
+-B "${VTK_BUILD_DIR}" \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
--DDawn_DIR=/path/to/where/dawn/is/installed/lib/cmake/Dawn \
+-DBUILD_SHARED_LIBS=OFF \
 -DVTK_BUILD_TESTING=ON
 
-cmake --build
+cmake --build "${VTK_BUILD_DIR}"
 ```
+---
+
+## Running Tests
+
+### WebGPU Tests
+
+::::{tab-set}
+:::{tab-item} Linux/macOS
+```sh
+cd ${VTK_BUILD_DIR}
+ctest -R RenderingWebGPU -V
+```
+:::
+
+:::{tab-item} Windows
+```pwsh
+cd $env:VTK_BUILD_DIR
+ctest -R RenderingWebGPU -V
+```
+:::
+::::
+
+### Rendering Core Tests
+
+To run the `RenderingCore` tests with `VTK::RenderingWebGPU`:
+
+::::{tab-set}
+:::{tab-item} Linux/macOS
+```sh
+cd ${VTK_BUILD_DIR}
+ctest -R RenderingCoreCxx-WebGPU -V
+```
+:::
+
+:::{tab-item} Windows
+```pwsh
+cd $env:VTK_BUILD_DIR
+ctest -R RenderingCoreCxx-WebGPU -V
+```
+:::
+::::
 
 ---
 
-### Running Tests
-
-#### WebGPU Tests
-
-```sh
-./bin/vtkRenderingWebGPUCxxTests
-```
-
-Available tests:
-
-```
-0. TestActorFaceCullingProperty
-1. TestAxesActor
-2. TestCellScalarMappedColors
-3. TestCompositePolyDataMapper
-..
-..
-```
-
-#### Rendering Core Tests
-
-To run the `RenderingCore` tests with `VTK::RenderingWebGPU`, edit `vtk.module` to link unit tests with `TEST_DEPENDS`:
-
-1. Uncomment the module name under `TEST_DEPENDS`.
-2. Rebuild and run the tests (only a few pass currently).
-3. Set the `VTK_FACTORY_PREFER` environment variable to `RenderingBackend=WebGPU` or pass `--vtk-factory-prefer RenderingBackend=WebGPU` as command line arguments to the test executable.
-
-```sh
-export VTK_FACTORY_PREFER="RenderingBackend=WebGPU"
-./bin/vtkRenderingCoreCxxTests Mace -I
-```
-
-or
-
-```sh
-./bin/vtkRenderingCoreCxxTests Mace -I --vtk-factory-prefer RenderingBackend=WebGPU
-```
-
----
-
-### Features
+## Features
 
 The following features are currently implemented:
 
@@ -135,7 +213,7 @@ The following features are currently implemented:
 - **Selections**: Hardware selector can pick cells, composite datasets and actors.
 ---
 
-### Compute Shader API
+## Compute Shader API
 
 The compute shader API allows offloading work from the CPU to the GPU using WebGPU compute shaders.
 
@@ -144,7 +222,7 @@ The compute shader API allows offloading work from the CPU to the GPU using WebG
 
 ---
 
-### Future Work
+## Future Work
 
 Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. It leverages WebGPU's C++ flavor for its object-oriented API and RAII. Helper classes in the `vtkWebGPUInternals...` files ensure cleaner bind group initialization code.
 
@@ -158,7 +236,7 @@ Planned improvements include:
 
 ---
 
-### References
+## References
 
 Here are some valuable resources for learning WebGPU:
 

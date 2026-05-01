@@ -13,5 +13,7 @@ IOXMLTimeInFieldData
 
 MomentInvariantsArchitecture
 
+VoronoiFramework
+
 WebAssemblyTestSuiteArchitecture
 ```
