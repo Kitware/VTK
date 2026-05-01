@@ -3863,26 +3863,26 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*
       int numComp = this->Colors->GetNumberOfComponents();
       unsigned char* colorPtr = this->Colors->GetPointer(0);
       assert(numComp == 4);
-      newColors.reserve(numComp * ccmap->GetSize());
-      // use a single color value?
+      // Pre-allocate and gather-copy 32 bits at a time. numComp is asserted
+      // to be 4, newColors' allocator aligns to >= 4 bytes, and nOld is
+      // incremented by numComp*N by each composite delegator, so the
+      // reinterpret_casts stay on 4-byte-aligned addresses.
+      const size_t cSize = ccmap->GetSize();
+      const size_t nOld = newColors.size();
+      newColors.resize(nOld + numComp * cSize);
+      uint32_t* out32 = reinterpret_cast<uint32_t*>(newColors.data() + nOld);
       if (this->FieldDataTupleId > -1 && this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
       {
-        for (size_t i = 0; i < ccmap->GetSize(); i++)
-        {
-          for (int j = 0; j < numComp; j++)
-          {
-            newColors.push_back(colorPtr[this->FieldDataTupleId * numComp + j]);
-          }
-        }
+        uint32_t src =
+          *reinterpret_cast<const uint32_t*>(colorPtr + this->FieldDataTupleId * numComp);
+        std::fill(out32, out32 + cSize, src);
       }
       else
       {
-        for (size_t i = 0; i < ccmap->GetSize(); i++)
+        const uint32_t* in32 = reinterpret_cast<const uint32_t*>(colorPtr);
+        for (size_t i = 0; i < cSize; i++)
         {
-          for (int j = 0; j < numComp; j++)
-          {
-            newColors.push_back(colorPtr[ccmap->GetValue(i) * numComp + j]);
-          }
+          out32[i] = in32[ccmap->GetValue(i)];
         }
       }
     }
