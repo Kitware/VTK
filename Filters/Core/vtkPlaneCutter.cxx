@@ -776,11 +776,11 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkPolyData* output)
       xPlane->SetOrigin(planeOrigin);
       vtkNew<vtk3DLinearGridPlaneCutter> planeCutter;
       planeCutter->SetOutputPointsPrecision(this->OutputPointsPrecision);
-      planeCutter->SetMergePoints(this->MergePoints);
       planeCutter->SetInputData(input);
       planeCutter->SetPlane(xPlane);
       planeCutter->SetComputeNormals(this->ComputeNormals);
       planeCutter->SetInterpolateAttributes(this->InterpolateAttributes);
+      planeCutter->SetGenerateTriangles(!this->GeneratePolygons);
       planeCutter->SetContainerAlgorithm(this);
       planeCutter->Update();
       vtkDataSet* outPlane = vtkDataSet::SafeDownCast(planeCutter->GetOutput());

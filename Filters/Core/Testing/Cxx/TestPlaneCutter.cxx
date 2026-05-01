@@ -66,7 +66,7 @@ bool TestPlaneCutterStructured(int type, int expected)
   return true;
 }
 
-bool TestPlaneCutterUnmapped(int expected)
+bool TestPlaneCutterUnmapped(int expectedPolys, int expectedTris)
 {
   vtkUnstructuredGrid* mg;
   vtkMappedUnstructuredGridGenerator::GenerateUnstructuredGrid(&mg);
@@ -84,16 +84,16 @@ bool TestPlaneCutterUnmapped(int expected)
   mg->Delete();
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedPolys);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
   output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedTris);
   return true;
 }
 
-bool TestPlaneCutterMapped(int expected)
+bool TestPlaneCutterMapped(int expectedPolys, int expectedTris)
 {
   vtkUnstructuredGridBase* mg;
   vtkMappedUnstructuredGridGenerator::GenerateMappedUnstructuredGrid(&mg);
@@ -111,16 +111,16 @@ bool TestPlaneCutterMapped(int expected)
   mg->Delete();
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedPolys);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
   output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedTris);
   return true;
 }
 
-bool TestPlaneCutterUnstructured(int expected)
+bool TestPlaneCutterUnstructured(int expectedPolys, int expectedTris)
 {
   vtkSmartPointer<vtkRTAnalyticSource> imageSource = vtkSmartPointer<vtkRTAnalyticSource>::New();
   imageSource->SetWholeExtent(-2, 2, -2, 2, -2, 2);
@@ -141,17 +141,19 @@ bool TestPlaneCutterUnstructured(int expected)
   cutter->SetPlane(p3d);
   cutter->SetInputConnection(0, tetraFilter->GetOutputPort());
 
-  // vtkPlaneCutter does not support polygon generation for unstructured grids
-  // so the number of expected cells is always the number of triangles.
+  // vtkPlaneCutter now supports polygon generation for unstructured grids
+  // (delegates to vtk3DLinearGridPlaneCutter -> vtkContour3DLinearGrid).
+  // With GeneratePolygons=true, each cut tet emits one polygon (triangle or
+  // quad). With GeneratePolygons=false, those polygons are fan-triangulated.
   cutter->SetGeneratePolygons(true);
   cutter->Update();
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedPolys);
 
   cutter->SetGeneratePolygons(false);
   cutter->Update();
   output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
-  Compare(output, expected);
+  Compare(output, expectedTris);
   return true;
 }
 
@@ -166,19 +168,19 @@ int TestPlaneCutter(int, char*[])
     }
   }
 
-  if (!TestPlaneCutterUnstructured(10))
+  if (!TestPlaneCutterUnstructured(7, 10))
   {
     std::cerr << "Cutting Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterUnmapped(4))
+  if (!TestPlaneCutterUnmapped(3, 6))
   {
     std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (!TestPlaneCutterMapped(4))
+  if (!TestPlaneCutterMapped(4, 4))
   {
     std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;

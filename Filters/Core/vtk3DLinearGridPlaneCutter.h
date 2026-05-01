@@ -94,14 +94,30 @@ public:
 
   ///@{
   /**
+   * If this flag is enabled, then the output scalar values will be
+   * interpolated from the implicit function values, and not the input scalar
+   * data.
+   */
+  vtkSetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Indicate whether to merge coincident points. Merging can take extra time
    * and produces fewer output points, creating a "watertight" output
    * surface. On the other hand, merging reduced output data size and may be
    * just as fast especially for smaller data. By default this is off.
    */
-  vtkSetMacro(MergePoints, bool);
-  vtkGetMacro(MergePoints, bool);
-  vtkBooleanMacro(MergePoints, bool);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  vtkSetMacro(MergePoints, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  vtkGetMacro(MergePoints, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  virtual void SetMergePointsOn();
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  virtual void SetMergePointsOff();
   ///@}
 
   ///@{
@@ -126,6 +142,18 @@ public:
   vtkBooleanMacro(ComputeNormals, bool);
   ///@}
 
+  ///@{
+  /**
+   * If enabled (the default), output polygons are fan-triangulated.
+   * If disabled, VTK_POLYHEDRON isosurface polygons are output directly
+   * as polygons rather than triangles. This only affects VTK_POLYHEDRON
+   * cells; linear cell output is always triangulated.
+   */
+  vtkSetMacro(GenerateTriangles, vtkTypeBool);
+  vtkGetMacro(GenerateTriangles, vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
+  ///@}
+
   /**
    * Overloaded GetMTime() because of delegation to the helper
    * vtkPlane.
@@ -134,12 +162,12 @@ public:
 
   ///@{
   /**
-   * Set/get the desired precision for the output points. See the
-   * documentation for the vtkAlgorithm::Precision enum for an explanation of
-   * the available precision settings.
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::Precision enum for an explanation of the available
+   * precision settings.
    */
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
   ///@{
@@ -185,10 +213,12 @@ protected:
   ~vtk3DLinearGridPlaneCutter() override;
 
   vtkPlane* Plane;
-  bool MergePoints;
+  vtkTypeBool MergePoints;
   bool InterpolateAttributes;
   bool ComputeNormals;
+  vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
+  vtkTypeBool GenerateTriangles;
   bool SequentialProcessing;
   int NumberOfThreadsUsed;
   bool LargeIds; // indicate whether integral ids are large(==true) or not

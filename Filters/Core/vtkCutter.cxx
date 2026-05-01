@@ -414,7 +414,7 @@ int vtkCutter::RequestData(
   }
   else if (vtkUnstructuredGridBase::SafeDownCast(input))
   {
-    if (plane && this->GetGenerateCutScalars() == 0 && this->GetGenerateTriangles() == 1)
+    if (plane && this->GetGenerateCutScalars() == 0)
     {
       executePlaneCutter();
     }
