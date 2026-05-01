@@ -249,9 +249,16 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   this->SSAAHelper->Program->SetUniformf("texelHeightOffset", 0.375 / height);
 
   // Use the same sample shader, this time vertical
-
-  this->Pass2->CopyToFrameBuffer(0, 0, width - 1, modifiedHeight - 1, 0, 0, width - 1, height - 1,
-    width, height, this->SSAAHelper->Program, this->SSAAHelper->VAO);
+  int originX = 0;
+  int originY = 0;
+  if (s->GetFrameBuffer() == nullptr)
+  {
+    int tmpWidth, tmpHeight;
+    r->GetTiledSizeAndOrigin(&tmpWidth, &tmpHeight, &originX, &originY);
+  }
+  this->Pass2->CopyToFrameBuffer(0, 0, width - 1, modifiedHeight - 1, originX, originY,
+    originX + width - 1, originY + height - 1, width, height, this->SSAAHelper->Program,
+    this->SSAAHelper->VAO);
 
   this->Pass2->Deactivate();
 
