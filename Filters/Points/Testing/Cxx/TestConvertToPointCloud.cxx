@@ -11,12 +11,39 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkXMLPolyDataReader.h"
 
 #include <iostream>
 
 //------------------------------------------------------------------------------
-int TestConvertToPointCloud(int argc, char* argv[])
+// Check for a regression of a bug where the filter would crash if given an
+// empty vtkPointSet.
+static bool TestEmptyInput()
+{
+  vtkNew<vtkUnstructuredGrid> emptyInput;
+
+  vtkNew<vtkConvertToPointCloud> convPointCloud;
+  convPointCloud->SetInputData(emptyInput);
+  convPointCloud->SetCellGenerationMode(vtkConvertToPointCloud::VERTEX_CELLS);
+  convPointCloud->Update();
+
+  vtkPolyData* output = vtkPolyData::SafeDownCast(convPointCloud->GetOutput());
+  if (!output)
+  {
+    std::cerr << "TestConvertToPointCloud did not create output data from empty input" << std::endl;
+    return false;
+  }
+  if ((output->GetNumberOfCells() != 0) || (output->GetNumberOfPoints()))
+  {
+    std::cerr << "TestConvertToPointCloud did not give empty output for empty input" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+static bool TestGeneral(int argc, char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
@@ -33,7 +60,7 @@ int TestConvertToPointCloud(int argc, char* argv[])
   if (!output || output->GetNumberOfCells() != 0)
   {
     std::cerr << "TestConvertToPointCloud failed with NO_CELLS mode" << std::endl;
-    return 0;
+    return false;
   }
 
   convPointCloud->SetCellGenerationMode(vtkConvertToPointCloud::VERTEX_CELLS);
@@ -42,7 +69,7 @@ int TestConvertToPointCloud(int argc, char* argv[])
   if (!output || output->GetNumberOfCells() != 2903)
   {
     std::cerr << "TestConvertToPointCloud failed with VERTEX_CELLS mode" << std::endl;
-    return 0;
+    return false;
   }
 
   convPointCloud->SetCellGenerationMode(vtkConvertToPointCloud::POLYVERTEX_CELL);
@@ -51,7 +78,7 @@ int TestConvertToPointCloud(int argc, char* argv[])
   if (!output || output->GetNumberOfCells() != 1)
   {
     std::cerr << "TestConvertToPointCloud failed with POLYVERTEX_CELL mode" << std::endl;
-    return 0;
+    return false;
   }
 
   // Check a render
@@ -80,5 +107,13 @@ int TestConvertToPointCloud(int argc, char* argv[])
     iren->Start();
   }
 
-  return !retVal;
+  return (retVal != vtkRegressionTester::FAILED);
+}
+
+//------------------------------------------------------------------------------
+int TestConvertToPointCloud(int argc, char* argv[])
+{
+  bool success = TestEmptyInput() && TestGeneral(argc, argv);
+
+  return (success ? 0 : 1);
 }
