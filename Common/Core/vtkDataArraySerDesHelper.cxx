@@ -465,6 +465,30 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
     return {};
   }
   nlohmann::json state;
+  if (auto* context = serializer->GetContext())
+  {
+    const auto id = context->GetId(object);
+    if (id > 0)
+    {
+      state = context->GetState(id);
+      if (!state.empty())
+      {
+        const auto stateMTime = state.at("MTime").get<vtkMTimeType>();
+        if (da->GetMTime() <= stateMTime)
+        {
+          return state;
+        }
+        vtkVLog(serializer->GetSerializerLogVerbosity(),
+          << "Reserialize because object-mtime=" << da->GetMTime()
+          << " >= state-mtime=" << stateMTime);
+      }
+    }
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(serializer, "Serializer does not have a marshal context!");
+    return state;
+  }
   if (auto superSerializer = serializer->GetHandler(typeid(vtkDataArray::Superclass)))
   {
     state = superSerializer(da, serializer);
