@@ -10,30 +10,70 @@
 #   2. Adds the newly released version if it is not already present.
 #   3. Uploads the updated JSON back to the server.
 #
-# Environment variables (set by CI):
-#   VTK_DOC_VERSION    – The "major.minor" version string being released.
-#   VTK_DOC_BASE_URL   – Base URL pattern for versioned docs.
-#   RSYNC_KEY_PATH     – SSH private key for the server.
-#   DOC_SERVER          – SSH destination (user@host).
-#   DOC_SERVER_ROOT     – Root directory on the server for VTK docs.
+# Usage:
+#   ./update_doc_versions.sh <version> [--host HOST] [--base-url URL] [--root ROOT]
+#
+# Required argument:
+#   version             – The "major.minor" version string being released.
+#
+# Optional arguments (with defaults):
+#   --host HOST         – SSH host alias (default: vtk.doc)
+#   --base-url URL      – Base URL pattern for versioned docs (default: https://vtk.org/doc)
+#   --root ROOT         – Root directory on server (default: VTKDoxygen)
+#
+# The script expects SSH to be configured with a Host stanza (e.g., in ~/.ssh/config):
+#   Host vtk.doc
+#       User         kitware
+#       HostName     web.kitware.com
+#       IdentityFile ~/.local/share/ssh/my-key
+#       IdentitiesOnly  yes
 # --------------------------------------------------------------------------
 set -euo pipefail
 
-: "${VTK_DOC_VERSION:?VTK_DOC_VERSION is required}"
-: "${RSYNC_KEY_PATH:?RSYNC_KEY_PATH is required}"
-: "${DOC_SERVER:=kitware@web.kitware.com}"
-: "${DOC_SERVER_ROOT:=VTKDoxygen}"
-: "${VTK_DOC_BASE_URL:=https://vtk.org/doc}"
+# Parse arguments
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 <version> [--host HOST] [--base-url URL] [--root ROOT]" >&2
+    exit 1
+fi
 
-SSH_OPTS="-i ${RSYNC_KEY_PATH} -o StrictHostKeyChecking=no"
-REMOTE_JSON="${DOC_SERVER_ROOT}/vtk_versions.json"
+VERSION="$1"
+shift
+
+# Defaults
+SSH_HOST="vtk.doc"
+BASE_URL="https://vtk.org/doc"
+SERVER_ROOT="VTKDoxygen"
+
+# Parse optional arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --host)
+            SSH_HOST="$2"
+            shift 2
+            ;;
+        --base-url)
+            BASE_URL="$2"
+            shift 2
+            ;;
+        --root)
+            SERVER_ROOT="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
+REMOTE_JSON="${SERVER_ROOT}/vtk_versions.json"
 LOCAL_JSON="$(mktemp)"
 
 trap 'rm -f "${LOCAL_JSON}"' EXIT
 
 # ---- 1. Fetch the current versions file (if it exists) ------------------
 echo "Fetching existing vtk_versions.json from server..."
-if ! scp ${SSH_OPTS} "${DOC_SERVER}:${REMOTE_JSON}" "${LOCAL_JSON}" 2>/dev/null; then
+if ! scp "${SSH_HOST}:${REMOTE_JSON}" "${LOCAL_JSON}" 2>/dev/null; then
     echo "No existing vtk_versions.json found; creating a new one."
     cat > "${LOCAL_JSON}" <<SEED
 {
@@ -41,7 +81,7 @@ if ! scp ${SSH_OPTS} "${DOC_SERVER}:${REMOTE_JSON}" "${LOCAL_JSON}" 2>/dev/null;
     {
       "name": "nightly",
       "version": "nightly",
-      "baseUrl": "${VTK_DOC_BASE_URL}/nightly/html"
+      "baseUrl": "${BASE_URL}/nightly/html"
     }
   ]
 }
@@ -49,8 +89,8 @@ SEED
 fi
 
 # ---- 2. Insert the new version if absent --------------------------------
-echo "Ensuring version ${VTK_DOC_VERSION} is listed..."
-python3 - "${LOCAL_JSON}" "${VTK_DOC_VERSION}" "${VTK_DOC_BASE_URL}" <<'PYEOF'
+echo "Ensuring version ${VERSION} is listed..."
+python3 - "${LOCAL_JSON}" "${VERSION}" "${BASE_URL}" <<'PYEOF'
 import json, sys
 
 json_path, version, base_url = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -97,5 +137,5 @@ PYEOF
 
 # ---- 3. Upload the updated file back to the server ----------------------
 echo "Uploading updated vtk_versions.json..."
-scp ${SSH_OPTS} "${LOCAL_JSON}" "${DOC_SERVER}:${REMOTE_JSON}"
+scp "${LOCAL_JSON}" "${SSH_HOST}:${REMOTE_JSON}"
 echo "Done."

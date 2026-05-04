@@ -17,27 +17,73 @@
 # list.
 #
 # Usage:
-#   RSYNC_KEY_PATH=/path/to/ssh_key ./backfill_doc_versions.sh
+#   ./backfill_doc_versions.sh [--host HOST] [--base-url URL] [--root ROOT] \
+#                               [--download-base URL] [--workdir DIR] [--dry-run] [--keep-downloads]
 #
-# Optional overrides (shown with their defaults):
-#   DOC_SERVER=kitware@web.kitware.com
-#   DOC_SERVER_ROOT=VTKDoxygen
-#   VTK_DOC_BASE_URL=https://vtk.org/doc
-#   VTK_RELEASE_DOWNLOAD_BASE=https://www.vtk.org/files/release
-#   DRY_RUN=0       # set to 1 to print what would be done without uploading
-#   KEEP_DOWNLOADS=0  # set to 1 to keep downloaded tarballs in WORKDIR
-#   WORKDIR=        # scratch directory; defaults to a temp dir that is
-#                   # cleaned up on exit unless KEEP_DOWNLOADS=1
+# Optional arguments (shown with their defaults):
+#   --host HOST             – SSH host alias (default: vtk.doc)
+#   --base-url URL          – Base URL for docs (default: https://vtk.org/doc)
+#   --root ROOT             – Root directory on server (default: VTKDoxygen)
+#   --download-base URL     – Base URL for downloads (default: https://www.vtk.org/files/release)
+#   --workdir DIR           – Scratch directory (default: temp dir auto-cleaned up on exit)
+#   --dry-run               – Print commands without uploading
+#   --keep-downloads        – Keep downloaded tarballs in workdir
+#
+# The script expects SSH to be configured with a Host stanza (e.g., in ~/.ssh/config):
+#   Host vtk.doc
+#       User         kitware
+#       HostName     web.kitware.com
+#       IdentityFile ~/.local/share/ssh/my-key
+#       IdentitiesOnly  yes
 # --------------------------------------------------------------------------
 set -euo pipefail
 
-: "${RSYNC_KEY_PATH:?RSYNC_KEY_PATH must point to the SSH private key for web.kitware.com}"
-: "${DOC_SERVER:=kitware@web.kitware.com}"
-: "${DOC_SERVER_ROOT:=VTKDoxygen}"
-: "${VTK_DOC_BASE_URL:=https://vtk.org/doc}"
-: "${VTK_RELEASE_DOWNLOAD_BASE:=https://www.vtk.org/files/release}"
-: "${DRY_RUN:=0}"
-: "${KEEP_DOWNLOADS:=0}"
+# Defaults
+SSH_HOST="vtk.doc"
+BASE_URL="https://vtk.org/doc"
+SERVER_ROOT="VTKDoxygen"
+DOWNLOAD_BASE="https://www.vtk.org/files/release"
+DRY_RUN=0
+KEEP_DOWNLOADS=0
+WORKDIR=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --host)
+            SSH_HOST="$2"
+            shift 2
+            ;;
+        --base-url)
+            BASE_URL="$2"
+            shift 2
+            ;;
+        --root)
+            SERVER_ROOT="$2"
+            shift 2
+            ;;
+        --download-base)
+            DOWNLOAD_BASE="$2"
+            shift 2
+            ;;
+        --workdir)
+            WORKDIR="$2"
+            shift 2
+            ;;
+        --dry-run)
+            DRY_RUN=1
+            shift
+            ;;
+        --keep-downloads)
+            KEEP_DOWNLOADS=1
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+    esac
+done
 
 # --------------------------------------------------------------------------
 # Release series: "major.minor" -> "latest full version"
@@ -65,7 +111,7 @@ SERIES_DESCENDING=(
 # --------------------------------------------------------------------------
 # Scratch space
 # --------------------------------------------------------------------------
-if [[ -n "${WORKDIR:-}" ]]; then
+if [[ -n "${WORKDIR}" ]]; then
     mkdir -p "${WORKDIR}"
     TMPDIR_OWNED=0
 else
@@ -81,10 +127,6 @@ cleanup() {
     fi
 }
 trap cleanup EXIT
-
-chmod 400 "${RSYNC_KEY_PATH}"
-SSH_OPTS="-i ${RSYNC_KEY_PATH} -o StrictHostKeyChecking=no"
-RSYNC_SSH_OPTS="-e ssh ${SSH_OPTS}"
 
 # --------------------------------------------------------------------------
 # Helper: run a command or just print it when DRY_RUN=1
@@ -102,7 +144,7 @@ run() {
 # --------------------------------------------------------------------------
 echo "========================================"
 echo "  Deploying historical VTK Doxygen docs"
-echo "  Server : ${DOC_SERVER}:${DOC_SERVER_ROOT}"
+echo "  Server : ${SSH_HOST}:${SERVER_ROOT}"
 echo "  DRY_RUN: ${DRY_RUN}"
 echo "========================================"
 echo ""
@@ -112,15 +154,15 @@ FAILED_SERIES=()
 for series in "${SERIES_DESCENDING[@]}"; do
     full="${LATEST_PATCH[$series]}"
     tarball="vtkDocHtml-${full}.tar.gz"
-    download_url="${VTK_RELEASE_DOWNLOAD_BASE}/${series}/${tarball}"
+    download_url="${DOWNLOAD_BASE}/${series}/${tarball}"
     local_tarball="${WORKDIR}/${tarball}"
     extract_dir="${WORKDIR}/extract-${series}"
-    remote_dest="${DOC_SERVER_ROOT}/release/${series}/html"
+    remote_dest="${SERVER_ROOT}/release/${series}/html"
 
     echo "----------------------------------------"
     echo "Series ${series}  (latest patch: ${full})"
     echo "  Download : ${download_url}"
-    echo "  Remote   : ${DOC_SERVER}:${remote_dest}/"
+    echo "  Remote   : ${SSH_HOST}:${remote_dest}/"
 
     # -- Download -----------------------------------------------------------
     if [[ -f "${local_tarball}" ]]; then
@@ -156,15 +198,15 @@ for series in "${SERIES_DESCENDING[@]}"; do
 
     # -- Upload -------------------------------------------------------------
     # Create the remote directory first, then rsync the contents.
-    run ssh ${SSH_OPTS} "${DOC_SERVER}" \
+    run ssh "${SSH_HOST}" \
         "mkdir -p ${remote_dest}"
 
     run rsync --recursive --times --compress --delete \
-        -e "ssh ${SSH_OPTS}" \
+        -e ssh \
         "${extract_dir}/html/" \
-        "${DOC_SERVER}:${remote_dest}/"
+        "${SSH_HOST}:${remote_dest}/"
 
-    echo "  Deployed ${series} -> ${DOC_SERVER}:${remote_dest}/"
+    echo "  Deployed ${series} -> ${SSH_HOST}:${remote_dest}/"
 
     # Discard the extracted tree to keep disk use low; keep the tarball
     # only if the caller requested it.
@@ -186,7 +228,7 @@ echo "Generating vtk_versions.json..."
 
 LOCAL_JSON="${WORKDIR}/vtk_versions.json"
 
-python3 - "${LOCAL_JSON}" "${VTK_DOC_BASE_URL}" \
+python3 - "${LOCAL_JSON}" "${BASE_URL}" \
         "${SERIES_DESCENDING[@]}" <<'PYEOF'
 import json, sys
 
@@ -222,9 +264,9 @@ echo ""
 cat "${LOCAL_JSON}"
 echo ""
 
-run scp ${SSH_OPTS} \
+run scp \
     "${LOCAL_JSON}" \
-    "${DOC_SERVER}:${DOC_SERVER_ROOT}/vtk_versions.json"
+    "${SSH_HOST}:${SERVER_ROOT}/vtk_versions.json"
 
 echo ""
 

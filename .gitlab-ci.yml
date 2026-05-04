@@ -2454,6 +2454,7 @@ documentation:backfill:
               curl rsync openssh-clients python3
         - chmod 400 "$RSYNC_KEY_PATH"
         - ssh-keygen -y -f "$RSYNC_KEY_PATH" > "$RSYNC_KEY_PATH.pub"
+        - .gitlab/ci/prepare-docs-upload-env.sh "$RSYNC_KEY_PATH"
         - .gitlab/ci/backfill_doc_versions.sh
 
 source:build:
