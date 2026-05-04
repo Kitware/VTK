@@ -389,7 +389,7 @@ int vtkIOSSReader::ReadMesh(
     if (needToUpdate && rank == 0)
     {
       vtkWarningMacro(
-        "Dataset's Structure is not consistent from rank to rank or timestep to timestep."
+        "Dataset's Structure is not consistent from rank to rank or timestep to timestep. "
         "Please enable 'ReadAllFilesToDetermineStructure' to read all files to determine "
         "the structure.");
     }
