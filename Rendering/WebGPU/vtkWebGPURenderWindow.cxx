@@ -252,8 +252,47 @@ void vtkWebGPURenderWindow::WGPUFinalize()
     return;
   }
   this->ReleaseGraphicsResources(this);
-  this->WGPUConfiguration->Finalize();
+
+  // CRITICAL: Reorder cleanup to handle NVIDIA's lazy GLX initialization.
+  //
+  // NVIDIA's Vulkan driver defers GLX extension initialization until device
+  // destruction time. During this deferred initialization, the driver modifies
+  // X11 Display state (e.g., registering close_display handlers). If the Display
+  // is already closed before Vulkan finalization, the driver attempts to access
+  // freed memory, causing a segmentation fault in XCloseDisplay().
+  //
+  // Solution: Keep the Display open until after Vulkan finalization completes.
+  // This is achieved by:
+  // 1. Temporarily preventing Display closure during X11 window destruction
+  // 2. Destroying the X11 window (without closing the Display)
+  // 3. Finalizing Vulkan (which can safely access the Display)
+  // 4. Closing the Display after Vulkan is fully finalized
+
+  // Temporarily disable Display closure during window destruction
+  bool savedOwnDisplay = false;
+#if defined(VTK_USE_X)
+  if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    savedOwnDisplay = xlibWindow->GetOwnDisplay();
+    xlibWindow->SetOwnDisplay(false);
+  }
+#endif // VTK_USE_X
+
+  // Destroy X11 window resources (but not the Display connection)
   this->DestroyWindow();
+
+  // Finalize Vulkan (Display is still valid for any deferred initialization)
+  this->WGPUConfiguration->Finalize();
+
+  // Now close the Display after Vulkan finalization is complete
+#if defined(VTK_USE_X)
+  if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    xlibWindow->SetOwnDisplay(savedOwnDisplay);
+    xlibWindow->CloseDisplay();
+  }
+#endif // VTK_USE_X
+
   this->Initialized = false;
 }
 

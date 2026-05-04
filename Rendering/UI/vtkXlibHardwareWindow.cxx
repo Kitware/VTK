@@ -851,5 +851,17 @@ bool vtkXlibHardwareWindow::EnsureDisplay()
   return this->DisplayId != nullptr;
 }
 
+//-------------------------------------------------------------------------------------------------
+vtkTypeBool vtkXlibHardwareWindow::GetOwnDisplay()
+{
+  return this->OwnDisplay;
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkXlibHardwareWindow::SetOwnDisplay(vtkTypeBool ownDisplay)
+{
+  this->OwnDisplay = ownDisplay;
+}
+
 //------------------------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_END
