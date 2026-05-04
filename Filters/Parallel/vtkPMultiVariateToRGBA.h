@@ -19,14 +19,14 @@
 #ifndef vtkPMultiVariateToRGBA_h
 #define vtkPMultiVariateToRGBA_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMultiVariateToRGBA.h"
 
 // Forward declarations
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMPIController;
+class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkPMultiVariateToRGBA : public vtkMultiVariateToRGBA
+class VTKFILTERSPARALLEL_EXPORT vtkPMultiVariateToRGBA : public vtkMultiVariateToRGBA
 {
 public:
   static vtkPMultiVariateToRGBA* New();
@@ -37,8 +37,8 @@ protected:
   vtkPMultiVariateToRGBA();
   ~vtkPMultiVariateToRGBA() override;
 
-  void SetController(vtkMPIController*);
-  vtkMPIController* Controller;
+  void SetController(vtkMultiProcessController*);
+  vtkMultiProcessController* Controller;
 
 private:
   vtkPMultiVariateToRGBA(const vtkPMultiVariateToRGBA&) = delete;

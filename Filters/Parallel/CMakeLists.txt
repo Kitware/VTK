@@ -39,6 +39,7 @@ set(classes
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
   vtkPMergeArrays
+  vtkPMultiVariateToRGBA
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals
