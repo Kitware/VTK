@@ -197,10 +197,9 @@ for series in "${SERIES_DESCENDING[@]}"; do
     fi
 
     # -- Upload -------------------------------------------------------------
-    # Create the remote directory first, then rsync the contents.
-    run ssh "${SSH_HOST}" \
-        "mkdir -p ${remote_dest}"
-
+    # Use rsync with --delete to handle directory creation and file synchronization
+    # in a single pass. The trailing slash on the source causes rsync to copy the
+    # contents of html/ into the destination; without it, rsync would copy html itself.
     run rsync --recursive --times --compress --delete \
         -e ssh \
         "${extract_dir}/html/" \

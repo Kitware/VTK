@@ -59,13 +59,13 @@ if(NOT DEFINED VTK_DOC_VERSIONS_URL)
   set(VTK_DOC_VERSIONS_URL "")
 endif()
 configure_file(
-  ${VTK_SOURCE_DIR}/Utilities/Doxygen/vtk_version_selector.js
-  ${VTK_BINARY_DIR}/Utilities/Doxygen/vtk_version_selector.js
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_version_selector.js"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_version_selector.js"
   @ONLY)
 
 configure_file(
-  ${VTK_SOURCE_DIR}/Utilities/Doxygen/vtk_versions.json.in
-  ${VTK_BINARY_DIR}/Utilities/Doxygen/vtk_versions.json
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_versions.json.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_versions.json"
   @ONLY)
 
 configure_file(
