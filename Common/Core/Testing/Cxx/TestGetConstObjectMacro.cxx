@@ -21,7 +21,7 @@ public:
 
 protected:
   vtkTestConstObjectGetter() = default;
-  ~vtkTestConstObjectGetter() override = default;
+  ~vtkTestConstObjectGetter() { this->SetData(nullptr); }
 
 private:
   vtkTestConstObjectGetter(const vtkTestConstObjectGetter&) = delete;
