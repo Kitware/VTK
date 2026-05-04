@@ -90,50 +90,7 @@ fi
 
 # ---- 2. Insert the new version if absent --------------------------------
 echo "Ensuring version ${VERSION} is listed..."
-python3 - "${LOCAL_JSON}" "${VERSION}" "${BASE_URL}" <<'PYEOF'
-import json, sys
-
-json_path, version, base_url = sys.argv[1], sys.argv[2], sys.argv[3]
-
-with open(json_path) as f:
-    data = json.load(f)
-
-versions = data.get("versions", [])
-
-# Check if this version is already present.
-if any(v.get("version") == version for v in versions):
-    print(f"Version {version} already present – no changes needed.")
-    sys.exit(0)
-
-new_entry = {
-    "name": version,
-    "version": version,
-    "baseUrl": f"{base_url}/release/{version}/html"
-}
-
-# Insert after "nightly" (index 0 if present) but before older releases,
-# keeping releases sorted in descending order.
-release_versions = [v for v in versions if v["version"] != "nightly"]
-nightly = [v for v in versions if v["version"] == "nightly"]
-
-release_versions.append(new_entry)
-# Sort descending by version string (works for "major.minor" format).
-release_versions.sort(key=lambda v: list(map(int, v["version"].split("."))), reverse=True)
-
-# Mark the latest release.
-for v in release_versions:
-    if "(latest release)" in v.get("name", ""):
-        v["name"] = v["version"]
-release_versions[0]["name"] = f'{release_versions[0]["version"]} (latest release)'
-
-data["versions"] = nightly + release_versions
-
-with open(json_path, "w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
-
-print(f"Added version {version}.")
-PYEOF
+python3 "$(dirname "$0")/update_vtk_versions.py" add-version "${LOCAL_JSON}" "${VERSION}" "${BASE_URL}"
 
 # ---- 3. Upload the updated file back to the server ----------------------
 echo "Uploading updated vtk_versions.json..."

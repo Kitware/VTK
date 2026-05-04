@@ -227,37 +227,8 @@ echo "Generating vtk_versions.json..."
 
 LOCAL_JSON="${WORKDIR}/vtk_versions.json"
 
-python3 - "${LOCAL_JSON}" "${BASE_URL}" \
-        "${SERIES_DESCENDING[@]}" <<'PYEOF'
-import json, sys
-
-json_path = sys.argv[1]
-base_url  = sys.argv[2]
-# All remaining args are series in descending order.
-series_list = sys.argv[3:]
-
-versions = [
-    {
-        "name": "nightly",
-        "version": "nightly",
-        "baseUrl": f"{base_url}/nightly/html",
-    }
-]
-
-for i, series in enumerate(series_list):
-    entry = {
-        "name": series if i > 0 else f"{series} (latest release)",
-        "version": series,
-        "baseUrl": f"{base_url}/release/{series}/html",
-    }
-    versions.append(entry)
-
-with open(json_path, "w") as f:
-    json.dump({"versions": versions}, f, indent=2)
-    f.write("\n")
-
-print(f"  {len(versions)} entries written ({len(series_list)} releases + nightly).")
-PYEOF
+python3 "$(dirname "$0")/update_vtk_versions.py" create-from-series \
+    "${LOCAL_JSON}" "${BASE_URL}" "${SERIES_DESCENDING[@]}"
 
 echo ""
 cat "${LOCAL_JSON}"
