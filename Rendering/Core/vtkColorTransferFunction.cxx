@@ -1533,7 +1533,7 @@ struct vtkColorTransferFunctionMapData
     {
       int x;
       constexpr auto value = std::numeric_limits<T>::max();
-      const unsigned char* table = self->GetTable(0, static_cast<double>(value), value);
+      const unsigned char* table = self->GetTable(0, static_cast<double>(value), value + 1);
       switch (outFormat)
       {
         case VTK_RGB:
