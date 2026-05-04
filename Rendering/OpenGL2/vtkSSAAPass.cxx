@@ -113,8 +113,8 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   width = size[0];
   height = size[1];
 
-  int w = width * sqrt(5.0);
-  int h = height * sqrt(5.0);
+  int modifiedWidth = width * sqrt(5.0);
+  int modifiedHeight = height * sqrt(5.0);
 
   if (this->Pass1 == nullptr)
   {
@@ -128,8 +128,8 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  if (this->Pass1->GetWidth() != static_cast<unsigned int>(w) ||
-    this->Pass1->GetHeight() != static_cast<unsigned int>(h))
+  if (this->Pass1->GetWidth() != static_cast<unsigned int>(modifiedWidth) ||
+    this->Pass1->GetHeight() != static_cast<unsigned int>(modifiedHeight))
   {
     if (this->ColorFormat == vtkTextureObject::Float16)
     {
@@ -141,8 +141,8 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
       this->Pass1->SetInternalFormat(GL_RGBA32F);
       this->Pass1->SetDataType(GL_FLOAT);
     }
-    this->Pass1->Create2D(
-      static_cast<unsigned int>(w), static_cast<unsigned int>(h), 4, VTK_UNSIGNED_CHAR, false);
+    this->Pass1->Create2D(static_cast<unsigned int>(modifiedWidth),
+      static_cast<unsigned int>(modifiedHeight), 4, VTK_UNSIGNED_CHAR, false);
   }
 
   ostate->PushFramebufferBindings();
@@ -154,9 +154,9 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   this->FrameBufferObject->ActivateDrawBuffer(0);
 
   this->FrameBufferObject->AddDepthAttachment();
-  this->FrameBufferObject->StartNonOrtho(w, h);
-  ostate->vtkglViewport(0, 0, w, h);
-  ostate->vtkglScissor(0, 0, w, h);
+  this->FrameBufferObject->StartNonOrtho(modifiedWidth, modifiedHeight);
+  ostate->vtkglViewport(0, 0, modifiedWidth, modifiedHeight);
+  ostate->vtkglScissor(0, 0, modifiedWidth, modifiedHeight);
 
   ostate->vtkglEnable(GL_DEPTH_TEST);
   this->DelegatePass->Render(&s2);
@@ -170,7 +170,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   }
 
   if (this->Pass2->GetWidth() != static_cast<unsigned int>(width) ||
-    this->Pass2->GetHeight() != static_cast<unsigned int>(h))
+    this->Pass2->GetHeight() != static_cast<unsigned int>(modifiedHeight))
   {
     if (this->ColorFormat == vtkTextureObject::Float16)
     {
@@ -182,12 +182,12 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
       this->Pass2->SetInternalFormat(GL_RGBA32F);
       this->Pass2->SetDataType(GL_FLOAT);
     }
-    this->Pass2->Create2D(
-      static_cast<unsigned int>(width), static_cast<unsigned int>(h), 4, VTK_UNSIGNED_CHAR, false);
+    this->Pass2->Create2D(static_cast<unsigned int>(width),
+      static_cast<unsigned int>(modifiedHeight), 4, VTK_UNSIGNED_CHAR, false);
   }
 
   this->FrameBufferObject->AddColorAttachment(0, this->Pass2);
-  this->FrameBufferObject->Start(width, h);
+  this->FrameBufferObject->Start(width, modifiedHeight);
 
   // Use a subsample shader, do it horizontally. this->Pass1 is the source
   // (this->Pass2 is the fbo render target)
@@ -231,7 +231,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   ostate->vtkglDisable(GL_DEPTH_TEST);
 
   this->FrameBufferObject->RenderQuad(
-    0, width - 1, 0, h - 1, this->SSAAHelper->Program, this->SSAAHelper->VAO);
+    0, width - 1, 0, modifiedHeight - 1, this->SSAAHelper->Program, this->SSAAHelper->VAO);
 
   this->Pass1->Deactivate();
 
@@ -249,9 +249,16 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   this->SSAAHelper->Program->SetUniformf("texelHeightOffset", 0.375 / height);
 
   // Use the same sample shader, this time vertical
-
-  this->Pass2->CopyToFrameBuffer(0, 0, width - 1, h - 1, 0, 0, width - 1, height - 1, width, height,
-    this->SSAAHelper->Program, this->SSAAHelper->VAO);
+  int originX = 0;
+  int originY = 0;
+  if (s->GetFrameBuffer() == nullptr)
+  {
+    int tmpWidth, tmpHeight;
+    r->GetTiledSizeAndOrigin(&tmpWidth, &tmpHeight, &originX, &originY);
+  }
+  this->Pass2->CopyToFrameBuffer(0, 0, width - 1, modifiedHeight - 1, originX, originY,
+    originX + width - 1, originY + height - 1, width, height, this->SSAAHelper->Program,
+    this->SSAAHelper->VAO);
 
   this->Pass2->Deactivate();
 
