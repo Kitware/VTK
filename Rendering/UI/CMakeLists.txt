@@ -143,21 +143,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     DESTINATION ${_vtk_build_LIBRARY_DESTINATION})
 endif()
 
-if(VTK_USE_X)
-  vtk_module_find_package(PACKAGE X11)
-  vtk_module_link(VTK::RenderingUI PUBLIC X11::X11)
-  if(TARGET X11::Xcursor)
-    vtk_module_link(VTK::RenderingUI PRIVATE X11::Xcursor)
-  else()
-    message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
-  endif()
-  set_property(
-    SOURCE vtkXlibHardwareWindow.cxx
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-             "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
-  )
-elseif(VTK_USE_COCOA)
+if(VTK_USE_COCOA)
   find_library(
     FRAMEWORK_QuartzCore
     NAMES QuartzCore
