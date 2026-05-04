@@ -4,7 +4,6 @@
 #include "vtkCPExodusIIInSituReader.h"
 
 #include "vtkAOSDataArrayTemplate.h"
-#include "vtkCPExodusIIElementBlock.h"
 #include "vtkCellData.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
@@ -14,7 +13,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkSOADataArrayTemplate.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"
 
@@ -274,31 +275,18 @@ bool vtkCPExodusIIInSituReader::ExGetCoords()
 {
   this->Points->Reset();
   vtkNew<vtkSOADataArrayTemplate<double>> nodeCoords;
+  nodeCoords->SetNumberOfComponents(this->NumberOfDimensions);
+  nodeCoords->SetNumberOfTuples(this->NumberOfNodes);
 
   // Get coordinates
-  double* x(new double[this->NumberOfNodes]);
-  double* y(new double[this->NumberOfNodes]);
-  double* z(this->NumberOfDimensions >= 3 ? new double[this->NumberOfNodes] : nullptr);
-
-  int error = ex_get_coord(this->FileId, x, y, z);
+  int error = ex_get_coord(this->FileId, nodeCoords->GetComponentArrayPointer(0),
+    nodeCoords->GetComponentArrayPointer(1), nodeCoords->GetComponentArrayPointer(2));
 
   if (error < 0)
   {
-    delete[] x;
-    delete[] y;
-    delete[] z;
     vtkErrorMacro("Error retrieving coordinates.");
     return false;
   }
-
-  // NodalCoordinates takes ownership of the arrays.
-  nodeCoords->SetNumberOfComponents(this->NumberOfDimensions);
-  nodeCoords->SetArray(0, x, this->NumberOfNodes, /*updateMaxId=*/true,
-    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
-  nodeCoords->SetArray(1, y, this->NumberOfNodes, /*updateMaxId=*/false,
-    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
-  nodeCoords->SetArray(2, z, this->NumberOfNodes, /*updateMaxId=*/false,
-    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
   this->Points->SetData(nodeCoords);
   return true;
 }
@@ -310,12 +298,10 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
   const int numNodalVars = static_cast<int>(this->NodalVariableNames.size());
   for (int nodalVarIndex = 0; nodalVarIndex < numNodalVars; ++nodalVarIndex)
   {
-    double* nodalVars = new double[this->NumberOfNodes];
-    int error = ex_get_nodal_var(
-      this->FileId, this->CurrentTimeStep + 1, nodalVarIndex + 1, this->NumberOfNodes, nodalVars);
     vtkNew<vtkAOSDataArrayTemplate<double>> nodalVarArray;
-    nodalVarArray->SetArray(nodalVars, this->NumberOfNodes,
-      /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+    nodalVarArray->SetNumberOfValues(this->NumberOfNodes);
+    int error = ex_get_nodal_var(this->FileId, this->CurrentTimeStep + 1, nodalVarIndex + 1,
+      this->NumberOfNodes, nodalVarArray->GetPointer(0));
     nodalVarArray->SetName(this->NodalVariableNames[nodalVarIndex].c_str());
 
     if (error < 0)
@@ -356,22 +342,67 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
       return false;
     }
 
-    // Get element block connectivity
-    vtkNew<vtkCPExodusIIElementBlock> block;
-    int* connect = new int[numElem * nodesPerElem];
-    error = ex_get_elem_conn(this->FileId, this->ElementBlockIds[blockInd], connect);
-    if (!block->GetImplementation()->SetExodusConnectivityArray(
-          connect, elemType, numElem, nodesPerElem))
+    if (elemType.size() < 3)
     {
-      delete[] connect;
+      vtkErrorMacro(<< "Element type too short, expected at least 3 char: " << elemType);
+      return false;
+    }
+    int cellType;
+    std::string typekey = elemType.substr(0, 3);
+    std::transform(typekey.begin(), typekey.end(), typekey.begin(), ::toupper);
+    if (typekey == "CIR" || elemType == "SPH")
+    {
+      cellType = VTK_VERTEX;
+    }
+    else if (typekey == "TRU" || typekey == "BEA")
+    {
+      cellType = VTK_LINE;
+    }
+    else if (typekey == "TRI")
+    {
+      cellType = VTK_TRIANGLE;
+    }
+    else if (typekey == "QUA" || typekey == "SHE")
+    {
+      cellType = VTK_QUAD;
+    }
+    else if (typekey == "TET")
+    {
+      cellType = VTK_TETRA;
+    }
+    else if (typekey == "WED")
+    {
+      cellType = VTK_WEDGE;
+    }
+    else if (typekey == "HEX")
+    {
+      cellType = VTK_HEXAHEDRON;
+    }
+    else
+    {
+      vtkErrorMacro(<< "Unknown cell type: " << elemType);
       return false;
     }
 
+    // Get element block connectivity
+    vtkNew<vtkAOSDataArrayTemplate<int>> connectivityArray;
+    connectivityArray->SetNumberOfValues(numElem * nodesPerElem);
+    error = ex_get_elem_conn(
+      this->FileId, this->ElementBlockIds[blockInd], connectivityArray->GetPointer(0));
     if (error < 0)
     {
       vtkErrorMacro("Failed to get the connectivity for block " << blockInd);
       return false;
     }
+    // exodus has 1 based indices, here we fix them
+    vtkSMPTools::Transform(connectivityArray->Begin(), connectivityArray->End(),
+      connectivityArray->Begin(), [](int val) { return val - 1; });
+
+    vtkNew<vtkCellArray> cells;
+    cells->SetData(nodesPerElem, connectivityArray);
+
+    vtkNew<vtkUnstructuredGrid> block;
+    block->SetCells(cellType, cells);
 
     // Use the mapped point container for the block points
     block->SetPoints(this->Points);
@@ -382,12 +413,10 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
     // Read the element variables (cell data)
     for (int elemVarIndex = 0; elemVarIndex < numElemVars; ++elemVarIndex)
     {
-      double* elemVars = new double[numElem];
-      error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1, elemVarIndex + 1,
-        this->ElementBlockIds[blockInd], numElem, elemVars);
       vtkNew<vtkAOSDataArrayTemplate<double>> elemVarArray;
-      elemVarArray->SetArray(elemVars, numElem,
-        /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+      elemVarArray->SetNumberOfValues(numElem);
+      error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1, elemVarIndex + 1,
+        this->ElementBlockIds[blockInd], numElem, elemVarArray->GetPointer(0));
       elemVarArray->SetName(this->ElementVariableNames[elemVarIndex].c_str());
 
       if (error < 0)
