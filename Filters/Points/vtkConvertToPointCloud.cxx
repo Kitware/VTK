@@ -24,7 +24,7 @@ int vtkConvertToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Copy the points
   vtkPointSet* pointSet = vtkPointSet::SafeDownCast(dataset);
-  if (pointSet)
+  if (pointSet && pointSet->GetPoints())
   {
     // Input is a vtkPointSet, copy the points
     vtkNew<vtkPoints> points;
