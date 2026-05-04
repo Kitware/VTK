@@ -140,7 +140,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   }
   painter->GetPen()->SetColor({ 0, 0, 0 });
   painter->GetPen()->SetOpacity(20);
-  painter->GetPen()->SetWidth(2);
+  painter->GetPen()->SetWidth(6);
   painter->DrawMarkers(marker, true /*highlight*/, points);
 
   this->PaintChildren(painter);
