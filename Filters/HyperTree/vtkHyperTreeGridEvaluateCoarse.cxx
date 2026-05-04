@@ -68,7 +68,15 @@ int vtkHyperTreeGridEvaluateCoarse::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   this->InData = input->GetCellData();
   this->OutData = output->GetCellData();
   this->OutData->CopyAllocate(this->InData);
-  this->OutData->SetNumberOfTuples(this->InData->GetNumberOfTuples());
+
+  if (input->GetNumberOfNonEmptyTrees())
+  {
+    this->OutData->SetNumberOfTuples(this->InData->GetNumberOfTuples());
+    for (int arrayId = 0; arrayId < this->OutData->GetNumberOfArrays(); ++arrayId)
+    {
+      this->OutData->GetArray(arrayId)->Fill(this->Default);
+    }
+  }
 
   // Iterate over all input and output hyper trees
   vtkIdType index;
