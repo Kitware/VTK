@@ -3,18 +3,16 @@
 
 #include "TestParallelCoordinatesUtilities.h"
 #include "vtkChartRadViz.h"
-#include "vtkColorSeries.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDataSet.h"
 #include "vtkNew.h"
+#include "vtkPen.h"
 #include "vtkPlot.h"
 #include "vtkPlotRadViz.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTable.h"
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
 
@@ -40,6 +38,9 @@ int TestRadVizChart(int argc, char** argv)
 
   // Add multiple line plots, setting the colors etc
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->GetPen()->SetOpacity(20);
+  plot->GetPen()->SetWidth(6);
+
   // plot->SetInputData(table);
   plot->SetInputData(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
 

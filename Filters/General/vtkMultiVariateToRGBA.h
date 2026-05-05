@@ -42,7 +42,9 @@ public:
    * StoreRGBA (default is true, in which case we store the computed
    * array named 'rgba') is set to false, we don't proceed to
    * computing the color.  Setting both parameters to false is an
-   * error.  @sa vtkChartRadViz, vtkPlotRadViz
+   * error.
+   *
+   * @sa vtkChartRadViz, vtkPlotRadViz
    */
   vtkSetMacro(StoreGBC, bool);
   vtkGetMacro(StoreGBC, bool);

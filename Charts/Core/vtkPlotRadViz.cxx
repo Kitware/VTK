@@ -115,8 +115,6 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   }
 
   // draw the color wheel
-  vtkNew<vtkBrush> brush;
-  painter->ApplyBrush(brush);
   for (int i = 0; i < segmentCount; ++i)
   {
     std::array<float, 3> hsv = { static_cast<float>(i) / segmentCount, 1.0, 1.0 };
@@ -138,9 +136,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   {
     (*this->Internals)(a, points);
   }
-  painter->GetPen()->SetColor({ 0, 0, 0 });
-  painter->GetPen()->SetOpacity(20);
-  painter->GetPen()->SetWidth(6);
+  painter->ApplyPen(this->Pen);
   painter->DrawMarkers(marker, true /*highlight*/, points);
 
   this->PaintChildren(painter);
