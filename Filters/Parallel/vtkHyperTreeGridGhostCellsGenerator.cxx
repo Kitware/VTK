@@ -234,6 +234,34 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     vtkWarningMacro("Incorrect HTG for piece " << currentPiece);
   }
 
+  double bounds[6];
+  inputHTG->GetGridBounds(bounds);
+
+  double minBounds[6];
+  double maxBounds[6];
+  this->Controller->AllReduce(bounds, minBounds, 6, vtkCommunicator::MIN_OP);
+  this->Controller->AllReduce(bounds, maxBounds, 6, vtkCommunicator::MAX_OP);
+  bool sameHTG = true;
+  for (int i = 0; i < 6; i++)
+  {
+    if (minBounds[i] != maxBounds[i])
+    {
+      sameHTG = false;
+      break;
+    }
+  }
+  if (!sameHTG)
+  {
+    // No ghost cells to generate if the HTGs do not have the same grid bounds
+    vtkWarningMacro("The HyperTreeGrids on the different processes do not have the same grid "
+                    "bounds, the ghost cells can't be generated.");
+    if (outputHTG)
+    {
+      outputHTG->ShallowCopy(inputHTG);
+    }
+    return 1;
+  }
+
   this->ExchangeHTGMetadata(inputHTG);
 
   // Make sure every HTG piece has a correct extent and can be processed.
