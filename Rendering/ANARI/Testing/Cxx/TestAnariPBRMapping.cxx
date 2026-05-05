@@ -1,15 +1,20 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test covers the PBR Interpolation shading
-// It renders a cube with custom texture mapping
+
+/**
+ * This test covers the PBR Interpolation shading. It renders a cube with custom texture mapping
+ *
+ * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
+ * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
+ * API does not crash. If the loaded backend supports the extension, it will perform an image
+ * comparison.
+ */
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
-#include "vtkImageData.h"
 #include "vtkImageFlip.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkJPEGReader.h"
 #include "vtkLight.h"
 #include "vtkLogger.h"
@@ -21,7 +26,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRendererCollection.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
@@ -30,8 +35,6 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 //------------------------------------------------------------------------------
 int TestAnariPBRMapping(int argc, char* argv[])
@@ -160,6 +163,7 @@ int TestAnariPBRMapping(int argc, char* argv[])
   auto anariRendererNode = anariPass->GetSceneGraph();
   auto extensions = anariRendererNode->GetAnariDeviceExtensions();
 
+  bool testSuccess = true;
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
     int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
@@ -174,9 +178,8 @@ int TestAnariPBRMapping(int argc, char* argv[])
       iren->Start();
     }
 
-    return !retVal;
+    testSuccess = retVal == vtkRegressionTester::PASSED;
   }
 
-  std::cout << "Required feature KHR_MATERIAL_PHYSICALLY_BASED not supported." << std::endl;
-  return VTK_SKIP_RETURN_CODE;
+  return testSuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }

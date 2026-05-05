@@ -1,16 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 // This test verifies that lighting works as expected with ANARI.
-// When advanced materials are exposed in ANARI, it will also validate
-// refractions and reflections
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-//              In interactive mode it responds to the keys listed
-//              vtkOSPRayTestInteractor.h
 
-#include "vtkTestUtilities.h"
+/**
+ * When advanced materials are exposed in ANARI, it will also validate refractions and reflections
+ *
+ * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -28,14 +26,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 int TestAnariLights(int argc, char* argv[])
 {
@@ -212,6 +209,7 @@ int TestAnariLights(int argc, char* argv[])
   auto anariRendererNode = anariPass->GetSceneGraph();
   auto extensions = anariRendererNode->GetAnariDeviceExtensions();
 
+  bool testSuccess = true;
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
     int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
@@ -226,9 +224,8 @@ int TestAnariLights(int argc, char* argv[])
       iren->Start();
     }
 
-    return !retVal;
+    testSuccess = retVal == vtkRegressionTester::PASSED;
   }
 
-  std::cout << "Required feature KHR_LIGHT_SPOT not supported." << std::endl;
-  return VTK_SKIP_RETURN_CODE;
+  return testSuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }

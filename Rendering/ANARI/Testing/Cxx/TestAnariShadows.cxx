@@ -1,21 +1,19 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that soft shadows work with ANARI.
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-//              In interactive mode it responds to the keys listed
-//              vtkAnariTestInteractor.h
 
-#include "vtkTestUtilities.h"
+/**
+ * This test verifies that soft shadows work with ANARI.
+ *
+ * This test requires the ANARI_KHR_AREA_LIGHTS ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -29,8 +27,6 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 int TestAnariShadows(int argc, char* argv[])
 {
@@ -104,6 +100,7 @@ int TestAnariShadows(int argc, char* argv[])
   auto anariRendererNode = anariPass->GetSceneGraph();
   auto extensions = anariRendererNode->GetAnariDeviceExtensions();
 
+  bool testSuccess = true;
   if (extensions.ANARI_KHR_AREA_LIGHTS)
   {
     int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
@@ -118,9 +115,8 @@ int TestAnariShadows(int argc, char* argv[])
       iren->Start();
     }
 
-    return !retVal;
+    testSuccess = retVal == vtkRegressionTester::PASSED;
   }
 
-  std::cout << "Required feature KHR_AREA_LIGHTS not supported." << std::endl;
-  return VTK_SKIP_RETURN_CODE;
+  return testSuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }
