@@ -134,7 +134,7 @@ for sweeps in range(0,numSweeps):
         ca.InsertNextCell(npts)
         for i in range(0,npts):
             ca.InsertCellPoint(pts[i])
-        pd.Modified()
+        ca.Modified()
         renWin.Render()
 
 # Spiral out from the center
@@ -145,7 +145,7 @@ while not piter.IsDoneWithTraversal():
     pIds[0] = piter.GetCurrentPoint()
     ca2.InsertNextCell(1,pIds)
     piter.GoToNextPoint()
-    pd2.Modified()
+    ca2.Modified()
     renWin.Render()
 
 # Interact with the data
