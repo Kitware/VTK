@@ -79,7 +79,7 @@ struct AppendArrayData
   {
     using ValueType = typename TArray::ValueType;
     auto valueVector = values.get<std::vector<ValueType>>();
-    auto data = vtk::DataArrayValueRange<1>(array).begin();
+    auto data = vtk::DataArrayValueRange(array).begin();
     for (const auto& value : valueVector)
     {
       *(data++) = value;

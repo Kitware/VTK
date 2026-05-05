@@ -629,7 +629,6 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   // List of nodes to import
   std::stack<int> nodeIdStack;
   std::stack<int> dasmParents;
-  int flatActorId = 0;
 
   // Add root nodes to the stack
   for (int nodeId : model->Scenes[scene].Nodes)
@@ -738,12 +737,14 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         }
         renderer->AddActor(actor);
 
-        this->Actors[nodeId].emplace_back(actor);
-        this->ActorCollection->AddItem(actor);
         const int actorNode =
           this->SceneHierarchy->AddNode(meshNodeName.c_str(), /*parent=*/dasmNode);
         this->SceneHierarchy->SetAttribute(actorNode, "parent_node_name", dasmNodeName.c_str());
-        this->SceneHierarchy->SetAttribute(actorNode, "flat_actor_id", flatActorId++);
+        this->SceneHierarchy->SetAttribute(
+          actorNode, "flat_actor_id", this->ActorCollection->GetNumberOfItems());
+
+        this->Actors[nodeId].emplace_back(actor);
+        this->ActorCollection->AddItem(actor);
 
         this->InvokeEvent(vtkCommand::UpdateDataEvent);
       }
