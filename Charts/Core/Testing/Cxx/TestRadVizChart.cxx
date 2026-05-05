@@ -23,7 +23,7 @@ int TestRadVizChart(int argc, char** argv)
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
 
-  // Set up a 2D scene, add an XY chart to it
+  // Set up a 2D scene, add an RadViz chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(600, 350);
@@ -36,7 +36,7 @@ int TestRadVizChart(int argc, char** argv)
   reader->SetFileName((dataRoot + "/Data/Ce_Co_Fe_Gd_small.vti").c_str());
   reader->Update();
 
-  // Add multiple line plots, setting the colors etc
+  // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
   plot->GetPen()->SetOpacity(20);
   plot->GetPen()->SetWidth(6);
