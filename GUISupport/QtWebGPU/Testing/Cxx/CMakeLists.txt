@@ -5,6 +5,8 @@ vtk_add_test_cxx(vtkGUISupportQtWebGPUCxxTests tests
 
 vtk_add_test_cxx(vtkGUISupportQtWebGPUCxxTests tests
   NO_VALID
+  TestQVTKWebGPUWidgetHiDPI.cxx
+  TestQVTKWebGPUWidgetMultipleRenderers.cxx
   TestQVTKWebGPUWidgetPicking.cxx
   TestQVTKWebGPUWidgetSwapWindows.cxx
   )
