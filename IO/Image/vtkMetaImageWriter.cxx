@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include "vtkMatrix3x3.h"
 #include "vtkmetaio/metaEvent.h"
 #include "vtkmetaio/metaImage.h"
 #include "vtkmetaio/metaImageTypes.h"
@@ -105,6 +106,8 @@ void vtkMetaImageWriter::Write()
   this->GetInput()->GetOrigin(origin);
   this->GetInput()->GetSpacing(spacing);
 
+  double* direction = this->GetInput()->GetDirectionMatrix()->GetData();
+
   int dimSize[3];
   dimSize[0] = ext[1] - ext[0] + 1;
   dimSize[1] = ext[3] - ext[2] + 1;
@@ -162,6 +165,7 @@ void vtkMetaImageWriter::Write()
   this->MetaImagePtr->InitializeEssential(nDims, dimSize, spacing, elementType, numberOfElements,
     this->GetInput()->GetScalarPointer(ext[0], ext[2], ext[4]), false);
   this->MetaImagePtr->Position(origin);
+  this->MetaImagePtr->TransformMatrix(direction);
 
   if (this->GetRAWFileName())
   {
