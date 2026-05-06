@@ -19,6 +19,19 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 
+/**
+ * Maps multivariate data (multi-component scalars and tables) to
+ * color and opacity (RGBA).
+ *
+ * Uses
+ * RadVolViz: An Information Display-Inspired Transfer Function Editor for Multivariate Volume
+ * Visualization
+ * Ayush Kumar, Xinyu Zhang, Huolin L. Xin, Hanfei Yan, Xiaojing Huang, Wei Xu,
+ * and Klaus Mueller
+ * and
+ * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data
+ * Shenghui Cheng, Wei Xu and Klaus Mueller
+ */
 class VTKFILTERSGENERAL_EXPORT vtkMultiVariateToRGBA : public vtkDataObjectAlgorithm
 {
 public:
@@ -28,10 +41,11 @@ public:
 
   /**
    * Angle in degrees to rotate the vertices coding the multivariate attributes
-   * Default is 0 degrees.
+   * Default is 0 degrees. This angle affects the GBC positions and the computed
+   * colors.
    */
-  vtkSetMacro(ColorWheelRotation, double);
-  vtkGetMacro(ColorWheelRotation, double);
+  vtkSetMacro(VerticesRotation, double);
+  vtkGetMacro(VerticesRotation, double);
 
   ///@{
   /**
@@ -59,7 +73,7 @@ protected:
   vtkMultiVariateToRGBA();
   ~vtkMultiVariateToRGBA() override;
 
-  double ColorWheelRotation = 0;
+  double VerticesRotation = 0;
   bool StoreGBC = false;
   bool StoreRGBA = true;
   std::vector<std::vector<int>> ModalityGroups;

@@ -128,12 +128,14 @@ struct NormalizeWorker
 };
 
 /**
- * Generalized Barycentric Coordinate (GBC) interpolation
+ * Computes Generalized Barycentric Coordinate (GBC) interpolation
+ * Uses
+ * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data
  */
 struct ComputeGBCWorker
 {
-  ComputeGBCWorker(double colorWheelRotation)
-    : Angle(vtkMath::RadiansFromDegrees(colorWheelRotation))
+  ComputeGBCWorker(double verticesRotation)
+    : VerticesRotation(vtkMath::RadiansFromDegrees(verticesRotation))
   {
   }
   template <typename Input, typename Output>
@@ -142,6 +144,7 @@ struct ComputeGBCWorker
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
     auto gbc = vtk::DataArrayTupleRange(gbcArray);
 
+    // computes the vertices angles (VF), Table 1, GBC
     vtkIdType nComponents = normalized.GetTupleSize();
     std::vector<double> angle(nComponents);
     std::vector<std::array<double, 2>> components(nComponents);
@@ -207,15 +210,16 @@ struct ComputeGBCWorker
       gbc[i][0] = lth * std::cos(tempangle);
       gbc[i][1] = lth * std::sin(tempangle);
 
-      // rotate the gbc points Angle
-      // m is
-      std::array<std::array<double, 2>, 2> m{ { { cos(this->Angle), -sin(this->Angle) },
-        { sin(this->Angle), cos(this->Angle) } } };
+      // rotate the gbc points with VerticesRotation
+      std::array<std::array<double, 2>, 2> m{
+        { { cos(this->VerticesRotation), -sin(this->VerticesRotation) },
+          { sin(this->VerticesRotation), cos(this->VerticesRotation) } }
+      };
       gbc[i][0] = m[0][0] * gbc[i][0] + m[1][0] * gbc[i][1];
       gbc[i][1] = m[0][1] * gbc[i][0] + m[1][1] * gbc[i][1];
     }
   }
-  double Angle;
+  double VerticesRotation;
 };
 
 struct GBCToHSLWorker
@@ -431,7 +435,7 @@ std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> getAttributesAnd
 //==============================================================================
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
-  this->ColorWheelRotation = 0;
+  this->VerticesRotation = 0;
 }
 
 //==============================================================================
@@ -531,7 +535,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    ComputeGBCWorker worker(this->ColorWheelRotation);
+    ComputeGBCWorker worker(this->VerticesRotation);
     if (!Dispatcher::Execute(normalizedScalars, gbcScalars, worker))
     {
       worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
