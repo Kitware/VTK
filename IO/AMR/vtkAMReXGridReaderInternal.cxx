@@ -829,6 +829,35 @@ bool vtkAMReXGridReaderInternal::ReadLevelHeader()
 
     this->LevelHeader[level] = headerPtr;
   }
+
+  // Detect topology of the main multifab from the type vector of the first
+  // box on level 0. AMReX writes per-axis values in levelBoxArrays[box][2]:
+  // all 0 -> cell-centered, all 1 -> nodal/vertex; any other combination is
+  // face/edge data which we do not support.
+  if (!this->LevelHeader.empty() && this->LevelHeader[0] &&
+    this->LevelHeader[0]->levelBoxArraySize > 0)
+  {
+    const auto& topoVec = this->LevelHeader[0]->levelBoxArrays[0][2];
+    if (!topoVec.empty() && std::equal(topoVec.begin() + 1, topoVec.end(), topoVec.begin()))
+    {
+      if (topoVec[0] == 0)
+      {
+        this->Header->mainFabTopology = 3;
+      }
+      else if (topoVec[0] == 1)
+      {
+        this->Header->mainFabTopology = 0;
+      }
+      else
+      {
+        this->Header->mainFabTopology = -1;
+      }
+    }
+    else
+    {
+      this->Header->mainFabTopology = -1;
+    }
+  }
   return true;
 }
 
@@ -1025,6 +1054,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       }
 
       RealDescriptor* ord = nullptr;
+      const bool nodal = (this->Header->mainFabTopology == 0);
       // copy buffers into vtkAOSDataArrayTemplate
       if (ird->numBytes() == 4)
       {
@@ -1032,7 +1062,14 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
         ord = new RealDescriptor(ieee_float, little_float_order, 4);
         this->CreateVTKAttributeArray(
           dataArray.Get(), ord, ird, buffers, numberOfPoints, attributeName);
-        pDataSet->GetCellData()->AddArray(dataArray);
+        if (nodal)
+        {
+          pDataSet->GetPointData()->AddArray(dataArray);
+        }
+        else
+        {
+          pDataSet->GetCellData()->AddArray(dataArray);
+        }
       }
       else
       {
@@ -1040,7 +1077,14 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
         ord = new RealDescriptor(ieee_double, little_double_order, 8);
         this->CreateVTKAttributeArray(
           dataArray.Get(), ord, ird, buffers, numberOfPoints, attributeName);
-        pDataSet->GetCellData()->AddArray(dataArray);
+        if (nodal)
+        {
+          pDataSet->GetPointData()->AddArray(dataArray);
+        }
+        else
+        {
+          pDataSet->GetCellData()->AddArray(dataArray);
+        }
       }
       delete ord;
       delete ird;

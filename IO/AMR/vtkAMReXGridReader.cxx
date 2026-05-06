@@ -141,6 +141,11 @@ int vtkAMReXGridReader::FillMetaData()
   int boxLo;
   int boxHi;
   long globalID = 0;
+  // For nodal main fab, AMReX writes the high index already bumped by 1 so
+  // that (hi - lo + 1) is the number of nodes (= vtkUniformGrid point count).
+  // For cell-centered main fab, (hi - lo + 1) is the number of cells, so the
+  // point count is one larger.
+  const bool nodalMainFab = (this->Internal->Header->mainFabTopology == 0);
   for (int i = 0; i < numberOfLevels; ++i)
   {
     for (int cc = 0; cc < dimension; ++cc)
@@ -165,9 +170,7 @@ int vtkAMReXGridReader::FillMetaData()
         boxLo = this->Internal->LevelHeader[i]->levelBoxArrays[j][0][k];
         boxHi = this->Internal->LevelHeader[i]->levelBoxArrays[j][1][k];
         blockOrigin[k] = origin[k] + boxLo * spacing[k];
-        blockDimension[k] =
-          ((boxHi - boxLo) + 1) + 1; // block dimension - '(hi - lo + 1)' is the number of cells '+
-                                     // 1' is the number of points
+        blockDimension[k] = nodalMainFab ? ((boxHi - boxLo) + 1) : (((boxHi - boxLo) + 1) + 1);
       }
       if (dimension == 3)
       {
@@ -222,10 +225,12 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(int blockIdx)
   int boxHi[3];
   block.GetDimensions(boxLo, boxHi);
   int dimensions[3] = { 1, 1, 1 };
+  // vtkAMRBox::GetDimensions returns cell-space [lo, hi]; for both cell- and
+  // nodal-centered main fabs the vtkUniformGrid needs (hi - lo + 1) + 1 points
+  // along each axis (one more node than cells), so the formula is identical.
   for (int i = 0; i < dimension; ++i)
   {
-    dimensions[i] = ((boxHi[i] - boxLo[i]) + 1) +
-      1; // block dimension - '(hi - lo + 1)' is the number of cells '+ 1' is the number of points
+    dimensions[i] = ((boxHi[i] - boxLo[i]) + 1) + 1;
   }
   vtkUniformGrid* uniformGrid = vtkUniformGrid::New();
   uniformGrid->Initialize();
@@ -317,9 +322,22 @@ int vtkAMReXGridReader::GetLevelBlockID(int blockIdx)
 //------------------------------------------------------------------------------
 void vtkAMReXGridReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
-  if (this->Internal->headersAreRead)
+  if (!this->Internal->headersAreRead || field == nullptr)
+  {
+    return;
+  }
+  // Dispatch by where the variable lives. Main-fab variables are read through
+  // GetBlockAttribute (which honors mainFabTopology to attach as cell or point
+  // data); extra-multifab variables are read through GetExtraMultiFabBlockAttribute.
+  const auto& mainVars = this->Internal->Header->parsedVariableNames;
+  if (mainVars.find(field) != mainVars.end())
   {
     this->Internal->GetBlockAttribute(field, blockIdx, block);
+    return;
+  }
+  if (this->Internal->extraMultiFabHeadersAreRead)
+  {
+    this->Internal->GetExtraMultiFabBlockAttribute(field, blockIdx, block);
   }
 }
 
@@ -327,6 +345,22 @@ void vtkAMReXGridReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, con
 void vtkAMReXGridReader::GetAMRGridPointData(
   const int blockIdx, vtkUniformGrid* block, const char* field)
 {
+  if (!this->Internal->headersAreRead || field == nullptr)
+  {
+    return;
+  }
+  // Variables defined on the main multifab live in parsedVariableNames; when
+  // the main fab is nodal they were registered as point arrays and must be
+  // read through GetBlockAttribute. Anything else is an extra multifab.
+  const auto& mainVars = this->Internal->Header->parsedVariableNames;
+  if (mainVars.find(field) != mainVars.end())
+  {
+    if (this->Internal->Header->mainFabTopology == 0)
+    {
+      this->Internal->GetBlockAttribute(field, blockIdx, block);
+    }
+    return;
+  }
   if (this->Internal->extraMultiFabHeadersAreRead)
   {
     this->Internal->GetExtraMultiFabBlockAttribute(field, blockIdx, block);
@@ -339,10 +373,23 @@ void vtkAMReXGridReader::SetUpDataArraySelections()
   {
     return;
   }
+  const int mainTopology = this->Internal->Header->mainFabTopology;
+  if (mainTopology == -1)
+  {
+    vtkWarningMacro("Main multifab has unsupported topology (face/edge centered); "
+                    "variables will not be exposed.");
+  }
   for (const auto& variable : this->Internal->Header->parsedVariableNames)
   {
     // all arrays are added as disabled.
-    this->CellDataArraySelection->AddArray(variable.first.c_str(), false);
+    if (mainTopology == 0)
+    {
+      this->PointDataArraySelection->AddArray(variable.first.c_str(), false);
+    }
+    else if (mainTopology == 3)
+    {
+      this->CellDataArraySelection->AddArray(variable.first.c_str(), false);
+    }
   }
 
   // add extra multifab variables

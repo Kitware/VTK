@@ -112,6 +112,11 @@ public:
   std::vector<std::string> levelPrefix;
   std::vector<std::string> multiFabPrefix;
 
+  // Topology of the main multifab, detected from level-header box type vectors.
+  // Encoded with the same convention as extraMultiFabVarTopology:
+  // 3 == cell data (default), 0 == vertex/nodal data, -1 == unsupported (face/edge).
+  int mainFabTopology = 3;
+
   // use this to store the prefixes for extra multifabs appended to the end of the main header
   int extraMultiFabCount;
   // only allow one topology per multifab. 0 == vertex data, 3 == cell data
