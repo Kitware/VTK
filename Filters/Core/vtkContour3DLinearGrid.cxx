@@ -809,6 +809,11 @@ struct ProducePoints
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
       t = mergeTuple->Data.T;
+      if (t < 0 || t > 1)
+      {
+        std::swap(v0, v1);
+        t = 1.0 - t;
+      }
       const auto x0 = inPoints[v0];
       const auto x1 = inPoints[v1];
       auto x = outPoints[ptId];
@@ -879,6 +884,11 @@ struct ProducePointAttributes
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
       t = mergeTuple->Data.T;
+      if (t < 0 || t > 1)
+      {
+        std::swap(v0, v1);
+        t = 1.0 - t;
+      }
       this->Arrays->InterpolateEdge(v0, v1, t, ptId + this->TotalPts);
     }
   }
