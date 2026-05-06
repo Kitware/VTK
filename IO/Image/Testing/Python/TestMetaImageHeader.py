@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import tempfile
 
 import vtk
@@ -18,7 +19,7 @@ def read(path: str) -> vtk.vtkImageData:
     return reader.GetOutput()
 
 
-def make_data():
+def make_data() -> vtk.vtkImageData:
     img = vtk.vtkImageData()
     img.SetDimensions(5, 4, 3)
     img.SetSpacing(2, 3, 4)
@@ -40,10 +41,16 @@ def assert_equal(a, b) -> None:
 
 img1 = make_data()
 
-with tempfile.NamedTemporaryFile(suffix=".mha") as tmp_file:
+# using a "with" block that automatically cleans up is cleaner and shorter
+# but fails on windows when reading the file, cf the python official docs
+# about "opening the temporary file again"
+try:
+    tmp_file = tempfile.NamedTemporaryFile(suffix=".mha", delete=False)
+    tmp_file.close()
     write(img1, tmp_file.name)
     img2 = read(tmp_file.name)
-
+finally:
+    os.unlink(tmp_file.name)
 
 assert_equal(img1.GetOrigin(), img2.GetOrigin())
 assert_equal(img1.GetSpacing(), img2.GetSpacing())
