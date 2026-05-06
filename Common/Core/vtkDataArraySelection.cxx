@@ -265,6 +265,7 @@ int vtkDataArraySelection::AddArray(const char* name, bool state)
     return 0;
   }
   this->Internal->Arrays.emplace_back(name, state);
+  this->Modified();
   return 1;
 }
 
@@ -274,6 +275,7 @@ void vtkDataArraySelection::RemoveArrayByIndex(int index)
   if (index >= 0 && index < static_cast<int>(this->Internal->Arrays.size()))
   {
     this->Internal->Arrays.erase(this->Internal->Arrays.begin() + index);
+    this->Modified();
   }
 }
 
@@ -284,6 +286,7 @@ void vtkDataArraySelection::RemoveArrayByName(const char* name)
   if (iter != this->Internal->Arrays.end())
   {
     this->Internal->Arrays.erase(iter);
+    this->Modified();
   }
 }
 
@@ -324,6 +327,7 @@ void vtkDataArraySelection::SetArraysWithDefault(
 
   // Delete the old map and save the new one.
   this->Internal.reset(newInternal);
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
