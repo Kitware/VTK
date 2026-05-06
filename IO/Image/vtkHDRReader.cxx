@@ -55,6 +55,9 @@ void vtkHDRReader::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkHDRReader::ExecuteInformation()
 {
+  // Invalidated last information
+  this->Validated = false;
+
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
   if (this->DataExtent[4] == 0 && this->DataExtent[5] == 0 &&
@@ -98,6 +101,9 @@ void vtkHDRReader::ExecuteInformation()
   this->SetDataScalarTypeToFloat();
   this->SetNumberOfScalarComponents(3);
   this->vtkImageReader::ExecuteInformation();
+
+  // All data checks passed
+  this->Validated = true;
 }
 
 //------------------------------------------------------------------------------
@@ -149,6 +155,13 @@ void vtkHDRReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
 
   data->GetPointData()->GetScalars()->SetName("HDRImage");
+
+  // Ensure ExecuteInformation() was called without issue
+  if (!this->Validated)
+  {
+    vtkErrorMacro("Invalid information when parsing header");
+    return;
+  }
 
   this->ComputeDataIncrements();
 
@@ -224,6 +237,21 @@ void vtkHDRReader::ConvertAllDataFromRGBToXYZ(float* outPtr, int size)
 // templated to handle different data types.
 bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 {
+
+  // Even if we have a smaller extent, the RLE encoding forces us to read all the line width
+  const int width = this->GetWidth();
+
+  // Ensure we can fit all the data for a given width
+  const auto lineBufferMaxSize = std::vector<unsigned char>(0).max_size();
+
+  if (static_cast<size_t>(width) * 4 > lineBufferMaxSize)
+  {
+    vtkErrorMacro("Linebuffer cannot support requested width. Width = "
+      << width << ", LineBufferMax = " << (lineBufferMaxSize / 4)
+      << ", File = " << this->InternalFileName);
+    return false;
+  }
+
   vtkResourceStream* stream = this->GetStream();
   vtkNew<vtkFileResourceStream> fileStream;
   if (!stream)
@@ -238,9 +266,6 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 
   // Ignore header
   stream->Seek(this->HeaderSize, vtkResourceStream::SeekDirection::Begin);
-
-  // Even if we have a smaller extent, the RLE encoding forces us to read all the line width
-  const int width = this->GetWidth();
 
   const int extentWidth = outExt[1] - outExt[0] + 1;
 
@@ -408,6 +433,13 @@ bool vtkHDRReader::ReadHeaderData()
     vtkErrorMacro("Error reading program type");
     return false;
   }
+
+  if (str.size() < 2)
+  {
+    vtkErrorMacro("Error reading program type");
+    return false;
+  }
+
   headersize += parser->Tell() - cur;
 
   this->ProgramType = str.substr(2);
@@ -481,9 +513,13 @@ bool vtkHDRReader::ReadHeaderData()
   headersize += parser->Tell() - cur;
 
   std::istringstream iss(str);
-  char x, y, signX, signY;
-  int h, w;
-  iss >> std::skipws >> signY >> y >> h >> signX >> x >> w;
+  char x = 0, y = 0, signX = 0, signY = 0;
+  int h = 0, w = 0;
+  if (!(iss >> std::skipws >> signY >> y >> h >> signX >> x >> w))
+  {
+    vtkErrorMacro("Error reading dimensions");
+    return false;
+  }
 
   if (y == 'X')
   {

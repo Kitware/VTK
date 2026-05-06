@@ -159,6 +159,9 @@ private:
    * Return false if a reading error occurred, else true.
    */
   bool ReadLineRLE(vtkResourceStream* stream, unsigned char* lineBufferPtr);
+
+  // Internal ExecuteInformation() validation flag
+  bool Validated = false;
 };
 VTK_ABI_NAMESPACE_END
 #endif
