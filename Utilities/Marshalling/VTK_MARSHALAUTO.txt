@@ -178,6 +178,7 @@ Filters/Core/vtkGlyph2D.h
 Filters/Core/vtkGlyph3D.h
 Filters/Core/vtkGridSynchronizedTemplates3D.h
 Filters/Core/vtkHedgeHog.h
+Filters/Core/vtkHilbertCurveSorter.h
 Filters/Core/vtkHull.h
 Filters/Core/vtkHyperTreeGridProbeFilter.h
 Filters/Core/vtkImageAppend.h

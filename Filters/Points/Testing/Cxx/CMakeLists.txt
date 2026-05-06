@@ -3,7 +3,6 @@ vtk_add_test_cxx(vtkFiltersPointsCxxTests tests
   TestSPHKernels.cxx,NO_VALID
   PlotSPHKernels.cxx
   TestConvertToPointCloud.cxx
-  TestHilbertCurveSorter.cxx,NO_VALID
   TestPointCloudFilterArrays.cxx,NO_VALID,NO_DATA
   TestPoissonDiskSampler.cxx,NO_VALID,NO_DATA
   TestPCANormalEstimationModes.cxx,NO_VALID,NO_DATA

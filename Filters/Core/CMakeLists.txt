@@ -63,6 +63,7 @@ set(classes
   vtkGlyph3D
   vtkGridSynchronizedTemplates3D
   vtkHedgeHog
+  vtkHilbertCurveSorter
   vtkHull
   vtkHyperTreeGridProbeFilter
   vtkHyperTreeGridProbeFilterUtilities
