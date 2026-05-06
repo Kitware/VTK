@@ -8,16 +8,17 @@
 #include "vtkDataSet.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
-#include "vtkPlot.h"
 #include "vtkPlotRadViz.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
+#include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
-int TestRadVizChart(int argc, char** argv)
+int TestRadVizChartDataSet(int argc, char** argv)
 {
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
@@ -30,8 +31,6 @@ int TestRadVizChart(int argc, char** argv)
   vtkNew<vtkChartRadViz> chart;
   view->GetScene()->AddItem(chart);
 
-  // Create a table with some points in it...
-  // vtkSmartPointer<vtkTable> table = ::CreateDummyData();
   vtkNew<vtkXMLImageDataReader> reader;
   reader->SetFileName((dataRoot + "/Data/Ce_Co_Fe_Gd_small.vti").c_str());
   reader->Update();
@@ -41,7 +40,6 @@ int TestRadVizChart(int argc, char** argv)
   plot->GetPen()->SetOpacity(20);
   plot->GetPen()->SetWidth(6);
 
-  // plot->SetInputData(table);
   plot->SetInputData(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
 
   chart->SetShowLegend(false);

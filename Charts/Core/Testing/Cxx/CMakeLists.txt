@@ -114,7 +114,8 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPlotPoints.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
-  TestRadVizChart.cxx
+  TestRadVizChartDataSet.cxx
+  TestRadVizChartTable.cxx
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
   TestScatterPlot.cxx,LOOSE_VALID
