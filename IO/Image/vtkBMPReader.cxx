@@ -16,12 +16,9 @@ vtkStandardNewMacro(vtkBMPReader);
 
 vtkBMPReader::vtkBMPReader()
 {
-  this->Colors = nullptr;
   this->SetDataByteOrderToLittleEndian();
-  this->Depth = 0;
   // we need to create it now in case its asked for later (pointer must be valid)
   this->LookupTable = vtkLookupTable::New();
-  this->Allow8BitBMP = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -41,6 +38,9 @@ vtkBMPReader::~vtkBMPReader()
 //------------------------------------------------------------------------------
 void vtkBMPReader::ExecuteInformation()
 {
+  // Invalidated last information
+  this->Validated = false;
+
   // free any old memory
   delete[] this->Colors;
   this->Colors = nullptr;
@@ -226,6 +226,9 @@ void vtkBMPReader::ExecuteInformation()
   }
 
   this->vtkImageReader::ExecuteInformation();
+
+  // All data checks passed
+  this->Validated = true;
 }
 
 //------------------------------------------------------------------------------
@@ -340,6 +343,19 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
   if (!self->GetFileLowerLeft())
   {
     streamSkip0 = static_cast<vtkIdType>(-streamRead - self->GetDataIncrements()[1]);
+  }
+
+  // Ensure vector "buf" will not be overrun
+  // Note : this code is for maximum saftey but as far as I can determine the only case where this
+  // is true is when GetDepth() == 0
+  if ((((dataExtent[1] - dataExtent[0]) * pixelSkip) + ((self->GetDepth() == 8) ? 1 : 3)) >
+    streamRead)
+  {
+    vtkErrorWithObjectMacro(self,
+      "Row data buffer overrun, Image likely has unsupported depth. File "
+        << self->GetInternalFileName());
+    self->CloseFile();
+    return;
   }
 
   target = (unsigned long)((dataExtent[5] - dataExtent[4] + 1) *
@@ -464,6 +480,13 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
 
   data->GetPointData()->GetScalars()->SetName("BMPImage");
 
+  // Ensure ExecuteInformation() was called without issue
+  if (!this->Validated)
+  {
+    vtkErrorMacro("Invalid information when parsing header");
+    return;
+  }
+
   this->ComputeDataIncrements();
 
   // Call the correct templated function for the output
@@ -523,7 +546,7 @@ int vtkBMPReader::CanReadFile(vtkResourceStream* stream)
 
 //------------------------------------------------------------------------------
 bool vtkBMPReader::ReadAndCheckHeader(
-  vtkResourceStream* stream, bool quiet, vtkTypeInt32& offset, vtkTypeInt32& infoSize)
+  vtkResourceStream* stream, bool quiet, vtkTypeInt32& offset, vtkTypeInt32& infoSize) const
 {
   // compare magic numbers to determine file type
   char magicB, magicM;
@@ -531,7 +554,7 @@ bool vtkBMPReader::ReadAndCheckHeader(
   {
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, "Error reading magic numbers");
+      vtkErrorMacro("Error reading magic numbers");
     }
     return false;
   }
@@ -539,7 +562,7 @@ bool vtkBMPReader::ReadAndCheckHeader(
   {
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, << "Unknown type! file is not a Windows BMP file!");
+      vtkErrorMacro(<< "Unknown type! file is not a Windows BMP file!");
     }
     return false;
   }
@@ -552,7 +575,7 @@ bool vtkBMPReader::ReadAndCheckHeader(
   {
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, "Error reading offset");
+      vtkErrorMacro("Error reading offset");
     }
     return false;
   }
@@ -562,7 +585,7 @@ bool vtkBMPReader::ReadAndCheckHeader(
   {
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, "Error reading header size");
+      vtkErrorMacro("Error reading header size");
     }
     return false;
   }
@@ -573,7 +596,7 @@ bool vtkBMPReader::ReadAndCheckHeader(
   {
     if (!quiet)
     {
-      vtkErrorWithObjectMacro(nullptr, "Unknown file type! Not a Windows BMP file!");
+      vtkErrorMacro("Unknown file type! Not a Windows BMP file!");
     }
     return false;
   }

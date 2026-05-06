@@ -97,9 +97,10 @@ protected:
   vtkBMPReader();
   ~vtkBMPReader() override;
 
-  unsigned char* Colors;
-  short Depth;
-  vtkTypeBool Allow8BitBMP;
+  unsigned char* Colors = nullptr;
+  short Depth = 0;
+  bool Validated = false;
+  vtkTypeBool Allow8BitBMP = false;
   vtkLookupTable* LookupTable;
 
   void ComputeDataIncrements() override;
@@ -110,8 +111,8 @@ private:
   vtkBMPReader(const vtkBMPReader&) = delete;
   void operator=(const vtkBMPReader&) = delete;
 
-  static bool ReadAndCheckHeader(
-    vtkResourceStream* stream, bool quiet, vtkTypeInt32& offset, vtkTypeInt32& infoSize);
+  bool ReadAndCheckHeader(
+    vtkResourceStream* stream, bool quiet, vtkTypeInt32& offset, vtkTypeInt32& infoSize) const;
 };
 VTK_ABI_NAMESPACE_END
 #endif
