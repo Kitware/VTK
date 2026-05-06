@@ -346,22 +346,17 @@ vtkCell* vtkSimpleScalarTree::GetNextCell(
 // Return the number of cell batches.
 
 //------------------------------------------------------------------------------
-// Return the number of chunks of data that can be iterated over.
+// Compute the list of candidate cells whose scalar range straddles the given
+// isovalue, and return the number of fixed-size batches that list breaks into.
+// The candidate list is cached in CandidateCells / NumCandidates and consumed
+// by subsequent GetCellBatch() calls.
 vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches(double scalarValue)
 {
-  // Modified time prevents rebuilding
-  this->BuildTree();
-  vtkScalarRange<double>* TTree = static_cast<vtkScalarRange<double>*>(this->Tree);
-
-  this->ScalarValue = scalarValue;
-  this->TreeIndex = this->TreeSize;
-
-  // Check root of tree for overlap with scalar value
-  //
-  if (TTree[0].min > scalarValue || TTree[0].max < scalarValue)
-  {
-    return 0;
-  }
+  // Build the tree if needed (no-op if already built and inputs unchanged) and
+  // position the serial traversal at the first leaf overlapping scalarValue.
+  // InitTraversal() sets TreeIndex, ChildNumber, and CellId to the start of
+  // that leaf; without it, the loop below would have no valid starting point.
+  this->InitTraversal(scalarValue);
 
   // Basically we do a traversal of the tree and identify potential candidates.
   // It is essential that InitTraversal() has been called first.
@@ -372,6 +367,9 @@ vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches(double scalarValue)
   {
     return 0;
   }
+
+  // Worst case every cell is a candidate, so size the buffer accordingly.
+  // The actual count populated (NumCandidates) is typically much smaller.
   this->CandidateCells = new vtkIdType[this->NumCells];
 
   // Now begin traversing tree. InitTraversal() sets the first CellId.
@@ -394,6 +392,8 @@ vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches(double scalarValue)
   }
   else
   {
+    // Batches are sized to BranchingFactor (matching the leaf size used during
+    // construction). Round up so the final partial batch is included.
     return (((this->NumCandidates - 1) / this->BranchingFactor) + 1);
   }
 }
