@@ -484,8 +484,18 @@ bool vtkIOSSReaderInternal::NeedToUpdateEntityAndFieldSelections(
   bool subsetOrEqual = true;
   for (int i = 0; i < vtkIOSSReader::NUMBER_OF_ENTITY_TYPES; ++i)
   {
+    // check entities
     subsetOrEqual &= std::includes(this->EntityNames[i].begin(), this->EntityNames[i].end(),
       entity_names[i].begin(), entity_names[i].end());
+    // check fields
+    auto fieldSelection = self->GetFieldSelection(i);
+    std::set<std::string> fieldNames;
+    for (int j = 0; j < fieldSelection->GetNumberOfArrays(); ++j)
+    {
+      fieldNames.insert(fieldSelection->GetArrayName(j));
+    }
+    subsetOrEqual &= std::includes(
+      fieldNames.begin(), fieldNames.end(), field_names[i].begin(), field_names[i].end());
   }
 
   return !subsetOrEqual;
