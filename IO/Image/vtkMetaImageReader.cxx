@@ -157,6 +157,8 @@ void vtkMetaImageReader::ExecuteInformation()
   this->SetDataExtent(extent);
   this->SetDataSpacing(spacing);
   this->SetDataOrigin(origin);
+  const double* direction = this->MetaImagePtr->TransformMatrix();
+  this->SetDataDirection(direction);
   this->SetHeaderSize(this->MetaImagePtr->HeaderSize());
   this->FileLowerLeftOn();
 
@@ -237,6 +239,25 @@ int vtkMetaImageReader::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
+  if (this->FileDimensionality == 2)
+  {
+    // For 2D images, the transform matrix is a 2x2 matrix (ie, 4 elements).
+    // But vtkImageData is always 3D and its DataDirection is always a 3x3
+    // matrix, which would lead 2x2 identity to become…
+    // | 1 0 0 |
+    // | 1 0 0 |
+    // | 0 0 0 |
+    // …which is obviously very wrong.
+    // To prevent writing such a corrupted matrix, we embed the 2x2 matrix in
+    // the upper-left corner of a 3x3 matrix identity matrix.
+    double dir3x3[9] = { this->DataDirection[0], this->DataDirection[1], 0.0,
+      this->DataDirection[2], this->DataDirection[3], 0.0, 0.0, 0.0, 1.0 };
+    outInfo->Set(vtkDataObject::DIRECTION(), dir3x3, 9);
+  }
+  else
+  {
+    outInfo->Set(vtkDataObject::DIRECTION(), this->DataDirection, 9);
+  }
 
   vtkDataObject::SetPointDataActiveScalarInfo(
     outInfo, this->DataScalarType, this->NumberOfScalarComponents);
