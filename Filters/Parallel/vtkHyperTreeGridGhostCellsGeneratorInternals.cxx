@@ -156,11 +156,14 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGhostCellsGeneratorInternals::vtkHyperTreeGridGhostCellsGeneratorInternals(
-  vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG)
-  : Controller(controller)
+  vtkHyperTreeGridGhostCellsGenerator* self, vtkMultiProcessController* controller,
+  vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG)
+  : Self(self)
+  , Controller(controller)
   , InputHTG(inputHTG)
   , OutputHTG(outputHTG)
 {
+  (void)this->Self; // Required because it's only used by debug builds
   unsigned int cellDims[3];
   this->InputHTG->GetCellDims(cellDims);
   this->HyperTreesMapToProcesses.resize(cellDims[0] * cellDims[1] * cellDims[2]);
@@ -423,7 +426,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeTreeDecomposition()
   // Data size is doubled when we need to transfer isMasked bit array.
   // We store isParent and isMasked bit arrays in the sent buffer contiguously.
   vtkIdType maskFactor = this->InputHTG->HasMask() ? 2 : 1;
-  vtkDebugWithObjectMacro(nullptr, "Mask factor: " << maskFactor);
+  vtkDebugWithObjectMacro(this->Self, "Mask factor: " << maskFactor);
 
   int currentDataBufferOffset = 0;
   for (int id = 0; id < numberOfProcesses; ++id)
@@ -706,7 +709,7 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::FinalizeCellData()
   }
 
   // Adding the ghost array
-  vtkDebugWithObjectMacro(nullptr,
+  vtkDebugWithObjectMacro(this->Self,
     "Adding ghost array: ghost from id " << this->InitialNumberOfVertices << " to "
                                          << this->NumberOfVertices);
 
