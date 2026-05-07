@@ -384,11 +384,19 @@ void vtkWin32RenderWindowInteractor::StartEventLoop()
   }
 
   this->StartedMessageLoop = 1;
-  do
+  this->Internals->IsRunning = true;
+  MSG msg;
+  while (this->Internals->IsRunning)
   {
-    this->Internals->IsRunning = true;
+    // Block until a message is available to avoid busy-waiting when the queue is empty.
+    // PeekMessage with PM_NOREMOVE checks without removing, so ProcessEvents()
+    // still handles the actual dispatching with its priority logic.
+    if (!PeekMessage(&msg, nullptr, 0, 0, PM_NOREMOVE))
+    {
+      WaitMessage();
+    }
     this->ProcessEvents();
-  } while (this->Internals->IsRunning);
+  }
 }
 
 //------------------------------------------------------------------------------
