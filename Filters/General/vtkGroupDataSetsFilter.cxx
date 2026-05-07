@@ -4,6 +4,8 @@
 
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkConvertToPartitionedDataSetCollection.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -295,6 +297,12 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
     }
+
+    // generate a default assembly
+    vtkNew<vtkPartitionedDataSetCollection> pdc;
+    vtkNew<vtkDataAssembly> assembly;
+    vtkDataAssemblyUtilities::GenerateHierarchy(output, assembly, pdc);
+    output->ShallowCopy(pdc);
   }
   else
   {
