@@ -2210,7 +2210,19 @@ void vtkWebGPURenderWindow::SyncWithHardware()
     return;
   }
   this->HardwareWindow->SetWindowName(this->GetWindowName());
-  this->HardwareWindow->SetSize(this->GetSize());
+  int* renderWindowSize = this->GetSize();
+  int* hardwareWindowSize = this->HardwareWindow->GetSize();
+  if (renderWindowSize[0] != hardwareWindowSize[0] || renderWindowSize[1] != hardwareWindowSize[1])
+  {
+    if (this->HardwareWindow->GetMTime() > this->GetMTime())
+    {
+      this->Superclass::SetSize(hardwareWindowSize[0], hardwareWindowSize[1]);
+    }
+    else
+    {
+      this->HardwareWindow->SetSize(renderWindowSize);
+    }
+  }
   this->HardwareWindow->SetCoverable(this->GetCoverable());
 }
 
