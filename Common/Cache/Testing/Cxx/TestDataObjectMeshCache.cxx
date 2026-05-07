@@ -148,8 +148,8 @@ bool TestForwardAttributes()
   cache->SetConsumer(consumer);
   cache->UpdateCache(inputMesh);
 
-  // fast forward attributes
-  cache->PreserveAttributesOn();
+  // input arrays can be forwarded with shallow copy
+  cache->PreservedInputAllAttributes();
 
   // forward pointdata
   cache->ForwardAttribute(vtkDataObject::POINT);
@@ -174,7 +174,7 @@ bool TestForwardAttributes()
   // links to ids [1 - 3] of inputMesh
   ::AddOriginalIds(1, smallerMesh);
   cache->UpdateCache(smallerMesh);
-  cache->PreserveAttributesOff();
+  cache->ClearPreservedInputAttributes();
   output->Initialize();
   cache->CopyCacheToDataObject(output);
 

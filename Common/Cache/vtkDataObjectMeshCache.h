@@ -11,6 +11,7 @@
 #include "vtkSmartPointer.h" // for smart pointer
 #include "vtkWeakPointer.h"  // for weak pointer
 
+#include <set>    // for set
 #include <string> // for string
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -194,6 +195,9 @@ public:
 
   /**
    * Add attribute in the forward list.
+   * Arrays from this attribute will be forwarded to the output,
+   * using a default `OriginalIds` name.
+   * @see AddOriginalIds, GetTemporaryIdsName
    */
   void ForwardAttribute(int attribute);
 
@@ -204,15 +208,16 @@ public:
    * @see AddOriginalIds, ForwardAttributes
    */
   ///@{
-  vtkSetMacro(PreserveAttributes, bool);
-  vtkGetMacro(PreserveAttributes, bool);
-  vtkBooleanMacro(PreserveAttributes, bool);
+  void AddPreservedInputAttributes(int);
+  void ClearPreservedInputAttributes();
+  void PreservedInputAllAttributes();
+  std::set<int> GetPreservedInputAttributes();
   ///@}
 
   /**
    * Return a default name for original ids.
    */
-  static std::string GetTemporaryIdsName();
+  static std::string GetDefaultIdsName();
 
   /**
    * Add an ids array on underlying PointData and CellData.
@@ -249,6 +254,19 @@ public:
    * It is the user responsibility to check the status before calling this.
    */
   void CopyCacheToDataObject(vtkDataObject* output);
+
+  ///@{
+  /**
+   * Keep cached arrayName array when copying cache to output.
+   *
+   * By default, CopyCacheToDataObject clears output attributes arrays,
+   * and then forward input arrays to output as configured.
+   * Arrays added as PreservedCachedArrays are kept.
+   */
+  void AddPreservedCachedArray(const std::string& arrayName);
+  void ClearPreservedCachedArray();
+  std::set<std::string> GetPreservedCachedArrays();
+  ///@}
 
   /**
    * Set given dataset as the new Cache.
@@ -330,7 +348,8 @@ private:
   vtkMTimeType CachedOriginalMeshTime = 0;
   vtkMTimeType CachedConsumerTime = 0;
   std::map<int, std::string> OriginalIdsName;
-  bool PreserveAttributes = false;
+  std::set<int> PreserveInputAttributes;
+  std::set<std::string> PreserveCachedArrays;
 };
 
 VTK_ABI_NAMESPACE_END

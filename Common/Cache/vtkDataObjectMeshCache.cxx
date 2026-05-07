@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkDataObjectMeshCache);
 
 namespace
 {
-constexpr const char* TEMP_ORIGINAL_IDS = "__original_ids__";
+constexpr const char* DEFAULT_ORIGINAL_IDS = "__original_ids__";
 
 //----------------------------------------------------------------------------
 void AddTemporaryIds(vtkDataSetAttributes* attributes, vtkIdType size)
@@ -41,7 +41,7 @@ void AddTemporaryIds(vtkDataSetAttributes* attributes, vtkIdType size)
   vtkNew<vtkAffineArray<vtkIdType>> ids;
   ids->SetBackend(std::make_shared<vtkAffineImplicitBackend<vtkIdType>>(1, 0));
   ids->SetNumberOfTuples(size);
-  ids->SetName(::TEMP_ORIGINAL_IDS);
+  ids->SetName(::DEFAULT_ORIGINAL_IDS);
   attributes->AddArray(ids);
 }
 
@@ -179,6 +179,10 @@ struct RequestedIdsWorker : public GenericDataObjectWorker
 struct ClearAttributesWorker : public GenericDataObjectWorker
 {
   ~ClearAttributesWorker() override = default;
+  ClearAttributesWorker(const std::set<std::string>& arrays)
+    : PreservedArrays(arrays)
+  {
+  }
 
   void ComputeDataSet(vtkDataSet* dataset) override
   {
@@ -188,10 +192,22 @@ struct ClearAttributesWorker : public GenericDataObjectWorker
       vtkFieldData* field = dataset->GetAttributesAsFieldData(attribute);
       if (field)
       {
+        vtkSmartPointer<vtkFieldData> newField = vtk::TakeSmartPointer(field->NewInstance());
+        // enforce ALLCOPY: this is the default for DataSetAttributes but not for FieldData
+        // leading to unexpected behavior.
+        newField->CopyAllOff(vtkDataSetAttributes::ALLCOPY);
+        for (const auto& name : this->PreservedArrays)
+        {
+          newField->CopyFieldOn(name.c_str());
+        }
+        newField->PassData(field);
         field->Initialize();
+        field->PassData(newField);
       }
     }
   }
+
+  const std::set<std::string>& PreservedArrays;
 };
 
 struct AddTemporaryIdsWorker : public GenericDataObjectWorker
@@ -211,8 +227,8 @@ struct RemoveTemporaryIdsWorker : public GenericDataObjectWorker
 
   void ComputeDataSet(vtkDataSet* leafDataSet) override
   {
-    leafDataSet->GetPointData()->RemoveArray(::TEMP_ORIGINAL_IDS);
-    leafDataSet->GetCellData()->RemoveArray(::TEMP_ORIGINAL_IDS);
+    leafDataSet->GetPointData()->RemoveArray(::DEFAULT_ORIGINAL_IDS);
+    leafDataSet->GetCellData()->RemoveArray(::DEFAULT_ORIGINAL_IDS);
   }
 };
 
@@ -228,9 +244,9 @@ struct NumberOfDataSetWorker : public GenericDataObjectWorker
 };
 
 //------------------------------------------------------------------------------
-std::string vtkDataObjectMeshCache::GetTemporaryIdsName()
+std::string vtkDataObjectMeshCache::GetDefaultIdsName()
 {
-  return ::TEMP_ORIGINAL_IDS;
+  return ::DEFAULT_ORIGINAL_IDS;
 }
 
 //------------------------------------------------------------------------------
@@ -257,6 +273,18 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute.first)
        << " " << attribute.second << "\n";
+  }
+
+  os << indent << "PreservedInputAttributes:\n";
+  for (const auto& attribute : this->PreservedInputAttributes)
+  {
+    os << indent.GetNextIndent() << vtkDataObject::GetAssociationTypeAsString(attribute) << "\n";
+  }
+
+  os << indent << "PreservedOutputArrays:\n";
+  for (const auto& array : this->PreservedCachedArrays)
+  {
+    os << indent.GetNextIndent() << array << "\n";
   }
 
   Status status = this->GetStatus();
@@ -340,7 +368,7 @@ void vtkDataObjectMeshCache::AddOriginalIds(int attribute, const std::string& na
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::ForwardAttribute(int attribute)
 {
-  this->AddOriginalIds(attribute, ::TEMP_ORIGINAL_IDS);
+  this->AddOriginalIds(attribute, ::DEFAULT_ORIGINAL_IDS);
 }
 
 //------------------------------------------------------------------------------
@@ -510,6 +538,28 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
 }
 
 //------------------------------------------------------------------------------
+void vtkDataObjectMeshCache::AddPreservedCachedArray(const std::string& arrayName)
+{
+  this->PreservedCachedArrays.insert(arrayName);
+  vtkCacheLog(INFO, "AddPreserveArray: " << arrayName);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::set<std::string> vtkDataObjectMeshCache::GetPreservedCachedArrays()
+{
+  return this->PreservedCachedArrays;
+}
+
+//------------------------------------------------------------------------------
+void vtkDataObjectMeshCache::ClearPreservedCachedArray()
+{
+  this->PreservedCachedArrays.clear();
+  vtkCacheLog(INFO, "ClearPreservedCachedArray");
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::CopyCacheToDataObject(vtkDataObject* output)
 {
   if (!output)
@@ -617,6 +667,34 @@ void vtkDataObjectMeshCache::ForwardAttributesToComposite(
 }
 
 //------------------------------------------------------------------------------
+void vtkDataObjectMeshCache::AddPreservedInputAttributes(int attr)
+{
+  this->PreservedInputAttributes.insert(attr);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataObjectMeshCache::ClearPreservedInputAttributes()
+{
+  this->PreservedInputAttributes.clear();
+}
+
+//------------------------------------------------------------------------------
+void vtkDataObjectMeshCache::PreservedInputAllAttributes()
+{
+  for (int attribute = vtkDataObject::POINT; attribute < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
+       attribute++)
+  {
+    this->PreservedInputAttributes.insert(attribute);
+  }
+}
+
+//------------------------------------------------------------------------------
+std::set<int> vtkDataObjectMeshCache::GetPreservedInputAttributes()
+{
+  return this->PreservedInputAttributes;
+}
+
+//------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::ForwardAttributes(
   vtkDataSet* input, vtkDataSet* cache, vtkDataSet* output, int attribute, const std::string& name)
 {
@@ -626,7 +704,7 @@ void vtkDataObjectMeshCache::ForwardAttributes(
   auto outAttribute = output->GetAttributes(attribute);
   auto cacheAttribute = cache->GetAttributes(attribute);
 
-  if (this->PreserveAttributes)
+  if (this->PreservedInputAttributes.count(attribute) > 0)
   {
     vtkCacheLog(INFO, "ShallowCopy Attribute");
     outAttribute->DeepCopy(inAttribute);
@@ -672,7 +750,7 @@ bool vtkDataObjectMeshCache::CacheHasRequestedIds() const
 //------------------------------------------------------------------------------
 void vtkDataObjectMeshCache::ClearAttributes(vtkDataObject* dataobject)
 {
-  ClearAttributesWorker clearWorker;
+  ClearAttributesWorker clearWorker{ this->PreservedCachedArrays };
   clearWorker.Compute(dataobject);
 }
 
