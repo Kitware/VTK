@@ -2046,7 +2046,8 @@ bool DispatchDataObjectImpl(
       return true;
     }
     vtkLog(ERROR,
-      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+      "Input composite data types do not match: " << do1->GetClassName()
+                                                  << " != " << do2->GetClassName());
   }
   else if (auto pdc1 = vtkPartitionedDataSetCollection::SafeDownCast(do1))
   {
@@ -2056,7 +2057,8 @@ bool DispatchDataObjectImpl(
       return true;
     }
     vtkLog(ERROR,
-      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+      "Input composite data types do not match: " << do1->GetClassName()
+                                                  << " != " << do2->GetClassName());
   }
   else if (auto mb1 = vtkMultiBlockDataSet::SafeDownCast(do1))
   {
@@ -2066,7 +2068,8 @@ bool DispatchDataObjectImpl(
       return true;
     }
     vtkLog(ERROR,
-      "Input dataset types do not match: " << do1->GetClassName() << " != " << do2->GetClassName());
+      "Input composite data types do not match: " << do1->GetClassName()
+                                                  << " != " << do2->GetClassName());
   }
 
   vtkLog(ERROR, << "Only vtkPartitionedDataSet, vtkPartitionedDataSetCollection and "
@@ -2111,16 +2114,15 @@ bool vtkTestUtilities::CompareDataObjects(
 {
   ::FixToleranceFactorIfNeeded(toleranceFactor);
 
-  if (auto cds = vtkCompositeDataSet::SafeDownCast(do1))
+  auto cds = vtkCompositeDataSet::SafeDownCast(do1);
+  auto cds2 = vtkCompositeDataSet::SafeDownCast(do2);
+  if (cds || cds2)
   {
-    if (auto cds2 = vtkCompositeDataSet::SafeDownCast(do2))
+    bool retVal = false;
+    if (::DispatchDataObjectImpl<TestDataObjectsImpl, vtkCompositeDataSet>(
+          cds, cds2, toleranceFactor, retVal))
     {
-      bool retVal = false;
-      if (::DispatchDataObjectImpl<TestDataObjectsImpl, vtkCompositeDataSet>(
-            cds, cds2, toleranceFactor, retVal))
-      {
-        return retVal;
-      }
+      return retVal;
     }
 
     return false;
