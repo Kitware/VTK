@@ -1,5 +1,7 @@
 vtk_module_test_data(
-  Data/WineGlass.wrl)
+  Data/WineGlass.wrl
+  Data/Playground.wrl
+  Data/KiCADExport.wrl)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

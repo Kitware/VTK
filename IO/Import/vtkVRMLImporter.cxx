@@ -20,6 +20,7 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkActor.h"
+#include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkConeSource.h"
 #include "vtkCubeSource.h"
@@ -36,31 +37,202 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolygon.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkSystemIncludes.h"
 #include "vtkTransform.h"
+#include "vtkTransformFilter.h"
+#include "vtkTriangleFilter.h"
 #include "vtkVRML.h"
+#include "vtkWeakPtr.h"
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <exception>
 #include <iostream>
 #include <sstream>
+#include <stack>
 
 #include "vtkVRMLImporter_Yacc.h"
 
-//------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
+// Polyfil class for use with `vtkVRMLImporter::useNode`
+class vtkVRMLTupleObject : public vtkObject
+{
+public:
+  vtkTypeMacro(vtkVRMLTupleObject, vtkObject);
+  static vtkVRMLTupleObject* New();
+  static vtkVRMLTupleObject* New(size_t a, size_t b)
+  {
+    auto result = new vtkVRMLTupleObject;
+    result->InitializeObjectBase();
+    result->Set(a, b);
+    return result;
+  }
+
+  void Set(size_t a, size_t b)
+  {
+    this->Data[0] = a;
+    this->Data[1] = b;
+  }
+
+  // Optional: operator[] for convenience
+  size_t operator[](int i) const { return this->Data[i]; }
+  size_t& operator[](int i) { return this->Data[i]; }
+
+protected:
+  vtkVRMLTupleObject()
+    : Data{ 0, 0 }
+  {
+  }
+  ~vtkVRMLTupleObject() override = default;
+
+private:
+  size_t Data[2];
+};
+
+vtkStandardNewMacro(vtkVRMLTupleObject);
+
+// VRML allows for all Transforms (including their children) to be templated "DEF" and then
+// duplicated "USE". To do that we need know all the vtkActors that are children of a "Transform"
+// node. This class allows for the Pushing/Poping of "stacks" (transforms) where it remembers the
+// index of the Actors between being pushed / popped.
+
+// Wrapper class for the ActorCollection, which allows for keep track of "stacks" aka an index
+// range of the ActorCollection which can be used to duplicate multiple actors for instantiation.
+
+// Note: this class is reliant on the fact that collection.GetNumberOfItems() returns the index of
+// the currently last pushed object
+class vrmlStackActorCollection
+{
+public:
+  vrmlStackActorCollection(vtkWeakPtr<vtkActorCollection> _collection)
+    : collection(_collection)
+  {
+  }
+
+  void PushStack(const char* name) { Stack.emplace(name, collection.Lock()->GetNumberOfItems()); }
+  std::tuple<const char*, vtkVRMLTupleObject*> PopStack()
+  {
+    auto top = Stack.top();
+    Stack.pop();
+    if ((top.second != static_cast<size_t>(collection.Lock()->GetNumberOfItems())))
+    {
+      return { top.first,
+        Cache.emplace_back(vtkSmartPointer<vtkVRMLTupleObject>::New(
+          top.second, static_cast<size_t>(collection.Lock()->GetNumberOfItems()))) };
+    }
+    return { nullptr, nullptr };
+  }
+
+private:
+  vtkWeakPtr<vtkActorCollection> collection;
+  std::vector<vtkSmartPointer<vtkVRMLTupleObject>> Cache;
+  std::stack<std::pair<const char*, size_t>> Stack;
+};
+
+// Given a normalized normal vector `normal`, this function will calculate a transform matrix to
+// rotate a Y-up normal surface to match this new normal and apply this rotation to a vtkTransform
+// `transform`
+void GetTransformer(const double normal[3], vtkSmartPointer<vtkTransform> transform)
+{
+  // Check normal is close to down, if so, return as insignificant
+  if (fabs(normal[1]) > 0.999)
+  {
+    return;
+  }
+
+  // Compute vectors
+  auto& translateX = normal;
+  double translateY[3] = { 0, -1, 0 }; // world down
+  double translateZ[3];
+
+  vtkMath::Cross(translateY, translateX, translateZ);
+  vtkMath::Normalize(translateZ);
+
+  vtkMath::Cross(translateX, translateZ, translateY);
+  vtkMath::Normalize(translateY);
+
+  // Create the direction cosine matrix
+  vtkNew<vtkMatrix4x4> matrix;
+  matrix->Identity();
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    matrix->SetElement(i, 0, translateX[i]);
+    matrix->SetElement(i, 1, translateY[i]);
+    matrix->SetElement(i, 2, translateZ[i]);
+  }
+
+  // Rotate matrix by 90d
+  vtkNew<vtkTransform> trans;
+  trans->Concatenate(matrix);
+  trans->RotateZ(90);
+  trans->GetMatrix(matrix);
+
+  // Generate transform
+  transform->PostMultiply();
+  transform->Translate(0, 0, 0);
+  transform->Concatenate(matrix);
+}
+
+// Given two identical cross sections at arbitrary points/rotations in 3d space `polyA` & `polyB`,
+// this function will return a new vtkPolyData `output` which contains a faces created by bridging
+// edge loops between polyA and polyB using their point's index.
+void IndexedExtrude(const vtkSmartPointer<vtkPolyData> polyA,
+  const vtkSmartPointer<vtkPolyData> polyB, vtkSmartPointer<vtkPolyData> output)
+{
+  //
+  auto pointsA = polyA->GetPoints();
+  auto pointsB = polyB->GetPoints();
+  auto pointsNB = std::min(pointsA->GetNumberOfPoints(), pointsB->GetNumberOfPoints());
+
+  // Create faces
+  vtkNew<vtkPoints> genPoints;
+  vtkNew<vtkCellArray> genFaces;
+  genPoints->SetNumberOfPoints(pointsNB * 2);
+
+  for (vtkIdType index = 0; index < pointsNB; index++)
+  {
+    genPoints->SetPoint(index * 2, pointsA->GetPoint(index));
+    genPoints->SetPoint(index * 2 + 1, pointsB->GetPoint(index));
+  }
+
+  for (vtkIdType index = 1; index < pointsNB; index++)
+  {
+    vtkNew<vtkPolygon> face;
+    face->GetPointIds()->SetNumberOfIds(5);
+    face->GetPointIds()->SetId(0, index * 2 - 2);
+    face->GetPointIds()->SetId(1, index * 2);
+    face->GetPointIds()->SetId(2, index * 2 + 1);
+    face->GetPointIds()->SetId(3, index * 2 - 1);
+    face->GetPointIds()->SetId(4, index * 2 - 2);
+    genFaces->InsertNextCell(face);
+  }
+
+  // Export as polydata
+  output->SetPoints(genPoints);
+  output->SetPolys(genFaces);
+}
+
+}
+
+//------------------------------------------------------------------------------
 class vtkVRMLImporterInternal
 {
 public:
-  vtkVRMLImporterInternal()
+  vtkVRMLImporterInternal(vtkWeakPtr<vtkActorCollection> collection)
     : Heap(1)
+    , ActorStack(collection)
   {
   }
   vtkVRMLVectorType<vtkObject*> Heap;
+  ::vrmlStackActorCollection ActorStack;
 };
 
 //------------------------------------------------------------------------------
@@ -73,10 +245,11 @@ vtkStandardNewMacro(vtkVRMLImporter);
 //------------------------------------------------------------------------------
 vtkVRMLImporter::vtkVRMLImporter()
 {
-  this->Internal = new vtkVRMLImporterInternal;
+  this->Internal = new vtkVRMLImporterInternal(this->ActorCollection);
   this->CurrentActor = nullptr;
   this->CurrentLight = nullptr;
   this->CurrentProperty = nullptr;
+  this->CurrentPoly = nullptr;
   this->CurrentSource = nullptr;
   this->CurrentPoints = nullptr;
   this->CurrentScalars = nullptr;
@@ -298,6 +471,7 @@ int vtkVRMLImporter::ImportBegin()
 //------------------------------------------------------------------------------
 void vtkVRMLImporter::ImportEnd()
 {
+
   delete this->Parser->typeList;
   this->Parser->typeList = nullptr;
 
@@ -410,7 +584,7 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
     }
   }
   else if (nodeTypeName == "Box" || nodeTypeName == "Cone" || nodeTypeName == "Cylinder" ||
-    nodeTypeName == "Sphere")
+    nodeTypeName == "Sphere" || nodeTypeName == "Extrusion")
   {
     if (this->CurrentSource)
     {
@@ -426,6 +600,7 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
       vtkConeSource* cone = vtkConeSource::New();
       cone->SetResolution(this->ShapeResolution);
       this->CurrentSource = cone;
+      this->CurrentActor->RotateZ(90.0);
     }
     else if (nodeTypeName == "Cylinder")
     {
@@ -439,6 +614,17 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
       sphere->SetPhiResolution(this->ShapeResolution);
       sphere->SetThetaResolution(this->ShapeResolution);
       this->CurrentSource = sphere;
+    }
+    else if (nodeTypeName == "Extrusion")
+    {
+      // Reset old options
+      this->CurrenExtrusionOptions.beginCap = true;
+      this->CurrenExtrusionOptions.endCap = true;
+
+      vtkAppendPolyData* extrusion = vtkAppendPolyData::New();
+      vtkNew<vtkPolyData> blank;
+      extrusion->AddInputData(blank);
+      this->CurrentSource = extrusion;
     }
     this->CurrentSource->Update();
     vtkNew<vtkPolyDataMapper> pmap;
@@ -537,6 +723,20 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
   }
   else if (nodeTypeName == "Transform")
   {
+    // Reset old options
+    this->CurrentTransformOptions.rotationSet = false;
+    this->CurrentTransformOptions.scaleSet = false;
+    this->CurrentTransformOptions.translationSet = false;
+
+    // Push new stack of either curDEFName or blank, as vtk code will not remember if this current
+    // Transform is creatingDEF once we parse children
+    this->Internal->ActorStack.PushStack(
+      (this->Parser->creatingDEF) ? this->Parser->curDEFName : "");
+    if (this->Parser->creatingDEF)
+    {
+      this->Parser->creatingDEF = 0;
+    }
+
     this->CurrentTransform->Push();
   }
 }
@@ -810,6 +1010,190 @@ void vtkVRMLImporter::exitNode()
       this->CurrentLut = nullptr;
     }
   }
+  else if (nodeTypeName == "Extrusion")
+  {
+    // Aliases
+    auto& extCrossSection = this->CurrentPoly;
+    auto& extSpine = this->CurrentPoints;
+    auto& extSpineScales = this->CurrentScalars;
+    auto& extOptions = this->CurrenExtrusionOptions;
+    auto extPolyData = vtkAppendPolyData::SafeDownCast(this->CurrentSource);
+
+    // Set default data
+    // CrossSection
+    if (!extCrossSection)
+    {
+      // Create points
+      vtkNew<vtkPoints> points;
+      points->SetNumberOfPoints(4);
+      points->SetPoint(0, 1.0, 0.0, 1.0);
+      points->SetPoint(1, 1.0, 0.0, -1.0);
+      points->SetPoint(2, -1.0, 0.0, -1.0);
+      points->SetPoint(3, -1.0, 0.0, 1.0);
+
+      // Create the polygon
+      vtkNew<vtkPolygon> polygon;
+      polygon->GetPointIds()->SetNumberOfIds(5); // make a quad
+      polygon->GetPointIds()->SetId(0, 0);
+      polygon->GetPointIds()->SetId(1, 1);
+      polygon->GetPointIds()->SetId(2, 2);
+      polygon->GetPointIds()->SetId(3, 3);
+      polygon->GetPointIds()->SetId(4, 0);
+
+      // Add the polygon to a list of polygons
+      vtkNew<vtkCellArray> polygons;
+      polygons->InsertNextCell(polygon);
+
+      // Create a PolyData
+      extCrossSection = vtkPolyData::New();
+      extCrossSection->SetPoints(points);
+      extCrossSection->SetPolys(polygons);
+      extCrossSection->SetLines(polygons);
+    }
+
+    // Spine
+    if (!extSpine)
+    {
+      extSpine = vtkPoints::New();
+      extSpine->InsertNextPoint(0, 0, 0);
+      extSpine->InsertNextPoint(0, 1, 0);
+    }
+
+    // Calculated options
+    vtkIdType extSplineNb = extSpine->GetNumberOfPoints() - 1;
+
+    vtkNew<vtkFloatArray> extSpineOrientations;
+    extSpineOrientations->SetNumberOfComponents(3);
+    extSpineOrientations->SetNumberOfTuples(extSplineNb + 1);
+    // If last point = first point then we are extruding a loop
+
+    bool extIsLoop;
+    {
+      double cmpA[3];
+      double cmpB[3];
+      extSpine->GetPoint(0, cmpA);
+      extSpine->GetPoint(extSplineNb, cmpB);
+      extIsLoop = ((cmpA[0] == cmpB[0]) && (cmpA[1] == cmpB[1]) && (cmpA[2] == cmpB[2]));
+    }
+
+    // Scale
+    if (!extSpineScales)
+    {
+      extSpineScales = vtkFloatArray::New();
+      extSpineScales->SetNumberOfComponents(2);
+    }
+
+    // Fill scales till same number of splines with either an intial "template" value, or [1, 1]
+    double scaleTemplate[2] = { 1.0, 1.0 };
+    if (extSpineScales->GetNumberOfTuples() == 1)
+    {
+      extSpineScales->GetTuple(0, scaleTemplate);
+    }
+
+    for (vtkIdType index = extSpineScales->GetNumberOfTuples(); index <= extSplineNb; index++)
+    {
+      extSpineScales->InsertNextTuple(scaleTemplate);
+    }
+
+    // Orientations
+    {
+      auto getNrmlVec = [](double pointA[3], double pointB[3], double nrmlVec[3])
+      {
+        nrmlVec[0] = { pointB[0] - pointA[0] };
+        nrmlVec[1] = { pointB[1] - pointA[1] };
+        nrmlVec[2] = { pointB[2] - pointA[2] };
+        vtkMath::Normalize(nrmlVec);
+      };
+
+      auto setSpineOrientations = [&](vtkIdType indexA, vtkIdType indexB, vtkIdType indexSO)
+      {
+        double ori[3];
+        double pointA[3];
+        double pointB[3];
+        extSpine->GetPoint(indexA, pointA);
+        extSpine->GetPoint(indexB, pointB);
+        getNrmlVec(pointA, pointB, ori);
+        extSpineOrientations->SetTuple3(indexSO, ori[0], ori[1], ori[2]);
+      };
+
+      if (extIsLoop)
+      {
+        setSpineOrientations(extSplineNb, 1, 0);
+      }
+      else
+      {
+        setSpineOrientations(0, 1, 0);
+        setSpineOrientations(extSplineNb - 1, extSplineNb, extSplineNb);
+      }
+
+      for (vtkIdType index = 1; index < extSplineNb; index++)
+      {
+        setSpineOrientations(index - 1, index + 1, index);
+      }
+    }
+
+    // Create array of transformed cross sections
+    std::vector<vtkSmartPointer<vtkPolyData>> crossSections;
+    for (vtkIdType index = 0; index <= extSplineNb; index++)
+    {
+      // Get cross sections data
+      auto transPosition = extSpine->GetPoint(index);
+      auto transOrientation = extSpineOrientations->GetTuple3(index);
+      auto transScale = extSpineScales->GetTuple2(index);
+
+      // Create cross sections' transform
+      vtkNew<vtkTransform> transform;
+      GetTransformer(transOrientation, transform);
+      transform->Translate(transPosition[0], transPosition[1], transPosition[2]);
+      transform->PreMultiply();
+      transform->Scale(transScale[0], 1.0, transScale[1]);
+
+      // Apply transform to cross sections and append to vec
+      vtkNew<vtkTransformFilter> transformFilter;
+      transformFilter->SetInputData(extCrossSection);
+      transformFilter->SetTransform(transform);
+      transformFilter->Update();
+      crossSections.emplace_back(transformFilter->GetPolyDataOutput());
+    }
+
+    // Use data
+
+    // Connect cross sections with extrusion
+    for (vtkIdType index = 0; index < extSplineNb; index++)
+    {
+      vtkNew<vtkPolyData> extrusion;
+      IndexedExtrude(crossSections[index], crossSections[index + 1], extrusion);
+      extPolyData->AddInputData(extrusion);
+    }
+
+    // Cap ends if selected
+    if (extOptions.beginCap)
+    {
+      vtkNew<vtkTriangleFilter> triFilter;
+      triFilter->SetPassLines(false);
+      triFilter->SetInputData(crossSections.front());
+      triFilter->Update();
+      extPolyData->AddInputData(triFilter->GetOutput());
+    }
+
+    if (extOptions.endCap)
+    {
+      vtkNew<vtkTriangleFilter> triFilter;
+      triFilter->SetPassLines(false);
+      triFilter->SetInputData(crossSections.back());
+      triFilter->Update();
+      extPolyData->AddInputData(triFilter->GetOutput());
+    }
+
+    // Erase
+    extCrossSection->Delete();
+    extSpine->Delete();
+    extSpineScales->Delete();
+
+    extCrossSection = nullptr;
+    extSpine = nullptr;
+    extSpineScales = nullptr;
+  }
   else if (nodeTypeName == "Shape")
   {
     if (this->CurrentProperty)
@@ -822,6 +1206,13 @@ void vtkVRMLImporter::exitNode()
   // simply pop the current transform
   else if (nodeTypeName == "Transform")
   {
+    // If valid stack then push it to useList
+    auto [name, tuple] = this->Internal->ActorStack.PopStack();
+    if (tuple)
+    {
+      *this->Parser->useList += new vtkVRMLUseStruct(name, tuple);
+    }
+
     this->CurrentTransform->Pop();
   }
 
@@ -834,6 +1225,33 @@ void vtkVRMLImporter::enterField(const char* fieldName)
   VrmlNodeType::FieldRec* fr = this->Parser->currentField->Top();
   assert(fr != nullptr);
   fr->fieldName = fieldName;
+
+  // If new field is "children" then we're entering the children of a transform and need to apply
+  // it's cached transform options
+  if (std::string(fieldName) == "children")
+  {
+    auto& topts = this->CurrentTransformOptions;
+    // translation
+    if (topts.translationSet)
+    {
+      topts.translationSet = false;
+      this->CurrentTransform->Translate(topts.translation);
+    }
+    // rotation
+    if (topts.rotationSet)
+    {
+      topts.rotationSet = false;
+      float angle = vtkMath::DegreesFromRadians(topts.rotation[3]);
+      this->CurrentTransform->RotateWXYZ(
+        angle, topts.rotation[0], topts.rotation[1], topts.rotation[2]);
+    }
+    // scale
+    if (topts.scaleSet)
+    {
+      topts.scaleSet = false;
+      this->CurrentTransform->Scale(topts.scale);
+    }
+  }
 
   if (fr->nodeType != nullptr)
   {
@@ -868,9 +1286,74 @@ void vtkVRMLImporter::exitField()
   assert(fr != nullptr);
   std::string fieldName(fr->fieldName);
   std::string nodeTypeName(fr->nodeType->getName());
+  if (nodeTypeName == "Extrusion")
+  {
+    // Handle fields
+    if (fieldName == "crossSection")
+    {
+      auto tuples = this->Parser->yylval.vec2f;
+      auto tuplesNb = tuples->GetNumberOfTuples();
 
+      // Convert 2d tuples to 3d points
+      // Import points
+      vtkNew<vtkPoints> points;
+      for (vtkIdType index = 0; index < tuplesNb; index++)
+      {
+        auto tuple = tuples->GetTuple(index);
+        points->InsertNextPoint(tuple[0], 0.0, tuple[1]);
+      }
+
+      // Create the polygon
+      vtkNew<vtkPolygon> polygon;
+      polygon->GetPointIds()->SetNumberOfIds(tuplesNb + 1);
+      for (vtkIdType index = 0; index < tuplesNb; index++)
+      {
+        polygon->GetPointIds()->SetId(index, index);
+      }
+      polygon->GetPointIds()->SetId(tuplesNb, 0);
+
+      // Add the polygon to a list of polygons
+      vtkNew<vtkCellArray> polygons;
+      polygons->InsertNextCell(polygon);
+
+      // Create a PolyData
+      this->CurrentPoly = vtkPolyData::New();
+      this->CurrentPoly->SetPoints(points);
+      this->CurrentPoly->SetPolys(polygons);
+      this->CurrentPoly->SetLines(polygons);
+    }
+    else if (fieldName == "spine")
+    {
+      if (!this->CurrentPoints)
+      {
+        this->CurrentPoints = vtkPoints::New();
+      }
+      this->CurrentPoints->DeepCopy(this->Parser->yylval.vec3f);
+    }
+    else if (fieldName == "scale")
+    {
+      if (!this->CurrentScalars)
+      {
+        this->CurrentScalars = vtkFloatArray::New();
+      }
+      this->CurrentScalars->DeepCopy(this->Parser->yylval.vec2f);
+    }
+    else if (fieldName == "beginCap")
+    {
+      this->CurrenExtrusionOptions.beginCap = this->Parser->yylval.sfint;
+    }
+    else if (fieldName == "endCap")
+    {
+      this->CurrenExtrusionOptions.endCap = this->Parser->yylval.sfint;
+    }
+    // Todo : Unsuported fields are
+    // * "orientation" : orients the crossSection, however to properly support it the parser needs
+    // to support MFvec4f/ MFRotation arrays and at the moment just returns garbled data
+    // * "creaseAngle" : acts like a variable angle smooth-shade operator over the resulting mesh
+    // * More CAD-esq features e.g. "ccw", "convex", "solid"
+  }
   // For the radius field
-  if (fieldName == "radius")
+  else if (fieldName == "radius")
   {
     // Set the Sphere radius
     if (nodeTypeName == "Sphere")
@@ -934,22 +1417,24 @@ void vtkVRMLImporter::exitField()
   // For the translation field of the Transform node
   else if (fieldName == "translation" && nodeTypeName == "Transform")
   {
-    this->CurrentTransform->Translate(this->Parser->yylval.vec3f->GetPoint(0));
-    this->Parser->yylval.vec3f->Reset();
+    this->CurrentTransformOptions.translationSet = true;
+    memcpy(this->CurrentTransformOptions.translation, this->Parser->yylval.vec3f->GetPoint(0),
+      3 * sizeof(double));
     this->DeleteObject(this->Parser->yylval.vec3f);
     this->Parser->yylval.vec3f = nullptr;
   }
   // For the translation field of the Transform node
   else if (fieldName == "rotation" && nodeTypeName == "Transform")
   {
-    float angle = vtkMath::DegreesFromRadians(this->Parser->yylval.vec4f[3]);
-    this->CurrentTransform->RotateWXYZ(angle, this->Parser->yylval.vec4f[0],
-      this->Parser->yylval.vec4f[1], this->Parser->yylval.vec4f[2]);
+    this->CurrentTransformOptions.rotationSet = true;
+    memcpy(this->CurrentTransformOptions.rotation, this->Parser->yylval.vec4f, 4 * sizeof(float));
   }
   // For the scale field of the transform node
   else if (fieldName == "scale" && nodeTypeName == "Transform")
   {
-    this->CurrentTransform->Scale(this->Parser->yylval.vec3f->GetPoint(0));
+    this->CurrentTransformOptions.scaleSet = true;
+    memcpy(this->CurrentTransformOptions.scale, this->Parser->yylval.vec3f->GetPoint(0),
+      3 * sizeof(double));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
     this->Parser->yylval.vec3f = nullptr;
@@ -1392,6 +1877,42 @@ void vtkVRMLImporter::useNode(const char* name)
     for (vtkIdType i = 0; i < nbPts; i++)
     {
       this->CurrentScalars->InsertNextValue(i);
+    }
+  }
+  else if (className.find("Property") != std::string::npos)
+  {
+    if (!this->CurrentProperty)
+    {
+      this->CurrentProperty = vtkProperty::New();
+    }
+    this->CurrentProperty->DeepCopy(static_cast<vtkProperty*>(useO));
+  }
+  else if (className == "vtkVRMLTupleObject")
+  {
+    // vtkVRMLTupleObject's are a custom object which specify a range in the this->StackCollection
+    // of all the vtkActor children of a "Transform" node. This code needs to copy and transform all
+    // the actors to the new location
+    auto pair = static_cast<vtkVRMLTupleObject*>(useO);
+    for (size_t index = (*pair)[0]; index < (*pair)[1]; index++)
+    {
+      auto refActor = this->ActorCollection->GetItemAsObject(static_cast<int>(index));
+
+      vtkActor* actor = vtkActor::New();
+      actor->ShallowCopy(static_cast<vtkActor*>(refActor));
+      if (this->CurrentProperty)
+      {
+        actor->SetProperty(this->CurrentProperty);
+      }
+      actor->SetOrientation(this->CurrentTransform->GetOrientation());
+      actor->SetPosition(this->CurrentTransform->GetPosition());
+      actor->SetScale(this->CurrentTransform->GetScale());
+      if (this->CurrentActor)
+      {
+        this->CurrentActor->Delete();
+      }
+      this->CurrentActor = actor;
+      this->Renderer->AddActor(actor);
+      this->ActorCollection->AddItem(actor);
     }
   }
 }

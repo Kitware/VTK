@@ -32,12 +32,12 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkVRMLUseStruct
 {
 public:
-  vtkVRMLUseStruct(char* n, vtkObject* o)
+  vtkVRMLUseStruct(const char* n, vtkObject* o)
   {
     defName = n;
     defObject = o;
   }
-  char* defName;
+  const char* defName;
   vtkObject* defObject;
 
   void* operator new(size_t n) { return vtkVRMLAllocator::AllocateMemory(n); }

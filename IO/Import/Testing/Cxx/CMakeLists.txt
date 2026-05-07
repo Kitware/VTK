@@ -114,7 +114,15 @@ endif ()
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
   TestVRMLNormals.cxx
-  )
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests NO_SERDES
+  TestVRMLNodesPlayground,TestVRMLNodes.cxx DATA{../../../../Testing/Data/Playground.wrl} 0 20 -1 0 0 -2 7.5
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests NO_SERDES
+  TestVRMLNodesKiCAD,TestVRMLNodes.cxx DATA{../../../../Testing/Data/KiCADExport.wrl} 0.0815 -0.06 1 0.0815 -0.06 0 0.02
+)
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} 0 -1 1 0 0 0
