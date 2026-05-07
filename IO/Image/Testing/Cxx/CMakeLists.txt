@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestMetaIO.cxx
   TestImportExport.cxx
   TestHDRReaderInvalidFileHandling.cxx
+  TestBMPReaderInvalidFileHandling.cxx
   )
 
 # Each of these must be added in a separate vtk_add_test_cxx
