@@ -12,10 +12,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
-#include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
 int TestRadVizChartDataSet(int argc, char** argv)

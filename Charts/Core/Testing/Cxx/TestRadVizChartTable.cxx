@@ -13,7 +13,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
-#include "vtkXMLTableWriter.h"
+// #include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
 int TestRadVizChartTable(int argc, char** argv)
@@ -31,10 +31,10 @@ int TestRadVizChartTable(int argc, char** argv)
 
   // Create a table with some points in it...
   vtkSmartPointer<vtkTable> table = ::CreateDummyData();
-  vtkNew<vtkXMLTableWriter> tableWriter;
-  tableWriter->SetFileName("table.vtt");
-  tableWriter->SetInputDataObject(table);
-  tableWriter->Write();
+  // vtkNew<vtkXMLTableWriter> tableWriter;
+  // tableWriter->SetFileName("table.vtt");
+  // tableWriter->SetInputDataObject(table);
+  // tableWriter->Write();
 
   // Add a RadViz plot
   vtkPlot* plot = chart->AddPlot(0);
