@@ -293,11 +293,15 @@ bool vtkSTLReader::ReadBinarySTL(
     vtkByteSwap::Swap4LE(facet.n);
     vtkByteSwap::Swap4LE(facet.n + 1);
     vtkByteSwap::Swap4LE(facet.n + 2);
-    if (!std::isfinite(facet.n[0]) || !std::isfinite(facet.n[1]) || !std::isfinite(facet.n[2]))
+    if (!this->GetRelaxedConformance()) // If not relaxed, enforce normal vector to be finite.
     {
-      vtkErrorMacro("Normal vector non-finite.");
-      return false;
+      if (!std::isfinite(facet.n[0]) || !std::isfinite(facet.n[1]) || !std::isfinite(facet.n[2]))
+      {
+        vtkErrorMacro("Normal vector non-finite.");
+        return false;
+      }
     }
+    // else we could compute the normal vector from the vertices, but it is not even used here.
 
     vtkByteSwap::Swap4LE(facet.v1);
     vtkByteSwap::Swap4LE(facet.v1 + 1);
