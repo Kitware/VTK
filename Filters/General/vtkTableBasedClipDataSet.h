@@ -159,19 +159,39 @@ public:
   vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
   ///@}
 
+  /**
+   * PointType enum can be used to flag point origin.
+   * Typically, those values are used in PointTypes array.
+   *
+   * @see GenerateClipPointTypes(), GetPointTypesArrayName()
+   */
+  enum PointTypes
+  {
+    InputPoint = 0,
+    EdgePoint = 1,
+    CentroidPoint = 2
+  };
+
   ///@{
   /**
-   * Set/Get whether to generate the class of output points.
-   * 0 -> input point
-   * 1 -> edge point
-   * 2 -> centroid point
-   *
+   * Set/Get whether to generate an array with the class of output points.
    * Default is false.
+   *
+   * If true, an array is created containing PointTypes values,
+   * and named according to GetPointTypesArrayName().
+   *
+   * @see GetPointTypesArrayName(), PointTypes.
    */
   vtkSetMacro(GenerateClipPointTypes, bool);
   vtkGetMacro(GenerateClipPointTypes, bool);
   vtkBooleanMacro(GenerateClipPointTypes, bool);
   ///@}
+
+  /**
+   * Return the array name used classify the points from their origin.
+   * @see SetGenerateClipPointTypes(), PointTypes
+   */
+  static const char* GetPointTypesArrayName() { return "vtkClipPointTypes"; }
 
   ///@{
   /**
