@@ -15,6 +15,7 @@
 #include "vtkIndexedArray.h"
 #include "vtkLogger.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkSetGet.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -721,16 +722,19 @@ void vtkDataObjectMeshCache::ForwardAttributes(
 
   outAttribute->CopyAllOn();
   outAttribute->CopyAllocate(inAttribute);
+  outAttribute->SetNumberOfTuples(cacheAttribute->GetNumberOfTuples());
 
   // NOTE potential optimization:
   // this copy may be replaced by an use of SMPTools (or optionally the implicit vtkIndexedArray?)
   auto ptsIdsRange = vtk::DataArrayValueRange(originalIds);
-  vtkIdType outId = 0;
-  for (auto originalId : ptsIdsRange)
-  {
-    outAttribute->CopyData(inAttribute, originalId, outId);
-    outId++;
-  }
+  vtkSMPTools::For(0, outAttribute->GetNumberOfTuples(),
+    [&](vtkIdType startId, vtkIdType endId)
+    {
+      for (auto id = startId; id < endId; id++)
+      {
+        outAttribute->CopyData(inAttribute, ptsIdsRange[id], id);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
