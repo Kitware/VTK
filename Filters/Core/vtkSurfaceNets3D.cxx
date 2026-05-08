@@ -2269,10 +2269,8 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
     // before smoothing.
     vtkImageTransform::TransformPointSet(input, output);
 
-    // For now let's stash the data. If caching is disabled, we'll flush it
-    // at the end.
+    // For now let's stash the data. If caching is disabled, we'll flush it at the end.
     this->CacheData(output, stencils);
-
   } // Extract boundary geometry
 
   // If smoothing is to occur, then do it now. It has to be done after image
@@ -2292,8 +2290,7 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    output->CopyStructure(this->GeometryCache);
-    output->GetCellData()->PassData(this->GeometryCache->GetCellData());
+    output->ShallowCopy(this->GeometryCache);
   }
   this->SmoothingTime.Modified();
 
@@ -2324,8 +2321,7 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
   // Flush the cache if caching is disabled.
   if (!this->DataCaching)
   {
-    this->GeometryCache = nullptr;
-    this->StencilsCache = nullptr;
+    this->CacheData(nullptr, nullptr);
   }
 
   return 1;
@@ -2340,13 +2336,8 @@ bool vtkSurfaceNets3D::IsCacheEmpty()
 //------------------------------------------------------------------------------
 void vtkSurfaceNets3D::CacheData(vtkPolyData* pd, vtkCellArray* stencils)
 {
-  if (this->DataCaching)
-  {
-    this->GeometryCache->CopyStructure(pd);
-    this->GeometryCache->GetCellData()->PassData(pd->GetCellData());
-
-    this->StencilsCache = stencils;
-  }
+  this->GeometryCache = pd;
+  this->StencilsCache = stencils;
 }
 
 //------------------------------------------------------------------------------
