@@ -20,6 +20,7 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::FiltersCore
   VTK::FiltersSources
+  VTK::FiltersModeling
   VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOImage

@@ -20,7 +20,7 @@
  *      Cone                                    Shape
  *      Coordinate                              Sphere
  *      Cylinder                                Transform
- *      DirectionalLight
+ *      DirectionalLight                        Extrusion
  *
  * @warning
  * As you can see this implementation focuses on getting the geometry
@@ -64,6 +64,7 @@ class vtkIdTypeArray;
 class vtkVRMLImporterInternal;
 class vtkVRMLYaccData;
 class vtkCellArray;
+class vtkPolyData;
 
 class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
 {
@@ -141,6 +142,7 @@ private:
   vtkVRMLYaccData* Parser;
   vtkActor* CurrentActor;
   vtkProperty* CurrentProperty;
+  vtkSmartPointer<vtkPolyData> CurrentPoly;
   vtkLight* CurrentLight;
   vtkTransform* CurrentTransform;
   vtkAlgorithm* CurrentSource;
@@ -152,6 +154,20 @@ private:
   vtkLookupTable* CurrentLut;
   vtkFloatArray* CurrentScalars;
   vtkPolyDataMapper* CurrentMapper;
+  struct ExtrusionOptions
+  {
+    bool beginCap;
+    bool endCap;
+  } CurrenExtrusionOptions;
+  struct TransformOptions
+  {
+    double scale[3];
+    float rotation[4];
+    double translation[3];
+    bool scaleSet;
+    bool rotationSet;
+    bool translationSet;
+  } CurrentTransformOptions;
 
   vtkVRMLImporter(const vtkVRMLImporter&) = delete;
   void operator=(const vtkVRMLImporter&) = delete;
