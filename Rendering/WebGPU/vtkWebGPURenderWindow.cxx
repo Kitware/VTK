@@ -180,7 +180,7 @@ void vtkWebGPURenderWindow::CreateSurface()
 #elif _WIN32
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
+    wgpu::SurfaceSourceWindowsHWND winSurfDesc;
     winSurfDesc.hwnd = win32hw->GetWindowId();
     winSurfDesc.hinstance = win32hw->GetApplicationInstance();
     wgpu::SurfaceDescriptor surfDesc = {};
@@ -191,7 +191,7 @@ void vtkWebGPURenderWindow::CreateSurface()
 #elif defined VTK_USE_Wayland
   if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    wgpu::SurfaceDescriptorFromWaylandSurface waylandSurfDesc;
+    wgpu::SurfaceSourceWaylandSurface waylandSurfDesc;
     waylandSurfDesc.surface = waylandhw->GetWindowId();
     waylandSurfDesc.display = waylandhw->GetDisplayId();
     wgpu::SurfaceDescriptor surfDesc = {};
@@ -202,7 +202,7 @@ void vtkWebGPURenderWindow::CreateSurface()
 #elif defined __APPLE__
   if (auto* cocoahw = vtkCocoaHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    wgpu::SurfaceDescriptorFromMetalLayer metalSurfDesc;
+    wgpu::SurfaceSourceMetalLayer metalSurfDesc;
     metalSurfDesc.layer = cocoahw->GetMetalLayer();
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Cocoa surface";
@@ -213,7 +213,7 @@ void vtkWebGPURenderWindow::CreateSurface()
   if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     xlibhw->SetWindowName("VTK Xlib window");
-    wgpu::SurfaceDescriptorFromXlibWindow xlibSurfDesc;
+    wgpu::SurfaceSourceXlibWindow xlibSurfDesc;
     xlibSurfDesc.display = xlibhw->GetDisplayId();
     xlibSurfDesc.window = xlibhw->GetWindowId();
     wgpu::SurfaceDescriptor surfDesc = {};
