@@ -30,13 +30,13 @@ Here, `VTK_SOURCE_DIR` is the path to the root of the VTK source directory, and 
 
 #### Build Dawn from source
 
-Dawn should be built at tag [v20251002.162335](https://github.com/google/dawn/tree/v20251002.162335).
+Dawn should be built at tag [v20260421.125655](https://github.com/google/dawn/tree/v20260421.125655).
 Here, `DAWN_INSTALL_DIR` should point to the directory where Dawn is installed (should contain `lib` and `include` directories).
 
 ```sh
 # Clone the repo and checkout the required version
 git clone https://github.com/google/dawn dawn && cd dawn
-git checkout v20251002.162335
+git checkout v20260421.125655
 cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
 cmake --build out/Debug
 cmake --install out/Debug --prefix ${DAWN_INSTALL_DIR}
