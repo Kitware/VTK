@@ -28,7 +28,16 @@
 
 #include <viskores/filter/clean_grid/CleanGrid.h>
 
+// clang-format off
+#if __has_include(VTK_FIDES(fides/DataContainer.h))
+#define VTK_FIDES_HAS_DATA_CONTAINER 1
+#else
+#define VTK_FIDES_HAS_DATA_CONTAINER 0
+#endif
+// clang-format on
+
 #include <numeric>
+#include <stdexcept>
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -302,6 +311,19 @@ int vtkFidesReader::RequestDataObject(
   return 1;
 }
 
+namespace
+{
+#if VTK_FIDES_HAS_DATA_CONTAINER
+bool IsPointField(fides::FieldAssociation association);
+bool IsCellField(fides::FieldAssociation association);
+bool IsWholeDataSetField(fides::FieldAssociation association);
+#else
+bool IsPointField(viskores::cont::Field::Association association);
+bool IsCellField(viskores::cont::Field::Association association);
+bool IsWholeDataSetField(viskores::cont::Field::Association association);
+#endif
+}
+
 int vtkFidesReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -438,17 +460,17 @@ int vtkFidesReader::RequestInformation(
         fides::keys::FIELDS());
       for (auto& field : fields.Data)
       {
-        if (field.Association == viskores::cont::Field::Association::Points)
+        if (IsPointField(field.Association))
         {
           groupMetaData.PointDataArrays.insert(field.Name);
           this->PointDataArraySelection->AddArray(field.Name.c_str());
         }
-        else if (field.Association == viskores::cont::Field::Association::Cells)
+        else if (IsCellField(field.Association))
         {
           groupMetaData.CellDataArrays.insert(field.Name);
           this->CellDataArraySelection->AddArray(field.Name.c_str());
         }
-        else if (field.Association == viskores::cont::Field::Association::WholeDataSet)
+        else if (IsWholeDataSetField(field.Association))
         {
           groupMetaData.FieldDataArrays.insert(field.Name);
           this->FieldDataArraySelection->AddArray(field.Name.c_str());
@@ -503,6 +525,79 @@ int vtkFidesReader::RequestInformation(
 
 namespace
 {
+#if VTK_FIDES_HAS_DATA_CONTAINER
+bool IsPointField(fides::FieldAssociation association)
+{
+  return association == fides::FieldAssociation::Points;
+}
+
+bool IsCellField(fides::FieldAssociation association)
+{
+  return association == fides::FieldAssociation::Cells;
+}
+
+bool IsWholeDataSetField(fides::FieldAssociation association)
+{
+  return association == fides::FieldAssociation::WholeDataSet;
+}
+
+fides::metadata::FieldInformation MakeFieldInformation(
+  const std::string& name, viskores::cont::Field::Association association)
+{
+  switch (association)
+  {
+    case viskores::cont::Field::Association::Points:
+      return fides::metadata::FieldInformation(name, fides::FieldAssociation::Points);
+    case viskores::cont::Field::Association::Cells:
+      return fides::metadata::FieldInformation(name, fides::FieldAssociation::Cells);
+    case viskores::cont::Field::Association::WholeDataSet:
+      return fides::metadata::FieldInformation(name, fides::FieldAssociation::WholeDataSet);
+    default:
+      throw std::runtime_error("Unsupported Viskores field association.");
+  }
+}
+
+viskores::cont::PartitionedDataSet ReadViskoresDataSet(fides::io::DataSetReader& reader,
+  const std::unordered_map<std::string, std::string>& paths,
+  const fides::metadata::MetaData& selections)
+{
+  auto data = reader.ReadDataSet(paths, selections, fides::DataSetType::Viskores);
+  if (!data)
+  {
+    throw std::runtime_error("Fides did not return a Viskores dataset.");
+  }
+  return fides::GetAsViskoresPDS(*data);
+}
+#else
+bool IsPointField(viskores::cont::Field::Association association)
+{
+  return association == viskores::cont::Field::Association::Points;
+}
+
+bool IsCellField(viskores::cont::Field::Association association)
+{
+  return association == viskores::cont::Field::Association::Cells;
+}
+
+bool IsWholeDataSetField(viskores::cont::Field::Association association)
+{
+  return association == viskores::cont::Field::Association::WholeDataSet;
+}
+
+fides::metadata::FieldInformation MakeFieldInformation(
+  const std::string& name, viskores::cont::Field::Association association)
+{
+  return fides::metadata::FieldInformation(name, association);
+}
+
+viskores::cont::PartitionedDataSet ReadViskoresDataSet(fides::io::DataSetReader& reader,
+  const std::unordered_map<std::string, std::string>& paths,
+  const fides::metadata::MetaData& selections)
+{
+  return reader.ReadDataSet(paths, selections);
+}
+#endif
+
 fides::metadata::Vector<size_t> DetermineBlocksToRead(int nBlocks, int nPieces, int piece)
 {
   int startPiece, endPiece;
@@ -728,7 +823,8 @@ int vtkFidesReader::RequestData(
       if (this->PointDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global point data array selection.
-        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::Points);
+        arraySelection.Data.emplace_back(
+          MakeFieldInformation(aname, viskores::cont::Field::Association::Points));
       }
     }
     for (const auto& aname : groupMetaData.CellDataArrays)
@@ -736,7 +832,8 @@ int vtkFidesReader::RequestData(
       if (this->CellDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global cell data array selection.
-        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::Cells);
+        arraySelection.Data.emplace_back(
+          MakeFieldInformation(aname, viskores::cont::Field::Association::Cells));
       }
     }
     for (const auto& aname : groupMetaData.FieldDataArrays)
@@ -744,7 +841,8 @@ int vtkFidesReader::RequestData(
       if (this->FieldDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global field data array selection.
-        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::WholeDataSet);
+        arraySelection.Data.emplace_back(
+          MakeFieldInformation(aname, viskores::cont::Field::Association::WholeDataSet));
       }
     }
     selections.Set(fides::keys::FIELDS(), arraySelection);
@@ -753,7 +851,7 @@ int vtkFidesReader::RequestData(
     try
     {
       vtkDebugMacro(<< "RequestData() calling ReadDataSet");
-      datasets = this->Impl->Reader->ReadDataSet(this->Impl->Paths, selections);
+      datasets = ReadViskoresDataSet(*this->Impl->Reader, this->Impl->Paths, selections);
       if (this->StreamSteps)
       {
         this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);

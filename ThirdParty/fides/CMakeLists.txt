@@ -16,7 +16,7 @@ vtk_module_third_party(
     INTERFACE
   EXTERNAL
     PACKAGE                 Fides
-    TARGETS                 fides
+    TARGETS                 fides::fides fides
     STANDARD_INCLUDE_DIRS
   )
 
