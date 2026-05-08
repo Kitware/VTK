@@ -116,9 +116,13 @@
  * difference is that concepts from the Flying Edges parallel isocontouring
  * algorithm are used. Namely, parallel, edge-by-edge processing is used to
  * define cell cases, generate smoothing stencils, and produce points and
- * output polygons. Plus the constrained smoothing process is also threaded
- * using a double-buffering approach. For more information on Flying Edges
- * see the paper:
+ * output polygons. This implementation also includes additional
+ * SurfaceNets-specific optimizations beyond a typical Flying Edges pipeline
+ * (for example, an auxiliary prepass that builds point-generating x-indices
+ * within each x-row to accelerate output generation).
+ * Plus the constrained smoothing process is also threaded using a
+ * double-buffering approach. For more information on Flying Edges see the
+ * paper:
  *
  * "Flying Edges: A High-Performance Scalable Isocontouring Algorithm" by
  * Schroeder, Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
