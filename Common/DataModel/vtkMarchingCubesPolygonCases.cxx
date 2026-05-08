@@ -13,7 +13,7 @@ vtkMarchingCubesPolygonCases* vtkMarchingCubesPolygonCases::GetCases()
   // Since the old API returned a pointer to a struct,
   // we cast the new unified array back to the old struct type.
   return reinterpret_cast<vtkMarchingCubesPolygonCases*>(
-    const_cast<vtkMarchingCellsContourCases::HexahedronWithPolygonCase*>(
-      vtkMarchingCellsContourCases::GetHexahedronWithPolygonCases()));
+    const_cast<vtkMarchingCellsContourCases::HexahedronCaseWithPolygons*>(
+      vtkMarchingCellsContourCases::GetHexahedronCasesWithPolygons()));
 }
 VTK_ABI_NAMESPACE_END

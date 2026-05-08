@@ -17,15 +17,6 @@
  * the method SetValue() to specify each contour value, or use
  * GenerateValues() to generate a series of evenly spaced contours.
  *
- * The filter performance varies depending on optional output
- * information. Basically if point merging is required (when PointMerging,
- * InterpolateAttributes, and/or ComputeNormals is enabled), a sorting
- * process is required to eliminate duplicate output points in the
- * isosurface. Otherwise when point merging is not required, a fast path
- * process produces independent triangles representing the isosurface. In
- * many situations the results of the fast path are quite good and do not
- * require additional processing.
- *
  * Note that another performance option exists, using a vtkScalarTree, which
  * is an object that accelerates isosurface extraction, at the initial cost
  * of building the scalar tree. (This feature is useful for exploratory
@@ -41,15 +32,6 @@
  * output of this filter is then a composite data set (same as input) containing
  * multiple vtkPolyData. When a vtkUnstructuredGrid is provided as input the
  * output is a single vtkPolyData.
- *
- * @warning
- * The fast path simply produces output points and triangles (the fast path
- * executes when MergePoints if off; InterpolateAttributes is off; and
- * ComputeNormals is off). Since the fast path does not merge points, it
- * produces many more output points, typically on the order of 5-6x more than
- * when MergePoints is enabled. Adding in the other options point merging,
- * field interpolation, and normal generation results in additional
- * performance impacts. By default the fast path is enabled.
  *
  * @warning
  * When a vtkCompositeDataSet is provided as input, and UseScalarTree is
@@ -103,6 +85,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
@@ -144,9 +127,14 @@ public:
    * produces fewer output points, creating a "watertight" contour
    * surface. By default this is off.
    */
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
   vtkSetMacro(MergePoints, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
   vtkGetMacro(MergePoints, vtkTypeBool);
-  vtkBooleanMacro(MergePoints, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  virtual void SetMergePointsOn();
+  VTK_DEPRECATED_IN_9_7_0("No longer needed, points are always merged")
+  virtual void SetMergePointsOff();
   ///@}
 
   ///@{
@@ -232,6 +220,18 @@ public:
   vtkBooleanMacro(SequentialProcessing, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * If enabled (the default), output polygons are fan-triangulated.
+   * If disabled, VTK_POLYHEDRON isosurface polygons are output directly
+   * as polygons rather than triangles. This only affects VTK_POLYHEDRON
+   * cells; linear cell output is always triangulated.
+   */
+  vtkSetMacro(GenerateTriangles, vtkTypeBool);
+  vtkGetMacro(GenerateTriangles, vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
+  ///@}
+
   /**
    *  Return the number of threads actually used during execution. This is
    *  valid only after algorithm execution.
@@ -266,6 +266,7 @@ protected:
   vtkTypeBool InterpolateAttributes;
   vtkTypeBool ComputeNormals;
   vtkTypeBool ComputeScalars;
+  vtkTypeBool GenerateTriangles;
   vtkTypeBool SequentialProcessing;
   int NumberOfThreadsUsed;
   bool LargeIds; // indicate whether integral ids are large(==true) or not

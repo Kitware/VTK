@@ -5,7 +5,7 @@
  * @class   vtkCPExodusIIInSituReader
  * @brief   Read an Exodus II file into data structures
  * that map the raw arrays returned by the Exodus II library into a multi-block
- * data set containing vtkUnstructuredGridBase subclasses.
+ * data set containing vtkUnstructuredGrids.
  *
  *
  * This class can be used to import Exodus II files into VTK without repacking

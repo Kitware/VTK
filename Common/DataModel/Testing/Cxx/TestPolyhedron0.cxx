@@ -61,12 +61,12 @@ int TestPolyhedron0(int argc, char* argv[])
   vtkIdType pointIds[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
   vtkSmartPointer<vtkCellArray> faces = vtkSmartPointer<vtkCellArray>::New();
-  vtkIdType face0[4] = { 0, 2, 6, 4 };
-  vtkIdType face1[4] = { 1, 3, 7, 5 };
-  vtkIdType face2[4] = { 0, 1, 3, 2 };
-  vtkIdType face3[4] = { 4, 5, 7, 6 };
-  vtkIdType face4[4] = { 0, 1, 5, 4 };
-  vtkIdType face5[4] = { 2, 3, 7, 6 };
+  vtkIdType face0[4] = { 0, 4, 6, 2 }; // -X
+  vtkIdType face1[4] = { 1, 3, 7, 5 }; // +X
+  vtkIdType face2[4] = { 0, 2, 3, 1 }; // -Z
+  vtkIdType face3[4] = { 4, 5, 7, 6 }; // +Z
+  vtkIdType face4[4] = { 0, 1, 5, 4 }; // -Y
+  vtkIdType face5[4] = { 2, 6, 7, 3 }; // +Y
   faces->InsertNextCell(4, face0);
   faces->InsertNextCell(4, face1);
   faces->InsertNextCell(4, face2);

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" font-family="sans-serif" font-size="11">
+<style>.grid{stroke:#ddd;stroke-width:1}.axis{stroke:#222;stroke-width:1.2}.tick{stroke:#666}.lbl{fill:#222}.t{fill:#444;font-size:10px}</style>
+<rect x="80" y="30" width="590" height="300" fill="white" stroke="#222"/>
+<line class="grid" x1="148.3" y1="30" x2="148.3" y2="330"/>
+<text class="t" x="148.3" y="344" text-anchor="middle">1M</text>
+<line class="grid" x1="216.5" y1="30" x2="216.5" y2="330"/>
+<text class="t" x="216.5" y="344" text-anchor="middle">2M</text>
+<line class="grid" x1="306.7" y1="30" x2="306.7" y2="330"/>
+<text class="t" x="306.7" y="344" text-anchor="middle">5M</text>
+<line class="grid" x1="375.0" y1="30" x2="375.0" y2="330"/>
+<text class="t" x="375.0" y="344" text-anchor="middle">10M</text>
+<line class="grid" x1="443.3" y1="30" x2="443.3" y2="330"/>
+<text class="t" x="443.3" y="344" text-anchor="middle">20M</text>
+<line class="grid" x1="533.5" y1="30" x2="533.5" y2="330"/>
+<text class="t" x="533.5" y="344" text-anchor="middle">50M</text>
+<line class="grid" x1="601.7" y1="30" x2="601.7" y2="330"/>
+<text class="t" x="601.7" y="344" text-anchor="middle">100M</text>
+<line class="grid" x1="670.0" y1="30" x2="670.0" y2="330"/>
+<text class="t" x="670.0" y="344" text-anchor="middle">200M</text>
+<line class="grid" x1="80" y1="330.0" x2="670" y2="330.0"/>
+<text class="t" x="74" y="333.0" text-anchor="end">10ms</text>
+<line class="grid" x1="80" y1="282.3" x2="670" y2="282.3"/>
+<text class="t" x="74" y="285.3" text-anchor="end">30ms</text>
+<line class="grid" x1="80" y1="230.0" x2="670" y2="230.0"/>
+<text class="t" x="74" y="233.0" text-anchor="end">100ms</text>
+<line class="grid" x1="80" y1="182.3" x2="670" y2="182.3"/>
+<text class="t" x="74" y="185.3" text-anchor="end">300ms</text>
+<line class="grid" x1="80" y1="130.0" x2="670" y2="130.0"/>
+<text class="t" x="74" y="133.0" text-anchor="end">1s</text>
+<line class="grid" x1="80" y1="82.3" x2="670" y2="82.3"/>
+<text class="t" x="74" y="85.3" text-anchor="end">3s</text>
+<line class="grid" x1="80" y1="30.0" x2="670" y2="30.0"/>
+<text class="t" x="74" y="33.0" text-anchor="end">10s</text>
+<text class="lbl" x="375.0" y="372" text-anchor="middle">Input cells (millions, log scale)</text>
+<text class="lbl" x="14" y="180.0" text-anchor="middle" transform="rotate(-90 14,180.0)">Time (log scale)</text>
+<polyline points="148.3,304.5 353.0,234.6 472.8,193.8 557.8,163.4 623.7,141.9" fill="none" stroke="#1f77b4" stroke-width="2"/>
+<circle cx="148.3" cy="304.5" r="3.5" fill="#1f77b4"/>
+<circle cx="353.0" cy="234.6" r="3.5" fill="#1f77b4"/>
+<circle cx="472.8" cy="193.8" r="3.5" fill="#1f77b4"/>
+<circle cx="557.8" cy="163.4" r="3.5" fill="#1f77b4"/>
+<circle cx="623.7" cy="141.9" r="3.5" fill="#1f77b4"/>
+<polyline points="148.3,309.6 353.0,241.9 472.8,199.9 557.8,166.2 623.7,144.3" fill="none" stroke="#2ca02c" stroke-width="2"/>
+<circle cx="148.3" cy="309.6" r="3.5" fill="#2ca02c"/>
+<circle cx="353.0" cy="241.9" r="3.5" fill="#2ca02c"/>
+<circle cx="472.8" cy="199.9" r="3.5" fill="#2ca02c"/>
+<circle cx="557.8" cy="166.2" r="3.5" fill="#2ca02c"/>
+<circle cx="623.7" cy="144.3" r="3.5" fill="#2ca02c"/>
+<polyline points="148.3,270.9 353.0,181.0 472.8,126.8 557.8,87.6 623.7,58.6" fill="none" stroke="#d62728" stroke-width="2"/>
+<circle cx="148.3" cy="270.9" r="3.5" fill="#d62728"/>
+<circle cx="353.0" cy="181.0" r="3.5" fill="#d62728"/>
+<circle cx="472.8" cy="126.8" r="3.5" fill="#d62728"/>
+<circle cx="557.8" cy="87.6" r="3.5" fill="#d62728"/>
+<circle cx="623.7" cy="58.6" r="3.5" fill="#d62728"/>
+<line x1="470" y1="42" x2="490" y2="42" stroke="#1f77b4" stroke-width="2"/>
+<circle cx="480" cy="42" r="3.5" fill="#1f77b4"/>
+<text class="t" x="496" y="45">Contour GT=ON</text>
+<line x1="470" y1="60" x2="490" y2="60" stroke="#2ca02c" stroke-width="2"/>
+<circle cx="480" cy="60" r="3.5" fill="#2ca02c"/>
+<text class="t" x="496" y="63">Contour GT=OFF</text>
+<line x1="470" y1="78" x2="490" y2="78" stroke="#d62728" stroke-width="2"/>
+<circle cx="480" cy="78" r="3.5" fill="#d62728"/>
+<text class="t" x="496" y="81">Clip y=mid</text>
+<line x1="148.3" y1="304.5" x2="670.0" y2="74.4" stroke="#888" stroke-width="1" stroke-dasharray="3,3"/>
+<text class="t" x="579.8" y="117.2" fill="#888">linear (slope=1)</text>
+</svg>

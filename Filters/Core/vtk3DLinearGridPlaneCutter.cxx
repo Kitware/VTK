@@ -1,34 +1,30 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtk3DLinearGridPlaneCutter.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchDataSetArrayList.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkContour3DLinearGrid.h"
 #include "vtkFloatArray.h"
-#include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
-#include "vtkMarchingCellsContourCases.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
-#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtk3DLinearGridPlaneCutter);
@@ -75,743 +71,6 @@ vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter, Plane, vtkPlane);
 
 namespace
 {
-
-//========================= Compute edge intersections ========================
-// Use vtkStaticEdgeLocatorTemplate for edge-based point merging.
-template <typename IDType>
-struct EdgeDataType
-{
-  float T;
-  IDType EId;
-};
-
-template <typename IDType>
-struct ExtractEdges
-{
-  using EdgeTupleType = EdgeTuple<IDType, float>;
-
-  // Track local data on a per-thread basis. In the Reduce() method this
-  // information will be used to composite the data from each thread.
-  struct LocalDataType
-  {
-    std::vector<EdgeTupleType> LocalEdges;
-    std::vector<IDType> LocalCells; // size is LocalEdges.size / 3
-    vtkSmartPointer<vtkIdList> LocalPointIds;
-
-    LocalDataType() { this->LocalEdges.reserve(2048); }
-  };
-
-  vtkUnstructuredGrid* Input;
-  EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
-  IDType* Cells;
-  const unsigned char* InOut;
-  const double* Distance;
-  vtkCellArray* Tris;
-  const bool ComputeCells;
-  vtkIdType NumTris;
-  int NumThreadsUsed;
-  double Origin[3];
-  double Normal[3];
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  // Keep track of generated points and triangles on a per thread basis
-  vtkSMPThreadLocal<LocalDataType> LocalData;
-
-  ExtractEdges(vtkUnstructuredGrid* input, vtkPlane* plane, unsigned char* inout, double* distance,
-    vtkCellArray* tris, bool computeCells, vtk3DLinearGridPlaneCutter* filter)
-    : Input(input)
-    , Edges(nullptr)
-    , Cells(nullptr)
-    , InOut(inout)
-    , Distance(distance)
-    , Tris(tris)
-    , ComputeCells(computeCells)
-    , NumTris(0)
-    , NumThreadsUsed(0)
-    , Filter(filter)
-  {
-    plane->GetNormal(this->Normal);
-    plane->GetOrigin(this->Origin);
-  }
-
-  // Set up the iteration process
-  void Initialize()
-  {
-    auto& localData = this->LocalData.Local();
-    localData.LocalPointIds = vtkSmartPointer<vtkIdList>::New();
-  }
-
-  // Composite local thread data
-  void Reduce()
-  {
-    // Count the number of triangles, and number of threads used.
-    vtkIdType numTris = 0;
-    this->NumThreadsUsed = 0;
-    for (const auto& ld : this->LocalData)
-    {
-      numTris += static_cast<vtkIdType>(ld.LocalEdges.size() / 3); // three edges per triangle
-      this->NumThreadsUsed++;
-    }
-
-    // Allocate space for VTK triangle output.
-    this->NumTris = numTris;
-    this->Tris->ResizeExact(this->NumTris, 3 * this->NumTris);
-
-    // Copy local edges to global edge array. Add in the originating edge id
-    // and the original cell id used later when merging.
-    const IDType edgeSize = this->NumTris * 3;
-    const IDType cellSize = this->ComputeCells ? this->NumTris : 0;
-    this->Edges = new EdgeTuple<IDType, EdgeDataType<IDType>>[edgeSize]; // three edges per triangle
-    if (cellSize > 0)
-    {
-      this->Cells = new IDType[cellSize];
-    }
-
-    vtkIdType edgeNum = 0;
-    for (auto& ld : this->LocalData)
-    {
-      vtkIdType cellNum = edgeNum / 3;
-      for (const auto& lc : ld.LocalCells)
-      {
-        this->Cells[cellNum] = lc;
-        cellNum++;
-      }
-      for (const auto& le : ld.LocalEdges)
-      {
-        this->Edges[edgeNum].V0 = le.V0;
-        this->Edges[edgeNum].V1 = le.V1;
-        this->Edges[edgeNum].Data.T = le.Data;
-        this->Edges[edgeNum].Data.EId = edgeNum;
-        edgeNum++;
-      }
-      std::vector<IDType>().swap(ld.LocalCells); // frees memory
-      std::vector<EdgeTupleType>().swap(ld.LocalEdges);
-    } // For all threads
-  }   // Reduce
-
-  // Check if a list of points intersects the plane
-  static bool PlaneIntersects(const unsigned char* inout, vtkIdType npts, const vtkIdType* pts)
-  {
-    unsigned char onOneSideOfPlane = inout[pts[0]];
-    for (vtkIdType i = 1; onOneSideOfPlane && i < npts; ++i)
-    {
-      onOneSideOfPlane &= inout[pts[i]];
-    }
-    return (!onOneSideOfPlane);
-  }
-
-  // operator() method extracts edges from cells (edges taken three at a
-  // time form a triangle)
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
-  {
-    auto& localData = this->LocalData.Local();
-    auto& lEdges = localData.LocalEdges;
-    auto& lCells = localData.LocalCells;
-    auto& lPointIds = localData.LocalPointIds;
-    vtkIdType npts, i;
-    const vtkIdType* pts = nullptr;
-    double s[8];
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
-
-    for (; cellId < endCellId; ++cellId)
-    {
-      if (cellId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      int cellType = this->Input->GetCellType(cellId);
-      if (cellType < VTK_TETRA || cellType > VTK_PYRAMID)
-      {
-        continue;
-      }
-      // Does the plane cut this cell?
-      this->Input->GetCellPoints(cellId, npts, pts, lPointIds);
-      if (ExtractEdges::PlaneIntersects(this->InOut, npts, pts))
-      {
-        uint8_t isoCase;
-        // Compute case by repeated masking with function value
-        for (isoCase = 0, i = 0; i < npts; ++i)
-        {
-          s[i] = this->Distance[pts[i]];
-          isoCase |= (s[i] >= 0.0) << i;
-        }
-
-        auto cellEdges = vtkMarchingCellsContourCases::GetCellEdges(cellType);
-        auto edges = vtkMarchingCellsContourCases::GetCellCase(cellType, isoCase);
-        for (; edges[0] > -1; edges += 3)
-        {
-          for (int edgeId = 0; edgeId < 3; edgeId++)
-          {
-            const auto& vert = cellEdges[edges[edgeId]];
-            const auto& v0 = vert[0];
-            const auto& v1 = vert[1];
-            double deltaScalar = s[v1] - s[v0];
-            // the t here is computed for each edges of each cell
-            // so it is computed twice for most edges.
-            // This could be improved by deferring the computation
-            // of t to the last moment (when we are producing points / attributes)
-            // This way, we should be able to compute t only once per output edge.
-            double t = (deltaScalar == 0.0 ? 0.0 : (-s[v0] / deltaScalar));
-            t = (pts[v0] < pts[v1] ? t : (1.0 - t));  // edges (v0,v1) must have v0<v1
-            lEdges.emplace_back(pts[v0], pts[v1], t); // edge constructor may swap v0<->v1
-          }                                           // for all edges in this triangle
-          // cell info
-          if (this->ComputeCells)
-          {
-            lCells.emplace_back(cellId);
-          }
-        } // for all triangles in this case
-      }   // if plane intersects
-    }     // for all cells in this batch
-  }
-}; // ExtractEdges
-
-// Produce points for non-merged points from input edge tuples. Every edge
-// produces one point; three edges in a row form a triangle. The merge edges
-// contain an interpolation parameter t used to interpolate point coordinates.
-// into the final VTK points array. The template parameters correspond to the
-// type of input and output points.
-template <typename TPArrayIn, typename TPArrayOut, typename IDType>
-struct ProducePointsFunctor
-{
-  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
-
-  TPArrayIn* InPts;
-  TPArrayOut* OutPts;
-  const MergeTupleType* Edges;
-  const double* Distance;
-  const double* Normal;
-  vtk3DLinearGridPlaneCutter* Filter;
-  using TIP = vtk::GetAPIType<TPArrayIn>;
-
-  ProducePointsFunctor(TPArrayIn* inPts, TPArrayOut* outPts, const MergeTupleType* mt,
-    double* distance, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
-    : InPts(inPts)
-    , OutPts(outPts)
-    , Edges(mt)
-    , Distance(distance)
-    , Normal(plane->GetNormal())
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-    auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
-    auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
-    for (; ptId < endPtId; ++ptId)
-    {
-      if (ptId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      const MergeTupleType& mergeTuple = this->Edges[ptId];
-      const auto x0 = inPts[mergeTuple.V0];
-      const auto x1 = inPts[mergeTuple.V1];
-      double d0 = this->Distance[mergeTuple.V0];
-      double d1 = this->Distance[mergeTuple.V1];
-      auto x = outPts[ptId];
-
-      TIP p0[3], p1[3];
-
-      // project x0 and x1 on plane to p0 and p1 respectively
-      p0[0] = x0[0] - d0 * this->Normal[0];
-      p0[1] = x0[1] - d0 * this->Normal[1];
-      p0[2] = x0[2] - d0 * this->Normal[2];
-      p1[0] = x1[0] - d1 * this->Normal[0];
-      p1[1] = x1[1] - d1 * this->Normal[1];
-      p1[2] = x1[2] - d1 * this->Normal[2];
-
-      // compute intersection position based on p0 and p1
-      x[0] = p0[0] + mergeTuple.Data.T * (p1[0] - p0[0]);
-      x[1] = p0[1] + mergeTuple.Data.T * (p1[1] - p0[1]);
-      x[2] = p0[2] + mergeTuple.Data.T * (p1[2] - p0[2]);
-    }
-  }
-};
-
-template <typename IDType>
-struct ProducePointsWorker
-{
-  template <typename TPArrayIn, typename TPArrayOut>
-  void operator()(TPArrayIn* inPts, TPArrayOut* outPts,
-    const EdgeTuple<IDType, EdgeDataType<IDType>>* edges, double* distance, vtkPlane* plane,
-    vtk3DLinearGridPlaneCutter* filter)
-  {
-    ProducePointsFunctor<TPArrayIn, TPArrayOut, IDType> functor(
-      inPts, outPts, edges, distance, plane, filter);
-    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), outPts->GetNumberOfTuples(), functor);
-  }
-};
-
-// Functor to build the VTK triangle list in parallel from the generated,
-// non-merged edges. Every three edges represents one triangle.
-struct ProduceTriangles
-{
-  vtkCellArray* Tris;
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  ProduceTriangles(vtkCellArray* tris, vtk3DLinearGridPlaneCutter* filter)
-    : Tris(tris)
-    , Filter(filter)
-  {
-  }
-
-  struct Impl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(
-      OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType triId, vtkIdType endTriId)
-    {
-      auto connRange = GetRange(conn).GetSubRange(3 * triId, 3 * endTriId);
-      vtkIdType ptId = 3 * triId;
-      std::iota(connRange.begin(), connRange.end(), ptId);
-    }
-  };
-
-  void operator()(vtkIdType triId, vtkIdType endTriId)
-  {
-    this->Tris->Dispatch(Impl{}, triId, endTriId);
-  }
-};
-
-// If requested, interpolate point data attributes from non-merged
-// points. The merge tuple contains an interpolation value t for the merged
-// edge. Templated on type of id.
-template <typename TIds>
-struct ProducePDAttributes
-{
-  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges
-  ArrayList* Arrays;                                // the list of attributes to interpolate
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  ProducePDAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, ArrayList* arrays,
-    vtk3DLinearGridPlaneCutter* filter)
-    : Edges(mt)
-    , Arrays(arrays)
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-    for (; ptId < endPtId; ++ptId)
-    {
-      if (ptId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      const auto& mergeTuple = this->Edges[ptId];
-      TIds v0 = mergeTuple.V0;
-      TIds v1 = mergeTuple.V1;
-      float t = mergeTuple.Data.T;
-      this->Arrays->InterpolateEdge(v0, v1, t, ptId);
-    }
-  }
-};
-
-// If requested, retrieve cell data attributes.
-template <typename TIds>
-struct ProduceCDAttributes
-{
-  const TIds* Cells; // original cell ids
-  ArrayList* Arrays; // the list of attributes to interpolate
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  ProduceCDAttributes(const TIds* c, ArrayList* arrays, vtk3DLinearGridPlaneCutter* filter)
-    : Cells(c)
-    , Arrays(arrays)
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType cellId, vtkIdType endCellId)
-  {
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endCellId - cellId) / 10 + 1, (vtkIdType)1000);
-    for (; cellId < endCellId; ++cellId)
-    {
-      if (cellId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      // retrieve CellData for the corresponding cell
-      this->Arrays->Copy(this->Cells[cellId], cellId);
-    }
-  }
-};
-
-// This method generates the output isosurface triangle connectivity list.
-template <typename IDType>
-struct ProduceMergedTriangles
-{
-  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
-
-  const MergeTupleType* MergeArray;
-  const IDType* Offsets;
-  vtkIdType NumTris;
-  vtkCellArray* Tris;
-  int NumThreadsUsed; // placeholder
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  ProduceMergedTriangles(const MergeTupleType* merge, const IDType* offsets, vtkIdType numTris,
-    vtkCellArray* tris, vtk3DLinearGridPlaneCutter* filter)
-    : MergeArray(merge)
-    , Offsets(offsets)
-    , NumTris(numTris)
-    , Tris(tris)
-    , NumThreadsUsed(1)
-    , Filter(filter)
-  {
-  }
-
-  struct Impl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType ptId,
-      const vtkIdType endPtId, const IDType* offsets, const MergeTupleType* mergeArray,
-      vtk3DLinearGridPlaneCutter* filter)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-      auto connRange = GetRange(conn);
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-      for (; ptId < endPtId; ++ptId)
-      {
-        if (ptId % checkAbortInterval == 0)
-        {
-          if (isFirst)
-          {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
-          }
-        }
-        const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
-        for (IDType i = 0; i < numPtsInGroup; ++i)
-        {
-          const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId;
-          connRange[connIdx] = static_cast<ValueType>(ptId);
-        } // for this group of coincident edges
-      }   // for all merged points
-    }
-  };
-
-  // Loop over all merged points and update the ids of the triangle
-  // connectivity.  Offsets point to the beginning of a group of equal edges:
-  // all edges in the group are updated to the current merged point id.
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    this->Tris->Dispatch(Impl{}, ptId, endPtId, this->Offsets, this->MergeArray, this->Filter);
-  }
-};
-
-// This method generates the output isosurface points. One point per
-// merged edge is generated.
-template <typename TPArrayIn, typename TPArrayOut, typename IDType>
-struct ProduceMergedPointsFunctor
-{
-  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
-
-  TPArrayIn* InPts;
-  TPArrayOut* OutPts;
-  const MergeTupleType* MergeArray;
-  const IDType* Offsets;
-  const double* Distance;
-  const double* Normal;
-  vtk3DLinearGridPlaneCutter* Filter;
-  using TIP = vtk::GetAPIType<TPArrayIn>;
-
-  ProduceMergedPointsFunctor(TPArrayIn* inPts, TPArrayOut* outPts, const MergeTupleType* merge,
-    const IDType* offsets, double* distance, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
-    : InPts(inPts)
-    , OutPts(outPts)
-    , MergeArray(merge)
-    , Offsets(offsets)
-    , Distance(distance)
-    , Normal(plane->GetNormal())
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-    auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
-    auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
-    for (; ptId < endPtId; ++ptId)
-    {
-      if (ptId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      const MergeTupleType* mergeTuple = this->MergeArray + this->Offsets[ptId];
-      const auto x0 = inPts[mergeTuple->V0];
-      const auto x1 = inPts[mergeTuple->V1];
-      double d0 = this->Distance[mergeTuple->V0];
-      double d1 = this->Distance[mergeTuple->V1];
-      auto x = outPts[ptId];
-
-      TIP p0[3], p1[3];
-
-      // project x0 and x1 on plane to p0 and p1 respectively
-      p0[0] = x0[0] - d0 * this->Normal[0];
-      p0[1] = x0[1] - d0 * this->Normal[1];
-      p0[2] = x0[2] - d0 * this->Normal[2];
-      p1[0] = x1[0] - d1 * this->Normal[0];
-      p1[1] = x1[1] - d1 * this->Normal[1];
-      p1[2] = x1[2] - d1 * this->Normal[2];
-
-      // compute intersection position based on p0 and p1
-      x[0] = p0[0] + mergeTuple->Data.T * (p1[0] - p0[0]);
-      x[1] = p0[1] + mergeTuple->Data.T * (p1[1] - p0[1]);
-      x[2] = p0[2] + mergeTuple->Data.T * (p1[2] - p0[2]);
-    }
-  }
-};
-
-template <typename IDType>
-struct ProduceMergedPointsWorker
-{
-  template <typename TPArrayIn, typename TPArrayOut>
-  void operator()(TPArrayIn* inPts, TPArrayOut* outPts,
-    const EdgeTuple<IDType, EdgeDataType<IDType>>* merge, const IDType* offsets, double* distance,
-    vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
-  {
-    ProduceMergedPointsFunctor<TPArrayIn, TPArrayOut, IDType> functor(
-      inPts, outPts, merge, offsets, distance, plane, filter);
-    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), outPts->GetNumberOfTuples(), functor);
-  }
-};
-
-// If requested, interpolate point data attributes. The merge tuple contains an
-// interpolation value t for the merged edge.
-template <typename TIds>
-struct ProduceMergedAttributes
-{
-  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges, sorted into groups of merged edges
-  const TIds* Offsets;                              // refer to single, unique, merged edge
-  ArrayList* Arrays;                                // carry list of attributes to interpolate
-  vtk3DLinearGridPlaneCutter* Filter;
-
-  ProduceMergedAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets,
-    ArrayList* arrays, vtk3DLinearGridPlaneCutter* filter)
-    : Edges(mt)
-    , Offsets(offsets)
-    , Arrays(arrays)
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeTuple;
-    TIds v0, v1;
-    float t;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-    for (; ptId < endPtId; ++ptId)
-    {
-      if (ptId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      mergeTuple = this->Edges + this->Offsets[ptId];
-      v0 = mergeTuple->V0;
-      v1 = mergeTuple->V1;
-      t = mergeTuple->Data.T;
-      this->Arrays->InterpolateEdge(v0, v1, t, ptId);
-    }
-  }
-};
-
-// Wrapper to handle multiple template types for generating intersected edges
-template <typename TIds>
-void ProcessEdges(vtkIdType numCells, vtkPoints* inPts, vtkUnstructuredGrid* input, vtkPlane* plane,
-  unsigned char* inout, double* distance, vtkPoints* outPts, vtkCellArray* newPolys, bool mergePts,
-  bool intAttr, bool seqProcessing, int& numThreads, vtkPointData* inPD = nullptr,
-  vtkPointData* outPD = nullptr, vtkCellData* inCD = nullptr, vtkCellData* outCD = nullptr,
-  vtk3DLinearGridPlaneCutter* filter = nullptr)
-{
-  // Extract edges that the plane intersects.
-  vtkIdType numTris = 0;
-  EdgeTuple<TIds, EdgeDataType<TIds>>* mergeEdges = nullptr; // may need reference counting
-  TIds* originalCells = nullptr;
-
-  const bool computeCells = (inCD != nullptr && inCD->GetNumberOfArrays() > 0);
-
-  // Extract edges
-  ExtractEdges<TIds> extractEdges(input, plane, inout, distance, newPolys, computeCells, filter);
-  EXECUTE_REDUCED_SMPFOR(seqProcessing, numCells, extractEdges, numThreads);
-  numTris = extractEdges.NumTris;
-  mergeEdges = extractEdges.Edges;
-  originalCells = extractEdges.Cells;
-  int nt = numThreads;
-
-  // Make sure data was produced
-  if (numTris <= 0)
-  {
-    outPts->Initialize();
-    delete[] mergeEdges;
-    delete[] originalCells;
-    return;
-  }
-
-  // There are two ways forward: do not merge coincident points; or merge
-  // points. Merging typically takes longer, while the output size of
-  // unmerged points is larger.
-  if (!mergePts)
-  {
-    // Produce non-merged points from edges. Each edge produces one point;
-    // three edges define an output triangle.
-    const vtkIdType numPts = 3 * numTris;
-    outPts->GetData()->SetNumberOfTuples(numPts);
-
-    ProducePointsWorker<TIds> producePointsWorker;
-    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
-      vtkArrayDispatch::AOSPointArrays>;
-    if (!Dispatcher::Execute(inPts->GetData(), outPts->GetData(), producePointsWorker, mergeEdges,
-          distance, plane, filter))
-    {
-      producePointsWorker(inPts->GetData(), outPts->GetData(), mergeEdges, distance, plane, filter);
-    }
-
-    // Produce non-merged triangles from edges
-    ProduceTriangles produceTris(newPolys, filter);
-    EXECUTE_SMPFOR(seqProcessing, numTris, produceTris);
-
-    // Interpolate attributes if requested
-    if (intAttr)
-    {
-      // Point data
-      if (inPD && inPD->GetNumberOfArrays() > 0)
-      {
-        ArrayList pointArrays;
-        outPD->InterpolateAllocate(inPD, numPts);
-        pointArrays.AddArrays(numPts, inPD, outPD, /*nullValue*/ 0.0, /*promote*/ false);
-        ProducePDAttributes<TIds> interpolatePoints(mergeEdges, &pointArrays, filter);
-        EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
-      }
-
-      // Cell data
-      if (inCD && inCD->GetNumberOfArrays() > 0)
-      {
-        ArrayList cellArrays;
-        outCD->CopyAllocate(inCD, numTris);
-        cellArrays.AddArrays(numTris, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
-        ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays, filter);
-        EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
-      }
-    }
-  }
-  else // generate merged output
-  {
-    // Merge coincident edges. The Offsets refer to the single unique edge
-    // from the sorted group of duplicate edges.
-    vtkIdType numPts;
-    vtkStaticEdgeLocatorTemplate<TIds, EdgeDataType<TIds>> loc;
-    const TIds* offsets = loc.MergeEdges(3 * numTris, mergeEdges, numPts);
-
-    // Generate triangles from merged edges.
-    ProduceMergedTriangles<TIds> produceTris(mergeEdges, offsets, numTris, newPolys, filter);
-    EXECUTE_SMPFOR(seqProcessing, numPts, produceTris);
-    numThreads = nt;
-
-    // Generate points (one per unique edge)
-    outPts->GetData()->SetNumberOfTuples(numPts);
-
-    ProduceMergedPointsWorker<TIds> producePointsWorker;
-    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
-      vtkArrayDispatch::AOSPointArrays>;
-    if (!Dispatcher::Execute(inPts->GetData(), outPts->GetData(), producePointsWorker, mergeEdges,
-          offsets, distance, plane, filter))
-    {
-      producePointsWorker(
-        inPts->GetData(), outPts->GetData(), mergeEdges, offsets, distance, plane, filter);
-    }
-
-    // Now process point data attributes if requested
-    if (intAttr)
-    {
-      // Point data
-      if (inPD && inPD->GetNumberOfArrays() > 0)
-      {
-        ArrayList pointArrays;
-        outPD->InterpolateAllocate(inPD, numPts);
-        pointArrays.AddArrays(numPts, inPD, outPD, /*nullValue*/ 0.0, /*promote*/ false);
-        ProduceMergedAttributes<TIds> interpolatePoints(mergeEdges, offsets, &pointArrays, filter);
-        EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
-      }
-
-      // Cell data
-      if (inCD && inCD->GetNumberOfArrays() > 0)
-      {
-        ArrayList cellArrays;
-        outCD->CopyAllocate(inCD, numTris);
-        cellArrays.AddArrays(numTris, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
-        ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays, filter);
-        EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
-      }
-    }
-  }
-
-  // Clean up
-  delete[] mergeEdges;
-  delete[] originalCells;
-}
-
 // Functor for assigning normals at each point
 struct ComputePointNormals
 {
@@ -853,12 +112,11 @@ struct ComputePointNormals
     }
   }
 
-  static void Execute(bool seqProcessing, vtkPoints* pts, vtkPlane* plane, vtkPointData* pd,
-    vtk3DLinearGridPlaneCutter* filter)
+  static void Execute(vtkPolyData* output, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
   {
-    vtkIdType numPts = pts->GetNumberOfPoints();
+    vtkIdType numPts = output->GetNumberOfPoints();
 
-    vtkFloatArray* ptNormals = vtkFloatArray::New();
+    vtkNew<vtkFloatArray> ptNormals;
     ptNormals->SetName("Normals");
     ptNormals->SetNumberOfComponents(3);
     ptNormals->SetNumberOfTuples(numPts);
@@ -875,11 +133,10 @@ struct ComputePointNormals
 
     // Process all points, averaging normals
     ComputePointNormals compute(n, ptN, filter);
-    EXECUTE_SMPFOR(seqProcessing, numPts, compute);
+    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, compute);
 
     // Clean up and get out
-    pd->SetNormals(ptNormals);
-    ptNormals->Delete();
+    output->GetPointData()->SetNormals(ptNormals);
   }
 };
 
@@ -892,9 +149,11 @@ vtk3DLinearGridPlaneCutter::vtk3DLinearGridPlaneCutter()
   this->Plane = vtkPlane::New();
   this->MergePoints = false;
   this->InterpolateAttributes = true;
+  this->GenerateCutScalars = 0;
   this->ComputeNormals = false;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->SequentialProcessing = false;
+  this->GenerateTriangles = true;
   this->NumberOfThreadsUsed = 0;
   this->LargeIds = false;
 }
@@ -923,8 +182,20 @@ vtkMTimeType vtk3DLinearGridPlaneCutter::GetMTime()
 }
 
 //------------------------------------------------------------------------------
+void vtk3DLinearGridPlaneCutter::SetMergePointsOn()
+{
+  this->SetMergePoints(true);
+}
+
+//------------------------------------------------------------------------------
+void vtk3DLinearGridPlaneCutter::SetMergePointsOff()
+{
+  this->SetMergePoints(false);
+}
+
+//------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
-// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
+// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels, polyhedrons)
 //
 int vtk3DLinearGridPlaneCutter::ProcessPiece(
   vtkUnstructuredGrid* input, vtkPlane* plane, vtkPolyData* output)
@@ -946,95 +217,37 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
     return 1;
   }
 
-  // Check the input point type. Only real types are supported.
-  int inPtsType = inPts->GetDataType();
-  if (inPtsType != VTK_FLOAT && inPtsType != VTK_DOUBLE)
-  {
-    vtkLog(ERROR, "Input point type not supported");
-    return 0;
-  }
-
-  // Create the output points. Only real types are supported.
-  auto outPts = vtkSmartPointer<vtkPoints>::New();
-  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-  {
-    outPts->SetDataType(inPts->GetDataType());
-  }
-  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-  {
-    outPts->SetDataType(VTK_FLOAT);
-  }
-  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-  {
-    outPts->SetDataType(VTK_DOUBLE);
-  }
-
-  // Output triangles go here.
-  auto newPolys = vtkSmartPointer<vtkCellArray>::New();
-  newPolys->UseFixedSizeDefaultStorage(3);
-
   // Compute plane-cut scalars
   vtkNew<vtkAOSDataArrayTemplate<double>> distanceArray;
+  distanceArray->SetName("cutScalars");
   distanceArray->SetNumberOfValues(numPts);
-  plane->FunctionValue(inPts->GetData(), distanceArray);
-  // Compute an array that classifies each point with respect to the current
-  // plane (i.e. above the plane(=2), below the plane(=1), on the plane(=0)).
-  vtkNew<vtkAOSDataArrayTemplate<unsigned char>> inOutArray;
-  inOutArray->SetNumberOfValues(numPts);
-  vtkSMPTools::For(0, numPts,
-    [&](vtkIdType ptId, vtkIdType endPtId)
-    {
-      double* dist = distanceArray->GetPointer(ptId);
-      unsigned char* ioa = inOutArray->GetPointer(ptId);
-      for (; ptId < endPtId; ++ptId, ++dist)
-      {
-        // Point is either above(=2), below(=1), or on(=0) the plane.
-        *ioa++ = static_cast<unsigned char>((*dist > 0.0) - (*dist < 0.0) + 1);
-      }
-    });
-  unsigned char* inout = inOutArray->GetPointer(0);
-  double* distance = distanceArray->GetPointer(0);
+  plane->FunctionValue(input->GetPoints()->GetData(), distanceArray);
 
-  vtkPointData* inPD = input->GetPointData();
-  vtkPointData* outPD = output->GetPointData();
+  // copy to add the plane distance array
+  vtkNew<vtkUnstructuredGrid> inputCopy;
+  inputCopy->ShallowCopy(input);
+  inputCopy->GetPointData()->AddArray(distanceArray);
 
-  vtkCellData* inCD = input->GetCellData();
-  vtkCellData* outCD = output->GetCellData();
+  // execute contour
+  vtkNew<vtkContour3DLinearGrid> contour;
+  contour->SetInputData(inputCopy);
+  contour->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, distanceArray->GetName());
+  contour->SetValue(0, 0.0);
+  contour->SetInterpolateAttributes(this->InterpolateAttributes);
+  contour->SetComputeNormals(false);
+  contour->SetComputeScalars(this->GenerateCutScalars);
+  contour->SetOutputPointsPrecision(this->OutputPointsPrecision);
+  contour->SetSequentialProcessing(this->SequentialProcessing);
+  contour->SetGenerateTriangles(this->GenerateTriangles);
+  contour->SetContainerAlgorithm(this);
+  contour->Update();
 
-  // Determine the size/type of point and cell ids needed to index points
-  // and cells. Using smaller ids results in a greatly reduced memory footprint
-  // and faster processing.
-  this->LargeIds = (numPts >= VTK_INT_MAX || numCells >= VTK_INT_MAX);
-
-  // Generate all of the merged points and triangles
-  if (!this->LargeIds)
-  {
-    ProcessEdges<int>(numCells, inPts, input, plane, inout, distance, outPts, newPolys,
-      this->MergePoints, this->InterpolateAttributes, this->SequentialProcessing,
-      this->NumberOfThreadsUsed, inPD, outPD, inCD, outCD, this);
-  }
-  else
-  {
-    ProcessEdges<vtkIdType>(numCells, inPts, input, plane, inout, distance, outPts, newPolys,
-      this->MergePoints, this->InterpolateAttributes, this->SequentialProcessing,
-      this->NumberOfThreadsUsed, inPD, outPD, inCD, outCD, this);
-  }
-
-  // If requested, compute point normals. Just set the point normals to the
-  // plane normal.
+  output->ShallowCopy(contour->GetOutput());
   if (this->ComputeNormals)
   {
-    ComputePointNormals::Execute(this->SequentialProcessing, outPts, plane, outPD, this);
+    ComputePointNormals::Execute(output, plane, this);
   }
-
-  // Report the results of execution
-  vtkLog(TRACE,
-    "Created: " << outPts->GetNumberOfPoints() << " points, " << newPolys->GetNumberOfCells()
-                << " triangles");
-
-  // Clean up
-  output->SetPoints(outPts);
-  output->SetPolys(newPolys);
 
   return 1;
 }
@@ -1085,7 +298,7 @@ int vtk3DLinearGridPlaneCutter::RequestDataObject(
 
 //------------------------------------------------------------------------------
 // Specialized plane cutting filter to handle unstructured grids with 3D
-// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels)
+// linear cells (tetrahedras, hexes, wedges, pyradmids, voxels, polyhedrons)
 //
 int vtk3DLinearGridPlaneCutter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -1162,19 +375,6 @@ int vtk3DLinearGridPlaneCutter::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtk3DLinearGridPlaneCutter::SetOutputPointsPrecision(int precision)
-{
-  this->OutputPointsPrecision = precision;
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtk3DLinearGridPlaneCutter::GetOutputPointsPrecision() const
-{
-  return this->OutputPointsPrecision;
-}
-
-//------------------------------------------------------------------------------
 bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object)
 {
   auto ug = vtkUnstructuredGrid::SafeDownCast(object);
@@ -1189,7 +389,8 @@ bool vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(vtkDataObject* object
       {
         unsigned char cellType = cellTypes->GetValue(i);
         if (cellType != VTK_EMPTY_CELL && cellType != VTK_VOXEL && cellType != VTK_TETRA &&
-          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID)
+          cellType != VTK_HEXAHEDRON && cellType != VTK_WEDGE && cellType != VTK_PYRAMID &&
+          cellType != VTK_POLYHEDRON)
         {
           // Unsupported cell type, can't process data
           return false;
@@ -1237,9 +438,11 @@ void vtk3DLinearGridPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Plane: " << this->Plane << "\n";
 
   os << indent << "Merge Points: " << (this->MergePoints ? "true\n" : "false\n");
+  os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "true\n" : "false\n");
   os << indent
      << "Interpolate Attributes: " << (this->InterpolateAttributes ? "true\n" : "false\n");
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "true\n" : "false\n");
+  os << indent << "Generate Triangles: " << (this->GenerateTriangles ? "true\n" : "false\n");
 
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 

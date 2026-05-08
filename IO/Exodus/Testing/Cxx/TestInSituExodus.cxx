@@ -4,18 +4,13 @@
 #include "vtkCPExodusIIInSituReader.h"
 
 #include "vtkAOSDataArrayTemplate.h"
-#include "vtkCellData.h"
-#include "vtkCellIterator.h"
 #include "vtkConeSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkExodusIIReader.h"
-#include "vtkFloatArray.h"
-#include "vtkGenericCell.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
@@ -38,13 +33,6 @@
 #include <string>
 
 #include <iostream>
-
-// Define this to work around "glommed" point/cell data in the reference data.
-#undef GLOM_WORKAROUND
-// #define GLOM_WORKAROUND
-
-// See issue #
-#define vtkContourFilter_IS_FIXED 0
 
 #define FAIL(x)                                                                                    \
   std::cerr << x << std::endl;                                                                     \
@@ -97,14 +85,14 @@ bool readExodusCopy(std::string fileName, vtkMultiBlockDataSet* mbds)
   return true;
 }
 
-vtkUnstructuredGridBase* getConnectivityBlock(vtkMultiBlockDataSet* mbds)
+vtkUnstructuredGrid* getConnectivityBlock(vtkMultiBlockDataSet* mbds)
 {
-  vtkUnstructuredGridBase* result = nullptr;
+  vtkUnstructuredGrid* result = nullptr;
   if (vtkDataObject* tmpDO = mbds->GetBlock(0))
   {
     if (vtkMultiBlockDataSet* tmpMBDS = vtkMultiBlockDataSet::SafeDownCast(tmpDO))
     {
-      result = vtkUnstructuredGridBase::SafeDownCast(tmpMBDS->GetBlock(0));
+      result = vtkUnstructuredGrid::SafeDownCast(tmpMBDS->GetBlock(0));
     }
   }
   return result;
@@ -115,265 +103,6 @@ template <class Scalar>
 bool fuzzyEqual(const Scalar& a, const Scalar& b)
 {
   return fabs(a - b) < 1e-6;
-}
-
-bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
-{
-  // Compare number of points
-  vtkIdType refNumPoints = ref->GetNumberOfPoints();
-  vtkIdType testNumPoints = test->GetNumberOfPoints();
-  if (refNumPoints != testNumPoints)
-  {
-    FAILB("Number of points do not match (" << refNumPoints << ", " << testNumPoints << ").")
-  }
-
-  // Compare coordinate data
-  double refPoint[3] = { 0., 0., 0. };
-  double testPoint[3] = { 0., 0., 0. };
-  for (vtkIdType pointId = 0; pointId < testNumPoints; ++pointId)
-  {
-    ref->GetPoint(pointId, refPoint);
-    test->GetPoint(pointId, testPoint);
-    if (fabs(refPoint[0] - testPoint[0]) > 1e-5 || fabs(refPoint[1] - testPoint[1]) > 1e-5 ||
-      fabs(refPoint[2] - testPoint[2]) > 1e-5)
-    {
-      FAILB("Point mismatch at point index: "
-        << pointId << "\n\tExpected: " << refPoint[0] << " " << refPoint[1] << " " << refPoint[2]
-        << "\n\tActual: " << testPoint[0] << " " << testPoint[1] << " " << testPoint[2])
-    }
-  }
-
-  // Compare point data
-  // Number of point data arrays may not match -- the reference reader
-  // "gloms" multi-component arrays together, while the in-situ doesn't (yet?).
-  vtkPointData* refPointData = ref->GetPointData();
-  vtkPointData* testPointData = test->GetPointData();
-  int refNumPointDataArrays = refPointData->GetNumberOfArrays();
-  int testNumPointDataArrays = testPointData->GetNumberOfArrays();
-  if (refNumPointDataArrays != testNumPointDataArrays)
-  {
-#ifdef GLOM_WORKAROUND
-    std::cerr << "Warning: "
-                 "Point data array count mismatch. This may not be an error, as "
-                 "the reference data combines multicomponent arrays. "
-              << "Reference: " << refNumPointDataArrays << " Actual: " << testNumPointDataArrays
-              << std::endl;
-#else
-    FAILB("Point data array count mismatch. This may not be an error, as "
-          "the reference data combines multicomponent arrays. "
-      << "Reference: " << refNumPointDataArrays << " Actual: " << testNumPointDataArrays
-      << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
-      << "message as a warning.")
-#endif
-  }
-  for (int arrayIndex = 0; arrayIndex < testNumPointDataArrays; ++arrayIndex)
-  {
-    vtkDataArray* testArray = testPointData->GetArray(arrayIndex);
-    const char* arrayName = testArray->GetName();
-    vtkDataArray* refArray = refPointData->GetArray(arrayName);
-    if (refArray == nullptr)
-    {
-#ifdef GLOM_WORKAROUND
-      std::cerr << "Warning: "
-                << "Testing point data array '" << arrayName
-                << "' does not exist in the reference data set. This may not be an "
-                << "error if the reference data has probably made this into a "
-                << "multicomponent array. " << std::endl;
-      continue;
-#else
-      FAILB("Testing point data array '"
-        << arrayName << "' does not exist in the reference data set. This may not be an "
-        << "error if the reference data has probably made this into a "
-        << "multicomponent array. "
-        << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
-        << "message as a warning.")
-#endif
-    }
-
-    int refNumComponents = refArray->GetNumberOfComponents();
-    int testNumComponents = testArray->GetNumberOfComponents();
-    if (refNumComponents != testNumComponents)
-    {
-      FAILB("Number of components mismatch for point data array '" << arrayName << "'")
-    }
-
-    vtkIdType refNumTuples = refArray->GetNumberOfTuples();
-    vtkIdType testNumTuples = testArray->GetNumberOfTuples();
-    if (refNumTuples != testNumTuples)
-    {
-      FAILB("Number of tuples mismatch for point data array '" << arrayName << "'")
-    }
-
-    std::vector<double> refTuple(refNumComponents);
-    std::vector<double> testTuple(testNumComponents);
-    for (vtkIdType i = 0; i < testNumTuples; ++i)
-    {
-      refArray->GetTuple(i, refTuple.data());
-      testArray->GetTuple(i, testTuple.data());
-      if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(), fuzzyEqual<double>))
-      {
-        std::stringstream refString;
-        std::stringstream testString;
-        for (int comp = 0; comp < refNumComponents; ++comp)
-        {
-          refString << refTuple[comp] << " ";
-          testString << testTuple[comp] << " ";
-        }
-        FAILB("Tuple mismatch for point data array '" << arrayName << "' at tuple index: " << i
-                                                      << "\n"
-                                                      << "Expected:\n\t" << refString.str() << "\n"
-                                                      << "Actual:\n\t" << testString.str());
-      }
-    }
-  }
-
-  // Compare number of cells
-  vtkIdType refNumCells = ref->GetNumberOfCells();
-  vtkIdType testNumCells = test->GetNumberOfCells();
-  if (refNumCells != testNumCells)
-  {
-    FAILB("Number of cells do not match (" << refNumCells << ", " << testNumCells << ").")
-  }
-
-  // Compare connectivity data
-  vtkNew<vtkGenericCell> refCell;
-  vtkNew<vtkGenericCell> testCell;
-
-  // Test out the iterators, too:
-  vtkSmartPointer<vtkCellIterator> refCellIter =
-    vtkSmartPointer<vtkCellIterator>::Take(ref->NewCellIterator());
-  vtkSmartPointer<vtkCellIterator> testCellIter =
-    vtkSmartPointer<vtkCellIterator>::Take(test->NewCellIterator());
-
-  for (vtkIdType cellId = 0; cellId < testNumCells && !refCellIter->IsDoneWithTraversal() &&
-       !testCellIter->IsDoneWithTraversal();
-       ++cellId, refCellIter->GoToNextCell(), testCellIter->GoToNextCell())
-  {
-    // Lookup cells in iterators:
-    refCellIter->GetCell(refCell);
-    testCellIter->GetCell(testCell);
-
-    if (refCell->GetCellType() != testCell->GetCellType())
-    {
-      FAILB("Cell types do not match!")
-    }
-    refNumPoints = refCell->GetNumberOfPoints();
-    testNumPoints = testCell->GetNumberOfPoints();
-    if (refNumPoints != testNumPoints)
-    {
-      FAILB("Number of cell points do not match (" << refNumPoints << ", " << testNumPoints
-                                                   << ") for cellId " << cellId)
-    }
-
-    for (vtkIdType pointId = 0; pointId < testNumPoints; ++pointId)
-    {
-      if (refCell->GetPointId(pointId) != testCell->GetPointId(pointId))
-      {
-        FAILB("Point id mismatch in cellId " << cellId)
-      }
-      refCell->Points->GetPoint(pointId, refPoint);
-      testCell->Points->GetPoint(pointId, testPoint);
-      if (fabs(refPoint[0] - testPoint[0]) > 1e-5 || fabs(refPoint[1] - testPoint[1]) > 1e-5 ||
-        fabs(refPoint[2] - testPoint[2]) > 1e-5)
-      {
-        FAILB("Point mismatch in cellId "
-          << cellId << "\n\tExpected: " << refPoint[0] << " " << refPoint[1] << " " << refPoint[2]
-          << "\n\tActual: " << testPoint[0] << " " << testPoint[1] << " " << testPoint[2])
-      }
-    }
-  }
-
-  // Verify that all cells were checked
-  if (!refCellIter->IsDoneWithTraversal() || !testCellIter->IsDoneWithTraversal())
-  {
-    FAILB("Did not finish traversing all cells (an iterator is still valid).")
-  }
-
-  // Compare cell data
-  // Number of cell data arrays probably won't match -- the reference reader
-  // "gloms" multi-component arrays together, while the in-situ doesn't (yet?).
-  vtkCellData* refCellData = ref->GetCellData();
-  vtkCellData* testCellData = test->GetCellData();
-  int refNumCellDataArrays = refCellData->GetNumberOfArrays();
-  int testNumCellDataArrays = testCellData->GetNumberOfArrays();
-  if (refNumCellDataArrays != testNumCellDataArrays)
-  {
-#ifdef GLOM_WORKAROUND
-    std::cerr << "Warning: "
-              << "Cell data array count mismatch. This may not be an error, as "
-                 "the reference data combines multicomponent arrays. "
-              << "Reference: " << refNumCellDataArrays << " Actual: " << testNumCellDataArrays
-              << std::endl;
-#else
-    FAILB("Cell data array count mismatch. This may not be an error, as "
-          "the reference data combines multicomponent arrays. "
-      << "Reference: " << refNumCellDataArrays << " Actual: " << testNumCellDataArrays
-      << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
-      << "message as a warning.")
-#endif
-  }
-  for (int arrayIndex = 0; arrayIndex < testNumCellDataArrays; ++arrayIndex)
-  {
-    vtkDataArray* testArray = testCellData->GetArray(arrayIndex);
-    const char* arrayName = testArray->GetName();
-    vtkDataArray* refArray = refCellData->GetArray(arrayName);
-    if (refArray == nullptr)
-    {
-#ifdef GLOM_WORKAROUND
-      std::cerr << "Warning: "
-                << "Testing cell data array '" << arrayName
-                << "' does not exist in the reference data set. But it's cool -- "
-                << "the reference data has probably made this into a multicomponent "
-                << "array." << std::endl;
-      continue;
-#else
-      FAILB("Testing cell data array '"
-        << arrayName << "' does not exist in the reference data set. But it's cool -- "
-        << "the reference data has probably made this into a multicomponent "
-        << "array."
-        << " Define GLOM_WORKAROUND in " << __FILE__ << " to treat this "
-        << "message as a warning.")
-#endif
-    }
-
-    int refNumComponents = refArray->GetNumberOfComponents();
-    int testNumComponents = testArray->GetNumberOfComponents();
-    if (refNumComponents != testNumComponents)
-    {
-      FAILB("Number of components mismatch for cell data array '" << arrayName << "'")
-    }
-
-    vtkIdType refNumTuples = refArray->GetNumberOfTuples();
-    vtkIdType testNumTuples = testArray->GetNumberOfTuples();
-    if (refNumTuples != testNumTuples)
-    {
-      FAILB("Number of tuples mismatch for cell data array '" << arrayName << "'")
-    }
-
-    std::vector<double> refTuple(refNumComponents);
-    std::vector<double> testTuple(testNumComponents);
-    for (vtkIdType i = 0; i < testNumTuples; ++i)
-    {
-      refArray->GetTuple(i, refTuple.data());
-      testArray->GetTuple(i, testTuple.data());
-      if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(), fuzzyEqual<double>))
-      {
-        std::stringstream refString;
-        std::stringstream testString;
-        for (int comp = 0; comp < refNumComponents; ++comp)
-        {
-          refString << refTuple[comp] << " ";
-          testString << testTuple[comp] << " ";
-        }
-        FAILB("Tuple mismatch for cell data array '" << arrayName << "' at tuple index: " << i
-                                                     << "\n"
-                                                     << "Expected:\n\t" << refString.str() << "\n"
-                                                     << "Actual:\n\t" << testString.str());
-      }
-    }
-  }
-
-  return true;
 }
 
 // Add fake scalar and normal data to the dataset
@@ -398,7 +127,7 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
   test->GetPointData()->SetScalars(testScalars);
 
   // And some fake normals
-  vtkNew<vtkFloatArray> refNormals;
+  vtkNew<vtkAOSDataArrayTemplate<double>> refNormals;
   refNormals->SetName("test-normals");
   refNormals->SetNumberOfComponents(3);
   refNormals->SetNumberOfTuples(numPoints);
@@ -423,7 +152,7 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
       testNormalArrayY[pointId] = normal[1] = 0.0;
       testNormalArrayZ[pointId] = normal[2] = 0.0;
     }
-    refNormals->SetTuple(pointId, normal);
+    refNormals->SetTypedTuple(pointId, normal);
   }
   vtkNew<vtkSOADataArrayTemplate<double>> testNormals;
   testNormals->SetName("test-normals");
@@ -439,8 +168,7 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
   test->GetPointData()->SetNormals(testNormals);
 }
 
-#if vtkContourFilter_IS_FIXED
-void testContourFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testContourFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
   vtkNew<vtkContourFilter> contour;
@@ -453,9 +181,8 @@ void testContourFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, doub
   output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
-#endif
 
-void testDataSetSurfaceFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testDataSetSurfaceFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
   vtkNew<vtkDataSetSurfaceFilter> extractSurface;
@@ -469,7 +196,7 @@ void testDataSetSurfaceFilter(vtkUnstructuredGridBase* input, vtkDataSet*& outpu
   time = timer->GetElapsedTime();
 }
 
-void testCutterFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testCutterFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
 
@@ -491,7 +218,7 @@ void testCutterFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, doubl
   time = timer->GetElapsedTime();
 }
 
-void testExtractGeometryFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testExtractGeometryFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
 
@@ -514,7 +241,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase* input, vtkDataSet*& outp
   time = timer->GetElapsedTime();
 }
 
-void testGlyph3DFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testGlyph3DFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
 
@@ -537,7 +264,7 @@ void testGlyph3DFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, doub
   time = timer->GetElapsedTime();
 }
 
-void testWarpScalarFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testWarpScalarFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
   vtkNew<vtkWarpScalar> warpScalar;
@@ -550,7 +277,7 @@ void testWarpScalarFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, d
   time = timer->GetElapsedTime();
 }
 
-void testWarpVectorFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testWarpVectorFilter(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
   vtkNew<vtkWarpVector> warpVector;
@@ -564,7 +291,7 @@ void testWarpVectorFilter(vtkUnstructuredGridBase* input, vtkDataSet*& output, d
   time = timer->GetElapsedTime();
 }
 
-void testPipeline(vtkUnstructuredGridBase* input, vtkDataSet*& output, double& time)
+void testPipeline(vtkUnstructuredGrid* input, vtkDataSet*& output, double& time)
 {
   vtkNew<vtkTimerLog> timer;
 
@@ -605,7 +332,7 @@ bool validateFilterOutput(const std::string& name, vtkDataSet*& refOutput, vtkDa
   {
     FAILB("Reference " << name << " produced an empty output!")
   }
-  if (!compareDataSets(refOutput, testOutput))
+  if (!vtkTestUtilities::CompareDataObjects(refOutput, testOutput))
   {
     FAILB(name << " output mismatch.")
   }
@@ -664,21 +391,12 @@ void printTimingInfo(
             << std::setw(9) << testMax << std::setw(0) << std::endl;
 }
 
-// The test to run while profiling or benchmarking:
-#define CURRENT_TEST testContourFilter
-
-// Define this to profile a particular filter (see testFilters(...)).
-#undef PROFILE
-// #define PROFILE CURRENT_TEST
-
-// Define this to benchmark a particular filter (see testFilters(...)).
-#undef BENCHMARK
-// #define BENCHMARK CURRENT_TEST
-
-bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
+bool testFilters(vtkUnstructuredGrid* ref, vtkUnstructuredGrid* test)
 {
-  std::cout << "Number of points: " << ref->GetNumberOfPoints() << std::endl;
-  std::cout << "Number of cells:  " << ref->GetNumberOfCells() << std::endl;
+  std::cout << "Reference: Number of points: " << ref->GetNumberOfPoints() << std::endl;
+  std::cout << "Reference: Number of cells:  " << ref->GetNumberOfCells() << std::endl;
+  std::cout << "Test: Number of points: " << test->GetNumberOfPoints() << std::endl;
+  std::cout << "Test: Number of cells:  " << test->GetNumberOfCells() << std::endl;
 
   // Number of times to run each benchmark. Don't commit a value greater than
   // 1 to keep the dashboards fast, but this can be increased while benchmarking
@@ -689,36 +407,11 @@ bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
   vtkDataSet* refOutput(nullptr);
   vtkDataSet* testOutput(nullptr);
 
-#ifdef PROFILE
-  // Profiling, multirun:
-  std::vector<double> profileTimes;
-  doBenchmark(PROFILE(test, refOutput, benchmarkTime), refOutput->Delete();
-              refOutput = nullptr, profileTimes, numBenchmarks);
-  return true;
-#endif
-
-#ifdef BENCHMARK
-  // Benchmarking:
-  std::vector<double> benchmarkRefTimes;
-  std::vector<double> benchmarkTestTimes;
-  doBenchmark(BENCHMARK(ref, refOutput, benchmarkTime), refOutput->Delete();
-              refOutput = nullptr, benchmarkRefTimes, numBenchmarks);
-  doBenchmark(BENCHMARK(test, testOutput, benchmarkTime), testOutput->Delete();
-              testOutput = nullptr, benchmarkTestTimes, numBenchmarks);
-  if (!validateFilterOutput("Benchmark:", refOutput, testOutput))
-  {
-    return false;
-  }
-  printTimingInfo("Benchmark", benchmarkRefTimes, benchmarkTestTimes);
-  return true;
-#endif
-
   //////////////////////////////
   // Actual tests start here: //
   //////////////////////////////
 
   // Contour filter
-#if vtkContourFilter_IS_FIXED
   std::vector<double> contourRefTimes;
   std::vector<double> contourTestTimes;
   doBenchmark(testContourFilter(ref, refOutput, benchmarkTime), refOutput->Delete();
@@ -730,7 +423,6 @@ bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
     return false;
   }
   printTimingInfo("contour", contourRefTimes, contourTestTimes);
-#endif
 
   // Extract surface
   std::vector<double> dataSetSurfaceRefTimes;
@@ -817,8 +509,8 @@ bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
               refOutput = nullptr, pipelineRefTimes, numBenchmarks);
   doBenchmark(testPipeline(test, testOutput, benchmarkTime), testOutput->Delete();
               testOutput = nullptr, pipelineTestTimes, numBenchmarks);
-  // Ensure that the mapped test produced a mapped output:
-  if (!testOutput->IsA("vtkCPExodusIIElementBlock"))
+  // Ensure that the mapped test produced a vtkUnstructuredGrid:
+  if (!testOutput->IsA("vtkUnstructuredGrid"))
   {
     std::cerr << "Pipeline test did not produce a mapped output object!" << std::endl;
     return false;
@@ -832,18 +524,17 @@ bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
   return true;
 }
 
-bool testCopies(vtkUnstructuredGridBase* test)
+bool testCopies(vtkUnstructuredGrid* test)
 {
   vtkNew<vtkUnstructuredGrid> vtkTarget;
-  vtkSmartPointer<vtkUnstructuredGridBase> mappedTarget =
-    vtkSmartPointer<vtkUnstructuredGridBase>::Take(test->NewInstance());
+  auto mappedTarget = vtkSmartPointer<vtkUnstructuredGrid>::Take(test->NewInstance());
 
   // No deep copy into test class -- it's read only. Can shallow copy into test
   // class, since it will just share the implementation instance.
 
   // Deep copy: test --> vtk
   vtkTarget->DeepCopy(test);
-  if (!compareDataSets(test, vtkTarget))
+  if (!vtkTestUtilities::CompareDataObjects(test, vtkTarget))
   {
     FAILB("Deep copy insitu --> VTK failed.")
   }
@@ -851,19 +542,17 @@ bool testCopies(vtkUnstructuredGridBase* test)
 
   // Shallow copy: test --> vtk
   vtkTarget->ShallowCopy(test); // Should really deep copy.
-  if (!compareDataSets(test, vtkTarget))
+  if (!vtkTestUtilities::CompareDataObjects(test, vtkTarget))
   {
     FAILB("Shallow copy insitu --> VTK failed.")
   }
-  vtkTarget->Reset();
 
   // Shallow copy: test --> test
   mappedTarget->ShallowCopy(test);
-  if (!compareDataSets(test, mappedTarget))
+  if (!vtkTestUtilities::CompareDataObjects(test, mappedTarget))
   {
     FAILB("Shallow copy insitu --> insitu failed.")
   }
-  mappedTarget->Initialize();
 
   return true;
 }
@@ -899,26 +588,26 @@ int TestInSituExodus(int argc, char* argv[])
   // Read reference copy
   vtkNew<vtkMultiBlockDataSet> refMBDS;
   readExodusCopy(fileName, refMBDS);
-  vtkUnstructuredGridBase* refGrid(getConnectivityBlock(refMBDS));
+  vtkUnstructuredGrid* refGrid(getConnectivityBlock(refMBDS));
   if (!refGrid)
   {
     FAIL("Error retrieving reference element block container.");
   }
+  refGrid->GetFieldData()->Initialize(); // in-situ doesn't have field data
 
   // Read in-situ copy
   vtkNew<vtkCPExodusIIInSituReader> reader;
   reader->SetFileName(fileName.c_str());
   reader->Update();
   vtkMultiBlockDataSet* testMBDS = reader->GetOutput();
-  vtkUnstructuredGridBase* grid(getConnectivityBlock(testMBDS));
+  vtkUnstructuredGrid* grid(getConnectivityBlock(testMBDS));
   if (!grid)
   {
     FAIL("Error retrieving testing element block container.")
   }
 
-#ifndef PROFILE // These just add noise during profiling:
   // Compare
-  if (!compareDataSets(refGrid, grid))
+  if (!vtkTestUtilities::CompareDataObjects(refGrid, grid))
   {
     FAIL("In-situ data set doesn't match reference data!")
   }
@@ -927,7 +616,6 @@ int TestInSituExodus(int argc, char* argv[])
   {
     FAIL("A copy test failed.")
   }
-#endif
 
   populateAttributes(refGrid, grid);
 

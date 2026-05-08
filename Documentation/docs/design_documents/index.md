@@ -16,4 +16,6 @@ MomentInvariantsArchitecture
 VoronoiFramework
 
 WebAssemblyTestSuiteArchitecture
+
+PolyhedronAlgorithms
 ```

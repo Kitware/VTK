@@ -124,7 +124,6 @@ scut = vtk3DLinearGridPlaneCutter()
 scut.SetInputConnection(extract.GetOutputPort())
 scut.SetPlane(plane)
 scut.ComputeNormalsOff()
-scut.MergePointsOff()
 scut.InterpolateAttributesOn()
 
 sCutterMapper = vtkPolyDataMapper()

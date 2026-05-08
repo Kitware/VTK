@@ -1341,8 +1341,8 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
 
     this->Connectivity = grid->Connectivity;
     this->Types = grid->Types;
-    this->DistinctCellTypes = nullptr;
-    this->DistinctCellTypesUpdateMTime = 0;
+    this->DistinctCellTypes = grid->DistinctCellTypes;
+    this->DistinctCellTypesUpdateMTime = grid->DistinctCellTypesUpdateMTime;
     this->Faces = grid->Faces;
     this->FaceLocations = grid->FaceLocations;
 

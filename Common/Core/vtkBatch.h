@@ -39,9 +39,6 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename TBatchData>
 struct vtkBatch
 {
-  vtkBatch() = default;
-  ~vtkBatch() = default;
-
   vtkIdType BeginId;
   vtkIdType EndId;
   TBatchData Data;
@@ -137,9 +134,13 @@ public:
       const auto& prevNewEndBatchId = tlNewEndBatchId[threadId - 1];
       const vtkIdType distance = tlInterEndBatchId[threadId] - beginOldBatchId;
       tlNewEndBatchId[threadId] = prevNewEndBatchId + distance;
-      std::move_backward(this->Batches.begin() + beginOldBatchId,
-        this->Batches.begin() + tlInterEndBatchId[threadId],
-        this->Batches.begin() + tlNewEndBatchId[threadId]);
+      // Only move if the destination is different from the source
+      if (prevNewEndBatchId != beginOldBatchId)
+      {
+        std::move(this->Batches.begin() + beginOldBatchId,
+          this->Batches.begin() + tlInterEndBatchId[threadId],
+          this->Batches.begin() + prevNewEndBatchId);
+      }
     }
     this->Batches.erase(this->Batches.begin() + tlNewEndBatchId[lastThreadId], this->Batches.end());
   }
@@ -221,8 +222,10 @@ public:
           {
             // store the current batch sum
             const auto currentBatchData = this->Batches[batchId].Data;
-            // convert the current batch sum to an offset
-            this->Batches[batchId].Data = this->Batches[batchId - 1].Data + lastBatchData;
+            // // Compute the offsets for the current batch
+            const auto newData = this->Batches[batchId - 1].Data + lastBatchData;
+            // // Convert the current batch sum to the computed offsets
+            this->Batches[batchId].Data = newData;
             // store the current batch sum for the next iteration
             lastBatchData = std::move(currentBatchData);
           }

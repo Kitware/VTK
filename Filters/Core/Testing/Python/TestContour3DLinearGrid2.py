@@ -366,7 +366,6 @@ ele.SetVector(0,1,0)
 contour = vtkContour3DLinearGrid()
 contour.SetInputConnection(ele.GetOutputPort())
 contour.SetValue(0, 1)
-contour.SetMergePoints(mergePoints)
 contour.SetInterpolateAttributes(interpolateAttr);
 contour.SetComputeNormals(computeNormals);
 contour.Update()

@@ -15,6 +15,7 @@
 #ifndef vtkCPExodusIIElementBlock_h
 #define vtkCPExodusIIElementBlock_h
 
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -25,7 +26,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 
-class VTKIOEXODUS_EXPORT vtkCPExodusIIElementBlockImpl : public vtkObject
+class VTK_DEPRECATED_IN_9_7_0("No longer needed") VTKIOEXODUS_EXPORT vtkCPExodusIIElementBlockImpl
+  : public vtkObject
 {
 public:
   static vtkCPExodusIIElementBlockImpl* New();
@@ -94,8 +96,8 @@ private:
   vtkIdType NumberOfCells;
 };
 
-vtkMakeExportedMappedUnstructuredGrid(
-  vtkCPExodusIIElementBlock, vtkCPExodusIIElementBlockImpl, VTKIOEXODUS_EXPORT);
+vtkMakeExportedMappedUnstructuredGrid(vtkCPExodusIIElementBlock, vtkCPExodusIIElementBlockImpl,
+  VTK_DEPRECATED_IN_9_7_0("No longer needed") VTKIOEXODUS_EXPORT);
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkCPExodusIIElementBlock_h

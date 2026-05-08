@@ -97,7 +97,6 @@ assert(not vtkContour3DLinearGrid.CanFullyProcessDataObject(composite, "scalars"
 contour = vtkContour3DLinearGrid()
 contour.SetInputData(composite)
 contour.SetValue(0, 0.5)
-contour.SetMergePoints(mergePoints)
 contour.SetSequentialProcessing(serialProcessing)
 contour.SetInterpolateAttributes(interpolateAttr);
 contour.SetComputeNormals(computeNormals);

@@ -46,7 +46,6 @@ int Test3DLinearGridPlaneCutterCellData(int argc, char* argv[])
   slicer->SetInputConnection(removeArrays->GetOutputPort());
   slicer->SetPlane(plane);
   slicer->SetInterpolateAttributes(true);
-  slicer->SetMergePoints(false);
   slicer->Update();
 
   // smoke test with no point data

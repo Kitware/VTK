@@ -288,7 +288,8 @@ set(nowrap_classes
   vtkHyperTreeGridGeometryUnlimitedEntry
   vtkHyperTreeGridGeometryLevelEntry
   vtkHyperTreeGridGeometryUnlimitedLevelEntry
-  vtkHyperTreeGridLevelEntry)
+  vtkHyperTreeGridLevelEntry
+  vtkPolyhedronContour)
 
 set(headers
   vtkCellGridResponder.h

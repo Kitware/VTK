@@ -275,7 +275,7 @@ const int* GetEdge(const bool& generatePolygon, const int& caseIndex)
 {
   if (generatePolygon)
   {
-    return vtkMarchingCellsContourCases::GetHexahedronWithPolygonCase(caseIndex);
+    return vtkMarchingCellsContourCases::GetHexahedronCaseWithPolygons(caseIndex);
   }
   else
   {

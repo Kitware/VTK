@@ -384,7 +384,7 @@ int vtkContourFilter::RequestData(
   if (auto ugridBase = vtkUnstructuredGridBase::SafeDownCast(input))
   {
     auto ugrid = vtkUnstructuredGrid::SafeDownCast(ugridBase);
-    if (ugrid && this->GenerateTriangles && sType != VTK_BIT &&
+    if (ugrid && sType != VTK_BIT &&
       vtkContour3DLinearGrid::CanFullyProcessDataObject(ugrid, inScalars->GetName()))
     {
       this->Contour3DLinearGrid->SetNumberOfContours(numContours);
@@ -393,11 +393,18 @@ int vtkContourFilter::RequestData(
       this->Contour3DLinearGrid->SetComputeNormals(this->ComputeNormals);
       this->Contour3DLinearGrid->SetComputeScalars(this->ComputeScalars);
       this->Contour3DLinearGrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
+      this->Contour3DLinearGrid->SetGenerateTriangles(this->GenerateTriangles);
       this->Contour3DLinearGrid->SetUseScalarTree(this->UseScalarTree);
-      this->ContourGrid->SetScalarTree(this->ScalarTree);
+      if (this->UseScalarTree) // special treatment to reuse it
+      {
+        if (this->ScalarTree == nullptr)
+        {
+          this->ScalarTree = vtkSpanSpace::New();
+        }
+        this->ScalarTree->SetDataSet(input);
+        this->Contour3DLinearGrid->SetScalarTree(this->ScalarTree);
+      }
 
-      bool mergePoints = !this->GetLocator()->IsA("vtkNonMergingPointLocator");
-      this->Contour3DLinearGrid->SetMergePoints(mergePoints);
       this->Contour3DLinearGrid->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
       return this->Contour3DLinearGrid->ProcessRequest(request, inputVector, outputVector);
     }

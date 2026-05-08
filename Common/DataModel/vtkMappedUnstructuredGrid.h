@@ -235,8 +235,8 @@ VTK_ABI_NAMESPACE_END
     ~_className() override {}                                                                      \
                                                                                                    \
   private:                                                                                         \
-    _className(const _className&);                                                                 \
-    void operator=(const _className&);                                                             \
+    _className(const _className&) = delete;                                                        \
+    void operator=(const _className&) = delete;                                                    \
   }
 
 #else // __VTK_WRAP__

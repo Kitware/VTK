@@ -83,6 +83,11 @@
  * - be watertight : the faces describing the polyhedron should define an enclosed volume
  *   i.e. define the “inside” and the “outside” of the cell
  * - have planar faces : all points defining a face should be in the same 2D plane
+ * - have consistently wound faces with outward-pointing normals : the vertices of each face
+ *   must be ordered counter-clockwise when viewed from outside the cell, so that the face
+ *   normal (right-hand rule) points away from the cell interior.  This is required by
+ *   IsInside() (solid-angle / winding-number), Contour(), and Clip() (López polygon-tracing).
+ *   Incorrectly wound faces will produce wrong or empty results from these methods.
  * - not be self-intersecting : for example, a face of the polyhedron can’t intersect other ones
  * - not contain zero-thickness portions : adjacent faces should not overlap each other even
  * partially
@@ -138,8 +143,8 @@ class vtkEdgeTable;
 class vtkPolyData;
 class vtkCellLocator;
 class vtkGenericCell;
-class vtkPointLocator;
-class vtkMinimalStandardRandomSequence;
+class vtkPolyhedronContour;
+class vtkUnstructuredGrid;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
@@ -167,11 +172,7 @@ public:
   {
     vtkWarningMacro(<< "vtkPolyhedron::GetEdgePoints Not Implemented");
   }
-  vtkIdType GetFacePoints(vtkIdType vtkNotUsed(faceId), const vtkIdType*& vtkNotUsed(pts)) override
-  {
-    vtkWarningMacro(<< "vtkPolyhedron::GetFacePoints Not Implemented");
-    return 0;
-  }
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
   void GetEdgeToAdjacentFaces(
     vtkIdType vtkNotUsed(edgeId), const vtkIdType*& vtkNotUsed(pts)) override
   {
@@ -197,6 +198,13 @@ public:
     return 0;
   }
   bool GetCentroid(double centroid[3]) const override;
+
+  /**
+   * Compute the volume of the polyhedron using the divergence theorem.
+   * Requires faces to be set with outward-pointing normals.
+   * Returns signed volume (positive for outward normals).
+   */
+  double ComputeVolume();
   ///@}
 
   /**
@@ -237,17 +245,37 @@ public:
     vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
 
   /**
-   * Satisfy the vtkCell API. This method clips the input polyhedron and outputs
-   * a new polyhedron. The face information of the output polyhedron is encoded
-   * in the output vtkCellArray using a special format:
-   * CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
-   * Use the static method vtkUnstructuredGrid::DecomposePolyhedronCellArray
-   * to convert it into a standard format.
-   * @warning The current implementation assumes water-tight and manifold polyhedron cells.
+   * Satisfy the vtkCell API. Clips the input polyhedron and encodes the output
+   * face information in the connectivity vtkCellArray using a legacy embedded
+   * format: CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
+   * Use vtkUnstructuredGrid::DecomposePolyhedronCellArray to convert to the
+   * standard split-face format. Prefer ClipWithContext() for new code — it writes
+   * directly into separate outFaces/outFaceLocs arrays and avoids this conversion.
+   * @warning Assumes water-tight and manifold polyhedron cells.
    */
   void Clip(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+
+  /**
+   * Clip this polyhedron and write faces directly into outFaces and
+   * outFaceLocs, bypassing the embedded face-stream format used by Clip().
+   * This avoids DecomposeAPolyhedronCell on the consumer side.
+   * Callers that have a vtkUnstructuredGrid can use the convenience overload
+   * that takes a vtkUnstructuredGrid* instead.
+   */
+  void ClipWithContext(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkCellArray* outFaces,
+    vtkCellArray* outFaceLocs);
+
+  /**
+   * Convenience overload of ClipWithContext that extracts outFaces and
+   * outFaceLocs from the given output vtkUnstructuredGrid.
+   */
+  void ClipWithContext(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkUnstructuredGrid* outUG);
 
   /**
    * Satisfy the vtkCell API. The subId is ignored and zero is always
@@ -508,6 +536,7 @@ private:
   void operator=(const vtkPolyhedron&) = delete;
 
   friend class vtkPolyhedronUtilities;
+  friend class vtkPolyhedronContour;
 
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds (global cell ids).
   // These data members are implicitly organized in canonical space, i.e., where the cell
@@ -524,9 +553,6 @@ private:
 
   // Members used in GetPointToIncidentFaces
   std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
-
-  vtkNew<vtkMinimalStandardRandomSequence> RandomSequence;
-  std::atomic<bool> IsRandomSequenceSeedInitialized{ false };
 };
 
 VTK_ABI_NAMESPACE_END
