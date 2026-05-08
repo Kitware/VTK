@@ -334,8 +334,11 @@ of size `nCellPts` are filled. Performance is comparable to the `double` path
 
 A production all-polyhedra CFD mesh with **2.88M VTK_POLYHEDRON cells** and
 6.5M points (CGNS NFACE/NGON format). Benchmarks run on an 8-core Linux
-workstation with 5 repetitions, median reported. Windows baseline measured
-using ParaView 6.0.1 (pvpython) on the same mesh.
+workstation. Each reported number is the median wall-time across 5
+consecutive `Update()` calls, after one warmup `Update()`, measured with
+`time.perf_counter()` around the filter `Update()`. Baseline is the
+released ParaView 6.1.0 binary (pvpython) on the same Linux machine,
+against the same mesh and pipeline.
 
 **Contour** — PRES isocontour at value=0:
 
@@ -343,10 +346,10 @@ The speedup comes from two independent contributions:
 
 | Change | Baseline | Result | Speedup |
 |--------|----------|--------|---------|
-| López algorithm alone (serial `vtkContourGrid`) | ~12,600 ms (PV 6.1.0, Windows) | ~1,300 ms (Linux, warning-free) | **~10x** |
-| Threading + C3DLG infrastructure | ~1,300 ms (serial López) | ~69 ms (C3DLG, 8 cores, no normals) | **~19x** |
-| **Combined vs PV 6.1.0 baseline (no normals)** | ~12,600 ms | ~69 ms | **~183x** |
-| **Combined vs PV 6.1.0 baseline (ComputeNormals=ON)** | ~12,600 ms | ~160 ms | **~79x** |
+| López algorithm alone (serial `vtkContourGrid`) | ~10,300 ms (PV 6.1.0 baseline) | ~1,300 ms (Linux, warning-free) | **~8x** |
+| Threading + C3DLG infrastructure | ~1,300 ms (serial López) | **59 ms** (C3DLG, 8 cores, no normals) | **~22x** |
+| **Combined vs PV 6.1.0 baseline (no normals)** | ~10,300 ms | **59 ms** | **~175x** |
+| **Combined vs PV 6.1.0 baseline (ComputeNormals=ON)** | ~10,400 ms | **73 ms** | **~143x** |
 
 The old algorithm emits hundreds of topology-defect warnings per run via
 mutex-serialized `vtkGenericWarningMacro`, which dominates wall-clock time
@@ -356,22 +359,28 @@ path.
 
 | Path | Time (ms) | Output cells | Output size |
 |------|-----------|--------------|-------------|
-| `vtkContourGrid` + López (serial) | ~1,300 | 439K triangles | 18.6 MB |
-| `vtkContour3DLinearGrid` GT=ON, ComputeNormals=OFF | **69** | 439K triangles | 18.6 MB |
-| `vtkContour3DLinearGrid` GT=ON, ComputeNormals=ON | **160** | 439K triangles | 18.6 MB |
-| `vtkContour3DLinearGrid` GT=OFF, ComputeNormals=OFF | **97** | 175K polygons | **12.6 MB** |
-| `vtkContour3DLinearGrid` GT=OFF, ComputeNormals=ON | **138** | 175K polygons | **12.6 MB** |
+| ParaView 6.1.0 baseline, GT=ON, ComputeNormals=OFF | 10,309 | 438K triangles | 18.6 MB |
+| ParaView 6.1.0 baseline, GT=OFF, ComputeNormals=OFF | 11,247 | 438K triangles | 18.6 MB |
+| `vtkContour3DLinearGrid` GT=ON, ComputeNormals=OFF | **59** | 439K triangles | 18.6 MB |
+| `vtkContour3DLinearGrid` GT=ON, ComputeNormals=ON | **73** | 439K triangles | 18.6 MB |
+| `vtkContour3DLinearGrid` GT=OFF, ComputeNormals=OFF | **51** | 175K polygons | **12.6 MB** |
+| `vtkContour3DLinearGrid` GT=OFF, ComputeNormals=ON | **55** | 175K polygons | **12.6 MB** |
 
-ComputeNormals=ON time covers cell normals and point-normal averaging
-across adjacent cells at each merged vertex. Linux, 8-core workstation,
-2.88M-cell drone mesh, PRES=0.
+ComputeNormals=ON adds only a few milliseconds (cell-normal compute and
+point-normal averaging at merged vertices). The previous orientation pass via
+`vtkOrientPolyData` is no longer needed because the López trace produces
+consistently oriented iso-polygons directly, so polygon-mode contours no
+longer pay an orientation cost. Linux, 8-core workstation, 2.88M-cell drone
+mesh, PRES=0.
 
 The GenerateTriangles=OFF path uses `ContourCell(generateTriangles=false)` to
 extract polygon connectivity directly, bypassing fan-triangulation. Output
 polygons carry correct cell data and point normals. The 175K polygon count vs
 439K triangle count reflects that polyhedron iso-polygons are typically quads
-or pentagons that would otherwise each be split into 2–3 triangles. The 6 MB
-output size reduction (32%) is meaningful in time-series workflows.
+or pentagons that would otherwise each be split into 2-3 triangles. The 6 MB
+output size reduction (32%) is meaningful in time-series workflows. With the
+orientation pass removed, GT=OFF is now strictly faster than GT=ON on this
+mesh (51 ms vs 59 ms with no normals).
 
 **Contour memory** — on Windows, the old `vtkContourGrid` working set peaks at
 **3,310 MB** during processing vs a 2,703 MB baseline — a ~600 MB transient
@@ -379,32 +388,83 @@ spike from per-cell `vtkPolyhedron` intermediate allocations. The new C3DLG
 path uses thread-local workspace that stabilizes at high-water mark after the
 first few cells and shows no measurable spike.
 
-**Clip** — plane cuts, `vtkTableBasedClipDataSet` vs `vtkClipDataSet`, Linux,
-same build (5 reps, median):
+**Clip** — plane y=0 (half-domain, ~50% cells kept), 5 reps, median:
 
-| Scenario | vtkClipDataSet (ms) | vtkTableBasedClipDataSet (ms) | Speedup |
-|----------|--------------------|-----------------------------|---------|
-| x=-15, 99.8% cells kept | 5562 | 3195 | **1.7x** |
-| x=0 (through drone body), 99.5% kept | 5605 | 3191 | **1.8x** |
-| x=+20, 0.4% cells kept | 188 | 91 | **2.1x** |
-| y=0 (half-domain), 50.3% kept | 3289 | 2277 | **1.4x** |
+| Path | Time (ms) | Output |
+|------|-----------|--------|
+| ParaView 6.1.0 baseline (`vtkClipDataSet` fallback for polyhedra) | 4,822 | 1,450,017 cells, 3,406,651 pts |
+| `vtkTableBasedClipDataSet` with first-class López polyhedron support | **194** | 1,449,631 cells, 3,283,329 pts |
 
-TBC is faster than CDS on all scenarios. Edge-locator sizing is bounded by the
-set of edges actually intersected by the plane (O(N_intersected ×
-avg_edges_per_cell)) rather than the full input edge set, which keeps the
-small-cut scenarios fast and eliminates the half-domain slowdown seen in
-earlier clip implementations that pre-populated the locator with all input
-points.
+This is a **~25x speedup** at the user-visible Clip filter level. The
+dominant contribution is that `vtkTableBasedClipDataSet` now handles
+polyhedra directly via `CountClip`/`EmitClip` instead of falling back to a
+contour-based clip pipeline; the unified inside/outside classification
+(shared with `ContourCell`) avoids redundant per-cell vertex tagging across
+the count and emit passes.
 
-Windows baseline (`vtkClipDataSet`, ParaView 6.0.1): did not complete within
-5 minutes on large-fraction scenarios (>99% kept). Small-fraction Linux CDS
-timings above are consistent with PV 6.0.1 behavior on the same scenarios.
+Edge-locator sizing is bounded by the set of edges actually intersected by
+the plane (O(N_intersected × avg_edges_per_cell)) rather than the full input
+edge set, which keeps small-cut scenarios fast and avoids the half-domain
+slowdown seen in earlier clip implementations that pre-populated the locator
+with all input points.
 
 **Summary**: on this all-polyhedra CFD mesh, `vtkContour3DLinearGrid` is
-**~20x faster** than serial López contour and **~170x faster** than the
-ParaView 6.0.1 baseline. `vtkTableBasedClipDataSet` is **1.4–2.1x faster**
-than `vtkClipDataSet` on all cut scenarios. The PV 6.0.1 `vtkClipDataSet`
-did not complete large-fraction cuts within 5 minutes.
+**~22x faster** than serial López contour and **~175x faster** than the
+ParaView 6.1.0 baseline (no normals). With ComputeNormals=ON the speedup vs
+baseline is ~143x. `vtkTableBasedClipDataSet` with first-class polyhedron
+support is **~25x faster** than the ParaView 6.1.0 baseline on the y=0 plane
+cut. All numbers are PRES=0 contour and y=0 plane clip on the 2.88M-cell
+drone mesh, 8-core Linux workstation, comparing to ParaView 6.1.0 (released)
+on the same hardware.
+
+### Synthetic All-Polyhedra Scaling Study
+
+To characterize how wall-time scales with mesh size, we run the same
+contour and clip operations on synthetic all-polyhedra grids generated by
+`vtkCellTypeSource(VTK_POLYHEDRON)` with a wavelet scalar field
+(`vtkRTAnalyticSource` formula evaluated analytically on the polyhedral
+mesh's points; no auxiliary image or resampler). Isovalue is the field
+midrange; clip plane is `y = D/2` (half-domain).
+
+**Timing methodology**: each reported number is the arithmetic mean of 5
+consecutive `Update()` calls on the same filter instance, after a single
+warmup `Update()` to absorb any one-time scheduling or allocation costs.
+Each `Update()` runs the full filter end-to-end (`RequestData()` to
+output ready). Wall-time is measured with `time.perf_counter()` around
+the `Update()` call. Input dataset construction, scalar field evaluation,
+and any pipeline plumbing happen once before timing starts and are not
+included in the reported numbers.
+
+This is a problem-size scaling study at fixed thread count: every row uses
+the same Linux 8-core workstation as the drone benchmark, with VTK SMP
+running at its default thread count (8). Threads are not varied. The
+timings therefore reflect how total work grows with mesh size on a fixed
+machine, not parallel efficiency (strong scaling) or per-thread efficiency
+under proportional growth (weak scaling).
+
+![Wavelet scaling, contour and clip vs input cells](images/PolyhedronAlgorithms_wavelet_scaling.svg)
+
+| Grid | Input cells | Output cells (contour) | Contour GT=ON (ms) | Contour GT=OFF (ms) | Clip y=mid (ms) |
+|------|------------:|------------------------:|-------------------:|--------------------:|----------------:|
+| 100³ | 1.0 M       | 167 K                   | 18                 | 16                  | 39              |
+| 200³ | 8.0 M       | 673 K                   | 90                 | 76                  | 309             |
+| 300³ | 27.0 M      | 1.52 M                  | 230                | 200                 | 1,077           |
+| 400³ | 64.0 M      | 2.69 M                  | 463                | 435                 | 2,656           |
+| 500³ | 125.0 M     | 4.21 M                  | 761                | 720                 | 5,180           |
+
+The plot above is log-log; the dashed line is slope-1 (linear) for
+reference. Contour wall-time scales sublinearly with input cells: 125x
+input growth from 100³ to 500³ produces only ~42x growth in contour
+time. The reason is dimensional: contour input is volumetric (`O(D³)`)
+but contour output is the iso-surface, which is `O(D²)`. The output-bounded
+portion of the algorithm therefore grows more slowly than total input
+work. Clip output is also volumetric (a fraction of the input mesh), so
+its cost scales close to linearly with input.
+
+The drone production benchmark (2.88 M cells, 51-73 ms contour, 194 ms
+clip) sits comfortably within the linear regime of this scaling curve.
+The 125 M-cell point demonstrates that the algorithm contours nine-figure
+polyhedral meshes in under one second on commodity hardware.
 
 ### GenerateTriangles=OFF for Linear Cells
 
