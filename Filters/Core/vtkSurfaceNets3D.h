@@ -14,6 +14,9 @@
  * i.e., two neighboring objects will share the boundary that separates them.)
  * This threaded implementation uses concepts from Flying Edges to achieve
  * high performance and scalability.
+ * In the presence of locally non-manifold configurations, points may be
+ * selectively duplicated (initially coincident) in order to avoid creating
+ * non-manifold edges/vertices. After smoothing, duplicated points may diverge.
  *
  * The filter implements a contouring operation over a non-continuous scalar
  * field. In comparison, classic contouring methods (like Flying Edges or
@@ -76,6 +79,31 @@
  * for advanced operations like extracting shared/contacting boundaries
  * between two objects. The name of this cell data array is
  * "BoundaryLabels".)
+ *
+ * Non-manifold configurations: certain local 2x2x2 voxel neighborhoods can
+ * produce non-manifold edges/vertices if incident faces share points
+ * naively. This can happen even for a single extracted label (i.e., a binary
+ * foreground/background segmentation), and additional non-manifold situations
+ * can arise in multi-label images depending on the local arrangement of
+ * labels.
+ *
+ * This implementation detects such neighborhoods and, when a known split
+ * pattern exists, resolves them by selectively duplicating the local point so
+ * that incident faces are separated into locally consistent components while
+ * still keeping coincident geometry where regions share a face. Some
+ * neighborhoods may be detected as non-manifold but remain unresolvable.
+ *
+ * To aid inspection/debugging, the filter also outputs a point-data array
+ * named "NonManifoldTableIndices" (signed int8). For each generated output
+ * point, the value is a compact code describing how the local neighborhood
+ * around that point was treated:
+ * - -2: the neighborhood was treated as manifold (no point duplication).
+ * - -1: the neighborhood was detected as non-manifold, but no split pattern
+ *       could be selected (unresolvable case).
+ * -  0 or greater: a split pattern was selected; the value is the index into
+ *       the internal non-manifold metadata table used to choose point
+ *       duplication and per-component sub-cases.
+ * See vtkSurfaceNets3DNonManifoldCases.h for details.
  *
  * Note also that the content of the filter's output can be controlled by
  * specifying the OutputStyle.  This produces different output which
