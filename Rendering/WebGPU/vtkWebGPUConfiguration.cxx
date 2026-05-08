@@ -15,6 +15,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <cstdint>
+#include <cstring>
 #include <sstream>
 
 #ifdef __EMSCRIPTEN__
@@ -340,13 +341,18 @@ void PrintAdapter(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
 class DawnMemoryDump : public dawn::native::MemoryDump
 {
 public:
+  static constexpr const char* NameSize = "size";
+  static constexpr const char* NameObjectCount = "object_count";
+  static constexpr const char* UnitsBytes = "bytes";
+  static constexpr const char* UnitsObjects = "objects";
+
   void AddScalar(const char* name, const char* key, const char* units, uint64_t value) override
   {
-    if (key == MemoryDump::kNameSize && units == MemoryDump::kUnitsBytes)
+    if (std::strcmp(key, NameSize) == 0 && std::strcmp(units, UnitsBytes) == 0)
     {
       TotalSize += value;
     }
-    else if (key == MemoryDump::kNameObjectCount && units == MemoryDump::kUnitsObjects)
+    else if (std::strcmp(key, NameObjectCount) == 0 && std::strcmp(units, UnitsObjects) == 0)
     {
       TotalObjects += value;
     }
