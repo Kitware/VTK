@@ -38,12 +38,22 @@ inline bool IsSigned(int VariantType)
     IsSigned64Bit(VariantType));
 #endif
 }
+// Overload prevents warnings about enums stored as signed or unsigned.
+inline bool IsSigned(unsigned int VariantType)
+{
+  return IsSigned(static_cast<int>(VariantType));
+}
 
 // ----------------------------------------------------------------------
 
 inline bool IsFloatingPoint(int VariantType)
 {
   return ((VariantType == VTK_FLOAT) || (VariantType == VTK_DOUBLE));
+}
+// Overload prevents warnings about enums stored as signed or unsigned.
+inline bool IsFloatingPoint(unsigned int VariantType)
+{
+  return IsFloatingPoint(static_cast<int>(VariantType));
 }
 
 // ----------------------------------------------------------------------
