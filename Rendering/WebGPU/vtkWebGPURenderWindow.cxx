@@ -266,15 +266,16 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   // 1. Temporarily preventing Display closure during X11 window destruction
   // 2. Destroying the X11 window (without closing the Display)
   // 3. Finalizing Vulkan (which can safely access the Display)
-  // 4. Closing the Display after Vulkan is fully finalized
+  // 4. Let the destructor close the Display (after Vulkan finalization)
 
   // Temporarily disable Display closure during window destruction
-  bool savedOwnDisplay = false;
 #if defined(VTK_USE_X)
   if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    savedOwnDisplay = xlibWindow->GetOwnDisplay();
-    xlibWindow->SetOwnDisplay(false);
+    if (xlibWindow->GetOwnDisplay())
+    {
+      xlibWindow->SetOwnDisplay(false);
+    }
   }
 #endif // VTK_USE_X
 
@@ -284,12 +285,11 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   // Finalize Vulkan (Display is still valid for any deferred initialization)
   this->WGPUConfiguration->Finalize();
 
-  // Now close the Display after Vulkan finalization is complete
+  // Restore Display ownership so destructor can properly clean up
 #if defined(VTK_USE_X)
   if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    xlibWindow->SetOwnDisplay(savedOwnDisplay);
-    xlibWindow->CloseDisplay();
+    xlibWindow->SetOwnDisplay(true);
   }
 #endif // VTK_USE_X
 
