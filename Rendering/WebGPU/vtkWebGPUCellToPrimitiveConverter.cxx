@@ -492,16 +492,19 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     {
       auto& cellArray = cellArrays[i];
       auto* connectivityArray = cellArray->GetConnectivityArray();
+#if defined(VTK_USE_64BIT_IDS)
       if (connectivityArray->GetNumberOfValues() > static_cast<vtkIdType>(VTK_TYPE_UINT32_MAX))
       {
         vtkErrorMacro(
           << "Number of connectivity ids exceeds maximum possible unsigned 32-bit integer.");
         continue;
       }
+#endif
       vtkTypeUInt32 arraySize = static_cast<vtkTypeUInt32>(connectivityArray->GetNumberOfValues());
       auto& [vertexOffset, vertexCount] = (*vertexOffsetAndCounts)[i];
       vertexCount = arraySize;
       vertexOffset = static_cast<vtkTypeUInt32>(idsToUpload.size());
+#if defined(VTK_USE_64BIT_IDS)
       if (pointOffset > static_cast<vtkIdType>(VTK_TYPE_UINT32_MAX))
       {
         // pointOffset will be cast to a smaller type. warn once about it.
@@ -513,6 +516,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
                              "split your dataset into more number of blocks.");
         }
       }
+#endif
       const auto pointOffsetU32 = static_cast<vtkTypeUInt32>(pointOffset);
       auto ids = vtk::DataArrayValueRange(connectivityArray);
       for (auto value : ids)
@@ -548,6 +552,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       auto& cellArray = cellArrays[i];
       auto& [vertexOffset, vertexCount] = (*vertexOffsetAndCounts)[i];
       vertexOffset = numberOfPrimitives * static_cast<vtkTypeUInt32>(primitiveSize);
+#if defined(VTK_USE_64BIT_IDS)
       if (pointOffset > static_cast<vtkIdType>(VTK_TYPE_UINT32_MAX))
       {
         // pointOffset will be cast to a smaller type. warn once about it.
@@ -559,6 +564,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
                              "split your dataset into more number of blocks.");
         }
       }
+#endif
       const auto applyPointOffset = [offset = static_cast<vtkTypeUInt32>(pointOffset)](
                                       vtkIdType pointId) -> vtkTypeUInt32
       { return pointId + offset; };
