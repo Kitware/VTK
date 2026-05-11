@@ -44,8 +44,11 @@ int TestCGNSFlipFaceNormals(int argc, char* argv[])
   vtkPolyhedron* nface = vtkPolyhedron::SafeDownCast(cell);
   vtkPolygon* ngon = vtkPolygon::SafeDownCast(nface->GetFace(0));
   vtkVector3d normFirst;
-  vtkPolygon::ComputeNormal(ngon->GetPoints(), ngon->GetNumberOfPoints(),
-    ngon->GetPointIds()->GetPointer(0), normFirst.GetData());
+  // The polygon returned by vtkPolyhedron::GetFace stores its face vertices
+  // locally in face-traversal order (0..N-1), while GetPointIds() holds the
+  // original GLOBAL point ids from the parent unstructured grid. Use the
+  // two-argument overload, which uses the documented natural-order indexing.
+  vtkPolygon::ComputeNormal(ngon->GetPoints(), normFirst.GetData());
 
   nfacenReader->SetFlipFaceNormals(true);
   nfacenReader->Update();
@@ -59,8 +62,7 @@ int TestCGNSFlipFaceNormals(int argc, char* argv[])
   nface = vtkPolyhedron::SafeDownCast(cell);
   ngon = vtkPolygon::SafeDownCast(nface->GetFace(0));
   vtkVector3d normSecond;
-  vtkPolygon::ComputeNormal(ngon->GetPoints(), ngon->GetNumberOfPoints(),
-    ngon->GetPointIds()->GetPointer(0), normSecond.GetData());
+  vtkPolygon::ComputeNormal(ngon->GetPoints(), normSecond.GetData());
 
   // Test is Normals are oriented in the opposite direction with FlipFaceNormals activated.
   if (normSecond.Dot(normFirst) > 0.0)
