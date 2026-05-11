@@ -9,6 +9,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureNormalizationHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -30,6 +31,7 @@ void vtkOpenGLTextureNormalizationHelper::PrintSelf(ostream& os, vtkIndent inden
   }
 }
 
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkOpenGLTextureNormalizationHelper> vtkOpenGLTextureNormalizationHelper::Create(
   vtkOpenGLRenderWindow* context)
 {

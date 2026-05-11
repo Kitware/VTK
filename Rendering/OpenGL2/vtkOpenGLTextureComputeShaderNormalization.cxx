@@ -13,13 +13,16 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLTextureComputeShaderNormalization);
 
+//----------------------------------------------------------------------------
 vtkOpenGLTextureComputeShaderNormalization::vtkOpenGLTextureComputeShaderNormalization()
 {
   this->Mode = ConversionMode::ComputeShader;
 }
 
+//----------------------------------------------------------------------------
 vtkOpenGLTextureComputeShaderNormalization::~vtkOpenGLTextureComputeShaderNormalization()
 {
   if (this->ComputeProgram)
@@ -32,11 +35,13 @@ vtkOpenGLTextureComputeShaderNormalization::~vtkOpenGLTextureComputeShaderNormal
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureComputeShaderNormalization::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureComputeShaderNormalization::Initialize(vtkOpenGLRenderWindow* context)
 {
   if (!context)
@@ -54,6 +59,7 @@ void vtkOpenGLTextureComputeShaderNormalization::Initialize(vtkOpenGLRenderWindo
   }
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureComputeShaderNormalization::InitializeComputeProgram()
 {
   // Compile compute shader that normalizes 16-bit integer to 32-bit float
@@ -114,6 +120,7 @@ void main() {
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureComputeShaderNormalization::UploadToIntermediateTexture(const void* sourceData,
   size_t vtkNotUsed(numValues), int vtkNotUsed(numComps), unsigned int width, unsigned int height,
   GLenum vtkNotUsed(sourceFormat))
@@ -136,6 +143,7 @@ bool vtkOpenGLTextureComputeShaderNormalization::UploadToIntermediateTexture(con
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureComputeShaderNormalization::RunNormalizationCompute(
   int numComps, unsigned int targetTexture, unsigned int width, unsigned int height)
 {
@@ -175,6 +183,7 @@ bool vtkOpenGLTextureComputeShaderNormalization::RunNormalizationCompute(
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureComputeShaderNormalization::ConvertUShortToFloat(const void* sourceData,
   size_t numValues, int numComps, unsigned int targetTexture, unsigned int width,
   unsigned int height)
@@ -213,6 +222,7 @@ bool vtkOpenGLTextureComputeShaderNormalization::ConvertUShortToFloat(const void
   return this->RunNormalizationCompute(numComps, targetTexture, width, height);
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureComputeShaderNormalization::ConvertShortToFloat(const void* sourceData,
   size_t numValues, int numComps, unsigned int targetTexture, unsigned int width,
   unsigned int height)

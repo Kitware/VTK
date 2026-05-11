@@ -8,13 +8,16 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLTextureFramebufferNormalization);
 
+//----------------------------------------------------------------------------
 vtkOpenGLTextureFramebufferNormalization::vtkOpenGLTextureFramebufferNormalization()
 {
   this->Mode = ConversionMode::CopyTexImage;
 }
 
+//----------------------------------------------------------------------------
 vtkOpenGLTextureFramebufferNormalization::~vtkOpenGLTextureFramebufferNormalization()
 {
   if (this->ConversionProgram)
@@ -35,11 +38,13 @@ vtkOpenGLTextureFramebufferNormalization::~vtkOpenGLTextureFramebufferNormalizat
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureFramebufferNormalization::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureFramebufferNormalization::Initialize(vtkOpenGLRenderWindow* context)
 {
   if (!context)
@@ -57,6 +62,7 @@ void vtkOpenGLTextureFramebufferNormalization::Initialize(vtkOpenGLRenderWindow*
   }
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureFramebufferNormalization::InitializeConversionShader()
 {
   // Vertex shader: renders a fullscreen quad using gl_VertexID
@@ -153,6 +159,7 @@ void main() {
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureFramebufferNormalization::UploadToIntermediateTexture(const void* sourceData,
   size_t vtkNotUsed(numValues), int vtkNotUsed(numComps), unsigned int width, unsigned int height,
   GLenum internalFormat, GLenum dataFormat)
@@ -175,6 +182,7 @@ bool vtkOpenGLTextureFramebufferNormalization::UploadToIntermediateTexture(const
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureFramebufferNormalization::PerformFramebufferConversion(
   unsigned int targetTexture, int vtkNotUsed(numComps), unsigned int width, unsigned int height,
   float scaleFactor)
@@ -217,6 +225,7 @@ bool vtkOpenGLTextureFramebufferNormalization::PerformFramebufferConversion(
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureFramebufferNormalization::ConvertUShortToFloat(const void* sourceData,
   size_t numValues, int numComps, unsigned int targetTexture, unsigned int width,
   unsigned int height)
@@ -271,6 +280,7 @@ bool vtkOpenGLTextureFramebufferNormalization::ConvertUShortToFloat(const void* 
     targetTexture, numComps, width, height, 1.0f / 65535.0f);
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureFramebufferNormalization::ConvertShortToFloat(const void* sourceData,
   size_t numValues, int numComps, unsigned int targetTexture, unsigned int width,
   unsigned int height)

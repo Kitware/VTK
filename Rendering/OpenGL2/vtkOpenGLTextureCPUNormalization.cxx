@@ -7,18 +7,22 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLTextureCPUNormalization);
 
+//----------------------------------------------------------------------------
 vtkOpenGLTextureCPUNormalization::vtkOpenGLTextureCPUNormalization()
 {
   this->Mode = ConversionMode::CPU;
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLTextureCPUNormalization::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureCPUNormalization::ConvertUShortToFloat(const void* sourceData,
   size_t numValues, int numComps, unsigned int targetTexture, unsigned int width,
   unsigned int height)
@@ -64,6 +68,7 @@ bool vtkOpenGLTextureCPUNormalization::ConvertUShortToFloat(const void* sourceDa
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkOpenGLTextureCPUNormalization::ConvertShortToFloat(const void* sourceData, size_t numValues,
   int numComps, unsigned int targetTexture, unsigned int width, unsigned int height)
 {
