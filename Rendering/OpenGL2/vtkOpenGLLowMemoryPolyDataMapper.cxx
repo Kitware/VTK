@@ -1141,6 +1141,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
       // for wide lines, we need to acount for 6 pseudo vertices per line segment.
       // i.e 2 pseudo vertices per end point of a line segment.
       vertexId = (gl_VertexID - vertexIdOffset) / 3;
+      pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID / 3).x + pointIdOffset;
     }
     else
     {
