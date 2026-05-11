@@ -17,6 +17,7 @@ vtk_add_test_python(
   EnSightGoldElementsBin.py
   EnSightGoldEmptyParts.py,NO_VALID,NO_RT
   EnSightGoldFortran.py
+  EnSightGoldNumericPath.py,NO_VALID,NO_RT
   EnSightGoldRigidBody.py
   EnSightGoldUndefAndPartialAscii.py,NO_VALID,NO_RT
   EnSightGoldUndefAndPartialBin.py,NO_VALID,NO_RT

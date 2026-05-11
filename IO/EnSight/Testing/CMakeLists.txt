@@ -3,6 +3,8 @@ vtk_module_test_data(
   Data/EnSight/UndefAndPartial/,REGEX:.*
   Data/EnSight/UndefAndPartialAscii/,REGEX:.*
   Data/EnSight/particles/,REGEX:.*
+  Data/EnSight/numeric_path/,REGEX:.*
+  Data/EnSight/numeric_path/0000/,REGEX:.*
   Data/EnSight/.EnsightData_temporalCache/,REGEX:.*
   )
 
