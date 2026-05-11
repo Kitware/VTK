@@ -6,6 +6,7 @@
 #include "vtkMarchingCellsClipCases.h"
 
 #include "vtkAppendFilter.h"
+#include "vtkArrayComponents.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h"
@@ -193,7 +194,21 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     // This is needed by vtkClipDataSet in case we fall back to it.
     inputCopy->GetPointData()->AddArray(inputArray);
     inputCopy->GetPointData()->SetActiveScalars(inputArray->GetName());
-    scalars = inputArray;
+    // The clip kernels consume scalars as a single-component array (e.g. via
+    // vtk::DataArrayValueRange<1>). When the user-supplied input array has
+    // more than one component, expose component 0 as an implicit view (no
+    // data copy). This matches the long-standing vtkClipDataSet behavior of
+    // reading only component 0. The original multi-component array is left
+    // in inputCopy under its real name so the active-scalars contract and
+    // downstream attribute interpolation are unaffected.
+    if (inputArray->GetNumberOfComponents() != 1)
+    {
+      scalars = vtk::ComponentOrNormAsDataArray(inputArray, 0);
+    }
+    else
+    {
+      scalars = inputArray;
+    }
   }
   else
   {
