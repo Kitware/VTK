@@ -250,6 +250,48 @@ bool TestGaussianFieldArray(int argc, char* argv[])
         "CELL DATA, Wrong prediction value.");
   }
 
+  // Testing input permutations
+  filter->SetInputPermutation({ 0, 2, 1 });
+  filter->Update();
+
+  output = vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
+  prediction = vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
+
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
+  for (int i = 0; i < 100; ++i)
+  {
+    double expected0 = i % 2 == 0 ? i + 1.0 : i - 49.0;
+    double expected1 = i % 2 == 1 ? -(i + 51.0) : -i - 1.0;
+    test &= ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[0], expected0, 0.0001),
+      "CELL DATA, Wrong prediction value.");
+    test &= ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[1], expected1, 0.0001),
+      "CELL DATA, Wrong prediction value.");
+  }
+
+  // Testing output permutations
+  filter->SetInputPermutation({ 0, 1, 2 });
+  filter->SetOutputPermutation({ 1, 0, 2 });
+  filter->Update();
+
+  output = vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
+  prediction = vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
+
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
+  for (int i = 0; i < 100; ++i)
+  {
+    int x = i % 10;
+    int y = i / 10;
+
+    double expected0 = 1.0 + x * 10.0 + y;
+    double expected1 = -(51.0 + x * 10.0 + y);
+
+    test &= ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[0], expected0, 0.0001),
+      "CELL DATA, Wrong prediction value.");
+
+    test &= ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[1], expected1, 0.0001),
+      "CELL DATA, Wrong prediction value.");
+  }
+
   return test;
 }
 }

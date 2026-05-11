@@ -10,6 +10,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
+#include "vtkONNXInternalUtils.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <numeric>
@@ -19,20 +20,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkONNXInference);
-
-namespace
-{
-//------------------------------------------------------------------------------
-Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
-{
-  int64_t numberElements = std::accumulate(shape.begin(), shape.end(), 1LL, std::multiplies<>());
-  Ort::MemoryInfo memInfo =
-    Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-  Ort::Value tensor =
-    Ort::Value::CreateTensor<float>(memInfo, data, numberElements, shape.data(), shape.size());
-  return tensor;
-}
-} // anonymous namespace
 
 //------------------------------------------------------------------------------
 vtkONNXInference::vtkONNXInference()
@@ -234,6 +221,40 @@ void vtkONNXInference::ClearInputShape()
 }
 
 //------------------------------------------------------------------------------
+void vtkONNXInference::SetInputPermutation(const std::vector<int>& permutation)
+{
+  if (this->InputPermutation != permutation)
+  {
+    vtkDebugMacro("setting InputPermutation");
+    this->InputPermutation = permutation;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const std::vector<int>& vtkONNXInference::GetInputPermutation() const
+{
+  return this->InputPermutation;
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetOutputPermutation(const std::vector<int>& permutation)
+{
+  if (this->OutputPermutation != permutation)
+  {
+    vtkDebugMacro("setting OutputPermutation");
+    this->OutputPermutation = permutation;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const std::vector<int>& vtkONNXInference::GetOutputPermutation() const
+{
+  return this->OutputPermutation;
+}
+
+//------------------------------------------------------------------------------
 int vtkONNXInference::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -384,6 +405,8 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
   }
   int64_t numElements = input->GetNumberOfElements(this->ArrayAssociation);
   float* outData = nullptr;
+  std::vector<int64_t> outputShape;
+  int64_t outputNumElements = 0;
 
   try
   {
@@ -392,8 +415,8 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
     // Retrieve output
     outData = outputTensors[0].GetTensorMutableData<float>();
     Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
-    std::vector<int64_t> outputShape = shapeInfo.GetShape();
-    int64_t outputNumElements =
+    outputShape = shapeInfo.GetShape();
+    outputNumElements =
       std::accumulate(outputShape.begin(), outputShape.end(), 1LL, std::multiplies<>());
 
     if (numElements != outputNumElements / this->OutputDimension)
@@ -412,7 +435,17 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
   vtkNew<vtkFloatArray> outputArray;
   outputArray->SetName("PredictedField");
   outputArray->SetNumberOfComponents(this->OutputDimension);
-  outputArray->SetNumberOfTuples(numElements);
+  outputArray->SetNumberOfTuples(outputNumElements / this->OutputDimension);
+  if (!this->OutputPermutation.empty() &&
+    vtkONNXInternalUtils::IsPermutation(this->OutputPermutation))
+  {
+    std::vector<int64_t> vtkShape(outputShape.size());
+    for (size_t i = 0; i < vtkShape.size(); ++i)
+    {
+      vtkShape[i] = outputShape[this->OutputPermutation[i]];
+    }
+    vtkONNXInternalUtils::Permute(outData, vtkShape, this->OutputPermutation);
+  }
 
   for (int64_t i = 0; i < numElements; ++i)
   {
@@ -442,7 +475,7 @@ bool vtkONNXInference::GenerateInputTensorFromParameters(
   }
   try
   {
-    inputTensor = ::RawToTensor(parameters.data(), { this->InputShape[0] });
+    inputTensor = vtkONNXInternalUtils::RawToTensor(parameters.data(), { this->InputShape[0] });
   }
   catch (const Ort::Exception& exception)
   {
@@ -456,6 +489,7 @@ bool vtkONNXInference::GenerateInputTensorFromParameters(
 bool vtkONNXInference::GenerateInputTensorFromFieldArray(
   Ort::Value& inputTensor, vtkDataSetAttributes* inAttributes)
 {
+  // Retrieve array pointer
   vtkDataArray* modelInput = inAttributes->GetArray(this->ProcessedFieldArrayName.c_str());
   if (!modelInput)
   {
@@ -475,9 +509,22 @@ bool vtkONNXInference::GenerateInputTensorFromFieldArray(
     return false;
   }
 
+  // Apply permutation if any
+  if (!this->InputPermutation.empty() &&
+    vtkONNXInternalUtils::IsPermutation(this->InputPermutation))
+  {
+    this->InputDataBuffer.resize(floatModelInput->GetNumberOfValues());
+    std::copy(modelInputData, modelInputData + floatModelInput->GetNumberOfValues(),
+      this->InputDataBuffer.begin());
+    vtkONNXInternalUtils::Permute(
+      this->InputDataBuffer.data(), this->InputShape, this->InputPermutation);
+    modelInputData = this->InputDataBuffer.data();
+  }
+
+  // Get ONNX tensor
   try
   {
-    inputTensor = ::RawToTensor(modelInputData, this->InputShape);
+    inputTensor = vtkONNXInternalUtils::RawToTensor(modelInputData, this->InputShape);
   }
   catch (const Ort::Exception& exception)
   {
