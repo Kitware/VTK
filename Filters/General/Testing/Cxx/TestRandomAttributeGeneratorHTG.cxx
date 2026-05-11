@@ -68,7 +68,7 @@ bool TestRandomUnsignedCharCellArray(vtkCellData* cellData, const char* arrayNam
 /**
  * Test the random attributes filter on a single HTG
  */
-bool TestRandomAttributesSingleHTG(std::string& dataRoot)
+bool TestRandomAttributesSingleHTG(int argc, char* argv[])
 {
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
   htgSource->SetSeed(42);
@@ -108,26 +108,14 @@ bool TestRandomAttributesSingleHTG(std::string& dataRoot)
     return false;
   }
 
-  // Do regression test on the whole dataset
-  const std::string baselinePath = dataRoot + "/Data/HTG/random_attributes.htg";
-  vtkNew<vtkXMLHyperTreeGridReader> reader;
-  reader->SetFileName(baselinePath.c_str());
-  reader->Update();
-  auto expectedData = reader->GetOutput();
-
-  if (!vtkTestUtilities::CompareDataObjects(data, expectedData))
-  {
-    return false;
-  }
-
-  return true;
+  return vtkTestUtilities::RegressionTest(argc, argv, data, "/Data/HTG/random_attributes.vtkhdf");
 }
 
 //------------------------------------------------------------------------------
 /**
  * Test the random attributes filter on a collection containing two HTGs
  */
-bool TestRandomAttributesCompositeHTG()
+bool TestRandomAttributesCompositeHTG(int argc, char* argv[])
 {
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
   htgSource->SetSeed(42);
@@ -192,27 +180,19 @@ bool TestRandomAttributesCompositeHTG()
     }
   }
 
-  return true;
+  return vtkTestUtilities::RegressionTest(
+    argc, argv, compositeData, "/Data/HTG/random_attributes_composite.vtkhdf");
 }
 
 //------------------------------------------------------------------------------
 int TestRandomAttributeGeneratorHTG(int argc, char* argv[])
 {
-  vtkNew<vtkTesting> testHelper;
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified.";
-    return EXIT_FAILURE;
-  }
-  std::string dataRoot = testHelper->GetDataRoot();
-
-  if (!TestRandomAttributesSingleHTG(dataRoot))
+  if (!TestRandomAttributesSingleHTG(argc, argv))
   {
     return EXIT_FAILURE;
   }
 
-  if (!TestRandomAttributesCompositeHTG())
+  if (!TestRandomAttributesCompositeHTG(argc, argv))
   {
     return EXIT_FAILURE;
   }

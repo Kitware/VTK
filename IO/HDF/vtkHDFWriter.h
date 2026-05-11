@@ -109,11 +109,11 @@ public:
    * Get/set the chunk size used for chunk storage layout. Chunked storage is required for
    * extensible/unlimited dimensions datasets (such as time-dependent data), and filters such as
    * compression. Read more about chunks and chunk size here :
-   * https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
+   * https://support.hdfgroup.org/documentation/hdf5/latest/hdf5_chunking.html
    *
    * Regarding performance impact of chunking and how to find the optimal value depending on the
    * data, please check this documentation:
-   * https://docs.hdfgroup.org/hdf5/develop/_l_b_dset_layout.html
+   * https://support.hdfgroup.org/documentation/hdf5/latest/_l_b_dset_layout.html
    *
    * Defaults to 25000 (to fit with the default chunk cache of 1Mb of HDF5).
    */
