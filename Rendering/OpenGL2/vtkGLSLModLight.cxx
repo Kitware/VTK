@@ -678,7 +678,7 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
       {
         oss << "  // Multi-scatter approximation: see https://bruop.github.io/ibl/\n"
                "  diffuse = (1.0 - metallic) * (1.0 - 0.04) * albedo;\n"
-               "  vec3 Fr = max(vec3(1 - roughness), F0) - F0;\n"
+               "  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;\n"
                "  vec3 k_S = F0 + Fr * pow(1.0 - NdV, 5.0);\n"
                "  vec3 FssEss = k_S * brdf.r + F90 * brdf.g;\n"
                "  float Ems = 1.0 - (brdf.r + brdf.g);\n"
