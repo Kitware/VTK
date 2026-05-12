@@ -620,6 +620,17 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
 }
 
 //------------------------------------------------------------------------------
+const char* vtkDataObject::GetAttributeTypeAsString(int attributeType)
+{
+  if (attributeType < 0 || attributeType >= NUMBER_OF_ATTRIBUTE_TYPES)
+  {
+    vtkGenericWarningMacro("Bad association type.");
+    return nullptr;
+  }
+  return AttributeTypesNames[attributeType];
+}
+
+//------------------------------------------------------------------------------
 int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
 {
   if (!associationName)
