@@ -373,6 +373,32 @@ bool TestRedistributeXML(vtkMPIController* controller, const char* shell_name)
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+bool TestRedistributeInvalidExtent(vtkMPIController* controller)
+{
+  int myRank = controller->GetLocalProcessId();
+
+  // Create HTG with an invalid extent on all ranks
+  vtkNew<vtkHyperTreeGridSource> htg;
+  htg->SetDescriptor(".");
+  htg->SetUseMask(true);
+  htg->SetMask("0");
+  htg->SetDimensions(2, 2, 1);
+
+  vtkNew<vtkHyperTreeGridRedistribute> redistribute;
+  redistribute->SetDebug(true);
+  redistribute->SetInputConnection(htg->GetOutputPort());
+  redistribute->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
+  vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();
+
+  if (!::CheckRedistributeResult(outputHTG, { 0, 0, 0 }, { 0, 0, 0 }, myRank))
+  {
+    return false;
+  }
+
+  return true;
+}
 }
 
 int TestHyperTreeGridRedistribute(int argc, char* argv[])
@@ -404,6 +430,7 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   success &= ::TestRedistributeMultiComponent(controller);
   success &= ::TestRedistributeComposite(controller);
   success &= ::TestRedistributeMultiBlock(controller, multiblock_name);
+  success &= ::TestRedistributeInvalidExtent(controller);
   success &= ::TestRedistributeXML(controller, shell_name);
 
   delete[] shell_name;

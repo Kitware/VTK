@@ -72,7 +72,11 @@ private:
   int ProcessComposite(vtkDataObject*, vtkDataObject*);
 
   /* Subroutines */
-  void ExchangeHTGMetadata();
+
+  /**
+   * Return true on success.
+   */
+  bool ExchangeHTGMetadata();
   void CollectLocalTreeIds();
   void BuildTargetPartMap();
   void ExchangeHyperTreeMetaData(vtkBitArray* descriptorSendBuffer,
