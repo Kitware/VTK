@@ -7,7 +7,9 @@
 #include <vtkDataSetAttributes.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
+#include <vtkInformation.h>
 #include <vtkIntArray.h>
+#include <vtkLogger.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
@@ -441,8 +443,305 @@ bool AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
   return AppendDatasetsAndPrint(inputs, false) && AppendDatasetsAndPrint(inputs, true);
 }
 
+bool TestScalars()
+{
+  vtkLogScopeFunction(INFO);
+  // Set up d1 data object
+  std::vector<DataArrayInfo> d1PointInfo(2, DataArrayInfo());
+  d1PointInfo[0].Name = "A";
+  d1PointInfo[0].Value = std::vector<int>(1, 1);
+
+  d1PointInfo[1].Name = "B";
+  d1PointInfo[1].Value = std::vector<int>(1, 2);
+
+  std::vector<DataArrayInfo> d1CellInfo(2, DataArrayInfo());
+  d1CellInfo[0].Name = "a";
+  d1CellInfo[0].Value = std::vector<int>(1, 1);
+
+  d1CellInfo[1].Name = "b";
+  d1CellInfo[1].Value = std::vector<int>(1, 2);
+
+  vtkNew<vtkPolyData> d1;
+  int d1NumberOfPoints = 3;
+  int d1NumberOfCells = 7;
+  CreateDataset(d1, d1NumberOfPoints, d1PointInfo, d1NumberOfCells, d1CellInfo);
+
+  // Set up d2 data object
+  std::vector<DataArrayInfo> d2PointInfo(3, DataArrayInfo());
+  d2PointInfo[0].Name = "A";
+  d2PointInfo[0].Value = std::vector<int>(1, 3);
+
+  d2PointInfo[1].Name = "B";
+  d2PointInfo[1].Value = std::vector<int>(1, 4);
+
+  d2PointInfo[2].Name = "C";
+  d2PointInfo[2].Value = std::vector<int>(1, 5);
+
+  std::vector<DataArrayInfo> d2CellInfo(2, DataArrayInfo());
+  d2CellInfo[0].Name = "b";
+  d2CellInfo[0].Value = std::vector<int>(1, 4);
+
+  d2CellInfo[1].Name = "a";
+  d2CellInfo[1].Value = std::vector<int>(1, 3);
+
+  vtkNew<vtkPolyData> d2;
+  int d2NumberOfPoints = 7;
+  int d2NumberOfCells = 9;
+  CreateDataset(d2, d2NumberOfPoints, d2PointInfo, d2NumberOfCells, d2CellInfo);
+
+  // This tests that the active attributes are ignored when appending data sets, but
+  // that the active attributes in the output are set to the active attributes in
+  // the input only if all inputs designate the same active attribute.
+
+  // Now append these datasets and print the results
+  std::vector<vtkPolyData*> inputs{ d1, d2 };
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with no active scalars\n";
+    return false;
+  }
+
+  // Set the active scalars in the first dataset to "A" and the active scalars in
+  // the second dataset to "B".
+  d1->GetPointData()->SetActiveScalars("A");
+  d1->GetCellData()->SetActiveScalars("a");
+  d2->GetPointData()->SetActiveScalars("B");
+  d2->GetCellData()->SetActiveScalars("b");
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'B' in D2\n";
+    return false;
+  }
+
+  // Set the active scalars in the first dataset to "B" and the active scalars in
+  // the second dataset to "A".
+  d1->GetPointData()->SetActiveScalars("B");
+  d1->GetCellData()->SetActiveScalars("b");
+  d2->GetPointData()->SetActiveScalars("A");
+  d2->GetCellData()->SetActiveScalars("a");
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'A' in D2\n";
+    return false;
+  }
+
+  // Set the active scalars in both datasets to "A"
+  d1->GetPointData()->SetActiveScalars("A");
+  d1->GetCellData()->SetActiveScalars("a");
+  d2->GetPointData()->SetActiveScalars("A");
+  d2->GetCellData()->SetActiveScalars("a");
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'A' in D2\n";
+    return false;
+  }
+
+  // Set the active scalars in both datasets to "B"
+  d1->GetPointData()->SetActiveScalars("B");
+  d1->GetCellData()->SetActiveScalars("b");
+  d2->GetPointData()->SetActiveScalars("B");
+  d2->GetCellData()->SetActiveScalars("b");
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'B' in D2\n";
+    return false;
+  }
+
+  std::vector<DataArrayInfo> d3PointInfo(3, DataArrayInfo());
+  d3PointInfo[0].Name = "3";
+  d3PointInfo[0].Value = std::vector<int>(1, 3);
+
+  d3PointInfo[1].Name = "4";
+  d3PointInfo[1].Value = std::vector<int>(1, 4);
+
+  d3PointInfo[2].Name = "5";
+  d3PointInfo[2].Value = std::vector<int>(1, 5);
+
+  std::vector<DataArrayInfo> d3CellInfo(2, DataArrayInfo());
+  d3CellInfo[0].Name = "3";
+  d3CellInfo[0].Value = std::vector<int>(1, 3);
+
+  d3CellInfo[1].Name = "4";
+  d3CellInfo[1].Value = std::vector<int>(1, 4);
+
+  vtkNew<vtkPolyData> d3;
+  int d3NumberOfPoints = 4;
+  int d3NumberOfCells = 8;
+  CreateDataset(d3, d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
+
+  // No common arrays
+  inputs[0] = d1;
+  inputs[1] = d3;
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with no common array names and no active scalars\n";
+    return false;
+  }
+
+  // mix common and non-common
+  return AppendDatasetsAndPrint({ d1, d2, d3 });
+}
+
+//------------------------------------------------------------------------------
+bool TestArrayName()
+{
+  vtkLogScopeFunction(INFO);
+  // Test appending of nullptr array names with active scalars
+  std::vector<DataArrayInfo> d4PointInfo(2, DataArrayInfo());
+  d4PointInfo[0].Name = "(null)";
+  d4PointInfo[0].Value = std::vector<int>(1, 10);
+
+  d4PointInfo[1].Name = "Q";
+  d4PointInfo[1].Value = std::vector<int>(1, 11);
+
+  std::vector<DataArrayInfo> d4CellInfo(2, DataArrayInfo());
+  d4CellInfo[0].Name = "(null)";
+  d4CellInfo[0].Value = std::vector<int>(1, 10);
+
+  d4CellInfo[1].Name = "Q";
+  d4CellInfo[1].Value = std::vector<int>(1, 11);
+
+  vtkNew<vtkPolyData> d4;
+  int d4NumberOfPoints = 6;
+  int d4NumberOfCells = 10;
+  CreateDataset(d4, d4NumberOfPoints, d4PointInfo, d4NumberOfCells, d4CellInfo);
+
+  // Set scalars to array whose name is nullptr
+  d4->GetPointData()->SetScalars(d4->GetPointData()->GetArray(0));
+  d4->GetCellData()->SetScalars(d4->GetCellData()->GetArray(0));
+
+  std::vector<DataArrayInfo> d5PointInfo(2, DataArrayInfo());
+  d5PointInfo[0].Name = "Q";
+  d5PointInfo[0].Value = std::vector<int>(1, 12);
+
+  d5PointInfo[1].Name = "(null)";
+  d5PointInfo[1].Value = std::vector<int>(1, 13);
+
+  std::vector<DataArrayInfo> d5CellInfo(2, DataArrayInfo());
+  d5CellInfo[0].Name = "Q";
+  d5CellInfo[0].Value = std::vector<int>(1, 12);
+
+  d5CellInfo[1].Name = "(null)";
+  d5CellInfo[1].Value = std::vector<int>(1, 13);
+
+  vtkNew<vtkPolyData> d5;
+  int d5NumberOfPoints = 6;
+  int d5NumberOfCells = 3;
+  CreateDataset(d5, d5NumberOfPoints, d5PointInfo, d5NumberOfCells, d5CellInfo);
+
+  // Set scalars to array whose name is nullptr
+  d5->GetPointData()->SetScalars(d5->GetPointData()->GetArray(1));
+  d5->GetCellData()->SetScalars(d5->GetCellData()->GetArray(1));
+  std::vector<vtkPolyData*> inputs{ d4, d5 };
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with scalar arrays with nullptr names\n";
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestMultiComponent()
+{
+  vtkLogScopeFunction(INFO);
+  std::vector<DataArrayInfo> d6PointInfo(1, DataArrayInfo());
+  d6PointInfo[0].Name = "Q";
+  d6PointInfo[0].NumberOfComponents = 2;
+  d6PointInfo[0].Value = std::vector<int>(2, 14);
+
+  std::vector<DataArrayInfo> d6CellInfo(1, DataArrayInfo());
+  d6CellInfo[0].Name = "Q";
+  d6CellInfo[0].NumberOfComponents = 2;
+  d6CellInfo[0].Value = std::vector<int>(2, 14);
+
+  vtkNew<vtkPolyData> d6;
+  int d6NumberOfPoints = 9;
+  int d6NumberOfCells = 4;
+  CreateDataset(d6, d6NumberOfPoints, d6PointInfo, d6NumberOfCells, d6CellInfo);
+
+  std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
+  d7PointInfo[0].Name = "Q";
+  d7PointInfo[0].NumberOfComponents = 2;
+  d7PointInfo[0].Value = std::vector<int>(2, 15);
+
+  std::vector<DataArrayInfo> d7CellInfo(1, DataArrayInfo());
+  d7CellInfo[0].Name = "Q";
+  d7CellInfo[0].NumberOfComponents = 2;
+  d7CellInfo[0].Value = std::vector<int>(2, 15);
+
+  vtkNew<vtkPolyData> d7;
+  int d7NumberOfPoints = 5;
+  int d7NumberOfCells = 7;
+  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
+  std::vector<vtkPolyData*> inputs{ d6, d7 };
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with scalar arrays with 2 components\n";
+    return false;
+  }
+
+  std::vector<DataArrayInfo> d8PointInfo(1, DataArrayInfo());
+  d8PointInfo[0].Name = "Q";
+  d8PointInfo[0].Value = std::vector<int>(1, 16);
+
+  std::vector<DataArrayInfo> d8CellInfo(1, DataArrayInfo());
+  d8CellInfo[0].Name = "Q";
+  d8CellInfo[0].Value = std::vector<int>(1, 16);
+
+  vtkNew<vtkPolyData> d8;
+  int d8NumberOfPoints = 11;
+  int d8NumberOfCells = 8;
+  CreateDataset(d8, d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
+  inputs[0] = d7;
+  inputs[1] = d8;
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr
+      << "vtkAppendFilter failed with scalar arrays with same name but different components\n";
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestDeepCopy()
+{
+  vtkLogScopeFunction(INFO);
+  std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
+  d7PointInfo[0].Name = "Q";
+  d7PointInfo[0].NumberOfComponents = 2;
+  d7PointInfo[0].Value = std::vector<int>(2, 15);
+
+  std::vector<DataArrayInfo> d7CellInfo(1, DataArrayInfo());
+  d7CellInfo[0].Name = "Q";
+  d7CellInfo[0].NumberOfComponents = 2;
+  d7CellInfo[0].Value = std::vector<int>(2, 15);
+
+  vtkNew<vtkPolyData> d7;
+  int d7NumberOfPoints = 5;
+  int d7NumberOfCells = 7;
+  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
+
+  vtkNew<vtkPolyData> d8;
+  d8->DeepCopy(d7);
+
+  std::vector<vtkPolyData*> inputs{ d7, d8 };
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with deep copied datasets\n";
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestToleranceModes()
 {
+  vtkLogScopeFunction(INFO);
   vtkNew<vtkPoints> points1;
   points1->InsertNextPoint(0.0, 0.0, 0.0);
   points1->InsertNextPoint(0.0, 1.0, 0.0);
@@ -517,302 +816,16 @@ bool TestToleranceModes()
 
   return true;
 }
-
 } // end anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 int TestAppendFilter(int, char*[])
 {
-  // Set up d1 data object
-  std::vector<DataArrayInfo> d1PointInfo(2, DataArrayInfo());
-  d1PointInfo[0].Name = "A";
-  d1PointInfo[0].Value = std::vector<int>(1, 1);
+  bool ret = ::TestScalars();
+  ret = ::TestArrayName() && ret;
+  ret = ::TestMultiComponent() && ret;
+  ret = ::TestDeepCopy() && ret;
+  ret = ::TestToleranceModes() && ret;
 
-  d1PointInfo[1].Name = "B";
-  d1PointInfo[1].Value = std::vector<int>(1, 2);
-
-  std::vector<DataArrayInfo> d1CellInfo(2, DataArrayInfo());
-  d1CellInfo[0].Name = "a";
-  d1CellInfo[0].Value = std::vector<int>(1, 1);
-
-  d1CellInfo[1].Name = "b";
-  d1CellInfo[1].Value = std::vector<int>(1, 2);
-
-  vtkNew<vtkPolyData> d1;
-  int d1NumberOfPoints = 3;
-  int d1NumberOfCells = 7;
-  CreateDataset(d1, d1NumberOfPoints, d1PointInfo, d1NumberOfCells, d1CellInfo);
-
-  // Set up d2 data object
-  std::vector<DataArrayInfo> d2PointInfo(3, DataArrayInfo());
-  d2PointInfo[0].Name = "A";
-  d2PointInfo[0].Value = std::vector<int>(1, 3);
-
-  d2PointInfo[1].Name = "B";
-  d2PointInfo[1].Value = std::vector<int>(1, 4);
-
-  d2PointInfo[2].Name = "C";
-  d2PointInfo[2].Value = std::vector<int>(1, 5);
-
-  std::vector<DataArrayInfo> d2CellInfo(2, DataArrayInfo());
-  d2CellInfo[0].Name = "b";
-  d2CellInfo[0].Value = std::vector<int>(1, 4);
-
-  d2CellInfo[1].Name = "a";
-  d2CellInfo[1].Value = std::vector<int>(1, 3);
-
-  vtkNew<vtkPolyData> d2;
-  int d2NumberOfPoints = 7;
-  int d2NumberOfCells = 9;
-  CreateDataset(d2, d2NumberOfPoints, d2PointInfo, d2NumberOfCells, d2CellInfo);
-
-  // This tests that the active attributes are ignored when appending data sets, but
-  // that the active attributes in the output are set to the active attributes in
-  // the input only if all inputs designate the same active attribute.
-
-  // Now append these datasets and print the results
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with no active scalars: " << std::endl;
-  std::vector<vtkPolyData*> inputs(2, static_cast<vtkPolyData*>(nullptr));
-  inputs[0] = d1;
-  inputs[1] = d2;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with no active scalars\n";
-    return EXIT_FAILURE;
-  }
-
-  // Set the active scalars in the first dataset to "A" and the active scalars in
-  // the second dataset to "B".
-  d1->GetPointData()->SetActiveScalars("A");
-  d1->GetCellData()->SetActiveScalars("a");
-  d2->GetPointData()->SetActiveScalars("B");
-  d2->GetCellData()->SetActiveScalars("b");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with 'A' active scalar in D1, 'B' active scalar in D2: " << std::endl;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'B' in D2\n";
-    return EXIT_FAILURE;
-  }
-
-  // Set the active scalars in the first dataset to "B" and the active scalars in
-  // the second dataset to "A".
-  d1->GetPointData()->SetActiveScalars("B");
-  d1->GetCellData()->SetActiveScalars("b");
-  d2->GetPointData()->SetActiveScalars("A");
-  d2->GetCellData()->SetActiveScalars("a");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with 'B' active scalar in D1, 'A' active scalar in D2: " << std::endl;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'A' in D2\n";
-    return EXIT_FAILURE;
-  }
-
-  // Set the active scalars in both datasets to "A"
-  d1->GetPointData()->SetActiveScalars("A");
-  d1->GetCellData()->SetActiveScalars("a");
-  d2->GetPointData()->SetActiveScalars("A");
-  d2->GetCellData()->SetActiveScalars("a");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with A active scalar in D1 and D2: " << std::endl;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with active scalar 'A' in D1, active scalar 'A' in D2\n";
-    return EXIT_FAILURE;
-  }
-
-  // Set the active scalars in both datasets to "B"
-  d1->GetPointData()->SetActiveScalars("B");
-  d1->GetCellData()->SetActiveScalars("b");
-  d2->GetPointData()->SetActiveScalars("B");
-  d2->GetCellData()->SetActiveScalars("b");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with B active scalar in D1 and D2: " << std::endl;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with active scalar 'B' in D1, active scalar 'B' in D2\n";
-    return EXIT_FAILURE;
-  }
-
-  std::vector<DataArrayInfo> d3PointInfo(3, DataArrayInfo());
-  d3PointInfo[0].Name = "3";
-  d3PointInfo[0].Value = std::vector<int>(1, 3);
-
-  d3PointInfo[1].Name = "4";
-  d3PointInfo[1].Value = std::vector<int>(1, 4);
-
-  d3PointInfo[2].Name = "5";
-  d3PointInfo[2].Value = std::vector<int>(1, 5);
-
-  std::vector<DataArrayInfo> d3CellInfo(2, DataArrayInfo());
-  d3CellInfo[0].Name = "3";
-  d3CellInfo[0].Value = std::vector<int>(1, 3);
-
-  d3CellInfo[1].Name = "4";
-  d3CellInfo[1].Value = std::vector<int>(1, 4);
-
-  vtkNew<vtkPolyData> d3;
-  int d3NumberOfPoints = 4;
-  int d3NumberOfCells = 8;
-  CreateDataset(d3, d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
-
-  // No common arrays
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with no common array names and no active scalars: " << std::endl;
-  inputs[0] = d1;
-  inputs[1] = d3;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with no common array names and no active scalars\n";
-    return EXIT_FAILURE;
-  }
-
-  // Test appending of nullptr array names with active scalars
-  std::vector<DataArrayInfo> d4PointInfo(2, DataArrayInfo());
-  d4PointInfo[0].Name = "(null)";
-  d4PointInfo[0].Value = std::vector<int>(1, 10);
-
-  d4PointInfo[1].Name = "Q";
-  d4PointInfo[1].Value = std::vector<int>(1, 11);
-
-  std::vector<DataArrayInfo> d4CellInfo(2, DataArrayInfo());
-  d4CellInfo[0].Name = "(null)";
-  d4CellInfo[0].Value = std::vector<int>(1, 10);
-
-  d4CellInfo[1].Name = "Q";
-  d4CellInfo[1].Value = std::vector<int>(1, 11);
-
-  vtkNew<vtkPolyData> d4;
-  int d4NumberOfPoints = 6;
-  int d4NumberOfCells = 10;
-  CreateDataset(d4, d4NumberOfPoints, d4PointInfo, d4NumberOfCells, d4CellInfo);
-
-  // Set scalars to array whose name is nullptr
-  d4->GetPointData()->SetScalars(d4->GetPointData()->GetArray(0));
-  d4->GetCellData()->SetScalars(d4->GetCellData()->GetArray(0));
-
-  std::vector<DataArrayInfo> d5PointInfo(2, DataArrayInfo());
-  d5PointInfo[0].Name = "Q";
-  d5PointInfo[0].Value = std::vector<int>(1, 12);
-
-  d5PointInfo[1].Name = "(null)";
-  d5PointInfo[1].Value = std::vector<int>(1, 13);
-
-  std::vector<DataArrayInfo> d5CellInfo(2, DataArrayInfo());
-  d5CellInfo[0].Name = "Q";
-  d5CellInfo[0].Value = std::vector<int>(1, 12);
-
-  d5CellInfo[1].Name = "(null)";
-  d5CellInfo[1].Value = std::vector<int>(1, 13);
-
-  vtkNew<vtkPolyData> d5;
-  int d5NumberOfPoints = 6;
-  int d5NumberOfCells = 3;
-  CreateDataset(d5, d5NumberOfPoints, d5PointInfo, d5NumberOfCells, d5CellInfo);
-
-  // Set scalars to array whose name is nullptr
-  d5->GetPointData()->SetScalars(d5->GetPointData()->GetArray(1));
-  d5->GetCellData()->SetScalars(d5->GetCellData()->GetArray(1));
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with nullptr names: " << std::endl;
-  inputs[0] = d4;
-  inputs[1] = d5;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with scalar arrays with nullptr names\n";
-    return EXIT_FAILURE;
-  }
-
-  std::vector<DataArrayInfo> d6PointInfo(1, DataArrayInfo());
-  d6PointInfo[0].Name = "Q";
-  d6PointInfo[0].NumberOfComponents = 2;
-  d6PointInfo[0].Value = std::vector<int>(2, 14);
-
-  std::vector<DataArrayInfo> d6CellInfo(1, DataArrayInfo());
-  d6CellInfo[0].Name = "Q";
-  d6CellInfo[0].NumberOfComponents = 2;
-  d6CellInfo[0].Value = std::vector<int>(2, 14);
-
-  vtkNew<vtkPolyData> d6;
-  int d6NumberOfPoints = 9;
-  int d6NumberOfCells = 4;
-  CreateDataset(d6, d6NumberOfPoints, d6PointInfo, d6NumberOfCells, d6CellInfo);
-
-  std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
-  d7PointInfo[0].Name = "Q";
-  d7PointInfo[0].NumberOfComponents = 2;
-  d7PointInfo[0].Value = std::vector<int>(2, 15);
-
-  std::vector<DataArrayInfo> d7CellInfo(1, DataArrayInfo());
-  d7CellInfo[0].Name = "Q";
-  d7CellInfo[0].NumberOfComponents = 2;
-  d7CellInfo[0].Value = std::vector<int>(2, 15);
-
-  vtkNew<vtkPolyData> d7;
-  int d7NumberOfPoints = 5;
-  int d7NumberOfCells = 7;
-  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with 2 components: " << std::endl;
-  inputs[0] = d6;
-  inputs[1] = d7;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with scalar arrays with 2 components\n";
-    return EXIT_FAILURE;
-  }
-
-  std::vector<DataArrayInfo> d8PointInfo(1, DataArrayInfo());
-  d8PointInfo[0].Name = "Q";
-  d8PointInfo[0].Value = std::vector<int>(1, 16);
-
-  std::vector<DataArrayInfo> d8CellInfo(1, DataArrayInfo());
-  d8CellInfo[0].Name = "Q";
-  d8CellInfo[0].Value = std::vector<int>(1, 16);
-
-  vtkNew<vtkPolyData> d8;
-  int d8NumberOfPoints = 11;
-  int d8NumberOfCells = 8;
-  CreateDataset(d8, d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with same name but different number of components: "
-            << std::endl;
-  inputs[0] = d7;
-  inputs[1] = d8;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr
-      << "vtkAppendFilter failed with scalar arrays with same name but different components\n";
-    return EXIT_FAILURE;
-  }
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of deep copied dataset: " << std::endl;
-  inputs[0] = d7;
-  d8->DeepCopy(d7);
-  inputs[1] = d8;
-  if (!AppendDatasetsAndPrint(inputs))
-  {
-    std::cerr << "vtkAppendFilter failed with deep copied datasets\n";
-    return EXIT_FAILURE;
-  }
-
-  std::cout << "===========================================================\n";
-  std::cout << "Testing tolerance modes.\n";
-  if (!TestToleranceModes())
-  {
-    std::cerr << "vtkAppendFilter failed testing tolerances.\n";
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }

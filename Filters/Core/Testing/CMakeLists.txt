@@ -26,6 +26,9 @@ vtk_module_test_data(
   Data/sliding_multi_block_start/sliding_multi_block_start_2_0.vtu
   Data/sliding_multi_block_start/sliding_multi_block_start_3_0.vtu
   Data/slightlyRotated.vtu
+  Data/vtkHDF/static_harmonic_slice0.vtkhdf
+  Data/vtkHDF/static_harmonic_slice1.vtkhdf
+  Data/vtkHDF/append_slice.vtkhdf
   Data/SynchronizedTemplates2D.vtp
   Data/tex_debug.jpg
   Data/wavelet300Arrays.vti
