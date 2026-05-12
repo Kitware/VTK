@@ -71,7 +71,7 @@ vtkIdType vtkImageExport::GetDataMemorySize()
   this->GetInputAlgorithm()->UpdateInformation();
   vtkInformation* inInfo = this->GetInputInformation();
   int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  int size = input->GetScalarSize();
+  vtkIdType size = input->GetScalarSize();
   size *= input->GetNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
   size *= (extent[3] - extent[2] + 1);
