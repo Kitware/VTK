@@ -8,6 +8,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssemblyUtilities.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGroupDataSetsFilter.h"
@@ -91,6 +92,8 @@ bool TestEmptyPolyData(const std::string& tempDir)
 {
   std::string filePath = tempDir + "/emptyPolyData.vtkhdf";
   vtkNew<vtkPolyData> pd;
+  vtkNew<vtkDoubleArray> arr;
+  pd->GetCellData()->AddArray(arr);
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputData(pd);
   writer->SetFileName(filePath.c_str());
