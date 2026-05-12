@@ -7,6 +7,7 @@
 
 #include "PyVTKMethodDescriptor.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
 #ifdef PY_LIMITED_API
@@ -50,12 +51,15 @@ public:
   PyVTKObjectGhost()
     : vtk_class(nullptr)
     , vtk_dict(nullptr)
+    , observer_tag(0)
   {
   }
 
   vtkWeakPointerBase vtk_ptr;
   PyTypeObject* vtk_class;
   PyObject* vtk_dict;
+  // DeleteEvent observer tag; 0 if vtk_ptr is not a vtkObject.
+  unsigned long observer_tag;
 };
 
 //------------------------------------------------------------------------------
@@ -307,6 +311,37 @@ PyVTKSpecialType* vtkPythonUtil::FindSpecialType(const char* classname)
 }
 
 //------------------------------------------------------------------------------
+// Fired from vtkObject::DeleteEvent on a ghosted object's C++ destruction.
+// Evicts the ghost so any Python state pinned via the saved __dict__ is
+// released immediately, instead of leaking until the next ghost-creation
+// sweep happens to run.
+void vtkPythonUtil::GhostDeleteCallback(vtkObject*, unsigned long, void* clientData, void*)
+{
+  // During Python finalization, ~vtkPythonUtil's destructor cascade can
+  // destroy C++ objects whose DeleteEvent we observe here. Calling the
+  // Python C API at that point is unsafe -- the runtime is being torn down.
+  // The GhostMap will be released by ~vtkPythonUtil shortly anyway, so doing
+  // nothing here is safe.
+  if (!vtkPythonMap || Py_IsInitialized() == 0)
+  {
+    return;
+  }
+  vtkObjectBase* ptr = static_cast<vtkObjectBase*>(clientData);
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
+  vtkPythonGhostMap::iterator i = vtkPythonMap->GhostMap->find(ptr);
+  if (i != vtkPythonMap->GhostMap->end())
+  {
+    // Erase before DECREF: the DECREF cascade can re-enter VTK Python and
+    // walk the GhostMap.
+    PyObject* class_obj = (PyObject*)i->second.vtk_class;
+    PyObject* dict_obj = i->second.vtk_dict;
+    vtkPythonMap->GhostMap->erase(i);
+    Py_DECREF(class_obj);
+    Py_DECREF(dict_obj);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkPythonUtil::AddObjectToMap(PyObject* obj, vtkObjectBase* ptr)
 {
 #ifdef VTKPYTHONDEBUG
@@ -372,6 +407,17 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
       Py_INCREF(g.vtk_class);
       Py_INCREF(g.vtk_dict);
 
+      // AddObserver only exists on vtkObject, so for non-vtkObject vtkObjectBase
+      // ghosts we fall back to the lazy sweep above.
+      if (vtkObject* vobj = vtkObject::SafeDownCast(pobj->vtk_ptr))
+      {
+        vtkCallbackCommand* cmd = vtkCallbackCommand::New();
+        cmd->SetCallback(&vtkPythonUtil::GhostDeleteCallback);
+        cmd->SetClientData(pobj->vtk_ptr);
+        g.observer_tag = vobj->AddObserver(vtkCommand::DeleteEvent, cmd);
+        cmd->Delete();
+      }
+
       // Delete attrs of erased objects.  Must be done at the end.
       for (size_t j = 0; j < delList.size(); j++)
       {
@@ -411,6 +457,16 @@ PyObject* vtkPythonUtil::FindObject(vtkObjectBase* ptr)
   {
     if (j->second.vtk_ptr.GetPointer())
     {
+      // Detach the delete observer before we consume the ghost, otherwise it
+      // would fire later on this same C++ object's eventual destruction and
+      // try to evict an entry that's already gone.
+      if (j->second.observer_tag)
+      {
+        if (vtkObject* vobj = vtkObject::SafeDownCast(ptr))
+        {
+          vobj->RemoveObserver(j->second.observer_tag);
+        }
+      }
       obj = PyVTKObject_FromPointer(j->second.vtk_class, j->second.vtk_dict, ptr);
     }
     Py_DECREF(j->second.vtk_class);
