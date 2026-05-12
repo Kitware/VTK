@@ -1,0 +1,7 @@
+NAME
+  VTK::conduit
+LIBRARY_NAME
+  vtkconduit
+ORDER_DEPENDS
+  VTK::catalyst
+THIRD_PARTY
