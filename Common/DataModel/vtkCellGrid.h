@@ -104,6 +104,7 @@ public:
    * the GetArrayGroups method returns the map from types to existing partitions.
    * The FindAttributes method will return a null pointer if no arrays of that type exist.
    */
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
   vtkDataSetAttributes* GetAttributes(int type) override;
   vtkDataSetAttributes* GetAttributes(vtkStringToken type);
   vtkDataSetAttributes* FindAttributes(int type) const;
