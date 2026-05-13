@@ -604,9 +604,12 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuples(
     }
   }
 
-  // parenthesis around std::max prevent MSVC macro replacement when
-  // inlined:
-  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   vtkIdType numTuples = srcIds->GetNumberOfIds();
   for (vtkIdType t = 0; t < numTuples; ++t)
@@ -676,9 +679,12 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuplesStartingA
     }
   }
 
-  // parenthesis around std::max prevent MSVC macro replacement when
-  // inlined:
-  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   vtkIdType numTuples = srcIds->GetNumberOfIds();
   for (vtkIdType t = 0; t < numTuples; ++t)

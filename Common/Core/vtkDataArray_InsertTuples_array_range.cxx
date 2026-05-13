@@ -95,7 +95,13 @@ void vtkDataArray::InsertTuples(
     }
   }
 
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  vtkIdType localMax = newSize - 1;
+  if (localMax > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = localMax;
+  }
 
   SetTuplesRangeWorker worker(srcStart, dstStart, n);
   if (!vtkArrayDispatch::Dispatch2::Execute(srcDA, this, worker))

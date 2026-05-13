@@ -173,7 +173,12 @@ void vtkDataArray::InsertTuple(
     }
   }
 
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   this->SetTuple(dstTupleIdx, srcTupleIdx, source);
 }

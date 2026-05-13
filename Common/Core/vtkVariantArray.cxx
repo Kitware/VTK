@@ -732,7 +732,12 @@ vtkIdType vtkVariantArray::InsertNextValue(ValueType value)
   }
 
   // Extending array without needing to reallocate:
-  this->MaxId = std::max(this->MaxId, nextValueIdx);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (nextValueIdx > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = nextValueIdx;
+  }
 
   this->SetValue(nextValueIdx, value);
   return nextValueIdx;
