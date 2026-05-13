@@ -3,7 +3,9 @@ project(ParallelProcessingGeneric)
 
 find_package(VTK
   COMPONENTS
+    CommonDataModel
     IOImage
+    IOParallelXML
     ImagingCore
     ImagingGeneral
     FiltersSources
@@ -23,6 +25,11 @@ target_link_libraries(ParallelIso
   PRIVATE
     ${VTK_LIBRARIES})
 
+add_executable(PXMLWriter PXMLWriter.cxx)
+target_link_libraries(PXMLWriter
+  PRIVATE
+    ${VTK_LIBRARIES})
+
 set(TaskPara_SRCS
   TaskParallelism.cxx
   task1.cxx
@@ -36,5 +43,6 @@ target_link_libraries(TaskParallelism
 
 vtk_module_autoinit(
   TARGETS ParallelIso
+          PXMLWriter
           TaskParallelism
   MODULES ${VTK_LIBRARIES})

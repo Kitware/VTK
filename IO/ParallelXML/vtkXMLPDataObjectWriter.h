@@ -4,13 +4,42 @@
  * @class   vtkXMLPDataObjectWriter
  * @brief   Write data in a parallel XML format.
  *
- * vtkXMLPDataWriter is the superclass for all XML parallel data object
- * writers.  It provides functionality needed for writing parallel
- * formats, such as the selection of which writer writes the summary
- * file and what range of pieces are assigned to each serial writer.
+ * vtkXMLPDataObjectWriter is the superclass for all XML parallel data object
+ * writers. It provides functionality needed for writing parallel formats,
+ * such as the selection of which writer writes the summary file and what
+ * range of pieces are assigned to each serial writer.
+ *
+ * Typical parallel usage (one writer per MPI rank, each rank writes a
+ * single piece, rank 0 also writes the summary `.pvt*` file):
+ *
+ * @code
+ *   // Once per program, on every rank, after MPI_Init:
+ *   vtkNew<vtkMPIController> controller;
+ *   controller->Initialize();
+ *   vtkMultiProcessController::SetGlobalController(controller);
+ *
+ *   // Per write, on every rank:
+ *   vtkNew<vtkXMLPUnstructuredGridWriter> writer;
+ *   writer->SetFileName("output.pvtu");
+ *   writer->SetInputData(grid);
+ *   writer->SetNumberOfPieces(controller->GetNumberOfProcesses());
+ *   writer->SetStartPiece(controller->GetLocalProcessId());
+ *   writer->SetEndPiece(controller->GetLocalProcessId());
+ *   writer->Write();
+ * @endcode
+ *
+ * The three piece settings (NumberOfPieces, StartPiece, EndPiece) are not
+ * derived from the controller automatically; callers must set them on every
+ * rank. The summary file is written by rank 0 only.
+ *
+ * If no global vtkMultiProcessController is installed and SetController()
+ * has not been called, the writer falls back to single-process behavior,
+ * which is rarely what callers want when running under MPI. Either install
+ * a global controller (recommended) or pass one explicitly via
+ * SetController().
  *
  * @sa
- * vtkXMLDataObjectWriter
+ * vtkXMLDataObjectWriter vtkMPIController
  */
 
 #ifndef vtkXMLPDataObjectWriter_h
@@ -31,7 +60,9 @@ public:
 
   ///@{
   /**
-   * Get/Set the number of pieces that are being written in parallel.
+   * Get/Set the total number of pieces across all ranks. In a typical MPI
+   * setup this is the controller's number of processes; it must be set to
+   * the same value on every rank.
    */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
@@ -39,7 +70,10 @@ public:
 
   ///@{
   /**
-   * Get/Set the range of pieces assigned to this writer.
+   * Get/Set the inclusive range of pieces this writer is responsible for.
+   * Under MPI, each rank typically owns one piece, so both StartPiece and
+   * EndPiece are set to the local process id. Indices range from 0 to
+   * NumberOfPieces - 1.
    */
   vtkSetMacro(StartPiece, int);
   vtkGetMacro(StartPiece, int);
@@ -77,9 +111,14 @@ public:
 
   ///@{
   /**
-   * Controller used to communicate data type of blocks.
-   * By default, the global controller is used. If you want another
-   * controller to be used, set it with this.
+   * Set/Get the controller used to coordinate piece assignment, exchange
+   * metadata across ranks, and decide which rank writes the summary file.
+   *
+   * If not set explicitly, the writer uses
+   * vtkMultiProcessController::GetGlobalController(). If that is also
+   * unset, the writer falls back to single-process behavior, so under MPI
+   * a global controller must be installed (or one must be passed here)
+   * for parallel writing to work as expected.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
