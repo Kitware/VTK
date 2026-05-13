@@ -903,28 +903,38 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation* concat)
     vtkTransformPair* pair = &this->TransformList[i];
     vtkTransformPair* pair2 = &concat->TransformList[i];
 
+    // Install the replacement pointer (and Register it) before Delete'ing the
+    // outgoing one. This protects two re-entrancy hazards: the incoming
+    // transform can have its only reference held via the outgoing transform's
+    // inverse cycle (and would otherwise be destroyed mid-swap), and any
+    // DeleteEvent observer or sub-transform destructor that walks this list
+    // would otherwise observe a dangling slot.
     if (pair->ForwardTransform != pair2->ForwardTransform)
     {
-      if (pair->ForwardTransform && i < this->NumberOfTransforms)
-      {
-        pair->ForwardTransform->Delete();
-      }
+      vtkAbstractTransform* oldForward =
+        (i < this->NumberOfTransforms) ? pair->ForwardTransform : nullptr;
       pair->ForwardTransform = pair2->ForwardTransform;
       if (pair->ForwardTransform)
       {
         pair->ForwardTransform->Register(nullptr);
       }
+      if (oldForward)
+      {
+        oldForward->Delete();
+      }
     }
     if (pair->InverseTransform != pair2->InverseTransform)
     {
-      if (pair->InverseTransform && i < this->NumberOfTransforms)
-      {
-        pair->InverseTransform->Delete();
-      }
+      vtkAbstractTransform* oldInverse =
+        (i < this->NumberOfTransforms) ? pair->InverseTransform : nullptr;
       pair->InverseTransform = pair2->InverseTransform;
       if (pair->InverseTransform)
       {
         pair->InverseTransform->Register(nullptr);
+      }
+      if (oldInverse)
+      {
+        oldInverse->Delete();
       }
     }
   }
