@@ -633,6 +633,10 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
     int axis = index % 2;
     int activeAxis = activeAxes[axis];
     vtkStringArray* labels = activeAxisHelpers[axis]->GetTickLabels();
+    if (labels->GetNumberOfValues() == 0)
+    {
+      continue;
+    }
     vtkDoubleArray* tickPositions = activeAxisHelpers[axis]->GetTickPositions();
     vtkIdType numTicks = labelVisibilties[index] ? tickPositions->GetNumberOfTuples() : 0;
     if (numTicks == 0)
