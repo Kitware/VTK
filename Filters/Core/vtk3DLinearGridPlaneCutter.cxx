@@ -6,11 +6,13 @@
 #include "vtk3DLinearGridPlaneCutter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkContour3DLinearGrid.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -53,24 +55,84 @@ vtkCxxSetObjectMacro(vtk3DLinearGridPlaneCutter, Plane, vtkPlane);
     }                                                                                              \
   } while (false)
 
-#define EXECUTE_REDUCED_SMPFOR(_seq, _num, _op, _nt)                                               \
-  do                                                                                               \
-  {                                                                                                \
-    if (!_seq)                                                                                     \
-    {                                                                                              \
-      vtkSMPTools::For(0, _num, _op);                                                              \
-    }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-      _op.Initialize();                                                                            \
-      _op(0, _num);                                                                                \
-      _op.Reduce();                                                                                \
-    }                                                                                              \
-    _nt = _op.NumThreadsUsed;                                                                      \
-  } while (false)
-
 namespace
 {
+// Project output points exactly onto the cut plane. vtkContour3DLinearGrid uses
+// direct lerp which leaves points ~1 ULP off the plane; downstream filters like
+// vtkResampleToHyperTreeGrid are sensitive to this at bin boundaries.
+template <typename TPointsArray>
+struct ProjectPointsOntoPlaneFunctor
+{
+  TPointsArray* Points;
+  double Normal[3];
+  double OriginBias; // = -Normal . Origin, so distance(p) = Normal . p + OriginBias
+  vtk3DLinearGridPlaneCutter* Filter;
+
+  ProjectPointsOntoPlaneFunctor(
+    TPointsArray* points, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
+    : Points(points)
+    , Filter(filter)
+  {
+    // Recover the normal/origin that vtkPlane uses internally for FunctionValue
+    // (which may differ from GetNormal/GetOrigin when AxisAligned or Offset is set).
+    double dummy[3] = { 0.0, 0.0, 0.0 };
+    plane->EvaluateGradient(dummy, this->Normal);
+    vtkMath::Normalize(this->Normal);
+    this->OriginBias = plane->EvaluateFunction(dummy);
+  }
+
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  {
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+    auto pts = vtk::DataArrayTupleRange<3>(this->Points);
+    using TIP = vtk::GetAPIType<TPointsArray>;
+
+    for (; ptId < endPtId; ++ptId)
+    {
+      if (ptId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      auto p = pts[ptId];
+      // Signed distance to the plane, computed in double for precision.
+      const double d = static_cast<double>(p[0]) * this->Normal[0] +
+        static_cast<double>(p[1]) * this->Normal[1] + static_cast<double>(p[2]) * this->Normal[2] +
+        this->OriginBias;
+      p[0] = static_cast<TIP>(static_cast<double>(p[0]) - d * this->Normal[0]);
+      p[1] = static_cast<TIP>(static_cast<double>(p[1]) - d * this->Normal[1]);
+      p[2] = static_cast<TIP>(static_cast<double>(p[2]) - d * this->Normal[2]);
+    }
+  }
+};
+
+struct ProjectPointsOntoPlane
+{
+  template <typename TPointsArray>
+  void operator()(TPointsArray* points, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
+  {
+    ProjectPointsOntoPlaneFunctor<TPointsArray> functor(points, plane, filter);
+    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), points->GetNumberOfTuples(), functor);
+  }
+
+  static void Execute(vtkPolyData* output, vtkPlane* plane, vtk3DLinearGridPlaneCutter* filter)
+  {
+    ProjectPointsOntoPlane worker;
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
+    if (!Dispatcher::Execute(output->GetPoints()->GetData(), worker, plane, filter))
+    {
+      worker(output->GetPoints()->GetData(), plane, filter);
+    }
+  }
+};
+
 // Functor for assigning normals at each point
 struct ComputePointNormals
 {
@@ -244,6 +306,9 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
   contour->Update();
 
   output->ShallowCopy(contour->GetOutput());
+
+  ProjectPointsOntoPlane::Execute(output, plane, this);
+
   if (this->ComputeNormals)
   {
     ComputePointNormals::Execute(output, plane, this);
@@ -451,6 +516,4 @@ void vtk3DLinearGridPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 #undef EXECUTE_SMPFOR
-#undef EXECUTE_REDUCED_SMPFOR
-#undef MAX_CELL_VERTS
 VTK_ABI_NAMESPACE_END
