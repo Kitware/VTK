@@ -559,10 +559,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
       renderedSomething += this->ScalarBarActor->RenderOpaqueGeometry(viewport);
     }
-    vtkScalarBarActorInternal::ActorVector::iterator ait;
-    for (ait = this->P->TextActors.begin(); ait != this->P->TextActors.end(); ++ait)
+    if (this->DrawTickLabels)
     {
-      renderedSomething += (*ait)->RenderOpaqueGeometry(viewport);
+      vtkScalarBarActorInternal::ActorVector::iterator ait;
+      for (ait = this->P->TextActors.begin(); ait != this->P->TextActors.end(); ++ait)
+      {
+        renderedSomething += (*ait)->RenderOpaqueGeometry(viewport);
+      }
     }
   }
   else
