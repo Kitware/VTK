@@ -3,18 +3,13 @@
 
 #include "vtkChartRadViz.h"
 
-#include "vtkObjectFactory.h"
-
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
-#include "vtkPoints2D.h"
-#include "vtkTransform2D.h"
-
+#include "vtkObjectFactory.h"
 #include "vtkPlotRadViz.h"
-
-#include "vtkChartLegend.h"
-#include "vtkTooltipItem.h"
+#include "vtkPoints2D.h"
+#include "vtkTextProperty.h"
 
 #include <sstream>
 
@@ -73,24 +68,30 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
   }
 
   vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
-  this->SetBorders(
-    20 * tileScale.GetX(), 20 * tileScale.GetY(), 20 * tileScale.GetX(), 20 * tileScale.GetY());
+  const int BORDER_SIZE = 20;
+  this->SetBorders(BORDER_SIZE * tileScale.GetX(), BORDER_SIZE * tileScale.GetY(),
+    BORDER_SIZE * tileScale.GetX(), BORDER_SIZE * tileScale.GetY());
 
   // Set the dimensions of the Plot
   if (this->Private->Plot)
   {
-    this->Private->Plot->SetDimensions(this->Size.GetX() + 20, this->Size.GetY() + 20,
-      this->Geometry[0] - 40, this->Geometry[1] - 40);
+    this->Private->Plot->SetDimensions(this->Size.GetX() + BORDER_SIZE,
+      this->Size.GetY() + BORDER_SIZE, this->Geometry[0] - 2 * BORDER_SIZE,
+      this->Geometry[1] - 2 * BORDER_SIZE);
   }
 
   this->PaintChildren(painter);
 
-  vtkPoints2D* rect = vtkPoints2D::New();
-  rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
-  rect->InsertNextPoint(this->Point2[0] - this->Point1[0], 10);
-  painter->ApplyTextProp(this->TitleProperties);
-  painter->DrawStringRect(rect, this->Title);
-  rect->Delete();
+  if (!this->Title.empty())
+  {
+    int fontSize = this->TitleProperties->GetFontSize();
+    vtkPoints2D* rect = vtkPoints2D::New();
+    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+    rect->InsertNextPoint(this->Point2[0] - this->Point1[0], fontSize);
+    painter->ApplyTextProp(this->TitleProperties);
+    painter->DrawStringRect(rect, this->Title);
+    rect->Delete();
+  }
 
   return true;
 }
