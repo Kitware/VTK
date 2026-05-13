@@ -854,13 +854,27 @@ void vtkOpenGLFramebufferObject::RemoveDepthAttachment()
 
 void vtkOpenGLFramebufferObject::AddDepthAttachment(vtkTextureObject* tex)
 {
-  this->DepthBuffer->SetTexture(tex, GL_DEPTH_ATTACHMENT);
+  if (tex->GetFormat() == GL_DEPTH_STENCIL || tex->GetInternalFormat() == GL_DEPTH24_STENCIL8)
+  {
+    this->DepthBuffer->SetTexture(tex, GL_DEPTH_STENCIL_ATTACHMENT);
+  }
+  else
+  {
+    this->DepthBuffer->SetTexture(tex, GL_DEPTH_ATTACHMENT);
+  }
   this->AttachDepthBuffer();
 }
 
 void vtkOpenGLFramebufferObject::AddDepthAttachment(vtkRenderbuffer* rb)
 {
-  this->DepthBuffer->SetRenderbuffer(rb, GL_DEPTH_ATTACHMENT);
+  if (rb->GetFormat() == GL_DEPTH24_STENCIL8 || rb->GetFormat() == GL_DEPTH_STENCIL)
+  {
+    this->DepthBuffer->SetRenderbuffer(rb, GL_DEPTH_STENCIL_ATTACHMENT);
+  }
+  else
+  {
+    this->DepthBuffer->SetRenderbuffer(rb, GL_DEPTH_ATTACHMENT);
+  }
   this->AttachDepthBuffer();
 }
 
