@@ -10,6 +10,16 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
   option(VTK_ENABLE_SANITIZER "Build with sanitizer support." OFF)
   mark_as_advanced(VTK_ENABLE_SANITIZER)
 
+  if (APPLE)
+    # On Apple, check if both VTK_ENABLE_SANITIZER and VTK_BUILD_PYI_FILES are enabled and error out.
+    # PYI files are built with Python and the sanitizer runtime is loaded too late when running the
+    # PYI file generation.
+    # See issue https://gitlab.kitware.com/vtk/vtk/-/work_items/18537.
+    if (VTK_ENABLE_SANITIZER AND VTK_BUILD_PYI_FILES)
+      message(FATAL_ERROR "VTK_BUILD_PYI_FILES is enabled, which is incompatible with VTK_ENABLE_SANITIZER. Please disable one or the other.")
+    endif ()
+  endif ()
+
   if(VTK_ENABLE_SANITIZER)
     set(VTK_SANITIZER "address"
       CACHE STRING "The sanitizer to use")
