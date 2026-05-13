@@ -285,9 +285,14 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 //------------------------------------------------------------------------------
 vtkFreeTypeTools::~vtkFreeTypeTools()
 {
-  // Clean up the thread-local data for the calling (main) thread.
-  // Data owned by other threads will be released when those threads exit.
-  vtkFTThreadLocalMap.erase(this);
+  // Do NOT call vtkFTThreadLocalMap.erase(this) here.  On platforms where
+  // thread-local destructors run before global/static destructors (glibc),
+  // vtkFTThreadLocalMap has already been destroyed by the time this dtor
+  // runs, so accessing it would be a use-after-destruction double-free.
+  // The thread-local map destructor already calls ~FTThreadLocalData() for
+  // every entry, which properly releases FreeType resources.  Entries for
+  // threads that outlive this object will be cleaned up when those threads
+  // exit.
   delete TextPropertyLookup;
 }
 
