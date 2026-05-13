@@ -1776,6 +1776,12 @@ bool vtkHDFWriter::AppendDataSetAttributes(
     for (int iArray = 0; iArray < nArrays; ++iArray)
     {
       vtkSmartPointer<vtkAbstractArray> array = attributes->GetAbstractArray(iArray);
+      if (!array->GetName())
+      {
+        vtkWarningMacro("Field data contains an unnamed array, skipped");
+        continue;
+      }
+
       std::string arrayName{ array->GetName() };
       if (vtkHyperTreeGrid::SafeDownCast(input))
       {
@@ -1886,6 +1892,11 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
   for (int iArray = 0; iArray < nArrays; ++iArray)
   {
     vtkAbstractArray* array = attributes->GetAbstractArray(iArray);
+    if (!array->GetName())
+    {
+      vtkWarningMacro("Field data contains an unnamed array, skipped");
+      continue;
+    }
     std::string arrayName = array->GetName();
 
     hid_t dataType = vtkHDFUtilities::getH5TypeFromVtkType(array->GetDataType());
