@@ -69,6 +69,7 @@ vtk_add_test_python(
   TestSynchronizedTemplates3D.py
   TestWindowedSincPolyDataFilter.py
   TestWindowedSincPolyDataFilter2.py
+  TestCellSizeFilter.py,NO_DATA,NO_VALID
   TestContourFilter.py,NO_DATA,NO_VALID
   TestContourGrid.py,NO_VALID
   TestContourPolyData.py,NO_VALID
