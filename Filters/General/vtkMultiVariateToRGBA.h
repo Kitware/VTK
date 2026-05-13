@@ -49,11 +49,19 @@ public:
 
   ///@{
   /**
-   * This filter computes generalized barycentric coordinates (GBC)
-   * and uses that to compute colors (RGBA) that can be used to volume
-   * render the data. If StoreGBC (default is false) is set to true we
-   * store the computed attribute as an array named 'gbc'. If
-   * StoreRGBA (default is true, in which case we store the computed
+   *
+   * This filter computes colors (RGBA) that can be used to volume
+   * render the data. To do that, it computes several intermediate
+   * arrays which include vertices positions used to encode variables and
+   * generalized barycentric coordinates (GBC).
+   *
+   * If StoreVertices (default is false) is set to true
+   * we store the computed vertices as a field array named 'vertices'.
+   *
+   * If StoreGBC (default is false) is set to true we
+   * store the computed attribute as an array named 'gbc'.
+   *
+   * If StoreRGBA (default is true, in which case we store the computed
    * array named 'rgba') is set to false, we don't proceed to
    * computing the color.  Setting both parameters to false is an
    * error.
@@ -62,6 +70,8 @@ public:
    */
   vtkSetMacro(StoreGBC, bool);
   vtkGetMacro(StoreGBC, bool);
+  vtkSetMacro(StoreVertices, bool);
+  vtkGetMacro(StoreVertices, bool);
   vtkSetMacro(StoreRGBA, bool);
   vtkGetMacro(StoreRGBA, bool);
   ///@}
@@ -75,6 +85,7 @@ protected:
 
   double VerticesRotation = 0;
   bool StoreGBC = false;
+  bool StoreVertices = false;
   bool StoreRGBA = true;
   std::vector<std::vector<int>> ModalityGroups;
   std::function<double(double)> GlobalMin = nullptr;

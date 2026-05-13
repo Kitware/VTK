@@ -146,23 +146,32 @@ struct ComputeGBCWorker
 
     // computes the vertices angles (VF), Table 1, GBC
     vtkIdType nComponents = normalized.GetTupleSize();
+    this->Vertices = vtkSmartPointer<vtkFloatArray>::New();
+    this->Vertices->SetName("vertices");
+    this->Vertices->SetNumberOfComponents(2);
+    this->Vertices->SetNumberOfTuples(nComponents);
+    auto vertices = vtk::DataArrayTupleRange(this->Vertices);
+
     std::vector<double> angle(nComponents);
-    std::vector<std::array<double, 2>> components(nComponents);
     angle[0] = vtkMath::Pi() / 2;
-    components[0][0] = std::cos(angle[0]);
-    components[0][1] = std::sin(angle[0]);
+    vertices[0][0] = std::cos(angle[0]);
+    vertices[0][1] = std::sin(angle[0]);
     constexpr double adjustment = 0.997;
     for (int i = 1; i < nComponents; ++i)
     {
       angle[i] = angle[i - 1] - 2 * vtkMath::Pi() / nComponents;
-      components[i][0] = std::cos(angle[i]) * adjustment;
-      components[i][1] = std::sin(angle[i]) * adjustment;
+      vertices[i][0] = std::cos(angle[i]) * adjustment;
+      vertices[i][1] = std::sin(angle[i]) * adjustment;
       // Wrap to the 0 to 2*pi range
       angle[i] = numpy_mod(angle[i], 2 * vtkMath::Pi());
     }
     std::sort(angle.begin(), angle.end());
 
     vtkIdType nTuples = normalized.size();
+    std::array<std::array<double, 2>, 2> m{
+      { { cos(this->VerticesRotation), -sin(this->VerticesRotation) },
+        { sin(this->VerticesRotation), cos(this->VerticesRotation) } }
+    };
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double tempsum = 0;
@@ -180,7 +189,7 @@ struct ComputeGBCWorker
       {
         for (int j = 0; j < 2; ++j)
         {
-          gbc[i][j] += normalized[i][k] * components[k][j] / tempsum;
+          gbc[i][j] += normalized[i][k] * vertices[k][j] / tempsum;
         }
       }
       double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
@@ -211,15 +220,23 @@ struct ComputeGBCWorker
       gbc[i][1] = lth * std::sin(tempangle);
 
       // rotate the gbc points with VerticesRotation
-      std::array<std::array<double, 2>, 2> m{
-        { { cos(this->VerticesRotation), -sin(this->VerticesRotation) },
-          { sin(this->VerticesRotation), cos(this->VerticesRotation) } }
-      };
       gbc[i][0] = m[0][0] * gbc[i][0] + m[1][0] * gbc[i][1];
       gbc[i][1] = m[0][1] * gbc[i][0] + m[1][1] * gbc[i][1];
     }
+    for (int i = 1; i < nComponents; ++i)
+    {
+      // rotate the vertices
+      vertices[i][0] = m[0][0] * vertices[i][0] + m[1][0] * vertices[i][1];
+      vertices[i][1] = m[0][1] * vertices[i][0] + m[1][1] * vertices[i][1];
+    }
   }
+  template <typename Type>
+  void rotate(Type* array)
+  {
+  }
+
   double VerticesRotation;
+  vtkSmartPointer<vtkFloatArray> Vertices;
 };
 
 struct GBCToHSLWorker
@@ -444,6 +461,7 @@ vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() {}
 //==============================================================================
 void vtkMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& modalityGroups)
 {
+
   vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ModalityGroups));
   if (this->ModalityGroups != modalityGroups)
   {
@@ -539,6 +557,10 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     if (!Dispatcher::Execute(normalizedScalars, gbcScalars, worker))
     {
       worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
+    }
+    if (this->StoreVertices)
+    {
+      outData->GetFieldData()->AddArray(worker.Vertices);
     }
   }
   if (this->StoreGBC)
