@@ -12,6 +12,7 @@
 #define vtkPlotRadViz_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkPen.h"
 #include "vtkPlot.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -20,8 +21,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkColorSeries;
-class vtkPoints2D;
 class vtkDataSet;
+class vtkFloatArray;
+class vtkPen;
+class vtkPoints2D;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotRadViz : public vtkPlot
 {
@@ -57,11 +60,26 @@ public:
   vtkGetVector4Macro(Dimensions, int);
   ///@}
 
+  ///@{
+  /**
+   * Get the dimensions of the pie, elements 0 and 1 are the x and y coordinate
+   * of the bottom corner. Elements 2 and 3 are the width and height.
+   */
+  vtkSetSmartPointerMacro(VerticesPen, vtkPen);
+  vtkGetSmartPointerMacro(VerticesPen, vtkPen);
+  ///@}
+
 protected:
   vtkPlotRadViz();
   ~vtkPlotRadViz() override = default;
+  void PaintPoints(vtkContext2D* painter, vtkFloatArray* gbc, vtkPen* pen);
 
   int Dimensions[4];
+  /**
+   * This object stores the vtkPen that controls how the vertices is drawn.
+   * These are the markers on the circle for the variables.
+   */
+  vtkSmartPointer<vtkPen> VerticesPen;
 
 private:
   vtkPlotRadViz(const vtkPlotRadViz&) = delete;

@@ -39,7 +39,7 @@ public:
     this->Radius = 0;
   }
   /**
-   * Used to translate and scale GBCs
+   * Used to translate and scale GBCs and Vertices
    */
   template <class TArray>
   void operator()(TArray* inputArray, vtkPoints2D* points)
@@ -64,6 +64,8 @@ vtkPlotRadViz::vtkPlotRadViz()
   : Internals(new vtkInternals())
 {
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
+  this->VerticesPen = vtkSmartPointer<vtkPen>::New();
+  this->VerticesPen->SetWidth(8);
 }
 
 void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
@@ -74,20 +76,23 @@ void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
+  vtkDebugMacro(<< "Paint event called.");
   const int segmentCount = 100;
 
   vtkNew<vtkMultiVariateToRGBA> computeGBC;
   computeGBC->SetInputDataObject(0, this->Data->GetInputDataObject(0, 0));
   computeGBC->SetStoreGBC(true);
+  computeGBC->SetStoreVertices(true);
   computeGBC->SetStoreRGBA(false);
   computeGBC->Update();
-  vtkTable* table = vtkTable::SafeDownCast(computeGBC->GetOutputDataObject(0));
-  vtkDataSet* dataset = vtkDataSet::SafeDownCast(computeGBC->GetOutputDataObject(0));
-  vtkFloatArray* a = nullptr;
+  vtkDataObject* dataObject = computeGBC->GetOutputDataObject(0);
+  vtkTable* table = vtkTable::SafeDownCast(dataObject);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(dataObject);
+  vtkFloatArray* gbc = nullptr;
   if (table)
   {
-    a = vtkFloatArray::FastDownCast(table->GetColumnByName("gbc"));
-    if (!a)
+    gbc = vtkFloatArray::FastDownCast(table->GetColumnByName("gbc"));
+    if (!gbc)
     {
       vtkErrorMacro("Cannot find gbc array");
       return false;
@@ -97,12 +102,12 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   {
     vtkDataSetAttributes* pd = dataset->GetPointData();
     vtkDataSetAttributes* cd = dataset->GetCellData();
-    a = vtkFloatArray::FastDownCast(pd->GetArray("gbc"));
-    if (!a)
+    gbc = vtkFloatArray::FastDownCast(pd->GetArray("gbc"));
+    if (!gbc)
     {
-      a = vtkFloatArray::FastDownCast(cd->GetArray("gbc"));
+      gbc = vtkFloatArray::FastDownCast(cd->GetArray("gbc"));
     }
-    if (!a)
+    if (!gbc)
     {
       vtkErrorMacro("Cannot find gbc array");
       return false;
@@ -113,8 +118,15 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     vtkErrorMacro("vtkMultiVariateToRGBA output is not a table or a dataset");
     return false;
   }
+  vtkFloatArray* vertices =
+    vtkFloatArray::FastDownCast(dataObject->GetFieldData()->GetArray("vertices"));
+  if (!vertices)
+  {
+    vtkErrorMacro("Cannot find vertices array");
+    return false;
+  }
 
-  // draw the color wheel
+  // paint the color wheel
   for (int i = 0; i < segmentCount; ++i)
   {
     std::array<float, 3> hsv = { static_cast<float>(i) / segmentCount, 1.0, 1.0 };
@@ -128,19 +140,23 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       360.0 * (i + 1) / segmentCount);
   }
 
-  // draw the points
-  const int marker = VTK_MARKER_CIRCLE;
-  vtkNew<vtkPoints2D> points;
-  points->SetNumberOfPoints(a->GetNumberOfTuples());
-  if (!vtkArrayDispatch::Dispatch::Execute(a, *this->Internals, points))
-  {
-    (*this->Internals)(a, points);
-  }
-  painter->ApplyPen(this->Pen);
-  painter->DrawMarkers(marker, true /*highlight*/, points);
-
+  this->PaintPoints(painter, gbc, this->Pen);
+  this->PaintPoints(painter, vertices, this->VerticesPen);
   this->PaintChildren(painter);
   return true;
+}
+
+void vtkPlotRadViz::PaintPoints(vtkContext2D* painter, vtkFloatArray* gbc, vtkPen* pen)
+{
+  const int markerStyle = VTK_MARKER_CIRCLE;
+  vtkNew<vtkPoints2D> points;
+  points->SetNumberOfPoints(gbc->GetNumberOfTuples());
+  if (!vtkArrayDispatch::Dispatch::Execute(gbc, *this->Internals, points))
+  {
+    (*this->Internals)(gbc, points);
+  }
+  painter->ApplyPen(pen);
+  painter->DrawMarkers(markerStyle, false /*highlight*/, points);
 }
 
 //------------------------------------------------------------------------------

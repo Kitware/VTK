@@ -44,8 +44,6 @@ int TestRadVizChartTable(int argc, char** argv)
 
   chart->SetShowLegend(false);
 
-  chart->SetTitle("Ce_Co_Fe_Gd");
-
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
