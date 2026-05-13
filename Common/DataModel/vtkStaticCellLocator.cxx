@@ -439,41 +439,39 @@ struct MapOffsets
   {
     TId* offsets = this->Offsets;
     const CellFragments<TId>* curPt = this->Map + batch * this->BatchSize;
-    const CellFragments<TId>* endBatchPt = this->Map + batchEnd * this->BatchSize;
     const CellFragments<TId>* endPt = this->Map + this->NumFragments;
-    const CellFragments<TId>* prevPt;
-    endBatchPt = (endBatchPt > endPt ? endPt : endBatchPt);
+    const CellFragments<TId>* endBatchPt =
+      std::min<const CellFragments<TId>*>(this->Map + batchEnd * this->BatchSize, endPt);
 
     // Special case at the very beginning of the mapped points array.  If
     // the first point is in bin# N, then all bins up and including
     // N must refer to the first point.
     if (curPt == this->Map)
     {
-      prevPt = this->Map;
-      std::fill_n(offsets, curPt->BinId + 1, 0); // point to the first points
+      std::fill_n(offsets, curPt->BinId + 1, TId(0)); // point to the first points
     } // at the very beginning of the map (sorted points array)
-
-    // We are entering this functor somewhere in the interior of the
-    // mapped points array. All we need to do is point to the entry
-    // position because we are interested only in prevPt->BinId.
     else
     {
-      prevPt = curPt;
-    } // else in the middle of a batch
-
-    // Okay we have a starting point for a bin run. Now we can begin
-    // filling in the offsets in this batch. A previous thread should
-    // have/will have completed the previous and subsequent runs outside
-    // of the [batch,batchEnd) range
-    for (curPt = prevPt; curPt < endBatchPt;)
-    {
-      for (; curPt->BinId == prevPt->BinId && curPt <= endBatchPt; ++curPt)
+      // Skip the tail of the run that started in the previous batch.
+      for (; curPt < endBatchPt && curPt->BinId == (curPt - 1)->BinId; ++curPt)
       {
         // advance
       }
-      // Fill in any gaps in the offset array
-      std::fill_n(offsets + prevPt->BinId + 1, curPt->BinId - prevPt->BinId, curPt - this->Map);
-      prevPt = curPt;
+    }
+
+    // Now curPt points at the first fragment of a bin run that this batch owns.
+    // Walk forward, emitting offsets for each new bin we enter, and stop as
+    // soon as we cross endBatchPt -- the next batch will pick up from there.
+    for (const CellFragments<TId>* prevPt = curPt; curPt < endBatchPt; prevPt = curPt)
+    {
+      for (; curPt < endPt && curPt->BinId == prevPt->BinId; ++curPt)
+      {
+        // advance through the current bin run
+      }
+      // curPt is now at the first fragment of the next bin run (or at endPt).
+      // Fill offsets for bins (prevPt->BinId, curPt->BinId].
+      const vtkIdType binDelta = (curPt < endPt ? curPt->BinId : this->NumBins) - prevPt->BinId;
+      std::fill_n(offsets + prevPt->BinId + 1, binDelta, static_cast<TId>(curPt - this->Map));
     } // for all batches in this range
   }   // operator()
 
