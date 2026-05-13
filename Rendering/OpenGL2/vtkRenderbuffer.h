@@ -82,6 +82,7 @@ public:
   vtkGetMacro(Width, unsigned int);
   vtkGetMacro(Height, unsigned int);
   vtkGetMacro(Samples, unsigned int);
+  vtkGetMacro(Format, unsigned int);
   ///@}
 
 protected:
