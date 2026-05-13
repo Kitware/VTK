@@ -25,12 +25,13 @@
 
 #include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkRenderingOpenGL2Module.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureFramebufferNormalization
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextureFramebufferNormalization
   : public vtkOpenGLTextureNormalizationHelper
 {
 public:

@@ -20,6 +20,7 @@
 
 #include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkRenderingOpenGL2Module.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -27,7 +28,7 @@ class vtkOpenGLRenderWindow;
 
 #ifdef GL_COMPUTE_SHADER
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureComputeShaderNormalization
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextureComputeShaderNormalization
   : public vtkOpenGLTextureNormalizationHelper
 {
 public:

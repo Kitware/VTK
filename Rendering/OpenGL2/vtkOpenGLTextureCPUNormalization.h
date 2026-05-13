@@ -17,12 +17,13 @@
 
 #include "vtkOpenGLTextureNormalizationHelper.h"
 #include "vtkRenderingOpenGL2Module.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtk_glad.h"
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureCPUNormalization
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextureCPUNormalization
   : public vtkOpenGLTextureNormalizationHelper
 {
 public:

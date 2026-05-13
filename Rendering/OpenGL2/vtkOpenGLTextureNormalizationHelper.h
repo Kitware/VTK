@@ -29,11 +29,13 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For ivar
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureNormalizationHelper : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextureNormalizationHelper
+  : public vtkObject
 {
 public:
   vtkAbstractTypeMacro(vtkOpenGLTextureNormalizationHelper, vtkObject);
