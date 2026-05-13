@@ -32,6 +32,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
+class vtkRenderbuffer;
 class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSSAAPass : public vtkRenderPass
@@ -91,8 +92,9 @@ protected:
    * Graphics resources.
    */
   vtkOpenGLFramebufferObject* FrameBufferObject;
-  vtkTextureObject* Pass1; // render target for the scene
-  vtkTextureObject* Pass2; // render target for the horizontal pass
+  vtkTextureObject* Pass1;     // render target for the scene
+  vtkRenderbuffer* Pass1Depth; // render target depth for the scene
+  vtkTextureObject* Pass2;     // render target for the horizontal pass
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper* SSAAHelper;
