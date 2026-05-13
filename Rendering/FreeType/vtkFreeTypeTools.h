@@ -19,7 +19,10 @@
 #include "vtkSmartPointer.h"            // For smart pointer
 #include "vtkTextRenderer.h"            // For Metrics struct
 
-#include <array> // for std::array
+#include <array>        // for std::array
+#include <memory>       // for std::unique_ptr
+#include <mutex>        // for std::mutex
+#include <shared_mutex> // for std::shared_mutex
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -101,7 +104,7 @@ public:
   ///@}
 
   /**
-   * Get the FreeType library singleton.
+   * Get the FreeType library for the calling thread.
    */
   FT_Library* GetLibrary();
 
@@ -256,11 +259,28 @@ public:
    */
   static bool LookupFace(vtkTextProperty* tprop, FT_Library lib, FT_Face* face);
 
+  /**
+   * Per-thread RAII wrapper for FreeType library and caches. Declared public
+   * so that the file-scope thread_local storage in the implementation can use
+   * it. Users should not access this directly.
+   */
+  struct FTThreadLocalData;
+
 protected:
   /**
-   * Create the FreeType Cache manager instance and set this->CacheManager
+   * Create the FreeType Cache manager instance and set the thread-local
+   * CacheManager.
    */
   virtual FT_Error CreateFTCManager();
+
+  ///@{
+  /**
+   * Per-thread FreeType library, cache manager, image cache and charmap cache.
+   * Each calling thread gets its own set of FreeType objects so that
+   * concurrent rendering is safe without additional locking on the hot path.
+   */
+  FTThreadLocalData& GetThreadLocalData();
+  ///@}
 
   ///@{
   /**
@@ -372,32 +392,22 @@ protected:
   ///@}
 
   /**
-   * The singleton instance
+   * The singleton instance and the mutex that protects its creation.
    */
   static vtkFreeTypeTools* Instance;
+  static std::mutex InstanceMutex;
 
   /**
-   * Lookup table that maps free type font cache face ids to vtkTextProperties
+   * Lookup table that maps free type font cache face ids to vtkTextProperties.
+   * Protected by TextPropertyLookupMutex.
    */
   vtkTextPropertyLookup* TextPropertyLookup;
-
-  /**
-   * FreeType library instance.
-   */
-  FT_Library* Library;
+  mutable std::shared_mutex TextPropertyLookupMutex;
 
   ///@{
   /**
-   * The cache manager, image cache and charmap cache
-   */
-  FTC_Manager* CacheManager;
-  FTC_ImageCache* ImageCache;
-  FTC_CMapCache* CMapCache;
-  ///@}
-
-  ///@{
-  /**
-   * Get the FreeType cache manager, image cache and charmap cache
+   * Get the FreeType cache manager, image cache and charmap cache for the
+   * calling thread.
    */
   FTC_Manager* GetCacheManager();
   FTC_ImageCache* GetImageCache();
@@ -411,8 +421,8 @@ protected:
   bool ForceCompiledFonts;
   bool DebugTextures;
 
-  void InitializeCacheManager();
-  void ReleaseCacheManager();
+  void InitializeCacheManager(FTThreadLocalData& tld);
+  void ReleaseCacheManager(FTThreadLocalData& tld);
 
 private:
   vtkFreeTypeTools(const vtkFreeTypeTools&) = delete;
