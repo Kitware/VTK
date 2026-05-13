@@ -640,6 +640,7 @@ vtkSelection* vtkSelection::GetData(vtkInformationVector* v, int i)
 struct vtkSelection::EvaluateFunctor
 {
   std::array<signed char, 2>& Range;
+  vtkSMPThreadLocal<std::array<signed char, 2>> TLRange;
   std::shared_ptr<parser::Node> Tree;
   signed char* Result;
 
@@ -649,29 +650,45 @@ struct vtkSelection::EvaluateFunctor
     , Tree(tree)
     , Result(result->GetPointer(0))
   {
-    this->Range = { VTK_SIGNED_CHAR_MAX, VTK_SIGNED_CHAR_MIN };
+    this->Range[0] = VTK_SIGNED_CHAR_MAX;
+    this->Range[1] = VTK_SIGNED_CHAR_MIN;
   }
 
-  void Initialize() {}
+  void Initialize() { this->TLRange.Local() = { VTK_SIGNED_CHAR_MAX, VTK_SIGNED_CHAR_MIN }; }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
+    auto& range = this->TLRange.Local();
     for (vtkIdType i = begin; i < end; ++i)
     {
       this->Result[i] = static_cast<signed char>(this->Tree->Evaluate(i));
-      if (this->Range[0] == VTK_SIGNED_CHAR_MAX && this->Result[i] == 0)
+      if (range[0] == VTK_SIGNED_CHAR_MAX && this->Result[i] == 0)
       {
-        this->Range[0] = 0;
+        range[0] = 0;
       }
-      else if (this->Range[1] == VTK_SIGNED_CHAR_MIN && this->Result[i] == 1)
+      else if (range[1] == VTK_SIGNED_CHAR_MIN && this->Result[i] == 1)
       {
-        this->Range[1] = 1;
+        range[1] = 1;
       }
     }
   }
 
   void Reduce()
   {
+    // Merge thread-local results into this->Range
+    for (auto& tlRange : this->TLRange)
+    {
+      if (tlRange[0] == 0)
+      {
+        this->Range[0] = 0;
+      }
+      if (tlRange[1] == 1)
+      {
+        this->Range[1] = 1;
+      }
+    }
+
+    // Normalize: if no 0s or 1s were observed, default to 0
     if (this->Range[0] == VTK_SIGNED_CHAR_MAX)
     {
       if (this->Range[1] == VTK_SIGNED_CHAR_MIN)
