@@ -167,7 +167,7 @@ static int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const Cla
     *rejectReason = "rejected-return-type";
     return 0;
   }
-  /* Inherited methods and overriden methods are handled by superclasses */
+  /* Inherited methods and overridden methods are handled by superclasses */
   if (vtkWrap_IsInheritedMethod(classInfo, functionInfo) || functionInfo->IsOverride)
   {
     *rejectReason = "inherited";

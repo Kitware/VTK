@@ -157,7 +157,7 @@ public:
   }
 
   /**
-   * Overriden to pass instance attribtue buffers into the vertex buffer slots.
+   * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
   void SetVertexBuffers(const wgpu::RenderPassEncoder& encoder) override
   {
@@ -170,7 +170,7 @@ public:
   }
 
   /**
-   * Overriden to pass instance attribtue buffers into the vertex buffer slots.
+   * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
   void SetVertexBuffers(const wgpu::RenderBundleEncoder& encoder) override
   {

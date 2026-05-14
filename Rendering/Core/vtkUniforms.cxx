@@ -17,7 +17,7 @@ void vtkUniforms::PrintSelf(ostream& os, vtkIndent indent)
 vtkMTimeType vtkUniforms::GetUniformListMTime()
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return 0;
 }
 
@@ -96,35 +96,35 @@ int vtkUniforms::StringToScalarType(const std::string& s)
 void vtkUniforms::RemoveUniform(const char*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::RemoveAllUniforms()
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform(const char*, vtkUniforms::TupleType, int, const std::vector<int>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform(const char*, vtkUniforms::TupleType, int, const std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 bool vtkUniforms::GetUniform(const char*, std::vector<int>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -132,7 +132,7 @@ bool vtkUniforms::GetUniform(const char*, std::vector<int>&)
 bool vtkUniforms::GetUniform(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -140,140 +140,140 @@ bool vtkUniforms::GetUniform(const char*, std::vector<float>&)
 void vtkUniforms::SetUniformi(const char*, int)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformf(const char*, float)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform2i(const char*, const int[2])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform2f(const char*, const float[2])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform3f(const char*, const float[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform4f(const char*, const float[4])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformMatrix3x3(const char*, float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformMatrix4x4(const char*, float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform1iv(const char*, int, const int*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform1fv(const char*, int, const float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform2fv(const char*, int, const float (*)[2])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform3fv(const char*, int, const float (*)[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform4fv(const char*, int, const float (*)[4])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformMatrix4x4v(const char*, int, float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform3f(const char*, const double[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform3uc(const char*, const unsigned char[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 } // maybe remove
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniform4uc(const char*, const unsigned char[4])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 } // maybe remove
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformMatrix(const char*, vtkMatrix3x3*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 void vtkUniforms::SetUniformMatrix(const char*, vtkMatrix4x4*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
 }
 
 //------------------------------------------------------------------------------
 bool vtkUniforms::GetUniformi(const char*, int&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -281,7 +281,7 @@ bool vtkUniforms::GetUniformi(const char*, int&)
 bool vtkUniforms::GetUniformf(const char*, float&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -289,7 +289,7 @@ bool vtkUniforms::GetUniformf(const char*, float&)
 bool vtkUniforms::GetUniform2i(const char*, int[2])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -297,7 +297,7 @@ bool vtkUniforms::GetUniform2i(const char*, int[2])
 bool vtkUniforms::GetUniform2f(const char*, float[2])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -305,7 +305,7 @@ bool vtkUniforms::GetUniform2f(const char*, float[2])
 bool vtkUniforms::GetUniform3f(const char*, float[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -313,7 +313,7 @@ bool vtkUniforms::GetUniform3f(const char*, float[3])
 bool vtkUniforms::GetUniform4f(const char*, float[4])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -321,7 +321,7 @@ bool vtkUniforms::GetUniform4f(const char*, float[4])
 bool vtkUniforms::GetUniformMatrix3x3(const char*, float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -329,7 +329,7 @@ bool vtkUniforms::GetUniformMatrix3x3(const char*, float*)
 bool vtkUniforms::GetUniformMatrix4x4(const char*, float*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -337,7 +337,7 @@ bool vtkUniforms::GetUniformMatrix4x4(const char*, float*)
 bool vtkUniforms::GetUniform3f(const char*, double[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -345,7 +345,7 @@ bool vtkUniforms::GetUniform3f(const char*, double[3])
 bool vtkUniforms::GetUniform3uc(const char*, unsigned char[3])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -353,7 +353,7 @@ bool vtkUniforms::GetUniform3uc(const char*, unsigned char[3])
 bool vtkUniforms::GetUniform4uc(const char*, unsigned char[4])
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -361,7 +361,7 @@ bool vtkUniforms::GetUniform4uc(const char*, unsigned char[4])
 bool vtkUniforms::GetUniformMatrix(const char*, vtkMatrix3x3*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -369,7 +369,7 @@ bool vtkUniforms::GetUniformMatrix(const char*, vtkMatrix3x3*)
 bool vtkUniforms::GetUniformMatrix(const char*, vtkMatrix4x4*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -377,7 +377,7 @@ bool vtkUniforms::GetUniformMatrix(const char*, vtkMatrix4x4*)
 bool vtkUniforms::GetUniform1iv(const char*, std::vector<int>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -385,7 +385,7 @@ bool vtkUniforms::GetUniform1iv(const char*, std::vector<int>&)
 bool vtkUniforms::GetUniform1fv(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -393,7 +393,7 @@ bool vtkUniforms::GetUniform1fv(const char*, std::vector<float>&)
 bool vtkUniforms::GetUniform2fv(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -401,7 +401,7 @@ bool vtkUniforms::GetUniform2fv(const char*, std::vector<float>&)
 bool vtkUniforms::GetUniform3fv(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -409,7 +409,7 @@ bool vtkUniforms::GetUniform3fv(const char*, std::vector<float>&)
 bool vtkUniforms::GetUniform4fv(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -417,7 +417,7 @@ bool vtkUniforms::GetUniform4fv(const char*, std::vector<float>&)
 bool vtkUniforms::GetUniformMatrix4x4v(const char*, std::vector<float>&)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return false;
 }
 
@@ -425,7 +425,7 @@ bool vtkUniforms::GetUniformMatrix4x4v(const char*, std::vector<float>&)
 int vtkUniforms::GetNumberOfUniforms()
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return 0;
 }
 
@@ -433,7 +433,7 @@ int vtkUniforms::GetNumberOfUniforms()
 const char* vtkUniforms::GetNthUniformName(vtkIdType)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return "";
 }
 
@@ -441,7 +441,7 @@ const char* vtkUniforms::GetNthUniformName(vtkIdType)
 int vtkUniforms::GetUniformScalarType(const char*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return 0;
 }
 
@@ -449,7 +449,7 @@ int vtkUniforms::GetUniformScalarType(const char*)
 vtkUniforms::TupleType vtkUniforms::GetUniformTupleType(const char*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return vtkUniforms::TupleTypeInvalid;
 }
 
@@ -457,7 +457,7 @@ vtkUniforms::TupleType vtkUniforms::GetUniformTupleType(const char*)
 int vtkUniforms::GetUniformNumberOfComponents(const char*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return 0;
 }
 
@@ -465,7 +465,7 @@ int vtkUniforms::GetUniformNumberOfComponents(const char*)
 int vtkUniforms::GetUniformNumberOfTuples(const char*)
 {
   vtkWarningMacro(
-    "vtkUniforms is not overriden by any derived class in the currently used rendering factory.");
+    "vtkUniforms is not overridden by any derived class in the currently used rendering factory.");
   return 0;
 }
 

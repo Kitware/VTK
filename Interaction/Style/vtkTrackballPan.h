@@ -38,8 +38,8 @@ public:
 
   ///@{
   /**
-   * Overriden to detect if the 'x' or 'y' keys are pressed to constrain the panning to a particular
-   * axis.
+   * Overridden to detect if the 'x' or 'y' keys are pressed to constrain the panning to a
+   * particular axis.
    */
   void OnKeyUp(vtkRenderWindowInteractor*) override;
   void OnKeyDown(vtkRenderWindowInteractor*) override;

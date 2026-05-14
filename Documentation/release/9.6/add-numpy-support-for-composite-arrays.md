@@ -11,7 +11,7 @@ Note that the algs intermediate layer is still useful to access some VTK specifi
 
 ### Developer notes:
 
-NumPy supports extension of its core functionality to non-`ndarray` types using two key protocols which were overriden in the `VTKCompositeDataArray` class:
+NumPy supports extension of its core functionality to non-`ndarray` types using two key protocols which were overridden in the `VTKCompositeDataArray` class:
 - `__array_ufunc__`\
 This method is called whenever a NumPy universal function (ufunc) like np.sin or np.sqrt is applied. Universal functions are more or less the elementwise functions.
 - `__array_function__`\

@@ -600,7 +600,7 @@ void vtkOpenVDBReaderInternals::UpdateGridInformation(
   }
 
   // Needed only when reading from stream
-  // This is overriden when reading from file
+  // This is overridden when reading from file
   gridInfo->Grid = grid;
 
   gridInfo->Name = grid->getName();
