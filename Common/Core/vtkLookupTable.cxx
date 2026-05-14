@@ -1270,29 +1270,29 @@ void vtkLookupTable::SetNumberOfTableValues(vtkIdType number)
 // Directly load color into lookup table. Use [0,1] double values for color
 // component specification. Make sure that you've either used the
 // Build() method or used SetNumberOfTableValues() prior to using this method.
-void vtkLookupTable::SetTableValue(vtkIdType indx, const double rgba[4])
+void vtkLookupTable::SetTableValue(vtkIdType index, const double rgba[4])
 {
   // Check the index to make sure it is valid
-  if (indx < 0)
+  if (index < 0)
   {
-    vtkErrorMacro("Can't set the table value for negative index " << indx);
+    vtkErrorMacro("Can't set the table value for negative index " << index);
     return;
   }
-  if (indx >= this->NumberOfColors)
+  if (index >= this->NumberOfColors)
   {
     vtkErrorMacro(
-      "Index " << indx << " is greater than the number of colors " << this->NumberOfColors);
+      "Index " << index << " is greater than the number of colors " << this->NumberOfColors);
     return;
   }
 
-  unsigned char* _rgba = this->Table->WritePointer(4 * indx, 4);
+  unsigned char* _rgba = this->Table->WritePointer(4 * index, 4);
 
   _rgba[0] = static_cast<unsigned char>(rgba[0] * 255.0 + 0.5);
   _rgba[1] = static_cast<unsigned char>(rgba[1] * 255.0 + 0.5);
   _rgba[2] = static_cast<unsigned char>(rgba[2] * 255.0 + 0.5);
   _rgba[3] = static_cast<unsigned char>(rgba[3] * 255.0 + 0.5);
 
-  if (indx == 0 || indx == this->NumberOfColors - 1)
+  if (index == 0 || index == this->NumberOfColors - 1)
   {
     // This is needed due to the way the special colors are stored in
     // the internal table. If Above/BelowRangeColors are not used and
@@ -1310,21 +1310,21 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, const double rgba[4])
 //------------------------------------------------------------------------------
 // Directly load color into lookup table. Use [0,1] double values for color
 // component specification.
-void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b, double a)
+void vtkLookupTable::SetTableValue(vtkIdType index, double r, double g, double b, double a)
 {
   const double rgba[4] = { r, g, b, a };
-  this->SetTableValue(indx, rgba);
+  this->SetTableValue(index, rgba);
 }
 
 //------------------------------------------------------------------------------
 // Return an RGBA color value for the given index into the lookup Table. Color
 // components are expressed as [0,1] double values.
-void vtkLookupTable::GetTableValue(vtkIdType indx, double rgba[4])
+void vtkLookupTable::GetTableValue(vtkIdType index, double rgba[4])
 {
-  indx = std::max<vtkIdType>(indx, 0);
-  indx = std::min<vtkIdType>(indx, this->NumberOfColors - 1);
+  index = std::max<vtkIdType>(index, 0);
+  index = std::min<vtkIdType>(index, this->NumberOfColors - 1);
 
-  const unsigned char* _rgba = this->Table->GetPointer(indx * 4);
+  const unsigned char* _rgba = this->Table->GetPointer(index * 4);
 
   rgba[0] = _rgba[0] / 255.0;
   rgba[1] = _rgba[1] / 255.0;
@@ -1334,9 +1334,9 @@ void vtkLookupTable::GetTableValue(vtkIdType indx, double rgba[4])
 
 // Return an RGBA color value for the given index into the lookup table. Color
 // components are expressed as [0,1] double values.
-double* vtkLookupTable::GetTableValue(vtkIdType indx)
+double* vtkLookupTable::GetTableValue(vtkIdType index)
 {
-  this->GetTableValue(indx, this->RGBA);
+  this->GetTableValue(index, this->RGBA);
   return this->RGBA;
 }
 

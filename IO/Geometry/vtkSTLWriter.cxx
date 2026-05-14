@@ -105,7 +105,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
   FILE* fp;
   double n[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
 
   if ((fp = vtksys::SystemTools::Fopen(this->FileName, "w")) == nullptr)
   {
@@ -140,13 +140,13 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
 
   //  Write out triangle strips
   //
-  for (polyStrips->InitTraversal(); polyStrips->GetNextCell(npts, indx);)
+  for (polyStrips->InitTraversal(); polyStrips->GetNextCell(npts, index);)
   {
-    pts->GetPoint(indx[0], v1);
-    pts->GetPoint(indx[1], v2);
-    pts->GetPoint(indx[2], v3);
+    pts->GetPoint(index[0], v1);
+    pts->GetPoint(index[1], v2);
+    pts->GetPoint(index[2], v3);
 
-    vtkTriangle::ComputeNormal(pts, npts, indx, n);
+    vtkTriangle::ComputeNormal(pts, npts, index, n);
 
     vtk::print(fp, " facet normal {1:.{0}g} {3:.{2}g} {5:.{4}g}\n  outer loop\n", max_double_digits,
       n[0], max_double_digits, n[1], max_double_digits, n[2]);
@@ -162,15 +162,15 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
   // Write out triangle polygons. If not a triangle polygon, triangulate it
   // and write out the results.
   //
-  for (polys->InitTraversal(); polys->GetNextCell(npts, indx);)
+  for (polys->InitTraversal(); polys->GetNextCell(npts, index);)
   {
     if (npts == 3)
     {
-      pts->GetPoint(indx[0], v1);
-      pts->GetPoint(indx[1], v2);
-      pts->GetPoint(indx[2], v3);
+      pts->GetPoint(index[0], v1);
+      pts->GetPoint(index[1], v2);
+      pts->GetPoint(index[2], v3);
 
-      vtkTriangle::ComputeNormal(pts, npts, indx, n);
+      vtkTriangle::ComputeNormal(pts, npts, index, n);
 
       vtk::print(fp, " facet normal {1:.{0}g} {3:.{2}g} {5:.{4}g}\n  outer loop\n",
         max_double_digits, n[0], max_double_digits, n[1], max_double_digits, n[2]);
@@ -190,8 +190,8 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
       poly->Points->SetNumberOfPoints(npts);
       for (vtkIdType i = 0; i < npts; ++i)
       {
-        poly->PointIds->SetId(i, indx[i]);
-        poly->Points->SetPoint(i, pts->GetPoint(indx[i]));
+        poly->PointIds->SetId(i, index[i]);
+        poly->Points->SetPoint(i, pts->GetPoint(index[i]));
       }
 
       // Do the triangulation
@@ -233,7 +233,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
   FILE* fp;
   double dn[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
   unsigned short ibuff2 = 0;
 
   if ((fp = vtksys::SystemTools::Fopen(this->FileName, "wb")) == nullptr)
@@ -317,13 +317,13 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
   //  Write out triangle strips
   //
   numTris += polyStrips->GetNumberOfCells();
-  for (polyStrips->InitTraversal(); polyStrips->GetNextCell(npts, indx);)
+  for (polyStrips->InitTraversal(); polyStrips->GetNextCell(npts, index);)
   {
-    pts->GetPoint(indx[0], v1);
-    pts->GetPoint(indx[1], v2);
-    pts->GetPoint(indx[2], v3);
+    pts->GetPoint(index[0], v1);
+    pts->GetPoint(index[1], v2);
+    pts->GetPoint(index[2], v3);
 
-    vtkTriangle::ComputeNormal(pts, npts, indx, dn);
+    vtkTriangle::ComputeNormal(pts, npts, index, dn);
     float n[3];
     n[0] = (float)dn[0];
     n[1] = (float)dn[1];
@@ -363,15 +363,15 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
   // Write out triangle polygons. If not a triangle polygon, triangulate it
   // and write out the results.
   //
-  for (polys->InitTraversal(); polys->GetNextCell(npts, indx);)
+  for (polys->InitTraversal(); polys->GetNextCell(npts, index);)
   {
     if (npts == 3)
     {
-      pts->GetPoint(indx[0], v1);
-      pts->GetPoint(indx[1], v2);
-      pts->GetPoint(indx[2], v3);
+      pts->GetPoint(index[0], v1);
+      pts->GetPoint(index[1], v2);
+      pts->GetPoint(index[2], v3);
 
-      vtkTriangle::ComputeNormal(pts, npts, indx, dn);
+      vtkTriangle::ComputeNormal(pts, npts, index, dn);
       float n[3];
       n[0] = (float)dn[0];
       n[1] = (float)dn[1];
@@ -415,8 +415,8 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
       poly->Points->SetNumberOfPoints(npts);
       for (vtkIdType i = 0; i < npts; ++i)
       {
-        poly->PointIds->SetId(i, indx[i]);
-        poly->Points->SetPoint(i, pts->GetPoint(indx[i]));
+        poly->PointIds->SetId(i, index[i]);
+        poly->Points->SetPoint(i, pts->GetPoint(index[i]));
       }
 
       // Do the triangulation

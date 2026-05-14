@@ -193,7 +193,7 @@ int vtkDelimitedTextReader::RequestInformation(
   }
 
   std::string line;
-  for (int indx = 0; indx < this->PreviewNumberOfLines; indx++)
+  for (int index = 0; index < this->PreviewNumberOfLines; index++)
   {
     if (!vtksys::SystemTools::GetLineFromStream(*input_stream, line))
     {

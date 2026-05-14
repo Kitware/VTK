@@ -243,7 +243,7 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
   double* tempd;
   vtkCellArray* cells;
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
   float tempf2;
   vtkPolyDataMapper* pm;
   vtkUnsignedCharArray* colors;
@@ -450,13 +450,13 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     VTK_INDENT_MORE;
 
     cells = pd->GetPolys();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "{:s}", indent);
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        vtk::print(fp, "{:d}, ", static_cast<int>(indx[i]));
+        vtk::print(fp, "{:d}, ", static_cast<int>(index[i]));
         if (((i + 1) % 10) == 0)
         {
           vtk::print(fp, "\n{:s}    ", indent);
@@ -478,13 +478,13 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     vtk::print(fp, "{:s}coordIndex  [\n", indent);
     VTK_INDENT_MORE;
     cells = pd->GetStrips();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "{:s}", indent);
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        vtk::print(fp, "{:d}, ", static_cast<int>(indx[i]));
+        vtk::print(fp, "{:d}, ", static_cast<int>(index[i]));
         if (((i + 1) % 10) == 0)
         {
           vtk::print(fp, "\n{:s}    ", indent);
@@ -506,13 +506,13 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     vtk::print(fp, "{:s}coordIndex  [\n", indent);
     VTK_INDENT_MORE;
     cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "{:s}", indent);
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        vtk::print(fp, "{:d}, ", static_cast<int>(indx[i]));
+        vtk::print(fp, "{:d}, ", static_cast<int>(index[i]));
         if (((i + 1) % 10) == 0)
         {
           vtk::print(fp, "\n{:s}    ", indent);
@@ -537,11 +537,11 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     vtk::print(fp, "{:s}point [", indent);
     VTK_INDENT_MORE;
     cells = pd->GetVerts();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       for (i = 0; i < npts; i++)
       {
-        p = points->GetPoint(indx[i]);
+        p = points->GetPoint(index[i]);
         vtk::print(fp, "{:s}{:g} {:g} {:g},\n", indent, p[0], p[1], p[2]);
       }
     }
@@ -555,12 +555,12 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
       VTK_INDENT_MORE;
       vtk::print(fp, "{:s}rgba [\n", indent);
       VTK_INDENT_MORE;
-      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+      for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
       {
         vtk::print(fp, "{:s}", indent);
         for (i = 0; i < npts; i++)
         {
-          c = colors->GetPointer(4 * indx[i]);
+          c = colors->GetPointer(4 * index[i]);
           vtk::print(fp, "{:#x}, ",
             (static_cast<unsigned long>(c[3]) << 24) | (static_cast<unsigned long>(c[2]) << 16) |
               (static_cast<unsigned long>(c[1]) << 8) | static_cast<unsigned long>(c[0]));

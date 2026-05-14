@@ -712,9 +712,9 @@ void H5RageAdaptor::LoadVariableData(
             {
               for (int64_t i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
               {
-                int64_t indx =
+                int64_t index =
                   (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
-                varData[pos++] = dData[indx];
+                varData[pos++] = dData[index];
               }
             }
           }
@@ -733,9 +733,9 @@ void H5RageAdaptor::LoadVariableData(
                 for (int64_t i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1];
                      i++)
                 {
-                  int64_t indx =
+                  int64_t index =
                     (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
-                  buffer[pos2++] = dData[indx];
+                  buffer[pos2++] = dData[index];
                 }
               }
             }
@@ -773,9 +773,9 @@ void H5RageAdaptor::LoadVariableData(
             {
               for (int64_t i = this->ExtentSchedule[0][0]; i <= this->ExtentSchedule[0][1]; i++)
               {
-                int64_t indx =
+                int64_t index =
                   (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
-                varData[pos2++] = fData[indx];
+                varData[pos2++] = fData[index];
               }
             }
           }
@@ -794,9 +794,9 @@ void H5RageAdaptor::LoadVariableData(
                 for (int64_t i = this->ExtentSchedule[rank][0]; i <= this->ExtentSchedule[rank][1];
                      i++)
                 {
-                  int64_t indx =
+                  int64_t index =
                     (k * this->Dimension[0] * this->Dimension[1]) + (j * this->Dimension[0]) + i;
-                  buffer[pos3++] = fData[indx];
+                  buffer[pos3++] = fData[index];
                 }
               }
             }
@@ -837,8 +837,8 @@ void H5RageAdaptor::ConvertHDFData(int ndims, int* dimensions, T* hdfData)
       {
         for (int64_t i = 0; i < dimensions[2]; i++)
         {
-          int64_t indx = (k * planeSize) + (j * rowSize) + i;
-          convertedData[pos++] = hdfData[indx];
+          int64_t index = (k * planeSize) + (j * rowSize) + i;
+          convertedData[pos++] = hdfData[index];
         }
       }
     }
@@ -851,16 +851,16 @@ void H5RageAdaptor::ConvertHDFData(int ndims, int* dimensions, T* hdfData)
     {
       for (int64_t i = 0; i < dimensions[1]; i++)
       {
-        int64_t indx = (j * rowSize) + i;
-        convertedData[pos++] = hdfData[indx];
+        int64_t index = (j * rowSize) + i;
+        convertedData[pos++] = hdfData[index];
       }
     }
   }
 
   // Copy back to original
-  for (int64_t indx = 0; indx < this->TotalTuples; indx++)
+  for (int64_t index = 0; index < this->TotalTuples; index++)
   {
-    hdfData[indx] = convertedData[indx];
+    hdfData[index] = convertedData[index];
   }
   delete[] convertedData;
 }

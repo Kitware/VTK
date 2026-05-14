@@ -90,19 +90,19 @@ void vtkMCubesWriter::WriteMCubes(
   pointType point;
   int i;
   vtkIdType npts;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
 
   //  Write out triangle polygons.  In not a triangle polygon, create
   //  triangles.
   //
   double p[3], n[3];
   bool status = true;
-  for (polys->InitTraversal(); polys->GetNextCell(npts, indx) && status;)
+  for (polys->InitTraversal(); polys->GetNextCell(npts, index) && status;)
   {
     for (i = 0; i < 3 && status; i++)
     {
-      pts->GetPoint(indx[i], p);
-      normals->GetTuple(indx[i], n);
+      pts->GetPoint(index[i], p);
+      normals->GetTuple(index[i], n);
       point.x[0] = static_cast<float>(p[0]);
       point.x[1] = static_cast<float>(p[1]);
       point.x[2] = static_cast<float>(p[2]);

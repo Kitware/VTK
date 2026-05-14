@@ -599,7 +599,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const int* values, size_t
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
 
   this->StartAttribute(attributeID, true, false);
 
@@ -608,12 +608,12 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
   {
     case (MFINT32):
       int i;
-      for (a->InitTraversal(); a->GetNextCell(npts, indx);)
+      for (a->InitTraversal(); a->GetNextCell(npts, index);)
       {
         for (i = 0; i < npts; i++)
         {
           // treating vtkIdType as int
-          ss << (int)indx[i] << " ";
+          ss << (int)index[i] << " ";
         }
         ss << "-1";
       }
@@ -629,11 +629,11 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
   {
     case (MFINT32):
       int i;
-      for (a->InitTraversal(); a->GetNextCell(npts, indx);)
+      for (a->InitTraversal(); a->GetNextCell(npts, index);)
       {
         for (i = 0; i < npts; i++)
         {
-          values.push_back(indx[i]);
+          values.push_back(index[i]);
         }
         values.push_back(-1);
       }

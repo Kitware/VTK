@@ -258,7 +258,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
   double* tempd = defcolor;
   vtkCellArray* cells;
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
   double tempf2 = 0;
   vtkPolyDataMapper* pm;
   vtkUnsignedCharArray* colors;
@@ -330,14 +330,14 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
     // write out the header line
     cells = pd->GetLines();
     i = 0;
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       i += npts;
     }
     vtk::print(fp, "{:s}{:d} {:d} {:d}\n", indent, static_cast<int>(pd->GetNumberOfLines()), i, 1);
     cells = pd->GetLines();
     vtk::print(fp, "{:s}", indent);
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "{:d} ", static_cast<int>(npts));
     }
@@ -353,12 +353,12 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
 
     // write out points
     cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "{:s}", indent);
       for (i = 0; i < npts; i++)
       {
-        double* pt = points->GetPoint(indx[i]);
+        double* pt = points->GetPoint(index[i]);
         vtk::print(fp, "{:s}{:f} {:f} {:f} ", indent, pt[0], pt[1], pt[2]);
       }
       vtk::print(fp, "\n");
@@ -392,7 +392,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
       //
       i = 0;
       cells = pd->GetStrips();
-      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+      for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
       {
         i += (npts - 2);
       }
@@ -425,12 +425,12 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
     if (pd->GetNumberOfPolys())
     {
       cells = pd->GetPolys();
-      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+      for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
       {
         vtk::print(fp, "{:s}{:d} ", indent, static_cast<int>(npts));
         for (i = 0; i < npts; i++)
         {
-          vtk::print(fp, "{:d} ", indx[i]);
+          vtk::print(fp, "{:d} ", index[i]);
         }
         vtk::print(fp, "\n");
       }
@@ -443,16 +443,16 @@ void vtkOOGLExporter::WriteAnActor(vtkActor* anActor, FILE* fp, int count)
     { // write triangle strips
       cells = pd->GetStrips();
 
-      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+      for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
       {
         int pt1, pt2, pt3;
 
-        pt1 = indx[0];
-        pt2 = indx[1];
+        pt1 = index[0];
+        pt2 = index[1];
 
         for (i = 0; i < (npts - 2); i++)
         {
-          pt3 = indx[i + 2];
+          pt3 = index[i + 2];
           if (i % 2)
           {
             vtk::print(fp, "{:s}3 {:d} {:d} {:d}\n", indent, pt2, pt1, pt3);

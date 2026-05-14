@@ -31,7 +31,7 @@ public:
   double GetTimeStep(int step) { return this->TimeSteps[step]; }
 
   int GetNumberOfVariables() { return (int)this->VariableName.size(); }
-  const char* GetVariableName(int indx) { return this->VariableName[indx].c_str(); }
+  const char* GetVariableName(int index) { return this->VariableName[index].c_str(); }
 
   int GetWholeExtent(int ext) { return this->WholeExtent[ext]; }
   int GetSubExtent(int ext) { return this->SubExtent[ext]; }

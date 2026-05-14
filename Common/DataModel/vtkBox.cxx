@@ -223,9 +223,9 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
     } // if inside
   }   // for all coordinate directions
 
-  int indx = loc[0] + 3 * loc[1] + 9 * loc[2];
+  int index = loc[0] + 3 * loc[1] + 9 * loc[2];
 
-  switch (indx)
+  switch (index)
   {
     // verts - gradient points away from center point
     case 0:
