@@ -60,9 +60,9 @@ protected:
     std::iota(timeSteps.begin(), timeSteps.end(), 0);
     double timeRange[2] = { timeSteps.front(), timeSteps.back() };
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeSteps.data(),
-      static_cast<int>(this->Descriptors.size()));
+      static_cast<int>(timeSteps.size()));
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange,
-      static_cast<int>(this->Descriptors.size()));
+      static_cast<int>(sizeof(timeRange) / sizeof(timeRange[0])));
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION(), 1);
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
     return 1;
