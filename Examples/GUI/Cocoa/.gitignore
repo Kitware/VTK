@@ -1,0 +1,2 @@
+# Exclude Xcode xcuserdata folders.
+xcuserdata/
