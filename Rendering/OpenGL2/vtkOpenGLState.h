@@ -63,6 +63,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLShaderCache;
+class vtkOpenGLTextureNormalizationHelper;
 class vtkOpenGLVertexBufferObjectCache;
 class vtkTextureObject;
 class vtkTextureUnitManager;
@@ -386,6 +387,22 @@ public:
    */
   std::string const& GetRenderer() { return this->Renderer; }
 
+  /**
+   * Return whether GL_R16 normalized formats are available for VTK_UNSIGNED_SHORT data.
+   * On desktop OpenGL this is always true. On GL ES 3.0 it requires GL_EXT_texture_norm16.
+   * When false, callers uploading VTK_UNSIGNED_SHORT data must convert to float first.
+   */
+  bool GetSupportsTextureNorm16() { return this->SupportsTextureNorm16; }
+
+  /**
+   * Get the texture normalization helper for GLES 3.0 without norm16 extension.
+   * Returns nullptr if no GPU-assisted conversion is available or on desktop OpenGL.
+   */
+  vtkOpenGLTextureNormalizationHelper* GetTextureNormalizationHelper()
+  {
+    return this->TextureNormalizationHelper;
+  }
+
 protected:
   vtkOpenGLState(); // set initial values
   ~vtkOpenGLState() override;
@@ -397,9 +414,11 @@ protected:
   void Viewport(std::array<int, 4> val);
 
   int TextureInternalFormats[VTK_OBJECT + 1][3][5];
+  bool SupportsTextureNorm16 = false;
   void InitializeTextureInternalFormats();
 
   vtkTextureUnitManager* TextureUnitManager;
+  vtkOpenGLTextureNormalizationHelper* TextureNormalizationHelper = nullptr;
   std::map<const vtkTextureObject*, int> TextureResourceIds;
 
   /**

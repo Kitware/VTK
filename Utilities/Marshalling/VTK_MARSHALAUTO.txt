@@ -601,6 +601,10 @@ Rendering/OpenGL2/vtkOpenGLSkybox.h
 Rendering/OpenGL2/vtkOpenGLTextActor.h
 Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTexture.h
+Rendering/OpenGL2/vtkOpenGLTextureComputeShaderNormalization.h
+Rendering/OpenGL2/vtkOpenGLTextureCPUNormalization.h
+Rendering/OpenGL2/vtkOpenGLTextureFramebufferNormalization.h
+Rendering/OpenGL2/vtkOpenGLTextureNormalizationHelper.h
 Rendering/OpenGL2/vtkOrderIndependentTranslucentPass.h
 Rendering/OpenGL2/vtkOSOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOutlineGlowPass.h

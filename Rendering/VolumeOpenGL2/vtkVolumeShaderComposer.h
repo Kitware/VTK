@@ -789,7 +789,7 @@ inline std::string ComputeGradientDeclaration(
         "\n"
         "  // Since the actual range of the gradient magnitude is unknown,\n"
         "  // assume it is in the range [0, 0.25 * dataRange].\n"
-        "  range = range != 0 ? range : 1.0;\n"
+        "  range = range != 0.0 ? range : 1.0;\n"
         "  grad_mag = grad_mag / (0.25 * range);\n"
         "  grad_mag = clamp(grad_mag, 0.0, 1.0);\n"
         "\n"
