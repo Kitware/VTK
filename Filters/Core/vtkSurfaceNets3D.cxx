@@ -2520,7 +2520,6 @@ vtkSurfaceNets3D::vtkSurfaceNets3D()
   this->OutputMeshType = MESH_TYPE_DEFAULT;
 
   this->Smoothing = true;
-  this->OptimizedSmoothingStencils = true;
   this->Smoother = vtkSmartPointer<vtkConstrainedSmoothingFilter>::New();
   this->Smoother->SetNumberOfIterations(16);
   this->Smoother->SetRelaxationFactor(0.5);
@@ -2789,8 +2788,6 @@ void vtkSurfaceNets3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Mesh Type: " << this->OutputMeshType << endl;
 
   os << indent << "Smoothing: " << (this->Smoothing ? "On\n" : "Off\n");
-  os << indent
-     << "Optimized Smoothing Stencils: " << (this->OptimizedSmoothingStencils ? "On\n" : "Off\n");
   os << indent << "Smoother: " << this->Smoother.Get() << endl;
   os << indent << "Automatic Smoothing Constraints: "
      << (this->AutomaticSmoothingConstraints ? "On\n" : "Off\n");

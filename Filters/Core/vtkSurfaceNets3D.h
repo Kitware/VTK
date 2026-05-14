@@ -181,6 +181,7 @@
 
 #include "vtkConstrainedSmoothingFilter.h" // Perform mesh smoothing
 #include "vtkContourValues.h"              // Needed for direct access to ContourValues
+#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h"          // For export macro
 #include "vtkPolyData.h"                   // To support data caching
 #include "vtkPolyDataAlgorithm.h"
@@ -424,9 +425,14 @@ public:
    * surface net. In some cases it may be desired to disable the use of optimized
    * smoothing stencils.
    */
-  vtkSetMacro(OptimizedSmoothingStencils, bool);
-  vtkGetMacro(OptimizedSmoothingStencils, bool);
-  vtkBooleanMacro(OptimizedSmoothingStencils, bool);
+  VTK_DEPRECATED_IN_9_7_0("No longer used")
+  virtual void SetOptimizedSmoothingStencils(bool) {}
+  VTK_DEPRECATED_IN_9_7_0("No longer used")
+  virtual bool GetOptimizedSmoothingStencils() { return true; }
+  VTK_DEPRECATED_IN_9_7_0("No longer used")
+  virtual void OptimizedSmoothingStencilsOn() {}
+  VTK_DEPRECATED_IN_9_7_0("No longer used")
+  virtual void OptimizedSmoothingStencilsOff() {}
   ///@}
 
   ///@{
@@ -562,7 +568,6 @@ protected:
 
   // Support smoothing.
   bool Smoothing;
-  bool OptimizedSmoothingStencils;
   vtkSmartPointer<vtkConstrainedSmoothingFilter> Smoother;
   bool AutomaticSmoothingConstraints;
   double ConstraintScale;
