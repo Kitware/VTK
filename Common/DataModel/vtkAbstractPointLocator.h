@@ -37,6 +37,17 @@ public:
 
   ///@{
   /**
+   * Specify absolute tolerance (in world coordinates) for performing
+   * geometric operations.
+   *
+   * The default is 0.001.
+   */
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance, double);
+  ///@}
+
+  ///@{
+  /**
    * Given a position x, return the id of the point closest to it. Alternative
    * method requires separate x-y-z values.
    * These methods are thread safe if BuildLocator() is directly or
@@ -99,6 +110,7 @@ protected:
   ~vtkAbstractPointLocator() override;
 
   double Bounds[6];          // bounds of points
+  double Tolerance;          // for performing merging
   vtkIdType NumberOfBuckets; // total size of locator
 
 private:

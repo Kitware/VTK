@@ -108,6 +108,7 @@ public:
   vtkIdType FindPoint(double x[3]) override;
   ///@}
 
+  using Superclass::FindCell;
   /**
    * Locate cell based on global coordinate x and tolerance
    * squared. If cell and cellId is non-nullptr, then search starts from
@@ -116,17 +117,10 @@ public:
    * provided in pcoords[3]. The interpolation weights are returned in
    * weights[]. (The number of weights is equal to the number of
    * points in the found cell). Tolerance is used to control how close
-   * the point is to be considered "in" the cell.
-   */
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double* weights) override;
-
-  /**
-   * This is a version of the above method that can be used with
-   * multithreaded applications. A vtkGenericCell must be passed in
+   * the point is to be considered "in" the cell. A vtkGenericCell must be passed in
    * to be used in internal calls that might be made to GetCell()
    */
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
 
   /**

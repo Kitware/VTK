@@ -45,7 +45,6 @@ void vtkImplicitProjectOnPlaneDistance::SetInput(vtkPolyData* input)
     this->Input->BuildLinks();
     this->CreateDefaultLocator();
     this->Locator->SetDataSet(this->Input);
-    this->Locator->SetTolerance(this->Tolerance);
     this->Locator->CacheCellBoundsOn();
     this->Locator->BuildLocator();
 

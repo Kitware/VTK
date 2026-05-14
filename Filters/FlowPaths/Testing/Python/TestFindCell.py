@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonCore import vtkFloatArray
 from vtkmodules.vtkCommonDataModel import (
-    vtkClosestNPointsStrategy,
+    vtkJumpAndWalkCellLocator,
     vtkImageData,
 )
 from vtkmodules.vtkCommonMath import vtkRungeKutta4
@@ -89,9 +89,8 @@ line.SetPoint2(pt2)
 line.Update()
 
 rk4 = vtkRungeKutta4()
-strategy = vtkClosestNPointsStrategy()
-ivp = vtkCompositeInterpolatedVelocityField()
-ivp.SetFindCellStrategy(strategy)
+cellLocator = vtkJumpAndWalkCellLocator()
+cellLocator.SetNumberOfClosestPoints(9)
 
 streamer = vtkStreamTracer()
 streamer.SetInputConnection(append.GetOutputPort())
@@ -105,7 +104,7 @@ streamer.SetTerminalSpeed(1.0e-12)
 streamer.SetMaximumError(1.0e-06)
 streamer.SetComputeVorticity(0)
 streamer.SetIntegrator(rk4)
-streamer.SetInterpolatorPrototype(ivp)
+streamer.SetCellLocator(cellLocator)
 streamer.Update()
 reasons = streamer.GetOutput().GetCellData().GetArray("ReasonForTermination")
 print(reasons.GetValue(0))

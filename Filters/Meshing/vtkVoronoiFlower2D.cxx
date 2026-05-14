@@ -1144,7 +1144,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
   this->Locator->SetDataSet(tInput);
   this->Locator->BuildLocator();
-  this->Locator->StaticOn();
+  this->Locator->UseExistingSearchStructureOn();
 
   // Computational bounds
   double length = tInput->GetLength();
@@ -1294,7 +1294,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   } // Produce sampled Voronoi flower
 
   // Return the locator to a normal processing mode.
-  this->Locator->StaticOff();
+  this->Locator->UseExistingSearchStructureOff();
 
   return 1;
 }

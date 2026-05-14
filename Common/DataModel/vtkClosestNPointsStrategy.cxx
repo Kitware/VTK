@@ -1,10 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkClosestNPointsStrategy.h"
 
 #include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointLocator.h"
 #include "vtkPointSet.h"
@@ -24,6 +28,16 @@ vtkClosestNPointsStrategy::vtkClosestNPointsStrategy()
 
 //------------------------------------------------------------------------------
 vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() = default;
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkAbstractCellLocator> vtkClosestNPointsStrategy::ConvertToCellLocator()
+{
+  vtkNew<vtkJumpAndWalkCellLocator> jumpAndWalkLocator;
+  jumpAndWalkLocator->SetNumberOfClosestPoints(this->GetClosestNPoints());
+  jumpAndWalkLocator->SetDataSet(this->PointSet);
+  jumpAndWalkLocator->SetPointLocator(this->GetPointLocator());
+  return jumpAndWalkLocator;
+}
 
 //------------------------------------------------------------------------------
 vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,

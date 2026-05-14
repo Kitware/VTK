@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkCellLocatorStrategy.h"
 
 #include "vtkAbstractCellLocator.h"
-#include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
@@ -26,6 +27,12 @@ vtkCellLocatorStrategy::~vtkCellLocatorStrategy()
     this->CellLocator->Delete();
     this->CellLocator = nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkAbstractCellLocator> vtkCellLocatorStrategy::ConvertToCellLocator()
+{
+  return this->GetCellLocator();
 }
 
 //------------------------------------------------------------------------------
@@ -110,23 +117,10 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell,
   vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
-  // If we are given a starting cell, try that.
-  if (cell && (cellId >= 0))
-  {
-    double closestPoint[3];
-    double dist2;
-    if ((cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1) &&
-      (dist2 <= tol2))
-    {
-      return cellId;
-    }
-  }
-
-  // Okay cache miss, try the cell locator
-  return this->CellLocator->FindCell(x, tol2, gencell, subId, pcoords, weights);
+  return this->CellLocator->FindCell(x, cell, genCell, cellId, tol2, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

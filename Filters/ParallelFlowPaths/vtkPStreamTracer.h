@@ -63,9 +63,6 @@ protected:
 
   vtkMultiProcessController* Controller;
 
-  vtkAbstractInterpolatedVelocityField* Interpolator;
-  void SetInterpolator(vtkAbstractInterpolatedVelocityField*);
-
   int EmptyData;
 
 private:

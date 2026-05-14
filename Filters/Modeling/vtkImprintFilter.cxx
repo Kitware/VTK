@@ -2950,7 +2950,6 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkStaticCellLocator> impLocator;
   impLocator->SetDataSet(imprint);
   impLocator->SetNumberOfCellsPerNode(5);
-  impLocator->SetTolerance(this->Tolerance);
   impLocator->BuildLocator();
 
   // A cell map might be needed for debugging or for copying cell attribute data.
@@ -2997,7 +2996,6 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkStaticCellLocator> candidateCellLocator;
   candidateCellLocator->SetDataSet(candidateOutput);
   candidateCellLocator->SetNumberOfCellsPerNode(5);
-  candidateCellLocator->SetTolerance(this->Tolerance);
   candidateCellLocator->BuildLocator();
 
   // Adaptively classify the target points wrt the imprint. We avoid classifying all

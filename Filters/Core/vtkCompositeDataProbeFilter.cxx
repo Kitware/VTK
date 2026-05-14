@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCompositeDataProbeFilter.h"
 
+#include "vtkAbstractCellLocator.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
@@ -11,6 +12,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkFindCellStrategy.h"
+#include "vtkGarbageCollector.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkHyperTreeGridProbeFilter.h"
@@ -31,6 +33,16 @@ vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 
 //------------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter() = default;
+
+//------------------------------------------------------------------------------
+void vtkCompositeDataProbeFilter::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  for (auto& [ds, locator] : this->CellLocatorMap)
+  {
+    vtkGarbageCollectorReport(collector, locator, "CellLocator");
+  }
+}
 
 //------------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::FillInputPortInformation(int port, vtkInformation* info)
@@ -207,14 +219,14 @@ int vtkCompositeDataProbeFilter::RequestData(
         continue;
       }
 
-      auto strategyIt = this->StrategyMap.find(sourceDS);
-      if (strategyIt != this->StrategyMap.end())
+      auto locatorIt = this->CellLocatorMap.find(sourceDS);
+      if (locatorIt != this->CellLocatorMap.end())
       {
-        this->SetFindCellStrategy(strategyIt->second);
+        this->SetCellLocator(locatorIt->second);
       }
-      else
+      else if (!this->CellLocator)
       {
-        this->SetFindCellStrategy(nullptr);
+        this->SetCellLocator(nullptr);
       }
 
       this->InitializeSourceArrays(sourceDS);
@@ -344,15 +356,22 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 void vtkCompositeDataProbeFilter::SetFindCellStrategyMap(
   const std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>>& map)
 {
-  for (const auto& keyVal : map)
+  std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>> locatorMap;
+  for (const auto& [dataset, strategy] : map)
   {
-    auto it = this->StrategyMap.find(keyVal.first);
-    if (it == this->StrategyMap.end() || it->second.GetPointer() != keyVal.second.GetPointer())
-    {
-      this->StrategyMap = map;
-      this->Modified();
-      return;
-    }
+    locatorMap[dataset] = strategy ? strategy->ConvertToCellLocator() : nullptr;
+  }
+  this->SetCellLocatorMap(locatorMap);
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositeDataProbeFilter::SetCellLocatorMap(
+  const std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>>& map)
+{
+  if (this->CellLocatorMap != map)
+  {
+    this->CellLocatorMap = map;
+    this->Modified();
   }
 }
 

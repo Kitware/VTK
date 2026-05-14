@@ -18,6 +18,7 @@
 #ifndef vtkResampleWithDataSet_h
 #define vtkResampleWithDataSet_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 #include "vtkPassInputTypeAlgorithm.h"
@@ -158,6 +159,17 @@ public:
 
   ///@{
   /**
+   * Set the radius used to snap to the closest cell.
+   * Call forwarded to the internal prober, which
+   * only uses it if SnapToCellWithClosestPoint is on.
+   * Default is the double positive infinity.
+   */
+  void SetSnappingRadius(double arg);
+  double GetSnappingRadius();
+  ///@}
+
+  ///@{
+  /**
    * Get/Set whether or not the filter should use implicit arrays.
    * If set to true, probed values will not be copied to the output
    * but retrieved from the source through indexation (thanks to indexed arrays).
@@ -176,11 +188,25 @@ public:
 
   ///@{
   /*
+   * Set/Get the cell locator to use for probing the source dataset.
+   * The value is forwarded to the underlying probe filter.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  virtual vtkAbstractCellLocator* GetCellLocator() const;
+  ///@}
+
+  ///@{
+  /*
    * Set/Get the prototype cell locator to use for probing the source dataset.
    * The value is forwarded to the underlying probe filter.
    */
-  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
-  virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const;
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator() instead.")
+  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator* cellLocator)
+  {
+    this->SetCellLocator(cellLocator);
+  }
+  VTK_DEPRECATED_IN_9_7_0("Use GetCellLocator() instead.")
+  virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const { return this->GetCellLocator(); }
   ///@}
 
   vtkMTimeType GetMTime() override;

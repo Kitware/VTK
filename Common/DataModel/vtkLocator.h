@@ -49,6 +49,7 @@
 #define vtkLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -110,8 +111,14 @@ public:
    * Specify absolute tolerance (in world coordinates) for performing
    * geometric operations.
    */
-  vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
-  vtkGetMacro(Tolerance, double);
+  VTK_DEPRECATED_IN_9_7_0("Tolerance is only used by vtkAbstractPointLocator subclasses")
+  void SetTolerance(double vtkNotUsed(tol)) {}
+  VTK_DEPRECATED_IN_9_7_0("Tolerance is only used by vtkAbstractPointLocator subclasses")
+  double GetToleranceMinValue() VTK_FUTURE_CONST { return 0.0; }
+  VTK_DEPRECATED_IN_9_7_0("Tolerance is only used by vtkAbstractPointLocator subclasses")
+  double GetToleranceMaxValue() VTK_FUTURE_CONST { return VTK_DOUBLE_MAX; }
+  VTK_DEPRECATED_IN_9_7_0("Tolerance is only used by vtkAbstractPointLocator subclasses")
+  double GetToleranceDefaultValue() VTK_FUTURE_CONST { return 0.001; }
   ///@}
 
   ///@{
@@ -194,7 +201,6 @@ protected:
   vtkDataSet* DataSet;
   vtkTypeBool UseExistingSearchStructure;
   vtkTypeBool Automatic; // boolean controls automatic subdivision (or uses user spec.)
-  double Tolerance;      // for performing merging
   int MaxLevel;
   int Level;
 

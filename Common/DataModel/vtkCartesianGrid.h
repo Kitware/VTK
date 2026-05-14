@@ -60,9 +60,7 @@ public:
   void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* ptIds)
     VTK_SIZEHINT(pts, npts) override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
-    double tol2, int& subId, double pcoords[3], double* weights) override;
-  vtkCell* FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
     double pcoords[3], double* weights) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
   {

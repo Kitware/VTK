@@ -2,19 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkProbeLineFilter.h"
 
+#include "vtkAbstractCellLocator.h"
 #include "vtkAppendArcLength.h"
 #include "vtkAppendDataSets.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkCellLocatorStrategy.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkFindCellStrategy.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometricLocator.h"
 #include "vtkInformation.h"
@@ -790,7 +789,8 @@ vtkCxxSetObjectMacro(vtkProbeLineFilter, Controller, vtkMultiProcessController);
 struct vtkProbeLineFilter::vtkInternals
 {
   vtkMTimeType PreviousInputTime = 0;
-  std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> Strategies;
+  std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>> DataSetCellLocators;
+  std::map<vtkDataSet*, vtkAbstractCellLocator*> CellLocators;
   std::map<vtkHyperTreeGrid*, vtkSmartPointer<vtkHyperTreeGridLocator>> HTGLocators;
 
   void UpdateLocators(vtkDataObject* input, double tolerance)
@@ -800,6 +800,9 @@ struct vtkProbeLineFilter::vtkInternals
     {
       return;
     }
+    this->DataSetCellLocators.clear();
+    this->CellLocators.clear();
+    this->HTGLocators.clear();
     this->PreviousInputTime = inputTime;
 
     const auto& inputs = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input);
@@ -812,22 +815,19 @@ struct vtkProbeLineFilter::vtkInternals
           continue;
         }
 
-        vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
         if (auto ps = vtkPointSet::SafeDownCast(ds))
         {
-          strategy->Initialize(ps);
+          ps->BuildCellLocator();
+          this->CellLocators[ds] = ps->GetCellLocator();
         }
         else
         {
-          vtkNew<vtkStaticCellLocator> locator;
-          locator->SetDataSet(ds);
-          locator->SetTolerance(tolerance);
-          locator->BuildLocator();
-          strategy->SetCellLocator(locator);
+          auto cellLocator = vtkSmartPointer<vtkStaticCellLocator>::New();
+          cellLocator->SetDataSet(ds);
+          cellLocator->BuildLocator();
+          this->DataSetCellLocators[ds] = cellLocator;
+          this->CellLocators[ds] = cellLocator;
         }
-
-        this->Strategies[ds] =
-          vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
       }
       else if (auto* htg = vtkHyperTreeGrid::SafeDownCast(dobject))
       {
@@ -1035,7 +1035,17 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineUniformly(
   prober->SetPassFieldArrays(this->PassFieldArrays);
   prober->SetComputeTolerance(this->ComputeTolerance);
   prober->SetTolerance(tolerance);
-  prober->SetFindCellStrategyMap(this->Internal->Strategies);
+  std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>> cellLocators;
+  for (const auto& [ds, locator] : this->Internal->CellLocators)
+  {
+    if (locator)
+    {
+      cellLocators[ds] = vtk::TakeSmartPointer(locator->NewInstance());
+      cellLocators[ds]->SetDataSet(ds);
+      cellLocators[ds]->ShallowCopy(locator);
+    }
+  }
+  prober->SetCellLocatorMap(cellLocators);
   prober->SetInputData(lineSource->GetOutput());
   prober->SetSourceData(input);
   prober->Update();
@@ -1137,12 +1147,12 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
   // is no strategy associated to a dataset, usually because the dataset has 0 cells.
   // In this case `intersections` will stay empty.
   std::vector<HitCellInfo> intersections;
-  auto* strategy = vtkCellLocatorStrategy::SafeDownCast(this->Internal->Strategies[dataset]);
-  if (strategy)
+  auto it = this->Internal->CellLocators.find(dataset);
+  if (it != this->Internal->CellLocators.end())
   {
-    vtkAbstractCellLocator* locator = strategy->GetCellLocator();
+    auto cellLocator = it->second;
     vtkNew<vtkIdList> intersectedIds;
-    locator->FindCellsAlongLine(p1.GetData(), p2.GetData(), 0.0, intersectedIds);
+    cellLocator->FindCellsAlongLine(p1.GetData(), p2.GetData(), 0.0, intersectedIds);
     for (vtkIdType i = 0; i < intersectedIds->GetNumberOfIds(); ++i)
     {
       vtkIdType cellId = intersectedIds->GetId(i);

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from vtkmodules.vtkCommonDataModel import (
-    vtkCellLocatorStrategy,
     vtkStaticCellLocator,
 )
 from vtkmodules.vtkCommonTransforms import vtkTransform
@@ -27,7 +26,7 @@ from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test alternative methods of probing data including
-# using vtkFindCellStrategy and directly specifying
+# using vtkAbstractCellLocator and directly specifying
 # a cell locator.
 
 # Control test size
@@ -55,7 +54,7 @@ output = pl3d.GetOutput().GetBlock(0)
 
 # Probe with three separate planes. Use different probing approaches on each
 # of the three planes (vtkDataSet::FindCell(), directly specifying a cell
-# locator, and using a vtkFindCellStrategy. Then isocontour the planes.
+# locator, and using a vtkAbstractCellLocator. Then isocontour the planes.
 
 # First plane
 plane = vtkPlaneSource()
@@ -100,7 +99,7 @@ cellLoc = vtkStaticCellLocator()
 probe2 = vtkProbeFilter()
 probe2.SetInputConnection(tpd2.GetOutputPort())
 probe2.SetSourceData(output)
-probe2.SetCellLocatorPrototype(cellLoc)
+probe2.SetCellLocator(cellLoc)
 probe2.DebugOn()
 contour2 = vtkContourFilter()
 contour2.SetInputConnection(probe2.GetOutputPort())
@@ -127,11 +126,11 @@ transP3.RotateY(90)
 tpd3 = vtkTransformFilter()
 tpd3.SetInputConnection(plane.GetOutputPort())
 tpd3.SetTransform(transP3)
-strategy = vtkCellLocatorStrategy()
+cellLocator = vtkStaticCellLocator()
 probe3 = vtkProbeFilter()
 probe3.SetInputConnection(tpd3.GetOutputPort())
 probe3.SetSourceData(output)
-probe3.SetFindCellStrategy(strategy)
+probe3.SetCellLocator(cellLocator)
 probe3.DebugOn()
 contour3 = vtkContourFilter()
 contour3.SetInputConnection(probe3.GetOutputPort())

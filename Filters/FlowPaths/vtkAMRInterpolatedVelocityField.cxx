@@ -75,7 +75,7 @@ int vtkAMRInterpolatedVelocityField::SelfInitialize()
 
   auto datasets = vtkCompositeDataSet::GetDataSets(this->AmrDataSet);
 
-  // Add information into the interpolation function cache. Note that no find cell strategy
+  // Add information into the interpolation function cache. Note that no cell locator
   // is required. If no vectors are specified, use the local dataset vectors.
   vtkDataArray* vectors;
   for (auto& dataset : datasets)

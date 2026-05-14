@@ -61,59 +61,70 @@ void vtkResampleWithDataSet::SetCategoricalData(bool arg)
   this->Prober->SetCategoricalData(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetCategoricalData()
 {
   return this->Prober->GetCategoricalData() != 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
 {
   this->Prober->SetPassCellArrays(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetPassCellArrays()
 {
   return this->Prober->GetPassCellArrays() != 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetPassPointArrays(bool arg)
 {
   this->Prober->SetPassPointArrays(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetPassPointArrays()
 {
   return this->Prober->GetPassPointArrays() != 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
 {
   this->Prober->SetPassFieldArrays(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetPassFieldArrays()
 {
   return this->Prober->GetPassFieldArrays() != 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetPassPartialArrays(bool arg)
 {
   this->Prober->SetPassPartialArrays(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetPassPartialArrays()
 {
   return this->Prober->GetPassPartialArrays();
 }
 
-void vtkResampleWithDataSet::SetCellLocatorPrototype(vtkAbstractCellLocator* locator)
+//------------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetCellLocator(vtkAbstractCellLocator* locator)
 {
-  this->Prober->SetCellLocatorPrototype(locator);
+  this->Prober->SetCellLocator(locator);
 }
 
-vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocatorPrototype() const
+//------------------------------------------------------------------------------
+vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocator() const
 {
-  return this->Prober->GetCellLocatorPrototype();
+  return this->Prober->GetCellLocator();
 }
 
 //------------------------------------------------------------------------------
@@ -122,36 +133,55 @@ void vtkResampleWithDataSet::SetTolerance(double arg)
   this->Prober->SetTolerance(arg);
 }
 
+//------------------------------------------------------------------------------
 double vtkResampleWithDataSet::GetTolerance()
 {
   return this->Prober->GetTolerance();
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetComputeTolerance(bool arg)
 {
   this->Prober->SetComputeTolerance(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetComputeTolerance()
 {
   return this->Prober->GetComputeTolerance();
 }
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetSnapToCellWithClosestPoint(bool arg)
 {
   this->Prober->SetSnapToCellWithClosestPoint(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetSnapToCellWithClosestPoint()
 {
   return this->Prober->GetSnapToCellWithClosestPoint();
 }
 
+//------------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetSnappingRadius(double arg)
+{
+  this->Prober->SetSnappingRadius(arg);
+}
+
+//------------------------------------------------------------------------------
+double vtkResampleWithDataSet::GetSnappingRadius()
+{
+  return this->Prober->GetSnappingRadius();
+}
+
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetUseImplicitArrays(bool arg)
 {
   this->Prober->SetUseImplicitArrays(arg);
 }
 
+//------------------------------------------------------------------------------
 bool vtkResampleWithDataSet::GetUseImplicitArrays()
 {
   return this->Prober->GetUseImplicitArrays();
@@ -269,6 +299,7 @@ private:
   vtkResampleWithDataSet* Filter;
 };
 
+//------------------------------------------------------------------------------
 class MarkHiddenCells
 {
 public:
@@ -325,6 +356,7 @@ private:
 
 } // anonymous namespace
 
+//------------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
 {
   if (dataset->GetNumberOfPoints() <= 0)
@@ -347,6 +379,10 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
   vtkUnsignedCharArray* cellGhostArray = dataset->GetCellGhostArray();
 
   vtkIdType numCells = dataset->GetNumberOfCells();
+  if (numCells <= 0)
+  {
+    return;
+  }
   // GetCellPoints needs to be called once from a single thread for safe
   // multi-threaded calls
   vtkNew<vtkIdList> cpts;

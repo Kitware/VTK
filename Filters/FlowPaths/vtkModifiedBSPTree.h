@@ -74,7 +74,6 @@
  *
  * vtkModifiedBSPTree does NOT utilize the following parameters:
  * - Automatic
- * - Tolerance
  * - RetainCellLists
  *
  * NB. The following reference has been sent to me
@@ -130,6 +129,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"           // required because it is nice
 
+#include <vector> // For std::vector
+
 VTK_ABI_NAMESPACE_BEGIN
 class Sorted_cell_extents_Lists;
 class BSPNode;
@@ -155,6 +156,7 @@ public:
 
   // Reuse any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
+  using vtkAbstractCellLocator::FindCellsAlongLine;
   using vtkAbstractCellLocator::IntersectWithLine;
 
   /**
@@ -170,27 +172,13 @@ public:
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
    * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
-   * the points and cellIds have the relevant information added sorted by t.
-   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   * the points and cellIds have the relevant information added sorted by their parametric distance
+   * t. If points or cellIds are nullptr pointers, then no information is generated for that list.
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
-
-  /**
-   * Take the passed line segment and intersect it with the data set.
-   * For each intersection with the bounds of a cell, the cellIds
-   * have the relevant information added sort by t. If cellIds is nullptr
-   * pointer, then no information is generated for that list.
-   *
-   * Reimplemented from vtkAbstractCellLocator to showcase that it's a supported function.
-   */
-  void FindCellsAlongLine(
-    const double p1[3], const double p2[3], double tolerance, vtkIdList* cellsIds) override
-  {
-    this->Superclass::FindCellsAlongLine(p1, p2, tolerance, cellsIds);
-  }
 
   /**
    * Find the cell containing a given point. returns -1 if no cell found
@@ -199,7 +187,7 @@ public:
    *
    * For other FindCell signatures, see vtkAbstractCellLocator.
    */
-  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* GenCell, int& subId,
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
     double pcoords[3], double* weights) override;
 
   /**
@@ -236,6 +224,11 @@ protected:
   ~vtkModifiedBSPTree() override;
 
   void BuildLocatorInternal() override;
+  // Flat storage for all leaf cell ID lists, allocated once during build.
+  // Each leaf occupies a contiguous slice of size 6 * node->num_cells starting
+  // at node->LeavesStart. Within a leaf, the 6 sorted lists are laid out as
+  // [axis 0 mins | axis 0 maxs | axis 1 mins | ... | axis 2 maxs].
+  std::shared_ptr<std::vector<vtkIdType>> Leaves;
   std::shared_ptr<BSPNode> mRoot; // bounding box root node
   int npn;
   int nln;
@@ -243,7 +236,8 @@ protected:
 
   // The main subdivision routine
   void Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lists, vtkDataSet* dataSet,
-    vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth);
+    vtkIdType nCells, int depth, int maxlevel, vtkIdType maxCells, int& MaxDepth,
+    std::vector<uint8_t>& cellPart);
 
 private:
   vtkModifiedBSPTree(const vtkModifiedBSPTree&) = delete;
@@ -263,8 +257,6 @@ public:
   BSPNode()
   {
     mChild[0] = mChild[1] = mChild[2] = nullptr;
-    for (int i = 0; i < 6; i++)
-      sorted_cell_lists[i] = nullptr;
     for (int i = 0; i < 3; i++)
     {
       this->Bounds[i * 2] = VTK_FLOAT_MAX;
@@ -275,9 +267,9 @@ public:
   ~BSPNode()
   {
     for (int i = 0; i < 3; i++)
+    {
       delete mChild[i];
-    for (int i = 0; i < 6; i++)
-      delete[] sorted_cell_lists[i];
+    }
   }
   // Set min box limits
   void setMin(double minx, double miny, double minz)
@@ -302,13 +294,19 @@ protected:
   // The child nodes of this one (if present - nullptr otherwise)
   BSPNode* mChild[3];
   // The axis we subdivide this voxel along
-  int mAxis;
+  int mAxis = 0;
   // Just for reference
-  int depth;
+  int depth = 0;
+  // split-plane position along mAxis (parents only). Used in FindCell to
+  // short-circuit the Inside() test on side children when x is clearly on
+  // the opposite side of the split plane.
+  double pDiv = 0;
   // the number of cells in this node
-  int num_cells;
-  // 6 lists, sorted after the 6 dominant axes
-  vtkIdType* sorted_cell_lists[6];
+  int num_cells = 0;
+  // Offset into vtkModifiedBSPTree::Leaves where this leaf's 6 sorted cell
+  // lists begin. Each list has length num_cells; layout is contiguous as
+  // [mins[0] | maxs[0] | mins[1] | maxs[1] | mins[2] | maxs[2]].
+  vtkIdType LeavesStart = 0;
   // Order nodes as near/mid far relative to ray
   void Classify(const double origin[3], const double dir[3], double& rDist, BSPNode*& Near,
     BSPNode*& Mid, BSPNode*& Far) const;

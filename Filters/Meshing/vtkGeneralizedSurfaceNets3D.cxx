@@ -1067,7 +1067,7 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   }
   this->Locator->SetDataSet(tInput);
   this->Locator->BuildLocator();
-  this->Locator->StaticOn();
+  this->Locator->UseExistingSearchStructureOn();
 
   // Computational bounds and the padded bounding box
   double length = input->GetLength();
@@ -1219,7 +1219,7 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   } // if Smoothing
 
   // Make sure the locator returns to a normal processing mode.
-  this->Locator->StaticOff();
+  this->Locator->UseExistingSearchStructureOff();
   this->Locator->FreeSearchStructure();
 
   return 1;

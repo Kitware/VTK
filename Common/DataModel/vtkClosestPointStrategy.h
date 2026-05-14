@@ -22,6 +22,7 @@
 
 #include "vtkCell.h"                  //inline SelectCell
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFindCellStrategy.h"
 #include "vtkGenericCell.h" //inline SelectCell
 #include "vtkPointSet.h"    //inline SelectCell
@@ -32,7 +33,9 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkAbstractPointLocator;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkClosestPointStrategy : public vtkFindCellStrategy
+class VTK_DEPRECATED_IN_9_7_0(
+  "Use vtkJumpAndWalkCellLocator instead") VTKCOMMONDATAMODEL_EXPORT vtkClosestPointStrategy
+  : public vtkFindCellStrategy
 {
 public:
   /**
@@ -47,6 +50,13 @@ public:
   vtkTypeMacro(vtkClosestPointStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+  /**
+   * Convert FindCellStrategy to cellLocator.
+   *
+   * @note The cell locator may need to be built.
+   */
+  vtkSmartPointer<vtkAbstractCellLocator> ConvertToCellLocator() override;
 
   /**
    * Provide the necessary initialization method (see superclass for more

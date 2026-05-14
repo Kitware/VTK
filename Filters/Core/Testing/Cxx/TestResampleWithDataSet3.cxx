@@ -139,7 +139,9 @@ int TestResampleWithDataSet3(int argc, char* argv[])
   vtkNew<vtkResampleWithDataSet> resample;
   resample->SetInputData(input);
   resample->SetSourceData(source);
-  resample->SetCellLocatorPrototype(locator);
+  resample->ComputeToleranceOff();
+  resample->SetTolerance(0.0);
+  resample->SetCellLocator(locator);
 
   vtkMultiBlockDataSet* result;
   vtkDataSet* block0;

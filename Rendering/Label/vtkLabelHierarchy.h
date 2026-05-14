@@ -215,7 +215,7 @@ public:
   using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType, vtkIdList*) override;
   void GetPointCells(vtkIdType, vtkIdList*) override;
-  vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*) override;
+  using Superclass::FindCell;
   vtkIdType FindCell(
     double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*) override;
   int GetMaxCellSize() override;

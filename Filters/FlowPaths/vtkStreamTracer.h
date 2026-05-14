@@ -79,6 +79,7 @@
 #ifndef vtkStreamTracer_h
 #define vtkStreamTracer_h
 
+#include "vtkDeprecation.h"            // VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -86,6 +87,7 @@
 #include "vtkInitialValueProblemSolver.h"  // Needed for constants
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractCellLocator;
 class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;
 class vtkDataArray;
@@ -236,6 +238,7 @@ public:
    * By default (and if a InterpolationPrototype is not set), a point locator
    * is used.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToJumpAndWalkCellLocator() instead")
   void SetInterpolatorTypeToDataSetPointLocator();
 
   /**
@@ -244,6 +247,7 @@ public:
    * the correct results, but it can be much slower that point locator-based
    * searches.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToStaticCellLocator() instead")
   void SetInterpolatorTypeToCellLocator();
 
   ///@{
@@ -346,8 +350,10 @@ public:
 
   enum
   {
-    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
-    INTERPOLATOR_WITH_CELL_LOCATOR
+    INTERPOLATOR_WITH_DATASET_POINT_LOCATOR VTK_DEPRECATED_IN_9_7_0(
+      "Use SetCellLocatorToJumpAndWalkCellLocator() instead"),
+    INTERPOLATOR_WITH_CELL_LOCATOR VTK_DEPRECATED_IN_9_7_0(
+      "Use SetCellLocatorToStaticCellLocator() instead")
   };
 
   ///@{
@@ -393,6 +399,7 @@ public:
    * For non AMR datasets, initialize a vtkCompositeInterpolatedVelocityField
    * and set the FindCellStrategyType.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField* ivf);
 
   /**
@@ -404,7 +411,20 @@ public:
    * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
    * can be much faster and produce adequate results.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorType(int interpType);
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation for vtkPointSet. When
+   * specified, the cell locator is used in preference of the default cell locator
+   * vtkJumpAndWalkCellLocator.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  virtual void SetCellLocatorToStaticCellLocator();
+  virtual void SetCellLocatorToJumpAndWalkCellLocator();
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
+  ///@}
 
   ///@{
   /**
@@ -526,7 +546,7 @@ protected:
   // Compute streamlines only on surface.
   bool SurfaceStreamlines;
 
-  vtkAbstractInterpolatedVelocityField* InterpolatorPrototype;
+  vtkAbstractCellLocator* CellLocator;
 
   // These are used to manage complex input types such as
   // multiblock / composite datasets. Basically the filter input is
@@ -555,7 +575,6 @@ protected:
 private:
   vtkStreamTracer(const vtkStreamTracer&) = delete;
   void operator=(const vtkStreamTracer&) = delete;
-  int InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
 };
 
 VTK_ABI_NAMESPACE_END

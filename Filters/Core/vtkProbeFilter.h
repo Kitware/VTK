@@ -24,17 +24,14 @@
  *
  * @warning
  * A critical algorithmic component of vtkProbeFilter is the manner in which
- * it finds the cell containing a probe point. By default, the
- * vtkDataSet::FindCell() method is used, which in turn uses a
- * vtkPointLocator (using a default vtkClosestPointStrategy) to perform an
- * accelerated search. However, it may fail to identify an enclosing cell in
- * some cases. A more robust but slower approach is to use a vtkCellLocator to
- * perform the FindCell() operation (via specification of the
- * CellLocatorPrototype). Finally, more advanced searches can be configured
- * by specifying an instance of vtkFindCellStrategy. (Note: image data
- * probing never uses a locator since finding a containing cell is a simple,
- * fast operation. This specifying a vtkFindCellStrategy or cell locator
- * prototype has no effect.)
+ * it finds the cell containing a probe point.
+ *
+ * If it's a vtkCartesianGrid, the vtkDataSet::FindCell() method is used.
+ * If it's a vtkPointSet, a cell locator is used to perform the search. The default
+ * cell locator that is used is the existing one (if any) or the vtkJumpAndWalkCellLocator. However,
+ * it may fail to identify an enclosing cell in some cases. A more robust but slower approach is to
+ * use a vtk(Static)CellLocator to perform the FindCell() operation, via specification of the
+ * CellLocator). For vtkCartesianGrid, this specifying a vtkAbstractCellLocator has no effect.
  *
  * @warning
  * The vtkProbeFilter, once it finds the cell containing a query point, uses
@@ -46,7 +43,7 @@
  * kernels.
  *
  * @sa
- * vtkFindCellStrategy vtkPointLocator vtkCellLocator vtkStaticPointLocator
+ * vtkAbstractCellLocator vtkPointLocator vtkCellLocator vtkStaticPointLocator
  * vtkStaticCellLocator vtkPointInterpolator vtkSPHInterpolator
  */
 
@@ -55,6 +52,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
@@ -195,6 +193,16 @@ public:
 
   ///@{
   /**
+   * Set the  radius used to snap to the closest cell.
+   * It is only used if SnapToCellWithClosestPoint is on.
+   * The default snapping radius is the double positive infinity.
+   */
+  vtkSetMacro(SnappingRadius, double);
+  vtkGetMacro(SnappingRadius, double);
+  ///@}
+
+  ///@{
+  /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
    * value is ignored. On by default.
@@ -211,8 +219,21 @@ public:
    * prototype. When neither a strategy or cell locator prototype is defined,
    * then the vtkDataSet::FindCell() method is used.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator() instead.")
   virtual void SetFindCellStrategy(vtkFindCellStrategy*);
-  vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
+  VTK_DEPRECATED_IN_9_7_0(
+    "GetFindCellStrategy() always returns nullptr. Use GetCellLocator() instead.")
+  vtkFindCellStrategy* GetFindCellStrategy() { return nullptr; }
+  ///@}
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation for vtkPointSet. When
+   * specified, the cell locator is used in preference of the existing cell locator (if any) or
+   * default cell locator vtkJumpAndWalkCellLocator.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   ///@}
 
   ///@{
@@ -224,13 +245,20 @@ public:
    * used. If a vtkFindCellStrategy is not defined, then the prototype is
    * used.
    */
-  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
-  vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator() instead.")
+  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator* cellLocator)
+  {
+    this->SetCellLocator(cellLocator);
+  }
+  VTK_DEPRECATED_IN_9_7_0("Use GetCellLocator() instead.")
+  virtual vtkAbstractCellLocator* GetCellLocatorPrototype() { return this->GetCellLocator(); }
   ///@}
 
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter() override;
+
+  void ReportReferences(vtkGarbageCollector*) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -276,15 +304,13 @@ protected:
 
   double Tolerance;
   bool ComputeTolerance;
-  bool SnapToCellWithClosestPoint;
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray* ValidPoints;
   vtkCharArray* MaskPoints;
 
-  // Support various methods to support the FindCell() operation
-  vtkAbstractCellLocator* CellLocatorPrototype;
-  vtkFindCellStrategy* FindCellStrategy;
+  // support the FindCell() operation for vtkPointSet
+  vtkAbstractCellLocator* CellLocator;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
@@ -318,6 +344,9 @@ private:
 
   std::vector<vtkDataArray*> InputCellArrays;
   std::vector<vtkDataArray*> SourceCellArrays;
+
+  bool SnapToCellWithClosestPoint;
+  double SnappingRadius;
 };
 
 VTK_ABI_NAMESPACE_END

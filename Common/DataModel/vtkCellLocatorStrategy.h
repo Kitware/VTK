@@ -17,12 +17,14 @@
 #define vtkCellLocatorStrategy_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFindCellStrategy.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkCellLocatorStrategy : public vtkFindCellStrategy
+class VTK_DEPRECATED_IN_9_7_0("Use any vtkAbstractCellLocator subclass instead")
+  VTKCOMMONDATAMODEL_EXPORT vtkCellLocatorStrategy : public vtkFindCellStrategy
 {
 public:
   /**
@@ -37,6 +39,13 @@ public:
   vtkTypeMacro(vtkCellLocatorStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+  /**
+   * Convert FindCellStrategy to cellLocator.
+   *
+   * @note The cell locator may need to be built.
+   */
+  vtkSmartPointer<vtkAbstractCellLocator> ConvertToCellLocator() override;
 
   /**
    * Provide necessary initialization method (see superclass for more

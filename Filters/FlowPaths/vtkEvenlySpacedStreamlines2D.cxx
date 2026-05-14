@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkEvenlySpacedStreamlines2D.h"
 
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -19,6 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkModifiedBSPTree.h"
@@ -38,14 +39,27 @@
 
 #include <algorithm>
 #include <array>
-#include <iostream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkEvenlySpacedStreamlines2D);
 vtkCxxSetObjectMacro(vtkEvenlySpacedStreamlines2D, Integrator, vtkInitialValueProblemSolver);
-vtkCxxSetObjectMacro(
-  vtkEvenlySpacedStreamlines2D, InterpolatorPrototype, vtkAbstractInterpolatedVelocityField);
+vtkCxxSetObjectMacro(vtkEvenlySpacedStreamlines2D, CellLocator, vtkAbstractCellLocator);
+void vtkEvenlySpacedStreamlines2D::SetInterpolatorPrototype(
+  vtkAbstractInterpolatedVelocityField* interpolatorPrototype)
+{
+  if (interpolatorPrototype)
+  {
+    if (auto compositeInterpolator =
+          vtkCompositeInterpolatedVelocityField::SafeDownCast(interpolatorPrototype))
+    {
+      if (auto cellLocator = compositeInterpolator->GetCellLocator())
+      {
+        this->SetCellLocator(cellLocator);
+      }
+    }
+  }
+}
 
 //------------------------------------------------------------------------------
 vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
@@ -71,7 +85,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
 
   this->ComputeVorticity = true;
 
-  this->InterpolatorPrototype = nullptr;
+  this->CellLocator = nullptr;
 
   // by default process active point vectors
   this->SeparatingDistance = 1;
@@ -88,7 +102,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
 vtkEvenlySpacedStreamlines2D::~vtkEvenlySpacedStreamlines2D()
 {
   this->SetIntegrator(nullptr);
-  this->SetInterpolatorPrototype(nullptr);
+  this->SetCellLocator(nullptr);
   this->SuperposedGrid->Delete();
   this->Streamlines->Delete();
 }
@@ -142,7 +156,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetIntegrator(this->Integrator);
   streamTracer->SetComputeVorticity(this->ComputeVorticity);
-  streamTracer->SetInterpolatorPrototype(this->InterpolatorPrototype);
+  streamTracer->SetCellLocator(this->CellLocator);
   // we end streamlines after one loop iteration
   streamTracer->AddCustomTerminationCallback(&vtkEvenlySpacedStreamlines2D::IsStreamlineLooping,
     this, vtkStreamTracer::FIXED_REASONS_FOR_TERMINATION_COUNT);
@@ -474,37 +488,38 @@ int vtkEvenlySpacedStreamlines2D::GetIntegratorType()
 }
 
 //------------------------------------------------------------------------------
+void vtkEvenlySpacedStreamlines2D::SetCellLocatorToJumpAndWalkCellLocator()
+{
+  this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
+}
+
+void vtkEvenlySpacedStreamlines2D::SetCellLocatorToModifiedBSPTree()
+{
+  this->SetCellLocator(vtkNew<vtkModifiedBSPTree>());
+}
+
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorTypeToDataSetPointLocator()
 {
-  this->SetInterpolatorType(
-    static_cast<int>(vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR));
+  this->SetCellLocatorToJumpAndWalkCellLocator();
 }
 
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorTypeToCellLocator()
 {
-  this->SetInterpolatorType(static_cast<int>(vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR));
+  this->SetCellLocatorToModifiedBSPTree();
 }
 
 //------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
 {
-  vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
   if (interpType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
   {
-    // create an interpolator equipped with a cell locator
-    vtkNew<vtkCellLocatorStrategy> strategy;
-    // specify the type of the cell locator attached to the interpolator
-    vtkNew<vtkModifiedBSPTree> cellLocType;
-    strategy->SetCellLocator(cellLocType);
-    cIVF->SetFindCellStrategy(strategy);
+    this->SetInterpolatorTypeToCellLocator();
   }
   else
   {
-    // create an interpolator equipped with a point locator (by default)
-    vtkNew<vtkClosestPointStrategy> strategy;
-    cIVF->SetFindCellStrategy(strategy);
+    this->SetInterpolatorTypeToDataSetPointLocator();
   }
-  this->SetInterpolatorPrototype(cIVF);
 }
 
 //------------------------------------------------------------------------------
@@ -629,39 +644,27 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(
   }
 
   // Set the function set to be integrated
-  if (!this->InterpolatorPrototype)
+  if (amrData)
   {
-    if (amrData)
-    {
-      func = vtkAMRInterpolatedVelocityField::New();
-    }
-    else
-    {
-      func = vtkCompositeInterpolatedVelocityField::New();
-    }
+    func = vtkAMRInterpolatedVelocityField::New();
   }
   else
   {
-    if (amrData &&
-      vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype) == nullptr)
-    {
-      this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
-    }
-    func = this->InterpolatorPrototype->NewInstance();
-    func->CopyParameters(this->InterpolatorPrototype);
+    func = vtkCompositeInterpolatedVelocityField::New();
   }
 
-  if (vtkAMRInterpolatedVelocityField::SafeDownCast(func))
+  if (auto amrVelocityField = vtkAMRInterpolatedVelocityField::SafeDownCast(func))
   {
     assert(amrData);
-    vtkAMRInterpolatedVelocityField::SafeDownCast(func)->SetAMRData(amrData);
+    amrVelocityField->SetAMRData(amrData);
     if (maxCellSize)
     {
       *maxCellSize = 8;
     }
   }
-  else if (vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
+  else if (auto compVelocityField = vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
   {
+    compVelocityField->SetCellLocator(this->CellLocator);
     iter->GoToFirstItem();
     while (!iter->IsDoneWithTraversal())
     {
@@ -847,6 +850,7 @@ void vtkEvenlySpacedStreamlines2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Separation distance: " << this->SeparatingDistance << endl;
 
   os << indent << "Integrator: " << this->Integrator << endl;
+  os << indent << "Cell Locator: " << this->CellLocator << endl;
   os << indent << "Vorticity computation: " << (this->ComputeVorticity ? " On" : " Off") << endl;
 }
 VTK_ABI_NAMESPACE_END

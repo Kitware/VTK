@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCompositeInterpolatedVelocityField.h"
 
-#include "vtkClosestPointStrategy.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkCompositeInterpolatedVelocityField);
 //------------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
-  this->SetFindCellStrategy(vtkSmartPointer<vtkClosestPointStrategy>::New());
+  this->SetCellLocator(vtkSmartPointer<vtkJumpAndWalkCellLocator>::New());
   this->LastDataSetIndex = 0;
   this->CacheDataSetHit = 0;
   this->CacheDataSetMiss = 0;
@@ -178,9 +178,7 @@ int vtkCompositeInterpolatedVelocityField::InsideTest(double* x)
   }
 
   // Use the superclass's method first as it is faster.
-  auto strategy = this->GetDataSetInfo(ds)->Strategy;
-  int retVal = this->FindAndUpdateCell(ds, strategy, x);
-
+  int retVal = this->FindAndUpdateCell(*this->GetDataSetInfo(ds), x);
   if (!retVal)
   {
     this->CacheDataSetMiss++;
@@ -198,8 +196,7 @@ int vtkCompositeInterpolatedVelocityField::InsideTest(double* x)
         retVal = vtkMath::PointIsWithinBounds(x, bounds.data(), delta);
         if (retVal)
         {
-          strategy = this->GetDataSetInfo(ds)->Strategy;
-          retVal = this->FindAndUpdateCell(ds, strategy, x);
+          retVal = this->FindAndUpdateCell(*this->GetDataSetInfo(ds), x);
           if (retVal)
           {
             this->LastDataSet = ds;
@@ -228,9 +225,8 @@ int vtkCompositeInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, doub
   {
     return 0;
   }
-  auto datasetInfo = this->GetDataSetInfo(this->LastDataSet);
   // Find the closest cell
-  if (!this->FindAndUpdateCell(this->LastDataSet, datasetInfo->Strategy, pOrigin))
+  if (!this->FindAndUpdateCell(*this->GetDataSetInfo(this->LastDataSet), pOrigin))
   {
     return 0;
   }

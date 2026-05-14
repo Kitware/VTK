@@ -353,6 +353,7 @@ Common/DataModel/vtkIncrementalPointLocator.h
 Common/DataModel/vtkInformationQuadratureSchemeDefinitionVectorKey.h
 Common/DataModel/vtkIntersectionCounter.h
 Common/DataModel/vtkIterativeClosestPointTransform.h
+Common/DataModel/vtkJumpAndWalkCellLocator.h
 Common/DataModel/vtkKdNode.h
 Common/DataModel/vtkKdTree.h
 Common/DataModel/vtkKdTreePointLocator.h

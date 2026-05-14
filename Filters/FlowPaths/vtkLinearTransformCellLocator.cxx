@@ -325,11 +325,17 @@ void vtkLinearTransformCellLocator::ForceBuildLocator()
 //------------------------------------------------------------------------------
 void vtkLinearTransformCellLocator::BuildLocatorInternal()
 {
+  if (!this->DataSet || this->DataSet->GetNumberOfCells() < 1)
+  {
+    vtkErrorMacro(<< "No cells to build");
+    return;
+  }
   if (!this->CellLocator)
   {
     vtkErrorMacro("Cell Locator not set");
     return;
   }
+  this->FreeSearchStructure();
   this->IsLinearTransformation = this->ComputeTransformation();
   this->BuildTime.Modified();
 }
@@ -341,6 +347,7 @@ void vtkLinearTransformCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   if (!cellLocator)
   {
     vtkErrorMacro("Cannot cast " << locator->GetClassName() << " to " << this->GetClassName());
+    return;
   }
   // we only copy what's actually used by vtkLinearTransformCellLocator
   this->SetCellLocator(cellLocator->GetCellLocator());
@@ -443,7 +450,7 @@ void vtkLinearTransformCellLocator::FindCellsWithinBounds(double*, vtkIdList*)
 
 //------------------------------------------------------------------------------
 void vtkLinearTransformCellLocator::FindCellsAlongPlane(
-  const double o[3], const double n[3], double tolerance, vtkIdList* cells)
+  const double o[3], const double n[3], double tol, vtkIdList* cells)
 {
   if (!this->CellLocator)
   {
@@ -453,7 +460,7 @@ void vtkLinearTransformCellLocator::FindCellsAlongPlane(
   double oTransform[3], nTransform[3];
   this->InverseTransform->InternalTransformPoint(o, oTransform);
   this->InverseTransform->InternalTransformNormal(n, nTransform);
-  this->CellLocator->FindCellsAlongPlane(oTransform, nTransform, tolerance, cells);
+  this->CellLocator->FindCellsAlongPlane(oTransform, nTransform, tol, cells);
 }
 
 //------------------------------------------------------------------------------
@@ -482,7 +489,7 @@ vtkIdType vtkLinearTransformCellLocator::FindCell(
 }
 
 //------------------------------------------------------------------------------
-bool vtkLinearTransformCellLocator::InsideCellBounds(double x[3], vtkIdType cellId)
+bool vtkLinearTransformCellLocator::InsideCellBounds(double x[3], vtkIdType cellId, double tol)
 {
   if (!this->CellLocator)
   {
@@ -491,6 +498,6 @@ bool vtkLinearTransformCellLocator::InsideCellBounds(double x[3], vtkIdType cell
   this->BuildLocator();
   double xTransform[3];
   this->InverseTransform->InternalTransformPoint(x, xTransform);
-  return this->CellLocator->InsideCellBounds(xTransform, cellId);
+  return this->CellLocator->InsideCellBounds(xTransform, cellId, tol);
 }
 VTK_ABI_NAMESPACE_END

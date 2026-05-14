@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtk3DLinearGridPlaneCutter.h>
-#include <vtkMathUtilities.h>
 #include <vtkNew.h>
 #include <vtkPlane.h>
 #include <vtkPoints.h>
@@ -33,8 +32,8 @@ int TestSlicePlanePrecision(int argc, char* argv[])
   {
     double* p = points->GetPoint(i);
 
-    // Z must be 0
-    if (!vtkMathUtilities::FuzzyCompare(std::abs(p[2]), 0.0))
+    // Z must be exactly 0
+    if (p[2] != 0.0)
     {
       return EXIT_FAILURE;
     }

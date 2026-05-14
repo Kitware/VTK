@@ -203,7 +203,7 @@ int TestVoronoiCore3D(int, char*[])
   vtkNew<vtkStaticPointLocator> loc;
   loc->SetDataSet(polyData);
   loc->BuildLocator();
-  loc->StaticOn();
+  loc->UseExistingSearchStructureOn();
 
   // Computational bounds and the padded bounding box
   double length = polyData->GetLength();

@@ -19,9 +19,12 @@
 
 #include "vtkClosestPointStrategy.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_7_0
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONDATAMODEL_EXPORT vtkClosestNPointsStrategy : public vtkClosestPointStrategy
+class VTK_DEPRECATED_IN_9_7_0(
+  "Use vtkJumpAndWalkCellLocator instead") VTKCOMMONDATAMODEL_EXPORT vtkClosestNPointsStrategy
+  : public vtkClosestPointStrategy
 {
 public:
   /**
@@ -36,6 +39,13 @@ public:
   vtkTypeMacro(vtkClosestNPointsStrategy, vtkClosestPointStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+  /**
+   * Convert FindCellStrategy to cellLocator.
+   *
+   * @note The cell locator may need to be built.
+   */
+  vtkSmartPointer<vtkAbstractCellLocator> ConvertToCellLocator() override;
 
   // Reuse any superclass signatures that we don't override.
   using vtkClosestPointStrategy::Initialize;

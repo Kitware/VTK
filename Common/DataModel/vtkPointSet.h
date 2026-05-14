@@ -106,8 +106,7 @@ public:
   vtkIdType GetNumberOfPoints() override;
   void GetPoint(vtkIdType ptId, double x[3]) override { this->Points->GetPoint(ptId, x); }
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double* weights) override;
+  using Superclass::FindCell;
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
   ///@}
@@ -168,10 +167,11 @@ public:
 
   ///@{
   /**
-   * Build the internal point locator . In a multi-threaded environment, call
-   * this method in a single thread before using FindCell() or FindPoint().
+   * Build the point locator. In a multi-threaded environment,
+   * call this method in a single thread before using FindPoint().
    */
   void BuildPointLocator();
+  VTK_DEPRECATED_IN_9_7_0("Use BuildPointLocator() instead.")
   void BuildLocator() { this->BuildPointLocator(); }
   ///@}
 

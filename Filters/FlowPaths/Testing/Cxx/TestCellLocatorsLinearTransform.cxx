@@ -4,6 +4,7 @@
 #include "vtkCellLocator.h"
 #include "vtkCellTreeLocator.h"
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkLinearTransformCellLocator.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkNew.h"
@@ -109,8 +110,7 @@ int TestCellLocatorsLinearTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)
 {
   constexpr double bound = 10;
   constexpr vtkIdType numberOfRandomPointsPoints = 100000;
-  // Generally the accuracy is around 99% except bsp tree
-  constexpr double acceptableAccuracyPercentage = 90;
+  constexpr double acceptableAccuracyPercentage = 98;
 
   // create a dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -156,5 +156,8 @@ int TestCellLocatorsLinearTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   vtkNew<vtkModifiedBSPTree> bsp;
   testPassed &= TestCellLocators(
     dataset, transformedDataset, transformedRandomPoints, bsp, acceptableAccuracyPercentage);
+  vtkNew<vtkJumpAndWalkCellLocator> jwcl;
+  testPassed &= TestCellLocators(
+    dataset, transformedDataset, transformedRandomPoints, jwcl, acceptableAccuracyPercentage);
   return testPassed ? EXIT_SUCCESS : EXIT_FAILURE;
 }

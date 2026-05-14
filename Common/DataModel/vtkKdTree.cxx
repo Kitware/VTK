@@ -746,17 +746,19 @@ void vtkKdTree::ComputeCellCenter(vtkCell* cell, double* center, double* weights
 // Build the kdtree structure based on location of cell centroids.
 void vtkKdTree::BuildLocator()
 {
-  // don't rebuild if build time is newer than modified and dataset modified time
-  if (this->Top && this->BuildTime > this->MTime && this->NewGeometry() == 0)
+  // if a search structure already exists
+  if (this->Top)
   {
-    return;
-  }
-  // don't rebuild if UseExistingSearchStructure is ON and a search structure already exists
-  if (this->Top && this->UseExistingSearchStructure)
-  {
-    this->BuildTime.Modified();
-    vtkDebugMacro(<< "BuildLocator exited - UseExistingSearchStructure");
-    return;
+    // don't rebuild if UseExistingSearchStructure is ON
+    if (this->UseExistingSearchStructure)
+    {
+      return;
+    }
+    // don't rebuild if build time is newer than modified and dataset modified time
+    if (this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
+    {
+      return;
+    }
   }
   this->BuildLocatorInternal();
 }

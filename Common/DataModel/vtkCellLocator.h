@@ -23,7 +23,6 @@
  * - UseExistingSearchStructure  (default false)
  *
  * vtkCellLocator does NOT utilize the following parameters:
- * - Tolerance
  * - RetainCellLists
  *
  * @sa
@@ -65,6 +64,7 @@ public:
 
   // Reuse any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
+  using vtkAbstractCellLocator::FindCellsAlongLine;
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;
   using vtkAbstractCellLocator::IntersectWithLine;
@@ -82,8 +82,8 @@ public:
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
    * For each intersection with the bounds of a cell or with a cell (if a cell is provided),
-   * the points and cellIds have the relevant information added sorted by t.
-   * If points or cellIds are nullptr pointers, then no information is generated for that list.
+   * the points and cellIds have the relevant information added sorted by their parametric distance
+   * t. If points or cellIds are nullptr pointers, then no information is generated for that list.
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
@@ -111,9 +111,17 @@ public:
    * need not be one of the vertices of the cell. This method returns 1 if a
    * point is found within the specified radius. If there are no cells within
    * the specified radius, the method returns 0 and the values of
-   * closestPoint, cellId, subId, and dist2 are undefined. If a closest point
-   * is found, inside returns the return value of the EvaluatePosition call to
-   * the closest cell; inside(=1) or outside(=0).
+   * closestPoint, cellId, subId, and dist2 are undefined. This version takes
+   * in a vtkGenericCell to avoid allocating and deallocating the cell.  This
+   * is much faster than the version which does not take a cell, especially
+   * when this function is called many times in a row such as by a for loop,
+   * where the allocation and dealloction can be done only once outside the
+   * for loop.  If a closest point is found, "cell" contains the points and
+   * ptIds for the cell "cellId" upon exit. If a closest point is found,
+   * inside returns the return value of the EvaluatePosition call to the
+   * closest cell; inside(=1) or outside(=0).
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    *
    * For other FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator.
    */
@@ -127,7 +135,7 @@ public:
    *
    * For other FindCell signatures, see vtkAbstractCellLocator.
    */
-  vtkIdType FindCell(double x[3], double vtkNotUsed(tol2), vtkGenericCell* GenCell, int& subId,
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell* GenCell, int& subId,
     double pcoords[3], double* weights) override;
 
   /**
@@ -135,20 +143,6 @@ public:
    * user must provide the vtkIdList to populate.
    */
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
-
-  /**
-   * Take the passed line segment and intersect it with the data set.
-   * For each intersection with the bounds of a cell, the cellIds
-   * have the relevant information added sort by t. If cellIds is nullptr
-   * pointer, then no information is generated for that list.
-   *
-   * Reimplemented from vtkAbstractCellLocator to showcase that it's a supported function.
-   */
-  void FindCellsAlongLine(
-    const double p1[3], const double p2[3], double tolerance, vtkIdList* cellsIds) override
-  {
-    this->Superclass::FindCellsAlongLine(p1, p2, tolerance, cellsIds);
-  }
 
   ///@{
   /**

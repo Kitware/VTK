@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkStreamTracer.h"
 
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellLocatorStrategy.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkJumpAndWalkCellLocator.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -34,6 +35,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 
 #include <algorithm>
 #include <vector>
@@ -41,7 +43,22 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer, Integrator, vtkInitialValueProblemSolver);
-vtkCxxSetObjectMacro(vtkStreamTracer, InterpolatorPrototype, vtkAbstractInterpolatedVelocityField);
+vtkCxxSetObjectMacro(vtkStreamTracer, CellLocator, vtkAbstractCellLocator);
+void vtkStreamTracer::SetInterpolatorPrototype(
+  vtkAbstractInterpolatedVelocityField* interpolatorPrototype)
+{
+  if (interpolatorPrototype)
+  {
+    if (auto compositeInterpolator =
+          vtkCompositeInterpolatedVelocityField::SafeDownCast(interpolatorPrototype))
+    {
+      if (auto cellLocator = compositeInterpolator->GetCellLocator())
+      {
+        this->SetCellLocator(cellLocator);
+      }
+    }
+  }
+}
 
 // Initial value for streamline terminal speed
 const double vtkStreamTracer::EPSILON = 1.0E-12;
@@ -73,7 +90,7 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->GenerateNormalsInIntegrate = true;
 
-  this->InterpolatorPrototype = nullptr;
+  this->CellLocator = nullptr;
 
   this->SetNumberOfInputPorts(2);
 
@@ -90,14 +107,14 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->UseLocalSeedSource = true;
 
-  this->InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
+  this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
 }
 
 //------------------------------------------------------------------------------
 vtkStreamTracer::~vtkStreamTracer()
 {
   this->SetIntegrator(nullptr);
-  this->SetInterpolatorPrototype(nullptr);
+  this->SetCellLocator(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -145,21 +162,40 @@ int vtkStreamTracer::GetIntegratorType()
 }
 
 //------------------------------------------------------------------------------
+void vtkStreamTracer::SetCellLocatorToStaticCellLocator()
+{
+  this->SetCellLocator(vtkNew<vtkStaticCellLocator>());
+}
+
+//------------------------------------------------------------------------------
+void vtkStreamTracer::SetCellLocatorToJumpAndWalkCellLocator()
+{
+  this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
+}
+
+//------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorTypeToDataSetPointLocator()
 {
-  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_DATASET_POINT_LOCATOR));
+  this->SetCellLocatorToJumpAndWalkCellLocator();
 }
 
 //------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 {
-  this->SetInterpolatorType(static_cast<int>(INTERPOLATOR_WITH_CELL_LOCATOR));
+  this->SetCellLocatorToStaticCellLocator();
 }
 
 //------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorType(int interpType)
 {
-  this->InterpolatorType = interpType;
+  if (interpType == INTERPOLATOR_WITH_CELL_LOCATOR)
+  {
+    this->SetCellLocatorToStaticCellLocator();
+  }
+  else
+  {
+    this->SetCellLocatorToJumpAndWalkCellLocator();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -471,50 +507,6 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    if (vtkOverlappingAMR::SafeDownCast(this->InputData))
-    {
-      vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(this->InputData);
-      amr->GenerateParentChildInformation();
-    }
-
-    // Set Interplation Type
-    if (vtkOverlappingAMR::SafeDownCast(this->InputData))
-    {
-      vtkNew<vtkAMRInterpolatedVelocityField> cIVF;
-      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
-      {
-        // create an interpolator equipped with a cell locator
-        vtkNew<vtkCellLocatorStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-      else
-      {
-        // create an interpolator equipped with a point locator (by default)
-        vtkNew<vtkClosestPointStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-
-      this->SetInterpolatorPrototype(cIVF);
-    }
-    else
-    {
-      vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
-      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
-      {
-        // create an interpolator equipped with a cell locator
-        vtkNew<vtkCellLocatorStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-      else
-      {
-        // create an interpolator equipped with a point locator (by default)
-        vtkNew<vtkClosestPointStrategy> strategy;
-        cIVF->SetFindCellStrategy(strategy);
-      }
-
-      this->SetInterpolatorPrototype(cIVF);
-    }
-
     // The data that is interpolated comes from the "shape" of the input
     // point data.  This gets tricky when the data is composite, we need to
     // find a leaf dataset which defines the shape.
@@ -574,6 +566,10 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
   }
 
   vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(this->InputData);
+  if (amrData)
+  {
+    amrData->GenerateParentChildInformation();
+  }
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(this->InputData->NewIterator());
@@ -598,31 +594,14 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
   }
 
   // Set the function set to be integrated
-  if (!this->InterpolatorPrototype)
+  if (amrData)
   {
-    if (amrData)
-    {
-      func = vtkAMRInterpolatedVelocityField::New();
-    }
-    else
-    {
-      func = vtkCompositeInterpolatedVelocityField::New();
-    }
+    func = vtkAMRInterpolatedVelocityField::New();
   }
   else
   {
-    if (amrData &&
-      vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype) == nullptr)
-    {
-      this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
-    }
-    func = this->InterpolatorPrototype->NewInstance();
-  }
-
-  // Copy information from interpolator.
-  if (this->InterpolatorPrototype)
-  {
-    func->CopyParameters(this->InterpolatorPrototype);
+    func = vtkCompositeInterpolatedVelocityField::New();
+    func->SetCellLocator(this->CellLocator);
   }
 
   // Tweak special cases.
@@ -1867,6 +1846,7 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 
   os << indent << "Integrator: " << this->Integrator << endl;
+  os << indent << "Cell Locator: " << this->CellLocator << endl;
   os << indent << "Maximum error: " << this->MaximumError << endl;
   os << indent << "Maximum number of steps: " << this->MaximumNumberOfSteps << endl;
   os << indent << "Vorticity computation: " << (this->ComputeVorticity ? " On" : " Off") << endl;

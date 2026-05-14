@@ -138,17 +138,32 @@ public:
    * vtkCellLocatorInterpolatedVelocityField (INTERPOLATOR_WITH_CELL_LOCATOR) is employed for
    * locating cells during streamline integration.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocator(vtkAbstractCellLocator*) instead")
   void SetInterpolatorType(int interpType);
 
   /**
    * Set the velocity field interpolator type to the one involving a cell locator.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToStaticCellLocator() instead")
   void SetInterpolatorTypeToCellLocator();
 
   /**
    * Set the velocity field interpolator type to the one involving a dataset point locator.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorToJumpAndWalkCellLocator() instead")
   void SetInterpolatorTypeToDataSetPointLocator();
+
+  ///@{
+  /**
+   * Set / get the cell locator used to perform the FindCell() operation for vtkPointSet. When
+   * specified, the cell locator is used in preference of the default cell locator
+   * vtkJumpAndWalkCellLocator.
+   */
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
+  virtual void SetCellLocatorToStaticCellLocator();
+  virtual void SetCellLocatorToJumpAndWalkCellLocator();
+  vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
+  ///@}
 
 protected:
   vtkVectorFieldTopology();
@@ -490,11 +505,7 @@ private:
    */
   bool UseBoundarySwitchPoints = false;
 
-  /**
-   *  It is either vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR or
-   * vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR
-   */
-  int InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
+  vtkAbstractCellLocator* CellLocator = nullptr;
 
   /**
    * When computing boundary switch point, if the vectors of the two points within a cell are almost

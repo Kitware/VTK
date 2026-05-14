@@ -80,7 +80,7 @@ vtkBinCellDataFilter::vtkBinCellDataFilter()
   this->SetNumberOfInputPorts(2);
 
   this->CellOverlapMethod = vtkBinCellDataFilter::CELL_CENTROID;
-  this->Tolerance = 1.0;
+  this->Tolerance = 0.0;
   this->ComputeTolerance = false;
   this->ArrayComponent = 0;
 

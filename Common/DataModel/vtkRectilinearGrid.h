@@ -79,8 +79,8 @@ public:
   void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
   void ComputeBounds() override;
   ///@}
 

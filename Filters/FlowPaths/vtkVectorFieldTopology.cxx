@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include <vtkVectorFieldTopology.h>
 
 // VTK includes
@@ -21,13 +23,12 @@
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkIntersectionPolyDataFilter.h>
+#include <vtkJumpAndWalkCellLocator.h>
 #include <vtkLine.h>
 #include <vtkLongLongArray.h>
 #include <vtkMath.h>
 #include <vtkMatrix3x3.h>
 #include <vtkNew.h>
-#include <vtkNonOverlappingAMR.h>
 #include <vtkObjectFactory.h>
 #include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
@@ -36,15 +37,12 @@
 #include <vtkPolyData.h>
 #include <vtkPolyLine.h>
 #include <vtkProbeFilter.h>
-#include <vtkQuad.h>
 #include <vtkRegularPolygonSource.h>
-#include <vtkRuledSurfaceFilter.h>
 #include <vtkSelectEnclosedPoints.h>
 #include <vtkSmartPointer.h>
+#include <vtkStaticCellLocator.h>
 #include <vtkStreamSurface.h>
 #include <vtkStreamTracer.h>
-#include <vtkTetra.h>
-#include <vtkTriangle.h>
 #include <vtkUniformGridAMR.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
@@ -55,7 +53,6 @@
 #include VTK_EIGEN(Eigenvalues)
 
 #include <cmath>
-#include <map>
 #include <vector>
 
 #define epsilon (1e-10)
@@ -63,6 +60,7 @@
 //----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorFieldTopology);
+vtkCxxSetObjectMacro(vtkVectorFieldTopology, CellLocator, vtkAbstractCellLocator);
 
 //----------------------------------------------------------------------------
 vtkVectorFieldTopology::vtkVectorFieldTopology()
@@ -75,10 +73,14 @@ vtkVectorFieldTopology::vtkVectorFieldTopology()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 
   this->StreamSurface->SetContainerAlgorithm(this);
+  this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
 }
 
 //----------------------------------------------------------------------------
-vtkVectorFieldTopology::~vtkVectorFieldTopology() = default;
+vtkVectorFieldTopology::~vtkVectorFieldTopology()
+{
+  this->SetCellLocator(nullptr);
+}
 
 //----------------------------------------------------------------------------
 void vtkVectorFieldTopology::PrintSelf(ostream& os, vtkIndent indent)
@@ -88,7 +90,7 @@ void vtkVectorFieldTopology::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IntegrationStepSize =  " << this->IntegrationStepSize << "\n";
   os << indent << "SeparatrixDistance =  " << this->SeparatrixDistance << "\n";
   os << indent << "UseIterativeSeeding =  " << this->UseIterativeSeeding << "\n";
-  os << indent << "InterpolatorType = " << this->InterpolatorType << "\n";
+  os << indent << "Cell Locator: " << this->CellLocator << endl;
   os << indent << "ComputeSurfaces =  " << this->ComputeSurfaces << "\n";
   os << indent << "EpsilonCriticalPoint = " << this->EpsilonCriticalPoint << "\n";
   os << indent << "vtkStreamSurface: \n";
@@ -129,26 +131,40 @@ int vtkVectorFieldTopology::Validate()
 }
 
 //----------------------------------------------------------------------------
+void vtkVectorFieldTopology::SetCellLocatorToStaticCellLocator()
+{
+  this->SetCellLocator(vtkNew<vtkStaticCellLocator>());
+}
+
+//----------------------------------------------------------------------------
+void vtkVectorFieldTopology::SetCellLocatorToJumpAndWalkCellLocator()
+{
+  this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
+}
+
+//----------------------------------------------------------------------------
 void vtkVectorFieldTopology::SetInterpolatorType(int interpType)
 {
-  this->InterpolatorType = interpType;
-  if (interpType != vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR &&
-    interpType != vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
-    vtkErrorMacro(
-      "The interpolator type is neither vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR nor "
-      "vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR.");
+  if (interpType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
+  {
+    this->SetInterpolatorTypeToCellLocator();
+  }
+  else
+  {
+    this->SetInterpolatorTypeToDataSetPointLocator();
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkVectorFieldTopology::SetInterpolatorTypeToCellLocator()
 {
-  SetInterpolatorType(static_cast<int>(vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR));
+  this->SetCellLocatorToStaticCellLocator();
 }
 
 //----------------------------------------------------------------------------
 void vtkVectorFieldTopology::SetInterpolatorTypeToDataSetPointLocator()
 {
-  SetInterpolatorType(static_cast<int>(vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR));
+  this->SetCellLocatorToJumpAndWalkCellLocator();
 }
 
 //----------------------------------------------------------------------------
@@ -793,7 +809,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
     streamTracer->SetInputData(data);
   }
-  streamTracer->SetInterpolatorType(this->InterpolatorType);
+  streamTracer->SetCellLocator(this->GetCellLocator());
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
@@ -1215,7 +1231,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
     streamSurface->SetInputData(data);
   }
 
-  streamSurface->SetInterpolatorTypeToCellLocator();
+  streamSurface->SetCellLocatorToStaticCellLocator();
   streamSurface->SetIntegratorTypeToRungeKutta4();
   streamSurface->SetIntegrationStepUnit(IntegrationStepUnit);
   streamSurface->SetInitialIntegrationStep(IntegrationStepSize);
@@ -1436,7 +1452,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   streamTracer->SetTerminalSpeed(epsilon);
   streamTracer->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
-  streamTracer->SetInterpolatorType(this->InterpolatorType);
+  streamTracer->SetCellLocator(this->CellLocator);
   streamTracer->SetContainerAlgorithm(this);
 
   for (int pointId = 0; pointId < criticalPoints->GetNumberOfPoints(); pointId++)

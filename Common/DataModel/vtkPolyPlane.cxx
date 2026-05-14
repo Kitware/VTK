@@ -12,7 +12,17 @@
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyPlane);
-vtkCxxSetObjectMacro(vtkPolyPlane, PolyLine, vtkPolyLine);
+//------------------------------------------------------------------------------
+void vtkPolyPlane::SetPolyLine(vtkPolyLine* polyLine)
+{
+  auto mTime = this->GetMTime();
+  vtkSetObjectBodyMacro(PolyLine, vtkPolyLine, polyLine);
+  if (this->PolyLine && this->GetMTime() > mTime)
+  {
+    this->ComputeNormals();
+    this->NormalComputeTime.Modified();
+  }
+}
 
 //------------------------------------------------------------------------------
 vtkPolyPlane::vtkPolyPlane()
@@ -91,6 +101,11 @@ void vtkPolyPlane::ComputeNormals()
     vtkPoints* points = this->PolyLine->GetPoints();
     const vtkIdType nPoints = points->GetNumberOfPoints();
     const vtkIdType nLines = nPoints - 1;
+    // At least 2 points needed to define a polyplane.
+    if (nLines < 1)
+    {
+      return;
+    }
 
     // Allocate an array to store the normals
 
@@ -146,15 +161,11 @@ double vtkPolyPlane::EvaluateFunction(double x[3])
 
   const vtkIdType nPoints = points->GetNumberOfPoints();
   const vtkIdType nLines = nPoints - 1;
-
-  // At least 2 points needed to define a polyplane.
-  if (nLines < 1)
+  if (!this->Normals)
   {
+    vtkErrorMacro(<< "Normals have not been computed for the polyline.");
     return 0;
   }
-
-  // compute normals
-  this->ComputeNormals();
 
   double p1[3], p2[3], t, closest[3];
   double minDistance2 = VTK_DOUBLE_MAX, distance2, signedDistance = VTK_DOUBLE_MAX, sign = 1;

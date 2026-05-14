@@ -11,7 +11,7 @@
  * earlier datasets. For Hierarchical datasets, this traversal through leaf
  * datasets is done in reverse order of levels i.e. highest level first.
  * To keep the ability of using locators with a composite input, we use a map that
- * maps a dataset belonging to the composite input to its FindCell strategy.
+ * maps a dataset belonging to the composite input to its CellLocator used to perform FindCell.
  *
  * When dealing with composite datasets, partial arrays are common i.e.
  * data-arrays that are not available in all of the blocks. By default, this
@@ -28,6 +28,7 @@
 #ifndef vtkCompositeDataProbeFilter_h
 #define vtkCompositeDataProbeFilter_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkProbeFilter.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -35,6 +36,7 @@
 #include <map> // For std::map
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractCellLocator;
 class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkFindCellStrategy;
@@ -66,13 +68,17 @@ public:
   vtkBooleanMacro(PassPartialArrays, bool);
   ///@}
 
+  ///@{
   /**
    * Set the structure mapping a dataset belonging to the composite input to
-   * its FindCell strategy. If a leaf is not a key of the provided map then no
-   * strategy will be used for this leaf.
+   * its Cell Locator. If a leaf is not a key of the provided map then no
+   * cell locator will be used for this leaf.
    */
+  void SetCellLocatorMap(const std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>>& map);
+  VTK_DEPRECATED_IN_9_7_0("Use SetCellLocatorMap() instead.")
   void SetFindCellStrategyMap(
     const std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>>& map);
+  ///@}
 
   ///@{
   /**
@@ -96,6 +102,8 @@ public:
 protected:
   vtkCompositeDataProbeFilter();
   ~vtkCompositeDataProbeFilter() override;
+
+  void ReportReferences(vtkGarbageCollector*) override;
 
   /**
    * Change input information to accept composite datasets as the input which
@@ -129,7 +137,7 @@ private:
   vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) = delete;
   void operator=(const vtkCompositeDataProbeFilter&) = delete;
 
-  std::map<vtkDataSet*, vtkSmartPointer<vtkFindCellStrategy>> StrategyMap;
+  std::map<vtkDataSet*, vtkSmartPointer<vtkAbstractCellLocator>> CellLocatorMap;
 
   bool UseImplicitArrays = false;
 };
