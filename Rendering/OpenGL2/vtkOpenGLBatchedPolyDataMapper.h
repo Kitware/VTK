@@ -137,7 +137,7 @@ protected:
   int CanUseTextureMapForColoring(vtkDataObject*) override;
 
   /**
-   * Recover current texture informations on the provided actor into a vector.
+   * Recover current texture information on the provided actor into a vector.
    * The order stays the same as vtkOpenGLPolyDataMapper::GetTextures(), but `BlockTexturePrototype`
    * is also added in the end of the vector in case a block needs a texture as well.
    */

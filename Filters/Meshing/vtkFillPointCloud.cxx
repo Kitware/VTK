@@ -464,7 +464,7 @@ int vtkFillPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
     // The uniform processing of data will be slice by slice. We create slice
     // metadata (sMD) to keep track of information (i.e., the number of new
     // points added) on each slice. This original point count is then
-    // transformed into offets for later threaded processing.
+    // transformed into offsets for later threaded processing.
     SliceMetaData sMD(dims[2] + 1);
 
     // Count the number of empty locator bins -> this determines the

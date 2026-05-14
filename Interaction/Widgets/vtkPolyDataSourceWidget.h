@@ -15,7 +15,7 @@
  * Implementers of child classes HAVE to implement their PlaceWidget(bounds)
  * to check for the existence of Input and Prop3D FIRST.  If these don't
  * exist, place according to the underlying PolyDataSource.  Child classes
- * also have to imprement UpdatePlacement(), which updates the widget according
+ * also have to implement UpdatePlacement(), which updates the widget according
  * to the geometry of the underlying PolyDataSource.
  *
  * @sa

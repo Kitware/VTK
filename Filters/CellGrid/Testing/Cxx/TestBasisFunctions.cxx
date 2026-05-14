@@ -261,8 +261,8 @@ bool EvaluateBasisFunctions(vtkCellGrid* grid, vtkDGCell* dgCell)
       "Element that matches reference element should have identity transform.");
   }
 
-  auto grop = dgCell->GetOperatorEntry("BasisGradient", shapeInfo);
-  if (!grop)
+  auto gradOp = dgCell->GetOperatorEntry("BasisGradient", shapeInfo);
+  if (!gradOp)
   {
     std::cerr << "  ERROR: No gradient operator for \"" << dgCell->GetClassName() << "\".\n";
     return false;

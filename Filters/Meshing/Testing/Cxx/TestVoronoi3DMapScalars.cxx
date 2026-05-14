@@ -206,9 +206,9 @@ int TestVoronoi3DMapScalars(int argc, char* argv[])
   // vMapper->SetScalarModeToUseCellData();
   // vMapper->SetLookupTable(lut);
 
-  vtkNew<vtkActor> vActor;
-  vActor->SetMapper(vMapper);
-  vActor->GetProperty()->SetColor(1, 1, 1);
+  vtkNew<vtkActor> voronoiActor;
+  voronoiActor->SetMapper(vMapper);
+  voronoiActor->GetProperty()->SetColor(1, 1, 1);
 
   vtkNew<vtkLookupTable> lut;
   lut->SetNumberOfTableValues(3);
@@ -264,7 +264,7 @@ int TestVoronoi3DMapScalars(int argc, char* argv[])
   // Render it all
   vtkNew<vtkRenderer> ren;
   //  ren->AddActor(actor);
-  ren->AddActor(vActor);
+  ren->AddActor(voronoiActor);
   ren->AddActor(featsActor);
   ren->AddActor(outlineActor);
 

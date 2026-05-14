@@ -127,7 +127,7 @@
 #define vtkGeneralizedSurfaceNets3D_h
 
 #include "vtkConstrainedSmoothingFilter.h" // Perform surface smoothing
-#include "vtkContourValues.h"              // Manage countour values
+#include "vtkContourValues.h"              // Manage contour values
 #include "vtkFiltersMeshingModule.h"       // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkStaticPointLocator.h" // For point locator

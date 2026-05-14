@@ -130,7 +130,7 @@ public:
    * Indicate whether manual control of the underlying locator is desired.
    * Enabling this data member means that the MaximumNumberOfPoints()
    * method  has no effect and the user directly controls the underlying
-   * locator. By default, maual control is disabled.
+   * locator. By default, manual control is disabled.
    */
   vtkSetMacro(ManualLocatorControl, vtkTypeBool);
   vtkGetMacro(ManualLocatorControl, vtkTypeBool);

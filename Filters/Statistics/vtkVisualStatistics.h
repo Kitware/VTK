@@ -54,7 +54,7 @@ public:
    *
    * + The first bin holds the number of values below the lower bound of the
    *   range for the given field.
-   * + The penultimate bin holds the number of values above the upport bound
+   * + The penultimate bin holds the number of values above the upper bound
    *   of the range for the given field. (Note that the histogram interval
    *   is **closed** and *not* half-open, so if you specify [a,b] as the range,
    *   occurrences of b will *not* be included in the penultimate histogram bin.)

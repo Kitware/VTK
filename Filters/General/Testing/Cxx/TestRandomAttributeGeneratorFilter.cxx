@@ -196,7 +196,7 @@ bool TestFilterRandomData(vtkRandomAttributeGenerator* randomFilter, int attribu
 }
 
 /**
- * Test wether the vtkRandomAttributeGenerator generates a random sequence of number and if the
+ * Test whether the vtkRandomAttributeGenerator generates a random sequence of number and if the
  * output data exists.
  */
 bool TestFilterRandomGeneration(vtkAlgorithm* dataSource)

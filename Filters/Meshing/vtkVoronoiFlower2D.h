@@ -377,7 +377,7 @@ public:
    * type is VORONOI or VORONOI_AND_DELAUNAY.) Note that if the query point x is
    * outside of the bounds of the input point set, an id value <0 is
    * returned. Also, these methods are only valid after the filter executes.
-   * (The third component of thw query point x[2] should be in the transformed
+   * (The third component of the query point x[2] should be in the transformed
    * space of the input points.)
    */
   vtkIdType FindTile(double x[3]);
@@ -469,7 +469,7 @@ public:
    * These methods are for debugging or instructional purposes. When the
    * point of interest is specified (i.e., set to a non-negative number) then
    * the algorithm will process this single point (whose id is the
-   * PointOfInterest). When PointsOfInterest is specified thorugh a supplied
+   * PointOfInterest). When PointsOfInterest is specified through a supplied
    * vtkIdTypeArray (this is in addition to the PointOfInterest), then only
    * those tiles in the PointOfInterest + PointsOfInterestArray will be
    * produced. The maximum number of clips (the MaximumNumberOfTileClips) can
@@ -603,7 +603,7 @@ private:
    */
   int NumberOfThreads;       // report on the number of threads used during processing
   int MaximumNumberOfPoints; // maximum number of points found in any hull
-  int NumberOfPrunes;        // If spoke prining is enabled, report number of pruning operations
+  int NumberOfPrunes;        // If spoke pruning is enabled, report number of pruning operations
 };
 
 //------------------------------------------------------------------------------

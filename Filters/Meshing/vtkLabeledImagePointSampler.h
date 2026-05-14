@@ -70,7 +70,7 @@
 #ifndef vtkLabeledImagePointSampler_h
 #define vtkLabeledImagePointSampler_h
 
-#include "vtkContourValues.h"        // Manage countour values
+#include "vtkContourValues.h"        // Manage contour values
 #include "vtkFiltersMeshingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 

@@ -3,7 +3,7 @@ This example illustrates how to utilize multiple canvases in a single webassembl
 1. `vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector()`
 2. `vtkWebAssemblyOpenGLRenderWindow::SetCanvasSelector()`
 
-In WebGL, there can be atmost 16 contexts. As a result, the max.
+In WebGL, there can be at most 16 contexts. As a result, the max.
 number of canvases are limited. This example does not yet support webgpu, it will need slight
 refactoring to make it compatible.
 

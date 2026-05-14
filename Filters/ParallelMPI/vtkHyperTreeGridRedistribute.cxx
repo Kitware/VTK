@@ -823,7 +823,7 @@ void vtkHyperTreeGridRedistribute::BuildOutputTrees(vtkBitArray* descriptorSendB
       currentTreeId++;
     }
 
-    // When changing rank we reveive descriptors from, make sure we're reading a new byte
+    // When changing rank we recieve descriptors from, make sure we're reading a new byte
     descriptorReadOffset = ::GetNumberOfBytes(descriptorReadOffset) * 8;
   }
 
