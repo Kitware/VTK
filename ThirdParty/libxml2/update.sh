@@ -8,10 +8,8 @@ readonly name="libxml2"
 readonly ownership="libxml2 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libxml2.git"
-readonly tag="for/vtk-20260125-2.13.5"
+readonly tag="for/vtk-202600604-2.14.6"
 readonly paths="
-
-configure.ac
 buf.c
 c14n.c
 catalog.c
@@ -24,29 +22,28 @@ entities.c
 error.c
 globals.c
 hash.c
+html5ent.inc
 HTMLparser.c
 HTMLtree.c
 include/libxml/*.h
 include/libxml/xmlversion.h.in
 include/private/*.h
-include/win32config.h
 include/wsockcompat.h
-legacy.c
+iso8859x.inc
 libxml.h
+lintmain.c
 list.c
-nanoftp.c
 nanohttp.c
 parser.c
 parserInternals.c
 pattern.c
 relaxng.c
-rngparser.c
 runsuite.c
 runtest.c
 runxmlconf.c
 SAX2.c
-SAX.c
 schematron.c
+shell.c
 threads.c
 timsort.h
 tree.c
@@ -72,6 +69,7 @@ xpointer.c
 xzlib.c
 
 win32/libxml2.rc
+win32/win32config.h
 
 .gitattributes
 CMakeLists.txt
