@@ -91,6 +91,7 @@ struct GenericDataObjectWorker
       vtk::DataObjectTreeOptions::SkipEmptyNodes | vtk::DataObjectTreeOptions::VisitOnlyLeaves;
     for (auto dataLeaf : vtk::Range(composite, options))
     {
+      this->CurrentFlatIndex = dataLeaf.GetFlatIndex();
       auto dataset = vtkDataSet::SafeDownCast(dataLeaf);
       if (dataset)
       {
@@ -110,6 +111,7 @@ struct GenericDataObjectWorker
   virtual void ComputeDataSet(vtkDataSet* dataset) = 0;
 
   bool SkippedData = false;
+  unsigned int CurrentFlatIndex = 0;
 };
 
 /**
@@ -122,10 +124,13 @@ struct MeshMTimeWorker : public GenericDataObjectWorker
 
   void ComputeDataSet(vtkDataSet* dataset) override
   {
-    this->MeshTime = std::max(this->MeshTime, dataset->GetMeshMTime());
+    auto leafTime = dataset->GetMeshMTime();
+    this->MaxMeshTime = std::max(this->MaxMeshTime, leafTime);
+    this->MeshesTimes[this->CurrentFlatIndex] = leafTime;
   }
 
-  vtkMTimeType MeshTime = 0;
+  vtkMTimeType MaxMeshTime = 0;
+  std::map<unsigned int, vtkMTimeType> MeshesTimes;
 };
 
 /**
@@ -255,6 +260,28 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "Consumer: ";
+  if (this->Consumer)
+  {
+    os << "\n";
+    this->Consumer->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << "(none)\n";
+  }
+
+  os << indent << "OriginalDataObject: ";
+  if (this->GetOriginalDataObject())
+  {
+    os << "\n";
+    this->GetOriginalDataObject()->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << "(none)\n";
+  }
+
   os << indent << "Cache:";
   if (this->Cache)
   {
@@ -266,8 +293,12 @@ void vtkDataObjectMeshCache::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 
-  os << indent << "CachedOriginalMeshTime: " << this->CachedOriginalMeshTime << "\n";
   os << indent << "CachedConsumerTime: " << this->CachedConsumerTime << "\n";
+  os << indent << "CachedOriginalLeavesTime:\n";
+  for (const auto& time : this->CachedOriginalLeavesTime)
+  {
+    os << indent.GetNextIndent() << time.first << " " << time.second << "\n";
+  }
 
   os << indent << "OriginalIdsName:\n";
   for (const auto& attribute : this->OriginalIdsName)
@@ -418,7 +449,8 @@ void vtkDataObjectMeshCache::UpdateCache(vtkDataObject* output)
 
   this->Cache.TakeReference(output->NewInstance());
   this->Cache->ShallowCopy(output);
-  this->CachedOriginalMeshTime = this->GetOriginalMeshTime();
+  this->CachedOriginalLeavesTime =
+    vtkDataObjectMeshCache::GetDataObjectMeshMTimes(this->GetOriginalDataObject());
   this->CachedConsumerTime = this->Consumer->GetMTime();
 
   vtkCacheLog(INFO, "Update Cache: " << this->Cache.GetPointer());
@@ -429,7 +461,7 @@ void vtkDataObjectMeshCache::UpdateCache(vtkDataObject* output)
 void vtkDataObjectMeshCache::InvalidateCache()
 {
   this->Cache = nullptr;
-  this->CachedOriginalMeshTime = 0;
+  this->CachedOriginalLeavesTime.clear();
   this->CachedConsumerTime = 0;
   vtkCacheLog(INFO, "Invalidate Cache");
   this->Modified();
@@ -496,7 +528,7 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
   status.CacheDefined = this->Cache != nullptr;
   if (!status.CacheDefined)
   {
-    vtkCacheLog(INFO, "Cache is uninitialized.");
+    vtkCacheLog(INFO, "Cache is uninitialized.");
     return status;
   }
 
@@ -506,23 +538,10 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkCacheLog(INFO, "Consumer modification time has changed.");
   }
 
-  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
-    this->GetNumberOfDataSets(this->GetOriginalDataObject());
+  auto originalMeshesTime =
+    vtkDataObjectMeshCache::GetDataObjectMeshMTimes(this->GetOriginalDataObject());
 
-  if (!status.OriginalMeshUnmodified)
-  {
-    vtkCacheLog(INFO, "Input structure has changed.");
-  }
-
-  auto originalMeshMTime = this->GetOriginalMeshTime();
-  status.OriginalMeshUnmodified &= originalMeshMTime > 0;
-  if (!status.OriginalMeshUnmodified)
-  {
-    vtkCacheLog(
-      INFO, "Invalid input mesh time. Input may be of unsupported type or has no valid mesh.");
-  }
-
-  status.OriginalMeshUnmodified &= (originalMeshMTime == this->CachedOriginalMeshTime);
+  status.OriginalMeshUnmodified = this->CachedOriginalLeavesTime == originalMeshesTime;
   if (!status.OriginalMeshUnmodified)
   {
     vtkCacheLog(INFO, "Input mesh time has changed.");
@@ -775,7 +794,16 @@ vtkMTimeType vtkDataObjectMeshCache::GetDataObjectMeshMTime(vtkDataObject* objec
 {
   MeshMTimeWorker meshtime;
   meshtime.Compute(object);
-  return meshtime.MeshTime;
+  return meshtime.MaxMeshTime;
+}
+
+//------------------------------------------------------------------------------
+std::map<unsigned int, vtkMTimeType> vtkDataObjectMeshCache::GetDataObjectMeshMTimes(
+  vtkDataObject* object)
+{
+  MeshMTimeWorker meshtime;
+  meshtime.Compute(object);
+  return meshtime.MeshesTimes;
 }
 
 VTK_ABI_NAMESPACE_END

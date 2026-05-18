@@ -238,8 +238,18 @@ public:
    * If object is a vtkDataSet this is equivalent to vtkDataSet::GetMeshMTime()
    * If object is a composite, return the max of each underlying dataset MeshMTime.
    * Other types are ignored, a MTime of 0 is used.
+   *
+   * For composite data it is not always correct to reduce MeshTimes to only the max.
+   * Prefer `GetDataObjectMeshMTimes` to get the whole list.
    */
   static vtkMTimeType GetDataObjectMeshMTime(vtkDataObject* object);
+
+  /**
+   * Return a map of MeshMTime stored by composite flat index.
+   * If object is a vtkDataSet, it contains its MeshMTime at key 0.
+   * If object is a composite, it contains one entry per leaf.
+   */
+  static std::map<unsigned int, vtkMTimeType> GetDataObjectMeshMTimes(vtkDataObject* object);
 
   /**
    * Compute and returns the current cache status.
@@ -315,6 +325,11 @@ private:
   vtkMTimeType GetOriginalMeshTime() const;
 
   /**
+   * Get the OriginalCompositeDataSet mesh times for each leaf.
+   */
+  std::set<vtkMTimeType> GetOriginalMeshTimes() const;
+
+  /**
    * Return the number of datasets contained in dataobject.
    * Return 1 if dataobject is itself a vtkDataSet.
    * Return the number of non empty dataset leaves for a composite.
@@ -341,15 +356,32 @@ private:
    */
   bool HasConsumerNoInputPort() const;
 
+  ///@{
+  /**
+   * Context of the Cache
+   */
   vtkWeakPointer<vtkAlgorithm> Consumer;
-  vtkSmartPointer<vtkDataObject> Cache;
   vtkWeakPointer<vtkDataSet> OriginalDataSet;
   vtkWeakPointer<vtkCompositeDataSet> OriginalCompositeDataSet;
-  vtkMTimeType CachedOriginalMeshTime = 0;
-  vtkMTimeType CachedConsumerTime = 0;
+  ///@}
+
+  ///@{
+  /**
+   * Configuration for Attribute forwarding
+   */
   std::map<int, std::string> OriginalIdsName;
-  std::set<int> PreserveInputAttributes;
-  std::set<std::string> PreserveCachedArrays;
+  std::set<int> PreservedInputAttributes;
+  std::set<std::string> PreservedCachedArrays;
+  ///@}
+
+  ///@{
+  /**
+   * Internal cached values
+   */
+  vtkSmartPointer<vtkDataObject> Cache;
+  vtkMTimeType CachedConsumerTime = 0;
+  std::map<unsigned int, vtkMTimeType> CachedOriginalLeavesTime;
+  ///@}
 };
 
 VTK_ABI_NAMESPACE_END
