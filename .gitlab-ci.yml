@@ -2173,6 +2173,46 @@ documentation:upload:
         RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
 
+documentation:release-upload:
+    extends:
+        - .rsync_upload_versioned_docs
+        - .rules
+    needs:
+        - documentation:build
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+        RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
+
+# TODO: Remove this job once the historical doc backfill has been run successfully.
+documentation:backfill:
+    stage: upload
+    image: "fedora:42"
+    tags:
+        - docker
+        - linux-x86_64
+        - build
+    # Never run automatically under any condition; never appear on MRs or forks.
+    rules:
+        - if: '$CI_PROJECT_PATH != "vtk/vtk"'
+          when: never
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
+        - if: '$ENABLE_DOCUMENTATION_UPLOAD != "true"'
+          when: never
+        - when: manual
+    needs: []
+    interruptible: false
+    variables:
+        GIT_STRATEGY: clone
+        RSYNC_KEY_PATH: $RSYNC_DOCS_KEY
+    script:
+        - dnf install -y --setopt=install_weak_deps=False
+              curl rsync openssh-clients python3
+        - chmod 400 "$RSYNC_KEY_PATH"
+        - ssh-keygen -y -f "$RSYNC_KEY_PATH" > "$RSYNC_KEY_PATH.pub"
+        - .gitlab/ci/prepare-docs-upload-env.sh "$RSYNC_KEY_PATH"
+        - .gitlab/ci/backfill_doc_versions.sh
+
 source:build:
     extends:
         - .cmake_source_tarballs

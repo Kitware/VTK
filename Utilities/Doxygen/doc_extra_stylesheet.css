@@ -1,3 +1,36 @@
+/* --- VTK version selector --- */
+
+#vtk-version-selector-wrapper {
+  display: inline-block;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+#vtk-version-selector {
+  font-size: 13px;
+  font-family: inherit;
+  padding: 3px 8px;
+  border: 1px solid #b4b4b4;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+}
+
+#vtk-version-selector:hover {
+  border-color: #888;
+  background-color: #e8e8e8;
+}
+
+#vtk-version-selector:focus {
+  border-color: #4a90d9;
+  box-shadow: 0 0 3px rgba(74, 144, 217, 0.5);
+}
+
+/* --- Example grid --- */
+
 .examplegrid {
   display: -ms-inline-grid; /* IE 10 */
   display: inline-grid;

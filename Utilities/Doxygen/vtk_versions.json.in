@@ -1,0 +1,16 @@
+{
+  "comment": "Local fallback. When deployed, the JS prefers the shared vtk_versions.json maintained by CI on the doc server.",
+  "current": "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@",
+  "versions": [
+    {
+      "name": "nightly",
+      "version": "nightly",
+      "baseUrl": "https://vtk.org/doc/nightly/html"
+    },
+    {
+      "name": "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@ (this build)",
+      "version": "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@",
+      "baseUrl": ""
+    }
+  ]
+}
