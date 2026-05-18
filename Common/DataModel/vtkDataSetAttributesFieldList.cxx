@@ -7,6 +7,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
+#include "vtkIndexedArray.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -318,6 +319,28 @@ struct AddCompositeArrayWorker
   }
 };
 
+struct AddCompositeIndexedArrayWorker
+{
+  template <typename ArrayType>
+  void operator()(ArrayType* inputArray, std::vector<vtkDataArray*> arrayList,
+    vtkIdList* indexArray, vtkFieldData* outputFD) const
+  {
+    using ValueType = vtk::GetAPIType<ArrayType>;
+    vtkSmartPointer<vtkCompositeArray<ValueType>> compositeArr =
+      vtk::ConcatenateDataArrays<ValueType>(arrayList);
+
+    vtkNew<vtkIndexedArray<ValueType>> indexedArray;
+    indexedArray->SetName(inputArray->GetName());
+    indexedArray->SetBackend(
+      std::make_shared<vtkIndexedImplicitBackend<ValueType>>(indexArray, compositeArr, true));
+    indexedArray->SetNumberOfComponents(inputArray->GetNumberOfComponents());
+    indexedArray->SetNumberOfTuples(indexArray->GetNumberOfIds());
+
+    // Replace existing array
+    outputFD->AddArray(indexedArray);
+  }
+};
+
 class vtkDataSetAttributesFieldList::vtkInternals
 {
 public:
@@ -586,6 +609,13 @@ void vtkDataSetAttributesFieldList::UnionFieldList(vtkDataSetAttributes* dsa)
 void vtkDataSetAttributesFieldList::GenerateCompositeArray(
   std::vector<vtkFieldData*> fields, vtkDataSetAttributes* outputData)
 {
+  GenerateCompositeArray(fields, nullptr, outputData);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSetAttributesFieldList::GenerateCompositeArray(
+  std::vector<vtkFieldData*> fields, vtkIdList* indexArray, vtkDataSetAttributes* outputData)
+{
   int outputArrayIndex = 0;
   std::vector<vtkDataArray*> arrayList(this->Internals->NumberOfInputs);
   for (auto& pair : this->Internals->Fields)
@@ -625,10 +655,22 @@ void vtkDataSetAttributesFieldList::GenerateCompositeArray(
     using SupportedTypes = vtkTypeList::Append<vtkArrayDispatch::AllTypes, std::string>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<SupportedTypes>;
 
-    AddCompositeArrayWorker worker;
-    if (!Dispatcher::Execute(da, worker, arrayList, outputData))
+    // We only need a composite array if the output is not a vtkPolyData
+    if (!indexArray)
     {
-      worker(da, arrayList, outputData);
+      AddCompositeArrayWorker worker;
+      if (!Dispatcher::Execute(da, worker, arrayList, outputData))
+      {
+        worker(da, arrayList, outputData);
+      }
+    }
+    else
+    {
+      AddCompositeIndexedArrayWorker worker;
+      if (!Dispatcher::Execute(da, worker, arrayList, indexArray, outputData))
+      {
+        worker(da, arrayList, indexArray, outputData);
+      }
     }
 
     // Append attributes to the output array if the input array had one

@@ -131,6 +131,18 @@ struct AppendCellArray : public vtkCellArray::DispatchUtilities
       [&](ValueType ptId) { return static_cast<vtkIdType>(ptId + pointOffset); });
   }
 };
+
+void FillImplicitIndexArray(vtkIdList* indexArray, vtkIdType elementCount, vtkIdType outOffset,
+  vtkIdType inOffset, vtkIdType tuplesOffset)
+{
+  if (elementCount)
+  {
+    for (int i = 0; i < elementCount; i++)
+    {
+      indexArray->SetId(outOffset + i, tuplesOffset + inOffset + i);
+    }
+  }
+}
 }
 
 //------------------------------------------------------------------------------
@@ -405,7 +417,42 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
     {
       cellDataList[i] = datasets[i]->GetCellData();
     }
-    cellFieldList.GenerateCompositeArray(cellDataList, outputCD);
+    vtkNew<vtkIdList> indexArray;
+    indexArray->SetNumberOfIds(output->GetNumberOfCells());
+    std::vector<vtkIdType> tuplesOffsets(datasets.size(), 0);
+    for (std::size_t i = 1; i < tuplesOffsets.size(); i++)
+    {
+      tuplesOffsets[i] = tuplesOffsets[i - 1] + datasets[i - 1]->GetCellData()->GetNumberOfTuples();
+    }
+    vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType idx = begin; idx < end; ++idx)
+        {
+          auto& dataset = datasets[idx];
+          const auto outVertOffset = vertOffsets[idx];
+          const auto outLineOffset = lineOffsets[idx] + totalNumberOfVerts;
+          const auto outPolyOffset = polyOffsets[idx] + totalNumberOfLines + totalNumberOfVerts;
+          const auto outStripOffset =
+            stripOffsets[idx] + totalNumberOfPolys + totalNumberOfLines + totalNumberOfVerts;
+
+          FillImplicitIndexArray(
+            indexArray, dataset->GetNumberOfVerts(), outVertOffset, 0, tuplesOffsets[idx]);
+
+          const vtkIdType inLineOffset = dataset->GetNumberOfVerts();
+          FillImplicitIndexArray(indexArray, dataset->GetNumberOfLines(), outLineOffset,
+            inLineOffset, tuplesOffsets[idx]);
+
+          const vtkIdType inPolyOffset = inLineOffset + dataset->GetNumberOfLines();
+          FillImplicitIndexArray(indexArray, dataset->GetNumberOfPolys(), outPolyOffset,
+            inPolyOffset, tuplesOffsets[idx]);
+
+          const vtkIdType inStripOffset = inPolyOffset + dataset->GetNumberOfPolys();
+          FillImplicitIndexArray(indexArray, dataset->GetNumberOfStrips(), outStripOffset,
+            inStripOffset, tuplesOffsets[idx]);
+        }
+      });
+    cellFieldList.GenerateCompositeArray(cellDataList, indexArray, outputCD);
   }
   else
   {

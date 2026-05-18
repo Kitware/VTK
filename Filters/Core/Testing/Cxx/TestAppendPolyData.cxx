@@ -3,12 +3,18 @@
 
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkDoubleArray.h>
+#include <vtkPolyLine.h>
+#include <vtkPolygon.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
 
 #include <iostream>
 
-int TestAppendPolyData(int, char*[])
+namespace
+{
+int TestAppendPolyDataBase()
 {
   vtkSmartPointer<vtkPoints> pointsArray0 = vtkSmartPointer<vtkPoints>::New();
   pointsArray0->InsertNextPoint(0.0, 0.0, 0.0);
@@ -240,5 +246,96 @@ int TestAppendPolyData(int, char*[])
     return EXIT_FAILURE;
   }
 
+  return EXIT_SUCCESS;
+}
+
+int TestImplicitAppendPolyData()
+{
+  // Create a poly data with different cell types to check if the order of the cell
+  // types is respected with implicit arrays
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 1.0, 0.0);
+  points->InsertNextPoint(0.0, 1.0, 0.0);
+
+  // Create the polygon
+  vtkNew<vtkPolygon> polygon;
+  polygon->GetPointIds()->SetNumberOfIds(4); // make a quad
+  polygon->GetPointIds()->SetId(0, 0);
+  polygon->GetPointIds()->SetId(1, 1);
+  polygon->GetPointIds()->SetId(2, 2);
+  polygon->GetPointIds()->SetId(3, 3);
+
+  // Add the polygon to a list of polygons
+  vtkNew<vtkCellArray> polygons;
+  polygons->InsertNextCell(polygon);
+
+  vtkNew<vtkPolyLine> polyLine;
+  polyLine->GetPointIds()->SetNumberOfIds(4);
+  for (unsigned int i = 0; i < 4; i++)
+  {
+    polyLine->GetPointIds()->SetId(i, i);
+  }
+
+  // Create a cell array to store the lines in and add the lines to it.
+  vtkNew<vtkCellArray> cells;
+  cells->InsertNextCell(polyLine);
+
+  // Create a polydata to store everything in.
+  vtkNew<vtkPolyData> polyData;
+
+  // Add the points to the dataset.
+  polyData->SetPoints(points);
+
+  // Add the lines to the dataset.
+  polyData->SetLines(cells);
+
+  // Add the polys to the dataset.
+  polyData->SetPolys(polygons);
+
+  vtkNew<vtkDoubleArray> cellArray;
+  cellArray->SetName("cellArray");
+  cellArray->SetNumberOfTuples(2);
+  cellArray->SetTuple1(0, 0);
+  cellArray->SetTuple1(1, 1);
+
+  polyData->GetCellData()->AddArray(cellArray);
+
+  vtkNew<vtkPolyData> polyDataCopied;
+  polyDataCopied->DeepCopy(polyData);
+
+  vtkNew<vtkAppendPolyData> appendPolyDataImplicit;
+
+  appendPolyDataImplicit->AddInputData(polyData);
+  appendPolyDataImplicit->AddInputData(polyDataCopied);
+  appendPolyDataImplicit->SetUseImplicitArray(true);
+
+  appendPolyDataImplicit->Update();
+
+  vtkDataArray* outputArray =
+    appendPolyDataImplicit->GetOutput()->GetCellData()->GetArray("cellArray");
+  if (outputArray->GetTuple1(0) != 0 || outputArray->GetTuple1(1) != 0 ||
+    outputArray->GetTuple1(2) != 1 || outputArray->GetTuple1(3) != 1)
+  {
+    std::cerr << "The output cell data array is incorrect" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+};
+
+int TestAppendPolyData(int, char*[])
+{
+  if (::TestAppendPolyDataBase() == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (::TestImplicitAppendPolyData())
+  {
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
