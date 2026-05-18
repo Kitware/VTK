@@ -74,11 +74,17 @@
  * not output.)
  *
  * Besides output geometry defining the surface net, the filter outputs a
- * two-component, cell data array indicating the labels/regions on either
- * side of the polygons composing the output vtkPolyData. (This can be used
- * for advanced operations like extracting shared/contacting boundaries
- * between two objects. The name of this cell data array is
- * "BoundaryLabels".)
+ * two-component cell-data array indicating the labels/regions on either side
+ * of the polygons composing the output vtkPolyData. This can be used for
+ * advanced operations like extracting shared/contacting boundaries between two
+ * objects. The name of this cell data array is "BoundaryLabels".
+ *
+ * The tuple is an ordered pair (Label0, Label1) with the following convention:
+ * - If the background label is involved, it is always stored in component 1.
+ * - Otherwise, the tuple is sorted so that Label0 < Label1.
+ *
+ * The output cell winding is chosen such that the polygon normal points from
+ * Label0 toward Label1.
  *
  * Non-manifold configurations: certain local 2x2x2 voxel neighborhoods can
  * produce non-manifold edges/vertices if incident faces share points
@@ -105,11 +111,20 @@
  *       duplication and per-component sub-cases.
  * See vtkSurfaceNets3DNonManifoldCases.h for details.
  *
- * Note also that the content of the filter's output can be controlled by
- * specifying the OutputStyle.  This produces different output which
- * may better serve a particular workflow. For example, it is possible
- * to produce just exterior boundary faces, or extract selected objects/
- * labeled regions from the surface net.
+ * For downstream analysis and interactive workflows, consider pairing this
+ * filter with vtkSurfaceNetsAtlas. The Atlas consumes the polygonal output of
+ * this filter and builds an internal database of label mappings and patch
+ * connectivity that is updated only when the input mesh changes. Against that
+ * cached database it can efficiently answer queries without re-running surface
+ * extraction: which labels are present, which labels are adjacent, how many
+ * cells a given interface contains, and so on. It can also extract individual
+ * region or patch meshes on demand, optionally resolving remaining non-manifold
+ * points in the local context of each extracted partition. This makes iterative
+ * operations such as interactively toggling label visibility or progressively
+ * revealing anatomy in a viewer inexpensive. The OUTPUT_STYLE_BOUNDARY and
+ * OUTPUT_STYLE_SELECTED modes of this filter are deprecated in VTK 9.7 in
+ * favour of the Atlas, which handles both use cases more flexibly and
+ * efficiently.
  *
  * Implementation note: For performance reasons, this filter is internally
  * implemented quite differently than described in the literature.  The main
@@ -173,7 +188,7 @@
  * @sa
  * vtkSurfaceNets2D vtkDiscreteMarchingCubes vtkDiscreteFlyingEdges3D
  * vtkConstrainedSmoothingFilter vtkFlyingEdges3D vtkWindowedSincPolyDataFilter
- * vtkPackLabels
+ * vtkPackLabels vtkSurfaceNetsAtlas
  */
 
 #ifndef vtkSurfaceNets3D_h
@@ -183,7 +198,6 @@
 #include "vtkContourValues.h"              // Needed for direct access to ContourValues
 #include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersCoreModule.h"          // For export macro
-#include "vtkPolyData.h"                   // To support data caching
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -450,54 +464,53 @@ public:
 
   /**
    * This enum is used to control the production of the filter output.
-   * Different output styles are used to transform the data so they can be
-   * used in different workflows, providing tradeoffs between speed, memory,
-   * and auxiliary information. By default (OUTPUT_STYLE_DEFAULT) the filter
-   * produces a mesh with shared points (i.e., points are not duplicated),
-   * and all mesh polygons, both interior and exterior, are
-   * produced. OUTPUT_STYLE_BOUNDARY is similar to OUTPUT_STYLE_DEFAULT
-   * except that only mesh polygons that are on the boundary are produced
-   * (i.e., only polygons that border the background region) - thus no
-   * interior polygons are produced. OUTPUT_STYLE_SELECTED is used to extract
-   * faces bounding selected regions.
+   * By default (OUTPUT_STYLE_DEFAULT) the filter produces a mesh with shared
+   * points (i.e., points are not duplicated), and all mesh polygons, both
+   * interior and exterior, are produced.
    *
+   * @deprecated OUTPUT_STYLE_BOUNDARY and OUTPUT_STYLE_SELECTED are deprecated
+   * in VTK 9.7. Use vtkSurfaceNetsAtlas downstream of this filter to perform
+   * boundary extraction or label-set selection more efficiently.
    */
   enum OutputType
   {
-    OUTPUT_STYLE_DEFAULT = 0,
-    OUTPUT_STYLE_BOUNDARY,
-    OUTPUT_STYLE_SELECTED
+    OUTPUT_STYLE_DEFAULT VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas instead") = 0,
+    OUTPUT_STYLE_BOUNDARY VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas instead") = 1,
+    OUTPUT_STYLE_SELECTED VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas instead") = 2,
   };
 
   ///@{
   /**
-   * Specify the form (i.e., the style) of the output. Different styles are
-   * meant to support different workflows. OUTPUT_STYLE_DEFAULT provides the
-   * basic information defining the output surface net. OUTPUT_STYLE_BOUNDARY
-   * produces much smaller output since the interior polygon faces are not
-   * produced.  Finally, OUTPUT_STYLE_SELECTED enables the user to extract a
-   * subset of the labeled regions. This is useful because the smoothing
-   * operation will occur across all the specified input regions, meaning
-   * that the selected regions do not change shape due to changes in the
-   * specified input regions. You must specify the selected regions (i.e.,
-   * labels) to output.
+   * Specify the form (i.e., the style) of the output. OUTPUT_STYLE_DEFAULT
+   * provides the full surface net with all polygon faces. The values
+   * OUTPUT_STYLE_BOUNDARY and OUTPUT_STYLE_SELECTED are deprecated; use
+   * vtkSurfaceNetsAtlas downstream instead.
    */
-  vtkSetClampMacro(OutputStyle, int, OUTPUT_STYLE_DEFAULT, OUTPUT_STYLE_SELECTED);
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas instead")
+  vtkSetClampMacro(OutputStyle, int, 0, 2);
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas instead")
   vtkGetMacro(OutputStyle, int);
-  void SetOutputStyleToDefault() { this->SetOutputStyle(OUTPUT_STYLE_DEFAULT); }
-  void SetOutputStyleToBoundary() { this->SetOutputStyle(OUTPUT_STYLE_BOUNDARY); }
-  void SetOutputStyleToSelected() { this->SetOutputStyle(OUTPUT_STYLE_SELECTED); }
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with OutputStyle=EXTRACT_ALL instead")
+  void SetOutputStyleToDefault();
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with OutputStyle=OUTPUT_STYLE_BOUNDARY instead")
+  void SetOutputStyleToBoundary();
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
+  void SetOutputStyleToSelected();
   ///@}
 
   ///@{
   /**
-   * When the OutputStyle is set to OUTPUT_STYLE_SELECTED, these methods are
-   * used to specify the labeled regions to output.
+   * @deprecated Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead.
    */
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
   void InitializeSelectedLabelsList();
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
   void AddSelectedLabel(double label);
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
   void DeleteSelectedLabel(double label);
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
   vtkIdType GetNumberOfSelectedLabels();
+  VTK_DEPRECATED_IN_9_7_0("Use vtkSurfaceNetsAtlas with ExtractionMode=EXTRACT_LABEL_SET instead")
   double GetSelectedLabel(vtkIdType ithLabel);
   ///@}
 
