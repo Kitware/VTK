@@ -2204,13 +2204,12 @@ documentation:backfill:
     interruptible: false
     variables:
         GIT_STRATEGY: clone
-        RSYNC_KEY_PATH: $RSYNC_DOCS_KEY
     script:
         - dnf install -y --setopt=install_weak_deps=False
               curl rsync openssh-clients python3
-        - chmod 400 "$RSYNC_KEY_PATH"
-        - ssh-keygen -y -f "$RSYNC_KEY_PATH" > "$RSYNC_KEY_PATH.pub"
-        - .gitlab/ci/prepare-docs-upload-env.sh "$RSYNC_KEY_PATH"
+        - chmod 400 "$RSYNC_DOCS_KEY"
+        - ssh-keygen -y -f "$RSYNC_DOCS_KEY" > "$RSYNC_DOCS_KEY.pub"
+        - .gitlab/ci/prepare-docs-upload-env.sh "$RSYNC_DOCS_KEY"
         - .gitlab/ci/backfill_doc_versions.sh
 
 source:build:
