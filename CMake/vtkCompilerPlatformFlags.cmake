@@ -33,6 +33,22 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
         "-fwasm-exceptions"
         "-sEXCEPTION_STACK_TRACES=1")
   endif ()
+  if (NOT VTK_WEBASSEMBLY_LEGACY_EXCEPTIONS)
+    # Emit instructions for the standardized Wasm EH proposal. Required when
+    # the rest of the link (the consumer application, its other libraries)
+    # is also built with -sWASM_LEGACY_EXCEPTIONS=0; otherwise the browser
+    # rejects the resulting module with "mix of legacy and new exception
+    # handling instructions".
+    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -sWASM_LEGACY_EXCEPTIONS=0")
+    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -sWASM_LEGACY_EXCEPTIONS=0")
+    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -sWASM_LEGACY_EXCEPTIONS=0")
+    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -sWASM_LEGACY_EXCEPTIONS=0")
+    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -sWASM_LEGACY_EXCEPTIONS=0")
+    if (TARGET vtkplatform)
+      target_compile_options(vtkplatform INTERFACE "-sWASM_LEGACY_EXCEPTIONS=0")
+      target_link_options(vtkplatform INTERFACE "-sWASM_LEGACY_EXCEPTIONS=0")
+    endif ()
+  endif ()
   if (VTK_WEBASSEMBLY_THREADS)
     # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
     # Set Wno flag globally because even though the flag is added in vtkCompilerWarningFlags.cmake,

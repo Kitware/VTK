@@ -57,6 +57,16 @@ Less common, but variables which may be of interest to some:
   * `VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE` (default `0`, means runtime hardware concurrency): This option can
     be used for limiting the number of webassembly threads consumed by
     SMP tools. By setting this you can reserve threads for your application to use.
+  * `VTK_WEBASSEMBLY_LEGACY_EXCEPTIONS` (default `ON`):
+    This option is applicable only when building with Emscripten toolchain.
+    When `ON`, VTK is compiled with the legacy Wasm EH proposal, matching
+    emscripten's historical default (`-sWASM_LEGACY_EXCEPTIONS=1`). Set to
+    `OFF` when the rest of the link — the consumer application and any other
+    libraries — is built with `-sWASM_LEGACY_EXCEPTIONS=0`; the resulting
+    binary then uses the standardized exception handling proposal end-to-end.
+    Mixing both proposals causes the browser to reject the module at
+    instantiate with "module uses a mix of legacy and new exception handling
+    instructions".
   * `VTK_TESTING_WASM_ENGINE` (default ``):
     Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
   * `VTK_WRAP_JAVASCRIPT` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
