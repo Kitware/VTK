@@ -234,7 +234,8 @@ echo ""
 cat "${LOCAL_JSON}"
 echo ""
 
-run scp \
+run rsync --times \
+    -e ssh \
     "${LOCAL_JSON}" \
     "${SSH_HOST}:${SERVER_ROOT}/vtk_versions.json"
 
