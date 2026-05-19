@@ -24,7 +24,7 @@ pre-commit       crlf=input
 
 *.sha512         eol=lf
 
-*.md             whitespace=tab-in-indent conflict-marker-size=30
+*.md             eol=lf whitespace=tab-in-indent conflict-marker-size=30
 
 # Third party code.
 Utilities/KWIML/**  -format.clang-format
