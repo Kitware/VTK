@@ -200,7 +200,7 @@ for series in "${SERIES_DESCENDING[@]}"; do
     # Use rsync with --delete to handle directory creation and file synchronization
     # in a single pass. The trailing slash on the source causes rsync to copy the
     # contents of html/ into the destination; without it, rsync would copy html itself.
-    run rsync --recursive --times --compress --delete \
+    run rsync --recursive --times --compress --delete --mkpath \
         -e ssh \
         "${extract_dir}/html/" \
         "${SSH_HOST}:${remote_dest}/"
