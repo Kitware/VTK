@@ -40,7 +40,7 @@ set -euo pipefail
 
 # Defaults
 SSH_HOST="vtk.doc"
-BASE_URL="https://vtk.org/doc"
+BASE_URL="https://vtk.org/doc/nightly"
 SERVER_ROOT="VTKDoxygen"
 DOWNLOAD_BASE="https://www.vtk.org/files/release"
 DRY_RUN=0

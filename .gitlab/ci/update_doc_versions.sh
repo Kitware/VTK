@@ -41,7 +41,7 @@ shift
 
 # Defaults
 SSH_HOST="vtk.doc"
-BASE_URL="https://vtk.org/doc"
+BASE_URL="https://vtk.org/doc/nightly"
 SERVER_ROOT="VTKDoxygen"
 
 # Parse optional arguments
