@@ -3,6 +3,8 @@
 
 #include "vtkFreeTypeTools.h"
 
+#include "vtkFreeTypeToolsPrivate.h"
+
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -137,69 +139,56 @@ vtkFreeTypeToolsCleanup::~vtkFreeTypeToolsCleanup()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-/**
- * Per-thread RAII wrapper for a FreeType library instance and its associated
- * FTC caches. One instance is created the first time a thread calls
- * vtkFreeTypeTools::GetThreadLocalData(), and is automatically destroyed when
- * the thread exits.
- */
-struct vtkFreeTypeTools::FTThreadLocalData
+//------------------------------------------------------------------------------
+vtkFreeTypeTools::FTThreadLocalData::FTThreadLocalData()
+  : Library(nullptr)
+  , CacheManager(nullptr)
+  , ImageCache(nullptr)
+  , CMapCache(nullptr)
+  , Owner(nullptr)
 {
-  FT_Library Library = nullptr;
-  FTC_Manager* CacheManager = nullptr;
-  FTC_ImageCache* ImageCache = nullptr;
-  FTC_CMapCache* CMapCache = nullptr;
+}
 
-  // Pointer back to the owning vtkFreeTypeTools so we can use its
-  // MaximumNumber* settings when creating the FTC_Manager.
-  vtkFreeTypeTools* Owner = nullptr;
-
-  FTThreadLocalData() = default;
-
-  // Initialise the FT_Library for this thread.
-  bool InitLibrary()
+//------------------------------------------------------------------------------
+vtkFreeTypeTools::FTThreadLocalData::~FTThreadLocalData()
+{
+  this->ReleaseCaches();
+  if (this->Library)
   {
-    Library = nullptr;
-    FT_Error err = FT_Init_FreeType(&Library);
-    if (err)
-    {
-      vtkGenericWarningMacro(
-        "FreeType library initialisation failed on thread with error code: " << err << ".");
-      Library = nullptr;
-      return false;
-    }
-    return true;
+    FT_Done_FreeType(this->Library);
+    this->Library = nullptr;
   }
+}
 
-  // Release all FreeType objects owned by this thread.
-  ~FTThreadLocalData()
+//------------------------------------------------------------------------------
+bool vtkFreeTypeTools::FTThreadLocalData::InitLibrary()
+{
+  this->Library = nullptr;
+  FT_Error err = FT_Init_FreeType(&this->Library);
+  if (err)
   {
-    ReleaseCaches();
-    if (Library)
-    {
-      FT_Done_FreeType(Library);
-      Library = nullptr;
-    }
+    vtkGenericWarningMacro(
+      "FreeType library initialisation failed on thread with error code: " << err << ".");
+    this->Library = nullptr;
+    return false;
   }
+  return true;
+}
 
-  void ReleaseCaches()
+//------------------------------------------------------------------------------
+void vtkFreeTypeTools::FTThreadLocalData::ReleaseCaches()
+{
+  if (this->CacheManager)
   {
-    if (CacheManager)
-    {
-      FTC_Manager_Done(*CacheManager);
-      delete CacheManager;
-      CacheManager = nullptr;
-    }
-    delete ImageCache;
-    ImageCache = nullptr;
-    delete CMapCache;
-    CMapCache = nullptr;
+    FTC_Manager_Done(*this->CacheManager);
+    delete this->CacheManager;
+    this->CacheManager = nullptr;
   }
-
-  // Disable copy.
-  FTThreadLocalData(const FTThreadLocalData&) = delete;
-  FTThreadLocalData& operator=(const FTThreadLocalData&) = delete;
-};
+  delete this->ImageCache;
+  this->ImageCache = nullptr;
+  delete this->CMapCache;
+  this->CMapCache = nullptr;
+}
 
 //------------------------------------------------------------------------------
 // thread_local storage: each thread gets one FTThreadLocalData per

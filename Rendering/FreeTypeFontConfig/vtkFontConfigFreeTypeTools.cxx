@@ -3,6 +3,8 @@
 
 #include "vtkFontConfigFreeTypeTools.h"
 
+#include "vtkFreeTypeToolsPrivate.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
