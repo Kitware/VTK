@@ -175,8 +175,8 @@ elseif(VTK_USE_Wayland)
       WARNING "WAYLAND::Cursor not found; custom cursors will be ignored."
     )
   endif()
-  vtk_module_find_package(PACKAGE X11)
-  vtk_module_link(VTK::RenderingUI PUBLIC X11::xkbcommon)
+  vtk_module_find_package(PACKAGE XKBCOMMON)
+  vtk_module_link(VTK::RenderingUI PUBLIC XKBCOMMON::xkbcommon)
   set_property(
     SOURCE vtkWaylandHardwareWindow.cxx
     APPEND
