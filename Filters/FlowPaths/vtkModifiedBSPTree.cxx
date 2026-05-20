@@ -72,8 +72,6 @@ public:
 
 typedef cell_extents* cell_extents_List;
 
-static int global_list_count = 0;
-
 //------------------------------------------------------------------------------
 class Sorted_cell_extents_Lists
 {
@@ -88,7 +86,6 @@ public:
       Mins[i] = new cell_extents[nCells]; // max num <= nCells/2 ?
       Maxs[i] = new cell_extents[nCells];
     }
-    global_list_count += 1;
   }
   ~Sorted_cell_extents_Lists()
   {
@@ -97,7 +94,6 @@ public:
       delete[] (this->Mins[i]);
       delete[] (this->Maxs[i]);
     }
-    global_list_count -= 1;
   }
 };
 

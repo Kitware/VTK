@@ -321,7 +321,6 @@ static size_t commentLength = 0;
 static size_t commentAllocatedLength = 0;
 static int commentState = 0;
 static int commentMemberGroup = 0;
-static int commentGroupDepth = 0;
 static parse_dox_t commentType = DOX_COMMAND_OTHER;
 static const char* commentTarget = NULL;
 
@@ -470,14 +469,6 @@ void addCommentLine(const char* line, size_t n, int type)
           }
           if (line[i - 1] == '@' && (line[i] == '{' || line[i] == '}'))
           {
-            if (line[i] == '{')
-            {
-              commentGroupDepth++;
-            }
-            else
-            {
-              --commentGroupDepth;
-            }
             closeComment();
             return;
           }
