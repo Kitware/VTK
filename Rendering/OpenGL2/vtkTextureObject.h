@@ -362,7 +362,6 @@ public:
    */
   unsigned int GetFormat() { return this->Format; }
   unsigned int GetInternalFormat() { return this->InternalFormat; }
-  ///@}
   unsigned int GetInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
   void SetInternalFormat(unsigned int glInternalFormat);
   unsigned int GetDefaultInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
