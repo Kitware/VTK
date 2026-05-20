@@ -17,12 +17,12 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoronoiCore3D.h"
 
+#include <algorithm>
 #include <stack>
 #include <vector>
 
@@ -731,6 +731,7 @@ struct SurfaceOutput : public VOutput
       this->AddFace(primId, startConn);
       vtkIdType numFacePts = *cItr++;
       vtkIdType backfaceId = *cItr++;
+      const vtkIdType faceConnStart = startConn;
       if (merging)
       {
         for (int j = 0; j < numFacePts; ++j)
@@ -746,14 +747,17 @@ struct SurfaceOutput : public VOutput
         }
       }
 
-      // Scalars are 2-tuples, region ids on either side of face prim.
-      // Order the tuples so that (s0<s1).
+      // Apply the same swap semantics as vtkSurfaceNets3D::GenereateQuadsImpl:
+      // s0 is never background; when both are non-background, s0 < s1. backfaceId is
+      // available before the point ids, so we decide swap first, write
+      // connectivity directly, then reverse in-place when needed.
       vtkIdType s0 = this->Regions[ptId];
       vtkIdType s1 = (backfaceId >= 0 ? this->Regions[backfaceId] : background);
-      // if (s0 > s1 && s1 != background) // make sure s1 is non-outside region
-      // {
-      //   std::swap(s0, s1);
-      // }
+      if (s0 == background || (s1 != background && s0 > s1))
+      {
+        std::swap(s0, s1);
+        std::reverse(this->Conn + faceConnStart, this->Conn + startConn);
+      }
       this->CellScalars[2 * primId] = s0;
       this->CellScalars[2 * primId + 1] = s1;
     } // for all output cell primitives
@@ -843,7 +847,7 @@ struct SurfaceOutput : public VOutput
     // Generate the output cell data 2-tuple, noting region ids on either
     // side of each polygonal face.
     vtkNew<vtkIdTypeArray> cellScalars;
-    cellScalars->SetName("Surface Net Scalars");
+    cellScalars->SetName("BoundaryLabels");
     cellScalars->SetNumberOfComponents(2);
     cellScalars->SetNumberOfTuples(info[NPts].NumFaces);
     int idx = output->GetCellData()->AddArray(cellScalars);
@@ -865,16 +869,14 @@ struct TransformMesh
   vtkIdType* OSPtr;
 
   // The new triangles and scalars.
-  vtkIdType* OPtr;
   vtkIdType* CPtr;
   vtkIdType* SPtr;
 
-  TransformMesh(vtkIdType* ooPtr, vtkIdType* ocPtr, vtkIdType* osPtr, vtkIdType* oPtr,
-    vtkIdType* cPtr, vtkIdType* sPtr)
+  TransformMesh(
+    vtkIdType* ooPtr, vtkIdType* ocPtr, vtkIdType* osPtr, vtkIdType* cPtr, vtkIdType* sPtr)
     : OOPtr(ooPtr)
     , OCPtr(ocPtr)
     , OSPtr(osPtr)
-    , OPtr(oPtr)
     , CPtr(cPtr)
     , SPtr(sPtr)
   {
@@ -938,34 +940,26 @@ struct TransformMesh
     vtkIdTypeArray* outScalars = vtkIdTypeArray::FastDownCast(output->GetCellData()->GetScalars());
     vtkIdType* osPtr = outScalars->GetPointer(0);
 
-    // Determine the number of output triangles, and set new offsets. A
-    // simple calculation determines the number of output triangles.
+    // Determine the number of output triangles.
     vtkIdType numTris = ooPtr[numPolys] - (2 * numPolys);
-
-    vtkNew<vtkIdTypeArray> offsets;
-    offsets->SetNumberOfTuples(numTris + 1);
-    vtkIdType* oPtr = offsets->GetPointer(0);
-    vtkIdType oId = (-3); // lambda increments then returns
-    std::generate(oPtr, (oPtr + numTris + 1), [&oId] { return oId += 3; });
-    oPtr[numTris] = 3 * numTris; // cap it off
 
     vtkNew<vtkIdTypeArray> conn;
     conn->SetNumberOfTuples(numTris * 3);
     vtkIdType* cPtr = conn->GetPointer(0);
 
     vtkNew<vtkIdTypeArray> cellScalars;
-    cellScalars->SetName("Surface Net Scalars");
+    cellScalars->SetName("BoundaryLabels");
     cellScalars->SetNumberOfComponents(2);
     cellScalars->SetNumberOfTuples(numTris);
     vtkIdType* sPtr = cellScalars->GetPointer(0);
 
     // Threaded generate the triangle connectivity and the scalars.
-    TransformMesh tm(ooPtr, ocPtr, osPtr, oPtr, cPtr, sPtr);
+    TransformMesh tm(ooPtr, ocPtr, osPtr, cPtr, sPtr);
     vtkSMPTools::For(0, numPolys, 5000, tm);
 
     // Assemble everything
     vtkNew<vtkCellArray> newPolys;
-    newPolys->SetData(offsets, conn);
+    newPolys->SetData(3, conn);
     output->SetPolys(newPolys);
     int idx = output->GetCellData()->AddArray(cellScalars);
     output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
