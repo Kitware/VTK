@@ -19,20 +19,20 @@ image.AllocateScalars(VTK_SHORT,1)
 
 # Fill the scalars with 0 (the background label) and then set particular
 # values.  Here we'll create eight regions / labels.
-def GenIndex(i,j,k):
+def GenerateIndex(i,j,k):
     return i + j*xDim + k*sliceSize
 scalars = image.GetPointData().GetScalars()
 scalars.Fill(0)
 
 # Region 1
-scalars.SetTuple1(GenIndex(1,1,1),1)
-scalars.SetTuple1(GenIndex(2,1,1),2)
-scalars.SetTuple1(GenIndex(1,2,1),3)
-scalars.SetTuple1(GenIndex(2,2,1),4)
-scalars.SetTuple1(GenIndex(1,1,2),5)
-scalars.SetTuple1(GenIndex(2,1,2),6)
-scalars.SetTuple1(GenIndex(1,2,2),7)
-scalars.SetTuple1(GenIndex(2,2,2),8)
+scalars.SetTuple1(GenerateIndex(1,1,1),1)
+scalars.SetTuple1(GenerateIndex(2,1,1),2)
+scalars.SetTuple1(GenerateIndex(1,2,1),3)
+scalars.SetTuple1(GenerateIndex(2,2,1),4)
+scalars.SetTuple1(GenerateIndex(1,1,2),5)
+scalars.SetTuple1(GenerateIndex(2,1,2),6)
+scalars.SetTuple1(GenerateIndex(1,2,2),7)
+scalars.SetTuple1(GenerateIndex(2,2,2),8)
 
 # Extract the boundaries of labeled region 1. In this test, it should just
 # produce a hex around the single labeled point. Also disable smoothing as it

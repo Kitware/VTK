@@ -23,13 +23,13 @@ imActor = vtk.vtkActor(mapper=imMapper)
 
 # Fill the scalars with 0 and then set particular values.
 # Here we'll create several regions / labels.
-def GenIndex(i,j,k):
+def GenerateIndex(i,j,k):
     return i + j*xDim + k*sliceSize
 scalars = image.point_data.GetScalars()
 scalars.Fill(0)
 
 # Region 1
-scalars.SetTuple1(GenIndex(1,1,1),1)
+scalars.SetTuple1(GenerateIndex(1,1,1),1)
 
 # Extract the boundaries of labels 1 with SurfaceNets. In this test,
 # it should just produce a hex around the single labeled point. Also
@@ -81,14 +81,14 @@ scalars2 = image2.point_data.GetScalars()
 scalars2.Fill(0)
 
 # Region 1
-scalars2.SetTuple1(GenIndex(1,1,1),1)
-scalars2.SetTuple1(GenIndex(2,1,1),2)
-scalars2.SetTuple1(GenIndex(1,2,1),3)
-scalars2.SetTuple1(GenIndex(2,2,1),4)
-scalars2.SetTuple1(GenIndex(1,1,2),5)
-scalars2.SetTuple1(GenIndex(2,1,2),6)
-scalars2.SetTuple1(GenIndex(1,2,2),7)
-scalars2.SetTuple1(GenIndex(2,2,2),8)
+scalars2.SetTuple1(GenerateIndex(1,1,1),1)
+scalars2.SetTuple1(GenerateIndex(2,1,1),2)
+scalars2.SetTuple1(GenerateIndex(1,2,1),3)
+scalars2.SetTuple1(GenerateIndex(2,2,1),4)
+scalars2.SetTuple1(GenerateIndex(1,1,2),5)
+scalars2.SetTuple1(GenerateIndex(2,1,2),6)
+scalars2.SetTuple1(GenerateIndex(1,2,2),7)
+scalars2.SetTuple1(GenerateIndex(2,2,2),8)
 
 # Extract the boundaries of labels 1 with SurfaceNets. In this test,
 # it should just produce a hex around the single labeled point. Also

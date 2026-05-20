@@ -31,41 +31,41 @@ imActor.SetMapper(imMapper)
 
 # Fill the scalars with 0 and then set particular values.
 # Here we'll create several regions / labels.
-def GenIndex(i,j):
+def GenerateIndex(i,j):
     return i + j*rowLen
 
 scalars = image.GetPointData().GetScalars()
 scalars.Fill(0)
 # Region 1
-scalars.SetTuple1(GenIndex(0,2),1)
-scalars.SetTuple1(GenIndex(1,2),1)
-scalars.SetTuple1(GenIndex(2,2),1)
-scalars.SetTuple1(GenIndex(3,0),1)
-scalars.SetTuple1(GenIndex(3,1),1)
-scalars.SetTuple1(GenIndex(3,2),1)
-scalars.SetTuple1(GenIndex(3,3),1)
-scalars.SetTuple1(GenIndex(4,1),1)
-scalars.SetTuple1(GenIndex(3,2),1)
-scalars.SetTuple1(GenIndex(4,2),1)
-scalars.SetTuple1(GenIndex(4,3),1)
+scalars.SetTuple1(GenerateIndex(0,2),1)
+scalars.SetTuple1(GenerateIndex(1,2),1)
+scalars.SetTuple1(GenerateIndex(2,2),1)
+scalars.SetTuple1(GenerateIndex(3,0),1)
+scalars.SetTuple1(GenerateIndex(3,1),1)
+scalars.SetTuple1(GenerateIndex(3,2),1)
+scalars.SetTuple1(GenerateIndex(3,3),1)
+scalars.SetTuple1(GenerateIndex(4,1),1)
+scalars.SetTuple1(GenerateIndex(3,2),1)
+scalars.SetTuple1(GenerateIndex(4,2),1)
+scalars.SetTuple1(GenerateIndex(4,3),1)
 # Region 2
-scalars.SetTuple1(GenIndex(5,2),2)
-scalars.SetTuple1(GenIndex(6,2),2)
-scalars.SetTuple1(GenIndex(5,3),2)
+scalars.SetTuple1(GenerateIndex(5,2),2)
+scalars.SetTuple1(GenerateIndex(6,2),2)
+scalars.SetTuple1(GenerateIndex(5,3),2)
 # Region 3
-scalars.SetTuple1(GenIndex(3,4),3)
-scalars.SetTuple1(GenIndex(4,4),3)
-scalars.SetTuple1(GenIndex(4,5),3)
+scalars.SetTuple1(GenerateIndex(3,4),3)
+scalars.SetTuple1(GenerateIndex(4,4),3)
+scalars.SetTuple1(GenerateIndex(4,5),3)
 # Region 4
-scalars.SetTuple1(GenIndex(5,4),4)
-scalars.SetTuple1(GenIndex(6,4),4)
-scalars.SetTuple1(GenIndex(5,5),4)
-scalars.SetTuple1(GenIndex(6,5),4)
-scalars.SetTuple1(GenIndex(7,5),4)
-scalars.SetTuple1(GenIndex(8,5),4)
-scalars.SetTuple1(GenIndex(7,6),4)
-scalars.SetTuple1(GenIndex(8,6),4)
-scalars.SetTuple1(GenIndex(9,6),4)
+scalars.SetTuple1(GenerateIndex(5,4),4)
+scalars.SetTuple1(GenerateIndex(6,4),4)
+scalars.SetTuple1(GenerateIndex(5,5),4)
+scalars.SetTuple1(GenerateIndex(6,5),4)
+scalars.SetTuple1(GenerateIndex(7,5),4)
+scalars.SetTuple1(GenerateIndex(8,5),4)
+scalars.SetTuple1(GenerateIndex(7,6),4)
+scalars.SetTuple1(GenerateIndex(8,6),4)
+scalars.SetTuple1(GenerateIndex(9,6),4)
 
 # Extract the boundaries of labels 1-4 with SurfaceNets.
 # Disable smoothing.

@@ -16,6 +16,7 @@ vtk_add_test_python(
   TestVoronoi3D-SpeedTest.py,NO_VALID
   TestVoronoiPancake.py
   TestVoronoiHull.py
+  TestGeneralizedSurfaceNets3DAtlas.py
   TestVoronoiSurfaceNet.py
   TestVoronoiTile.py
   TestVoronoiViewHulls.py
