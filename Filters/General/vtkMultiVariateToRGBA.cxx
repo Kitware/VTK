@@ -401,58 +401,15 @@ struct CreateSOAWorker
   vtkDataSetAttributes* Attributes;
   vtkSmartPointer<vtkDataArray> SOAArray;
 };
-
-std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> getAttributesAndScalars(
-  vtkDataObject* input)
-{
-  vtkTable* table = vtkTable::SafeDownCast(input);
-  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
-  vtkDataSetAttributes* attributes = nullptr;
-  if (table)
-  {
-    attributes = table->GetRowData();
-  }
-  else if (dataset)
-  {
-    attributes = dataset->GetPointData();
-    if (!attributes)
-    {
-      attributes = dataset->GetCellData();
-    }
-  }
-  if (!attributes || !attributes->GetNumberOfArrays())
-  {
-    vtkErrorWithObjectMacro(
-      input, "Input type not supported: " << input->GetClassName() << " or attributes not found");
-    return { attributes, nullptr };
-  }
-  auto* array0 = attributes->GetArray(0);
-  int dataType = array0->GetDataType();
-  if (attributes->GetNumberOfArrays() > 1)
-  {
-    typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
-    CreateSOAWorker worker(attributes);
-    if (!Dispatcher::Execute(array0, worker))
-    {
-      vtkErrorWithObjectMacro(input, "Array type not supported: " << dataType);
-      return { attributes, nullptr };
-    }
-    else
-    {
-      return { attributes, worker.SOAArray };
-    }
-  }
-  else
-  {
-    return { attributes, array0 };
-  }
-}
 }
 
 //==============================================================================
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
   this->VerticesRotation = 0;
+  // by default process active point scalars
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 //==============================================================================
@@ -517,7 +474,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   outData->ShallowCopy(inData);
-  auto [attributes, scalars] = getAttributesAndScalars(outData);
+  auto [attributes, scalars] = getAttributesAndScalars(outData, inputVector);
   if (!scalars)
   {
     return 0;
@@ -601,6 +558,89 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     attributes->AddArray(rgbaScalars);
   }
   return 1;
+}
+
+std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>>
+vtkMultiVariateToRGBA::getAttributesAndScalars(
+  vtkDataObject* input, vtkInformationVector** inputVector)
+{
+  vtkTable* table = vtkTable::SafeDownCast(input);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+  vtkDataSetAttributes* attributes = nullptr;
+  if (table)
+  {
+    // we don't use the datasetScalarsOverride for a table
+    attributes = table->GetRowData();
+    if (attributes->GetNumberOfArrays() == 0)
+    {
+      vtkErrorWithObjectMacro(input, "No arrays found: ");
+      return { attributes, nullptr };
+    }
+    auto* array0 = attributes->GetArray(0);
+    int dataType = array0->GetDataType();
+    // for a table, convert the columns into a SOA array with multiple components
+    if (attributes->GetNumberOfArrays() > 1)
+    {
+      typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
+      CreateSOAWorker worker(attributes);
+      if (!Dispatcher::Execute(array0, worker))
+      {
+        vtkErrorWithObjectMacro(input, "Array type not supported: " << dataType);
+        return { attributes, nullptr };
+      }
+      else
+      {
+        return { attributes, worker.SOAArray };
+      }
+    }
+    else
+    {
+      // otherwise, we just use the existing arrays with multiple components
+      if (array0->GetNumberOfComponents() > 1)
+      {
+        return { attributes, array0 };
+      }
+      else
+      {
+        vtkErrorWithObjectMacro(input, "Array has only one components: " << array0->GetName());
+        return { attributes, nullptr };
+      }
+    }
+  }
+  else if (dataset)
+  {
+    int association = vtkDataObject::FieldAssociations::FIELD_ASSOCIATION_POINTS;
+    vtkDataArray* array = this->GetInputArrayToProcess(0, inputVector, association);
+    if (array)
+    {
+      switch (association)
+      {
+        case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+          attributes = dataset->GetCellData();
+          return { attributes, array };
+        case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+          attributes = dataset->GetPointData();
+          return { attributes, array };
+        case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
+          attributes = dataset->GetPointData();
+          if (!attributes)
+          {
+            attributes = dataset->GetCellData();
+          }
+          return { attributes, array };
+        default:
+          vtkErrorWithObjectMacro(input, "Invalid association: " << association);
+          return { nullptr, nullptr };
+      }
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(input, "No scalar data to process");
+      return { nullptr, nullptr };
+    }
+  }
+  vtkErrorWithObjectMacro(input, "Invalid input type: " << input->GetClassName());
+  return { nullptr, nullptr };
 }
 
 //==============================================================================

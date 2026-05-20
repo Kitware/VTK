@@ -12,12 +12,12 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
-
-#include <functional> // For std::function
-#include <vector>     // For modality groups
+#include <functional>                // For std::function
+#include <vector>                    // For modality groups
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
+class vtkInformationVector;
 
 /**
  * Maps multivariate data (multi-component scalars and tables) to
@@ -98,6 +98,8 @@ protected:
 private:
   vtkMultiVariateToRGBA(const vtkMultiVariateToRGBA&) = delete;
   void operator=(const vtkMultiVariateToRGBA&) = delete;
+  std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> getAttributesAndScalars(
+    vtkDataObject* input, vtkInformationVector** inputVector);
 };
 
 VTK_ABI_NAMESPACE_END
