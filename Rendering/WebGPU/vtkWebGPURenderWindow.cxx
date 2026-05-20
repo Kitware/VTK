@@ -261,6 +261,8 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   // is already closed before Vulkan finalization, the driver attempts to access
   // freed memory, causing a segmentation fault in XCloseDisplay().
   //
+  // Minimal repro example shared with NVIDIA: https://github.com/sankhesh/nvidia-vulkan-reproducer
+  //
   // Solution: Keep the Display open until after Vulkan finalization completes.
   // This is achieved by:
   // 1. Temporarily preventing Display closure during X11 window destruction
