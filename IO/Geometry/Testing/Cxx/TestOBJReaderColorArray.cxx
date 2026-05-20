@@ -1,0 +1,187 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include "vtkCellData.h"
+#include "vtkCubeSource.h"
+#include "vtkDataArray.h"
+#include "vtkNew.h"
+#include "vtkOBJReader.h"
+#include "vtkOBJWriter.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkTestUtilities.h"
+
+#include <iostream>
+
+namespace
+{
+
+template <const int N>
+auto CreateTestColor(int index) -> std::array<unsigned char, N>
+{
+  auto c = static_cast<unsigned char>((index << 6) % 255);
+  std::array<unsigned char, N> color;
+  color.fill(c);
+  return color;
+}
+
+template <int N>
+vtkSmartPointer<vtkPolyData> CreateTestData(const char* ArrayName)
+{
+  auto polyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkCubeSource> cubeSource;
+  cubeSource->SetXLength(1.0);
+  cubeSource->SetYLength(2.0);
+  cubeSource->SetZLength(3.0);
+  cubeSource->Update();
+  polyData->ShallowCopy(cubeSource->GetOutput());
+  vtkNew<vtkUnsignedCharArray> colors;
+  colors->SetNumberOfComponents(N);
+  colors->SetName(ArrayName);
+
+  for (vtkIdType i = 0; i < polyData->GetNumberOfPoints(); ++i)
+  {
+    auto color = CreateTestColor<N>(i);
+    colors->InsertNextTypedTuple(color.data());
+  }
+
+  polyData->GetPointData()->SetScalars(colors);
+  polyData->GetPointData()->SetActiveScalars(ArrayName);
+
+  return polyData;
+}
+
+template <int N>
+void WriteTestData(const std::string& filename, const std::string& arrayName)
+{
+  auto polydata = CreateTestData<N>(arrayName.data());
+  vtkNew<vtkOBJWriter> writer;
+  writer->SetFileName(filename.data());
+  writer->SetColorArrayName(arrayName);
+  writer->WriteColorArrayOn();
+  writer->SetInputData(0, polydata);
+  writer->Write();
+}
+
+template <int N>
+int CheckData(vtkPolyData* data, const std::string& arrayName)
+{
+  if (!data)
+  {
+    std::cerr << "Could not read data" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // The output must have three arrays, "Colors", "Normals" and "TCoords", vtkCubeSource produces
+  // Normals and TCoords arrays, so we expect to have "Colors" array in addition to these two.
+
+  // Check the number of arrays
+
+  if (data->GetPointData()->GetNumberOfArrays() != 3)
+  {
+    std::cerr << "Invalid number of arrays: " << data->GetPointData()->GetNumberOfArrays()
+              << std::endl;
+    for (auto i = 0; i < data->GetPointData()->GetNumberOfArrays(); ++i)
+    {
+      std::cerr << "Array " << i << ": " << data->GetPointData()->GetArrayName(i) << std::endl;
+    }
+    return EXIT_FAILURE;
+  }
+
+  // Check the presence of "Colors" array
+  auto colorArray = data->GetPointData()->GetArray(arrayName.data());
+  if (!colorArray)
+  {
+    std::cerr << "Could not find Colors array" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (colorArray->GetNumberOfComponents() != N)
+  {
+    std::cerr << "Invalid number of components for Colors array" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (colorArray->GetNumberOfTuples() != data->GetNumberOfPoints())
+  {
+    std::cerr << "Invalid number of tuples for Colors array" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // convert vtkDataArray to vtkUnsignedCharArray
+  auto array = vtkArrayDownCast<vtkUnsignedCharArray>(colorArray);
+  if (!array)
+  {
+    std::cerr << "Color array is not of type vtkUnsignedCharArray" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Check "Colors" array values
+  for (vtkIdType i = 0; i < data->GetNumberOfPoints(); ++i)
+  {
+    std::array<unsigned char, N> color;
+    array->GetTypedTuple(i, color.data());
+
+    std::array<unsigned char, N> expectedColor = CreateTestColor<N>(i);
+    if (!std::equal(std::begin(color), std::end(color), std::begin(expectedColor)))
+    {
+      std::cerr << "Invalid color value at index " << i << ": (" << color[0] << ", " << color[1]
+                << ", " << color[2] << ", " << color[3] << ") instead of (" << expectedColor[0]
+                << ", " << expectedColor[1] << ", " << expectedColor[2] << ", " << expectedColor[3]
+                << ")" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+template <int N>
+bool ColorArrayReadTest(const std::string& filename, const std::string& arrayName)
+{
+  WriteTestData<N>(filename, arrayName);
+
+  // read this file and compare with input by vtkOBJReader
+  vtkNew<vtkOBJReader> reader;
+  reader->SetFileName(filename.data());
+  reader->Update();
+  auto data = reader->GetOutput();
+
+  if (CheckData<N>(data, arrayName) == EXIT_FAILURE)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+}
+
+//------------------------------------------------------------------------------
+int TestOBJReaderColorArray(int argc, char* argv[])
+{
+  char* tname =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  std::string tmpDir(tname);
+  delete[] tname;
+
+  // test RGB
+  {
+    const int N = 3;
+    const std::string& arrayName = "RGB";
+    if (!::ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGB_rw.obj", arrayName))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  // test RGBA
+  {
+    const int N = 4;
+    const std::string& arrayName = "RGBA";
+
+    if (!::ColorArrayReadTest<N>(tmpDir + "/TestOBJReaderColorArray_RGBA_rw.obj", arrayName))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}

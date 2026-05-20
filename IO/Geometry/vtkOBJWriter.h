@@ -23,8 +23,10 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkImageData;
 class vtkPolyData;
+class vtkUnsignedCharArray;
 
 class VTKIOGEOMETRY_EXPORT vtkOBJWriter : public vtkWriter
 {
@@ -60,6 +62,42 @@ public:
   vtkGetFilePathMacro(FileName);
   ///@}
 
+  ///@{
+  /**
+   * These methods enable the user to control how to add color into the OBJ
+   * output file. The default behavior is as follows. The user provides the
+   * name of an array. If the type of the array is three components, unsigned
+   * char, then the data is written as three separate "red", "green" and "blue"
+   * properties. If the type of the array is four components, unsigned char,
+   * then the data is written as three separate "red", "green", "blue" and "alpha"
+   * properties. If the array is of any other type, then no color information is
+   * written.
+   * If WriteColorArray is off, no color information will be written into the OBJ file.
+   * Default is WriteColorArray off.
+   */
+  vtkSetMacro(WriteColorArray, bool);
+  vtkGetMacro(WriteColorArray, bool);
+  vtkBooleanMacro(WriteColorArray, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Specify the array name to use to color the data.
+   */
+  vtkSetMacro(ColorArrayName, std::string);
+  vtkGetMacro(ColorArrayName, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set whether to use relative path for texture file in the .mtl file.
+   * Default is false.
+   */
+  vtkSetMacro(UseRelativeTexturePath, bool);
+  vtkGetMacro(UseRelativeTexturePath, bool);
+  vtkBooleanMacro(UseRelativeTexturePath, bool);
+  ///@}
+
 protected:
   vtkOBJWriter();
   ~vtkOBJWriter() override;
@@ -67,12 +105,17 @@ protected:
   bool WriteDataAndReturn() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  char* FileName;
-  char* TextureFileName;
-
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;
   void operator=(const vtkOBJWriter&) = delete;
+
+  char* FileName{ nullptr };
+  char* TextureFileName{ nullptr };
+
+  std::string ColorArrayName;
+  bool WriteColorArray{ false };
+
+  bool UseRelativeTexturePath{ false };
 };
 
 VTK_ABI_NAMESPACE_END

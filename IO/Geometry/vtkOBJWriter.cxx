@@ -14,6 +14,7 @@
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -80,18 +81,42 @@ struct EndIndex
   // for that material
   vtkIdType PointEndIndex;
 };
+
 //----------------------------------------------------------------------------
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
-  const std::vector<vtkDataArray*>& tcoordsArray, std::vector<EndIndex>* endIndexes)
+  vtkUnsignedCharArray* pointColors, const std::vector<vtkDataArray*>& tcoordsArray,
+  std::vector<EndIndex>* endIndexes)
 {
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
+  bool writeColors = false;
+  if (pointColors && pointColors->GetNumberOfTuples() == nbPts)
+  {
+    writeColors = true;
+  }
   // Positions
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << vtk::format("v {} {} {}\n", p[0], p[1], p[2]);
+    f << vtk::format("v {} {} {}", p[0], p[1], p[2]);
+    if (writeColors)
+    {
+      unsigned char color[4] = { 255, 255, 255, 255 };
+      pointColors->GetTypedTuple(i, color);
+      if (pointColors->GetNumberOfComponents() == 3) // RGB
+      {
+        f << vtk::format(" {} {} {}", static_cast<double>(color[0] / 255.0),
+          static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0));
+      }
+      else if (pointColors->GetNumberOfComponents() == 4) // RGBA
+      {
+        f << vtk::format(" {} {} {} {}", static_cast<double>(color[0] / 255.0),
+          static_cast<double>(color[1] / 255.0), static_cast<double>(color[2] / 255.0),
+          static_cast<double>(color[3] / 255.0));
+      }
+    }
+    f << "\n";
   }
 
   // Normals
@@ -165,8 +190,6 @@ vtkStandardNewMacro(vtkOBJWriter);
 //------------------------------------------------------------------------------
 vtkOBJWriter::vtkOBJWriter()
 {
-  this->FileName = nullptr;
-  this->TextureFileName = nullptr;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -261,7 +284,12 @@ bool vtkOBJWriter::WriteDataAndReturn()
   if (texture || this->TextureFileName)
   {
     std::string textureFileName = texture ? baseName + ".png" : this->TextureFileName;
-    if (!::WriteMtl(baseName, textureFileName.c_str()))
+    std::string textureName = textureFileName;
+    if (this->UseRelativeTexturePath)
+    {
+      textureName = vtksys::SystemTools::GetFilenameName(textureFileName);
+    }
+    if (!::WriteMtl(baseName, textureName.c_str()))
     {
       vtkErrorMacro("Unable to create material file");
     }
@@ -285,8 +313,20 @@ bool vtkOBJWriter::WriteDataAndReturn()
     }
   }
 
+  vtkUnsignedCharArray* pointColors = nullptr;
+  if (this->GetWriteColorArray() && !this->GetColorArrayName().empty())
+  {
+    vtkUnsignedCharArray* colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
+      input->GetPointData()->GetArray(this->GetColorArrayName().data()));
+    if (colorArray)
+    {
+      int numComp = colorArray->GetNumberOfComponents();
+      pointColors = (numComp == 3 || numComp == 4) ? colorArray : nullptr;
+    }
+  }
+
   std::vector<EndIndex> endIndexes;
-  ::WritePoints(f, pts, normals, tcoordsArray, &endIndexes);
+  ::WritePoints(f, pts, normals, pointColors, tcoordsArray, &endIndexes);
 
   // Decompose any triangle strips into triangles
   vtkNew<vtkCellArray> polyStrips;
@@ -372,6 +412,13 @@ void vtkOBJWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " << (this->GetFileName() ? this->GetFileName() : "(none)") << endl;
   os << indent << "Input: " << this->GetInputGeometry() << endl;
 
+  os << indent << "Write Color Array: " << (this->WriteColorArray ? "off" : "on") << "\n";
+  os << indent
+     << "Color Array Name: " << (this->ColorArrayName.empty() ? this->ColorArrayName : "(none)")
+     << "\n";
+
+  os << indent << "Use Relative Texture Path: " << (this->UseRelativeTexturePath ? "on" : "off")
+     << "\n";
   vtkImageData* texture = this->GetInputTexture();
   if (texture)
   {
@@ -414,4 +461,5 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+
 VTK_ABI_NAMESPACE_END
