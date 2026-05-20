@@ -218,7 +218,7 @@ void vtkDrawTexturedElements::ReportUnsupportedLineWidth(
 {
   const char* glVersion = (const char*)glGetString(GL_VERSION);
   vtkWarningWithObjectMacro(mapper, << "Line width (" << width
-                                    << ") is less than maximum line width (" << maxWidth
+                                    << ") is greater than maximum line width (" << maxWidth
                                     << ") supported by your OpenGL driver " << glVersion);
 }
 
