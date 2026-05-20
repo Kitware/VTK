@@ -345,7 +345,32 @@ any Python object that supports the Python buffer protocol (this includes
 all numpy arrays along with the Python bytes and bytearray types), or from a
 string that contains a mangled pointer of the form '`_hhhhhhhhhhhh_p_void`'
 where '`hhhhhhhhhhhh`' is the hexadecimal address.  Return-value `void*` will
-always be a string containing the mangled pointer.
+always be a string containing the mangled pointer. You can safely unmangle
+the pointer when you know the type of the pointer and the number of values
+stored at that address using `ctypes` and `np.frombuffer`.
+
+Example:
+
+``` python
+import vtk
+import ctypes
+import numpy as np
+
+ctf = vtk.vtkColorTransferFunction()
+ctf.AddRGBPoint(0, 0.1, 0.2, 0.3)
+ctf.AddRGBPoint(1, 0.4, 0.5, 0.6)
+size = ctf.size * 4
+data_pointer_str = ctf.data_pointer
+
+# 1. Convert the VTK pointer string to an integer address
+# Example pointer: "_00007f55d65c1010_p_void"
+addr_hex = data_pointer_str.split('_')[1]
+address = int(addr_hex, 16)
+# 2. Create a numpy array from the address and size.
+buffer = (ctypes.c_double * size).from_address(address)
+numpy_array = np.frombuffer(buffer, dtype=np.float64)
+print(numpy_array) # should print [0.  0.1 0.2 0.3 1.  0.4 0.5 0.6]
+```
 
 Also, a `T*` parameter for fundamental type `T` can accept a buffer object,
 if and only if it is annotated with the `VTK_ZEROCOPY` hint in the header file.
