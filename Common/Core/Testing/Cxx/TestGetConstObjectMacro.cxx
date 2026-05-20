@@ -10,7 +10,7 @@
 #include <iostream>
 
 // Test class using vtkGetConstObjectMacro
-class vtkTestConstObjectGetter : public vtkObject
+class vtkTestConstObjectGetter final : public vtkObject
 {
 public:
   static vtkTestConstObjectGetter* New();
@@ -21,7 +21,7 @@ public:
 
 protected:
   vtkTestConstObjectGetter() = default;
-  ~vtkTestConstObjectGetter() { this->SetData(nullptr); }
+  ~vtkTestConstObjectGetter() final { this->SetData(nullptr); }
 
 private:
   vtkTestConstObjectGetter(const vtkTestConstObjectGetter&) = delete;
