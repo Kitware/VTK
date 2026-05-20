@@ -290,24 +290,53 @@ struct SurfaceNets
   struct GenerateLinesImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, unsigned char sqCase,
-      vtkIdType* pIds, vtkIdType& lineId)
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, unsigned char squareCase,
+      vtkIdType i, vtkIdType row, vtkIdType* pIds, vtkIdType& lineId, SurfaceNets* snet)
     {
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (lineId * 2);
 
-      if (SurfaceNets::GenerateXLine(sqCase))
+      const T bgLabel = snet->BackgroundLabel;
+      const unsigned char* dPtr = snet->DyadCases + row * snet->DyadDims[0];
+      const unsigned char* dPtrAbove = dPtr + snet->DyadDims[0];
+
+      // in/out state of the three pixels forming the corner of the square.
+      // inOut[0]=above-left, inOut[1]=above-right, inOut[2]=right
+      const bool inOut[3] = { static_cast<bool>(*(dPtrAbove + i) & 0x1),
+        static_cast<bool>(*(dPtrAbove + i + 1) & 0x1), static_cast<bool>(*(dPtr + i + 1) & 0x1) };
+
+      if (SurfaceNets::GenerateXLine(squareCase))
       {
-        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[1] + 1; // in the +x direction
+        if (snet->HasNewScalars)
+        {
+          T s0 = (inOut[2] ? snet->GetPixelForDyad(i + 1, row) : bgLabel);
+          T s1 = (inOut[1] ? snet->GetPixelForDyad(i + 1, row + 1) : bgLabel);
+          if (s0 == bgLabel || (s1 != bgLabel && s0 > s1))
+          {
+            std::swap(s0, s1);
+          }
+          snet->WriteScalarTuple(s0, s1, lineId);
+        }
+        ++lineId;
       }
 
-      if (SurfaceNets::GenerateYLine(sqCase))
+      if (SurfaceNets::GenerateYLine(squareCase))
       {
-        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[2]; // in the +y direction
+        if (snet->HasNewScalars)
+        {
+          T s0 = (inOut[0] ? snet->GetPixelForDyad(i, row + 1) : bgLabel);
+          T s1 = (inOut[1] ? snet->GetPixelForDyad(i + 1, row + 1) : bgLabel);
+          if (s0 == bgLabel || (s1 != bgLabel && s0 > s1))
+          {
+            std::swap(s0, s1);
+          }
+          snet->WriteScalarTuple(s0, s1, lineId);
+        }
+        ++lineId;
       }
     } // operator()
   };  // GenerateLinesImpl
@@ -388,18 +417,6 @@ struct SurfaceNets
   // Initialize the 2-tuple cell scalars array. Used when only a
   // singled labeled region is being extracted (for performance
   // reasons).
-  void InitializeScalars(vtkIdType numScalars)
-  {
-    T label = this->LabelValues[0];
-    T background = this->BackgroundLabel;
-    TOutPtr s = this->NewScalars;
-    for (auto i = 0; i < numScalars; ++i)
-    {
-      *s++ = label;
-      *s++ = background;
-    }
-  }
-
   // Given a dyad i,j, return the pixel value. Note that the
   // dyad i,j are shifted by 1 due to the padding of the image
   // with boundary dyads.
@@ -408,54 +425,13 @@ struct SurfaceNets
     return *(this->Scalars + (row - 1) * this->Inc1 + (i - 1) * this->Inc0);
   }
 
-  // Generate the 2-tuple scalar cell data for the generated
-  // line segments. Used when multiple labeled regions are
-  // being extracted. Since only line segments can be created
-  // in the +x and +y directions, only the dyads to the right
-  // and top of the square is needed.
-  void GenerateScalars(unsigned char sqCase, vtkIdType i, vtkIdType row, unsigned char rDyad,
-    unsigned char rDyadAbove, unsigned char dyadAbove, vtkIdType& scalarId)
+  // Write the (s0, s1) boundary-label 2-tuple for a line at index lineId.
+  void WriteScalarTuple(T s0, T s1, vtkIdType lineId)
   {
-    T backgroundLabel = this->BackgroundLabel;
-    T s0, s1;
-    TOutPtr scalars = this->NewScalars + 2 * scalarId;
-
-    // Get the in/out state of the three pixels which form the "corner"
-    // of the square that the lines intersect.
-    bool inOut[3];
-    inOut[0] = (dyadAbove & 0x1);
-    inOut[1] = (rDyadAbove & 0x1);
-    inOut[2] = (rDyad & 0x1);
-
-    // Process the two potential edges independently
-    if (SurfaceNets::GenerateXLine(sqCase))
-    {
-      s0 = (inOut[2] ? this->GetPixelForDyad(i + 1, row) : backgroundLabel);
-      s1 = (inOut[1] ? this->GetPixelForDyad(i + 1, row + 1) : backgroundLabel);
-      if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
-      {
-        // Background label is placed last; s0<s1 if both inside
-        std::swap(s0, s1);
-      }
-      *scalars++ = s0; // write 2-tuple
-      *scalars++ = s1;
-      ++scalarId;
-    }
-
-    if (SurfaceNets::GenerateYLine(sqCase))
-    {
-      s0 = (inOut[0] ? this->GetPixelForDyad(i, row + 1) : backgroundLabel);
-      s1 = (inOut[1] ? this->GetPixelForDyad(i + 1, row + 1) : backgroundLabel);
-      if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
-      {
-        // Background label is placed last; s0<s1 if both inside
-        std::swap(s0, s1);
-      }
-      *scalars++ = s0; // write 2-tuple
-      *scalars++ = s1;
-      ++scalarId;
-    }
-  } // GenerateScalars
+    TOutPtr scalars = this->NewScalars + 2 * lineId;
+    scalars[0] = s0;
+    scalars[1] = s1;
+  }
 
   // The following are methods supporting the four passes of the
   // surface nets extraction.
@@ -783,13 +759,6 @@ void SurfaceNets<TArray>::ConfigureOutput(
       newScalars->SetNumberOfTuples(numOutLines);
       this->NewScalars = vtk::DataArrayValueRange<2>(TArray::FastDownCast(newScalars)).begin();
       this->HasNewScalars = true;
-      // In the special case when there is just a single segmented
-      // object extracted, the scalars are initialized with the
-      // two labels: [LabelValues[0],BackgroundLabel].
-      if (this->NumLabels == 1)
-      {
-        this->InitializeScalars(numOutLines);
-      }
     }
 
     // Smoothing stencils, which are represented by a vtkCellArray
@@ -841,7 +810,6 @@ void SurfaceNets<TArray>::GenerateOutput(vtkIdType row)
   // dyads[1], and the dyads of the square below dyads[0] and above dyads[2].
   unsigned char dyads[3];   // dyads below, current, and above the current square
   unsigned char rDyad;      // dyad of the right square
-  unsigned char rDyadAbove; // dyad of the top-right square
   unsigned char squareCase; // the case of the current square
 
   // Initialize the point numbering process using a row iterator. This uses
@@ -853,12 +821,8 @@ void SurfaceNets<TArray>::GenerateOutput(vtkIdType row)
   // The point ids are advanced as a function of the three dyads dyads[3].
   vtkIdType pIds[3];
   this->InitRowIterator(row, pIds);
-  vtkIdType lineId = eMD[1];   // starting line id for this row of squares
-  vtkIdType sOffset = eMD[2];  // starting stencil offset for this row of squares
-  vtkIdType scalarId = lineId; // starting scalar id to generate 2-tuples
-
-  // Control whether 2-tuple scalars need to be generated.
-  bool genScalars = (this->HasNewScalars && this->NumLabels > 1);
+  vtkIdType lineId = eMD[1];  // starting line id for this row of squares
+  vtkIdType sOffset = eMD[2]; // starting stencil offset for this row of squares
 
   // Now traverse all the squares in this row, generating points, lines,
   // stencils, and optional scalar data. Points are only generated from the
@@ -881,16 +845,9 @@ void SurfaceNets<TArray>::GenerateOutput(vtkIdType row)
       this->GeneratePoint(pIds[1], i, row);
 
       // Lines, if any. (Only +x and +y line segments can be generated.)
-      // If lines are produced, then scalar data may need to be generated
-      // as well.
       if (this->GetNumberOfLines(squareCase) > 0)
       {
-        this->NewLines->Dispatch(GenerateLinesImpl{}, squareCase, pIds, lineId);
-        if (genScalars)
-        {
-          rDyadAbove = *(dPtrAbove + i + 1);
-          this->GenerateScalars(squareCase, i, row, rDyad, rDyadAbove, dyads[2], scalarId);
-        }
+        this->NewLines->Dispatch(GenerateLinesImpl{}, squareCase, i, row, pIds, lineId, this);
       }
 
       // Smoothing stencil (i.e., how generated points are connected to other points)
