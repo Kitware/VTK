@@ -65,7 +65,7 @@ int TestUSDExporter(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
-    std::cout << "Could not determine temporary directory.\n";
+    vtkLog(ERROR, "Could not determine temporary directory.");
     return EXIT_FAILURE;
   }
   std::string testDirectory = tempDir;
