@@ -385,8 +385,10 @@ int TestUSDExporter(int argc, char* argv[])
   // in this case. Only first block visible.
   auto da = vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
   compositeMapper->SetCompositeDataDisplayAttributes(da);
-  compositeMapper->SetBlockVisibility(0, true);
-  compositeMapper->SetBlockVisibility(1, false);
+  // The vtkGroupDataSetsFilter produces an output where the two inputs
+  // are at flat indices 2 and 4.
+  compositeMapper->SetBlockVisibility(2, true);
+  compositeMapper->SetBlockVisibility(4, false);
 
   filename = rootname + "_composite1.usda";
   exporter->SetFileName(filename.c_str());
@@ -405,8 +407,8 @@ int TestUSDExporter(int argc, char* argv[])
   }
 
   // Now set the second block visible and not the first
-  compositeMapper->SetBlockVisibility(0, false);
-  compositeMapper->SetBlockVisibility(1, true);
+  compositeMapper->SetBlockVisibility(2, false);
+  compositeMapper->SetBlockVisibility(4, true);
   exporter->Write();
 
   if (FileContainsString(filename, "def Mesh \"Mesh1\""))
@@ -421,7 +423,7 @@ int TestUSDExporter(int argc, char* argv[])
   }
 
   // Now color by Normal X component with both blocks on
-  compositeMapper->SetBlockVisibility(0, true);
+  compositeMapper->SetBlockVisibility(2, true);
   compositeMapper->ScalarVisibilityOn();
   compositeMapper->SetColorModeToMapScalars();
   compositeMapper->SetScalarModeToUsePointFieldData();
