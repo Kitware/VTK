@@ -64,6 +64,7 @@ vtkFidesWriter::vtkFidesWriter()
   : Impl(new FidesWriterImpl)
   , Controller(nullptr)
   , FileName(nullptr)
+  , AdiosConfigFile(nullptr)
   , ChooseFieldsToWrite(false)
   , TimeStepRange{ 0, VTK_INT_MAX - 1 }
   , TimeStepStride(1)
@@ -78,6 +79,7 @@ vtkFidesWriter::vtkFidesWriter()
 vtkFidesWriter::~vtkFidesWriter()
 {
   this->SetFileName(nullptr);
+  this->SetAdiosConfigFile(nullptr);
   this->SetController(nullptr);
 }
 
@@ -396,17 +398,29 @@ bool vtkFidesWriter::WriteDataAndReturn()
       continue;
     }
     auto& writer = it->second;
+
+    std::string mode;
+    if (this->AdiosConfigFile && this->AdiosConfigFile[0])
+    {
+      writer.SetAdiosConfigFile(this->AdiosConfigFile);
+    }
+    else
+    {
+      mode = this->Engine == EngineTypes::BPFile ? "BPFile" : "SST";
+    }
+
     writer.SetWriteFields(fieldsToWrite);
 
-    std::string mode = "BPFile";
-    if (this->Engine != EngineTypes::BPFile)
-    {
-      vtkErrorMacro("Unsupported engine type: " << this->Engine);
-      return false;
-    }
     try
     {
-      writer.Write(vtkmPDS, mode);
+      if (mode.empty())
+      {
+        writer.Write(vtkmPDS);
+      }
+      else
+      {
+        writer.Write(vtkmPDS, mode);
+      }
     }
     catch (const std::exception& e)
     {

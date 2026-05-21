@@ -111,7 +111,8 @@ vtkFidesReader::vtkFidesReader()
   this->FieldDataArraySelection = vtkDataArraySelection::New();
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
-  this->CreateSharedPoints = true;
+  this->CreateSharedPoints = false;
+  this->DebugOn();
 }
 
 vtkFidesReader::~vtkFidesReader()
@@ -119,6 +120,11 @@ vtkFidesReader::~vtkFidesReader()
   this->PointDataArraySelection->Delete();
   this->CellDataArraySelection->Delete();
   this->FieldDataArraySelection->Delete();
+
+  if (this->Impl->Reader)
+  {
+    this->Impl->Reader->Close();
+  }
 }
 
 int vtkFidesReader::CanReadFile(const std::string& name)
@@ -127,35 +133,35 @@ int vtkFidesReader::CanReadFile(const std::string& name)
   {
     return 0;
   }
-  if (vtksys::SystemTools::StringEndsWith(name, ".bp") ||
-    vtksys::SystemTools::StringEndsWith(name, ".bp4") ||
-    vtksys::SystemTools::StringEndsWith(name, ".bp5"))
+
+  auto parts = vtksys::SystemTools::SplitString(name, '.');
+  // though adios by default uses .bp, some users have changed their files to be .bp3, .bp4, .bp5
+  if (vtksys::SystemTools::StringStartsWith(parts.back().c_str(), "bp"))
   {
-    if (fides::io::DataSetReader::CheckForDataModelAttribute(name))
-    {
-      return 1;
-    }
-    return 0;
+    // it's possible we may not be able to read a bp file, if it doesn't have the json in an
+    // attribute or the fides metadata, but there's not really a good way to check at this point
+    // that works with all engines.
+    // TODO: though I suppose we could do a try/fail. if it's an actual bp file, then we can check
+    // it if it's an sst stream then we wouldn't be able to check it.
+    return 1;
   }
   if (vtksys::SystemTools::StringEndsWith(name, ".json"))
   {
     return 1;
   }
+  // TODO: an sst stream doesn't necessarily have a bp file ending....
   return 0;
 }
 
 void vtkFidesReader::SetFileName(const std::string& fname)
 {
   this->FileName = fname;
-  if (vtksys::SystemTools::StringEndsWith(fname, ".bp") ||
-    vtksys::SystemTools::StringEndsWith(fname, ".bp4") ||
-    vtksys::SystemTools::StringEndsWith(fname, ".bp5"))
+  auto parts = vtksys::SystemTools::SplitString(fname, '.');
+  // though adios by default uses .bp, some users have changed their files to be .bp3, .bp4, .bp5
+  if (vtksys::SystemTools::StringStartsWith(parts.back().c_str(), "bp"))
   {
-    if (fides::io::DataSetReader::CheckForDataModelAttribute(fname))
-    {
-      this->Impl->UsePresetModel = true;
-      vtkDebugMacro(<< "Using a preset data model");
-    }
+    this->Impl->UsePresetModel = true;
+    vtkDebugMacro(<< "Using a preset data model");
   }
 }
 
@@ -197,6 +203,9 @@ void vtkFidesReader::ParseDataModel()
   }
   try
   {
+    vtkDebugMacro(<< "Setting up Fides DataSetReader with FileName: " << this->FileName
+                  << ", inputType: " << static_cast<int>(inputType) << ", StreamSteps: "
+                  << this->StreamSteps << ", CreateSharedPoints: " << this->CreateSharedPoints);
     this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType,
       this->StreamSteps, this->Impl->AllParams, this->CreateSharedPoints));
   }
@@ -236,6 +245,10 @@ void vtkFidesReader::SetDataSourceEngine(const std::string& name, const std::str
   params["engine_type"] = engine;
   vtkDebugMacro(<< "for data source " << name << ", setting ADIOS engine to " << engine);
   this->Impl->AllParams.insert(std::make_pair(name, params));
+  if (engine == "SST")
+  {
+    this->StreamSteps = true;
+  }
   this->Modified();
 }
 
