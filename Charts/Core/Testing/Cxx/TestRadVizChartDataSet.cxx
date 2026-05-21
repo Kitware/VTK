@@ -42,7 +42,7 @@ int TestRadVizChartDataSet(int argc, char** argv)
 
   chart->SetShowLegend(false);
 
-  chart->SetTitle("Battery dataset (Ce, Co, Fe, Gd)");
+  // chart->SetTitle("Battery dataset (Ce, Co, Fe, Gd)");
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

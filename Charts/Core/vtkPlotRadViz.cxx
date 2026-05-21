@@ -20,7 +20,9 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderingCoreEnums.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTextProperty.h"
 
 #include <algorithm>
 
@@ -66,6 +68,15 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
   this->VerticesPen = vtkSmartPointer<vtkPen>::New();
   this->VerticesPen->SetWidth(8);
+  this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
+  this->LabelsProperties->SetJustificationToCentered();
+  this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
+  this->LabelsProperties->SetFontSize(12);
+  this->LabelsProperties->SetFontFamilyToArial();
+  // by default process active point/cell scalars if the input is a dataset
+  // otherwise we process all columns of a table
+  this->GetData()->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
 void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
@@ -73,21 +84,71 @@ void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
   this->Data->SetInputDataObject(0, dataset);
 }
 
+void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
+{
+  vtkTable* table = vtkTable::SafeDownCast(input);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+  if (table)
+  {
+    this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
+    int nColumns = table->GetNumberOfColumns();
+    this->AutoLabels->SetNumberOfValues(nColumns);
+    for (int i = 0; i < nColumns; ++i)
+    {
+      const char* name = table->GetColumnName(i);
+      if (name)
+      {
+        this->AutoLabels->SetValue(i, name);
+      }
+    }
+  }
+  else if (dataset)
+  {
+    this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
+    int nComponents = array->GetNumberOfComponents();
+    this->AutoLabels->SetNumberOfValues(nComponents);
+    for (int i = 0; i < nComponents; ++i)
+    {
+      const char* name = array->GetComponentName(i);
+      if (name)
+      {
+        this->AutoLabels->SetValue(i, name);
+      }
+    }
+  }
+  // different type of data, no auto labels
+}
+
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
   vtkDebugMacro(<< "Paint event called.");
   const int segmentCount = 100;
+  vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
+  vtkTable* table = vtkTable::SafeDownCast(input);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+  vtkDataArray* array = nullptr;
+  int association;
+  if (dataset)
+  {
+    array = this->GetData()->GetInputArrayToProcess(0, input, association);
+  }
+  ComputeAutoLabels(input, array);
 
   vtkNew<vtkMultiVariateToRGBA> computeGBC;
-  computeGBC->SetInputDataObject(0, this->Data->GetInputDataObject(0, 0));
+  computeGBC->SetInputDataObject(0, input);
   computeGBC->SetStoreGBC(true);
   computeGBC->SetStoreVertices(true);
   computeGBC->SetStoreRGBA(false);
+  if (array)
+  {
+    // pass the array to process to computeGBC for a dataset
+    computeGBC->SetInputArrayToProcess(array->GetName(), association);
+  }
   computeGBC->Update();
-  vtkDataObject* dataObject = computeGBC->GetOutputDataObject(0);
-  vtkTable* table = vtkTable::SafeDownCast(dataObject);
-  vtkDataSet* dataset = vtkDataSet::SafeDownCast(dataObject);
+  vtkDataObject* output = computeGBC->GetOutputDataObject(0);
+  table = vtkTable::SafeDownCast(output);
+  dataset = vtkDataSet::SafeDownCast(output);
   vtkFloatArray* gbc = nullptr;
   if (table)
   {
@@ -119,7 +180,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     return false;
   }
   vtkFloatArray* vertices =
-    vtkFloatArray::FastDownCast(dataObject->GetFieldData()->GetArray("vertices"));
+    vtkFloatArray::FastDownCast(output->GetFieldData()->GetArray("vertices"));
   if (!vertices)
   {
     vtkErrorMacro("Cannot find vertices array");
@@ -140,23 +201,44 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       360.0 * (i + 1) / segmentCount);
   }
 
-  this->PaintPoints(painter, gbc, this->Pen);
-  this->PaintPoints(painter, vertices, this->VerticesPen);
+  this->DrawMarkers(painter, gbc, this->Pen);
+  this->DrawMarkers(painter, vertices, this->VerticesPen);
+  this->DrawLabels(painter, vertices);
   this->PaintChildren(painter);
   return true;
 }
 
-void vtkPlotRadViz::PaintPoints(vtkContext2D* painter, vtkFloatArray* gbc, vtkPen* pen)
+vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::Transform(vtkFloatArray* points)
+{
+  auto transformedPoints = vtkSmartPointer<vtkPoints2D>::New();
+  transformedPoints->SetNumberOfPoints(points->GetNumberOfTuples());
+  if (!vtkArrayDispatch::Dispatch::Execute(points, *this->Internals, transformedPoints))
+  {
+    (*this->Internals)(points, transformedPoints);
+  }
+  return transformedPoints;
+}
+
+void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkFloatArray* points)
+{
+  assert(this->GetNumberOfLabels() == points->GetNumberOfTuples());
+  auto transformedPoints = this->Transform(points);
+  painter->ApplyTextProp(this->LabelsProperties);
+  for (int i = 0; i < points->GetNumberOfTuples(); ++i)
+  {
+    double xy[2];
+    transformedPoints->GetPoint(i, xy);
+    std::string label = this->GetLabel(i);
+    painter->DrawString(xy[0], xy[1], label.c_str());
+  }
+}
+
+void vtkPlotRadViz::DrawMarkers(vtkContext2D* painter, vtkFloatArray* points, vtkPen* pen)
 {
   const int markerStyle = VTK_MARKER_CIRCLE;
-  vtkNew<vtkPoints2D> points;
-  points->SetNumberOfPoints(gbc->GetNumberOfTuples());
-  if (!vtkArrayDispatch::Dispatch::Execute(gbc, *this->Internals, points))
-  {
-    (*this->Internals)(gbc, points);
-  }
+  auto transformedPoints = this->Transform(points);
   painter->ApplyPen(pen);
-  painter->DrawMarkers(markerStyle, false /*highlight*/, points);
+  painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints);
 }
 
 //------------------------------------------------------------------------------

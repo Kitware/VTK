@@ -407,7 +407,7 @@ struct CreateSOAWorker
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
   this->VerticesRotation = 0;
-  // by default process active point scalars
+  // by default process active point/cell scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
