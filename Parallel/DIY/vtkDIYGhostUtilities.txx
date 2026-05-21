@@ -477,7 +477,7 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingB
 template <class DataSetT>
 void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
   diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
-  std::vector<DataSetT*>& outputs, int outputGhostLevels)
+  std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
@@ -513,7 +513,9 @@ void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy:
     // for the new ghost cells.
     else
     {
-      vtkDIYGhostUtilities::DeepCopyInputAndAllocateGhosts(block, cleanedInput, output);
+      // If we use implicitArray, we don't want to deep copy the arrays
+      vtkDIYGhostUtilities::DeepCopyInputAndAllocateGhosts(
+        block, cleanedInput, output, !useImplicitArrays);
     }
   }
 }
@@ -609,7 +611,8 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
  */
 template <class DataSetT>
 int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
-  std::vector<DataSetT*>& outputs, int outputGhostLevels, vtkMultiProcessController* controller)
+  std::vector<DataSetT*>& outputs, int outputGhostLevels, vtkMultiProcessController* controller,
+  bool useImplicitArrays)
 {
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
@@ -719,16 +722,25 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
 
   vtkLogStartScope(TRACE, "Allocating ghosts in outputs");
   vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(
-    master, assigner, partners, inputs, outputs, outputGhostLevels);
+    master, assigner, partners, inputs, outputs, outputGhostLevels, useImplicitArrays);
   vtkLogEndScope("Allocating ghosts in outputs");
 
   vtkLogStartScope(TRACE, "Initializing ghost arrays in outputs");
   vtkDIYGhostUtilities::InitializeGhostArrays(master, outputs, outputGhostLevels);
   vtkLogEndScope("Initializing ghost arrays in outputs");
 
-  vtkLogStartScope(TRACE, "Filling local ghosts with received data from other blocks");
-  vtkDIYGhostUtilities::FillGhostArrays(master, outputs, outputGhostLevels);
-  vtkLogEndScope("Filling local ghosts with received data from other blocks");
+  if (!useImplicitArrays)
+  {
+    vtkLogStartScope(TRACE, "Filling local ghosts with received data from other blocks");
+    vtkDIYGhostUtilities::FillGhostArrays(master, outputs, outputGhostLevels);
+    vtkLogEndScope("Filling local ghosts with received data from other blocks");
+  }
+  else
+  {
+    vtkLogStartScope(TRACE, "Filling local ghosts with implicit arrays");
+    vtkDIYGhostUtilities::FillImplicitGhostArrays(master, inputs, outputs, outputGhostLevels);
+    vtkLogEndScope("Filling local ghosts with implicit arrays");
+  }
 
   vtkLogStartScope(TRACE, "Adding ghost arrays to point and / or cell data");
   vtkDIYGhostUtilities::AddGhostArrays(master, outputs);

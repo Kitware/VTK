@@ -439,7 +439,7 @@ bool TestGhostCellsTagging(
 
 //----------------------------------------------------------------------------
 // Testing multiblock input with more than one depth
-bool TestDeepMultiBlock()
+bool TestDeepMultiBlock(bool useImplicitArray)
 {
   vtkNew<vtkMultiBlockDataSet> multiBlock;
   vtkNew<vtkMultiPieceDataSet> multiPiece;
@@ -453,6 +453,7 @@ bool TestDeepMultiBlock()
   vtkNew<vtkGhostCellsGenerator> generator;
   generator->SetNumberOfGhostLayers(1);
   generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->SetInputData(multiBlock);
 
   // We are just checking if the output structure is generated without crashing.
@@ -463,7 +464,7 @@ bool TestDeepMultiBlock()
 }
 
 //----------------------------------------------------------------------------
-bool TestMixedTypes(int myrank)
+bool TestMixedTypes(int myrank, bool useImplicitArray)
 {
   vtkLog(INFO, "Testing mixed types");
 
@@ -484,6 +485,7 @@ bool TestMixedTypes(int myrank)
   vtkNew<vtkGhostCellsGenerator> generator;
   generator->SetInputData(pds);
   generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   return true;
@@ -495,14 +497,14 @@ bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSe
   constexpr int TAG = 104256;
   vtkPointData* pd = ds->GetPointData();
 
-  vtkIdTypeArray* gidArray = vtkArrayDownCast<vtkIdTypeArray>(pd->GetGlobalIds());
+  vtkDataArray* gidArray = pd->GetGlobalIds();
   double gidRange[2];
   double maxGid;
   gidArray->GetRange(gidRange);
 
   controller->AllReduce(gidRange + 1, &maxGid, 1, vtkCommunicator::MAX_OP);
 
-  vtkIdTypeArray* pidArray = vtkArrayDownCast<vtkIdTypeArray>(pd->GetProcessIds());
+  vtkDataArray* pidArray = pd->GetProcessIds();
 
   vtkNew<vtkIdTypeArray> processId;
   processId->SetNumberOfValues(maxGid + 1);
@@ -510,7 +512,7 @@ bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSe
 
   for (vtkIdType id = 0; id < pidArray->GetNumberOfValues(); ++id)
   {
-    processId->SetValue(gidArray->GetValue(id), pidArray->GetValue(id));
+    processId->SetValue(gidArray->GetTuple1(id), pidArray->GetTuple1(id));
   }
 
   if (controller->GetLocalProcessId() == 0)
@@ -540,7 +542,7 @@ bool AllRanksShareSamePointData(vtkMultiProcessController* controller, vtkDataSe
 }
 
 //----------------------------------------------------------------------------
-bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
+bool TestZeroLevels(vtkMultiProcessController* controller, int myrank, bool useImplicitArray)
 {
   vtkLog(INFO, "Testing zero levels of ghosts");
 
@@ -559,6 +561,7 @@ bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
   generator->BuildIfRequiredOff();
   generator->SetController(controller);
   generator->SetNumberOfGhostLayers(0);
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   {
@@ -593,12 +596,14 @@ bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
   generator2Layers->SetInputConnection(generator->GetOutputPort());
   generator2Layers->BuildIfRequiredOff();
   generator2Layers->SetController(controller);
+  generator2Layers->SetUseImplicitArrays(useImplicitArray);
   generator2Layers->SetNumberOfGhostLayers(2);
 
   vtkNew<vtkGhostCellsGenerator> generatorShrink;
   generatorShrink->SetInputConnection(generator2Layers->GetOutputPort());
   generatorShrink->BuildIfRequiredOff();
   generatorShrink->SetController(controller);
+  generatorShrink->SetUseImplicitArrays(useImplicitArray);
   generatorShrink->SetNumberOfGhostLayers(0);
 
   generatorShrink->Update();
@@ -632,7 +637,8 @@ bool TestZeroLevels(vtkMultiProcessController* controller, int myrank)
 }
 
 //----------------------------------------------------------------------------
-bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myrank)
+bool TestInterfacePointsSharing(
+  vtkMultiProcessController* controller, int myrank, bool useImplicitArray)
 {
   vtkLog(INFO, "Testing interface points sharing");
 
@@ -650,6 +656,7 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
   generator->BuildIfRequiredOff();
   generator->SetController(controller);
   generator->SetNumberOfGhostLayers(1);
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   {
@@ -674,6 +681,7 @@ bool TestInterfacePointsSharing(vtkMultiProcessController* controller, int myran
   UGGenerator->GenerateProcessIdsOn();
   UGGenerator->BuildIfRequiredOff();
   UGGenerator->SetNumberOfGhostLayers(0);
+  UGGenerator->SetUseImplicitArrays(useImplicitArray);
   UGGenerator->Update();
 
   if (!AllRanksShareSamePointData(
@@ -742,7 +750,8 @@ bool TestGhostDataSynchronization(vtkMultiProcessController* controller, int myr
 }
 
 //----------------------------------------------------------------------------
-bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+bool Test1DGrids(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   bool retVal = true;
 
@@ -795,6 +804,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -824,6 +834,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -884,6 +895,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -940,6 +952,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -968,6 +981,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1009,6 +1023,7 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkNew<vtkStructuredGrid> sgRefImage;
@@ -1050,7 +1065,8 @@ bool Test1DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
 }
 
 //----------------------------------------------------------------------------
-bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+bool Test2DGrids(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   bool retVal = true;
 
@@ -1115,6 +1131,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1146,6 +1163,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1218,6 +1236,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1267,6 +1286,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1316,6 +1336,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1364,6 +1385,7 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkNew<vtkStructuredGrid> sgRefImage;
@@ -1405,7 +1427,8 @@ bool Test2DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
 }
 
 //----------------------------------------------------------------------------
-bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+bool Test3DGrids(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   bool retVal = true;
   int zmin, zmax;
@@ -1524,6 +1547,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     vtkNew<vtkGhostCellsGenerator> preGenerator;
     preGenerator->BuildIfRequiredOff();
     preGenerator->SetInputDataObject(image0);
+    preGenerator->SetUseImplicitArrays(useImplicitArray);
     preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
 
     vtkNew<vtkPointDataToCellData> point2cell0;
@@ -1555,6 +1579,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1591,6 +1616,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1724,6 +1750,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1803,6 +1830,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1850,6 +1878,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkPartitionedDataSet* outPDS =
@@ -1913,6 +1942,7 @@ bool Test3DGrids(vtkMultiProcessController* controller, int myrank, int numberOf
     generator->BuildIfRequiredOff();
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     vtkNew<vtkStructuredGrid> sgRefImage;
@@ -2389,7 +2419,7 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
 
 //----------------------------------------------------------------------------
 bool TestUnstructuredGrid(
-  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   bool retVal = true;
   int zmin, zmax;
@@ -2420,6 +2450,7 @@ bool TestUnstructuredGrid(
     generator->SetInputData(emptyUG);
     generator->BuildIfRequiredOff();
     generator->SetNumberOfGhostLayers(1);
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
   }
 
@@ -2489,6 +2520,7 @@ bool TestUnstructuredGrid(
   preGenerator->BuildIfRequiredOff();
   preGenerator->SetInputDataObject(prePds);
   preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preGenerator->SetUseImplicitArrays(useImplicitArray);
   preGenerator->Update();
 
   vtkPartitionedDataSet* outPrePds =
@@ -2540,6 +2572,7 @@ bool TestUnstructuredGrid(
   generator->BuildIfRequiredOff();
   generator->SetInputDataObject(pds);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   vtkPartitionedDataSet* outPDS =
@@ -2551,6 +2584,7 @@ bool TestUnstructuredGrid(
   preCellGenerator->SetInputConnection(point2cell0->GetOutputPort());
   preCellGenerator->BuildIfRequiredOff();
   preCellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preGenerator->SetUseImplicitArrays(useImplicitArray);
   preCellGenerator->Update();
 
   vtkNew<vtkPartitionedDataSet> pdsPointToCell;
@@ -2566,6 +2600,7 @@ bool TestUnstructuredGrid(
   cellGenerator->BuildIfRequiredOff();
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  cellGenerator->SetUseImplicitArrays(useImplicitArray);
   cellGenerator->Update();
 
   vtkPartitionedDataSet* outCellPDS =
@@ -2763,7 +2798,8 @@ bool TestUnstructuredGrid(
 }
 
 //----------------------------------------------------------------------------
-bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+bool TestPolyData(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   bool retVal = true;
   int ymin, ymax;
@@ -2818,6 +2854,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
       generator->BuildIfRequiredOff();
       generator->SetInputDataObject(pds);
       generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+      generator->SetUseImplicitArrays(useImplicitArray);
       generator->Update();
 
       vtkPartitionedDataSet* outPDS =
@@ -2887,6 +2924,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
       generator->BuildIfRequiredOff();
       generator->SetInputDataObject(pds);
       generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+      generator->SetUseImplicitArrays(useImplicitArray);
       generator->Update();
 
       vtkPartitionedDataSet* outPDS =
@@ -2953,6 +2991,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   preGenerator->BuildIfRequiredOff();
   preGenerator->SetInputDataObject(prePds);
   preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preGenerator->SetUseImplicitArrays(useImplicitArray);
   preGenerator->Update();
 
   vtkPartitionedDataSet* outPrePds =
@@ -2994,6 +3033,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   generator->BuildIfRequiredOff();
   generator->SetInputDataObject(pds);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   vtkPartitionedDataSet* outPDS =
@@ -3005,6 +3045,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   preCellGenerator->BuildIfRequiredOff();
   preCellGenerator->SetInputConnection(point2cell0->GetOutputPort());
   preCellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preCellGenerator->SetUseImplicitArrays(useImplicitArray);
   preCellGenerator->Update();
 
   vtkNew<vtkPartitionedDataSet> pdsPointToCell;
@@ -3018,6 +3059,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
   cellGenerator->BuildIfRequiredOff();
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  cellGenerator->SetUseImplicitArrays(useImplicitArray);
   cellGenerator->Update();
 
   vtkPartitionedDataSet* outCellPDS =
@@ -3138,7 +3180,7 @@ bool TestPolyData(vtkMultiProcessController* controller, int myrank, int numberO
 }
 
 //----------------------------------------------------------------------------
-bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
+bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers, bool useImplicitArray)
 {
   // This test follows the same first steps as in Test3DGrids, but instead of computing ghosts on a
   // partitioned data set, we compute them on a partitioned data set collection, which means that
@@ -3210,6 +3252,7 @@ bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
   generator->BuildIfRequiredOff();
   generator->SetInputDataObject(pdsc);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  generator->SetUseImplicitArrays(useImplicitArray);
   generator->Update();
 
   vtkPartitionedDataSetCollection* outPDSC =
@@ -3231,7 +3274,7 @@ bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
 }
 
 //----------------------------------------------------------------------------
-bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
+bool TestPointPrecision(vtkMultiProcessController* controller, int myrank, bool useImplicitArray)
 {
   bool retVal = true;
 
@@ -3273,6 +3316,7 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
     generator->SetNumberOfGhostLayers(1);
     generator->SetController(controller);
     generator->BuildIfRequiredOff();
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
@@ -3320,6 +3364,7 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
     generator->SetNumberOfGhostLayers(1);
     generator->SetController(controller);
     generator->BuildIfRequiredOff();
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
@@ -3337,7 +3382,8 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
   return retVal;
 }
 
-int TestNonlinearCells(vtkMultiProcessController* controller)
+//----------------------------------------------------------------------------
+int TestNonlinearCells(vtkMultiProcessController* controller, bool useImplicitArray)
 {
   const std::set<int> SupportedCellTypes = {
     VTK_TRIQUADRATIC_HEXAHEDRON,
@@ -3362,6 +3408,7 @@ int TestNonlinearCells(vtkMultiProcessController* controller)
     generator->SetNumberOfGhostLayers(1);
     generator->SetController(controller);
     generator->BuildIfRequiredOff();
+    generator->SetUseImplicitArrays(useImplicitArray);
     generator->Update();
 
     auto output = vtkUnstructuredGrid::SafeDownCast(generator->GetOutputDataObject(0));
@@ -3375,7 +3422,8 @@ int TestNonlinearCells(vtkMultiProcessController* controller)
   return retVal;
 }
 
-bool TestStaticMeshCache()
+//----------------------------------------------------------------------------
+bool TestStaticMeshCache(bool useImplicitArray)
 {
   vtkLog(INFO, "Testing static mesh cache");
 
@@ -3410,6 +3458,7 @@ bool TestStaticMeshCache()
   ghostCellGenerator->SetInputConnection(addScalars->GetOutputPort());
   ghostCellGenerator->SetUseStaticMeshCache(true);
   ghostCellGenerator->SetBuildIfRequired(true);
+  ghostCellGenerator->SetUseImplicitArrays(useImplicitArray);
   ghostCellGenerator->Update();
 
   auto outputPDC =
@@ -3432,7 +3481,8 @@ bool TestStaticMeshCache()
   return true;
 }
 
-bool TestArraySerialization(vtkMultiProcessController* contr, int myrank)
+//----------------------------------------------------------------------------
+bool TestArraySerialization(vtkMultiProcessController* contr, int myrank, bool useImplicitArray)
 {
   /*
   Check that:
@@ -3484,6 +3534,7 @@ bool TestArraySerialization(vtkMultiProcessController* contr, int myrank)
   vtkNew<vtkGhostCellsGenerator> gcg;
   gcg->SetNumberOfGhostLayers(1);
   gcg->SetInputData(source);
+  gcg->SetUseImplicitArrays(useImplicitArray);
   gcg->UpdatePiece(contr->GetLocalProcessId(), contr->GetNumberOfProcesses(), 1);
   auto output = vtkUnstructuredGrid::SafeDownCast(gcg->GetOutputDataObject(0));
 
@@ -3511,27 +3562,28 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
 
-  if (!TestPointPrecision(contr, myrank))
+  if (!TestPointPrecision(contr, myrank, false) && TestPointPrecision(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestDeepMultiBlock())
+  if (!TestDeepMultiBlock(false) && !TestDeepMultiBlock(true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestMixedTypes(myrank))
+  if (!TestMixedTypes(myrank, false) && !TestMixedTypes(myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestZeroLevels(contr, myrank))
+  if (!TestZeroLevels(contr, myrank, false) && !TestZeroLevels(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestInterfacePointsSharing(contr, myrank))
+  if (!TestInterfacePointsSharing(contr, myrank, false) &&
+    !TestInterfacePointsSharing(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
@@ -3541,17 +3593,18 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestNonlinearCells(contr))
+  if (!TestNonlinearCells(contr, false) && !TestNonlinearCells(contr, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestStaticMeshCache())
+  if (!TestStaticMeshCache(false) && !TestStaticMeshCache(true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!::TestArraySerialization(contr, myrank))
+  if (!::TestArraySerialization(contr, myrank, false) &&
+    !::TestArraySerialization(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
@@ -3562,32 +3615,38 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     {
       vtkLog(INFO, "\n\n### Testing " << numberOfGhostLayers << " number of ghost layers");
     }
-    if (!Test1DGrids(contr, myrank, numberOfGhostLayers))
+    if (!Test1DGrids(contr, myrank, numberOfGhostLayers, false) &&
+      !Test1DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!Test2DGrids(contr, myrank, numberOfGhostLayers))
+    if (!Test2DGrids(contr, myrank, numberOfGhostLayers, false) &&
+      !Test2DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!Test3DGrids(contr, myrank, numberOfGhostLayers))
+    if (!Test3DGrids(contr, myrank, numberOfGhostLayers, false) &&
+      !Test3DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestPolyData(contr, myrank, numberOfGhostLayers))
+    if (!TestPolyData(contr, myrank, numberOfGhostLayers, false) &&
+      !TestPolyData(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
+    if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers, false) &&
+      !TestUnstructuredGrid(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers))
+    if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers, false) &&
+      !TestPartitionedDataSetCollection(myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }

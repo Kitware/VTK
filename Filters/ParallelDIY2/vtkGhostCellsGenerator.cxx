@@ -263,16 +263,16 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
                         << "Ghosts are not exchanged between data sets of different types.");
       }
 
-      retVal &= vtkDIYGhostUtilities::GenerateGhostCellsImageData(
-                  inputsID, outputsID, numberOfGhostLayersToCompute, this->Controller) &&
-        vtkDIYGhostUtilities::GenerateGhostCellsRectilinearGrid(
-          inputsRG, outputsRG, numberOfGhostLayersToCompute, this->Controller) &&
-        vtkDIYGhostUtilities::GenerateGhostCellsStructuredGrid(
-          inputsSG, outputsSG, numberOfGhostLayersToCompute, this->Controller) &&
-        vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(
-          inputsUG, outputsUG, numberOfGhostLayersToCompute, this->Controller) &&
-        vtkDIYGhostUtilities::GenerateGhostCellsPolyData(
-          inputsPD, outputsPD, numberOfGhostLayersToCompute, this->Controller);
+      retVal &= vtkDIYGhostUtilities::GenerateGhostCellsImageData(inputsID, outputsID,
+                  numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+        vtkDIYGhostUtilities::GenerateGhostCellsRectilinearGrid(inputsRG, outputsRG,
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+        vtkDIYGhostUtilities::GenerateGhostCellsStructuredGrid(inputsSG, outputsSG,
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+        vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(inputsUG, outputsUG,
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+        vtkDIYGhostUtilities::GenerateGhostCellsPolyData(inputsPD, outputsPD,
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays);
     }
   }
 

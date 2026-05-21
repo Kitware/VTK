@@ -804,10 +804,13 @@ public:
    * being used as a backend for this filter.
    *
    * `outputs` need to be already allocated and be of same size as `inputs`.
+   * `useImplicitArrays` uses an implicit index array of a composite array to copy the arrays of the
+   * input instead of doing a deep copy. It saves memory and is faster to compute, but the access
+   * time to array values is slower.
    */
   template <class DataSetT>
   static int GenerateGhostCells(std::vector<DataSetT*>& inputsDS, std::vector<DataSetT*>& outputsDS,
-    int outputGhostLevels, vtkMultiProcessController* controller);
+    int outputGhostLevels, vtkMultiProcessController* controller, bool useImplicitArrays);
 
   ///@{
   /**
@@ -817,19 +820,19 @@ public:
    */
   static int GenerateGhostCellsImageData(std::vector<vtkImageData*>& inputs,
     std::vector<vtkImageData*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false);
   static int GenerateGhostCellsRectilinearGrid(std::vector<vtkRectilinearGrid*>& inputs,
     std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false);
   static int GenerateGhostCellsStructuredGrid(std::vector<vtkStructuredGrid*>& inputs,
     std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false);
   static int GenerateGhostCellsPolyData(std::vector<vtkPolyData*>& inputs,
     std::vector<vtkPolyData*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false);
   static int GenerateGhostCellsUnstructuredGrid(std::vector<vtkUnstructuredGrid*>& inputs,
     std::vector<vtkUnstructuredGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false);
   ///@}
 
 protected:
@@ -1025,24 +1028,26 @@ protected:
   template <class DataSetT>
   static void CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
     diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
-    std::vector<DataSetT*>& outputs, int outputGhostLevels);
+    std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays);
 
   ///@{
   /**
    * Method to be overloaded for each supported input data set type,
    * This method allocates ghosts in the output. At the point of calling this method,
    * ghosts should have already been exchanged (see `ExchangeGhosts`).
+   * By using cloneArrays, we also make a deep copy of the arrays from the input in the
+   * output.
    */
   static void DeepCopyInputAndAllocateGhosts(
-    ImageDataBlock* block, vtkImageData* input, vtkImageData* outputs);
+    ImageDataBlock* block, vtkImageData* input, vtkImageData* outputs, bool cloneArrays);
+  static void DeepCopyInputAndAllocateGhosts(RectilinearGridBlock* block, vtkRectilinearGrid* input,
+    vtkRectilinearGrid* outputs, bool cloneArrays);
+  static void DeepCopyInputAndAllocateGhosts(StructuredGridBlock* block, vtkStructuredGrid* input,
+    vtkStructuredGrid* outputs, bool cloneArrays);
+  static void DeepCopyInputAndAllocateGhosts(UnstructuredGridBlock* block,
+    vtkUnstructuredGrid* input, vtkUnstructuredGrid* outputs, bool cloneArrays);
   static void DeepCopyInputAndAllocateGhosts(
-    RectilinearGridBlock* block, vtkRectilinearGrid* input, vtkRectilinearGrid* outputs);
-  static void DeepCopyInputAndAllocateGhosts(
-    StructuredGridBlock* block, vtkStructuredGrid* input, vtkStructuredGrid* outputs);
-  static void DeepCopyInputAndAllocateGhosts(
-    UnstructuredGridBlock* block, vtkUnstructuredGrid* input, vtkUnstructuredGrid* outputs);
-  static void DeepCopyInputAndAllocateGhosts(
-    PolyDataBlock* block, vtkPolyData* input, vtkPolyData* outputs);
+    PolyDataBlock* block, vtkPolyData* input, vtkPolyData* outputs, bool cloneArrays);
   ///@}
 
   /**
@@ -1080,6 +1085,26 @@ protected:
     const diy::Master& master, std::vector<vtkUnstructuredGrid*>& outputs, int outputGhostLevels);
   static void FillGhostArrays(
     const diy::Master& master, std::vector<vtkPolyData*>& outputs, int outputGhostLevels);
+  ///@}
+
+  ///@{
+  /**
+   * This method create the implicit arrays in the output using the inputs array and the ghost
+   * data. Ghosts have to be already allocated.
+   */
+  static void FillImplicitGhostArrays(const diy::Master& master, std::vector<vtkImageData*>& inputs,
+    std::vector<vtkImageData*>& outputs, int outputGhostLevels);
+  static void FillImplicitGhostArrays(const diy::Master& master,
+    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs,
+    int outputGhostLevels);
+  static void FillImplicitGhostArrays(const diy::Master& master,
+    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs,
+    int outputGhostLevels);
+  static void FillImplicitGhostArrays(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs,
+    int outputGhostLevels);
+  static void FillImplicitGhostArrays(const diy::Master& master, std::vector<vtkPolyData*>& inputs,
+    std::vector<vtkPolyData*>& outputs, int outputGhostLevels);
   ///@}
 
 private:
