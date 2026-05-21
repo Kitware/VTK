@@ -189,7 +189,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterHierarchy,TestGLTFImporterHierarchy.cxx DATA{../Data/glTF/ABeautifulGame/ABeautifulGame.glb} -1
+  TestGLTFImporterHierarchy,TestGLTFImporterHierarchy.cxx DATA{../Data/glTF/ABeautifulGame/ABeautifulGame.glb} DATA{../Data/SceneHierarchies/ABeautifulGame.xml}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterHierarchySameName,TestGLTFImporterHierarchy.cxx DATA{../Data/glTF/TwoQuadsSameName.glb} DATA{../Data/SceneHierarchies/TwoQuadsSameName.xml}
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
