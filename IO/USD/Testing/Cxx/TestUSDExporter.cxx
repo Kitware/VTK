@@ -503,6 +503,23 @@ int TestUSDExporter(int argc, char* argv[])
     checksPassed = false;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+  // Test 7: check that saving a scene with a composite dataset with field data
+  // arrays does not crash.
+
+  // Set both blocks visible and color by field data array. The export of the
+  // field data coloring won't work (the output meshes will be solid colored)
+  // because the exporter doesn't support it yet, but at least it should not crash.
+  compositeMapper->SetBlockVisibility(2, true);
+  compositeMapper->ScalarVisibilityOn();
+  compositeMapper->SetColorModeToMapScalars();
+  compositeMapper->SetScalarModeToUseFieldData();
+  compositeMapper->SelectColorArray("BlockID");
+
+  filename = rootname + "_composite3.usda";
+  exporter->SetFileName(filename.c_str());
+  exporter->Write();
+
   if (enableCleanupAfterTest)
   {
     vtksys::SystemTools::RemoveFile(filename);
