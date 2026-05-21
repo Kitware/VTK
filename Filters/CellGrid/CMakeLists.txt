@@ -25,6 +25,7 @@ set(classes
   vtkDGElevationResponder
   vtkDGEvaluator
   vtkDGRangeResponder
+  vtkDGSummaryInformationResponder
   vtkDGSidesResponder
   vtkDGTranscribeCellGridCells
   vtkDGTranscribeUnstructuredCells
