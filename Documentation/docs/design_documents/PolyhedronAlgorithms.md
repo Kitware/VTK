@@ -622,10 +622,10 @@ face vertices to local indices, and writing the VTK face stream. This
 reconstruction pass is a straightforward map over cells and is independent
 of the isosurface extraction.
 
-For the in-situ and GPU use cases targeted by the Cromwell engagement
-(Ansys Fluent), cell reconstruction may not be needed at all: the
-isosurface output is a surface mesh of polygons, which is already in the
-correct form for GPU rendering without any cell-level structure.
+For some in-situ and GPU use cases, cell reconstruction may not be needed
+at all: the isosurface output is a surface mesh of polygons, which is
+already in the correct form for GPU rendering without any cell-level
+structure.
 
 ### GPU Execution Paths
 
@@ -646,11 +646,11 @@ Phase 2. This path requires no new VTK data structures but is not
 portable to AMD or Intel GPUs.
 
 **Compute shaders** (GLSL/WGSL via VTK's WebGPU or OpenGL backends) are
-the most forward-looking option for browser-delivered rendering such as
-the Cromwell web client, where output is streamed to a JavaScript
-frontend. Phase 1 is a compute pass with atomic append or two-pass
-count/emit; Phase 2 can be skipped by rendering polygon edges directly
-from the Phase 1 output and fan-triangulating from a centroid.
+the most forward-looking option for browser-delivered rendering where
+output is streamed to a JavaScript frontend. Phase 1 is a compute pass
+with atomic append or two-pass count/emit; Phase 2 can be skipped by
+rendering polygon edges directly from the Phase 1 output and
+fan-triangulating from a centroid.
 
 For CFD meshes dominated by polyhedra with smooth scalar fields, ambiguous
 faces (four crossing edges on a single face) are rare. The IPVINT
