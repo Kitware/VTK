@@ -13,10 +13,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
-#include "vtkTetra.h"
 #include "vtkTriangle.h"
 
 //----------------------------------------------------------------------------
@@ -24,20 +24,11 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellQuality);
 
 //----------------------------------------------------------------------------
-vtkCellQuality::~vtkCellQuality()
-{
-  this->PointIds->Delete();
-  this->Points->Delete();
-}
-
-//----------------------------------------------------------------------------
 vtkCellQuality::vtkCellQuality()
 {
   this->QualityMeasure = QualityMeasureTypes::NONE;
   this->UnsupportedGeometry = -1;
   this->UndefinedQuality = -1;
-  this->PointIds = vtkIdList::New();
-  this->Points = vtkPoints::New();
 }
 
 //----------------------------------------------------------------------------
@@ -445,29 +436,40 @@ double vtkCellQuality::ComputePixelQuality(vtkCell* cell)
 // Triangle strip quality metrics
 double vtkCellQuality::TriangleStripArea(vtkCell* cell)
 {
-  return this->PolygonArea(cell);
+  const int numPts = cell->GetNumberOfPoints();
+  if (numPts < 3)
+  {
+    return 0.0;
+  }
+  vtkPoints* points = cell->GetPoints();
+  double pts[3][3];
+  points->GetPoint(0, pts[0]);
+  points->GetPoint(1, pts[1]);
+  double area = 0.0;
+  for (int i = 0; i < numPts - 2; ++i)
+  {
+    points->GetPoint(i + 2, pts[(i + 2) % 3]);
+    area += vtkTriangle::TriangleArea(pts[i % 3], pts[(i + 1) % 3], pts[(i + 2) % 3]);
+  }
+  return area;
 }
 
 //----------------------------------------------------------------------------
 // Pixel quality metrics
 double vtkCellQuality::PixelArea(vtkCell* cell)
 {
-  return this->PolygonArea(cell);
+  // Pixel points are in row-major order: (xmin,ymin), (xmax,ymin), (xmin,ymax), (xmax,ymax).
+  // Reorder to a proper polygon winding to avoid a self-intersecting "Z" path.
+  vtkIdType pts[4] = { 0, 1, 3, 2 };
+  double normal[3];
+  return vtkPolygon::ComputeArea(cell->GetPoints(), 4, pts, normal);
 }
 
 //----------------------------------------------------------------------------
 // Polygon quality metrics
 double vtkCellQuality::PolygonArea(vtkCell* cell)
 {
-  cell->Triangulate(0, this->PointIds, this->Points);
-  double abc[3][3], quality = 0;
-  for (vtkIdType i = 0, n = this->Points->GetNumberOfPoints(); i < n; i += 3)
-  {
-    this->Points->GetPoint(i + 0, abc[0]);
-    this->Points->GetPoint(i + 1, abc[1]);
-    this->Points->GetPoint(i + 2, abc[2]);
-    quality += vtkTriangle::TriangleArea(abc[0], abc[1], abc[2]);
-  }
-  return quality;
+  double normal[3];
+  return vtkPolygon::ComputeArea(cell->GetPoints(), cell->GetNumberOfPoints(), nullptr, normal);
 }
 VTK_ABI_NAMESPACE_END
