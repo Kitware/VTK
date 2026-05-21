@@ -371,6 +371,14 @@ public:
 
   ///@{
   /**
+   * Get/set whether the labels are drawn vertically, default is false.
+   */
+  virtual void SetVerticalLabels(bool verticalLabels);
+  vtkGetMacro(VerticalLabels, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get/set the offset (in pixels) of the label text position from the axis
    */
   vtkSetMacro(LabelOffset, float);
@@ -709,6 +717,7 @@ protected:
   bool GridVisible;                 // Whether the grid for the axis should be drawn
   bool LabelsVisible;               // Should the axis labels be visible
   bool RangeLabelsVisible;          // Should range labels be visible?
+  bool VerticalLabels;              // Draw labels vertically
   float LabelOffset;                // Offset of label from the tick mark
   bool OverlappingLabels;           // Allow labels to overlap
   bool TicksVisible;                // Should the tick marks be visible.
@@ -797,6 +806,11 @@ private:
    * Return true if the value is in range, false otherwise.
    */
   bool InRange(double value);
+
+  /**
+   * Updates label/title orientation
+   */
+  void UpdateOrientation();
 };
 
 VTK_ABI_NAMESPACE_END

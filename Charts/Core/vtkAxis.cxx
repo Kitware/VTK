@@ -76,6 +76,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->RangeLabelsVisible = false;
+  this->VerticalLabels = false;
   this->LabelOffset = 7;
   this->OverlappingLabels = true;
   this->TicksVisible = true;
@@ -119,40 +120,96 @@ void vtkAxis::SetPosition(int position)
   if (this->Position != position)
   {
     this->Position = position;
-    // Draw the axis label
-    switch (this->Position)
-    {
-      case vtkAxis::LEFT:
-        this->TitleProperties->SetOrientation(90.0);
-        this->TitleProperties->SetVerticalJustificationToBottom();
-        this->LabelProperties->SetJustificationToRight();
-        this->LabelProperties->SetVerticalJustificationToCentered();
-        break;
-      case vtkAxis::RIGHT:
-        this->TitleProperties->SetOrientation(90.0);
-        this->TitleProperties->SetVerticalJustificationToTop();
-        this->LabelProperties->SetJustificationToLeft();
-        this->LabelProperties->SetVerticalJustificationToCentered();
-        break;
-      case vtkAxis::BOTTOM:
-        this->TitleProperties->SetOrientation(0.0);
-        this->TitleProperties->SetVerticalJustificationToTop();
-        this->LabelProperties->SetJustificationToCentered();
-        this->LabelProperties->SetVerticalJustificationToTop();
-        break;
-      case vtkAxis::TOP:
-        this->TitleProperties->SetOrientation(0.0);
-        this->TitleProperties->SetVerticalJustificationToBottom();
+    this->UpdateOrientation();
+    this->Modified();
+  }
+}
+
+void vtkAxis::SetVerticalLabels(bool verticalLabels)
+{
+  if (this->VerticalLabels != verticalLabels)
+  {
+    this->VerticalLabels = verticalLabels;
+    this->UpdateOrientation();
+    this->Modified();
+  }
+}
+
+void vtkAxis::UpdateOrientation()
+{
+  switch (this->Position)
+  {
+    case vtkAxis::LEFT:
+      this->TitleProperties->SetOrientation(90.0);
+      this->TitleProperties->SetVerticalJustificationToBottom();
+      if (this->VerticalLabels)
+      {
         this->LabelProperties->SetJustificationToCentered();
         this->LabelProperties->SetVerticalJustificationToBottom();
-        break;
-      case vtkAxis::PARALLEL:
-        this->TitleProperties->SetOrientation(0.0);
-        this->TitleProperties->SetVerticalJustificationToTop();
+      }
+      else
+      {
         this->LabelProperties->SetJustificationToRight();
         this->LabelProperties->SetVerticalJustificationToCentered();
-        break;
-    }
+      }
+      break;
+    case vtkAxis::RIGHT:
+      this->TitleProperties->SetOrientation(90.0);
+      this->TitleProperties->SetVerticalJustificationToTop();
+      if (this->VerticalLabels)
+      {
+        this->LabelProperties->SetJustificationToCentered();
+        this->LabelProperties->SetVerticalJustificationToTop();
+      }
+      else
+      {
+        this->LabelProperties->SetJustificationToLeft();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+      }
+      break;
+    case vtkAxis::BOTTOM:
+      this->TitleProperties->SetOrientation(0.0);
+      this->TitleProperties->SetVerticalJustificationToTop();
+      if (this->VerticalLabels)
+      {
+        this->LabelProperties->SetJustificationToRight();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+      }
+      else
+      {
+        this->LabelProperties->SetJustificationToCentered();
+        this->LabelProperties->SetVerticalJustificationToTop();
+      }
+      break;
+    case vtkAxis::TOP:
+      this->TitleProperties->SetOrientation(0.0);
+      this->TitleProperties->SetVerticalJustificationToBottom();
+      if (this->VerticalLabels)
+      {
+        this->LabelProperties->SetJustificationToLeft();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+      }
+      else
+      {
+        this->LabelProperties->SetJustificationToCentered();
+        this->LabelProperties->SetVerticalJustificationToBottom();
+      }
+      break;
+    case vtkAxis::PARALLEL:
+      this->TitleProperties->SetOrientation(0.0);
+      this->TitleProperties->SetVerticalJustificationToTop();
+      this->LabelProperties->SetJustificationToRight();
+      this->LabelProperties->SetVerticalJustificationToCentered();
+      break;
+  }
+
+  if (this->VerticalLabels)
+  {
+    this->LabelProperties->SetOrientation(90);
+  }
+  else
+  {
+    this->LabelProperties->SetOrientation(0);
   }
 }
 
@@ -1270,8 +1327,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       this->LabelProperties->SetFontSize(tickPositionExtended->GetFontSize());
       if (tickPositionExtended->GetOrientation() == 1)
       {
-        // Set this to 90 to make the labels vertical
-        this->LabelProperties->SetOrientation(90);
+        this->SetVerticalLabels(true);
       }
     }
 
