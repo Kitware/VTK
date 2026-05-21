@@ -1,3 +1,6 @@
+# URL to the shared vtk_versions.json on the documentation server.
+set(VTK_DOC_VERSIONS_URL "https://vtk.org/doc/nightly/vtk_versions.json" CACHE STRING "")
+
 # Install to the DESTDIR directly.
 set(CMAKE_INSTALL_PREFIX "/" CACHE PATH "")
 

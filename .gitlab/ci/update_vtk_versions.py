@@ -69,7 +69,7 @@ def create_from_series(json_path, base_url, series_list):
         {
             "name": "nightly",
             "version": "nightly",
-            "baseUrl": f"{base_url}/nightly/html",
+            "baseUrl": f"{base_url}/html",
         }
     ]
 

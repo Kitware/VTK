@@ -41,7 +41,7 @@ shift
 
 # Defaults
 SSH_HOST="vtk.doc"
-BASE_URL="https://vtk.org/doc"
+BASE_URL="https://vtk.org/doc/nightly"
 SERVER_ROOT="VTKDoxygen"
 
 # Parse optional arguments
@@ -73,7 +73,8 @@ trap 'rm -f "${LOCAL_JSON}"' EXIT
 
 # ---- 1. Fetch the current versions file (if it exists) ------------------
 echo "Fetching existing vtk_versions.json from server..."
-if ! scp "${SSH_HOST}:${REMOTE_JSON}" "${LOCAL_JSON}" 2>/dev/null; then
+LOCAL_TMP="$(mktemp)"
+if ! rsync -e ssh "${SSH_HOST}:${REMOTE_JSON}" "${LOCAL_TMP}" 2>/dev/null; then
     echo "No existing vtk_versions.json found; creating a new one."
     cat > "${LOCAL_JSON}" <<SEED
 {
@@ -81,12 +82,15 @@ if ! scp "${SSH_HOST}:${REMOTE_JSON}" "${LOCAL_JSON}" 2>/dev/null; then
     {
       "name": "nightly",
       "version": "nightly",
-      "baseUrl": "${BASE_URL}/nightly/html"
+      "baseUrl": "${BASE_URL}/html"
     }
   ]
 }
 SEED
+else
+    cp "${LOCAL_TMP}" "${LOCAL_JSON}"
 fi
+rm -f "${LOCAL_TMP}"
 
 # ---- 2. Insert the new version if absent --------------------------------
 echo "Ensuring version ${VERSION} is listed..."
@@ -94,5 +98,5 @@ python3 "$(dirname "$0")/update_vtk_versions.py" add-version "${LOCAL_JSON}" "${
 
 # ---- 3. Upload the updated file back to the server ----------------------
 echo "Uploading updated vtk_versions.json..."
-scp "${LOCAL_JSON}" "${SSH_HOST}:${REMOTE_JSON}"
+rsync -e ssh "${LOCAL_JSON}" "${SSH_HOST}:${REMOTE_JSON}"
 echo "Done."
