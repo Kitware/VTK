@@ -897,6 +897,7 @@ vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
   this->ComponentIds[0] = 0;
   this->ComponentIds[1] = 1;
 
+  this->OrientedLIC = 0;
   this->EnhancedLIC = 1;
 
   this->EnhanceContrast = 0;
@@ -1423,12 +1424,15 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   this->LICIShader->Program->SetUniform2f("uNoiseBoundsPt1", noiseBoundsPt1);
   this->LICIShader->Program->SetUniformi("texVectors", bufs.GetImageVectorTextureUnit());
   this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(0));
+  this->LICIShader->Program->SetUniformi("uUseOLIC", this->OrientedLIC);
+  this->LICIShader->Program->SetUniformi("uNumSteps", this->NumberOfSteps);
 
   for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx)
   {
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
+    this->LICIShader->Program->SetUniformi("uStepIndex", stepIdx + 1);
     for (size_t q = 0; q < nComputeExtents1; ++q)
     {
       bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
@@ -1469,6 +1473,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
+    this->LICIShader->Program->SetUniformi("uStepIndex", stepIdx + 1);
     for (size_t q = 0; q < nComputeExtents1; ++q)
     {
       bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
@@ -1644,19 +1649,21 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
 #endif
 
     //
-    // backward LIC
+    // backward LIC (pass 2)
     //
+    int nSteps = this->NumberOfSteps / 2;
     renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
     this->LICIShader->Program->SetUniformi("uPassNo", 1);
     this->LICIShader->Program->SetUniformf("uStepSize", -this->StepSize);
     this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(1));
+    this->LICIShader->Program->SetUniformi("uNumSteps", nSteps);
 
-    int nSteps = this->NumberOfSteps / 2;
     for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx)
     {
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
+      this->LICIShader->Program->SetUniformi("uStepIndex", stepIdx + 1);
       for (size_t q = 0; q < nComputeExtents1; ++q)
       {
         bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
@@ -1700,6 +1707,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->LICIShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
+      this->LICIShader->Program->SetUniformi("uStepIndex", stepIdx + 1);
       for (size_t q = 0; q < nComputeExtents1; ++q)
       {
         bufs.RenderQuad(&computeBounds1[4 * q], computeExtents1[q], this->LICIShader);
@@ -1898,6 +1906,7 @@ void vtkLineIntegralConvolution2D::PrintSelf(ostream& os, vtkIndent indent)
     << indent << "AAVShader=" << this->AAVShader << endl
     << indent << "NumberOfSteps=" << this->NumberOfSteps << endl
     << indent << "StepSize=" << this->StepSize << endl
+    << indent << "OrientedLIC=" << this->OrientedLIC << endl
     << indent << "EnhancedLIC=" << this->EnhancedLIC << endl
     << indent << "EnhanceContrast=" << this->EnhanceContrast << endl
     << indent << "LowContrastEnhancementFactor=" << this->LowContrastEnhancementFactor << endl

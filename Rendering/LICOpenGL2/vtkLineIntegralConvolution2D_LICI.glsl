@@ -14,6 +14,10 @@ uniform float uStepSize;        // step size in parametric space
 
 uniform vec2  uNoiseBoundsPt1;  // tc of upper right pt of noise texture
 
+uniform int   uUseOLIC;         // 0 = standard box-kernel LIC, 1 = oriented LIC
+uniform int   uStepIndex;       // 1..N, index of current step within this directional pass
+uniform int   uNumSteps;        // N, total steps per direction
+
 in vec2 tcoordVC;
 
 //VTK::LICVectorLookup::Impl
@@ -100,7 +104,17 @@ void main(void)
     // accumulate lic step
     // (lic, mask, 0, step count)
     float noise = getNoise(pt1);
-    gl_FragData[0] = vec4(lic.r + noise, lic.g, 0.0, lic.a + 1.0);
+    if (uUseOLIC == 1)
+      {
+      float direction = -sign(uStepSize);
+      float t = uNumSteps > 0 ? float(uStepIndex) / float(uNumSteps) : 0.0;
+      float weight = pow(5, direction * t) - 0.2;
+      gl_FragData[0] = vec4(lic.r + noise * weight, lic.g, 0.0, lic.a + weight);
+      }
+    else
+      {
+      gl_FragData[0] = vec4(lic.r + noise, lic.g, 0.0, lic.a + 1.0);
+      }
     gl_FragData[1] = vec4(pt1, 0.0, 1.0);
     }
   else

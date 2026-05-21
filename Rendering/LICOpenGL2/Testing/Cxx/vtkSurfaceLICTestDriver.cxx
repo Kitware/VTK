@@ -68,7 +68,8 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   double high_color_contrast_enhancement_factor, int anti_alias, int color_mode,
   double lic_intensity, double map_mode_bias, int color_by_mag, int mask_on_surface,
   double mask_threshold, double mask_intensity, int interpolate_scalars_before_mapping,
-  int num_discrete_colors, std::vector<double>& mask_color_rgb, std::string& vectors)
+  int num_discrete_colors, int oriented_lic, std::vector<double>& mask_color_rgb,
+  std::string& vectors)
 {
   // Set up the render window, renderer, interactor.
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -241,6 +242,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   li->SetMaskThreshold(mask_threshold);
   li->SetMaskIntensity(mask_intensity);
   li->SetMaskColor(mask_color_rgb.data());
+  li->SetOrientedLIC(oriented_lic);
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 
