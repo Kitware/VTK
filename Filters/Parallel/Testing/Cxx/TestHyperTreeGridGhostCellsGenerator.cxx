@@ -365,7 +365,6 @@ int TestGhostSinglePiece(vtkMPIController* controller, const std::string& filena
 
   // Create GCG
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
-  generator->SetDebug(true);
   generator->SetInputConnection(reader->GetOutputPort());
   vtkSmartPointer<vtkHyperTreeGrid> htgGhosted(generator->GetHyperTreeGridOutput());
   vtkSmartPointer<vtkHyperTreeGrid> htgRead(
@@ -426,7 +425,6 @@ int TestPartitionedHTG(vtkMPIController* controller, int config)
 
   // Create and execute GCG
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
-  generator->SetDebug(true);
   generator->SetInputData(pdsSource);
   vtkSmartPointer<vtkPartitionedDataSet> outputPDS =
     vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
@@ -485,6 +483,33 @@ int TestPartitionedHTG(vtkMPIController* controller, int config)
 
   return ret;
 }
+
+//------------------------------------------------------------------------------
+int TestInvalidExtent(vtkMPIController* controller)
+{
+  int myRank = controller->GetLocalProcessId();
+
+  // Create HTG with an invalid extent on all ranks
+  vtkNew<vtkHyperTreeGridSource> htg;
+  htg->SetDescriptor(".");
+  htg->SetUseMask(true);
+  htg->SetMask("0");
+  htg->SetDimensions(2, 2, 1);
+
+  vtkNew<vtkHyperTreeGridGhostCellsGenerator> redistribute;
+  redistribute->SetInputConnection(htg->GetOutputPort());
+  redistribute->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
+  vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();
+
+  if (outputHTG->GetNumberOfNonEmptyTrees() > 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Expected no non-null trees");
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 }
 
 /**
@@ -524,6 +549,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   ret |= ::TestPartitionedHTG(controller, 0);
   ret |= ::TestPartitionedHTG(controller, 1);
   ret |= ::TestPartitionedHTG(controller, 2);
+  ret |= ::TestInvalidExtent(controller);
 
   controller->Finalize();
   return ret;

@@ -392,7 +392,7 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 
   if (!this->ExchangeHTGMetadata())
   {
-    return 0;
+    return 1;
   }
 
   if (input->HasMask())

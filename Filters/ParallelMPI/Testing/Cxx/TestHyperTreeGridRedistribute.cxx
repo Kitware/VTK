@@ -387,7 +387,6 @@ bool TestRedistributeInvalidExtent(vtkMPIController* controller)
   htg->SetDimensions(2, 2, 1);
 
   vtkNew<vtkHyperTreeGridRedistribute> redistribute;
-  redistribute->SetDebug(true);
   redistribute->SetInputConnection(htg->GetOutputPort());
   redistribute->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
   vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();

@@ -89,8 +89,9 @@ private:
    * Duplicated from vtkHyperTreeGridRedistribute, to be merged when both filters are moved
    * to the same vtk module (currently vtkHyperTreeGridRedistribute is in VTK::ParallelMPI,
    * and vtkHyperTreeGridGhostCellsGenerator is in VTK::Parallel).
+   * Return true on success.
    */
-  void ExchangeHTGMetadata(vtkHyperTreeGrid* inputHTG);
+  bool ExchangeHTGMetadata(vtkHyperTreeGrid* inputHTG);
 
   vtkWeakPointer<vtkMultiProcessController> Controller;
 };

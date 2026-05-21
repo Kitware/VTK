@@ -54,13 +54,20 @@ int vtkHyperTreeGridGhostCellsGenerator::FillInputPortInformation(int, vtkInform
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGhostCellsGenerator::ExchangeHTGMetadata(vtkHyperTreeGrid* inputHTG)
+bool vtkHyperTreeGridGhostCellsGenerator::ExchangeHTGMetadata(vtkHyperTreeGrid* inputHTG)
 {
   int metadataSourceProcess = 0;
   double* bounds = inputHTG->GetBounds();
   int processInit = bounds[0] <= bounds[1] ? this->Controller->GetLocalProcessId()
                                            : std::numeric_limits<int>::max();
   this->Controller->AllReduce(&processInit, &metadataSourceProcess, 1, vtkCommunicator::MIN_OP);
+
+  if (metadataSourceProcess == std::numeric_limits<int>::max())
+  {
+    vtkDebugMacro("No valid HTG found in any process");
+    return false;
+  }
+
   vtkDebugMacro("Metadata source process is " << metadataSourceProcess);
 
   // Exchange BranchFactor
@@ -169,6 +176,8 @@ void vtkHyperTreeGridGhostCellsGenerator::ExchangeHTGMetadata(vtkHyperTreeGrid* 
     }
     arr->FastDelete();
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -262,7 +271,10 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     return 1;
   }
 
-  this->ExchangeHTGMetadata(inputHTG);
+  if (!this->ExchangeHTGMetadata(inputHTG))
+  {
+    return 1;
+  }
 
   // Make sure every HTG piece has a correct extent and can be processed.
   // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
@@ -333,7 +345,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     output->GetCellData()->CopyStructure(input->GetCellData());
   }
 
-  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this->Controller, input, output };
+  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this, this->Controller, input, output };
   subroutines.InitializeCellData();
   this->UpdateProgress(0.1);
 
