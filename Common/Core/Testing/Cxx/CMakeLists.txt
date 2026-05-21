@@ -131,6 +131,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestDataArrayValueRange.cxx
   TestFMT.cxx
   TestGarbageCollector.cxx
+  TestGetConstObjectMacro.cxx
   TestGenericDataArrayAPI.cxx
   TestGlobalStaticvtkObject.cxx
   TestInformationKeyLookup.cxx
