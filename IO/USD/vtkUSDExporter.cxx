@@ -258,7 +258,7 @@ UsdGeomMesh WriteMesh(
       vtkGenericWarningMacro("Ignoring texture coords without 2 components.");
       tcoords = nullptr;
     }
-    else
+    if (tcoords)
     {
       // Write out texture coordinates
       VtArray<GfVec2f> uvs(tcoords->GetNumberOfTuples());
