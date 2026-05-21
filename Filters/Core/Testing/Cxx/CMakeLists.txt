@@ -49,6 +49,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
   TestHedgeHog.cxx,NO_VALID
+  TestHilbertCurveSorter.cxx,NO_VALID
   TestHyperTreeGridProbeFilter.cxx,NO_SERDES
   TestResampleHyperTreeGridWithDataSet.cxx,NO_SERDES
   TestImageDataToExplicitStructuredGrid.cxx

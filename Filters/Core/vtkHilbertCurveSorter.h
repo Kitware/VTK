@@ -19,12 +19,13 @@
 #ifndef vtkHilbertCurveSorter_h
 #define vtkHilbertCurveSorter_h
 
-#include "vtkFiltersPointsModule.h" // For export macro
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKFILTERSPOINTS_EXPORT vtkHilbertCurveSorter : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkHilbertCurveSorter : public vtkPassInputTypeAlgorithm
 {
 public:
   ///@{
