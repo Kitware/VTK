@@ -40,6 +40,8 @@ std::pair<std::string, std::string> GetBlockNameAndLabel(
   }
   return std::make_pair(defaultName, std::string());
 }
+
+const std::string ORIGINAL_TYPE_KEY = "vtk_type";
 }
 
 vtkStandardNewMacro(vtkDataAssemblyUtilities);
@@ -116,7 +118,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 {
   assert(amr != nullptr && hierarchy != nullptr);
   hierarchy->SetRootNodeName("Root");
-  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", amr->GetDataObjectType());
+  hierarchy->SetAttribute(
+    vtkDataAssembly::GetRootNode(), ::ORIGINAL_TYPE_KEY.c_str(), amr->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(),
     vtkDataAssemblyUtilities::CategoryHierarchyName(),
     vtkDataAssemblyUtilities::CategoryHierarchy());
@@ -233,7 +236,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
     if (auto mb = vtkMultiBlockDataSet::SafeDownCast(dobj))
     {
-      hierarchy->SetAttribute(nodeid, "vtk_type", dobj->GetDataObjectType());
+      hierarchy->SetAttribute(nodeid, ::ORIGINAL_TYPE_KEY.c_str(), dobj->GetDataObjectType());
       for (unsigned int bidx = 0, numBlocks = mb->GetNumberOfBlocks(); bidx < numBlocks; ++bidx)
       {
         auto metadata = mb->HasMetaData(bidx) ? mb->GetMetaData(bidx) : nullptr;
@@ -253,7 +256,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     }
     else if (auto mp = vtkMultiPieceDataSet::SafeDownCast(dobj))
     {
-      hierarchy->SetAttribute(nodeid, "vtk_type", dobj->GetDataObjectType());
+      hierarchy->SetAttribute(nodeid, ORIGINAL_TYPE_KEY.c_str(), dobj->GetDataObjectType());
       hierarchy->SetAttribute(nodeid, "vtk_num_pieces", mp->GetNumberOfPieces());
       appendToOutput(mp, dobjMetaData, nodeid);
 
@@ -308,7 +311,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
 
   unsigned int cid = 0;
   hierarchy->SetRootNodeName("Root");
-  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", input->GetDataObjectType());
+  hierarchy->SetAttribute(
+    vtkDataAssembly::GetRootNode(), ORIGINAL_TYPE_KEY.c_str(), input->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(),
     vtkDataAssemblyUtilities::CategoryHierarchyName(),
     vtkDataAssemblyUtilities::CategoryHierarchy());
@@ -380,7 +384,7 @@ public:
   void Visit(int nodeid) override
   {
     auto hierarchy = this->GetAssembly();
-    const auto dataType = hierarchy->GetAttributeOrDefault(nodeid, "vtk_type", -1);
+    const auto dataType = hierarchy->GetAttributeOrDefault(nodeid, ORIGINAL_TYPE_KEY.c_str(), -1);
     if (nodeid == 0)
     {
       // sanity check.
@@ -502,27 +506,66 @@ vtkStandardNewMacro(vtkVisitor);
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkCompositeDataSet>
-vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
-  vtkPartitionedDataSetCollection* input, vtkDataAssembly* hierarchy)
+bool vtkDataAssemblyUtilities::HasCompatibilityHierarchy(vtkPartitionedDataSetCollection* input)
 {
-  if (!input || !hierarchy)
+  if (!input)
   {
-    return nullptr;
+    return false;
+  }
+
+  return vtkDataAssemblyUtilities::IsCompatibilityHierarchy(input->GetDataAssembly());
+}
+
+//----------------------------------------------------------------------------
+bool vtkDataAssemblyUtilities::IsCompatibilityHierarchy(vtkDataAssembly* hierarchy)
+{
+  if (!hierarchy)
+  {
+    return false;
   }
 
   const auto root = vtkDataAssembly::GetRootNode();
-
   if (strcmp(hierarchy->GetAttributeOrDefault(
                root, vtkDataAssemblyUtilities::CategoryHierarchyName(), ""),
         vtkDataAssemblyUtilities::CategoryTransformedHierarchy()) != 0)
   {
     vtkLogF(
-      ERROR, "Input hierarchy not generated using `vtkDataAssemblyUtilities` is not supported!");
+      INFO, "Input hierarchy not generated using `vtkDataAssemblyUtilities` is not supported!");
+    return false;
+  }
+
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
+  return vtkDataObjectTypes::TypeIdIsA(dataType, VTK_UNIFORM_GRID_AMR) ||
+    vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkCompositeDataSet>
+vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+  vtkPartitionedDataSetCollection* input)
+{
+  return vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+    input, input->GetDataAssembly());
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkCompositeDataSet>
+vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+  vtkPartitionedDataSetCollection* input, vtkDataAssembly* hierarchy)
+{
+  if (input && !hierarchy)
+  {
+    hierarchy = input->GetDataAssembly();
+  }
+
+  if (!vtkDataAssemblyUtilities::IsCompatibilityHierarchy(hierarchy))
+  {
+    vtkLog(ERROR, "Input data do not have a compatible hierarchy.");
     return nullptr;
   }
 
-  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
+  const auto root = vtkDataAssembly::GetRootNode();
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
   if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_UNIFORM_GRID_AMR))
   {
     std::vector<unsigned int> blocksPerLevel;
@@ -592,7 +635,7 @@ public:
     auto assembly = this->GetAssembly();
     assert(assembly->HasAttribute(nodeid, "cid"));
     const auto cid = assembly->GetAttributeOrDefault(nodeid, "cid", 0u);
-    const auto type = assembly->GetAttributeOrDefault(nodeid, "vtk_type", 0);
+    const auto type = assembly->GetAttributeOrDefault(nodeid, ORIGINAL_TYPE_KEY.c_str(), 0);
     if (!this->EnabledStack.empty() ||
       this->SelectedNodes.find(nodeid) != this->SelectedNodes.end())
     {
@@ -666,7 +709,8 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
 
   if (isHierarchy && leaf_nodes_only)
   {
-    const auto dataType = hierarchyOrAssembly->GetAttributeOrDefault(root, "vtk_type", -1);
+    const auto dataType =
+      hierarchyOrAssembly->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
     // for now we only support MBs. we could support AMR and PDC,
     // but I don't see the point in doing so right now.
     if (!vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
@@ -942,7 +986,7 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
     return {};
   }
 
-  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
   if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION) ||
     vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
   {
@@ -985,7 +1029,7 @@ std::vector<std::string> vtkDataAssemblyUtilities::GetSelectorsForCompositeIds(
     return {};
   }
 
-  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
   if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION))
   {
     vtkNew<vtkPartitionedDataSetIdsForCompositeIdsVisitor> visitor;
@@ -1015,7 +1059,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectorsCompositeIdsForC
     return {};
   }
 
-  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
+  const auto dataType = hierarchy->GetAttributeOrDefault(root, ORIGINAL_TYPE_KEY.c_str(), -1);
   if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_PARTITIONED_DATA_SET_COLLECTION) ||
     vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
   {

@@ -253,12 +253,43 @@ bool TestMultiBlockDataSet(int numPieces)
   return true;
 }
 
+bool TestCompatibilityHierarchy()
+{
+  vtkNew<vtkPartitionedDataSetCollection> simplePDC;
+  constexpr int nbOfPartitions = 5;
+  constexpr int nbOfParts = 3;
+  for (int cc = 0; cc < nbOfPartitions; ++cc)
+  {
+    simplePDC->SetPartitionedDataSet(cc, CreatePartitionedDataSet(nbOfParts));
+  }
+  vtkLogIf(ERROR, vtkDataAssemblyUtilities::HasCompatibilityHierarchy(simplePDC),
+    "PDC without assembly is not compatible");
+
+  vtkNew<vtkDataAssembly> pdcHierarchy;
+  vtkNew<vtkPartitionedDataSetCollection> pdcWithHierarchy;
+  vtkDataAssemblyUtilities::GenerateHierarchy(simplePDC, pdcHierarchy, pdcWithHierarchy);
+  vtkLogIf(ERROR, vtkDataAssemblyUtilities::HasCompatibilityHierarchy(pdcWithHierarchy),
+    "Hierarchy generated from PDC should not be compatible for composite generation.");
+
+  std::map<std::string, std::vector<std::string>> map = { { "Root", { "Node0", "DataSet0" } },
+    { "Node0", { "DataSet1", "DataSet2" } } };
+  auto mb = CreateMultiBlock(map);
+  vtkNew<vtkDataAssembly> mbHierarchy;
+  vtkNew<vtkPartitionedDataSetCollection> pdcFromMultiBlock;
+  vtkDataAssemblyUtilities::GenerateHierarchy(mb, pdcHierarchy, pdcFromMultiBlock);
+  vtkLogIf(ERROR, !vtkDataAssemblyUtilities::HasCompatibilityHierarchy(pdcFromMultiBlock),
+    "Hierarchy from a MultiBlock should be compatible for composite generation.");
+
+  return true;
+}
+
 } // end of namespace
 
 int TestDataAssemblyUtilities(int, char*[])
 {
   if (!TestPartitionedDataSet() || !TestMultiPieceDataSet() ||
-    !TestPartitionedDataSetCollection() || !TestMultiBlockDataSet(0) || !TestMultiBlockDataSet(2))
+    !TestPartitionedDataSetCollection() || !TestMultiBlockDataSet(0) || !TestMultiBlockDataSet(2) ||
+    !TestCompatibilityHierarchy())
   {
     return EXIT_FAILURE;
   }
