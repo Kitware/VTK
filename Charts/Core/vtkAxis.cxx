@@ -77,6 +77,7 @@ vtkAxis::vtkAxis()
   this->LabelsVisible = true;
   this->RangeLabelsVisible = false;
   this->LabelOffset = 7;
+  this->OverlappingLabels = true;
   this->TicksVisible = true;
   this->AxisVisible = true;
   this->Precision = 2;
@@ -347,9 +348,9 @@ bool vtkAxis::Paint(vtkContext2D* painter)
     tileScale = this->Scene->GetLogicalTileScale();
   }
 
-  vtkRectf minLabelRect(0, 0, 0, 0);
+  vtkRectf prevLabelRect(0, 0, 0, 0);
   vtkRectf maxLabelRect(0, 0, 0, 0);
-  float* minLabelBounds = minLabelRect.GetData();
+  float* prevLabelBounds = prevLabelRect.GetData();
   float* maxLabelBounds = maxLabelRect.GetData();
 
   // Scale tickLength and labelOffset to the tiling scale of the scene
@@ -381,7 +382,7 @@ bool vtkAxis::Paint(vtkContext2D* painter)
       maxString = this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
     }
 
-    painter->ComputeJustifiedStringBounds(minString.c_str(), minLabelBounds);
+    painter->ComputeJustifiedStringBounds(minString.c_str(), prevLabelBounds);
     painter->ComputeJustifiedStringBounds(maxString.c_str(), maxLabelBounds);
 
     float minLabelShift[2] = { 0, 0 };
@@ -422,17 +423,17 @@ bool vtkAxis::Paint(vtkContext2D* painter)
     painter->DrawString(minLabelShift[0], minLabelShift[1], minString);
     painter->DrawString(maxLabelShift[0], maxLabelShift[1], maxString);
 
-    minLabelBounds[0] += minLabelShift[0];
-    minLabelBounds[1] += minLabelShift[1];
+    prevLabelBounds[0] += minLabelShift[0];
+    prevLabelBounds[1] += minLabelShift[1];
     maxLabelBounds[0] += maxLabelShift[0];
     maxLabelBounds[1] += maxLabelShift[1];
 
     // Pad the range label bounds by a few pixels.
     float pad = 4;
-    minLabelBounds[0] -= pad;
-    minLabelBounds[1] -= pad;
-    minLabelBounds[2] += 2 * pad;
-    minLabelBounds[3] += 2 * pad;
+    prevLabelBounds[0] -= pad;
+    prevLabelBounds[1] -= pad;
+    prevLabelBounds[2] += 2 * pad;
+    prevLabelBounds[3] += 2 * pad;
 
     maxLabelBounds[0] -= pad;
     maxLabelBounds[1] -= pad;
@@ -464,10 +465,20 @@ bool vtkAxis::Paint(vtkContext2D* painter)
         bounds[1] += pos[1];
 
         vtkRectf boundsRect(bounds[0], bounds[1], bounds[2], bounds[3]);
-        if (!boundsRect.IntersectsWith(minLabelRect) && !boundsRect.IntersectsWith(maxLabelRect))
+        if (!boundsRect.IntersectsWith(prevLabelRect) && !boundsRect.IntersectsWith(maxLabelRect))
         {
           painter->DrawString(pos[0], pos[1], tickLabel[i]);
           skipTick = false;
+
+          // Update prevLabelBounds if the current label has text
+          if (!this->OverlappingLabels && !tickLabel[i].empty())
+          {
+            float pad = 4;
+            prevLabelBounds[0] = bounds[0] - pad;
+            prevLabelBounds[1] = bounds[1] - pad;
+            prevLabelBounds[2] = bounds[2] + 2 * pad;
+            prevLabelBounds[3] = bounds[3] + 2 * pad;
+          }
         }
       }
 
@@ -497,10 +508,20 @@ bool vtkAxis::Paint(vtkContext2D* painter)
         bounds[0] += pos[0];
         bounds[1] += pos[1];
         vtkRectf boundsRect(bounds[0], bounds[1], bounds[2], bounds[3]);
-        if (!boundsRect.IntersectsWith(minLabelRect) && !boundsRect.IntersectsWith(maxLabelRect))
+        if (!boundsRect.IntersectsWith(prevLabelRect) && !boundsRect.IntersectsWith(maxLabelRect))
         {
           painter->DrawString(pos[0], pos[1], tickLabel[i]);
           skipTick = false;
+
+          // Update prevLabelBounds if the current label has text
+          if (!this->OverlappingLabels && !tickLabel[i].empty())
+          {
+            float pad = 4;
+            prevLabelBounds[0] = bounds[0] - pad;
+            prevLabelBounds[1] = bounds[1] - pad;
+            prevLabelBounds[2] = bounds[2] + 2 * pad;
+            prevLabelBounds[3] = bounds[3] + 2 * pad;
+          }
         }
       }
 
