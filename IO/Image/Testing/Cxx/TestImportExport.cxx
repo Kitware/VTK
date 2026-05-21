@@ -20,6 +20,7 @@ bool compareVtkImages(vtkImageData* p1, vtkImageData* p2);
 // Sub-tests.
 int ImportExportWithPipeline(int argc, char* argv[]);
 int ImportExportNoPipeline(int argc, char* argv[]);
+int ExportWithPipeline(int argc, char* argv[]);
 
 //------------------------------------------------------------------------------
 
@@ -31,7 +32,10 @@ int TestImportExport(int argc, char* argv[])
   const int retval2 = ImportExportNoPipeline(argc, argv);
   std::cout << "ImportExportNoPipeline Finished. Exit code: " << retval2 << std::endl;
 
-  if ((retval1 == EXIT_SUCCESS) && (retval2 == EXIT_SUCCESS))
+  const int retval3 = ExportWithPipeline(argc, argv);
+  std::cout << "ExportPipeline Finished. Exit code: " << retval3 << std::endl;
+
+  if ((retval1 == EXIT_SUCCESS) && (retval2 == EXIT_SUCCESS) && (retval3 == EXIT_SUCCESS))
   {
     std::cout << "Test Passed" << std::endl;
     return EXIT_SUCCESS;
@@ -245,6 +249,62 @@ int ImportExportNoPipeline(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   std::cout << "Comparing up/down stream images after change of input (2)." << std::endl;
   isSame = compareVtkImages(imageBefore1, imageAfter);
+
+  if (!isSame)
+  {
+    std::cout << "ERROR: Images are different" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+
+// Test vtkImageExport
+// A simple image source and pipeline is created upstream of the
+// export filter
+// - create and update the pipeline, and check that input to the export
+//   is the same as the output.
+int ExportWithPipeline(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+
+  // Simple data source
+  vtkSmartPointer<vtkImageEllipsoidSource> source = vtkSmartPointer<vtkImageEllipsoidSource>::New();
+  source->SetOutputScalarTypeToDouble();
+  source->SetInValue(1000);
+  source->SetOutValue(0);
+  source->SetCenter(256, 256, 512);
+  source->SetRadius(100, 150, 400);
+  source->SetWholeExtent(0, 512, 0, 512, 0, 1024);
+
+  // non default origin,spacing.
+  vtkSmartPointer<vtkImageChangeInformation> changer =
+    vtkSmartPointer<vtkImageChangeInformation>::New();
+  changer->SetOutputOrigin(1, 2, 3);
+  changer->SetOutputSpacing(4, 5, 6);
+  changer->SetInputConnection(source->GetOutputPort());
+
+  // Get the exporter and connect it
+  vtkSmartPointer<vtkImageExport> exporter = vtkSmartPointer<vtkImageExport>::New();
+
+  exporter->SetInputConnection(changer->GetOutputPort());
+
+  vtkSmartPointer<vtkImageData> imageAfter = vtkSmartPointer<vtkImageData>::New();
+  imageAfter->SetExtent(0, 512, 0, 512, 0, 1024);
+  imageAfter->SetSpacing(4, 5, 6);
+  imageAfter->SetOrigin(1, 2, 3);
+  imageAfter->AllocateScalars(VTK_DOUBLE, 1);
+
+  exporter->SetExportVoidPointer(imageAfter->GetScalarPointer());
+  exporter->Export();
+
+  // Update source, get the image that was input to the exporter/import.
+  changer->Update();
+  vtkSmartPointer<vtkImageData> imageBefore = changer->GetOutput();
+
+  std::cout << "Comparing up/down stream images after first update..." << std::endl;
+  bool isSame = compareVtkImages(imageBefore, imageAfter);
 
   if (!isSame)
   {
