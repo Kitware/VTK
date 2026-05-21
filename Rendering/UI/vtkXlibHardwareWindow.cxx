@@ -557,7 +557,7 @@ void vtkXlibHardwareWindow::CloseDisplay()
   // if we create the display, we'll delete it
   if (this->OwnDisplay && this->DisplayId)
   {
-    XCloseDisplay(this->DisplayId);
+    vtkXCloseDisplay(this->DisplayId);
     this->DisplayId = nullptr;
     this->OwnDisplay = false;
   }
@@ -578,10 +578,11 @@ void vtkXlibHardwareWindow::HideCursor()
   }
   else if (!this->CursorHidden)
   {
-    Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId, this->WindowId, blankBits, 16, 16);
+    Pixmap blankPixmap =
+      vtkXCreateBitmapFromData(this->DisplayId, this->WindowId, blankBits, 16, 16);
 
     Cursor blankCursor =
-      XCreatePixmapCursor(this->DisplayId, blankPixmap, blankPixmap, &black, &black, 7, 7);
+      vtkXCreatePixmapCursor(this->DisplayId, blankPixmap, blankPixmap, &black, &black, 7, 7);
 
     vtkXDefineCursor(this->DisplayId, this->WindowId, blankCursor);
 
@@ -629,70 +630,70 @@ void vtkXlibHardwareWindow::SetCurrentCursor(int shape)
     case VTK_CURSOR_CROSSHAIR:
       if (!this->XCCrosshair)
       {
-        this->XCCrosshair = XCreateFontCursor(this->DisplayId, XC_crosshair);
+        this->XCCrosshair = vtkXCreateFontCursor(this->DisplayId, XC_crosshair);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCCrosshair);
       break;
     case VTK_CURSOR_ARROW:
       if (!this->XCArrow)
       {
-        this->XCArrow = XCreateFontCursor(this->DisplayId, XC_top_left_arrow);
+        this->XCArrow = vtkXCreateFontCursor(this->DisplayId, XC_top_left_arrow);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCArrow);
       break;
     case VTK_CURSOR_SIZEALL:
       if (!this->XCSizeAll)
       {
-        this->XCSizeAll = XCreateFontCursor(this->DisplayId, XC_fleur);
+        this->XCSizeAll = vtkXCreateFontCursor(this->DisplayId, XC_fleur);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeAll);
       break;
     case VTK_CURSOR_SIZENS:
       if (!this->XCSizeNS)
       {
-        this->XCSizeNS = XCreateFontCursor(this->DisplayId, XC_sb_v_double_arrow);
+        this->XCSizeNS = vtkXCreateFontCursor(this->DisplayId, XC_sb_v_double_arrow);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNS);
       break;
     case VTK_CURSOR_SIZEWE:
       if (!this->XCSizeWE)
       {
-        this->XCSizeWE = XCreateFontCursor(this->DisplayId, XC_sb_h_double_arrow);
+        this->XCSizeWE = vtkXCreateFontCursor(this->DisplayId, XC_sb_h_double_arrow);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeWE);
       break;
     case VTK_CURSOR_SIZENE:
       if (!this->XCSizeNE)
       {
-        this->XCSizeNE = XCreateFontCursor(this->DisplayId, XC_top_right_corner);
+        this->XCSizeNE = vtkXCreateFontCursor(this->DisplayId, XC_top_right_corner);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNE);
       break;
     case VTK_CURSOR_SIZENW:
       if (!this->XCSizeNW)
       {
-        this->XCSizeNW = XCreateFontCursor(this->DisplayId, XC_top_left_corner);
+        this->XCSizeNW = vtkXCreateFontCursor(this->DisplayId, XC_top_left_corner);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNW);
       break;
     case VTK_CURSOR_SIZESE:
       if (!this->XCSizeSE)
       {
-        this->XCSizeSE = XCreateFontCursor(this->DisplayId, XC_bottom_right_corner);
+        this->XCSizeSE = vtkXCreateFontCursor(this->DisplayId, XC_bottom_right_corner);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSE);
       break;
     case VTK_CURSOR_SIZESW:
       if (!this->XCSizeSW)
       {
-        this->XCSizeSW = XCreateFontCursor(this->DisplayId, XC_bottom_left_corner);
+        this->XCSizeSW = vtkXCreateFontCursor(this->DisplayId, XC_bottom_left_corner);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSW);
       break;
     case VTK_CURSOR_HAND:
       if (!this->XCHand)
       {
-        this->XCHand = XCreateFontCursor(this->DisplayId, XC_hand1);
+        this->XCHand = vtkXCreateFontCursor(this->DisplayId, XC_hand1);
       }
       vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
       break;
@@ -834,7 +835,7 @@ bool vtkXlibHardwareWindow::EnsureDisplay()
 {
   if (!this->DisplayId)
   {
-    XInitThreads();
+    vtkXInitThreads();
     this->DisplayId = vtkXOpenDisplay(static_cast<char*>(nullptr));
     if (this->DisplayId == nullptr)
     {
