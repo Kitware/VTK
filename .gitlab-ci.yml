@@ -70,6 +70,8 @@ readthedocs:build:
         - .make_sphinx_docs
         - .sphinx_artifacts
         - .rules
+    variables:
+        VTK_CI_RUN_ALWAYS: "true"
     needs: []
     timeout: 15 minutes
 
