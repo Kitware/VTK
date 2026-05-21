@@ -434,7 +434,7 @@ void vtkGESignaReader::ExecuteInformation()
   fclose(fp);
 }
 
-static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress, short* map_left,
+static void vtkcopygenesisimage(FILE* in_file, int width, int height, int compress, short* map_left,
   short* map_wide, unsigned short* output)
 {
   unsigned short last_pixel = 0;
@@ -467,20 +467,20 @@ static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress,
       while (start < end)
       {
         unsigned char byte;
-        if (!fread(&byte, 1, 1, infp))
+        if (!fread(&byte, 1, 1, in_file))
         {
           return;
         }
         if (byte & 0x80)
         {
           unsigned char byte2;
-          if (!fread(&byte2, 1, 1, infp))
+          if (!fread(&byte2, 1, 1, in_file))
           {
             return;
           }
           if (byte & 0x40)
           { // next word
-            if (!fread(&byte, 1, 1, infp))
+            if (!fread(&byte, 1, 1, in_file))
             {
               return;
             }
@@ -517,7 +517,7 @@ static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress,
       while (start < end)
       {
         unsigned short u;
-        if (!fread(&u, 2, 1, infp))
+        if (!fread(&u, 2, 1, in_file))
         {
           return;
         }

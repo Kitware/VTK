@@ -300,28 +300,28 @@ public:
    * method.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  virtual void SetTableValue(vtkIdType indx, const double rgba[4]);
+  virtual void SetTableValue(vtkIdType index, const double rgba[4]);
 
   /**
    * Directly load color into lookup table. Use [0,1] double values for color
    * component specification. Alpha defaults to 1 if unspecified.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  virtual void SetTableValue(vtkIdType indx, double r, double g, double b, double a = 1.0);
+  virtual void SetTableValue(vtkIdType index, double r, double g, double b, double a = 1.0);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  double* GetTableValue(vtkIdType indx) VTK_SIZEHINT(4);
+  double* GetTableValue(vtkIdType index) VTK_SIZEHINT(4);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  void GetTableValue(vtkIdType indx, double rgba[4]);
+  void GetTableValue(vtkIdType index, double rgba[4]);
 
   /**
    * Get pointer to color table data. Format is array of unsigned char

@@ -28,24 +28,24 @@ namespace
 void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
 {
   vtkIdType npts;
-  const vtkIdType* indx;
-  for (faces->InitTraversal(); faces->GetNextCell(npts, indx);)
+  const vtkIdType* index;
+  for (faces->InitTraversal(); faces->GetNextCell(npts, index);)
   {
     f << "f";
     for (vtkIdType i = 0; i < npts; i++)
     {
-      f << " " << indx[i] + 1;
+      f << " " << index[i] + 1;
       if (withTCoords)
       {
-        f << "/" << indx[i] + 1;
+        f << "/" << index[i] + 1;
         if (withNormals)
         {
-          f << "/" << indx[i] + 1;
+          f << "/" << index[i] + 1;
         }
       }
       else if (withNormals)
       {
-        f << "//" << indx[i] + 1;
+        f << "//" << index[i] + 1;
       }
     }
     f << "\n";
@@ -56,13 +56,13 @@ void WriteFaces(std::ostream& f, vtkCellArray* faces, bool withNormals, bool wit
 void WriteLines(std::ostream& f, vtkCellArray* lines)
 {
   vtkIdType npts;
-  const vtkIdType* indx;
-  for (lines->InitTraversal(); lines->GetNextCell(npts, indx);)
+  const vtkIdType* index;
+  for (lines->InitTraversal(); lines->GetNextCell(npts, index);)
   {
     f << "l";
     for (vtkIdType i = 0; i < npts; i++)
     {
-      f << " " << indx[i] + 1;
+      f << " " << index[i] + 1;
     }
     f << "\n";
   }
@@ -349,9 +349,9 @@ bool vtkOBJWriter::WriteDataAndReturn()
   if (matNames)
   {
     vtkIdType cellNpts;
-    const vtkIdType* indx;
+    const vtkIdType* index;
     polys->InitTraversal();
-    int validCell = polys->GetNextCell(cellNpts, indx);
+    int validCell = polys->GetNextCell(cellNpts, index);
     vtkIdType faceIndex = 0;
     vtkIntArray* materialIds =
       vtkIntArray::SafeDownCast(input->GetCellData()->GetArray("MaterialIds"));
@@ -368,17 +368,17 @@ bool vtkOBJWriter::WriteDataAndReturn()
         f << "f";
         for (vtkIdType i = 0; i < cellNpts; i++)
         {
-          f << " " << indx[i] + 1;
+          f << " " << index[i] + 1;
           if (tcoords)
           {
             EndIndex endIndex = endIndexes[matIndex];
-            vtkIdType vtIndex = endIndex.VtEndIndex - endIndex.PointEndIndex + indx[i];
+            vtkIdType vtIndex = endIndex.VtEndIndex - endIndex.PointEndIndex + index[i];
             f << "/" << vtIndex + 1;
           }
         }
         f << "\n";
         ++faceIndex;
-        validCell = polys->GetNextCell(cellNpts, indx);
+        validCell = polys->GetNextCell(cellNpts, index);
       }
     }
   }

@@ -39,13 +39,13 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     return geomFilter
 
 
-  def setupMapper(self, filter, var = None, arrRange = None):
+  def setupMapper(self, filter, var = None, arrayRange = None):
     mapper = vtkCompositePolyDataMapper()
     mapper.SetInputConnection(filter.GetOutputPort())
     if var is not None:
       mapper.ColorByArrayComponent(var, 0)
-    if arrRange is not None:
-      mapper.SetScalarRange(arrRange[0], arrRange[1])
+    if arrayRange is not None:
+      mapper.SetScalarRange(arrayRange[0], arrayRange[1])
     return mapper
 
 
@@ -72,14 +72,14 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     Testing.interact()
 
 
-  def basicPipeline(self, casefile, img_file, var = None, arrRange = None, pos = None):
+  def basicPipeline(self, casefile, img_file, var = None, arrayRange = None, pos = None):
     reader = self.setupReader(casefile)
     geom = self.geomPipeline(reader)
-    mapper = self.setupMapper(geom, var, arrRange)
+    mapper = self.setupMapper(geom, var, arrayRange)
     self.renderAndCompare(mapper, img_file, pos)
 
 
-  def aaPipeline(self, casefile, img_file, var, arrRange):
+  def aaPipeline(self, casefile, img_file, var, arrayRange):
     reader = self.setupReader(casefile)
     geom = self.geomPipeline(reader)
 
@@ -88,7 +88,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     aa.Assign(var, vtkDataSetAttributes.SCALARS, vtkAssignAttribute.CELL_DATA)
     aa.Update()
 
-    mapper = self.setupMapper(aa, var, arrRange)
+    mapper = self.setupMapper(aa, var, arrayRange)
     self.renderAndCompare(mapper, img_file)
 
   def contourPipeline(self, casefile, img_file, contourValues):
@@ -209,10 +209,10 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.basicPipeline("blow2_bin.case", "TestEnSightGoldCombinedReader_3.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
 
   def testElementsASCII(self):
-    self.basicPipeline("elements.case", "TestEnSightGoldCombinedReader_4.png", var="pointScalars", arrRange=[0, 112])
+    self.basicPipeline("elements.case", "TestEnSightGoldCombinedReader_4.png", var="pointScalars", arrayRange=[0, 112])
 
   def testElementsBinary(self):
-    self.basicPipeline("elements-bin.case", "TestEnSightGoldCombinedReader_5.png", var="pointTensors", arrRange=[0,325])
+    self.basicPipeline("elements-bin.case", "TestEnSightGoldCombinedReader_5.png", var="pointTensors", arrayRange=[0,325])
 
   def testElementTypesTest(self):
     self.basicPipeline("elementTypesTest.case", "TestEnSightGoldCombinedReader_6.png")
@@ -250,10 +250,10 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.contourPipeline("ironProt_bin.case", "TestEnSightGoldCombinedReader_7.png", [200])
 
   def testMandelbrot1(self):
-    self.basicPipeline("mandelbrot1.case", "TestEnSightGoldCombinedReader_8.png", var="Iterations", arrRange=[1.9,100])
+    self.basicPipeline("mandelbrot1.case", "TestEnSightGoldCombinedReader_8.png", var="Iterations", arrayRange=[1.9,100])
 
   def testMandelbrot2(self):
-    self.basicPipeline("mandelbrot2.case", "TestEnSightGoldCombinedReader_9.png", var="Iterations", arrRange=[1.9,100])
+    self.basicPipeline("mandelbrot2.case", "TestEnSightGoldCombinedReader_9.png", var="Iterations", arrayRange=[1.9,100])
 
   def testNacaBin(self):
     self.contourPipeline("naca.bin.case", "TestEnSightGoldCombinedReader_10.png", [0.602, 0.685, 0.767, 0.850, 0.933, 1.015, 1.098, 1.181, 1.264, 1.346])
@@ -277,10 +277,10 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.streamlinePipeline("RectGrid_bin.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4], False)
 
   def testNfacedBinary(self):
-    self.basicPipeline("TEST_bin.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrRange=[0.121168,0.254608])
+    self.basicPipeline("TEST_bin.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrayRange=[0.121168,0.254608])
 
   def testNfacedASCII(self):
-    self.basicPipeline("TEST.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrRange=[0.121168,0.254608])
+    self.basicPipeline("TEST.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrayRange=[0.121168,0.254608])
 
   def testParticlesASCII(self):
     self.checkParticles("ensight-gold-test-ascii.case")
@@ -350,7 +350,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.renderAndCompare(mapper, "TestEnSightGoldCombinedReader_16.png", [26.4, 2.7, 1.4])
 
   def testSOSReader(self):
-    self.basicPipeline("mandelbrot.sos", "TestEnSightGoldCombinedReader_18.png", var="Iterations", arrRange=[1.9,100])
+    self.basicPipeline("mandelbrot.sos", "TestEnSightGoldCombinedReader_18.png", var="Iterations", arrayRange=[1.9,100])
 
   def checkTimeStep(self, reader, time, img_file, var, pos):
     outInfo = reader.GetOutputInformation(0)

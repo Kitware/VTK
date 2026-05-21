@@ -127,12 +127,12 @@ void vtkGLTFWriterUtils::WriteCellBufferAndView(vtkCellArray* ca, const char* fi
 {
   vtkUnsignedIntArray* ia = vtkUnsignedIntArray::New();
   vtkIdType npts;
-  const vtkIdType* indx;
-  for (ca->InitTraversal(); ca->GetNextCell(npts, indx);)
+  const vtkIdType* index;
+  for (ca->InitTraversal(); ca->GetNextCell(npts, index);)
   {
     for (int j = 0; j < npts; ++j)
     {
-      unsigned int value = static_cast<unsigned int>(indx[j]);
+      unsigned int value = static_cast<unsigned int>(index[j]);
       ia->InsertNextValue(value);
     }
   }

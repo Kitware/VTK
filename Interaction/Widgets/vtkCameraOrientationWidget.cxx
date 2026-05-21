@@ -65,7 +65,7 @@ void vtkCameraOrientationWidget::SetDefaultRenderer(vtkRenderer* renderer)
   {
     this->DefaultRenderer->RemoveObserver(this->ReorientObserverTag);
   }
-  const bool reEnable = this->Enabled;
+  const bool wasEnabled = this->Enabled;
   if (this->Enabled)
   {
     // remove previous default renderer from render window.
@@ -81,7 +81,7 @@ void vtkCameraOrientationWidget::SetDefaultRenderer(vtkRenderer* renderer)
     vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
   this->Superclass::SetDefaultRenderer(renderer);
 
-  if (reEnable)
+  if (wasEnabled)
   {
     this->SetEnabled(true);
     if (this->Interactor)

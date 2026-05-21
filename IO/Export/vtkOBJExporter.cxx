@@ -169,7 +169,7 @@ void vtkOBJExporter::WriteAnActor(
   vtkCellArray* cells;
   vtkNew<vtkTransform> trans;
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == nullptr)
@@ -287,13 +287,13 @@ void vtkOBJExporter::WriteAnActor(
   if (pd->GetNumberOfVerts() > 0)
   {
     cells = pd->GetVerts();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       fpObj << "p ";
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fpObj << static_cast<int>(indx[i]) + idStart << " ";
+        fpObj << static_cast<int>(index[i]) + idStart << " ";
       }
       fpObj << "\n";
     }
@@ -303,7 +303,7 @@ void vtkOBJExporter::WriteAnActor(
   if (pd->GetNumberOfLines() > 0)
   {
     cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       fpObj << "l ";
       if (tcoords)
@@ -311,8 +311,8 @@ void vtkOBJExporter::WriteAnActor(
         for (i = 0; i < npts; i++)
         {
           // treating vtkIdType as int
-          fpObj << static_cast<int>(indx[i]) + idStart << "/"
-                << static_cast<int>(indx[i]) + idStart;
+          fpObj << static_cast<int>(index[i]) + idStart << "/"
+                << static_cast<int>(index[i]) + idStart;
         }
       }
       else
@@ -320,7 +320,7 @@ void vtkOBJExporter::WriteAnActor(
         for (i = 0; i < npts; i++)
         {
           // treating vtkIdType as int
-          fpObj << static_cast<int>(indx[i]) + idStart << " ";
+          fpObj << static_cast<int>(index[i]) + idStart << " ";
         }
       }
       fpObj << "\n";
@@ -330,7 +330,7 @@ void vtkOBJExporter::WriteAnActor(
   if (pd->GetNumberOfPolys() > 0)
   {
     cells = pd->GetPolys();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       fpObj << "f ";
       for (i = 0; i < npts; i++)
@@ -340,15 +340,15 @@ void vtkOBJExporter::WriteAnActor(
           if (tcoords)
           {
             // treating vtkIdType as int
-            fpObj << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << " ";
           }
           else
           {
             // treating vtkIdType as int
-            fpObj << static_cast<int>(indx[i]) + idStart << "//"
-                  << static_cast<int>(indx[i]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "//"
+                  << static_cast<int>(index[i]) + idStart << " ";
           }
         }
         else
@@ -356,13 +356,13 @@ void vtkOBJExporter::WriteAnActor(
           if (tcoords)
           {
             // treating vtkIdType as int
-            fpObj << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << " ";
           }
           else
           {
             // treating vtkIdType as int
-            fpObj << static_cast<int>(indx[i]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << " ";
           }
         }
       }
@@ -374,7 +374,7 @@ void vtkOBJExporter::WriteAnActor(
   if (pd->GetNumberOfStrips() > 0)
   {
     cells = pd->GetStrips();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       for (i = 2; i < npts; i++)
       {
@@ -393,25 +393,25 @@ void vtkOBJExporter::WriteAnActor(
           if (tcoords)
           {
             // treating vtkIdType as int
-            fpObj << "f " << static_cast<int>(indx[i1]) + idStart << "/"
-                  << static_cast<int>(indx[i1]) + idStart << "/"
-                  << static_cast<int>(indx[i1]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i2]) + idStart << "/"
-                  << static_cast<int>(indx[i2]) + idStart << "/"
-                  << static_cast<int>(indx[i2]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << "\n";
+            fpObj << "f " << static_cast<int>(index[i1]) + idStart << "/"
+                  << static_cast<int>(index[i1]) + idStart << "/"
+                  << static_cast<int>(index[i1]) + idStart << " ";
+            fpObj << static_cast<int>(index[i2]) + idStart << "/"
+                  << static_cast<int>(index[i2]) + idStart << "/"
+                  << static_cast<int>(index[i2]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << "\n";
           }
           else
           {
             // treating vtkIdType as int
-            fpObj << "f " << static_cast<int>(indx[i1]) + idStart << "//"
-                  << static_cast<int>(indx[i1]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i2]) + idStart << "//"
-                  << static_cast<int>(indx[i2]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i]) + idStart << "//"
-                  << static_cast<int>(indx[i]) + idStart << "\n";
+            fpObj << "f " << static_cast<int>(index[i1]) + idStart << "//"
+                  << static_cast<int>(index[i1]) + idStart << " ";
+            fpObj << static_cast<int>(index[i2]) + idStart << "//"
+                  << static_cast<int>(index[i2]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "//"
+                  << static_cast<int>(index[i]) + idStart << "\n";
           }
         }
         else
@@ -419,19 +419,19 @@ void vtkOBJExporter::WriteAnActor(
           if (tcoords)
           {
             // treating vtkIdType as int
-            fpObj << "f " << static_cast<int>(indx[i1]) + idStart << "/"
-                  << static_cast<int>(indx[i1]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i2]) + idStart << "/"
-                  << static_cast<int>(indx[i2]) + idStart << " ";
-            fpObj << static_cast<int>(indx[i]) + idStart << "/"
-                  << static_cast<int>(indx[i]) + idStart << "\n";
+            fpObj << "f " << static_cast<int>(index[i1]) + idStart << "/"
+                  << static_cast<int>(index[i1]) + idStart << " ";
+            fpObj << static_cast<int>(index[i2]) + idStart << "/"
+                  << static_cast<int>(index[i2]) + idStart << " ";
+            fpObj << static_cast<int>(index[i]) + idStart << "/"
+                  << static_cast<int>(index[i]) + idStart << "\n";
           }
           else
           {
             // treating vtkIdType as int
-            fpObj << "f " << static_cast<int>(indx[i1]) + idStart << " "
-                  << static_cast<int>(indx[i2]) + idStart << " "
-                  << static_cast<int>(indx[i]) + idStart << "\n";
+            fpObj << "f " << static_cast<int>(index[i1]) + idStart << " "
+                  << static_cast<int>(index[i2]) + idStart << " "
+                  << static_cast<int>(index[i]) + idStart << "\n";
           }
         }
       }

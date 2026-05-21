@@ -132,7 +132,7 @@ public:
 
   /**
    * Setup necessary precomputations
-   * Here does nothing, can be overriden if needed
+   * Here does nothing, can be overridden if needed
    */
   virtual void Initialize(vtkDataSet* input);
 

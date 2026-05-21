@@ -67,7 +67,7 @@ private:
   void operator=(const vtkUniformGridAMRIterator&) = delete;
 
   /**
-   * Check VisitOnlyLeaves and TraverseSubtree have not beed changed then return true.
+   * Check VisitOnlyLeaves and TraverseSubtree have not been changed then return true.
    * if they were, return false with an error.
    */
   [[nodiscard]] bool IsValid() VTK_FUTURE_CONST;

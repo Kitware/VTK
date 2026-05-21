@@ -168,7 +168,7 @@ struct VTKFILTERSMESHING_EXPORT vtkHullFace
  * Note that after intersecting the hull with a clipping plane, the list of
  * EdgeTuple intersection points form a new face. However, the intersection
  * points must be sorted around the perimeter of the face, hence requires
- * determing the loop index which orders the points into a face loop. The
+ * determining the loop index which orders the points into a face loop. The
  * loop index is computed by defining a coordinate system from the clip plane
  * normal, and the fan of diagonals connecting the points of the face loop.
  * This can be used to create new planes that cut the loop into pieces. By

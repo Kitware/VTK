@@ -60,9 +60,9 @@ public:
   double GetPIOFileIndex(int step) { return this->PIOFileIndex[step]; }
 
   int GetNumberOfVariables() { return (int)this->variableName.size(); }
-  const char* GetVariableName(int indx) { return this->variableName[indx].c_str(); }
+  const char* GetVariableName(int index) { return this->variableName[index].c_str(); }
   int GetNumberOfDefaultVariables() { return (int)this->variableDefault.size(); }
-  const char* GetVariableDefault(int indx) { return this->variableDefault[indx].c_str(); }
+  const char* GetVariableDefault(int index) { return this->variableDefault[index].c_str(); }
 
   // Read pio dump file AMR as hypertree grid rather than unstructured grid
   bool GetHyperTreeGrid() { return this->useHTG; }

@@ -119,7 +119,7 @@ public:
 
   /**
    * List of features. Not all features may be supported by the runtime,
-   * and not all features have to be queried everytime.
+   * and not all features have to be queried every time.
    */
   enum SceneFeature
   {

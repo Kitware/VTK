@@ -6,4 +6,4 @@ Transforming data array was available only through the high level `TransformPoin
 method that forces geometry transformation alongside to the attributes.
 You can now transform only data arrays if needed.
 
-Those methods can be overriden, as done in `vtkLinearTransform`.
+Those methods can be overridden, as done in `vtkLinearTransform`.

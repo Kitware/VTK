@@ -101,7 +101,7 @@ vtkStandardNewMacro(vtkVRMLTupleObject);
 
 // VRML allows for all Transforms (including their children) to be templated "DEF" and then
 // duplicated "USE". To do that we need know all the vtkActors that are children of a "Transform"
-// node. This class allows for the Pushing/Poping of "stacks" (transforms) where it remembers the
+// node. This class allows for the Pushing/Popping of "stacks" (transforms) where it remembers the
 // index of the Actors between being pushed / popped.
 
 // Wrapper class for the ActorCollection, which allows for keep track of "stacks" aka an index

@@ -221,7 +221,7 @@ void vtkVoronoiHull::BumpNormal(int bumpNum, double normal[3], double bumpNormal
     this->Bumper.Seed(this->PtId);
   }
 
-  // Use small angle approximation (recal |normal| == 1).
+  // Use small angle approximation (recall |normal| == 1).
   double theta = 1e-6 * vtkMath::Pi() / 180.0;
   vtkVoronoiJoggle::JoggleNormal(normal, bumpNormal, theta, this->Bumper);
 }

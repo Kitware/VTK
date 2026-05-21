@@ -57,7 +57,7 @@ vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
 // ------------------------------------------------------------------------------------------------
 // Vertex Shader
 // ------------------------------------------------------------------------------------------------
-static const char* selVS = R"(
+static const char* selVertShader = R"(
   #version 150
   in vec3 vertexMC; // Incoming World Coordinates (e.g. 0..512)
   in vec2 tcoordMC; // Texture Coordinates (0..1)
@@ -76,7 +76,7 @@ static const char* selVS = R"(
 // ------------------------------------------------------------------------------------------------
 // Fragment Shader
 // ------------------------------------------------------------------------------------------------
-static const char* selFS = R"(
+static const char* selFragShader = R"(
   #version 150
 
   in vec2 tcoordVC;
@@ -696,7 +696,8 @@ void vtkOpenGLImageSliceMapper::RenderForSelection(
   // Setup Shader Program
   if (!this->SelectionHelper->Program)
   {
-    this->SelectionHelper->Program = renWin->GetShaderCache()->ReadyShaderProgram(selVS, selFS, "");
+    this->SelectionHelper->Program =
+      renWin->GetShaderCache()->ReadyShaderProgram(selVertShader, selFragShader, "");
   }
   else
   {

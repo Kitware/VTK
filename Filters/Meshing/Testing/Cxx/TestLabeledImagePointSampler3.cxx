@@ -172,22 +172,22 @@ int TestLabeledImagePointSampler3(int argc, char* argv[])
   std::cout << "Time to sample data: " << time << "\n";
 
   // Voronoi tessellation
-  vtkNew<vtkVoronoiFlower2D> vor;
-  vor->SetInputConnection(sampler->GetOutputPort());
-  vor->SetGenerateCellScalarsToRandom();
-  vor->SetGenerateCellScalarsToRegionIds();
-  vor->SetOutputTypeToVoronoi();
+  vtkNew<vtkVoronoiFlower2D> voronoi;
+  voronoi->SetInputConnection(sampler->GetOutputPort());
+  voronoi->SetGenerateCellScalarsToRandom();
+  voronoi->SetGenerateCellScalarsToRegionIds();
+  voronoi->SetOutputTypeToVoronoi();
 
   timer->StartTimer();
-  vor->Update();
+  voronoi->Update();
   timer->StopTimer();
   time = timer->GetElapsedTime();
   std::cout << "Time to Voronoi data: " << time << "\n";
-  std::cout << "\tNumber of threads used: " << vor->GetNumberOfThreads() << "\n";
+  std::cout << "\tNumber of threads used: " << voronoi->GetNumberOfThreads() << "\n";
 
   // View the resulting Voronoi tessellation
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(vor->GetOutputPort());
+  mapper->SetInputConnection(voronoi->GetOutputPort());
   mapper->SetScalarRange(0, numCircles + 1);
   mapper->SetScalarModeToUseCellData();
   mapper->ScalarVisibilityOn();
@@ -214,13 +214,14 @@ int TestLabeledImagePointSampler3(int argc, char* argv[])
   sampler->Update();
   std::cout << "\tNumber of input Voroni points: " << sampler->GetOutput()->GetNumberOfPoints()
             << "\n";
-  std::cout << "\tNumber of output Voronoi points: " << vor->GetOutput()->GetNumberOfPoints()
+  std::cout << "\tNumber of output Voronoi points: " << voronoi->GetOutput()->GetNumberOfPoints()
             << "\n";
-  std::cout << "\tNumber of output Voronoi cells: " << vor->GetOutput()->GetNumberOfCells() << "\n";
+  std::cout << "\tNumber of output Voronoi cells: " << voronoi->GetOutput()->GetNumberOfCells()
+            << "\n";
 
   // Bounding box
   vtkNew<vtkOutlineFilter> outline;
-  outline->SetInputConnection(vor->GetOutputPort());
+  outline->SetInputConnection(voronoi->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> outlineMapper;
   outlineMapper->SetInputConnection(outline->GetOutputPort());

@@ -63,7 +63,7 @@ nanovdb::Map GetNanoVDBMap(const double origin[3], double dx, double dy, double 
   return map;
 }
 
-// Get filename based on whether the file is being writte in parallel and the number of time steps.
+// Get filename based on whether the file is being written in parallel and the number of time steps.
 std::string GetFileName(const char* baseFileName, bool writeAllTimeSteps, int currentTimeIndex,
   int numberOfTimeSteps, int localProcessId, int numberOfProcesses)
 {

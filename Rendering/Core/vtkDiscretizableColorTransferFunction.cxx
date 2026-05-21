@@ -57,8 +57,8 @@ vtkMTimeType vtkDiscretizableColorTransferFunction::GetMTime()
   vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->ScalarOpacityFunction)
   {
-    vtkMTimeType somtime = this->ScalarOpacityFunction->GetMTime();
-    mtime = somtime > mtime ? somtime : mtime;
+    vtkMTimeType sofmtime = this->ScalarOpacityFunction->GetMTime();
+    mtime = sofmtime > mtime ? sofmtime : mtime;
   }
   if (this->LookupTable)
   {

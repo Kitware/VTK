@@ -165,27 +165,28 @@ int TestVoronoi2DSurfaceNets(int argc, char* argv[])
   pointsActor->GetProperty()->SetPointSize(3);
 
   // Voronoi tessellation
-  vtkNew<vtkVoronoiFlower2D> vor;
-  vor->SetInputConnection(sampler->GetOutputPort());
-  vor->SetGenerateCellScalarsToRegionIds();
-  vor->SetOutputTypeToVoronoi();
+  vtkNew<vtkVoronoiFlower2D> voronoi;
+  voronoi->SetInputConnection(sampler->GetOutputPort());
+  voronoi->SetGenerateCellScalarsToRegionIds();
+  voronoi->SetOutputTypeToVoronoi();
 
   timer->StartTimer();
-  vor->Update();
+  voronoi->Update();
   timer->StopTimer();
   time = timer->GetElapsedTime();
   // Report some stats
   std::cout << "Time to Voronoi data: " << time << "\n";
-  std::cout << "\tNumber of threads used: " << vor->GetNumberOfThreads() << "\n";
+  std::cout << "\tNumber of threads used: " << voronoi->GetNumberOfThreads() << "\n";
   std::cout << "\tNumber of input Voroni points: " << sampler->GetOutput()->GetNumberOfPoints()
             << "\n";
-  std::cout << "\tNumber of output Voronoi points: " << vor->GetOutput()->GetNumberOfPoints()
+  std::cout << "\tNumber of output Voronoi points: " << voronoi->GetOutput()->GetNumberOfPoints()
             << "\n";
-  std::cout << "\tNumber of output Voronoi cells: " << vor->GetOutput()->GetNumberOfCells() << "\n";
+  std::cout << "\tNumber of output Voronoi cells: " << voronoi->GetOutput()->GetNumberOfCells()
+            << "\n";
 
   // View the resulting Voronoi tessellation
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(vor->GetOutputPort());
+  mapper->SetInputConnection(voronoi->GetOutputPort());
   mapper->SetScalarRange(-1, numCircles - 1);
   mapper->SetScalarModeToUseCellData();
   mapper->ScalarVisibilityOn();
@@ -196,7 +197,7 @@ int TestVoronoi2DSurfaceNets(int argc, char* argv[])
   // Extract edges and display them, work around OpenGL bug (as compared to
   // enabling EdgeVisibility which causes issues on some systems).
   vtkNew<vtkExtractEdges> extract;
-  extract->SetInputConnection(vor->GetOutputPort());
+  extract->SetInputConnection(voronoi->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> extractMapper;
   extractMapper->SetInputConnection(extract->GetOutputPort());
@@ -219,7 +220,7 @@ int TestVoronoi2DSurfaceNets(int argc, char* argv[])
   time = timer->GetElapsedTime();
   // Report some stats
   std::cout << "Time to SurfaceNet data: " << time << "\n";
-  std::cout << "\tNumber of threads used: " << vor->GetNumberOfThreads() << "\n";
+  std::cout << "\tNumber of threads used: " << voronoi->GetNumberOfThreads() << "\n";
   std::cout << "\tNumber of input Voroni points: " << sampler->GetOutput()->GetNumberOfPoints()
             << "\n";
   std::cout << "\tNumber of output SurfaceNet points: " << sn->GetOutput()->GetNumberOfPoints()

@@ -235,7 +235,7 @@ private:
     /// Edge to Iso vertex
     std::unordered_map<int64_t, int> EdgeToIsoVert;
 
-    // Assigne vertices
+    // Assign vertices
     std::vector<bool> Assigned;
 
     void Clear(vtkIdType nFaces)

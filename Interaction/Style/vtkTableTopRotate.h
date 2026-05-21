@@ -60,7 +60,7 @@ public:
    * and mouse move in vertical direction changes camera elevation.
    * If true, a diagonal mouse motion results in a combination of azimuth
    * and elevation change.
-   * If false, a diagonal mouse otion does not result in a combination. In
+   * If false, a diagonal mouse motion does not result in a combination. In
    * this case, if the hoirzontal component of mouse motion is greater than
    * vertical component, the camera azimuth is changed. Otherwise, the camera
    * elevation is changed.

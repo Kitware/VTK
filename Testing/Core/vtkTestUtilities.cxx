@@ -1621,7 +1621,7 @@ bool CheckTreeEqual(vtkHyperTreeGridNonOrientedGeometryCursor* cursor1,
     int ncomps = array1->GetNumberOfComponents();
     if (ncomps != array2->GetNumberOfComponents())
     {
-      vtkLog(ERROR, "Mismatched number of composants in array " << array1->GetName());
+      vtkLog(ERROR, "Mismatched number of components in array " << array1->GetName());
       return false;
     }
     double* tuple1 = array1->GetTuple(currentId1);

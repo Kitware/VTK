@@ -263,8 +263,8 @@ int vtkConduitSource::RequestData(
     dataGenerated = this->GeneratePartitionedDataSet(real_output);
   }
 
-  // Check wether all ranks successfully generated the data. If at least one rank failed, we need to
-  // return 0 on every nodes to prevent code hanging in the pipeline.
+  // Check whether all ranks successfully generated the data. If at least one rank failed, we need
+  // to return 0 on every nodes to prevent code hanging in the pipeline.
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   std::vector<int> allDataGenerationResults(controller->GetNumberOfProcesses());
   int dataGenerationLocalResult = dataGenerated;

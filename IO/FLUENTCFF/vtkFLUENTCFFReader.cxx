@@ -2824,7 +2824,7 @@ void vtkFLUENTCFFReader::FillDataArrayForFaceZone(const FaceZone& zone,
       continue;
     }
 
-    // Each data array could be splitted in several piece, each piece has min/max info
+    // Each data array could be split into several pieces, each piece has min/max info
     // to know where we should write it in the array:
     // '/SV_O/1' : minId=1 maxId=200
     // ...

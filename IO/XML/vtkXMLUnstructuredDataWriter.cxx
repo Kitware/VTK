@@ -979,13 +979,13 @@ struct ConvertCellsVisitor : public vtkCellArray::DispatchUtilities
   vtkSmartPointer<vtkDataArray> Connectivity;
 
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsetsIn, ConnectivityT* connIn)
+  void operator()(OffsetsT* offsetsIn, ConnectivityT* connectivityIn)
   {
     using ValueType = GetAPIType<OffsetsT>;
     // Shallow copy will let us change the name of the array to what the
     // writer expects without actually copying the array data:
-    this->Connectivity.TakeReference(connIn->NewInstance());
-    this->Connectivity->ShallowCopy(connIn);
+    this->Connectivity.TakeReference(connectivityIn->NewInstance());
+    this->Connectivity->ShallowCopy(connectivityIn);
     this->Connectivity->SetName("connectivity");
 
     // The file format for offsets always skips the first offset, because

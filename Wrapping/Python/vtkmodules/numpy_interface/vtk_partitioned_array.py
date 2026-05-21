@@ -599,7 +599,7 @@ class VTKPartitionedArray(object):
         global_indices = numpy.cumsum(partition_sizes)[:-1]
 
         # Split inputs arguments to each chunk
-        # Basically, this returns a 2D array where the first dimension represents each chunck of the
+        # Basically, this returns a 2D array where the first dimension represents each chunk of the
         # composite array and the second dimension represents the data associated for each chunk
         def process_input(input_):
             if isinstance(input_, type(self)):

@@ -146,7 +146,7 @@ void vtkCollectTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "PassThough: " << this->PassThrough << endl;
+  os << indent << "PassThrough: " << this->PassThrough << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "SocketController: (" << this->SocketController << ")\n";
 }

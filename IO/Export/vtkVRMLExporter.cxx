@@ -235,7 +235,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
   double* tempd;
   vtkCellArray* cells;
   vtkIdType npts = 0;
-  const vtkIdType* indx = nullptr;
+  const vtkIdType* index = nullptr;
   int pointDataWritten = 0;
   vtkPolyDataMapper* pm;
   vtkUnsignedCharArray* colors;
@@ -369,13 +369,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     vtk::print(fp, "            coordIndex  [\n");
 
     cells = pd->GetPolys();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "              ");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        vtk::print(fp, "{:d}, ", static_cast<int>(indx[i]));
+        vtk::print(fp, "{:d}, ", static_cast<int>(index[i]));
       }
       vtk::print(fp, "-1,\n");
     }
@@ -412,7 +412,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     }
     vtk::print(fp, "            coordIndex  [\n");
     cells = pd->GetStrips();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       for (i = 2; i < npts; i++)
       {
@@ -427,8 +427,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
           i2 = i - 1;
         }
         // treating vtkIdType as int
-        vtk::print(fp, "              {:d}, {:d}, {:d}, -1,\n", static_cast<int>(indx[i1]),
-          static_cast<int>(indx[i2]), static_cast<int>(indx[i]));
+        vtk::print(fp, "              {:d}, {:d}, {:d}, -1,\n", static_cast<int>(index[i1]),
+          static_cast<int>(index[i2]), static_cast<int>(index[i]));
       }
     }
     vtk::print(fp, "            ]\n");
@@ -458,13 +458,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     vtk::print(fp, "            coordIndex  [\n");
 
     cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "              ");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        vtk::print(fp, "{:d}, ", static_cast<int>(indx[i]));
+        vtk::print(fp, "{:d}, ", static_cast<int>(index[i]));
       }
       vtk::print(fp, "-1,\n");
     }
@@ -481,12 +481,12 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     cells = pd->GetVerts();
     vtk::print(fp, "            coord Coordinate {{");
     vtk::print(fp, "              point [");
-    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+    for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
     {
       vtk::print(fp, "              ");
       for (i = 0; i < npts; i++)
       {
-        p = points->GetPoint(indx[i]);
+        p = points->GetPoint(index[i]);
         vtk::print(fp, "              {1:.{0}g} {3:.{2}g} {5:.{4}g},\n", max_double_digits, p[0],
           max_double_digits, p[1], max_double_digits, p[2]);
       }
@@ -497,12 +497,12 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     {
       vtk::print(fp, "            color Color {{");
       vtk::print(fp, "              color [");
-      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
+      for (cells->InitTraversal(); cells->GetNextCell(npts, index);)
       {
         vtk::print(fp, "              ");
         for (i = 0; i < npts; i++)
         {
-          c = colors->GetPointer(4 * indx[i]);
+          c = colors->GetPointer(4 * index[i]);
           vtk::print(fp, "           {1:.{0}g} {3:.{2}g} {5:.{4}g},\n", max_double_digits,
             c[0] / 255.0, max_double_digits, c[1] / 255.0, max_double_digits, c[2] / 255.0);
         }
