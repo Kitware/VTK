@@ -11,6 +11,8 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPNGWriter.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -329,16 +331,36 @@ int TestUSDExporter(int argc, char* argv[])
   /////////////////////////////////////////////////////////////////////////////
   // Test 5: Check if saving a scene with a composite dataset works. No coloring
   // in this case. All blocks visible.
-  vtkNew<vtkGroupDataSetsFilter> groupFilter;
-  groupFilter->SetOutputTypeToPartitionedDataSetCollection();
-  groupFilter->AddInputConnection(sphere->GetOutputPort());
-  groupFilter->AddInputConnection(torus->GetOutputPort());
-  groupFilter->Update();
+  // Create shallow copies of the sphere and torus outputs
+  vtkNew<vtkPolyData> sphereCopy;
+  sphereCopy->ShallowCopy(vtkPolyData::SafeDownCast(sphere->GetOutputDataObject(0)));
+  vtkNew<vtkPartitionedDataSet> partition0;
+  partition0->SetPartition(0, sphereCopy);
+
+  vtkNew<vtkPolyData> torusCopy;
+  torusCopy->ShallowCopy(vtkPolyData::SafeDownCast(torus->GetOutputDataObject(0)));
+  vtkNew<vtkPartitionedDataSet> partition1;
+  partition1->SetPartition(0, torusCopy);
+
+  vtkNew<vtkPartitionedDataSetCollection> pdc;
+  pdc->SetPartitionedDataSet(0, partition0);
+  pdc->SetPartitionedDataSet(1, partition1);
+
+  // Add field data array to sphere and torus blocks
+  vtkNew<vtkIntArray> sphereFieldData;
+  sphereFieldData->SetName("BlockID");
+  sphereFieldData->InsertNextValue(2);
+  sphereCopy->GetFieldData()->AddArray(sphereFieldData);
+
+  vtkNew<vtkIntArray> torusFieldData;
+  torusFieldData->SetName("BlockID");
+  torusFieldData->InsertNextValue(4);
+  torusCopy->GetFieldData()->AddArray(torusFieldData);
 
   // Create a mapper for the composite dataset
   vtkNew<vtkCompositePolyDataMapper> compositeMapper;
   compositeMapper->ScalarVisibilityOff();
-  compositeMapper->SetInputConnection(groupFilter->GetOutputPort());
+  compositeMapper->SetInputDataObject(pdc);
 
   // Create an actor for the composite dataset
   vtkNew<vtkActor> compositeActor;
