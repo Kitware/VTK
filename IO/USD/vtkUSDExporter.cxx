@@ -258,7 +258,7 @@ UsdGeomMesh WriteMesh(
       vtkGenericWarningMacro("Ignoring texture coords without 2 components.");
       tcoords = nullptr;
     }
-    else
+    if (tcoords)
     {
       // Write out texture coordinates
       VtArray<GfVec2f> uvs(tcoords->GetNumberOfTuples());
@@ -568,12 +568,17 @@ void vtkUSDExporter::WriteData()
             vtkCompositeDataSet* cpd = vtkCompositeDataSet::SafeDownCast(input);
             if (cpd)
             {
-              int flatIndex = 0;
               vtkCompositePolyDataMapper* pdMapper =
                 vtkCompositePolyDataMapper::SafeDownCast(mapper);
               using Opts = vtk::CompositeDataSetOptions;
-              for (auto childDO : vtk::Range(cpd, Opts::SkipEmptyNodes))
+              vtkSmartPointer<vtkCompositeDataIterator> cpdIter;
+              cpdIter.TakeReference(cpd->NewIterator());
+              for (cpdIter->InitTraversal(); !cpdIter->IsDoneWithTraversal();
+                   cpdIter->GoToNextItem())
               {
+                auto childDO = cpdIter->GetCurrentDataObject();
+                int flatIndex = cpdIter->GetCurrentFlatIndex();
+
                 if (pdMapper->GetBlockVisibility(flatIndex))
                 {
                   vtkPolyData* pd = vtkPolyData::SafeDownCast(childDO);
@@ -603,7 +608,6 @@ void vtkUSDExporter::WriteData()
                     ++meshCount;
                   }
                 }
-                ++flatIndex;
               }
             }
 

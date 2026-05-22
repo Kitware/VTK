@@ -11,6 +11,8 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPNGWriter.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -65,7 +67,7 @@ int TestUSDExporter(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
-    std::cout << "Could not determine temporary directory.\n";
+    vtkLog(ERROR, "Could not determine temporary directory.");
     return EXIT_FAILURE;
   }
   std::string testDirectory = tempDir;
@@ -329,16 +331,36 @@ int TestUSDExporter(int argc, char* argv[])
   /////////////////////////////////////////////////////////////////////////////
   // Test 5: Check if saving a scene with a composite dataset works. No coloring
   // in this case. All blocks visible.
-  vtkNew<vtkGroupDataSetsFilter> groupFilter;
-  groupFilter->SetOutputTypeToPartitionedDataSetCollection();
-  groupFilter->AddInputConnection(sphere->GetOutputPort());
-  groupFilter->AddInputConnection(torus->GetOutputPort());
-  groupFilter->Update();
+  // Create shallow copies of the sphere and torus outputs
+  vtkNew<vtkPolyData> sphereCopy;
+  sphereCopy->ShallowCopy(vtkPolyData::SafeDownCast(sphere->GetOutputDataObject(0)));
+  vtkNew<vtkPartitionedDataSet> partition0;
+  partition0->SetPartition(0, sphereCopy);
+
+  vtkNew<vtkPolyData> torusCopy;
+  torusCopy->ShallowCopy(vtkPolyData::SafeDownCast(torus->GetOutputDataObject(0)));
+  vtkNew<vtkPartitionedDataSet> partition1;
+  partition1->SetPartition(0, torusCopy);
+
+  vtkNew<vtkPartitionedDataSetCollection> pdc;
+  pdc->SetPartitionedDataSet(0, partition0);
+  pdc->SetPartitionedDataSet(1, partition1);
+
+  // Add field data array to sphere and torus blocks
+  vtkNew<vtkIntArray> sphereFieldData;
+  sphereFieldData->SetName("BlockID");
+  sphereFieldData->InsertNextValue(2);
+  sphereCopy->GetFieldData()->AddArray(sphereFieldData);
+
+  vtkNew<vtkIntArray> torusFieldData;
+  torusFieldData->SetName("BlockID");
+  torusFieldData->InsertNextValue(4);
+  torusCopy->GetFieldData()->AddArray(torusFieldData);
 
   // Create a mapper for the composite dataset
   vtkNew<vtkCompositePolyDataMapper> compositeMapper;
   compositeMapper->ScalarVisibilityOff();
-  compositeMapper->SetInputConnection(groupFilter->GetOutputPort());
+  compositeMapper->SetInputDataObject(pdc);
 
   // Create an actor for the composite dataset
   vtkNew<vtkActor> compositeActor;
@@ -385,8 +407,10 @@ int TestUSDExporter(int argc, char* argv[])
   // in this case. Only first block visible.
   auto da = vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
   compositeMapper->SetCompositeDataDisplayAttributes(da);
-  compositeMapper->SetBlockVisibility(0, true);
-  compositeMapper->SetBlockVisibility(1, false);
+  // The vtkGroupDataSetsFilter produces an output where the two inputs
+  // are at flat indices 2 and 4.
+  compositeMapper->SetBlockVisibility(2, true);
+  compositeMapper->SetBlockVisibility(4, false);
 
   filename = rootname + "_composite1.usda";
   exporter->SetFileName(filename.c_str());
@@ -405,8 +429,8 @@ int TestUSDExporter(int argc, char* argv[])
   }
 
   // Now set the second block visible and not the first
-  compositeMapper->SetBlockVisibility(0, false);
-  compositeMapper->SetBlockVisibility(1, true);
+  compositeMapper->SetBlockVisibility(2, false);
+  compositeMapper->SetBlockVisibility(4, true);
   exporter->Write();
 
   if (FileContainsString(filename, "def Mesh \"Mesh1\""))
@@ -421,7 +445,7 @@ int TestUSDExporter(int argc, char* argv[])
   }
 
   // Now color by Normal X component with both blocks on
-  compositeMapper->SetBlockVisibility(0, true);
+  compositeMapper->SetBlockVisibility(2, true);
   compositeMapper->ScalarVisibilityOn();
   compositeMapper->SetColorModeToMapScalars();
   compositeMapper->SetScalarModeToUsePointFieldData();
@@ -478,6 +502,23 @@ int TestUSDExporter(int argc, char* argv[])
               << filename << ".");
     checksPassed = false;
   }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Test 7: check that saving a scene with a composite dataset with field data
+  // arrays does not crash.
+
+  // Set both blocks visible and color by field data array. The export of the
+  // field data coloring won't work (the output meshes will be solid colored)
+  // because the exporter doesn't support it yet, but at least it should not crash.
+  compositeMapper->SetBlockVisibility(2, true);
+  compositeMapper->ScalarVisibilityOn();
+  compositeMapper->SetColorModeToMapScalars();
+  compositeMapper->SetScalarModeToUseFieldData();
+  compositeMapper->SelectColorArray("BlockID");
+
+  filename = rootname + "_composite3.usda";
+  exporter->SetFileName(filename.c_str());
+  exporter->Write();
 
   if (enableCleanupAfterTest)
   {
