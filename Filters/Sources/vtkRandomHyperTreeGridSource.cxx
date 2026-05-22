@@ -122,7 +122,6 @@ int vtkRandomHyperTreeGridSource::RequestData(
   using SDDP = vtkStreamingDemandDrivenPipeline;
 
   vtkInformation* outInfo = outInfos->GetInformationObject(0);
-  const int piece = outInfo->Get(SDDP::UPDATE_PIECE_NUMBER());
   int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
 
   // Refresh masking cost per level if maxDepth did change
@@ -222,11 +221,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   // Subdivision
   for (int treeId : hyperTrees)
   {
-    /* Initialize RNG per tree to make it easier to distribute,
-     * also make the RNG piece dependent to avoid bias across
-     * distributed data.
-     */
-    this->NodeRNG->Initialize(this->Seed + treeId + piece);
+    this->NodeRNG->Initialize(this->Seed + treeId);
 
     // Build this tree:
     auto cursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::Take(
@@ -237,7 +232,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   }
   // Need to shuffle Trees to avoid bias
   vtkNew<vtkMinimalStandardRandomSequence> treesRNG;
-  treesRNG->Initialize(this->Seed + piece);
+  treesRNG->Initialize(this->Seed);
   // Shuffle the tree ids order for masking
   ::ShuffleArray(hyperTrees, treesRNG);
 
@@ -249,11 +244,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   // Masking
   for (int treeId : hyperTrees)
   {
-    /* Initialize RNG per tree to make it easier to distribute,
-     * also make the RNG piece dependent to avoid bias across
-     * distributed data.
-     */
-    this->MaskRNG->Initialize(this->Seed + treeId + piece);
+    this->MaskRNG->Initialize(this->Seed + treeId);
 
     auto cursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::Take(
       htg->NewNonOrientedCursor(treeId, true));
