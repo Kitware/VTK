@@ -116,6 +116,7 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar3->SetDrawFrame(1);
   scalarBar3->GetFrameProperty()->SetColor(0., 0., 0.);
   scalarBar3->SetDrawBackground(0);
+  scalarBar3->DrawTickLabelsOff();
 
   vtkNew<vtkScalarBarActor> scalarBar4;
   scalarBar4->SetTitle("Density");
