@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGeneralizedSurfaceNets3D.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -23,7 +25,6 @@
 #include "vtkVoronoiCore3D.h"
 
 #include <algorithm>
-#include <stack>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -214,30 +215,33 @@ struct SNCompositor
  * region labels. The classifier is provided as a template argument to
  * the vtkVoronoiCore3D class.
  */
+template <typename TArray>
 struct SNClassifier
 {
-  // Optional regions ids for point classification. Implementation note:
-  // unique_ptr<vtkLabelMapLookup> doesn't work cleanly because of
-  // vtkSMPTools use of copy constructor and operator=.
-  const int* Regions;
+  // Value type and iterator type derived from the array type.
+  using TRegion = vtk::GetAPIType<TArray>;
+  using TRegionPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
+
+  // Implementation note: unique_ptr<vtkLabelMapLookup> doesn't work cleanly
+  // because of vtkSMPTools use of copy constructor and operator=.
+  TRegionPtr Regions;
   const double* LabelValues;
   vtkIdType NumLabels;
-  vtkLabelMapLookup<int>* LMap;
+  vtkLabelMapLookup<TRegion>* LMap;
 
   // Constructors
   SNClassifier()
-    : Regions(nullptr)
-    , LabelValues(nullptr)
+    : LabelValues(nullptr)
     , NumLabels(0)
     , LMap(nullptr)
   {
   }
-  SNClassifier(const int* regions, const double* labels, vtkIdType numLabels)
-    : Regions(regions)
+  SNClassifier(TArray* regionsArray, const double* labels, vtkIdType numLabels)
+    : Regions(vtk::DataArrayValueRange<1>(regionsArray).begin())
     , LabelValues(labels)
     , NumLabels(numLabels)
   {
-    this->LMap = vtkLabelMapLookup<int>::CreateLabelLookup(labels, numLabels);
+    this->LMap = vtkLabelMapLookup<TRegion>::CreateLabelLookup(labels, numLabels);
   }
 
   // Free label map - nullptr delete is okay.
@@ -252,7 +256,8 @@ struct SNClassifier
       this->LabelValues = c->LabelValues;
       this->NumLabels = c->NumLabels;
       delete this->LMap;
-      this->LMap = vtkLabelMapLookup<int>::CreateLabelLookup(this->LabelValues, this->NumLabels);
+      this->LMap =
+        vtkLabelMapLookup<TRegion>::CreateLabelLookup(this->LabelValues, this->NumLabels);
     }
   }
 
@@ -515,8 +520,10 @@ struct ProduceStencils
   }
 
   // Static dispatch to produce smoothing stencils.
-  static void Execute(vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge* topoMerge,
-    const int* regions, vtkPolyData* output, unsigned char constraints[4], vtkCellArray* stencils)
+  template <typename TArray>
+  static void Execute(
+    typename vtkVoronoiCore3D<SNCompositor, SNClassifier<TArray>>::TopologicalMerge* topoMerge,
+    TArray* regionsArray, vtkPolyData* output, unsigned char constraints[4], vtkCellArray* stencils)
   {
     // Gather some information. At this point the output points have
     // been merged.
@@ -544,6 +551,7 @@ struct ProduceStencils
     // describes. Recall that the topological coordinate's 4-tuple is sorted
     // in ascending order--negative values mean an "outside" point--so
     // so negative/outside points are listed first.
+    auto regions = vtk::DataArrayValueRange<1>(regionsArray);
     SmoothPointType sptsType(numMergedPts);
     vtkSMPTools::For(0, numMergedPts,
       [&mtuples, &moffsets, regions, &sptsType, constraints](vtkIdType ptId, vtkIdType endPtId)
@@ -582,20 +590,23 @@ struct ProduceStencils
 // Superclass for classes that produce VTK output. Note that the output
 // classes must be consistent with the information gathered previously or
 // memory issues will result.
+template <typename TArray>
 struct VOutput
 {
-  const vtkVoronoiCore3D<SNCompositor, SNClassifier>* VC;
+  using TRegion = vtk::GetAPIType<TArray>;
+  using TRegionPtr = typename vtk::detail::ValueRange<TArray, 2>::iterator;
+  const vtkVoronoiCore3D<SNCompositor, SNClassifier<TArray>>* VC;
   double* OutPoints;
   vtkIdType* Conn;
   vtkIdType* ConnOffsets;
-  vtkIdType* CellScalars; // 2-tuple regions on either side
+  TRegionPtr CellScalars; // 2-tuple regions on either side
 
-  VOutput(const vtkVoronoiCore3D<SNCompositor, SNClassifier>* vc)
+  VOutput(const vtkVoronoiCore3D<SNCompositor, SNClassifier<TArray>>* vc)
     : VC(vc)
     , OutPoints(nullptr)
     , Conn(nullptr)
     , ConnOffsets(nullptr)
-    , CellScalars(nullptr)
+    , CellScalars{}
   {
   }
 
@@ -642,24 +653,28 @@ struct VOutput
 }; // VOutput
 
 // Class responsible for generating output polydata.
-struct SurfaceOutput : public VOutput
+template <typename TArray>
+struct SurfaceOutput : public VOutput<TArray>
 {
-  const vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge* TopoMerge;
+  using TRegion = vtk::GetAPIType<TArray>;
+  using TRegionPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
+  using VCType = vtkVoronoiCore3D<SNCompositor, SNClassifier<TArray>>;
+  const typename VCType::TopologicalMerge* TopoMerge;
   bool MergePoints;
   bool Smoothing;
-  int* Regions;
+  TRegionPtr Regions;
   int BackgroundLabel;
   vtkPolyData* Output;
   PtsWrittenFlags* PtsWritten;
 
-  SurfaceOutput(const vtkVoronoiCore3D<SNCompositor, SNClassifier>* vc,
-    const vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge* merge, bool mergePoints,
-    bool smoothing, int* regions, int background, vtkPolyData* output, PtsWrittenFlags* ptsWritten)
-    : VOutput(vc)
+  SurfaceOutput(const VCType* vc, const typename VCType::TopologicalMerge* merge, bool mergePoints,
+    bool smoothing, TArray* regionsArray, int background, vtkPolyData* output,
+    PtsWrittenFlags* ptsWritten)
+    : VOutput<TArray>(vc)
     , TopoMerge(merge)
     , MergePoints(mergePoints)
     , Smoothing(smoothing)
-    , Regions(regions)
+    , Regions(vtk::DataArrayValueRange<1>(regionsArray).begin())
     , BackgroundLabel(background)
     , Output(output)
     , PtsWritten(ptsWritten)
@@ -670,7 +685,7 @@ struct SurfaceOutput : public VOutput
   void GetSurfaceInformation(vtkIdType ptId, vtkIdType& numPts, vtkIdType& numFaces,
     vtkIdType& connSize, vtkIdType& startPtId, vtkIdType& startFaceId, vtkIdType& startConn)
   {
-    const vtkVoronoiCore3D<SNCompositor, SNClassifier>* vc = this->VC;
+    const VCType* vc = this->VC;
     const SNCompositor& compositor = vc->Compositor;
     const SNCompositor::vtkCompositeInformation& info = compositor.Information;
 
@@ -699,7 +714,7 @@ struct SurfaceOutput : public VOutput
     }
 
     // Might need this to mark one side of a surface primitive outside.
-    int background = this->BackgroundLabel;
+    TRegion background = static_cast<TRegion>(this->BackgroundLabel);
 
     // Point merging may be in effect
     bool merging = this->Smoothing || this->MergePoints;
@@ -751,8 +766,8 @@ struct SurfaceOutput : public VOutput
       // s0 is never background; when both are non-background, s0 < s1. backfaceId is
       // available before the point ids, so we decide swap first, write
       // connectivity directly, then reverse in-place when needed.
-      vtkIdType s0 = this->Regions[ptId];
-      vtkIdType s1 = (backfaceId >= 0 ? this->Regions[backfaceId] : background);
+      TRegion s0 = static_cast<TRegion>(this->Regions[ptId]);
+      TRegion s1 = (backfaceId >= 0 ? static_cast<TRegion>(this->Regions[backfaceId]) : background);
       if (s0 == background || (s1 != background && s0 > s1))
       {
         std::swap(s0, s1);
@@ -778,7 +793,7 @@ struct SurfaceOutput : public VOutput
 
       // Get the current local thread data. Also get indices into
       // the local data
-      vtkVoronoi3DLocalData<SNCompositor, SNClassifier>& localData =
+      vtkVoronoi3DLocalData<SNCompositor, SNClassifier<TArray>>& localData =
         *(this->VC->ThreadMap[threadId]);
       vtkVoronoiHullVertexType::iterator pItr = localData.Compositor.Points.begin();
       vtkVoronoiCellConnType::iterator cItr = localData.Compositor.FaceConn.begin();
@@ -799,9 +814,8 @@ struct SurfaceOutput : public VOutput
 
   // A factory method to instantiate and threaded execute an instance
   // of SurfaceOutput to produce polygonal output.
-  static void Execute(vtkVoronoiCore3D<SNCompositor, SNClassifier>* vc,
-    vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge* merge, bool merging,
-    bool smoothing, int* regions, int background, vtkPolyData* output)
+  static void Execute(VCType* vc, typename VCType::TopologicalMerge* merge, bool merging,
+    bool smoothing, TArray* regionsArray, int background, vtkPolyData* output)
   {
     // Grab the global surface information.
     const SNCompositor& compositor = vc->Compositor;
@@ -825,7 +839,8 @@ struct SurfaceOutput : public VOutput
     }
 
     // Instantiate the surface output class.
-    SurfaceOutput so(vc, merge, merging, smoothing, regions, background, output, ptsWritten.get());
+    SurfaceOutput so(
+      vc, merge, merging, smoothing, regionsArray, background, output, ptsWritten.get());
     so.OutPoints = vtkDoubleArray::FastDownCast(outPts->GetData())->GetPointer(0);
 
     // The polygonal faces are assembled manually from the connectivity list and
@@ -844,15 +859,15 @@ struct SurfaceOutput : public VOutput
     output->SetPoints(outPts);
     output->SetPolys(prims);
 
-    // Generate the output cell data 2-tuple, noting region ids on either
-    // side of each polygonal face.
-    vtkNew<vtkIdTypeArray> cellScalars;
+    // Generate the output cell data 2-tuple, noting region ids on either side
+    // of each polygonal face. NewInstance() preserves the concrete array type.
+    auto cellScalars = vtk::TakeSmartPointer(regionsArray->NewInstance());
     cellScalars->SetName("BoundaryLabels");
     cellScalars->SetNumberOfComponents(2);
     cellScalars->SetNumberOfTuples(info[NPts].NumFaces);
     int idx = output->GetCellData()->AddArray(cellScalars);
     output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    so.CellScalars = cellScalars->GetPointer(0);
+    so.CellScalars = vtk::DataArrayValueRange<2>(cellScalars).begin();
 
     // Now parallel thread the creation of the surface output.
     vtkSMPTools::For(0, vc->GetNumberOfThreads(), so);
@@ -861,19 +876,19 @@ struct SurfaceOutput : public VOutput
 }; // SurfaceOutput
 
 // This functor transforms a convex polyhedral mesh into triangles.
+template <typename TScalar>
 struct TransformMesh
 {
   // The previous (old) output to be triangulated
   vtkIdType* OOPtr;
   vtkIdType* OCPtr;
-  vtkIdType* OSPtr;
+  TScalar* OSPtr;
 
   // The new triangles and scalars.
   vtkIdType* CPtr;
-  vtkIdType* SPtr;
+  TScalar* SPtr;
 
-  TransformMesh(
-    vtkIdType* ooPtr, vtkIdType* ocPtr, vtkIdType* osPtr, vtkIdType* cPtr, vtkIdType* sPtr)
+  TransformMesh(vtkIdType* ooPtr, vtkIdType* ocPtr, TScalar* osPtr, vtkIdType* cPtr, TScalar* sPtr)
     : OOPtr(ooPtr)
     , OCPtr(ocPtr)
     , OSPtr(osPtr)
@@ -896,11 +911,11 @@ struct TransformMesh
       vtkIdType npts = nextOffset - currentOffset;
       vtkIdType numTris = npts - 2;
       vtkIdType* pts = this->OCPtr + currentOffset;
-      vtkIdType* s = this->OSPtr + (2 * cellId);
+      TScalar* s = this->OSPtr + (2 * cellId);
 
       // Prepare to generate new triangles.
       vtkIdType* newTris = this->CPtr + 3 * (currentOffset - 2 * cellId);
-      vtkIdType* newS = this->SPtr + 2 * (currentOffset - 2 * cellId);
+      TScalar* newS = this->SPtr + 2 * (currentOffset - 2 * cellId);
 
       // Ladder triangulate the cell. Two passes are used: for
       // the left side, and then right side triangles.
@@ -923,6 +938,7 @@ struct TransformMesh
     }
   }
 
+  template <typename TScalarIn>
   static void Execute(int outputMeshType, vtkPolyData* output)
   {
     if (outputMeshType == vtkGeneralizedSurfaceNets3D::MESH_TYPE_POLYGONS)
@@ -937,8 +953,9 @@ struct TransformMesh
     vtkIdType* ooPtr = outOffsets->GetPointer(0);
     vtkIdTypeArray* outConn = vtkIdTypeArray::FastDownCast(outPolys->GetConnectivityArray());
     vtkIdType* ocPtr = outConn->GetPointer(0);
-    vtkIdTypeArray* outScalars = vtkIdTypeArray::FastDownCast(output->GetCellData()->GetScalars());
-    vtkIdType* osPtr = outScalars->GetPointer(0);
+    auto* outScalars =
+      vtkAOSDataArrayTemplate<TScalarIn>::SafeDownCast(output->GetCellData()->GetScalars());
+    TScalarIn* osPtr = outScalars->GetPointer(0);
 
     // Determine the number of output triangles.
     vtkIdType numTris = ooPtr[numPolys] - (2 * numPolys);
@@ -947,14 +964,14 @@ struct TransformMesh
     conn->SetNumberOfTuples(numTris * 3);
     vtkIdType* cPtr = conn->GetPointer(0);
 
-    vtkNew<vtkIdTypeArray> cellScalars;
+    vtkNew<vtkAOSDataArrayTemplate<TScalarIn>> cellScalars;
     cellScalars->SetName("BoundaryLabels");
     cellScalars->SetNumberOfComponents(2);
     cellScalars->SetNumberOfTuples(numTris);
-    vtkIdType* sPtr = cellScalars->GetPointer(0);
+    TScalarIn* sPtr = cellScalars->GetPointer(0);
 
     // Threaded generate the triangle connectivity and the scalars.
-    TransformMesh tm(ooPtr, ocPtr, osPtr, cPtr, sPtr);
+    TransformMesh<TScalarIn> tm(ooPtr, ocPtr, osPtr, cPtr, sPtr);
     vtkSMPTools::For(0, numPolys, 5000, tm);
 
     // Assemble everything
@@ -966,6 +983,61 @@ struct TransformMesh
   } // Execute
 
 }; // TransformMesh
+
+// Worker functor for vtkArrayDispatch. Dispatches over the concrete array type
+// of the region-ids input so the full Voronoi pipeline runs natively for any
+// integer scalar type without an int conversion copy.
+struct GenerateSurfaceNetWorker
+{
+  template <typename TArray>
+  void operator()(TArray* regionsArray, vtkGeneralizedSurfaceNets3D* self, vtkPoints* tPoints,
+    double padding, const double* labels, vtkIdType numLabels, vtkPolyData* output,
+    int* numThreadsOut, int* numPrunesOut)
+  {
+    using VCType = vtkVoronoiCore3D<SNCompositor, SNClassifier<TArray>>;
+
+    SNCompositor comp(self->GetBoundaryCapping());
+    SNClassifier<TArray> classifier(regionsArray, labels, numLabels);
+
+    auto voro = VCType::Execute(self, self->GetBatchSize(), self->GetLocator(), tPoints, padding,
+      self->GetMaximumNumberOfHullClips(), self->GetValidate(), self->GetPruneTolerance(), &comp,
+      &classifier);
+    *numThreadsOut = voro->GetNumberOfThreads();
+    *numPrunesOut = voro->GetNumberOfPrunes();
+
+    bool mergePoints = (self->GetMergePoints() != 0);
+    bool smoothing = (self->GetSmoothing() != 0);
+    std::unique_ptr<typename VCType::TopologicalMerge> topoMerge;
+    if (mergePoints || smoothing)
+      topoMerge = VCType::TopologicalMerge::Execute(voro.get());
+
+    SurfaceOutput<TArray>::Execute(voro.get(), topoMerge.get(), mergePoints, smoothing,
+      regionsArray, self->GetBackgroundLabel(), output);
+
+    using TRegion = vtk::GetAPIType<TArray>;
+    int outputMeshType = self->GetOutputMeshType();
+    if ((smoothing && outputMeshType != vtkGeneralizedSurfaceNets3D::MESH_TYPE_POLYGONS) ||
+      (!smoothing && outputMeshType == vtkGeneralizedSurfaceNets3D::MESH_TYPE_TRIANGLES))
+      TransformMesh<TRegion>::template Execute<TRegion>(outputMeshType, output);
+
+    if (smoothing && output->GetNumberOfPoints() > 0)
+    {
+      vtkConstrainedSmoothingFilter* smoother = self->GetSmoother();
+      smoother->SetInputData(output);
+      if (self->GetGenerateSmoothingStencils())
+      {
+        vtkNew<vtkCellArray> stencils;
+        ProduceStencils::Execute<TArray>(
+          topoMerge.get(), regionsArray, output, self->GetSmoothingConstraints(), stencils.Get());
+        smoother->SetSmoothingStencils(stencils);
+      }
+      else
+        smoother->SetSmoothingStencils(nullptr);
+      smoother->Update();
+      output->ShallowCopy(vtkPolyData::SafeDownCast(smoother->GetOutput()));
+    }
+  }
+}; // GenerateSurfaceNetWorker
 
 } // anonymous namespace
 
@@ -1067,28 +1139,22 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   double length = input->GetLength();
   double padding = this->Padding * length;
 
-  // Region ids can be used to control which input points are processed.
-  // A region id < 0 means that the associated point is "outside" and does
-  // not contribute to the output. We can use this capability to process a
-  // specified "PointOfInterest" (if any). Otherwise, we check the input for
-  // segmented regions via a regions ids array.
-  //
-  // If region ids are provided,  array must be a single component tuple,
-  // signed integer of type vtkIntArray with the number of tuples == number
-  // of input points. (Implementation note: this could be expanded with
-  // templates - not sure its worth the object bloat.)
-  vtkSmartPointer<vtkIntArray> regions;
+  // Region ids control which input points are processed. A region id < 0
+  // means the point is "outside". The POI (PointOfInterest) path always uses
+  // int; the normal path dispatches over the actual array type so no copy is
+  // needed for short, long, etc. scalar types.
+  vtkSmartPointer<vtkIntArray> poisRegions;
+  vtkDataArray* rIds = nullptr;
 
-  // Limit processing to points of interested if so specified.
   if ((this->PointOfInterest >= 0 && this->PointOfInterest < numPts) || this->PointsOfInterest)
   {
-    regions = vtkSmartPointer<vtkIntArray>::New();
-    regions->SetName("PointsOfInterest");
-    regions->SetNumberOfTuples(numPts);
-    vtkSMPTools::Fill(regions->GetPointer(0), regions->GetPointer(0) + numPts, -100);
+    poisRegions = vtkSmartPointer<vtkIntArray>::New();
+    poisRegions->SetName("PointsOfInterest");
+    poisRegions->SetNumberOfTuples(numPts);
+    vtkSMPTools::Fill(poisRegions->GetPointer(0), poisRegions->GetPointer(0) + numPts, -100);
     if (this->PointOfInterest >= 0)
     {
-      regions->SetValue(this->PointOfInterest, numPts); // mark POI in region numPts
+      poisRegions->SetValue(this->PointOfInterest, numPts);
     }
     if (this->PointsOfInterest)
     {
@@ -1098,32 +1164,23 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
         vtkIdType poi = this->PointsOfInterest->GetValue(i);
         if (poi >= 0 && poi < numPts)
         {
-          regions->SetValue(poi, numPts); // mark POI in region numPts
+          poisRegions->SetValue(poi, numPts);
         }
       }
     }
+    rIds = poisRegions;
   }
   else
   {
-    vtkDataArray* rIds = this->GetInputArrayToProcess(0, inputVector);
-    regions = vtkIntArray::FastDownCast(rIds);
-    if (rIds && !regions)
-    {
-      vtkWarningMacro("Region Ids array must be of type vtkIntArray");
-      regions = ConvertRegionLabels(rIds);
-    }
-    if (regions)
-    {
-      if (regions->GetNumberOfComponents() > 1)
-      {
-        vtkErrorMacro("Region Ids must have 1 component");
-        regions = nullptr;
-      }
-    }
-    // Surface nets requires region ids
-    if (!regions)
+    rIds = this->GetInputArrayToProcess(0, inputVector);
+    if (!rIds)
     {
       vtkErrorMacro("Region Ids array must be defined");
+      return 1;
+    }
+    if (rIds->GetNumberOfComponents() > 1)
+    {
+      vtkErrorMacro("Region Ids must have 1 component");
       return 1;
     }
   }
@@ -1139,7 +1196,7 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
     vtkWarningMacro("Automatically generating labels");
     for (vtkIdType i = 0; i < numPts; ++i)
     {
-      double regionId = static_cast<double>(regions->GetValue(i));
+      double regionId = rIds->GetComponent(i, 0);
       if (regionId >= 0 &&
         std::find(autoLabels.begin(), autoLabels.end(), regionId) == autoLabels.end())
       {
@@ -1147,70 +1204,23 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
       }
     }
     labels = autoLabels.data();
-    if ((numLabels = autoLabels.size()) <= 0)
+    if ((numLabels = static_cast<vtkIdType>(autoLabels.size())) <= 0)
     {
       vtkErrorMacro("Region ids are all negative (i.e., outside)");
       return 1;
     }
   }
 
-  // Process the points to generate Voronoi information, including the adjacency
-  // (wheels and spokes) data structure. Information is also gathered to allocate
-  // memory for the output, and then generate the VTK filter output.
-  SNCompositor comp(this->BoundaryCapping);
-  SNClassifier classifier(regions->GetPointer(0), labels, numLabels);
-
-  auto voro = vtkVoronoiCore3D<SNCompositor, SNClassifier>::Execute(this, this->BatchSize,
-    this->Locator, tPoints, padding, this->MaximumNumberOfHullClips, this->Validate,
-    this->PruneTolerance, &comp, &classifier);
-  this->NumberOfThreads = voro->GetNumberOfThreads();
-  this->NumberOfPrunes = voro->GetNumberOfPrunes();
-
-  // If smoothing and/or point merging is requested, composite the
-  // topological point 4-tuples, sort them, and then create a point
-  // renumbering map. We do this prior to creating output points and
-  // surface primitives so that when they are created, we can renumber them
-  // appropriately.
-  std::unique_ptr<vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge> topoMerge;
-  if (this->MergePoints || this->Smoothing)
+  // Dispatch over the concrete region array type. In the POI case rIds already
+  // points to poisRegions (vtkIntArray), so no special branch is needed.
+  GenerateSurfaceNetWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(rIds, worker, this, tPoints, padding, labels, numLabels,
+        output, &this->NumberOfThreads, &this->NumberOfPrunes))
   {
-    topoMerge = vtkVoronoiCore3D<SNCompositor, SNClassifier>::TopologicalMerge::Execute(voro.get());
-    // vtkIdType numMergedPts = topoMerge->NumMergedPts;
+    // Fallback for array types not covered by the dispatcher (e.g. SOA arrays).
+    worker(rIds, this, tPoints, padding, labels, numLabels, output, &this->NumberOfThreads,
+      &this->NumberOfPrunes);
   }
-
-  // With the information gathered, now build the surface net. This produces output
-  // convex polyhedra.
-  SurfaceOutput::Execute(voro.get(), topoMerge.get(), this->MergePoints, this->Smoothing,
-    regions->GetPointer(0), this->BackgroundLabel, output);
-
-  // For smoothing, it's best to convert the mesh to triangles.
-  if ((this->Smoothing && this->OutputMeshType != MESH_TYPE_POLYGONS) ||
-    (!this->Smoothing && this->OutputMeshType == MESH_TYPE_TRIANGLES))
-  {
-    TransformMesh::Execute(this->OutputMeshType, output);
-  }
-
-  // If smoothing is enabled, then invoke the filter and shallow copy its output
-  // to this filter's output. Make sure there is output.
-  if (this->Smoothing && output->GetNumberOfPoints() > 0)
-  {
-    this->Smoother->SetInputData(output);
-    if (this->GenerateSmoothingStencils)
-    {
-      vtkNew<vtkCellArray> stencils;
-      ProduceStencils::Execute(topoMerge.get(), regions->GetPointer(0), output,
-        this->SmoothingConstraints, stencils.Get());
-      this->Smoother->SetSmoothingStencils(stencils);
-    }
-    else
-    {
-      // Let the smoothing filter compute stencils
-      this->Smoother->SetSmoothingStencils(nullptr);
-    }
-    this->Smoother->Update();
-    vtkPolyData* smoothOutput = vtkPolyData::SafeDownCast(this->Smoother->GetOutput());
-    output->ShallowCopy(smoothOutput);
-  } // if Smoothing
 
   // Make sure the locator returns to a normal processing mode.
   this->Locator->UseExistingSearchStructureOff();

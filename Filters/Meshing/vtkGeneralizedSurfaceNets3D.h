@@ -17,7 +17,7 @@
  *
  * Besides the list of input points, the filter requires an input region ids
  * array which labels the points as belonging to different regions. This
- * point data region ids array should be of integer type (vtkIntArray), with
+ * point data region ids array must be a single-component value type, with
  * region id values>=0 (although a region id < 0 indicates that the
  * associated point is "outside"; consequently the point will not produce
  * output but will affect neighboring points in terms of producing boundary
@@ -68,6 +68,11 @@
  * W. Schroeder, S. Tsalikis, M. Halle, S. Frisken. A High-Performance
  * SurfaceNets Discrete Isocontouring Algorithm. arXiv:2401.14906. 2024.
  * (http://arxiv.org/abs/2401.14906).
+ *
+ * The generalized (meshless Voronoi) variant of the algorithm is described in:
+ * W. Schroeder, D. Thompson, S. Tsalikis. A Parallel Meshless Voronoi Method
+ * for Generalized SurfaceNets. IEEE Transactions on Visualization and Computer
+ * Graphics, pp. 1-13, 2026. DOI: 10.1109/TVCG.2026.3694501.
  *
  * The Surface Nets algorithm was first proposed by Sarah Frisken.  Two
  * important papers include the description of surface nets for binary
