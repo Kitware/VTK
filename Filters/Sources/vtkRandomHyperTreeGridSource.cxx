@@ -6,18 +6,17 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkType.h"
 
-#include <numeric>
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRandomHyperTreeGridSource);
@@ -28,22 +27,6 @@ namespace
 // and be a public member.
 // But for now only 2 is supported as a value.
 constexpr int BRANCHING_FACTOR = 2;
-
-//------------------------------------------------------------------------------
-/**
- * Wrapping around std::shuffle to use vtkMinimalStandardRandomSequence as a custom
- * generator.
- */
-void ShuffleArray(std::vector<int>& array, vtkMinimalStandardRandomSequence* rng)
-{
-  for (size_t i = array.size() - 1; i > 0; i--)
-  {
-    double value = rng->GetValue() * static_cast<double>(array.size());
-    int index = vtkMath::Floor(value);
-    std::swap(array[i], array[static_cast<int>(index % array.size())]);
-    rng->Next();
-  }
-}
 }
 
 //------------------------------------------------------------------------------
@@ -57,7 +40,6 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
   : Seed(0)
   , MaxDepth(5)
   , SplitFraction(0.5)
-  , Levels(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -124,12 +106,6 @@ int vtkRandomHyperTreeGridSource::RequestData(
   vtkInformation* outInfo = outInfos->GetInformationObject(0);
   int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
 
-  // Refresh masking cost per level if maxDepth did change
-  if (this->MaxDepth + 1 != static_cast<vtkIdType>(this->MaskingCostPerLevel.size()))
-  {
-    this->InitializeMaskingNodeCostPerLevel();
-  }
-
   // Create dataset:
   auto fillArray = [](vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound)
   {
@@ -178,14 +154,6 @@ int vtkRandomHyperTreeGridSource::RequestData(
     htg->SetZCoordinates(coords);
   }
 
-  vtkNew<vtkDoubleArray> levels;
-  levels->SetName("Depth");
-  htg->GetCellData()->AddArray(levels);
-  this->Levels = levels;
-
-  // Initialize Mask
-  vtkNew<vtkBitArray> newMask;
-  htg->SetMask(newMask);
   vtkIdType treeOffset = 0;
   int numberOfTrees = (updateExtent[1] - updateExtent[0]) * (updateExtent[3] - updateExtent[2]) *
     (updateExtent[5] - updateExtent[4]);
@@ -196,7 +164,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   }
 
   // Gather all tree ids in a vector
-  std::vector<int> hyperTrees;
+  std::vector<vtkIdType> hyperTrees;
   hyperTrees.reserve(numberOfTrees);
   for (int i = updateExtent[0]; i < updateExtent[1]; ++i)
   {
@@ -212,66 +180,36 @@ int vtkRandomHyperTreeGridSource::RequestData(
     }
   }
 
-  /* Subdivision and masking are done in 2 separate loops, because
-   * our algorithm tends to mask way more easily the first trees it encounters.
-   * So we need to shuffle the order in which we process the trees to avoid having a highly
-   * biaised masking. That's why we need to firstly generate the whole HTG before masking it.
-   */
+  // Estimate the number of cells using the geometric series summation formula
+  // for numberOfTrees * (branch_factor^dimension * SplitFraction)^k, k in
+  vtkNew<vtkDoubleArray> levels;
+  levels->SetName("Depth");
+  vtkIdType expFactor = std::pow(::BRANCHING_FACTOR, htg->GetDimension()) * this->SplitFraction;
+  vtkIdType estNumTuples =
+    numberOfTrees * (std::pow(expFactor, this->MaxDepth + 1) - 1) / (expFactor - 1);
+  levels->ReserveTuples(estNumTuples);
 
-  // Subdivision
+  htg->GetCellData()->AddArray(levels);
+  vtkNew<vtkBitArray> newMask;
+  htg->SetMask(newMask);
+
+  // Subdivision & Masking
   for (int treeId : hyperTrees)
   {
     this->NodeRNG->Initialize(this->Seed + treeId);
+    this->MaskRNG->Initialize(this->Seed + treeId + 1); // Use a different seed for masking
 
     // Build this tree:
     auto cursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::Take(
       htg->NewNonOrientedCursor(treeId, true));
     cursor->GetTree()->SetGlobalIndexStart(treeOffset);
-    this->SubdivideLeaves(cursor, treeId);
+    this->SubdivideLeaves(cursor, treeId, levels);
     treeOffset += cursor->GetTree()->GetNumberOfVertices();
   }
-  // Need to shuffle Trees to avoid bias
-  vtkNew<vtkMinimalStandardRandomSequence> treesRNG;
-  treesRNG->Initialize(this->Seed);
-  // Shuffle the tree ids order for masking
-  ::ShuffleArray(hyperTrees, treesRNG);
 
-  // We need to keep track of the fraction of trees masked at the root level,
-  // since our algorithm masks a fraction of each level.
-  double treeSiblingsFractionMasked = 0;
-  double errorMargin = 1.0 / numberOfTrees;
+  vtkDebugMacro(<< "Estimated tuple size " << estNumTuples << " ; Real "
+                << levels->GetNumberOfTuples());
 
-  // Masking
-  for (int treeId : hyperTrees)
-  {
-    this->MaskRNG->Initialize(this->Seed + treeId);
-
-    auto cursor = vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor>::Take(
-      htg->NewNonOrientedCursor(treeId, true));
-    double unmaskedFraction = 1.0;
-    if (this->MaskedFraction == 1.0)
-    {
-      cursor->SetMask(true);
-      unmaskedFraction = 0.0;
-    }
-    else if (this->MaskedFraction > 0)
-    {
-      unmaskedFraction =
-        this->GenerateMask(cursor, treeId, 1.0, false, treeSiblingsFractionMasked, errorMargin);
-    }
-    double maskedTreeFraction = 1.0 - unmaskedFraction;
-
-    this->ActualMaskedCellFraction += maskedTreeFraction;
-    // This accumulates floating point errors which cause the mask to not work
-    // properly for masked fraction values very close to 1.
-    treeSiblingsFractionMasked += (maskedTreeFraction / numberOfTrees);
-  }
-
-  // We could use treeSiblingsMasked but computing it at the end avoids
-  // float error accumulation.
-  this->ActualMaskedCellFraction /= numberOfTrees;
-  // Cleanup
-  this->Levels = nullptr;
   return 1;
 }
 
@@ -284,134 +222,44 @@ int vtkRandomHyperTreeGridSource::FillOutputPortInformation(int, vtkInformation*
 
 //------------------------------------------------------------------------------
 void vtkRandomHyperTreeGridSource::SubdivideLeaves(
-  vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId)
+  vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId, vtkDoubleArray* depthArray)
 {
   vtkIdType vertexId = cursor->GetVertexId();
-  vtkHyperTree* tree = cursor->GetTree();
-  vtkIdType idx = tree->GetGlobalIndexFromLocal(vertexId);
+  vtkIdType idx = cursor->GetTree()->GetGlobalIndexFromLocal(vertexId);
   vtkIdType level = cursor->GetLevel();
-  this->Levels->InsertValue(idx, level);
+  depthArray->InsertValue(idx, level);
   cursor->SetMask(false);
-  if (cursor->IsLeaf())
+
+  if (this->ShouldRefine() && level < this->MaxDepth)
   {
-    if (this->ShouldRefine(level))
-    {
-      cursor->SubdivideLeaf();
-      this->SubdivideLeaves(cursor, treeId);
-    }
-  }
-  else
-  {
+    cursor->SubdivideLeaf();
     int numChildren = cursor->GetNumberOfChildren();
     for (int childIdx = 0; childIdx < numChildren; ++childIdx)
     {
       cursor->ToChild(childIdx);
-      this->SubdivideLeaves(cursor, treeId);
+      this->SubdivideLeaves(cursor, treeId, depthArray);
       cursor->ToParent();
     }
+  }
+  else if (this->ShouldMask())
+  {
+    // Only mask leaf cells
+    cursor->SetMask(true);
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkRandomHyperTreeGridSource::ShouldRefine(vtkIdType level)
+bool vtkRandomHyperTreeGridSource::ShouldRefine()
 {
   this->NodeRNG->Next();
-  return level < this->MaxDepth && this->NodeRNG->GetValue() < this->SplitFraction;
+  return this->NodeRNG->GetValue() < this->SplitFraction;
 }
 
 //------------------------------------------------------------------------------
-double vtkRandomHyperTreeGridSource::GenerateMask(vtkHyperTreeGridNonOrientedCursor* cursor,
-  vtkIdType treeId, double unmaskedFraction, bool isParentMasked, double siblingsFractionMasked,
-  double errorMargin)
+bool vtkRandomHyperTreeGridSource::ShouldMask()
 {
-  int numChildren = cursor->GetNumberOfChildren();
-  vtkIdType level = cursor->GetLevel();
-  bool isMasked = false;
-  double resultUnmaskedFraction = unmaskedFraction;
-
-  // Initialize mask for new leaves
-  cursor->SetMask(false);
-  if (!isParentMasked)
-  {
-    double maskingCost = this->GetMaskingNodeCost(level);
-    if (this->ShouldMask(siblingsFractionMasked, level, errorMargin))
-    {
-      /* Reduce the unmasked proportion only if we mask
-       * the root of a subtree. Since its proportion
-       * is equal to the sum of its children, we only need
-       * the reduction for the root.
-       * Also this line isn't thread safe
-       */
-      resultUnmaskedFraction -= maskingCost;
-      isMasked = true;
-    }
-  }
-  isMasked = isMasked || isParentMasked;
-  if (!cursor->IsLeaf())
-  {
-    // Need to shuffle children to avoid bias and get interesting results
-    int nbChildMasked = 0;
-    double childUnmaskedFraction = unmaskedFraction;
-    std::vector<int> children;
-    children.resize(numChildren);
-    std::iota(children.begin(), children.end(), 0);
-    ::ShuffleArray(children, this->MaskRNG);
-
-    for (int childIdx : children)
-    {
-      double previousUnmaskedFraction = childUnmaskedFraction;
-      // Can't mask cursor before visiting child
-      cursor->ToChild(childIdx);
-      double maskedChildrenFraction =
-        static_cast<double>(nbChildMasked) / static_cast<double>(numChildren);
-      childUnmaskedFraction = this->GenerateMask(cursor, treeId, previousUnmaskedFraction, isMasked,
-        maskedChildrenFraction, 1.0 / numChildren);
-      if (childUnmaskedFraction < previousUnmaskedFraction)
-      {
-        nbChildMasked += 1;
-      }
-      cursor->ToParent();
-    }
-    if (!isMasked)
-    {
-      resultUnmaskedFraction = childUnmaskedFraction;
-    }
-    if (nbChildMasked == numChildren)
-    {
-      isMasked = true;
-    }
-  }
-  cursor->SetMask(isMasked);
-  return resultUnmaskedFraction;
-}
-
-//------------------------------------------------------------------------------
-bool vtkRandomHyperTreeGridSource::ShouldMask(
-  double siblingsFractionMasked, int level, double errorMargin)
-{
-  int levelWeight = std::max(1, static_cast<int>(level * this->MaxDepth));
-  // We penalize the masking of high depth node since they are harder to attain.
-  // This allows to have more deep nodes unmasked.
-  return siblingsFractionMasked * levelWeight <= this->MaskedFraction - errorMargin;
-}
-
-//------------------------------------------------------------------------------
-void vtkRandomHyperTreeGridSource::InitializeMaskingNodeCostPerLevel()
-{
-  this->MaskingCostPerLevel.resize(this->MaxDepth + 1);
-  int numberOfDimensions = sizeof(this->Dimensions) / sizeof(unsigned int);
-  int numberOfChildPerNode = std::pow(::BRANCHING_FACTOR, numberOfDimensions);
-  for (vtkIdType i = 1; i <= this->MaxDepth; ++i)
-  {
-    double maskingCost = this->MaskingCostPerLevel.at(i - 1) / numberOfChildPerNode;
-    this->MaskingCostPerLevel[i] = maskingCost;
-  }
-}
-
-//------------------------------------------------------------------------------
-double vtkRandomHyperTreeGridSource::GetMaskingNodeCost(int level)
-{
-  return this->MaskingCostPerLevel.at(level);
+  this->MaskRNG->Next();
+  return this->MaskRNG->GetValue() < this->MaskedFraction;
 }
 
 VTK_ABI_NAMESPACE_END

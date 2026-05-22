@@ -71,13 +71,6 @@ int TestRandomHyperTreeGridSourceDistributed(int argc, char* argv[])
   source->SetMaskedFraction(maskedFraction);
   source->Update();
 
-  if (source->GetActualMaskedCellFraction() > maskedFraction)
-  {
-    std::cout << "The masked cell proportion is " << source->GetActualMaskedCellFraction()
-              << " and it should be less or equal than " << maskedFraction << std::endl;
-    result = 0;
-  }
-
   vtkNew<vtkHyperTreeGridGeometry> geom;
   geom->SetInputConnection(source->GetOutputPort());
 

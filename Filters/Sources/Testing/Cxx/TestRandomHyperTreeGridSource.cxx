@@ -46,17 +46,6 @@ bool ConstructScene(vtkRenderer* renderer, int numPieces)
     source->SetMaskedFraction(maskedFraction);
     source->Update();
     int nbChildrenPerNode = 8; // (branching factor = 2) ^ (dimension = 3)
-    double errorMargin = 1.0 / nbChildrenPerNode;
-
-    // fixed error tolerance
-    if (source->GetActualMaskedCellFraction() > errorMargin + maskedFraction ||
-      source->GetActualMaskedCellFraction() < maskedFraction - errorMargin)
-    {
-      std::cout << "The masked cell proportion is " << source->GetActualMaskedCellFraction()
-                << " and it should around +/-" << errorMargin << " : " << maskedFraction
-                << std::endl;
-      result = false;
-    }
 
     vtkNew<vtkHyperTreeGridGeometry> geom;
     geom->SetInputConnection(source->GetOutputPort());
