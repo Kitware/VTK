@@ -5,15 +5,18 @@
  * Reads available versions from vtk_versions.json and navigates to the
  * corresponding page on version change.
  *
+ * The currently-active version is derived from the Doxygen project version
+ * string rendered in the page (#projectnumber):
+ *   - If the patch component is 8 digits (YYYYMMDD), it is a nightly build
+ *     and is matched against entries with version == "nightly".
+ *   - Otherwise the major.minor part is matched against version entries.
+ *
  * Fetch order:
  *   1. Shared server-level JSON (maintained by CI across all releases).
  *   2. Local vtk_versions.json bundled with this documentation build.
  */
 (function () {
   "use strict";
-
-  // Replaced by CMake's configure_file(@ONLY).
-  var defined_current_version = "@VTK_CURRENT_VERSION@";
 
   // The shared JSON lives two levels up from a versioned doc root,
   // e.g. /doc/vtk_versions.json when docs are at /doc/release/9.6/html/.
@@ -29,12 +32,36 @@
   // ------------------------------------------------------------------
 
   /**
+   * Derive the current version key from the Doxygen #projectnumber element.
+   *
+   * Rules:
+   *   - "9.6.20250521" (patch is 8-digit date)  →  "nightly"
+   *   - "9.6.1" / "9.6.0"                        →  "9.6"
+   *   - "9.6"                                    →  "9.6"
+   *   - If the element is absent, returns null.
+   */
+  function detectCurrentVersion() {
+    var el = document.getElementById("projectnumber");
+    if (!el) return null;
+    var raw = el.textContent || el.innerText || "";
+    raw = raw.trim();
+    // Match major.minor[.patch]
+    var m = raw.match(/^(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (!m) return null;
+    var patch = m[3];
+    // An 8-digit patch component is treated as a YYYYMMDD nightly date.
+    if (patch && /^\d{8}$/.test(patch)) {
+      return "nightly";
+    }
+    return m[1] + "." + m[2];
+  }
+
+  /**
    * Try to figure out the shared JSON URL from the page location when the
    * CMake variable was not set (local / non-deployed builds).
    */
   function resolveSharedJsonUrl() {
-    if (defined_shared_json_url &&
-        defined_shared_json_url.indexOf("@") !== 0) {
+    if (defined_shared_json_url && defined_shared_json_url.indexOf("@") !== 0) {
       return defined_shared_json_url;
     }
     // Heuristic: walk up from .../html/<page> to the doc root.
@@ -82,7 +109,7 @@
       var opt = document.createElement("option");
       opt.value = v.baseUrl || "";
       opt.textContent = v.name;
-      if (v.version === currentVersion) {
+      if (currentVersion !== null && v.version === currentVersion) {
         opt.selected = true;
       }
       select.appendChild(opt);
@@ -126,7 +153,7 @@
   function buildUI(data) {
     var versions = data.versions || [];
     if (versions.length > 0) {
-      injectSelector(createSelector(versions, defined_current_version));
+      injectSelector(createSelector(versions, detectCurrentVersion()));
     }
   }
 
