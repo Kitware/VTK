@@ -51,7 +51,6 @@ foreach(module IN LISTS vtk_module_files)
 ")
 endforeach()
 
-set(VTK_CURRENT_VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 # URL to the shared vtk_versions.json maintained by CI on the doc server.
 # When building locally this is left empty and the JS falls back to the
 # local vtk_versions.json bundled with the build.
