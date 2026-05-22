@@ -157,8 +157,8 @@ public:
   double PolygonArea(vtkCell*);
 
 protected:
-  ~vtkCellQuality() override;
   vtkCellQuality();
+  ~vtkCellQuality() override = default;
 
   /**
    * Set/Get the particular estimator used to function the quality of triangles.
@@ -319,9 +319,6 @@ protected:
   double UndefinedQuality;
 
 private:
-  vtkIdList* PointIds;
-  vtkPoints* Points;
-
   vtkCellQuality(const vtkCellQuality&) = delete;
   void operator=(const vtkCellQuality&) = delete;
 };
