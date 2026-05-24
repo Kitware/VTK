@@ -340,7 +340,7 @@ bool vtkNanoVDBWriter::WriteImageData(vtkImageData* imageData)
     this->CurrentTimeIndex, this->NumberOfTimeSteps, localProcessId, numberOfProcesses);
   try
   {
-    nanovdb::io::writeGrids(fileName, handles);
+    nanovdb::io::writeGrids<nanovdb::HostBuffer, std::vector>(fileName, handles);
   }
   catch (const std::exception& e)
   {
