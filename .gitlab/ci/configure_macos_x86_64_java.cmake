@@ -5,7 +5,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/configure_macos.cmake")
 
 # Disable modules with missing runtime dependencies on macOS
 set(VTK_MODULE_ENABLE_VTK_IOADIOS2 NO CACHE STRING "")
-set(VTK_MODULE_ENABLE_VTK_IOFides NO CACHE STRING "")
+set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "")
 set(VTK_MODULE_ENABLE_VTK_FiltersONNX NO CACHE STRING "")
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type)
