@@ -35,13 +35,14 @@ vtkStandardNewMacro(vtkMultiVariateToRGBA);
 
 namespace
 {
-// Implement numpy.mod using std::fmod
+// Implement numpy.mod using std::fmod for a / b.
 // std::fmod returns a remainder with the sign of the dividend (a) while
 // numpy.mod returns a reminder with he sign of the divisor (b)
+// This code was ported from python/numpy so we use numpy_mod.
 double numpy_mod(double a, double b)
 {
   double r = std::fmod(a, b);
-  // If remainder is non-zero and has a different sign than the divisor, adjust.
+  // If remainder is non-zero and has a different sign than b, the divisor, adjust.
   if (r != 0.0 && ((r < 0.0) != (b < 0.0)))
   {
     r += b;
@@ -144,19 +145,18 @@ struct ComputeGBCWorker
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
     auto gbc = vtk::DataArrayTupleRange(gbcArray);
 
-    // computes the vertices angles (VF), Table 1, GBC
+    // computes the vertices (VF), Table 1, GBC, first column
     vtkIdType nComponents = normalized.GetTupleSize();
     this->Vertices = vtkSmartPointer<vtkFloatArray>::New();
     this->Vertices->SetName("vertices");
     this->Vertices->SetNumberOfComponents(2);
     this->Vertices->SetNumberOfTuples(nComponents);
     auto vertices = vtk::DataArrayTupleRange(this->Vertices);
-
     std::vector<double> angle(nComponents);
     angle[0] = vtkMath::Pi() / 2;
-    vertices[0][0] = std::cos(angle[0]);
-    vertices[0][1] = std::sin(angle[0]);
     constexpr double adjustment = 0.997;
+    vertices[0][0] = std::cos(angle[0]) * adjustment;
+    vertices[0][1] = std::sin(angle[0]) * adjustment;
     for (int i = 1; i < nComponents; ++i)
     {
       angle[i] = angle[i - 1] - 2 * vtkMath::Pi() / nComponents;
@@ -174,17 +174,19 @@ struct ComputeGBCWorker
     };
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
+      // compute points (MF), Table 1, GBC, second column
+      // TupleRange doesn't work with std::accumulate / std::reduce
       double tempsum = 0;
       for (int k = 0; k < nComponents; ++k)
       {
         tempsum += normalized[i][k];
       }
-      gbc[i][0] = 0;
-      gbc[i][1] = 0;
       if (vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
       {
         continue;
       }
+      gbc[i][0] = 0;
+      gbc[i][1] = 0;
       for (int k = 0; k < nComponents; ++k)
       {
         for (int j = 0; j < 2; ++j)
@@ -192,9 +194,11 @@ struct ComputeGBCWorker
           gbc[i][j] += normalized[i][k] * vertices[k][j] / tempsum;
         }
       }
+
+      // find temp_b, temp_a, which are the angles for the vertices
+      // between which tempangle (for gbc[i]) fits?
       double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
       tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
-
       bool flag = false;
       double temp_a = 0;
       double temp_b = 0;
@@ -213,9 +217,9 @@ struct ComputeGBCWorker
         temp_a = angle[0] + vtkMath::Pi() * 2;
         temp_b = angle[nComponents - 1];
       }
-
-      double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) /
-        std::cos((temp_a - temp_b) / 2) * std::cos(-(temp_a + temp_b) / 2 + tempangle);
+      // scale gbc to R
+      double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) *
+        std::cos(-(temp_a + temp_b) / 2 + tempangle) / std::cos((temp_a - temp_b) / 2);
       gbc[i][0] = lth * std::cos(tempangle);
       gbc[i][1] = lth * std::sin(tempangle);
 

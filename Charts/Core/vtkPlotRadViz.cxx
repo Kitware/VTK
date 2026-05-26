@@ -14,6 +14,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiVariateToRGBA.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -25,6 +26,11 @@
 #include "vtkTextProperty.h"
 
 #include <algorithm>
+#include <vtk_fmt.h>
+// clang-format off
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ranges.h)
+// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -77,6 +83,9 @@ vtkPlotRadViz::vtkPlotRadViz()
   // otherwise we process all columns of a table
   this->GetData()->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
+  this->ColorWheelSegmentCount = 120;
+  this->ColorWheelStartAngle = 90;
+  this->ColorWheelClockwiseOrdering = true;
 }
 
 void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
@@ -123,7 +132,6 @@ void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
   vtkDebugMacro(<< "Paint event called.");
-  const int segmentCount = 100;
   vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
   vtkTable* table = vtkTable::SafeDownCast(input);
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
@@ -187,23 +195,10 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     return false;
   }
 
-  // paint the color wheel
-  for (int i = 0; i < segmentCount; ++i)
-  {
-    std::array<float, 3> hsv = { static_cast<float>(i) / segmentCount, 1.0, 1.0 };
-    std::array<float, 3> rgbFloat;
-    vtkMath::HSVToRGB(hsv.data(), rgbFloat.data());
-    std::array<unsigned char, 3> rgb;
-    std::transform(rgbFloat.begin(), rgbFloat.end(), rgb.begin(), [](float v) { return v * 255; });
-    painter->GetBrush()->SetColor(rgb.data());
-    painter->DrawEllipseWedge(this->Internals->CenterX, this->Internals->CenterY,
-      this->Internals->Radius, this->Internals->Radius, 0.0, 0.0, 360.0 * i / segmentCount,
-      360.0 * (i + 1) / segmentCount);
-  }
-
+  this->DrawColorWheel(painter);
   this->DrawMarkers(painter, gbc, this->Pen);
   this->DrawMarkers(painter, vertices, this->VerticesPen);
-  this->DrawLabels(painter, vertices);
+  this->DrawLabels(painter, vertices, this->VerticesPen);
   this->PaintChildren(painter);
   return true;
 }
@@ -219,17 +214,119 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::Transform(vtkFloatArray* points)
   return transformedPoints;
 }
 
-void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkFloatArray* points)
+std::pair<int, int> vtkPlotRadViz::GetJustification(float xy[2])
+{
+  if (vtkMathUtilities::FuzzyCompare(xy[1], 0.0f))
+  {
+    if (xy[0] > 0)
+    {
+      // angle: 0
+      return { VTK_TEXT_LEFT, VTK_TEXT_CENTERED };
+    }
+    else
+    {
+      // angle: 180
+      return { VTK_TEXT_RIGHT, VTK_TEXT_CENTERED };
+    }
+  }
+  else if (vtkMathUtilities::FuzzyCompare(xy[0], 0.0f))
+  {
+    if (xy[1] > 0)
+    {
+      // angle: 90
+      return { VTK_TEXT_CENTERED, VTK_TEXT_BOTTOM };
+    }
+    else
+    {
+      // angle: 270
+      return { VTK_TEXT_CENTERED, VTK_TEXT_TOP };
+    }
+  }
+  else if (xy[0] > 0)
+  {
+    if (xy[1] > 0)
+    {
+      // first quadrant (0 < angle < 90)
+      return { VTK_TEXT_LEFT, VTK_TEXT_BOTTOM };
+    }
+    else
+    {
+      // forth quadrant (270 < angle < 360)
+      return { VTK_TEXT_LEFT, VTK_TEXT_TOP };
+    }
+  }
+  else
+  {
+    if (xy[1] > 0)
+    {
+      // second quadrant (90 < angle < 180)
+      return { VTK_TEXT_RIGHT, VTK_TEXT_BOTTOM };
+    }
+    else
+    {
+      // third quadrant (180 < angle < 270)
+      return { VTK_TEXT_RIGHT, VTK_TEXT_TOP };
+    }
+  }
+}
+
+void vtkPlotRadViz::ShiftLabelByPenWidth(float width, double xy[2])
+{
+  double radius = (width / 2) * 1.2;
+  double cos_a = (xy[0] - this->Internals->CenterX) / this->Internals->Radius;
+  double x = cos_a * radius;
+  double sin_a = (xy[1] - this->Internals->CenterY) / this->Internals->Radius;
+  double y = sin_a * radius;
+  xy[0] += x;
+  xy[1] += y;
+}
+
+void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
+{
+  for (int i = 0; i < this->ColorWheelSegmentCount; ++i)
+  {
+    std::array<float, 3> hsv = { static_cast<float>(i) / this->ColorWheelSegmentCount, 1.0, 1.0 };
+    std::array<float, 3> rgbFloat;
+    vtkMath::HSVToRGB(hsv.data(), rgbFloat.data());
+    std::array<unsigned char, 3> rgb;
+    std::transform(rgbFloat.begin(), rgbFloat.end(), rgb.begin(), [](float v) { return v * 255; });
+    painter->GetBrush()->SetColor(rgb.data());
+
+    double shiftToCenterColor = 180.0 / this->ColorWheelSegmentCount;
+    double start = 360.0 * i / this->ColorWheelSegmentCount - shiftToCenterColor;
+    double end = 360.0 * (i + 1) / this->ColorWheelSegmentCount - shiftToCenterColor;
+    if (this->ColorWheelClockwiseOrdering)
+    {
+      // DrawEllipseWedge wants start < end.
+      double start_ = 360 - end;
+      double end_ = 360 - start;
+      start = start_;
+      end = end_;
+    }
+    start += this->ColorWheelStartAngle;
+    end += this->ColorWheelStartAngle;
+    painter->DrawEllipseWedge(this->Internals->CenterX, this->Internals->CenterY,
+      this->Internals->Radius, this->Internals->Radius, 0.0, 0.0, start, end);
+  }
+}
+
+void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkFloatArray* points, vtkPen* pen)
 {
   assert(this->GetNumberOfLabels() == points->GetNumberOfTuples());
   auto transformedPoints = this->Transform(points);
-  painter->ApplyTextProp(this->LabelsProperties);
   for (int i = 0; i < points->GetNumberOfTuples(); ++i)
   {
-    double xy[2];
-    transformedPoints->GetPoint(i, xy);
+    std::vector<float> xy(points->GetNumberOfComponents());
+    points->GetTypedTuple(i, xy.data());
+    auto [just, vertJust] = this->GetJustification(xy.data());
+    this->LabelsProperties->SetJustification(just);
+    this->LabelsProperties->SetVerticalJustification(vertJust);
+    painter->ApplyTextProp(this->LabelsProperties);
+    double transformedXy[2];
+    transformedPoints->GetPoint(i, transformedXy);
     std::string label = this->GetLabel(i);
-    painter->DrawString(xy[0], xy[1], label.c_str());
+    this->ShiftLabelByPenWidth(pen->GetWidth(), transformedXy);
+    painter->DrawString(transformedXy[0], transformedXy[1], label.c_str());
   }
 }
 

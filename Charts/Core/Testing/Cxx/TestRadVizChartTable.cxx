@@ -38,7 +38,7 @@ int TestRadVizChartTable(int argc, char** argv)
 
   // Add a RadViz plot
   vtkPlot* plot = chart->AddPlot(0);
-  plot->GetPen()->SetWidth(2);
+  plot->GetPen()->SetWidth(4);
 
   plot->SetInputData(table);
 
