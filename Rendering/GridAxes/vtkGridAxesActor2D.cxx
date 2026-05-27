@@ -3,29 +3,72 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGridAxesActor2D.h"
 
+#include "vtkActor2D.h"
 #include "vtkAxis.h"
+#include "vtkBatchedLabeledDataMapper.h"
 #include "vtkBillboardTextActor3D.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 
 #include <algorithm>
-#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+int JustificationToTextAnchor(int hJustify, int vJustify)
+{
+  using TA = vtkBatchedLabeledDataMapper;
+  if (hJustify == VTK_TEXT_LEFT)
+  {
+    if (vJustify == VTK_TEXT_BOTTOM)
+      return TA::LowerLeft;
+    if (vJustify == VTK_TEXT_TOP)
+      return TA::UpperLeft;
+    return TA::LeftEdge;
+  }
+  else if (hJustify == VTK_TEXT_RIGHT)
+  {
+    if (vJustify == VTK_TEXT_BOTTOM)
+      return TA::LowerRight;
+    if (vJustify == VTK_TEXT_TOP)
+      return TA::UpperRight;
+    return TA::RightEdge;
+  }
+  else
+  {
+    if (vJustify == VTK_TEXT_BOTTOM)
+      return TA::LowerEdge;
+    if (vJustify == VTK_TEXT_TOP)
+      return TA::UpperEdge;
+    return TA::Center;
+  }
+}
+}
 
 class vtkGridAxesActor2D::vtkLabels
 {
 public:
-  typedef std::vector<vtkSmartPointer<vtkBillboardTextActor3D>> TickLabelsType;
-  TickLabelsType TickLabels[4];
+  // One batch mapper+actor pair per edge for tick labels.
+  vtkSmartPointer<vtkBatchedLabeledDataMapper> TickMappers[4];
+  vtkSmartPointer<vtkActor2D> TickActors[4];
+  vtkSmartPointer<vtkPolyData> TickPolyData[4];
+  vtkSmartPointer<vtkStringArray> TickLabelArrays[4];
+  int NumTicks[4] = { 0, 0, 0, 0 };
+
+  // Title labels remain one-per-edge billboard actors.
   vtkNew<vtkBillboardTextActor3D> TitleLabels[4];
   vtkVector2i Justifications[4];
 
@@ -34,22 +77,18 @@ public:
     for (int cc = 0; cc < 4; cc++)
     {
       this->TitleLabels[cc]->SetVisibility(0);
-    }
-  }
-  static void ResizeLabels(
-    TickLabelsType& labels, size_t new_size, vtkTextProperty* property = nullptr)
-  {
-    labels.resize(new_size);
-    for (TickLabelsType::iterator iter = labels.begin(); iter != labels.end(); ++iter)
-    {
-      if (!iter->GetPointer())
-      {
-        (*iter) = vtkSmartPointer<vtkBillboardTextActor3D>::New();
-        if (property)
-        {
-          iter->GetPointer()->GetTextProperty()->ShallowCopy(property);
-        }
-      }
+
+      this->TickPolyData[cc] = vtkSmartPointer<vtkPolyData>::New();
+      this->TickLabelArrays[cc] = vtkSmartPointer<vtkStringArray>::New();
+      this->TickLabelArrays[cc]->SetName("labels");
+
+      this->TickMappers[cc] = vtkSmartPointer<vtkBatchedLabeledDataMapper>::New();
+      this->TickMappers[cc]->SetLabelMode(VTK_LABEL_FIELD_DATA);
+      this->TickMappers[cc]->SetFieldDataName("labels");
+      this->TickMappers[cc]->SetInputData(this->TickPolyData[cc]);
+
+      this->TickActors[cc] = vtkSmartPointer<vtkActor2D>::New();
+      this->TickActors[cc]->SetMapper(this->TickMappers[cc]);
     }
   }
 
@@ -57,26 +96,22 @@ public:
   {
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        iter->GetPointer()->SetPropertyKeys(keys);
-      }
+      this->TickActors[cc]->SetPropertyKeys(keys);
       if (this->TitleLabels[cc]->GetVisibility())
       {
         this->TitleLabels[cc]->SetPropertyKeys(keys);
       }
     }
   }
+
   int RenderOpaqueGeometry(vtkViewport* viewport)
   {
     int counter = 0;
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
+      if (this->NumTicks[cc] > 0)
       {
-        counter += iter->GetPointer()->RenderOpaqueGeometry(viewport);
+        counter += this->TickActors[cc]->RenderOpaqueGeometry(viewport);
       }
       if (this->TitleLabels[cc]->GetVisibility())
       {
@@ -85,29 +120,25 @@ public:
     }
     return counter;
   }
+
   void UpdateGeometry(vtkViewport* viewport)
   {
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        iter->GetPointer()->UpdateGeometry(viewport);
-      }
       if (this->TitleLabels[cc]->GetVisibility())
       {
         this->TitleLabels[cc]->UpdateGeometry(viewport);
       }
     }
   }
+
   void GetActors(vtkPropCollection* props)
   {
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
+      if (this->NumTicks[cc] > 0)
       {
-        iter->GetPointer()->GetActors(props);
+        this->TickActors[cc]->GetActors(props);
       }
       if (this->TitleLabels[cc]->GetVisibility())
       {
@@ -115,18 +146,11 @@ public:
       }
     }
   }
+
   int HasTranslucentPolygonalGeometry()
   {
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        if (iter->GetPointer()->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
-      }
       if (this->TitleLabels[cc]->GetVisibility())
       {
         if (this->TitleLabels[cc]->HasTranslucentPolygonalGeometry())
@@ -137,16 +161,12 @@ public:
     }
     return 0;
   }
+
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   {
     int counter = 0;
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        counter += iter->GetPointer()->RenderTranslucentPolygonalGeometry(viewport);
-      }
       if (this->TitleLabels[cc]->GetVisibility())
       {
         counter += this->TitleLabels[cc]->RenderTranslucentPolygonalGeometry(viewport);
@@ -154,16 +174,12 @@ public:
     }
     return counter;
   }
+
   int RenderOverlay(vtkViewport* viewport)
   {
     int counter = 0;
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        counter += iter->GetPointer()->RenderOverlay(viewport);
-      }
       if (this->TitleLabels[cc]->GetVisibility())
       {
         counter += this->TitleLabels[cc]->RenderOverlay(viewport);
@@ -171,15 +187,12 @@ public:
     }
     return counter;
   }
+
   void ReleaseGraphicsResources(vtkWindow* win)
   {
     for (int cc = 0; cc < 4; cc++)
     {
-      for (TickLabelsType::iterator iter = this->TickLabels[cc].begin();
-           iter != this->TickLabels[cc].end(); ++iter)
-      {
-        iter->GetPointer()->ReleaseGraphicsResources(win);
-      }
+      this->TickMappers[cc]->ReleaseGraphicsResources(win);
       this->TitleLabels[cc]->ReleaseGraphicsResources(win);
     }
   }
@@ -498,12 +511,6 @@ void vtkGridAxesActor2D::UpdateTextProperties(vtkViewport*)
   {
     this->Labels->TitleLabels[cc]->GetTextProperty()->ShallowCopy(
       this->TitleTextProperty[activeAxes[cc % 2]]);
-    for (vtkLabels::TickLabelsType::iterator iter = this->Labels->TickLabels[cc].begin();
-         iter != this->Labels->TickLabels[cc].end(); ++iter)
-    {
-      iter->GetPointer()->GetTextProperty()->ShallowCopy(
-        this->LabelTextProperty[activeAxes[cc % 2]].Get());
-    }
   }
 
   this->UpdateLabelTextPropertiesMTime.Modified();
@@ -639,9 +646,10 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
     }
     vtkDoubleArray* tickPositions = activeAxisHelpers[axis]->GetTickPositions();
     vtkIdType numTicks = labelVisibilties[index] ? tickPositions->GetNumberOfTuples() : 0;
+
+    this->Labels->NumTicks[index] = static_cast<int>(numTicks);
     if (numTicks == 0)
     {
-      vtkLabels::ResizeLabels(this->Labels->TickLabels[index], 0);
       continue;
     }
 
@@ -651,33 +659,79 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
       vtkContext2D::FloatToInt(
         (axisNormals[index].GetY() * 10 * tileScale[1]) + this->LabelDisplayOffset[axis]));
 
-    vtkLabels::ResizeLabels(
-      this->Labels->TickLabels[index], numTicks, activeAxisHelpers[axis]->GetLabelProperties());
+    // The geometry shader in vtk(OpenGL/WebGPU)BatchedLabeledDataMapperInternals offsets text
+    // away from the anchor by `1 + descender` pixels for left/right text anchors and by
+    // descender (or descender / 2) pixels for top/center vertical anchors, so the
+    // frame edge sits at the anchor rather than the glyph edge. The old per-tick
+    // vtkBillboardTextActor3D placement put the glyph edge at the anchor with no margin,
+    // so without compensation the new tick labels drift toward the title. Compensate by
+    // shifting DisplayOffset back the same amount in the opposite direction.
+    vtkTextProperty* labelProp = activeAxisHelpers[axis]->GetLabelProperties();
+    int descender = 0;
+    if (vtkTextRenderer* tren = vtkTextRenderer::GetInstance())
+    {
+      vtkTextRenderer::Metrics metrics;
+      if (tren->GetMetrics(labelProp, "Mp", metrics, renWin->GetDPI()))
+      {
+        descender = std::abs(metrics.Descent.GetY());
+      }
+    }
+    const int hJust = this->Labels->Justifications[index].GetX();
+    const int vJust = this->Labels->Justifications[index].GetY();
+    int compX = 0, compY = 0;
+    if (hJust == VTK_TEXT_LEFT)
+    {
+      compX = -(1 + descender);
+    }
+    else if (hJust == VTK_TEXT_RIGHT)
+    {
+      compX = (1 + descender);
+    }
+    if (vJust == VTK_TEXT_TOP)
+    {
+      compY = descender;
+    }
+    else if (vJust == VTK_TEXT_CENTERED)
+    {
+      compY = descender / 2;
+    }
+
+    // Configure the batch label mapper for this edge.
+    vtkBatchedLabeledDataMapper* mapper = this->Labels->TickMappers[index];
+    mapper->SetLabelTextProperty(labelProp);
+    mapper->SetTextAnchor(JustificationToTextAnchor(hJust, vJust));
+    int offsetArr[2] = { offset.GetX() + compX, offset.GetY() + compY };
+    mapper->SetDisplayOffset(offsetArr);
+
+    // Build polydata with tick world-coordinate positions and label strings.
+    auto pts = vtkSmartPointer<vtkPoints>::New();
+    pts->SetNumberOfPoints(numTicks);
+    vtkStringArray* labelArr = this->Labels->TickLabelArrays[index];
+    labelArr->SetNumberOfValues(numTicks);
 
     for (vtkIdType cc = 0; cc < numTicks; ++cc)
     {
-      vtkBillboardTextActor3D* labelActor = this->Labels->TickLabels[index][cc];
-
       vtkVector3d tickPosition = gridPoints[index];
       tickPosition[activeAxes[axis]] = tickPositions->GetValue(cc);
       vtkVector3d tickWC = this->Helper->TransformPoint(tickPosition);
+      pts->SetPoint(cc, tickWC.GetData());
 
-      labelActor->SetPosition(tickWC.GetData());
       if (!labels->GetValue(cc).empty() && this->TickLabelFunction[activeAxis] != nullptr)
       {
         const double tickValue = this->TickLabelFunction[activeAxis](tickPositions->GetValue(cc));
-        labelActor->SetInput(activeAxisHelpers[axis]->GenerateSimpleLabel(tickValue).c_str());
+        labelArr->SetValue(cc, activeAxisHelpers[axis]->GenerateSimpleLabel(tickValue).c_str());
       }
       else
       {
-        labelActor->SetInput(labels->GetValue(cc).c_str());
+        labelArr->SetValue(cc, labels->GetValue(cc).c_str());
       }
-      labelActor->GetTextProperty()->SetJustification(this->Labels->Justifications[index].GetX());
-      labelActor->GetTextProperty()->SetVerticalJustification(
-        this->Labels->Justifications[index].GetY());
-      labelActor->SetDisplayOffset(offset.GetData());
-      labelActor->SetForceOpaque(this->ForceOpaque);
     }
+
+    vtkPolyData* pd = this->Labels->TickPolyData[index];
+    pd->Initialize();
+    pd->SetPoints(pts);
+    pd->GetPointData()->AddArray(labelArr);
+    pd->Modified();
   }
 
   for (int index = 0; index < 4; index++)
