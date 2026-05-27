@@ -6,6 +6,7 @@ endif()
 
 set(classes
   vtkWebGPUActor
+  vtkWebGPUBatchedLabeledDataMapper
   vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
   vtkWebGPUCellToPrimitiveConverter
@@ -58,7 +59,8 @@ set(private_headers
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
   "Private/vtkWebGPUShaderModuleInternals.h"
-  "Private/vtkWebGPUTextureInternals.h")
+  "Private/vtkWebGPUTextureInternals.h"
+  "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h")
 
 set(private_sources
   "Private/vtkWebGPUBindGroupInternals.cxx"
@@ -76,11 +78,13 @@ set(private_sources
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
   "Private/vtkWebGPUShaderModuleInternals.cxx"
-  "Private/vtkWebGPUTextureInternals.cxx")
+  "Private/vtkWebGPUTextureInternals.cxx"
+  "Private/vtkWebGPUBatchedLabeledDataMapperInternals.cxx")
 
 # setup factory overrides NI - Not Implemented
 set(webgpu_overrides
   Actor
+  BatchedLabeledDataMapper
   # NI: BillboardTextActor3D
   Camera
   CompositePolyDataMapperDelegator

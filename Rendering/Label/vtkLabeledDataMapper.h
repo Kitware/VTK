@@ -263,8 +263,8 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  void AllocateLabels(int numLabels);
-  void BuildLabels();
+  virtual void AllocateLabels(int numLabels);
+  virtual void BuildLabels();
   virtual void BuildLabelsInternal(vtkDataSet*);
 
   /**

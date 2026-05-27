@@ -18,6 +18,7 @@ Interaction/Widgets/vtkAbstractWidget.h
 Rendering/Annotation/vtkXYPlotActor.h
 Rendering/Core/vtkAbstractMapper.h
 Rendering/Core/vtkColorTransferFunction.h
+Rendering/Label/vtkBatchedLabeledDataMapper.h
 Common/DataModel/vtkGraph.h
 Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkDataSetMapper.h
