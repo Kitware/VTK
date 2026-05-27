@@ -21,14 +21,11 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindow.h"
-#include "vtkRendererCollection.h"
 #include "vtkRendererDelegate.h"
 #include "vtkSelectionNode.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkVector.h"
-
-#include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);

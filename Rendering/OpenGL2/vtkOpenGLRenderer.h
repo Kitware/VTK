@@ -20,9 +20,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
-#include <memory>                      // for unique_ptr
 #include <string>                      // Ivars
-#include <vector>                      // STL Header
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;

@@ -53,16 +53,13 @@
 #include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUniforms.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkVolumetricPass.h"
 
-#include <iterator>
 #include <vtksys/RegularExpression.hxx>
 
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <list>
 #include <sstream>
 #include <string>
 
