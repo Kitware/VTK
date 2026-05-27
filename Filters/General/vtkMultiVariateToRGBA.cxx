@@ -9,7 +9,6 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -147,7 +146,7 @@ struct ComputeGBCWorker
 
     // computes the vertices (VF), Table 1, GBC, first column
     vtkIdType nComponents = normalized.GetTupleSize();
-    this->Vertices = vtkSmartPointer<vtkFloatArray>::New();
+    this->Vertices = vtkSmartPointer<vtkDoubleArray>::New();
     this->Vertices->SetName("vertices");
     this->Vertices->SetNumberOfComponents(2);
     this->Vertices->SetNumberOfTuples(nComponents);
@@ -240,7 +239,7 @@ struct ComputeGBCWorker
   }
 
   double VerticesRotation;
-  vtkSmartPointer<vtkFloatArray> Vertices;
+  vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
 struct GBCToHSLWorker
@@ -509,7 +508,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());
     }
   }
-  vtkNew<vtkFloatArray> gbcScalars;
+  vtkNew<vtkDoubleArray> gbcScalars;
   gbcScalars->SetName("gbc");
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
