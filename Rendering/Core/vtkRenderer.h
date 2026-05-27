@@ -1002,8 +1002,8 @@ protected:
 
   // A temporary list of props used for culling, and traversal
   // of all props when rendering
-  vtkProp** PropArray;
-  int PropArrayCount;
+  std::vector<vtkProp*> PropArray;
+  vtkProp* BackgroundProp = nullptr;
 
   // Indicates if the renderer should receive events from an interactor.
   // Typically only used in conjunction with transparent renderers.

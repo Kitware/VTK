@@ -317,13 +317,13 @@ void vtkWebGPURenderer::UpdateBuffers()
     // This handles actor visibility toggles, additions, and removals.
     // PropsRendered holds the previous frame's rendered props at this point
     // because it is cleared later in UpdateGeometry().
-    if (this->PropArrayCount != static_cast<int>(this->PropsRendered.size()))
+    if (this->PropArray.size() != this->PropsRendered.size())
     {
       this->InvalidateBundle();
     }
     else
     {
-      for (int i = 0; i < this->PropArrayCount; ++i)
+      for (size_t i = 0; i < this->PropArray.size(); ++i)
       {
         if (this->PropsRendered.find(this->PropArray[i]) == this->PropsRendered.end())
         {
@@ -343,15 +343,13 @@ void vtkWebGPURenderer::UpdateBuffers()
 //------------------------------------------------------------------------------
 int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 {
-  int i;
-
   if (this->DrawBackgroundInClearPass)
   {
     this->PropsRendered.clear();
     this->NumberOfPropsRendered = 0;
   }
 
-  if (this->PropArrayCount == 0)
+  if (this->PropArray.size() == 0)
   {
     return 0;
   }
@@ -368,7 +366,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
   // do the render library specific stuff about translucent polygonal geometry.
   // As it can be expensive, do a quick check if we can skip this step
   int hasTranslucentPolygonalGeometry = this->UseDepthPeelingForVolumes;
-  for (i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArray.size(); i++)
   {
     hasTranslucentPolygonalGeometry = this->PropArray[i]->HasTranslucentPolygonalGeometry();
   }
@@ -381,7 +379,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
   // render themselves as volumetric geometry.
   if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
-    for (i = 0; i < this->PropArrayCount; i++)
+    for (std::size_t i = 0; i < this->PropArray.size(); i++)
     {
       this->NumberOfPropsRendered += this->PropArray[i]->RenderVolumetricGeometry(this);
     }
@@ -389,7 +387,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
-  for (i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     this->NumberOfPropsRendered += this->PropArray[i]->RenderOverlay(this);
   }
@@ -410,7 +408,7 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
   {
     case RenderStageEnum::SyncDeviceResources:
     {
-      for (int i = 0; i < this->PropArrayCount; i++)
+      for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
         if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
         {
@@ -418,12 +416,12 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
         }
         this->PropArray[i]->RenderOpaqueGeometry(this);
       }
-      result += this->PropArrayCount;
+      result += this->PropArray.size();
     }
     break;
     case RenderStageEnum::RecordingCommands:
     {
-      for (int i = 0; i < this->PropArrayCount; i++)
+      for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
         const int rendered = this->PropArray[i]->RenderOpaqueGeometry(this);
         if (rendered > 0)
@@ -450,20 +448,20 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
   {
     case RenderStageEnum::SyncDeviceResources:
     {
-      for (int i = 0; i < this->PropArrayCount; i++)
+      for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
         if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
         {
-          wgpuActor->SetId(i);
+          wgpuActor->SetId(static_cast<vtkTypeUInt32>(i));
         }
         this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
       }
-      result += this->PropArrayCount;
+      result += this->PropArray.size();
     }
     break;
     case RenderStageEnum::RecordingCommands:
     {
-      for (int i = 0; i < this->PropArrayCount; i++)
+      for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
         const int rendered = this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
         if (rendered > 0)
@@ -786,17 +784,18 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   // Because all the command encoding / rendering function use the props of the this->PropArray
   // list, we're going to replace the list so that only the props we're interested in are rendered.
   // We need to backup the original list though to restore it afterwards
-  vtkProp** propArrayBackup = this->PropArray;
-  int propCountBackup = this->PropArrayCount;
+  std::vector<vtkProp*> propArrayBackup = this->PropArray;
 
-  this->PropArray = propList;
-  this->PropArrayCount = listLength;
+  this->PropArray.resize(listLength);
+  for (int i = 0; i < listLength; i++)
+  {
+    this->PropArray[i] = propList[i];
+  }
 
   this->RecordRenderCommands();
 
   // Restoring
   this->PropArray = propArrayBackup;
-  this->PropArrayCount = propCountBackup;
 
   vtkWebGPURenderWindow* renderWindow =
     vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());

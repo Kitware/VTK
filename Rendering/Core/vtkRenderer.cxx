@@ -23,6 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererDelegate.h"
 #include "vtkSelectionNode.h"
+#include "vtkSkybox.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkVector.h"
@@ -71,9 +72,6 @@ vtkRenderer::vtkRenderer()
   this->LightFollowCamera = 1;
 
   this->NumberOfPropsRendered = 0;
-
-  this->PropArray = nullptr;
-  this->PropArrayCount = 0;
 
   this->Layer = 0;
   this->PreserveColorBuffer = 0;
@@ -249,7 +247,6 @@ void vtkRenderer::Render()
   }
 
   double t1, t2;
-  int i;
   vtkProp* aProp;
   int* size;
 
@@ -327,26 +324,31 @@ void vtkRenderer::Render()
   // the props that need to be rendered into an image.
   // Fill these in later (in AllocateTime) - get a
   // count of them there too
+  this->PropArray.clear();
+  this->BackgroundProp = nullptr;
   if (this->Props->GetNumberOfItems() > 0)
   {
-    this->PropArray = new vtkProp*[this->Props->GetNumberOfItems()];
-  }
-  else
-  {
-    this->PropArray = nullptr;
+    this->PropArray.reserve(this->Props->GetNumberOfItems());
   }
 
-  this->PropArrayCount = 0;
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit); (aProp = this->Props->GetNextProp(pit));)
   {
-    if (aProp->GetVisibility())
+    if (!aProp->GetVisibility())
     {
-      this->PropArray[this->PropArrayCount++] = aProp;
+      continue;
     }
+
+    if (vtkSkybox::SafeDownCast(aProp))
+    {
+      this->BackgroundProp = aProp;
+      continue;
+    }
+
+    this->PropArray.push_back(aProp);
   }
 
-  if (this->PropArrayCount == 0)
+  if (this->PropArray.empty())
   {
     vtkDebugMacro(<< "There are no visible props!");
   }
@@ -374,16 +376,11 @@ void vtkRenderer::Render()
   // in the old value we have set it correctly.
   if (this->RenderWindow->GetAbortRender())
   {
-    for (i = 0; i < this->PropArrayCount; i++)
+    for (std::size_t i = 0; i < this->PropArray.size(); i++)
     {
       this->PropArray[i]->RestoreEstimatedRenderTime();
     }
   }
-
-  // Clean up the space we allocated before. If the PropArray exists,
-  // they all should exist
-  delete[] this->PropArray;
-  this->PropArray = nullptr;
 
   if (this->BackingStore)
   {
@@ -541,7 +538,6 @@ void vtkRenderer::AllocateTime()
   int initialized = 0;
   double renderTime;
   double totalTime;
-  int i;
   vtkCuller* aCuller;
   vtkProp* aProp;
 
@@ -558,7 +554,7 @@ void vtkRenderer::AllocateTime()
   // Any subsequent culling will multiply the new render time by the
   // existing render time for an actor.
 
-  totalTime = this->PropArrayCount;
+  totalTime = this->PropArray.size();
   this->ComputeAspect();
 
   // It is very likely that the culler framework will call our
@@ -577,13 +573,18 @@ void vtkRenderer::AllocateTime()
   }
 
   vtkCollectionSimpleIterator sit;
+  int propArrayCount = static_cast<int>(this->PropArray.size());
+  vtkProp** propList = this->PropArray.data();
   for (this->Cullers->InitTraversal(sit); (aCuller = this->Cullers->GetNextCuller(sit));)
   {
-    totalTime = aCuller->Cull(this, this->PropArray, this->PropArrayCount, initialized);
+    totalTime = aCuller->Cull(this, propList, propArrayCount, initialized);
   }
 
+  // The propArrayCount may have changed here, so we make sure `this->PropArray` has the right size.
+  this->PropArray.resize(propArrayCount);
+
   // loop through all props and set the AllocatedRenderTime
-  for (i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     aProp = this->PropArray[i];
 
@@ -602,11 +603,9 @@ void vtkRenderer::AllocateTime()
 // visualization network to update.
 int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
-  int i;
-
   this->NumberOfPropsRendered = 0;
 
-  if (this->PropArrayCount == 0)
+  if (this->PropArray.empty())
   {
     return 0;
   }
@@ -643,8 +642,8 @@ int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
     }
     else
     {
-      this->NumberOfPropsRendered =
-        this->Selector->Render(this, this->PropArray, this->PropArrayCount);
+      this->NumberOfPropsRendered = this->Selector->Render(
+        this, this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     }
 
     this->RenderTime.Modified();
@@ -664,7 +663,7 @@ int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
   // do the render library specific stuff about translucent polygonal geometry.
   // As it can be expensive, do a quick check if we can skip this step
   int hasTranslucentPolygonalGeometry = this->UseDepthPeelingForVolumes;
-  for (i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArray.size(); i++)
   {
     hasTranslucentPolygonalGeometry = this->PropArray[i]->HasTranslucentPolygonalGeometry();
   }
@@ -677,7 +676,7 @@ int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
   // render themselves as volumetric geometry.
   if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
-    for (i = 0; i < this->PropArrayCount; i++)
+    for (std::size_t i = 0; i < this->PropArray.size(); i++)
     {
       this->NumberOfPropsRendered += this->PropArray[i]->RenderVolumetricGeometry(this);
     }
@@ -685,7 +684,7 @@ int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
-  for (i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     this->NumberOfPropsRendered += this->PropArray[i]->RenderOverlay(this);
   }
@@ -709,7 +708,7 @@ int vtkRenderer::UpdateTranslucentPolygonalGeometry()
   int result = 0;
   // loop through props and give them a chance to
   // render themselves as translucent geometry
-  for (int i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     int rendered = this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
     this->NumberOfPropsRendered += rendered;
@@ -722,7 +721,7 @@ int vtkRenderer::UpdateTranslucentPolygonalGeometry()
 int vtkRenderer::UpdateOpaquePolygonalGeometry()
 {
   int result = 0;
-  for (int i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     result += this->PropArray[i]->RenderOpaqueGeometry(this);
   }
