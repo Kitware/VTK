@@ -403,7 +403,6 @@ void vtkWebGPUSkybox::UpdateUniformBuffer(
   uniforms.FloorTexCoordScale[1] = this->FloorTexCoordScale[1];
 
   uniforms.LeftEye = ren->GetActiveCamera()->GetLeftEye() ? 1.0f : 0.0f;
-  uniforms.Padding = 0.0f;
 
   // Rotation matrix: VTK stores row-major data. OpenGL sends this directly to
   // glUniformMatrix3fv without transpose, so GLSL interprets rows as columns (i.e. the
@@ -517,7 +516,8 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
     renderPassEncoder.SetBindGroup(0, this->BindGroup);
     renderPassEncoder.SetBindGroup(1, this->MatrixBindGroup);
     renderPassEncoder.Draw(4);
-    // Restore the scene bind group so subsequent actors find the correct layout.
+    // Restore the scene bind group (Bind Group 0) so subsequent actors find the correct layout.
+    // Bind Group 1 is managed per-draw-call by actors/mappers and doesn't require restoration.
     renderPassEncoder.SetBindGroup(0, wgpuRen->GetSceneBindGroup());
   }
 }

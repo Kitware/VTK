@@ -80,14 +80,13 @@ private:
   // Uniform block matching the WGSL struct layout
   struct SkyboxUniforms
   {
-    float CameraPosition[4];     // vec4 (padded from vec3)
-    float FloorPlane[4];         // vec4
-    float FloorRight[4];         // vec4 (padded from vec3)
-    float FloorFront[4];         // vec4 (padded from vec3)
-    float FloorTexCoordScale[2]; // vec2
-    float LeftEye;               // f32
-    float Padding;               // alignment padding
-    float RotationMatrix[12];    // mat3x3 in WGSL = 3 x vec4 (each row padded to vec4)
+    float CameraPosition[4];              // vec4 (padded from vec3)
+    float FloorPlane[4];                  // vec4
+    float FloorRight[4];                  // vec4 (padded from vec3)
+    float FloorFront[4];                  // vec4 (padded from vec3)
+    float FloorTexCoordScale[2];          // vec2
+    float LeftEye;                        // f32
+    alignas(16) float RotationMatrix[12]; // mat3x3 in WGSL = 3 x vec4 (each row padded to vec4)
   };
 
   int LastProjection = -1;

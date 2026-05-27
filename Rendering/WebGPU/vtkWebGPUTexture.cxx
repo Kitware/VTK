@@ -335,6 +335,7 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
     // Update numComponents to 4 if we converted from 3-component data.
     if (numComponents == 3)
     {
+      vtkDebugMacro("Forcing numberOfComponents to 4 for WebGPU compatibility.");
       numComponents = 4;
     }
     auto format = this->GetTextureFormatFromImageData(numComponents, dataType);
