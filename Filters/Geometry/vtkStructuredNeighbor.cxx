@@ -47,8 +47,9 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(int neiId, int overlap[6], int orie
 vtkStructuredNeighbor::~vtkStructuredNeighbor() = default;
 
 //------------------------------------------------------------------------------
-void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6],
-  int* vtkNotUsed(gridGhostedExtent[6]), int neiRealExtent[6], int WholeExtent[6], int N)
+void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(VTK_FUTURE_CONST int gridRealExtent[6],
+  VTK_FUTURE_CONST int* vtkNotUsed(gridGhostedExtent[6]), VTK_FUTURE_CONST int neiRealExtent[6],
+  VTK_FUTURE_CONST int WholeExtent[6], int N)
 {
 
   for (int i = 0; i < 3; ++i)

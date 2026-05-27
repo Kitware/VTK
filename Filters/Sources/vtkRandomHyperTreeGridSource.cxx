@@ -104,7 +104,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   using SDDP = vtkStreamingDemandDrivenPipeline;
 
   vtkInformation* outInfo = outInfos->GetInformationObject(0);
-  int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
+  const int* updateExtent = outInfo->Get(SDDP::UPDATE_EXTENT());
 
   // Create dataset:
   auto fillArray = [](vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound)

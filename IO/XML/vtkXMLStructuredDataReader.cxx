@@ -261,7 +261,7 @@ void vtkXMLStructuredDataReader::ReadXMLData()
   fractions[0] = 0;
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
-    int* pieceExtent = this->PieceExtents + i * 6;
+    VTK_FUTURE_CONST int* pieceExtent = this->PieceExtents + i * 6;
     int pieceDims[3] = { 0, 0, 0 };
     // Intersect the extents to get the part we need to read.
     if (this->IntersectExtents(pieceExtent, this->UpdateExtent, this->SubExtent))
@@ -290,7 +290,7 @@ void vtkXMLStructuredDataReader::ReadXMLData()
     this->SetProgressRange(progressRange, i, fractions);
 
     // Intersect the extents to get the part we need to read.
-    int* pieceExtent = this->PieceExtents + i * 6;
+    VTK_FUTURE_CONST int* pieceExtent = this->PieceExtents + i * 6;
     if (this->IntersectExtents(pieceExtent, this->UpdateExtent, this->SubExtent))
     {
       vtkDebugMacro("Reading extent " << this->SubExtent[0] << " " << this->SubExtent[1] << " "

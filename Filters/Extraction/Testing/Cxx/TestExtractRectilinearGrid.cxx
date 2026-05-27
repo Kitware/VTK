@@ -81,7 +81,7 @@ int CheckGrid(vtkRectilinearGrid* grid)
 }
 
 //------------------------------------------------------------------------------
-void GenerateGrid(vtkRectilinearGrid* grid, int ext[6])
+void GenerateGrid(vtkRectilinearGrid* grid, VTK_FUTURE_CONST int ext[6])
 {
   assert("pre: input grid instance is nullptr!" && (grid != nullptr));
   grid->Initialize();

@@ -238,7 +238,7 @@ public:
    * This method crops the data object (if necessary) so that the extent
    * matches the update extent.
    */
-  virtual void Crop(const int* updateExtent);
+  virtual void Crop(const int updateExtent[6]);
 
   /**
    * Possible values for the FIELD_ASSOCIATION information entry.

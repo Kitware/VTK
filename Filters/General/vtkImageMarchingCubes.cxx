@@ -296,7 +296,7 @@ void vtkImageMarchingCubesComputePointGradient(
 // This method interpolates vertices to make a new point.
 template <class T>
 int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes* self, int idx0, int idx1, int idx2,
-  int inc0, int inc1, int inc2, T* ptr, int edge, int* imageExtent, double value)
+  int inc0, int inc1, int inc2, T* ptr, int edge, VTK_FUTURE_CONST int imageExtent[6], double value)
 {
   int edgeAxis = 0;
   T* ptrB = nullptr;
@@ -532,7 +532,8 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes* self, int cellX, int
           // If the point has not been created yet
           if (pointIds[ii] == -1)
           {
-            int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+            VTK_FUTURE_CONST int* extent =
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
             pointIds[ii] = vtkImageMarchingCubesMakeNewPoint(
               self, cellX, cellY, cellZ, inc0, inc1, inc2, ptr, *edge, extent, value);

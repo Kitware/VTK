@@ -121,7 +121,7 @@ struct vtkImageGradientFunctor
 {
   template <class TArray>
   void operator()(TArray* scalars, vtkImageGradient* self, vtkImageData* inData,
-    vtkImageData* outData, double* outPtr, int outExt[6], int id)
+    vtkImageData* outData, double* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
   {
     auto inPtr = vtk::DataArrayValueRange<1>(scalars).begin();
     int idxX, idxY, idxZ;
@@ -131,8 +131,7 @@ struct vtkImageGradientFunctor
     unsigned long count = 0;
     unsigned long target;
     int axesNum;
-    int* inExt = inData->GetExtent();
-    int* wholeExtent;
+    const int* inExt = inData->GetExtent();
     vtkIdType inIncs[3];
     double r[3], d;
     int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
@@ -161,7 +160,7 @@ struct vtkImageGradientFunctor
 
     // get some other info we need
     inData->GetIncrements(inIncs);
-    wholeExtent = inData->GetExtent();
+    const int* wholeExtent = inData->GetExtent();
 
     // Move the pointer to the correct starting position.
     inPtr += (outExt[0] - inExt[0]) * inIncs[0] + (outExt[2] - inExt[2]) * inIncs[1] +
@@ -239,7 +238,7 @@ int vtkImageGradient::RequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue);
   int ue2[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue2);
-  int* ie = input->GetExtent();
+  const int* ie = input->GetExtent();
   for (int i = 0; i < 3; i++)
   {
     if (ue[2 * i] < ie[2 * i])
@@ -277,8 +276,8 @@ int vtkImageGradient::RequestData(
 // templated function for the input data type.  This method does handle
 // boundary conditions.
 void vtkImageGradient::ThreadedRequestData(vtkInformation*, vtkInformationVector** inputVector,
-  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6],
-  int threadId)
+  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData,
+  VTK_FUTURE_CONST int outExt[6], int threadId)
 {
   // Get the input and output data objects.
   vtkImageData* input = inData[0][0];

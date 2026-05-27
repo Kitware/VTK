@@ -53,7 +53,8 @@ protected:
    * overlap then the overlapping extent is returned in overlappingExtent
    * if it is non-null.
    */
-  bool DoExtentsOverlap(int extent1[6], int extent2[6], int dimensions[3], int* overlappingExtent);
+  bool DoExtentsOverlap(
+    int extent1[6], int extent2[6], int dimensions[3], int overlappingExtent[6]);
 
   /**
    * Get the extent of the topologically regular dataset.

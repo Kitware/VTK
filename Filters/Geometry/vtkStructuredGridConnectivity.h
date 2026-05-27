@@ -121,7 +121,7 @@ public:
 
    * NOTE: the flat array extents must be pre-allocated.
    */
-  vtkIdList* GetNeighbors(int gridID, int* extents);
+  vtkIdList* GetNeighbors(int gridID, int extents[6]);
 
   /**
    * Fills the mesh property arrays, nodes and cells, for the grid
@@ -483,7 +483,8 @@ protected:
    * given by minIdx and maxIdx. This method is a helper method for the
    * implementation of CreateGhostedExtent.
    */
-  void GetGhostedExtent(int* ghostedExtent, int GridExtent[6], int minIdx, int maxIdx, int N);
+  void GetGhostedExtent(
+    int ghostedExtent[6], VTK_FUTURE_CONST int GridExtent[6], int minIdx, int maxIdx, int N);
 
   /**
    * This method creates the ghosted mask arrays, i.e., the NodeGhostArrays
@@ -601,7 +602,7 @@ inline int vtkStructuredGridConnectivity::GetNeighborIndex(int gridIdx, int Neig
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredGridConnectivity::GetGhostedExtent(
-  int* ghostedExtent, int GridExtent[6], int minIdx, int maxIdx, int N)
+  int ghostedExtent[6], VTK_FUTURE_CONST int GridExtent[6], int minIdx, int maxIdx, int N)
 {
   assert("pre: Number of ghost layers must be N >= 1" && (N >= 1));
   assert("pre: ghosted extent pointer is nullptr" && ghostedExtent != nullptr);

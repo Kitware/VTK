@@ -129,7 +129,7 @@ protected:
     const double in[3], double out[3], double derivative[3][3]) override;
 
   void (*InterpolationFunction)(double point[3], double displacement[3], double derivatives[3][3],
-    void* gridPtr, int gridType, int inExt[6], vtkIdType inInc[3]);
+    void* gridPtr, int gridType, VTK_FUTURE_CONST int inExt[6], vtkIdType inInc[3]);
 
   int InterpolationMode;
   double DisplacementScale;

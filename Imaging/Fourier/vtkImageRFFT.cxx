@@ -29,7 +29,7 @@ int vtkImageRFFT::IterativeRequestInformation(
 }
 
 static void vtkImageRFFTInternalRequestUpdateExtent(
-  int* inExt, const int* outExt, const int* wExt, int iteration)
+  int inExt[6], const int outExt[6], const int wExt[6], int iteration)
 {
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[iteration * 2] = wExt[iteration * 2];
@@ -41,8 +41,8 @@ static void vtkImageRFFTInternalRequestUpdateExtent(
 // to compute any output region.
 int vtkImageRFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformation* output)
 {
-  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int inExt[6];
   vtkImageRFFTInternalRequestUpdateExtent(inExt, outExt, wExt, this->Iteration);
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
@@ -55,7 +55,7 @@ int vtkImageRFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInforma
 // is always doubles.
 template <class T>
 void vtkImageRFFTExecute(vtkImageRFFT* self, vtkImageData* inData, int inExt[6], T* inPtr,
-  vtkImageData* outData, int outExt[6], double* outPtr, int id)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr, int id)
 {
   vtkImageComplex* inComplex;
   vtkImageComplex* outComplex;
@@ -170,7 +170,8 @@ void vtkImageRFFTExecute(vtkImageRFFT* self, vtkImageData* inData, int inExt[6],
 // Not threaded yet.
 void vtkImageRFFT::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inDataVec, vtkImageData** outDataVec, int outExt[6], int threadId)
+  vtkImageData*** inDataVec, vtkImageData** outDataVec, VTK_FUTURE_CONST int outExt[6],
+  int threadId)
 {
   vtkImageData* inData = inDataVec[0][0];
   vtkImageData* outData = outDataVec[0];

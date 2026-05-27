@@ -24,7 +24,7 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance() = default;
 
 //------------------------------------------------------------------------------
 void vtkImageCityBlockDistance::AllocateOutputScalars(
-  vtkImageData* outData, int* uExt, int* wholeExtent, vtkInformation* outInfo)
+  vtkImageData* outData, VTK_FUTURE_CONST int uExt[6], int wholeExtent[6], vtkInformation* outInfo)
 {
   int updateExtent[6], idx;
 
@@ -44,7 +44,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(
 int vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
-  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int inExt[6];
 
@@ -65,7 +65,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
   vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  int* uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   int* wExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   this->AllocateOutputScalars(outData, uExt, wExt, outInfo);

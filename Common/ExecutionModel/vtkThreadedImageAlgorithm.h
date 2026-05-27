@@ -40,11 +40,11 @@ public:
    */
   virtual void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int extent[6], int threadId);
+    VTK_FUTURE_CONST int extent[6], int threadId);
 
   // also support the old signature
   virtual void ThreadedExecute(
-    vtkImageData* inData, vtkImageData* outData, int extent[6], int threadId);
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int extent[6], int threadId);
 
   ///@{
   /**

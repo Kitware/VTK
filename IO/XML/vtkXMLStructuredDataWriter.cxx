@@ -415,7 +415,7 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   vtkDataSet* input = this->GetDataSetInput();
   ostream& os = *(this->Stream);
 
-  int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  VTK_FUTURE_CONST int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 
   // Split progress of the data write by the fraction contributed by
   // each piece.
@@ -461,7 +461,7 @@ void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes(ostream& os, vtkI
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 
-  int* ext = this->WriteExtent;
+  VTK_FUTURE_CONST int* ext = this->WriteExtent;
   if ((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) && (this->WriteExtent[2] == 0) &&
     (this->WriteExtent[3] == -1) && (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
   {
@@ -500,7 +500,7 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
   // Write the point data and cell data arrays.
   vtkDataSet* input = this->GetDataSetInput();
 
-  int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  VTK_FUTURE_CONST int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 
   ostream& os = *(this->Stream);
 
@@ -565,7 +565,7 @@ void vtkXMLStructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataWriter::GetStartTuple(
-  int* extent, vtkIdType* increments, int i, int j, int k)
+  VTK_FUTURE_CONST int extent[6], vtkIdType* increments, int i, int j, int k)
 {
   return (((i - extent[0]) * increments[0]) + ((j - extent[2]) * increments[1]) +
     ((k - extent[4]) * increments[2]));

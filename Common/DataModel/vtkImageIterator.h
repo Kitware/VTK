@@ -34,12 +34,12 @@ public:
   /**
    * Create an image iterator for a given image data and a given extent
    */
-  vtkImageIterator(vtkImageData* id, int* ext);
+  vtkImageIterator(vtkImageData* id, VTK_FUTURE_CONST int ext[6]);
 
   /**
    * Initialize the image iterator for a given image data, and given extent
    */
-  void Initialize(vtkImageData* id, int* ext);
+  void Initialize(vtkImageData* id, VTK_FUTURE_CONST int ext[6]);
 
   /**
    * Move the iterator to the next span

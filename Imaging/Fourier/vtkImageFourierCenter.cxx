@@ -29,8 +29,8 @@ vtkImageFourierCenter::vtkImageFourierCenter() = default;
 int vtkImageFourierCenter::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
-  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration * 2] = wExt[this->Iteration * 2];
@@ -45,7 +45,8 @@ int vtkImageFourierCenter::IterativeRequestUpdateExtent(
 // algorithm to fill the output from the input.
 void vtkImageFourierCenter::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector,
-  vtkImageData*** inDataVec, vtkImageData** outDataVec, int outExt[6], int threadId)
+  vtkImageData*** inDataVec, vtkImageData** outDataVec, VTK_FUTURE_CONST int outExt[6],
+  int threadId)
 {
   vtkImageData* inData = inDataVec[0][0];
   vtkImageData* outData = outDataVec[0];

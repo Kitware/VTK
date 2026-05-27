@@ -61,7 +61,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, NO_PRIOR_TEMPORAL_ACCES
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
 public:
-  static void Crop(vtkDataObject* obj, const int* extent) { obj->Crop(extent); }
+  static void Crop(vtkDataObject* obj, const int extent[6]) { obj->Crop(extent); }
 };
 
 namespace
@@ -229,14 +229,14 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
     // Combine the requested extent into COMBINED_UPDATE_EXTENT,
     // but only do so if the UPDATE_EXTENT key exists and if the
     // UPDATE_EXTENT is not an empty extent
-    int* updateExtent = nullptr;
+    VTK_FUTURE_CONST int* updateExtent = nullptr;
     if (outInfo && (updateExtent = outInfo->Get(UPDATE_EXTENT())) != nullptr)
     {
       // Downstream algorithms can set UPDATE_EXTENT_INITIALIZED to
       // REPLACE if they do not want to combine with previous extents
       if (outInfo->Get(UPDATE_EXTENT_INITIALIZED()) != VTK_UPDATE_EXTENT_REPLACE)
       {
-        int* combinedExtent = outInfo->Get(COMBINED_UPDATE_EXTENT());
+        VTK_FUTURE_CONST int* combinedExtent = outInfo->Get(COMBINED_UPDATE_EXTENT());
         if (combinedExtent && combinedExtent[0] <= combinedExtent[1] &&
           combinedExtent[2] <= combinedExtent[3] && combinedExtent[4] <= combinedExtent[5])
         {
@@ -910,7 +910,7 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataStart(
     int numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
     if (numPieces > 1)
     {
-      int* uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+      VTK_FUTURE_CONST int* uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
       if (uExt)
       {
         // Store the total requested extent in ALL_PIECES_EXTENT.
@@ -976,8 +976,9 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
           vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(dobj);
           if (data || htg)
           {
-            int* uExt = data ? data->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT())
-                             : htg->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT());
+            VTK_FUTURE_CONST int* uExt = data
+              ? data->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT())
+              : htg->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT());
 
             int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
 
@@ -1371,7 +1372,8 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
 }
 
 //------------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline ::SetWholeExtent(vtkInformation* info, int extent[6])
+int vtkStreamingDemandDrivenPipeline ::SetWholeExtent(
+  vtkInformation* info, VTK_FUTURE_CONST int extent[6])
 {
   if (!info)
   {

@@ -26,8 +26,8 @@ vtkImageCheckerboard::vtkImageCheckerboard()
 // Handles the two input operations
 template <class T>
 void vtkImageCheckerboardExecute2(vtkImageCheckerboard* self, vtkImageData* in1Data, T* in1Ptr,
-  vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData, T* outPtr, int outExt[6], int id,
-  int wholeExt[6])
+  vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData, T* outPtr,
+  VTK_FUTURE_CONST int outExt[6], int id, int wholeExt[6])
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -142,7 +142,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard* self, vtkImageData* in1D
 // algorithm to fill the output from the inputs.
 void vtkImageCheckerboard::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector,
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
   void* outPtr;

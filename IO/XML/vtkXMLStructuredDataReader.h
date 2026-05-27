@@ -57,7 +57,7 @@ protected:
   vtkXMLStructuredDataReader();
   ~vtkXMLStructuredDataReader() override;
 
-  virtual void SetOutputExtent(int* extent) = 0;
+  virtual void SetOutputExtent(VTK_FUTURE_CONST int extent[6]) = 0;
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.

@@ -177,8 +177,8 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
 
-  int* inExt = input->GetExtent();
-  int* outExt = output->GetExtent();
+  VTK_FUTURE_CONST int* inExt = input->GetExtent();
+  VTK_FUTURE_CONST int* outExt = output->GetExtent();
 
   int outDims[3];
   vtkStructuredData::GetDimensionsFromExtent(outExt, outDims);

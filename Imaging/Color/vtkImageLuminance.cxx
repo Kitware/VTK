@@ -41,8 +41,8 @@ int vtkImageLuminance::RequestInformation(vtkInformation* vtkNotUsed(request),
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageLuminanceExecute(
-  vtkImageLuminance* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageLuminanceExecute(vtkImageLuminance* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -73,7 +73,7 @@ void vtkImageLuminanceExecute(
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageLuminance::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 

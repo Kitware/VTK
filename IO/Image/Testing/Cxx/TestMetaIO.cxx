@@ -50,7 +50,7 @@ int TestMetaIO(int argc, char* argv[])
   readerNew->Update();
 
   double error = 0;
-  int* ext = readerStd->GetOutput()->GetExtent();
+  const int* ext = readerStd->GetOutput()->GetExtent();
   for (int z = ext[4]; z <= ext[5]; z += 2)
   {
     for (int y = ext[2]; y <= ext[3]; y++)

@@ -59,7 +59,7 @@ vtkDataTransferHelper::~vtkDataTransferHelper()
 // Tells if the given extent (6 int) is valid. True if min
 // extent<=max extent.
 // \pre extent_exists: extent!=0
-bool vtkDataTransferHelper::GetExtentIsValid(int* extent)
+bool vtkDataTransferHelper::GetExtentIsValid(VTK_FUTURE_CONST int extent[6])
 {
   assert("pre extent_exists:" && extent != nullptr);
   return extent[0] <= extent[1] && extent[2] <= extent[3] && extent[4] <= extent[5];

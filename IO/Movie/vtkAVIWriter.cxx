@@ -210,7 +210,7 @@ void vtkAVIWriter::Write()
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
   this->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
-  int* wExtent = input->GetExtent();
+  const int* wExtent = input->GetExtent();
 
   // get the pointer to the data
   unsigned char* ptr = (unsigned char*)(input->GetScalarPointer());

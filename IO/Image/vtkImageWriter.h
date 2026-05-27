@@ -92,8 +92,9 @@ protected:
   virtual void RecursiveWrite(int dim, vtkImageData* region, vtkInformation* inInfo, ostream* file);
   virtual void RecursiveWrite(
     int dim, vtkImageData* cache, vtkImageData* data, vtkInformation* inInfo, ostream* file);
-  virtual void WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6]);
-  virtual void WriteFileHeader(ostream*, vtkImageData*, int[6]) {}
+  virtual void WriteFile(ostream* file, vtkImageData* data, VTK_FUTURE_CONST int extent[6],
+    VTK_FUTURE_CONST int wExtent[6]);
+  virtual void WriteFileHeader(ostream*, vtkImageData*, VTK_FUTURE_CONST int[6]) {}
   virtual void WriteFileTrailer(ostream*, vtkImageData*) {}
 
   // Required for subclasses that need to prevent the writer
@@ -103,7 +104,7 @@ protected:
 
   // subclasses that do write to memory can override this
   // to implement the simple case
-  virtual void MemoryWrite(int, vtkImageData*, int[6], vtkInformation*) {}
+  virtual void MemoryWrite(int, vtkImageData*, VTK_FUTURE_CONST int[6], vtkInformation*) {}
 
   // This is called by the superclass.
   // This is the method you should override.

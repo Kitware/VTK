@@ -321,7 +321,7 @@ void vtkImageSlice::Render(vtkRenderer* ren)
   vtkImageData* input = this->Mapper->GetInput();
   if (input)
   {
-    int* extent = input->GetExtent();
+    const int* extent = input->GetExtent();
     if (extent[0] <= extent[1] && extent[2] <= extent[3] && extent[4] <= extent[5])
     {
       this->Mapper->Render(ren, this);

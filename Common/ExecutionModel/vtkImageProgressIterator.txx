@@ -10,7 +10,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(
-  vtkImageData* imgd, int* ext, vtkAlgorithm* po, int id)
+  vtkImageData* imgd, VTK_FUTURE_CONST int ext[6], vtkAlgorithm* po, int id)
   : vtkImageIterator<DType>(imgd, ext)
 {
   this->Target = static_cast<unsigned long>((ext[5] - ext[4] + 1) * (ext[3] - ext[2] + 1) / 50.0);

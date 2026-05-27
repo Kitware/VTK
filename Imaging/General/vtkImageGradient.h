@@ -57,7 +57,8 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ThreadedRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*,
-    vtkImageData*** inData, vtkImageData** outData, int outExt[6], int threadId) override;
+    vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6],
+    int threadId) override;
 
 private:
   vtkImageGradient(const vtkImageGradient&) = delete;

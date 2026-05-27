@@ -308,7 +308,7 @@ public:
   // Interface between VTK and templated functions
   static void ContourImage(vtkDiscreteFlyingEdgesClipper2D* self, TArray* scalars,
     vtkPoints* newPts, vtkDataArray* newScalars, vtkCellArray* newPolys, vtkImageData* input,
-    int* updateExt);
+    VTK_FUTURE_CONST int updateExt[6]);
 };
 
 // The case table is formatted: (numPolys, connectityLen, centerPoint,
@@ -1333,7 +1333,7 @@ void vtkDiscreteClipperAlgorithm<TArray>::GenerateOutput(TPtr rowPtr, vtkIdType 
 template <class TArray>
 void vtkDiscreteClipperAlgorithm<TArray>::ContourImage(vtkDiscreteFlyingEdgesClipper2D* self,
   TArray* scalars, vtkPoints* newPts, vtkDataArray* newScalars, vtkCellArray* newPolys,
-  vtkImageData* input, int* updateExt)
+  vtkImageData* input, VTK_FUTURE_CONST int updateExt[6])
 {
   double* values = self->GetValues();
   vtkIdType numContours = self->GetNumberOfContours();
@@ -1501,7 +1501,8 @@ struct vtkDiscreteFlyingEdgesClipper2DWorker
 {
   template <class TArray>
   void operator()(TArray* array, vtkDiscreteFlyingEdgesClipper2D* filter, vtkPoints* newPts,
-    vtkDataArray* newScalars, vtkCellArray* newPolys, vtkImageData* input, int* updateExt)
+    vtkDataArray* newScalars, vtkCellArray* newPolys, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6])
   {
     vtkDiscreteClipperAlgorithm<TArray>::ContourImage(
       filter, array, newPts, newScalars, newPolys, input, updateExt);
@@ -1563,7 +1564,7 @@ int vtkDiscreteFlyingEdgesClipper2D::RequestData(vtkInformation* vtkNotUsed(requ
     return 1;
   }
 
-  int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {

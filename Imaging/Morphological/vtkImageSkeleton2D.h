@@ -52,7 +52,7 @@ protected:
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inDataV, vtkImageData** outDataV,
-    int outExt[6], int id) override;
+    VTK_FUTURE_CONST int outExt[6], int id) override;
 
 private:
   vtkImageSkeleton2D(const vtkImageSkeleton2D&) = delete;

@@ -20,8 +20,8 @@ struct StructuredPointsWorker
 {
   template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
   void operator()(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ,
-    vtkStructuredPointArray<ValueTypeT>* structuredPointArray, int extent[6], int dataDescription,
-    double dirMatrix[9])
+    vtkStructuredPointArray<ValueTypeT>* structuredPointArray, VTK_FUTURE_CONST int extent[6],
+    int dataDescription, double dirMatrix[9])
   {
     // Using a raw pointer to the base class here is important so we don't instantiate
     // std::shared_ptr (+ control block and deleter) for each possible backend type.
@@ -116,7 +116,7 @@ vtkStructuredPointArray<ValueTypeT>* vtkStructuredPointArray<ValueTypeT>::New()
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 void vtkStructuredPointArray<ValueTypeT>::ConstructBackend(vtkDataArray* xCoords,
-  vtkDataArray* yCoords, vtkDataArray* zCoords, int extent[6], int dataDescription,
+  vtkDataArray* yCoords, vtkDataArray* zCoords, VTK_FUTURE_CONST int extent[6], int dataDescription,
   double dirMatrix[9])
 {
   assert(xCoords && yCoords && zCoords && extent && dirMatrix);
@@ -148,7 +148,7 @@ void vtkStructuredPointArray<ValueTypeT>::ConstructBackend(vtkDataArray* xCoords
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 void vtkStructuredPointArray<ValueTypeT>::ConstructBackend(vtkDataArray* xCoords,
-  vtkDataArray* yCoords, vtkDataArray* zCoords, int extent[6], int dataDescription)
+  vtkDataArray* yCoords, vtkDataArray* zCoords, VTK_FUTURE_CONST int extent[6], int dataDescription)
 {
   static double identityMatrix[9] = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 };
   this->ConstructBackend(xCoords, yCoords, zCoords, extent, dataDescription, identityMatrix);

@@ -200,7 +200,7 @@ void vtkSlabClamp<vtkTypeFloat64>(double val, double& clamp)
 //------------------------------------------------------------------------------
 template <class T1, class T2>
 void vtkImageSlabExecute(vtkImageSlab* self, vtkImageData* inData, T1* inPtr, vtkImageData* outData,
-  T2* outPtr, int outExt[6], int id)
+  T2* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkIdType outIncX, outIncY, outIncZ;
   vtkIdType inInc[3];
@@ -410,7 +410,8 @@ void vtkImageSlabExecute(vtkImageSlab* self, vtkImageData* inData, T1* inPtr, vt
 
 //------------------------------------------------------------------------------
 void vtkImageSlab::ThreadedRequestData(vtkInformation*, vtkInformationVector** inVector,
-  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData,
+  VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr;
   void* outPtr;

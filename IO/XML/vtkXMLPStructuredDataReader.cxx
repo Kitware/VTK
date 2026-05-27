@@ -317,9 +317,10 @@ void vtkXMLPStructuredDataReader::CopyArrayForCells(
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPStructuredDataReader ::CopySubExtent(int* inExtent, int* inDimensions,
-  vtkIdType* inIncrements, int* outExtent, int* outDimensions, vtkIdType* outIncrements,
-  int* subExtent, int* subDimensions, vtkAbstractArray* inArray, vtkAbstractArray* outArray)
+void vtkXMLPStructuredDataReader ::CopySubExtent(VTK_FUTURE_CONST int inExtent[6],
+  int* inDimensions, vtkIdType* inIncrements, VTK_FUTURE_CONST int outExtent[6], int* outDimensions,
+  vtkIdType* outIncrements, VTK_FUTURE_CONST int subExtent[6], int* subDimensions,
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if ((inDimensions[0] == outDimensions[0]) && (inDimensions[1] == outDimensions[1]))
   {
@@ -385,7 +386,7 @@ int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
       // int extent[6];
       // this->PieceReaders[i]->UpdateInformation();
       // this->PieceReaders[i]->GetOutputAsDataSet()->GetWholeExtent(extent);
-      int* extent = this->PieceExtents + 6 * i;
+      VTK_FUTURE_CONST int* extent = this->PieceExtents + 6 * i;
       this->ExtentSplitter->AddExtentSource(i, 0, extent);
     }
   }

@@ -44,7 +44,7 @@ int vtkImageBinaryThreshold::RequestInformation(vtkInformation* vtkNotUsed(reque
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 void vtkImageThresholdExecute(vtkImageBinaryThreshold* self, vtkImageData* inData,
-  vtkImageData* outData, int outExt[6], int id, IT*, OT*)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id, IT*, OT*)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -112,7 +112,7 @@ void vtkImageThresholdExecute(vtkImageBinaryThreshold* self, vtkImageData* inDat
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageThresholdExecute1(vtkImageBinaryThreshold* self, vtkImageData* inData,
-  vtkImageData* outData, int outExt[6], int id, T*)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   switch (outData->GetScalarType())
   {
@@ -127,7 +127,7 @@ void vtkImageThresholdExecute1(vtkImageBinaryThreshold* self, vtkImageData* inDa
 //------------------------------------------------------------------------------
 void vtkImageBinaryThreshold::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   switch (inData[0][0]->GetScalarType())
   {

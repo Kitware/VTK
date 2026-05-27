@@ -294,11 +294,11 @@ bool ProcessOwnsBlock(const int block)
 
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* GetDataSet(
-  int WholeExtent[6], double origin[3], double spacing[3], const int numPartitions)
+  VTK_FUTURE_CONST int wholeExtent[6], double origin[3], double spacing[3], const int numPartitions)
 {
   // STEP 0: Get the global grid dimensions
   int dims[3];
-  vtkStructuredData::GetDimensionsFromExtent(WholeExtent, dims);
+  vtkStructuredData::GetDimensionsFromExtent(wholeExtent, dims);
 
   // STEP 1: Get the whole grid as a uniform grid instance
   vtkUniformGrid* wholeGrid = vtkUniformGrid::New();

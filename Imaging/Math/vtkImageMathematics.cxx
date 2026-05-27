@@ -127,7 +127,7 @@ namespace
 // Handles the one input operations
 template <class T>
 void vtkImageMathematicsExecute1(vtkImageMathematics* self, vtkImageData* in1Data, T* in1Ptr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -254,7 +254,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics* self, vtkImageData* in1Dat
 // Handles the two input operations
 template <class T>
 void vtkImageMathematicsExecute2(vtkImageMathematics* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -368,8 +368,8 @@ void vtkImageMathematicsExecute2(vtkImageMathematics* self, vtkImageData* inData
 
 //------------------------------------------------------------------------------
 template <class T>
-void vtkImageMathematicsInitOutput(
-  vtkImageData* inData, T* inPtr, vtkImageData* vtkNotUsed(outData), T* outPtr, int ext[6])
+void vtkImageMathematicsInitOutput(vtkImageData* inData, T* inPtr,
+  vtkImageData* vtkNotUsed(outData), T* outPtr, VTK_FUTURE_CONST int ext[6])
 {
   int idxY, idxZ;
   int maxY, maxZ;
@@ -422,7 +422,7 @@ void vtkImageMathematicsInitOutput(
 // the datas data types.
 void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 

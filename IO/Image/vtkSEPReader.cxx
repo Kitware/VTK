@@ -232,7 +232,8 @@ int vtkSEPReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkImageData* imageData = vtkImageData::GetData(outputVector, 0);
 
-  int* updateExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* updateExtent =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   return this->ReadData(imageData, updateExtent);
 }
@@ -405,7 +406,7 @@ bool vtkSEPReader::ReadHeader()
 }
 
 //----------------------------------------------------------------------------
-bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
+bool vtkSEPReader::ReadData(vtkImageData* imageData, VTK_FUTURE_CONST int updateExtents[6])
 {
   vtkDebugMacro(<< "Read data: opening file " << this->BinaryFilename);
 

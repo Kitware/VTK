@@ -137,7 +137,7 @@ public:
    * INTERNAL - Do not use
    */
   static void ComputeInputExtentsForOutput(
-    int inExt[6], int inDim[3], int outExt[6], vtkImageData* inData);
+    int inExt[6], int inDim[3], VTK_FUTURE_CONST int outExt[6], vtkImageData* inData);
 
   ///@{
   /**
@@ -201,7 +201,7 @@ protected:
   unsigned short* GradientOpacityTable[4];
   vtkImageData* Cache;
 
-  void InternalRequestUpdateExtent(int*, int*);
+  void InternalRequestUpdateExtent(int[6], VTK_FUTURE_CONST int[6]);
 
   ///@{
   /**
@@ -210,7 +210,7 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int id) override;
+    VTK_FUTURE_CONST int outExt[6], int id) override;
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -227,14 +227,15 @@ protected:
    * Fill the flags after processing the min/max/gradient structure. This
    * optimized version is invoked when only scalar opacity table is needed.
    */
-  void FillScalarOpacityFlags(vtkImageData* minMaxVolume, int outExt[6]);
+  void FillScalarOpacityFlags(vtkImageData* minMaxVolume, VTK_FUTURE_CONST int outExt[6]);
 
   /**
    * Fill the flags after processing the min/max/gradient structure. This
    * optimized version is invoked when both scalar and gradient opacity
    * tables need to be visited.
    */
-  void FillScalarAndGradientOpacityFlags(vtkImageData* minMaxVolume, int outExt[6]);
+  void FillScalarAndGradientOpacityFlags(
+    vtkImageData* minMaxVolume, VTK_FUTURE_CONST int outExt[6]);
 
   ///@{
   /**
@@ -242,7 +243,8 @@ protected:
    * the output we are going to generate, reuse the cache as we may not be
    * updating all data in the min-max structure.
    */
-  void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
+  void AllocateOutputData(
+    vtkImageData* out, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]) override;
   vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
   ///@}
 

@@ -70,8 +70,8 @@ void vtkJPEGWriter::Write()
 
   // Fill in image information.
   vtkDemandDrivenPipeline::SafeDownCast(this->GetInputExecutive(0, 0))->UpdateInformation();
-  int* wExtent;
-  wExtent = this->GetInputInformation(0, 0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wExtent =
+    this->GetInputInformation(0, 0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   this->FileNumber = wExtent[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
@@ -218,7 +218,7 @@ VTK_ABI_NAMESPACE_BEGIN
 #if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #pragma warning(disable : 4611)
 #endif
-void vtkJPEGWriter::WriteSlice(vtkImageData* data, int* uExtent)
+void vtkJPEGWriter::WriteSlice(vtkImageData* data, VTK_FUTURE_CONST int uExtent[6])
 {
   // Call the correct templated function for the output
   unsigned int ui;

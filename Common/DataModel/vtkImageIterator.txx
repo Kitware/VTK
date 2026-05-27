@@ -19,7 +19,7 @@ vtkImageIterator<DType>::vtkImageIterator()
 
 //----------------------------------------------------------------------------
 template <class DType>
-void vtkImageIterator<DType>::Initialize(vtkImageData* id, int* ext)
+void vtkImageIterator<DType>::Initialize(vtkImageData* id, VTK_FUTURE_CONST int ext[6])
 {
   this->Pointer = static_cast<DType*>(id->GetScalarPointerForExtent(ext));
   id->GetIncrements(this->Increments[0], this->Increments[1], this->Increments[2]);
@@ -40,7 +40,7 @@ void vtkImageIterator<DType>::Initialize(vtkImageData* id, int* ext)
 
 //----------------------------------------------------------------------------
 template <class DType>
-vtkImageIterator<DType>::vtkImageIterator(vtkImageData* id, int* ext)
+vtkImageIterator<DType>::vtkImageIterator(vtkImageData* id, VTK_FUTURE_CONST int ext[6])
 {
   this->Initialize(id, ext);
 }

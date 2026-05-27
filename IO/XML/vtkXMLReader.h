@@ -367,12 +367,14 @@ protected:
   /**
    * Utility methods for subclasses.
    */
-  int IntersectExtents(int* extent1, int* extent2, int* result);
-  void ComputePointDimensions(int* extent, int* dimensions);
-  void ComputePointIncrements(int* extent, vtkIdType* increments);
-  void ComputeCellDimensions(int* extent, int* dimensions);
-  void ComputeCellIncrements(int* extent, vtkIdType* increments);
-  vtkIdType GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k);
+  int IntersectExtents(
+    VTK_FUTURE_CONST int extent1[6], VTK_FUTURE_CONST int extent2[6], int result[6]);
+  void ComputePointDimensions(VTK_FUTURE_CONST int extent[6], int* dimensions);
+  void ComputePointIncrements(VTK_FUTURE_CONST int extent[6], vtkIdType* increments);
+  void ComputeCellDimensions(VTK_FUTURE_CONST int extent[6], int* dimensions);
+  void ComputeCellIncrements(VTK_FUTURE_CONST int extent[6], vtkIdType* increments);
+  vtkIdType GetStartTuple(
+    VTK_FUTURE_CONST int extent[6], vtkIdType* increments, int i, int j, int k);
   void ReadAttributeIndices(vtkXMLDataElement* eDSA, vtkDataSetAttributes* dsa);
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);

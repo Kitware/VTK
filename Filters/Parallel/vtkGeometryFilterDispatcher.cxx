@@ -386,7 +386,7 @@ void vtkGeometryFilterDispatcher::ExecuteAMRBlock(
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ExecuteBlock(vtkDataObject* input, vtkPolyData* output,
   bool doCommunicate, int updatePiece, int updateNumPieces, int updateGhosts,
-  const int* wholeExtent)
+  const int wholeExtent[6])
 {
   // Copy field data from the input block to the output block
   output->GetFieldData()->PassData(input->GetFieldData());
@@ -520,7 +520,7 @@ int vtkGeometryFilterDispatcher::RequestData(
       procid = this->Controller->GetLocalProcessId();
       numProcs = this->Controller->GetNumberOfProcesses();
     }
-    int* wholeExtent =
+    const int* wholeExtent =
       vtkStreamingDemandDrivenPipeline::GetWholeExtent(inputVector[0]->GetInformationObject(0));
 
     auto inputHTG = vtkHyperTreeGrid::SafeDownCast(input);
@@ -877,7 +877,7 @@ int vtkGeometryFilterDispatcher::RequestDataObjectTree(
     ++totalNumberOfBlocks;
   }
 
-  int* wholeExtent =
+  const int* wholeExtent =
     vtkStreamingDemandDrivenPipeline::GetWholeExtent(inputVector[0]->GetInformationObject(0));
   int numInputs = 0;
   for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
@@ -1311,8 +1311,12 @@ void vtkGeometryFilterDispatcher::RectilinearGridExecute(vtkRectilinearGrid* inp
   {
     if (input->GetNumberOfCells() > 0)
     {
+#if VTK_USE_FUTURE_CONST
+      this->GeometryFilter->StructuredExecute(input, output, wholeExtent, nullptr, nullptr);
+#else
       this->GeometryFilter->StructuredExecute(
         input, output, const_cast<int*>(wholeExtent), nullptr, nullptr);
+#endif
     }
     this->OutlineFlag = false;
     return;
@@ -1615,7 +1619,7 @@ void vtkGeometryFilterDispatcher::HyperTreeGridExecute(
 
 //----------------------------------------------------------------------------
 void vtkGeometryFilterDispatcher::ExplicitStructuredGridExecute(
-  vtkExplicitStructuredGrid* input, vtkPolyData* out, bool doCommunicate, const int* wholeExtent)
+  vtkExplicitStructuredGrid* input, vtkPolyData* out, bool doCommunicate, const int wholeExtent[6])
 {
   vtkNew<vtkTrivialProducer> producer;
   producer->SetOutput(input);

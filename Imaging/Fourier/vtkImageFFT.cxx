@@ -30,7 +30,7 @@ int vtkImageFFT::IterativeRequestInformation(
 
 //------------------------------------------------------------------------------
 static void vtkImageFFTInternalRequestUpdateExtent(
-  int* inExt, int* outExt, int* wExt, int iteration)
+  int inExt[6], VTK_FUTURE_CONST int outExt[6], VTK_FUTURE_CONST int wExt[6], int iteration)
 {
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[iteration * 2] = wExt[iteration * 2];
@@ -42,8 +42,8 @@ static void vtkImageFFTInternalRequestUpdateExtent(
 // to compute any output region.
 int vtkImageFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformation* output)
 {
-  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int inExt[6];
   vtkImageFFTInternalRequestUpdateExtent(inExt, outExt, wExt, this->Iteration);
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
@@ -56,7 +56,7 @@ int vtkImageFFT::IterativeRequestUpdateExtent(vtkInformation* input, vtkInformat
 // is always doubles.
 template <class T>
 void vtkImageFFTExecute(vtkImageFFT* self, vtkImageData* inData, int inExt[6], T* inPtr,
-  vtkImageData* outData, int outExt[6], double* outPtr, int id)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr, int id)
 {
   vtkImageComplex* inComplex;
   vtkImageComplex* outComplex;
@@ -171,13 +171,14 @@ void vtkImageFFTExecute(vtkImageFFT* self, vtkImageData* inData, int inExt[6], T
 // Not threaded yet.
 void vtkImageFFT::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inDataVec, vtkImageData** outDataVec, int outExt[6], int threadId)
+  vtkImageData*** inDataVec, vtkImageData** outDataVec, VTK_FUTURE_CONST int outExt[6],
+  int threadId)
 {
   vtkImageData* inData = inDataVec[0][0];
   vtkImageData* outData = outDataVec[0];
   void *inPtr, *outPtr;
   int inExt[6];
-  int* wExt =
+  VTK_FUTURE_CONST int* wExt =
     inputVector[0]->GetInformationObject(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   vtkImageFFTInternalRequestUpdateExtent(inExt, outExt, wExt, this->Iteration);
 

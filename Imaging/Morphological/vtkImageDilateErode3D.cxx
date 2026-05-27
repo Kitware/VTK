@@ -244,7 +244,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D* self, vtkImageData* mas
 // It handles image boundaries, so the image does not shrink.
 void vtkImageDilateErode3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);

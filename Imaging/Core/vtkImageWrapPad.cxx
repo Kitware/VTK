@@ -19,7 +19,8 @@ void vtkImageWrapPad::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wholeExtent[6])
+void vtkImageWrapPad::ComputeInputUpdateExtent(
+  int inExt[6], VTK_FUTURE_CONST int outExt[6], int wholeExtent[6])
 {
   int idx;
   int min, max, width, imageMin, imageMax, imageWidth;
@@ -65,7 +66,8 @@ void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int 
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageWrapPadExecute(vtkImageWrapPad* self, vtkImageData* inData, T* vtkNotUsed(inPtr),
-  vtkImageData* outData, T* outPtr, int outExt[6], int id, int wholeExt[6])
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id,
+  VTK_FUTURE_CONST int wholeExt[6])
 {
   int min0, max0;
   int imageMin0, imageMax0, imageMin1, imageMax1, imageMin2, imageMax2;
@@ -192,7 +194,7 @@ void vtkImageWrapPadExecute(vtkImageWrapPad* self, vtkImageData* inData, T* vtkN
 // the regions data types.
 void vtkImageWrapPad::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   // return if nothing to do
   if (outExt[1] < outExt[0] || outExt[3] < outExt[2] || outExt[5] < outExt[4])

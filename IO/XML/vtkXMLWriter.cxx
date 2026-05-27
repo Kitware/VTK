@@ -1572,7 +1572,8 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
 
 //------------------------------------------------------------------------------
 template <class T>
-int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name, int length, T* data)
+int vtkXMLWriterWriteVectorAttribute(
+  ostream& os, const char* name, int length, VTK_FUTURE_CONST T* data)
 {
   os << " " << name << "=\"";
   if (length)
@@ -1614,7 +1615,7 @@ int vtkXMLWriter::WriteScalarAttribute(const char* name, vtkIdType data)
 #endif
 
 //------------------------------------------------------------------------------
-int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, int* data)
+int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST int* data)
 {
   int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
 
@@ -1627,7 +1628,7 @@ int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, int* data)
 }
 
 //------------------------------------------------------------------------------
-int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, float* data)
+int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST float* data)
 {
   int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
 
@@ -1640,7 +1641,7 @@ int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, float* data
 }
 
 //------------------------------------------------------------------------------
-int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, double* data)
+int vtkXMLWriter::WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST double* data)
 {
   int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
 

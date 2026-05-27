@@ -51,7 +51,8 @@ typedef XdmfInt32 vtkXdmfIdType;
 using namespace xdmf2;
 
 VTK_ABI_NAMESPACE_BEGIN
-static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
+static void vtkScaleExtents(
+  VTK_FUTURE_CONST int in_exts[6], int out_exts[6], VTK_FUTURE_CONST int stride[3])
 {
   out_exts[0] = in_exts[0] / stride[0];
   out_exts[1] = in_exts[1] / stride[0];
@@ -61,7 +62,7 @@ static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
   out_exts[5] = in_exts[5] / stride[2];
 }
 
-static void vtkGetDims(int exts[6], int dims[3])
+static void vtkGetDims(VTK_FUTURE_CONST int exts[6], int dims[3])
 {
   dims[0] = exts[1] - exts[0] + 1;
   dims[1] = exts[3] - exts[2] + 1;
@@ -929,8 +930,9 @@ vtkImageData* vtkXdmfHeavyData::RequestImageData(XdmfGrid* xmfGrid, bool use_uni
 }
 
 //------------------------------------------------------------------------------
-vtkPoints* vtkXdmfHeavyData::ReadPoints(
-  XdmfGeometry* xmfGeometry, int* update_extents /*=nullptr*/, int* whole_extents /*=nullptr*/)
+vtkPoints* vtkXdmfHeavyData::ReadPoints(XdmfGeometry* xmfGeometry,
+  VTK_FUTURE_CONST int update_extents[6] /*=nullptr*/,
+  VTK_FUTURE_CONST int whole_extents[6] /*=nullptr*/)
 {
   XdmfInt32 geomType = xmfGeometry->GetGeometryType();
 
@@ -1045,7 +1047,8 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
 }
 
 //------------------------------------------------------------------------------
-bool vtkXdmfHeavyData::ReadAttributes(vtkDataSet* dataSet, XdmfGrid* xmfGrid, int* update_extents)
+bool vtkXdmfHeavyData::ReadAttributes(
+  vtkDataSet* dataSet, XdmfGrid* xmfGrid, VTK_FUTURE_CONST int update_extents[6])
 {
   int data_dimensionality = vtkXdmfDomain::GetDataDimensionality(xmfGrid);
 
@@ -1168,8 +1171,8 @@ struct vtkConvertTensor6
 };
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
-  XdmfAttribute* xmfAttribute, int data_dimensionality, int* update_extents /*=0*/)
+vtkDataArray* vtkXdmfHeavyData::ReadAttribute(XdmfAttribute* xmfAttribute, int data_dimensionality,
+  VTK_FUTURE_CONST int update_extents[6] /*=0*/)
 {
   if (!xmfAttribute)
   {
@@ -1303,7 +1306,7 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
 // Read ghost cell/point information. This is simply loaded info a
 // vtkGhostType attribute array.
 bool vtkXdmfHeavyData::ReadGhostSets(
-  vtkDataSet* dataSet, XdmfGrid* xmfGrid, int* vtkNotUsed(update_extents) /*=0*/)
+  vtkDataSet* dataSet, XdmfGrid* xmfGrid, VTK_FUTURE_CONST int vtkNotUsed(update_extents)[6] /*=0*/)
 {
   // int data_dimensionality = this->Domain->GetDataDimensionality(xmfGrid);
   for (int cc = 0; cc < xmfGrid->GetNumberOfSets(); cc++)
@@ -1381,7 +1384,7 @@ bool vtkXdmfHeavyData::ReadGhostSets(
 
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkXdmfHeavyData::ReadSets(
-  vtkDataSet* dataSet, XdmfGrid* xmfGrid, int* vtkNotUsed(update_extents) /*=0*/)
+  vtkDataSet* dataSet, XdmfGrid* xmfGrid, VTK_FUTURE_CONST int vtkNotUsed(update_extents)[6] /*=0*/)
 {
   unsigned int number_of_sets = 0;
   for (int cc = 0; cc < xmfGrid->GetNumberOfSets(); cc++)

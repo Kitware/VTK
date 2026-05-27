@@ -511,7 +511,7 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersAtSameLevel(
 
   // STEP 3: Get RcvCell extent
   int RcvCellExtent[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(const_cast<int*>(nei.RcvExtent), RcvCellExtent);
+  vtkStructuredData::GetCellExtentFromPointExtent(nei.RcvExtent, RcvCellExtent);
 
   // STEP 4: Loop through the RcvCellExtent and copy values iff a higher res
   // value does not exist.
@@ -585,10 +585,9 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromCoarserLevel(
     NeighborExtent, NeighborCellExtent, this->DataDescription);
 
   // STEP 4: Get RcvCell extent
-  int rcvDataDescription =
-    vtkStructuredData::GetDataDescriptionFromExtent(const_cast<int*>(nei.RcvExtent));
+  int rcvDataDescription = vtkStructuredData::GetDataDescriptionFromExtent(nei.RcvExtent);
   int RcvCellExtent[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(const_cast<int*>(nei.RcvExtent), RcvCellExtent);
+  vtkStructuredData::GetCellExtentFromPointExtent(nei.RcvExtent, RcvCellExtent);
 
   // STEP 5: Loop through the rcv cell extent and fill ghost regions
   int ijk[3];
@@ -691,10 +690,10 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
   // STEP 4: Get RcvCell extent
   //  int rcvDataDescription =
   //      vtkStructuredData::GetDataDescriptionFromExtent(
-  //                   const_cast<int*>(nei.RcvExtent));
+  //                   nei.RcvExtent);
 
   int RcvCellExtent[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(const_cast<int*>(nei.RcvExtent), RcvCellExtent);
+  vtkStructuredData::GetCellExtentFromPointExtent(nei.RcvExtent, RcvCellExtent);
 
   // STEP 5: Get receive node/cell extent w.r.t. this grid
   int GridRcvExtent[6];

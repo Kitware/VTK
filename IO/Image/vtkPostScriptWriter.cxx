@@ -16,7 +16,8 @@ void vtkPostScriptWriter::WriteFileTrailer(ostream* file, vtkImageData* vtkNotUs
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
 
-void vtkPostScriptWriter::WriteFileHeader(ostream* file, vtkImageData* cache, int wExt[6])
+void vtkPostScriptWriter::WriteFileHeader(
+  ostream* file, vtkImageData* cache, VTK_FUTURE_CONST int wExt[6])
 {
   int min1 = wExt[0], max1 = wExt[1], min2 = wExt[2], max2 = wExt[3];
   int bpp;
@@ -101,8 +102,8 @@ void vtkPostScriptWriter::WriteFileHeader(ostream* file, vtkImageData* cache, in
   }
 }
 
-void vtkPostScriptWriter::WriteFile(
-  ostream* file, vtkImageData* data, int extent[6], int wExtent[6])
+void vtkPostScriptWriter::WriteFile(ostream* file, vtkImageData* data,
+  VTK_FUTURE_CONST int extent[6], VTK_FUTURE_CONST int wExtent[6])
 {
   int idxC, idx0, idx1, idx2;
   unsigned char* ptr;

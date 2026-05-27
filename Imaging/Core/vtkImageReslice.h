@@ -584,14 +584,15 @@ protected:
 
   void GetAutoCroppedOutputBounds(
     vtkInformation* inInfo, const double outDirection[9], double bounds[6]);
-  void AllocateOutputData(vtkImageData* output, vtkInformation* outInfo, int* uExtent) override;
+  void AllocateOutputData(
+    vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]) override;
   vtkImageData* AllocateOutputData(vtkDataObject*, vtkInformation*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 

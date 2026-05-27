@@ -58,13 +58,13 @@ const char* vtkXMLPStructuredGridReader::GetDataSetName()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPStructuredGridReader::SetOutputExtent(int* extent)
+void vtkXMLPStructuredGridReader::SetOutputExtent(VTK_FUTURE_CONST int extent[6])
 {
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPStructuredGridReader::GetPieceInputExtent(int index, int* extent)
+void vtkXMLPStructuredGridReader::GetPieceInputExtent(int index, int extent[6])
 {
   this->GetPieceInput(index)->GetExtent(extent);
 }

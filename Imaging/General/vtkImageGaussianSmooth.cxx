@@ -96,14 +96,13 @@ int vtkImageGaussianSmooth::RequestUpdateExtent(vtkInformation* vtkNotUsed(reque
 }
 
 //------------------------------------------------------------------------------
-void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int* inExt, int* wholeExtent)
+void vtkImageGaussianSmooth::InternalRequestUpdateExtent(
+  int inExt[6], VTK_FUTURE_CONST int wholeExtent[6])
 {
-  int idx, radius;
-
   // Expand filtered axes
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (int idx = 0; idx < this->Dimensionality; ++idx)
   {
-    radius = static_cast<int>(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
+    int radius = static_cast<int>(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
     inExt[idx * 2] -= radius;
     inExt[idx * 2] = std::max(inExt[idx * 2], wholeExtent[idx * 2]);
 
@@ -118,8 +117,8 @@ void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int* inExt, int* wholeE
 // previously.
 template <class T>
 void vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth* self, int axis, double* kernel,
-  int kernelSize, vtkImageData* inData, T* inPtrC, vtkImageData* outData, int outExt[6], T* outPtrC,
-  int* pcycle, int target, int* pcount, int total)
+  int kernelSize, vtkImageData* inData, T* inPtrC, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], T* outPtrC, int* pcycle, int target, int* pcount, int total)
 {
   int maxC, max0 = 0, max1 = 0;
   int idxC, idx0, idx1, idxK;
@@ -220,9 +219,9 @@ size_t vtkImageGaussianSmoothGetTypeSize(T*)
 //------------------------------------------------------------------------------
 // This method convolves over one axis. It loops over the convolved axis,
 // and handles boundary conditions.
-void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData, int inExt[6],
-  vtkImageData* outData, int outExt[6], int* pcycle, int target, int* pcount, int total,
-  vtkInformation* inInfo)
+void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData,
+  VTK_FUTURE_CONST int inExt[6], vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int* pcycle,
+  int target, int* pcount, int total, vtkInformation* inInfo)
 {
   int idxA, max;
   int wholeExtent[6], wholeMax, wholeMin;
@@ -321,7 +320,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData, int inE
 // This method decomposes the gaussian and smooths along each axis.
 void vtkImageGaussianSmooth::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector, vtkImageData*** inData,
-  vtkImageData** outData, int outExt[6], int id)
+  vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6];
   int target, count, total, cycle;

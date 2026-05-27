@@ -84,7 +84,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int extent[6], int id) override;
+    VTK_FUTURE_CONST int extent[6], int id) override;
 
   vtkTypeBool ReverseStencil;
   double BackgroundColor[4];

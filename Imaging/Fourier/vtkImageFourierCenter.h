@@ -33,7 +33,8 @@ protected:
 
   void ThreadedRequestData(vtkInformation* vtkNotUsed(request),
     vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector,
-    vtkImageData*** inDataVec, vtkImageData** outDataVec, int outExt[6], int threadId) override;
+    vtkImageData*** inDataVec, vtkImageData** outDataVec, VTK_FUTURE_CONST int outExt[6],
+    int threadId) override;
 
 private:
   vtkImageFourierCenter(const vtkImageFourierCenter&) = delete;

@@ -85,7 +85,8 @@ private:
 // templated function for the input and output region types.
 void vtkOpenGLImageGradient::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int vtkNotUsed(id))
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6],
+  int vtkNotUsed(id))
 {
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
   outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());

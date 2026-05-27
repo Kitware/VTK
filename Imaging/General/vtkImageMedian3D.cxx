@@ -101,7 +101,7 @@ struct vtkImageMedian3DWorker
 {
   template <class TInArray, class TOutArray, typename T = vtk::GetAPIType<TInArray>>
   void operator()(TInArray* inArray, TOutArray* outArray, vtkImageMedian3D* self,
-    vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
   {
     int *kernelMiddle, *kernelSize;
     // For looping though output (and input) pixels.
@@ -269,7 +269,7 @@ struct vtkImageMedian3DWorker
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();

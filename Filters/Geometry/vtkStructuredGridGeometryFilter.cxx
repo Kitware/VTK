@@ -452,7 +452,7 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotU
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  int* wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Copy whole extent only if present
   int ext[6];

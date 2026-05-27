@@ -28,8 +28,9 @@ protected:
   vtkPostScriptWriter() = default;
   ~vtkPostScriptWriter() override = default;
 
-  void WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExt[6]) override;
-  void WriteFileHeader(ostream*, vtkImageData*, int wExt[6]) override;
+  void WriteFile(ostream* file, vtkImageData* data, VTK_FUTURE_CONST int extent[6],
+    VTK_FUTURE_CONST int wExt[6]) override;
+  void WriteFileHeader(ostream*, vtkImageData*, VTK_FUTURE_CONST int wExt[6]) override;
   void WriteFileTrailer(ostream*, vtkImageData*) override;
 
 private:

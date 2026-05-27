@@ -128,7 +128,7 @@ void vtkFreeBackground(vtkImageStencil* vtkNotUsed(self), T*& background)
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageStencilExecute(vtkImageStencil* self, vtkImageData* inData, T*, vtkImageData* inData2,
-  T*, vtkImageData* outData, T*, int outExt[6], int id, vtkInformation* outInfo)
+  T*, vtkImageData* outData, T*, VTK_FUTURE_CONST int outExt[6], int id, vtkInformation* outInfo)
 {
   vtkImageStencilData* stencil = self->GetStencil();
 
@@ -234,7 +234,7 @@ void vtkImageStencilExecute(vtkImageStencil* self, vtkImageData* inData, T*, vtk
 //------------------------------------------------------------------------------
 void vtkImageStencil::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector, vtkImageData*** inData,
-  vtkImageData** outData, int outExt[6], int id)
+  vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void *inPtr, *inPtr2;
   void* outPtr;

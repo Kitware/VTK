@@ -52,7 +52,7 @@ vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 
 //------------------------------------------------------------------------------
 static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
-  int* ext, int precision, vtkImageData* input, vtkPolyData* o)
+  VTK_FUTURE_CONST int ext[6], int precision, vtkImageData* input, vtkPolyData* o)
 {
   vtkPoints* newPts;
   vtkCellArray* newPolys;
@@ -106,10 +106,10 @@ static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageData* data,
-  vtkPolyData* output, T* ptr, bool outputTriangles)
+void ContourImage(vtkSynchronizedTemplatesCutter3D* self, VTK_FUTURE_CONST int exExt[6],
+  vtkImageData* data, vtkPolyData* output, T* ptr, bool outputTriangles)
 {
-  int* inExt = data->GetExtent();
+  VTK_FUTURE_CONST int* inExt = data->GetExtent();
   vtkIdType xdim = exExt[1] - exExt[0] + 1;
   vtkIdType ydim = exExt[3] - exExt[2] + 1;
   double* values = self->GetValues();
@@ -540,7 +540,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* exExt = data->GetExtent();
+  VTK_FUTURE_CONST int* exExt = data->GetExtent();
   if (exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5])
   {
     vtkDebugMacro(<< "Cutter3D structured contours requires Cutter3D data");

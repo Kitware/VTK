@@ -232,8 +232,8 @@ void vtkImageMapToWindowLevelClamps(vtkImageData* data, double w, double l, T& l
 // This non-templated function executes the filter for any type of data.
 template <class T>
 void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
-  vtkImageData* inData, T* inPtr, vtkImageData* outData, unsigned char* outPtr, int outExt[6],
-  int id)
+  vtkImageData* inData, T* inPtr, vtkImageData* outData, unsigned char* outPtr,
+  VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int extX, extY, extZ;
@@ -384,7 +384,7 @@ void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
 
 void vtkImageMapToWindowLevelColors::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);

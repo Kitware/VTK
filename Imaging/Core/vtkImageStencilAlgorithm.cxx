@@ -53,7 +53,8 @@ vtkImageStencilData* vtkImageStencilAlgorithm::GetOutput()
 }
 
 //------------------------------------------------------------------------------
-vtkImageStencilData* vtkImageStencilAlgorithm::AllocateOutputData(vtkDataObject* out, int* uExt)
+vtkImageStencilData* vtkImageStencilAlgorithm::AllocateOutputData(
+  vtkDataObject* out, VTK_FUTURE_CONST int uExt[6])
 {
   vtkImageStencilData* res = vtkImageStencilData::SafeDownCast(out);
   if (!res)

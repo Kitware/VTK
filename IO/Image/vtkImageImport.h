@@ -169,7 +169,7 @@ public:
   typedef double* (*DirectionCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
-  typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
+  typedef void (*PropagateUpdateExtentCallbackType)(void*, VTK_FUTURE_CONST int[6]);
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);

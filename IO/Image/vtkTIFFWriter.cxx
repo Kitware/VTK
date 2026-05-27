@@ -99,8 +99,8 @@ void vtkTIFFWriter::Write()
 
   // Fill in image information.
   this->GetInputExecutive(0, 0)->UpdateInformation();
-  int* wExtent;
-  wExtent = vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetInputInformation(0, 0));
+  VTK_FUTURE_CONST int* wExtent =
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetInputInformation(0, 0));
   this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
 
@@ -120,7 +120,7 @@ void vtkTIFFWriter::Write()
 }
 
 //------------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
+void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, VTK_FUTURE_CONST int wExt[6])
 {
   vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
 
@@ -276,7 +276,8 @@ struct vtkTIFFWriterWriteVolumeFunctor
 };
 
 //------------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
+void vtkTIFFWriter::WriteFile(
+  ostream*, vtkImageData* data, VTK_FUTURE_CONST int extent[6], VTK_FUTURE_CONST int[6])
 {
   vtkDataArray* scalarArray = this->GetInputArrayToProcess(0, this->GetInput());
 

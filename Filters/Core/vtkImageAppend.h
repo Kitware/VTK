@@ -103,18 +103,20 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
 
   // see vtkAlgorithm for docs.
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  void InitOutput(int outExt[6], vtkImageData* outData);
+  void InitOutput(VTK_FUTURE_CONST int outExt[6], vtkImageData* outData);
 
-  void InternalComputeInputUpdateExtent(int* inExt, int* outExt, int* inWextent, int whichInput);
+  void InternalComputeInputUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6],
+    VTK_FUTURE_CONST int inWextent[6], int whichInput);
 
   // overridden to allocate all of the output arrays, not just active scalars
-  void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
+  void AllocateOutputData(
+    vtkImageData* out, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]) override;
   vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
 
   // overridden to prevent shallow copies across, since we have to do it elementwise

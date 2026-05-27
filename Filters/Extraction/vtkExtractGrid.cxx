@@ -189,10 +189,10 @@ bool vtkExtractGrid::RequestDataImpl(
   vtkCellData* outCD = output->GetCellData();
 
   vtkPoints* inPts = input->GetPoints();
-  int* inExt = input->GetExtent();
+  VTK_FUTURE_CONST int* inExt = input->GetExtent();
 
   vtkPoints* newPts = inPts->NewInstance();
-  int* outExt = output->GetExtent();
+  VTK_FUTURE_CONST int* outExt = output->GetExtent();
 
   vtkDebugMacro(<< "Extracting Grid");
 

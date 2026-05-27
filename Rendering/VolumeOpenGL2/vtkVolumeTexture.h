@@ -215,7 +215,7 @@ private:
   void CreateBlocks(unsigned int format, unsigned int internalFormat, int type);
 
   void AdjustExtentForCell(Size6& extent);
-  Size3 ComputeBlockSize(int* extent);
+  Size3 ComputeBlockSize(VTK_FUTURE_CONST int extent[6]);
 
   /**
    * Defines OpenGL's texture type, format and internal format based on the

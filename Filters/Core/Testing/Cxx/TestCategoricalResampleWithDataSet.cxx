@@ -17,7 +17,7 @@ int TestCategoricalResampleWithDataSet(int, char*[])
   imageData->SetExtent(-5, 5, -5, 5, -5, 5);
   imageData->AllocateScalars(VTK_DOUBLE, 1);
 
-  int* ext = imageData->GetExtent();
+  const int* ext = imageData->GetExtent();
 
   double radius = 3.;
   double inValue = 10.;

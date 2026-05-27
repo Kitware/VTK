@@ -320,7 +320,7 @@ namespace
 template <class F>
 void vtkSlidingWindowAllocateWorkspace(vtkInterpolationWeights* weights, F*)
 {
-  int* extent = weights->WeightExtent;
+  const int* extent = weights->WeightExtent;
 
   int kernelSizeX = weights->KernelSize[0];
   int kernelSizeY = weights->KernelSize[1];
@@ -946,7 +946,7 @@ void vtkAbstractImageInterpolator::PrecomputeWeightsForExtent(
 //------------------------------------------------------------------------------
 void vtkAbstractImageInterpolator::FreePrecomputedWeights(vtkInterpolationWeights*& weights)
 {
-  int* extent = weights->WeightExtent;
+  VTK_FUTURE_CONST int* extent = weights->WeightExtent;
 
   for (int k = 0; k < 3; k++)
   {

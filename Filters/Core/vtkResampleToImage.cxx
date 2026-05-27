@@ -175,7 +175,7 @@ void vtkResampleToImage::PerformResampling(vtkDataObject* input, const double sa
           static_cast<double>(this->SamplingDimensions[i] - 1));
   }
 
-  int* updateExtent = this->GetUpdateExtent();
+  const int* updateExtent = this->GetUpdateExtent();
   int probingExtent[6];
   if (computeProbingExtent)
   {

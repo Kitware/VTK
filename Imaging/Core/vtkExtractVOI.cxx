@@ -243,7 +243,7 @@ bool vtkExtractVOI::RequestDataImpl(
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
 
-  int* inExt = input->GetExtent();
+  VTK_FUTURE_CONST int* inExt = input->GetExtent();
 
   // Compute output data origin:
   double inOrigin[3];

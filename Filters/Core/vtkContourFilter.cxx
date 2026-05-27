@@ -156,7 +156,7 @@ int vtkContourFilter::RequestUpdateExtent(
   if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && !vtkUniformGrid::SafeDownCast(input))
   {
     int dim = 3;
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     if (uExt[0] == uExt[1])
     {
       --dim;
@@ -201,7 +201,7 @@ int vtkContourFilter::RequestUpdateExtent(
   // handle 3D RGrids
   if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
@@ -215,7 +215,7 @@ int vtkContourFilter::RequestUpdateExtent(
   // handle 3D SGrids
   if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
@@ -268,7 +268,7 @@ int vtkContourFilter::RequestData(
   if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && (!uG || uG->GetDataDimension() == 3))
   {
     int dim = 3;
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     if (uExt[0] == uExt[1])
     {
       --dim;
@@ -342,7 +342,7 @@ int vtkContourFilter::RequestData(
   // handle 3D RGrids
   if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {
@@ -363,7 +363,7 @@ int vtkContourFilter::RequestData(
   // handle 3D SGrids
   if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
   {
-    int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    const int* uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     // if 3D
     if (uExt[0] < uExt[1] && uExt[2] < uExt[3] && uExt[4] < uExt[5])
     {

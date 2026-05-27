@@ -7,6 +7,7 @@
 #include VTKXDMF2_HEADER(XdmfDataItem.h)
 #include VTKXDMF2_HEADER(XdmfGrid.h) //won't compile without it
 #include "vtkIOXdmf2Module.h"        // For export macro
+#include "vtkSetGet.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
@@ -96,27 +97,30 @@ private:
   // vtkPointSet subclasses. The extents only make sense when reading
   // vtkStructuredGrid. If non-null, then the only the points for the sub-grid
   // are read.
-  vtkPoints* ReadPoints(
-    xdmf2::XdmfGeometry* xmfGeometry, int* update_extents = nullptr, int* whole_extents = nullptr);
+  vtkPoints* ReadPoints(xdmf2::XdmfGeometry* xmfGeometry,
+    VTK_FUTURE_CONST int update_extents[6] = nullptr,
+    VTK_FUTURE_CONST int whole_extents[6] = nullptr);
 
   // Description:
   // Read attributes.
-  bool ReadAttributes(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
+  bool ReadAttributes(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid,
+    VTK_FUTURE_CONST int update_extents[6] = nullptr);
 
   // Description:
   // Reads an attribute.
   // If update_extents are non-null, then we are reading structured attributes
   // and we read only the sub-set specified by update_extents.
-  vtkDataArray* ReadAttribute(
-    xdmf2::XdmfAttribute* xmfAttribute, int data_dimensionality, int* update_extents = nullptr);
+  vtkDataArray* ReadAttribute(xdmf2::XdmfAttribute* xmfAttribute, int data_dimensionality,
+    VTK_FUTURE_CONST int update_extents[6] = nullptr);
 
   // Description:
   // Read sets that mark ghost cells/nodes and then create attribute arrays for
   // marking the cells as such.
-  bool ReadGhostSets(vtkDataSet* ds, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
+  bool ReadGhostSets(
+    vtkDataSet* ds, xdmf2::XdmfGrid* xmfGrid, VTK_FUTURE_CONST int update_extents[6] = nullptr);
 
-  vtkMultiBlockDataSet* ReadSets(
-    vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid, int* update_extents = nullptr);
+  vtkMultiBlockDataSet* ReadSets(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid,
+    VTK_FUTURE_CONST int update_extents[6] = nullptr);
 
   // Description:
   // Used when reading node-sets.

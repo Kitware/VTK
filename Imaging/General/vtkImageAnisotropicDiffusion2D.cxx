@@ -99,7 +99,7 @@ void vtkImageAnisotropicDiffusion2D::SetNumberOfIterations(int num)
 // must have the same data type.
 void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
   double* ar;
@@ -157,8 +157,8 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(vtkInformation* vtkNotU
 // This method performs one pass of the diffusion filter.
 // The inData and outData are assumed to have data type double,
 // and have the same extent.
-void vtkImageAnisotropicDiffusion2D::Iterate(
-  vtkImageData* inData, vtkImageData* outData, double ar0, double ar1, int* coreExtent, int count)
+void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData* inData, vtkImageData* outData,
+  double ar0, double ar1, VTK_FUTURE_CONST int coreExtent[6], int count)
 {
   int idx0, idx1, idx2;
   vtkIdType inInc0, inInc1, inInc2;

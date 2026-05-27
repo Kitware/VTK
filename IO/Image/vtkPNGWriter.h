@@ -97,7 +97,7 @@ protected:
   vtkPNGWriter();
   ~vtkPNGWriter() override;
 
-  void WriteSlice(vtkImageData* data, int* uExtent);
+  void WriteSlice(vtkImageData* data, VTK_FUTURE_CONST int uExtent[6]);
   int CompressionLevel;
   vtkUnsignedCharArray* Result;
   FILE* TempFP;

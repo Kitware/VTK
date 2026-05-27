@@ -127,18 +127,19 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   using Superclass::AllocateOutputData;
-  void AllocateOutputData(vtkImageData* output, vtkInformation* outInfo, int* uExtent) override;
+  void AllocateOutputData(
+    vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]) override;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int threadId) override;
+    VTK_FUTURE_CONST int outExt[6], int threadId) override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
 private:
   void SetInputToAdditiveChar(unsigned int size);
-  void GrowExtent(int* uExt, int* wholeExtent);
+  void GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent);
 
   int PatchRadius = 6;
   bool ClampNegativeValues = false;

@@ -269,12 +269,13 @@ void AddCellCenteredXYZField(vtkMultiBlockDataSet* mbds)
 //------------------------------------------------------------------------------
 // Description:
 // Creates a test data-set.
-vtkMultiBlockDataSet* GetDataSet(double globalOrigin[3], int WholeExtent[6], double gridSpacing[3],
-  const int numPartitions, const int numGhosts, const bool AddNodeData, const bool AddCellData)
+vtkMultiBlockDataSet* GetDataSet(double globalOrigin[3], VTK_FUTURE_CONST int wholeExtent[6],
+  double gridSpacing[3], const int numPartitions, const int numGhosts, const bool AddNodeData,
+  const bool AddCellData)
 {
   // STEP 0: Get the global grid dimensions
   int dims[3];
-  vtkStructuredData::GetDimensionsFromExtent(WholeExtent, dims);
+  vtkStructuredData::GetDimensionsFromExtent(wholeExtent, dims);
 
   // STEP 1: Get the whole grid as a uniform grid instance
   vtkUniformGrid* wholeGrid = vtkUniformGrid::New();

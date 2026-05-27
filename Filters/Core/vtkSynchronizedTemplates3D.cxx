@@ -124,8 +124,8 @@ static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* i
 //------------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class TIter>
-void vtkSTComputePointGradient(int i, int j, int k, TIter s, int* inExt, vtkIdType xInc,
-  vtkIdType yInc, vtkIdType zInc, double* spacing, double n[3])
+void vtkSTComputePointGradient(int i, int j, int k, TIter s, VTK_FUTURE_CONST int inExt[6],
+  vtkIdType xInc, vtkIdType yInc, vtkIdType zInc, double* spacing, double n[3])
 {
   double sp, sm;
 
@@ -236,7 +236,7 @@ struct ContourImage
     vtkImageData* data, vtkPolyData* output, bool outputTriangles)
   {
     auto ptr = vtk::DataArrayValueRange(inScalars).begin() + index;
-    int* inExt = data->GetExtent();
+    VTK_FUTURE_CONST int* inExt = data->GetExtent();
     vtkIdType xdim = exExt[1] - exExt[0] + 1;
     vtkIdType ydim = exExt[3] - exExt[2] + 1;
     double* values = self->GetValues();
@@ -676,7 +676,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* inExt = data->GetExtent();
+  VTK_FUTURE_CONST int* inExt = data->GetExtent();
   int exExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)

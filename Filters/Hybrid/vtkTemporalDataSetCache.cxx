@@ -226,7 +226,7 @@ int vtkTemporalDataSetCache::RequestInformation(
     {
       // as an ID
       double* origin = id->GetOrigin();
-      int* extent = id->GetExtent();
+      const int* extent = id->GetExtent();
       double* spacing = id->GetSpacing();
       info->Set(vtkDataObject::ORIGIN(), origin, 3);
       info->Set(vtkDataObject::SPACING(), spacing, 3);

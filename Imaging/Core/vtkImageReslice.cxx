@@ -346,7 +346,7 @@ void vtkImageReslice::SetOutputOriginToDefault()
 //------------------------------------------------------------------------------
 void vtkImageReslice::SetOutputExtent(int a, int b, int c, int d, int e, int f)
 {
-  int* extent = this->OutputExtent;
+  const int* extent = this->OutputExtent;
   if (extent[0] != a || extent[1] != b || extent[2] != c || extent[3] != d || extent[4] != e ||
     extent[5] != f)
   {
@@ -786,7 +786,7 @@ int vtkImageReslice::FillOutputPortInformation(int port, vtkInformation* info)
 
 //------------------------------------------------------------------------------
 void vtkImageReslice::AllocateOutputData(
-  vtkImageData* output, vtkInformation* outInfo, int* uExtent)
+  vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6])
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);
@@ -1878,8 +1878,8 @@ void vtkImageResliceRescaleScalars(
 // This function simply clears the entire output to the background color,
 // for cases where the transformation places the output extent completely
 // outside of the input extent.
-void vtkImageResliceClearExecute(
-  vtkImageReslice* self, vtkImageData* outData, void* outPtr, int outExt[6], int threadId)
+void vtkImageResliceClearExecute(vtkImageReslice* self, vtkImageData* outData, void* outPtr,
+  VTK_FUTURE_CONST int outExt[6], int threadId)
 {
   void (*setpixels)(void*& out, const void* in, int numscalars, int n) = nullptr;
 
@@ -1932,7 +1932,7 @@ template <class F>
 void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   vtkAbstractImageInterpolator* interpolator, vtkImageData* outData, void* outPtr,
   double scalarShift, double scalarScale, vtkImageResliceConvertScalarsType convertScalars,
-  int outExt[6], int threadId, F newmat[4][4], vtkAbstractTransform* newtrans)
+  VTK_FUTURE_CONST int outExt[6], int threadId, F newmat[4][4], vtkAbstractTransform* newtrans)
 {
   void (*convertpixels)(void*& out, const F* in, int numscalars, int n) = nullptr;
   void (*setpixels)(void*& out, const void* in, int numscalars, int n) = nullptr;
@@ -2719,7 +2719,7 @@ template <class F>
 void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
   vtkAbstractImageInterpolator* interpolator, vtkImageData* outData, void* outPtr,
   double scalarShift, double scalarScale, vtkImageResliceConvertScalarsType convertScalars,
-  int outExt[6], int threadId, F matrix[4][4])
+  VTK_FUTURE_CONST int outExt[6], int threadId, F matrix[4][4])
 {
   // Get Increments to march through data
   vtkIdType outIncX, outIncY, outIncZ;
@@ -2734,7 +2734,7 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
   F(*newmat)[4];
   newmat = matrix;
   F smatrix[4][4];
-  int* extent = outExt;
+  VTK_FUTURE_CONST int* extent = outExt;
   int sextent[6];
   if (nsamples > 1)
   {
@@ -3228,7 +3228,7 @@ int vtkImageReslice::RequestData(
 // the regions data types.
 void vtkImageReslice::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int threadId)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int threadId)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData[0][0] << ", outData = " << outData[0]);
 

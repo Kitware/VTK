@@ -64,7 +64,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int id) override;
+    VTK_FUTURE_CONST int outExt[6], int id) override;
 
 private:
   vtkImageButterworthHighPass(const vtkImageButterworthHighPass&) = delete;

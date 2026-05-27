@@ -289,7 +289,7 @@ VTK_THREAD_RETURN_TYPE vtkImageHistogramThreadedExecute(void* arg)
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecuteRange(vtkImageData* inData, vtkImageStencilData* stencil, T* inPtr,
-  int extent[6], double range[2], int component)
+  VTK_FUTURE_CONST int extent[6], double range[2], int component)
 {
   vtkImageStencilIterator<T> inIter(inData, stencil, extent, nullptr);
 
@@ -342,8 +342,8 @@ void vtkImageHistogramExecuteRange(vtkImageData* inData, vtkImageStencilData* st
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecute(vtkImageHistogram* self, vtkImageData* inData,
-  vtkImageStencilData* stencil, T* inPtr, int extent[6], vtkIdType* outPtr, int binRange[2],
-  double o, double s, int component, int threadId)
+  vtkImageStencilData* stencil, T* inPtr, VTK_FUTURE_CONST int extent[6], vtkIdType* outPtr,
+  int binRange[2], double o, double s, int component, int threadId)
 {
   vtkImageStencilIterator<T> inIter(inData, stencil, extent, ((threadId == 0) ? self : nullptr));
 
@@ -405,8 +405,8 @@ void vtkImageHistogramExecute(vtkImageHistogram* self, vtkImageData* inData,
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageHistogramExecuteInt(vtkImageHistogram* self, vtkImageData* inData,
-  vtkImageStencilData* stencil, T* inPtr, int extent[6], vtkIdType* outPtr, int component,
-  int threadId)
+  vtkImageStencilData* stencil, T* inPtr, VTK_FUTURE_CONST int extent[6], vtkIdType* outPtr,
+  int component, int threadId)
 {
   vtkImageStencilIterator<T> inIter(inData, stencil, extent, ((threadId == 0) ? self : nullptr));
 
@@ -444,20 +444,20 @@ void vtkImageHistogramExecuteInt(vtkImageHistogram* self, vtkImageData* inData,
 }
 
 // no-op version for float
-void vtkImageHistogramExecuteInt(
-  vtkImageHistogram*, vtkImageData*, vtkImageStencilData*, float*, int[6], vtkIdType*, int, int)
+void vtkImageHistogramExecuteInt(vtkImageHistogram*, vtkImageData*, vtkImageStencilData*, float*,
+  VTK_FUTURE_CONST int[6], vtkIdType*, int, int)
 {
 }
 
 // no-op version for double
-void vtkImageHistogramExecuteInt(
-  vtkImageHistogram*, vtkImageData*, vtkImageStencilData*, double*, int[6], vtkIdType*, int, int)
+void vtkImageHistogramExecuteInt(vtkImageHistogram*, vtkImageData*, vtkImageStencilData*, double*,
+  VTK_FUTURE_CONST int[6], vtkIdType*, int, int)
 {
 }
 
 //------------------------------------------------------------------------------
-void vtkImageHistogramGenerateImage(
-  vtkIdType* histogram, int nx, unsigned char* outPtr, int scale, int size[2], int extent[6])
+void vtkImageHistogramGenerateImage(vtkIdType* histogram, int nx, unsigned char* outPtr, int scale,
+  int size[2], VTK_FUTURE_CONST int extent[6])
 {
   vtkIdType incX = 1;
   vtkIdType incY = (extent[1] - extent[0] + 1);
@@ -788,7 +788,7 @@ int vtkImageHistogram::RequestData(
   {
     info = outputVector->GetInformationObject(0);
     image = vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-    int* outExt = image->GetExtent();
+    VTK_FUTURE_CONST int* outExt = image->GetExtent();
     vtkImageHistogramGenerateImage(this->Histogram->GetPointer(0), this->NumberOfBins,
       static_cast<unsigned char*>(image->GetScalarPointerForExtent(outExt)),
       this->HistogramImageScale, this->HistogramImageSize, outExt);
@@ -804,8 +804,8 @@ int vtkImageHistogram::RequestData(
 // the regions data types.
 void vtkImageHistogram::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** vtkNotUsed(inData), vtkImageData** vtkNotUsed(outData), int extent[6],
-  int threadId)
+  vtkImageData*** vtkNotUsed(inData), vtkImageData** vtkNotUsed(outData),
+  VTK_FUTURE_CONST int extent[6], int threadId)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -965,7 +965,7 @@ void vtkImageHistogram::ComputeImageScalarRange(vtkImageData* data, double range
     return;
   }
 
-  int* extent = data->GetExtent();
+  VTK_FUTURE_CONST int* extent = data->GetExtent();
   void* inPtr = data->GetScalarPointerForExtent(extent);
   int component = this->ActiveComponent;
 

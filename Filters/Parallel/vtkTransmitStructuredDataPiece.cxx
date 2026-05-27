@@ -109,7 +109,7 @@ void vtkTransmitStructuredDataPiece::RootExecute(
   {
     updatedGhost = 0;
   }
-  int* wholeExt = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+  VTK_FUTURE_CONST int* wholeExt = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 
   vtkExtentTranslator* et = vtkExtentTranslator::New();
 

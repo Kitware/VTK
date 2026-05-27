@@ -37,7 +37,7 @@ public:
    * priorities must be non-negative.
    */
   void AddExtentSource(int id, int priority, int x0, int x1, int y0, int y1, int z0, int z1);
-  void AddExtentSource(int id, int priority, int* extent);
+  void AddExtentSource(int id, int priority, VTK_FUTURE_CONST int extent[6]);
   void RemoveExtentSource(int id);
   void RemoveAllExtentSources();
   ///@}
@@ -48,7 +48,7 @@ public:
    * available sources.
    */
   void AddExtent(int x0, int x1, int y0, int y1, int z0, int z1);
-  void AddExtent(int* extent);
+  void AddExtent(VTK_FUTURE_CONST int extent[6]);
   ///@}
 
   /**
@@ -102,7 +102,7 @@ protected:
   ~vtkExtentSplitter() override;
 
   // Internal utility methods.
-  void SplitExtent(int* extent, int* subextent);
+  void SplitExtent(int* extent, VTK_FUTURE_CONST int subextent[6]);
   int IntersectExtents(const int* extent1, const int* extent2, int* result);
 
   // Internal implementation data.

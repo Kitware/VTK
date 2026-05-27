@@ -115,9 +115,9 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int id) override;
-  void Iterate(
-    vtkImageData* in, vtkImageData* out, double ar0, double ar1, int* coreExtent, int count);
+    VTK_FUTURE_CONST int outExt[6], int id) override;
+  void Iterate(vtkImageData* in, vtkImageData* out, double ar0, double ar1,
+    VTK_FUTURE_CONST int coreExtent[6], int count);
 
 private:
   vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) = delete;

@@ -81,7 +81,7 @@ int vtkStructuredData::GetDataDescription(int dims[3])
 //------------------------------------------------------------------------------
 // Given the extent, returns the data description given the dimensions
 // (eg. VTK_STRUCTURED_SINGLE_POINT,VTK_STRUCTURED_X_LINE, VTK_STRUCTURED_XY_PLANE etc.)
-int vtkStructuredData::GetDataDescriptionFromExtent(int ext[6])
+int vtkStructuredData::GetDataDescriptionFromExtent(VTK_FUTURE_CONST int ext[6])
 {
   int dims[3];
   vtkStructuredExtent::GetDimensions(ext, dims);

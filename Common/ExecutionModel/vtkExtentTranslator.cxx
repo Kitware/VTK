@@ -78,7 +78,7 @@ int vtkExtentTranslator::PieceToExtentByPoints()
 }
 
 int vtkExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, int ghostLevel,
-  int* wholeExtent, int* resultExtent, int splitMode, int byPoints)
+  VTK_FUTURE_CONST int wholeExtent[6], int* resultExtent, int splitMode, int byPoints)
 {
   memcpy(resultExtent, wholeExtent, sizeof(int) * 6);
   int ret;

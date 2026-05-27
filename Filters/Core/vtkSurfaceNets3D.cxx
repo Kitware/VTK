@@ -2028,9 +2028,9 @@ struct NetsWorker
 
   // Dispatch to SurfaceNets.
   template <typename TArray, typename TEdgeRowIndex>
-  void Execute(TArray* scalarsArray, vtkSurfaceNets3D* self, vtkImageData* input, int* updateExt,
-    vtkPoints* newPts, vtkTypeInt8Array* nonManifoldTableIndices, vtkCellArray* newQuads,
-    vtkDataArray* newScalarsDA, vtkCellArray* stencils)
+  void Execute(TArray* scalarsArray, vtkSurfaceNets3D* self, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6], vtkPoints* newPts, vtkTypeInt8Array* nonManifoldTableIndices,
+    vtkCellArray* newQuads, vtkDataArray* newScalarsDA, vtkCellArray* stencils)
   {
     // The type of data carried by the scalarsArray
     using T = vtk::GetAPIType<TArray>;
@@ -2155,9 +2155,9 @@ struct NetsWorker
 
   // Dispatch to SurfaceNets.
   template <typename TArray>
-  void operator()(TArray* scalarsArray, vtkSurfaceNets3D* self, vtkImageData* input, int* updateExt,
-    vtkPoints* newPts, vtkTypeInt8Array* nonManifoldTableIndices, vtkCellArray* newQuads,
-    vtkDataArray* newScalarsDA, vtkCellArray* stencils)
+  void operator()(TArray* scalarsArray, vtkSurfaceNets3D* self, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6], vtkPoints* newPts, vtkTypeInt8Array* nonManifoldTableIndices,
+    vtkCellArray* newQuads, vtkDataArray* newScalarsDA, vtkCellArray* stencils)
   {
     // Make sure that we are processing a 3D image / volume.
     if (updateExt[0] >= updateExt[1] || updateExt[2] >= updateExt[3] ||
@@ -2506,7 +2506,7 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    VTK_FUTURE_CONST int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
     if (inScalars == nullptr)
     {

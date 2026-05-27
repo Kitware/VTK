@@ -496,7 +496,7 @@ int vtkDIYAggregateDataSetFilter::GetTargetProcessId(int sourceProcessId, int nu
 
 //------------------------------------------------------------------------------
 bool vtkDIYAggregateDataSetFilter::DoExtentsOverlap(
-  int extent1[6], int extent2[6], int dimensions[3], int* overlappingExtent)
+  int extent1[6], int extent2[6], int dimensions[3], int overlappingExtent[6])
 {
   for (int i = 0; i < 3; i++)
   {

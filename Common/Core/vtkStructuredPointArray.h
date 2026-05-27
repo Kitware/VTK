@@ -68,9 +68,9 @@ public:
    * Set the parameters for the strided backend.
    */
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
-    int extent[6], int dataDescription, double dirMatrix[9]);
+    VTK_FUTURE_CONST int extent[6], int dataDescription, double dirMatrix[9]);
   void ConstructBackend(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
-    int extent[6], int dataDescription);
+    VTK_FUTURE_CONST int extent[6], int dataDescription);
   ///@}
 
   ///@{

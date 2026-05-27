@@ -86,8 +86,8 @@ void vtkPNGWriter::Write()
 
   // Fill in image information.
   this->GetInputExecutive(0, 0)->UpdateInformation();
-  int* wExtent;
-  wExtent = vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetInputInformation(0, 0));
+  const int* wExtent =
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetInputInformation(0, 0));
   this->FileNumber = wExtent[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
@@ -202,7 +202,7 @@ extern "C"
 
 static constexpr unsigned int VTK_MAXIMUM_UNCOMPRESSED_TEXT_SIZE = 10000;
 
-void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
+void vtkPNGWriter::WriteSlice(vtkImageData* data, VTK_FUTURE_CONST int uExtent[6])
 {
   vtkInternals* impl = this->Internals;
   // Call The correct templated function for the output

@@ -103,7 +103,7 @@ public:
    * meta data for structured data sets.  It gets set by the algorithm
    * during the update information pass.
    */
-  static int SetWholeExtent(vtkInformation*, int extent[6]);
+  static int SetWholeExtent(vtkInformation*, VTK_FUTURE_CONST int extent[6]);
   static void GetWholeExtent(vtkInformation*, int extent[6]);
   static int* GetWholeExtent(vtkInformation*) VTK_SIZEHINT(6);
   ///@}

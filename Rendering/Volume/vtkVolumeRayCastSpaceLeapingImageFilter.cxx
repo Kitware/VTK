@@ -105,7 +105,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::SetCache(vtkImageData* cache)
 
 //------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::InternalRequestUpdateExtent(
-  int* inExt, int* wholeExtent)
+  int inExt[6], VTK_FUTURE_CONST int wholeExtent[6])
 {
   int dim[3];
 
@@ -122,7 +122,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::InternalRequestUpdateExtent(
 
 //------------------------------------------------------------------------------
 static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
-  vtkImageData* outData, int outExt[6], int nComponents)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int nComponents)
 {
   unsigned short* tmpPtr = static_cast<unsigned short*>(outData->GetScalarPointerForExtent(outExt));
 
@@ -153,7 +153,7 @@ static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
 
 //------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
-  int inExt[6], int inDim[3], int outExt[6], vtkImageData* inData)
+  int inExt[6], int inDim[3], VTK_FUTURE_CONST int outExt[6], vtkImageData* inData)
 {
   int inWholeExt[6];
   inData->GetExtent(inWholeExt);
@@ -180,7 +180,7 @@ struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxFunctor
 {
   template <class TArray>
   void operator()(TArray* scalars, vtkVolumeRayCastSpaceLeapingImageFilter* self,
-    vtkImageData* inData, vtkImageData* outData, int outExt[6])
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6])
   {
 
     // the number of independent components for which we need to keep track of
@@ -313,7 +313,7 @@ struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxFunctor
 template <class T>
 void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
   vtkVolumeRayCastSpaceLeapingImageFilter* self, vtkImageData* inData, vtkImageData* outData,
-  int outExt[6], T)
+  VTK_FUTURE_CONST int outExt[6], T)
 {
   // the number of independent components for which we need to keep track of
   // min/max
@@ -446,7 +446,7 @@ struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeFunct
 {
   template <class TArray>
   void operator()(TArray* scalars, vtkVolumeRayCastSpaceLeapingImageFilter* self,
-    vtkImageData* inData, vtkImageData* outData, int outExt[6])
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6])
   {
     // the number of independent components for which we need to keep track of
     // min/max
@@ -585,7 +585,7 @@ struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeFunct
 
 //------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags(
-  vtkImageData* outData, int outExt[6])
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6])
 {
   // Get increments to march through the output
 
@@ -669,7 +669,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags
 
 //------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::FillScalarOpacityFlags(
-  vtkImageData* outData, int outExt[6])
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6])
 {
   // Get increments to march through the output
 
@@ -747,7 +747,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::FillScalarOpacityFlags(
 void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   vtkInformation* vtkNotUsed(request), vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inData, vtkImageData** outData,
-  int outExt[6], int vtkNotUsed(id))
+  VTK_FUTURE_CONST int outExt[6], int vtkNotUsed(id))
 {
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
   std::cout << "Thread id = " << id << std::endl;
@@ -1025,7 +1025,7 @@ vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter::ComputeOffset(
 // invalid outputs and should be turned on, only when this filter is used
 // as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
 void vtkVolumeRayCastSpaceLeapingImageFilter::AllocateOutputData(
-  vtkImageData* output, vtkInformation* outInfo, int* uExtent)
+  vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6])
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);

@@ -64,17 +64,14 @@ int vtkImageNonMaximumSuppression::RequestUpdateExtent(vtkInformation* vtkNotUse
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
 
-  int* wholeExtent;
-  int idx;
-
   // get the whole image for input 2
   int inExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
-  wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
   // grow input image extent for input 0
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (int idx = 0; idx < this->Dimensionality; ++idx)
   {
     inExt[idx * 2] -= 1;
     inExt[idx * 2 + 1] += 1;
@@ -96,7 +93,7 @@ int vtkImageNonMaximumSuppression::RequestUpdateExtent(vtkInformation* vtkNotUse
 template <class T>
 void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression* self,
   vtkImageData* in1Data, T* in1Ptr, vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData,
-  T* outPtr, int outExt[6], int id)
+  T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -108,7 +105,6 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression* self,
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   double d, normalizeFactor, vector[3], *ratio;
   int neighborA, neighborB;
-  int* wholeExtent;
   vtkIdType inIncs[3];
   int axesNum;
 
@@ -128,7 +124,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression* self,
   axesNum = self->GetDimensionality();
   // get some other info we need
   in1Data->GetIncrements(inIncs);
-  wholeExtent = in1Data->GetExtent();
+  const int* wholeExtent = in1Data->GetExtent();
 
   // Get increments to march through data
   in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
@@ -263,7 +259,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression* self,
 // the regions data types.
 void vtkImageNonMaximumSuppression::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* in1Ptr;
   void* in2Ptr;

@@ -228,7 +228,7 @@ public:
    * (Extent[0],Extent[2],Extent[4]). As for any dataset, a data array on point
    * data starts at Id=0.
    */
-  void SetExtent(int extent[6]);
+  void SetExtent(VTK_FUTURE_CONST int extent[6]);
   void SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax);
   vtkGetVector6Macro(Extent, int);
   ///@}
@@ -262,8 +262,8 @@ public:
    * Given a data array and a coordinate, return the index of the tuple in the
    * array corresponding to that coordinate.
    */
-  vtkIdType GetTupleIndexForExtent(vtkDataArray* array, int extent[6]);
-  vtkIdType GetTupleIndex(vtkDataArray* array, int coordinates[3]);
+  vtkIdType GetTupleIndexForExtent(vtkDataArray* array, VTK_FUTURE_CONST int extent[6]);
+  vtkIdType GetTupleIndex(vtkDataArray* array, VTK_FUTURE_CONST int coordinates[3]);
   vtkIdType GetTupleIndex(vtkDataArray* array, int x, int y, int z);
   ///@}
 
@@ -272,8 +272,8 @@ public:
    * Given a data array and a coordinate, return the index of the value in the
    * array corresponding to that coordinate, considering the number of components.
    */
-  vtkIdType GetValueIndexForExtent(vtkDataArray* array, int extent[6]);
-  vtkIdType GetValueIndex(vtkDataArray* array, int coordinates[3]);
+  vtkIdType GetValueIndexForExtent(vtkDataArray* array, VTK_FUTURE_CONST int extent[6]);
+  vtkIdType GetValueIndex(vtkDataArray* array, VTK_FUTURE_CONST int coordinates[3]);
   vtkIdType GetValueIndex(vtkDataArray* array, int x, int y, int z);
   ///@}
 

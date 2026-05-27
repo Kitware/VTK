@@ -398,7 +398,7 @@ void WriteMultiBlock(vtkMultiBlockDataSet* mbds, const std::string& prefix)
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* GetGhostedGridFromGrid(vtkUniformGrid* grid, int gext[6])
+vtkUniformGrid* GetGhostedGridFromGrid(vtkUniformGrid* grid, VTK_FUTURE_CONST int gext[6])
 {
   assert("pre: input grid is nullptr" && (grid != nullptr));
   vtkUniformGrid* newGrid = vtkUniformGrid::New();

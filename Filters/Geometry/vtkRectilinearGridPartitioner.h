@@ -62,8 +62,8 @@ protected:
   /**
    * Extracts the coordinates
    */
-  void ExtractGridCoordinates(vtkRectilinearGrid* grd, int subext[6], vtkDoubleArray* xcoords,
-    vtkDoubleArray* ycoords, vtkDoubleArray* zcoords);
+  void ExtractGridCoordinates(vtkRectilinearGrid* grd, VTK_FUTURE_CONST int subext[6],
+    vtkDoubleArray* xcoords, vtkDoubleArray* ycoords, vtkDoubleArray* zcoords);
 
   // Standard Pipeline methods
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

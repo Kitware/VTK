@@ -206,12 +206,13 @@ class vtkBSplineTransformFunction
 {
 public:
   static void Cubic(const double point[3], double displacement[3], double derivatives[3][3],
-    void* gridPtrVoid, int gridExt[6], vtkIdType gridInc[3], int borderMode);
+    void* gridPtrVoid, VTK_FUTURE_CONST int gridExt[6], vtkIdType gridInc[3], int borderMode);
 };
 
 template <class T>
 void vtkBSplineTransformFunction<T>::Cubic(const double point[3], double displacement[3],
-  double derivatives[3][3], void* gridPtrVoid, int gridExt[6], vtkIdType gridInc[3], int borderMode)
+  double derivatives[3][3], void* gridPtrVoid, VTK_FUTURE_CONST int gridExt[6],
+  vtkIdType gridInc[3], int borderMode)
 {
   // the interpolation weights
   double fX[4] = { 0, 1, 0, 0 };
@@ -464,7 +465,7 @@ void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3], double 
   void* gridPtr = this->GridPointer;
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double scale = this->DisplacementScale;
@@ -523,7 +524,7 @@ void vtkBSplineTransform::ForwardTransformDerivative(
   void* gridPtr = this->GridPointer;
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double scale = this->DisplacementScale;
@@ -594,7 +595,7 @@ void vtkBSplineTransform::InverseTransformDerivative(
   void* gridPtr = this->GridPointer;
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double invSpacing[3];

@@ -29,7 +29,7 @@ vtkBMPWriter::~vtkBMPWriter()
   }
 }
 
-void vtkBMPWriter::WriteFileHeader(ostream* file, vtkImageData*, int wExt[6])
+void vtkBMPWriter::WriteFileHeader(ostream* file, vtkImageData*, VTK_FUTURE_CONST int wExt[6])
 {
   long temp;
   int width, height, dataWidth;
@@ -82,7 +82,8 @@ void vtkBMPWriter::WriteFileHeader(ostream* file, vtkImageData*, int wExt[6])
   }
 }
 
-void vtkBMPWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6])
+void vtkBMPWriter::WriteFile(ostream* file, vtkImageData* data, VTK_FUTURE_CONST int extent[6],
+  VTK_FUTURE_CONST int wExtent[6])
 {
   int idx1, idx2;
   int rowLength, rowAdder, i; // in bytes
@@ -174,7 +175,8 @@ void vtkBMPWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], i
   }
 }
 
-void vtkBMPWriter::MemoryWrite(int dim, vtkImageData* input, int wExt[6], vtkInformation* inInfo)
+void vtkBMPWriter::MemoryWrite(
+  int dim, vtkImageData* input, VTK_FUTURE_CONST int wExt[6], vtkInformation* inInfo)
 {
   std::ostringstream* oss;
   oss = new std::ostringstream();

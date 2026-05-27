@@ -665,8 +665,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   ic2->SetClipData(1);
   ic2->SetInputConnection(rtExtract->GetOutputPort());
 
-  int* wExt1 = ic1->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  int* wExt2 = ic2->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wExt1 =
+    ic1->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wExt2 =
+    ic2->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   ic1->SetOutputWholeExtent(wExt1[0] + this->BorderOffset, wExt1[1] - this->BorderOffset,
     wExt1[2] + this->BorderOffset, wExt1[3] - this->BorderOffset, wExt1[4], wExt1[5]);
 

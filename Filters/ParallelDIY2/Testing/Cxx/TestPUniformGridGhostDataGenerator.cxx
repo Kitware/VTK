@@ -260,7 +260,7 @@ bool ProcessOwnsBlock(const int block)
 
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* GetDataSet(
-  int wholeExtent[6], double origin[3], double spacing[3], const int numPartitions)
+  VTK_FUTURE_CONST int wholeExtent[6], double origin[3], double spacing[3], const int numPartitions)
 {
   int dims[3];
   vtkStructuredData::GetDimensionsFromExtent(wholeExtent, dims);

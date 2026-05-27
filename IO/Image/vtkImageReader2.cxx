@@ -691,7 +691,7 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject* output, vtkInfor
   data->GetPointData()->GetScalars()->SetName("ImageFile");
 
 #ifndef NDEBUG
-  int* ext = data->GetExtent();
+  const int* ext = data->GetExtent();
 #endif
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3]

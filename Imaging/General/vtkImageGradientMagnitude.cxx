@@ -105,7 +105,7 @@ int vtkImageGradientMagnitude::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
 // out of extent.
 template <class T>
 void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude* self, vtkImageData* inData,
-  T* inPtr, vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  T* inPtr, vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -114,11 +114,10 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude* self, vtkImageD
   unsigned long count = 0;
   unsigned long target;
   int axesNum;
-  int* wholeExtent;
   vtkIdType inIncs[3];
   double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-  int* inExt = inData->GetExtent();
+  const int* inExt = inData->GetExtent();
 
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
@@ -143,7 +142,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude* self, vtkImageD
 
   // get some other info we need
   inData->GetIncrements(inIncs);
-  wholeExtent = inData->GetExtent();
+  const int* wholeExtent = inData->GetExtent();
 
   // Move the starting pointer to the correct location.
   inPtr += (outExt[0] - inExt[0]) * inIncs[0] + (outExt[2] - inExt[2]) * inIncs[1] +
@@ -208,7 +207,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude* self, vtkImageD
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageGradientMagnitude::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr;
   void* outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -493,7 +493,7 @@ int vtkPResampleToImage::RequestData(
   // into non-overlapping rectangular regions
   diy::RoundRobinAssigner assigner(comm.size(), comm.size());
 
-  int* updateExtent = this->GetUpdateExtent();
+  const int* updateExtent = this->GetUpdateExtent();
   diy::DiscreteBounds domain(3);
   for (int i = 0; i < 3; ++i)
   {

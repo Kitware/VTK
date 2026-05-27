@@ -93,7 +93,7 @@ public:
    * extent<=max extent.
    * \pre extent_exists: extent!=0
    */
-  bool GetExtentIsValid(int* extent);
+  bool GetExtentIsValid(VTK_FUTURE_CONST int extent[6]);
 
   /**
    * Tells if CPUExtent is valid. True if min extent<=max extent.

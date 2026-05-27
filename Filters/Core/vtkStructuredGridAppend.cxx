@@ -83,7 +83,7 @@ int vtkStructuredGridAppend::RequestInformation(vtkInformation* vtkNotUsed(reque
   for (int idx = 0; idx < this->GetNumberOfInputConnections(0); ++idx)
   {
     inInfo = inputVector[0]->GetInformationObject(idx);
-    int* inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    const int* inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     // Compute union for preserving extents.
     unionExt[0] = std::min(inExt[0], unionExt[0]);
@@ -106,11 +106,9 @@ int vtkStructuredGridAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
   // default input extent will be that of output extent
   for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); whichInput++)
   {
-    int* inWextent;
-
     // Find the outMin/max of the appended axis for this input.
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(whichInput);
-    inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    const int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inWextent, 6);
   }

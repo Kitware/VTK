@@ -144,7 +144,7 @@ int vtkImageAppend::RequestInformation(vtkInformation* vtkNotUsed(request),
 
 //------------------------------------------------------------------------------
 void vtkImageAppend::InternalComputeInputUpdateExtent(
-  int* inExt, int* outExt, int* inWextent, int whichInput)
+  int inExt[6], VTK_FUTURE_CONST int outExt[6], VTK_FUTURE_CONST int inWextent[6], int whichInput)
 {
   int min, max, shift, tmp, idx;
 
@@ -191,15 +191,13 @@ int vtkImageAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   // default input extent will be that of output extent
   int inExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
-  int* outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); whichInput++)
   {
-    int* inWextent;
-
     // Find the outMin/max of the appended axis for this input.
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(whichInput);
-    inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    VTK_FUTURE_CONST int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent, whichInput);
 
@@ -345,7 +343,7 @@ struct vtkImageAppendFunctor
 };
 
 //------------------------------------------------------------------------------
-void vtkImageAppend::InitOutput(int outExt[6], vtkImageData* outData)
+void vtkImageAppend::InitOutput(VTK_FUTURE_CONST int outExt[6], vtkImageData* outData)
 {
   int idxY, idxZ;
   int maxY, maxZ;
@@ -404,7 +402,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData* outData)
 // the regions data types.
 void vtkImageAppend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int threadId)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int threadId)
 {
   int idx1;
   int inExt[6], cOutExt[6];
@@ -425,7 +423,8 @@ void vtkImageAppend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       // Get the input extent and output extent
       // the real out extent for this input may be clipped.
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx1);
-      int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      VTK_FUTURE_CONST int* inWextent =
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
       this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent, idx1);
 
@@ -540,7 +539,8 @@ void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageAppend::AllocateOutputData(vtkImageData* output, vtkInformation*, int* uExtent)
+void vtkImageAppend::AllocateOutputData(
+  vtkImageData* output, vtkInformation*, VTK_FUTURE_CONST int uExtent[6])
 {
   output->SetExtent(uExtent);
 
@@ -589,7 +589,7 @@ vtkImageData* vtkImageAppend::AllocateOutputData(vtkDataObject* output, vtkInfor
   vtkImageData* out = vtkImageData::SafeDownCast(output);
   if (out)
   {
-    int* uExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    VTK_FUTURE_CONST int* uExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     this->AllocateOutputData(out, outInfo, uExtent);
   }
   return out;

@@ -280,7 +280,7 @@ int vtkPointOccupancyFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Configure the output
   output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars(outInfo);
-  int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
+  VTK_FUTURE_CONST int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   output->SetDimensions(this->GetSampleDimensions());

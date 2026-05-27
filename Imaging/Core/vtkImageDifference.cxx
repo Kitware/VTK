@@ -109,7 +109,7 @@ vtkImageDifference::vtkImageDifference()
 }
 
 //------------------------------------------------------------------------------
-void vtkImageDifference::GrowExtent(int* uExt, int* wholeExtent)
+void vtkImageDifference::GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent)
 {
   // grow input whole extent.
   for (int idx = 0; idx < 2; ++idx)
@@ -135,7 +135,7 @@ int vtkImageDifference::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 
   // Recover and grow extent into first input extent
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
   this->GrowExtent(uExt, wholeExtent);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -165,7 +165,7 @@ int vtkImageDifference::ComputeSumedValue(unsigned char* values, vtkIdType* indi
 //------------------------------------------------------------------------------
 void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkImageDifferenceThreadData* threadData = nullptr;
 
@@ -492,8 +492,8 @@ int vtkImageDifference::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* inInfo1 = inputVector[0]->GetInformationObject(0);
   vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
 
-  int* in1Ext = inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  int* in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* in1Ext = inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   int i;
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || in1Ext[2] != in2Ext[2] ||

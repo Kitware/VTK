@@ -76,8 +76,8 @@ void vtkImageMask::SetMaskedOutputValue(int num, double* v)
 //------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageMaskExecute(vtkImageMask* self, int ext[6], vtkImageData* in1Data, T* in1Ptr,
-  vtkImageData* in2Data, unsigned char* in2Ptr, vtkImageData* outData, T* outPtr, int id)
+void vtkImageMaskExecute(vtkImageMask* self, VTK_FUTURE_CONST int ext[6], vtkImageData* in1Data,
+  T* in1Ptr, vtkImageData* in2Data, unsigned char* in2Ptr, vtkImageData* outData, T* outPtr, int id)
 {
   int num0, num1, num2, numC, pixSize;
   int idx0, idx1, idx2, idxC;
@@ -208,7 +208,7 @@ void vtkImageMaskExecute(vtkImageMask* self, int ext[6], vtkImageData* in1Data, 
 // the Datas data types.
 void vtkImageMask::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr1;
   void* inPtr2;

@@ -67,7 +67,7 @@ public:
    * used to find connected pixels.  All pixels connected to seeds are set to
    * ConnectedValue.  The data has to be unsigned char.
    */
-  void MarkData(vtkImageData* data, int dimensionality, int ext[6]);
+  void MarkData(vtkImageData* data, int dimensionality, VTK_FUTURE_CONST int ext[6]);
 
 protected:
   vtkImageConnector();

@@ -33,7 +33,7 @@
 //------------------------------------------------------------------------------
 void BlankGrid(vtkImageData* image)
 {
-  int* extent = image->GetExtent();
+  const int* extent = image->GetExtent();
   vtkNew<vtkUnsignedCharArray> ghostCells;
   ghostCells->SetNumberOfComponents(1);
   ghostCells->SetNumberOfTuples(image->GetNumberOfCells());

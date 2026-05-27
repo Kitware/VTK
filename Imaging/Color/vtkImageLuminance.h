@@ -27,7 +27,8 @@ protected:
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int outExt[6], int id) override;
+  void ThreadedExecute(
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id) override;
 
 private:
   vtkImageLuminance(const vtkImageLuminance&) = delete;

@@ -981,8 +981,9 @@ struct NetsWorker
 
   // Dispatch to SurfaceNets.
   template <typename TArray>
-  void operator()(TArray* scalarsArray, vtkSurfaceNets2D* self, vtkImageData* input, int* updateExt,
-    vtkPoints* newPts, vtkCellArray* newLines, vtkDataArray* newScalars, vtkCellArray* stencils)
+  void operator()(TArray* scalarsArray, vtkSurfaceNets2D* self, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6], vtkPoints* newPts, vtkCellArray* newLines,
+    vtkDataArray* newScalars, vtkCellArray* stencils)
   {
     // The type of data carried by the scalarsArray
     using T = vtk::GetAPIType<TArray>;
@@ -1195,7 +1196,7 @@ int vtkSurfaceNets2D::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    VTK_FUTURE_CONST int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
     if (inScalars == nullptr)
     {

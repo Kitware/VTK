@@ -67,7 +67,7 @@ void vtkSegYReaderInternal::SetVerticalCRS(int v)
 }
 
 //------------------------------------------------------------------------------
-void vtkSegYReaderInternal::LoadTraces(int* extent)
+void vtkSegYReaderInternal::LoadTraces(VTK_FUTURE_CONST int extent[6])
 {
   std::streamoff traceStartPos = FIRST_TRACE_START_POS;
   std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
@@ -106,7 +106,7 @@ bool vtkSegYReaderInternal::ReadHeader()
 
 //------------------------------------------------------------------------------
 bool vtkSegYReaderInternal::Is3DComputeParameters(
-  int* extent, double origin[3], double spacing[3][3], int* spacingSign, bool force2D)
+  int extent[6], double origin[3], double spacing[3][3], int* spacingSign, bool force2D)
 {
   this->ReadHeader();
   std::streamoff traceStartPos = FIRST_TRACE_START_POS;
@@ -285,8 +285,8 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
 }
 
 //------------------------------------------------------------------------------
-void vtkSegYReaderInternal::ExportData(
-  vtkImageData* imageData, int* extent, double origin[3], double spacing[3][3], int* spacingSign)
+void vtkSegYReaderInternal::ExportData(vtkImageData* imageData, VTK_FUTURE_CONST int extent[6],
+  double origin[3], double spacing[3][3], int* spacingSign)
 {
   imageData->SetExtent(extent);
   imageData->SetOrigin(origin);
@@ -319,7 +319,7 @@ void vtkSegYReaderInternal::ExportData(
 
 //------------------------------------------------------------------------------
 void vtkSegYReaderInternal::ExportData(
-  vtkStructuredGrid* grid, int* extent, double origin[3], double spacing[3][3])
+  vtkStructuredGrid* grid, VTK_FUTURE_CONST int extent[6], double origin[3], double spacing[3][3])
 {
   if (!grid)
   {

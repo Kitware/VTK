@@ -1542,12 +1542,12 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 template <typename TGrid, typename TInputIdType>
 struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
 {
-  TGrid* Input;       // Input data
-  bool FastMode;      // Whether to use fast mode or not
-  bool* ExtractFaces; // Whether to extract faces or not
-  int* Extent;        // Data extent
-  int* WholeExtent;   // Whole extent
-  int Dims[3];        // Grid dimensions
+  TGrid* Input;                      // Input data
+  bool FastMode;                     // Whether to use fast mode or not
+  bool* ExtractFaces;                // Whether to extract faces or not
+  int* Extent;                       // Data extent
+  VTK_FUTURE_CONST int* WholeExtent; // Whole extent
+  int Dims[3];                       // Grid dimensions
 
   bool ForceSimpleVisibilityCheck; // Whether to force simple visibility check
   bool AllCellsVisible;            // Whether all cells are visible
@@ -1558,9 +1558,9 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
 
   vtkIdType NumberOfFaces;
 
-  ExtractStructured(vtkGeometryFilter* self, TGrid* ds, int* wholeExtent, bool* extractFaces,
-    bool merging, unsigned char* cellGhosts, vtkExcludedFaces<TInputIdType>* exc,
-    ThreadOutputType<TInputIdType>* t)
+  ExtractStructured(vtkGeometryFilter* self, TGrid* ds, VTK_FUTURE_CONST int wholeExtent[6],
+    bool* extractFaces, bool merging, unsigned char* cellGhosts,
+    vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
     : ExtractCellBoundaries<TInputIdType>(self, nullptr, cellGhosts, nullptr, exc, t)
     , Input(ds)
     , FastMode(self->GetFastMode())
@@ -1865,8 +1865,9 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
   void Reduce() override {}
 
   static ExtractCellBoundaries<TInputIdType>* Execute(vtkGeometryFilter* self, TGrid* ds,
-    int* wholeExtent, bool* extractFaces, bool merging, unsigned char* cellGhosts,
-    vtkExcludedFaces<TInputIdType>* exc, ThreadOutputType<TInputIdType>* t)
+    VTK_FUTURE_CONST int wholeExtent[6], bool* extractFaces, bool merging,
+    unsigned char* cellGhosts, vtkExcludedFaces<TInputIdType>* exc,
+    ThreadOutputType<TInputIdType>* t)
   {
     auto extract = new ExtractStructured<TGrid, TInputIdType>(
       self, ds, wholeExtent, extractFaces, merging, cellGhosts, exc, t);
@@ -3330,7 +3331,7 @@ namespace
 //------------------------------------------------------------------------------
 template <typename TInputIdType>
 int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* output,
-  int* wholeExtent, vtkExcludedFaces<TInputIdType>* exc, bool* extractFace)
+  VTK_FUTURE_CONST int wholeExtent[6], vtkExcludedFaces<TInputIdType>* exc, bool* extractFace)
 {
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData* inPD = input->GetPointData();
@@ -3501,8 +3502,8 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
 }
 
 //------------------------------------------------------------------------------
-int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* wholeExtent,
-  vtkPolyData* excludedFaces, bool* extractFace)
+int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
+  VTK_FUTURE_CONST int wholeExtent[6], vtkPolyData* excludedFaces, bool* extractFace)
 {
   int dataDim = -1;
   if (auto imageData = vtkImageData::SafeDownCast(input))
@@ -3569,7 +3570,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
 //------------------------------------------------------------------------------
 // Process various types of structured datasets.
 int vtkGeometryFilter::StructuredExecute(
-  vtkDataSet* input, vtkPolyData* output, int* wholeExtent, bool* extractFace)
+  vtkDataSet* input, vtkPolyData* output, VTK_FUTURE_CONST int wholeExtent[6], bool* extractFace)
 {
   return this->StructuredExecute(input, output, wholeExtent, nullptr, extractFace);
 }

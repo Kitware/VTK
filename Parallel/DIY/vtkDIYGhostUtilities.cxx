@@ -397,7 +397,7 @@ template <class GridDataSetT>
     grid->GetExtent(extent.data());
     return extent;
   }
-  int* gridExtent = grid->GetExtent();
+  const int* gridExtent = grid->GetExtent();
 
   int ijkmin[3] = { gridExtent[0], gridExtent[2], gridExtent[4] };
   // We use `std::max` here to work for grids of dimension 2 and 1.
@@ -3154,7 +3154,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
   GridDataSetT* grid)
 {
   const ::ExtentType& extent = blockStructure.ShiftedExtent;
-  int* gridExtent = grid->GetExtent();
+  const int* gridExtent = grid->GetExtent();
   ::ExtentType localExtent{ gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3],
     gridExtent[4], gridExtent[5] };
 
@@ -6283,7 +6283,7 @@ void CopyOuterLayerGridPoints(
   k -= k % 2;
 
   vtkPoints* inputPoints = input->GetPoints();
-  int* inputExtent = input->GetExtent();
+  const int* inputExtent = input->GetExtent();
 
   outputPoints = vtkSmartPointer<vtkPoints>::New();
   outputPoints->SetDataType(inputPoints->GetDataType());
@@ -6980,7 +6980,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     vtkRectilinearGrid* input = inputs[localId];
-    int* inputExtent = input->GetExtent();
+    const int* inputExtent = input->GetExtent();
     if (!::IsExtentValid(inputExtent))
     {
       continue;
@@ -7079,7 +7079,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     vtkStructuredGrid* input = inputs[localId];
-    int* inputExtent = input->GetExtent();
+    const int* inputExtent = input->GetExtent();
     if (!::IsExtentValid(inputExtent))
     {
       continue;

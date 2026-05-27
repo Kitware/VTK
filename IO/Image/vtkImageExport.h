@@ -146,7 +146,7 @@ public:
   typedef double* (*DirectionCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
-  typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
+  typedef void (*PropagateUpdateExtentCallbackType)(void*, VTK_FUTURE_CONST int[6]);
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
@@ -187,7 +187,7 @@ protected:
   virtual double* DirectionCallback();
   virtual const char* ScalarTypeCallback();
   virtual int NumberOfComponentsCallback();
-  virtual void PropagateUpdateExtentCallback(int*);
+  virtual void PropagateUpdateExtentCallback(VTK_FUTURE_CONST int[6]);
   virtual int* DataExtentCallback();
   virtual void* BufferPointerCallback();
 
@@ -209,7 +209,7 @@ private:
   static double* DirectionCallbackFunction(void*);
   static const char* ScalarTypeCallbackFunction(void*);
   static int NumberOfComponentsCallbackFunction(void*);
-  static void PropagateUpdateExtentCallbackFunction(void*, int*);
+  static void PropagateUpdateExtentCallbackFunction(void*, VTK_FUTURE_CONST int[6]);
   static void UpdateDataCallbackFunction(void*);
   static int* DataExtentCallbackFunction(void*);
   static void* BufferPointerCallbackFunction(void*);

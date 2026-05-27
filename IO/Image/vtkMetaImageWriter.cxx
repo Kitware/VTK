@@ -89,7 +89,8 @@ void vtkMetaImageWriter::Write()
   }
 
   int nDims = 3;
-  int* ext = this->GetInputInformation(0, 0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* ext =
+    this->GetInputInformation(0, 0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   if (ext[4] == ext[5])
   {
     nDims = 2;

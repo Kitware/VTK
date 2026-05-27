@@ -70,7 +70,7 @@ vtkIdType vtkImageExport::GetDataMemorySize()
 
   this->GetInputAlgorithm()->UpdateInformation();
   vtkInformation* inInfo = this->GetInputInformation();
-  int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   vtkIdType size = input->GetScalarSize();
   size *= input->GetNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
@@ -92,7 +92,7 @@ void vtkImageExport::GetDataDimensions(int* dims)
 
   this->GetInputAlgorithm()->UpdateInformation();
   vtkInformation* inInfo = this->GetInputInformation();
-  int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* extent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -136,7 +136,7 @@ void vtkImageExport::Export(void* output)
   }
   else
   { // flip the image when it is output
-    int* extent =
+    const int* extent =
       this->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     int xsize = extent[1] - extent[0] + 1;
     int ysize = extent[3] - extent[2] + 1;
@@ -290,7 +290,8 @@ int vtkImageExport::NumberOfComponentsCallbackFunction(void* userData)
   return static_cast<vtkImageExport*>(userData)->NumberOfComponentsCallback();
 }
 
-void vtkImageExport::PropagateUpdateExtentCallbackFunction(void* userData, int* extent)
+void vtkImageExport::PropagateUpdateExtentCallbackFunction(
+  void* userData, VTK_FUTURE_CONST int extent[6])
 {
   static_cast<vtkImageExport*>(userData)->PropagateUpdateExtentCallback(extent);
 }
@@ -495,7 +496,7 @@ int vtkImageExport::NumberOfComponentsCallback()
   }
 }
 
-void vtkImageExport::PropagateUpdateExtentCallback(int* extent)
+void vtkImageExport::PropagateUpdateExtentCallback(VTK_FUTURE_CONST int extent[6])
 {
   if (this->GetInputAlgorithm())
   {

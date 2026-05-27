@@ -256,7 +256,7 @@ inline void vtkGridRound(double val, double& rnd)
 //------------------------------------------------------------------------------
 template <class T>
 void vtkTransformToGridExecute(vtkTransformToGrid* self, vtkImageData* grid, T* gridPtr,
-  int extent[6], double shift, double scale, int id)
+  VTK_FUTURE_CONST int extent[6], double shift, double scale, int id)
 {
   vtkAbstractTransform* transform = self->GetInput();
   int isIdentity = 0;
@@ -342,7 +342,7 @@ void vtkTransformToGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   grid->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   grid->AllocateScalars(outInfo);
-  int* extent = grid->GetExtent();
+  VTK_FUTURE_CONST int* extent = grid->GetExtent();
 
   void* gridPtr = grid->GetScalarPointerForExtent(extent);
   int gridType = grid->GetScalarType();

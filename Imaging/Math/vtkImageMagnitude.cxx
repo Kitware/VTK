@@ -41,8 +41,8 @@ int vtkImageMagnitude::RequestInformation(vtkInformation* vtkNotUsed(request),
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageMagnitudeExecute(
-  vtkImageMagnitude* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageMagnitudeExecute(vtkImageMagnitude* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -80,7 +80,7 @@ void vtkImageMagnitudeExecute(
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageMagnitude::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   // This is really meta data and should be set in ExecuteInformation,
   // but there are some issues to solve first.

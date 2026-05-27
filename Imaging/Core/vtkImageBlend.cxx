@@ -149,7 +149,7 @@ double vtkImageBlend::GetOpacity(int idx)
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
 void vtkImageBlend::InternalComputeInputUpdateExtent(
-  int inExt[6], int outExt[6], int wholeExtent[6])
+  int inExt[6], VTK_FUTURE_CONST int outExt[6], VTK_FUTURE_CONST int wholeExtent[6])
 {
   memcpy(inExt, outExt, sizeof(int) * 6);
 
@@ -170,12 +170,12 @@ int vtkImageBlend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 
   // default input extent will be that of output extent
   int inExt[6];
-  int* outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); whichInput++)
   {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(whichInput);
-    int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    VTK_FUTURE_CONST int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
   }
@@ -558,7 +558,8 @@ void vtkImageBlendExecuteChar(vtkImageBlend* self, int extent[6], vtkImageData* 
 //------------------------------------------------------------------------------
 // This function simply does a copy (for the first input)
 //------------------------------------------------------------------------------
-static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, int ext[6])
+static void vtkImageBlendCopyData(
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int ext[6])
 {
   unsigned char* inPtr =
     static_cast<unsigned char*>(inData->GetScalarPointerForExtent(ext)); // here
@@ -771,8 +772,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageDa
 //------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, int extent[6], vtkImageData* outData,
-  T*, vtkImageData* tmpData, vtkImageData* tmpSumData, vtkTypeBool compoundAlpha)
+void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, VTK_FUTURE_CONST int extent[6],
+  vtkImageData* outData, T*, vtkImageData* tmpData, vtkImageData* tmpSumData,
+  vtkTypeBool compoundAlpha)
 {
   int outC = outData->GetNumberOfScalarComponents();
   int tmpC = tmpData->GetNumberOfScalarComponents();
@@ -888,7 +890,7 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, int extent[6], vt
 // the regions data types.
 void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int extent[6];
   void* inPtr;
@@ -972,7 +974,8 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
 
       // input extents
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx1);
-      int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      VTK_FUTURE_CONST int* inWextent =
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
       this->InternalComputeInputUpdateExtent(extent, outExt, inWextent);
 
       bool skip = false;

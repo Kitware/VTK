@@ -151,8 +151,8 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
 
   int ResizeMethod;
   int OutputDimensions[3];

@@ -123,15 +123,16 @@ protected:
   vtkImageBSplineCoefficients();
   ~vtkImageBSplineCoefficients() override;
 
-  void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
+  void AllocateOutputData(
+    vtkImageData* out, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]) override;
   vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedExecute(
-    vtkImageData* inData, vtkImageData* outData, int outExt[6], int threadId) override;
+  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6],
+    int threadId) override;
 
   int SplineDegree;
   vtkImageBorderMode BorderMode;

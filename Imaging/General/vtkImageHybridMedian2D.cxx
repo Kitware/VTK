@@ -34,7 +34,7 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
 
 template <class T>
 void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D* self, vtkImageData* inData, T* inPtr2,
-  vtkImageData* outData, T* outPtr2, int outExt[6], int id, vtkInformation* inInfo)
+  vtkImageData* outData, T* outPtr2, VTK_FUTURE_CONST int outExt[6], int id, vtkInformation* inInfo)
 {
   int idx0, idx1, idx2, idxC;
   vtkIdType inInc0, inInc1, inInc2;
@@ -245,7 +245,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D* self, vtkImageData* i
 // It handles image boundaries, so the image does not shrink.
 void vtkImageHybridMedian2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);

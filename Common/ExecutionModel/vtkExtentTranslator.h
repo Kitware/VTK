@@ -55,8 +55,8 @@ public:
    */
   virtual int PieceToExtent();
   virtual int PieceToExtentByPoints();
-  virtual int PieceToExtentThreadSafe(int piece, int numPieces, int ghostLevel, int* wholeExtent,
-    int* resultExtent, int splitMode, int byPoints);
+  virtual int PieceToExtentThreadSafe(int piece, int numPieces, int ghostLevel,
+    VTK_FUTURE_CONST int wholeExtent[6], int* resultExtent, int splitMode, int byPoints);
   ///@}
 
   /**

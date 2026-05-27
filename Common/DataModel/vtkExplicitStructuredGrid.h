@@ -139,7 +139,7 @@ public:
    * The Extent is stored  in the order (X, Y, Z).
    */
   void SetExtent(int x0, int x1, int y0, int y1, int z0, int z1);
-  void SetExtent(int extent[6]);
+  void SetExtent(VTK_FUTURE_CONST int extent[6]);
   vtkGetVector6Macro(Extent, int);
   ///@}
 
@@ -193,7 +193,8 @@ public:
   /**
    * Get cell neighbors of the cell for every faces.
    */
-  void GetCellNeighbors(vtkIdType cellId, vtkIdType neighbors[6], int* wholeExtent = nullptr);
+  void GetCellNeighbors(
+    vtkIdType cellId, vtkIdType neighbors[6], VTK_FUTURE_CONST int wholeExtent[6] = nullptr);
 
   /**
    * Given a cellId, get the structured coordinates (i-j-k).
@@ -272,9 +273,9 @@ public:
    * This is used internally when the exact extent is requested,
    * and the source generated more than the update extent.
    */
-  void Crop(const int* updateExtent) override;
+  void Crop(const int updateExtent[6]) override;
   virtual void Crop(
-    vtkExplicitStructuredGrid* input, const int* updateExtent, bool generateOriginalCellIds);
+    vtkExplicitStructuredGrid* input, const int updateExtent[6], bool generateOriginalCellIds);
   ///@}
 
   ///@{

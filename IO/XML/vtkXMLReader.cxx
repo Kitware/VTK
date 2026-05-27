@@ -1686,7 +1686,8 @@ int vtkXMLReader::CanReadFileVersionString(const char* version)
 }
 
 //------------------------------------------------------------------------------
-int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
+int vtkXMLReader::IntersectExtents(
+  VTK_FUTURE_CONST int extent1[6], VTK_FUTURE_CONST int extent2[6], int result[6])
 {
   if ((extent1[0] > extent2[1]) || (extent1[2] > extent2[3]) || (extent1[4] > extent2[5]) ||
     (extent1[1] < extent2[0]) || (extent1[3] < extent2[2]) || (extent1[5] < extent2[4]))
@@ -1707,7 +1708,7 @@ int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLReader::ComputePointDimensions(int* extent, int* dimensions)
+void vtkXMLReader::ComputePointDimensions(VTK_FUTURE_CONST int extent[6], int* dimensions)
 {
   dimensions[0] = extent[1] - extent[0] + 1;
   dimensions[1] = extent[3] - extent[2] + 1;
@@ -1715,7 +1716,7 @@ void vtkXMLReader::ComputePointDimensions(int* extent, int* dimensions)
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLReader::ComputePointIncrements(int* extent, vtkIdType* increments)
+void vtkXMLReader::ComputePointIncrements(VTK_FUTURE_CONST int extent[6], vtkIdType* increments)
 {
   increments[0] = 1;
   increments[1] = increments[0] * (extent[1] - extent[0] + 1);
@@ -1723,7 +1724,7 @@ void vtkXMLReader::ComputePointIncrements(int* extent, vtkIdType* increments)
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLReader::ComputeCellDimensions(int* extent, int* dimensions)
+void vtkXMLReader::ComputeCellDimensions(VTK_FUTURE_CONST int extent[6], int* dimensions)
 {
   // For structured cells, axes that are empty of cells are treated as
   // having one cell when computing cell counts.  This allows cell
@@ -1742,7 +1743,7 @@ void vtkXMLReader::ComputeCellDimensions(int* extent, int* dimensions)
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLReader::ComputeCellIncrements(int* extent, vtkIdType* increments)
+void vtkXMLReader::ComputeCellIncrements(VTK_FUTURE_CONST int extent[6], vtkIdType* increments)
 {
   // For structured cells, axes that are empty of cells do not
   // contribute to the memory layout of cell data.
@@ -1762,7 +1763,8 @@ void vtkXMLReader::ComputeCellIncrements(int* extent, vtkIdType* increments)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkXMLReader::GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k)
+vtkIdType vtkXMLReader::GetStartTuple(
+  VTK_FUTURE_CONST int extent[6], vtkIdType* increments, int i, int j, int k)
 {
   vtkIdType offset = (i - extent[0]) * increments[0];
   offset += (j - extent[2]) * increments[1];

@@ -76,7 +76,7 @@ public:
    * VTK_STRUCTURED_X_LINE, VTK_STRUCTURED_XY_PLANE etc.)
    */
   static int GetDataDescription(int dims[3]);
-  static int GetDataDescriptionFromExtent(int ext[6]);
+  static int GetDataDescriptionFromExtent(VTK_FUTURE_CONST int ext[6]);
   ///@}
 
   ///@{

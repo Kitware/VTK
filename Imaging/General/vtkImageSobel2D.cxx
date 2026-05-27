@@ -48,7 +48,8 @@ int vtkImageSobel2D::RequestInformation(
 // out of extent.
 template <class T>
 void vtkImageSobel2DExecute(vtkImageSobel2D* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, int* outExt, double* outPtr, int id, vtkInformation* inInfo)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr, int id,
+  vtkInformation* inInfo)
 {
   double r0, r1, *r;
   // For looping though output (and input) pixels.
@@ -163,7 +164,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D* self, vtkImageData* inData, T* inPt
 // The third axis is the component axis for the output.
 void vtkImageSobel2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void *inPtr, *outPtr;
   int inExt[6], wholeExt[6];

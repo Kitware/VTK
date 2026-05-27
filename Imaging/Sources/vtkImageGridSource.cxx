@@ -58,7 +58,7 @@ int vtkImageGridSource::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageGridSourceExecute(
-  vtkImageGridSource* self, vtkImageData* data, T* outPtr, int outExt[6], int id)
+  vtkImageGridSource* self, vtkImageData* data, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int xval, yval, zval;
@@ -137,7 +137,7 @@ void vtkImageGridSourceExecute(
 void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
   vtkImageData* data = this->AllocateOutputData(output, outInfo);
-  int* outExt = data->GetExtent();
+  VTK_FUTURE_CONST int* outExt = data->GetExtent();
   void* outPtr = data->GetScalarPointerForExtent(outExt);
 
   // Call the correct templated function for the output

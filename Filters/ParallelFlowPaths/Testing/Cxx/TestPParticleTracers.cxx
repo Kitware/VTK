@@ -189,7 +189,8 @@ protected:
     vtkImageData* outImage = vtkImageData::SafeDownCast(output);
     if (outImage)
     {
-      int* uExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+      VTK_FUTURE_CONST int* uExtent =
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
       outImage->SetExtent(uExtent);
       // vtkGenericWarningMacro("time step in producer is " << timeStep);
       vtkFloatArray* outArray1 = vtkFloatArray::New();
@@ -217,7 +218,7 @@ protected:
     outArray->Delete();
     outImage->GetPointData()->SetActiveVectors("Gradients");
 
-    int* extent = outImage->GetExtent();
+    VTK_FUTURE_CONST int* extent = outImage->GetExtent();
     vtkIdType stepX, stepY, stepZ;
     outImage->GetContinuousIncrements(extent, stepX, stepY, stepZ);
 

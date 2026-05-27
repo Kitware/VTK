@@ -53,8 +53,8 @@ protected:
 
   void SetupEmptyOutput() override;
   const char* GetDataSetName() override;
-  void SetOutputExtent(int* extent) override;
-  void GetPieceInputExtent(int index, int* extent) override;
+  void SetOutputExtent(VTK_FUTURE_CONST int extent[6]) override;
+  void GetPieceInputExtent(int index, int extent[6]) override;
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   // Setup the output's information.

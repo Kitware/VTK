@@ -44,7 +44,7 @@ inline void vtkNearestHelper(double displacement[3], T* gridPtr, int increment)
 }
 
 inline void vtkNearestNeighborInterpolation(double point[3], double displacement[3], void* gridPtr,
-  int gridType, int gridExt[6], vtkIdType gridInc[3])
+  int gridType, VTK_FUTURE_CONST int gridExt[6], vtkIdType gridInc[3])
 {
   int gridId[3];
   gridId[0] = vtkInterpolationMath::Round(point[0]) - gridExt[0];
@@ -128,7 +128,8 @@ inline void vtkNearestHelper(double displacement[3], double derivatives[3][3], T
 }
 
 static void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
-  double derivatives[3][3], void* gridPtr, int gridType, int gridExt[6], vtkIdType gridInc[3])
+  double derivatives[3][3], void* gridPtr, int gridType, VTK_FUTURE_CONST int gridExt[6],
+  vtkIdType gridInc[3])
 {
   if (derivatives == nullptr)
   {
@@ -271,7 +272,8 @@ inline void vtkLinearHelper(double displacement[3], double derivatives[3][3], do
 }
 
 static void vtkTrilinearInterpolation(double point[3], double displacement[3],
-  double derivatives[3][3], void* gridPtr, int gridType, int gridExt[6], vtkIdType gridInc[3])
+  double derivatives[3][3], void* gridPtr, int gridType, VTK_FUTURE_CONST int gridExt[6],
+  vtkIdType gridInc[3])
 {
   // change point into integer plus fraction
   double f[3];
@@ -586,7 +588,8 @@ inline void vtkCubicHelper(double displacement[3], double derivatives[3][3], dou
 }
 
 static void vtkTricubicInterpolation(double point[3], double displacement[3],
-  double derivatives[3][3], void* gridPtr, int gridType, int gridExt[6], vtkIdType gridInc[3])
+  double derivatives[3][3], void* gridPtr, int gridType, VTK_FUTURE_CONST int gridExt[6],
+  vtkIdType gridInc[3])
 {
   vtkIdType factX[4], factY[4], factZ[4];
 
@@ -757,7 +760,7 @@ void vtkGridTransform::ForwardTransformPoint(const double inPoint[3], double out
 
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double scale = this->DisplacementScale;
@@ -815,7 +818,7 @@ void vtkGridTransform::ForwardTransformDerivative(
 
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double scale = this->DisplacementScale;
@@ -889,7 +892,7 @@ void vtkGridTransform::InverseTransformDerivative(
 
   double* spacing = this->GridSpacing;
   double* origin = this->GridOrigin;
-  int* extent = this->GridExtent;
+  VTK_FUTURE_CONST int* extent = this->GridExtent;
   vtkIdType* increments = this->GridIncrements;
 
   double invSpacing[3];
