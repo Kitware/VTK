@@ -38,6 +38,8 @@ class vtkPolyData;
 class vtkTexturedActor2D;
 class vtkPolyDataMapper2D;
 class vtkOverrideAttribute;
+class vtkCameraPass;
+class vtkHexagonalBokehBlurPass;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderer : public vtkRenderer
 {
@@ -262,6 +264,16 @@ protected:
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;
   void operator=(const vtkOpenGLRenderer&) = delete;
+
+  /**
+   * Render pass to use if the background blur is disabled.
+   */
+  vtkSmartPointer<vtkCameraPass> BackgroundCameraPass;
+  /**
+   * Render pass to use if the background blur is enabled. It's delegate pass is
+   * `BackgroundCameraPass`.
+   */
+  vtkSmartPointer<vtkHexagonalBokehBlurPass> BackgroundBlurPass;
 };
 
 #define vtkOpenGLRenderer_OVERRIDE_ATTRIBUTES vtkOpenGLRenderer::CreateOverrideAttributes()
