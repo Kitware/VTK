@@ -86,6 +86,7 @@ private:
     float FloorFront[4];                  // vec4 (padded from vec3)
     float FloorTexCoordScale[2];          // vec2
     float LeftEye;                        // f32
+    float ProjectionMode;                 // f32: 0=Cube, 1=Sphere, 2=StereoSphere, 3=Floor
     alignas(16) float RotationMatrix[12]; // mat3x3 in WGSL = 3 x vec4 (each row padded to vec4)
   };
 

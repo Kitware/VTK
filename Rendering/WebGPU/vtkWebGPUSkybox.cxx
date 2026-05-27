@@ -94,7 +94,7 @@ struct SkyboxUniforms {
   floor_front: vec4<f32>,
   floor_tcoord_scale: vec2<f32>,
   left_eye: f32,
-  _padding: f32,
+  projection_mode: f32,
   // mat3x3 stored as 3 x vec4 (padded columns)
   rotation_col0: vec4<f32>,
   rotation_col1: vec4<f32>,
@@ -156,74 +156,49 @@ struct FragmentOutput {
 }
 )";
 
-  // Fragment shader per projection mode
-  if (this->Projection == vtkSkybox::Cube)
-  {
-    ss << R"(
+  // Fragment shader
+  ss << R"(
 @fragment
-fn fragmentMain(@location(0) tex_coords: vec3<f32>) -> FragmentOutput {
+fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_coords: vec3<f32>) -> FragmentOutput {
   var output: FragmentOutput;
   let dir_i = normalize(tex_coords - uniforms.camera_pos.xyz);
   let rot = get_rotation_matrix();
   var dir_v = rot * dir_i;
-  // Negate Z because forward axis points to -Z instead of +Z for cube maps
-  dir_v.z = -dir_v.z;
-  var color = textureSampleLevel(skybox_texture, skybox_sampler, dir_v, 0.0);
+  
+  var color: vec4<f32>;
+  
+  // Projection mode branching
+  if (uniforms.projection_mode == 0.0) { // Cube
+    // Negate Z because forward axis points to -Z instead of +Z for cube maps
+    dir_v.z = -dir_v.z;
+    color = textureSampleLevel(skybox_texture, skybox_sampler, dir_v, 0.0);
+  } else if (uniforms.projection_mode == 1.0) { // Sphere
+    let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
+    let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
+    let v = atan2(dir_v.y, phi_x) / PI + 0.5;
+    color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
+  } else if (uniforms.projection_mode == 2.0) { // StereoSphere
+    let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
+    let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
+    let v = 0.5 * atan2(dir_v.y, phi_x) / PI + 0.25 + 0.5 * uniforms.left_eye;
+    color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
+  } else { // Floor
+    let den = dot(uniforms.floor_plane.xyz, dir_v);
+    if (abs(den) < 0.0001) {
+      discard;
+    }
+    let p0 = -1.0 * uniforms.floor_plane.w * uniforms.floor_plane.xyz;
+    let p0l0 = p0 - uniforms.camera_pos.xyz;
+    let t = dot(p0l0, uniforms.floor_plane.xyz) / den;
+    if (t < 0.0) {
+      discard;
+    }
+    let pos = dir_v * t - p0l0;
+    let u = dot(uniforms.floor_right.xyz, pos) / uniforms.floor_tcoord_scale.x;
+    let v = dot(uniforms.floor_front.xyz, pos) / uniforms.floor_tcoord_scale.y;
+    color = textureSample(skybox_texture, skybox_sampler, vec2<f32>(u, v));
+  }
 )";
-  }
-  else if (this->Projection == vtkSkybox::Sphere)
-  {
-    ss << R"(
-@fragment
-fn fragmentMain(@location(0) tex_coords: vec3<f32>) -> FragmentOutput {
-  var output: FragmentOutput;
-  let dir_i = normalize(tex_coords - uniforms.camera_pos.xyz);
-  let rot = get_rotation_matrix();
-  let dir_v = rot * dir_i;
-  let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
-  let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
-  let v = atan2(dir_v.y, phi_x) / PI + 0.5;
-  var color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
-)";
-  }
-  else if (this->Projection == vtkSkybox::StereoSphere)
-  {
-    ss << R"(
-@fragment
-fn fragmentMain(@location(0) tex_coords: vec3<f32>) -> FragmentOutput {
-  var output: FragmentOutput;
-  let dir_i = normalize(tex_coords - uniforms.camera_pos.xyz);
-  let rot = get_rotation_matrix();
-  let dir_v = rot * dir_i;
-  let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
-  let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
-  let v = 0.5 * atan2(dir_v.y, phi_x) / PI + 0.25 + 0.5 * uniforms.left_eye;
-  var color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
-)";
-  }
-  else if (this->Projection == vtkSkybox::Floor)
-  {
-    ss << R"(
-@fragment
-fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_coords: vec3<f32>) -> FragmentOutput {
-  var output: FragmentOutput;
-  let dir_v = normalize(tex_coords - uniforms.camera_pos.xyz);
-  let den = dot(uniforms.floor_plane.xyz, dir_v);
-  if (abs(den) < 0.0001) {
-    discard;
-  }
-  let p0 = -1.0 * uniforms.floor_plane.w * uniforms.floor_plane.xyz;
-  let p0l0 = p0 - uniforms.camera_pos.xyz;
-  let t = dot(p0l0, uniforms.floor_plane.xyz) / den;
-  if (t < 0.0) {
-    discard;
-  }
-  let pos = dir_v * t - p0l0;
-  let u = dot(uniforms.floor_right.xyz, pos) / uniforms.floor_tcoord_scale.x;
-  let v = dot(uniforms.floor_front.xyz, pos) / uniforms.floor_tcoord_scale.y;
-  var color = textureSample(skybox_texture, skybox_sampler, vec2<f32>(u, v));
-)";
-  }
 
   // Gamma correction
   if (this->GammaCorrect)
@@ -236,11 +211,15 @@ fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_co
   }
 
   // Floor projection: fade near horizon
-  if (this->Projection == vtkSkybox::Floor)
-  {
-    ss << "  output.color.a *= 50.0 * min(0.02, abs(den));\n";
-  }
+  ss << R"(
+    if (uniforms.projection_mode == 3.0) {
+      let dir = normalize(tex_coords - uniforms.camera_pos.xyz);
+      let fade = clamp(dir.y * 5.0, 0.0, 1.0);
+      output.color = vec4<f32>(output.color.rgb, output.color.a * fade);
+    }
+)";
 
+  ss << "  output.ids = vec4<u32>(0u);\n";
   ss << "  return output;\n}\n";
 
   return ss.str();
