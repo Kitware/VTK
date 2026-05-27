@@ -91,6 +91,9 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Time to generate Surface Net: {0}".format(time))
 
+# Verify point count is stable after non-manifold correction.
+assert snets.GetOutput().GetNumberOfPoints() == 64800
+
 w = vtk.vtkPolyDataWriter()
 w.SetInputConnection(snets.GetOutputPort())
 w.SetFileName("out.vtk")
@@ -132,6 +135,9 @@ snets2.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Time to generate smoothed Surface Net: {0}".format(time))
+
+# Smoothing preserves point count
+assert snets2.GetOutput().GetNumberOfPoints() == 64800
 
 mapper2 = vtk.vtkPolyDataMapper()
 mapper2.SetInputConnection(snets2.GetOutputPort())

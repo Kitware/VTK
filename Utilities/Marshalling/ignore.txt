@@ -547,6 +547,7 @@ Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
 Filters/Core/vtkFiltersCorePCH.h
 Filters/Core/vtkHyperTreeGridProbeFilterUtilities.h
+Filters/Core/vtkSurfaceNets3DNonManifoldCases.h
 Filters/Core/vtkThresholdScalars.h
 Filters/Core/vtkVoronoi2D.h
 Filters/Meshing/vtkAnnularBinIterator.h
