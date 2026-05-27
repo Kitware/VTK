@@ -149,7 +149,11 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
       }
 
       vtkNew<vtkLookupTable> colorTable;
+#if (GDAL_VERSION_MAJOR > 3) || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 13)
+      const char* const* categoryNames = band->GetCategoryNames();
+#else
       char** categoryNames = band->GetCategoryNames();
+#endif
 
       colorTable->IndexedLookupOn();
       int numEntries = gdalTable->GetColorEntryCount();

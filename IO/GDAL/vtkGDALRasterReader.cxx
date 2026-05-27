@@ -182,7 +182,11 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::s
     this->Reader->DriverShortName = GDALGetDriverShortName(driver);
     this->Reader->DriverLongName = GDALGetDriverLongName(driver);
 
+#if (GDAL_VERSION_MAJOR > 3) || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 13)
+    const char* const* papszMetaData = GDALGetMetadata(this->GDALData, nullptr);
+#else
     char** papszMetaData = GDALGetMetadata(this->GDALData, nullptr);
+#endif
     if (CSLCount(papszMetaData) > 0)
     {
       for (int i = 0; papszMetaData[i] != nullptr; ++i)
@@ -734,7 +738,11 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadColorTable(
     return;
   }
 
+#if (GDAL_VERSION_MAJOR > 3) || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 13)
+  const char* const* categoryNames = rasterBand->GetCategoryNames();
+#else
   char** categoryNames = rasterBand->GetCategoryNames();
+#endif
 
   colorTable->IndexedLookupOn();
   int numEntries = gdalTable->GetColorEntryCount();
@@ -882,7 +890,11 @@ std::vector<std::string> vtkGDALRasterReader::GetDomainMetaData(const std::strin
 {
   std::vector<std::string> domainMetaData;
 
+#if (GDAL_VERSION_MAJOR > 3) || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 13)
+  const char* const* papszMetadata = GDALGetMetadata(this->Impl->GDALData, domain.c_str());
+#else
   char** papszMetadata = GDALGetMetadata(this->Impl->GDALData, domain.c_str());
+#endif
 
   if (CSLCount(papszMetadata) > 0)
   {
