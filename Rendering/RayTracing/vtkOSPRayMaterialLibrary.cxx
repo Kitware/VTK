@@ -3,13 +3,27 @@
 
 #include "vtkOSPRayMaterialLibrary.h"
 
+#include "vtkJPEGReader.h"
 #include "vtkObjectFactory.h"
+#include "vtkPNGReader.h"
 #include "vtkTexture.h"
+#include "vtkXMLImageDataReader.h"
+
+#include "vtksys/SystemTools.hxx"
+
+#include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+std::string FilePathToTextureName(const std::string& path)
+{
+  std::string res = vtksys::SystemTools::GetFilenameName(path);
+  std::size_t dot = res.find_last_of('.');
+  return (dot == std::string::npos) ? res : std::string(res.begin(), res.begin() + dot);
+}
+
 // OSPRay parameter name aliases: maps from alias to canonical name per material type
 const std::map<std::string, std::map<std::string, std::string>> Aliases = {
   { "obj",
@@ -550,6 +564,69 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
       } },
   };
   return dic;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::ReadTextureFileOrData(const std::string& texFilenameOrData,
+  bool fromfile, const std::string& parentDir, vtkTexture* textr, std::string& textureName,
+  std::string& textureFilename)
+{
+  if (!textr)
+  {
+    vtkErrorMacro("You must initialize the resulting texture before calling ReadTextureFileOrData");
+    return false;
+  }
+
+  textureName = "unnamedTexture";
+  textureFilename = "";
+  if (texFilenameOrData.rfind("<?xml", 0) == 0)
+  {
+    // The data starts with an xml tag, so try to read it with a XMLImageDataReader
+    textureName = "rawDataTexture";
+    vtkNew<vtkXMLImageDataReader> reader;
+    reader->ReadFromInputStringOn();
+    reader->SetInputString(texFilenameOrData);
+    textr->SetInputConnection(reader->GetOutputPort(0));
+  }
+  else if (fromfile)
+  {
+    textureFilename = texFilenameOrData;
+    // try the texFilenameOrData as an absolute path
+    if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+    {
+      // Not found, try as a relative path from the current directory
+      textureFilename = parentDir + "/" + texFilenameOrData;
+      if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+      {
+        vtkWarningMacro("No such texture file " << texFilenameOrData << "(absolute path), nor "
+                                                << textureFilename << "(relative path) skipping");
+        return false;
+      }
+    }
+    textureName = ::FilePathToTextureName(textureFilename);
+    if (textureFilename.substr(textureFilename.length() - 3) == "png")
+    {
+      vtkNew<vtkPNGReader> pngReader;
+      pngReader->SetFileName(textureFilename.c_str());
+      pngReader->Update();
+      textr->SetInputConnection(pngReader->GetOutputPort(0));
+    }
+    else
+    {
+      vtkNew<vtkJPEGReader> jpgReader;
+      jpgReader->SetFileName(textureFilename.c_str());
+      jpgReader->Update();
+      textr->SetInputConnection(jpgReader->GetOutputPort(0));
+    }
+  }
+  else
+  {
+    vtkErrorMacro(
+      "Unable to read the texture as XML data nor a file for texture " << texFilenameOrData);
+    return false;
+  }
+  textr->Update();
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END

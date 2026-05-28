@@ -74,6 +74,13 @@ public:
   static const std::map<std::string, ParametersMap>& GetParametersDictionary();
 
 protected:
+  /**
+   * Load texture from file or inline XML data.
+   * Implements image loading for OSPRay materials.
+   */
+  bool ReadTextureFileOrData(const std::string& texFilenameOrData, bool fromfile,
+    const std::string& parentDir, vtkTexture* textr, std::string& textureName,
+    std::string& textureFilename) override;
   vtkOSPRayMaterialLibrary() = default;
   ~vtkOSPRayMaterialLibrary() override = default;
 
