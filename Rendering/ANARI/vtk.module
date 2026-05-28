@@ -19,6 +19,8 @@ DEPENDS
   VTK::RenderingVolumeOpenGL2
 PRIVATE_DEPENDS
   VTK::CommonSystem
+  VTK::IOImage
+  VTK::IOXML
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::InteractionStyle
