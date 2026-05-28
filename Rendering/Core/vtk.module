@@ -32,6 +32,9 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOXML
+  VTK::jsoncpp
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonColor

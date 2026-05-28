@@ -84,6 +84,7 @@ set(classes
   vtkPropCollection
   vtkProperty
   vtkProperty2D
+  vtkRenderMaterialLibrary
   vtkRenderPass
   vtkRenderState
   vtkRenderTimerLog
