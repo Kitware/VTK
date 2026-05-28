@@ -57,6 +57,26 @@ void vtkANARIMaterialLibrary::AddMaterial(const std::string& nickname, const std
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+bool CaseInsensitiveFind(
+  const std::map<std::string, vtkANARIMaterialLibrary::ParameterType>& params,
+  const std::string& varname)
+{
+  for (const auto& param : params)
+  {
+    if (param.first.size() == varname.size() &&
+      std::equal(param.first.begin(), param.first.end(), varname.begin(),
+        [](unsigned char a, unsigned char b) { return std::tolower(a) == std::tolower(b); }))
+    {
+      return true;
+    }
+  }
+  return false;
+}
+} // namespace
+
+//------------------------------------------------------------------------------
 void vtkANARIMaterialLibrary::AddTexture(const std::string& nickname, const std::string& varname,
   vtkTexture* tex, const std::string& texname, const std::string& filename)
 {
@@ -67,7 +87,7 @@ void vtkANARIMaterialLibrary::AddTexture(const std::string& nickname, const std:
   if (dicIt != dic.end())
   {
     auto& params = dicIt->second;
-    if (params.find(varname) != params.end())
+    if (CaseInsensitiveFind(params, varname))
     {
       this->Superclass::AddTexture(nickname, varname, tex, texname, filename);
     }
@@ -95,7 +115,7 @@ void vtkANARIMaterialLibrary::AddShaderVariable(
   if (dicIt != dic.end())
   {
     auto& params = dicIt->second;
-    if (params.find(varname) != params.end())
+    if (CaseInsensitiveFind(params, varname))
     {
       this->Superclass::AddShaderVariable(nickname, varname, numVars, x);
     }
