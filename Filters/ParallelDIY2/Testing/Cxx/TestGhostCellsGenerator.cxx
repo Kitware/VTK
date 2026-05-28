@@ -2353,8 +2353,7 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
   vtkPoints* refPoints = ref->GetPoints();
   std::set<vtkIdType> passThroughAllPointsCheck;
 
-  vtkDoubleArray* data =
-    vtkArrayDownCast<vtkDoubleArray>(gen->GetPointData()->GetArray(GridArrayName));
+  vtkDataArray* data = gen->GetPointData()->GetArray(GridArrayName);
   if (!data)
   {
     if (!centers)
@@ -2367,8 +2366,7 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
     }
     return false;
   }
-  vtkDoubleArray* refData =
-    vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetArray(GridArrayName));
+  vtkDataArray* refData = ref->GetPointData()->GetArray(GridArrayName);
 
   for (vtkIdType pointId = 0; pointId < gen->GetNumberOfPoints(); ++pointId)
   {
@@ -2387,7 +2385,7 @@ bool TestQueryReferenceToGenerated(vtkPointSet* ref, vtkAbstractPointLocator* re
 
     // There can be rounding errors on triangle strips vs voxels in a poly data when executing
     // vtkPointDataToCellData
-    if (std::abs(refData->GetValue(refPointId) - data->GetValue(pointId)) > 1e-15)
+    if (std::abs(refData->GetTuple1(refPointId) - data->GetTuple1(pointId)) > 1e-15)
     {
       if (!centers)
       {
@@ -3562,27 +3560,27 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
 
-  if (!TestPointPrecision(contr, myrank, false) && TestPointPrecision(contr, myrank, true))
+  if (!TestPointPrecision(contr, myrank, false) || !TestPointPrecision(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestDeepMultiBlock(false) && !TestDeepMultiBlock(true))
+  if (!TestDeepMultiBlock(false) || !TestDeepMultiBlock(true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestMixedTypes(myrank, false) && !TestMixedTypes(myrank, true))
+  if (!TestMixedTypes(myrank, false) || !TestMixedTypes(myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestZeroLevels(contr, myrank, false) && !TestZeroLevels(contr, myrank, true))
+  if (!TestZeroLevels(contr, myrank, false) || !TestZeroLevels(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestInterfacePointsSharing(contr, myrank, false) &&
+  if (!TestInterfacePointsSharing(contr, myrank, false) ||
     !TestInterfacePointsSharing(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
@@ -3593,17 +3591,17 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestNonlinearCells(contr, false) && !TestNonlinearCells(contr, true))
+  if (!TestNonlinearCells(contr, false) || !TestNonlinearCells(contr, true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!TestStaticMeshCache(false) && !TestStaticMeshCache(true))
+  if (!TestStaticMeshCache(false) || !TestStaticMeshCache(true))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!::TestArraySerialization(contr, myrank, false) &&
+  if (!::TestArraySerialization(contr, myrank, false) ||
     !::TestArraySerialization(contr, myrank, true))
   {
     retVal = EXIT_FAILURE;
@@ -3615,37 +3613,37 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     {
       vtkLog(INFO, "\n\n### Testing " << numberOfGhostLayers << " number of ghost layers");
     }
-    if (!Test1DGrids(contr, myrank, numberOfGhostLayers, false) &&
+    if (!Test1DGrids(contr, myrank, numberOfGhostLayers, false) ||
       !Test1DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!Test2DGrids(contr, myrank, numberOfGhostLayers, false) &&
+    if (!Test2DGrids(contr, myrank, numberOfGhostLayers, false) ||
       !Test2DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!Test3DGrids(contr, myrank, numberOfGhostLayers, false) &&
+    if (!Test3DGrids(contr, myrank, numberOfGhostLayers, false) ||
       !Test3DGrids(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestPolyData(contr, myrank, numberOfGhostLayers, false) &&
+    if (!TestPolyData(contr, myrank, numberOfGhostLayers, false) ||
       !TestPolyData(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers, false) &&
+    if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers, false) ||
       !TestUnstructuredGrid(contr, myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
     }
 
-    if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers, false) &&
+    if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers, false) ||
       !TestPartitionedDataSetCollection(myrank, numberOfGhostLayers, true))
     {
       retVal = EXIT_FAILURE;
