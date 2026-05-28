@@ -12,12 +12,13 @@
  * individual label.
  *
  * @sa
- * vtkLabeledDataMapper
+ * vtkBatchedLabeledDataMapper vtkLabeledDataMapper
  */
 
 #ifndef vtkFastLabeledDataMapper_h
 #define vtkFastLabeledDataMapper_h
 
+#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkLabeledDatatypeDefinitions.h" // For Data type Definitions
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
@@ -35,8 +36,8 @@ class vtkTransform;
 VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkFastLabeledDataMapper
-  : public vtkOpenGLPolyDataMapper
+class VTK_DEPRECATED_IN_9_7_0("Use vtkBatchedLabeledDataMapper instead.") VTKRENDERINGOPENGL2_EXPORT
+  VTK_MARSHALAUTO vtkFastLabeledDataMapper : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkFastLabeledDataMapper* New();
