@@ -574,6 +574,7 @@ Rendering/OpenGL2/vtkEquirectangularToCubeMapTexture.h
 Rendering/OpenGL2/vtkFastLabeledDataMapper.h
 Rendering/OpenGL2/vtkFramebufferPass.h
 Rendering/OpenGL2/vtkGaussianBlurPass.h
+Rendering/OpenGL2/vtkHexagonalBokehBlurPass.h
 Rendering/OpenGL2/vtkHiddenLineRemovalPass.h
 Rendering/OpenGL2/vtkImageProcessingPass.h
 Rendering/OpenGL2/vtkLightingMapPass.h

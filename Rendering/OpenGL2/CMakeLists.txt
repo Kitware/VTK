@@ -16,10 +16,11 @@ set(classes
   vtkFramebufferPass
   vtkGLSLModCamera
   vtkGLSLModCoincidentTopology
-  vtkGLSLModLight
-  vtkGLSLModPixelDebugger
   vtkGLSLModifierBase
   vtkGLSLModifierFactory
+  vtkGLSLModLight
+  vtkGLSLModPixelDebugger
+  vtkHexagonalBokehBlurPass
   vtkGaussianBlurPass
   vtkGenericOpenGLRenderWindow
   vtkHiddenLineRemovalPass
