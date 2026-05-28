@@ -13,6 +13,7 @@
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include <initializer_list>
+#include <iosfwd>
 #include <map>
 #include <set>
 #include <string>
@@ -30,6 +31,23 @@ public:
   vtkTypeMacro(vtkRenderMaterialLibrary, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  enum class ParameterType
+  {
+    FLOAT,
+    FLOAT_DATA,
+    COLOR_RGB,
+    COLOR_RGBA,
+    VEC2,
+    VEC3,
+    VEC4,
+    BOOLEAN,
+    INT,
+    TEXTURE,
+    NORMALIZED_FLOAT
+  };
+
+  using ParametersMap = std::map<std::string, ParameterType>;
+
   void Fire();
 
   bool ReadFile(const char* FileName);
@@ -46,6 +64,8 @@ public:
   vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
   virtual const TextureInfo* GetTextureInfo(
     const std::string& nickname, const std::string& varname);
+  std::string GetTextureName(const std::string& nickname, const std::string& varname);
+  std::string GetTextureFilename(const std::string& nickname, const std::string& varname);
 
   virtual void AddMaterial(const std::string& nickname, const std::string& implname);
   void RemoveMaterial(const std::string& nickname);
@@ -60,6 +80,25 @@ public:
   {
     this->AddShaderVariable(nickname, variablename, static_cast<int>(data.size()), data.begin());
   }
+
+  void RemoveShaderVariable(const std::string& nickname, const std::string& variablename);
+  void RemoveAllShaderVariables(const std::string& nickname);
+  void RemoveTexture(const std::string& nickname, const std::string& varname);
+  void RemoveAllTextures(const std::string& nickname);
+
+  const char* WriteBuffer(bool writeImageInline = true);
+  void WriteFile(const std::string& filename, bool writeImageInline = false);
+
+protected:
+  bool ReadTextureFileOrData(const std::string& texFilenameOrData, bool fromfile,
+    const std::string& parentDir, vtkTexture* textr, std::string& textureName,
+    std::string& textureFilename);
+
+  bool InternalParse(const char* filename, bool fromfile);
+  bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
+  bool InternalParseMTL(const char* filename, bool fromfile, std::istream* doc);
+
+  virtual const std::map<std::string, ParametersMap>& GetParametersDictionary();
 
 protected:
   vtkRenderMaterialLibrary();
