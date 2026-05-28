@@ -231,7 +231,7 @@ bool TestAttributesIds(TestPipelineInterface* pipeline)
   cache->ClearOriginalIds();
   vtkDataObjectMeshCache::CreateTemporaryOriginalIdsArrays(pipeline->GetFilterInputData());
   cache->UpdateCache(pipeline->GetFilterInputData());
-  cache->AddOriginalIds(vtkDataObject::POINT, vtkDataObjectMeshCache::GetTemporaryIdsName());
+  cache->AddOriginalIds(vtkDataObject::POINT, vtkDataObjectMeshCache::GetDefaultIdsName());
   expected.AttributesIdsExists = true;
   status = cache->GetStatus();
   vtkLogIf(ERROR, status != expected, "AttributesIds: error when using temporary ids.");

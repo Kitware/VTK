@@ -11,6 +11,7 @@
 #include "vtkSmartPointer.h" // for smart pointer
 #include "vtkWeakPointer.h"  // for weak pointer
 
+#include <set>    // for set
 #include <string> // for string
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -194,6 +195,9 @@ public:
 
   /**
    * Add attribute in the forward list.
+   * Arrays from this attribute will be forwarded to the output,
+   * using a default `OriginalIds` name.
+   * @see AddOriginalIds, GetTemporaryIdsName
    */
   void ForwardAttribute(int attribute);
 
@@ -204,15 +208,16 @@ public:
    * @see AddOriginalIds, ForwardAttributes
    */
   ///@{
-  vtkSetMacro(PreserveAttributes, bool);
-  vtkGetMacro(PreserveAttributes, bool);
-  vtkBooleanMacro(PreserveAttributes, bool);
+  void AddPreservedInputAttributes(int);
+  void ClearPreservedInputAttributes();
+  void PreservedInputAllAttributes();
+  std::set<int> GetPreservedInputAttributes();
   ///@}
 
   /**
    * Return a default name for original ids.
    */
-  static std::string GetTemporaryIdsName();
+  static std::string GetDefaultIdsName();
 
   /**
    * Add an ids array on underlying PointData and CellData.
@@ -233,8 +238,18 @@ public:
    * If object is a vtkDataSet this is equivalent to vtkDataSet::GetMeshMTime()
    * If object is a composite, return the max of each underlying dataset MeshMTime.
    * Other types are ignored, a MTime of 0 is used.
+   *
+   * For composite data it is not always correct to reduce MeshTimes to only the max.
+   * Prefer `GetDataObjectMeshMTimes` to get the whole list.
    */
   static vtkMTimeType GetDataObjectMeshMTime(vtkDataObject* object);
+
+  /**
+   * Return a map of MeshMTime stored by composite flat index.
+   * If object is a vtkDataSet, it contains its MeshMTime at key 0.
+   * If object is a composite, it contains one entry per leaf.
+   */
+  static std::map<unsigned int, vtkMTimeType> GetDataObjectMeshMTimes(vtkDataObject* object);
 
   /**
    * Compute and returns the current cache status.
@@ -249,6 +264,19 @@ public:
    * It is the user responsibility to check the status before calling this.
    */
   void CopyCacheToDataObject(vtkDataObject* output);
+
+  ///@{
+  /**
+   * Keep cached arrayName array when copying cache to output.
+   *
+   * By default, CopyCacheToDataObject clears output attributes arrays,
+   * and then forward input arrays to output as configured.
+   * Arrays added as PreservedCachedArrays are kept.
+   */
+  void AddPreservedCachedArray(const std::string& arrayName);
+  void ClearPreservedCachedArray();
+  std::set<std::string> GetPreservedCachedArrays();
+  ///@}
 
   /**
    * Set given dataset as the new Cache.
@@ -297,6 +325,11 @@ private:
   vtkMTimeType GetOriginalMeshTime() const;
 
   /**
+   * Get the OriginalCompositeDataSet mesh times for each leaf.
+   */
+  std::set<vtkMTimeType> GetOriginalMeshTimes() const;
+
+  /**
    * Return the number of datasets contained in dataobject.
    * Return 1 if dataobject is itself a vtkDataSet.
    * Return the number of non empty dataset leaves for a composite.
@@ -323,14 +356,32 @@ private:
    */
   bool HasConsumerNoInputPort() const;
 
+  ///@{
+  /**
+   * Context of the Cache
+   */
   vtkWeakPointer<vtkAlgorithm> Consumer;
-  vtkSmartPointer<vtkDataObject> Cache;
   vtkWeakPointer<vtkDataSet> OriginalDataSet;
   vtkWeakPointer<vtkCompositeDataSet> OriginalCompositeDataSet;
-  vtkMTimeType CachedOriginalMeshTime = 0;
-  vtkMTimeType CachedConsumerTime = 0;
+  ///@}
+
+  ///@{
+  /**
+   * Configuration for Attribute forwarding
+   */
   std::map<int, std::string> OriginalIdsName;
-  bool PreserveAttributes = false;
+  std::set<int> PreservedInputAttributes;
+  std::set<std::string> PreservedCachedArrays;
+  ///@}
+
+  ///@{
+  /**
+   * Internal cached values
+   */
+  vtkSmartPointer<vtkDataObject> Cache;
+  vtkMTimeType CachedConsumerTime = 0;
+  std::map<unsigned int, vtkMTimeType> CachedOriginalLeavesTime;
+  ///@}
 };
 
 VTK_ABI_NAMESPACE_END

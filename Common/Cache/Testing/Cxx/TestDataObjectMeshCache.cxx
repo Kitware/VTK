@@ -51,10 +51,10 @@ vtkSmartPointer<vtkPolyData> CreateData(int nbOfElements, int start)
 void AddOriginalIds(int start, vtkPolyData* mesh)
 {
   vtkNew<vtkIdTypeArray> originalPts;
-  originalPts->SetName(vtkDataObjectMeshCache::GetTemporaryIdsName().c_str());
+  originalPts->SetName(vtkDataObjectMeshCache::GetDefaultIdsName().c_str());
   mesh->GetPointData()->AddArray(originalPts);
   vtkNew<vtkIdTypeArray> originalCells;
-  originalCells->SetName(vtkDataObjectMeshCache::GetTemporaryIdsName().c_str());
+  originalCells->SetName(vtkDataObjectMeshCache::GetDefaultIdsName().c_str());
   mesh->GetCellData()->AddArray(originalCells);
   auto nbOfElements = mesh->GetNumberOfPoints();
   for (int i = 0; i < nbOfElements; i++)
@@ -148,8 +148,8 @@ bool TestForwardAttributes()
   cache->SetConsumer(consumer);
   cache->UpdateCache(inputMesh);
 
-  // fast forward attributes
-  cache->PreserveAttributesOn();
+  // input arrays can be forwarded with shallow copy
+  cache->PreservedInputAllAttributes();
 
   // forward pointdata
   cache->ForwardAttribute(vtkDataObject::POINT);
@@ -174,7 +174,7 @@ bool TestForwardAttributes()
   // links to ids [1 - 3] of inputMesh
   ::AddOriginalIds(1, smallerMesh);
   cache->UpdateCache(smallerMesh);
-  cache->PreserveAttributesOff();
+  cache->ClearPreservedInputAttributes();
   output->Initialize();
   cache->CopyCacheToDataObject(output);
 
@@ -264,13 +264,172 @@ bool TestDataObjectMeshTime()
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+bool TestPreservedCachedArray()
+{
+  vtkLogScopeFunction(INFO);
+  vtkNew<vtkDataObjectMeshCache> cache;
+  vtkSmartPointer<vtkPolyData> inputMesh = ::CreateData(4, 0);
+  cache->SetOriginalDataObject(inputMesh);
+  vtkNew<vtkAlgorithm> consumer;
+  cache->SetConsumer(consumer);
+
+  // cached data is input data with one more array.
+  vtkNew<vtkPolyData> cachedData;
+  cachedData->DeepCopy(inputMesh);
+  vtkNew<vtkDoubleArray> preservedArray;
+  preservedArray->DeepCopy(inputMesh->GetPointData()->GetArray(0));
+  const std::string PRESERVED_ARRAY = "Preserved";
+  preservedArray->SetName(PRESERVED_ARRAY.c_str());
+  cachedData->GetPointData()->AddArray(preservedArray);
+  cache->UpdateCache(cachedData);
+
+  vtkNew<vtkPolyData> output;
+  cache->AddPreservedCachedArray(PRESERVED_ARRAY);
+  cache->CopyCacheToDataObject(output);
+
+  vtkLogIf(ERROR, !output->GetPointData()->HasArray(PRESERVED_ARRAY.c_str()),
+    << "Preserved array not found in output");
+
+  cache->ClearPreservedCachedArray();
+  output->Initialize();
+  cache->CopyCacheToDataObject(output);
+  vtkLogIf(ERROR, output->GetPointData()->HasArray(PRESERVED_ARRAY.c_str()),
+    << "Preserved array should have been removed");
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+vtkDataObjectMeshCache::Status TestComposite(
+  const std::vector<vtkPolyData*>& original, const std::vector<vtkPolyData*>& modified)
+{
+  vtkNew<vtkDataObjectMeshCache> cache;
+  vtkNew<vtkAlgorithm> consumer;
+  cache->SetConsumer(consumer);
+
+  vtkNew<vtkPartitionedDataSetCollection> originalCollection;
+  cache->SetOriginalDataObject(originalCollection);
+  originalCollection->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(original.size()));
+  for (size_t idx = 0; idx < original.size(); idx++)
+  {
+    originalCollection->SetPartition(static_cast<unsigned int>(idx), 0, original[idx]);
+  }
+
+  // just to have a valid output
+  vtkNew<vtkPartitionedDataSetCollection> output;
+  cache->UpdateCache(output);
+
+  originalCollection->SetNumberOfPartitionedDataSets(static_cast<int>(modified.size()));
+  for (size_t idx = 0; idx < modified.size(); idx++)
+  {
+    originalCollection->SetPartition(static_cast<unsigned int>(idx), 0, modified[idx]);
+  }
+
+  return cache->GetStatus();
+}
+
+//------------------------------------------------------------------------------
+bool TestCompositeInvalidation()
+{
+  vtkLogScopeFunction(INFO);
+
+  vtkSmartPointer<vtkPolyData> firstMesh = ::CreateData(4, 0);
+  vtkSmartPointer<vtkPolyData> secondMesh = ::CreateData(4, 0);
+  vtkSmartPointer<vtkPolyData> thirdMesh = ::CreateData(4, 0);
+
+  {
+    auto validStatus = ::TestComposite({ firstMesh, secondMesh }, { firstMesh, secondMesh });
+    vtkLogIf(ERROR, !validStatus.enabled(), "Identical composites should validate the cache");
+  }
+
+  // empty input
+  {
+    auto validStatus = ::TestComposite({}, { firstMesh });
+    vtkLogIf(ERROR, validStatus.enabled(), "Empty input: cache should be invalid");
+  }
+  // empty input leaves
+  {
+    auto validStatus = ::TestComposite({ nullptr }, { firstMesh });
+    vtkLogIf(ERROR, validStatus.enabled(), "Empty input leaf: cache should be invalid");
+  }
+  // empty output
+  {
+    auto validStatus = ::TestComposite({ firstMesh }, {});
+    vtkLogIf(ERROR, validStatus.enabled(), "Empty output: cache should be invalid");
+  }
+  // empty output leaves
+  {
+    auto validStatus = ::TestComposite({ firstMesh }, { nullptr });
+    vtkLogIf(ERROR, validStatus.enabled(), "Empty output leaf: cache should be invalid");
+  }
+
+  // replace leaf. Max MeshTime does not change.
+  {
+    auto meshTimeChangedStatus =
+      ::TestComposite({ firstMesh, thirdMesh }, { secondMesh, thirdMesh });
+    vtkLogIf(ERROR, meshTimeChangedStatus.OriginalMeshUnmodified,
+      "Leaf has changed: cache should be invalid due to MeshTime computation");
+  }
+
+  // replace leaf. Decrease Max MeshTime
+  {
+    auto meshTimeChangedStatus =
+      ::TestComposite({ firstMesh, thirdMesh }, { firstMesh, secondMesh });
+    vtkLogIf(ERROR, meshTimeChangedStatus.OriginalMeshUnmodified,
+      "Leaf has changed: cache should be invalid due to MeshTime computation");
+  }
+
+  // replace leaf with nullptr.
+  {
+    auto meshTimeChangedStatus = ::TestComposite({ firstMesh, thirdMesh }, { nullptr, thirdMesh });
+    vtkLogIf(ERROR, meshTimeChangedStatus.OriginalMeshUnmodified,
+      "Leaf has changed: cache should be invalid due to MeshTime computation");
+  }
+
+  // adding leaves invalidates the cache.
+  {
+    auto structureChangedStatus =
+      ::TestComposite({ firstMesh, thirdMesh }, { firstMesh, thirdMesh, secondMesh });
+    vtkLogIf(ERROR, structureChangedStatus.OriginalMeshUnmodified,
+      "Composite has one more leaf: cache should be invalid due to Structure check");
+  }
+
+  // removing leaves invalidates the cache.
+  {
+    auto structureChangedStatus =
+      ::TestComposite({ firstMesh, secondMesh, thirdMesh }, { firstMesh, thirdMesh });
+    vtkLogIf(ERROR, structureChangedStatus.OriginalMeshUnmodified,
+      "Composite as less leaf: cache should be invalid due to Structure check");
+  }
+
+  // reorder invalidate the cache: same structure is expected to forward attributes
+  {
+    auto meshTimesChangedStatus =
+      ::TestComposite({ firstMesh, secondMesh, thirdMesh }, { firstMesh, thirdMesh, secondMesh });
+    vtkLogIf(ERROR, meshTimesChangedStatus.OriginalMeshUnmodified,
+      "Composite was reordered: cache should be invalid due to MeshTime check");
+  }
+
+  // add empty leaf does not impact
+  {
+    auto emptyLeafStatus =
+      ::TestComposite({ firstMesh, secondMesh }, { firstMesh, secondMesh, nullptr });
+    vtkLogIf(ERROR, !emptyLeafStatus.OriginalMeshUnmodified,
+      "Adding empty leaf: cache should still be valid");
+  }
+
+  return true;
+}
 }
 
 //------------------------------------------------------------------------------
 int TestDataObjectMeshCache(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   return (::TestDefault() && ::TestSupportedData() && ::TestCopyMesh() &&
-           ::TestForwardAttributes() && ::TestCacheInvalidation() && ::TestDataObjectMeshTime())
+           ::TestForwardAttributes() && ::TestCacheInvalidation() && ::TestDataObjectMeshTime() &&
+           ::TestPreservedCachedArray() && ::TestCompositeInvalidation())
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }

@@ -40,9 +40,9 @@ vtkTransformFilter::vtkTransformFilter()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
   this->TransformAllInputVectors = false;
   this->MeshCache->SetConsumer(this);
-  this->MeshCache->PreserveAttributesOn();
   this->MeshCache->ForwardAttribute(vtkDataObject::POINT);
   this->MeshCache->ForwardAttribute(vtkDataObject::CELL);
+  this->MeshCache->PreservedInputAllAttributes();
 }
 
 //------------------------------------------------------------------------------

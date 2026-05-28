@@ -134,7 +134,7 @@ int TestMeshCacheRunner(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   auto mesh = ::CreateData();
   cache->SetOriginalDataObject(mesh);
-  cache->PreserveAttributesOn();
+  cache->PreservedInputAllAttributes();
   cache->ForwardAttribute(vtkDataObject::POINT);
   cache->ForwardAttribute(vtkDataObject::CELL);
 
