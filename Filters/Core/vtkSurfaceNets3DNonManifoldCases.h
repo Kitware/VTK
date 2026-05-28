@@ -896,6 +896,11 @@ public:
   static VTK_ALWAYS_INLINE auto GetManifoldSubEdgeCases(EdgeCaseType edgeCase, int8_t tableIndex)
     -> const std::array<EdgeCaseType, 4>&
   {
+    static constexpr std::array<EdgeCaseType, 4> Empty{};
+    if (tableIndex < 0)
+    {
+      return Empty;
+    }
     return NonManifoldMetadata[EdgeCaseOffsets[edgeCase] + tableIndex].SubEdgeCases;
   }
 
