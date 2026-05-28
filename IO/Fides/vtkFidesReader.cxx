@@ -3,12 +3,19 @@
 
 #include "vtkFidesReader.h"
 
+// Fides includes
+#include <vtk_fides.h>
+// clang-format off
+#include VTK_FIDES(fides/DataSetReader.h)
+// clang-format on
+
 #include "vtkDataArraySelection.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -20,11 +27,10 @@
 #include "vtkmlib/UnstructuredGridConverter.h"
 #include "vtksys/SystemTools.hxx"
 
-// Fides includes
-#include <vtk_fides.h>
-// clang-format off
-#include VTK_FIDES(fides/DataSetReader.h)
-// clang-format on
+#ifdef IOFIDES_HAVE_MPI
+#include "vtkMPI.h"
+#include "vtkMPIController.h"
+#endif
 
 #include <viskores/filter/clean_grid/CleanGrid.h>
 
@@ -43,6 +49,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkFidesReader);
+vtkCxxSetObjectMacro(vtkFidesReader, Controller, vtkMultiProcessController);
 
 struct vtkFidesReader::vtkFidesReaderImpl
 {
@@ -112,7 +119,9 @@ struct vtkFidesReader::vtkFidesReaderImpl
 
 vtkFidesReader::vtkFidesReader()
   : Impl(new vtkFidesReaderImpl())
+  , Controller(nullptr)
 {
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -134,6 +143,8 @@ vtkFidesReader::~vtkFidesReader()
   {
     this->Impl->Reader->Close();
   }
+
+  this->SetController(nullptr);
 }
 
 int vtkFidesReader::CanReadFile(const std::string& name)
@@ -215,8 +226,32 @@ void vtkFidesReader::ParseDataModel()
     vtkDebugMacro(<< "Setting up Fides DataSetReader with FileName: " << this->FileName
                   << ", inputType: " << static_cast<int>(inputType) << ", StreamSteps: "
                   << this->StreamSteps << ", CreateSharedPoints: " << this->CreateSharedPoints);
-    this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType,
-      this->StreamSteps, this->Impl->AllParams, this->CreateSharedPoints));
+    bool usedMpi = false;
+
+#ifdef IOFIDES_HAVE_MPI
+    if (this->Controller && this->Controller->GetCommunicator())
+    {
+      vtkMPICommunicator* vtkComm =
+        vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+
+      if (vtkComm && vtkComm->GetMPIComm())
+      {
+        MPI_Comm comm = *(vtkComm->GetMPIComm()->GetHandle());
+        this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType,
+          this->StreamSteps, comm, this->Impl->AllParams, this->CreateSharedPoints));
+
+        usedMpi = true;
+      }
+    }
+#endif
+
+    // Serial fallback in case VTK is built without MPI, the controller is null,
+    // or the communicator downcast fails
+    if (!usedMpi)
+    {
+      this->Impl->Reader.reset(new fides::io::DataSetReader(this->FileName, inputType,
+        this->StreamSteps, this->Impl->AllParams, this->CreateSharedPoints));
+    }
   }
   catch (std::exception& e)
   {

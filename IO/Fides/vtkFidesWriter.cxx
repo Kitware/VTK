@@ -25,6 +25,7 @@
 #include <vtk_fides.h>
 // clang-format off
 #include VTK_FIDES(fides/DataSetWriter.h)
+#include VTK_FIDES(fides/Deprecated.h)
 // clang-format on
 
 #ifdef IOFIDES_HAVE_MPI
@@ -45,7 +46,9 @@ struct vtkFidesWriter::FidesWriterImpl
   std::vector<double> TimeStepsToProcess;
   int CurrentTimeStepIndex{ 0 };
 
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
   std::map<std::string, std::unique_ptr<fides::io::DataSetAppendWriter>> Writers;
+  FIDES_DEPRECATED_SUPPRESS_END
 
   FidesWriterImpl() = default;
   ~FidesWriterImpl()
@@ -368,6 +371,7 @@ bool vtkFidesWriter::WriteDataAndReturn()
 
     if (this->Impl->Writers.count(fname) == 0)
     {
+      FIDES_DEPRECATED_SUPPRESS_BEGIN
 #ifdef IOFIDES_HAVE_MPI
       if (this->Controller)
       {
@@ -389,6 +393,7 @@ bool vtkFidesWriter::WriteDataAndReturn()
 #else
       this->Impl->Writers.emplace(fname, std::make_unique<fides::io::DataSetAppendWriter>(fname));
 #endif
+      FIDES_DEPRECATED_SUPPRESS_END
     }
     auto it = this->Impl->Writers.find(fname);
     if (it == this->Impl->Writers.end())
