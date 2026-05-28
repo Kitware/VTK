@@ -292,7 +292,7 @@ void vtkImageSSIM::SetInputToAdditiveChar(unsigned int size)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageSSIM::GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent)
+void vtkImageSSIM::GrowExtent(int uExt[2], VTK_FUTURE_CONST int wholeExtent[2])
 {
   // grow input whole extent.
   for (int idx = 0; idx < 2; ++idx)

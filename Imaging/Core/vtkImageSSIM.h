@@ -139,7 +139,7 @@ protected:
 
 private:
   void SetInputToAdditiveChar(unsigned int size);
-  void GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent);
+  void GrowExtent(int uExt[2], VTK_FUTURE_CONST int wholeExtent[2]);
 
   int PatchRadius = 6;
   bool ClampNegativeValues = false;

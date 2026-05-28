@@ -109,7 +109,7 @@ vtkImageDifference::vtkImageDifference()
 }
 
 //------------------------------------------------------------------------------
-void vtkImageDifference::GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent)
+void vtkImageDifference::GrowExtent(int uExt[2], VTK_FUTURE_CONST int wholeExtent[2])
 {
   // grow input whole extent.
   for (int idx = 0; idx < 2; ++idx)

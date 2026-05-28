@@ -122,7 +122,7 @@ protected:
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
     VTK_FUTURE_CONST int outExt[6], int threadId) override;
 
-  void GrowExtent(int* uExt, VTK_FUTURE_CONST int* wholeExtent);
+  void GrowExtent(int uExt[2], VTK_FUTURE_CONST int wholeExtent[2]);
   int ComputeSumedValue(unsigned char* values, vtkIdType* indices, int comp);
 
   // Used for vtkMultiThreader operation.
