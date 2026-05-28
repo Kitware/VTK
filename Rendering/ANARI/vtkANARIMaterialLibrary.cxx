@@ -11,6 +11,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -218,18 +219,24 @@ bool vtkANARIMaterialLibrary::ReadTextureFileOrData(const std::string& texFilena
     reader->SetInputString(texFilenameOrData);
     textr->SetInputConnection(reader->GetOutputPort(0));
   }
-  else if (fromfile)
+  else if (fromfile || !texFilenameOrData.empty())
   {
+    // Try to load as a file path (either explicitly or as a fallback when deserializing)
     textureFilename = texFilenameOrData;
     // try the texFilenameOrData as an absolute path
     if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
     {
-      // Not found, try as a relative path from the current directory
-      textureFilename = parentDir + "/" + texFilenameOrData;
-      if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+      // Not found, try as a relative path from the current directory or parent directory
+      std::string relPath =
+        parentDir.empty() ? texFilenameOrData : parentDir + "/" + texFilenameOrData;
+      if (vtksys::SystemTools::FileExists(relPath.c_str(), true))
       {
-        vtkWarningMacro("No such texture file " << texFilenameOrData << "(absolute path), nor "
-                                                << textureFilename << "(relative path) skipping");
+        textureFilename = relPath;
+      }
+      else if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
+      {
+        vtkWarningMacro("No such texture file " << texFilenameOrData << " (absolute path), nor "
+                                                << relPath << " (relative path) skipping");
         return false;
       }
     }
