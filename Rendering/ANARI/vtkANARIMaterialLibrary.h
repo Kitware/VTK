@@ -65,6 +65,13 @@ public:
   const std::map<std::string, ParametersMap>& GetParametersDictionary() override;
 
 protected:
+  /**
+   * Load texture from file or inline XML data.
+   * Implements image loading for ANARI materials.
+   */
+  bool ReadTextureFileOrData(const std::string& texFilenameOrData, bool fromfile,
+    const std::string& parentDir, vtkTexture* textr, std::string& textureName,
+    std::string& textureFilename) override;
   vtkANARIMaterialLibrary();
   ~vtkANARIMaterialLibrary() override;
 
