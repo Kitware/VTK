@@ -381,9 +381,9 @@ void vtkAnariSceneGraph::CopyAnariFrameBufferData()
 
   if (renderedFrame.data != nullptr)
   {
-    int retTotalSize = renderedFrame.width * renderedFrame.height;
-    totalSize = std::min(retTotalSize, totalSize);
-    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
+    totalSize = renderedFrame.width * renderedFrame.height;
+    this->Internal->ColorBuffer.resize(totalSize * sizeof(uint32_t));
+    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * sizeof(uint32_t));
   }
   else
   {
