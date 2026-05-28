@@ -1,4 +1,6 @@
-vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
+set(cxx_tests
+  TestBatchedLabeledDataMapperDisplayCoords.cxx
+  TestBatchedLabeledDataMapperWorldCoords.cxx,LOOSE_VALID
   TestClipLabels.cxx
   TestDynamic2DLabelMapper.cxx
   TestLabelPlacer.cxx
@@ -6,7 +8,28 @@ vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
   TestLabelPlacerCoincidentPoints.cxx,LOOSE_VALID
   TestLabelPlacementMapper.cxx
   TestLabelPlacementMapper2D.cxx
-  TestLabelPlacementMapperCoincidentPoints.cxx
-  )
+  TestLabelPlacementMapperCoincidentPoints.cxx)
+
+if (TARGET VTK::RenderingOpenGL2)
+  set(vtk_test_prefix "OpenGL-")
+  vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
+    --vtk-factory-prefer RenderingBackend=OpenGL
+    ${cxx_tests})
+  unset(vtk_test_prefix)
+endif ()
+
+if (TARGET VTK::RenderingWebGPU)
+  set(vtk_test_prefix "WebGPU-")
+  vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
+    --vtk-factory-prefer RenderingBackend=WebGPU
+    ${cxx_tests})
+  unset(vtk_test_prefix)
+endif ()
+
 vtk_test_cxx_executable(vtkRenderingLabelCxxTests tests)
-set_tests_properties(VTK::RenderingLabelCxx-TestLabelPlacer PROPERTIES TIMEOUT 300)
+if (TARGET VTK::RenderingOpenGL2)
+  set_tests_properties(VTK::RenderingLabelCxx-OpenGL-TestLabelPlacer PROPERTIES TIMEOUT 300)
+endif ()
+if (TARGET VTK::RenderingWebGPU)
+  set_tests_properties(VTK::RenderingLabelCxx-WebGPU-TestLabelPlacer PROPERTIES TIMEOUT 300)
+endif ()

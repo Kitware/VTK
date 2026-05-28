@@ -36,7 +36,9 @@ TEST_DEPENDS
   VTK::FiltersSources
   VTK::IOXML
   VTK::InteractionStyle
-  VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::RenderingWebGPU
 INCLUDE_MARSHAL
