@@ -48,7 +48,7 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor() = default;
 
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(VTK_FUTURE_CONST int gridRealExtent[6],
-  VTK_FUTURE_CONST int* vtkNotUsed(gridGhostedExtent[6]), VTK_FUTURE_CONST int neiRealExtent[6],
+  VTK_FUTURE_CONST int vtkNotUsed(gridGhostedExtent)[6], VTK_FUTURE_CONST int neiRealExtent[6],
   VTK_FUTURE_CONST int WholeExtent[6], int N)
 {
 
