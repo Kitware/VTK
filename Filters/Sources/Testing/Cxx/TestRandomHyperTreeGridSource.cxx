@@ -45,7 +45,6 @@ bool ConstructScene(vtkRenderer* renderer, int numPieces)
     source->SetSplitFraction(0.5);
     source->SetMaskedFraction(maskedFraction);
     source->Update();
-    int nbChildrenPerNode = 8; // (branching factor = 2) ^ (dimension = 3)
 
     vtkNew<vtkHyperTreeGridGeometry> geom;
     geom->SetInputConnection(source->GetOutputPort());
