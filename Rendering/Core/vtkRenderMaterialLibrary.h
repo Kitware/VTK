@@ -90,7 +90,17 @@ public:
   void WriteFile(const std::string& filename, bool writeImageInline = false);
 
 protected:
-  bool ReadTextureFileOrData(const std::string& texFilenameOrData, bool fromfile,
+  /**
+   * Load texture from file or inline data. Subclasses may override for custom texture loading.
+   * @param texFilenameOrData Path to file or inline XML/binary data
+   * @param fromfile True if texFilenameOrData is a file path
+   * @param parentDir Parent directory for relative paths
+   * @param textr Texture object to populate
+   * @param textureName Output: name of the texture
+   * @param textureFilename Output: full path to texture file
+   * @return True if loading succeeded
+   */
+  virtual bool ReadTextureFileOrData(const std::string& texFilenameOrData, bool fromfile,
     const std::string& parentDir, vtkTexture* textr, std::string& textureName,
     std::string& textureFilename);
 

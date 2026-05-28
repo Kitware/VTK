@@ -4,21 +4,10 @@
 #include "vtkRenderMaterialLibrary.h"
 
 #include "vtkCommand.h"
-#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 #include "vtkTexture.h"
-
-#ifdef VTK_MODULE_ENABLE_VTK_IOXML
-#include "vtkXMLImageDataReader.h"
-#include "vtkXMLImageDataWriter.h"
-#endif
-
-#ifdef VTK_MODULE_ENABLE_VTK_IOImage
-#include "vtkJPEGReader.h"
-#include "vtkPNGReader.h"
-#endif
 
 #include "vtk_jsoncpp.h"
 #include "vtksys/FStream.hxx"
@@ -444,55 +433,19 @@ bool vtkRenderMaterialLibrary::ReadTextureFileOrData(const std::string& texFilen
 
   textureName = "unnamedTexture";
   textureFilename = "";
+
   if (texFilenameOrData.rfind("<?xml", 0) == 0)
   {
-#ifdef VTK_MODULE_ENABLE_VTK_IOXML
-    // The data starts with an xml tag, so try to read it with a XMLImageDataReader
-    textureName = "rawDataTexture";
-    vtkNew<vtkXMLImageDataReader> reader;
-    reader->ReadFromInputStringOn();
-    reader->SetInputString(texFilenameOrData);
-    textr->SetInputConnection(reader->GetOutputPort(0));
-#else
-    vtkErrorMacro("XML data loading requires VTK_IOXML module to be enabled");
+    vtkErrorMacro(
+      "XML data loading requires IOImage module support. Subclass must implement this.");
     return false;
-#endif
   }
   else if (fromfile)
   {
     textureFilename = texFilenameOrData;
-    // try the texFilenameOrData as an absolute path
-    if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
-    {
-      // Not found, try as a relative path from the current directory
-      textureFilename = parentDir + "/" + texFilenameOrData;
-      if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))
-      {
-        vtkWarningMacro("No such texture file " << texFilenameOrData << "(absolute path), nor "
-                                                << textureFilename << "(relative path) skipping");
-        return false;
-      }
-    }
-    textureName = ::FilePathToTextureName(textureFilename);
-#ifdef VTK_MODULE_ENABLE_VTK_IOImage
-    if (textureFilename.substr(textureFilename.length() - 3) == "png")
-    {
-      vtkNew<vtkPNGReader> pngReader;
-      pngReader->SetFileName(textureFilename.c_str());
-      pngReader->Update();
-      textr->SetInputConnection(pngReader->GetOutputPort(0));
-    }
-    else
-    {
-      vtkNew<vtkJPEGReader> jpgReader;
-      jpgReader->SetFileName(textureFilename.c_str());
-      jpgReader->Update();
-      textr->SetInputConnection(jpgReader->GetOutputPort(0));
-    }
-#else
-    vtkErrorMacro("Image file loading requires VTK_IOImage module to be enabled");
+    vtkErrorMacro(
+      "File texture loading requires IOImage module support. Subclass must implement this.");
     return false;
-#endif
   }
   else
   {
@@ -500,8 +453,6 @@ bool vtkRenderMaterialLibrary::ReadTextureFileOrData(const std::string& texFilen
       "Unable to read the texture as XML data nor a file for texture " << texFilenameOrData);
     return false;
   }
-  textr->Update();
-  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -511,11 +462,6 @@ const char* vtkRenderMaterialLibrary::WriteBuffer(bool writeImageInline)
   root["family"] = this->GetFamilyName();
   root["version"] = "0.0";
   Json::Value materials;
-
-#ifdef VTK_MODULE_ENABLE_VTK_IOXML
-  vtkSmartPointer<vtkXMLImageDataWriter> idwriter = vtkSmartPointer<vtkXMLImageDataWriter>::New();
-  idwriter->WriteToOutputStringOn();
-#endif
 
   std::set<std::string>::iterator it = this->Internal->NickNames.begin();
   while (it != this->Internal->NickNames.end())
@@ -553,32 +499,13 @@ const char* vtkRenderMaterialLibrary::WriteBuffer(bool writeImageInline)
       {
         std::string vname = vit->first;
         const TextureInfo& texInfo = vit->second;
-        vtkSmartPointer<vtkTexture> vvals = texInfo.Texture;
         const std::string& filename = texInfo.Filename;
 
-        if (!vvals)
+        std::string os = filename;
+        if (os.empty() && (writeImageInline))
         {
-          ++vit;
-          continue;
-        }
-
-        std::string os = "";
-        if (writeImageInline || filename.empty())
-        {
-#ifdef VTK_MODULE_ENABLE_VTK_IOXML
-          // We don't know the filename for this texture, store the image data directly
-          idwriter->SetInputData(vvals->GetInput());
-          idwriter->Write();
-          os = idwriter->GetOutputString();
-#else
-          vtkWarningMacro("Unable to serialize texture data inline without IOXML module");
-          os = filename;
-#endif
-        }
-        else
-        {
-          // We have a filename for this texture, store it
-          os = filename;
+          vtkWarningMacro("Unable to serialize texture data inline. Subclass must implement inline "
+                          "serialization.");
         }
 
         Json::Value jvvals = os;
