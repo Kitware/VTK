@@ -30,11 +30,13 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkInformationIntegerKey;
 class vtkInformationDoubleKey;
+class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkAnariSceneGraphInternals;
 class vtkRenderer;
 class vtkAnariDevice;
+class vtkRenderMaterialLibrary;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariSceneGraph : public vtkRendererNode
 {
@@ -179,6 +181,28 @@ public:
    * Indicate that a new RenderTraversal of children needs to occur next frame
    */
   void InvalidateSceneStructure();
+
+  /**
+   * Material Library attached to the renderer.
+   * \ingroup InformationKeys
+   */
+  static vtkInformationObjectBaseKey* MATERIAL_LIBRARY();
+
+  ///@{
+  /**
+   * Convenience method to set/get a material library on a vtkRenderer for
+   * use with the ANARI renderer. The library is used to look up material
+   * properties by name when rendering actors with SetMaterialName set.
+   */
+  static void SetMaterialLibrary(vtkRenderMaterialLibrary*, vtkRenderer* renderer);
+  static vtkRenderMaterialLibrary* GetMaterialLibrary(vtkRenderer* renderer);
+  ///@}
+
+  /**
+   * Get information key for material names.
+   * \ingroup InformationKeys
+   */
+  static vtkInformationStringKey* MATERIAL_NAMES();
 
   /**
    * Reserve an Id which is unique to a render call.
