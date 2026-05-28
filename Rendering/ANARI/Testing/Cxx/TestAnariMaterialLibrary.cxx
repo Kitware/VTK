@@ -11,7 +11,6 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include <fstream>
 #include <iostream>
 #include <set>
 #include <string>
@@ -21,8 +20,7 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
   vtkSmartPointer<vtkANARIMaterialLibrary> lib = vtkSmartPointer<vtkANARIMaterialLibrary>::New();
 
   // Try MTL file first (simpler format)
-  const char* mtlFile =
-    "/Users/sankhesh.jhaveri/Projects/vtk/vtk/Rendering/ANARI/Testing/Data/anari_mats.mtl";
+  const char* mtlFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/anari_mats.mtl");
   std::cout << "Open " << mtlFile << std::endl;
   lib->ReadFile(mtlFile);
   std::cout << "Parsed MTL file OK, now check for expected contents." << std::endl;
@@ -79,5 +77,5 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
   std::cout << "Deserialize" << std::endl;
   lib->ReadBuffer(buf);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

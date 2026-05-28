@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/anari_mats.mtl
   Data/bunny.ply
   Data/dragon.ply
   Data/ironProt.vtk
