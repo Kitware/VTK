@@ -65,7 +65,7 @@ public:
   vtkTypeMacro(vtkAnariDeviceInternals, vtkObject);
 
   vtkAnariDeviceInternals() = default;
-  ~vtkAnariDeviceInternals() override = default;
+  ~vtkAnariDeviceInternals() override;
 
   bool IsInitialized() const;
   bool InitAnari(const char* libraryName = "environment", const char* deviceName = "default",
@@ -87,6 +87,12 @@ public:
 
   vtkAnariDevice::OnNewDeviceCallback NewDeviceCB;
 };
+
+// ----------------------------------------------------------------------------
+vtkAnariDeviceInternals::~vtkAnariDeviceInternals()
+{
+  this->CleanupAnariObjects();
+}
 
 // ----------------------------------------------------------------------------
 bool vtkAnariDeviceInternals::IsInitialized() const
@@ -206,14 +212,14 @@ bool vtkAnariDeviceInternals::InitAnari(
 // ----------------------------------------------------------------------------
 void vtkAnariDeviceInternals::CleanupAnariObjects()
 {
-  if (this->AnariLibrary)
-  {
-    anari::unloadLibrary(this->AnariLibrary);
-  }
-
   if (this->AnariDevice)
   {
     anari::release(this->AnariDevice, this->AnariDevice);
+  }
+
+  if (this->AnariLibrary)
+  {
+    anari::unloadLibrary(this->AnariLibrary);
   }
 
   this->AnariLibraryName = "";
