@@ -431,6 +431,7 @@ Interaction/Widgets/vtkTensorRepresentation.h
 Interaction/Widgets/vtkTensorWidget.h
 Interaction/Widgets/vtkTextRepresentation.h
 Interaction/Widgets/vtkWidgetRepresentation.h
+Rendering/ANARI/vtkANARIMaterialLibrary.h
 Rendering/Annotation/vtkAnnotatedCubeActor.h
 Rendering/Annotation/vtkArcPlotter.h
 Rendering/Annotation/vtkAxesActor.h
