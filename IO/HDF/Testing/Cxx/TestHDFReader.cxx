@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
+#include "vtkAxisAlignedTransformFilter.h"
 #include "vtkFileResourceStream.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
@@ -508,6 +510,38 @@ int TestRandomHyperTreeGrid(const std::string& dataRoot)
 }
 
 //------------------------------------------------------------------------------
+int TestHyperTreeGridPartitionedCoords(const std::string& dataRoot)
+{
+  // Test that coordinates are read correctly
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/htg_3parts_coords.vtkhdf";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(hdfPath.c_str());
+  reader->Update();
+  vtkPartitionedDataSet* readData = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
+
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  vtkNew<vtkAxisAlignedTransformFilter> aligned1;
+  aligned1->SetTranslation(1.0, 1.0, 0.0);
+  aligned1->SetInputConnection(source->GetOutputPort());
+  vtkNew<vtkAxisAlignedTransformFilter> aligned2;
+  aligned2->SetTranslation(2.0, 2.0, 0.0);
+  aligned2->SetInputConnection(aligned1->GetOutputPort());
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetOutputTypeToPartitionedDataSet();
+  group->AddInputConnection(source->GetOutputPort());
+  group->AddInputConnection(aligned1->GetOutputPort());
+  group->AddInputConnection(aligned2->GetOutputPort());
+  group->Update();
+
+  vtkPartitionedDataSet* expectedPart =
+    vtkPartitionedDataSet::SafeDownCast(group->GetOutputDataObject(0));
+
+  return !vtkTestUtilities::CompareDataObjects(expectedPart, readData);
+}
+
+//------------------------------------------------------------------------------
 int TestSimpleHyperTreeGrid(const std::string& dataRoot)
 {
   const std::string hdfPath = dataRoot + "/Data/vtkHDF/simple_htg.vtkhdf";
@@ -664,6 +698,7 @@ int TestHDFReader(int argc, char* argv[])
   failure |= TestCompositeDataSet(dataRoot);
   failure |= TestSimpleHyperTreeGrid(dataRoot);
   failure |= TestRandomHyperTreeGrid(dataRoot);
+  failure |= TestHyperTreeGridPartitionedCoords(dataRoot);
   failure |= TestPartitionedHyperTreeGrid(dataRoot);
   failure |= TestHyperTreeGridWithInterfaces(dataRoot);
 
