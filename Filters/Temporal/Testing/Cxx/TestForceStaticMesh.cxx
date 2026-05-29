@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "MeshCacheMockAlgorithms.h"
 #include "vtkForceStaticMesh.h"
 #include "vtkGenerateTimeSteps.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+#include <cstdlib>
 
 namespace
 {
@@ -27,11 +29,75 @@ void GetPartitionsMeshMTimes(
 }
 
 //------------------------------------------------------------------------------
+bool TestCompositeTemporal()
+{
+  // create a composite temporal pipeline
+  vtkNew<vtkSphereSource> sphere1;
+  vtkNew<vtkSphereSource> sphere2;
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->AddInputConnection(sphere1->GetOutputPort());
+  group->AddInputConnection(sphere2->GetOutputPort());
+  group->SetOutputTypeToPartitionedDataSetCollection();
+  vtkNew<vtkGenerateTimeSteps> generateTimes;
+  generateTimes->SetInputConnection(group->GetOutputPort());
+  generateTimes->ClearTimeStepValues();
+  std::vector<double> times = { 0, 1, 2 };
+  generateTimes->SetTimeStepValues(static_cast<int>(times.size()), times.data());
+
+  vtkNew<vtkForceStaticMesh> forceStatic;
+  forceStatic->SetInputConnection(generateTimes->GetOutputPort());
+  forceStatic->UpdateTimeStep(times[0]);
+
+  auto outputPDC =
+    vtkPartitionedDataSetCollection::SafeDownCast(generateTimes->GetOutputDataObject(0));
+  std::vector<vtkMTimeType> firstVaryingMeshMTimes;
+  ::GetPartitionsMeshMTimes(outputPDC, firstVaryingMeshMTimes);
+
+  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
+  std::vector<vtkMTimeType> firstMeshMTimes;
+  ::GetPartitionsMeshMTimes(outputPDC, firstMeshMTimes);
+
+  vtkNew<vtkPartitionedDataSetCollection> firstOutput;
+  firstOutput->DeepCopy(outputPDC);
+
+  // Update the sources: the mesh has the same number of point/cell, but different coordinates.
+  // Force static mesh will reuse previous mesh.
+  sphere1->SetCenter(1, 0, 0);
+  sphere2->SetCenter(0, 1, 0);
+  forceStatic->UpdateTimeStep(times[1]);
+
+  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(generateTimes->GetOutputDataObject(0));
+  std::vector<vtkMTimeType> secondVaryingMeshMTimes;
+  ::GetPartitionsMeshMTimes(outputPDC, secondVaryingMeshMTimes);
+
+  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
+  std::vector<vtkMTimeType> secondMeshMTimes;
+  ::GetPartitionsMeshMTimes(outputPDC, secondMeshMTimes);
+
+  for (size_t timeIdx = 0; timeIdx != secondMeshMTimes.size(); ++timeIdx)
+  {
+    // Also compare the input's meshMTime to make sure we're testing something
+    if (firstVaryingMeshMTimes[timeIdx] == secondVaryingMeshMTimes[timeIdx])
+    {
+      vtkLog(ERROR,
+        "ForceStaticMesh's input's MeshMTime has not changed, this test does not test anything ! "
+        "Was static mesh support added to the input filter ?");
+    }
+
+    if (firstMeshMTimes[timeIdx] != secondMeshMTimes[timeIdx])
+    {
+      vtkLog(ERROR, "GetMeshMTime has changed, mesh not static !");
+      return false;
+    }
+  }
+
+  return vtkTestUtilities::CompareDataObjects(outputPDC, firstOutput);
+}
+
+//------------------------------------------------------------------------------
 bool TestOutputDataTime()
 {
-  vtkNew<vtkStaticDataSource> source;
-  source->SetStartData(1);
-
+  vtkNew<vtkSphereSource> source;
   vtkNew<vtkGenerateTimeSteps> generateTimes;
   generateTimes->SetInputConnection(source->GetOutputPort());
   generateTimes->ClearTimeStepValues();
@@ -64,49 +130,9 @@ bool TestOutputDataTime()
 //------------------------------------------------------------------------------
 int TestForceStaticMesh(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkNew<vtkStaticCompositeSource> source;
-  source->SetStartData(1);
-
-  vtkNew<vtkForceStaticMesh> forceStatic;
-  forceStatic->SetInputConnection(source->GetOutputPort());
-  forceStatic->Update();
-
-  auto outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> beforeVaryingMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, beforeVaryingMeshMTimes);
-
-  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> beforeMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, beforeMeshMTimes);
-
-  // Update the source: the mesh has the same point/cell count but different values.
-  // it should be cached by the forceStaticMesh filter anyway
-  source->SetStartData(5);
-  forceStatic->Update();
-
-  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> afterVaryingMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, afterVaryingMeshMTimes);
-
-  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> afterMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, afterMeshMTimes);
-
-  for (size_t timeIdx = 0; timeIdx != afterMeshMTimes.size(); ++timeIdx)
+  if (!::TestCompositeTemporal())
   {
-    // Also compare the input's meshMTime to make sure we're testing something
-    if (beforeVaryingMeshMTimes[timeIdx] == afterVaryingMeshMTimes[timeIdx])
-    {
-      vtkLog(WARNING,
-        "ForceStaticMesh's input's MeshMTime has not changed, this test does not test anything ! "
-        "Was static mesh support added to the input filter ?");
-    }
-
-    if (beforeMeshMTimes[timeIdx] != afterMeshMTimes[timeIdx])
-    {
-      vtkLog(ERROR, "GetMeshMTime has changed, mesh not static !");
-      return EXIT_FAILURE;
-    }
+    return EXIT_FAILURE;
   }
 
   if (!::TestOutputDataTime())
