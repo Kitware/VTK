@@ -35,8 +35,10 @@ OPTIONAL_DEPENDS
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
+  VTK::FiltersTemporal
   VTK::IOExodus
   VTK::IOLegacy
+  VTK::IOHDF
   VTK::IOXML
   VTK::InteractionStyle
   VTK::RenderingOpenGL2

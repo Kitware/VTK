@@ -22,6 +22,7 @@ vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestExtractBlockUsingDataAssembly.cxx,NO_VALID
   TestExtractDataArraysOverTime.cxx,NO_VALID
   TestExtractExodusGlobalTemporalVariables.cxx,NO_VALID
+  TestExtractGeometry.cxx,NO_VALID
   TestExtractGridPieces.cxx,NO_VALID
   TestExtraction.cxx
   TestExtractionExpression.cxx
