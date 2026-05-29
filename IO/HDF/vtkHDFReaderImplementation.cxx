@@ -967,6 +967,7 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridData(vtkHyperTreeGrid* htg,
   const vtkDataArraySelection* arraySelection, const vtkIdType cellOffset,
   const vtkIdType treeIdsOffset, const vtkIdType depthOffset, const vtkIdType descriptorOffset,
   const vtkIdType maskOffset, const vtkIdType partOffset, const vtkIdType verticesPerDepthOffset,
+  const vtkIdType XCoordsOffset, const vtkIdType YCoordsOffset, const vtkIdType ZCoordsOffset,
   const vtkIdType depthLimit, const vtkIdType step)
 {
   htg->Initialize();
@@ -976,7 +977,7 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridData(vtkHyperTreeGrid* htg,
     return false;
   }
 
-  if (!this->ReadHyperTreeGridDimensions(htg))
+  if (!this->ReadHyperTreeGridDimensions(htg, XCoordsOffset, YCoordsOffset, ZCoordsOffset))
   {
     return false;
   }
@@ -1140,7 +1141,8 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridMetaInfo(vtkHyperTreeGrid* h
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFReader::Implementation::ReadHyperTreeGridDimensions(vtkHyperTreeGrid* htg)
+bool vtkHDFReader::Implementation::ReadHyperTreeGridDimensions(vtkHyperTreeGrid* htg,
+  const vtkIdType XCoordsOffset, const vtkIdType YCoordsOffset, const vtkIdType ZCoordsOffset)
 {
   std::array<int, 3> dimensions;
   if (!this->GetAttribute("Dimensions", 1, dimensions.data()))
@@ -1150,13 +1152,16 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridDimensions(vtkHyperTreeGrid*
   }
 
   // Read coordinate arrays
-  std::vector<hsize_t> coordinates_extent{ 0, static_cast<hsize_t>(dimensions[0]) };
+  std::vector<hsize_t> coordinates_extent{ static_cast<hsize_t>(XCoordsOffset),
+    static_cast<hsize_t>(XCoordsOffset + dimensions[0]) };
   auto XCoordinates = vtk::TakeSmartPointer(
     vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, "XCoordinates", coordinates_extent));
-  coordinates_extent[1] = static_cast<hsize_t>(dimensions[1]);
+  coordinates_extent[0] = static_cast<hsize_t>(YCoordsOffset);
+  coordinates_extent[1] = static_cast<hsize_t>(YCoordsOffset + dimensions[1]);
   auto YCoordinates = vtk::TakeSmartPointer(
     vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, "YCoordinates", coordinates_extent));
-  coordinates_extent[1] = static_cast<hsize_t>(dimensions[2]);
+  coordinates_extent[0] = static_cast<hsize_t>(ZCoordsOffset);
+  coordinates_extent[1] = static_cast<hsize_t>(ZCoordsOffset + dimensions[2]);
   auto ZCoordinates = vtk::TakeSmartPointer(
     vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, "ZCoordinates", coordinates_extent));
 
