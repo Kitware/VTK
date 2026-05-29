@@ -92,11 +92,6 @@ public:
   vtkSetMacro(DynamicLevel, int);
   ///@}
 
-  /**
-   * Release any graphics resources that are being consumed by this actor.
-   */
-  void ReleaseGraphicsResources(vtkWindow*) override;
-
   ///@{
   /**
    * The range of font sizes to use when rendering the labels.

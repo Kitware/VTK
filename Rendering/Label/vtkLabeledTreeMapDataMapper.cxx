@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkLabeledTreeMapDataMapper.h"
+#include "Private/vtkLabeledFormatter.h"
 #include "vtkActor2D.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
@@ -74,7 +75,6 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   // this array.
   for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
   {
-    this->TextMappers[i]->Delete();
     this->TextMappers[i] = nullptr;
   }
 }
@@ -85,8 +85,7 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
   this->TextPoints->Delete();
   this->VertexList->Delete();
   this->VerticalLabelProperty->Delete();
-  int i;
-  for (i = 0; i <= this->MaxFontLevel; i++)
+  for (int i = 0; i <= this->MaxFontLevel; i++)
   {
     delete[] this->FontWidths[i];
     this->HLabelProperties[i]->Delete();
@@ -96,18 +95,6 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
   delete[] this->HLabelProperties;
   delete[] this->ChildrenCount;
   delete[] this->LabelMasks;
-  if (this->TextMappers)
-  {
-    for (i = 0; i < this->NumberOfLabelsAllocated; i++)
-    {
-      if (this->TextMappers[i])
-      {
-        this->TextMappers[i]->Delete();
-      }
-    }
-    delete[] this->TextMappers;
-    this->TextMappers = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -117,26 +104,12 @@ void vtkLabeledTreeMapDataMapper::SetRectanglesArrayName(const char* name)
 }
 
 //------------------------------------------------------------------------------
-// Release any graphics resources that are being consumed by this mapper.
-void vtkLabeledTreeMapDataMapper::ReleaseGraphicsResources(vtkWindow* win)
-{
-  if (this->TextMappers != nullptr)
-  {
-    for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
-    {
-      if (this->TextMappers[i])
-      {
-        this->TextMappers[i]->ReleaseGraphicsResources(win);
-      }
-    }
-  }
-}
-
 vtkTree* vtkLabeledTreeMapDataMapper::GetInputTree()
 {
   return vtkTree::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
+//------------------------------------------------------------------------------
 void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
 {
   char test[2];
@@ -145,7 +118,7 @@ void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
   // Make sure that there is a text mapper at index 0
   if (!this->TextMappers[0])
   {
-    this->TextMappers[0] = vtkTextMapper::New();
+    this->TextMappers[0] = vtkSmartPointer<vtkTextMapper>::New();
     this->NumberOfLabels = 1;
   }
 
@@ -310,12 +283,7 @@ void vtkLabeledTreeMapDataMapper::RenderOverlay(vtkViewport* viewport, vtkActor2
 //------------------------------------------------------------------------------
 void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor)
 {
-  int i, numComp = 0, pointIdLabels, activeComp = 0;
-  int numVertices;
   double x[3];
-  vtkAbstractArray* abstractData;
-  vtkDataArray *numericData, *tempData;
-  vtkStringArray* stringData;
   vtkTree* input = this->GetInputTree();
   if (!input)
   {
@@ -336,7 +304,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vt
   input = this->GetInputTree();
   vtkDataSetAttributes* pd = input->GetVertexData();
   // Get the treeMap info
-  tempData = this->GetInputArrayToProcess(0, input);
+  vtkDataArray* tempData = this->GetInputArrayToProcess(0, input);
   if (!tempData)
   {
     vtkErrorMacro(<< "Input Tree does not have box information.");
@@ -358,80 +326,9 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vt
       this->UpdateFontSizes();
     }
 
-    // figure out what to label, and if we can label it
-    pointIdLabels = 0;
-    abstractData = nullptr;
-    numericData = nullptr;
-    stringData = nullptr;
-    switch (this->LabelMode)
-    {
-      case VTK_LABEL_IDS:
-        pointIdLabels = 1;
-        break;
-      case VTK_LABEL_SCALARS:
-        if (pd->GetScalars())
-        {
-          numericData = pd->GetScalars();
-        }
-        break;
-      case VTK_LABEL_VECTORS:
-        if (pd->GetVectors())
-        {
-          numericData = pd->GetVectors();
-        }
-        break;
-      case VTK_LABEL_NORMALS:
-        if (pd->GetNormals())
-        {
-          numericData = pd->GetNormals();
-        }
-        break;
-      case VTK_LABEL_TCOORDS:
-        if (pd->GetTCoords())
-        {
-          numericData = pd->GetTCoords();
-        }
-        break;
-      case VTK_LABEL_TENSORS:
-        if (pd->GetTensors())
-        {
-          numericData = pd->GetTensors();
-        }
-        break;
-      case VTK_LABEL_FIELD_DATA:
-      {
-        int arrayNum;
-        if (this->FieldDataName != nullptr)
-        {
-          abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
-        }
-        else
-        {
-          arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ? this->FieldDataArray
-                                                                     : pd->GetNumberOfArrays() - 1);
-          abstractData = pd->GetAbstractArray(arrayNum);
-        }
-        numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
-        stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-      }
-      break;
-    }
-
-    // determine number of components and check input
-    if (pointIdLabels)
-    {
-    }
-    else if (numericData)
-    {
-      numComp = numericData->GetNumberOfComponents();
-      activeComp = 0;
-      if (this->LabeledComponent >= 0)
-      {
-        activeComp = (this->LabeledComponent < numComp ? this->LabeledComponent : numComp - 1);
-        numComp = 1;
-      }
-    }
-    else if (!stringData)
+    auto formatterInput =
+      this->ResolveLabeledFormatterInput(pd, input->GetNumberOfVertices(), input);
+    if (!formatterInput.Valid)
     {
       vtkErrorMacro(<< "Need input data to render labels (3)");
       return;
@@ -441,33 +338,23 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport* viewport, vt
     // the number of vertices in the tree - Note that we may
     // not create the actual mappers
 
-    numVertices = input->GetNumberOfVertices();
+    int numVertices = input->GetNumberOfVertices();
     if (numVertices > this->NumberOfLabelsAllocated)
     {
       // delete old stuff
-      for (i = 0; i < this->NumberOfLabelsAllocated; i++)
-      {
-        if (this->TextMappers[i])
-        {
-          this->TextMappers[i]->Delete();
-        }
-      }
-      delete[] this->TextMappers;
+      this->TextMappers.clear();
 
       this->NumberOfLabelsAllocated = numVertices;
-      this->TextMappers = new vtkTextMapper*[numVertices];
+      this->TextMappers.resize(numVertices, nullptr);
       this->VertexList->SetNumberOfIds(numVertices);
       this->TextPoints->Reserve(numVertices);
-      for (i = 0; i < numVertices; i++)
-      {
-        this->TextMappers[i] = nullptr;
-      }
     }
 
-    this->LabelTree(input, boxInfo, numericData, stringData, activeComp, numComp);
+    this->LabelTree(input, boxInfo, formatterInput.NumericData, formatterInput.StringData,
+      formatterInput.ActiveComp, formatterInput.NumComp);
   }
 
-  for (i = 0; i < this->NumberOfLabels; i++)
+  for (int i = 0; i < this->NumberOfLabels; i++)
   {
     this->TextPoints->GetPoint(i, x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
@@ -492,7 +379,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree* tree, vtkFloatArray* boxInf
   }
 
   this->NumberOfLabels = 0;
-  vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
+  vtkNew<vtkTreeDFSIterator> dfs;
   dfs->SetTree(tree);
   while (dfs->HasNext())
   {
@@ -531,7 +418,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree* tree, vtkFloatArray* boxInf
     {
       if (!this->TextMappers[this->NumberOfLabels])
       {
-        this->TextMappers[this->NumberOfLabels] = vtkTextMapper::New();
+        this->TextMappers[this->NumberOfLabels] = vtkSmartPointer<vtkTextMapper>::New();
       }
       this->TextMappers[this->NumberOfLabels]->SetInput(string);
       this->TextMappers[this->NumberOfLabels]->SetTextProperty(tprop);
@@ -545,7 +432,6 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree* tree, vtkFloatArray* boxInf
       continue;
     }
   }
-  dfs->Delete();
   this->BuildTime.Modified();
 }
 

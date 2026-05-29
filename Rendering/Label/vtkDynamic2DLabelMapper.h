@@ -108,6 +108,8 @@ protected:
    */
   double GetCurrentScale(vtkViewport* viewport);
 
+  void BuildLabelsInternal(vtkDataSet* input) override;
+
   float* LabelWidth;
   float* LabelHeight;
   float* Cutoff;
@@ -121,7 +123,7 @@ private:
   vtkDynamic2DLabelMapper(const vtkDynamic2DLabelMapper&) = delete;
   void operator=(const vtkDynamic2DLabelMapper&) = delete;
 
-  struct vtkDynamic2DLabelMapperFunctor;
+  struct vtkDynamic2DLabelMapperFormatter;
 };
 
 VTK_ABI_NAMESPACE_END

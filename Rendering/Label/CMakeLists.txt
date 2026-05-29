@@ -13,6 +13,10 @@ set(classes
   vtkLabelSizeCalculator
   vtkPointSetToLabelHierarchy)
 
+set(private_headers
+  Private/vtkLabeledFormatter.h)
+
 vtk_module_add_module(VTK::RenderingLabel
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_HEADERS ${private_headers})
 vtk_add_test_mangling(VTK::RenderingLabel)
