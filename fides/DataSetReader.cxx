@@ -9,9 +9,11 @@
 //============================================================================
 
 #include <fides/DataSetReader.h>
-#include <fides/predefined/DataModelFactory.h>
-#include <fides/predefined/DataModelHelperFunctions.h>
-#include <fides/predefined/InternalMetadataSource.h>
+#include <fides/DataSourceFactory.h>
+#include <fides/internal/OutputBuilder.h>
+#include <fides/internal/predefined/DataModelFactory.h>
+#include <fides/internal/predefined/DataModelHelperFunctions.h>
+#include <fides/internal/predefined/InternalMetadataSource.h>
 
 #include <ios>
 #include <stdexcept>
@@ -25,15 +27,23 @@
 #include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
 // clang-format on
 
-#include <viskores/cont/CoordinateSystem.h>
+#if FIDES_USE_VISKORES
+#include <fides/viskores/ViskoresBuilder.h>
 #include <viskores/cont/DataSet.h>
-#include <viskores/cont/UnknownCellSet.h>
+#include <viskores/cont/PartitionedDataSet.h>
+#endif
 
-#include <fides/CellSet.h>
-#include <fides/CoordinateSystem.h>
+#if FIDES_USE_VTK
+#include <fides/vtk/VTKBuilder.h>
+#include <vtkPartitionedDataSet.h>
+#include <vtkSmartPointer.h>
+#endif
+
 #include <fides/DataSource.h>
-#include <fides/Field.h>
 #include <fides/Keys.h>
+#include <fides/internal/CellGridModel.h>
+#include <fides/internal/DataSetModel.h>
+#include <fides/internal/DataWrapHelper.h>
 
 namespace fides
 {
@@ -46,6 +56,46 @@ namespace
 std::string baseFileName(std::string const& path)
 {
   return path.substr(path.find_last_of("/\\") + 1);
+}
+
+/// Extracts a double value from a RawArray element, regardless of the underlying type.
+double GetRawArrayValueAsDouble(const fides::RawArray& raw, size_t index)
+{
+  switch (raw.Type)
+  {
+    case fides::DataType::Float64:
+      return raw.GetValue<double>(index);
+    case fides::DataType::Float32:
+      return static_cast<double>(raw.GetValue<float>(index));
+    case fides::DataType::Int8:
+      return static_cast<double>(raw.GetValue<int8_t>(index));
+    case fides::DataType::Int16:
+      return static_cast<double>(raw.GetValue<int16_t>(index));
+    case fides::DataType::Int32:
+      return static_cast<double>(raw.GetValue<int32_t>(index));
+    case fides::DataType::Int64:
+      return static_cast<double>(raw.GetValue<int64_t>(index));
+    case fides::DataType::UInt8:
+      return static_cast<double>(raw.GetValue<uint8_t>(index));
+    case fides::DataType::UInt16:
+      return static_cast<double>(raw.GetValue<uint16_t>(index));
+    case fides::DataType::UInt32:
+      return static_cast<double>(raw.GetValue<uint32_t>(index));
+    case fides::DataType::UInt64:
+      return static_cast<double>(raw.GetValue<uint64_t>(index));
+    default:
+      throw std::runtime_error("GetRawArrayValueAsDouble: unknown type");
+  }
+}
+
+/// Copies a RawArray to a vector<double>, converting from the underlying type.
+void CopyRawArrayToDoubleVector(const fides::RawArray& raw, std::vector<double>& out)
+{
+  out.resize(raw.NumValues);
+  for (size_t i = 0; i < raw.NumValues; i++)
+  {
+    out[i] = GetRawArrayValueAsDouble(raw, i);
+  }
 }
 
 } // end anon namespace
@@ -63,13 +113,13 @@ public:
                     bool createSharedPoints)
     : StreamingMode(streamSteps)
   {
-#ifdef FIDES_USE_MPI
-    this->Comm = MPI_COMM_WORLD;
+#if FIDES_USE_MPI
+    this->Comm = MPI_COMM_NULL;
 #endif
     this->SetupReader(dataModel, inputType, params, createSharedPoints);
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   DataSetReaderImpl(const std::string& dataModel,
                     DataModelInput inputType,
                     bool streamSteps,
@@ -106,9 +156,10 @@ public:
     }
     else
     {
-      rapidjson::Document doc = DataSetReaderImpl::GetJSONDocument(dataModel, inputType);
-      DataSetReaderImpl::ParsingChecks(doc, dataModel, inputType);
-      this->ReadJSON(doc);
+      this->DataModelDocument = std::make_shared<rapidjson::Document>(
+        DataSetReaderImpl::GetJSONDocument(dataModel, inputType));
+      DataSetReaderImpl::ParsingChecks(*this->DataModelDocument, dataModel, inputType);
+      this->ReadJSON(*this->DataModelDocument);
     }
     std::string relativePath;
     if (inputType != DataModelInput::JSONString)
@@ -125,8 +176,18 @@ public:
     }
     for (const auto& it : this->DataSources)
     {
-      it.second->CreateSharedPoints = createSharedPoints;
-      it.second->RelativePath = relativePath;
+      ADIOSDataSource* adiosSrc = dynamic_cast<ADIOSDataSource*>(it.second.get());
+      if (adiosSrc)
+      {
+        // Only ADIOSDataSource supports CreateSharedPoints / StreamingMode
+        adiosSrc->CreateSharedPoints = createSharedPoints;
+        adiosSrc->RelativePath = relativePath;
+        // Propagate the reader's streaming choice. ADIOSDataSource defaults
+        // StreamingMode=true, but the reader's streamSteps argument is the
+        // ground truth; downstream code (any path that opens a source) must
+        // see the right mode from the start, not after a per-method override.
+        adiosSrc->StreamingMode = this->StreamingMode;
+      }
     }
 
     this->SetDataSourceParameters(params);
@@ -179,10 +240,10 @@ public:
     // once we've processed the json, then we can set this source to the actual data source
     // and get rid of this temporary holder for it. Note that it will still be the same
     // DataSource object, because in cases like SST, we don't want to have to open another reader.
-#ifdef FIDES_USE_MPI
-    this->InternalSource = std::make_shared<DataSourceType>(this->Comm);
+#if FIDES_USE_MPI
+    this->InternalSource = std::make_shared<fides::io::ADIOSDataSource>(this->Comm);
 #else
-    this->InternalSource = std::make_shared<DataSourceType>();
+    this->InternalSource = std::make_shared<fides::io::ADIOSDataSource>();
 #endif
     this->InternalSource->Mode = fides::io::FileNameMode::Input;
     this->InternalSource->FileName = filename;
@@ -200,10 +261,11 @@ public:
       auto schema = this->InternalSource->ReadAttribute<std::string>("fides/schema");
       if (!schema.empty())
       {
-        rapidjson::Document doc =
-          DataSetReaderImpl::GetJSONDocument(schema[0], DataModelInput::JSONString);
-        DataSetReaderImpl::ParsingChecks(doc, schema[0], DataModelInput::JSONString);
-        this->ReadJSON(doc);
+        this->DataModelDocument = std::make_shared<rapidjson::Document>(
+          DataSetReaderImpl::GetJSONDocument(schema[0], DataModelInput::JSONString));
+        DataSetReaderImpl::ParsingChecks(
+          *this->DataModelDocument, schema[0], DataModelInput::JSONString);
+        this->ReadJSON(*this->DataModelDocument);
         this->UpdateDataSources();
         return;
       }
@@ -238,7 +300,13 @@ public:
     std::string tmpName;
     for (auto& ds : this->DataSources)
     {
-      auto& source = ds.second;
+      ADIOSDataSource* source = dynamic_cast<ADIOSDataSource*>(ds.second.get());
+
+      if (source == nullptr)
+      {
+        throw std::runtime_error("Metadata can only be provided by an ADIOS data source");
+      }
+
       if (source->Mode == FileNameMode::Input)
       {
         numInputFiles++;
@@ -271,8 +339,7 @@ public:
   void Cleanup()
   {
     this->DataSources.clear();
-    this->CoordinateSystem.reset();
-    this->CellSet.reset();
+    this->Model.reset();
   }
 
   static rapidjson::Document GetJSONDocument(const std::string& dataModel, DataModelInput inputType)
@@ -330,8 +397,14 @@ public:
     {
       throw std::runtime_error("Source name was not found in DataSources.");
     }
-    auto& ds = *(it->second);
-    ds.SetDataSourceIO(io);
+    ADIOSDataSource* adiosSrc = dynamic_cast<ADIOSDataSource*>(it->second.get());
+    if (!adiosSrc)
+    {
+      std::cerr << "Ignoring SetDataSourceIO() call for non-ADIOS data source " << it->first
+                << std::endl;
+      return;
+    }
+    adiosSrc->SetDataSourceIO(io);
   }
 
   void SetDataSourceIO(const std::string& source, const std::string& io)
@@ -341,8 +414,14 @@ public:
     {
       throw std::runtime_error("Source name was not found in DataSources.");
     }
-    auto& ds = *(it->second);
-    ds.SetDataSourceIO(io);
+    ADIOSDataSource* adiosSrc = dynamic_cast<ADIOSDataSource*>(it->second.get());
+    if (!adiosSrc)
+    {
+      std::cerr << "Ignoring SetDataSourceIO() call for non-ADIOS data source " << it->first
+                << std::endl;
+      return;
+    }
+    adiosSrc->SetDataSourceIO(io);
   }
 
   template <typename ValueType>
@@ -363,82 +442,55 @@ public:
       {
         throw std::runtime_error("data_source name must be a non-empty string.");
       }
-      if (!dataSource.GetObject().HasMember("filename_mode"))
+      std::string type = "adios";
+      if (dataSource.GetObject().HasMember("type"))
       {
-        throw std::runtime_error("data_source objects must have filename_mode.");
+        type = dataSource.GetObject()["type"].GetString();
       }
-      std::string filename_mode = dataSource.GetObject()["filename_mode"].GetString();
-      if (filename_mode.empty())
-      {
-        throw std::runtime_error("data_source filename_mode must be a non-empty string.");
-      }
-#ifdef FIDES_USE_MPI
-      auto source = std::make_shared<DataSourceType>(this->Comm);
+#if FIDES_USE_MPI
+      std::shared_ptr<DataSourceType> source = fides::io::MakeDataSource(type, this->Comm);
 #else
-      auto source = std::make_shared<DataSourceType>();
+      std::shared_ptr<DataSourceType> source = fides::io::MakeDataSource(type);
 #endif
-      if (filename_mode == "input")
+      source->SetSchemaDocument(this->DataModelDocument);
+      if (type == "adios")
       {
-        source->Mode = fides::io::FileNameMode::Input;
-      }
-      else if (filename_mode == "relative")
-      {
-        source->Mode = fides::io::FileNameMode::Relative;
-        if (!dataSource.GetObject().HasMember("filename"))
+        ADIOSDataSource* ads = dynamic_cast<ADIOSDataSource*>(source.get());
+
+        if (ads == nullptr)
         {
-          throw std::runtime_error("data_source objects must have filename.");
+          throw std::logic_error("Internal error: Factory failed to return ADIOSDataSource");
         }
-        source->FileName = dataSource.GetObject()["filename"].GetString();
-      }
-      else
-      {
-        throw std::runtime_error("data_source filename_mode must be input or relative.");
+
+        if (!dataSource.GetObject().HasMember("filename_mode"))
+        {
+          throw std::runtime_error("ADIOS data_source objects must have filename_mode.");
+        }
+        std::string filename_mode = dataSource.GetObject()["filename_mode"].GetString();
+        if (filename_mode.empty())
+        {
+          throw std::runtime_error("ADIOS data_source objects must have non-empty filename_mode.");
+        }
+        if (filename_mode == "input")
+        {
+          ads->Mode = fides::io::FileNameMode::Input;
+        }
+        else if (filename_mode == "relative")
+        {
+          ads->Mode = fides::io::FileNameMode::Relative;
+          if (!dataSource.GetObject().HasMember("filename"))
+          {
+            throw std::runtime_error("data_source objects must have filename.");
+          }
+          ads->FileName = dataSource.GetObject()["filename"].GetString();
+        }
+        else
+        {
+          throw std::runtime_error("data_source filename_mode must be input or relative.");
+        }
       }
 
       this->DataSources[name] = source;
-    }
-  }
-
-  void ProcessCoordinateSystem(const rapidjson::Value& coordSys)
-  {
-    this->CoordinateSystem = std::make_shared<fides::datamodel::CoordinateSystem>();
-    this->CoordinateSystem->ObjectName = "coordinate_system";
-
-    this->CoordinateSystem->ProcessJSON(coordSys, this->DataSources);
-  }
-
-  void ProcessCellSet(const rapidjson::Value& cellSet)
-  {
-    this->CellSet = std::make_shared<fides::datamodel::CellSet>();
-    this->CellSet->ObjectName = "cell_set";
-
-    this->CellSet->ProcessJSON(cellSet, this->DataSources);
-  }
-
-  std::shared_ptr<fides::datamodel::Field> ProcessField(const rapidjson::Value& fieldJson)
-  {
-    if (!fieldJson.IsObject())
-    {
-      throw std::runtime_error("field needs to be an object.");
-    }
-    auto field = std::make_shared<fides::datamodel::Field>();
-    field->ProcessJSON(fieldJson, this->DataSources);
-    field->ObjectName = "field";
-    return field;
-  }
-
-  void ProcessFields(const rapidjson::Value& fields)
-  {
-    this->Fields.clear();
-    if (!fields.IsArray())
-    {
-      throw std::runtime_error("fields is not an array.");
-    }
-    auto fieldsArray = fields.GetArray();
-    for (const auto& field : fieldsArray)
-    {
-      auto fieldPtr = this->ProcessField(field);
-      this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] = fieldPtr;
     }
   }
 
@@ -472,21 +524,6 @@ public:
     {
       this->TimeVariable = sInf["variable"].GetString();
     }
-  }
-
-  template <typename ValueType>
-  const rapidjson::Value& FindAndReturnObject(ValueType& root, const std::string& name)
-  {
-    if (!root.HasMember(name.c_str()))
-    {
-      throw std::runtime_error("Missing " + name + " member.");
-    }
-    auto& val = root[name.c_str()];
-    if (!val.IsObject())
-    {
-      throw std::runtime_error(name + " is expected to be an object.");
-    }
-    return val;
   }
 
   static void ParsingChecks(rapidjson::Document& document,
@@ -529,171 +566,47 @@ public:
   void ReadJSON(rapidjson::Document& document)
   {
     auto m = document.GetObject().begin();
-    const auto obj = m->value.GetObject();
+    const std::string topKey = m->name.GetString();
+    const rapidjson::Value& obj = m->value;
+    std::unique_ptr<fides::datamodel::DataObjectModel> model;
+    if (topKey == "cell_grid")
+    {
+      model = std::make_unique<fides::datamodel::CellGridModel>();
+    }
+    else
+    {
+      model = std::make_unique<fides::datamodel::DataSetModel>();
+    }
     if (!obj.HasMember("data_sources"))
     {
       throw std::runtime_error("Missing data_sources member.");
     }
     this->ProcessDataSources(obj["data_sources"].GetArray());
 
-    if (obj.HasMember("number_of_planes"))
-    {
-      auto& nPlanes = obj["number_of_planes"];
-      fides::datamodel::XGCCommon::ProcessNumberOfPlanes(nPlanes, this->DataSources);
-    }
-
-    if (!obj.HasMember("coordinate_system"))
-    {
-      throw std::runtime_error("Missing coordinate_system member.");
-    }
-    const auto& cs = this->FindAndReturnObject(obj, "coordinate_system");
-    this->ProcessCoordinateSystem(cs);
-
-    if (!obj.HasMember("cell_set"))
-    {
-      throw std::runtime_error("Missing cell_set member.");
-    }
-    const auto& cells = this->FindAndReturnObject(obj, "cell_set");
-    this->ProcessCellSet(cells);
-
-    if (obj.HasMember("fields"))
-    {
-      auto& fields = obj["fields"];
-      this->ProcessFields(fields);
-    }
+    model->ProcessJSON(obj, this->DataSources);
 
     if (obj.HasMember("step_information"))
     {
-      auto& sinf = obj["step_information"];
+      const auto& sinf = obj["step_information"];
       this->ProcessStepInformation(sinf);
     }
+
+    this->Model = std::move(model);
   }
 
-  std::vector<viskores::cont::CoordinateSystem> ReadCoordinateSystem(
-    const std::unordered_map<std::string, std::string>& paths,
-    const fides::metadata::MetaData& selections)
-  {
-    if (!this->CoordinateSystem)
-    {
-      throw std::runtime_error("Cannot read missing coordinate system.");
-    }
-    return this->CoordinateSystem->Read(paths, this->DataSources, selections);
-  }
-
-  std::vector<viskores::cont::UnknownCellSet> ReadCellSet(
-    const std::unordered_map<std::string, std::string>& paths,
-    const fides::metadata::MetaData& selections)
-  {
-    if (!this->CellSet)
-    {
-      throw std::runtime_error("Cannot read missing cell set.");
-    }
-    return this->CellSet->Read(paths, this->DataSources, selections);
-  }
-
-  // updates this->Fields if we have any wildcard fields. Should be used
-  // in ReadMetaData()
-  void ExpandWildcardFields()
-  {
-    auto it = this->Fields.begin();
-    while (it != this->Fields.end())
-    {
-      auto& origField = it->second;
-      // find fields to expand
-      if (origField->IsWildcardField())
-      {
-        auto lists = origField->GetWildcardFieldLists(this->MetadataSource);
-        // need to add each name, association pair to Fields
-        // as well as create the associated Field object
-        auto& names = lists.Names;
-        auto& associations = lists.Associations;
-
-        for (size_t i = 0; i < names.size(); ++i)
-        {
-          std::string isVector = "auto";
-          std::string source = "source";
-          std::string arrayType = "basic";
-          if (!lists.IsVector.empty() && i < lists.IsVector.size())
-          {
-            isVector = lists.IsVector[i];
-          }
-          if (!lists.Sources.empty() && i < lists.Sources.size())
-          {
-            source = lists.Sources[i];
-          }
-          if (!lists.ArrayTypes.empty() && i < lists.ArrayTypes.size())
-          {
-            arrayType = lists.ArrayTypes[i];
-          }
-
-          // the wildcard field uses an ArrayPlaceholder. Now we have enough info
-          // to create the actual JSON for the Array object for this Field. This can
-          // then be passed to Field.ProcessExpandedField which will use it to create
-          // the actual array object.
-          rapidjson::Document arrayObj;
-          arrayObj = predefined::CreateFieldArrayDoc(names[i], source, arrayType, isVector);
-
-          if (!arrayObj.HasMember("array"))
-          {
-            throw std::runtime_error("Field Array Object was not created correctly");
-          }
-          auto fieldPtr = std::make_shared<fides::datamodel::Field>();
-          fieldPtr->ProcessExpandedField(names[i], associations[i], arrayObj, this->DataSources);
-          fieldPtr->ObjectName = "field";
-          this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] = fieldPtr;
-        }
-
-        // remove the wildcard field now that we're done expanding it
-        it = this->Fields.erase(it);
-      }
-      else
-      {
-        ++it;
-      }
-    }
-  }
-
-  struct GetTimeValueFunctor
-  {
-    template <typename T, typename S>
-    VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
-                                  double& time) const
-    {
-      time = static_cast<double>(array.ReadPortal().Get(0));
-    }
-  };
   fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths,
                                          const std::string& groupName)
   {
-    if (!this->StreamingMode)
-    {
-      // for bp5, if we're reading random access, we have to specify it now
-      // otherwise we won't be able to read any variables or attributes
-      for (const auto& source : this->DataSources)
-      {
-        source.second->StreamingMode = false;
-      }
-    }
-    if (!this->CoordinateSystem)
-    {
-      throw std::runtime_error("Cannot read missing coordinate system.");
-    }
-    size_t nBlocks = this->CoordinateSystem->GetNumberOfBlocks(paths, this->DataSources, groupName);
+    size_t nBlocks = this->Model->GetNumberOfBlocks(paths, this->DataSources, groupName);
     fides::metadata::MetaData metaData;
     fides::metadata::Size nBlocksM(nBlocks);
     metaData.Set(fides::keys::NUMBER_OF_BLOCKS(), nBlocksM);
 
-    if (!this->Fields.empty())
+    auto fieldInfos = this->Model->CollectFieldInformation(this->MetadataSource, this->DataSources);
+    if (!fieldInfos.empty())
     {
-      // updates this->Fields if necessary
-      this->ExpandWildcardFields();
       fides::metadata::Vector<fides::metadata::FieldInformation> fields;
-      for (auto& item : this->Fields)
-      {
-        auto& field = item.second;
-        fides::metadata::FieldInformation afield(field->Name, field->Association);
-        fields.Data.push_back(afield);
-      }
+      fields.Data = std::move(fieldInfos);
       metaData.Set(fides::keys::FIELDS(), fields);
     }
 
@@ -713,13 +626,10 @@ public:
         auto timeVec = ds->GetScalarVariable(this->TimeVariable, metadata::MetaData());
         if (!timeVec.empty())
         {
-          auto& timeAH = timeVec[0];
-          if (timeAH.GetNumberOfValues() == 1)
+          auto& timeRA = timeVec[0];
+          if (timeRA.NumValues == 1)
           {
-            double timeVal;
-            timeAH.CastAndCallForTypes<viskores::TypeListScalarAll,
-                                       viskores::List<viskores::cont::StorageTagBasic>>(
-              GetTimeValueFunctor(), timeVal);
+            double timeVal = GetRawArrayValueAsDouble(timeRA, 0);
             fides::metadata::Time time(timeVal);
             metaData.Set(fides::keys::TIME_VALUE(), time);
           }
@@ -733,17 +643,9 @@ public:
         auto timeVec = ds->GetTimeArray(this->TimeVariable, metadata::MetaData());
         if (!timeVec.empty())
         {
-          auto& timeAH = timeVec[0];
-          viskores::cont::UnknownArrayHandle tUAH = timeAH.NewInstanceFloatBasic();
-          tUAH.CopyShallowIfPossible(timeAH);
-          viskores::cont::ArrayHandle<viskores::FloatDefault> timeCasted =
-            tUAH.AsArrayHandle<viskores::cont::ArrayHandle<viskores::FloatDefault>>();
-
-          auto timePortal = timeCasted.ReadPortal();
+          auto& timeRA = timeVec[0];
           fides::metadata::Vector<double> time;
-          time.Data.resize(timePortal.GetNumberOfValues());
-          viskores::cont::ArrayPortalToIterators<decltype(timePortal)> iterators(timePortal);
-          std::copy(iterators.GetBegin(), iterators.GetEnd(), time.Data.begin());
+          CopyRawArrayToDoubleVector(timeRA, time.Data);
           metaData.Set(fides::keys::TIME_ARRAY(), time);
         }
       }
@@ -761,36 +663,74 @@ public:
 
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths)
   {
-    if (!this->StreamingMode)
-    {
-      // for bp5, if we're reading random access, we have to specify it now
-      // otherwise we won't be able to read any variables or attributes
-      for (const auto& source : this->DataSources)
-      {
-        source.second->StreamingMode = false;
-      }
-    }
-    if (!this->CoordinateSystem)
-    {
-      throw std::runtime_error("Cannot read missing coordinate system.");
-    }
     auto it = this->DataSources.find(this->StepSource);
     if (it != this->DataSources.end())
     {
       auto ds = it->second;
       ds->OpenSource(paths, this->StepSource);
-      return this->CoordinateSystem->GetGroupNames(paths, this->DataSources);
+      return this->Model->GetGroupNames(paths, this->DataSources);
     }
     return {};
   }
 
-  void PostRead(std::vector<viskores::cont::DataSet>& pds,
-                const fides::metadata::MetaData& selections)
+  void PostRead(DataContainer& container, const fides::metadata::MetaData& selections) const
   {
-    this->CoordinateSystem->PostRead(pds, selections);
-    this->CellSet->PostRead(pds, selections);
-    for (auto& f : this->Fields)
-      f.second->PostRead(pds, selections);
+    this->Model->PostRead(container, selections);
+  }
+
+  std::unique_ptr<OutputBuilder> CreateBuilder(fides::DataSetType dsType) const
+  {
+    if (this->Model && this->Model->RequiresVTK() && dsType != fides::DataSetType::VTK)
+    {
+      throw std::runtime_error(
+        "The active Fides data model only supports VTK output (e.g. a cell_grid "
+        "schema produces a vtkCellGrid). Pass fides::DataSetType::VTK to ReadDataSet.");
+    }
+    if (dsType == fides::DataSetType::Viskores)
+    {
+#if FIDES_USE_VISKORES
+      return std::make_unique<ViskoresBuilder>();
+#else
+      throw std::runtime_error(
+        "Cannot create ViskoresBuilder, Viskores was not enabled at configure time");
+#endif
+    }
+    else if (dsType == fides::DataSetType::VTK)
+    {
+#if FIDES_USE_VTK
+      return std::make_unique<VTKBuilder>();
+#else
+      throw std::runtime_error("Cannot create VTKBuilder, VTK was not enabled at configure time");
+#endif
+    }
+    else
+    {
+      std::cerr << "Unknown data set type: " << static_cast<int>(dsType) << std::endl;
+      throw std::runtime_error("Unrecognized data set type");
+    }
+  }
+
+  std::unique_ptr<fides::DataContainer> WrapBuilderOutput(OutputBuilder& builder)
+  {
+    // Try to cast to ViskoresBuilder
+#if FIDES_USE_VISKORES
+    if (auto* ptr = dynamic_cast<fides::ViskoresBuilder*>(&builder))
+    {
+      return fides::internal::Wrap(std::move(ptr->GetDataSets()));
+    }
+#endif
+
+    // Try to cast to VTKBuilder
+#if FIDES_USE_VTK
+    if (auto* ptr = dynamic_cast<fides::VTKBuilder*>(&builder))
+    {
+      // No std::move: GetResult() returns by value, so the prvalue is elided
+      // directly into Wrap's parameter. std::move would disable that elision.
+      return fides::internal::Wrap(ptr->GetResult());
+    }
+#endif
+
+    throw std::runtime_error("Unable to wrap OutputBuilder results.");
   }
 
   void DoAllReads()
@@ -816,6 +756,20 @@ public:
   // DataSources are at the end of their Streams.
   StepStatus BeginStep(const std::unordered_map<std::string, std::string>& paths)
   {
+    // PrepareNextStep flips this->StreamingMode to true on first call even if
+    // the reader was constructed with streamSteps=false. Propagate so any
+    // source not yet opened is opened in streaming mode rather than the
+    // SetupReader-time setting; without this, BeginStep against a BP5 source
+    // opened in random-access mode throws. StreamingMode lives on
+    // ADIOSDataSource only, so cast first.
+    for (const auto& source : this->DataSources)
+    {
+      ADIOSDataSource* adiosSrc = dynamic_cast<ADIOSDataSource*>(source.second.get());
+      if (adiosSrc)
+      {
+        adiosSrc->StreamingMode = this->StreamingMode;
+      }
+    }
     // We can't have OpenSource and BeginStep in the same loop because if we have multiple
     // sources and they are SST, we may get a hang depending on the settings of SST.
     // Note that if the SST writer settings has RendezvousReaderCount >= 1, then we may
@@ -887,28 +841,36 @@ public:
     }
   }
 
-#ifdef FIDES_USE_MPI
-  MPI_Comm Comm;
+  // Core orchestration: reads data model objects into the OutputBuilder
+  void ReadDataSetInternal(const std::unordered_map<std::string, std::string>& paths,
+                           const fides::metadata::MetaData& selections,
+                           fides::OutputBuilder& builder)
+  {
+    this->Model->Read(paths, this->DataSources, selections, builder);
+  }
+
+#if FIDES_USE_MPI
+  MPI_Comm Comm = MPI_COMM_NULL;
 #endif
 
+  std::shared_ptr<rapidjson::Document> DataModelDocument;
   DataSourcesType DataSources;
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
-  std::shared_ptr<fides::datamodel::CoordinateSystem> CoordinateSystem = nullptr;
-  std::shared_ptr<fides::datamodel::CellSet> CellSet = nullptr;
-  using FieldsKeyType = std::pair<std::string, viskores::cont::Field::Association>;
-  std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
+  std::unique_ptr<fides::datamodel::DataObjectModel> Model;
   std::string StepSource;
   std::string TimeVariable;
   bool StreamingMode = false;
 
-  std::shared_ptr<DataSourceType> InternalSource = nullptr;
+  std::shared_ptr<fides::io::ADIOSDataSource> InternalSource = nullptr;
 };
+
+DataSetReader::DataSetReader() = default;
 
 bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
                                                const std::string& attrName /*="Fides_Data_Model"*/)
 {
   bool found = false;
-  auto source = std::make_shared<DataSourceType>();
+  auto source = std::make_shared<ADIOSDataSource>();
   source->Mode = fides::io::FileNameMode::Relative;
   source->FileName = filename;
 
@@ -955,7 +917,7 @@ DataSetReader::DataSetReader(const std::string& dataModel,
 {
 }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
 DataSetReader::DataSetReader(const std::string& dataModel,
                              DataModelInput inputType,
                              bool streamSteps,
@@ -977,11 +939,15 @@ fides::metadata::MetaData DataSetReader::ReadMetaData(
   return this->Impl->ReadMetaData(paths, groupName);
 }
 
-viskores::cont::PartitionedDataSet DataSetReader::ReadDataSet(
+std::unique_ptr<fides::DataContainer> DataSetReader::ReadDataSet(
   const std::unordered_map<std::string, std::string>& paths,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  fides::DataSetType dsType)
 {
-  auto ds = this->ReadDataSetInternal(paths, selections);
+  std::unique_ptr<OutputBuilder> builder = this->Impl->CreateBuilder(dsType);
+
+  this->Impl->ReadDataSetInternal(paths, selections, *builder);
+
   if (this->Impl->StreamingMode)
   {
     this->Impl->EndStep();
@@ -990,108 +956,23 @@ viskores::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   {
     this->Impl->DoAllReads();
   }
-  this->Impl->PostRead(ds, selections);
+  builder->Finalize();
 
-  // for(size_t i=0; i<ds.GetNumberOfPartitions(); i++)
-  // {
-  //   viskores::io::writer::VTKDataSetWriter writer(
-  //     "output" + std::to_string(i) + ".vtk");
-  //   writer.WriteDataSet(ds.GetPartition(i));
-  // }
+  // Wrap it for passage through public api
+  auto container = this->Impl->WrapBuilderOutput(*builder);
 
-  return viskores::cont::PartitionedDataSet(ds);
+  // Pass to PostRead (which mutates it in place)
+  this->Impl->PostRead(*container, selections);
+
+  // Return the wrapper to the user
+  return container;
 }
 
-viskores::cont::PartitionedDataSet DataSetReader::ReadDataSet(
-  const fides::metadata::MetaData& selections)
+std::unique_ptr<fides::DataContainer> DataSetReader::ReadDataSet(
+  const fides::metadata::MetaData& selections,
+  fides::DataSetType dsType)
 {
-  return this->ReadDataSet(std::unordered_map<std::string, std::string>{}, selections);
-}
-
-std::set<std::string> DataSetReader::GetGroupNames(
-  const std::unordered_map<std::string, std::string>& paths)
-{
-  return this->Impl->GetGroupNames(paths);
-}
-
-StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)
-{
-  this->Impl->StreamingMode = true;
-  return this->Impl->BeginStep(paths);
-}
-
-viskores::cont::PartitionedDataSet DataSetReader::ReadStep(
-  const std::unordered_map<std::string, std::string>& paths,
-  const fides::metadata::MetaData& selections)
-{
-  return this->ReadDataSet(paths, selections);
-}
-
-// Returning vector of DataSets instead of PartitionedDataSet because
-// PartitionedDataSet::GetPartition always returns a const DataSet, but
-// we may need to update the DataSet in the PostRead call
-std::vector<viskores::cont::DataSet> DataSetReader::ReadDataSetInternal(
-  const std::unordered_map<std::string, std::string>& paths,
-  const fides::metadata::MetaData& selections)
-{
-  std::vector<viskores::cont::CoordinateSystem> coordSystems =
-    this->Impl->ReadCoordinateSystem(paths, selections);
-  std::vector<viskores::cont::UnknownCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
-  size_t nPartitions = cellSets.size();
-  std::vector<viskores::cont::DataSet> dataSets(nPartitions);
-  for (size_t i = 0; i < nPartitions; i++)
-  {
-    if (i < coordSystems.size())
-    {
-      dataSets[i].AddCoordinateSystem(coordSystems[i]);
-    }
-    if (i < cellSets.size())
-    {
-      if (cellSets[i].IsValid())
-      {
-        dataSets[i].SetCellSet(cellSets[i]);
-      }
-    }
-  }
-
-  if (selections.Has(fides::keys::FIELDS()))
-  {
-    using FieldInfoType = fides::metadata::Vector<fides::metadata::FieldInformation>;
-    const auto& fields = selections.Get<FieldInfoType>(fides::keys::FIELDS());
-    for (const auto& field : fields.Data)
-    {
-      auto itr = this->Impl->Fields.find(std::make_pair(field.Name, field.Association));
-      if (itr != this->Impl->Fields.end())
-      {
-        std::vector<viskores::cont::Field> fieldVec =
-          itr->second->Read(paths, this->Impl->DataSources, selections);
-        for (size_t i = 0; i < nPartitions; i++)
-        {
-          if (i < fieldVec.size())
-          {
-            dataSets[i].AddField(fieldVec[i]);
-          }
-        }
-      }
-    }
-  }
-  else
-  {
-    for (auto& field : this->Impl->Fields)
-    {
-      std::vector<viskores::cont::Field> fields =
-        field.second->Read(paths, this->Impl->DataSources, selections);
-      for (size_t i = 0; i < nPartitions; i++)
-      {
-        if (i < fields.size())
-        {
-          dataSets[i].AddField(fields[i]);
-        }
-      }
-    }
-  }
-
-  return dataSets;
+  return this->ReadDataSet(std::unordered_map<std::string, std::string>{}, selections, dsType);
 }
 
 void DataSetReader::SetDataSourceParameters(const std::string& source,
@@ -1110,14 +991,6 @@ void DataSetReader::SetDataSourceIO(const std::string& source, const std::string
   this->Impl->SetDataSourceIO(source, io);
 }
 
-FIDES_DEPRECATED_SUPPRESS_BEGIN
-std::shared_ptr<fides::datamodel::FieldDataManager> DataSetReader::GetFieldData()
-{
-  // Function to be removed in next version
-  return nullptr;
-}
-FIDES_DEPRECATED_SUPPRESS_END
-
 std::vector<std::string> DataSetReader::GetDataSourceNames()
 {
   std::vector<std::string> names;
@@ -1126,6 +999,18 @@ std::vector<std::string> DataSetReader::GetDataSourceNames()
     names.push_back(source.first);
   }
   return names;
+}
+
+std::set<std::string> DataSetReader::GetGroupNames(
+  const std::unordered_map<std::string, std::string>& paths)
+{
+  return this->Impl->GetGroupNames(paths);
+}
+
+StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)
+{
+  this->Impl->StreamingMode = true;
+  return this->Impl->BeginStep(paths);
 }
 
 void DataSetReader::Close()

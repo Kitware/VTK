@@ -8,11 +8,9 @@
 //
 //============================================================================
 
-#include <fides/DataModel.h>
-#include <fides/Value.h>
+#include <fides/internal/DataModel.h>
+#include <fides/internal/Value.h>
 #include <fides/xgc/XGCCommon.h>
-
-#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <numeric>
 
@@ -23,19 +21,6 @@ namespace datamodel
 
 class XGCCommon::XGCCommonImpl
 {
-  /// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
-  /// appropriate cast to an ArrayHandle.
-  /// This functor handles setting a scalar value
-  struct SetScalarValueFunctor
-  {
-    template <typename T, typename S>
-    VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
-                                  viskores::Id& value) const
-    {
-      value = static_cast<viskores::Id>(array.ReadPortal().Get(0));
-    }
-  };
-
   viskores::Id ReadScalar(std::string varName,
                           const std::unordered_map<std::string, std::string>& paths,
                           DataSourcesType& sources,
@@ -51,17 +36,37 @@ class XGCCommon::XGCCommonImpl
       throw std::runtime_error("ArrayXGC: No data read for " + varName);
     }
 
-    auto& valAH = valVec[0];
-    if (valAH.GetNumberOfValues() != 1)
+    auto& raw = valVec[0];
+    if (raw.NumValues != 1)
     {
       throw std::runtime_error(varName + " should be a scalar value");
     }
 
-    viskores::Id value;
-    valAH.CastAndCallForTypes<viskores::TypeListScalarAll,
-                              viskores::List<viskores::cont::StorageTagBasic>>(
-      SetScalarValueFunctor(), value);
-    return value;
+    switch (raw.Type)
+    {
+      case fides::DataType::Float32:
+        return static_cast<viskores::Id>(raw.GetValue<float>(0));
+      case fides::DataType::Float64:
+        return static_cast<viskores::Id>(raw.GetValue<double>(0));
+      case fides::DataType::Int8:
+        return static_cast<viskores::Id>(raw.GetValue<int8_t>(0));
+      case fides::DataType::Int16:
+        return static_cast<viskores::Id>(raw.GetValue<int16_t>(0));
+      case fides::DataType::Int32:
+        return static_cast<viskores::Id>(raw.GetValue<int32_t>(0));
+      case fides::DataType::Int64:
+        return static_cast<viskores::Id>(raw.GetValue<int64_t>(0));
+      case fides::DataType::UInt8:
+        return static_cast<viskores::Id>(raw.GetValue<uint8_t>(0));
+      case fides::DataType::UInt16:
+        return static_cast<viskores::Id>(raw.GetValue<uint16_t>(0));
+      case fides::DataType::UInt32:
+        return static_cast<viskores::Id>(raw.GetValue<uint32_t>(0));
+      case fides::DataType::UInt64:
+        return static_cast<viskores::Id>(raw.GetValue<uint64_t>(0));
+      default:
+        throw std::runtime_error("Unsupported data type for " + varName);
+    }
   }
 
   void AddBlock(size_t blockId, viskores::Id startPlaneId, viskores::Id planeCount)

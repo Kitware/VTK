@@ -1,28 +1,37 @@
+include(GenerateExportHeader)
+
 #-----------------------------------------------------------------------------
-function(fides_generate_export_header lib_name header_name)
-  # Now generate a header that holds the macros needed to easily export
-  # template classes. This
-  string(TOUPPER ${header_name} BASE_NAME_UPPER)
-  set(EXPORT_MACRO_NAME "${BASE_NAME_UPPER}")
+function(fides_generate_export_header lib_name)
+  string(TOUPPER ${lib_name} BASE_NAME_UPPER)
+  set(export_file "${CMAKE_CURRENT_BINARY_DIR}/${lib_name}_export.h")
 
-  set(EXPORT_IS_BUILT_STATIC 0)
-  get_target_property(is_static ${lib_name} TYPE)
-  if(${is_static} STREQUAL "STATIC_LIBRARY")
-    #If we are building statically set the define symbol
-    set(EXPORT_IS_BUILT_STATIC 1)
+  # generate an export header
+  generate_export_header(${lib_name}
+    EXPORT_FILE_NAME "${export_file}"
+    BASE_NAME ${BASE_NAME_UPPER}
+    DEPRECATED_MACRO_NAME "${BASE_NAME_UPPER}_EXPORT_DEPRECATED"
+  )
+
+  # add export header to the target sources so cmake knows about it
+  target_sources(${lib_name} PUBLIC
+    "$<BUILD_INTERFACE:${export_file}>"
+  )
+
+  # make sure it will be found by us and consumers (installed below)
+  target_include_directories(${lib_name} PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+    "$<INSTALL_INTERFACE:include>"
+  )
+
+  # handle when we build a static library
+  get_target_property(type ${lib_name} TYPE)
+  if(type STREQUAL "STATIC_LIBRARY")
+    target_compile_definitions(${lib_name} PUBLIC ${BASE_NAME_UPPER}_STATIC_DEFINE)
   endif()
-  unset(is_static)
 
-  get_target_property(EXPORT_IMPORT_CONDITION ${lib_name} DEFINE_SYMBOL)
-  if(NOT EXPORT_IMPORT_CONDITION)
-    #set EXPORT_IMPORT_CONDITION to what the DEFINE_SYMBOL would be when
-    #building shared
-    set(EXPORT_IMPORT_CONDITION ${lib_name}_EXPORTS)
-  endif()
-
-  configure_file(
-      ${FIDES_SOURCE_DIR}/cmake/FidesExportHeaderTemplate.h.in
-      ${CMAKE_CURRENT_BINARY_DIR}/${header_name}_export.h
-    @ONLY)
-
+  # install generated header
+  install(FILES "${export_file}"
+    DESTINATION ${FIDES_INSTALL_INCLUDE_DIR}
+    COMPONENT Development
+  )
 endfunction()
