@@ -10,7 +10,7 @@ evaluated as outside by `vtkCell::EvaluatePosition`. This is especially relevant
 triangles.
 
 The `SnappingRadius` is now also a user-defined variable, used if `SnapToCellWithClosestPoint` is on. Previously it was
-always infinite.
+always infinite. If `ComputeTolerance` is on, the snapping radius is a fraction of the diagonal of the dataset.
 
 A test for `vtkProbeFilter` with a PolyData source and using `SnapToCellWithClosestPoint` has been added as part of
 `TestProbeFilter`.
