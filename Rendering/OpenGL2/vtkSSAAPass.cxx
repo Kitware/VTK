@@ -149,8 +149,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  if (this->Pass1->GetWidth() != static_cast<unsigned int>(modifiedWidth) ||
-    this->Pass1->GetHeight() != static_cast<unsigned int>(modifiedHeight))
+  if (!this->Pass1->GetHandle())
   {
     if (this->ColorFormat == vtkTextureObject::Float16)
     {
@@ -164,6 +163,11 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
     }
     this->Pass1->Create2D(static_cast<unsigned int>(modifiedWidth),
       static_cast<unsigned int>(modifiedHeight), 4, VTK_UNSIGNED_CHAR, false);
+  }
+  else
+  {
+    this->Pass1->Resize(
+      static_cast<unsigned int>(modifiedWidth), static_cast<unsigned int>(modifiedHeight));
   }
 
   ostate->PushFramebufferBindings();
@@ -204,8 +208,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
     this->Pass2->SetContext(this->FrameBufferObject->GetContext());
   }
 
-  if (this->Pass2->GetWidth() != static_cast<unsigned int>(width) ||
-    this->Pass2->GetHeight() != static_cast<unsigned int>(modifiedHeight))
+  if (!this->Pass2->GetHandle())
   {
     if (this->ColorFormat == vtkTextureObject::Float16)
     {
@@ -219,6 +222,11 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
     }
     this->Pass2->Create2D(static_cast<unsigned int>(width),
       static_cast<unsigned int>(modifiedHeight), 4, VTK_UNSIGNED_CHAR, false);
+  }
+  else
+  {
+    this->Pass2->Resize(
+      static_cast<unsigned int>(width), static_cast<unsigned int>(modifiedHeight));
   }
 
   if (this->DepthTexture2 == nullptr)
