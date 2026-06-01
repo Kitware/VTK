@@ -114,7 +114,6 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPlotPoints.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
-  TestRadVizChartDataSet.cxx
   TestRadVizChartTable.cxx
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
@@ -129,7 +128,17 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
   TestZoomIndividualAxis.cxx
-  )
+)
+
+# Test several display variants for the plot
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSet,TestRadVizChartDataSet.cxx 0
+)
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSetNoBackground,TestRadVizChartDataSet.cxx 1
+)
+
+
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY

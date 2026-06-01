@@ -12,12 +12,16 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringScanner.h"
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
 
 //------------------------------------------------------------------------------
 int TestRadVizChartDataSet(int argc, char** argv)
 {
+  int variant;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], variant, EXIT_FAILURE);
+
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
@@ -37,6 +41,11 @@ int TestRadVizChartDataSet(int argc, char** argv)
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
   plot->GetPen()->SetOpacity(20);
   plot->GetPen()->SetWidth(6);
+  if (variant)
+  {
+    plot->ColorWheelVisibilityOff();
+    plot->ScalarVisibilityOn();
+  }
 
   plot->SetInputData(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
 

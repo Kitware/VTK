@@ -53,7 +53,7 @@ public:
    * This filter computes colors (RGBA) that can be used to volume
    * render the data. To do that, it computes several intermediate
    * arrays which include vertices positions used to encode variables and
-   * generalized barycentric coordinates (GBC).
+   * generalized barycentric coordinates (GBC). All arrays are stored as vtkDoubleArray.
    *
    * If StoreVertices (default is false) is set to true
    * we store the computed vertices as a field array named 'vertices'.
@@ -76,6 +76,18 @@ public:
   vtkGetMacro(StoreRGBA, bool);
   ///@}
 
+  ///@{
+  /**
+   * If true, negates the Y coordinates for points, vertices and in
+   * color computation. This is necessary to get the same RadViz graph
+   * in VTK (origin bottom-left, Y grows up) and JavaScript (origin
+   * top-left, Y grows down). Default is true.
+   * @sa vtkPlotRadViz
+   */
+  vtkSetMacro(FlipY, bool);
+  vtkGetMacro(FlipY, bool);
+  ///@}
+
   void SetModalityGroups(std::vector<std::vector<int>>& modalityGroups);
   std::vector<std::vector<int>> GetModalityGroups() VTK_FUTURE_CONST;
 
@@ -87,6 +99,7 @@ protected:
   bool StoreGBC = false;
   bool StoreVertices = false;
   bool StoreRGBA = true;
+  bool FlipY = true;
   std::vector<std::vector<int>> ModalityGroups;
   std::function<double(double)> GlobalMin = nullptr;
   std::function<double(double)> GlobalMax = nullptr;

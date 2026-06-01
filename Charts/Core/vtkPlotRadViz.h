@@ -25,7 +25,8 @@
 #include "vtkPen.h"              // For SetSmartPointerMacro
 #include "vtkPlot.h"             // For the base class
 #include "vtkTextProperty.h"     // For SetSmartPointerMacro
-#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
+#include "vtkUnsignedCharArray.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <memory>
 
@@ -34,9 +35,10 @@ class vtkContext2D;
 class vtkColorSeries;
 class vtkDataObject;
 class vtkDataSet;
-class vtkFloatArray;
+class vtkDataArray;
 class vtkPoints2D;
 class vtkTextProperty;
+class vtkUnsignedCharArray;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkPlotRadViz : public vtkPlot
 {
@@ -96,6 +98,26 @@ public:
    */
   vtkSetMacro(ColorWheelClockwiseOrdering, bool);
   vtkGetMacro(ColorWheelClockwiseOrdering, bool);
+  vtkBooleanMacro(ColorWheelClockwiseOrdering, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Color wheel is shown if true, and hidden otherwise. Default is true;
+   */
+  vtkSetMacro(ColorWheelVisibility, bool);
+  vtkGetMacro(ColorWheelVisibility, bool);
+  vtkBooleanMacro(ColorWheelVisibility, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off flag to control whether scalar data is used to color objects.
+   * The RGBA colors are automatically computed by vtkMultiVariateToRGBA.
+   */
+  vtkSetMacro(ScalarVisibility, vtkTypeBool);
+  vtkGetMacro(ScalarVisibility, vtkTypeBool);
+  vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
   ///@}
 
   ///@{
@@ -119,15 +141,21 @@ protected:
   vtkPlotRadViz();
   ~vtkPlotRadViz() override = default;
   void DrawColorWheel(vtkContext2D* painter);
-  void DrawMarkers(vtkContext2D* painter, vtkFloatArray* gbc, vtkPen* pen);
-  void DrawLabels(vtkContext2D* painter, vtkFloatArray* vertices, vtkPen* pen);
+  // draw the points either using the 'color' if its not nullptr or using the 'pen' color.
+  void DrawMarkers(
+    vtkContext2D* painter, vtkDataArray* gbc, vtkPen* pen, vtkDataArray* color = nullptr);
+  void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
-  vtkSmartPointer<vtkPoints2D> Transform(vtkFloatArray* points);
+  vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
+  vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
   /**
    * Returns the horizontal and vertical text justification for xy coordinates.
    */
-  static std::pair<int, int> GetJustification(float xy[2]);
+  static std::pair<int, int> GetJustification(double xy[2]);
   void ShiftLabelByPenWidth(float width, double transformedXy[2]);
+  std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetOutputArrays(vtkDataObject* output);
+  static vtkDataArray* GetOutputArray(vtkTable* output, const char* name);
+  static vtkDataArray* GetOutputArray(vtkDataSet* dataset, const char* name);
 
   int Dimensions[4];
   /**
@@ -142,6 +170,8 @@ protected:
   int ColorWheelSegmentCount;
   int ColorWheelStartAngle;
   bool ColorWheelClockwiseOrdering;
+  bool ColorWheelVisibility;
+  vtkTypeBool ScalarVisibility;
 
 private:
   vtkPlotRadViz(const vtkPlotRadViz&) = delete;

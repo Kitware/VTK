@@ -134,8 +134,9 @@ struct NormalizeWorker
  */
 struct ComputeGBCWorker
 {
-  ComputeGBCWorker(double verticesRotation)
-    : VerticesRotation(vtkMath::RadiansFromDegrees(verticesRotation))
+  ComputeGBCWorker(vtkMultiVariateToRGBA* filter, double verticesRotation)
+    : Filter(filter)
+    , VerticesRotation(vtkMath::RadiansFromDegrees(verticesRotation))
   {
   }
   template <typename Input, typename Output>
@@ -194,8 +195,9 @@ struct ComputeGBCWorker
         }
       }
 
+      // tempangle is the angle: gbc[i], (0,0), (1, 0).
       // find temp_b, temp_a, which are the angles for the vertices
-      // between which tempangle (for gbc[i]) fits?
+      // between which tempangle fits?
       double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
       tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
       bool flag = false;
@@ -216,21 +218,37 @@ struct ComputeGBCWorker
         temp_a = angle[0] + vtkMath::Pi() * 2;
         temp_b = angle[nComponents - 1];
       }
-      // scale gbc to R
+      // scale gbc from a point on a side of the regular polygon to a point on the circle
+      // circumscribed to the polygon
       double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) *
         std::cos(-(temp_a + temp_b) / 2 + tempangle) / std::cos((temp_a - temp_b) / 2);
       gbc[i][0] = lth * std::cos(tempangle);
       gbc[i][1] = lth * std::sin(tempangle);
 
       // rotate the gbc points with VerticesRotation
-      gbc[i][0] = m[0][0] * gbc[i][0] + m[1][0] * gbc[i][1];
-      gbc[i][1] = m[0][1] * gbc[i][0] + m[1][1] * gbc[i][1];
+      double result_gbc[2];
+      result_gbc[0] = m[0][0] * gbc[i][0] + m[0][1] * gbc[i][1];
+      result_gbc[1] = m[1][0] * gbc[i][0] + m[1][1] * gbc[i][1];
+      gbc[i][0] = result_gbc[0];
+      gbc[i][1] = result_gbc[1];
+      if (this->Filter->GetFlipY())
+      {
+        gbc[i][1] = -gbc[i][1];
+      }
     }
-    for (int i = 1; i < nComponents; ++i)
+    for (int i = 0; i < nComponents; ++i)
     {
       // rotate the vertices
-      vertices[i][0] = m[0][0] * vertices[i][0] + m[1][0] * vertices[i][1];
-      vertices[i][1] = m[0][1] * vertices[i][0] + m[1][1] * vertices[i][1];
+      double result_vertices[2];
+      // vtkMath::MultiplyMatrixWithVector<2, 2>(m, vertices[i], result_vertices);
+      result_vertices[0] = m[0][0] * vertices[i][0] + m[0][1] * vertices[i][1];
+      result_vertices[1] = m[1][0] * vertices[i][0] + m[1][1] * vertices[i][1];
+      vertices[i][0] = result_vertices[0];
+      vertices[i][1] = result_vertices[1];
+      if (this->Filter->GetFlipY())
+      {
+        vertices[i][1] = -vertices[i][1];
+      }
     }
   }
   template <typename Type>
@@ -238,14 +256,16 @@ struct ComputeGBCWorker
   {
   }
 
-  double VerticesRotation;
+  vtkMultiVariateToRGBA* Filter = nullptr;
+  double VerticesRotation = 0;
   vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
 struct GBCToHSLWorker
 {
-  GBCToHSLWorker(double lightness)
-    : Lightness(lightness)
+  GBCToHSLWorker(vtkMultiVariateToRGBA* filter, double lightness)
+    : Filter(filter)
+    , Lightness(lightness)
   {
   }
 
@@ -261,6 +281,10 @@ struct GBCToHSLWorker
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
       double gbcValue[2] = { gbc[i][0], gbc[i][1] };
+      if (this->Filter->GetFlipY())
+      {
+        gbcValue[1] = -gbcValue[1];
+      }
       double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
       if (radius > 1)
       {
@@ -275,7 +299,8 @@ struct GBCToHSLWorker
       hsl[i][2] = this->Lightness;
     }
   }
-  double Lightness;
+  vtkMultiVariateToRGBA* Filter = nullptr;
+  double Lightness = 0;
 };
 
 struct HSLToRGBWorker
@@ -513,7 +538,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    ComputeGBCWorker worker(this->VerticesRotation);
+    ComputeGBCWorker worker(this, this->VerticesRotation);
     if (!Dispatcher::Execute(normalizedScalars, gbcScalars, worker))
     {
       worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
@@ -534,7 +559,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     hslScalars->SetNumberOfComponents(3);
     hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
-      GBCToHSLWorker worker(0.55);
+      GBCToHSLWorker worker(this, 0.55);
       if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
       {
         worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
