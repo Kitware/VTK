@@ -166,6 +166,7 @@ set(cxx_tests
   TestTupleInterpolator.cxx,NO_VALID,NO_DATA
   TestVertexRendering.cxx,NO_DATA
   TestVertexVisibility.cxx
+  TestViewportGetZ.cxx,NO_DATA,NO_VALID
   TestWindowToImageFilter.cxx
   TestWireframe.cxx,NO_DATA
   TestWorldPointPicker.cxx,NO_DATA

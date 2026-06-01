@@ -77,6 +77,17 @@ public:
   vtkGetMacro(ColorFormat, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the format to use for the internal depth textures.
+   * vtkTextureObject::Fixed16, vtkTextureObject::Fixed24
+   * and vtkTextureObject::Fixed32 are supported.
+   * Fixed24 is the default.
+   */
+  vtkSetMacro(DepthFormat, int);
+  vtkGetMacro(DepthFormat, int);
+  ///@}
+
 protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
@@ -92,9 +103,10 @@ protected:
    * Graphics resources.
    */
   vtkOpenGLFramebufferObject* FrameBufferObject;
-  vtkTextureObject* Pass1;     // render target for the scene
-  vtkRenderbuffer* Pass1Depth; // render target depth for the scene
-  vtkTextureObject* Pass2;     // render target for the horizontal pass
+  vtkTextureObject* Pass1;         // render target for the scene (modifiedW x modifiedH)
+  vtkTextureObject* Pass2;         // render target for the horizontal pass (W x modifiedH)
+  vtkTextureObject* DepthTexture1; // depth target paired with Pass1
+  vtkTextureObject* DepthTexture2; // depth target paired with Pass2
 
   // Structures for the various cell types we render.
   vtkOpenGLHelper* SSAAHelper;
@@ -106,6 +118,7 @@ private:
   void operator=(const vtkSSAAPass&) = delete;
 
   int ColorFormat; // framebuffer color texture format
+  int DepthFormat; // framebuffer depth texture format
 };
 
 VTK_ABI_NAMESPACE_END

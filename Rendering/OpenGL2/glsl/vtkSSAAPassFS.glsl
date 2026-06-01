@@ -4,6 +4,7 @@
 // thanks to Brad Larson for posting sample code that helped get this started
 
 uniform sampler2D source;
+uniform sampler2D depthSource;
 
 // the output of this shader
 //VTK::Output::Dec
@@ -27,7 +28,6 @@ void main()
   vec2 firstOffset = vec2(texelWidthOffset, texelHeightOffset);
 
   vec4 fragmentColor = texture2D(source, tcoordVC) * 0.38026;
-
   fragmentColor += texture2D(source, tcoordVC - firstOffset) * 0.27667;
   fragmentColor += texture2D(source, tcoordVC + firstOffset) * 0.27667;
 
@@ -41,4 +41,5 @@ void main()
   fragmentColor += texture2D(source, tcoordVC + 4.0*firstOffset) * -0.02143;
 
   gl_FragData[0] = fragmentColor;
+  gl_FragDepth = texture2D(depthSource, tcoordVC).x;
 }

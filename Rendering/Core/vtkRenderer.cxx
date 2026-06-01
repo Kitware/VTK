@@ -1459,10 +1459,10 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow* renwin)
 // Given a pixel location, return the Z value
 double vtkRenderer::GetZ(int x, int y)
 {
-  int* size = this->GetSize();
-  if (x < 0 || y < 0 || x > size[0] || y > size[1])
+  int* size = this->RenderWindow->GetSize();
+  if (x < 0 || y < 0 || x >= size[0] || y >= size[1])
   {
-    return 1.0; // outside of renderer
+    return 1.0; // outside of render window
   }
 
   if (!this->SafeGetZ)
