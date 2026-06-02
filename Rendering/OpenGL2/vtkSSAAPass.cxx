@@ -32,7 +32,6 @@ vtkSSAAPass::vtkSSAAPass()
 {
   this->FrameBufferObject = nullptr;
   this->Pass1 = nullptr;
-  this->Pass1Depth = nullptr;
   this->Pass2 = nullptr;
   this->DepthTexture1 = nullptr;
   this->DepthTexture2 = nullptr;
@@ -59,11 +58,6 @@ vtkSSAAPass::~vtkSSAAPass()
   if (this->Pass1 != nullptr)
   {
     this->Pass1->Delete();
-  }
-
-  if (this->Pass1Depth != nullptr)
-  {
-    this->Pass1Depth->Delete();
   }
 
   if (this->Pass2 != nullptr)
@@ -185,7 +179,14 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   }
   if (!this->DepthTexture1->GetHandle())
   {
-    this->DepthTexture1->AllocateDepth(modifiedWidth, modifiedHeight, this->DepthFormat);
+    if (renWin->GetStencilCapable())
+    {
+      this->DepthTexture1->AllocateDepthStencil(modifiedWidth, modifiedHeight);
+    }
+    else
+    {
+      this->DepthTexture1->AllocateDepth(modifiedWidth, modifiedHeight, this->DepthFormat);
+    }
     this->DepthTexture1->Activate();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -236,7 +237,14 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   }
   if (!this->DepthTexture2->GetHandle())
   {
-    this->DepthTexture2->AllocateDepth(width, modifiedHeight, this->DepthFormat);
+    if (renWin->GetStencilCapable())
+    {
+      this->DepthTexture2->AllocateDepthStencil(width, modifiedHeight);
+    }
+    else
+    {
+      this->DepthTexture2->AllocateDepth(width, modifiedHeight, this->DepthFormat);
+    }
     this->DepthTexture2->Activate();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -359,10 +367,6 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow* w)
   if (this->Pass1 != nullptr)
   {
     this->Pass1->ReleaseGraphicsResources(w);
-  }
-  if (this->Pass1Depth != nullptr)
-  {
-    this->Pass1Depth->ReleaseGraphicsResources(w);
   }
   if (this->Pass2 != nullptr)
   {

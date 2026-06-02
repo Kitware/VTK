@@ -83,6 +83,9 @@ public:
    * vtkTextureObject::Fixed16, vtkTextureObject::Fixed24
    * and vtkTextureObject::Fixed32 are supported.
    * Fixed24 is the default.
+   * @note This depth format is enforced only when the render window is NOT stencil capable.
+   * If the render window is stencil capable, the depth format in use will be depth:24 bits
+   * and stencil:8 bits
    */
   vtkSetMacro(DepthFormat, int);
   vtkGetMacro(DepthFormat, int);
