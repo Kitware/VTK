@@ -46,7 +46,7 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
   using GLUtil = vtkOpenGLRenderUtilities;
   std::string fs = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
   // write code that indexes into a 2D texture.
-  vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", "uniform usampler2D aTexture;");
+  vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Decl", "uniform highp usampler2D aTexture;");
   vtkShaderProgram::Substitute(fs, "//VTK::FSQ::Impl",
     "vec2 pixelCoord = vec2(gl_FragCoord.x - 0.5, gl_FragCoord.y - 0.5);\n"
     "int i = int(pixelCoord.x);\n"
@@ -54,7 +54,9 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
     "int idx = i + j * " +
       vtk::to_string(width) +
       ";\n"
-      "gl_FragData[0] = texelFetch(aTexture, ivec2(idx, 0), 0) / 255.0f;\n"
+      "uvec4 inputTexel = texelFetch(aTexture, ivec2(idx, 0), 0);\n"
+      "gl_FragData[0] = vec4(float(inputTexel.x) / 255.0f, float(inputTexel.y) / 255.0f, "
+      "float(inputTexel.z) / 255.0f, float(inputTexel.w) / 255.0f);\n"
       // gotta use texCoord, so that program is linked
       "gl_FragDepth = texCoord.x;\n");
   vtkShaderProgram* program = oglRenWin->GetShaderCache()->ReadyShaderProgram(
