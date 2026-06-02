@@ -1,7 +1,22 @@
+# Detect WebGPU implementation early so VTK_USE_DAWN_WEBGPU is correct when
+# vtk_wgpu.h is configured below. Populate VTK::WebGPUImpl with whichever
+# runtime library is found so that both the module and its tests can link it
+# through a single implementation-agnostic target.
+add_library(VTK::WebGPUImpl INTERFACE IMPORTED GLOBAL)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_USE_DAWN_WEBGPU OFF)
 else()
-  set(VTK_USE_DAWN_WEBGPU ON)
+  vtk_module_find_package(PACKAGE Dawn)
+  if(Dawn_FOUND)
+    set(VTK_USE_DAWN_WEBGPU ON)
+    target_link_libraries(VTK::WebGPUImpl INTERFACE dawn::webgpu_dawn)
+  else()
+    set(VTK_USE_DAWN_WEBGPU OFF)
+    # Future: find wgpu-native or other implementations here and populate
+    # VTK::WebGPUImpl accordingly.
+    message(STATUS "WebGPU: no implementation found; using headers only")
+  endif()
 endif()
 
 set(classes
@@ -227,8 +242,13 @@ vtk_module_add_module(VTK::RenderingWebGPU
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
   PRIVATE_HEADERS  ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
+# Dawn's C++ wrapper (webgpu_cpp.h) uses C++20 features (std::span, requires,
+# lambdas in unevaluated context). C++20 is propagated publicly because public
+# VTK::RenderingWebGPU headers include vtk_wgpu.h which pulls in webgpu_cpp.h.
+# Once the Handle refactoring removes wgpu:: types from public headers, this
+# can be changed to PRIVATE.
 vtk_module_compile_features(VTK::RenderingWebGPU
-  PUBLIC cxx_std_17)
+  PUBLIC cxx_std_20)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_options(VTK::RenderingWebGPU
@@ -260,7 +280,7 @@ else()
     # TODO
   endif()
   find_package(Threads REQUIRED)
-  vtk_module_find_package(PACKAGE Dawn)
+
   vtk_module_link(VTK::RenderingWebGPU
-    PUBLIC dawn::webgpu_dawn)
+    PRIVATE VTK::WebGPUImpl)
 endif()
