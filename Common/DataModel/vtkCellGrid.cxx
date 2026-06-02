@@ -167,6 +167,15 @@ vtkDataSetAttributes* vtkCellGrid::GetAttributes(int type)
   return it->second;
 }
 
+vtkFieldData* vtkCellGrid::GetAttributesAsFieldData(int type)
+{
+  if (type == FIELD)
+  {
+    return this->FieldData;
+  }
+  return this->FindAttributes(type);
+}
+
 vtkDataSetAttributes* vtkCellGrid::GetAttributes(vtkStringToken type)
 {
   int key = static_cast<int>(type.GetId());

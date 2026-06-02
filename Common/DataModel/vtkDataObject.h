@@ -352,9 +352,16 @@ public:
 
   /**
    * Given an integer association type, this static method returns a string type
-   * for the attribute (i.e. associationType = 0: returns "Points").
+   * for the association (i.e. associationType = 0: returns
+   * "vtkDataObject::FIELD_ASSOCIATION_POINTS").
    */
   static const char* GetAssociationTypeAsString(int associationType);
+
+  /**
+   * Given an integer attribute type, this static method returns a string type
+   * for the attribute (i.e. attributeType = 0: returns "vtkDataObject::POINT").
+   */
+  static const char* GetAttributeTypeAsString(int attributeType);
 
   /**
    * Given a string association name, this static method returns an integer association type

@@ -34,50 +34,7 @@
 
 namespace
 {
-
 const std::string VALID_MASK_PREFIX = "__vtkValidMask__";
-
-struct MaxCellSizeWorker
-{
-  vtkDataSet* Data;
-  vtkSMPThreadLocalObject<vtkIdList> Points;
-  vtkSMPThreadLocal<vtkIdType> MaxCellSize;
-  vtkIdType ReducedMaxCellSize = 0;
-
-  MaxCellSizeWorker(vtkDataSet* data)
-    : Data(data)
-  {
-    // for thread safety
-    if (this->Data->GetNumberOfCells() == 0)
-    {
-      return;
-    }
-    vtkNew<vtkIdList> pts;
-    this->Data->GetCellPoints(0, pts);
-  }
-
-  void Initialize() { this->MaxCellSize.Local() = 0; }
-
-  void operator()(vtkIdType begin, vtkIdType end)
-  {
-    auto*& points = this->Points.Local();
-    auto& maxCellSize = this->MaxCellSize.Local();
-    for (vtkIdType idx = begin; idx < end; ++idx)
-    {
-      this->Data->GetCellPoints(idx, points);
-      maxCellSize = std::max(maxCellSize, points->GetNumberOfIds());
-    }
-  }
-
-  void Reduce()
-  {
-    for (auto iter = this->MaxCellSize.begin(); iter != this->MaxCellSize.end(); ++iter)
-    {
-      this->ReducedMaxCellSize = std::max(this->ReducedMaxCellSize, *iter);
-    }
-  }
-};
-
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -99,6 +56,7 @@ int vtkAttributeDataToTableFilter::FillInputPortInformation(
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCellGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
@@ -166,18 +124,13 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
       }
     });
   output->GetRowData()->AddArray(celltypes);
-  vtkIdType maxpoints = 0;
-  {
-    ::MaxCellSizeWorker worker(ds);
-    vtkSMPTools::For(0, numcells, worker);
-    maxpoints = worker.ReducedMaxCellSize;
-  }
+  const vtkIdType maxPoints = ds->GetMaxCellSize();
 
   if (this->GenerateCellConnectivity)
   {
-    std::vector<vtkSmartPointer<vtkIdTypeArray>> indices(maxpoints);
-    int wordSize = 1 + log10(maxpoints);
-    for (vtkIdType i = 0; i < maxpoints; i++)
+    std::vector<vtkSmartPointer<vtkIdTypeArray>> indices(maxPoints);
+    int wordSize = 1 + log10(maxPoints);
+    for (vtkIdType i = 0; i < maxPoints; i++)
     {
       std::stringstream arrayname;
       arrayname << "Point Index " << std::setw(wordSize) << std::setfill('0') << i;
@@ -196,7 +149,7 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
         for (vtkIdType cc = begin; cc < end; cc++)
         {
           ds->GetCellPoints(cc, locPoints);
-          for (vtkIdType pt = 0; pt < maxpoints; pt++)
+          for (vtkIdType pt = 0; pt < maxPoints; pt++)
           {
             if (pt < locPoints->GetNumberOfIds())
             {
@@ -209,7 +162,7 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
           }
         }
       });
-    for (int i = 0; i < maxpoints; i++)
+    for (int i = 0; i < maxPoints; i++)
     {
       this->ConvertToOriginalIds(ds, indices[i]);
       output->GetRowData()->AddArray(indices[i]);

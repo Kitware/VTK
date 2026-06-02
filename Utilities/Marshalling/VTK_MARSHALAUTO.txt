@@ -61,6 +61,7 @@ Common/DataModel/vtkAbstractCellArray.h
 Common/DataModel/vtkAbstractCellLinks.h
 Common/DataModel/vtkCartesianGrid.h
 Common/DataModel/vtkCellData.h
+Common/DataModel/vtkCellGridSummaryInformationQuery.h
 Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
 Common/DataModel/vtkDataObjectTree.h
