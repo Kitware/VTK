@@ -98,6 +98,8 @@ public:
    * Control whether the source point data is to be treated as categorical. If
    * the data is categorical, then the resultant data will be determined by
    * a nearest neighbor interpolation scheme.
+   *
+   * The default is Off.
    */
   vtkSetMacro(CategoricalData, vtkTypeBool);
   vtkGetMacro(CategoricalData, vtkTypeBool);
@@ -106,14 +108,15 @@ public:
 
   ///@{
   /**
-   * This flag is used only when a piece is requested to update.  By default
-   * the flag is off.  Because no spatial correspondence between input pieces
-   * and source pieces is known, all of the source has to be requested no
-   * matter what piece of the output is requested.  When there is a spatial
-   * correspondence, the user/application can set this flag.  This hint allows
-   * the breakup of the probe operation to be much more efficient.  When piece
-   * m of n is requested for update by the user, then only n of m needs to
-   * be requested of the source.
+   * This flag is used only when a piece is requested to update. Because no
+   * spatial correspondence between input pieces and source pieces is known,
+   * all of the source has to be requested no matter what piece of the output
+   * is requested.  When there is a spatial correspondence, the user/application
+   * can set this flag.  This hint allows the breakup of the probe operation to
+   * be much more efficient.  When piece m of n is requested for update by the user,
+   * then only n of m needs to be requested of the source.
+   *
+   * The default is Off.
    */
   vtkSetMacro(SpatialMatch, vtkTypeBool);
   vtkGetMacro(SpatialMatch, vtkTypeBool);
@@ -141,16 +144,19 @@ public:
   ///@{
   /**
    * Shallow copy the input cell data arrays to the output.
-   * Off by default.
+   *
+   * The default is Off.
    */
   vtkSetMacro(PassCellArrays, vtkTypeBool);
   vtkBooleanMacro(PassCellArrays, vtkTypeBool);
   vtkGetMacro(PassCellArrays, vtkTypeBool);
   ///@}
+
   ///@{
   /**
    * Shallow copy the input point data arrays to the output.
-   * Off by default.
+   *
+   * The default is Off.
    */
   vtkSetMacro(PassPointArrays, vtkTypeBool);
   vtkBooleanMacro(PassPointArrays, vtkTypeBool);
@@ -160,7 +166,9 @@ public:
   ///@{
   /**
    * Set whether to pass the field-data arrays from the Input i.e. the input
-   * providing the geometry to the output. On by default.
+   * providing the geometry to the output.
+   *
+   * The default is On.
    */
   vtkSetMacro(PassFieldArrays, vtkTypeBool);
   vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
@@ -170,8 +178,11 @@ public:
   ///@{
   /**
    * Set the tolerance used to compute whether a point in the
-   * source is in a cell of the input.  This value is only used
-   * if ComputeTolerance is off.
+   * source is in a cell of the input.
+   *
+   * The Default tolerance is 1.0.
+   *
+   * @note This value is only used if ComputeTolerance is off.
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
@@ -182,9 +193,9 @@ public:
    * Set/Get whether to snap to the cell with the closest point, if no cell has been found while
    * FindCell is executed.
    *
-   * Default is off.
+   * The Default is Off.
    *
-   * Note: This is useful only when the source is a vtkPointSet.
+   * @note This is useful only when the source is a vtkPointSet.
    */
   vtkSetMacro(SnapToCellWithClosestPoint, bool);
   vtkBooleanMacro(SnapToCellWithClosestPoint, bool);
@@ -194,8 +205,10 @@ public:
   ///@{
   /**
    * Set the  radius used to snap to the closest cell.
-   * It is only used if SnapToCellWithClosestPoint is on.
-   * The default snapping radius is the double positive infinity.
+   *
+   * The Default snapping radius is the double positive infinity.
+   *
+   * @note This is useful only when if SnapToCellWithClosestPoint is on and ComputeTolerance is off.
    */
   vtkSetMacro(SnappingRadius, double);
   vtkGetMacro(SnappingRadius, double);
@@ -203,9 +216,12 @@ public:
 
   ///@{
   /**
-   * Set whether to use the Tolerance field or precompute the tolerance.
-   * When on, the tolerance will be computed and the field
-   * value is ignored. On by default.
+   * Set whether to use the Tolerance and SnappingRadius variables or precompute them.
+   *
+   * When on, the default values of Tolerance and SnappingRadius will be precomputed instead
+   * of their respective variable values will be ignored.
+   *
+   * The Default is On.
    */
   vtkSetMacro(ComputeTolerance, bool);
   vtkBooleanMacro(ComputeTolerance, bool);

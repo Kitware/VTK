@@ -45,7 +45,8 @@ void vtkProbeFilter::SetFindCellStrategy(vtkFindCellStrategy* findCellStrategy)
 
 namespace
 {
-constexpr double CELL_TOLERANCE_FACTOR_SQR = 1e-6;
+constexpr double CELL_TOLERANCE_FACTOR_SQR = 1.0E-6;
+constexpr double SNAPPING_RADIUS_FACTOR_SQR = 1.0E-5;
 
 constexpr unsigned char CELL_GHOST_MASK =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL;
@@ -419,6 +420,7 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
   vtkUnsignedCharArray* SourceGhostFlags;
   vtkCharArray* MaskArray;
   double Tol2;
+  double SnappingRadius;
   int MaxCellSize;
 
   struct LocalData
@@ -436,7 +438,8 @@ class vtkProbeFilter::ProbeEmptyPointsWorklet
 public:
   ProbeEmptyPointsWorklet(vtkProbeFilter* probeFilter, int sourceIndex, vtkDataSet* input,
     vtkDataSet* source, vtkPointData* outputPD, vtkAbstractCellLocator* cellLocator,
-    vtkUnsignedCharArray* sourceGhostFlags, vtkCharArray* maskArray, double tol2, int maxCellSize)
+    vtkUnsignedCharArray* sourceGhostFlags, vtkCharArray* maskArray, double tol2,
+    double snappingRadius, int maxCellSize)
     : ProbeFilter(probeFilter)
     , SourceIdx(sourceIndex)
     , Input(input)
@@ -448,6 +451,7 @@ public:
     , SourceGhostFlags(sourceGhostFlags)
     , MaskArray(maskArray)
     , Tol2(tol2)
+    , SnappingRadius(snappingRadius)
     , MaxCellSize(maxCellSize)
   {
     if (auto polyData = vtkPolyData::SafeDownCast(source))
@@ -547,8 +551,8 @@ public:
         {
           // Find the closest point within the snapping radius and the cell that it belong to
           vtkIdType closestPointFound =
-            cellLocator->FindClosestPointWithinRadius(x, this->ProbeFilter->SnappingRadius,
-              lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
+            cellLocator->FindClosestPointWithinRadius(x, this->SnappingRadius, lastClosestPoint,
+              currentCell, lastCellId, lastSubId, dist2, inside);
           if (closestPointFound)
           {
             // Previously computed lastPCoords are not valid, so that we need to compute
@@ -604,7 +608,7 @@ public:
 void vtkProbeFilter::ProbeEmptyPoints(
   vtkDataSet* input, int srcIdx, vtkDataSet* source, vtkDataSet* output)
 {
-  double tol2;
+  double tol2, snappingRadius;
   vtkPointData* outPD;
 
   vtkDebugMacro(<< "Probing data");
@@ -625,10 +629,13 @@ void vtkProbeFilter::ProbeEmptyPoints(
     double sLength2 = source->GetSampledMaxCellLength2(100);
     // use 0.1% of the diagonal (CELL_TOLERANCE_FACTOR_SQR = 1e-6, since 0.1% has to be squared)
     tol2 = sLength2 * CELL_TOLERANCE_FACTOR_SQR;
+    // The snapping radius is a proportion of the diagonal
+    snappingRadius = std::sqrt(source->GetLength2() * SNAPPING_RADIUS_FACTOR_SQR);
   }
   else
   {
     tol2 = (this->Tolerance * this->Tolerance);
+    snappingRadius = this->SnappingRadius;
   }
 
   // vtkPointSet based datasets do not have an implicit structure to their
@@ -691,7 +698,7 @@ void vtkProbeFilter::ProbeEmptyPoints(
   }
 
   ProbeEmptyPointsWorklet worker(this, srcIdx, input, source, outPD, cellLocator, sourceGhostFlags,
-    this->MaskPoints, tol2, maxCellSize);
+    this->MaskPoints, tol2, snappingRadius, maxCellSize);
   vtkSMPTools::For(0, input->GetNumberOfPoints(), worker);
 
   this->MaskPoints->Modified();
