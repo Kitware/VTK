@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUConfiguration.h"
+#if VTK_USE_DAWN_WEBGPU
+#include "dawn/native/DawnNative.h"
+#endif
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUTextureInternals.h"
@@ -310,6 +313,11 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& ad
     // clang-format on
     os << indent << indent << featureNameCStr << '\n';
     free(featureNameCStr);
+#else
+    // For standard WebGPU implementations without introspection support,
+    // just print the feature enum value
+    os << indent << "   * Feature (0x" << std::hex << static_cast<uint32_t>(feature) << std::dec
+       << ")\n";
 #endif
   }
 }
@@ -334,88 +342,6 @@ void PrintAdapter(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
   PrintAdapterFeatures(os, indent.GetNextIndent(), adapter);
   PrintAdapterLimits(os, indent.GetNextIndent(), adapter);
 }
-
-#if VTK_USE_DAWN_WEBGPU
-/**
- * Implement Dawn's MemoryDump interface.
- */
-class DawnMemoryDump : public dawn::native::MemoryDump
-{
-public:
-  static constexpr const char* NameSize = "size";
-  static constexpr const char* NameObjectCount = "object_count";
-  static constexpr const char* UnitsBytes = "bytes";
-  static constexpr const char* UnitsObjects = "objects";
-
-  void AddScalar(const char* name, const char* key, const char* units, uint64_t value) override
-  {
-    if (std::strcmp(key, NameSize) == 0 && std::strcmp(units, UnitsBytes) == 0)
-    {
-      TotalSize += value;
-    }
-    else if (std::strcmp(key, NameObjectCount) == 0 && std::strcmp(units, UnitsObjects) == 0)
-    {
-      TotalObjects += value;
-    }
-    auto it = this->WebGPUObjects.find(name);
-    if (it == this->WebGPUObjects.end())
-    {
-      MemoryInformation info;
-      info.Size = value;
-      this->WebGPUObjects[name] = info;
-    }
-    else
-    {
-      it->second.Size = value;
-    }
-  }
-
-  void AddString(const char* name, const char* key, const std::string& value) override
-  {
-    auto it = this->WebGPUObjects.find(name);
-    if (it == this->WebGPUObjects.end())
-    {
-      MemoryInformation info;
-      info.Properties[key] = value;
-      this->WebGPUObjects[name] = info;
-    }
-    else
-    {
-      it->second.Properties[key] = value;
-    }
-  }
-
-  uint64_t GetTotalSize() const { return TotalSize; }
-  uint64_t GetTotalNumberOfObjects() const { return TotalObjects; }
-
-  void PrintSelf(ostream& os, vtkIndent indent)
-  {
-    os << indent << "TotalSize: " << this->TotalSize << '\n';
-    os << indent << "TotalObjects: " << this->TotalObjects << '\n';
-    for (auto& object : this->WebGPUObjects)
-    {
-      os << indent << indent << "-Name: " << object.first << '\n';
-      os << indent << indent << "  Size: " << object.second.Size << '\n';
-      for (auto& property : object.second.Properties)
-      {
-        os << indent << indent << "  " << property.first << "=" << property.second << '\n';
-      }
-    }
-  }
-
-  struct MemoryInformation
-  {
-    std::uint64_t Size;
-    std::map<std::string, std::string> Properties;
-  };
-
-private:
-  uint64_t TotalSize = 0;
-  uint64_t TotalObjects = 0;
-
-  std::unordered_map<std::string, MemoryInformation> WebGPUObjects;
-};
-#endif
 
 } // end anon namespace
 
@@ -508,12 +434,13 @@ bool vtkWebGPUConfiguration::Initialize()
   auto waitStatus = vtkWebGPUConfigurationInternals::Instance.WaitAny(
     vtkWebGPUConfigurationInternals::Instance.RequestAdapter(
       &adapterOptions, wgpu::CallbackMode::WaitAnyOnly,
-      [](wgpu::RequestAdapterStatus status, wgpu::Adapter adapter, const char* message,
+      [](wgpu::RequestAdapterStatus status, wgpu::Adapter adapter, wgpu::StringView message,
         vtkWebGPUConfigurationInternals* internalsData)
       {
         if (status != wgpu::RequestAdapterStatus::Success)
         {
-          vtkGenericWarningMacro("Failed to get an adapter:" << message);
+          vtkGenericWarningMacro(
+            "Failed to get an adapter:" << vtkWebGPUHelpers::StringViewToStdString(message));
           return;
         }
         internalsData->Adapter = std::move(adapter);
@@ -592,12 +519,13 @@ bool vtkWebGPUConfiguration::Initialize()
   waitStatus = vtkWebGPUConfigurationInternals::Instance.WaitAny(
     internals.Adapter.RequestDevice(
       &deviceDescriptor, wgpu::CallbackMode::WaitAnyOnly,
-      [](wgpu::RequestDeviceStatus status, wgpu::Device device, const char* message,
+      [](wgpu::RequestDeviceStatus status, wgpu::Device device, wgpu::StringView message,
         vtkWebGPUConfigurationInternals* internalsData)
       {
         if (status != wgpu::RequestDeviceStatus::Success)
         {
-          vtkGenericWarningMacro("Failed to get a device:" << message);
+          vtkGenericWarningMacro(
+            "Failed to get a device:" << vtkWebGPUHelpers::StringViewToStdString(message));
           return;
         }
         internalsData->Device = std::move(device);
@@ -1025,19 +953,11 @@ vtkLogger::Verbosity vtkWebGPUConfiguration::GetGPUMemoryLogVerbosity()
 
 void vtkWebGPUConfiguration::DumpMemoryStatistics()
 {
-#if VTK_USE_DAWN_WEBGPU
-  auto* memoryDump = new DawnMemoryDump();
-  dawn::native::DumpMemoryStatistics(this->GetDevice().Get(), memoryDump);
-  std::ostringstream os;
-  memoryDump->PrintSelf(os, vtkIndent());
-  vtkVLog(this->GetGPUMemoryLogVerbosity(), << os.str());
-  delete memoryDump;
-#else
-  // Cannot do anything here because we don't know if the textures/buffers
-  // created through `this->CreateTexture` or `this->CreateBuffer` are still alive.
+  // dawn::native::DumpMemoryStatistics requires a dawn::native::MemoryDump* subclass,
+  // but deriving from that type is incompatible with VTK's -fvisibility=hidden build
+  // because libwebgpu_dawn.so does not export the typeinfo for MemoryDump.
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Cannot determine memory statistics for allocated webgpu objects in this webgpu "
     "implementation");
-#endif
 }
 VTK_ABI_NAMESPACE_END
