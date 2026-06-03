@@ -3,10 +3,15 @@
 
 #include "MeshCacheMockAlgorithms.h"
 #include "vtkForceStaticMesh.h"
+#include "vtkGenerateTimeSteps.h"
+#include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkTestUtilities.h"
 
+namespace
+{
 //------------------------------------------------------------------------------
 void GetPartitionsMeshMTimes(
   vtkPartitionedDataSetCollection* pdsc, std::vector<vtkMTimeType>& times)
@@ -22,7 +27,41 @@ void GetPartitionsMeshMTimes(
 }
 
 //------------------------------------------------------------------------------
-// Program main
+bool TestOutputDataTime()
+{
+  vtkNew<vtkStaticDataSource> source;
+  source->SetStartData(1);
+
+  vtkNew<vtkGenerateTimeSteps> generateTimes;
+  generateTimes->SetInputConnection(source->GetOutputPort());
+  generateTimes->ClearTimeStepValues();
+  generateTimes->GenerateTimeStepValues(0, 10, 1);
+
+  vtkNew<vtkForceStaticMesh> forceStatic;
+  forceStatic->SetInputConnection(generateTimes->GetOutputPort());
+  forceStatic->UpdateTimeStep(1.);
+
+  vtkPolyData* outputPolyData = forceStatic->GetPolyDataOutput();
+  vtkNew<vtkPolyData> cacheFirstOutput;
+  cacheFirstOutput->DeepCopy(outputPolyData);
+  auto firstDataTime = outputPolyData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+
+  forceStatic->UpdateTimeStep(2.);
+  auto secondDataTime = outputPolyData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+  vtkLogIf(ERROR, firstDataTime == secondDataTime,
+    "Data time should be updated when new timestep was requested");
+
+  // going back to timestep 1. should retrigger the pipeline, and update info accordingly
+  forceStatic->UpdateTimeStep(1.);
+  auto finalTime = outputPolyData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+  vtkLogIf(ERROR, finalTime != firstDataTime,
+    "Data time should be updated when going back to first timestep");
+
+  return vtkTestUtilities::CompareDataObjects(outputPolyData, cacheFirstOutput);
+}
+}
+
+//------------------------------------------------------------------------------
 int TestForceStaticMesh(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkStaticCompositeSource> source;
@@ -68,6 +107,11 @@ int TestForceStaticMesh(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       vtkLog(ERROR, "GetMeshMTime has changed, mesh not static !");
       return EXIT_FAILURE;
     }
+  }
+
+  if (!::TestOutputDataTime())
+  {
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;
