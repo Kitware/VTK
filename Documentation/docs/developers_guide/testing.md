@@ -6,7 +6,7 @@ Regression testing in VTK takes the form of a set of programs, that are included
 
 All proposed changes to VTK are automatically tested on Windows, Mac and Linux machines. All changes that are merged into the master branch are subsequently tested again by more rigorously configured Windows, Mac and Linux continuous dashboard submitters. After 9PM Eastern Time, the master branch is again tested by a wider set of machines and platforms. These results appear in the next day's page.
 
-At each step in the code integration path the developers who contribute and merge code are responsible for checking the test results to look for problems that the new code might have introduced. Plus signs in CDash indicate newly detected  problems. Developers can correlate problems with contributions by logging in to CDash. Submissions that contain a logged in developer's change are highlighted with yellow dots.
+At each step in the code integration path the developers who contribute and merge code are responsible for checking the test results to look for problems that the new code might have introduced. Plus signs in CDash indicate newly detected problems. Developers can correlate problems with contributions by logging in to CDash. Submissions that contain a logged in developer's change are highlighted with yellow dots.
 
 It is highly recommended that developers test changes locally before submitting them. To run tests locally:
 
@@ -14,13 +14,13 @@ It is highly recommended that developers test changes locally before submitting 
 
     The exact set of tests created depends on many configuration options. Tests in non-default modules are only tested when those modules are purposefully enabled, the smoke tests described in the Coding Style section above are enabled only when the python or Tcl interpreter is installed, tests written in wrapped languages are only enabled when wrapping is turned on, etc.
 
-1.  Build. 
+1.  Build.
 
     VTK tests are only available from the build tree.
 
 1.  Run ctest at the command line in the build directory or make the TESTING target in Visual Studio.
 
-    As ctest runs the tests it prints a summary. You should expect 90% of the tests or better to pass if your VTK is configured correctly. Detailed results (which are also printed if you supply a --V argument to ctest) are put into the Testing/Temporary directory. The detailed results include the command line that ctest uses to spawn each test. Other particularly useful arguments are:
+    As ctest runs the tests it prints a summary. You should expect the tests to pass. Detailed results (which are also printed if you supply a --V argument to ctest) are put into the Testing/Temporary directory. The detailed results include the command line that ctest uses to spawn each test. Other particularly useful arguments are:
     ```bash
     --R TestNameSubstringToInclude to choose tests by name
 
