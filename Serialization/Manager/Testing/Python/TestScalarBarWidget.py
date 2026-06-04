@@ -89,7 +89,6 @@ class TestScalarBarWidget(vtkTesting.vtkTest):
             renderer.GetActiveCamera().SetViewUp(0.6, 0.4, -0.7)
             render_window.Render()
             self.id_rwi = manager.RegisterObject(interactor)
-            _ = manager.RegisterObject(scalar_bar_widget)
             manager.UpdateStatesFromObjects()
             if EXPORT_STATE:
                 # Saves state to scalar-bar-widget.states.json file and blobs in scalar-bar-widget.blobs.json file

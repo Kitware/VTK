@@ -3,11 +3,13 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkCamera.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDeprecation.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkHardwareWindow.h"
+#include "vtkInteractorObserver.h"
 #include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -1461,6 +1463,39 @@ vtkCommand::EventIds vtkRenderWindowInteractor::GetCurrentGesture() const
 void vtkRenderWindowInteractor::SetCurrentGesture(vtkCommand::EventIds eid)
 {
   this->CurrentGesture = eid;
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::AddInteractorObserver(vtkInteractorObserver* interactorObserver)
+{
+  if (!this->TrackInteractorObserverInstances)
+  {
+    return;
+  }
+  if (this->InteractorObservers == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot add interactor observer because collection is null!");
+    return;
+  }
+  if (!this->InteractorObservers->IsItemPresent(interactorObserver))
+  {
+    this->InteractorObservers->AddItem(interactorObserver);
+  }
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::RemoveInteractorObserver(vtkInteractorObserver* interactorObserver)
+{
+  if (!this->TrackInteractorObserverInstances)
+  {
+    return;
+  }
+  if (this->InteractorObservers == nullptr)
+  {
+    // Can occur when we arrive here from vtkRenderWindowInteractor::~vtkRenderWindowInteractor
+    return;
+  }
+  this->InteractorObservers->RemoveItem(interactorObserver);
 }
 
 VTK_ABI_NAMESPACE_END

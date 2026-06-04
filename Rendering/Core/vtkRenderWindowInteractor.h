@@ -34,6 +34,7 @@
 #define vtkRenderWindowInteractor_h
 
 #include "vtkCommand.h" // for method sig
+#include "vtkNew.h"     // For InteractorObservers
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For InteractorStyle
@@ -53,6 +54,7 @@ class vtkTimerIdMap;
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
+class vtkCollection;
 class vtkHardwareWindow;
 class vtkInteractorObserver;
 class vtkRenderWindow;
@@ -65,6 +67,7 @@ class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderWindowInteractor : public
 {
 
   friend class vtkInteractorEventRecorder;
+  friend class vtkInteractorObserver;
 
 public:
   static vtkRenderWindowInteractor* New();
@@ -295,6 +298,15 @@ public:
   virtual void SetInteractorStyle(vtkInteractorObserver*);
   virtual vtkInteractorObserver* GetInteractorStyle();
   ///@}
+
+  /**
+   * Get all the interactor observer instances that use this interactor.
+   * Notice that there is no API to Add/Remove a vtkInteractorObserver from
+   * this collection object.
+   * Instead, the vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor*)
+   * adds itself into this collection.
+   */
+  vtkGetObjectMacro(InteractorObservers, vtkCollection);
 
   ///@{
   /**
@@ -845,6 +857,30 @@ public:
   void ClearPointerIndex(int i);
   ///@}
 
+  ///@{
+  /**
+   * Track all vtkInteractorObserver instances using this interactor in a vtkCollection.
+   * See vtkRenderWindowInteractor::InteractorObservers().
+   *
+   * Default is false. Enable this in two scenarios:
+   * 1. Prevent premature widget destruction with certain interactors.
+   *    vtkWebAssemblyRenderWindowInteractor::StartEventLoop schedules event processing and
+   *    returns immediately. Widgets allocated in `main()` and not held by references will be
+   *    destructed when `main()` returns, before the event loop runs.
+   * 2. Introspect currently enabled widgets for serialization.
+   *    Most visualization objects are reachable through interactor -> render window -> renderer
+   *    -> actor -> mapper. Enable this option to also reconstruct widgets.
+   *
+   * @warning Behavior changes when widget goes out of scope and tracking is enabled.
+   * After widget goes out of scope, it will still appear in the renderer and continue to
+   * receive events. If you intend to remove the widget from the scene, call `Off` on the widget
+   * before it goes out of scope.
+   */
+  vtkBooleanMacro(TrackInteractorObserverInstances, bool);
+  vtkSetMacro(TrackInteractorObserverInstances, bool);
+  vtkGetMacro(TrackInteractorObserverInstances, bool);
+  ///@}
+
   /**
    * This flag is useful when you are integrating VTK in a larger system.
    * In such cases, an application can lock up if the `Start()` method
@@ -993,10 +1029,16 @@ protected:
   virtual void RecognizeGesture(vtkCommand::EventIds);
   int StartingEventPositions[VTKI_MAX_POINTERS][2];
   vtkCommand::EventIds CurrentGesture;
+  bool TrackInteractorObserverInstances = false;
 
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) = delete;
   void operator=(const vtkRenderWindowInteractor&) = delete;
+
+  void AddInteractorObserver(vtkInteractorObserver* interactorObserver);
+  void RemoveInteractorObserver(vtkInteractorObserver* interactorObserver);
+  // Internal collection of all vtkInteractorObserver instances which use this interactor.
+  vtkNew<vtkCollection> InteractorObservers;
 };
 
 VTK_ABI_NAMESPACE_END

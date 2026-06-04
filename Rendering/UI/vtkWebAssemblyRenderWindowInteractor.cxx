@@ -193,6 +193,7 @@ vtkStandardNewMacro(vtkWebAssemblyRenderWindowInteractor);
 vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor()
   : Internals(std::make_shared<vtkInternals>())
 {
+  this->TrackInteractorObserverInstances = true;
   // default is #canvas unless explicitly set by application.
   this->SetCanvasSelector("#canvas");
   this->ExpandCanvasToContainer = ::DefaultExpandVTKCanvasToContainer;
