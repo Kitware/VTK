@@ -206,13 +206,8 @@ bool vtkDGEvaluator::ClassifyPoints(
   //       elements if they aren't planar.
   // TODO. Classification is *very* approximate for higher order shapes as we
   //       don't support them yet.
-  int numCorners = dgCell->GetNumberOfCorners();
   int dim = dgCell->GetDimension();
   auto cellShape = dgCell->GetShape();
-  std::vector<vtkTypeInt64Array::ValueType> cellConn;
-  std::vector<vtkVector3d> cellCorners;
-  cellConn.resize(numCorners);
-  cellCorners.resize(numCorners);
   auto classifier = [&](vtkTypeUInt64 cellId, const vtkVector3d& testPoint,
                       const std::vector<vtkVector3d>& cellCornerData)
   {
@@ -264,12 +259,15 @@ bool vtkDGEvaluator::ClassifyPoints(
   auto* inputPoints = query->GetInputPoints();
   vtkNew<vtkIdList> testPointIDs;
   vtkVector3d testPoint;
+  int numPointIds = conn->GetNumberOfComponents();
+  std::vector<vtkTypeInt64Array::ValueType> cellConn(numPointIds);
+  std::vector<vtkVector3d> cellCorners(numPointIds);
   for (vtkIdType ii = 0; ii < numCells; ++ii)
   {
     // Get corner point IDs
     conn->GetIntegerTuple(ii, cellConn.data());
     // Get corner point coordinates
-    for (int jj = 0; jj < numCorners; ++jj)
+    for (int jj = 0; jj < numPointIds; ++jj)
     {
       coords->GetTuple(cellConn[jj], cellCorners[jj].GetData());
     }
