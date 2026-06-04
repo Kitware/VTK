@@ -424,7 +424,12 @@ vtkStringArray::ValueType* vtkStringArray::WritePointer(vtkIdType valueIdx, vtkI
   }
 
   // For extending the in-use ids but not the size:
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   this->DataChanged();
   return this->GetPointer(valueIdx);
@@ -460,7 +465,12 @@ vtkIdType vtkStringArray::InsertNextValue(ValueType value)
   }
 
   // Extending array without needing to reallocate:
-  this->MaxId = std::max(this->MaxId, nextValueIdx);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (nextValueIdx > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = nextValueIdx;
+  }
 
   this->SetValue(nextValueIdx, value);
   return nextValueIdx;
@@ -602,9 +612,12 @@ void vtkStringArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstr
     }
   }
 
-  // parenthesis around std::max prevent MSVC macro replacement when
-  // inlined:
-  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   vtkIdType numTuples = srcIds->GetNumberOfIds();
   for (vtkIdType t = 0; t < numTuples; ++t)
@@ -672,9 +685,12 @@ void vtkStringArray::InsertTuplesStartingAt(
     }
   }
 
-  // parenthesis around std::max prevent MSVC macro replacement when
-  // inlined:
-  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   vtkIdType numTuples = srcIds->GetNumberOfIds();
   for (vtkIdType t = 0; t < numTuples; ++t)
@@ -737,7 +753,12 @@ void vtkStringArray::InsertTuples(
     }
   }
 
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newSize - 1 > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newSize - 1;
+  }
 
   ValueType* srcBegin = other->GetPointer(srcStart * numComps);
   ValueType* srcEnd = srcBegin + (n * numComps);

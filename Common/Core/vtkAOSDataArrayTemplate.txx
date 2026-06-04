@@ -183,7 +183,14 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx, const 
     {
       data[i] = static_cast<ValueType>(tuple[i]);
     }
-    this->MaxId = std::max(this->MaxId, valueIdx + this->NumberOfComponents - 1);
+
+    // Update the MaxId only if actually larger.
+    // NB: for thread safety, don't use std::max here because it would write unconditionally.
+    vtkIdType localMax = valueIdx + this->NumberOfComponents - 1;
+    if (localMax > this->MaxId) // NOLINT(readability-use-std-min-max)
+    {
+      this->MaxId = localMax;
+    }
   }
 }
 
@@ -200,7 +207,14 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx, const 
     {
       data[i] = static_cast<ValueType>(tuple[i]);
     }
-    this->MaxId = std::max(this->MaxId, valueIdx + this->NumberOfComponents - 1);
+
+    // Update the MaxId only if actually larger.
+    // NB: for thread safety, don't use std::max here because it would write unconditionally.
+    vtkIdType localMax = valueIdx + this->NumberOfComponents - 1;
+    if (localMax > this->MaxId) // NOLINT(readability-use-std-min-max)
+    {
+      this->MaxId = localMax;
+    }
   }
 }
 
@@ -219,7 +233,13 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertComponent(
   }
 
   this->Buffer->GetBuffer()[newMaxId] = static_cast<ValueTypeT>(value);
-  this->MaxId = std::max(newMaxId, this->MaxId);
+
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  if (newMaxId > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = newMaxId;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -379,7 +399,13 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
     }
   }
 
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  vtkIdType localMax = newSize - 1;
+  if (localMax > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = localMax;
+  }
 
   ValueType* srcBegin = other->GetPointer(srcStart * numComps);
   ValueType* srcEnd = srcBegin + (n * numComps);
@@ -433,7 +459,13 @@ vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType valueIdx, vtkIdType 
   }
 
   // For extending the in-use ids but not the size:
-  this->MaxId = std::max(this->MaxId, newSize - 1);
+  // Update the MaxId only if actually larger.
+  // NB: for thread safety, don't use std::max here because it would write unconditionally.
+  vtkIdType localMax = newSize - 1;
+  if (localMax > this->MaxId) // NOLINT(readability-use-std-min-max)
+  {
+    this->MaxId = localMax;
+  }
 
   this->DataChanged();
   return this->GetPointer(valueIdx);
