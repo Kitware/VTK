@@ -20,6 +20,8 @@
 #include "vtkSSAAPassFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+#include "vtkRenderbuffer.h"
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAAPass);
 
@@ -30,6 +32,7 @@ vtkSSAAPass::vtkSSAAPass()
 {
   this->FrameBufferObject = nullptr;
   this->Pass1 = nullptr;
+  this->Pass1Depth = nullptr;
   this->Pass2 = nullptr;
   this->SSAAHelper = nullptr;
   this->DelegatePass = nullptr;
@@ -53,6 +56,11 @@ vtkSSAAPass::~vtkSSAAPass()
   if (this->Pass1 != nullptr)
   {
     this->Pass1->Delete();
+  }
+
+  if (this->Pass1Depth != nullptr)
+  {
+    this->Pass1Depth->Delete();
   }
 
   if (this->Pass2 != nullptr)
@@ -153,7 +161,20 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   this->FrameBufferObject->AddColorAttachment(0, this->Pass1);
   this->FrameBufferObject->ActivateDrawBuffer(0);
 
-  this->FrameBufferObject->AddDepthAttachment();
+  if (this->Pass1Depth == nullptr)
+  {
+    this->Pass1Depth = vtkRenderbuffer::New();
+    this->Pass1Depth->SetContext(renWin);
+  }
+
+  if (this->Pass1Depth->GetWidth() != static_cast<unsigned int>(modifiedWidth) ||
+    this->Pass1Depth->GetHeight() != static_cast<unsigned int>(modifiedHeight))
+  {
+    this->Pass1Depth->Create(GL_DEPTH24_STENCIL8, modifiedWidth, modifiedHeight);
+  }
+
+  this->FrameBufferObject->AddDepthAttachment(this->Pass1Depth);
+
   this->FrameBufferObject->StartNonOrtho(modifiedWidth, modifiedHeight);
   ostate->vtkglViewport(0, 0, modifiedWidth, modifiedHeight);
   ostate->vtkglScissor(0, 0, modifiedWidth, modifiedHeight);
@@ -186,6 +207,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
       static_cast<unsigned int>(modifiedHeight), 4, VTK_UNSIGNED_CHAR, false);
   }
 
+  this->FrameBufferObject->RemoveDepthAttachment();
   this->FrameBufferObject->AddColorAttachment(0, this->Pass2);
   this->FrameBufferObject->Start(width, modifiedHeight);
 
@@ -287,6 +309,10 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow* w)
   if (this->Pass1 != nullptr)
   {
     this->Pass1->ReleaseGraphicsResources(w);
+  }
+  if (this->Pass1Depth != nullptr)
+  {
+    this->Pass1Depth->ReleaseGraphicsResources(w);
   }
   if (this->Pass2 != nullptr)
   {

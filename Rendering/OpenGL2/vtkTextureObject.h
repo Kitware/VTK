@@ -358,10 +358,10 @@ public:
 
   ///@{
   /**
-   * Get/Set internal format (OpenGL internal format) that should
-   * be used.
-   * (https://www.opengl.org/sdk/docs/man2/xhtml/glTexImage2D.xml)
+   * Get the format (GLenum) and internal format (GLenum) in use.
    */
+  unsigned int GetFormat() { return this->Format; }
+  unsigned int GetInternalFormat() { return this->InternalFormat; }
   unsigned int GetInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
   void SetInternalFormat(unsigned int glInternalFormat);
   unsigned int GetDefaultInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
