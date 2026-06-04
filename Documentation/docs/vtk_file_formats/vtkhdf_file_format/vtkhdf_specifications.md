@@ -443,8 +443,8 @@ The schema for the tree-based AMR HyperTreeGrid VTKHDF specification is shown in
 This specification is very different from the ones mentioned above, because its topology is defined as a grid of refined trees.
 
 Root attribute `Dimensions` defines the dimension of the grid. For a `N * M * P` grid, there are a total of `(N - 1) * (M - 1) * (P - 1)` trees.
-Coordinates arrays `XCoordinates` (size `N`), `YCoordinates` (size `M`) and `ZCoordinates` (size `P`) define the size of trees in each direction.
-Their value can change over time.
+Coordinates arrays `XCoordinates` (size `N * NumParts`), `YCoordinates` (size `M * NumParts`) and `ZCoordinates` (size `P * NumParts`) define the size of trees in each direction, `NumParts` being the number of partitions. Coordinate arrays are defined separately for each partition of the current time step. Their value can change over time.
+
 The `BranchFactor` attribute defines the subdivision factor used for tree decomposition.
 
 HyperTrees are defined from a bit array describing tree decomposition, level by level. For each tree, the `Descriptor` dataset has one bit for each cell in the tree, except for its deepest level: 0 if the cell is not refined, and 1 if it is. The descriptor does not describe its deepest level, because we know that no cell is ever refined.
