@@ -67,11 +67,9 @@
 /**
  * LIBXML_TREE_ENABLED:
  *
- * Whether the DOM like tree manipulation API support is configured in
+ * Always enabled since 2.14.0
  */
-#if @WITH_TREE@
 #define LIBXML_TREE_ENABLED
-#endif
 
 /**
  * LIBXML_OUTPUT_ENABLED:
@@ -128,15 +126,6 @@
 #endif
 
 /**
- * LIBXML_FTP_ENABLED:
- *
- * Whether the FTP support is configured in
- */
-#if @WITH_FTP@
-#define LIBXML_FTP_ENABLED
-#endif
-
-/**
  * LIBXML_HTTP_ENABLED:
  *
  * Whether the HTTP support is configured in
@@ -166,11 +155,9 @@
 /**
  * LIBXML_LEGACY_ENABLED:
  *
- * Whether the deprecated APIs are compiled in for compatibility
+ * Removed in 2.14
  */
-#if @WITH_LEGACY@
-#define LIBXML_LEGACY_ENABLED
-#endif
+#undef LIBXML_LEGACY_ENABLED
 
 /**
  * LIBXML_C14N_ENABLED:
@@ -206,15 +193,6 @@
  */
 #if @WITH_XPTR@
 #define LIBXML_XPTR_ENABLED
-#endif
-
-/**
- * LIBXML_XPTR_LOCS_ENABLED:
- *
- * Whether support for XPointer locations is configured in
- */
-#if @WITH_XPTR_LOCS@
-#define LIBXML_XPTR_LOCS_ENABLED
 #endif
 
 /**
@@ -265,11 +243,9 @@
 /**
  * LIBXML_UNICODE_ENABLED:
  *
- * Whether the Unicode related interfaces are compiled in
+ * Removed in 2.14
  */
-#if @WITH_REGEXPS@
-#define LIBXML_UNICODE_ENABLED
-#endif
+#undef LIBXML_UNICODE_ENABLED
 
 /**
  * LIBXML_REGEXP_ENABLED:
@@ -287,6 +263,15 @@
  */
 #if @WITH_REGEXPS@
 #define LIBXML_AUTOMATA_ENABLED
+#endif
+
+/**
+ * LIBXML_RELAXNG_ENABLED:
+ *
+ * Whether the RelaxNG validation interfaces are compiled in
+ */
+#if @WITH_RELAXNG@
+#define LIBXML_RELAXNG_ENABLED
 #endif
 
 /**

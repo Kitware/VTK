@@ -28,6 +28,8 @@
 
 #include "private/buf.h"
 #include "private/error.h"
+#include "private/memory.h"
+#include "private/parser.h"
 #include "private/tree.h"
 #include "private/xinclude.h"
 
@@ -101,10 +103,15 @@ struct _xmlXIncludeCtxt {
     int			depth; /* recursion depth */
     int		     isStream; /* streaming mode */
 
+#ifdef LIBXML_XPTR_ENABLED
     xmlXPathContextPtr xpctxt;
+#endif
 
     xmlStructuredErrorFunc errorHandler;
     void *errorCtxt;
+
+    xmlResourceLoader resourceLoader;
+    void *resourceCtxt;
 };
 
 static xmlXIncludeRefPtr
@@ -158,6 +165,11 @@ xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
     void *data = NULL;
     int res;
 
+    if (error == XML_ERR_NO_MEMORY) {
+        xmlXIncludeErrMemory(ctxt);
+        return;
+    }
+
     if (ctxt->fatalErr != 0)
         return;
     ctxt->nbErrors++;
@@ -170,15 +182,23 @@ xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
         data = xmlGenericErrorContext;
     }
 
-    res = __xmlRaiseError(schannel, channel, data, ctxt, node,
-                          XML_FROM_XINCLUDE, error, XML_ERR_ERROR,
-                          NULL, 0, (const char *) extra, NULL, NULL, 0, 0,
-		          msg, (const char *) extra);
+    res = xmlRaiseError(schannel, channel, data, ctxt, node,
+                        XML_FROM_XINCLUDE, error, XML_ERR_ERROR,
+                        NULL, 0, (const char *) extra, NULL, NULL, 0, 0,
+                        msg, (const char *) extra);
     if (res < 0) {
         ctxt->errNo = XML_ERR_NO_MEMORY;
         ctxt->fatalErr = 1;
     } else {
         ctxt->errNo = error;
+        /*
+         * Note that we treat IO errors except ENOENT as fatal
+         * although the XInclude spec could be interpreted in a
+         * way that at least some IO errors should be handled
+         * gracefully.
+         */
+        if (xmlIsCatastrophicError(XML_ERR_FATAL, error))
+            ctxt->fatalErr = 1;
     }
 }
 
@@ -290,8 +310,10 @@ xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt) {
 	}
 	xmlFree(ctxt->txtTab);
     }
+#ifdef LIBXML_XPTR_ENABLED
     if (ctxt->xpctxt != NULL)
 	xmlXPathFreeContext(ctxt->xpctxt);
+#endif
     xmlFree(ctxt);
 }
 
@@ -317,6 +339,9 @@ xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char *URL) {
     }
     if (ctxt->errorHandler != NULL)
         xmlCtxtSetErrorHandler(pctxt, ctxt->errorHandler, ctxt->errorCtxt);
+    if (ctxt->resourceLoader != NULL)
+        xmlCtxtSetResourceLoader(pctxt, ctxt->resourceLoader,
+                                 ctxt->resourceCtxt);
 
     /*
      * pass in the application data to the parser context.
@@ -340,11 +365,14 @@ xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char *URL) {
      */
     xmlCtxtUseOptions(pctxt, ctxt->parseFlags | XML_PARSE_DTDLOAD);
 
-    inputStream = xmlLoadExternalEntity(URL, NULL, pctxt);
+    inputStream = xmlLoadResource(pctxt, URL, NULL, XML_RESOURCE_XINCLUDE);
     if (inputStream == NULL)
         goto error;
 
-    inputPush(pctxt, inputStream);
+    if (xmlCtxtPushInput(pctxt, inputStream) < 0) {
+        xmlFreeInputStream(inputStream);
+        goto error;
+    }
 
     xmlParseDocument(pctxt);
 
@@ -359,8 +387,8 @@ xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char *URL) {
     }
 
 error:
-    if (pctxt->errNo == XML_ERR_NO_MEMORY)
-        xmlXIncludeErrMemory(ctxt);
+    if (xmlCtxtIsCatastrophicError(pctxt))
+        xmlXIncludeErr(ctxt, NULL, pctxt->errNo, "parser error", NULL);
     xmlFreeParserCtxt(pctxt);
 
     return(ret);
@@ -411,6 +439,10 @@ xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur) {
             xmlXIncludeErrMemory(ctxt);
 	    goto error;
         }
+    } else if (xmlStrlen(href) > XML_MAX_URI_LENGTH) {
+        xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "URI too long\n",
+                       NULL);
+        goto error;
     }
 
     parse = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_PARSE);
@@ -535,14 +567,15 @@ xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur) {
 
     if (ctxt->incNr >= ctxt->incMax) {
         xmlXIncludeRefPtr *table;
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        size_t newSize = ctxt->incMax ? ctxt->incMax * 2 : 1;
-#else
-        size_t newSize = ctxt->incMax ? ctxt->incMax * 2 : 4;
-#endif
+        int newSize;
 
-        table = (xmlXIncludeRefPtr *) xmlRealloc(ctxt->incTab,
-	             newSize * sizeof(ctxt->incTab[0]));
+        newSize = xmlGrowCapacity(ctxt->incMax, sizeof(table[0]),
+                                  4, XML_MAX_ITEMS);
+        if (newSize < 0) {
+	    xmlXIncludeErrMemory(ctxt);
+	    goto error;
+	}
+        table = xmlRealloc(ctxt->incTab, newSize * sizeof(table[0]));
         if (table == NULL) {
 	    xmlXIncludeErrMemory(ctxt);
 	    goto error;
@@ -627,7 +660,14 @@ xmlXIncludeBaseFixup(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur, xmlNodePtr copy,
         xmlXIncludeErrMemory(ctxt);
 
     if ((base != NULL) && !xmlStrEqual(base, targetBase)) {
-        if (xmlBuildRelativeURISafe(base, targetBase, &relBase) < 0) {
+        if ((xmlStrlen(base) > XML_MAX_URI_LENGTH) ||
+            (xmlStrlen(targetBase) > XML_MAX_URI_LENGTH)) {
+            relBase = xmlStrdup(base);
+            if (relBase == NULL) {
+                xmlXIncludeErrMemory(ctxt);
+                goto done;
+            }
+        } else if (xmlBuildRelativeURISafe(base, targetBase, &relBase) < 0) {
             xmlXIncludeErrMemory(ctxt);
             goto done;
         }
@@ -783,244 +823,6 @@ error:
     return(NULL);
 }
 
-#ifdef LIBXML_XPTR_LOCS_ENABLED
-/**
- * xmlXIncludeGetNthChild:
- * @cur:  the node
- * @no:  the child number
- *
- * Returns the @n'th element child of @cur or NULL
- */
-static xmlNodePtr
-xmlXIncludeGetNthChild(xmlNodePtr cur, int no) {
-    int i;
-    if ((cur == NULL) || (cur->type == XML_NAMESPACE_DECL))
-        return(NULL);
-    cur = cur->children;
-    for (i = 0;i <= no;cur = cur->next) {
-	if (cur == NULL)
-	    return(cur);
-	if ((cur->type == XML_ELEMENT_NODE) ||
-	    (cur->type == XML_DOCUMENT_NODE) ||
-	    (cur->type == XML_HTML_DOCUMENT_NODE)) {
-	    i++;
-	    if (i == no)
-		break;
-	}
-    }
-    return(cur);
-}
-
-xmlNodePtr xmlXPtrAdvanceNode(xmlNodePtr cur, int *level); /* in xpointer.c */
-/**
- * xmlXIncludeCopyRange:
- * @ctxt:  the XInclude context
- * @obj:  the XPointer result from the evaluation.
- *
- * Build a node list tree copy of the XPointer result.
- *
- * Returns an xmlNodePtr list or NULL.
- *         The caller has to free the node tree.
- */
-static xmlNodePtr
-xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlXPathObjectPtr range) {
-    /* pointers to generated nodes */
-    xmlNodePtr list = NULL, last = NULL, listParent = NULL;
-    xmlNodePtr tmp, tmp2;
-    /* pointers to traversal nodes */
-    xmlNodePtr start, cur, end;
-    int index1, index2;
-    int level = 0, lastLevel = 0, endLevel = 0, endFlag = 0;
-
-    if ((ctxt == NULL) || (range == NULL))
-	return(NULL);
-    if (range->type != XPATH_RANGE)
-	return(NULL);
-    start = (xmlNodePtr) range->user;
-
-    if ((start == NULL) || (start->type == XML_NAMESPACE_DECL))
-	return(NULL);
-    end = range->user2;
-    if (end == NULL)
-	return(xmlDocCopyNode(start, ctxt->doc, 1));
-    if (end->type == XML_NAMESPACE_DECL)
-        return(NULL);
-
-    cur = start;
-    index1 = range->index;
-    index2 = range->index2;
-    /*
-     * level is depth of the current node under consideration
-     * list is the pointer to the root of the output tree
-     * listParent is a pointer to the parent of output tree (within
-       the included file) in case we need to add another level
-     * last is a pointer to the last node added to the output tree
-     * lastLevel is the depth of last (relative to the root)
-     */
-    while (cur != NULL) {
-	/*
-	 * Check if our output tree needs a parent
-	 */
-	if (level < 0) {
-	    while (level < 0) {
-	        /* copy must include namespaces and properties */
-	        tmp2 = xmlDocCopyNode(listParent, ctxt->doc, 2);
-	        xmlAddChild(tmp2, list);
-	        list = tmp2;
-	        listParent = listParent->parent;
-	        level++;
-	    }
-	    last = list;
-	    lastLevel = 0;
-	}
-	/*
-	 * Check whether we need to change our insertion point
-	 */
-	while (level < lastLevel) {
-	    last = last->parent;
-	    lastLevel --;
-	}
-	if (cur == end) {	/* Are we at the end of the range? */
-	    if (cur->type == XML_TEXT_NODE) {
-		const xmlChar *content = cur->content;
-		int len;
-
-		if (content == NULL) {
-		    tmp = xmlNewDocTextLen(ctxt->doc, NULL, 0);
-		} else {
-		    len = index2;
-		    if ((cur == start) && (index1 > 1)) {
-			content += (index1 - 1);
-			len -= (index1 - 1);
-		    } else {
-			len = index2;
-		    }
-		    tmp = xmlNewDocTextLen(ctxt->doc, content, len);
-		}
-		/* single sub text node selection */
-		if (list == NULL)
-		    return(tmp);
-		/* prune and return full set */
-		if (level == lastLevel)
-		    xmlAddNextSibling(last, tmp);
-		else
-		    xmlAddChild(last, tmp);
-		return(list);
-	    } else {	/* ending node not a text node */
-	        endLevel = level;	/* remember the level of the end node */
-		endFlag = 1;
-		/* last node - need to take care of properties + namespaces */
-		tmp = xmlDocCopyNode(cur, ctxt->doc, 2);
-		if (list == NULL) {
-		    list = tmp;
-		    listParent = cur->parent;
-		    last = tmp;
-		} else {
-		    if (level == lastLevel)
-			last = xmlAddNextSibling(last, tmp);
-		    else {
-			last = xmlAddChild(last, tmp);
-			lastLevel = level;
-		    }
-		}
-
-		if (index2 > 1) {
-		    end = xmlXIncludeGetNthChild(cur, index2 - 1);
-		    index2 = 0;
-		}
-		if ((cur == start) && (index1 > 1)) {
-		    cur = xmlXIncludeGetNthChild(cur, index1 - 1);
-		    index1 = 0;
-		}  else {
-		    cur = cur->children;
-		}
-		level++;	/* increment level to show change */
-		/*
-		 * Now gather the remaining nodes from cur to end
-		 */
-		continue;	/* while */
-	    }
-	} else if (cur == start) {	/* Not at the end, are we at start? */
-	    if ((cur->type == XML_TEXT_NODE) ||
-		(cur->type == XML_CDATA_SECTION_NODE)) {
-		const xmlChar *content = cur->content;
-
-		if (content == NULL) {
-		    tmp = xmlNewDocTextLen(ctxt->doc, NULL, 0);
-		} else {
-		    if (index1 > 1) {
-			content += (index1 - 1);
-			index1 = 0;
-		    }
-		    tmp = xmlNewDocText(ctxt->doc, content);
-		}
-		last = list = tmp;
-		listParent = cur->parent;
-	    } else {		/* Not text node */
-	        /*
-		 * start of the range - need to take care of
-		 * properties and namespaces
-		 */
-		tmp = xmlDocCopyNode(cur, ctxt->doc, 2);
-		list = last = tmp;
-		listParent = cur->parent;
-		if (index1 > 1) {	/* Do we need to position? */
-		    cur = xmlXIncludeGetNthChild(cur, index1 - 1);
-		    level = lastLevel = 1;
-		    index1 = 0;
-		    /*
-		     * Now gather the remaining nodes from cur to end
-		     */
-		    continue; /* while */
-		}
-	    }
-	} else {
-	    tmp = NULL;
-	    switch (cur->type) {
-		case XML_DTD_NODE:
-		case XML_ELEMENT_DECL:
-		case XML_ATTRIBUTE_DECL:
-		case XML_ENTITY_NODE:
-		    /* Do not copy DTD information */
-		    break;
-		case XML_ENTITY_DECL:
-		    /* handle crossing entities -> stack needed */
-		    break;
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
-		    /* don't consider it part of the tree content */
-		    break;
-		case XML_ATTRIBUTE_NODE:
-		    /* Humm, should not happen ! */
-		    break;
-		default:
-		    /*
-		     * Middle of the range - need to take care of
-		     * properties and namespaces
-		     */
-		    tmp = xmlDocCopyNode(cur, ctxt->doc, 2);
-		    break;
-	    }
-	    if (tmp != NULL) {
-		if (level == lastLevel)
-		    last = xmlAddNextSibling(last, tmp);
-		else {
-		    last = xmlAddChild(last, tmp);
-		    lastLevel = level;
-		}
-	    }
-	}
-	/*
-	 * Skip to next node in document order
-	 */
-	cur = xmlXPtrAdvanceNode(cur, &level);
-	if (endFlag && (level >= endLevel))
-	    break;
-    }
-    return(list);
-}
-#endif /* LIBXML_XPTR_LOCS_ENABLED */
-
 #ifdef LIBXML_XPTR_ENABLED
 /**
  * xmlXIncludeCopyXPointer:
@@ -1100,33 +902,6 @@ xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlXPathObjectPtr obj,
 	    }
 	    break;
 	}
-#ifdef LIBXML_XPTR_LOCS_ENABLED
-	case XPATH_LOCATIONSET: {
-	    xmlLocationSetPtr set = (xmlLocationSetPtr) obj->user;
-	    if (set == NULL)
-		return(NULL);
-	    for (i = 0;i < set->locNr;i++) {
-		if (last == NULL)
-		    list = last = xmlXIncludeCopyXPointer(ctxt,
-			                                  set->locTab[i],
-                                                          targetBase);
-		else
-		    xmlAddNextSibling(last,
-			    xmlXIncludeCopyXPointer(ctxt, set->locTab[i],
-                                                    targetBase));
-		if (last != NULL) {
-		    while (last->next != NULL)
-			last = last->next;
-		}
-	    }
-	    break;
-	}
-	case XPATH_RANGE:
-	    return(xmlXIncludeCopyRange(ctxt, obj));
-	case XPATH_POINT:
-	    /* points are ignored in XInclude */
-	    break;
-#endif
 	default:
 	    break;
     }
@@ -1364,13 +1139,16 @@ xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
     /* Also cache NULL docs */
     if (ctxt->urlNr >= ctxt->urlMax) {
         xmlXIncludeDoc *tmp;
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        size_t newSize = ctxt->urlMax ? ctxt->urlMax * 2 : 1;
-#else
-        size_t newSize = ctxt->urlMax ? ctxt->urlMax * 2 : 8;
-#endif
+        int newSize;
 
-        tmp = xmlRealloc(ctxt->urlTab, sizeof(xmlXIncludeDoc) * newSize);
+        newSize = xmlGrowCapacity(ctxt->urlMax, sizeof(tmp[0]),
+                                  8, XML_MAX_ITEMS);
+        if (newSize < 0) {
+            xmlXIncludeErrMemory(ctxt);
+            xmlFreeDoc(doc);
+            goto error;
+        }
+        tmp = xmlRealloc(ctxt->urlTab, newSize * sizeof(tmp[0]));
         if (tmp == NULL) {
             xmlXIncludeErrMemory(ctxt);
             xmlFreeDoc(doc);
@@ -1462,7 +1240,7 @@ loaded:
         }
 
         if (ctxt->xpctxt == NULL) {
-            ctxt->xpctxt = xmlXPtrNewContext(doc, NULL, NULL);
+            ctxt->xpctxt = xmlXPathNewContext(doc);
             if (ctxt->xpctxt == NULL) {
                 xmlXIncludeErrMemory(ctxt);
                 goto error;
@@ -1493,9 +1271,6 @@ loaded:
 	    case XPATH_BOOLEAN:
 	    case XPATH_NUMBER:
 	    case XPATH_STRING:
-#ifdef LIBXML_XPTR_LOCS_ENABLED
-	    case XPATH_POINT:
-#endif
 	    case XPATH_USERS:
 	    case XPATH_XSLT_TREE:
 		xmlXIncludeErr(ctxt, ref->elem, XML_XINCLUDE_XPTR_RESULT,
@@ -1506,11 +1281,6 @@ loaded:
 	    case XPATH_NODESET:
                 break;
 
-#ifdef LIBXML_XPTR_LOCS_ENABLED
-	    case XPATH_RANGE:
-	    case XPATH_LOCATIONSET:
-		break;
-#endif
 	}
 	set = xptr->nodesetval;
 	if (set != NULL) {
@@ -1565,9 +1335,10 @@ loaded:
         ref->inc = xmlXIncludeCopyXPointer(ctxt, xptr, ref->base);
         xmlXPathFreeObject(xptr);
     }
-#endif
 
 done:
+#endif
+
     ret = 0;
 
 error:
@@ -1627,18 +1398,20 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
 	encoding = xmlXIncludeGetProp(ctxt, ref->elem, XINCLUDE_PARSE_ENCODING);
     }
     if (encoding != NULL) {
-        res = xmlOpenCharEncodingHandler((const char *) encoding,
-                                         /* output */ 0, &handler);
+        xmlParserErrors code;
 
-        if (res != 0) {
-            if (res == XML_ERR_NO_MEMORY) {
+        code = xmlOpenCharEncodingHandler((const char *) encoding,
+                                          /* output */ 0, &handler);
+
+        if (code != XML_ERR_OK) {
+            if (code == XML_ERR_NO_MEMORY) {
                 xmlXIncludeErrMemory(ctxt);
-            } else if (res == XML_ERR_UNSUPPORTED_ENCODING) {
+            } else if (code == XML_ERR_UNSUPPORTED_ENCODING) {
                 xmlXIncludeErr(ctxt, ref->elem, XML_XINCLUDE_UNKNOWN_ENCODING,
                                "encoding %s not supported\n", encoding);
                 goto error;
             } else {
-                xmlXIncludeErr(ctxt, ref->elem, res,
+                xmlXIncludeErr(ctxt, ref->elem, code,
                                "unexpected error from iconv or ICU\n", NULL);
                 goto error;
             }
@@ -1655,7 +1428,12 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
     }
     if (ctxt->errorHandler != NULL)
         xmlCtxtSetErrorHandler(pctxt, ctxt->errorHandler, ctxt->errorCtxt);
-    inputStream = xmlLoadExternalEntity((const char*)url, NULL, pctxt);
+    if (ctxt->resourceLoader != NULL)
+        xmlCtxtSetResourceLoader(pctxt, ctxt->resourceLoader,
+                                 ctxt->resourceCtxt);
+
+    inputStream = xmlLoadResource(pctxt, (const char*) url, NULL,
+                                  XML_RESOURCE_XINCLUDE_TEXT);
     if (inputStream == NULL) {
         /*
          * ENOENT only produces a warning which isn't reflected in errNo.
@@ -1697,7 +1475,7 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
     }
 
     content = xmlBufContent(buf->buffer);
-    len = xmlBufLength(buf->buffer);
+    len = xmlBufUse(buf->buffer);
     for (i = 0; i < len;) {
         int cur;
         int l;
@@ -1718,13 +1496,15 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
 
     if (ctxt->txtNr >= ctxt->txtMax) {
         xmlXIncludeTxt *tmp;
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        size_t newSize = ctxt->txtMax ? ctxt->txtMax * 2 : 1;
-#else
-        size_t newSize = ctxt->txtMax ? ctxt->txtMax * 2 : 8;
-#endif
+        int newSize;
 
-        tmp = xmlRealloc(ctxt->txtTab, sizeof(xmlXIncludeTxt) * newSize);
+        newSize = xmlGrowCapacity(ctxt->txtMax, sizeof(tmp[0]),
+                                  8, XML_MAX_ITEMS);
+        if (newSize < 0) {
+            xmlXIncludeErrMemory(ctxt);
+	    goto error;
+        }
+        tmp = xmlRealloc(ctxt->txtTab, newSize * sizeof(tmp[0]));
         if (tmp == NULL) {
             xmlXIncludeErrMemory(ctxt);
 	    goto error;
@@ -1967,10 +1747,15 @@ xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
 		nb_elem++;
 	    tmp = tmp->next;
 	}
-	if (nb_elem > 1) {
-	    xmlXIncludeErr(ctxt, ref->elem, XML_XINCLUDE_MULTIPLE_ROOT,
-		       "XInclude error: would result in multiple root nodes\n",
-			   NULL);
+        if (nb_elem != 1) {
+            if (nb_elem > 1)
+                xmlXIncludeErr(ctxt, ref->elem, XML_XINCLUDE_MULTIPLE_ROOT,
+                               "XInclude error: would result in multiple root "
+                               "nodes\n", NULL);
+            else
+                xmlXIncludeErr(ctxt, ref->elem, XML_XINCLUDE_MULTIPLE_ROOT,
+                               "XInclude error: would result in no root "
+                               "node\n", NULL);
             xmlFreeNodeList(list);
 	    return(-1);
 	}
@@ -2064,11 +1849,6 @@ xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
         (xmlStrEqual(node->ns->href, XINCLUDE_OLD_NS))) {
 	if (xmlStrEqual(node->ns->href, XINCLUDE_OLD_NS)) {
 	    if (ctxt->legacy == 0) {
-#if 0 /* wait for the XML Core Working Group to get something stable ! */
-		xmlXIncludeWarn(ctxt, node, XML_XINCLUDE_DEPRECATED_NS,
-	               "Deprecated XInclude namespace found, use %s",
-		                XINCLUDE_NS);
-#endif
 	        ctxt->legacy = 1;
 	    }
 	}
@@ -2255,6 +2035,26 @@ xmlXIncludeSetErrorHandler(xmlXIncludeCtxtPtr ctxt,
         return;
     ctxt->errorHandler = handler;
     ctxt->errorCtxt = data;
+}
+
+/**
+ * xmlXIncludeSetResourceLoader:
+ * @ctxt:  an XInclude processing context
+ * @loader:  resource loader
+ * @data:  user data which will be passed to the loader
+ *
+ * Register a callback function that will be called to load included
+ * documents.
+ *
+ * Available since 2.14.0.
+ */
+void
+xmlXIncludeSetResourceLoader(xmlXIncludeCtxtPtr ctxt,
+                             xmlResourceLoader loader, void *data) {
+    if (ctxt == NULL)
+        return;
+    ctxt->resourceLoader = loader;
+    ctxt->resourceCtxt = data;
 }
 
 /**
