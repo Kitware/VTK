@@ -1202,7 +1202,7 @@ VERDICT_HOST_DEVICE static double tri3_normalized_inradius(const CoordsContainer
 
     tri6_midnode_coords[i-3][0] = (coordinates[i0][0] + coordinates[i1][0]) * 0.5;
     tri6_midnode_coords[i-3][1] = (coordinates[i0][1] + coordinates[i1][1]) * 0.5;
-    tri6_midnode_coords[i-3][2] = (coordinates[i0][2] + coordinates[i1][2]) * 0.5;
+    tri6_midnode_coords[i-3][2] = dimension == 2 ? 0.0 : (coordinates[i0][2] + coordinates[i1][2]) * 0.5;
     tri6_coords[i] = tri6_midnode_coords[i-3];
   }
   return tri6_normalized_inradius(tri6_coords, dimension);

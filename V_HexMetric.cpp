@@ -18,10 +18,10 @@
  *
  */
 
+#include "verdict.h"
 #include "V_HexMetric.hpp"
 #include "V_GaussIntegration.hpp"
 #include "VerdictVector.hpp"
-#include "verdict.h"
 #include "verdict_defines.hpp"
 
 #include <math.h>
@@ -250,17 +250,21 @@ VERDICT_HOST_DEVICE static void HEX27_gradients_of_the_shape_functions_for_RST(
   }
 }
 
-#define make_hex_nodes(coord, pos)                                                                 \
-  for (int mhcii = 0; mhcii < 8; mhcii++)                                                          \
-  {                                                                                                \
-    pos[mhcii].set(coord[mhcii][0], coord[mhcii][1], coord[mhcii][2]);                             \
+template <typename X, typename Y>
+VERDICT_HOST_DEVICE static void make_hex_nodes(X& coord, Y& pos)
+{
+  for (int mhcii = 0; mhcii < 8; mhcii++)
+  {
+    pos[mhcii].set(coord[mhcii][0], coord[mhcii][1], coord[mhcii][2]);
   }
+}
 
-#define make_edge_length_squares(edges, lengths)                                                   \
-  {                                                                                                \
-    for (int melii = 0; melii < 12; melii++)                                                       \
-      lengths[melii] = edges[melii].length_squared();                                              \
-  }
+template <typename X, typename Y>
+static void make_edge_length_squares(X& edges, Y& lengths)
+{
+  for (int melii = 0; melii < 12; melii++)
+      lengths[melii] = edges[melii].length_squared();
+}
 
 //! make VerdictVectors from coordinates
 VERDICT_HOST_DEVICE static void make_hex_edges(const double coordinates[][3], VerdictVector edges[12])
@@ -1977,7 +1981,7 @@ VERDICT_HOST_DEVICE double hex_jacobian(int num_nodes, const double coordinates[
 
   Minimum Jacobian divided by the lengths of the 3 edge vectors
  */
-VERDICT_HOST_DEVICE double hex_scaled_jacobian(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double hex_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
 {
   double jacobi, min_norm_jac = VERDICT_DBL_MAX;
 
