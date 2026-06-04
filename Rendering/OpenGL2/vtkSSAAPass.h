@@ -27,13 +27,16 @@
 
 #include "vtkRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // for vtkSmartPointer
+#include "vtkTextureObject.h"          // for depth/color format
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+
+#include <memory> // for unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;
 class vtkRenderbuffer;
-class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSSAAPass : public vtkRenderPass
 {
@@ -105,23 +108,23 @@ protected:
   /**
    * Graphics resources.
    */
-  vtkOpenGLFramebufferObject* FrameBufferObject;
-  vtkTextureObject* Pass1;         // render target for the scene (modifiedW x modifiedH)
-  vtkTextureObject* Pass2;         // render target for the horizontal pass (W x modifiedH)
-  vtkTextureObject* DepthTexture1; // depth target paired with Pass1
-  vtkTextureObject* DepthTexture2; // depth target paired with Pass2
+  vtkSmartPointer<vtkOpenGLFramebufferObject> FrameBufferObject;
+  vtkSmartPointer<vtkTextureObject> Pass1; // render target for the scene (modifiedW x modifiedH)
+  vtkSmartPointer<vtkTextureObject> Pass2; // render target for the horizontal pass (W x modifiedH)
+  vtkSmartPointer<vtkTextureObject> DepthTexture1; // depth target paired with Pass1
+  vtkSmartPointer<vtkTextureObject> DepthTexture2; // depth target paired with Pass2
 
   // Structures for the various cell types we render.
-  vtkOpenGLHelper* SSAAHelper;
+  std::unique_ptr<vtkOpenGLHelper> SSAAHelper;
 
-  vtkRenderPass* DelegatePass;
+  vtkSmartPointer<vtkRenderPass> DelegatePass;
 
 private:
   vtkSSAAPass(const vtkSSAAPass&) = delete;
   void operator=(const vtkSSAAPass&) = delete;
 
-  int ColorFormat; // framebuffer color texture format
-  int DepthFormat; // framebuffer depth texture format
+  int ColorFormat = vtkTextureObject::Fixed8;  // framebuffer color texture format
+  int DepthFormat = vtkTextureObject::Fixed24; // framebuffer depth texture format
 };
 
 VTK_ABI_NAMESPACE_END

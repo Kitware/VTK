@@ -25,58 +25,16 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAAPass);
 
-vtkCxxSetObjectMacro(vtkSSAAPass, DelegatePass, vtkRenderPass);
+vtkCxxSetSmartPointerMacro(vtkSSAAPass, DelegatePass, vtkRenderPass);
 
 //------------------------------------------------------------------------------
 vtkSSAAPass::vtkSSAAPass()
+  : SSAAHelper(new vtkOpenGLHelper())
 {
-  this->FrameBufferObject = nullptr;
-  this->Pass1 = nullptr;
-  this->Pass2 = nullptr;
-  this->DepthTexture1 = nullptr;
-  this->DepthTexture2 = nullptr;
-  this->SSAAHelper = nullptr;
-  this->DelegatePass = nullptr;
-  this->ColorFormat = vtkTextureObject::Fixed8;
-  this->DepthFormat = vtkTextureObject::Fixed24;
-  this->SSAAHelper = new vtkOpenGLHelper;
 }
 
 //------------------------------------------------------------------------------
-vtkSSAAPass::~vtkSSAAPass()
-{
-  if (this->DelegatePass != nullptr)
-  {
-    this->DelegatePass->Delete();
-  }
-
-  if (this->FrameBufferObject != nullptr)
-  {
-    this->FrameBufferObject->Delete();
-  }
-
-  if (this->Pass1 != nullptr)
-  {
-    this->Pass1->Delete();
-  }
-
-  if (this->Pass2 != nullptr)
-  {
-    this->Pass2->Delete();
-  }
-
-  if (this->DepthTexture1 != nullptr)
-  {
-    this->DepthTexture1->Delete();
-  }
-
-  if (this->DepthTexture2 != nullptr)
-  {
-    this->DepthTexture2->Delete();
-  }
-
-  delete this->SSAAHelper;
-}
+vtkSSAAPass::~vtkSSAAPass() = default;
 
 //------------------------------------------------------------------------------
 void vtkSSAAPass::PrintSelf(ostream& os, vtkIndent indent)
@@ -133,13 +91,13 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
 
   if (this->Pass1 == nullptr)
   {
-    this->Pass1 = vtkTextureObject::New();
+    this->Pass1.TakeReference(vtkTextureObject::New());
     this->Pass1->SetContext(renWin);
   }
 
   if (this->FrameBufferObject == nullptr)
   {
-    this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
+    this->FrameBufferObject.TakeReference(vtkOpenGLFramebufferObject::New());
     this->FrameBufferObject->SetContext(renWin);
   }
 
@@ -174,7 +132,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
 
   if (this->DepthTexture1 == nullptr)
   {
-    this->DepthTexture1 = vtkTextureObject::New();
+    this->DepthTexture1.TakeReference(vtkTextureObject::New());
     this->DepthTexture1->SetContext(renWin);
   }
   if (!this->DepthTexture1->GetHandle())
@@ -205,7 +163,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   // 3. Same FBO, but new color attachment (new TO).
   if (this->Pass2 == nullptr)
   {
-    this->Pass2 = vtkTextureObject::New();
+    this->Pass2.TakeReference(vtkTextureObject::New());
     this->Pass2->SetContext(this->FrameBufferObject->GetContext());
   }
 
@@ -232,7 +190,7 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
 
   if (this->DepthTexture2 == nullptr)
   {
-    this->DepthTexture2 = vtkTextureObject::New();
+    this->DepthTexture2.TakeReference(vtkTextureObject::New());
     this->DepthTexture2->SetContext(renWin);
   }
   if (!this->DepthTexture2->GetHandle())
