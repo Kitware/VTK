@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -33,10 +33,10 @@ namespace CLI {
 namespace detail {
 // Based generally on https://rmf.io/cxx11/almost-static-if
 /// Simple empty scoped class
-enum class enabler {};
+enum class enabler : std::uint8_t {};
 
 /// An instance to use in EnableIf
-constexpr enabler dummy = {};
+CLI11_MODULE_INLINE constexpr enabler dummy = {};
 }  // namespace detail
 
 /// A copy of enable_if_t from C++14, compatible with C++11.
@@ -387,7 +387,7 @@ inline std::string to_string(T &&) {
 /// convert a readable container to a string
 template <typename T,
           enable_if_t<!std::is_convertible<T, std::string>::value && !std::is_constructible<std::string, T>::value &&
-                          !is_ostreamable<T>::value && is_readable_container<T>::value,
+                          !is_ostreamable<T>::value && is_readable_container<T>::value && !is_tuple_like<T>::value,
                       detail::enabler> = detail::dummy>
 inline std::string to_string(T &&variable) {
     auto cval = variable.begin();
@@ -544,7 +544,8 @@ template <typename T, std::size_t I>
 }
 
 /// Get the type size of the sum of type sizes for all the individual tuple types
-template <typename T> struct type_count<T, typename std::enable_if<is_tuple_like<T>::value>::type> {
+template <typename T>
+struct type_count<T, typename std::enable_if<is_tuple_like<T>::value && !is_complex<T>::value>::type> {
     static constexpr int value{tuple_type_size<T, 0>()};
 };
 
@@ -593,7 +594,8 @@ template <typename T, std::size_t I>
 }
 
 /// Get the type size of the sum of type sizes for all the individual tuple types
-template <typename T> struct type_count_min<T, typename std::enable_if<is_tuple_like<T>::value>::type> {
+template <typename T>
+struct type_count_min<T, typename std::enable_if<is_tuple_like<T>::value && !is_complex<T>::value>::type> {
     static constexpr int value{tuple_type_size_min<T, 0>()};
 };
 
@@ -628,7 +630,7 @@ struct expected_count<T, typename std::enable_if<!is_mutable_container<T>::value
 };
 
 // Enumeration of the different supported categorizations of objects
-enum class object_category : int {
+enum class object_category : std::uint8_t {
     char_value = 1,
     integral_value = 2,
     unsigned_integral = 4,
@@ -961,13 +963,18 @@ bool integral_conversion(const std::string &input, T &output) noexcept {
         output = (output_sll < 0) ? static_cast<T>(0) : static_cast<T>(output_sll);
         return (static_cast<std::int64_t>(output) == output_sll);
     }
-    // remove separators
-    if(input.find_first_of("_'") != std::string::npos) {
+    // remove separators if present
+    auto group_separators = get_group_separators();
+    if(input.find_first_of(group_separators) != std::string::npos) {
         std::string nstring = input;
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '_'), nstring.end());
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '\''), nstring.end());
+        for(auto &separator : group_separators) {
+            if(input.find_first_of(separator) != std::string::npos) {
+                nstring.erase(std::remove(nstring.begin(), nstring.end(), separator), nstring.end());
+            }
+        }
         return integral_conversion(nstring, output);
     }
+
     if(std::isspace(static_cast<unsigned char>(input.back()))) {
         return integral_conversion(trim_copy(input), output);
     }
@@ -1019,12 +1026,16 @@ bool integral_conversion(const std::string &input, T &output) noexcept {
         output = static_cast<T>(1);
         return true;
     }
-    // remove separators and trailing spaces
-    if(input.find_first_of("_'") != std::string::npos) {
-        std::string nstring = input;
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '_'), nstring.end());
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '\''), nstring.end());
-        return integral_conversion(nstring, output);
+    // remove separators if present
+    auto group_separators = get_group_separators();
+    if(input.find_first_of(group_separators) != std::string::npos) {
+        for(auto &separator : group_separators) {
+            if(input.find_first_of(separator) != std::string::npos) {
+                std::string nstring = input;
+                nstring.erase(std::remove(nstring.begin(), nstring.end(), separator), nstring.end());
+                return integral_conversion(nstring, output);
+            }
+        }
     }
     if(std::isspace(static_cast<unsigned char>(input.back()))) {
         return integral_conversion(trim_copy(input), output);
@@ -1121,7 +1132,14 @@ bool lexical_cast(const std::string &input, T &output) {
         output = static_cast<T>(input[0]);
         return true;
     }
-    return integral_conversion(input, output);
+    std::int8_t res{0};
+    // we do it this way as some systems have char as signed and not,  this ensures consistency in the way things are
+    // handled
+    bool result = integral_conversion(input, res);
+    if(result) {
+        output = static_cast<T>(res);
+    }
+    return result;
 }
 
 /// Boolean values
@@ -1160,12 +1178,16 @@ bool lexical_cast(const std::string &input, T &output) {
         }
     }
 
-    // remove separators
-    if(input.find_first_of("_'") != std::string::npos) {
-        std::string nstring = input;
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '_'), nstring.end());
-        nstring.erase(std::remove(nstring.begin(), nstring.end(), '\''), nstring.end());
-        return lexical_cast(nstring, output);
+    // remove separators if present
+    auto group_separators = get_group_separators();
+    if(input.find_first_of(group_separators) != std::string::npos) {
+        for(auto &separator : group_separators) {
+            if(input.find_first_of(separator) != std::string::npos) {
+                std::string nstring = input;
+                nstring.erase(std::remove(nstring.begin(), nstring.end(), separator), nstring.end());
+                return lexical_cast(nstring, output);
+            }
+        }
     }
     return false;
 }
@@ -1497,7 +1519,7 @@ bool lexical_conversion(const std::vector<std ::string> &strings, AssignTo &outp
     using FirstType = typename std::remove_const<typename std::tuple_element<0, ConvertTo>::type>::type;
     using SecondType = typename std::tuple_element<1, ConvertTo>::type;
     FirstType v1;
-    SecondType v2;
+    SecondType v2{};
     bool retval = lexical_assign<FirstType, FirstType>(strings[0], v1);
     retval = retval && lexical_assign<SecondType, SecondType>((strings.size() > 1) ? strings[1] : std::string{}, v2);
     if(retval) {

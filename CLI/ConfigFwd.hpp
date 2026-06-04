@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 // [CLI11:public_includes:end]
-
+#include "Encoding.hpp"
 #include "Error.hpp"
 #include "StringTools.hpp"
 
@@ -70,7 +70,12 @@ class Config {
 
     /// Parse a config file, throw an error (ParseError:ConfigParseError or FileError) on failure
     CLI11_NODISCARD std::vector<ConfigItem> from_file(const std::string &name) const {
+#if defined CLI11_HAS_FILESYSTEM && CLI11_HAS_FILESYSTEM > 0
+        std::ifstream input{to_path(name)};
+#else
         std::ifstream input{name};
+#endif
+
         if(!input.good())
             throw FileError::Missing(name);
 

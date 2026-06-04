@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -29,7 +29,7 @@ class App;
 /// This is passed in by App; all user classes must accept this as
 /// the second argument.
 
-enum class AppFormatMode {
+enum class AppFormatMode : std::uint8_t {
     Normal,  ///< The normal, detailed help
     All,     ///< A fully expanded help
     Sub,     ///< Used when printed as part of expanded subcommand
@@ -47,6 +47,9 @@ class FormatterBase {
     /// The width of the left column (options/flags/subcommands)
     std::size_t column_width_{30};
 
+    /// The alignment ratio for long options within the left column
+    float long_option_alignment_ratio_{1 / 3.f};
+
     /// The width of the right column (description of options/flags/subcommands)
     std::size_t right_column_width_{65};
 
@@ -56,6 +59,14 @@ class FormatterBase {
     /// The width of the footer paragraph
     std::size_t footer_paragraph_width_{80};
 
+    /// options controlling formatting for footer and descriptions
+    bool enable_description_formatting_{true};
+    bool enable_footer_formatting_{true};
+
+    /// options controlling formatting of options
+    bool enable_option_defaults_{true};
+    bool enable_option_type_names_{true};
+    bool enable_default_flag_values_{true};
     /// @brief The required help printout labels (user changeable)
     /// Values are Needs, Excludes, etc.
     std::map<std::string, std::string> labels_{};
@@ -81,11 +92,18 @@ class FormatterBase {
     /// @name Setters
     ///@{
 
-    /// Set the "REQUIRED" label
+    /// Set the "REQUIRED" or other labels
     void label(std::string key, std::string val) { labels_[key] = val; }
 
     /// Set the left column width (options/flags/subcommands)
     void column_width(std::size_t val) { column_width_ = val; }
+
+    /// Set the alignment ratio for long options within the left column
+    /// The ratio is in [0;1] range (e.g. 0.2 = 20% of column width, 6.f/column_width = 6th character)
+    void long_option_alignment_ratio(float ratio) {
+        long_option_alignment_ratio_ =
+            (ratio >= 0.0f) ? ((ratio <= 1.0f) ? ratio : 1.0f / ratio) : ((ratio < -1.0f) ? 1.0f / (-ratio) : -ratio);
+    }
 
     /// Set the right column width (description of options/flags/subcommands)
     void right_column_width(std::size_t val) { right_column_width_ = val; }
@@ -95,7 +113,17 @@ class FormatterBase {
 
     /// Set the footer paragraph width
     void footer_paragraph_width(std::size_t val) { footer_paragraph_width_ = val; }
+    /// enable formatting for description paragraph
+    void enable_description_formatting(bool value = true) { enable_description_formatting_ = value; }
+    /// disable formatting for footer paragraph
+    void enable_footer_formatting(bool value = true) { enable_footer_formatting_ = value; }
 
+    /// enable option defaults to be printed
+    void enable_option_defaults(bool value = true) { enable_option_defaults_ = value; }
+    /// enable option type names to be printed
+    void enable_option_type_names(bool value = true) { enable_option_type_names_ = value; }
+    /// enable default flag values to be printed
+    void enable_default_flag_values(bool value = true) { enable_default_flag_values_ = value; }
     ///@}
     /// @name Getters
     ///@{
@@ -118,6 +146,25 @@ class FormatterBase {
 
     /// Get the current footer paragraph width
     CLI11_NODISCARD std::size_t get_footer_paragraph_width() const { return footer_paragraph_width_; }
+
+    /// @brief Get the current alignment ratio for long options within the left column
+    /// @return
+    CLI11_NODISCARD float get_long_option_alignment_ratio() const { return long_option_alignment_ratio_; }
+
+    /// Get the current status of description paragraph formatting
+    CLI11_NODISCARD bool is_description_paragraph_formatting_enabled() const { return enable_description_formatting_; }
+
+    /// Get the current status of whether footer paragraph formatting is enabled
+    CLI11_NODISCARD bool is_footer_paragraph_formatting_enabled() const { return enable_footer_formatting_; }
+
+    /// Get the current status of whether option defaults are printed
+    CLI11_NODISCARD bool is_option_defaults_enabled() const { return enable_option_defaults_; }
+
+    /// Get the current status of whether option type names are printed
+    CLI11_NODISCARD bool is_option_type_names_enabled() const { return enable_option_type_names_; }
+
+    /// Get the current status of whether default flag values are printed
+    CLI11_NODISCARD bool is_default_flag_values_enabled() const { return enable_default_flag_values_; }
 
     ///@}
 };
