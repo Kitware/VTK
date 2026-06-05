@@ -6,7 +6,7 @@
  * daniel@veillard.com
  */
 
-#include "config.h"
+#include "libxml.h"
 #include <stdio.h>
 #include <libxml/xmlversion.h>
 
@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <libxml/catalog.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/tree.h>
@@ -82,20 +83,6 @@ static int nb_errors = 0;
 static int nb_leaks = 0;
 
 /*
- * We need to trap calls to the resolver to not account memory for the catalog
- * and not rely on any external resources.
- */
-static xmlParserInputPtr
-testExternalEntityLoader(const char *URL, const char *ID ATTRIBUTE_UNUSED,
-			 xmlParserCtxtPtr ctxt) {
-    xmlParserInputPtr ret;
-
-    ret = xmlNewInputFromFile(ctxt, (const char *) URL);
-
-    return(ret);
-}
-
-/*
  * Trapping the error messages at the generic level to grab the equivalent of
  * stderr messages on CLI tools.
  */
@@ -151,7 +138,10 @@ static void
 initializeLibxml2(void) {
     xmlMemSetup(xmlMemFree, xmlMemMalloc, xmlMemRealloc, xmlMemoryStrdup);
     xmlInitParser();
-    xmlSetExternalEntityLoader(testExternalEntityLoader);
+#ifdef LIBXML_CATALOG_ENABLED
+    xmlInitializeCatalog();
+    xmlCatalogSetDefaults(XML_CATA_ALLOW_NONE);
+#endif
     ctxtXPath = xmlXPathNewContext(NULL);
     /*
     * Deactivate the cache if created; otherwise we have to create/free it
@@ -514,11 +504,13 @@ xmlconfInfo(void) {
 }
 
 static int
-xmlconfTest(void) {
-    const char *confxml = "xmlconf/xmlconf.xml";
+xmlconfTest(const char *dir) {
+    char confxml[500];
     xmlDocPtr doc;
     xmlNodePtr cur;
     int ret = 0;
+
+    snprintf(confxml, sizeof(confxml), "%s/xmlconf.xml", dir);
 
     if (!checkTestFile(confxml)) {
         fprintf(stderr, "%s is missing \n", confxml);
@@ -551,11 +543,13 @@ xmlconfTest(void) {
  ************************************************************************/
 
 int
-main(int argc ATTRIBUTE_UNUSED, char **argv ATTRIBUTE_UNUSED) {
+main(int argc, char **argv) {
     int ret = 0;
     int old_errors, old_tests, old_leaks;
+    const char *dir = "xmlconf";
+    int i;
 
-    logfile = fopen(LOGFILE, "w");
+    logfile = fopen(LOGFILE, "wb");
     if (logfile == NULL) {
         fprintf(stderr,
 	        "Could not open the log file, running in verbose mode\n");
@@ -563,14 +557,22 @@ main(int argc ATTRIBUTE_UNUSED, char **argv ATTRIBUTE_UNUSED) {
     }
     initializeLibxml2();
 
-    if ((argc >= 2) && (!strcmp(argv[1], "-v")))
-        verbose = 1;
-
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-v") == 0) {
+            verbose = 1;
+        } else if (strcmp(argv[i], "-d") == 0 && i + 1 < argc) {
+            i += 1;
+            dir = argv[i];
+        } else {
+            fprintf(stderr, "invalid argument: %s\n", argv[i]);
+            return 1;
+        }
+    }
 
     old_errors = nb_errors;
     old_tests = nb_tests;
     old_leaks = nb_leaks;
-    xmlconfTest();
+    xmlconfTest(dir);
     if ((nb_errors == old_errors) && (nb_leaks == old_leaks))
 	printf("Ran %d tests, no errors\n", nb_tests - old_tests);
     else

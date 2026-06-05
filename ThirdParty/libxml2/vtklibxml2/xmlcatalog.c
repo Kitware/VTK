@@ -13,6 +13,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+  #include <fcntl.h>
+  #include <io.h>
+#else
+  #include <unistd.h>
+#endif
+
 #ifdef HAVE_LIBREADLINE
 #include <readline/readline.h>
 #ifdef HAVE_LIBHISTORY
@@ -24,6 +31,10 @@
 #include <libxml/uri.h>
 #include <libxml/catalog.h>
 #include <libxml/parser.h>
+
+#ifndef STDIN_FILENO
+  #define STDIN_FILENO 0
+#endif
 
 #if defined(LIBXML_CATALOG_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 static int shell = 0;
@@ -39,7 +50,7 @@ static char *filename = NULL;
 
 
 #ifndef XML_SGML_DEFAULT_CATALOG
-#define XML_SGML_DEFAULT_CATALOG SYSCONFDIR "/sgml/catalog"
+#define XML_SGML_DEFAULT_CATALOG XML_SYSCONFDIR "/sgml/catalog"
 #endif
 
 /************************************************************************
@@ -58,35 +69,39 @@ static char *filename = NULL;
  */
 static char *
 xmlShellReadline(const char *prompt) {
-#ifdef HAVE_LIBREADLINE
-    char *line_read;
-
-    /* Get a line from the user. */
-    line_read = readline (prompt);
-
-    /* If the line has any text in it, save it on the history. */
-    if (line_read && *line_read)
-	add_history (line_read);
-
-    return (line_read);
-#else
-    char line_read[501];
+    char buf[501];
     char *ret;
     int len;
 
+#ifdef HAVE_LIBREADLINE
+    if (isatty(STDIN_FILENO)) {
+        char *line_read;
+
+        /* Get a line from the user. */
+        line_read = readline (prompt);
+
+#ifdef HAVE_LIBHISTORY
+        /* If the line has any text in it, save it on the history. */
+        if (line_read && *line_read)
+           add_history (line_read);
+#endif
+
+        return (line_read);
+    }
+#endif
+
     if (prompt != NULL)
-	fprintf(stdout, "%s", prompt);
+       fprintf(stdout, "%s", prompt);
     fflush(stdout);
-    if (!fgets(line_read, 500, stdin))
+    if (!fgets(buf, 500, stdin))
         return(NULL);
-    line_read[500] = 0;
-    len = strlen(line_read);
+    buf[500] = 0;
+    len = strlen(buf);
     ret = (char *) malloc(len + 1);
     if (ret != NULL) {
-	memcpy (ret, line_read, len + 1);
+       memcpy (ret, buf, len + 1);
     }
     return(ret);
-#endif
 }
 
 static void usershell(void) {
@@ -313,6 +328,11 @@ int main(int argc, char **argv) {
     int ret;
     int exit_value = 0;
 
+#ifdef _WIN32
+    _setmode(_fileno(stdin), _O_BINARY);
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stderr), _O_BINARY);
+#endif
 
     if (argc <= 1) {
 	usage(argv[0]);
@@ -482,7 +502,7 @@ int main(int argc, char **argv) {
 		    if (xmlCatalogIsEmpty(catal)) {
 			remove(argv[i + 1]);
 		    } else {
-			out = fopen(argv[i + 1], "w");
+			out = fopen(argv[i + 1], "wb");
 			if (out == NULL) {
 			    fprintf(stderr, "could not open %s for saving\n",
 				    argv[i + 1]);
@@ -497,7 +517,7 @@ int main(int argc, char **argv) {
 			if (xmlCatalogIsEmpty(super)) {
 			    remove(XML_SGML_DEFAULT_CATALOG);
 			} else {
-			    out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
+			    out = fopen(XML_SGML_DEFAULT_CATALOG, "wb");
 			    if (out == NULL) {
 				fprintf(stderr,
 					"could not open %s for saving\n",
@@ -587,7 +607,7 @@ int main(int argc, char **argv) {
 	if (noout && filename && *filename) {
 	    FILE *out;
 
-	    out = fopen(filename, "w");
+	    out = fopen(filename, "wb");
 	    if (out == NULL) {
 		fprintf(stderr, "could not open %s for saving\n", filename);
 		exit_value = 2;

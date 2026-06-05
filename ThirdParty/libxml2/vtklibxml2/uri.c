@@ -19,6 +19,7 @@
 #include <libxml/xmlerror.h>
 
 #include "private/error.h"
+#include "private/memory.h"
 
 /**
  * MAX_URI_LENGTH:
@@ -231,6 +232,15 @@ xmlParse3986Scheme(xmlURIPtr uri, const char **str) {
     if (!ISA_ALPHA(cur))
 	return(1);
     cur++;
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    /*
+     * Don't treat Windows drive letters as scheme.
+     */
+    if (*cur == ':')
+        return(1);
+#endif
+
     while (ISA_ALPHA(cur) || ISA_DIGIT(cur) ||
            (*cur == '+') || (*cur == '-') || (*cur == '.')) cur++;
     if (uri != NULL) {
@@ -582,11 +592,21 @@ xmlParse3986Segment(xmlURIPtr uri, const char **str, char forbid, int empty)
     const char *cur;
 
     cur = *str;
-    if (!ISA_PCHAR(uri, cur)) {
+    if (!ISA_PCHAR(uri, cur) || (*cur == forbid)) {
         if (empty)
 	    return(0);
 	return(1);
     }
+    NEXT(cur);
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    /*
+     * Allow Windows drive letters.
+     */
+    if ((forbid == ':') && (*cur == forbid))
+        NEXT(cur);
+#endif
+
     while (ISA_PCHAR(uri, cur) && (*cur != forbid))
         NEXT(cur);
     *str = cur;
@@ -1100,15 +1120,15 @@ xmlCreateURI(void) {
 static xmlChar *
 xmlSaveUriRealloc(xmlChar *ret, int *max) {
     xmlChar *temp;
-    int tmp;
+    int newSize;
 
-    if (*max > MAX_URI_LENGTH)
+    newSize = xmlGrowCapacity(*max, 1, 80, MAX_URI_LENGTH);
+    if (newSize < 0)
         return(NULL);
-    tmp = *max * 2;
-    temp = (xmlChar *) xmlRealloc(ret, (tmp + 1));
+    temp = xmlRealloc(ret, newSize + 1);
     if (temp == NULL)
         return(NULL);
-    *max = tmp;
+    *max = newSize;
     return(temp);
 }
 
@@ -1132,7 +1152,7 @@ xmlSaveUri(xmlURIPtr uri) {
 
 
     max = 80;
-    ret = (xmlChar *) xmlMallocAtomic(max + 1);
+    ret = xmlMalloc(max + 1);
     if (ret == NULL)
 	return(NULL);
     len = 0;
@@ -1625,7 +1645,7 @@ xmlURIUnescapeString(const char *str, int len, char *target) {
     if (len < 0) return(NULL);
 
     if (target == NULL) {
-	ret = (char *) xmlMallocAtomic(len + 1);
+	ret = xmlMalloc(len + 1);
 	if (ret == NULL)
 	    return(NULL);
     } else
@@ -1676,7 +1696,6 @@ xmlURIUnescapeString(const char *str, int len, char *target) {
 xmlChar *
 xmlURIEscapeStr(const xmlChar *str, const xmlChar *list) {
     xmlChar *ret, ch;
-    xmlChar *temp;
     const xmlChar *in;
     int len, out;
 
@@ -1687,22 +1706,28 @@ xmlURIEscapeStr(const xmlChar *str, const xmlChar *list) {
     len = xmlStrlen(str);
 
     len += 20;
-    ret = (xmlChar *) xmlMallocAtomic(len);
+    ret = xmlMalloc(len);
     if (ret == NULL)
 	return(NULL);
     in = (const xmlChar *) str;
     out = 0;
     while(*in != 0) {
 	if (len - out <= 3) {
-            if (len > INT_MAX / 2)
+            xmlChar *temp;
+            int newSize;
+
+            newSize = xmlGrowCapacity(len, 1, 1, XML_MAX_ITEMS);
+            if (newSize < 0) {
+		xmlFree(ret);
                 return(NULL);
-            temp = xmlRealloc(ret, len * 2);
+            }
+            temp = xmlRealloc(ret, newSize);
 	    if (temp == NULL) {
 		xmlFree(ret);
 		return(NULL);
 	    }
 	    ret = temp;
-            len *= 2;
+            len = newSize;
 	}
 
 	ch = *in;
@@ -2064,6 +2089,23 @@ xmlBuildURISafe(const xmlChar *URI, const xmlChar *base, xmlChar **valPtr) {
         return(xmlResolvePath(URI, base, valPtr));
     }
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+    /*
+     * Resolve paths with a Windows drive letter as filesystem path
+     * even if base has a scheme.
+     */
+    if ((ref != NULL) && (ref->path != NULL)) {
+        int c = ref->path[0];
+
+        if ((((c >= 'A') && (c <= 'Z')) ||
+             ((c >= 'a') && (c <= 'z'))) &&
+            (ref->path[1] == ':')) {
+            xmlFreeURI(ref);
+            return(xmlResolvePath(URI, base, valPtr));
+        }
+    }
+#endif
+
     ret = xmlParseURISafe((const char *) base, &bas);
     if (ret < 0)
         goto done;
@@ -2270,7 +2312,7 @@ xmlBuildURISafe(const xmlChar *URI, const xmlChar *base, xmlChar **valPtr) {
 	len += strlen(ref->path);
     if (bas->path != NULL)
 	len += strlen(bas->path);
-    res->path = (char *) xmlMallocAtomic(len);
+    res->path = xmlMalloc(len);
     if (res->path == NULL)
 	goto done;
     res->path[0] = 0;
@@ -2495,12 +2537,10 @@ done:
  * @valPtr:  pointer to result URI
  *
  * Expresses the URI of the reference in terms relative to the
- * base.  Some examples of this operation include:
+ * base. Some examples of this operation include:
+ *
  *     base = "http://site1.com/docs/book1.html"
  *        URI input                        URI returned
- *     docs/pic1.gif                    pic1.gif
- *     docs/img/pic1.gif                img/pic1.gif
- *     img/pic1.gif                     ../img/pic1.gif
  *     http://site1.com/docs/pic1.gif   pic1.gif
  *     http://site2.com/docs/pic1.gif   http://site2.com/docs/pic1.gif
  *
@@ -2510,13 +2550,6 @@ done:
  *     docs/img/pic1.gif                img/pic1.gif
  *     img/pic1.gif                     ../img/pic1.gif
  *     http://site1.com/docs/pic1.gif   http://site1.com/docs/pic1.gif
- *
- *
- * Note: if the URI reference is really weird or complicated, it may be
- *       worthwhile to first convert it into a "nice" one by calling
- *       xmlBuildURI (using 'base') before calling this routine,
- *       since this routine (for reasonable efficiency) assumes URI has
- *       already been through some validation.
  *
  * Available since 2.13.0.
  *

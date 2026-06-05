@@ -176,24 +176,18 @@ struct _xmlOutputBuffer {
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /** DOC_DISABLE */
-#define XML_GLOBALS_IO \
-  XML_OP(xmlParserInputBufferCreateFilenameValue, \
-           xmlParserInputBufferCreateFilenameFunc, XML_DEPRECATED) \
-  XML_OP(xmlOutputBufferCreateFilenameValue, \
-           xmlOutputBufferCreateFilenameFunc, XML_DEPRECATED)
+XML_DEPRECATED
+XMLPUBFUN xmlParserInputBufferCreateFilenameFunc *
+__xmlParserInputBufferCreateFilenameValue(void);
+XML_DEPRECATED
+XMLPUBFUN xmlOutputBufferCreateFilenameFunc *
+__xmlOutputBufferCreateFilenameValue(void);
 
-#define XML_OP XML_DECLARE_GLOBAL
-XML_GLOBALS_IO
-#undef XML_OP
-
-#if defined(LIBXML_THREAD_ENABLED) && !defined(XML_GLOBALS_NO_REDEFINITION)
+#ifndef XML_GLOBALS_NO_REDEFINITION
   #define xmlParserInputBufferCreateFilenameValue \
-    XML_GLOBAL_MACRO(xmlParserInputBufferCreateFilenameValue)
+    (*__xmlParserInputBufferCreateFilenameValue())
   #define xmlOutputBufferCreateFilenameValue \
-    XML_GLOBAL_MACRO(xmlOutputBufferCreateFilenameValue)
-#else
-#define xmlParserInputBufferCreateFilenameValue vtklibxml2_xmlParserInputBufferCreateFilenameValue
-#define xmlOutputBufferCreateFilenameValue vtklibxml2_xmlOutputBufferCreateFilenameValue
+    (*__xmlOutputBufferCreateFilenameValue())
 #endif
 /** DOC_ENABLE */
 
@@ -214,6 +208,7 @@ XMLPUBFUN xmlParserInputBufferPtr
 XMLPUBFUN xmlParserInputBufferPtr
 	xmlParserInputBufferCreateFilename	(const char *URI,
                                                  xmlCharEncoding enc);
+XML_DEPRECATED
 XMLPUBFUN xmlParserInputBufferPtr
 	xmlParserInputBufferCreateFile		(FILE *file,
                                                  xmlCharEncoding enc);
@@ -231,12 +226,15 @@ XMLPUBFUN xmlParserInputBufferPtr
 						 xmlInputCloseCallback  ioclose,
 						 void *ioctx,
 	                                         xmlCharEncoding enc);
+XML_DEPRECATED
 XMLPUBFUN int
 	xmlParserInputBufferRead		(xmlParserInputBufferPtr in,
 						 int len);
+XML_DEPRECATED
 XMLPUBFUN int
 	xmlParserInputBufferGrow		(xmlParserInputBufferPtr in,
 						 int len);
+XML_DEPRECATED
 XMLPUBFUN int
 	xmlParserInputBufferPush		(xmlParserInputBufferPtr in,
 						 int len,
@@ -252,7 +250,7 @@ XMLPUBFUN int
 						 xmlInputReadCallback readFunc,
 						 xmlInputCloseCallback closeFunc);
 
-xmlParserInputBufferPtr
+XMLPUBFUN xmlParserInputBufferPtr
 	__xmlParserInputBufferCreateFilename(const char *URI,
 						xmlCharEncoding enc);
 
@@ -321,7 +319,7 @@ XMLPUBFUN int
 					 xmlOutputWriteCallback writeFunc,
 					 xmlOutputCloseCallback closeFunc);
 
-xmlOutputBufferPtr
+XMLPUBFUN xmlOutputBufferPtr
 	__xmlOutputBufferCreateFilename(const char *URI,
                               xmlCharEncodingHandlerPtr encoder,
                               int compression);
@@ -398,26 +396,6 @@ XML_DEPRECATED
 XMLPUBFUN int
 	xmlIOHTTPClose			(void * context);
 #endif /* LIBXML_HTTP_ENABLED */
-
-/**
- * Default 'ftp://' protocol callbacks
- */
-#if defined(LIBXML_FTP_ENABLED)
-XML_DEPRECATED
-XMLPUBFUN int
-	xmlIOFTPMatch			(const char *filename);
-XML_DEPRECATED
-XMLPUBFUN void *
-	xmlIOFTPOpen			(const char *filename);
-XML_DEPRECATED
-XMLPUBFUN int
-	xmlIOFTPRead			(void * context,
-					 char * buffer,
-					 int len);
-XML_DEPRECATED
-XMLPUBFUN int
-	xmlIOFTPClose			(void * context);
-#endif /* defined(LIBXML_FTP_ENABLED) */
 
 XMLPUBFUN xmlParserInputBufferCreateFilenameFunc
 	xmlParserInputBufferCreateFilenameDefault(

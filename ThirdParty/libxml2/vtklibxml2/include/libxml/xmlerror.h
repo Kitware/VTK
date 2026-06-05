@@ -16,6 +16,12 @@
 extern "C" {
 #endif
 
+/*
+ * Backward compatibility
+ */
+#define initGenericErrorDefaultFunc(h) \
+    xmlSetGenericErrorFunc(NULL, (h) ? *((xmlGenericErrorFunc *) (h)) : NULL)
+
 /**
  * xmlErrorLevel:
  *
@@ -865,29 +871,20 @@ typedef void (*xmlGenericErrorFunc) (void *ctx,
 typedef void (*xmlStructuredErrorFunc) (void *userData, const xmlError *error);
 
 /** DOC_DISABLE */
-#define XML_GLOBALS_ERROR \
-  XML_OP(xmlLastError, xmlError, XML_DEPRECATED) \
-  XML_OP(xmlGenericError, xmlGenericErrorFunc, XML_NO_ATTR) \
-  XML_OP(xmlGenericErrorContext, void *, XML_NO_ATTR) \
-  XML_OP(xmlStructuredError, xmlStructuredErrorFunc, XML_NO_ATTR) \
-  XML_OP(xmlStructuredErrorContext, void *, XML_NO_ATTR)
+XML_DEPRECATED
+XMLPUBFUN const xmlError *__xmlLastError(void);
 
-#define XML_OP XML_DECLARE_GLOBAL
-XML_GLOBALS_ERROR
-#undef XML_OP
+XMLPUBFUN xmlGenericErrorFunc *__xmlGenericError(void);
+XMLPUBFUN void **__xmlGenericErrorContext(void);
+XMLPUBFUN xmlStructuredErrorFunc *__xmlStructuredError(void);
+XMLPUBFUN void **__xmlStructuredErrorContext(void);
 
-#if defined(LIBXML_THREAD_ENABLED) && !defined(XML_GLOBALS_NO_REDEFINITION)
-  #define xmlLastError XML_GLOBAL_MACRO(xmlLastError)
-  #define xmlGenericError XML_GLOBAL_MACRO(xmlGenericError)
-  #define xmlGenericErrorContext XML_GLOBAL_MACRO(xmlGenericErrorContext)
-  #define xmlStructuredError XML_GLOBAL_MACRO(xmlStructuredError)
-  #define xmlStructuredErrorContext XML_GLOBAL_MACRO(xmlStructuredErrorContext)
-#else
-#define xmlLastError vtklibxml2_xmlLastError
-#define xmlGenericError vtklibxml2_xmlGenericError
-#define xmlGenericErrorContext vtklibxml2_xmlGenericErrorContext
-#define xmlStructuredError vtklibxml2_xmlStructuredError
-#define xmlStructuredErrorContext vtklibxml2_xmlStructuredErrorContext
+#ifndef XML_GLOBALS_NO_REDEFINITION
+  #define xmlLastError (*__xmlLastError())
+  #define xmlGenericError (*__xmlGenericError())
+  #define xmlGenericErrorContext (*__xmlGenericErrorContext())
+  #define xmlStructuredError (*__xmlStructuredError())
+  #define xmlStructuredErrorContext (*__xmlStructuredErrorContext())
 #endif
 /** DOC_ENABLE */
 
@@ -902,9 +899,6 @@ XML_DEPRECATED
 XMLPUBFUN void
     xmlThrDefSetGenericErrorFunc(void *ctx,
                                  xmlGenericErrorFunc handler);
-XML_DEPRECATED
-XMLPUBFUN void
-    initGenericErrorDefaultFunc	(xmlGenericErrorFunc *handler);
 
 XMLPUBFUN void
     xmlSetStructuredErrorFunc	(void *ctx,

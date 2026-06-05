@@ -14,17 +14,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+  #include <io.h>
+#else
+  #include <unistd.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#elif defined (_WIN32)
-#include <io.h>
-#endif
+
 #ifdef LIBXML_ZLIB_ENABLED
 #include <vtk_zlib.h>
 #endif
@@ -101,8 +99,8 @@ xz_error(xz_statep state, int err, const char *msg)
     }
 
     /* construct error message with path */
-    if ((state->msg =
-         xmlMalloc(strlen(state->path) + strlen(msg) + 3)) == NULL) {
+    state->msg = xmlMalloc(strlen(state->path) + strlen(msg) + 3);
+    if (state->msg == NULL) {
         state->err = LZMA_MEM_ERROR;
         state->msg = (char *) "out of memory";
         return;
@@ -110,7 +108,6 @@ xz_error(xz_statep state, int err, const char *msg)
     strcpy(state->msg, state->path);
     strcat(state->msg, ": ");
     strcat(state->msg, msg);
-    return;
 }
 
 static void
