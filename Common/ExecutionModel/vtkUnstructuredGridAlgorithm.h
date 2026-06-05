@@ -91,6 +91,9 @@ protected:
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
+  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+
   /**
    * This is called by the superclass.
    * This is the method you should override.

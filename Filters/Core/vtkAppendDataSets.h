@@ -35,6 +35,7 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkDataSetCollection;
 
@@ -158,6 +159,8 @@ private:
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.
   vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector** inputVector);
+
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END

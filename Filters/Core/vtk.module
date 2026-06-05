@@ -26,6 +26,7 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonMisc
 PRIVATE_DEPENDS
+  VTK::CommonCache
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
@@ -41,6 +42,7 @@ TEST_DEPENDS
   VTK::FiltersSources
   VTK::FiltersTexture
   VTK::IOExodus
+  VTK::IOHDF
   VTK::IOImage
   VTK::IOIOSS
   VTK::IOLegacy

@@ -1607,18 +1607,20 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
   if (this->GetGenerateClipPointTypes())
   {
     vtkNew<vtkUnsignedCharArray> clipPointTypes;
-    clipPointTypes->SetName("vtkClipPointTypes");
+    clipPointTypes->SetName(vtkTableBasedClipDataSet::GetPointTypesArrayName());
     clipPointTypes->SetNumberOfTuples(outputPoints->GetNumberOfPoints());
     auto clipPointTypePtr = clipPointTypes->GetPointer(0);
     // Mark kept points
-    vtkSMPTools::Fill(
-      clipPointTypePtr, clipPointTypePtr + numberOfKeptPoints, static_cast<unsigned char>(0));
+    vtkSMPTools::Fill(clipPointTypePtr, clipPointTypePtr + numberOfKeptPoints,
+      static_cast<unsigned char>(vtkTableBasedClipDataSet::InputPoint));
     // Mark edge points
     vtkSMPTools::Fill(clipPointTypePtr + numberOfKeptPoints,
-      clipPointTypePtr + numberOfKeptPoints + numberOfEdges, static_cast<unsigned char>(1));
+      clipPointTypePtr + numberOfKeptPoints + numberOfEdges,
+      static_cast<unsigned char>(vtkTableBasedClipDataSet::EdgePoint));
     // Mark centroid points
     vtkSMPTools::Fill(clipPointTypePtr + numberOfKeptPoints + numberOfEdges,
-      clipPointTypePtr + outputPoints->GetNumberOfPoints(), static_cast<unsigned char>(2));
+      clipPointTypePtr + outputPoints->GetNumberOfPoints(),
+      static_cast<unsigned char>(vtkTableBasedClipDataSet::CentroidPoint));
     outputPointData->AddArray(clipPointTypes);
   }
 

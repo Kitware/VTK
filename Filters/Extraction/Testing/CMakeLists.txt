@@ -1,6 +1,9 @@
 vtk_module_test_data(
   Data/cad_cubes.vtp
-  Data/can.ex2)
+  Data/can.ex2
+  Data/vtkHDF/TestExtractGeometryBaseline.vtkhdf
+  Data/vtkHDF/TestExtractGeometryCompositeBaseline.vtkhdf
+)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

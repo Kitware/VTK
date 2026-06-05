@@ -5,10 +5,9 @@
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
+#include <vtkNew.h>
 #include <vtkPolyLine.h>
 #include <vtkPolygon.h>
-#include <vtkSmartPointer.h>
-#include <vtkXMLPolyDataWriter.h>
 
 #include <iostream>
 
@@ -16,42 +15,32 @@ namespace
 {
 int TestAppendPolyDataBase()
 {
-  vtkSmartPointer<vtkPoints> pointsArray0 = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> pointsArray0;
   pointsArray0->InsertNextPoint(0.0, 0.0, 0.0);
   pointsArray0->InsertNextPoint(1.0, 1.0, 1.0);
 
-  vtkSmartPointer<vtkPoints> pointsArray1 = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkPoints> pointsArray1;
+  vtkNew<vtkCellArray> vertices;
   vtkIdType pointIds[1];
   pointIds[0] = pointsArray1->InsertNextPoint(5.0, 5.0, 5.0);
   vertices->InsertNextCell(1, pointIds);
   pointIds[0] = pointsArray1->InsertNextPoint(6.0, 6.0, 6.0);
   vertices->InsertNextCell(1, pointIds);
 
-  vtkSmartPointer<vtkPolyData> inputPolyData0 = vtkSmartPointer<vtkPolyData>::New();
-  vtkSmartPointer<vtkPoints> points0 = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPolyData> inputPolyData0;
+  vtkNew<vtkPoints> points0;
   points0->SetDataType(VTK_FLOAT);
   points0->DeepCopy(pointsArray0);
   inputPolyData0->SetPoints(points0);
 
-  vtkSmartPointer<vtkXMLPolyDataWriter> inputWriter0 = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-  inputWriter0->SetFileName("inputpolydata0.vtp");
-  inputWriter0->SetInputData(inputPolyData0);
-  inputWriter0->Write();
-
-  vtkSmartPointer<vtkPolyData> inputPolyData1 = vtkSmartPointer<vtkPolyData>::New();
-  vtkSmartPointer<vtkPoints> points1 = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPolyData> inputPolyData1;
+  vtkNew<vtkPoints> points1;
   points1->SetDataType(VTK_FLOAT);
   points1->DeepCopy(pointsArray1);
   inputPolyData1->SetPoints(points1);
   inputPolyData1->SetVerts(vertices);
 
-  vtkSmartPointer<vtkXMLPolyDataWriter> inputWriter1 = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-  inputWriter1->SetFileName("inputpolydata1.vtp");
-  inputWriter1->SetInputData(inputPolyData1);
-  inputWriter1->Write();
-
-  vtkSmartPointer<vtkAppendPolyData> appendPolyData = vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkNew<vtkAppendPolyData> appendPolyData;
   appendPolyData->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
 
   appendPolyData->AddInputData(inputPolyData0);
@@ -59,14 +48,8 @@ int TestAppendPolyDataBase()
 
   appendPolyData->Update();
 
-  vtkSmartPointer<vtkPolyData> outputPolyData = appendPolyData->GetOutput();
-  vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-  outputWriter->SetFileName("outputpolydata.vtp");
-  outputWriter->SetInputData(outputPolyData);
-  outputWriter->Write();
-
-  vtkSmartPointer<vtkAppendPolyData> appendPolyDataWithNoCells =
-    vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkPolyData* outputPolyData = appendPolyData->GetOutput();
+  vtkNew<vtkAppendPolyData> appendPolyDataWithNoCells;
   appendPolyDataWithNoCells->SetOutputPointsPrecision(vtkAlgorithm::DEFAULT_PRECISION);
 
   appendPolyDataWithNoCells->AddInputData(inputPolyData0);
@@ -74,13 +57,7 @@ int TestAppendPolyDataBase()
 
   appendPolyDataWithNoCells->Update();
 
-  vtkSmartPointer<vtkPolyData> outputPolyDataWithNoCells = appendPolyDataWithNoCells->GetOutput();
-  vtkSmartPointer<vtkXMLPolyDataWriter> outputWriterWithNoCells =
-    vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-  outputWriterWithNoCells->SetFileName("outputpolydataWithNoCells.vtp");
-  outputWriterWithNoCells->SetInputData(outputPolyDataWithNoCells);
-  outputWriterWithNoCells->Write();
-
+  vtkPolyData* outputPolyDataWithNoCells = appendPolyDataWithNoCells->GetOutput();
   if (outputPolyData->GetNumberOfPoints() !=
     inputPolyData0->GetNumberOfPoints() + inputPolyData1->GetNumberOfPoints())
   {

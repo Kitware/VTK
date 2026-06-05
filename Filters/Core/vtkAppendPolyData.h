@@ -125,6 +125,45 @@ public:
   int ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[], int numInputs)
     VTK_SIZEHINT(inputs, numInputs);
 
+  /**
+   * PolyDataOffsets agregates cell array information from the input polydata list.
+   *
+   * vtkPolyData has 4 vtkCellArray (verts, lines, polys and strips), that should be filled in the
+   * correct order. This is also visible in vtkCellData arrays ordering. When merging poly data, the
+   * output should first aggregate verts (cells and data arrays) from each input, then lines, etc...
+   *
+   * This structure helps knowing the output offset for a given input polydata.
+   *
+   * Also handle number of points.
+   */
+  struct PolyDataOffsets
+  {
+    PolyDataOffsets(const std::vector<vtkPolyData*>& datasets);
+
+    vtkIdType TotalNumberOfPoints = 0;
+    vtkIdType TotalNumberOfCells = 0;
+    vtkIdType TotalNumberOfVerts = 0;
+    vtkIdType TotalNumberOfVertsConnectivity = 0;
+    vtkIdType TotalNumberOfLines = 0;
+    vtkIdType TotalNumberOfLinesConnectivity = 0;
+    vtkIdType TotalNumberOfPolys = 0;
+    vtkIdType TotalNumberOfPolysConnectivity = 0;
+    vtkIdType TotalNumberOfStrips = 0;
+    vtkIdType TotalNumberOfStripsConnectivity = 0;
+    std::vector<vtkIdType> PointOffsets;
+    std::vector<vtkIdType> VertOffsets;
+    std::vector<vtkIdType> VertConnectivityOffsets;
+    std::vector<vtkIdType> LineOffsets;
+    std::vector<vtkIdType> LineConnectivityOffsets;
+    std::vector<vtkIdType> PolyOffsets;
+    std::vector<vtkIdType> PolyConnectivityOffsets;
+    std::vector<vtkIdType> StripOffsets;
+    std::vector<vtkIdType> StripConnectivityOffsets;
+  };
+
+  static void AppendCellData(const PolyDataOffsets& stats, const std::vector<vtkPolyData*>& inputs,
+    vtkPolyData* output, bool useImplicit);
+
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData() override;
@@ -144,6 +183,19 @@ private:
   {
     vtkErrorMacro(<< "AddInput() must be called with a vtkPolyData not a vtkDataObject.");
   }
+
+  /**
+   * Fill the output vtkPoints with a concatenation of inputs ones.
+   */
+  void AppendPoints(
+    const PolyDataOffsets& stats, const std::vector<vtkPolyData*>& inputs, vtkPolyData* output);
+
+  /**
+   * Fill the output 4 vtkCellArray with a concatenation of inputs ones.
+   * Note that from vtkPolyData doc, it insert in order verts, lines, polys then strips.
+   */
+  void AppendCells(
+    const PolyDataOffsets& stats, const std::vector<vtkPolyData*>& inputs, vtkPolyData* output);
 
   vtkTypeBool UserManagedInputs;
 

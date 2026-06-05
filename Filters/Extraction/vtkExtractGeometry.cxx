@@ -3,8 +3,13 @@
 #include "vtkExtractGeometry.h"
 
 #include "vtk3DLinearGridCrinkleExtractor.h"
+#include "vtkAlgorithm.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataObject.h"
+#include "vtkDataObjectMeshCache.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractCells.h"
@@ -12,6 +17,7 @@
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMeshCacheRunner.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
@@ -35,6 +41,10 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction* f)
   this->ExtractInside = 1;
   this->ExtractBoundaryCells = 0;
   this->ExtractOnlyBoundaryCells = 0;
+
+  this->MeshCache->SetConsumer(this);
+  this->MeshCache->ForwardAttribute(vtkDataObject::POINT);
+  this->MeshCache->ForwardAttribute(vtkDataObject::CELL);
 }
 
 //------------------------------------------------------------------------------
@@ -312,11 +322,145 @@ struct EvaluateCells
 } // end anon namespace
 
 //------------------------------------------------------------------------------
+int vtkExtractGeometry::RequestDataObject(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  auto compositeInput = vtkCompositeDataSet::GetData(inInfo);
+  if (compositeInput)
+  {
+    if (!vtkCompositeDataSet::GetData(outInfo))
+    {
+      auto newOutput = compositeInput->NewInstance();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+      newOutput->FastDelete();
+    }
+    return 1;
+  }
+
+  return Superclass::RequestDataObject(request, inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
 int vtkExtractGeometry::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the input
-  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
+  vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0]->GetInformationObject(0));
+  vtkDataObject* outputDO = vtkDataObject::GetData(outputVector->GetInformationObject(0));
+
+  vtkMeshCacheRunner runner{ this->MeshCache, inputDO, outputDO, true };
+  if (runner.GetCacheLoaded())
+  {
+    return 1;
+  }
+
+  auto treeInput = vtkDataObjectTree::GetData(inputVector[0]);
+  auto treeOutput = vtkDataObjectTree::GetData(outputVector);
+  if (treeInput && treeOutput)
+  {
+    this->InitializeOutput(treeInput, treeOutput);
+    int ret = 1;
+
+    vtkSmartPointer<vtkDataObjectTreeIterator> outIter;
+    outIter.TakeReference(treeOutput->NewTreeIterator());
+    outIter->SkipEmptyNodesOff();
+
+    vtkSmartPointer<vtkDataObjectTreeIterator> inputIter;
+    inputIter.TakeReference(treeInput->NewTreeIterator());
+    inputIter->SkipEmptyNodesOff();
+
+    outIter->InitTraversal();
+    int nbOfLeaves = treeInput->GetNumberOfChildren();
+    int currentLeaveIdx = 0;
+    for (inputIter->InitTraversal(); !inputIter->IsDoneWithTraversal(); inputIter->GoToNextItem())
+    {
+      // Internal API for leaf processing uses vtkInformationVector.
+      // As our input is (now) a Composite, we should replace the DATA_OBJECT key content
+      // by the current leaf dataset.
+      auto inLeafVector =
+        this->DuplicateInfoForLeaf(inputVector[0], inputIter->GetCurrentDataObject());
+      std::vector<vtkInformationVector*> inLeafVectors;
+      inLeafVectors.push_back(inLeafVector);
+
+      auto outLeafVector =
+        this->DuplicateInfoForLeaf(outputVector, outIter->GetCurrentDataObject());
+
+      this->SetProgressShiftScale(currentLeaveIdx / nbOfLeaves, 1 / nbOfLeaves);
+      ret = ret && this->ExtractLeaf(request, inLeafVectors.data(), outLeafVector);
+      currentLeaveIdx++;
+      outIter->GoToNextItem();
+    }
+    return ret;
+  }
+  else
+  {
+    return this->ExtractLeaf(request, inputVector, outputVector);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkInformationVector> vtkExtractGeometry::DuplicateInfoForLeaf(
+  vtkInformationVector* inputInfo, vtkDataObject* leaf)
+{
+  vtkNew<vtkInformationVector> leafVector;
+  leafVector->Copy(inputInfo, 1);
+  vtkInformation* leafInfo = leafVector->GetInformationObject(0);
+  leafInfo->Set(vtkDataObject::DATA_OBJECT(), leaf);
+
+  return leafVector;
+}
+
+//------------------------------------------------------------------------------
+int vtkExtractGeometry::FillOutputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkExtractGeometry::FillInputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Implicit Function: " << static_cast<void*>(this->ImplicitFunction) << "\n";
+  os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");
+  os << indent << "Extract Boundary Cells: " << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
+  os << indent
+     << "Extract Only Boundary Cells: " << (this->ExtractOnlyBoundaryCells ? "On\n" : "Off\n");
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractGeometry::InitializeOutput(
+  vtkDataObjectTree* treeInput, vtkDataObjectTree* treeOutput)
+{
+  treeOutput->CopyStructure(treeInput);
+
+  vtkSmartPointer<vtkDataObjectTreeIterator> outIter;
+  outIter.TakeReference(treeOutput->NewTreeIterator());
+  outIter->SkipEmptyNodesOff();
+
+  for (outIter->InitTraversal(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
+  {
+    vtkNew<vtkUnstructuredGrid> newOutput;
+    treeOutput->SetDataSet(outIter, newOutput);
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractGeometry::ExtractLeaf(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   if (!input)
   {
     return 0;
@@ -406,22 +550,4 @@ int vtkExtractGeometry::RequestData(
   return extractCells->ProcessRequest(request, inputVector, outputVector);
 }
 
-//------------------------------------------------------------------------------
-int vtkExtractGeometry::FillInputPortInformation(int, vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Implicit Function: " << static_cast<void*>(this->ImplicitFunction) << "\n";
-  os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");
-  os << indent << "Extract Boundary Cells: " << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
-  os << indent
-     << "Extract Only Boundary Cells: " << (this->ExtractOnlyBoundaryCells ? "On\n" : "Off\n");
-}
 VTK_ABI_NAMESPACE_END

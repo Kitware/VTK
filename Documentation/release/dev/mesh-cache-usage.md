@@ -3,6 +3,8 @@
 More VTK filters use vtkDataObjectMeshCache to optimize their
 RequestData when input mesh did not change across execution.
 The following filters were updated:
+- vtkAppendDataSets
+- vtkExtractGeometry
 - vtkTransformFilter
 
 ### Developper notes

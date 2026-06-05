@@ -76,6 +76,8 @@ int vtkForceStaticMesh::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   output->ShallowCopy(this->Cache);
+  // let the pipeline handle the timestep: do not reuse the cached data time step value.
+  output->GetInformation()->Remove(vtkDataObject::DATA_TIME_STEP());
 
   return 1;
 }

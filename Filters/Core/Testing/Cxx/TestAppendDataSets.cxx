@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <cstdlib>
 #include <vtkAppendDataSets.h>
 #include <vtkCellData.h>
 #include <vtkCompositeDataIterator.h>
@@ -10,22 +11,24 @@
 #include <vtkDataSet.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDataSetSurfaceFilter.h>
+#include <vtkHDFReader.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
+#include <vtkInformation.h>
 #include <vtkIntArray.h>
+#include <vtkLogger.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPointSet.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLMultiBlockDataReader.h>
 
 #include <numeric> // for iota
-
-#include <iostream>
 
 //////////////////////////////////////////////////////////////////////////////
 namespace
@@ -178,36 +181,9 @@ int strcmp_null(const char* s1, const char* s2)
 //////////////////////////////////////////////////////////////////////////////
 // Prints and checks point/cell data
 //////////////////////////////////////////////////////////////////////////////
-int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, int fieldType)
+int Check(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, int fieldType)
 {
   vtkDataSetAttributes* dataArrays = output->GetAttributes(fieldType);
-  std::cout << "Evaluating '" << dataArrays->GetClassName() << "'\n";
-
-  for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
-  {
-    vtkDataArray* outputArray = vtkArrayDownCast<vtkDataArray>(dataArrays->GetArray(arrayIndex));
-    const char* outputArrayName = outputArray->GetName();
-    std::cout << "Array " << arrayIndex << " - ";
-    std::cout << (outputArrayName ? outputArrayName : "(null)") << ": [ ";
-    int numTuples = outputArray->GetNumberOfTuples();
-    int numComponents = outputArray->GetNumberOfComponents();
-    for (int i = 0; i < numTuples; ++i)
-    {
-      if (numComponents > 1)
-        std::cout << "(";
-      for (int j = 0; j < numComponents; ++j)
-      {
-        std::cout << outputArray->GetComponent(i, j);
-        if (j < numComponents - 1)
-          std::cout << ", ";
-      }
-      if (numComponents > 1)
-        std::cout << ")";
-      if (i < numTuples - 1)
-        std::cout << ", ";
-    }
-    std::cout << " ]\n";
-  }
 
   // Test the output
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
@@ -229,17 +205,17 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
       vtkDataArray* array = inputs[inputIndex]->GetAttributes(fieldType)->GetArray(arrayName);
       if (!array)
       {
-        std::cerr << "No array named '" << arrayName << "' in input " << inputIndex << "\n";
+        vtkLog(ERROR, << "No array named '" << arrayName << "' in input " << inputIndex);
         return 0;
       }
       numInputTuples += array->GetNumberOfTuples();
     }
     if (numInputTuples != outputArray->GetNumberOfTuples())
     {
-      std::cerr
-        << "Number of tuples in output does not match total number of tuples in input arrays\n";
-      std::cerr << "Expected " << numInputTuples << ", but got " << outputArray->GetNumberOfTuples()
-                << std::endl;
+      vtkLog(
+        ERROR, << "Number of tuples in output does not match total number of tuples in input arrays"
+               << "Expected " << numInputTuples << ", but got "
+               << outputArray->GetNumberOfTuples());
       return 0;
     }
 
@@ -254,8 +230,8 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
         {
           if (array->GetComponent(i, j) != outputArray->GetComponent(i + offset, j))
           {
-            std::cerr << "Mismatched output at output tuple " << i << " component " << j
-                      << " in input " << arrayIndex << "\n";
+            vtkLog(ERROR, << "Mismatched output at output tuple " << i << " component " << j
+                          << " in input " << arrayIndex);
             return 0;
           }
         }
@@ -271,13 +247,6 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
 
     // Check if all of the inputs have an attribute
     vtkDataArray* outputAttributeArray = dataArrays->GetAttribute(attributeIndex);
-    if (outputAttributeArray)
-    {
-      std::cout << "Active attribute '" << attributeName << "' in output: "
-                << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
-                << "\n";
-    }
-
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
     {
       vtkAbstractArray* inputAttributeArray =
@@ -285,16 +254,17 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
 
       if (outputAttributeArray && !inputAttributeArray)
       {
-        std::cerr << "Output had attribute array for '" << attributeName << "' but input "
-                  << inputIndex << " did not.\n";
+        vtkLog(ERROR, << "Output had attribute array for '" << attributeName << "' but input "
+                      << inputIndex << " did not.");
         return 0;
       }
       else if (outputAttributeArray && inputAttributeArray &&
         strcmp_null(outputAttributeArray->GetName(), inputAttributeArray->GetName()) != 0)
       {
-        std::cerr << "Output had array '"
-                  << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
-                  << "' specified as attribute '" << attributeName << "'\n";
+        vtkLog(
+          ERROR, << "Output had array '"
+                 << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
+                 << "' specified as attribute '" << attributeName);
         return 0;
       }
     }
@@ -335,20 +305,20 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
         inputs[0]->GetAttributes(fieldType)->GetAbstractAttribute(attributeIndex)->GetName();
       if (!outputAttributeArray)
       {
-        std::cerr << "Inputs all have the attribute '" << attributeName << "' set to the name '"
-                  << (attributeArrayName ? attributeArrayName : "(null)")
-                  << "', but the output does not "
-                  << "have this attribute\n";
+        vtkLog(ERROR, << "Inputs all have the attribute '" << attributeName << "' set to the name '"
+                      << (attributeArrayName ? attributeArrayName : "(null)")
+                      << "', but the output does not "
+                      << "have this attribute");
         return 0;
       }
       else if (strcmp_null(outputAttributeArray->GetName(), attributeArrayName) != 0)
       {
-        std::cerr << "Inputs have attribute '" << attributeName << "' set to the name '"
-                  << (attributeArrayName ? attributeArrayName : "(null)")
-                  << "', but the output attribute "
-                  << "has the attribute set to the name '"
-                  << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)")
-                  << "\n";
+        vtkLog(
+          ERROR, << "Inputs have attribute '" << attributeName << "' set to the name '"
+                 << (attributeArrayName ? attributeArrayName : "(null)")
+                 << "', but the output attribute "
+                 << "has the attribute set to the name '"
+                 << (outputAttributeArray->GetName() ? outputAttributeArray->GetName() : "(null)"));
         return 0;
       }
       else
@@ -370,8 +340,8 @@ int PrintAndCheck(const std::vector<vtkDataSet*>& inputs, vtkDataSet* output, in
               if (attributeArray->GetComponent(i, j) !=
                 outputAttributeArray->GetComponent(i + offset, j))
               {
-                std::cerr << "Mismatched output in attribute at output tuple " << i << "component "
-                          << j << " in input " << inputIndex << "\n";
+                vtkLog(ERROR, << "Mismatched output in attribute at output tuple " << i
+                              << "component " << j << " in input " << inputIndex);
                 return 0;
               }
             }
@@ -397,25 +367,25 @@ int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendDataSets* append)
   if (output->GetPointData()->GetNumberOfArrays() > 0 &&
     output->GetPointData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfPoints())
   {
-    std::cerr << "Wrong number of tuples in output point data arrays\n";
+    vtkLog(ERROR, << "Wrong number of tuples in output point data arrays");
     return 0;
   }
 
   if (output->GetCellData()->GetNumberOfArrays() > 0 &&
     output->GetCellData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfCells())
   {
-    std::cerr << "Wrong number of tuples in output cell data arrays\n";
+    vtkLog(ERROR, << "Wrong number of tuples in output cell data arrays");
     return 0;
   }
 
   if (output->GetPointData()->GetGlobalIds() != nullptr)
   {
-    std::cerr << "Point global ids should have been discarded after merge!\n";
+    vtkLog(ERROR, << "Point global ids should have been discarded after merge!");
     return 0;
   }
   if (output->GetCellData()->GetGlobalIds() == nullptr)
   {
-    std::cerr << "Cell global ids should have been preserved after merge!\n";
+    vtkLog(ERROR, << "Cell global ids should have been preserved after merge!");
     return 0;
   }
 
@@ -439,29 +409,31 @@ bool AppendDatasetsAndPrint(
   vtkDataSet* output = append->GetOutput();
   if (!output->IsA(expectedDataSetType))
   {
-    std::cerr << "Output dataset type is " << output->GetClassName() << " but is expected to be "
-              << expectedDataSetType << std::endl;
+    vtkLog(ERROR, << "Output dataset type is " << output->GetClassName()
+                  << " but is expected to be " << expectedDataSetType);
     return false;
   }
 
-  if (!PrintAndCheck(inputs, output, vtkDataObject::POINT))
+  if (!Check(inputs, output, vtkDataObject::POINT))
   {
+    vtkLog(ERROR, << "Evaluating points failed.");
     return false;
   }
-  if (!PrintAndCheck(inputs, output, vtkDataObject::CELL))
+  if (!Check(inputs, output, vtkDataObject::CELL))
   {
+    vtkLog(ERROR, << "Evaluating cells failed.");
     return false;
   }
 
   if (output->GetPointData()->GetGlobalIds() == nullptr)
   {
-    std::cerr << "Point global ids should have been preserved!\n";
+    vtkLog(ERROR, << "Point global ids should have been preserved!");
     return false;
   }
 
   if (output->GetCellData()->GetGlobalIds() == nullptr)
   {
-    std::cerr << "Cell global ids should have been preserved!\n";
+    vtkLog(ERROR, << "Cell global ids should have been preserved!");
     return false;
   }
 
@@ -483,7 +455,7 @@ bool TestToleranceModes(vtkDataSet* dataset1, vtkDataSet* dataset2)
   // This equates to an absolute tolerance of 1.0, which should cause the first two
   // points in the dataset to be merged.
 
-  std::cout << "Testing merging with relative tolerance for '" << dataset1->GetClassName() << "'\n";
+  vtkLog(INFO, << "Testing merging with relative tolerance for '" << dataset1->GetClassName());
 
   double tolerance = 0.25;
   vtkNew<vtkAppendDataSets> append;
@@ -495,45 +467,31 @@ bool TestToleranceModes(vtkDataSet* dataset1, vtkDataSet* dataset2)
   append->Update();
 
   auto output = append->GetOutput();
-  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
-  {
-    double point[3];
-    output->GetPoint(i, point);
-    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2]
-              << std::endl;
-  }
 
   if (output->GetNumberOfPoints() != 2)
   {
-    std::cerr << "Point merging with relative tolerance yielded " << output->GetNumberOfPoints()
-              << " points instead of 2.\n";
+    vtkLog(ERROR, << "Point merging with relative tolerance yielded " << output->GetNumberOfPoints()
+                  << " points instead of 2.");
     return false;
   }
 
   // Test out absolute tolerance
-  std::cout << "Testing merging with absolute tolerance." << std::endl;
+  vtkLog(INFO, << "Testing merging with absolute tolerance.");
   append->ToleranceIsAbsoluteOn();
   append->Update();
 
   output = append->GetOutput();
-  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
-  {
-    double point[3];
-    output->GetPoint(i, point);
-    std::cout << "Point " << i << ": " << point[0] << ", " << point[1] << ", " << point[2]
-              << std::endl;
-  }
-
   if (output->GetNumberOfPoints() != 3)
   {
-    std::cerr << "Point merging with absolute tolerance yielded " << output->GetNumberOfPoints()
-              << " points instead of 3.\n";
+    vtkLog(ERROR, << "Point merging with absolute tolerance yielded " << output->GetNumberOfPoints()
+                  << " points instead of 3.");
     return false;
   }
 
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool TestToleranceModes()
 {
   vtkNew<vtkPoints> points1;
@@ -558,7 +516,7 @@ bool TestToleranceModes()
 
   if (!TestToleranceModes(polydata1, polydata2))
   {
-    std::cerr << "Failed testing tolerance mode for 'vtkPolyData'\n";
+    vtkLog(ERROR, << "Failed testing tolerance mode for 'vtkPolyData'");
     return false;
   }
 
@@ -574,23 +532,223 @@ bool TestToleranceModes()
 
   if (!TestToleranceModes(ugrid1, ugrid2))
   {
-    std::cerr << "Failed testing tolerance mode for 'vtkUnstructuredGrid'\n";
+    vtkLog(ERROR, << "Failed testing tolerance mode for 'vtkUnstructuredGrid'");
     return false;
   }
 
   return true;
 }
 
-} // end anonymous namespace
-
-//////////////////////////////////////////////////////////////////////////////
-// We need argc and argv for the end of the test if vtkIdType is 64 bits
-#ifdef VTK_USE_64BITS_IDS
-int TestAppendDataSets(int argc, char* argv[])
-#else
-int TestAppendDataSets(int, char*[])
-#endif
+//------------------------------------------------------------------------------
+bool TestIdType(int argc, char* argv[])
 {
+#ifdef VTK_USE_64BITS_IDS
+  // This part reads files vtkIdType arrays with vtkIdType of 8 bytes.
+  // It will fail at read the vtkIdType is not set to the proper size
+  vtkLogScopeFunction(INFO);
+
+  const char* startname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_start.vtm");
+  const char* endname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_end.vtm");
+
+  vtkNew<vtkXMLMultiBlockDataReader> readerStart;
+  readerStart->SetFileName(startname);
+  readerStart->Update();
+
+  vtkNew<vtkXMLMultiBlockDataReader> readerEnd;
+  readerEnd->SetFileName(endname);
+  readerEnd->Update();
+
+  auto inputStartCDS = vtkCompositeDataSet::SafeDownCast(readerStart->GetOutputDataObject(0));
+  auto inputEndCDS = vtkCompositeDataSet::SafeDownCast(readerEnd->GetOutputDataObject(0));
+
+  auto startIter = inputStartCDS->NewIterator();
+  auto endIter = inputEndCDS->NewIterator();
+
+  for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+       startIter->GoToNextItem(), endIter->GoToNextItem())
+  {
+    auto startPD = vtkDataSet::SafeDownCast(startIter->GetCurrentDataObject())->GetPointData();
+    auto endPD = vtkDataSet::SafeDownCast(endIter->GetCurrentDataObject())->GetPointData();
+    startPD->SetGlobalIds(
+      vtkIdTypeArray::SafeDownCast(startPD->GetAbstractArray("GlobalPointIds")));
+    endPD->SetGlobalIds(vtkIdTypeArray::SafeDownCast(endPD->GetAbstractArray("GlobalPointIds")));
+  }
+
+  startIter->Delete();
+  endIter->Delete();
+
+  vtkNew<vtkAppendDataSets> appendDataSetsStart;
+  appendDataSetsStart->MergePointsOn();
+  appendDataSetsStart->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+
+  vtkNew<vtkAppendDataSets> appendDataSetsEnd;
+  appendDataSetsEnd->MergePointsOn();
+  appendDataSetsEnd->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+
+  int count = 0;
+
+  inputStartCDS->NewIterator();
+  inputEndCDS->NewIterator();
+  for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+       startIter->GoToNextItem(), endIter->GoToNextItem(), ++count)
+  {
+    appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
+    appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
+  }
+
+  if (count != 4)
+  {
+    vtkLog(ERROR, << "Could not load all input object needed for this test");
+    return false;
+  }
+
+  startIter->Delete();
+  endIter->Delete();
+
+  appendDataSetsStart->Update();
+  appendDataSetsEnd->Update();
+
+  auto startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
+  auto endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
+
+  if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
+    startPS->GetNumberOfPoints() != 182)
+  {
+    vtkLog(ERROR, << "vtkAppendFilter failed to merge blocks using point global ids. "
+                  << "Number of output points is wrong.");
+    return false;
+  }
+
+  vtkIdTypeArray* startData = vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
+  vtkIdTypeArray* endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
+
+  vtkIdType outCellId = 0;
+  vtkPoints* outPoints = startPS->GetPoints();
+  for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
+  {
+    auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
+    vtkPoints* inPoints = ps->GetPoints();
+    vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
+    for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
+    {
+      vtkCell* inCell = ps->GetCell(inCellId);
+      vtkCell* outCell = startPS->GetCell(outCellId);
+      for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
+      {
+        if (startData->GetValue(outCell->GetPointId(pointId)) !=
+          inData->GetValue(inCell->GetPointId(pointId)))
+        {
+          vtkLog(ERROR, << "vtkAppendDataSets failed to merge points using point global ids. "
+                        << "Problem most likely comes from vtkAppendFilter. Cell connectivity of "
+                        << "output cell id " << outCellId << " is wrong.");
+          return false;
+        }
+      }
+    }
+  }
+
+  for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+  {
+    if (startData->GetValue(pointId) != endData->GetValue(pointId))
+    {
+      vtkLog(ERROR, << "vtkAppendDataSets failed to merge points using point global ids. "
+                    << "The problem most likely comes from vtkAppendFilter");
+      return false;
+    }
+  }
+
+  vtkNew<vtkDataSetSurfaceFilter> polyDataConverterStart;
+  polyDataConverterStart->SetInputConnection(readerStart->GetOutputPort());
+  polyDataConverterStart->Update();
+
+  appendDataSetsStart->RemoveAllInputs();
+  appendDataSetsStart->SetOutputDataSetType(VTK_POLY_DATA);
+
+  vtkNew<vtkDataSetSurfaceFilter> polyDataConverterEnd;
+  polyDataConverterEnd->SetInputConnection(readerEnd->GetOutputPort());
+  polyDataConverterEnd->Update();
+
+  appendDataSetsEnd->RemoveAllInputs();
+  appendDataSetsEnd->SetOutputDataSetType(VTK_POLY_DATA);
+
+  inputStartCDS = vtkCompositeDataSet::SafeDownCast(polyDataConverterStart->GetOutputDataObject(0));
+  inputEndCDS = vtkCompositeDataSet::SafeDownCast(polyDataConverterEnd->GetOutputDataObject(0));
+  startIter = inputStartCDS->NewIterator();
+  endIter = inputEndCDS->NewIterator();
+  for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+       startIter->GoToNextItem(), endIter->GoToNextItem())
+  {
+    appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
+    appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
+  }
+  startIter->Delete();
+  endIter->Delete();
+
+  appendDataSetsStart->Update();
+  appendDataSetsEnd->Update();
+
+  startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
+  endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
+
+  if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
+    startPS->GetNumberOfPoints() != 182)
+  {
+    vtkLog(ERROR, << "vtkAppenDataSets failed to clean using point global ids."
+                  << "The problem most likely comes from vtkCleanPolyData");
+    return false;
+  }
+
+  startData = vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
+  endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
+
+  vtkIdType outCellId = 0;
+  vtkPoints* outPoints = startPS->GetPoints();
+  for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
+  {
+    auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
+    vtkPoints* inPoints = ps->GetPoints();
+    vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
+    for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
+    {
+      vtkCell* inCell = ps->GetCell(inCellId);
+      vtkCell* outCell = startPS->GetCell(outCellId);
+      for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
+      {
+        if (startData->GetValue(outCell->GetPointId(pointId)) !=
+          inData->GetValue(inCell->GetPointId(pointId)))
+        {
+          vtkLog(ERROR, << "vtkAppendDataSets failed to merge points using point global ids. "
+                        << "Problem most likely comes from vtkCleanPolyData. Cell connectivity of "
+                        << "output cell id " << outCellId << " is wrong.");
+          return false;
+        }
+      }
+    }
+
+    for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+    {
+      if (startData->GetTuple1(pointId) != endData->GetTuple1(pointId))
+      {
+        vtkLog(ERROR, << "Error when merging points in a poly data multi-block");
+        return false;
+      }
+    }
+  }
+#else
+  // avoid unused variable warnings
+  (void)argc;
+  (void)argv;
+#endif
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestScalars()
+{
+  vtkLogScopeFunction(INFO);
   // Set up d1 data object
   std::vector<DataArrayInfo> d1PointInfo(2, DataArrayInfo());
   d1PointInfo[0].Name = "A";
@@ -639,15 +797,13 @@ int TestAppendDataSets(int, char*[])
   // the input only if all inputs designate the same active attribute.
 
   // Now append these datasets and print the results
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with no active scalars: " << std::endl;
   std::vector<vtkDataSet*> inputs(2, static_cast<vtkDataSet*>(nullptr));
   inputs[0] = d1;
   inputs[1] = d2;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with no active scalars\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR, << "vtkAppendDataSets failed with no active scalars");
+    return false;
   }
 
   // Set the active scalars in the first dataset to "A" and the active scalars in
@@ -656,13 +812,11 @@ int TestAppendDataSets(int, char*[])
   d1->GetCellData()->SetActiveScalars("a");
   d2->GetPointData()->SetActiveScalars("B");
   d2->GetCellData()->SetActiveScalars("b");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with 'A' active scalar in D1, 'B' active scalar in D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with active scalar 'A' in D1, active scalar 'B' in D2\n";
-    return EXIT_FAILURE;
+    vtkLog(
+      ERROR, << "vtkAppendDataSets failed with active scalar 'A' in D1, active scalar 'B' in D2");
+    return false;
   }
 
   // Set the active scalars in the first dataset to "B" and the active scalars in
@@ -671,13 +825,11 @@ int TestAppendDataSets(int, char*[])
   d1->GetCellData()->SetActiveScalars("b");
   d2->GetPointData()->SetActiveScalars("A");
   d2->GetCellData()->SetActiveScalars("a");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with 'B' active scalar in D1, 'A' active scalar in D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with active scalar 'B' in D1, active scalar 'A' in D2\n";
-    return EXIT_FAILURE;
+    vtkLog(
+      ERROR, << "vtkAppendDataSets failed with active scalar 'B' in D1, active scalar 'A' in D2");
+    return false;
   }
 
   // Set the active scalars in both datasets to "A"
@@ -685,13 +837,11 @@ int TestAppendDataSets(int, char*[])
   d1->GetCellData()->SetActiveScalars("a");
   d2->GetPointData()->SetActiveScalars("A");
   d2->GetCellData()->SetActiveScalars("a");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with A active scalar in D1 and D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with active scalar 'A' in D1, active scalar 'A' in D2\n";
-    return EXIT_FAILURE;
+    vtkLog(
+      ERROR, << "vtkAppendDataSets failed with active scalar 'A' in D1, active scalar 'A' in D2");
+    return false;
   }
 
   // Set the active scalars in both datasets to "B"
@@ -699,13 +849,11 @@ int TestAppendDataSets(int, char*[])
   d1->GetCellData()->SetActiveScalars("b");
   d2->GetPointData()->SetActiveScalars("B");
   d2->GetCellData()->SetActiveScalars("b");
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with B active scalar in D1 and D2: " << std::endl;
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with active scalar 'B' in D1, active scalar 'B' in D2\n";
-    return EXIT_FAILURE;
+    vtkLog(
+      ERROR, << "vtkAppendDataSets failed with active scalar 'B' in D1, active scalar 'B' in D2");
+    return false;
   }
 
   std::vector<DataArrayInfo> d3PointInfo(3, DataArrayInfo());
@@ -731,16 +879,20 @@ int TestAppendDataSets(int, char*[])
   CreateDataset(d3, d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
 
   // No common arrays
-  std::cout << "===========================================================\n";
-  std::cout << "Append result with no common array names and no active scalars: " << std::endl;
-  inputs[0] = d1;
-  inputs[1] = d3;
+  inputs.push_back(d3);
   if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with no common array names and no active scalars\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR, << "vtkAppendDataSets failed with no common array names and no active scalars");
+    return false;
   }
 
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestArrayName()
+{
+  vtkLogScopeFunction(INFO);
   // Test appending of nullptr array names with active scalars
   std::vector<DataArrayInfo> d4PointInfo(2, DataArrayInfo());
   d4PointInfo[0].Name = "(null)";
@@ -788,16 +940,19 @@ int TestAppendDataSets(int, char*[])
   d5->GetPointData()->SetScalars(d5->GetPointData()->GetArray(1));
   d5->GetCellData()->SetScalars(d5->GetCellData()->GetArray(1));
 
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with nullptr names: " << std::endl;
-  inputs[0] = d4;
-  inputs[1] = d5;
-  if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
+  if (!AppendDatasetsAndPrint({ d4, d5 }, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with scalar arrays with nullptr names\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR, << "vtkAppendDataSets failed with scalar arrays with nullptr names");
+    return false;
   }
 
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestMultiComponent()
+{
+  vtkLogScopeFunction(INFO);
   std::vector<DataArrayInfo> d6PointInfo(1, DataArrayInfo());
   d6PointInfo[0].Name = "Q";
   d6PointInfo[0].NumberOfComponents = 2;
@@ -827,15 +982,10 @@ int TestAppendDataSets(int, char*[])
   int d7NumberOfPoints = 5;
   int d7NumberOfCells = 7;
   CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with 2 components: " << std::endl;
-  inputs[0] = d6;
-  inputs[1] = d7;
-  if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
+  if (!AppendDatasetsAndPrint({ d6, d7 }, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with scalar arrays with 2 components\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR, << "vtkAppendDataSets failed with scalar arrays with 2 components");
+    return false;
   }
 
   std::vector<DataArrayInfo> d8PointInfo(1, DataArrayInfo());
@@ -850,29 +1000,66 @@ int TestAppendDataSets(int, char*[])
   int d8NumberOfPoints = 11;
   int d8NumberOfCells = 8;
   CreateDataset(d8, d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with same name but different number of components: "
-            << std::endl;
-  inputs[0] = d7;
-  inputs[1] = d8;
-  if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
+  if (!AppendDatasetsAndPrint({ d7, d8 }, "vtkPolyData"))
   {
-    std::cerr
-      << "vtkAppendDataSets failed with scalar arrays with same name but different components\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR,
+      << "vtkAppendDataSets failed with scalar arrays with same name but different components");
+    return false;
   }
 
-  std::cout << "===========================================================\n";
-  std::cout << "Append result of deep copied dataset: " << std::endl;
-  inputs[0] = d7;
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestDeepCopy()
+{
+  vtkLogScopeFunction(INFO);
+  std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
+  d7PointInfo[0].Name = "Q";
+  d7PointInfo[0].NumberOfComponents = 2;
+  d7PointInfo[0].Value = std::vector<int>(2, 15);
+
+  std::vector<DataArrayInfo> d7CellInfo(1, DataArrayInfo());
+  d7CellInfo[0].Name = "Q";
+  d7CellInfo[0].NumberOfComponents = 2;
+  d7CellInfo[0].Value = std::vector<int>(2, 15);
+
+  vtkNew<vtkPolyData> d7;
+  int d7NumberOfPoints = 5;
+  int d7NumberOfCells = 7;
+  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
+
+  vtkNew<vtkPolyData> d8;
   d8->DeepCopy(d7);
-  inputs[1] = d8;
-  if (!AppendDatasetsAndPrint(inputs, "vtkPolyData"))
+  if (!AppendDatasetsAndPrint({ d7, d8 }, "vtkPolyData"))
   {
-    std::cerr << "vtkAppendDataSets failed with deep copied datasets\n";
-    return EXIT_FAILURE;
+    vtkLog(ERROR, << "vtkAppendDataSets failed with deep copied datasets");
+    return false;
   }
+
+  vtkLogScopeFunction(INFO);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestMixedType()
+{
+  vtkLogScopeFunction(INFO);
+
+  std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
+  d7PointInfo[0].Name = "Q";
+  d7PointInfo[0].NumberOfComponents = 2;
+  d7PointInfo[0].Value = std::vector<int>(2, 15);
+
+  std::vector<DataArrayInfo> d7CellInfo(1, DataArrayInfo());
+  d7CellInfo[0].Name = "Q";
+  d7CellInfo[0].NumberOfComponents = 2;
+  d7CellInfo[0].Value = std::vector<int>(2, 15);
+
+  vtkNew<vtkPolyData> d7;
+  int d7NumberOfPoints = 5;
+  int d7NumberOfCells = 7;
+  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
 
   // Append unstructured grid with polydata
   std::vector<DataArrayInfo> d9PointInfo(1, DataArrayInfo());
@@ -887,224 +1074,100 @@ int TestAppendDataSets(int, char*[])
   int d9NumberOfPoints = 12;
   int d9NumberOfCells = 4;
   CreateDataset(d9, d9NumberOfPoints, d9PointInfo, d9NumberOfCells, d9CellInfo);
-
-  std::cout << "===========================================================\n";
-  std::cout << "Append unstructured grid and polydata: " << std::endl;
-  inputs[0] = d9;
-  inputs[1] = d8;
-  if (!AppendDatasetsAndPrint(inputs, "vtkUnstructuredGrid"))
+  if (!AppendDatasetsAndPrint({ d7, d9 }, "vtkUnstructuredGrid"))
   {
-    std::cerr << "vtkAppendDataSets failed with unstructured grid and polydata\n";
+    vtkLog(ERROR, << "vtkAppendDataSets failed with unstructured grid and polydata");
     return EXIT_FAILURE;
   }
 
-  std::cout << "===========================================================\n";
-  std::cout << "Testing tolerance modes:\n";
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestStaticMesh(int argc, char* argv[])
+{
+  vtkLogScopeFunction(INFO);
+  vtkNew<vtkHDFReader> poly1;
+  std::string fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtkHDF/static_harmonic_slice0.vtkhdf");
+  poly1->SetFileName(fileName.c_str());
+
+  vtkNew<vtkHDFReader> poly2;
+  std::string fileName2 =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtkHDF/static_harmonic_slice1.vtkhdf");
+  poly2->SetFileName(fileName2.c_str());
+
+  vtkNew<vtkAppendDataSets> append;
+  append->AddInputConnection(poly1->GetOutputPort());
+  append->AddInputConnection(poly2->GetOutputPort());
+
+  poly1->UpdateInformation();
+  auto info = poly1->GetOutputInformation(0);
+  auto nbTs = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  vtkLogIf(ERROR, nbTs != 5, "Wrong number of timestep in input data: " << nbTs);
+  double* ts = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  append->UpdateTimeStep(ts[0]);
+  auto outUG = append->GetOutput();
+  auto firstMeshTime = outUG->GetMeshMTime();
+
+  append->UpdateTimeStep(ts[1]);
+  vtkLogIf(ERROR, outUG->GetMeshMTime() != firstMeshTime,
+    "Unexpected output Mesh MTime:" << outUG->GetMeshMTime() << " instead of " << firstMeshTime
+                                    << ". Cache was not used");
+  append->UpdateTimeStep(ts[2]);
+  vtkLogIf(ERROR, outUG->GetMeshMTime() != firstMeshTime,
+    "Unexpected output Mesh MTime:" << outUG->GetMeshMTime() << " instead of " << firstMeshTime
+                                    << ". Cache was not used");
+
+  return vtkTestUtilities::RegressionTest(
+    argc, argv, append->GetOutputDataObject(0), "/Data/vtkHDF/append_slice.vtkhdf");
+}
+
+} // end anonymous namespace
+
+//////////////////////////////////////////////////////////////////////////////
+int TestAppendDataSets(int argc, char* argv[])
+{
+  if (!::TestScalars())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!::TestArrayName())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestMultiComponent())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestDeepCopy())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestMixedType())
+  {
+    return EXIT_FAILURE;
+  }
+
   if (!TestToleranceModes())
   {
-    std::cerr << "vtkAppendFilter failed testing tolerances.\n";
     return EXIT_FAILURE;
   }
 
-// This part reads files vtkIdType arrays with vtkIdType of 8 bytes.
-// It will fail at read the vtkIdType is not set to the proper size
-#ifdef VTK_USE_64BITS_IDS
+  if (!TestIdType(argc, argv))
   {
-    std::cout << "===========================================================" << std::endl;
-    std::cout << "Testing point global id driven merge:" << std::endl;
-
-    const char* startname =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_start.vtm");
-    const char* endname =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_end.vtm");
-
-    vtkNew<vtkXMLMultiBlockDataReader> readerStart;
-    readerStart->SetFileName(startname);
-    readerStart->Update();
-
-    vtkNew<vtkXMLMultiBlockDataReader> readerEnd;
-    readerEnd->SetFileName(endname);
-    readerEnd->Update();
-
-    auto inputStartCDS = vtkCompositeDataSet::SafeDownCast(readerStart->GetOutputDataObject(0));
-    auto inputEndCDS = vtkCompositeDataSet::SafeDownCast(readerEnd->GetOutputDataObject(0));
-
-    auto startIter = inputStartCDS->NewIterator();
-    auto endIter = inputEndCDS->NewIterator();
-
-    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
-         startIter->GoToNextItem(), endIter->GoToNextItem())
-    {
-      auto startPD = vtkDataSet::SafeDownCast(startIter->GetCurrentDataObject())->GetPointData();
-      auto endPD = vtkDataSet::SafeDownCast(endIter->GetCurrentDataObject())->GetPointData();
-      startPD->SetGlobalIds(
-        vtkIdTypeArray::SafeDownCast(startPD->GetAbstractArray("GlobalPointIds")));
-      endPD->SetGlobalIds(vtkIdTypeArray::SafeDownCast(endPD->GetAbstractArray("GlobalPointIds")));
-    }
-
-    startIter->Delete();
-    endIter->Delete();
-
-    vtkNew<vtkAppendDataSets> appendDataSetsStart;
-    appendDataSetsStart->MergePointsOn();
-    appendDataSetsStart->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
-
-    vtkNew<vtkAppendDataSets> appendDataSetsEnd;
-    appendDataSetsEnd->MergePointsOn();
-    appendDataSetsEnd->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
-
-    int count = 0;
-
-    inputStartCDS->NewIterator();
-    inputEndCDS->NewIterator();
-    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
-         startIter->GoToNextItem(), endIter->GoToNextItem(), ++count)
-    {
-      appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
-      appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
-    }
-
-    if (count != 4)
-    {
-      std::cerr << "Could not load all input object needed for this test" << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    startIter->Delete();
-    endIter->Delete();
-
-    appendDataSetsStart->Update();
-    appendDataSetsEnd->Update();
-
-    auto startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
-    auto endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
-
-    if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
-      startPS->GetNumberOfPoints() != 182)
-    {
-      std::cerr << "vtkAppendFilter failed to merge blocks using point global ids. "
-                << "Number of output points is wrong." << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    vtkIdTypeArray* startData =
-      vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
-    vtkIdTypeArray* endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
-
-    vtkIdType outCellId = 0;
-    vtkPoints* outPoints = startPS->GetPoints();
-    for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
-    {
-      auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
-      vtkPoints* inPoints = ps->GetPoints();
-      vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
-      for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
-      {
-        vtkCell* inCell = ps->GetCell(inCellId);
-        vtkCell* outCell = startPS->GetCell(outCellId);
-        for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
-        {
-          if (startData->GetValue(outCell->GetPointId(pointId)) !=
-            inData->GetValue(inCell->GetPointId(pointId)))
-          {
-            std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
-                      << "Problem most likely comes from vtkAppendFilter. Cell connectivity of "
-                      << "output cell id " << outCellId << " is wrong." << std::endl;
-            return EXIT_FAILURE;
-          }
-        }
-      }
-    }
-
-    for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
-    {
-      if (startData->GetValue(pointId) != endData->GetValue(pointId))
-      {
-        std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
-                  << "The problem most likely comes from vtkAppendFilter" << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-
-    vtkNew<vtkDataSetSurfaceFilter> polyDataConverterStart;
-    polyDataConverterStart->SetInputConnection(readerStart->GetOutputPort());
-    polyDataConverterStart->Update();
-
-    appendDataSetsStart->RemoveAllInputs();
-    appendDataSetsStart->SetOutputDataSetType(VTK_POLY_DATA);
-
-    vtkNew<vtkDataSetSurfaceFilter> polyDataConverterEnd;
-    polyDataConverterEnd->SetInputConnection(readerEnd->GetOutputPort());
-    polyDataConverterEnd->Update();
-
-    appendDataSetsEnd->RemoveAllInputs();
-    appendDataSetsEnd->SetOutputDataSetType(VTK_POLY_DATA);
-
-    inputStartCDS =
-      vtkCompositeDataSet::SafeDownCast(polyDataConverterStart->GetOutputDataObject(0));
-    inputEndCDS = vtkCompositeDataSet::SafeDownCast(polyDataConverterEnd->GetOutputDataObject(0));
-    startIter = inputStartCDS->NewIterator();
-    endIter = inputEndCDS->NewIterator();
-    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
-         startIter->GoToNextItem(), endIter->GoToNextItem())
-    {
-      appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
-      appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
-    }
-    startIter->Delete();
-    endIter->Delete();
-
-    appendDataSetsStart->Update();
-    appendDataSetsEnd->Update();
-
-    startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
-    endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
-
-    if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
-      startPS->GetNumberOfPoints() != 182)
-    {
-      std::cerr << "vtkAppenDataSets failed to clean using point global ids."
-                << "The problem most likely comes from vtkCleanPolyData" << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    startData = vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
-    endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
-
-    vtkIdType outCellId = 0;
-    vtkPoints* outPoints = startPS->GetPoints();
-    for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
-    {
-      auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
-      vtkPoints* inPoints = ps->GetPoints();
-      vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
-      for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
-      {
-        vtkCell* inCell = ps->GetCell(inCellId);
-        vtkCell* outCell = startPS->GetCell(outCellId);
-        for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
-        {
-          if (startData->GetValue(outCell->GetPointId(pointId)) !=
-            inData->GetValue(inCell->GetPointId(pointId)))
-          {
-            std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
-                      << "Problem most likely comes from vtkCleanPolyData. Cell connectivity of "
-                      << "output cell id " << outCellId << " is wrong." << std::endl;
-            return EXIT_FAILURE;
-          }
-        }
-      }
-
-      for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
-      {
-        if (startData->GetTuple1(pointId) != endData->GetTuple1(pointId))
-        {
-          std::cerr << "Error when merging points in a poly data multi-block" << std::endl;
-          return EXIT_FAILURE;
-        }
-      }
-    }
-#endif
-
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
   }
+
+  if (!TestStaticMesh(argc, argv))
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
