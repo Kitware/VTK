@@ -1138,18 +1138,27 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   {
     if (primitiveSize == 3) // thick lines
     {
-      // for wide lines, we need to acount for 6 pseudo vertices per line segment.
-      // i.e 2 pseudo vertices per end point of a line segment.
-      vertexId = (gl_VertexID - vertexIdOffset) / 3;
-      pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID / 3).x + pointIdOffset;
+      // Wide lines always use the non-indexed expansion path (sequential walk):
+      // each segment expands to 6 pseudo-vertices forming a quad (2 triangles).
+      // The quad geometry is recomputed in ReplaceShaderWideLines; here pointId
+      // must address the correct *segment endpoint* so per-point attributes
+      // (normal/color/tcoord) are fetched for the right end. The endpoint is
+      // selected by the quad side, matching the QUAD[] corners there whose x is
+      // {0,0,1,1,0,1}: corners 0,1,4 -> p0 (near end), corners 2,3,5 -> p1 (far).
+      primitiveId = (gl_VertexID - vertexIdOffset) / 6;
+      int quadCorner = (gl_VertexID - vertexIdOffset) % 6;
+      int endpointSide = (quadCorner == 2 || quadCorner == 3 || quadCorner == 5) ? 1 : 0;
+      // Connectivity-local index of the chosen endpoint (2 endpoints per segment).
+      vertexId = 2 * primitiveId + endpointSide;
+      pointId = texelFetchBuffer(vertexIdBuffer, vertexId + vertexIdOffset).x + pointIdOffset;
     }
     else
     {
       vertexId = gl_VertexID - vertexIdOffset;
       // pull the vtk point id from vertexIdBuffer
       pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+      primitiveId = vertexId >> 1;
     }
-    primitiveId = vertexId >> 1;
   }
   else if (cellType == 5) // VTK_TRIANGLE
   {
