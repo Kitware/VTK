@@ -3,8 +3,7 @@
 
 #include "vtkDelaunay3D.h"
 
-#include "vtkEdgeTable.h"
-#include "vtkExecutive.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -13,11 +12,206 @@
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+#include <vector>
+
 VTK_ABI_NAMESPACE_BEGIN
+
+//------------------------------------------------------------------------------
+// Internal helpers for the optimised RequestData path.
+// The fast mesh uses a flat array of lightweight tetrahedra with explicit
+// O(1) face-neighbour pointers, replacing the heavy vtkUnstructuredGrid /
+// vtkCellLinks infrastructure during construction, yielding a large
+// speed-up.
+namespace
+{
+
+//------------------------------------------------------------------------------
+// Lightweight tetrahedron mesh.
+// Hot/cold split for cache efficiency.  During the walk only the
+// topology (PointIds/Neighbors) is touched; the circumsphere data
+// (Radius2/Center) is only read during cavity expansion.  Keeping them
+// in separate arrays avoids polluting the cache with unused circumsphere
+// data during the walk, and vice-versa.
+struct Tetra
+{
+  vtkIdType PointIds[4];  // vertex point-ids
+  vtkIdType Neighbors[4]; // face-neighbour tet ids (-1 = mesh boundary)
+};
+
+struct TetraSphere
+{
+  double Radius2; // circumsphere radius squared
+  double Center[3];
+};
+
+struct CavityFace
+{
+  vtkIdType PointIds[3];   // outward-oriented face vertices (from the deleted tet)
+  vtkIdType NeighborTetra; // external neighbour tet id (-1 = mesh boundary)
+  int NeighborFace;        // face index in external neighbour pointing back
+};
+
+// Tolerance factor for the in-sphere test (slightly less than 1.0 to
+// avoid treating co-spherical points as inside).  Note: adding more 9s
+// (towards the ~16-digit precision of double) makes the factor round to
+// exactly 1.0 and removes the slack, so a deliberate ~1e-10 offset is used.
+const double inSphereTol = 0.9999999999;
+
+// Face f is opposite vertex v[f].  The three vertices of face f are
+// v[faceVerts[f][0..2]], ordered so that the outward normal points
+// away from v[f] (assuming positive-orientation tet).
+const int faceVerts[4][3] = {
+  { 1, 2, 3 }, // face 0
+  { 0, 3, 2 }, // face 1
+  { 0, 1, 3 }, // face 2
+  { 0, 2, 1 }  // face 3
+};
+
+//------------------------------------------------------------------------------
+// Walk through the mesh to find the tetrahedron containing point x,
+// starting from startTet.  Returns tet index, or -1 on failure.
+//
+// At each iteration, advance to the face neighbour opposite the vertex
+// with the most-negative barycentric coordinate of x (i.e. the face
+// that x lies on the outside of, viewed from the current tet).
+// Delaunay walks typically terminate in a small number of steps, but
+// floating-point imprecision near degenerate configurations can in
+// principle drive the walk into a cycle.  The hard iteration cap below
+// turns such a hypothetical cycle into a graceful failure: the function
+// returns -1, and the caller counts the point as a degeneracy and skips
+// it, instead of looping forever.
+vtkIdType FindContainingTetra(
+  const std::vector<Tetra>& topo, const double* coords, const double x[3], vtkIdType startTet)
+{
+  vtkIdType cur = startTet;
+  for (int iter = 0; iter < 400; iter++)
+  {
+    const Tetra& t = topo[cur];
+    double* p0 = const_cast<double*>(&coords[t.PointIds[0] * 3]);
+    double* p1 = const_cast<double*>(&coords[t.PointIds[1] * 3]);
+    double* p2 = const_cast<double*>(&coords[t.PointIds[2] * 3]);
+    double* p3 = const_cast<double*>(&coords[t.PointIds[3] * 3]);
+
+    double b[4] = { 0.25, 0.25, 0.25, 0.25 }; // fallback for degenerate
+    vtkTetra::BarycentricCoords(const_cast<double*>(x), p0, p1, p2, p3, b);
+
+    int worst = -1;
+    double worstVal = 0.0;
+    for (int j = 0; j < 4; j++)
+    {
+      if (b[j] < worstVal)
+      {
+        worstVal = b[j];
+        worst = j;
+      }
+    }
+    if (worst < 0)
+    {
+      return cur; // point is inside this tet
+    }
+    vtkIdType nei = t.Neighbors[worst];
+    if (nei < 0)
+    {
+      return -1; // walked off the mesh boundary
+    }
+    cur = nei;
+  }
+  return -1; // iteration limit reached
+}
+
+//------------------------------------------------------------------------------
+// Expand the Delaunay cavity around a containing tetrahedron.
+// On return cavityTets holds the IDs of all tets whose circumsphere
+// contains x, and cavityFaces holds the boundary faces of the cavity
+// together with their external-neighbour information.
+// inCavity[] is a scratch marker array; entries touched here are reset
+// by the caller after each insertion.
+void ExpandCavity(const std::vector<Tetra>& topo, const std::vector<TetraSphere>& sph,
+  const double x[3], vtkIdType startTet, std::vector<char>& inCavity,
+  std::vector<vtkIdType>& cavityTets, std::vector<CavityFace>& cavityFaces)
+{
+  cavityTets.clear();
+  cavityFaces.clear();
+
+  cavityTets.push_back(startTet);
+  inCavity[startTet] = 1;
+
+  for (size_t ci = 0; ci < cavityTets.size(); ci++)
+  {
+    vtkIdType tid = cavityTets[ci];
+    const Tetra& t = topo[tid];
+
+    for (int f = 0; f < 4; f++)
+    {
+      vtkIdType nei = t.Neighbors[f];
+      if (nei < 0)
+      {
+        CavityFace cf;
+        cf.PointIds[0] = t.PointIds[faceVerts[f][0]];
+        cf.PointIds[1] = t.PointIds[faceVerts[f][1]];
+        cf.PointIds[2] = t.PointIds[faceVerts[f][2]];
+        cf.NeighborTetra = -1;
+        cf.NeighborFace = -1;
+        cavityFaces.push_back(cf);
+        continue;
+      }
+      if (inCavity[nei])
+      {
+        continue;
+      }
+      const TetraSphere& neiSph = sph[nei];
+      double dx = x[0] - neiSph.Center[0];
+      double dy = x[1] - neiSph.Center[1];
+      double dz = x[2] - neiSph.Center[2];
+      if (dx * dx + dy * dy + dz * dz < inSphereTol * neiSph.Radius2)
+      {
+        inCavity[nei] = 1;
+        cavityTets.push_back(nei);
+      }
+      else
+      {
+        CavityFace cf;
+        cf.PointIds[0] = t.PointIds[faceVerts[f][0]];
+        cf.PointIds[1] = t.PointIds[faceVerts[f][1]];
+        cf.PointIds[2] = t.PointIds[faceVerts[f][2]];
+        cf.NeighborTetra = nei;
+        cf.NeighborFace = -1;
+        const Tetra& neiTopo = topo[nei];
+        for (int ff = 0; ff < 4; ff++)
+        {
+          if (neiTopo.Neighbors[ff] == tid)
+          {
+            cf.NeighborFace = ff;
+            break;
+          }
+        }
+        cavityFaces.push_back(cf);
+      }
+    }
+  }
+}
+
+struct PendingEdge
+{
+  vtkIdType Point0, Point1;
+  vtkIdType TetraId;
+  int Face;
+};
+
+struct EdgeFacePair
+{
+  vtkIdType Point0, Point1;
+  int Face;
+};
+
+} // anonymous namespace
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //------------------------------------------------------------------------------
@@ -406,6 +600,10 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid* Mesh, double x[3], vtkIdType t
 //   5. Make sure that faces/point combination forms good tetrahedron
 //   6. Create tetrahedron from each point/face combination
 //
+// This implementation uses a lightweight internal mesh with explicit O(1)
+// face-neighbour pointers, instead of the heavier vtkUnstructuredGrid /
+// vtkCellLinks infrastructure.
+//
 int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -418,75 +616,328 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType numPoints, numTetras, i;
-  vtkIdType ptId;
-  vtkPoints* inPoints;
-  vtkPoints* points;
-  vtkUnstructuredGrid* Mesh;
-  double x[3];
-  vtkIdType npts;
-  const vtkIdType* tetraPts;
-  vtkIdType pts[4];
-  vtkIdList *cells, *holeTetras;
-  double center[3], tol;
-  char* tetraUse;
-
   vtkDebugMacro(<< "Generating 3D Delaunay triangulation");
 
   // Initialize; check input
   //
-  if ((inPoints = input->GetPoints()) == nullptr)
+  vtkPoints* inPoints = input->GetPoints();
+  if (inPoints == nullptr)
   {
     vtkWarningMacro("Cannot triangulate; no input points");
     return 1;
   }
-
-  numPoints = inPoints->GetNumberOfPoints();
+  vtkIdType numPoints = inPoints->GetNumberOfPoints();
   if (numPoints == 0)
   {
     vtkWarningMacro("Cannot triangulate; no input points");
     return 1;
   }
 
-  cells = vtkIdList::New();
-  cells->Reserve(64);
-  holeTetras = vtkIdList::New();
-  holeTetras->Reserve(12);
-
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
+  double center[3];
   input->GetCenter(center);
-  tol = input->GetLength();
-
-  points = vtkPoints::New();
+  double length = this->Offset * input->GetLength();
+  if (length <= 0.0)
+  {
+    length = 1.0;
+  }
 
   // Set the desired precision for the points in the output.
+  vtkNew<vtkPoints> allPoints;
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
-    points->SetDataType(inPoints->GetDataType());
+    allPoints->SetDataType(inPoints->GetDataType());
   }
   else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
-    points->SetDataType(VTK_FLOAT);
+    allPoints->SetDataType(VTK_FLOAT);
   }
   else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
-    points->SetDataType(VTK_DOUBLE);
+    allPoints->SetDataType(VTK_DOUBLE);
+  }
+  allPoints->SetNumberOfPoints(numPoints + 6);
+
+  const vtkIdType np = numPoints; // shorthand for bounding-point offsets
+  double bp[6][3] = { { center[0] - length, center[1], center[2] },
+    { center[0] + length, center[1], center[2] }, { center[0], center[1] - length, center[2] },
+    { center[0], center[1] + length, center[2] }, { center[0], center[1], center[2] - length },
+    { center[0], center[1], center[2] + length } };
+
+  // Copy input points into allPoints (InsertTuples performs the type
+  // conversion when allPoints and inPoints differ in precision), then
+  // append the 6 bounding-octahedron points.
+  allPoints->GetData()->InsertTuples(0, numPoints, 0, inPoints->GetData());
+  for (int i = 0; i < 6; i++)
+  {
+    allPoints->SetPoint(np + i, bp[i]);
   }
 
-  points->Reserve(numPoints + 6);
+  // Build a flat double-precision coordinate cache for direct access in the
+  // tight insertion loop.  ShallowCopy shares the buffer when allPoints is
+  // already double, and performs a converting deep copy when it is float.
+  vtkNew<vtkDoubleArray> coordsArray;
+  coordsArray->ShallowCopy(allPoints->GetData());
+  const double* coords = coordsArray->GetPointer(0);
 
-  Mesh = this->InitPointInsertion(center, this->Offset * tol, numPoints, points);
+  // Squared tolerance for duplicate-point detection.  Duplicates are
+  // detected by checking the vertices of the containing tetrahedron
+  // after the walk – an O(1) test that replaces the expensive
+  // locator-based scan used by the legacy path.
+  double tol = this->Tolerance * input->GetLength();
+  double tol2 = tol * tol;
+
+  // create bounding octahedron: 6 points & 4 tetra
+  //   tet 0: (P4, P5, P0, P2)   tet 1: (P4, P5, P2, P1)
+  //   tet 2: (P4, P5, P1, P3)   tet 3: (P4, P5, P3, P0)
+  // Neighbour table (face i is opposite vertex v[i]):
+  //   tet k: n = {-1, -1, (k+1)%4, (k+3)%4}
+
+  const size_t meshReserve = static_cast<size_t>(5) * numPoints + 4;
+  std::vector<Tetra> topo;
+  std::vector<TetraSphere> sph;
+  topo.reserve(meshReserve);
+  sph.reserve(meshReserve);
+  topo.resize(4);
+  sph.resize(4);
+
+  const vtkIdType bndV[4][4] = { { np + 4, np + 5, np + 0, np + 2 },
+    { np + 4, np + 5, np + 2, np + 1 }, { np + 4, np + 5, np + 1, np + 3 },
+    { np + 4, np + 5, np + 3, np + 0 } };
+  for (int k = 0; k < 4; k++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      topo[k].PointIds[j] = bndV[k][j];
+    }
+    topo[k].Neighbors[0] = -1;
+    topo[k].Neighbors[1] = -1;
+    topo[k].Neighbors[2] = (k + 1) % 4;
+    topo[k].Neighbors[3] = (k + 3) % 4;
+
+    sph[k].Radius2 = vtkTetra::Circumsphere(const_cast<double*>(&coords[topo[k].PointIds[0] * 3]),
+      const_cast<double*>(&coords[topo[k].PointIds[1] * 3]),
+      const_cast<double*>(&coords[topo[k].PointIds[2] * 3]),
+      const_cast<double*>(&coords[topo[k].PointIds[3] * 3]), sph[k].Center);
+  }
+
+  std::vector<char> active(4, 1);
+  active.reserve(meshReserve);
+
+  std::vector<vtkIdType> freelist;
 
   // Insert each point into triangulation. Points laying "inside"
   // of tetra cause tetra to be deleted, leaving a void with bounding
   // faces. Combination of point and each face is used to form new
   // tetrahedra.
-  for (ptId = 0; ptId < numPoints; ptId++)
+
+  this->NumberOfDuplicatePoints = 0;
+  this->NumberOfDegeneracies = 0;
+
+  vtkIdType lastTet = 0;
+
+  // Reusable per-insertion scratch buffers.
+  std::vector<vtkIdType> cavityTets;
+  cavityTets.reserve(32);
+  std::vector<CavityFace> cavityFaces;
+  cavityFaces.reserve(64);
+  std::vector<char> inCavity(4, 0);
+
+  std::vector<PendingEdge> pendingEdges;
+  pendingEdges.reserve(192);
+
+  for (vtkIdType ptId = 0; ptId < numPoints; ptId++)
   {
+    double x[3];
     inPoints->GetPoint(ptId, x);
 
-    this->InsertPoint(Mesh, points, ptId, x, holeTetras);
+    // --- grow scratch marker if the mesh grew ---
+    if (inCavity.size() < topo.size())
+    {
+      inCavity.resize(topo.size(), 0);
+    }
+
+    // --- walk to the containing tet ---
+    vtkIdType containTet = FindContainingTetra(topo, coords, x, lastTet);
+    if (containTet < 0)
+    {
+      this->NumberOfDegeneracies++;
+      continue;
+    }
+
+    // --- duplicate check against nearby vertices ---
+    // Check the four vertices of the containing tet plus the opposite
+    // vertex of each face-neighbour.  This covers all vertices within
+    // the immediate neighbourhood of x, giving equivalent coverage to
+    // the old locator-based scan while remaining O(1).
+    {
+      const Tetra& ct = topo[containTet];
+      bool isDuplicate = false;
+      // Check containing tet vertices
+      for (int j = 0; j < 4 && !isDuplicate; j++)
+      {
+        const double* vp = &coords[ct.PointIds[j] * 3];
+        double dx = x[0] - vp[0];
+        double dy = x[1] - vp[1];
+        double dz = x[2] - vp[2];
+        if (dx * dx + dy * dy + dz * dz < tol2)
+        {
+          isDuplicate = true;
+        }
+      }
+      // Check opposite vertex of each face neighbour
+      for (int j = 0; j < 4 && !isDuplicate; j++)
+      {
+        vtkIdType neiId = ct.Neighbors[j];
+        if (neiId < 0)
+        {
+          continue;
+        }
+        // Face j of the containing tet is opposite vertex ct.PointIds[j].
+        // The neighbour shares the other 3 vertices; its unique
+        // ("opposite") vertex is the one not shared with ct.
+        const Tetra& neiT = topo[neiId];
+        for (int k = 0; k < 4; k++)
+        {
+          vtkIdType nv = neiT.PointIds[k];
+          if (nv != ct.PointIds[0] && nv != ct.PointIds[1] && nv != ct.PointIds[2] &&
+            nv != ct.PointIds[3])
+          {
+            const double* vp = &coords[nv * 3];
+            double dx = x[0] - vp[0];
+            double dy = x[1] - vp[1];
+            double dz = x[2] - vp[2];
+            if (dx * dx + dy * dy + dz * dz < tol2)
+            {
+              isDuplicate = true;
+            }
+            break;
+          }
+        }
+      }
+      if (isDuplicate)
+      {
+        this->NumberOfDuplicatePoints++;
+        continue;
+      }
+    }
+
+    // --- expand Delaunay cavity ---
+    ExpandCavity(topo, sph, x, containTet, inCavity, cavityTets, cavityFaces);
+
+    if (cavityFaces.empty())
+    {
+      for (auto id : cavityTets)
+      {
+        inCavity[id] = 0;
+      }
+      this->NumberOfDegeneracies++;
+      continue;
+    }
+
+    // --- delete cavity tets, reclaim their slots ---
+    for (auto id : cavityTets)
+    {
+      active[id] = false;
+      freelist.push_back(id);
+      inCavity[id] = 0;
+    }
+
+    // --- create one new tet per boundary face ---
+    // The boundary face is in outward orientation (away from the cavity).
+    // The new point is inside the cavity, so we swap v[1]↔v[2] of the
+    // face to obtain a positively-oriented tetrahedron.
+
+    vtkIdType numNewFaces = static_cast<vtkIdType>(cavityFaces.size());
+    pendingEdges.clear();
+    vtkIdType firstNewTet = -1;
+
+    for (vtkIdType fi = 0; fi < numNewFaces; fi++)
+    {
+      const CavityFace& cf = cavityFaces[fi];
+
+      // allocate slot
+      vtkIdType newId;
+      if (!freelist.empty())
+      {
+        newId = freelist.back();
+        freelist.pop_back();
+        active[newId] = true;
+      }
+      else
+      {
+        newId = static_cast<vtkIdType>(topo.size());
+        topo.emplace_back();
+        sph.emplace_back();
+        active.push_back(true);
+        if (inCavity.size() < topo.size())
+        {
+          inCavity.resize(topo.size(), 0);
+        }
+      }
+      if (firstNewTet < 0)
+      {
+        firstNewTet = newId;
+      }
+
+      Tetra& nt = topo[newId];
+      nt.PointIds[0] = cf.PointIds[0];
+      nt.PointIds[1] = cf.PointIds[2]; // swap for positive orientation
+      nt.PointIds[2] = cf.PointIds[1]; // swap
+      nt.PointIds[3] = ptId;
+      nt.Neighbors[0] = -1;
+      nt.Neighbors[1] = -1;
+      nt.Neighbors[2] = -1;
+      nt.Neighbors[3] = cf.NeighborTetra;
+
+      // update external neighbour to point back at the new tet
+      if (cf.NeighborTetra >= 0 && cf.NeighborFace >= 0)
+      {
+        topo[cf.NeighborTetra].Neighbors[cf.NeighborFace] = newId;
+      }
+
+      // circumsphere
+      sph[newId].Radius2 = vtkTetra::Circumsphere(const_cast<double*>(&coords[nt.PointIds[0] * 3]),
+        const_cast<double*>(&coords[nt.PointIds[1] * 3]),
+        const_cast<double*>(&coords[nt.PointIds[2] * 3]),
+        const_cast<double*>(&coords[nt.PointIds[3] * 3]), sph[newId].Center);
+
+      // --- match internal faces (those containing the new point) ---
+      // After the swap the boundary-edge keys for each internal face are:
+      //   face 0 → sort(cf.PointIds[1], cf.PointIds[2])
+      //   face 1 → sort(cf.PointIds[0], cf.PointIds[1])
+      //   face 2 → sort(cf.PointIds[0], cf.PointIds[2])
+      EdgeFacePair edges[3] = { { std::min(cf.PointIds[1], cf.PointIds[2]),
+                                  std::max(cf.PointIds[1], cf.PointIds[2]), 0 },
+        { std::min(cf.PointIds[0], cf.PointIds[1]), std::max(cf.PointIds[0], cf.PointIds[1]), 1 },
+        { std::min(cf.PointIds[0], cf.PointIds[2]), std::max(cf.PointIds[0], cf.PointIds[2]), 2 } };
+
+      for (int ei = 0; ei < 3; ei++)
+      {
+        bool matched = false;
+        for (auto& pe : pendingEdges)
+        {
+          if (pe.Point0 == edges[ei].Point0 && pe.Point1 == edges[ei].Point1)
+          {
+            topo[newId].Neighbors[edges[ei].Face] = pe.TetraId;
+            topo[pe.TetraId].Neighbors[pe.Face] = newId;
+            pe.Point0 = -1; // invalidate
+            matched = true;
+            break;
+          }
+        }
+        if (!matched)
+        {
+          pendingEdges.push_back({ edges[ei].Point0, edges[ei].Point1, newId, edges[ei].Face });
+        }
+      }
+    } // for each boundary face
+
+    if (firstNewTet >= 0)
+    {
+      lastTet = firstNewTet;
+    }
 
     if (!(ptId % 250))
     {
@@ -497,10 +948,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
         break;
       }
     }
-
   } // for all points
-
-  this->EndPointInsertion();
 
   vtkDebugMacro(<< "Triangulated " << numPoints << " points, " << this->NumberOfDuplicatePoints
                 << " of which were duplicates");
@@ -513,31 +961,43 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Send appropriate portions of triangulation to output
   //
-  output->Allocate(5 * numPoints);
-  numTetras = Mesh->GetNumberOfCells();
-  tetraUse = new char[numTetras];
 
-  for (i = 0; i < numTetras; i++)
-  {
-    tetraUse[i] = 2; // mark as non-deleted
-  }
-  for (i = 0; i < holeTetras->GetNumberOfIds(); i++)
-  {
-    tetraUse[holeTetras->GetId(i)] = 0; // mark as deleted
-  }
+  vtkIdType numTetras = static_cast<vtkIdType>(topo.size());
+  output->Allocate(5 * numPoints);
+
+  // tetraUse: 0 = deleted, 1 = discarded by alpha, 2 = output
+  std::vector<char> tetraUse(numTetras);
+  vtkSMPTools::For(0, numTetras,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType i = begin; i < end; i++)
+      {
+        tetraUse[i] = active[i] ? 2 : 0;
+      }
+    });
 
   // if boundary triangulation not desired, delete tetras connected to
   // boundary points
   if (!this->BoundingTriangulation)
   {
-    for (ptId = numPoints; ptId < (numPoints + 6); ptId++)
-    {
-      Mesh->GetPointCells(ptId, cells);
-      for (i = 0; i < cells->GetNumberOfIds(); i++)
+    vtkSMPTools::For(0, numTetras,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        tetraUse[cells->GetId(i)] = 0; // mark as deleted
-      }
-    }
+        for (vtkIdType i = begin; i < end; i++)
+        {
+          if (tetraUse[i] == 2)
+          {
+            for (int j = 0; j < 4; j++)
+            {
+              if (topo[i].PointIds[j] >= numPoints)
+              {
+                tetraUse[i] = 0;
+                break;
+              }
+            }
+          }
+        }
+      });
   }
 
   // If non-zero alpha value, then figure out which parts of mesh are
@@ -545,188 +1005,167 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   //
   if (this->Alpha > 0.0)
   {
+    using EdgeTupleType = EdgeTuple<vtkIdType, vtkIdType>;
+
     double alpha2 = this->Alpha * this->Alpha;
-    vtkEdgeTable* edges;
-    char* pointUse = new char[numPoints + 6];
-    vtkIdType p1, p2, p3, nei;
-    int hasNei, j, k;
-    double x1[3], x2[3], x3[3];
-    vtkDelaunayTetra* tetra;
-    static const int edge[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 }, { 2, 3 } };
+    std::vector<char> pointUse(numPoints + 6, 0);
 
-    edges = vtkEdgeTable::New();
-    edges->InitEdgeInsertion(numPoints + 6);
+    // Edges of the output tetrahedra and triangles, collected up front and
+    // merged in parallel (rather than incrementally), so the line phase can
+    // skip edges already covered by a higher-dimensional output primitive.
+    std::vector<EdgeTupleType> coveredEdges;
 
-    for (ptId = 0; ptId < (numPoints + 6); ptId++)
-    {
-      pointUse[ptId] = 0;
-    }
+    static const int edgeVerts[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 },
+      { 2, 3 } };
 
     // Output tetrahedra if requested
     if (this->AlphaTets)
     {
-      // traverse all tetras, checking against alpha radius
-      for (i = 0; i < numTetras; i++)
+      for (vtkIdType i = 0; i < numTetras; i++)
       {
-        // check tetras
-        if (tetraUse[i] == 2) // if not deleted
+        if (tetraUse[i] == 2)
         {
-          tetra = this->TetraArray->GetTetra(i);
-          if (tetra->r2 > alpha2)
+          if (sph[i].Radius2 > alpha2)
           {
-            tetraUse[i] = 1; // mark as visited and discarded
+            tetraUse[i] = 1;
           }
           else
           {
-            Mesh->GetCellPoints(i, npts, tetraPts);
-            for (j = 0; j < 4; j++)
+            for (int j = 0; j < 4; j++)
             {
-              pointUse[tetraPts[j]] = 1;
+              pointUse[topo[i].PointIds[j]] = 1;
             }
-            for (j = 0; j < 6; j++)
+            for (int j = 0; j < 6; j++)
             {
-              p1 = tetraPts[edge[j][0]];
-              p2 = tetraPts[edge[j][1]];
-              if (edges->IsEdge(p1, p2) == -1)
-              {
-                edges->InsertEdge(p1, p2);
-              }
+              coveredEdges.emplace_back(
+                topo[i].PointIds[edgeVerts[j][0]], topo[i].PointIds[edgeVerts[j][1]], 0);
             }
           }
-        } // if non-deleted tetra
-      }   // for all tetras
-    }     // if AlphaTets are to be output
+        }
+      }
+    }
 
     // traverse tetras again, this time examining faces
     // used tetras have already been output, so we look at those that haven't
     if (this->AlphaTris)
     {
-      for (i = 0; i < numTetras; i++)
+      for (vtkIdType i = 0; i < numTetras; i++)
       {
-        if (tetraUse[i] == 1) // if visited and discarded
+        if (tetraUse[i] == 1)
         {
-          Mesh->GetCellPoints(i, npts, tetraPts);
-          for (j = 0; j < 4; j++)
+          for (int f = 0; f < 4; f++)
           {
-            p1 = tetraPts[j];
-            p2 = tetraPts[(j + 1) % 4];
-            p3 = tetraPts[(j + 2) % 4];
+            vtkIdType fp1 = topo[i].PointIds[faceVerts[f][0]];
+            vtkIdType fp2 = topo[i].PointIds[faceVerts[f][1]];
+            vtkIdType fp3 = topo[i].PointIds[faceVerts[f][2]];
 
-            // make sure face is okay to create
-            if (this->BoundingTriangulation || (p1 < numPoints && p2 < numPoints && p3 < numPoints))
+            if (this->BoundingTriangulation ||
+              (fp1 < numPoints && fp2 < numPoints && fp3 < numPoints))
             {
-              hasNei = GetTetraFaceNeighbor(Mesh, i, p1, p2, p3, nei);
-
-              if (!hasNei || (nei > i && tetraUse[nei] != 2))
+              vtkIdType nei = topo[i].Neighbors[f];
+              bool neiOk = (nei < 0) || (nei > i && tetraUse[nei] != 2);
+              if (neiOk)
               {
-                double dx1[3], dx2[3], dx3[3], dv1[3], dv2[3], dv3[3], dcenter[3];
-                points->GetPoint(p1, x1);
-                dx1[0] = x1[0];
-                dx1[1] = x1[1];
-                dx1[2] = x1[2];
-                points->GetPoint(p2, x2);
-                dx2[0] = x2[0];
-                dx2[1] = x2[1];
-                dx2[2] = x2[2];
-                points->GetPoint(p3, x3);
-                dx3[0] = x3[0];
-                dx3[1] = x3[1];
-                dx3[2] = x3[2];
-                vtkTriangle::ProjectTo2D(dx1, dx2, dx3, dv1, dv2, dv3);
+                double dv1[3], dv2[3], dv3[3], dcenter[3];
+                double tx1[3] = { coords[fp1 * 3], coords[fp1 * 3 + 1], coords[fp1 * 3 + 2] };
+                double tx2[3] = { coords[fp2 * 3], coords[fp2 * 3 + 1], coords[fp2 * 3 + 2] };
+                double tx3[3] = { coords[fp3 * 3], coords[fp3 * 3 + 1], coords[fp3 * 3 + 2] };
+                vtkTriangle::ProjectTo2D(tx1, tx2, tx3, dv1, dv2, dv3);
                 if (vtkTriangle::Circumcircle(dv1, dv2, dv3, dcenter) <= alpha2)
                 {
-                  pts[0] = p1;
-                  pts[1] = p2;
-                  pts[2] = p3;
-                  output->InsertNextCell(VTK_TRIANGLE, 3, pts);
-                  if (edges->IsEdge(p1, p2) == -1)
-                  {
-                    edges->InsertEdge(p1, p2);
-                  }
-                  if (edges->IsEdge(p2, p3) == -1)
-                  {
-                    edges->InsertEdge(p2, p3);
-                  }
-                  if (edges->IsEdge(p3, p1) == -1)
-                  {
-                    edges->InsertEdge(p3, p1);
-                  }
-                  for (k = 0; k < 3; k++)
-                  {
-                    pointUse[pts[k]] = 1;
-                  }
+                  vtkIdType tri[3] = { fp1, fp2, fp3 };
+                  output->InsertNextCell(VTK_TRIANGLE, 3, tri);
+                  coveredEdges.emplace_back(fp1, fp2, 0);
+                  coveredEdges.emplace_back(fp2, fp3, 0);
+                  coveredEdges.emplace_back(fp3, fp1, 0);
+                  pointUse[fp1] = 1;
+                  pointUse[fp2] = 1;
+                  pointUse[fp3] = 1;
                 }
-              } // if candidate face
-            }   // if not boundary face or boundary faces requested
-          }     // if tetra isn't being output
-        }       // if tetra not output
-      }         // for all tetras
-    }           // if output alpha triangles
+              }
+            }
+          }
+        }
+      }
+    }
 
-    // traverse tetras again, this time examining edges
+    // Build a static locator over the covered edges for O(1) membership tests.
+    vtkStaticEdgeLocatorTemplate<vtkIdType, vtkIdType> coveredLoc;
+    if (!coveredEdges.empty())
+    {
+      coveredLoc.BuildLocator(static_cast<vtkIdType>(coveredEdges.size()), coveredEdges.data());
+    }
+
+    // traverse tetras again, this time examining edges.  Candidate line edges
+    // (passing the alpha test and not covered by a tet/triangle) are gathered
+    // and then merged in parallel to remove duplicates before output.
     if (this->AlphaLines)
     {
-      for (i = 0; i < numTetras; i++)
+      std::vector<EdgeTupleType> lineEdges;
+      for (vtkIdType i = 0; i < numTetras; i++)
       {
-        if (tetraUse[i] == 1) // one means visited and discarded
+        if (tetraUse[i] == 1)
         {
-          Mesh->GetCellPoints(i, npts, tetraPts);
-
-          for (j = 0; j < 6; j++)
+          for (int j = 0; j < 6; j++)
           {
-            p1 = tetraPts[edge[j][0]];
-            p2 = tetraPts[edge[j][1]];
-
-            if ((this->BoundingTriangulation || (p1 < numPoints && p2 < numPoints)) &&
-              (edges->IsEdge(p1, p2) == -1))
+            vtkIdType ep1 = topo[i].PointIds[edgeVerts[j][0]];
+            vtkIdType ep2 = topo[i].PointIds[edgeVerts[j][1]];
+            if ((this->BoundingTriangulation || (ep1 < numPoints && ep2 < numPoints)) &&
+              (coveredEdges.empty() || coveredLoc.IsInsertedEdge(ep1, ep2) < 0))
             {
-              points->GetPoint(p1, x1);
-              points->GetPoint(p2, x2);
-              if ((vtkMath::Distance2BetweenPoints(x1, x2) * 0.25) <= alpha2)
+              double ex1[3] = { coords[ep1 * 3], coords[ep1 * 3 + 1], coords[ep1 * 3 + 2] };
+              double ex2[3] = { coords[ep2 * 3], coords[ep2 * 3 + 1], coords[ep2 * 3 + 2] };
+              if (vtkMath::Distance2BetweenPoints(ex1, ex2) * 0.25 <= alpha2)
               {
-                edges->InsertEdge(p1, p2);
-                pts[0] = p1;
-                pts[1] = p2;
-                output->InsertNextCell(VTK_LINE, 2, pts);
-                pointUse[p1] = 1;
-                pointUse[p2] = 1;
+                lineEdges.emplace_back(ep1, ep2, 0);
               }
-            } // if edge a candidate
-          }   // for all edges of tetra
-        }     // if tetra not output
-      }       // for all tetras
-    }         // if output alpha lines
+            }
+          }
+        }
+      }
+
+      if (!lineEdges.empty())
+      {
+        vtkStaticEdgeLocatorTemplate<vtkIdType, vtkIdType> lineLoc;
+        vtkIdType numUniqueEdges = 0;
+        const vtkIdType* edgeOffsets = lineLoc.MergeEdges(
+          static_cast<vtkIdType>(lineEdges.size()), lineEdges.data(), numUniqueEdges);
+        for (vtkIdType e = 0; e < numUniqueEdges; e++)
+        {
+          const EdgeTupleType& edge = lineEdges[edgeOffsets[e]];
+          vtkIdType ln[2] = { edge.V0, edge.V1 };
+          output->InsertNextCell(VTK_LINE, 2, ln);
+          pointUse[edge.V0] = 1;
+          pointUse[edge.V1] = 1;
+        }
+      }
+    }
 
     if (this->AlphaVerts)
     {
-      // traverse all points, create vertices if none used
-      for (ptId = 0; ptId < (numPoints + 6); ptId++)
+      for (vtkIdType pid = 0; pid < numPoints + 6; pid++)
       {
-        if ((ptId < numPoints || this->BoundingTriangulation) && !pointUse[ptId])
+        if ((pid < numPoints || this->BoundingTriangulation) && !pointUse[pid])
         {
-          pts[0] = ptId;
-          output->InsertNextCell(VTK_VERTEX, 1, pts);
+          vtkIdType vt[1] = { pid };
+          output->InsertNextCell(VTK_VERTEX, 1, vt);
         }
       }
-    } // if AlphaVerts
-
-    // clean temporary stuff
-    delete[] pointUse;
-    edges->Delete();
+    }
   } // if output alpha shapes
 
   // Update output; free up supporting data structures.
   //
   if (this->BoundingTriangulation)
   {
-    output->SetPoints(points);
+    output->SetPoints(allPoints);
   }
   else
   {
-    if (inPoints->GetDataType() != points->GetDataType())
+    if (inPoints->GetDataType() != allPoints->GetDataType())
     {
-      points->DeepCopy(inPoints);
-      output->SetPoints(points);
+      allPoints->DeepCopy(inPoints);
+      output->SetPoints(allPoints);
     }
     else
     {
@@ -735,22 +1174,16 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     output->GetPointData()->PassData(input->GetPointData());
   }
 
-  for (i = 0; i < numTetras; i++)
+  for (vtkIdType i = 0; i < numTetras; i++)
   {
     if (tetraUse[i] == 2)
     {
-      Mesh->GetCellPoints(i, npts, tetraPts);
-      output->InsertNextCell(VTK_TETRA, 4, tetraPts);
+      output->InsertNextCell(VTK_TETRA, 4, topo[i].PointIds);
     }
   }
+
   vtkDebugMacro(<< "Generated " << output->GetNumberOfPoints() << " points and "
                 << output->GetNumberOfCells() << " tetrahedra");
-
-  delete[] tetraUse;
-  cells->Delete();
-  holeTetras->Delete();
-
-  Mesh->Delete();
 
   output->Squeeze();
 

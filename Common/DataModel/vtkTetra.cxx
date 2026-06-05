@@ -691,71 +691,41 @@ double vtkTetra::ComputeVolume(double p1[3], double p2[3], double p3[3], double 
 double vtkTetra::Circumsphere(
   double x1[3], double x2[3], double x3[3], double x4[3], double center[3])
 {
-  double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
-  double *A[3], rhs[3], sum, diff;
+  // Closed-form circumcenter via Cramer's rule (no general-purpose
+  // linear-system solver).
+  const double a[3] = { x2[0] - x1[0], x2[1] - x1[1], x2[2] - x1[2] };
+  const double b[3] = { x3[0] - x1[0], x3[1] - x1[1], x3[2] - x1[2] };
+  const double c[3] = { x4[0] - x1[0], x4[1] - x1[1], x4[2] - x1[2] };
 
-  //  calculate normals and intersection points of bisecting planes.
-  //
-  for (int i = 0; i < 3; i++)
-  {
-    n12[i] = x2[i] - x1[i];
-    n13[i] = x3[i] - x1[i];
-    n14[i] = x4[i] - x1[i];
-    x12[i] = (x2[i] + x1[i]) * 0.5;
-    x13[i] = (x3[i] + x1[i]) * 0.5;
-    x14[i] = (x4[i] + x1[i]) * 0.5;
-  }
+  const double ra = a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
+  const double rb = b[0] * b[0] + b[1] * b[1] + b[2] * b[2];
+  const double rc = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
-  //  Compute solutions to the intersection of two bisecting lines
-  //  (3-eqns. in 3-unknowns).
-  //
-  //  form system matrices
-  //
-  A[0] = n12;
-  A[1] = n13;
-  A[2] = n14;
+  const double bxc[3] = { b[1] * c[2] - b[2] * c[1], b[2] * c[0] - b[0] * c[2],
+    b[0] * c[1] - b[1] * c[0] };
+  const double det = 2.0 * (a[0] * bxc[0] + a[1] * bxc[1] + a[2] * bxc[2]);
 
-  rhs[0] = vtkMath::Dot(n12, x12);
-  rhs[1] = vtkMath::Dot(n13, x13);
-  rhs[2] = vtkMath::Dot(n14, x14);
-
-  // Solve system of equations
-  //
-  if (vtkMath::SolveLinearSystem(A, rhs, 3) == 0)
+  if (det == 0.0)
   {
     center[0] = center[1] = center[2] = 0.0;
     return VTK_DOUBLE_MAX;
   }
-  else
-  {
-    for (int i = 0; i < 3; i++)
-    {
-      center[i] = rhs[i];
-    }
-  }
+  const double invDet = 1.0 / det;
 
-  // determine average value of radius squared
-  sum = 0.0;
+  const double cxa[3] = { c[1] * a[2] - c[2] * a[1], c[2] * a[0] - c[0] * a[2],
+    c[0] * a[1] - c[1] * a[0] };
+  const double axb[3] = { a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0] };
+
+  double off[3];
   for (int i = 0; i < 3; i++)
   {
-    diff = x1[i] - rhs[i];
-    sum += diff * diff;
-    diff = x2[i] - rhs[i];
-    sum += diff * diff;
-    diff = x3[i] - rhs[i];
-    sum += diff * diff;
-    diff = x4[i] - rhs[i];
-    sum += diff * diff;
+    off[i] = (ra * bxc[i] + rb * cxa[i] + rc * axb[i]) * invDet;
+    center[i] = off[i] + x1[i];
   }
 
-  if ((sum *= 0.25) > VTK_DOUBLE_MAX)
-  {
-    return VTK_DOUBLE_MAX;
-  }
-  else
-  {
-    return sum;
-  }
+  const double r2 = off[0] * off[0] + off[1] * off[1] + off[2] * off[2];
+  return (r2 > VTK_DOUBLE_MAX) ? VTK_DOUBLE_MAX : r2;
 }
 
 //------------------------------------------------------------------------------
@@ -840,50 +810,35 @@ double vtkTetra::Insphere(double p1[3], double p2[3], double p3[3], double p4[3]
 int vtkTetra::BarycentricCoords(
   double x[3], double x1[3], double x2[3], double x3[3], double x4[3], double bcoords[4])
 {
-  double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];
+  // Closed-form barycentric coordinates via Cramer's rule (no
+  // general-purpose linear-system solver).
+  const double a[3] = { x2[0] - x1[0], x2[1] - x1[1], x2[2] - x1[2] };
+  const double b[3] = { x3[0] - x1[0], x3[1] - x1[1], x3[2] - x1[2] };
+  const double c[3] = { x4[0] - x1[0], x4[1] - x1[1], x4[2] - x1[2] };
+  const double d[3] = { x[0] - x1[0], x[1] - x1[1], x[2] - x1[2] };
 
-  // Homogenize the variables; load into arrays.
-  //
-  a1[0] = x1[0];
-  a1[1] = x2[0];
-  a1[2] = x3[0];
-  a1[3] = x4[0];
-  a2[0] = x1[1];
-  a2[1] = x2[1];
-  a2[2] = x3[1];
-  a2[3] = x4[1];
-  a3[0] = x1[2];
-  a3[1] = x2[2];
-  a3[2] = x3[2];
-  a3[3] = x4[2];
-  a4[0] = 1.0;
-  a4[1] = 1.0;
-  a4[2] = 1.0;
-  a4[3] = 1.0;
-  p[0] = x[0];
-  p[1] = x[1];
-  p[2] = x[2];
-  p[3] = 1.0;
+  const double bxc[3] = { b[1] * c[2] - b[2] * c[1], b[2] * c[0] - b[0] * c[2],
+    b[0] * c[1] - b[1] * c[0] };
+  const double det = a[0] * bxc[0] + a[1] * bxc[1] + a[2] * bxc[2];
 
-  //   Now solve system of equations for barycentric coordinates
-  //
-  A[0] = a1;
-  A[1] = a2;
-  A[2] = a3;
-  A[3] = a4;
-
-  if (vtkMath::SolveLinearSystem(A, p, 4))
-  {
-    for (int i = 0; i < 4; i++)
-    {
-      bcoords[i] = p[i];
-    }
-    return 1;
-  }
-  else
+  if (det == 0.0)
   {
     return 0;
   }
+  const double invDet = 1.0 / det;
+
+  bcoords[1] = (d[0] * bxc[0] + d[1] * bxc[1] + d[2] * bxc[2]) * invDet;
+
+  const double dxc[3] = { d[1] * c[2] - d[2] * c[1], d[2] * c[0] - d[0] * c[2],
+    d[0] * c[1] - d[1] * c[0] };
+  bcoords[2] = (a[0] * dxc[0] + a[1] * dxc[1] + a[2] * dxc[2]) * invDet;
+
+  const double bxd[3] = { b[1] * d[2] - b[2] * d[1], b[2] * d[0] - b[0] * d[2],
+    b[0] * d[1] - b[1] * d[0] };
+  bcoords[3] = (a[0] * bxd[0] + a[1] * bxd[1] + a[2] * bxd[2]) * invDet;
+
+  bcoords[0] = 1.0 - bcoords[1] - bcoords[2] - bcoords[3];
+  return 1;
 }
 
 //------------------------------------------------------------------------------

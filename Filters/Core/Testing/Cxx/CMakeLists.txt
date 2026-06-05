@@ -36,6 +36,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestDelaunay2DFindTriangle.cxx,NO_VALID
   TestDelaunay2DMeshes.cxx,NO_VALID
   TestDelaunay3D.cxx,NO_VALID
+  TestDelaunay3DValidity.cxx,NO_VALID
   TestExplicitStructuredGridCrop.cxx
   TestExplicitStructuredGridToUnstructuredGrid.cxx
   TestExecutionTimer.cxx,NO_VALID
