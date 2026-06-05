@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test covers the PBR Clear coat feature
-// It renders spheres with different coat materials using a skybox as image based lighting
+
+/**
+ * This test covers the PBR Clear coat feature
+ * It renders spheres with different coat materials using a skybox as image based lighting
+ *
+ * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
+ * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
+ * API does not crash. If the loaded backend supports the extension, it will perform an image
+ * comparison.
+ */
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
-#include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkImageData.h"
-#include "vtkImageFlip.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkJPEGReader.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
@@ -17,17 +20,14 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRendererCollection.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 //----------------------------------------------------------------------------
 int TestAnariPBRMaterialsCoat(int argc, char* argv[])
@@ -136,6 +136,7 @@ int TestAnariPBRMaterialsCoat(int argc, char* argv[])
   auto anariRendererNode = anariPass->GetSceneGraph();
   auto extensions = anariRendererNode->GetAnariDeviceExtensions();
 
+  bool testSuccess = true;
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
     int retVal = vtkRegressionTestImage(renWin);
@@ -150,9 +151,8 @@ int TestAnariPBRMaterialsCoat(int argc, char* argv[])
       iren->Start();
     }
 
-    return !retVal;
+    testSuccess = retVal == vtkRegressionTester::PASSED;
   }
 
-  std::cout << "Required feature KHR_MATERIAL_PHYSICALLY_BASED not supported." << std::endl;
-  return VTK_SKIP_RETURN_CODE;
+  return testSuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }

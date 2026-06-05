@@ -1,34 +1,37 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test volume renders a synthetic dataset with four different
-// positional lights in the scene.
 
-#include <vtkCamera.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkImageData.h>
-#include <vtkLight.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkTestUtilities.h>
-#include <vtkVolumeProperty.h>
-#include <vtkXMLImageDataReader.h>
+/**
+ * This test volume renders a synthetic dataset with four different
+ * positional lights in the scene.
+ *
+ * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 
-#include <vtkActor.h>
-#include <vtkContourFilter.h>
-#include <vtkLightActor.h>
-#include <vtkPolyDataMapper.h>
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkContourFilter.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkLight.h"
+#include "vtkLightActor.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkVolumeProperty.h"
+#include "vtkXMLImageDataReader.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 int TestAnariPositionalLights(int argc, char* argv[])
 {
@@ -138,6 +141,7 @@ int TestAnariPositionalLights(int argc, char* argv[])
   auto anariRendererNode = anariPass->GetSceneGraph();
   auto extensions = anariRendererNode->GetAnariDeviceExtensions();
 
+  bool testSuccess = true;
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
     int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
@@ -147,9 +151,8 @@ int TestAnariPositionalLights(int argc, char* argv[])
       iren->Start();
     }
 
-    return !retVal;
+    testSuccess = retVal == vtkRegressionTester::PASSED;
   }
 
-  std::cout << "Required feature KHR_LIGHT_SPOT not supported." << std::endl;
-  return VTK_SKIP_RETURN_CODE;
+  return testSuccess ? EXIT_SUCCESS : EXIT_FAILURE;
 }

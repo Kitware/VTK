@@ -7,11 +7,11 @@ if [ "$( uname -m )" != "x86_64" ]; then
 fi
 
 readonly anari_repo="https://github.com/KhronosGroup/ANARI-SDK.git"
-readonly anari_commit="v0.12.1"
+readonly anari_commit="v0.15.0"
 
 readonly anari_root="$HOME/ANARI-SDK"
-readonly anari_src="$HOME/ANARI-SDK"
-readonly anari_build="$HOME/ANARI-SDK/build"
+readonly anari_src="$anari_root/src"
+readonly anari_build="$anari_root/build"
 
 git clone -b "$anari_commit" "$anari_repo" "$anari_src"
 

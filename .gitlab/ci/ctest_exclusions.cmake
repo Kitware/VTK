@@ -68,6 +68,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19040
     "^VTK::ViewsInfovisCxx-TestGraphLayoutView(SerDes)?$"
     "^VTK::ViewsInfovisCxx-TestRenderView(SerDes)?$"
+
+    # ANARI volume rendering issue: https://gitlab.kitware.com/vtk/vtk/-/work_items/20024
+    "^VTK::RenderingAnariCxx-TestAnariCameraInside"
+    "^VTK::RenderingAnariCxx-TestAnariCameraInsideSmallSpacing"
     )
 endif ()
 
