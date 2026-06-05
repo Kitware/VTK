@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkSurfaceNets3D.h"
 #include "vtkSurfaceNets3DNonManifoldCases.h"
 
+#include "vtkAppendPolyData.h"
 #include "vtkArrayComponents.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageTransform.h"
@@ -18,9 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSurfaceNetsAtlas.h"
 #include "vtkTriangle.h"
 #include "vtkTypeInt8Array.h"
 
@@ -2365,148 +2369,6 @@ void TransformMeshType(
   output->GetCellData()->AddArray(updatedScalars);
 }
 
-// Copy a cell into the output cell array.
-struct CopyCellsImpl : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType cellId,
-    int cellSize, const vtkIdType* pts)
-  {
-    auto connRange = GetRange(conn);
-    auto connIter = connRange.begin() + (cellId * cellSize);
-
-    for (auto i = 0; i < cellSize; ++i)
-    {
-      *connIter++ = pts[i];
-    }
-  } // operator()
-};  // CopyCellsImpl
-
-// Select polys for output: either on the boundary, or specified labels.
-// Boundary faces are those used by just one region. Faces surrounding (a)
-// specified region(s)/label(s) may also be extracted.
-struct SelectWorker
-{
-  template <typename TArray>
-  void operator()(
-    TArray* newScalars, vtkPolyData* output, int outputStyle, vtkSurfaceNets3D* self, int cellSize)
-  {
-    // Extract information from the current output. The current output cells
-    // may either be triangles or quads, so the cell size is either 3 or 4,
-    // respectively.
-    using T = vtk::GetAPIType<TArray>;
-    vtkIdType numCells = output->GetNumberOfCells();
-
-    // Define a map: current cell ids to output cell ids. If map value<0,
-    // then the input cell is not copied to the output.
-    std::vector<vtkIdType> selectedCells(numCells);
-
-    // If extracting the boundary of selected regions, then need to
-    // set up a fast lookup with vtkLabelMapLookup.
-    vtkLabelMapLookup<T>* lMap = nullptr;
-    if (outputStyle == vtkSurfaceNets3D::OUTPUT_STYLE_SELECTED)
-    {
-      std::vector<double> labels;
-      labels.reserve(static_cast<size_t>(self->GetNumberOfSelectedLabels()));
-      for (auto i = 0; i < self->GetNumberOfSelectedLabels(); ++i)
-      {
-        labels.push_back(self->GetSelectedLabel(i));
-      }
-      lMap =
-        vtkLabelMapLookup<T>::CreateLabelLookup(labels.data(), self->GetNumberOfSelectedLabels());
-    }
-
-    // Traverse all existing cells and mark those satisfying outputStyle
-    // criterion for extraction.
-    vtkSMPTools::For(0, numCells,
-      [&newScalars, outputStyle, &selectedCells, self, lMap](vtkIdType cellId, vtkIdType endCellId)
-      {
-        const auto inTuples = vtk::DataArrayTupleRange<2>(newScalars);
-        T backgroundLabel = static_cast<T>(self->GetBackgroundLabel());
-        for (; cellId < endCellId; ++cellId)
-        {
-          const auto inTuple = inTuples[cellId];
-          if ((outputStyle == vtkSurfaceNets3D::OUTPUT_STYLE_BOUNDARY &&
-                inTuple[1] == backgroundLabel) ||
-            (outputStyle == vtkSurfaceNets3D::OUTPUT_STYLE_SELECTED &&
-              (lMap->IsLabelValue(inTuple[0]) || lMap->IsLabelValue(inTuple[1]))))
-          {
-            selectedCells[cellId] = 1;
-          }
-          else
-          {
-            selectedCells[cellId] = (-1);
-          }
-        }
-      }); // end lambda
-    delete lMap;
-
-    // (Sequential) prefix sum to determine the output cell id.
-    vtkIdType numOutCells = 0;
-    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
-    {
-      if (selectedCells[cellId] >= 0)
-      {
-        selectedCells[cellId] = numOutCells++;
-      }
-    }
-
-    // Now create and populate a new cell array to replace the input cells.
-    // Threaded operation operates across all input cells.
-    vtkCellArray* newCells = output->GetPolys();
-    vtkNew<vtkCellArray> outCells;
-    outCells->UseFixedSizeDefaultStorage(cellSize);
-    outCells->ResizeExact(numOutCells, cellSize * numOutCells);
-    vtkSMPThreadLocalObject<vtkIdList> tlIdList;
-    vtkSMPTools::For(0, numCells,
-      [newCells, &selectedCells, &outCells, cellSize, &tlIdList](
-        vtkIdType cellId, vtkIdType endCellId)
-      {
-        auto& idList = tlIdList.Local();
-        vtkIdType npts;
-        const vtkIdType* pts;
-        for (; cellId < endCellId; ++cellId)
-        {
-          vtkIdType newCellId = selectedCells[cellId];
-          if (newCellId >= 0)
-          {
-            newCells->GetCellAtId(cellId, npts, pts, idList);
-            outCells->Dispatch(CopyCellsImpl{}, newCellId, cellSize, pts);
-          }
-        }
-      }); // end lambda
-
-    // Almost done: Copy cell data to newly created cells.
-    vtkSmartPointer<vtkDataArray> outScalars;
-    outScalars.TakeReference(newScalars->NewInstance());
-    outScalars->SetName("BoundaryLabels");
-    outScalars->SetNumberOfComponents(2);
-    outScalars->SetNumberOfTuples(numOutCells);
-    vtkSMPTools::For(0, numCells,
-      [&selectedCells, &newScalars, &outScalars](vtkIdType cellId, vtkIdType endCellId)
-      {
-        const auto inTuples = vtk::DataArrayTupleRange<2>(newScalars);
-        auto outTuples = vtk::DataArrayTupleRange<2>(outScalars);
-        for (; cellId < endCellId; ++cellId)
-        {
-          vtkIdType newCellId = selectedCells[cellId];
-          if (newCellId >= 0)
-          {
-            const auto inTuple = inTuples[cellId];
-            auto outTuple = outTuples[newCellId];
-            outTuple[0] = inTuple[0];
-            outTuple[1] = inTuple[1];
-          }
-        }
-      }); // end lambda
-
-    // Now update the filter output with the new cells, and new cell data.
-    output->SetPolys(outCells);
-    output->GetCellData()->AddArray(outScalars);
-
-  } // operator()
-};  // SelectWorker
-
 } // anonymous namespace
 
 //============================================================================
@@ -2553,6 +2415,24 @@ vtkMTimeType vtkSurfaceNets3D::GetMTime()
   mTime2 = this->Smoother->GetMTime();
 
   return (mTime2 > mTime ? mTime2 : mTime);
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceNets3D::SetOutputStyleToDefault()
+{
+  this->SetOutputStyle(OUTPUT_STYLE_DEFAULT);
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceNets3D::SetOutputStyleToBoundary()
+{
+  this->SetOutputStyle(OUTPUT_STYLE_BOUNDARY);
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceNets3D::SetOutputStyleToSelected()
+{
+  this->SetOutputStyle(OUTPUT_STYLE_SELECTED);
 }
 
 //------------------------------------------------------------------------------
@@ -2726,24 +2606,46 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
   // Modify the type of output mesh if necessary. This changes the type
   // of polygons composing the output mesh. By default, the type is
   // quadrilaterals.
-  int cellSize = 4; // the number of points per cell (i.e., quads or triangles)
   if ((smoothing && this->OutputMeshType != MESH_TYPE_QUADS) ||
     (!smoothing && this->OutputMeshType == MESH_TYPE_TRIANGLES))
   {
     TransformMeshType(this->OutputMeshType, output, newScalars, this->TriangulationStrategy);
-    cellSize = 3;
     vtkLog(TRACE, "Triangulated to produce: " << output->GetNumberOfCells() << " triangles");
   }
 
-  // If the output style is other than default, then extra works needs
-  // to be done to extract a portion of the output (e.g., boundary faces,
-  // or faces associated with a specified region). This modifies the number
-  // of output cells, and the associated cell data.
+  // If the output style is other than default, delegate to vtkSurfaceNetsAtlas
+  // to perform the boundary/selection filtering, then merge the per-label
+  // partitions back into a single vtkPolyData via vtkAppendPolyData.
   if (this->OutputStyle != OUTPUT_STYLE_DEFAULT)
   {
-    SelectWorker selectWorker;
-    vtkArrayDispatch::Dispatch::Execute(output->GetCellData()->GetArray("BoundaryLabels"),
-      selectWorker, output, this->OutputStyle, this, cellSize);
+    auto atlas = vtkSmartPointer<vtkSurfaceNetsAtlas>::New();
+    atlas->SetBackgroundLabel(static_cast<vtkIdType>(this->BackgroundLabel));
+    atlas->SetGeneratePatches(false);
+    atlas->SetResolveNonManifoldPoints(false);
+    if (this->OutputStyle == OUTPUT_STYLE_BOUNDARY)
+    {
+      atlas->SetExtractionModeToAll();
+      atlas->SetOutputStyleToBoundary();
+    }
+    else // OUTPUT_STYLE_SELECTED
+    {
+      atlas->SetExtractionModeToLabelSet();
+      atlas->SetOutputStyleToAll();
+      for (const double label : this->SelectedLabels)
+      {
+        atlas->AddSelectedLabel(static_cast<vtkIdType>(label));
+      }
+    }
+    atlas->SetInputDataObject(output);
+    atlas->Update();
+    auto datasets = vtkCompositeDataSet::GetDataSets(atlas->GetOutputDataObject(0));
+    auto appender = vtkSmartPointer<vtkAppendPolyData>::New();
+    for (vtkDataSet* dataset : datasets)
+    {
+      appender->AddInputDataObject(0, dataset);
+    }
+    appender->Update();
+    output->ShallowCopy(appender->GetOutput());
     vtkLog(TRACE, "Selected: " << output->GetNumberOfCells() << " cells");
   }
 

@@ -41,7 +41,7 @@ imActor.SetMapper(imMapper)
 
 # Fill the scalars with 0 and then set particular values.
 # Here we'll create several regions / labels.
-def GenIndex(i,j):
+def GenerateIndex(i,j):
     return i + j*res
 
 scalars = image.GetPointData().GetScalars()
@@ -54,7 +54,7 @@ def GenCircle(res,center,radius,label):
         for x in range(0,res):
             r2 = (x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1])
             if r2 <= radius2:
-                scalars.SetTuple1(GenIndex(x,y),label)
+                scalars.SetTuple1(GenerateIndex(x,y),label)
 
 # Place circles
 center = [ res/2.5, res/1.75 ]

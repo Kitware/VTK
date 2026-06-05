@@ -118,6 +118,7 @@ set(classes
   vtkStructuredGridOutlineFilter
   vtkSurfaceNets2D
   vtkSurfaceNets3D
+  vtkSurfaceNetsAtlas
   vtkSynchronizedTemplates2D
   vtkSynchronizedTemplates3D
   vtkSynchronizedTemplatesCutter3D

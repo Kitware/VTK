@@ -19,20 +19,20 @@ image.AllocateScalars(VTK_SHORT,1)
 
 # Fill the scalars with 0 (the background label) and then set particular
 # values.  Here we'll create eight regions / labels.
-def GenIndex(i,j,k):
+def GenerateIndex(i,j,k):
     return i + j*xDim + k*sliceSize
 scalars = image.GetPointData().GetScalars()
 scalars.Fill(0)
 
 # Region 1
-scalars.SetTuple1(GenIndex(1,1,1),1)
-scalars.SetTuple1(GenIndex(2,1,1),2)
-scalars.SetTuple1(GenIndex(1,2,1),3)
-scalars.SetTuple1(GenIndex(2,2,1),4)
-scalars.SetTuple1(GenIndex(1,1,2),5)
-scalars.SetTuple1(GenIndex(2,1,2),6)
-scalars.SetTuple1(GenIndex(1,2,2),7)
-scalars.SetTuple1(GenIndex(2,2,2),8)
+scalars.SetTuple1(GenerateIndex(1,1,1),1)
+scalars.SetTuple1(GenerateIndex(2,1,1),2)
+scalars.SetTuple1(GenerateIndex(1,2,1),3)
+scalars.SetTuple1(GenerateIndex(2,2,1),4)
+scalars.SetTuple1(GenerateIndex(1,1,2),5)
+scalars.SetTuple1(GenerateIndex(2,1,2),6)
+scalars.SetTuple1(GenerateIndex(1,2,2),7)
+scalars.SetTuple1(GenerateIndex(2,2,2),8)
 
 # Extract the boundaries of labeled region 1. In this test, it should just
 # produce a hex around the single labeled point. Also disable smoothing as it
@@ -50,19 +50,25 @@ snets.SetValue(7,8)
 snets.GetSmoother().SetNumberOfIterations(0)
 snets.GetSmoother().SetRelaxationFactor(0.2)
 snets.GetSmoother().SetConstraintDistance(0.25)
-snets.SetOutputStyleToSelected()
-snets.AddSelectedLabel(1)
 
 timer = vtk.vtkTimerLog()
 timer.StartTimer()
 snets.Update()
+atlas = vtk.vtkSurfaceNetsAtlas()
+atlas.SetInputConnection(snets.GetOutputPort())
+atlas.SetExtractionModeToLabelSet()
+atlas.SetOutputStyleToAll()
+atlas.GeneratePatchesOff()
+atlas.AddSelectedLabel(1)
+atlas.Update()
+atlasOutput = atlas.GetOutput().GetPartition(0, 0)
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Time to generate Surface Net: {0}".format(time))
 
 # Clipped polygons are generated
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInputConnection(snets.GetOutputPort())
+mapper.SetInputData(atlasOutput)
 mapper.SetScalarModeToUseCellData()
 mapper.SelectColorArray("BoundaryLabels")
 mapper.SetScalarRange(1,8)
@@ -88,7 +94,6 @@ snets2.GetSmoother().SetNumberOfIterations(0)
 snets2.GetSmoother().SetRelaxationFactor(0.2)
 snets2.GetSmoother().SetConstraintDistance(0.25)
 snets2.SetOutputMeshTypeToTriangles()
-snets2.SetOutputStyleToBoundary()
 
 timer.StartTimer()
 snets2.Update()
