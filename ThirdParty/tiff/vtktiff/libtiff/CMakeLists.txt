@@ -223,9 +223,20 @@ vtk_module_add_module(VTK::tiff
   PRIVATE_HEADERS ${tiff_private_HEADERS})
 endif ()
 if(HAVE_LD_VERSION_SCRIPT)
-  vtk_module_set_property(VTK::tiff APPEND
-    PROPERTY  LINK_FLAGS
-    VALUE     "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
+  if (COMMAND target_link_options)
+    vtk_module_link_options(VTK::tiff
+      PRIVATE
+        "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
+  else ()
+    if (CMAKE_CURRENT_SOURCE_DIR MATCHES " ")
+      message(WARNING
+        "The `libtiff.map` argument may not be passed properly. Either update "
+        "to CMake 3.13+ or use a source directory without a space in it.")
+    endif ()
+    vtk_module_set_property(VTK::tiff APPEND
+      PROPERTY  LINK_FLAGS
+      VALUE     "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
+  endif ()
 endif()
 
 if (TRUE) # XXX(kitware): Use module system to set definitions
