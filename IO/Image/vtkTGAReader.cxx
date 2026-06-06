@@ -12,6 +12,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#include <cstring>
+
 #include <vtksys/FStream.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -21,16 +23,27 @@ namespace
 {
 constexpr int HeaderSize = 18;
 
+// TGA 2.0 footer: the last 26 bytes of the file
+constexpr size_t FooterSize = 26;
+constexpr size_t FooterSignatureOffset = 8;
+constexpr char TGA2FooterSignature[] = "TRUEVISION-XFILE.";
+
 enum TGAFormat : unsigned char
 {
   Uncompressed_RGB = 2,
   RLE_RGB = 10
 };
 
-//----------------------------------------------------------------------------
-int ValidateHeader(char* content, size_t contentSize)
+bool HasTGA2Footer(const char* footer)
 {
-  if (contentSize < ::HeaderSize)
+  return std::memcmp(footer + ::FooterSignatureOffset, ::TGA2FooterSignature,
+           sizeof(::TGA2FooterSignature)) == 0;
+}
+
+//----------------------------------------------------------------------------
+int ValidateHeader(const char* content, size_t contentSize)
+{
+  if (contentSize < static_cast<size_t>(::HeaderSize))
   {
     return 0;
   }
@@ -46,6 +59,38 @@ int ValidateHeader(char* content, size_t contentSize)
   if (bitsPerPixel != 24 && bitsPerPixel != 32)
   {
     return 0;
+  }
+
+  if (content[1] != 0)
+  {
+    return 0;
+  }
+
+  unsigned short width = static_cast<unsigned short>(
+    static_cast<unsigned char>(content[12]) | (static_cast<unsigned char>(content[13]) << 8u));
+  unsigned short height = static_cast<unsigned short>(
+    static_cast<unsigned char>(content[14]) | (static_cast<unsigned char>(content[15]) << 8u));
+  if (width == 0 || height == 0)
+  {
+    return 0;
+  }
+
+  if ((static_cast<unsigned char>(content[17]) & 0xC0u) != 0)
+  {
+    return 0;
+  }
+
+  if (content[2] == ::TGAFormat::Uncompressed_RGB &&
+    contentSize > static_cast<size_t>(::HeaderSize))
+  {
+    size_t idLength = static_cast<unsigned char>(content[0]);
+    size_t minPayload =
+      static_cast<size_t>(width) * height * (static_cast<size_t>(bitsPerPixel) / 8u);
+    size_t minFileSize = static_cast<size_t>(::HeaderSize) + idLength + minPayload;
+    if (contentSize < minFileSize)
+    {
+      return 0;
+    }
   }
 
   return 1;
@@ -145,7 +190,7 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
   const auto contentSize = content.size();
 
-  if (!::ValidateHeader(reinterpret_cast<char*>(content.data()), contentSize))
+  if (!::ValidateHeader(reinterpret_cast<const char*>(content.data()), contentSize))
   {
     vtkErrorMacro("TGAReader error reading file: Invalid header.");
     this->SetErrorCode(vtkErrorCode::FileFormatError);
@@ -264,8 +309,27 @@ int vtkTGAReader::CanReadFile(vtkResourceStream* stream)
   stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
   char header[::HeaderSize];
   auto readSize = stream->Read(header, ::HeaderSize);
+  if (!::ValidateHeader(header, readSize))
+  {
+    return 0;
+  }
 
-  return ::ValidateHeader(header, readSize);
+  stream->Seek(0, vtkResourceStream::SeekDirection::End);
+  auto fileSize = static_cast<size_t>(stream->Tell());
+
+  if (fileSize >= ::FooterSize)
+  {
+    stream->Seek(
+      static_cast<vtkTypeInt64>(fileSize - ::FooterSize), vtkResourceStream::SeekDirection::Begin);
+    char footer[::FooterSize];
+    stream->Read(footer, ::FooterSize);
+    if (::HasTGA2Footer(footer))
+    {
+      return 1;
+    }
+  }
+
+  return ::ValidateHeader(header, fileSize);
 }
 
 //------------------------------------------------------------------------------
