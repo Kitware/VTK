@@ -3,6 +3,7 @@
 
 #include "vtkOpenGLPolyDataMapper.h"
 
+#include "vtkSetGet.h"
 #include "vtk_glad.h"
 
 #include "vtkArrayDispatch.h"
@@ -2202,7 +2203,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       //  if (int(gl_FrontFacing) == 0) does not work on mesa
       if (!this->DrawingPoints(*this->LastBoundBO, actor))
       {
-        toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        if (this->DrawingLines(*this->LastBoundBO, actor))
+        {
+          toString << "  if (normalVCVSOutput.z < 0) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        }
+        else
+        {
+          toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        }
       }
       //"normalVC = normalVCVarying;";
       if (hasClearCoat)
@@ -2362,9 +2370,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       }
       if (!this->DrawingPoints(*this->LastBoundBO, actor))
       {
-        toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        if (this->DrawingLines(*this->LastBoundBO, actor))
+        {
+          toString << "  if (normalVCVSOutput.z < 0) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        }
+        else
+        {
+          toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+        }
       }
-
       if (hasClearCoat)
       {
         toString << "vec3 coatNormalVCVSOutput = normalVCVSOutput;\n";
@@ -2576,12 +2590,17 @@ bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor)
+bool vtkOpenGLPolyDataMapper::DrawingLines(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
-  return (actor->GetProperty()->GetRenderLinesAsTubes() &&
-    actor->GetProperty()->GetLineWidth() > 1.0 &&
+  return (actor->GetProperty()->GetLineWidth() > 1.0 &&
     this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
       GL_LINES);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor)
+{
+  return (actor->GetProperty()->GetRenderLinesAsTubes() && this->DrawingLines(cellBO, actor));
 }
 
 //------------------------------------------------------------------------------
