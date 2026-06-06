@@ -100,7 +100,13 @@ int TestLineRendering(int argc, char* argv[])
 
   renWin->Render();
 
-  const int retVal = vtkRegressionTestImage(renWin);
+  double threshold = vtkRegressionTester::ErrorThreshold;
+  if (renWin->IsA("vtkWebGPURenderWindow"))
+  {
+    // vtkWebGPUPolyDataMapper has some transparent artifacts around the miter/round line joins.
+    threshold = 0.06;
+  }
+  const int retVal = vtkRegressionTestImageThreshold(renWin, threshold);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
