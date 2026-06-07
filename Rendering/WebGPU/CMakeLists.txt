@@ -242,13 +242,11 @@ vtk_module_add_module(VTK::RenderingWebGPU
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
   PRIVATE_HEADERS  ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
-# Dawn's C++ wrapper (webgpu_cpp.h) uses C++20 features (std::span, requires,
-# lambdas in unevaluated context). C++20 is propagated publicly because public
-# VTK::RenderingWebGPU headers include vtk_wgpu.h which pulls in webgpu_cpp.h.
-# Once the Handle refactoring removes wgpu:: types from public headers, this
-# can be changed to PRIVATE.
+# Public headers now use only the WebGPU C API (webgpu.h) via opaque Handle types.
+# Internal implementation may use C++20 features from webgpu_cpp.h, but doesn't
+# propagate them to public API, maintaining VTK's C++17 compatibility.
 vtk_module_compile_features(VTK::RenderingWebGPU
-  PUBLIC cxx_std_20)
+  PRIVATE cxx_std_20)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_options(VTK::RenderingWebGPU
