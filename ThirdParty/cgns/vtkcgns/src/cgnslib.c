@@ -360,7 +360,13 @@ const char * AverageInterfaceTypeName[NofValidAverageInterfaceTypes] =
 int n_open = 0;
 int cgns_file_size = 0;
 int file_number_offset = 0;
-int VersionList[] = {4500, 4400, 4300, 4200,
+/* Version = (Major × 1000) + (Minor × 100) + (Patch × 10) */
+/* To decode:
+ * Major Version: Divide by 1000.
+ * Minor Version: Divide by 100, then take the modulo 10.
+ * Patch Version: Divide by 10, then take the modulo 10.
+*/
+int VersionList[] = {4520, 4510, 4500, 4400, 4300, 4200,
                      4110, 4100, 4000,
                      3210, 3200,
                      3140, 3130, 3110, 3100,

@@ -471,7 +471,7 @@ if (CGNS_ENABLE_HDF5 AND HDF5_NEED_MPI)
   set(CGNS_ENABLE_PARALLEL "OFF" CACHE BOOL "Enable or disable parallel interface ?")
   mark_as_advanced(CLEAR CGNS_ENABLE_PARALLEL)
   # Check that HDF5 has parallel support
-  if (NOT (HDF5_IS_PARALLEL OR HDF5_ENABLE_PARALLEL))
+  if (NOT (HDF5_IS_PARALLEL OR HDF5_ENABLE_PARALLEL OR HDF5_PROVIDES_PARALLEL))
     message(FATAL_ERROR "HDF5 has been found, but is missing parallel support.")
   endif()
 else ()
