@@ -168,11 +168,17 @@ void vtkFramebufferPass::Render(const vtkRenderState* s)
     ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
       this->ViewportY, this->ViewportX + this->ViewportWidth,
       this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    renWin->TextureDepthBlit(this->DepthTexture, 0, 0, this->ViewportWidth, this->ViewportHeight,
+      this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
+      this->ViewportY + this->ViewportHeight);
   }
 #else
   ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
     this->ViewportY, this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight,
     GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  renWin->TextureDepthBlit(this->DepthTexture, 0, 0, this->ViewportWidth, this->ViewportHeight,
+    this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
+    this->ViewportY + this->ViewportHeight);
 #endif
 
   ostate->PopReadFramebufferBinding();

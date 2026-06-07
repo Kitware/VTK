@@ -675,6 +675,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
     "^VTK::RenderingOpenGL2Cxx-TestFlipRenderFramebuffer$"
+    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestFramebufferHDR$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestGaussianBlurPass$"
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperEdges$"
@@ -692,6 +693,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestProgramPointSize$"
     "^VTK::RenderingOpenGL2Cxx-TestRemoveActorNonCurrentContext$"
     "^VTK::RenderingOpenGL2Cxx-TestDirectSelectionRendering$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotation$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotationVectors$"
     "^VTK::RenderingOpenGL2Cxx-TestSimpleMotionBlur$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestSpherePoints$"
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"

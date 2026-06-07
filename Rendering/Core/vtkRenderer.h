@@ -563,9 +563,12 @@ public:
   ///@}
 
   /**
-   * Given a pixel location, return the Z value. The z value is
-   * normalized (0,1) between the front and back clipping planes.
-   * By default this functions accesses the `vtkRenderWindow`'s depth buffer
+   * Given a pixel location in window-system coordinates, return the Z value.
+   *
+   * X and Y are in pixels with (0, 0) at the bottom-left corner of the render window.
+   * Returns 1.0 (far plane) for any coordinate outside [0, windowWidth-1] x [0, windowHeight-1].
+   * The Z value is normalized (0,1) between the front and back clipping planes.
+   * By default this function accesses the `vtkRenderWindow`'s depth buffer
    * that is only valid right after this specific renderer has rendered.
    * If `SafeGetZ` is On, this function will use a `vtkHardwareSelector` to
    * get the depth information in flight. This approach always works,
