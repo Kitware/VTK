@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -34,8 +34,11 @@ using callback_t = std::function<bool(const results_t &)>;
 
 class Option;
 class App;
+class ConfigBase;
 
 using Option_p = std::unique_ptr<Option>;
+using Validator_p = std::shared_ptr<Validator>;
+
 /// Enumeration of the multiOption Policy selection
 enum class MultiOptionPolicy : char {
     Throw,      //!< Throw an error if any extra arguments were given
@@ -47,10 +50,23 @@ enum class MultiOptionPolicy : char {
     Reverse,    //!< take only the last Expected number of arguments in reverse order
 };
 
+/// @brief  enumeration for the callback priority
+enum class CallbackPriority : std::uint8_t {
+    FirstPreHelp = 0,
+    First = 1,
+    PreRequirementsCheckPreHelp = 2,
+    PreRequirementsCheck = 3,
+    NormalPreHelp = 4,
+    Normal = 5,
+    LastPreHelp = 6,
+    Last = 7
+};  // namespace CLI
+
 /// This is the CRTP base class for Option and OptionDefaults. It was designed this way
 /// to share parts of the class; an OptionDefaults can copy to an Option.
 template <typename CRTP> class OptionBase {
     friend App;
+    friend ConfigBase;
 
   protected:
     /// The group membership
@@ -79,6 +95,9 @@ template <typename CRTP> class OptionBase {
 
     /// Policy for handling multiple arguments beyond the expected Max
     MultiOptionPolicy multi_option_policy_{MultiOptionPolicy::Throw};
+
+    /// Priority of callback
+    CallbackPriority callback_priority_{CallbackPriority::Normal};
 
     /// Copy the contents to another similar class (one based on OptionBase)
     template <typename T> void copy_to(T *other) const;
@@ -137,6 +156,9 @@ template <typename CRTP> class OptionBase {
 
     /// The status of the multi option policy
     CLI11_NODISCARD MultiOptionPolicy get_multi_option_policy() const { return multi_option_policy_; }
+
+    /// The priority of callback
+    CLI11_NODISCARD CallbackPriority get_callback_priority() const { return callback_priority_; }
 
     // Shortcuts for multi option policy
 
@@ -197,6 +219,12 @@ class OptionDefaults : public OptionBase<OptionDefaults> {
 
     // Methods here need a different implementation if they are Option vs. OptionDefault
 
+    /// Set the callback priority
+    OptionDefaults *callback_priority(CallbackPriority value = CallbackPriority::Normal) {
+        callback_priority_ = value;
+        return this;
+    }
+
     /// Take the last argument if given multiple times
     OptionDefaults *multi_option_policy(MultiOptionPolicy value = MultiOptionPolicy::Throw) {
         multi_option_policy_ = value;
@@ -230,6 +258,7 @@ class OptionDefaults : public OptionBase<OptionDefaults> {
 
 class Option : public OptionBase<Option> {
     friend App;
+    friend ConfigBase;
 
   protected:
     /// @name Names
@@ -291,7 +320,7 @@ class Option : public OptionBase<Option> {
     int expected_max_{1};
 
     /// A list of Validators to run on each value parsed
-    std::vector<Validator> validators_{};
+    std::vector<Validator_p> validators_{};
 
     /// A list of options that are required with this option
     std::set<Option *> needs_{};
@@ -316,7 +345,7 @@ class Option : public OptionBase<Option> {
     /// complete Results of parsing
     results_t results_{};
     /// results after reduction
-    results_t proc_results_{};
+    mutable results_t proc_results_{};
     /// enumeration for the option state machine
     enum class option_state : char {
         parsing = 0,       //!< The option is currently collecting parsed results
@@ -338,7 +367,6 @@ class Option : public OptionBase<Option> {
     bool trigger_on_result_{false};
     /// flag indicating that the option should force the callback regardless if any results present
     bool force_callback_{false};
-    ///@}
 
     /// Making an option by hand is not defined, it must be made by the App class
     Option(std::string option_name,
@@ -415,19 +443,32 @@ class Option : public OptionBase<Option> {
     /// Get the current value of run_callback_for_default
     CLI11_NODISCARD bool get_run_callback_for_default() const { return run_callback_for_default_; }
 
+    /// Set the value of callback priority which controls when the callback function should be called relative to other
+    /// parsing operations the default This is controlled automatically but could be manipulated by the user.
+    Option *callback_priority(CallbackPriority value = CallbackPriority::Normal) {
+        callback_priority_ = value;
+        return this;
+    }
+
+    /// Adds a shared validator
+    Option *check(Validator_p validator);
+
     /// Adds a Validator with a built in type name
     Option *check(Validator validator, const std::string &validator_name = "");
 
     /// Adds a Validator. Takes a const string& and returns an error message (empty if conversion/check is okay).
-    Option *check(std::function<std::string(const std::string &)> Validator,
-                  std::string Validator_description = "",
-                  std::string Validator_name = "");
+    Option *check(std::function<std::string(const std::string &)> validator_func,
+                  std::string validator_description = "",
+                  std::string validator_name = "");
+
+    /// Adds a shared Validator
+    Option *transform(Validator_p validator);
 
     /// Adds a transforming Validator with a built in type name
-    Option *transform(Validator Validator, const std::string &Validator_name = "");
+    Option *transform(Validator validator, const std::string &transform_name = "");
 
     /// Adds a Validator-like function that can change result
-    Option *transform(const std::function<std::string(std::string)> &func,
+    Option *transform(const std::function<std::string(std::string)> &transform_func,
                       std::string transform_description = "",
                       std::string transform_name = "");
 
@@ -435,7 +476,7 @@ class Option : public OptionBase<Option> {
     Option *each(const std::function<void(std::string)> &func);
 
     /// Get a named Validator
-    Validator *get_validator(const std::string &Validator_name = "");
+    Validator *get_validator(const std::string &validator_name = "");
 
     /// Get a Validator by index NOTE: this may not be the order of definition
     Validator *get_validator(int index);
@@ -616,8 +657,10 @@ class Option : public OptionBase<Option> {
     /// Will include / prefer the positional name if positional is true.
     /// If all_options is false, pick just the most descriptive name to show.
     /// Use `get_name(true)` to get the positional name (replaces `get_pname`)
-    CLI11_NODISCARD std::string get_name(bool positional = false,  ///< Show the positional name
-                                         bool all_options = false  ///< Show every option
+    /// if disable_default_flag_values is true, do not include the default values for flags such as `--no-flag{false}`
+    CLI11_NODISCARD std::string get_name(bool positional = false,                  ///< Show the positional name
+                                         bool all_options = false,                 ///< Show every option
+                                         bool disable_default_flag_values = false  ///< Disable default values in name
     ) const;
 
     ///@}
@@ -678,7 +721,15 @@ class Option : public OptionBase<Option> {
         bool retval = false;
         if(current_option_state_ >= option_state::reduced || (results_.size() == 1 && validators_.empty())) {
             const results_t &res = (proc_results_.empty()) ? results_ : proc_results_;
-            retval = detail::lexical_conversion<T, T>(res, output);
+            if(!res.empty()) {
+                retval = detail::lexical_conversion<T, T>(res, output);
+            } else {
+                results_t res2;
+                res2.emplace_back();
+                proc_results_ = std::move(res2);
+                retval = detail::lexical_conversion<T, T>(proc_results_, output);
+            }
+
         } else {
             results_t res;
             if(results_.empty()) {
@@ -697,7 +748,9 @@ class Option : public OptionBase<Option> {
             } else {
                 res = reduced_results();
             }
-            retval = detail::lexical_conversion<T, T>(res, output);
+            // store the results in a stable location if the output is a view
+            proc_results_ = std::move(res);
+            retval = detail::lexical_conversion<T, T>(proc_results_, output);
         }
         if(!retval) {
             throw ConversionError(get_name(), results_);
@@ -762,7 +815,7 @@ class Option : public OptionBase<Option> {
     /// Set the default value and validate the results and run the callback if appropriate to set the value into the
     /// bound value only available for types that can be converted to a string
     template <typename X> Option *default_val(const X &val) {
-        std::string val_str = detail::to_string(val);
+        std::string val_str = detail::value_string(val);
         auto old_option_state = current_option_state_;
         results_t old_results{std::move(results_)};
         results_.clear();
@@ -776,18 +829,6 @@ class Option : public OptionBase<Option> {
                 _validate_results(results_);
                 current_option_state_ = old_option_state;
             }
-        } catch(const ValidationError &err) {
-            // this should be done
-            results_ = std::move(old_results);
-            current_option_state_ = old_option_state;
-            // try an alternate way to convert
-            std::string alternate = detail::value_string(val);
-            if(!alternate.empty() && alternate != val_str) {
-                return default_val(alternate);
-            }
-
-            throw ValidationError(get_name(),
-                                  std::string("given default value does not pass validation :") + err.what());
         } catch(const ConversionError &err) {
             // this should be done
             results_ = std::move(old_results);

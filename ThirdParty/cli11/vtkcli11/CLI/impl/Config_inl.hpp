@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -84,7 +84,20 @@ convert_arg_for_ini(const std::string &arg, char stringQuote, char literalQuote,
     }
     if(detail::has_escapable_character(arg)) {
         if(arg.size() > 100 && !disable_multi_line) {
-            return std::string(multiline_literal_quote) + arg + multiline_literal_quote;
+            if(arg.find(multiline_literal_quote) != std::string::npos) {
+                return binary_escape_string(arg, true);
+            }
+            std::string return_string{multiline_literal_quote};
+            return_string.reserve(7 + arg.size());
+            if(arg.front() == '\n' || arg.front() == '\r') {
+                return_string.push_back('\n');
+            }
+            return_string.append(arg);
+            if(arg.back() == '\n' || arg.back() == '\r') {
+                return_string.push_back('\n');
+            }
+            return_string.append(multiline_literal_quote, 3);
+            return return_string;
         }
         return std::string(1, stringQuote) + detail::add_escaped_characters(arg) + stringQuote;
     }
@@ -339,7 +352,7 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
                 inMLineValue = true;
                 bool lineExtension{false};
                 bool firstLine = true;
-                if(!item.empty() && item.back() == '\\') {
+                if(!item.empty() && item.back() == '\\' && keyChar == '\"') {
                     item.pop_back();
                     lineExtension = true;
                 } else if(detail::hasMLString(item, keyChar)) {
@@ -393,7 +406,7 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
                         }
                         lineExtension = false;
                         firstLine = false;
-                        if(!l2.empty() && l2.back() == '\\') {
+                        if(!l2.empty() && l2.back() == '\\' && keyChar == '\"') {
                             lineExtension = true;
                             l2.pop_back();
                         }
@@ -401,7 +414,7 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
                     }
                 }
                 items_buffer = {item};
-            } else if(item.size() > 1 && item.front() == aStart) {
+            } else if(!item.empty() && item.front() == aStart) {
                 for(std::string multiline; item.back() != aEnd && std::getline(input, multiline);) {
                     detail::trim(multiline);
                     item += multiline;
@@ -425,7 +438,7 @@ inline std::vector<ConfigItem> ConfigBase::from_config(std::istream &input) cons
         std::vector<std::string> parents;
         try {
             parents = detail::generate_parents(currentSection, name, parentSeparatorChar);
-            detail::process_quoted_string(name);
+            detail::process_quoted_string(name, '"', '\'', true);
             // clean up quotes on the items and check for escaped strings
             for(auto &it : items_buffer) {
                 detail::process_quoted_string(it, stringQuote, literalQuote);
@@ -543,13 +556,52 @@ ConfigBase::to_config(const App *app, bool default_also, bool write_description,
                 }
 
                 auto results = opt->reduced_results();
-                std::string value =
-                    detail::ini_join(results, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+                if(results.size() > 1 && opt->get_multi_option_policy() == CLI::MultiOptionPolicy::Reverse) {
+                    std::reverse(results.begin(), results.end());
+                }
+                if(opt->get_multi_option_policy() == CLI::MultiOptionPolicy::Sum && opt->count() >= 1 &&
+                   results.size() == 1) {
+                    // if the multi option policy is sum then there is a possibility of incorrect fields being produced
+                    // best to just use the original data for config files
+                    auto pos = opt->_validate(results[0], 0);
+                    if(!pos.empty()) {
+                        results = opt->results();
+                    }
+                }
+                if(opt->get_multi_option_policy() == CLI::MultiOptionPolicy::Join && opt->count() > 1) {
+                    char delim = opt->get_delimiter();
+                    if(delim == '\0') {
+                        // this branch deals with a situation where the output would not be readable by a config file
+                        results = opt->results();
+                    } else {
+                        // this branch deals with the case of the strings containing the delimiter itself or empty
+                        // strings which would be interpreted incorrectly
+                        auto delim_count = std::count(results[0].begin(), results[0].end(), delim);
+                        if(results[0].back() == delim ||
+                           static_cast<decltype(delim_count)>(opt->count()) < delim_count - 1 ||
+                           results[0].find(std::string(2, delim)) != std::string::npos) {
+                            results = opt->results();
+                        }
+                    }
+                }
+                std::string value;
+
+                if(opt->count() == 1 && results.size() == 2 && results.front() == "{}" && results.back() == "%%") {
+                    // there is a catch to allow for {} to used as as string in the output
+                    //  it will append a sequence terminator to the output so the lexical conversion handles it
+                    //  correctly but that is meant for config files so when outputting for a config file we need to
+                    //  makes sure to get the correct output
+                    value = "\"{}\"";
+                } else {
+                    value = detail::ini_join(results, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+                }
 
                 bool isDefault = false;
                 if(value.empty() && default_also) {
                     if(!opt->get_default_str().empty()) {
-                        value = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, false);
+                        results_t res;
+                        opt->results(res);
+                        value = detail::ini_join(res, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
                     } else if(opt->get_expected_min() == 0) {
                         value = "false";
                     } else if(opt->get_run_callback_for_default() || !opt->get_required()) {
