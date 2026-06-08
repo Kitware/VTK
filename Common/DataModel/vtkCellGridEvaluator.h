@@ -107,8 +107,9 @@
 #include "vtkTypeUInt32Array.h" // For ivars.
 #include "vtkTypeUInt64Array.h" // For ivars.
 
-#include <set>
+#include <array>
 #include <unordered_map>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -134,10 +135,29 @@ public:
   /// Hold per-type input point assignment and an offset for output arrays.
   struct VTKCOMMONDATAMODEL_EXPORT AllocationsByCellType
   {
-    std::map<vtkIdType, std::set<vtkIdType>> InputPoints;
+    /// The result of classifying a single probe point: the index of the input point,
+    /// the cell that contains it, and the reference-element (r, s, t) coordinates
+    /// computed by Newton-Raphson during classification.  Storing parametric coordinates
+    /// here eliminates the need for a separate EvaluatePositions pass.
+    struct ClassifiedPoint
+    {
+      vtkIdType InputPointId;
+      vtkIdType CellId;
+      std::array<double, 3> ParametricCoords;
+    };
+
+    /// Flat list of classified probe points, populated by ClassifyPoints.
+    /// Contiguous layout enables random-access indexing for parallel interpolation:
+    /// the entry at index k maps to output slot alloc.Offset + k.
+    std::vector<ClassifiedPoint> InputPoints;
+    /// Offset into the global output arrays where this cell type's results begin.
     vtkIdType Offset{ 0 };
 
-    vtkIdType GetNumberOfOutputPoints() const;
+    /// Return the number of classified points for this cell type.
+    vtkIdType GetNumberOfOutputPoints() const
+    {
+      return static_cast<vtkIdType>(this->InputPoints.size());
+    }
   };
 
   /// Set/get the cell-attribute to be evaluated.
