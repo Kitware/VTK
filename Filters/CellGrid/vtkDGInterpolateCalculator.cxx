@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkDGInterpolateCalculator.h"
+
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
 #include "vtkCellMetadata.h"
@@ -14,22 +16,112 @@
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigen)
 
-#include <sstream>
-
 using namespace vtk::literals;
 
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkDGInterpolateCalculator);
 
+vtkDGInterpolateCalculator::ThreadLocalData::ThreadLocalData()
+{
+  this->Result = vtkSmartPointer<vtkDoubleArray>::New();
+  this->VRst = vtkSmartPointer<vtkDoubleArray>::New();
+  this->Ids = vtkSmartPointer<vtkIdTypeArray>::New();
+
+  this->DerResult = vtkSmartPointer<vtkDoubleArray>::New();
+  this->DerVRst = vtkSmartPointer<vtkDoubleArray>::New();
+  this->DerIds = vtkSmartPointer<vtkIdTypeArray>::New();
+
+  this->LocalField = vtkSmartPointer<vtkDoubleArray>::New();
+
+  this->InAccessor.SetCellIds(this->Ids.GetPointer());
+  this->InAccessor.SetRST(this->VRst.GetPointer());
+  this->OutAccessor.SetResult(this->Result.GetPointer());
+  this->DerInAccessor.SetCellIds(this->DerIds.GetPointer());
+  this->DerInAccessor.SetRST(this->DerVRst.GetPointer());
+  this->DerOutAccessor.SetResult(this->DerResult.GetPointer());
+}
+
+vtkDGInterpolateCalculator::ThreadLocalData::ThreadLocalData(
+  const ThreadLocalData& vtkNotUsed(other))
+{
+  this->Result = vtkSmartPointer<vtkDoubleArray>::New();
+  this->VRst = vtkSmartPointer<vtkDoubleArray>::New();
+  this->Ids = vtkSmartPointer<vtkIdTypeArray>::New();
+
+  this->DerResult = vtkSmartPointer<vtkDoubleArray>::New();
+  this->DerVRst = vtkSmartPointer<vtkDoubleArray>::New();
+  this->DerIds = vtkSmartPointer<vtkIdTypeArray>::New();
+
+  this->LocalField = vtkSmartPointer<vtkDoubleArray>::New();
+
+  this->InAccessor.SetCellIds(this->Ids.GetPointer());
+  this->InAccessor.SetRST(this->VRst.GetPointer());
+  this->OutAccessor.SetResult(this->Result.GetPointer());
+  this->DerInAccessor.SetCellIds(this->DerIds.GetPointer());
+  this->DerInAccessor.SetRST(this->DerVRst.GetPointer());
+  this->DerOutAccessor.SetResult(this->DerResult.GetPointer());
+}
+
+void vtkDGInterpolateCalculator::ThreadLocalData::Swap(ThreadLocalData& other)
+{
+  std::swap(this->Result, other.Result);
+  std::swap(this->VRst, other.VRst);
+  std::swap(this->Ids, other.Ids);
+
+  std::swap(this->DerResult, other.DerResult);
+  std::swap(this->DerVRst, other.DerVRst);
+  std::swap(this->DerIds, other.DerIds);
+
+  std::swap(this->LocalField, other.LocalField);
+
+  std::swap(this->InAccessor, other.InAccessor);
+  std::swap(this->OutAccessor, other.OutAccessor);
+  std::swap(this->DerInAccessor, other.DerInAccessor);
+  std::swap(this->DerOutAccessor, other.DerOutAccessor);
+  std::swap(this->FieldEvaluator, other.FieldEvaluator);
+  std::swap(this->FieldDerivative, other.FieldDerivative);
+  std::swap(this->Initialized, other.Initialized);
+}
+
+vtkDGInterpolateCalculator::ThreadLocalData& vtkDGInterpolateCalculator::ThreadLocalData::operator=(
+  ThreadLocalData other)
+{
+  if (this != &other)
+  {
+    ThreadLocalData tmp = ThreadLocalData(other);
+    this->Swap(tmp);
+  }
+  return *this;
+}
+
+void vtkDGInterpolateCalculator::ThreadLocalData::EnsureInitialized(
+  vtkDGCell* cellType, vtkCellAttribute* field)
+{
+  if (!this->Initialized)
+  {
+    this->FieldEvaluator.Prepare(cellType, field, "Basis"_token, /* includeShape */ true);
+    this->FieldDerivative.Prepare(cellType, field, "BasisGradient"_token, /* includeShape */ true);
+    this->Result->SetNumberOfComponents(this->FieldEvaluator.GetNumberOfResultComponents());
+    this->VRst->SetNumberOfComponents(3);
+    this->Ids->SetNumberOfValues(1);
+    this->DerResult->SetNumberOfComponents(this->FieldDerivative.GetNumberOfResultComponents());
+    this->DerVRst->SetNumberOfComponents(3);
+    this->DerIds->SetNumberOfValues(1);
+    this->Initialized = true;
+  }
+}
+
 void vtkDGInterpolateCalculator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   vtkIndent i2 = indent.GetNextIndent();
+  ThreadLocalData& tl = this->LocalData.Local();
+  tl.EnsureInitialized(this->CellType, this->Field);
   os << indent << "FieldEvaluator:\n";
-  this->FieldEvaluator.PrintSelf(os, i2);
+  tl.FieldEvaluator.PrintSelf(os, i2);
   os << indent << "FieldDerivative:\n";
-  this->FieldDerivative.PrintSelf(os, i2);
+  tl.FieldDerivative.PrintSelf(os, i2);
 
   // os << indent << "FieldValues: " << this->FieldValues << "\n";
   // os << indent << "ShapeConnectivity: " << this->ShapeConnectivity << "\n";
@@ -39,30 +131,28 @@ void vtkDGInterpolateCalculator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDGInterpolateCalculator::Evaluate(
   vtkIdType cellId, const vtkVector3d& rst, std::vector<double>& value)
 {
-  value.resize(this->FieldEvaluator.GetNumberOfResultComponents());
-  std::array<double, 3> arst{ rst[0], rst[1], rst[2] };
-  vtkNew<vtkDoubleArray> result;
-  vtkNew<vtkDoubleArray> vrst;
-  vtkNew<vtkIdTypeArray> ids;
-  result->SetNumberOfComponents(this->FieldEvaluator.GetNumberOfResultComponents());
+  ThreadLocalData& tl = this->LocalData.Local();
+  tl.EnsureInitialized(this->CellType, this->Field);
+  value.resize(tl.FieldEvaluator.GetNumberOfResultComponents());
+  vtkDoubleArray* result = tl.Result.GetPointer();
+  vtkDoubleArray* vrst = tl.VRst.GetPointer();
+  vtkIdTypeArray* ids = tl.Ids.GetPointer();
   result->SetArray(value.data(), static_cast<vtkIdType>(value.size()), /*save*/ 1);
-  vrst->SetNumberOfComponents(3);
-  vrst->SetArray(arst.data(), 3, /*save*/ 1);
-  ids->SetNumberOfTuples(1);
+  vrst->SetArray(const_cast<double*>(rst.GetData()), 3, /*save*/ 1);
   ids->SetValue(0, cellId);
-  // value.resize(this->FieldBasisOp.OperatorSize * );
-  vtkDGArraysInputAccessor inIt(ids, vrst);
-  vtkDGArrayOutputAccessor outIt(result);
-  this->FieldEvaluator.Evaluate(inIt, outIt, 0, 1);
+  tl.InAccessor.Restart();
+  tl.OutAccessor.Restart();
+  tl.FieldEvaluator.Evaluate(tl.InAccessor, tl.OutAccessor, 0, 1);
 }
 
 void vtkDGInterpolateCalculator::Evaluate(
   vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result)
 {
+  ThreadLocalData& tl = this->LocalData.Local();
   vtkDoubleArray* dresult = vtkDoubleArray::SafeDownCast(result);
   if (!dresult)
   {
-    dresult = this->LocalField.GetPointer();
+    dresult = tl.LocalField.GetPointer();
   }
 
   assert(cellIds->GetNumberOfTuples() == rst->GetNumberOfTuples());
@@ -70,9 +160,10 @@ void vtkDGInterpolateCalculator::Evaluate(
   vtkIdType numEvals = cellIds->GetNumberOfTuples();
   dresult->SetNumberOfComponents(this->Field->GetNumberOfComponents());
   dresult->SetNumberOfTuples(cellIds->GetNumberOfTuples());
+  tl.EnsureInitialized(this->CellType, this->Field);
   vtkDGArraysInputAccessor inIt(cellIds, rst);
   vtkDGArrayOutputAccessor outIt(dresult);
-  this->FieldEvaluator.Evaluate(inIt, outIt, 0, numEvals);
+  tl.FieldEvaluator.Evaluate(inIt, outIt, 0, numEvals);
 
   // Finally, if we were given a non-vtkDoubleArray, copy the results
   // back into the output array.
@@ -104,19 +195,17 @@ void vtkDGInterpolateCalculator::EvaluateDerivative(
     return;
   }
 
-  vtkNew<vtkDoubleArray> result;
-  vtkNew<vtkDoubleArray> vrst;
-  vtkNew<vtkIdTypeArray> ids;
-  result->SetNumberOfComponents(this->FieldDerivative.GetNumberOfResultComponents());
+  ThreadLocalData& tl = this->LocalData.Local();
+  tl.EnsureInitialized(this->CellType, this->Field);
+  vtkDoubleArray* result = tl.DerResult.GetPointer();
+  vtkDoubleArray* vrst = tl.DerVRst.GetPointer();
+  vtkIdTypeArray* ids = tl.DerIds.GetPointer();
   result->SetArray(jacobian.data(), static_cast<vtkIdType>(jacobian.size()), /*save*/ 1);
-  vrst->SetNumberOfComponents(3);
   vrst->SetArray(const_cast<double*>(rst.GetData()), 3, /*save*/ 1);
-  ids->SetNumberOfTuples(1);
   ids->SetValue(0, cellId);
-  // value.resize(this->FieldBasisOp.OperatorSize * );
-  vtkDGArraysInputAccessor inIt(ids, vrst);
-  vtkDGArrayOutputAccessor outIt(result);
-  this->FieldDerivative.Evaluate(inIt, outIt, 0, 1);
+  tl.DerInAccessor.Restart();
+  tl.DerOutAccessor.Restart();
+  tl.FieldDerivative.Evaluate(tl.DerInAccessor, tl.DerOutAccessor, 0, 1);
 }
 
 void vtkDGInterpolateCalculator::EvaluateDerivative(
@@ -130,15 +219,16 @@ void vtkDGInterpolateCalculator::EvaluateDerivative(
   }
 
   vtkIdType numEvals = cellIds->GetNumberOfTuples();
+  ThreadLocalData& tl = this->LocalData.Local();
   vtkDoubleArray* dresult = vtkDoubleArray::SafeDownCast(result);
   if (!dresult)
   {
-    dresult = this->LocalField.GetPointer();
+    dresult = tl.LocalField.GetPointer();
   }
-
+  tl.EnsureInitialized(this->CellType, this->Field);
   vtkDGArraysInputAccessor inIt(cellIds, rst);
   vtkDGArrayOutputAccessor outIt(dresult);
-  this->FieldDerivative.Evaluate(inIt, outIt, 0, numEvals);
+  tl.FieldDerivative.Evaluate(inIt, outIt, 0, numEvals);
 
   if (dresult != result)
   {
@@ -167,8 +257,10 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGInterpolateCalculator::PrepareF
   result->Dimension = dgCell->GetDimension();
   result->FieldCellInfo = field->GetCellTypeInfo(dgCell->GetClassName());
   result->Field = field;
-  result->FieldEvaluator.Prepare(dgCell, field, "Basis"_token, /* includeShape */ true);
-  result->FieldDerivative.Prepare(dgCell, field, "BasisGradient"_token, /* includeShape */ true);
+  for (auto& tlData : this->LocalData)
+  {
+    tlData.Initialized = false;
+  }
 
   return result;
 }

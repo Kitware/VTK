@@ -17,11 +17,15 @@ class vtkDataArray;
 class VTKFILTERSCELLGRID_EXPORT vtkDGArraysInputAccessor
 {
 public:
+  vtkDGArraysInputAccessor() = default;
   vtkDGArraysInputAccessor(vtkDataArray* cellIds, vtkDataArray* rst);
   vtkDGArraysInputAccessor(const vtkDGArraysInputAccessor& other);
   ~vtkDGArraysInputAccessor();
 
   vtkDGArraysInputAccessor& operator=(const vtkDGArraysInputAccessor& other);
+
+  void SetCellIds(vtkDataArray* cellIds);
+  void SetRST(vtkDataArray* rst);
 
   vtkIdType GetCellId(vtkTypeUInt64 iteration);
   vtkVector3d GetParameter(vtkTypeUInt64 iteration);

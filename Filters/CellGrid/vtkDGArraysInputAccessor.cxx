@@ -7,17 +7,9 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkDGArraysInputAccessor::vtkDGArraysInputAccessor(vtkDataArray* cellIds, vtkDataArray* rst)
-  : CellIds(cellIds)
-  , RST(rst)
 {
-  if (cellIds)
-  {
-    this->CellIds->Register(nullptr);
-  }
-  if (rst)
-  {
-    this->RST->Register(nullptr);
-  }
+  this->SetCellIds(cellIds);
+  this->SetRST(rst);
 }
 
 vtkDGArraysInputAccessor::vtkDGArraysInputAccessor(const vtkDGArraysInputAccessor& other)
@@ -26,42 +18,15 @@ vtkDGArraysInputAccessor::vtkDGArraysInputAccessor(const vtkDGArraysInputAccesso
   {
     return;
   }
-
-  if (this->CellIds)
-  {
-    this->CellIds->Delete();
-  }
-  if (this->RST)
-  {
-    this->RST->Delete();
-  }
-
-  this->CellIds = other.CellIds;
-  this->RST = other.RST;
+  this->SetCellIds(other.CellIds);
+  this->SetRST(other.RST);
   this->Key = other.Key;
-
-  if (this->CellIds)
-  {
-    this->CellIds->Register(nullptr);
-  }
-  if (this->RST)
-  {
-    this->RST->Register(nullptr);
-  }
 }
 
 vtkDGArraysInputAccessor::~vtkDGArraysInputAccessor()
 {
-  if (this->CellIds)
-  {
-    this->CellIds->Delete();
-    this->CellIds = nullptr;
-  }
-  if (this->RST)
-  {
-    this->RST->Delete();
-    this->RST = nullptr;
-  }
+  this->SetCellIds(nullptr);
+  this->SetRST(nullptr);
 }
 
 vtkDGArraysInputAccessor& vtkDGArraysInputAccessor::operator=(const vtkDGArraysInputAccessor& other)
@@ -70,29 +35,36 @@ vtkDGArraysInputAccessor& vtkDGArraysInputAccessor::operator=(const vtkDGArraysI
   {
     return *this;
   }
+  this->SetCellIds(other.CellIds);
+  this->SetRST(other.RST);
+  this->Key = other.Key;
+  return *this;
+}
 
+void vtkDGArraysInputAccessor::SetCellIds(vtkDataArray* cellIds)
+{
   if (this->CellIds)
   {
     this->CellIds->Delete();
   }
-  if (this->RST)
-  {
-    this->RST->Delete();
-  }
-
-  this->CellIds = other.CellIds;
-  this->RST = other.RST;
-  this->Key = other.Key;
-
+  this->CellIds = cellIds;
   if (this->CellIds)
   {
     this->CellIds->Register(nullptr);
   }
+}
+
+void vtkDGArraysInputAccessor::SetRST(vtkDataArray* rst)
+{
+  if (this->RST)
+  {
+    this->RST->Delete();
+  }
+  this->RST = rst;
   if (this->RST)
   {
     this->RST->Register(nullptr);
   }
-  return *this;
 }
 
 vtkIdType vtkDGArraysInputAccessor::GetCellId(vtkTypeUInt64 iteration)
