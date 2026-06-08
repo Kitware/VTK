@@ -948,6 +948,24 @@ public:
 
   ///@{
   /**
+   * Set/Get wether or not the skybox background needs to be blurred.
+   */
+  vtkSetMacro(SkyboxBlurEnabled, bool);
+  vtkGetMacro(SkyboxBlurEnabled, bool);
+  vtkBooleanMacro(SkyboxBlurEnabled, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set the radius parameter of the skybox blur. The blur will be more intense if the skybox blur
+   * is higher.
+   */
+  vtkSetMacro(SkyboxBlurRadius, float);
+  vtkGetMacro(SkyboxBlurRadius, float);
+  ///@}
+
+  ///@{
+  /**
    * If UseOIT is on and there are translucent props in the scene, the renderer will use the
    * OrderIndependentTranslucentPass to render. If UseOIT is disabled, traditional depth sorting is
    * used for translucency.
@@ -1005,8 +1023,8 @@ protected:
 
   // A temporary list of props used for culling, and traversal
   // of all props when rendering
-  vtkProp** PropArray;
-  int PropArrayCount;
+  std::vector<vtkProp*> PropArray;
+  vtkProp* BackgroundProp = nullptr;
 
   // Indicates if the renderer should receive events from an interactor.
   // Typically only used in conjunction with transparent renderers.
@@ -1292,6 +1310,14 @@ private:
    * Rotation matrix of the environment.
    */
   vtkSmartPointer<vtkMatrix3x3> EnvironmentRotationMatrix;
+
+  ///@{
+  /**
+   * Parameter for blurring the skybox
+   */
+  bool SkyboxBlurEnabled = false;
+  float SkyboxBlurRadius = 20.0f;
+  ///@}
 
   /**
    * Tmp members to allow returning double* in GetEnvironmentUp/Right methods.

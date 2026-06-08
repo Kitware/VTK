@@ -4,13 +4,16 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkCameraPass.h"
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDepthPeelingPass.h"
 #include "vtkDualDepthPeelingPass.h"
 #include "vtkFloatArray.h"
+#include "vtkFramebufferPass.h"
 #include "vtkHardwareSelector.h"
+#include "vtkHexagonalBokehBlurPass.h"
 #include "vtkHiddenLineRemovalPass.h"
 #include "vtkImageData.h"
 #include "vtkLight.h"
@@ -21,10 +24,12 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFXAAFilter.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLSkybox.h"
 #include "vtkOpenGLState.h"
 #include "vtkOrderIndependentTranslucentPass.h"
 #include "vtkOverrideAttribute.h"
@@ -53,16 +58,13 @@
 #include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUniforms.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkVolumetricPass.h"
 
-#include <iterator>
 #include <vtksys/RegularExpression.hxx>
 
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <list>
 #include <sstream>
 #include <string>
 
@@ -170,6 +172,14 @@ gl_FragData[0].xyz += vec3(noise);
     /*replaceAll=*/false);
 
   this->BackgroundTextureActor->SetMapper(this->BackgroundMapper);
+
+  vtkNew<vtkOpaquePass> backgroundOpaquePass;
+  this->BackgroundCameraPass = vtkSmartPointer<vtkCameraPass>::New();
+  this->BackgroundCameraPass->SetDelegatePass(backgroundOpaquePass);
+
+  this->BackgroundBlurPass = vtkSmartPointer<vtkHexagonalBokehBlurPass>::New();
+  this->BackgroundBlurPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
+  this->BackgroundBlurPass->SetDelegatePass(this->BackgroundCameraPass);
 }
 
 //------------------------------------------------------------------------------
@@ -375,10 +385,41 @@ void vtkOpenGLRenderer::DeviceRender()
     }
   }
 
+  bool preserveColorBufferState = this->GetPreserveColorBuffer();
+  bool preserveDepthBufferState = this->GetPreserveDepthBuffer();
+
+  // Background pass
+  if (this->BackgroundProp)
+  {
+    vtkRenderPass* backgroundPass = nullptr;
+    if (this->GetSkyboxBlurEnabled())
+    {
+      this->BackgroundBlurPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
+      backgroundPass = this->BackgroundBlurPass;
+    }
+    else
+    {
+      backgroundPass = this->BackgroundCameraPass;
+    }
+
+    if (backgroundPass)
+    {
+      vtkRenderState s(this);
+      s.SetPropArrayAndCount(&this->BackgroundProp, 1);
+      s.SetFrameBuffer(nullptr);
+      backgroundPass->Render(&s);
+
+      // Preserve color attachment data as the background is already drawn on it.
+      this->SetPreserveColorBuffer(true);
+      this->SetPreserveDepthBuffer(false);
+    }
+  }
+
+  // Geometry pass
   if (this->Pass != nullptr)
   {
     vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     s.SetFrameBuffer(nullptr);
     this->Pass->Render(&s);
   }
@@ -406,6 +447,9 @@ void vtkOpenGLRenderer::DeviceRender()
     this->GetEnvMapPrefiltered()->PostRender(this);
   }
 
+  this->SetPreserveColorBuffer(preserveColorBufferState);
+  this->SetPreserveDepthBuffer(preserveDepthBufferState);
+
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
 
@@ -416,11 +460,9 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
   vtkRenderTimerLog* timer = this->GetRenderWindow()->GetRenderTimer();
   VTK_SCOPED_RENDER_EVENT("vtkOpenGLRenderer::UpdateGeometry", timer);
 
-  int i;
-
   this->NumberOfPropsRendered = 0;
 
-  if (this->PropArrayCount == 0)
+  if (this->PropArray.empty())
   {
     return 0;
   }
@@ -459,8 +501,8 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
     }
     else
     {
-      this->NumberOfPropsRendered =
-        this->Selector->Render(this, this->PropArray, this->PropArrayCount);
+      this->NumberOfPropsRendered = this->Selector->Render(
+        this, this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     }
 
     this->RenderTime.Modified();
@@ -480,7 +522,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
       this->ShadowMapPass = vtkShadowMapPass::New();
     }
     vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     // s.SetFrameBuffer(0);
     this->ShadowMapPass->GetShadowMapBakerPass()->Render(&s);
     this->ShadowMapPass->Render(&s);
@@ -494,7 +536,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
 
     // do the render library specific stuff about translucent polygonal geometry.
     // As it can be expensive, do a quick check if we can skip this step
-    for (i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount; i++)
+    for (std::size_t i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArray.size(); i++)
     {
       hasTranslucentPolygonalGeometry = this->PropArray[i]->HasTranslucentPolygonalGeometry();
     }
@@ -530,7 +572,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
     !this->UseDepthPeelingForVolumes)
   {
     timer->MarkStartEvent("Volumes");
-    for (i = 0; i < this->PropArrayCount; i++)
+    for (std::size_t i = 0; i < this->PropArray.size(); i++)
     {
       this->NumberOfPropsRendered += this->PropArray[i]->RenderVolumetricGeometry(this);
     }
@@ -540,7 +582,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
   timer->MarkStartEvent("Overlay");
-  for (i = 0; i < this->PropArrayCount; i++)
+  for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
     this->NumberOfPropsRendered += this->PropArray[i]->RenderOverlay(this);
   }
@@ -580,13 +622,14 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo
 {
   // Do we need hidden line removal?
   bool useHLR = this->UseHiddenLineRemoval &&
-    vtkHiddenLineRemovalPass::WireframePropsExist(this->PropArray, this->PropArrayCount);
+    vtkHiddenLineRemovalPass::WireframePropsExist(
+      this->PropArray.data(), static_cast<int>(this->PropArray.size()));
 
   if (useHLR)
   {
     vtkNew<vtkHiddenLineRemovalPass> hlrPass;
     vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     s.SetFrameBuffer(fbo);
     hlrPass->Render(&s);
     this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
@@ -602,7 +645,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo
         this->SSAOPass->SetDelegatePass(opaqueP);
       }
       vtkRenderState s(this);
-      s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+      s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
       s.SetFrameBuffer(fbo);
       this->SSAOPass->SetRadius(this->SSAORadius);
       this->SSAOPass->SetBias(this->SSAOBias);
@@ -654,7 +697,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferO
       tp->Delete();
 
       vtkRenderState s(this);
-      s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+      s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
       s.SetFrameBuffer(fbo);
       this->LastRenderingUsedDepthPeeling = 0;
       this->TranslucentPass->Render(&s);
@@ -716,7 +759,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferO
     this->DepthPeelingPass->SetMaximumNumberOfPeels(this->MaximumNumberOfPeels);
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
     s.SetFrameBuffer(fbo);
     this->LastRenderingUsedDepthPeeling = 1;
     this->DepthPeelingPass->Render(&s);
@@ -833,6 +876,14 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow* w)
   if (w && this->Pass)
   {
     this->Pass->ReleaseGraphicsResources(w);
+  }
+  if (w && this->BackgroundCameraPass)
+  {
+    this->BackgroundCameraPass->ReleaseGraphicsResources(w);
+  }
+  if (w && this->BackgroundBlurPass)
+  {
+    this->BackgroundBlurPass->ReleaseGraphicsResources(w);
   }
   if (this->FXAAFilter)
   {
