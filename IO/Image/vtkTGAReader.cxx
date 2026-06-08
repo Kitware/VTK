@@ -41,6 +41,26 @@ bool HasTGA2Footer(const char* footer)
 }
 
 //----------------------------------------------------------------------------
+bool HasMinimumUncompressedPayload(const char* header, size_t fileSize)
+{
+  if (header[2] != ::TGAFormat::Uncompressed_RGB)
+  {
+    return true;
+  }
+
+  unsigned char bitsPerPixel = static_cast<unsigned char>(header[16]);
+  unsigned short width = static_cast<unsigned short>(
+    static_cast<unsigned char>(header[12]) | (static_cast<unsigned char>(header[13]) << 8u));
+  unsigned short height = static_cast<unsigned short>(
+    static_cast<unsigned char>(header[14]) | (static_cast<unsigned char>(header[15]) << 8u));
+  size_t idLength = static_cast<unsigned char>(header[0]);
+  size_t minPayload =
+    static_cast<size_t>(width) * height * (static_cast<size_t>(bitsPerPixel) / 8u);
+  size_t minFileSize = static_cast<size_t>(::HeaderSize) + idLength + minPayload;
+  return fileSize >= minFileSize;
+}
+
+//----------------------------------------------------------------------------
 int ValidateHeader(const char* content, size_t contentSize)
 {
   if (contentSize < static_cast<size_t>(::HeaderSize))
@@ -78,19 +98,6 @@ int ValidateHeader(const char* content, size_t contentSize)
   if ((static_cast<unsigned char>(content[17]) & 0xC0u) != 0)
   {
     return 0;
-  }
-
-  if (content[2] == ::TGAFormat::Uncompressed_RGB &&
-    contentSize > static_cast<size_t>(::HeaderSize))
-  {
-    size_t idLength = static_cast<unsigned char>(content[0]);
-    size_t minPayload =
-      static_cast<size_t>(width) * height * (static_cast<size_t>(bitsPerPixel) / 8u);
-    size_t minFileSize = static_cast<size_t>(::HeaderSize) + idLength + minPayload;
-    if (contentSize < minFileSize)
-    {
-      return 0;
-    }
   }
 
   return 1;
@@ -329,7 +336,7 @@ int vtkTGAReader::CanReadFile(vtkResourceStream* stream)
     }
   }
 
-  return ::ValidateHeader(header, fileSize);
+  return ::HasMinimumUncompressedPayload(header, fileSize) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
