@@ -46,6 +46,7 @@ set(classes
   vtkWebGPUPolyDataMapper
   vtkWebGPUPolyDataMapper2D
   vtkWebGPUProperty
+  vtkWebGPUProcTable
   vtkWebGPURenderPipelineCache
   vtkWebGPURenderTextureCache
   vtkWebGPURenderTextureDeviceResource
