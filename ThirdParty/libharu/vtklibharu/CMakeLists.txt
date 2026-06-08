@@ -166,8 +166,8 @@ if (FALSE) # XXX(kitware): VTK handles installation
 install(FILES ${haru_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # install various files
-install(FILES README.md CHANGES INSTALL DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
-install(DIRECTORY bindings DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
+install(FILES README.md CHANGES DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(DIRECTORY bindings DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif ()
 
 # =======================================================================
