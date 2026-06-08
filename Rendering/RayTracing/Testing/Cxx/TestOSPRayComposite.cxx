@@ -149,7 +149,7 @@ int TestOSPRayComposite(int argc, char* argv[])
 
   int numProcs = contr->GetNumberOfProcesses();
 
-  if (numProcs < 2 && false)
+  if (numProcs < 2)
   {
     std::cout << "This test requires at least 2 processes" << std::endl;
     contr->Delete();
