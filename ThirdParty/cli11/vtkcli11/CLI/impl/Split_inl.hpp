@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -109,7 +109,7 @@ get_names(const std::vector<std::string> &input, bool allow_non_standard) {
     std::vector<std::string> long_names;
     std::string pos_name;
     for(std::string name : input) {
-        if(name.length() == 0) {
+        if(name.empty()) {
             continue;
         }
         if(name.length() > 1 && name[0] == '-' && name[1] != '-') {

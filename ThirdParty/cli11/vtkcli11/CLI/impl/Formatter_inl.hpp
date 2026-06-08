@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2026, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -133,8 +133,7 @@ CLI11_INLINE std::string Formatter::make_usage(const App *app, std::string name)
                [](const CLI::App *subc) { return ((!subc->get_disabled()) && (!subc->get_name().empty())); })
             .empty()) {
         out << ' ' << (app->get_require_subcommand_min() == 0 ? "[" : "")
-            << get_label(app->get_require_subcommand_max() < 2 || app->get_require_subcommand_min() > 1 ? "SUBCOMMAND"
-                                                                                                        : "SUBCOMMANDS")
+            << get_label(app->get_require_subcommand_max() == 1 ? "SUBCOMMAND" : "SUBCOMMANDS")
             << (app->get_require_subcommand_min() == 0 ? "]" : "");
     }
 
@@ -148,7 +147,7 @@ CLI11_INLINE std::string Formatter::make_footer(const App *app) const {
     if(footer.empty()) {
         return std::string{};
     }
-    return '\n' + footer + "\n\n";
+    return '\n' + footer + '\n';
 }
 
 CLI11_INLINE std::string Formatter::make_help(const App *app, std::string name, AppFormatMode mode) const {
@@ -163,14 +162,23 @@ CLI11_INLINE std::string Formatter::make_help(const App *app, std::string name, 
             out << app->get_group() << ':';
         }
     }
-
-    detail::streamOutAsParagraph(
-        out, make_description(app), description_paragraph_width_, "");  // Format description as paragraph
+    if(is_description_paragraph_formatting_enabled()) {
+        detail::streamOutAsParagraph(
+            out, make_description(app), description_paragraph_width_, "");  // Format description as paragraph
+    } else {
+        out << make_description(app) << '\n';
+    }
     out << make_usage(app, name);
     out << make_positionals(app);
     out << make_groups(app, mode);
     out << make_subcommands(app, mode);
-    detail::streamOutAsParagraph(out, make_footer(app), footer_paragraph_width_);  // Format footer as paragraph
+    std::string footer_string = make_footer(app);
+
+    if(is_footer_paragraph_formatting_enabled()) {
+        detail::streamOutAsParagraph(out, footer_string, footer_paragraph_width_);  // Format footer as paragraph
+    } else {
+        out << footer_string;
+    }
 
     return out.str();
 }
@@ -232,8 +240,12 @@ CLI11_INLINE std::string Formatter::make_expanded(const App *sub, AppFormatMode 
     std::stringstream out;
     out << sub->get_display_name(true) << '\n';
 
-    detail::streamOutAsParagraph(
-        out, make_description(sub), description_paragraph_width_, "  ");  // Format description as paragraph
+    if(is_description_paragraph_formatting_enabled()) {
+        detail::streamOutAsParagraph(
+            out, make_description(sub), description_paragraph_width_, "  ");  // Format description as paragraph
+    } else {
+        out << make_description(sub) << '\n';
+    }
 
     if(sub->get_name().empty() && !sub->get_aliases().empty()) {
         detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
@@ -242,9 +254,22 @@ CLI11_INLINE std::string Formatter::make_expanded(const App *sub, AppFormatMode 
     out << make_positionals(sub);
     out << make_groups(sub, mode);
     out << make_subcommands(sub, mode);
-    detail::streamOutAsParagraph(out, make_footer(sub), footer_paragraph_width_);  // Format footer as paragraph
+    std::string footer_string = make_footer(sub);
 
-    out << '\n';
+    if(mode == AppFormatMode::Sub && !footer_string.empty()) {
+        const auto *parent = sub->get_parent();
+        std::string parent_footer = (parent != nullptr) ? make_footer(sub->get_parent()) : std::string{};
+        if(footer_string == parent_footer) {
+            footer_string = "";
+        }
+    }
+    if(!footer_string.empty()) {
+        if(is_footer_paragraph_formatting_enabled()) {
+            detail::streamOutAsParagraph(out, footer_string, footer_paragraph_width_);  // Format footer as paragraph
+        } else {
+            out << footer_string;
+        }
+    }
     return out.str();
 }
 
@@ -285,17 +310,18 @@ CLI11_INLINE std::string Formatter::make_option(const Option *opt, bool is_posit
         std::string longNames = detail::join(vlongNames, ", ");
 
         // Calculate setw sizes
-        const auto shortNamesColumnWidth = static_cast<int>(column_width_ / 3);  // 33% left for short names
-        const auto longNamesColumnWidth = static_cast<int>(std::ceil(
-            static_cast<float>(column_width_) / 3.0f * 2.0f));  // 66% right for long names and options, ceil result
+        // Short names take enough width to align long names at the desired ratio
+        const auto shortNamesColumnWidth =
+            static_cast<int>(static_cast<float>(column_width_) * long_option_alignment_ratio_);
+        const auto longNamesColumnWidth = static_cast<int>(column_width_) - shortNamesColumnWidth;
         int shortNamesOverSize = 0;
 
         // Print short names
-        if(shortNames.length() > 0) {
+        if(!shortNames.empty()) {
             shortNames = "  " + shortNames;  // Indent
-            if(longNames.length() == 0 && opts.length() > 0)
+            if(longNames.empty() && !opts.empty())
                 shortNames += opts;  // Add opts if only short names and no long names
-            if(longNames.length() > 0)
+            if(!longNames.empty())
                 shortNames += ",";
             if(static_cast<int>(shortNames.length()) >= shortNamesColumnWidth) {
                 shortNames += " ";
@@ -312,8 +338,8 @@ CLI11_INLINE std::string Formatter::make_option(const Option *opt, bool is_posit
         const auto adjustedLongNamesColumnWidth = longNamesColumnWidth - shortNamesOverSize;
 
         // Print long names
-        if(longNames.length() > 0) {
-            if(opts.length() > 0)
+        if(!longNames.empty()) {
+            if(!opts.empty())
                 longNames += opts;
             if(static_cast<int>(longNames.length()) >= adjustedLongNamesColumnWidth)
                 longNames += " ";
@@ -342,7 +368,7 @@ CLI11_INLINE std::string Formatter::make_option_name(const Option *opt, bool is_
     if(is_positional)
         return opt->get_name(true, false);
 
-    return opt->get_name(false, true);
+    return opt->get_name(false, true, !enable_default_flag_values_);
 }
 
 CLI11_INLINE std::string Formatter::make_option_opts(const Option *opt) const {
@@ -352,10 +378,14 @@ CLI11_INLINE std::string Formatter::make_option_opts(const Option *opt) const {
         out << " " << opt->get_option_text();
     } else {
         if(opt->get_type_size() != 0) {
-            if(!opt->get_type_name().empty())
-                out << " " << get_label(opt->get_type_name());
-            if(!opt->get_default_str().empty())
-                out << " [" << opt->get_default_str() << "] ";
+            if(enable_option_type_names_) {
+                if(!opt->get_type_name().empty())
+                    out << " " << get_label(opt->get_type_name());
+            }
+            if(enable_option_defaults_) {
+                if(!opt->get_default_str().empty())
+                    out << " [" << opt->get_default_str() << "] ";
+            }
             if(opt->get_expected_max() == detail::expected_max_vector_size)
                 out << " ...";
             else if(opt->get_expected_min() > 1)
