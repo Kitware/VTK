@@ -24,7 +24,7 @@
 #include "vtkDGOperatorEntry.h" // For GetOperatorEntry API.
 #include "vtkDataArray.h"       // for vtkDataArray::PrintValues
 #include "vtkStringToken.h"     // For vtkStringToken::Hash.
-#include "vtkVector.h"          // For IsInside, GetParametricCenterOfSide APIs.
+#include "vtkVector.h"          // For GetSignedParametricDistance, GetParametricCenterOfSide APIs.
 
 #include <vector> // for side connectivity
 
@@ -181,12 +181,18 @@ public:
   void DeepCopy(vtkCellMetadata* other) override;
   ///@}
 
-  /// Return true if the parametric coordinates (\a rst) lie inside the reference
-  /// cell or its closure and false otherwise.
+  /// Return the signed parametric distance of \a rst from the reference element boundary.
   ///
-  /// The \a tolerance specifies a margin that should be included as part of
-  /// the reference cell's interior to account for numerical imprecision.
-  virtual bool IsInside(const vtkVector3d& rst, double tolerance = 1e-6) = 0;
+  /// Values ≤ 0 indicate the point is inside (or on) the element; positive values
+  /// indicate the point is outside. The magnitude approximates how far outside the
+  /// element the point is in parametric space.
+  virtual double GetSignedParametricDistance(const vtkVector3d& rst) const = 0;
+
+  /// Return true if \a rst lies inside the reference cell (within \a tolerance).
+  bool IsInside(const vtkVector3d& rst, double tolerance = 1e-6) const
+  {
+    return this->GetSignedParametricDistance(rst) <= std::abs(tolerance);
+  }
 
   static int GetShapeCornerCount(Shape shape);
   static int GetShapeDimension(Shape shape);

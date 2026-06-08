@@ -34,7 +34,7 @@ public:
   /// These methods do not return information about particular
   /// cells or sides specified by the cell-grid's arrays; only
   /// metadata about the cell.
-  bool IsInside(const vtkVector3d& rst, double tolerance) override;
+  double GetSignedParametricDistance(const vtkVector3d& rst) const override;
   Shape GetShape() const override { return Shape::Vertex; }
   int GetDimension() const override { return Dimension; }
   const std::array<double, 3>& GetCornerParameter(int corner) const override;

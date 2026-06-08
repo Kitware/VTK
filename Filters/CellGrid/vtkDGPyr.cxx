@@ -79,13 +79,10 @@ void vtkDGPyr::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-bool vtkDGPyr::IsInside(const vtkVector3d& rst, double tolerance)
+double vtkDGPyr::GetSignedParametricDistance(const vtkVector3d& rst) const
 {
-  tolerance = std::abs(tolerance);
-  double pb = 1 + tolerance;
-  double nb = -1 - tolerance;
-  return rst[0] >= nb && rst[0] <= pb && rst[1] >= nb && rst[1] <= pb && rst[2] >= -tolerance &&
-    rst[2] <= pb;
+  return std::max({ std::abs(rst[0]) - 1 + std::min({ 0., rst[2] }),
+    std::abs(rst[1]) - 1 + std::min({ 0., rst[2] }), -rst[2], rst[2] - 1.0 });
 }
 
 const std::array<double, 3>& vtkDGPyr::GetCornerParameter(int corner) const
