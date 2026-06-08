@@ -2040,11 +2040,22 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfTrees,
     ? static_cast<vtkIdType>(this->MaximumLevelsToReadByDefaultForAMR)
     : std::numeric_limits<unsigned int>::max();
 
+  std::array<int, 3> dimensions;
+  if (!this->Impl->GetAttribute("Dimensions", 1, dimensions.data()))
+  {
+    vtkErrorMacro("Missing HyperTreeGrid 'Dimensions' top-level attribute");
+    return 0;
+  }
+
+  const vtkIdType XCoordsOffset = htgTemporalOffsets.XCoordinatesOffset + filePiece * dimensions[0];
+  const vtkIdType YCoordsOffset = htgTemporalOffsets.YCoordinatesOffset + filePiece * dimensions[1];
+  const vtkIdType ZCoordsOffset = htgTemporalOffsets.ZCoordinatesOffset + filePiece * dimensions[2];
+
   // Build trees from descriptors
   if (!this->Impl->ReadHyperTreeGridData(pieceData,
         this->DataArraySelection[vtkDataObject::AttributeTypes::CELL], cellOffset, treeIdsOffset,
-        depthOffset, descriptorOffset, maskOffset, partOffset, verticesPerDepthOffset, depthLimit,
-        this->Step))
+        depthOffset, descriptorOffset, maskOffset, partOffset, verticesPerDepthOffset,
+        XCoordsOffset, YCoordsOffset, ZCoordsOffset, depthLimit, this->Step))
   {
     vtkErrorMacro("Failed to read HyperTreeGrid file");
   }

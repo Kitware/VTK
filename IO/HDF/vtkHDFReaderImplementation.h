@@ -248,7 +248,8 @@ public:
   bool ReadHyperTreeGridData(vtkHyperTreeGrid* htg, const vtkDataArraySelection* arraySelection,
     vtkIdType cellOffset, vtkIdType treeIdsOffset, vtkIdType depthOffset,
     vtkIdType descriptorOffset, vtkIdType maskOffset, vtkIdType partOffset,
-    vtkIdType verticesPerDepthOffset, vtkIdType depthLimit, vtkIdType step);
+    vtkIdType verticesPerDepthOffset, vtkIdType XCoordsOffset, vtkIdType YCoordsOffset,
+    vtkIdType ZCoordsOffset, vtkIdType depthLimit, vtkIdType step);
 
   /**
    * Read HTG meta-information stored in attributes
@@ -258,7 +259,8 @@ public:
   /**
    * Read HTG dimensions and coordinates
    */
-  bool ReadHyperTreeGridDimensions(vtkHyperTreeGrid* htg);
+  bool ReadHyperTreeGridDimensions(vtkHyperTreeGrid* htg, vtkIdType XCoordsOffset,
+    vtkIdType YCoordsOffset, vtkIdType ZCoordsOffset);
 
   /**
    * Initialize selected Cell arrays for HyperTreeGrid

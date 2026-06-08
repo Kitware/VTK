@@ -152,6 +152,7 @@ vtk_module_test_data(
 
   Data/vtkHDF/multipiece_htg.vtkhdf
   Data/vtkHDF/randomhtg.vtkhdf
+  Data/vtkHDF/htg_3parts_coords.vtkhdf
   Data/vtkHDF/simple_htg.vtkhdf
   Data/vtkHDF/shell_3d.vtkhdf
   Data/vtkHDF/temporal_htg.vtkhdf
