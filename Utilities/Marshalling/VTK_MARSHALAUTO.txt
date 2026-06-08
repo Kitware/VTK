@@ -146,6 +146,7 @@ Filters/Core/vtkContourHelper.h
 Filters/Core/vtkConvertToMultiBlockDataSet.h
 Filters/Core/vtkConvertToPartitionedDataSetCollection.h
 Filters/Core/vtkConvertToPolyhedra.h
+Filters/Core/vtkConvexHull.h
 Filters/Core/vtkCutter.h
 Filters/Core/vtkDataObjectGenerator.h
 Filters/Core/vtkDataObjectToDataSetFilter.h

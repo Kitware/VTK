@@ -21,6 +21,7 @@ set(classes
   vtkCleanPolyData
   vtkClipPolyData
   vtkCompositeCutter
+  vtkConvexHull
   vtkCompositeDataProbeFilter
   vtkConnectivityFilter
   vtkConstrainedSmoothingFilter
