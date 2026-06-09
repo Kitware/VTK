@@ -21,10 +21,12 @@
 #ifdef __OBJC__
 @class NSWindow;
 @class NSView;
+@class CAMetalLayer;
 @class vtkCocoaWindowDelegate;
 #else
 class NSWindow;
 class NSView;
+class CAMetalLayer;
 class vtkCocoaWindowDelegate;
 #endif
 
@@ -53,7 +55,7 @@ public:
   /**
    * Get the metal layer object.
    */
-  void* GetMetalLayer();
+  CAMetalLayer* GetMetalLayer();
 
   // vtkHardwareWindow overrides
   void Create() override;
