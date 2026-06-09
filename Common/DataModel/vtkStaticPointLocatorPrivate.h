@@ -168,15 +168,15 @@ struct vtkBucketList
   //-----------------------------------------------------------------------------
   // Determine whether a bin/bucket specified by i,j,k is completely contained
   // inside the sphere (center,r2). Return true if contained; false otherwise.
-  bool BucketInsideSphere(int i, int j, int k, double center[3], double r2)
+  bool BucketInsideSphere(int i, int j, int k, const double center[3], double r2)
   {
     double min[3], max[3];
     min[0] = this->bX + i * this->hX;
     min[1] = this->bY + j * this->hY;
     min[2] = this->bZ + k * this->hZ;
-    max[0] += this->hX;
-    max[1] += this->hY;
-    max[2] += this->hZ;
+    max[0] = min[0] + this->hX;
+    max[1] = min[1] + this->hY;
+    max[2] = min[2] + this->hZ;
     return vtkBoundingBox::InsideSphere(min, max, center, r2);
   }
 }; // vtkBucketList

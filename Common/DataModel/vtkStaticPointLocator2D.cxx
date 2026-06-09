@@ -968,7 +968,7 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
   double R2 = R * R;
   const vtkLocatorTuple<TIds>* ids;
   double xMin[2], xMax[2];
-  int i, j, ii, jOffset, ijMin[2], ijMax[2];
+  int i, j, ii, jOffset, ijMin[2], ijMax[2], xij[2];
 
   // Determine the range of indices in each direction based on radius R
   xMin[0] = x[0] - R;
@@ -977,6 +977,7 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
   xMax[1] = x[1] + R;
 
   //  Find the footprint in the locator
+  this->GetBucketIndices(x, xij);
   this->GetBucketIndices(xMin, ijMin);
   this->GetBucketIndices(xMax, ijMax);
 
@@ -993,20 +994,43 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
 
       if ((numIds = this->GetNumberOfIds(cno)) > 0)
       {
-        ids = this->GetIds(cno);
-        for (ii = 0; ii < numIds; ii++)
+        // Reject buckets entirely outside the sphere, but never reject the
+        // bucket that contains the query point (floating-point inconsistency
+        // between GetBucketIndices and Distance2ToBucket can make that bucket
+        // appear to have a small but nonzero distance from x).
+        const bool isXBucket = i == xij[0] && j == xij[1];
+        const int nei[3] = { i, j, 0 };
+        if (!isXBucket && this->Distance2ToBucket(x, nei) > R2)
         {
-          ptId = ids[ii].PtId;
-          this->DataSet->GetPoint(ptId, pt);
-          dist2 = Distance2BetweenPoints2D(x, pt);
-          if (dist2 <= R2)
+          continue;
+        }
+
+        ids = this->GetIds(cno);
+
+        // Accept all points if the bucket is entirely inside the circle
+        if (this->BucketInsideCircle(i, j, x, R2))
+        {
+          for (ii = 0; ii < numIds; ii++)
           {
-            result->InsertNextId(ptId);
+            result->InsertNextId(ids[ii].PtId);
           }
-        } // for all points in bucket
-      }   // if points in bucket
-    }     // i-footprint
-  }       // j-footprint
+        }
+        else
+        {
+          for (ii = 0; ii < numIds; ii++)
+          {
+            ptId = ids[ii].PtId;
+            this->DataSet->GetPoint(ptId, pt);
+            dist2 = Distance2BetweenPoints2D(x, pt);
+            if (dist2 <= R2)
+            {
+              result->InsertNextId(ptId);
+            }
+          } // for all points in bucket
+        }
+      } // if points in bucket
+    }   // i-footprint
+  }     // j-footprint
 }
 
 //------------------------------------------------------------------------------
