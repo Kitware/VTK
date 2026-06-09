@@ -4,6 +4,7 @@
 #include "vtk_glad.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLArrayTextureBufferCache.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -1884,6 +1885,8 @@ void vtkOpenGLState::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache);
+vtkCxxSetSmartPointerMacro(
+  vtkOpenGLState, ArrayTextureBufferCache, vtkOpenGLArrayTextureBufferCache);
 
 // initialize all state values. This is important so that in
 // ::Initialize we can just set the state to the current
@@ -1913,6 +1916,7 @@ vtkOpenGLState::vtkOpenGLState()
 {
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
+  this->ArrayTextureBufferCache.TakeReference(vtkOpenGLArrayTextureBufferCache::New());
 
   this->TextureUnitManager = vtkTextureUnitManager::New();
 
@@ -2059,6 +2063,11 @@ void vtkOpenGLState::PopReadFramebufferBinding()
     vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
     abort();
   }
+}
+
+vtkSmartPointer<vtkOpenGLArrayTextureBufferCache> vtkOpenGLState::GetArrayTextureBufferCache()
+{
+  return this->ArrayTextureBufferCache;
 }
 
 int vtkOpenGLState::GetDefaultTextureInternalFormat(

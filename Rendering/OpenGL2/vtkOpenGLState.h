@@ -53,6 +53,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include <array>                       // for ivar
 #include <list>                        // for ivar
 #include <map>                         // for ivar
@@ -62,6 +63,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
+class vtkOpenGLArrayTextureBufferCache;
 class vtkOpenGLShaderCache;
 class vtkOpenGLTextureNormalizationHelper;
 class vtkOpenGLVertexBufferObjectCache;
@@ -323,6 +325,15 @@ public:
   // lists
   void SetVBOCache(vtkOpenGLVertexBufferObjectCache* val);
 
+  ///@{
+  /**
+   * Set/Get the array texture buffer cache to use for this state. This allows two contexts to share
+   * TBOs.
+   */
+  void SetArrayTextureBufferCache(vtkOpenGLArrayTextureBufferCache* cache);
+  vtkSmartPointer<vtkOpenGLArrayTextureBufferCache> GetArrayTextureBufferCache();
+  ///@}
+
   /**
    * Get a mapping of vtk data types to native texture formats for this window
    * we put this on the RenderWindow so that every texture does not have to
@@ -503,6 +514,7 @@ protected:
   std::stack<GLState> Stack;
 
   vtkOpenGLVertexBufferObjectCache* VBOCache;
+  vtkSmartPointer<vtkOpenGLArrayTextureBufferCache> ArrayTextureBufferCache;
   vtkOpenGLShaderCache* ShaderCache;
 
 private:

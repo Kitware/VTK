@@ -11,6 +11,7 @@
 #include "vtkLogger.h"
 #include "vtkMemoryResourceStream.h"
 #include "vtkNew.h"
+#include "vtkOpenGLArrayTextureBufferCache.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
@@ -776,6 +777,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 
   this->GetShaderCache()->ReleaseGraphicsResources(renWin);
   // this->VBOCache->ReleaseGraphicsResources(renWin);
+  this->GetArrayTextureBufferCache()->ReleaseGraphicsResources(renWin);
 
   this->GetState()->VerifyNoActiveTextures();
 
@@ -810,6 +812,12 @@ vtkOpenGLShaderCache* vtkOpenGLRenderWindow::GetShaderCache()
 vtkOpenGLVertexBufferObjectCache* vtkOpenGLRenderWindow::GetVBOCache()
 {
   return this->GetState()->GetVBOCache();
+}
+
+//------------------------------------------------------------------------------
+vtkOpenGLArrayTextureBufferCache* vtkOpenGLRenderWindow::GetArrayTextureBufferCache()
+{
+  return this->GetState()->GetArrayTextureBufferCache();
 }
 
 //------------------------------------------------------------------------------

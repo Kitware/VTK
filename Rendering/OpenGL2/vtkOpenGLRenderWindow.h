@@ -28,6 +28,7 @@ class vtkOpenGLBufferObject;
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLQuadHelper;
+class vtkOpenGLArrayTextureBufferCache;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
 class vtkOpenGLVertexArrayObject;
@@ -192,6 +193,11 @@ public:
    * Returns the VBO Cache
    */
   vtkOpenGLVertexBufferObjectCache* GetVBOCache();
+
+  /**
+   * Returns the texture-buffer cache used by the vertex-pulling mappers.
+   */
+  vtkOpenGLArrayTextureBufferCache* GetArrayTextureBufferCache();
 
   ///@{
   /**
