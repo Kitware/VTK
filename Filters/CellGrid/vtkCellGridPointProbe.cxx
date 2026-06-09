@@ -7,11 +7,13 @@
 #include "vtkCellGrid.h"
 #include "vtkCellGridEvaluator.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkTypeUInt32Array.h"
+
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -112,29 +114,50 @@ int vtkCellGridPointProbe::RequestData(
   auto* outputCellParams = this->Request->GetClassifierPointParameters();
   auto* outputValues = this->Request->GetInterpolatedValues();
 
-  polydest->Initialize();
+  vtkIdType numCells = outputCellIds->GetNumberOfTuples();
+  // create points
   vtkNew<vtkPoints> pts;
-  vtkNew<vtkCellArray> vrt;
+  pts->SetDataType(inputPoints->GetDataType());
+  pts->SetNumberOfPoints(numCells);
+  vtkSMPTools::For(0, numCells,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      double point[3];
+      auto inputPointsRange = vtk::DataArrayValueRange<1>(inputPointIds);
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        inputPoints->GetTuple(inputPointsRange[ii], point);
+        pts->SetPoint(ii, point);
+      }
+    });
+  // create vertices
+  vtkNew<vtkCellArray> vertices;
+  vertices->UseFixedSizeDefaultStorage(1);
+  vertices->ResizeExact(numCells, numCells);
+  auto connectivity = vertices->GetConnectivityArray();
+  vtkSMPTools::For(0, numCells,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      auto connRange = vtk::DataArrayValueRange<1, vtkIdType>(connectivity, begin, end);
+      std::iota(connRange.begin(), connRange.end(), begin);
+    });
+  // create cell types
   vtkNew<vtkTypeUInt32Array> outputCellType;
-  vtkIdType nn = outputCellIds->GetNumberOfTuples();
-  pts->SetNumberOfPoints(nn);
-  vrt->AllocateExact(nn, nn);
-  outputCellType->SetNumberOfTuples(nn);
+  outputCellType->SetNumberOfTuples(numCells);
   outputCellType->SetName("CellType");
   vtkIdType sct = 0; // Where in summary{CellType/CellOffsets} are we?
-  // Fill in arrays with point locations and the type of cell holding each point.
-  for (vtkIdType ii = 0; ii < nn; ++ii)
+  for (vtkIdType ii = 0; ii < numCells; ++ii)
   {
-    pts->SetPoint(ii, inputPoints->GetTuple(inputPointIds->GetValue(ii)));
-    vrt->InsertNextCell(1, &ii);
     if (ii >= static_cast<vtkIdType>(summaryCellOffsets->GetValue(sct)))
     {
       ++sct;
     }
     outputCellType->SetValue(ii, summaryCellType->GetValue(summaryCellOffsets->GetValue(sct)));
   }
+  // store everything in output
+  polydest->Initialize();
   polydest->SetPoints(pts);
-  polydest->SetVerts(vrt);
+  polydest->SetVerts(vertices);
   auto* pd = polydest->GetPointData();
   pd->AddArray(outputCellType);
   pd->AddArray(outputCellIds);
