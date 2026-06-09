@@ -8,11 +8,15 @@
 //
 //============================================================================
 
+#include <fides/Deprecated.h>
+FIDES_DEPRECATED_SUPPRESS_BEGIN
 #include <fides/DataSetWriter.h>
-#include <fides/predefined/DataModelFactory.h>
-#include <fides/predefined/DataModelHelperFunctions.h>
-#include <fides/predefined/InternalMetadataSource.h>
+#include <fides/internal/predefined/DataModelFactory.h>
+#include <fides/internal/predefined/DataModelHelperFunctions.h>
+#include <fides/internal/predefined/InternalMetadataSource.h>
 
+#include <climits>
+#include <cstdint>
 #include <ios>
 #include <numeric>
 #include <stdexcept>
@@ -36,13 +40,60 @@
 #include <viskores/cont/Logging.h>
 #include <viskores/cont/UnknownCellSet.h>
 
-#include <fides/CellSet.h>
-#include <fides/CoordinateSystem.h>
-#include <fides/DataSource.h>
-#include <fides/Field.h>
+#include <fides/internal/CellSet.h>
+#include <fides/internal/CoordinateSystem.h>
+#include <fides/internal/Field.h>
+#include <fides/internal/MpiHelper.h>
 
-#ifdef FIDES_USE_MPI
-#include <vtk_mpi.h>
+#include <fides/DataSource.h>
+
+#if FIDES_USE_MPI
+#include <fides/fides_mpi.h>
+#endif
+
+#if SIZE_MAX == UCHAR_MAX
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED_CHAR
+#elif SIZE_MAX == USHRT_MAX
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED_SHORT
+#elif SIZE_MAX == UINT_MAX
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED
+#elif SIZE_MAX == ULONG_MAX
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED_LONG
+#elif SIZE_MAX == ULLONG_MAX
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED_LONG_LONG
+#else
+// Pick a "safe" default
+#define FIDES_MPI_SIZE_T MPI_UNSIGNED_LONG
+#endif
+
+namespace
+{
+#if FIDES_USE_MPI
+template <typename WriterType, typename... Args>
+std::unique_ptr<WriterType> CreateWriter(MPI_Comm comm, bool appendMode, Args&&... args)
+{
+  if (comm != MPI_COMM_NULL)
+  {
+    return std::unique_ptr<WriterType>(
+      new WriterType(std::forward<Args>(args)..., comm, appendMode));
+  }
+  return std::unique_ptr<WriterType>(new WriterType(std::forward<Args>(args)..., appendMode));
+}
+#else
+template <typename WriterType, typename... Args>
+std::unique_ptr<WriterType> CreateWriter(bool appendMode, Args&&... args)
+{
+  return std::unique_ptr<WriterType>(new WriterType(std::forward<Args>(args)..., appendMode));
+}
+#endif
+}
+
+#if FIDES_USE_MPI
+#define FIDES_CREATE_WRITER(comm, WriterType, appendMode, ...) \
+  CreateWriter<WriterType>(comm, appendMode, __VA_ARGS__)
+#else
+#define FIDES_CREATE_WRITER(comm, WriterType, appendMode, ...) \
+  CreateWriter<WriterType>(appendMode, __VA_ARGS__)
 #endif
 
 template <typename T>
@@ -217,11 +268,19 @@ struct WriteExplicitCoordsFunctor
     auto coordsVar = io.template InquireVariable<T>("coordinates");
     coordsVar.SetShape({ totalNumberOfCoords, 3 });
 
+    std::size_t numCoords = static_cast<std::size_t>(array.GetNumberOfValues());
+    if (numCoords == 0)
+    {
+      // On some HPC systems, if we SetSelection on a rank with no data, it can
+      // end up writing a null array that will crash the reader (even though the
+      // same situation on e.g., a macbook, doesn't cause the same issue).
+      return;
+    }
+
     viskores::cont::ArrayHandleBasic<viskores::Vec<T, 3>> arr(array);
     const viskores::Vec<T, 3>* buffVec = arr.GetReadPointer();
     const T* buff = &buffVec[0][0];
 
-    std::size_t numCoords = static_cast<std::size_t>(array.GetNumberOfValues());
     // This is a way you can write chunks in.
     // Instead of buffering the entire dataset, and then writing it,
     // you can buffer subsets, and specify a "Box" offset.
@@ -479,7 +538,6 @@ struct WriteFieldFunctor
     throw std::runtime_error(err);
   }
 };
-
 } // end anon namespace
 
 class DataSetWriter::GenericWriter
@@ -492,24 +550,16 @@ public:
                 const bool& appendMode = false)
     : DataSets(dataSets)
     , OutputFileName(fname)
-#ifdef FIDES_USE_MPI
-    // leaving in this FIDES_USE_MPI check, as you could still use this ctor even if building with MPI
-    , Comm(MPI_COMM_WORLD)
-    , Adios(adiosConfig, Comm)
-#else
-    , Adios(adiosConfig)
+#if FIDES_USE_MPI
+    , Comm(MPI_COMM_NULL)
 #endif
+    , Adios(adiosConfig)
     , FieldsToWriteSet(false)
   {
-#ifdef FIDES_USE_MPI
-    MPI_Comm_rank(this->Comm, &this->Rank);
-    MPI_Comm_size(this->Comm, &this->NumRanks);
-#endif
-
     this->SetupAdios(outputMode, adiosConfig, appendMode);
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   GenericWriter(const viskores::cont::PartitionedDataSet& dataSets,
                 const std::string& fname,
                 const std::string& outputMode,
@@ -522,8 +572,8 @@ public:
     , Adios(adiosConfig, comm)
     , FieldsToWriteSet(false)
   {
-    MPI_Comm_rank(this->Comm, &this->Rank);
-    MPI_Comm_size(this->Comm, &this->NumRanks);
+    FIDES_SAFE_MPI(this->Comm, MPI_Comm_rank(this->Comm, &this->Rank));
+    FIDES_SAFE_MPI(this->Comm, MPI_Comm_size(this->Comm, &this->NumRanks));
 
     this->SetupAdios(outputMode, adiosConfig, appendMode);
   }
@@ -814,16 +864,18 @@ protected:
 
     this->DataSetsPerRank.clear();
     this->DataSetsPerRank.resize(static_cast<size_t>(this->NumRanks), 0);
-    this->DataSetsPerRank[static_cast<size_t>(this->Rank)] =
-      static_cast<int>(this->NumberOfDataSets);
+    this->DataSetsPerRank[static_cast<size_t>(this->Rank)] = this->NumberOfDataSets;
 
-#ifdef FIDES_USE_MPI
-    MPI_Allreduce(
-      MPI_IN_PLACE, this->DataSetsPerRank.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-#endif
+    FIDES_SAFE_MPI(this->Comm,
+                   MPI_Allreduce(MPI_IN_PLACE,
+                                 this->DataSetsPerRank.data(),
+                                 this->NumRanks,
+                                 FIDES_MPI_SIZE_T,
+                                 MPI_SUM,
+                                 this->Comm));
 
-    int tot = std::accumulate(this->DataSetsPerRank.begin(), this->DataSetsPerRank.end(), 0);
-    this->TotalNumberOfDataSets = static_cast<std::size_t>(tot);
+    this->TotalNumberOfDataSets =
+      std::accumulate(this->DataSetsPerRank.begin(), this->DataSetsPerRank.end(), std::size_t{ 0 });
 
     this->DataSetOffset = 0;
     for (size_t i = 0; i < static_cast<size_t>(this->Rank); i++)
@@ -832,8 +884,8 @@ protected:
     }
 
     // Need to determine the point and cell offsets for each block.
-    std::vector<int> numPoints(static_cast<size_t>(this->NumRanks), 0);
-    std::vector<int> numCells(static_cast<size_t>(this->NumRanks), 0);
+    std::vector<std::size_t> numPoints(static_cast<size_t>(this->NumRanks), 0);
+    std::vector<std::size_t> numCells(static_cast<size_t>(this->NumRanks), 0);
 
     for (std::size_t i = 0; i < this->NumberOfDataSets; i++)
     {
@@ -842,15 +894,18 @@ protected:
       numCells[static_cast<size_t>(this->Rank)] += ds.GetCellSet().GetNumberOfCells();
     }
 
-#ifdef FIDES_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, numPoints.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-#endif
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numPoints.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numCells.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
 
-    tot = std::accumulate(numPoints.begin(), numPoints.end(), 0);
-    this->TotalNumberOfPoints = static_cast<std::size_t>(tot);
-    tot = std::accumulate(numCells.begin(), numCells.end(), 0);
-    this->TotalNumberOfCells = static_cast<std::size_t>(tot);
+    this->TotalNumberOfPoints =
+      std::accumulate(numPoints.begin(), numPoints.end(), std::size_t{ 0 });
+    this->TotalNumberOfCells = std::accumulate(numCells.begin(), numCells.end(), std::size_t{ 0 });
 
     this->DataSetPointsOffset = 0;
     this->DataSetCellsOffset = 0;
@@ -868,7 +923,7 @@ protected:
   viskores::cont::PartitionedDataSet DataSets;
   std::string OutputFileName;
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   MPI_Comm Comm;
 #endif
   adios2::ADIOS Adios;
@@ -882,7 +937,7 @@ protected:
 
   int Rank = 0;
   int NumRanks = 1;
-  std::vector<int> DataSetsPerRank;
+  std::vector<std::size_t> DataSetsPerRank;
   std::size_t TotalNumberOfDataSets = 0;
   std::size_t TotalNumberOfPoints = 0;
   std::size_t TotalNumberOfCells = 0;
@@ -909,7 +964,7 @@ public:
   {
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   UniformDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                        const std::string& fname,
                        const std::string& outputMode,
@@ -1004,7 +1059,7 @@ public:
   {
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   RectilinearDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                            const std::string& fname,
                            const std::string& outputMode,
@@ -1108,7 +1163,7 @@ protected:
   {
     std::size_t numDS = static_cast<std::size_t>(this->DataSets.GetNumberOfPartitions());
 
-    std::vector<int> numCoordinates(this->NumRanks * 3, 0);
+    std::vector<size_t> numCoordinates(this->NumRanks * 3, 0);
 
     this->NumXCoords = 0;
     this->NumYCoords = 0;
@@ -1127,10 +1182,14 @@ protected:
     numCoordinates[this->Rank * 3 + 1] = this->NumYCoords;
     numCoordinates[this->Rank * 3 + 2] = this->NumZCoords;
 
-#ifdef FIDES_USE_MPI
-    MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks * 3, MPI_INT, MPI_SUM, this->Comm);
-#endif
+    FIDES_SAFE_MPI(this->Comm,
+                   MPI_Allreduce(MPI_IN_PLACE,
+                                 numCoordinates.data(),
+                                 this->NumRanks * 3,
+                                 FIDES_MPI_SIZE_T,
+                                 MPI_SUM,
+                                 this->Comm));
+
     this->TotalNumberOfXCoords = 0;
     this->TotalNumberOfYCoords = 0;
     this->TotalNumberOfZCoords = 0;
@@ -1178,7 +1237,7 @@ public:
   {
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   UnstructuredSingleTypeDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
                                       const std::string& outputMode,
@@ -1245,12 +1304,13 @@ protected:
   void ComputeDataModelSpecificGlobalBlockInfo() override
   {
     std::size_t numDS = static_cast<std::size_t>(this->DataSets.GetNumberOfPartitions());
-    std::vector<int> numCoordinates(this->NumRanks, 0);
-    std::vector<int> numCells(this->NumRanks, 0);
-    std::vector<int> numPtsInCell(this->NumRanks, 0);
-    std::vector<int> cellShape(this->NumRanks, 0);
+    std::vector<std::size_t> numCoordinates(this->NumRanks, 0);
+    std::vector<std::size_t> numCells(this->NumRanks, 0);
+    std::vector<std::size_t> numPtsInCell(this->NumRanks, 0);
+    std::vector<std::size_t> cellShape(this->NumRanks, 0);
 
     this->NumCoords = 0;
+    this->NumCells = 0;
     this->NumPointsInCell = 0;
     this->CellShape = -1;
     this->TotalNumberOfCoords = 0;
@@ -1291,13 +1351,25 @@ protected:
     numPtsInCell[this->Rank] = this->NumPointsInCell;
     cellShape[this->Rank] = static_cast<int>(this->CellShape);
 
-#ifdef FIDES_USE_MPI
-    MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, numPtsInCell.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, cellShape.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-#endif
+    FIDES_SAFE_MPI(this->Comm,
+                   MPI_Allreduce(MPI_IN_PLACE,
+                                 numCoordinates.data(),
+                                 this->NumRanks,
+                                 FIDES_MPI_SIZE_T,
+                                 MPI_SUM,
+                                 this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numCells.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numPtsInCell.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, cellShape.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
 
     for (int i = 0; i < this->NumRanks; i++)
     {
@@ -1311,7 +1383,7 @@ protected:
           throw std::runtime_error("Number of points in cell for "
                                    "CellSetSingleType is not consistent.");
         }
-        if (cellShape[i] != this->CellShape)
+        if (cellShape[i] != static_cast<size_t>(this->CellShape))
         {
           throw std::runtime_error("Cell shape for CellSetSingleType is not consistent.");
         }
@@ -1359,7 +1431,7 @@ public:
     this->ValidatePartitionTypes(dataSets);
   }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   UnstructuredExplicitDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
                                     const std::string& outputMode,
@@ -1459,10 +1531,9 @@ public:
 protected:
   void ComputeDataModelSpecificGlobalBlockInfo() override
   {
-    std::vector<int> numCoordinates(this->NumRanks, 0);
-    std::vector<int> numCells(this->NumRanks, 0);
-    std::vector<int> cellShape(this->NumRanks, 0);
-    std::vector<int> numConns(this->NumRanks, 0);
+    std::vector<size_t> numCoordinates(this->NumRanks, 0);
+    std::vector<size_t> numCells(this->NumRanks, 0);
+    std::vector<size_t> numConns(this->NumRanks, 0);
 
     this->NumCoords = 0;
     this->NumCells = 0;
@@ -1488,12 +1559,22 @@ protected:
     numCoordinates[this->Rank] = this->NumCoords;
     numCells[this->Rank] = this->NumCells;
     numConns[this->Rank] = this->NumConns;
-#ifdef FIDES_USE_MPI
-    MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-    MPI_Allreduce(MPI_IN_PLACE, numConns.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
-#endif
+
+    FIDES_SAFE_MPI(this->Comm,
+                   MPI_Allreduce(MPI_IN_PLACE,
+                                 numCoordinates.data(),
+                                 this->NumRanks,
+                                 FIDES_MPI_SIZE_T,
+                                 MPI_SUM,
+                                 this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numCells.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numConns.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
 
     for (int i = 0; i < this->NumRanks; i++)
     {
@@ -1533,7 +1614,7 @@ DataSetWriter::DataSetWriter(const std::string& outputFile)
 {
 }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
 DataSetWriter::DataSetWriter(const std::string& outputFile, MPI_Comm comm)
   : OutputFile(outputFile)
   , WriteFieldSet(false)
@@ -1591,10 +1672,8 @@ unsigned char DataSetWriter::GetDataSetType(const viskores::cont::DataSet& ds)
 void DataSetWriter::SetDataSetType(const viskores::cont::PartitionedDataSet& dataSets)
 {
   int rank = 0, numRanks = 1;
-#ifdef FIDES_USE_MPI
-  MPI_Comm_rank(this->Comm, &rank);
-  MPI_Comm_size(this->Comm, &numRanks);
-#endif
+  FIDES_SAFE_MPI(this->Comm, MPI_Comm_rank(this->Comm, &rank));
+  FIDES_SAFE_MPI(this->Comm, MPI_Comm_size(this->Comm, &numRanks));
 
   //Make sure all the datasets are the same.
   std::vector<unsigned char> myDataSetTypes;
@@ -1619,10 +1698,11 @@ void DataSetWriter::SetDataSetType(const viskores::cont::PartitionedDataSet& dat
 
   std::vector<unsigned char> allDataSetTypes(numRanks, DATASET_TYPE_NONE);
   allDataSetTypes[rank] = dataSetType;
-#ifdef FIDES_USE_MPI
-  MPI_Allreduce(
-    MPI_IN_PLACE, allDataSetTypes.data(), numRanks, MPI_UNSIGNED_CHAR, MPI_BOR, this->Comm);
-#endif
+
+  FIDES_SAFE_MPI(
+    this->Comm,
+    MPI_Allreduce(
+      MPI_IN_PLACE, allDataSetTypes.data(), numRanks, MPI_UNSIGNED_CHAR, MPI_BOR, this->Comm));
 
   //If we OR these values all together, we will get the global dataset type.
   //There can be NONE, but all non NONE should be the same. If not, it's an error.
@@ -1667,59 +1747,64 @@ void DataSetWriter::WriteImpl(const viskores::cont::PartitionedDataSet& dataSets
   }
   else if (this->DataSetType == DATASET_TYPE_UNIFORM)
   {
-#ifdef FIDES_USE_MPI
-    UniformDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
-#else
-    UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
-#endif
-    if (this->WriteFieldSet)
-      writeImpl.SetWriteFields(this->FieldsToWrite);
+    auto writeImpl = FIDES_CREATE_WRITER(this->Comm,
+                                         UniformDataSetWriter,
+                                         false,
+                                         dataSets,
+                                         this->OutputFile,
+                                         outputMode,
+                                         this->AdiosConfigFile);
 
-    writeImpl.Write();
-    writeImpl.Close();
+    if (this->WriteFieldSet)
+      writeImpl->SetWriteFields(this->FieldsToWrite);
+
+    writeImpl->Write();
+    writeImpl->Close();
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
-#ifdef FIDES_USE_MPI
-    RectilinearDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
-#else
-    RectilinearDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
-#endif
+    auto writeImpl = FIDES_CREATE_WRITER(this->Comm,
+                                         RectilinearDataSetWriter,
+                                         false,
+                                         dataSets,
+                                         this->OutputFile,
+                                         outputMode,
+                                         this->AdiosConfigFile);
+
     if (this->WriteFieldSet)
-      writeImpl.SetWriteFields(this->FieldsToWrite);
-    writeImpl.Write();
-    writeImpl.Close();
+      writeImpl->SetWriteFields(this->FieldsToWrite);
+    writeImpl->Write();
+    writeImpl->Close();
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
-#ifdef FIDES_USE_MPI
-    UnstructuredSingleTypeDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
-#else
-    UnstructuredSingleTypeDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
-#endif
+    auto writeImpl = FIDES_CREATE_WRITER(this->Comm,
+                                         UnstructuredSingleTypeDataSetWriter,
+                                         false,
+                                         dataSets,
+                                         this->OutputFile,
+                                         outputMode,
+                                         this->AdiosConfigFile);
+
     if (this->WriteFieldSet)
-      writeImpl.SetWriteFields(this->FieldsToWrite);
-    writeImpl.Write();
-    writeImpl.Close();
+      writeImpl->SetWriteFields(this->FieldsToWrite);
+    writeImpl->Write();
+    writeImpl->Close();
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
-#ifdef FIDES_USE_MPI
-    UnstructuredExplicitDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm);
-#else
-    UnstructuredExplicitDataSetWriter writeImpl(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile);
-#endif
+    auto writeImpl = FIDES_CREATE_WRITER(this->Comm,
+                                         UnstructuredExplicitDataSetWriter,
+                                         false,
+                                         dataSets,
+                                         this->OutputFile,
+                                         outputMode,
+                                         this->AdiosConfigFile);
+
     if (this->WriteFieldSet)
-      writeImpl.SetWriteFields(this->FieldsToWrite);
-    writeImpl.Write();
-    writeImpl.Close();
+      writeImpl->SetWriteFields(this->FieldsToWrite);
+    writeImpl->Write();
+    writeImpl->Close();
   }
   else
   {
@@ -1734,7 +1819,7 @@ DataSetAppendWriter::DataSetAppendWriter(const std::string& outputFile)
 {
 }
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
 DataSetAppendWriter::DataSetAppendWriter(const std::string& outputFile, MPI_Comm comm)
   : DataSetWriter(outputFile, comm)
   , IsInitialized(false)
@@ -1781,43 +1866,43 @@ void DataSetAppendWriter::Initialize(const viskores::cont::PartitionedDataSet& d
   this->SetDataSetType(dataSets);
   if (this->DataSetType == DATASET_TYPE_UNIFORM)
   {
-#ifdef FIDES_USE_MPI
-    this->Writer.reset(new DataSetWriter::UniformDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
-#else
-    this->Writer.reset(new DataSetWriter::UniformDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
-#endif
+    this->Writer = FIDES_CREATE_WRITER(this->Comm,
+                                       DataSetWriter::UniformDataSetWriter,
+                                       true,
+                                       dataSets,
+                                       this->OutputFile,
+                                       outputMode,
+                                       this->AdiosConfigFile);
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
-#ifdef FIDES_USE_MPI
-    this->Writer.reset(new DataSetWriter::RectilinearDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
-#else
-    this->Writer.reset(new DataSetWriter::RectilinearDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
-#endif
+    this->Writer = FIDES_CREATE_WRITER(this->Comm,
+                                       DataSetWriter::RectilinearDataSetWriter,
+                                       true,
+                                       dataSets,
+                                       this->OutputFile,
+                                       outputMode,
+                                       this->AdiosConfigFile);
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
-#ifdef FIDES_USE_MPI
-    this->Writer.reset(new UnstructuredSingleTypeDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
-#else
-    this->Writer.reset(new UnstructuredSingleTypeDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
-#endif
+    this->Writer = FIDES_CREATE_WRITER(this->Comm,
+                                       DataSetWriter::UnstructuredSingleTypeDataSetWriter,
+                                       true,
+                                       dataSets,
+                                       this->OutputFile,
+                                       outputMode,
+                                       this->AdiosConfigFile);
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
-#ifdef FIDES_USE_MPI
-    this->Writer.reset(new UnstructuredExplicitDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, this->Comm, true));
-#else
-    this->Writer.reset(new UnstructuredExplicitDataSetWriter(
-      dataSets, this->OutputFile, outputMode, this->AdiosConfigFile, true));
-#endif
+    this->Writer = FIDES_CREATE_WRITER(this->Comm,
+                                       DataSetWriter::UnstructuredExplicitDataSetWriter,
+                                       true,
+                                       dataSets,
+                                       this->OutputFile,
+                                       outputMode,
+                                       this->AdiosConfigFile);
   }
   else
   {

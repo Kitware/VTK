@@ -11,6 +11,7 @@
 #ifndef fides_io_DataSetWriter_h
 #define fides_io_DataSetWriter_h
 
+#include <fides/Deprecated.h>
 #include <fides/FidesTypes.h>
 #include <fides/MetaData.h>
 
@@ -22,10 +23,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "fides_export.h"
+#include <fides/fides_export.h>
 
-#ifdef FIDES_USE_MPI
-#include <vtk_mpi.h>
+#if FIDES_USE_MPI
+#include <fides/fides_mpi.h>
 #endif
 
 namespace fides
@@ -40,11 +41,13 @@ namespace io
 /// including setting the ADIOS configuration file and specifying which fields
 /// to write. When MPI is enabled, it also supports passing a communicator, with
 /// the default being MPI_COMM_WORLD.
-class FIDES_EXPORT DataSetWriter
+///
+/// \deprecated Use FidesDataSetWriter instead.
+class FIDES_EXPORT FIDES_DEPRECATED(2.1, "Use FidesDataSetWriter instead.") DataSetWriter
 {
 public:
   DataSetWriter(const std::string& outputFile);
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   DataSetWriter(const std::string& outputFile, MPI_Comm comm);
 #endif
   ~DataSetWriter() = default;
@@ -108,8 +111,8 @@ protected:
   unsigned char DataSetType;
   std::set<std::string> FieldsToWrite;
   bool WriteFieldSet;
-#ifdef FIDES_USE_MPI
-  MPI_Comm Comm = MPI_COMM_WORLD;
+#if FIDES_USE_MPI
+  MPI_Comm Comm = MPI_COMM_NULL;
 #endif
   std::string AdiosConfigFile;
 };
@@ -122,11 +125,15 @@ protected:
 /// including setting the ADIOS configuration file and specifying which fields
 /// to write. When MPI is enabled, it also supports passing a communicator, with
 /// the default being MPI_COMM_WORLD.
-class FIDES_EXPORT DataSetAppendWriter : public DataSetWriter
+///
+/// \deprecated Use FidesDataSetWriter instead.
+FIDES_DEPRECATED_SUPPRESS_BEGIN
+class FIDES_EXPORT FIDES_DEPRECATED(2.1, "Use FidesDataSetWriter instead.") DataSetAppendWriter
+  : public DataSetWriter
 {
 public:
   DataSetAppendWriter(const std::string& outputFile);
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   DataSetAppendWriter(const std::string& outputFile, MPI_Comm comm);
 #endif
   ~DataSetAppendWriter() = default;
@@ -149,6 +156,7 @@ private:
   bool IsInitialized;
   std::shared_ptr<DataSetWriter::GenericWriter> Writer;
 };
+FIDES_DEPRECATED_SUPPRESS_END
 
 } // end namespace io
 } // end namespace fides

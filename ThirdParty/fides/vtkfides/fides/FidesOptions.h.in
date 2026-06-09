@@ -7,12 +7,13 @@
 //  PURPOSE.  See the above copyright notice for more information.
 //
 //============================================================================
-#include <fides/MetaData.h>
 
-namespace fides
-{
-namespace metadata
-{
+#ifndef fides_FidesOptions_h
+#define fides_FidesOptions_h
 
-}
-}
+#cmakedefine01 FIDES_USE_VISKORES
+#cmakedefine01 FIDES_USE_VTK
+#cmakedefine01 FIDES_USE_MPI
+#cmakedefine01 FIDES_USE_CONDUIT
+
+#endif

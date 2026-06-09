@@ -1,7 +1,10 @@
-if (FALSE) # XXX(kitware): VTK handles CMake minimum versions
-cmake_minimum_required(VERSION 3.9)
-endif ()
+if (FALSE) # XXX(kitware): VTK handles CMake versions
+cmake_minimum_required(VERSION 3.21)
+endif()
 project(FIDES LANGUAGES C CXX VERSION 0.1)
+
+# Fides uses C++17 language features
+set(CMAKE_CXX_STANDARD 17)
 
 list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -21,32 +24,61 @@ include(cmake/FidesSanitize.cmake)
 
 # Add options for performing code coverage tests
 include(cmake/FidesCoverage.cmake)
-endif ()
+endif()
 
 include(FidesModule)
 
-if (FALSE) # XXX(kitware): VTK handles Viskores
+if (FALSE) # XXX(kitware): VTK handles dependencies
 find_package(ADIOS2 REQUIRED)
 
 if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
   set(ADIOS_DEFS FIDES_ADIOS_HAS_RANDOM_ACCESS)
 endif()
 
-# Minimum Viskores version is 1.0. Future versions of Viskores should maintain
-# backward compatibility.
-find_package(Viskores 1.0 REQUIRED)
-else ()
-vtk_module_find_package(PACKAGE ADIOS2)
-if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
-  set(ADIOS_DEFS FIDES_ADIOS_HAS_RANDOM_ACCESS)
+option(FIDES_USE_VISKORES "Build with Viskores support" ON)
+option(FIDES_USE_VTK "Build with VTK support" OFF)
+option(FIDES_USE_CONDUIT "Build with Conduit support" OFF)
+
+if(NOT FIDES_USE_VISKORES AND NOT FIDES_USE_VTK)
+  message(FATAL_ERROR "At least one of FIDES_USE_VISKORES or FIDES_USE_VTK must be enabled.")
 endif()
-endif ()
+
+if(FIDES_USE_VISKORES)
+  find_package(Viskores 1.0 REQUIRED)
+  if(Viskores_ENABLE_CUDA)
+    enable_language(CUDA)
+  endif()
+endif()
+
+if(FIDES_USE_VTK)
+  find_package(VTK REQUIRED COMPONENTS CommonCore CommonDataModel
+    FiltersCellGrid IOCellGrid)
+endif()
+
+if (FIDES_USE_CONDUIT)
+  message(STATUS "Looking for Conduit (Hint: Conduit_ROOT = ${Conduit_ROOT})")
+
+  find_package(Conduit REQUIRED)
+endif()
+else()
+  vtk_module_find_package(PACKAGE ADIOS2)
+
+  if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
+    set(ADIOS_DEFS FIDES_ADIOS_HAS_RANDOM_ACCESS)
+  endif()
+
+  # Enable both Viskores and VTK
+  set(FIDES_USE_VISKORES TRUE)
+  set(FIDES_USE_VTK TRUE) # Native VTK dataset output
+
+  if (TARGET VTK::conduit)
+    set(FIDES_USE_CONDUIT TRUE)
+  else()
+    set(FIDES_USE_CONDUIT FALSE)
+  endif()
+endif()
 
 if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
-if (Viskores_ENABLE_CUDA)
-  enable_language(CUDA)
-endif()
-
 option(BUILD_SHARED_LIBS "Build fides with shared libraries" ON)
 
 option(FIDES_ENABLE_TESTING "Enable Fides Testing" ON)
@@ -54,31 +86,34 @@ option(FIDES_ENABLE_EXAMPLES "Build Fides Examples" ON)
 
 if(ADIOS2_HAVE_MPI)
   set(FIDES_USE_MPI TRUE)
-  set(MPI_DEFS FIDES_USE_MPI)
-  set(MPI_LIBS MPI::MPI_CXX)
+
+  # Fides explicitly includes <mpi.h> so we need to find it ourselves
+  find_package(MPI REQUIRED COMPONENTS C)
+
+  # Link against the modern C target instead of the deprecated CXX target
+  set(MPI_LIBS MPI::MPI_C)
+endif()
+else()
+  set(FIDES_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+  set(FIDES_ENABLE_TESTING OFF)
+  set(FIDES_ENABLE_EXAMPLES OFF)
+
+  if (TARGET VTK::mpi)
+    set(FIDES_USE_MPI TRUE)
+  else()
+    set(FIDES_USE_MPI FALSE)
+  endif()
 endif()
 
-else ()
-set(FIDES_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(FIDES_ENABLE_TESTING OFF)
-set(FIDES_ENABLE_EXAMPLES OFF)
-
-if (TARGET VTK::mpi)
-  set(FIDES_USE_MPI TRUE)
-  set(MPI_DEFS FIDES_USE_MPI)
-  set(MPI_LIBS VTK::mpi)
-endif ()
-endif ()
-
-if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
+if (FALSE) # XXX(kitware): Under VTK fides must use its internal version
 option(FIDES_USE_EXTERNAL_RAPIDJSON "Use external RapidJSON" OFF)
 mark_as_advanced(FIDES_USE_EXTERNAL_RAPIDJSON)
 if (FIDES_USE_EXTERNAL_RAPIDJSON)
   find_package(RapidJSON REQUIRED)
 endif()
-else ()
-set(FIDES_USE_EXTERNAL_RAPIDJSON OFF)
-endif ()
+else()
+  set(FIDES_USE_EXTERNAL_RAPIDJSON OFF)
+endif()
 
 if (NOT DEFINED FIDES_INSTALL_INCLUDE_DIR)
   set(FIDES_INSTALL_INCLUDE_DIR "include/fides")
@@ -99,17 +134,6 @@ if (FIDES_ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
 
-if (FIDES_ENABLE_SANITIZER)
-  set(preload_libraries)
-  if (FIDES_SANITIZER MATCHES "address")
-    find_library(FIDES_ASAN_LIBRARY NAMES libasan.so.5 DOC "ASan library")
-    mark_as_advanced(FIDES_ASAN_LIBRARY)
-
-    list(APPEND preload_libraries
-      "${FIDES_ASAN_LIBRARY}")
-  endif ()
-endif()
-
 set(FIDES_COVERAGE_ENABLED OFF)
 if (FIDES_ENABLE_COVERAGE)
   set(FIDES_COVERAGE_ENABLED ON)
@@ -120,17 +144,17 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
   )
-endif ()
+endif()
 
 if (FIDES_ENABLE_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-if (FALSE) # XXX(kitware): VTK handles building shared libs/testing and MPI
+if (FALSE) # XXX(kitware): When building under VTK, don't build Fides docs
 option(FIDES_BUILD_DOCS "Build Fides User Guide locally" OFF)
-else ()
-set(FIDES_BUILD_DOCS OFF)
-endif ()
+else()
+  set(FIDES_BUILD_DOCS OFF)
+endif()
 if (FIDES_BUILD_DOCS)
   add_subdirectory(docs)
 endif()

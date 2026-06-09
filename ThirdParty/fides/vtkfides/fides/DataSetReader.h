@@ -11,21 +11,19 @@
 #ifndef fides_io_DataSetReader_h
 #define fides_io_DataSetReader_h
 
+#include <fides/DataContainer.h>
+#include <fides/Deprecated.h>
 #include <fides/FidesTypes.h>
-#include <fides/FieldDataManager.h>
 #include <fides/MetaData.h>
-
-#include <viskores/cont/DataSet.h>
-#include <viskores/cont/PartitionedDataSet.h>
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "fides_export.h"
+#include <fides/fides_export.h>
 
-#ifdef FIDES_USE_MPI
-#include <mpi.h>
+#if FIDES_USE_MPI
+#include <fides/fides_mpi.h>
 #endif
 
 namespace fides
@@ -36,8 +34,9 @@ namespace io
 /// \brief General purpose reader for data described by an Fides data model.
 ///
 /// \c fides::io::DataSetReader reads data described by an Fides data model
-/// and creates Viskores datasets. See the Fides schema definition for the
-/// supported data model. \c DataSetReader also supports reading meta-data.
+/// and creates datasets in a backend-agnostic manner. See the Fides schema
+/// definitionfor the supported data model. \c DataSetReader also supports
+/// reading meta-data.
 ///
 class FIDES_EXPORT DataSetReader
 {
@@ -85,7 +84,7 @@ public:
                 const Params& params = Params(),
                 bool createSharedPoints = false);
 
-#ifdef FIDES_USE_MPI
+#if FIDES_USE_MPI
   /// Constructor to set up the Fides reader
   /// \param dataModel the value should be 1) a path
   /// to a JSON file describing the data model to be used by the reader,
@@ -149,19 +148,26 @@ public:
     const std::unordered_map<std::string, std::string>& paths = {},
     const std::string& groupName = "");
 
-  /// Read and return heavy-data.
+  /// Read heavy-data and return an opaque wrapper containing the backend-
+  /// specific dataset.
   /// \param paths a map that provides
   /// the paths (filenames usually) corresponding to each data source.
   /// \param selections provides support for reading a subset of
   /// the data by providing choices for things such as time and blocks.
-  viskores::cont::PartitionedDataSet ReadDataSet(
+  /// \param dsType Dataset type to produce. Allowed values depend on
+  /// backend support selected at configure time (currently possibilities
+  /// are Viskores and VTK).
+  std::unique_ptr<fides::DataContainer> ReadDataSet(
     const std::unordered_map<std::string, std::string>& paths,
-    const fides::metadata::MetaData& selections);
+    const fides::metadata::MetaData& selections,
+    fides::DataSetType dsType = fides::DataSetType::Viskores);
 
   /// Read and return heavy-data.
   /// \param selections provides support for reading a subset of
   /// the data by providing choices for things such as time and blocks.
-  viskores::cont::PartitionedDataSet ReadDataSet(const fides::metadata::MetaData& selections);
+  std::unique_ptr<fides::DataContainer> ReadDataSet(
+    const fides::metadata::MetaData& selections,
+    fides::DataSetType dsType = fides::DataSetType::Viskores);
 
   /// When reading in streaming mode, this method has to be called before
   /// reading any meta-data or heavy data. It will also move the reader
@@ -172,26 +178,6 @@ public:
   /// \param paths a map that provides
   /// the paths (filenames usually) corresponding to each data source.
   StepStatus PrepareNextStep(const std::unordered_map<std::string, std::string>& paths = {});
-
-  /// Same as \c ReadDataSet except that it works in streaming mode and
-  /// needs to be preceeded by PrepareStep.
-  /// \param paths a map that provides
-  /// the paths (filenames usually) corresponding to each data source.
-  /// \param selections provides support for reading a subset of
-  /// the data by providing choices for things such as time and blocks.
-  FIDES_DEPRECATED_SUPPRESS_BEGIN
-  FIDES_DEPRECATED(1.2, "ReadDataSet() will now handle both streaming and random access modes.")
-  viskores::cont::PartitionedDataSet ReadStep(
-    const std::unordered_map<std::string, std::string>& paths,
-    const fides::metadata::MetaData& selections);
-  FIDES_DEPRECATED_SUPPRESS_END
-
-  /// Get a pointer to the field data manager
-  /// \sa FieldDataManager, FieldData
-  FIDES_DEPRECATED_SUPPRESS_BEGIN
-  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in Viskores DataSet.")
-  std::shared_ptr<fides::datamodel::FieldDataManager> GetFieldData();
-  FIDES_DEPRECATED_SUPPRESS_END
 
   /// Get std::vector of DataSource names.
   std::vector<std::string> GetDataSourceNames();
@@ -204,10 +190,6 @@ public:
 private:
   class DataSetReaderImpl;
   std::unique_ptr<DataSetReaderImpl> Impl;
-
-  std::vector<viskores::cont::DataSet> ReadDataSetInternal(
-    const std::unordered_map<std::string, std::string>& paths,
-    const fides::metadata::MetaData& selections);
 };
 
 } // end namespace io
