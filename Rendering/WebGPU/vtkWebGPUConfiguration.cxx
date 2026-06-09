@@ -7,6 +7,7 @@
 #endif
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
+#include "Private/vtkWebGPUProcLoader.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 
 #include "vtkObjectFactory.h"
@@ -416,6 +417,17 @@ wgpu::Instance vtkWebGPUConfiguration::GetInstance()
 bool vtkWebGPUConfiguration::Initialize()
 {
   vtkDebugMacro(<< __func__);
+
+  // Ensure the WebGPU implementation is loaded at runtime (Option B proc table).
+  // This must happen before any WebGPU function calls.
+  vtkWebGPUProcLoader* procLoader = vtkWebGPUProcLoader::GetInstance();
+  if (!procLoader || !procLoader->IsLoaded())
+  {
+    vtkErrorMacro(<< "Failed to load WebGPU implementation library. "
+                  << (procLoader ? procLoader->GetError() : "Unknown error"));
+    return false;
+  }
+
   auto& internals = (*this->Internals);
   if (internals.DeviceReady)
   {
