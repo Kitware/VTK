@@ -234,6 +234,23 @@ public:
     unsigned int numValues, int numComps, int dataType, void* data);
 
   /**
+   * Update a contiguous texel range of a 2D-emulation texture (one created by
+   * EmulateTextureBufferWith2DTextures[FromRaw]) directly from client memory,
+   * without re-defining the whole texture. `texelOffset` and `numTexels` are
+   * counted in texels (i.e. tuples for a multi-component texture, or scalar
+   * values for a 1-component one); `data` holds numTexels * numComps values of
+   * type `dataType`. The texture's existing tiling Width/Height, Format and Type
+   * are reused, so the overall texel count must be unchanged since creation.
+   * Used to push only the blocks that changed when several meshes are
+   * concatenated into one emulated texture buffer (see
+   * vtkOpenGLArrayTextureBufferAdapter). Issues at most three glTexSubImage2D
+   * calls (a partial first row, the full rows in between, and a partial last
+   * row).
+   */
+  bool UpdateTextureBuffer2DRegion(
+    unsigned int texelOffset, unsigned int numTexels, int numComps, int dataType, void* data);
+
+  /**
    * Create a cube texture from 6 buffers from client memory.
    * Image data must be provided in the following order: +X -X +Y -Y +Z -Z.
    * numComps must be in [1-4].

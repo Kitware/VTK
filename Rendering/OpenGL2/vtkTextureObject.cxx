@@ -1449,6 +1449,81 @@ bool vtkTextureObject::EmulateTextureBufferWith2DTexturesFromRaw(
 }
 
 //------------------------------------------------------------------------------
+bool vtkTextureObject::UpdateTextureBuffer2DRegion(
+  unsigned int texelOffset, unsigned int numTexels, int numComps, int dataType, void* data)
+{
+  assert(this->Context);
+  if (this->Target != GL_TEXTURE_2D || this->Width == 0)
+  {
+    vtkErrorMacro("UpdateTextureBuffer2DRegion requires a 2D-emulation texture created by "
+                  "EmulateTextureBufferWith2DTextures[FromRaw] first.");
+    return false;
+  }
+  if (numTexels == 0)
+  {
+    return true;
+  }
+  const unsigned int width = this->Width;
+  if (texelOffset + numTexels > width * this->Height)
+  {
+    vtkErrorMacro("UpdateTextureBuffer2DRegion range ["
+      << texelOffset << ", " << texelOffset + numTexels << ") exceeds the texture's texel count.");
+    return false;
+  }
+  // Bytes per texel in the source: numComps values of dataType, tightly packed (the source row
+  // stride equals the texture row stride because both pack numComps per texel with no padding).
+  const std::size_t texelBytes =
+    static_cast<std::size_t>(numComps) * vtkAbstractArray::GetDataTypeSize(dataType);
+
+  auto ostate = this->GetContext()->GetState();
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  // Walk the contiguous texel range row by row. A texel range that starts/ends mid-row maps to
+  // up to three rectangles: a partial first row, a block of whole rows, and a partial last row.
+  // The source data is contiguous, so each rectangle reads the next slice of `data`.
+  const unsigned char* src = static_cast<const unsigned char*>(data);
+  unsigned int remaining = numTexels;
+  unsigned int texel = texelOffset;
+  while (remaining > 0)
+  {
+    const unsigned int row = texel / width;
+    const unsigned int col = texel % width;
+    unsigned int count;
+    GLsizei regionWidth;
+    GLsizei regionHeight;
+    if (col == 0 && remaining >= width)
+    {
+      // Whole rows in a single call.
+      const unsigned int rows = remaining / width;
+      regionWidth = static_cast<GLsizei>(width);
+      regionHeight = static_cast<GLsizei>(rows);
+      count = rows * width;
+      glTexSubImage2D(this->Target, 0, 0, static_cast<GLint>(row), regionWidth, regionHeight,
+        this->Format, this->Type, src);
+    }
+    else
+    {
+      // Partial row (the head, or the tail).
+      count = std::min(remaining, width - col);
+      regionWidth = static_cast<GLsizei>(count);
+      regionHeight = 1;
+      glTexSubImage2D(this->Target, 0, static_cast<GLint>(col), static_cast<GLint>(row),
+        regionWidth, regionHeight, this->Format, this->Type, src);
+    }
+    vtkOpenGLCheckErrorMacro("failed at glTexSubImage2D");
+    src += static_cast<std::size_t>(count) * texelBytes;
+    texel += count;
+    remaining -= count;
+  }
+
+  this->Deactivate();
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkTextureObject::Create2D(unsigned int width, unsigned int height, int numComps,
   vtkPixelBufferObject* pbo, bool shaderSupportsTextureInt)
 {
