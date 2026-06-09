@@ -27,7 +27,7 @@ void vtkOpenGLLowMemoryPolygonsAgent::PreDrawInternal(
   vtkRenderer*, vtkActor*, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
   lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Triangle;
-  lmMapper->ShaderProgram->SetUniformi("cellType", VTK_TRIANGLE);
+  lmMapper->ShaderProgram->SetUniformi(lmMapper->UniformLocs.CellType, VTK_TRIANGLE);
 }
 
 //------------------------------------------------------------------------------

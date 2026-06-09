@@ -2633,13 +2633,64 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderClip(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLLowMemoryPolyDataMapper::UpdateUniformLocations()
+{
+  vtkShaderProgram* program = this->ShaderProgram;
+  if (auto cachedProgram = this->CachedLocProgram.Lock())
+  {
+    if (cachedProgram == program && this->CachedLocLinkCount == program->GetLinkCount())
+    {
+      return;
+    }
+  }
+  auto& loc = this->UniformLocs;
+  // SetShaderParameters uniforms
+  loc.ViewportDimensions = program->FindUniform("viewportDimensions");
+  loc.LineWidth = program->FindUniform("lineWidth");
+  loc.RenderPointsAsSpheres = program->FindUniform("renderPointsAsSpheres");
+  loc.RenderLinesAsTubes = program->FindUniform("renderLinesAsTubes");
+  loc.PointPicking = program->FindUniform("pointPicking");
+  loc.VertexColor = program->FindUniform("vertex_color");
+  loc.EdgeColor = program->FindUniform("edgeColor");
+  loc.EdgeOpacity = program->FindUniform("edgeOpacity");
+  loc.EdgeVisibility = program->FindUniform("edgeVisibility");
+  loc.Wireframe = program->FindUniform("wireframe");
+  loc.EdgeWidth = program->FindUniform("edgeWidth");
+  loc.CameraParallel = program->FindUniform("cameraParallel");
+  loc.ZCalcR = program->FindUniform("ZCalcR");
+  loc.ZCalcS = program->FindUniform("ZCalcS");
+  loc.NumClipPlanes = program->FindUniform("numClipPlanes");
+  loc.ClipPlanes = program->FindUniform("clipPlanes");
+  loc.MapperIndex = program->FindUniform("mapperIndex");
+  // cell-type agent uniforms
+  loc.CellType = program->FindUniform("cellType");
+  loc.EnableLights = program->FindUniform("enable_lights");
+  loc.VertexPass = program->FindUniform("vertex_pass");
+  loc.PrimitiveSize = program->FindUniform("primitiveSize");
+  loc.PointSize = program->FindUniform("pointSize");
+  loc.CellIdOffset = program->FindUniform("cellIdOffset");
+  loc.VertexIdOffset = program->FindUniform("vertexIdOffset");
+  loc.EdgeValueBufferOffset = program->FindUniform("edgeValueBufferOffset");
+  loc.PointIdOffset = program->FindUniform("pointIdOffset");
+  loc.PrimitiveIdOffset = program->FindUniform("primitiveIdOffset");
+  loc.UsesCellMap = program->FindUniform("usesCellMap");
+  loc.UsesEdgeValues = program->FindUniform("usesEdgeValues");
+  loc.UseIndexedPointId = program->FindUniform("useIndexedPointId");
+  this->CachedLocProgram.Reset(program);
+  this->CachedLocLinkCount = program->GetLinkCount();
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer, vtkActor* actor)
 {
   if (!this->ShaderProgram)
   {
     return;
   }
-
+  // Resolve (once per program link) the locations of every uniform set on the
+  // per-draw hot path, so the agents and the code below can set them by location
+  // instead of repeating name->location lookups.
+  this->UpdateUniformLocations();
   // set uniform values
   int vp[4] = {};
   auto renWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -2653,39 +2704,31 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   const float lineWidth = actor->GetProperty()->GetLineWidth();
   const float edgeWidth = actor->GetProperty()->GetEdgeWidth();
 
-  this->ShaderProgram->SetUniform4f("viewportDimensions", vpDims);
-  this->ShaderProgram->SetUniformf("lineWidth", lineWidth);
-  if (this->ShaderProgram->IsUniformUsed("renderPointsAsSpheres"))
-  {
-    this->ShaderProgram->SetUniformi(
-      "renderPointsAsSpheres", actor->GetProperty()->GetRenderPointsAsSpheres() ? 1 : 0);
-  }
-  if (this->ShaderProgram->IsUniformUsed("renderLinesAsTubes"))
-  {
-    this->ShaderProgram->SetUniformi(
-      "renderLinesAsTubes", actor->GetProperty()->GetRenderLinesAsTubes() ? 1 : 0);
-  }
-  if (this->ShaderProgram->IsUniformUsed("pointPicking"))
-  {
-    this->ShaderProgram->SetUniformi("pointPicking", this->PointPicking ? 1 : 0);
-  }
-  this->ShaderProgram->SetUniform3f("vertex_color", actor->GetProperty()->GetVertexColor());
-  this->ShaderProgram->SetUniform3f("edgeColor", actor->GetProperty()->GetEdgeColor());
-  this->ShaderProgram->SetUniformf("edgeOpacity", actor->GetProperty()->GetEdgeOpacity());
-  this->ShaderProgram->SetUniformi("edgeVisibility", actor->GetProperty()->GetEdgeVisibility());
+  const auto& loc = this->UniformLocs;
+  this->ShaderProgram->SetUniform4f(loc.ViewportDimensions, vpDims);
+  this->ShaderProgram->SetUniformf(loc.LineWidth, lineWidth);
   this->ShaderProgram->SetUniformi(
-    "wireframe", actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
+    loc.RenderPointsAsSpheres, actor->GetProperty()->GetRenderPointsAsSpheres() ? 1 : 0);
+  this->ShaderProgram->SetUniformi(
+    loc.RenderLinesAsTubes, actor->GetProperty()->GetRenderLinesAsTubes() ? 1 : 0);
+  this->ShaderProgram->SetUniformi(loc.PointPicking, this->PointPicking ? 1 : 0);
+  this->ShaderProgram->SetUniform3f(loc.VertexColor, actor->GetProperty()->GetVertexColor());
+  this->ShaderProgram->SetUniform3f(loc.EdgeColor, actor->GetProperty()->GetEdgeColor());
+  this->ShaderProgram->SetUniformf(loc.EdgeOpacity, actor->GetProperty()->GetEdgeOpacity());
+  this->ShaderProgram->SetUniformi(loc.EdgeVisibility, actor->GetProperty()->GetEdgeVisibility());
+  this->ShaderProgram->SetUniformi(
+    loc.Wireframe, actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
   // Always drive edge overlay thickness from screen-space lineWidth and clamp it
   // to a modest range to avoid saturating entire faces due to numerical differences
   // across backends (WebGL vs desktop). The tube look will be layered by color; we
   // do not need very large overlay widths here.
   if (actor->GetProperty()->GetUseLineWidthForEdgeThickness())
   {
-    this->ShaderProgram->SetUniformf("edgeWidth", lineWidth);
+    this->ShaderProgram->SetUniformf(loc.EdgeWidth, lineWidth);
   }
   else
   {
-    this->ShaderProgram->SetUniformf("edgeWidth", edgeWidth);
+    this->ShaderProgram->SetUniformf(loc.EdgeWidth, edgeWidth);
   }
 
   vtkOpenGLCamera* oglCam = vtkOpenGLCamera::SafeDownCast(renderer->GetActiveCamera());
@@ -2696,33 +2739,29 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
     vtkMatrix3x3* norms = nullptr;
     vtkMatrix4x4* vcdc = nullptr;
     oglCam->GetKeyMatrices(renderer, wcvc, norms, vcdc, wcdc);
-    if (this->ShaderProgram->IsUniformUsed("cameraParallel"))
-    {
-      this->ShaderProgram->SetUniformi("cameraParallel", oglCam->GetParallelProjection());
-    }
-    if (this->ShaderProgram->IsUniformUsed("ZCalcR"))
+    this->ShaderProgram->SetUniformi(loc.CameraParallel, oglCam->GetParallelProjection());
+    if (loc.ZCalcR != -1)
     {
       const float zCalcS = oglCam->GetParallelProjection()
         ? static_cast<float>(vcdc->GetElement(2, 2))
         : static_cast<float>(-0.5 * vcdc->GetElement(2, 2) + 0.5);
-      this->ShaderProgram->SetUniformf("ZCalcS", zCalcS);
+      this->ShaderProgram->SetUniformf(loc.ZCalcS, zCalcS);
       const double denom = static_cast<double>(renderer->GetSize()[0]) * vcdc->GetElement(0, 0);
       if (denom != 0.0)
       {
         const float radius = actor->GetProperty()->GetRenderPointsAsSpheres()
           ? actor->GetProperty()->GetPointSize()
           : actor->GetProperty()->GetLineWidth();
-        this->ShaderProgram->SetUniformf("ZCalcR", radius / static_cast<float>(denom));
+        this->ShaderProgram->SetUniformf(loc.ZCalcR, radius / static_cast<float>(denom));
       }
       else
       {
-        this->ShaderProgram->SetUniformf("ZCalcR", 0.0f);
+        this->ShaderProgram->SetUniformf(loc.ZCalcR, 0.0f);
       }
     }
   }
 
-  if (this->GetNumberOfClippingPlanes() && this->ShaderProgram->IsUniformUsed("numClipPlanes") &&
-    this->ShaderProgram->IsUniformUsed("clipPlanes"))
+  if (this->GetNumberOfClippingPlanes() && loc.NumClipPlanes != -1 && loc.ClipPlanes != -1)
   {
     // add all the clipping planes
     int numClipPlanes = this->GetNumberOfClippingPlanes();
@@ -2756,15 +2795,16 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
       planeEquations[i][3] = planeEquation[3] + planeEquation[0] * shift[0] +
         planeEquation[1] * shift[1] + planeEquation[2] * shift[2];
     }
-    this->ShaderProgram->SetUniformi("numClipPlanes", numClipPlanes);
-    this->ShaderProgram->SetUniform4fv("clipPlanes", 6, planeEquations);
+    this->ShaderProgram->SetUniformi(loc.NumClipPlanes, numClipPlanes);
+    this->ShaderProgram->SetUniform4fv(
+      loc.ClipPlanes, 6, reinterpret_cast<const float*>(planeEquations));
   }
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 
   vtkHardwareSelector* selector = renderer->GetSelector();
-  if (selector && this->ShaderProgram->IsUniformUsed("mapperIndex"))
+  if (selector && loc.MapperIndex != -1)
   {
-    this->ShaderProgram->SetUniform3f("mapperIndex", selector->GetPropColorValue());
+    this->ShaderProgram->SetUniform3f(loc.MapperIndex, selector->GetPropColorValue());
   }
 
   // textures
@@ -2803,7 +2843,6 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
       vtkOpenGLCheckErrorMacro("failed after Render");
     }
   }
-
   // allow the program to set what it wants
   this->InvokeEvent(vtkCommand::UpdateShaderEvent, this->ShaderProgram);
 }

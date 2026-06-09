@@ -16,8 +16,10 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
-#include <map>    // For member variables.
-#include <string> // For member variables.
+#include <cstddef> // For std::size_t.
+#include <map>     // For member variables.
+#include <string>  // For member variables.
+#include <vector>  // For member variables.
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
@@ -232,6 +234,40 @@ public:
   bool SetUniform4fv(const char* name, int count, const float (*f)[4]);
   bool SetUniformMatrix4x4v(const char* name, int count, float* v);
 
+  ///@{
+  /**
+   * Location-based uniform setters.
+   *
+   * These take a uniform location previously obtained from FindUniform()
+   * instead of a name, so the per-call std::map<const char*> lookup is skipped.
+   * Hot render paths that re-set the same handful of uniforms every draw should
+   * resolve the locations once per program link (see GetLinkCount()) and reuse
+   * them. Like the name-based setters, these also gate on the last value
+   * uploaded to this program and skip the glUniform call when it is unchanged.
+   * A location of -1 is a silent no-op (returns false).
+   */
+  bool SetUniformi(int location, int v);
+  bool SetUniformf(int location, float v);
+  bool SetUniform3f(int location, const float v[3]);
+  bool SetUniform3f(int location, const double v[3]);
+  bool SetUniform4f(int location, const float v[4]);
+  bool SetUniform1fv(int location, int count, const float* f);
+  bool SetUniform4fv(int location, int count, const float* f);
+  bool SetUniformMatrix(int location, vtkMatrix3x3* v);
+  bool SetUniformMatrix(int location, vtkMatrix4x4* v);
+  bool SetUniformMatrix3x3(int location, float* v);
+  bool SetUniformMatrix4x4(int location, float* v);
+  bool SetUniformMatrix4x4v(int location, int count, float* v);
+  ///@}
+
+  /**
+   * Number of times this program has been (re)linked. Bumped on every Link().
+   * Cached uniform locations become invalid across a relink; callers that cache
+   * locations key their cache on this counter (plus the program object) to know
+   * when to re-resolve.
+   */
+  unsigned int GetLinkCount() const { return this->LinkCount; }
+
   // How many outputs does this program produce
   // only valid for OpenGL 3.2 or later
   vtkSetMacro(NumberOfOutputs, unsigned int);
@@ -431,7 +467,24 @@ private:
   // print shader code and report error
   void ReportShaderError(vtkShader* shader);
 
+  /**
+   * Returns true (and stores @p data) when the @p nbytes value at @p data
+   * differs from the value last uploaded to uniform @p location on this program;
+   * returns false when it matches, letting the caller skip the glUniform* call.
+   * GL keeps uniform values per-program across binds, so this stays valid until
+   * the program is relinked (the cache is cleared in ClearMaps()).
+   *
+   * @param location location of the opengl uniform.
+   * @param data data that you want to pass to the opengl uniform.
+   * @param nbytes size of @p data
+   * @return True if @p data differs from the last uploaded @p data. False otherwise.
+   */
+  bool UniformValueChanged(int location, const void* data, std::size_t nbytes);
+
   char* FileNamePrefixForDebugging;
+  std::vector<std::vector<unsigned char>> UniformValueCache;
+  // Bumped on every successful Link(); see GetLinkCount().
+  unsigned int LinkCount = 0;
 };
 
 VTK_ABI_NAMESPACE_END

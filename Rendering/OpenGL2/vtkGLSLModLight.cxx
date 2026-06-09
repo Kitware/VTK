@@ -797,15 +797,32 @@ bool vtkGLSLModLight::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShader
   // apply vtkProperty attributes
   // FIXME: Follow a consistent naming convention for shader uniforms.
   vtkProperty* ppty = actor->GetProperty();
-  program->SetUniformf("intensity_opacity", ppty->GetOpacity());
-  program->SetUniformf("intensity_ambient", ppty->GetAmbient());
-  program->SetUniformf("intensity_diffuse", ppty->GetDiffuse());
-  program->SetUniformf("intensity_specular", ppty->GetSpecular());
-  program->SetUniform3f("color_ambient", ppty->GetAmbientColor());
-  program->SetUniform3f("color_diffuse", ppty->GetDiffuseColor());
-  program->SetUniform3f("color_specular", ppty->GetSpecularColor());
-  program->SetUniformi("enable_specular", ppty->GetLighting());
-  program->SetUniformf("power_specular", ppty->GetSpecularPower());
+  // Resolve the locations of the always-set property uniforms once per program
+  // link; thereafter the per-draw glUniform calls skip the name->location lookup.
+  if (this->CachedLocProgram != program || this->CachedLocLinkCount != program->GetLinkCount())
+  {
+    this->Loc.IntensityOpacity = program->FindUniform("intensity_opacity");
+    this->Loc.IntensityAmbient = program->FindUniform("intensity_ambient");
+    this->Loc.IntensityDiffuse = program->FindUniform("intensity_diffuse");
+    this->Loc.IntensitySpecular = program->FindUniform("intensity_specular");
+    this->Loc.ColorAmbient = program->FindUniform("color_ambient");
+    this->Loc.ColorDiffuse = program->FindUniform("color_diffuse");
+    this->Loc.ColorSpecular = program->FindUniform("color_specular");
+    this->Loc.EnableSpecular = program->FindUniform("enable_specular");
+    this->Loc.PowerSpecular = program->FindUniform("power_specular");
+    this->Loc.NormalScale = program->FindUniform("normalScaleUniform");
+    this->CachedLocProgram = program;
+    this->CachedLocLinkCount = program->GetLinkCount();
+  }
+  program->SetUniformf(this->Loc.IntensityOpacity, ppty->GetOpacity());
+  program->SetUniformf(this->Loc.IntensityAmbient, ppty->GetAmbient());
+  program->SetUniformf(this->Loc.IntensityDiffuse, ppty->GetDiffuse());
+  program->SetUniformf(this->Loc.IntensitySpecular, ppty->GetSpecular());
+  program->SetUniform3f(this->Loc.ColorAmbient, ppty->GetAmbientColor());
+  program->SetUniform3f(this->Loc.ColorDiffuse, ppty->GetDiffuseColor());
+  program->SetUniform3f(this->Loc.ColorSpecular, ppty->GetSpecularColor());
+  program->SetUniformi(this->Loc.EnableSpecular, ppty->GetLighting());
+  program->SetUniformf(this->Loc.PowerSpecular, ppty->GetSpecularPower());
   if (auto bfPpty = actor->GetBackfaceProperty())
   {
     program->SetUniformf("intensity_opacity_bf", bfPpty->GetOpacity());

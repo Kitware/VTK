@@ -18,6 +18,8 @@
 #include "vtkHardwareSelector.h"         // For ivar
 #include "vtkOpenGLShaderDeclaration.h"  // For ivar
 #include "vtkRenderingOpenGL2Module.h"   // For export macro
+#include "vtkShaderProgram.h"            // For vtkWeakPtr<vtkShaderProgram>
+#include "vtkWeakPtr.h"                  // For vtkWeakPtr
 #include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 #include <array>   // for array
@@ -352,6 +354,53 @@ protected:
   bool ShouldUseIndexedRendering(vtkRenderer* renderer, vtkActor* actor,
     const CellGroupInformation& cellGroup, int numberOfPointsPerPrimitive,
     int numberOfPseudoPrimitivesPerElement, bool inVertexVisibilityPass) const;
+
+  /// @name Cached uniform locations
+  /// Locations of the uniforms set every draw by SetShaderParameters and by the
+  /// cell-type agents. Resolved once per program link (keyed on the program
+  /// object + vtkShaderProgram::GetLinkCount) by UpdateUniformLocations(), then
+  /// reused to skip the per-draw std::map<const char*> lookups. A value of -1
+  /// means the uniform is absent (the location-based setters no-op on -1).
+  struct UniformLocations
+  {
+    // SetShaderParameters
+    int ViewportDimensions = -1;
+    int LineWidth = -1;
+    int RenderPointsAsSpheres = -1;
+    int RenderLinesAsTubes = -1;
+    int PointPicking = -1;
+    int VertexColor = -1;
+    int EdgeColor = -1;
+    int EdgeOpacity = -1;
+    int EdgeVisibility = -1;
+    int Wireframe = -1;
+    int EdgeWidth = -1;
+    int CameraParallel = -1;
+    int ZCalcR = -1;
+    int ZCalcS = -1;
+    int NumClipPlanes = -1;
+    int ClipPlanes = -1;
+    int MapperIndex = -1;
+    // cell-type agent
+    int CellType = -1;
+    int EnableLights = -1;
+    int VertexPass = -1;
+    int PrimitiveSize = -1;
+    int PointSize = -1;
+    int CellIdOffset = -1;
+    int VertexIdOffset = -1;
+    int EdgeValueBufferOffset = -1;
+    int PointIdOffset = -1;
+    int PrimitiveIdOffset = -1;
+    int UsesCellMap = -1;
+    int UsesEdgeValues = -1;
+    int UseIndexedPointId = -1;
+  } UniformLocs;
+  vtkWeakPtr<vtkShaderProgram> CachedLocProgram;
+  unsigned int CachedLocLinkCount = 0;
+  /// Resolve UniformLocs against the current ShaderProgram if it changed or was
+  /// relinked since the last call.
+  void UpdateUniformLocations();
 
 private:
   vtkOpenGLLowMemoryPolyDataMapper(const vtkOpenGLLowMemoryPolyDataMapper&) = delete;

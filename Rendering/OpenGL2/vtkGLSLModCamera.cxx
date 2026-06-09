@@ -83,6 +83,22 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
   vtkMatrix4x4* vcdc;
   cam->GetKeyMatrices(renderer, wcvc, norms, vcdc, wcdc);
 
+  // Resolve the transform-matrix uniform locations once per program link, then
+  // reuse them below instead of repeating name->location lookups (which here
+  // happened twice per matrix: once via IsUniformUsed and once in the setter).
+  if (this->CachedLocProgram != program || this->CachedLocLinkCount != program->GetLinkCount())
+  {
+    this->Loc.EnvMatrix = program->FindUniform("envMatrix");
+    this->Loc.MCWCMatrix = program->FindUniform("MCWCMatrix");
+    this->Loc.MCWCNormalMatrix = program->FindUniform("MCWCNormalMatrix");
+    this->Loc.MCDCMatrix = program->FindUniform("MCDCMatrix");
+    this->Loc.MCVCMatrix = program->FindUniform("MCVCMatrix");
+    this->Loc.NormalMatrix = program->FindUniform("normalMatrix");
+    this->Loc.CameraParallel = program->FindUniform("cameraParallel");
+    this->CachedLocProgram = program;
+    this->CachedLocLinkCount = program->GetLinkCount();
+  }
+
   // FIXME: Add replacements in ReplaceShaderValues?
   // if (program->IsUniformUsed("ZCalcR"))
   // {
@@ -118,7 +134,7 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
   // }
 
   vtkNew<vtkMatrix3x3> env;
-  if (program->IsUniformUsed("envMatrix"))
+  if (this->Loc.EnvMatrix != -1)
   {
     double up[3];
     double right[3];
@@ -134,7 +150,7 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
     }
     vtkMatrix3x3::Invert(norms, this->TempMatrix3);
     vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
-    program->SetUniformMatrix("envMatrix", this->TempMatrix3);
+    program->SetUniformMatrix(this->Loc.EnvMatrix, this->TempMatrix3);
   }
 
   if (this->CoordinateShiftAndScaleInUse && this->SSMatrix)
@@ -145,40 +161,40 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
       vtkMatrix3x3* anorms;
       static_cast<vtkOpenGLActor*>(actor)->GetKeyMatrices(mcwc, anorms);
       vtkMatrix4x4::Multiply4x4(this->SSMatrix, mcwc, this->TempMatrix4);
-      if (program->IsUniformUsed("MCWCMatrix"))
+      if (this->Loc.MCWCMatrix != -1)
       {
-        program->SetUniformMatrix("MCWCMatrix", this->TempMatrix4);
+        program->SetUniformMatrix(this->Loc.MCWCMatrix, this->TempMatrix4);
       }
-      if (program->IsUniformUsed("MCWCNormalMatrix"))
+      if (this->Loc.MCWCNormalMatrix != -1)
       {
-        program->SetUniformMatrix("MCWCNormalMatrix", anorms);
+        program->SetUniformMatrix(this->Loc.MCWCNormalMatrix, anorms);
       }
       vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
-      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-      if (program->IsUniformUsed("MCVCMatrix"))
+      program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
+      if (this->Loc.MCVCMatrix != -1)
       {
         vtkMatrix4x4::Multiply4x4(this->SSMatrix, mcwc, this->TempMatrix4);
         vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcvc, this->TempMatrix4);
-        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        program->SetUniformMatrix(this->Loc.MCVCMatrix, this->TempMatrix4);
       }
-      if (program->IsUniformUsed("normalMatrix"))
+      if (this->Loc.NormalMatrix != -1)
       {
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        program->SetUniformMatrix(this->Loc.NormalMatrix, this->TempMatrix3);
       }
     }
     else
     {
       vtkMatrix4x4::Multiply4x4(this->SSMatrix, wcdc, this->TempMatrix4);
-      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-      if (program->IsUniformUsed("MCVCMatrix"))
+      program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
+      if (this->Loc.MCVCMatrix != -1)
       {
         vtkMatrix4x4::Multiply4x4(this->SSMatrix, wcvc, this->TempMatrix4);
-        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        program->SetUniformMatrix(this->Loc.MCVCMatrix, this->TempMatrix4);
       }
-      if (program->IsUniformUsed("normalMatrix"))
+      if (this->Loc.NormalMatrix != -1)
       {
-        program->SetUniformMatrix("normalMatrix", norms);
+        program->SetUniformMatrix(this->Loc.NormalMatrix, norms);
       }
     }
   }
@@ -189,44 +205,41 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
       vtkMatrix4x4* mcwc;
       vtkMatrix3x3* anorms;
       ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc, anorms);
-      if (program->IsUniformUsed("MCWCMatrix"))
+      if (this->Loc.MCWCMatrix != -1)
       {
-        program->SetUniformMatrix("MCWCMatrix", mcwc);
+        program->SetUniformMatrix(this->Loc.MCWCMatrix, mcwc);
       }
-      if (program->IsUniformUsed("MCWCNormalMatrix"))
+      if (this->Loc.MCWCNormalMatrix != -1)
       {
-        program->SetUniformMatrix("MCWCNormalMatrix", anorms);
+        program->SetUniformMatrix(this->Loc.MCWCNormalMatrix, anorms);
       }
       vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
-      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-      if (program->IsUniformUsed("MCVCMatrix"))
+      program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
+      if (this->Loc.MCVCMatrix != -1)
       {
         vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        program->SetUniformMatrix(this->Loc.MCVCMatrix, this->TempMatrix4);
       }
-      if (program->IsUniformUsed("normalMatrix"))
+      if (this->Loc.NormalMatrix != -1)
       {
         vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        program->SetUniformMatrix(this->Loc.NormalMatrix, this->TempMatrix3);
       }
     }
     else
     {
-      program->SetUniformMatrix("MCDCMatrix", wcdc);
-      if (program->IsUniformUsed("MCVCMatrix"))
+      program->SetUniformMatrix(this->Loc.MCDCMatrix, wcdc);
+      if (this->Loc.MCVCMatrix != -1)
       {
-        program->SetUniformMatrix("MCVCMatrix", wcvc);
+        program->SetUniformMatrix(this->Loc.MCVCMatrix, wcvc);
       }
-      if (program->IsUniformUsed("normalMatrix"))
+      if (this->Loc.NormalMatrix != -1)
       {
-        program->SetUniformMatrix("normalMatrix", norms);
+        program->SetUniformMatrix(this->Loc.NormalMatrix, norms);
       }
     }
   }
-  if (program->IsUniformUsed("cameraParallel"))
-  {
-    program->SetUniformi("cameraParallel", cam->GetParallelProjection());
-  }
+  program->SetUniformi(this->Loc.CameraParallel, cam->GetParallelProjection());
   return true;
 }
 
