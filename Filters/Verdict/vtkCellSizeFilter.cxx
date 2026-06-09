@@ -477,6 +477,10 @@ bool vtkCellSizeFilter::ComputeDataSet(vtkDataSet* input, vtkDataSet* output, do
 //------------------------------------------------------------------------------
 void vtkCellSizeFilter::IntegrateImageData(vtkImageData* input, vtkImageData* output, double sum[4])
 {
+  if (output->GetNumberOfCells() == 0)
+  {
+    return;
+  }
   int extent[6];
   input->GetExtent(extent);
   double spacing[3];
