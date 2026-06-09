@@ -1022,18 +1022,12 @@ bool vtkOpenGLLowMemoryPolyDataMapper::IsShaderUpToDate(vtkRenderer* renderer, v
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::DeleteTextureBuffers()
 {
-  // remove all arrays that we may've bound.
-  using namespace vtk::literals;
-  for (auto& arrayToken : { "positions"_token, "colors"_token, "pointNormals"_token,
-         "tangents"_token, "tcoords"_token, "colorTCoords"_token, "cellNormals"_token,
-         "vertexIdBuffer"_token, "primitiveToCellBuffer"_token, "edgeValueBuffer"_token })
-  {
-    this->Arrays.erase(arrayToken);
-  }
-  for (auto& itr : this->ExtraAttributes)
-  {
-    this->Arrays.erase(vtkStringToken(itr.first));
-  }
+  // Don't destroy the texture buffers: mark them for rebuild instead. BindArraysToTextureBuffers
+  // re-lists the same attributes (for the batched mapper, once per block) right after this, and
+  // keeping each adapter's uploaded texture + per-sub-array layout records lets Upload() diff the
+  // new arrays against the last upload and re-transfer only the blocks whose data changed. A
+  // token that is not re-listed this cycle stays marked and is skipped at draw time.
+  this->BeginArrayRebuild();
   // reset cell groups
   for (auto& primitive : this->Primitives)
   {
