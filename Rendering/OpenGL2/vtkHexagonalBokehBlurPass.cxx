@@ -1,5 +1,4 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-FileCopyrightText: Copyright 2019-2021 Kitware SAS
 // SPDX-FileCopyrightText: Copyright 2025 F3D-APP Foundation
 // SPDX-License-Identifier: BSD-3-Clause
 
