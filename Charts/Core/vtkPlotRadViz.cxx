@@ -27,11 +27,6 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
-#include <vtk_fmt.h>
-// clang-format off
-#include VTK_FMT(fmt/format.h)
-#include VTK_FMT(fmt/ranges.h)
-// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -61,7 +56,8 @@ vtkStandardNewMacro(vtkPlotRadViz);
 class vtkPlotRadViz::vtkInternals
 {
 public:
-  vtkInternals()
+  vtkInternals(vtkObject* parent)
+    : Parent(parent)
   {
     this->CenterX = 0;
     this->CenterY = 0;
@@ -93,12 +89,9 @@ public:
     vertex[1] -= this->CenterY;
     double vertexRad = std::atan2(vertex[1], vertex[0]);
     double mousePosRad = std::atan2(mousePos[1], mousePos[0]);
-    fmt::print("vtkPlotRadViz::GetAngle\n");
-    fmt::print("center: [{}, {}]\n", this->CenterX, this->CenterY);
-    fmt::print(
-      "mouse: [{}, {}], vertex: [{}, {}]\n", mousePos[0], mousePos[1], vertex[0], vertex[1]);
-    fmt::print("mouse: {}, vertex: {}\n", vtkMath::DegreesFromRadians(mousePosRad),
-      vtkMath::DegreesFromRadians(vertexRad));
+    vtkDebugWithObjectMacro(this->Parent,
+      "mouse angle: " << vtkMath::DegreesFromRadians(mousePosRad)
+                      << " vertex angle: " << vtkMath::DegreesFromRadians(vertexRad));
     double angle = vtkMath::DegreesFromRadians(mousePosRad - vertexRad);
     return angle;
   }
@@ -106,11 +99,12 @@ public:
   float CenterX;
   float CenterY;
   float Radius;
+  vtkObject* Parent;
 };
 
 //------------------------------------------------------------------------------
 vtkPlotRadViz::vtkPlotRadViz()
-  : Internals(new vtkInternals())
+  : Internals(new vtkInternals(this))
 {
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
   this->VerticesPen = vtkSmartPointer<vtkPen>::New();
@@ -253,7 +247,6 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   try
   {
     vtkDebugMacro(<< "Paint event called.");
-    fmt::print("==================== vtkPlotRadViz::Paint ====================\n");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
     vtkTable* table = vtkTable::SafeDownCast(input);
     vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
@@ -478,9 +471,6 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Internals->CenterY = this->Dimensions[1] + 0.5 * this->Dimensions[3];
     this->Internals->Radius = this->Dimensions[2] < this->Dimensions[3] ? 0.5 * this->Dimensions[2]
                                                                         : 0.5 * this->Dimensions[3];
-    fmt::print("Dimensions: {}\n", this->Dimensions);
-    fmt::print("Center: [{}, {}], Radius: {}\n", this->Internals->CenterX, this->Internals->CenterY,
-      this->Internals->Radius);
     this->Modified();
   }
 }

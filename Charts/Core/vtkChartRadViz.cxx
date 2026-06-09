@@ -11,13 +11,6 @@
 #include "vtkPlotRadViz.h"
 #include "vtkPoints2D.h"
 #include "vtkTextProperty.h"
-
-#include <vtk_fmt.h>
-// clang-format off
-#include VTK_FMT(fmt/format.h)
-#include VTK_FMT(fmt/ranges.h)
-// clang-format on
-
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -178,8 +171,6 @@ bool vtkChartRadViz::MouseEnterEvent(const vtkContextMouseEvent&)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
-  fmt::print("vtkChartRadViz::MouseMoveEvent {}, {}\n", this->Internals->DragVertex,
-    this->Scene->GetDirty());
   if (this->Internals->DragVertex >= 0 && !this->Scene->GetDirty())
   {
     auto vertices = this->Internals->Plot->GetVertices();
@@ -188,8 +179,8 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     vtkVector2f mp{ mouse.GetScenePos() };
     double mousePos[2] = { mp[0], mp[1] };
     double angle = this->Internals->Plot->GetAngle(vertex, mousePos);
-    fmt::print("vtkChartRadViz::MouseMoveEvent, angle: {} {}\n", angle,
-      this->Internals->Plot->GetVerticesRotation());
+    vtkDebugMacro("vtkChartRadViz::MouseMoveEvent, angle:"
+      << angle << " VerticesRotation: " << this->Internals->Plot->GetVerticesRotation());
     this->Internals->Plot->SetVerticesRotation(
       angle + this->Internals->Plot->GetVerticesRotation());
     this->Scene->SetDirty(true);
