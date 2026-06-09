@@ -650,7 +650,12 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
   }
   // 1. bind positions
-  this->AppendArrayToTexture("positions"_token, positions);
+  // Bind 3-component xyz arrays (positions, pointNormals, cellNormals) as 1-component
+  // (scalar) buffers rather than vec3 ones. When the GLES texture2d emulation is in use,
+  // certain hardware might not support RGB texture formats and create a new copy that has
+  // and RGBA style tuples. By uploading as scalars, the shader will then do three texelFetch
+  // commands to get the three XYZ values per point.
+  this->AppendArrayToTexture("positions"_token, positions, /*asScalars=*/true);
   // 2, bind colors
   if (colors &&
     (colors->GetNumberOfTuples() == numPoints || colors->GetNumberOfTuples() == numCells))
@@ -661,7 +666,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
   // 3. bind pointNormals
   if (pointNormals && pointNormals->GetNumberOfTuples() == numPoints)
   {
-    this->AppendArrayToTexture("pointNormals"_token, pointNormals);
+    this->AppendArrayToTexture("pointNormals"_token, pointNormals, /*asScalars=*/true);
     this->HasPointNormals = true;
   }
   // 3. bind tangents
@@ -684,7 +689,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
   // 6. bind cellNormals
   if (cellNormals && cellNormals->GetNumberOfTuples() == numCells)
   {
-    this->AppendArrayToTexture("cellNormals"_token, cellNormals);
+    this->AppendArrayToTexture("cellNormals"_token, cellNormals, /*asScalars=*/true);
     this->HasCellNormals = true;
   }
   // 7. Compute primitive indices.
@@ -736,7 +741,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
     if ((primDesc.EdgeArray != nullptr) && (primDesc.EdgeArray->GetNumberOfValues() > 0))
     {
       // edgeValues need to be used to mask out edges of the triangles inside a polygon.
-      this->AppendArrayToTexture("edgeValueBuffer"_token, primDesc.EdgeArray);
+      this->AppendArrayToTexture("edgeValueBuffer"_token, primDesc.EdgeArray, true);
       cellGroup.UsesEdgeValueBuffer = true;
     }
     else
@@ -745,7 +750,7 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
       auto placeholder = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
       placeholder->SetNumberOfComponents(1);
       placeholder->InsertNextValue(0);
-      this->AppendArrayToTexture("edgeValueBuffer"_token, placeholder);
+      this->AppendArrayToTexture("edgeValueBuffer"_token, placeholder, true);
       cellGroup.UsesEdgeValueBuffer = false;
     }
     // apply local values on top of global offsets.
@@ -1224,6 +1229,18 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
     }
     oss << decl << "\n";
   }
+  // positions, pointNormals and cellNormals are bound as scalar (1-component) buffers
+  // (see BindArraysToTextureBuffers).
+  // As scalars, each xyz triple lives in three consecutive texels; this helper
+  // reconstructs it. The samplerBuffer parameter becomes sampler2D on GLES via the global
+  // samplerBuffer->sampler2D substitution in vtkOpenGLShaderCache.
+  oss << "vec3 fetchTuple3(samplerBuffer s, int id)\n"
+         "{\n"
+         "  int base = id * 3;\n"
+         "  return vec3(texelFetchBuffer(s, base).x,\n"
+         "              texelFetchBuffer(s, base + 1).x,\n"
+         "              texelFetchBuffer(s, base + 2).x);\n"
+         "}\n";
   // Remove hard-coded vertexMC attribute.
   vtkShaderProgram::Substitute(vsSource, "in vec4 vertexMC;", oss.str());
   // Write code to populate the integers `pointId` and `cellId`.
@@ -1311,7 +1328,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   }
 )";
   // Write code to pull coordinates.
-  oss << "  vec4 vertexMC = vec4(texelFetchBuffer(positions, pointId).xyz, 1.0);\n";
+  oss << "  vec4 vertexMC = vec4(fetchTuple3(positions, pointId), 1.0);\n";
   vtkShaderProgram::Substitute(vsSource, "//VTK::CustomBegin::Impl", oss.str());
   // Assign position vector outputs.
   vtkShaderProgram::Substitute(vsSource, "//VTK::PositionVC::Impl",
@@ -1339,7 +1356,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         "//VTK::Normal::Dec\n"
         "out vec3 normalVCVSInput;");
       vtkShaderProgram::Substitute(vsSource, "//VTK::Normal::Impl",
-        "  vec3 normalMC = texelFetchBuffer(pointNormals, pointId).xyz;\n"
+        "  vec3 normalMC = fetchTuple3(pointNormals, pointId);\n"
         "  normalVCVSInput = normalize(normalMatrix * normalMC);\n"
         "//VTK::Normal::Impl");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Dec",
@@ -1504,7 +1521,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         "//VTK::Normal::Dec\n"
         "out vec3 normalVCVSInput;");
       vtkShaderProgram::Substitute(vsSource, "//VTK::Normal::Impl",
-        "vec3 normalMC = texelFetchBuffer(cellNormals, cellId).xyz;\n"
+        "vec3 normalMC = fetchTuple3(cellNormals, cellId);\n"
         "  normalVCVSInput = normalize(normalMatrix * normalMC);\n"
         "//VTK::Normal::Impl");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Dec",
@@ -1988,8 +2005,8 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
 
     int p0PointId = texelFetchBuffer(vertexIdBuffer, p0VertexId).x + pointIdOffset;
     int p1PointId = texelFetchBuffer(vertexIdBuffer, p1VertexId).x + pointIdOffset;
-    vec4 p0MC = vec4(texelFetchBuffer(positions, p0PointId).xyz, 1.0);
-    vec4 p1MC = vec4(texelFetchBuffer(positions, p1PointId).xyz, 1.0);
+    vec4 p0MC = vec4(fetchTuple3(positions, p0PointId), 1.0);
+    vec4 p1MC = vec4(fetchTuple3(positions, p1PointId), 1.0);
     vec4 p0VC = MCVCMatrix * p0MC;
     vec4 p1VC = MCVCMatrix * p1MC;
     // transform to view and then to clip space.
@@ -2056,8 +2073,8 @@ uniform highp int edgeVisibility;)");
   {
     int p0 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 2).x + pointIdOffset;
     int p1 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 1).x + pointIdOffset;
-    vec4 p0MC = vec4(texelFetchBuffer(positions, p0).xyz, 1.0);
-    vec4 p1MC = vec4(texelFetchBuffer(positions, p1).xyz, 1.0);
+    vec4 p0MC = vec4(fetchTuple3(positions, p0), 1.0);
+    vec4 p1MC = vec4(fetchTuple3(positions, p1), 1.0);
     vec4 p0DC = MCDCMatrix * p0MC;
     vec4 p1DC = MCDCMatrix * p1MC;
     vec2 pos[4];
