@@ -124,8 +124,17 @@ public:
 
   ///@{
   /**
-   * Get the dimensions of the pie, elements 0 and 1 are the x and y coordinate
-   * of the bottom corner. Elements 2 and 3 are the width and height.
+   * Controls how the SelectionCircle is drawn. Points outside the circle
+   * are set transparent (invisible).
+   */
+  vtkSetSmartPointerMacro(SelectionCirclePen, vtkPen);
+  vtkGetSmartPointerMacro(SelectionCirclePen, vtkPen);
+  ///@}
+
+  ///@{
+  /**
+   * Controls how the vertices is drawn.
+   * These are the markers on the circle for the variables.
    */
   vtkSetSmartPointerMacro(VerticesPen, vtkPen);
   vtkGetSmartPointerMacro(VerticesPen, vtkPen);
@@ -162,6 +171,7 @@ protected:
   vtkSmartPointer<vtkPoints2D> DrawMarkers(
     vtkContext2D* painter, vtkDataArray* gbc, vtkPen* pen, vtkDataArray* color = nullptr);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
+  void DrawSelectionCircle(vtkContext2D* painter);
   void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
   vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
   vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
@@ -176,10 +186,15 @@ protected:
 
   int Dimensions[4];
   /**
-   * This object stores the vtkPen that controls how the vertices is drawn.
+   * Controls how the vertices is drawn.
    * These are the markers on the circle for the variables.
    */
   vtkSmartPointer<vtkPen> VerticesPen;
+  /**
+   * Controls how the SelectionCircle is drawn. Points outside the circle
+   * are set transparent (invisible).
+   */
+  vtkSmartPointer<vtkPen> SelectionCirclePen;
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation;
 

@@ -109,6 +109,7 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
   this->VerticesPen = vtkSmartPointer<vtkPen>::New();
   this->VerticesPen->SetWidth(8);
+  this->SelectionCirclePen = vtkSmartPointer<vtkPen>::New();
   this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelsProperties->SetJustificationToCentered();
   this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
@@ -123,6 +124,7 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->ColorWheelClockwiseOrdering = true;
   this->ColorWheelVisibility = true;
   this->ScalarVisibility = false;
+  this->VerticesRotation = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -280,6 +282,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->DrawMarkers(painter, gbc, this->Pen, rgba);
     this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen);
     this->DrawLabels(painter, vertices, this->VerticesPen);
+    this->DrawSelectionCircle(painter);
     this->PaintChildren(painter);
     return true;
   }
@@ -388,8 +391,17 @@ void vtkPlotRadViz::ShiftLabelByPenWidth(float width, double xy[2])
   xy[1] += y;
 }
 
+void vtkPlotRadViz::DrawSelectionCircle(vtkContext2D* painter)
+{
+  painter->ApplyPen(this->SelectionCirclePen);
+  painter->GetBrush()->SetColor(0, 0, 0, 0); // transparent brush (only outline)
+  painter->DrawArc(
+    this->Internals->CenterX, this->Internals->CenterY, this->Internals->Radius, 0, 360);
+}
+
 void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
 {
+  painter->GetBrush()->SetColor(0, 0, 0, 255); // opaque
   for (int i = 0; i < this->ColorWheelSegmentCount; ++i)
   {
     std::array<float, 3> hsv = { static_cast<float>(i) / this->ColorWheelSegmentCount, 1.0, 1.0 };
@@ -437,6 +449,7 @@ void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkP
   }
 }
 
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
   vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, vtkDataArray* colors)
 {
@@ -456,7 +469,6 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
 }
 
 //------------------------------------------------------------------------------
-
 void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 {
   if (arg1 != this->Dimensions[0] || arg2 != this->Dimensions[1] || arg3 != this->Dimensions[2] ||
