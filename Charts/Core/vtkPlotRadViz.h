@@ -24,7 +24,9 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPen.h"              // For SetSmartPointerMacro
 #include "vtkPlot.h"             // For the base class
-#include "vtkTextProperty.h"     // For SetSmartPointerMacro
+#include "vtkPoints2D.h"         // For GetSmartPointerMacro
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h" // For SetSmartPointerMacro
 #include "vtkUnsignedCharArray.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -127,6 +129,19 @@ public:
    */
   vtkSetSmartPointerMacro(VerticesPen, vtkPen);
   vtkGetSmartPointerMacro(VerticesPen, vtkPen);
+  /**
+   * Return the vertices of the plot. Valid after the first Paint.
+   */
+  vtkGetSmartPointerMacro(Vertices, vtkPoints2D);
+  /**
+   * Angle in degrees, to rotate the vertices
+   * coding the multivariate attributes Default is 0 degrees. This
+   * angle affects the GBC positions and the computed colors.
+   * The angle stored will be between [0, 360).
+   */
+  virtual void SetVerticesRotation(double rotation);
+  vtkGetMacro(VerticesRotation, double);
+
   ///@}
 
   ///@{
@@ -137,12 +152,14 @@ public:
   vtkGetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   ///@}
 
+  double GetAngle(double vertex[2], double mousePos[2]);
+
 protected:
   vtkPlotRadViz();
   ~vtkPlotRadViz() override = default;
   void DrawColorWheel(vtkContext2D* painter);
   // draw the points either using the 'color' if its not nullptr or using the 'pen' color.
-  void DrawMarkers(
+  vtkSmartPointer<vtkPoints2D> DrawMarkers(
     vtkContext2D* painter, vtkDataArray* gbc, vtkPen* pen, vtkDataArray* color = nullptr);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
@@ -163,6 +180,9 @@ protected:
    * These are the markers on the circle for the variables.
    */
   vtkSmartPointer<vtkPen> VerticesPen;
+  vtkSmartPointer<vtkPoints2D> Vertices;
+  double VerticesRotation;
+
   /**
    * The text properties associated with the vertices labels
    */

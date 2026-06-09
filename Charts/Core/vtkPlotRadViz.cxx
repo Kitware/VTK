@@ -20,6 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderingCoreEnums.h"
+#include "vtkSmartPointerBase.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -67,7 +68,9 @@ public:
     this->Radius = 0;
   }
   /**
-   * Used to translate and scale GBCs and Vertices
+   * Used to translate and scale GBCs and Vertices from
+   * from circle centered at (0,0) with radius 1 to the circle centered at (CenterX, CenterY)
+   * and radius Radius.
    */
   template <class TArray>
   void operator()(TArray* inputArray, vtkPoints2D* points)
@@ -80,6 +83,24 @@ public:
       output[2 * i] = this->CenterX + input[i][0] * this->Radius;
       output[2 * i + 1] = this->CenterY + input[i][1] * this->Radius;
     }
+  }
+
+  double GetAngle(double vertex[2], double mousePos[2])
+  {
+    mousePos[0] -= this->CenterX;
+    mousePos[1] -= this->CenterY;
+    vertex[0] -= this->CenterX;
+    vertex[1] -= this->CenterY;
+    double vertexRad = std::atan2(vertex[1], vertex[0]);
+    double mousePosRad = std::atan2(mousePos[1], mousePos[0]);
+    fmt::print("vtkPlotRadViz::GetAngle\n");
+    fmt::print("center: [{}, {}]\n", this->CenterX, this->CenterY);
+    fmt::print(
+      "mouse: [{}, {}], vertex: [{}, {}]\n", mousePos[0], mousePos[1], vertex[0], vertex[1]);
+    fmt::print("mouse: {}, vertex: {}\n", vtkMath::DegreesFromRadians(mousePosRad),
+      vtkMath::DegreesFromRadians(vertexRad));
+    double angle = vtkMath::DegreesFromRadians(mousePosRad - vertexRad);
+    return angle;
   }
 
   float CenterX;
@@ -108,6 +129,18 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->ColorWheelClockwiseOrdering = true;
   this->ColorWheelVisibility = true;
   this->ScalarVisibility = false;
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVerticesRotation(double rotation)
+{
+  vtkDebugMacro(<< " setting VerticesRotation to " << rotation);
+  rotation = std::fmod(rotation, 360);
+  if (this->VerticesRotation != rotation)
+  {
+    this->VerticesRotation = rotation;
+    this->Modified();
+  }
 }
 
 void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
@@ -220,6 +253,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   try
   {
     vtkDebugMacro(<< "Paint event called.");
+    fmt::print("==================== vtkPlotRadViz::Paint ====================\n");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
     vtkTable* table = vtkTable::SafeDownCast(input);
     vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
@@ -236,6 +270,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     computeGBC->SetInputDataObject(0, input);
     computeGBC->SetStoreGBC(true);
     computeGBC->SetStoreVertices(true);
+    computeGBC->SetVerticesRotation(this->VerticesRotation);
     computeGBC->SetStoreRGBA(this->ScalarVisibility);
     if (array)
     {
@@ -250,7 +285,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       this->DrawColorWheel(painter);
     }
     this->DrawMarkers(painter, gbc, this->Pen, rgba);
-    this->DrawMarkers(painter, vertices, this->VerticesPen);
+    this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen);
     this->DrawLabels(painter, vertices, this->VerticesPen);
     this->PaintChildren(painter);
     return true;
@@ -286,6 +321,11 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPlotRadViz::TransformColors(vtkDataArra
     vtkErrorMacro("Invalid type for the colors array: " << colors->GetClassName());
   }
   return transformedColors;
+}
+
+double vtkPlotRadViz::GetAngle(double vertex[2], double mousePos[2])
+{
+  return this->Internals->GetAngle(vertex, mousePos);
 }
 
 std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
@@ -404,7 +444,7 @@ void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkP
   }
 }
 
-void vtkPlotRadViz::DrawMarkers(
+vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
   vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, vtkDataArray* colors)
 {
   const int markerStyle = VTK_MARKER_CIRCLE;
@@ -419,6 +459,7 @@ void vtkPlotRadViz::DrawMarkers(
   {
     painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints);
   }
+  return transformedPoints;
 }
 
 //------------------------------------------------------------------------------
@@ -437,6 +478,9 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Internals->CenterY = this->Dimensions[1] + 0.5 * this->Dimensions[3];
     this->Internals->Radius = this->Dimensions[2] < this->Dimensions[3] ? 0.5 * this->Dimensions[2]
                                                                         : 0.5 * this->Dimensions[3];
+    fmt::print("Dimensions: {}\n", this->Dimensions);
+    fmt::print("Center: [{}, {}], Radius: {}\n", this->Internals->CenterX, this->Internals->CenterY,
+      this->Internals->Radius);
     this->Modified();
   }
 }

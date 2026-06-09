@@ -136,7 +136,7 @@ struct ComputeGBCWorker
 {
   ComputeGBCWorker(vtkMultiVariateToRGBA* filter, double verticesRotation)
     : Filter(filter)
-    , VerticesRotation(vtkMath::RadiansFromDegrees(verticesRotation))
+    , VerticesRotationRad(vtkMath::RadiansFromDegrees(verticesRotation))
   {
   }
   template <typename Input, typename Output>
@@ -169,8 +169,8 @@ struct ComputeGBCWorker
 
     vtkIdType nTuples = normalized.size();
     std::array<std::array<double, 2>, 2> m{
-      { { cos(this->VerticesRotation), -sin(this->VerticesRotation) },
-        { sin(this->VerticesRotation), cos(this->VerticesRotation) } }
+      { { cos(this->VerticesRotationRad), -sin(this->VerticesRotationRad) },
+        { sin(this->VerticesRotationRad), cos(this->VerticesRotationRad) } }
     };
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
@@ -225,19 +225,24 @@ struct ComputeGBCWorker
       gbc[i][0] = lth * std::cos(tempangle);
       gbc[i][1] = lth * std::sin(tempangle);
 
+      if (this->Filter->GetFlipY())
+      {
+        gbc[i][1] = -gbc[i][1];
+      }
+
       // rotate the gbc points with VerticesRotation
       double result_gbc[2];
       result_gbc[0] = m[0][0] * gbc[i][0] + m[0][1] * gbc[i][1];
       result_gbc[1] = m[1][0] * gbc[i][0] + m[1][1] * gbc[i][1];
       gbc[i][0] = result_gbc[0];
       gbc[i][1] = result_gbc[1];
-      if (this->Filter->GetFlipY())
-      {
-        gbc[i][1] = -gbc[i][1];
-      }
     }
     for (int i = 0; i < nComponents; ++i)
     {
+      if (this->Filter->GetFlipY())
+      {
+        vertices[i][1] = -vertices[i][1];
+      }
       // rotate the vertices
       double result_vertices[2];
       // vtkMath::MultiplyMatrixWithVector<2, 2>(m, vertices[i], result_vertices);
@@ -245,19 +250,10 @@ struct ComputeGBCWorker
       result_vertices[1] = m[1][0] * vertices[i][0] + m[1][1] * vertices[i][1];
       vertices[i][0] = result_vertices[0];
       vertices[i][1] = result_vertices[1];
-      if (this->Filter->GetFlipY())
-      {
-        vertices[i][1] = -vertices[i][1];
-      }
     }
   }
-  template <typename Type>
-  void rotate(Type* array)
-  {
-  }
-
   vtkMultiVariateToRGBA* Filter = nullptr;
-  double VerticesRotation = 0;
+  double VerticesRotationRad = 0;
   vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
@@ -431,7 +427,7 @@ struct CreateSOAWorker
 };
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
   this->VerticesRotation = 0;
@@ -440,13 +436,24 @@ vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
-//==============================================================================
-vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() {}
+//------------------------------------------------------------------------------
+vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() = default;
 
-//==============================================================================
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
+{
+  vtkDebugMacro(<< " setting VerticesRotation to " << rotation);
+  rotation = std::fmod(rotation, 360);
+  if (this->VerticesRotation != rotation)
+  {
+    this->VerticesRotation = rotation;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& modalityGroups)
 {
-
   vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ModalityGroups));
   if (this->ModalityGroups != modalityGroups)
   {
@@ -455,7 +462,7 @@ void vtkMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& mod
   }
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetModalityGroups() VTK_FUTURE_CONST
 {
   vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ModalityGroups));
@@ -487,7 +494,7 @@ int vtkMultiVariateToRGBA::RequestDataObject(
   return 1;
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -588,6 +595,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//------------------------------------------------------------------------------
 std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>>
 vtkMultiVariateToRGBA::getAttributesAndScalars(
   vtkDataObject* input, vtkInformationVector** inputVector)
@@ -671,7 +679,7 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
   return { nullptr, nullptr };
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -40,11 +40,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Angle in degrees to rotate the vertices coding the multivariate attributes
-   * Default is 0 degrees. This angle affects the GBC positions and the computed
-   * colors.
+   * Angle in degrees, to rotate the vertices
+   * coding the multivariate attributes Default is 0 degrees. This
+   * angle affects the GBC positions and the computed colors.
+   * The angle stored will be between [0, 360).
    */
-  vtkSetMacro(VerticesRotation, double);
+  virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
 
   ///@{

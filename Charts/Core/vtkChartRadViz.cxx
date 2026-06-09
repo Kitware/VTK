@@ -3,6 +3,7 @@
 
 #include "vtkChartRadViz.h"
 
+#include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -11,15 +12,22 @@
 #include "vtkPoints2D.h"
 #include "vtkTextProperty.h"
 
+#include <vtk_fmt.h>
+// clang-format off
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ranges.h)
+// clang-format on
+
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkChartRadVizPrivate
+class vtkChartRadViz::vtkInternals
 {
 public:
-  vtkChartRadVizPrivate() = default;
+  vtkInternals() = default;
 
   vtkSmartPointer<vtkPlotRadViz> Plot;
+  int DragVertex = -1;
 };
 
 //------------------------------------------------------------------------------
@@ -28,21 +36,21 @@ vtkStandardNewMacro(vtkChartRadViz);
 //------------------------------------------------------------------------------
 vtkChartRadViz::vtkChartRadViz()
 {
-  this->Private = new vtkChartRadVizPrivate();
+  this->Internals = new vtkChartRadViz::vtkInternals();
 }
 
 //------------------------------------------------------------------------------
 vtkChartRadViz::~vtkChartRadViz()
 {
-  delete this->Private;
+  delete this->Internals;
 }
 
 //------------------------------------------------------------------------------
 void vtkChartRadViz::Update()
 {
-  if (this->Private->Plot && this->Private->Plot->GetVisible())
+  if (this->Internals->Plot && this->Internals->Plot->GetVisible())
   {
-    this->Private->Plot->Update();
+    this->Internals->Plot->Update();
   }
 }
 
@@ -87,9 +95,9 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
   }
 
   // Set the dimensions of the Plot
-  if (this->Private->Plot)
+  if (this->Internals->Plot)
   {
-    this->Private->Plot->SetDimensions(this->Size.GetX() + BORDER_SIZE,
+    this->Internals->Plot->SetDimensions(this->Size.GetX() + BORDER_SIZE,
       this->Size.GetY() + BORDER_SIZE, this->Geometry[0] - 2 * BORDER_SIZE,
       this->Geometry[1] - 2 * BORDER_SIZE - titleSize);
   }
@@ -108,23 +116,23 @@ void vtkChartRadViz::SetScene(vtkContextScene* scene)
 //------------------------------------------------------------------------------
 vtkPlot* vtkChartRadViz::AddPlot(int /* type */)
 {
-  if (!this->Private->Plot)
+  if (!this->Internals->Plot)
   {
-    this->Private->Plot = vtkSmartPointer<vtkPlotRadViz>::New();
-    this->AddItem(this->Private->Plot);
+    this->Internals->Plot = vtkSmartPointer<vtkPlotRadViz>::New();
+    this->AddItem(this->Internals->Plot);
   }
-  return this->Private->Plot;
+  return this->Internals->Plot;
 }
 
 //------------------------------------------------------------------------------
 void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
 {
-  if (this->Private->Plot)
+  if (this->Internals->Plot)
   {
-    this->RemoveItem(this->Private->Plot);
+    this->RemoveItem(this->Internals->Plot);
   }
-  this->Private->Plot = plot;
-  this->AddItem(this->Private->Plot);
+  this->Internals->Plot = plot;
+  this->AddItem(this->Internals->Plot);
   // Ensure legend remains on top
   this->Modified();
 }
@@ -134,7 +142,7 @@ vtkPlot* vtkChartRadViz::GetPlot(vtkIdType index)
 {
   if (index == 0)
   {
-    return this->Private->Plot;
+    return this->Internals->Plot;
   }
 
   return nullptr;
@@ -143,7 +151,7 @@ vtkPlot* vtkChartRadViz::GetPlot(vtkIdType index)
 //------------------------------------------------------------------------------
 vtkIdType vtkChartRadViz::GetNumberOfPlots()
 {
-  if (this->Private->Plot)
+  if (this->Internals->Plot)
   {
     return 1;
   }
@@ -157,8 +165,8 @@ vtkIdType vtkChartRadViz::GetNumberOfPlots()
 bool vtkChartRadViz::Hit(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f pos(mouse.GetScenePos());
-  return pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
-    pos[1] < this->Point2[1];
+  return pos[0] > this->Point1[0] - 10 && pos[0] < this->Point2[0] + 10 &&
+    pos[1] > this->Point1[1] && pos[1] < this->Point2[1];
 }
 
 //------------------------------------------------------------------------------
@@ -170,11 +178,22 @@ bool vtkChartRadViz::MouseEnterEvent(const vtkContextMouseEvent&)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
-  if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
+  fmt::print("vtkChartRadViz::MouseMoveEvent {}, {}\n", this->Internals->DragVertex,
+    this->Scene->GetDirty());
+  if (this->Internals->DragVertex >= 0 && !this->Scene->GetDirty())
   {
+    auto vertices = this->Internals->Plot->GetVertices();
+    double vertex[2];
+    vertices->GetPoint(this->Internals->DragVertex, vertex);
+    vtkVector2f mp{ mouse.GetScenePos() };
+    double mousePos[2] = { mp[0], mp[1] };
+    double angle = this->Internals->Plot->GetAngle(vertex, mousePos);
+    fmt::print("vtkChartRadViz::MouseMoveEvent, angle: {} {}\n", angle,
+      this->Internals->Plot->GetVerticesRotation());
+    this->Internals->Plot->SetVerticesRotation(
+      angle + this->Internals->Plot->GetVerticesRotation());
     this->Scene->SetDirty(true);
   }
-
   return true;
 }
 
@@ -185,64 +204,55 @@ bool vtkChartRadViz::MouseLeaveEvent(const vtkContextMouseEvent&)
 }
 
 //------------------------------------------------------------------------------
-bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& /*mouse*/)
+bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& /*mouse*/)
-{
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkChartRadViz::MouseWheelEvent(const vtkContextMouseEvent&, int /*delta*/)
-{
-  return true;
-}
-
-bool vtkChartRadViz::LocatePointInPlots(const vtkContextMouseEvent& mouse)
-{
-  if (!this->Private->Plot || !this->Private->Plot->GetVisible())
+  if (this->Internals->Plot)
   {
-    return false;
+    const int SIZE = 5;
+    auto vertices = this->Internals->Plot->GetVertices();
+    for (int i = 0; i < vertices->GetNumberOfPoints(); ++i)
+    {
+      double xy[2];
+      vertices->GetPoint(i, xy);
+      vtkVector2f pos{ mouse.GetScenePos() };
+      if (pos[0] <= xy[0] + SIZE && pos[0] >= xy[0] - SIZE && pos[1] <= xy[1] + SIZE &&
+        pos[1] >= xy[1] - SIZE)
+      {
+        // mouse position is inside the square around the vertex
+        this->Internals->DragVertex = i;
+        break;
+      }
+    }
+    return true;
   }
   else
   {
-    int dimensions[4];
-    vtkVector2f position(mouse.GetScenePos());
-    vtkVector2f tolerance(5, 5);
-    vtkVector2f plotPos(0, 0);
-    this->Private->Plot->GetDimensions(dimensions);
-
-    vtkVector2f pos(mouse.GetScenePos());
-    if (pos[0] >= dimensions[0] && pos[0] <= dimensions[0] + dimensions[2] &&
-      pos[1] >= dimensions[1] && pos[1] <= dimensions[1] + dimensions[3])
-    {
-      vtkIdType segmentId;
-      int labelIndex =
-        this->Private->Plot->GetNearestPoint(position, tolerance, &plotPos, &segmentId);
-      if (labelIndex >= 0)
-      {
-        auto label = this->Private->Plot->GetLabel(labelIndex);
-        std::ostringstream ostr;
-        ostr << label << ": " << plotPos.GetY();
-        return true;
-      }
-    }
+    return false;
   }
-  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
+{
+  this->Internals->DragVertex = -1;
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartRadViz::MouseWheelEvent(const vtkContextMouseEvent&, int)
+{
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkChartRadViz::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  if (this->Private->Plot)
+  if (this->Internals->Plot)
   {
     os << indent << "Plot: " << endl;
-    this->Private->Plot->PrintSelf(os, indent.GetNextIndent());
+    this->Internals->Plot->PrintSelf(os, indent.GetNextIndent());
   }
 }
+
 VTK_ABI_NAMESPACE_END

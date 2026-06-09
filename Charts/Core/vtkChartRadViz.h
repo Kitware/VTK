@@ -19,7 +19,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
 class vtkTooltipItem;
-class vtkChartRadVizPrivate;
 class vtkPlotRadViz;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartRadViz : public vtkChart
@@ -47,7 +46,8 @@ public:
 
   using vtkChart::AddPlot;
   /**
-   * Add a plot to the chart.
+   * Add a plot to the chart. If a plot already exists it does nothing.
+   * It returns the added or existing plot.
    */
   vtkPlot* AddPlot(int type) override;
 
@@ -72,6 +72,7 @@ public:
    */
   void SetScene(vtkContextScene* scene) override;
 
+  ///@{
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
@@ -79,26 +80,31 @@ public:
 
   /**
    * Mouse enter event.
+   * Return true if the item holds the event, false if the event can be propagated to other items.
    */
   bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
+   * Return true if the item holds the event, false if the event can be propagated to other items.
    */
   bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse leave event.
+   * Return true if the item holds the event, false if the event can be propagated to other items.
    */
   bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
-   * Mouse button down event
+   * Mouse button down event.
+   * Return true if the item holds the event, false if the event can be propagated to other items.
    */
   bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
+   * Return true if the item holds the event, false if the event can be propagated to other items.
    */
   bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
@@ -106,34 +112,21 @@ public:
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
   bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
+  ///@}
 
 protected:
   vtkChartRadViz();
   ~vtkChartRadViz() override;
-
-  /**
-   * Recalculate the necessary transforms.
-   */
-  void RecalculatePlotTransforms();
-
-  /**
-   * Does the plot area transform need to be recalculated?
-   */
-  bool PlotTransformValid;
 
 private:
   vtkChartRadViz(const vtkChartRadViz&) = delete;
   void operator=(const vtkChartRadViz&) = delete;
 
   /**
-   * Try to locate a point within the plots to display in a tooltip
-   */
-  bool LocatePointInPlots(const vtkContextMouseEvent& mouse);
-
-  /**
    * Private implementation details
    */
-  vtkChartRadVizPrivate* Private;
+  class vtkInternals;
+  vtkInternals* Internals;
 };
 
 VTK_ABI_NAMESPACE_END
