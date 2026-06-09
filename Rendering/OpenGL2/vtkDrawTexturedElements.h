@@ -202,6 +202,12 @@ protected:
   std::unordered_map<vtkStringToken, vtkOpenGLArrayTextureBufferAdapter> Arrays;
   ShaderMap Shaders;
   vtkSmartPointer<vtkShaderProgram> ShaderProgram;
+  /// True once `ShaderProgram` has been resolved from the current `Shaders`
+  /// sources. While set, `ReadyShaderProgram` rebinds the cached program
+  /// directly instead of re-running the (expensive) source substitution + MD5
+  /// lookup every draw. Cleared by `GetShader` (the only path through which a
+  /// caller can mutate a shader source), forcing a rebuild on the next draw.
+  bool ShaderProgramBuilt{ false };
   vtkNew<vtkOpenGLVertexArrayObject> VAO;
   vtkNew<vtkOpenGLTexture> ColorTextureGL;
   vtkNew<vtkCollection> GLSLMods;
