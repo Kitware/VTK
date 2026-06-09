@@ -26,6 +26,7 @@ set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt
 set(VTK_MODULE_ENABLE_VTK_IOIFC NO CACHE STRING "") # IFC based on IfcOpenShell
 set(VTK_MODULE_ENABLE_VTK_IOUSD NO CACHE STRING "") # usd
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
+set(VTK_MODULE_ENABLE_VTK_conduit NO CACHE STRING "") # conduit
 
 # PCH causes issues on macOS CI due to issues from sccache.
 # sccache issue: https://github.com/mozilla/sccache/issues/2558

@@ -29,6 +29,7 @@ set(VTK_MODULE_ENABLE_VTK_IOIFC NO CACHE STRING "") # IFC based on IfcOpenShell
 set(VTK_MODULE_ENABLE_VTK_IOUSD NO CACHE STRING "") # usd
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 set(VTK_OPENGL_HAS_EGL ON CACHE BOOL "") # egl
+set(VTK_MODULE_ENABLE_VTK_conduit NO CACHE STRING "") # conduit
 
 # PCH causes issues on Windows CI.
 # vtk issue: https://gitlab.kitware.com/vtk/vtk/-/issues/19924

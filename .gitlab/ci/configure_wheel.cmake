@@ -72,6 +72,7 @@ set(VTK_MODULE_ENABLE_VTK_InfovisBoost NO CACHE STRING "") # Boost
 set(VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms NO CACHE STRING "") # Boost
 set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # fontconfig
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # OpenVR
+set(VTK_MODULE_ENABLE_VTK_conduit NO CACHE STRING "") # conduit
 
 # PCH causes issues on macOS CI due to issues from sccache.
 # sccache issue: https://github.com/mozilla/sccache/issues/2558

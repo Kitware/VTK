@@ -49,5 +49,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # no zspace
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # no adios2
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # no boost
 set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "") # no execinfo.h in viskores's loguru
+set(VTK_MODULE_ENABLE_VTK_conduit NO CACHE STRING "") # conduit
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")
