@@ -157,9 +157,7 @@ xmlModuleFree(xmlModulePtr module)
 }
 
 #if defined(HAVE_DLOPEN) && !defined(_WIN32)
-#ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
-#endif
 
 #ifndef RTLD_GLOBAL            /* For Tru64 UNIX 4.0 */
 #define RTLD_GLOBAL 0
@@ -210,9 +208,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 #else /* ! HAVE_DLOPEN */
 
 #ifdef HAVE_SHLLOAD             /* HAVE_SHLLOAD */
-#ifdef HAVE_DL_H
 #include <dl.h>
-#endif
 /*
  * xmlModulePlatformOpen:
  * returns a handle on success, and zero on error.
@@ -293,10 +289,10 @@ xmlModulePlatformClose(void *handle)
 static int
 xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 {
-XML_IGNORE_FPTR_CAST_WARNINGS
-    *symbol = GetProcAddress(handle, name);
+    FARPROC proc = GetProcAddress(handle, name);
+
+    memcpy(symbol, &proc, sizeof(proc));
     return (NULL == *symbol) ? -1 : 0;
-XML_POP_WARNINGS
 }
 
 #endif /* _WIN32 */

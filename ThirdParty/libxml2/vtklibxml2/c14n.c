@@ -25,6 +25,7 @@
 
 #include "private/error.h"
 #include "private/io.h"
+#include "private/memory.h"
 
 /************************************************************************
  *									*
@@ -306,30 +307,26 @@ xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlNodePtr n
        ((cur->nsTab != NULL) && (cur->nodeTab == NULL)))
 	return (1);
 
-    if ((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
-        cur->nsTab = (xmlNsPtr*) xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
-        cur->nodeTab = (xmlNodePtr*) xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
-	if ((cur->nsTab == NULL) || (cur->nodeTab == NULL))
-	    return (-1);
-	memset(cur->nsTab, 0 , XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
-	memset(cur->nodeTab, 0 , XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
-        cur->nsMax = XML_NAMESPACES_DEFAULT;
-    } else if(cur->nsMax == cur->nsCurEnd) {
-	void *tmp;
-	int tmpSize;
+    if (cur->nsMax <= cur->nsCurEnd) {
+	xmlNsPtr *tmp1;
+        xmlNodePtr *tmp2;
+	int newSize;
 
-	tmpSize = 2 * cur->nsMax;
-	tmp = xmlRealloc(cur->nsTab, tmpSize * sizeof(xmlNsPtr));
-	if (tmp == NULL)
-	    return (-1);
-	cur->nsTab = (xmlNsPtr*)tmp;
+        newSize = xmlGrowCapacity(cur->nsMax,
+                                  sizeof(tmp1[0]) + sizeof(tmp2[0]),
+                                  XML_NAMESPACES_DEFAULT, XML_MAX_ITEMS);
 
-	tmp = xmlRealloc(cur->nodeTab, tmpSize * sizeof(xmlNodePtr));
-	if (tmp == NULL)
+	tmp1 = xmlRealloc(cur->nsTab, newSize * sizeof(tmp1[0]));
+	if (tmp1 == NULL)
 	    return (-1);
-	cur->nodeTab = (xmlNodePtr*)tmp;
+	cur->nsTab = tmp1;
 
-	cur->nsMax = tmpSize;
+	tmp2 = xmlRealloc(cur->nodeTab, newSize * sizeof(tmp2[0]));
+	if (tmp2 == NULL)
+	    return (-1);
+	cur->nodeTab = tmp2;
+
+	cur->nsMax = newSize;
     }
     cur->nsTab[cur->nsCurEnd] = ns;
     cur->nodeTab[cur->nsCurEnd] = node;
@@ -644,7 +641,7 @@ xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
      *     have non-empty values in XPath)
      */
     if(visible && !has_empty_ns) {
-        static xmlNs ns_default;
+        xmlNs ns_default;
 
         memset(&ns_default, 0, sizeof(ns_default));
         if(!xmlC14NVisibleNsStackFind(ctx->ns_rendered, &ns_default)) {
@@ -821,7 +818,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
      */
     if(visible && has_visibly_utilized_empty_ns &&
 	    !has_empty_ns && !has_empty_ns_in_inclusive_list) {
-        static xmlNs ns_default;
+        xmlNs ns_default;
 
         memset(&ns_default, 0, sizeof(ns_default));
 
@@ -830,7 +827,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	    xmlC14NPrintNamespaces(&ns_default, ctx);
 	}
     } else if(visible && !has_empty_ns && has_empty_ns_in_inclusive_list) {
-        static xmlNs ns_default;
+        xmlNs ns_default;
 
         memset(&ns_default, 0, sizeof(ns_default));
         if(!xmlC14NVisibleNsStackFind(ctx->ns_rendered, &ns_default)) {
@@ -2133,7 +2130,7 @@ xmlC11NNormalizeString(const xmlChar * input,
      * allocate an translation buffer.
      */
     buffer_size = 1000;
-    buffer = (xmlChar *) xmlMallocAtomic(buffer_size);
+    buffer = xmlMalloc(buffer_size);
     if (buffer == NULL)
         return (NULL);
     out = buffer;
@@ -2142,14 +2139,20 @@ xmlC11NNormalizeString(const xmlChar * input,
         if ((out - buffer) > (buffer_size - 10)) {
             xmlChar *tmp;
             int indx = out - buffer;
+            int newSize;
 
-            buffer_size *= 2;
-            tmp = xmlRealloc(buffer, buffer_size);
+            newSize = xmlGrowCapacity(buffer_size, 1, 1, XML_MAX_ITEMS);
+            if (newSize < 0) {
+                xmlFree(buffer);
+                return(NULL);
+            }
+            tmp = xmlRealloc(buffer, newSize);
             if (tmp == NULL) {
                 xmlFree(buffer);
                 return(NULL);
             }
             buffer = tmp;
+            buffer_size = newSize;
             out = &buffer[indx];
         }
 

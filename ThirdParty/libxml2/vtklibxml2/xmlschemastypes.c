@@ -36,10 +36,8 @@
 
 #include "private/error.h"
 
-#ifndef LIBXML_XPATH_ENABLED
-extern double xmlXPathNAN;
-extern double xmlXPathPINF;
-extern double xmlXPathNINF;
+#ifndef isnan
+  #define isnan(x) (!((x) == (x)))
 #endif
 
 #define XML_SCHEMAS_NAMESPACE_NAME \
@@ -124,6 +122,11 @@ struct _xmlSchemaVal {
 };
 
 static int xmlSchemaTypesInitialized = 0;
+
+static double xmlSchemaNAN = 0.0;
+static double xmlSchemaPINF = 0.0;
+static double xmlSchemaNINF = 0.0;
+
 static xmlHashTablePtr xmlSchemaTypesBank = NULL;
 
 /*
@@ -324,8 +327,11 @@ xmlSchemaInitBasicType(const char *name, xmlSchemaValType type,
 	    ret->flags |= XML_SCHEMAS_TYPE_VARIETY_ATOMIC;
 	    break;
     }
-    xmlHashAddEntry2(xmlSchemaTypesBank, ret->name,
-	             XML_SCHEMAS_NAMESPACE_NAME, ret);
+    if (xmlHashAddEntry2(xmlSchemaTypesBank, ret->name,
+	                 XML_SCHEMAS_NAMESPACE_NAME, ret) < 0) {
+        xmlSchemaFreeType(ret);
+        return(NULL);
+    }
     ret->builtInType = type;
     return(ret);
 }
@@ -493,13 +499,20 @@ xmlSchemaCleanupTypesInternal(void) {
         xmlSchemaFreeWildcard(xmlSchemaTypeAnyTypeDef->attributeWildcard);
         /* Content type. */
         particle = (xmlSchemaParticlePtr) xmlSchemaTypeAnyTypeDef->subtypes;
-        /* Wildcard. */
-        xmlSchemaFreeWildcard((xmlSchemaWildcardPtr)
-            particle->children->children->children);
-        xmlFree((xmlSchemaParticlePtr) particle->children->children);
-        /* Sequence model group. */
-        xmlFree((xmlSchemaModelGroupPtr) particle->children);
-        xmlFree((xmlSchemaParticlePtr) particle);
+        if (particle != NULL) {
+            if (particle->children != NULL) {
+                if (particle->children->children != NULL) {
+                    /* Wildcard. */
+                    xmlSchemaFreeWildcard((xmlSchemaWildcardPtr)
+                        particle->children->children->children);
+                    xmlFree((xmlSchemaParticlePtr)
+                        particle->children->children);
+                }
+                /* Sequence model group. */
+                xmlFree((xmlSchemaModelGroupPtr) particle->children);
+            }
+            xmlFree((xmlSchemaParticlePtr) particle);
+        }
         xmlSchemaTypeAnyTypeDef->subtypes = NULL;
         xmlSchemaTypeAnyTypeDef = NULL;
     }
@@ -521,6 +534,21 @@ xmlSchemaInitTypes(void)
 {
     if (xmlSchemaTypesInitialized != 0)
         return (0);
+
+#if defined(NAN) && defined(INFINITY)
+    xmlSchemaNAN = NAN;
+    xmlSchemaPINF = INFINITY;
+    xmlSchemaNINF = -INFINITY;
+#else
+    {
+        /* MSVC doesn't allow division by zero in constant expressions. */
+        double zero = 0.0;
+        xmlSchemaNAN = 0.0 / zero;
+        xmlSchemaPINF = 1.0 / zero;
+        xmlSchemaNINF = -xmlSchemaPINF;
+    }
+#endif
+
     xmlSchemaTypesBank = xmlHashCreate(40);
     if (xmlSchemaTypesBank == NULL) {
 	xmlSchemaTypeErrMemory();
@@ -1377,7 +1405,7 @@ static const unsigned int daysInMonthLeap[12] =
 	((dt)->hour == 24 && (dt)->min == 0 && (dt)->sec == 0)
 
 #define VALID_TIME(dt)						\
-	(((VALID_HOUR((int)dt->hour) && VALID_MIN((int)dt->min) &&	\
+	((((dt->hour < 24) && (dt->min < 60) &&           \
 	  VALID_SEC(dt->sec)) || VALID_END_OF_DAY(dt)) &&	\
 	 VALID_TZO(dt->tzo))
 
@@ -2207,6 +2235,8 @@ xmlSchemaWhiteSpaceReplace(const xmlChar *value) {
     if (*cur == 0)
 	return (NULL);
     ret = xmlStrdup(value);
+    if (ret == NULL)
+        return(NULL);
     /* TODO FIXME: I guess gcc will bark at this. */
     mcur = (xmlChar *)  (ret + (cur - value));
     do {
@@ -2376,6 +2406,8 @@ static int xmlSchemaParseUInt(const xmlChar **str, xmlSchemaValDecimalPtr val) {
         }
         /*  sign, dot, fractional 0 and NULL terminator */
         val->str = xmlMalloc(i + 4);
+        if (val->str == NULL)
+            return(-1);
     }
     val->fractionalPlaces = 1;
     val->integralPlaces = i;
@@ -2662,6 +2694,7 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                         decimal.str = xmlMalloc(bufsize);
                         if (!decimal.str)
                         {
+                            xmlSchemaFreeValue(v);
                             goto error;
                         }
                         snprintf((char *)decimal.str, bufsize, "%c%.*s.%.*s", sign, decimal.integralPlaces, integralStart,
@@ -2709,7 +2742,7 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                         if (type == xmlSchemaTypeFloatDef) {
                             v = xmlSchemaNewValue(XML_SCHEMAS_FLOAT);
                             if (v != NULL) {
-                                v->value.f = (float) xmlXPathNAN;
+                                v->value.f = (float) xmlSchemaNAN;
                             } else {
                                 xmlSchemaFreeValue(v);
                                 goto error;
@@ -2717,7 +2750,7 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                         } else {
                             v = xmlSchemaNewValue(XML_SCHEMAS_DOUBLE);
                             if (v != NULL) {
-                                v->value.d = xmlXPathNAN;
+                                v->value.d = xmlSchemaNAN;
                             } else {
                                 xmlSchemaFreeValue(v);
                                 goto error;
@@ -2740,9 +2773,9 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                             v = xmlSchemaNewValue(XML_SCHEMAS_FLOAT);
                             if (v != NULL) {
                                 if (neg)
-                                    v->value.f = (float) xmlXPathNINF;
+                                    v->value.f = (float) xmlSchemaNINF;
                                 else
-                                    v->value.f = (float) xmlXPathPINF;
+                                    v->value.f = (float) xmlSchemaPINF;
                             } else {
                                 xmlSchemaFreeValue(v);
                                 goto error;
@@ -2751,9 +2784,9 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                             v = xmlSchemaNewValue(XML_SCHEMAS_DOUBLE);
                             if (v != NULL) {
                                 if (neg)
-                                    v->value.d = xmlXPathNINF;
+                                    v->value.d = xmlSchemaNINF;
                                 else
-                                    v->value.d = xmlXPathPINF;
+                                    v->value.d = xmlSchemaPINF;
                             } else {
                                 xmlSchemaFreeValue(v);
                                 goto error;
@@ -3180,8 +3213,13 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                 if ((node == NULL) || (node->doc == NULL))
                     ret = 3;
                 if (ret == 0) {
-                    ret = xmlValidateNotationUse(NULL, node->doc, value);
-                    if (ret == 1)
+                    xmlNotationPtr nota;
+
+                    nota = xmlGetDtdNotationDesc(node->doc->intSubset, value);
+                    if ((nota == NULL) && (node->doc->extSubset != NULL))
+                        nota = xmlGetDtdNotationDesc(node->doc->extSubset,
+                                                     value);
+                    if (nota != NULL)
                         ret = 0;
                     else
                         ret = 1;
@@ -3405,7 +3443,7 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                     if (v == NULL)
                         goto error;
                     base =
-                        (xmlChar *) xmlMallocAtomic(i + pad + 1);
+                        xmlMalloc(i + pad + 1);
                     if (base == NULL) {
 		        xmlSchemaTypeErrMemory();
                         xmlFree(v);
@@ -3557,10 +3595,12 @@ xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
                 }
                 if (val != NULL) {
                     v = xmlSchemaNewValue(type->builtInType);
-                    if (v != NULL) {
-                        v->value.decimal = decimal;
-                        *val = v;
+                    if (v == NULL) {
+                        xmlFree(decimal.str);
+                        goto error;
                     }
+                    v->value.decimal = decimal;
+                    *val = v;
                 }
                 else if(decimal.str != NULL)
                 {
@@ -4082,10 +4122,11 @@ xmlSchemaDateNormalize (xmlSchemaValPtr dt, double offset)
     dur->value.date.sec -= offset;
 
     ret = _xmlSchemaDateAdd(dt, dur);
-    if (ret == NULL)
-        return NULL;
 
     xmlSchemaFreeValue(dur);
+
+    if (ret == NULL)
+        return NULL;
 
     /* ret->value.date.tzo = 0; */
     return ret;
@@ -4818,27 +4859,13 @@ xmlSchemaCompareFloats(xmlSchemaValPtr x, xmlSchemaValPtr y) {
     /*
      * Check for special cases.
      */
-    if (xmlXPathIsNaN(d1)) {
-	if (xmlXPathIsNaN(d2))
+    if (isnan(d1)) {
+	if (isnan(d2))
 	    return(0);
 	return(1);
     }
-    if (xmlXPathIsNaN(d2))
+    if (isnan(d2))
 	return(-1);
-    if (d1 == xmlXPathPINF) {
-	if (d2 == xmlXPathPINF)
-	    return(0);
-        return(1);
-    }
-    if (d2 == xmlXPathPINF)
-        return(-1);
-    if (d1 == xmlXPathNINF) {
-	if (d2 == xmlXPathNINF)
-	    return(0);
-        return(-1);
-    }
-    if (d2 == xmlXPathNINF)
-        return(1);
 
     /*
      * basic tests, the last one we should have equality, but
@@ -5776,86 +5803,6 @@ xmlSchemaValidateFacetWhtsp(xmlSchemaFacetPtr facet,
      return(xmlSchemaValidateFacetInternal(facet, fws, valType,
 	 value, val, ws));
 }
-
-#if 0
-#ifndef DBL_DIG
-#define DBL_DIG 16
-#endif
-#ifndef DBL_EPSILON
-#define DBL_EPSILON 1E-9
-#endif
-
-#define INTEGER_DIGITS DBL_DIG
-#define FRACTION_DIGITS (DBL_DIG + 1)
-#define EXPONENT_DIGITS (3 + 2)
-
-/**
- * xmlXPathFormatNumber:
- * @number:     number to format
- * @buffer:     output buffer
- * @buffersize: size of output buffer
- *
- * Convert the number into a string representation.
- */
-static void
-xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
-{
-    switch (xmlXPathIsInf(number)) {
-    case 1:
-	if (buffersize > (int)sizeof("INF"))
-	    snprintf(buffer, buffersize, "INF");
-	break;
-    case -1:
-	if (buffersize > (int)sizeof("-INF"))
-	    snprintf(buffer, buffersize, "-INF");
-	break;
-    default:
-	if (xmlXPathIsNaN(number)) {
-	    if (buffersize > (int)sizeof("NaN"))
-		snprintf(buffer, buffersize, "NaN");
-	} else if (number == 0) {
-	    snprintf(buffer, buffersize, "0.0E0");
-	} else {
-	    /* 3 is sign, decimal point, and terminating zero */
-	    char work[DBL_DIG + EXPONENT_DIGITS + 3];
-	    int integer_place, fraction_place;
-	    char *ptr;
-	    char *after_fraction;
-	    double absolute_value;
-	    int size;
-
-	    absolute_value = fabs(number);
-
-	    /*
-	     * Result is in work, and after_fraction points
-	     * just past the fractional part.
-	     * Use scientific notation
-	    */
-	    integer_place = DBL_DIG + EXPONENT_DIGITS + 1;
-	    fraction_place = DBL_DIG - 1;
-	    snprintf(work, sizeof(work),"%*.*e",
-		integer_place, fraction_place, number);
-	    after_fraction = strchr(work + DBL_DIG, 'e');
-	    /* Remove fractional trailing zeroes */
-	    ptr = after_fraction;
-	    while (*(--ptr) == '0')
-		;
-	    if (*ptr != '.')
-	        ptr++;
-	    while ((*ptr++ = *after_fraction++) != 0);
-
-	    /* Finally copy result back to caller */
-	    size = strlen(work) + 1;
-	    if (size > buffersize) {
-		work[buffersize - 1] = 0;
-		size = buffersize;
-	    }
-	    memmove(buffer, work, size);
-	}
-	break;
-    }
-}
-#endif
 
 /**
  * xmlSchemaGetCanonValue:
