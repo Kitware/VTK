@@ -188,6 +188,143 @@ ctest -R RenderingCoreCxx-WebGPU -V
 
 ---
 
+---
+
+## WebGPU Runtime Loading
+
+VTK's WebGPU module resolves a WebGPU implementation library at runtime through a
+proc table. The eventual goal is to decouple the compile-time and runtime
+dependencies so that the same VTK build works with different native WebGPU
+runtimes (Dawn, wgpu-native) or browser WebGPU via Emscripten.
+
+```{note}
+This decoupling is not complete. When Dawn is found at configure time the module
+still links `dawn::webgpu_dawn` (see `VTK::WebGPUImpl` in `CMakeLists.txt`), and
+`vtkWebGPUConfiguration::Initialize()` fails if the proc table cannot load an
+implementation. Today the proc table is therefore an *additional* runtime
+requirement layered on the link-time dependency, not a replacement for it.
+```
+
+The implementation uses *lazy initialization* that is thread-safe and loads on
+first access. It uses `RTLD_GLOBAL` so existing `wgpu::` C++ calls work without
+modification. Missing libraries are reported at initialization (not link time),
+with clear diagnostic messages. If functions are unavailable, wrappers return
+safe values for graceful fallback.
+
+### Architecture
+
+The implementation consists of three layers:
+
+1. **vtkWebGPUProcTable** (C interface): Low-level dlopen/dlsym wrapper that
+   loads the WebGPU implementation library and resolves function pointers using
+   the runtime's proc address function.
+
+2. **vtkWebGPUProcLoader** (C++ RAII singleton, internal): Wraps the proc table
+   with lazy initialization. Provides `IsLoaded()` and `Load()` methods and
+   handles cleanup on shutdown. Accessed indirectly via
+   `vtkWebGPUConfiguration::Initialize()`.
+
+3. **vtkWebGPUProcAPI** (C convenience wrappers): Thin wrappers for
+   frequently-used WebGPU functions. Existing `wgpu::` C++ code continues to
+   work unchanged because the library is loaded with global symbol visibility
+   (`RTLD_GLOBAL`).
+
+Initialization flow: `vtkWebGPUConfiguration::Initialize()` invokes
+`vtkWebGPUProcLoader::GetInstance()`, which loads the WebGPU implementation
+library (e.g., `libwgpu_dawn.so`), resolves function pointers via the proc
+table, then creates a WebGPU adapter and device.
+
+### Library Search Strategy
+
+If an explicit library path is given to the loader, it is tried first and on its
+own. Otherwise the proc table tries the following names, in this order:
+
+1. `libwgpu_dawn.so` (the default when no path is supplied)
+2. `libwebgpu_dawn.so`
+3. `libwgpu_dawn.so.0` (versioned variant)
+4. `libwebgpu_dawn.so.0` (versioned variant)
+5. `libwgpu_dawn.dylib` (macOS)
+6. `libwebgpu_dawn.dylib` (macOS)
+7. `wgpu_dawn.dll` (Windows — see the note below)
+8. `webgpu_dawn.dll` (Windows — see the note below)
+
+```{warning}
+**Windows is not supported yet.** `vtkWebGPUProcTable.cxx` is POSIX-only: it
+includes `<dlfcn.h>` and calls `dlopen`/`dlsym` with no `_WIN32` branch, so it
+does not compile with MSVC and the two `.dll` entries above are unreachable. A
+`LoadLibrary`/`GetProcAddress` path is pending. Until it lands, the Windows
+build instructions earlier in this document will not work, and the
+`windows-vs2022-webgpu` CI jobs are disabled.
+```
+
+**Custom paths**: You can override the search by setting environment variables:
+- Linux: `LD_LIBRARY_PATH=/path/to/lib`
+- macOS: `DYLD_LIBRARY_PATH=/path/to/lib`
+- Windows: `PATH=\path\to\lib` (once the Windows path above is implemented)
+
+Or by explicitly passing a path to the library loader.
+
+### Extending the API
+
+If you need to expose an additional WebGPU function through the C wrappers:
+
+1. Add a declaration in `vtkWebGPUProcAPI.h` with the appropriate export macro.
+2. Implement a thin wrapper in `vtkWebGPUProcAPI.cxx` that:
+   - Retrieves the proc table
+   - Looks up the function pointer by name (with matching length)
+   - Checks for NULL and returns a safe value if not found
+   - Forwards the call with its arguments
+3. Add a small test to verify the function resolves at runtime.
+
+```{warning}
+The length in the `WGPUStringView` must equal the length of the name in bytes.
+Getting it wrong truncates the symbol and the lookup silently fails at runtime,
+returning the wrapper's fallback value rather than reporting an error. Prefer
+`WGPU_STRLEN` (or `strlen`) over a hand-counted literal.
+```
+
+Example:
+
+```cpp
+// In vtkWebGPUProcAPI.cxx
+WGPUReturnType vtkWebGPUMyFunction(WGPUArgumentType arg)
+{
+  vtkWebGPUProcTable table = vtkWebGPUProcTableGet();
+  if (!table)
+    return NULL;
+
+  typedef WGPUReturnType (*FuncType)(WGPUArgumentType);
+  FuncType func = (FuncType)vtkWebGPUProcTableGetProc(
+      table, WGPUStringView{ "wgpuMyFunction", WGPU_STRLEN });
+
+  if (!func)
+    return NULL;
+
+  return func(arg);
+}
+```
+
+### Debugging and Diagnostics
+
+**Library loading failed:**
+- Check if the WebGPU library is installed: `ldconfig -p | grep -E
+  '(wgpu_dawn|webgpu_dawn)'` (Linux), or verify in `/usr/lib` or
+  `/opt/local/lib` (macOS), or `PATH` (Windows)
+- Ensure the library is in a standard search path or set
+  `LD_LIBRARY_PATH=/path/to/lib` (Linux), `DYLD_LIBRARY_PATH` (macOS), or
+  `PATH` (Windows)
+- Test library loading directly: `python3 -c "import ctypes;
+  ctypes.CDLL('/path/to/libwgpu_dawn.so')"` (adjust path/name as needed)
+
+**Function not found:**
+- Verify the function name is spelled correctly and the length is correct (must
+  match string length in bytes)
+- Check if the loaded library version exports the function: `nm
+  /usr/lib/libwgpu_dawn.so | grep wgpuFunctionName`
+- Enable debug output in vtkWebGPUProcTable.cxx during development
+
+---
+
 ## Features
 
 The following features are currently implemented:
