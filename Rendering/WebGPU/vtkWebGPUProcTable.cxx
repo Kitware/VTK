@@ -34,9 +34,9 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
   void* handle = dlopen(lib, RTLD_LAZY | RTLD_GLOBAL);
   if (!handle)
   {
-    // Try alternative library names
-    const char* alternatives[] = { "libwgpu_dawn.so.0", "libwgpu_dawn.dylib", "wgpu_dawn.dll",
-      NULL };
+    // Try alternative library names (including webgpu_dawn naming variant)
+    const char* alternatives[] = { "libwebgpu_dawn.so", "libwgpu_dawn.so.0", "libwebgpu_dawn.so.0",
+      "libwgpu_dawn.dylib", "libwebgpu_dawn.dylib", "wgpu_dawn.dll", "webgpu_dawn.dll", NULL };
 
     for (int i = 0; alternatives[i] != NULL; ++i)
     {
