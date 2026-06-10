@@ -705,6 +705,7 @@ Rendering/ANARI/vtkAnariPolyDataMapperInheritInterface.h
 Rendering/ANARI/vtkAnariPolyDataMapperNode.h
 Rendering/ANARI/vtkAnariProfiling.h
 Rendering/ANARI/vtkAnariRenderer.h
+Rendering/ANARI/vtkAnariRenderWindow.h
 Rendering/ANARI/vtkAnariSceneGraph.h
 Rendering/ANARI/vtkAnariViewNodeFactory.h
 Rendering/ANARI/vtkAnariVolumeMapper.h
