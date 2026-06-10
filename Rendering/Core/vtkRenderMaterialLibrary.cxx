@@ -14,7 +14,6 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <cctype>
-#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -47,30 +46,29 @@ public:
 };
 
 //------------------------------------------------------------------------------
-namespace
-{
-std::string FilePathToTextureName(const std::string& path)
+// Implementations of protected helper functions declared in the header.
+std::string vtkRenderMaterialLibrary::FilePathToTextureName(const std::string& path)
 {
   std::string res = vtksys::SystemTools::GetFilenameName(path);
   std::size_t dot = res.find_last_of('.');
   return (dot == std::string::npos) ? res : std::string(res.begin(), res.begin() + dot);
 }
 
-static std::string trim(std::string s)
+//------------------------------------------------------------------------------
+std::string vtkRenderMaterialLibrary::Trim(const std::string& s)
 {
   size_t start = 0;
-  while ((start < s.length()) && (isspace(s[start])))
+  while ((start < s.length()) && (isspace(static_cast<unsigned char>(s[start]))))
   {
     start++;
   }
   size_t end = s.length();
-  while ((end > start) && (isspace(s[end - 1])))
+  while ((end > start) && (isspace(static_cast<unsigned char>(s[end - 1]))))
   {
     end--;
   }
   return s.substr(start, end - start);
 }
-} // namespace
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkRenderMaterialLibrary);
@@ -323,14 +321,14 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
 
   while (getline(*doc, str))
   {
-    std::string tstr = trim(str);
+    std::string tstr = this->Trim(str);
     std::string lkey;
 
     // a new material
     lkey = "newmtl ";
     if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
-      nickname = trim(tstr.substr(lkey.size()));
+      nickname = this->Trim(tstr.substr(lkey.size()));
       this->Internal->NickNames.insert(nickname);
       this->Internal->ImplNames[nickname] = "obj";
     }
@@ -339,7 +337,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
     lkey = "type ";
     if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
-      std::string implname = trim(tstr.substr(lkey.size()));
+      std::string implname = this->Trim(tstr.substr(lkey.size()));
       this->Internal->ImplNames[nickname] = implname;
     }
 
@@ -400,7 +398,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
       std::string tfname = "";
       if (tstr.compare(0, key.size(), key) == 0)
       {
-        tfname = trim(tstr.substr(key.size()));
+        tfname = this->Trim(tstr.substr(key.size()));
       }
       if (!tfname.empty())
       {
@@ -422,8 +420,8 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
 
 //------------------------------------------------------------------------------
 bool vtkRenderMaterialLibrary::ReadTextureFileOrData(const std::string& texFilenameOrData,
-  bool fromfile, const std::string& parentDir, vtkTexture* textr, std::string& textureName,
-  std::string& textureFilename)
+  bool fromfile, const std::string& vtkNotUsed(parentDir), vtkTexture* textr,
+  std::string& textureName, std::string& textureFilename)
 {
   if (!textr)
   {

@@ -55,8 +55,8 @@ struct RendererChangeCallback : vtkCommand
 
   static RendererChangeCallback* New() { return new RendererChangeCallback; }
 
-  void Execute(
-    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
+    void* vtkNotUsed(callData)) override
   {
     this->AnariRendererModifiedTime->Modified();
   }

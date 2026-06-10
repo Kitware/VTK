@@ -16,16 +16,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-namespace
-{
-std::string FilePathToTextureName(const std::string& path)
-{
-  std::string res = vtksys::SystemTools::GetFilenameName(path);
-  std::size_t dot = res.find_last_of('.');
-  return (dot == std::string::npos) ? res : std::string(res.begin(), res.begin() + dot);
-}
-} // namespace
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkANARIMaterialLibrary);
 
@@ -240,7 +230,7 @@ bool vtkANARIMaterialLibrary::ReadTextureFileOrData(const std::string& texFilena
         return false;
       }
     }
-    textureName = ::FilePathToTextureName(textureFilename);
+    textureName = this->FilePathToTextureName(textureFilename);
     if (textureFilename.substr(textureFilename.length() - 3) == "png")
     {
       vtkNew<vtkPNGReader> pngReader;

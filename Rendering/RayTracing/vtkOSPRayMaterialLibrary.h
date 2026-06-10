@@ -71,7 +71,7 @@ public:
   /**
    * Get the dictionary of all possible materials based on OSPRay documentation.
    */
-  static const std::map<std::string, ParametersMap>& GetParametersDictionary();
+  const std::map<std::string, ParametersMap>& GetParametersDictionary() override;
 
 protected:
   /**

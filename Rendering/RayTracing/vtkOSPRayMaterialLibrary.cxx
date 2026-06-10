@@ -15,15 +15,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-namespace
-{
-std::string FilePathToTextureName(const std::string& path)
-{
-  std::string res = vtksys::SystemTools::GetFilenameName(path);
-  std::size_t dot = res.find_last_of('.');
-  return (dot == std::string::npos) ? res : std::string(res.begin(), res.begin() + dot);
-}
-
 // OSPRay parameter name aliases: maps from alias to canonical name per material type
 const std::map<std::string, std::map<std::string, std::string>> Aliases = {
   { "obj",
@@ -603,7 +594,7 @@ bool vtkOSPRayMaterialLibrary::ReadTextureFileOrData(const std::string& texFilen
         return false;
       }
     }
-    textureName = ::FilePathToTextureName(textureFilename);
+    textureName = this->FilePathToTextureName(textureFilename);
     if (textureFilename.substr(textureFilename.length() - 3) == "png")
     {
       vtkNew<vtkPNGReader> pngReader;

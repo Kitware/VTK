@@ -251,7 +251,7 @@ OSPMaterial MakeMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer, std:
     return NewMaterial(orn, oRenderer, "obj");
   }
 
-  const auto& dic = vtkOSPRayMaterialLibrary::GetParametersDictionary();
+  const auto& dic = ml->GetParametersDictionary();
 
   std::string implname = ml->LookupImplName(nickname);
 

@@ -110,7 +110,11 @@ protected:
 
   virtual const std::map<std::string, ParametersMap>& GetParametersDictionary();
 
-protected:
+  // Helper utilities shared by subclasses. Made protected so subclasses
+  // can use consistent behavior and avoid duplicate definitions.
+  std::string FilePathToTextureName(const std::string& path);
+  std::string Trim(const std::string& s);
+
   vtkRenderMaterialLibrary();
   ~vtkRenderMaterialLibrary() override;
 
