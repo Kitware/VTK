@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCompositePolyDataMapper.h"
+#include "vtkContourFilter.h"
+#include "vtkDiscretizableColorTransferFunction.h"
+#include "vtkElevationFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -11,6 +16,28 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+
+namespace
+{
+vtkSmartPointer<vtkPolyData> CreatePolyDataWithLines(float y)
+{
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetCenter(0.0, y, 0.0);
+  sphere->SetRadius(5.0);
+  vtkNew<vtkElevationFilter> elevationFilter;
+  elevationFilter->SetInputConnection(sphere->GetOutputPort());
+  elevationFilter->SetLowPoint(0.0, y - 5.0, 0.0);
+  elevationFilter->SetHighPoint(0.0, y + 5.0, 0.0);
+  elevationFilter->SetScalarRange(0.0, 4.0);
+  vtkNew<vtkContourFilter> contour;
+  contour->SetInputArray("Elevation");
+  contour->GenerateValues(10, 0.0, 4.0);
+  contour->SetInputConnection(elevationFilter->GetOutputPort());
+  contour->Update();
+  return contour->GetOutput();
+}
+}
 
 int TestLineRendering(int argc, char* argv[])
 {
@@ -21,32 +48,23 @@ int TestLineRendering(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
 
-  vtkNew<vtkPolyData> polydata;
-  vtkNew<vtkPoints> points;
-  points->InsertPoint(0, -1, -1, 0.0);
-  points->InsertPoint(1, 0.0, 1.5, 0.0);
-  points->InsertPoint(2, 1, -1, 0.0);
-  points->InsertPoint(3, -2, -2, 0.0);
-  points->InsertPoint(4, 0.0, 2.5, 0.0);
-  points->InsertPoint(5, 2, -2, 0.0);
-  points->InsertPoint(6, -3, -3, 0.0);
-  points->InsertPoint(7, 0.0, 3.5, 0.0);
-  points->InsertPoint(8, 3, -3, 0.0);
-  points->InsertPoint(9, -4, -4, 0.0);
-  points->InsertPoint(10, 0.0, 4.5, 0.0);
-  points->InsertPoint(11, 4, -4, 0.0);
-  polydata->SetPoints(points);
-  vtkNew<vtkCellArray> lines;
-  lines->InsertNextCell({ 0, 1 });
-  lines->InsertNextCell({ 1, 2 });
-  lines->InsertNextCell({ 3, 4, 5 });
-  lines->InsertNextCell({ 6, 7, 8 });
-  lines->InsertNextCell({ 11, 10, 9 });
-  // lines->InsertNextCell({ 2, 11, 10, 9, 0 });
-  polydata->SetLines(lines);
+  vtkNew<vtkPartitionedDataSetCollection> pdsc;
+  pdsc->SetPartition(0, 0, CreatePolyDataWithLines(0.0));
+  pdsc->SetPartition(1, 0, CreatePolyDataWithLines(10.0));
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(polydata);
+  vtkNew<vtkCompositePolyDataMapper> mapper;
+  mapper->SetInputDataObject(pdsc);
+
+  vtkNew<vtkDiscretizableColorTransferFunction> ctf;
+  ctf->SetDiscretize(true);
+  ctf->SetNumberOfValues(128);
+  ctf->AddRGBPoint(0.0, 1.0, 0.0, 0.0);
+  ctf->AddRGBPoint(1.0, 0.0, 1.0, 0.0);
+  ctf->AddRGBPoint(2.0, 1.0, 1.0, 1.0);
+  ctf->AddRGBPoint(3.0, 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(4.0, 1.0, 0.0, 1.0);
+  mapper->SetLookupTable(ctf);
+  mapper->InterpolateScalarsBeforeMappingOn();
 
   vtkNew<vtkActor> actor;
   actor->GetProperty()->SetLineWidth(4);
@@ -82,7 +100,13 @@ int TestLineRendering(int argc, char* argv[])
 
   renWin->Render();
 
-  const int retVal = vtkRegressionTestImage(renWin);
+  double threshold = vtkRegressionTester::ErrorThreshold;
+  if (renWin->IsA("vtkWebGPURenderWindow"))
+  {
+    // vtkWebGPUPolyDataMapper has some transparent artifacts around the miter/round line joins.
+    threshold = 0.06;
+  }
+  const int retVal = vtkRegressionTestImageThreshold(renWin, threshold);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -3630,6 +3630,14 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderNormals(GraphicsPipelineType 
   if (draw_tubes)
   {
     normal_VC.z = 1.0 - 2.0 * dist_to_centerline;
+  }
+  else
+  {
+    if (normal_VC.z < 0.0)
+    {
+      normal_VC = -vertex.normal_VC;
+      normal_VC = normalize(normal_VC);
+    }
   })",
         /*all=*/true);
       break;

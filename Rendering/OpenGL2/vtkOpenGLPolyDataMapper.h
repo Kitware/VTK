@@ -463,6 +463,7 @@ protected:
 
   // are we currently drawing spheres/tubes
   bool DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor);
+  bool DrawingLines(vtkOpenGLHelper& cellBO, vtkActor* actor);
   bool DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor);
   bool DrawingTubesOrSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor);
   bool DrawingPoints(vtkOpenGLHelper& cellBO, vtkActor* actor);
