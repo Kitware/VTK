@@ -49,36 +49,12 @@ struct Triangle
 const double inCircleTol = 0.9999999999;
 
 //------------------------------------------------------------------------------
-// Inline circumcircle.  Returns squared radius; writes center[0..1].
-inline double ComputeCircumcircle(
-  const double p1[3], const double p2[3], const double p3[3], double center[2])
-{
-  double a = p2[0] - p1[0];
-  double b = p2[1] - p1[1];
-  double c = p3[0] - p1[0];
-  double d = p3[1] - p1[1];
-  double det = 2.0 * (a * d - b * c);
-  if (det == 0.0)
-  {
-    center[0] = center[1] = 0.0;
-    return VTK_DOUBLE_MAX;
-  }
-  double s = a * a + b * b;
-  double t = c * c + d * d;
-  double ux = (d * s - b * t) / det;
-  double uy = (a * t - c * s) / det;
-  center[0] = ux + p1[0];
-  center[1] = uy + p1[1];
-  return ux * ux + uy * uy;
-}
-
-//------------------------------------------------------------------------------
 // Inline InCircle test (matches vtkDelaunay2D::InCircle behaviour).
 inline int IsInsideCircumcircle(const double x[3], const double x1[3], const double x2[3],
   const double x3[3], double boundingRadius2)
 {
   double center[2];
-  double radius2 = ComputeCircumcircle(x1, x2, x3, center);
+  double radius2 = vtkTriangle::Circumcircle(x1, x2, x3, center);
   if (radius2 > boundingRadius2)
   {
     return 1;
