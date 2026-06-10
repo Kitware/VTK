@@ -199,8 +199,10 @@ public:
 
   /**
    * Performant method to intersect box with a sphere. The box is defined
-   * by (min,max) corners; the sphere by (center,radius**2). Inspired by
-   * Graphics Gems 1.
+   * by (min,max) corners; the sphere by (center,radius**2). Implements
+   * Mode 3 (solid box / solid sphere) from Graphics Gems 1
+   * (J. Arvo, "A Simple Method for Box-Sphere Intersection Testing"):
+   * https://github.com/erich666/GraphicsGems/blob/master/gems/BoxSphere.c
    */
   static bool IntersectsSphere(
     const double min[3], const double max[3], const double center[3], double r2)
@@ -236,25 +238,22 @@ public:
   }
 
   /**
-   * Performant method to determine if box if fully inside a sphere. The
-   * box is defined by (min,max) corners; the sphere by (center,radius**2).
-   * Inspired by Graphics Gems 1.
+   * Determine if a box is fully inside a sphere. The box is defined by
+   * (min,max) corners; the sphere by (center,radius**2). Returns true iff
+   * every point of the box is within the sphere, i.e. the farthest corner
+   * of the box is within the sphere.
    */
   static bool InsideSphere(
     const double min[3], const double max[3], const double center[3], double r2)
   {
-    double dmin = 0.0, dmax = 0.0;
+    double dmax = 0.0;
     for (int i = 0; i < 3; ++i)
     {
       double a = (center[i] - min[i]) * (center[i] - min[i]);
       double b = (center[i] - max[i]) * (center[i] - max[i]);
       dmax += std::max(a, b);
-      if (min[i] <= center[i] && center[i] <= max[i])
-      {
-        dmin += std::min(a, b);
-      }
     }
-    return (!(dmin <= r2 && r2 <= dmax));
+    return dmax <= r2;
   }
 
   /**
