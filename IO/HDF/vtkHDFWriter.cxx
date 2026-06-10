@@ -347,7 +347,8 @@ bool vtkHDFWriter::WriteDataAndReturn()
 
   if (!this->DispatchDataObject(this->Impl->GetRoot(), input))
   {
-    vtkErrorMacro("Could not write data object");
+    vtkErrorMacro(
+      "Could not write " << input->GetClassName() << " to file " << this->GetFileName());
     return false;
   }
 
@@ -427,85 +428,37 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     return false;
   }
 
-  vtkImageData* imageData = vtkImageData::SafeDownCast(input);
-  if (imageData)
+  if (auto imageData = vtkImageData::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, imageData, partId))
-    {
-      vtkErrorMacro(<< "Can't write imageData to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, imageData, partId);
   }
-  vtkRectilinearGrid* rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
-  if (rectilinearGrid)
+  if (auto rectiGrid = vtkRectilinearGrid::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, rectilinearGrid, partId))
-    {
-      vtkErrorMacro(<< "Can't write rectilinearGrid to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, rectiGrid, partId);
   }
-  vtkStructuredGrid* structuredGrid = vtkStructuredGrid::SafeDownCast(input);
-  if (structuredGrid)
+  if (auto structuredGrid = vtkStructuredGrid::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, structuredGrid, partId))
-    {
-      vtkErrorMacro(<< "Can't write structuredGrid to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, structuredGrid, partId);
   }
-  vtkPolyData* polydata = vtkPolyData::SafeDownCast(input);
-  if (polydata)
+  if (auto polyData = vtkPolyData::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, polydata, partId))
-    {
-      vtkErrorMacro(<< "Can't write polydata to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, polyData, partId);
   }
-  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (unstructuredGrid)
+  if (auto unstructuredGrid = vtkUnstructuredGrid::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, unstructuredGrid, partId))
-    {
-      vtkErrorMacro(<< "Can't write unstructuredGrid to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, unstructuredGrid, partId);
   }
-  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(input);
-  if (htg)
+  if (auto htg = vtkHyperTreeGrid::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, htg, partId))
-    {
-      vtkErrorMacro(<< "Can't write Hyper Tree to file: " << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, htg, partId);
   }
-  vtkPartitionedDataSet* partitioned = vtkPartitionedDataSet::SafeDownCast(input);
-  if (partitioned)
+  if (auto partitionedDS = vtkPartitionedDataSet::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, partitioned))
-    {
-      vtkErrorMacro(<< "Can't write partitionedDataSet to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, partitionedDS);
   }
-  vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(input);
-  if (tree)
+  if (auto dataObjectTree = vtkDataObjectTree::SafeDownCast(input))
   {
-    if (!this->WriteDatasetToFile(group, tree))
-    {
-      vtkErrorMacro(<< "Can't write vtkDataObjectTree to file:" << this->FileName);
-      return false;
-    }
-    return true;
+    return this->WriteDatasetToFile(group, dataObjectTree);
   }
 
   vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
