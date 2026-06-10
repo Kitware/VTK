@@ -20,7 +20,7 @@
 
 #include <viskores/cont/DataSet.h>
 #include <viskores/cont/Field.h>
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 namespace viskores
 {
@@ -29,7 +29,7 @@ namespace rendering
 namespace raytracing
 {
 
-class VISKORES_RENDERING_EXPORT TriangleExtractor
+class VISKORES_RENDERING_RAYTRACING_EXPORT TriangleExtractor
 {
 protected:
   viskores::cont::ArrayHandle<viskores::Id4> Triangles; // (cellid, v0, v1, v2)

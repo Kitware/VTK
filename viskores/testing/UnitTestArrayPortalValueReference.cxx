@@ -106,13 +106,17 @@ void TryOperatorsInt(viskores::Id index,
   VISKORES_TEST_ASSERT((ref & expected) == (expected & expected));
   VISKORES_TEST_ASSERT((expected & ref) == (expected & expected));
 
-  VISKORES_TEST_ASSERT((ref << ref) == (expected << expected));
-  VISKORES_TEST_ASSERT((ref << expected) == (expected << expected));
-  VISKORES_TEST_ASSERT((expected << ref) == (expected << expected));
+  // TestValue can be larger than the integer bit width, so use a controlled
+  // right-hand side for shift operators.
+  const ValueType shift = ValueType(1);
+  scratch = shift;
+  VISKORES_TEST_ASSERT((ref >> scratch) == (expected >> shift));
+  VISKORES_TEST_ASSERT((ref >> shift) == (expected >> shift));
+  VISKORES_TEST_ASSERT((expected >> scratch) == (expected >> shift));
 
-  VISKORES_TEST_ASSERT((ref << ref) == (expected << expected));
-  VISKORES_TEST_ASSERT((ref << expected) == (expected << expected));
-  VISKORES_TEST_ASSERT((expected << ref) == (expected << expected));
+  VISKORES_TEST_ASSERT((ref << scratch) == (expected << shift));
+  VISKORES_TEST_ASSERT((ref << shift) == (expected << shift));
+  VISKORES_TEST_ASSERT((expected << scratch) == (expected << shift));
 
   VISKORES_TEST_ASSERT(~ref == ~expected);
 

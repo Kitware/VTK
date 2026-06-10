@@ -58,6 +58,31 @@ struct FindCellFunctor
   }
 };
 
+struct FindCellIdFunctor
+{
+  template <typename Locator>
+  VISKORES_EXEC viskores::ErrorCode operator()(Locator&& locator,
+                                               const viskores::Vec3f& point,
+                                               viskores::Id& cellId) const
+  {
+    return locator.FindCellId(point, cellId);
+  }
+
+  template <typename Locator, typename LastCell>
+  VISKORES_EXEC viskores::ErrorCode operator()(Locator&& locator,
+                                               const viskores::Vec3f& point,
+                                               viskores::Id& cellId,
+                                               LastCell& lastCell) const
+  {
+    using ConcreteLastCell = typename std::decay_t<Locator>::LastCell;
+    if (!lastCell.template IsType<ConcreteLastCell>())
+    {
+      lastCell = ConcreteLastCell{};
+    }
+    return locator.FindCellId(point, cellId, lastCell.template Get<ConcreteLastCell>());
+  }
+};
+
 struct CountAllCellsFunctor
 {
   template <typename Locator>
@@ -77,6 +102,17 @@ struct FindAllCellsFunctor
                                                ParametricVecType& pCoords) const
   {
     return locator.FindAllCells(point, cellIds, pCoords);
+  }
+};
+
+struct FindAllCellIdsFunctor
+{
+  template <typename Locator, typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode operator()(Locator&& locator,
+                                               const viskores::Vec3f& point,
+                                               CellIdsType& cellIds) const
+  {
+    return locator.FindAllCellIds(point, cellIds);
   }
 };
 
@@ -113,6 +149,27 @@ public:
     return this->Locators.CastAndCall(detail::FindCellFunctor{}, point, cellId, pCoords, lastCell);
   }
 
+  /// @brief Locate the id of the cell containing the provided point.
+  ///
+  /// This method returns the same cell id as `FindCell()` without requiring
+  /// the caller to provide parametric coordinates.
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId) const
+  {
+    return this->Locators.CastAndCall(detail::FindCellIdFunctor{}, point, cellId);
+  }
+
+  /// @brief Locate the id of the cell containing the provided point.
+  ///
+  /// This overload uses a `LastCell` cache that can accelerate successive
+  /// searches for nearby points.
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId,
+                                               LastCell& lastCell) const
+  {
+    return this->Locators.CastAndCall(detail::FindCellIdFunctor{}, point, cellId, lastCell);
+  }
+
   VISKORES_EXEC viskores::Id CountAllCells(const viskores::Vec3f& point) const
   {
     return this->Locators.CastAndCall(detail::CountAllCellsFunctor{}, point);
@@ -124,6 +181,17 @@ public:
                                                  ParametricVecType& pCoords) const
   {
     return this->Locators.CastAndCall(detail::FindAllCellsFunctor{}, point, cellIds, pCoords);
+  }
+
+  /// @brief Locate all cell ids containing the provided point.
+  ///
+  /// This method returns the same cell ids as `FindAllCells()` without
+  /// requiring parametric coordinates.
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellIds(const viskores::Vec3f& point,
+                                                   CellIdsType& cellIds) const
+  {
+    return this->Locators.CastAndCall(detail::FindAllCellIdsFunctor{}, point, cellIds);
   }
 };
 

@@ -114,13 +114,21 @@ public:
     // ExecutionWholeArrayConst. We need to get out the actual portal.
     viskores::Id calculated = CalculateCellId(pointIn, coordsPortal);
     viskores::ErrorCode status = locator.FindCell(pointIn, cellId, parametric);
+    viskores::Id cellIdOnly = -1;
+    viskores::ErrorCode statusId = locator.FindCellId(pointIn, cellIdOnly);
     if (status != viskores::ErrorCode::Success)
     {
       this->RaiseError(viskores::ErrorString(status));
       match = false;
       return;
     }
-    match = (calculated == cellId);
+    if (statusId != viskores::ErrorCode::Success)
+    {
+      this->RaiseError(viskores::ErrorString(statusId));
+      match = false;
+      return;
+    }
+    match = (calculated == cellId) && (cellId == cellIdOnly);
   }
 
 private:

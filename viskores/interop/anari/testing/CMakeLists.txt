@@ -22,5 +22,8 @@ SOURCES
   UnitTestANARIMapperPoints.cxx
   UnitTestANARIMapperTriangles.cxx
   UnitTestANARIMapperVolume.cxx
+  UnitTestANARIGeometryCylinder.cxx
+  UnitTestANARIGeometryQuad.cxx
+  UnitTestANARIGeometrySphere.cxx
   UnitTestANARIScene.cxx
   )

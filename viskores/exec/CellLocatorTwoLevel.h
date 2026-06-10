@@ -179,6 +179,26 @@ public:
     viskores::Id LeafIdx = -1;
   };
 
+  /// @brief Locate the id of the cell containing the provided point.
+  ///
+  /// This method returns the same cell id as `FindCell()` without requiring
+  /// the caller to provide parametric coordinates.
+  VISKORES_EXEC
+  viskores::ErrorCode FindCellId(const FloatVec3& point, viskores::Id& cellId) const
+  {
+    LastCell lastCell;
+    return this->FindCellImpl(point, cellId, lastCell, nullptr);
+  }
+
+  /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCellId
+  VISKORES_EXEC
+  viskores::ErrorCode FindCellId(const FloatVec3& point,
+                                 viskores::Id& cellId,
+                                 LastCell& lastCell) const
+  {
+    return this->FindCellImpl(point, cellId, lastCell, nullptr);
+  }
+
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCell
   VISKORES_EXEC
   viskores::ErrorCode FindCell(const FloatVec3& point,
@@ -186,7 +206,7 @@ public:
                                FloatVec3& pCoords) const
   {
     LastCell lastCell;
-    return this->FindCell(point, cellId, pCoords, lastCell);
+    return this->FindCellImpl(point, cellId, lastCell, &pCoords);
   }
 
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCell
@@ -196,55 +216,16 @@ public:
                                FloatVec3& pCoords,
                                LastCell& lastCell) const
   {
-    viskores::Vec3f pc;
-    //See if point is inside the last cell.
-    if ((lastCell.CellId >= 0) && (lastCell.CellId < this->CellSet.GetNumberOfElements()) &&
-        this->PointInCell(point, lastCell.CellId, pc) == viskores::ErrorCode::Success)
-    {
-      pCoords = pc;
-      cellId = lastCell.CellId;
-      return viskores::ErrorCode::Success;
-    }
-
-    //See if it's in the last leaf.
-    if ((lastCell.LeafIdx >= 0) && (lastCell.LeafIdx < this->CellCount.GetNumberOfValues()) &&
-        this->PointInLeaf(point, lastCell.LeafIdx, cellId, pc) == viskores::ErrorCode::Success)
-    {
-      pCoords = pc;
-      lastCell.CellId = cellId;
-      return viskores::ErrorCode::Success;
-    }
-
-    //Call the full point search.
-    viskores::Vec<viskores::Id, 1> cellIdVec = { -1 };
-    viskores::Vec<viskores::Vec3f, 1> pCoordsVec;
-    auto nCells = this->IterateLeaves(point, IterateMode::FindOne, cellIdVec, pCoordsVec, lastCell);
-    if (nCells < 0)
-    {
-      cellId = -1;
-      return viskores::ErrorCode::InvalidNumberOfIndices;
-    }
-    else if (nCells == 0)
-    {
-      cellId = -1;
-      return viskores::ErrorCode::CellNotFound;
-    }
-    else
-    {
-      cellId = cellIdVec[0];
-      pCoords = pCoordsVec[0];
-      return viskores::ErrorCode::Success;
-    }
+    return this->FindCellImpl(point, cellId, lastCell, &pCoords);
   }
 
   /// @copydoc viskores::exec::CellLocatorUniformGrid::CountAllCells
   VISKORES_EXEC viskores::IdComponent CountAllCells(const viskores::Vec3f& point) const
   {
     viskores::Vec<viskores::Id, 1> cellIdVec = { -1 };
-    viskores::Vec<viskores::Vec3f, 1> pCoordsVec;
     LastCell lastCell;
 
-    return this->IterateLeaves(point, IterateMode::CountAll, cellIdVec, pCoordsVec, lastCell);
+    return this->IterateLeavesCellIds(point, IterateMode::CountAll, cellIdVec, lastCell);
   }
 
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindAllCells
@@ -253,26 +234,115 @@ public:
                                                  CellIdsType& cellIdVec,
                                                  ParametricCoordsVecType& pCoordsVec) const
   {
-    viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
-    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == n);
+    return this->FindAllCellsImpl(point, cellIdVec, pCoordsVec);
+  }
 
+  /// @brief Locate all cell ids containing the provided point.
+  ///
+  /// This method returns the same cell ids as `FindAllCells()` without
+  /// requiring parametric coordinates.
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellIds(const viskores::Vec3f& point,
+                                                   CellIdsType& cellIdVec) const
+  {
+    return this->FindAllCellsImpl(point, cellIdVec);
+  }
+
+private:
+  VISKORES_EXEC viskores::ErrorCode FindCellImpl(const FloatVec3& point,
+                                                 viskores::Id& cellId,
+                                                 LastCell& lastCell,
+                                                 FloatVec3* pCoords) const
+  {
+    viskores::Vec3f pc;
+    if ((lastCell.CellId >= 0) && (lastCell.CellId < this->CellSet.GetNumberOfElements()) &&
+        this->PointInCell(point, lastCell.CellId, pc) == viskores::ErrorCode::Success)
+    {
+      cellId = lastCell.CellId;
+      if (pCoords != nullptr)
+        *pCoords = pc;
+      return viskores::ErrorCode::Success;
+    }
+
+    if ((lastCell.LeafIdx >= 0) && (lastCell.LeafIdx < this->CellCount.GetNumberOfValues()) &&
+        this->PointInLeaf(point, lastCell.LeafIdx, cellId, pc) == viskores::ErrorCode::Success)
+    {
+      lastCell.CellId = cellId;
+      if (pCoords != nullptr)
+        *pCoords = pc;
+      return viskores::ErrorCode::Success;
+    }
+
+    viskores::Vec<viskores::Id, 1> cellIdVec = { -1 };
+    viskores::IdComponent nCells = 0;
+    if (pCoords != nullptr)
+    {
+      viskores::Vec<viskores::Vec3f, 1> pCoordsVec;
+      nCells = this->IterateLeaves(point, IterateMode::FindOne, cellIdVec, pCoordsVec, lastCell);
+      if (nCells == 1)
+        *pCoords = pCoordsVec[0];
+    }
+    else
+    {
+      nCells = this->IterateLeavesCellIds(point, IterateMode::FindOne, cellIdVec, lastCell);
+    }
+
+    if (nCells == 0)
+    {
+      cellId = -1;
+      return viskores::ErrorCode::CellNotFound;
+    }
+
+    cellId = cellIdVec[0];
+    return viskores::ErrorCode::Success;
+  }
+
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::IdComponent InitializeAllCellIds(CellIdsType& cellIdVec) const
+  {
+    viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
+    for (viskores::IdComponent i = 0; i < n; i++)
+      cellIdVec[i] = -1;
+    return n;
+  }
+
+  template <typename CellIdsType, typename ParametricCoordsVecType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellsImpl(const viskores::Vec3f& point,
+                                                     CellIdsType& cellIdVec,
+                                                     ParametricCoordsVecType& pCoordsVec) const
+  {
+    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == cellIdVec.GetNumberOfComponents());
+    auto writeHit =
+      WriteCellAndParametric<CellIdsType, ParametricCoordsVecType>{ cellIdVec, pCoordsVec };
+    return this->FindAllCellsImplCommon(point, cellIdVec, writeHit);
+  }
+
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellsImpl(const viskores::Vec3f& point,
+                                                     CellIdsType& cellIdVec) const
+  {
+    auto writeHit = WriteCellIdOnly<CellIdsType>{ cellIdVec };
+    return this->FindAllCellsImplCommon(point, cellIdVec, writeHit);
+  }
+
+  template <typename CellIdsType, typename WriteHitType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellsImplCommon(const viskores::Vec3f& point,
+                                                           CellIdsType& cellIdVec,
+                                                           WriteHitType& writeHit) const
+  {
+    viskores::IdComponent n = this->InitializeAllCellIds(cellIdVec);
     if (n == 0)
       return viskores::ErrorCode::Success;
 
-    for (viskores::IdComponent i = 0; i < n; i++)
-      cellIdVec[i] = -1;
-
     LastCell lastCell;
     viskores::IdComponent nCells =
-      this->IterateLeaves(point, IterateMode::FindAll, cellIdVec, pCoordsVec, lastCell);
+      this->IterateLeavesImpl(point, IterateMode::FindAll, cellIdVec, lastCell, writeHit);
     VISKORES_ASSERT(n == nCells);
     if (nCells == 0)
       return viskores::ErrorCode::CellNotFound;
 
     return viskores::ErrorCode::Success;
   }
-
-private:
   // Shared leaf traversal: modes are FindOne, CountAll, FindAll
   enum class IterateMode
   {
@@ -282,17 +352,43 @@ private:
   };
 
   template <typename CellIdVecType, typename ParametricCoordsVecType>
-  VISKORES_EXEC viskores::IdComponent IterateLeaves(const FloatVec3& point,
-                                                    const IterateMode& mode,
-                                                    CellIdVecType& cellIdVec,
-                                                    ParametricCoordsVecType& pCoordsVec,
-                                                    LastCell& lastCell) const
+  struct WriteCellAndParametric
+  {
+    CellIdVecType& CellIds;
+    ParametricCoordsVecType& ParametricCoords;
+
+    VISKORES_EXEC void operator()(viskores::IdComponent idx,
+                                  viskores::Id cellId,
+                                  const viskores::Vec3f& pc)
+    {
+      this->CellIds[idx] = cellId;
+      this->ParametricCoords[idx] = pc;
+    }
+  };
+
+  template <typename CellIdVecType>
+  struct WriteCellIdOnly
+  {
+    CellIdVecType& CellIds;
+
+    VISKORES_EXEC void operator()(viskores::IdComponent idx,
+                                  viskores::Id cellId,
+                                  const viskores::Vec3f&)
+    {
+      this->CellIds[idx] = cellId;
+    }
+  };
+
+  template <typename CellIdVecType, typename WriteHitType>
+  VISKORES_EXEC viskores::IdComponent IterateLeavesImpl(const FloatVec3& point,
+                                                        const IterateMode& mode,
+                                                        CellIdVecType& cellIdVec,
+                                                        LastCell& lastCell,
+                                                        WriteHitType& writeHit) const
   {
     using namespace viskores::internal::cl_uniform_bins;
 
     viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
-    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == n);
-
     lastCell.CellId = -1;
     lastCell.LeafIdx = -1;
     viskores::IdComponent cellCnt = 0;
@@ -330,18 +426,40 @@ private:
           lastCell.CellId = cellId;
           lastCell.LeafIdx = leafIdx;
           if (mode != IterateMode::CountAll)
-          {
-            cellIdVec[cellCnt] = cellId;
-            pCoordsVec[cellCnt] = pc;
-          }
+            writeHit(cellCnt, cellId, pc);
+
           cellCnt++;
-          if (mode == IterateMode::FindOne)
+          if (mode == IterateMode::FindOne || (mode == IterateMode::FindAll && cellCnt == n))
             break;
         }
       }
     }
 
-    return static_cast<viskores::Id>(cellCnt);
+    return cellCnt;
+  }
+
+  template <typename CellIdVecType, typename ParametricCoordsVecType>
+  VISKORES_EXEC viskores::IdComponent IterateLeaves(const FloatVec3& point,
+                                                    const IterateMode& mode,
+                                                    CellIdVecType& cellIdVec,
+                                                    ParametricCoordsVecType& pCoordsVec,
+                                                    LastCell& lastCell) const
+  {
+    viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
+    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == n);
+    auto writeHit =
+      WriteCellAndParametric<CellIdVecType, ParametricCoordsVecType>{ cellIdVec, pCoordsVec };
+    return this->IterateLeavesImpl(point, mode, cellIdVec, lastCell, writeHit);
+  }
+
+  template <typename CellIdVecType>
+  VISKORES_EXEC viskores::IdComponent IterateLeavesCellIds(const FloatVec3& point,
+                                                           const IterateMode& mode,
+                                                           CellIdVecType& cellIdVec,
+                                                           LastCell& lastCell) const
+  {
+    auto writeHit = WriteCellIdOnly<CellIdVecType>{ cellIdVec };
+    return this->IterateLeavesImpl(point, mode, cellIdVec, lastCell, writeHit);
   }
 
   VISKORES_EXEC viskores::ErrorCode PointInCell(const viskores::Vec3f& point,

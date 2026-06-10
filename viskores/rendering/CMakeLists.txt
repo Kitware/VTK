@@ -90,10 +90,6 @@ set(sources
   View2D.cxx
   View3D.cxx
   WorldAnnotator.cxx
-
-  raytracing/Logger.cxx
-  raytracing/MeshConnectivityContainers.cxx
-  raytracing/TriangleExtractor.cxx
   )
 
 # This list of sources has code that uses devices and so might need to be
@@ -114,30 +110,6 @@ set(device_sources
   MapperWireframer.cxx
   ScalarRenderer.cxx
   TextRendererBatcher.cxx
-
-  internal/RunTriangulator.cxx
-
-  raytracing/BoundingVolumeHierarchy.cxx
-  raytracing/Camera.cxx
-  raytracing/ChannelBuffer.cxx
-  raytracing/ConnectivityTracer.cxx
-  raytracing/CylinderExtractor.cxx
-  raytracing/CylinderIntersector.cxx
-  raytracing/GlyphExtractor.cxx
-  raytracing/GlyphExtractorVector.cxx
-  raytracing/GlyphIntersector.cxx
-  raytracing/GlyphIntersectorVector.cxx
-  raytracing/MeshConnectivityBuilder.cxx
-  raytracing/QuadExtractor.cxx
-  raytracing/QuadIntersector.cxx
-  raytracing/RayOperations.cxx
-  raytracing/RayTracer.cxx
-  raytracing/ScalarRenderer.cxx
-  raytracing/ShapeIntersector.cxx
-  raytracing/SphereExtractor.cxx
-  raytracing/SphereIntersector.cxx
-  raytracing/TriangleIntersector.cxx
-  raytracing/VolumeRendererStructured.cxx
   )
 
 # the None backend supports not building the opengl version
@@ -157,7 +129,6 @@ endif()
 
 #-----------------------------------------------------------------------------
 add_subdirectory(internal)
-add_subdirectory(raytracing)
 
 #-----------------------------------------------------------------------------
 # Pretty much obsolete, but might be expected to be exported.

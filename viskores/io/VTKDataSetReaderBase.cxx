@@ -484,6 +484,9 @@ void VTKDataSetReaderBase::ReadFields(viskores::cont::Field::Association associa
       VISKORES_LOG_S(viskores::cont::LogLevel::Warn,
                      "Field " << arrayName
                               << "'s size does not match expected number of elements. Skipping");
+      // Consume the rejected payload so the next field header is read from the
+      // correct position in the stream.
+      this->DoSkipArrayVariant(dataType, numTuples, numComponents);
     }
   }
 }
@@ -582,14 +585,24 @@ public:
     else
     {
       // If we are reading data associated with a cell set, we need to (sometimes) permute the
-      // data due to differences between VTK and Viskores cell shapes.
+      // data due to differences between VTK and Viskores cell shapes. The
+      // permutation maps output cells back to source cells, so copy whole
+      // tuples instead of treating the field data as scalars.
       auto permutation = this->Reader->GetCellsPermutation().ReadPortal();
       viskores::Id outSize = permutation.GetNumberOfValues();
-      std::vector<T> permutedBuffer(static_cast<std::size_t>(outSize));
-      for (viskores::Id outIndex = 0; outIndex < outSize; outIndex++)
+      std::vector<T> permutedBuffer(static_cast<std::size_t>(outSize) *
+                                    static_cast<std::size_t>(this->NumComponents));
+      for (viskores::Id outIndex = 0; outIndex < outSize; ++outIndex)
       {
         std::size_t inIndex = static_cast<std::size_t>(permutation.Get(outIndex));
-        permutedBuffer[static_cast<std::size_t>(outIndex)] = buffer[inIndex];
+        std::size_t inTupleOffset = inIndex * static_cast<std::size_t>(this->NumComponents);
+        std::size_t outTupleOffset =
+          static_cast<std::size_t>(outIndex) * static_cast<std::size_t>(this->NumComponents);
+        for (viskores::IdComponent component = 0; component < this->NumComponents; ++component)
+        {
+          permutedBuffer[outTupleOffset + static_cast<std::size_t>(component)] =
+            buffer[inTupleOffset + static_cast<std::size_t>(component)];
+        }
       }
       *this->Data = viskores::cont::make_ArrayHandleRuntimeVecMove(this->NumComponents,
                                                                    std::move(permutedBuffer));

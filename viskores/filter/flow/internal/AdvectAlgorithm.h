@@ -98,7 +98,7 @@ public:
       //Note: For duplicate blocks, this will give the seeds to the rank that are first in the list.
       if (!ids.empty())
       {
-        auto ranks = this->BoundsMap.FindRank(ids[0]);
+        const auto& ranks = this->BoundsMap.FindRank(ids[0]);
         if (!ranks.empty() && this->Rank == ranks[0])
         {
           particles.emplace_back(p);
@@ -289,7 +289,7 @@ public:
       const auto& bid = this->ParticleBlockIDsMap[p.GetID()];
       VISKORES_ASSERT(!bid.empty());
 
-      auto ranks = this->BoundsMap.FindRank(bid[0]);
+      const auto& ranks = this->BoundsMap.FindRank(bid[0]);
       VISKORES_ASSERT(!ranks.empty());
 
       //Only 1 rank has the block.

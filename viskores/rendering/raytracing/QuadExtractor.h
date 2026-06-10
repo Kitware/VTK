@@ -19,6 +19,9 @@
 #define viskores_rendering_raytracing_Quad_Extractor_h
 
 #include <viskores/cont/DataSet.h>
+#include <viskores/rendering/viskores_rendering_export.h>
+
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 namespace viskores
 {
@@ -27,7 +30,7 @@ namespace rendering
 namespace raytracing
 {
 
-class QuadExtractor
+class VISKORES_RENDERING_RAYTRACING_EXPORT QuadExtractor
 {
 protected:
   viskores::cont::ArrayHandle<viskores::Vec<viskores::Id, 5>> QuadIds;

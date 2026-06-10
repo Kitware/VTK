@@ -21,50 +21,13 @@
 
 // viskores
 #include <viskores/cont/DataSetBuilderUniform.h>
+#include <viskores/interop/anari/ANARILoadDevice.h>
 #include <viskores/interop/anari/ANARIMapper.h>
 #include <viskores/rendering/testing/Testing.h>
 #include <viskores/testing/Testing.h>
 
 namespace
 {
-
-static void StatusFunc(const void* userData,
-                       ANARIDevice /*device*/,
-                       ANARIObject source,
-                       ANARIDataType /*sourceType*/,
-                       ANARIStatusSeverity severity,
-                       ANARIStatusCode /*code*/,
-                       const char* message)
-{
-  bool verbose = *(bool*)userData;
-  if (!verbose)
-    return;
-
-  if (severity == ANARI_SEVERITY_FATAL_ERROR)
-  {
-    fprintf(stderr, "[FATAL][%p] %s\n", source, message);
-  }
-  else if (severity == ANARI_SEVERITY_ERROR)
-  {
-    fprintf(stderr, "[ERROR][%p] %s\n", source, message);
-  }
-  else if (severity == ANARI_SEVERITY_WARNING)
-  {
-    fprintf(stderr, "[WARN ][%p] %s\n", source, message);
-  }
-  else if (severity == ANARI_SEVERITY_PERFORMANCE_WARNING)
-  {
-    fprintf(stderr, "[PERF ][%p] %s\n", source, message);
-  }
-  else if (severity == ANARI_SEVERITY_INFO)
-  {
-    fprintf(stderr, "[INFO ][%p] %s\n", source, message);
-  }
-  else if (severity == ANARI_SEVERITY_DEBUG)
-  {
-    fprintf(stderr, "[DEBUG][%p] %s\n", source, message);
-  }
-}
 
 static void setColorMap(anari_cpp::Device d, viskores::interop::anari::ANARIMapper& mapper)
 {
@@ -90,11 +53,7 @@ static anari_cpp::Device loadANARIDevice()
 {
   viskores::testing::FloatingPointExceptionTrapDisable();
   auto* libraryName = std::getenv("VISKORES_TEST_ANARI_LIBRARY");
-  static bool verbose = std::getenv("VISKORES_TEST_ANARI_VERBOSE") != nullptr;
-  auto lib = anari_cpp::loadLibrary(libraryName ? libraryName : "helide", StatusFunc, &verbose);
-  auto d = anari_cpp::newDevice(lib, "default");
-  anari_cpp::unloadLibrary(lib);
-  return d;
+  return viskores::interop::anari::ANARILoadDevice(libraryName ? libraryName : "viskores");
 }
 
 static void renderTestANARIImage(anari_cpp::Device d,

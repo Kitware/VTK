@@ -28,7 +28,7 @@ struct VISKORES_DEPRECATED(2.2, "WarpVector.h header no longer supported. Use Wa
 {
 };
 
-viskores_deprecated_WarpVector_h_warning viskores_give_WarpVector_h_warning;
+static viskores_deprecated_WarpVector_h_warning viskores_give_WarpVector_h_warning;
 
 namespace viskores
 {

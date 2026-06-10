@@ -56,6 +56,7 @@ set(headers
   ArrayHandleView.h
   ArrayHandleXGCCoordinates.h
   ArrayHandleZip.h
+  ArrayIsMonotonic.h
   ArrayPortal.h
   ArrayPortalToIterators.h
   ArrayRangeCompute.h
@@ -131,6 +132,8 @@ set(headers
   Token.h
   TryExecute.h
   SerializableTypeString.h
+  SplineEvaluateRectilinearGrid.h
+  SplineEvaluateUniformGrid.h
   UncertainArrayHandle.h
   UncertainCellSet.h
   UnknownArrayHandle.h
@@ -186,6 +189,7 @@ set(sources
   RuntimeDeviceTracker.cxx
   PartitionedDataSet.cxx
   PointLocatorBase.cxx
+  SplineEvaluateUniformGrid.cxx
   Storage.cxx
   Token.cxx
   TryExecute.cxx
@@ -200,6 +204,7 @@ set(device_sources
   ArrayGetValues.cxx
   ArrayHandleIndex.cxx
   ArrayHandleUniformPointCoordinates.cxx
+  ArrayIsMonotonic.cxx
   ArrayRangeCompute.cxx
   ArraySetValues.cxx
   CellLocatorBoundingIntervalHierarchy.cxx
@@ -217,6 +222,7 @@ set(device_sources
   MergePartitionedDataSet.cxx
   PointLocatorSparseGrid.cxx
   RuntimeDeviceInformation.cxx
+  SplineEvaluateRectilinearGrid.cxx
   Timer.cxx
   )
 
@@ -256,9 +262,19 @@ if (Viskores_USE_DEFAULT_TYPES_FOR_ASCENT)
   endif()
 endif()
 
+viskores_option(Viskores_USE_DEFAULT_TYPES_FOR_VISTLE
+  "Compile Viskores algorithms for use with types from Vistle."
+  OFF
+  )
+
+if (Viskores_USE_DEFAULT_TYPES_FOR_VISTLE)
+  set(Viskores_DEFAULT_TYPES_HEADER "internal/DefaultTypesVistle.h.in")
+endif()
+
 mark_as_advanced(
   Viskores_USE_DEFAULT_TYPES_FOR_VTK
   Viskores_USE_DEFAULT_TYPES_FOR_ASCENT
+  Viskores_USE_DEFAULT_TYPES_FOR_VISTLE
   )
 
 if (Viskores_DEFAULT_TYPES_HEADER)
@@ -307,19 +323,5 @@ target_sources(viskores_cont
 add_subdirectory(internal)
 add_subdirectory(arg)
 
-set(backends )
-if(TARGET viskores_tbb)
-  list(APPEND backends viskores_tbb)
-endif()
-if(TARGET viskores_cuda)
-  list(APPEND backends viskores_cuda)
-endif()
-if(TARGET viskores_openmp)
-  list(APPEND backends viskores_openmp)
-endif()
-if(TARGET viskores_kokkos)
-  list(APPEND backends viskores_kokkos)
-endif()
-
-target_link_libraries(viskores_cont PUBLIC viskores_compiler_flags ${backends})
+target_link_libraries(viskores_cont PUBLIC viskores_compiler_flags)
 target_link_libraries(viskores_cont PUBLIC Threads::Threads)

@@ -106,15 +106,17 @@ void MapperVolume::RenderCellsImpl(const viskores::cont::UnknownCellSet& cellset
 
     viskores::rendering::raytracing::VolumeRendererStructured tracer;
 
-    viskores::rendering::raytracing::Camera rayCamera;
     viskores::Int32 width = (viskores::Int32)this->Internals->Canvas->GetWidth();
     viskores::Int32 height = (viskores::Int32)this->Internals->Canvas->GetHeight();
-    rayCamera.SetParameters(camera, width, height);
+    viskores::rendering::raytracing::Camera rayCamera =
+      camera.CreateRaytracingCamera(width, height);
 
     viskores::rendering::raytracing::Ray<viskores::Float32> rays;
     rayCamera.CreateRays(rays, coords.GetBounds());
     rays.Buffers.at(0).InitConst(0.f);
-    raytracing::RayOperations::MapCanvasToRays(rays, camera, *this->Internals->Canvas);
+    raytracing::RayOperations::MapCanvasToRays(rays,
+                                               camera.CreateRaytracingCamera(width, height),
+                                               this->Internals->Canvas->GetDepthBuffer());
 
 
     if (this->Internals->SampleDistance != DEFAULT_SAMPLE_DISTANCE)
@@ -129,7 +131,7 @@ void MapperVolume::RenderCellsImpl(const viskores::cont::UnknownCellSet& cellset
     tracer.Render(rays);
 
     timer.Start();
-    this->Internals->Canvas->WriteToCanvas(rays, rays.Buffers.at(0).Buffer, camera, false);
+    this->Internals->Canvas->WriteToCanvas(rays, rays.Buffers.at(0).Buffer, camera, true);
 
     if (this->Internals->CompositeBackground)
     {

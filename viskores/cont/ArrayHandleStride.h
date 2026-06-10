@@ -32,21 +32,21 @@ namespace internal
 struct ArrayStrideInfo
 {
   viskores::Id NumberOfValues = 0;
+  viskores::Id Offset = 0;
   viskores::IdComponent Stride = 1;
-  viskores::IdComponent Offset = 0;
   viskores::IdComponent Modulo = 0;
   viskores::IdComponent Divisor = 0;
 
   ArrayStrideInfo() = default;
 
   ArrayStrideInfo(viskores::Id numValues,
-                  viskores::Id stride,
+                  viskores::IdComponent stride,
                   viskores::Id offset,
-                  viskores::Id modulo,
-                  viskores::Id divisor)
+                  viskores::IdComponent modulo,
+                  viskores::IdComponent divisor)
     : NumberOfValues(numValues)
-    , Stride(stride)
     , Offset(offset)
+    , Stride(stride)
     , Modulo(modulo)
     , Divisor(divisor)
   {
@@ -354,8 +354,17 @@ public:
                     viskores::Id divisor = 1)
     : Superclass(StorageType::CreateBuffers(
         viskores::cont::internal::Buffer{},
-        viskores::internal::ArrayStrideInfo(0, stride, offset, modulo, divisor)))
+        viskores::internal::ArrayStrideInfo(0,
+                                            static_cast<viskores::IdComponent>(stride),
+                                            offset,
+                                            static_cast<viskores::IdComponent>(modulo),
+                                            static_cast<viskores::IdComponent>(divisor))))
   {
+    constexpr viskores::Id maxval = std::numeric_limits<viskores::IdComponent>::max();
+    constexpr viskores::Id minval = std::numeric_limits<viskores::IdComponent>::min();
+    VISKORES_ASSERT((stride >= minval) && (stride <= maxval));
+    VISKORES_ASSERT((modulo >= minval) && (modulo <= maxval));
+    VISKORES_ASSERT((divisor >= minval) && (divisor <= maxval));
   }
 
   /// @brief Construct an `ArrayHandleStride` from a basic array with specified access patterns.
@@ -367,8 +376,17 @@ public:
                     viskores::Id divisor = 1)
     : Superclass(StorageType::CreateBuffers(
         array.GetBuffers()[0],
-        viskores::internal::ArrayStrideInfo(numValues, stride, offset, modulo, divisor)))
+        viskores::internal::ArrayStrideInfo(numValues,
+                                            static_cast<viskores::IdComponent>(stride),
+                                            offset,
+                                            static_cast<viskores::IdComponent>(modulo),
+                                            static_cast<viskores::IdComponent>(divisor))))
   {
+    constexpr viskores::Id maxval = std::numeric_limits<viskores::IdComponent>::max();
+    constexpr viskores::Id minval = std::numeric_limits<viskores::IdComponent>::min();
+    VISKORES_ASSERT((stride >= minval) && (stride <= maxval));
+    VISKORES_ASSERT((modulo >= minval) && (modulo <= maxval));
+    VISKORES_ASSERT((divisor >= minval) && (divisor <= maxval));
   }
 
   ArrayHandleStride(const viskores::cont::internal::Buffer& buffer,
@@ -379,8 +397,17 @@ public:
                     viskores::Id divisor = 1)
     : Superclass(StorageType::CreateBuffers(
         buffer,
-        viskores::internal::ArrayStrideInfo(numValues, stride, offset, modulo, divisor)))
+        viskores::internal::ArrayStrideInfo(numValues,
+                                            static_cast<viskores::IdComponent>(stride),
+                                            offset,
+                                            static_cast<viskores::IdComponent>(modulo),
+                                            static_cast<viskores::IdComponent>(divisor))))
   {
+    constexpr viskores::Id maxval = std::numeric_limits<viskores::IdComponent>::max();
+    constexpr viskores::Id minval = std::numeric_limits<viskores::IdComponent>::min();
+    VISKORES_ASSERT((stride >= minval) && (stride <= maxval));
+    VISKORES_ASSERT((modulo >= minval) && (modulo <= maxval));
+    VISKORES_ASSERT((divisor >= minval) && (divisor <= maxval));
   }
 
   /// @brief Get the stride that values are accessed.
@@ -388,7 +415,10 @@ public:
   /// The stride is the spacing between consecutive values. The stride is measured
   /// in terms of the number of values. A stride of 1 means a fully packed array.
   /// A stride of 2 means selecting every other values.
-  viskores::Id GetStride() const { return StorageType::GetInfo(this->GetBuffers()).Stride; }
+  viskores::IdComponent GetStride() const
+  {
+    return StorageType::GetInfo(this->GetBuffers()).Stride;
+  }
 
   /// @brief Get the offset to start reading values.
   ///
@@ -408,14 +438,20 @@ public:
   /// in the array.
   ///
   /// If the modulo is set to 0, then it is ignored.
-  viskores::Id GetModulo() const { return StorageType::GetInfo(this->GetBuffers()).Modulo; }
+  viskores::IdComponent GetModulo() const
+  {
+    return StorageType::GetInfo(this->GetBuffers()).Modulo;
+  }
 
   /// @brief Get the divisor of the array index.
   ///
   /// The index is divided by the divisor before the other effects. The default divisor of
   /// 1 will have no effect on the indexing. Setting the divisor to a value greater than 1
   /// has the effect of repeating each value that many times.
-  viskores::Id GetDivisor() const { return StorageType::GetInfo(this->GetBuffers()).Divisor; }
+  viskores::IdComponent GetDivisor() const
+  {
+    return StorageType::GetInfo(this->GetBuffers()).Divisor;
+  }
 
   /// @brief Return the underlying data as a basic array handle.
   ///
@@ -546,10 +582,10 @@ public:
   static VISKORES_CONT void load(BinaryBuffer& bb, BaseType& obj)
   {
     viskores::Id numValues;
-    viskores::Id stride;
+    viskores::IdComponent stride;
     viskores::Id offset;
-    viskores::Id modulo;
-    viskores::Id divisor;
+    viskores::IdComponent modulo;
+    viskores::IdComponent divisor;
     viskores::cont::internal::Buffer buffer;
 
     viskoresdiy::load(bb, numValues);

@@ -40,7 +40,6 @@ set(unit_tests
   UnitTestArraySetValues.cxx
   UnitTestBuffer.cxx
   UnitTestComputeRange.cxx
-  UnitTestControlSignatureTag.cxx
   UnitTestContTesting.cxx
   UnitTestDataSetBuilderCurvilinear.cxx
   UnitTestDataSetBuilderExplicit.cxx
@@ -50,11 +49,17 @@ set(unit_tests
   UnitTestDataSetExplicit.cxx
   UnitTestDataSetRectilinear.cxx
   UnitTestDataSetUniform.cxx
-  UnitTestDeviceAdapterAlgorithmGeneral.cxx
   UnitTestDeviceSelectOnThreads.cxx
   UnitTestError.cxx
   UnitTestFieldRangeCompute.cxx
-  UnitTestInitialize.cxx
+  UnitTestInitializeCustomOptions.cxx
+  UnitTestInitializeCustomOptionsWithArgs.cxx
+  UnitTestInitializeRuntimeDeviceConfigurationWithArgs.cxx
+  UnitTestInitializeMixedOptions.cxx
+  UnitTestInitializeNoOptions.cxx
+  UnitTestInitializeStandardOptions.cxx
+  UnitTestInitializeWithHelp.cxx
+  UnitTestInitializeZeroArgs.cxx
   UnitTestIteratorFromArrayPortal.cxx
   UnitTestLateDeallocate.cxx
   UnitTestLogging.cxx
@@ -72,7 +77,6 @@ set(unit_tests
   UnitTestTypeCheckArray.cxx
   UnitTestTypeCheckCellSet.cxx
   UnitTestTypeCheckExecObject.cxx
-  UnitTestTypeCheckKeys.cxx
   UnitTestUnknownArrayHandle.cxx
   UnitTestUnknownCellSet.cxx
   )
@@ -102,6 +106,7 @@ set(unit_tests_device
   UnitTestArrayHandleView.cxx
   UnitTestArrayHandleXGCCoordinates.cxx
   UnitTestArrayHandleZip.cxx
+  UnitTestArrayIsMonotonic.cxx
   UnitTestArrayRangeCompute.cxx
   UnitTestBitField.cxx
   UnitTestCellLocatorChooser.cxx
@@ -114,19 +119,23 @@ set(unit_tests_device
   UnitTestCellSetExplicit.cxx
   UnitTestCellSetPermutation.cxx
   UnitTestColorTable.cxx
+  UnitTestControlSignatureTag.cxx
   UnitTestDataSetPermutation.cxx
   UnitTestDataSetSingleType.cxx
   UnitTestDeviceAdapterAlgorithmDependency.cxx
+  UnitTestDeviceAdapterAlgorithmGeneral.cxx
   UnitTestHints.cxx
   UnitTestImplicitFunction.cxx
   UnitTestParticleArrayCopy.cxx
   UnitTestPointLocatorSparseGrid.cxx
+  UnitTestSplineEvaluate.cxx
   UnitTestTransportArrayIn.cxx
   UnitTestTransportArrayInOut.cxx
   UnitTestTransportArrayOut.cxx
   UnitTestTransportCellSetIn.cxx
   UnitTestTransportExecObject.cxx
   UnitTestTransportWholeArray.cxx
+  UnitTestTypeCheckKeys.cxx
   )
 if(TARGET viskores_filter_field_conversion)
   list(APPEND unit_tests_device

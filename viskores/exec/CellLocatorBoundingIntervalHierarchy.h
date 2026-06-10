@@ -82,6 +82,25 @@ class VISKORES_ALWAYS_EXPORT CellLocatorBoundingIntervalHierarchy
     viskores::cont::ArrayHandle<viskores::exec::CellLocatorBoundingIntervalHierarchyNode>;
   using CellIdArrayHandle = viskores::cont::ArrayHandle<viskores::Id>;
 
+  struct IdOnlyParametricCoords
+  {
+    VISKORES_EXEC
+    explicit IdOnlyParametricCoords(viskores::IdComponent numberOfComponents)
+      : NumberOfComponents(numberOfComponents)
+      , Dummy()
+    {
+    }
+
+    VISKORES_EXEC
+    viskores::IdComponent GetNumberOfComponents() const { return this->NumberOfComponents; }
+
+    VISKORES_EXEC
+    viskores::Vec3f& operator[](viskores::IdComponent) { return this->Dummy; }
+
+    viskores::IdComponent NumberOfComponents;
+    viskores::Vec3f Dummy;
+  };
+
 public:
   VISKORES_CONT
   CellLocatorBoundingIntervalHierarchy(
@@ -104,6 +123,26 @@ public:
     viskores::Id CellId = -1;
     viskores::Id NodeIdx = -1;
   };
+
+  /// @brief Locate the id of the cell containing the provided point.
+  ///
+  /// This method returns the same cell id as `FindCell()` without requiring
+  /// the caller to provide parametric coordinates.
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId) const
+  {
+    viskores::Vec3f pCoords;
+    return this->FindCell(point, cellId, pCoords);
+  }
+
+  /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCellId
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId,
+                                               LastCell& lastCell) const
+  {
+    viskores::Vec3f pCoords;
+    return this->FindCell(point, cellId, pCoords, lastCell);
+  }
 
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCell
   VISKORES_EXEC viskores::ErrorCode FindCell(const viskores::Vec3f& point,
@@ -145,17 +184,22 @@ public:
     {
       const auto& node = this->Nodes.Get(lastCell.NodeIdx);
 
-      if (node.ChildIndex < 0)
+      if (this->LeafNodeValid(node))
       {
         viskores::IdComponent count = 0;
         viskores::Vec<viskores::Id, 1> cellIdsVec = { -1 };
         viskores::Vec<viskores::Vec3f, 1> pCoordsVec = { viskores::Vec3f() };
         if (this->FindInLeaf(IterateMode::FindOne, point, pCoordsVec, node, cellIdsVec, count))
         {
+          cellId = cellIdsVec[0];
           lastCell.CellId = cellIdsVec[0];
           pCoords = pCoordsVec[0];
           return viskores::ErrorCode::Success;
         }
+      }
+      else
+      {
+        lastCell.NodeIdx = -1;
       }
     }
 
@@ -191,16 +235,10 @@ public:
 
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindAllCells
   template <typename CellIdsType, typename ParametricCoordsVecType>
-  VISKORES_EXEC viskores::ErrorCode FindAllCells(
-    const viskores::Vec3f& viskoresNotUsed(point),
-    CellIdsType& viskoresNotUsed(cellIdsVec),
-    ParametricCoordsVecType& viskoresNotUsed(pCoordsVec)) const
+  VISKORES_EXEC viskores::ErrorCode FindAllCells(const viskores::Vec3f& point,
+                                                 CellIdsType& cellIdsVec,
+                                                 ParametricCoordsVecType& pCoordsVec) const
   {
-    //There is a memory access error on some GPU devices.
-    // Disabling for now.
-    return viskores::ErrorCode::Unsupported;
-
-#if 0
     viskores::IdComponent n = cellIdsVec.GetNumberOfComponents();
     if (pCoordsVec.GetNumberOfComponents() != n)
       return viskores::ErrorCode::InvalidNumberOfIndices;
@@ -222,7 +260,36 @@ public:
       return viskores::ErrorCode::InvalidNumberOfIndices;
 
     return status;
-#endif
+  }
+
+  /// @brief Locate all cell ids containing the provided point.
+  ///
+  /// This method returns the same cell ids as `FindAllCells()` without
+  /// requiring parametric coordinates.
+  ///
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellIds(const viskores::Vec3f& point,
+                                                   CellIdsType& cellIdsVec) const
+  {
+    viskores::IdComponent n = cellIdsVec.GetNumberOfComponents();
+    if (n == 0)
+      return viskores::ErrorCode::Success;
+
+    for (viskores::IdComponent i = 0; i < n; i++)
+      cellIdsVec[i] = -1;
+
+    IdOnlyParametricCoords pCoordsVec(n);
+    LastCell lastCell;
+    viskores::IdComponent count = 0;
+    auto status =
+      this->FindCellImpl(IterateMode::FindAll, point, cellIdsVec, pCoordsVec, lastCell, count);
+
+    // More than n cells were found.
+    // If cellIdsVec is not large enough to hold the number found, return an error.
+    if (count > n)
+      return viskores::ErrorCode::InvalidNumberOfIndices;
+
+    return status;
   }
 
 private:
@@ -259,7 +326,7 @@ private:
     while (true)
     {
       // 1) If we’ve found a cell (and only looking for one), stop immediately
-      if (mode == IterateMode::FindOne && cellIdsVec[0] > viskores::Id(0))
+      if (mode == IterateMode::FindOne && cellIdsVec[0] >= viskores::Id(0))
         break;
 
       // 2) If we’ve returned all the way to the root and just ascended, stop
@@ -332,6 +399,7 @@ private:
     const viskores::exec::CellLocatorBoundingIntervalHierarchyNode& childNode =
       this->Nodes.Get(childNodeIndex);
     nodeIndex = childNode.ParentIndex;
+    VISKORES_ASSERT(nodeIndex >= 0);
     const viskores::exec::CellLocatorBoundingIntervalHierarchyNode& parentNode =
       this->Nodes.Get(nodeIndex);
 
@@ -412,7 +480,6 @@ private:
         found = true;
         if (mode == IterateMode::FindOne || mode == IterateMode::FindAll)
         {
-          VISKORES_ASSERT(count < n);
           //Update vecs if there is room.  If the vecs are too small, it will get reported as an error in FindAllCells()
           if (count < n)
           {
@@ -427,6 +494,17 @@ private:
       }
     }
     return found;
+  }
+
+  VISKORES_EXEC bool LeafNodeValid(
+    const viskores::exec::CellLocatorBoundingIntervalHierarchyNode& node) const
+  {
+    if (node.ChildIndex >= 0)
+      return false;
+
+    const viskores::Id numCellIds = this->CellIds.GetNumberOfValues();
+    return (node.Leaf.Start >= 0) && (node.Leaf.Size >= 0) && (node.Leaf.Start <= numCellIds) &&
+      (node.Leaf.Size <= (numCellIds - node.Leaf.Start));
   }
 
   VISKORES_EXEC bool PointInCell(const viskores::Vec3f& point,

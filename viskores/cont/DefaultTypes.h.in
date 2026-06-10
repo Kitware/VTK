@@ -50,21 +50,49 @@
 
 #ifndef VISKORES_DEFAULT_TYPE_LIST
 #include <viskores/TypeList.h>
+
+/// @brief A list of default numeric types to use for unknown arrays and fields.
+///
+/// This macro resolves to a `viskores::List` filled with numeric types and
+/// (typically) `viskores::Vec` types. This is a default list of numeric types
+/// to check for when resolving array types.
 #define VISKORES_DEFAULT_TYPE_LIST ::viskores::TypeListCommon
 #endif //VISKORES_DEFAULT_TYPE_LIST
 
 #ifndef VISKORES_DEFAULT_STORAGE_LIST
 #include <viskores/cont/StorageList.h>
+
+/// @brief A list of default storage types to use for unknown arrays and fields.
+///
+/// This macro resolves to a `viskores::List` filled with storage tags for array
+/// containers that are typically expected in fields and other arrays. These are
+/// the default storage checked in cast and call operations that are not otherwise
+/// specified.
 #define VISKORES_DEFAULT_STORAGE_LIST ::viskores::cont::StorageListCommon
 #endif // VISKORES_DEFAULT_STORAGE_LIST
 
 #ifndef VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED
 #include <viskores/cont/CellSetList.h>
+
+/// @brief A list of structured cell set types to use for unknown cell sets.
+///
+/// This macro resolves to a `viskores::List` filled with resolved types of the
+/// `viskores::cont::CellSetStructured` template. Filters that only operate on
+/// structured data or have special cases for structured data can use this list
+/// in a cast and call to check for structured types.
 #define VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED ::viskores::cont::CellSetListStructured
 #endif // VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED
 
 #ifndef VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED
 #include <viskores/cont/CellSetList.h>
+
+/// @brief A list of unstructured cell set types to use for unknown cell sets.
+///
+/// This macro resolves to a `viskores::List` filled with concrete subclasses of
+/// `viskores::cont::CellSet`. Typically, this list contains the types in
+/// `VISKORES_DEFAULT_CELL_SET_LIST` minus the structured cell sets. Filters that
+/// have special cases for structured data can use this list in a cast and call to
+/// cover the more general unstructured cases.
 #define VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED ::viskores::cont::CellSetListUnstructured
 #endif // VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED
 
@@ -82,6 +110,13 @@ using CellSetList = viskores::ListAppend<VISKORES_DEFAULT_CELL_SET_LIST_STRUCTUR
 }
 } // namespace viskores::cont::internal
 
+/// @brief A list of cell set types to use for unknown cell sets.
+///
+/// This macro resolves to a `viskores::List` filled with concrete subclasses of
+/// `viskores::cont::CellSet`. These are the default cell types checked during a
+/// cast and call operation on an unknown cell set. Filters that do not have
+/// restrictions on the types of cells they operate on should support the cell
+/// set types in this list.
 #define VISKORES_DEFAULT_CELL_SET_LIST ::viskores::cont::internal::CellSetList
 #endif // VISKORES_CELL_SET_LIST
 

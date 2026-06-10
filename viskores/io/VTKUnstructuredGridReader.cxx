@@ -75,7 +75,7 @@ void VTKUnstructuredGridReader::Read()
   viskores::io::internal::FixupCellSet(connectivity, numIndices, shapes, permutation);
   this->SetCellsPermutation(permutation);
 
-  if (viskores::io::internal::IsSingleShape(shapes))
+  if (viskores::io::internal::IsSingleShape(shapes, numIndices))
   {
     viskores::cont::CellSetSingleType<> cellSet;
     cellSet.Fill(

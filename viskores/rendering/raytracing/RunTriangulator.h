@@ -15,27 +15,35 @@
 //  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 //  PURPOSE.  See the above copyright notice for more information.
 //============================================================================
+#ifndef viskores_rendering_raytracing_RunTriangulator_h
+#define viskores_rendering_raytracing_RunTriangulator_h
 
-#include <viskores/rendering/internal/RunTriangulator.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
-#include <viskores/cont/TryExecute.h>
-#include <viskores/rendering/Triangulator.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/Field.h>
+#include <viskores/cont/RuntimeDeviceTracker.h>
+#include <viskores/cont/UnknownCellSet.h>
 
 namespace viskores
 {
 namespace rendering
 {
-namespace internal
+namespace raytracing
 {
 
+/// This is a wrapper around the Triangulator worklet so that the
+/// implementation of the triangulator only gets compiled once. This function
+/// really is a stop-gap. Eventually, the Triangulator should be moved to
+/// filters, and filters should be compiled in a library (for the same reason).
+///
+VISKORES_RENDERING_RAYTRACING_EXPORT
 void RunTriangulator(const viskores::cont::UnknownCellSet& cellSet,
                      viskores::cont::ArrayHandle<viskores::Id4>& indices,
                      viskores::Id& numberOfTriangles,
-                     const viskores::cont::Field& ghostField)
-{
-  viskores::rendering::Triangulator triangulator;
-  triangulator.Run(cellSet, indices, numberOfTriangles, ghostField);
+                     const viskores::cont::Field& ghostField = viskores::cont::Field());
 }
 }
-}
-} // namespace viskores::rendering::internal
+} // namespace viskores::rendering::raytracing
+
+#endif //viskores_rendering_raytracing_RunTriangulator_h

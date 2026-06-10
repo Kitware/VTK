@@ -133,9 +133,10 @@ struct Storage<
 
 } // namespace internal
 
-/// ArrayHandleCounting is a specialization of ArrayHandle. By default it
-/// contains a increment value, that is increment for each step between zero
-/// and the passed in length
+/// ArrayHandleCounting is a specialization of ArrayHandle. It is defined
+/// by a start, a step, and the length of the array. The value in the first
+/// index is the start value, and each subsequent value is incremented by
+/// the step.
 template <typename CountingValueType>
 class ArrayHandleCounting
   : public viskores::cont::ArrayHandle<CountingValueType, viskores::cont::StorageTagCounting>
@@ -146,6 +147,11 @@ public:
     (ArrayHandleCounting<CountingValueType>),
     (viskores::cont::ArrayHandle<CountingValueType, StorageTagCounting>));
 
+  /// Construct an `ArrayHandleCounting` with the provided `start`, `step`, and `length`.
+  ///
+  /// @param start The value of the first entry of the array (index 0).
+  /// @param step The amount each subsequent entry is incremented.
+  /// @param length The overall length of the array.
   VISKORES_CONT
   ArrayHandleCounting(CountingValueType start, CountingValueType step, viskores::Id length)
     : Superclass(internal::PortalToArrayHandleImplicitBuffers(

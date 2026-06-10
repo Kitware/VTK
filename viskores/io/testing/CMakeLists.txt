@@ -27,6 +27,12 @@ set(unit_tests
 
 set(unit_test_libraries viskores_io)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+   CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+  # GCC 8 provides std::filesystem in a separate support library.
+  list(APPEND unit_test_libraries stdc++fs)
+endif()
+
 if(Viskores_ENABLE_RENDERING)
   list(APPEND unit_tests
     UnitTestImageWriter.cxx

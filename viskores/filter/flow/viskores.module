@@ -13,6 +13,7 @@ TEST_DEPENDS
   viskores_filter_mesh_info
   viskores_filter_flow
   viskores_io
+  viskores_worklet
 TEST_OPTIONAL_DEPENDS
   viskores_rendering_testing
   MPI::MPI_CXX

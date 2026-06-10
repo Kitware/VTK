@@ -723,10 +723,10 @@ void LinearBVH::SetData(AABBs& aabbs)
 }
 
 // explicitly export
-//template VISKORES_RENDERING_EXPORT void LinearBVH::ConstructOnDevice<
+//template VISKORES_RENDERING_RAYTRACING_EXPORT void LinearBVH::ConstructOnDevice<
 //  viskores::cont::DeviceAdapterTagSerial>(viskores::cont::DeviceAdapterTagSerial);
 //#ifdef VISKORES_ENABLE_TBB
-//template VISKORES_RENDERING_EXPORT void LinearBVH::ConstructOnDevice<viskores::cont::DeviceAdapterTagTBB>(
+//template VISKORES_RENDERING_RAYTRACING_EXPORT void LinearBVH::ConstructOnDevice<viskores::cont::DeviceAdapterTagTBB>(
 //  viskores::cont::DeviceAdapterTagTBB);
 //#endif
 //#ifdef VISKORES_ENABLE_OPENMP
@@ -734,7 +734,7 @@ void LinearBVH::SetData(AABBs& aabbs)
 //  viskores::cont::DeviceAdapterTagOpenMP);
 //#endif
 //#ifdef VISKORES_ENABLE_CUDA
-//template VISKORES_RENDERING_EXPORT void LinearBVH::ConstructOnDevice<viskores::cont::DeviceAdapterTagCuda>(
+//template VISKORES_RENDERING_RAYTRACING_EXPORT void LinearBVH::ConstructOnDevice<viskores::cont::DeviceAdapterTagCuda>(
 //  viskores::cont::DeviceAdapterTagCuda);
 //#endif
 //

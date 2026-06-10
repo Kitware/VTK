@@ -925,11 +925,11 @@ viskores::cont::DataSet MakeTestDataSet::Make3DExplicitDataSet5()
   cellSet.AddCell(viskores::CELL_SHAPE_TETRA, 4, ids);
 
   ids[0] = 4;
-  ids[1] = 7;
-  ids[2] = 9;
+  ids[1] = 9;
+  ids[2] = 7;
   ids[3] = 5;
-  ids[4] = 6;
-  ids[5] = 10;
+  ids[4] = 10;
+  ids[5] = 6;
   cellSet.AddCell(viskores::CELL_SHAPE_WEDGE, 6, ids);
 
   cellSet.CompleteAddingCells(nVerts);
@@ -1229,20 +1229,20 @@ viskores::cont::DataSet MakeTestDataSet::Make3DExplicitDataSetZoo()
   shapes.push_back(viskores::CELL_SHAPE_WEDGE);
   numindices.push_back(6);
   conn.push_back(8);
-  conn.push_back(14);
   conn.push_back(17);
+  conn.push_back(14);
   conn.push_back(7);
-  conn.push_back(13);
   conn.push_back(16);
+  conn.push_back(13);
 
   shapes.push_back(viskores::CELL_SHAPE_WEDGE);
   numindices.push_back(6);
   conn.push_back(11);
-  conn.push_back(8);
   conn.push_back(17);
+  conn.push_back(8);
   conn.push_back(10);
-  conn.push_back(7);
   conn.push_back(16);
+  conn.push_back(7);
 
   dataSet = dsb.Create(coords, shapes, numindices, conn, "coordinates");
 

@@ -20,8 +20,7 @@
 #include <viskores/cont/ErrorBadValue.h>
 
 #include <algorithm>
-// TODO (nadavi): Once we get c++17 installed uncomment this
-// #include <filesystem>
+#include <cctype>
 #include <errno.h>
 #include <sys/stat.h>
 
@@ -29,6 +28,23 @@
 #include <direct.h>
 #endif
 
+#ifdef __APPLE__
+#include <AvailabilityMacros.h>
+#endif
+
+// std::filesystem::absolute (and several other std::filesystem operations) are
+// marked unavailable when targeting macOS deployment targets older than 10.15,
+// so a manual implementation is used in that case instead.
+#if defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED < 101500
+#define VISKORES_FILESYSTEM_ABSOLUTE_UNAVAILABLE
+#include <limits.h>
+#include <unistd.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+#else
+#include <filesystem>
+#endif
 
 namespace viskores
 {
@@ -123,6 +139,45 @@ bool CreateDirectoriesFromFilePath(const std::string& filePath)
     default:
       return false;
   }
+}
+
+bool IsAbsolutePath(const std::string& filePath)
+{
+  if (filePath.empty())
+    return false;
+
+#ifdef _WIN32
+  if (filePath[0] == '/' || filePath[0] == '\\')
+    return true;
+
+  if (filePath.size() < 3)
+    return false;
+
+  if (!std::isalpha(static_cast<unsigned char>(filePath[0])) || filePath[1] != ':')
+    return false;
+
+  return filePath[2] == '/' || filePath[2] == '\\';
+#else
+  return filePath[0] == '/';
+#endif
+}
+
+std::string MakeAbsolutePath(const std::string& filePath)
+{
+  if (IsAbsolutePath(filePath))
+    return filePath;
+
+#ifdef VISKORES_FILESYSTEM_ABSOLUTE_UNAVAILABLE
+  char buffer[PATH_MAX];
+  if (getcwd(buffer, PATH_MAX) == nullptr)
+  {
+    throw viskores::cont::ErrorBadValue("Unable to determine the current working directory.");
+  }
+
+  return MergePaths(std::string(buffer), filePath);
+#else
+  return std::filesystem::absolute(filePath).string();
+#endif
 }
 
 std::string MergePaths(const std::string& filePathPrefix, const std::string& filePathSuffix)

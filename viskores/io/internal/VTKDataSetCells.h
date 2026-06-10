@@ -37,7 +37,6 @@ namespace internal
 enum UnsupportedVTKCells
 {
   CELL_SHAPE_POLY_VERTEX = 2,
-  CELL_SHAPE_POLY_LINE = 4,
   CELL_SHAPE_TRIANGLE_STRIP = 6,
   CELL_SHAPE_PIXEL = 8,
   CELL_SHAPE_VOXEL = 11
@@ -65,6 +64,7 @@ inline void FixupCellSet(viskores::cont::ArrayHandle<viskores::Id>& connectivity
     {
       case viskores::CELL_SHAPE_VERTEX:
       case viskores::CELL_SHAPE_LINE:
+      case viskores::CELL_SHAPE_POLY_LINE:
       case viskores::CELL_SHAPE_TRIANGLE:
       case viskores::CELL_SHAPE_QUAD:
       case viskores::CELL_SHAPE_TETRA:
@@ -113,21 +113,6 @@ inline void FixupCellSet(viskores::cont::ArrayHandle<viskores::Id>& connectivity
           permutationVec.push_back(i);
           ++connIdx;
         }
-        break;
-      }
-      case CELL_SHAPE_POLY_LINE:
-      {
-        viskores::IdComponent numLines = numInds - 1;
-        for (viskores::IdComponent j = 0; j < numLines; ++j)
-        {
-          newShapes.push_back(viskores::CELL_SHAPE_LINE);
-          newNumIndices.push_back(2);
-          newConnectivity.push_back(connPortal.Get(connIdx));
-          newConnectivity.push_back(connPortal.Get(connIdx + 1));
-          permutationVec.push_back(i);
-          ++connIdx;
-        }
-        connIdx += 1;
         break;
       }
       case CELL_SHAPE_TRIANGLE_STRIP:
@@ -216,7 +201,8 @@ inline void FixupCellSet(viskores::cont::ArrayHandle<viskores::Id>& connectivity
             viskores::cont::ArrayPortalToIteratorBegin(connectivity.WritePortal()));
 }
 
-inline bool IsSingleShape(const viskores::cont::ArrayHandle<viskores::UInt8>& shapes)
+inline bool IsSingleShape(const viskores::cont::ArrayHandle<viskores::UInt8>& shapes,
+                          const viskores::cont::ArrayHandle<viskores::IdComponent>& numIndices)
 {
   if (shapes.GetNumberOfValues() < 1)
   {
@@ -228,10 +214,12 @@ inline bool IsSingleShape(const viskores::cont::ArrayHandle<viskores::UInt8>& sh
   }
 
   auto shapesPortal = shapes.ReadPortal();
+  auto indicesPortal = numIndices.ReadPortal();
   viskores::UInt8 shape0 = shapesPortal.Get(0);
+  viskores::IdComponent numIndices0 = indicesPortal.Get(0);
   for (viskores::Id i = 1; i < shapes.GetNumberOfValues(); ++i)
   {
-    if (shapesPortal.Get(i) != shape0)
+    if ((shapesPortal.Get(i) != shape0) || (indicesPortal.Get(i) != numIndices0))
       return false;
   }
 

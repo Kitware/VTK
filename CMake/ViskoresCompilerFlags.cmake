@@ -81,6 +81,14 @@ if(VISKORES_COMPILER_IS_MSVC)
   endif()
 endif()
 
+# Use a standard-compliant preprocessor (required for recent versions of Thrust).
+if(VISKORES_COMPILER_IS_MSVC)
+  target_compile_options(viskores_compiler_flags INTERFACE $<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>)
+  if(TARGET viskores_cuda)
+    target_compile_options(viskores_compiler_flags INTERFACE $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler="/Zc:preprocessor">)
+  endif()
+endif()
+
 # Setup the include directories that are needed for viskores
 target_include_directories(viskores_compiler_flags INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

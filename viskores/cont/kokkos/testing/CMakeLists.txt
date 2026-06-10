@@ -21,7 +21,11 @@ set(unit_tests
   UnitTestKokkosRuntimeDeviceConfiguration.cxx
   )
 
-viskores_unit_tests(SOURCES ${unit_tests} LABEL "KOKKOS" LIBRARIES viskores_worklet BACKEND kokkos)
+viskores_unit_tests(DEVICE_SOURCES ${unit_tests}
+  LABEL "KOKKOS"
+  LIBRARIES viskores_worklet
+  BACKEND kokkos
+  )
 
 if (TARGET viskores_kokkos_cuda)
   set_source_files_properties(${unit_tests} PROPERTIES LANGUAGE CUDA)

@@ -36,9 +36,12 @@ namespace source
 class VISKORES_SOURCE_EXPORT Oscillator final : public viskores::source::Source
 {
 public:
+  /// \brief Constructs an oscillator source with default parameters.
+  ///
+  /// The default point dimensions are 3 by 3 by 3. Oscillators can be added
+  /// with \c AddPeriodic, \c AddDamped, and \c AddDecaying.
   VISKORES_CONT Oscillator();
 
-  ///Construct a Oscillator with Cell Dimensions
   VISKORES_CONT VISKORES_DEPRECATED(
     2.0,
     "Use SetCellDimensions or SetPointDimensions.") explicit Oscillator(viskores::Id3 dims);
@@ -48,14 +51,35 @@ public:
   // in Oscillator.cxx does have ~Oscillator() = default;
   VISKORES_CONT ~Oscillator() override;
 
+  /// \brief Sets the number of points in each dimension.
+  ///
+  /// The dimensions must be greater than 1 in each direction to generate cells.
   VISKORES_CONT void SetPointDimensions(viskores::Id3 pointDimensions);
+
+  /// \brief Gets the number of points in each dimension.
   VISKORES_CONT viskores::Id3 GetPointDimensions() const;
+
+  /// \brief Sets the number of cells in each dimension.
+  ///
+  /// The point dimensions are set to one more than the given cell dimensions in
+  /// each direction.
   VISKORES_CONT void SetCellDimensions(viskores::Id3 pointDimensions);
+
+  /// \brief Gets the number of cells in each dimension.
+  ///
+  /// This value is computed from the point dimensions by subtracting 1 in each
+  /// direction.
   VISKORES_CONT viskores::Id3 GetCellDimensions() const;
 
+  /// \brief Sets the time used to evaluate the oscillator field.
   VISKORES_CONT
   void SetTime(viskores::FloatDefault time);
 
+  /// \brief Adds a periodic oscillator contribution.
+  ///
+  /// The first three parameters specify the oscillator center. The radius
+  /// controls the Gaussian spatial falloff. The omega and zeta parameters
+  /// control the oscillator's temporal behavior.
   VISKORES_CONT
   void AddPeriodic(viskores::FloatDefault x,
                    viskores::FloatDefault y,
@@ -64,6 +88,11 @@ public:
                    viskores::FloatDefault omega,
                    viskores::FloatDefault zeta);
 
+  /// \brief Adds a damped oscillator contribution.
+  ///
+  /// The first three parameters specify the oscillator center. The radius
+  /// controls the Gaussian spatial falloff. The omega and zeta parameters
+  /// control the oscillator's temporal behavior.
   VISKORES_CONT
   void AddDamped(viskores::FloatDefault x,
                  viskores::FloatDefault y,
@@ -72,6 +101,11 @@ public:
                  viskores::FloatDefault omega,
                  viskores::FloatDefault zeta);
 
+  /// \brief Adds a decaying oscillator contribution.
+  ///
+  /// The first three parameters specify the oscillator center. The radius
+  /// controls the Gaussian spatial falloff. The omega and zeta parameters
+  /// control the oscillator's temporal behavior.
   VISKORES_CONT
   void AddDecaying(viskores::FloatDefault x,
                    viskores::FloatDefault y,

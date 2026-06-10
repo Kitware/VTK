@@ -25,7 +25,9 @@
 #include <viskores/internal/Invocation.h>
 
 #include <viskores/cont/CastAndCall.h>
+#include <viskores/cont/DeviceAdapter.h>
 #include <viskores/cont/ErrorBadType.h>
+#include <viskores/cont/ErrorExecution.h>
 #include <viskores/cont/Logging.h>
 #include <viskores/cont/TryExecute.h>
 

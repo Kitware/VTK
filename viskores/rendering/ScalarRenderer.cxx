@@ -111,8 +111,8 @@ ScalarRenderer::Result ScalarRenderer::Render(const viskores::rendering::Camera&
   timer.Start();
 
   // Create rays
-  viskores::rendering::raytracing::Camera cam;
-  cam.SetParameters(camera, this->Internals->Width, this->Internals->Height);
+  viskores::rendering::raytracing::Camera cam =
+    camera.CreateRaytracingCamera(this->Internals->Width, this->Internals->Height);
 
   // FIXME: rays are created with an unused Buffers.at(0), that ChannelBuffer
   //  also has wrong number of channels, thus allocates memory that is wasted.

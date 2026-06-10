@@ -438,17 +438,31 @@ function(viskores_add_target_information uses_viskores_target)
     endif()
   endforeach()
 
+  foreach(target IN LISTS targets)
+    target_compile_definitions(${target} PRIVATE VISKORES_IS_VISKORES_TARGET)
+  endforeach()
+
   if(Viskores_TI_DROP_UNUSED_SYMBOLS)
     foreach(target IN LISTS targets)
       viskores_add_drop_unused_function_flags(${target})
     endforeach()
   endif()
 
-  if(TARGET viskores_cuda OR TARGET viskores::cuda OR TARGET viskores_kokkos_cuda OR TARGET viskores::kokkos_cuda)
-    set_source_files_properties(${Viskores_TI_DEVICE_SOURCES} PROPERTIES LANGUAGE "CUDA")
-  elseif(TARGET viskores_kokkos_hip OR TARGET viskores::kokkos_hip)
-    set_source_files_properties(${Viskores_TI_DEVICE_SOURCES} PROPERTIES LANGUAGE "HIP")
-    kokkos_compilation(SOURCE ${Viskores_TI_DEVICE_SOURCES})
+  if(Viskores_TI_DEVICE_SOURCES)
+    foreach(target IN LISTS targets)
+      target_link_libraries(${target}
+        PRIVATE $<TARGET_NAME_IF_EXISTS:viskores_exec>  $<TARGET_NAME_IF_EXISTS:viskores::viskores_exec>)
+    endforeach()
+
+    set_property(SOURCE ${Viskores_TI_DEVICE_SOURCES}
+      APPEND PROPERTY COMPILE_DEFINITIONS VISKORES_IS_DEVICE_SOURCE)
+
+    if(TARGET viskores_cuda OR TARGET viskores::cuda OR TARGET viskores_kokkos_cuda OR TARGET viskores::kokkos_cuda)
+      set_source_files_properties(${Viskores_TI_DEVICE_SOURCES} PROPERTIES LANGUAGE "CUDA")
+    elseif(TARGET viskores_kokkos_hip OR TARGET viskores::kokkos_hip)
+      set_source_files_properties(${Viskores_TI_DEVICE_SOURCES} PROPERTIES LANGUAGE "HIP")
+      kokkos_compilation(SOURCE ${Viskores_TI_DEVICE_SOURCES})
+    endif()
   endif()
 endfunction()
 
@@ -533,8 +547,6 @@ function(viskores_library)
   # their own version numbers etc.
   if(DEFINED Viskores_CUSTOM_LIBRARY_SUFFIX)
     set(_lib_suffix "${Viskores_CUSTOM_LIBRARY_SUFFIX}")
-  else()
-    set(_lib_suffix "-${Viskores_VERSION_MAJOR}.${Viskores_VERSION_MINOR}")
   endif()
   set_property(TARGET ${lib_name} PROPERTY OUTPUT_NAME ${lib_name}${_lib_suffix})
 

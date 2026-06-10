@@ -32,7 +32,7 @@ namespace rendering
 namespace raytracing
 {
 
-class VISKORES_RENDERING_EXPORT RayTracer
+class VISKORES_RENDERING_RAYTRACING_EXPORT RayTracer
 {
 protected:
   std::vector<std::shared_ptr<ShapeIntersector>> Intersectors;

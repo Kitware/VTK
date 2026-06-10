@@ -50,6 +50,7 @@ private:
 
   VISKORES_CONT AnalysisType GetAnalysis(const viskores::cont::DataSet& data) const;
 
+protected:
   VISKORES_CONT viskores::cont::PartitionedDataSet DoExecutePartitions(
     const viskores::cont::PartitionedDataSet& input) override;
 };

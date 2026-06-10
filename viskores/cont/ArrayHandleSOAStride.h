@@ -58,7 +58,7 @@ public:
   VISKORES_CONT ArrayPortalSOAStrideRead(const T* array,
                                          viskores::Id numberOfValues,
                                          viskores::IdComponent stride,
-                                         viskores::IdComponent offset)
+                                         viskores::Id offset)
     : Array(array + offset)
     , NumberOfValues(numberOfValues)
     , Stride(stride)
@@ -103,7 +103,7 @@ public:
   VISKORES_CONT ArrayPortalSOAStrideWrite(T* array,
                                           viskores::Id numberOfValues,
                                           viskores::IdComponent stride,
-                                          viskores::IdComponent offset)
+                                          viskores::Id offset)
     : Array(array + offset)
     , NumberOfValues(numberOfValues)
     , Stride(stride)
@@ -633,10 +633,10 @@ struct Serialization<viskores::cont::ArrayHandleSOAStride<ValueType>>
     for (std::size_t componentIndex = 0; componentIndex < NUM_COMPONENTS; ++componentIndex)
     {
       viskores::Id numValues;
-      viskores::Id stride;
+      viskores::IdComponent stride;
       viskores::Id offset;
-      viskores::Id modulo;
-      viskores::Id divisor;
+      viskores::IdComponent modulo;
+      viskores::IdComponent divisor;
       viskores::cont::internal::Buffer componentBuffer;
 
       viskoresdiy::load(bb, numValues);

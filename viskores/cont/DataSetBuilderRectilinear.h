@@ -23,7 +23,6 @@
 #include <viskores/cont/ArrayPortalToIterators.h>
 #include <viskores/cont/CoordinateSystem.h>
 #include <viskores/cont/DataSet.h>
-#include <viskores/cont/serial/DeviceAdapterSerial.h>
 
 namespace viskores
 {

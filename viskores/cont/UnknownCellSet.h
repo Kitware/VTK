@@ -119,6 +119,7 @@ public:
     return (dynamic_cast<const CellSetType*>(this->Container.get()) != nullptr);
   }
 
+  /// @brief Returns the number of cells in the cell set.
   VISKORES_CONT viskores::Id GetNumberOfCells() const
   {
     return this->Container ? this->Container->GetNumberOfCells() : 0;
@@ -131,28 +132,44 @@ public:
   {
     return this->Container ? this->Container->GetNumberOfEdges() : 0;
   }
+  /// @brief Returns the number of points in the cell set.
   VISKORES_CONT viskores::Id GetNumberOfPoints() const
   {
     return this->Container ? this->Container->GetNumberOfPoints() : 0;
   }
 
+  /// @brief Given the index of a cell, returns the identifier for the cell shape.
   VISKORES_CONT viskores::UInt8 GetCellShape(viskores::Id id) const
   {
     return this->GetCellSetBase()->GetCellShape(id);
   }
+  /// @brief Given the index of a cell, returns the number of points incident on that cell.
   VISKORES_CONT viskores::IdComponent GetNumberOfPointsInCell(viskores::Id id) const
   {
     return this->GetCellSetBase()->GetNumberOfPointsInCell(id);
   }
+  /// @brief Provides the indices for that the cell is incident to.
+  /// @param id The index of a cell
+  /// @param ptids An array to store the incident point ids. The array should be sized based on
+  ///    `GetNumberOfPointsInCell()`
   VISKORES_CONT void GetCellPointIds(viskores::Id id, viskores::Id* ptids) const
   {
     return this->GetCellSetBase()->GetCellPointIds(id, ptids);
   }
 
+  /// @brief Copy the connectivity arrays from the provided UnknownCellSet to this one.
   VISKORES_CONT void DeepCopyFrom(const CellSet* src) { this->GetCellSetBase()->DeepCopy(src); }
 
+  /// @brief Prints to the provided stream a summary of the contents of the cell set.
+  ///
+  /// It is common to provide `std::cout` to print the summary to standard output.
   VISKORES_CONT void PrintSummary(std::ostream& os) const;
 
+  /// @brief Removes any data stored on any device associated with the cell set.
+  ///
+  /// The data for the cell set will still be available, but may need to be loaded back on a
+  /// device before an operation. This method has no effect if called on an invalid
+  /// `UnknownCellSet`.
   VISKORES_CONT void ReleaseResourcesExecution()
   {
     if (this->Container)
@@ -163,8 +180,8 @@ public:
 
   /// \brief Returns true if this cell set can be retrieved as the given type.
   ///
-  /// This method will return true if calling `AsCellSet` of the given type will
-  /// succeed. This result is similar to `IsType`, and if `IsType` returns true,
+  /// This method will return true if calling `AsCellSet()` of the given type will
+  /// succeed. This result is similar to `IsType()`, and if `IsType()` returns true,
   /// then this will return true. However, this method will also return true for
   /// other types where automatic conversions are made.
   ///
@@ -182,7 +199,7 @@ public:
   ///
   /// Returns this cell set cast appropriately and stored in the given `CellSet`
   /// type. Throws an `ErrorBadType` if the stored cell set cannot be stored in
-  /// the given cell set type. Use the `CanConvert` method to determine if the
+  /// the given cell set type. Use the `CanConvert()` method to determine if the
   /// cell set can be returned with the given type.
   ///
   template <typename CellSetType>
@@ -216,10 +233,11 @@ public:
   /// types.
   ///
   // Defined in UncertainCellSet.h
-  template <typename CellSetList>
-  VISKORES_CONT viskores::cont::UncertainCellSet<CellSetList> ResetCellSetList(CellSetList) const;
-  template <typename CellSetList>
-  VISKORES_CONT viskores::cont::UncertainCellSet<CellSetList> ResetCellSetList() const;
+  template <typename NewCellSetList>
+  VISKORES_CONT viskores::cont::UncertainCellSet<NewCellSetList> ResetCellSetList(
+    NewCellSetList) const;
+  template <typename NewCellSetList>
+  VISKORES_CONT viskores::cont::UncertainCellSet<NewCellSetList> ResetCellSetList() const;
 
   /// \brief Call a functor using the underlying cell set type.
   ///

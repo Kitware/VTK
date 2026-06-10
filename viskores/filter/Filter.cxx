@@ -109,12 +109,17 @@ viskores::cont::PartitionedDataSet Filter::DoExecutePartitions(
 {
   viskores::cont::PartitionedDataSet output;
 
-  if (this->GetRunMultiThreadedFilter())
+  const bool runMultiThreaded = this->GetRunMultiThreadedFilter();
+  const viskores::Id numThreads =
+    runMultiThreaded ? this->DetermineNumberOfThreads(input) : viskores::Id{ 1 };
+
+  if (numThreads > 1)
   {
     viskores::filter::DataSetQueue inputQueue(input);
     viskores::filter::DataSetQueue outputQueue;
-
-    viskores::Id numThreads = this->DetermineNumberOfThreads(input);
+    viskores::cont::ScopedRuntimeDeviceTracker tracker;
+    tracker.DisableDevice(viskores::cont::DeviceAdapterTagOpenMP{});
+    tracker.DisableDevice(viskores::cont::DeviceAdapterTagTBB{});
 
     //Run 'numThreads' filters.
     std::vector<std::future<void>> futures(static_cast<std::size_t>(numThreads));
@@ -192,7 +197,13 @@ viskores::Id Filter::DetermineNumberOfThreads(const viskores::cont::PartitionedD
 
   auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
 
-  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagOpenMP{}) ||
+      tracker.CanRunOn(viskores::cont::DeviceAdapterTagTBB{}))
+  {
+    // Filter-level threading should not layer on top of OpenMP or TBB execution.
+    availThreads = 1;
+  }
+  else if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
     availThreads = this->NumThreadsPerGPU;
   else if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}))
   {
@@ -204,9 +215,9 @@ viskores::Id Filter::DetermineNumberOfThreads(const viskores::cont::PartitionedD
 #endif
   }
   else if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagSerial{}))
-    availThreads = 1;
-  else
     availThreads = this->NumThreadsPerCPU;
+  else
+    availThreads = 1;
 
   viskores::Id numThreads = std::min<viskores::Id>(numDS, availThreads);
   return numThreads;

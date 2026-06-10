@@ -19,6 +19,8 @@
 #include <viskores/cont/testing/MakeTestDataSet.h>
 #include <viskores/cont/testing/Testing.h>
 #include <viskores/filter/field_conversion/CellAverage.h>
+#include <viskores/io/FileUtils.h>
+#include <viskores/io/ImageUtils.h>
 #include <viskores/io/VTKDataSetReader.h>
 #include <viskores/rendering/Actor.h>
 #include <viskores/rendering/Canvas.h>
@@ -31,6 +33,127 @@
 
 namespace
 {
+
+void TestVolumeRenderOccludesAnnotations()
+{
+  viskores::cont::ColorTable colorTable = viskores::cont::ColorTable::Preset::Inferno;
+  colorTable.AddPointAlpha(0.0, 0.2f);
+  colorTable.AddPointAlpha(0.2, 0.0f);
+  colorTable.AddPointAlpha(0.5, 0.0f);
+
+  viskores::source::Tangle tangle;
+  tangle.SetPointDimensions({ 50, 50, 50 });
+  viskores::cont::DataSet tangleData = tangle.Execute();
+
+  const viskores::cont::Field field = tangleData.GetField("tangle");
+  viskores::Range range;
+  field.GetRange(&range);
+
+  viskores::rendering::CanvasRayTracer canvas(128, 128);
+  canvas.Clear();
+
+  viskores::rendering::Camera camera;
+  camera.ResetToBounds(tangleData.GetCoordinateSystem().GetBounds());
+  camera.Azimuth(45.0f);
+  camera.Elevation(45.0f);
+
+  viskores::rendering::MapperVolume mapper;
+  mapper.SetActiveColorTable(colorTable);
+  mapper.SetCompositeBackground(false);
+
+  const viskores::Bounds bounds = tangleData.GetCoordinateSystem().GetBounds();
+  viskores::Vec3f_32 viewDir = camera.GetLookAt() - camera.GetPosition();
+  viskores::Normalize(viewDir);
+  viskores::Vec3f_32 rightDir = viskores::Cross(viewDir, camera.GetViewUp());
+  viskores::Normalize(rightDir);
+
+  const auto boundsCenter = bounds.Center();
+  const viskores::Vec3f_32 center(static_cast<viskores::Float32>(boundsCenter[0]),
+                                  static_cast<viskores::Float32>(boundsCenter[1]),
+                                  static_cast<viskores::Float32>(boundsCenter[2]));
+  const viskores::Vec3f_32 extents(static_cast<viskores::Float32>(bounds.X.Length()),
+                                   static_cast<viskores::Float32>(bounds.Y.Length()),
+                                   static_cast<viskores::Float32>(bounds.Z.Length()));
+  const viskores::Float32 diagonal = viskores::Magnitude(extents);
+  const viskores::Float32 annotationOffset = 0.2f * diagonal;
+  const viskores::Float32 annotationHalfLength = 0.35f * diagonal;
+
+  auto renderVolume = [&](viskores::rendering::CanvasRayTracer& targetCanvas)
+  {
+    targetCanvas.Clear();
+    mapper.SetCanvas(&targetCanvas);
+    mapper.RenderCells(
+      tangleData.GetCellSet(), tangleData.GetCoordinateSystem(), field, colorTable, camera, range);
+  };
+
+  auto drawAnnotationLine = [&](viskores::rendering::CanvasRayTracer& targetCanvas,
+                                const viskores::Vec3f_32& lineCenter,
+                                const viskores::rendering::Color& color)
+  {
+    targetCanvas.SetViewToWorldSpace(camera, true);
+    std::unique_ptr<viskores::rendering::WorldAnnotator> annotator(
+      targetCanvas.CreateWorldAnnotator());
+    annotator->BeginLineRenderingBatch();
+    annotator->AddLine(lineCenter - rightDir * annotationHalfLength,
+                       lineCenter + rightDir * annotationHalfLength,
+                       1.0f,
+                       color);
+    annotator->EndLineRenderingBatch();
+  };
+
+  auto writeCanvasImage =
+    [&](viskores::rendering::CanvasRayTracer& targetCanvas, const std::string& fileName)
+  {
+    targetCanvas.RefreshColorBuffer();
+    viskores::io::WriteImageFile(targetCanvas.GetDataSet("color", ""),
+                                 viskores::cont::testing::Testing::WriteDirPath(
+                                   viskores::io::PrefixStringToFilename(fileName, "test-")),
+                                 "color");
+  };
+
+  auto countChangedPixels = [&](const viskores::rendering::CanvasRayTracer& lhs,
+                                const viskores::rendering::CanvasRayTracer& rhs)
+  {
+    const auto lhsPortal = lhs.GetColorBuffer().ReadPortal();
+    const auto rhsPortal = rhs.GetColorBuffer().ReadPortal();
+    viskores::Id changedPixels = 0;
+    for (viskores::Id y = 0; y < canvas.GetHeight(); ++y)
+    {
+      for (viskores::Id x = 0; x < canvas.GetWidth(); ++x)
+      {
+        const viskores::Id pixelIndex = y * canvas.GetWidth() + x;
+        if (!test_equal(lhsPortal.Get(pixelIndex), rhsPortal.Get(pixelIndex)))
+        {
+          ++changedPixels;
+        }
+      }
+    }
+    return changedPixels;
+  };
+
+  viskores::rendering::CanvasRayTracer baseCanvas(128, 128);
+  renderVolume(baseCanvas);
+
+  viskores::rendering::CanvasRayTracer behindCanvas(128, 128);
+  renderVolume(behindCanvas);
+  drawAnnotationLine(behindCanvas,
+                     center + viewDir * annotationOffset,
+                     viskores::rendering::Color(1.f, 0.f, 0.f, 1.f));
+  writeCanvasImage(behindCanvas, "rendering/volume/annotation-occlusion-behind.png");
+
+  viskores::rendering::CanvasRayTracer frontCanvas(128, 128);
+  renderVolume(frontCanvas);
+  drawAnnotationLine(frontCanvas,
+                     center - viewDir * annotationOffset,
+                     viskores::rendering::Color(0.f, 1.f, 0.f, 1.f));
+  writeCanvasImage(frontCanvas, "rendering/volume/annotation-occlusion-front.png");
+
+  VISKORES_TEST_ASSERT(countChangedPixels(frontCanvas, baseCanvas) > 0,
+                       "The control annotation line did not render in front of the volume.");
+  VISKORES_TEST_ASSERT(
+    countChangedPixels(frontCanvas, behindCanvas) > 0,
+    "An annotation drawn behind a pure volume render matched the front-of-volume result.");
+}
 
 void TestRectilinear()
 {
@@ -110,6 +233,7 @@ void TestUniformGrid()
 
 void RenderTests()
 {
+  TestVolumeRenderOccludesAnnotations();
   TestRectilinear();
   TestUniformGrid();
 }

@@ -153,6 +153,53 @@ void TestMergePaths()
 #endif
 }
 
+void TestIsAbsolutePath()
+{
+  VISKORES_TEST_ASSERT(IsAbsolutePath("/absolute/path"), "Should detect POSIX absolute path");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath("relative/path"), "Should reject relative path");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath(""), "Should reject empty path");
+#ifdef _MSC_VER
+  VISKORES_TEST_ASSERT(IsAbsolutePath("C:\\windows\\path"),
+                       "Should detect Windows drive absolute path");
+  VISKORES_TEST_ASSERT(IsAbsolutePath("C:/windows/path"),
+                       "Should detect Windows drive absolute path with forward slashes");
+  VISKORES_TEST_ASSERT(IsAbsolutePath("\\windows\\path"),
+                       "Should detect Windows rooted absolute path");
+  VISKORES_TEST_ASSERT(IsAbsolutePath("/windows/path"),
+                       "Should detect Windows rooted absolute path with forward slashes");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath("windows\\path"), "Should reject Windows relative path");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath("windows/path"),
+                       "Should reject Windows relative path with forward slashes");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath("C:windows\\path"),
+                       "Should reject Windows drive-relative path");
+  VISKORES_TEST_ASSERT(!IsAbsolutePath("C:windows/path"),
+                       "Should reject Windows drive-relative path with forward slashes");
+#endif
+}
+
+void TestMakeAbsolutePath()
+{
+  VISKORES_TEST_ASSERT(MakeAbsolutePath("/absolute/path") == "/absolute/path",
+                       "Should leave absolute path unchanged");
+
+  const std::string absoluteRelativePath = MakeAbsolutePath("relative/path");
+  VISKORES_TEST_ASSERT(IsAbsolutePath(absoluteRelativePath), "Should make relative path absolute");
+#ifdef _MSC_VER
+  VISKORES_TEST_ASSERT(EndsWith(absoluteRelativePath, "relative/path") ||
+                         EndsWith(absoluteRelativePath, "relative\\path"),
+                       "Should keep relative path suffix");
+#else
+  VISKORES_TEST_ASSERT(EndsWith(absoluteRelativePath, "relative/path"),
+                       "Should keep relative path suffix");
+#endif
+#ifdef _MSC_VER
+  VISKORES_TEST_ASSERT(MakeAbsolutePath("C:\\windows\\path") == "C:\\windows\\path",
+                       "Should leave Windows drive absolute path unchanged");
+  VISKORES_TEST_ASSERT(MakeAbsolutePath("\\windows\\path") == "\\windows\\path",
+                       "Should leave Windows rooted absolute path unchanged");
+#endif
+}
+
 void TestPrefixStringToFilename()
 {
   VISKORES_TEST_ASSERT(PrefixStringToFilename("some/path/filename.txt", "prefix-") ==
@@ -195,6 +242,8 @@ void TestUtils()
   TestParentPath();
   TestCreateDirectoriesFromFilePath();
   TestMergePaths();
+  TestIsAbsolutePath();
+  TestMakeAbsolutePath();
   TestPrefixStringToFilename();
 }
 

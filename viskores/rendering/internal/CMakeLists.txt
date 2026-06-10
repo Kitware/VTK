@@ -18,7 +18,6 @@
 
 set(headers
   OpenGLHeaders.h
-  RunTriangulator.h
   )
 
 set_source_files_properties(OpenGLHeaders.h

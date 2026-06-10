@@ -27,7 +27,6 @@
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/AtomicArray.h>
 #include <viskores/rendering/MatrixHelpers.h>
-#include <viskores/rendering/Triangulator.h>
 #include <viskores/worklet/DispatcherMapField.h>
 #include <viskores/worklet/WorkletMapField.h>
 
