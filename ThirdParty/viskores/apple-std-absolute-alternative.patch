@@ -1,0 +1,53 @@
+diff --git a/ThirdParty/viskores/vtkviskores/viskores/viskores/io/FileUtils.cxx b/ThirdParty/viskores/vtkviskores/viskores/viskores/io/FileUtils.cxx
+index afd937eb9f..07b5bcf0ad 100644
+--- a/ThirdParty/viskores/vtkviskores/viskores/viskores/io/FileUtils.cxx
++++ b/ThirdParty/viskores/vtkviskores/viskores/viskores/io/FileUtils.cxx
+@@ -22,13 +22,29 @@
+ #include <algorithm>
+ #include <cctype>
+ #include <errno.h>
+-#include <filesystem>
+ #include <sys/stat.h>
+
+ #ifdef _WIN32
+ #include <direct.h>
+ #endif
+
++#ifdef __APPLE__
++#include <AvailabilityMacros.h>
++#endif
++
++// std::filesystem::absolute (and several other std::filesystem operations) are
++// marked unavailable when targeting macOS deployment targets older than 10.15,
++// so a manual implementation is used in that case instead.
++#if defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED < 101500
++#define VISKORES_FILESYSTEM_ABSOLUTE_UNAVAILABLE
++#include <limits.h>
++#include <unistd.h>
++#ifndef PATH_MAX
++#define PATH_MAX 4096
++#endif
++#else
++#include <filesystem>
++#endif
+
+ namespace viskores
+ {
+@@ -151,7 +167,17 @@ std::string MakeAbsolutePath(const std::string& filePath)
+   if (IsAbsolutePath(filePath))
+     return filePath;
+
++#ifdef VISKORES_FILESYSTEM_ABSOLUTE_UNAVAILABLE
++  char buffer[PATH_MAX];
++  if (getcwd(buffer, PATH_MAX) == nullptr)
++  {
++    throw viskores::cont::ErrorBadValue("Unable to determine the current working directory.");
++  }
++
++  return MergePaths(std::string(buffer), filePath);
++#else
+   return std::filesystem::absolute(filePath).string();
++#endif
+ }
+
+ std::string MergePaths(const std::string& filePathPrefix, const std::string& filePathSuffix)

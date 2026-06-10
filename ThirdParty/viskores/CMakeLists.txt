@@ -4,7 +4,7 @@ vtk_third_party_extract(
     repo viskores_repo
     tag  viskores_tag
   VERSION_FROM_TAG
-    tag  viskores_version "^v([0-9\\.]+)$")
+    tag  viskores_version "^v([0-9\\.]+)(-rc[1-9])?$")
 
 vtk_module_third_party(
   INTERNAL
