@@ -65,8 +65,8 @@ int TestGhostCellFields(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 336, 288, 408, 240 };
-  const double expectedScalarRange[2] = { 0, 30001 };
+  const int expectedNbOfCells[4] = { 352, 408, 344, 464 };
+  const double expectedScalarRange[2] = { 0, 30257 };
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
@@ -154,7 +154,7 @@ int TestGhostMasking(vtkMPIController* controller)
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  const int expectedNbOfCells[4] = { 224, 312, 200, 280 };
+  const int expectedNbOfCells[4] = { 208, 336, 296, 336 };
 
   // Setup pipeline
   vtkNew<vtkRandomHyperTreeGridSource> htgSource;
@@ -185,14 +185,14 @@ int TestGhostMasking(vtkMPIController* controller)
     vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
                                      << myRank << ". Has " << nbCellsAfter << " but expect "
                                      << expectedNbOfCells[myRank]);
-    ret = EXIT_FAILURE;
+    return EXIT_FAILURE; // Not necessary to continue comparing
   }
 
   // Check that every piece has the right amount of ghost cells
   if (!htg->HasAnyGhostCells())
   {
     vtkErrorWithObjectMacro(nullptr, << "No ghost cells generated for process " << myRank);
-    ret = EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
   for (int i = 0; i < expectedNbOfCells[myRank]; i++)
   {
@@ -445,7 +445,7 @@ int TestPartitionedHTG(vtkMPIController* controller, int config)
   int ret = EXIT_SUCCESS;
 
   // Only one partition on each rank is expected to be non-null.
-  const std::array<vtkIdType, 4> expectedNbOfCells = { 336, 288, 408, 240 };
+  const std::array<vtkIdType, 4> expectedNbOfCells = { 352, 408, 344, 464 };
   for (unsigned int partId = 0; partId < outputPDS->GetNumberOfPartitions(); partId++)
   {
     vtkHyperTreeGrid* partHTG =

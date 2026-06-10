@@ -152,7 +152,7 @@ bool TestRedistributeHTG3D(vtkMPIController* controller)
   vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();
 
   std::array nbTrees{ 17, 17, 16 };
-  std::array nbMaskedTrees{ 2, 6, 2 };
+  std::array nbMaskedTrees{ 3, 5, 4 };
 
   if (!::CheckRedistributeResult(outputHTG, nbTrees, nbMaskedTrees, myRank))
   {
@@ -185,7 +185,7 @@ bool TestRedistributeHTG2D(vtkMPIController* controller)
   vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();
 
   std::array nbTrees{ 9, 8, 8 };
-  std::array nbMaskedTrees{ 4, 3, 3 };
+  std::array nbMaskedTrees{ 3, 3, 1 };
 
   return ::CheckRedistributeResult(outputHTG, nbTrees, nbMaskedTrees, myRank);
 }

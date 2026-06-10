@@ -12,7 +12,6 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-#include <vector>
 #include <vtkNew.h> // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -88,14 +87,6 @@ public:
   vtkSetClampMacro(MaskedFraction, double, 0., 1.);
   /**@}*/
 
-  /**
-   * The actual masked spatial fraction of the HTG.
-   * It can be different from the MaskedFraction due to a margin of error.
-   * @{
-   */
-  vtkGetMacro(ActualMaskedCellFraction, double);
-  /**@}*/
-
 protected:
   vtkRandomHyperTreeGridSource();
   ~vtkRandomHyperTreeGridSource() override;
@@ -118,9 +109,8 @@ protected:
    * the MaskedFraction property.
    * Returns the spatial unmasked fraction of cells.
    */
-  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId);
-
-  bool ShouldRefine(vtkIdType level);
+  void SubdivideLeaves(
+    vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId, vtkDoubleArray*);
 
   unsigned int Dimensions[3];
   double OutputBounds[6];
@@ -133,49 +123,12 @@ private:
   void operator=(const vtkRandomHyperTreeGridSource&) = delete;
 
   vtkNew<vtkMinimalStandardRandomSequence> NodeRNG;
-  // We have 2 different RNG for retrocompatibility, since the mask
-  // has been added later on.
   vtkNew<vtkMinimalStandardRandomSequence> MaskRNG;
-  vtkNew<vtkExtentTranslator> ExtentTranslator;
-  vtkDoubleArray* Levels;
+
+  bool ShouldRefine();
+  bool ShouldMask();
+
   double MaskedFraction = 0;
-  double ActualMaskedCellFraction = 0;
-  std::vector<double> MaskingCostPerLevel{ 1.0 };
-
-  /**
-   * Verify and returns if a node should be masked.
-   * It is decided by looking at the number of siblings of the node that are currently masked.
-
-   * @param siblingsMasked - the fraction of siblings currently masked at this level
-   * @param level - the current depth level of the node to be masked
-   * @param errorMargin - the error margin which should be the minimum space to be masked at the
-   current level.
-   * @returns If the fraction of sibling is higher than the expected masked fraction minus the error
-   margin it will return false. Otherwise it will return true.
-   */
-  bool ShouldMask(double siblingsMasked = 0.0, int level = 0, double errorMargin = 0.0);
-
-  /**
-   * Generate the mask for the HTG.
-   */
-  double GenerateMask(vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId,
-    double unmaskedFraction = 1.0, bool isParentMasked = false, double siblingsMasked = 0.0,
-    double errorMargin = 0.0);
-
-  /**
-   * Fill the MaskingNodeCostPerLevel vector with the masking cost of each level up to the MaxDepth.
-   */
-  void InitializeMaskingNodeCostPerLevel();
-
-  /**
-   * Returns the weight of a node in the Hyper Tree.
-   * Here we take the weight of a node as the space it occupies in the scene.
-   * Since our structure is a grid, each node occupies the exact same space
-   * than every other node at the same depth.
-   * Knowing the branching Factor and the depth, we can compute
-   * the fraction of space a node occupies in the Hyper Tree.
-   */
-  double GetMaskingNodeCost(int level);
 };
 
 VTK_ABI_NAMESPACE_END

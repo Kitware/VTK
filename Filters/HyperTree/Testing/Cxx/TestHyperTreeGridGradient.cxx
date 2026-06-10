@@ -62,15 +62,15 @@ int TestHyperTreeGridGradient(int, char*[])
   source->SetMaskedFraction(0.25);
   gradient->Update();
 
-  CHECK_GRADIENT(gradArray, 10, -0.910649, 2.82969, 3.58758);
-  CHECK_GRADIENT(gradArray, 15, 3.18086, -2.17033, -1.18278);
+  CHECK_GRADIENT(gradArray, 10, -3.05802, 0.682319, 2.93304);
+  CHECK_GRADIENT(gradArray, 15, 3.18086, -3.61722, -1.43541);
 
   // Testing Unlimited / Masking
   gradient->SetMode(vtkHyperTreeGridGradient::ComputeMode::UNLIMITED);
   gradient->Update();
 
-  CHECK_GRADIENT(gradArray, 10, -4.8, -1.0, 1.0);
-  CHECK_GRADIENT(gradArray, 15, 11.8, -9.1, -1.9);
+  CHECK_GRADIENT(gradArray, 10, -14.2, 1.4, 10.4);
+  CHECK_GRADIENT(gradArray, 15, 11.7, -11.9, -4.4);
 
   return EXIT_SUCCESS;
 }
