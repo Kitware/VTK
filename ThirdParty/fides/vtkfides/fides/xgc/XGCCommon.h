@@ -11,8 +11,10 @@
 #ifndef fides_datamodel_XGCCommon_H_
 #define fides_datamodel_XGCCommon_H_
 
-#include <fides/DataModel.h>
-#include <fides/Value.h>
+#include <fides/internal/DataModel.h>
+#include <fides/internal/Value.h>
+
+#include <viskores/Types.h>
 
 #include <memory>
 

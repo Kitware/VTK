@@ -21,16 +21,17 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtksys/SystemTools.hxx"
 
-#ifdef IOFIDES_HAVE_MPI
-#include "vtkMPI.h"
-#include "vtkMPIController.h"
-#endif
-
 // Fides includes
 #include <vtk_fides.h>
 // clang-format off
 #include VTK_FIDES(fides/DataSetWriter.h)
+#include VTK_FIDES(fides/Deprecated.h)
 // clang-format on
+
+#ifdef IOFIDES_HAVE_MPI
+#include "vtkMPI.h"
+#include "vtkMPIController.h"
+#endif
 
 #include <viskores/cont/DataSet.h>
 #include <viskores/cont/PartitionedDataSet.h>
@@ -45,14 +46,16 @@ struct vtkFidesWriter::FidesWriterImpl
   std::vector<double> TimeStepsToProcess;
   int CurrentTimeStepIndex{ 0 };
 
-  std::map<std::string, fides::io::DataSetAppendWriter> Writers;
+  FIDES_DEPRECATED_SUPPRESS_BEGIN
+  std::map<std::string, std::unique_ptr<fides::io::DataSetAppendWriter>> Writers;
+  FIDES_DEPRECATED_SUPPRESS_END
 
   FidesWriterImpl() = default;
   ~FidesWriterImpl()
   {
     for (auto& writer : this->Writers)
     {
-      writer.second.Close();
+      writer.second->Close();
     }
   }
 
@@ -368,6 +371,7 @@ bool vtkFidesWriter::WriteDataAndReturn()
 
     if (this->Impl->Writers.count(fname) == 0)
     {
+      FIDES_DEPRECATED_SUPPRESS_BEGIN
 #ifdef IOFIDES_HAVE_MPI
       if (this->Controller)
       {
@@ -379,25 +383,24 @@ bool vtkFidesWriter::WriteDataAndReturn()
           return false;
         }
         MPI_Comm comm = *(vtkComm->GetMPIComm()->GetHandle());
-        this->Impl->Writers.insert(std::pair<std::string, fides::io::DataSetAppendWriter>(
-          fname, fides::io::DataSetAppendWriter(fname, comm)));
+        this->Impl->Writers.emplace(
+          fname, std::make_unique<fides::io::DataSetAppendWriter>(fname, comm));
       }
       else
       {
-        this->Impl->Writers.insert(std::pair<std::string, fides::io::DataSetAppendWriter>(
-          fname, fides::io::DataSetAppendWriter(fname)));
+        this->Impl->Writers.emplace(fname, std::make_unique<fides::io::DataSetAppendWriter>(fname));
       }
 #else
-      this->Impl->Writers.insert(std::pair<std::string, fides::io::DataSetAppendWriter>(
-        fname, fides::io::DataSetAppendWriter(fname)));
+      this->Impl->Writers.emplace(fname, std::make_unique<fides::io::DataSetAppendWriter>(fname));
 #endif
+      FIDES_DEPRECATED_SUPPRESS_END
     }
     auto it = this->Impl->Writers.find(fname);
     if (it == this->Impl->Writers.end())
     {
       continue;
     }
-    auto& writer = it->second;
+    auto& writer = *it->second;
 
     std::string mode;
     if (this->AdiosConfigFile && this->AdiosConfigFile[0])

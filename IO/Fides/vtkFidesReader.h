@@ -30,6 +30,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
+class vtkMultiProcessController;
 
 class VTKIOFIDES_EXPORT vtkFidesReader : public vtkAlgorithm
 {
@@ -210,6 +211,15 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  ///@{
+  /**
+   * Set/Get the multiprocess controller. If no controller is set,
+   * the global controller will be used by default.
+   */
+  virtual void SetController(vtkMultiProcessController* controller);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
+
 protected:
   vtkFidesReader();
   ~vtkFidesReader() override;
@@ -234,6 +244,8 @@ protected:
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
   vtkDataArraySelection* FieldDataArraySelection;
+
+  vtkMultiProcessController* Controller;
 
   int ADIOSAttributeCheck(const std::string& name);
 

@@ -8,7 +8,13 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::vtkviskores
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCellGrid
+  VTK::IOCellGrid
 OPTIONAL_DEPENDS
+  VTK::conduit
   VTK::mpi
 TEST_DEPENDS
   VTK::TestingCore
