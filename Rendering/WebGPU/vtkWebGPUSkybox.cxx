@@ -156,7 +156,8 @@ struct FragmentOutput {
 }
 )";
 
-  // Fragment shader
+  // Fragment shader — projection-specific sampling so each pipeline variant contains only
+  // WGSL code valid for its bound texture type (texture_cube vs texture_2d).
   ss << R"(
 @fragment
 fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_coords: vec3<f32>) -> FragmentOutput {
@@ -164,41 +165,50 @@ fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_co
   let dir_i = normalize(tex_coords - uniforms.camera_pos.xyz);
   let rot = get_rotation_matrix();
   var dir_v = rot * dir_i;
-  
   var color: vec4<f32>;
-  
-  // Projection mode branching
-  if (uniforms.projection_mode == 0.0) { // Cube
-    // Negate Z because forward axis points to -Z instead of +Z for cube maps
-    dir_v.z = -dir_v.z;
-    color = textureSampleLevel(skybox_texture, skybox_sampler, dir_v, 0.0);
-  } else if (uniforms.projection_mode == 1.0) { // Sphere
-    let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
-    let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
-    let v = atan2(dir_v.y, phi_x) / PI + 0.5;
-    color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
-  } else if (uniforms.projection_mode == 2.0) { // StereoSphere
-    let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
-    let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
-    let v = 0.5 * atan2(dir_v.y, phi_x) / PI + 0.25 + 0.5 * uniforms.left_eye;
-    color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
-  } else { // Floor
-    let den = dot(uniforms.floor_plane.xyz, dir_v);
-    if (abs(den) < 0.0001) {
-      discard;
-    }
-    let p0 = -1.0 * uniforms.floor_plane.w * uniforms.floor_plane.xyz;
-    let p0l0 = p0 - uniforms.camera_pos.xyz;
-    let t = dot(p0l0, uniforms.floor_plane.xyz) / den;
-    if (t < 0.0) {
-      discard;
-    }
-    let pos = dir_v * t - p0l0;
-    let u = dot(uniforms.floor_right.xyz, pos) / uniforms.floor_tcoord_scale.x;
-    let v = dot(uniforms.floor_front.xyz, pos) / uniforms.floor_tcoord_scale.y;
-    color = textureSample(skybox_texture, skybox_sampler, vec2<f32>(u, v));
-  }
 )";
+
+  if (this->Projection == vtkSkybox::Cube)
+  {
+    // Negate Z: cube-map forward is -Z, not +Z
+    ss << R"(
+  dir_v.z = -dir_v.z;
+  color = textureSampleLevel(skybox_texture, skybox_sampler, dir_v, 0.0);
+)";
+  }
+  else if (this->Projection == vtkSkybox::Sphere)
+  {
+    ss << R"(
+  let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
+  let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
+  let v = atan2(dir_v.y, phi_x) / PI + 0.5;
+  color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
+)";
+  }
+  else if (this->Projection == vtkSkybox::StereoSphere)
+  {
+    ss << R"(
+  let phi_x = length(vec2<f32>(dir_v.x, dir_v.z));
+  let u = 0.5 * atan2(dir_v.z, dir_v.x) / PI + 0.5;
+  let v = 0.5 * atan2(dir_v.y, phi_x) / PI + 0.25 + 0.5 * uniforms.left_eye;
+  color = textureSampleLevel(skybox_texture, skybox_sampler, vec2<f32>(u, v), 0.0);
+)";
+  }
+  else // Floor
+  {
+    ss << R"(
+  let den = dot(uniforms.floor_plane.xyz, dir_v);
+  if (abs(den) < 0.0001) { discard; }
+  let p0 = -1.0 * uniforms.floor_plane.w * uniforms.floor_plane.xyz;
+  let p0l0 = p0 - uniforms.camera_pos.xyz;
+  let t = dot(p0l0, uniforms.floor_plane.xyz) / den;
+  if (t < 0.0) { discard; }
+  let pos = dir_v * t - p0l0;
+  let u = dot(uniforms.floor_right.xyz, pos) / uniforms.floor_tcoord_scale.x;
+  let v = dot(uniforms.floor_front.xyz, pos) / uniforms.floor_tcoord_scale.y;
+  color = textureSample(skybox_texture, skybox_sampler, vec2<f32>(u, v));
+)";
+  }
 
   // Gamma correction
   if (this->GammaCorrect)
@@ -210,14 +220,15 @@ fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_co
     ss << "  output.color = color;\n";
   }
 
-  // Floor projection: fade near horizon
-  ss << R"(
-    if (uniforms.projection_mode == 3.0) {
-      let dir = normalize(tex_coords - uniforms.camera_pos.xyz);
-      let fade = clamp(dir.y * 5.0, 0.0, 1.0);
-      output.color = vec4<f32>(output.color.rgb, output.color.a * fade);
-    }
+  // Floor horizon fade (only valid for Floor projection where alpha blending is enabled)
+  if (this->Projection == vtkSkybox::Floor)
+  {
+    ss << R"(
+  let fade_dir = normalize(tex_coords - uniforms.camera_pos.xyz);
+  let fade = clamp(fade_dir.y * 5.0, 0.0, 1.0);
+  output.color = vec4<f32>(output.color.rgb, output.color.a * fade);
 )";
+  }
 
   ss << "  output.ids = vec4<u32>(0u);\n";
   ss << "  return output;\n}\n";
@@ -382,6 +393,7 @@ void vtkWebGPUSkybox::UpdateUniformBuffer(
   uniforms.FloorTexCoordScale[1] = this->FloorTexCoordScale[1];
 
   uniforms.LeftEye = ren->GetActiveCamera()->GetLeftEye() ? 1.0f : 0.0f;
+  uniforms.ProjectionMode = static_cast<float>(this->Projection);
 
   // Rotation matrix: VTK stores row-major data. OpenGL sends this directly to
   // glUniformMatrix3fv without transpose, so GLSL interprets rows as columns (i.e. the
