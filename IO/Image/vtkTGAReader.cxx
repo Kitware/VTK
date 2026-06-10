@@ -34,6 +34,7 @@ enum TGAFormat : unsigned char
   RLE_RGB = 10
 };
 
+//------------------------------------------------------------------------------
 bool HasTGA2Footer(const char* footer)
 {
   return std::memcmp(footer + ::FooterSignatureOffset, ::TGA2FooterSignature,
@@ -329,8 +330,7 @@ int vtkTGAReader::CanReadFile(vtkResourceStream* stream)
     stream->Seek(
       static_cast<vtkTypeInt64>(fileSize - ::FooterSize), vtkResourceStream::SeekDirection::Begin);
     char footer[::FooterSize];
-    stream->Read(footer, ::FooterSize);
-    if (::HasTGA2Footer(footer))
+    if (stream->Read(footer, ::FooterSize) == ::FooterSize && ::HasTGA2Footer(footer))
     {
       return 1;
     }

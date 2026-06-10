@@ -24,7 +24,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
   // 1x1 24-bpp uncompressed TGA 1.0 with minimal pixel payload
   std::vector<unsigned char> valid = { 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00 };
-  if (!CanRead(valid))
+  if (!::CanRead(valid))
   {
     std::cerr << "FAIL: valid TGA 1.0 header rejected\n";
     return EXIT_FAILURE;
@@ -32,7 +32,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
 
   std::vector<unsigned char> badColorMap = { 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00 };
-  if (CanRead(badColorMap))
+  if (::CanRead(badColorMap))
   {
     std::cerr << "FAIL: non-zero colorMapType accepted\n";
     return EXIT_FAILURE;
@@ -40,7 +40,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
 
   std::vector<unsigned char> zeroWidth = { 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00 };
-  if (CanRead(zeroWidth))
+  if (::CanRead(zeroWidth))
   {
     std::cerr << "FAIL: zero width accepted\n";
     return EXIT_FAILURE;
@@ -48,7 +48,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
 
   std::vector<unsigned char> zeroHeight = { 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00 };
-  if (CanRead(zeroHeight))
+  if (::CanRead(zeroHeight))
   {
     std::cerr << "FAIL: zero height accepted\n";
     return EXIT_FAILURE;
@@ -56,7 +56,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
 
   std::vector<unsigned char> badDescriptor = { 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x18, 0x80, 0x00, 0x00, 0x00 };
-  if (CanRead(badDescriptor))
+  if (::CanRead(badDescriptor))
   {
     std::cerr << "FAIL: reserved descriptor bits accepted\n";
     return EXIT_FAILURE;
@@ -65,7 +65,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
   // 2x2 image needs 12 payload bytes; only 3 supplied
   std::vector<unsigned char> tooSmall = { 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00 };
-  if (CanRead(tooSmall))
+  if (::CanRead(tooSmall))
   {
     std::cerr << "FAIL: undersized payload accepted\n";
     return EXIT_FAILURE;
@@ -77,7 +77,7 @@ int TestTGAReaderStrictValidation(int argc, char* argv[])
   ptsLike[0] = '1';
   ptsLike[1] = '0';
   ptsLike[2] = 0x0A;
-  if (CanRead(ptsLike))
+  if (::CanRead(ptsLike))
   {
     std::cerr << "FAIL: ASCII PTS-like content accepted as TGA\n";
     return EXIT_FAILURE;
