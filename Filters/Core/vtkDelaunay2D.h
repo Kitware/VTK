@@ -122,7 +122,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
-class vtkIdList;
 class vtkPointSet;
 
 #define VTK_DELAUNAY_XY_PLANE 0
@@ -307,13 +306,10 @@ private:
   void FillPolygons(vtkCellArray* polys, int* triUse);
 
   int InCircle(double x[3], double x1[3], double x2[3], double x3[3]);
-  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
-    vtkIdType nei[3], vtkIdList* neighbors);
 
-  // CheckEdge() is a recursive function to determine if triangles satisfy the Delaunay
-  // criterion. To prevent segfaults due to excessive recursion, recursion depth is limited.
-  bool CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri,
-    bool recursive, unsigned int depth);
+  // CheckEdge() determines if the edge (p1,p2) of triangle tri satisfies the
+  // Delaunay criterion; if not it swaps the edge diagonal.
+  bool CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri);
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
