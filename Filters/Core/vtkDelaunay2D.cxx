@@ -6,6 +6,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkHilbertCurveSorter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -606,6 +607,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
   this->RandomPointInsertion = 0;
+  this->UseHilbertSorter = 0;
   this->Transform = nullptr;
   this->ProjectionPlaneMode = VTK_DELAUNAY_XY_PLANE;
 
@@ -943,6 +945,21 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<vtkIdType> checkStack;
   checkStack.reserve(64);
 
+  // Determine the point insertion order. Hilbert-curve sorting makes
+  // successive insertions spatially local, which shortens the walk to
+  // locate the containing triangle; the GCD pseudo-random traversal
+  // improves numerics on structured inputs.
+  vtkSmartPointer<vtkIdList> hilbertOrder;
+  if (this->UseHilbertSorter)
+  {
+    vtkNew<vtkPolyData> sorterInput;
+    sorterInput->SetPoints(srcPoints);
+    vtkNew<vtkHilbertCurveSorter> sorter;
+    sorter->SetInputData(sorterInput);
+    sorter->ComputePermutationOnlyOn();
+    sorter->Update();
+    hilbertOrder = sorter->GetPermutation();
+  }
   GCDTraversal gcdIter(numPoints);
 
   // For each point; find triangle containing point. Then evaluate
@@ -950,7 +967,18 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // satisfy criterion have their edges swapped.
   for (vtkIdType idx = 0; idx < numPoints; idx++)
   {
-    ptId = (this->RandomPointInsertion ? gcdIter.GetPointId(idx) : idx);
+    if (hilbertOrder)
+    {
+      ptId = hilbertOrder->GetId(idx);
+    }
+    else if (this->RandomPointInsertion)
+    {
+      ptId = gcdIter.GetPointId(idx);
+    }
+    else
+    {
+      ptId = idx;
+    }
     this->GetPoint(ptId, x);
 
     bool onEdge = false;
@@ -2069,6 +2097,7 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Random Point Insertion: " << (this->RandomPointInsertion ? "On" : "Off") << "\n";
+  os << indent << "Use Hilbert Sorter: " << (this->UseHilbertSorter ? "On" : "Off") << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END

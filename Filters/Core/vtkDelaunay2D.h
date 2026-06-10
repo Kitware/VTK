@@ -255,6 +255,21 @@ public:
   vtkBooleanMacro(RandomPointInsertion, vtkTypeBool);
   ///@}
 
+  ///@{
+  /**
+   * Indicate whether to insert the points following a Hilbert-curve
+   * ordering (computed with vtkHilbertCurveSorter). Successive insertions
+   * are then spatially local, which significantly shortens the walk to
+   * locate the containing triangle on large inputs. The resulting
+   * triangulation is equivalent; the insertion order primarily affects
+   * construction speed. This option takes precedence over
+   * RandomPointInsertion. Default is off.
+   */
+  vtkSetMacro(UseHilbertSorter, vtkTypeBool);
+  vtkGetMacro(UseHilbertSorter, vtkTypeBool);
+  vtkBooleanMacro(UseHilbertSorter, vtkTypeBool);
+  ///@}
+
 protected:
   vtkDelaunay2D();
 
@@ -265,6 +280,7 @@ protected:
   vtkTypeBool BoundingTriangulation;
   double Offset;
   vtkTypeBool RandomPointInsertion;
+  vtkTypeBool UseHilbertSorter;
 
   // Transform input points (if necessary)
   vtkSmartPointer<vtkAbstractTransform> Transform;
