@@ -13,6 +13,7 @@
 #include "vtkWebGPUComputeTextureView.h"   // for compute texture views
 #include "vtkWebGPUConfiguration.h"        // for ivar
 #include "vtk_wgpu.h"                      // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <cstddef>
 #include <unordered_map>

@@ -21,6 +21,7 @@
 #include "vtkABINamespace.h"          // for VTK_ABI_NAMESPACE macros
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtk_wgpu.h"                 // for wgpu::RenderPassEncoder
+#include "webgpu/webgpu_cpp.h"        // for wgpu:: C++ wrapper types
 
 VTK_ABI_NAMESPACE_BEGIN
 

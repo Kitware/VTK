@@ -9,6 +9,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkWebGPUComputePointCloudMapper.h"
 #include "vtk_wgpu.h"
+#include "webgpu/webgpu_cpp.h"
 
 class vtkPolyData;
 class vtkRenderer;

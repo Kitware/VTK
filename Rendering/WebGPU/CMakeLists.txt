@@ -6,16 +6,19 @@ add_library(VTK::WebGPUImpl INTERFACE IMPORTED GLOBAL)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_USE_DAWN_WEBGPU OFF)
+  vtk_module_find_package(PACKAGE webgpuheaders)
+  set(vtk_webgpu_headers_used vendored)
 else()
   vtk_module_find_package(PACKAGE Dawn)
   if(Dawn_FOUND)
     set(VTK_USE_DAWN_WEBGPU ON)
     target_link_libraries(VTK::WebGPUImpl INTERFACE dawn::webgpu_dawn)
+    set(vtk_webgpu_headers_used dawn)
   else()
     set(VTK_USE_DAWN_WEBGPU OFF)
-    # Future: find wgpu-native or other implementations here and populate
-    # VTK::WebGPUImpl accordingly.
-    message(STATUS "WebGPU: no implementation found; using headers only")
+    vtk_module_find_package(PACKAGE webgpuheaders)
+    set(vtk_webgpu_headers_used vendored)
+    message(STATUS "WebGPU: no implementation found; using vendored headers only")
   endif()
 endif()
 
@@ -245,9 +248,16 @@ vtk_module_add_module(VTK::RenderingWebGPU
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
   PRIVATE_HEADERS  ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
-# Public headers now use only the WebGPU C API (webgpu.h) via opaque Handle types.
-# Internal implementation may use C++20 features from webgpu_cpp.h, but doesn't
-# propagate them to public API, maintaining VTK's C++17 compatibility.
+# Ensure webgpu headers are available:
+# - If using installed Dawn, get headers from there
+# - Otherwise use vendored headers
+if(VTK_USE_DAWN_WEBGPU)
+  vtk_module_link(VTK::RenderingWebGPU PUBLIC VTK::WebGPUImpl)
+else()
+  vtk_module_link(VTK::RenderingWebGPU PUBLIC VTK::webgpuheaders)
+endif()
+
+# Public headers use C API only. C++20 features (webgpu_cpp.h) are private to implementation.
 vtk_module_compile_features(VTK::RenderingWebGPU
   PRIVATE cxx_std_20)
 

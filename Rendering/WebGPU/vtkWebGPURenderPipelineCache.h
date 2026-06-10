@@ -40,6 +40,7 @@
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

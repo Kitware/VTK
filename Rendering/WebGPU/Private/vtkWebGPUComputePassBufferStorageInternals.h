@@ -12,6 +12,7 @@
 #include "vtkWebGPUComputeRenderBuffer.h" // for compute render buffers
 #include "vtkWebGPUConfiguration.h"       // for ivar
 #include "vtk_wgpu.h"                     // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

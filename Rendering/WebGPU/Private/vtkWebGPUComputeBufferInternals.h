@@ -7,6 +7,7 @@
 #include "vtkRenderingWebGPUModule.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtk_wgpu.h"
+#include "webgpu/webgpu_cpp.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

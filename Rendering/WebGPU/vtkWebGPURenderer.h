@@ -11,6 +11,7 @@
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <unordered_set> // for the set of actors rendered last frame
 #include <vector>        // for the list of visible props

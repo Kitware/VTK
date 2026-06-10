@@ -17,7 +17,6 @@ DEPENDS
   VTK::RenderingLabel
   VTK::RenderingUI
   VTK::IOImage
-  VTK::webgpuheaders
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem

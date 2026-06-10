@@ -4,8 +4,7 @@
 #define vtk_wgpu_h
 
 // Standard WebGPU C API header (vendored from VTK::webgpuheaders).
-// The C++ wrapper (webgpu_cpp.h) is private to implementation — public API uses
-// opaque Handle types to avoid C++20 requirement. See vtkWebGPUHandle.h.
+// Public API uses only C API to maintain C++17 compatibility.
 #include "webgpu/webgpu.h"
 
 // Whether Dawn was found and linked as the WebGPU implementation.

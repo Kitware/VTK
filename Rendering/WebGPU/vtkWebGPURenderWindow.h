@@ -23,6 +23,7 @@
 #include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                      // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

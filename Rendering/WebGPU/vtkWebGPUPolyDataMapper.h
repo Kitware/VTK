@@ -11,6 +11,7 @@
 #include "vtkWebGPUComputePipeline.h"          // for ivar
 #include "vtkWrappingHints.h"                  // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                          // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <array>         // for ivar
 #include <unordered_set> // for the not set compute render buffers

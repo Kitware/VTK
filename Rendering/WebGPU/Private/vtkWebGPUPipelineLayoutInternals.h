@@ -5,6 +5,7 @@
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
+#include "webgpu/webgpu_cpp.h"
 
 #include <vector>
 

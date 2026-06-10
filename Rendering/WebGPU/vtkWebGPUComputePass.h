@@ -9,6 +9,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkSmartPointer.h"          // for arg
 #include "vtk_wgpu.h"                 // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <type_traits> // for enable_if_t
 

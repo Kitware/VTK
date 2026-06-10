@@ -29,6 +29,7 @@
 #include "vtkTimeStamp.h"             // for vtkTimeStamp
 
 #include "vtk_wgpu.h" // for wgpu::Buffer
+#include "webgpu/webgpu_cpp.h"
 
 #include <array>   // for std::array
 #include <utility> // for std::pair

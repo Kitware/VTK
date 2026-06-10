@@ -8,6 +8,7 @@
 #include "vtkWebGPUComputePass.h"   // for the list of compute passes held by this pipeline
 #include "vtkWebGPUConfiguration.h" // for requesting device / adapter
 #include "vtk_wgpu.h"               // for webgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <unordered_map> // for the registered buffers / textures
 

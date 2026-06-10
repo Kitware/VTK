@@ -6,6 +6,7 @@
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
+#include "webgpu/webgpu_cpp.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPURenderPassCreateInfoInternals

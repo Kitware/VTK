@@ -22,6 +22,7 @@
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for wgpu
+#include "webgpu/webgpu_cpp.h"
 
 #include <memory> // for unique_ptr
 
