@@ -53,6 +53,10 @@ Do not hesitate to reach out on [discourse](https://discourse.vtk.org/) or [gitl
 ---
 ## Changelog
 
+### VTKHDF - 2.7
+
+- add specification for `RectilinearGrid` and `StructuredGrid`
+
 ### VTKHDF - 2.6
 
 - add specification for dataset attributes
