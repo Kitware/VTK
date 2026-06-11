@@ -10,6 +10,7 @@
 
 #include "vtkFLUENTReader.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
@@ -277,7 +278,7 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
   vtkNew<vtkHexahedron> hexahedronBuffer;
   vtkNew<vtkPyramid> pyramidBuffer;
   vtkNew<vtkWedge> wedgeBuffer;
-  vtkNew<vtkPolyhedron> polyhedronBuffer;
+  vtkNew<vtkIdList> polyhedronBuffer;
 
   for (Cell& cell : this->Cells)
   {
@@ -347,14 +348,21 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
         break;
 
       case 7:
-        polyhedronBuffer->GetPointIds()->SetNumberOfIds(
-          static_cast<vtkIdType>(cell.nodeIndices.size()));
-        for (size_t j = 0; j < cell.nodeIndices.size(); j++)
+        // From vtkUnstructuredGrid::InsertNextCell :
+        // For polyhedron cell, input ptIds is of format:
+        // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
+        polyhedronBuffer->SetNumberOfIds(0);
+        polyhedronBuffer->InsertNextId(cell.faceIndices.size());
+        for (const auto faceId : cell.faceIndices)
         {
-          polyhedronBuffer->GetPointIds()->SetId(static_cast<vtkIdType>(j), cell.nodeIndices[j]);
+          polyhedronBuffer->InsertNextId(Faces[faceId].nodeIndices.size());
+          for (const auto nodeId : Faces[faceId].nodeIndices)
+          {
+            polyhedronBuffer->InsertNextId(nodeId);
+          }
         }
-        newCellPointIDs = polyhedronBuffer->GetPointIds();
-        newCellType = polyhedronBuffer->GetCellType();
+        newCellPointIDs = polyhedronBuffer;
+        newCellType = VTK_POLYHEDRON;
         break;
 
       default:
