@@ -234,6 +234,28 @@ Initialization flow: `vtkWebGPUConfiguration::Initialize()` invokes
 library (e.g., `libwgpu_dawn.so`), resolves function pointers via the proc
 table, then creates a WebGPU adapter and device.
 
+### Standard WebGPU Headers
+
+VTK vendors a copy of the WebGPU headers in `ThirdParty/webgpuheaders`. They
+define the core WebGPU types (`WGPUInstance`, `WGPUDevice`, etc.) and the
+function signatures that the proc table resolves at runtime. They are used when
+no Dawn installation is found at configure time, and for Emscripten builds; when
+Dawn *is* found, its own headers are used instead.
+
+VTK's public headers already use the WebGPU C API only, so the installed
+interface does not expose `wgpu::` types and does not require C++20 of its
+consumers.
+
+```{note}
+The vendored headers are currently taken from Dawn, not from upstream
+[webgpu-headers](https://github.com/webgpu-native/webgpu-headers) —
+`include/webgpu/webgpu_cpp.h` is a shim that includes `include/dawn/webgpu_cpp.h`.
+So VTK is not yet decoupled from a particular implementation at the header level.
+Two changes are needed to get there: vendoring the upstream C headers, and
+removing `webgpu_cpp.h` from the module's implementation files, which still use
+`wgpu::` types internally.
+```
+
 ### Library Search Strategy
 
 If an explicit library path is given to the loader, it is tried first and on its
