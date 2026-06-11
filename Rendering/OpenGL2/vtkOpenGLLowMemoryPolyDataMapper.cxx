@@ -908,8 +908,8 @@ bool vtkOpenGLLowMemoryPolyDataMapper::ShouldUseIndexedRendering(vtkRenderer* re
   {
     return false;
   }
-  vtkProperty* property = actor->GetProperty();
-  if (property->GetEdgeVisibility())
+  vtkProperty* property = (actor != nullptr) ? actor->GetProperty() : nullptr;
+  if (property != nullptr && property->GetEdgeVisibility())
   {
     return false;
   }
@@ -941,13 +941,25 @@ bool vtkOpenGLLowMemoryPolyDataMapper::ShouldUseIndexedRendering(vtkRenderer* re
       // Plain surface triangles: indexed drawing restores the post-transform
       // vertex cache for shared vertices. Wireframe draws triangles too but needs
       // the sequential walk (gl_VertexID-1/-2 reach siblings), so require SURFACE.
-      return property->GetRepresentation() == VTK_SURFACE && numberOfPointsPerPrimitive == 3;
+      if (property != nullptr)
+      {
+        return property->GetRepresentation() == VTK_SURFACE && numberOfPointsPerPrimitive == 3;
+      }
+      [[fallthrough]]; // to default
     case vtkDrawTexturedElements::ElementShape::Line:
       // Thin (1px) lines only; wide lines expand to triangles (excluded above).
-      return property->GetLineWidth() <= 1.0;
+      if (property != nullptr)
+      {
+        return property->GetLineWidth() <= 1.0;
+      }
+      [[fallthrough]]; // to default
     case vtkDrawTexturedElements::ElementShape::Point:
       // 1-pixel points only.
-      return property->GetPointSize() <= 1.0;
+      if (property != nullptr)
+      {
+        return property->GetPointSize() <= 1.0;
+      }
+      [[fallthrough]]; // to default
     default:
       return false;
   }

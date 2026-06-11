@@ -480,7 +480,7 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
   this->VAO->Bind();
   vtkOpenGLStaticCheckErrorMacro("Failed after binding VAO.");
 
-  // PROTOTYPE: if an index buffer was supplied, (re)upload and bind it so the
+  // if an index buffer was supplied, (re)upload and bind it so the
   // GL_ELEMENT_ARRAY_BUFFER binding is captured in the currently-bound VAO state.
   // DrawInstancedElementsImpl will then issue glDrawElementsInstanced.
   if (this->P->UseIndexBuffer)
