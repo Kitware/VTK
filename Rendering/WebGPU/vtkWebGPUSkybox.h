@@ -22,6 +22,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
+#include "webgpu/webgpu_cpp.h"        // for wgpu:: C++ wrapper types
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
