@@ -2,6 +2,7 @@ NAME
   VTK::RenderingLabel
 LIBRARY_NAME
   vtkRenderingLabel
+IMPLEMENTABLE
 KIT
   VTK::Rendering
 GROUPS
@@ -28,13 +29,16 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::FiltersGeneral
+  VTK::ImagingCore
   VTK::octree
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::IOXML
   VTK::InteractionStyle
-  VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::RenderingWebGPU
 INCLUDE_MARSHAL

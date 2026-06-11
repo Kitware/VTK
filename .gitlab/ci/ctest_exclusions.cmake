@@ -773,6 +773,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestVertexVisibility$"
     "^VTK::RenderingCoreCxx-WebGPU-TestWindowToImageFilter$"
+    # RenderingLabelCxx tests that fail with WebGPU.
+    # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
+    "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapper2D$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapperCoincidentPoints$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacer$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapper$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$"
     # Crashes randomly with mesa-vulkan-drivers
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling$")
 endif ()

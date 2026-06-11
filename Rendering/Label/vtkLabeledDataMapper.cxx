@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkLabeledDataMapper.h"
+#include "Private/vtkLabeledFormatter.h"
 
 #include "vtkActor2D.h"
 #include "vtkArrayDispatch.h"
@@ -10,6 +11,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
@@ -40,9 +42,8 @@ vtkCxxSetObjectMacro(vtkLabeledDataMapper, Transform, vtkTransform);
 // Creates a new label mapper
 
 vtkLabeledDataMapper::vtkLabeledDataMapper()
+  : Implementation(new Internals)
 {
-  this->Implementation = new Internals;
-
   this->Input = nullptr;
   this->LabelMode = VTK_LABEL_IDS;
 
@@ -55,13 +56,11 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->NumberOfLabels = 0;
   this->NumberOfLabelsAllocated = 0;
 
-  this->LabelPositions = nullptr;
-  this->TextMappers = nullptr;
   this->AllocateLabels(50);
 
   this->ComponentSeparator = ' ';
 
-  vtkSmartPointer<vtkTextProperty> prop = vtkSmartPointer<vtkTextProperty>::New();
+  auto prop = vtkSmartPointer<vtkTextProperty>::New();
   prop->SetFontSize(12);
   prop->SetBold(1);
   prop->SetItalic(1);
@@ -78,21 +77,11 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 //------------------------------------------------------------------------------
 vtkLabeledDataMapper::~vtkLabeledDataMapper()
 {
-  delete[] this->LabelFormat;
-
-  delete[] this->LabelPositions;
-  if (this->TextMappers != nullptr)
-  {
-    for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
-    {
-      this->TextMappers[i]->Delete();
-    }
-    delete[] this->TextMappers;
-  }
-
+  this->SetLabelFormat(nullptr);
+  this->LabelPositions.clear();
+  this->TextMappers.clear();
   this->SetFieldDataName(nullptr);
   this->SetTransform(nullptr);
-  delete this->Implementation;
 }
 
 //------------------------------------------------------------------------------
@@ -100,28 +89,18 @@ void vtkLabeledDataMapper::AllocateLabels(int numLabels)
 {
   if (numLabels > this->NumberOfLabelsAllocated)
   {
-    int i;
     // delete old stuff
-    delete[] this->LabelPositions;
-    this->LabelPositions = nullptr;
-    for (i = 0; i < this->NumberOfLabelsAllocated; i++)
-    {
-      this->TextMappers[i]->Delete();
-    }
-    delete[] this->TextMappers;
-    this->TextMappers = nullptr;
+    this->LabelPositions.clear();
+    this->TextMappers.clear();
 
     this->NumberOfLabelsAllocated = numLabels;
 
     // Allocate and initialize new stuff
-    this->LabelPositions = new double[this->NumberOfLabelsAllocated * 3];
-    this->TextMappers = new vtkTextMapper*[this->NumberOfLabelsAllocated];
-    for (i = 0; i < this->NumberOfLabelsAllocated; i++)
+    this->LabelPositions.resize(this->NumberOfLabelsAllocated * 3, 0.0);
+    this->TextMappers.resize(this->NumberOfLabelsAllocated, nullptr);
+    for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
     {
-      this->TextMappers[i] = vtkTextMapper::New();
-      this->LabelPositions[3 * i] = 0;
-      this->LabelPositions[3 * i + 1] = 0;
-      this->LabelPositions[3 * i + 2] = 0;
+      this->TextMappers[i] = vtkSmartPointer<vtkTextMapper>::New();
     }
   }
 }
@@ -160,11 +139,14 @@ vtkDataSet* vtkLabeledDataMapper::GetInput()
 // Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  if (this->TextMappers != nullptr)
+  if (!this->TextMappers.empty())
   {
     for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
     {
-      this->TextMappers[i]->ReleaseGraphicsResources(win);
+      if (this->TextMappers[i])
+      {
+        this->TextMappers[i]->ReleaseGraphicsResources(win);
+      }
     }
   }
 }
@@ -329,23 +311,18 @@ void vtkLabeledDataMapper::BuildLabels()
 }
 
 //------------------------------------------------------------------------------
-struct vtkLabeledDataMapper::vtkLabeledDataMapperFunctor
+struct vtkLabeledDataMapper::vtkLabeledDataMapperFormatter : vtkLabeledFormatterInterface
 {
-  vtkLabeledDataMapper* Self;
-  vtkIntArray* TypeArr;
   vtkDataSet* Input;
-  int NumCurLabels;
 
-  vtkLabeledDataMapperFunctor(
+  vtkLabeledDataMapperFormatter(
     vtkLabeledDataMapper* self, vtkIntArray* typeArr, vtkDataSet* input, int numCurLabels)
-    : Self(self)
-    , TypeArr(typeArr)
+    : vtkLabeledFormatterInterface(self, typeArr, numCurLabels)
     , Input(input)
-    , NumCurLabels(numCurLabels)
   {
   }
 
-  void SetFormattedString(int i, const char* resultString)
+  void SetFormattedString(int i, const char* resultString) override
   {
     this->Self->TextMappers[i + this->Self->NumberOfLabels]->SetInput(resultString);
 
@@ -368,151 +345,78 @@ struct vtkLabeledDataMapper::vtkLabeledDataMapperFunctor
     this->Self->LabelPositions[3 * (i + this->Self->NumberOfLabels) + 1] = x[1];
     this->Self->LabelPositions[3 * (i + this->Self->NumberOfLabels) + 2] = x[2];
   }
-
-  void operator()(const std::string& FormatString)
-  {
-    char formatedString[1024];
-    for (int i = 0; i < this->NumCurLabels; i++)
-    {
-      VTK_FORMAT_IF_ERROR_RETURN(
-        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString, i);
-        *result.out = '\0', );
-      this->SetFormattedString(i, formatedString);
-    }
-  }
-
-  struct NumericComponent
-  {
-  };
-  template <class TArray>
-  void operator()(TArray* array, int activeComp, const std::string& FormatString, NumericComponent)
-  {
-    char formatedString[1024];
-    auto a = vtk::DataArrayTupleRange(array);
-    using ValueType = vtk::GetAPIType<TArray>;
-    for (int i = 0; i < this->NumCurLabels; i++)
-    {
-      VTK_FORMAT_IF_ERROR_RETURN(
-        auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
-          static_cast<ValueType>(a[i][activeComp]));
-        *result.out = '\0', );
-      this->SetFormattedString(i, formatedString);
-    }
-  }
-
-  struct NumericVector
-  {
-  };
-  template <class TArray>
-  void operator()(TArray* array, int numComp, const std::string& FormatString, NumericVector)
-  {
-    char formatedString[1024];
-    std::string ResultString;
-    auto a = vtk::DataArrayTupleRange(array);
-    using ValueType = vtk::GetAPIType<TArray>;
-    for (int i = 0; i < this->NumCurLabels; i++)
-    {
-      ResultString = "(";
-
-      // Print each component in turn and add it to the string.
-      for (int j = 0; j < numComp; ++j)
-      {
-        VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(
-            formatedString, sizeof(formatedString), FormatString, static_cast<ValueType>(a[i][j]));
-          *result.out = '\0', );
-
-        ResultString += formatedString;
-        if (j < (numComp - 1))
-        {
-          ResultString += this->Self->GetComponentSeparator();
-        }
-        else
-        {
-          ResultString += ')';
-        }
-      }
-      this->SetFormattedString(i, ResultString.c_str());
-    }
-  }
-
-  void operator()(vtkStringArray* array, const std::string& FormatString)
-  {
-    char formatedString[1024];
-    for (int i = 0; i < this->NumCurLabels; i++)
-    {
-      // If the user hasn't given us a custom format string then just save the value.
-      if (!this->Self->LabelFormat || std::string_view(this->Self->LabelFormat).empty())
-      {
-        this->SetFormattedString(i, array->GetValue(i).c_str());
-      }
-      else // the user specified a label format
-      {
-        VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(formatedString, sizeof(formatedString), FormatString,
-            static_cast<std::string&>(array->GetValue(i)));
-          *result.out = '\0', );
-        this->SetFormattedString(i, formatedString);
-      }
-    }
-  }
 };
 
 //------------------------------------------------------------------------------
 void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 {
-  int numComp = 0, pointIdLabels = 0, activeComp = 0;
-  vtkAbstractArray* abstractData = nullptr;
-  vtkDataArray* numericData = nullptr;
-  vtkStringArray* stringData = nullptr;
-
-  if (input->GetNumberOfPoints() == 0)
+  auto formatterInput =
+    this->ResolveLabeledFormatterInput(input->GetPointData(), input->GetNumberOfPoints(), input);
+  if (!formatterInput.Valid)
   {
     return;
   }
+  if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + formatterInput.NumCurLabels))
+  {
+    vtkErrorMacro("Number of labels must be allocated before this method is called.");
+    return;
+  }
 
-  vtkPointData* pd = input->GetPointData();
+  vtkLabeledDataMapperFormatter formatter(
+    this, formatterInput.TypeArr, input, formatterInput.NumCurLabels);
+  formatter.Dispatch(formatterInput);
+  this->NumberOfLabels += formatterInput.NumCurLabels;
+}
 
-  vtkIntArray* typeArr =
-    vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(0, input));
+//------------------------------------------------------------------------------
+vtkLabeledFormatterInput vtkLabeledDataMapper::ResolveLabeledFormatterInput(
+  vtkDataSetAttributes* pd, int numItems, vtkDataObject* inputObj)
+{
+  vtkLabeledFormatterInput setup;
 
-  // figure out what to label, and if we can label it
-  pointIdLabels = 0;
+  if (numItems == 0)
+  {
+    setup.Valid = false;
+    return setup;
+  }
+
+  setup.TypeArr = vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(0, inputObj));
+  setup.NumCurLabels = numItems;
+
+  vtkAbstractArray* abstractData = nullptr;
   switch (this->LabelMode)
   {
     case VTK_LABEL_IDS:
-    {
-      pointIdLabels = 1;
-    }
-    break;
+      setup.PointIdLabels = true;
+      break;
     case VTK_LABEL_SCALARS:
       if (pd->GetScalars())
       {
-        numericData = pd->GetScalars();
+        setup.NumericData = pd->GetScalars();
       }
       break;
     case VTK_LABEL_VECTORS:
       if (pd->GetVectors())
       {
-        numericData = pd->GetVectors();
+        setup.NumericData = pd->GetVectors();
       }
       break;
     case VTK_LABEL_NORMALS:
       if (pd->GetNormals())
       {
-        numericData = pd->GetNormals();
+        setup.NumericData = pd->GetNormals();
       }
       break;
     case VTK_LABEL_TCOORDS:
       if (pd->GetTCoords())
       {
-        numericData = pd->GetTCoords();
+        setup.NumericData = pd->GetTCoords();
       }
       break;
     case VTK_LABEL_TENSORS:
       if (pd->GetTensors())
       {
-        numericData = pd->GetTensors();
+        setup.NumericData = pd->GetTensors();
       }
       break;
     case VTK_LABEL_FIELD_DATA:
@@ -529,32 +433,31 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
                                                                    : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
       }
-      numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
-      stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+      setup.NumericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+      setup.StringData = vtkArrayDownCast<vtkStringArray>(abstractData);
     }
     break;
   }
 
-  // determine number of components and check input
-  if (pointIdLabels)
+  if (setup.PointIdLabels)
   {
-    numComp = 1;
+    setup.NumComp = 1;
   }
-  else if (numericData)
+  else if (setup.NumericData)
   {
-    numComp = numericData->GetNumberOfComponents();
-    activeComp = 0;
+    setup.NumComp = setup.NumericData->GetNumberOfComponents();
     if (this->LabeledComponent >= 0)
     {
-      activeComp = (this->LabeledComponent < numComp ? this->LabeledComponent : numComp - 1);
-      numComp = 1;
+      setup.ActiveComp =
+        (this->LabeledComponent < setup.NumComp ? this->LabeledComponent : setup.NumComp - 1);
+      setup.NumComp = 1;
     }
   }
   else
   {
-    if (stringData)
+    if (setup.StringData)
     {
-      numComp = stringData->GetNumberOfComponents();
+      setup.NumComp = setup.StringData->GetNumberOfComponents();
     }
     else
     {
@@ -569,117 +472,69 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
                         << "index " << this->FieldDataArray << ") "
                         << "in input.");
       }
-
-      return;
+      setup.Valid = false;
+      return setup;
     }
   }
 
-  std::string formatString;
   if (this->LabelFormat && !std::string_view(this->LabelFormat).empty())
   {
-    // The user has specified a format string.
     vtkDebugMacro(<< "Using user-specified format string " << this->LabelFormat);
-    formatString = vtk::to_std_format(this->LabelFormat);
+    setup.FormatString = vtk::to_std_format(this->LabelFormat);
   }
   else
   {
-    // Try to come up with some sane default.
-    if (pointIdLabels)
+    if (setup.PointIdLabels)
     {
-      formatString = "{:d}";
+      setup.FormatString = "{:d}";
     }
-    else if (numericData)
+    else if (setup.NumericData)
     {
-      switch (numericData->GetDataType())
+      switch (setup.NumericData->GetDataType())
       {
         case VTK_VOID:
-          formatString = "0x{:x}";
+          setup.FormatString = "0x{:x}";
           break;
         case VTK_BIT:
         case VTK_SHORT:
         case VTK_UNSIGNED_SHORT:
         case VTK_INT:
         case VTK_UNSIGNED_INT:
-          formatString = "{:d}";
+          setup.FormatString = "{:d}";
           break;
         case VTK_CHAR:
         case VTK_SIGNED_CHAR:
         case VTK_UNSIGNED_CHAR:
-          formatString = "{:c}";
+          setup.FormatString = "{:c}";
           break;
         case VTK_LONG:
         case VTK_UNSIGNED_LONG:
         case VTK_ID_TYPE:
         case VTK_LONG_LONG:
         case VTK_UNSIGNED_LONG_LONG:
-          formatString = "{:d}";
+          setup.FormatString = "{:d}";
           break;
         case VTK_FLOAT:
         case VTK_DOUBLE:
-          formatString = "{:f}";
+          setup.FormatString = "{:f}";
           break;
         default:
-          formatString = "BUG - UNKNOWN DATA FORMAT";
+          setup.FormatString = "BUG - UNKNOWN DATA FORMAT";
           break;
       }
     }
-    else if (stringData)
+    else if (setup.StringData)
     {
-      formatString = "";
+      setup.FormatString = "";
     }
     else
     {
-      formatString = "BUG - COULDN'T DETECT DATA TYPE";
+      setup.FormatString = "BUG - COULDN'T DETECT DATA TYPE";
     }
-
-    vtkDebugMacro(<< "Using default format string " << formatString);
-
-  } // Done building default format string
-
-  int numCurLabels = input->GetNumberOfPoints();
-  // We are assured that
-  // this->NumberOfLabelsAllocated >= (this->NumberOfLabels + numCurLabels)
-  if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + numCurLabels))
-  {
-    vtkErrorMacro("Number of labels must be allocated before this method is called.");
-    return;
+    vtkDebugMacro(<< "Using default format string " << setup.FormatString);
   }
 
-  // ----------------------------------------
-  // Now we actually construct the label strings
-  //
-
-  vtkLabeledDataMapperFunctor functor(this, typeArr, input, numCurLabels);
-  if (pointIdLabels)
-  {
-    functor(formatString);
-  }
-  else if (numericData)
-  {
-    if (numComp == 1)
-    {
-      if (!vtkArrayDispatch::Dispatch::Execute(numericData, functor, activeComp, formatString,
-            vtkLabeledDataMapperFunctor::NumericComponent()))
-      {
-        functor(
-          numericData, activeComp, formatString, vtkLabeledDataMapperFunctor::NumericComponent());
-      }
-    }
-    else
-    {
-      if (!vtkArrayDispatch::Dispatch::Execute(numericData, functor, numComp, formatString,
-            vtkLabeledDataMapperFunctor::NumericVector()))
-      {
-        functor(numericData, numComp, formatString, vtkLabeledDataMapperFunctor::NumericVector());
-      }
-    }
-  }
-  else // rendering string data
-  {
-    functor(stringData, formatString);
-  }
-
-  this->NumberOfLabels += numCurLabels;
+  return setup;
 }
 
 //------------------------------------------------------------------------------
@@ -796,6 +651,10 @@ vtkMTimeType vtkLabeledDataMapper::GetMTime()
 const char* vtkLabeledDataMapper::GetLabelText(int label)
 {
   assert("label index range" && label >= 0 && label < this->NumberOfLabels);
-  return this->TextMappers[label]->GetInput();
+  if (!this->TextMappers.empty())
+  {
+    return this->TextMappers[label]->GetInput();
+  }
+  return nullptr;
 }
 VTK_ABI_NAMESPACE_END

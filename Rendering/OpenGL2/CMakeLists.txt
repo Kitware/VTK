@@ -31,6 +31,7 @@ set(classes
   vtkOpaquePass
   vtkOpenGLActor
   vtkOpenGLArrayTextureBufferAdapter
+  vtkOpenGLBatchedLabeledDataMapper
   vtkOpenGLBatchedPolyDataMapper
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject
@@ -137,7 +138,10 @@ if (VTK_USE_WIN32_OPENGL AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOM
 endif ()
 
 set(sources)
-set(private_sources)
+set(private_headers
+  "Private/vtkOpenGLBatchedLabeledDataMapperInternals.h")
+set(private_sources
+  "Private/vtkOpenGLBatchedLabeledDataMapperInternals.cxx")
 
 set(private_classes
   vtkOpenGLLowMemoryCellTypeAgent
@@ -238,6 +242,7 @@ set(opengl_overrides
   HardwareSelector
   ImageMapper
   ImageSliceMapper
+  BatchedLabeledDataMapper
   Glyph3DMapper
   HyperTreeGridMapper
   Light

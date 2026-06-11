@@ -583,6 +583,7 @@ Rendering/OpenGL2/vtkLightingMapPass.h
 Rendering/OpenGL2/vtkLightsPass.h
 Rendering/OpenGL2/vtkOpaquePass.h
 Rendering/OpenGL2/vtkOpenGLActor.h
+Rendering/OpenGL2/vtkOpenGLBatchedLabeledDataMapper.h
 Rendering/OpenGL2/vtkOpenGLCamera.h
 Rendering/OpenGL2/vtkOpenGLES30PolyDataMapper2D.h
 Rendering/OpenGL2/vtkOpenGLFluidMapper.h
@@ -659,6 +660,7 @@ Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkSmartVolumeMapper.h
 Rendering/WebGPU/vtkWebGPUActor.h
+Rendering/WebGPU/vtkWebGPUBatchedLabeledDataMapper.h
 Rendering/WebGPU/vtkWebGPUCamera.h
 Rendering/WebGPU/vtkWebGPUComputeFrustumCuller.h
 Rendering/WebGPU/vtkWebGPUComputeOcclusionCuller.h

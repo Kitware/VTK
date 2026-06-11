@@ -9,6 +9,7 @@ GROUPS
   Rendering
 IMPLEMENTS
   VTK::RenderingCore
+  VTK::RenderingLabel
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
@@ -21,6 +22,7 @@ DEPENDS
   VTK::IOImage
   VTK::RenderingCore
   VTK::RenderingHyperTreeGrid
+  VTK::RenderingLabel
   VTK::RenderingUI
   VTK::glad
   VTK::x11

@@ -39,13 +39,21 @@
 #include "vtkLabeledDatatypeDefinitions.h" // For Data type Definitions
 #include "vtkMapper2D.h"
 #include "vtkRenderingLabelModule.h" // For export macro
+#include "vtkSmartPointer.h"         // For vtkSmartPointer
 #include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 #include <cassert> // For assert macro
+#include <memory>  // For std::unique_ptr
+#include <vector>  // For std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkDataObject;
 class vtkDataSet;
+class vtkDataSetAttributes;
+class vtkIntArray;
+class vtkStringArray;
+struct vtkLabeledFormatterInput;
 class vtkTextMapper;
 class vtkTextProperty;
 class vtkTransform;
@@ -249,24 +257,32 @@ protected:
 
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
-  vtkTextMapper** TextMappers;
-  double* LabelPositions;
+  std::vector<vtkSmartPointer<vtkTextMapper>> TextMappers;
+  std::vector<double> LabelPositions;
   vtkTransform* Transform;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  void AllocateLabels(int numLabels);
-  void BuildLabels();
-  void BuildLabelsInternal(vtkDataSet*);
+  virtual void AllocateLabels(int numLabels);
+  virtual void BuildLabels();
+  virtual void BuildLabelsInternal(vtkDataSet*);
+
+  /**
+   * Resolve which data to label and build the format string.
+   * Returns a vtkLabeledFormatterInput with Valid=false if nothing should be labeled.
+   * Full definition of vtkLabeledFormatterInput is in vtkLabeledFormatter.h.
+   */
+  vtkLabeledFormatterInput ResolveLabeledFormatterInput(
+    vtkDataSetAttributes* pd, int numItems, vtkDataObject* inputObj);
 
   class Internals;
-  Internals* Implementation;
+  std::unique_ptr<Internals> Implementation;
 
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&) = delete;
   void operator=(const vtkLabeledDataMapper&) = delete;
 
-  struct vtkLabeledDataMapperFunctor;
+  struct vtkLabeledDataMapperFormatter;
 };
 
 VTK_ABI_NAMESPACE_END
