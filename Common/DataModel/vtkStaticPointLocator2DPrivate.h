@@ -203,6 +203,21 @@ struct vtkBucketList2D
     max[1] = min[1] + this->hY;
     max[2] = 0.0;
   }
+
+  //-----------------------------------------------------------------------------
+  // Determine whether a bin/bucket specified by i,j is completely contained
+  // inside the circle (center,r2). Return true if contained; false otherwise.
+  bool BucketInsideCircle(int i, int j, const double center[3], double r2)
+  {
+    double xMin = this->bX + i * this->hX;
+    double xMax = xMin + this->hX;
+    double yMin = this->bY + j * this->hY;
+    double yMax = yMin + this->hY;
+    double dx0 = center[0] - xMin, dx1 = center[0] - xMax;
+    double dy0 = center[1] - yMin, dy1 = center[1] - yMax;
+    double dmax2 = std::max(dx0 * dx0, dx1 * dx1) + std::max(dy0 * dy0, dy1 * dy1);
+    return dmax2 <= r2;
+  }
 }; // vtkBucketList2D
 
 //------------------------------------------------------------------------------

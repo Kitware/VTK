@@ -17,11 +17,16 @@
 
 #include "vtkCellGridEvaluator.h" // for inheritance
 #include "vtkCellGridResponder.h"
+#include "vtkVector.h" // for vtkVector3d
+
+#include <vector> // for std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellAttribute;
 class vtkCellMetadata;
 class vtkDataArray;
+class vtkDGCell;
+class vtkInterpolateCalculator;
 class vtkTypeInt64Array;
 
 class VTKFILTERSCELLGRID_EXPORT vtkDGEvaluator : public vtkCellGridResponder<vtkCellGridEvaluator>
@@ -37,17 +42,24 @@ protected:
   vtkDGEvaluator() = default;
   ~vtkDGEvaluator() override = default;
 
-  /// Mark points that are potentially inside a cell.
+  /// Classify world-space points against cells using Newton-Raphson iteration.
+  /// Convergence stores the parametric coordinates, eliminating a separate position-
+  /// evaluation pass.
   bool ClassifyPoints(
-    vtkCellGridEvaluator* query, vtkCellMetadata* cellType, vtkCellGridResponders* caches);
-  /// Determine parametric coordinates of points inside or on a cell.
-  bool EvaluatePositions(
     vtkCellGridEvaluator* query, vtkCellMetadata* cellType, vtkCellGridResponders* caches);
   /// Interpolate cell-attributes onto points inside or on a cell.
   bool InterpolatePoints(
     vtkCellGridEvaluator* query, vtkCellMetadata* cellType, vtkCellGridResponders* caches);
 
 private:
+  /// Invert the reference-to-world mapping for \a testPoint in cell \a cellId via
+  /// Newton-Raphson. Returns true and sets \a rst to the parametric coordinates if
+  /// Newton converged and the result lies inside the reference element.
+  /// \a xyz and \a jacobian are caller-supplied working buffers reused across calls.
+  static bool EvaluatePosition(vtkInterpolateCalculator* calc, vtkDGCell* dgCell, vtkIdType cellId,
+    const vtkVector3d& testPoint, std::vector<double>& xyz, std::vector<double>& jacobian,
+    vtkVector3d& rst);
+
   vtkDGEvaluator(const vtkDGEvaluator&) = delete;
   void operator=(const vtkDGEvaluator&) = delete;
 };

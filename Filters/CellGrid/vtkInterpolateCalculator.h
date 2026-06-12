@@ -12,9 +12,6 @@
 #include "vtkFiltersCellGridModule.h" // For export macro.
 #include "vtkVector.h"                // For API.
 
-#include <array>
-#include <string>
-
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDataArray;

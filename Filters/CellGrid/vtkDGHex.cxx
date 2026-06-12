@@ -104,13 +104,9 @@ void vtkDGHex::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-bool vtkDGHex::IsInside(const vtkVector3d& rst, double tolerance)
+double vtkDGHex::GetSignedParametricDistance(const vtkVector3d& rst) const
 {
-  tolerance = std::abs(tolerance);
-  double pb = 1 + tolerance;
-  double nb = -1 - tolerance;
-  return rst[0] >= nb && rst[0] <= pb && rst[1] >= nb && rst[1] <= pb && rst[2] >= nb &&
-    rst[2] <= pb;
+  return std::max({ std::abs(rst[0]) - 1.0, std::abs(rst[1]) - 1.0, std::abs(rst[2]) - 1.0 });
 }
 
 const std::array<double, 3>& vtkDGHex::GetCornerParameter(int corner) const

@@ -83,15 +83,9 @@ void vtkDGWdg::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-bool vtkDGWdg::IsInside(const vtkVector3d& rst, double tolerance)
+double vtkDGWdg::GetSignedParametricDistance(const vtkVector3d& rst) const
 {
-  tolerance = std::abs(tolerance);
-  double pb = 1 + tolerance;
-  double nb = -1 - tolerance;
-  double n0 = -tolerance;
-  double rs = 1.0 - rst[0] - rst[1];
-  return rst[0] >= n0 && rst[0] <= pb && rst[1] >= n0 && rst[1] <= pb && rs >= n0 && rs <= pb &&
-    rst[2] >= nb && rst[2] <= pb;
+  return std::max({ -rst[0], -rst[1], rst[0] + rst[1] - 1.0, std::abs(rst[2]) - 1.0 });
 }
 
 const std::array<double, 3>& vtkDGWdg::GetCornerParameter(int corner) const

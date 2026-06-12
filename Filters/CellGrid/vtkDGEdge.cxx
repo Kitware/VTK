@@ -54,11 +54,9 @@ void vtkDGEdge::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-bool vtkDGEdge::IsInside(const vtkVector3d& rst, double tolerance)
+double vtkDGEdge::GetSignedParametricDistance(const vtkVector3d& rst) const
 {
-  tolerance = std::abs(tolerance);
-  return rst[0] >= -1.0 - tolerance && rst[0] <= 1.0 + tolerance && std::abs(rst[1]) < tolerance &&
-    std::abs(rst[2]) < tolerance;
+  return std::max({ std::abs(rst[0]) - 1.0, std::abs(rst[1]), std::abs(rst[2]) });
 }
 
 const std::array<double, 3>& vtkDGEdge::GetCornerParameter(int corner) const

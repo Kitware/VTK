@@ -40,7 +40,10 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::SetArray(
   ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
-
+  if (this->Buffer->GetBuffer() == array && this->Buffer->GetSize() == size)
+  {
+    return;
+  }
   this->Buffer->SetBuffer(array, size);
 
   if (deleteMethod == VTK_DATA_ARRAY_DELETE)

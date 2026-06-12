@@ -18,11 +18,14 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCELLGRID_EXPORT vtkDGArrayOutputAccessor
 {
 public:
+  vtkDGArrayOutputAccessor() = default;
   vtkDGArrayOutputAccessor(vtkDoubleArray* result);
   vtkDGArrayOutputAccessor(const vtkDGArrayOutputAccessor& other);
   ~vtkDGArrayOutputAccessor();
 
   vtkDGArrayOutputAccessor& operator=(const vtkDGArrayOutputAccessor& other);
+
+  void SetResult(vtkDoubleArray* result);
 
   /// Expose a tuple in a vtkDoubleArray as an object with a size() method
   /// to satisfy requirements of the output iterator API.

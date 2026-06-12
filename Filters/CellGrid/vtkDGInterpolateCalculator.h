@@ -14,14 +14,17 @@
 #include "vtkDGCell.h"                // For ivar.
 #include "vtkDGOperation.h"           // For ivars.
 #include "vtkInterpolateCalculator.h"
-#include "vtkSmartPointer.h" // For ivar.
-#include "vtkStringToken.h"  // For ivar.
+#include "vtkSMPThreadLocal.h" // For thread-local data
+#include "vtkSmartPointer.h"   // For ivar.
+#include "vtkStringToken.h"    // For ivar.
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkCellAttribute;
 class vtkDGRangeResponder;
+class vtkDoubleArray;
 class vtkDataArray;
+class vtkIdTypeArray;
 class vtkTypeInt64Array;
 
 /**\brief Calculate field values at a point in a cell's parametric space.
@@ -64,17 +67,44 @@ protected:
   /// This is set by PrepareForGrid().
   vtkCellAttribute* Field{ nullptr };
 
-  /// Used to compute a field value for a cell.
-  vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> FieldEvaluator;
-  /// Used to compute a field derivative for a cell.
-  vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> FieldDerivative;
+  struct ThreadLocalData
+  {
+    vtkSmartPointer<vtkDoubleArray> Result;
+    vtkSmartPointer<vtkDoubleArray> VRst;
+    vtkSmartPointer<vtkIdTypeArray> Ids;
 
-  /// Used when an array passed to Evaluate()/EvaluateDerivative() is not a double-array.
-  ///
-  /// The basis operators only process doubles (on the CPU).
-  /// If needed, we copy the parameter and/or output arrays to/from a "local"
-  /// double-valued array into what was passed.
-  vtkNew<vtkDoubleArray> LocalField;
+    vtkSmartPointer<vtkDoubleArray> DerResult;
+    vtkSmartPointer<vtkDoubleArray> DerVRst;
+    vtkSmartPointer<vtkIdTypeArray> DerIds;
+
+    /// Used when an array passed to Evaluate()/EvaluateDerivative() is not a double-array.
+    ///
+    /// The basis operators only process doubles (on the CPU).
+    /// If needed, we copy the parameter and/or output arrays to/from a "local"
+    /// double-valued array into what was passed.
+    vtkSmartPointer<vtkDoubleArray> LocalField;
+
+    /// Used to compute a field value for a cell.
+    vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> FieldEvaluator;
+    /// Used to compute a field derivative for a cell.
+    vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> FieldDerivative;
+
+    vtkDGArraysInputAccessor InAccessor;
+    vtkDGArrayOutputAccessor OutAccessor;
+    vtkDGArraysInputAccessor DerInAccessor;
+    vtkDGArrayOutputAccessor DerOutAccessor;
+
+    bool Initialized{ false };
+
+    ThreadLocalData();
+    ThreadLocalData(const ThreadLocalData& other);
+    void Swap(ThreadLocalData& other);
+    ThreadLocalData& operator=(ThreadLocalData other);
+
+    void EnsureInitialized(vtkDGCell* cellType, vtkCellAttribute* field);
+  };
+
+  vtkSMPThreadLocal<ThreadLocalData> LocalData;
 
   /// The parametric dimension of the current cell-type.
   int Dimension{ 3 };

@@ -5,11 +5,10 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellGrid.h"
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkTypeUInt32Array.h"
 
@@ -20,17 +19,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCellGridEvaluator);
-
-vtkIdType vtkCellGridEvaluator::AllocationsByCellType::GetNumberOfOutputPoints() const
-{
-  vtkIdType numberOfPoints = 0;
-  for (const auto& contains : this->InputPoints)
-  {
-    numberOfPoints += static_cast<vtkIdType>(contains.second.size());
-    // std::cout << "  " << contains.first << " " << contains.second.size() << "\n";
-  }
-  return numberOfPoints;
-}
 
 vtkCellGridEvaluator::vtkCellGridEvaluator()
 {
@@ -113,7 +101,7 @@ void vtkCellGridEvaluator::InterpolateCellParameters(vtkTypeUInt32Array* cellTyp
   this->SetClassifierPointIDs(nullptr);
   this->SetClassifierCellTypes(cellTypes);
   this->SetClassifierCellOffsets(cellOffsets);
-  this->SetClassifierCellIndices(cellOffsets);
+  this->SetClassifierCellIndices(cellIndices);
   this->SetClassifierPointParameters(pointParameters);
 }
 
@@ -176,20 +164,18 @@ void vtkCellGridEvaluator::StartPass()
       if (this->Pass == 0)
       {
         // Build a locator so we can find points near cells.
-        vtkNew<vtkPointSet> dataset;
-        vtkNew<vtkPoints> points;
-        points->SetData(this->InputPoints);
-        dataset->SetPoints(points);
-        this->Locator->SetDataSet(dataset);
-        this->Locator->BuildLocator();
-      }
-      else if (this->Pass == 1)
-      {
-        this->AllocatePositionOutput();
-      }
-      else if (this->Pass == 2)
-      {
-        this->AllocateInterpolationOutput();
+        // This avoids an expensive rebuild on repeated pipeline updates
+        // when the probe points are unchanged.
+        const vtkMTimeType mt = this->InputPoints->GetMTime();
+        if (mt > this->Locator->GetBuildTime())
+        {
+          vtkNew<vtkPointSet> dataset;
+          vtkNew<vtkPoints> points;
+          points->SetData(this->InputPoints);
+          dataset->SetPoints(points);
+          this->Locator->SetDataSet(dataset);
+          this->Locator->BuildLocator();
+        }
       }
       break;
   }
@@ -271,11 +257,9 @@ bool vtkCellGridEvaluator::IsAnotherPassRequired()
       case Phases::Classify:
       case Phases::ClassifyAndInterpolate:
       {
-        // Allocate per-cell-type arrays:
+        // Allocate per-cell-type summary arrays and assign each cell type its
+        // contiguous slice of the global output arrays.
         this->AllocateClassificationOutput();
-        // Populate the ClassifierCellTypes and ClassifierCellOffsets
-        // for the next pass, assigning each cell type its allocation
-        // in the arrays configured by AllocatePositionOutput().
         vtkIdType offset = 0;
         vtkIdType cellType = 0;
         for (auto& entry : this->Allocations)
@@ -285,13 +269,40 @@ bool vtkCellGridEvaluator::IsAnotherPassRequired()
           ++cellType;
           entry.second.Offset = offset;
           offset += entry.second.GetNumberOfOutputPoints();
-          // std::cout << entry.first.Data() << " " << entry.second.Offset << " – " << offset <<
-          // "\n";
         }
-        // Add a trailing entry containing the total number of points.
+        // Add a trailing entry containing the total number of output points.
         this->ClassifierCellOffsets->SetValue(cellType, offset);
         this->ClassifierCellTypes->SetValue(cellType, vtkStringToken::InvalidHash());
         this->NumberOfOutputPoints = offset;
+
+        // Write the parametric coordinates stored in each ClassifiedPoint into the
+        // position output arrays.
+        this->AllocatePositionOutput();
+        for (const auto& allocEntry : this->Allocations)
+        {
+          const auto numOutputPoints = static_cast<vtkIdType>(allocEntry.second.InputPoints.size());
+          vtkSMPTools::For(0, numOutputPoints,
+            [&](vtkIdType begin, vtkIdType end)
+            {
+              for (vtkIdType i = begin; i < end; ++i)
+              {
+                const vtkIdType outputPointId = allocEntry.second.Offset + i;
+                const auto& cp = allocEntry.second.InputPoints[i];
+                this->ClassifierPointIDs->SetValue(
+                  outputPointId, static_cast<vtkTypeUInt64>(cp.InputPointId));
+                this->ClassifierCellIndices->SetValue(
+                  outputPointId, static_cast<vtkTypeUInt64>(cp.CellId));
+                this->ClassifierPointParameters->SetTuple(
+                  outputPointId, cp.ParametricCoords.data());
+              }
+            });
+        }
+        if (this->PhasesToPerform == Phases::ClassifyAndInterpolate)
+        {
+          // Allocate the interpolation output array so InterpolatePoints can
+          // write results directly on the next pass.
+          this->AllocateInterpolationOutput();
+        }
       }
       break;
       case Phases::Interpolate:
@@ -305,13 +316,11 @@ bool vtkCellGridEvaluator::IsAnotherPassRequired()
   {
     case Classify:
       // Pass 0: Classify input points
-      // Pass 1: Evaluate position
-      return this->Pass < 1;
+      return false;
     case ClassifyAndInterpolate:
       // Pass 0: Classify input points
-      // Pass 1: Evaluate position
-      // Pass 2: Interpolate attribute
-      return this->Pass < 2;
+      // Pass 1: Interpolate attribute
+      return this->Pass < 1;
     case Interpolate:
       // Pass 0: Interpolate attribute
     default:

@@ -7,12 +7,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkDGArrayOutputAccessor::vtkDGArrayOutputAccessor(vtkDoubleArray* result)
-  : Result(result)
 {
-  if (result)
-  {
-    this->Result->Register(nullptr);
-  }
+  this->SetResult(result);
 }
 
 vtkDGArrayOutputAccessor::vtkDGArrayOutputAccessor(const vtkDGArrayOutputAccessor& other)
@@ -21,28 +17,13 @@ vtkDGArrayOutputAccessor::vtkDGArrayOutputAccessor(const vtkDGArrayOutputAccesso
   {
     return;
   }
-
-  if (this->Result)
-  {
-    this->Result->Delete();
-  }
-
-  this->Result = other.Result;
+  this->SetResult(other.Result);
   this->Key = other.Key;
-
-  if (this->Result)
-  {
-    this->Result->Register(nullptr);
-  }
 }
 
 vtkDGArrayOutputAccessor::~vtkDGArrayOutputAccessor()
 {
-  if (this->Result)
-  {
-    this->Result->Delete();
-    this->Result = nullptr;
-  }
+  this->SetResult(nullptr);
 }
 
 vtkDGArrayOutputAccessor& vtkDGArrayOutputAccessor::operator=(const vtkDGArrayOutputAccessor& other)
@@ -51,20 +32,22 @@ vtkDGArrayOutputAccessor& vtkDGArrayOutputAccessor::operator=(const vtkDGArrayOu
   {
     return *this;
   }
+  this->SetResult(other.Result);
+  this->Key = other.Key;
+  return *this;
+}
 
+void vtkDGArrayOutputAccessor::SetResult(vtkDoubleArray* result)
+{
   if (this->Result)
   {
     this->Result->Delete();
   }
-
-  this->Result = other.Result;
-  this->Key = other.Key;
-
+  this->Result = result;
   if (this->Result)
   {
     this->Result->Register(nullptr);
   }
-  return *this;
 }
 
 vtkDGArrayOutputAccessor::Tuple vtkDGArrayOutputAccessor::operator[](vtkTypeUInt64 tupleId)
