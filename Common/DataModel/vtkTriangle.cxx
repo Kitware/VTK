@@ -780,63 +780,30 @@ void vtkTriangle::ComputeNormal(
 double vtkTriangle::Circumcircle(
   const double x1[2], const double x2[2], const double x3[2], double center[2])
 {
-  double n12[2], n13[2], x12[2], x13[2];
-  double *A[2], rhs[2], diff;
+  // Closed-form circumcenter via Cramer's rule (no general-purpose
+  // linear-system solver).
+  const double a = x2[0] - x1[0];
+  const double b = x2[1] - x1[1];
+  const double c = x3[0] - x1[0];
+  const double d = x3[1] - x1[1];
 
-  //  calculate normals and intersection points of bisecting planes.
-  //
-  for (int i = 0; i < 2; i++)
-  {
-    n12[i] = x2[i] - x1[i];
-    n13[i] = x3[i] - x1[i];
-    x12[i] = (x2[i] + x1[i]) / 2.0;
-    x13[i] = (x3[i] + x1[i]) / 2.0;
-  }
-
-  //  Compute solutions to the intersection of two bisecting lines
-  //  (2-eqns. in 2-unknowns).
-  //
-  //  form system matrices
-  //
-  A[0] = n12;
-  A[1] = n13;
-
-  rhs[0] = vtkMath::Dot2D(n12, x12);
-  rhs[1] = vtkMath::Dot2D(n13, x13);
-
-  // Solve system of equations
-  //
-  if (vtkMath::SolveLinearSystem(A, rhs, 2) == 0)
+  const double det = 2.0 * (a * d - b * c);
+  if (det == 0.0)
   {
     center[0] = center[1] = 0.0;
     return VTK_DOUBLE_MAX;
   }
-  else
-  {
-    center[0] = rhs[0];
-    center[1] = rhs[1];
-  }
 
-  // determine average value of radius squared
-  double sum = 0.0;
-  for (int i = 0; i < 2; i++)
-  {
-    diff = x1[i] - center[i];
-    sum += diff * diff;
-    diff = x2[i] - center[i];
-    sum += diff * diff;
-    diff = x3[i] - center[i];
-    sum += diff * diff;
-  }
+  const double ra = a * a + b * b;
+  const double rc = c * c + d * d;
+  const double ux = (d * ra - b * rc) / det;
+  const double uy = (a * rc - c * ra) / det;
 
-  if ((sum /= 3.0) > VTK_DOUBLE_MAX)
-  {
-    return VTK_DOUBLE_MAX;
-  }
-  else
-  {
-    return sum;
-  }
+  center[0] = x1[0] + ux;
+  center[1] = x1[1] + uy;
+
+  // radius squared is the squared distance from x1 to the circumcenter
+  return ux * ux + uy * uy;
 }
 
 //------------------------------------------------------------------------------
@@ -853,41 +820,26 @@ double vtkTriangle::Circumcircle(
 int vtkTriangle::BarycentricCoords(
   const double x[2], const double x1[2], const double x2[2], const double x3[2], double bcoords[3])
 {
-  double *A[3], p[3], a1[3], a2[3], a3[3];
+  // Closed-form solution via Cramer's rule (no general-purpose
+  // linear-system solver).
+  const double a = x1[0] - x3[0];
+  const double b = x2[0] - x3[0];
+  const double c = x1[1] - x3[1];
+  const double d = x2[1] - x3[1];
 
-  // Homogenize the variables; load into arrays.
-  //
-  a1[0] = x1[0];
-  a1[1] = x2[0];
-  a1[2] = x3[0];
-  a2[0] = x1[1];
-  a2[1] = x2[1];
-  a2[2] = x3[1];
-  a3[0] = 1.0;
-  a3[1] = 1.0;
-  a3[2] = 1.0;
-  p[0] = x[0];
-  p[1] = x[1];
-  p[2] = 1.0;
-
-  //   Now solve system of equations for barycentric coordinates
-  //
-  A[0] = a1;
-  A[1] = a2;
-  A[2] = a3;
-
-  if (vtkMath::SolveLinearSystem(A, p, 3))
-  {
-    for (int i = 0; i < 3; i++)
-    {
-      bcoords[i] = p[i];
-    }
-    return 1;
-  }
-  else
+  const double det = a * d - b * c;
+  if (det == 0.0)
   {
     return 0;
   }
+
+  const double px = x[0] - x3[0];
+  const double py = x[1] - x3[1];
+
+  bcoords[0] = (d * px - b * py) / det;
+  bcoords[1] = (a * py - c * px) / det;
+  bcoords[2] = 1.0 - bcoords[0] - bcoords[1];
+  return 1;
 }
 
 //------------------------------------------------------------------------------

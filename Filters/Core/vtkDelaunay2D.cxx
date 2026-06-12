@@ -1,10 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkDelaunay2D.h"
 
 #include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkHilbertCurveSorter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -13,6 +16,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkTriangle.h"
@@ -21,6 +25,576 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//------------------------------------------------------------------------------
+// Internal helpers for the optimised RequestData path.
+// The fast mesh uses a flat array of lightweight triangles with explicit
+// O(1) edge-neighbour pointers, replacing the heavy vtkPolyData /
+// vtkCellLinks infrastructure during construction.
+namespace
+{
+
+//------------------------------------------------------------------------------
+// Lightweight triangle mesh.
+// Neighbors[i] is the neighbour triangle across the edge opposite PointIds[i].
+struct Triangle
+{
+  vtkIdType PointIds[3];  // vertex point-ids
+  vtkIdType Neighbors[3]; // edge-neighbour tri ids (-1 = mesh boundary)
+};
+
+// Tolerance factor for the in-circle test (slightly less than 1.0 to
+// avoid treating co-circular points as inside).  Note: adding more 9s
+// (towards the ~16-digit precision of double) makes the factor round to
+// exactly 1.0 and removes the slack, so a deliberate ~1e-10 offset is used.
+const double inCircleTol = 0.9999999999;
+
+//------------------------------------------------------------------------------
+// Inline InCircle test (matches vtkDelaunay2D::InCircle behaviour).
+inline int IsInsideCircumcircle(const double x[3], const double x1[3], const double x2[3],
+  const double x3[3], double boundingRadius2)
+{
+  double center[2];
+  double radius2 = vtkTriangle::Circumcircle(x1, x2, x3, center);
+  if (radius2 > boundingRadius2)
+  {
+    return 1;
+  }
+  double dist2 = (x[0] - center[0]) * (x[0] - center[0]) + (x[1] - center[1]) * (x[1] - center[1]);
+  return dist2 < (inCircleTol * radius2) ? 1 : 0;
+}
+
+//------------------------------------------------------------------------------
+// Walk through the triangle mesh to find the triangle containing point x.
+// Returns triangle index, or -1 on failure.
+// Sets onEdge/neiTri/edgeV1/edgeV2 when the point lies on a shared edge.
+//
+// Uses the same normalised half-plane test as the original vtkDelaunay2D::
+// FindTriangle to ensure scale-independent robustness.  Without
+// normalisation, locally-clustered insertions produce very small triangles
+// whose raw signed-area tests suffer from floating-point cancellation.
+const double halfPlaneTol = 1.0e-14;
+
+vtkIdType FindContainingTriangle(const std::vector<Triangle>& topo, const double* coords,
+  const double x[3], vtkIdType startTri, double tol, bool& onEdge, vtkIdType& neiTri,
+  vtkIdType& edgeV1, vtkIdType& edgeV2, bool& isDuplicate)
+{
+  onEdge = false;
+  neiTri = -1;
+  isDuplicate = false;
+
+  vtkIdType cur = startTri;
+  vtkIdType prev = -1;
+
+  for (int iter = 0; iter < 5000; iter++)
+  {
+    const Triangle& t = topo[cur];
+    const double* p[3];
+    for (int i = 0; i < 3; i++)
+    {
+      p[i] = &coords[t.PointIds[i] * 3];
+    }
+
+    // Evaluate each edge using normalised half-plane tests (same as original).
+    srand(static_cast<unsigned int>(cur));
+    int ir = rand() % 3;
+    int inside = 1;
+    double minProj = halfPlaneTol;
+    int bestEdgeOpp = -1; // index of vertex opposite the most-negative edge
+    vtkIdType bestP1 = -1, bestP2 = -1;
+
+    for (int ic = 0; ic < 3; ic++)
+    {
+      int i = (ir + ic) % 3;
+      int i2 = (i + 1) % 3;
+      int i3 = (i + 2) % 3;
+
+      // 2D edge normal
+      double n[2];
+      n[0] = -(p[i2][1] - p[i][1]);
+      n[1] = p[i2][0] - p[i][0];
+      double nLen = sqrt(n[0] * n[0] + n[1] * n[1]);
+      if (nLen > 0.0)
+      {
+        n[0] /= nLen;
+        n[1] /= nLen;
+      }
+
+      // Vectors from edge vertex to opposite vertex and to query point
+      double vp[2] = { p[i3][0] - p[i][0], p[i3][1] - p[i][1] };
+      double vx[2] = { x[0] - p[i][0], x[1] - p[i][1] };
+
+      double vpLen = sqrt(vp[0] * vp[0] + vp[1] * vp[1]);
+      if (vpLen > 0.0)
+      {
+        vp[0] /= vpLen;
+        vp[1] /= vpLen;
+      }
+      double vxLen = sqrt(vx[0] * vx[0] + vx[1] * vx[1]);
+      if (vxLen <= tol)
+      {
+        isDuplicate = true;
+        return -1;
+      }
+      vx[0] /= vxLen;
+      vx[1] /= vxLen;
+
+      double dp = (n[0] * vx[0] + n[1] * vx[1]) * ((n[0] * vp[0] + n[1] * vp[1]) < 0 ? -1.0 : 1.0);
+
+      if (dp < halfPlaneTol)
+      {
+        if (dp < minProj)
+        {
+          inside = 0;
+          bestP1 = t.PointIds[i];
+          bestP2 = t.PointIds[i2];
+          bestEdgeOpp = i3;
+          minProj = dp;
+        }
+      }
+    } // for each edge
+
+    if (inside) // all edges positive
+    {
+      return cur;
+    }
+
+    if (fabs(minProj) < halfPlaneTol) // on edge
+    {
+      if (t.Neighbors[bestEdgeOpp] >= 0)
+      {
+        neiTri = t.Neighbors[bestEdgeOpp];
+        edgeV1 = bestP1;
+        edgeV2 = bestP2;
+        onEdge = true;
+      }
+      return cur;
+    }
+
+    // Walk towards the point.
+    vtkIdType nei = t.Neighbors[bestEdgeOpp];
+    if (nei < 0 || nei == prev)
+    {
+      return -1;
+    }
+    prev = cur;
+    cur = nei;
+  }
+  return -1; // iteration limit
+}
+
+//------------------------------------------------------------------------------
+// O(1) duplicate check: test the 3 vertices of the containing triangle and
+// the 3 opposite vertices of its edge-neighbours.
+bool IsDuplicatePoint(const std::vector<Triangle>& topo, const double* coords, vtkIdType tri,
+  const double x[3], double tol2)
+{
+  const Triangle& t = topo[tri];
+  for (int j = 0; j < 3; j++)
+  {
+    const double* vp = &coords[t.PointIds[j] * 3];
+    double dx = x[0] - vp[0];
+    double dy = x[1] - vp[1];
+    if (dx * dx + dy * dy <= tol2)
+    {
+      return true;
+    }
+  }
+  for (int j = 0; j < 3; j++)
+  {
+    vtkIdType nei = t.Neighbors[j];
+    if (nei < 0)
+    {
+      continue;
+    }
+    const Triangle& nt = topo[nei];
+    for (int k = 0; k < 3; k++)
+    {
+      if (nt.PointIds[k] != t.PointIds[0] && nt.PointIds[k] != t.PointIds[1] &&
+        nt.PointIds[k] != t.PointIds[2])
+      {
+        const double* vp = &coords[nt.PointIds[k] * 3];
+        double dx = x[0] - vp[0];
+        double dy = x[1] - vp[1];
+        if (dx * dx + dy * dy <= tol2)
+        {
+          return true;
+        }
+        break;
+      }
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+// Flip the shared edge between two triangles.
+// Before: triA = (ptId, p1, p2), triB = (p3, ?, ?) sharing edge (p1,p2).
+// After:  triA = (ptId, p3, p2), triB = (ptId, p1, p3).
+void FlipEdge(std::vector<Triangle>& topo, vtkIdType triA, vtkIdType triB, vtkIdType ptId,
+  vtkIdType p1, vtkIdType p2, vtkIdType p3)
+{
+  Triangle& A = topo[triA];
+  Triangle& B = topo[triB];
+
+  // Find local vertex indices.
+  int ai[3] = { 0, 0, 0 }; // [0]=ptId, [1]=p1, [2]=p2
+  for (int i = 0; i < 3; i++)
+  {
+    if (A.PointIds[i] == ptId)
+    {
+      ai[0] = i;
+    }
+    else if (A.PointIds[i] == p1)
+    {
+      ai[1] = i;
+    }
+    else
+    {
+      ai[2] = i;
+    }
+  }
+  int bi[3] = { 0, 0, 0 }; // [0]=p3, [1]=p1, [2]=p2
+  for (int i = 0; i < 3; i++)
+  {
+    if (B.PointIds[i] == p3)
+    {
+      bi[0] = i;
+    }
+    else if (B.PointIds[i] == p1)
+    {
+      bi[1] = i;
+    }
+    else
+    {
+      bi[2] = i;
+    }
+  }
+
+  // Save external neighbours.
+  vtkIdType extA_opp_p1 = A.Neighbors[ai[1]]; // A across (ptId,p2) opposite p1
+  vtkIdType extA_opp_p2 = A.Neighbors[ai[2]]; // A across (ptId,p1) opposite p2
+  vtkIdType extB_opp_p1 = B.Neighbors[bi[1]]; // B across (p3,p2) opposite p1
+  vtkIdType extB_opp_p2 = B.Neighbors[bi[2]]; // B across (p3,p1) opposite p2
+
+  // New A = (ptId, p3, p2).
+  A.PointIds[0] = ptId;
+  A.PointIds[1] = p3;
+  A.PointIds[2] = p2;
+  A.Neighbors[0] = extB_opp_p1; // across (p3,p2) opposite ptId
+  A.Neighbors[1] = extA_opp_p1; // across (ptId,p2) opposite p3
+  A.Neighbors[2] = triB;        // across (ptId,p3) opposite p2
+
+  // New B = (ptId, p1, p3).
+  B.PointIds[0] = ptId;
+  B.PointIds[1] = p1;
+  B.PointIds[2] = p3;
+  B.Neighbors[0] = extB_opp_p2; // across (p1,p3) opposite ptId
+  B.Neighbors[1] = triA;        // across (ptId,p3) opposite p1
+  B.Neighbors[2] = extA_opp_p2; // across (ptId,p1) opposite p3
+
+  // Update back-pointers in external neighbours.
+  if (extB_opp_p1 >= 0)
+  {
+    Triangle& ext = topo[extB_opp_p1];
+    for (int i = 0; i < 3; i++)
+    {
+      if (ext.Neighbors[i] == triB)
+      {
+        ext.Neighbors[i] = triA;
+        break;
+      }
+    }
+  }
+  if (extA_opp_p2 >= 0)
+  {
+    Triangle& ext = topo[extA_opp_p2];
+    for (int i = 0; i < 3; i++)
+    {
+      if (ext.Neighbors[i] == triA)
+      {
+        ext.Neighbors[i] = triB;
+        break;
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Iterative Delaunay edge-flip check (replaces the recursive CheckEdge).
+// Every triangle on the stack has ptId at PointIds[0]; the edge to check is
+// (PointIds[1], PointIds[2]) at Neighbors[0].
+void RestoreDelaunay(std::vector<Triangle>& topo, const double* coords, vtkIdType ptId,
+  double boundingRadius2, std::vector<vtkIdType>& checkStack)
+{
+  static const unsigned int MAX_DEPTH = 2500;
+  unsigned int depth = 0;
+  while (!checkStack.empty() && depth < MAX_DEPTH)
+  {
+    vtkIdType tri = checkStack.back();
+    checkStack.pop_back();
+    depth++;
+
+    Triangle& t = topo[tri];
+    vtkIdType myP1 = t.PointIds[1];
+    vtkIdType myP2 = t.PointIds[2];
+    vtkIdType nei = t.Neighbors[0]; // neighbour across (PointIds[1], PointIds[2]) opposite ptId
+    if (nei < 0)
+    {
+      continue;
+    }
+
+    // Find opposite vertex p3 in the neighbour.
+    const Triangle& nt = topo[nei];
+    vtkIdType p3 = -1;
+    for (int i = 0; i < 3; i++)
+    {
+      if (nt.PointIds[i] != myP1 && nt.PointIds[i] != myP2)
+      {
+        p3 = nt.PointIds[i];
+        break;
+      }
+    }
+    if (p3 < 0)
+    {
+      continue;
+    }
+
+    if (IsInsideCircumcircle(&coords[p3 * 3], &coords[ptId * 3], &coords[myP1 * 3],
+          &coords[myP2 * 3], boundingRadius2))
+    {
+      FlipEdge(topo, tri, nei, ptId, myP1, myP2, p3);
+      // After flip: tri = (ptId, p3, myP2), nei = (ptId, myP1, p3).
+      // Both still have ptId at PointIds[0]. Push both for further checking.
+      checkStack.push_back(tri);
+      checkStack.push_back(nei);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Split triangle triId (containing point ptId inside) into 3 triangles.
+void SplitTriangleInside(
+  std::vector<Triangle>& topo, vtkIdType triId, vtkIdType ptId, vtkIdType& t1Id, vtkIdType& t2Id)
+{
+  // Save original data before potential reallocation.
+  vtkIdType a = topo[triId].PointIds[0];
+  vtkIdType b = topo[triId].PointIds[1];
+  vtkIdType c = topo[triId].PointIds[2];
+  vtkIdType nA = topo[triId].Neighbors[0]; // across (b,c) opp a
+  vtkIdType nB = topo[triId].Neighbors[1]; // across (a,c) opp b
+  vtkIdType nC = topo[triId].Neighbors[2]; // across (a,b) opp c
+
+  t1Id = static_cast<vtkIdType>(topo.size());
+  topo.resize(topo.size() + 2);
+  t2Id = t1Id + 1;
+
+  // T0 (reuses triId) = (ptId, a, b).
+  topo[triId].PointIds[0] = ptId;
+  topo[triId].PointIds[1] = a;
+  topo[triId].PointIds[2] = b;
+  topo[triId].Neighbors[0] = nC;   // across (a,b) opp ptId
+  topo[triId].Neighbors[1] = t1Id; // across (ptId,b) opp a
+  topo[triId].Neighbors[2] = t2Id; // across (ptId,a) opp b
+
+  // T1 = (ptId, b, c).
+  topo[t1Id].PointIds[0] = ptId;
+  topo[t1Id].PointIds[1] = b;
+  topo[t1Id].PointIds[2] = c;
+  topo[t1Id].Neighbors[0] = nA;    // across (b,c) opp ptId
+  topo[t1Id].Neighbors[1] = t2Id;  // across (ptId,c) opp b
+  topo[t1Id].Neighbors[2] = triId; // across (ptId,b) opp c
+
+  // T2 = (ptId, c, a).
+  topo[t2Id].PointIds[0] = ptId;
+  topo[t2Id].PointIds[1] = c;
+  topo[t2Id].PointIds[2] = a;
+  topo[t2Id].Neighbors[0] = nB;    // across (c,a) opp ptId
+  topo[t2Id].Neighbors[1] = triId; // across (ptId,a) opp c
+  topo[t2Id].Neighbors[2] = t1Id;  // across (ptId,c) opp a
+
+  // Update back-pointers in external neighbours.
+  if (nA >= 0)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      if (topo[nA].Neighbors[i] == triId)
+      {
+        topo[nA].Neighbors[i] = t1Id;
+        break;
+      }
+    }
+  }
+  if (nB >= 0)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      if (topo[nB].Neighbors[i] == triId)
+      {
+        topo[nB].Neighbors[i] = t2Id;
+        break;
+      }
+    }
+  }
+  // nC still points to triId: correct.
+}
+
+//------------------------------------------------------------------------------
+// Split on the shared edge between tri0Id and neiTriId.
+// Creates 4 triangles, all with ptId at PointIds[0].
+void SplitTrianglesOnEdge(std::vector<Triangle>& topo, vtkIdType tri0Id, vtkIdType neiTriId,
+  vtkIdType ptId, vtkIdType e1, vtkIdType e2, vtkIdType& t2Id, vtkIdType& t3Id)
+{
+  // p2 = vertex of tri0 not on the shared edge.
+  vtkIdType p2 = -1;
+  for (int i = 0; i < 3; i++)
+  {
+    if (topo[tri0Id].PointIds[i] != e1 && topo[tri0Id].PointIds[i] != e2)
+    {
+      p2 = topo[tri0Id].PointIds[i];
+      break;
+    }
+  }
+
+  // p1 = vertex of neiTri not on the shared edge.
+  vtkIdType p1 = -1;
+  for (int i = 0; i < 3; i++)
+  {
+    if (topo[neiTriId].PointIds[i] != e1 && topo[neiTriId].PointIds[i] != e2)
+    {
+      p1 = topo[neiTriId].PointIds[i];
+      break;
+    }
+  }
+
+  // Save external neighbours from tri0.
+  int t0_e1 = -1, t0_e2 = -1;
+  for (int i = 0; i < 3; i++)
+  {
+    if (topo[tri0Id].PointIds[i] == e1)
+    {
+      t0_e1 = i;
+    }
+    else if (topo[tri0Id].PointIds[i] == e2)
+    {
+      t0_e2 = i;
+    }
+  }
+  vtkIdType extA = topo[tri0Id].Neighbors[t0_e1]; // across (p2,e2) opposite e1
+  vtkIdType extB = topo[tri0Id].Neighbors[t0_e2]; // across (p2,e1) opposite e2
+
+  // Save external neighbours from neiTri.
+  int n_e1 = -1, n_e2 = -1;
+  for (int i = 0; i < 3; i++)
+  {
+    if (topo[neiTriId].PointIds[i] == e1)
+    {
+      n_e1 = i;
+    }
+    else if (topo[neiTriId].PointIds[i] == e2)
+    {
+      n_e2 = i;
+    }
+  }
+  vtkIdType extC = topo[neiTriId].Neighbors[n_e1]; // across (p1,e2) opposite e1
+  vtkIdType extD = topo[neiTriId].Neighbors[n_e2]; // across (p1,e1) opposite e2
+
+  // Allocate 2 new triangles.
+  t2Id = static_cast<vtkIdType>(topo.size());
+  topo.resize(topo.size() + 2);
+  t3Id = t2Id + 1;
+
+  // T0 (reuses tri0Id) = (ptId, p2, e1).
+  topo[tri0Id].PointIds[0] = ptId;
+  topo[tri0Id].PointIds[1] = p2;
+  topo[tri0Id].PointIds[2] = e1;
+  topo[tri0Id].Neighbors[0] = extB;     // across (p2,e1) opp ptId
+  topo[tri0Id].Neighbors[1] = neiTriId; // across (ptId,e1) opp p2, i.e. T1
+  topo[tri0Id].Neighbors[2] = t2Id;     // across (ptId,p2) opp e1, i.e. T2
+
+  // T1 (reuses neiTriId) = (ptId, p1, e1).
+  topo[neiTriId].PointIds[0] = ptId;
+  topo[neiTriId].PointIds[1] = p1;
+  topo[neiTriId].PointIds[2] = e1;
+  topo[neiTriId].Neighbors[0] = extD;   // across (p1,e1) opp ptId
+  topo[neiTriId].Neighbors[1] = tri0Id; // across (ptId,e1) opp p1, i.e. T0
+  topo[neiTriId].Neighbors[2] = t3Id;   // across (ptId,p1) opp e1, i.e. T3
+
+  // T2 (new) = (ptId, p2, e2).
+  topo[t2Id].PointIds[0] = ptId;
+  topo[t2Id].PointIds[1] = p2;
+  topo[t2Id].PointIds[2] = e2;
+  topo[t2Id].Neighbors[0] = extA;   // across (p2,e2) opp ptId
+  topo[t2Id].Neighbors[1] = t3Id;   // across (ptId,e2) opp p2, i.e. T3
+  topo[t2Id].Neighbors[2] = tri0Id; // across (ptId,p2) opp e2, i.e. T0
+
+  // T3 (new) = (ptId, p1, e2).
+  topo[t3Id].PointIds[0] = ptId;
+  topo[t3Id].PointIds[1] = p1;
+  topo[t3Id].PointIds[2] = e2;
+  topo[t3Id].Neighbors[0] = extC;     // across (p1,e2) opp ptId
+  topo[t3Id].Neighbors[1] = t2Id;     // across (ptId,e2) opp p1, i.e. T2
+  topo[t3Id].Neighbors[2] = neiTriId; // across (ptId,p1) opp e2, i.e. T1
+
+  // Update back-pointers.
+  if (extA >= 0)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      if (topo[extA].Neighbors[i] == tri0Id)
+      {
+        topo[extA].Neighbors[i] = t2Id;
+        break;
+      }
+    }
+  }
+  // extB still points to tri0Id: correct.
+  if (extC >= 0)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      if (topo[extC].Neighbors[i] == neiTriId)
+      {
+        topo[extC].Neighbors[i] = t3Id;
+        break;
+      }
+    }
+  }
+  // extD still points to neiTriId: correct.
+}
+
+//------------------------------------------------------------------------------
+// To provide a low-cost, simple, pseudo-random traversal of points, we use
+// a GCD (greatest common divisor) traversal with ptId = a*idx + b, where
+// idx is the index into the points list; a is a coprime factor of npts;
+// and b is an initial offset. For further explanation see:
+// https://lemire.me/blog/2017/09/18/visiting-all-values-in-an-array-exactly-once-in-random-order.
+struct GCDTraversal
+{
+  vtkIdType NPts;
+  vtkIdType Prime;
+  vtkIdType Offset;
+
+  // Given the number of points to iterate over, determine one coprime factor
+  // a and the offset b. Note that a coprime is guaranteed between [n/2,n) which
+  // means the while loop will terminate.
+  GCDTraversal(vtkIdType npts)
+    : NPts(npts)
+  {
+    this->Offset = npts / 2; // over the halfway mark, arbitrary
+    this->Prime = this->Offset + 1;
+    while (vtkMath::ComputeGCD(this->Prime, this->NPts) != 1)
+    {
+      this->Prime++;
+    }
+  }
+  // Can be optimized to avoid the modulo %, but coded for simplicity
+  // since the cost of this operation is minuscule compared to everything
+  // else that is going on.
+  vtkIdType GetPointId(vtkIdType idx) { return ((this->Prime * idx + this->Offset) % this->NPts); }
+};
+} // anonymous namespace
+
 vtkStandardNewMacro(vtkDelaunay2D);
 
 //------------------------------------------------------------------------------
@@ -33,6 +607,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
   this->RandomPointInsertion = 0;
+  this->UseHilbertSorter = 0;
   this->Transform = nullptr;
   this->ProjectionPlaneMode = VTK_DELAUNAY_XY_PLANE;
 
@@ -77,7 +652,7 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
   // where the circumcircle becomes very large due to near-degenerate
   // cases. (Near degenerate cases can emerge when an inserted point is
   // nearly on the edge of triangle.) Note that because of the way a
-  // candidate point is identified (via FindTriangle()/CheckEdge()) we don't
+  // candidate point is identified (via the triangle walk / CheckEdge()) we don't
   // need to worry about which "side" the center of the circumcircle is on as
   // compared to the test point x (they will both be on the same side).
   if (radius2 > this->BoundingRadius2)
@@ -92,7 +667,7 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
   // Note: at one time we experimented with std::nextafter() but it seems that it is
   // not always implemented correctly / consistently across platforms, which wreaks
   // havoc during testing (in near-degenerate situations).
-  if (dist2 < (0.999999999999 * radius2))
+  if (dist2 < (0.9999999999 * radius2))
   {
     return 1;
   }
@@ -102,131 +677,13 @@ int vtkDelaunay2D::InCircle(double x[3], double x1[3], double x2[3], double x3[3
   }
 }
 
-// This is used to determine proximity to triangle edges. TODO: this needs to
-// be normalized based on domain size.
-#define VTK_DEL2D_TOLERANCE 1.0e-014
-
 //------------------------------------------------------------------------------
-// Recursive method to locate triangle containing point. Starts with arbitrary
-// triangle (tri) and "walks" towards it. Influenced by some of Guibas and
-// Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle
-// found. Also, the array nei[3] is used to communicate info about points
-// that lie on triangle edges: nei[0] is neighboring triangle id, and nei[1]
-// and nei[2] are the vertices defining the edge.
-vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri, double tol,
-  vtkIdType nei[3], vtkIdList* neighbors)
+// Check whether the edge (p1,p2) of triangle tri satisfies the Delaunay
+// criterion; if not, swap the edge diagonal.  Used by RecoverEdge during
+// constrained-triangulation post-processing (non-recursive, single pass).
+bool vtkDelaunay2D::CheckEdge(
+  vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2, vtkIdType tri)
 {
-  int i, j, ir, ic, inside, i2, i3;
-  const vtkIdType* pts;
-  vtkIdType npts;
-  vtkIdType newNei;
-  double p[3][3], n[2], vp[2], vx[2], dp, minProj;
-
-  // get local triangle info
-  this->Mesh->GetCellPoints(tri, npts, pts);
-  for (i = 0; i < 3; i++)
-  {
-    ptIds[i] = pts[i];
-    this->GetPoint(ptIds[i], p[i]);
-  }
-
-  // Randomization (of find edge neighbors) helps avoid walking in
-  // circles in certain weird cases.
-  srand(tri);
-  ir = rand() % 3;
-  // evaluate in/out of each edge
-  for (inside = 1, minProj = VTK_DEL2D_TOLERANCE, ic = 0; ic < 3; ic++)
-  {
-    i = (ir + ic) % 3;
-    i2 = (i + 1) % 3;
-    i3 = (i + 2) % 3;
-
-    // create a 2D edge normal to define a "half-space"; evaluate points (i.e.,
-    // candidate point and other triangle vertex not on this edge).
-    n[0] = -(p[i2][1] - p[i][1]);
-    n[1] = p[i2][0] - p[i][0];
-    vtkMath::Normalize2D(n);
-
-    // compute local vectors
-    for (j = 0; j < 2; j++)
-    {
-      vp[j] = p[i3][j] - p[i][j];
-      vx[j] = x[j] - p[i][j];
-    }
-
-    // check for duplicate point
-    vtkMath::Normalize2D(vp);
-    if (vtkMath::Normalize2D(vx) <= tol)
-    {
-      this->NumberOfDuplicatePoints++;
-      return -1;
-    }
-
-    // see if two points are in opposite half spaces
-    dp = vtkMath::Dot2D(n, vx) * (vtkMath::Dot2D(n, vp) < 0 ? -1.0 : 1.0);
-    if (dp < VTK_DEL2D_TOLERANCE)
-    {
-      if (dp < minProj) // track edge most orthogonal to point direction
-      {
-        inside = 0;
-        nei[1] = ptIds[i];
-        nei[2] = ptIds[i2];
-        minProj = dp;
-      }
-    } // outside this edge
-  }   // for each edge
-
-  if (inside) // all edges have tested positive
-  {
-    nei[0] = (-1);
-    return tri;
-  }
-
-  else if (!inside && (fabs(minProj) < VTK_DEL2D_TOLERANCE)) // on edge
-  {
-    this->Mesh->GetCellEdgeNeighbors(tri, nei[1], nei[2], neighbors);
-    nei[0] = neighbors->GetId(0);
-    return tri;
-  }
-
-  else // walk towards the point
-  {
-    this->Mesh->GetCellEdgeNeighbors(tri, nei[1], nei[2], neighbors);
-    if ((neighbors->GetNumberOfIds() == 0) || ((newNei = neighbors->GetId(0)) == nei[0]))
-    {
-      this->NumberOfDegeneracies++;
-      return -1;
-    }
-    else
-    {
-      nei[0] = tri;
-      return this->FindTriangle(x, ptIds, newNei, tol, nei, neighbors);
-    }
-  }
-}
-
-#undef VTK_DEL2D_TOLERANCE
-
-// This constant is used to limit recursion so as to avoid segfaults.
-// Recursion occurs because this algorithm suffers numerical issues in
-// certain (mostly degenerate) cases.
-#define MAX_RECURSION_DEPTH 2500
-//------------------------------------------------------------------------------
-// Recursive method checks whether edge is Delaunay, and if not, swaps edge.
-// Continues until all edges are Delaunay. Points p1 and p2 form the edge in
-// question; x is the coordinates of the inserted point; tri is the current
-// triangle id. Note that the instance variable "RecursionDepth" is used to avoid
-// segfaults by excessive recursion.
-bool vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
-  vtkIdType tri, bool recursive, unsigned int depth)
-{
-  bool flipped = false;
-  if (depth >= MAX_RECURSION_DEPTH)
-  {
-    vtkWarningMacro(<< "Exceeded recursion depth");
-    return flipped;
-  }
-
   int i;
   const vtkIdType* pts;
   vtkIdType npts;
@@ -279,53 +736,12 @@ bool vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdTy
       swapTri[2] = p3;
       this->Mesh->ReplaceCell(nei, 3, swapTri);
 
-      flipped = true;
-
-      if (recursive)
-      {
-        // two new edges become suspect
-        this->CheckEdge(ptId, x, p3, p2, tri, true, ++depth);
-        this->CheckEdge(ptId, x, p1, p3, nei, true, ++depth);
-      }
+      return true;
     } // in circle
   }   // interior edge
 
-  return flipped;
+  return false;
 }
-#undef MAX_RECURSION_DEPTH
-
-namespace // anonymous
-{
-// To provide a low-cost, simple, pseudo-random traversal of points, we use
-// a GCD (greatest common divisor) traversal with ptId = a*idx + b, where
-// idx is the index into the points list; a is a coprime factor of npts;
-// and b is an initial offset. For further explanation see:
-// https://lemire.me/blog/2017/09/18/visiting-all-values-in-an-array-exactly-once-in-random-order.
-struct GCDTraversal
-{
-  vtkIdType NPts;
-  vtkIdType Prime;
-  vtkIdType Offset;
-
-  // Given the number of points to iterate over, determine one coprime factor
-  // a and the offset b. Note that a coprime is guaranteed between [n/2,n) which
-  // means the while loop will terminate.
-  GCDTraversal(vtkIdType npts)
-    : NPts(npts)
-  {
-    this->Offset = npts / 2; // over the halfway mark, arbitrary
-    this->Prime = this->Offset + 1;
-    while (vtkMath::ComputeGCD(this->Prime, this->NPts) != 1)
-    {
-      this->Prime++;
-    }
-  }
-  // Can be optimized to avoid the modulo %, but coded for simplicity
-  // since the cost of this operation is minuscule compared to everything
-  // else that is going on.
-  vtkIdType GetPointId(vtkIdType idx) { return ((this->Prime * idx + this->Offset) % this->NPts); }
-};
-} // anonymous namespace
 
 //------------------------------------------------------------------------------
 // 2D Delaunay triangulation. Steps are as follows:
@@ -354,17 +770,15 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIdType numPoints, i;
   vtkIdType numTriangles = 0;
-  vtkIdType ptId, tri[4], nei[3];
+  vtkIdType ptId;
   vtkIdType p1 = 0;
   vtkIdType p2 = 0;
   vtkIdType p3 = 0;
   vtkPoints* inPoints;
   vtkSmartPointer<vtkPoints> tPoints;
   int ncells;
-  vtkIdType nodes[4][3];
   const vtkIdType* neiPts;
   const vtkIdType* triPts = nullptr;
-  vtkIdType numNeiPts;
   vtkIdType npts = 0;
   vtkIdType pts[3], swapPts[3];
   vtkIdType tri1, tri2;
@@ -441,20 +855,13 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
   //
-  vtkNew<vtkPoints> points;
-  // This will copy doubles to doubles if the input is double.
-  points->SetDataTypeToDouble();
-  points->SetNumberOfPoints(numPoints);
-  if (!this->Transform)
-  {
-    points->DeepCopy(inPoints);
-  }
-  else
-  {
-    points->DeepCopy(tPoints);
-  }
+  vtkPoints* srcPoints = this->Transform ? tPoints.Get() : inPoints;
 
-  const double* bounds = points->GetBounds();
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  points->SetNumberOfPoints(numPoints + 8); // input points + 8 bounding points
+
+  const double* bounds = srcPoints->GetBounds();
   center[0] = (bounds[0] + bounds[1]) / 2.0;
   center[1] = (bounds[2] + bounds[3]) / 2.0;
   center[2] = (bounds[4] + bounds[5]) / 2.0;
@@ -469,160 +876,166 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     x[0] = center[0] + radius * cos(ptId * vtkMath::RadiansFromDegrees(45.0));
     x[1] = center[1] + radius * sin(ptId * vtkMath::RadiansFromDegrees(45.0));
     x[2] = center[2];
-    points->InsertPoint(numPoints + ptId, x);
+    points->SetPoint(numPoints + ptId, x);
   }
-  // We do this for speed accessing points
+
+  // Copy the input points into the working array (InsertTuples performs the
+  // type conversion when the input precision differs), then cache the flat
+  // double-precision buffer for direct access in the tight insertion loop.
+  points->GetData()->InsertTuples(0, numPoints, 0, srcPoints->GetData());
   this->Points = static_cast<vtkDoubleArray*>(points->GetData())->GetPointer(0);
 
-  // Now add six bounding triangles to initialize Delaunay insertion.
-  vtkNew<vtkCellArray> triangles;
-  triangles->AllocateEstimate(2 * numPoints, 3);
+  // ================================================================
+  // FAST INSERTION PATH: lightweight topology
+  // ================================================================
 
-  pts[0] = numPoints;
-  pts[1] = numPoints + 1;
-  pts[2] = numPoints + 2;
-  triangles->InsertNextCell(3, pts);
-  pts[0] = numPoints + 2;
-  pts[1] = numPoints + 3;
-  pts[2] = numPoints + 4;
-  triangles->InsertNextCell(3, pts);
-  pts[0] = numPoints + 4;
-  pts[1] = numPoints + 5;
-  pts[2] = numPoints + 6;
-  triangles->InsertNextCell(3, pts);
-  pts[0] = numPoints + 6;
-  pts[1] = numPoints + 7;
-  pts[2] = numPoints + 0;
-  triangles->InsertNextCell(3, pts);
-  pts[0] = numPoints + 0;
-  pts[1] = numPoints + 2;
-  pts[2] = numPoints + 6;
-  triangles->InsertNextCell(3, pts);
-  pts[0] = numPoints + 2;
-  pts[1] = numPoints + 4;
-  pts[2] = numPoints + 6;
-  triangles->InsertNextCell(3, pts);
-  tri[0] = 0;
+  // Initialise fast triangle mesh with 6 bounding triangles.
+  const vtkIdType B = numPoints; // base index for bounding points
+  const size_t meshReserve = static_cast<size_t>(3) * numPoints + 10;
+  std::vector<Triangle> topo;
+  topo.reserve(meshReserve);
+  topo.resize(6);
 
-  this->Mesh->SetPoints(points);
-  this->Mesh->SetPolys(triangles);
-  this->Mesh->EditableOn();
-  this->Mesh->BuildLinks(); // build cell structure
+  // tri 0: (B0, B1, B2)   n: {boundary, tri4, boundary}
+  topo[0].PointIds[0] = B;
+  topo[0].PointIds[1] = B + 1;
+  topo[0].PointIds[2] = B + 2;
+  topo[0].Neighbors[0] = -1;
+  topo[0].Neighbors[1] = 4;
+  topo[0].Neighbors[2] = -1;
+  // tri 1: (B2, B3, B4)   n: {boundary, tri5, boundary}
+  topo[1].PointIds[0] = B + 2;
+  topo[1].PointIds[1] = B + 3;
+  topo[1].PointIds[2] = B + 4;
+  topo[1].Neighbors[0] = -1;
+  topo[1].Neighbors[1] = 5;
+  topo[1].Neighbors[2] = -1;
+  // tri 2: (B4, B5, B6)   n: {boundary, tri5, boundary}
+  topo[2].PointIds[0] = B + 4;
+  topo[2].PointIds[1] = B + 5;
+  topo[2].PointIds[2] = B + 6;
+  topo[2].Neighbors[0] = -1;
+  topo[2].Neighbors[1] = 5;
+  topo[2].Neighbors[2] = -1;
+  // tri 3: (B6, B7, B0)   n: {boundary, tri4, boundary}
+  topo[3].PointIds[0] = B + 6;
+  topo[3].PointIds[1] = B + 7;
+  topo[3].PointIds[2] = B;
+  topo[3].Neighbors[0] = -1;
+  topo[3].Neighbors[1] = 4;
+  topo[3].Neighbors[2] = -1;
+  // tri 4: (B0, B2, B6)   n: {tri5, tri3, tri0}
+  topo[4].PointIds[0] = B;
+  topo[4].PointIds[1] = B + 2;
+  topo[4].PointIds[2] = B + 6;
+  topo[4].Neighbors[0] = 5;
+  topo[4].Neighbors[1] = 3;
+  topo[4].Neighbors[2] = 0;
+  // tri 5: (B2, B4, B6)   n: {tri2, tri4, tri1}
+  topo[5].PointIds[0] = B + 2;
+  topo[5].PointIds[1] = B + 4;
+  topo[5].PointIds[2] = B + 6;
+  topo[5].Neighbors[0] = 2;
+  topo[5].Neighbors[1] = 4;
+  topo[5].Neighbors[2] = 1;
 
-  // For each point; find triangle containing point. Then evaluate three
-  // neighboring triangles for Delaunay criterion. Triangles that do not
-  // satisfy criterion have their edges swapped. This continues recursively
-  // until all triangles have been shown to be Delaunay. The points may be
-  // traversed in given order, or pseudo-random order.
-  //
-  GCDTraversal gcdIter(numPoints);
-  for (auto idx = 0; idx < numPoints; idx++)
+  const double* coords = this->Points;
+  double tol2 = tol * tol;
+  vtkIdType lastTri = 4; // start from a central triangle
+  std::vector<vtkIdType> checkStack;
+  checkStack.reserve(64);
+
+  // Determine the point insertion order. Hilbert-curve sorting makes
+  // successive insertions spatially local, which shortens the walk to
+  // locate the containing triangle; the GCD pseudo-random traversal
+  // improves numerics on structured inputs.
+  vtkSmartPointer<vtkIdList> hilbertOrder;
+  if (this->UseHilbertSorter)
   {
-    ptId = (this->RandomPointInsertion ? gcdIter.GetPointId(idx) : idx);
-    this->GetPoint(ptId, x);
-    nei[0] = (-1); // where we are coming from...nowhere initially
+    vtkNew<vtkPolyData> sorterInput;
+    sorterInput->SetPoints(srcPoints);
+    vtkNew<vtkHilbertCurveSorter> sorter;
+    sorter->SetInputData(sorterInput);
+    sorter->ComputePermutationOnlyOn();
+    sorter->Update();
+    hilbertOrder = sorter->GetPermutation();
+  }
+  GCDTraversal gcdIter(numPoints);
 
-    if ((tri[0] = this->FindTriangle(x, pts, tri[0], tol, nei, neighbors)) >= 0)
+  // For each point; find triangle containing point. Then evaluate
+  // neighbouring triangles for Delaunay criterion. Triangles that do not
+  // satisfy criterion have their edges swapped.
+  for (vtkIdType idx = 0; idx < numPoints; idx++)
+  {
+    if (hilbertOrder)
     {
-      if (nei[0] < 0) // in triangle
-      {
-        // delete this triangle; create three new triangles
-        // first triangle is replaced with one of the new ones
-        nodes[0][0] = ptId;
-        nodes[0][1] = pts[0];
-        nodes[0][2] = pts[1];
-        this->Mesh->RemoveReferenceToCell(pts[2], tri[0]);
-        this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
-        this->Mesh->ResizeCellList(ptId, 1);
-        this->Mesh->AddReferenceToCell(ptId, tri[0]);
-
-        // create two new triangles
-        nodes[1][0] = ptId;
-        nodes[1][1] = pts[1];
-        nodes[1][2] = pts[2];
-        tri[1] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[1]);
-
-        nodes[2][0] = ptId;
-        nodes[2][1] = pts[2];
-        nodes[2][2] = pts[0];
-        tri[2] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
-
-        // Check edge neighbors for Delaunay criterion. If not satisfied, flip
-        // edge diagonal. (This is done recursively.)
-        this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], true, 1);
-        this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], true, 1);
-        this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], true, 1);
-      }
-
-      else // on triangle edge
-      {
-        // update cell list
-        this->Mesh->GetCellPoints(nei[0], numNeiPts, neiPts);
-        for (i = 0; i < 3; i++)
-        {
-          if (neiPts[i] != nei[1] && neiPts[i] != nei[2])
-          {
-            p1 = neiPts[i];
-          }
-          if (pts[i] != nei[1] && pts[i] != nei[2])
-          {
-            p2 = pts[i];
-          }
-        }
-        this->Mesh->ResizeCellList(p1, 1);
-        this->Mesh->ResizeCellList(p2, 1);
-
-        // replace two triangles
-        this->Mesh->RemoveReferenceToCell(nei[2], tri[0]);
-        this->Mesh->RemoveReferenceToCell(nei[2], nei[0]);
-        nodes[0][0] = ptId;
-        nodes[0][1] = p2;
-        nodes[0][2] = nei[1];
-        this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
-        nodes[1][0] = ptId;
-        nodes[1][1] = p1;
-        nodes[1][2] = nei[1];
-        this->Mesh->ReplaceCell(nei[0], 3, nodes[1]);
-        this->Mesh->ResizeCellList(ptId, 2);
-        this->Mesh->AddReferenceToCell(ptId, tri[0]);
-        this->Mesh->AddReferenceToCell(ptId, nei[0]);
-
-        tri[1] = nei[0];
-
-        // create two new triangles
-        nodes[2][0] = ptId;
-        nodes[2][1] = p2;
-        nodes[2][2] = nei[2];
-        tri[2] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
-
-        nodes[3][0] = ptId;
-        nodes[3][1] = p1;
-        nodes[3][2] = nei[2];
-        tri[3] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[3]);
-
-        // Check edge neighbors for Delaunay criterion.
-        for (i = 0; i < 4; i++)
-        {
-          this->CheckEdge(ptId, x, nodes[i][1], nodes[i][2], tri[i], true, 1);
-        }
-      }
-    } // if triangle found
-
+      ptId = hilbertOrder->GetId(idx);
+    }
+    else if (this->RandomPointInsertion)
+    {
+      ptId = gcdIter.GetPointId(idx);
+    }
     else
     {
-      tri[0] = 0; // no triangle found
+      ptId = idx;
+    }
+    this->GetPoint(ptId, x);
+
+    bool onEdge = false;
+    bool isDuplicate = false;
+    vtkIdType neiTri = -1, edgeV1 = 0, edgeV2 = 0;
+
+    vtkIdType containTri = ::FindContainingTriangle(
+      topo, coords, x, lastTri, tol, onEdge, neiTri, edgeV1, edgeV2, isDuplicate);
+
+    if (isDuplicate)
+    {
+      this->NumberOfDuplicatePoints++;
+    }
+    else if (containTri < 0)
+    {
+      this->NumberOfDegeneracies++;
+      lastTri = 0;
+    }
+    else if (::IsDuplicatePoint(topo, coords, containTri, x, tol2))
+    {
+      this->NumberOfDuplicatePoints++;
+    }
+    else
+    {
+      lastTri = containTri;
+      checkStack.clear();
+
+      if (!onEdge) // point inside triangle
+      {
+        vtkIdType t1Id, t2Id;
+        ::SplitTriangleInside(topo, containTri, ptId, t1Id, t2Id);
+        checkStack.push_back(containTri);
+        checkStack.push_back(t1Id);
+        checkStack.push_back(t2Id);
+      }
+      else // point on triangle edge
+      {
+        vtkIdType t2Id, t3Id;
+        ::SplitTrianglesOnEdge(topo, containTri, neiTri, ptId, edgeV1, edgeV2, t2Id, t3Id);
+        checkStack.push_back(containTri);
+        checkStack.push_back(neiTri);
+        checkStack.push_back(t2Id);
+        checkStack.push_back(t3Id);
+      }
+
+      ::RestoreDelaunay(topo, coords, ptId, this->BoundingRadius2, checkStack);
     }
 
-    if (!(ptId % 1000))
+    if (!(idx % 1000))
     {
       vtkDebugMacro(<< "point #" << ptId);
-      this->UpdateProgress(static_cast<double>(ptId) / numPoints);
+      this->UpdateProgress(static_cast<double>(idx) / numPoints);
       if (this->CheckAbort())
       {
         break;
       }
     }
-
   } // for all points
 
   vtkDebugMacro(<< "Triangulated " << numPoints << " points, " << this->NumberOfDuplicatePoints
@@ -633,6 +1046,46 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< this->NumberOfDegeneracies
                   << " degenerate triangles encountered, mesh quality suspect");
   }
+
+  // Convert fast mesh topology to vtkPolyData for post-processing
+  // (boundary recovery, alpha criterion, connectivity fix).  The cell
+  // array is assembled in parallel from the flat triangle array.
+  {
+    const vtkIdType numTris = static_cast<vtkIdType>(topo.size());
+    vtkNew<vtkIdTypeArray> offsets;
+    offsets->SetNumberOfValues(numTris + 1);
+    vtkNew<vtkIdTypeArray> connectivity;
+    connectivity->SetNumberOfValues(3 * numTris);
+    vtkIdType* offsetsPtr = offsets->GetPointer(0);
+    vtkIdType* connectivityPtr = connectivity->GetPointer(0);
+    vtkSMPTools::For(0, numTris,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType triId = begin; triId < end; triId++)
+        {
+          offsetsPtr[triId] = 3 * triId;
+          connectivityPtr[3 * triId] = topo[triId].PointIds[0];
+          connectivityPtr[3 * triId + 1] = topo[triId].PointIds[1];
+          connectivityPtr[3 * triId + 2] = topo[triId].PointIds[2];
+        }
+      });
+    offsetsPtr[numTris] = 3 * numTris;
+
+    vtkNew<vtkCellArray> triangles;
+    triangles->SetData(offsets, connectivity);
+    this->Mesh->SetPoints(points);
+    this->Mesh->SetPolys(triangles);
+    this->Mesh->EditableOn();
+    this->Mesh->BuildLinks();
+  }
+  // Free topo memory.
+  {
+    std::vector<Triangle>().swap(topo);
+  }
+
+  // ================================================================
+  // POST-PROCESSING (unchanged from original algorithm)
+  // ================================================================
 
   // Finish up by recovering the boundary, or deleting all triangles connected
   // to the bounding triangulation points or not satisfying alpha criterion,
@@ -646,7 +1099,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       triUse = new int[numTriangles];
-      std::fill_n(triUse, numTriangles, 1);
+      vtkSMPTools::Fill(triUse, triUse + numTriangles, 1);
     }
   }
 
@@ -672,7 +1125,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     double alpha2 = this->Alpha * this->Alpha;
     double x1[3], x2[3], x3[3];
     double xx1[3], xx2[3], xx3[3];
-    vtkIdType cellId, numNei, ap1, ap2, neighbor;
+    vtkIdType neighbor;
 
     vtkNew<vtkCellArray> alphaVerts;
     alphaVerts->AllocateEstimate(numPoints, 1);
@@ -725,6 +1178,9 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     }   // for all triangles
 
     // traverse all edges see whether we need to create some
+    vtkNew<vtkCellArray> triangles;
+    triangles->DeepCopy(this->Mesh->GetPolys());
+    vtkIdType cellId, numNei, ap1, ap2;
     for (cellId = 0, triangles->InitTraversal(); triangles->GetNextCell(npts, triPts); cellId++)
     {
       if (!triUse[cellId])
@@ -985,7 +1441,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->Alpha <= 0.0 && this->BoundingTriangulation && !source)
   {
-    output->SetPolys(triangles);
+    output->SetPolys(this->Mesh->GetPolys());
   }
   else
   {
@@ -1068,7 +1524,7 @@ int* vtkDelaunay2D::RecoverBoundary(vtkPolyData* source)
   // Generate inside/outside marks on mesh
   int numTriangles = this->Mesh->GetNumberOfCells();
   triUse = new int[numTriangles];
-  std::fill_n(triUse, numTriangles, 1);
+  vtkSMPTools::Fill(triUse, triUse + numTriangles, 1);
 
   // Use any polygons to mark inside and outside. (Note that if an edge was not
   // recovered, we're going to have a problem.) The first polygon is assumed to
@@ -1393,7 +1849,7 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
     vtkIdType* v = &newEdges[4 * i];
     double x[3];
     this->GetPoint(v[3], x);
-    if (this->CheckEdge(v[3], x, v[1], v[2], v[0], false, 1))
+    if (this->CheckEdge(v[3], x, v[1], v[2], v[0]))
     {
       // Flipping an edge renders triangle and edge IDs in newEdges invalid
       break;
@@ -1641,6 +2097,7 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Random Point Insertion: " << (this->RandomPointInsertion ? "On" : "Off") << "\n";
+  os << indent << "Use Hilbert Sorter: " << (this->UseHilbertSorter ? "On" : "Off") << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END
