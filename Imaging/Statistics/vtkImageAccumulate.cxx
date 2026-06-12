@@ -110,7 +110,7 @@ vtkImageStencilData* vtkImageAccumulate::GetStencil()
 template <class T>
 int vtkImageAccumulateExecute(vtkImageAccumulate* self, vtkImageData* inData, T*,
   vtkImageData* outData, vtkIdType* outPtr, double min[3], double max[3], double mean[3],
-  double standardDeviation[3], vtkIdType* voxelCount, int* updateExtent)
+  double standardDeviation[3], vtkIdType* voxelCount, VTK_FUTURE_CONST int updateExtent[6])
 {
   // variables used to compute statistics (filter handles max 3 components)
   double sum[3];
@@ -247,7 +247,7 @@ int vtkImageAccumulate::RequestData(vtkInformation* vtkNotUsed(request),
   // get the input
   vtkInformation* in1Info = inputVector[0]->GetInformationObject(0);
   vtkImageData* inData = vtkImageData::SafeDownCast(in1Info->Get(vtkDataObject::DATA_OBJECT()));
-  int* uExt = in1Info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* uExt = in1Info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   // get the output
   vtkInformation* outInfo = outputVector->GetInformationObject(0);

@@ -54,7 +54,7 @@ void vtkImageIdealHighPass::SetZCutOff(double cutOff)
 //------------------------------------------------------------------------------
 void vtkImageIdealHighPass::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int ext[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int ext[6], int id)
 {
   int idx0, idx1, idx2;
   int min0, max0;

@@ -280,7 +280,7 @@ void vtkVolumeTexture::AdjustExtentForCell(Size6& extent)
 }
 
 //------------------------------------------------------------------------------
-vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
+vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(VTK_FUTURE_CONST int extent[6])
 {
   int i = 0;
   Size3 texSize;
@@ -1020,7 +1020,7 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
 
   // push corners through matrix to get bounding box
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int* extent = block->Extents;
+  VTK_FUTURE_CONST int* extent = block->Extents;
   iMin = extent[0];
   iMax = extent[1] + this->IsCellData;
   jMin = extent[2];

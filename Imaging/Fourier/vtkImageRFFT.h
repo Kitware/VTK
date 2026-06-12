@@ -43,7 +43,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inDataVec,
-    vtkImageData** outDataVec, int outExt[6], int threadId) override;
+    vtkImageData** outDataVec, VTK_FUTURE_CONST int outExt[6], int threadId) override;
 
 private:
   vtkImageRFFT(const vtkImageRFFT&) = delete;

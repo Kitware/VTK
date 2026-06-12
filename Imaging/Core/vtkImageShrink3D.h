@@ -82,10 +82,10 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
 
-  void InternalRequestUpdateExtent(int* inExt, int* outExt);
+  void InternalRequestUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6]);
 
 private:
   vtkImageShrink3D(const vtkImageShrink3D&) = delete;

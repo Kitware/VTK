@@ -21,8 +21,8 @@ vtkImageYIQToRGB::vtkImageYIQToRGB()
 //------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageYIQToRGBExecute(
-  vtkImageYIQToRGB* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageYIQToRGBExecute(vtkImageYIQToRGB* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   if (std::is_unsigned<T>::value && id == 0)
   {
@@ -90,7 +90,7 @@ void vtkImageYIQToRGBExecute(
 
 //------------------------------------------------------------------------------
 void vtkImageYIQToRGB::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 

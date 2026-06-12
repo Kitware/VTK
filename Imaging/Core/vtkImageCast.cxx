@@ -36,8 +36,8 @@ int vtkImageCast::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-void vtkImageCastExecute(
-  vtkImageCast* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, IT*, OT*)
+void vtkImageCastExecute(vtkImageCast* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, IT*, OT*)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -80,8 +80,8 @@ void vtkImageCastExecute(
 
 //------------------------------------------------------------------------------
 template <class T>
-void vtkImageCastExecute(
-  vtkImageCast* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageCastExecute(vtkImageCast* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   switch (outData->GetScalarType())
   {
@@ -99,7 +99,7 @@ void vtkImageCastExecute(
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageCast::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   switch (inData->GetScalarType())
   {

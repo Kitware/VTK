@@ -116,7 +116,7 @@ void vtkExtentSplitter::AddExtentSource(
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentSplitter::AddExtentSource(int id, int priority, int* extent)
+void vtkExtentSplitter::AddExtentSource(int id, int priority, VTK_FUTURE_CONST int extent[6])
 {
   this->AddExtentSource(
     id, priority, extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
@@ -160,7 +160,7 @@ void vtkExtentSplitter::AddExtent(int x0, int x1, int y0, int y1, int z0, int z1
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentSplitter::AddExtent(int* extent)
+void vtkExtentSplitter::AddExtent(VTK_FUTURE_CONST int extent[6])
 {
   this->AddExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }
@@ -185,7 +185,7 @@ int* vtkExtentSplitter::GetSubExtent(int index)
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentSplitter::GetSubExtent(int index, int* extent)
+void vtkExtentSplitter::GetSubExtent(int index, int extent[6])
 {
   if (index < 0 || index >= this->GetNumberOfSubExtents())
   {
@@ -201,7 +201,7 @@ void vtkExtentSplitter::GetSubExtent(int index, int* extent)
   else
   {
     int i;
-    int* e = this->Internal->SubExtents[index].extent;
+    const int* e = this->Internal->SubExtents[index].extent;
     for (i = 0; i < 6; ++i)
     {
       extent[i] = e[i];
@@ -303,7 +303,7 @@ int vtkExtentSplitter::ComputeSubExtents()
       int i;
       for (i = 0; i < static_cast<int>(subExtents.size()); ++i)
       {
-        int* extent = subExtents[i].extent;
+        const int* extent = subExtents[i].extent;
         int volume =
           ((extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) * (extent[5] - extent[4] + 1));
         if (volume > bestVolume)
@@ -331,7 +331,7 @@ int vtkExtentSplitter::ComputeSubExtents()
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
+void vtkExtentSplitter::SplitExtent(int* extent, VTK_FUTURE_CONST int subextent[6])
 {
   // Subtract the volume described by subextent from that described by
   // extent.  Split the remaining region into rectangular solids and

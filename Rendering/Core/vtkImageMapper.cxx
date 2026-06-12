@@ -207,28 +207,26 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
 //------------------------------------------------------------------------------
 int vtkImageMapper::GetWholeZMin()
 {
-  int* extent;
-
   if (!this->GetInput())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  extent = this->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* extent =
+    this->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
 
 //------------------------------------------------------------------------------
 int vtkImageMapper::GetWholeZMax()
 {
-  int* extent;
-
   if (!this->GetInput())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  extent = this->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* extent =
+    this->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }
 

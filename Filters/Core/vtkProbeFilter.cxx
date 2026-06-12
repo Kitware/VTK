@@ -739,7 +739,7 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
 
   // Iterate on each point of the bounding box
   // to identify the covered grid
-  int* inputExtent = input->GetExtent();
+  const int* inputExtent = input->GetExtent();
   int idxBounds[6] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
     std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
     std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };

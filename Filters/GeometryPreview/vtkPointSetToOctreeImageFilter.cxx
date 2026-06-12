@@ -109,7 +109,7 @@ struct vtkPointSetToOctreeImageFilter::PointSetToImageFunctor
     double* spacing = this->Spacing;
     double* spacing_2 = this->Spacing_2;
     int* dimensions = this->Dimensions;
-    int* extent = this->Extent;
+    const int* extent = this->Extent;
     vtkImageData* output = this->Output;
     int numFunctions = static_cast<int>(this->Functions.size());
     // no need to iterate over the mean function since it will be computed in the reduce step

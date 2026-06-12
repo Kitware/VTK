@@ -165,8 +165,8 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
 template <class TScalarIter, class TPointIter>
-void ComputeGridPointGradient(int i, int j, int k, int inExt[6], int incY, int incZ,
-  TScalarIter& sc, TPointIter& pt, double g[3])
+void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6], int incY,
+  int incZ, TScalarIter& sc, TPointIter& pt, double g[3])
 {
   double N[6][3];
   double NtN[3][3], NtNi[3][3];
@@ -403,7 +403,7 @@ struct ContourGridFunctor
     int* exExt, vtkStructuredGrid* input, vtkPolyData* output, vtkDataArray* inScalars,
     bool outputTriangles)
   {
-    int* inExt = input->GetExtent();
+    VTK_FUTURE_CONST int* inExt = input->GetExtent();
     int xdim = exExt[1] - exExt[0] + 1;
     int ydim = exExt[3] - exExt[2] + 1;
     double n0[3], n1[3]; // used in gradient macro
@@ -828,7 +828,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   vtkStructuredGrid* input, vtkInformationVector** inputVector, vtkInformation* outInfo)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  int* inExt = input->GetExtent();
+  const int* inExt = input->GetExtent();
 
   int exExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);

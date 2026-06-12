@@ -346,7 +346,7 @@ void vtkMRCReader::ExecuteDataWithInformation(
   vtkIdType inOffsets[3];
   int* outExt;
   int modifiedOutExt[6];
-  int* execExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* execExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   vtkImageData* data = vtkImageData::GetData(outInfo);
   this->AllocateOutputData(data, outInfo, execExt);
 

@@ -106,7 +106,7 @@ int vtkImageExtractComponents::RequestInformation(vtkInformation* vtkNotUsed(req
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageExtractComponentsExecute(vtkImageExtractComponents* self, vtkImageData* inData,
-  T* inPtr, vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  T* inPtr, vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -196,7 +196,7 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents* self, vtkImageD
 // This method is passed input and output datas, and executes the
 // ExtractComponents function on each line.
 void vtkImageExtractComponents::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int max, idx;
   void* inPtr = inData->GetScalarPointerForExtent(outExt);

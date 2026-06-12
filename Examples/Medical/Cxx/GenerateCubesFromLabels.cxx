@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
   // Pad the volume so that we can change the point data into cell
   // data.
-  int* extent = reader->GetOutput()->GetExtent();
+  const int* extent = reader->GetOutput()->GetExtent();
   pad->SetInputConnection(reader->GetOutputPort());
   pad->SetOutputWholeExtent(
     extent[0], extent[1] + 1, extent[2], extent[3] + 1, extent[4], extent[5] + 1);

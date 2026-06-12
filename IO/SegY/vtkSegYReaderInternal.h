@@ -5,6 +5,7 @@
 #define vtkSegYReaderInternal_h
 
 #include "vtkABINamespace.h"
+#include "vtkSetGet.h"
 
 #include <fstream>
 #include <string>
@@ -28,12 +29,13 @@ public:
   ~vtkSegYReaderInternal();
 
   bool Is3DComputeParameters(
-    int* extent, double origin[3], double spacing[3][3], int* spacingSign, bool force2D);
-  void LoadTraces(int* extent);
+    int extent[6], double origin[3], double spacing[3][3], int* spacingSign, bool force2D);
+  void LoadTraces(VTK_FUTURE_CONST int extent[6]);
 
+  void ExportData(vtkImageData*, VTK_FUTURE_CONST int extent[6], double origin[3],
+    double spacing[3][3], int* spacingSign);
   void ExportData(
-    vtkImageData*, int* extent, double origin[3], double spacing[3][3], int* spacingSign);
-  void ExportData(vtkStructuredGrid*, int* extent, double origin[3], double spacing[3][3]);
+    vtkStructuredGrid*, VTK_FUTURE_CONST int extent[6], double origin[3], double spacing[3][3]);
 
   void SetXYCoordBytePositions(int x, int y);
   void SetVerticalCRS(int);

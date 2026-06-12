@@ -275,7 +275,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
 
     vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(ugrid);
-    int* tmpext = grid->GetExtent();
+    const int* tmpext = grid->GetExtent();
     vtkIdType ext[6];
     ext[0] = tmpext[0];
     ext[1] = tmpext[1];
@@ -302,7 +302,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
 
     vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(ugrid);
-    int* tmpext = grid->GetExtent();
+    const int* tmpext = grid->GetExtent();
     vtkIdType ext[6];
     ext[0] = tmpext[0];
     ext[1] = tmpext[1];

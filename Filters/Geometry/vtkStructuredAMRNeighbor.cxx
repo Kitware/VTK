@@ -146,8 +146,9 @@ void vtkStructuredAMRNeighbor::GetReceiveExtentOnGrid(int ng, int gridExtent[6],
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(int gridRealExtent[6],
-  int* vtkNotUsed(gridGhostedExtent), int neiRealExtent[6], int* vtkNotUsed(WholeExtent), int N)
+void vtkStructuredAMRNeighbor::ComputeSendAndReceiveExtent(VTK_FUTURE_CONST int gridRealExtent[6],
+  VTK_FUTURE_CONST int vtkNotUsed(gridGhostedExtent)[6], VTK_FUTURE_CONST int neiRealExtent[6],
+  VTK_FUTURE_CONST int vtkNotUsed(WholeExtent)[6], int N)
 {
 
   // TODO: Here we need to make sure that the send/rcv extent between a coarse

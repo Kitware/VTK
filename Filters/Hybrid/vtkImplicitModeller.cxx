@@ -233,7 +233,8 @@ void ConvertToDoubleDistance(
 // Templated append for VTK_VOXEL_MODE process mode and any type of output data
 template <class OT>
 void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* input,
-  vtkImageData* outData, int outExt[6], double maxDistance, vtkCellLocator* locator, int id, OT*)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double maxDistance,
+  vtkCellLocator* locator, int id, OT*)
 {
   int i, j, k;
   int subId;

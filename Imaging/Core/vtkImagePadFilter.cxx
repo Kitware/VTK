@@ -106,7 +106,8 @@ int vtkImagePadFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wholeExtent[6])
+void vtkImagePadFilter::ComputeInputUpdateExtent(
+  int inExt[6], VTK_FUTURE_CONST int outExt[6], int wholeExtent[6])
 {
   int idx;
 

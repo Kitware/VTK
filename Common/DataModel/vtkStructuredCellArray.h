@@ -65,7 +65,7 @@ public:
    * Create a new cell array given extent and a flag indicating whether
    * the data should be stored in a voxel or pixel orientation.
    */
-  void SetData(int extent[6], bool usePixelVoxelOrientation);
+  void SetData(VTK_FUTURE_CONST int extent[6], bool usePixelVoxelOrientation);
 
   /**
    * @return True if the internal storage can be shared as a

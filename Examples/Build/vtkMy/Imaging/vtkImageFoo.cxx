@@ -56,7 +56,7 @@ int vtkImageFoo::RequestInformation(
 // input and output data type.
 template <class IT, class OT>
 void vtkImageFooExecute(vtkImageFoo* self, vtkImageData* inData, IT* inPtr, vtkImageData* outData,
-  OT* outPtr, int outExt[6], int id)
+  OT* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   float foo = self->GetFoo();
 
@@ -116,8 +116,8 @@ void vtkImageFooExecute(vtkImageFoo* self, vtkImageData* inData, IT* inPtr, vtkI
 // forwards the call to the above function template for each output
 // data type.
 template <class T>
-void vtkImageFooExecute1(
-  vtkImageFoo* self, vtkImageData* inData, T* inPtr, vtkImageData* outData, int outExt[6], int id)
+void vtkImageFooExecute1(vtkImageFoo* self, vtkImageData* inData, T* inPtr, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* outPtr = outData->GetScalarPointerForExtent(outExt);
   int outType = outData->GetScalarType();
@@ -137,7 +137,8 @@ void vtkImageFooExecute1(
 // executes a switch statement to call the correct function for the
 // datas data types.
 void vtkImageFoo::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
-  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData,
+  VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   int inType = inData[0][0]->GetScalarType();

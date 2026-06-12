@@ -160,7 +160,7 @@ public:
    * This is used internally when the exact extent is requested,
    * and the source generated more than the update extent.
    */
-  void Crop(const int* updateExtent) override;
+  void Crop(const int updateExtent[6]) override;
 
   ///@{
   /**

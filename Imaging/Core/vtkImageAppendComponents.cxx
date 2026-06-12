@@ -91,7 +91,7 @@ int vtkImageAppendComponents::RequestInformation(vtkInformation* vtkNotUsed(requ
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAppendComponentsExecute(vtkImageAppendComponents* self, vtkImageData* inData,
-  vtkImageData* outData, int outComp, int outExt[6], int id, T*)
+  vtkImageData* outData, int outComp, VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -135,7 +135,7 @@ int vtkImageAppendComponents::FillInputPortInformation(int i, vtkInformation* in
 // the regions data types.
 void vtkImageAppendComponents::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idx1, outComp;
 

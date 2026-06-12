@@ -42,8 +42,8 @@ protected:
   void CopyArrayForPoints(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
   void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
 
-  virtual void SetOutputExtent(int* extent) = 0;
-  virtual void GetPieceInputExtent(int index, int* extent) = 0;
+  virtual void SetOutputExtent(VTK_FUTURE_CONST int extent[6]) = 0;
+  virtual void GetPieceInputExtent(int index, int extent[6]) = 0;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
   void ReadXMLData() override;
@@ -55,9 +55,10 @@ protected:
   void DestroyPieces() override;
   int ReadPiece(vtkXMLDataElement* ePiece) override;
   int ReadPieceData() override;
-  void CopySubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements, int* outExtent,
-    int* outDimensions, vtkIdType* outIncrements, int* subExtent, int* subDimensions,
-    vtkAbstractArray* inArray, vtkAbstractArray* outArray);
+  void CopySubExtent(VTK_FUTURE_CONST int inExtent[6], int* inDimensions, vtkIdType* inIncrements,
+    VTK_FUTURE_CONST int outExtent[6], int* outDimensions, vtkIdType* outIncrements,
+    VTK_FUTURE_CONST int subExtent[6], int* subDimensions, vtkAbstractArray* inArray,
+    vtkAbstractArray* outArray);
   int ComputePieceSubExtents();
 
   vtkExtentSplitter* ExtentSplitter;

@@ -55,7 +55,7 @@ int vtkImageStencilToImage::RequestInformation(vtkInformation* vtkNotUsed(reques
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageStencilToImageExecute(vtkImageStencilToImage* self, vtkImageStencilData* stencil,
-  vtkImageData* outData, T*, int outExt[6], int id)
+  vtkImageData* outData, T*, VTK_FUTURE_CONST int outExt[6], int id)
 {
   T inValue = vtkMathUtilities::SafeCastFromDouble<T>(self->GetInsideValue());
   T outValue = vtkMathUtilities::SafeCastFromDouble<T>(self->GetOutsideValue());

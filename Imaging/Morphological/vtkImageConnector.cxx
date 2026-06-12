@@ -101,10 +101,10 @@ vtkImageConnectorSeed* vtkImageConnector::PopSeed()
 // used to find connected pixels.
 // All pixels connected to seeds are set to ConnectedValue.
 // The data has to be unsigned char.
-void vtkImageConnector::MarkData(vtkImageData* data, int numberOfAxes, int extent[6])
+void vtkImageConnector::MarkData(
+  vtkImageData* data, int numberOfAxes, VTK_FUTURE_CONST int extent[6])
 {
   vtkIdType incs[3], *pIncs;
-  int* pExtent;
   vtkImageConnectorSeed* seed;
   unsigned char* ptr;
   int newIndex[3], *pIndex, idx;
@@ -121,7 +121,7 @@ void vtkImageConnector::MarkData(vtkImageData* data, int numberOfAxes, int exten
     newIndex[0] = seed->Index[0];
     newIndex[1] = seed->Index[1];
     newIndex[2] = seed->Index[2];
-    pExtent = extent;
+    VTK_FUTURE_CONST int* pExtent = extent;
     pIncs = incs;
     pIndex = newIndex;
     for (idx = 0; idx < numberOfAxes; ++idx)

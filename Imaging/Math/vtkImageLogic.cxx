@@ -27,8 +27,8 @@ vtkImageLogic::vtkImageLogic()
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
-void vtkImageLogicExecute1(
-  vtkImageLogic* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageLogicExecute1(vtkImageLogic* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -85,7 +85,7 @@ void vtkImageLogicExecute1(
 // Handles the two input operations
 template <class T>
 void vtkImageLogicExecute2(vtkImageLogic* self, vtkImageData* in1Data, vtkImageData* in2Data,
-  vtkImageData* outData, int outExt[6], int id, T*)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
@@ -197,7 +197,7 @@ void vtkImageLogicExecute2(vtkImageLogic* self, vtkImageData* in1Data, vtkImageD
 // the regions data types.
 void vtkImageLogic::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   if (inData[0][0] == nullptr)
   {

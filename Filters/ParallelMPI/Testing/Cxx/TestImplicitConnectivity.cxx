@@ -106,7 +106,7 @@ void AddNodeCenteredXYZField(vtkMultiBlockDataSet* mbds)
 // Generates a distributed multi-block dataset, each grid is added using
 // round-robin assignment.
 vtkMultiBlockDataSet* GetDataSet(
-  const int numPartitions, double origin[3], double h[3], int wholeExtent[6])
+  const int numPartitions, double origin[3], double h[3], VTK_FUTURE_CONST int wholeExtent[6])
 {
 
   int dims[3];
@@ -195,7 +195,7 @@ double exponential_distribution(const int i, const double beta)
 }
 
 //------------------------------------------------------------------------------
-void GenerateRectGrid(vtkRectilinearGrid* grid, int ext[6], double origin[3])
+void GenerateRectGrid(vtkRectilinearGrid* grid, VTK_FUTURE_CONST int ext[6], double origin[3])
 {
   grid->Initialize();
   grid->SetExtent(ext);
@@ -239,7 +239,7 @@ void GenerateRectGrid(vtkRectilinearGrid* grid, int ext[6], double origin[3])
 // Generates a distributed multi-block dataset, each grid is added using
 // round-robin assignment.
 vtkMultiBlockDataSet* GetRectGridDataSet(
-  const int numPartitions, double origin[3], int wholeExtent[6])
+  const int numPartitions, double origin[3], VTK_FUTURE_CONST int wholeExtent[6])
 {
   int dims[3];
   int desc = vtkStructuredData::GetDataDescriptionFromExtent(wholeExtent);

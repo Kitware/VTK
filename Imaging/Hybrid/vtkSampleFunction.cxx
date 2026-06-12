@@ -38,8 +38,8 @@ public:
   vtkSampleFunctionAlgorithm();
 
   // Interface between VTK and templated functions
-  static void SampleAcrossImage(
-    vtkSampleFunction* self, vtkImageData* output, int extent[6], T* scalars, float* normals);
+  static void SampleAcrossImage(vtkSampleFunction* self, vtkImageData* output,
+    VTK_FUTURE_CONST int extent[6], T* scalars, float* normals);
 
   // Cap the boundaries with the specified cap value (if requested).
   void Cap();
@@ -134,8 +134,8 @@ vtkSampleFunctionAlgorithm<T>::vtkSampleFunctionAlgorithm()
 //------------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
 template <class T>
-void vtkSampleFunctionAlgorithm<T>::SampleAcrossImage(
-  vtkSampleFunction* self, vtkImageData* output, int extent[6], T* scalars, float* normals)
+void vtkSampleFunctionAlgorithm<T>::SampleAcrossImage(vtkSampleFunction* self, vtkImageData* output,
+  VTK_FUTURE_CONST int extent[6], T* scalars, float* normals)
 {
   // Populate data into local storage
   vtkSampleFunctionAlgorithm<T> algo;
@@ -398,7 +398,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject* outp, vtkInfor
   float* normals = nullptr;
 
   vtkImageData* output = this->GetOutput();
-  int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
+  VTK_FUTURE_CONST int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   output->SetExtent(extent);

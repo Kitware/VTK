@@ -181,7 +181,7 @@ int vtkImageAlgorithm::RequestUpdateTime(vtkInformation* vtkNotUsed(request),
 
 //------------------------------------------------------------------------------
 void vtkImageAlgorithm::AllocateOutputData(
-  vtkImageData* output, vtkInformation* outInfo, int* uExtent)
+  vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6])
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);

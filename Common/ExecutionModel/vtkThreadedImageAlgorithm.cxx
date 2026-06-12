@@ -634,7 +634,7 @@ int vtkThreadedImageAlgorithm::RequestData(
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int extent[6], int threadId)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int extent[6], int threadId)
 {
   this->ThreadedExecute(inData[0][0], outData[0], extent, threadId);
 }
@@ -642,7 +642,7 @@ void vtkThreadedImageAlgorithm::ThreadedRequestData(vtkInformation* vtkNotUsed(r
 //------------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int extent[6], int threadId)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int extent[6], int threadId)
 {
   (void)inData;
   (void)outData;

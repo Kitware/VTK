@@ -27,7 +27,8 @@ protected:
   vtkImageXYZToLAB();
   ~vtkImageXYZToLAB() override = default;
 
-  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
+  void ThreadedExecute(
+    vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int ext[6], int id) override;
 
 private:
   vtkImageXYZToLAB(const vtkImageXYZToLAB&) = delete;

@@ -107,11 +107,9 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Median: " << (this->Median ? "On\n" : "Off\n");
 }
 
-void vtkImageShrink3D::InternalRequestUpdateExtent(int* inExt, int* outExt)
+void vtkImageShrink3D::InternalRequestUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6])
 {
-  int idx;
-
-  for (idx = 0; idx < 3; ++idx)
+  for (int idx = 0; idx < 3; ++idx)
   {
     // For Min.
     inExt[idx * 2] = outExt[idx * 2] * this->ShrinkFactors[idx] + this->Shift[idx];
@@ -218,7 +216,7 @@ extern "C"
 // The templated execute function handles all the data types.
 template <class T>
 void vtkImageShrink3DExecute(vtkImageShrink3D* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id, vtkInformation* inInfo)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id, vtkInformation* inInfo)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
   vtkIdType inInc0, inInc1, inInc2;
@@ -540,7 +538,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D* self, vtkImageData* inData, T* in
 // data type.
 void vtkImageShrink3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6];
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);

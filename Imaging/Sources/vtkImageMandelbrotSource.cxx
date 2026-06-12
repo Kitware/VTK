@@ -318,7 +318,7 @@ int vtkImageMandelbrotSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
-  int* ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   data->SetExtent(ext);
   data->AllocateScalars(outInfo);
 

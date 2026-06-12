@@ -18,8 +18,8 @@ namespace
 {
 //------------------------------------------------------------------------------
 template <class T>
-void vtkImageXYZToLABExecute(
-  vtkImageXYZToLAB* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageXYZToLABExecute(vtkImageXYZToLAB* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -62,7 +62,7 @@ vtkImageXYZToLAB::vtkImageXYZToLAB()
 
 //------------------------------------------------------------------------------
 void vtkImageXYZToLAB::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 

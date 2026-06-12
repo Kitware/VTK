@@ -106,7 +106,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector**, vtkInformationVector*) override;
 
   bool ReadHeader();
-  bool ReadData(vtkImageData*, int*);
+  bool ReadData(vtkImageData* imageData, VTK_FUTURE_CONST int updateExtents[6]);
 
   /**
    * Exposed Properties

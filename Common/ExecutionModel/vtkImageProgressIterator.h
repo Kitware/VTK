@@ -30,7 +30,8 @@ public:
    * and extent to iterate over. The passes progress object will
    * receive any UpdateProgress calls if the thread id is zero
    */
-  vtkImageProgressIterator(vtkImageData* imgd, int* ext, vtkAlgorithm* po, int id);
+  vtkImageProgressIterator(
+    vtkImageData* imgd, VTK_FUTURE_CONST int ext[6], vtkAlgorithm* po, int id);
 
   /**
    * Move the iterator to the next span, may call UpdateProgress on the

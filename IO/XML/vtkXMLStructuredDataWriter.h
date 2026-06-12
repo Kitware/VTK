@@ -80,7 +80,8 @@ protected:
   virtual void DeletePositionArrays();
 
   virtual int WriteInlineMode(vtkIndent indent);
-  vtkIdType GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k);
+  vtkIdType GetStartTuple(
+    VTK_FUTURE_CONST int extent[6], vtkIdType* increments, int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
 
   void SetInputUpdateExtent(int piece);

@@ -147,7 +147,6 @@ void vtkImageCanvasSource2D::DrawImage(
   vtkImageClip* clip = vtkImageClip::New();
   clip->SetInputData(image);
 
-  int* extent;
   int ext[6];
   int z = this->DefaultZ;
   image->GetExtent(ext);
@@ -208,7 +207,7 @@ void vtkImageCanvasSource2D::DrawImage(
     z = int(double(z) * this->Ratio[2]);
   }
   // Clip the data to keep in bounds
-  extent = this->ImageData->GetExtent();
+  const int* extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
   max0 = (max0 < extent[0]) ? extent[0] : max0;
   min0 = (min0 > extent[1]) ? extent[1] : min0;
@@ -276,7 +275,6 @@ void vtkImageCanvasSource2DFillBox(
 // Draw a data.  Only implentented for 2D extents.
 void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 {
-  int* extent;
   void* ptr;
   int z = this->DefaultZ;
 
@@ -297,7 +295,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   }
 
   // Clip the data to keep in bounds
-  extent = this->ImageData->GetExtent();
+  const int* extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
   max0 = (max0 < extent[0]) ? extent[0] : max0;
   min0 = (min0 > extent[1]) ? extent[1] : min0;
@@ -399,7 +397,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, double rad
 {
   void* ptr;
   int z = this->DefaultZ;
-  int* extent = this->ImageData->GetExtent();
+  const int* extent = this->ImageData->GetExtent();
 
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
@@ -828,7 +826,6 @@ void vtkImageCanvasSource2DDrawSegment(
 // Draw a Segment from point a to point b.
 void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 {
-  int* extent;
   void* ptr;
   int z = this->DefaultZ;
 
@@ -851,7 +848,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   }
 
   // check to make sure line segment is in bounds.
-  extent = this->ImageData->GetExtent();
+  const int* extent = this->ImageData->GetExtent();
   z = (z < extent[4]) ? extent[4] : z;
   z = (z > extent[5]) ? extent[5] : z;
   if (a0 < extent[0] || a0 > extent[1] || b0 < extent[0] || b0 > extent[1] || a1 < extent[2] ||
@@ -1368,7 +1365,7 @@ void vtkImageCanvasSource2DFill(vtkImageData* image, double* color, T* ptr, int 
 void vtkImageCanvasSource2D::FillPixel(int x, int y)
 {
   void* ptr;
-  int* ext = this->ImageData->GetExtent();
+  const int* ext = this->ImageData->GetExtent();
   int z = this->DefaultZ;
 
   // Pre-multiply coords if needed
@@ -1401,7 +1398,7 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageCanvasSource2D::SetExtent(int* extent)
+void vtkImageCanvasSource2D::SetExtent(VTK_FUTURE_CONST int extent[6])
 {
   this->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
 }

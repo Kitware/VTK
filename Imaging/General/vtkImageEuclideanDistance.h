@@ -103,7 +103,8 @@ protected:
   int Algorithm;
 
   // Replaces "EnlargeOutputUpdateExtent"
-  virtual void AllocateOutputScalars(vtkImageData* outData, int outExt[6], vtkInformation* outInfo);
+  virtual void AllocateOutputScalars(
+    vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], vtkInformation* outInfo);
 
   int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;

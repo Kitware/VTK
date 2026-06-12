@@ -49,7 +49,7 @@ protected:
 
     // Split the update extent further based on piece request.
     vtkImageData* data = vtkImageData::GetData(outInfo);
-    int* outExt = data->GetExtent();
+    const int* outExt = data->GetExtent();
 
     // find the region to loop over
     int maxX = (outExt[1] - outExt[0]) + 1;

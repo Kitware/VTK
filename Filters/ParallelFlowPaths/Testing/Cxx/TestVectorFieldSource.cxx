@@ -133,7 +133,7 @@ void TestVectorFieldSource::ExecuteDataWithInformation(
   outImage->GetPointData()->AddArray(outArray);
   outImage->GetPointData()->SetActiveVectors("Gradients");
 
-  int* extent = outImage->GetExtent(); // old style
+  VTK_FUTURE_CONST int* extent = outImage->GetExtent(); // old style
   //    PRINT("Extent: "<<extent[0]<<" "<<extent[1]<<" "<<extent[2]<<" "<<extent[3]<<"
   //    "<<extent[4]<<" "<<extent[5]) PRINT("Bound: "<<bb[0]<<" "<<bb[1]<<" "<<bb[2]<<" "<<bb[3]<<"
   //    "<<bb[4]<<" "<<bb[5])

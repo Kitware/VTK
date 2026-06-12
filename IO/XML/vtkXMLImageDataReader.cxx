@@ -45,7 +45,7 @@ const char* vtkXMLImageDataReader::GetDataSetName()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLImageDataReader::SetOutputExtent(int* extent)
+void vtkXMLImageDataReader::SetOutputExtent(VTK_FUTURE_CONST int extent[6])
 {
   vtkImageData::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }

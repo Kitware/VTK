@@ -101,7 +101,7 @@ public:
    * It sets the size of the canvas.
    * Extent is a min max 3D box.  Minimums and maximums are inclusive.
    */
-  void SetExtent(int* extent);
+  void SetExtent(VTK_FUTURE_CONST int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   ///@}
 

@@ -196,9 +196,9 @@ protected:
   int WriteScalarAttribute(const char* name, vtkIdType data);
 #endif
 
-  int WriteVectorAttribute(const char* name, int length, int* data);
-  int WriteVectorAttribute(const char* name, int length, float* data);
-  int WriteVectorAttribute(const char* name, int length, double* data);
+  int WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST int* data);
+  int WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST float* data);
+  int WriteVectorAttribute(const char* name, int length, VTK_FUTURE_CONST double* data);
 #ifdef VTK_USE_64BIT_IDS
   int WriteVectorAttribute(const char* name, int length, vtkIdType* data);
 #endif

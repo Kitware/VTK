@@ -122,7 +122,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation* vtkNotUsed(request),
   // pass all required information to the helper filter
   int piece = 0;
   int npieces = 1;
-  int* uExtent = nullptr;
+  const int* uExtent = nullptr;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
     piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());

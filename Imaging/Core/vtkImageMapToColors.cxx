@@ -149,7 +149,7 @@ int vtkImageMapToColors::RequestInformation(vtkInformation* vtkNotUsed(request),
 
 static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* inData,
   vtkDataArray* inArray, vtkCharArray* maskArray, vtkImageData* outData, vtkDataArray* outArray,
-  int outExt[6], int id, unsigned char* nanColor)
+  VTK_FUTURE_CONST int outExt[6], int id, unsigned char* nanColor)
 {
   int idxY, idxZ;
   int extX, extY, extZ;
@@ -273,7 +273,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* 
 
 void vtkImageMapToColors::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();
   vtkCharArray* maskArray =

@@ -33,7 +33,8 @@ vtkImageConstantPad::~vtkImageConstantPad()
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageConstantPadExecute(vtkImageConstantPad* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int inExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], VTK_FUTURE_CONST int inExt[6],
+  int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -140,7 +141,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad* self, vtkImageData* inData,
 // the datas data types.
 void vtkImageConstantPad::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 

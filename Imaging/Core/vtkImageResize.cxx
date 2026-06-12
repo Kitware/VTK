@@ -812,7 +812,8 @@ int vtkImageResize::RequestData(
 
 //------------------------------------------------------------------------------
 void vtkImageResize::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
-  vtkInformationVector*, vtkImageData***, vtkImageData** outData, int extent[6], int threadId)
+  vtkInformationVector*, vtkImageData***, vtkImageData** outData, VTK_FUTURE_CONST int extent[6],
+  int threadId)
 {
   vtkDebugMacro("Execute: outData = " << outData);
 

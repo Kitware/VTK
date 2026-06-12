@@ -146,7 +146,7 @@ int vtkXMLPStructuredDataWriter::WritePiece(int index)
     // Store the extent of this piece in Extents. This is later used
     // in WritePPieceAttributes to write the summary file.
     vtkDataSet* input = this->GetDataSetInput();
-    int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+    const int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
     this->Extents[index] = std::vector<int>(ext, ext + 6);
   }
   return result;

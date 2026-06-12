@@ -141,7 +141,8 @@ protected:
    * Allocate the output data.  This will be called before RequestData,
    * it is not necessary for subclasses to call this method themselves.
    */
-  virtual void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent);
+  virtual void AllocateOutputData(
+    vtkImageData* out, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6]);
   virtual vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo);
   ///@}
 

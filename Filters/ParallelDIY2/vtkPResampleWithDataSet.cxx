@@ -724,7 +724,7 @@ void FindPointsToSend(DiyBlock* block, const diy::Master::ProxyWithLink& cp)
         vtkBoundingBox imgBounds(img->GetBounds());
         if (imgBounds.IntersectBox(fullBounds))
         {
-          int* inExtents = img->GetExtent();
+          const int* inExtents = img->GetExtent();
           double* inOrigin = img->GetOrigin();
           double* inSpacing = img->GetSpacing();
 

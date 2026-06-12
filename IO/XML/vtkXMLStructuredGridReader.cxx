@@ -52,7 +52,7 @@ const char* vtkXMLStructuredGridReader::GetDataSetName()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLStructuredGridReader::SetOutputExtent(int* extent)
+void vtkXMLStructuredGridReader::SetOutputExtent(VTK_FUTURE_CONST int extent[6])
 {
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }

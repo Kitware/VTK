@@ -129,8 +129,8 @@ public:
    * Set / Get the extent on just one axis
    */
   virtual void SetAxisUpdateExtent(
-    int axis, int min, int max, const int* updateExtent, int* axisUpdateExtent);
-  virtual void GetAxisUpdateExtent(int axis, int& min, int& max, const int* updateExtent);
+    int axis, int min, int max, const int updateExtent[6], int axisUpdateExtent[6]);
+  virtual void GetAxisUpdateExtent(int axis, int& min, int& max, const int updateExtent[6]);
   ///@}
 
   ///@{
@@ -188,16 +188,16 @@ public:
    * while the second form allows the scalar array to be passed in.
    */
   virtual void GetContinuousIncrements(
-    int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
-  virtual void GetContinuousIncrements(
-    vtkDataArray* scalars, int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
+    VTK_FUTURE_CONST int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
+  virtual void GetContinuousIncrements(vtkDataArray* scalars, VTK_FUTURE_CONST int extent[6],
+    vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
   ///@}
 
   ///@{
   /**
    * Access the native pointer for the scalar data
    */
-  virtual void* GetScalarPointerForExtent(int extent[6]);
+  virtual void* GetScalarPointerForExtent(VTK_FUTURE_CONST int extent[6]);
   virtual void* GetScalarPointer(int coordinates[3]);
   virtual void* GetScalarPointer(int x, int y, int z);
   virtual void* GetScalarPointer();
@@ -244,7 +244,7 @@ public:
    * It just executes a switch statement to call the correct function for
    * the regions data types.
    */
-  virtual void CopyAndCastFrom(vtkImageData* inData, int extent[6]);
+  virtual void CopyAndCastFrom(vtkImageData* inData, VTK_FUTURE_CONST int extent[6]);
   virtual void CopyAndCastFrom(vtkImageData* inData, int x0, int x1, int y0, int y1, int z0, int z1)
   {
     int e[6];
@@ -263,7 +263,7 @@ public:
    * This is used internally when the exact extent is requested,
    * and the source generated more than the update extent.
    */
-  void Crop(const int* updateExtent) override;
+  void Crop(const int updateExtent[6]) override;
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -432,8 +432,8 @@ public:
    * from any filed array.  It is a start at expanding image filters
    * to process any array (not just scalars).
    */
-  void* GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);
-  void* GetArrayPointer(vtkDataArray* array, int coordinates[3]);
+  void* GetArrayPointerForExtent(vtkDataArray* array, VTK_FUTURE_CONST int extent[6]);
+  void* GetArrayPointer(vtkDataArray* array, VTK_FUTURE_CONST int coordinates[3]);
   void* GetArrayPointer(vtkDataArray* array, int x, int y, int z);
   ///@}
 

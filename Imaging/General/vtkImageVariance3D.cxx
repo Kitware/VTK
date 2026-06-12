@@ -103,7 +103,8 @@ int vtkImageVariance3D::RequestInformation(
 // for strictly center (no boundary ) processing.
 template <class T>
 void vtkImageVariance3DExecute(vtkImageVariance3D* self, vtkImageData* mask, vtkImageData* inData,
-  T* inPtr, vtkImageData* outData, int* outExt, float* outPtr, int id, vtkInformation* inInfo)
+  T* inPtr, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], float* outPtr, int id,
+  vtkInformation* inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -258,7 +259,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D* self, vtkImageData* mask, vtk
 // It handles image boundaries, so the image does not shrink.
 void vtkImageVariance3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);

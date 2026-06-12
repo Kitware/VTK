@@ -76,11 +76,9 @@ int vtkImageMagnify::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-void vtkImageMagnify::InternalRequestUpdateExtent(int* inExt, int* outExt)
+void vtkImageMagnify::InternalRequestUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6])
 {
-  int idx;
-
-  for (idx = 0; idx < 3; idx++)
+  for (int idx = 0; idx < 3; idx++)
   {
     // For Min. Round Down
     inExt[idx * 2] = static_cast<int>(floor(
@@ -96,7 +94,7 @@ void vtkImageMagnify::InternalRequestUpdateExtent(int* inExt, int* outExt)
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 void vtkImageMagnifyExecute(vtkImageMagnify* self, vtkImageData* inData, T* inPtr, int inExt[6],
-  vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int inIdxX, inIdxY, inIdxZ;
@@ -271,7 +269,7 @@ void vtkImageMagnifyExecute(vtkImageMagnify* self, vtkImageData* inData, T* inPt
 
 void vtkImageMagnify::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6];
   this->InternalRequestUpdateExtent(inExt, outExt);

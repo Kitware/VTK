@@ -180,7 +180,7 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkDataObject* data = inInfo->Get(vtkDataObject::DATA_OBJECT());
   if (data->GetExtentType() == VTK_3D_EXTENT)
   {
-    int* inWholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    const int* inWholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inWholeExtent, 6);
   }
 

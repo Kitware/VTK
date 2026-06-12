@@ -65,7 +65,7 @@ int vtkImageToStructuredPoints::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int uExtent[6];
-  int* wExtent;
+  const int* wExtent;
 
   int idxX, idxY, idxZ;
   int maxX = 0;

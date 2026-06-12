@@ -67,7 +67,7 @@ int TestValuePassFloatingPoint2(int, char*[])
 
   // Get the rendered image
   vtkFloatArray* renderedArray = valuePass->GetFloatImageDataArray(renderer);
-  int* ext = valuePass->GetFloatImageExtents();
+  VTK_FUTURE_CONST int* ext = valuePass->GetFloatImageExtents();
   renderedArray->SetName("FloatArray");
   vtkNew<vtkImageData> image;
   image->SetExtent(ext);

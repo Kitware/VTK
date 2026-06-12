@@ -252,7 +252,7 @@ void vtkImageConvolve::GetKernel(double* kernel)
 // for strictly center (no boundary) processing.
 template <class T>
 void vtkImageConvolveExecute(vtkImageConvolve* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id, vtkInformation* inInfo)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id, vtkInformation* inInfo)
 {
   int* kernelSize;
   int kernelMiddle[3];
@@ -418,7 +418,7 @@ void vtkImageConvolveExecute(vtkImageConvolve* self, vtkImageData* inData, T* in
 // It handles image boundaries, so the image does not shrink.
 void vtkImageConvolve::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);

@@ -70,8 +70,8 @@ int vtkImageCorrelation::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
 // Handles the two input operations
 template <class T>
 void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data, T* in1Ptr,
-  vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData, float* outPtr, int outExt[6], int id,
-  int in2Extent[6])
+  vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData, float* outPtr,
+  VTK_FUTURE_CONST int outExt[6], int id, int in2Extent[6])
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -170,7 +170,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data
 // the datas data types.
 void vtkImageCorrelation::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int* in2Extent;
   void* in1Ptr;

@@ -149,8 +149,8 @@ public:
    * \pre pd != nullptr.
    * \pre outPD != nullptr.
    */
-  void CopyPointsAndPointData(int inExt[6], int outExt[6], vtkPointData* pd, vtkPoints* inpnts,
-    vtkPointData* outPD, vtkPoints* outpnts);
+  void CopyPointsAndPointData(VTK_FUTURE_CONST int inExt[6], VTK_FUTURE_CONST int outExt[6],
+    vtkPointData* pd, vtkPoints* inpnts, vtkPointData* outPD, vtkPoints* outpnts);
 
   /**
    * \brief Copies the cell data to the output.
@@ -161,7 +161,8 @@ public:
    * \pre cd != nullptr.
    * \pre outCD != nullptr.
    */
-  void CopyCellData(int inExt[6], int outExt[6], vtkCellData* cd, vtkCellData* outCD);
+  void CopyCellData(VTK_FUTURE_CONST int inExt[6], VTK_FUTURE_CONST int outExt[6], vtkCellData* cd,
+    vtkCellData* outCD);
 
   /**
    * Calculate the VOI for a partitioned structured dataset. This method sets

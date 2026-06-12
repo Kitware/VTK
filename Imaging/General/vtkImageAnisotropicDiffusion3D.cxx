@@ -109,7 +109,7 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 // must have the same data type.
 void vtkImageAnisotropicDiffusion3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
   double* ar;
@@ -168,7 +168,7 @@ void vtkImageAnisotropicDiffusion3D::ThreadedRequestData(vtkInformation* vtkNotU
 // The inData and outData are assumed to have data type double,
 // and have the same extent.
 void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData* inData, vtkImageData* outData,
-  double ar0, double ar1, double ar2, int* coreExtent, int count)
+  double ar0, double ar1, double ar2, VTK_FUTURE_CONST int coreExtent[6], int count)
 {
   int idx0, idx1, idx2;
   vtkIdType inInc0, inInc1, inInc2;

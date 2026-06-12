@@ -33,8 +33,8 @@ vtkImageBSplineCoefficients::vtkImageBSplineCoefficients()
 vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients() = default;
 
 //------------------------------------------------------------------------------
-void vtkImageBSplineCoefficients::AllocateOutputData(
-  vtkImageData* vtkNotUsed(output), vtkInformation* vtkNotUsed(outInfo), int* vtkNotUsed(uExtent))
+void vtkImageBSplineCoefficients::AllocateOutputData(vtkImageData* vtkNotUsed(output),
+  vtkInformation* vtkNotUsed(outInfo), VTK_FUTURE_CONST int vtkNotUsed(uExtent)[6])
 {
   // turn into a no-op, we allocate our output manually
 }
@@ -212,7 +212,8 @@ int vtkImageBSplineCoefficients::RequestUpdateExtent(vtkInformation* vtkNotUsed(
 //------------------------------------------------------------------------------
 template <class T>
 void vtkImageBSplineCoefficientsExecute(vtkImageBSplineCoefficients* self, vtkImageData* inData,
-  vtkImageData* outData, T* inPtr, T* outPtr, int extent[6], int axis, int threadId)
+  vtkImageData* outData, T* inPtr, T* outPtr, VTK_FUTURE_CONST int extent[6], int axis,
+  int threadId)
 {
   // change the order so the inner loop is the chosen axis
   static const int permute[3][3] = { { 0, 1, 2 }, { 1, 0, 2 }, { 2, 0, 1 } };
@@ -312,7 +313,7 @@ void vtkImageBSplineCoefficientsExecute(vtkImageBSplineCoefficients* self, vtkIm
 //------------------------------------------------------------------------------
 // This is called three times (once per dimension)
 void vtkImageBSplineCoefficients::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int threadId)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int threadId)
 {
   void* inPtr = inData->GetScalarPointerForExtent(outExt);
   void* outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -76,12 +76,13 @@ protected:
 
   void ComputeKernel(double* kernel, int min, int max, double std);
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  void InternalRequestUpdateExtent(int*, int*);
-  void ExecuteAxis(int axis, vtkImageData* inData, int inExt[6], vtkImageData* outData,
-    int outExt[6], int* pcycle, int target, int* pcount, int total, vtkInformation* inInfo);
+  void InternalRequestUpdateExtent(int[6], VTK_FUTURE_CONST int[6]);
+  void ExecuteAxis(int axis, vtkImageData* inData, VTK_FUTURE_CONST int inExt[6],
+    vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int* pcycle, int target, int* pcount,
+    int total, vtkInformation* inInfo);
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int id) override;
+    VTK_FUTURE_CONST int outExt[6], int id) override;
 
 private:
   vtkImageGaussianSmooth(const vtkImageGaussianSmooth&) = delete;

@@ -819,7 +819,7 @@ unsigned char* vtkImageMapper3D::MakeTextureData(vtkImageProperty* property, vtk
     // OR xdim = 0 and ydim = 2 and yextent = 1 pixel.
     // In addition the corresponding x display extents must match the
     // extent of the data
-    int* dataExtent = input->GetExtent();
+    const int* dataExtent = input->GetExtent();
 
     if ((xdim == 0 && ydim == 1 && extent[0] == dataExtent[0] && extent[1] == dataExtent[1]) ||
       (xdim == 1 && ydim == 2 && dataExtent[0] == dataExtent[1] && extent[2] == dataExtent[2] &&

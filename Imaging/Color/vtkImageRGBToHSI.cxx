@@ -23,8 +23,8 @@ vtkImageRGBToHSI::vtkImageRGBToHSI()
 //------------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageRGBToHSIExecute(
-  vtkImageRGBToHSI* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageRGBToHSIExecute(vtkImageRGBToHSI* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -104,7 +104,7 @@ void vtkImageRGBToHSIExecute(
 
 //------------------------------------------------------------------------------
 void vtkImageRGBToHSI::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 

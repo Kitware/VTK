@@ -38,8 +38,8 @@ protected:
   int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
   int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void AllocateOutputScalars(
-    vtkImageData* outData, int* updateExtent, int* wholeExtent, vtkInformation* outInfo);
+  void AllocateOutputScalars(vtkImageData* outData, VTK_FUTURE_CONST int updateExtent[6],
+    int wholeExtent[6], vtkInformation* outInfo);
 
 private:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) = delete;

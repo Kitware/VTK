@@ -440,7 +440,7 @@ int vtkImageActor::GetWholeZMin()
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  int* extent =
+  const int* extent =
     this->Mapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
@@ -453,7 +453,7 @@ int vtkImageActor::GetWholeZMax()
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  int* extent =
+  const int* extent =
     this->Mapper->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }

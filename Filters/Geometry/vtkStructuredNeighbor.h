@@ -108,8 +108,9 @@ public:
    * Using this information, the method grows the overlap extent to form the
    * Send and Rcv Extents for this neighbor instance.
    */
-  virtual void ComputeSendAndReceiveExtent(int gridRealExtent[6], int gridGhostedExtent[6],
-    int neiRealExtent[6], int WholeExtent[6], int N);
+  virtual void ComputeSendAndReceiveExtent(VTK_FUTURE_CONST int gridRealExtent[6],
+    VTK_FUTURE_CONST int gridGhostedExtent[6], VTK_FUTURE_CONST int neiRealExtent[6],
+    VTK_FUTURE_CONST int WholeExtent[6], int N);
   ///@}
 };
 

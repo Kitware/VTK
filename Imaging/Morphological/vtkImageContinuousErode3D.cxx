@@ -106,7 +106,8 @@ struct vtkImageContinuousErode3DWorker
 {
   template <class TInArray, class TOutArray>
   void operator()(TInArray* inArray, TOutArray* outArray, vtkImageContinuousErode3D* self,
-    vtkImageData* mask, vtkImageData* inData, vtkImageData* outData, int* outExt, int id)
+    vtkImageData* mask, vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6],
+    int id)
   {
     using T = vtk::GetAPIType<TInArray>;
     // to compute the range
@@ -245,7 +246,7 @@ struct vtkImageContinuousErode3DWorker
 // It handles image boundaries, so the image does not shrink.
 void vtkImageContinuousErode3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   // return if nothing to do
   if (outExt[1] < outExt[0] || outExt[3] < outExt[2] || outExt[5] < outExt[4])

@@ -57,8 +57,8 @@ protected:
   vtkDoubleArray* ComponentConstants;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
 
 private:
   vtkImageConstantPad(const vtkImageConstantPad&) = delete;

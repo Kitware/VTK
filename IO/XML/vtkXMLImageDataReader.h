@@ -54,7 +54,7 @@ protected:
   int PieceExtent[6];
 
   const char* GetDataSetName() override;
-  void SetOutputExtent(int* extent) override;
+  void SetOutputExtent(VTK_FUTURE_CONST int extent[6]) override;
 
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 

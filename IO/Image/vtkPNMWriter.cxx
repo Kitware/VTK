@@ -10,7 +10,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNMWriter);
 
-void vtkPNMWriter::WriteFileHeader(ostream* file, vtkImageData* cache, int wExt[6])
+void vtkPNMWriter::WriteFileHeader(ostream* file, vtkImageData* cache, VTK_FUTURE_CONST int wExt[6])
 {
   int min1 = wExt[0], max1 = wExt[1], min2 = wExt[2], max2 = wExt[3];
   int bpp;
@@ -33,7 +33,8 @@ void vtkPNMWriter::WriteFileHeader(ostream* file, vtkImageData* cache, int wExt[
   }
 }
 
-void vtkPNMWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6])
+void vtkPNMWriter::WriteFile(ostream* file, vtkImageData* data, VTK_FUTURE_CONST int extent[6],
+  VTK_FUTURE_CONST int wExtent[6])
 {
   int idx0, idx1, idx2;
   int rowLength; // in bytes

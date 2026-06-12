@@ -23,8 +23,8 @@ vtkImageRGBToYIQ::vtkImageRGBToYIQ()
 namespace
 {
 template <class T>
-void vtkImageRGBToYIQExecute(
-  vtkImageRGBToYIQ* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
+void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ* self, vtkImageData* inData, vtkImageData* outData,
+  VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   if (std::is_unsigned<T>::value && id == 0)
   {
@@ -93,7 +93,7 @@ void vtkImageRGBToYIQExecute(
 
 //------------------------------------------------------------------------------
 void vtkImageRGBToYIQ::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 

@@ -49,9 +49,11 @@ protected:
   vtkBMPWriter();
   ~vtkBMPWriter() override;
 
-  void WriteFile(ostream* file, vtkImageData* data, int ext[6], int wExt[6]) override;
-  void WriteFileHeader(ostream*, vtkImageData*, int wExt[6]) override;
-  void MemoryWrite(int, vtkImageData*, int wExt[6], vtkInformation* inInfo) override;
+  void WriteFile(ostream* file, vtkImageData* data, VTK_FUTURE_CONST int ext[6],
+    VTK_FUTURE_CONST int wExt[6]) override;
+  void WriteFileHeader(ostream*, vtkImageData*, VTK_FUTURE_CONST int wExt[6]) override;
+  void MemoryWrite(
+    int, vtkImageData*, VTK_FUTURE_CONST int wExt[6], vtkInformation* inInfo) override;
 
 private:
   vtkBMPWriter(const vtkBMPWriter&) = delete;

@@ -1768,7 +1768,7 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale, vtkImageData* 
 
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
-  int* extent = image->GetExtent();
+  const int* extent = image->GetExtent();
   float points[] = { p[0], p[1], p[0] + scale * extent[1] + 1.0f, p[1],
     p[0] + scale * extent[1] + 1.0f, p[1] + scale * extent[3] + 1.0f, p[0], p[1],
     p[0] + scale * extent[1] + 1.0f, p[1] + scale * extent[3] + 1.0f, p[0],

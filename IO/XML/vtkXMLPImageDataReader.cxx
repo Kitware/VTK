@@ -58,13 +58,13 @@ void vtkXMLPImageDataReader::SetupEmptyOutput()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPImageDataReader::SetOutputExtent(int* extent)
+void vtkXMLPImageDataReader::SetOutputExtent(VTK_FUTURE_CONST int extent[6])
 {
   vtkImageData::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPImageDataReader::GetPieceInputExtent(int index, int* extent)
+void vtkXMLPImageDataReader::GetPieceInputExtent(int index, int extent[6])
 {
   this->GetPieceInput(index)->GetExtent(extent);
 }

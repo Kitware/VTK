@@ -292,7 +292,7 @@ void vtkImageSSIM::SetInputToAdditiveChar(unsigned int size)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageSSIM::GrowExtent(int* uExt, int* wholeExtent)
+void vtkImageSSIM::GrowExtent(int uExt[2], VTK_FUTURE_CONST int wholeExtent[2])
 {
   // grow input whole extent.
   for (int idx = 0; idx < 2; ++idx)
@@ -318,7 +318,7 @@ int vtkImageSSIM::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 
   // Recover and grow extent into first input extent
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
   this->GrowExtent(uExt, wholeExtent);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -465,7 +465,8 @@ int vtkImageSSIM::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkImageSSIM::AllocateOutputData(vtkImageData* output, vtkInformation* outInfo, int* uExtent)
+void vtkImageSSIM::AllocateOutputData(
+  vtkImageData* output, vtkInformation* outInfo, VTK_FUTURE_CONST int uExtent[6])
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);
@@ -476,7 +477,7 @@ void vtkImageSSIM::AllocateOutputData(vtkImageData* output, vtkInformation* outI
 //------------------------------------------------------------------------------
 void vtkImageSSIM::ThreadedRequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector**,
   vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inData, vtkImageData** outData,
-  int outExt[6], int)
+  VTK_FUTURE_CONST int outExt[6], int)
 {
   vtkImageData* im1 = inData[0][0];
   vtkImageData* im2 = inData[1][0];
@@ -509,8 +510,8 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* inInfo1 = inputVector[0]->GetInformationObject(0);
   vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
 
-  int* in1Ext = inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  int* in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* in1Ext = inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  VTK_FUTURE_CONST int* in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || in1Ext[2] != in2Ext[2] ||
     in1Ext[3] != in2Ext[3] || in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])

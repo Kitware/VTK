@@ -26,10 +26,10 @@ protected:
   vtkImageMirrorPad() = default;
   ~vtkImageMirrorPad() override = default;
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]) override;
+  void ComputeInputUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6], int wExt[6]) override;
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
-    int id) override;
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    VTK_FUTURE_CONST int ext[6], int id) override;
 
 private:
   vtkImageMirrorPad(const vtkImageMirrorPad&) = delete;

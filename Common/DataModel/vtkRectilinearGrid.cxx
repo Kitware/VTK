@@ -158,7 +158,7 @@ void vtkRectilinearGrid::BuildPoints()
                     "Cannot update points in place.");
       return;
     }
-    int* extent = this->GetExtent();
+    VTK_FUTURE_CONST int* extent = this->GetExtent();
     int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
     spa->ConstructBackend(this->XCoordinates, this->YCoordinates, this->ZCoordinates, extent,
       dataDescription, identityMatrix);
@@ -500,7 +500,7 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject* dataObject)
 }
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGrid::Crop(const int* updateExtent)
+void vtkRectilinearGrid::Crop(const int updateExtent[6])
 {
   const int* extent = this->GetExtent();
 

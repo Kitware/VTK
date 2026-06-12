@@ -288,7 +288,8 @@ public:
 
   // Interface between VTK and templated functions
   static void ContourImage(vtkDiscreteFlyingEdges2D* self, TArray* scalars, vtkPoints* newPts,
-    vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input, int* updateExt);
+    vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6]);
 };
 
 //------------------------------------------------------------------------------
@@ -687,7 +688,7 @@ void vtkDiscreteFlyingEdges2DAlgorithm<TArray>::GenerateOutput(
 template <class TArray>
 void vtkDiscreteFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkDiscreteFlyingEdges2D* self,
   TArray* scalars, vtkPoints* newPts, vtkDataArray* newScalars, vtkCellArray* newLines,
-  vtkImageData* input, int* updateExt)
+  vtkImageData* input, VTK_FUTURE_CONST int updateExt[6])
 {
   double value, *values = self->GetValues();
   vtkIdType numContours = self->GetNumberOfContours();
@@ -851,7 +852,8 @@ struct vtkDiscreteFlyingEdges2DWorker
 {
   template <class TArray>
   void operator()(TArray* array, vtkDiscreteFlyingEdges2D* filter, vtkPoints* newPts,
-    vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input, int* updateExt)
+    vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input,
+    VTK_FUTURE_CONST int updateExt[6])
   {
     vtkDiscreteFlyingEdges2DAlgorithm<TArray>::ContourImage(
       filter, array, newPts, newScalars, newLines, input, updateExt);
@@ -907,7 +909,7 @@ int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDebugMacro(<< "Executing 2D Flying Edges");
 
-  int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {

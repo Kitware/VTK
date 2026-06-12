@@ -510,7 +510,7 @@ void vtkStructuredGrid::ComputeScalarRange()
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGrid::Crop(const int* updateExtent)
+void vtkStructuredGrid::Crop(const int updateExtent[6])
 {
   // Do nothing for empty datasets:
   for (int dim = 0; dim < 3; ++dim)

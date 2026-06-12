@@ -104,10 +104,9 @@ int vtkImageSpatialAlgorithm::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
 
 //------------------------------------------------------------------------------
 void vtkImageSpatialAlgorithm::InternalRequestUpdateExtent(
-  int* extent, int* inExtent, int* wholeExtent)
+  int extent[6], VTK_FUTURE_CONST int inExtent[6], VTK_FUTURE_CONST int wholeExtent[6])
 {
-  int idx;
-  for (idx = 0; idx < 3; ++idx)
+  for (int idx = 0; idx < 3; ++idx)
   {
     // Magnify by strides
     extent[idx * 2] = inExtent[idx * 2];

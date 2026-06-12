@@ -50,7 +50,7 @@ protected:
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
-  vtkImageStencilData* AllocateOutputData(vtkDataObject* out, int* updateExt);
+  vtkImageStencilData* AllocateOutputData(vtkDataObject* out, VTK_FUTURE_CONST int updateExt[6]);
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 

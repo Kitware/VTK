@@ -58,8 +58,9 @@ int vtkRectilinearGridPartitioner::FillOutputPortInformation(
 }
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGridPartitioner::ExtractGridCoordinates(vtkRectilinearGrid* grd, int subext[6],
-  vtkDoubleArray* xcoords, vtkDoubleArray* ycoords, vtkDoubleArray* zcoords)
+void vtkRectilinearGridPartitioner::ExtractGridCoordinates(vtkRectilinearGrid* grd,
+  VTK_FUTURE_CONST int subext[6], vtkDoubleArray* xcoords, vtkDoubleArray* ycoords,
+  vtkDoubleArray* zcoords)
 {
   assert("pre: nullptr rectilinear grid" && (grd != nullptr));
   assert("pre: nullptr xcoords" && (xcoords != nullptr));

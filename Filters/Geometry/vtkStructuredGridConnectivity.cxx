@@ -214,7 +214,7 @@ vtkStructuredNeighbor vtkStructuredGridConnectivity::GetGridNeighbor(int gridID,
 }
 
 //------------------------------------------------------------------------------
-vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(int gridID, int* extents)
+vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(int gridID, int extents[6])
 {
   assert("pre: input extents array is nullptr" && (extents != nullptr));
 

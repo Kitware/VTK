@@ -248,7 +248,7 @@ bool vtkImageResliceMapper::Update(int port)
       }
       if (ren)
       {
-        int* extent = this->ImageReslice->GetOutputExtent();
+        const int* extent = this->ImageReslice->GetOutputExtent();
         const int* size = ren->GetSize();
         if (size[0] != (extent[1] - extent[0] + 1) || size[1] != (extent[3] - extent[2] + 1))
         {

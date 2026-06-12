@@ -234,7 +234,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         if (ia && this->ShowSliceAndImage)
         {
           double* dbounds = ia->GetDisplayBounds();
-          int* dext = ia->GetDisplayExtent();
+          const int* dext = ia->GetDisplayExtent();
           double pos;
           if (dext[0] == dext[1])
           {

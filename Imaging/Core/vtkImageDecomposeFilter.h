@@ -44,7 +44,8 @@ public:
    * Private methods kept public for template execute functions.
    */
   void PermuteIncrements(vtkIdType* increments, vtkIdType& inc0, vtkIdType& inc1, vtkIdType& inc2);
-  void PermuteExtent(int* extent, int& min0, int& max0, int& min1, int& max1, int& min2, int& max2);
+  void PermuteExtent(VTK_FUTURE_CONST int extent[6], int& min0, int& max0, int& min1, int& max1,
+    int& min2, int& max2);
   ///@}
 
 protected:

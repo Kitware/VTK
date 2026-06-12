@@ -98,8 +98,8 @@ public:
   vtkStructuredTPointBackend();
 
   //------------------------------------------------------------------------------
-  vtkStructuredTPointBackend(
-    ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ, int extent[6], double dirMatrix[9])
+  vtkStructuredTPointBackend(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ,
+    VTK_FUTURE_CONST int extent[6], double dirMatrix[9])
     : ArrayX(arrayX)
     , X(vtk::DataArrayValueRange<1>(ArrayX))
     , ArrayY(arrayY)

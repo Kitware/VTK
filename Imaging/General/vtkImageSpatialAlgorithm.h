@@ -52,7 +52,8 @@ protected:
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  void InternalRequestUpdateExtent(int* extent, int* inExtent, int* wholeExtent);
+  void InternalRequestUpdateExtent(
+    int extent[6], VTK_FUTURE_CONST int inExtent[6], VTK_FUTURE_CONST int wholeExtent[6]);
 
 private:
   vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&) = delete;

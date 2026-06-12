@@ -54,7 +54,7 @@ int TestGetNumNodesAndCells()
 #endif
 
   // Extent for 2048^3 grid
-  int ext[6] = { 0, maxDim, 0, maxDim, 0, maxDim };
+  const int ext[6] = { 0, maxDim, 0, maxDim, 0, maxDim };
 
   int dims[3];
   vtkStructuredData::GetDimensionsFromExtent(ext, dims);

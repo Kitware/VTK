@@ -264,7 +264,7 @@ protected:
     const double bounds[6], vtkPolyData* output, const bool extractface[6]);
 
   void ExecuteBlock(vtkDataObject* input, vtkPolyData* output, bool doCommunicate, int updatePiece,
-    int updateNumPieces, int updateGhosts, const int* wholeExtent);
+    int updateNumPieces, int updateGhosts, const int wholeExtent[6]);
 
   void DataSetExecute(vtkDataSet* input, vtkPolyData* output, bool doCommunicate);
   void GenericDataSetExecute(vtkGenericDataSet* input, vtkPolyData* output, bool doCommunicate);
@@ -273,10 +273,10 @@ protected:
     vtkImageData* input, vtkPolyData* output, bool doCommunicate, int updatePiece, const int* ext);
 
   void StructuredGridExecute(vtkStructuredGrid* input, vtkPolyData* output, int updatePiece,
-    int updateNumPieces, int updateGhosts, const int* wholeExtent);
+    int updateNumPieces, int updateGhosts, const int wholeExtent[6]);
 
   void RectilinearGridExecute(vtkRectilinearGrid* input, vtkPolyData* output, int updatePiece,
-    int updateNumPieces, int updateGhosts, const int* wholeExtent);
+    int updateNumPieces, int updateGhosts, const int wholeExtent[6]);
 
   void UnstructuredGridExecute(
     vtkUnstructuredGridBase* input, vtkPolyData* output, bool doCommunicate);
@@ -285,8 +285,8 @@ protected:
 
   void HyperTreeGridExecute(vtkHyperTreeGrid* input, vtkPolyData* output, bool doCommunicate);
 
-  void ExplicitStructuredGridExecute(
-    vtkExplicitStructuredGrid* input, vtkPolyData* out, bool doCommunicate, const int* wholeExtent);
+  void ExplicitStructuredGridExecute(vtkExplicitStructuredGrid* input, vtkPolyData* out,
+    bool doCommunicate, const int wholeExtent[6]);
 
   void CellGridExecute(vtkCellGrid* input, vtkPolyData* output, bool doCommunicate);
 

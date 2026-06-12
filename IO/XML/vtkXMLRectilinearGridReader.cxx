@@ -53,7 +53,7 @@ const char* vtkXMLRectilinearGridReader::GetDataSetName()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLRectilinearGridReader::SetOutputExtent(int* extent)
+void vtkXMLRectilinearGridReader::SetOutputExtent(VTK_FUTURE_CONST int extent[6])
 {
   vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }

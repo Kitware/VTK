@@ -65,7 +65,7 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in, vtkInfo
 // desired results with a 3x3 kernel.
 template <class T>
 void vtkImageSkeleton2DExecute(vtkImageSkeleton2D* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, int* outExt, T* outPtr, int id, int wholeExt[6])
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], T* outPtr, int id, int wholeExt[6])
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
@@ -313,7 +313,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D* self, vtkImageData* inData, T
 // templated function for the input and output region types.
 void vtkImageSkeleton2D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inDataV, vtkImageData** outDataV, int outExt[6], int id)
+  vtkImageData*** inDataV, vtkImageData** outDataV, VTK_FUTURE_CONST int outExt[6], int id)
 {
   vtkImageData* inData = inDataV[0][0];
   vtkImageData* outData = outDataV[0];

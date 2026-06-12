@@ -55,9 +55,9 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int id) override;
+    VTK_FUTURE_CONST int outExt[6], int id) override;
 
-  void InternalRequestUpdateExtent(int* inExt, int* outExt);
+  void InternalRequestUpdateExtent(int inExt[6], VTK_FUTURE_CONST int outExt[6]);
 
 private:
   vtkImageMagnify(const vtkImageMagnify&) = delete;

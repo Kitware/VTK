@@ -758,7 +758,7 @@ void vtkOpenGLImageSliceMapper::RenderForSelection(
   int wholeExt[6];
   input->GetExtent(wholeExt);
 
-  int* dispExt = this->DisplayExtent;
+  const int* dispExt = this->DisplayExtent;
 
   double origin[3];
   double spacing[3];
@@ -823,7 +823,7 @@ void vtkOpenGLImageSliceMapper::RenderForSelection(
   vao->Release();
 
   // Update selector with number of points/cells
-  int* inputExtent = this->GetInput()->GetExtent();
+  const int* inputExtent = this->GetInput()->GetExtent();
   unsigned int const numVoxels = (inputExtent[1] - inputExtent[0] + 1) *
     (inputExtent[3] - inputExtent[2] + 1) * (inputExtent[5] - inputExtent[4] + 1);
   selector->UpdateMaximumPointId(numVoxels);

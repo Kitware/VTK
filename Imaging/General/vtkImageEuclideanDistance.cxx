@@ -38,7 +38,7 @@ int vtkImageEuclideanDistance::IterativeRequestInformation(
 int vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* vtkNotUsed(output))
 {
-  int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wExt, 6);
 
   return 1;
@@ -49,7 +49,7 @@ int vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
 // is always doubles.
 template <class TT>
 void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance* self, vtkImageData* inData,
-  TT* inPtr, vtkImageData* outData, int outExt[6], double* outPtr)
+  TT* inPtr, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr)
 {
   vtkIdType inInc0, inInc1, inInc2;
   TT *inPtr0, *inPtr1, *inPtr2;
@@ -103,7 +103,7 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance* self, vtkImage
 // is always doubles.
 template <class T>
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance* self, vtkImageData* inData,
-  T* inPtr, vtkImageData* outData, int outExt[6], double* outPtr)
+  T* inPtr, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr)
 {
   vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
@@ -184,8 +184,8 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance* self, vtkIma
 //
 // Notations stay as close as possible to those used in the paper.
 //
-static void vtkImageEuclideanDistanceExecuteSaito(
-  vtkImageEuclideanDistance* self, vtkImageData* outData, int outExt[6], double* outPtr)
+static void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance* self,
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr)
 {
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
@@ -389,8 +389,8 @@ static void vtkImageEuclideanDistanceExecuteSaito(
 //------------------------------------------------------------------------------
 // Execute Saito's algorithm, modified for Cache Efficiency
 //
-static void vtkImageEuclideanDistanceExecuteSaitoCached(
-  vtkImageEuclideanDistance* self, vtkImageData* outData, int outExt[6], double* outPtr)
+static void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance* self,
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], double* outPtr)
 {
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
@@ -605,7 +605,7 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
 }
 //------------------------------------------------------------------------------
 void vtkImageEuclideanDistance::AllocateOutputScalars(
-  vtkImageData* outData, int outExt[6], vtkInformation* outInfo)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], vtkInformation* outInfo)
 {
   outData->SetExtent(outExt);
   outData->AllocateScalars(outInfo);

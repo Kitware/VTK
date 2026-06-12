@@ -93,8 +93,8 @@ public:
 
   // Integration between VTK and templated algorithm
   static void SplatPoints(vtkCheckerboardSplatter* self, vtkIdType npts, TPointArray* points,
-    vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output, int extent[6],
-    TScalarArray* scalars, vtkIdType index);
+    vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output,
+    VTK_FUTURE_CONST int extent[6], TScalarArray* scalars, vtkIdType index);
 
   // Various sampling functions centered around point p. These returns a
   // distance value (depending on eccentricity). Eccentric splats are available
@@ -379,8 +379,8 @@ void vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::Cap(
 template <typename TPointArray, typename TScalarArray>
 void vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::SplatPoints(
   vtkCheckerboardSplatter* self, vtkIdType npts, TPointArray* pts, vtkDataArray* inScalars,
-  vtkDataArray* inNormals, vtkImageData* output, int extent[6], TScalarArray* scalars,
-  vtkIdType index)
+  vtkDataArray* inNormals, vtkImageData* output, VTK_FUTURE_CONST int extent[6],
+  TScalarArray* scalars, vtkIdType index)
 {
   int i;
 
@@ -536,8 +536,8 @@ struct vtkCheckerboardSplatterFunctor
 {
   template <typename TPointArray, typename TScalarArray>
   void operator()(TPointArray* points, TScalarArray* scalars, vtkCheckerboardSplatter* self,
-    vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output, int extent[6],
-    vtkIdType index)
+    vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output,
+    VTK_FUTURE_CONST int extent[6], vtkIdType index)
   {
     vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::SplatPoints(self,
       points->GetNumberOfTuples(), points, inScalars, inNormals, output, extent, scalars, index);
@@ -648,7 +648,7 @@ int vtkCheckerboardSplatter::RequestData(vtkInformation* vtkNotUsed(request),
 
   output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars(outInfo);
-  int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
+  VTK_FUTURE_CONST int* extent = this->GetExecutive()->GetOutputInformation(0)->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   vtkDataArray* outScalars = output->GetPointData()->GetScalars();
 

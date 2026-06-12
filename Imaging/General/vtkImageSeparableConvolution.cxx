@@ -135,7 +135,7 @@ int vtkImageSeparableConvolution::IterativeRequestInformation(
 int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
-  int* wholeExtent = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* wholeExtent = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   vtkFloatArray* KernelArray = nullptr;
   switch (this->GetIteration())
@@ -157,7 +157,7 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
     kernelSize = static_cast<int>((kernelSize - 1) / 2.0);
   }
 
-  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  const int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   // Assumes that the input update extent has been initialized to output ...
   int inExt[6];

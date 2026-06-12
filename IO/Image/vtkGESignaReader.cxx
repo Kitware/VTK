@@ -661,7 +661,7 @@ static void vtkGESignaReaderUpdate2(
 
   // read in the pixels
   std::vector<unsigned short> tmp(width * height);
-  int* dext = self->GetDataExtent();
+  const int* dext = self->GetDataExtent();
   vtkcopygenesisimage(
     fp, dext[1] + 1, dext[3] + 1, compression, leftMap.data(), widthMap.data(), tmp.data());
 

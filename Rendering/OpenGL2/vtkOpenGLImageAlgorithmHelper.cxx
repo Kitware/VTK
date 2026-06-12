@@ -49,8 +49,9 @@ void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow* renWin)
 }
 
 void vtkOpenGLImageAlgorithmHelper::Execute(vtkOpenGLImageAlgorithmCallback* cb,
-  vtkImageData* inImage, vtkDataArray* inArray, vtkImageData* outImage, int outExt[6],
-  const char* vertexCode, const char* fragmentCode, const char* geometryCode)
+  vtkImageData* inImage, vtkDataArray* inArray, vtkImageData* outImage,
+  VTK_FUTURE_CONST int outExt[6], const char* vertexCode, const char* fragmentCode,
+  const char* geometryCode)
 {
   // make sure it is initialized
   if (!this->RenderWindow)

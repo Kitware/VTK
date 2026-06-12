@@ -66,7 +66,7 @@ void vtkImageDecomposeFilter::PermuteIncrements(
 
 //------------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PermuteExtent(
-  int* extent, int& min0, int& max0, int& min1, int& max1, int& min2, int& max2)
+  VTK_FUTURE_CONST int extent[6], int& min0, int& max0, int& min1, int& max1, int& min2, int& max2)
 {
   switch (this->Iteration)
   {

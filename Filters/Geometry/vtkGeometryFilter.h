@@ -396,10 +396,10 @@ public:
     vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkPolyData* exc);
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
 
-  int StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* wholeExtent, vtkPolyData* exc,
-    bool* extractFace = nullptr);
-  virtual int StructuredExecute(
-    vtkDataSet* input, vtkPolyData* output, int* wholeExt, bool* extractFace = nullptr);
+  int StructuredExecute(vtkDataSet* input, vtkPolyData* output, VTK_FUTURE_CONST int wholeExtent[6],
+    vtkPolyData* exc, bool* extractFace = nullptr);
+  virtual int StructuredExecute(vtkDataSet* input, vtkPolyData* output,
+    VTK_FUTURE_CONST int wholeExt[6], bool* extractFace = nullptr);
 
   int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkPolyData* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);

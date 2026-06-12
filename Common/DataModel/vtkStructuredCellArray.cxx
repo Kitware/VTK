@@ -466,7 +466,7 @@ vtkIdType vtkStructuredCellArray::GetNumberOfConnectivityIds() const
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredCellArray::SetData(int extent[6], bool usePixelVoxelOrientation)
+void vtkStructuredCellArray::SetData(VTK_FUTURE_CONST int extent[6], bool usePixelVoxelOrientation)
 {
   this->Connectivity = vtkSmartPointer<vtkImplicitArray<vtkStructuredCellBackend>>::New();
   int dims[3];

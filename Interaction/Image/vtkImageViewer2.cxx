@@ -336,7 +336,7 @@ void vtkImageViewer2::UpdateDisplayExtent()
 
   input->UpdateInformation();
   vtkInformation* outInfo = input->GetOutputInformation(0);
-  int* w_ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  const int* w_ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Is the slice in range ? If not, fix it
 

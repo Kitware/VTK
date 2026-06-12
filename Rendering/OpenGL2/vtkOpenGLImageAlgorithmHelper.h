@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Execute(vtkOpenGLImageAlgorithmCallback* cb, vtkImageData* inImage, vtkDataArray* inData,
-    vtkImageData* outData, int outExt[6], const char* vertexCode, const char* fragmentCode,
-    const char* geometryCode);
+    vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], const char* vertexCode,
+    const char* fragmentCode, const char* geometryCode);
 
   /**
    * Set the render window to get the OpenGL resources from

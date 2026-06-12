@@ -41,7 +41,7 @@ int TestGDALRasterReader(int argc, char* argv[])
   reader->SetFileName(rasterFileName);
   reader->UpdateInformation();
   // extent in points
-  int* extent =
+  const int* extent =
     reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   std::ostream_iterator<int> out_it(std::cout, " ");
   std::cout << "Point extents: ";

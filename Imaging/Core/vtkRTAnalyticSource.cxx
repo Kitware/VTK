@@ -150,7 +150,7 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
   unsigned long target;
 
   // Split the update extent further based on piece request.
-  int* execExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  VTK_FUTURE_CONST int* execExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   // For debugging
   /*

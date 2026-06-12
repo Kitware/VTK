@@ -59,7 +59,7 @@ double vtkImageWeightedSum::CalculateTotalWeight()
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageWeightedSumExecute(vtkImageWeightedSum* self, vtkImageData** inDatas, int numInputs,
-  vtkImageData* outData, int outExt[6], int id, T*)
+  vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inItsFast[256];
   T* inSIFast[256];
@@ -178,7 +178,7 @@ int vtkImageWeightedSum::RequestInformation(vtkInformation* vtkNotUsed(request),
 // the datas data types.
 void vtkImageWeightedSum::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   if (inData[0][0] == nullptr)
   {

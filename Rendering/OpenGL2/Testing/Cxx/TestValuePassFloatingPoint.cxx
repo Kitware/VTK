@@ -136,7 +136,7 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData>>& colorImOu
 
     /// Get the resulting values
     vtkFloatArray* result = valuePass->GetFloatImageDataArray(renderer);
-    int* ext = valuePass->GetFloatImageExtents();
+    VTK_FUTURE_CONST int* ext = valuePass->GetFloatImageExtents();
 
     // Map the resulting float image to a color table
     vtkUnsignedCharArray* colored =

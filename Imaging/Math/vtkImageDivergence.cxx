@@ -88,7 +88,7 @@ int vtkImageDivergence::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 // out of extent.
 template <class T>
 void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -96,7 +96,6 @@ void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T
   vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int* wholeExtent;
   vtkIdType inIncs[3];
   double r[3], d, sum;
   int useMin[3], useMax[3];
@@ -128,7 +127,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T
 
   // get some other info we need
   inData->GetIncrements(inIncs);
-  wholeExtent = inData->GetExtent();
+  const int* wholeExtent = inData->GetExtent();
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -176,7 +175,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence* self, vtkImageData* inData, T
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageDivergence::ThreadedExecute(
-  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
+  vtkImageData* inData, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr = inData->GetScalarPointerForExtent(outExt);
   void* outPtr = outData->GetScalarPointerForExtent(outExt);

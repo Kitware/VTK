@@ -27,7 +27,7 @@ vtkImageRectilinearWipe::vtkImageRectilinearWipe()
 // Handles the two input operations
 template <class T>
 void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id)
+  vtkImageData* outData, T* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -78,7 +78,7 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe* self, vtkImageData
 
 //------------------------------------------------------------------------------
 // This function adjusts the extents of the wipe to the output extents.
-static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
+static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], VTK_FUTURE_CONST int outExt[6])
 {
   int status = 1;
 
@@ -107,7 +107,7 @@ static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
 // algorithm to fill the output from the inputs based on the Wipe ivar.
 void vtkImageRectilinearWipe::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector,
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   void* inPtr;
   void* outPtr;

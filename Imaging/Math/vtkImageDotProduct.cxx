@@ -38,7 +38,7 @@ int vtkImageDotProduct::RequestInformation(vtkInformation* vtkNotUsed(request),
 // Handles the two input operations
 template <class T>
 void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
-  vtkImageData* in2Data, vtkImageData* outData, int outExt[6], int id, T*)
+  vtkImageData* in2Data, vtkImageData* outData, VTK_FUTURE_CONST int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
@@ -82,7 +82,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
 // the regions data types.
 void vtkImageDotProduct::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
-  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
+  vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())

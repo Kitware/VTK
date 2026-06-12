@@ -104,7 +104,7 @@ protected:
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
-    int outExt[6], int threadId) override;
+    VTK_FUTURE_CONST int outExt[6], int threadId) override;
 
 private:
   vtkImageMask(const vtkImageMask&) = delete;

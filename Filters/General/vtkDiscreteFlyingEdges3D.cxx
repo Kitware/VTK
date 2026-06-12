@@ -1448,7 +1448,7 @@ int vtkDiscreteFlyingEdges3D::RequestData(
   vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
 
   // Determine extent
-  int* inExt = input->GetExtent();
+  const int* inExt = input->GetExtent();
   int exExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)
