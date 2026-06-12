@@ -644,7 +644,9 @@ vtkMPICommunicator::~vtkMPICommunicator()
   // Free the handle if required and asked for.
   if (this->MPIComm)
   {
-    if (this->MPIComm->Handle && !this->KeepHandle)
+    int mpi_finalized = 0;
+    MPI_Finalized(&mpi_finalized);
+    if (!mpi_finalized && this->MPIComm->Handle && !this->KeepHandle)
     {
       if (*(this->MPIComm->Handle) != MPI_COMM_NULL)
       {
