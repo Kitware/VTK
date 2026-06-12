@@ -18,6 +18,7 @@
 #ifndef vtkXMLPHyperTreeGridWriter_h
 #define vtkXMLPHyperTreeGridWriter_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkXMLPDataObjectWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -27,7 +28,9 @@ class vtkHyperTreeGrid;
 class vtkXMLHyperTreeGridWriter;
 class vtkXMLPDataObjectWriter;
 
-class VTKIOPARALLELXML_EXPORT vtkXMLPHyperTreeGridWriter : public vtkXMLPDataObjectWriter
+class VTK_DEPRECATED_IN_9_7_0(
+  "Use vtkHyperTreeGridWriter instead") VTKIOPARALLELXML_EXPORT vtkXMLPHyperTreeGridWriter
+  : public vtkXMLPDataObjectWriter
 {
 public:
   static vtkXMLPHyperTreeGridWriter* New();
