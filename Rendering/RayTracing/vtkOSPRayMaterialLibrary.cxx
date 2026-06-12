@@ -9,6 +9,7 @@
 #include "vtkTexture.h"
 #include "vtkXMLImageDataReader.h"
 
+#include "vtk_jsoncpp.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <string>
@@ -65,6 +66,7 @@ void BackwardCompatibilityName(std::string& implname)
     implname = "obj";
   }
 }
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayMaterialLibrary);
 
@@ -149,6 +151,110 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(
     // If material type not in dictionary, store without validation
     this->Superclass::AddShaderVariable(nickname, realname, numVars, x);
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::InternalParseJSON(
+  const char* filename, bool fromfile, std::istream* doc)
+{
+  // Parse JSON with backward compatibility for OSPRay material type names
+  // We do custom parsing to apply BackwardCompatibilityName transformation
+
+  Json::Value root;
+  std::string errs;
+  Json::CharReaderBuilder jreader;
+  bool ok = Json::parseFromStream(jreader, *doc, &root, &errs);
+  if (!ok)
+  {
+    vtkErrorMacro("JSON parsing error: " << errs);
+    return false;
+  }
+
+  std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
+
+  if (!root.isMember("family"))
+  {
+    vtkErrorMacro("Not a materials file. Must have \"family\"=\"...\" entry.");
+    return false;
+  }
+
+  const char* acceptedFamily = this->GetAcceptedFamilyName();
+  if (acceptedFamily != nullptr)
+  {
+    const auto& family = root["family"];
+    if (family.asString() != acceptedFamily)
+    {
+      vtkErrorMacro("Unsupported materials file. Family is not \"" << acceptedFamily << "\" (got \""
+                                                                   << family.asString() << "\")");
+      return false;
+    }
+  }
+
+  if (!root.isMember("version"))
+  {
+    vtkErrorMacro("Not a materials file. Must have \"version\"=\"...\" entry.");
+    return false;
+  }
+  if (!root.isMember("materials"))
+  {
+    vtkErrorMacro("Not a materials file. Must have \"materials\"={...} entry.");
+    return false;
+  }
+
+  const auto& materials = root["materials"];
+  std::vector<std::string> ikeys = materials.getMemberNames();
+  for (size_t i = 0; i < ikeys.size(); ++i)
+  {
+    const std::string& nickname = ikeys[i];
+    const auto& nextmat = materials[nickname];
+    if (!nextmat.isMember("type"))
+    {
+      vtkErrorMacro(
+        "Invalid material " << nickname << " must have \"type\"=\"...\" entry, ignoring.");
+      continue;
+    }
+
+    std::string implname = nextmat["type"].asString();
+    // Apply backward compatibility transformation
+    ::BackwardCompatibilityName(implname);
+
+    // Use AddMaterial which validates against OSPRay dictionary
+    this->AddMaterial(nickname, implname);
+
+    if (nextmat.isMember("textures"))
+    {
+      const auto& textures = nextmat["textures"];
+      for (const std::string& vname : textures.getMemberNames())
+      {
+        const auto& nexttext = textures[vname];
+        vtkNew<vtkTexture> textr;
+        std::string textureName, textureFilename;
+        if (!this->ReadTextureFileOrData(
+              nexttext.asString(), fromfile, parentDir, textr, textureName, textureFilename))
+        {
+          continue;
+        }
+        this->AddTexture(nickname, vname, textr, textureName, textureFilename);
+      }
+    }
+    if (nextmat.isMember("doubles"))
+    {
+      const auto& doubles = nextmat["doubles"];
+      for (const std::string& vname : doubles.getMemberNames())
+      {
+        const auto& nexttext = doubles[vname];
+        std::vector<double> vals(nexttext.size());
+        for (size_t k = 0; k < nexttext.size(); ++k)
+        {
+          const auto& nv = nexttext[static_cast<int>(k)];
+          vals[k] = nv.asDouble();
+        }
+        this->AddShaderVariable(nickname, vname, nexttext.size(), vals.data());
+      }
+    }
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

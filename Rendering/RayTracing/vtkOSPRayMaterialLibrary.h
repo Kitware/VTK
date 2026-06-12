@@ -76,6 +76,11 @@ public:
 
 protected:
   /**
+   * Parse JSON material file with OSPRay-specific backward compatibility handling.
+   */
+  bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
+
+  /**
    * Load texture from file or inline XML data.
    * Implements image loading for OSPRay materials.
    */
