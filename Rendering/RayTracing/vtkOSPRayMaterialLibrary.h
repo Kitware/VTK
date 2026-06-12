@@ -56,6 +56,7 @@ public:
    **/
   void AddShaderVariable(const std::string& nickname, const std::string& variablename, int numVars,
     const double* x) override;
+  using Superclass::AddShaderVariable;
 
   /**
    * Returns a uniform variable, resolving OSPRay parameter name aliases.
