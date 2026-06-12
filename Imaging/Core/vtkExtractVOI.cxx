@@ -7,6 +7,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -248,34 +249,50 @@ bool vtkExtractVOI::RequestDataImpl(
   // Compute output data origin:
   double inOrigin[3];
   input->GetOrigin(inOrigin);
-  double outMinExt[3];
-  bool resampled = false;
-  for (int dim = 0; dim < 3; ++dim)
+
+  // Check whether the input has a non-identity direction matrix.
+  const bool hasDirection = !input->GetDirectionMatrix()->IsIdentity();
+
+  // Compute the output origin per-dimension:
+  //  - For dims with SampleRate == 1 the output extent is NOT reset, so the
+  //    original index-space is preserved and the origin is unchanged.
+  //  - For dims with SampleRate > 1 the output extent IS reset to start at 0,
+  //    so the origin must be shifted to the physical location of the VOI
+  //    minimum index in that dimension.
+  // When the input carries a non-identity direction matrix ALL three
+  // dimensions are coupled in physical space, so we use the full 3-D
+  // transform of the VOI minimum corner instead.
+  double outOrigin[3];
+  if (hasDirection)
   {
-    if (this->SampleRate[dim] == 1)
-    {
-      // Old origin will work for this dimension since we don't reset extents.
-      outMinExt[dim] = inExt[dim * 2];
-    }
-    else
-    {
-      resampled = true;
-      // Extent minimum is reset to 0, need to update origin.
-      // Get the input extent value matching output extent 0 (the origin)
-      outMinExt[dim] = this->Internal->GetMappedExtentValue(dim, 0);
-    }
-  }
-  if (resampled)
-  {
-    // Find the new origin, based on the min extent.
-    double outOrigin[3];
-    input->TransformContinuousIndexToPhysicalPoint(outMinExt, outOrigin);
-    output->SetOrigin(outOrigin);
+    // Transform the VOI minimum corner (in input index space) to physical
+    // space.  This is the correct origin regardless of which dims are
+    // resampled when a direction matrix is present.
+    double voiMinIdx[3] = { static_cast<double>(this->Internal->GetMappedExtentValue(0, 0)),
+      static_cast<double>(this->Internal->GetMappedExtentValue(1, 0)),
+      static_cast<double>(this->Internal->GetMappedExtentValue(2, 0)) };
+    input->TransformContinuousIndexToPhysicalPoint(voiMinIdx, outOrigin);
   }
   else
   {
-    output->SetOrigin(inOrigin);
+    // No direction matrix: handle each dimension independently.
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      if (this->SampleRate[dim] == 1)
+      {
+        // Extent not reset; index-space unchanged, origin stays the same.
+        outOrigin[dim] = inOrigin[dim];
+      }
+      else
+      {
+        // Extent reset to 0; shift origin to the physical position of the
+        // input index that maps to output index 0.
+        int inExtVal = this->Internal->GetMappedExtentValue(dim, 0);
+        outOrigin[dim] = inOrigin[dim] + inExtVal * inSpacing[dim];
+      }
+    }
   }
+  output->SetOrigin(outOrigin);
   output->SetDirectionMatrix(input->GetDirectionMatrix());
 
   vtkDebugMacro(<< "Extracting Grid");
