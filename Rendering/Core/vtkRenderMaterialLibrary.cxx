@@ -90,10 +90,10 @@ void vtkRenderMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Materials:\n";
-  for (auto mat : this->Internal->NickNames)
+  for (const auto& mat : this->Internal->NickNames)
   {
     os << indent << "  - " << mat << "( " << this->Internal->ImplNames[mat] << " )" << endl;
-    for (auto v : this->Internal->VariablesFor[mat])
+    for (const auto& v : this->Internal->VariablesFor[mat])
     {
       os << indent << "    - " << v.first << endl;
     }
@@ -231,7 +231,7 @@ bool vtkRenderMaterialLibrary::InternalParseJSON(
   const char* acceptedFamily = this->GetAcceptedFamilyName();
   if (acceptedFamily != nullptr)
   {
-    const Json::Value family = root["family"];
+    const auto& family = root["family"];
     if (family.asString() != acceptedFamily)
     {
       vtkErrorMacro("Unsupported materials file. Family is not \"" << acceptedFamily << "\" (got \""
@@ -251,12 +251,12 @@ bool vtkRenderMaterialLibrary::InternalParseJSON(
     return false;
   }
 
-  const Json::Value materials = root["materials"];
+  const auto& materials = root["materials"];
   std::vector<std::string> ikeys = materials.getMemberNames();
   for (size_t i = 0; i < ikeys.size(); ++i)
   {
     const std::string& nickname = ikeys[i];
-    const Json::Value nextmat = materials[nickname];
+    const auto& nextmat = materials[nickname];
     if (!nextmat.isMember("type"))
     {
       vtkErrorMacro(
@@ -271,10 +271,10 @@ bool vtkRenderMaterialLibrary::InternalParseJSON(
     this->Internal->ImplNames[nickname] = implname;
     if (nextmat.isMember("textures"))
     {
-      const Json::Value textures = nextmat["textures"];
+      const auto& textures = nextmat["textures"];
       for (const std::string& vname : textures.getMemberNames())
       {
-        const Json::Value nexttext = textures[vname];
+        const auto& nexttext = textures[vname];
         vtkNew<vtkTexture> textr;
         std::string textureName, textureFilename;
         if (!this->ReadTextureFileOrData(
@@ -287,14 +287,14 @@ bool vtkRenderMaterialLibrary::InternalParseJSON(
     }
     if (nextmat.isMember("doubles"))
     {
-      const Json::Value doubles = nextmat["doubles"];
+      const auto& doubles = nextmat["doubles"];
       for (const std::string& vname : doubles.getMemberNames())
       {
-        const Json::Value nexttext = doubles[vname];
+        const auto& nexttext = doubles[vname];
         std::vector<double> vals(nexttext.size());
         for (size_t k = 0; k < nexttext.size(); ++k)
         {
-          const Json::Value nv = nexttext[static_cast<int>(k)];
+          const auto& nv = nexttext[static_cast<int>(k)];
           vals[k] = nv.asDouble();
         }
         this->AddShaderVariable(nickname, vname, nexttext.size(), vals.data());
@@ -310,7 +310,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
   const char* filename, bool fromfile, std::istream* doc)
 {
   std::string str;
-  std::string nickname = "";
+  std::string nickname;
   std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
 
   const std::vector<std::string> singles{ "d ", "Ks ", "alpha ", "roughness ", "eta ",
@@ -355,7 +355,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
         if (result.ec == std::errc())
         {
           double vals[1] = { dv };
-          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 1, vals);
+          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1), 1, vals);
         }
       }
     }
@@ -369,8 +369,8 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
       if (tstr.compare(0, key.size(), key) == 0)
       {
         std::string vs = tstr.substr(key.size());
-        size_t loc1 = vs.find(" ");
-        size_t loc2 = vs.find(" ", loc1 + 1);
+        size_t loc1 = vs.find(' ');
+        size_t loc2 = vs.find(' ', loc1 + 1);
         std::string v1 = vs.substr(0, loc1);
         std::string v2 = vs.substr(loc1 + 1, loc2);
         std::string v3 = vs.substr(loc2 + 1);
@@ -383,7 +383,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
         if (result1.ec == std::errc() && result2.ec == std::errc() && result3.ec == std::errc())
         {
           double vals[3] = { d1, d2, d3 };
-          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 3, vals);
+          this->AddShaderVariable(nickname, key.substr(0, key.size() - 1), 3, vals);
         }
       }
     }
@@ -395,7 +395,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
       std::string key = *tit;
       ++tit;
 
-      std::string tfname = "";
+      std::string tfname;
       if (tstr.compare(0, key.size(), key) == 0)
       {
         tfname = this->Trim(tstr.substr(key.size()));
@@ -410,7 +410,7 @@ bool vtkRenderMaterialLibrary::InternalParseMTL(
           continue;
         }
         this->AddTexture(
-          nickname, key.substr(0, key.size() - 1).c_str(), textr, textureName, textureFilename);
+          nickname, key.substr(0, key.size() - 1), textr, textureName, textureFilename);
       }
     }
   }
