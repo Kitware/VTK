@@ -226,11 +226,10 @@ int vtkPOutlineFilterInternals::RequestData(vtkAMRDataObject* input, vtkPolyData
   // All processes simply produce the outline for the non-null blocks that exist
   // on the process.
   vtkNew<vtkAppendPolyData> appender;
-  unsigned int block_id = 0;
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
   {
     unsigned int num_datasets = input->GetNumberOfBlocks(level);
-    for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx, block_id++)
+    for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx)
     {
       vtkCartesianGrid* cg = input->GetDataSetAsCartesianGrid(level, dataIdx);
       if (cg)
