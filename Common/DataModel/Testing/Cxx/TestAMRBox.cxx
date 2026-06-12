@@ -323,6 +323,35 @@ int TestAMRBoxSerialization()
 }
 
 //------------------------------------------------------------------------------
+int TestAMRBoxAdd()
+{
+  int rc = 0;
+  int lo[3];
+  int hi[3];
+
+  vtkAMRBox A, Aadd;
+
+  // Here is the initial AMR box
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox(A, lo, hi);
+
+  // Here is the expected AMR box
+  lo[2] = 7;
+  hi[0] = 18;
+  Construct3DAMRBox(Aadd, lo, hi);
+
+  A.Add(18, 10, 7);
+  if (A != Aadd)
+  {
+    std::cerr << "ERROR: adding to AMR box failed!\n";
+    rc++;
+  }
+
+  return (rc);
+}
+
+//------------------------------------------------------------------------------
 void CheckTestStatus(int rc, const std::string& TestName)
 {
   std::cout << "Test " << TestName << "...";
@@ -365,6 +394,9 @@ int TestAMRBox(int, char*[])
 
   rc += TestAMRBoxSerialization();
   CheckTestStatus(rc, "TestAMRBoxSerialization");
+
+  rc += TestAMRBoxAdd();
+  CheckTestStatus(rc, "TestAMRBoxAdd");
 
   return (rc);
 }

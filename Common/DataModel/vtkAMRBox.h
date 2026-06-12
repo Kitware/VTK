@@ -229,6 +229,14 @@ public:
   void Shift(const int I[3]);
   ///@}
 
+  ///@{
+  /**
+   * Grow the box so it contains the provided coordinates
+   */
+  void Add(int i, int j, int k);
+  void Add(const int ijk[3]);
+  ///@}
+
   /**
    * Intersect this box with another box in place.  Returns
    * true if the boxes do intersect.  Note that the box is
