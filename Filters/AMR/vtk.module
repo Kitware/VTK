@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::IOAMR
   VTK::IOXML
+  VTK::IOParallelXML
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::TestingCore
