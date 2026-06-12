@@ -65,8 +65,6 @@ void BackwardCompatibilityName(std::string& implname)
     implname = "obj";
   }
 }
-} // namespace
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayMaterialLibrary);
 
