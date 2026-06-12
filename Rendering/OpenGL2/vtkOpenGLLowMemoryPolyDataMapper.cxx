@@ -43,7 +43,6 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
-#include "vtkSetGet.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
@@ -219,6 +218,7 @@ vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
   vtkStringToken edgeValueBufferOffset = "edgeValueBufferOffset";
   vtkStringToken pointIdOffset = "pointIdOffset";
   vtkStringToken primitiveIdOffset = "primitiveIdOffset";
+  vtkStringToken useIndexedPointId = "useIndexedPointId";
 
   (void)positions;
   (void)colors;
@@ -235,6 +235,7 @@ vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
   (void)edgeValueBufferOffset;
   (void)pointIdOffset;
   (void)primitiveIdOffset;
+  (void)useIndexedPointId;
 }
 
 //------------------------------------------------------------------------------
@@ -703,6 +704,16 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
     // bind the vertex indices. this buffer holds the point ids which index into
     // polydata->GetPoints()
     this->AppendArrayToTexture("vertexIdBuffer"_token, primDesc.VertexIDs);
+    if (this->UseIndexedRendering)
+    {
+      // Mirror the same connectivity into the (accumulating) element buffer so a
+      // cell group's VertexIdOffset indexes both the vertexIdBuffer texture and
+      // the element buffer identically. This appends in the same primitive order,
+      // and for a batched mapper accumulates across the per-block calls (the buffer
+      // is reset once in DeleteTextureBuffers). Values stay local to the mesh; the
+      // shader adds pointIdOffset, exactly like the non-indexed vertexIdBuffer path.
+      this->AppendElementIndexBuffer(primDesc.VertexIDs);
+    }
     if ((primDesc.PrimitiveToCell != nullptr) &&
       (primDesc.PrimitiveToCell->GetNumberOfValues() > 0))
     {
@@ -860,6 +871,98 @@ void vtkOpenGLLowMemoryPolyDataMapper::InstallArrayTextureShaderDeclarations()
     /*dataType=*/GLSLDataType::Integer,
     /*attributeType=*/GLSLAttributeType::Scalar,
     /*variableName=*/"primitiveIdOffset"_token);
+  // Hybrid-dispatch selector: 1 when the current draw is an indexed (glDrawElements)
+  // surface draw, in which case gl_VertexID is already the vtk point id.
+  this->ShaderDecls.emplace_back(
+    /*qualifier=*/GLSLQualifierType::Uniform,
+    /*precision=*/GLSLPrecisionType::High,
+    /*dataType=*/GLSLDataType::Integer,
+    /*attributeType=*/GLSLAttributeType::Scalar,
+    /*variableName=*/"useIndexedPointId"_token);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLLowMemoryPolyDataMapper::ShouldUseIndexedRendering(vtkRenderer* renderer,
+  vtkActor* actor, const CellGroupInformation& cellGroup, int numberOfPointsPerPrimitive,
+  int numberOfPseudoPrimitivesPerElement, bool inVertexVisibilityPass) const
+{
+  // Master switch.
+  if (!this->UseIndexedRendering)
+  {
+    return false;
+  }
+  // An element (index) buffer must have been uploaded.
+  if (!this->GetUsesIndexBuffer())
+  {
+    return false;
+  }
+  // The vertex-visibility pass walks corners to emit points; keep it expanded.
+  if (inVertexVisibilityPass || this->DrawingVertices)
+  {
+    return false;
+  }
+  // Any per-corner expansion (wide lines, surface-with-edges insets) replaces a
+  // single connectivity entry with several emitted corners, which only the
+  // sequential gl_VertexID walk of glDrawArrays can drive.
+  if (numberOfPseudoPrimitivesPerElement != 1)
+  {
+    return false;
+  }
+  vtkProperty* property = (actor != nullptr) ? actor->GetProperty() : nullptr;
+  if (property != nullptr && property->GetEdgeVisibility())
+  {
+    return false;
+  }
+  // Edge masking and an explicit primitive->cell map both rely on a sequential
+  // gl_VertexID, which glDrawElements does not provide.
+  if (cellGroup.UsesEdgeValueBuffer || cellGroup.UsesCellMapBuffer)
+  {
+    return false;
+  }
+  // Cell-sourced color/normal need the per-primitive cell id derived from the
+  // corner walk; indexed drawing cannot reconstruct it in the shader.
+  if (this->ShaderColorSource == ShaderColorSourceAttribute::Cell ||
+    this->ShaderNormalSource == ShaderNormalSourceAttribute::Cell)
+  {
+    return false;
+  }
+  // Selection passes encode primitive/cell ids that depend on the corner walk.
+  if (renderer->GetSelector() != nullptr)
+  {
+    return false;
+  }
+  // Decide per effective GL primitive (set by the agent's PreDraw). The
+  // representation override already collapses into ElementType: rep POINTS makes
+  // every primitive a Point draw, wide lines/wireframe become Triangle expansions
+  // (excluded above via numberOfPseudoPrimitivesPerElement / EdgeVisibility).
+  switch (this->ElementType)
+  {
+    case vtkDrawTexturedElements::ElementShape::Triangle:
+      // Plain surface triangles: indexed drawing restores the post-transform
+      // vertex cache for shared vertices. Wireframe draws triangles too but needs
+      // the sequential walk (gl_VertexID-1/-2 reach siblings), so require SURFACE.
+      if (property != nullptr)
+      {
+        return property->GetRepresentation() == VTK_SURFACE && numberOfPointsPerPrimitive == 3;
+      }
+      [[fallthrough]]; // to default
+    case vtkDrawTexturedElements::ElementShape::Line:
+      // Thin (1px) lines only; wide lines expand to triangles (excluded above).
+      if (property != nullptr)
+      {
+        return property->GetLineWidth() <= 1.0;
+      }
+      [[fallthrough]]; // to default
+    case vtkDrawTexturedElements::ElementShape::Point:
+      // 1-pixel points only.
+      if (property != nullptr)
+      {
+        return property->GetPointSize() <= 1.0;
+      }
+      [[fallthrough]]; // to default
+    default:
+      return false;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -931,6 +1034,10 @@ void vtkOpenGLLowMemoryPolyDataMapper::DeleteTextureBuffers()
   {
     primitive.CellGroups.clear();
   }
+  // Reset the indexed-path element buffer in lockstep with the connectivity
+  // textures. BindArraysToTextureBuffers re-appends to it afterwards (once per
+  // block for a batched mapper), mirroring how vertexIdBuffer is concatenated.
+  this->ClearElementIndexBuffer();
   // reset cache information about the samplerbuffers
   this->HasColors = false;
   this->HasPointNormals = false;
@@ -1131,8 +1238,16 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   {
     vertexId = gl_VertexID - vertexIdOffset;
     primitiveId = vertexId;
+    if (useIndexedPointId == 1)
+    {
+      // Indexed (glDrawElements) path: gl_VertexID is already the vtk point id.
+      pointId = gl_VertexID + pointIdOffset;
+    }
+    else
+    {
     // pull the vtk point id from vertexIdBuffer
     pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+    }
   }
   else if (cellType == 3) // VTK_LINE
   {
@@ -1155,16 +1270,35 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
     else
     {
       vertexId = gl_VertexID - vertexIdOffset;
-      // pull the vtk point id from vertexIdBuffer
-      pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+      if (useIndexedPointId == 1)
+      {
+        // Indexed (glDrawElements) thin-line path: gl_VertexID is the vtk point id.
+        pointId = gl_VertexID + pointIdOffset;
+      }
+      else
+      {
+        // pull the vtk point id from vertexIdBuffer
+        pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+      }
       primitiveId = vertexId >> 1;
     }
   }
   else if (cellType == 5) // VTK_TRIANGLE
   {
     vertexId = gl_VertexID - vertexIdOffset;
+    if (useIndexedPointId == 1)
+    {
+      // Indexed (glDrawElements) hybrid-dispatch path: gl_VertexID is already the
+      // fetched vtk point id, so use it directly instead of an extra texelFetch.
+      // This path is selected only when per-primitive ids are not needed, so the
+      // primitiveId/cellId computed below are unused.
+      pointId = gl_VertexID + pointIdOffset;
+    }
+    else
+    {
     // pull the vtk point id from vertexIdBuffer
     pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+    }
     primitiveId = vertexId / 3;
   }
   // fast path by default.

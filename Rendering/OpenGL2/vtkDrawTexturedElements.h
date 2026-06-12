@@ -126,6 +126,47 @@ public:
   /// This just calls glDrawElementInstanced().
   void DrawInstancedElements(vtkRenderer* ren, vtkActor* a, vtkMapper* mapper);
 
+  ///@{
+  /// Enable indexed vertex-pulling by supplying an index (element) buffer.
+  ///
+  /// When an index buffer is set, DrawInstancedElements issues
+  /// glDrawElementsInstanced rather than glDrawArraysInstanced. With
+  /// glDrawElements, the shader's gl_VertexID is the *fetched index value*, so
+  /// the post-transform vertex cache can reuse vertices shared between
+  /// primitives (a triangle-mesh vertex shared by ~6 triangles runs the vertex
+  /// shader roughly once instead of ~6 times). The shader should therefore use
+  /// gl_VertexID directly as the point id instead of fetching it from a
+  /// connectivity texture buffer.
+  ///
+  /// \a indices must hold 32-bit (or smaller) integer connectivity; values are
+  /// copied and uploaded as GL_UNSIGNED_INT. Passing nullptr (or calling
+  /// ClearElementIndexBuffer) reverts to non-indexed pulling.
+  ///
+  /// The draw also honors FirstVertexId as the offset (in elements) of the slice
+  /// to draw within the supplied connectivity, so a single concatenated buffer
+  /// can back several draws.
+  void SetElementIndexBuffer(vtkDataArray* indices);
+
+  /// Append connectivity to the element (index) buffer, concatenating in memory
+  /// order. Use this (instead of SetElementIndexBuffer, which replaces) to build
+  /// a single element buffer from several meshes, e.g. composite/batched input.
+  /// The accumulated values must stay aligned with the matching connectivity
+  /// texture so a draw's FirstVertexId indexes both the same way.
+  void AppendElementIndexBuffer(vtkDataArray* indices);
+
+  void ClearElementIndexBuffer();
+  bool GetUsesIndexBuffer() const;
+
+  /// Per-draw selector for the hybrid surface/expansion dispatch.
+  ///
+  /// SetElementIndexBuffer leaves indexed drawing enabled by default. A caller
+  /// that shares one uploaded buffer across draws with mixed eligibility (e.g.
+  /// plain triangles indexed, surface-with-edges expanded) toggles this before
+  /// each DrawInstancedElements call. It has no effect unless an index buffer is
+  /// present.
+  void SetIndexedDrawEnabled(bool enabled);
+  ///@}
+
   /// Release any graphics resources associated with the \a window.
   void ReleaseResources(vtkWindow* window);
 

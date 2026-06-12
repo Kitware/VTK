@@ -155,6 +155,14 @@ void vtkOpenGLLowMemoryCellTypeAgent::Draw(vtkRenderer* renderer, vtkActor* acto
   mapper->ShaderProgram->SetUniformi("primitiveIdOffset", offsets.PrimitiveIdOffset);
   mapper->ShaderProgram->SetUniformi("usesCellMap", cellGroup.UsesCellMapBuffer);
   mapper->ShaderProgram->SetUniformi("usesEdgeValues", cellGroup.UsesEdgeValueBuffer);
+  // Hybrid dispatch: choose indexed (glDrawElementsInstanced) vs the non-indexed
+  // flat-stream expansion for this cell group, and tell the shader which point-id
+  // source to use. Both consume the same connectivity, bound two ways.
+  const bool indexed =
+    mapper->ShouldUseIndexedRendering(renderer, actor, cellGroup, this->NumberOfPointsPerPrimitive,
+      this->NumberOfPseudoPrimitivesPerElement, this->InVertexVisibilityPass);
+  mapper->SetIndexedDrawEnabled(indexed);
+  mapper->ShaderProgram->SetUniformi("useIndexedPointId", indexed ? 1 : 0);
   mapper->vtkDrawTexturedElements::DrawInstancedElementsImpl(renderer, actor, mapper);
 }
 

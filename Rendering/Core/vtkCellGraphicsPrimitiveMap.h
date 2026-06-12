@@ -37,8 +37,11 @@ public:
   {
     vtkIdType CellIdOffset = 0;
     vtkIdType EdgeValueBufferOffset = 0;
+    // added to a mesh-local point ID to reach the global index into the concatenated positions TBO.
     vtkIdType PointIdOffset = 0;
     vtkIdType PrimitiveIdOffset = 0;
+    // where this mesh's cell connectivity slice begins inside the concatenated connectivity (the
+    // vertexIdBuffer TBO/IBO).
     vtkIdType VertexIdOffset = 0;
     friend std::ostream& operator<<(std::ostream& os, const CellTypeMapperOffsets& offsets)
     {
@@ -54,7 +57,9 @@ public:
   struct PrimitiveDescriptor
   {
     vtkSmartPointer<vtkTypeUInt8Array> EdgeArray;
+    // mesh-local cell ids for each OpenGL primitive.
     vtkSmartPointer<vtkTypeInt32Array> PrimitiveToCell;
+    // mesh-local connectivity entries.
     vtkSmartPointer<vtkTypeInt32Array> VertexIDs;
     int PrimitiveSize = 0;
     vtkTypeInt32 LocalCellIdOffset = 0;

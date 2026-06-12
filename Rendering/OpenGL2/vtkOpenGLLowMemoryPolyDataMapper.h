@@ -87,6 +87,23 @@ public:
    */
   bool GetSupportsSelection() override { return true; }
 
+  ///@{
+  /**
+   * Hybrid surface/expansion dispatch switch (Phase 1 of the mapper merge).
+   *
+   * When enabled (the default), plain triangle-surface draws that need no
+   * per-primitive ids use indexed vertex-pulling (glDrawElementsInstanced),
+   * restoring the post-transform vertex cache. Draws that need a sequential
+   * corner walk -- surface-with-edges, wireframe, wide lines, vertex visibility,
+   * cell-sourced color/normal, and selection passes -- keep the non-indexed
+   * flat-stream expansion path. Disabling forces every draw onto the expansion
+   * path (the historical low-memory behavior).
+   */
+  vtkSetMacro(UseIndexedRendering, bool);
+  vtkGetMacro(UseIndexedRendering, bool);
+  vtkBooleanMacro(UseIndexedRendering, bool);
+  ///@}
+
   /// If you removed all mods, call this to go back to default setting.
   virtual void ResetModsToDefault();
   void AddMod(const std::string& className);
@@ -296,6 +313,9 @@ protected:
     std::vector<CellGroupInformation> CellGroups;
   };
   std::array<PrimitiveInformation, 4> Primitives;
+
+  /// Hybrid surface/expansion dispatch switch. See the public accessors.
+  bool UseIndexedRendering = true;
   bool DrawingVertices = false;
   bool HasColors = false;
   bool HasTangents = false;
@@ -322,6 +342,16 @@ protected:
   bool UsesCoatNormalMap = false;
   bool UsesRotationMap = false;
   vtkTimeStamp PBRStateTimeStamp;
+
+  /**
+   * Decide whether a particular cell-group draw may use the indexed
+   * (glDrawElementsInstanced) fast path. Returns true only for plain
+   * triangle-surface draws that need no per-primitive ids; otherwise the caller
+   * must keep the non-indexed flat-stream expansion path. See UseIndexedRendering.
+   */
+  bool ShouldUseIndexedRendering(vtkRenderer* renderer, vtkActor* actor,
+    const CellGroupInformation& cellGroup, int numberOfPointsPerPrimitive,
+    int numberOfPseudoPrimitivesPerElement, bool inVertexVisibilityPass) const;
 
 private:
   vtkOpenGLLowMemoryPolyDataMapper(const vtkOpenGLLowMemoryPolyDataMapper&) = delete;
