@@ -11,6 +11,8 @@
 struct vtkWebGPUProcTableImpl;
 typedef struct vtkWebGPUProcTableImpl* vtkWebGPUProcTable;
 
+VTK_ABI_NAMESPACE_BEGIN
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -53,5 +55,7 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkWebGPUProcTable_h
