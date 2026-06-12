@@ -4,8 +4,7 @@
 #define vtkWebGPURenderPassDescriptorInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
-#include "vtk_wgpu.h"
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu_impl.h"
 
 #include <array>
 #include <vector>

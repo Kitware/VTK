@@ -10,8 +10,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 
-#include "vtk_wgpu.h"
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu_impl.h"
 #include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN

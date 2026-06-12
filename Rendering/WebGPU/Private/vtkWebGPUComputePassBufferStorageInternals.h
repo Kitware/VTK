@@ -11,8 +11,7 @@
 #include "vtkWebGPUComputePass.h"         // for enum
 #include "vtkWebGPUComputeRenderBuffer.h" // for compute render buffers
 #include "vtkWebGPUConfiguration.h"       // for ivar
-#include "vtk_wgpu.h"                     // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu_impl.h"                // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
 

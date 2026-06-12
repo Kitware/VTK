@@ -5,8 +5,7 @@
 #define vtkWebGPUConfigurationInternals_h
 
 #include "vtkWebGPUConfiguration.h"
-#include "vtk_wgpu.h"
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu_impl.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUConfigurationInternals

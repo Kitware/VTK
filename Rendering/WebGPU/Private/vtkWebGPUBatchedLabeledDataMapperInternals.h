@@ -7,7 +7,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWebGPUPolyDataMapper.h"
 
-#include "vtk_wgpu.h"
+#include "vtk_wgpu_impl.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUBatchedLabeledDataMapper;
