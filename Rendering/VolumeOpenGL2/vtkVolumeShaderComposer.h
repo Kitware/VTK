@@ -226,8 +226,7 @@ inline std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolu
   if (inputs[0].Volume->GetProperty() && inputs[0].Volume->GetProperty()->GetShade() &&
     !defaultLighting && totalNumberOfLights > 0)
   {
-    toShaderStr << "mat4 g_texToView = in_modelViewMatrix * in_volumeMatrix[0] *"
-                   "in_textureDatasetMatrix[0];\n";
+    toShaderStr << "mat4 g_texToView;\n";
   }
 
   toShaderStr << "uniform vec2 in_scalarsRange[" << numInputs * 4
@@ -3042,7 +3041,7 @@ inline std::string PickingIdLow24PassExit(
   \n  if (g_fragColor.a > 3.0/ 255.0)\
   \n    {\
   \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
-  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    uvec3 voxelCoords = uvec3(vec3(volumeDim) * g_dataPos);\
   \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
   \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
   \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
@@ -3068,11 +3067,11 @@ inline std::string PickingIdHigh24PassExit(
   \n  if (g_fragColor.a > 3.0/ 255.0)\
   \n    {\
   \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
-  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    uvec3 voxelCoords = uvec3(vec3(volumeDim) * g_dataPos);\
   \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
   \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
   \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
-  \n    idx = ((idx & 0xff000000) >> 24);\
+  \n    idx = ((idx & 0xff000000u) >> 24u);\
   \n    gl_FragData[0] = vec4(float(idx % uint(256)) / 255.0,\
   \n      float((idx / uint(256)) % uint(256)) / 255.0,\
   \n      float(idx / uint(65536)) / 255.0, 1.0);\
@@ -3893,6 +3892,7 @@ inline std::string WorkerImplementation(
   vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
 {
   return std::string("\
+    \n  g_texToView = in_modelViewMatrix * in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
     \n  initializeRayCast();\
     \n  castRay(-1.0, -1.0);\
     \n  finalizeRayCast();");
