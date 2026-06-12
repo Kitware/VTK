@@ -4,4 +4,6 @@ LIBRARY_NAME
   vtkconduit
 ORDER_DEPENDS
   VTK::catalyst
+TEST_DEPENDS
+  VTK::TestingCore
 THIRD_PARTY
