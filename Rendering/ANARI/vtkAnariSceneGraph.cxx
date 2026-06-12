@@ -107,7 +107,6 @@ vtkAnariSceneGraphInternals::~vtkAnariSceneGraphInternals()
       anari::release(d, this->AnariWorld);
       anari::release(d, this->AnariRenderer);
       anari::release(d, this->AnariFrame);
-      anari::release(d, d);
     }
   }
 }
