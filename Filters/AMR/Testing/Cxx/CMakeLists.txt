@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkFiltersAMRCxxTests tests
   TestAMRAbortExecute.cxx,NO_VALID
   TestAMRContour.cxx,NO_VALID
+  TestAMRInterface.cxx,NO_VALID
   TestAMRSliceFilterCellData.cxx
   TestAMRSliceFilterPointData.cxx
   TestAMRGhostLayerStripping.cxx,NO_VALID

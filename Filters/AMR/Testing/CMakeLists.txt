@@ -5,7 +5,12 @@ vtk_module_test_data(
   Data/amr_contour_options_expected.vtpd
   Data/amr_contour_options_expected/,REGEX:.*
   Data/amr_contour_multigrid_expected.vtpd
-  Data/amr_contour_multigrid_expected/,REGEX:.*)
+  Data/amr_contour_multigrid_expected/,REGEX:.*
+  Data/amr_interface_expected.vtpd
+  Data/amr_interface_expected/,REGEX:.*
+  Data/amr_interface_multigrid_expected.vtpd
+  Data/amr_interface_multigrid_expected/,REGEX:.*
+  )
 
   add_subdirectory(Cxx)
 endif ()

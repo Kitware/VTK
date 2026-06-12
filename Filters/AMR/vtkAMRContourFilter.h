@@ -5,52 +5,10 @@
  * @brief   A contour filter for vtkOverlappingAMR data
  *
  * This filters generate a perfectly watertight contour on vtkOverlappingAMR data
- * by creating an interface between non-refined and refined grid of an AMR.
- * It then interpolate data on the interface wherever needed and then run a contour on that
- * interface. The result is a vtkPartitionedDataSet of vtkPolyData.
+ * by creating an interface between non-refined and refined grid of an AMR and running
+ * a vtkContourFilter on it.
  *
- * Assumption:
- *  - A single voxel in a non-refined grid is not supposed to have points in common with grid of two
- * other refinements levels.
- *  - A single edge should not be shared between grids of more than two different refinement level.
- *
- * Implementation details of this filter:
- *
- * - Iterate over each grid.
- * - If grid is of the highest refinement, just run a contour filter on it.
- * - If not, identify the "interface", which are cells that are neighbors with a more refined cell.
- * - Blank interface cells and keep a note of them, then run contour filter on the non-refined grid.
- * - Split each interface cell into multiple unstructured cells to create an actual interface
- * between high resolution grid and low resolution grid.
- * - Interpolate data on the interface wherever needed.
- * - Run the contour on the interface.
- * - Put each contour part in a partitioned dataset, this is the output.
- *
- * The complex part is obviously the splitting of low resolution grid cells into interface cells,
- * The idea is to create pyramids and tetrahedrons out of the cells, by adding points on the edges
- * (from the refined grid) as well as in the center of the faces and center of the voxel.
- *
- * - Iterate over each cells of the interface.
- * - Check each edges of the cell and create the "most refined edges" from it, which correspond to a
- * list of ordered points from refined grids
- * - Check each face of the cell.
- * -- If no edges are split, the face is facing a non-refined grid, then create a simple pyramid
- * using the 4 face point and the voxel center.
- * -- If all edges are split, the face is facing a refined grid, recover the refined point
- * of the refined grids by walking on the edges and create many pyramids between these quads and the
- * voxel center.
- * -- Else, its an "interface" face, create tetrahedrons beween each "split" edges using refined
- * edges, the face center and the voxel center.
- *
- * This creates a perfect paving of the interface, connecting the refined grid with the non refined
- * grid.
- *
- * The data on the interface points also matters. We obviously first take data from the refined grid
- * when available, then data from the non-refined grid. If no data is available (interface face
- * centers and voxel center), then a simple Shepard interpolation is used using all the points on
- * the face or the voxel respectively.
- *
- * @sa vtkOverlappingAMR
+ * @sa vtkOverlappingAMR vtkAMRInterfaceFilter
  */
 #ifndef vtkAMRContourFilter_h
 #define vtkAMRContourFilter_h
@@ -59,6 +17,7 @@
 #include "vtkPartitionedDataSetAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkAMRInterfaceFilter;
 class vtkCallbackCommand;
 class vtkCartesianGrid;
 class vtkCellArray;
@@ -167,6 +126,7 @@ private:
   void InternalProgressCallback(vtkAlgorithm* algorithm);
   ///@}
 
+  vtkNew<vtkAMRInterfaceFilter> InternalInterface;
   vtkNew<vtkContourFilter> InternalContour;
 
   // Progress handling
