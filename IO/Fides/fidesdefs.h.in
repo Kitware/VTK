@@ -1,0 +1,5 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+#cmakedefine01 VTK_HAVE_CONDUIT
+#cmakedefine01 VTK_HAVE_CONDUIT_PYTHON
