@@ -402,11 +402,13 @@ void vtkWebGPURenderWindow::Render()
 }
 
 //------------------------------------------------------------------------------
-wgpu::RenderPassEncoder vtkWebGPURenderWindow::NewRenderPass(wgpu::RenderPassDescriptor& descriptor)
+WGPURenderPassEncoder vtkWebGPURenderWindow::NewRenderPass(WGPURenderPassDescriptor& descriptor)
 {
   if (this->CommandEncoder)
   {
-    return this->CommandEncoder.BeginRenderPass(&descriptor);
+    return wgpu::CommandEncoder(this->CommandEncoder)
+      .BeginRenderPass(reinterpret_cast<wgpu::RenderPassDescriptor*>(&descriptor))
+      .Get();
   }
   else
   {
@@ -416,13 +418,16 @@ wgpu::RenderPassEncoder vtkWebGPURenderWindow::NewRenderPass(wgpu::RenderPassDes
 }
 
 //------------------------------------------------------------------------------
-wgpu::RenderBundleEncoder vtkWebGPURenderWindow::NewRenderBundleEncoder(
-  wgpu::RenderBundleEncoderDescriptor& descriptor)
+WGPURenderBundleEncoder vtkWebGPURenderWindow::NewRenderBundleEncoder(
+  WGPURenderBundleEncoderDescriptor& descriptor)
 {
   vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
   if (auto device = this->WGPUConfiguration->GetDevice())
   {
-    return device.CreateRenderBundleEncoder(&descriptor);
+    return wgpu::Device(device)
+      .CreateRenderBundleEncoder(
+        reinterpret_cast<wgpu::RenderBundleEncoderDescriptor*>(&descriptor))
+      .Get();
   }
   else
   {
