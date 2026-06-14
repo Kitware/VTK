@@ -58,7 +58,7 @@ vtkWebGPUComputePipeline::GetComputePasses() const
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePipeline::RegisterBuffer(
-  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer)
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, WGPUBuffer wgpuBuffer)
 {
   this->EnsureConfigured();
 
@@ -79,7 +79,7 @@ void vtkWebGPUComputePipeline::RegisterBuffer(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePipeline::RegisterTexture(
-  vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture wgpuTexture)
+  vtkSmartPointer<vtkWebGPUComputeTexture> texture, WGPUTexture wgpuTexture)
 {
   this->EnsureConfigured();
 
@@ -100,12 +100,12 @@ void vtkWebGPUComputePipeline::RegisterTexture(
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUComputePipeline::GetRegisteredBuffer(
-  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer& wgpuBuffer)
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, WGPUBuffer& wgpuBuffer)
 {
   auto find = this->RegisteredBuffers.find(buffer);
   if (find != this->RegisteredBuffers.end())
   {
-    wgpuBuffer = find->second;
+    wgpuBuffer = find->second; // Direct assignment from WGPU* storage
 
     return true;
   }
@@ -115,12 +115,12 @@ bool vtkWebGPUComputePipeline::GetRegisteredBuffer(
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUComputePipeline::GetRegisteredTexture(
-  vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture& wgpuTexture)
+  vtkSmartPointer<vtkWebGPUComputeTexture> texture, WGPUTexture& wgpuTexture)
 {
   auto find = this->RegisteredTextures.find(texture);
   if (find != this->RegisteredTextures.end())
   {
-    wgpuTexture = find->second;
+    wgpuTexture = find->second; // Direct assignment from WGPU* storage
 
     return true;
   }
@@ -146,13 +146,14 @@ void vtkWebGPUComputePipeline::Update()
 
   wgpu::QueueWorkDoneStatus workStatus = wgpu::QueueWorkDoneStatus::Error;
   bool done = false;
-  this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone(
-    wgpu::CallbackMode::AllowProcessEvents,
-    [&workStatus, &done](wgpu::QueueWorkDoneStatus status, wgpu::StringView)
-    {
-      workStatus = status;
-      done = true;
-    });
+  wgpu::Device(this->WGPUConfiguration->GetDevice())
+    .GetQueue()
+    .OnSubmittedWorkDone(wgpu::CallbackMode::AllowProcessEvents,
+      [&workStatus, &done](wgpu::QueueWorkDoneStatus status, wgpu::StringView)
+      {
+        workStatus = status;
+        done = true;
+      });
   while (!done)
   {
     this->WGPUConfiguration->ProcessEvents();
