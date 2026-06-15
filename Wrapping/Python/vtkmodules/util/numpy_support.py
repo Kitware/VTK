@@ -258,8 +258,16 @@ def vtk_to_numpy(vtk_array):
         if shape[0] == 0:
             # create an empty array with the given shape.
             return numpy.empty(shape, dtype=dtype)
-        else:
+        # Implicit arrays (vtkImplicitArray<BackendT>) compute their values
+        # on the fly and do not expose the buffer protocol. Materialize to
+        # an AOS copy and try again.
+        aos = vtk_array.ToAOSDataArray()
+        if aos is None or aos is vtk_array:
             raise
+        if typ != vtkConstants.VTK_BIT:
+            result = numpy.frombuffer(aos, dtype=dtype)
+        else:
+            result = numpy.unpackbits(aos, count=shape[0])
     if shape[1] == 1:
         shape = (shape[0], )
     return result.reshape(shape)
