@@ -34,7 +34,7 @@ public:
       data.push_back(value);
     }
 
-    this->WGPUConfiguration->WriteTexture(this->Texture, bytesPerRow,
+    this->WGPUConfiguration->WriteTexture(this->Texture.Get(), bytesPerRow,
       data.size() * srcArray->GetDataTypeSize(), data.data(), /*srcOffset=*/0,
       /*dstOffset=*/{ 0, 0, 0 },
       /*dstMipLevel=*/0, description);
@@ -51,7 +51,7 @@ void vtkWebGPUTextureInternals::Upload(vtkSmartPointer<vtkWebGPUConfiguration> w
   wgpu::Texture texture, std::uint32_t bytesPerRow, std::uint32_t byteSize, const void* data,
   const char* description /*=nullptr*/)
 {
-  wgpuConfiguration->WriteTexture(texture, bytesPerRow, byteSize, data, /*srcOffset=*/0,
+  wgpuConfiguration->WriteTexture(texture.Get(), bytesPerRow, byteSize, data, /*srcOffset=*/0,
     /*dstOffset=*/{ 0, 0, 0 }, /*dstMipLevel=*/0, description);
 }
 
