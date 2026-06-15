@@ -43,8 +43,8 @@ private:
    * Get/set the WebGPU buffer (used when this ComputeBuffer points to an already existing device
    * buffer)
    */
-  void SetWebGPUBuffer(wgpu::Buffer buffer) { this->wgpuBuffer = buffer; };
-  wgpu::Buffer GetWebGPUBuffer() { return this->wgpuBuffer; };
+  void SetWebGPUBuffer(WGPUBuffer buffer) { this->wgpuBuffer = buffer; };
+  WGPUBuffer GetWebGPUBuffer() { return this->wgpuBuffer; };
   ///@}
 
   ///@{
@@ -112,7 +112,7 @@ private:
   // vtkWebGPUComputeBuffer but rather use an existing one that has been created elsewhere (by a
   // webGPUPolyDataMapper for example). This is the attribute that points to this 'already existing'
   // buffer.
-  wgpu::Buffer wgpuBuffer = nullptr;
+  WGPUBuffer wgpuBuffer = nullptr;
 
   // Attribute used when we're reusing an existing buffer (from the vtkWebGPUPolyDataMapper for
   // example). Can be either a cell attribute or a point attribute but not both at the same time

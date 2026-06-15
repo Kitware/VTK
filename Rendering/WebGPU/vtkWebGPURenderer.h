@@ -10,8 +10,7 @@
 #include "vtkWeakPtr.h"               // For vtkWeakPtr
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                 // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 #include <unordered_set> // for the set of actors rendered last frame
 #include <vector>        // for the list of visible props
@@ -70,7 +69,7 @@ public:
   /**
    * Updates / creates the various buffer necessary for the rendering of the props.
    * This is a chance for actors, mappers, cameras and lights to push their data
-   * from a staging area (or) `vtkDataObject` subclasses into `wgpu::Buffer` or `wgpu::Texture`.
+   * from a staging area (or) `vtkDataObject` subclasses into `WGPUBuffer` or `WGPUTexture`.
    */
   void UpdateBuffers();
 
@@ -112,11 +111,11 @@ public:
 
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  wgpu::RenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
-  wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->WGPUBundleEncoder; }
-  wgpu::BindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
+  WGPURenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
+  WGPURenderBundleEncoder GetRenderBundleEncoder() { return this->WGPUBundleEncoder; }
+  WGPUBindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
 
-  void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  void PopulateBindgroupLayouts(std::vector<WGPUBindGroupLayout>& layouts)
   {
     layouts.emplace_back(this->SceneBindGroupLayout);
   }
@@ -148,7 +147,7 @@ public:
   /**
    * Set/Get the usage of render bundles. The default value is true.
    * Render bundles are a performance optimization that minimize CPU time when many
-   * wgpu::RenderPassEncoder::Draw calls are used.
+   * WGPURenderPassEncoder::Draw calls are used.
    *
    * @note Render bundles and cullers are mutually exclusive. A bundle is a fixed list of
    * draw commands replayed across frames, whereas a culler resizes the prop list on every
@@ -320,7 +319,7 @@ private:
   /**
    * Encodes a render command for rendering the given props
    */
-  wgpu::CommandBuffer EncodePropListRenderCommand(vtkProp** propList, int listLength);
+  WGPUCommandBuffer EncodePropListRenderCommand(vtkProp** propList, int listLength);
 
   /**
    * Records commands into a render pass encoder.
@@ -329,19 +328,19 @@ private:
    */
   void RecordRenderCommands();
 
-  wgpu::RenderPassEncoder WGPURenderEncoder;
-  wgpu::RenderBundleEncoder WGPUBundleEncoder;
-  wgpu::Buffer SceneTransformBuffer;
-  wgpu::Buffer SceneLightsBuffer;
+  WGPURenderPassEncoder WGPURenderEncoder;
+  WGPURenderBundleEncoder WGPUBundleEncoder;
+  WGPUBuffer SceneTransformBuffer;
+  WGPUBuffer SceneLightsBuffer;
 
-  wgpu::BindGroup SceneBindGroup;
-  wgpu::BindGroupLayout SceneBindGroupLayout;
+  WGPUBindGroup SceneBindGroup;
+  WGPUBindGroupLayout SceneBindGroupLayout;
 
   // Render bundles enable faster rendering.
   bool UseRenderBundles = true;
   bool RebuildRenderBundle = false;
   // the commands in bundle get reused every frame.
-  wgpu::RenderBundle Bundle;
+  WGPURenderBundle Bundle;
 
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;

@@ -23,10 +23,10 @@ public:
 
   uint32_t NumberOfLabels = 0;
 
-  wgpu::Texture GlyphsTexture;
-  wgpu::TextureView GlyphsTextureView;
-  wgpu::Sampler GlyphsSampler;
-  wgpu::Buffer LabelUniformBuffer;
+  WGPUTexture GlyphsTexture = nullptr;
+  WGPUTextureView GlyphsTextureView = nullptr;
+  WGPUSampler GlyphsSampler = nullptr;
+  WGPUBuffer LabelUniformBuffer = nullptr;
 
   enum InstanceAttrib : int
   {
@@ -35,9 +35,9 @@ public:
     FRAME_COLORS = 2,
     NUM_INSTANCE_ATTRIBS = 3
   };
-  wgpu::Buffer InstanceBuffers[NUM_INSTANCE_ATTRIBS];
+  WGPUBuffer InstanceBuffers[NUM_INSTANCE_ATTRIBS] = { nullptr, nullptr, nullptr };
   uint64_t InstanceBufferSizes[NUM_INSTANCE_ATTRIBS] = { 0, 0, 0 };
-  wgpu::VertexAttribute InstanceAttributes[3];
+  WGPUVertexAttribute InstanceAttributes[3];
   bool LabelCountChanged = false;
 
   void InvalidatePipelines() { this->RebuildGraphicsPipelines = true; }
@@ -54,11 +54,11 @@ protected:
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override;
   DrawCallArgs GetDrawCallArgsForDrawingVertices(
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override;
-  std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() override;
-  void SetVertexBuffers(const wgpu::RenderPassEncoder& encoder) override;
-  void SetVertexBuffers(const wgpu::RenderBundleEncoder& encoder) override;
-  std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override;
-  std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries() override;
+  std::vector<WGPUVertexBufferLayout> GetVertexBufferLayouts() override;
+  void SetVertexBuffers(const WGPURenderPassEncoder& encoder) override;
+  void SetVertexBuffers(const WGPURenderBundleEncoder& encoder) override;
+  std::vector<WGPUBindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override;
+  std::vector<WGPUBindGroupEntry> GetMeshBindGroupEntries() override;
 
   void ReplaceShaderConstantsDef(GraphicsPipelineType pipelineType, vtkWebGPURenderer* renderer,
     vtkWebGPUActor* actor, std::string& vss, std::string& fss) override;

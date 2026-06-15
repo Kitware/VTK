@@ -11,8 +11,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWebGPUTextureDeviceResource.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"         // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"         // for webgpu C API
 
 #include <cstdint>
 
@@ -150,15 +149,15 @@ public:
    * @param visibility The shader stage visibility.
    * @return The created bind group layout entry.
    */
-  wgpu::BindGroupLayoutEntry MakeSamplerBindGroupLayoutEntry(
-    std::uint32_t binding, wgpu::ShaderStage visibility);
+  WGPUBindGroupLayoutEntry MakeSamplerBindGroupLayoutEntry(
+    std::uint32_t binding, WGPUShaderStage visibility);
 
   /**
    * Create a sampler bind group entry.
    * @param binding The binding index.
    * @return The created bind group entry.
    */
-  wgpu::BindGroupEntry MakeSamplerBindGroupEntry(std::uint32_t binding);
+  WGPUBindGroupEntry MakeSamplerBindGroupEntry(std::uint32_t binding);
 
   /**
    * Create a texture view bind group layout entry.
@@ -166,15 +165,15 @@ public:
    * @param visibility The shader stage visibility.
    * @return The created bind group layout entry.
    */
-  wgpu::BindGroupLayoutEntry MakeTextureViewBindGroupLayoutEntry(
-    std::uint32_t binding, wgpu::ShaderStage visibility);
+  WGPUBindGroupLayoutEntry MakeTextureViewBindGroupLayoutEntry(
+    std::uint32_t binding, WGPUShaderStage visibility);
 
   /**
    * Create a texture view bind group entry.
    * @param binding The binding index.
    * @return The created bind group entry.
    */
-  wgpu::BindGroupEntry MakeTextureViewBindGroupEntry(std::uint32_t binding);
+  WGPUBindGroupEntry MakeTextureViewBindGroupEntry(std::uint32_t binding);
 
   ///@{
   /**
@@ -186,11 +185,11 @@ public:
   ///@}
 
   static const char* GetTextureSampleTypeString(TextureSampleType type);
-  static wgpu::FilterMode GetWebGPUFilterMode(FilterMode mode);
-  static wgpu::MipmapFilterMode GetWGPUMipMapFilterMode(FilterMode mode);
-  static wgpu::AddressMode GetWebGPUAddressMode(AddressMode mode);
-  static wgpu::SamplerBindingType GetWebGPUSamplerBindingType(SamplerMode mode);
-  static wgpu::CompareFunction GetWebGPUCompareFunction(CompareFunction mode);
+  static WGPUFilterMode GetWebGPUFilterMode(FilterMode mode);
+  static WGPUMipmapFilterMode GetWGPUMipMapFilterMode(FilterMode mode);
+  static WGPUAddressMode GetWebGPUAddressMode(AddressMode mode);
+  static WGPUSamplerBindingType GetWebGPUSamplerBindingType(SamplerMode mode);
+  static WGPUCompareFunction GetWebGPUCompareFunction(CompareFunction mode);
 
 protected:
   vtkWebGPURenderTextureDeviceResource();
@@ -220,12 +219,12 @@ private:
 
   std::string Label;
 
-  wgpu::TextureDescriptor TextureDescriptor;
-  wgpu::Texture Texture;
-  wgpu::SamplerDescriptor SamplerDescriptor;
-  wgpu::Sampler Sampler;
-  wgpu::TextureViewDescriptor TextureViewDescriptor;
-  wgpu::TextureView TextureView;
+  WGPUTextureDescriptor TextureDescriptor;
+  WGPUTexture Texture;
+  WGPUSamplerDescriptor SamplerDescriptor;
+  WGPUSampler Sampler;
+  WGPUTextureViewDescriptor TextureViewDescriptor;
+  WGPUTextureView TextureView;
 };
 
 VTK_ABI_NAMESPACE_END

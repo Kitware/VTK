@@ -22,8 +22,7 @@
 #include "vtkWebGPURenderTextureCache.h"   // for texture cache
 #include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                      // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"                      // for webgpu C API
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -246,19 +245,19 @@ public:
   /**
    * Create a new render pass encoder on the webgpu device.
    */
-  wgpu::RenderPassEncoder NewRenderPass(wgpu::RenderPassDescriptor& descriptor);
+  WGPURenderPassEncoder NewRenderPass(WGPURenderPassDescriptor& descriptor);
 
   /**
    * Create a new render bundle encoder on the webgpu device. More performant for large number of
    * actors.
    */
-  wgpu::RenderBundleEncoder NewRenderBundleEncoder(wgpu::RenderBundleEncoderDescriptor& descriptor);
+  WGPURenderBundleEncoder NewRenderBundleEncoder(WGPURenderBundleEncoderDescriptor& descriptor);
 
   /**
    * Get the currently used command encoder. Use this to prepare draw commands which eventually
    * get submitted in `Frame()`
    */
-  wgpu::CommandEncoder GetCommandEncoder();
+  WGPUCommandEncoder GetCommandEncoder();
 
   /**
    * Initializes a new command encoder
@@ -268,23 +267,23 @@ public:
   /**
    * Sends a given command buffer to the device queue
    */
-  void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
+  void FlushCommandBuffers(vtkTypeUInt32 count, WGPUCommandBuffer* buffers);
 
   /**
    * Get a view of the color attachment used in the offscreen render target.
    */
-  wgpu::TextureView GetOffscreenColorAttachmentView();
-  wgpu::TextureView GetHardwareSelectorAttachmentView();
+  WGPUTextureView GetOffscreenColorAttachmentView();
+  WGPUTextureView GetHardwareSelectorAttachmentView();
 
   /**
    * Get a view of the depth-stencil attachment used in the offscreen render target.
    */
-  wgpu::TextureView GetDepthStencilView();
+  WGPUTextureView GetDepthStencilView();
 
   /**
    * Get the texture format of the depth-stencil attachment.
    */
-  wgpu::TextureFormat GetDepthStencilFormat();
+  WGPUTextureFormat GetDepthStencilFormat();
 
   /**
    * Whether the offscreen render target has stencil capabilities.
@@ -294,22 +293,22 @@ public:
   /**
    * Get the webgpu device.
    */
-  wgpu::Device GetDevice();
+  WGPUDevice GetDevice();
 
   /**
    * Get the webgpu adapter.
    */
-  wgpu::Adapter GetAdapter();
+  WGPUAdapter GetAdapter();
 
   /**
    * Get the texture format preferred for the surface.
    */
-  wgpu::TextureFormat GetPreferredSurfaceTextureFormat();
+  WGPUTextureFormat GetPreferredSurfaceTextureFormat();
 
   /**
    * Get the texture format preferred for selector IDs.
    */
-  wgpu::TextureFormat GetPreferredSelectorIdsTextureFormat();
+  WGPUTextureFormat GetPreferredSelectorIdsTextureFormat();
 
   ///@{
   /**
@@ -399,7 +398,7 @@ private:
    * Submits command buffers to the device queue. This allows the execution of additional custom
    * commands by the render window.
    */
-  void SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer);
+  void SubmitCommandBuffer(int count, WGPUCommandBuffer* commandBuffer);
 
   /**
    * Dispatches all the post-render compute pipelines of all the renderers of this render window
@@ -435,7 +434,7 @@ private:
    * - RGBA32Uint
    * - BGRA8Unorm
    */
-  ComponentMapping GetComponentMapping(wgpu::TextureFormat format, int desiredOutComponents);
+  ComponentMapping GetComponentMapping(WGPUTextureFormat format, int desiredOutComponents);
 
   template <typename TOutput, typename TInput>
   struct PixelReadbackCallbackData
@@ -461,7 +460,7 @@ private:
    * the output array with the resulting values.
    */
   template <typename TOutput, typename TInput>
-  TOutput* GetTextureDataInternal(wgpu::Texture texture, wgpu::TextureFormat format, int x1, int y1,
+  TOutput* GetTextureDataInternal(WGPUTexture texture, WGPUTextureFormat format, int x1, int y1,
     int x2, int y2, const ComponentMapping& componentMapping,
     std::function<TOutput(TInput)> converter = nullptr);
 
@@ -481,17 +480,17 @@ private:
    * data is available, with a pointer to the mapped data, the number of bytes per row and a user
    * data pointer that can be used to pass any additional information needed in the callback.
    */
-  void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
-    std::size_t mipLevel, wgpu::TextureAspect aspect, wgpu::Origin3D offsets,
-    wgpu::Extent3D extents, TextureMapCallback callback, void* userData);
+  void ReadTextureFromGPU(WGPUTexture& wgpuTexture, WGPUTextureFormat format, std::size_t mipLevel,
+    WGPUTextureAspect aspect, WGPUOrigin3D offsets, WGPUExtent3D extents,
+    TextureMapCallback callback, void* userData);
 
   /**
    * Convenient method to read back full extent of a texture from the GPU. This calls the
    * more general ReadTextureFromGPU() method with origin = {0, 0, 0} and extents = {texture width,
    * texture height, texture depth}.
    */
-  void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
-    std::size_t mipLevel, wgpu::TextureAspect aspect, TextureMapCallback callback, void* userData);
+  void ReadTextureFromGPU(WGPUTexture& wgpuTexture, WGPUTextureFormat format, std::size_t mipLevel,
+    WGPUTextureAspect aspect, TextureMapCallback callback, void* userData);
 
   /**
    * Initialize the internal vtkWebGPUConfiguration object, which creates the WebGPU device and
@@ -591,42 +590,42 @@ private:
 
   bool RenderTexturesSetup = false;
 
-  wgpu::Surface Surface;
-  wgpu::CommandEncoder CommandEncoder;
+  WGPUSurface Surface;
+  WGPUCommandEncoder CommandEncoder;
   int SurfaceConfiguredSize[2];
-  wgpu::TextureFormat PreferredSurfaceTextureFormat = wgpu::TextureFormat::BGRA8Unorm;
-  wgpu::TextureFormat PreferredSelectorIdsTextureFormat = wgpu::TextureFormat::RGBA32Uint;
+  WGPUTextureFormat PreferredSurfaceTextureFormat = WGPUTextureFormat_BGRA8Unorm;
+  WGPUTextureFormat PreferredSelectorIdsTextureFormat = WGPUTextureFormat_RGBA32Uint;
   struct vtkWGPUDepthStencil
   {
-    wgpu::Texture Texture;
-    wgpu::TextureView View;
-    wgpu::TextureFormat Format;
+    WGPUTexture Texture;
+    WGPUTextureView View;
+    WGPUTextureFormat Format;
     bool HasStencil;
   };
   vtkWGPUDepthStencil DepthStencilAttachment;
 
   struct vtkWGPUAttachment
   {
-    wgpu::Texture Texture;
-    wgpu::TextureView View;
-    wgpu::TextureFormat Format;
+    WGPUTexture Texture;
+    WGPUTextureView View;
+    WGPUTextureFormat Format;
   };
   vtkWGPUAttachment ColorAttachment;
   vtkWGPUAttachment IdsAttachment;
 
   struct vtkWGPUUserStagingPixelData
   {
-    wgpu::Origin3D Origin;
-    wgpu::Extent3D Extent;
-    wgpu::TexelCopyBufferLayout Layout;
-    wgpu::Buffer Buffer; // for SetPixelData
+    WGPUOrigin3D Origin;
+    WGPUExtent3D Extent;
+    WGPUTexelCopyBufferLayout Layout;
+    WGPUBuffer Buffer; // for SetPixelData
   };
   vtkWGPUUserStagingPixelData StagingPixelData;
 
   struct vtkWGPUFullScreenQuad
   {
     std::string Key;
-    wgpu::BindGroup BindGroup;
+    WGPUBindGroup BindGroup;
   };
   vtkWGPUFullScreenQuad ColorCopyRenderPipeline;
 

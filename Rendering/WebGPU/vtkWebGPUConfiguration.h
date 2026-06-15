@@ -21,8 +21,7 @@
 #include "vtkLogger.h"                // for vtkLogger::Verbosity enum
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                 // for wgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 #include <memory> // for unique_ptr
 
@@ -130,9 +129,9 @@ public:
   /**
    * Get handles of the WGPU adapter/device/instance.
    */
-  wgpu::Adapter GetAdapter();
-  wgpu::Device GetDevice();
-  wgpu::Instance GetInstance();
+  WGPUAdapter GetAdapter();
+  WGPUDevice GetDevice();
+  WGPUInstance GetInstance();
   ///@}
 
   /**
@@ -245,44 +244,43 @@ public:
    * which is useful to audit GPU memory usage. It avoids creating buffers larger
    * than supported by the device.
    */
-  wgpu::Buffer CreateBuffer(std::uint64_t sizeBytes, wgpu::BufferUsage usage,
+  WGPUBuffer CreateBuffer(std::uint64_t sizeBytes, WGPUBufferUsage usage,
     bool mappedAtCreation = false, const char* label = nullptr);
-  wgpu::Buffer CreateBuffer(const wgpu::BufferDescriptor& bufferDescriptor);
+  WGPUBuffer CreateBuffer(const WGPUBufferDescriptor& bufferDescriptor);
   ///@}
 
   /**
    * Convenient method used to write data into an existing buffer. This method also logs memory
    * information which is useful to audit GPU memory usage.
    */
-  void WriteBuffer(const wgpu::Buffer& buffer, std::uint64_t offset, const void* data,
-    std::size_t sizeBytes, const char* description = nullptr);
+  void WriteBuffer(WGPUBuffer buffer, std::uint64_t offset, const void* data, std::size_t sizeBytes,
+    const char* description = nullptr);
 
   ///@{
   /**
    * Creates a WebGPU texture with the given device and returns it.
    */
-  wgpu::Texture CreateTexture(wgpu::Extent3D extents, wgpu::TextureDimension dimension,
-    wgpu::TextureFormat format, wgpu::TextureUsage usage, int mipLevelCount = 1,
+  WGPUTexture CreateTexture(WGPUExtent3D extents, WGPUTextureDimension dimension,
+    WGPUTextureFormat format, WGPUTextureUsage usage, int mipLevelCount = 1,
     const char* label = nullptr);
-  wgpu::Texture CreateTexture(const wgpu::TextureDescriptor& textureDescriptor);
+  WGPUTexture CreateTexture(const WGPUTextureDescriptor& textureDescriptor);
   ///@}
 
   /**
    * Creates a texture view of a texture
    */
-  wgpu::TextureView CreateView(wgpu::Texture texture, wgpu::TextureViewDimension dimension,
-    wgpu::TextureAspect aspect, wgpu::TextureFormat format, int baseMipLevel, int mipLevelCount,
+  WGPUTextureView CreateView(WGPUTexture texture, WGPUTextureViewDimension dimension,
+    WGPUTextureAspect aspect, WGPUTextureFormat format, int baseMipLevel, int mipLevelCount,
     const char* label = nullptr);
-  wgpu::TextureView CreateView(
-    wgpu::Texture texture, const wgpu::TextureViewDescriptor& viewDescriptor);
+  WGPUTextureView CreateView(WGPUTexture texture, const WGPUTextureViewDescriptor& viewDescriptor);
 
   /**
    * Upload byteSize of data from the data pointer to the given texture,
    * assuming `bytesPerRow` bytes of data per row in the texture.
    */
-  void WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow, uint32_t byteSize,
-    const void* data, uint32_t srcOffset = 0, wgpu::Origin3D dstOffset = { 0, 0, 0 },
-    uint32_t dstMipLevel = 0, const char* description = nullptr);
+  void WriteTexture(WGPUTexture texture, uint32_t bytesPerRow, uint32_t byteSize, const void* data,
+    uint32_t srcOffset = 0, WGPUOrigin3D dstOffset = { 0, 0, 0 }, uint32_t dstMipLevel = 0,
+    const char* description = nullptr);
 
   ///@{
   /**
@@ -301,7 +299,7 @@ public:
   ///@}
 
   /**
-   * This method prints the information corresponding to all active wgpu::Buffer and wgpu::Texture
+   * This method prints the information corresponding to all active WGPUBuffer and WGPUTexture
    * objects to the log with verbosity specified by GetGPUMemoryLogVerbosity().
    * With Dawn, this interfaces directly into Dawn's memory statistics API for accurate
    * information about active objects.

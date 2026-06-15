@@ -5,8 +5,8 @@
  * @brief   Class to create and retrieve render pipelines based on a given key.
  *
  * vtkWebGPURenderPipelineCache is meant to reduce the cost of creating render
- * pipelines by caching `wgpu::RenderPipeline` instances that are similar.
- * This class generates a unique hash for a given `wgpu::RenderPipelineDescriptor`
+ * pipelines by caching `WGPURenderPipeline` instances that are similar.
+ * This class generates a unique hash for a given `WGPURenderPipelineDescriptor`
  * and a shader source string.
  *
  * The key is built from certain properties. It is guaranteed that the combination
@@ -39,8 +39,7 @@
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                 // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -65,14 +64,14 @@ public:
    * Get a render pipeline associated with the given hash.
    * @param key The unique hash of the render pipeline to retrieve.
    */
-  wgpu::RenderPipeline GetRenderPipeline(const std::string& key);
+  WGPURenderPipeline GetRenderPipeline(const std::string& key);
 
   /**
    * Get a unique hash for the given combination of render pipeline descriptor and shader source.
    * @param descriptor The render pipeline descriptor to use.
    * @param shaderSource The source code for the shader.
    */
-  std::string GetPipelineKey(wgpu::RenderPipelineDescriptor* descriptor, const char* shaderSource);
+  std::string GetPipelineKey(WGPURenderPipelineDescriptor* descriptor, const char* shaderSource);
 
   /**
    * Get a unique hash for the given combination of render pipeline descriptor and shader source.
@@ -80,7 +79,7 @@ public:
    * @param vertexShaderSource The source code for the vertex shader.
    * @param fragmentShaderSource The source code for the fragment shader.
    */
-  std::string GetPipelineKey(wgpu::RenderPipelineDescriptor* descriptor,
+  std::string GetPipelineKey(WGPURenderPipelineDescriptor* descriptor,
     const char* vertexShaderSource, const char* fragmentShaderSource);
 
   /**
@@ -90,7 +89,7 @@ public:
    * @param wgpuRenderWindow The WebGPU render window to use for creating the pipeline.
    * @param shaderSource The source code for the shader.
    */
-  void CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+  void CreateRenderPipeline(WGPURenderPipelineDescriptor* descriptor,
     vtkWebGPURenderWindow* wgpuRenderWindow, const char* shaderSource);
 
   /**
@@ -101,7 +100,7 @@ public:
    * @param vertexShaderSource The source code for the vertex shader.
    * @param fragmentShaderSource The source code for the fragment shader.
    */
-  void CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+  void CreateRenderPipeline(WGPURenderPipelineDescriptor* descriptor,
     vtkWebGPURenderWindow* wgpuRenderWindow, const char* vertexShaderSource,
     const char* fragmentShaderSource);
 

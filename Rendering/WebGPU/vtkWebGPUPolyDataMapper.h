@@ -10,8 +10,7 @@
 #include "vtkWebGPUCellToPrimitiveConverter.h" // for TopologySourceType
 #include "vtkWebGPUComputePipeline.h"          // for ivar
 #include "vtkWrappingHints.h"                  // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                          // for webgpu
-#include "webgpu/webgpu_cpp.h"
+#include "vtk_wgpu.h"                          // for webgpu C API
 
 #include <array>         // for ivar
 #include <unordered_set> // for the not set compute render buffers
@@ -62,7 +61,7 @@ public:
   };
 
   /**
-   * This mapper uses different `wgpu::RenderPipeline` to render
+   * This mapper uses different `WGPURenderPipeline` to render
    * a list of primitives. Each pipeline uses an appropriate
    * shader module, bindgroup and primitive type.
    */
@@ -198,9 +197,9 @@ protected:
    * use before making the draw calls.
    */
   void RecordDrawCommands(
-    vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder);
+    vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder);
   void RecordDrawCommands(
-    vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder);
+    vtkRenderer* renderer, vtkActor* actor, const WGPURenderBundleEncoder& bundleEncoder);
 
   /**
    * Looks at the point/cell data of `vtkPolyData` object and determines
@@ -212,26 +211,26 @@ protected:
    * Allow subclasses to customize the entries in the bind group layout corresponding to
    * GROUP_MESH
    */
-  virtual std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries();
+  virtual std::vector<WGPUBindGroupLayoutEntry> GetMeshBindGroupLayoutEntries();
 
   /**
    * Allow subclasses to customize the entries in the bind group layout corresponding to
    * GROUP_TOPOLOGY
    */
-  virtual std::vector<wgpu::BindGroupLayoutEntry> GetTopologyBindGroupLayoutEntries(
+  virtual std::vector<WGPUBindGroupLayoutEntry> GetTopologyBindGroupLayoutEntries(
     bool homogeneousCellSize, bool useEdgeArray);
 
   /**
    * Allow subclasses to customize the entries in the bind group corresponding to
    * GROUP_MESH
    */
-  virtual std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries();
+  virtual std::vector<WGPUBindGroupEntry> GetMeshBindGroupEntries();
 
   /**
    * Allow subclasses to customize the entries in the bind group corresponding to
    * GROUP_TOPOLOGY
    */
-  virtual std::vector<wgpu::BindGroupEntry> GetTopologyBindGroupEntries(
+  virtual std::vector<WGPUBindGroupEntry> GetTopologyBindGroupEntries(
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType,
     bool homogeneousCellSize, bool useEdgeArray);
 
@@ -285,10 +284,10 @@ protected:
   virtual void UpdateMeshTopologyBuffers(
     vtkWebGPUConfiguration* wgpuConfiguration, vtkProperty* displayProperty);
 
-  virtual std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() { return {}; }
+  virtual std::vector<WGPUVertexBufferLayout> GetVertexBufferLayouts() { return {}; }
 
-  virtual void SetVertexBuffers(const wgpu::RenderPassEncoder& vtkNotUsed(passEncoder)) {}
-  virtual void SetVertexBuffers(const wgpu::RenderBundleEncoder& vtkNotUsed(bundleEncoder)) {}
+  virtual void SetVertexBuffers(const WGPURenderPassEncoder& vtkNotUsed(passEncoder)) {}
+  virtual void SetVertexBuffers(const WGPURenderBundleEncoder& vtkNotUsed(bundleEncoder)) {}
 
   /**
    * Generates vertex and fragment shader code
@@ -391,8 +390,7 @@ protected:
   /**
    * Get the primitive topology type that should be used for the given pipeline.
    */
-  virtual wgpu::PrimitiveTopology GetPrimitiveTopologyForPipeline(
-    GraphicsPipelineType pipelineType);
+  virtual WGPUPrimitiveTopology GetPrimitiveTopologyForPipeline(GraphicsPipelineType pipelineType);
 
   struct DrawCallArgs
   {
@@ -410,20 +408,19 @@ protected:
    * Create a bind group for the point and cell attributes of a mesh. It has three bindings.
    * See `vtkWebGPUPolyDataMapper::GetMeshBindGroupLayoutEntries()` for the types of these bindings.
    */
-  wgpu::BindGroup CreateMeshAttributeBindGroup(
-    const wgpu::Device& device, const std::string& label);
+  WGPUBindGroup CreateMeshAttributeBindGroup(const WGPUDevice& device, const std::string& label);
 
   /**
    * Create a bind group for the primitives of a mesh. It has 2 bindings.
    * See `vtkWebGPUPolyDataMapper::GetTopologyBindGroupLayoutEntries()` for the types of these
    * bindings.
    */
-  wgpu::BindGroup CreateTopologyBindGroup(const wgpu::Device& device, const std::string& label,
+  WGPUBindGroup CreateTopologyBindGroup(const WGPUDevice& device, const std::string& label,
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType);
 
   struct AttributeBuffer
   {
-    wgpu::Buffer Buffer;
+    WGPUBuffer Buffer;
     uint64_t Size = 0;
     uint64_t Watermark = 0;
     bool Touched = false;
@@ -435,7 +432,7 @@ protected:
     vtkTypeFloat32 PlaneEquations[6][4];
     vtkTypeUInt32 PlaneCount = 0;
   } ClippingPlanesData;
-  wgpu::Buffer ClippingPlanesBuffer;
+  WGPUBuffer ClippingPlanesBuffer;
 
   ///@{ Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp CellAttributesBuildTimestamp[CELL_NB_ATTRIBUTES];
@@ -458,24 +455,24 @@ protected:
   vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
 
   // 1 bind group for this polydata mesh
-  wgpu::BindGroup MeshAttributeBindGroup;
+  WGPUBindGroup MeshAttributeBindGroup;
   std::vector<std::uint32_t> MeshAttributeDynamicOffsets;
 
   struct TopologyBindGroupInfo
   {
     // buffer for point ids.
-    wgpu::Buffer ConnectivityBuffer;
+    WGPUBuffer ConnectivityBuffer;
     // buffer for the cell ids.
-    wgpu::Buffer CellIdBuffer;
+    WGPUBuffer CellIdBuffer;
     // buffer for edge array. this lets fragment shader hide internal edges of a polygon
     // when edge visibility is turned on.
-    wgpu::Buffer EdgeArrayBuffer;
+    WGPUBuffer EdgeArrayBuffer;
     // uniform buffer for cell id offset.
-    wgpu::Buffer CellIdOffsetUniformBuffer;
+    WGPUBuffer CellIdOffsetUniformBuffer;
     // // buffer for indirect draw command
-    // wgpu::Buffer IndirectDrawBuffer;
+    // WGPUBuffer IndirectDrawBuffer;
     // bind group for the primitive size uniform.
-    wgpu::BindGroup BindGroup;
+    WGPUBindGroup BindGroup;
     // maximum number of vertices in a cell
     vtkTypeUInt32 MaxCellSize = 0;
     // vertexCount for draw call.
@@ -512,17 +509,17 @@ private:
   friend class vtkWebGPURenderer;
 
   /**
-   * Returns the wgpu::Buffer containing the point data attributes of this mapper
+   * Returns the WGPUBuffer containing the point data attributes of this mapper
    */
-  wgpu::Buffer GetPointDataWGPUBuffer(PointDataAttributes attribute)
+  WGPUBuffer GetPointDataWGPUBuffer(PointDataAttributes attribute)
   {
     return this->PointBuffers[attribute].Buffer;
   }
 
   /**
-   * Returns the wgpu::Buffer containing the cell data attributes of this mapper
+   * Returns the WGPUBuffer containing the cell data attributes of this mapper
    */
-  wgpu::Buffer GetCellDataWGPUBuffer(CellDataAttributes attribute)
+  WGPUBuffer GetCellDataWGPUBuffer(CellDataAttributes attribute)
   {
     return this->CellBuffers[attribute].Buffer;
   }
@@ -562,13 +559,13 @@ private:
   /**
    * Create a bind group layout for the mesh attribute bind group.
    */
-  wgpu::BindGroupLayout CreateMeshAttributeBindGroupLayout(
-    const wgpu::Device& device, const std::string& label);
+  WGPUBindGroupLayout CreateMeshAttributeBindGroupLayout(
+    const WGPUDevice& device, const std::string& label);
 
   /**
    * Create a bind group layout for the `TopologyRenderInfo::BindGroup`
    */
-  wgpu::BindGroupLayout CreateTopologyBindGroupLayout(const wgpu::Device& device,
+  WGPUBindGroupLayout CreateTopologyBindGroupLayout(const WGPUDevice& device,
     const std::string& label, bool homogeneousCellSize, bool useEdgeArray);
 
   /**
@@ -612,7 +609,7 @@ private:
    * Creates the graphics pipeline. Rendering state is frozen after this point.
    * The build timestamp is recorded in `GraphicsPipelineBuildTimestamp`.
    */
-  void SetupGraphicsPipelines(const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor);
+  void SetupGraphicsPipelines(const WGPUDevice& device, vtkRenderer* renderer, vtkActor* actor);
 
   /**
    * Updates the clipping planes buffer with the current clipping planes data.

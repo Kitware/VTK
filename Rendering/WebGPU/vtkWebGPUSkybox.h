@@ -21,8 +21,7 @@
 #include "vtkNew.h"                   // for ivars
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
-#include "vtk_wgpu.h"                 // for webgpu
-#include "webgpu/webgpu_cpp.h"        // for wgpu:: C++ wrapper types
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
@@ -94,13 +93,13 @@ private:
   int LastProjection = -1;
   bool LastGammaCorrect = false;
 
-  wgpu::RenderPipeline Pipeline;
-  wgpu::BindGroupLayout BindGroupLayout;
-  wgpu::BindGroup BindGroup;
-  wgpu::Buffer UniformBuffer;
-  wgpu::Buffer MatrixBuffer;
-  wgpu::BindGroupLayout MatrixBindGroupLayout;
-  wgpu::BindGroup MatrixBindGroup;
+  WGPURenderPipeline Pipeline;
+  WGPUBindGroupLayout BindGroupLayout;
+  WGPUBindGroup BindGroup;
+  WGPUBuffer UniformBuffer;
+  WGPUBuffer MatrixBuffer;
+  WGPUBindGroupLayout MatrixBindGroupLayout;
+  WGPUBindGroup MatrixBindGroup;
   std::string PipelineKey;
 
   vtkNew<vtkMatrix3x3> RotationMatrix;
