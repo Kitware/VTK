@@ -223,28 +223,40 @@ void vtkWebGPUComputePassInternals::RecreateBufferBindGroup(int bufferIndex)
 void vtkWebGPUComputePassInternals::RegisterBufferToPipeline(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer)
 {
-  this->AssociatedPipeline->RegisterBuffer(buffer, wgpuBuffer);
+  this->AssociatedPipeline->RegisterBuffer(buffer, wgpuBuffer.Get());
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePassInternals::RegisterTextureToPipeline(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture wgpuTexture)
 {
-  this->AssociatedPipeline->RegisterTexture(texture, wgpuTexture);
+  this->AssociatedPipeline->RegisterTexture(texture, wgpuTexture.Get());
 }
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUComputePassInternals::GetRegisteredBufferFromPipeline(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer& wgpuBuffer)
 {
-  return this->AssociatedPipeline->GetRegisteredBuffer(buffer, wgpuBuffer);
+  WGPUBuffer tempBuffer = nullptr;
+  if (this->AssociatedPipeline->GetRegisteredBuffer(buffer, tempBuffer))
+  {
+    wgpuBuffer = wgpu::Buffer(tempBuffer);
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUComputePassInternals::GetRegisteredTextureFromPipeline(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture& wgpuTexture)
 {
-  return this->AssociatedPipeline->GetRegisteredTexture(texture, wgpuTexture);
+  WGPUTexture tempTexture = nullptr;
+  if (this->AssociatedPipeline->GetRegisteredTexture(texture, tempTexture))
+  {
+    wgpuTexture = wgpu::Texture(tempTexture);
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -456,7 +468,7 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
 
   wgpu::CommandEncoder commandEncoder = this->CreateCommandEncoder();
   {
-    vtkScopedEncoderDebugGroup(commandEncoder, this->ParentPass->GetLabel().c_str());
+    vtkScopedEncoderDebugGroup(commandEncoder.Get(), this->ParentPass->GetLabel().c_str());
     wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
     computePassEncoder.SetPipeline(this->ComputePipeline);
     for (std::size_t bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
@@ -536,8 +548,8 @@ void vtkWebGPUComputePassInternals::CreateWebGPUComputePipeline()
   computePipelineDescriptor.label = this->ParentPass->WGPUComputePipelineLabel.c_str();
   computePipelineDescriptor.layout = this->CreateWebGPUComputePipelineLayout();
 
-  this->ComputePipeline =
-    this->WGPUConfiguration->GetDevice().CreateComputePipeline(&computePipelineDescriptor);
+  this->ComputePipeline = wgpu::Device(this->WGPUConfiguration->GetDevice())
+                            .CreateComputePipeline(&computePipelineDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -548,8 +560,8 @@ wgpu::PipelineLayout vtkWebGPUComputePassInternals::CreateWebGPUComputePipelineL
   computePipelineLayoutDescriptor.bindGroupLayouts = this->BindGroupLayouts.data();
   computePipelineLayoutDescriptor.nextInChain = nullptr;
 
-  return this->WGPUConfiguration->GetDevice().CreatePipelineLayout(
-    &computePipelineLayoutDescriptor);
+  return wgpu::Device(this->WGPUConfiguration->GetDevice())
+    .CreatePipelineLayout(&computePipelineLayoutDescriptor);
 }
 
 wgpu::CommandEncoder vtkWebGPUComputePassInternals::CreateCommandEncoder()
@@ -557,7 +569,8 @@ wgpu::CommandEncoder vtkWebGPUComputePassInternals::CreateCommandEncoder()
   wgpu::CommandEncoderDescriptor commandEncoderDescriptor;
   commandEncoderDescriptor.label = this->ParentPass->WGPUCommandEncoderLabel.c_str();
 
-  return this->WGPUConfiguration->GetDevice().CreateCommandEncoder(&commandEncoderDescriptor);
+  return wgpu::Device(this->WGPUConfiguration->GetDevice())
+    .CreateCommandEncoder(&commandEncoderDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -575,7 +588,7 @@ void vtkWebGPUComputePassInternals::SubmitCommandEncoderToQueue(
   const wgpu::CommandEncoder& commandEncoder)
 {
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
-  this->WGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
+  wgpu::Device(this->WGPUConfiguration->GetDevice()).GetQueue().Submit(1, &commandBuffer);
 }
 
 //------------------------------------------------------------------------------
