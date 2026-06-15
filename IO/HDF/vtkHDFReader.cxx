@@ -873,13 +873,21 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkRectilinearGrid* data)
   }
   data->SetExtent(updateExtent.data());
 
+  // Read temporal offsets if any
+  vtkIdType XCoordsOffset =
+    std::max<vtkIdType>(this->Impl->GetTemporalOffset(this->Step, "XCoordinatesOffsets"), 0);
+  vtkIdType YCoordsOffset =
+    std::max<vtkIdType>(this->Impl->GetTemporalOffset(this->Step, "YCoordinatesOffsets"), 0);
+  vtkIdType ZCoordsOffset =
+    std::max<vtkIdType>(this->Impl->GetTemporalOffset(this->Step, "ZCoordinatesOffsets"), 0);
+
   // Read X, Y, Z coordinates
   vtkSmartPointer<vtkDataArray> xCoords = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
-    "XCoordinates", updateExtent[0], updateExtent[1] - updateExtent[0] + 1));
+    "XCoordinates", XCoordsOffset + updateExtent[0], updateExtent[1] - updateExtent[0] + 1));
   vtkSmartPointer<vtkDataArray> yCoords = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
-    "YCoordinates", updateExtent[2], updateExtent[3] - updateExtent[2] + 1));
+    "YCoordinates", YCoordsOffset + updateExtent[2], updateExtent[3] - updateExtent[2] + 1));
   vtkSmartPointer<vtkDataArray> zCoords = vtk::TakeSmartPointer(this->Impl->NewMetadataArray(
-    "ZCoordinates", updateExtent[4], updateExtent[5] - updateExtent[4] + 1));
+    "ZCoordinates", ZCoordsOffset + updateExtent[4], updateExtent[5] - updateExtent[4] + 1));
 
   if (!xCoords || !yCoords || !zCoords)
   {
@@ -924,10 +932,19 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkStructuredGrid* data)
   data->SetExtent(updateExtent.data());
 
   // Read Points array
-  std::vector<hsize_t> fileExtent = { static_cast<hsize_t>(updateExtent[4]),
+  std::vector<hsize_t> fileExtent{ static_cast<hsize_t>(updateExtent[4]),
     static_cast<hsize_t>(updateExtent[5]) + 1, static_cast<hsize_t>(updateExtent[2]),
     static_cast<hsize_t>(updateExtent[3]) + 1, static_cast<hsize_t>(updateExtent[0]),
     static_cast<hsize_t>(updateExtent[1]) + 1, 0, 3 };
+
+  // Coordinates for time steps are added to the first dimension
+  vtkIdType offset = this->Impl->GetTemporalOffset(this->Step, "PointOffsets");
+  if (offset >= 0)
+  {
+    fileExtent.insert(fileExtent.begin(), static_cast<hsize_t>(offset + 1));
+    fileExtent.insert(fileExtent.begin(), static_cast<hsize_t>(offset));
+  }
+
   vtkSmartPointer<vtkDataArray> points =
     vtk::TakeSmartPointer(this->Impl->NewMetadataArray("Points", fileExtent));
   points->SetNumberOfComponents(3);
@@ -2271,25 +2288,21 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   }
   else if (dataSetType == VTK_RECTILINEAR_GRID)
   {
-    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
-    ok = this->Read(outInfo, rg);
+    ok = this->Read(outInfo, vtkRectilinearGrid::SafeDownCast(data));
   }
   else if (dataSetType == VTK_STRUCTURED_GRID)
   {
-    vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
-    ok = this->Read(outInfo, sg);
+    ok = this->Read(outInfo, vtkStructuredGrid::SafeDownCast(data));
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
-    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(data);
-    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
-    ok = this->Read(outInfo, ug, pData);
+    ok = this->Read(
+      outInfo, vtkUnstructuredGrid::SafeDownCast(data), vtkPartitionedDataSet::SafeDownCast(data));
   }
   else if (dataSetType == VTK_POLY_DATA)
   {
-    vtkPolyData* polydata = vtkPolyData::SafeDownCast(data);
-    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
-    ok = this->Read(outInfo, polydata, pData);
+    ok = this->Read(
+      outInfo, vtkPolyData::SafeDownCast(data), vtkPartitionedDataSet::SafeDownCast(data));
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
@@ -2298,19 +2311,16 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   }
   else if (dataSetType == VTK_HYPER_TREE_GRID)
   {
-    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(data);
-    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
-    ok = this->Read(outInfo, htg, pData);
+    ok = this->Read(
+      outInfo, vtkHyperTreeGrid::SafeDownCast(data), vtkPartitionedDataSet::SafeDownCast(data));
   }
   else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
   {
-    vtkPartitionedDataSetCollection* pdc = vtkPartitionedDataSetCollection::SafeDownCast(data);
-    ok = this->Read(outInfo, pdc);
+    ok = this->Read(outInfo, vtkPartitionedDataSetCollection::SafeDownCast(data));
   }
   else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
   {
-    vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(data);
-    ok = this->Read(outInfo, mbds);
+    ok = this->Read(outInfo, vtkMultiBlockDataSet::SafeDownCast(data));
   }
   else
   {

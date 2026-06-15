@@ -522,20 +522,16 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, unsigned int partId)
 {
-  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
+  if (this->CurrentTimeIndex == 0 && partId == 0 && !this->InitializeTemporalRectilinearGrid(group))
   {
-    if (!this->Impl->CreateStepsGroup(group))
-    {
-      vtkErrorMacro("Could not create steps group");
-      return false;
-    }
+    vtkErrorMacro(<< "Temporal polydata initialization failed for RectilinearGrid "
+                  << this->FileName);
+  }
 
-    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
-    {
-      vtkErrorMacro(<< "Could not initialize temporal time values for RectilinearGrid "
-                    << this->FileName);
-      return false;
-    }
+  if (!this->UpdateStepsGroup(group, input))
+  {
+    vtkErrorMacro(<< "Failed to update steps group for " << this->FileName);
+    return false;
   }
 
   if (this->UseExternalTimeSteps)
@@ -553,10 +549,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
   writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
     H5I_INVALID_HID;
 
-  if (!this->IsTemporal || this->CurrentTimeIndex == 0)
-  {
-    writeSuccess &= this->AppendRectilinearCoordinates(group, input);
-  }
+  writeSuccess &= this->AppendRectilinearCoordinates(group, input);
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
@@ -564,20 +557,16 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, unsigned int partId)
 {
-  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
+  if (this->CurrentTimeIndex == 0 && partId == 0 && !this->InitializeTemporalStructuredGrid(group))
   {
-    if (!this->Impl->CreateStepsGroup(group))
-    {
-      vtkErrorMacro("Could not create steps group");
-      return false;
-    }
+    vtkErrorMacro(<< "Temporal polydata initialization failed for RectilinearGrid "
+                  << this->FileName);
+  }
 
-    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
-    {
-      vtkErrorMacro(<< "Could not initialize temporal time values for StructuredGrid "
-                    << this->FileName);
-      return false;
-    }
+  if (!this->UpdateStepsGroup(group, input))
+  {
+    vtkErrorMacro(<< "Failed to update steps group for " << this->FileName);
+    return false;
   }
 
   if (this->UseExternalTimeSteps)
@@ -594,10 +583,33 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
   writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
     H5I_INVALID_HID;
 
-  if (!this->IsTemporal || this->CurrentTimeIndex == 0)
+  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
   {
-    writeSuccess &= this->AppendPoints(group, input, dims);
+    int components = 3;
+    vtkPoints* points = input->GetPoints();
+    hid_t datatype = vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE);
+    if (points)
+    {
+      vtkAbstractArray* pointArray = points->GetData();
+      datatype = vtkHDFUtilities::getH5TypeFromVtkType(pointArray->GetDataType());
+      components = pointArray->GetNumberOfComponents();
+    }
+
+    // Create resizeable 'Points' dataset
+    // The first dimension represents time
+    std::vector<hsize_t> dimensions{ 0, static_cast<hsize_t>(dims[0]),
+      static_cast<hsize_t>(dims[1]), static_cast<hsize_t>(dims[2]),
+      static_cast<hsize_t>(components) };
+
+    std::vector<hsize_t> pointChunkSize{ 1,
+      static_cast<hsize_t>(std::min(this->ChunkSize, dims[0])),
+      static_cast<hsize_t>(std::min(this->ChunkSize, dims[1])),
+      static_cast<hsize_t>(std::min(this->ChunkSize, dims[2])), static_cast<hsize_t>(components) };
+
+    writeSuccess &= this->Impl->InitDynamicDataset(
+      group, "Points", datatype, dimensions, pointChunkSize.data(), 0);
   }
+  writeSuccess &= this->AppendPoints(group, input, dims);
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
@@ -954,6 +966,61 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input)
+{
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  vtkDebugMacro("Update Rectilinear Grid Steps group for file " << this->GetFileName());
+
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
+  bool result = true;
+
+  // Don't write offsets for the last timestep
+  if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
+  {
+    return result;
+  }
+
+  result &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, "XCoordinatesOffsets", { input->GetXCoordinates()->GetNumberOfTuples() }, true);
+  result &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, "YCoordinatesOffsets", { input->GetYCoordinates()->GetNumberOfTuples() }, true);
+  result &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, "ZCoordinatesOffsets", { input->GetZCoordinates()->GetNumberOfTuples() }, true);
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkStructuredGrid* vtkNotUsed(input))
+{
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  vtkDebugMacro("Update Structured Grid Steps group for file " << this->GetFileName());
+
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
+  bool result = true;
+
+  // Don't write offsets for the last timestep
+  if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
+  {
+    return result;
+  }
+
+  // No static points support yet
+  this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, "PointOffsets", { this->CurrentTimeIndex + 1 }, false);
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId)
 {
   if (!this->IsTemporal)
@@ -1238,6 +1305,84 @@ bool vtkHDFWriter::InitializeTemporalHTG(hid_t group)
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets", { 0 });
 
+  if (!initResult)
+  {
+    vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializeTemporalRectilinearGrid(hid_t group)
+{
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  vtkDebugMacro("Initialize Temporal RectilinearGrid for file " << this->FileName);
+
+  if (!this->Impl->CreateStepsGroup(group))
+  {
+    vtkErrorMacro("Could not create steps group");
+    return false;
+  }
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
+  if (!this->AppendTimeValues(stepsGroup))
+  {
+    return false;
+  }
+
+  // Create empty offsets arrays, where a value is appended every step
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "XCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "YCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "ZCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+
+  // Add an initial 0 value in the offset arrays
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "XCoordinatesOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets", { 0 });
+
+  if (!initResult)
+  {
+    vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::InitializeTemporalStructuredGrid(hid_t group)
+{
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  vtkDebugMacro("Initialize Temporal RectilinearGrid for file " << this->FileName);
+
+  if (!this->Impl->CreateStepsGroup(group))
+  {
+    vtkErrorMacro("Could not create steps group");
+    return false;
+  }
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
+  if (!this->AppendTimeValues(stepsGroup))
+  {
+    return false;
+  }
+
+  bool initResult = true;
+  initResult &= this->Impl->InitDynamicDataset(
+    stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   if (!initResult)
   {
     vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
@@ -1569,9 +1714,17 @@ bool vtkHDFWriter::InitializePolyhedraDatasets(hid_t group)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid* input)
 {
+  hsize_t largeChunkSize[] = { static_cast<hsize_t>(this->ChunkSize), 1 };
   auto appendCoordinates = [&](const char* name, vtkDataArray* array)
   {
     hid_t dataType = vtkHDFUtilities::getH5TypeFromVtkType(array->GetDataType());
+    if (this->IsTemporal && this->CurrentTimeIndex == 0 &&
+      !this->Impl->InitDynamicDataset(
+        group, name, H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel))
+    {
+      return false;
+    }
+
     return this->Impl->AddOrCreateDataset(group, name, dataType, array);
   };
 

@@ -249,6 +249,8 @@ private:
    * For temporal data, update the steps group with information relevant to the current timestep.
    * return true if the operation was successful.
    */
+  bool UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input);
+  bool UpdateStepsGroup(hid_t group, vtkStructuredGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId);
   bool UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned int partId);
   bool UpdateStepsGroup(hid_t group, vtkHyperTreeGrid* input, unsigned int partId,
@@ -260,6 +262,8 @@ private:
    * Initialize the `Steps` group for temporal data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
+  bool InitializeTemporalRectilinearGrid(hid_t group);
+  bool InitializeTemporalStructuredGrid(hid_t group);
   bool InitializeTemporalPolyData(hid_t group);
   bool InitializeTemporalUnstructuredGrid(hid_t group);
   bool InitializeTemporalPolyhedra(hid_t group);

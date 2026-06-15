@@ -175,6 +175,12 @@ public:
   vtkIdType GetArrayOffset(vtkIdType step, int attributeType, std::string name);
 
   /**
+   * Get temporal offset value for the given time step of the data.
+   * Returns -1 if the offset dataset could not be found.
+   */
+  vtkIdType GetTemporalOffset(vtkIdType step, const std::string& name);
+
+  /**
    * Return the field array size (components, tuples) for the current step.
    * By default it returns {-1,1} which means to have as many components as necessary
    * and one tuple per step.
@@ -206,8 +212,6 @@ public:
   ///@{
   /**
    * Specific public API for AMR support.
-   */
-  /**
    * Return the number of level in an AMR file
    */
   unsigned int GetAMRNumberOfLevels();

@@ -1338,6 +1338,30 @@ vtkIdType vtkHDFReader::Implementation::GetArrayOffset(
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkHDFReader::Implementation::GetTemporalOffset(vtkIdType step, const std::string& name)
+{
+  if (H5Lexists(this->VTKGroup, "Steps", H5P_DEFAULT) <= 0)
+  {
+    return -1;
+  }
+
+  // Steps group does exist
+  vtkHDF::ScopedH5GHandle steps = H5Gopen(this->VTKGroup, "Steps", H5P_DEFAULT);
+
+  if (H5Lexists(steps, name.c_str(), H5P_DEFAULT) <= 0)
+  {
+    return -1;
+  }
+
+  std::vector<vtkIdType> buffer = vtkHDFUtilities::GetMetadata(steps, name.c_str(), 1, step);
+  if (buffer.empty())
+  {
+    return -1;
+  }
+  return buffer[0];
+}
+
+//------------------------------------------------------------------------------
 std::array<vtkIdType, 2> vtkHDFReader::Implementation::GetFieldArraySize(
   vtkIdType step, std::string name)
 {
