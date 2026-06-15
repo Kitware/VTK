@@ -89,4 +89,16 @@ void vtkPartitionedDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
+//------------------------------------------------------------------------------
+void vtkPartitionedDataSetAlgorithm::SetInputData(vtkDataObject* input)
+{
+  this->SetInputData(0, input);
+}
+
+//------------------------------------------------------------------------------
+void vtkPartitionedDataSetAlgorithm::SetInputData(int index, vtkDataObject* input)
+{
+  this->SetInputDataInternal(index, input);
+}
 VTK_ABI_NAMESPACE_END

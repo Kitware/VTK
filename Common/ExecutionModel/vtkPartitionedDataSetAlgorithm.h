@@ -27,6 +27,16 @@ public:
 
   ///@{
   /**
+   * Assign a data object as input. Note that this method does not
+   * establish a pipeline connection. Use SetInputConnection() to
+   * setup a pipeline connection.
+   */
+  void SetInputData(vtkDataObject*);
+  void SetInputData(int, vtkDataObject*);
+  ///@}
+
+  ///@{
+  /**
    * Get the output data object for the specified output port.
    */
   vtkPartitionedDataSet* GetOutput();

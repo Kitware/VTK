@@ -229,7 +229,7 @@ ostream& vtkAMRBox::Print(ostream& os) const
   os << "-D AMR box => "
      << "Low: (" << this->LoCorner[0] << "," << this->LoCorner[1] << "," << this->LoCorner[2]
      << ") High: (" << this->HiCorner[0] << "," << this->HiCorner[1] << "," << this->HiCorner[2]
-     << ")";
+     << ")" << std::endl;
   return os;
 }
 
@@ -687,6 +687,23 @@ void vtkAMRBox::Shift(const int* ijk)
   {
     this->LoCorner[q] = this->LoCorner[q] + ijk[q];
     this->HiCorner[q] = this->HiCorner[q] + ijk[q];
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBox::Add(int i, int j, int k)
+{
+  int ijk[3] = { i, j, k };
+  this->Add(ijk);
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRBox::Add(const int* ijk)
+{
+  for (int q = 0; q < 3; ++q)
+  {
+    this->LoCorner[q] = std::min(this->LoCorner[q], ijk[q]);
+    this->HiCorner[q] = std::max(this->HiCorner[q], ijk[q]);
   }
 }
 

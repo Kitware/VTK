@@ -1,5 +1,6 @@
 set(classes
   vtkAMRCutPlane
+  vtkAMRContourFilter
   vtkAMRGaussianPulseSource
   vtkAMRResampleFilter
   vtkAMRSliceFilter

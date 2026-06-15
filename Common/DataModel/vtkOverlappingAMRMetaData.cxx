@@ -1154,42 +1154,25 @@ const double* vtkOverlappingAMRMetaData::GetBounds()
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)
 {
-  if (!this->HasChildrenInformation())
+  // This must be implemented using FindGrids
+  // because if not, a grid NOT containing a refined grid could be selected
+  bool found = false;
+  for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
   {
-    this->GenerateParentChildInformation();
-  }
-
-  if (!this->FindGrid(q, 0, gridId))
-  {
-    return false;
-  }
-
-  unsigned int maxLevels = this->GetNumberOfLevels();
-  for (level = 0; level < maxLevels; level++)
-  {
-    unsigned int n;
-    unsigned int* children = this->GetChildren(level, gridId, n);
-    if (children == nullptr)
+    std::vector<unsigned int> gridIds;
+    if (this->FindGrids(q, i, gridIds))
     {
-      break;
+      level = i;
+      gridId = gridIds[0];
+      found = true;
     }
-    unsigned int i;
-    for (i = 0; i < n; i++)
+    else
     {
-      double bb[6];
-      this->GetBounds(level + 1, children[i], bb);
-      if (::Inside(q, bb))
-      {
-        gridId = children[i];
-        break;
-      }
-    }
-    if (i >= n)
-    {
+      level = i - 1;
       break;
     }
   }
-  return true;
+  return found;
 }
 
 //------------------------------------------------------------------------------
@@ -1207,5 +1190,23 @@ bool vtkOverlappingAMRMetaData::FindGrid(double q[3], int level, unsigned int& g
     }
   }
   return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMRMetaData::FindGrids(
+  double q[3], unsigned int level, std::vector<unsigned int>& gridIds)
+{
+  gridIds.clear();
+  for (unsigned int i = 0; i < this->GetNumberOfBlocks(level); i++)
+  {
+    double gbounds[6];
+    this->GetBounds(level, i, gbounds);
+    bool inside = ::Inside(q, gbounds);
+    if (inside)
+    {
+      gridIds.emplace_back(i);
+    }
+  }
+  return !gridIds.empty();
 }
 VTK_ABI_NAMESPACE_END
