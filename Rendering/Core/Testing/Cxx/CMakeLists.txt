@@ -142,8 +142,6 @@ set(cxx_tests
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
   TestStereoEyeSeparation.cxx
-  TestSkyboxBlur.cxx
-  TestSkyboxCubeRotation.cxx
   TestSkyboxRotation.cxx
   TestSkyboxRotationVectors.cxx
   TestSurfacePlusEdges.cxx,NO_DATA

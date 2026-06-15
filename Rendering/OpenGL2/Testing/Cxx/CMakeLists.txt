@@ -28,6 +28,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestDepthPeelingOcclusionQuery.cxx
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx
+  TestDirectSelectionRendering.cxx
   TestEDLPass.cxx
   TestEquirectangularToCubeMap.cxx
   TestFXAAFilter.cxx
@@ -81,8 +82,9 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestShadowMapBakerPass.cxx,NO_SERDES
   TestShadowMapPass.cxx
   TestSharedRenderWindow.cxx,NO_SERDES
-  TestDirectSelectionRendering.cxx
   TestSimpleMotionBlur.cxx,NO_SERDES
+  TestSkyboxBlur.cxx
+  TestSkyboxCubeRotation.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx
   TestSpherePoints.cxx
