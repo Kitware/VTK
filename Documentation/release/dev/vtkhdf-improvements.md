@@ -42,3 +42,9 @@ to suppress all console output on error. The previous version has been deprecate
 ## vtkHyperTreeGrid support in vtkHDFWriter
 
 `vtkHDFWriter` now properly supports the HyperTreeGrid data model. It can write partitioned, temporal and distributed data.
+
+## vtkRectilinearGrid & vtkStructuredGrid support
+
+The VTKHDF specification now supports Recilinear Grids and Structured Grids.
+
+`vtkHDFWriter` and `vtkHDFReader` are both capable of handling these new datatypes, for simple and time-dependent data.
