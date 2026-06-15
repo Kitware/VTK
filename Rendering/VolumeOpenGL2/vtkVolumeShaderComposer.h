@@ -223,11 +223,7 @@ inline std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolu
                    " in_inverseVolumeMatrix[0] * in_inverseModelViewMatrix;\n";
   }
 
-  if (inputs[0].Volume->GetProperty() && inputs[0].Volume->GetProperty()->GetShade() &&
-    !defaultLighting && totalNumberOfLights > 0)
-  {
-    toShaderStr << "mat4 g_texToView;\n";
-  }
+  toShaderStr << "mat4 g_texToView;\n";
 
   toShaderStr << "uniform vec2 in_scalarsRange[" << numInputs * 4
               << "];\n"
