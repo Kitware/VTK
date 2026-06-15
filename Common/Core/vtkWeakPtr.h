@@ -155,7 +155,7 @@ public:
   {
     this->Block = r ? r->GetWeakControlBlock() : nullptr;
     vtkWeakPtr::CheckTypes<U>();
-    return vtkWeakPtr(r);
+    return *this;
   }
   ///@}
 

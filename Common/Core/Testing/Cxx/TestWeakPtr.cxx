@@ -169,6 +169,32 @@ int TestWeakPtr(int, char*[])
     }
   }
 
+  // Test `Reset`
+  {
+    vtkNew<vtkObject> obj;
+
+    vtkWeakPtr<vtkObjectBase> weak_base;
+    vtkWeakPtr<vtkObject> weak;
+
+    weak.Reset(obj);
+    if (auto ptr = weak.Lock())
+    {
+      if (ptr != obj)
+      {
+        ERROR("Rest(obj) assignment gave the wrong value for `Lock`");
+      }
+    }
+
+    weak_base.Reset(obj);
+    if (auto ptr = weak_base.Lock())
+    {
+      if (ptr != obj)
+      {
+        ERROR("Rest(obj) assignment gave the wrong value for `Lock` when downcasting");
+      }
+    }
+  }
+
   // Test `Lock`
   {
     vtkWeakPtr<vtkObject> weak;
