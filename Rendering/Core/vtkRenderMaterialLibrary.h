@@ -48,45 +48,188 @@ public:
 
   using ParametersMap = std::map<std::string, ParameterType>;
 
+  /**
+   * Invoke an update event to notify observers of changes to the material library.
+   * This can be used to trigger rendering updates after material modifications.
+   */
   void Fire();
 
+  /**
+   * Read a material file from disk.
+   * Supports JSON and OBJ/MTL file formats.
+   * @param FileName Path to the material file to read
+   * @return True if file was successfully parsed, false otherwise
+   */
   bool ReadFile(const char* FileName);
+
+  /**
+   * Parse material data from a buffer in memory.
+   * @param Buffer String containing material data (JSON or MTL format)
+   * @return True if buffer was successfully parsed, false otherwise
+   */
   bool ReadBuffer(const char* Buffer);
 
+  /**
+   * Get the set of all material nicknames currently in the library.
+   * @return Set of material nickname strings
+   */
   std::set<std::string> GetMaterialNames();
+
+  /**
+   * Look up the implementation name for a material nickname.
+   * The implementation name indicates the underlying material type (e.g., "glass", "metal").
+   * @param nickname The user-facing material name
+   * @return The implementation/type name for the material
+   */
   std::string LookupImplName(const std::string& nickname);
 
+  /**
+   * Get the list of double-valued shader variables for a material.
+   * @param nickname The material to query
+   * @return Vector of variable names
+   */
   std::vector<std::string> GetDoubleShaderVariableList(const std::string& nickname);
+
+  /**
+   * Get the value of a double shader variable for a material.
+   * @param nickname The material to query
+   * @param varname The variable name to retrieve
+   * @return Vector of double values for the variable
+   */
   virtual std::vector<double> GetDoubleShaderVariable(
     const std::string& nickname, const std::string& varname);
 
+  /**
+   * Get the list of texture variables for a material.
+   * @param nickname The material to query
+   * @return Vector of texture variable names
+   */
   std::vector<std::string> GetTextureList(const std::string& nickname);
+
+  /**
+   * Get a texture object for a material variable.
+   * @param nickname The material to query
+   * @param varname The texture variable name
+   * @return Pointer to vtkTexture, or nullptr if not found
+   */
   vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
+
+  /**
+   * Get texture information for a material variable.
+   * @param nickname The material to query
+   * @param varname The texture variable name
+   * @return Pointer to TextureInfo structure, or nullptr if not found
+   */
   virtual const TextureInfo* GetTextureInfo(
     const std::string& nickname, const std::string& varname);
+
+  /**
+   * Get the registered name of a texture variable.
+   * @param nickname The material to query
+   * @param varname The texture variable name
+   * @return The texture name string
+   */
   std::string GetTextureName(const std::string& nickname, const std::string& varname);
+
+  /**
+   * Get the filename path of a texture variable.
+   * @param nickname The material to query
+   * @param varname The texture variable name
+   * @return The texture file path string
+   */
   std::string GetTextureFilename(const std::string& nickname, const std::string& varname);
 
+  /**
+   * Add a new material to the library or replace an existing one.
+   * Subclasses may override to add validation logic.
+   * @param nickname User-facing name for the material
+   * @param implname Implementation/type name of the material
+   */
   virtual void AddMaterial(const std::string& nickname, const std::string& implname);
+
+  /**
+   * Remove a material from the library.
+   * Also removes all associated textures and shader variables.
+   * @param nickname The material to remove
+   */
   void RemoveMaterial(const std::string& nickname);
 
+  /**
+   * Add a texture to a material.
+   * Subclasses may override to add validation logic.
+   * @param nickname The material to modify
+   * @param varname The texture variable name
+   * @param tex The texture object to add
+   * @param texturename Optional name for the texture
+   * @param filename Optional filename path for the texture
+   */
   virtual void AddTexture(const std::string& nickname, const std::string& varname, vtkTexture* tex,
     const std::string& texturename = "unnamedTexture", const std::string& filename = "");
 
+  /**
+   * Add a shader variable to a material.
+   * Subclasses may override to add validation logic.
+   * @param nickname The material to modify
+   * @param variablename The shader variable name
+   * @param numVars Number of values in the variable
+   * @param x Array of double values for the variable
+   */
   virtual void AddShaderVariable(
     const std::string& nickname, const std::string& variablename, int numVars, const double* x);
+
+  /**
+   * Add a shader variable from an initializer list of doubles.
+   * Convenience overload that forwards to AddShaderVariable(string, string, int, const double*).
+   * @param nickname The material to modify
+   * @param variablename The shader variable name
+   * @param data Initializer list of double values
+   */
   void AddShaderVariable(const std::string& nickname, const std::string& variablename,
     const std::initializer_list<double>& data)
   {
     this->AddShaderVariable(nickname, variablename, static_cast<int>(data.size()), data.begin());
   }
 
+  /**
+   * Remove a shader variable from a material.
+   * @param nickname The material to modify
+   * @param variablename The shader variable to remove
+   */
   void RemoveShaderVariable(const std::string& nickname, const std::string& variablename);
+
+  /**
+   * Remove all shader variables from a material.
+   * @param nickname The material to modify
+   */
   void RemoveAllShaderVariables(const std::string& nickname);
+
+  /**
+   * Remove a texture from a material.
+   * @param nickname The material to modify
+   * @param varname The texture variable to remove
+   */
   void RemoveTexture(const std::string& nickname, const std::string& varname);
+
+  /**
+   * Remove all textures from a material.
+   * @param nickname The material to modify
+   */
   void RemoveAllTextures(const std::string& nickname);
 
+  /**
+   * Write the material library to a string buffer.
+   * @param writeImageInline If true, embed image data inline in the output; if false, use file
+   * references
+   * @return String buffer containing the serialized material library data
+   */
   const char* WriteBuffer(bool writeImageInline = true);
+
+  /**
+   * Write the material library to a file on disk.
+   * @param filename Path to write the material file to
+   * @param writeImageInline If true, embed image data inline in the output; if false, use file
+   * references
+   */
   void WriteFile(const std::string& filename, bool writeImageInline = false);
 
   /**
