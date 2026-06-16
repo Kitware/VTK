@@ -6,7 +6,6 @@
 #include "vtkAMRGaussianPulseSource.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellDataToPointData.h"
-#include "vtkContourFilter.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
@@ -34,7 +33,6 @@ struct ProgressChecker
   double PreviousProgress = 0;
   int ProgressCount = 0;
   bool ProgressStatus = true;
-  ;
   vtkAMRContourFilter* Contour;
 };
 
@@ -94,7 +92,7 @@ bool TestAMRContourOptions(const std::string& dataRoot)
   contour->GenerateTrianglesOff();
   contour->Update();
 
-  // XXX: use vtkHDReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
+  // XXX: use vtkHDFReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
   std::string fileName = dataRoot + "/Data/amr_contour_options_expected.vtpd";
   vtkNew<vtkXMLPartitionedDataSetReader> expectedReader;
   expectedReader->SetFileName(fileName.c_str());
@@ -127,7 +125,7 @@ bool TestAMRContourDefault(const std::string& dataRoot)
 
   contour->Update();
 
-  // XXX: use vtkHDReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
+  // XXX: use vtkHDFReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
   std::string fileName = dataRoot + "/Data/amr_contour_expected.vtpd";
   vtkNew<vtkXMLPartitionedDataSetReader> expectedReader;
   expectedReader->SetFileName(fileName.c_str());
@@ -165,7 +163,7 @@ bool TestAMRContourMultiGrid(const std::string& dataRoot)
   // This tests generates warnings but this is expected
   contour->Update();
 
-  // XXX: use vtkHDReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
+  // XXX: use vtkHDFReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971
   fileName = dataRoot + "/Data/amr_contour_multigrid_expected.vtpd";
   vtkNew<vtkXMLPartitionedDataSetReader> expectedReader;
   expectedReader->SetFileName(fileName.c_str());
