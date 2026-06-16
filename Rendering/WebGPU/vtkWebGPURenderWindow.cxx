@@ -252,8 +252,55 @@ void vtkWebGPURenderWindow::WGPUFinalize()
     return;
   }
   this->ReleaseGraphicsResources(this);
-  this->WGPUConfiguration->Finalize();
+
+  // CRITICAL: Reorder cleanup to handle NVIDIA's lazy GLX initialization.
+  //
+  // NVIDIA's Vulkan driver defers GLX extension initialization until device
+  // destruction time. During this deferred initialization, the driver modifies
+  // X11 Display state (e.g., registering close_display handlers). If the Display
+  // is already closed before Vulkan finalization, the driver attempts to access
+  // freed memory, causing a segmentation fault in XCloseDisplay().
+  //
+  // Minimal repro example shared with NVIDIA: https://github.com/sankhesh/nvidia-vulkan-reproducer
+  //
+  // Solution: Keep the Display open until after Vulkan finalization completes.
+  // This is achieved by:
+  // 1. Temporarily preventing Display closure during X11 window destruction
+  // 2. Destroying the X11 window (without closing the Display)
+  // 3. Finalizing Vulkan (which can safely access the Display)
+  // 4. Let the destructor close the Display (after Vulkan finalization)
+
+  // Temporarily disable Display closure during window destruction
+#if defined(VTK_USE_X)
+  if (this->WGPUConfiguration->IsNVIDIAGPUInUse())
+  {
+    if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+    {
+      if (xlibWindow->GetOwnDisplay())
+      {
+        xlibWindow->SetOwnDisplay(false);
+      }
+    }
+  }
+#endif // VTK_USE_X
+
+  // Destroy X11 window resources (but not the Display connection)
   this->DestroyWindow();
+
+  // Finalize Vulkan (Display is still valid for any deferred initialization)
+  this->WGPUConfiguration->Finalize();
+
+  // Restore Display ownership so destructor can properly clean up
+#if defined(VTK_USE_X)
+  if (this->WGPUConfiguration->IsNVIDIAGPUInUse())
+  {
+    if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+    {
+      xlibWindow->SetOwnDisplay(true);
+    }
+  }
+#endif // VTK_USE_X
+
   this->Initialized = false;
 }
 
