@@ -89,6 +89,9 @@ vtkDrawTexturedElements::~vtkDrawTexturedElements()
 
 vtkShader* vtkDrawTexturedElements::GetShader(vtkShader::Type shaderType)
 {
+  // Handing out a shader means the caller may mutate its source, so the cached
+  // program can no longer be trusted: force ReadyShaderProgram to rebuild it.
+  this->ShaderProgramBuilt = false;
   auto it = this->Shaders.find(shaderType);
   if (it == this->Shaders.end())
   {
@@ -278,16 +281,30 @@ void vtkDrawTexturedElements::ReadyShaderProgram(vtkRenderer* ren)
     vtkWarningWithObjectMacro(ren, "Renderer has no OpenGL render-window.");
     return;
   }
-  bool lastSyncGLSLVersionDisabled = !renderWindow->GetShaderCache()->GetSyncGLSLShaderVersion();
+  auto* shaderCache = renderWindow->GetShaderCache();
+  // Fast path: the shader sources have not changed since the program was last
+  // resolved, so skip the per-draw source substitution + MD5 hashing in the
+  // shader-source overload of ReadyShaderProgram and just (re)bind the cached
+  // program. This is the dominant cost in many-small-actors scenes, where this
+  // method is invoked once per actor per frame.
+  if (this->ShaderProgramBuilt && this->ShaderProgram != nullptr)
+  {
+    this->ShaderProgram = shaderCache->ReadyShaderProgram(this->ShaderProgram);
+    vtkOpenGLStaticCheckErrorMacro("Failed readying cached shader program");
+    return;
+  }
+  bool lastSyncGLSLVersionDisabled = !shaderCache->GetSyncGLSLShaderVersion();
   if (this->ElementType == AbstractPatches && lastSyncGLSLVersionDisabled)
   {
-    renderWindow->GetShaderCache()->SyncGLSLShaderVersionOn();
+    shaderCache->SyncGLSLShaderVersionOn();
   }
-  this->ShaderProgram = renderWindow->GetShaderCache()->ReadyShaderProgram(this->Shaders);
+  this->ShaderProgram = shaderCache->ReadyShaderProgram(this->Shaders);
   if (lastSyncGLSLVersionDisabled)
   {
-    renderWindow->GetShaderCache()->SyncGLSLShaderVersionOff();
+    shaderCache->SyncGLSLShaderVersionOff();
   }
+  // Remember the resolved program so subsequent draws take the fast path above.
+  this->ShaderProgramBuilt = (this->ShaderProgram != nullptr);
   vtkOpenGLStaticCheckErrorMacro("Failed readying shader program");
 }
 
@@ -661,6 +678,8 @@ void vtkDrawTexturedElements::ReleaseResources(vtkWindow* window)
     this->P->IndexBuffer = nullptr;
     this->P->IndexBufferDirty = true;
   }
+  this->ShaderProgram = nullptr;
+  this->ShaderProgramBuilt = false;
 }
 
 vtkShaderProgram* vtkDrawTexturedElements::GetShaderProgram()

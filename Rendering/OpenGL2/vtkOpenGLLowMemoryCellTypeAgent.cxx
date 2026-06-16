@@ -91,22 +91,23 @@ void vtkOpenGLLowMemoryCellTypeAgent::PreDraw(
   {
     needLighting = true;
   }
-  mapper->ShaderProgram->SetUniformi("enable_lights", needLighting);
-  mapper->ShaderProgram->SetUniformi("vertex_pass", this->InVertexVisibilityPass);
+  const auto& loc = mapper->UniformLocs;
+  mapper->ShaderProgram->SetUniformi(loc.EnableLights, needLighting);
+  mapper->ShaderProgram->SetUniformi(loc.VertexPass, this->InVertexVisibilityPass);
   switch (mapper->ElementType)
   {
     case vtkDrawTexturedElements::ElementShape::Point:
-      mapper->ShaderProgram->SetUniformi("primitiveSize", 1);
+      mapper->ShaderProgram->SetUniformi(loc.PrimitiveSize, 1);
       break;
     case vtkDrawTexturedElements::ElementShape::Line:
-      mapper->ShaderProgram->SetUniformi("primitiveSize", 2);
+      mapper->ShaderProgram->SetUniformi(loc.PrimitiveSize, 2);
       break;
     case vtkDrawTexturedElements::ElementShape::Triangle:
     default:
-      mapper->ShaderProgram->SetUniformi("primitiveSize", 3);
+      mapper->ShaderProgram->SetUniformi(loc.PrimitiveSize, 3);
       break;
   }
-  mapper->ShaderProgram->SetUniformf("pointSize",
+  mapper->ShaderProgram->SetUniformf(loc.PointSize,
     mapper->PointPicking ? ::GetPointPickingPrimitiveSize(mapper->ElementType)
                          : actor->GetProperty()->GetPointSize());
   mapper->vtkDrawTexturedElements::PreDraw(renderer, actor, mapper);
@@ -148,13 +149,14 @@ void vtkOpenGLLowMemoryCellTypeAgent::Draw(vtkRenderer* renderer, vtkActor* acto
   {
     mapper->NumberOfElements *= this->NumberOfPseudoPrimitivesPerElement;
   }
-  mapper->ShaderProgram->SetUniformi("cellIdOffset", offsets.CellIdOffset);
-  mapper->ShaderProgram->SetUniformi("vertexIdOffset", offsets.VertexIdOffset);
-  mapper->ShaderProgram->SetUniformi("edgeValueBufferOffset", offsets.EdgeValueBufferOffset);
-  mapper->ShaderProgram->SetUniformi("pointIdOffset", offsets.PointIdOffset);
-  mapper->ShaderProgram->SetUniformi("primitiveIdOffset", offsets.PrimitiveIdOffset);
-  mapper->ShaderProgram->SetUniformi("usesCellMap", cellGroup.UsesCellMapBuffer);
-  mapper->ShaderProgram->SetUniformi("usesEdgeValues", cellGroup.UsesEdgeValueBuffer);
+  const auto& loc = mapper->UniformLocs;
+  mapper->ShaderProgram->SetUniformi(loc.CellIdOffset, offsets.CellIdOffset);
+  mapper->ShaderProgram->SetUniformi(loc.VertexIdOffset, offsets.VertexIdOffset);
+  mapper->ShaderProgram->SetUniformi(loc.EdgeValueBufferOffset, offsets.EdgeValueBufferOffset);
+  mapper->ShaderProgram->SetUniformi(loc.PointIdOffset, offsets.PointIdOffset);
+  mapper->ShaderProgram->SetUniformi(loc.PrimitiveIdOffset, offsets.PrimitiveIdOffset);
+  mapper->ShaderProgram->SetUniformi(loc.UsesCellMap, cellGroup.UsesCellMapBuffer);
+  mapper->ShaderProgram->SetUniformi(loc.UsesEdgeValues, cellGroup.UsesEdgeValueBuffer);
   // Hybrid dispatch: choose indexed (glDrawElementsInstanced) vs the non-indexed
   // flat-stream expansion for this cell group, and tell the shader which point-id
   // source to use. Both consume the same connectivity, bound two ways.
@@ -162,7 +164,7 @@ void vtkOpenGLLowMemoryCellTypeAgent::Draw(vtkRenderer* renderer, vtkActor* acto
     mapper->ShouldUseIndexedRendering(renderer, actor, cellGroup, this->NumberOfPointsPerPrimitive,
       this->NumberOfPseudoPrimitivesPerElement, this->InVertexVisibilityPass);
   mapper->SetIndexedDrawEnabled(indexed);
-  mapper->ShaderProgram->SetUniformi("useIndexedPointId", indexed ? 1 : 0);
+  mapper->ShaderProgram->SetUniformi(loc.UseIndexedPointId, indexed ? 1 : 0);
   mapper->vtkDrawTexturedElements::DrawInstancedElementsImpl(renderer, actor, mapper);
 }
 

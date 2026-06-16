@@ -36,7 +36,7 @@ void vtkOpenGLLowMemoryLinesAgent::PreDrawInternal(
     this->NumberOfPseudoPrimitivesPerElement = 1;
     lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Line;
   }
-  lmMapper->ShaderProgram->SetUniformi("cellType", VTK_LINE);
+  lmMapper->ShaderProgram->SetUniformi(lmMapper->UniformLocs.CellType, VTK_LINE);
 }
 
 //------------------------------------------------------------------------------

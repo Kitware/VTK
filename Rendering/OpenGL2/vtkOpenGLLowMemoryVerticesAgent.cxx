@@ -19,7 +19,7 @@ void vtkOpenGLLowMemoryVerticesAgent::PreDrawInternal(
   vtkRenderer*, vtkActor*, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
   lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Point;
-  lmMapper->ShaderProgram->SetUniformi("cellType", VTK_VERTEX);
+  lmMapper->ShaderProgram->SetUniformi(lmMapper->UniformLocs.CellType, VTK_VERTEX);
 }
 
 //------------------------------------------------------------------------------

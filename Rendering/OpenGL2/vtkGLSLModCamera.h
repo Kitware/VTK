@@ -15,11 +15,10 @@
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkSmartPointer.h"           // for ivar
 
-#include <array> // for array
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkInformationObjectBaseKey;
+class vtkShaderProgram;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkGLSLModCamera : public vtkGLSLModifierBase
 {
@@ -56,6 +55,24 @@ protected:
   bool CoordinateShiftAndScaleInUse;
   bool ApplyShiftAndScaleFromShader;
   vtkSmartPointer<vtkMatrix4x4> SSMatrix;
+
+  /// @name Cached uniform locations
+  /// Locations of the transform matrix uniforms, resolved once per program link
+  /// (keyed on the program object + vtkShaderProgram::GetLinkCount). A value of
+  /// -1 means the uniform is not present in the program, so both the matrix
+  /// computation and the upload can be skipped.
+  vtkShaderProgram* CachedLocProgram = nullptr;
+  unsigned int CachedLocLinkCount = 0;
+  struct CameraUniformLocations
+  {
+    int EnvMatrix = -1;
+    int MCWCMatrix = -1;
+    int MCWCNormalMatrix = -1;
+    int MCDCMatrix = -1;
+    int MCVCMatrix = -1;
+    int NormalMatrix = -1;
+    int CameraParallel = -1;
+  } Loc;
 
 private:
   vtkGLSLModCamera(const vtkGLSLModCamera&) = delete;
