@@ -89,6 +89,12 @@ public:
   const char* WriteBuffer(bool writeImageInline = true);
   void WriteFile(const std::string& filename, bool writeImageInline = false);
 
+  /**
+   * Invoke an update event to notify observers of changes to the material library.
+   * This can be used to trigger rendering updates after material modifications.
+   */
+  void Fire();
+
 protected:
   /**
    * Load texture from file or inline data. Subclasses may override for custom texture loading.
@@ -110,9 +116,18 @@ protected:
 
   virtual const std::map<std::string, ParametersMap>& GetParametersDictionary();
 
-  // Helper utilities shared by subclasses. Made protected so subclasses
-  // can use consistent behavior and avoid duplicate definitions.
+  /**
+   * Convert a file path to a texture name by extracting the filename without extension.
+   * @param path File path to convert
+   * @return Filename without extension
+   */
   std::string FilePathToTextureName(const std::string& path);
+
+  /**
+   * Remove leading and trailing whitespace from a string.
+   * @param s Input string
+   * @return String with whitespace trimmed from both ends
+   */
   std::string Trim(const std::string& s);
 
   vtkRenderMaterialLibrary();

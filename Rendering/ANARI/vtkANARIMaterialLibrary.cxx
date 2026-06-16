@@ -50,6 +50,13 @@ void vtkANARIMaterialLibrary::AddMaterial(const std::string& nickname, const std
 //------------------------------------------------------------------------------
 namespace
 {
+/**
+ * Case-insensitive comparison of parameter names in the ANARI material dictionary.
+ * Searches for a parameter name that matches ignoring case differences.
+ * @param params Map of parameter names and their types
+ * @param varname Variable name to search for (case-insensitive)
+ * @return True if a matching parameter is found, false otherwise
+ */
 bool CaseInsensitiveFind(
   const std::map<std::string, vtkANARIMaterialLibrary::ParameterType>& params,
   const std::string& varname)
