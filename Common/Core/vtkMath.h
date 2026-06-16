@@ -183,6 +183,15 @@ public:
   static T Max(const T& a, const T& b);
 
   /**
+   * Returns the value of the \a nn-th Jacobi polynomial for parameters
+   * \a alpha > -1, \a beta > -1 and (typically) \a xx in [-1,1].
+   *
+   * Note that this is unrelated to JacobiN, a matrix factorization technique.
+   * This function is only for real-valued \a xx.
+   */
+  static double JacobiPolynomial(int nn, double alpha, double beta, double xx);
+
+  /**
    * Returns true if integer is a power of two.
    */
   static bool IsPowerOfTwo(vtkTypeUInt64 x);
@@ -206,6 +215,11 @@ public:
    * or \f$\left(\begin{array}{c}m \\ n\end{array}\right)\f$.
    */
   static vtkTypeInt64 Binomial(int m, int n);
+
+  /**
+   * A version of Binomial that allows \a mm to be real-valued.
+   */
+  static double RealBinomial(double mm, int nn);
 
   /**
    * Start iterating over "m choose n" objects.
