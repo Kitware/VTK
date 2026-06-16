@@ -49,12 +49,6 @@ public:
   using ParametersMap = std::map<std::string, ParameterType>;
 
   /**
-   * Invoke an update event to notify observers of changes to the material library.
-   * This can be used to trigger rendering updates after material modifications.
-   */
-  void Fire();
-
-  /**
    * Read a material file from disk.
    * Supports JSON and OBJ/MTL file formats.
    * @param FileName Path to the material file to read
@@ -231,12 +225,6 @@ public:
    * references
    */
   void WriteFile(const std::string& filename, bool writeImageInline = false);
-
-  /**
-   * Invoke an update event to notify observers of changes to the material library.
-   * This can be used to trigger rendering updates after material modifications.
-   */
-  void Fire();
 
 protected:
   /**

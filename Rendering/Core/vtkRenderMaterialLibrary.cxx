@@ -554,12 +554,6 @@ void vtkRenderMaterialLibrary::WriteFile(const std::string& filename, bool write
 }
 
 //------------------------------------------------------------------------------
-void vtkRenderMaterialLibrary::Fire()
-{
-  this->InvokeEvent(vtkCommand::UpdateDataEvent);
-}
-
-//------------------------------------------------------------------------------
 std::set<std::string> vtkRenderMaterialLibrary::GetMaterialNames()
 {
   return this->Internal->NickNames;
