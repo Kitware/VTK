@@ -588,7 +588,7 @@ void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderWindow::SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer)
+void vtkWebGPURenderWindow::SubmitCommandBuffer(int count, WGPUCommandBuffer* commandBuffer)
 {
   this->FlushCommandBuffers(count, commandBuffer);
 }
@@ -600,12 +600,12 @@ void vtkWebGPURenderWindow::ConfigureSurface()
   vtkWebGPUCheckUnconfigured(this);
   // Configure the surface.
   wgpu::SurfaceCapabilities capabilities;
-  this->Surface.GetCapabilities(this->GetAdapter(), &capabilities);
+  wgpu::Surface(this->Surface).GetCapabilities(this->GetAdapter(), &capabilities);
   if (capabilities.formatCount > 0)
   {
     wgpu::SurfaceConfiguration config = {};
     config.usage = wgpu::TextureUsage::RenderAttachment;
-    config.device = this->GetDevice();
+    config.device = wgpu::Device(this->GetDevice());
     config.width = this->Size[0];
     config.height = this->Size[1];
     config.presentMode =
