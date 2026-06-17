@@ -1424,8 +1424,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   this->LICIShader->Program->SetUniformi("texVectors", bufs.GetImageVectorTextureUnit());
   this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(0));
 
-  int stepNum = 0;
-  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx, ++stepNum)
+  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx)
   {
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
@@ -1465,7 +1464,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
   this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
-  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx, ++stepNum)
+  for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx)
   {
     bufs.AttachLICBuffers(this->FBO);
     this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
@@ -1653,8 +1652,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
     this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(1));
 
     int nSteps = this->NumberOfSteps / 2;
-    stepNum = 0;
-    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx, ++stepNum)
+    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx)
     {
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
@@ -1697,7 +1695,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
     renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
     this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
-    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx, ++stepNum)
+    for (int stepIdx = 0; stepIdx < nSteps; ++stepIdx)
     {
       bufs.AttachLICBuffers(this->FBO);
       this->LICIShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
