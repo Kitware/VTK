@@ -487,13 +487,13 @@ WGPUAdapter vtkWebGPURenderWindow::GetAdapter()
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureFormat vtkWebGPURenderWindow::GetPreferredSurfaceTextureFormat()
+WGPUTextureFormat vtkWebGPURenderWindow::GetPreferredSurfaceTextureFormat()
 {
   return this->PreferredSurfaceTextureFormat;
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureFormat vtkWebGPURenderWindow::GetPreferredSelectorIdsTextureFormat()
+WGPUTextureFormat vtkWebGPURenderWindow::GetPreferredSelectorIdsTextureFormat()
 {
   return this->PreferredSelectorIdsTextureFormat;
 }
@@ -627,8 +627,8 @@ void vtkWebGPURenderWindow::ConfigureSurface()
         break;
       }
     }
-    this->Surface.Configure(&config);
-    this->PreferredSurfaceTextureFormat = config.format;
+    wgpu::Surface(this->Surface).Configure(&config);
+    this->PreferredSurfaceTextureFormat = static_cast<WGPUTextureFormat>(config.format);
     this->SurfaceConfiguredSize[0] = this->Size[0];
     this->SurfaceConfiguredSize[1] = this->Size[1];
   }
@@ -642,7 +642,7 @@ void vtkWebGPURenderWindow::UnconfigureSurface()
   {
     return;
   }
-  this->Surface.Unconfigure();
+  wgpu::Surface(this->Surface).Unconfigure();
 }
 
 //------------------------------------------------------------------------------
@@ -693,7 +693,7 @@ void vtkWebGPURenderWindow::CreateDepthStencilAttachment()
     if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->DepthStencilAttachment.View = view;
-      this->DepthStencilAttachment.Format = textureDesc.format;
+      this->DepthStencilAttachment.Format = static_cast<WGPUTextureFormat>(textureDesc.format);
     }
     else
     {
@@ -762,7 +762,7 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachment()
     if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->ColorAttachment.View = view;
-      this->ColorAttachment.Format = textureDesc.format;
+      this->ColorAttachment.Format = static_cast<WGPUTextureFormat>(textureDesc.format);
     }
     else
     {
@@ -1169,7 +1169,8 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
   texelCopyBuffer.layout.bytesPerRow = bytesPerRow;
 
   // Copying the texture to the buffer
-  wgpu::CommandEncoder commandEncoder = this->WGPUConfiguration->GetDevice().CreateCommandEncoder();
+  wgpu::CommandEncoder commandEncoder =
+    wgpu::Device(this->WGPUConfiguration->GetDevice()).CreateCommandEncoder();
   wgpu::Extent3D copySize = { mipLevelWidth, mipLevelHeight, extents.depthOrArrayLayers };
   commandEncoder.CopyTextureToBuffer(&texelCopyTexture, &texelCopyBuffer, &copySize);
 
