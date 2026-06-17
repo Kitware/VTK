@@ -437,31 +437,31 @@ WGPURenderBundleEncoder vtkWebGPURenderWindow::NewRenderBundleEncoder(
 }
 
 //------------------------------------------------------------------------------
-wgpu::CommandEncoder vtkWebGPURenderWindow::GetCommandEncoder()
+WGPUCommandEncoder vtkWebGPURenderWindow::GetCommandEncoder()
 {
   return this->CommandEncoder;
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPURenderWindow::GetOffscreenColorAttachmentView()
+WGPUTextureView vtkWebGPURenderWindow::GetOffscreenColorAttachmentView()
 {
   return this->ColorAttachment.View;
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPURenderWindow::GetHardwareSelectorAttachmentView()
+WGPUTextureView vtkWebGPURenderWindow::GetHardwareSelectorAttachmentView()
 {
   return this->IdsAttachment.View;
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPURenderWindow::GetDepthStencilView()
+WGPUTextureView vtkWebGPURenderWindow::GetDepthStencilView()
 {
   return this->DepthStencilAttachment.View;
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureFormat vtkWebGPURenderWindow::GetDepthStencilFormat()
+WGPUTextureFormat vtkWebGPURenderWindow::GetDepthStencilFormat()
 {
   return this->DepthStencilAttachment.Format;
 }
@@ -473,14 +473,14 @@ bool vtkWebGPURenderWindow::HasStencil()
 }
 
 //------------------------------------------------------------------------------
-wgpu::Device vtkWebGPURenderWindow::GetDevice()
+WGPUDevice vtkWebGPURenderWindow::GetDevice()
 {
   vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
   return this->WGPUConfiguration->GetDevice();
 }
 
 //------------------------------------------------------------------------------
-wgpu::Adapter vtkWebGPURenderWindow::GetAdapter()
+WGPUAdapter vtkWebGPURenderWindow::GetAdapter()
 {
   vtkWebGPUCheckUnconfiguredWithReturn(this, nullptr);
   return this->WGPUConfiguration->GetAdapter();
