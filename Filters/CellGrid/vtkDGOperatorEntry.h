@@ -51,7 +51,7 @@ public:
 
   /// Return a glsl string that defines this operator.
   std::string GetShaderString(
-    const std::string& functionName, const std::string& parameterName) const;
+    const std::string& functionName, const std::string& parameterName, int order) const;
 
   /// The number of functions in the basis.
   ///

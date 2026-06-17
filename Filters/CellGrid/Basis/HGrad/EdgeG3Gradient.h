@@ -1,0 +1,12 @@
+basisGradient[0] = -2.7827025255146047 * pow(rr, 2) + 1.5975241260567346 * rr + 0.10721484763523989;
+basisGradient[1] = 0;
+basisGradient[2] = 0;
+basisGradient[3] = 7.0482935278331471 * pow(rr, 2) - 1.5975241260567343 * rr - 1.7422341910450938;
+basisGradient[4] = 0;
+basisGradient[5] = 0;
+basisGradient[6] = -7.0482935278331471 * pow(rr, 2) - 1.5975241260567339 * rr + 1.7422341910450934;
+basisGradient[7] = 0;
+basisGradient[8] = 0;
+basisGradient[9] = 2.7827025255146047 * pow(rr, 2) + 1.5975241260567343 * rr - 0.10721484763523989;
+basisGradient[10] = 0;
+basisGradient[11] = 0;

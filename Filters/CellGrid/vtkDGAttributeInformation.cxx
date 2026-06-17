@@ -75,7 +75,7 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
     // Downcase the string so we are case-insensitive.
     functionSpace = vtksys::SystemTools::LowerCase(cellTypeInfo.FunctionSpace.Data());
   }
-  // integrationScheme should be i or c or f:
+  // integrationScheme should be i or c or f or g:
   char integrationScheme = 'c';
   std::ostringstream basisName;
 
@@ -138,11 +138,17 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               numberOfBasisFunctions = 8 + (order - 1) * 12;
               integrationScheme = 'i';
               break;
+            case "G"_hash: // "G"auss-point basis
+            case "g"_hash: // "G"auss-point basis
+              numberOfBasisFunctions = op1 * op1 * op1;
+              integrationScheme = 'g';
+              break;
             default:
             case "C"_hash: // "C"omplete basis
             case "c"_hash: // "C"omplete basis
               numberOfBasisFunctions = op1 * op1 * op1;
               integrationScheme = 'c';
+              break;
           }
           break;
         case vtkDGCell::Shape::Tetrahedron:
@@ -151,6 +157,10 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
             case "F"_hash: // "F"ull basis
               numberOfBasisFunctions = 15;
               integrationScheme = 'f';
+              break;
+            case "G"_hash: // "G"auss-point basis
+              numberOfBasisFunctions = op1 * op2 * op3 / 6;
+              integrationScheme = 'g';
               break;
             default:
             case "C"_hash: // "C"omplete basis
@@ -178,6 +188,21 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               }
               integrationScheme = 'f';
               break;
+            case "G"_hash: // "G"auss-point basis
+              if (order == 2)
+              {
+                numberOfBasisFunctions = 18;
+              }
+              else if (order == 1)
+              {
+                numberOfBasisFunctions = 5;
+              }
+              else
+              {
+                numberOfBasisFunctions = 1;
+              }
+              integrationScheme = 'g';
+              break;
             default:
             case "C"_hash: // "C"omplete basis
               if (order == 2)
@@ -203,6 +228,10 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               numberOfBasisFunctions = 21; // Only support wedge-21 for now.
               integrationScheme = 'f';
               break;
+            case "G"_hash: // "G"auss-point basis
+              numberOfBasisFunctions = op1 * op1 * op2 / 2;
+              integrationScheme = 'g';
+              break;
             default:
             case "C"_hash: // "C"omplete basis
               numberOfBasisFunctions = op1 * op1 * op2 / 2;
@@ -212,15 +241,48 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
           break;
         case vtkDGCell::Shape::Quadrilateral:
           numberOfBasisFunctions = op1 * op1;
-          integrationScheme = 'c';
+          switch (cellTypeInfo.Basis.GetId())
+          {
+            case "G"_hash:
+            case "g"_hash:
+              integrationScheme = 'g';
+              break;
+            default:
+            case "C"_hash:
+            case "c"_hash:
+              integrationScheme = 'c';
+              break;
+          }
           break;
         case vtkDGCell::Shape::Triangle:
           numberOfBasisFunctions = (order + 1) * (order + 2) / 2;
-          integrationScheme = 'c';
+          switch (cellTypeInfo.Basis.GetId())
+          {
+            case "G"_hash:
+            case "g"_hash:
+              integrationScheme = 'g';
+              break;
+            default:
+            case "C"_hash:
+            case "c"_hash:
+              integrationScheme = 'c';
+              break;
+          }
           break;
         case vtkDGCell::Shape::Edge:
           numberOfBasisFunctions = order + 1;
-          integrationScheme = 'c';
+          switch (cellTypeInfo.Basis.GetId())
+          {
+            case "G"_hash:
+            case "g"_hash:
+              integrationScheme = 'g';
+              break;
+            default:
+            case "C"_hash:
+            case "c"_hash:
+              integrationScheme = 'c';
+              break;
+          }
           break;
         case vtkDGCell::Shape::Vertex:
           numberOfBasisFunctions = 1;

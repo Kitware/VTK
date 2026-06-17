@@ -1,0 +1,9 @@
+basisGradient[0] = 1.6666666666666665 * rr - 0.6454972243679028;
+basisGradient[1] = 0;
+basisGradient[2] = 0;
+basisGradient[3] = -3.333333333333333 * rr;
+basisGradient[4] = 0;
+basisGradient[5] = 0;
+basisGradient[6] = 1.6666666666666665 * rr + 0.6454972243679028;
+basisGradient[7] = 0;
+basisGradient[8] = 0;

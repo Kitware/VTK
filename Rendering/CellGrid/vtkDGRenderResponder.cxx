@@ -459,11 +459,14 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   std::string shaderBasisSource = fmt::vformat(shaderBasisTemplate, store);
   auto shapeBasisOp = this->CellType->GetOperatorEntry("Basis", shapeTypeInfo);
   auto shapeGradientOp = this->CellType->GetOperatorEntry("BasisGradient", shapeTypeInfo);
-  shaderBasisSource += shapeBasisOp.GetShaderString("shapeBasisAt", "basis");
-  shaderBasisSource += shapeGradientOp.GetShaderString("shapeBasisGradientAt", "basisGradient");
+  shaderBasisSource +=
+    shapeBasisOp.GetShaderString("shapeBasisAt", "basis", shapeInfo->GetBasisOrder());
+  shaderBasisSource += shapeGradientOp.GetShaderString(
+    "shapeBasisGradientAt", "basisGradient", shapeInfo->GetBasisOrder());
   if (this->Color)
   {
-    shaderBasisSource += colorBasisOp.GetShaderString("colorBasisAt", "basis");
+    shaderBasisSource +=
+      colorBasisOp.GetShaderString("colorBasisAt", "basis", colorInfo->GetBasisOrder());
   }
   else
   {
