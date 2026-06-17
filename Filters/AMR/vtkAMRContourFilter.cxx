@@ -18,7 +18,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-#include <iostream>
 #include <set>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -199,15 +198,20 @@ int vtkAMRContourFilter::RequestData(
     return 0;
   }
 
-  this->ProgressCeiling = 0.5;
-  this->InternalInterface->SetInputData(input);
-  if (!this->InternalInterface->Update())
+  if (input->GetMTime() > this->InterfaceTime.GetMTime())
   {
-    vtkErrorMacro("AMRInterface could not be computed, aborting");
-    return 0;
+    this->ProgressCeiling = 0.5;
+    this->InternalInterface->SetInputData(input);
+    if (!this->InternalInterface->Update())
+    {
+      vtkErrorMacro("AMRInterface could not be computed, aborting");
+      return 0;
+    }
+
+    this->InterfaceCache->ShallowCopy(this->InternalInterface->GetOutput());
+    this->InterfaceTime.Modified();
   }
-  vtkPartitionedDataSet* interface = this->InternalInterface->GetOutput();
-  output->SetNumberOfPartitions(interface->GetNumberOfPartitions());
+  output->SetNumberOfPartitions(this->InterfaceCache->GetNumberOfPartitions());
 
   // Report progress
   this->ProgressFloor = 0.5;
@@ -220,11 +224,11 @@ int vtkAMRContourFilter::RequestData(
   // Finish contour configuration and compute contour
   this->InternalContour->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
 
-  auto iter = vtk::TakeSmartPointer(interface->NewTreeIterator());
+  auto iter = vtk::TakeSmartPointer(this->InterfaceCache->NewTreeIterator());
   iter->SkipEmptyNodesOn();
   iter->VisitOnlyLeavesOn();
   unsigned int idx = 0;
-  double progressPart = 0.5 / interface->GetNumberOfPartitions();
+  double progressPart = 0.5 / this->InterfaceCache->GetNumberOfPartitions();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), idx++)
   {
     this->ProgressCeiling = 0.5 + idx * progressPart;

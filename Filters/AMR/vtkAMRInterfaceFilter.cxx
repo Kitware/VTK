@@ -16,7 +16,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-#include <iostream>
 #include <set>
 
 VTK_ABI_NAMESPACE_BEGIN

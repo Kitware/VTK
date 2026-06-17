@@ -87,9 +87,12 @@ bool TestAMRContourOptions(const std::string& dataRoot)
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Gaussian-Pulse");
   std::vector<double> values = { 1.2953579971568757e-06 };
   contour->SetContourValues(values);
-  contour->ComputeNormalsOff();
   contour->ComputeScalarsOff();
   contour->GenerateTrianglesOff();
+  contour->Update();
+
+  // Smoke test the internal interface cache system
+  contour->ComputeNormalsOff();
   contour->Update();
 
   // XXX: use vtkHDFReader: https://gitlab.kitware.com/vtk/vtk/-/issues/19971

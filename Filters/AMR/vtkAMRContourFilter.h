@@ -129,6 +129,9 @@ private:
   vtkNew<vtkAMRInterfaceFilter> InternalInterface;
   vtkNew<vtkContourFilter> InternalContour;
 
+  vtkTimeStamp InterfaceTime;
+  vtkNew<vtkPartitionedDataSet> InterfaceCache;
+
   // Progress handling
   vtkNew<vtkCallbackCommand> InternalProgressObserver;
   double ProgressFloor = 0.;
