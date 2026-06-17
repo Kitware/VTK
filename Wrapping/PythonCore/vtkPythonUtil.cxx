@@ -411,11 +411,10 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
       // ghosts we fall back to the lazy sweep above.
       if (vtkObject* vobj = vtkObject::SafeDownCast(pobj->vtk_ptr))
       {
-        vtkCallbackCommand* cmd = vtkCallbackCommand::New();
+        vtkNew<vtkCallbackCommand> cmd;
         cmd->SetCallback(&vtkPythonUtil::GhostDeleteCallback);
         cmd->SetClientData(pobj->vtk_ptr);
         g.observer_tag = vobj->AddObserver(vtkCommand::DeleteEvent, cmd);
-        cmd->Delete();
       }
 
       // Delete attrs of erased objects.  Must be done at the end.
