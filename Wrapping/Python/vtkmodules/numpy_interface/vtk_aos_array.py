@@ -6,6 +6,7 @@ for all vtkAOSDataArrayTemplate instantiations and concrete AOS subclasses
 automatically have numpy-compatible operations.  The single contiguous
 buffer is exposed as a zero-copy numpy array view.
 """
+import sys
 import warnings
 
 import numpy
@@ -213,19 +214,30 @@ class VTKAOSArray(VTKDataArrayMixin):
         observer_id_holder = [None]
 
         def on_buffer_changed(vtk_obj, event):
-            # Warn once: any external numpy view handed out via __array__
-            # now references stale memory after an in-place Reallocate.
-            warnings.warn(
-                "The underlying VTK array has reallocated its buffer. "
-                "Any numpy view previously obtained from this array is now "
-                "stale and points to invalid memory. Please retrieve a "
-                "fresh view from the array.",
-                RuntimeWarning, stacklevel=2)
-            vtk_obj._array_cache = _UNINITIALIZED  # invalidate
+            # If the cached view is also held by external user code, that
+            # numpy view now references stale memory after the in-place
+            # Reallocate.  Detect this with a refcount check: when only
+            # vtk_obj._array_cache holds the view, sys.getrefcount returns
+            # 3 (attribute slot + local 'cache' + getrefcount's own temp);
+            # anything higher means user code is holding it too.
+            cache = vtk_obj._array_cache
+            external_view = (
+                cache is not _UNINITIALIZED and sys.getrefcount(cache) > 3)
+            # Invalidate first so a filter that raises (e.g. -W error)
+            # cannot leave us with a stale cache.
+            vtk_obj._array_cache = _UNINITIALIZED
             vtk_obj._observer_id = None
             if observer_id_holder[0] is not None:
                 vtk_obj.RemoveObserver(observer_id_holder[0])
                 observer_id_holder[0] = None
+            del cache
+            if external_view:
+                warnings.warn(
+                    "The underlying VTK array has reallocated its buffer. "
+                    "Any numpy view previously obtained from this array is "
+                    "now stale and points to invalid memory. Please "
+                    "retrieve a fresh view from the array.",
+                    RuntimeWarning, stacklevel=2)
 
         observer_id = self.AddObserver(
             vtkCommand.BufferChangedEvent, on_buffer_changed)
