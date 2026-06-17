@@ -21,7 +21,7 @@ set(unit_tests
   UnitTestTBBRuntimeDeviceConfiguration.cxx
   )
 
-viskores_unit_tests(SOURCES ${unit_tests}
+viskores_unit_tests(DEVICE_SOURCES ${unit_tests}
                 LABEL "TBB"
                 DEFINES VISKORES_NO_ERROR_ON_MIXED_CUDA_CXX_TAG
                 LIBRARIES viskores_worklet

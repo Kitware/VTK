@@ -17,7 +17,10 @@
 //============================================================================
 #include <viskores/cont/CellLocatorGeneral.h>
 
+#include <viskores/cont/Algorithm.h>
 #include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/ArrayHandleGroupVecVariable.h>
+#include <viskores/cont/ConvertNumComponentsToOffsets.h>
 #include <viskores/cont/DataSetBuilderRectilinear.h>
 #include <viskores/cont/DataSetBuilderUniform.h>
 #include <viskores/cont/Invoker.h>
@@ -203,6 +206,74 @@ public:
   }
 };
 
+class FindCellIdWorklet : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points, ExecObject locator, FieldOut cellIds);
+  using ExecutionSignature = void(_1, _2, _3);
+
+  template <typename LocatorType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                viskores::Id& cellId) const
+  {
+    viskores::ErrorCode status = locator.FindCellId(point, cellId);
+    if (status != viskores::ErrorCode::Success)
+      this->RaiseError(viskores::ErrorString(status));
+  }
+};
+
+class FindCellIdWorkletWithLastCell : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points,
+                                ExecObject locator,
+                                FieldOut cellIds,
+                                FieldInOut lastCell);
+  using ExecutionSignature = void(_1, _2, _3, _4);
+
+  template <typename LocatorType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                viskores::Id& cellId,
+                                typename LocatorType::LastCell& lastCell) const
+  {
+    viskores::ErrorCode status = locator.FindCellId(point, cellId, lastCell);
+    if (status != viskores::ErrorCode::Success)
+      this->RaiseError(viskores::ErrorString(status));
+  }
+};
+
+class CountAllCellsWorklet : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points, ExecObject locator, FieldOut count);
+  using ExecutionSignature = void(_1, _2, _3);
+
+  template <typename LocatorType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                viskores::Id& count) const
+  {
+    count = locator.CountAllCells(point);
+  }
+};
+
+class FindAllCellIdsWorklet : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points, ExecObject locator, FieldOut cellIds);
+  using ExecutionSignature = void(_1, _2, _3);
+
+  template <typename LocatorType, typename CellIdVecType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                CellIdVecType& cellIds) const
+  {
+    locator.FindAllCellIds(point, cellIds);
+  }
+};
+
 void TestLastCell(
   viskores::cont::CellLocatorGeneral& locator,
   viskores::Id numPoints,
@@ -229,6 +300,24 @@ void TestLastCell(
     VISKORES_TEST_ASSERT(test_equal(pcoordsPortal.Get(i), expPCoordsPortal.Get(i), 1e-3),
                          "Incorrect parameteric coordinates");
   }
+}
+
+void TestLastCellId(
+  viskores::cont::CellLocatorGeneral& locator,
+  viskores::Id numPoints,
+  viskores::cont::ArrayHandle<viskores::cont::CellLocatorGeneral::LastCell>& lastCell,
+  const viskores::cont::ArrayHandle<PointType>& points,
+  const viskores::cont::ArrayHandle<viskores::Id>& expCellIds)
+{
+  viskores::cont::ArrayHandle<viskores::Id> cellIds;
+
+  viskores::cont::Invoker invoker;
+  invoker(FindCellIdWorkletWithLastCell{}, points, locator, cellIds, lastCell);
+
+  auto cellIdPortal = cellIds.ReadPortal();
+  auto expCellIdsPortal = expCellIds.ReadPortal();
+  for (viskores::Id i = 0; i < numPoints; ++i)
+    VISKORES_TEST_ASSERT(cellIdPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
 }
 
 void TestWithDataSet(viskores::cont::CellLocatorGeneral& locator,
@@ -260,6 +349,12 @@ void TestWithDataSet(viskores::cont::CellLocatorGeneral& locator,
                          "Incorrect parameteric coordinates");
   }
 
+  viskores::cont::ArrayHandle<viskores::Id> cellIdsOnly;
+  invoker(FindCellIdWorklet{}, points, locator, cellIdsOnly);
+  auto cellIdsOnlyPortal = cellIdsOnly.ReadPortal();
+  for (viskores::Id i = 0; i < 64; ++i)
+    VISKORES_TEST_ASSERT(cellIdsOnlyPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
+
   //Test locator using lastCell
 
   //Test it with initialized.
@@ -269,6 +364,7 @@ void TestWithDataSet(viskores::cont::CellLocatorGeneral& locator,
 
   //Call it again using the lastCell just computed to validate.
   TestLastCell(locator, 64, lastCell, points, expCellIds, pcoords);
+  TestLastCellId(locator, 64, lastCell, points, expCellIds);
 
 
   //Test it with uninitialized array.
@@ -278,6 +374,21 @@ void TestWithDataSet(viskores::cont::CellLocatorGeneral& locator,
 
   //Call it again using the lastCell just computed to validate.
   TestLastCell(locator, 64, lastCell2, points, expCellIds, pcoords);
+  TestLastCellId(locator, 64, lastCell2, points, expCellIds);
+
+  viskores::cont::ArrayHandle<viskores::Id> cellCounts;
+  invoker(CountAllCellsWorklet{}, points, locator, cellCounts);
+
+  viskores::Id totalCells = viskores::cont::Algorithm::Reduce(cellCounts, viskores::Id(0));
+  viskores::cont::ArrayHandle<viskores::Id> allCellIds;
+  allCellIds.AllocateAndFill(totalCells, viskores::Id(-1));
+  auto offsets = viskores::cont::ConvertNumComponentsToOffsets(cellCounts);
+  auto allCellIdsVec = viskores::cont::make_ArrayHandleGroupVecVariable(allCellIds, offsets);
+  invoker(FindAllCellIdsWorklet{}, points, locator, allCellIdsVec);
+
+  auto allCellIdsPortal = allCellIds.ReadPortal();
+  for (viskores::Id i = 0; i < totalCells; ++i)
+    VISKORES_TEST_ASSERT(allCellIdsPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
 }
 
 void TestCellLocatorGeneral()

@@ -18,6 +18,7 @@
 #ifndef viskores_filter_Filter_h
 #define viskores_filter_Filter_h
 
+#include <viskores/Deprecated.h>
 #include <viskores/cont/ArrayCopy.h>
 #include <viskores/cont/DataSet.h>
 #include <viskores/cont/Field.h>
@@ -360,16 +361,17 @@ public:
   /// then the derived class should override this method to return false.
   VISKORES_CONT virtual bool CanThread() const;
 
-  VISKORES_CONT void SetThreadsPerCPU(viskores::Id numThreads)
-  {
-    this->NumThreadsPerCPU = numThreads;
-  }
+  VISKORES_CONT
+  void SetThreadsPerCPU(viskores::Id numThreads) { this->NumThreadsPerCPU = numThreads; }
+
   VISKORES_CONT void SetThreadsPerGPU(viskores::Id numThreads)
   {
     this->NumThreadsPerGPU = numThreads;
   }
 
-  VISKORES_CONT viskores::Id GetThreadsPerCPU() const { return this->NumThreadsPerCPU; }
+  VISKORES_CONT
+  viskores::Id GetThreadsPerCPU() const { return this->NumThreadsPerCPU; }
+
   VISKORES_CONT viskores::Id GetThreadsPerGPU() const { return this->NumThreadsPerGPU; }
 
   VISKORES_CONT bool GetRunMultiThreadedFilter() const
@@ -869,8 +871,8 @@ private:
   viskores::filter::FieldSelection FieldsToPass = viskores::filter::FieldSelection::Mode::All;
   bool PassCoordinateSystems = true;
   bool RunFilterWithMultipleThreads = false;
-  viskores::Id NumThreadsPerCPU = 4;
   viskores::Id NumThreadsPerGPU = 8;
+  viskores::Id NumThreadsPerCPU = 4;
 
   std::string OutputFieldName;
 

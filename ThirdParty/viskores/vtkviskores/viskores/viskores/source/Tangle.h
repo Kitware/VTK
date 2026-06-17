@@ -43,6 +43,10 @@ namespace source
 class VISKORES_SOURCE_EXPORT Tangle final : public viskores::source::Source
 {
 public:
+  /// \brief Constructs a tangle source with the default point dimensions.
+  ///
+  /// The default point dimensions are ``{16, 16, 16}``, which produces
+  /// ``{15, 15, 15}`` cells.
   VISKORES_CONT Tangle() = default;
   VISKORES_CONT ~Tangle() = default;
 
@@ -52,13 +56,30 @@ public:
   {
   }
 
+  /// \brief Gets the number of points in each dimension.
+  ///
+  /// The generated structured data set has one fewer cell than point in each
+  /// dimension.
   VISKORES_CONT viskores::Id3 GetPointDimensions() const { return this->PointDimensions; }
+
+  /// \brief Sets the number of points in each dimension.
+  ///
+  /// The dimensions must be greater than 1 in each direction to generate cells.
   VISKORES_CONT void SetPointDimensions(viskores::Id3 dims) { this->PointDimensions = dims; }
 
+  /// \brief Gets the number of cells in each dimension.
+  ///
+  /// This value is computed from the point dimensions by subtracting 1 in each
+  /// direction.
   VISKORES_CONT viskores::Id3 GetCellDimensions() const
   {
     return this->PointDimensions - viskores::Id3(1);
   }
+
+  /// \brief Sets the number of cells in each dimension.
+  ///
+  /// The point dimensions are set to one more than the given cell dimensions in
+  /// each direction.
   VISKORES_CONT void SetCellDimensions(viskores::Id3 dims)
   {
     this->PointDimensions = dims + viskores::Id3(1);

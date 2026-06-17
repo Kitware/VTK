@@ -20,6 +20,8 @@
 
 #include <viskores/cont/DataSet.h>
 
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
+
 namespace viskores
 {
 namespace rendering
@@ -27,7 +29,7 @@ namespace rendering
 namespace raytracing
 {
 
-class GlyphExtractor
+class VISKORES_RENDERING_RAYTRACING_EXPORT GlyphExtractor
 {
 public:
   GlyphExtractor();

@@ -24,4 +24,9 @@ set(unit_tests
   UnitTestCudaRuntimeDeviceConfiguration.cu
   )
 
-viskores_unit_tests(SOURCES ${unit_tests} LABEL "CUDA" LIBRARIES viskores_worklet BACKEND cuda)
+viskores_unit_tests(
+  LABEL "CUDA"
+  LIBRARIES viskores_worklet
+  BACKEND cuda
+  DEVICE_SOURCES ${unit_tests}
+  )

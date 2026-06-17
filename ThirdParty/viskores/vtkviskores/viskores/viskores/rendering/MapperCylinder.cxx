@@ -194,12 +194,13 @@ void MapperCylinder::RenderCellsImpl(const viskores::cont::UnknownCellSet& cells
   viskores::Int32 width = (viskores::Int32)this->Internals->Canvas->GetWidth();
   viskores::Int32 height = (viskores::Int32)this->Internals->Canvas->GetHeight();
 
-  this->Internals->RayCamera.SetParameters(camera, width, height);
+  this->Internals->RayCamera = camera.CreateRaytracingCamera(width, height);
 
   this->Internals->RayCamera.CreateRays(this->Internals->Rays, shapeBounds);
   this->Internals->Rays.Buffers.at(0).InitConst(0.f);
-  raytracing::RayOperations::MapCanvasToRays(
-    this->Internals->Rays, camera, *this->Internals->Canvas);
+  raytracing::RayOperations::MapCanvasToRays(this->Internals->Rays,
+                                             camera.CreateRaytracingCamera(width, height),
+                                             this->Internals->Canvas->GetDepthBuffer());
 
   this->Internals->Tracer.SetField(scalarField, scalarRange);
   this->Internals->Tracer.GetCamera() = this->Internals->RayCamera;

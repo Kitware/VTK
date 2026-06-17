@@ -10,3 +10,4 @@ TEST_DEPENDS
   viskores_filter_contour
   viskores_filter_connected_components
   viskores_source
+  viskores_worklet

@@ -10,3 +10,4 @@ PRIVATE_DEPENDS
   viskores_worklet
 TEST_DEPENDS
   viskores_filter_clean_grid
+  viskores_worklet

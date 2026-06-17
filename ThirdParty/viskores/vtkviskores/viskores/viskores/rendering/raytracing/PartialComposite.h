@@ -20,6 +20,7 @@
 
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/rendering/raytracing/ChannelBuffer.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 namespace viskores
 {
@@ -29,7 +30,7 @@ namespace raytracing
 {
 
 template <typename FloatType>
-struct PartialComposite
+struct VISKORES_RENDERING_RAYTRACING_NO_EXPORT PartialComposite
 {
   viskores::cont::ArrayHandle<viskores::Id> PixelIds; // pixel that owns composite
   viskores::cont::ArrayHandle<FloatType> Distances;   // distance of composite end

@@ -21,6 +21,7 @@
 #include <viskores/cont/Algorithm.h>
 #include <viskores/cont/ArrayHandleView.h>
 #include <viskores/cont/CellSetExplicit.h>
+#include <viskores/cont/UncertainCellSet.h>
 #include <viskores/worklet/DispatcherMapTopology.h>
 #include <viskores/worklet/WorkletMapField.h>
 #include <viskores/worklet/WorkletMapTopology.h>
@@ -220,19 +221,16 @@ public:
   StreamSurface() {}
 
   VISKORES_CONT
-  void Run(const viskores::cont::CoordinateSystem& coords,
-           const viskores::cont::UnknownCellSet& cellset,
-           viskores::cont::ArrayHandle<viskores::Vec3f>& newPoints,
+  void Run(const viskores::cont::UnknownCellSet& cellsetUnknown,
            viskores::cont::CellSetSingleType<>& newCells)
   {
-    using ExplCoordsType = viskores::cont::ArrayHandle<viskores::Vec3f>;
-
-    if (!(coords.GetData().IsType<ExplCoordsType>() &&
-          (cellset.CanConvert<viskores::cont::CellSetExplicit<>>() ||
-           cellset.CanConvert<viskores::cont::CellSetSingleType<>>())))
+    if (!cellsetUnknown.CanConvert<viskores::cont::CellSetExplicit<>>() &&
+        !cellsetUnknown.CanConvert<viskores::cont::CellSetSingleType<>>())
     {
       throw viskores::cont::ErrorBadValue("Stream surface requires polyline data.");
     }
+    auto cellset = cellsetUnknown.ResetCellSetList<
+      viskores::List<viskores::cont::CellSetExplicit<>, viskores::cont::CellSetSingleType<>>>();
 
     //Count number of polylines and make sure we ONLY have polylines
     viskores::cont::ArrayHandle<viskores::Id> ptsPerPolyline, invalidCell;
@@ -264,9 +262,6 @@ public:
     viskores::worklet::DispatcherMapField<CountTriangleConn> countTriInvoker;
     countTriInvoker.Invoke(ptsPerPolyline0, ptsPerPolyline1, triangleConnCount);
     viskores::cont::Algorithm::ScanExclusive(triangleConnCount, triangleConnOffset);
-
-    //Surface points are same as input points.
-    newPoints = coords.GetData().AsArrayHandle<ExplCoordsType>();
 
     //Create surface triangles
     viskores::Id numConnIds = viskores::cont::Algorithm::Reduce(triangleConnCount, viskores::Id(0));

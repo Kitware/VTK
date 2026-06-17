@@ -24,7 +24,7 @@
 #include <viskores/cont/Invoker.h>
 #include <viskores/cont/TryExecute.h>
 
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 #include <viskores/rendering/raytracing/ChannelBuffer.h>
 #include <viskores/rendering/raytracing/ChannelBufferOperations.h>

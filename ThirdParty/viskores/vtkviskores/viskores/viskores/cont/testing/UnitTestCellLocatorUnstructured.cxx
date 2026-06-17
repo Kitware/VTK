@@ -222,6 +222,44 @@ public:
   }
 };
 
+class FindCellIdWorklet : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points, ExecObject locator, FieldOut cellIds);
+  using ExecutionSignature = void(_1, _2, _3);
+
+  template <typename LocatorType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                viskores::Id& cellId) const
+  {
+    viskores::ErrorCode status = locator.FindCellId(point, cellId);
+    if (status != viskores::ErrorCode::Success)
+      this->RaiseError(viskores::ErrorString(status));
+  }
+};
+
+class FindCellIdWorkletWithLastCell : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points,
+                                ExecObject locator,
+                                FieldOut cellIds,
+                                FieldInOut lastCell);
+  using ExecutionSignature = void(_1, _2, _3, _4);
+
+  template <typename LocatorType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                viskores::Id& cellId,
+                                typename LocatorType::LastCell& lastCell) const
+  {
+    viskores::ErrorCode status = locator.FindCellId(point, cellId, lastCell);
+    if (status != viskores::ErrorCode::Success)
+      this->RaiseError(viskores::ErrorString(status));
+  }
+};
+
 class CountAllCellsWorklet : public viskores::worklet::WorkletMapField
 {
 public:
@@ -256,6 +294,21 @@ public:
   }
 };
 
+class FindAllCellIdsWorklet : public viskores::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn points, ExecObject locator, FieldOut cellIds);
+  using ExecutionSignature = void(_1, _2, _3);
+
+  template <typename LocatorType, typename CellIdVecType>
+  VISKORES_EXEC void operator()(const viskores::Vec3f& point,
+                                const LocatorType& locator,
+                                CellIdVecType& cellIds) const
+  {
+    locator.FindAllCellIds(point, cellIds);
+  }
+};
+
 template <typename LocatorType>
 void TestLastCell(LocatorType& locator,
                   viskores::Id numPoints,
@@ -281,6 +334,26 @@ void TestLastCell(LocatorType& locator,
     VISKORES_TEST_ASSERT(cellIdPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
     VISKORES_TEST_ASSERT(test_equal(pcoordsPortal.Get(i), expPCoordsPortal.Get(i), 1e-3),
                          "Incorrect parameteric coordinates");
+  }
+}
+
+template <typename LocatorType>
+void TestLastCellId(LocatorType& locator,
+                    viskores::Id numPoints,
+                    viskores::cont::ArrayHandle<typename LocatorType::LastCell>& lastCell,
+                    const viskores::cont::ArrayHandle<PointType>& points,
+                    const viskores::cont::ArrayHandle<viskores::Id>& expCellIds)
+{
+  viskores::cont::ArrayHandle<viskores::Id> cellIds;
+
+  viskores::cont::Invoker invoker;
+  invoker(FindCellIdWorkletWithLastCell{}, points, locator, cellIds, lastCell);
+
+  auto cellIdPortal = cellIds.ReadPortal();
+  auto expCellIdsPortal = expCellIds.ReadPortal();
+  for (viskores::Id i = 0; i < numPoints; ++i)
+  {
+    VISKORES_TEST_ASSERT(cellIdPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
   }
 }
 
@@ -322,6 +395,14 @@ void TestCellLocator(LocatorType& locator,
                          "Incorrect parameteric coordinates");
   }
 
+  viskores::cont::ArrayHandle<viskores::Id> cellIdsOnly;
+  invoker(FindCellIdWorklet{}, points, locator, cellIdsOnly);
+  auto cellIdsOnlyPortal = cellIdsOnly.ReadPortal();
+  for (viskores::Id i = 0; i < numberOfPoints; ++i)
+  {
+    VISKORES_TEST_ASSERT(cellIdsOnlyPortal.Get(i) == expCellIdsPortal.Get(i), "Incorrect cell ids");
+  }
+
   //Test locator using lastCell
   //Test it with initialized.
   viskores::cont::ArrayHandle<typename LocatorType::LastCell> lastCell;
@@ -330,12 +411,14 @@ void TestCellLocator(LocatorType& locator,
 
   //Call it again using the lastCell just computed to validate.
   TestLastCell(locator, numberOfPoints, lastCell, points, expCellIds, pcoords);
+  TestLastCellId(locator, numberOfPoints, lastCell, points, expCellIds);
 
   //Test it with uninitialized array.
   viskores::cont::ArrayHandle<typename LocatorType::LastCell> lastCell2;
   lastCell2.Allocate(numberOfPoints);
 
   TestLastCell(locator, numberOfPoints, lastCell2, points, expCellIds, pcoords);
+  TestLastCellId(locator, numberOfPoints, lastCell2, points, expCellIds);
 
 
   //Test CountAllCells and FindAllCells. Should be identical to the tests above.
@@ -369,6 +452,19 @@ void TestCellLocator(LocatorType& locator,
     for (viskores::Id i = 0; i < numberOfFoundCells; ++i)
     {
       VISKORES_TEST_ASSERT(portal.Get(i) == expCellIds.ReadPortal().Get(i),
+                           "Found cell id out of range");
+    }
+
+    viskores::cont::ArrayHandle<viskores::Id> allCellIdsOnly;
+    allCellIdsOnly.AllocateAndFill(numberOfFoundCells, viskores::Id(-1));
+    auto cellIdsOnlyVec =
+      viskores::cont::make_ArrayHandleGroupVecVariable(allCellIdsOnly, cellOffsets);
+    invoker(FindAllCellIdsWorklet{}, points, locator, cellIdsOnlyVec);
+
+    auto portalIdsOnly = allCellIdsOnly.ReadPortal();
+    for (viskores::Id i = 0; i < numberOfFoundCells; ++i)
+    {
+      VISKORES_TEST_ASSERT(portalIdsOnly.Get(i) == expCellIds.ReadPortal().Get(i),
                            "Found cell id out of range");
     }
   }
@@ -463,10 +559,16 @@ void ValidateFindAllCells(LocatorType& locator,
     cellIds, viskores::cont::ConvertNumComponentsToOffsets(cellCounts));
   auto pCoordsVec = viskores::cont::make_ArrayHandleGroupVecVariable(
     pCoords, viskores::cont::ConvertNumComponentsToOffsets(cellCounts));
+  viskores::cont::ArrayHandle<viskores::Id> cellIdsOnly;
+  cellIdsOnly.AllocateAndFill(numberOfFoundCells, viskores::Id(-1));
+  auto cellIdsOnlyVec = viskores::cont::make_ArrayHandleGroupVecVariable(
+    cellIdsOnly, viskores::cont::ConvertNumComponentsToOffsets(cellCounts));
 
   invoker(FindAllCellsWorklet{}, pointsAH, locator, cellIdsVec, pCoordsVec);
+  invoker(FindAllCellIdsWorklet{}, pointsAH, locator, cellIdsOnlyVec);
 
   auto portal = cellIdsVec.ReadPortal();
+  auto portalIdsOnly = cellIdsOnlyVec.ReadPortal();
   for (viskores::Id i = 0; i < cellIdsVec.GetNumberOfValues(); i++)
   {
     viskores::IdComponent numComp = portal.Get(i).GetNumberOfComponents();
@@ -487,6 +589,21 @@ void ValidateFindAllCells(LocatorType& locator,
     {
       VISKORES_TEST_ASSERT(cells0[j] == cells1[j],
                            "Cell Ids do not match at index " + std::to_string(i));
+    }
+
+    VISKORES_TEST_ASSERT(portal.Get(i).GetNumberOfComponents() ==
+                           portalIdsOnly.Get(i).GetNumberOfComponents(),
+                         "FindAllCellIds returned the wrong number of cell ids");
+    std::vector<viskores::Id> cells2;
+    for (viskores::IdComponent j = 0; j < portalIdsOnly.Get(i).GetNumberOfComponents(); j++)
+      cells2.push_back(portalIdsOnly.Get(i)[j]);
+
+    std::sort(cells2.begin(), cells2.end());
+    for (std::size_t j = 0; j < cells1.size(); j++)
+    {
+      VISKORES_TEST_ASSERT(cells2[j] == cells1[j],
+                           "FindAllCellIds did not match expected ids at index " +
+                             std::to_string(i));
     }
   }
 }
@@ -619,11 +736,6 @@ void TestingCellLocatorUnstructured()
   TestCellLocator(locator2L, viskores::Id2(18), 512); // 2D dataset
   TestFindAllCells(locator2L);
 
-  viskores::cont::CellLocatorBoundingIntervalHierarchy locatorBIH;
-  std::cout << "Testing CellLocatorBoundingIntervalHierarchy" << std::endl;
-  TestCellLocator(locatorBIH, viskores::Id3(8), 512, false);  // 3D dataset
-  TestCellLocator(locatorBIH, viskores::Id2(18), 512, false); // 2D dataset
-
   //Test viskores::cont::CellLocatorUniformBins
   viskores::cont::CellLocatorUniformBins locatorUB;
   locatorUB.SetDims({ 32, 32, 32 });
@@ -641,6 +753,12 @@ void TestingCellLocatorUnstructured()
   locatorUB = viskores::cont::CellLocatorUniformBins();
   locatorUB.SetDims({ 32, 32, 32 });
   TestFindAllCells(locatorUB);
+
+  viskores::cont::CellLocatorBoundingIntervalHierarchy locatorBIH;
+  std::cout << "Testing CellLocatorBoundingIntervalHierarchy" << std::endl;
+  TestCellLocator(locatorBIH, viskores::Id3(8), 512);  // 3D dataset
+  TestCellLocator(locatorBIH, viskores::Id2(18), 512); // 2D dataset
+  TestFindAllCells(locatorBIH);
 }
 
 int UnitTestCellLocatorUnstructured(int argc, char* argv[])

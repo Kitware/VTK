@@ -23,88 +23,6 @@ namespace viskores
 namespace rendering
 {
 
-viskores::Matrix<viskores::Float32, 4, 4> Camera::Camera3DStruct::CreateViewMatrix() const
-{
-  return MatrixHelpers::ViewMatrix(this->Position, this->LookAt, this->ViewUp);
-}
-
-viskores::Matrix<viskores::Float32, 4, 4> Camera::Camera3DStruct::CreateProjectionMatrix(
-  viskores::Id width,
-  viskores::Id height,
-  viskores::Float32 nearPlane,
-  viskores::Float32 farPlane) const
-{
-  viskores::Matrix<viskores::Float32, 4, 4> matrix;
-  viskores::MatrixIdentity(matrix);
-
-  viskores::Float32 AspectRatio = viskores::Float32(width) / viskores::Float32(height);
-  viskores::Float32 fovRad = this->FieldOfView * viskores::Pi_180f();
-  fovRad = viskores::Tan(fovRad * 0.5f);
-  viskores::Float32 size = nearPlane * fovRad;
-  viskores::Float32 left = -size * AspectRatio;
-  viskores::Float32 right = size * AspectRatio;
-  viskores::Float32 bottom = -size;
-  viskores::Float32 top = size;
-
-  matrix(0, 0) = 2.f * nearPlane / (right - left);
-  matrix(1, 1) = 2.f * nearPlane / (top - bottom);
-  matrix(0, 2) = (right + left) / (right - left);
-  matrix(1, 2) = (top + bottom) / (top - bottom);
-  matrix(2, 2) = -(farPlane + nearPlane) / (farPlane - nearPlane);
-  matrix(3, 2) = -1.f;
-  matrix(2, 3) = -(2.f * farPlane * nearPlane) / (farPlane - nearPlane);
-  matrix(3, 3) = 0.f;
-
-  viskores::Matrix<viskores::Float32, 4, 4> T, Z;
-  T = viskores::Transform3DTranslate(this->XPan, this->YPan, 0.f);
-  Z = viskores::Transform3DScale(this->Zoom, this->Zoom, 1.f);
-  matrix = viskores::MatrixMultiply(Z, viskores::MatrixMultiply(T, matrix));
-  return matrix;
-}
-
-//---------------------------------------------------------------------------
-
-viskores::Matrix<viskores::Float32, 4, 4> Camera::Camera2DStruct::CreateViewMatrix() const
-{
-  viskores::Vec3f_32 lookAt(
-    (this->Left + this->Right) / 2.f, (this->Top + this->Bottom) / 2.f, 0.f);
-  viskores::Vec3f_32 position = lookAt;
-  position[2] = 1.f;
-  viskores::Vec3f_32 up(0, 1, 0);
-  viskores::Matrix<viskores::Float32, 4, 4> V = MatrixHelpers::ViewMatrix(position, lookAt, up);
-  viskores::Matrix<viskores::Float32, 4, 4> scaleMatrix =
-    MatrixHelpers::CreateScale(this->XScale, 1, 1);
-  V = viskores::MatrixMultiply(scaleMatrix, V);
-  return V;
-}
-
-viskores::Matrix<viskores::Float32, 4, 4> Camera::Camera2DStruct::CreateProjectionMatrix(
-  viskores::Float32 size,
-  viskores::Float32 znear,
-  viskores::Float32 zfar,
-  viskores::Float32 aspect) const
-{
-  viskores::Matrix<viskores::Float32, 4, 4> matrix(0.f);
-  viskores::Float32 left = -size / 2.f * aspect;
-  viskores::Float32 right = size / 2.f * aspect;
-  viskores::Float32 bottom = -size / 2.f;
-  viskores::Float32 top = size / 2.f;
-
-  matrix(0, 0) = 2.f / (right - left);
-  matrix(1, 1) = 2.f / (top - bottom);
-  matrix(2, 2) = -2.f / (zfar - znear);
-  matrix(0, 3) = -(right + left) / (right - left);
-  matrix(1, 3) = -(top + bottom) / (top - bottom);
-  matrix(2, 3) = -(zfar + znear) / (zfar - znear);
-  matrix(3, 3) = 1.f;
-
-  viskores::Matrix<viskores::Float32, 4, 4> T, Z;
-  T = viskores::Transform3DTranslate(this->XPan, this->YPan, 0.f);
-  Z = viskores::Transform3DScale(this->Zoom, this->Zoom, 1.f);
-  matrix = viskores::MatrixMultiply(Z, viskores::MatrixMultiply(T, matrix));
-  return matrix;
-}
-
 //---------------------------------------------------------------------------
 
 viskores::Matrix<viskores::Float32, 4, 4> Camera::CreateViewMatrix() const
@@ -443,5 +361,27 @@ void Camera::Print() const
     std::cout << vm[3][0] << " " << vm[3][1] << " " << vm[3][2] << " " << vm[3][3] << std::endl;
   }
 }
+
+viskores::rendering::raytracing::Camera Camera::CreateRaytracingCamera(viskores::Int32 width,
+                                                                       viskores::Int32 height) const
+{
+  viskores::rendering::raytracing::Camera rayCamera;
+  rayCamera.SetUp(this->GetViewUp());
+  rayCamera.SetLookAt(this->GetLookAt());
+  rayCamera.SetPosition(this->GetPosition());
+  rayCamera.SetPan(this->GetPan());
+  rayCamera.SetZoom(this->GetZoom());
+  rayCamera.SetClippingRange(this->NearPlane, this->FarPlane);
+  rayCamera.SetFieldOfView(this->GetFieldOfView());
+  rayCamera.SetHeight(height);
+  rayCamera.SetWidth(width);
+  rayCamera.SetIsOrthogonalProjection(this->GetMode() == Mode::TwoD);
+  rayCamera.SetCamera3D(this->Camera3D);
+  rayCamera.SetCamera2D(this->Camera2D);
+  rayCamera.SetViewport(
+    this->ViewportLeft, this->ViewportRight, this->ViewportBottom, this->ViewportTop);
+  return rayCamera;
+}
+
 }
 } // namespace viskores::rendering

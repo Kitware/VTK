@@ -221,7 +221,7 @@ VISKORES_CONT inline void DataSetIntegrator<Derived, ParticleType>::ClassifyPart
           for (auto idit = newIDs.begin(); idit != newIDs.end(); idit++)
           {
             viskores::Id bid = *idit;
-            auto ranks = dsiInfo.BoundsMap.FindRank(bid);
+            const auto& ranks = dsiInfo.BoundsMap.FindRank(bid);
             if (std::find(ranks.begin(), ranks.end(), this->Rank) != ranks.end())
             {
               newIDs.erase(idit);

@@ -66,6 +66,10 @@ namespace source
 class VISKORES_SOURCE_EXPORT Amr
 {
 public:
+  /// \brief Constructs an AMR source with default parameters.
+  ///
+  /// The default source generates 2D AMR data with 6 cells per dimension and
+  /// 4 refinement levels.
   VISKORES_CONT Amr() = default;
 
   VISKORES_CONT VISKORES_DEPRECATED(2.0, "Use Set* methods to set parameters.")
@@ -75,24 +79,43 @@ public:
 
   VISKORES_CONT ~Amr() = default;
 
+  /// \brief Sets whether generated partitions are 2D or 3D.
+  ///
+  /// Supported values are 2 and 3.
   VISKORES_CONT void SetDimension(viskores::IdComponent dimension) { this->Dimension = dimension; }
+
+  /// \brief Gets the dimension of the generated partitions.
   VISKORES_CONT viskores::IdComponent GetDimension() const { return this->Dimension; }
 
+  /// \brief Sets the number of cells along each dimension of a partition.
+  ///
+  /// The value must be even and greater than 1.
   VISKORES_CONT void SetCellsPerDimension(viskores::IdComponent cellsPerDimension)
   {
     this->CellsPerDimension = cellsPerDimension;
   }
+
+  /// \brief Gets the number of cells along each dimension of a partition.
   VISKORES_CONT viskores::IdComponent GetCellsPerDimension() const
   {
     return this->CellsPerDimension;
   }
 
+  /// \brief Sets the number of AMR refinement levels to generate.
+  ///
+  /// Level \c l contains 2 to the \c l partitions.
   VISKORES_CONT void SetNumberOfLevels(viskores::IdComponent numberOfLevels)
   {
     this->NumberOfLevels = numberOfLevels;
   }
+
+  /// \brief Gets the number of AMR refinement levels to generate.
   VISKORES_CONT viskores::IdComponent GetNumberOfLevels() const { return this->NumberOfLevels; }
 
+  /// \brief Generates the AMR partitioned data set.
+  ///
+  /// Each partition contains the point field \c RTData and the cell field
+  /// \c RTDataCells. Additional AMR helper arrays are added to the result.
   VISKORES_CONT viskores::cont::PartitionedDataSet Execute() const;
 
 private:

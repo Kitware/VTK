@@ -67,7 +67,6 @@ if(Viskores_ENABLE_OPENMP AND NOT (TARGET viskores_openmp OR TARGET viskores::op
 
   add_library(viskores_openmp INTERFACE)
   target_link_libraries(viskores_openmp INTERFACE OpenMP::OpenMP_CXX)
-  target_compile_options(viskores_openmp INTERFACE $<$<COMPILE_LANGUAGE:CXX>:${OpenMP_CXX_FLAGS}>)
   if(Viskores_ENABLE_CUDA)
     string(REPLACE ";" "," openmp_cuda_flags "-Xcompiler=${OpenMP_CXX_FLAGS}")
     target_compile_options(viskores_openmp INTERFACE $<$<COMPILE_LANGUAGE:CUDA>:${openmp_cuda_flags}>)

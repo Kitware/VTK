@@ -2,3 +2,5 @@ NAME
   viskores
 GROUPS
   Core
+TEST_DEPENDS
+  viskores_worklet

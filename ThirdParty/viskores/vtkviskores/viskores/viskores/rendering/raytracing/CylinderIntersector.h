@@ -30,11 +30,13 @@ namespace raytracing
 namespace detail
 {
 }
-class CylinderIntersector : public ShapeIntersector
+class VISKORES_RENDERING_RAYTRACING_EXPORT CylinderIntersector : public ShapeIntersector
 {
 protected:
   viskores::cont::ArrayHandle<viskores::Id3> CylIds;
   viskores::cont::ArrayHandle<viskores::Float32> Radii;
+  viskores::cont::ArrayHandle<viskores::UInt8> CapMasks;
+  bool UseCapMasks;
 
 public:
   CylinderIntersector();
@@ -44,6 +46,11 @@ public:
   void SetData(const viskores::cont::CoordinateSystem& coords,
                viskores::cont::ArrayHandle<viskores::Id3> cylIds,
                viskores::cont::ArrayHandle<viskores::Float32> radii);
+
+  void SetData(const viskores::cont::CoordinateSystem& coords,
+               viskores::cont::ArrayHandle<viskores::Id3> cylIds,
+               viskores::cont::ArrayHandle<viskores::Float32> radii,
+               viskores::cont::ArrayHandle<viskores::UInt8> capMasks);
 
   void IntersectRays(Ray<viskores::Float32>& rays, bool returnCellIndex = false) override;
 

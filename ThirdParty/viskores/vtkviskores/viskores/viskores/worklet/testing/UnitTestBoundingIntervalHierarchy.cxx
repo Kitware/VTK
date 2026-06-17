@@ -62,8 +62,11 @@ struct BoundingIntervalHierarchyTester : public viskores::worklet::WorkletMapFie
   {
     viskores::Vec3f parametric;
     viskores::Id cellId = -1;
+    viskores::Id cellIdOnly = -1;
     bih.FindCell(point, cellId, parametric);
-    return (1 - static_cast<viskores::IdComponent>(expectedId == cellId));
+    bih.FindCellId(point, cellIdOnly);
+    return (1 -
+            static_cast<viskores::IdComponent>((expectedId == cellId) && (cellId == cellIdOnly)));
   }
 }; // struct BoundingIntervalHierarchyTester
 

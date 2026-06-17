@@ -42,6 +42,8 @@ set(headers
   ParametricCoordinates.h
   PointLocatorSparseGrid.h
   TaskBase.h
+  SplineEvaluateRectilinearGrid.h
+  SplineEvaluateUniformGrid.h
   Variant.h
   )
 
@@ -56,3 +58,22 @@ add_subdirectory(arg)
 viskores_declare_headers(${headers}
                     ${header_impls}
                     )
+
+set(backends )
+if(TARGET viskores_tbb)
+  list(APPEND backends viskores_tbb)
+endif()
+if(TARGET viskores_cuda)
+  list(APPEND backends viskores_cuda)
+endif()
+if(TARGET viskores_openmp)
+  list(APPEND backends viskores_openmp)
+endif()
+if(TARGET viskores_kokkos)
+  list(APPEND backends viskores_kokkos)
+endif()
+
+add_library(viskores_exec INTERFACE)
+target_link_libraries(viskores_exec INTERFACE ${backends})
+target_compile_definitions(viskores_exec INTERFACE VISKORES_DEVICE_LINKED)
+install(TARGETS viskores_exec EXPORT ${Viskores_EXPORT_NAME})

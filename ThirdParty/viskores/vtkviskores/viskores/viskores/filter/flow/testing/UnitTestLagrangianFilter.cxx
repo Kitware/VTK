@@ -17,7 +17,6 @@
 //============================================================================
 
 #include <iostream>
-#include <viskores/cont/CellLocatorBoundingIntervalHierarchy.h>
 #include <viskores/cont/DataSetBuilderUniform.h>
 #include <viskores/cont/testing/Testing.h>
 #include <viskores/filter/flow/Lagrangian.h>

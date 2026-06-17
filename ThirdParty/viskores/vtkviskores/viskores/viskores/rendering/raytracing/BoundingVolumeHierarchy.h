@@ -20,7 +20,7 @@
 
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/DataSet.h>
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 namespace viskores
 {
@@ -42,7 +42,7 @@ struct AABBs
 //
 // This is the data structure that is passed to the ray tracer.
 //
-class VISKORES_RENDERING_EXPORT LinearBVH
+class VISKORES_RENDERING_RAYTRACING_EXPORT LinearBVH
 {
 public:
   using InnerNodesHandle = viskores::cont::ArrayHandle<viskores::Vec4f_32>;

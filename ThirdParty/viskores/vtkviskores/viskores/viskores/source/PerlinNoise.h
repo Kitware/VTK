@@ -37,6 +37,10 @@ namespace source
 class VISKORES_SOURCE_EXPORT PerlinNoise final : public viskores::source::Source
 {
 public:
+  /// \brief Constructs a Perlin noise source with default parameters.
+  ///
+  /// The default point dimensions are 16 by 16 by 16, the origin is at
+  /// 0, 0, 0, and no deterministic seed is selected.
   VISKORES_CONT PerlinNoise() = default;
   VISKORES_CONT ~PerlinNoise() = default;
 
@@ -54,25 +58,52 @@ public:
   VISKORES_DEPRECATED(2.0, "Use Set*Dimensions, SetOrigin, and SetSeed.")
   VISKORES_CONT PerlinNoise(viskores::Id3 dims, viskores::Vec3f origin, viskores::IdComponent seed);
 
+  /// \brief Gets the number of points in each dimension.
+  ///
+  /// The generated structured data set has one fewer cell than point in each
+  /// dimension.
   VISKORES_CONT viskores::Id3 GetPointDimensions() const { return this->PointDimensions; }
+
+  /// \brief Sets the number of points in each dimension.
+  ///
+  /// The dimensions must be greater than 1 in each direction to generate cells.
   VISKORES_CONT void SetPointDimensions(viskores::Id3 dims) { this->PointDimensions = dims; }
 
+  /// \brief Gets the number of cells in each dimension.
+  ///
+  /// This value is computed from the point dimensions by subtracting 1 in each
+  /// direction.
   VISKORES_CONT viskores::Id3 GetCellDimensions() const
   {
     return this->PointDimensions - viskores::Id3(1);
   }
+
+  /// \brief Sets the number of cells in each dimension.
+  ///
+  /// The point dimensions are set to one more than the given cell dimensions in
+  /// each direction.
   VISKORES_CONT void SetCellDimensions(viskores::Id3 dims)
   {
     this->PointDimensions = dims + viskores::Id3(1);
   }
 
+  /// \brief Gets the origin of the generated coordinate system.
   VISKORES_CONT viskores::Vec3f GetOrigin() const { return this->Origin; }
+
+  /// \brief Sets the origin of the generated coordinate system.
   VISKORES_CONT void SetOrigin(const viskores::Vec3f& origin) { this->Origin = origin; }
 
-  /// \brief The seed used for the pseudorandom number generation of the noise.
+  /// \brief Gets the seed used for the pseudorandom generation of the noise.
   ///
-  /// If the seed is not set, then a new, unique seed is picked each time `Execute` is run.
+  /// If the seed is not set, then a new seed is picked each time \c Execute
+  /// is run.
   VISKORES_CONT viskores::IdComponent GetSeed() const { return this->Seed; }
+
+  /// \brief Sets the seed used for pseudorandom noise generation.
+  ///
+  /// Setting a seed makes repeated calls to \c Execute produce the same scalar
+  /// field for the same source parameters. If the seed is not set, then a new
+  /// seed is picked each time \c Execute is run.
   VISKORES_CONT void SetSeed(viskores::IdComponent seed)
   {
     this->Seed = seed;

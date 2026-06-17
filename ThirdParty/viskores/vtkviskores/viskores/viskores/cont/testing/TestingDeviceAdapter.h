@@ -1265,17 +1265,17 @@ private:
 
     //the output of reduce and scan inclusive should be the same
     std::cout << "  Reduce with initial value of 0." << std::endl;
-    viskores::Id reduce_sum = Algorithm::Reduce(array, 0);
+    viskores::Id reduce_sum = Algorithm::Reduce(array, viskores::Id(0));
     std::cout << "  Reduce with initial value." << std::endl;
     viskores::Id reduce_sum_with_intial_value = Algorithm::Reduce(array, viskores::Id(ARRAY_SIZE));
     std::cout << "  Inclusive scan to check" << std::endl;
     viskores::Id inclusive_sum = Algorithm::ScanInclusive(array, array);
     std::cout << "  Reduce with 1 value." << std::endl;
     array.Allocate(1, viskores::CopyFlag::On);
-    viskores::Id reduce_sum_one_value = Algorithm::Reduce(array, 0);
+    viskores::Id reduce_sum_one_value = Algorithm::Reduce(array, viskores::Id(0));
     std::cout << "  Reduce with 0 values." << std::endl;
     array.Allocate(0);
-    viskores::Id reduce_sum_no_values = Algorithm::Reduce(array, 0);
+    viskores::Id reduce_sum_no_values = Algorithm::Reduce(array, viskores::Id(0));
     VISKORES_TEST_ASSERT(reduce_sum == OFFSET * ARRAY_SIZE, "Got bad sum from Reduce");
     VISKORES_TEST_ASSERT(reduce_sum_with_intial_value == reduce_sum + ARRAY_SIZE,
                          "Got bad sum from Reduce with initial value");
@@ -2812,6 +2812,19 @@ private:
 
       verifyPopCount(bits);
     };
+
+    {
+      std::cout << "Testing CountSetBits with a single word" << std::endl;
+
+      BitField bits;
+      {
+        bits.Allocate(32);
+        auto fillPortal = bits.WritePortal();
+        fillPortal.SetWord(0, WordType{ 0xaa770011u });
+      }
+
+      verifyPopCount(bits);
+    }
 
     testRepeatedMask(0x00000000);
     testRepeatedMask(0xeeeeeeee);

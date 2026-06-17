@@ -20,6 +20,7 @@
 
 #include <viskores/cont/Algorithm.h>
 #include <viskores/rendering/raytracing/ShapeIntersector.h>
+#include <viskores/rendering/viskores_rendering_export.h>
 
 namespace viskores
 {
@@ -30,7 +31,7 @@ namespace raytracing
 namespace detail
 {
 }
-class QuadIntersector : public ShapeIntersector
+class VISKORES_RENDERING_RAYTRACING_EXPORT QuadIntersector : public ShapeIntersector
 {
 protected:
   viskores::cont::ArrayHandle<viskores::Vec<viskores::Id, 5>> QuadIds;

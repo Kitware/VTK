@@ -53,8 +53,13 @@ VISKORES_THIRDPARTY_POST_INCLUDE
 
 #if defined(VISKORES_USE_KOKKOS_THRUST)
 #include <thrust/device_ptr.h>
+#include <thrust/functional.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/sort.h>
+#include <thrust/version.h>
+#if defined(__CUDA__) && THRUST_VERSION >= 300100
+#include <cuda/std/functional>
+#endif
 #endif
 
 namespace viskores
@@ -80,6 +85,27 @@ namespace kokkos
 {
 namespace internal
 {
+
+// In Thrust 3.1, several std-like utility functions and objects in the
+// `thrust` namespace were deprecated in favor of equivalent objects
+// provided by Cuda in the `cuda:std` namespace.
+#if defined(VISKORES_USE_KOKKOS_THRUST)
+#if defined(__CUDA__) && THRUST_VERSION >= 300100
+template <typename T>
+using ThrustSortLess = ::cuda::std::less<T>;
+template <typename T>
+using ThrustSortGreater = ::cuda::std::greater<T>;
+template <typename T>
+using ThrustEqualTo = ::cuda::std::equal_to<T>;
+#else
+template <typename T>
+using ThrustSortLess = ::thrust::less<T>;
+template <typename T>
+using ThrustSortGreater = ::thrust::greater<T>;
+template <typename T>
+using ThrustEqualTo = ::thrust::equal_to<T>;
+#endif
+#endif
 
 //----------------------------------------------------------------------------
 template <typename BitsPortal>
@@ -401,7 +427,13 @@ public:
     }
     if (input.GetNumberOfValues() == 1)
     {
-      return binaryOperator(initialValue, input.ReadPortal().Get(0));
+      // We have run into a situation (particularly with CountSetBits) where
+      // simply calling `input.ReadPortal().Get(0)` can seg fault because the
+      // array handle has a speecial portal that only works on the device. Get
+      // around this by copying to a known basic array.
+      viskores::cont::ArrayHandle<T> oneValue;
+      DeviceAdapterAlgorithm::Copy(input, oneValue);
+      return binaryOperator(initialValue, oneValue.ReadPortal().Get(0));
     }
 
 #if defined(VISKORES_KOKKOS_CUDA)
@@ -866,11 +898,13 @@ protected:
 
     if (std::is_same<BinaryCompare, viskores::SortLess>::value)
     {
-      thrust::sort_by_key(keys_begin, keys_end, values_begin, thrust::less<T>());
+      thrust::sort_by_key(
+        keys_begin, keys_end, values_begin, kokkos::internal::ThrustSortLess<T>());
     }
     else
     {
-      thrust::sort_by_key(keys_begin, keys_end, values_begin, thrust::greater<T>());
+      thrust::sort_by_key(
+        keys_begin, keys_end, values_begin, kokkos::internal::ThrustSortGreater<T>());
     }
   }
 
@@ -957,7 +991,7 @@ protected:
                                         values_begin,
                                         keys_output_begin,
                                         values_output_begin,
-                                        thrust::equal_to<K>(),
+                                        kokkos::internal::ThrustEqualTo<K>(),
                                         binary_functor);
 
       num_unique_keys = ends.first - keys_output_begin;
@@ -1004,7 +1038,7 @@ protected:
                                         values_begin,
                                         keys_output_begin,
                                         values_output_begin,
-                                        thrust::equal_to<K>(),
+                                        kokkos::internal::ThrustEqualTo<K>(),
                                         binary_functor);
 
       num_unique_keys = ends.first - keys_output_begin;

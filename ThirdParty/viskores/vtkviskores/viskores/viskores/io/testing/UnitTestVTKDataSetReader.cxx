@@ -16,13 +16,66 @@
 //  PURPOSE.  See the above copyright notice for more information.
 //============================================================================
 
+#include <viskores/cont/ArrayCopy.h>
+#include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/testing/Testing.h>
+#include <viskores/io/FileUtils.h>
 #include <viskores/io/VTKDataSetReader.h>
 
+#include <array>
+#include <atomic>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <string>
+
+#ifdef _MSC_VER
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
 
 namespace
 {
+
+viskores::Id GetCurrentProcessId()
+{
+#ifdef _MSC_VER
+  return _getpid();
+#else
+  return getpid();
+#endif
+}
+
+std::string MakeScopedVTKTestFileName(const std::string& fileName)
+{
+  static std::atomic<viskores::Id> FileCounter{ 0 };
+
+  std::size_t extensionPos = fileName.rfind('.');
+  std::string stem =
+    (extensionPos == std::string::npos) ? fileName : fileName.substr(0, extensionPos);
+  std::string extension =
+    (extensionPos == std::string::npos) ? std::string() : fileName.substr(extensionPos);
+
+  std::string uniqueName = stem + "_" + std::to_string(GetCurrentProcessId()) + "_" +
+    std::to_string(FileCounter.fetch_add(1, std::memory_order_relaxed)) + extension;
+
+  const char* tempDir = std::getenv("TMPDIR");
+  if ((tempDir == nullptr) || (tempDir[0] == '\0'))
+  {
+    tempDir = std::getenv("TEMP");
+  }
+  if ((tempDir == nullptr) || (tempDir[0] == '\0'))
+  {
+    tempDir = std::getenv("TMP");
+  }
+  if ((tempDir == nullptr) || (tempDir[0] == '\0'))
+  {
+    tempDir = ".";
+  }
+
+  return viskores::io::MergePaths(tempDir, uniqueName);
+}
 
 inline viskores::cont::DataSet readVTKDataSet(const std::string& fname)
 {
@@ -50,6 +103,99 @@ enum Format
   FORMAT_ASCII,
   FORMAT_BINARY
 };
+
+class ScopedVTKTestFile
+{
+public:
+  ScopedVTKTestFile(const std::string& fileName, const std::string& contents)
+    : FileName(MakeScopedVTKTestFileName(fileName))
+  {
+    // Keep generated fixtures out of the source tree and away from the data
+    // submodule so these regressions stay self-contained.
+    std::ofstream out(this->FileName);
+    VISKORES_TEST_ASSERT(out.is_open(), "Could not create ", this->FileName);
+    out << contents;
+    out.close();
+    VISKORES_TEST_ASSERT(out.good(), "Could not write ", this->FileName);
+  }
+
+  ~ScopedVTKTestFile() { std::remove(this->FileName.c_str()); }
+
+  const std::string& GetFileName() const { return this->FileName; }
+
+private:
+  std::string FileName;
+};
+
+viskores::cont::ArrayHandle<viskores::Vec3f> GetCoordinateArray(const viskores::cont::DataSet& ds)
+{
+  viskores::cont::ArrayHandle<viskores::Vec3f> coords;
+  viskores::cont::ArrayCopyShallowIfPossible(ds.GetCoordinateSystem().GetData(), coords);
+  return coords;
+}
+
+void CheckStructuredCellSet(const viskores::cont::DataSet& ds,
+                            viskores::IdComponent expectedDimension,
+                            viskores::Id expectedPoints,
+                            viskores::Id expectedCells)
+{
+  VISKORES_TEST_ASSERT(ds.GetNumberOfPoints() == expectedPoints, "Incorrect number of points");
+  VISKORES_TEST_ASSERT(ds.GetCellSet().GetNumberOfPoints() == expectedPoints,
+                       "Incorrect number of points (from cell set)");
+  VISKORES_TEST_ASSERT(ds.GetNumberOfCells() == expectedCells, "Incorrect number of cells");
+
+  switch (expectedDimension)
+  {
+    case 1:
+      VISKORES_TEST_ASSERT(ds.GetCellSet().IsType<viskores::cont::CellSetStructured<1>>(),
+                           "Incorrect cellset type");
+      break;
+    case 2:
+      VISKORES_TEST_ASSERT(ds.GetCellSet().IsType<viskores::cont::CellSetStructured<2>>(),
+                           "Incorrect cellset type");
+      break;
+    case 3:
+      VISKORES_TEST_ASSERT(ds.GetCellSet().IsType<viskores::cont::CellSetStructured<3>>(),
+                           "Incorrect cellset type");
+      break;
+    default:
+      VISKORES_TEST_FAIL("Unsupported expected structured dimension ", expectedDimension);
+  }
+}
+
+void CheckStructuredQuadCell(const viskores::cont::DataSet& ds,
+                             const std::array<viskores::Vec3f, 4>& expectedCoords)
+{
+  viskores::cont::CellSetStructured<2> cellSet;
+  ds.GetCellSet().AsCellSet(cellSet);
+
+  viskores::Id pointIds[4];
+  cellSet.GetCellPointIds(0, pointIds);
+  auto coordsArray = GetCoordinateArray(ds);
+  auto coords = coordsArray.ReadPortal();
+  for (std::size_t index = 0; index < expectedCoords.size(); ++index)
+  {
+    VISKORES_TEST_ASSERT(test_equal(coords.Get(pointIds[index]), expectedCoords[index]),
+                         "Unexpected quad point coordinates");
+  }
+}
+
+void CheckStructuredLineCell(const viskores::cont::DataSet& ds,
+                             const std::array<viskores::Vec3f, 2>& expectedCoords)
+{
+  viskores::cont::CellSetStructured<1> cellSet;
+  ds.GetCellSet().AsCellSet(cellSet);
+
+  viskores::Id pointIds[2];
+  cellSet.GetCellPointIds(0, pointIds);
+  auto coordsArray = GetCoordinateArray(ds);
+  auto coords = coordsArray.ReadPortal();
+  for (std::size_t index = 0; index < expectedCoords.size(); ++index)
+  {
+    VISKORES_TEST_ASSERT(test_equal(coords.Get(pointIds[index]), expectedCoords[index]),
+                         "Unexpected line point coordinates");
+  }
+}
 
 } // anonymous namespace
 
@@ -507,6 +653,197 @@ void TestSkppingStringFields(Format format)
                        "Incorrect cellset type");
 }
 
+void TestPermutingMultiComponentCellData()
+{
+  ScopedVTKTestFile vtkFile("vtk_reader_triangle_strip_cell_vectors.vtk",
+                            "# vtk DataFile Version 3.0\n"
+                            "triangle strip cell vectors\n"
+                            "ASCII\n"
+                            "DATASET POLYDATA\n"
+                            "POINTS 4 float\n"
+                            "0 0 0 1 0 0 0 1 0 1 1 0\n"
+                            "TRIANGLE_STRIPS 1 5\n"
+                            "4 0 1 2 3\n"
+                            "CELL_DATA 1\n"
+                            "VECTORS cellvec float\n"
+                            "1 2 3\n");
+
+  viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+
+  VISKORES_TEST_ASSERT(ds.GetNumberOfCells() == 2, "Triangle strip should expand into two cells");
+  VISKORES_TEST_ASSERT(ds.GetCellSet().GetCellShape(0) == viskores::CELL_SHAPE_TRIANGLE,
+                       "Triangle strip should expand into triangles");
+  VISKORES_TEST_ASSERT(ds.HasField("cellvec"), "Missing expanded cell field");
+
+  auto field = ds.GetField("cellvec");
+  VISKORES_TEST_ASSERT(field.IsCellField(), "Expanded field should be a cell field");
+  VISKORES_TEST_ASSERT(field.GetData().GetNumberOfValues() == ds.GetNumberOfCells(),
+                       "Expanded field has the wrong tuple count");
+  VISKORES_TEST_ASSERT(field.GetData().GetNumberOfComponentsFlat() == 3,
+                       "Expanded field has the wrong number of components");
+
+  auto vectors = field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::Vec3f_32>>();
+  auto portal = vectors.ReadPortal();
+  VISKORES_TEST_ASSERT(test_equal(portal.Get(0), viskores::Vec3f_32(1.0f, 2.0f, 3.0f)),
+                       "First expanded vector is incorrect");
+  VISKORES_TEST_ASSERT(test_equal(portal.Get(1), viskores::Vec3f_32(1.0f, 2.0f, 3.0f)),
+                       "Second expanded vector is incorrect");
+}
+
+void TestReadingPolyLineCell()
+{
+  ScopedVTKTestFile vtkFile("vtk_reader_polyline_cell.vtk",
+                            "# vtk DataFile Version 3.0\n"
+                            "polyline cell\n"
+                            "ASCII\n"
+                            "DATASET POLYDATA\n"
+                            "POINTS 3 float\n"
+                            "0 0 0 1 0 0 2 0 0\n"
+                            "LINES 1 4\n"
+                            "3 0 1 2\n"
+                            "CELL_DATA 1\n"
+                            "SCALARS cellval float 1\n"
+                            "LOOKUP_TABLE default\n"
+                            "7\n");
+
+  viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+
+  VISKORES_TEST_ASSERT(ds.GetNumberOfCells() == 1, "Polyline should be preserved as one cell");
+  VISKORES_TEST_ASSERT(ds.GetCellSet().GetCellShape(0) == viskores::CELL_SHAPE_POLY_LINE,
+                       "Incorrect polyline cell shape");
+  VISKORES_TEST_ASSERT(ds.HasField("cellval"), "Missing polyline cell field");
+  VISKORES_TEST_ASSERT(ds.GetField("cellval").GetData().GetNumberOfValues() == 1,
+                       "Polyline cell field has the wrong tuple count");
+}
+
+void TestSkippingMismatchedFieldData()
+{
+  ScopedVTKTestFile vtkFile("vtk_reader_field_mismatch.vtk",
+                            "# vtk DataFile Version 3.0\n"
+                            "field mismatch\n"
+                            "ASCII\n"
+                            "DATASET STRUCTURED_POINTS\n"
+                            "DIMENSIONS 2 2 1\n"
+                            "ORIGIN 0 0 0\n"
+                            "SPACING 1 1 1\n"
+                            "POINT_DATA 4\n"
+                            "FIELD FieldData 2\n"
+                            "bad 1 3 float\n"
+                            "1 2 3\n"
+                            "good 1 4 float\n"
+                            "10 20 30 40\n");
+
+  viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+
+  VISKORES_TEST_ASSERT(!ds.HasField("bad"), "Mismatched field should be skipped");
+  VISKORES_TEST_ASSERT(ds.HasField("good"), "Valid field after skipped field was not read");
+
+  viskores::cont::ArrayHandle<viskores::Float32> values =
+    ds.GetField("good").GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float32>>();
+  auto portal = values.ReadPortal();
+  VISKORES_TEST_ASSERT(values.GetNumberOfValues() == 4, "Valid field has the wrong size");
+  VISKORES_TEST_ASSERT(test_equal(portal.Get(0), 10.0f) && test_equal(portal.Get(1), 20.0f) &&
+                         test_equal(portal.Get(2), 30.0f) && test_equal(portal.Get(3), 40.0f),
+                       "Valid field values are incorrect");
+}
+
+void TestStructuredPointsDegenerateDimensions()
+{
+  {
+    ScopedVTKTestFile vtkFile("vtk_reader_structured_points_yz.vtk",
+                              "# vtk DataFile Version 3.0\n"
+                              "structured points yz\n"
+                              "ASCII\n"
+                              "DATASET STRUCTURED_POINTS\n"
+                              "DIMENSIONS 1 2 2\n"
+                              "ORIGIN 0 0 0\n"
+                              "SPACING 1 1 1\n"
+                              "POINT_DATA 4\n"
+                              "SCALARS vals float 1\n"
+                              "LOOKUP_TABLE default\n"
+                              "0 1 2 3\n");
+
+    viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+    CheckStructuredCellSet(ds, 2, 4, 1);
+    CheckStructuredQuadCell(ds,
+                            std::array<viskores::Vec3f, 4>{ viskores::Vec3f(0.0f, 0.0f, 0.0f),
+                                                            viskores::Vec3f(0.0f, 1.0f, 0.0f),
+                                                            viskores::Vec3f(0.0f, 1.0f, 1.0f),
+                                                            viskores::Vec3f(0.0f, 0.0f, 1.0f) });
+  }
+
+  {
+    ScopedVTKTestFile vtkFile("vtk_reader_structured_points_z.vtk",
+                              "# vtk DataFile Version 3.0\n"
+                              "structured points z\n"
+                              "ASCII\n"
+                              "DATASET STRUCTURED_POINTS\n"
+                              "DIMENSIONS 1 1 4\n"
+                              "ORIGIN 0 0 0\n"
+                              "SPACING 1 1 1\n"
+                              "POINT_DATA 4\n"
+                              "SCALARS vals float 1\n"
+                              "LOOKUP_TABLE default\n"
+                              "0 1 2 3\n");
+
+    viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+    CheckStructuredCellSet(ds, 1, 4, 3);
+    CheckStructuredLineCell(ds,
+                            std::array<viskores::Vec3f, 2>{ viskores::Vec3f(0.0f, 0.0f, 0.0f),
+                                                            viskores::Vec3f(0.0f, 0.0f, 1.0f) });
+  }
+}
+
+void TestRectilinearGridDegenerateDimensions()
+{
+  ScopedVTKTestFile vtkFile("vtk_reader_rectilinear_y.vtk",
+                            "# vtk DataFile Version 3.0\n"
+                            "rectilinear y\n"
+                            "ASCII\n"
+                            "DATASET RECTILINEAR_GRID\n"
+                            "DIMENSIONS 1 4 1\n"
+                            "X_COORDINATES 1 float\n"
+                            "0\n"
+                            "Y_COORDINATES 4 float\n"
+                            "10 20 30 40\n"
+                            "Z_COORDINATES 1 float\n"
+                            "5\n"
+                            "POINT_DATA 4\n"
+                            "SCALARS vals float 1\n"
+                            "LOOKUP_TABLE default\n"
+                            "0 1 2 3\n");
+
+  viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+  CheckStructuredCellSet(ds, 1, 4, 3);
+  CheckStructuredLineCell(ds,
+                          std::array<viskores::Vec3f, 2>{ viskores::Vec3f(0.0f, 10.0f, 5.0f),
+                                                          viskores::Vec3f(0.0f, 20.0f, 5.0f) });
+}
+
+void TestStructuredGridDegenerateDimensions()
+{
+  ScopedVTKTestFile vtkFile("vtk_reader_structured_grid_xz.vtk",
+                            "# vtk DataFile Version 3.0\n"
+                            "structured grid xz\n"
+                            "ASCII\n"
+                            "DATASET STRUCTURED_GRID\n"
+                            "DIMENSIONS 3 1 2\n"
+                            "POINTS 6 float\n"
+                            "0 0 0 1 0 0 2 0 0 0 0 1 1 0 1 2 0 1\n"
+                            "POINT_DATA 6\n"
+                            "SCALARS vals float 1\n"
+                            "LOOKUP_TABLE default\n"
+                            "0 1 2 3 4 5\n");
+
+  viskores::cont::DataSet ds = readVTKDataSet(vtkFile.GetFileName());
+  CheckStructuredCellSet(ds, 2, 6, 2);
+  CheckStructuredQuadCell(ds,
+                          std::array<viskores::Vec3f, 4>{ viskores::Vec3f(0.0f, 0.0f, 0.0f),
+                                                          viskores::Vec3f(1.0f, 0.0f, 0.0f),
+                                                          viskores::Vec3f(1.0f, 0.0f, 1.0f),
+                                                          viskores::Vec3f(0.0f, 0.0f, 1.0f) });
+}
+
 void TestReadingVTKDataSet()
 {
   std::cout << "Test reading VTK Polydata file in ASCII" << std::endl;
@@ -558,6 +895,19 @@ void TestReadingVTKDataSet()
   TestReadingV5Format(FORMAT_ASCII);
   std::cout << "Test reading v5 file format in BINARY" << std::endl;
   TestReadingV5Format(FORMAT_BINARY);
+
+  std::cout << "Test permuting multi-component expanded cell data" << std::endl;
+  TestPermutingMultiComponentCellData();
+  std::cout << "Test reading polyline cell" << std::endl;
+  TestReadingPolyLineCell();
+  std::cout << "Test skipping mismatched FIELD arrays" << std::endl;
+  TestSkippingMismatchedFieldData();
+  std::cout << "Test reading structured points with degenerate dimensions" << std::endl;
+  TestStructuredPointsDegenerateDimensions();
+  std::cout << "Test reading rectilinear grids with degenerate dimensions" << std::endl;
+  TestRectilinearGridDegenerateDimensions();
+  std::cout << "Test reading structured grids with degenerate dimensions" << std::endl;
+  TestStructuredGridDegenerateDimensions();
 }
 
 int UnitTestVTKDataSetReader(int argc, char* argv[])

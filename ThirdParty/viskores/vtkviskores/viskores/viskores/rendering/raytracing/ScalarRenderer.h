@@ -33,7 +33,7 @@ namespace rendering
 namespace raytracing
 {
 
-class VISKORES_RENDERING_EXPORT ScalarRenderer
+class VISKORES_RENDERING_RAYTRACING_EXPORT ScalarRenderer
 {
 private:
   viskores::cont::Invoker Invoke;

@@ -20,6 +20,8 @@
 
 #include <viskores/cont/DataSet.h>
 
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
+
 namespace viskores
 {
 namespace rendering
@@ -32,7 +34,7 @@ namespace raytracing
  *        the edges of a cell set.
  *
  */
-class CylinderExtractor
+class VISKORES_RENDERING_RAYTRACING_EXPORT CylinderExtractor
 {
 protected:
   viskores::cont::ArrayHandle<viskores::Id3> CylIds;

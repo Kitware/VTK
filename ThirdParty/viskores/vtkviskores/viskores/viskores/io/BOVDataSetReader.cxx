@@ -18,74 +18,644 @@
 
 #include <viskores/io/BOVDataSetReader.h>
 
+#include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/DataSetBuilderUniform.h>
 #include <viskores/io/ErrorIO.h>
+#include <viskores/io/FileUtils.h>
+#include <viskores/io/internal/Endian.h>
 
+#include <algorithm>
+#include <cctype>
 #include <fstream>
+#include <limits>
 #include <sstream>
+#include <vector>
 
 namespace
 {
 
 enum class DataFormat
 {
-  ByteData,
-  ShortData,
-  IntegerData,
-  FloatData,
-  DoubleData
+  Byte,
+  Short,
+  Integer,
+  Float,
+  Double
 };
 
-template <typename T>
-void ReadBuffer(const std::string& fName, const viskores::Id& sz, std::vector<T>& buff)
+enum class Centering
 {
-  FILE* fp = fopen(fName.c_str(), "rb");
-  size_t readSize = static_cast<size_t>(sz);
-  if (fp == nullptr)
+  Nodal,
+  Zonal
+};
+
+struct BOVHeader
+{
+  BOVHeader()
+    : DataSize(0, 0, 0)
+    , Origin(0, 0, 0)
+    , BrickSize(1, 1, 1)
   {
+  }
+
+  std::string DataFile;
+  std::string VariableName;
+  viskores::Id3 DataSize;
+  viskores::Vec3f Origin;
+  viskores::Vec3f BrickSize;
+  viskores::IdComponent NumComponents = 1;
+  viskores::Id ByteOffset = 0;
+  DataFormat Format = DataFormat::Float;
+  Centering FieldCentering = Centering::Nodal;
+  bool HasDataFile = false;
+  bool HasDataSize = false;
+  bool HasFormat = false;
+  bool HasVariable = false;
+  bool HasBrickSize = false;
+  bool HasEndian = false;
+  bool DataIsLittleEndian = false;
+};
+
+std::string Trim(const std::string& value)
+{
+  auto begin = std::find_if_not(
+    value.begin(), value.end(), [](unsigned char ch) { return std::isspace(ch) != 0; });
+  auto end = std::find_if_not(
+    value.rbegin(), value.rend(), [](unsigned char ch) { return std::isspace(ch) != 0; });
+
+  if (begin >= end.base())
+    return std::string();
+  return std::string(begin, end.base());
+}
+
+std::string ToUpper(const std::string& value)
+{
+  std::string result = value;
+  std::transform(result.begin(),
+                 result.end(),
+                 result.begin(),
+                 [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+  return result;
+}
+
+std::string NormalizeKey(const std::string& key)
+{
+  std::string normalized;
+  bool lastWasSpace = true;
+  for (char ch : Trim(key))
+  {
+    const auto uch = static_cast<unsigned char>(ch);
+    if (ch == '_' || std::isspace(uch) != 0)
+    {
+      if (!lastWasSpace)
+      {
+        normalized.push_back(' ');
+        lastWasSpace = true;
+      }
+    }
+    else
+    {
+      normalized.push_back(static_cast<char>(std::toupper(uch)));
+      lastWasSpace = false;
+    }
+  }
+  return Trim(normalized);
+}
+
+std::string ParseStringOption(const std::string& option, const std::string& optionName)
+{
+  const std::string value = Trim(option);
+  if (value.empty())
+    throw viskores::io::ErrorIO("Missing value for " + optionName);
+
+  if (value[0] == '"' || value[0] == '\'')
+  {
+    const char quote = value[0];
+    const std::string::size_type endQuote = value.find_last_of(quote);
+    if (endQuote == 0)
+      throw viskores::io::ErrorIO("Unterminated quoted value for " + optionName);
+    return value.substr(1, endQuote - 1);
+  }
+
+  std::stringstream stream(value);
+  std::string result;
+  stream >> result;
+  return result;
+}
+
+viskores::Id3 ParseId3Option(const std::string& option, const std::string& optionName)
+{
+  std::stringstream stream(option);
+  viskores::Id3 result;
+  stream >> result[0] >> result[1] >> result[2];
+  if (!stream)
+    throw viskores::io::ErrorIO("Invalid value for " + optionName + ": " + Trim(option));
+  return result;
+}
+
+viskores::Vec3f ParseVec3fOption(const std::string& option, const std::string& optionName)
+{
+  std::stringstream stream(option);
+  viskores::Vec3f result;
+  stream >> result[0] >> result[1] >> result[2];
+  if (!stream)
+    throw viskores::io::ErrorIO("Invalid value for " + optionName + ": " + Trim(option));
+  return result;
+}
+
+viskores::Id ParseIdOption(const std::string& option, const std::string& optionName)
+{
+  std::stringstream stream(option);
+  viskores::Id result;
+  stream >> result;
+  if (!stream || result < 0)
+    throw viskores::io::ErrorIO("Invalid value for " + optionName + ": " + Trim(option));
+  return result;
+}
+
+viskores::IdComponent ParseDataComponentsOption(const std::string& option)
+{
+  const std::string value = ToUpper(Trim(option));
+  if (value == "COMPLEX")
+    return 2;
+
+  std::stringstream stream(value);
+  viskores::Id result;
+  stream >> result;
+  if (!stream || result < 1)
+    throw viskores::io::ErrorIO("Invalid value for DATA_COMPONENTS: " + Trim(option));
+
+  char extra = '\0';
+  if (stream >> extra)
+    throw viskores::io::ErrorIO("Invalid value for DATA_COMPONENTS: " + Trim(option));
+
+  if (result > std::numeric_limits<viskores::IdComponent>::max())
+    throw viskores::io::ErrorIO("DATA_COMPONENTS is too large");
+
+  return static_cast<viskores::IdComponent>(result);
+}
+
+DataFormat ParseDataFormat(const std::string& option)
+{
+  const std::string value = ToUpper(Trim(option));
+  if (value.find("BYTE") != std::string::npos)
+    return DataFormat::Byte;
+  if (value.find("SHORT") != std::string::npos)
+    return DataFormat::Short;
+  if (value == "INT" || value == "INTS" || value.find("INTEGER") != std::string::npos)
+    return DataFormat::Integer;
+  if (value.find("FLOAT") != std::string::npos || value.find("REAL") != std::string::npos)
+    return DataFormat::Float;
+  if (value.find("DOUBLE") != std::string::npos)
+    return DataFormat::Double;
+  throw viskores::io::ErrorIO("Unsupported DATA_FORMAT: " + Trim(option));
+}
+
+Centering ParseCentering(const std::string& option)
+{
+  const std::string value = ToUpper(Trim(option));
+  if (value.find("NODAL") != std::string::npos || value.find("NODE") != std::string::npos ||
+      value.find("POINT") != std::string::npos)
+    return Centering::Nodal;
+  if (value.find("ZONAL") != std::string::npos || value.find("ZONE") != std::string::npos ||
+      value.find("CELL") != std::string::npos)
+    return Centering::Zonal;
+  throw viskores::io::ErrorIO("Unsupported CENTERING: " + Trim(option));
+}
+
+bool ParseDataEndianIsLittle(const std::string& option)
+{
+  const std::string value = ToUpper(Trim(option));
+  if (value.find("LITTLE") != std::string::npos)
+    return true;
+  if (value.find("BIG") != std::string::npos)
+    return false;
+  throw viskores::io::ErrorIO("Unsupported DATA_ENDIAN: " + Trim(option));
+}
+
+bool ParseBoolOption(const std::string& option, const std::string& optionName)
+{
+  const std::string value = ToUpper(Trim(option));
+  if (value == "TRUE" || value == "YES" || value == "ON" || value == "1")
+    return true;
+  if (value == "FALSE" || value == "NO" || value == "OFF" || value == "0")
+    return false;
+  throw viskores::io::ErrorIO("Invalid value for " + optionName + ": " + Trim(option));
+}
+
+void ValidateHeader(const BOVHeader& header)
+{
+  if (!header.HasDataFile || header.DataFile.empty())
+    throw viskores::io::ErrorIO("Missing required DATA_FILE option");
+  if (!header.HasDataSize)
+    throw viskores::io::ErrorIO("Missing required DATA_SIZE option");
+  if (!header.HasFormat)
+    throw viskores::io::ErrorIO("Missing required DATA_FORMAT option");
+  if (!header.HasVariable || header.VariableName.empty())
+    throw viskores::io::ErrorIO("Missing required VARIABLE option");
+  if (header.NumComponents < 1)
+    throw viskores::io::ErrorIO("DATA_COMPONENTS must be >= 1");
+
+  for (viskores::IdComponent i = 0; i < 3; ++i)
+    if (header.DataSize[i] < 1)
+      throw viskores::io::ErrorIO("DATA_SIZE values must be positive");
+
+  if (header.FieldCentering == Centering::Nodal && header.DataSize[0] == 1 &&
+      header.DataSize[1] == 1 && header.DataSize[2] == 1)
+    throw viskores::io::ErrorIO("NODAL DATA_SIZE must define at least one structured cell axis");
+}
+
+BOVHeader ParseHeaderFile(const std::string& fileName)
+{
+  std::ifstream stream(fileName);
+  if (stream.fail())
+    throw viskores::io::ErrorIO("Failed to open file: " + fileName);
+
+  BOVHeader header;
+  std::string line;
+  while (std::getline(stream, line))
+  {
+    line = Trim(line);
+    if (line.empty() || line[0] == '#')
+      continue;
+
+    const std::string::size_type pos = line.find(':');
+    if (pos == std::string::npos)
+      throw viskores::io::ErrorIO("Unsupported option: " + line);
+
+    const std::string token = NormalizeKey(line.substr(0, pos));
+    const std::string options = line.substr(pos + 1);
+
+    if (token == "DATA FILE")
+    {
+      header.DataFile = ParseStringOption(options, "DATA_FILE");
+      header.HasDataFile = true;
+    }
+    else if (token == "DATA SIZE")
+    {
+      header.DataSize = ParseId3Option(options, "DATA_SIZE");
+      header.HasDataSize = true;
+    }
+    else if (token == "BRICK ORIGIN")
+      header.Origin = ParseVec3fOption(options, "BRICK_ORIGIN");
+    else if (token == "BRICK SIZE")
+    {
+      header.BrickSize = ParseVec3fOption(options, "BRICK_SIZE");
+      header.HasBrickSize = true;
+    }
+    else if (token == "DATA FORMAT")
+    {
+      header.Format = ParseDataFormat(options);
+      header.HasFormat = true;
+    }
+    else if (token == "DATA COMPONENTS")
+    {
+      header.NumComponents = ParseDataComponentsOption(options);
+    }
+    else if (token == "VARIABLE")
+    {
+      header.VariableName = ParseStringOption(options, "VARIABLE");
+      header.HasVariable = true;
+    }
+    else if (token == "DATA ENDIAN")
+    {
+      header.DataIsLittleEndian = ParseDataEndianIsLittle(options);
+      header.HasEndian = true;
+    }
+    else if (token == "BYTE OFFSET")
+      header.ByteOffset = ParseIdOption(options, "BYTE_OFFSET");
+    else if (token == "CENTERING")
+      header.FieldCentering = ParseCentering(options);
+    else if (token == "DIVIDE BRICK" && ParseBoolOption(options, "DIVIDE_BRICK"))
+      throw viskores::io::ErrorIO("DIVIDE_BRICK: TRUE is not supported");
+  }
+
+  ValidateHeader(header);
+  return header;
+}
+
+std::string ResolveDataFilePath(const std::string& bovFileName, const std::string& dataFileName)
+{
+  if (viskores::io::IsAbsolutePath(dataFileName))
+    return dataFileName;
+
+  const std::string baseDir = viskores::io::ParentPath(bovFileName);
+  if (baseDir.empty())
+    return dataFileName;
+  return viskores::io::MergePaths(baseDir, dataFileName);
+}
+
+viskores::Id Product(const viskores::Id3& dims)
+{
+  return dims[0] * dims[1] * dims[2];
+}
+
+viskores::Id SafeMultiply(viskores::Id lhs, viskores::Id rhs, const std::string& context)
+{
+  if (lhs < 0 || rhs < 0)
+    throw viskores::io::ErrorIO("Negative value while computing " + context);
+  if (lhs != 0 && rhs > (std::numeric_limits<viskores::Id>::max() / lhs))
+    throw viskores::io::ErrorIO("Overflow while computing " + context);
+  return lhs * rhs;
+}
+
+viskores::Id3 GetPointDimensions(const BOVHeader& header)
+{
+  if (header.FieldCentering == Centering::Zonal)
+    return viskores::Id3(header.DataSize[0] + 1, header.DataSize[1] + 1, header.DataSize[2] + 1);
+  return header.DataSize;
+}
+
+viskores::Vec3f GetSpacing(const BOVHeader& header, const viskores::Id3& pointDimensions)
+{
+  viskores::Vec3f spacing(1, 1, 1);
+  if (!header.HasBrickSize)
+    return spacing;
+
+  for (viskores::IdComponent i = 0; i < 3; ++i)
+  {
+    const viskores::Id divisor =
+      (header.FieldCentering == Centering::Zonal) ? header.DataSize[i] : (header.DataSize[i] - 1);
+    spacing[i] =
+      (divisor > 0) ? (header.BrickSize[i] / static_cast<viskores::FloatDefault>(divisor)) : 1.0f;
+    if (pointDimensions[i] > 1 && spacing[i] <= 0)
+      throw viskores::io::ErrorIO("BRICK_SIZE values must produce positive spacing");
+  }
+
+  return spacing;
+}
+
+template <typename T>
+void ReadBuffer(const std::string& fName,
+                const viskores::Id& sz,
+                const viskores::Id& byteOffset,
+                bool swapEndian,
+                std::vector<T>& buff)
+{
+  const size_t readSize = static_cast<size_t>(sz);
+  std::ifstream stream(fName, std::ios::binary);
+  if (stream.fail())
     throw viskores::io::ErrorIO("Unable to open data file: " + fName);
-  }
-  buff.resize(readSize);
-  size_t nread = fread(&buff[0], sizeof(T), readSize, fp);
-  if (nread != readSize)
+
+  if (byteOffset > 0)
   {
-    throw viskores::io::ErrorIO("Data file read failed: " + fName);
+    stream.seekg(static_cast<std::streamoff>(byteOffset), std::ios::beg);
+    if (stream.fail())
+      throw viskores::io::ErrorIO("Unable to seek data file: " + fName);
   }
-  fclose(fp);
+
+  buff.resize(readSize);
+  stream.read(reinterpret_cast<char*>(buff.data()),
+              static_cast<std::streamsize>(sizeof(T) * readSize));
+  if (stream.fail())
+    throw viskores::io::ErrorIO("Data file read failed: " + fName);
+
+  if (swapEndian && sizeof(T) > 1)
+    viskores::io::internal::FlipEndianness(buff);
 }
 
 template <typename T>
 void ReadScalar(const std::string& fName,
                 const viskores::Id& nTuples,
+                const viskores::Id& byteOffset,
+                bool swapEndian,
                 viskores::cont::ArrayHandle<T>& var)
 {
   std::vector<T> buff;
-  ReadBuffer(fName, nTuples, buff);
+  ReadBuffer(fName, nTuples, byteOffset, swapEndian, buff);
+  var.Allocate(nTuples);
+  auto writePortal = var.WritePortal();
+  for (viskores::Id i = 0; i < nTuples; i++)
+    writePortal.Set(i, buff[static_cast<size_t>(i)]);
+}
+
+template <typename T>
+void ReadVector(const std::string& fName,
+                const viskores::Id& nTuples,
+                viskores::IdComponent numComponents,
+                const viskores::Id& byteOffset,
+                bool swapEndian,
+                viskores::cont::ArrayHandle<viskores::Vec<T, 2>>& var)
+{
+  if (numComponents != 2)
+    throw viskores::io::ErrorIO("Internal error: invalid Vec2 component count");
+
+  std::vector<T> buff;
+  ReadBuffer(fName, SafeMultiply(nTuples, 2, "BOV Vec2 tuple count"), byteOffset, swapEndian, buff);
+
   var.Allocate(nTuples);
   auto writePortal = var.WritePortal();
   for (viskores::Id i = 0; i < nTuples; i++)
   {
-    writePortal.Set(i, buff[static_cast<size_t>(i)]);
+    writePortal.Set(
+      i,
+      viskores::Vec<T, 2>(buff[static_cast<size_t>(i * 2)], buff[static_cast<size_t>(i * 2 + 1)]));
   }
 }
 
 template <typename T>
 void ReadVector(const std::string& fName,
                 const viskores::Id& nTuples,
+                viskores::IdComponent numComponents,
+                const viskores::Id& byteOffset,
+                bool swapEndian,
                 viskores::cont::ArrayHandle<viskores::Vec<T, 3>>& var)
 {
+  if (numComponents != 3)
+    throw viskores::io::ErrorIO("Internal error: invalid Vec3 component count");
+
   std::vector<T> buff;
-  ReadBuffer(fName, nTuples * 3, buff);
+  ReadBuffer(fName, SafeMultiply(nTuples, 3, "BOV Vec3 tuple count"), byteOffset, swapEndian, buff);
 
   var.Allocate(nTuples);
-  viskores::Vec<T, 3> v;
   auto writePortal = var.WritePortal();
   for (viskores::Id i = 0; i < nTuples; i++)
   {
-    v[0] = buff[static_cast<size_t>(i * 3 + 0)];
-    v[1] = buff[static_cast<size_t>(i * 3 + 1)];
-    v[2] = buff[static_cast<size_t>(i * 3 + 2)];
-    writePortal.Set(i, v);
+    writePortal.Set(i,
+                    viskores::Vec<T, 3>(buff[static_cast<size_t>(i * 3)],
+                                        buff[static_cast<size_t>(i * 3 + 1)],
+                                        buff[static_cast<size_t>(i * 3 + 2)]));
+  }
+}
+
+template <typename T>
+void ReadRuntimeVector(const std::string& fName,
+                       const viskores::Id& nTuples,
+                       viskores::IdComponent numComponents,
+                       const viskores::Id& byteOffset,
+                       bool swapEndian,
+                       viskores::cont::ArrayHandleRuntimeVec<T>& var)
+{
+  if (numComponents < 1)
+    throw viskores::io::ErrorIO("DATA_COMPONENTS must be >= 1");
+
+  std::vector<T> buff;
+  ReadBuffer(
+    fName,
+    SafeMultiply(nTuples, static_cast<viskores::Id>(numComponents), "BOV runtime tuple count"),
+    byteOffset,
+    swapEndian,
+    buff);
+  var = viskores::cont::make_ArrayHandleRuntimeVecMove(numComponents, std::move(buff));
+}
+
+template <typename ArrayHandleType>
+void AddField(viskores::cont::DataSet& dataSet, const BOVHeader& header, const ArrayHandleType& var)
+{
+  if (header.FieldCentering == Centering::Zonal)
+    dataSet.AddCellField(header.VariableName, var);
+  else
+    dataSet.AddPointField(header.VariableName, var);
+}
+
+template <typename T>
+void ReadAndAddScalarField(viskores::cont::DataSet& dataSet,
+                           const BOVHeader& header,
+                           const std::string& dataFileName,
+                           viskores::Id numTuples,
+                           bool swapEndian)
+{
+  viskores::cont::ArrayHandle<T> var;
+  ReadScalar(dataFileName, numTuples, header.ByteOffset, swapEndian, var);
+  AddField(dataSet, header, var);
+}
+
+template <typename T, viskores::IdComponent NUM_COMPONENTS>
+void ReadAndAddVectorField(viskores::cont::DataSet& dataSet,
+                           const BOVHeader& header,
+                           const std::string& dataFileName,
+                           viskores::Id numTuples,
+                           bool swapEndian)
+{
+  viskores::cont::ArrayHandle<viskores::Vec<T, NUM_COMPONENTS>> var;
+  ReadVector(dataFileName, numTuples, header.NumComponents, header.ByteOffset, swapEndian, var);
+  AddField(dataSet, header, var);
+}
+
+template <typename T>
+void ReadAndAddRuntimeVectorField(viskores::cont::DataSet& dataSet,
+                                  const BOVHeader& header,
+                                  const std::string& dataFileName,
+                                  viskores::Id numTuples,
+                                  bool swapEndian)
+{
+  viskores::cont::ArrayHandleRuntimeVec<T> var;
+  ReadRuntimeVector(
+    dataFileName, numTuples, header.NumComponents, header.ByteOffset, swapEndian, var);
+  AddField(dataSet, header, var);
+}
+
+void ReadAndAddField(viskores::cont::DataSet& dataSet,
+                     const BOVHeader& header,
+                     const std::string& dataFileName)
+{
+  const viskores::Id numTuples = Product(header.DataSize);
+  const bool swapEndian =
+    header.HasEndian && (header.DataIsLittleEndian != viskores::io::internal::IsLittleEndian());
+
+  if (header.NumComponents == 1)
+  {
+    switch (header.Format)
+    {
+      case DataFormat::Byte:
+        ReadAndAddScalarField<viskores::UInt8>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Short:
+        ReadAndAddScalarField<viskores::Int16>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Integer:
+        ReadAndAddScalarField<viskores::Int32>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Float:
+        ReadAndAddScalarField<viskores::Float32>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Double:
+        ReadAndAddScalarField<viskores::Float64>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+    }
+  }
+  else if (header.NumComponents == 2)
+  {
+    switch (header.Format)
+    {
+      case DataFormat::Byte:
+        ReadAndAddVectorField<viskores::UInt8, 2>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Short:
+        ReadAndAddVectorField<viskores::Int16, 2>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Integer:
+        ReadAndAddVectorField<viskores::Int32, 2>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Float:
+        ReadAndAddVectorField<viskores::Float32, 2>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Double:
+        ReadAndAddVectorField<viskores::Float64, 2>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+    }
+  }
+  else if (header.NumComponents == 3)
+  {
+    switch (header.Format)
+    {
+      case DataFormat::Byte:
+        ReadAndAddVectorField<viskores::UInt8, 3>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Short:
+        ReadAndAddVectorField<viskores::Int16, 3>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Integer:
+        ReadAndAddVectorField<viskores::Int32, 3>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Float:
+        ReadAndAddVectorField<viskores::Float32, 3>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Double:
+        ReadAndAddVectorField<viskores::Float64, 3>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+    }
+  }
+  else
+  {
+    switch (header.Format)
+    {
+      case DataFormat::Byte:
+        ReadAndAddRuntimeVectorField<viskores::UInt8>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Short:
+        ReadAndAddRuntimeVectorField<viskores::Int16>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Integer:
+        ReadAndAddRuntimeVectorField<viskores::Int32>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Float:
+        ReadAndAddRuntimeVectorField<viskores::Float32>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+      case DataFormat::Double:
+        ReadAndAddRuntimeVectorField<viskores::Float64>(
+          dataSet, header, dataFileName, numTuples, swapEndian);
+        break;
+    }
   }
 }
 
@@ -129,133 +699,14 @@ void BOVDataSetReader::LoadFile()
   if (this->Loaded)
     return;
 
-  std::ifstream stream(this->FileName);
-  if (stream.fail())
-    throw viskores::io::ErrorIO("Failed to open file: " + this->FileName);
-
-  DataFormat dataFormat = DataFormat::ByteData;
-  std::string bovFile, line, token, options, variableName;
-  viskores::Id numComponents = 1;
-  viskores::Id3 dim;
-  viskores::Vec3f origin(0, 0, 0);
-  viskores::Vec3f spacing(1, 1, 1);
-  bool spacingSet = false;
-
-  while (stream.good())
-  {
-    std::getline(stream, line);
-    if (line.size() == 0 || line[0] == '#')
-      continue;
-    //std::cout<<"::"<<line<<"::"<<std::endl;
-    std::size_t pos = line.find(":");
-    if (pos == std::string::npos)
-      throw viskores::io::ErrorIO("Unsupported option: " + line);
-    token = line.substr(0, pos);
-    options = line.substr(pos + 1, line.size() - 1);
-    //std::cout<<token<<"::"<<options<<std::endl;
-
-    std::stringstream strStream(options);
-
-    //Format supports both space and "_" separated tokens...
-    if (token.find("DATA") != std::string::npos && token.find("FILE") != std::string::npos)
-    {
-      strStream >> bovFile >> std::ws;
-    }
-    else if (token.find("DATA") != std::string::npos && token.find("SIZE") != std::string::npos)
-    {
-      strStream >> dim[0] >> dim[1] >> dim[2] >> std::ws;
-    }
-    else if (token.find("BRICK") != std::string::npos && token.find("ORIGIN") != std::string::npos)
-    {
-      strStream >> origin[0] >> origin[1] >> origin[2] >> std::ws;
-    }
-
-    //DRP
-    else if (token.find("BRICK") != std::string::npos && token.find("SIZE") != std::string::npos)
-    {
-      strStream >> spacing[0] >> spacing[1] >> spacing[2] >> std::ws;
-      spacingSet = true;
-    }
-    else if (token.find("DATA") != std::string::npos && token.find("FORMAT") != std::string::npos)
-    {
-      std::string opt;
-      strStream >> opt >> std::ws;
-      if (opt.find("FLOAT") != std::string::npos || opt.find("REAL") != std::string::npos)
-        dataFormat = DataFormat::FloatData;
-      else if (opt.find("DOUBLE") != std::string::npos)
-        dataFormat = DataFormat::DoubleData;
-      else
-        throw viskores::io::ErrorIO("Unsupported data type: " + token);
-    }
-    else if (token.find("DATA") != std::string::npos &&
-             token.find("COMPONENTS") != std::string::npos)
-    {
-      strStream >> numComponents >> std::ws;
-      if (numComponents != 1 && numComponents != 3)
-        throw viskores::io::ErrorIO("Unsupported number of components");
-    }
-    else if (token.find("VARIABLE") != std::string::npos &&
-             token.find("PALETTE") == std::string::npos)
-    {
-      strStream >> variableName >> std::ws;
-      if (variableName[0] == '"')
-        variableName = variableName.substr(1, variableName.size() - 2);
-    }
-  }
-
-  if (spacingSet)
-  {
-    spacing[0] = (spacing[0]) / static_cast<viskores::FloatDefault>(dim[0] - 1);
-    spacing[1] = (spacing[1]) / static_cast<viskores::FloatDefault>(dim[1] - 1);
-    spacing[2] = (spacing[2]) / static_cast<viskores::FloatDefault>(dim[2] - 1);
-  }
-
-  std::string fullPathDataFile;
-  std::size_t pos = FileName.rfind("/");
-  if (pos != std::string::npos)
-  {
-    std::string baseDir;
-    baseDir = this->FileName.substr(0, pos);
-    fullPathDataFile = baseDir + "/" + bovFile;
-  }
-  else
-    fullPathDataFile = bovFile;
-
+  const BOVHeader header = ParseHeaderFile(this->FileName);
+  const viskores::Id3 pointDimensions = GetPointDimensions(header);
+  const viskores::Vec3f spacing = GetSpacing(header, pointDimensions);
+  const std::string fullPathDataFile = ResolveDataFilePath(this->FileName, header.DataFile);
 
   viskores::cont::DataSetBuilderUniform dataSetBuilder;
-  this->DataSet = dataSetBuilder.Create(dim, origin, spacing);
-
-  viskores::Id numTuples = dim[0] * dim[1] * dim[2];
-  if (numComponents == 1)
-  {
-    if (dataFormat == DataFormat::FloatData)
-    {
-      viskores::cont::ArrayHandle<viskores::Float32> var;
-      ReadScalar(fullPathDataFile, numTuples, var);
-      this->DataSet.AddPointField(variableName, var);
-    }
-    else if (dataFormat == DataFormat::DoubleData)
-    {
-      viskores::cont::ArrayHandle<viskores::Float64> var;
-      ReadScalar(fullPathDataFile, numTuples, var);
-      this->DataSet.AddPointField(variableName, var);
-    }
-  }
-  else if (numComponents == 3)
-  {
-    if (dataFormat == DataFormat::FloatData)
-    {
-      viskores::cont::ArrayHandle<viskores::Vec3f_32> var;
-      ReadVector(fullPathDataFile, numTuples, var);
-      this->DataSet.AddPointField(variableName, var);
-    }
-    else if (dataFormat == DataFormat::DoubleData)
-    {
-      viskores::cont::ArrayHandle<viskores::Vec3f_64> var;
-      ReadVector(fullPathDataFile, numTuples, var);
-      this->DataSet.AddPointField(variableName, var);
-    }
-  }
+  this->DataSet = dataSetBuilder.Create(pointDimensions, header.Origin, spacing);
+  ReadAndAddField(this->DataSet, header, fullPathDataFile);
 
   this->Loaded = true;
 }

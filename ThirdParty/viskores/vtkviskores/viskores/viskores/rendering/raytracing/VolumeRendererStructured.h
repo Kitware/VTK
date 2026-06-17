@@ -21,7 +21,7 @@
 #include <viskores/cont/DataSet.h>
 
 #include <viskores/rendering/raytracing/Ray.h>
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 namespace viskores
 {
@@ -30,7 +30,7 @@ namespace rendering
 namespace raytracing
 {
 
-class VISKORES_RENDERING_EXPORT VolumeRendererStructured
+class VISKORES_RENDERING_RAYTRACING_EXPORT VolumeRendererStructured
 {
 public:
   VISKORES_CONT

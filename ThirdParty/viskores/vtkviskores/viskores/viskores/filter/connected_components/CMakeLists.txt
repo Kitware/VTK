@@ -31,7 +31,6 @@ viskores_library(
   USE_VISKORES_JOB_POOL
 )
 
-target_link_libraries(viskores_filter_connected_components PRIVATE viskores_worklet PUBLIC viskores_filter_core)
 target_link_libraries(viskores_filter PUBLIC INTERFACE viskores_filter_connected_components)
 
 add_subdirectory(worklet)

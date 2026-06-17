@@ -72,10 +72,12 @@ collaboration workflow consists of three main steps:
 
 2.  Code Review (requires [GitHub Access]):
       * [Share a Topic](#share-a-topic)
-      * [Create a pull request](#create-a-merge-request)
-      * [Review a pull request](#review-a-merge-request)
-      * [Reformat a Topic](#reformat-a-topic)
+      * [Create a pull request](#create-a-pull-request)
+      * [Review a pull request](#review-a-pull-request)
       * [Revise a Topic](#revise-a-topic)
+      * [Reformat a Topic](#reformat-a-topic)
+      * [Provide a Changelog](#provide-a-changelog)
+      * [Squash Commits](#squash-commits)
 
 3.  Integrate Changes:
       * [Merge a Topic](#merge-a-topic) (requires permission in GitHub)
@@ -399,6 +401,123 @@ To push commits in your topic branch to your fork in GitHub:
 Note: You need have the `-f` or `--force` to overwrite the destination as
 you are revising a previously pushed topic and have rewritten the topic
 history.
+
+## Reformat a Topic ##
+
+In addition to the regular [testing](#testing) of contributed code for
+correctness, GitHub will run a check on your source code to ensure that your new
+code conforms to the coding style of Viskores. In the list of checks on your
+GitHub pull request page, you will see a check named `CI / format
+(pull_request)`.
+
+![CI / format (pull_request) listed in PR checks](docs/pr_checks_format.png)
+
+If this check is failing, click the `CI / format (pull_request)` link to get
+details. You will see details on each of the steps taken when checking the
+format. The step named `Check formatting` will list details on necessary
+formatting changes. The step `Upload format patch` contains a link (shown at the
+bottom of the following image) for a code patch that will correct your
+formatting.
+
+![Format patch download link](docs/format-patch-download.png)
+
+This link will download a `.zip` archive containing a file named `format.patch`.
+You can apply the patch using the `patch` command.
+
+```bash
+patch -p1 < format.patch
+```
+
+With your code modified, you can update your pull request like any other
+revision described in the [Revise a Topic](#revise-a-topic) section.
+
+## Provide a Changelog ##
+
+All but the most trivial contributions to Viskores should provide a changelog
+file. A changelog is a simple text file that provides an overview of the
+modifications or additions you have made. The changelogs are important for
+making the release notes when we make a new release of Viskores. Without them,
+it is hard to summarize the changes from one version to the next. A reviewer
+will likely ask you to provide a changelog if you have not already provided one.
+
+The changelogs are located in the `docs/changelog` directory. Simply create a
+file in this directory. Changelogs follow [Markdown] text conventions and should
+have an extension of `.md`. There is an example changelog named
+`0-sample-topic.md`. There are instructions in this file on how a changelog
+should be written. You can copy this file to a name describing your contribution
+and edit accordingly.
+
+[Markdown]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
+## Squash Commits ##
+
+Before your changes are merged into Viskores, you may be asked to squash your
+commits together. Each commit merged into Viskores should be a self-contained,
+working contribution. This means that each pull request usually has one commit
+as multiple commits usually justify breaking the contribution into multiple pull
+requests.
+
+Having self-contained commits is an important feature to maintain Viskores. When
+problems are identified, a `git bisect` may be needed to identify where the
+problem was introduced. Even if the problem was not introduced by your
+contribution, commits with partial contributions that contain intermediate
+problems interferes with finding where problems are introduced.
+
+There are two basic approaches to squashing commits: rebasing and resetting.
+
+### Rebase to Squash Commits ###
+
+`git rebase` is a powerful tool to adjust the commit history. It takes a section
+of the git history and reappl An interactive rebase, using the `-i` argument,
+gives you an opportunity to modify the commits. Assuming you currently have your
+topic branch checked out, execute
+
+```bash
+git rebase -i main
+```
+
+The rebase command will first open your editor and give you an opportunity to
+modify the commits that are being re-applied. Follow the instructions to squash
+all commits into the first one.
+
+Rebasing works best when you are squashing a simple, linear history. If you have
+a long history or _any_ merge commits (for example if you merged in changes to
+the main branch while developing). In this case, it is easier to [use reset to
+squash commits](#reset-to-squash-commits).
+
+### Reset to Squash Commits ###
+
+`git reset` can be used to delete whatever history your changes have and place
+all your changes ready to be staged and commited. Assuming you have your topic
+branch checked out, start by executing the following commands.
+
+```bash
+git merge main
+git reset --soft main
+```
+
+The `merge` command will make sure that your topic branch is up to date with the
+main branch, and the `reset` command will change your topic branch to point to
+the same commit as main. All the commits from your branch (that you are trying
+to replace) are principally lost, and any changes you have made are staged for a
+new commit.
+
+Note that the command `reset` will basically do a `diff` between the files you
+currently have and the files of the `main` branch and stage all those
+differences. If anyone has contributed to the `main` branch since you started
+your topic branch, the reset could pick up those changes and undo them in your
+reset. _This is bad._ Running the `merge` command shown above before the `reset`
+will prevent you from accidentally reverting changes from other pull requests.
+
+Once you have reset your branch, you can do a normal `commit` to apply all of
+your changes to a single commit.
+
+```bash
+git commit
+```
+
+You can copy/paste from your [changelog](#provide-a-changelog) to make the
+commit message.
 
 ## Merge a Topic ##
 

@@ -18,7 +18,7 @@
 #ifndef viskores_rendering_raytracing_ConnectivityTracer_h
 #define viskores_rendering_raytracing_ConnectivityTracer_h
 
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/CellLocatorGeneral.h>
@@ -76,7 +76,7 @@ public:
  *        absorption and emission of N energy groups for simulated
  *        radiograhy.
  */
-class VISKORES_RENDERING_EXPORT ConnectivityTracer
+class VISKORES_RENDERING_RAYTRACING_EXPORT ConnectivityTracer
 {
 public:
   ConnectivityTracer()
@@ -226,6 +226,43 @@ protected:
   viskores::Float32 UnitScalar;
 
 }; // class ConnectivityTracer<CellType,ConnectivityType>
+
+extern template class VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  detail::RayTracking<viskores::Float32>;
+extern template class VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  detail::RayTracking<viskores::Float64>;
+
+extern template struct VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  PartialComposite<viskores::Float32>;
+extern template struct VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  PartialComposite<viskores::Float64>;
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::FullTrace<viskores::Float32>(Ray<viskores::Float32>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  std::vector<PartialComposite<viskores::Float32>>
+  ConnectivityTracer::PartialTrace<viskores::Float32>(Ray<viskores::Float32>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::IntegrateMeshSegment<viskores::Float32>(Ray<viskores::Float32>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::FindMeshEntry<viskores::Float32>(Ray<viskores::Float32>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::FullTrace<viskores::Float64>(Ray<viskores::Float64>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT
+  std::vector<PartialComposite<viskores::Float64>>
+  ConnectivityTracer::PartialTrace<viskores::Float64>(Ray<viskores::Float64>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::IntegrateMeshSegment<viskores::Float64>(Ray<viskores::Float64>& rays);
+
+extern template VISKORES_RENDERING_RAYTRACING_TEMPLATE_EXPORT void
+ConnectivityTracer::FindMeshEntry<viskores::Float64>(Ray<viskores::Float64>& rays);
+
 }
 }
 } // namespace viskores::rendering::raytracing

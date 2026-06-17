@@ -158,16 +158,27 @@ public:
   using IdArrayPortal = typename IdHandle::ReadPortalType;
   using FloatHandle = viskores::cont::ArrayHandle<viskores::Float32>;
   using FloatPortal = typename FloatHandle::ReadPortalType;
+  using UInt8Handle = viskores::cont::ArrayHandle<viskores::UInt8>;
+  using UInt8Portal = typename UInt8Handle::ReadPortalType;
   IdArrayPortal CylIds;
   FloatPortal Radii;
+  UInt8Portal CapMasks;
+  bool UseCapMasks;
 
-  CylinderLeafIntersector() {}
+  CylinderLeafIntersector()
+    : UseCapMasks(false)
+  {
+  }
 
   CylinderLeafIntersector(const IdHandle& cylIds,
                           const FloatHandle& radii,
+                          const UInt8Handle& capMasks,
+                          bool useCapMasks,
                           viskores::cont::Token& token)
     : CylIds(cylIds.PrepareForInput(Device(), token))
     , Radii(radii.PrepareForInput(Device(), token))
+    , CapMasks(capMasks.PrepareForInput(Device(), token))
+    , UseCapMasks(useCapMasks)
   {
   }
 
@@ -263,6 +274,106 @@ public:
     return vec3(1, t * nlen, 0);
   }
 
+  template <typename Precision>
+  VISKORES_EXEC void CheckHit(const Precision& t,
+                              const Precision& minDistance,
+                              Precision& closestDistance,
+                              Precision& hitType,
+                              const Precision& candidateType) const
+  {
+    if (t < closestDistance && t > minDistance)
+    {
+      closestDistance = t;
+      hitType = candidateType;
+    }
+  }
+
+  template <typename vec3, typename Precision>
+  VISKORES_EXEC bool cappedCylinder(const vec3& rayStart,
+                                    const vec3& rayDirection,
+                                    const vec3& first,
+                                    const vec3& second,
+                                    const Precision& radius,
+                                    const viskores::UInt8 capMask,
+                                    const Precision& minDistance,
+                                    Precision& closestDistance,
+                                    Precision& hitType) const
+  {
+    constexpr Precision epsilon = Precision(1e-6f);
+
+    const vec3 axis = second - first;
+    const vec3 relOrigin = rayStart - first;
+    const Precision axisLength2 = viskores::dot(axis, axis);
+    if (axisLength2 <= epsilon)
+    {
+      return false;
+    }
+
+    const Precision rayAxis = viskores::dot(rayDirection, axis);
+    const Precision originAxis = viskores::dot(relOrigin, axis);
+    const Precision rayLength2 = viskores::dot(rayDirection, rayDirection);
+    const Precision originLength2 = viskores::dot(relOrigin, relOrigin);
+    const Precision originRay = viskores::dot(relOrigin, rayDirection);
+    const Precision radius2 = radius * radius;
+
+    bool hit = false;
+    const Precision originalClosest = closestDistance;
+
+    const Precision a = axisLength2 * rayLength2 - rayAxis * rayAxis;
+    const Precision b = axisLength2 * originRay - originAxis * rayAxis;
+    const Precision c =
+      axisLength2 * originLength2 - originAxis * originAxis - radius2 * axisLength2;
+
+    if (viskores::Abs(a) > epsilon)
+    {
+      const Precision discriminant = b * b - a * c;
+      if (discriminant >= Precision(0))
+      {
+        const Precision sqrtDiscriminant = viskores::Sqrt(discriminant);
+        const Precision invA = Precision(1) / a;
+        const Precision t0 = (-b - sqrtDiscriminant) * invA;
+        const Precision z0 = originAxis + t0 * rayAxis;
+        if (z0 >= Precision(0) && z0 <= axisLength2)
+        {
+          this->CheckHit(t0, minDistance, closestDistance, hitType, Precision(0));
+        }
+
+        const Precision t1 = (-b + sqrtDiscriminant) * invA;
+        const Precision z1 = originAxis + t1 * rayAxis;
+        if (z1 >= Precision(0) && z1 <= axisLength2)
+        {
+          this->CheckHit(t1, minDistance, closestDistance, hitType, Precision(0));
+        }
+      }
+    }
+
+    if (viskores::Abs(rayAxis) > epsilon)
+    {
+      if ((capMask & viskores::UInt8(1)) != 0)
+      {
+        const Precision t = -originAxis / rayAxis;
+        const vec3 offset = relOrigin + rayDirection * t;
+        if (viskores::dot(offset, offset) <= radius2)
+        {
+          this->CheckHit(t, minDistance, closestDistance, hitType, Precision(1));
+        }
+      }
+
+      if ((capMask & viskores::UInt8(2)) != 0)
+      {
+        const Precision t = (axisLength2 - originAxis) / rayAxis;
+        const vec3 offset = rayStart + rayDirection * t - second;
+        if (viskores::dot(offset, offset) <= radius2)
+        {
+          this->CheckHit(t, minDistance, closestDistance, hitType, Precision(2));
+        }
+      }
+    }
+
+    hit = closestDistance < originalClosest;
+    return hit;
+  }
+
   template <typename PointPortalType, typename LeafPortalType, typename Precision>
   VISKORES_EXEC inline void IntersectLeaf(
     const viskores::Int32& currentNode,
@@ -271,7 +382,7 @@ public:
     const PointPortalType& points,
     viskores::Id& hitIndex,
     Precision& closestDistance, // closest distance in this set of primitives
-    Precision& viskoresNotUsed(minU),
+    Precision& minU,
     Precision& viskoresNotUsed(minV),
     LeafPortalType leafs,
     const Precision& minDistance) const // report intesections past this distance
@@ -288,15 +399,39 @@ public:
         bottom = viskores::Vec<Precision, 3>(points.Get(pointIndex[1]));
         top = viskores::Vec<Precision, 3>(points.Get(pointIndex[2]));
 
-        viskores::Vec3f_32 ret;
-        ret = cylinder(origin, dir, bottom, top, radius);
-        if (ret[0] > 0)
+        if (this->UseCapMasks)
         {
-          if (ret[1] < closestDistance && ret[1] > minDistance)
+          const viskores::UInt8 capMask = (cylIndex < this->CapMasks.GetNumberOfValues())
+            ? this->CapMasks.Get(cylIndex)
+            : viskores::UInt8(0);
+          Precision hitType = Precision(0);
+          if (this->cappedCylinder(origin,
+                                   dir,
+                                   bottom,
+                                   top,
+                                   Precision(radius),
+                                   capMask,
+                                   minDistance,
+                                   closestDistance,
+                                   hitType))
           {
-            //matid = viskores::Vec<, 3>(points.Get(cur_offset + 2))[0];
-            closestDistance = ret[1];
             hitIndex = cylIndex;
+            minU = hitType;
+          }
+        }
+        else
+        {
+          viskores::Vec3f_32 ret;
+          ret = cylinder(origin, dir, bottom, top, radius);
+          if (ret[0] > 0)
+          {
+            if (ret[1] < closestDistance && ret[1] > minDistance)
+            {
+              //matid = viskores::Vec<, 3>(points.Get(cur_offset + 2))[0];
+              closestDistance = ret[1];
+              hitIndex = cylIndex;
+              minU = Precision(0);
+            }
           }
         }
       }
@@ -309,13 +444,18 @@ class CylinderLeafWrapper : public viskores::cont::ExecutionObjectBase
 protected:
   using IdHandle = viskores::cont::ArrayHandle<viskores::Id3>;
   using FloatHandle = viskores::cont::ArrayHandle<viskores::Float32>;
+  using UInt8Handle = viskores::cont::ArrayHandle<viskores::UInt8>;
   IdHandle CylIds;
   FloatHandle Radii;
+  UInt8Handle CapMasks;
+  bool UseCapMasks;
 
 public:
-  CylinderLeafWrapper(IdHandle& cylIds, FloatHandle radii)
+  CylinderLeafWrapper(IdHandle& cylIds, FloatHandle radii, UInt8Handle capMasks, bool useCapMasks)
     : CylIds(cylIds)
     , Radii(radii)
+    , CapMasks(capMasks)
+    , UseCapMasks(useCapMasks)
   {
   }
 
@@ -324,7 +464,8 @@ public:
     Device,
     viskores::cont::Token& token) const
   {
-    return CylinderLeafIntersector<Device>(this->CylIds, this->Radii, token);
+    return CylinderLeafIntersector<Device>(
+      this->CylIds, this->Radii, this->CapMasks, this->UseCapMasks, token);
   }
 };
 
@@ -333,11 +474,18 @@ class CalculateNormals : public viskores::worklet::WorkletMapField
 public:
   VISKORES_CONT
   CalculateNormals() {}
-  typedef void
-    ControlSignature(FieldIn, FieldIn, FieldOut, FieldOut, FieldOut, WholeArrayIn, WholeArrayIn);
-  typedef void ExecutionSignature(_1, _2, _3, _4, _5, _6, _7);
+  typedef void ControlSignature(FieldIn,
+                                FieldIn,
+                                FieldIn,
+                                FieldOut,
+                                FieldOut,
+                                FieldOut,
+                                WholeArrayIn,
+                                WholeArrayIn);
+  typedef void ExecutionSignature(_1, _2, _3, _4, _5, _6, _7, _8);
   template <typename Precision, typename PointPortalType, typename IndicesPortalType>
   VISKORES_EXEC inline void operator()(const viskores::Id& hitIndex,
+                                       const Precision& hitType,
                                        const viskores::Vec<Precision, 3>& intersection,
                                        Precision& normalX,
                                        Precision& normalY,
@@ -358,7 +506,23 @@ public:
     ap = intersection - a;
     ab = b - a;
 
-    Precision mag2 = viskores::Magnitude(ab);
+    if (hitType == Precision(1) || hitType == Precision(2))
+    {
+      viskores::Vec<Precision, 3> normal = ab;
+      viskores::Normalize(normal);
+      if (hitType == Precision(1))
+      {
+        normal = -normal;
+      }
+
+      normalX = normal[0];
+      normalY = normal[1];
+      normalZ = normal[2];
+      return;
+    }
+
+    // Project onto the cylinder axis. The denominator is the squared axis length.
+    Precision mag2 = viskores::dot(ab, ab);
     Precision len = viskores::dot(ab, ap);
     Precision t = len / mag2;
 
@@ -428,6 +592,7 @@ public:
 
 CylinderIntersector::CylinderIntersector()
   : ShapeIntersector()
+  , UseCapMasks(false)
 {
 }
 
@@ -437,8 +602,19 @@ void CylinderIntersector::SetData(const viskores::cont::CoordinateSystem& coords
                                   viskores::cont::ArrayHandle<viskores::Id3> cylIds,
                                   viskores::cont::ArrayHandle<viskores::Float32> radii)
 {
+  this->UseCapMasks = false;
+  this->SetData(coords, cylIds, radii, viskores::cont::ArrayHandle<viskores::UInt8>{});
+}
+
+void CylinderIntersector::SetData(const viskores::cont::CoordinateSystem& coords,
+                                  viskores::cont::ArrayHandle<viskores::Id3> cylIds,
+                                  viskores::cont::ArrayHandle<viskores::Float32> radii,
+                                  viskores::cont::ArrayHandle<viskores::UInt8> capMasks)
+{
   this->Radii = radii;
   this->CylIds = cylIds;
+  this->CapMasks = capMasks;
+  this->UseCapMasks = capMasks.GetNumberOfValues() > 0;
   this->CoordsHandle = coords;
   AABBs AABB;
 
@@ -471,7 +647,8 @@ void CylinderIntersector::IntersectRaysImp(Ray<Precision>& rays,
                                            bool viskoresNotUsed(returnCellIndex))
 {
 
-  detail::CylinderLeafWrapper leafIntersector(this->CylIds, Radii);
+  detail::CylinderLeafWrapper leafIntersector(
+    this->CylIds, this->Radii, this->CapMasks, this->UseCapMasks);
 
   BVHTraverser traverser;
   traverser.IntersectRays(rays, this->BVH, leafIntersector, this->CoordsHandle);
@@ -495,6 +672,7 @@ void CylinderIntersector::IntersectionDataImp(Ray<Precision>& rays,
 
   viskores::worklet::DispatcherMapField<detail::CalculateNormals>(detail::CalculateNormals())
     .Invoke(rays.HitIdx,
+            rays.U,
             rays.Intersection,
             rays.NormalX,
             rays.NormalY,

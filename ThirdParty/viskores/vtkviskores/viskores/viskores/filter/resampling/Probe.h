@@ -18,6 +18,7 @@
 #ifndef viskores_filter_resampling_Probe_h
 #define viskores_filter_resampling_Probe_h
 
+#include <viskores/cont/ArrayCopy.h>
 #include <viskores/filter/Filter.h>
 #include <viskores/filter/resampling/viskores_filter_resampling_export.h>
 
@@ -52,6 +53,30 @@ public:
   {
     this->Geometry = viskores::cont::DataSet();
     this->Geometry.CopyStructure(geometry);
+  }
+
+  /// @brief Sets the geometry of the filter from an array of point coordinates.
+  ///
+  /// This convenience method constructs an explicit dataset internally, using
+  /// the provided array of 3D points as the coordinate system. Each point is
+  /// represented as a vertex cell (`CellSetSingleType` with cell type `Vertex`),
+  /// resulting in an explicit vertex dataset.
+  ///
+  /// The constructed dataset is then used as the input geometry for the filter.
+  /// This is equivalent to manually creating an explicit dataset with vertex
+  /// cells and passing it to `SetGeometry(const DataSet&)`.
+  ///
+  /// Note: The output dataset of the filter will contain:
+  ///   - A coordinate system defined by the input points.
+  ///   - A cell set of type `CellSetSingleType`, where each cell is a single
+  ///     vertex corresponding to one input point.
+  VISKORES_CONT void SetGeometry(const viskores::cont::ArrayHandle<viskores::Vec3f>& points);
+
+  /// @brief Convenience method for setting the geometry with an array of points.
+  VISKORES_CONT void SetGeometry(const std::vector<viskores::Vec3f>& points,
+                                 viskores::CopyFlag copyFlag = viskores::CopyFlag::On)
+  {
+    this->SetGeometry(viskores::cont::make_ArrayHandle(points, copyFlag));
   }
 
   /// @copydoc SetGeometry

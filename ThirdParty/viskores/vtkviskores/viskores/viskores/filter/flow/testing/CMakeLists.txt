@@ -24,6 +24,7 @@ set(filter_unit_tests
   UnitTestStreamSurfaceFilter.cxx
   )
 set(worklet_unit_tests
+  UnitTestBoundsMap.cxx
   UnitTestWorkletParticleAdvection.cxx
   UnitTestWorkletTemporalAdvection.cxx
   UnitTestStreamSurfaceWorklet.cxx

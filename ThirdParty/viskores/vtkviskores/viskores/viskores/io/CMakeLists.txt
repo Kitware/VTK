@@ -93,6 +93,10 @@ viskores_library(
   TEMPLATE_SOURCES ${template_sources}
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+  target_link_libraries(viskores_io PUBLIC stdc++fs)
+endif()
+
 if (Viskores_ENABLE_HDF5_IO)
   target_include_directories(viskores_io PRIVATE $<BUILD_INTERFACE:${HDF5_INCLUDE_DIR}>)
   target_link_libraries(viskores_io PRIVATE ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES})

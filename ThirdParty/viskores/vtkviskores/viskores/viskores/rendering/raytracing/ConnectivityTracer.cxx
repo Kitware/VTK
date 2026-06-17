@@ -1515,31 +1515,35 @@ std::vector<PartialComposite<FloatType>> ConnectivityTracer::PartialTrace(Ray<Fl
   return partials;
 }
 
-template class detail::RayTracking<viskores::Float32>;
-template class detail::RayTracking<viskores::Float64>;
+template class VISKORES_RENDERING_RAYTRACING_EXPORT detail::RayTracking<viskores::Float32>;
+template class VISKORES_RENDERING_RAYTRACING_EXPORT detail::RayTracking<viskores::Float64>;
 
-template struct PartialComposite<viskores::Float32>;
-template struct PartialComposite<viskores::Float64>;
+template struct VISKORES_RENDERING_RAYTRACING_EXPORT PartialComposite<viskores::Float32>;
+template struct VISKORES_RENDERING_RAYTRACING_EXPORT PartialComposite<viskores::Float64>;
 
-template void ConnectivityTracer::FullTrace<viskores::Float32>(Ray<viskores::Float32>& rays);
-
-template std::vector<PartialComposite<viskores::Float32>>
-ConnectivityTracer::PartialTrace<viskores::Float32>(Ray<viskores::Float32>& rays);
-
-template void ConnectivityTracer::IntegrateMeshSegment<viskores::Float32>(
+template VISKORES_RENDERING_RAYTRACING_EXPORT void ConnectivityTracer::FullTrace<viskores::Float32>(
   Ray<viskores::Float32>& rays);
 
-template void ConnectivityTracer::FindMeshEntry<viskores::Float32>(Ray<viskores::Float32>& rays);
+template VISKORES_RENDERING_RAYTRACING_EXPORT std::vector<PartialComposite<viskores::Float32>>
+ConnectivityTracer::PartialTrace<viskores::Float32>(Ray<viskores::Float32>& rays);
 
-template void ConnectivityTracer::FullTrace<viskores::Float64>(Ray<viskores::Float64>& rays);
+template VISKORES_RENDERING_RAYTRACING_EXPORT void
+ConnectivityTracer::IntegrateMeshSegment<viskores::Float32>(Ray<viskores::Float32>& rays);
 
-template std::vector<PartialComposite<viskores::Float64>>
-ConnectivityTracer::PartialTrace<viskores::Float64>(Ray<viskores::Float64>& rays);
+template VISKORES_RENDERING_RAYTRACING_EXPORT void
+ConnectivityTracer::FindMeshEntry<viskores::Float32>(Ray<viskores::Float32>& rays);
 
-template void ConnectivityTracer::IntegrateMeshSegment<viskores::Float64>(
+template VISKORES_RENDERING_RAYTRACING_EXPORT void ConnectivityTracer::FullTrace<viskores::Float64>(
   Ray<viskores::Float64>& rays);
 
-template void ConnectivityTracer::FindMeshEntry<viskores::Float64>(Ray<viskores::Float64>& rays);
+template VISKORES_RENDERING_RAYTRACING_EXPORT std::vector<PartialComposite<viskores::Float64>>
+ConnectivityTracer::PartialTrace<viskores::Float64>(Ray<viskores::Float64>& rays);
+
+template VISKORES_RENDERING_RAYTRACING_EXPORT void
+ConnectivityTracer::IntegrateMeshSegment<viskores::Float64>(Ray<viskores::Float64>& rays);
+
+template VISKORES_RENDERING_RAYTRACING_EXPORT void
+ConnectivityTracer::FindMeshEntry<viskores::Float64>(Ray<viskores::Float64>& rays);
 }
 }
 } // namespace viskores::rendering::raytracing

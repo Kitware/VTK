@@ -22,11 +22,11 @@
 
 #include <viskores/Bounds.h>
 #include <viskores/Math.h>
-#include <viskores/Matrix.h>
 #include <viskores/Range.h>
 #include <viskores/Transform3D.h>
 #include <viskores/VectorAnalysis.h>
 #include <viskores/rendering/MatrixHelpers.h>
+#include <viskores/rendering/raytracing/Camera.h>
 
 namespace viskores
 {
@@ -44,72 +44,6 @@ namespace rendering
 /// place the camera anywhere in 3D space.
 class VISKORES_RENDERING_EXPORT Camera
 {
-  struct Camera3DStruct
-  {
-  public:
-    VISKORES_CONT
-    Camera3DStruct()
-      : LookAt(0.0f, 0.0f, 0.0f)
-      , Position(0.0f, 0.0f, 1.0f)
-      , ViewUp(0.0f, 1.0f, 0.0f)
-      , FieldOfView(60.0f)
-      , XPan(0.0f)
-      , YPan(0.0f)
-      , Zoom(1.0f)
-    {
-    }
-
-    viskores::Matrix<viskores::Float32, 4, 4> CreateViewMatrix() const;
-
-    viskores::Matrix<viskores::Float32, 4, 4> CreateProjectionMatrix(
-      viskores::Id width,
-      viskores::Id height,
-      viskores::Float32 nearPlane,
-      viskores::Float32 farPlane) const;
-
-    viskores::Vec3f_32 LookAt;
-    viskores::Vec3f_32 Position;
-    viskores::Vec3f_32 ViewUp;
-    viskores::Float32 FieldOfView;
-    viskores::Float32 XPan;
-    viskores::Float32 YPan;
-    viskores::Float32 Zoom;
-  };
-
-  struct VISKORES_RENDERING_EXPORT Camera2DStruct
-  {
-  public:
-    VISKORES_CONT
-    Camera2DStruct()
-      : Left(-1.0f)
-      , Right(1.0f)
-      , Bottom(-1.0f)
-      , Top(1.0f)
-      , XScale(1.0f)
-      , XPan(0.0f)
-      , YPan(0.0f)
-      , Zoom(1.0f)
-    {
-    }
-
-    viskores::Matrix<viskores::Float32, 4, 4> CreateViewMatrix() const;
-
-    viskores::Matrix<viskores::Float32, 4, 4> CreateProjectionMatrix(
-      viskores::Float32 size,
-      viskores::Float32 znear,
-      viskores::Float32 zfar,
-      viskores::Float32 aspect) const;
-
-    viskores::Float32 Left;
-    viskores::Float32 Right;
-    viskores::Float32 Bottom;
-    viskores::Float32 Top;
-    viskores::Float32 XScale;
-    viskores::Float32 XPan;
-    viskores::Float32 YPan;
-    viskores::Float32 Zoom;
-  };
-
 public:
   enum struct Mode
   {
@@ -612,10 +546,13 @@ public:
   VISKORES_CONT
   void Print() const;
 
+  viskores::rendering::raytracing::Camera CreateRaytracingCamera(viskores::Int32 width,
+                                                                 viskores::Int32 height) const;
+
 private:
   Mode ModeType;
-  Camera3DStruct Camera3D;
-  Camera2DStruct Camera2D;
+  viskores::rendering::raytracing::Camera3DStruct Camera3D;
+  viskores::rendering::raytracing::Camera2DStruct Camera2D;
 
   viskores::Float32 NearPlane;
   viskores::Float32 FarPlane;

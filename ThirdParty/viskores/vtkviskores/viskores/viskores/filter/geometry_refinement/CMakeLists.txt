@@ -42,7 +42,6 @@ viskores_library(
   USE_VISKORES_JOB_POOL
 )
 
-target_link_libraries(viskores_filter_geometry_refinement PUBLIC viskores_worklet viskores_filter_core)
 target_link_libraries(viskores_filter PUBLIC INTERFACE viskores_filter_geometry_refinement)
 
 add_subdirectory(worklet)

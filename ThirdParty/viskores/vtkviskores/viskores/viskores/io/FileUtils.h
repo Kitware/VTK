@@ -42,6 +42,13 @@ VISKORES_IO_EXPORT std::string ParentPath(const std::string& filePath);
 /// if they don't exist. Only returns true if directories are actually created.
 VISKORES_IO_EXPORT bool CreateDirectoriesFromFilePath(const std::string& filePath);
 
+/// \brief Returns true if filePath is an absolute filesystem path.
+VISKORES_IO_EXPORT bool IsAbsolutePath(const std::string& filePath);
+
+/// \brief Returns an absolute path to filePath.
+/// If filePath is already absolute, it is returned unchanged.
+VISKORES_IO_EXPORT std::string MakeAbsolutePath(const std::string& filePath);
+
 /// \brief Merges two filepath strings together using the correct system filepath seperator
 /// EX: MergePaths("path/to/merge", "some/filename.txt") = "path/to/merge/some/filename.txt"
 /// EX: MergePaths("path/to/merge/", "/some/filename.txt") = "path/to/merge/some/filename.txt"

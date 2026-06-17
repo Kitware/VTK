@@ -22,6 +22,15 @@
 // order in which the sub-files are loaded.  (But the compile should still
 // succeed if the order is changed.)  Turn off formatting to keep the order.
 
+#if defined(VISKORES_IS_VISKORES_TARGET) && !defined(VISKORES_NO_ERROR_ON_MIXED_CUDA_CXX_TAG)
+#ifndef VISKORES_IS_DEVICE_SOURCE
+#error Source file is including device code but not marked as a device source.
+#endif
+#ifndef VISKORES_DEVICE_LINKED
+#error Including device code without linking device libraries.
+#endif
+#endif
+
 // clang-format off
 #include <viskores/cont/cuda/DeviceAdapterCuda.h>
 #include <viskores/cont/kokkos/DeviceAdapterKokkos.h>
