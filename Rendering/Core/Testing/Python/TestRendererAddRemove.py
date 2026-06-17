@@ -18,29 +18,30 @@ one at a time when the test is run with the -I flag; grid positions are
 preserved throughout.
 """
 
-import random
 import os
+import random
+from pathlib import Path
 
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.test import Testing
+from vtkmodules.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import vtkCommand, vtkUnsignedCharArray
 from vtkmodules.vtkFiltersSources import vtkConeSource
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkPolyDataMapper,
+    vtkRenderer,
     vtkRenderWindow,
     vtkRenderWindowInteractor,
-    vtkRenderer,
 )
-from vtkmodules.vtkCommonCore import vtkCommand, vtkUnsignedCharArray
-import vtkmodules.vtkInteractionStyle
-import vtkmodules.vtkRenderingOpenGL2
-from vtkmodules.util.misc import vtkGetDataRoot
-from vtkmodules.test import Testing
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Constants
 GRID_COLS = 3
 GRID_ROWS = 3
-N = GRID_COLS * GRID_ROWS   # 9
+N = GRID_COLS * GRID_ROWS  # 9
 N_REMOVE = 3
 
 # Burgundy background: RGB (128, 0, 32) / 255 ≈ (0.502, 0.000, 0.125).
@@ -126,9 +127,11 @@ def viewport_has_cone(renWin, xmin, ymin, xmax, ymax, tolerance=15):
         r = int(pixels.GetComponent(i, 0))
         g = int(pixels.GetComponent(i, 1))
         b = int(pixels.GetComponent(i, 2))
-        if (abs(r - bg[0]) > tolerance or
-                abs(g - bg[1]) > tolerance or
-                abs(b - bg[2]) > tolerance):
+        if (
+            abs(r - bg[0]) > tolerance
+            or abs(g - bg[1]) > tolerance
+            or abs(b - bg[2]) > tolerance
+        ):
             return True
     return False
 
@@ -169,8 +172,10 @@ class KeypressCallback:
             entry["is_active"] = False
             self._ren_win.RemoveRenderer(entry["renderer"])
             active_count = sum(1 for e in self._entries if e["is_active"])
-            print(f"Removed renderer {entry['original_index']}."
-                  f" Active renderers: {active_count}")
+            print(
+                f"Removed renderer {entry['original_index']}."
+                f" Active renderers: {active_count}"
+            )
 
         elif key in ("a", "A"):
             inactive = [e for e in self._entries if not e["is_active"]]
@@ -182,8 +187,10 @@ class KeypressCallback:
             entry["is_active"] = True
             self._ren_win.AddRenderer(entry["renderer"])
             active_count = sum(1 for e in self._entries if e["is_active"])
-            print(f"Added renderer {entry['original_index']}."
-                  f" Active renderers: {active_count}")
+            print(
+                f"Added renderer {entry['original_index']}."
+                f" Active renderers: {active_count}"
+            )
 
         else:
             return
@@ -209,11 +216,13 @@ class TestRendererAddRemove(Testing.vtkTest):
         for i in range(N):
             renderer = create_cone_renderer(i, COLORS[i])
             renWin.AddRenderer(renderer)
-            entries.append({
-                "renderer": renderer,
-                "original_index": i,
-                "is_active": True,
-            })
+            entries.append(
+                {
+                    "renderer": renderer,
+                    "original_index": i,
+                    "is_active": True,
+                }
+            )
 
         renWin.Render()
 
@@ -228,8 +237,10 @@ class TestRendererAddRemove(Testing.vtkTest):
 
         remove_entries = rng.sample(entries, N_REMOVE)
         remove_indices = sorted(e["original_index"] for e in remove_entries)
-        print(f"Removing {N_REMOVE} randomly chosen renderers"
-              f" (indices: {remove_indices})...")
+        print(
+            f"Removing {N_REMOVE} randomly chosen renderers"
+            f" (indices: {remove_indices})..."
+        )
 
         for entry in remove_entries:
             renWin.RemoveRenderer(entry["renderer"])
@@ -238,7 +249,8 @@ class TestRendererAddRemove(Testing.vtkTest):
         remaining = renWin.GetRenderers().GetNumberOfItems()
         expected = N - N_REMOVE
         self.assertEqual(
-            remaining, expected,
+            remaining,
+            expected,
             f"Expected {expected} renderers after removal, got {remaining}",
         )
         print(f"  Renderer count after removal: {remaining}")
@@ -247,8 +259,11 @@ class TestRendererAddRemove(Testing.vtkTest):
         redistribute_viewports(entries)
         renWin.SetSize(299, 301)  # Force a resize to trigger viewport update.
         renWin.Render()
+        renWin.SetSize(300, 300)
+        renWin.Render()
 
-        print(f"Verifying {expected} remaining viewports after redistribution...")
+        print(
+            f"Verifying {expected} remaining viewports after redistribution...")
         for entry in entries:
             if not entry["is_active"]:
                 continue
@@ -268,8 +283,10 @@ class TestRendererAddRemove(Testing.vtkTest):
 
         iren.Initialize()
         # Testing with image comparison
-        img_path = os.path.join(VTK_DATA_ROOT, "TestRendererAddRemove.png")
-        Testing.compareImage(iren, img_path, threshold=25)
+        img_file = "TestRendererAddRemove.png"
+        Testing.compareImage(
+            iren.GetRenderWindow(), Testing.getAbsImagePath(img_file), threshold=25
+        )
         Testing.interact()
 
 
