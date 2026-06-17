@@ -8,15 +8,13 @@
 #include "vtkJPEGReader.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
@@ -26,7 +24,7 @@
 
 int TestSkyboxCubeRotation(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -35,7 +33,7 @@ int TestSkyboxCubeRotation(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
   vtkNew<vtkTexture> texture;
   texture->CubeMapOn();
 

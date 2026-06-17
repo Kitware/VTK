@@ -228,7 +228,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
       this->GetDimension());
   this->TextureDescriptor.size.width = this->GetWidth();
   this->TextureDescriptor.size.height = this->GetHeight();
-  this->TextureDescriptor.size.depthOrArrayLayers = this->GetDepth();
+  this->TextureDescriptor.size.depthOrArrayLayers = cubeMap ? 6 : this->GetDepth();
   this->TextureDescriptor.format =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(this->GetFormat());
   this->TextureDescriptor.mipLevelCount = this->GetMipLevelCount();
@@ -272,6 +272,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   if (cubeMap)
   {
     this->TextureViewDescriptor.dimension = wgpu::TextureViewDimension::Cube;
+    this->TextureViewDescriptor.arrayLayerCount = 6;
   }
   this->TextureView = this->Texture.CreateView(&this->TextureViewDescriptor);
   this->Modified();

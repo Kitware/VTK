@@ -349,6 +349,13 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
     this->NumberOfPropsRendered = 0;
   }
 
+  // Render background prop (skybox) before all other geometry.
+  // vtkRenderer stores skybox actors as BackgroundProp rather than in PropArray.
+  if (this->BackgroundProp)
+  {
+    this->BackgroundProp->RenderOpaqueGeometry(this);
+  }
+
   if (this->PropArray.size() == 0)
   {
     return 0;

@@ -1,21 +1,21 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHDRReader.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 
-int TestSkyboxRotationVectors(int argc, char* argv[])
+int TestSkyboxRotation(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -24,7 +24,7 @@ int TestSkyboxRotationVectors(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
 
   vtkNew<vtkHDRReader> reader;
   char* fname =
@@ -37,12 +37,27 @@ int TestSkyboxRotationVectors(int argc, char* argv[])
   texture->InterpolateOn();
   texture->SetInputConnection(reader->GetOutputPort());
 
+  vtkNew<vtkTransform> transform;
+  transform->Identity();
+  transform->RotateX(25);
+  transform->RotateY(10);
+  transform->RotateZ(-90);
+
+  vtkMatrix4x4* mat4 = transform->GetMatrix();
+  vtkNew<vtkMatrix3x3> rotMat;
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      rotMat->SetElement(i, j, mat4->GetElement(i, j));
+    }
+  }
+
+  renderer->SetEnvironmentRotationMatrix(rotMat);
   renderer->UseImageBasedLightingOn();
   renderer->SetEnvironmentTexture(texture);
 
-  renderer->SetEnvironmentUp(0, 0, 1);
-  renderer->SetEnvironmentRight(1, 0, 0);
-
+  skybox->SetFloorRight(0.0, 0.0, 1.0);
   skybox->SetProjection(vtkSkybox::Sphere);
   skybox->SetTexture(texture);
 
