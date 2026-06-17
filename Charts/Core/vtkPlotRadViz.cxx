@@ -59,13 +59,12 @@ public:
   vtkInternals(vtkObject* parent)
     : Parent(parent)
   {
-    this->CenterX = 0;
-    this->CenterY = 0;
+    this->Center[0] = this->Center[1] = 0;
     this->Radius = 0;
   }
   /**
    * Used to translate and scale GBCs and Vertices from
-   * from circle centered at (0,0) with radius 1 to the circle centered at (CenterX, CenterY)
+   * from circle centered at (0,0) with radius 1 to the circle centered at (Center[0], Center[1])
    * and radius Radius.
    */
   template <class TArray>
@@ -76,17 +75,17 @@ public:
     points->SetNumberOfPoints(input.size());
     for (int i = 0; i < input.size(); ++i)
     {
-      output[2 * i] = this->CenterX + input[i][0] * this->Radius;
-      output[2 * i + 1] = this->CenterY + input[i][1] * this->Radius;
+      output[2 * i] = this->Center[0] + input[i][0] * this->Radius;
+      output[2 * i + 1] = this->Center[1] + input[i][1] * this->Radius;
     }
   }
 
   double GetAngle(double vertex[2], double mousePos[2])
   {
-    mousePos[0] -= this->CenterX;
-    mousePos[1] -= this->CenterY;
-    vertex[0] -= this->CenterX;
-    vertex[1] -= this->CenterY;
+    mousePos[0] -= this->Center[0];
+    mousePos[1] -= this->Center[1];
+    vertex[0] -= this->Center[0];
+    vertex[1] -= this->Center[1];
     double vertexRad = std::atan2(vertex[1], vertex[0]);
     double mousePosRad = std::atan2(mousePos[1], mousePos[0]);
     vtkDebugWithObjectMacro(this->Parent,
@@ -96,8 +95,14 @@ public:
     return angle;
   }
 
-  float CenterX;
-  float CenterY;
+  void SetCenterAndRadius(int dimensions[4])
+  {
+    this->Center[0] = dimensions[0] + 0.5 * dimensions[2];
+    this->Center[1] = dimensions[1] + 0.5 * dimensions[3];
+    this->Radius = dimensions[2] < dimensions[3] ? 0.5 * dimensions[2] : 0.5 * dimensions[3];
+  }
+
+  float Center[2];
   float Radius;
   vtkObject* Parent;
 };
@@ -109,7 +114,9 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
   this->VerticesPen = vtkSmartPointer<vtkPen>::New();
   this->VerticesPen->SetWidth(8);
-  this->SelectionCirclePen = vtkSmartPointer<vtkPen>::New();
+  this->LensPen = vtkSmartPointer<vtkPen>::New();
+  this->LensCenter[0] = this->LensCenter[1] = 0;
+  this->LensRadius = 0;
   this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelsProperties->SetJustificationToCentered();
   this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
@@ -125,6 +132,77 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->ColorWheelVisibility = true;
   this->ScalarVisibility = false;
   this->VerticesRotation = 0;
+}
+
+//------------------------------------------------------------------------------
+const float* vtkPlotRadViz::GetCenter() const
+{
+  return this->Internals->Center;
+}
+
+//------------------------------------------------------------------------------
+float vtkPlotRadViz::GetRadius() const
+{
+  return this->Internals->Radius;
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetLensRadius(float radius)
+{
+  vtkDebugMacro(<< " setting LensRadius to " << radius);
+  // insure that the lens circle intersects the plot circle
+  // distance Center to LensCenter position.
+  float r = std::sqrt(std::pow(this->LensCenter[0] - this->Internals->Center[0], 2) +
+    std::pow(this->LensCenter[1] - this->Internals->Center[1], 2));
+  float newRadius;
+  // if he two circles do not intersect, move the newRadius so that they do.
+  if (r - radius > this->Internals->Radius)
+  {
+    newRadius = r - this->Internals->Radius;
+  }
+  else
+  {
+    newRadius = radius;
+  }
+  if (newRadius != this->LensRadius)
+  {
+    this->LensRadius = newRadius;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetLensCenter(const float* pos)
+{
+  vtkDebugMacro(<< " setting LensLensCenter to [" << pos[0] << ", " << pos[1] << ")");
+  // insure that the lens circle intersects the plot circle
+
+  // distance Center to mouse position.
+  float r = std::sqrt(std::pow(pos[0] - this->Internals->Center[0], 2) +
+    std::pow(pos[1] - this->Internals->Center[1], 2));
+  float newCenter[2];
+  // if he two circles do not intersect, move the newCenter so that they do.
+  if (r - this->LensRadius > this->Internals->Radius)
+  {
+    float intersection[2];
+    intersection[0] = ((pos[0] - this->Internals->Center[0]) / r) * this->Internals->Radius;
+    intersection[1] = ((pos[1] - this->Internals->Center[1]) / r) * this->Internals->Radius;
+    newCenter[0] =
+      (intersection[0] / this->Internals->Radius) * (this->Internals->Radius + this->LensRadius) +
+      this->Internals->Center[0];
+    newCenter[1] =
+      (intersection[1] / this->Internals->Radius) * (this->Internals->Radius + this->LensRadius) +
+      this->Internals->Center[1];
+  }
+  else
+  {
+    std::copy(pos, pos + 2, newCenter);
+  }
+  if (this->LensCenter[0] != newCenter[0] || this->LensCenter[1] != newCenter[1])
+  {
+    std::copy(newCenter, newCenter + 2, this->LensCenter);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -282,7 +360,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->DrawMarkers(painter, gbc, this->Pen, rgba);
     this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen);
     this->DrawLabels(painter, vertices, this->VerticesPen);
-    this->DrawSelectionCircle(painter);
+    this->DrawLens(painter);
     this->PaintChildren(painter);
     return true;
   }
@@ -383,20 +461,19 @@ std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
 void vtkPlotRadViz::ShiftLabelByPenWidth(float width, double xy[2])
 {
   double radius = (width / 2) * 1.2;
-  double cos_a = (xy[0] - this->Internals->CenterX) / this->Internals->Radius;
+  double cos_a = (xy[0] - this->Internals->Center[0]) / this->Internals->Radius;
   double x = cos_a * radius;
-  double sin_a = (xy[1] - this->Internals->CenterY) / this->Internals->Radius;
+  double sin_a = (xy[1] - this->Internals->Center[1]) / this->Internals->Radius;
   double y = sin_a * radius;
   xy[0] += x;
   xy[1] += y;
 }
 
-void vtkPlotRadViz::DrawSelectionCircle(vtkContext2D* painter)
+void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 {
-  painter->ApplyPen(this->SelectionCirclePen);
+  painter->ApplyPen(this->LensPen);
   painter->GetBrush()->SetColor(0, 0, 0, 0); // transparent brush (only outline)
-  painter->DrawArc(
-    this->Internals->CenterX, this->Internals->CenterY, this->Internals->Radius, 0, 360);
+  painter->DrawArc(this->LensCenter[0], this->LensCenter[1], this->LensRadius, 0, 360);
 }
 
 void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
@@ -424,7 +501,7 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
     }
     start += this->ColorWheelStartAngle;
     end += this->ColorWheelStartAngle;
-    painter->DrawEllipseWedge(this->Internals->CenterX, this->Internals->CenterY,
+    painter->DrawEllipseWedge(this->Internals->Center[0], this->Internals->Center[1],
       this->Internals->Radius, this->Internals->Radius, 0.0, 0.0, start, end);
   }
 }
@@ -478,11 +555,10 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Dimensions[1] = arg2;
     this->Dimensions[2] = arg3;
     this->Dimensions[3] = arg4;
+    this->Internals->SetCenterAndRadius(this->Dimensions);
+    std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
+    this->LensRadius = this->Internals->Radius;
 
-    this->Internals->CenterX = this->Dimensions[0] + 0.5 * this->Dimensions[2];
-    this->Internals->CenterY = this->Dimensions[1] + 0.5 * this->Dimensions[3];
-    this->Internals->Radius = this->Dimensions[2] < this->Dimensions[3] ? 0.5 * this->Dimensions[2]
-                                                                        : 0.5 * this->Dimensions[3];
     this->Modified();
   }
 }

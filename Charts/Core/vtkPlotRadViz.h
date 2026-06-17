@@ -124,11 +124,11 @@ public:
 
   ///@{
   /**
-   * Controls how the SelectionCircle is drawn. Points outside the circle
+   * Controls how the Lens is drawn. Points outside the circle
    * are set transparent (invisible).
    */
-  vtkSetSmartPointerMacro(SelectionCirclePen, vtkPen);
-  vtkGetSmartPointerMacro(SelectionCirclePen, vtkPen);
+  vtkSetSmartPointerMacro(LensPen, vtkPen);
+  vtkGetSmartPointerMacro(LensPen, vtkPen);
   ///@}
 
   ///@{
@@ -150,8 +150,29 @@ public:
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
-
   ///@}
+
+  ///@{
+  /**
+   * Center of the lens in window coordinates
+   */
+  virtual void SetLensCenter(const float* center);
+  vtkGetVector2Macro(LensCenter, float);
+  /**
+   * Radius of the lens
+   */
+  virtual void SetLensRadius(float radius);
+  vtkGetMacro(LensRadius, float);
+  ///@}
+
+  /**
+   * Center of the plot
+   */
+  const float* GetCenter() const;
+  /**
+   * Radius of the plot
+   */
+  float GetRadius() const;
 
   ///@{
   /**
@@ -171,7 +192,7 @@ protected:
   vtkSmartPointer<vtkPoints2D> DrawMarkers(
     vtkContext2D* painter, vtkDataArray* gbc, vtkPen* pen, vtkDataArray* color = nullptr);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
-  void DrawSelectionCircle(vtkContext2D* painter);
+  void DrawLens(vtkContext2D* painter);
   void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
   vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
   vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
@@ -191,10 +212,16 @@ protected:
    */
   vtkSmartPointer<vtkPen> VerticesPen;
   /**
-   * Controls how the SelectionCircle is drawn. Points outside the circle
+   * Controls how the Lens is drawn. Points outside the circle
    * are set transparent (invisible).
    */
-  vtkSmartPointer<vtkPen> SelectionCirclePen;
+  vtkSmartPointer<vtkPen> LensPen;
+  /**
+   * Where the lens is drawn and its radius
+   */
+  float LensCenter[2];
+  float LensRadius;
+
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation;
 

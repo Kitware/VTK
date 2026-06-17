@@ -43,7 +43,7 @@ public:
    * Angle in degrees, to rotate the vertices
    * coding the multivariate attributes Default is 0 degrees. This
    * angle affects the GBC positions and the computed colors.
-   * The angle stored will be between [0, 360).
+   * The rotation will be clamped between [0, 360).
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
