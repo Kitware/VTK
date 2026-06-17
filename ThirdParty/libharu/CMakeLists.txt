@@ -4,7 +4,7 @@ vtk_third_party_extract(
     repo libharu_repo
     tag  libharu_tag
   VERSION_FROM_TAG
-    tag  libharu_version "^for/vtk-[0-9]*-([0-9\\.]+)-g[0-9a-f]+$")
+    tag  libharu_version "^for/vtk-[0-9]*-([0-9\\.]+)$")
 
 vtk_module_third_party(
   INTERNAL

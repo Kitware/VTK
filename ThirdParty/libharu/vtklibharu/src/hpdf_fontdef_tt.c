@@ -463,6 +463,10 @@ LoadFontData (HPDF_FontDef  fontdef,
                 (HPDF_UINT16)HPDF_TTFontDef_GetCharBBox (fontdef, (HPDF_UINT16)'H').top;
     fontdef->x_height =
                 (HPDF_UINT16)HPDF_TTFontDef_GetCharBBox (fontdef, (HPDF_UINT16)'x').top;
+
+    if (attr->num_glyphs == 0 || !attr->h_metric)
+        return HPDF_SetError (fontdef->error, HPDF_TTF_INVALID_FOMAT, 0);
+
     fontdef->missing_width = (HPDF_INT16)((HPDF_UINT32)attr->h_metric[0].advance_width * 1000 /
                 attr->header.units_per_em);
 
@@ -545,6 +549,11 @@ HPDF_TTFontDef_GetCharBBox  (HPDF_FontDef   fontdef,
 
     if (gid == 0) {
         HPDF_PTRACE ((" GetCharHeight cannot get gid char=0x%04x\n", unicode));
+        return bbox;
+    }
+
+    if (gid >= attr->num_glyphs) {
+        HPDF_PTRACE ((" GetCharBBox gid out of range\n"));
         return bbox;
     }
 
@@ -766,6 +775,9 @@ ParseHead (HPDF_FontDef  fontdef)
     ret += GetUINT32 (attr->stream, &attr->header.magic_number);
     ret += GetUINT16 (attr->stream, &attr->header.flags);
     ret += GetUINT16 (attr->stream, &attr->header.units_per_em);
+
+    if (attr->header.units_per_em == 0)
+        return HPDF_SetError (fontdef->error, HPDF_TTF_INVALID_FOMAT, 0);
 
     siz = 8;
     ret += HPDF_Stream_Read (attr->stream, attr->header.created, &siz);
@@ -1148,11 +1160,16 @@ HPDF_TTFontDef_GetGlyphid  (HPDF_FontDef   fontdef,
 
     /* format 0 */
     if (attr->cmap.format == 0) {
+        if (!attr->cmap.glyph_id_array)
+            return 0;
         unicode &= 0xFF;
         return attr->cmap.glyph_id_array[unicode];
     }
 
     /* format 4 */
+    if (!attr->cmap.end_count || !attr->cmap.start_count || !attr->cmap.id_range_offset)
+        return 0;
+
     if (attr->cmap.seg_count_x2 == 0) {
         HPDF_SetError (fontdef->error, HPDF_TTF_INVALID_CMAP, 0);
         return 0;
@@ -1164,7 +1181,7 @@ HPDF_TTFontDef_GetGlyphid  (HPDF_FontDef   fontdef,
         pend_count++;
     }
 
-    if (attr->cmap.start_count[i] > unicode) {
+    if (i >= seg_count || attr->cmap.start_count[i] > unicode) {
         HPDF_PTRACE((" HPDF_TTFontDef_GetGlyphid undefined char(0x%04X)\n",
                     unicode));
         return 0;
@@ -1368,6 +1385,9 @@ ParseHmtx  (HPDF_FontDef  fontdef)
     ret = HPDF_Stream_Seek (attr->stream, tbl->offset, HPDF_SEEK_SET);
     if (ret != HPDF_OK)
         return ret;
+
+    if (attr->num_h_metric > attr->num_glyphs)
+        return HPDF_SetError (fontdef->error, HPDF_TTF_INVALID_FOMAT, 0);
 
     /* allocate memory for a table of holizontal matrix.
      * the count of metric records is same as the number of glyphs
