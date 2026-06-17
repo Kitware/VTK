@@ -16,6 +16,41 @@
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
 
+// Define your custom Command class
+class ResetLens : public vtkCommand
+{
+public:
+  static ResetLens* New() { return new ResetLens; }
+
+  void SetPlot(vtkPlotRadViz* plot) { this->Plot = plot; }
+
+  void SetView(vtkContextView* view) { this->View = view; }
+
+  // This Execute method triggers when the event fires
+  void Execute(vtkObject* caller, unsigned long eventId, void* callData) override
+  {
+    if (eventId == vtkCommand::KeyPressEvent)
+    {
+      // Safely cast the invoker to an interactor
+      vtkRenderWindowInteractor* interactor = dynamic_cast<vtkRenderWindowInteractor*>(caller);
+
+      if (interactor)
+      {
+        // Access member variables or your own functions here
+        std::string key = interactor->GetKeySym();
+        if (key == "r" || key == "R")
+        {
+          this->Plot->SetLensRadius(this->Plot->GetRadius());
+          this->Plot->SetLensCenter(this->Plot->GetCenter());
+          this->View->GetScene()->SetDirty(true);
+        }
+      }
+    }
+  }
+  vtkPlotRadViz* Plot = nullptr;
+  vtkContextView* View = nullptr;
+};
+
 //------------------------------------------------------------------------------
 int TestRadVizChartDataSet(int argc, char** argv)
 {
@@ -53,9 +88,13 @@ int TestRadVizChartDataSet(int argc, char** argv)
 
   chart->SetTitle("Battery dataset (Ce, Co, Fe, Gd)");
 
+  vtkNew<ResetLens> resetLens;
+  resetLens->SetPlot(plot);
+  resetLens->SetView(view);
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
+  view->GetInteractor()->AddObserver(vtkCommand::KeyPressEvent, resetLens);
   view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;
