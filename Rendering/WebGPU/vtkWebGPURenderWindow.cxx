@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"

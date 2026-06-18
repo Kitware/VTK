@@ -20,7 +20,7 @@ void vtkWebGPUComputeRenderBuffer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "wgpuBuffer: " << this->wgpuBuffer.Get() << std::endl;
+  os << indent << "wgpuBuffer: " << this->wgpuBuffer << std::endl;
 
   os << indent << "Point buffer attribute: " << this->PointBufferAttribute << std::endl;
   os << indent << "Cell buffer attribute: " << this->CellBufferAttribute << std::endl;

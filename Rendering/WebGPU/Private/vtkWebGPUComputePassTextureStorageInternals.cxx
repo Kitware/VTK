@@ -3,6 +3,7 @@
 
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"

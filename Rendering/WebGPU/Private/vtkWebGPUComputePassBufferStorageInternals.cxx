@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "vtkWebGPUHelpers.h"
 
 #include "vtkObjectFactory.h"

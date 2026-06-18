@@ -7,6 +7,7 @@
 #endif
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUProcLoader.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 

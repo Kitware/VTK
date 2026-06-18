@@ -25,8 +25,6 @@ public:
   static void WriteComputeTextureToDisk(const std::string& filepath,
     vtkSmartPointer<vtkWebGPUComputePass>, int textureIndex, int mipLevel, bool flipY = false);
 
-  static std::string StringViewToStdString(wgpu::StringView sv);
-
 private:
   /**
    * Returns the data type that would be appropriate to create a vtkImageData from the data of a

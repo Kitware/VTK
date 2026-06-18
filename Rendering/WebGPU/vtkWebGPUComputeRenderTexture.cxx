@@ -21,7 +21,7 @@ void vtkWebGPUComputeRenderTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Aspect: " << this->Aspect << std::endl;
   os << indent << "Type: " << this->Type << std::endl;
 
-  os << indent << "WebGPUTexture: " << this->WebGPUTexture.Get() << std::endl;
+  os << indent << "WebGPUTexture: " << this->WebGPUTexture << std::endl;
   os << indent << "Associated compute pass: ";
 
   this->AssociatedComputePass->PrintSelf(os, indent);
