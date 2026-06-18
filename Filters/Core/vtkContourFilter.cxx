@@ -330,11 +330,6 @@ int vtkContourFilter::RequestData(
         this->SynchronizedTemplates3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
         retVal = this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
       }
-      output = vtkPolyData::GetData(outputVector);
-      if (output->GetCellGhostArray())
-      {
-        output->RemoveGhostCells();
-      }
       return retVal;
     }
   } // if image data

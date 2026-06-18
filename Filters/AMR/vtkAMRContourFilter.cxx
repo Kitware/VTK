@@ -266,10 +266,16 @@ bool vtkAMRContourFilter::ContourDataSet(
   vtkNew<vtkPolyData> localOutput;
   localOutput->ShallowCopy(contour->GetOutput());
 
-  // XXX: Add a work around for https://gitlab.kitware.com/vtk/vtk/-/issues/20001 or fix it in
-  // underlying contour filter
+  // The underlying contour filter no longer removes ghost cells (the convention
+  // is to leave them in place until the very end of the pipeline). The AMR
+  // contour, however, must drop them here: in the coarse blocks the interface
+  // filter marks the refined/interface regions as ghost cells, and contouring
+  // them would produce geometry that overlaps the finer levels.
+  localOutput->RemoveGhostCells();
 
-  // Remove ghost array
+  // RemoveGhostCells() early-returns without dropping the ghost array when a block
+  // has no masked cells, so remove it explicitly to keep the output clean. This
+  // also works around https://gitlab.kitware.com/vtk/vtk/-/issues/20001
   localOutput->GetCellData()->RemoveArray(localOutput->GetCellData()->GhostArrayName());
 
   // Add contour to the output
