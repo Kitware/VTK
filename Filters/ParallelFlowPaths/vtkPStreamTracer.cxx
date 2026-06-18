@@ -1544,10 +1544,8 @@ int vtkPStreamTracer::RequestData(
 
   Task* task(nullptr);
   std::vector<int> traceIds;
-  int iterations = 0;
   while ((task = taskManager.NextTask()))
   {
-    iterations++;
     PStreamTracerPoint* point = task->GetPoint();
 
     vtkSmartPointer<vtkPolyData> traceOut;
@@ -1697,7 +1695,6 @@ int vtkPStreamTracer::RequestData(
   }
 
 #endif
-  PRINT("Done in " << iterations << " iterations");
 
   traceOutputs.erase(traceOutputs.begin(), traceOutputs.end());
   return 1;
