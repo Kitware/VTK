@@ -23,6 +23,7 @@
 extern "C" void vtkPythonUtilDelete();
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkObject;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -277,6 +278,10 @@ private:
   ~vtkPythonUtil();
   vtkPythonUtil(const vtkPythonUtil&) = delete;
   void operator=(const vtkPythonUtil&) = delete;
+
+  // vtkCallbackCommand fired from DeleteEvent on a ghosted vtkObject to evict
+  // its ghost proactively, instead of waiting for the next sweep.
+  static void GhostDeleteCallback(vtkObject*, unsigned long, void* clientData, void*);
 
   vtkPythonObjectMap* ObjectMap;
   vtkPythonGhostMap* GhostMap;
