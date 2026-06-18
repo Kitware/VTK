@@ -7,11 +7,11 @@
 #include "vtkAMReXGridReader.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkTestUtilities.h"
-#include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
 int TestAMReXGridReaderGhostCells(int argc, char* argv[])
@@ -69,7 +69,7 @@ int TestAMReXGridReaderGhostCells(int argc, char* argv[])
 
   // Verify ghost cell handling on a Level 0 block
   // Each block has 8x8x8 valid cells + 2 ghost on each side = 12x12x12 = 1728 cells
-  auto* ds = amr->GetDataSet(0, 0);
+  auto* ds = amr->GetDataSetAsImageData(0, 0);
   if (!ds)
   {
     vtkLogF(ERROR, "Level 0 block 0 is null.");
@@ -142,7 +142,7 @@ int TestAMReXGridReaderGhostCells(int argc, char* argv[])
   }
 
   // Verify Level 1 block has correct structure too
-  auto* dsL1 = amr->GetDataSet(1, 0);
+  auto* dsL1 = amr->GetDataSetAsImageData(1, 0);
   if (!dsL1)
   {
     vtkLogF(ERROR, "Level 1 block 0 is null.");
