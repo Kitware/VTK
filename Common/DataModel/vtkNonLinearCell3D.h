@@ -176,6 +176,28 @@ public:
   virtual vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts)
     VTK_SIZEHINT(pts, _) VTK_EXPECTS(0 <= pointId && pointId < GetNumberOfPoints()) = 0;
 
+  /**
+   * Returns true if the normals of the vtkNonLinearCell3D point inside the cell.
+   * The orientation is determined by the sign of the Jacobian determinant evaluated
+   * at the parametric center: a negative determinant means the parametric-to-world
+   * mapping reverses orientation.
+   *
+   * @warning This flag is not precomputed. Store the return value in a local
+   * variable if you need it more than once.
+   */
+  virtual bool IsInsideOut();
+
+  /**
+   * Inflate the cell. Each control point is displaced outward along a direction
+   * computed by transforming the sum of the outward reference-element face normals
+   * incident to that point to world space via the shape-function Jacobian inverse
+   * transpose (Nanson's formula). Control points that participate in no face
+   * boundary (CenterPoint) are left unchanged.
+   *
+   * \return 1 if inflation was successful, 0 if no inflation was performed.
+   */
+  int Inflate(double dist) override;
+
 protected:
   vtkNonLinearCell3D() = default;
   ~vtkNonLinearCell3D() override = default;
