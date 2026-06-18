@@ -266,14 +266,10 @@ private:
   void operator=(const vtkOpenGLRenderer&) = delete;
 
   /**
-   * Render pass to use if the background blur is disabled.
+   * Render pass used for background blur.
+   * This pass is only used when `SkyboxBlurEnabled` is true.
    */
-  vtkSmartPointer<vtkCameraPass> BackgroundCameraPass;
-  /**
-   * Render pass to use if the background blur is enabled. It's delegate pass is
-   * `BackgroundCameraPass`.
-   */
-  vtkSmartPointer<vtkHexagonalBokehBlurPass> BackgroundBlurPass;
+  vtkSmartPointer<vtkHexagonalBokehBlurPass> BackgroundPass;
 };
 
 #define vtkOpenGLRenderer_OVERRIDE_ATTRIBUTES vtkOpenGLRenderer::CreateOverrideAttributes()

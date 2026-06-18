@@ -339,13 +339,14 @@ void vtkRenderer::Render()
       continue;
     }
 
-    if (vtkSkybox::SafeDownCast(aProp))
+    if (vtkSkybox::SafeDownCast(aProp) && this->SkyboxBlurEnabled)
     {
       this->BackgroundProp = aProp;
-      continue;
     }
-
-    this->PropArray.push_back(aProp);
+    else
+    {
+      this->PropArray.push_back(aProp);
+    }
   }
 
   if (this->PropArray.empty())

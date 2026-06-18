@@ -174,12 +174,12 @@ gl_FragData[0].xyz += vec3(noise);
   this->BackgroundTextureActor->SetMapper(this->BackgroundMapper);
 
   vtkNew<vtkOpaquePass> backgroundOpaquePass;
-  this->BackgroundCameraPass = vtkSmartPointer<vtkCameraPass>::New();
-  this->BackgroundCameraPass->SetDelegatePass(backgroundOpaquePass);
+  vtkNew<vtkCameraPass> backgroundCameraPass;
+  backgroundCameraPass->SetDelegatePass(backgroundOpaquePass);
 
-  this->BackgroundBlurPass = vtkSmartPointer<vtkHexagonalBokehBlurPass>::New();
-  this->BackgroundBlurPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
-  this->BackgroundBlurPass->SetDelegatePass(this->BackgroundCameraPass);
+  this->BackgroundPass = vtkSmartPointer<vtkHexagonalBokehBlurPass>::New();
+  this->BackgroundPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
+  this->BackgroundPass->SetDelegatePass(backgroundCameraPass);
 }
 
 //------------------------------------------------------------------------------
@@ -388,31 +388,20 @@ void vtkOpenGLRenderer::DeviceRender()
   bool preserveColorBufferState = this->GetPreserveColorBuffer();
   bool preserveDepthBufferState = this->GetPreserveDepthBuffer();
 
-  // Background pass
+  // this->BackgroundProp is set to an existing pointer only if skybox is enabled.
+  // In this case, we run the background pass.
   if (this->BackgroundProp)
   {
-    vtkRenderPass* backgroundPass = nullptr;
-    if (this->GetSkyboxBlurEnabled())
-    {
-      this->BackgroundBlurPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
-      backgroundPass = this->BackgroundBlurPass;
-    }
-    else
-    {
-      backgroundPass = this->BackgroundCameraPass;
-    }
+    vtkRenderState backgroundStates(this);
+    backgroundStates.SetPropArrayAndCount(&this->BackgroundProp, 1);
+    backgroundStates.SetFrameBuffer(nullptr);
 
-    if (backgroundPass)
-    {
-      vtkRenderState s(this);
-      s.SetPropArrayAndCount(&this->BackgroundProp, 1);
-      s.SetFrameBuffer(nullptr);
-      backgroundPass->Render(&s);
+    this->BackgroundPass->SetCircleOfConfusionRadius(this->GetSkyboxBlurRadius());
+    this->BackgroundPass->Render(&backgroundStates);
 
-      // Preserve color attachment data as the background is already drawn on it.
-      this->SetPreserveColorBuffer(true);
-      this->SetPreserveDepthBuffer(false);
-    }
+    // Preserve color attachment data as the background is already drawn on it.
+    this->SetPreserveColorBuffer(true);
+    this->SetPreserveDepthBuffer(false);
   }
 
   // Geometry pass
@@ -877,13 +866,9 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow* w)
   {
     this->Pass->ReleaseGraphicsResources(w);
   }
-  if (w && this->BackgroundCameraPass)
+  if (w && this->BackgroundPass)
   {
-    this->BackgroundCameraPass->ReleaseGraphicsResources(w);
-  }
-  if (w && this->BackgroundBlurPass)
-  {
-    this->BackgroundBlurPass->ReleaseGraphicsResources(w);
+    this->BackgroundPass->ReleaseGraphicsResources(w);
   }
   if (this->FXAAFilter)
   {
