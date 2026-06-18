@@ -19,11 +19,13 @@ vtk_module_test_data(
   Data/mine_with_dates.vtp
   Data/quadraticTetra01.vtu
   Data/rectGrid.vtr
+  Data/rectilinear.vtt
   Data/scalars.vti
   Data/sphereMirror.vtpc
   Data/sphereMirror_0_0.vtp
   Data/sphereMirror_1_0.vtp
   Data/structGrid.vts
+  Data/table_to_rectilinear.vtr
   Data/UG_3D_traces.vtk
   Data/ugWithGlobalIds.vtu
   Data/waveletMaterial.vti

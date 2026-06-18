@@ -120,6 +120,7 @@ set(classes
   vtkTableBasedClipDataSet
   vtkTableFFT
   vtkTableToPolyData
+  vtkTableToRectilinearGrid
   vtkTableToStructuredGrid
   vtkTemporalPathLineFilter
   vtkTemporalStatistics
