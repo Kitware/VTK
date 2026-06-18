@@ -7,18 +7,22 @@
 #include "vtkAMReXGridReaderInternal.h"
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -208,8 +212,7 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(int blockIdx)
   int level = this->GetBlockLevel(blockIdx);
   int blockID = this->GetLevelBlockID(blockIdx);
 
-  // TODO: Need to handle Ghost Cells - Patrick O'Leary
-  // int ghostCells = this->Internal->LevelHeader[level]->levelNumberOfGhostCells;
+  int ng = this->Internal->LevelHeader[level]->levelNumberOfGhostCells;
 
   // The vtkUniformGrid always has 3 dimensions
   double spacing[3] = { 0.0, 0.0, 0.0 };
@@ -224,24 +227,82 @@ vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(int blockIdx)
   int boxLo[3];
   int boxHi[3];
   block.GetDimensions(boxLo, boxHi);
-  int dimensions[3] = { 1, 1, 1 };
-  // vtkAMRBox::GetDimensions returns cell-space [lo, hi]; for both cell- and
-  // nodal-centered main fabs the vtkUniformGrid needs (hi - lo + 1) + 1 points
-  // along each axis (one more node than cells), so the formula is identical.
-  for (int i = 0; i < dimension; ++i)
-  {
-    dimensions[i] = ((boxHi[i] - boxLo[i]) + 1) + 1;
-  }
+
   vtkUniformGrid* uniformGrid = vtkUniformGrid::New();
   uniformGrid->Initialize();
 
-  double origin[3] = { 0.0, 0.0, 0.0 };
-  vtkAMRBox::GetBoxOrigin(block, this->Metadata->GetOrigin(), spacing, origin);
-  uniformGrid->SetOrigin(origin);
-  uniformGrid->SetSpacing(spacing);
-  uniformGrid->SetDimensions(dimensions);
+  if (ng > 0)
+  {
+    // Grid includes ghost cells. Set origin at ghost region corner,
+    // extent so that index 0 = AMR box lo corner. Ghost cells on
+    // the low side get negative indices.
+    double ghostOrigin[3] = { 0.0, 0.0, 0.0 };
+    const double* amrOrigin = this->Metadata->GetOrigin();
+    int validCells[3] = { 1, 1, 1 };
+    int extent[6] = { 0, 1, 0, 1, 0, 1 };
+    for (int i = 0; i < dimension; ++i)
+    {
+      ghostOrigin[i] = amrOrigin[i] + (boxLo[i] - ng) * spacing[i];
+      validCells[i] = boxHi[i] - boxLo[i] + 1;
+      extent[2 * i] = -ng;
+      extent[2 * i + 1] = validCells[i] + ng;
+    }
+    if (dimension == 2)
+    {
+      ghostOrigin[2] = 0.0;
+    }
+    uniformGrid->SetOrigin(ghostOrigin);
+    uniformGrid->SetSpacing(spacing);
+    uniformGrid->SetExtent(extent);
+
+    // Create vtkGhostType array marking ghost cells
+    int cellDims[3] = { 1, 1, 1 };
+    vtkIdType totalCells = 1;
+    for (int i = 0; i < 3; ++i)
+    {
+      cellDims[i] = extent[2 * i + 1] - extent[2 * i];
+      totalCells *= cellDims[i];
+    }
+    vtkNew<vtkUnsignedCharArray> ghosts;
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfTuples(totalCells);
+    for (vtkIdType idx = 0; idx < totalCells; ++idx)
+    {
+      // Convert flat index to ijk
+      int ci = idx % cellDims[0];
+      int cj = (idx / cellDims[0]) % cellDims[1];
+      int ck = idx / (cellDims[0] * cellDims[1]);
+      // Check if this cell is in the ghost region
+      bool isGhost = false;
+      int ijk[3] = { ci, cj, ck };
+      for (int d = 0; d < dimension; ++d)
+      {
+        int extCoord = ijk[d] + extent[2 * d]; // convert to extent coords
+        if (extCoord < 0 || extCoord >= validCells[d])
+        {
+          isGhost = true;
+          break;
+        }
+      }
+      ghosts->SetValue(idx, isGhost ? vtkDataSetAttributes::DUPLICATECELL : 0);
+    }
+    uniformGrid->GetCellData()->AddArray(ghosts);
+  }
+  else
+  {
+    // No ghost cells - original behavior
+    int dimensions[3] = { 1, 1, 1 };
+    for (int i = 0; i < dimension; ++i)
+    {
+      dimensions[i] = (boxHi[i] - boxLo[i] + 1) + 1;
+    }
+    double origin[3] = { 0.0, 0.0, 0.0 };
+    vtkAMRBox::GetBoxOrigin(block, this->Metadata->GetOrigin(), spacing, origin);
+    uniformGrid->SetOrigin(origin);
+    uniformGrid->SetSpacing(spacing);
+    uniformGrid->SetDimensions(dimensions);
+  }
   return (uniformGrid);
-  // TODO: Need to handle Ghost Cells - Patrick O'Leary
 }
 
 //------------------------------------------------------------------------------

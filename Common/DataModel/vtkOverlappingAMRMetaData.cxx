@@ -85,8 +85,16 @@ public:
 
     for (int j = 0; j < 3; j++)
     {
-      minbin[j] = (loCorner[j] - this->LoCorner[j]) / this->BinSize[j];
-      maxbin[j] = (hiCorner[j] - this->LoCorner[j]) / this->BinSize[j];
+      // Use signed arithmetic to handle child boxes that extend
+      // beyond the refined parent bounds (e.g. when ghost cell
+      // count is not a multiple of refinement ratio). Clamp to
+      // valid bin range [0, NBins-1].
+      int lo = loCorner[j] - static_cast<int>(this->LoCorner[j]);
+      int hi = hiCorner[j] - static_cast<int>(this->LoCorner[j]);
+      int bs = static_cast<int>(this->BinSize[j]);
+      minbin[j] = static_cast<unsigned int>(std::max(0, lo / bs));
+      maxbin[j] = static_cast<unsigned int>(
+        std::min(static_cast<int>(this->NBins[j] - 1), std::max(0, hi / bs)));
     }
 
     unsigned int idx[3];
