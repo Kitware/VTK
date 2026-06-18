@@ -409,7 +409,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
       std::vector<vtkMPICommunicator::Request> recvReqs; // should be 1 recv for each depth
 
-      for (int curDepth = subext[4], ii = 0; curDepth <= subext[5]; ++curDepth, ++ii)
+      for (int curDepth = subext[4]; curDepth <= subext[5]; ++curDepth)
       {
         float* depthStart =
           data + ((curDepth - subext[4]) * oneDepthSize); // Where this data should start
@@ -694,8 +694,7 @@ bool vtkPNetCDFPOPReader::IsReaderRank()
   int rank = this->Controller->GetLocalProcessId();
   for (size_t i = 0; i < this->Internals->ReaderRanks.size(); i++)
   {
-    int ii = static_cast<int>(i);
-    if (rank == this->Internals->ReaderRanks[ii])
+    if (rank == this->Internals->ReaderRanks[i])
     {
       return true;
     }

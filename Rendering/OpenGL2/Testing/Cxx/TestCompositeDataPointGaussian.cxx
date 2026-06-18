@@ -55,7 +55,6 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
-  int numNodes = 0;
   mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
@@ -63,7 +62,7 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
     {
       blocks[parent]->SetNumberOfBlocks(nblocks);
-      for (int block = 0; block < nblocks; ++block, ++numNodes)
+      for (int block = 0; block < nblocks; ++block)
       {
         if (level == numLevels - 1)
         {

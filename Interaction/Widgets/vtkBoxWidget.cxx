@@ -1115,7 +1115,6 @@ void vtkBoxWidget::GetPlanes(vtkPlanes* planes)
 
 void vtkBoxWidget::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
 {
-  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
   double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
   double v[3];    // vector of motion
   double axis[3]; // axis of rotation
@@ -1149,7 +1148,7 @@ void vtkBoxWidget::Rotate(int X, int Y, double* p1, double* p2, double* vpn)
   vtkPoints* newPts = vtkPoints::New(VTK_DOUBLE);
   this->Transform->TransformPoints(this->Points, newPts);
 
-  for (i = 0; i < 8; i++, pts += 3)
+  for (i = 0; i < 8; i++)
   {
     this->Points->SetPoint(i, newPts->GetPoint(i));
   }
