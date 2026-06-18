@@ -771,13 +771,12 @@ private:
    */
   vtkIdType GetCountTriangleVertices(vtkPolyData* polyData)
   {
-    vtkIdType cellId = 0;
     vtkIdType numTriVert = 0;
     vtkNew<vtkGenericCell> genericCell;
     vtkCellIterator* cellIter = nullptr;
 
     for (cellIter = polyData->NewCellIterator(); !cellIter->IsDoneWithTraversal();
-         cellIter->GoToNextCell(), cellId++)
+         cellIter->GoToNextCell())
     {
       polyData->GetCell(cellIter->GetCellId(), genericCell);
       this->NumPointsCell = genericCell->GetNumberOfPoints();
