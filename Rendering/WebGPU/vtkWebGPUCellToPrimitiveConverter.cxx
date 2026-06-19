@@ -10,7 +10,10 @@
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellType.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"
@@ -293,6 +296,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
   std::array<int, 3> cellTypes{ VTK_POLY_VERTEX, VTK_POLY_LINE, VTK_POLYGON };
   std::vector<vtkCellArray*> cellArrayGroups[3]; // verts, lines, polys
   std::vector<vtkIdType> numberOfPoints;
+  std::vector<vtkDataArray*> pointCoordinates; // per-mesh, for polygon ear clipping
   for (std::size_t i = 0; i < meshes.size(); ++i)
   {
     auto& mesh = meshes[i];
@@ -300,6 +304,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
     cellArrayGroups[1].emplace_back(mesh->GetLines());
     cellArrayGroups[2].emplace_back(mesh->GetPolys());
     numberOfPoints.emplace_back(mesh->GetNumberOfPoints());
+    pointCoordinates.emplace_back(mesh->GetPoints() ? mesh->GetPoints()->GetData() : nullptr);
   }
   for (int i = 0; i < 3; ++i)
   {
@@ -308,10 +313,12 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
     const auto sourceTopologyType =
       this->GetTopologySourceTypeForCellType(vtkcellType, representation);
 
+    // point coordinates are only consumed by the polygon->triangle path; passing
+    // them for other cell types is harmless (ignored unless idx is polygons).
     buffersUpdated |= this->DispatchCellArraysToPrimitiveComputePipeline(wgpuConfiguration,
       cellArrays, representation, vtkcellType, numberOfPoints,
       vertexOffsetAndCounts[sourceTopologyType], connectivityBuffers[sourceTopologyType],
-      cellIdBuffers[sourceTopologyType], edgeArrayBuffers[sourceTopologyType]);
+      cellIdBuffers[sourceTopologyType], edgeArrayBuffers[sourceTopologyType], pointCoordinates);
   }
   return buffersUpdated;
 }
@@ -347,10 +354,15 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
   // dispatch compute pipeline that converts polygon to triangles.
   {
     const auto idx = this->GetTopologySourceTypeForCellType(VTK_POLYGON, representation);
+    // Supply point coordinates so polygon_to_triangle can ear-clip non-convex
+    // polygons (binding 7). Connectivity indices on this single-mesh path are
+    // mesh-local, so they index this mesh's point coordinates directly.
+    vtkDataArray* pointCoordinates =
+      (mesh && mesh->GetPoints()) ? mesh->GetPoints()->GetData() : nullptr;
     buffersUpdated |= this->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfiguration,
       mesh ? mesh->GetPolys() : nullptr, representation, VTK_POLYGON, cellIdOffset,
       vertexCounts[idx], connectivityBuffers[idx], cellIdBuffers[idx], edgeArrayBuffers[idx],
-      cellIdOffsetUniformBuffers[idx]);
+      cellIdOffsetUniformBuffers[idx], pointCoordinates);
   }
   return buffersUpdated;
 }
@@ -398,7 +410,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
   vtkWebGPUConfiguration* wgpuConfiguration, const std::vector<vtkCellArray*>& cellArrays,
   int representation, int cellType, const std::vector<vtkIdType>& numberOfPoints,
   std::vector<std::pair<vtkTypeUInt32, vtkTypeUInt32>>* vertexOffsetAndCounts,
-  wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer)
+  wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
+  const std::vector<vtkDataArray*>& pointCoordinates)
 {
   vtkLogScopeFunction(TRACE);
   if (cellArrays.empty())
@@ -667,6 +680,63 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       edgeArrayComputeBuffer->SetByteSize(sizeof(vtkTypeUInt32));
     }
 
+    // polygon_to_triangle declares point_coordinates at binding 7 and ear-clips
+    // non-convex polygons using them. The bind group layout is derived from the
+    // buffers added to the pass, so a binding-7 buffer must be present for every
+    // dispatch of this module. When point coordinates are supplied (polygon
+    // path), concatenate each mesh's coordinates in the same mesh order used for
+    // the connectivity concatenation above, so that a connectivity index
+    // (pointId + pointOffset) resolves to the correct coordinates. Otherwise a
+    // 1-float placeholder is bound (never dereferenced for size <= 4 polygons
+    // or non-polygon passes).
+    const bool isPolygonToTriangle = (idx == TOPOLOGY_SOURCE_POLYGONS);
+    vtkNew<vtkWebGPUComputeBuffer> pointCoordinatesBuffer;
+    pointCoordinatesBuffer->SetGroup(0);
+    pointCoordinatesBuffer->SetBinding(7);
+    pointCoordinatesBuffer->SetLabel(std::string("PointCoordinates-") + primitiveTypeAsString);
+    pointCoordinatesBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    static const std::vector<float> placeholderCoordsMulti = { 0.0f };
+    // concatenatedCoordinates must outlive the dispatch at the end of this scope.
+    vtkNew<vtkFloatArray> concatenatedCoordinates;
+    if (isPolygonToTriangle && pointCoordinates.size() == cellArrays.size())
+    {
+      concatenatedCoordinates->SetNumberOfComponents(3);
+      vtkIdType totalPoints = 0;
+      for (std::size_t i = 0; i < batchSize; ++i)
+      {
+        totalPoints += numberOfPoints[i];
+      }
+      concatenatedCoordinates->SetNumberOfTuples(totalPoints);
+      vtkIdType writeTuple = 0;
+      double xyz[3] = { 0.0, 0.0, 0.0 };
+      for (std::size_t i = 0; i < batchSize; ++i)
+      {
+        vtkDataArray* coords = pointCoordinates[i];
+        const vtkIdType n = numberOfPoints[i];
+        for (vtkIdType p = 0; p < n; ++p)
+        {
+          // tolerate a coordinate array shorter than numberOfPoints (defensive)
+          if (coords != nullptr && p < coords->GetNumberOfTuples())
+          {
+            coords->GetTuple(p, xyz);
+          }
+          else
+          {
+            xyz[0] = xyz[1] = xyz[2] = 0.0;
+          }
+          concatenatedCoordinates->SetTuple3(writeTuple++, static_cast<float>(xyz[0]),
+            static_cast<float>(xyz[1]), static_cast<float>(xyz[2]));
+        }
+      }
+      pointCoordinatesBuffer->SetData(concatenatedCoordinates.GetPointer());
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    }
+    else
+    {
+      pointCoordinatesBuffer->SetData(placeholderCoordsMulti);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+    }
+
     // obtain a compute pass for cell type.
     vtkSmartPointer<vtkWebGPUComputePass> pass;
     vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
@@ -687,6 +757,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     pass->AddBuffer(outputConnectivityBuffer);         // not used in cpu
     pass->AddBuffer(outputCellIdBuffer);               // not used in cpu
     pass->AddBuffer(edgeArrayComputeBuffer);           // not used in cpu
+    pass->AddBuffer(pointCoordinatesBuffer);           // binding 7, point coordinates
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
@@ -731,7 +802,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
   vtkWebGPUConfiguration* wgpuConfiguration, vtkCellArray* cellArray, int representation,
   int cellType, vtkTypeUInt32 cellIdOffset, vtkTypeUInt32* vertexCount,
   wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
-  wgpu::Buffer* cellIdOffsetUniformBuffer)
+  wgpu::Buffer* cellIdOffsetUniformBuffer, vtkDataArray* pointCoordinates)
 {
   if (wgpuConfiguration == nullptr)
   {
@@ -939,6 +1010,31 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       edgeArrayComputeBuffer->SetByteSize(sizeof(vtkTypeUInt32));
     }
 
+    // The polygon_to_triangle entry point ear-clips non-convex polygons and so
+    // needs point coordinates (binding 7). Other entry points do not declare
+    // this binding. The bind group layout is derived from the buffers added to
+    // the pass, so we always add a binding-7 buffer here to match the shader
+    // module; a 1-float placeholder is bound when coordinates are unavailable
+    // (polygons of size <= 4 never dereference it).
+    const bool isPolygonToTriangle = (idx == TOPOLOGY_SOURCE_POLYGONS);
+    vtkNew<vtkWebGPUComputeBuffer> pointCoordinatesBuffer;
+    pointCoordinatesBuffer->SetGroup(0);
+    pointCoordinatesBuffer->SetBinding(7);
+    pointCoordinatesBuffer->SetLabel(std::string("PointCoordinates-") + primitiveTypeAsString +
+      "@" + cellArray->GetObjectDescription());
+    pointCoordinatesBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    static const std::vector<float> placeholderCoords = { 0.0f };
+    if (isPolygonToTriangle && pointCoordinates != nullptr)
+    {
+      pointCoordinatesBuffer->SetData(pointCoordinates);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    }
+    else
+    {
+      pointCoordinatesBuffer->SetData(placeholderCoords);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+    }
+
     // obtain a compute pass for cell type.
     vtkSmartPointer<vtkWebGPUComputePass> pass;
     vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
@@ -959,6 +1055,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     pass->AddBuffer(outputConnectivityBuffer); // not used in cpu
     pass->AddBuffer(outputCellIdBuffer);       // not used in cpu
     pass->AddBuffer(edgeArrayComputeBuffer);   // not used in cpu
+    pass->AddBuffer(pointCoordinatesBuffer);   // binding 7, polygon_to_triangle only
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.

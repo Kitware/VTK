@@ -37,6 +37,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUConfiguration;
 class vtkPolyData;
 class vtkCellArray;
+class vtkDataArray;
 class vtkWebGPUComputePass;
 class vtkWebGPUComputePipeline;
 
@@ -149,7 +150,8 @@ public:
   bool DispatchCellArrayToPrimitiveComputePipeline(vtkWebGPUConfiguration* wgpuConfiguration,
     vtkCellArray* cells, int representation, int cellType, vtkTypeUInt32 cellIdOffset,
     vtkTypeUInt32* vertexCount, wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer,
-    wgpu::Buffer* edgeArrayBuffer, wgpu::Buffer* cellIdOffsetUniformBuffer);
+    wgpu::Buffer* edgeArrayBuffer, wgpu::Buffer* cellIdOffsetUniformBuffer,
+    vtkDataArray* pointCoordinates = nullptr);
 
   /**
    * Tessellates the a collection of cell arrays into graphics primitives.
@@ -165,7 +167,8 @@ public:
     const std::vector<vtkCellArray*>& cellArrays, int representation, int cellType,
     const std::vector<vtkIdType>& numberOfPoints,
     std::vector<std::pair<vtkTypeUInt32, vtkTypeUInt32>>* vertexOffsetAndCounts,
-    wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer);
+    wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
+    const std::vector<vtkDataArray*>& pointCoordinates = {});
 
   /**
    * Get whether the Cell-to-Primitive compute pipeline needs rebuilt.

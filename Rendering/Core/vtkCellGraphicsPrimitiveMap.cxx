@@ -5,7 +5,12 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h" // for the shared ear-clip triangulation
+
+#include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -109,6 +114,43 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
   return result;
 }
 
+namespace
+{
+// The ear-clip triangulation is shared with vtkOpenGLIndexBufferObject via
+// vtkPolygon::EarClipPolygon3D. That implementation is templated on the point/cell
+// access mechanism for zero-copy reads; here the polygon comes as a vtkPoints
+// plus a vtkIdType* id list, so present those through lightweight adapters with
+// the same points[cell[k]] -> indexable-point semantics. The adapters are
+// trivially inlined, so reading a coordinate costs exactly one
+// vtkPoints::GetPoint, identical to the previous open-coded version.
+struct PointAccessor
+{
+  vtkPoints* Points;
+  struct Pt3
+  {
+    double X[3];
+    double operator[](int i) const { return this->X[i]; }
+  };
+  Pt3 operator[](vtkIdType id) const
+  {
+    Pt3 p;
+    this->Points->GetPoint(id, p.X);
+    return p;
+  }
+};
+
+// Forwarding overload preserving the (vtkPoints*, const vtkIdType*, npts, ...)
+// call signature used below and previously by this translation unit.
+template <typename EmitFn>
+inline void EarClipPolygon3D(vtkPoints* points, const vtkIdType* pts, int npts,
+  std::vector<int>& prevBuf, std::vector<int>& nextBuf, std::vector<int>& ring, EmitFn&& emit)
+{
+  PointAccessor accessor{ points };
+  vtkPolygon::EarClipPolygon3D(
+    accessor, pts, npts, prevBuf, nextBuf, ring, std::forward<EmitFn>(emit));
+}
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::ProcessPolygons(
   vtkPolyData* mesh)
@@ -133,45 +175,52 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
     result.PrimitiveToCell->SetNumberOfComponents(1);
     result.EdgeArray = vtkSmartPointer<vtkTypeUInt8Array>::New();
     result.EdgeArray->SetNumberOfComponents(1);
+    vtkPoints* points = mesh->GetPoints();
+    // Scratch buffers reused across cells by the ear-clip triangulator.
+    std::vector<int> earPrev;
+    std::vector<int> earNext;
+    std::vector<int> earRing;
     const auto iter = vtk::TakeSmartPointer(mesh->GetPolys()->NewIterator());
     for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell(), ++cellIDOffset)
     {
       const vtkIdType* pts = nullptr;
       vtkIdType npts = 0;
       iter->GetCurrentCell(npts, pts);
-      const int numSubTriangles = npts - 2;
-      if (numSubTriangles <= 0)
+      if (npts - 2 <= 0)
       {
         continue;
       }
-      double ef0 = 0;
-      double ef1 = 0;
-      double ef2 = 0;
-      if (ef)
-      {
-        ef->GetTuple(pts[0], &ef0);
-      }
-      for (int i = 0; i < numSubTriangles; ++i)
-      {
-        result.PrimitiveToCell->InsertNextValue(cellIDOffset);
-        result.VertexIDs->InsertNextValue(pts[0]);
-        result.VertexIDs->InsertNextValue(pts[i + 1]);
-        result.VertexIDs->InsertNextValue(pts[i + 2]);
-        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
-        uint8_t val = npts == 3 ? 7 : i == 0 ? 3 : i == numSubTriangles - 1 ? 6 : 2;
-        if (ef)
+      // Triangulate by ear clipping (matching vtkOpenGLIndexBufferObject) so
+      // non-convex polygons - e.g. iso-polygons from contouring/clipping - are
+      // tessellated correctly rather than fanned from vertex 0, which produces
+      // overlapping or out-of-polygon triangles. boundaryMask gives the polygon-
+      // boundary edges of each emitted triangle; combined with the per-vertex
+      // edge flags it reproduces the historical edge-visibility values.
+      EarClipPolygon3D(points, pts, static_cast<int>(npts), earPrev, earNext, earRing,
+        [&](int a, int b, int c, int boundaryMask)
         {
-          int mask = 0;
-          ef->GetTuple(pts[i + 1], &ef1);
-          ef->GetTuple(pts[i + 2], &ef2);
-          mask = ef0 + ef1 * 2 + ef2 * 4;
-          result.EdgeArray->InsertNextValue(val & mask);
-        }
-        else
-        {
-          result.EdgeArray->InsertNextValue(val);
-        }
-      }
+          const vtkIdType idA = pts[a];
+          const vtkIdType idB = pts[b];
+          const vtkIdType idC = pts[c];
+          result.PrimitiveToCell->InsertNextValue(cellIDOffset);
+          result.VertexIDs->InsertNextValue(idA);
+          result.VertexIDs->InsertNextValue(idB);
+          result.VertexIDs->InsertNextValue(idC);
+          if (ef)
+          {
+            double ef0 = 0, ef1 = 0, ef2 = 0;
+            ef->GetTuple(idA, &ef0);
+            ef->GetTuple(idB, &ef1);
+            ef->GetTuple(idC, &ef2);
+            const int mask =
+              static_cast<int>(ef0) + static_cast<int>(ef1) * 2 + static_cast<int>(ef2) * 4;
+            result.EdgeArray->InsertNextValue(static_cast<uint8_t>(boundaryMask & mask));
+          }
+          else
+          {
+            result.EdgeArray->InsertNextValue(static_cast<uint8_t>(boundaryMask));
+          }
+        });
     }
   }
   else

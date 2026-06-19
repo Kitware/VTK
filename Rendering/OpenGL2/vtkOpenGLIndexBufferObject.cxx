@@ -9,6 +9,7 @@
 #include "vtkCellArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h" // for the shared ear-clip triangulation
 #include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -53,6 +54,11 @@ struct AppendTrianglesBatchData
 using AppendTrianglesBatch = vtkBatch<AppendTrianglesBatchData>;
 using AppendTrianglesBatches = vtkBatches<AppendTrianglesBatchData>;
 
+// The ear-clip triangulation used to build rendering primitives lives on
+// vtkPolygon (vtkPolygon::EarClipPolygon3D / EarClipTriangleCount) so the
+// low-memory cell-to-primitive mapper uses the exact same implementation. The
+// helpers are templated, so each call site instantiates zero-copy on the
+// concrete point/cell range types with no abstraction overhead.
 // A worker functor. The calculation is implemented in the function template
 // for operator().
 template <typename TPointsArray, typename TOffsets, typename TConnectivity>
@@ -91,6 +97,9 @@ struct AppendTrianglesFunctor
     auto offsets = vtk::DataArrayValueRange<1, vtkIdType>(this->Offsets);
     auto connectivity = vtk::DataArrayValueRange<1, vtkIdType>(this->Connectivity);
 
+    // Scratch reused across cells for compacting coincident polygon vertices.
+    std::vector<int> earRing;
+
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
       AppendTrianglesBatch& batch = this->TriangleBatches[batchId];
@@ -98,22 +107,34 @@ struct AppendTrianglesFunctor
       for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
       {
         const auto cellSize = offsets[cellId + 1] - offsets[cellId];
-        auto cell = connectivity.begin() + offsets[cellId];
-        if (cellSize >= 3)
+        if (cellSize < 3)
         {
-          const auto& id1 = cell[0];
-          for (int i = 1; i < cellSize - 1; i++)
-          {
-            const auto& id2 = cell[i];
-            const auto& id3 = cell[i + 1];
+          continue;
+        }
+        auto cell = connectivity.begin() + offsets[cellId];
+        if (cellSize >= 5)
+        {
+          // Ear-clip path. Coincident consecutive vertices are compacted away
+          // (see CompactPolygonRing), so the triangle count is on the number of
+          // distinct vertices, not cellSize. Must match the emit phase exactly.
+          batchNumberOfTriangles +=
+            vtkPolygon::EarClipTriangleCount(points, cell, static_cast<int>(cellSize), earRing);
+          continue;
+        }
+        // Fan path for cellSize 3 or 4: preserve historical degenerate-skip
+        // behavior so the count and emit phases agree.
+        const auto& id1 = cell[0];
+        for (int i = 1; i < cellSize - 1; i++)
+        {
+          const auto& id2 = cell[i];
+          const auto& id3 = cell[i + 1];
 
-            const auto& pt1 = points[id1];
-            const auto& pt2 = points[id2];
-            const auto& pt3 = points[id3];
-            if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
-            {
-              ++batchNumberOfTriangles;
-            }
+          const auto& pt1 = points[id1];
+          const auto& pt2 = points[id2];
+          const auto& pt3 = points[id3];
+          if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
+          {
+            ++batchNumberOfTriangles;
           }
         }
       }
@@ -139,6 +160,13 @@ struct AppendTrianglesFunctor
         auto offsets = vtk::DataArrayValueRange<1, vtkIdType>(this->Offsets);
         auto connectivity = vtk::DataArrayValueRange<1, vtkIdType>(this->Connectivity);
 
+        // Per-thread scratch buffers reused across all batches handled by this
+        // worker lambda. Allocated lazily on first encounter of a cellSize >= 5
+        // polygon.
+        std::vector<int> earPrev;
+        std::vector<int> earNext;
+        std::vector<int> earRing;
+
         for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
         {
           AppendTrianglesBatch& batch = this->TriangleBatches[batchId];
@@ -149,9 +177,52 @@ struct AppendTrianglesFunctor
           for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
           {
             const auto cellSize = offsets[cellId + 1] - offsets[cellId];
-            const auto cell = connectivity.begin() + offsets[cellId];
-            if (cellSize >= 3)
+            if (cellSize < 3)
             {
+              continue;
+            }
+            const auto cell = connectivity.begin() + offsets[cellId];
+            if (cellSize >= 5)
+            {
+              // Ear-clip triangulation for polygons with 5 or more vertices.
+              // Non-convex polygons (which the fan would tessellate incorrectly,
+              // producing overlapping or out-of-polygon triangles) are handled
+              // correctly here. The emit lambda below resolves polygon-local
+              // indices to absolute vertex IDs and computes per-edge polygon-
+              // boundary flags by checking adjacency in the original cell order.
+              // boundaryMask is the 3-bit polygon-boundary edge mask computed by
+              // the triangulator over the compacted ring (bit 0: edge A-B,
+              // bit 1: B-C, bit 2: C-A). a/b/c are polygon-local vertex indices.
+              auto emit = [&](int a, int b, int c, int boundaryMask)
+              {
+                const auto idA = cell[a];
+                const auto idB = cell[b];
+                const auto idC = cell[c];
+                *indexArray++ = static_cast<unsigned int>(idA + this->VOffset);
+                *indexArray++ = static_cast<unsigned int>(idB + this->VOffset);
+                *indexArray++ = static_cast<unsigned int>(idC + this->VOffset);
+                if (edgeArray)
+                {
+                  if (this->EdgeFlags)
+                  {
+                    int mask =
+                      this->EdgeFlags[idA] + this->EdgeFlags[idB] * 2 + this->EdgeFlags[idC] * 4;
+                    *edgeArray++ = static_cast<unsigned char>(boundaryMask & mask);
+                  }
+                  else
+                  {
+                    *edgeArray++ = static_cast<unsigned char>(boundaryMask);
+                  }
+                }
+              };
+              vtkPolygon::EarClipPolygon3D(
+                points, cell, static_cast<int>(cellSize), earPrev, earNext, earRing, emit);
+            }
+            else
+            {
+              // Fan path for cellSize 3 or 4. Correct for triangles and any
+              // simple quad (convex or not). Preserved unchanged from prior
+              // implementation, including the degenerate-triangle skip.
               const auto& id1 = cell[0];
               for (int i = 1; i < cellSize - 1; i++)
               {
