@@ -648,7 +648,7 @@ if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoke
     "-sALLOW_TABLE_GROWTH=1"
     "-sEXPORT_NAME=${_vtk_serdes_OUTPUT_NAME}"
     "-sENVIRONMENT=node,web"
-    "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS', 'ENV']")
+    "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS', 'ENV', 'specialHTMLTargets']")
   if (CMAKE_SIZEOF_VOID_P EQUAL "8")
     list(APPEND emscripten_link_options
       "-sMAXIMUM_MEMORY=16GB")
