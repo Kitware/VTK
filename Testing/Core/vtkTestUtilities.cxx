@@ -621,10 +621,24 @@ const char* GetArrayName(vtkAbstractArray* array)
 //----------------------------------------------------------------------------
 bool ArrayErrorHandler(vtkAbstractArray* array1, vtkAbstractArray* array2)
 {
-  if (!array1 || !array2)
+  if (!array1 && array2)
   {
-    vtkLog(ERROR, "Unexpected nullptr array pointer.");
+    vtkLog(ERROR,
+      "Unexpected nullptr array pointer in first operand when comparing to array \" "
+        << array2->GetName() << "\"");
     return false;
+  }
+  if (array1 && !array2)
+  {
+    vtkLog(ERROR,
+      "Unexpected nullptr array pointer in second operand when comparing array named \""
+        << array1->GetName() << "\"");
+    return false;
+  }
+  if (!array1 && !array2)
+  {
+    vtkLog(WARNING, "Both arrays are nullptr. Considering them identical.");
+    return true;
   }
 
   if (array1->GetNumberOfComponents() != array2->GetNumberOfComponents())
