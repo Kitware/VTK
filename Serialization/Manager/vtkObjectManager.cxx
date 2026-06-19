@@ -109,7 +109,8 @@ std::size_t vtkObjectManager::GetTotalVTKDataObjectMemoryUsage()
   {
     if (auto dobj = vtkDataObject::SafeDownCast(iter.second))
     {
-      result += dobj->GetActualMemorySize() * 1000;
+      // GetActualMemorySize() reports kibibytes; convert to bytes.
+      result += dobj->GetActualMemorySize() * 1024;
     }
   }
   return result;
