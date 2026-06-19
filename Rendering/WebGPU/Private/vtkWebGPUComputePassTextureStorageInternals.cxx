@@ -200,10 +200,12 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTexture(std::size_t te
     texture->GetMode(), textureLabel);
   int mipLevelCount = texture->GetMipLevelCount();
 
-  wgpu::Extent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
+  WGPUExtent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
-  this->WebGPUTextures[textureIndex] = this->ParentPassWGPUConfiguration->CreateTexture(
-    extents, dimension, format, usage, mipLevelCount, textureLabel.c_str()));
+  this->WebGPUTextures[textureIndex] =
+    wgpu::Texture(this->ParentPassWGPUConfiguration->CreateTexture(extents,
+      static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
+      static_cast<WGPUTextureUsage>(usage), mipLevelCount, textureLabel.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -390,15 +392,18 @@ wgpu::TextureView vtkWebGPUComputePassTextureStorageInternals::CreateWebGPUTextu
   int baseMipLevel = textureView->GetBaseMipLevel();
   int mipLevelCount = textureView->GetMipLevelCount();
 
-  return this->ParentPassWGPUConfiguration->CreateView(wgpuTexture, textureViewDimension,
-    textureViewAspect, textureViewFormat, baseMipLevel, mipLevelCount, textureViewLabel.c_str());
+  return this->ParentPassWGPUConfiguration->CreateView(wgpuTexture.Get(),
+    static_cast<WGPUTextureViewDimension>(textureViewDimension),
+    static_cast<WGPUTextureAspect>(textureViewAspect),
+    static_cast<WGPUTextureFormat>(textureViewFormat), baseMipLevel, mipLevelCount,
+    textureViewLabel.c_str());
 }
 
 //------------------------------------------------------------------------------
 int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
-  if (renderTexture == nullptr || renderTexture->GetWebGPUTexture().Get() == nullptr)
+  if (renderTexture == nullptr || renderTexture->GetWebGPUTexture() == nullptr)
   {
     vtkLog(ERROR,
       "Render texture with label \""
@@ -423,8 +428,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
 int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture)
 {
-  wgpu::Extent3D textureExtents = { texture->GetWidth(), texture->GetHeight(),
-    texture->GetDepth() };
+  WGPUExtent3D textureExtents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
   if (!this->CheckTextureCorrectness(texture))
   {
@@ -449,8 +453,9 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         texture->GetDimension());
     int mipLevelCount = texture->GetMipLevelCount();
 
-    wgpuTexture = this->ParentPassWGPUConfiguration->CreateTexture(
-      textureExtents, dimension, format, textureUsage, mipLevelCount, textureLabel.c_str());
+    wgpuTexture = wgpu::Texture(this->ParentPassWGPUConfiguration->CreateTexture(textureExtents,
+      static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
+      static_cast<WGPUTextureUsage>(textureUsage), mipLevelCount, textureLabel.c_str()));
 
     texture->SetByteSize(textureExtents.width * textureExtents.height *
       textureExtents.depthOrArrayLayers * texture->GetBytesPerPixel());
@@ -676,7 +681,8 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
     this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
   }
 
-  this->RenderTexturesToWebGPUTexture[renderTexture] = renderTexture->GetWebGPUTexture();
+  this->RenderTexturesToWebGPUTexture[renderTexture] =
+    wgpu::Texture(renderTexture->GetWebGPUTexture());
 }
 
 //------------------------------------------------------------------------------
@@ -861,7 +867,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
 
   // Submitting the command
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
-  this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
+  wgpu::Device(this->ParentPassWGPUConfiguration->GetDevice()).GetQueue().Submit(1, &commandBuffer);
 
   auto bufferMapCallback = [](
                              wgpu::MapAsyncStatus status, wgpu::StringView message, void* userdata2)

@@ -33,7 +33,7 @@ public:
     {
       data.push_back(value);
     }
-    this->WGPUConfiguration->WriteBuffer(this->Buffer, this->ByteOffset, data.data(),
+    this->WGPUConfiguration->WriteBuffer(this->Buffer.Get(), this->ByteOffset, data.data(),
       data.size() * srcArray->GetDataTypeSize(), description);
   }
 
