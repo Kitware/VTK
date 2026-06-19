@@ -508,8 +508,9 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
             continue;
           }
           this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
-          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(), this->Scalars, value,
-            GenerateTriangles, lOutputPolyhedronPolySize, lIntersectedEdges);
+          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(),
+            this->Input->GetPoints()->GetData(), this->Scalars, value, GenerateTriangles,
+            lOutputPolyhedronPolySize, lIntersectedEdges);
           size_t edgeOffset = 0;
           for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
           {
@@ -667,8 +668,9 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
             continue;
           }
           this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
-          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(), this->Scalars, value,
-            GenerateTriangles, lOutputPolyhedronPolySize, lIntersectedEdges);
+          vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(),
+            this->Input->GetPoints()->GetData(), this->Scalars, value, GenerateTriangles,
+            lOutputPolyhedronPolySize, lIntersectedEdges);
           size_t edgeOffset = 0;
           for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
           {

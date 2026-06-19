@@ -45,13 +45,18 @@ Point indices:                       Face indices:
 #define FACES 6
 #define NPOINTS (CORNERS + EDGES + FACES)
 
+// Faces are wound so that each face normal (right-hand rule over the listed
+// vertex order) points outward from the cell. vtkPolyhedron contouring and
+// clipping rely on consistent outward face winding; an earlier version of
+// this table wound five of the six faces inward, which produced
+// self-intersecting iso-polygons on the alternating-scalar field below.
 constexpr int Faces[FACES][8] = {
-  { 0, 8, 1, 17, 5, 12, 4, 16 },
-  { 1, 9, 2, 18, 6, 13, 5, 17 },
-  { 2, 10, 3, 19, 7, 14, 6, 18 },
-  { 3, 11, 0, 16, 4, 15, 7, 19 },
+  { 16, 4, 12, 5, 17, 1, 8, 0 },
+  { 17, 5, 13, 6, 18, 2, 9, 1 },
+  { 18, 6, 14, 7, 19, 3, 10, 2 },
+  { 19, 7, 15, 4, 16, 0, 11, 3 },
   { 0, 8, 1, 9, 2, 10, 3, 11 },
-  { 4, 12, 5, 13, 6, 14, 7, 15 },
+  { 15, 7, 14, 6, 13, 5, 12, 4 },
 };
 
 constexpr double Points[CORNERS + EDGES + FACES][3] = {
