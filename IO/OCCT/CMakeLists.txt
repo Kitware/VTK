@@ -6,6 +6,7 @@ vtk_module_find_package(PRIVATE_IF_SHARED
 
 if (OpenCASCADE_VERSION VERSION_GREATER_EQUAL "7.8.0")
   set(opencascade_req_targets
+    TKBinXCAF
     TKDESTEP
     TKDEIGES
     TKernel
@@ -40,6 +41,7 @@ endif ()
 vtk_module_add_module(VTK::IOOCCT
   CLASSES
     vtkOCCTReader
+    vtkOCCTPDCReader
 )
 
 vtk_module_link(VTK::IOOCCT

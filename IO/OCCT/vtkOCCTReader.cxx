@@ -525,7 +525,7 @@ int vtkOCCTReader::RequestData(
 void vtkOCCTReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? "(none)" : this->FileName) << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << "\n";
   os << indent << "LinearDeflection: " << this->LinearDeflection << "\n";
   os << indent << "AngularDeflection: " << this->AngularDeflection << "\n";
   os << indent << "RelativeDeflection: " << (this->RelativeDeflection ? "true" : "false") << "\n";

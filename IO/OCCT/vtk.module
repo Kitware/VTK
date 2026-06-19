@@ -14,6 +14,7 @@ SPDX_COPYRIGHT_TEXT
   Copyright 2021-2022 Michael Migliore, Mathieu Westphal
 DEPENDS
   VTK::CommonExecutionModel
+  VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
