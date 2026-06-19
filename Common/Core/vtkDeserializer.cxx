@@ -207,7 +207,13 @@ vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
         !strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
       {
         isDisabledOverrideClass = true;
+        break;
       }
+    }
+    if (isDisabledOverrideClass)
+    {
+      // No need to keep scanning factories once a disabled override is found.
+      break;
     }
   }
   if (isDisabledOverrideClass)
