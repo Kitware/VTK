@@ -203,7 +203,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTexture(std::size_t te
   wgpu::Extent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
   this->WebGPUTextures[textureIndex] = this->ParentPassWGPUConfiguration->CreateTexture(
-    extents, dimension, format, usage, mipLevelCount, textureLabel.c_str());
+    extents, dimension, format, usage, mipLevelCount, textureLabel.c_str()));
 }
 
 //------------------------------------------------------------------------------
