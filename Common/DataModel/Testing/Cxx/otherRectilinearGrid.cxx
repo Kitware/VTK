@@ -6,23 +6,88 @@
 // this program tests vtkRectilinearGrid
 
 #include "vtkCell.h"
-#include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkLongArray.h"
+#include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
+#include "vtkTestUtilities.h"
 
+#include <cstdlib>
 #include <sstream>
 
 #include <iostream>
 
+namespace
+{
+// check structured coordinate computation on a grid.
+bool CheckStructuredCoordinate(
+  double pick[3], vtkRectilinearGrid* grid, int expectedIJK[3], double expectedPCoord[3])
+{
+  vtkLogScopeFunction(INFO);
+  double pcoord[3];
+  int ijk[3];
+  grid->ComputeStructuredCoordinates(static_cast<const double*>(pick), ijk, pcoord);
+  bool res = true;
+  for (int axis = 0; axis < 3; axis++)
+  {
+    bool ijkCheck = expectedIJK[axis] == ijk[axis];
+    vtkLogIf(ERROR, !ijkCheck, << "Wrong structured coordinate for axis " << axis << ". "
+                               << ijk[axis] << " instead of " << expectedIJK[axis]);
+    res &= ijkCheck;
+
+    bool pcoordCheck = vtkMathUtilities::FuzzyCompare(pcoord[axis], expectedPCoord[axis]);
+    vtkLogIf(ERROR, !pcoordCheck, << "Wrong parametric coordinate for axis " << axis << ". "
+                                  << pcoord[axis] << " instead of " << expectedPCoord[axis]);
+    res &= pcoordCheck;
+  }
+
+  return res;
+}
+
+bool TestStructuredCoordinates(vtkRectilinearGrid* grid)
+{
+  double pick[3] = { 0, 0, 0 };
+  int expectedIJK[3] = { 0, 0, 0 };
+  double expectedPCoord[3] = { 0, 0, 0 };
+  bool structCheck = ::CheckStructuredCoordinate(pick, grid, expectedIJK, expectedPCoord);
+
+  if (grid->GetXCoordinates()->GetNumberOfTuples() > 1)
+  {
+    // exact point belongs to previous cell
+    pick[0] = 5;
+    expectedIJK[0] = pick[0] - 1;
+    expectedPCoord[0] = 1.;
+  }
+
+  if (grid->GetYCoordinates()->GetNumberOfTuples() > 1)
+  {
+    // last point is still in the grid
+    pick[1] = grid->GetYCoordinates()->GetTuple1(grid->GetYCoordinates()->GetNumberOfValues() - 1);
+    expectedIJK[1] = pick[1] - 1;
+    expectedPCoord[1] = 1.;
+  }
+
+  if (grid->GetZCoordinates()->GetNumberOfTuples() > 1)
+  {
+    // pick between grid point to check pcoord
+    pick[2] = 2.3;
+    expectedIJK[2] = 2;
+    expectedPCoord[2] = 0.3;
+  }
+  structCheck &= ::CheckStructuredCoordinate(pick, grid, expectedIJK, expectedPCoord);
+
+  return structCheck;
+}
+}
+
 int test_rg3d(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i, j, k;
   // actual test
   strm << "Testing vtkRectilinearGrid 3D" << std::endl;
@@ -36,8 +101,11 @@ int test_rg3d(ostream& strm)
   }
 
   vtkNew<vtkDoubleArray> xdata;
+  xdata->SetName("x");
   vtkNew<vtkDoubleArray> ydata;
+  ydata->SetName("y");
   vtkNew<vtkDoubleArray> zdata;
+  zdata->SetName("z");
 
   for (i = 0; i < 20; i++)
   {
@@ -58,6 +126,7 @@ int test_rg3d(ostream& strm)
   }
 
   vtkNew<vtkShortArray> shortScalars3D;
+  shortScalars3D->SetName("scalars");
   shortScalars3D->SetNumberOfComponents(3);
   shortScalars3D->SetNumberOfTuples(20 * 20 * 20);
 
@@ -80,15 +149,21 @@ int test_rg3d(ostream& strm)
 
   strm << "rg3D:" << *rg3D;
 
+  bool res = ::TestStructuredCoordinates(rg3D);
+
   // Test shallow copy
   vtkNew<vtkRectilinearGrid> scrg3D;
   scrg3D->ShallowCopy(rg3D);
   strm << "ShallowCopy(rg3D):" << *scrg3D;
 
+  res &= vtkTestUtilities::CompareDataObjects(rg3D, scrg3D);
+
   // Test deep copy
   vtkNew<vtkRectilinearGrid> dcrg3D;
   dcrg3D->DeepCopy(rg3D);
   strm << "DeepCopy(rg3D):" << *dcrg3D;
+
+  res &= vtkTestUtilities::CompareDataObjects(rg3D, dcrg3D);
 
   // Test GetCell
   vtkNew<vtkIdList> ids;
@@ -189,11 +264,12 @@ int test_rg3d(ostream& strm)
 
   strm << "GetActualMemorySize(rg3D): " << rg3D->GetActualMemorySize() << std::endl;
 
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg2d_xy(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid 2D (xy)" << std::endl;
@@ -236,6 +312,8 @@ int test_rg2d_xy(ostream& strm)
   }
 
   rg2Dxy->GetPointData()->SetScalars(shortScalars2D);
+
+  bool res = ::TestStructuredCoordinates(rg2Dxy);
 
   // Test GetCell
   vtkNew<vtkIdList> ids;
@@ -352,11 +430,12 @@ int test_rg2d_xy(ostream& strm)
   strm << "GetActualMemorySize(rg2Dxy): " << rg2Dxy->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg2d_xz(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -374,6 +453,8 @@ int test_rg2d_xz(ostream& strm)
   rg2Dxz->SetDimensions(20, 1, 20);
   rg2Dxz->SetXCoordinates(xdata);
   rg2Dxz->SetZCoordinates(zdata);
+
+  bool res = ::TestStructuredCoordinates(rg2Dxz);
 
   if (rg2Dxz->GetCellSize(0) != 4)
   {
@@ -516,11 +597,12 @@ int test_rg2d_xz(ostream& strm)
   strm << "GetActualMemorySize(rg2Dxz): " << rg2Dxz->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg2d_yz(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i, j;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -538,6 +620,8 @@ int test_rg2d_yz(ostream& strm)
   rg2Dyz->SetDimensions(1, 20, 20);
   rg2Dyz->SetYCoordinates(ydata);
   rg2Dyz->SetZCoordinates(zdata);
+
+  bool res = ::TestStructuredCoordinates(rg2Dyz);
 
   if (rg2Dyz->GetCellSize(0) != 4)
   {
@@ -680,11 +764,12 @@ int test_rg2d_yz(ostream& strm)
   strm << "GetActualMemorySize(rg2Dyz): " << rg2Dyz->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg1d_x(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -699,6 +784,8 @@ int test_rg1d_x(ostream& strm)
 
   rg1Dx->SetDimensions(20, 1, 1);
   rg1Dx->SetXCoordinates(xdata);
+
+  bool res = ::TestStructuredCoordinates(rg1Dx);
 
   if (rg1Dx->GetCellSize(0) != 2)
   {
@@ -836,11 +923,12 @@ int test_rg1d_x(ostream& strm)
   strm << "GetActualMemorySize(rg1Dx): " << rg1Dx->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg1d_y(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -856,6 +944,8 @@ int test_rg1d_y(ostream& strm)
   rg1Dy->SetDimensions(1, 20, 1);
   rg1Dy->SetYCoordinates(ydata);
   strm << *rg1Dy;
+
+  bool res = ::TestStructuredCoordinates(rg1Dy);
 
   if (rg1Dy->GetCellSize(0) != 2)
   {
@@ -993,11 +1083,12 @@ int test_rg1d_y(ostream& strm)
   strm << "GetActualMemorySize(rg1Dy): " << rg1Dy->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg1d_z(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
   int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -1012,6 +1103,8 @@ int test_rg1d_z(ostream& strm)
 
   rg1Dz->SetDimensions(1, 1, 20);
   rg1Dz->SetZCoordinates(zdata);
+
+  bool res = ::TestStructuredCoordinates(rg1Dz);
 
   if (rg1Dz->GetCellSize(0) != 2)
   {
@@ -1149,11 +1242,13 @@ int test_rg1d_z(ostream& strm)
   strm << "GetActualMemorySize(rg1Dz): " << rg1Dz->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int test_rg0d(ostream& strm)
 {
+  vtkLogScopeFunction(INFO);
+  vtkLogScopeFunction(INFO);
   int i;
   // actual test
   strm << "Testing vtkRectilinearGrid" << std::endl;
@@ -1166,6 +1261,8 @@ int test_rg0d(ostream& strm)
     std::cerr << "vtkRectilinearGrid::GetCellSize(cellId) wrong for 0D rectilinear grids.\n";
     return 1;
   }
+
+  bool res = ::TestStructuredCoordinates(rg0D);
 
   vtkNew<vtkShortArray> shortScalars3D;
 
@@ -1248,7 +1345,7 @@ int test_rg0d(ostream& strm)
   strm << "GetActualMemorySize(rg0D): " << rg0D->GetActualMemorySize() << std::endl;
 
   strm << "Testing completed" << std::endl;
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int TestORG(ostream& strm)
