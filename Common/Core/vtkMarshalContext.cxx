@@ -120,7 +120,7 @@ void vtkMarshalContext::AddRegistrar(vtkMarshalContextRegistrarFunc registrar)
 //------------------------------------------------------------------------------
 bool vtkMarshalContext::CallRegistrars(void* ser, void* deser, void* invoker, const char** error)
 {
-  std::vector<vtkMarshalContextRegistrarFunc> SerDesRegistrars =
+  const std::vector<vtkMarshalContextRegistrarFunc>& SerDesRegistrars =
     vtkMarshalContext::GetSerDesRegistrars();
   for (auto registrar = SerDesRegistrars.begin(); registrar != SerDesRegistrars.end(); ++registrar)
   {
