@@ -436,7 +436,10 @@ void vtkMarshalContext::PopParent()
   {
     if (!childrenIter->second.empty())
     {
-      internals.Tree.emplace(parent, childrenIter->second);
+      // Assign (overwrite) rather than emplace: when a node is re-processed during
+      // an incremental update, emplace would be a no-op and keep the stale
+      // dependency set instead of the freshly-collected one.
+      internals.Tree[parent] = childrenIter->second;
     }
   }
   internals.Visited.erase(parent);
