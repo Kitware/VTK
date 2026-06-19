@@ -396,19 +396,11 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(
   {
     xPrev = scalars[j]->GetComponent(0, 0);
     xNext = scalars[j]->GetComponent(scalars[j]->GetNumberOfTuples() - 1, 0);
-    if (xNext < xPrev)
-    {
-      tmp = xNext;
-      xNext = xPrev;
-      xPrev = tmp;
-    }
     if (x[j] < xPrev || x[j] > xNext)
     {
       return 0;
     }
-    if (x[j] == xNext && dims[j] != 1)
     {
-      return 0;
     }
 
     for (i = 1; i < scalars[j]->GetNumberOfTuples(); i++)
