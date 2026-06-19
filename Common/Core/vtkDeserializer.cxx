@@ -69,9 +69,12 @@ vtkObjectBase* vtkDeserializer::ConstructObject(
   if (objectBase == nullptr)
   {
     std::ostringstream scNames;
-    std::copy(superClassNames.begin(), superClassNames.end() - 1,
-      std::ostream_iterator<std::string>(scNames, ", "));
-    scNames << superClassNames.back();
+    if (!superClassNames.empty())
+    {
+      std::copy(superClassNames.begin(), superClassNames.end() - 1,
+        std::ostream_iterator<std::string>(scNames, ", "));
+      scNames << superClassNames.back();
+    }
     vtkErrorMacro(<< "Constructor failed to create instance of " << className
                   << " with superClassNames : " << scNames.str());
   }
