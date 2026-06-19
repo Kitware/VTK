@@ -358,7 +358,7 @@ bool vtkMarshalContext::UnRegisterBlob(const std::string& hash)
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkTypeUInt8Array> vtkMarshalContext::GetBlob(
-  const std::string& hash, bool copy /*=false*/)
+  const std::string& hash, bool copy /*=true*/)
 {
   auto& internals = (*this->Internals);
   auto result = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());

@@ -511,7 +511,7 @@ std::vector<std::string> vtkObjectManager::GetBlobHashes(const std::vector<vtkTy
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkTypeUInt8Array> vtkObjectManager::GetBlob(
-  const std::string& hash, bool copy /*=false*/) const
+  const std::string& hash, bool copy /*=true*/) const
 {
   return this->Context->GetBlob(hash, copy);
 }

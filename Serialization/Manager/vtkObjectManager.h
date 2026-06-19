@@ -128,11 +128,15 @@ public:
 
   /**
    * Returns a blob stored at `hash`.
-   * If `copy` is `true`, a copy of the blob is returned.
-   * If `copy` is `false`, the blob pointer is set in the array using `vtkTypeUInt8Array::SetArray`
-   * with the save flag set to `1`.
+   * If `copy` is `true` (the default), a copy of the blob is returned and the
+   * caller owns it independently of this manager.
+   * If `copy` is `false`, the returned array aliases the manager-owned buffer via
+   * `vtkTypeUInt8Array::SetArray` with the save flag set to `1`; it does not take
+   * ownership. The caller must stop using the returned array once the blob is
+   * unregistered or the manager is destroyed, either of which leaves the array
+   * dangling.
    */
-  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = false) const;
+  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = true) const;
 
   /**
    * Specifies a `blob` for `hash`. Returns `true` if the `blob` is valid and successfully
