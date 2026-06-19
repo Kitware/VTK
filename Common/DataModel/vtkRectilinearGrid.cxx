@@ -301,7 +301,7 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* cell, vtkGenericCel
 {
   int loc[3];
 
-  if (this->ComputeStructuredCoordinates(x, loc, pcoords) == 0)
+  if (this->ComputeStructuredCoordinates(static_cast<const double*>(x), loc, pcoords) == 0)
   {
     return -1;
   }
