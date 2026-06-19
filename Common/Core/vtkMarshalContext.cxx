@@ -185,14 +185,16 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
     else
     {
       // Here `stateIter` refers to the existing state with the same identifier.
-      // add all keys from `state` to the `stateIter`.
-      // Note: the `merge_objects` flag is set to true in order to merge lists from `state` into
-      // the `stateIter`.
+      // Copy every key from `state` into `stateIter`: keys present in `state`
+      // replace the existing value and keys only in `stateIter` are kept. Values
+      // (including arrays) are replaced wholesale, never concatenated, and with
+      // `merge_objects=false` nested objects are replaced rather than recursively
+      // merged.
       // Example:
-      // stateIter: {"Id: 1, "Color": "blue", "Points": [1, 2, 3], "Name": "foo"}
-      // state: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5]}
-      // After merge:
-      // stateIter: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5], "Name": "foo"}
+      // stateIter: {"Id": 1, "Color": "blue", "Points": [1, 2, 3], "Name": "foo"}
+      // state:     {"Id": 1, "Color": "red",  "Points": [4, 5]}
+      // After update:
+      // stateIter: {"Id": 1, "Color": "red",  "Points": [4, 5], "Name": "foo"}
       stateIter->update(state, /*merge_objects=*/false);
       return true;
     }
