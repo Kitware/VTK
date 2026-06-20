@@ -554,24 +554,25 @@ void vtkRenderMaterialLibrary::WriteFile(const std::string& filename, bool write
 }
 
 //------------------------------------------------------------------------------
-std::set<std::string> vtkRenderMaterialLibrary::GetMaterialNames()
+const std::set<std::string>& vtkRenderMaterialLibrary::GetMaterialNames() const
 {
   return this->Internal->NickNames;
 }
 
 //------------------------------------------------------------------------------
-std::string vtkRenderMaterialLibrary::LookupImplName(const std::string& nickname)
+std::string vtkRenderMaterialLibrary::LookupImplName(const std::string& nickname) const
 {
-  return this->Internal->ImplNames[nickname];
+  return this->Internal->ImplNames.at(nickname);
 }
 
 //------------------------------------------------------------------------------
 const TextureInfo* vtkRenderMaterialLibrary::GetTextureInfo(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
-  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  auto nicknameIt = this->Internal->TexturesFor.find(nickname);
+  if (nicknameIt != this->Internal->TexturesFor.end())
   {
-    NamedTextures& tsForNickname = this->Internal->TexturesFor[nickname];
+    const NamedTextures& tsForNickname = nicknameIt->second;
     auto it = tsForNickname.find(varname);
     if (it != tsForNickname.end())
     {
@@ -583,7 +584,7 @@ const TextureInfo* vtkRenderMaterialLibrary::GetTextureInfo(
 
 //------------------------------------------------------------------------------
 vtkTexture* vtkRenderMaterialLibrary::GetTexture(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
   if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
   {
@@ -594,7 +595,7 @@ vtkTexture* vtkRenderMaterialLibrary::GetTexture(
 
 //------------------------------------------------------------------------------
 std::string vtkRenderMaterialLibrary::GetTextureName(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
   if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
   {
@@ -605,7 +606,7 @@ std::string vtkRenderMaterialLibrary::GetTextureName(
 
 //------------------------------------------------------------------------------
 std::string vtkRenderMaterialLibrary::GetTextureFilename(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
   if (const TextureInfo* texInfo = this->GetTextureInfo(nickname, varname))
   {
@@ -616,11 +617,12 @@ std::string vtkRenderMaterialLibrary::GetTextureFilename(
 
 //------------------------------------------------------------------------------
 std::vector<double> vtkRenderMaterialLibrary::GetDoubleShaderVariable(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
-  if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
+  auto nicknameIt = this->Internal->VariablesFor.find(nickname);
+  if (nicknameIt != this->Internal->VariablesFor.end())
   {
-    NamedVariables vsForNickname = this->Internal->VariablesFor[nickname];
+    const NamedVariables& vsForNickname = nicknameIt->second;
     auto it = vsForNickname.find(varname);
     if (it != vsForNickname.end())
     {
@@ -632,12 +634,13 @@ std::vector<double> vtkRenderMaterialLibrary::GetDoubleShaderVariable(
 
 //------------------------------------------------------------------------------
 std::vector<std::string> vtkRenderMaterialLibrary::GetDoubleShaderVariableList(
-  const std::string& nickname)
+  const std::string& nickname) const
 {
   std::vector<std::string> variableNames;
-  if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
+  auto nicknameIt = this->Internal->VariablesFor.find(nickname);
+  if (nicknameIt != this->Internal->VariablesFor.end())
   {
-    for (auto& v : this->Internal->VariablesFor[nickname])
+    for (const auto& v : nicknameIt->second)
     {
       variableNames.push_back(v.first);
     }
@@ -646,12 +649,13 @@ std::vector<std::string> vtkRenderMaterialLibrary::GetDoubleShaderVariableList(
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> vtkRenderMaterialLibrary::GetTextureList(const std::string& nickname)
+std::vector<std::string> vtkRenderMaterialLibrary::GetTextureList(const std::string& nickname) const
 {
   std::vector<std::string> texNames;
-  if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
+  auto nicknameIt = this->Internal->TexturesFor.find(nickname);
+  if (nicknameIt != this->Internal->TexturesFor.end())
   {
-    for (auto& v : this->Internal->TexturesFor[nickname])
+    for (const auto& v : nicknameIt->second)
     {
       texNames.push_back(v.first);
     }
@@ -661,7 +665,7 @@ std::vector<std::string> vtkRenderMaterialLibrary::GetTextureList(const std::str
 
 //------------------------------------------------------------------------------
 const std::map<std::string, vtkRenderMaterialLibrary::ParametersMap>&
-vtkRenderMaterialLibrary::GetParametersDictionary()
+vtkRenderMaterialLibrary::GetParametersDictionary() const
 {
   static std::map<std::string, vtkRenderMaterialLibrary::ParametersMap> empty;
   return empty;

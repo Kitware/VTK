@@ -132,7 +132,7 @@ void vtkANARIMaterialLibrary::AddShaderVariable(
 
 //------------------------------------------------------------------------------
 const std::map<std::string, vtkANARIMaterialLibrary::ParametersMap>&
-vtkANARIMaterialLibrary::GetParametersDictionary()
+vtkANARIMaterialLibrary::GetParametersDictionary() const
 {
   // ANARI material dictionary based on supported material types
   // ANARI supports physicallyBased and matte materials via KHR extensions

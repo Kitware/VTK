@@ -67,7 +67,7 @@ public:
    * Get the set of all material nicknames currently in the library.
    * @return Set of material nickname strings
    */
-  std::set<std::string> GetMaterialNames();
+  const std::set<std::string>& GetMaterialNames() const;
 
   /**
    * Look up the implementation name for a material nickname.
@@ -75,14 +75,14 @@ public:
    * @param nickname The user-facing material name
    * @return The implementation/type name for the material
    */
-  std::string LookupImplName(const std::string& nickname);
+  std::string LookupImplName(const std::string& nickname) const;
 
   /**
    * Get the list of double-valued shader variables for a material.
    * @param nickname The material to query
    * @return Vector of variable names
    */
-  std::vector<std::string> GetDoubleShaderVariableList(const std::string& nickname);
+  std::vector<std::string> GetDoubleShaderVariableList(const std::string& nickname) const;
 
   /**
    * Get the value of a double shader variable for a material.
@@ -91,14 +91,14 @@ public:
    * @return Vector of double values for the variable
    */
   virtual std::vector<double> GetDoubleShaderVariable(
-    const std::string& nickname, const std::string& varname);
+    const std::string& nickname, const std::string& varname) const;
 
   /**
    * Get the list of texture variables for a material.
    * @param nickname The material to query
    * @return Vector of texture variable names
    */
-  std::vector<std::string> GetTextureList(const std::string& nickname);
+  std::vector<std::string> GetTextureList(const std::string& nickname) const;
 
   /**
    * Get a texture object for a material variable.
@@ -106,7 +106,7 @@ public:
    * @param varname The texture variable name
    * @return Pointer to vtkTexture, or nullptr if not found
    */
-  vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
+  vtkTexture* GetTexture(const std::string& nickname, const std::string& varname) const;
 
   /**
    * Get texture information for a material variable.
@@ -115,7 +115,7 @@ public:
    * @return Pointer to TextureInfo structure, or nullptr if not found
    */
   virtual const TextureInfo* GetTextureInfo(
-    const std::string& nickname, const std::string& varname);
+    const std::string& nickname, const std::string& varname) const;
 
   /**
    * Get the registered name of a texture variable.
@@ -123,7 +123,7 @@ public:
    * @param varname The texture variable name
    * @return The texture name string
    */
-  std::string GetTextureName(const std::string& nickname, const std::string& varname);
+  std::string GetTextureName(const std::string& nickname, const std::string& varname) const;
 
   /**
    * Get the filename path of a texture variable.
@@ -131,7 +131,7 @@ public:
    * @param varname The texture variable name
    * @return The texture file path string
    */
-  std::string GetTextureFilename(const std::string& nickname, const std::string& varname);
+  std::string GetTextureFilename(const std::string& nickname, const std::string& varname) const;
 
   /**
    * Add a new material to the library or replace an existing one.
@@ -245,7 +245,7 @@ protected:
   bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
   bool InternalParseMTL(const char* filename, bool fromfile, std::istream* doc);
 
-  virtual const std::map<std::string, ParametersMap>& GetParametersDictionary();
+  virtual const std::map<std::string, ParametersMap>& GetParametersDictionary() const;
 
   /**
    * Convert a file path to a texture name by extracting the filename without extension.
@@ -264,8 +264,8 @@ protected:
   vtkRenderMaterialLibrary();
   ~vtkRenderMaterialLibrary() override;
 
-  virtual const char* GetFamilyName() { return "Generic"; }
-  virtual const char* GetAcceptedFamilyName() { return nullptr; }
+  virtual const char* GetFamilyName() const { return "Generic"; }
+  virtual const char* GetAcceptedFamilyName() const { return nullptr; }
   std::string InternalGetImplName(const std::string& nickname) const;
 
 private:

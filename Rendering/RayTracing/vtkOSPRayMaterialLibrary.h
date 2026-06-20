@@ -62,17 +62,18 @@ public:
    * Returns a uniform variable, resolving OSPRay parameter name aliases.
    */
   std::vector<double> GetDoubleShaderVariable(
-    const std::string& nickname, const std::string& varname);
+    const std::string& nickname, const std::string& varname) const override;
 
   /**
    * Returns the texture information, resolving OSPRay parameter name aliases.
    */
-  const TextureInfo* GetTextureInfo(const std::string& nickname, const std::string& varname);
+  const TextureInfo* GetTextureInfo(
+    const std::string& nickname, const std::string& varname) const override;
 
   /**
    * Get the dictionary of all possible materials based on OSPRay documentation.
    */
-  const std::map<std::string, ParametersMap>& GetParametersDictionary() override;
+  const std::map<std::string, ParametersMap>& GetParametersDictionary() const override;
 
 protected:
   /**
@@ -90,8 +91,8 @@ protected:
   vtkOSPRayMaterialLibrary() = default;
   ~vtkOSPRayMaterialLibrary() override = default;
 
-  const char* GetFamilyName() override { return "OSPRay"; }
-  const char* GetAcceptedFamilyName() override { return "OSPRay"; }
+  const char* GetFamilyName() const override { return "OSPRay"; }
+  const char* GetAcceptedFamilyName() const override { return "OSPRay"; }
 
 private:
   vtkOSPRayMaterialLibrary(const vtkOSPRayMaterialLibrary&) = delete;

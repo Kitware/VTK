@@ -259,7 +259,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
 
 //------------------------------------------------------------------------------
 std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
   std::string implname = this->InternalGetImplName(nickname);
   std::string realname = ::FindRealName(implname, varname);
@@ -268,7 +268,7 @@ std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(
 
 //------------------------------------------------------------------------------
 const TextureInfo* vtkOSPRayMaterialLibrary::GetTextureInfo(
-  const std::string& nickname, const std::string& varname)
+  const std::string& nickname, const std::string& varname) const
 {
   std::string implname = this->InternalGetImplName(nickname);
   std::string realname = ::FindRealName(implname, varname);
@@ -277,7 +277,7 @@ const TextureInfo* vtkOSPRayMaterialLibrary::GetTextureInfo(
 
 //------------------------------------------------------------------------------
 const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
-vtkOSPRayMaterialLibrary::GetParametersDictionary()
+vtkOSPRayMaterialLibrary::GetParametersDictionary() const
 {
   // This is the material dictionary from OSPRay 1.8
   // If attribute name changes with new OSPRay version, keep old name aliases support in functions

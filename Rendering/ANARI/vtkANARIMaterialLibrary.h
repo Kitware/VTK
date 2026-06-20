@@ -62,7 +62,7 @@ public:
   /**
    * Get the dictionary of all possible materials based on ANARI documentation.
    */
-  const std::map<std::string, ParametersMap>& GetParametersDictionary() override;
+  const std::map<std::string, ParametersMap>& GetParametersDictionary() const override;
 
 protected:
   /**
@@ -75,8 +75,8 @@ protected:
   vtkANARIMaterialLibrary();
   ~vtkANARIMaterialLibrary() override;
 
-  const char* GetFamilyName() override { return "ANARI"; }
-  const char* GetAcceptedFamilyName() override { return "ANARI"; }
+  const char* GetFamilyName() const override { return "ANARI"; }
+  const char* GetAcceptedFamilyName() const override { return "ANARI"; }
 
 private:
   vtkANARIMaterialLibrary(const vtkANARIMaterialLibrary&) = delete;
