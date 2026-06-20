@@ -466,7 +466,7 @@ void vtkPolyLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   this->LineScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
   this->LineScalars->SetNumberOfTuples(2);
   vtkNew<vtkCellArray> lines;
-  vtkIdType numberOfCurrentLines, numberOfPreviousLines = 0;
+  vtkIdType numberOfCurrentLines = 0, numberOfPreviousLines = 0;
 
   const auto appendLines = [&]()
   {

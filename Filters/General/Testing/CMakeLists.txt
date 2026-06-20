@@ -24,8 +24,9 @@ vtk_module_test_data(
   Data/sphereMirror_0_0.vtp
   Data/sphereMirror_1_0.vtp
   Data/structGrid.vts
-  Data/waveletMaterial.vti
+  Data/UG_3D_traces.vtk
   Data/ugWithGlobalIds.vtu
+  Data/waveletMaterial.vti
   Data/BoxIncorrectConnectivity.vtp)
 
 if (NOT vtk_testing_cxx_disabled)
