@@ -48,7 +48,7 @@ if (VTK_ENABLE_OSPRAY)
     TestPathTracerBackground.cxx
     TestPathTracerGLTFImporter.cxx,NO_SERDES DATA{../Data/WaterBottle.glb}
     TestPathTracerLuminous.cxx
-    TestPathTracerMaterialLibrary.cxx,NO_VALID
+    TestOSPRayMaterialLibrary.cxx,NO_VALID
     TestPathTracerMaterials.cxx
     TestPathTracerShadows.cxx
     # Miscellaneous tests
