@@ -161,11 +161,15 @@ public:
 
   /**
    * Find and get the `blob` registered at `hash`.
-   * If `copy` is `true`, a copy of the blob is returned.
-   * If `copy` is `false`, the blob pointer is set in the array using `vtkTypeUInt8Array::SetArray`
-   * with the save flag set to `1`.
+   * If `copy` is `true` (the default), a copy of the blob is returned and the
+   * caller owns it independently of this context.
+   * If `copy` is `false`, the returned array aliases the context-owned buffer via
+   * `vtkTypeUInt8Array::SetArray` with the save flag set to `1`; it does not take
+   * ownership. The caller must stop using the returned array once the blob is
+   * unregistered, this context is destroyed, or `Blobs` is otherwise mutated, any
+   * of which leaves the array dangling.
    */
-  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = false);
+  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = true);
 
   /**
    * Return all direct dependencies of the object/state registered at `identifier`.

@@ -15,6 +15,7 @@
 // clang-format on
 
 #include <stack>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
@@ -37,6 +38,12 @@ public:
   nlohmann::json Empty;
   // The global store of weak references to objects.
   vtkMarshalContext::WeakObjectStore WeakObjects;
+  // Reverse index from a raw object pointer to its identifier, kept in sync with
+  // WeakObjects so that GetId()/HasId() are O(1) instead of an O(n) scan. Keyed by
+  // raw pointer; lookups are validated against WeakObjects to guard against stale
+  // entries (e.g. an address reused after a weak object expired without being
+  // explicitly unregistered).
+  std::unordered_map<vtkObjectBase*, vtkTypeUInt32> ObjectToId;
   // Object manager or deserializer will want to keep strong references to objects
   // that were registered through object manager or deserialized with the strong-ref attribute.
   vtkMarshalContext::StrongObjectStore StrongObjects;
@@ -113,7 +120,7 @@ void vtkMarshalContext::AddRegistrar(vtkMarshalContextRegistrarFunc registrar)
 //------------------------------------------------------------------------------
 bool vtkMarshalContext::CallRegistrars(void* ser, void* deser, void* invoker, const char** error)
 {
-  std::vector<vtkMarshalContextRegistrarFunc> SerDesRegistrars =
+  const std::vector<vtkMarshalContextRegistrarFunc>& SerDesRegistrars =
     vtkMarshalContext::GetSerDesRegistrars();
   for (auto registrar = SerDesRegistrars.begin(); registrar != SerDesRegistrars.end(); ++registrar)
   {
@@ -178,14 +185,16 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
     else
     {
       // Here `stateIter` refers to the existing state with the same identifier.
-      // add all keys from `state` to the `stateIter`.
-      // Note: the `merge_objects` flag is set to true in order to merge lists from `state` into
-      // the `stateIter`.
+      // Copy every key from `state` into `stateIter`: keys present in `state`
+      // replace the existing value and keys only in `stateIter` are kept. Values
+      // (including arrays) are replaced wholesale, never concatenated, and with
+      // `merge_objects=false` nested objects are replaced rather than recursively
+      // merged.
       // Example:
-      // stateIter: {"Id: 1, "Color": "blue", "Points": [1, 2, 3], "Name": "foo"}
-      // state: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5]}
-      // After merge:
-      // stateIter: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5], "Name": "foo"}
+      // stateIter: {"Id": 1, "Color": "blue", "Points": [1, 2, 3], "Name": "foo"}
+      // state:     {"Id": 1, "Color": "red",  "Points": [4, 5]}
+      // After update:
+      // stateIter: {"Id": 1, "Color": "red",  "Points": [4, 5], "Name": "foo"}
       stateIter->update(state, /*merge_objects=*/false);
       return true;
     }
@@ -234,11 +243,24 @@ bool vtkMarshalContext::RegisterObject(vtkObjectBase* objectBase, vtkTypeUInt32&
   auto objectIter = internals.WeakObjects.find(identifier);
   if (objectIter == internals.WeakObjects.end())
   {
+    internals.ObjectToId[objectBase] = identifier;
     return internals.WeakObjects.emplace(identifier, objectBase).second;
   }
   else
   {
+    // Drop the reverse mapping for the object previously held at this identifier,
+    // but only if it still points here (it may have been re-registered elsewhere).
+    auto* previous = objectIter->second.Get();
+    if (previous != nullptr && previous != objectBase)
+    {
+      auto reverseIter = internals.ObjectToId.find(previous);
+      if (reverseIter != internals.ObjectToId.end() && reverseIter->second == identifier)
+      {
+        internals.ObjectToId.erase(reverseIter);
+      }
+    }
     objectIter->second = objectBase;
+    internals.ObjectToId[objectBase] = identifier;
     return true;
   }
 }
@@ -246,7 +268,24 @@ bool vtkMarshalContext::RegisterObject(vtkObjectBase* objectBase, vtkTypeUInt32&
 //------------------------------------------------------------------------------
 bool vtkMarshalContext::UnRegisterObject(vtkTypeUInt32 identifier)
 {
-  return this->Internals->WeakObjects.erase(identifier) == 1;
+  auto& internals = (*this->Internals);
+  auto objectIter = internals.WeakObjects.find(identifier);
+  if (objectIter == internals.WeakObjects.end())
+  {
+    return false;
+  }
+  // Keep the reverse index in sync; only erase the entry if it still maps here.
+  auto* objectBase = objectIter->second.Get();
+  if (objectBase != nullptr)
+  {
+    auto reverseIter = internals.ObjectToId.find(objectBase);
+    if (reverseIter != internals.ObjectToId.end() && reverseIter->second == identifier)
+    {
+      internals.ObjectToId.erase(reverseIter);
+    }
+  }
+  internals.WeakObjects.erase(objectIter);
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -270,12 +309,19 @@ vtkTypeUInt32 vtkMarshalContext::GetId(vtkObjectBase* objectBase) const
     return 0;
   }
   auto& internals = (*this->Internals);
-  auto objectIter = std::find_if(internals.WeakObjects.begin(), internals.WeakObjects.end(),
-    [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item)
-    { return item.second == objectBase; });
-  if (objectIter != internals.WeakObjects.end())
+  auto reverseIter = internals.ObjectToId.find(objectBase);
+  if (reverseIter == internals.ObjectToId.end())
   {
-    return objectIter->first;
+    return 0;
+  }
+  // Validate against WeakObjects: the entry could be stale if the original object
+  // expired (weak pointer now null) and its address was reused by a different,
+  // unregistered object.
+  const vtkTypeUInt32 identifier = reverseIter->second;
+  auto objectIter = internals.WeakObjects.find(identifier);
+  if (objectIter != internals.WeakObjects.end() && objectIter->second.Get() == objectBase)
+  {
+    return identifier;
   }
   return 0;
 }
@@ -312,7 +358,7 @@ bool vtkMarshalContext::UnRegisterBlob(const std::string& hash)
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkTypeUInt8Array> vtkMarshalContext::GetBlob(
-  const std::string& hash, bool copy /*=false*/)
+  const std::string& hash, bool copy /*=true*/)
 {
   auto& internals = (*this->Internals);
   auto result = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
@@ -392,7 +438,10 @@ void vtkMarshalContext::PopParent()
   {
     if (!childrenIter->second.empty())
     {
-      internals.Tree.emplace(parent, childrenIter->second);
+      // Assign (overwrite) rather than emplace: when a node is re-processed during
+      // an incremental update, emplace would be a no-op and keep the stale
+      // dependency set instead of the freshly-collected one.
+      internals.Tree[parent] = childrenIter->second;
     }
   }
   internals.Visited.erase(parent);

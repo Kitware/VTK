@@ -109,7 +109,8 @@ std::size_t vtkObjectManager::GetTotalVTKDataObjectMemoryUsage()
   {
     if (auto dobj = vtkDataObject::SafeDownCast(iter.second))
     {
-      result += dobj->GetActualMemorySize() * 1000;
+      // GetActualMemorySize() reports kibibytes; convert to bytes.
+      result += dobj->GetActualMemorySize() * 1024;
     }
   }
   return result;
@@ -511,7 +512,7 @@ std::vector<std::string> vtkObjectManager::GetBlobHashes(const std::vector<vtkTy
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkTypeUInt8Array> vtkObjectManager::GetBlob(
-  const std::string& hash, bool copy /*=false*/) const
+  const std::string& hash, bool copy /*=true*/) const
 {
   return this->Context->GetBlob(hash, copy);
 }
