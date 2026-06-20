@@ -26,7 +26,7 @@ vec4 g_fragColor = vec4(0.0);
 /// Uniforms, attributes, and globals
 ///
 //////////////////////////////////////////////////////////////////////////////
-vec3 g_dataPos;
+vec3 g_dataPos = vec3(0.0);
 vec3 g_dirStep;
 vec4 g_srcColor;
 bool g_exit;
@@ -98,9 +98,9 @@ uniform bool in_clampDepthToBackface;
 
 uniform vec2 in_averageIPRange;
 uniform bool in_twoSidedLighting;
-vec3 g_xvec;
-vec3 g_yvec;
-vec3 g_zvec;
+vec3 g_xvec = vec3(0.0);
+vec3 g_yvec = vec3(0.0);
+vec3 g_zvec = vec3(0.0);
 uniform vec3 in_lightAmbientColor[1];
 uniform vec3 in_lightDiffuseColor[1];
 uniform vec3 in_lightSpecularColor[1];
@@ -116,6 +116,7 @@ const float g_opacityThreshold = 1.0 - 1.0 / 255.0;
 int clippingPlanesSize;
 vec3 objRayDir;
 mat4 textureToObjMat;
+mat4 g_texToView;
 
 //VTK::GradientCache::Dec
 
