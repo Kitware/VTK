@@ -545,8 +545,10 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
     }
     else
     {
-      // Hazardous...
-      vtkIdType tmp = facesLocationArray->GetOffsetsArray()->GetTuple1(finalCellId - 1);
+      // For non-polyhedron cells, set face location offset.
+      // When finalCellId is 0, there's no previous cell, so use 0.
+      vtkIdType tmp =
+        (finalCellId > 0) ? facesLocationArray->GetOffsetsArray()->GetTuple1(finalCellId - 1) : 0;
       facesLocationArray->GetOffsetsArray()->SetTuple1(finalCellId, tmp);
     }
 
