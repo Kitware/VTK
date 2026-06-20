@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h" // for SafeCastFromDouble
 #include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
@@ -166,9 +167,12 @@ struct vtkBucketList2D
   // BuildLocator() is invoked, otherwise the output is indeterminate.
   void GetBucketIndices(const double* x, int ij[2]) const
   {
-    // Compute point index. Make sure it lies within range of locator.
-    vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - bX) * fX));
-    vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
+    // Compute point index. SafeCastFromDouble clamps to the integer type limits
+    // (mapping NaN to 0) so casting a coordinate far outside the locator bounds
+    // (e.g. VTK_DOUBLE_MAX) is not undefined behavior. Make sure it then lies
+    // within the range of the locator.
+    vtkIdType tmp0 = vtkMathUtilities::SafeCastFromDouble<vtkIdType>((x[0] - bX) * fX);
+    vtkIdType tmp1 = vtkMathUtilities::SafeCastFromDouble<vtkIdType>((x[1] - bY) * fY);
 
     ij[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
     ij[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);

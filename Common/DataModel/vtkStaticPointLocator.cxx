@@ -331,7 +331,11 @@ vtkIdType BucketList<TIds>::FindClosestPoint(const double x[3])
         {
           ptId = ids[j].PtId;
           this->DataSet->GetPoint(ptId, pt);
-          if ((dist2 = vtkMath::Distance2BetweenPoints(x, pt)) < minDist2)
+          dist2 = vtkMath::Distance2BetweenPoints(x, pt);
+          // Always accept the first candidate found: for a query far outside
+          // the locator bounds (e.g. VTK_DOUBLE_MAX) the squared distance
+          // overflows to infinity, which would never compare less than minDist2.
+          if (closest < 0 || dist2 < minDist2)
           {
             closest = ptId;
             minDist2 = dist2;
@@ -345,8 +349,11 @@ vtkIdType BucketList<TIds>::FindClosestPoint(const double x[3])
   // Because of the relative location of the points in the buckets, the
   // point found previously may not be the closest point. We have to
   // search those bucket neighbors that might also contain the point.
+  // Skip this refinement when minDist2 is not finite (degenerate query far
+  // outside the bounds): the closest point is already arbitrary and the
+  // search radius would be infinite.
   //
-  if (minDist2 > 0.0)
+  if (minDist2 > 0.0 && vtkMath::IsFinite(minDist2))
   {
     this->GetOverlappingBuckets(&buckets, x, ijk, sqrt(minDist2), 0);
     for (i = 0; i < buckets.GetNumberOfNeighbors(); i++)

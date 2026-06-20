@@ -40,6 +40,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIncrementalPointLocator.h"
+#include "vtkMathUtilities.h" // for SafeCastFromDouble
 
 #include <algorithm> // for std::min/std::max
 
@@ -278,10 +279,13 @@ protected:
 
   void GetBucketIndices(const double* x, int ijk[3]) const
   {
-    // Compute point index. Make sure it lies within range of locator.
-    vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - this->BX) * this->FX));
-    vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - this->BY) * this->FY));
-    vtkIdType tmp2 = static_cast<vtkIdType>(((x[2] - this->BZ) * this->FZ));
+    // Compute point index. SafeCastFromDouble clamps to the integer type limits
+    // (mapping NaN to 0) so casting a coordinate far outside the locator bounds
+    // (e.g. VTK_DOUBLE_MAX) is not undefined behavior. Make sure it then lies
+    // within the range of the locator.
+    vtkIdType tmp0 = vtkMathUtilities::SafeCastFromDouble<vtkIdType>((x[0] - this->BX) * this->FX);
+    vtkIdType tmp1 = vtkMathUtilities::SafeCastFromDouble<vtkIdType>((x[1] - this->BY) * this->FY);
+    vtkIdType tmp2 = vtkMathUtilities::SafeCastFromDouble<vtkIdType>((x[2] - this->BZ) * this->FZ);
 
     ijk[0] = std::min(std::max<vtkIdType>(tmp0, 0), this->XD - 1);
     ijk[1] = std::min(std::max<vtkIdType>(tmp1, 0), this->YD - 1);
