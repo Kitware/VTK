@@ -91,11 +91,11 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBin
   if (deviceTextureRc)
   {
     // texture sampler
-    entries.emplace_back(
-      deviceTextureRc->MakeSamplerBindGroupLayoutEntry(3, wgpu::ShaderStage::Fragment));
+    entries.emplace_back(deviceTextureRc->MakeSamplerBindGroupLayoutEntry(
+      3, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
     // texture data
-    entries.emplace_back(
-      deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(4, wgpu::ShaderStage::Fragment));
+    entries.emplace_back(deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(
+      4, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
   }
   return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, entries, label);
 }
@@ -768,8 +768,10 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   if (this->Mapper2DStateData.Buffer == nullptr)
   {
     const auto label = "Mapper2DState-" + input->GetObjectDescription();
-    this->Mapper2DStateData.Buffer = wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
-      wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
+    this->Mapper2DStateData.Buffer =
+      wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
+        static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
+        false, label.c_str()));
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
     const auto& device = wgpuConfiguration->GetDevice();
     recreateMeshBindGroup = true;
@@ -857,8 +859,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
     this->State.Flags = (this->UseCellScalarMapping ? 1 : 0) << BIT_POSITION_USE_CELL_COLOR;
     this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << BIT_POSITION_USE_POINT_COLOR);
-    wgpuConfiguration->WriteBuffer(
-      this->Mapper2DStateData.Buffer, 0, &(this->State), sizeof(Mapper2DState), "Mapper2DState");
+    wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer.Get(), 0, &(this->State),
+      sizeof(Mapper2DState), "Mapper2DState");
   }
 
   if (this->MeshData.BuildTimeStamp < mapper->GetMTime() ||
@@ -890,8 +892,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     }
     this->State.Flags = (this->UseCellScalarMapping ? 1 : 0);
     this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << 1);
-    wgpuConfiguration->WriteBuffer(
-      this->Mapper2DStateData.Buffer, 0, &(this->State), sizeof(Mapper2DState), "Mapper2DState");
+    wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer.Get(), 0, &(this->State),
+      sizeof(Mapper2DState), "Mapper2DState");
     vtkDataArray* pointPositions = input->GetPoints()->GetData();
     // Transform the points, if necessary
     if (mapper->TransformCoordinate)
@@ -937,9 +939,10 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     if (this->AttributeDescriptorData.Buffer == nullptr)
     {
       recreateMeshBindGroup = true;
-      this->AttributeDescriptorData.Buffer = wgpuConfiguration->CreateBuffer(
-        sizeof(this->MeshArraysDescriptor), wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage,
-        false, meshAttrDescriptorLabel.c_str());
+      this->AttributeDescriptorData.Buffer =
+        wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
+          static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
+          false, meshAttrDescriptorLabel.c_str()));
       this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
     }
     if (requiredBufferSize != this->MeshData.Size)
@@ -953,8 +956,9 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     {
       recreateMeshBindGroup = true;
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
-      this->MeshData.Buffer = wgpuConfiguration->CreateBuffer(requiredBufferSize,
-        wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
+      this->MeshData.Buffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(requiredBufferSize,
+        static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
+        false, label.c_str()));
       this->MeshData.Size = requiredBufferSize;
     }
     using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
@@ -1050,7 +1054,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       // This means something was actually written into a WebGPU buffer.
       this->MeshData.BuildTimeStamp.Modified();
     }
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorData.Buffer, 0,
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorData.Buffer.Get(), 0,
       &this->MeshArraysDescriptor, sizeof(this->MeshArraysDescriptor),
       meshAttrDescriptorLabel.c_str());
     this->AttributeDescriptorData.BuildTimeStamp.Modified();
