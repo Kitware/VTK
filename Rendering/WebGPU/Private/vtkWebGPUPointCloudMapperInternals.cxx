@@ -119,9 +119,9 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   // Creating the buffer that will hold the width of the framebuffer for the fragment shader that
   // copies the point depth buffer into the depth buffer of the render window
   this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer =
-    wgpuRenderWindow->GetWGPUConfiguration()->CreateBuffer(sizeof(unsigned int),
-      wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform, false,
-      "Point cloud mapper - Copy depth to RenderWindow - Framebuffer width uniform buffer");
+    wgpu::Buffer(wgpuRenderWindow->GetWGPUConfiguration()->CreateBuffer(sizeof(unsigned int),
+      static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform), false,
+      "Point cloud mapper - Copy depth to RenderWindow - Framebuffer width uniform buffer"));
 
   wgpu::BindGroupLayout bgl = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
     {
@@ -154,7 +154,8 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   pipelineDesc.cFragment.entryPoint = "fragmentMain";
   // We are not going to use the color target but Dawn needs it
   pipelineDesc.cFragment.targetCount = 1;
-  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  pipelineDesc.cTargets[0].format =
+    wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSurfaceTextureFormat());
   // Not writing to the color attachment
   pipelineDesc.cTargets[0].writeMask = wgpu::ColorWriteMask::None;
 
@@ -184,7 +185,7 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
 
   wgpu::Device device = wgpuRenderWindow->GetDevice();
   wgpuRenderWindow->GetWGPUConfiguration()->WriteBuffer(
-    this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer, 0, (uint8_t*)&windowSize[0],
+    this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer.Get(), 0, (uint8_t*)&windowSize[0],
     sizeof(unsigned int));
 
   wgpu::CommandEncoderDescriptor encDesc;
@@ -200,7 +201,7 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   }
   {
     vtkScopedEncoderDebugGroup(
-      encoder, "Point cloud mapper - Copy point depth buffer to render window");
+      encoder.Get(), "Point cloud mapper - Copy point depth buffer to render window");
     encoder.SetPipeline(this->CopyDepthBufferPipeline.Pipeline);
     encoder.SetBindGroup(0, this->CopyDepthBufferPipeline.BindGroup);
     encoder.Draw(4);
@@ -209,7 +210,8 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
 
   wgpu::CommandBufferDescriptor cmdBufDesc;
   wgpu::CommandBuffer cmdBuffer = commandEncoder.Finish(&cmdBufDesc);
-  wgpuRenderWindow->FlushCommandBuffers(1, &cmdBuffer);
+  WGPUCommandBuffer rawCmdBuffer = cmdBuffer.Get();
+  wgpuRenderWindow->FlushCommandBuffers(1, &rawCmdBuffer);
 }
 
 //------------------------------------------------------------------------------
