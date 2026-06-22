@@ -340,7 +340,7 @@ public:
     lhs = newVal;                                                                                  \
     return lhs;                                                                                    \
   }                                                                                                \
-  friend VTK_ITER_INLINE APIType& operator Op(APIType& lhs, ComponentReference val) noexcept       \
+  friend VTK_ITER_INLINE APIType& operator Op(APIType & lhs, ComponentReference val) noexcept      \
   {                                                                                                \
     const APIType newVal = lhs ImplOp val;                                                         \
     lhs = newVal;                                                                                  \

@@ -313,9 +313,9 @@ vtkIdType BucketList2D<TIds>::FindClosestPoint(const double x[3])
             minDist2 = dist2;
           }
         } // for each point
-      }   // if points in bucket
-    }     // for each overlapping bucket
-  }       // if not identical point
+      } // if points in bucket
+    } // for each overlapping bucket
+  } // if not identical point
 
   return closest;
 }
@@ -449,9 +449,9 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
               refinedRadius2 = minDist2;
             }
           } // for each pt in bucket
-        }   // if ids
-      }     // if bucket is within the current best distance
-    }       // for each overlapping bucket
+        } // if ids
+      } // if bucket is within the current best distance
+    } // for each overlapping bucket
 
     // Don't want to check a smaller radius than we just checked so update
     // it appropriately
@@ -523,7 +523,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
           goto FOUND_N;
         }
       } // if points in bucket
-    }   // for unprocessed buckets
+    } // for unprocessed buckets
 
     level++;
     this->GetBucketNeighbors(&buckets, ij, this->Divisions, level);
@@ -562,7 +562,7 @@ FOUND_N:
           }
           jStart = 0;
         } // if points in bucket
-      }   // for unprocessed buckets
+      } // for unprocessed buckets
       iStart = 0;
 
       level++;
@@ -676,7 +676,7 @@ struct AnnulusIterator
           return (this->I + jOffset);
         }
       } // over I
-    }   // over J
+    } // over J
 
     i = j = (-1);
     return -1;
@@ -809,7 +809,7 @@ struct AnnulusIterator
           res.emplace_back(vtkDist2Tuple(ptId, d2));
         }
       } // if potential candidate
-    }   // for all points in this bin
+    } // for all points in this bin
 
     return maxR2;
   }
@@ -842,7 +842,7 @@ struct AnnulusIterator
       {
         res.emplace_back(ptId, d2);
       } // if within annulus footprint
-    }   // for all points in this bin
+    } // for all points in this bin
   }
 }; // AnnulusIterator
 
@@ -945,7 +945,7 @@ double BucketList2D<TIds>::FindNPointsInAnnulus(int N, const double x[3],
         aiter.AddPoints(i, j, binIdx, level, minR2, maxR2, results);
       }
     } // i-footprint
-  }   // j-footprint
+  } // j-footprint
 
   // Sort if requested
   if (sort)
@@ -1029,8 +1029,8 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
           } // for all points in bucket
         }
       } // if points in bucket
-    }   // i-footprint
-  }     // j-footprint
+    } // i-footprint
+  } // j-footprint
 }
 
 //------------------------------------------------------------------------------
@@ -1168,11 +1168,11 @@ int BucketList2D<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol
                   tMin = t;
                   bestPtId = pId;
                 } // point is within tolerance and closer
-              }   // over all points in bin
-            }     // if points in bin
-          }       // bucket not visited
-        }         // i bins
-      }           // j bins
+              } // over all points in bin
+            } // if points in bin
+          } // bucket not visited
+        } // i bins
+      } // j bins
 
       // Make sure to evaluate exit footprint as well. Must evaluate entrance
       // and exit of current voxel.
@@ -1207,7 +1207,7 @@ int BucketList2D<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol
       }
 
     } // for looking for valid intersected point
-  }   // if (vtkBox::IntersectBox(...))
+  } // if (vtkBox::IntersectBox(...))
 
   // Clean up and get out
   delete[] bucketHasBeenVisited;
@@ -1279,7 +1279,7 @@ double BucketList2D<TIds>::FindCloseNBoundedPoints(int N, const double x[3], vtk
           }
         }
       } // if points in bucket
-    }   // for buckets in this level
+    } // for buckets in this level
     level++;
     // As soon as N points in this level found, jump out.
     if (static_cast<int>(sortedPts.size()) >= N)
@@ -1315,8 +1315,8 @@ FOUND_N:
           }
         }
       } // if points in bucket
-    }   // for unprocessed buckets
-  }     // if more than N points
+    } // for unprocessed buckets
+  } // if more than N points
 
   // Now do final sort and find N closest, and if there are points located at
   // the same distance as the Nth point, include them too.
@@ -1581,8 +1581,8 @@ void BucketList2D<TIds>::GenerateRepresentation(int vtkNotUsed(level), vtkPolyDa
         }
 
       } // over negative faces
-    }   // over i divisions
-  }     // over j divisions
+    } // over i divisions
+  } // over j divisions
 
   pd->SetPoints(pts);
   pts->Delete();

@@ -134,8 +134,7 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    vtkErrorMacro("Array selected should be associated with vertex or "
-      << "edge data.");
+    vtkErrorMacro("Array selected should be associated with vertex or " << "edge data.");
     return 1;
   }
 

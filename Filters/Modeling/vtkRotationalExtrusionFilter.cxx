@@ -190,8 +190,8 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
           outCD->CopyData(cd, cellId, newCellId++);
         }
       } // if a vertex or polyVertex
-    }   // for all cells
-  }     // if there are verts generating lines
+    } // for all cells
+  } // if there are verts generating lines
   this->UpdateProgress(0.25);
   abort = this->CheckAbort();
 
@@ -296,10 +296,10 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
               }
               outCD->CopyData(cd, cellId, newCellId++);
             } // if boundary edge
-          }   // for each sub-edge
-        }     // for each edge
-      }       // for each polygon or triangle strip
-    }         // for all cells
+          } // for each sub-edge
+        } // for each edge
+      } // for each polygon or triangle strip
+    } // for all cells
 
     cellIds->Delete();
     cell->Delete();

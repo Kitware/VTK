@@ -78,8 +78,8 @@ struct Circle
           }
         }
       }); // end lambda
-  }       // Label pixels
-};        // Circle
+  } // Label pixels
+}; // Circle
 
 // This does the actual work: updates the vtkPline implicit function.
 // This in turn causes the pipeline to update and clip the object.

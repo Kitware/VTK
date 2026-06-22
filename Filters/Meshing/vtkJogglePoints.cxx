@@ -86,8 +86,8 @@ struct JoggleWorker
             xo[1] = x[1];
             xo[2] = x[2];
           } // if selected
-        }   // for all points in this batch
-      });   // lambda
+        } // for all points in this batch
+      }); // lambda
   }
 }; // JoggleWorker
 

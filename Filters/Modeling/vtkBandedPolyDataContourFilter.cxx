@@ -42,8 +42,7 @@ constexpr vtkIdType NO_INTERSECTION = -999;
 bool CellHasNonFiniteScalar(
   vtkDataArray* scalars, int component, vtkIdType npts, const vtkIdType* pts)
 {
-  return std::any_of(pts, pts + npts,
-    [scalars, component](vtkIdType id)
+  return std::any_of(pts, pts + npts, [scalars, component](vtkIdType id)
     { return !std::isfinite(scalars->GetComponent(id, component)); });
 }
 

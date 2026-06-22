@@ -262,7 +262,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
             newPolys->InsertNextCell(3, triPts);
             outCD->CopyData(inCD, inCellId, outCellId++);
           } // for each simplex
-        }   // triangulate polygon
+        } // triangulate polygon
       }
       output->SetPolys(newPolys);
     }

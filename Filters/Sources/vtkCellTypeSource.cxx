@@ -2013,8 +2013,8 @@ void vtkCellTypeSource::GenerateHighOrderHexes(
         }
         output->InsertNextCell(cellType, numPtsPerCell, conn.data());
       } // i
-    }   // j
-  }     // k
+    } // j
+  } // k
 }
 
 //------------------------------------------------------------------------------

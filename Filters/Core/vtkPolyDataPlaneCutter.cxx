@@ -398,15 +398,15 @@ struct ExtractLines
               edge.Data.LIdx = lineConnIdx++;
             } // if edge cut
 
-          }           // over all cell edges, with no more than 2 cuts
+          } // over all cell edges, with no more than 2 cuts
           if (arrays) // generate cell data if requested
           {
             arrays->Copy(cellId, lineNum);
           }
           lineNum++;
         } // if cell is cut
-      }   // for each cell in this batch
-    }     // for each batch of cells
+      } // for each cell in this batch
+    } // for each batch of cells
   }
 
   void Reduce() {}

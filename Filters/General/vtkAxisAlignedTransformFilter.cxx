@@ -157,8 +157,7 @@ std::map<int, std::function<std::pair<int, int>(int, int, int)>> Create2DHtgLut(
   using Axis = vtkAxisAlignedTransformFilter::Axis;
   using Angle = vtkAxisAlignedTransformFilter::Angle;
 
-  return { { ::HashLut(Axis::X, Axis::Z, Angle::ROT180),
-             [](int i, int j, int branchfactor)
+  return { { ::HashLut(Axis::X, Axis::Z, Angle::ROT180), [](int i, int j, int branchfactor)
              { return std::make_pair(i, branchfactor - 1 - j); } },
     { ::HashLut(Axis::X, Axis::Z, Angle::ROT270),
       [](int i, int j, int branchfactor) { return std::make_pair(i, branchfactor - 1 - j); } },

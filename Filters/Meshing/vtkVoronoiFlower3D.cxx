@@ -360,7 +360,7 @@ struct AGCompositor
           } // specified face type matches
           spokeNum++;
         } // if valid face
-      }   // for all hull faces
+      } // for all hull faces
 
       // Record information about the collected data.
       (*this->Info)[hull.PtId].NumLines = numOutputLines;
@@ -425,12 +425,12 @@ struct AGOutput : public VOutput
                 this->CellScalars[lineId] = this->ProduceCellScalar(
                   ptId, this->VC->Graph.Wheels[ptId], lineId, threadId, firstRandomScalar);
               } // if cell scalars
-            }   // for all spokes generated from this hull
-          }     // if any lines produced by hull
-        }       // for all points in this batch
-      }         // for all batches
-    }           // for all threads
-  }             // operator()
+            } // for all spokes generated from this hull
+          } // if any lines produced by hull
+        } // for all points in this batch
+      } // for all batches
+    } // for all threads
+  } // operator()
 
   // Driver function to output the adjacency graph. It operates on the classified spokes
   // and outputs interior, forward spokes.
@@ -484,7 +484,7 @@ struct AGOutput : public VOutput
     output->SetLines(lines);
 
   } // OutputAdjacencyGraph()
-};  // AGOutput
+}; // AGOutput
 
 // ============================================================================
 // For the OutputType == DELAUNAY, the filter composites the topological
@@ -641,7 +641,7 @@ struct DelCompositor
           }
 
         } // if valid hull point
-      }   // for all hull points
+      } // for all hull points
       (*this->Info)[ptId].NumTets = numTets;
     } // AddData()
   };
@@ -707,12 +707,12 @@ struct DelOutput : public VOutput
                 this->CellScalars[tetId] = this->ProduceCellScalar(
                   ptId, this->VC->Graph.Wheels[ptId], tetId, threadId, firstRandomScalar);
               } // if cell scalars
-            }   // for all tets generated from this hull
-          }     // if any tets produced by hull
-        }       // for all points in this batch
-      }         // for all batches
-    }           // for all threads
-  }             // operator()
+            } // for all tets generated from this hull
+          } // if any tets produced by hull
+        } // for all points in this batch
+      } // for all batches
+    } // for all threads
+  } // operator()
 
   // Driver function to output the Delaunay triangulation.
   static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
@@ -771,7 +771,7 @@ struct DelOutput : public VOutput
     tets->SetData(offsets, conn);
     output->SetCells(VTK_TETRA, tets);
   } // Execute()
-};  // DelOutput
+}; // DelOutput
 
 // ============================================================================
 // For the output types BOUNDARY, POLYGONAL_COMPLEX, and SURFACE_NET, the
@@ -979,8 +979,8 @@ struct SurfaceCompositor
               this->FaceConn.emplace_back(p.PtMap);
             }
           } // specified face type matches
-        }   // if valid hull point
-      }     // for all hull points
+        } // if valid hull point
+      } // for all hull points
 
       (*this->Info)[ptId].NumPts = numOutputPts;
       (*this->Info)[ptId].NumFaces = numOutputFaces;
@@ -1092,11 +1092,11 @@ struct SurfaceOutput : public PtsOutput
               this->CellScalars[faceId] = this->ProduceCellScalar(
                 ptId, this->VC->Graph.Wheels[ptId], faceId, threadId, firstRandomScalar);
             } // if cell scalars
-          }   // for all output cell primitives
-        }     // for all points in this batch
-      }       // for all batches
-    }         // for all threads
-  }           // operator()
+          } // for all output cell primitives
+        } // for all points in this batch
+      } // for all batches
+    } // for all threads
+  } // operator()
 
   // Driver function for producing output surface primitives.
   static void Execute(int faceType, vtkVoronoiFlower3D* filter, int batchSize,
@@ -1178,7 +1178,7 @@ struct SurfaceOutput : public PtsOutput
     output->SetPolys(polys);
 
   } // OutputSurface()
-};  // SurfaceOutput
+}; // SurfaceOutput
 
 // ============================================================================
 // For the OutputType == VORONOI, the filter composites boundary hull
@@ -1327,7 +1327,7 @@ struct PolyHCompositor
           vtkIdType p2 = hull.GetFace(p.Faces[2])->NeiId;
           this->TopoCoords.emplace_back(p0, p1, p2, ptId);
         } // if valid point
-      }   // for all hull points
+      } // for all hull points
 
       // Now output all of the Voronoi hull faces.
       int numFacePts;
@@ -1347,7 +1347,7 @@ struct PolyHCompositor
             this->CellConn.emplace_back(p.PtMap);
           }
         } // if valid face
-      }   // for all hull faces
+      } // for all hull faces
 
       (*this->Info)[ptId].NumPts = numHullPts;
       (*this->Info)[ptId].NumCells = 1;
@@ -1509,10 +1509,10 @@ struct PolyHOutput : public PtsOutput
               }
             }
           } // for all output polyhedral cell primitives
-        }   // for all points in this batch
-      }     // for all batches
-    }       // for all threads
-  }         // operator()
+        } // for all points in this batch
+      } // for all batches
+    } // for all threads
+  } // operator()
 
   // Driver function for polyhedral output.
   static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
@@ -1638,7 +1638,7 @@ struct PolyHOutput : public PtsOutput
     vtkSMPTools::For(0, voro->GetNumberOfThreads(), pout);
 
   } // OutputPolyH()
-};  // PolyHOutput
+}; // PolyHOutput
 
 } // anonymous namespace
 

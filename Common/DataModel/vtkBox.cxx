@@ -146,7 +146,7 @@ double vtkBox::EvaluateFunction(double x[3])
           dist = x[i] - maxP[i];
         }
         minDistance = std::max(dist, minDistance); // remember, it's negative
-      }                                            // if inside
+      } // if inside
     }
     else
     {
@@ -221,7 +221,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
         minAxis = i;
       }
     } // if inside
-  }   // for all coordinate directions
+  } // for all coordinate directions
 
   int index = loc[0] + 3 * loc[1] + 9 * loc[2];
 
@@ -614,8 +614,8 @@ vtkTypeBool vtkBox::IntersectWithPlane(double bounds[6], double origin[3], doubl
           return 1;
         }
       } // x
-    }   // y
-  }     // z
+    } // y
+  } // z
 
   return 0; // no intersection
 }
@@ -696,8 +696,8 @@ vtkTypeBool vtkBox::IntersectWithPlane(
         scalars[vertNum] = vtkPlane::Evaluate(n, origin, p[vertNum]);
         vertNum++;
       } // x
-    }   // y
-  }     // z
+    } // y
+  } // z
 
   // Intersect each of the twelve edges.
   int numInts = 0;

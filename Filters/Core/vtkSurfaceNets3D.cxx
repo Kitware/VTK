@@ -1117,7 +1117,7 @@ struct SurfaceNets
       }
 
     } // operator()
-  };  // GenerateQuadsImpl
+  }; // GenerateQuadsImpl
 
   // Produce the smoothing stencils for this voxel cell.
   struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
@@ -1197,7 +1197,7 @@ struct SurfaceNets
         }
       }
     } // operator()
-  };  // GenerateStencilImpl
+  }; // GenerateStencilImpl
 
   // Given a triad i,j,k return the voxel value. Note that the
   // triad i,j,k is shifted by 1 due to the padding of the image
@@ -1458,7 +1458,7 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ClassifyXEdges(
     {
       rowTriadPtr[i] = triad;
     } // if contour interacts with this triad
-  }   // for all triad-x-edges along this image x-edge
+  } // for all triad-x-edges along this image x-edge
 
   // The beginning and ending of intersections [xMin, xMax) along the edge is used
   // for computational trimming.
@@ -1628,7 +1628,7 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ProduceVoxelCases(
       eMD.NumQuads += SurfaceNets::GetNumberOfQuads(triadPtr[i]);
       eMD.NumStencilEdges += this->GetNumberOfStencilEdges(edgeCase, tableIndex, numPoints);
     } // if produces a point
-  }   // for all triads on this row
+  } // for all triads on this row
 
   // Update the edge trim
   eTrim.XMin = xMin;
@@ -1937,7 +1937,7 @@ struct NetsWorker
           this->Algo->ClassifyYZEdges(rowPtr, row, slice);
           rowPtr += this->Algo->Inc[Y];
         } // for all rows in this slice
-      }   // for all slices in this batch
+      } // for all slices in this batch
     }
   }; // Pass2 dispatch
 
@@ -1983,8 +1983,8 @@ struct NetsWorker
           for (vtkIdType row = rowStart; row < rowEnd; ++row)
           {
             this->Algo->BuildPointGeneratingEdgeRowXIndices(row, slice);
-          }                     // for all rows
-        }                       // if points are generated
+          } // for all rows
+        } // if points are generated
         sliceRow = sliceRowEnd; // advance sliceRow
       }
     }
@@ -2019,8 +2019,8 @@ struct NetsWorker
           for (vtkIdType row = rowStart; row < rowEnd; ++row)
           {
             this->Algo->GenerateOutput(row, slice);
-          }                     // for all rows
-        }                       // if points are generated
+          } // for all rows
+        } // if points are generated
         sliceRow = sliceRowEnd; // advance sliceRow
       }
     }

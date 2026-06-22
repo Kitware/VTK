@@ -115,7 +115,7 @@ struct MapDepthImage
           point[0] = result[0] / result[3]; // x
           point[1] = result[1] / result[3]; // y
           point[2] = result[2] / result[3]; // z
-        }                                   // transform this point
+        } // transform this point
       }
     }
   }

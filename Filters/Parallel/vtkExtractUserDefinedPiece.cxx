@@ -173,7 +173,7 @@ int vtkExtractUserDefinedPiece::RequestData(vtkInformation* vtkNotUsed(request),
       outCD->CopyData(cd, cellId, newCellId);
       newCellPts->Reset();
     } // satisfied thresholding
-  }   // for all cells
+  } // for all cells
 
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " number of cells.");
 

@@ -140,7 +140,7 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
         p2 = pts[edgeId + 1];
       }
     } // each interior edge
-  }   // each cell
+  } // each cell
 
   return 1;
 }

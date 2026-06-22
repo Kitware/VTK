@@ -237,7 +237,7 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       } // v
       break;
     } // case QUADRIC
-  }   //  switch (this->ClipType)
+  } //  switch (this->ClipType)
 
   return this->InsideOut;
 }
@@ -332,13 +332,13 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
           maxId[d] = cart[d];
         }
       } // d
-    }   // if (! this->IsClipped(inCursor))
+    } // if (! this->IsClipped(inCursor))
     else
     {
       // This tree root is clipped out, keep track of its global index
       clipped.insert(inIndex);
     } // else
-  }   // it
+  } // it
   // Set grid sizes
   outSize[0] = maxId[0] - minId[0] + 1;
   outSize[1] = maxId[1] - minId[1] + 1;
@@ -361,7 +361,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
       {
         origin[d] += scale[d] * minId[d];
       } // if (inSize[d] != outSize[d])
-    }   // d
+    } // d
     outputUHTG->GetOrigin(origin);
   }
   else
@@ -391,7 +391,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
         // Coordinate extent along d-axis is unchanged
         outCoords[d]->ShallowCopy(inCoords[d]);
       } // else
-    }   // d
+    } // d
   }
 
   // Second pass across tree roots: now compute clipped grid recursively
@@ -423,7 +423,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
       // Clip tree recursively
       this->RecursivelyProcessTree(inCursor, outCursor);
     } // if origin
-  }   // it
+  } // it
   // Squeeze and set output material mask if necessary
   if (this->OutMask)
   {
@@ -481,7 +481,7 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
       outCursor->ToParent();
       inCursor->ToParent();
     } // inChild
-  }   // if (! cursor->IsLeaf() && ! clipped)
+  } // if (! cursor->IsLeaf() && ! clipped)
   else if (!clipped && this->InMask && this->InMask->GetValue(inId))
   {
     // Handle case of not clipped but nonetheless masked leaf cells

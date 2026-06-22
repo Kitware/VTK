@@ -205,7 +205,7 @@ int vtkExtractPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
       outCD->CopyData(cd, cellId, newCellId);
       newCellPts->Reset();
     } // satisfied thresholding
-  }   // for all cells
+  } // for all cells
 
   // Split up points that are not used by cells,
   // and have not been assigned to any piece.

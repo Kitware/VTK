@@ -661,8 +661,7 @@ struct ExtractPatches
     }
     // Sort for stable, deterministic patch indices (by LID0, then LID1).
     std::vector<Patch> sortedPatches(uniquePatches.begin(), uniquePatches.end());
-    std::sort(sortedPatches.begin(), sortedPatches.end(),
-      [](const Patch& a, const Patch& b)
+    std::sort(sortedPatches.begin(), sortedPatches.end(), [](const Patch& a, const Patch& b)
       { return a.LID0 < b.LID0 || (a.LID0 == b.LID0 && a.LID1 < b.LID1); });
     // Assign stable indices in sorted order.
     this->Patches.reserve(sortedPatches.size());

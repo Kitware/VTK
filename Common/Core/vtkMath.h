@@ -2285,7 +2285,7 @@ inline vtkTypeBool vtkMath::IsInf(double x)
 #if defined(VTK_HAS_STD_ISINF)
   return std::isinf(x);
 #else
-  return (isinf(x) != 0);    // Force conversion to bool
+  return (isinf(x) != 0); // Force conversion to bool
 #endif
 }
 #endif
@@ -2298,7 +2298,7 @@ vtkTypeBool vtkMath::IsNan(double x)
 #if defined(VTK_HAS_STD_ISNAN)
   return std::isnan(x);
 #else
-  return (isnan(x) != 0);    // Force conversion to bool
+  return (isnan(x) != 0); // Force conversion to bool
 #endif
 }
 #endif

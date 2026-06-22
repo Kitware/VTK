@@ -292,7 +292,7 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkMath::Normalize(sPtr->V1);
 
     } // for all points in polyline
-  }   // for all polylines
+  } // for all polylines
   newNormals->Delete();
   singlePolyline->Delete();
 

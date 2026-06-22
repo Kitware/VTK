@@ -174,7 +174,7 @@ struct ProbePoints
       {
         this->AssignNullPoint(x, pIds, weights, ptId);
       } // null point
-    }   // for all dataset points
+    } // for all dataset points
   }
 
   void Reduce() {}

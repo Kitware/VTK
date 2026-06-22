@@ -571,8 +571,8 @@ void vtkMultiObjectMassProperties::TraverseAndMark(
             wave2->InsertNextId(neiId);
           }
         } // for all edge neighbors
-      }   // for all edges
-    }     // for all cells in this wave
+      } // for all edges
+    } // for all cells in this wave
 
     tmpWave = wave;
     wave = wave2;

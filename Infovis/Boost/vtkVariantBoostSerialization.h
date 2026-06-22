@@ -49,14 +49,14 @@ void serialize(Archiver& ar, vtkStdString& str, const unsigned int vtkNotUsed(ve
 template <typename Archiver>
 void save(Archiver& ar, const std::string& str, const unsigned int vtkNotUsed(version))
 {
-  ar& str;
+  ar & str;
 }
 
 template <typename Archiver>
 void load(Archiver& ar, std::string& str, const unsigned int vtkNotUsed(version))
 {
   std::string utf8;
-  ar& utf8;
+  ar & utf8;
   str = utf8;
 }
 
@@ -70,20 +70,20 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int vtkNotUsed
   if (!variant.IsValid())
   {
     char null = 0;
-    ar& null;
+    ar & null;
     return;
   }
 
   // Output the type
   char Type = variant.GetType();
-  ar& Type;
+  ar & Type;
 
   // Output the value
 #define VTK_VARIANT_SAVE(Value, Type, Function)                                                    \
   case Value:                                                                                      \
   {                                                                                                \
     Type value = variant.Function();                                                               \
-    ar& value;                                                                                     \
+    ar & value;                                                                                    \
   }                                                                                                \
     return
 
@@ -112,13 +112,13 @@ template <typename Archiver>
 void load(Archiver& ar, vtkVariant& variant, const unsigned int vtkNotUsed(version))
 {
   char Type;
-  ar& Type;
+  ar & Type;
 
 #define VTK_VARIANT_LOAD(Value, Type)                                                              \
   case Value:                                                                                      \
   {                                                                                                \
     Type value;                                                                                    \
-    ar& value;                                                                                     \
+    ar & value;                                                                                    \
     variant = vtkVariant(value);                                                                   \
   }                                                                                                \
     return
@@ -168,14 +168,14 @@ void save(Archiver& ar, const vtkVariantArray& c_array, const unsigned int vtkNo
   vtkStdString name;
   if (array.GetName() != nullptr)
     name = array.GetName();
-  ar& name;
+  ar & name;
 
   // Array data
   vtkIdType n = array.GetNumberOfTuples();
-  ar& n;
+  ar & n;
   for (vtkIdType i = 0; i < n; ++i)
   {
-    ar& array.GetValue(i);
+    ar & array.GetValue(i);
   }
 }
 
@@ -184,7 +184,7 @@ void load(Archiver& ar, vtkVariantArray& array, const unsigned int vtkNotUsed(ve
 {
   // Array name
   vtkStdString name;
-  ar& name;
+  ar & name;
   array.SetName(name.c_str());
 
   if (name.empty())
@@ -198,12 +198,12 @@ void load(Archiver& ar, vtkVariantArray& array, const unsigned int vtkNotUsed(ve
 
   // Array data
   vtkIdType n;
-  ar& n;
+  ar & n;
   array.SetNumberOfTuples(n);
   vtkVariant value;
   for (vtkIdType i = 0; i < n; ++i)
   {
-    ar& value;
+    ar & value;
     array.SetValue(i, value);
   }
 }

@@ -96,7 +96,7 @@ public:
         this->RcvExtent[i] = N.RcvExtent[i];
         this->OverlapExtent[i] = N.OverlapExtent[i];
       } // END for
-    }   // END if
+    } // END if
     return *this;
   }
   ///@}

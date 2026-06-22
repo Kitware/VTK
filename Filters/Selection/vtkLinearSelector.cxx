@@ -175,10 +175,10 @@ void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray*
           startPoints[offset] += delta;
           endPoints[offset] -= delta;
         } // for ( j )
-      }   // for ( i )
-    }     // else
-  }       // if ( this->Points )
-  else    // if ( this->Points )
+      } // for ( i )
+    } // else
+  } // if ( this->Points )
+  else // if ( this->Points )
   {
     // Prepare and store segment vertices
     if (this->IncludeVertices)
@@ -200,7 +200,7 @@ void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray*
         endPoints[i] = this->EndPoint[i] - delta;
       }
     } // else
-  }   // else // if ( this->Points )
+  } // else // if ( this->Points )
 
   // Iterate over cells
   const vtkIdType nCells = input->GetNumberOfCells();
@@ -226,8 +226,8 @@ void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray*
           outIndices->InsertNextValue(id);
         }
       } // for ( i )
-    }   // if ( cell )
-  }     // for ( vtkIdType id = 0; id < nCells; ++ id )
+    } // if ( cell )
+  } // for ( vtkIdType id = 0; id < nCells; ++ id )
 
   // Clean up
   delete[] startPoints;

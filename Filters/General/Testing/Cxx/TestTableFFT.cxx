@@ -37,9 +37,9 @@ constexpr std::array<double, Length> col1 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0,
 constexpr std::array<double, Length> col2 = { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
 constexpr std::array<double, Length> time = { { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
 // Expected output
-constexpr std::array<double, Length* 2l> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0, Length,
-  0.0, Length, 0.0, Length, 0.0, Length, 0.0, Length, 0.0 } };
-constexpr std::array<double, Length* 2l> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+constexpr std::array<double, Length * 2l> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0,
+  Length, 0.0, Length, 0.0, Length, 0.0, Length, 0.0, Length, 0.0 } };
+constexpr std::array<double, Length * 2l> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 constexpr std::array<double, Length> e_freq = { { 0.0, 0.125, 0.25, 0.375, -0.5, -0.375, -0.25,
   -0.125 } };

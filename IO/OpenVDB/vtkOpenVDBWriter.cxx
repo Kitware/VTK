@@ -291,7 +291,7 @@ public:
             grid->tree(), pointIndexGrid->tree(), vdbFieldName, valuesWrapper);
         }
       } // iterate over number of components
-    }   // iterate over point arrays
+    } // iterate over point arrays
 
     vtkBoundingBox bounds(pointSet->GetBounds());
     vtkBoundingBox globalBounds(bounds);
@@ -787,7 +787,7 @@ void vtkOpenVDBWriter::WriteImageData(vtkImageData* imageData)
         grids.push_back(grid);
       }
     } // iterator over number of components
-  }   // iterate over arrays
+  } // iterate over arrays
 
   // if no point data or no cell data then we just add in a value of 1 for the voxels for the cells
   if (grids.empty())

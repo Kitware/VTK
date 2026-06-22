@@ -1316,7 +1316,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
         jniFunctionNew = 0;
       }
     } /* isDone() */
-  }   /* isAbstract */
+  } /* isAbstract */
 }
 
 /* print the parsed structures */

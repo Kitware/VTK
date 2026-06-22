@@ -297,8 +297,8 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::Initialize(
               }
             }
           } // _i
-        }   // _j
-      }     // _k
+        } // _j
+      } // _k
       break;
     }
   } // switch Dimension

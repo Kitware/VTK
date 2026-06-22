@@ -339,7 +339,7 @@ struct SurfaceNets
         ++lineId;
       }
     } // operator()
-  };  // GenerateLinesImpl
+  }; // GenerateLinesImpl
 
   // Produce the smoothing stencils for this square.
   struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
@@ -397,7 +397,7 @@ struct SurfaceNets
         *connIter++ = pId + 1;
       }
     } // operator()
-  };  // GenerateStencilImpl
+  }; // GenerateStencilImpl
 
   // Finalize the stencils array: after all the stencils are inserted, the
   // last offset has to be added to complete the offsets array.
@@ -573,7 +573,7 @@ void SurfaceNets<TArray>::ClassifyXEdges(TInPtr inPtr, vtkIdType row, vtkLabelMa
       minInt = (i < minInt ? i : minInt);
       maxInt = i + 1;
     } // if contour interacts with this dyad
-  }   // for all dyad-x-edges along this image x-edge
+  } // for all dyad-x-edges along this image x-edge
 
   // The beginning and ending of intersections along the edge is used for
   // computational trimming.
@@ -673,7 +673,7 @@ void SurfaceNets<TArray>::ProduceSquareCases(vtkIdType rowPair, bool odd)
       minInt = (i < minInt ? i : minInt);
       maxInt = i + 1;
     } // if produces a point
-  }   // for all dyads on this row
+  } // for all dyads on this row
   eMD[3] = minInt;
   eMD[4] = (maxInt < numDyads ? maxInt : numDyads);
 } // ProduceSquareCases

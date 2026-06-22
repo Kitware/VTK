@@ -1175,7 +1175,7 @@ void InterpolateToNodes(const ::VblpMatrixType& vblpmats, const std::vector<doub
       {
         value[k] += dofBf[k] * coeffs[j];
       } // for k'th component of vector basis function.
-    }   // for j'th edge/face
+    } // for j'th edge/face
     // save new values.
     result->InsertTuple(ptId, value);
   } // for i'th point.

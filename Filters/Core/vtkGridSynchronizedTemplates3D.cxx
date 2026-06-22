@@ -607,7 +607,7 @@ struct ContourGridFunctor
                   {
                     *isect2Ptr = *(isect2Ptr - yisectstep + 4);
                   }
-                  else if (k > ZMin && i<XMax&&*(isect1Ptr + 5)> - 1)
+                  else if (k > ZMin && i < XMax && *(isect1Ptr + 5) > -1)
                   {
                     *isect2Ptr = *(isect1Ptr + 5);
                   }

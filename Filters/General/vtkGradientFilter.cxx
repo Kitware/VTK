@@ -527,9 +527,9 @@ struct PointGradients : public GradientsBase<TData>
               g[comp * 3 + 1] += derivative[1];
               g[comp * 3 + 2] += derivative[2];
             } // iterating over Components
-          }   // if(GetCellParametricData())
-        }     // if(cell->GetCellDimension () >= highestCellDimension
-      }       // iterating over neighbors
+          } // if(GetCellParametricData())
+        } // if(cell->GetCellDimension () >= highestCellDimension
+      } // iterating over neighbors
 
       if (numValidCellNeighbors > 0)
       {
@@ -674,7 +674,7 @@ struct CellGradients : public GradientsBase<TData>
         ComputeDivergenceFromGradient(cellGrad.data(), divergence[cellId]);
       }
     } // for all cells
-  }   // operator()
+  } // operator()
 
   void Reduce() {}
 };
@@ -1541,9 +1541,9 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
             ComputeDivergenceFromGradient(localGradients.data(), div[idx]);
           }
         } // i
-      }   // j
-    }     // k-slice
-  }       // operator()
+      } // j
+    } // k-slice
+  } // operator()
 
   void Reduce() {}
 };

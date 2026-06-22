@@ -347,8 +347,8 @@ void vtkEuclideanClusterExtraction::TraverseAndMark(vtkPoints* inPts)
         {
           this->InsertIntoWave(this->Wave2, ptId);
         } // if point not yet visited
-      }   // for all neighbors
-    }     // for all cells in this connected wave
+      } // for all neighbors
+    } // for all cells in this connected wave
 
     tmpWave = this->Wave;
     this->Wave = this->Wave2;

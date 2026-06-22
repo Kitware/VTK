@@ -76,8 +76,8 @@ struct Sphere
           }
         }
       }); // end lambda
-  }       // Label voxels
-};        // Sphere
+  } // Label voxels
+}; // Sphere
 
 } // anonymous
 

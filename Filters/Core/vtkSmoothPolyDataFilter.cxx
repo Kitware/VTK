@@ -267,7 +267,7 @@ void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
       }
       ++vertsPtr;
     } // for all points
-  }   // for not converged or within iteration count
+  } // for not converged or within iteration count
 
   vtkDebugWithObjectMacro(params.spdf, << "Performed " << iterationNumber << " smoothing passes");
 }
@@ -406,7 +406,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
     } // for all points in this line
-  }   // for all lines
+  } // for all lines
   this->UpdateProgress(0.25);
 
   // now polygons and triangle strips-------------------------------
@@ -616,8 +616,8 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
       } // if along edge
-    }   // if edge vertex
-  }     // for all points
+    } // if edge vertex
+  } // for all points
 
   vtkDebugMacro(<< "Found\n\t" << numSimple << " simple vertices\n\t" << numFEdges
                 << " feature edge vertices\n\t" << numBEdges << " boundary edge vertices\n\t"

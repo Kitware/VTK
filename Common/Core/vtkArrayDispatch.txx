@@ -147,8 +147,7 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   {
     std::apply(
       [&worker, typedArray = static_cast<TArrayType*>(inArray)](Params&&... forwardedParams)
-      { worker(typedArray, std::forward<Params>(forwardedParams)...); },
-      std::move(paramsTuple));
+      { worker(typedArray, std::forward<Params>(forwardedParams)...); }, std::move(paramsTuple));
     return true;
   }
 

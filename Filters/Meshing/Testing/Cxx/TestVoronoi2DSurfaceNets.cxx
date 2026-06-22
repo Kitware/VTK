@@ -79,8 +79,8 @@ struct Circle
           }
         }
       }); // end lambda
-  }       // Label pixels
-};        // Circle
+  } // Label pixels
+}; // Circle
 
 } // anonymous
 

@@ -175,7 +175,7 @@ struct BuildStencil
       } // if point is to be smoothed
       this->Offsets[ptId] = offset;
     } // for all points in this batch
-  }   // operator()
+  } // operator()
 
   // Roll up the maximum stencil size. This is used later to
   // allocate memory in order to create the final stencils and weights.
@@ -608,7 +608,7 @@ int vtkAttributeSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request)
         smoothedPD = evenPD;
       }
     } // for all remaining iterations
-  }   // if more than one iteration
+  } // if more than one iteration
 
   // After completion, shallow copy the point data to the output. Don't
   // forget to add back in the excluded arrays.

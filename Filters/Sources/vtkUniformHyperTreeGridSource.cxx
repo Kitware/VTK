@@ -100,7 +100,7 @@ int vtkUniformHyperTreeGridSource::RequestData(
           output->SetGridScale(0., 0., this->GridScale[axis]);
           break;
       } // switch (axis)
-    }   // case 1
+    } // case 1
     break;
     case 2:
     {
@@ -126,7 +126,7 @@ int vtkUniformHyperTreeGridSource::RequestData(
           output->SetGridScale(this->GridScale[axis1], this->GridScale[axis2], 0.);
           break;
       } // switch (this->Orientation)
-    }   // case 2
+    } // case 2
     break;
     case 3:
     {

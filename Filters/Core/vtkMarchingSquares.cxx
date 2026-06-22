@@ -209,9 +209,9 @@ struct ContourImageWorker
             }
 
           } // for each line
-        }   // for all contours
-      }     // for i
-    }       // for j
+        } // for all contours
+      } // for i
+    } // for j
   }
 };
 

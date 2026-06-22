@@ -943,9 +943,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
 
           ++i;
         } // for each point
-      }   // if point clipping needs checking
-    }     // for all cells
-  }       // if not all visible
+      } // if point clipping needs checking
+    } // for all cells
+  } // if not all visible
 
   vtkIdList* cellIds = vtkIdList::New();
   vtkPoints* newPts = vtkPoints::New();
@@ -1288,7 +1288,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
         }
       }
     } // if cell is visible
-  }   // for all cells
+  } // for all cells
 
   // Loop over visible surfel (coming from a unique cell) in the hashtable:
   vtkHashTableOfSurfelsCursor cursor;

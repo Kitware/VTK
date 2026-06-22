@@ -437,7 +437,7 @@ struct ContourImage
                   {
                     *isect2Ptr = *(isect2Ptr - yisectstep + 4);
                   }
-                  else if (k > zMin && i<xMax&&*(isect1Ptr + 5)> - 1)
+                  else if (k > zMin && i < xMax && *(isect1Ptr + 5) > -1)
                   {
                     *isect2Ptr = *(isect1Ptr + 5);
                   }

@@ -2116,8 +2116,8 @@ void vtkFreeTypeTools::OutlineToPath(int x, int y, FT_Outline* outline, vtkPath*
         default:
           break;
       } // end switch (lastTag)
-    }   // end contour points iteration
-  }     // end contour iteration
+    } // end contour points iteration
+  } // end contour iteration
 }
 
 //------------------------------------------------------------------------------

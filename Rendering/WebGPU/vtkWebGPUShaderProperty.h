@@ -37,33 +37,33 @@ public:
    */
   void AddVertexShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool) override{};
+    const std::string&, bool) override {};
   void AddFragmentShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool) override{};
+    const std::string&, bool) override {};
   void AddGeometryShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool) override{};
+    const std::string&, bool) override {};
   void AddTessControlShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool) override{};
+    const std::string&, bool) override {};
   void AddTessEvaluationShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool) override{};
+    const std::string&, bool) override {};
   int GetNumberOfShaderReplacements() override { return 0; };
   std::string GetNthShaderReplacementTypeAsString(vtkIdType) override { return ""; };
-  void GetNthShaderReplacement(vtkIdType, std::string&, bool&, std::string&, bool&) override{};
-  void ClearVertexShaderReplacement(const std::string&, bool) override{};
-  void ClearFragmentShaderReplacement(const std::string&, bool) override{};
-  void ClearGeometryShaderReplacement(const std::string&, bool) override{};
-  void ClearTessControlShaderReplacement(const std::string&, bool) override{};
-  void ClearTessEvaluationShaderReplacement(const std::string&, bool) override{};
-  void ClearAllVertexShaderReplacements() override{};
-  void ClearAllFragmentShaderReplacements() override{};
-  void ClearAllGeometryShaderReplacements() override{};
-  void ClearAllTessControlShaderReplacements() override{};
-  void ClearAllTessEvalShaderReplacements() override{};
-  void ClearAllShaderReplacements() override{};
+  void GetNthShaderReplacement(vtkIdType, std::string&, bool&, std::string&, bool&) override {};
+  void ClearVertexShaderReplacement(const std::string&, bool) override {};
+  void ClearFragmentShaderReplacement(const std::string&, bool) override {};
+  void ClearGeometryShaderReplacement(const std::string&, bool) override {};
+  void ClearTessControlShaderReplacement(const std::string&, bool) override {};
+  void ClearTessEvaluationShaderReplacement(const std::string&, bool) override {};
+  void ClearAllVertexShaderReplacements() override {};
+  void ClearAllFragmentShaderReplacements() override {};
+  void ClearAllGeometryShaderReplacements() override {};
+  void ClearAllTessControlShaderReplacements() override {};
+  void ClearAllTessEvalShaderReplacements() override {};
+  void ClearAllShaderReplacements() override {};
   ///@}
 
 protected:

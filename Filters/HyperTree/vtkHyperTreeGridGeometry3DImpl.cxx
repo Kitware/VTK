@@ -168,12 +168,12 @@ void vtkHyperTreeGridGeometry3DImpl::RecursivelyProcessTree(
                   childList.insert(ichild);
                   childCellFacesToBeTreated[ichild] |= (1 << (3 + neighborIdx));
                 } // k
-              }   // j
-            }     // i
-          }       // if ...
+              } // j
+            } // i
+          } // if ...
         }
       } // o
-    }   // f
+    } // f
     for (std::set<int>::iterator it = childList.begin(); it != childList.end(); ++it)
     {
       cursor->ToChild(*it);

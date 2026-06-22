@@ -108,8 +108,8 @@ public:
             nPtr[1] = static_cast<TT>(-n[1]);
             nPtr[2] = static_cast<TT>(-n[2]);
           } // i
-        }   // j
-      }     // k
+        } // j
+      } // k
     }
   };
 };
@@ -326,11 +326,10 @@ void vtkSampleFunction::SetModelBounds(
                 << "(" << zMin << "," << zMax << "), ");
   if ((xMin > xMax) || (yMin > yMax) || (zMin > zMax))
   {
-    vtkErrorMacro("Invalid bounds: "
-      << "(" << xMin << "," << xMax << "), "
-      << "(" << yMin << "," << yMax << "), "
-      << "(" << zMin << "," << zMax << ")"
-      << " Bound mins cannot be larger that bound maxs");
+    vtkErrorMacro("Invalid bounds: " << "(" << xMin << "," << xMax << "), "
+                                     << "(" << yMin << "," << yMax << "), "
+                                     << "(" << zMin << "," << zMax << ")"
+                                     << " Bound mins cannot be larger that bound maxs");
     return;
   }
   if (xMin != this->ModelBounds[0] || xMax != this->ModelBounds[1] ||

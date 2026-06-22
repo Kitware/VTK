@@ -581,8 +581,8 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
 
         helper.Contour(cell, value, cellScalars, cellId);
       } // for all cells
-    }   // for all contour values
-  }     // sort by cell
+    } // for all contour values
+  } // sort by cell
 
   else // VTK_SORT_BY_VALUE:
   {
@@ -643,9 +643,9 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
           value = this->ContourValues->GetValue(iter);
           helper.Contour(cell, value, cellScalars, cellId);
         } // for all contour values
-      }   // for all cells
-    }     // for all dimensions.
-  }       // sort by value
+      } // for all cells
+    } // for all dimensions.
+  } // sort by value
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory.
@@ -854,8 +854,8 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         }
 
       } // for all cells
-    }   // for all contour values
-  }     // sort by cell
+    } // for all contour values
+  } // sort by cell
 
   else // SORT_BY_VALUE:
   {
@@ -942,10 +942,10 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
           {
             helper.Contour(cell, *contourIter, cellScalars, cellIter->GetCellId());
           } // for all contour values
-        }   // if need cell
-      }     // for all cells
-    }       // for all dimensions (1,2,3).
-  }         // sort by value
+        } // if need cell
+      } // for all cells
+    } // for all dimensions (1,2,3).
+  } // sort by value
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory.

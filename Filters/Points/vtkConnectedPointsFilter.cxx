@@ -369,8 +369,8 @@ void vtkConnectedPointsFilter::TraverseAndMark(
             wave2->InsertNextId(neiId);
           }
         } // if point not yet visited
-      }   // for all neighbors
-    }     // for all cells in this wave
+      } // for all neighbors
+    } // for all cells in this wave
 
     tmpWave = wave;
     wave = wave2;

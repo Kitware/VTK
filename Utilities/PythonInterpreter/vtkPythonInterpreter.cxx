@@ -671,16 +671,14 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 void vtkPythonInterpreter::PrependPythonPath(
   const char* anchor, const char* landmark, bool add_landmark)
 {
-  const std::vector<std::string> prefixes = {
-    VTK_PYTHON_SITE_PACKAGES_SUFFIX
+  const std::vector<std::string> prefixes = { VTK_PYTHON_SITE_PACKAGES_SUFFIX
 #if defined(__APPLE__)
     // if in an App bundle, the `sitepackages` dir is <app_root>/Contents/Python
     ,
     "Contents/Python"
 #endif
     ,
-    "."
-  };
+    "." };
 
   vtkNew<vtkResourceFileLocator> locator;
   locator->SetLogVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1);

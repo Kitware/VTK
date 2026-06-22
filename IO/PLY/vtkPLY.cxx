@@ -2249,8 +2249,7 @@ bool vtkPLY::get_binary_item(
       vtkTypeInt8 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading char.");
+        vtkGenericWarningMacro("PLY error reading file." << " Premature EOF while reading char.");
         return false;
       }
 
@@ -2266,8 +2265,8 @@ bool vtkPLY::get_binary_item(
       vtkTypeUInt8 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading uchar or uint8.");
+        vtkGenericWarningMacro(
+          "PLY error reading file." << " Premature EOF while reading uchar or uint8.");
         return false;
       }
 
@@ -2283,8 +2282,7 @@ bool vtkPLY::get_binary_item(
       vtkTypeInt16 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading short.");
+        vtkGenericWarningMacro("PLY error reading file." << " Premature EOF while reading short.");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap2BE(&value)
@@ -2302,8 +2300,7 @@ bool vtkPLY::get_binary_item(
       vtkTypeUInt16 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading ushort.");
+        vtkGenericWarningMacro("PLY error reading file." << " Premature EOF while reading ushort.");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap2BE(&value)
@@ -2321,8 +2318,8 @@ bool vtkPLY::get_binary_item(
       vtkTypeInt32 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading int or int32.");
+        vtkGenericWarningMacro(
+          "PLY error reading file." << " Premature EOF while reading int or int32.");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap4BE(&value)
@@ -2340,8 +2337,7 @@ bool vtkPLY::get_binary_item(
       vtkTypeUInt32 value = 0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading uint");
+        vtkGenericWarningMacro("PLY error reading file." << " Premature EOF while reading uint");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap4BE(&value)
@@ -2359,8 +2355,8 @@ bool vtkPLY::get_binary_item(
       vtkTypeFloat32 value = 0.0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading float of float32.");
+        vtkGenericWarningMacro(
+          "PLY error reading file." << " Premature EOF while reading float of float32.");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap4BE(&value)
@@ -2381,8 +2377,7 @@ bool vtkPLY::get_binary_item(
       vtkTypeFloat64 value = 0.0;
       if (plyfile->parser->Read(reinterpret_cast<char*>(&value), sizeof(value)) != sizeof(value))
       {
-        vtkGenericWarningMacro("PLY error reading file."
-          << " Premature EOF while reading double.");
+        vtkGenericWarningMacro("PLY error reading file." << " Premature EOF while reading double.");
         return false;
       }
       plyfile->file_type == PLY_BINARY_BE ? vtkByteSwap::Swap8BE(&value)

@@ -742,9 +742,9 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet, const double p
               minPCoords[k] = pcoords[k];
             }
           } // for all subIds
-        }   // if minimum, maximum
-      }     // if a close cell
-    }       // for all cells
+        } // if minimum, maximum
+      } // if a close cell
+    } // for all cells
   }
   return cellWasPicked;
 }
@@ -1257,8 +1257,8 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3], const double p
           }
         }
       } // End of "if (opacity > opacityThreshold)"
-    }   // End of "if (t < tMin && t < this->GlobalTMin)"
-  }     // End of loop over volume components
+    } // End of "if (t < tMin && t < this->GlobalTMin)"
+  } // End of loop over volume components
 
   scalars->Delete();
 

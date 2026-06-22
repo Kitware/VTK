@@ -1198,7 +1198,7 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
       }
       bisection[nloc] = true;
     } // While ub[nloc] - lb[nloc] > tol
-  }   // If we can bisect
+  } // If we can bisect
 
   // Though theoretically this shouldn't happen, sometimes the roots are out of
   // order. Lets sort them just in case, because it does happen sometimes.

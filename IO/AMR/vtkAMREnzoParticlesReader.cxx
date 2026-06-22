@@ -64,7 +64,7 @@ static bool FindBlockIndex(hid_t fileIndx, int blockIdx, hid_t& rootIndx)
         break;
       }
     } // END if group
-  }   // END for all objects
+  } // END for all objects
   return (found);
 }
 
@@ -272,8 +272,8 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(const char* file, int block
         positions->SetPoint(pidx, xcoords[i], ycoords[i], zcoords[i]);
         ++NumberOfParticlesLoaded;
       } // END if within requested region
-    }   // END if within requested interval
-  }     // END for all particles
+    } // END if within requested interval
+  } // END for all particles
   H5Gclose(rootIndx);
   H5Fclose(fileIndx);
 
@@ -324,11 +324,11 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(const char* file, int block
         {
           array->SetComponent(pidx, k, this->Internal->DataArray->GetComponent(particleIdx, k));
         } // END for all components
-      }   // END for all ids of loaded particles
+      } // END for all ids of loaded particles
       pdata->AddArray(array);
       array->Delete();
     } // END if the array is supposed to be loaded
-  }   // END for all particle arrays
+  } // END for all particle arrays
 
   ids->Delete();
   return (particles);

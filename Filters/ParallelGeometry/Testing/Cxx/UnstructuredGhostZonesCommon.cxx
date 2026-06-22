@@ -67,8 +67,8 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
             << " expected=" << expected << " actual=" << actual
             << " delta=" << std::fabs(actual - expected) << std::endl;
       } // END if
-    }   // END for all dimensions
-  }     // END for all nodes
+    } // END for all dimensions
+  } // END for all nodes
 
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfPoints()
       << " nodes appear wrong: " << std::endl;
@@ -120,8 +120,8 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
             << " dimension=" << dim << " expected=" << expected << " actual=" << actual
             << " delta= " << std::fabs(actual - expected) << std::endl;
       } // END if
-    }   // END for all dimensions
-  }     // END for all cells
+    } // END for all dimensions
+  } // END for all cells
 
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfCells()
       << " cells appear wrong: " << std::endl;
@@ -359,8 +359,8 @@ void GenerateDataSet()
 
         global::Grid->InsertNextCell(VTK_HEXAHEDRON, 8, cell);
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   global::Grid->SetPoints(nodes);
   nodes->Delete();

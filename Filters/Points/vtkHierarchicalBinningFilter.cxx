@@ -445,7 +445,7 @@ struct BinTree : public vtkBinTree
         std::fill_n(offsets + prevPt->Bin + 1, curPt->Bin - prevPt->Bin, curPt - this->Tree->Map);
         prevPt = curPt;
       } // for all batches in this range
-    }   // operator()
+    } // operator()
   };
 
   //----------------------------------------------------------------------------
@@ -587,7 +587,7 @@ struct BinTree : public vtkBinTree
           arrayWorker(iArray, oArray, this);
         }
       } // have valid array
-    }   // for each candidate array
+    } // for each candidate array
   }
 
   vtkIdType GetLevelOffset(int level, vtkIdType& npts) override

@@ -417,8 +417,8 @@ int vtkConvertSelection::ConvertCompositeDataSet(
         }
         output->Union(outputNode);
       } // for each output node
-    }   // for each block
-  }     // for each input selection node
+    } // for each block
+  } // for each input selection node
 
   return 1;
 }

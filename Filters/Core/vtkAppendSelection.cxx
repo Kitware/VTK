@@ -503,7 +503,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
       {
         output->Union(s);
       } // for a non nullptr input
-    }   // for each input
+    } // for each input
 
     return 1;
   }

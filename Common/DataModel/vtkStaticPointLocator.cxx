@@ -374,9 +374,9 @@ vtkIdType BucketList<TIds>::FindClosestPoint(const double x[3])
             minDist2 = dist2;
           }
         } // for each point
-      }   // if points in bucket
-    }     // for each overlapping bucket
-  }       // if not identical point
+      } // if points in bucket
+    } // for each overlapping bucket
+  } // if not identical point
 
   return closest;
 }
@@ -512,9 +512,9 @@ vtkIdType BucketList<TIds>::FindClosestPointWithinRadius(
               refinedRadius2 = minDist2;
             }
           } // for each pt in bucket
-        }   // if ids
-      }     // if bucket is within the current best distance
-    }       // for each overlapping bucket
+        } // if ids
+      } // if bucket is within the current best distance
+    } // for each overlapping bucket
 
     // Don't want to check a smaller radius than we just checked so update
     // it appropriately
@@ -751,8 +751,8 @@ struct ShellIterator
             return (this->I + jOffset + kOffset);
           }
         } // over I
-      }   // over J
-    }     // over K
+      } // over J
+    } // over K
 
     i = j = k = (-1);
     return -1;
@@ -891,7 +891,7 @@ struct ShellIterator
           res.emplace_back(ptId, d2);
         }
       } // if potential candidate
-    }   // for all points in this bin
+    } // for all points in this bin
 
     return maxR2;
   }
@@ -924,7 +924,7 @@ struct ShellIterator
       {
         res.emplace_back(ptId, d2);
       } // if within shell footprint
-    }   // for all points in this bin
+    } // for all points in this bin
   }
 }; // ShellIterator
 
@@ -1033,8 +1033,8 @@ double BucketList<TIds>::FindNPointsInShell(int N, const double x[3], vtkDist2Tu
           siter.AddPoints(i, j, k, binIdx, level, minR2, maxR2, results);
         }
       } // i-footprint
-    }   // j-footprint
-  }     // k-footprint
+    } // j-footprint
+  } // k-footprint
 
   // Sort if requested
   if (sort)
@@ -1123,9 +1123,9 @@ void BucketList<TIds>::FindPointsWithinRadius(double R, const double x[3], vtkId
             } // for all points in bucket
           }
         } // if points in bucket
-      }   // i-footprint
-    }     // j-footprint
-  }       // k-footprint
+      } // i-footprint
+    } // j-footprint
+  } // k-footprint
 }
 
 //------------------------------------------------------------------------------
@@ -1233,12 +1233,12 @@ int BucketList<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol, 
                     tMin = tHit;
                     bestPtId = pId;
                   } // point is within tolerance and closer
-                }   // over all points in bin
-              }     // if points in bin
-            }       // bucket not visited
-          }         // i bins
-        }           // j bins
-      }             // k bins
+                } // over all points in bin
+              } // if points in bin
+            } // bucket not visited
+          } // i bins
+        } // j bins
+      } // k bins
 
       // Make sure to evaluate exit footprint as well. Must evaluate entrance
       // and exit of current voxel.
@@ -1293,7 +1293,7 @@ int BucketList<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol, 
       }
 
     } // for looking for valid intersected point
-  }   // if (vtkBox::IntersectBox(...))
+  } // if (vtkBox::IntersectBox(...))
 
   // If a point has been intersected, recover the information and return.
   // This information could be cached....
@@ -1570,9 +1570,9 @@ void BucketList<TIds>::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData
           }
 
         } // over negative faces
-      }   // over i divisions
-    }     // over j divisions
-  }       // over k divisions
+      } // over i divisions
+    } // over j divisions
+  } // over k divisions
 
   pd->SetPoints(pts);
   pd->SetPolys(polys);

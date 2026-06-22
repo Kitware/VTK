@@ -1164,7 +1164,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         this->UpdateProgress(static_cast<double>(lineNr) / ulFileLength);
       }
     } /** Looping over lines of file */ // (end of while loop)
-  }                                     // (end of local scope section)
+  } // (end of local scope section)
   this->UpdateProgress(1.0);
 
   /** based on how many used materials are present,

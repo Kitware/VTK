@@ -78,7 +78,7 @@ public:
    * case of the zSpace Core SDK.
    */
   void BeginFrame() override;
-  void EndFrame() override{};
+  void EndFrame() override {};
   ///@}
 
 protected:

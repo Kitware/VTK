@@ -40,7 +40,7 @@ protected:
   virtual void ProcessDataFields(
     std::shared_ptr<OMFFile>& file, const Json::Value& dataJSON, vtkPartitionedDataSet* output);
   virtual void ProcessColumnOrdering(std::shared_ptr<OMFFile>& /*file*/,
-    const Json::Value& /*dataJSON*/, vtkPartitionedDataSet* /*output*/){};
+    const Json::Value& /*dataJSON*/, vtkPartitionedDataSet* /*output*/) {};
   virtual void ProcessTextures(std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON,
     vtkPartitionedDataSet* output, const std::string& elementName);
 };

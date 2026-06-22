@@ -571,8 +571,7 @@ void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
   const vtkIdType oldSize = cellIds->GetNumberOfIds();
   const vtkIdType newSize = oldSize + numValues;
   cellIds->SetNumberOfIds(newSize);
-  vtkSMPTools::For(0, numValues,
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end)
     { std::copy(ptr + begin, ptr + end, cellIds->GetPointer(oldSize + begin)); });
   this->Modified();
 }

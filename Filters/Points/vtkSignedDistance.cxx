@@ -111,9 +111,9 @@ struct SignedDistanceFunctor
             }
             this->Scalars[ptId] = dist / static_cast<double>(numPts);
           } // if nearby points
-        }   // over i
-      }     // over j
-    }       // over slices
+        } // over i
+      } // over j
+    } // over slices
   }
 
   void Reduce() {}

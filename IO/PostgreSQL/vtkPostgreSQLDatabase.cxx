@@ -746,7 +746,7 @@ void vtkPostgreSQLDatabase::UpdateDataTypeMap()
         this->Connection->DataTypeMap[oid] = VTK_STRING;
       }
     } // done looping over rows
-  }   // done with "query is successful"
+  } // done with "query is successful"
   typeQuery->Delete();
 }
 VTK_ABI_NAMESPACE_END

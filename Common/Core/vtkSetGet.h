@@ -1284,7 +1284,7 @@ public:
     call;                                                                                          \
   };                                                                                               \
   break
-#define vtkTemplate2PackMacro(type1N, type2N) ((((type1N)&0xFF) << 8) | ((type2N)&0xFF))
+#define vtkTemplate2PackMacro(type1N, type2N) ((((type1N) & 0xFF) << 8) | ((type2N) & 0xFF))
 
 // The vtkArrayIteratorTemplateMacro is used to centralize the set of types
 // supported by Execute methods.  It also avoids duplication of long

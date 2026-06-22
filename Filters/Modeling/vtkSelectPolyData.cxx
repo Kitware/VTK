@@ -198,7 +198,7 @@ void vtkSelectPolyData::GreedyEdgeSearch(vtkPolyData* mesh, vtkIdList* edgePoint
         inPts->GetPoint(id, x);
       }
     } // for tracking edge
-  }   // for all edges of loop
+  } // for all edges of loop
 }
 
 //------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ void vtkSelectPolyData::FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePoin
         }
 
       } // for all edges of cell
-    }   // all cells in front
+    } // all cells in front
 
     // Swap currentFront and nextFront
     vtkSmartPointer<vtkIdList> tmpFront = currentFront;

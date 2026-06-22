@@ -422,7 +422,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
                 face->PointIds->GetPointer(0), face->PointIds->GetNumberOfIds(), cellId);
             }
           } // for all cell faces
-        }   // if 3D
+        } // if 3D
         else
         {
           vtkDebugMacro("Missing cell type.");
@@ -490,14 +490,14 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
                     vtkErrorMacro(<< "Encountered unknown nonlinear face.");
                     break;
                 } // switch cell type
-              }   // subdivision level
-            }     // cell has ids
-          }       // for faces
+              } // subdivision level
+            } // cell has ids
+          } // for faces
           cellIds->Delete();
         } // 3d cell
-      }   // nonlinear cell
-    }     // Cell type else.
-  }       // for all cells.
+      } // nonlinear cell
+    } // Cell type else.
+  } // for all cells.
 
   // It would be possible to add these (except for polygons with 5+ sides)
   // to the hashes.  Alternatively, the higher order 2d cells could be handled
@@ -671,7 +671,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
           std::swap(outPts, outPts2);
           std::swap(parametricCoords, parametricCoords2);
         } // Iterate over subdivision levels
-      }   // If further subdivision
+      } // If further subdivision
 
       // Now that we have done all the subdivisions and created all of the
       // points, record the triangles.

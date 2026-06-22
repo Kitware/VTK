@@ -578,9 +578,9 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
               this->Wave2->InsertNextId(cellId);
             }
           } // for all cells using this point
-        }   // for all points of this cell
-      }     // if cell not yet visited
-    }       // for all cells in this wave
+        } // for all points of this cell
+      } // if cell not yet visited
+    } // for all cells in this wave
 
     tmpWave = this->Wave;
     this->Wave = this->Wave2;

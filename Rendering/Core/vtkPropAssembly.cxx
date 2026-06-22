@@ -294,9 +294,9 @@ double* vtkPropAssembly::GetBounds()
             this->Bounds[n * 2 + 1] = std::max(bbox[i * 3 + n], this->Bounds[n * 2 + 1]);
           }
         } // for each point of box
-      }   // if bounds
-    }     // for each part
-  }       // for each part
+      } // if bounds
+    } // for each part
+  } // for each part
 
   if (!partVisible)
   {

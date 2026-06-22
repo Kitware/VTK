@@ -89,8 +89,8 @@ bool CheckNodeFieldsForGrid(vtkStructuredGrid* grid)
         std::cout.flush();
         return false;
       } // END if fuzzy-compare
-    }   // END for all components
-  }     // END for all nodes
+    } // END for all components
+  } // END for all nodes
   return true;
 }
 
@@ -141,8 +141,8 @@ bool CheckCellFieldsForGrid(vtkStructuredGrid* grid)
         nodeIds->Delete();
         return false;
       } // END if fuzz-compare
-    }   // END for all components
-  }     // END for all cells
+    } // END for all components
+  } // END for all cells
   nodeIds->Delete();
   return true;
 }

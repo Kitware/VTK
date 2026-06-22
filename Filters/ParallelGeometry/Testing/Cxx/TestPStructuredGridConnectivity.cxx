@@ -96,7 +96,7 @@ int GetTotalNumberOfNodes(vtkMultiBlockDataSet* multiblock)
           ++numNodes;
         }
       } // END for all nodes
-    }   // END if grid != nullptr
+    } // END if grid != nullptr
 
   } // END for all blocks
 
@@ -180,7 +180,7 @@ vtkMultiBlockDataSet* GetDataSet(const int numPartitions)
     {
       mbds->SetBlock(block, nullptr);
     } // END else we don't own the block
-  }   // END for all blocks
+  } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
@@ -207,7 +207,7 @@ void RegisterGrids(vtkMultiBlockDataSet* mbds, vtkPStructuredGridConnectivity* c
         grid->GetPointGhostArray(), grid->GetCellGhostArray(), grid->GetPointData(),
         grid->GetCellData(), nullptr);
     } // END if block belongs to this process
-  }   // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -375,7 +375,7 @@ int TestAverage(const int factor)
     {
       partialSum += GetXYZSumForGrid(blockPtr);
     } // END if
-  }   // END for all blocks
+  } // END for all blocks
 
   // STEP 8: All reduce to the global sum
   double globalSum = 0.0;

@@ -273,10 +273,10 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
                   cellId = -1; // separated by previous visit, boundary, or non-manifold
                 }
               } // while visit wave is propagating
-            }   // for each of the two edges of the starting cell
+            } // for each of the two edges of the starting cell
             numRegions++;
           } // if cell is unvisited
-        }   // for all cells connected to point ptId
+        } // for all cells connected to point ptId
 
         if (numRegions <= 1)
         {

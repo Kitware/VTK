@@ -1510,8 +1510,7 @@ struct vtkEntityBlock : public vtkGroupingEntity
               else
               {
                 std::transform(orderingTransformation.begin(), orderingTransformation.end(),
-                  std::back_inserter(connectivity),
-                  [&](int localId)
+                  std::back_inserter(connectivity), [&](int localId)
                   { return gidOffset + pointGIDs->GetValue(cellPoints[localId]); });
               }
             }

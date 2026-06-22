@@ -44,20 +44,20 @@ public:
    * Called by the mapper before and after
    * rendering each prop.
    */
-  void BeginRenderProp() override{};
-  void EndRenderProp() override{};
+  void BeginRenderProp() override {};
+  void EndRenderProp() override {};
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
    * Currently indices >= 0xffffff are not supported.
    */
-  void RenderCompositeIndex(unsigned int /*index*/) override{};
+  void RenderCompositeIndex(unsigned int /*index*/) override {};
 
   /**
    * Called by any vtkMapper or subclass to render process id. This has any
    * effect when this->UseProcessIdFromData is true.
    */
-  void RenderProcessId(unsigned int /*processid*/) override{};
+  void RenderProcessId(unsigned int /*processid*/) override {};
 
   // we need to initialize the depth buffer
   void BeginSelection() override;
@@ -76,13 +76,13 @@ protected:
   vtkWebGPUHardwareSelector();
   ~vtkWebGPUHardwareSelector() override;
 
-  void PreCapturePass(int /*pass*/) override{};
-  void PostCapturePass(int /*pass*/) override{};
+  void PreCapturePass(int /*pass*/) override {};
+  void PostCapturePass(int /*pass*/) override {};
 
-  void BeginRenderProp(vtkRenderWindow*) override{};
-  void EndRenderProp(vtkRenderWindow*) override{};
+  void BeginRenderProp(vtkRenderWindow*) override {};
+  void EndRenderProp(vtkRenderWindow*) override {};
 
-  void SavePixelBuffer(int) override{};
+  void SavePixelBuffer(int) override {};
 
   void ReleasePixBuffers() override;
 

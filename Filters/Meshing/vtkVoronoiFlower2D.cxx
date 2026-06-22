@@ -194,7 +194,7 @@ struct DelTri
 
   // Copy constructor
   DelTri(const DelTri& tt) { this->Ids = tt.Ids; }
-};                                      // DelTri
+}; // DelTri
 using DelTriType = std::vector<DelTri>; // Delaunay triangles
 
 // Compositing information for Voronoi and/or Delaunay generation. Note that
@@ -597,10 +597,10 @@ struct OutputSurfaceNet : public PtsOutput
           {
             this->CellScalars[lineId] = this->ProduceCellScalar(ptId, 2, lineId, threadId);
           } // if cell scalars
-        }   // for points in this batch
-      }     // for each batch in this thread
-    }       // for all local thread data
-  }         // operator()
+        } // for points in this batch
+      } // for each batch in this thread
+    } // for all local thread data
+  } // operator()
 
   // Factory method to produce a surface net.
   static void Execute(vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>* vc,
@@ -768,10 +768,10 @@ struct OutputVoronoi : public PtsOutput
           {
             this->CellScalars[ptId] = this->ProduceCellScalar(ptId, numEdges, ptId, threadId);
           } // if cell scalars
-        }   // for points in this batch
-      }     // for each batch in this thread
-    }       // for all local thread data
-  }         // operator()
+        } // for points in this batch
+      } // for each batch in this thread
+    } // for all local thread data
+  } // operator()
 
   // Factory method to produce the Voronoi tessellation.
   static void Execute(vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>* vc,
@@ -901,10 +901,10 @@ struct OutputDelaunay : public VOutput
             // triId is the actual Deluanay triangle id.
             this->CellScalars[triId] = this->ProduceCellScalar(tItr->Ids[0], 3, triId, threadId);
           } // if cell scalars
-        }   // for local triangles
-      }     // for all batches in this thread output
-    }       // for all thread output
-  }         // operator()
+        } // for local triangles
+      } // for all batches in this thread output
+    } // for all thread output
+  } // operator()
 
   // Generate the Delaunay triangulation. This means compositing
   // the triangles found previously.
@@ -1243,7 +1243,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
       vtkDebugMacro(<< "Produced " << output->GetNumberOfCells() << " triangles and "
                     << output->GetNumberOfPoints() << " points");
     } // Produce Delaunay output
-  }   // Voronoi and/or Delaunay output
+  } // Voronoi and/or Delaunay output
 
   // If requested, sample the Voronoi flower and place it into the third
   // output. Create the debugging output (tile) for the PointOfInterest and

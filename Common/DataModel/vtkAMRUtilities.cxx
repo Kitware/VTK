@@ -80,7 +80,7 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr)
       } // END for all dimensions
 
     } // END for all data at the current level
-  }   // END for all levels
+  } // END for all levels
   return false;
 }
 
@@ -207,8 +207,8 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
         } // END if within the cell extent
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ void vtkAMRUtilities::StripGhostLayers(
         strippedGrid->Delete();
       }
     } // END for all data at the given level
-  }   // END for all levels
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -450,8 +450,8 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
                 vtkIdType id = vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk);
                 ghosts->SetValue(id, ghosts->GetValue(id) | vtkDataSetAttributes::REFINEDCELL);
               } // END for x
-            }   // END for y
-          }     // END for z
+            } // END for y
+          } // END for z
         }
         // Fallback on block bounds
         else if (amrMData && amrMData->HasBlockBounds(childGridIndex))

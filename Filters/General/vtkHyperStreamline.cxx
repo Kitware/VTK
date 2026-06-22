@@ -779,7 +779,7 @@ int vtkHyperStreamline::BuildTube(vtkDataSet* input, vtkPolyData* output)
         dOffset += stepLength;
 
       } // while
-    }   // for this hyperstreamline
+    } // for this hyperstreamline
 
     //
     // Generate the strips for this hyperstreamline

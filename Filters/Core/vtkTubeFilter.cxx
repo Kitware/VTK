@@ -510,8 +510,8 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdT
         outPD->CopyData(pd, pts[j], ptId + 1);
         ptId += 2;
       } // for each side
-    }   // else separate vertices
-  }     // for all points in polyline
+    } // else separate vertices
+  } // for all points in polyline
 
   // Produce end points for cap. They are placed at tail end of points.
   if (this->Capping)

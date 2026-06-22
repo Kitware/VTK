@@ -337,9 +337,9 @@ int vtkSliceCubesContour(T* slice, S* scalars, int imageRange[2], int dims[3], d
           }
           numTriangles++;
         } // for each triangle
-      }   // for i
-    }     // for j
-  }       // for k
+      } // for i
+    } // for j
+  } // for k
 
 // Close things down
 PREMATURE_TERMINATION:

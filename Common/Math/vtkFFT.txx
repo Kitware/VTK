@@ -333,9 +333,8 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Csd(vtkScalarNumberArray* 
     auto begin = resRange.cbegin() + i * shape[1];
     auto end = begin + shape[1];
     vtkSMPTools::Transform(begin, end, averageRange.cbegin(), averageRange.begin(),
-      [meanFactor](ConstTupleRef x, vtkFFT::ScalarNumber y) {
-        return vtkFFT::Abs(ComplexNumber{ x[0], x[1] }) * meanFactor + y;
-      });
+      [meanFactor](ConstTupleRef x, vtkFFT::ScalarNumber y)
+      { return vtkFFT::Abs(ComplexNumber{ x[0], x[1] }) * meanFactor + y; });
   }
 
   return average;

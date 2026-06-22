@@ -75,7 +75,7 @@ int CheckGrid(vtkRectilinearGrid* grid)
       std::cerr << xyz[pntIdx * 3 + 2] << ") ";
       ++rc;
     } // END if
-  }   // END for all points
+  } // END for all points
 
   return (rc);
 }

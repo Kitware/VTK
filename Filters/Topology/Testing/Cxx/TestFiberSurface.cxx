@@ -191,7 +191,7 @@ int TestFiberSurface(int argc, char* argv[])
       }
       cmpIndex++;
     } // end for
-  }   // end for
+  } // end for
 
   for (int i = 0; i < 15; ++i)
   {

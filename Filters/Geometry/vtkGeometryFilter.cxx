@@ -1038,7 +1038,7 @@ void ExtractDSCellGeometry(vtkDataSet* input, vtkIdType cellId, const char* cell
         }
         break;
     } // switch
-  }   // non-empty cell
+  } // non-empty cell
 } // extract dataset geometry
 
 //--------------------------------------------------------------------------
@@ -1499,7 +1499,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
             const auto pts = connectivityPtr + offsetsRange[cellId];
             ExtractCellGeometry(This->Grid, cellId, type, npts, pts, faceId, &localData, isGhost);
           } // if cell visible
-        }   // for all cells in this hash
+        } // for all cells in this hash
         // add external faces from the face list to polys (if any)
         faceList.PopulateCellArray(&polys);
         // and reset the list.
@@ -2668,7 +2668,7 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
       outputCD->CopyData(cd, cellId, newCellId);
       origCellIds.Insert(cellId, newCellId);
     } // if visible
-  }   // for all cells
+  } // for all cells
 
   // Update ourselves and release memory
   //
@@ -3113,10 +3113,10 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
             cellVis[cellId] = 0;
             break;
           } // point/extent clipping
-        }   // for each point
-      }     // if point clipping needs checking
-    }       // for all cells
-  }         // if not all visible
+        } // for each point
+      } // if point clipping needs checking
+    } // for all cells
+  } // if not all visible
 
   // Prepare to generate the output. The cell arrays are of course the output vertex,
   // line, polygon, and triangle strip output. The four IdListType's capture the

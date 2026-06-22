@@ -386,7 +386,7 @@ ClipIntersectionStatus vtkVoronoiHull::IntersectWithPlane(
       // Assign loop index
       this->InsertedEdgePoints[i].LoopIdx = idx;
     } // for all non-origin points forming the capping polygon.
-  }   // more than 3 points in the face
+  } // more than 3 points in the face
 
   // Finally, create a new face (the capping polygon) with the points
   // inserted in the correct order (using the loop index).

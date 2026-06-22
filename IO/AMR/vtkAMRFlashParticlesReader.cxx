@@ -191,8 +191,8 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(const char* file, int vtkN
         positions->SetPoint(pidx, xcoords[i], ycoords[i], zcoords[i]);
         ++NumberOfParticlesLoaded;
       } // END if within requested region
-    }   // END if within requested interval
-  }     // END for all particles
+    } // END if within requested interval
+  } // END for all particles
 
   xcoords.clear();
   ycoords.clear();
@@ -283,7 +283,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(const char* file, int vtkN
         return nullptr;
       }
     } // END if the array is supposed to be loaded
-  }   // END for all arrays
+  } // END for all arrays
 
   H5Dclose(dataIdx);
 

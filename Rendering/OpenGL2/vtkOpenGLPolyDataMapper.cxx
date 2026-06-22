@@ -2222,9 +2222,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
       // normal mapping
       std::vector<texinfo> textures = this->GetTextures(actor);
-      bool normalMapping =
-        std::find_if(textures.begin(), textures.end(),
-          [](const texinfo& tex) { return tex.second == "normalTex"; }) != textures.end();
+      bool normalMapping = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex)
+                             { return tex.second == "normalTex"; }) != textures.end();
       bool coatNormalMapping = hasClearCoat &&
         std::find_if(textures.begin(), textures.end(),
           [](const texinfo& tex) { return tex.second == "coatNormalTex"; }) != textures.end();
@@ -2266,9 +2265,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "//VTK::Normal::Dec\n"
             "uniform float anisotropyRotationUniform;\n");
 
-          bool rotationMap =
-            std::find_if(textures.begin(), textures.end(),
-              [](const texinfo& tex) { return tex.second == "anisotropyTex"; }) != textures.end();
+          bool rotationMap = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex)
+                               { return tex.second == "anisotropyTex"; }) != textures.end();
           if (rotationMap)
           {
             // Sample the texture

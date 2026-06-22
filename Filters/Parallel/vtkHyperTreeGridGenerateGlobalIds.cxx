@@ -138,9 +138,8 @@ int vtkHyperTreeGridGenerateGlobalIds::RequestData(vtkInformation* vtkNotUsed(re
     outputComposite->ShallowCopy(inputComposite);
     std::vector<vtkHyperTreeGrid*> htgs =
       vtkCompositeDataSet::GetDataSets<vtkHyperTreeGrid>(outputComposite);
-    htgs.erase(
-      std::remove_if(htgs.begin(), htgs.end(),
-        [](vtkHyperTreeGrid* htg) { return htg == nullptr || htg->GetNumberOfCells() == 0; }),
+    htgs.erase(std::remove_if(htgs.begin(), htgs.end(), [](vtkHyperTreeGrid* htg)
+                 { return htg == nullptr || htg->GetNumberOfCells() == 0; }),
       htgs.end());
     ::GenerateGlobalIds(this->Controller, htgs);
     return 1;

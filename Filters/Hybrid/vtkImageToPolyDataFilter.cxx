@@ -176,7 +176,7 @@ int vtkImageToPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
       tmpInput->Initialize();
       tmpOutput->Initialize();
     } // for i pieces
-  }   // for j pieces
+  } // for j pieces
 
   // Create the final output contained in the append filter
   output->CopyStructure(appendOutput);
@@ -746,15 +746,15 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray* scalars, int di
               wave2->InsertNextId(id);
             }
           } // for each pixel neighbor
-        }   // for pixels left in wave
+        } // for pixels left in wave
         numIds = wave2->GetNumberOfIds();
         tmpWave = wave;
         wave = wave2;
         wave2 = tmpWave;
         wave2->Reset();
       } // while still propagating
-    }   // if not, start wave
-  }     // for all pixels
+    } // if not, start wave
+  } // for all pixels
 
   wave->Delete();
   wave2->Delete();
@@ -1222,9 +1222,9 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray* vtkNotUsed(po
           newPolys->UpdateCellCount(numPolyPts);
 
         } // if polygon not yet visited
-      }   // for each use of edge by polygon (at most 2 polygons)
-    }     // for each edge connected to this point
-  }       // for all points in edge list
+      } // for each use of edge by polygon (at most 2 polygons)
+    } // for each edge connected to this point
+  } // for all points in edge list
 
   edges->SetPolys(newPolys);
   newPolys->Delete();
@@ -1298,8 +1298,8 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray* pointDescr, vtk
         }
 
       } // if smoothable point
-    }   // for all points
-  }     // for all smoothing operations
+    } // for all points
+  } // for all smoothing operations
 }
 
 // Remove points that are nearly co-linear to reduce the total point count
@@ -1340,6 +1340,6 @@ void vtkImageToPolyDataFilter::DecimateEdges(
         }
       }
     } // if manifold
-  }   // for all points
+  } // for all points
 }
 VTK_ABI_NAMESPACE_END

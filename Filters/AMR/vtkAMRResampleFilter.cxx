@@ -348,9 +348,9 @@ void vtkAMRResampleFilter::TransferToCellCenters(vtkUniformGrid* g, vtkOverlappi
           CD = donorGrid->GetCellData();
           this->CopyData(fieldData, cellIdx, CD, donorCellIdx);
         } // END if
-      }   // END for all datasets
-    }     // END for all levels
-  }       // END for all cells
+      } // END for all datasets
+    } // END for all levels
+  } // END for all cells
 }
 
 //------------------------------------------------------------------------------
@@ -879,8 +879,8 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(vtkOverlappingAMR* metadata)
       {
         this->BlocksToLoad.push_back(metadata->GetAbsoluteBlockIndex(level, dataIdx));
       } // END check if the block is within the bounds of the ROI
-    }   // END for all data
-  }     // END for all levels
+    } // END for all data
+  } // END for all levels
 
   std::sort(this->BlocksToLoad.begin(), this->BlocksToLoad.end());
   std::cerr << "Number Levels Loaded = " << maxLevelToLoad
@@ -1168,7 +1168,7 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds(double* grd)
         return true;
       }
     } // END if region is mine
-  }   // END for all blocks
+  } // END for all blocks
 
   return false;
 }
@@ -1226,7 +1226,7 @@ vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(vtkOverlappingAMR* amrds)
         return (refGrid);
       }
     } // END for all datasets
-  }   // END for all number of levels
+  } // END for all number of levels
 
   // This process has no grids
   return nullptr;

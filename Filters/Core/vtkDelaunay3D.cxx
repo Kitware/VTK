@@ -494,7 +494,7 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(double x[3], vtkUnstructuredGrid* Me
       }
 
     } // for each tetra face
-  }   // for all deleted tetras
+  } // for all deleted tetras
 
   // Okay, let's delete the tetras and prepare the data structure
   for (i = 0; i < tetras->GetNumberOfIds(); i++)
@@ -1540,7 +1540,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid* Mesh, vtkIdType tetraId, vt
         break;
       }
     } // if not referring tetra
-  }   // for all candidate cells
+  } // for all candidate cells
 
   if (i < numCells)
   {

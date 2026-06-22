@@ -69,10 +69,10 @@ struct CountPoints
             numNewPts++;
           }
         } // over i
-      }   // over j
+      } // over j
       this->SMD[slice] = numNewPts;
     } // over k slices
-  }   // operator()
+  } // operator()
 
   // Roll up the total points with a prefix sum.
   void Reduce()
@@ -227,10 +227,10 @@ struct FillWorker
 
                 ptOffset++;
               } // if need to add point
-            }   // over i bins
-          }     // over j bins
-        }       // over all slices
-      });       // lambda
+            } // over i bins
+          } // over j bins
+        } // over all slices
+      }); // lambda
   }
 }; // FillWorker
 
@@ -278,9 +278,9 @@ vtkIdType ExecuteAdaptiveStrategy(vtkStaticPointLocator* locator, int dims[3], d
               volPtr[binIdx] = backgroundLabel; // bin unoccupied
             }
           } // over i
-        }   // over j
-      }     // over k slices
-    });     // lambda
+        } // over j
+      } // over k slices
+    }); // lambda
 
   // Configure the point sampler.
   pointSampler->SetInputData(volume);
@@ -492,7 +492,7 @@ int vtkFillPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
     { // fallback to slowpath
       fillWorker(newPts->GetData(), numInPts, dims, radius, sMD, this);
     }
-  }    // UNIFORM strategy
+  } // UNIFORM strategy
   else // if ( this->FillStrategy == vtkFillPointCloud::ADAPTIVE )
   {
     numNewPts = ExecuteAdaptiveStrategy(

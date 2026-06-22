@@ -377,7 +377,7 @@ void vtkStructuredAMRGridConnectivity::InitializeGhostData(int gridID)
       this->GhostedGridPointData[gridID]->AddArray(dataArray);
       dataArray->Delete();
     } // END for all node arrays
-  }   // END if node-centered data-set
+  } // END if node-centered data-set
 
   // STEP 3: Allocate cell data
   if (this->GetCellCentered())
@@ -399,7 +399,7 @@ void vtkStructuredAMRGridConnectivity::InitializeGhostData(int gridID)
       this->GhostedGridCellData[gridID]->AddArray(dataArray);
       dataArray->Delete();
     } // END for all cell arrays
-  }   // END if cell-centered data-set
+  } // END if cell-centered data-set
 }
 
 //------------------------------------------------------------------------------
@@ -473,8 +473,8 @@ void vtkStructuredAMRGridConnectivity::TransferRegisteredDataToGhostedData(int g
         } // END if within the cell extent
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -550,11 +550,11 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersAtSameLevel(
               this->GhostedGridCellData[gridID], targetIdx);
             this->CellCenteredDonorLevel[gridID][targetIdx] = nei.NeighborLevel;
           } // END if this is a finer solution
-        }   // END if this is a ghost cell
+        } // END if this is a ghost cell
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -649,15 +649,15 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromCoarserLevel(
                     this->GhostedGridCellData[gridID], targetIdx);
                   this->CellCenteredDonorLevel[gridID][targetIdx] = nei.NeighborLevel;
                 } // END if this is a finer solution
-              }   // END if
+              } // END if
 
             } // END for all kk
-          }   // END for all jj
-        }     // END for all ii
+          } // END for all jj
+        } // END for all ii
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -749,9 +749,9 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
                       NeighborCellExtent, rcvIJK, this->DataDescription);
                     sourceIds.push_back(sourceIdx);
                   } // END if
-                }   // END for all kk
-              }     // END for all jj
-            }       // END for all ii
+                } // END for all kk
+              } // END for all jj
+            } // END for all ii
 
             if (!sourceIds.empty())
             {
@@ -770,8 +770,8 @@ void vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
         } // END if it is ghost cell
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -1049,8 +1049,8 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
         } // END else
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   // STEP 7: Fill ghosted cells ghost array
   int ghostCellExtent[6];
@@ -1091,8 +1091,8 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
           this->GhostedCellGhostArray[gridID]->InsertValue(cellIdx, p);
         }
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -1203,8 +1203,8 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
         assert("pre: cell index is out-of-bounds!" && (idx < numCells));
         ghostArrayPtr[idx] = 0;
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   // STEP 3: Loop through the neighbors of this grid, and mark all cells that
   // are covered by hi-res cells.
@@ -1235,11 +1235,11 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
             assert("pre: cell index is out-of-bounds!" && (idx < numCells));
             ghostArrayPtr[idx] |= vtkDataSetAttributes::REFINEDCELL;
           } // END for all k
-        }   // END for all j
-      }     // END for all i
+        } // END for all j
+      } // END for all i
 
     } // END if
-  }   // END for all neighbors
+  } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------
@@ -1305,8 +1305,8 @@ void vtkStructuredAMRGridConnectivity::FillNodesGhostArray(
         this->MarkNodeProperty(
           gridId, i, j, k, ext, NormalizedWholeExtent, *nodesArray->GetPointer(idx));
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -1442,7 +1442,7 @@ bool vtkStructuredAMRGridConnectivity::IsNodeOnSharedBoundary(
         break;
       }
     } // END for all dimensions
-  }   // END if node on boundary
+  } // END if node on boundary
   return (status);
 }
 
@@ -1795,8 +1795,8 @@ vtkStructuredAMRNeighbor vtkStructuredAMRGridConnectivity::GetAMRNeighbor(int vt
           relationShip = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_CHILD;
         }
       } // END if levelDiff
-    }   // END else
-  }     // END else if
+    } // END else
+  } // END else if
   else
   {
     if (overlapDim == this->DataDimension - 1)
@@ -1819,8 +1819,8 @@ vtkStructuredAMRNeighbor vtkStructuredAMRGridConnectivity::GetAMRNeighbor(int vt
           relationShip = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_PARENT;
         }
       } // END if levelDiff
-    }   // END else
-  }     // END else
+    } // END else
+  } // END else
 
   // STEP 4: Construct AMR neighbor
   vtkStructuredAMRNeighbor amrNei(
@@ -1925,7 +1925,7 @@ void vtkStructuredAMRGridConnectivity::CoarsenExtent(
       ext[dimIdx * 2] /= ratio;
       ext[dimIdx * 2 + 1] /= ratio;
     } // END for all dimensions
-  }   // END if
+  } // END if
   else
   {
     assert("pre: refinement ratios has not been allocated" &&
@@ -1940,8 +1940,8 @@ void vtkStructuredAMRGridConnectivity::CoarsenExtent(
         ext[dimIdx * 2] /= ratio;
         ext[dimIdx * 2 + 1] /= ratio;
       } // END for all dimensions
-    }   // END for each level
-  }     // END else
+    } // END for each level
+  } // END else
 }
 
 //------------------------------------------------------------------------------
@@ -2002,8 +2002,8 @@ void vtkStructuredAMRGridConnectivity::RefineExtent(
         ext[dimIdx * 2] *= ratio;
         ext[dimIdx * 2 + 1] *= ratio;
       } // END for all dimensions
-    }   // END for each level
-  }     // END else varying refinement ratio
+    } // END for each level
+  } // END else varying refinement ratio
 }
 
 //------------------------------------------------------------------------------
@@ -2027,7 +2027,7 @@ void vtkStructuredAMRGridConnectivity::GetCellRefinedExtent(
       ext[dimIdx * 2] *= ratio;
       ext[dimIdx * 2 + 1] = (ext[dimIdx * 2] + (ratio - 1));
     } // END for all dimensions
-  }   // END if constant refinement ratio
+  } // END if constant refinement ratio
   else
   {
     for (int l = fromLevel; l < toLevel; ++l)
@@ -2039,8 +2039,8 @@ void vtkStructuredAMRGridConnectivity::GetCellRefinedExtent(
         ext[dimIdx * 2] *= ratio;
         ext[dimIdx * 2 + 1] = (ext[dimIdx * 2] + (ratio - 1));
       } // END for all dimensions
-    }   // END for each level
-  }     // END else varying refinement ratio
+    } // END for each level
+  } // END else varying refinement ratio
 }
 
 //------------------------------------------------------------------------------
@@ -2096,8 +2096,8 @@ void vtkStructuredAMRGridConnectivity::ComputeWholeExtent()
         this->WholeExtent[dim * 2] = std::min(this->WholeExtent[dim * 2], ext[dim * 2]);
         this->WholeExtent[dim * 2 + 1] = std::max(this->WholeExtent[dim * 2 + 1], ext[dim * 2 + 1]);
       } // END for all dimensions
-    }   // END else
-  }     // END for all grids at level L0
+    } // END else
+  } // END for all grids at level L0
 
   this->DataDescription = vtkStructuredData::GetDataDescriptionFromExtent(this->WholeExtent);
   this->DataDimension = vtkStructuredData::GetDataDimension(this->DataDescription);

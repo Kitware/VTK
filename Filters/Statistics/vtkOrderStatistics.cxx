@@ -636,8 +636,8 @@ void vtkOrderStatistics::Derive(vtkStatisticalModel* inMeta)
           // Store quantile value
           quantCol->SetTuple1(k, Qp);
         } // qit
-      }   // else ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
-    }     // if ( vals->IsA("vtkDataArray") )
+      } // else ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+    } // if ( vals->IsA("vtkDataArray") )
     else if (vals->IsA("vtkStringArray"))
     {
       // Downcast column to string array for efficient data access

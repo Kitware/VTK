@@ -760,8 +760,8 @@ public:
    * @param tableIndex          The index in the non-manifold cases table for the given edge case
    * @return The case index in [0, 21], where 0 means manifold.
    */
-  static VTK_ALWAYS_INLINE auto GetNonManifoldCase(EdgeCaseType edgeCase, int8_t tableIndex)
-    -> NonManifoldCaseType
+  static VTK_ALWAYS_INLINE auto GetNonManifoldCase(
+    EdgeCaseType edgeCase, int8_t tableIndex) -> NonManifoldCaseType
   {
     if (tableIndex < 0 || tableIndex >= GetNumberOfNonManifoldCases(edgeCase))
     {
@@ -811,8 +811,8 @@ public:
    * @param nonManifoldCase The non-manifold case index in [0, 11], where 0 means manifold.
    * @return The number of duplicate points.
    */
-  static constexpr VTK_ALWAYS_INLINE auto GetNumberOfPoints(NonManifoldCaseType nonManifoldCase)
-    -> uint8_t
+  static constexpr VTK_ALWAYS_INLINE auto GetNumberOfPoints(
+    NonManifoldCaseType nonManifoldCase) -> uint8_t
   {
     constexpr uint8_t pointsPerNonManifoldCase[12] = {
       1,     // case 0  is manifold, so 1 point (the center vertex) is generated
@@ -849,8 +849,8 @@ public:
    * @return The duplicate point index for the given quad, or -1 if no face is generated.
    */
   template <uint8_t QuadId>
-  static VTK_ALWAYS_INLINE auto GetNonManiFoldPointIndex(EdgeCaseType edgeCase, int8_t tableIndex)
-    -> int8_t
+  static VTK_ALWAYS_INLINE auto GetNonManiFoldPointIndex(
+    EdgeCaseType edgeCase, int8_t tableIndex) -> int8_t
   {
     static_assert(QuadId < 12, "QuadId must be between 0 and 11 (inclusive)");
     return NonManifoldMetadata[EdgeCaseOffsets[edgeCase] + tableIndex].PointIndices[QuadId];
@@ -893,8 +893,8 @@ public:
    * @param tableIndex The index into the non-manifold metadata table for this edge case.
    * @return A reference to the array of up to 4 manifold sub-edge cases.
    */
-  static VTK_ALWAYS_INLINE auto GetManifoldSubEdgeCases(EdgeCaseType edgeCase, int8_t tableIndex)
-    -> const std::array<EdgeCaseType, 4>&
+  static VTK_ALWAYS_INLINE auto GetManifoldSubEdgeCases(
+    EdgeCaseType edgeCase, int8_t tableIndex) -> const std::array<EdgeCaseType, 4>&
   {
     static constexpr std::array<EdgeCaseType, 4> Empty{};
     if (tableIndex < 0)
@@ -933,8 +933,8 @@ public:
    *                   NonManifoldIndexUnsolvable, or 0 to MaxTableIndex).
    * @return The computed state code.
    */
-  static constexpr VTK_ALWAYS_INLINE auto ComputeState(uint8_t numPoints, int8_t tableIndex)
-    -> uint8_t
+  static constexpr VTK_ALWAYS_INLINE auto ComputeState(
+    uint8_t numPoints, int8_t tableIndex) -> uint8_t
   {
     switch (numPoints)
     {
@@ -1024,8 +1024,8 @@ private:
    * @param tableIndex The index into the non-manifold metadata table for this edge case.
    * @return A reference to the array of up to 4 manifold sub-voxel cases.
    */
-  static VTK_ALWAYS_INLINE auto GetManifoldSubVoxelCases(EdgeCaseType edgeCase, int8_t tableIndex)
-    -> const std::array<VoxelCaseType, 4>&
+  static VTK_ALWAYS_INLINE auto GetManifoldSubVoxelCases(
+    EdgeCaseType edgeCase, int8_t tableIndex) -> const std::array<VoxelCaseType, 4>&
   {
     return NonManifoldMetadata[EdgeCaseOffsets[edgeCase] + tableIndex].SubVoxelCases;
   }

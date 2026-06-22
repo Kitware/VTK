@@ -131,7 +131,7 @@ public:
    * filters), set this to on. False by default.
    */
   VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
-  virtual void SetConvertToVTK(bool){};
+  virtual void SetConvertToVTK(bool) {};
   VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
   virtual bool GetConvertToVTK() { return true; };
   VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")

@@ -60,8 +60,8 @@ bool CheckNodeFieldsForGrid(vtkUniformGrid* grid)
       {
         return false;
       } // END if fuzzy-compare
-    }   // END for all components
-  }     // END for all nodes
+    } // END for all components
+  } // END for all nodes
   return true;
 }
 
@@ -106,8 +106,8 @@ bool CheckCellFieldsForGrid(vtkUniformGrid* grid)
       {
         return false;
       } // END if fuzz-compare
-    }   // END for all components
-  }     // END for all cells
+    } // END for all components
+  } // END for all cells
   return true;
 }
 

@@ -746,9 +746,7 @@ public:
     return true;
   }
 
-  void Reduce()
-  { /* do nothing */
-  }
+  void Reduce() { /* do nothing */ }
 
 protected:
   vtkPlanes* Frustum;

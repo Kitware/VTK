@@ -1202,7 +1202,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
         }
         break;
     } // switch
-  }   // for all cells
+  } // for all cells
 
   vtkDebugMacro(<< "Extracted " << newPts->GetNumberOfPoints() << " points,"
                 << output->GetNumberOfCells() << " cells.");
@@ -1815,12 +1815,12 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
                   face->PointIds->GetPointer(0), face->PointIds->GetNumberOfIds(), cellId);
               }
             } // for all cell faces
-          }   // if 3D
+          } // if 3D
           else
           {
             vtkDebugMacro("Missing cell type.");
           }
-        }    // a linear cell type
+        } // a linear cell type
         else // process nonlinear cells via triangulation
         {
           input->SetCellOrderAndRationalWeights(cellId, cell);
@@ -1887,15 +1887,15 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
                       vtkWarningMacro(<< "Encountered unknown nonlinear face.");
                       break;
                   } // switch cell type
-                }   // subdivision level
-              }     // cell has ids
-            }       // for faces
+                } // subdivision level
+              } // cell has ids
+            } // for faces
             cellIds->Delete();
           } // 3d cell
-        }   // nonlinear cell
-      }     // default switch case
-    }       // switch(cellType)
-  }         // for all cells.
+        } // nonlinear cell
+      } // default switch case
+    } // switch(cellType)
+  } // for all cells.
 
   // It would be possible to add these (except for polygons with 5+ sides)
   // to the hashes.  Alternatively, the higher order 2d cells could be handled

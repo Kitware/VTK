@@ -454,7 +454,7 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
           break;
         }
       } // switch data object type
-    }   // foreach rank
+    } // foreach rank
     this->Internal->AggregateDomain->insert(aggregategroup);
     this->Internal->AggregateDomain->accept(this->Internal->AggregateWriter);
   } // if need to write top level file

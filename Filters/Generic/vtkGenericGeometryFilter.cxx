@@ -339,7 +339,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
           break;
 
       } // switch
-    }   // if visible
+    } // if visible
 
     vtkIdType EndTopOutCId = outputCD->GetNumberOfTuples();
     if (this->PassThroughCellIds)

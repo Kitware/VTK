@@ -413,7 +413,7 @@ struct vtkCompressCompositerCompositePairFunctor
           ++p2;
         }
       } // end case if.
-    }   // while not finished (process cases).
+    } // while not finished (process cases).
     // Here is a scary way to determine the length of the new buffer.
     length3 = zOut - startZOut;
   }

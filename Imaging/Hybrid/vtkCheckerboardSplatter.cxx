@@ -237,8 +237,8 @@ public:
             idx = i + jOffset + kOffset;
             this->Algo->SetScalar(this->PtId, this->PD, x, this->Algo->Scalars + idx);
           } // i
-        }   // j
-      }     // k within splat footprint
+        } // j
+      } // k within splat footprint
     }
   };
 

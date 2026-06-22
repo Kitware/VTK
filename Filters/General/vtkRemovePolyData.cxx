@@ -346,7 +346,7 @@ struct MarkDeletedCells
     }
 
   } // operator()
-};  // MarkDeletedCells
+}; // MarkDeletedCells
 
 // Determine the information required to build output cell arrays,
 // including the number of remaining cells in a cell array, and the

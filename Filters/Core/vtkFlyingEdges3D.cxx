@@ -364,7 +364,7 @@ public:
         {
           this->Algo->ProcessYZEdges(row, slice);
         } // for all rows in this slice
-      }   // for all slices in this batch
+      } // for all slices in this batch
     }
   };
   class Pass4
@@ -408,7 +408,7 @@ public:
             this->Algo->GenerateOutput(this->Value, rowPtr, row, slice);
             rowPtr += this->Algo->Inc1;
           } // for all rows in this slice
-        }   // if there are triangles
+        } // if there are triangles
         slicePtr += this->Algo->Inc2;
         eMD0 = eMD1;
         eMD1 = eMD0 + 6 * this->Algo->Dims[1];
@@ -443,7 +443,7 @@ public:
             this->Algo->InterpolateCellData(&this->CellArrays, row, slice);
             rowPtr += this->Algo->Inc1;
           } // for all rows in this slice
-        }   // if there are triangles (i.e., output cells)
+        } // if there are triangles (i.e., output cells)
         slicePtr += this->Algo->Inc2;
         eMD0 = eMD1;
         eMD1 = eMD0 + 6 * this->Algo->Dims[1];
@@ -570,9 +570,9 @@ vtkFlyingEdges3DAlgorithm<TArray>::vtkFlyingEdges3DAlgorithm()
             }
           }
         } // x-edges
-      }   // x+y-edges
-    }     // x+z-edges
-  }       // x+y+z-edges
+      } // x+y-edges
+    } // x+z-edges
+  } // x+y+z-edges
 
   // Okay now build the acceleration structure. This is used to generate
   // output points and triangles when processing a voxel x-row as well as to
@@ -990,7 +990,7 @@ void vtkFlyingEdges3DAlgorithm<TArray>::ProcessXEdge(
       minInt = std::min(i, minInt);
       maxInt = i + 1;
     } // if contour interacts with this x-edge
-  }   // for all x-cell edges along this x-edge
+  } // for all x-cell edges along this x-edge
 
   edgeMetaData[0] += sum; // write back the number of intersections along x-edge
 
@@ -1240,7 +1240,7 @@ void vtkFlyingEdges3DAlgorithm<TArray>::GenerateOutput(
       ++ijk[0];
       sPtr += incs[0];
     } // if not at end of voxel row
-  }   // for all non-trimmed cells along this x-edge
+  } // for all non-trimmed cells along this x-edge
 }
 
 //------------------------------------------------------------------------------

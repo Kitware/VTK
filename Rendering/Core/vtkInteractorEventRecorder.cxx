@@ -334,7 +334,7 @@ void vtkInteractorEventRecorder::ProcessCharEvent(
         self->Off();
       }
     } // event not aborted
-  }   // if activation enabled
+  } // if activation enabled
 }
 
 //------------------------------------------------------------------------------

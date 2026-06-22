@@ -490,15 +490,15 @@ struct ExtractCells
               edge->Data.LIdx = lineConnIdx++;
               ++edge;
             } // if clipped edge
-          }   // for all cell points and edges
+          } // for all cell points and edges
 
           *cellOffsets++ = cellOffset;
           cellOffset += numCellPts;
           *cellMap = newCellId;
           arrays->Copy(cellId, newCellId++);
         } // if cell is clipped or kept
-      }   // for each cell in this batch
-    }     // for each batch of cells
+      } // for each cell in this batch
+    } // for each batch of cells
   }
 
   void Reduce() {}
@@ -785,8 +785,8 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
             });
           totTris += numTris;
         } // successful triangulation
-      }   // if closed loop
-    }     // if not visited
+      } // if closed loop
+    } // if not visited
   }
 
   // If some triangles were produced, send them to the output

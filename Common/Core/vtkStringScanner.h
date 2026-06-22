@@ -80,8 +80,8 @@ VTK_ALWAYS_INLINE auto from_chars(const char* first, const char* last, T& value,
 }
 template <typename T,
   typename = FASTFLOAT_ENABLE_IF(fast_float::is_supported_integer_type<T>::value)>
-VTK_ALWAYS_INLINE auto from_chars(const char* first, const char* last, T& value, int base = 10)
-  -> std::from_chars_result
+VTK_ALWAYS_INLINE auto from_chars(
+  const char* first, const char* last, T& value, int base = 10) -> std::from_chars_result
 {
   auto result = fast_float::from_chars<T>(first, last, value, base);
   return { result.ptr, result.ec };
@@ -102,8 +102,8 @@ VTK_ALWAYS_INLINE auto from_chars(const std::string_view str, T& value,
 }
 template <typename T,
   typename = FASTFLOAT_ENABLE_IF(fast_float::is_supported_integer_type<T>::value)>
-VTK_ALWAYS_INLINE auto from_chars(const std::string_view str, T& value, int base = 10)
-  -> std::from_chars_result
+VTK_ALWAYS_INLINE auto from_chars(
+  const std::string_view str, T& value, int base = 10) -> std::from_chars_result
 {
   return vtk::from_chars<T>(str.data(), str.data() + str.size(), value, base);
 }

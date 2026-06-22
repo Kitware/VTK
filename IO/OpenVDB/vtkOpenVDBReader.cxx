@@ -232,7 +232,7 @@ struct SamplerVdbGrid
 {
   static void SampleVdbGrid(openvdb::Coord vtkNotUsed(ijk),
     typename GridType::Accessor vtkNotUsed(accessor), ArrayType* vtkNotUsed(dataArray),
-    vtkIdType vtkNotUsed(idx)){};
+    vtkIdType vtkNotUsed(idx)) {};
 };
 
 //------------------------------------------------------------------------

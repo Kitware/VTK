@@ -148,7 +148,7 @@ inline void ArrayList::AddArrays(vtkIdType numOutPts, vtkDataSetAttributes* inPD
               vtkStdString(vtk::to_string(nullValue)));
           }
         }
-      }    // if matching types
+      } // if matching types
       else // promoted type
       {
         if (!vtkArrayDispatch::Dispatch::Execute(iArray, creator,
@@ -195,7 +195,7 @@ inline void ArrayList::AddSelfInterpolatingArrays(
         }
       }
     } // if not excluded
-  }   // for each candidate array
+  } // for each candidate array
 }
 
 VTK_ABI_NAMESPACE_END

@@ -277,7 +277,7 @@ int vtkRecoverGeometryWireframe::RequestData(vtkInformation* vtkNotUsed(request)
         edgeMap.erase(edgeMatch);
       }
     } // For each edge
-  }   // For each cell.
+  } // For each cell.
 
   // Everything left in the edge map has no match.  It must necessarily be
   // on the outside of a face.

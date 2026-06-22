@@ -35,8 +35,8 @@ vtkStandardNewMacro(vtkOBBTree);
         break;                                                                                     \
       case VTK_TRIANGLE_STRIP:                                                                     \
         PTID0 = CELLPTIDS[IDX];                                                                    \
-        PTID1 = CELLPTIDS[(IDX) + 1 + ((IDX)&1)];                                                  \
-        PTID2 = CELLPTIDS[(IDX) + 2 - ((IDX)&1)];                                                  \
+        PTID1 = CELLPTIDS[(IDX) + 1 + ((IDX) & 1)];                                                \
+        PTID2 = CELLPTIDS[(IDX) + 2 - ((IDX) & 1)];                                                \
         break;                                                                                     \
       default:                                                                                     \
         PTID0 = PTID1 = PTID2 = -1;                                                                \
@@ -367,7 +367,7 @@ void vtkOBBTree::ComputeOBB(
         this->PointsList->InsertNextPoint(this->DataSet->GetPoint(ptIds[j]));
       }
     } // for all points of this cell
-  }   // end foreach cell
+  } // end foreach cell
 
   // normalize data
   for (i = 0; i < 3; i++)

@@ -1264,7 +1264,7 @@ public:
           break;
         }
       } // end composite glyph iteration
-    }   // end entries
+    } // end entries
   }
 
   //------------------------------------------------------------------------------
@@ -1709,7 +1709,7 @@ public:
         }
         glyphParameters->NumberOfPoints++;
       } // if source
-    }   // for each input point
+    } // for each input point
 
     glyphParametersCollection->BuildTime.Modified();
   }

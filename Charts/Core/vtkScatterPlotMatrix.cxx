@@ -245,7 +245,7 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
       {
         minmax[1] = minmax[0] + 1.0;
       }
-      double inc = (minmax[1] - minmax[0]) / (NumberOfBins)*1.001;
+      double inc = (minmax[1] - minmax[0]) / (NumberOfBins) * 1.001;
       double halfInc = inc / 2.0;
       vtkSmartPointer<vtkFloatArray> extents =
         vtkArrayDownCast<vtkFloatArray>(output->GetColumnByName((name + "_extents").c_str()));

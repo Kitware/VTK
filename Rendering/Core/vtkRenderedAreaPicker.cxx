@@ -105,7 +105,7 @@ int vtkRenderedAreaPicker::AreaPick(
           this->DataSet = nullptr;
         }
       } // mapper
-    }   // pickable
+    } // pickable
 
     // go through list of props the renderer got for us and put only
     // the prop3Ds into this->Prop3Ds

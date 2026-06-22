@@ -178,8 +178,8 @@ void vtkSpanTreeLayoutStrategy::Layout()
           }
         }
       } // while back != front
-    }   // if !marks[v]
-  }     // for each vertex
+    } // if !marks[v]
+  } // for each vertex
 
   // Check each edge to see if it spans more than one level of
   // the tree.  If it does, the edge will be drawn using edge-points,

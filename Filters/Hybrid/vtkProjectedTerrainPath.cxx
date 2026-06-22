@@ -452,8 +452,8 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
           }
         }
       } // if laying on image
-    }   // for all x-intersection points
-  }     // if x-intersections
+    } // for all x-intersection points
+  } // if x-intersections
 
   // Process the y intersections
   if (p2[1] >= p1[1]) // sort along y-axis
@@ -501,8 +501,8 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
           }
         }
       } // if laying on image
-    }   // for all x-intersection points
-  }     // if x-intersections
+    } // for all x-intersection points
+  } // if x-intersections
 
   // Okay, insert the maximum errors for this edge in the queues
   if (posError > 0.0)

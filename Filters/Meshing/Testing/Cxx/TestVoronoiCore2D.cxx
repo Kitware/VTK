@@ -125,7 +125,7 @@ struct vtkPointCompositor
         this->Points.emplace_back(pL.X);
         this->TopoCoords.emplace_back(pL.NeiId, pR.NeiId, ptId);
       } // for all tile points
-    }   // AddData()
+    } // AddData()
   };
 }; // vtkPointCompositor
 

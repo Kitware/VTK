@@ -406,8 +406,7 @@ void readCaseFileValues(EnSightFile& file, std::string& line, std::vector<T>& va
     if (continueReading)
     {
       line = result.second;
-      if (!std::all_of(line.begin(), line.end(),
-            [](char c) -> bool
+      if (!std::all_of(line.begin(), line.end(), [](char c) -> bool
             { return isdigit(c) || isspace(c) || c == '.' || c == 'e' || c == '+' || c == '-'; }))
       {
         // The current line is not more time step values, so reset

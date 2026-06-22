@@ -123,12 +123,12 @@ public:
   static constexpr vtkIdType InvalidIndex = ~0;
 
   VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
-  void SetModeSqueeze(const char* vtkNotUsed(vtksqueeze)){};
+  void SetModeSqueeze(const char* vtkNotUsed(vtksqueeze)) {};
   VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
   char* GetModeSqueeze() { return nullptr; }
 
   VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
-  virtual void Squeeze(){};
+  virtual void Squeeze() {};
 
   /**
    * Return what type of dataset this is.

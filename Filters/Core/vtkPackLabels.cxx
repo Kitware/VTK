@@ -141,7 +141,7 @@ struct BuildLabels
     } // if SORT_BY_LABEL_COUNT
 
   } // operator()
-};  // BuildLabels
+}; // BuildLabels
 
 // Map the input labels to the output labels
 struct MapLabels
@@ -187,7 +187,7 @@ struct MapLabels
       }
     }
   } // operator()
-};  // MapLabels
+}; // MapLabels
 
 // Give a VTK data type, determine the maximum number of
 // labels that can be represented.

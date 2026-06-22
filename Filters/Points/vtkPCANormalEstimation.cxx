@@ -384,8 +384,8 @@ void vtkPCANormalEstimation::TraverseAndFlip(
           }
           wave2->InsertNextId(ptId);
         } // if point not yet visited
-      }   // for all neighbors
-    }     // for all cells in this wave
+      } // for all neighbors
+    } // for all cells in this wave
 
     tmpWave = wave;
     wave = wave2;

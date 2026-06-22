@@ -344,7 +344,7 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
         minProj = dp;
       }
     } // outside this edge
-  }   // for each edge
+  } // for each edge
 
   if (inside) // all edges have tested positive
   {
@@ -459,7 +459,7 @@ void vtkGreedyTerrainDecimation::CheckEdge(
       this->CheckEdge(ptId, x, p1, p3, nei, depth);
 
     } // in circle
-  }   // interior edge
+  } // interior edge
 
   neighbors->Delete();
 }
@@ -1006,8 +1006,8 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(
               maxInputPtId = inputPtId;
             }
           } // if vertex not inserted
-        }   // for this scanline
-      }     // for all scanlines in this triangle
+        } // for this scanline
+      } // for all scanlines in this triangle
 
       if (type == VTK_BOTTOM_TRIANGLE)
       {

@@ -39,8 +39,8 @@ using vtkImageComplex = struct vtkImageComplex_t;
 #define vtkImageComplexPolarSet(C, M, P)                                                           \
   do                                                                                               \
   {                                                                                                \
-    (C).Real = (M)*cos(P);                                                                         \
-    (C).Imag = (M)*sin(P);                                                                         \
+    (C).Real = (M) * cos(P);                                                                       \
+    (C).Imag = (M) * sin(P);                                                                       \
   } while (false)
 
 #define vtkImageComplexPrint(C)                                                                    \

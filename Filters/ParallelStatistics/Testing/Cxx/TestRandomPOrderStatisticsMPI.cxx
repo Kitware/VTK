@@ -151,7 +151,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
         max_l[i] = v[i];
       }
     } // i
-  }   // r
+  } // r
 
   // Create input table
   vtkTable* inputData = vtkTable::New();
@@ -189,7 +189,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
       }
       std::cout << "\n";
     } // i
-  }   // if ( myRank == args->ioRank )
+  } // if ( myRank == args->ioRank )
 
   // Clean up
   delete[] v;
@@ -293,8 +293,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
           *(args->retVal) = 1;
         }
       } // p
-    }   // if ( myRank == args->ioRank )
-  }     // i
+    } // if ( myRank == args->ioRank )
+  } // i
 
   // Print out and verify global extrema
   vtkTable* outputQuantiles =
@@ -351,9 +351,9 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
             << columnNames[i] << ": " << max_c << " <> " << max_g[i]);
           *(args->retVal) = 1;
         } //  ( max_c.IsString() )
-      }   // else
-    }     // i
-  }       // if ( myRank == args->ioRank )
+      } // else
+    } // i
+  } // if ( myRank == args->ioRank )
 
   // Clean up
   delete[] card_g;

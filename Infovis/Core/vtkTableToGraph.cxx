@@ -608,7 +608,7 @@ int vtkTableToGraph::RequestData(
       double progress = createVertexTime * ((c + 1.0) / linkDomain->GetNumberOfTuples());
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
     } // end for each domain
-  }   // end else !vertexTable
+  } // end else !vertexTable
 
   // Create builder for the graph
   VTK_CREATE(vtkMutableDirectedGraph, dirBuilder);

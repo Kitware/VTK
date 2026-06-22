@@ -145,8 +145,8 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname, bool)
                             << " does not match preference value='" << value << "'");
             }
           } // end for each attribute
-        }   // end for each override info
-      }     // end for each value
+        } // end for each override info
+      } // end for each value
       // append the found best override infos for this preference to the overall bestOverrideInfos
       // use only the best ones found for this preference in the next round of preference
       // processing.

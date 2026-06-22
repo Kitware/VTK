@@ -730,7 +730,7 @@ struct vtkAttributeManager
       this->OutPtData = output->GetPointData();
       this->OutPtData->CopyAllocate(this->MeshPtData);
     } // if passing point data
-  }   // constructor
+  } // constructor
 
   // Copy cell data from the input to the output.
   void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
@@ -1002,9 +1002,9 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
             numInts++;
           }
         } // within tolerance of other line
-      }   // parallel line
-    }     // intersect all line segments that form the loop
-  }       // for all line segments that make up this polyline
+      } // parallel line
+    } // intersect all line segments that form the loop
+  } // for all line segments that make up this polyline
 
   // Sort in parametric space
   std::sort(sortedPoints.begin(), sortedPoints.end(), &PointSorter);
@@ -1110,7 +1110,7 @@ int vtkCookieCutterHelper::ResolveTopology(vtkPolyData* pd)
         resolved = false;
       }
     } // over all points
-  }   // while not resolved
+  } // while not resolved
 
   // Do a last sanity check
   for (pid = 0; pid < numPts; ++pid)
@@ -1256,7 +1256,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
         }
       }
     } // intersect all line segments that form the loop
-  }   // for all line segments that make up this polygon
+  } // for all line segments that make up this polygon
 
   // Sort in parametric coordinates around the intersected polygon and
   // loop.
@@ -1536,9 +1536,9 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
             vtkIdType newCellId = outVerts->InsertNextCell(1, &ptId);
             attrMgr.CopyCellData(cellId, newCellId);
           } // if point inside trim loop
-        }   // for all points composing vert cell
-      }     // for all vert cells
-    }       // if vert cells
+        } // for all points composing vert cell
+      } // for all vert cells
+    } // if vert cells
 
     // Now process lines
     if (inLines->GetNumberOfCells() > 0)
@@ -1578,7 +1578,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
     } // if polygonal cells
-  }   // for all loops
+  } // for all loops
 
   // Assign output as appropriate
   output->SetPoints(outPts);

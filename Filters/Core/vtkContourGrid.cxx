@@ -275,7 +275,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
           {
             needCell = 1;
           } // if contour value in range for this cell
-        }   // end for numContours
+        } // end for numContours
 
         if (needCell)
         {
@@ -288,12 +288,12 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
             {
               helper.Contour(cell, values[i], cellScalars, cellIter->GetCellId());
             } // if contour value in range of values for this cell
-          }   // for all contour values
-        }     // if contour goes through this cell
+          } // for all contour values
+        } // if contour goes through this cell
         needCell = 0;
       } // for all cells
-    }   // For all dimensions.
-  }     // if using scalar tree
+    } // For all dimensions.
+  } // if using scalar tree
   else
   {
     // Note: This will have problems when input contains 2D and 3D cells.
@@ -324,8 +324,8 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
         // don't want to call Contour any more than necessary
       } // for all cells
-    }   // for all contour values
-  }     // using scalar tree
+    } // for all contour values
+  } // using scalar tree
 
   //
   // Update ourselves.  Because we don't know up front how many verts, lines,

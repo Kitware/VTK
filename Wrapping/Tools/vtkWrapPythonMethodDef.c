@@ -276,8 +276,8 @@ static void vtkWrapPython_RemovePrecededMethods(
         }
 
       } /* for (occ2 ... */
-    }   /* if (sig1->Name ... */
-  }     /* for (occ1 ... */
+    } /* if (sig1->Name ... */
+  } /* for (occ1 ... */
 }
 
 /* -------------------------------------------------------------------- */
@@ -352,7 +352,7 @@ const char* vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, Class
         break;
       }
     } /* is this method non NULL */
-  }   /* loop over all methods */
+  } /* loop over all methods */
 
   /* the method table for constructors is produced elsewhere */
   if (!do_constructors)

@@ -241,8 +241,8 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
 
           targetArray->SetTuple(targetIdx, sourceIdx, dataArray);
         } // END for all k
-      }   // END for all j
-    }     // END for all i
+      } // END for all j
+    } // END for all i
 
     dataArray->Delete();
   } // END for all arrays
@@ -290,8 +290,8 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
 
         subSetArray->SetTuple(targetIdx, sourceIdx, inputDataArray);
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   return (subSetArray);
 }

@@ -67,8 +67,7 @@ public:
     const std::tuple<Args...>& args)
   {
     return std::apply([&](Args... unpacked_args)
-      { return validate_printf_format(printf_format, std_format, unpacked_args...); },
-      args);
+      { return validate_printf_format(printf_format, std_format, unpacked_args...); }, args);
   }
 };
 

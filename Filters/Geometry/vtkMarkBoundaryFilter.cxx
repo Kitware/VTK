@@ -552,7 +552,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
             marker->MarkCell(cellId, j, numFacePts, face->PointIds->GetPointer(0));
           }
         } // for all cell faces
-      }   // if 3D
+      } // if 3D
       else if (cell->GetCellDimension() == 2)
       {
         int numEdges = cell->GetNumberOfEdges();
@@ -565,8 +565,8 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
           {
             marker->MarkCell(cellId, j, numEdgePts, edge->PointIds->GetPointer(0));
           }
-        }  // for all cell edges
-      }    // if 2D
+        } // for all cell edges
+      } // if 2D
       else // should never happen
       {
         vtkLog(ERROR, "Unsupported cell type.");
@@ -768,7 +768,7 @@ struct MarkStructured : public MarkCellBoundary
         this->MarkStructuredCell(cellId, faceMark, ptIds);
       }
     } // for all cells in this batch
-  }   // operator()
+  } // operator()
 
   void Reduce() {}
 };
@@ -911,7 +911,7 @@ struct MarkDataSet : MarkCellBoundary
             this->MarkCell(cellId, j, numEdgePts, edge->PointIds->GetPointer(0));
           }
         } // for all cell edges
-      }   // if 2D
+      } // if 2D
 
       else if (cell->GetCellDimension() == 3)
       {
@@ -926,7 +926,7 @@ struct MarkDataSet : MarkCellBoundary
             this->MarkCell(cellId, j, numFacePts, face->PointIds->GetPointer(0));
           }
         } // for all cell faces
-      }   // if 3D
+      } // if 3D
 
       else // should never happen
       {

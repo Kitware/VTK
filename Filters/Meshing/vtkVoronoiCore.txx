@@ -73,7 +73,7 @@ inline void vtkVoronoiAdjacencyGraph::CountFaces(const vtkVoronoiSpoke* spokes, 
         numForwardFaces++;
       }
     } // if forward spoke
-  }   // for all spokes. Note backward spokes and invalid spokes ommitted
+  } // for all spokes. Note backward spokes and invalid spokes ommitted
 } // CountFaces
 
 //----------------------------------------------------------------------------
@@ -108,8 +108,8 @@ inline void vtkVoronoiAdjacencyGraph::ValidateAdjacencyGraph::operator()(
       {
         numInvalid++;
       } // if return edge does not exist
-    }   // over all spokes for this wheel
-  }     // for all wheels
+    } // over all spokes for this wheel
+  } // for all wheels
 }
 
 //----------------------------------------------------------------------------

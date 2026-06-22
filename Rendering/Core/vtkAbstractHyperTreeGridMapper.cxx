@@ -321,7 +321,7 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
         this->Modified();
       }
     } // if ( camera )
-  }   // if ( this->Renderer )
+  } // if ( this->Renderer )
 
   // Return superclass mtime
   return this->Superclass::GetMTime();

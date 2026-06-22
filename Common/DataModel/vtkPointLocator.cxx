@@ -249,9 +249,9 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
             minDist2 = dist2;
           }
         } // for each point
-      }   // if points in bucket
-    }     // for each overlapping bucket
-  }       // if not identical point
+      } // if points in bucket
+    } // for each overlapping bucket
+  } // if not identical point
 
   return closest;
 }
@@ -403,8 +403,8 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(
             refinedRadius2 = minDist2;
           }
         } // for each pt in bucket
-      }   // if bucket is within the current best distance
-    }     // for each overlapping bucket
+      } // if bucket is within the current best distance
+    } // for each overlapping bucket
 
     // don't want to checker a smaller radius than we just checked so update
     // ii appropriately
@@ -1293,8 +1293,8 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const double x[3])
           }
         }
       } // if points in bucket
-    }   // for each neighbor
-  }     // for neighbors at this level
+    } // for each neighbor
+  } // for neighbors at this level
 
   return -1;
 }
@@ -1547,9 +1547,9 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData*
           }
 
         } // over negative faces
-      }   // over i divisions
-    }     // over j divisions
-  }       // over k divisions
+      } // over i divisions
+    } // over j divisions
+  } // over k divisions
 
   pd->SetPoints(pts);
   pts->Delete();

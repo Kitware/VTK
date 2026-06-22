@@ -785,7 +785,7 @@ struct vtkAttributeManager
       this->OutPtData = output->GetPointData();
       this->OutPtData->CopyAllocate(this->TargetPtData);
     } // if passing point data
-  }   // constructor
+  } // constructor
 
   // Copy cell data from the input to the output.
   void CopyCellData(vtkIdType inCellId, vtkIdType outCellId)
@@ -860,8 +860,8 @@ struct vtkAttributeManager
             pInfo.ImprintEdge.V1, pInfo.ImprintEdge.Data);
         }
       } // Edge interpolation
-    }   // Copy / interpolate from target and imprint
-  }     // ProducePointData()
+    } // Copy / interpolate from target and imprint
+  } // ProducePointData()
 
 }; // vtkAttributeManager
 
@@ -1092,8 +1092,8 @@ struct vtkTargetPointClassifier
             (inout ? PointClassification::TargetInside : PointClassification::TargetOutside);
 
         } // if point not previously classified
-      }   // for cell points
-    }     // for all cells in this batch
+      } // for cell points
+    } // for all cells in this batch
   }
 
   void Reduce() {}
@@ -1148,7 +1148,7 @@ struct vtkImprintPointLookup : public std::vector<vtkPointInfo*>
         (*this)[id] = &itr;
       }
     } // for all imprint points
-  }   // BuildLookup
+  } // BuildLookup
 
 }; // vtkImprintPointLookup
 
@@ -1373,10 +1373,10 @@ struct ProjPoints
               break;
             }
           } // if on edge
-        }   // if need to check edges
-      }     // Imprint point successfully projected onto target
-    }       // For all imprint points
-  }         // ProjPoints
+        } // if need to check edges
+      } // Imprint point successfully projected onto target
+    } // For all imprint points
+  } // ProjPoints
 
   void Reduce() {}
 }; // ProjPoints
@@ -1505,10 +1505,10 @@ struct ProduceProjectedPoints
           if (cInfoE != nullptr)
             cInfoE->PerimeterPoints.emplace_back(ptId + numTargetPts);
         } // on edge
-      }   // requires some processing
-    }     // for all imprint points
-  }       // operator()
-};        // ProduceProjectedPoints
+      } // requires some processing
+    } // for all imprint points
+  } // operator()
+}; // ProduceProjectedPoints
 
 // Intersect the imprint edges with the target candidate cells to produce
 // intersection points on the boundary of the target cells, and edge
@@ -1774,10 +1774,10 @@ struct ProduceIntersectionPoints
               intersectedCell = cell0;
               goto RETURN;
             } // if cells the same
-          }   // for second list cells
-        }     // if cell is non-negative
-      }       // for first list cells
-    }         // if valid lists
+          } // for second list cells
+        } // if cell is non-negative
+      } // for first list cells
+    } // if valid lists
 
   RETURN:
     return intersectedCell;
@@ -1942,7 +1942,7 @@ struct ProduceIntersectionPoints
         newEdges.emplace_back(edgeIntList[i], edgeIntList[i + 1], outputCellId);
       }
     } // for all edge fragments
-  }   // ProduceInteriorEdgeFragments
+  } // ProduceInteriorEdgeFragments
 
   // The following methods support SMPTools integration.
   void Initialize() {}
@@ -2083,10 +2083,10 @@ struct ProduceIntersectionPoints
             // For this intersected target edge
             this->ProduceInteriorEdgeFragments(edgeIntList, newEdges);
           } // if imprint edge intersects target edge
-        }   // if should process this edge
-      }     // for each imprint cell edge
-    }       // for all imprint cells
-  }         // operator()
+        } // if should process this edge
+      } // for each imprint cell edge
+    } // for all imprint cells
+  } // operator()
 
   // Composite and number the generated points, add the points to the
   // candidate target cells for later triangulation. Also add edge fragments
@@ -2129,8 +2129,8 @@ struct ProduceIntersectionPoints
                 static_cast<vtkIdType>(pList->size() - 1 + this->TargetOffset));
             }
           } // for cells on either side of edge
-        }   // if edge intersection
-      }     // for all intersection points
+        } // if edge intersection
+      } // for all intersection points
 
       // Now add edge fragments. Need to produce them using VTK ids.  (At
       // this point, all points should have an assigned VTK point id.)
@@ -2146,8 +2146,8 @@ struct ProduceIntersectionPoints
           cInfo->InteriorEdges.emplace_back(v0.VTKPtId, v1.VTKPtId);
         }
       } // for each edge fragment
-    }   // for all local data in threads
-  }     // Reduce()
+    } // for all local data in threads
+  } // Reduce()
 
 }; // ProduceIntersectionPoints
 
@@ -2542,8 +2542,8 @@ struct Triangulate
         } // if valid loop built
 
       } // if edge has not yet been visited
-    }   // for all edges in the edge network
-  }     // BuildCells
+    } // for all edges in the edge network
+  } // BuildCells
 
   // SMP interface methods for triangulating the target cells in parallel.
   void Initialize()
@@ -2637,8 +2637,8 @@ struct Triangulate
         }
 
       } // if target cell needs triangulation
-    }   // for all candidate cells
-  }     // operator()
+    } // for all candidate cells
+  } // operator()
 
   // Insert the results of cell building into the filter's output.
   // This is a serial operation - it could be threaded if necessary.
@@ -2694,9 +2694,9 @@ struct Triangulate
           }
           offset += npts;
         } // for all cells in this target candidate cell
-      }   // target cell has been triangulated
-    }     // for all candidate target cells
-  }       // Reduce
+      } // target cell has been triangulated
+    } // for all candidate target cells
+  } // Reduce
 
 }; // Triangulate
 

@@ -274,7 +274,7 @@ public:
   /**
    * Update the HMD pose.
    */
-  virtual void UpdateHMDMatrixPose(){};
+  virtual void UpdateHMDMatrixPose() {};
 
   /**
    * Get whether the XR components of the window

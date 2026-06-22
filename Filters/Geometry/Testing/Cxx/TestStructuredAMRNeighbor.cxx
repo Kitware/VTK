@@ -47,7 +47,7 @@ int CheckExtents(int ext[6], int exp[6])
       std::cout.flush();
       return 1;
     } // END if
-  }   // END for
+  } // END for
   std::cout << "[OK]\n";
   std::cout.flush();
   return 0;

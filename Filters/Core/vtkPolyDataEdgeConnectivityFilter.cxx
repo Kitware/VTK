@@ -163,7 +163,7 @@ void vtkPolyDataEdgeConnectivityFilter::SortRegionsByArea()
 vtkIdType vtkPolyDataEdgeConnectivityFilter::FindNumberOfExtractedRegions()
 {
   vtkIdType regionNum = 0, numSizes = this->RegionSizes->GetNumberOfTuples();
-  while (regionNum<numSizes&& this->RegionSizes->GetValue(regionNum)> 0)
+  while (regionNum < numSizes && this->RegionSizes->GetValue(regionNum) > 0)
   {
     regionNum++;
   }
@@ -680,7 +680,7 @@ void vtkPolyDataEdgeConnectivityFilter::GetConnectedNeighbors(
         }
       }
     } // if edge is not a barrier
-  }   // for each edge
+  } // for each edge
 }
 
 //------------------------------------------------------------------------------
@@ -729,8 +729,8 @@ void vtkPolyDataEdgeConnectivityFilter::TraverseAndMark()
             this->Wave2.push_back(neiId);
           }
         } // for all neighboring cells to this cell
-      }   // if cell not yet visited
-    }     // for all cells in this wave
+      } // if cell not yet visited
+    } // for all cells in this wave
 
     this->Wave = this->Wave2;
     this->Wave2.clear();
@@ -931,9 +931,9 @@ void vtkPolyDataEdgeConnectivityFilter::GrowLargeRegions()
             this->ExchangeRegions(largeRegId, cellId, regId);
           }
         } // if in small region, or no region
-      }   // for all candidates
-    }     // while things are changing
-  }       // for each region growing pass
+      } // for all candidates
+    } // while things are changing
+  } // for each region growing pass
 }
 
 //------------------------------------------------------------------------------
@@ -992,15 +992,15 @@ void vtkPolyDataEdgeConnectivityFilter::GrowSmallRegions()
               this->Wave2.push_back(neiId);
               smallVisited[neiId] = 1;
             } // if cell not yet visited
-          }   // for all edge neighbors
-        }     // for all edges of this cell
-      }       // for all cells in this propagation wave
+          } // for all edge neighbors
+        } // for all edges of this cell
+      } // for all cells in this propagation wave
 
       this->Wave = this->Wave2;
       this->Wave2.clear();
       this->Wave2.reserve(numCells);
     } // while wave is not empty
-  }   // for all cells
+  } // for all cells
 }
 
 //------------------------------------------------------------------------------

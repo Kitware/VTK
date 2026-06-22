@@ -142,8 +142,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
   auto subLine = std::get<1>(resultSubLine0->values());
   if (subLine != "Binary" && subLine != "binary")
   {
-    vtkErrorMacro("This is not an EnSight6 binary file. Try "
-      << "vtkEnSight6Reader.");
+    vtkErrorMacro("This is not an EnSight6 binary file. Try " << "vtkEnSight6Reader.");
     return 0;
   }
 
@@ -744,8 +743,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   auto subLine = std::get<1>(resultSubLine->values());
   if (subLine != "Binary")
   {
-    vtkErrorMacro("This is not a binary data set. Try "
-      << "vtkEnSightGoldReader.");
+    vtkErrorMacro("This is not a binary data set. Try " << "vtkEnSightGoldReader.");
     points->Delete();
     pd->Delete();
     return 0;

@@ -232,8 +232,7 @@ int vtkRandomGraphSource::RequestData(
   {
     if (!this->EdgeWeightArrayName)
     {
-      vtkErrorMacro("When generating edge weights, "
-        << "edge weights array name must be defined.");
+      vtkErrorMacro("When generating edge weights, " << "edge weights array name must be defined.");
       return 0;
     }
     vtkFloatArray* weights = vtkFloatArray::New();

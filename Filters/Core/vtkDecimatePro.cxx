@@ -341,7 +341,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
     } // if cells attached
-  }   // while queue not empty and reduction not satisfied
+  } // while queue not empty and reduction not satisfied
 
   CollapseTris->Delete();
 
@@ -1087,7 +1087,7 @@ void vtkDecimatePro::SplitVertex(
           this->Insert(id);
         }
       } // if not first group
-    }   // for all groups
+    } // for all groups
     // Don't forget to reinsert original vertex
     if (insert)
     {
@@ -1643,7 +1643,7 @@ void vtkDecimatePro::Insert(vtkIdType ptId, double error)
       } // not a simple type
 
     } // if cells attached to vertex
-  }   // need to compute the error
+  } // need to compute the error
 
   // If point is being recycled, see whether we want to split it
   else if (error >= VTK_RECYCLE_VERTEX)

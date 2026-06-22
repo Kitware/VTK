@@ -74,7 +74,7 @@ void SynchronizedPrint(vtkMPIController* comm, const char* format, T&&... args)
     {
       comm->NoBlockSend(nullmsg, 0, rank + 1, 0, rqst);
     } // END if
-  }   // END first rank
+  } // END first rank
   else if (rank == numRanks - 1)
   {
     // STEP 0: Block until previous process completes

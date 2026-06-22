@@ -689,7 +689,7 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
         this->Modified();
       }
     } // if ( cam )
-  }   // if ( this->Renderer )
+  } // if ( this->Renderer )
   return this->Superclass::GetMTime();
 }
 

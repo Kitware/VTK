@@ -1127,7 +1127,7 @@ void vtkDiscreteClipperAlgorithm<TArray>::ClassifyXEdges(TPtr inPtr, vtkIdType r
       minInt = (i < minInt ? i : minInt);
       maxInt = i + 1;
     } // if contour interacts with this dyad
-  }   // for all dyad-x-edges along this image x-edge
+  } // for all dyad-x-edges along this image x-edge
 
   // The beginning and ending of intersections along the edge is used for
   // computational trimming.

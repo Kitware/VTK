@@ -459,8 +459,8 @@ struct StructuredSpheres : public DataSetSpheres
           vtkSphere::ComputeBoundingSphere(cellPts, 8, sphere, hint);
           sphere += 4;
         } // i
-      }   // j
-    }     // slices
+      } // j
+    } // slices
   }
 
   void Reduce() { DataSetSpheres::Reduce(); }
@@ -588,8 +588,8 @@ struct UnstructuredPointSelect : public DefaultPointSelect
             ++numSelected;
           }
         } // for cells in bucket
-      }   // if bucket sphere intersects point
-    }     // for grid buckets
+      } // if bucket sphere intersects point
+    } // for grid buckets
   }
 
   void Reduce() { DefaultPointSelect::Reduce(); }
@@ -659,7 +659,7 @@ struct StructuredPointSelect : public DefaultPointSelect
         }
 
       } // if bucket sphere contains point
-    }   // for grid buckets
+    } // for grid buckets
   }
 
   void Reduce() { DefaultPointSelect::Reduce(); }
@@ -746,8 +746,8 @@ struct UnstructuredLineSelect : public DefaultLineSelect
             ++numSelected;
           }
         } // for cells in bucket
-      }   // if bucket sphere intersects line
-    }     // for grid buckets
+      } // if bucket sphere intersects line
+    } // for grid buckets
   }
 
   void Reduce() { DefaultLineSelect::Reduce(); }
@@ -817,7 +817,7 @@ struct StructuredLineSelect : public DefaultLineSelect
         }
 
       } // if bucket sphere intersects line
-    }   // for grid buckets
+    } // for grid buckets
   }
 
   void Reduce() { DefaultLineSelect::Reduce(); }
@@ -905,8 +905,8 @@ struct UnstructuredPlaneSelect : public DefaultPlaneSelect
             ++numSelected;
           }
         } // for cells in bucket
-      }   // if bucket sphere intersects plane
-    }     // for grid buckets
+      } // if bucket sphere intersects plane
+    } // for grid buckets
   }
 
   void Reduce() { DefaultPlaneSelect::Reduce(); }
@@ -976,7 +976,7 @@ struct StructuredPlaneSelect : public DefaultPlaneSelect
         }
 
       } // if bucket sphere intersects plane
-    }   // for grid buckets
+    } // for grid buckets
   }
 
   void Reduce() { DefaultPlaneSelect::Reduce(); }
@@ -1230,13 +1230,13 @@ void vtkSphereTree::BuildStructuredHierarchy(vtkStructuredGrid* input, double* t
               {
                 blockSpheres[numSpheres++] = spheres[level + 1] + 4 * (ii + jjOffset + kkOffset);
               } // for sub-block ii
-            }   // for sub-block jj
-          }     // for sub-block kk
+            } // for sub-block jj
+          } // for sub-block kk
           vtkSphere::ComputeBoundingSphere(blockSpheres, numSpheres, sphere, hints);
         } // for i
-      }   // for j
-    }     // for k
-  }       // for all levels
+      } // for j
+    } // for k
+  } // for all levels
 }
 
 //================Specialized methods for unstructured grids====================
@@ -1356,8 +1356,8 @@ void vtkSphereTree::BuildUnstructuredHierarchy(vtkDataSet* input, double* tree)
         vtkSphere::ComputeBoundingSphere(tmpSpheres.data(), nSph, gs, nullptr);
         gs += 4;
       } // i
-    }   // j
-  }     // k
+    } // j
+  } // k
 }
 
 //------------------------------------------------------------------------------

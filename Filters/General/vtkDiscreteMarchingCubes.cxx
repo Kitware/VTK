@@ -224,10 +224,10 @@ struct vtkDiscreteMarchingCubesComputeGradientFunctor
                 }
               }
             } // for each triangle
-          }   // for all contours
-        }     // for i
-      }       // for j
-    }         // for k
+          } // for all contours
+        } // for i
+      } // for j
+    } // for k
   }
 };
 
