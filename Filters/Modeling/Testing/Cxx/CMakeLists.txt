@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestRotationalExtrusion2.cxx
   TestSelectEnclosedPoints.cxx
   TestVolumeOfRevolutionFilter.cxx
+  UnitTestBandedPolyDataContourFilterNaN.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   UnitTestCollisionDetectionFilter.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   UnitTestHausdorffDistancePointSetFilter.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   UnitTestSubdivisionFilters.cxx,NO_DATA,NO_VALID,NO_OUTPUT
