@@ -57,7 +57,7 @@ struct WriteTypedArray
     }
     const std::size_t nbytes = data->GetNumberOfValues() * sizeof(DestT);
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer, this->ByteOffset, data->GetPointer(0), nbytes, description);
+      this->DstBuffer.Get(), this->ByteOffset, data->GetPointer(0), nbytes, description);
     this->ByteOffset += nbytes;
     this->NumberOfBytesWritten += nbytes;
   }
