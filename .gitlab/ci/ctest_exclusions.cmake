@@ -700,7 +700,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"
     "^VTK::RenderingOpenGL2Cxx-TestSurfaceInterpolationSwitch$"
     "^VTK::RenderingOpenGL2Cxx-TestTexture16Bits$"
-    "^VTK::RenderingOpenGL2Cxx-TestTextureBufferEmulation$"
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint$"
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint2$"
     "^VTK::RenderingOpenGL2Cxx-TestVBOPLYMapper$"
