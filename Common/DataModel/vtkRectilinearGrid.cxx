@@ -12,6 +12,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -369,57 +370,41 @@ void vtkRectilinearGrid::ComputeBounds()
 }
 
 //------------------------------------------------------------------------------
-// Convenience function computes the structured coordinates for a point x[3].
-// The cell is specified by the array ijk[3], and the parametric coordinates
-// in the cell are specified with pcoords[3]. The function returns a 0 if the
-// point x is outside of the grid, and a 1 if inside the grid.
 int vtkRectilinearGrid::ComputeStructuredCoordinates(
-  const double x[3], int ijk[3], double pcoords[3])
+  const double inputCoord[3], int ijk[3], double pcoords[3])
 {
-  int i, j;
-  double xPrev, xNext, tmp;
-  vtkDataArray* scalars[3];
+  vtkDataArray* scalars[3] = { this->XCoordinates, this->YCoordinates, this->ZCoordinates };
 
-  int dims[3];
-  this->GetDimensions(dims);
-
-  scalars[0] = this->XCoordinates;
-  scalars[1] = this->YCoordinates;
-  scalars[2] = this->ZCoordinates;
-  //
-  // Find locations in x-y-z direction
-  //
   ijk[0] = ijk[1] = ijk[2] = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  for (j = 0; j < 3; j++)
+  for (int axisIdx = 0; axisIdx < 3; axisIdx++)
   {
-    xPrev = scalars[j]->GetComponent(0, 0);
-    xNext = scalars[j]->GetComponent(scalars[j]->GetNumberOfTuples() - 1, 0);
-    if (x[j] < xPrev || x[j] > xNext)
+    double prevCoord = scalars[axisIdx]->GetComponent(0, 0);
+    double nextCoord = scalars[axisIdx]->GetComponent(scalars[axisIdx]->GetNumberOfTuples() - 1, 0);
+    if (inputCoord[axisIdx] < prevCoord || inputCoord[axisIdx] > nextCoord)
     {
       return 0;
     }
+
+    // first coordinate belongs to the first cell
+    if (vtkMathUtilities::FuzzyCompare(inputCoord[axisIdx], prevCoord))
     {
+      ijk[axisIdx] = 0;
+      pcoords[axisIdx] = 0;
+      continue;
     }
 
-    for (i = 1; i < scalars[j]->GetNumberOfTuples(); i++)
+    for (int axisCoordIdx = 1; axisCoordIdx < scalars[axisIdx]->GetNumberOfTuples(); axisCoordIdx++)
     {
-      xNext = scalars[j]->GetComponent(i, 0);
-      if (x[j] >= xPrev && x[j] < xNext)
+      nextCoord = scalars[axisIdx]->GetComponent(axisCoordIdx, 0);
+      if (inputCoord[axisIdx] > prevCoord && inputCoord[axisIdx] <= nextCoord)
       {
-        ijk[j] = i - 1;
-        pcoords[j] = (x[j] - xPrev) / (xNext - xPrev);
+        ijk[axisIdx] = axisCoordIdx - 1;
+        pcoords[axisIdx] = (inputCoord[axisIdx] - prevCoord) / (nextCoord - prevCoord);
         break;
       }
-
-      else if (x[j] == xNext)
-      {
-        ijk[j] = i - 1;
-        pcoords[j] = 1.0;
-        break;
-      }
-      xPrev = xNext;
+      prevCoord = nextCoord;
     }
   }
 
