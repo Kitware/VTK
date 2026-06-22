@@ -79,7 +79,7 @@ protected:
   /**
    * Parse JSON material file with OSPRay-specific backward compatibility handling.
    */
-  bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
+  bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc) override;
 
   /**
    * Load texture from file or inline XML data.

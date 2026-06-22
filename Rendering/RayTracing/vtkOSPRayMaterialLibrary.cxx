@@ -683,8 +683,9 @@ bool vtkOSPRayMaterialLibrary::ReadTextureFileOrData(const std::string& texFilen
     reader->SetInputString(texFilenameOrData);
     textr->SetInputConnection(reader->GetOutputPort(0));
   }
-  else if (fromfile)
+  else if (fromfile || vtksys::SystemTools::FileExists(texFilenameOrData.c_str(), true))
   {
+    // Either we're reading from a file, or the texFilenameOrData is an absolute file path
     textureFilename = texFilenameOrData;
     // try the texFilenameOrData as an absolute path
     if (!vtksys::SystemTools::FileExists(textureFilename.c_str(), true))

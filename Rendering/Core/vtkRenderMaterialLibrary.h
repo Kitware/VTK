@@ -242,7 +242,7 @@ protected:
     std::string& textureFilename);
 
   bool InternalParse(const char* filename, bool fromfile);
-  bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
+  virtual bool InternalParseJSON(const char* filename, bool fromfile, std::istream* doc);
   bool InternalParseMTL(const char* filename, bool fromfile, std::istream* doc);
 
   virtual const std::map<std::string, ParametersMap>& GetParametersDictionary() const;
