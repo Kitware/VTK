@@ -16,6 +16,7 @@
 #ifndef vtkXMLPHyperTreeGridReader_h
 #define vtkXMLPHyperTreeGridReader_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectReader.h"
 
@@ -24,7 +25,9 @@ class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkXMLHyperTreeGridReader;
 
-class VTKIOXML_EXPORT vtkXMLPHyperTreeGridReader : public vtkXMLPDataObjectReader
+class VTK_DEPRECATED_IN_9_7_0(
+  "Use vtkHyperTreeGridReader instead") VTKIOXML_EXPORT vtkXMLPHyperTreeGridReader
+  : public vtkXMLPDataObjectReader
 {
 public:
   vtkTypeMacro(vtkXMLPHyperTreeGridReader, vtkXMLPDataObjectReader);
