@@ -133,6 +133,7 @@ public:
    * specified with (offset, size). For an error we return nullptr or an
    * empty vector.
    */
+  vtkDataArray* NewMetadataArray(const char* name, const std::vector<hsize_t>& fileExtent);
   vtkDataArray* NewMetadataArray(const char* name, hsize_t offset, hsize_t size);
   std::vector<vtkIdType> GetMetadata(const char* name, hsize_t size, hsize_t offset = 0);
   ///@}
@@ -174,6 +175,12 @@ public:
   vtkIdType GetArrayOffset(vtkIdType step, int attributeType, std::string name);
 
   /**
+   * Get temporal offset value for the given time step of the data.
+   * Returns -1 if the offset dataset could not be found.
+   */
+  vtkIdType GetTemporalOffset(vtkIdType step, const std::string& name);
+
+  /**
    * Return the field array size (components, tuples) for the current step.
    * By default it returns {-1,1} which means to have as many components as necessary
    * and one tuple per step.
@@ -196,11 +203,15 @@ public:
    */
   bool GetImageAttributes(int WholeExtent[6], double Origin[3], double Spacing[3]);
 
+  /**
+   * Retrieve the dimensions attribute and store it (used by StructuredGrid and RectilinearGrid).
+   * Return false on failure.
+   */
+  bool GetDimensionsAttribute(int Dimensions[3]);
+
   ///@{
   /**
    * Specific public API for AMR support.
-   */
-  /**
    * Return the number of level in an AMR file
    */
   unsigned int GetAMRNumberOfLevels();

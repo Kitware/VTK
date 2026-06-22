@@ -342,6 +342,14 @@ bool vtkHDFUtilities::ReadDataSetType(hid_t groupID, int& dataSetType)
   {
     dataSetType = VTK_IMAGE_DATA;
   }
+  else if (typeName == "RectilinearGrid")
+  {
+    dataSetType = VTK_RECTILINEAR_GRID;
+  }
+  else if (typeName == "StructuredGrid")
+  {
+    dataSetType = VTK_STRUCTURED_GRID;
+  }
   else if (typeName == "UnstructuredGrid")
   {
     dataSetType = VTK_UNSTRUCTURED_GRID;

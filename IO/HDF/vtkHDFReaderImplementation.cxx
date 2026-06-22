@@ -25,7 +25,9 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStringFormatter.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -385,10 +387,17 @@ vtkAbstractArray* vtkHDFReader::Implementation::NewFieldArray(
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
+  const char* name, const std::vector<hsize_t>& fileExtent)
+{
+  return vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, name, fileExtent);
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkHDFReader::Implementation::NewMetadataArray(
   const char* name, hsize_t offset, hsize_t size)
 {
   std::vector<hsize_t> fileExtent = { offset, offset + size };
-  return vtkHDFUtilities::NewArrayForGroup(this->VTKGroup, name, fileExtent);
+  return this->NewMetadataArray(name, fileExtent);
 }
 
 //------------------------------------------------------------------------------
@@ -583,6 +592,17 @@ bool vtkHDFReader::Implementation::GetImageAttributes(
     return false;
   }
 
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::GetDimensionsAttribute(int Dimensions[3])
+{
+  if (!this->GetAttribute("Dimensions", 3, Dimensions))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not get Dimensions attribute");
+    return false;
+  }
   return true;
 }
 
@@ -1318,6 +1338,30 @@ vtkIdType vtkHDFReader::Implementation::GetArrayOffset(
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkHDFReader::Implementation::GetTemporalOffset(vtkIdType step, const std::string& name)
+{
+  if (H5Lexists(this->VTKGroup, "Steps", H5P_DEFAULT) <= 0)
+  {
+    return -1;
+  }
+
+  // Steps group does exist
+  vtkHDF::ScopedH5GHandle steps = H5Gopen(this->VTKGroup, "Steps", H5P_DEFAULT);
+
+  if (H5Lexists(steps, name.c_str(), H5P_DEFAULT) <= 0)
+  {
+    return -1;
+  }
+
+  std::vector<vtkIdType> buffer = vtkHDFUtilities::GetMetadata(steps, name.c_str(), 1, step);
+  if (buffer.empty())
+  {
+    return -1;
+  }
+  return buffer[0];
+}
+
+//------------------------------------------------------------------------------
 std::array<vtkIdType, 2> vtkHDFReader::Implementation::GetFieldArraySize(
   vtkIdType step, std::string name)
 {
@@ -1348,6 +1392,14 @@ vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
   else if (dataSetType == VTK_IMAGE_DATA)
   {
     newOutput = vtkSmartPointer<vtkImageData>::New();
+  }
+  else if (dataSetType == VTK_RECTILINEAR_GRID)
+  {
+    newOutput = vtkSmartPointer<vtkRectilinearGrid>::New();
+  }
+  else if (dataSetType == VTK_STRUCTURED_GRID)
+  {
+    newOutput = vtkSmartPointer<vtkStructuredGrid>::New();
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {

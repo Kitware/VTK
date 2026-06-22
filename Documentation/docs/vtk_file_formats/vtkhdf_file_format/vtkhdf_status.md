@@ -21,8 +21,8 @@ have ongoing discussions and may be specified when possible.
 | vtkPartitionedDataSetCollection | specified       |
 | vtkOverlappingAMR               | partial [1](https://gitlab.kitware.com/vtk/vtk/-/issues/19926)[2](https://gitlab.kitware.com/vtk/vtk/-/issues/19927)  |
 | vtkPolyData                     | specified       |
-| vtkRectilinearGrid              | [not specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
-| vtkStructuredGrid               | [not specified](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
+| vtkRectilinearGrid              | specified |
+| vtkStructuredGrid               | specified |
 | vtkUnstructuredGrid             | specified |
 
 ### Additional Features

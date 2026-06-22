@@ -6,6 +6,7 @@
 vtkhdf_specifications
 vtkhdf_status
 vtkhdf_examples
+vtkhdf_changelog
 ```
 
 ```{include} vtkhdf_introduction.md

@@ -45,9 +45,12 @@ class vtkCellArray;
 class vtkDataObjectTree;
 class vtkDataSet;
 class vtkHyperTreeGrid;
+class vtkImageData;
 class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
+class vtkRectilinearGrid;
+class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
@@ -231,6 +234,9 @@ private:
    * Write the given dataset to the current FileName in vtkHDF format.
    * returns true if the writing operation completes successfully.
    */
+  bool WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned int partId = 0);
+  bool WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, unsigned int partId = 0);
+  bool WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsigned int partId = 0);
@@ -243,6 +249,8 @@ private:
    * For temporal data, update the steps group with information relevant to the current timestep.
    * return true if the operation was successful.
    */
+  bool UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input);
+  bool UpdateStepsGroup(hid_t group, vtkStructuredGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId);
   bool UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned int partId);
   bool UpdateStepsGroup(hid_t group, vtkHyperTreeGrid* input, unsigned int partId,
@@ -254,6 +262,8 @@ private:
    * Initialize the `Steps` group for temporal data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
+  bool InitializeTemporalRectilinearGrid(hid_t group);
+  bool InitializeTemporalStructuredGrid(hid_t group);
   bool InitializeTemporalPolyData(hid_t group);
   bool InitializeTemporalUnstructuredGrid(hid_t group);
   bool InitializeTemporalPolyhedra(hid_t group);
@@ -274,6 +284,12 @@ private:
   ///@}
 
   /**
+   * Add the three coordinate arrays to the file
+   * OpenRoot should succeed on this->Impl before calling this function
+   */
+  bool AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid* input);
+
+  /**
    * Add the number of points to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
@@ -282,8 +298,10 @@ private:
   /**
    * Add the points of the point set to the file
    * OpenRoot should succeed on this->Impl before calling this function
+   * dims provides the dimensions of the structured dataset. Used only for ImageData,
+   * RectilinearGrid and StructuredGrid for now.
    */
-  bool AppendPoints(hid_t group, vtkPointSet* input);
+  bool AppendPoints(hid_t group, vtkPointSet* input, const int* dims = nullptr);
 
   /**
    * Add the number of cells to the file.
@@ -369,10 +387,12 @@ private:
    * OpenRoot should succeed on this->Impl before calling this function
    * cellIdMap is an IdList giving the cell ids in Breadth-first order, used to rearange the arrays
    * before being written. Used exclusively for HTG for now.
+   * dims provides the dimensions of the structured dataset. Used only for ImageData,
+   * RectilinearGrid and StructuredGrid for now.
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
-  bool AppendDataSetAttributes(
-    hid_t group, vtkDataObject* input, unsigned int partId = 0, vtkIdList* cellIdMap = nullptr);
+  bool AppendDataSetAttributes(hid_t group, vtkDataObject* input, unsigned int partId = 0,
+    vtkIdList* cellIdMap = nullptr, const int* dims = nullptr);
   bool AppendFieldDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
   ///@}
 
@@ -426,7 +446,7 @@ private:
    * Append the offset data in the steps group for the current array for temporal data
    */
   bool AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* array, const std::string& arrayName,
-    const std::string& offsetsGroupName, unsigned int partId);
+    const std::string& offsetsGroupName, unsigned int partId, bool isStructured = false);
   bool AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* array,
     const std::string& arrayName, const std::string& offsetsGroupName, unsigned int partId);
   ///@}

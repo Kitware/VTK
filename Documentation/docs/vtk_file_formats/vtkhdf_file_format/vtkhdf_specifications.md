@@ -85,7 +85,7 @@ Possible values for "Attribute" are (case-insensitive):
 
 ## Image data
 
-The format for image data is detailed in the Figure 1 where the `Type`
+The format for [Image Data](https://vtk.org/doc/nightly/html/classvtkImageData.html) is detailed in the Figure 1 where the `Type`
 attribute of the `VTKHDF` group is `ImageData`.  An
 ImageData (regular grid) is not split into partitions for parallel
 processing. We rely on the writer to chunk the data to optimize
@@ -133,10 +133,24 @@ digraph G {
 Figure 1. - Image Data VTKHDF File Format
 </div>
 
+## Rectilinear Grid
+
+[Rectilinear grids](https://vtk.org/doc/nightly/html/classvtkRectilinearGrid.html) are defined just like ImageData,
+with the addition of 3 new datasets `XCoordinates`, `YCoordinates` and `ZCoordinates` that define position of points in the three coordinate directions.
+For a grid of size `K * L * M`, `XCoordinates` has a size of `K`, `YCoordinates` has a size of `L` and `ZCoordinates` has a size of `L`.
+
+The `Type` attribute of the `VTKHDF` group is `RectilinearGrid`.
+
+## Structured Grid
+
+[Structured grids](https://vtk.org/doc/nightly/html/classvtkStructuredGrid.html) are a structured data type where point positions are defined explicitly. Using VTKHDF, for a grid of size `K * L * M`, points are defined using a HDF5 `Points` dataset of dimension (`K, L, M`, 3).
+
+The `Type` attribute of the `VTKHDF` group is `StructuredGrid`.
+
 
 ## Unstructured grid
 
-The format for unstructured grid is shown in Figure 2. In this case
+The format for [unstructured grid](https://vtk.org/doc/nightly/html/classvtkUnstructuredGrid.html) is shown in Figure 2. In this case
 the `Type` attribute of the `VTKHDF` group is `UnstructuredGrid`.
 The unstructured grid is split into partitions, with a partition for
 each MPI rank. This is reflected in the HDF5 file structure. Each HDF
@@ -377,7 +391,7 @@ offset.
 
 ## Overlapping AMR
 
-The format for Overlapping AMR is shown in Figure 4. In this case
+The format for [Overlapping AMR](https://vtk.org/doc/nightly/html/classvtkOverlappingAMR.html) is shown in Figure 4. In this case
 the `Type` attribute of the `VTKHDF` group is `OverlappingAMR`.
 The mandatory `Origin` parameter is a double triplet that defines
 the global origin of the AMR data set.
@@ -439,7 +453,7 @@ Figure 4. Overlapping AMR VTKHDF File Format
 
 ## HyperTreeGrid
 
-The schema for the tree-based AMR HyperTreeGrid VTKHDF specification is shown in Figure 5.
+The schema for the tree-based AMR [HyperTreeGrid](https://vtk.org/doc/nightly/html/classvtkHyperTreeGrid.html) VTKHDF specification is shown in Figure 5.
 This specification is very different from the ones mentioned above, because its topology is defined as a grid of refined trees.
 
 Root attribute `Dimensions` defines the dimension of the grid. For a `N * M * P` grid, there are a total of `(N - 1) * (M - 1) * (P - 1)` trees.
@@ -551,7 +565,7 @@ Figure 5. - HyperTreeGrid VTKHDF File Format
 ## PartitionedDataSetCollection and MultiBlockDataSet
 
 VTKHDF supports composite types, made of multiple datasets of simple types, organized as a tree.
-The format currently supports vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) composite types, as shown in Figure 11.
+The format currently supports [vtkPartitionedDataSetCollection](https://vtk.org/doc/nightly/html/classvtkPartitionedDataSetCollection.html) (PDC) and [vtkMultiBlockDataSet](https://vtk.org/doc/nightly/html/classvtkMultiBlockDataSet.html) (MB) composite types, as shown in Figure 11.
 The `Type` attribute of the `VTKHDF` group for them should be either `PartitionedDataSetCollection` or `MultiBlockDataSet`.
 
 All simple (non composite) datasets are located in the root `VTKHDF` group, with a unique block name.
@@ -756,6 +770,16 @@ A particularity of temporal `Image Data` in the format is that the reader expect
 prepended dimension considering the time to be the first dimension in the multidimensional arrays.
 As such, arrays described in temporal `Image Data` should have dimensions ordered as
 `(time, z, y, x)`.
+
+### Temporal RectilinearGrid
+
+Datasets `Steps/XCoordinatesOffsets`, `Steps/YCoordinatesOffsets` and `Steps/ZCoordinatesOffsets` define the read offsets into the `X/Y/ZCoordinates` arrays for each time step. These datasets are optional, offset is 0 by default, which means that coordinates are the same as the previous time step.
+
+### Temporal StructuredGrid
+
+Point positions in the `Points` dataset are added in the first dimension at every time step. The `Steps/PointOffsets` dataset defines the read offset in the first dimension of the explicit point positions dataset `Points`. When not specified, the offset is `0`, which means that the structured point positions are the same as the previous step.
+
+When point positions are changing between time steps, `Points` is a 5-dimensional dataset of shape (`NumberOfTimeSteps`, `X dimension`,`Y dimension`, `Z dimension`, 3). X/Y/Z dimensions need to be consistent between time steps.
 
 ### Temporal OverlappingAMR
 
