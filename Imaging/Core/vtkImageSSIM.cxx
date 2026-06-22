@@ -166,15 +166,16 @@ struct SSIMWorker
   }
 };
 
-std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
+std::vector<double> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
 {
-  std::array<double, 3> measure = {};
+  const int nComp = array->GetNumberOfComponents();
+  std::vector<double> measure(nComp, 0.0);
 
-  auto data = vtk::DataArrayTupleRange<3>(array);
+  auto data = vtk::DataArrayTupleRange(array);
 
   for (auto lab : data)
   {
-    for (int dim = 0; dim < 3; ++dim)
+    for (int dim = 0; dim < nComp; ++dim)
     {
       // The range of ssim values is [-1, 1]. By doing 1 - value, we change the range to [0, 2]
       measure[dim] += f(1.0 - lab[dim]);
@@ -183,7 +184,7 @@ std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double
 
   // Normalize the measure
   const vtkIdType div = array->GetNumberOfTuples();
-  for (int dim = 0; dim < 3; ++dim)
+  for (int dim = 0; dim < nComp; ++dim)
   {
     measure[dim] /= div;
   }
@@ -191,35 +192,40 @@ std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double
   return measure;
 }
 
-std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
+std::vector<double> ComputeMinkowski1(vtkDoubleArray* array)
 {
   auto same = [](double v) -> double { return v; };
   return ComputeMinkowski(array, same);
 }
 
-std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
+std::vector<double> ComputeMinkowski2(vtkDoubleArray* array)
 {
   auto power2 = [](double v) -> double { return v * v; };
   auto measure = ComputeMinkowski(array, power2);
-  for (int dim = 0; dim < 3; ++dim)
+  for (auto& v : measure)
   {
-    measure[dim] = std::sqrt(measure[dim]);
+    v = std::sqrt(v);
   }
   return measure;
 }
 
-std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*f)(std::uint64_t))
+std::vector<double> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*f)(std::uint64_t))
 {
-  std::array<double, 3> measure = {};
+  const int nComp = array->GetNumberOfComponents();
+  std::vector<double> measure(nComp, 0.0);
 
-  auto data = vtk::DataArrayTupleRange<3>(array);
+  auto data = vtk::DataArrayTupleRange(array);
 
   constexpr std::uint64_t N = 200;
-  std::array<std::uint64_t, N> hist[3] = {};
+  std::vector<std::array<std::uint64_t, N>> hist(nComp);
+  for (auto& h : hist)
+  {
+    h.fill(0);
+  }
 
   for (auto lab : data)
   {
-    for (int dim = 0; dim < 3; ++dim)
+    for (int dim = 0; dim < nComp; ++dim)
     {
       // The range of ssim values is [-1, 1], so we rescale it to [0, 1]
       double value = (lab[dim] + 1.0) / 2.0;
@@ -232,7 +238,7 @@ std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*
     }
   }
 
-  for (int dim = 0; dim < 3; ++dim)
+  for (int dim = 0; dim < nComp; ++dim)
   {
     // Compute the cumulative frequency distribution
     std::array<std::uint64_t, N> cfd;
@@ -246,7 +252,7 @@ std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*
 
   // Normalize the measure
   const vtkIdType div = f(static_cast<std::uint64_t>(array->GetNumberOfTuples())) * (N - 1);
-  for (int dim = 0; dim < 3; ++dim)
+  for (int dim = 0; dim < nComp; ++dim)
   {
     measure[dim] /= div;
   }
@@ -254,19 +260,19 @@ std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*
   return measure;
 }
 
-std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
+std::vector<double> ComputeWasserstein1(vtkDoubleArray* array)
 {
   auto same = [](std::uint64_t v) -> std::uint64_t { return v; };
   return ComputeWasserstein(array, same);
 }
 
-std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
+std::vector<double> ComputeWasserstein2(vtkDoubleArray* array)
 {
   auto power2 = [](std::uint64_t v) -> std::uint64_t { return v * v; };
   auto measure = ComputeWasserstein(array, power2);
-  for (int dim = 0; dim < 3; ++dim)
+  for (auto& v : measure)
   {
-    measure[dim] = std::sqrt(measure[dim]);
+    v = std::sqrt(v);
   }
   return measure;
 }
@@ -541,7 +547,8 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 void vtkImageSSIM::ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose)
 {
-  auto arrayMax = [](const std::array<double, 3>& v) { return std::max({ v[0], v[1], v[2] }); };
+  auto arrayMax = [](const std::vector<double>& v)
+  { return *std::max_element(v.begin(), v.end()); };
 
   auto mink1 = ComputeMinkowski1(scalars);
   auto mink2 = ComputeMinkowski2(scalars);

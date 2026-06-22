@@ -28,6 +28,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   TestImageStencilDataMethods.cxx,NO_VALID
   TestImageStencilIterator.cxx,NO_VALID
   TestImageSSIM.cxx,NO_VALID
+  TestImageSSIMComputeErrorMetrics.cxx,NO_VALID
   TestStencilWithLasso.cxx
   TestStencilWithPolyDataContour.cxx
   TestStencilWithPolyDataSurface.cxx
