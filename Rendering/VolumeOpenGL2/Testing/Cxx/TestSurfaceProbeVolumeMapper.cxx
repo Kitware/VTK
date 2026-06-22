@@ -29,6 +29,7 @@
 #include "vtkVolume.h"
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
+#include "vtkVolumeTexture.h"
 
 namespace
 {
@@ -171,6 +172,10 @@ int TestSurfaceProbeVolumeMapper(int argc, char* argv[])
   double lineDistance = 0.0;
   vtkSmartPointer<vtkPolyData> probeSurface = CreateCurvedPlane(planeWidth, lineDistance);
 
+  // To reduce memory usage, both mappers below can share the same volume texture as they use the
+  // same source data.
+  vtkNew<vtkVolumeTexture> sharedTexture;
+
   // Test probe mapper without probe input. The input data is used for probing and rendering.
   vtkNew<vtkOpenGLSurfaceProbeVolumeMapper> probeMapper;
   probeMapper->SetInputData(probeSurface);
@@ -179,6 +184,7 @@ int TestSurfaceProbeVolumeMapper(int argc, char* argv[])
   probeMapper->SetBlendWidth(10);
   probeMapper->SetWindow(2000);
   probeMapper->SetLevel(2000);
+  probeMapper->SetVolumeTexture(sharedTexture);
 
   vtkNew<vtkActor> probeActor;
   probeActor->SetMapper(probeMapper);
@@ -214,6 +220,7 @@ int TestSurfaceProbeVolumeMapper(int argc, char* argv[])
   probeMapper2->SetBlendWidth(10);
   probeMapper2->SetWindow(2000);
   probeMapper2->SetLevel(2000);
+  probeMapper2->SetVolumeTexture(sharedTexture);
 
   vtkNew<vtkActor> probeActor2;
   probeActor2->SetMapper(probeMapper2);
