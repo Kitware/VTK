@@ -7,9 +7,24 @@
 
 #include "vtkANARIMaterialLibrary.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkPLYReader.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTexture.h"
+
+#include "vtkAnariPass.h"
+#include "vtkAnariSceneGraph.h"
+#include "vtkAnariTestInteractor.h"
+#include "vtkAnariTestUtilities.h"
 
 #include <iostream>
 #include <set>
@@ -17,6 +32,18 @@
 
 int TestAnariMaterialLibrary(int argc, char* argv[])
 {
+  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
+  bool useDebugDevice = false;
+
+  for (int i = 0; i < argc; i++)
+  {
+    if (!strcmp(argv[i], "-trace"))
+    {
+      useDebugDevice = true;
+      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
+    }
+  }
+
   vtkSmartPointer<vtkANARIMaterialLibrary> lib = vtkSmartPointer<vtkANARIMaterialLibrary>::New();
 
   // Try MTL file first (simpler format)
@@ -70,6 +97,11 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
 
   std::cout << "We're all clear kid." << std::endl;
 
+  // Add matte material programmatically for the rendering test
+  lib->AddMaterial("armadillo_matte", "matte");
+  double matteColor[3] = { 0.3, 0.4, 0.5 };
+  lib->AddShaderVariable("armadillo_matte", "color", 3, matteColor);
+
   // serialize and deserialize
   std::cout << "Serialize" << std::endl;
   const char* buf = lib->WriteBuffer();
@@ -77,5 +109,63 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
   std::cout << "Deserialize" << std::endl;
   lib->ReadBuffer(buf);
 
-  return EXIT_SUCCESS;
+  // Set up rendering pipeline
+  vtkNew<vtkRenderer> renderer;
+  renderer->SetBackground(0.5, 0.5, 0.5);
+
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->SetSize(301, 300);
+  renWin->AddRenderer(renderer);
+
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
+
+  vtkNew<vtkAnariPass> anariPass;
+  renderer->SetPass(anariPass);
+
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMaterialLibrary");
+  vtkAnariSceneGraph::SetMaterialLibrary(lib, renderer);
+
+  // Load armadillo model once and create three instances with different materials
+  const char* armadilloFile =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Armadillo.ply");
+  vtkNew<vtkPLYReader> armadilloReader;
+  armadilloReader->SetFileName(armadilloFile);
+
+  vtkNew<vtkPolyDataNormals> armadilloNormals;
+  armadilloNormals->SetInputConnection(armadilloReader->GetOutputPort());
+
+  vtkNew<vtkPolyDataMapper> armadilloMapper;
+  armadilloMapper->SetInputConnection(armadilloNormals->GetOutputPort());
+
+  // Armadillo with matte material
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(armadilloMapper);
+  actor->GetProperty()->SetMaterialName("armadillo_matte");
+  renderer->AddActor(actor);
+
+  renWin->Render();
+  renderer->ResetCamera();
+
+  // Set up camera for a visually interesting view - elevated angle
+  vtkCamera* camera = renderer->GetActiveCamera();
+  camera->Azimuth(30);
+  camera->Elevation(20);
+
+  renderer->ResetCameraClippingRange();
+  renWin->Render();
+
+  int retVal = vtkRegressionTestImage(renWin);
+
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    vtkNew<vtkAnariTestInteractor> style;
+    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
+    iren->SetInteractorStyle(style);
+    style->SetCurrentRenderer(renderer);
+
+    iren->Start();
+  }
+
+  return !retVal;
 }

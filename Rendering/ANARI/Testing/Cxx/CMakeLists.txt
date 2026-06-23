@@ -5,7 +5,7 @@ vtk_add_test_cxx(
   TestAnariPass.cxx,NO_SERDES
   TestAnariPassVisibility.cxx,NO_SERDES
   TestAnariMaterials.cxx,NO_SERDES
-  TestAnariMaterialLibrary.cxx,NO_VALID
+  TestAnariMaterialLibrary.cxx
   TestAnariSphere.cxx,NO_SERDES
   TestAnariDynamicObject.cxx,NO_SERDES
   TestAnariAmbient.cxx
