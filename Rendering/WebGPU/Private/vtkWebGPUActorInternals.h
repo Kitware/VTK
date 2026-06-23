@@ -12,7 +12,7 @@
 #include "vtkTransform.h"
 #include "vtkWebGPUPolyDataMapper.h"
 
-#include <vtk_wgpu.h>
+#include "vtk_wgpu_impl.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

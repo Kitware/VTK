@@ -135,14 +135,16 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           if (wgpuRenderer->GetRebuildRenderBundle())
           {
-            wgpuRenderer->GetRenderBundleEncoder().SetBindGroup(1, internals.ActorBindGroup);
+            wgpu::RenderBundleEncoder(wgpuRenderer->GetRenderBundleEncoder())
+              .SetBindGroup(1, internals.ActorBindGroup);
             mapper->Render(renderer, this);
           }
           // else, no need to record draw commands.
         }
         else
         {
-          wgpuRenderer->GetRenderPassEncoder().SetBindGroup(1, internals.ActorBindGroup);
+          wgpu::RenderPassEncoder(wgpuRenderer->GetRenderPassEncoder())
+            .SetBindGroup(1, internals.ActorBindGroup);
           mapper->Render(renderer, this);
         }
         break;
@@ -454,10 +456,16 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      bglEntries.emplace_back(
-        devRc->MakeSamplerBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
-      bglEntries.emplace_back(
-        devRc->MakeTextureViewBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
+      {
+        WGPUBindGroupLayoutEntry samplerEntry = devRc->MakeSamplerBindGroupLayoutEntry(
+          bindingIdBGL++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
+        bglEntries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&samplerEntry));
+      }
+      {
+        WGPUBindGroupLayoutEntry textureEntry = devRc->MakeTextureViewBindGroupLayoutEntry(
+          bindingIdBGL++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
+        bglEntries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&textureEntry));
+      }
     }
   }
 
