@@ -1101,8 +1101,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       entries.push_back(meshDataInitializer.GetAsBinding());
       if (deviceTextureRc)
       {
-        entries.push_back(deviceTextureRc->MakeSamplerBindGroupEntry(3));
-        entries.push_back(deviceTextureRc->MakeTextureViewBindGroupEntry(4));
+        entries.push_back(wgpu::BindGroupEntry(deviceTextureRc->MakeSamplerBindGroupEntry(3)));
+        entries.push_back(wgpu::BindGroupEntry(deviceTextureRc->MakeTextureViewBindGroupEntry(4)));
       }
       this->MeshAttributeBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
         device, layout, entries, "MeshAttributeBindGroup");
@@ -1114,22 +1114,22 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
   std::array<vtkTypeUInt32*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     vertexCounts;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     connectivityBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     cellIdBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     edgeArrayBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     cellIdOffsetUniformBuffers;
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
     vertexCounts[i] = &(bgInfo.VertexCount);
-    connectivityBuffers[i] = &(bgInfo.ConnectivityBuffer);
-    cellIdBuffers[i] = &(bgInfo.CellIdBuffer);
+    connectivityBuffers[i] = bgInfo.ConnectivityBuffer.Get();
+    cellIdBuffers[i] = bgInfo.CellIdBuffer.Get();
     edgeArrayBuffers[i] = nullptr;
-    cellIdOffsetUniformBuffers[i] = &(bgInfo.CellIdOffsetUniformBuffer);
+    cellIdOffsetUniformBuffers[i] = bgInfo.CellIdOffsetUniformBuffer.Get();
   }
   bool updateTopologyBindGroup = this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
     wgpuConfiguration, input, VTK_SURFACE, vertexCounts, connectivityBuffers, cellIdBuffers,
@@ -1215,14 +1215,17 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     descriptor.vertex.entryPoint = "main";
     descriptor.cFragment.entryPoint = "main";
     descriptor.EnableBlending(0);
-    descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+    descriptor.cTargets[0].format =
+      wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSurfaceTextureFormat());
     ///@{ TODO: Only for valid depth stencil formats
-    auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+    auto depthState =
+      descriptor.EnableDepthStencil(wgpu::TextureFormat(wgpuRenderWindow->GetDepthStencilFormat()));
     depthState->depthWriteEnabled = true;
     depthState->depthCompare = wgpu::CompareFunction::Less;
     ///@}
     // Prepare selection ids output.
-    descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+    descriptor.cTargets[1].format =
+      wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat());
     descriptor.cFragment.targetCount++;
     descriptor.DisableBlending(1);
 
@@ -1249,12 +1252,14 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         pipelineType, vertexShaderSource, fragmentShaderSource, wgpuRenderWindow, actor);
       // generate a unique key for the pipeline descriptor and shader source pointer
       this->GraphicsPipeline2DKeys[i] = wgpuPipelineCache->GetPipelineKey(
-        &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+        reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), vertexShaderSource.c_str(),
+        fragmentShaderSource.c_str());
       // create a pipeline if it does not already exist
       if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipeline2DKeys[i]) == nullptr)
       {
         wgpuPipelineCache->CreateRenderPipeline(
-          &descriptor, wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+          reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), wgpuRenderWindow,
+          vertexShaderSource.c_str(), fragmentShaderSource.c_str());
       }
     }
     // Invalidate render bundle because pipeline was recreated.
@@ -1291,12 +1296,12 @@ void vtkWebGPUPolyDataMapper2DInternals::RecordDrawCommands(
 
     encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
     const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-    vtkScopedEncoderDebugGroup(encoder, pipelineLabel);
+    vtkScopedEncoderDebugGroup(encoder.Get(), pipelineLabel);
 
     encoder.SetBindGroup(1, bgInfo.BindGroup);
     const auto topologyBGInfoName =
       vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
-    vtkScopedEncoderDebugGroup(encoder, topologyBGInfoName);
+    vtkScopedEncoderDebugGroup(encoder.Get(), topologyBGInfoName);
     switch (topologySourceType)
     {
       case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
@@ -1344,12 +1349,12 @@ void vtkWebGPUPolyDataMapper2DInternals::RecordDrawCommands(
 
     encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
     const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-    vtkScopedEncoderDebugGroup(encoder, pipelineLabel);
+    vtkScopedEncoderDebugGroup(encoder.Get(), pipelineLabel);
 
     encoder.SetBindGroup(1, bgInfo.BindGroup);
     const auto topologyBGInfoName =
       vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
-    vtkScopedEncoderDebugGroup(encoder, topologyBGInfoName);
+    vtkScopedEncoderDebugGroup(encoder.Get(), topologyBGInfoName);
     switch (topologySourceType)
     {
       case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
