@@ -115,6 +115,8 @@ protected:
 
   // Read the vtkDataObject (a leaf) in the composite dataset.
   virtual vtkDataObject* ReadDataObject(vtkXMLDataElement* xmlElem, const char* filePath);
+  // Sets the file name or the data for the reader
+  virtual bool ReaderSetFileNameOrData(vtkXMLReader* reader, const char* fileName);
 
   /**
    * Given the inorder index for a leaf node, this method tells if the current
