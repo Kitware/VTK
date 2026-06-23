@@ -23,6 +23,7 @@ have ongoing discussions and may be specified when possible.
 | vtkPolyData                     | specified       |
 | vtkRectilinearGrid              | specified |
 | vtkStructuredGrid               | specified |
+| vtkTable                        | specified |
 | vtkUnstructuredGrid             | specified |
 
 ### Additional Features
@@ -41,13 +42,18 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | VTK Data Type                   | vtkHDFReader    |vtkHDFWriter    |
 | ------------------------------- | --------------- |--------------- |
 | vtkHyperTreeGrid                | supported       | supported      |
-| vtkImageData                    | supported       | not supported  |
+| vtkImageData                    | supported       | supported¹     |
 | vtkMultiBlockDataSet            | supported       | supported      |
 | vtkPartitionedDataSet           | supported       | supported      |
 | vtkPartitionedDataSetCollection | supported       | supported      |
 | vtkOverlappingAMR               | supported       | not supported  |
 | vtkPolyData                     | supported       | supported      |
+| vtkRectilinearGrid              | supported       | supported¹     |
+| vtkStructuredGrid               | supported       | supported¹     |
+| vtkTable                        | supported       | supported      |
 | vtkUnstructuredGrid             | supported       | supported      |
+
+¹: Parallel writing using extents is [not supported](https://gitlab.kitware.com/vtk/vtk/-/work_items/20093).
 
 ### Additional Features
 
