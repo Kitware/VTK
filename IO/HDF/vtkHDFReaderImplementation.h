@@ -228,8 +228,8 @@ public:
    * Set maxLevel to the number of level in the file
    * Return true in case of success, false otherwise.
    */
-  bool ComputeAMROffsetsPerLevels(
-    vtkDataArraySelection* dataArraySelection[3], vtkIdType step, unsigned int nLevels);
+  bool ComputeAMROffsetsPerLevels(const std::map<int, vtkDataArraySelection*>& dataArraySelection,
+    vtkIdType step, unsigned int nLevels);
 
   /**
    * Read the AMR topology based on offset data on AMRBlocks.
@@ -299,7 +299,7 @@ private:
   hid_t File;
   hid_t VTKGroup;
   // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
-  std::array<hid_t, 3> AttributeDataGroup;
+  std::map<int, hid_t> AttributeDataGroup;
   int DataSetType;
   int NumberOfPieces;
   std::array<int, 2> Version;

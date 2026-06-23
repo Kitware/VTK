@@ -60,6 +60,7 @@ class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkResourceStream;
 class vtkStructuredGrid;
+class vtkTable;
 class vtkUnstructuredGrid;
 
 namespace vtkHDFUtilities
@@ -146,6 +147,7 @@ public:
   virtual vtkDataArraySelection* GetPointDataArraySelection();
   virtual vtkDataArraySelection* GetCellDataArraySelection();
   virtual vtkDataArraySelection* GetFieldDataArraySelection();
+  virtual vtkDataArraySelection* GetRowDataArraySelection();
   ///@}
 
   ///@{
@@ -240,6 +242,7 @@ protected:
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkRectilinearGrid* data);
   int Read(vtkInformation* outInfo, vtkStructuredGrid* data);
+  int Read(vtkInformation* outInfo, vtkTable* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkHyperTreeGrid* data, vtkPartitionedDataSet* pData);
@@ -303,9 +306,9 @@ protected:
 
   /**
    * The array selections.
-   * in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
+   * Key is vtkDataObject::AttributeTypes: POINT, CELL, FIELD,...
    */
-  vtkDataArraySelection* DataArraySelection[3];
+  std::map<int, vtkDataArraySelection*> DataArraySelection;
 
   /**
    * The observer to modify this object when the array selections are
@@ -361,7 +364,7 @@ private:
    * Return true on success, false otherwise
    */
   bool ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
-    vtkDataArraySelection* dataArraySelection[3], bool isTemporalData);
+    const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData);
 
   /**
    * Read 'pieceData' specified by 'filePiece' where
