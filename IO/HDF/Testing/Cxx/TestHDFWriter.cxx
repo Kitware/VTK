@@ -33,6 +33,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSphereSource.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
@@ -40,6 +41,7 @@
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkXMLTableReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <cstddef>
@@ -787,7 +789,7 @@ bool TestFieldDataReadWrite(const std::string& tempDir)
 bool TestWriteAfterReadComposite(const std::string& tempDir)
 {
   // Test that HDF Reader and writer properly release the file lock after they are done
-  std::string writtenName = tempDir + "/pdc_read_write.hdf";
+  std::string writtenName = tempDir + "/pdc_read_write.vtkhdf";
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkConeSource> cone;
@@ -809,6 +811,25 @@ bool TestWriteAfterReadComposite(const std::string& tempDir)
   // Overwrite the file, check that reader correctly released resources
   // Test errors if write operation did not finish because file lock was not released;
   writer->Write();
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestTable(const std::string& tempDir, const std::string& dataRoot)
+{
+  const std::string baseName = "table.vtt";
+  const std::string basePath = dataRoot + "/Data/vtkHDF/" + baseName;
+  vtkNew<vtkXMLTableReader> baseReader;
+  baseReader->SetFileName(basePath.c_str());
+  baseReader->Update();
+  auto baseData = vtkTable::SafeDownCast(baseReader->GetOutput());
+
+  std::string tempPath = tempDir + "/HDFWriter_" + baseName;
+  if (!TestWriteAndReadConfigurations(baseData, tempPath))
+  {
+    return false;
+  }
 
   return true;
 }
@@ -853,6 +874,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestMultiBlockIdenticalBlockNames(tempDir, dataRoot);
   testPasses &= TestFieldDataReadWrite(tempDir);
   testPasses &= TestWriteAfterReadComposite(tempDir);
+  testPasses &= TestTable(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }
