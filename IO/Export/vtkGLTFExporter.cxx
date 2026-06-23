@@ -320,7 +320,19 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   }
 
   nlohmann::json amesh;
-  std::string meshName = "mesh" + vtk::to_string(meshes.size());
+  auto make_mesh_name = [&meshes](vtkActor* acPart)
+  {
+    if (acPart->GetObjectName().empty())
+    {
+      return "mesh" + vtk::to_string(meshes.size());
+    }
+    else
+    {
+      return acPart->GetObjectName();
+    }
+  };
+
+  std::string meshName = make_mesh_name(aPart);
   amesh["name"] = meshName;
   amesh["primitives"] = prims;
   meshes.emplace_back(amesh);

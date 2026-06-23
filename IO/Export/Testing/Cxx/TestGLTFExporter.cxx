@@ -94,6 +94,25 @@ int TestGLTFExporter(int argc, char* argv[])
   }
   exporter->SetSaveNaNValues(true);
 
+  // Verify default mesh naming when actor has no object name
+  std::string gltfString = exporter->WriteToString();
+  if (gltfString.find("\"mesh0\"") == std::string::npos)
+  {
+    std::cerr << "Error: GLTF output should use default name 'mesh0' for actor without object name"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  // Verify custom object name is used when set on the actor
+  actor->SetObjectName("MySphere");
+  gltfString = exporter->WriteToString();
+  if (gltfString.find("\"MySphere\"") == std::string::npos)
+  {
+    std::cerr << "Error: GLTF output should contain actor's object name 'MySphere'" << std::endl;
+    return EXIT_FAILURE;
+  }
+  // Reset so subsequent file-size comparisons are unaffected
+  actor->SetObjectName("");
+
   actor->VisibilityOff();
   exporter->Write();
   size_t noDataSize = fileSize(filename);
