@@ -92,6 +92,8 @@ void TestNewtonsMethodTemplate()
         auto result = viskores::NewtonsMethod(
           EvaluateJacobian<T>(), EvaluateFunctions<T>(), desiredOutput, initialGuess, T(1e-6));
 
+        VISKORES_TEST_ASSERT(result.Valid, "Newton's method returned an invalid result.");
+        VISKORES_TEST_ASSERT(result.Converged, "Newton's method did not report convergence.");
         VISKORES_TEST_ASSERT(test_equal(result.Solution, expected1) ||
                                test_equal(result.Solution, expected2),
                              "Newton's method did not converge to expected result.");

@@ -74,29 +74,40 @@ struct StreamIOType<viskores::UInt8>
 
 inline viskores::cont::UnknownCellSet CreateCellSetStructured(const viskores::Id3& dim)
 {
-  if (dim[0] > 1 && dim[1] > 1 && dim[2] > 1)
+  viskores::Id compactDims[3] = { 1, 1, 1 };
+  viskores::IdComponent numDims = 0;
+  // Legacy structured datasets can collapse any axis. Compact the non-singleton
+  // dimensions in-order so the structured connectivity still matches VTK's
+  // point ordering for degenerate X/Y/Z layouts.
+  for (viskores::IdComponent axis = 0; axis < 3; ++axis)
+  {
+    if (dim[axis] > 1)
+    {
+      compactDims[numDims++] = dim[axis];
+    }
+  }
+
+  if (numDims == 3)
   {
     viskores::cont::CellSetStructured<3> cs;
-    cs.SetPointDimensions(viskores::make_Vec(dim[0], dim[1], dim[2]));
+    cs.SetPointDimensions(viskores::make_Vec(compactDims[0], compactDims[1], compactDims[2]));
     return cs;
   }
-  else if (dim[0] > 1 && dim[1] > 1 && dim[2] <= 1)
+  else if (numDims == 2)
   {
     viskores::cont::CellSetStructured<2> cs;
-    cs.SetPointDimensions(viskores::make_Vec(dim[0], dim[1]));
+    cs.SetPointDimensions(viskores::make_Vec(compactDims[0], compactDims[1]));
     return cs;
   }
-  else if (dim[0] > 1 && dim[1] <= 1 && dim[2] <= 1)
+  else if (numDims == 1)
   {
     viskores::cont::CellSetStructured<1> cs;
-    cs.SetPointDimensions(dim[0]);
+    cs.SetPointDimensions(compactDims[0]);
     return cs;
   }
 
   std::stringstream ss;
-  ss << "Unsupported dimensions: (" << dim[0] << ", " << dim[1] << ", " << dim[2]
-     << "), 2D structured datasets should be on X-Y plane and "
-     << "1D structured datasets should be along X axis";
+  ss << "Unsupported dimensions: (" << dim[0] << ", " << dim[1] << ", " << dim[2] << ")";
   throw viskores::io::ErrorIO(ss.str());
 }
 

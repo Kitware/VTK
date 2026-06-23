@@ -23,7 +23,12 @@
 
 #include <type_traits>
 
-#if defined(VISKORES_GCC) && !defined(VISKORES_USING_GLIBCXX_4)
+// In the early days of C++11/14, we had issues with some compilers (GCC 4.9 and
+// some versions of Clang) not implementing the is_trivial traits correctly.
+// With that C++ version in our rear-view mirror, we should be able to rely on
+// the the compiler's is_trivial.
+// #if defined(VISKORES_GCC) && !defined(VISKORES_USING_GLIBCXX_4)
+#if 1
 #define VISKORES_USE_STD_IS_TRIVIAL
 #endif
 

@@ -33,8 +33,6 @@ enum TestOptionsIndex
 
 namespace viskores
 {
-namespace cont
-{
 namespace testing
 {
 
@@ -153,6 +151,8 @@ std::string& Testing::SetAndGetWriteDirBasePath(std::string path)
 
 void Testing::ParseAdditionalTestArgs(int& argc, char* argv[])
 {
+  namespace opt = viskores::cont::internal::option;
+
   std::vector<opt::Descriptor> usage;
 
   usage.push_back({ DATADIR,
@@ -234,5 +234,4 @@ void Testing::ParseAdditionalTestArgs(int& argc, char* argv[])
 }
 
 } // namespace testing
-} // namespace cont
 } // namespace viskores

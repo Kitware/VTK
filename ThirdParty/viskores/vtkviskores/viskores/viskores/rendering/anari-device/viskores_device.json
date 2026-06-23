@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "VISKORES_DEVICE",
+    "type": "device",
+    "dependencies": [
+      "anari_core_1_0",
+      "anari_core_objects_base_1_0",
+      "khr_camera_orthographic",
+      "khr_camera_perspective",
+      "khr_geometry_cylinder",
+      "khr_geometry_quad",
+      "khr_geometry_sphere",
+      "khr_geometry_triangle",
+      "khr_material_matte",
+      "khr_sampler_image1d",
+      "khr_volume_transfer_function1d"
+    ]
+  },
+  "objects": [
+    {
+      "type": "ANARI_DEVICE",
+      "parameters": [
+        {
+          "name": "allowInvalidMaterials",
+          "types": [
+            "ANARI_BOOL"
+          ],
+          "tags": [],
+          "default": true,
+          "description": "show surfaces with invalid materials"
+        },
+        {
+          "name": "invalidMaterialColor",
+          "types": [
+            "ANARI_FLOAT32_VEC4"
+          ],
+          "tags": [],
+          "default": [
+            1.0,
+            0.0,
+            1.0,
+            1.0
+          ],
+          "description": "color to identify surfaces with invalid materials"
+        }
+      ]
+    },
+    {
+      "type": "ANARI_RENDERER",
+      "name": "default",
+      "parameters": [
+        {
+          "name": "background",
+          "types": [
+            "ANARI_FLOAT32_VEC4"
+          ],
+          "tags": [],
+          "default": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "description": "background color and alpha (RGBA)"
+        },
+        {
+          "name": "ambientRadiance",
+          "types": [
+            "ANARI_FLOAT32"
+          ],
+          "tags": [],
+          "default": 1.0,
+          "description": "ambient light intensity"
+        }
+      ]
+    }
+  ]
+}

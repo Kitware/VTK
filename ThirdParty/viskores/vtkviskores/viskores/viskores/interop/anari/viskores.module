@@ -7,6 +7,8 @@ DEPENDS
   viskores_filter_vector_analysis
   viskores_rendering
   viskores_worklet
+PRIVATE_DEPENDS
+  anari_library_viskores
 TEST_DEPENDS
   viskores_filter_vector_analysis
   viskores_filter_contour

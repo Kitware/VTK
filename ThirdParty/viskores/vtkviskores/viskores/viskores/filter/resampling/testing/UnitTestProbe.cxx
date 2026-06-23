@@ -269,6 +269,7 @@ class TestProbe
 private:
   using FieldArrayType = viskores::cont::ArrayHandle<viskores::Float32>;
   using HiddenArrayType = viskores::cont::ArrayHandle<viskores::UInt8>;
+  using CoordArrayType = viskores::cont::ArrayHandle<viskores::Vec3f>;
 
   static void ExplicitToUnifrom()
   {
@@ -277,19 +278,39 @@ private:
     auto input = ConvertDataSetUniformToExplicit(MakeInputDataSet());
     auto geometry = MakeGeometryDataSet();
 
-    viskores::filter::resampling::Probe probe;
-    probe.SetGeometry(geometry);
-    probe.SetFieldsToPass({ "pointdata", "celldata" });
-    auto output = probe.Execute(input);
+    //Test dataset as geometry and points as geometry
+    for (int i = 0; i < 2; i++)
+    {
+      viskores::filter::resampling::Probe probe;
+      std::vector<viskores::UInt8> expectedHidenCellData;
 
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
-                    GetExpectedPointData());
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
-                    GetExpectedCellData());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
-                    GetExpectedHiddenPoints());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
-                    GetExpectedHiddenCells());
+      if (i == 0)
+      {
+        probe.SetGeometry(geometry);
+        expectedHidenCellData = GetExpectedHiddenCells();
+      }
+      else
+      {
+        auto tmp = ConvertDataSetUniformToExplicit(geometry);
+        probe.SetGeometry(tmp.GetCoordinateSystem().GetData().AsArrayHandle<CoordArrayType>());
+        //Number of cells == number of points.
+        expectedHidenCellData = GetExpectedHiddenPoints();
+      }
+
+      probe.SetFieldsToPass({ "pointdata", "celldata" });
+      auto output = probe.Execute(input);
+
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
+                      GetExpectedPointData());
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
+                      GetExpectedCellData());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
+        GetExpectedHiddenPoints());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
+        expectedHidenCellData);
+    }
   }
 
   static void UniformToExplict()
@@ -299,19 +320,38 @@ private:
     auto input = MakeInputDataSet();
     auto geometry = ConvertDataSetUniformToExplicit(MakeGeometryDataSet());
 
-    viskores::filter::resampling::Probe probe;
-    probe.SetGeometry(geometry);
-    probe.SetFieldsToPass({ "pointdata", "celldata" });
-    auto output = probe.Execute(input);
+    //Test dataset as geometry and points as geometry
+    for (int i = 0; i < 2; i++)
+    {
+      viskores::filter::resampling::Probe probe;
+      std::vector<viskores::UInt8> expectedHidenCellData;
 
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
-                    GetExpectedPointData());
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
-                    GetExpectedCellData());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
-                    GetExpectedHiddenPoints());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
-                    GetExpectedHiddenCells());
+      if (i == 0)
+      {
+        probe.SetGeometry(geometry);
+        expectedHidenCellData = GetExpectedHiddenCells();
+      }
+      else
+      {
+        probe.SetGeometry(geometry.GetCoordinateSystem().GetData().AsArrayHandle<CoordArrayType>());
+        //Number of cells == number of points.
+        expectedHidenCellData = GetExpectedHiddenPoints();
+      }
+
+      probe.SetFieldsToPass({ "pointdata", "celldata" });
+      auto output = probe.Execute(input);
+
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
+                      GetExpectedPointData());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
+        GetExpectedHiddenPoints());
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
+                      GetExpectedCellData());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
+        expectedHidenCellData);
+    }
   }
 
   static void ExplicitToExplict()
@@ -321,19 +361,38 @@ private:
     auto input = ConvertDataSetUniformToExplicit(MakeInputDataSet());
     auto geometry = ConvertDataSetUniformToExplicit(MakeGeometryDataSet());
 
-    viskores::filter::resampling::Probe probe;
-    probe.SetGeometry(geometry);
-    probe.SetFieldsToPass({ "pointdata", "celldata" });
-    auto output = probe.Execute(input);
+    //Test dataset as geometry and points as geometry
+    for (int i = 0; i < 2; i++)
+    {
+      viskores::filter::resampling::Probe probe;
+      std::vector<viskores::UInt8> expectedHidenCellData;
 
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
-                    GetExpectedPointData());
-    TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
-                    GetExpectedCellData());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
-                    GetExpectedHiddenPoints());
-    TestResultArray(viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
-                    GetExpectedHiddenCells());
+      if (i == 0)
+      {
+        probe.SetGeometry(geometry);
+        expectedHidenCellData = GetExpectedHiddenCells();
+      }
+      else
+      {
+        probe.SetGeometry(geometry.GetCoordinateSystem().GetData().AsArrayHandle<CoordArrayType>());
+        //Number of cells == number of points.
+        expectedHidenCellData = GetExpectedHiddenPoints();
+      }
+
+      probe.SetFieldsToPass({ "pointdata", "celldata" });
+      auto output = probe.Execute(input);
+
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("pointdata").GetData()),
+                      GetExpectedPointData());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetPointField("HIDDEN").GetData()),
+        GetExpectedHiddenPoints());
+      TestResultArray(viskores::cont::Cast<FieldArrayType>(output.GetField("celldata").GetData()),
+                      GetExpectedCellData());
+      TestResultArray(
+        viskores::cont::Cast<HiddenArrayType>(output.GetCellField("HIDDEN").GetData()),
+        expectedHidenCellData);
+    }
   }
 
 public:

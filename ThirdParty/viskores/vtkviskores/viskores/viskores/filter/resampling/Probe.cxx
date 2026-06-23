@@ -15,6 +15,7 @@
 //  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 //  PURPOSE.  See the above copyright notice for more information.
 //============================================================================
+#include <viskores/cont/DataSetBuilderExplicit.h>
 #include <viskores/cont/internal/CastInvalidValue.h>
 
 #include <viskores/filter/MapFieldPermutation.h>
@@ -93,6 +94,19 @@ bool DoMapField(viskores::cont::DataSet& result,
   }
 }
 } // anonymous namespace
+
+void Probe::SetGeometry(const viskores::cont::ArrayHandle<viskores::Vec3f>& points)
+{
+  viskores::Id numPoints = points.GetNumberOfValues();
+
+  viskores::cont::ArrayHandle<viskores::Id> connectivity;
+  viskores::cont::ArrayCopy(viskores::cont::make_ArrayHandleIndex(numPoints), connectivity);
+
+  auto ds = viskores::cont::DataSetBuilderExplicit::Create(
+    points, viskores::CellShapeTagVertex(), 1, connectivity);
+
+  this->SetGeometry(ds);
+}
 
 viskores::cont::DataSet Probe::DoExecute(const viskores::cont::DataSet& input)
 {

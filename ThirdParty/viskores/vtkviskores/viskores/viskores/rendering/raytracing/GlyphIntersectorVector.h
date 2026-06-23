@@ -28,7 +28,7 @@ namespace rendering
 namespace raytracing
 {
 
-class GlyphIntersectorVector : public ShapeIntersector
+class VISKORES_RENDERING_RAYTRACING_EXPORT GlyphIntersectorVector : public ShapeIntersector
 {
 public:
   GlyphIntersectorVector(viskores::rendering::GlyphType glyphType);

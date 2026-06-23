@@ -1,0 +1,9 @@
+NAME
+  viskores_rendering_raytracing
+GROUPS
+  Rendering
+DEPENDS
+  viskores_cont
+PRIVATE_DEPENDS
+  viskores_worklet
+NO_TESTING

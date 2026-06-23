@@ -69,28 +69,31 @@ namespace source
 class VISKORES_SOURCE_EXPORT Wavelet final : public viskores::source::Source
 {
 public:
+  /// \brief Constructs a wavelet source with default parameters.
+  ///
+  /// The default extent is -10 to 10 in each dimension, the spacing is
+  /// 1 by 1 by 1, and the generated point field is named \c RTData.
   VISKORES_CONT Wavelet() = default;
   VISKORES_CONT ~Wavelet() = default;
 
   VISKORES_DEPRECATED(2.0, "Use SetExtent.")
   VISKORES_CONT Wavelet(viskores::Id3 minExtent, viskores::Id3 maxExtent = { 10 });
 
-  ///@{
   /// \brief Specifies the center of the wavelet function.
   ///
   /// Note that the center of the function can be anywhere in space including
   /// outside the domain of the data created (as specified by the origin,
   /// spacing and extent).
   VISKORES_CONT void SetCenter(const viskores::Vec3f& center) { this->Center = center; }
+  /// @copydoc SetCenter
   VISKORES_CONT viskores::Vec3f GetCenter() const { return this->Center; }
-  ///@}
 
-  ///@{
   /// \brief Specifies the origin (lower left corner) of the dataset created.
   ///
   /// If the origin is not specified, it will be placed such that extent
   /// index (0, 0, 0) is at the coordinate system origin.
   VISKORES_CONT void SetOrigin(const viskores::Vec3f& origin) { this->Origin = origin; }
+  /// @copydoc SetOrigin
   VISKORES_CONT viskores::Vec3f GetOrigin() const
   {
     if (!viskores::IsNan(this->Origin[0]))
@@ -103,43 +106,73 @@ public:
     }
   }
 
+  /// \brief Specifies the distance between adjacent points in each dimension.
   VISKORES_CONT void SetSpacing(const viskores::Vec3f& spacing) { this->Spacing = spacing; }
+  /// @copydoc SetSpacing
   VISKORES_CONT viskores::Vec3f GetSpacing() const { return this->Spacing; }
 
+  /// \brief Specifies the frequency of the periodic scalar contributions.
+  ///
+  /// The components correspond to the x, y, and z periodic terms.
   VISKORES_CONT void SetFrequency(const viskores::Vec3f& frequency) { this->Frequency = frequency; }
+  /// @copydoc SetFrequency
   VISKORES_CONT viskores::Vec3f GetFrequency() const { return this->Frequency; }
 
+  /// \brief Specifies the magnitude of the periodic scalar contributions.
+  ///
+  /// The components correspond to the x, y, and z periodic terms.
   VISKORES_CONT void SetMagnitude(const viskores::Vec3f& magnitude) { this->Magnitude = magnitude; }
+  /// @copydoc SetMagnitude
   VISKORES_CONT viskores::Vec3f GetMagnitude() const { return this->Magnitude; }
 
+  /// \brief Specifies the minimum logical point extent.
+  ///
+  /// The minimum and maximum extents are inclusive. Use \c SetExtent to set
+  /// both bounds at the same time.
   VISKORES_CONT void SetMinimumExtent(const viskores::Id3& minExtent)
   {
     this->MinimumExtent = minExtent;
   }
+  /// @copydoc SetMinimumExtent
   VISKORES_CONT viskores::Id3 GetMinimumExtent() const { return this->MinimumExtent; }
 
+  /// \brief Specifies the maximum logical point extent.
+  ///
+  /// The minimum and maximum extents are inclusive. Use \c SetExtent to set
+  /// both bounds at the same time.
   VISKORES_CONT void SetMaximumExtent(const viskores::Id3& maxExtent)
   {
     this->MaximumExtent = maxExtent;
   }
+  /// @copydoc SetMaximumExtent
   VISKORES_CONT viskores::Id3 GetMaximumExtent() const { return this->MaximumExtent; }
 
+  /// \brief Sets the inclusive minimum and maximum logical point extents.
+  ///
+  /// If the z extent has zero length, \c Execute generates a 2D structured
+  /// data set. Otherwise, it generates a 3D structured data set.
   VISKORES_CONT void SetExtent(const viskores::Id3& minExtent, const viskores::Id3& maxExtent)
   {
     this->MinimumExtent = minExtent;
     this->MaximumExtent = maxExtent;
   }
 
+  /// \brief Specifies the maximum value of the Gaussian scalar contribution.
   VISKORES_CONT void SetMaximumValue(const viskores::FloatDefault& maxVal)
   {
     this->MaximumValue = maxVal;
   }
+  /// @copydoc SetMaximumValue
   VISKORES_CONT viskores::FloatDefault GetMaximumValue() const { return this->MaximumValue; }
 
+  /// \brief Specifies the width of the Gaussian scalar contribution.
+  ///
+  /// Larger values produce a wider Gaussian contribution.
   VISKORES_CONT void SetStandardDeviation(const viskores::FloatDefault& stdev)
   {
     this->StandardDeviation = stdev;
   }
+  /// @copydoc SetStandardDeviation
   VISKORES_CONT viskores::FloatDefault GetStandardDeviation() const
   {
     return this->StandardDeviation;

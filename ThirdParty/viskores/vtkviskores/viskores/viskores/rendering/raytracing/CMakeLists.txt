@@ -44,6 +44,7 @@ set(headers
   RayOperations.h
   RayTracer.h
   RayTracingTypeDefs.h
+  RunTriangulator.h
   Sampler.h
   ScalarRenderer.h
   ShapeIntersector.h
@@ -52,11 +53,48 @@ set(headers
   TriangleExtractor.h
   TriangleIntersections.h
   TriangleIntersector.h
+  Triangulator.h
   VolumeRendererStructured.h
   Worklets.h
+  )
+
+set(sources
+  Logger.cxx
+  MeshConnectivityContainers.cxx
+  TriangleExtractor.cxx
+  )
+
+set(device_sources
+  BoundingVolumeHierarchy.cxx
+  Camera.cxx
+  ChannelBuffer.cxx
+  ConnectivityTracer.cxx
+  CylinderExtractor.cxx
+  CylinderIntersector.cxx
+  GlyphExtractor.cxx
+  GlyphExtractorVector.cxx
+  GlyphIntersector.cxx
+  GlyphIntersectorVector.cxx
+  MeshConnectivityBuilder.cxx
+  QuadExtractor.cxx
+  QuadIntersector.cxx
+  RayOperations.cxx
+  RayTracer.cxx
+  RunTriangulator.cxx
+  ScalarRenderer.cxx
+  ShapeIntersector.cxx
+  SphereExtractor.cxx
+  SphereIntersector.cxx
+  TriangleIntersector.cxx
+  VolumeRendererStructured.cxx
   )
 
 set_source_files_properties(CellTables.h
                             PROPERTIES Viskores_CANT_BE_HEADER_TESTED TRUE)
 
-viskores_declare_headers(${headers})
+viskores_library(
+  NAME viskores_rendering_raytracing
+  SOURCES ${sources}
+  HEADERS ${headers}
+  DEVICE_SOURCES ${device_sources}
+  )

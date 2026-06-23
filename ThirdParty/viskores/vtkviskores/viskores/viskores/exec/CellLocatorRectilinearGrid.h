@@ -114,6 +114,25 @@ public:
     return inside;
   }
 
+  /// @brief Locate the id of the cell containing the provided point.
+  ///
+  /// This method returns the same cell id as `FindCell()` without requiring
+  /// the caller to provide parametric coordinates.
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId,
+                                               LastCell& lastCell) const
+  {
+    (void)lastCell;
+    return this->FindCellId(point, cellId);
+  }
+
+  /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCellId
+  VISKORES_EXEC viskores::ErrorCode FindCellId(const viskores::Vec3f& point,
+                                               viskores::Id& cellId) const
+  {
+    return this->FindCellImpl(point, cellId, nullptr);
+  }
+
   /// @copydoc viskores::exec::CellLocatorUniformGrid::FindCell
   VISKORES_EXEC viskores::ErrorCode FindCell(const viskores::Vec3f& point,
                                              viskores::Id& cellId,
@@ -127,6 +146,79 @@ public:
   VISKORES_EXEC viskores::ErrorCode FindCell(const viskores::Vec3f& point,
                                              viskores::Id& cellId,
                                              viskores::Vec3f& parametric) const
+  {
+    return this->FindCellImpl(point, cellId, &parametric);
+  }
+
+  /// @copydoc viskores::exec::CellLocatorUniformGrid::CountAllCells
+  VISKORES_EXEC viskores::IdComponent CountAllCells(const viskores::Vec3f& point) const
+  {
+    viskores::Id cellId;
+    if (this->FindCellId(point, cellId) == viskores::ErrorCode::Success)
+      return 1;
+    return 0;
+  }
+
+  /// @copydoc viskores::exec::CellLocatorUniformGrid::FindAllCells
+  template <typename CellIdsType, typename ParametricCoordsVecType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCells(const viskores::Vec3f& point,
+                                                 CellIdsType& cellIdVec,
+                                                 ParametricCoordsVecType& pCoordsVec) const
+  {
+    return this->FindAllCellsImpl(point, cellIdVec, pCoordsVec);
+  }
+
+  /// @brief Locate all cell ids containing the provided point.
+  ///
+  /// This method returns the same cell ids as `FindAllCells()` without
+  /// requiring parametric coordinates.
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellIds(const viskores::Vec3f& point,
+                                                   CellIdsType& cellIdVec) const
+  {
+    return this->FindAllCellsImpl(point, cellIdVec);
+  }
+
+private:
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::IdComponent InitializeAllCellIds(CellIdsType& cellIdVec) const
+  {
+    viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
+    for (viskores::IdComponent i = 0; i < n; i++)
+      cellIdVec[i] = -1;
+    return n;
+  }
+
+  template <typename CellIdsType, typename ParametricCoordsVecType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellsImpl(const viskores::Vec3f& point,
+                                                     CellIdsType& cellIdVec,
+                                                     ParametricCoordsVecType& pCoordsVec) const
+  {
+    viskores::IdComponent n = this->InitializeAllCellIds(cellIdVec);
+    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == n);
+    if (n == 0)
+      return viskores::ErrorCode::Success;
+
+    return this->FindCell(point, cellIdVec[0], pCoordsVec[0]);
+  }
+
+  template <typename CellIdsType>
+  VISKORES_EXEC viskores::ErrorCode FindAllCellsImpl(const viskores::Vec3f& point,
+                                                     CellIdsType& cellIdVec) const
+  {
+    viskores::IdComponent n = this->InitializeAllCellIds(cellIdVec);
+    if (n == 0)
+      return viskores::ErrorCode::Success;
+
+    viskores::Id cellId = -1;
+    viskores::ErrorCode status = this->FindCellId(point, cellId);
+    cellIdVec[0] = cellId;
+    return status;
+  }
+
+  VISKORES_EXEC viskores::ErrorCode FindCellImpl(const viskores::Vec3f& point,
+                                                 viskores::Id& cellId,
+                                                 viskores::Vec3f* parametric) const
   {
     if (!this->IsInside(point))
     {
@@ -146,16 +238,15 @@ public:
       if (point[dim] == MaxPoint[dim])
       {
         logicalCell[dim] = this->PointDimensions[dim] - 2;
-        parametric[dim] = static_cast<viskores::FloatDefault>(1);
+        if (parametric != nullptr)
+          (*parametric)[dim] = static_cast<viskores::FloatDefault>(1);
         continue;
       }
 
       viskores::Id minIndex = 0;
       viskores::Id maxIndex = this->PointDimensions[dim] - 1;
-      viskores::FloatDefault minVal;
-      viskores::FloatDefault maxVal;
-      minVal = this->AxisPortals[dim].Get(minIndex);
-      maxVal = this->AxisPortals[dim].Get(maxIndex);
+      viskores::FloatDefault minVal = this->AxisPortals[dim].Get(minIndex);
+      viskores::FloatDefault maxVal = this->AxisPortals[dim].Get(maxIndex);
       while (maxIndex > minIndex + 1)
       {
         viskores::Id midIndex = (minIndex + maxIndex) / 2;
@@ -172,43 +263,14 @@ public:
         }
       }
       logicalCell[dim] = minIndex;
-      parametric[dim] = (point[dim] - minVal) / (maxVal - minVal);
+      if (parametric != nullptr)
+        (*parametric)[dim] = (point[dim] - minVal) / (maxVal - minVal);
     }
-    // Get the actual cellId, from the logical cell index of the cell
-    cellId = logicalCell[2] * this->PlaneSize + logicalCell[1] * this->RowSize + logicalCell[0];
 
+    cellId = logicalCell[2] * this->PlaneSize + logicalCell[1] * this->RowSize + logicalCell[0];
     return viskores::ErrorCode::Success;
   }
 
-  /// @copydoc viskores::exec::CellLocatorUniformGrid::CountAllCells
-  VISKORES_EXEC viskores::IdComponent CountAllCells(const viskores::Vec3f& point) const
-  {
-    viskores::Id cellId;
-    viskores::Vec3f pCoords;
-    if (this->FindCell(point, cellId, pCoords) == viskores::ErrorCode::Success)
-      return 1;
-    return 0;
-  }
-
-  /// @copydoc viskores::exec::CellLocatorUniformGrid::FindAllCells
-  template <typename CellIdsType, typename ParametricCoordsVecType>
-  VISKORES_EXEC viskores::ErrorCode FindAllCells(const viskores::Vec3f& point,
-                                                 CellIdsType& cellIdVec,
-                                                 ParametricCoordsVecType& pCoordsVec) const
-  {
-    viskores::IdComponent n = cellIdVec.GetNumberOfComponents();
-    VISKORES_ASSERT(pCoordsVec.GetNumberOfComponents() == n);
-
-    if (n == 0)
-      return viskores::ErrorCode::Success;
-
-    for (viskores::IdComponent i = 0; i < n; i++)
-      cellIdVec[i] = -1;
-
-    return this->FindCell(point, cellIdVec[0], pCoordsVec[0]);
-  }
-
-private:
   viskores::Id PlaneSize;
   viskores::Id RowSize;
 

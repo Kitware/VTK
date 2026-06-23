@@ -6,3 +6,4 @@ DEPENDS
   viskores_exec
 TEST_DEPENDS
   viskores_tbb
+  viskores_exec

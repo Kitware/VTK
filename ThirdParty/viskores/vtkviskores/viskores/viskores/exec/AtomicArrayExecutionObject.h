@@ -21,7 +21,7 @@
 #include <viskores/Atomic.h>
 #include <viskores/List.h>
 #include <viskores/cont/ArrayHandle.h>
-#include <viskores/cont/DeviceAdapter.h>
+#include <viskores/cont/DeviceAdapterTag.h>
 
 #include <type_traits>
 

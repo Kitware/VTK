@@ -79,13 +79,22 @@ public:
   {
     viskores::Id calculated = CalculateCellId(pointIn);
     viskores::ErrorCode status = locator.FindCell(pointIn, cellId, parametric);
+    viskores::Id cellIdOnly = -1;
+    viskores::ErrorCode statusId = locator.FindCellId(pointIn, cellIdOnly);
     if ((status != viskores::ErrorCode::Success) && (status != viskores::ErrorCode::CellNotFound))
     {
       this->RaiseError(viskores::ErrorString(status));
       match = false;
       return;
     }
-    match = (calculated == cellId);
+    if ((statusId != viskores::ErrorCode::Success) &&
+        (statusId != viskores::ErrorCode::CellNotFound))
+    {
+      this->RaiseError(viskores::ErrorString(statusId));
+      match = false;
+      return;
+    }
+    match = (calculated == cellId) && (cellId == cellIdOnly);
   }
 
 private:

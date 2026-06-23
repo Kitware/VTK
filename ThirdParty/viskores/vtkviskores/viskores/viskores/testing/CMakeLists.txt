@@ -24,8 +24,6 @@ if(Viskores_ENABLE_TESTING)
     UnitTestBinaryOperators.cxx
     UnitTestBounds.cxx
     UnitTestCellShape.cxx
-    UnitTestConfigureFor32.cxx
-    UnitTestConfigureFor64.cxx
     UnitTestDeprecated.cxx
     UnitTestExceptions.cxx
     #UnitTestFunctionInterface.cxx #FIXME
@@ -61,6 +59,13 @@ if(Viskores_ENABLE_TESTING)
     UnitTestUpperBound.cxx
     )
 
+  if(NOT Viskores_USE_DEFAULT_TYPES_FOR_ASCENT)
+    # Ascent types does not let you use 32-bit floats. or 64-bit ids.
+    list(APPEND unit_tests
+      UnitTestConfigureFor32.cxx
+      UnitTestConfigureFor64.cxx
+      )
+  endif()
 
   #variable tracking size limit exceeded with -fvar-tracking-assignments, retrying without
   set_source_files_properties(UnitTestBounds.cxx PROPERTIES

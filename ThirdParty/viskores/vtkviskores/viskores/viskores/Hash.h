@@ -25,6 +25,7 @@
 namespace viskores
 {
 
+/// @brief An integer type used for hash functions.
 using HashType = viskores::UInt32;
 
 namespace detail

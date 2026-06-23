@@ -1,0 +1,52 @@
+//============================================================================
+//  The contents of this file are covered by the Viskores license. See
+//  LICENSE.txt for details.
+//
+//  By contributing to this file, all contributors agree to the Developer
+//  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+//============================================================================
+
+//============================================================================
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//============================================================================
+#ifndef viskores_cont_internal_DefaultTypesVistle_h
+#define viskores_cont_internal_DefaultTypesVistle_h
+
+#include <viskores/TypeList.h>
+#include <viskores/Types.h>
+
+#include <viskores/cont/ArrayHandleConstant.h>
+#include <viskores/cont/ArrayHandleCounting.h>
+#include <viskores/cont/CellSetExplicit.h>
+#include <viskores/cont/CellSetSingleType.h>
+
+namespace viskores
+{
+namespace cont
+{
+namespace internal
+{
+
+using VistleCellSetListUnstructured =
+  viskores::List<viskores::cont::CellSetExplicit<>,
+                 viskores::cont::CellSetExplicit<
+                   typename viskores::cont::ArrayHandleConstant<viskores::UInt8>::StorageTag>,
+                 viskores::cont::CellSetSingleType<>,
+                 viskores::cont::CellSetSingleType<
+                   typename viskores::cont::ArrayHandleConstant<viskores::UInt8>::StorageTag>,
+                 viskores::cont::CellSetSingleType<
+                   typename viskores::cont::ArrayHandleCounting<viskores::Id>::StorageTag>>;
+}
+}
+} // namespace viskores::cont::internal
+
+#define VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED \
+  ::viskores::cont::internal::VistleCellSetListUnstructured
+
+#endif //viskores_cont_internal_DefaultTypesVistle_h

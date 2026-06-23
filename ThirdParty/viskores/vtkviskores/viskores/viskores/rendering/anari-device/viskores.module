@@ -1,0 +1,10 @@
+NAME
+  anari_library_viskores
+GROUPS
+  ANARI
+DEPENDS
+  viskores_cont
+  viskores_worklet
+  viskores_source
+  viskores_rendering
+NO_TESTING

@@ -102,7 +102,7 @@ void VTKPolyDataReader::Read()
     }
     else if (tag == "LINES")
     {
-      shape = viskores::io::internal::CELL_SHAPE_POLY_LINE;
+      shape = viskores::CELL_SHAPE_POLY_LINE;
     }
     else if (tag == "POLYGONS")
     {
@@ -142,7 +142,7 @@ void VTKPolyDataReader::Read()
   viskores::io::internal::FixupCellSet(connectivity, numIndices, shapes, permutation);
   this->SetCellsPermutation(permutation);
 
-  if (viskores::io::internal::IsSingleShape(shapes))
+  if (viskores::io::internal::IsSingleShape(shapes, numIndices))
   {
     viskores::cont::CellSetSingleType<> cellSet;
     cellSet.Fill(

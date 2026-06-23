@@ -29,7 +29,7 @@ namespace rendering
 namespace raytracing
 {
 
-class VISKORES_RENDERING_EXPORT ShapeIntersector
+class VISKORES_RENDERING_RAYTRACING_EXPORT ShapeIntersector
 {
 protected:
   LinearBVH BVH;

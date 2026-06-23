@@ -17,7 +17,7 @@
 //============================================================================
 
 #include <viskores/cont/Field.h>
-#include <viskores/rendering/internal/RunTriangulator.h>
+#include <viskores/rendering/raytracing/RunTriangulator.h>
 #include <viskores/rendering/raytracing/TriangleExtractor.h>
 
 namespace viskores
@@ -39,7 +39,7 @@ void TriangleExtractor::ExtractCells(const viskores::cont::UnknownCellSet& cells
                                      const viskores::cont::Field& ghostField)
 {
   viskores::Id numberOfTriangles;
-  viskores::rendering::internal::RunTriangulator(
+  viskores::rendering::raytracing::RunTriangulator(
     cells, this->Triangles, numberOfTriangles, ghostField);
 }
 

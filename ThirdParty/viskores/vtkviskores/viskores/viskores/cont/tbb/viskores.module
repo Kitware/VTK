@@ -4,6 +4,7 @@ GROUPS
   Core
 DEPENDS
   viskores_cont
+  viskores_exec
 TEST_DEPENDS
   viskores_worklet
   viskores_tbb

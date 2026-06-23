@@ -25,12 +25,21 @@
 // Needed so we can conditionally include components
 #include <thrust/version.h>
 
+#if THRUST_VERSION >= 101301
+#define VISKORES_THRUST_NAMESPACE_BEGIN THRUST_NAMESPACE_BEGIN
+#define VISKORES_THRUST_NAMESPACE_END THRUST_NAMESPACE_END
+#else
+#define VISKORES_THRUST_NAMESPACE_BEGIN \
+  namespace thrust                      \
+  {
+#define VISKORES_THRUST_NAMESPACE_END }
+#endif
+
 #if THRUST_VERSION >= 100900 && THRUST_VERSION < 100906
 //So for thrust 1.9.0+ ( CUDA 9.X+ ) the aligned_reinterpret_cast has a bug
 //where it is not marked as __host__device__. To fix this we add a new
 //overload for void* with the correct markup (which is what everyone calls).
-namespace thrust
-{
+VISKORES_THRUST_NAMESPACE_BEGIN
 namespace detail
 {
 //just in-case somebody has this fix also for primitive types
@@ -179,7 +188,7 @@ ALIGN_RE_PAIR(viskores::Int64, viskores::Float64);
 #undef ALIGN_RE_VEC
 #undef ALIGN_RE_PAIR
 }
-}
+VISKORES_THRUST_NAMESPACE_END
 #endif //THRUST_VERSION >= 100900 && THRUST_VERSION < 100906
 
 #if (THRUST_VERSION >= 100904) && (THRUST_VERSION < 100909)
@@ -192,8 +201,7 @@ VISKORES_THIRDPARTY_PRE_INCLUDE
 #include <thrust/mr/allocator.h>
 #include <thrust/system/cuda/memory_resource.h>
 VISKORES_THIRDPARTY_POST_INCLUDE
-namespace thrust
-{
+VISKORES_THRUST_NAMESPACE_BEGIN
 namespace mr
 {
 
@@ -245,7 +253,7 @@ public:
   __host__ __device__ ~stateless_resource_allocator() {}
 };
 }
-}
+VISKORES_THRUST_NAMESPACE_END
 #endif //(THRUST_VERSION >= 100904) && (THRUST_VERSION < 100909)
 
 
@@ -273,8 +281,7 @@ class WrappedBinaryOperator;
 }
 } //namespace viskores::exec::cuda::internal
 
-namespace thrust
-{
+VISKORES_THRUST_NAMESPACE_BEGIN
 namespace system
 {
 namespace cuda
@@ -340,8 +347,8 @@ destructive_accumulate_n(ConcurrentGroup& g,
 }
 }
 }
-} //namespace thrust::system::cuda::detail
-#endif //THRUST_VERSION < 100900
+VISKORES_THRUST_NAMESPACE_END //namespace thrust::system::cuda::detail
+#endif                        //THRUST_VERSION < 100900
 
 #endif //CUDA enabled
 

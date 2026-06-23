@@ -12,3 +12,4 @@ OPTIONAL_DEPENDS
 TEST_DEPENDS
   viskores_filter_density_estimate
   viskores_source
+  viskores_worklet

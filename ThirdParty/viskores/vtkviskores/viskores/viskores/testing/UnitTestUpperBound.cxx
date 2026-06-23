@@ -47,25 +47,46 @@ struct TestUpperBound
     }
   };
 
-  static void Run()
+  static void Check(const IdArray& needles,
+                    const IdArray& haystack,
+                    const std::vector<viskores::Id>& expected)
   {
-    IdArray needles =
-      viskores::cont::make_ArrayHandle<viskores::Id>({ -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 });
-    IdArray haystack =
-      viskores::cont::make_ArrayHandle<viskores::Id>({ -3, -2, -2, -2, 0, 0, 1, 1, 1, 4, 4 });
+    VISKORES_TEST_ASSERT(needles.GetNumberOfValues() == static_cast<viskores::Id>(expected.size()));
+
     IdArray results;
-
-    std::vector<viskores::Id> expected{ 0, 1, 4, 4, 6, 9, 9, 9, 11, 11 };
-
     viskores::cont::Invoker invoke;
     invoke(Impl{}, needles, haystack, results);
 
-    // Verify:
     auto resultsPortal = results.ReadPortal();
+    VISKORES_TEST_ASSERT(results.GetNumberOfValues() == needles.GetNumberOfValues());
     for (viskores::Id i = 0; i < needles.GetNumberOfValues(); ++i)
     {
       VISKORES_TEST_ASSERT(resultsPortal.Get(i) == expected[static_cast<size_t>(i)]);
     }
+  }
+
+  static void Run()
+  {
+    // Needles query positions before, inside, and after the sorted haystack range.
+    IdArray needles =
+      viskores::cont::make_ArrayHandle<viskores::Id>({ -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 });
+    // Haystack includes duplicates to exercise upper-bound insertion after equal values.
+    IdArray haystack =
+      viskores::cont::make_ArrayHandle<viskores::Id>({ -3, -2, -2, -2, 0, 0, 1, 1, 1, 4, 4 });
+    std::vector<viskores::Id> expected{ 0, 1, 4, 4, 6, 9, 9, 9, 11, 11 };
+    Check(needles, haystack, expected);
+
+    IdArray emptyHaystack;
+    emptyHaystack.Allocate(0);
+    std::vector<viskores::Id> emptyHaystackExpected(
+      static_cast<size_t>(needles.GetNumberOfValues()), 0);
+    // All upper-bound results in an empty haystack should point to the beginning.
+    Check(needles, emptyHaystack, emptyHaystackExpected);
+
+    IdArray emptyNeedles;
+    emptyNeedles.Allocate(0);
+    // An empty input domain should produce an empty output array.
+    Check(emptyNeedles, haystack, std::vector<viskores::Id>{});
   }
 };
 

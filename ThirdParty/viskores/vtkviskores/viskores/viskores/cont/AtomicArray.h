@@ -21,7 +21,7 @@
 #include <viskores/List.h>
 #include <viskores/StaticAssert.h>
 #include <viskores/cont/ArrayHandle.h>
-#include <viskores/cont/DeviceAdapter.h>
+#include <viskores/cont/DeviceAdapterTag.h>
 #include <viskores/cont/ExecutionObjectBase.h>
 #include <viskores/exec/AtomicArrayExecutionObject.h>
 

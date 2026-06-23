@@ -17,13 +17,13 @@
 ##============================================================================
 
 set(libraries
-  viskores_filter_uncertainty
   viskores_filter_core
   viskores_filter_vector_analysis
   )
 
 set(unit_tests
   UnitTestContourUncertainUniform.cxx
+  UnitTestFiberUncertainUniform.cxx
   )
 
 viskores_unit_tests(

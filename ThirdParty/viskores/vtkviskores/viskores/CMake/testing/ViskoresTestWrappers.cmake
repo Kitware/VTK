@@ -341,7 +341,8 @@ viskores_unit_tests but not in its test dependencies. Add test dependencies to \
             LABELS "${upper_backend};${Viskores_UT_LABEL}"
             ${extra_args}
             RUN_SERIAL ${run_serial}
-            FAIL_REGULAR_EXPRESSION "runtime error")
+            FAIL_REGULAR_EXPRESSION "runtime error"
+            SKIP_RETURN_CODE 255)
         endif() # Viskores_ENABLE_MPI
         if ((NOT Viskores_ENABLE_MPI) OR Viskores_ENABLE_DIY_NOMPI)
           add_test(NAME ${tname}${upper_backend}_nompi
@@ -352,7 +353,8 @@ viskores_unit_tests but not in its test dependencies. Add test dependencies to \
             LABELS "${upper_backend};${Viskores_UT_LABEL}"
             ${extra_args}
             RUN_SERIAL ${run_serial}
-            FAIL_REGULAR_EXPRESSION "runtime error")
+            FAIL_REGULAR_EXPRESSION "runtime error"
+            SKIP_RETURN_CODE 255)
 
         endif() # Viskores_ENABLE_DIY_NOMPI
       else() # Viskores_UT_MPI
@@ -364,7 +366,8 @@ viskores_unit_tests but not in its test dependencies. Add test dependencies to \
             LABELS "${upper_backend};${Viskores_UT_LABEL}"
             ${extra_args}
             RUN_SERIAL ${run_serial}
-            FAIL_REGULAR_EXPRESSION "runtime error")
+            FAIL_REGULAR_EXPRESSION "runtime error"
+            SKIP_RETURN_CODE 255)
       endif() # Viskores_UT_MPI
     endforeach()
     unset(extra_args)

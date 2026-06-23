@@ -17,7 +17,7 @@
 //============================================================================
 
 #include <viskores/cont/Logging.h>
-#include <viskores/cont/testing/Testing.h>
+#include <viskores/testing/Testing.h>
 
 #include <chrono>
 #include <thread>
@@ -85,12 +85,9 @@ void RunTests()
 
 } // end anon namespace
 
-int UnitTestLogging(int, char*[])
+int UnitTestLogging(int argc, char* argv[])
 {
   // Test that parameterless init works:
-  VISKORES_LOG_S(viskores::cont::LogLevel::Info, "Log before intialize");
-  viskores::cont::InitLogging();
-
-  RunTests();
-  return 0;
+  VISKORES_LOG_S(viskores::cont::LogLevel::Info, "Log before initialize");
+  return viskores::testing::Testing::Run(RunTests, argc, argv);
 }

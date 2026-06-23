@@ -19,6 +19,7 @@
 // viskores
 #include "viskores/rendering/raytracing/SphereExtractor.h"
 #include <viskores/VectorAnalysis.h>
+#include <viskores/cont/Invoker.h>
 #include <viskores/filter/field_conversion/CellAverage.h>
 #include <viskores/interop/anari/ANARIMapperGlyphs.h>
 #include <viskores/worklet/WorkletMapField.h>
@@ -99,10 +100,19 @@ static GlyphArrays MakeGlyphs(viskores::cont::Field gradients,
   retval.Radii.Allocate(numGlyphs * 4);
 
   GeneratePointGlyphs worklet(glyphSize, offset);
-  viskores::worklet::DispatcherMapField<GeneratePointGlyphs> dispatch(worklet);
+  viskores::cont::Invoker invoke;
 
   if (gradients.IsPointField())
-    dispatch.Invoke(gradients, coords, retval.Vertices, retval.Radii);
+  {
+    auto resolveGradient = [&](const auto& concreteGradients)
+    {
+      invoke(
+        worklet, concreteGradients, coords.GetDataAsMultiplexer(), retval.Vertices, retval.Radii);
+    };
+    gradients.GetData()
+      .CastAndCallForTypesWithFloatFallback<viskores::TypeListFieldVec3,
+                                            VISKORES_DEFAULT_STORAGE_LIST>(resolveGradient);
+  }
   else
   {
     viskores::cont::DataSet centersInput;
@@ -114,13 +124,19 @@ static GlyphArrays MakeGlyphs(viskores::cont::Field gradients,
     filter.SetOutputFieldName("Centers");
     auto centersOutput = filter.Execute(centersInput);
 
-    auto resolveField = [&](const auto& concreteField)
-    { dispatch.Invoke(gradients, concreteField, retval.Vertices, retval.Radii); };
-    centersOutput.GetField("Centers")
-      .GetData()
+    auto resolveGradient = [&](const auto& concreteGradient)
+    {
+      auto resolveField = [&](const auto& concreteField)
+      { invoke(worklet, concreteGradient, concreteField, retval.Vertices, retval.Radii); };
+      centersOutput.GetField("Centers")
+        .GetData()
+        .CastAndCallForTypesWithFloatFallback<viskores::TypeListFieldVec3,
+                                              viskores::List<viskores::cont::StorageTagBasic>>(
+          resolveField);
+    };
+    gradients.GetData()
       .CastAndCallForTypesWithFloatFallback<viskores::TypeListFieldVec3,
-                                            viskores::List<viskores::cont::StorageTagBasic>>(
-        resolveField);
+                                            VISKORES_DEFAULT_STORAGE_LIST>(resolveGradient);
   }
 
   return retval;

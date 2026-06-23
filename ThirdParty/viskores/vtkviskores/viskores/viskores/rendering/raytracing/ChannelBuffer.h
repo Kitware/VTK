@@ -20,7 +20,7 @@
 
 #include <viskores/cont/ArrayHandle.h>
 
-#include <viskores/rendering/viskores_rendering_export.h>
+#include <viskores/rendering/raytracing/viskores_rendering_raytracing_export.h>
 
 #include <viskores/rendering/raytracing/RayTracingTypeDefs.h>
 
@@ -50,7 +50,7 @@ namespace raytracing
 ///
 
 template <typename Precision>
-class VISKORES_RENDERING_EXPORT ChannelBuffer
+class VISKORES_RENDERING_RAYTRACING_EXPORT ChannelBuffer
 {
 protected:
   viskores::Int32 NumChannels;

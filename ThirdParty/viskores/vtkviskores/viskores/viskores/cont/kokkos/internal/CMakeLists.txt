@@ -34,7 +34,8 @@ if (TARGET viskores_kokkos)
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceAdapterMemoryManagerKokkos.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceAdapterRuntimeDetectorKokkos.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/KokkosAlloc.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/KokkosTypes.cxx)
+    ${CMAKE_CURRENT_SOURCE_DIR}/KokkosTypes.cxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/RuntimeDeviceConfigurationKokkos.cxx)
   target_sources(viskores_cont PRIVATE ${sources})
 
   if (TARGET viskores_kokkos_cuda)

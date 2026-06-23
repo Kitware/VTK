@@ -476,14 +476,14 @@ void MapperGlyphScalar::RenderCellsImpl(
     viskores::Int32 width = (viskores::Int32)this->Canvas->GetWidth();
     viskores::Int32 height = (viskores::Int32)this->Canvas->GetHeight();
 
-    viskores::rendering::raytracing::Camera RayCamera;
+    viskores::rendering::raytracing::Camera RayCamera =
+      camera.CreateRaytracingCamera(width, height);
     viskores::rendering::raytracing::Ray<viskores::Float32> Rays;
-
-    RayCamera.SetParameters(camera, width, height);
 
     RayCamera.CreateRays(Rays, shapeBounds);
     Rays.Buffers.at(0).InitConst(0.f);
-    raytracing::RayOperations::MapCanvasToRays(Rays, camera, *this->Canvas);
+    raytracing::RayOperations::MapCanvasToRays(
+      Rays, camera.CreateRaytracingCamera(width, height), this->Canvas->GetDepthBuffer());
 
     tracer.SetField(processedField, scalarRange);
     tracer.GetCamera() = RayCamera;

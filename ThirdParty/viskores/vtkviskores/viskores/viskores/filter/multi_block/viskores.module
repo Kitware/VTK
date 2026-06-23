@@ -11,3 +11,4 @@ TEST_DEPENDS
   viskores_rendering
   viskores_rendering_testing
   viskores_filter_geometry_refinement
+  viskores_worklet

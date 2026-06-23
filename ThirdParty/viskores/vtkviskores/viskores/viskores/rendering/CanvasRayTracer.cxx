@@ -61,16 +61,18 @@ public:
                                 ColorBufferPortalType& colorBuffer,
                                 const viskores::Id& index) const
   {
-    viskores::Vec<Precision, 3> intersection = origin + inDepth * dir;
-
-    viskores::Vec4f_32 point;
-    point[0] = static_cast<viskores::Float32>(intersection[0]);
-    point[1] = static_cast<viskores::Float32>(intersection[1]);
-    point[2] = static_cast<viskores::Float32>(intersection[2]);
-    point[3] = 1.f;
-
-    viskores::Float32 depth;
+    viskores::Float32 depth = viskores::NegativeInfinity32();
+    const bool hasProjectedDepth = (inDepth >= Precision{ 0 });
+    if (hasProjectedDepth)
     {
+      viskores::Vec<Precision, 3> intersection = origin + inDepth * dir;
+
+      viskores::Vec4f_32 point;
+      point[0] = static_cast<viskores::Float32>(intersection[0]);
+      point[1] = static_cast<viskores::Float32>(intersection[1]);
+      point[2] = static_cast<viskores::Float32>(intersection[2]);
+      point[3] = 1.f;
+
       viskores::Vec4f_32 newpoint;
       newpoint = viskores::MatrixMultiply(this->ViewProjMat, point);
       if (newpoint[3] > 0)
@@ -95,6 +97,7 @@ public:
     color[3] = static_cast<viskores::Float32>(colorBufferIn.Get(index * 4 + 3));
     // blend the mapped color with existing canvas color
     viskores::Vec4f_32 bufferColor = colorBuffer.Get(pixelIndex);
+    viskores::Float32 currentDepth = depthBuffer.Get(pixelIndex);
 
     // if transparency exists, all alphas have been pre-multiplied
     viskores::Float32 alpha = (1.f - color[3]);
@@ -111,7 +114,7 @@ public:
     // The existing depth should already been feed into the ray mapper
     // so no color contribution will exist past the existing depth.
 
-    if (this->WriteDepth)
+    if (this->WriteDepth && hasProjectedDepth && (depth <= currentDepth))
     {
       depthBuffer.Set(pixelIndex, depth);
     }

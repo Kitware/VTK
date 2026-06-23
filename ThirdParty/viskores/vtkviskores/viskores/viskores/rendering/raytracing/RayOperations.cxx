@@ -23,20 +23,21 @@ namespace rendering
 namespace raytracing
 {
 
-void RayOperations::MapCanvasToRays(Ray<viskores::Float32>& rays,
-                                    const viskores::rendering::Camera& camera,
-                                    const viskores::rendering::CanvasRayTracer& canvas)
+void RayOperations::MapCanvasToRays(
+  Ray<viskores::Float32>& rays,
+  const viskores::rendering::raytracing::Camera& camera,
+  const viskores::cont::ArrayHandle<viskores::Float32>& depthBuffer)
 {
-  viskores::Id width = canvas.GetWidth();
-  viskores::Id height = canvas.GetHeight();
-  viskores::Matrix<viskores::Float32, 4, 4> projview = viskores::MatrixMultiply(
-    camera.CreateProjectionMatrix(width, height), camera.CreateViewMatrix());
+  viskores::Id width = camera.GetWidth();
+  viskores::Id height = camera.GetHeight();
+  VISKORES_ASSERT(width * height == depthBuffer.GetNumberOfValues());
+  viskores::Matrix<viskores::Float32, 4, 4> projview = camera.GetViewProjectionMatrix();
   bool valid;
   viskores::Matrix<viskores::Float32, 4, 4> inverse = viskores::MatrixInverse(projview, valid);
   (void)valid; // this can be a false negative for really tiny spatial domains.
   viskores::worklet::DispatcherMapField<detail::RayMapCanvas>(
     detail::RayMapCanvas(inverse, width, height, camera.GetPosition()))
-    .Invoke(rays.PixelIdx, rays.MaxDistance, rays.Origin, canvas.GetDepthBuffer());
+    .Invoke(rays.PixelIdx, rays.MaxDistance, rays.Origin, depthBuffer);
 }
 }
 }

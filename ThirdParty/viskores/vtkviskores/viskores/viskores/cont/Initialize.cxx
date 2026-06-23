@@ -109,6 +109,12 @@ struct ViskoresDeviceArg : public opt::Arg
   }
 };
 
+bool& GetInitializedFlag()
+{
+  static bool initialized = false;
+  return initialized;
+}
+
 } // namespace
 
 namespace viskores
@@ -119,6 +125,13 @@ namespace cont
 VISKORES_CONT
 InitializeResult Initialize(int& argc, char* argv[], InitializeOptions opts)
 {
+  if (viskores::cont::IsInitialized())
+  {
+    VISKORES_LOG_S(viskores::cont::LogLevel::Warn,
+                   "`viskores::cont::Initialize` called multiple times. Subsequent calls ignored.");
+    return viskores::cont::InitializeResult{};
+  }
+
   InitializeResult config;
   const std::string loggingFlagName = "viskores-log-level";
   const std::string loggingFlag = "--" + loggingFlagName;
@@ -216,12 +229,6 @@ InitializeResult Initialize(int& argc, char* argv[], InitializeOptions opts)
       exit(1);
     }
 
-    if (options[opt::OptionIndex::HELP])
-    {
-      std::cerr << config.Usage;
-      exit(0);
-    }
-
     // The RuntimeDeviceConfiguration must be completed before calling GetRuntimeDeviceTracker()
     // for all the devices. This is because GetRuntimeDeviceTracker will construct a given
     // device's DeviceAdapterRuntimeDetector to determine if it exists and this constructor may
@@ -232,6 +239,12 @@ InitializeResult Initialize(int& argc, char* argv[], InitializeOptions opts)
       viskores::cont::RuntimeDeviceInformation runtimeDevice;
       runtimeDevice.GetRuntimeConfiguration(
         viskores::cont::DeviceAdapterTagAny{}, runtimeDeviceOptions, argc, argv);
+    }
+
+    if (options[opt::OptionIndex::HELP])
+    {
+      std::cerr << config.Usage;
+      exit(0);
     }
 
     // Check for device on command line.
@@ -379,6 +392,7 @@ InitializeResult Initialize(int& argc, char* argv[], InitializeOptions opts)
     argc = destArg;
   }
 
+  GetInitializedFlag() = true;
   return config;
 }
 
@@ -389,5 +403,11 @@ InitializeResult Initialize()
   char** argv = nullptr;
   return Initialize(argc, argv);
 }
+
+VISKORES_CONT bool IsInitialized()
+{
+  return GetInitializedFlag();
+}
+
 }
 } // end namespace viskores::cont

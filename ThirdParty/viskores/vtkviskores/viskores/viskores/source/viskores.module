@@ -6,6 +6,8 @@ DEPENDS
   viskores_cont
   viskores_filter_field_conversion
   viskores_filter_multi_block
+PRIVATE_DEPENDS
+  viskores_exec
 TEST_DEPENDS
   viskores_filter_contour
 TEST_OPTIONAL_DEPENDS

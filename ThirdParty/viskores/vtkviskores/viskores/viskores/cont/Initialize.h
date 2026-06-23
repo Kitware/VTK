@@ -119,6 +119,12 @@ VISKORES_CONT_EXPORT
 VISKORES_CONT
 InitializeResult Initialize();
 /**@}*/
+
+/// @brief Query whether `viskores::cont::Initialize` has been called.
+///
+/// @returns `true` if `Initialize` has been called, `false` otherwise.
+VISKORES_CONT_EXPORT VISKORES_CONT bool IsInitialized();
+
 }
 } // end namespace viskores::cont
 

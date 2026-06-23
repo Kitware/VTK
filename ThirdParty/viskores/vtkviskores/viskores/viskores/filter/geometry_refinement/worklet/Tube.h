@@ -621,10 +621,20 @@ public:
   {
     using NormalsType = viskores::cont::ArrayHandle<viskores::Vec3f>;
 
-    if (!cellset.CanConvert<viskores::cont::CellSetExplicit<>>() &&
-        !cellset.CanConvert<viskores::cont::CellSetSingleType<>>())
+    bool supportedCellList = false;
+    viskores::ListForEach(
+      [&](auto cellListType)
+      {
+        if (cellset.CanConvert<decltype(cellListType)>())
+        {
+          supportedCellList = true;
+        }
+      },
+      VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED());
+
+    if (!supportedCellList)
     {
-      throw viskores::cont::ErrorBadValue("Tube filter only supported for polyline data.");
+      throw viskores::cont::ErrorBadType("Tube filter only supports unstructured cell lists.");
     }
 
     //Count number of polyline pts, tube pts and tube cells

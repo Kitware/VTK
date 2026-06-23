@@ -23,6 +23,8 @@
 #include <viskores/cont/ErrorBadAllocation.h>
 #include <viskores/cont/ErrorBadDevice.h>
 #include <viskores/cont/ErrorBadType.h>
+#include <viskores/cont/Initialize.h>
+#include <viskores/cont/Logging.h>
 #include <viskores/cont/RuntimeDeviceInformation.h>
 #include <viskores/cont/TryExecute.h>
 
@@ -586,6 +588,20 @@ struct VISKORES_NEVER_EXPORT BufferHelper
                                viskores::cont::DeviceAdapterId device,
                                AccessMode accessMode)
   {
+    // Check to make sure Viskores is initialized. Most operations will require
+    // some memory on the device first, so this should catch most instances of
+    // using the device before initialization.
+    static bool checkedInitialized = false;
+    if (!checkedInitialized)
+    {
+      if (!viskores::cont::IsInitialized())
+      {
+        VISKORES_LOG_S(viskores::cont::LogLevel::Warn,
+                       "Viskores device used before `viskores::cont::Initialize` was called.");
+      }
+      checkedInitialized = true;
+    }
+
     Wait(internals, lock, token, accessMode);
     Buffer::InternalsStruct::DeviceBufferMap& deviceBuffers = internals->GetDeviceBuffers(lock);
     viskores::BufferSizeType targetSize = internals->GetNumberOfBytes(lock);
