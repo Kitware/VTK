@@ -91,11 +91,14 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBin
   if (deviceTextureRc)
   {
     // texture sampler
-    entries.emplace_back(deviceTextureRc->MakeSamplerBindGroupLayoutEntry(
-      3, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
+    WGPUBindGroupLayoutEntry samplerLayoutEntry = deviceTextureRc->MakeSamplerBindGroupLayoutEntry(
+      3, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
+    entries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&samplerLayoutEntry));
     // texture data
-    entries.emplace_back(deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(
-      4, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
+    WGPUBindGroupLayoutEntry textureLayoutEntry =
+      deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(
+        4, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
+    entries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&textureLayoutEntry));
   }
   return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, entries, label);
 }
@@ -1101,8 +1104,10 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       entries.push_back(meshDataInitializer.GetAsBinding());
       if (deviceTextureRc)
       {
-        entries.push_back(wgpu::BindGroupEntry(deviceTextureRc->MakeSamplerBindGroupEntry(3)));
-        entries.push_back(wgpu::BindGroupEntry(deviceTextureRc->MakeTextureViewBindGroupEntry(4)));
+        WGPUBindGroupEntry samplerEntry = deviceTextureRc->MakeSamplerBindGroupEntry(3);
+        entries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&samplerEntry));
+        WGPUBindGroupEntry textureEntry = deviceTextureRc->MakeTextureViewBindGroupEntry(4);
+        entries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&textureEntry));
       }
       this->MeshAttributeBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
         device, layout, entries, "MeshAttributeBindGroup");
