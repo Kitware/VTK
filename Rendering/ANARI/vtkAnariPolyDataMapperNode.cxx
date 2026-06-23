@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -283,6 +284,11 @@ public:
   std::string StrToLower(std::string s);
 
   /**
+   * Determine if the material implementation is physically based.
+   */
+  bool IsPhysicallyBased(const std::string& implName) const;
+
+  /**
    * Send surfaces to the renderer.
    */
   void RenderSurfaceModels();
@@ -314,6 +320,9 @@ public:
   anari::Device AnariDevice{ nullptr };
   anari::Extensions AnariDeviceExtensions{};
   const char* const* AnariDeviceExtensionStrings{ nullptr };
+
+private:
+  static const std::set<std::string> PhysicallyBasedImpls;
 };
 
 //----------------------------------------------------------------------------
@@ -918,9 +927,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeLibraryMaterial(
 
   // Map OSPRay impl names to ANARI material types
   // "physicallyBased" and "matte" are the two ANARI KHR materials
-  bool usePhysicallyBased = (implName == "principled" || implName == "obj" || implName == "glass" ||
-    implName == "thinGlass" || implName == "metal" || implName == "alloy" ||
-    implName == "metallicPaint" || implName == "carPaint" || implName == "luminous");
+  bool usePhysicallyBased = this->IsPhysicallyBased(implName);
   bool useMatte = (implName == "matte");
 
   anari::Material anariMaterial = nullptr;
@@ -1464,11 +1471,24 @@ void vtkAnariPolyDataMapperNodeInternals::SetInheritInterface(
 }
 
 //----------------------------------------------------------------------------
+const std::set<std::string> vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls = {
+  "principled", "obj", "glass", "thinGlass", "metal", "alloy", "metallicPaint", "carPaint",
+  "luminous"
+};
+
+//----------------------------------------------------------------------------
 std::string vtkAnariPolyDataMapperNodeInternals::StrToLower(std::string s)
 {
   std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 
   return s;
+}
+
+//----------------------------------------------------------------------------
+bool vtkAnariPolyDataMapperNodeInternals::IsPhysicallyBased(const std::string& implName) const
+{
+  return vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls.find(implName) !=
+    vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls.end();
 }
 
 //----------------------------------------------------------------------------
