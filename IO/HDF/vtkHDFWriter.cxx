@@ -729,7 +729,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
   bool writeSuccess = true;
   writeSuccess &= this->Impl->WriteHeader(group, "HyperTreeGrid");
 
-  this->Impl->CreateScalarAttribute(group, "BranchFactor", input->GetBranchFactor());
+  // Write uninitialized HTGs properly
+  unsigned int branchFactor = std::max<unsigned int>(2, input->GetBranchFactor());
+  this->Impl->CreateScalarAttribute(group, "BranchFactor", branchFactor);
   int dims[3];
   input->GetDimensions(dims);
   this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims);
@@ -2522,8 +2524,8 @@ bool vtkHDFWriter::AppendIterDataObject(
     }
     if (part == pds->GetNumberOfPartitions())
     {
-      vtkErrorMacro("Could not find non-null partition in data object");
-      return false;
+      // No vtkDataSet found in the PDS, can't set MeshMTime
+      return true;
     }
     this->CompositeMeshMTime[leafIndex] =
       vtkDataSet::SafeDownCast(pds->GetPartition(part))->GetMeshMTime();
