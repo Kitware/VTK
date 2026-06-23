@@ -814,6 +814,7 @@ Rendering/OpenGL2/vtkGLSLModifierFactory.h
 Rendering/OpenGL2/vtkGenericOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkIOSRenderWindow.h
 Rendering/OpenGL2/vtkOpenGLArrayTextureBufferAdapter.h
+Rendering/OpenGL2/vtkOpenGLArrayTextureBufferCache.h
 Rendering/OpenGL2/vtkOpenGLBatchedPolyDataMapper.h
 Rendering/OpenGL2/vtkOpenGLBillboardTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLBufferObject.h

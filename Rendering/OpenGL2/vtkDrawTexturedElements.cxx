@@ -32,6 +32,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 // Uncomment to print shader/color info to std::cout
@@ -102,6 +103,17 @@ vtkShader* vtkDrawTexturedElements::GetShader(vtkShader::Type shaderType)
   return it->second;
 }
 
+void vtkDrawTexturedElements::BeginArrayRebuild()
+{
+  // Mark every bound texture so its source arrays are cleared (but GPU resources + layout
+  // records preserved) on the first Bind/Append of the upcoming rebuild cycle.
+  for (auto& entry : this->Arrays)
+  {
+    auto& textureBufferAdapter = entry.second;
+    textureBufferAdapter.SetPendingReset(true);
+  }
+}
+
 void vtkDrawTexturedElements::BindArrayToTexture(
   vtkStringToken textureName, vtkDataArray* array, bool asScalars)
 {
@@ -115,12 +127,11 @@ void vtkDrawTexturedElements::BindArrayToTexture(
     this->Arrays[textureName] = vtkOpenGLArrayTextureBufferAdapter(array, asScalars);
     return;
   }
+  // Bind replaces the array list wholesale, so it already satisfies a pending reset.
+  it->second.SetPendingReset(false);
   it->second.Arrays = { array };
   // needs to be re-uploaded.
-  if (it->second.Buffer)
-  {
-    it->second.Buffer->FlagBufferAsDirty();
-  }
+  it->second.SetUploaded(false);
   it->second.ScalarComponents = asScalars;
 }
 
@@ -211,12 +222,16 @@ void vtkDrawTexturedElements::AppendArrayToTexture(
   }
   else
   {
+    // First append of a rebuild cycle: drop the previous block list but keep the uploaded
+    // texture/buffer and layout records so Upload() can diff against them.
+    if (it->second.GetPendingReset())
+    {
+      it->second.Arrays.clear();
+      it->second.SetPendingReset(false);
+    }
     it->second.Arrays.emplace_back(array);
     // needs to be re-uploaded.
-    if (it->second.Buffer)
-    {
-      it->second.Buffer->FlagBufferAsDirty();
-    }
+    it->second.SetUploaded(false);
   }
 }
 
@@ -444,6 +459,12 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
   // I. Upload data to texture objects as needed.
   for (auto& entry : this->Arrays)
   {
+    // A texture left marked from BeginArrayRebuild() was not repopulated this cycle (the
+    // attribute is no longer bound); skip it rather than upload/activate a stale array list.
+    if (entry.second.GetPendingReset())
+    {
+      continue;
+    }
 #ifdef vtkDrawTexturedElements_DEBUG
     std::cout << "Attempt to upload \"" << entry.first.Data() << "\"\n";
 #endif
@@ -452,6 +473,10 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
   // II. Activate each texture (bind it).
   for (const auto& entry : this->Arrays)
   {
+    if (entry.second.GetPendingReset())
+    {
+      continue;
+    }
     auto samplerName = entry.first.Data();
     if (!this->ShaderProgram->IsUniformUsed(samplerName.c_str()))
     {
@@ -534,12 +559,14 @@ void vtkDrawTexturedElements::PostDraw(vtkRenderer* ren, vtkActor*, vtkMapper*)
     return;
   }
 
-#if 1
   for (const auto& entry : this->Arrays)
   {
+    if (entry.second.GetPendingReset())
+    {
+      continue;
+    }
     entry.second.Texture->Deactivate();
   }
-#endif
   vtkOpenGLStaticCheckErrorMacro("Just after texture release");
 
   this->VAO->Release();

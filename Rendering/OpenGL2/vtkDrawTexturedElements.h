@@ -84,6 +84,17 @@ public:
     vtkStringToken textureName, vtkDataArray* array, bool asScalars = false);
   bool UnbindArray(vtkStringToken);
 
+  /// Begin re-listing the bound arrays without discarding their uploaded textures.
+  ///
+  /// A mapper that rebuilds its array bindings every frame (e.g. the batched mapper, which
+  /// concatenates one texture per attribute across all its blocks) calls this before the
+  /// Bind/Append calls. Each existing texture is marked so that the first Bind/Append of this
+  /// cycle clears its previously-listed source arrays while keeping the GPU texture/buffer and
+  /// the per-sub-array layout records intact. The subsequent Upload() can then diff the new
+  /// arrays against the last upload and re-transfer only the slices that changed. Any texture
+  /// that is not repopulated during the cycle stays marked and is skipped at draw time.
+  void BeginArrayRebuild();
+
   /// Set/get the number of element instances to draw.
   vtkIdType GetNumberOfInstances() { return this->NumberOfInstances; }
   virtual bool SetNumberOfInstances(vtkIdType numberOfInstances);

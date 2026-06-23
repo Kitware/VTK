@@ -11,6 +11,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(_vtk_test_cxx_wasm_enabled_in_browser ON)
 endif ()
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
+  TestArrayTextureBufferCacheSharing.cxx,NO_DATA,NO_VALID,NO_SERDES
+  TestArrayTextureBufferPartialUpload.cxx,NO_DATA,NO_VALID,NO_SERDES
   TestBatchOrderRendering.cxx
   TestBlockVisibility.cxx
   TestBlurAndSobelPasses.cxx

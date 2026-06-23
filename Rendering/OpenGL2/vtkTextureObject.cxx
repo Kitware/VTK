@@ -23,7 +23,9 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <vector>
 
 // #define VTK_TO_DEBUG
@@ -1366,6 +1368,159 @@ bool vtkTextureObject::EmulateTextureBufferWith2DTextures(
     this->Create2D(width, height, numComps, pbo, isIntegral);
     return true;
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextureObject::EmulateTextureBufferWith2DTexturesFromRaw(
+  unsigned int numValues, int numComps, int dataType, void* data)
+{
+  assert(this->Context);
+  auto ostate = this->GetContext()->GetState();
+  int maxSize = 0;
+  ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+  if (numValues > static_cast<unsigned int>(maxSize * maxSize))
+  {
+    vtkErrorMacro("Requested texture buffer size exceeds hardware limits. "
+                  "On the current OpenGL device, GL_MAX_TEXTURE_SIZE x GL_MAX_TEXTURE_SIZE = "
+      << maxSize << " values. However, requested size is " << numValues << ".");
+    return false;
+  }
+
+  const unsigned int maxTexDim = maxSize;
+  const int width = numValues > maxTexDim ? maxTexDim : numValues % (maxTexDim + 1);
+  const int height = vtkMath::Ceil(static_cast<double>(numValues) / width);
+
+  // Preserve integer formats (e.g. R32I/R32UI for connectivity buffers) so the shader's
+  // integer texelFetch keeps working, exactly as Create2D() does for the PBO path.
+  bool isIntegral = false;
+  switch (dataType)
+  {
+    vtkTemplateMacro(isIntegral = std::is_integral<VTK_TT>());
+  }
+  const GLenum internalFormat = this->GetInternalFormat(dataType, numComps, isIntegral);
+  const GLenum format = this->GetFormat(dataType, numComps, isIntegral);
+  const GLenum type = this->GetDefaultDataType(dataType);
+  if (!internalFormat || !format || !type)
+  {
+    vtkErrorMacro("Failed to determine texture parameters.");
+    return false;
+  }
+
+  // glTexImage2D reads width*height*numComps values. When numValues does not tile exactly
+  // (multi-row case, numValues > GL_MAX_TEXTURE_SIZE), pad to the texel count so the driver
+  // never reads past the source. The single-row common case tiles exactly (height == 1).
+  const std::size_t texelCount = static_cast<std::size_t>(width) * height;
+  std::vector<unsigned char> padded;
+  const void* upload = data;
+  if (texelCount > numValues)
+  {
+    const std::size_t elemSize =
+      static_cast<std::size_t>(vtkAbstractArray::GetDataTypeSize(dataType));
+    const std::size_t comps = static_cast<std::size_t>(numComps);
+    padded.assign(texelCount * comps * elemSize, 0);
+    std::memcpy(padded.data(), data, static_cast<std::size_t>(numValues) * comps * elemSize);
+    upload = padded.data();
+  }
+
+  this->Target = GL_TEXTURE_2D;
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+
+  // Upload directly from client memory: no GPU buffer object, no GL_PIXEL_UNPACK_BUFFER.
+  // ANGLE/WebGL2 has no fast GPU PBO->texture path, so the buffer-object variant forces a
+  // CPU copy of the unpack buffer on every upload (see EmulateTextureBufferWith2DTextures).
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(this->Target, 0, internalFormat, static_cast<GLsizei>(width),
+    static_cast<GLsizei>(height), 0, format, type, upload);
+  vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->Format = format;
+  this->Type = type;
+  this->InternalFormat = internalFormat;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth = 1;
+  this->NumberOfDimensions = 2;
+
+  this->Deactivate();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkTextureObject::UpdateTextureBuffer2DRegion(
+  unsigned int texelOffset, unsigned int numTexels, int numComps, int dataType, void* data)
+{
+  assert(this->Context);
+  if (this->Target != GL_TEXTURE_2D || this->Width == 0)
+  {
+    vtkErrorMacro("UpdateTextureBuffer2DRegion requires a 2D-emulation texture created by "
+                  "EmulateTextureBufferWith2DTextures[FromRaw] first.");
+    return false;
+  }
+  if (numTexels == 0)
+  {
+    return true;
+  }
+  const unsigned int width = this->Width;
+  if (texelOffset + numTexels > width * this->Height)
+  {
+    vtkErrorMacro("UpdateTextureBuffer2DRegion range ["
+      << texelOffset << ", " << texelOffset + numTexels << ") exceeds the texture's texel count.");
+    return false;
+  }
+  // Bytes per texel in the source: numComps values of dataType, tightly packed (the source row
+  // stride equals the texture row stride because both pack numComps per texel with no padding).
+  const std::size_t texelBytes =
+    static_cast<std::size_t>(numComps) * vtkAbstractArray::GetDataTypeSize(dataType);
+
+  auto ostate = this->GetContext()->GetState();
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+  ostate->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  // Walk the contiguous texel range row by row. A texel range that starts/ends mid-row maps to
+  // up to three rectangles: a partial first row, a block of whole rows, and a partial last row.
+  // The source data is contiguous, so each rectangle reads the next slice of `data`.
+  const unsigned char* src = static_cast<const unsigned char*>(data);
+  unsigned int remaining = numTexels;
+  unsigned int texel = texelOffset;
+  while (remaining > 0)
+  {
+    const unsigned int row = texel / width;
+    const unsigned int col = texel % width;
+    unsigned int count;
+    GLsizei regionWidth;
+    GLsizei regionHeight;
+    if (col == 0 && remaining >= width)
+    {
+      // Whole rows in a single call.
+      const unsigned int rows = remaining / width;
+      regionWidth = static_cast<GLsizei>(width);
+      regionHeight = static_cast<GLsizei>(rows);
+      count = rows * width;
+      glTexSubImage2D(this->Target, 0, 0, static_cast<GLint>(row), regionWidth, regionHeight,
+        this->Format, this->Type, src);
+    }
+    else
+    {
+      // Partial row (the head, or the tail).
+      count = std::min(remaining, width - col);
+      regionWidth = static_cast<GLsizei>(count);
+      regionHeight = 1;
+      glTexSubImage2D(this->Target, 0, static_cast<GLint>(col), static_cast<GLint>(row),
+        regionWidth, regionHeight, this->Format, this->Type, src);
+    }
+    vtkOpenGLCheckErrorMacro("failed at glTexSubImage2D");
+    src += static_cast<std::size_t>(count) * texelBytes;
+    texel += count;
+    remaining -= count;
+  }
+
+  this->Deactivate();
+  return true;
 }
 
 //------------------------------------------------------------------------------
