@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+from datetime import datetime
 
 import argparse
 import hashlib
@@ -29,8 +30,10 @@ def sha256sum(file_path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+current_date = datetime.now().isoformat()
+
 artifacts = [
-    {"name": str(path), "sha256sum": sha256sum(path)}
+    {"name": str(path), "sha256sum": sha256sum(path), "date": current_date}
     for path in Path(args.artifacts_dir).glob("*")
     if path.is_file()
 ]
