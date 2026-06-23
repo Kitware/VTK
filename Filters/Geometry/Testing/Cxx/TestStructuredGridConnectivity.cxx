@@ -184,7 +184,7 @@ void ApplyXYZFieldToGrid(vtkUniformGrid* grd, const std::string& prefix)
         nodeXYZArray->SetComponent(meshPntIdx, 1, xyz[1]);
         nodeXYZArray->SetComponent(meshPntIdx, 2, xyz[2]);
       } // END if
-    }   // END for all nodes
+    } // END for all nodes
 
     centroid[0] = xsum / c->GetNumberOfPoints();
     centroid[1] = ysum / c->GetNumberOfPoints();
@@ -317,7 +317,7 @@ int GetTotalNumberOfNodes(vtkMultiBlockDataSet* multiblock)
           ++numNodes;
         }
       } // END for all nodes
-    }   // END if grid != nullptr
+    } // END if grid != nullptr
 
   } // END for all blocks
 
@@ -349,8 +349,8 @@ int GetTotalNumberOfCells(vtkMultiBlockDataSet* multiblock)
           ++numCells;
         }
       } // END for all cells
-    }   // END if grid != nullptr
-  }     // END for all blocks
+    } // END if grid != nullptr
+  } // END for all blocks
   return (numCells);
 }
 
@@ -588,7 +588,7 @@ int TestStructuredGridConnectivity_internal(int argc, char* argv[])
         return rc;
       }
     } // END for all ghost layer tests
-  }   // END for all numPartition tests
+  } // END for all numPartition tests
 
   return (rc);
 }
@@ -630,7 +630,7 @@ bool CheckArrays(vtkDoubleArray* computed, vtkDoubleArray* expected)
         status = false;
       }
     } // END for all components
-  }   // END for all tuples
+  } // END for all tuples
 
   return (status);
 }

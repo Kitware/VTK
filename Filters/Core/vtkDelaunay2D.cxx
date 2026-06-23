@@ -738,7 +738,7 @@ bool vtkDelaunay2D::CheckEdge(
 
       return true;
     } // in circle
-  }   // interior edge
+  } // interior edge
 
   return false;
 }
@@ -1175,7 +1175,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
       } // if non-deleted triangle
-    }   // for all triangles
+    } // for all triangles
 
     // traverse all edges see whether we need to create some
     vtkNew<vtkCellArray> triangles;
@@ -1221,11 +1221,11 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
                 pts[1] = ap2;
                 alphaLines->InsertNextCell(2, pts);
               } // if passed test
-            }   // test edge
-          }     // if valid edge
-        }       // for all edges of this triangle
-      }         // if triangle not output
-    }           // for all triangles
+            } // test edge
+          } // if valid edge
+        } // for all edges of this triangle
+      } // if triangle not output
+    } // for all triangles
 
     // traverse all points, create vertices if none used
     for (ptId = 0; ptId < (numPoints + 8); ptId++)
@@ -1713,8 +1713,8 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
         }
         break;
       } // else found opposite point
-    }   // for all points in triangle
-  }     // while walking
+    } // for all points in triangle
+  } // while walking
 
   // Fetch the left & right polygons edges
   nbPts = rightPoly->GetPointIds()->GetNumberOfIds();
@@ -1964,8 +1964,8 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray* polys, int* triUse)
               nextFront->InsertNextId(neiId);
             }
           } // mark all neighbors
-        }   // for all edges of cell
-      }     // all cells in front
+        } // for all edges of cell
+      } // all cells in front
 
       tmpFront = currentFront;
       currentFront = nextFront;

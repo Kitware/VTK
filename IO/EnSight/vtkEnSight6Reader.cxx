@@ -1118,7 +1118,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
         }
         lineRead = this->ReadNextDataLine(line);
       } // end while
-    }   // end else
+    } // end else
     if (component == 0)
     {
       scalars->SetName(description);
@@ -1288,7 +1288,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
         }
         lineRead = this->ReadNextDataLine(line);
       } // end while
-    }   // end else
+    } // end else
     output->GetCellData()->AddArray(vectors);
     if (!output->GetCellData()->GetVectors())
     {
@@ -1448,7 +1448,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
         }
         lineRead = this->ReadNextDataLine(line);
       } // end while
-    }   // end else
+    } // end else
     output->GetCellData()->AddArray(tensors);
     tensors->Delete();
   }

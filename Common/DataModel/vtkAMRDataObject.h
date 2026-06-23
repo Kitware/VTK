@@ -269,7 +269,7 @@ protected:
   VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be used, returns nullptr")
   virtual vtkAMRDataInternals* GetAMRData() { return nullptr; }
   VTK_DEPRECATED_IN_9_6_0("This function is deprecated and has no effect")
-  virtual void SetAMRData(vtkAMRDataInternals*){};
+  virtual void SetAMRData(vtkAMRDataInternals*) {};
   ///@}
 
   ///@{
@@ -281,7 +281,7 @@ protected:
   virtual vtkOverlappingAMRMetaData* GetAMRInfo() { return nullptr; };
   VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be inherited, use "
                           "SetAMRMetaData() or Initialize(vtkAMRMetaData*) instead")
-  virtual void SetAMRInfo(vtkOverlappingAMRMetaData*){};
+  virtual void SetAMRInfo(vtkOverlappingAMRMetaData*) {};
   ///@}
 
 private:

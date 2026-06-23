@@ -223,7 +223,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkAMRCutPlane::CutAMRBlock(
       extractedCells.push_back(cellIdx);
       this->ExtractCellFromGrid(grid, grid->GetCell(cellIdx), grdPntMapping, meshPts, cells);
     } // END if
-  }   // END for all cells
+  } // END for all cells
 
   // Sanity checks
   assert("post: Number of mesh points should match map size!" &&
@@ -427,7 +427,7 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* m)
         this->BlocksToLoad.push_back(amrGridIdx);
       }
     } // END for all data
-  }   // END for all levels
+  } // END for all levels
 
   std::sort(this->BlocksToLoad.begin(), this->BlocksToLoad.end());
 }

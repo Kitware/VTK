@@ -109,10 +109,10 @@ void vtkOrientPolyData::TraverseAndOrder(vtkPolyData* input, vtkPolyData* output
               visited[neighbor] = VTK_CELL_VISITED;
               wave2->InsertNextId(neighbor);
             } // if cell not visited
-          }   // for each edge neighbor
-        }     // for manifold or non-manifold traversal allowed
-      }       // for all edges of this polygon
-    }         // for all cells in wave
+          } // for each edge neighbor
+        } // for manifold or non-manifold traversal allowed
+      } // for all edges of this polygon
+    } // for all cells in wave
 
     // swap wave and proceed with propagation
     std::swap(wave, wave2);
@@ -378,7 +378,7 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
     } // Still some points in the queue
     vtkDebugMacro(<< "Reversed ordering of " << numFlips << " polygons");
-  }    // automatically orient normals
+  } // automatically orient normals
   else // this->Consistency
   {
     const vtkIdType checkAbortInterval = std::min(numberOfCells / 10 + 1, (vtkIdType)1000);

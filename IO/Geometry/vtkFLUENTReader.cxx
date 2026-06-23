@@ -259,12 +259,12 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
   // In this case, we generate a multiblock using the faces information so we can
   // still display the surface of this mesh.
-  bool noCellEnabled = std::none_of(this->Cells.begin(), this->Cells.end(),
-    [&disabledZones](Cell& cell)
-    { return cell.zoneId != 0 && disabledZones.find(cell.zoneId) == disabledZones.end(); });
-  bool atLeastOneFaceEnabled = std::any_of(this->Faces.begin(), this->Faces.end(),
-    [&disabledZones](Face& face)
-    { return disabledZones.find(face.zoneId) == disabledZones.end(); });
+  bool noCellEnabled =
+    std::none_of(this->Cells.begin(), this->Cells.end(), [&disabledZones](Cell& cell)
+      { return cell.zoneId != 0 && disabledZones.find(cell.zoneId) == disabledZones.end(); });
+  bool atLeastOneFaceEnabled =
+    std::any_of(this->Faces.begin(), this->Faces.end(), [&disabledZones](Face& face)
+      { return disabledZones.find(face.zoneId) == disabledZones.end(); });
   if (noCellEnabled && atLeastOneFaceEnabled && this->Points->GetNumberOfPoints() > 0)
   {
     this->FillMultiBlockFromFaces(blockUGs, zoneIDToBlockIdx, disabledZones);

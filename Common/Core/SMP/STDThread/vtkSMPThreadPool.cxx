@@ -360,8 +360,7 @@ std::thread vtkSMPThreadPool::MakeThread()
         // from them and thus increase parallelism. This must take care to not generate deadlocks
         // and should not increase Proxy parallelism above requested thread count.
         // This goes out of the scope of the current implementation.
-        threadData.ConditionVariable.wait(lock,
-          [this, &threadData]
+        threadData.ConditionVariable.wait(lock, [this, &threadData]
           { return !threadData.Jobs.empty() || this->Joining.load(std::memory_order_acquire); });
 
         if (threadData.Jobs.empty())

@@ -478,7 +478,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
 
       std::cout << "\n";
     } // i
-  }   // r
+  } // r
 
   // Clean up
   as3->Delete();

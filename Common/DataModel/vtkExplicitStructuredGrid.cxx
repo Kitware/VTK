@@ -320,14 +320,14 @@ struct GetCellNeighborsImpl : public vtkCellArray::DispatchUtilities
                 break;
               }
             } // for all points in current cell
-          }   // if not guaranteed match
-        }     // for all input points
+          } // if not guaranteed match
+        } // for all input points
         if (match)
         {
           cellIds->InsertNextId(minCellId);
         }
       } // if not the reference cell
-    }   // for each cell in minimum linked list
+    } // for each cell in minimum linked list
   }
 };
 } // end anonymous namespace

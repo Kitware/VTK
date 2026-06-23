@@ -288,10 +288,10 @@ int vtkAreaPicker::PickProps(vtkRenderer* renderer)
             }
           }
         } // mapper
-      }   // pickable
+      } // pickable
 
     } // for all parts
-  }   // for all props
+  } // for all props
 
   int picked = 0;
 

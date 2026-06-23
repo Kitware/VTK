@@ -92,8 +92,7 @@ void vtkOpenGLMovieSphere::SetVideoSource(vtkFFMPEGVideoSource* video)
 
   // Use lambda instead of std::bind
   video->SetVideoCallback([this](vtkFFMPEGVideoSourceVideoCallbackData const& cbd)
-    { this->VideoCallback(cbd); },
-    nullptr);
+    { this->VideoCallback(cbd); }, nullptr);
   this->Modified();
 }
 

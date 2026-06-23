@@ -263,8 +263,7 @@ int TestMath(int, char*[])
     double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 0);
     if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.39894))
     {
-      vtkGenericWarningMacro("GaussianAmplitude(1,0) = 0.39894 "
-        << " != " << gaussianAmplitude);
+      vtkGenericWarningMacro("GaussianAmplitude(1,0) = 0.39894 " << " != " << gaussianAmplitude);
       return EXIT_FAILURE;
     }
   }
@@ -273,8 +272,7 @@ int TestMath(int, char*[])
     double gaussianAmplitude = vtkMath::GaussianAmplitude(2.0, 0);
     if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.28209))
     {
-      vtkGenericWarningMacro("GaussianAmplitude(2,0) = 0.28209 "
-        << " != " << gaussianAmplitude);
+      vtkGenericWarningMacro("GaussianAmplitude(2,0) = 0.28209 " << " != " << gaussianAmplitude);
       return EXIT_FAILURE;
     }
   }
@@ -283,8 +281,7 @@ int TestMath(int, char*[])
     double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0);
     if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
     {
-      vtkGenericWarningMacro("GaussianAmplitude(1,2) = 0.24197 "
-        << " != " << gaussianAmplitude);
+      vtkGenericWarningMacro("GaussianAmplitude(1,2) = 0.24197 " << " != " << gaussianAmplitude);
       return EXIT_FAILURE;
     }
   }
@@ -295,8 +292,7 @@ int TestMath(int, char*[])
     double gaussianAmplitude = vtkMath::GaussianAmplitude(0, 1.0, 1.0);
     if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
     {
-      vtkGenericWarningMacro("GaussianAmplitude(0,1,1) = 0.24197 "
-        << " != " << gaussianAmplitude);
+      vtkGenericWarningMacro("GaussianAmplitude(0,1,1) = 0.24197 " << " != " << gaussianAmplitude);
       return EXIT_FAILURE;
     }
   }
@@ -305,8 +301,7 @@ int TestMath(int, char*[])
     double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0, 2.0);
     if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
     {
-      vtkGenericWarningMacro("GaussianAmplitude(1,1,2) = 0.24197 "
-        << " != " << gaussianAmplitude);
+      vtkGenericWarningMacro("GaussianAmplitude(1,1,2) = 0.24197 " << " != " << gaussianAmplitude);
       return EXIT_FAILURE;
     }
   }
@@ -316,8 +311,7 @@ int TestMath(int, char*[])
     double gaussianWeight = vtkMath::GaussianWeight(1.0, 0);
     if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
     {
-      vtkGenericWarningMacro("GaussianWeight(1,0) = 1.0 "
-        << " != " << gaussianWeight);
+      vtkGenericWarningMacro("GaussianWeight(1,0) = 1.0 " << " != " << gaussianWeight);
       return EXIT_FAILURE;
     }
   }
@@ -326,8 +320,7 @@ int TestMath(int, char*[])
     double gaussianWeight = vtkMath::GaussianWeight(2.0, 0);
     if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
     {
-      vtkGenericWarningMacro("GaussianWeight(2,0) = 1.0 "
-        << " != " << gaussianWeight);
+      vtkGenericWarningMacro("GaussianWeight(2,0) = 1.0 " << " != " << gaussianWeight);
       return EXIT_FAILURE;
     }
   }
@@ -336,8 +329,7 @@ int TestMath(int, char*[])
     double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0);
     if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
     {
-      vtkGenericWarningMacro("GaussianWeight(1,1) = 0.60653 "
-        << " != " << gaussianWeight);
+      vtkGenericWarningMacro("GaussianWeight(1,1) = 0.60653 " << " != " << gaussianWeight);
       return EXIT_FAILURE;
     }
   }
@@ -348,8 +340,7 @@ int TestMath(int, char*[])
     double gaussianWeight = vtkMath::GaussianWeight(0, 1.0, 1.0);
     if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
     {
-      vtkGenericWarningMacro("GaussianWeight(0,1,1) = 0.60653 "
-        << " != " << gaussianWeight);
+      vtkGenericWarningMacro("GaussianWeight(0,1,1) = 0.60653 " << " != " << gaussianWeight);
       return EXIT_FAILURE;
     }
   }
@@ -358,8 +349,7 @@ int TestMath(int, char*[])
     double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0, 2.0);
     if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
     {
-      vtkGenericWarningMacro("GaussianWeight(1,1,2) = 0.60653 "
-        << " != " << gaussianWeight);
+      vtkGenericWarningMacro("GaussianWeight(1,1,2) = 0.60653 " << " != " << gaussianWeight);
       return EXIT_FAILURE;
     }
   }

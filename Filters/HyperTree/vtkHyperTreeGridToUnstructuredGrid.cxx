@@ -165,7 +165,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree(
       this->RecursivelyProcessTree(cursor);
       cursor->ToParent();
     } // child
-  }   // else
+  } // else
 }
 
 //------------------------------------------------------------------------------

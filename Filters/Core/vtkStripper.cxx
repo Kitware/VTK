@@ -333,8 +333,8 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
               neighbor = (-1);
             }
           } // while
-        }   // else continue strip
-      }     // if triangle
+        } // else continue strip
+      } // if triangle
 
       else if (cellType == VTK_LINE)
       {
@@ -420,8 +420,8 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
               neighbor = (-1);
             }
           } // while
-        }   // else continue line
-      }     // if line
+        } // else continue line
+      } // if line
 
       // not line, triangle, or strip must be quad or tpolygon which we pass through
       else if (cellType == VTK_POLYGON || cellType == VTK_QUAD)
@@ -439,7 +439,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
     } // if not visited
-  }   // for all elements
+  } // for all elements
 
   // Update output and release memory
   //

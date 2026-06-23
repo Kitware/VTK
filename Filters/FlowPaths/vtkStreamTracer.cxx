@@ -1422,9 +1422,9 @@ struct TracerIntegrator
             this->OutSeedIds[cellId] = this->SeedIds->GetId(seedId);
             this->OutRetVals[cellId] = offset.RetVal;
           } // if a valid polyline is created
-        }   // if a streamline generated for this seed
-      }     // for all seeds
-    }       // operator()
+        } // if a streamline generated for this seed
+      } // for all seeds
+    } // operator()
   };
 
   // Assemble the thread output. This means adding the

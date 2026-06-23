@@ -402,7 +402,7 @@ void vtkPolyData::ComputeCellsBounds()
       vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
       delete[] ptUses;
     } // serial
-  }   // if modified mesh
+  } // if modified mesh
 }
 
 //------------------------------------------------------------------------------

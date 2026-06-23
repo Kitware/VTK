@@ -106,8 +106,8 @@ struct ComputePointDensity
             *dens++ = static_cast<float>(numPts) / volume;
           }
         } // over i
-      }   // over j
-    }     // over slices
+      } // over j
+    } // over slices
   }
 
   void Reduce() {}
@@ -176,8 +176,8 @@ struct ComputeWeightedDensity : public ComputePointDensity
             *dens++ = static_cast<float>(d) / volume;
           }
         } // over i
-      }   // over j
-    }     // over slices
+      } // over j
+    } // over slices
   }
 
   void Reduce() {}
@@ -289,8 +289,8 @@ struct ComputeGradients
           grad += 3;
 
         } // over i
-      }   // over j
-    }     // over slices
+      } // over j
+    } // over slices
   }
 
   static void Execute(int dims[3], double origin[3], double spacing[3], float* density, float* grad,

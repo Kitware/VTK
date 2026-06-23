@@ -146,7 +146,7 @@ protected:
    * No-op by default.
    * @see TranslateOutline
    */
-  virtual void TranslateRepresentation(const vtkVector3d&){};
+  virtual void TranslateRepresentation(const vtkVector3d&) {};
 
   /**
    * Returns true if Axis is constrained, i.e. if TranslationAxis is set to

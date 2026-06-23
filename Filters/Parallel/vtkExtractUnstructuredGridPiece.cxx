@@ -296,8 +296,8 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
         outCD->CopyData(cd, cellId, newCellId);
         newCellPts->Reset();
       } // satisfied thresholding
-    }   // for all cells
-  }     // input has cells
+    } // for all cells
+  } // input has cells
 
   // Split up points that are not used by cells,
   // and have not been assigned to any piece.

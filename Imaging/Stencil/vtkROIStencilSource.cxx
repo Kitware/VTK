@@ -150,7 +150,7 @@ static int vtkROIStencilSourceBox(vtkROIStencilSource* self, vtkImageStencilData
         data->InsertNextExtent(r1, r2, idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }
@@ -210,7 +210,7 @@ static int vtkROIStencilSourceEllipsoid(vtkROIStencilSource* self, vtkImageStenc
         data->InsertNextExtent(r1, r2, idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }
@@ -257,7 +257,7 @@ static int vtkROIStencilSourceCylinderX(vtkROIStencilSource* self, vtkImageStenc
         data->InsertNextExtent(r1, r2, idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }
@@ -316,7 +316,7 @@ static int vtkROIStencilSourceCylinderY(vtkROIStencilSource* self, vtkImageStenc
         data->InsertNextExtent(r1, r2, idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }
@@ -374,7 +374,7 @@ static int vtkROIStencilSourceCylinderZ(vtkROIStencilSource* self, vtkImageStenc
         data->InsertNextExtent(r1, r2, idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }

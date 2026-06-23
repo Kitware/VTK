@@ -126,7 +126,7 @@ protected:
   /**
    * no-op to satisfy the base class API
    */
-  void RenderFramebuffer(FramebufferDesc& vtkNotUsed(framebufferDesc)) override{};
+  void RenderFramebuffer(FramebufferDesc& vtkNotUsed(framebufferDesc)) override {};
 
 private:
   vtkWebXRRenderWindow(const vtkWebXRRenderWindow&) = delete;

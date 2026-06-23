@@ -313,9 +313,7 @@ public:
   virtual vtkTypeBool GetRepeat() { return (this->GetWrap() == Repeat); }
   virtual void RepeatOn() { this->SetRepeat(true); }
   virtual void RepeatOff() { this->SetRepeat(false); }
-  virtual void SetEdgeClamp(vtkTypeBool)
-  { /* This wasn't doing anything before. */
-  }
+  virtual void SetEdgeClamp(vtkTypeBool) { /* This wasn't doing anything before. */ }
   virtual vtkTypeBool GetEdgeClamp() { return (this->GetWrap() == ClampToEdge); }
   virtual void EdgeClampOn() { this->SetEdgeClamp(true); }
   virtual void EdgeClampOff() { this->SetEdgeClamp(false); }

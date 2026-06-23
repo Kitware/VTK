@@ -133,7 +133,7 @@ int vtkRuledSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
           this->PointWalk(output, inPts, npts, pts, npts2, pts2);
           break;
       } // switch
-    }   // generate this stripe
+    } // generate this stripe
 
     // Get the next line for generating the next stripe
     npts = npts2;
@@ -149,7 +149,7 @@ int vtkRuledSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
         i++; // will cause the loop to end
       }
     } // add far boundary of surface
-  }   // for all selected line pairs
+  } // for all selected line pairs
 
   return 1;
 }
@@ -515,7 +515,7 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
         loc++;
       }
     } // where in the lines
-  }   // while still building the stripe
+  } // while still building the stripe
 }
 
 //------------------------------------------------------------------------------

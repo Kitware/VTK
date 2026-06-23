@@ -169,9 +169,8 @@ public:
     unsigned char header[8];
     if (fread(header, 1, 8, fp) != 8)
     {
-      vtkErrorWithObjectMacro(this->PNGReader,
-        "PNGReader error reading file."
-          << " Premature EOF while reading header.");
+      vtkErrorWithObjectMacro(
+        this->PNGReader, "PNGReader error reading file." << " Premature EOF while reading header.");
       return false;
     }
     return this->IsHeaderValid(header);

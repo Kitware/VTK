@@ -167,9 +167,8 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
   if (hasVerts)
   {
     input->GetVerts()->Dispatch(
-      BuildCellTypesImpl{}, cellTypes,
-      [](vtkIdType size) -> VTKCellType { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; },
-      offset);
+      BuildCellTypesImpl{}, cellTypes, [](vtkIdType size) -> VTKCellType
+      { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; }, offset);
   }
   if (hasLines)
   {

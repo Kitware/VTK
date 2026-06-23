@@ -520,8 +520,8 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark()
             }
           }
         } // for all points of this cell
-      }   // if cell not yet visited
-    }     // for all cells in this wave
+      } // if cell not yet visited
+    } // for all cells in this wave
 
     this->Wave = this->Wave2;
     this->Wave2.clear();

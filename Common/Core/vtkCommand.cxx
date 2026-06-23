@@ -28,7 +28,7 @@ const char* vtkCommand::GetStringFromEventId(unsigned long event)
 {
   switch (event)
   {
-// clang-format off
+    // clang-format off
 #define _vtk_add_event(Enum)                                                                       \
   case Enum:                                                                                       \
     return #Enum;
@@ -56,7 +56,7 @@ unsigned long vtkCommand::GetEventIdFromString(const char* event)
   if (event)
   {
 
-// clang-format off
+    // clang-format off
 #define _vtk_add_event(Enum)                                                                       \
   if (strcmp(event, #Enum) == 0)                                                                   \
   {                                                                                                \

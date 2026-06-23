@@ -444,7 +444,7 @@ bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(TNumIds npts, const TConnecti
         }
         foundCell = (k >= numCells ? false : foundCell);
       } // search for cell in each list
-    }   // for all cell lists
+    } // for all cell lists
 
     if (foundCell)
     {
@@ -502,7 +502,7 @@ void vtkStaticCellLinksTemplate<TIds>::GetCells(
         }
         foundCell = (k >= numCells ? false : foundCell);
       } // search for cell in each list
-    }   // for all cell lists
+    } // for all cell lists
 
     if (foundCell)
     {
@@ -541,8 +541,7 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkStaticCellLinksTemplate* link
   // NOLINTNEXTLINE(modernize-make-shared)
   this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
-  vtkSMPTools::For(0, this->LinksSize + 1,
-    [&](vtkIdType beginLink, vtkIdType endLink)
+  vtkSMPTools::For(0, this->LinksSize + 1, [&](vtkIdType beginLink, vtkIdType endLink)
     { std::copy(links->Links + beginLink, links->Links + endLink, this->Links + beginLink); });
   // NOLINTNEXTLINE(modernize-make-shared)
   this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());

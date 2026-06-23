@@ -340,7 +340,7 @@ struct vtkLookupTableWithEnablingMapData
           }
         }
       } // if not log lookup
-    }   // if blending not needed
+    } // if blending not needed
 
     else // blend with the specified alpha
     {
@@ -522,7 +522,7 @@ struct vtkLookupTableWithEnablingMapData
           }
         }
       } // no log scale
-    }   // alpha blending
+    } // alpha blending
   }
 };
 

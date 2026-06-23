@@ -1105,8 +1105,8 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
   vtkIdType faceRange[2];
   if (!vtkXMLUnstructuredDataReaderPrivate::FindPolyFaceRange(faceRange, polyToFaces))
   {
-    vtkErrorMacro("Cannot determine polyhedron face range to read"
-      << " from polyhedron_to_faces array.");
+    vtkErrorMacro(
+      "Cannot determine polyhedron face range to read" << " from polyhedron_to_faces array.");
     return 0;
   }
   vtkIdType numberOfFacesToRead = faceRange[1] - faceRange[0] + 1;

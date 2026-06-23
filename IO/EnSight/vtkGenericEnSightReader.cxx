@@ -531,8 +531,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             delete[] fileName;
             return vtkGenericEnSightReader::ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
-        }   // if ensight gold file
-      }     // if regular ensight file (not master_server)
+        } // if ensight gold file
+      } // if regular ensight file (not master_server)
       else if (subLine1 == "master_server")
       {
         return vtkGenericEnSightReader::ENSIGHT_MASTER_SERVER;
@@ -679,8 +679,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         delete[] fileName;
         return vtkGenericEnSightReader::ENSIGHT_6;
       } // if we found the geometry section in the case file
-    }   // not ensight gold
-  }     // if we found the format section in the case file
+    } // not ensight gold
+  } // if we found the format section in the case file
 
   delete[] fileName;
 

@@ -171,7 +171,7 @@ vtkIdType vtkEllipsoidalGaussianKernel::ComputeWeights(
 
       sum += w[i];
     } // computing weights
-  }   // over all points
+  } // over all points
 
   // Normalize
   if (this->NormalizeWeights && sum != 0.0)

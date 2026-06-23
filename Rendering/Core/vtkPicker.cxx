@@ -272,8 +272,8 @@ int vtkPicker::Pick3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer
           }
         }
       } // if visible and pickable and not transparent
-    }   // for all parts
-  }     // for all actors
+    } // for all parts
+  } // for all actors
 
   int picked = 0;
 
@@ -690,8 +690,8 @@ int vtkPicker::Pick3DInternal(
           }
         }
       } // if visible and pickable and not transparent
-    }   // for all parts
-  }     // for all actors
+    } // for all parts
+  } // for all actors
 
   int picked = 0;
 

@@ -230,8 +230,8 @@ int vtkExtractSelectedGraph::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
       } // end if (curList)
-    }   // end if (list)
-  }     // end for each child
+    } // end if (list)
+  } // end for each child
 
   // If there is no selection list, return an empty graph
   if (vertexList->GetNumberOfTuples() == 0 && edgeList->GetNumberOfTuples() == 0)

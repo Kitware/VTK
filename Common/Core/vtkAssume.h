@@ -73,7 +73,7 @@
     const bool c = cond;                                                                           \
     assert("Bad assumption in VTK_ASSUME: " #cond&& c);                                            \
     VTK_ASSUME_IMPL(c);                                                                            \
-    (void)c;      /* Prevents unused var warnings */                                               \
+    (void)c; /* Prevents unused var warnings */                                                    \
   } while (false) /* do-while prevents extra semicolon warnings */
 
 /**
@@ -103,7 +103,7 @@
   {                                                                                                \
     const bool c = cond;                                                                           \
     VTK_ASSUME_IMPL(c);                                                                            \
-    (void)c;      /* Prevents unused var warnings */                                               \
+    (void)c; /* Prevents unused var warnings */                                                    \
   } while (false) /* do-while prevents extra semicolon warnings */
 
 #ifdef __has_builtin

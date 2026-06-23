@@ -737,7 +737,7 @@ ValueType vtkSMPTools::ExclusiveScan(
           *iter += offset;
         }
       }); // end lambda
-  }       // threaded scan
+  } // threaded scan
 
   return (retVal += *(end - 1));
 } // ExclusiveScan()

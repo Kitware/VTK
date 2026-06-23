@@ -61,8 +61,7 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange(vtkTypeBool valu
 #if !VTK_USE_FUTURE_BOOL
   if (value < 0 || value > 1)
   {
-    vtkErrorMacro("Value must be 0 or 1 for"
-      << " SetAutoAdjustCameraClippingRange");
+    vtkErrorMacro("Value must be 0 or 1 for" << " SetAutoAdjustCameraClippingRange");
     return;
   }
 #endif

@@ -242,8 +242,7 @@ int vtkStructuredPointsReader::ReadMetaDataSimple(
             VTK_FROM_CHARS_IF_ERROR_RETURN(line, numComp, 1);
             if (numComp < 1)
             {
-              vtkErrorMacro("Cannot read color_scalar header!"
-                << " for file: " << fname);
+              vtkErrorMacro("Cannot read color_scalar header!" << " for file: " << fname);
               return 1;
             }
 

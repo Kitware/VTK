@@ -106,17 +106,18 @@ public:
    * Shutdown the zSpace SDK (clean its internal state).
    * Useful to re-initialize the zSpace SDK from a clean state.
    */
-  virtual void ShutDown(){};
+  virtual void ShutDown() {};
 
   ///@{
   /**
    * These functions are overridden by vtkZSpaceCoreCompatibility (specific to zSpace Inspire).
    * @see vtkZSpaceCoreCompatibility
    */
-  virtual void EnableGraphicsBinding(){};
-  virtual void SubmitFrame(unsigned int vtkNotUsed(leftText), unsigned int vtkNotUsed(rightText)){};
-  virtual void GetPerEyeImageResolution(int* vtkNotUsed(width), int* vtkNotUsed(height)){};
-  virtual void SetStereoDisplayEnabled(bool vtkNotUsed(enabled)){};
+  virtual void EnableGraphicsBinding() {};
+  virtual void SubmitFrame(
+    unsigned int vtkNotUsed(leftText), unsigned int vtkNotUsed(rightText)) {};
+  virtual void GetPerEyeImageResolution(int* vtkNotUsed(width), int* vtkNotUsed(height)) {};
+  virtual void SetStereoDisplayEnabled(bool vtkNotUsed(enabled)) {};
   virtual bool GetStereoDisplayEnabled() { return false; };
   ///@}
 

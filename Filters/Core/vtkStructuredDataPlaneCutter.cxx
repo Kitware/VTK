@@ -492,7 +492,7 @@ struct EvaluateCellsStructuredFunctor
               }
               edges.emplace_back(pointIndex1, pointIndex2, point1Weight);
             } // for all edges of polygon/triangle
-          }   // for each polygon/triangle
+          } // for each polygon/triangle
         }
         batchNumberOfCells += numberOfCells;
         batchCellsConnectivity += cellsConnectivitySize;
@@ -1005,8 +1005,7 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       constantScalars->SetName("ConstantScalars");
       constantScalars->SetNumberOfComponents(1);
       constantScalars->SetNumberOfTuples(tmpImage->GetNumberOfPoints());
-      vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(),
-        [&](vtkIdType begin, vtkIdType end)
+      vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end)
         { std::fill_n(constantScalars->GetPointer(begin), (end - begin), 1.0f); });
       tmpImage->GetPointData()->AddArray(constantScalars);
       tmpImage->GetPointData()->SetActiveScalars(constantScalars->GetName());

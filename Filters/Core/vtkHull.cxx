@@ -219,9 +219,9 @@ void vtkHull::SetPlanes(vtkPlanes* planes)
           this->Planes[idx + 3] = (D > this->Planes[idx + 3] ? D : this->Planes[idx + 3]);
 
         } // special parallel planes case
-      }   // for all planes
-    }     // if points and normals
-  }       // if planes defined
+      } // for all planes
+    } // if points and normals
+  } // if planes defined
 }
 
 //------------------------------------------------------------------------------

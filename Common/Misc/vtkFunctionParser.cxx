@@ -222,8 +222,7 @@ int vtkFunctionParser::DisambiguateOperators()
         else if (tempStack[tempStackPtr] == 1)
         {
           delete[] tempStack;
-          vtkErrorMacro("multiply expecting either 2 scalars or a scalar and"
-            << " a vector");
+          vtkErrorMacro("multiply expecting either 2 scalars or a scalar and" << " a vector");
           return 0;
         }
         tempStackPtr--;
@@ -1316,7 +1315,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex, int endI
               return;
             }
           } // for (i = endIndex-1; i > beginIndex2; i--)
-        }   // VTK_PARSER_MIN, ...
+        } // VTK_PARSER_MIN, ...
 
         if (mathFunctionNum == VTK_PARSER_IF)
         {
@@ -1354,15 +1353,15 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex, int endI
                 return;
               }
             } // if (parenthesisCount == 0 ... )
-          }   // for (i = endIndex-1; i > beginIndex2; i--)
-        }     // VTK_PARSER_IF, ...
+          } // for (i = endIndex-1; i > beginIndex2; i--)
+        } // VTK_PARSER_IF, ...
 
         this->BuildInternalSubstringStructure(beginIndex2 + 1, endIndex - 1);
         this->AddInternalByte(static_cast<unsigned int>(mathFunctionNum));
         return;
       } // if (this->IsSubstringCompletelyEnclosed ... )
-    }   // if (mathFunctionNum > 0)
-  }     // if (isalpha(this->Function[beginIndex]))
+    } // if (mathFunctionNum > 0)
+  } // if (isalpha(this->Function[beginIndex]))
 
   int numMathOps = static_cast<int>(strlen(elementaryMathOps));
   for (opNum = 0; opNum < numMathOps; opNum++)
@@ -1396,7 +1395,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex, int endI
         return;
       }
     } // end of   for (i = endIndex; i > beginIndex; i--)
-  }   // end of   for (opNum = 0; opNum < numMathOps; opNum++)
+  } // end of   for (opNum = 0; opNum < numMathOps; opNum++)
 
   beginIndex2 = beginIndex;
   bool unaryMinus = false;

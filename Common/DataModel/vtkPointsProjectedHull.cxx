@@ -121,10 +121,10 @@ VTK_GETSIZECCWHULL(Z, 2);
     R->GetBounds(bounds);                                                                          \
     double hmin, hmax, vmin, vmax;                                                                 \
                                                                                                    \
-    hmin = bounds[((dim)*2 + 2) % 6];                                                              \
-    hmax = bounds[((dim)*2 + 2) % 6 + 1];                                                          \
-    vmin = bounds[((dim)*2 + 4) % 6];                                                              \
-    vmax = bounds[((dim)*2 + 4) % 6 + 1];                                                          \
+    hmin = bounds[((dim) * 2 + 2) % 6];                                                            \
+    hmax = bounds[((dim) * 2 + 2) % 6 + 1];                                                        \
+    vmin = bounds[((dim) * 2 + 4) % 6];                                                            \
+    vmax = bounds[((dim) * 2 + 4) % 6 + 1];                                                        \
                                                                                                    \
     return RectangleIntersection##which(hmin, hmax, vmin, vmax);                                   \
   }                                                                                                \

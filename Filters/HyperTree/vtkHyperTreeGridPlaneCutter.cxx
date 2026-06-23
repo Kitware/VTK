@@ -350,7 +350,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
       // Generate leaf cell centers recursively
       this->RecursivelyProcessTreePrimal(cursor);
     } // it
-  }   // else
+  } // else
 
   // Set output geometry and topology
   output->SetPoints(this->Points);
@@ -471,7 +471,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
             this->PlaneCut(i, i + 4, cellCoords, n, points);
           }
         } // else
-      }   // i
+      } // i
 
       // Now reorder points if necessary
       this->ReorderCutPoints(n, points);
@@ -505,8 +505,8 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
         this->RecursivelyProcessTreePrimal(cursor);
         cursor->ToParent();
       } // ichild
-    }   // else
-  }     // CheckIntersection
+    } // else
+  } // CheckIntersection
 }
 
 //------------------------------------------------------------------------------
@@ -559,8 +559,8 @@ bool vtkHyperTreeGridPlaneCutter::RecursivelyPreProcessTree(
         selected |= this->RecursivelyPreProcessTree(cursor);
         cursor->ToParent();
       } // ichild
-    }   // else
-  }     // if ( this->CheckIntersection )
+    } // else
+  } // if ( this->CheckIntersection )
 
   // Update list of selected cells
   this->SelectedCells->SetTuple1(id, selected);
@@ -627,7 +627,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual(
       this->RecursivelyProcessTreeDual(cursor);
       cursor->ToParent();
     } // ichild
-  }   // if ( ! cursor->IsLeaf() )
+  } // if ( ! cursor->IsLeaf() )
   else
   {
     // Cursor is at leaf, iterate over its corners
@@ -719,13 +719,13 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual(
             // Insert next cell with offset ids
             this->Cells->InsertNextCell(n, ids);
           } // i
-        }   // if ( nPoints )
+        } // if ( nPoints )
 
         // Clean up
         dual->Delete();
       } // if ( owner )
-    }   // cornerIdx
-  }     // else
+    } // cornerIdx
+  } // else
 }
 
 //------------------------------------------------------------------------------
@@ -824,7 +824,7 @@ void vtkHyperTreeGridPlaneCutter::PlaneCut(
       (this->Plane[3] - this->Plane[0] * cellCoords[i][0] - this->Plane[2] * cellCoords[i][2]) /
       this->Plane[1];
     point[n][2] = cellCoords[i][2];
-  }    // else if ( j - i == 2 )
+  } // else if ( j - i == 2 )
   else // if ( j - i == 4 )
   {
     // Z direction

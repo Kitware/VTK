@@ -184,11 +184,11 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
               p2 = edge->PointIds->GetId(e1);
               outPd->InterpolateEdge(inPd, pts[0], p1, p2, t);
             } // if point not created before
-          }   // if edge straddles contour value
-        }     // for each edge
-      }       // dimension 2 and higher
-    }         // above and below
-  }           // for all cells
+          } // if edge straddles contour value
+        } // for each edge
+      } // dimension 2 and higher
+    } // above and below
+  } // for all cells
   cell->Delete();
 
   vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points");

@@ -311,7 +311,7 @@ public:
           {
             range[1] = *it;
           } // if scalar >= max range value
-        }   // for all cellScalars
+        } // for all cellScalars
 
         bool needCell = false;
         for (int i = 0; i < numValues; i++)
@@ -320,7 +320,7 @@ public:
           {
             needCell = true;
           } // if contour value in range for this cell
-        }   // end for numContours
+        } // end for numContours
 
         if (needCell)
         {
@@ -372,8 +372,8 @@ public:
             }
           }
         } // if cell need be contoured
-      }   // for all cells
-    }     // if no scalar tree requested
+      } // for all cells
+    } // if no scalar tree requested
     else
     { // scalar tree provided
       // The begin / end parameters to this function represent batches of candidate
@@ -441,8 +441,8 @@ public:
             polyConnOffsets->InsertNextId(begPolyConnSize);
           }
         } // for all cells in this batch
-      }   // for this batch of cells
-    }     // using scalar tree
+      } // for this batch of cells
+    } // using scalar tree
 
   } // operator()
 

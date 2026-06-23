@@ -446,7 +446,7 @@ int vtkHyperTreeGridSource::RequestData(
           output->SetZCoordinates(coords);
           break;
       } // switch (axis)
-    }   // case 1
+    } // case 1
     break;
     case 2:
     {
@@ -500,7 +500,7 @@ int vtkHyperTreeGridSource::RequestData(
           output->SetZCoordinates(zeros);
           break;
       } // switch (this->Orientation)
-    }   // case 2
+    } // case 2
     break;
     case 3:
     {
@@ -673,7 +673,7 @@ int vtkHyperTreeGridSource::ProcessTrees(vtkHyperTreeGrid*, vtkDataObject* outpu
       // Subdivide based on quadric implicit function
       this->SubdivideFromQuadric(output, cursor, 0, index, idx, origin, this->GridScale);
     } // else
-  }   // it
+  } // it
   return 1;
 }
 
@@ -853,7 +853,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
         return 0;
     } // switch(c)
-  }   // char loop
+  } // char loop
 
   // Verify and append last level string
   if (!this->IsLevelDescriptorConsistent(
@@ -998,7 +998,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
           vtkErrorMacro(<< "Incorrect orientation in 1D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // if (this->Dimension == 1)
+    } // if (this->Dimension == 1)
     else if (this->Dimension == 2)
     {
       switch (this->Orientation)
@@ -1016,7 +1016,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
           vtkErrorMacro(<< "Incorrect orientation in 2D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // else if (this->Dimension == 2)
+    } // else if (this->Dimension == 2)
 
     // Now traverse to children
     int newChildIdx = 0;
@@ -1044,8 +1044,8 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
           // Increment child index
           ++newChildIdx;
         } // x
-      }   // y
-    }     // z
+      } // y
+    } // z
 
     // Increment current level counter
     ++this->LevelCounters.at(level);
@@ -1229,7 +1229,7 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(vtkHyperTreeGrid* outpu
           vtkErrorMacro(<< "Incorrect orientation in 1D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // if (this->Dimension == 1)
+    } // if (this->Dimension == 1)
     else if (this->Dimension == 2)
     {
       switch (this->Orientation)
@@ -1247,7 +1247,7 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(vtkHyperTreeGrid* outpu
           vtkErrorMacro(<< "Incorrect orientation in 2D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // else if (this->Dimension == 2)
+    } // else if (this->Dimension == 2)
 
     // Now traverse to children
     int newChildIdx = 0;
@@ -1275,8 +1275,8 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(vtkHyperTreeGrid* outpu
           // Increment child index
           ++newChildIdx;
         } // x
-      }   // y
-    }     // z
+      } // y
+    } // z
 
     // Increment current level counter
     ++this->LevelCounters.at(level);
@@ -1444,7 +1444,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
           vtkErrorMacro(<< "Incorrect orientation in 1D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // if (this->Dimension == 1)
+    } // if (this->Dimension == 1)
     else if (this->Dimension == 2)
     {
       switch (this->Orientation)
@@ -1462,7 +1462,7 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
           vtkErrorMacro(<< "Incorrect orientation in 2D: " << this->Orientation);
           return;
       } // switch (this->Orientation)
-    }   // else if (this->Dimension == 2)
+    } // else if (this->Dimension == 2)
 
     // Now traverse to children
     int newChildIdx = 0;
@@ -1489,9 +1489,9 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
           // Increment child index
           ++newChildIdx;
         } // x
-      }   // y
-    }     // z
-  }       // if (subdivide)
+      } // y
+    } // z
+  } // if (subdivide)
   else
   {
     if (this->UseMask)

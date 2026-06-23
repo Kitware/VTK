@@ -98,8 +98,8 @@ public:
             }
 
           } // i
-        }   // j
-      }     // k within splat footprint
+        } // j
+      } // k within splat footprint
     }
   };
 
@@ -163,8 +163,8 @@ public:
             }
 
           } // i
-        }   // j
-      }     // k within splat footprint
+        } // j
+      } // k within splat footprint
     }
   };
 

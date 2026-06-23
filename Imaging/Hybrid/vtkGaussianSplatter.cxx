@@ -70,9 +70,9 @@ public:
               idx = i + jOffset + kOffset;
               this->Algo->Splatter->SetScalar(idx, dist2, this->Algo->Scalars + idx);
             } // if within splat radius
-          }   // i
-        }     // j
-      }       // k within splat footprint
+          } // i
+        } // j
+      } // k within splat footprint
     }
   };
 };
@@ -351,7 +351,7 @@ int vtkGaussianSplatter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkSMPTools::For(min[2], max[2] + 1, splat);
 
     } // for all input points
-  }   // for all datasets
+  } // for all datasets
 
   // If capping is turned on, set the distances of the outside of the volume
   // to the CapValue.

@@ -1339,7 +1339,7 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx)
         currentSign = sign;
       }
     } // if crossing occurs
-  }   // for the rest of the loop
+  } // for the rest of the loop
 
   if (!oneNegative)
   {
@@ -2424,7 +2424,7 @@ int vtkPolygon::IntersectConvex2DCells(
         return 2;
       }
     } // if edge intersection
-  }   // over all edges
+  } // over all edges
 
   // Loop over edges of first polygon and intersect against second polygon
   numPts = cell1->Points->GetNumberOfPoints();
@@ -2446,7 +2446,7 @@ int vtkPolygon::IntersectConvex2DCells(
         return 2;
       }
     } // if edge intersection
-  }   // over all edges
+  } // over all edges
 
   // Evaluate what we got
   if (idx == 1)

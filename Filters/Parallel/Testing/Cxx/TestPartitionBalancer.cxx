@@ -68,8 +68,7 @@ bool TestExpandPDS0(vtkPartitionedDataSet* outPDS0, int rank)
     if (outDS3 || outDS4)
     {
       vtkLog(ERROR,
-        "Output partitioned data set r0 - PD0"
-          << " should have nullptr at partition 3 and 4");
+        "Output partitioned data set r0 - PD0" << " should have nullptr at partition 3 and 4");
       retVal = false;
     }
   }
@@ -93,8 +92,7 @@ bool TestExpandPDS0(vtkPartitionedDataSet* outPDS0, int rank)
     if (outDS0 || outDS1 || outDS2)
     {
       vtkLog(ERROR,
-        "Output partitioned data set r1 - PD0"
-          << " should have nullptr at partition 3 and 4");
+        "Output partitioned data set r1 - PD0" << " should have nullptr at partition 3 and 4");
       retVal = false;
     }
   }
@@ -200,9 +198,8 @@ bool TestSquashPDS0(vtkPartitionedDataSet* outPDS0, int rank)
     }
     if (outDS5)
     {
-      vtkLog(ERROR,
-        "Output partitioned data set r1 - PD0"
-          << " should have nullptr at partition 2");
+      vtkLog(
+        ERROR, "Output partitioned data set r1 - PD0" << " should have nullptr at partition 2");
       retVal = false;
     }
   }

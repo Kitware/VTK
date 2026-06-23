@@ -73,7 +73,7 @@ void WriteUnGhostedGrids(const int dimension, vtkOverlappingAMR* amr)
         WriteUniformGrid(grid, oss.str());
       }
     } // END for all data-sets
-  }   // END for all levels
+  } // END for all levels
 }
 
 #endif
@@ -370,7 +370,7 @@ bool AMRDataSetsAreEqual(vtkOverlappingAMR* computed, vtkOverlappingAMR* expecte
         return EXIT_FAILURE;
       }
     } // END for all data
-  }   // END for all levels
+  } // END for all levels
 
   return true;
 }
@@ -455,8 +455,8 @@ int TestAMRGhostLayerStripping(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       {
         rc += TestGhostStripping(dim, rRatios[r], ng);
       } // END for all ghost-layer tests
-    }   // END for all refinementRatios to test
-  }     // END for all dimensions to test
+    } // END for all refinementRatios to test
+  } // END for all dimensions to test
 
   return rc;
 }

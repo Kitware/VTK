@@ -937,7 +937,7 @@ void AnalyzePointTopology(PointConnectivityBase* ptConnBase, vtkWindowedSincPoly
           }
         }
       }); // end lambda
-  }       // if any verts
+  } // if any verts
 } // AnalyzePointTopology
 
 // Initialize points prior to applying smoothing operations.

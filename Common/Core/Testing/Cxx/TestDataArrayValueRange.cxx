@@ -1679,8 +1679,8 @@ struct UnitTestEdgeCases
   }
 
   template <typename IterType>
-  static auto StoreRange(IterType start, IterType end)
-    -> std::vector<typename std::iterator_traits<IterType>::value_type>
+  static auto StoreRange(IterType start,
+    IterType end) -> std::vector<typename std::iterator_traits<IterType>::value_type>
   {
     using T = typename std::iterator_traits<IterType>::value_type;
     return std::vector<T>{ start, end };

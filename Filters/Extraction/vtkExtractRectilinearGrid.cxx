@@ -217,7 +217,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
       int inExtIdx = this->Internal->GetMappedIndex(dim, outExtIdx);
       out_coords[dim]->SetTuple(outExtIdx, inExtIdx, in_coords[dim]);
     } // END for all points along this dimension in the output
-  }   // END for all dimensions
+  } // END for all dimensions
 
   output->SetXCoordinates(out_coords[0]);
   output->SetYCoordinates(out_coords[1]);

@@ -418,9 +418,9 @@ void vtkAMREnzoReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const
           double f = data->GetComponent(t, c);
           data->SetComponent(t, c, f * conversionFactor);
         } // END for all components
-      }   // END for all tuples
-    }     // END if the conversion factor is not 1.0
-  }       // END if conversion to CGS units is requested
+      } // END for all tuples
+    } // END if the conversion factor is not 1.0
+  } // END if conversion to CGS units is requested
 }
 
 //------------------------------------------------------------------------------

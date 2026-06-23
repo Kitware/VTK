@@ -395,9 +395,9 @@ double* vtkAssembly::GetBounds()
           this->Bounds[n * 2] = std::min(bbox[i * 3 + n], this->Bounds[n * 2]);
           this->Bounds[n * 2 + 1] = std::max(bbox[i * 3 + n], this->Bounds[n * 2 + 1]);
         } // for each coordinate axis
-      }   // for each point of box
-    }     // if visible && prop3d
-  }       // for each path
+      } // for each point of box
+    } // if visible && prop3d
+  } // for each path
 
   if (!propVisible)
   {

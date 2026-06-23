@@ -1731,7 +1731,7 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2], double* 
       yrange[0] = std::min(y, yrange[0]);
       yrange[1] = std::max(y, yrange[1]);
     } // over all y values
-  }   // over all dataobjects
+  } // over all dataobjects
 
   // determine the range
   switch (this->XValues)
@@ -1941,7 +1941,7 @@ void vtkXYPlotActor::CreatePlotData(
         this->ClipPlotData(pos, pos2, this->PlotData[dsNum]);
       }
     } // loop over all input data sets
-  }   // if plotting datasets
+  } // if plotting datasets
 
   else // plot data from data objects
   {

@@ -123,8 +123,8 @@ struct vtkPointCompositor
           this->TopoCoords.emplace_back(hull.GetFace(pt.Faces[0])->NeiId,
             hull.GetFace(pt.Faces[1])->NeiId, hull.GetFace(pt.Faces[2])->NeiId, hull.PtId);
         } // if valid hull point
-      }   // for all hull points
-    }     // AddData()
+      } // for all hull points
+    } // AddData()
   };
 }; // vtkPointCompositor
 

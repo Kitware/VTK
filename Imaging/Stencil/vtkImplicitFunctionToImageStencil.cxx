@@ -129,7 +129,7 @@ int vtkImplicitFunctionToImageStencil::RequestData(
         data->InsertNextExtent(r1, extent[1], idY, idZ);
       }
     } // for idY
-  }   // for idZ
+  } // for idZ
 
   return 1;
 }

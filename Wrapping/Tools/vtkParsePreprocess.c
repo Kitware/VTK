@@ -2502,13 +2502,10 @@ void vtkParsePreprocess_AddStandardMacros(PreprocessInfo* info, preproc_platform
   const char** operatorMacro;
   static const char* operatorMacros[] = {
 #if defined(__GNUC__) || defined(__clang__)
-    "#define __has_attribute(x) 0",
-    "#define __has_builtin(x) 0",
+    "#define __has_attribute(x) 0", "#define __has_builtin(x) 0",
 #endif
 #if defined(__clang__)
-    "#define __has_feature(x) 0",
-    "#define __has_extension(x) 0",
-    "#define __has_warning(x) 0",
+    "#define __has_feature(x) 0", "#define __has_extension(x) 0", "#define __has_warning(x) 0",
 #endif
     NULL
   };

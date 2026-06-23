@@ -1498,8 +1498,8 @@ struct UnitTestTupleReferenceAPI
   // Returns a valid reference. tupleOffset allows different tuples to be
   // obtained. The valid range for offset is (-2, 2).
   template <typename Range>
-  static auto GetTestingIterator(Range& range, vtk::TupleIdType tupleOffset = 0)
-    -> decltype(range.begin())
+  static auto GetTestingIterator(
+    Range& range, vtk::TupleIdType tupleOffset = 0) -> decltype(range.begin())
   {
     return range.begin() + (range.size() / 2) + tupleOffset;
   }
@@ -2069,8 +2069,8 @@ struct UnitTestComponentIteratorAPI
   // allows different tuples to be obtained. The valid range for offset is
   // (-2, 2).
   template <typename Range>
-  static auto GetTestingIterRange(Range& range, vtk::TupleIdType tupleOffset = 0)
-    -> decltype(range.begin())
+  static auto GetTestingIterRange(
+    Range& range, vtk::TupleIdType tupleOffset = 0) -> decltype(range.begin())
   {
     return (range.begin() + (range.size() / 2)) + tupleOffset;
   }
@@ -2078,8 +2078,8 @@ struct UnitTestComponentIteratorAPI
   // Returns an iterator. tupleOffset allows iterators from different tuples to
   // be obtained. The returned iterator +/- 1 position is guaranteed valid.
   template <typename Range>
-  static auto GetTestingIter(Range& range, vtk::TupleIdType tupleOffset = 0)
-    -> decltype(range.begin()->begin())
+  static auto GetTestingIter(
+    Range& range, vtk::TupleIdType tupleOffset = 0) -> decltype(range.begin()->begin())
   {
     return (*(range.begin() + (range.size() / 2) + tupleOffset)).begin() + 1;
   }
@@ -2559,8 +2559,8 @@ struct UnitTestComponentReferenceAPI
   // Return a component reference. Valid offsets range from (-4, 4), and
   // values increase with offset.
   template <typename Range>
-  auto GetTestCompRef(Range& range, vtk::ComponentIdType offset)
-    -> decltype(std::declval<Range>()[0][0])
+  auto GetTestCompRef(
+    Range& range, vtk::ComponentIdType offset) -> decltype(std::declval<Range>()[0][0])
   {
     assert(offset >= -4 && offset <= 4);
 

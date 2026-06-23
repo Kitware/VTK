@@ -1330,8 +1330,8 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
           }
         }
       } // end if (curList)
-    }   // end if (list)
-  }     // end for each child
+    } // end if (list)
+  } // end for each child
 
   vtkIdType i;
   if (hasEdges)

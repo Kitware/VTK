@@ -236,7 +236,7 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
         this->GenerateDualCornerFromLeaf3D(cursor, input);
         break;
     } // switch ( this->Dimension )
-  }   // if ( cursor->IsLeaf() )
+  } // if ( cursor->IsLeaf() )
   else
   {
     // Cursor is not at leaf, recurse to all children
@@ -252,7 +252,7 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
       this->TraverseDualRecursively(cursor, input);
       cursor->ToParent();
     } // child
-  }   // else
+  } // else
 }
 
 //------------------------------------------------------------------------------
@@ -528,14 +528,14 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
         // Collect the leaf indices for the dual cell
         ids[l] = cursors[index]->GetGlobalNodeIndex();
       } // else
-    }   // l
+    } // l
 
     // If leaf owns the corner, create dual cell
     if (owner)
     {
       this->Connectivity->InsertNextTypedTuple(ids);
     } // if ( owner )
-  }   // c
+  } // c
 }
 
 //------------------------------------------------------------------------------
@@ -574,8 +574,8 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
         case 3:
           this->GenerateDualCornerFromLeaf3D(cursor, mask, input);
       } // switch ( this->Dimension )
-    }   // else
-  }     // if ( cursor->IsLeaf() )
+    } // else
+  } // if ( cursor->IsLeaf() )
   else
   {
     // Cursor is not at leaf, recurse to all children
@@ -591,7 +591,7 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
       this->TraverseDualRecursively(cursor, mask, input);
       cursor->ToParent();
     } // child
-  }   // else
+  } // else
 }
 
 //------------------------------------------------------------------------------
@@ -819,9 +819,9 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf3D(
             }
           }
         } // o1
-      }   // o2
-    }     // axis2
-  }       // axis1
+      } // o2
+    } // axis2
+  } // axis1
 
   // Check whether dual points across corner neighbors must be adjusted
   for (int o3 = -1; o3 < 2; o3 += 2)
@@ -850,8 +850,8 @@ void vtkHyperTreeGridToDualGrid::ShiftDualCornerFromMaskedLeaf3D(
           }
         }
       } // o1
-    }   // o2
-  }     // o3
+    } // o2
+  } // o3
 }
 
 //------------------------------------------------------------------------------
@@ -1188,10 +1188,10 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
               }
             }
           } // o1
-        }   // o2
-      }     // axis2
-    }       // axis1
-  }         // if ( ! shifted )
+        } // o2
+      } // axis2
+    } // axis1
+  } // if ( ! shifted )
 
   // Only when point was neither moved to face nor to edge, check corners neighbors
   if (!shifted)
@@ -1225,10 +1225,10 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
               pt[2] += o1 * shift[2];
             }
           } // if cursor
-        }   // o1
-      }     // o2
-    }       // o3
-  }         // if ( ! shifted )
+        } // o1
+      } // o2
+    } // o3
+  } // if ( ! shifted )
 
   // Retrieve global index of center cursor
   vtkIdType id = cursor->GetGlobalNodeIndex();
@@ -1286,7 +1286,7 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
         // Collect the leaf indices for the dual cell
         ids[real_l++] = id;
       } // else
-    }   // l
+    } // l
 
     // If leaf owns the corner, create dual cell
     if (owner)
@@ -1305,6 +1305,6 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
       }
       this->Connectivity->InsertNextTypedTuple(ids);
     } // if ( owner )
-  }   // c
+  } // c
 }
 VTK_ABI_NAMESPACE_END

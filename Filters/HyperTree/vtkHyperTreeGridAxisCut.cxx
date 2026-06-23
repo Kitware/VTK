@@ -197,7 +197,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
       // Cut tree recursively
       this->RecursivelyProcessTree(inCursor, outCursor);
     } // if origin
-  }   // it
+  } // it
 
   // Squeeze and set output material mask if necessary
   if (this->OutMask)
@@ -280,6 +280,6 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
 
       inCursor->ToParent();
     } // inChild
-  }   // if ( ! cursor->IsLeaf() )
+  } // if ( ! cursor->IsLeaf() )
 }
 VTK_ABI_NAMESPACE_END

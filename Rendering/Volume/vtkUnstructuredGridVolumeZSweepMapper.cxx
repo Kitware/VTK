@@ -3297,7 +3297,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
         ++it;
       }
     } // if useset of vertex is not null
-  }   // while(eventList->GetNumberOfItems()>0)
+  } // while(eventList->GetNumberOfItems()>0)
 
   if (!aborted)
   {
@@ -4173,8 +4173,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
                   this->NearIntersections, this->FarIntersections, color);
 #endif
               } // length!=0
-            }   // current->GetZview()!=next->GetZview()
-          }     // doIntegration
+            } // current->GetZview()!=next->GetZview()
+          } // doIntegration
 
           // Next entry
           pixel->RemoveFirst(this->MemoryManager); // remove current

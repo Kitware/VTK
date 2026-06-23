@@ -85,9 +85,9 @@ struct UnsignedDistanceFunctor
           {
             scalars[ptId] = sqrt(dist2);
           } // if nearby points
-        }   // over i
-      }     // over j
-    }       // over slices
+        } // over i
+      } // over j
+    } // over slices
   }
 }; // UnsignedDistanceFunctor
 

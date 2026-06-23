@@ -190,7 +190,7 @@ class vtkOSPRayRendererNodeInternals
   // todo: move the rest of the internal data here too
 public:
   vtkOSPRayRendererNodeInternals(vtkOSPRayRendererNode* _owner)
-    : Owner(_owner){};
+    : Owner(_owner) {};
 
   ~vtkOSPRayRendererNodeInternals() = default;
 

@@ -262,7 +262,7 @@ extern "C"
     char intent_name[16]; /*!< 'name' or meaning of data. */ /* 508 */
     char dim_info; /*!< MRI slice ordering.   */             /* 524 */
     char unused_str[15]; /*!< unused, filled with \0 */      /* 525 */
-  };                                                         /**** 540 bytes total ****/
+  }; /**** 540 bytes total ****/
 
   typedef struct nifti_2_header nifti_2_header;
 

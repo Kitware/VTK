@@ -250,6 +250,6 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
       this->RecursivelyProcessTree(cursor);
       cursor->ToParent();
     } // child
-  }   // else
+  } // else
 }
 VTK_ABI_NAMESPACE_END

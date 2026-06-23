@@ -35,10 +35,7 @@ constexpr int ATTRIBUTES_OFFSET = 6;
 static int TRIANGLE_EDGES_TABLE[3][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
 
 // Pre computed table for the tessellation of triangles
-#define NO_TRIAN                                                                                   \
-  {                                                                                                \
-    -1, -1, -1                                                                                     \
-  }
+#define NO_TRIAN { -1, -1, -1 }
 
 // Each edge can either be split or not therefore there is
 // 2^3 = 8 different cases of tessellation
@@ -76,10 +73,7 @@ static int TETRA_EDGES_TABLE[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, {
 // Pre computed table for the tessellation of tetras
 // There is two cases for the tessellation of a tetra, it is either oriented
 // with the right hand rule or with the left hand rule
-#define NO_TETRA                                                                                   \
-  {                                                                                                \
-    -1, -1, -1, -1                                                                                 \
-  }
+#define NO_TETRA { -1, -1, -1, -1 }
 
 // Each edge can either be split or not therefore there is
 // 2^6 = 64 different cases of tessellation

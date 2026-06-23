@@ -172,7 +172,7 @@ void vtkVoronoiCore3D<TCompositor, TClassifier>::operator()(vtkIdType batchId, v
         compositor.AddData(hull, numSpokes, spokes);
 
       } // if hull successfully generated
-    }   // for all points in this batch
+    } // for all points in this batch
     lBatches.emplace_back(batchId);
   } // for all batches of points
 }
@@ -286,8 +286,8 @@ bool vtkVoronoiCore3D<TCompositor, TClassifier>::BuildHull(vtkVoronoiHull& hull,
             numPrunes++;
           }
         } // InFlower
-      }   // in circumflower
-    }     // for all points in the current request
+      } // in circumflower
+    } // for all points in the current request
 
     // See if circumflower radius is less then the radius of the batch of
     // points; if so, the Voronoi hull has been formed.
@@ -342,7 +342,7 @@ inline const vtkVoronoiSpoke* vtkVoronoiClassifier3D::AddAdjacencyInformation(vt
       // Create the spoke and add it the spokes vector
       spokes.emplace_back(neiId, spokeClass);
     } // if Valid face
-  }   // for all polyhedral faces
+  } // for all polyhedral faces
 
   wheels[ptId] = hull.NumFaces; // numFaces == numSpokes
   maxPoints = (hull.NumPts > maxPoints ? hull.NumPts : maxPoints);
@@ -393,8 +393,8 @@ void vtkVoronoiCore3D<TCompositor, TClassifier>::ProduceWheelsAndSpokes::operato
           spokes->Classification = spItr->Classification;
         }
       } // for all contiguous points in this batch
-    }   // for all batches
-  }     // across all threads in this batch
+    } // for all batches
+  } // across all threads in this batch
 } // ProduceWheelsAndSpokes::operator()
 
 //----------------------------------------------------------------------------
@@ -462,8 +462,8 @@ void vtkVoronoiCore3D<TCompositor, TClassifier>::TopologicalMerge::operator()(
           }
         }
       } // for all points in this batch
-    }   // for all batches
-  }     // for all threads
+    } // for all batches
+  } // for all threads
 } // operator()
 
 //----------------------------------------------------------------------------

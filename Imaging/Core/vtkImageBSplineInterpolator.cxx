@@ -19,7 +19,16 @@
 #define VTK_BSPLINE_KERNEL_SIZE_MAX (VTK_IMAGE_BSPLINE_DEGREE_MAX + 1)
 #define VTK_BSPLINE_INT_INITIALIZER                                                                \
   {                                                                                                \
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                                  \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
+    0,                                                                                             \
   }
 
 // kernel lookup table size must be 256*n where n is kernel half-width

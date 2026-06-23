@@ -44,9 +44,7 @@ public:
    * As only onscreen rendering is supported, this method is a noop and the onscreenRendering
    * member is set to true in the constructor.
    */
-  void SetOnscreenRendering([[maybe_unused]] bool onscreenRendering) override
-  { /*noop*/
-  }
+  void SetOnscreenRendering([[maybe_unused]] bool onscreenRendering) override { /*noop*/ }
 
 private:
   EGLNativeWindowType Window;

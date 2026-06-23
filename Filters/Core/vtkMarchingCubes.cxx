@@ -335,10 +335,10 @@ struct ComputeGradientWorker
                 newPolys->InsertNextCell(3, ptIds);
               }
             } // for each triangle
-          }   // for all contours
-        }     // for i
-      }       // for j
-    }         // for k
+          } // for all contours
+        } // for i
+      } // for j
+    } // for k
   }
 };
 

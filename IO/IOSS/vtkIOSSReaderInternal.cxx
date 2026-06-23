@@ -1977,9 +1977,9 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
       return nullptr;
     }
 
-    auto iter = std::find_if(stateVector.begin(), stateVector.end(),
-      [&](const std::pair<int, double>& pair)
-      { return pair.second == this->TimestepValues[timestep]; });
+    auto iter =
+      std::find_if(stateVector.begin(), stateVector.end(), [&](const std::pair<int, double>& pair)
+        { return pair.second == this->TimestepValues[timestep]; });
 
     if (iter == stateVector.end())
     {

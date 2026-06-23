@@ -17,9 +17,7 @@
 
 // Buffer initialization
 #define VTK_PYBUFFER_INITIALIZER                                                                   \
-  {                                                                                                \
-    nullptr, nullptr, 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr, nullptr                      \
-  }
+  { nullptr, nullptr, 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr, nullptr }
 
 // PyTypeObject compatibility
 #if PY_VERSION_HEX >= 0x030D0000

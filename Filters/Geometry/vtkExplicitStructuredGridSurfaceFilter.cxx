@@ -237,7 +237,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
       }
 
     } // for all faces
-  }   // for all cells
+  } // for all cells
   // free storage
   output->Squeeze();
 

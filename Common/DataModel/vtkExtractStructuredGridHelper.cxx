@@ -129,10 +129,9 @@ void vtkExtractStructuredGridHelper::Initialize(
   if (voi[1] < voi[0] || voi[3] < voi[2] || voi[5] < voi[4])
   {
     this->Invalidate();
-    vtkWarningMacro("Invalid volume of interest: ["
-      << " [ " << voi[0] << ", " << voi[1] << " ], "
-      << " [ " << voi[2] << ", " << voi[3] << " ], "
-      << " [ " << voi[4] << ", " << voi[5] << " ] ]");
+    vtkWarningMacro("Invalid volume of interest: [" << " [ " << voi[0] << ", " << voi[1] << " ], "
+                                                    << " [ " << voi[2] << ", " << voi[3] << " ], "
+                                                    << " [ " << voi[4] << ", " << voi[5] << " ] ]");
     return;
   }
 
@@ -527,8 +526,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(VTK_FUTURE_CONST int inExt[6],
         dstIds->Reset();
 
       } // END else canCopyRange
-    }   // END for all j
-  }     // END for all k
+    } // END for all j
+  } // END for all k
 }
 
 //------------------------------------------------------------------------------

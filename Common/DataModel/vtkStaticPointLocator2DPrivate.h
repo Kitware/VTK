@@ -426,7 +426,7 @@ struct BucketList2D : public vtkBucketList2D
           offsets + prevPt->Bucket + 1, curPt->Bucket - prevPt->Bucket, curPt - this->BList->Map);
         prevPt = curPt;
       } // for all batches in this range
-    }   // operator()
+    } // operator()
   };
 
   // Merge points that are pecisely coincident. Operates in parallel on
@@ -542,7 +542,7 @@ struct BucketList2D : public vtkBucketList2D
             }
           }
         } // if point not yet processed
-      }   // for all points in this batch
+      } // for all points in this batch
     }
 
     void Reduce() {}

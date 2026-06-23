@@ -367,8 +367,7 @@ int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
 
   if (subLine != "Binary" && subLine != "binary")
   {
-    vtkErrorMacro("This is not a binary data set. Try "
-      << "vtkEnSightGoldReader.");
+    vtkErrorMacro("This is not a binary data set. Try " << "vtkEnSightGoldReader.");
     return 0;
   }
   return 1;
@@ -1271,8 +1270,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(
   auto subLine = std::get<1>(resultSubLine->values());
   if (subLine != "Binary")
   {
-    vtkErrorMacro("This is not a binary data set. Try "
-      << "vtkEnSightGoldReader.");
+    vtkErrorMacro("This is not a binary data set. Try " << "vtkEnSightGoldReader.");
     return 0;
   }
 

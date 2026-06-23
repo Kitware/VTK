@@ -370,7 +370,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
                 ++outsideStdv_l[d];
               }
             } //
-          }   // for ( vtkIdType r = 0; r < n; ++ r )
+          } // for ( vtkIdType r = 0; r < n; ++ r )
 
           // Sum all local counters
           int* outsideStdv_g = new int[numRuleVal];
@@ -452,8 +452,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
           *(args->retVal) = 1;
         }
       } // for ( int i = 0; i < n2Rows; ++ i )
-    }   // if ( myRank == args->ioRank )
-  }     // if ( ! args->skipPDescriptive && ! args->skipPDescriptive )
+    } // if ( myRank == args->ioRank )
+  } // if ( ! args->skipPDescriptive && ! args->skipPDescriptive )
   else if (myRank == args->ioRank)
   {
     std::cout << "\n## Skipped cross-verification of aggregated serial vs. parallel descriptive "

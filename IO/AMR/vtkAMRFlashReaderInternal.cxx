@@ -254,8 +254,7 @@ void vtkFlashReaderInternal::ReadMetaData()
   this->ReadBlockStructures();
   if (this->NumberOfParticles == 0 && this->NumberOfBlocks == 0)
   {
-    vtkGenericWarningMacro("Invalid Flash file, without any "
-      << "block/particle." << endl);
+    vtkGenericWarningMacro("Invalid Flash file, without any " << "block/particle." << endl);
     return;
   }
 
@@ -287,8 +286,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
   herr_t errorIdx = H5Gget_num_objs(rootIndx, &numbObjs);
   if (errorIdx < 0)
   {
-    vtkGenericWarningMacro("Failed to get the number of objects "
-      << "in the root group" << endl);
+    vtkGenericWarningMacro("Failed to get the number of objects " << "in the root group" << endl);
     return;
   }
 
@@ -327,8 +325,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     if (static_cast<int>(procnum_ndims) != 1 ||
       static_cast<int>(procnum_dims[0]) != this->NumberOfBlocks)
     {
-      vtkGenericWarningMacro("Error with getting the number of "
-        << "processor Ids." << endl);
+      vtkGenericWarningMacro("Error with getting the number of " << "processor Ids." << endl);
     }
 
     hid_t procnum_raw_data_type = H5Dget_type(procnumId);
@@ -782,8 +779,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
       static_cast<int>(bbox_dims[1]) != this->NumberOfDimensions ||
       static_cast<int>(bbox_dims[2]) != 2)
     {
-      vtkGenericWarningMacro("Error with number of blocks "
-        << "or number of dimensions." << endl);
+      vtkGenericWarningMacro("Error with number of blocks " << "or number of dimensions." << endl);
       return;
     }
 
@@ -893,8 +889,7 @@ void vtkFlashReaderInternal::ReadBlockCenters()
       static_cast<int>(coordinates_dims[0]) != this->NumberOfBlocks ||
       static_cast<int>(coordinates_dims[1]) != this->NumberOfDimensions)
     {
-      vtkGenericWarningMacro("Error with number of blocks or "
-        << "number of dimensions." << endl);
+      vtkGenericWarningMacro("Error with number of blocks or " << "number of dimensions." << endl);
       return;
     }
 
@@ -1156,8 +1151,8 @@ void vtkFlashReaderInternal::ReadParticlesComponent(
 {
   if (!compName || this->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
   {
-    vtkGenericWarningMacro("Invalid component name of particles or "
-      << "non FLASH3_FFV8 file format." << endl);
+    vtkGenericWarningMacro(
+      "Invalid component name of particles or " << "non FLASH3_FFV8 file format." << endl);
     return;
   }
 

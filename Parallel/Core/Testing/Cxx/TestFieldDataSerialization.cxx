@@ -51,7 +51,7 @@ vtkIntArray* GetSampleIntArray(const int numTuples, const int numComp)
       ptr[i * numComp + j] = idx;
       ++idx;
     } // END for all components
-  }   // END for all tuples
+  } // END for all tuples
 
   return (array);
 }
@@ -79,7 +79,7 @@ vtkDoubleArray* GetSampleDoubleArray(const int numTuples, const int numComp)
       ptr[i * numComp + j] = val;
       ++val;
     } // END for all components
-  }   // END for all tuples
+  } // END for all tuples
 
   return (array);
 }
@@ -107,7 +107,7 @@ vtkFloatArray* GetSampleFloatArray(const int numTuples, const int numComp)
       ptr[i * numComp + j] = val;
       ++val;
     } // END for all components
-  }   // END for all tuples
+  } // END for all tuples
 
   return (array);
 }

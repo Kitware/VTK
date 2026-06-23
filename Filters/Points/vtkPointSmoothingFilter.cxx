@@ -894,7 +894,7 @@ struct CharacterizeMesh
         this->ClassifyPoint(ptId, x, this->NeiSize, neis, neiPts, neiNormals);
       }
     } // for all points in this batch
-  }   // operator()
+  } // operator()
 
   // Composite the data
   void Reduce()
@@ -1074,7 +1074,7 @@ struct SmoothPoints
       outPts[ptId][2] = x[2];
 
     } // for all points in this batch
-  }   // operator()
+  } // operator()
 
   void Reduce()
   {
@@ -1328,7 +1328,7 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
     inBuf = outBuf;
     outBuf = swapBuf;
     tmpLocator->Modified(); // ensure a rebuild the next time we build connectivity
-  }                         // over all iterations
+  } // over all iterations
 
   // Set the output points
   output->SetPoints(outBuf);

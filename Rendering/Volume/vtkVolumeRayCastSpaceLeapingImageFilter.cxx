@@ -145,7 +145,7 @@ static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
           *(tmpPtr++) = 0xffff; // Min Scalar
           *(tmpPtr++) = 0;      // Max Scalar
           *(tmpPtr++) = 0;      // Max Gradient Magnitude and
-        }                       // Flag computed from transfer functions
+        } // Flag computed from transfer functions
       }
     }
   }

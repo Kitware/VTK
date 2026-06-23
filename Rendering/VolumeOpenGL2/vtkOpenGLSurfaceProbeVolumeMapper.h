@@ -163,7 +163,7 @@ public:
    * Defined as no-op to prevent the creation of a default lookup table in GetLookupTable.
    * Without a lookup table, the mapper uses the Window/Level values to map 1-component scalars.
    */
-  void CreateDefaultLookupTable() override{};
+  void CreateDefaultLookupTable() override {};
 
 protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;

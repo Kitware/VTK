@@ -354,7 +354,7 @@ struct ProcessEdge
         this->AssignDistance(dist, dLPtr);
       }
     } // for all edges in this batch
-  }   // operator()
+  } // operator()
 
   // Clean up
   void Reduce()
@@ -517,7 +517,7 @@ struct MarkVoxels
           this->Dists[voxId] = IsMultiple(this->Dists[voxId], this->N);
         }
       } // for all voxels alonig x-edge
-    }   // for all voxel values
+    } // for all voxel values
   }
 
   // Clean up
@@ -726,7 +726,7 @@ struct GeneratePoints
           pointCount++;
         }
       } // for all data along this x-edge
-    }   // for all x-edges in this batch of edges
+    } // for all x-edges in this batch of edges
   }
 
   // Clean up

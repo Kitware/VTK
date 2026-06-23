@@ -379,8 +379,8 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
           worker(da, shepardArray);
         }
       } // not density array
-    }   // for all arrays
-  }     // if Shepard normalization
+    } // for all arrays
+  } // if Shepard normalization
 
   // Clean up
   if (shepardSumArray)

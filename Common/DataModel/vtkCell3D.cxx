@@ -323,7 +323,7 @@ void vtkCell3D::Contour(double value, vtkDataArray* cellScalars,
       this->Triangulator->InsertPoint(ptId, x, pc, 2);
 
     } // if edge intersects value
-  }   // for all edges
+  } // for all edges
 
   // triangulate the points
   this->Triangulator->Triangulate();
@@ -524,7 +524,7 @@ void vtkCell3D::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoin
       this->Triangulator->InsertPoint(ptId, x, pc, 2);
 
     } // if edge intersects value
-  }   // for all edges
+  } // for all edges
 
   // triangulate the points
   this->Triangulator->Triangulate();

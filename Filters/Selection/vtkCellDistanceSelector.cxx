@@ -306,10 +306,10 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
                       }
                     }
                   } // i
-                }   // j
-              }     // k
-            }       // idx
-          }         // else if ( sg_input )
+                } // j
+              } // k
+            } // idx
+          } // else if ( sg_input )
           else
           {
             vtkErrorMacro(<< "Unsupported data type : " << input->GetClassName() << "\n");
@@ -323,7 +323,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
               cellDistance->InsertNextTuple1(d);
               finalIndices->InsertNextTuple1(outIndices->GetTuple1(i));
             } // i
-          }   // if ( ( ! d && this->IncludeSeed ) || ( d > 0 && this->AddIntermediate ) )
+          } // if ( ( ! d && this->IncludeSeed ) || ( d > 0 && this->AddIntermediate ) )
 
           outIndices = nextIndices;
         } // for ( int d = 0; d < this->Distance; ++ d )
@@ -353,8 +353,8 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
           output->AddNode(outSelNode);
         }
       } // if numSeeds > 0 etc.
-    }   // while selNodeIt
-  }     // while inputIterator
+    } // while selNodeIt
+  } // while inputIterator
 
   // Clean up
   inputIterator->Delete();

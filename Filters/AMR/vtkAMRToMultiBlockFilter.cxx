@@ -85,7 +85,7 @@ void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
       }
       ++blockIdx;
     } // END for all data
-  }   // END for all levels
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------

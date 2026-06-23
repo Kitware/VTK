@@ -590,9 +590,9 @@ void vtkTrimmedExtrusionFilter::ExtrudeEdges(
             polyIds->InsertNextId(inCellId);
           }
         } // for each sub-edge
-      }   // for each edge
-    }     // for each polygon or triangle strip
-  }       // for each cell
+      } // for each edge
+    } // for each polygon or triangle strip
+  } // for each cell
   cell->Delete();
 
   // Now Copy cell data.

@@ -363,9 +363,9 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
               outPD, inCD, cellId, outCD, clippedCD);
           }
         } // using ordered triangulator
-      }   // for i
-    }     // for j
-  }       // for k
+      } // for i
+    } // for j
+  } // for k
 
   // Create the output
   output->SetPoints(newPoints);
@@ -570,7 +570,7 @@ void vtkClipVolume::ClipVoxel(double value, vtkDataArray* cellScalars, int flip,
       this->Triangulator->InsertPoint(ptId, x, x, 2);
 
     } // if edge intersects value
-  }   // for all edges
+  } // for all edges
 
   // triangulate the points
   this->Triangulator->Triangulate();

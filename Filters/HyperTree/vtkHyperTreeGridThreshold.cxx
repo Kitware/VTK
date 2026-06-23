@@ -448,7 +448,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree(
       // Return to parent in output grid
       inCursor->ToParent();
     } // child
-  }   // if (! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth)
+  } // if (! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth)
   else
   {
     // Input cursor is at leaf, check whether it is within range

@@ -769,7 +769,7 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
         break;
       }
     } // while (true);
-  }   // while (child_stack_depth > 0);
+  } // while (child_stack_depth > 0);
 
   vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
   reader->SetBinaryInputString(child_data.str().c_str(), static_cast<int>(child_data.str().size()));

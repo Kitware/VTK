@@ -682,9 +682,9 @@ void vtkNek5000Reader::readData(char* dfName)
             }
           }
           i++; // skip over the velocity magnitude variable, since we just took care of it
-        }      // if "Velocity"
-      }        // only read if valid pointer
-    }          // for(i=0; i<this->num_vars; i++)
+        } // if "Velocity"
+      } // only read if valid pointer
+    } // for(i=0; i<this->num_vars; i++)
 
     if (this->precision == 8)
     {
@@ -1363,7 +1363,7 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
       }
       // return;
     } // else if(this->objectHasExtraData())
-  }   // if(this->curObj->ugrid)
+  } // if(this->curObj->ugrid)
 
   // otherwise the grid in the curObj is NULL, and/or the resolution has changed,
   // and/or we need more data than is in curObj, we need to do everything

@@ -161,7 +161,7 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os, vtkIndent indent
       os << std::endl << std::endl;
 
     } // END for all neis
-  }   // END for all grids
+  } // END for all grids
 }
 
 //------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
     {
       this->EstablishNeighbors(i, j);
     } // END for all j
-  }   // END for all i
+  } // END for all i
 
   // STEP 2: Fill the ghost arrays
   for (unsigned int i = 0; i < this->NumberOfGrids; ++i)
@@ -364,7 +364,7 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
             break;
           }
         } // END for all neis
-      }   // END if neisList isn't empty
+      } // END if neisList isn't empty
       neiList->Delete();
     } // END if node is on a shared boundary
     else if (this->IsGhostNode(ext, realExtent, i, j, k))
@@ -394,8 +394,8 @@ void vtkStructuredGridConnectivity::FillNodesGhostArray(int gridID, int dataDesc
         this->MarkNodeProperty(
           gridID, i, j, k, GridExtent, RealExtent, *nodesArray->GetPointer(idx));
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -442,8 +442,8 @@ void vtkStructuredGridConnectivity::FillCellsGhostArray(int dataDescription, int
 
         this->MarkCellProperty(*cellsArray->GetPointer(idx), cellNodeGhostFields, numNodesPerCell);
       } // END for all cells along k
-    }   // END for all cells along j
-  }     // END for all cells along i
+    } // END for all cells along j
+  } // END for all cells along i
 
   delete[] cellNodeGhostFields;
   cellNodeIds->Delete();
@@ -1140,8 +1140,8 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(int gridID)
           this->GhostedPointGhostArray[gridID]->SetValue(idx, p);
         }
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   // STEP 5: Fill the cells ghost arrays for the ghosted grid
   int dim = vtkStructuredData::GetDataDimension(this->DataDescription);
@@ -1372,8 +1372,8 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(int grid
         } // END if node is within cell extent
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------
@@ -1474,8 +1474,8 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
         } // END if node is within cell extent
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 }
 
 //------------------------------------------------------------------------------

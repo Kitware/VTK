@@ -332,7 +332,7 @@ struct BlockFaceIterator
       return false;
     }
   } // Next()
-};  // BlockFaceIterator
+}; // BlockFaceIterator
 
 //------------------------------------------------------------------------------
 // Hard coded block traversals for lower levels. Note the ping-pong
@@ -904,7 +904,7 @@ struct ShellBinIterator : public InternalShellBinIterator
             {
               break;
             }
-          }                       // See if the bin falls into any one of the petals
+          } // See if the bin falls into any one of the petals
           if (sNum >= numSpheres) // no intersection
           {
             continue;

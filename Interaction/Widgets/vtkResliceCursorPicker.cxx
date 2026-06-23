@@ -451,7 +451,7 @@ int vtkResliceCursorPicker::IntersectPolyDataWithLine(
       }
 
     } // if a close cell
-  }   // for all cells
+  } // for all cells
 
   return 0;
 }

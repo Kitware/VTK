@@ -77,14 +77,8 @@ struct ArrayTypeInfo
   std::function<vtkObjectBase*()> New;
   const std::type_info& TypeInfo;
 };
-#define TYPE_INFO_MACRO(className)                                                                 \
-  {                                                                                                \
-    #className, className::New, typeid(className)                                                  \
-  }
-#define TTYPE_INFO_MACRO(className)                                                                \
-  {                                                                                                \
-    #className, className::New, typeid(className)                                                  \
-  }
+#define TYPE_INFO_MACRO(className) { #className, className::New, typeid(className) }
+#define TTYPE_INFO_MACRO(className) { #className, className::New, typeid(className) }
 
 // clang-format off
 #define TEMPLATED_ARRAY_TYPES_INFO_MACRO(className)                                                \

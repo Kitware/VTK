@@ -580,9 +580,9 @@ int vtkContourFilter::RequestData(
           {
             helper.Contour(cell, values[i], cellScalars, cellId);
           } // for all contour values
-        }   // for all cells
-      }     // for all dimensions
-    }       // if using scalar tree
+        } // for all cells
+      } // for all dimensions
+    } // if using scalar tree
     else
     {
       if (this->ScalarTree == nullptr)
@@ -618,8 +618,8 @@ int vtkContourFilter::RequestData(
           progressCounter++;
           helper.Contour(cell, values[i], cellScalars, cellId);
         } // for all cells
-      }   // for all contour values
-    }     // using scalar tree
+      } // for all contour values
+    } // using scalar tree
 
     vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "
                   << newVerts->GetNumberOfCells() << " verts, " << newLines->GetNumberOfCells()

@@ -750,8 +750,8 @@ bool vtkHyperTreeGridContour::RecursivelyPreProcessTree(vtkHyperTreeGridNonOrien
               selected = true;
             }
           } // else
-        }   // c
-      }     // if( ! selected )
+        } // c
+      } // if( ! selected )
 
       cursor->ToParent();
     } // child
@@ -830,7 +830,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
           selected = false;
         }
       } // neighbor
-    }   // c
+    } // c
     if (selected && !supercursor->IsMasked())
     {
       // Node has at least one neighbor containing one contour, recurse to all children
@@ -1004,7 +1004,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
         // Increment output cell counter
         ++this->CurrentId;
       } // if ( owner )
-    }   // cornerIdx
-  }     // else if ( ! this->InMask || this->InMask->GetTuple1( id ) )
+    } // cornerIdx
+  } // else if ( ! this->InMask || this->InMask->GetTuple1( id ) )
 }
 VTK_ABI_NAMESPACE_END

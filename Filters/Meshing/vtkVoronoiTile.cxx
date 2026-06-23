@@ -222,7 +222,7 @@ ClipIntersectionStatus vtkVoronoiTile::IntersectWithLine(
       vtkIdType pId = (p->Val < 0.0 ? neiPtId : p->NeiId);
       this->NewPoints.emplace_back(this->X, x, pId);
     } // check for intersecting edge
-  }   // clip verts & edges
+  } // clip verts & edges
 
   // Now just swap the newly added vertices to update the tile.
   this->Points.swap(this->NewPoints);

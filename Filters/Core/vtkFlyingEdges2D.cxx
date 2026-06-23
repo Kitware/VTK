@@ -518,7 +518,7 @@ void vtkFlyingEdges2DAlgorithm<TArray>::ProcessXEdge(double value, TPtr inPtr, v
       minInt = (i < minInt ? i : minInt);
       maxInt = i + 1;
     } // if contour interacts with this x-edge
-  }   // for all x-cell edges along this x-edge
+  } // for all x-cell edges along this x-edge
 
   // The beginning and ending of intersections along the edge is used for
   // computational trimming.

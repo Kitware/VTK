@@ -1190,8 +1190,8 @@ void vtkOrderedTriangulator::Triangulate()
           AssignNeighbors(tetra, neiTetra);
         }
       } // for three edges
-    }   // for each face on the insertion cavity
-  }     // for all points to be inserted
+    } // for each face on the insertion cavity
+  } // for all points to be inserted
 
   // Final classification
   this->Mesh->NumberOfTetrasClassifiedInside = this->Mesh->ClassifyTetras();
@@ -1685,7 +1685,7 @@ int vtkOrderedTriangulator::TemplateTriangulation()
       } // for all tetras in template
       return 1;
     } // if a template found
-  }   // if a template list for this cell type found
+  } // if a template list for this cell type found
 
   return 0;
 }

@@ -348,7 +348,7 @@ public:
         {
           this->Algo->ProcessYZEdges(row, slice);
         } // for all rows in this slice
-      }   // for all slices in this batch
+      } // for all slices in this batch
     }
   };
   template <class TT>
@@ -378,7 +378,7 @@ public:
             this->Algo->GenerateOutput(this->Value, rowPtr, row, slice);
             rowPtr += this->Algo->Inc1;
           } // for all rows in this slice
-        }   // if there are triangles
+        } // if there are triangles
         slicePtr += this->Algo->Inc2;
         eMD0 = eMD1;
         eMD1 = eMD0 + 6 * this->Algo->Dims[1];
@@ -485,9 +485,9 @@ vtkExtractSurfaceAlgorithm<T>::vtkExtractSurfaceAlgorithm()
             }
           }
         } // x-edges
-      }   // x+y-edges
-    }     // x+z-edges
-  }       // x+y+z-edges
+      } // x+y-edges
+    } // x+z-edges
+  } // x+y+z-edges
 
   // Okay now build the acceleration structure. This is used to generate
   // output points and triangles when processing a voxel x-row as well as to

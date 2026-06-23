@@ -240,8 +240,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(
     auto subLine = std::get<1>(resultSubLine0->values());
     if (subLine == "Binary")
     {
-      vtkErrorMacro("This is a binary data set. Try "
-        << "vtkEnSightGoldBinaryReader.");
+      vtkErrorMacro("This is a binary data set. Try " << "vtkEnSightGoldBinaryReader.");
       return 0;
     }
   }
@@ -462,8 +461,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     auto subLine = std::get<1>(resultSubLine->values());
     if (subLine == "Binary")
     {
-      vtkErrorMacro("This is a binary data set. Try "
-        << "vtkEnSight6BinaryReader.");
+      vtkErrorMacro("This is a binary data set. Try " << "vtkEnSight6BinaryReader.");
       return 0;
     }
   }
@@ -1052,7 +1050,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName, const char
 
           lineRead = this->ReadNextDataLine(line);
         } // end while
-      }   // end else
+      } // end else
       if (component == 0)
       {
         scalars->SetName(description);
@@ -1161,7 +1159,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName, const char
 
           lineRead = this->ReadNextDataLine(line);
         } // end while
-      }   // end else
+      } // end else
       vectors->SetName(description);
       output->GetCellData()->AddArray(vectors);
       if (!output->GetCellData()->GetVectors())
@@ -1268,7 +1266,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
 
           lineRead = this->ReadNextDataLine(linePtr);
         } // end while
-      }   // end else
+      } // end else
       output->GetCellData()->AddArray(tensors);
     }
     else
@@ -1364,7 +1362,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName, const char
 
           lineRead = this->ReadNextDataLine(line);
         } // end while
-      }   // end else
+      } // end else
       tensors->SetName(description);
       output->GetCellData()->AddArray(tensors);
       tensors->Delete();

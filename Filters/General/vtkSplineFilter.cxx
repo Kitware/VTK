@@ -315,7 +315,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkI
       }
       newTCoords->InsertTuple2(offset + i, tc, 0.0);
     } // if generating tcoords
-  }   // for all new points
+  } // for all new points
 
   return numNewPts;
 }

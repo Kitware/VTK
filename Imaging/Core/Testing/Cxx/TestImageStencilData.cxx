@@ -140,7 +140,7 @@ static void GetStencilDataAsImageData(vtkImageStencilData* stencilData, vtkImage
         }
       }
     } // end for each extent tuple
-  }   // end for each scan line
+  } // end for each scan line
 }
 
 //------------------------------------------------------------------------------

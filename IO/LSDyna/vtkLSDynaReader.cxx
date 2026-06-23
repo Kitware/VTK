@@ -3327,8 +3327,8 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
           // no valid line after "*parameter" keyword. Silently ignore it.
         }
       } // "parameter line"
-    }   // line starts with "*"
-  }     // while ( deck.good() )
+    } // line starts with "*"
+  } // while ( deck.good() )
 
   if (success)
   {

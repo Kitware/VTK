@@ -148,8 +148,7 @@ void vtkWebXRRenderWindow::Initialize()
     [](void* data, int) { static_cast<vtkWebXRRenderWindow*>(data)->Internal->onStart(); },
     [](void* data, int) { static_cast<vtkWebXRRenderWindow*>(data)->Internal->onEnd(); },
     [](void* data, int error_code)
-    { static_cast<vtkWebXRRenderWindow*>(data)->Internal->onError(error_code); },
-    this);
+    { static_cast<vtkWebXRRenderWindow*>(data)->Internal->onError(error_code); }, this);
 #endif
 
   this->VRInitialized = true;

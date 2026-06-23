@@ -37,8 +37,8 @@ public:
   /**
    * Unimplemented methods from vtkCameraManipulator.
    */
-  void StartInteraction() override{};
-  void EndInteraction() override{};
+  void StartInteraction() override {};
+  void EndInteraction() override {};
   void OnKeyDown(vtkRenderWindowInteractor* vtkNotUsed(rwi)) override {}
   void OnKeyUp(vtkRenderWindowInteractor* vtkNotUsed(rwi)) override {}
   ///@}

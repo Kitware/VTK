@@ -110,7 +110,7 @@ void GetGridExtent(const int blockIdx, const int dim, const int ratio, int ext[6
       ext[i * 2] = patchBase[i * 2];
       ext[i * 2 + 1] = patchBase[i * 2 + 1];
     } // END for all dimensions
-  }   // END if level is zero
+  } // END if level is zero
   else
   {
     for (int i = 0; i < dim; ++i)
@@ -118,7 +118,7 @@ void GetGridExtent(const int blockIdx, const int dim, const int ratio, int ext[6
       ext[i * 2] = (level * ratio) * patchBase[i * 2];
       ext[i * 2 + 1] = (level * ratio) * patchBase[i * 2 + 1];
     } // END for all dimensions
-  }   // END else
+  } // END else
 }
 
 //------------------------------------------------------------------------------
@@ -139,8 +139,8 @@ void WriteAMR(vtkOverlappingAMR* amr, const std::string& prefix)
       {
         WriteGrid(amr->GetDataSet(levelIdx, dataIdx), oss.str());
       } // END if grid is not nullptr
-    }   // END for all data
-  }     // END for all levels
+    } // END for all data
+  } // END for all levels
 #else
   /* silences some compiler warnings */
   static_cast<void>(amr);
@@ -204,7 +204,7 @@ void ApplyXYZFieldToGrid(vtkUniformGrid* grd, const std::string& prefix)
         nodeXYZArray->SetComponent(meshPntIdx, 1, xyz[1]);
         nodeXYZArray->SetComponent(meshPntIdx, 2, xyz[2]);
       } // END if
-    }   // END for all nodes
+    } // END for all nodes
 
     centroid[0] = xsum / c->GetNumberOfPoints();
     centroid[1] = ysum / c->GetNumberOfPoints();
@@ -286,7 +286,7 @@ vtkUniformGrid* RefinePatch(
       h[i] = h0;
       ndim[i] = patchdims[i];
     } // END for all dimensions
-  }   // END if
+  } // END if
   else
   {
     for (int i = 0; i < dim; ++i)
@@ -295,7 +295,7 @@ vtkUniformGrid* RefinePatch(
       h[i] = h0 / static_cast<double>(r);
       ndim[i] = (level * r) * patchdims[i] - (r - 1);
     } // END for all dimensions
-  }   // END else
+  } // END else
 
   // STEP 3: Construct uniform grid for requested patch
   vtkUniformGrid* grid = vtkUniformGrid::New();
@@ -399,7 +399,7 @@ void RegisterGrids(
       }
 
     } // END for all data
-  }   // END for all levels
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
       } // END else
 
     } // END for all data
-  }   // END for all levels
+  } // END for all levels
 }
 
 //------------------------------------------------------------------------------

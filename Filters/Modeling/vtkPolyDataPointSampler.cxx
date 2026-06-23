@@ -205,7 +205,7 @@ struct GeneratePoints
           this->SampleTriangle(stripPts);
         }
       } // for all strips
-    }   // for interior points
+    } // for interior points
     return abort;
   }
 

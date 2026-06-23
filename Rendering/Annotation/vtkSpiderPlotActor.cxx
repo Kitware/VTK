@@ -515,7 +515,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
     {
       this->Ranges->push_back(vtkAxisRange(this->Mins[i], this->Maxs[i]));
     }
-  }    // if automatic range computation
+  } // if automatic range computation
   else // specified correctly
   {
     vtkAxisRange range;

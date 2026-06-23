@@ -383,7 +383,7 @@ struct BucketList : public vtkBucketList
           offsets + prevPt->Bucket + 1, curPt->Bucket - prevPt->Bucket, curPt - this->BList->Map);
         prevPt = curPt;
       } // for all batches in this range
-    }   // operator()
+    } // operator()
   };
 
   // Merge points that are pecisely coincident. Operates in parallel on
@@ -489,10 +489,10 @@ struct BucketList : public vtkBucketList
             {
               mergeMap[nearId] = ptId;
             } // if eligible for merging and not yet merged
-          }   // for all nearby points
-        }     // if nearby points exist
-      }       // if point not yet merged
-    }         // MergePoint
+          } // for all nearby points
+        } // if nearby points exist
+      } // if point not yet merged
+    } // MergePoint
 
     // Just allocate a little bit of memory to get started.
     void Initialize()
@@ -527,7 +527,7 @@ struct BucketList : public vtkBucketList
       {
         this->MergePoint(ptId, nearby);
       } // for all points in the locator
-    }   // operator()
+    } // operator()
 
     void Reduce() { this->MergeClose<T>::Reduce(); }
   }; // Merge points in point ordering
@@ -634,9 +634,9 @@ struct BucketList : public vtkBucketList
             vtkIdType ptId = ids[i].PtId;
             this->MergePoint(ptId, nearby);
           } // for all points in bin/bucket
-        }   // if points exist in bin/bucket
-      }     // for all blocks
-    }       // operator()
+        } // if points exist in bin/bucket
+      } // for all blocks
+    } // operator()
 
     void Reduce() { this->MergeClose<T>::Reduce(); }
 
@@ -746,14 +746,14 @@ struct BucketList : public vtkBucketList
                     {
                       mergeMap[ptId2] = ptId;
                     } // if point's data match
-                  }   // if points geometrically coincident
-                }     // if point not yet visited
-              }       // for the remaining points in the bin
-            }         // if point not yet merged
-          }           // for all points in bucket
-        }             // if bucket contains points
-      }               // for all buckets
-    }                 // operator()
+                  } // if points geometrically coincident
+                } // if point not yet visited
+              } // for the remaining points in the bin
+            } // if point not yet merged
+          } // for all points in bucket
+        } // if bucket contains points
+      } // for all buckets
+    } // operator()
 
     void Reduce() {}
   }; // MergePointsWithData

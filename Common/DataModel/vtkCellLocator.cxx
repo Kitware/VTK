@@ -238,9 +238,9 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], do
                 subIdBest = subId;
                 cellIdBest = cId;
               } // intersection point is in current octant
-            }   // if intersection
-          }     // if (hitCellBounds)
-        }       // if (!CellHasBeenVisited[cId])
+            } // if intersection
+          } // if (hitCellBounds)
+        } // if (!CellHasBeenVisited[cId])
       }
     }
 
@@ -527,10 +527,10 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
                 refinedRadius2 = minDist2;
               }
             } // if point close enough to cell bounds
-          }   // for each cell in bucket
-        }     // if bucket is within the current best distance
-      }       // if cells in bucket
-    }         // for each overlapping bucket
+          } // for each cell in bucket
+        } // if bucket is within the current best distance
+      } // if cells in bucket
+    } // for each overlapping bucket
 
     // don't want to checker a smaller radius than we just checked so update
     // ii appropriately
@@ -942,9 +942,9 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData* pd)
           }
 
         } // over negative faces
-      }   // over i divisions
-    }     // over j divisions
-  }       // over k divisions
+      } // over i divisions
+    } // over j divisions
+  } // over k divisions
 
   pd->SetPoints(pts);
   pts->Delete();
@@ -1314,7 +1314,7 @@ int vtkCellLocator::IntersectWithLine(const double p1[3], const double p2[3], do
               cellIntersections.emplace_back(cId, hitCellBoundsPosition, tHitCell);
             }
           } // if (hitCellBounds)
-        }   // if (!CellHasBeenVisited[cId])
+        } // if (!CellHasBeenVisited[cId])
       }
     }
 

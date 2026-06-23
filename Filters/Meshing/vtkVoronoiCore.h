@@ -176,7 +176,7 @@ struct vtkVoronoiAdjacencyGraph
     void operator()(vtkIdType wheelId, vtkIdType endWheelId);
     void Reduce();
   }; // ValidateAdjacencyGraph
-};   // vtkVoronoiAdjacencyGraph
+}; // vtkVoronoiAdjacencyGraph
 
 /**
  * Define hull/tile vertex types. This is to represent generated points,

@@ -473,7 +473,7 @@ struct MapOffsets
       const vtkIdType binDelta = (curPt < endPt ? curPt->BinId : this->NumBins) - prevPt->BinId;
       std::fill_n(offsets + prevPt->BinId + 1, binDelta, static_cast<TId>(curPt - this->Map));
     } // for all batches in this range
-  }   // operator()
+  } // operator()
 
 }; // MapOffsets
 
@@ -518,10 +518,10 @@ vtkIdType CellProcessor<T>::FindCell(const double pos[3], double tol2, vtkGeneri
           return cellId;
         }
       } // in bounding box
-    }   // for cells in this bin
+    } // for cells in this bin
 
     return -1; // nothing found
-  }            // serial
+  } // serial
 }
 
 //------------------------------------------------------------------------------
@@ -570,10 +570,10 @@ void CellProcessor<T>::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
             // Could use query mechanism to speed up at some point
             cells->InsertUniqueId(ids[ii].CellId);
           } // for all points in bucket
-        }   // if points in bucket
-      }     // i-footprint
-    }       // j-footprint
-  }         // k-footprint
+        } // if points in bucket
+      } // i-footprint
+    } // j-footprint
+  } // k-footprint
 }
 
 //------------------------------------------------------------------------------
@@ -710,9 +710,9 @@ int CellProcessor<T>::IntersectWithLine(const double p1[3], const double p2[3], 
               cellIntersections.emplace_back(cId, hitCellBoundsPosition, tHitCell);
             }
           } // if (hitCellBounds)
-        }   // if (!cellHasBeenVisited[cId])
-      }     // over all cells in bin
-    }       // if cells in bin
+        } // if (!cellHasBeenVisited[cId])
+      } // over all cells in bin
+    } // if cells in bin
 
     // See if the traversal is complete (reached the end of the line).
     if (ijk[0] == ijkEnd[0] && ijk[1] == ijkEnd[1] && ijk[2] == ijkEnd[2])
@@ -891,10 +891,10 @@ struct CellPlaneCandidates
               }
             }
           } // if bin intersects
-        }   // i
-      }     // j
-    }       // k
-  }         // operator()
+        } // i
+      } // j
+    } // k
+  } // operator()
 };
 
 //------------------------------------------------------------------------------
@@ -1217,10 +1217,10 @@ int CellProcessor<T>::IntersectWithLine(const double p1[3], const double p2[3], 
                 cellIdBest = cId;
               }
             } // if intersection
-          }   // if (hitCellBounds)
-        }     // if (!cellHasBeenVisited[cId])
-      }       // over all cells in bin
-    }         // if cells in bin
+          } // if (hitCellBounds)
+        } // if (!cellHasBeenVisited[cId])
+      } // over all cells in bin
+    } // if cells in bin
 
     // Exit before end of ray, saves a few cycles
     if (cellIdBest >= 0)
@@ -1677,9 +1677,9 @@ void vtkStaticCellLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPoly
             polys->InsertCellPoint(pIds[6]);
           }
         } // if not empty
-      }   // x
-    }     // y
-  }       // z
+      } // x
+    } // y
+  } // z
 }
 
 //------------------------------------------------------------------------------

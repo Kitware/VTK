@@ -18,7 +18,7 @@ namespace
 struct ProgressChecker
 {
   ProgressChecker(vtkAMRContourFilter* contour)
-    : Contour(contour){};
+    : Contour(contour) {};
 
   void ProgressCheck()
   {

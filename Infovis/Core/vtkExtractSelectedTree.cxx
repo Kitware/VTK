@@ -204,7 +204,7 @@ int vtkExtractSelectedTree::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
     } // end if (curList)
-  }   // end for each selection node
+  } // end for each selection node
 
   vtkNew<vtkMutableDirectedGraph> builder;
   // build the tree recursively

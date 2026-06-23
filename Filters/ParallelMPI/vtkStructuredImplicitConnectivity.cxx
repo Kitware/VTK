@@ -116,7 +116,7 @@ struct IntervalsConnect
         default:
           oss << "*UNKNOWN*";
       } // END switch
-    }   // END for
+    } // END for
     oss << ")";
     return (oss.str());
   }
@@ -460,7 +460,7 @@ struct StructuredGrid
       {
         this->Extent[i * 2 + 1] += 1;
       } // END if
-    }   // END for all dimensions
+    } // END for all dimensions
 
     // the number of nodes in the grown extent
     vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(this->Extent, grid->DataDescription);
@@ -559,8 +559,8 @@ struct StructuredGrid
           }
 
         } // END for all k
-      }   // END for all j
-    }     // END for all i
+      } // END for all j
+    } // END for all i
   }
 
   //------------------------------------------------------------------------------
@@ -908,7 +908,7 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os, vtkIndent indent)
       os << "\t" << this->InputGrid->Neighbors[nei].ToString();
       os << std::endl;
     } // END for all neighbors
-  }   // END if InputGrid != nullptr
+  } // END if InputGrid != nullptr
 }
 
 //------------------------------------------------------------------------------
@@ -1051,7 +1051,7 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
           ++nimplicit;
           Neighbor.Overlap[d * 2] = Neighbor.Overlap[d * 2 + 1] = Neighbor.Extent[d * 2];
           this->InputGrid->Grow[d] = 1; /* increment by 1 in this dimension */
-        }                               // END if IMPLICIT_HI
+        } // END if IMPLICIT_HI
         else if (type == vtk::detail::IntervalsConnect::IMPLICIT_LO)
         {
           ++nimplicit;
@@ -1062,7 +1062,7 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
           vtkGenericWarningMacro(<< "Invalid implicit connectivity type! "
                                  << "Code should not reach here!\n");
         } // END else
-      }   // END if implicit
+      } // END if implicit
       else if (A.Intersects(B, Overlap, type))
       {
         Neighbor.Orientation[d] = type;
@@ -1074,7 +1074,7 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
         disregard = true;
         Neighbor.Orientation[d] = type;
       } // END else
-    }   // END for all dimensions
+    } // END for all dimensions
 
     // Determine whether to include the neighbor to the list of neighbors in
     // this rank.
@@ -1281,9 +1281,9 @@ void vtkStructuredImplicitConnectivity::PackData(int ext[6], vtkMultiProcessStre
             this->OutputGrid->Extent, ijk, this->OutputGrid->DataDescription);
           bytestream.Push(this->OutputGrid->Nodes->GetPoint(idx), 3);
         } // END for all k
-      }   // END for all j
-    }     // END for all i
-  }       // END if structured grid
+      } // END for all j
+    } // END for all i
+  } // END if structured grid
   else if (this->OutputGrid->IsRectilinearGrid())
   {
     bytestream << VTK_RECTILINEAR_GRID;
@@ -1306,7 +1306,7 @@ void vtkStructuredImplicitConnectivity::PackData(int ext[6], vtkMultiProcessStre
         bytestream << flag;
       }
     } // END for all dimensions
-  }   // END if rectilinear grid
+  } // END if rectilinear grid
   else
   {
     bytestream << VTK_UNIFORM_GRID;
@@ -1376,8 +1376,8 @@ void vtkStructuredImplicitConnectivity::UnPackData(unsigned char* buffer, unsign
 
           this->OutputGrid->Nodes->SetPoint(idx, pnt);
         } // END for all k
-      }   // END for all j
-    }     // END for all i
+      } // END for all j
+    } // END for all i
 
     delete[] pnt;
   } // END if structured
@@ -1400,7 +1400,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(unsigned char* buffer, unsign
         coords[dim]->SetTuple1(lastIdx, coordinate);
       }
     } // END for all dimensions
-  }   // END if rectilinear
+  } // END if rectilinear
 
   // de-serialize the node-centered fields
   if (this->OutputGrid->PointData != nullptr)
@@ -1450,7 +1450,7 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(int dim)
 
       this->CommManager->EnqueueSend(neiPtr->Rank, buffer, bytesize);
     } // END else if
-  }   // END for all neighbors
+  } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------
@@ -1504,7 +1504,7 @@ void vtkStructuredImplicitConnectivity::ExchangeData()
       // STEP 2: Update neighbor list, w/ the grown grid information
       this->UpdateNeighborList(dim);
     } // END for all dimensions
-  }   // END if
+  } // END if
   else
   {
     this->OutputGrid = nullptr;

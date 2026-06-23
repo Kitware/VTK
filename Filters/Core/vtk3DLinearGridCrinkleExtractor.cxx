@@ -281,7 +281,7 @@ struct ExtractCells : public ExtractCellsBase
           lOrigins.emplace_back(cellId); // to support cell data copying
         }
       } // if implicit function intersects
-    }   // for all cells in this batch
+    } // for all cells in this batch
   }
 
   // Composite local thread data. Basically build the output unstructured grid.
@@ -395,7 +395,7 @@ struct ExtractPointsAndCells : public ExtractCellsBase
           lOrigins.emplace_back(cellId); // to support cell data copying
         }
       } // if implicit function intersects
-    }   // for all cells in this batch
+    } // for all cells in this batch
   }
 
   // Composite local thread data. Basically build the output unstructured grid.
@@ -460,7 +460,7 @@ struct ExtractPointsAndCells : public ExtractCellsBase
           this->Cells->InsertCellPoint(ptMap[*threadCells++]);
         }
       } // over all the cells in this thread
-    }   // for this thread
+    } // for this thread
 
     // Define the grid
     this->Grid->SetCells(cellTypes, this->Cells);

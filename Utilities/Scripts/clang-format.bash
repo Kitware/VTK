@@ -111,9 +111,9 @@ $git_ls |
 
   # Select sources with our attribute.
   git check-attr --stdin format.clang-format |
-    # Filter sources that have an attribute value of 16.
+    # Filter sources that have an attribute value of 18.
     # It is the value assigned to the attribute 'our-c-style' in the root .gitattributes file
-    sed -n '/: format\.clang-format: \(set\|16\)$/ {s/:[^:]*:[^:]*$//p}'  |
+    sed -n '/: format\.clang-format: \(set\|18\)$/ {s/:[^:]*:[^:]*$//p}'  |
 
   # Update sources in-place.
   xargs -d '\n' "$clang_format" -i

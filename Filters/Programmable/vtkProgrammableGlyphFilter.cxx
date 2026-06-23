@@ -241,7 +241,7 @@ int vtkProgrammableGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
       ptOffset += numSourcePts;
 
     } // if a source is available
-  }   // for all input points
+  } // for all input points
 
   //  this->Updating = 0;
 

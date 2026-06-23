@@ -456,8 +456,8 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
         newCellId = types[i]->InsertNextValue(cellType);
         outCD[i]->CopyData(inCD, cellId, newCellId);
       } // for each new cell
-    }   // for both outputs
-  }     // for each cell
+    } // for both outputs
+  } // for each cell
 
   cell->Delete();
 
@@ -2136,7 +2136,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints* newPoints, vtkGenericCell* cell,
             }
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -2637,7 +2637,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints* newPoints, vtkGenericCell* cel
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
         if (num_inter == 0)
         {
           unsigned int outside = 0;
@@ -3134,7 +3134,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints* newPoints, vtkGenericCell* cell,
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -3714,7 +3714,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints* newPoints, vtkGenericCell
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -4228,7 +4228,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints* newPoints, vtkGenericCell* cell,
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -4593,7 +4593,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints* newPoints, vtkGenericCell* cel
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -4997,7 +4997,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints* newPoints, vtkGenericCell* c
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -5366,7 +5366,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints* newPoints, vtkGenericCe
 
             num_inter++;
           } // if edge intersects value
-        }   // for all edges
+        } // for all edges
 
         if (num_inter == 0)
         {
@@ -6045,7 +6045,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints* newPoints, vtkGenericCell* c
             test[k] = 0;
           }
         } // for all planes of the hexahedron.
-      }   // for all points of the line.
+      } // for all points of the line.
 
       if ((test[0] == 1) || (test[1] == 1) || (test[2] == 1) || (test[3] == 1) || (test[4] == 1) ||
         (test[5] == 1))
@@ -6244,7 +6244,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints* newPoints, vtkGenericCe
             test[k] = 0;
           }
         } // for all planes of the hexahedron.
-      }   // for all points of the line.
+      } // for all points of the line.
 
       if ((test[0] == 1) || (test[1] == 1) || (test[2] == 1) || (test[3] == 1) || (test[4] == 1) ||
         (test[5] == 1))

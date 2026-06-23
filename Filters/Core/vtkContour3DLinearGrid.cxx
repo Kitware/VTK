@@ -391,7 +391,7 @@ struct ExtractEdgesBase
         this->CellBatches.GetNumberOfBatches(), produceEdges);
     }
   } // Reduce
-};  // ExtractEdgesBase
+}; // ExtractEdgesBase
 
 // Traverse all cells and extract intersected edges (without scalar tree).
 template <typename IDType, typename TScalarsArray, bool GenerateTriangles>
@@ -485,7 +485,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
               t = (deltaScalar == 0.0 ? 0.0 : (value - s[v0]) / deltaScalar);
               t = (pts[v0] < pts[v1] ? t : (1.0 - t));      // edges (v0,v1) must have v0<v1
               batchEdges.emplace_back(pts[v0], pts[v1], t); // edge constructor may swap v0<->v1
-            }                                               // for all edges in this polygon
+            } // for all edges in this polygon
             batchOriginalCellIds.push_back(static_cast<IDType>(cellId));
             if constexpr (!GenerateTriangles)
             {
@@ -534,7 +534,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
 
   // Composite local thread data
   void Reduce() override { this->TExtractEdgesBase::Reduce(); } // Reduce
-};                                                              // ExtractEdges
+}; // ExtractEdges
 
 // Generate edges using a scalar tree.
 template <typename IDType, typename TScalarsArray, bool GenerateTriangles>
@@ -644,7 +644,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
               t = (deltaScalar == 0.0 ? 0.0 : (value - s[v0]) / deltaScalar);
               t = (pts[v0] < pts[v1] ? t : (1.0 - t));      // edges (v0,v1) must have v0<v1
               batchEdges.emplace_back(pts[v0], pts[v1], t); // edge constructor may swap v0<->v1
-            }                                               // for all edges in this polygon
+            } // for all edges in this polygon
             batchOriginalCellIds.push_back(static_cast<IDType>(cellId));
             if constexpr (!GenerateTriangles)
             {
@@ -817,7 +817,7 @@ struct ProducePolys
           const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId + connOffset;
           connRange[connIdx] = static_cast<ValueType>(ptId + ptOffset);
         } // for this group of coincident edges
-      }   // for all merged points
+      } // for all merged points
     }
   };
 

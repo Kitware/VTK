@@ -162,8 +162,8 @@ bool CheckNodeFieldsForGrid(vtkUniformGrid* grid)
       {
         return false;
       } // END if fuzzy-compare
-    }   // END for all components
-  }     // END for all nodes
+    } // END for all components
+  } // END for all nodes
   return true;
 }
 
@@ -208,8 +208,8 @@ bool CheckCellFieldsForGrid(vtkUniformGrid* grid)
       {
         return false;
       } // END if fuzz-compare
-    }   // END for all components
-  }     // END for all cells
+    } // END for all components
+  } // END for all cells
   return true;
 }
 
@@ -315,7 +315,7 @@ vtkMultiBlockDataSet* GetDataSet(
     {
       mbds->SetBlock(block, nullptr);
     } // END else we don't own the block
-  }   // END for all blocks
+  } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();

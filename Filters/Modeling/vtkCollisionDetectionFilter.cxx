@@ -672,8 +672,8 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(int npts, double* p
           }
 
         } // end if cells are coplanar
-      }   // end if cells are parallel
-    }     // end else
+      } // end if cells are parallel
+    } // end else
   }
 
   //  Intersect each edge of second polygon against first

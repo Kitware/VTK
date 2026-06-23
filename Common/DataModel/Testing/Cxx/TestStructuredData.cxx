@@ -132,8 +132,8 @@ int TestGridExtent(int ext[6])
         } // END if
 
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
 
   return EXIT_SUCCESS;
 }

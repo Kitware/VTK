@@ -18,7 +18,7 @@ namespace
 struct ProgressChecker
 {
   ProgressChecker(vtkAMRInterfaceFilter* interface)
-    : Interface(interface){};
+    : Interface(interface) {};
 
   void ProgressCheck()
   {

@@ -245,7 +245,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation* vtkNotUsed(reque
         this->OutlineAppend->AddInputData(outlinePolyData);
       }
     } // Next selection node.
-  }   // Next annotation.
+  } // Next annotation.
 
   // Send data to output
   if (this->HullAppend->GetNumberOfInputConnections(0) > 0)

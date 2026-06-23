@@ -456,9 +456,9 @@ void vtkVolumeOutlineSource::GeneratePolys(vtkCellArray* polys, vtkUnsignedCharA
           }
 
         } // loop over k
-      }   // loop over j
-    }     // loop over i
-  }       // loop over dim0
+      } // loop over j
+    } // loop over i
+  } // loop over dim0
 }
 
 //------------------------------------------------------------------------------
@@ -588,9 +588,9 @@ void vtkVolumeOutlineSource::GenerateLines(vtkCellArray* lines, vtkUnsignedCharA
           }
 
         } // loop over k
-      }   // loop over j
-    }     // loop over i
-  }       // loop over dim0
+      } // loop over j
+    } // loop over i
+  } // loop over dim0
 }
 
 //------------------------------------------------------------------------------

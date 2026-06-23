@@ -1374,7 +1374,7 @@ void vtkContingencyStatistics::Assess(
     // Clean up
     delete dfunc;
     varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-  }                     // rit
+  } // rit
 }
 
 //------------------------------------------------------------------------------
@@ -1631,7 +1631,7 @@ void vtkContingencyStatistics::Test(
         delta = fabs(delta) - .5;
         chi2y += delta * delta / eij;
       } // yit
-    }   // xit
+    } // xit
 
     // Degrees of freedom
     vtkIdType d = static_cast<vtkIdType>((ek[0].size() - 1) * (ek[1].size() - 1));

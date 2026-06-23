@@ -85,8 +85,8 @@ vtkPoints* vtkStructuredGridPartitioner::ExtractSubGridPoints(
         assert("pre: point index is out-of-bounds!" && (pntIdx >= 0) && (pntIdx < numNodes));
         pnts->SetPoint(pntIdx, p);
       } // END for all k
-    }   // END for all j
-  }     // END for all i
+    } // END for all j
+  } // END for all i
   return (pnts);
 }
 

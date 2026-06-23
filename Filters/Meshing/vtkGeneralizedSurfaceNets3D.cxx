@@ -199,7 +199,7 @@ struct SNCompositor
           } // specified face type matches
           spokeNum++;
         } // if valid face
-      }   // for all polyhedral faces
+      } // for all polyhedral faces
 
       // Gather information about the extracted geometry from this hull
       (*this->Info)[hull.PtId].NumPts = numOutputPts;
@@ -207,8 +207,8 @@ struct SNCompositor
       (*this->Info)[hull.PtId].ConnSize = connSize;
 
     } // AddData()
-  };  // LocalData
-};    // SNCompositor
+  }; // LocalData
+}; // SNCompositor
 
 /**
  * Classify spokes (and associated dual faces). Classification is based on
@@ -310,7 +310,7 @@ struct SNClassifier
         // Create the spoke and add it the spokes vector
         spokes.emplace_back(neiId, spokeClass);
       } // if Valid face
-    }   // for all polyhedral faces
+    } // for all polyhedral faces
 
     wheels[ptId] = hull.NumFaces; // numFaces == numSpokes
     maxPoints = (hull.NumPts > maxPoints ? hull.NumPts : maxPoints);
@@ -321,7 +321,7 @@ struct SNClassifier
     // before returning the pointer to the list of spokes.
     return spokes.data() + startPos;
   } // AddAdjacencyInformation
-};  // vtkSNClassifier
+}; // vtkSNClassifier
 
 //======= Some generic helper functions
 
@@ -440,8 +440,8 @@ struct ProduceStencils
             edges.emplace_back(v1, v0);
           }
         } // if min edge
-      }   // for all edges
-    }     // for all polygons in this batch
+      } // for all edges
+    } // for all polygons in this batch
   }
 
   // Composite the stencil edges into the output stencils vtkCellArray.
@@ -543,7 +543,7 @@ struct ProduceStencils
         moffsets[mergedPtId++] = i;
         currentMT = mtuples[i];
       }
-    }                                      // for all hull vertex merge tuples
+    } // for all hull vertex merge tuples
     moffsets[mergedPtId] = mtuples.size(); // ending offset
 
     // Classify each merged output point. Do this by computing the number
@@ -808,9 +808,9 @@ struct SurfaceOutput : public VOutput<TArray>
         {
           this->ProduceSurfaceFaces(threadId, ptId, pItr, cItr);
         } // for all points in this batch
-      }   // for all batches
-    }     // for all threads
-  }       // operator()
+      } // for all batches
+    } // for all threads
+  } // operator()
 
   // A factory method to instantiate and threaded execute an instance
   // of SurfaceOutput to produce polygonal output.

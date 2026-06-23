@@ -170,7 +170,7 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::operator()(vtkIdType batchId, v
         compositor.AddData(tile, numSpokes, spokes);
 
       } // if tile successfully generated
-    }   // for all points in this batch
+    } // for all points in this batch
     lBatches.emplace_back(batchId);
   } // for all batches of points
 }
@@ -282,8 +282,8 @@ bool vtkVoronoiCore2D<TCompositor, TClassifier>::BuildTile(vtkVoronoiTile& tile,
             numPrunes++;
           }
         } // InFlower
-      }   // in circumflower
-    }     // for all points in the current request
+      } // in circumflower
+    } // for all points in the current request
 
     // See if circumflower radius is less then the radius of the batch of
     // points; if so, the Voronoi tile has been formed.
@@ -388,8 +388,8 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::ProduceWheelsAndSpokes::operato
           spokes->Classification = spItr->Classification;
         }
       } // for all contiguous points in this batch
-    }   // for all batches
-  }     // across all threads in this batch
+    } // for all batches
+  } // across all threads in this batch
 } // ProduceWheelsAndSpokes::operator()
 
 //----------------------------------------------------------------------------
@@ -457,8 +457,8 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::TopologicalMerge::operator()(
           }
         }
       } // for all points in this batch
-    }   // for all batches
-  }     // for all threads
+    } // for all batches
+  } // for all threads
 } // operator()
 
 //----------------------------------------------------------------------------

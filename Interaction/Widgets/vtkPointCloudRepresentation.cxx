@@ -125,8 +125,8 @@ struct vtkPointCloudPicker
               ptId = pid;
             }
           } // for all points in selection
-        }   // if selection ids found
-      }     // for all selection nodes
+        } // if selection ids found
+      } // for all selection nodes
       if (ptId >= 0)
       {
         pcPoints->GetPoint(ptId, worldCoords);

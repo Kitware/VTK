@@ -63,7 +63,7 @@
     _eventNameStream << eventName;                                                                 \
     identifier = timer->StartScopedEvent(_eventNameStream.str());                                  \
     (void)identifier; /* Prevent set-but-not-used var warnings */                                  \
-  } while (false)     /* Do-while loop prevents duplicate semicolon warnings */
+  } while (false) /* Do-while loop prevents duplicate semicolon warnings */
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkRenderTimerLog : public vtkObject

@@ -164,9 +164,9 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
           copy->Delete();
           ++blockIdx;
         } // END if data is not nullptr
-      }   // END for all data at level l
-    }     // END for all requested levels
-  }       // END if numBlocksToLoad is greater than 0
+      } // END for all data at level l
+    } // END for all requested levels
+  } // END if numBlocksToLoad is greater than 0
 
   return (1);
 }

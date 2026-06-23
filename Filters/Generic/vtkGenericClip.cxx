@@ -345,8 +345,8 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
 
         types[i]->InsertNextValue(cellType);
       } // for each new cell
-    }   // for both outputs
-  }     // for each cell
+    } // for both outputs
+  } // for each cell
   cellIt->Delete();
 
   output->SetPoints(newPoints);
