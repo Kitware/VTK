@@ -181,6 +181,15 @@ public:
   static double ComputeArea(vtkPoints* p, vtkIdType numPts, const vtkIdType* pts, double normal[3]);
 
   /**
+   * Compute the area of a polygon from a flat array of 3D point coordinates
+   * (packed as x0,y0,z0, x1,y1,z1, ...). The unit outward normal is returned
+   * via @a normal as a side effect. Uses Newell's method, which is correct for
+   * planar polygons regardless of convexity or point traversal order.
+   * This is the flat-array counterpart to ComputeArea(vtkPoints*,...).
+   */
+  static double ComputeArea(int numPts, double* pts, double normal[3]);
+
+  /**
    * Create a local s-t coordinate system for a polygon. The point p0 is
    * the origin of the local system, p10 is s-axis vector, and p20 is the
    * t-axis vector. (These are expressed in the modeling coordinate system and

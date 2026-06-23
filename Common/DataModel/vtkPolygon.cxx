@@ -2219,6 +2219,37 @@ double vtkPolygon::ComputeArea(vtkPoints* p, vtkIdType numPts, const vtkIdType* 
 }
 
 //------------------------------------------------------------------------------
+double vtkPolygon::ComputeArea(int numPts, double* pts, double normal[3])
+{
+  normal[0] = normal[1] = normal[2] = 0.0;
+  if (numPts < 3)
+  {
+    return 0.0;
+  }
+
+  // Newell's method: accumulate edge contributions over all consecutive pairs.
+  // For planar polygons the result equals 2 * area * unit_normal, regardless
+  // of whether the polygon is convex or the point ordering is non-standard.
+  for (int i = 0; i < numPts; ++i)
+  {
+    const double* pi = pts + 3 * i;
+    const double* pi1 = pts + 3 * ((i + 1) % numPts);
+    normal[0] += (pi[1] - pi1[1]) * (pi[2] + pi1[2]);
+    normal[1] += (pi[2] - pi1[2]) * (pi[0] + pi1[0]);
+    normal[2] += (pi[0] - pi1[0]) * (pi[1] + pi1[1]);
+  }
+
+  const double magnitude = vtkMath::Norm(normal);
+  if (magnitude > 0.0)
+  {
+    normal[0] /= magnitude;
+    normal[1] /= magnitude;
+    normal[2] /= magnitude;
+  }
+  return magnitude * 0.5;
+}
+
+//------------------------------------------------------------------------------
 void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
