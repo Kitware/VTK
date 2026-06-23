@@ -67,6 +67,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   this->GetProperty()->SetDiffuse(0.0);
   this->GetProperty()->SetAmbient(1.0);
   this->GetProperty()->SetSpecular(0.0);
+  this->GetProperty()->SetLighting(false);
   this->OpenGLActor->SetProperty(this->GetProperty());
   this->CurrentRenderer = nullptr;
 }
