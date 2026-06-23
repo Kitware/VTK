@@ -70,12 +70,16 @@
 #include "Basis_HGrad_TriC1Gradient.h"
 #include "Basis_HGrad_TriC2Basis.h"
 #include "Basis_HGrad_TriC2Gradient.h"
-// #include "Basis_HGrad_TriG1Basis.h"
-// #include "Basis_HGrad_TriG1Gradient.h"
-// #include "Basis_HGrad_TriG2Basis.h"
-// #include "Basis_HGrad_TriG2Gradient.h"
-// #include "Basis_HGrad_TriGnBasis.h"
-// #include "Basis_HGrad_TriGnGradient.h"
+#include "Basis_HGrad_TriG1Basis.h"
+#include "Basis_HGrad_TriG1Gradient.h"
+#include "Basis_HGrad_TriG2Basis.h"
+#include "Basis_HGrad_TriG2Gradient.h"
+#include "Basis_HGrad_TriG3Basis.h"
+#include "Basis_HGrad_TriG3Gradient.h"
+#include "Basis_HGrad_TriG4Basis.h"
+#include "Basis_HGrad_TriG4Gradient.h"
+#include "Basis_HGrad_TriG5Basis.h"
+#include "Basis_HGrad_TriG5Gradient.h"
 #include "Basis_HGrad_WdgC1Basis.h"
 #include "Basis_HGrad_WdgC1Gradient.h"
 #include "Basis_HGrad_WdgC2Basis.h"
@@ -571,7 +575,6 @@ void TriC2Gradient(const std::array<double, 3>& param, std::vector<double>& basi
 #include "Basis/HGrad/TriC2Gradient.h"
 }
 
-#if 0
 void TriG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisHeader();
@@ -596,37 +599,36 @@ void TriG2Gradient(const std::array<double, 3>& param, std::vector<double>& basi
 
 void TriG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisOrderHeader(3);
-#include "Basis/HGrad/TriGnBasis.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG3Basis.h"
 }
 void TriG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisOrderHeader(3);
-#include "Basis/HGrad/TriGnGradient.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG3Gradient.h"
 }
 
 void TriG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisOrderHeader(4);
-#include "Basis/HGrad/TriGnBasis.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG4Basis.h"
 }
 void TriG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisOrderHeader(4);
-#include "Basis/HGrad/TriGnGradient.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG4Gradient.h"
 }
 
 void TriG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisOrderHeader(5);
-#include "Basis/HGrad/TriGnBasis.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG5Basis.h"
 }
 void TriG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisOrderHeader(5);
-#include "Basis/HGrad/TriGnGradient.h"
+  vtkBasisHeader();
+#include "Basis/HGrad/TriG5Gradient.h"
 }
-#endif
 
 void WdgC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
@@ -780,11 +782,11 @@ bool RegisterOperators()
 
   basisMap["C"_token][1]["vtkDGTri"_token]  = {  3, 1, TriC1Basis,  Basis_HGrad_TriC1Basis };
   basisMap["C"_token][2]["vtkDGTri"_token]  = {  6, 1, TriC2Basis,  Basis_HGrad_TriC2Basis };
-  // basisMap["G"_token][1]["vtkDGTri"_token]  = {  3, 1, TriG1Basis,  Basis_HGrad_TriG1Basis };
-  // basisMap["G"_token][2]["vtkDGTri"_token]  = {  6, 1, TriG2Basis,  Basis_HGrad_TriG2Basis };
-  // basisMap["G"_token][3]["vtkDGTri"_token]  = { 10, 1, TriG3Basis,  Basis_HGrad_TriGnBasis };
-  // basisMap["G"_token][4]["vtkDGTri"_token]  = { 15, 1, TriG4Basis,  Basis_HGrad_TriGnBasis };
-  // basisMap["G"_token][5]["vtkDGTri"_token]  = { 21, 1, TriG5Basis,  Basis_HGrad_TriGnBasis };
+  basisMap["G"_token][1]["vtkDGTri"_token]  = {  3, 1, TriG1Basis,  Basis_HGrad_TriG1Basis };
+  basisMap["G"_token][2]["vtkDGTri"_token]  = {  6, 1, TriG2Basis,  Basis_HGrad_TriG2Basis };
+  basisMap["G"_token][3]["vtkDGTri"_token]  = { 10, 1, TriG3Basis,  Basis_HGrad_TriG3Basis };
+  basisMap["G"_token][4]["vtkDGTri"_token]  = { 15, 1, TriG4Basis,  Basis_HGrad_TriG4Basis };
+  basisMap["G"_token][5]["vtkDGTri"_token]  = { 21, 1, TriG5Basis,  Basis_HGrad_TriG5Basis };
 
   basisMap["C"_token][1]["vtkDGWdg"_token]  = {  6, 1, WdgC1Basis,  Basis_HGrad_WdgC1Basis };
   basisMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 1, WdgI2Basis,  Basis_HGrad_WdgI2Basis };
@@ -840,11 +842,11 @@ bool RegisterOperators()
 
   gradMap["C"_token][1]["vtkDGTri"_token]  = {  3, 3, TriC1Gradient,  Basis_HGrad_TriC1Gradient };
   gradMap["C"_token][2]["vtkDGTri"_token]  = {  6, 3, TriC2Gradient,  Basis_HGrad_TriC2Gradient };
-  // gradMap["G"_token][1]["vtkDGTri"_token]  = {  3, 3, TriG1Gradient,  Basis_HGrad_TriG1Gradient };
-  // gradMap["G"_token][2]["vtkDGTri"_token]  = {  6, 3, TriG2Gradient,  Basis_HGrad_TriG2Gradient };
-  // gradMap["G"_token][3]["vtkDGTri"_token]  = { 10, 3, TriG3Gradient,  Basis_HGrad_TriGnGradient };
-  // gradMap["G"_token][4]["vtkDGTri"_token]  = { 15, 3, TriG4Gradient,  Basis_HGrad_TriGnGradient };
-  // gradMap["G"_token][5]["vtkDGTri"_token]  = { 21, 3, TriG5Gradient,  Basis_HGrad_TriGnGradient };
+  gradMap["G"_token][1]["vtkDGTri"_token]  = {  3, 3, TriG1Gradient,  Basis_HGrad_TriG1Gradient };
+  gradMap["G"_token][2]["vtkDGTri"_token]  = {  6, 3, TriG2Gradient,  Basis_HGrad_TriG2Gradient };
+  gradMap["G"_token][3]["vtkDGTri"_token]  = { 10, 3, TriG3Gradient,  Basis_HGrad_TriG3Gradient };
+  gradMap["G"_token][4]["vtkDGTri"_token]  = { 15, 3, TriG4Gradient,  Basis_HGrad_TriG4Gradient };
+  gradMap["G"_token][5]["vtkDGTri"_token]  = { 21, 3, TriG5Gradient,  Basis_HGrad_TriG5Gradient };
 
   gradMap["C"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgC1Gradient,  Basis_HGrad_WdgC1Gradient };
   gradMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 3, WdgI2Gradient,  Basis_HGrad_WdgI2Gradient };

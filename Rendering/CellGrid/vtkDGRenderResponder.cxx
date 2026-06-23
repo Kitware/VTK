@@ -241,6 +241,13 @@ bool vtkDGRenderResponder::CacheEntry::IsUpToDate(vtkRenderer* renderer, vtkActo
 void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   vtkRenderer* renderer, vtkActor* actor, vtkMapper* mapper) const
 {
+  // This forces the shader "#version" to the most modern version available from the OpenGL library.
+  // There does not seem to be a way to request "#version > xy".
+  if (auto rw = dynamic_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow()))
+  {
+    rw->GetShaderCache()->SyncGLSLShaderVersionOn();
+  }
+
   auto* cgMapper = vtkCellGridMapper::SafeDownCast(mapper);
   this->RenderHelper = std::unique_ptr<vtkDrawTexturedElements>(new vtkDrawTexturedElements);
   auto primType = vtkDGRenderResponder::PrimitiveFromShape(this->CellSource->SourceShape);

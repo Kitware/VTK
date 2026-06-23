@@ -144,6 +144,16 @@ set(basis_files
   Basis/HGrad/TriC1Gradient.h
   Basis/HGrad/TriC2Basis.h
   Basis/HGrad/TriC2Gradient.h
+  Basis/HGrad/TriG1Basis.h
+  Basis/HGrad/TriG1Gradient.h
+  Basis/HGrad/TriG2Basis.h
+  Basis/HGrad/TriG2Gradient.h
+  Basis/HGrad/TriG3Basis.h
+  Basis/HGrad/TriG3Gradient.h
+  Basis/HGrad/TriG4Basis.h
+  Basis/HGrad/TriG4Gradient.h
+  Basis/HGrad/TriG5Basis.h
+  Basis/HGrad/TriG5Gradient.h
   Basis/HGrad/WdgC1Basis.h
   Basis/HGrad/WdgC1Gradient.h
   Basis/HGrad/WdgC2Basis.h
