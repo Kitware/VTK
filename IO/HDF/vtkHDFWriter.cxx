@@ -440,7 +440,14 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     return this->WriteDatasetToFile(group, dataObjectTree);
   }
 
-  this->UpdateStepsGroupCommon(group);
+  if (!this->UpdateStepsGroupCommon(group))
+  {
+    return false;
+  }
+  if (!this->Impl->WriteHeader(group, std::string(input->GetClassName()).substr(3).c_str()))
+  {
+    return false;
+  }
 
   // Process simple types
   if (auto imageData = vtkImageData::SafeDownCast(input))
@@ -486,7 +493,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned
   }
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "ImageData");
 
   int extent[6];
   input->GetExtent(extent);
@@ -540,7 +546,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
   input->GetDimensions(dims);
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "RectilinearGrid");
   writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
     H5I_INVALID_HID;
 
@@ -574,7 +579,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
   input->GetDimensions(dims);
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "StructuredGrid");
   writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
     H5I_INVALID_HID;
 
@@ -613,7 +617,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int partId)
 {
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "Table");
 
   if (this->IsTemporal && this->CurrentTimeIndex == 0)
   {
@@ -647,7 +650,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
   }
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "PolyData");
 
   if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
   {
@@ -687,7 +689,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
   vtkCellArray* cells = input->GetCells();
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "UnstructuredGrid");
 
   if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
   {
@@ -738,9 +739,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
     vtkErrorMacro(<< "Temporal initialization failed for Unstructured grid " << this->FileName);
     return false;
   }
-
-  bool writeSuccess = true;
-  writeSuccess &= this->Impl->WriteHeader(group, "HyperTreeGrid");
 
   // Write uninitialized HTGs properly
   unsigned int branchFactor = std::max<unsigned int>(2, input->GetBranchFactor());
@@ -861,7 +859,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
 
   // Write cell arrays
   this->AppendDataSetAttributes(group, input, partId, breadthFirstIdMap);
-  return writeSuccess;
+  return true;
 }
 
 //------------------------------------------------------------------------------
