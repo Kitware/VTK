@@ -1170,11 +1170,16 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
     switch (surfaceTexture.status)
     {
       case wgpu::SurfaceGetCurrentTextureStatus::Timeout:
-      case wgpu::SurfaceGetCurrentTextureStatus::Outdated:
       case wgpu::SurfaceGetCurrentTextureStatus::Lost:
       case wgpu::SurfaceGetCurrentTextureStatus::Error:
         vtkErrorMacro(<< "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus="
                       << static_cast<int>(surfaceTexture.status));
+        return;
+      case wgpu::SurfaceGetCurrentTextureStatus::Outdated:
+        // Surface configuration is outdated, likely due to window resize
+        vtkDebugMacro(<< "Surface texture is outdated, triggering reconfiguration");
+        // Trigger a reconfiguration and re-render
+        this->Modified();
         return;
       case wgpu::SurfaceGetCurrentTextureStatus::SuccessSuboptimal:
       {
@@ -1188,6 +1193,22 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
       }
       default:
         break;
+    }
+  }
+  else
+  {
+    // Validate surface texture dimensions match expected size
+    auto texWidth = surfaceTexture.texture.GetWidth();
+    auto texHeight = surfaceTexture.texture.GetHeight();
+    if (texWidth != static_cast<uint32_t>(this->SurfaceConfiguredSize[0]) ||
+      texHeight != static_cast<uint32_t>(this->SurfaceConfiguredSize[1]))
+    {
+      vtkDebugMacro(<< "Surface texture size (" << texWidth << "x" << texHeight
+                    << ") does not match configured size (" << this->SurfaceConfiguredSize[0] << "x"
+                    << this->SurfaceConfiguredSize[1] << "). Surface needs reconfiguration.");
+      // Surface size mismatch detected - this should trigger reconfiguration on next Start()
+      // Skip this frame
+      return;
     }
   }
 
