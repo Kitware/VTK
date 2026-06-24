@@ -28,7 +28,7 @@ void Print(vtkMPIController* comm, const char* format, T&&... args)
   assert(comm != nullptr);
   if (comm->GetLocalProcessId() == 0)
   {
-    vtk::print(format, std::forward<T>(args)...);
+    vtk::print(vtk::runtime(format), std::forward<T>(args)...);
     std::fflush(stdout);
   }
   comm->Barrier();
@@ -66,7 +66,7 @@ void SynchronizedPrint(vtkMPIController* comm, const char* format, T&&... args)
     vtk::print("[{:d}]: ", rank);
     std::fflush(stdout);
 
-    vtk::print(format, std::forward<T>(args)...);
+    vtk::print(vtk::runtime(format), std::forward<T>(args)...);
     std::fflush(stdout);
 
     // STEP 1: signal next process (if any) to print
@@ -83,7 +83,7 @@ void SynchronizedPrint(vtkMPIController* comm, const char* format, T&&... args)
     // STEP 1: print message
     vtk::print("[{:d}]: ", rank);
 
-    vtk::print(format, std::forward<T>(args)...);
+    vtk::print(vtk::runtime(format), std::forward<T>(args)...);
     std::fflush(stdout);
   } // END last rank
   else
@@ -94,7 +94,7 @@ void SynchronizedPrint(vtkMPIController* comm, const char* format, T&&... args)
     // STEP 1: print message
     vtk::print("[{:d}]: ", rank);
 
-    vtk::print(format, std::forward<T>(args)...);
+    vtk::print(vtk::runtime(format), std::forward<T>(args)...);
     std::fflush(stdout);
 
     // STEP 2: signal next process to print

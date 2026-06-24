@@ -176,7 +176,8 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
 
     std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
     std::string string;
-    VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(labelFormat, this->Distance * this->Scale), );
+    VTK_FORMAT_IF_ERROR_RETURN(
+      string = vtk::format(vtk::runtime(labelFormat), this->Distance * this->Scale), );
     this->AxisActor->SetTitle(string.c_str());
 
     this->BuildTime.Modified();

@@ -1931,14 +1931,15 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
       }
       if (mustAdjustValue)
       {
-        VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(label, sizeof(label), format, val * scaleFactor);
-          *result.out = '\0', );
+        VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
+                                     label, sizeof(label), vtk::runtime(format), val * scaleFactor);
+                                   *result.out = '\0', );
       }
       else
       {
         VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(label, sizeof(label), format, val); *result.out = '\0', );
+          auto result = vtk::format_to_n(label, sizeof(label), vtk::runtime(format), val);
+          *result.out = '\0', );
       }
       if (fabs(val) < tol)
       {

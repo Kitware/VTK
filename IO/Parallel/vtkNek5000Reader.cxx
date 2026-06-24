@@ -247,8 +247,8 @@ bool vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
     file_index = this->datafile_start + i;
 
     // the format is expected to be in printf style format, so it's converted to std::format
-    auto result = vtk::format_to_n(
-      dfName, sizeof(dfName), vtk::printf_to_std_format(this->datafile_format), 0, file_index);
+    auto result = vtk::format_to_n(dfName, sizeof(dfName),
+      vtk::runtime(vtk::printf_to_std_format(this->datafile_format)), 0, file_index);
     vtkDebugMacro(<< "vtkNek5000Reader::GetAllTimesAndVariableNames:  this->datafile_start = "
                   << this->datafile_start << "  i: " << i << " file_index: " << file_index
                   << " dfName: " << dfName);
@@ -723,8 +723,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   // the format is expected to be in printf style format, so it's converted to std::format
-  auto dfName =
-    vtk::format(vtk::printf_to_std_format(this->datafile_format), 0, this->datafile_start);
+  auto dfName = vtk::format(
+    vtk::runtime(vtk::printf_to_std_format(this->datafile_format)), 0, this->datafile_start);
   dfPtr.open(dfName, std::ifstream::binary);
 
   if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
@@ -1113,7 +1113,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     // the format is expected to be in printf style format, so it's converted to std::format
     auto result = vtk::format_to_n(dfName, sizeof(dfName),
-      vtk::printf_to_std_format(this->datafile_format), 0, this->datafile_start);
+      vtk::runtime(vtk::printf_to_std_format(this->datafile_format)), 0, this->datafile_start);
     *result.out = '\0';
     this->SetDataFileName(dfName);
 
@@ -1278,7 +1278,7 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
   // Get the file name for requested time step
   // the format is expected to be in printf style format, so it's converted to std::format
   auto result = vtk::format_to_n(dfName, sizeof(dfName),
-    vtk::printf_to_std_format(this->datafile_format), 0, this->requested_step);
+    vtk::runtime(vtk::printf_to_std_format(this->datafile_format)), 0, this->requested_step);
   *result.out = '\0';
   vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
                 << " Now reading data from file: " << dfName

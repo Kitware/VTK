@@ -214,15 +214,15 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray*
           return;
         }
         VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(string, stringSize, this->LabelFormat,
+          auto result = vtk::format_to_n(string, stringSize, vtk::runtime(this->LabelFormat),
             static_cast<char>(numericData->GetComponent(vertex, activeComp)));
           *result.out = '\0', );
       }
       else
       {
         VTK_FORMAT_IF_ERROR_RETURN(
-          auto result = vtk::format_to_n(
-            string, stringSize, this->LabelFormat, numericData->GetComponent(vertex, activeComp));
+          auto result = vtk::format_to_n(string, stringSize, vtk::runtime(this->LabelFormat),
+            numericData->GetComponent(vertex, activeComp));
           *result.out = '\0', );
       }
     }
@@ -232,16 +232,17 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray*
       strcat(format, this->LabelFormat);
       for (j = 0; j < (numComp - 1); j++)
       {
-        VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(string, stringSize, format,
-                                     numericData->GetComponent(vertex, j));
+        VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(string, stringSize,
+                                     vtk::runtime(format), numericData->GetComponent(vertex, j));
                                    *result.out = '\0', );
         strcpy(format, string);
         strcat(format, ", ");
         strcat(format, this->LabelFormat);
       }
-      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(string, stringSize, format,
-                                   numericData->GetComponent(vertex, numComp - 1));
-                                 *result.out = '\0', );
+      VTK_FORMAT_IF_ERROR_RETURN(
+        auto result = vtk::format_to_n(
+          string, stringSize, vtk::runtime(format), numericData->GetComponent(vertex, numComp - 1));
+        *result.out = '\0', );
       strcat(string, ")");
     }
   }
@@ -253,15 +254,16 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray*
       string[0] = '\0';
       return;
     }
-    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(string, stringSize, this->LabelFormat,
-                                 stringData->GetValue(vertex).c_str());
-                               *result.out = '\0', );
+    VTK_FORMAT_IF_ERROR_RETURN(
+      auto result = vtk::format_to_n(
+        string, stringSize, vtk::runtime(this->LabelFormat), stringData->GetValue(vertex).c_str());
+      *result.out = '\0', );
   }
   else // Use the vertex id
   {
     val = static_cast<double>(vertex);
     VTK_FORMAT_IF_ERROR_RETURN(
-      auto result = vtk::format_to_n(string, stringSize, this->LabelFormat, val);
+      auto result = vtk::format_to_n(string, stringSize, vtk::runtime(this->LabelFormat), val);
       *result.out = '\0', );
   }
 }

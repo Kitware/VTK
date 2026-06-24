@@ -205,6 +205,16 @@ using fmt::to_string;
 using fmt::formatted_size;
 
 /**
+ * Creates a runtime format string.
+ *
+ * **Example**:
+ *
+ *     // Check format string at runtime instead of compile-time.
+ *     vtk::print(vtk::runtime("{:d}"), "I am not a number");
+ */
+using fmt::runtime;
+
+/**
  * Given a format and a set of numbers/variables convert it to a string.
  *
  * @note The standard library provides this function as of C++20, but we support up to C++17.

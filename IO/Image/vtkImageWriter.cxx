@@ -178,14 +178,14 @@ void vtkImageWriter::RecursiveWrite(
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            filePattern.c_str(), this->FilePrefix, this->FileNumber);
+            vtk::runtime(filePattern), this->FilePrefix, this->FileNumber);
           *result.out = '\0', );
       }
       else
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            filePattern.c_str(), "", this->FileNumber);
+            vtk::runtime(filePattern), "", this->FileNumber);
           *result.out = '\0', );
       }
       if (this->FileNumber < this->MinimumFileNumber)
@@ -297,14 +297,14 @@ void vtkImageWriter::RecursiveWrite(
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            filePattern.c_str(), this->FilePrefix, this->FileNumber);
+            vtk::runtime(filePattern), this->FilePrefix, this->FileNumber);
           *result.out = '\0', );
       }
       else
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            filePattern.c_str(), "", this->FileNumber);
+            vtk::runtime(filePattern), "", this->FileNumber);
           *result.out = '\0', );
       }
       if (this->FileNumber < this->MinimumFileNumber)
@@ -505,8 +505,8 @@ void vtkImageWriter::DeleteFiles()
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         VTK_ASSUME(fileName.data() != nullptr); // silence warning.
-        VTK_FORMAT_IF_ERROR_RETURN(
-          vtk::format_to_n(fileName.data(), fileName.size(), filePattern, this->FilePrefix, i), );
+        VTK_FORMAT_IF_ERROR_RETURN(vtk::format_to_n(fileName.data(), fileName.size(),
+                                     vtk::runtime(filePattern), this->FilePrefix, i), );
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }
@@ -518,7 +518,7 @@ void vtkImageWriter::DeleteFiles()
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         VTK_FORMAT_IF_ERROR_RETURN(
-          vtk::format_to_n(fileName.data(), fileName.size(), filePattern, i), );
+          vtk::format_to_n(fileName.data(), fileName.size(), vtk::runtime(filePattern), i), );
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }

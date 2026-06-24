@@ -1447,7 +1447,7 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
   }
 
   char numStr[32];
-  auto result = vtk::format_to_n(numStr, sizeof(numStr), std::string_view(pattern), num);
+  auto result = vtk::format_to_n(numStr, sizeof(numStr), vtk::runtime(pattern), num);
   *result.out = '\0';
 
   int numStrLen = static_cast<int>(strlen(numStr));

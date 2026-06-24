@@ -97,14 +97,14 @@ void vtkJPEGWriter::Write()
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            this->FilePattern, this->FilePrefix, this->FileNumber);
+            vtk::runtime(this->FilePattern), this->FilePrefix, this->FileNumber);
           *result.out = '\0', );
       }
       else
       {
         VTK_FORMAT_IF_ERROR_RETURN(
           auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-            this->FilePattern, "", this->FileNumber);
+            vtk::runtime(this->FilePattern), "", this->FileNumber);
           *result.out = '\0', );
       }
     }
