@@ -13,7 +13,7 @@
  *  #include <vtk_fmt.>
  *
  *  // clang-format off
- *  #include VTK_FMT(fmt/core.h)
+ *  #include VTK_FMT(fmt/format.h)
  *  // clang-format on
  *
  * ```
