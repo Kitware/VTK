@@ -22,11 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <vtk_fmt.h>
-// clang-format off
-#include VTK_FMT(fmt/format.h)
-// clang-format on
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGroupDataSetsFilter::vtkInternals
 {
@@ -46,7 +41,7 @@ public:
       return this->Names[index];
     }
 
-    return fmt::format("Block {:0{}d}", index, precision);
+    return vtk::format("Block {:0{}d}", index, precision);
   }
 };
 
