@@ -2214,12 +2214,21 @@ void vtkWebGPURenderWindow::SyncWithHardware()
   int* hardwareWindowSize = this->HardwareWindow->GetSize();
   if (renderWindowSize[0] != hardwareWindowSize[0] || renderWindowSize[1] != hardwareWindowSize[1])
   {
-    if (this->HardwareWindow->GetMTime() > this->GetMTime())
+    // Prioritize explicitly set render window size (> 0) over hardware window size
+    // This ensures SetSize() calls from user code are respected during initialization
+    if (renderWindowSize[0] > 0 && renderWindowSize[1] > 0)
     {
+      // Render window size was explicitly set, use it
+      this->HardwareWindow->SetSize(renderWindowSize);
+    }
+    else if (this->HardwareWindow->GetMTime() > this->GetMTime())
+    {
+      // Hardware window was modified more recently, use its size
       this->Superclass::SetSize(hardwareWindowSize[0], hardwareWindowSize[1]);
     }
     else
     {
+      // Fall back to render window size (even if 0)
       this->HardwareWindow->SetSize(renderWindowSize);
     }
   }
