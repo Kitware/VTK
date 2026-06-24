@@ -125,7 +125,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         updateBuffers |= this->CacheActorId();
         if (updateBuffers)
         {
-          wgpuConfiguration->WriteBuffer(internals.ActorBuffer, 0,
+          wgpuConfiguration->WriteBuffer(internals.ActorBuffer.Get(), 0,
             this->GetCachedActorInformation(), this->GetCacheSizeBytes(), "ActorBufferUpdate");
         }
         break;
@@ -442,8 +442,9 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   const auto actorDescription = this->GetObjectDescription();
   const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
-  internals.ActorBuffer = wgpuConfiguration->CreateBuffer(bufferSize,
-    wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, bufferLabel.c_str());
+  internals.ActorBuffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(bufferSize,
+    static_cast<WGPUBufferUsage>(wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst), false,
+    bufferLabel.c_str()));
 
   std::uint32_t bindingIdBGL = 0;
   std::vector<wgpu::BindGroupLayoutEntry> bglEntries;
@@ -482,8 +483,14 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      bgEntries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingIdBG++));
-      bgEntries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingIdBG++));
+      {
+        WGPUBindGroupEntry samplerEntry = devRc->MakeSamplerBindGroupEntry(bindingIdBG++);
+        bgEntries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&samplerEntry));
+      }
+      {
+        WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
+        bgEntries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&textureEntry));
+      }
     }
   }
 
