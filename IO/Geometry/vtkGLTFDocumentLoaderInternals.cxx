@@ -1375,7 +1375,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
     // used to fill extensionsUsedByLoader.
     if (!std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
           [&extensionRequiredByModel](const std::string& value)
-          { return value == extensionRequiredByModel; }))
+          { return extensionRequiredByModel == value; }))
     {
       if (!quiet)
       {
@@ -1400,7 +1400,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
     }
     if (std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
           [&extensionUsedByModel](const std::string& value)
-          { return value == extensionUsedByModel; }))
+          { return extensionUsedByModel == value; }))
     {
       extensionsUsedByLoader.push_back(extensionUsedByModel);
     }
