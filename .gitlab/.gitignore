@@ -15,6 +15,8 @@
 /jdk*
 # ci/download_maven.cmake
 /maven*
+# ci/download_nasm.cmake
+/nasm*
 # ci/ninja.{sh, ps1}
 /ninja*
 # ci/download_node.cmake

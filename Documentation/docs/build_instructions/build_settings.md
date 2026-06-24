@@ -82,6 +82,11 @@ Less common, but variables which may be of interest to some:
     `SMALLEST_WITH_CLOSURE`.
   * `VTK_WEBASSEMBLY_JOB_POOL_LINK_SIZE` (default number of processors):
     Size of the job pool for linking wasm targets. Adjust as needed to avoid OOM errors.
+  * `VTK_JPEG_ENABLE_SIMD` (default `OFF`):
+    Whether the libjpeg-turbo library should be compiled with SIMD extensions or not.
+    On x86(-64) targets, [NASM][nasm] must be installed
+    (or set its path by setting the `CMAKE_ASM_NASM_COMPILER` variable).
+    This is not compatible with WASM builds.
 
 ## OpenGL related build options:
 
@@ -360,3 +365,4 @@ If any `YES` module requires a `NO` module, an error is raised.
 [hip]: https://en.wikipedia.org/wiki/ROCm
 [mpi]: https://www.mcs.anl.gov/research/projects/mpi
 [nsight]: https://developer.nvidia.com/nsight-systems
+[nasm]: https://www.nasm.us/

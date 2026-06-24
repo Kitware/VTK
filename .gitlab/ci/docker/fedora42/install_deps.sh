@@ -75,10 +75,15 @@ dnf install -y --setopt=install_weak_deps=False \
 
 if [ "$( uname -m )" = "x86_64" ]; then
     # Openturns dependencies
+    # FIXME: using Fedora 43 repo as a hotfix since the Fedora 42 repo is not available anymore
     dnf config-manager addrepo \
-        --from-repofile=https://download.opensuse.org/repositories/science:/openturns/Fedora_42/science:openturns.repo
+        --from-repofile=https://download.opensuse.org/repositories/science:/openturns/Fedora_43/science:openturns.repo
     dnf install -y --setopt=install_weak_deps=False \
         openturns-libs openturns-devel
+
+    # libjpeg-turbo SIMD dependencies
+    dnf install -y --setopt=install_weak_deps=False \
+        nasm
 fi
 
 # Emscripten SDK dependencies
