@@ -50,6 +50,10 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 //------------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
+  // Remove this key from the lookup table so subsequent
+  // Find/FindByName calls do not return a dangling pointer.
+  vtkInformationKeyLookup::UnregisterKey(this);
+
   // If a manager registered a callback, call it so the manager
   // removes this key from its deletion list.  This prevents
   // double-free when the caller (e.g. Python via MakeKey) destroys

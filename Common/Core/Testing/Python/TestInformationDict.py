@@ -1,6 +1,12 @@
 """Test dictionary-style interface for vtkInformation."""
 
-from vtkmodules.vtkCommonCore import vtkInformation, vtkInformationVector
+from vtkmodules.vtkCommonCore import (
+    vtkInformation,
+    vtkInformationKey,
+    vtkInformationKeyLookup,
+    vtkInformationStringKey,
+    vtkInformationVector,
+)
 from vtkmodules.vtkCommonDataModel import vtkDataObject, vtkPolyData
 from vtkmodules.vtkCommonExecutionModel import (
     vtkStreamingDemandDrivenPipeline as SDD,
@@ -8,7 +14,6 @@ from vtkmodules.vtkCommonExecutionModel import (
 )
 from vtkmodules.test import Testing
 
-# Use built-in VTK keys to avoid shutdown crashes from dynamic MakeKey.
 # Scalar keys
 INT_KEY = vtkDataObject.FIELD_ASSOCIATION()          # IntegerKey
 DOUBLE_KEY = vtkDataObject.DATA_TIME_STEP()          # DoubleKey
@@ -152,9 +157,14 @@ class TestInformationDict(Testing.vtkTest):
         self.info[STRING_KEY] = "hello"
         ks = self.info.keys()
         self.assertEqual(len(ks), 2)
-        self.assertTrue(all(isinstance(k, str) for k in ks))
-        self.assertIn("FIELD_ASSOCIATION", ks)
-        self.assertIn("FIELD_NAME", ks)
+        self.assertTrue(all(isinstance(k, vtkInformationKey) for k in ks))
+
+    def test_string_keys(self):
+        self.info[INT_KEY] = 42
+        self.info[STRING_KEY] = "hello"
+        names = self.info.string_keys()
+        self.assertIn("FIELD_ASSOCIATION", names)
+        self.assertIn("FIELD_NAME", names)
 
     def test_values(self):
         self.info[INT_KEY] = 42
@@ -166,7 +176,7 @@ class TestInformationDict(Testing.vtkTest):
         its = self.info.items()
         self.assertEqual(len(its), 1)
         key, val = its[0]
-        self.assertIsInstance(key, str)
+        self.assertIsInstance(key, vtkInformationKey)
         self.assertEqual(val, 42)
 
     # --- get ---
@@ -246,6 +256,44 @@ class TestInformationDict(Testing.vtkTest):
         with self.assertRaises(KeyError):
             _ = self.info["NO_SUCH_KEY_EXISTS_XYZ"]
 
+    # --- update from a Python mapping ---
+
+    def test_update_from_dict(self):
+        self.info.update({"FIELD_NAME": "FromDict", "FIELD_ASSOCIATION": 7})
+        self.assertEqual(self.info["FIELD_NAME"], "FromDict")
+        self.assertEqual(self.info["FIELD_ASSOCIATION"], 7)
+
+    # --- runtime-created keys (MakeKey) must survive deletion safely ---
+    # These exercise the destructor unregister paths in vtkInformationKey,
+    # vtkCommonInformationKeyManager, and vtkInformationKeyLookup.
+
+    def test_make_key_destruction(self):
+        """Runtime-created keys must be safely destroyable (was a crash bug)."""
+        info = vtkInformation()
+        k = vtkInformationStringKey.MakeKey("DYN_FOO", "DynLoc")
+        info.Set(k, "hello")
+        self.assertEqual(info.Get(k), "hello")
+        info.Remove(k)
+        del k  # must not crash now or at process exit
+
+    def test_lookup_after_destruction(self):
+        """FindByName must not return a dangling pointer after key deletion."""
+        k = vtkInformationStringKey.MakeKey("DYN_BAR", "DynLoc")
+        self.assertIsNotNone(vtkInformationKeyLookup.FindByName("DYN_BAR"))
+        del k
+        self.assertIsNone(vtkInformationKeyLookup.FindByName("DYN_BAR"))
+
+    def test_string_lookup_after_destruction(self):
+        """String-name lookup must not survive key destruction."""
+        info = vtkInformation()
+        k = vtkInformationStringKey.MakeKey("DYN_BAZ", "DynLoc")
+        info["DYN_BAZ"] = "v1"
+        self.assertEqual(info["DYN_BAZ"], "v1")
+        info.Clear()
+        del k
+        with self.assertRaises(KeyError):
+            _ = info["DYN_BAZ"]
+
     # --- isinstance check ---
 
     def test_isinstance(self):
@@ -308,6 +356,12 @@ class TestInformationVector(Testing.vtkTest):
     def test_delitem_out_of_range(self):
         with self.assertRaises(IndexError):
             del self.vec[0]
+
+    def test_delitem_slice_unsupported(self):
+        for _ in range(3):
+            self.vec.append(vtkInformation())
+        with self.assertRaises(TypeError):
+            del self.vec[0:2]
 
     def test_iter(self):
         for _ in range(3):

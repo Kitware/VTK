@@ -9,8 +9,10 @@ Makes vtkInformation behave like a Python dictionary (key -> value)::
     vtkDataObject.FIELD_NAME() in info         # True
     del info[vtkDataObject.FIELD_NAME()]       # Remove entry
     len(info)                                  # entry count
-    for key in info: ...                       # iterate keys
-    info.keys(), info.values(), info.items()   # dict views
+    for key in info: ...                       # iterate vtkInformationKey objects
+    info.keys()                                # list of vtkInformationKey objects
+    info.string_keys()                         # list of key name strings
+    info.values(), info.items()                # dict-like views
 
 Makes vtkInformationVector behave like a Python list::
 
@@ -25,6 +27,7 @@ from vtkmodules.vtkCommonCore import (
     vtkInformation,
     vtkInformationVector,
     vtkInformationIterator,
+    vtkInformationKeyLookup,
     vtkInformationDataObjectKey,
     vtkInformationDoubleKey,
     vtkInformationDoubleVectorKey,
@@ -78,21 +81,13 @@ _OBJECT_VECTOR_KEY_TYPES = (
 )
 
 
-_key_cache = {}
-
-
 def _resolve_key(name_or_key):
     """Resolve a string key name (case-insensitive) to its vtkInformationKey object."""
     if not isinstance(name_or_key, str):
         return name_or_key
-    upper = name_or_key.upper()
-    if upper in _key_cache:
-        return _key_cache[upper]
-    from vtkmodules.vtkCommonCore import vtkInformationKeyLookup
-    key = vtkInformationKeyLookup.FindByName(upper)
+    key = vtkInformationKeyLookup.FindByName(name_or_key.upper())
     if key is None:
         raise KeyError(name_or_key)
-    _key_cache[upper] = key
     return key
 
 
@@ -168,13 +163,19 @@ class _InformationMixin:
             it.GoToNextItem()
 
     def keys(self):
-        return [k.GetName() for k in self]
+        """Return the list of vtkInformationKey objects in this information."""
+        return list(self)
 
     def values(self):
         return [self[k] for k in self]
 
     def items(self):
-        return [(k.GetName(), self[k]) for k in self]
+        """Return [(key_object, value), ...] for all entries."""
+        return [(k, self[k]) for k in self]
+
+    def string_keys(self):
+        """Return the names of the keys in this information as strings."""
+        return [k.GetName() for k in self]
 
     def get(self, key, default=None):
         key = _resolve_key(key)
@@ -183,8 +184,16 @@ class _InformationMixin:
         return default
 
     def update(self, other):
-        """Append all entries from another vtkInformation."""
-        self.Append(other)
+        """Merge entries from another vtkInformation or a Python mapping."""
+        if isinstance(other, vtkInformation):
+            self.Append(other)
+            return
+        if hasattr(other, "items"):
+            for k, v in other.items():
+                self[k] = v
+            return
+        for k, v in other:
+            self[k] = v
 
     def clear(self):
         self.Clear()
@@ -230,6 +239,8 @@ class _InformationVectorMixin:
         self.SetInformationObject(index, info)
 
     def __delitem__(self, index):
+        if isinstance(index, slice):
+            raise TypeError("vtkInformationVector does not support slice deletion")
         if index < 0:
             index += len(self)
         if not 0 <= index < len(self):
@@ -242,7 +253,7 @@ class _InformationVectorMixin:
 
     def __contains__(self, info):
         for i in range(len(self)):
-            if self.GetInformationObject(i) is info:
+            if self.GetInformationObject(i) == info:
                 return True
         return False
 
