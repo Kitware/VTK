@@ -115,7 +115,12 @@ protected:
 
   // Read the vtkDataObject (a leaf) in the composite dataset.
   virtual vtkDataObject* ReadDataObject(vtkXMLDataElement* xmlElem, const char* filePath);
-  // Sets the file name or the data for the reader
+  // Sets the file name or the input data for the reader
+  // The default function simply calls SetFileName on the reader. In this case
+  // the reader opens the file and reads the data from it.
+  // An override, could specify that data is read from an input string using
+  // ReadFromInputStringOn and SetInputString. In this case the data is read
+  // by the function and then set to the reader.
   virtual bool ReaderSetFileNameOrData(vtkXMLReader* reader, const char* fileName);
 
   /**
