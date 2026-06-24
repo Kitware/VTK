@@ -11,28 +11,161 @@ Setup
 
 The workflow below depends on local hooks to function properly.
 Follow the main [developer setup instructions](../develop_quickstart.md#initial-setup)
-before proceeding.  In particular, run [SetupForDevelopment.sh][]:
+before proceeding. A detailed version of the [development process](develop.md) is also available.
 
-    $ ./Utilities/SetupForDevelopment.sh
+Once your VTK project is set up, you can [create a topic](develop.md#create-a-topic)
+for your contribution.
 
-[SetupForDevelopment.sh]:../../../../Utilities/SetupForDevelopment.sh
 
 Workflow
 --------
 
-Our workflow for adding data integrates with our standard Git
-[development process](develop.md).  Start by
-[creating a topic](develop.md#create-a-topic).
-Return here when you reach the "edit files" step.
-
-These instructions follow a typical use case of adding a new
-test with a baseline image.
-
-### Writing new tests
-
 All new features that go into VTK must be accompanied by tests. This ensures
 that the feature works on many platforms and that it will continue to work as
 VTK evolves.
+
+These instructions follow a typical use case of adding a new
+test with data comparison.
+
+### Main steps ###
+
+Each of the following steps is detailed below.
+
+1.  Write a new test. One test per class is good once you create test cases it. e.g.
+
+        $ edit Some/Module/Testing/Cxx/MyTest.cxx
+
+2.  Edit the corresponding `CMakeLists.txt` file:
+
+        $ edit Some/Module/Testing/Cxx/CMakeLists.txt
+
+    and add the test in a `vtk_add_test_cxx` call. For non-rendering
+    code, you do not need a baseline comparison and should specify a `NO_VALID` flag.
+
+        vtk_add_test_cxx(
+          ...
+          MyTest.cxx,NO_VALID
+        )
+
+3.  (opt) If the test requires some data file, add references to a `vtk_module_test_data` call
+    (usually in the `Testing` parent directory). For example, adding
+    `Testing/Data/lines.vtkhdf` would mean adding `Data/lines.vtkhdf` entry to the
+    call (the `Testing` directory is part of the path that is looked in
+    automatically.
+
+        vtk_module_test_data(
+          Data/lines.vtkhdf)
+
+5.  Build the test: `$ cmake --build .`
+
+6.  Run the test. When using the Regression framework, this will write
+    out the test data in a temporary directory (`Testing/Temporary`) on failures.
+    This is a common way to generate the expected baseline (image for rendering
+    test, or VTKHDF for data comparison). Be sure that this output is correct before
+    continuing.
+
+7.  (opt) Put the baseline file into your source tree.
+    Run CMake will turn your data into a `.sha512` file that you can add to your commit.
+
+8.  Commit and push your topic branch.
+
+
+Notes:
+
+* If the data file references other data files, e.g. `.mhd -> .raw`,
+  read the [ExternalData][] module documentation on "associated" files.
+* Multiple baseline images and other series are handled automatically
+  when the reference ends in the `,:` option.  Read [ExternalData][]
+  module documentation for details.
+* While VTK historically relies on screenshot comparison as final test step
+  for most tests (thus the automatic baseline handling in the cmake code),
+  new tests should use it only to test actual rendering features.
+  Data-related tests such as filter tests should prefer doing data comparison,
+  that have proved to be faster and more robust.
+
+[ExternalData]: https://cmake.org/cmake/help/latest/module/ExternalData.html
+
+### Write Cxx test ###
+
+The entry point of the test should be a main function named as the file,
+as required by the VTK test framework.
+
+Splitting the test into test cases is encouraged for readability. You can
+also create some helper function.
+
+Be sure to run every test case and aggregate the result in the main function.
+When a test case fail, do not skip the following cases. This way the output log
+can show every failures once.
+
+Using the `vtkLogger` framework is also encouraged for output readability.
+
+Example of MyTest.cxx:
+```c++
+namespace
+{
+  bool DoCheck()
+  {
+    // ...
+    vtkLogIf(ERROR, someCheck, "Intermediate error");
+    // ...
+    return checkPass;
+  }
+
+  bool TestCase1()
+  {
+    vtkLogScopeFunction(INFO);
+    // ...
+    testPass &= DoCheck();
+    // ...
+    return testPass;
+  }
+
+  bool TestCase2()
+  {
+    vtkLogScopeFunction(INFO);
+    // ...
+    testPass &= DoCheck();
+    // ...
+    return testPass;
+  }
+}
+
+int MyTest(int argc, char* argv[])
+{
+  bool ret = ::TestCase1();
+  ret &= ::TestCase2();
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+```
+
+Example of output:
+```log
+2638: (   0.009s) [main thread     ] MyTest.cxx:51   INFO| { TestCase1
+2638: (   0.102s) [main thread     ] MyTest.cxx:66    ERR|   .   Intermediate error
+2638: (   0.102s) [main thread     ] MyTest.cxx:51   INFO| } 0.093 s: TestCase1
+2638: (   0.102s) [main thread     ] MyTest.cxx:95   INFO| { TestCase2
+2638: (   0.111s) [main thread     ] MyTest.cxx:95   INFO| } 0.010 s: TestCase2
+```
+
+The TestingCore and TestingRendering modules contains some helper to write good tests.
+
+To check the validity of your output data, you can compare the whole data object
+or just a subpart (like an array):
+
+```c++
+  bool same = vtkTestUtilities::CompareDataObjects(data1, data2);
+  bool same = vtkTestUtilities::CompareAbstractArrays(array1, array2) && same;
+```
+
+To use a data file as baseline, you can directly use
+```c++
+  bool same = vtkTestUtilities::RegressionTest(argc, argv, data, filepath/filename.vtkhdf);
+```
+This function writes a file in the `Testing/Temporary` directory when the generated data
+does not match the expected baseline data.
+The file is a VTKHDF file named filename.vtkhdf that contains the test output.
+
+### Add test to CTest ###
 
 Tests for the classes in each module of VTK are placed underneath the module's
 Testing/<Language> subdirectory. Modules that the tests depend upon beyond
@@ -55,9 +188,10 @@ example, vtkRegressionTester is a helper class that does a fuzzy comparison of
 images drawn by VTK against known good baseline images and returns a metric
 that can be simply compared against a numeric threshold.
 
+### Using data ###
 
 Many tests require data files to run. The image comparison tests for example
-need baseline images to compare against, and many tests open up one or more
+need baseline images or data to compare against, and many tests open up one or more
 files to visualize.
 
 The source code and data file versions are kept in sync because the
@@ -71,26 +205,20 @@ the VTK build tree.
 
 To make a change to VTK that modifies or adds a new test data file, place the
 new version in the Testing/Data or directory (for input data files) or
-Module/Name/Testing/Data (for regression test images), and build (or run
-cmake). CMake will do the work of moving the original out of the way and
+Module/Name/Testing/Data (for regression test images), and add it in the corresponding
+`vtk_module_test_data()`.
+Then build (or run cmake). CMake will do the work of moving the original out of the way and
 replacing it with an SHA512 link file. When you push the new link file to Gitlab,
 `git pre-commit` hooks push the original file up to Kitware's data service, where
 everyone can retrieve it.
 
-### Add Test ###
+Some test may want to compare the last RenderView rendering.
+It can be achieved by using `vtk_add_test_XXX` without the `NO_VALID` flag.
+In that case, a baseline file is expected to exists with same name as the Test.
+For instance `MyTest.cxx` from "Module" will expect a `MyTest.png` under
+Module/Testing/Data/Baseline.
 
-1.  Write a new test, e.g.
-
-        $ edit Some/Module/Testing/Cxx/MyTest.cxx
-
-2.  Edit the corresponding `CMakeLists.txt` file:
-
-        $ edit Some/Module/Testing/Cxx/CMakeLists.txt
-
-    and add the test in a `vtk_add_test_...` call (which references
-    baselines automatically).
-
-3.  For tests not using such a call, reference the data file in an
+When not using `vtk_add_test_XXX`, reference the data file in an
     `ExternalData_add_test` call.  Specify the file inside `DATA{...}`
     using a path relative to the test directory:
 
@@ -101,30 +229,10 @@ everyone can retrieve it.
                   ... -V DATA{../Data/Baseline/MyTest.png,:} ...
           )
 
-4.  Some tests may require additional files not referenced on the command line.
-    For these files, add references to a `vtk_module_test_data` call (usually
-    in the `Testing` parent directory). For example, adding
-    `Testing/Data/lines.vtp` would mean adding `Data/lines.vtp` entry to the
-    call (the `Testing` directory is part of the path that is looked in
-    automatically.
-
-        vtk_module_test_data(
-          Data/lines.vtp)
-
-Notes:
-
-* If the data file references other data files, e.g. `.mhd -> .raw`,
-  read the [ExternalData][] module documentation on "associated" files.
-* Multiple baseline images and other series are handled automatically
-  when the reference ends in the `,:` option.  Read [ExternalData][]
-  module documentation for details.
-
-[ExternalData]: https://cmake.org/cmake/help/latest/module/ExternalData.html
-
 ### Build and Run the Test ###
 
 If you already have a data file, skip to the [next step](#add-data) to add it.
-Otherwise, use the following steps to produce a test baseline image file.
+Otherwise, use the following steps to produce a test baseline file.
 We assume a build tree has been previously generated by CMake.
 
 1.  Switch to the build tree:
@@ -141,13 +249,13 @@ We assume a build tree has been previously generated by CMake.
 
 3.  Build
 
-        $ make
+        $ cmake --build .
 
 4.  Run the test
 
         $ ctest -R MyTest
 
-    It will fail but place the baseline image in `Testing/Temporary`.
+    It will fail but place the baseline file (image or data file) in `Testing/Temporary`.
 
 5.  Switch back to the source tree:
 
