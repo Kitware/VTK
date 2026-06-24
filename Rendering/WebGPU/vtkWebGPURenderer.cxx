@@ -164,12 +164,25 @@ void vtkWebGPURenderer::CreateBuffers()
     createSceneBindGroup = true;
   }
 
+  bool recreateLightsBuffer = false;
   if (this->SceneLightsBuffer == nullptr)
+  {
+    recreateLightsBuffer = true;
+    createSceneBindGroup = true;
+  }
+  else if (this->AllocatedLightsBufferSize < lightSizePadded)
+  {
+    // Buffer exists but is too small for the number of lights, need to recreate it
+    recreateLightsBuffer = true;
+    createSceneBindGroup = true;
+  }
+
+  if (recreateLightsBuffer)
   {
     const std::string label = "LightInformation-" + this->GetObjectDescription();
     this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
       wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
-    createSceneBindGroup = true;
+    this->AllocatedLightsBufferSize = lightSizePadded;
   }
 
   if (createSceneBindGroup)
@@ -331,6 +344,12 @@ void vtkWebGPURenderer::UpdateBuffers()
           break;
         }
       }
+    }
+    // Invalidate the bundle if the number of lights has changed
+    if (this->LightIDs.size() != this->PreviousLightCount)
+    {
+      this->InvalidateBundle();
+      this->PreviousLightCount = this->LightIDs.size();
     }
   }
   this->UpdateGeometry(); // mappers prepare geometry SSBO and pipeline layout.

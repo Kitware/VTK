@@ -319,6 +319,8 @@ private:
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;
   std::vector<std::size_t> LightIDs;
+  std::size_t AllocatedLightsBufferSize = 0; // Track the allocated size of the light buffer
+  std::size_t PreviousLightCount = 0; // Track previous frame's light count for bundle invalidation
 
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
