@@ -25,7 +25,6 @@
 #include "vtkWebGPULight.h"
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
-
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -149,7 +148,9 @@ void vtkWebGPURenderer::CreateBuffers()
   const auto transformSizePadded = vtkWebGPUConfiguration::Align(transformSize, 32);
 
   // Match WriteLightsBuffer: count (4) + padding (12) + N * 80 bytes per light.
-  const auto lightSize = 16 + this->LightIDs.size() * vtkWebGPULight::GetCacheSizeBytes();
+  // Ensure we have space for at least 1 light to match shader expectations
+  const auto lightCount = std::max(std::size_t(1), this->LightIDs.size());
+  const auto lightSize = 16 + lightCount * vtkWebGPULight::GetCacheSizeBytes();
   const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
@@ -173,6 +174,8 @@ void vtkWebGPURenderer::CreateBuffers()
   else if (this->AllocatedLightsBufferSize < lightSizePadded)
   {
     // Buffer exists but is too small for the number of lights, need to recreate it
+    vtkDebugMacro(<< "Recreating lights buffer: " << this->AllocatedLightsBufferSize << " < "
+                  << lightSizePadded);
     recreateLightsBuffer = true;
     createSceneBindGroup = true;
   }
@@ -904,15 +907,28 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   wgpu::Device device = wgpuRenderWindow->GetDevice();
 
-  this->SceneBindGroup =
-    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->SceneBindGroupLayout,
-      {
-        // clang-format off
-        { 0, this->SceneTransformBuffer },
-        { 1, this->SceneLightsBuffer }
-        // clang-format on
-      });
-  this->SceneBindGroup.SetLabel("SceneBindGroup");
+  // Calculate current buffer sizes to bind
+  const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
+  const auto transformSizePadded = vtkWebGPUConfiguration::Align(transformSize, 32);
+  const auto lightCount = std::max(std::size_t(1), this->LightIDs.size());
+  const auto lightSize = 16 + lightCount * vtkWebGPULight::GetCacheSizeBytes();
+  const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
+
+  std::vector<wgpu::BindGroupEntry> entries;
+  entries.push_back({ .binding = 0,
+    .buffer = this->SceneTransformBuffer,
+    .offset = 0,
+    .size = transformSizePadded });
+  entries.push_back(
+    { .binding = 1, .buffer = this->SceneLightsBuffer, .offset = 0, .size = lightSizePadded });
+
+  wgpu::BindGroupDescriptor descriptor;
+  descriptor.label = "SceneBindGroup";
+  descriptor.layout = this->SceneBindGroupLayout;
+  descriptor.entryCount = static_cast<uint32_t>(entries.size());
+  descriptor.entries = entries.data();
+
+  this->SceneBindGroup = device.CreateBindGroup(&descriptor);
 }
 
 //------------------------------------------------------------------------------
