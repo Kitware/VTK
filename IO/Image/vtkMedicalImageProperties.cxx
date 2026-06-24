@@ -623,7 +623,7 @@ int vtkMedicalImageProperties::GetAgeAsFields(
     {
       return 0;
     }
-    auto result = vtk::scan<unsigned int, char>(std::string_view(age, len), "{:d}{:c}");
+    auto result = vtk::scan<unsigned int, char>(std::string_view(age, len), "{:d}{}");
     if (!result)
     {
       return 0;
