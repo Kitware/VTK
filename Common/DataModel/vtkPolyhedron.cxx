@@ -1320,14 +1320,33 @@ int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   // compute parametric coordinates
   this->ComputeParametricCoordinate(x, pcoords);
 
-  // construct polydata, the result is stored in this->PolyData,
-  // the cell array is stored in this->Faces
-  this->ConstructPolyData();
+  // The interpolation weights are always needed by callers (e.g. velocity
+  // interpolation during streamline integration).
+  this->InterpolateFunctions(x, weights);
 
-  // Construct cell locator
+  // Inside/outside test first. When the point is inside (the common case while
+  // a streamline integrates through the cell it currently occupies) the closest
+  // boundary point and its distance are not used - minDist2 is zero and the
+  // point itself is the closest point - so the expensive cell-locator closest-
+  // point search (and building the locator) is skipped entirely.
+  const int isInside = this->IsInside(x, std::numeric_limits<double>::infinity());
+  if (isInside)
+  {
+    minDist2 = 0.0;
+    if (closestPoint)
+    {
+      closestPoint[0] = x[0];
+      closestPoint[1] = x[1];
+      closestPoint[2] = x[2];
+    }
+    return 1;
+  }
+
+  // Point is outside: find the closest point on the boundary and its squared
+  // distance. This builds the cell locator lazily on first need.
+  this->ConstructPolyData();
   this->ConstructLocator();
 
-  // find closest point and store the squared distance
   vtkIdType cellId;
   int id;
   double cp[3];
@@ -1341,17 +1360,7 @@ int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
     closestPoint[2] = cp[2];
   }
 
-  // get the MVC weights
-  this->InterpolateFunctions(x, weights);
-
-  // set distance to be zero, if point is inside
-  int isInside = this->IsInside(x, std::numeric_limits<double>::infinity());
-  if (isInside)
-  {
-    minDist2 = 0.0;
-  }
-
-  return isInside;
+  return 0;
 }
 
 //------------------------------------------------------------------------------

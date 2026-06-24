@@ -3684,23 +3684,30 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(GraphicsPipelineType pi
     // Undo perspective correction.
     let dists = vertex.edge_dists.xyz * vertex.position.w;
     var d: f32 = 0.0;
-    // Compute the shortest distance to the edge
-    if vertex.hide_edge == 2.0
+    // Compute the shortest distance to a *boundary* edge of the polygon. The
+    // hide_edge value encodes which of this triangle's three edges are real
+    // polygon boundary edges (as opposed to internal triangulation diagonals
+    // that must not be drawn). Encoding:
+    //   value < 0      : all three edges are boundary (used by the already-
+    //                    triangulated homogeneous path which writes -1).
+    //   value >= 0     : 3-bit mask, bit0=edge(v0,v1), bit1=edge(v1,v2),
+    //                    bit2=edge(v2,v0). dists[0] is the distance to edge
+    //                    (v1,v2), dists[1] to edge (v2,v0), dists[2] to edge
+    //                    (v0,v1); so bit0->dists[2], bit1->dists[0], bit2->dists[1].
+    // d is the min distance over the visible (boundary) edges; a large value
+    // when no edge is boundary so nothing is drawn.
+    if vertex.hide_edge < 0.0
     {
-      d = min(dists[0], dists[2]);
-    }
-    else if vertex.hide_edge == 1.0
-    {
-      d = dists[0];
-    }
-    else if vertex.hide_edge == 0.0
-    {
-      d = min(dists[0], dists[1]);
+      d = min(dists[0], min(dists[1], dists[2]));
     }
     else
     {
-      // no edge is hidden
-      d = min(dists[0], min(dists[1], dists[2]));
+      let mask: u32 = u32(vertex.hide_edge + 0.5);
+      var dmin: f32 = 3.4e38;
+      if ((mask & 1u) != 0u) { dmin = min(dmin, dists[2]); }
+      if ((mask & 2u) != 0u) { dmin = min(dmin, dists[0]); }
+      if ((mask & 4u) != 0u) { dmin = min(dmin, dists[1]); }
+      d = dmin;
     }
     let half_line_width: f32 = 0.5 * line_width;
     let I: f32 = select(exp2(-2.0 * (d - half_line_width) * (d - half_line_width)), 1.0, d < half_line_width);

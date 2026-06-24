@@ -30,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkType.h"                  // For vtkIdType
 
+#include "vtkSmartPointer.h"              // For vtkSmartPointer
 #include "vtkStaticEdgeLocatorTemplate.h" // For vtkStaticEdgeLocatorTemplate
 
 #include <array>         // For array
@@ -43,8 +44,10 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkCellData;
 class vtkDataArray;
+class vtkIdList;
 class vtkIncrementalPointLocator;
 class vtkPointData;
+class vtkPolygon;
 class vtkPolyhedron;
 
 /**
@@ -132,6 +135,10 @@ public:
    * @param numPointIds                 Number of unique points in this cell
    * @param pointIds                    Global point IDs for this cell, [numPointIds]
    * @param polyhedronFaces             Polyhedron faces
+   * @param points                      Point coordinates (indexed by global point ID).
+   *                                    Required; used to compute iso-vertex 3D positions for
+   *                                    ear-clip triangulation of non-convex iso-polygons when
+   *                                    generateTriangles=true.
    * @param scalars                     Scalar array (indexed by global point ID)
    * @param isoValue                    Clip value
    * @param generateTriangles           If true, output.PolyConn is triangle soup.
@@ -141,8 +148,8 @@ public:
    *                                    globalPtId1, t). Make sure to clear it before adding.
    */
   static void ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
-    vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool generateTriangles,
-    std::vector<vtkIdType>& polygonsSize,
+    vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
+    bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
     std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges);
 
   /**
@@ -351,6 +358,14 @@ private:
     std::vector<std::vector<vtkIdType>> Pieces;            // EmitClip face-walker output pieces
     std::vector<vtkIdType> CurrentPiece;                   // EmitClip face-walker active piece
     std::vector<vtkIdType> CapFace;                        // EmitClip cap-face scratch
+    // ContourCell GT=ON ear-clip scratch (allocation-free per polygon).
+    std::vector<std::array<double, 3>> EarCoords; // iso-vertex coords, loop order
+    std::vector<int> EarPrev;                     // ear-clip linked-list prev
+    std::vector<int> EarNext;                     // ear-clip linked-list next
+    std::vector<int> EarRing;                     // ear-clip compacted ring
+    std::vector<double> EarHeapMeasure;           // quality ear-clip heap keys
+    std::vector<int> EarHeapVertex;               // quality ear-clip heap vertex ids
+    std::vector<int> EarHeapSlot;                 // quality ear-clip vertex id -> heap slot
   };
 };
 

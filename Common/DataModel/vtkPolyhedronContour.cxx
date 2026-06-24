@@ -11,9 +11,11 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
 #include "vtkPolyhedron.h"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -778,8 +780,9 @@ void vtkPolyhedronContour::OutputClip(vtkPolyhedron* cell, vtkCellArray* connect
 // their own shared edge locator.
 //------------------------------------------------------------------------------
 void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
-  vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool generateTriangles,
-  std::vector<vtkIdType>& polygonsSize, std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
+  vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
+  bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
+  std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
 {
   polygonsSize.clear();
   intersectedEdges.clear();
@@ -848,6 +851,19 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
   // Walk iso-polygons; emit edges and polygon sizes.
   if (generateTriangles)
   {
+    // Triangulate each iso-polygon with vtkPolygon's quality ear clip
+    // (iso-polygons traced through arbitrary polyhedra can be non-convex, which a
+    // naive fan does not handle), so the result matches the triangulation
+    // vtkPolygon produces everywhere else in VTK. Triangulation is a small
+    // fraction of the contour pipeline (dominated by the Lopez trace and the edge
+    // locator), so the measure-ordered clip's cost is negligible.
+    //
+    // triPolygon/triIds are reused across this call's iso-polygons and destroyed
+    // when this function returns; they are deliberately NOT thread_local, because
+    // a thread_local vtkObject outlives teardown and is reported as a leak.
+    auto& earCoords = ws.EarCoords; // contiguous iso-vertex coords, loop order
+    vtkNew<vtkPolygon> triPolygon;
+    vtkNew<vtkIdList> triIds;
     for (const auto& poly : trace.IsoPolygons)
     {
       const vtkIdType nv = static_cast<vtkIdType>(poly.size());
@@ -855,14 +871,50 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
       {
         continue;
       }
-      // Fan-triangulate from poly[0]: triangles (poly[0], poly[i+1], poly[i+2])
-      // for i in 0..nv-3. Each triangle = 3 edges (one per iso-vertex).
-      const vtkIdType nTris = nv - 2;
-      for (vtkIdType t = 0; t < nTris; ++t)
+
+      // Triangle iso-polygons need no triangulation; emit directly.
+      if (nv == 3)
       {
         pushEdge(poly[0]);
-        pushEdge(poly[t + 1]);
-        pushEdge(poly[t + 2]);
+        pushEdge(poly[1]);
+        pushEdge(poly[2]);
+        polygonsSize.push_back(3);
+        continue;
+      }
+
+      // Gather iso-vertex 3D positions (linear interpolation along each
+      // intersected edge) into a contiguous buffer; loop ids are 0..nv-1.
+      earCoords.resize(static_cast<std::size_t>(nv));
+      for (vtkIdType j = 0; j < nv; ++j)
+      {
+        const auto& iv = trace.IsoVertices[poly[j]];
+        double p0[3], p1[3];
+        points->GetTuple(pointIds[iv.OutsideVertex], p0);
+        points->GetTuple(pointIds[iv.InsideVertex], p1);
+        const double w = iv.Weight;
+        auto& cc = earCoords[static_cast<std::size_t>(j)];
+        cc[0] = p0[0] + w * (p1[0] - p0[0]);
+        cc[1] = p0[1] + w * (p1[1] - p0[1]);
+        cc[2] = p0[2] + w * (p1[2] - p0[2]);
+      }
+
+      // Fill the reused vtkPolygon with the iso-vertex coordinates and
+      // triangulate; EarCutTriangulation emits polygon-local triangle index
+      // triples into triIds.
+      triPolygon->GetPoints()->SetNumberOfPoints(nv);
+      triPolygon->GetPointIds()->SetNumberOfIds(nv);
+      for (vtkIdType j = 0; j < nv; ++j)
+      {
+        triPolygon->GetPoints()->SetPoint(j, earCoords[static_cast<std::size_t>(j)].data());
+        triPolygon->GetPointIds()->SetId(j, j);
+      }
+      triPolygon->EarCutTriangulation(triIds);
+      const vtkIdType ntriIds = triIds->GetNumberOfIds();
+      for (vtkIdType k = 0; k + 2 < ntriIds; k += 3)
+      {
+        pushEdge(poly[triIds->GetId(k)]);
+        pushEdge(poly[triIds->GetId(k + 1)]);
+        pushEdge(poly[triIds->GetId(k + 2)]);
         polygonsSize.push_back(3);
       }
     }
