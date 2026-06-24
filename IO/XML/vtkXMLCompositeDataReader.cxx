@@ -464,6 +464,13 @@ int vtkXMLCompositeDataReader::GetPieceAssignmentForInterleaveStrategy(
 }
 
 //------------------------------------------------------------------------------
+bool vtkXMLCompositeDataReader::ReaderSetFileNameOrData(vtkXMLReader* reader, const char* fileName)
+{
+  reader->SetFileName(fileName);
+  return true;
+}
+
+//------------------------------------------------------------------------------
 vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(
   vtkXMLDataElement* xmlElem, const char* filePath)
 {
@@ -479,7 +486,11 @@ vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(
     vtkErrorMacro("Could not create reader for " << fileName);
     return nullptr;
   }
-  reader->SetFileName(fileName.c_str());
+  if (!this->ReaderSetFileNameOrData(reader, fileName.c_str()))
+  {
+    vtkErrorMacro("Could not set data for the reader for " << fileName);
+    return nullptr;
+  }
   reader->GetPointDataArraySelection()->CopySelections(this->PointDataArraySelection);
   reader->GetCellDataArraySelection()->CopySelections(this->CellDataArraySelection);
   reader->GetColumnArraySelection()->CopySelections(this->ColumnArraySelection);
@@ -563,7 +574,7 @@ void vtkXMLCompositeDataReader::SyncDataArraySelections(
     vtkErrorMacro("Could not create reader for " << fileName);
     return;
   }
-  reader->SetFileName(fileName.c_str());
+  this->ReaderSetFileNameOrData(reader, fileName.c_str());
   // initialize array selection so we don't have any residual array selections
   // from previous use of the reader.
   reader->GetPointDataArraySelection()->RemoveAllArrays();
