@@ -5,6 +5,7 @@
 #include "vtkAnariPolyDataMapperInheritInterface.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
+#include "vtkRenderMaterialLibrary.h"
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
@@ -35,6 +36,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -216,6 +218,13 @@ public:
   anari::Material MakeMaterial(vtkProperty*, float* df = nullptr, anari::Sampler sampler = nullptr,
     const char* colorStr = nullptr);
 
+  /**
+   * Create an ANARI material from a material library entry.
+   * Returns nullptr if the material is not found in the library or the
+   * library is not set on the renderer.
+   */
+  anari::Material MakeLibraryMaterial(vtkProperty*, float* color, const std::string& materialName);
+
   //@{
   /**
    * Utility methods for setting the material parameters.
@@ -275,6 +284,11 @@ public:
   std::string StrToLower(std::string s);
 
   /**
+   * Determine if the material implementation is physically based.
+   */
+  bool IsPhysicallyBased(const std::string& implName) const;
+
+  /**
    * Send surfaces to the renderer.
    */
   void RenderSurfaceModels();
@@ -306,6 +320,9 @@ public:
   anari::Device AnariDevice{ nullptr };
   anari::Extensions AnariDeviceExtensions{};
   const char* const* AnariDeviceExtensionStrings{ nullptr };
+
+private:
+  static const std::set<std::string> PhysicallyBasedImpls;
 };
 
 //----------------------------------------------------------------------------
@@ -821,6 +838,17 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
   std::string materialName = this->ActorName + "_material";
   anari::Material anariMaterial = nullptr;
 
+  // Try to use a named material from the material library first
+  const char* propMaterialName = property->GetMaterialName();
+  if (propMaterialName && propMaterialName[0] != '\0')
+  {
+    anariMaterial = this->MakeLibraryMaterial(property, color, propMaterialName);
+    if (anariMaterial != nullptr)
+    {
+      return anariMaterial;
+    }
+  }
+
   if (property->GetInterpolation() == VTK_PBR)
   {
     if (this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
@@ -863,6 +891,315 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
   {
     anari::setParameter(
       this->AnariDevice, anariMaterial, "name", ANARI_STRING, materialName.c_str());
+    anari::commitParameters(this->AnariDevice, anariMaterial);
+  }
+
+  return anariMaterial;
+}
+
+//----------------------------------------------------------------------------
+anari::Material vtkAnariPolyDataMapperNodeInternals::MakeLibraryMaterial(
+  vtkProperty* property, float* color, const std::string& materialName)
+{
+  vtkAnariProfiling startProfiling(
+    "VTKAPDMNInternals::MakeLibraryMaterial", vtkAnariProfiling::LIME);
+
+  if (!this->AnariRendererNode)
+  {
+    return nullptr;
+  }
+
+  vtkRenderer* renderer = this->AnariRendererNode->GetRenderer();
+  vtkRenderMaterialLibrary* ml = vtkAnariSceneGraph::GetMaterialLibrary(renderer);
+  if (!ml)
+  {
+    return nullptr;
+  }
+
+  std::set<std::string> matNames = ml->GetMaterialNames();
+  if (matNames.find(materialName) == matNames.end() && materialName != "default")
+  {
+    return nullptr;
+  }
+
+  std::string implName = ml->LookupImplName(materialName);
+  std::string anariMatName = this->ActorName + "_material";
+
+  // Map OSPRay impl names to ANARI material types
+  // "physicallyBased" and "matte" are the two ANARI KHR materials
+  bool usePhysicallyBased = this->IsPhysicallyBased(implName);
+  bool useMatte = (implName == "matte");
+
+  anari::Material anariMaterial = nullptr;
+
+  if (usePhysicallyBased && this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
+  {
+    anariMaterial = anari::newObject<anari::Material>(this->AnariDevice, "physicallyBased");
+
+    // Set base color - look for common base color variable names
+    float baseColor[3] = { 1.0f, 1.0f, 1.0f };
+    bool baseColorSet = false;
+    for (const auto& varName : { "baseColor", "kd", "color", "attenuationColor" })
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, varName);
+      if (vals.size() >= 3)
+      {
+        baseColor[0] = static_cast<float>(vals[0]);
+        baseColor[1] = static_cast<float>(vals[1]);
+        baseColor[2] = static_cast<float>(vals[2]);
+        baseColorSet = true;
+        break;
+      }
+    }
+    if (!baseColorSet && color != nullptr)
+    {
+      baseColor[0] = color[0];
+      baseColor[1] = color[1];
+      baseColor[2] = color[2];
+    }
+    else if (!baseColorSet)
+    {
+      double* actorColor = property->GetColor();
+      if (actorColor)
+      {
+        baseColor[0] = static_cast<float>(actorColor[0]);
+        baseColor[1] = static_cast<float>(actorColor[1]);
+        baseColor[2] = static_cast<float>(actorColor[2]);
+      }
+    }
+
+    // Check for base color texture
+    vtkTexture* baseColorTex = ml->GetTexture(materialName, "map_baseColor");
+    if (!baseColorTex)
+    {
+      baseColorTex = ml->GetTexture(materialName, "map_kd");
+    }
+    if (baseColorTex)
+    {
+      mat4 identity = { vec4{ 1.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 1.0f, 0.0f, 0.0f },
+        vec4{ 0.0f, 0.0f, 1.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 1.0f } };
+      anari::Sampler sampler =
+        this->VTKToAnariSampler(anariMatName + "_baseColor", "attribute0", identity, baseColorTex);
+      if (sampler)
+      {
+        anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "baseColor", sampler);
+        baseColorSet = true;
+      }
+    }
+    if (!baseColorSet)
+    {
+      anari::setParameter(this->AnariDevice, anariMaterial, "baseColor", baseColor);
+    }
+
+    // metallic
+    float metallic = 0.0f;
+    if (implName == "metal" || implName == "alloy" || implName == "metallicPaint")
+    {
+      metallic = 1.0f; // these are inherently metallic materials
+    }
+    else
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "metallic");
+      if (!vals.empty())
+      {
+        metallic = static_cast<float>(vals[0]);
+      }
+    }
+    anari::setParameter(this->AnariDevice, anariMaterial, "metallic", metallic);
+
+    // roughness
+    float roughness = 1.0f;
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "roughness");
+      if (!vals.empty())
+      {
+        roughness = static_cast<float>(vals[0]);
+      }
+    }
+    anari::setParameter(this->AnariDevice, anariMaterial, "roughness", roughness);
+
+    // roughness texture
+    vtkTexture* roughnessTex = ml->GetTexture(materialName, "map_roughness");
+    if (roughnessTex)
+    {
+      mat4 identity = { vec4{ 1.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 1.0f, 0.0f, 0.0f },
+        vec4{ 0.0f, 0.0f, 1.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 1.0f } };
+      anari::Sampler sampler =
+        this->VTKToAnariSampler(anariMatName + "_roughness", "attribute0", identity, roughnessTex);
+      if (sampler)
+      {
+        anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "roughness", sampler);
+      }
+    }
+
+    // IOR (index of refraction)
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "ior");
+      if (vals.empty())
+      {
+        vals = ml->GetDoubleShaderVariable(materialName, "eta");
+      }
+      if (!vals.empty())
+      {
+        anari::setParameter(this->AnariDevice, anariMaterial, "ior", static_cast<float>(vals[0]));
+      }
+    }
+
+    // opacity
+    float opacity = static_cast<float>(property->GetOpacity());
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "opacity");
+      if (vals.empty())
+      {
+        vals = ml->GetDoubleShaderVariable(materialName, "d");
+      }
+      if (!vals.empty())
+      {
+        opacity = static_cast<float>(vals[0]);
+      }
+    }
+    anari::setParameter(this->AnariDevice, anariMaterial, "opacity", opacity);
+
+    // specular color
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "specularColor");
+      if (vals.empty())
+      {
+        vals = ml->GetDoubleShaderVariable(materialName, "ks");
+      }
+      if (vals.size() >= 3)
+      {
+        float specColor[3] = { static_cast<float>(vals[0]), static_cast<float>(vals[1]),
+          static_cast<float>(vals[2]) };
+        anari::setParameter(this->AnariDevice, anariMaterial, "specularColor", specColor);
+      }
+    }
+
+    // specular
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "specular");
+      if (!vals.empty())
+      {
+        anari::setParameter(
+          this->AnariDevice, anariMaterial, "specular", static_cast<float>(vals[0]));
+      }
+    }
+
+    // clearcoat (OSPRay "coat")
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, "coat");
+      if (!vals.empty())
+      {
+        anari::setParameter(
+          this->AnariDevice, anariMaterial, "clearcoat", static_cast<float>(vals[0]));
+      }
+      vals = ml->GetDoubleShaderVariable(materialName, "coatRoughness");
+      if (!vals.empty())
+      {
+        anari::setParameter(
+          this->AnariDevice, anariMaterial, "clearcoatRoughness", static_cast<float>(vals[0]));
+      }
+    }
+
+    // emissive (for luminous material type)
+    if (implName == "luminous")
+    {
+      auto colorVals = ml->GetDoubleShaderVariable(materialName, "color");
+      if (colorVals.size() >= 3)
+      {
+        float intensityScale = 1.0f;
+        auto intensityVals = ml->GetDoubleShaderVariable(materialName, "intensity");
+        if (!intensityVals.empty())
+        {
+          intensityScale = static_cast<float>(intensityVals[0]);
+        }
+        float emissive[3] = { static_cast<float>(colorVals[0]) * intensityScale,
+          static_cast<float>(colorVals[1]) * intensityScale,
+          static_cast<float>(colorVals[2]) * intensityScale };
+        anari::setParameter(this->AnariDevice, anariMaterial, "emissive", emissive);
+      }
+    }
+
+    // normal texture
+    vtkTexture* normalTex = ml->GetTexture(materialName, "map_normal");
+    if (normalTex)
+    {
+      mat4 identity = { vec4{ 1.0f, 0.0f, 0.0f, 0.0f }, vec4{ 0.0f, 1.0f, 0.0f, 0.0f },
+        vec4{ 0.0f, 0.0f, 1.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 1.0f } };
+      anari::Sampler sampler =
+        this->VTKToAnariSampler(anariMatName + "_normal", "attribute0", identity, normalTex);
+      if (sampler)
+      {
+        anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "normal", sampler);
+      }
+    }
+
+    anari::setParameter(this->AnariDevice, anariMaterial, "alphaMode", "blend");
+  }
+  else if ((useMatte || (!usePhysicallyBased && !useMatte)) &&
+    this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_MATTE)
+  {
+    // Fallback to matte for unknown types or when physicallyBased not available
+    anariMaterial = anari::newObject<anari::Material>(this->AnariDevice, "matte");
+
+    float matteColor[3] = { 0.0f, 0.0f, 0.0f };
+    bool colorSet = false;
+    for (const auto& varName : { "kd", "baseColor", "color" })
+    {
+      auto vals = ml->GetDoubleShaderVariable(materialName, varName);
+      if (vals.size() >= 3)
+      {
+        matteColor[0] = static_cast<float>(vals[0]);
+        matteColor[1] = static_cast<float>(vals[1]);
+        matteColor[2] = static_cast<float>(vals[2]);
+        colorSet = true;
+        break;
+      }
+    }
+    if (!colorSet && color != nullptr)
+    {
+      matteColor[0] = color[0];
+      matteColor[1] = color[1];
+      matteColor[2] = color[2];
+    }
+    else if (!colorSet)
+    {
+      double* actorColor = property->GetColor();
+      if (actorColor)
+      {
+        matteColor[0] = static_cast<float>(actorColor[0]);
+        matteColor[1] = static_cast<float>(actorColor[1]);
+        matteColor[2] = static_cast<float>(actorColor[2]);
+      }
+    }
+    anari::setParameter(this->AnariDevice, anariMaterial, "color", matteColor);
+
+    float opacity = static_cast<float>(property->GetOpacity());
+    auto vals = ml->GetDoubleShaderVariable(materialName, "d");
+    if (!vals.empty())
+    {
+      opacity = static_cast<float>(vals[0]);
+    }
+    anari::setParameter(this->AnariDevice, anariMaterial, "opacity", opacity);
+    anari::setParameter(this->AnariDevice, anariMaterial, "alphaMode", "blend");
+  }
+  else if (usePhysicallyBased && !this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
+  {
+    vtkWarningWithObjectMacro(this->Owner, << "ANARI back-end doesn't support Physically Based "
+                                              "Materials (KHR_MATERIAL_PHYSICALLY_BASED). "
+                                              "Falling back to matte for material \""
+                                           << materialName << "\".");
+    if (this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_MATTE)
+    {
+      anariMaterial = anari::newObject<anari::Material>(this->AnariDevice, "matte");
+      this->SetMatteMaterialParameters(anariMaterial, property, color, nullptr, nullptr);
+    }
+  }
+
+  if (anariMaterial != nullptr)
+  {
+    anari::setParameter(
+      this->AnariDevice, anariMaterial, "name", ANARI_STRING, anariMatName.c_str());
     anari::commitParameters(this->AnariDevice, anariMaterial);
   }
 
@@ -1134,11 +1471,24 @@ void vtkAnariPolyDataMapperNodeInternals::SetInheritInterface(
 }
 
 //----------------------------------------------------------------------------
+const std::set<std::string> vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls = {
+  "principled", "obj", "glass", "thinGlass", "metal", "alloy", "metallicPaint", "carPaint",
+  "luminous"
+};
+
+//----------------------------------------------------------------------------
 std::string vtkAnariPolyDataMapperNodeInternals::StrToLower(std::string s)
 {
   std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 
   return s;
+}
+
+//----------------------------------------------------------------------------
+bool vtkAnariPolyDataMapperNodeInternals::IsPhysicallyBased(const std::string& implName) const
+{
+  return vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls.find(implName) !=
+    vtkAnariPolyDataMapperNodeInternals::PhysicallyBasedImpls.end();
 }
 
 //----------------------------------------------------------------------------

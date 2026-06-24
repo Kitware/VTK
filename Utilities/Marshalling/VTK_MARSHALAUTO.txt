@@ -432,6 +432,7 @@ Interaction/Widgets/vtkTensorRepresentation.h
 Interaction/Widgets/vtkTensorWidget.h
 Interaction/Widgets/vtkTextRepresentation.h
 Interaction/Widgets/vtkWidgetRepresentation.h
+Rendering/ANARI/vtkANARIMaterialLibrary.h
 Rendering/Annotation/vtkAnnotatedCubeActor.h
 Rendering/Annotation/vtkArcPlotter.h
 Rendering/Annotation/vtkAxesActor.h
@@ -530,6 +531,7 @@ Rendering/Core/vtkPropPicker.h
 Rendering/Core/vtkRenderedAreaPicker.h
 Rendering/Core/vtkRenderer.h
 Rendering/Core/vtkRendererCollection.h
+Rendering/Core/vtkRenderMaterialLibrary.h
 Rendering/Core/vtkRenderPass.h
 Rendering/Core/vtkRenderWindow.h
 Rendering/Core/vtkRenderWindowInteractor.h

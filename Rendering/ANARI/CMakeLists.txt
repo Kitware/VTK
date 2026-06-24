@@ -16,6 +16,7 @@ if(VTK_ANARI_ENABLE_NVTX)
 endif()
 
 set(classes
+  vtkANARIMaterialLibrary
   vtkAnariActorNode
   vtkAnariCameraNode
   vtkAnariCompositePolyDataMapperNode
@@ -63,6 +64,7 @@ vtk_module_link(VTK::RenderingAnari
     VTK::FiltersGeometry
     VTK::FiltersSources
   PRIVATE
+    VTK::RenderingCore
     $<$<BOOL:${VTK_ANARI_ENABLE_NVTX}>:CUDA::nvToolsExt>
 )
 

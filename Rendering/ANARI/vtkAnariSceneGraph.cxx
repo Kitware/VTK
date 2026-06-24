@@ -25,11 +25,13 @@
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
 #include "vtkLogger.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderMaterialLibrary.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkStringFormatter.h"
@@ -44,6 +46,8 @@ using namespace anari::std_types;
 
 vtkInformationKeyMacro(vtkAnariSceneGraph, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkAnariSceneGraph, ACCUMULATION_COUNT, Integer);
+vtkInformationKeyMacro(vtkAnariSceneGraph, MATERIAL_LIBRARY, ObjectBase);
+vtkInformationKeyMacro(vtkAnariSceneGraph, MATERIAL_NAMES, String);
 
 struct RendererChangeCallback : vtkCommand
 {
@@ -51,8 +55,8 @@ struct RendererChangeCallback : vtkCommand
 
   static RendererChangeCallback* New() { return new RendererChangeCallback; }
 
-  void Execute(
-    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
+    void* vtkNotUsed(callData)) override
   {
     this->AnariRendererModifiedTime->Modified();
   }
@@ -376,9 +380,9 @@ void vtkAnariSceneGraph::CopyAnariFrameBufferData()
 
   if (renderedFrame.data != nullptr)
   {
-    int retTotalSize = renderedFrame.width * renderedFrame.height;
-    totalSize = std::min(retTotalSize, totalSize);
-    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
+    totalSize = renderedFrame.width * renderedFrame.height;
+    this->Internal->ColorBuffer.resize(totalSize * sizeof(uint32_t));
+    memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * sizeof(uint32_t));
   }
   else
   {
@@ -724,6 +728,33 @@ const float* vtkAnariSceneGraph::GetZBuffer()
 void vtkAnariSceneGraph::InvalidateSceneStructure()
 {
   this->AnariSceneStructureModifiedMTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariSceneGraph::SetMaterialLibrary(vtkRenderMaterialLibrary* value, vtkRenderer* renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  info->Set(vtkAnariSceneGraph::MATERIAL_LIBRARY(), value);
+}
+
+//------------------------------------------------------------------------------
+vtkRenderMaterialLibrary* vtkAnariSceneGraph::GetMaterialLibrary(vtkRenderer* renderer)
+{
+  if (!renderer)
+  {
+    return nullptr;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  if (info && info->Has(vtkAnariSceneGraph::MATERIAL_LIBRARY()))
+  {
+    vtkObjectBase* obj = info->Get(vtkAnariSceneGraph::MATERIAL_LIBRARY());
+    return vtkRenderMaterialLibrary::SafeDownCast(obj);
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

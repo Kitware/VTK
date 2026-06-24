@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-int TestPathTracerMaterialLibrary(int argc, char* argv[])
+int TestOSPRayMaterialLibrary(int argc, char* argv[])
 {
   // read an ospray material file
   const char* materialFile =

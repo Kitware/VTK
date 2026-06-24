@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/anari_mats.mtl
   Data/bunny.ply
   Data/dragon.ply
   Data/ironProt.vtk
@@ -12,6 +13,7 @@ vtk_module_test_data(
   Data/skybox/negy.jpg
   Data/skybox/posz.jpg
   Data/skybox/negz.jpg
+  Data/vtk.png
   Data/vtk_Material.png
   Data/vtk_Base_Color.png
   Data/vtk_Normal.png
