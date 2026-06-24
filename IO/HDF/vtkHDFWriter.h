@@ -251,6 +251,7 @@ private:
    * For temporal data, update the steps group with information relevant to the current timestep.
    * return true if the operation was successful.
    */
+  bool UpdateStepsGroupCommon(hid_t group);
   bool UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkStructuredGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId);

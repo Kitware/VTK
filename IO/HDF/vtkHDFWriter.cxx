@@ -430,6 +430,19 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     return false;
   }
 
+  // Process composite types
+  if (auto partitionedDS = vtkPartitionedDataSet::SafeDownCast(input))
+  {
+    return this->WriteDatasetToFile(group, partitionedDS);
+  }
+  if (auto dataObjectTree = vtkDataObjectTree::SafeDownCast(input))
+  {
+    return this->WriteDatasetToFile(group, dataObjectTree);
+  }
+
+  this->UpdateStepsGroupCommon(group);
+
+  // Process simple types
   if (auto imageData = vtkImageData::SafeDownCast(input))
   {
     return this->WriteDatasetToFile(group, imageData, partId);
@@ -458,14 +471,6 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
   {
     return this->WriteDatasetToFile(group, htg, partId);
   }
-  if (auto partitionedDS = vtkPartitionedDataSet::SafeDownCast(input))
-  {
-    return this->WriteDatasetToFile(group, partitionedDS);
-  }
-  if (auto dataObjectTree = vtkDataObjectTree::SafeDownCast(input))
-  {
-    return this->WriteDatasetToFile(group, dataObjectTree);
-  }
 
   vtkErrorMacro(<< "Dataset type not supported: " << input->GetClassName());
   return false;
@@ -474,22 +479,6 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned int partId)
 {
-  if (this->IsTemporal && this->CurrentTimeIndex == 0 && partId == 0)
-  {
-    if (!this->Impl->CreateStepsGroup(group))
-    {
-      vtkErrorMacro("Could not create steps group");
-      return false;
-    }
-
-    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
-    {
-      vtkErrorMacro(<< "Could not initialize temporal time values for ImageData "
-                    << this->FileName);
-      return false;
-    }
-  }
-
   if (this->UseExternalTimeSteps)
   {
     vtkErrorMacro(<< "External time steps are not supported for ImageData " << this->FileName);
@@ -624,23 +613,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int partId)
 {
   bool writeSuccess = true;
-  if (this->IsTemporal && !this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
-
   writeSuccess &= this->Impl->WriteHeader(group, "Table");
 
   if (this->IsTemporal && this->CurrentTimeIndex == 0)
   {
-    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
-    {
-      vtkErrorMacro(<< "Could not initialize temporal time values for ImageData "
-                    << this->FileName);
-      return false;
-    }
-
     writeSuccess &= this->Impl->InitDynamicDataset(
       group, "NumberOfRows", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   }
@@ -1005,14 +981,34 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::UpdateStepsGroupCommon(hid_t group)
+{
+  if (this->IsTemporal && this->Impl->GetStepsGroup(group) < 0)
+  {
+    if (!this->Impl->CreateStepsGroup(group))
+    {
+      vtkErrorMacro("Could not create steps group");
+      return false;
+    }
+
+    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
+    {
+      vtkErrorMacro(<< "Could not initialize temporal time values for " << input->GetClassName()
+                    << " in " << this->FileName);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input)
 {
   if (!this->IsTemporal)
   {
     return true;
   }
-
-  vtkDebugMacro("Update Rectilinear Grid Steps group for file " << this->GetFileName());
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   bool result = true;
@@ -1041,8 +1037,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkStructuredGrid* vtkNotUsed(i
     return true;
   }
 
-  vtkDebugMacro("Update Structured Grid Steps group for file " << this->GetFileName());
-
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   bool result = true;
 
@@ -1066,8 +1060,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
   {
     return true;
   }
-
-  vtkDebugMacro("Update UG Steps group for file " << this->GetFileName());
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   bool result = true;
@@ -1146,8 +1138,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
   {
     return true;
   }
-
-  vtkDebugMacro("Update PD Steps group");
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   bool result = true;
@@ -1276,8 +1266,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkHyperTreeGrid* input, unsign
   result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets",
     { input->GetZCoordinates()->GetNumberOfTuples() }, true, addToLastValue);
 
-  vtkDebugMacro("Update HyperTreeGrid Steps group for file " << this->GetFileName());
-
   // Don't write offsets for the last timestep
   if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
   {
@@ -1295,18 +1283,7 @@ bool vtkHDFWriter::InitializeTemporalHTG(hid_t group)
     return true;
   }
 
-  vtkDebugMacro("Initialize Temporal HTG for file " << this->FileName);
-
-  if (!this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
 
   // Create empty offsets arrays, where a value is appended every step
   bool initResult = true;
@@ -1361,18 +1338,7 @@ bool vtkHDFWriter::InitializeTemporalRectilinearGrid(hid_t group)
     return true;
   }
 
-  vtkDebugMacro("Initialize Temporal RectilinearGrid for file " << this->FileName);
-
-  if (!this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
 
   // Create empty offsets arrays, where a value is appended every step
   bool initResult = true;
@@ -1405,18 +1371,7 @@ bool vtkHDFWriter::InitializeTemporalStructuredGrid(hid_t group)
     return true;
   }
 
-  vtkDebugMacro("Initialize Temporal RectilinearGrid for file " << this->FileName);
-
-  if (!this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
 
   bool initResult = true;
   initResult &= this->Impl->InitDynamicDataset(
@@ -1439,18 +1394,7 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
     return true;
   }
 
-  vtkDebugMacro("Initialize Temporal UG for file " << this->FileName);
-
-  if (!this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
 
   // Create empty offsets arrays, where a value is appended every step
   bool initResult = true;
@@ -1487,8 +1431,6 @@ bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
   {
     return true;
   }
-
-  vtkDebugMacro("Initialize Temporal polyhedra for file " << this->FileName);
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
@@ -1528,18 +1470,8 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
   {
     return true;
   }
-  vtkDebugMacro("Initialize Temporal PD");
 
-  if (!this->Impl->CreateStepsGroup(group))
-  {
-    vtkErrorMacro("Could not create steps group");
-    return false;
-  }
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  if (!this->AppendTimeValues(stepsGroup))
-  {
-    return false;
-  }
 
   // Create empty offsets arrays, where a value is appended every step, and add and initial 0 value.
   bool initResult = true;
