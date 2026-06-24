@@ -223,7 +223,8 @@ int TestSurfaceLIC(int argc, char* argv[])
     high_lic_contrast_enhancement_factor, low_color_contrast_enhancement_factor,
     high_color_contrast_enhancement_factor, anti_alias, color_mode, lic_intensity, map_mode_bias,
     color_by_mag, mask_on_surface, mask_threshold, mask_intensity,
-    interpolate_scalars_before_mapping, num_discrete_colors, oriented_lic, mask_color_rgb, vectors);
+    interpolate_scalars_before_mapping, num_discrete_colors, oriented_lic == 1, mask_color_rgb,
+    vectors);
 
   vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 

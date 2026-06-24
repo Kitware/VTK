@@ -123,9 +123,9 @@ public:
    * reflects the direction of flow, not just its presence.
    * Default is off (0).
    */
-  vtkSetClampMacro(OrientedLIC, int, 0, 1);
-  vtkGetMacro(OrientedLIC, int);
-  vtkBooleanMacro(OrientedLIC, int);
+  vtkSetMacro(OrientedLIC, bool);
+  vtkGetMacro(OrientedLIC, bool);
+  vtkBooleanMacro(OrientedLIC, bool);
   ///@}
 
   ///@{
@@ -411,7 +411,6 @@ protected:
 
   int NumberOfSteps;
   double StepSize;
-  int OrientedLIC;
   int EnhancedLIC;
   int EnhanceContrast;
   double LowContrastEnhancementFactor;
@@ -427,6 +426,8 @@ protected:
 private:
   vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D&) = delete;
   void operator=(const vtkLineIntegralConvolution2D&) = delete;
+
+  bool OrientedLIC;
 };
 
 VTK_ABI_NAMESPACE_END

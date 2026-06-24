@@ -78,7 +78,7 @@ vtkSurfaceLICInterface::vtkSurfaceLICInterface()
   this->NumberOfSteps = 20;
   this->NormalizeVectors = 1;
 
-  this->OrientedLIC = 0;
+  this->OrientedLIC = false;
   this->EnhancedLIC = 1;
 
   this->EnhanceContrast = 0;
@@ -740,7 +740,7 @@ vtkSetMonitoredParameterMacro(
   val = val > 1.0 ? 1.0 : val;);
 
 //------------------------------------------------------------------------------
-void vtkSurfaceLICInterface::SetOrientedLIC(int val)
+void vtkSurfaceLICInterface::SetOrientedLIC(bool val)
 {
   if (val == this->OrientedLIC)
   {

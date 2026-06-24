@@ -166,9 +166,9 @@ public:
    * reflects the direction of flow, not just its presence.
    * Default is off (0).
    */
-  void SetOrientedLIC(int val);
-  vtkGetMacro(OrientedLIC, int);
-  vtkBooleanMacro(OrientedLIC, int);
+  void SetOrientedLIC(bool val);
+  vtkGetMacro(OrientedLIC, bool);
+  vtkBooleanMacro(OrientedLIC, bool);
   ///@}
 
   ///@{
@@ -563,7 +563,6 @@ protected:
   double StepSize;
   int NormalizeVectors;
 
-  int OrientedLIC;
   int EnhancedLIC;
   int EnhanceContrast;
   double LowLICContrastEnhancementFactor;
@@ -600,6 +599,8 @@ protected:
 private:
   vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) = delete;
   void operator=(const vtkSurfaceLICInterface&) = delete;
+
+  bool OrientedLIC;
 };
 
 VTK_ABI_NAMESPACE_END

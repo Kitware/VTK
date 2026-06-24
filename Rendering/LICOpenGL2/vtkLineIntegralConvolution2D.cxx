@@ -897,7 +897,7 @@ vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
   this->ComponentIds[0] = 0;
   this->ComponentIds[1] = 1;
 
-  this->OrientedLIC = 0;
+  this->OrientedLIC = false;
   this->EnhancedLIC = 1;
 
   this->EnhanceContrast = 0;
@@ -1424,7 +1424,7 @@ vtkTextureObject* vtkLineIntegralConvolution2D::Execute(
   this->LICIShader->Program->SetUniform2f("uNoiseBoundsPt1", noiseBoundsPt1);
   this->LICIShader->Program->SetUniformi("texVectors", bufs.GetImageVectorTextureUnit());
   this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(0));
-  this->LICIShader->Program->SetUniformi("uUseOLIC", this->OrientedLIC);
+  this->LICIShader->Program->SetUniformi("uUseOLIC", this->OrientedLIC ? 1 : 0);
   this->LICIShader->Program->SetUniformi("uNumSteps", this->NumberOfSteps);
 
   for (int stepIdx = 0; stepIdx < this->NumberOfSteps; ++stepIdx)
