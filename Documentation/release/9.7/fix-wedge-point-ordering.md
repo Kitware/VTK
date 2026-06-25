@@ -8,8 +8,8 @@ faces with incorrect outward normals. The fixes are mentioned below:
 1. `vtkWedge`
    - Fix documentation and drawing: the point ordering in the vtk-examples and vtk-book was wrong
      and did not match the cell's parametric coordinates; this has been corrected
-     1. Wrong Wedge Point Ordering: ![Old Wedge Point Ordering](./WedgeWrong.png)
-     2. Corrected Wedge Point Ordering: ![New Wedge Point Ordering](./WedgeCorrected.png)
+     1. Wrong Wedge Point Ordering: ![Old Wedge Point Ordering](../imgs/9.7/WedgeWrong.png)
+     2. Corrected Wedge Point Ordering: ![New Wedge Point Ordering](../imgs/9.7/WedgeCorrected.png)
    - Use outward normal winding for each face, which was broken as a result of
      the incorrect point ordering
    - `TriangulateLocalIds` now generates positive volume tetrahedrons
