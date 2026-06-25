@@ -33,6 +33,11 @@ class TestUpdateStateFromObject(vtkTesting.vtkTest):
         camState = json.loads(manager.GetState(1))
         self.assertListEqual(camState["Position"], [0, 0.2, 1.3])
         self.assertEqual(camState["ViewAngle"], 60)
+        # The targeted serialization must preserve the kept-alive ownership marker
+        # that UpdateStatesFromObjects stamped, deriving it from the strong-object
+        # store rather than carrying it forward from the previous state.
+        self.assertIn("vtk-object-manager-kept-alive", camState,
+                      "UpdateStateFromObject dropped the kept-alive marker of a registered object")
 
 
     def test2(self):
