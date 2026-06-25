@@ -1131,6 +1131,7 @@ void vtkNetCDFCFReader::GetUpdateExtentForOutput(vtkDataSet* output, int extent[
 //------------------------------------------------------------------------------
 void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData* imageOutput)
 {
+  const auto* dims = imageOutput->GetDimensions();
   double origin[3];
   origin[0] = origin[1] = origin[2] = 0.0;
   double spacing[3];
@@ -1146,6 +1147,10 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData* imageOutput)
     vtkDimensionInfo* dimInfo = this->GetDimensionInfo(dim);
     origin[i] = dimInfo->GetOrigin();
     spacing[i] = dimInfo->GetSpacing();
+    if (dims[i] == 1 || std::isnan(spacing[i]))
+    {
+      spacing[i] = 1.0;
+    }
   }
 
   imageOutput->SetOrigin(origin);
