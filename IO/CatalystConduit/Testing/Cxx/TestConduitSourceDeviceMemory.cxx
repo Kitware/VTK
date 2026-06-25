@@ -201,7 +201,8 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
   {
     spacings[2] = 20.0 / (nptsZ - 1);
   }
-  viskores::Vec<viskores::Id, 3> dims({ nptsX, nptsY, nptsZ });
+  viskores::Vec<viskores::Id, 3> dims({ static_cast<viskores::Id>(nptsX),
+    static_cast<viskores::Id>(nptsY), static_cast<viskores::Id>(nptsZ) });
   for (int dim = 0; dim < 3; ++dim)
   {
     viskores::cont::Token token;
@@ -256,7 +257,8 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   {
     spacings[2] = 20.0 / (nptsZ - 1);
   }
-  viskores::Vec<viskores::Id, 3> dims({ nptsX, nptsY, nptsZ });
+  viskores::Vec<viskores::Id, 3> dims({ static_cast<viskores::Id>(nptsX),
+    static_cast<viskores::Id>(nptsY), static_cast<viskores::Id>(nptsZ) });
   viskores::cont::Invoker invoke(device);
   ExplicitCoordsWorklet worker(spacings, dims);
   invoke(worker, viskores::cont::make_ArrayHandleCounting(0, 1, npts), outCoords);
@@ -308,7 +310,8 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
   }
   {
     viskores::cont::Invoker invoke(device);
-    TriangleIndicesWorklet worker({ nElementX, nElementY });
+    TriangleIndicesWorklet worker(
+      { static_cast<viskores::Id>(nElementX), static_cast<viskores::Id>(nElementY) });
     invoke(worker, viskores::cont::make_ArrayHandleCounting(0, 1, nElements), connectivity);
     if (auto ptr = connectivity.GetReadPointer(device))
     {
