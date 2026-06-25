@@ -441,7 +441,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
           for (int i = min; i <= max; i += step)
           {
             // the format is expected to be in printf style format, so it's converted to std::format
-            auto filename = vtk::format(vtk::printf_to_std_format(format), i);
+            auto filename = vtk::format(vtk::runtime(vtk::printf_to_std_format(format)), i);
             this->DataFiles->InsertNextValue(filename);
           }
         }

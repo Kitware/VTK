@@ -790,7 +790,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
         std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
         char string[512];
         VTK_FORMAT_IF_ERROR_BREAK(
-          auto result = vtk::format_to_n(string, sizeof(string), labelFormat, val);
+          auto result = vtk::format_to_n(string, sizeof(string), vtk::runtime(labelFormat), val);
           *result.out = '\0');
         this->LabelMappers[i]->SetInput(string);
       }

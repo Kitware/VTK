@@ -171,6 +171,13 @@ VTK_ALWAYS_INLINE auto from_chars(
  */
 using scn::scan_result_type;
 
+/**
+ * Create a runtime format string
+ *
+ * Can be used to avoid compile-time format string checking
+ */
+using scn::runtime_format;
+
 ///@{
 /**
  * Given a source (string, stdin, file) convert it to a number, and return a scan_result;

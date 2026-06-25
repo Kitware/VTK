@@ -48,7 +48,7 @@ private:
     try
     {
       // Run std::format
-      std_format_output = fmt::format(std_format, args...);
+      std_format_output = fmt::format(fmt::runtime(std_format), args...);
     }
     catch (const std::exception& e)
     {

@@ -266,13 +266,13 @@ void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalar
   if (this->FilePrefix)
   {
     VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
-                                 this->FilePattern, this->FilePrefix, sliceNumber);
+                                 vtk::runtime(this->FilePattern), this->FilePrefix, sliceNumber);
                                *result.out = '\0', );
   }
   else
   {
-    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
-                                 filename, sizeof(filename), this->FilePattern, "", sliceNumber);
+    VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
+                                 vtk::runtime(this->FilePattern), "", sliceNumber);
                                *result.out = '\0', );
   }
   if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
@@ -333,13 +333,13 @@ void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* s
     if (this->FilePrefix)
     {
       VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
-                                   this->FilePattern, this->FilePrefix, fileNumber);
+                                   vtk::runtime(this->FilePattern), this->FilePrefix, fileNumber);
                                  *result.out = '\0', );
     }
     else
     {
-      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(
-                                   filename, sizeof(filename), this->FilePattern, "", fileNumber);
+      VTK_FORMAT_IF_ERROR_RETURN(auto result = vtk::format_to_n(filename, sizeof(filename),
+                                   vtk::runtime(this->FilePattern), "", fileNumber);
                                  *result.out = '\0', );
     }
     if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))

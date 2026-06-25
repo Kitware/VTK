@@ -164,7 +164,7 @@ int vtkPDataSetWriter::Write()
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
   {
     auto result = vtk::format_to_n(
-      fileName.data(), fileNameSize, this->FilePatternStdFormat, fileRoot.data(), i);
+      fileName.data(), fileNameSize, vtk::runtime(this->FilePatternStdFormat), fileRoot.data(), i);
     *result.out = '\0';
     writer->SetFileName(fileName.data());
     inputAlg->UpdatePiece(i, this->NumberOfPieces, this->GhostLevel);
@@ -297,7 +297,7 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
-    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
+    auto result = vtk::format_to_n(str, strSize, vtk::runtime(this->FilePatternStdFormat), root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\" />" << endl;
   }
@@ -406,7 +406,7 @@ int vtkPDataSetWriter::WriteImageMetaData(
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
+    auto result = vtk::format_to_n(str, strSize, vtk::runtime(this->FilePatternStdFormat), root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -441,7 +441,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
+    auto result = vtk::format_to_n(str, strSize, vtk::runtime(this->FilePatternStdFormat), root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -477,7 +477,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
+    auto result = vtk::format_to_n(str, strSize, vtk::runtime(this->FilePatternStdFormat), root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -561,7 +561,7 @@ void vtkPDataSetWriter::DeleteFiles()
   for (i = this->StartPiece; i <= this->EndPiece; i++)
   {
     auto result = vtk::format_to_n(
-      fileName.data(), fileNameSize, this->FilePatternStdFormat, fileRoot.data(), i);
+      fileName.data(), fileNameSize, vtk::runtime(this->FilePatternStdFormat), fileRoot.data(), i);
     *result.out = '\0';
     remove(fileName.data());
   }

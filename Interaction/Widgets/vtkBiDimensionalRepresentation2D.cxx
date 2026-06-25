@@ -598,9 +598,9 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     }
     std::string format = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
     std::string distStr1;
-    VTK_FORMAT_IF_ERROR_RETURN(distStr1 = vtk::format(format, line1Dist), );
+    VTK_FORMAT_IF_ERROR_RETURN(distStr1 = vtk::format(vtk::runtime(format), line1Dist), );
     std::string distStr2;
-    VTK_FORMAT_IF_ERROR_RETURN(distStr2 = vtk::format(format, line2Dist), );
+    VTK_FORMAT_IF_ERROR_RETURN(distStr2 = vtk::format(vtk::runtime(format), line2Dist), );
 
     if (line1Dist > line2Dist)
     {

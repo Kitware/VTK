@@ -1010,7 +1010,8 @@ struct vtkWriteDataArray
         for (i = 0; i < numComp; i++)
         {
           idx = i + j * numComp;
-          auto result = vtk::format_to_n(str, sizeof(str), format, static_cast<T>(*data++));
+          auto result =
+            vtk::format_to_n(str, sizeof(str), vtk::runtime(format), static_cast<T>(*data++));
           *result.out = '\0';
           *fp << str;
           if (!((idx + 1) % 9))
@@ -1069,7 +1070,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
   {
     case VTK_BIT:
     { // assume that bit array is always in original AOS ordering
-      auto result = vtk::format_to_n(str, sizeof(str), format, "bit");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "bit");
       *result.out = '\0';
       *fp << str;
       if (this->FileType == VTK_ASCII)
@@ -1104,7 +1105,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_CHAR:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "char");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "char");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<char>>::Execute(
@@ -1118,7 +1119,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_SIGNED_CHAR:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "signed_char");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "signed_char");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<signed char>>::Execute(
@@ -1132,7 +1133,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_UNSIGNED_CHAR:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_char");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "unsigned_char");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned char>>::Execute(
@@ -1146,7 +1147,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_SHORT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "short");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "short");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<short>>::Execute(
@@ -1160,7 +1161,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_UNSIGNED_SHORT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_short");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "unsigned_short");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned short>>::Execute(
@@ -1174,7 +1175,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_INT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "int");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "int");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<int>>::Execute(
@@ -1188,7 +1189,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_UNSIGNED_INT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_int");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "unsigned_int");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned int>>::Execute(
@@ -1202,7 +1203,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_LONG:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "long");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "long");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<long>>::Execute(
@@ -1216,7 +1217,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_UNSIGNED_LONG:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "unsigned_long");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "unsigned_long");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned long>>::Execute(
@@ -1230,7 +1231,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_LONG_LONG:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "vtktypeint64");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "vtktypeint64");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<long long>>::Execute(
@@ -1244,7 +1245,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_UNSIGNED_LONG_LONG:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "vtktypeuint64");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "vtktypeuint64");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned long long>>::Execute(
@@ -1258,7 +1259,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_FLOAT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "float");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "float");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<float>>::Execute(
@@ -1272,7 +1273,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_DOUBLE:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "double");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "double");
       *result.out = '\0';
       *fp << str;
       if (!vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<double>>::Execute(
@@ -1287,7 +1288,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
     case VTK_ID_TYPE:
     {
       // currently writing vtkIdType as int.
-      auto result = vtk::format_to_n(str, sizeof(str), format, "vtkIdType");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "vtkIdType");
       *result.out = '\0';
       *fp << str;
       vtkNew<vtkIntArray> intArray;
@@ -1298,7 +1299,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_STRING:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "string");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "string");
       *result.out = '\0';
       *fp << str;
       if (this->FileType == VTK_ASCII)
@@ -1357,7 +1358,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
 
     case VTK_VARIANT:
     {
-      auto result = vtk::format_to_n(str, sizeof(str), format, "variant");
+      auto result = vtk::format_to_n(str, sizeof(str), vtk::runtime(format), "variant");
       *result.out = '\0';
       *fp << str;
       vtkVariant* v = static_cast<vtkVariantArray*>(data)->GetPointer(0);

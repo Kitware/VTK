@@ -759,7 +759,8 @@ void vtkLineRepresentation::BuildRepresentation()
     std::string distanceAnnotationFormat =
       this->DistanceAnnotationFormat ? vtk::to_std_format(this->DistanceAnnotationFormat) : "";
     std::string string;
-    VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(distanceAnnotationFormat, this->Distance), );
+    VTK_FORMAT_IF_ERROR_RETURN(
+      string = vtk::format(vtk::runtime(distanceAnnotationFormat), this->Distance), );
     this->TextInput->SetText(string.c_str());
     this->TextActor->SetPosition(x);
     if (this->Renderer)

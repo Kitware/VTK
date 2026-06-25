@@ -102,7 +102,7 @@ int vtkDateToNumeric::RequestData(
         for (auto& format : formats)
         {
           const std::string& inval = inarray->GetValue(0);
-          auto result = vtk::scan<std::tm>(inval, format);
+          auto result = vtk::scan<std::tm>(inval, vtk::runtime_format(format));
           if (result)
           {
             useFormat = format;
@@ -119,7 +119,7 @@ int vtkDateToNumeric::RequestData(
           for (vtkIdType i = 0; i < inarray->GetNumberOfValues(); ++i)
           {
             const std::string& inval = inarray->GetValue(i);
-            auto result = vtk::scan<std::tm>(inval, useFormat);
+            auto result = vtk::scan<std::tm>(inval, vtk::runtime_format(useFormat));
             if (result)
             {
               auto etime = std::mktime(&result->value());

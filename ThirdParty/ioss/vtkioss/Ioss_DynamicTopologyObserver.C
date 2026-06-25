@@ -16,7 +16,6 @@
 #include "Ioss_Region.h"
 
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
 

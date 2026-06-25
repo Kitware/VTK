@@ -1717,7 +1717,7 @@ std::string vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
     this->GetControlPoint(pointId, point);
     std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
     VTK_FORMAT_IF_ERROR_RETURN(
-      result = vtk::format(labelFormat, point[0], point[1], point[2], point[3]), "");
+      result = vtk::format(vtk::runtime(labelFormat), point[0], point[1], point[2], point[3]), "");
   }
   return result;
 }

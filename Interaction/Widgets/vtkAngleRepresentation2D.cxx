@@ -256,7 +256,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
   // Construct label
   std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
   std::string string;
-  VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(labelFormat, angle), );
+  VTK_FORMAT_IF_ERROR_RETURN(string = vtk::format(vtk::runtime(labelFormat), angle), );
   if (string.empty())
   {
     this->ArcVisibility = 0;

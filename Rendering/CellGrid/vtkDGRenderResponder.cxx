@@ -23,27 +23,17 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkPBRPrefilterTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
 #include "vtkShaderProperty.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkUniforms.h"
-
-#include "vtk_fmt.h"
-#include <iterator>
-// Keep clang-format from adding spaces around the '/' path separator:
-// clang-format off
-#include VTK_FMT(fmt/args.h)
-#include VTK_FMT(fmt/format.h)
-#include VTK_FMT(fmt/ostream.h)
-// clang-format on
 
 #include "vtk_glad.h"
 

@@ -1720,7 +1720,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
         else
         {
           auto resultInt9 = vtk::scan<int, int, int, int, int, int, int, int, int>(
-            lineView, " {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d}");
+            lineView, " {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d}");
           if (resultInt9 && cellType == vtkEnSightReader::QUAD8)
           {
             std::tie(std::ignore, intIds[0], intIds[1], intIds[2], intIds[3], std::ignore,
