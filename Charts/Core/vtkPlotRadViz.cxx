@@ -147,60 +147,28 @@ float vtkPlotRadViz::GetRadius() const
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensRadius(float radius)
+void vtkPlotRadViz::SetLensRadius(float lensRadius)
 {
-  vtkDebugMacro(<< " setting LensRadius to " << radius);
-  // insure that the lens circle intersects the plot circle
-  // distance Center to LensCenter position.
-  float r = std::sqrt(std::pow(this->LensCenter[0] - this->Internals->Center[0], 2) +
-    std::pow(this->LensCenter[1] - this->Internals->Center[1], 2));
-  float newRadius;
-  // if he two circles do not intersect, move the newRadius so that they do.
-  if (r - radius > this->Internals->Radius)
+  vtkDebugMacro(<< " setting LensRadius to " << lensRadius);
+  float newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
+    lensRadius, this->Internals->Radius, this->LensCenter, this->Internals->Center);
+
+  if (newLensRadius != this->LensRadius)
   {
-    newRadius = r - this->Internals->Radius;
-  }
-  else
-  {
-    newRadius = radius;
-  }
-  if (newRadius != this->LensRadius)
-  {
-    this->LensRadius = newRadius;
+    this->LensRadius = newLensRadius;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensCenter(const float* pos)
+void vtkPlotRadViz::SetLensCenter(const float* lensCenter)
 {
-  vtkDebugMacro(<< " setting LensLensCenter to [" << pos[0] << ", " << pos[1] << ")");
-  // insure that the lens circle intersects the plot circle
-
-  // distance Center to mouse position.
-  float r = std::sqrt(std::pow(pos[0] - this->Internals->Center[0], 2) +
-    std::pow(pos[1] - this->Internals->Center[1], 2));
-  float newCenter[2];
-  // if he two circles do not intersect, move the newCenter so that they do.
-  if (r - this->LensRadius > this->Internals->Radius)
+  vtkDebugMacro(<< " setting LensLensCenter to [" << lensCenter[0] << ", " << lensCenter[1] << ")");
+  std::array<float, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
+    this->LensRadius, this->Internals->Radius, lensCenter, this->Internals->Center);
+  if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
   {
-    float intersection[2];
-    intersection[0] = ((pos[0] - this->Internals->Center[0]) / r) * this->Internals->Radius;
-    intersection[1] = ((pos[1] - this->Internals->Center[1]) / r) * this->Internals->Radius;
-    newCenter[0] =
-      (intersection[0] / this->Internals->Radius) * (this->Internals->Radius + this->LensRadius) +
-      this->Internals->Center[0];
-    newCenter[1] =
-      (intersection[1] / this->Internals->Radius) * (this->Internals->Radius + this->LensRadius) +
-      this->Internals->Center[1];
-  }
-  else
-  {
-    std::copy(pos, pos + 2, newCenter);
-  }
-  if (this->LensCenter[0] != newCenter[0] || this->LensCenter[1] != newCenter[1])
-  {
-    std::copy(newCenter, newCenter + 2, this->LensCenter);
+    std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
     this->Modified();
   }
 }
@@ -345,6 +313,11 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     computeGBC->SetStoreVertices(true);
     computeGBC->SetVerticesRotation(this->VerticesRotation);
     computeGBC->SetStoreRGBA(this->ScalarVisibility);
+    computeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
+    std::array<float, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
+        this->Internals->Radius,
+      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
+    computeGBC->SetLensCenter(lensCenter.data());
     if (array)
     {
       // set the array to process and association to vtkMultiVariateToRGBA

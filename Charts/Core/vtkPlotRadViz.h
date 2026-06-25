@@ -217,7 +217,7 @@ protected:
    */
   vtkSmartPointer<vtkPen> LensPen;
   /**
-   * Where the lens is drawn and its radius
+   * Where the lens is drawn and its radius in Window coordinates
    */
   float LensCenter[2];
   float LensRadius;

@@ -79,6 +79,28 @@ public:
 
   ///@{
   /**
+   * Center of the lens.
+   * The GBC circle is centered at (0,1) and has radius 1.
+   * The lens has to intersect the the GBC circle.
+   */
+  virtual void SetLensCenter(const float* center);
+  vtkGetVector2Macro(LensCenter, float);
+  /**
+   * Radius of the lens.
+   * The GBC circle is centered at (0,1) and has radius 1.
+   * The lens has to intersect the the GBC circle.
+   */
+  virtual void SetLensRadius(float radius);
+  vtkGetMacro(LensRadius, float);
+
+  static float GetLensRadius(
+    float lensRadius, float radius, const float* lensCenter, const float* center);
+  static std::array<float, 2> GetLensCenter(
+    float lensRadius, float radius, const float* lensCenter, const float* center);
+  ///@}
+
+  ///@{
+  /**
    * If true, negates the Y coordinates for points, vertices and in
    * color computation. This is necessary to get the same RadViz graph
    * in VTK (origin bottom-left, Y grows up) and JavaScript (origin
@@ -104,6 +126,11 @@ protected:
   std::vector<std::vector<int>> ModalityGroups;
   std::function<double(double)> GlobalMin = nullptr;
   std::function<double(double)> GlobalMax = nullptr;
+  /**
+   * Where the lens is drawn and its radius
+   */
+  float LensCenter[2];
+  float LensRadius;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

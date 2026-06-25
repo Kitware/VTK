@@ -20,6 +20,7 @@
 #include "vtkTable.h"
 
 #include <algorithm>
+#include <array>
 #include <vtk_fmt.h>
 // clang-format off
 #include VTK_FMT(fmt/format.h)
@@ -361,6 +362,7 @@ struct HSLToRGBWorker
 
 struct ComputeAlphaWorker
 {
+  ComputeAlphaWorker() = default;
   template <typename Input, typename Output>
   void operator()(Input* normalizedScalars, Output* rgbaScalars)
   {
@@ -383,6 +385,36 @@ struct ComputeAlphaWorker
       rgba[i][3] = mean;
     }
   }
+};
+
+struct ComputeLensAlphaWorker
+{
+  ComputeLensAlphaWorker(float* center, float radius)
+    : Radius(radius)
+  {
+    std::copy(center, center + 2, this->Center);
+  }
+  template <typename Input, typename Output>
+  void operator()(Input* gbcScalars, Output* rgbaScalars)
+  {
+    auto gbc = vtk::DataArrayTupleRange(gbcScalars);
+    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
+
+    vtkIdType nComponents = gbc.GetTupleSize();
+
+    vtkIdType nTuples = gbc.size();
+    for (vtkIdType i = 0; i < nTuples; ++i)
+    {
+      float distance = std::sqrt(
+        std::pow(gbc[i][0] - this->Center[0], 2) + std::pow(gbc[i][1] - this->Center[1], 2));
+      if (distance > this->Radius)
+      {
+        rgba[i][3] = 0;
+      }
+    }
+  }
+  float Center[2];
+  float Radius;
 };
 
 template <typename DataType>
@@ -431,6 +463,9 @@ struct CreateSOAWorker
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
   this->VerticesRotation = 0;
+  this->LensCenter[0] = 0;
+  this->LensCenter[1] = 0;
+  this->LensRadius = 1;
   // by default process active point/cell scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
@@ -590,6 +625,13 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
         worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
       }
     }
+    {
+      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius);
+      if (!Dispatcher::Execute(gbcScalars, rgbaScalars, worker))
+      {
+        worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
+      }
+    }
     attributes->AddArray(rgbaScalars);
   }
   return 1;
@@ -677,6 +719,73 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
   }
   vtkErrorWithObjectMacro(input, "Invalid input type: " << input->GetClassName());
   return { nullptr, nullptr };
+}
+
+float vtkMultiVariateToRGBA::GetLensRadius(
+  float lensRadius, float radius, const float* lensCenter, const float* center)
+{
+  // insure that the lens circle intersects the plot circle
+  // distance Center to LensCenter position.
+  float r =
+    std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
+  float newLensRadius;
+  // if he two circles do not intersect, move the newRadius so that they do.
+  if (r - lensRadius > radius)
+  {
+    newLensRadius = r - radius;
+  }
+  else
+  {
+    newLensRadius = lensRadius;
+  }
+  return newLensRadius;
+}
+
+void vtkMultiVariateToRGBA::SetLensRadius(float lensRadius)
+{
+  float newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
+    lensRadius, 1, this->LensCenter, std::array<float, 2>{ 0, 0 }.data());
+  if (newLensRadius != this->LensRadius)
+  {
+    this->LensRadius = newLensRadius;
+    this->Modified();
+  }
+}
+
+std::array<float, 2> vtkMultiVariateToRGBA::GetLensCenter(
+  float lensRadius, float radius, const float* lensCenter, const float* center)
+{
+  // insure that the lens circle intersects the plot circle
+
+  // distance Center to mouse position.
+  float r =
+    std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
+  std::array<float, 2> newLensCenter;
+  // if he two circles do not intersect, move the newLensCenter so that they do.
+  if (r - lensRadius > radius)
+  {
+    std::array<float, 2> intersection;
+    intersection = { ((lensCenter[0] - center[0]) / r) * radius,
+      ((lensCenter[1] - center[1]) / r) * radius };
+    newLensCenter = { (intersection[0] / radius) * (radius + lensRadius) + center[0],
+      (intersection[1] / radius) * (radius + lensRadius) + center[1] };
+  }
+  else
+  {
+    std::copy(lensCenter, lensCenter + 2, newLensCenter.begin());
+  }
+  return newLensCenter;
+}
+
+void vtkMultiVariateToRGBA::SetLensCenter(const float* lensCenter)
+{
+  std::array<float, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
+    this->LensRadius, 1, lensCenter, std::array<float, 2>{ 1, 1 }.data());
+  if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
+  {
+    std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
