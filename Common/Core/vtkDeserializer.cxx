@@ -201,25 +201,25 @@ vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
   // So we need to reverse the order of `superClassNames` to get correct order ['C','B','A']. This
   // is important for classes that use object factory to create the objects.
 
-  bool isDisabledOverrideClass = false;
+  // whether className is the thing that implements an abstract factory class
+  bool isFactoryOverrideSubclass = false;
   for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
   {
     for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)
     {
-      if (!objectFactory->GetEnableFlag(i) &&
-        !strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
+      if (!strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
       {
-        isDisabledOverrideClass = true;
+        isFactoryOverrideSubclass = true;
         break;
       }
     }
-    if (isDisabledOverrideClass)
+    if (isFactoryOverrideSubclass)
     {
       // No need to keep scanning factories once a disabled override is found.
       break;
     }
   }
-  if (isDisabledOverrideClass)
+  if (isFactoryOverrideSubclass)
   {
     for (const auto& superClassName : superClassNames)
     {

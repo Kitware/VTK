@@ -1,7 +1,7 @@
-function makeStates() {
+function makeStates(prefix) {
   return [{
     Id: 1,
-    ClassName: `vtkRenderWindow`,
+    ClassName: `vtk${prefix}RenderWindow`,
     Interactor: { Id: 2 },
     Renderers: { Id: 3 },
     Size: [800, 600],
@@ -9,6 +9,7 @@ function makeStates() {
       "vtkObjectBase",
       "vtkObject",
       "vtkWindow",
+      "vtkRenderWindow",
     ],
     "vtk-object-manager-kept-alive": true,
   },
@@ -33,12 +34,13 @@ function makeStates() {
   },
   {
     Id: 4,
-    ClassName: `vtkRenderer`,
+    ClassName: `vtk${prefix}Renderer`,
     ViewProps: { Id: 5 },
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
       "vtkViewport",
+      "vtkRenderer",
     ],
   },
   {
@@ -58,13 +60,14 @@ function makeStates() {
   },
   {
     Id: 6,
-    ClassName: `vtkActor`,
+    ClassName: `vtk${prefix}Actor`,
     Mapper: { Id: 7 },
     Property: { Id: 8 },
     SuperClassNames: [
       "vtkObjectBase",
       "vtkObject",
       "vtkProp",
+      "vtkActor",
     ],
   },
   {
@@ -231,11 +234,18 @@ function makeStates() {
   }]
 }
 
-async function testOpenGLOverrides() {
+/**
+ * Deserialize a scene whose states use `statePrefix` backend specific class names
+ * (e.g. "OpenGL", "WebGPU" or "" for abstract base class names) while the object factory
+ * is configured to prefer the `preferBackend` rendering backend. Every object that ends up
+ * with a backend specific class name is expected to match `preferBackend` regardless of the
+ * backend that was used to author the states.
+ */
+async function testOverrides({ preferBackend, statePrefix }) {
   const vtkWASM = await globalThis.createVTKWASM({
     preRun: [function (module) {
-      /// select OpenGL backend
-      module.ENV.VTK_FACTORY_PREFER = "RenderingBackend=OpenGL;Platform=WebAssembly"
+      /// select the rendering backend the object factory should prefer
+      module.ENV.VTK_FACTORY_PREFER = `RenderingBackend=${preferBackend};Platform=WebAssembly`
       /// enable logging for debugging purposes (optional)
       // module.ENV.VTK_DESERIALIZER_LOG_VERBOSITY = "INFO";
       // module.ENV.VTK_INVOKER_LOG_VERBOSITY = "INFO";
@@ -243,54 +253,44 @@ async function testOpenGLOverrides() {
     }],
   });
   const session = new vtkWASM.vtkRemoteSession();
-  const states = makeStates();
+  const states = makeStates(statePrefix);
   for (const state of states) {
     session.registerState(state);
   }
   session.updateObjectsFromStates();
-  // Since the OpenGL backend is used, the class name should include OpenGL
+  // The created objects must match the preferred backend, never the other one.
+  const otherBackend = preferBackend === "OpenGL" ? "WebGPU" : "OpenGL";
   for (const state of states) {
     const objectState = session.get(state.Id);
-    if (objectState.ClassName.includes("WebGPU") && !objectState.ClassName.includes("OpenGL")) {
-      throw new Error(`Object ${JSON.stringify(objectState)} should include OpenGL instead of WebGPU`);
+    if (objectState.ClassName.includes(otherBackend) &&
+      !objectState.ClassName.includes(preferBackend)) {
+      throw new Error(
+        `ClassName ${objectState.ClassName} should include ${preferBackend} instead of ${otherBackend}`);
     }
   }
 }
 
-async function testWebGPUOverrides() {
-  const vtkWASM = await globalThis.createVTKWASM({
-    preRun: [function (module) {
-      /// select WebGPU backend
-      module.ENV.VTK_FACTORY_PREFER = "RenderingBackend=WebGPU;Platform=WebAssembly"
-      /// enable logging for debugging purposes (optional)
-      // module.ENV.VTK_DESERIALIZER_LOG_VERBOSITY = "INFO";
-      // module.ENV.VTK_INVOKER_LOG_VERBOSITY = "INFO";
-      // module.ENV.VTK_OBJECT_MANAGER_LOG_VERBOSITY = "INFO";
-    }],
-  });
-  const session = new vtkWASM.vtkRemoteSession();
-  const states = makeStates();
-  for (const state of states) {
-    session.registerState(state);
-  }
-  session.updateObjectsFromStates();
-  // Since the WebGPU backend is used, the class name should include WebGPU.
-  for (const state of states) {
-    const objectState = session.get(state.Id);
-    if (objectState.ClassName.includes("OpenGL") && !objectState.ClassName.includes("WebGPU")) {
-      throw new Error(`Object ${JSON.stringify(objectState)} should include WebGPU instead of OpenGL`);
-    }
-  }
-}
 const tests = [
   {
-    description: "Test OpenGL overrides",
-    test: testOpenGLOverrides,
+    // 1. abstract class names + OpenGL backend -> OpenGL classes
+    description: "Test abstract class names with OpenGL backend",
+    test: () => testOverrides({ preferBackend: "OpenGL", statePrefix: "" }),
   },
   {
-    description: "Test WebGPU overrides",
-    test: testWebGPUOverrides,
-  }
+    // 2. abstract class names + WebGPU backend -> WebGPU classes
+    description: "Test abstract class names with WebGPU backend",
+    test: () => testOverrides({ preferBackend: "WebGPU", statePrefix: "" }),
+  },
+  {
+    // 3. OpenGL class names in state + WebGPU backend -> WebGPU classes
+    description: "Test OpenGL states with WebGPU backend",
+    test: () => testOverrides({ preferBackend: "WebGPU", statePrefix: "OpenGL" }),
+  },
+  {
+    // 4. WebGPU class names in state + OpenGL backend -> OpenGL classes
+    description: "Test WebGPU states with OpenGL backend",
+    test: () => testOverrides({ preferBackend: "OpenGL", statePrefix: "WebGPU" }),
+  },
 ];
 
 let exitCode = 0;
