@@ -915,8 +915,19 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
   std::vector<wgpu::BindGroupEntry> entries;
-  entries.push_back({ 0, this->SceneTransformBuffer, 0, transformSizePadded });
-  entries.push_back({ 1, this->SceneLightsBuffer, 0, lightSizePadded });
+  wgpu::BindGroupEntry entry0{};
+  entry0.binding = 0;
+  entry0.buffer = this->SceneTransformBuffer;
+  entry0.offset = 0;
+  entry0.size = transformSizePadded;
+  entries.push_back(entry0);
+
+  wgpu::BindGroupEntry entry1{};
+  entry1.binding = 1;
+  entry1.buffer = this->SceneLightsBuffer;
+  entry1.offset = 0;
+  entry1.size = lightSizePadded;
+  entries.push_back(entry1);
 
   wgpu::BindGroupDescriptor descriptor;
   descriptor.label = "SceneBindGroup";
