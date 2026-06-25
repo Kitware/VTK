@@ -23,6 +23,7 @@
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -616,6 +617,47 @@ bool TestRandomHTG(const std::string& tempDir)
 }
 
 //----------------------------------------------------------------------------
+bool TestNullHTG(const std::string& tempDir)
+{
+  // Test that unititialized HTG can be written & read properly
+  vtkNew<vtkHyperTreeGrid> htg; // Keep it uninitialized
+
+  std::string tempPath = tempDir + "/HDFWriter_nullhtg";
+  if (!TestWriteAndReadConfigurations(htg, tempPath))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestNoValidPartHTG(const std::string& tempDir)
+{
+  // Test that partitioned inside multiblock without vtkDataset (HTG is vtkDataObject) does not
+  // cause an error
+  vtkNew<vtkHyperTreeGrid> htg;
+  htg->Initialize();
+
+  vtkNew<vtkMultiPieceDataSet> multipiece;
+  multipiece->SetNumberOfPieces(2);
+  multipiece->SetPartition(0, htg);
+  multipiece->SetPartition(1, htg);
+
+  vtkNew<vtkMultiBlockDataSet> mbds;
+  mbds->SetNumberOfBlocks(1);
+  mbds->SetBlock(0, multipiece);
+
+  std::string tempPath = tempDir + "/HDFWriter_nullpart";
+  if (!TestWriteAndReadConfigurations(mbds, tempPath))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool TestSimpleHTG(const std::string& tempDir)
 {
   vtkNew<vtkHyperTreeGridSource> htgSource;
@@ -838,6 +880,8 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestSpherePolyData(tempDir);
   testPasses &= TestSimpleHTG(tempDir);
   testPasses &= TestRandomHTG(tempDir);
+  testPasses &= TestNullHTG(tempDir);
+  testPasses &= TestNoValidPartHTG(tempDir);
   testPasses &= TestPDCCompositeHTG(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
