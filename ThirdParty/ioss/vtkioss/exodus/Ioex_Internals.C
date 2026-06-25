@@ -7,7 +7,7 @@
 #include "exodus/Ioex_Internals.h" // for Internals, ElemBlock, etc
 #include "exodus/Ioex_Utils.h"
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 
 #include "Ioss_ElementTopology.h"
 #include "Ioss_GroupingEntity.h"

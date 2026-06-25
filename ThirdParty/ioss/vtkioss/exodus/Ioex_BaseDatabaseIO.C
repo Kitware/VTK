@@ -13,7 +13,7 @@
 #include <vtk_exodusII.h>
 #include <exodusII_int.h>
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <map>
 #include <sstream>
