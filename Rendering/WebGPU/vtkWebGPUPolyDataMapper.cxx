@@ -1065,11 +1065,12 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupL
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayout(
-  const wgpu::Device& device, const std::string& label)
+WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayout(
+  const WGPUDevice& device, const std::string& label)
 {
-  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-    device, this->GetMeshBindGroupLayoutEntries(), label);
+  auto result = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
+    wgpu::Device(device), this->GetMeshBindGroupLayoutEntries(), label);
+  return result.Get();
 }
 
 //------------------------------------------------------------------------------
@@ -1115,17 +1116,18 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGr
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUPolyDataMapper::CreateTopologyBindGroupLayout(
-  const wgpu::Device& device, const std::string& label, bool homogeneousCellSize, bool useEdgeArray)
+WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateTopologyBindGroupLayout(
+  const WGPUDevice& device, const std::string& label, bool homogeneousCellSize, bool useEdgeArray)
 {
-  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-    device, this->GetTopologyBindGroupLayoutEntries(homogeneousCellSize, useEdgeArray), label);
+  auto result = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(wgpu::Device(device),
+    this->GetTopologyBindGroupLayoutEntries(homogeneousCellSize, useEdgeArray), label);
+  return result.Get();
 }
 
 //------------------------------------------------------------------------------
-std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries()
+std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries()
 {
-  std::vector<wgpu::BindGroupEntry> entries;
+  std::vector<wgpu::BindGroupEntry> tempEntries;
   std::uint32_t bindingId = 0;
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
@@ -1134,7 +1136,7 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntri
       const auto initializer =
         vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
           this->PointBuffers[attributeIndex].Buffer, 0 };
-      entries.emplace_back(initializer.GetAsBinding());
+      tempEntries.emplace_back(initializer.GetAsBinding());
     }
   }
   if (this->HasPointAttributes[POINT_COLOR_UVS])
@@ -1143,8 +1145,8 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntri
     {
       if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
       {
-        entries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingId++));
-        entries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingId++));
+        tempEntries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingId++));
+        tempEntries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingId++));
       }
     }
   }
@@ -1155,34 +1157,40 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntri
       const auto initializer =
         vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
           this->CellBuffers[attributeIndex].Buffer, 0 };
-      entries.emplace_back(initializer.GetAsBinding());
+      tempEntries.emplace_back(initializer.GetAsBinding());
     }
   }
   if (this->GetNumberOfClippingPlanes() > 0)
   {
     const auto initializer = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
       this->ClippingPlanesBuffer, 0 };
-    entries.emplace_back(initializer.GetAsBinding());
+    tempEntries.emplace_back(initializer.GetAsBinding());
+  }
+  std::vector<WGPUBindGroupEntry> entries(tempEntries.size());
+  for (size_t i = 0; i < tempEntries.size(); ++i)
+  {
+    entries[i] = *reinterpret_cast<WGPUBindGroupEntry*>(&tempEntries[i]);
   }
   return entries;
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
-  const wgpu::Device& device, const std::string& label)
+WGPUBindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
+  const WGPUDevice& device, const std::string& label)
 {
   auto layout = this->CreateMeshAttributeBindGroupLayout(device, label + "_LAYOUT");
 
-  return vtkWebGPUBindGroupInternals::MakeBindGroup(
-    device, layout, this->GetMeshBindGroupEntries(), label);
+  auto result = vtkWebGPUBindGroupInternals::MakeBindGroup(
+    wgpu::Device(device), wgpu::BindGroupLayout(layout), this->GetMeshBindGroupEntries(), label);
+  return result.Get();
 }
 
 //------------------------------------------------------------------------------
-std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupEntries(
+std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupEntries(
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType,
   bool homogeneousCellSize, bool useEdgeArray)
 {
-  std::vector<wgpu::BindGroupEntry> entries;
+  std::vector<wgpu::BindGroupEntry> tempEntries;
   std::uint32_t bindingId = 0;
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
   if (homogeneousCellSize)
@@ -1192,13 +1200,13 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupE
       bindingId++,
       info.ConnectivityBuffer,
     };
-    entries.emplace_back(connectivityBindingInit.GetAsBinding());
+    tempEntries.emplace_back(connectivityBindingInit.GetAsBinding());
     // cell_id_offset
     const auto cellIdOffsetBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{
       bindingId++,
       info.CellIdOffsetUniformBuffer,
     };
-    entries.emplace_back(cellIdOffsetBindingInit.GetAsBinding());
+    tempEntries.emplace_back(cellIdOffsetBindingInit.GetAsBinding());
   }
   else
   {
@@ -1212,14 +1220,19 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupE
         bindingId++,
         buffers[i],
       };
-      entries.emplace_back(initializer.GetAsBinding());
+      tempEntries.emplace_back(initializer.GetAsBinding());
     }
+  }
+  std::vector<WGPUBindGroupEntry> entries(tempEntries.size());
+  for (size_t i = 0; i < tempEntries.size(); ++i)
+  {
+    entries[i] = *reinterpret_cast<WGPUBindGroupEntry*>(&tempEntries[i]);
   }
   return entries;
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Device& device,
+WGPUBindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const WGPUDevice& device,
   const std::string& label,
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
@@ -1228,9 +1241,11 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Dev
   bool useEdgeArray = info.EdgeArrayBuffer != nullptr;
   auto layout = this->CreateTopologyBindGroupLayout(
     device, label + "_LAYOUT", homogeneousCellSize, useEdgeArray);
-  return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
-    this->GetTopologyBindGroupEntries(topologySourceType, homogeneousCellSize, useEdgeArray),
-    label);
+  auto result =
+    vtkWebGPUBindGroupInternals::MakeBindGroup(wgpu::Device(device), wgpu::BindGroupLayout(layout),
+      this->GetTopologyBindGroupEntries(topologySourceType, homogeneousCellSize, useEdgeArray),
+      label);
+  return result.Get();
 }
 
 //------------------------------------------------------------------------------
