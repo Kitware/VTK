@@ -29,6 +29,9 @@ public:
   hid_t GetFile() { return this->File; }
   hid_t GetStepsGroup(hid_t currentGroup);
 
+  void SetChunkSize(int chunkSize) { this->ChunkSize = chunkSize; };
+  void SetCompressionLevel(int level) { this->CompressionLevel = level; };
+
   /**
    * Write version and type attributes to the root group
    * A root must be open for the operation to succeed
@@ -105,14 +108,14 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateAndWriteHdfDataset(hid_t group, hid_t type, hid_t source_type,
-    const char* name, int rank, std::vector<hsize_t> dimensions, const void* data);
+    const char* name, const std::vector<hsize_t>& dimensions, const void* data);
 
   /**
    * Create a HDF dataspace
    * It is simple (not scalar or null) which means that it is an array of elements
    * Returned scoped handle may be invalid
    */
-  vtkHDF::ScopedH5SHandle CreateSimpleDataspace(int rank, const hsize_t dimensions[]);
+  vtkHDF::ScopedH5SHandle CreateSimpleDataspace(const std::vector<hsize_t>& dimensions);
 
   /**
    * Create a scalar integer attribute in the given group.
@@ -195,7 +198,7 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateHdfDataset(
-    hid_t group, const char* name, hid_t type, int rank, const hsize_t dimensions[]);
+    hid_t group, const char* name, hid_t type, const std::vector<hsize_t>& dimensions);
 
   /**
    * Create a virtual dataset from all the subfiles that have been added.
@@ -234,30 +237,23 @@ public:
   vtkHDF::ScopedH5DHandle CreateDatasetFromDataArray(hid_t group, const char* name, hid_t type,
     vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
 
-  ///@{
   /**
    * Creates a dataset and write a row of values to it.
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateSingleRowDataset(
     hid_t group, const char* name, const std::vector<vtkIdType>& values);
-  ///@}
 
+  ///@{
   /**
-   * Create a chunked dataset with an empty extendable dataspace using chunking and set the desired
-   * level of compression.
+   * Create a chunked dataset with an empty extendable dataspace using chunking
    * Return true if the operation was successful.
    */
-  bool InitDynamicDataset(hid_t group, const char* name, hid_t type, hsize_t cols,
-    hsize_t chunkSize[], int compressionLevel = 0);
-
-  /**
-   * Create a chunked dataset with an empty extendable dataspace using chunking and set the desired
-   * level of compression.
-   * Return true if the operation was successful.
-   */
+  bool InitDynamicDataset(
+    hid_t group, const char* name, hid_t type, hsize_t cols, const std::vector<hsize_t>& chunkSize);
   bool InitDynamicDataset(hid_t group, const char* name, hid_t type,
-    const std::vector<hsize_t>& dims, hsize_t chunkSize[], int compressionLevel = 0);
+    const std::vector<hsize_t>& dims, const std::vector<hsize_t>& chunkSize);
+  ///@}
 
   /**
    * Add a single row of integer type to an existing dataspace.
@@ -337,6 +333,10 @@ private:
   std::vector<vtkHDF::ScopedH5FHandle> Subfiles;
   std::vector<std::string> SubfileNames;
   bool SubFilesReady = false;
+
+  // Forwarded constant properties from the writer
+  int ChunkSize = 25000;
+  int CompressionLevel = 0;
 
   const std::array<std::string, 4> PrimitiveNames = { { "Vertices", "Lines", "Polygons",
     "Strips" } };
