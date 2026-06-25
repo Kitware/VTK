@@ -1,11 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "fidesdefs.h" // For build/config preprocessor defs
+
+#if VTK_HAVE_CONDUIT_PYTHON
+#include "vtkPython.h" // must be first
+#endif
+
 #include "vtkFidesReader.h"
 
 // Fides includes
 #include <vtk_fides.h>
 // clang-format off
+#include VTK_FIDES(fides/ExternalDataRegistry.h)
 #include VTK_FIDES(fides/DataSetReader.h)
 // clang-format on
 
@@ -30,6 +37,14 @@
 #ifdef IOFIDES_HAVE_MPI
 #include "vtkMPI.h"
 #include "vtkMPIController.h"
+#endif
+
+#if VTK_HAVE_CONDUIT
+#include "conduit.hpp"
+#include "conduit_cpp_to_c.hpp"
+#if VTK_HAVE_CONDUIT_PYTHON
+#include "conduit_python.hpp"
+#endif
 #endif
 
 #include <viskores/filter/clean_grid/CleanGrid.h>
@@ -62,6 +77,75 @@ struct vtkFidesReader::vtkFidesReaderImpl
   bool UseInlineEngine{ false };
   fides::Params AllParams;
   vtkNew<vtkStringArray> SourceNames;
+
+#if VTK_HAVE_CONDUIT
+  std::unordered_map<std::string, std::string> ConduitTokens;
+
+#if VTK_HAVE_CONDUIT_PYTHON
+  std::unordered_map<std::string, vtkPyObjectFwd*> PythonNodes;
+#endif
+
+  // Helper to remove a single node by name
+  bool RemoveConduitNode(const std::string& name)
+  {
+    auto tokenIt = this->ConduitTokens.find(name);
+    if (tokenIt == this->ConduitTokens.end())
+    {
+      return false; // Not found, nothing to do
+    }
+
+    // Clear Conduit token and path
+    fides::io::ExternalDataRegistry::Instance().Unregister(tokenIt->second);
+    this->ConduitTokens.erase(tokenIt);
+    this->Paths.erase(name);
+
+#if VTK_HAVE_CONDUIT_PYTHON
+    // Clear corresponding Python node if it exists
+    auto pyNodeIt = this->PythonNodes.find(name);
+    if (pyNodeIt != this->PythonNodes.end())
+    {
+      vtkPythonScopeGilEnsurer gilEnsurer;
+      Py_DECREF(pyNodeIt->second);
+      this->PythonNodes.erase(pyNodeIt);
+    }
+#endif
+
+    return true; // state changed
+  }
+
+  // Helper to clear all nodes
+  bool ClearConduitNodes()
+  {
+    if (this->ConduitTokens.empty())
+    {
+      return false;
+    }
+
+    // Unregister external memory from Fides
+    for (const auto& pair : this->ConduitTokens)
+    {
+      fides::io::ExternalDataRegistry::Instance().Unregister(pair.second);
+    }
+
+    // Clear local maps
+    this->ConduitTokens.clear();
+    this->Paths.clear();
+
+#if VTK_HAVE_CONDUIT_PYTHON
+    // Decrement ref count on all stored Python nodes
+    if (!this->PythonNodes.empty())
+    {
+      vtkPythonScopeGilEnsurer gilEnsurer;
+      for (const auto& pair : this->PythonNodes)
+      {
+        Py_DECREF(pair.second);
+      }
+      this->PythonNodes.clear();
+    }
+#endif
+    return true; // state changed
+  }
+#endif // VTK_HAVE_CONDUIT
 
   // Metadata of an individual group in ADIOS file
   // This metadata is populated in RequestInformation.
@@ -135,14 +219,23 @@ vtkFidesReader::vtkFidesReader()
 
 vtkFidesReader::~vtkFidesReader()
 {
+  // Close the reader first so Fides finishes all I/O and teardown while the
+  // underlying Conduit nodes (and Python memory) are still alive.
+  if (this->Impl->Reader)
+  {
+    this->Impl->Reader->Close();
+    this->Impl->Reader.reset();
+  }
+
+  // Clean up selections
   this->PointDataArraySelection->Delete();
   this->CellDataArraySelection->Delete();
   this->FieldDataArraySelection->Delete();
 
-  if (this->Impl->Reader)
-  {
-    this->Impl->Reader->Close();
-  }
+  // Clean up Fides+Conduit registry tokens and
+#if VTK_HAVE_CONDUIT
+  this->Impl->ClearConduitNodes();
+#endif
 
   this->SetController(nullptr);
 }
@@ -196,6 +289,157 @@ void vtkFidesReader::SetDataSourceIO(const std::string& name, const std::string&
   this->StreamSteps = true;
   this->Impl->UseInlineEngine = true;
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkFidesReader::SetDataSourceNode(const std::string& name, vtkPyObjectFwd* conduitNode)
+{
+#if VTK_HAVE_CONDUIT_PYTHON
+  // Passing None or nullptr just clears out any existing resource
+  if (!conduitNode || conduitNode == Py_None)
+  {
+    this->Impl->RemoveConduitNode(name);
+    this->Modified();
+    return true;
+  }
+
+  if (!Py_IsInitialized())
+  {
+    vtkErrorMacro("Python interpreter is not initialized.");
+    return false;
+  }
+
+  if (import_conduit() < 0)
+  {
+    vtkErrorMacro("Failed to import Conduit Python C-API.");
+    return false;
+  }
+
+  if (!PyConduit_Node_Check(conduitNode))
+  {
+    vtkErrorMacro("Provided Python object is not a valid conduit.Node.");
+    return false;
+  }
+
+  // Extract the raw C++ pointer
+  conduit::Node* nodePtr = PyConduit_Node_Get_Node_Ptr(conduitNode);
+  if (!nodePtr)
+  {
+    vtkErrorMacro("Failed to extract C++ pointer from Python conduit.Node.");
+    return false;
+  }
+
+  // Clear any existing node with this name to prevent leaks
+  this->Impl->RemoveConduitNode(name);
+
+  // Register with Fides
+  std::string token;
+  try
+  {
+    auto wrappedNode = fides::WrapExternal(nodePtr);
+    token = fides::io::ExternalDataRegistry::Instance().Register(wrappedNode);
+  }
+  catch (const std::exception& e)
+  {
+    vtkErrorMacro("Fides registration failed: " << e.what());
+    return false;
+  }
+
+  // Store the new state
+  this->Impl->ConduitTokens[name] = token;
+  this->Impl->Paths[name] = token;
+  this->Impl->PythonNodes[name] = conduitNode;
+
+  Py_INCREF(conduitNode);
+  this->Modified();
+
+  return true;
+
+#else
+  (void)name;
+  (void)conduitNode;
+  vtkErrorMacro(
+    "VTK must be compiled with Python wrapping and Conduit support to use this method!");
+  return false;
+#endif
+}
+
+//------------------------------------------------------------------------------
+bool vtkFidesReader::SetDataSourceNode(const std::string& name, conduit_node* conduitNode)
+{
+#if VTK_HAVE_CONDUIT
+  // Intercept nullptr to clear an existing resource
+  if (!conduitNode)
+  {
+    this->Impl->RemoveConduitNode(name);
+    this->Modified();
+    return true;
+  }
+
+  // Convert the C-API node to the C++ API node using Conduit's official bridge
+  conduit::Node* cppNode = conduit::cpp_node(conduitNode);
+  if (!cppNode)
+  {
+    vtkErrorMacro("Failed to convert C-API conduit_node to C++ conduit::Node.");
+    return false;
+  }
+
+  // Clear any existing node, Fides token, and Python DECREF
+  this->Impl->RemoveConduitNode(name);
+
+  // Wrap and register with Fides
+  std::string token;
+  try
+  {
+    auto wrappedNode = fides::WrapExternal(cppNode);
+    token = fides::io::ExternalDataRegistry::Instance().Register(wrappedNode);
+  }
+  catch (const std::exception& e)
+  {
+    vtkErrorMacro("Fides registration failed: " << e.what());
+    return false;
+  }
+
+  // Store the state
+  this->Impl->ConduitTokens[name] = token;
+  this->Impl->Paths[name] = token;
+
+  // Note: There is no reference counting for pure C++. The caller is strictly
+  // responsible for keeping the memory alive until Update() is finished.
+
+  this->Modified();
+  return true;
+
+#else
+  (void)name;
+  (void)conduitNode;
+  vtkErrorMacro("VTK must be compiled with Conduit support to use this method!");
+  return false;
+#endif
+}
+
+//------------------------------------------------------------------------------
+void vtkFidesReader::RemoveDataSourceNode(const std::string& name)
+{
+#if VTK_HAVE_CONDUIT
+  if (this->Impl->RemoveConduitNode(name))
+  {
+    this->Modified();
+  }
+#else
+  (void)name;
+#endif
+}
+
+//------------------------------------------------------------------------------
+void vtkFidesReader::RemoveAllDataSourceNodes()
+{
+#if VTK_HAVE_CONDUIT
+  if (!this->Impl->ClearConduitNodes())
+  {
+    this->Modified();
+  }
+#endif
 }
 
 // This version is used when a json file with the data model is provided
@@ -799,9 +1043,20 @@ int vtkFidesReader::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   output->SetNumberOfPartitionedDataSets(0);
 
+#if VTK_HAVE_CONDUIT
+  // Determine if we are relying on an in-memory Conduit node
+  bool isConduit = !this->Impl->ConduitTokens.empty();
+#else
+  bool isConduit = false;
+#endif
+
   fides::metadata::MetaData selections;
-  // Select time step if downstream requested a specific time step.
-  if (!this->StreamSteps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+
+  // Select time step if downstream requested a specific time step,
+  // but skip this if we are dealing with a local Conduit snapshot
+  // due to general lack of temporal indexing.
+  if (!this->StreamSteps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()) &&
+    !isConduit)
   {
     auto step = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     int index = 0;
@@ -837,7 +1092,23 @@ int vtkFidesReader::RequestData(
     vtkDebugMacro(<< "nBlocks: " << nBlocks << ", nPieces: " << nPieces << ", piece: " << piece
                   << (groupMetaData.Name.empty() ? "" : ", groupName: ") << groupMetaData.Name);
 
-    fides::metadata::Vector<size_t> blocksToRead = DetermineBlocksToRead(nBlocks, nPieces, piece);
+    fides::metadata::Vector<size_t> blocksToRead;
+
+    if (isConduit)
+    {
+      // Conduit nodes reflect local in-memory data, and since nBlocks is the
+      // number of local blocks on this rank, let's read all of them
+      for (int b = 0; b < nBlocks; ++b)
+      {
+        blocksToRead.Data.push_back(static_cast<size_t>(b));
+      }
+    }
+    else
+    {
+      // ADIOS2 global block distribution
+      blocksToRead = DetermineBlocksToRead(nBlocks, nPieces, piece);
+    }
+
     if (blocksToRead.Data.empty())
     {
       // nothing to read on this rank
@@ -892,7 +1163,7 @@ int vtkFidesReader::RequestData(
         this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
       }
     }
-    catch (std::invalid_argument& e)
+    catch (std::exception& e)
     {
       vtkErrorMacro(<< e.what());
       return 0;
@@ -912,7 +1183,7 @@ int vtkFidesReader::RequestData(
       vtkDataSet* vds = ConvertDataSet(ds);
       if (vds)
       {
-        output->SetPartition(pdsIdx, i, vds);
+        output->SetPartition(pdsIdx, static_cast<unsigned int>(i), vds);
         vds->Delete();
       }
     }

@@ -12,12 +12,18 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::IOCore
 OPTIONAL_DEPENDS
+  VTK::conduit
   VTK::mpi
   VTK::ParallelMPI
+  VTK::WrappingPythonCore
 TEST_DEPENDS
   VTK::FiltersParallelDIY2
   VTK::FiltersCore
   VTK::ImagingCore
+  VTK::TestingCore
+TEST_OPTIONAL_DEPENDS
+  VTK::conduit
+  VTK::ParallelMPI
 PRIVATE_DEPENDS
   VTK::AcceleratorsVTKmDataModel
   VTK::CommonCore

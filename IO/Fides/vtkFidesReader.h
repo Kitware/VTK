@@ -28,6 +28,18 @@
 #include <memory>             // for std::unique_ptr
 #include <string>             // for std::string
 
+#ifdef __VTK_WRAP__
+#define vtkPyObjectFwd PyObject
+#else
+struct _object;
+#define vtkPyObjectFwd _object
+#endif
+
+// Forward declare the Conduit C-API opaque pointer type exactly as
+// Conduit does to avoid struct vs typedef collisions in C++.
+struct conduit_node_impl;
+typedef struct conduit_node_impl conduit_node;
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkMultiProcessController;
@@ -94,6 +106,63 @@ public:
    * will cast to a IO pointer.
    */
   void SetDataSourceIO(const std::string& name, const std::string& ioAddress);
+
+  /**
+   * Set the Conduit node to be associated with the named datasource.
+   * This should only be used when the data model indicates the type is "conduit".
+   * This is the C++ entry point, relying on the Conduit C-API.
+   *
+   * @warning **Memory Ownership:** This reader does not take ownership of the
+   * memory backing the conduit node parameter. The caller is strictly responsible
+   * for ensuring the data backing this node remains valid and unmodified in memory
+   * until the VTK pipeline execution has finished.
+   *
+   * @param name The name of the Fides datasource.
+   * @param node An opaque pointer to a C-API conduit_node.
+   * @return true if the node was accepted and registered successfully.
+   */
+  bool SetDataSourceNode(const std::string& name, conduit_node* node);
+
+  /**
+   * Set the Conduit node to be associated with the named datasource.
+   * This should only be used when the data model indicates the type is "conduit".
+   * This function is wrapped and available from Python.
+   *
+   * @warning **Memory Ownership:** The reader increments the reference count
+   * of the provided Python object, preventing Python from garbage collecting it
+   * while this reader is alive. However, if the Conduit node is backed by
+   * externally managed memory (e.g., a simulation's C++ arrays), the caller
+   * must ensure that external memory is not freed while the reader holds this
+   * reference.
+   *
+   * @param name The name of the Fides datasource.
+   * @param conduitNode A Python conduit node object.
+   * @return true if the node was accepted and registered successfully.
+   */
+  bool SetDataSourceNode(const std::string& name, vtkPyObjectFwd* conduitNode);
+
+  /**
+   * Remove a specific Conduit node associated with the named datasource.
+   * * Calling this method releases the reader's hold on the provided Conduit node.
+   * It unregisters the underlying memory from the Fides external data registry
+   * and, if applicable, decrements the reference count of the associated Python
+   * object.
+   *
+   * @param name The name of the Fides datasource to remove.
+   */
+  void RemoveDataSourceNode(const std::string& name);
+
+  /**
+   * Remove all associated Conduit nodes from the reader.
+   * * This method clears all registered Conduit nodes, unregistering their memory
+   * from Fides and decrementing any held Python reference counts.
+   * * @note **State Reset:** This method acts as a reset for the reader's input
+   * mode. If the reader was previously configured to read from in-memory Conduit
+   * nodes, calling this method clears that state, allowing the reader to fall
+   * back to standard file-reading mode (e.g., reading a standard ADIOS2 .bp file)
+   * upon the next pipeline update.
+   */
+  void RemoveAllDataSourceNodes();
 
   /**
    * Implements various pipeline passes.
