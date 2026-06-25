@@ -1876,9 +1876,33 @@ int vtkNetCDFCFReader::IsTimeDimension(int vtkNotUsed(ncFD), int dimId)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDoubleArray> vtkNetCDFCFReader::GetTimeValues(int vtkNotUsed(ncFD), int dimId)
+vtkSmartPointer<vtkDoubleArray> vtkNetCDFCFReader::GetTimeValues(int ncFD, int dimId)
 {
-  return this->GetDimensionInfo(dimId)->GetCoordinates();
+  vtkSmartPointer<vtkDoubleArray> coords = this->GetDimensionInfo(dimId)->GetCoordinates();
+
+  double fillValue = NC_FILL_DOUBLE;
+  int varId;
+  if (this->Accessor->inq_varid(ncFD, this->GetDimensionInfo(dimId)->GetName(), &varId) == NC_NOERR)
+  {
+    this->Accessor->get_att_double(ncFD, varId, "_FillValue", &fillValue);
+  }
+
+  vtkSmartPointer<vtkDoubleArray> filtered = vtkSmartPointer<vtkDoubleArray>::New();
+  filtered->SetNumberOfComponents(1);
+  bool hasFill = false;
+  for (vtkIdType i = 0; i < coords->GetNumberOfTuples(); i++)
+  {
+    double v = coords->GetValue(i);
+    if (v == fillValue)
+    {
+      hasFill = true;
+    }
+    else
+    {
+      filtered->InsertNextValue(v);
+    }
+  }
+  return hasFill ? filtered : coords;
 }
 
 //------------------------------------------------------------------------------
