@@ -10,7 +10,6 @@
 #include <assert.h>
 #include <cstdlib>
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #if !defined __NVCC__
 #include VTK_FMT(fmt/color.h)

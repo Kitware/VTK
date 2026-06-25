@@ -7,7 +7,7 @@
 #include <array>
 #include <assert.h>
 #include "vtk_fmt.h"
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 #include <numeric>
 #include <stddef.h>
 #include <string>

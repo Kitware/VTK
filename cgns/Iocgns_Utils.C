@@ -36,7 +36,6 @@
 #include <assert.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/chrono.h)
-#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include <stdint.h>
 #include <stdlib.h>
