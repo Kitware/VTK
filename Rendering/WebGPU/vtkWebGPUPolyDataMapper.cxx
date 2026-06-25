@@ -1068,9 +1068,8 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupL
 WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayout(
   const WGPUDevice& device, const std::string& label)
 {
-  auto result = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-    wgpu::Device(device), this->GetMeshBindGroupLayoutEntries(), label);
-  return result.Get();
+  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
+    device, this->GetMeshBindGroupLayoutEntries(), label);
 }
 
 //------------------------------------------------------------------------------
@@ -1119,9 +1118,8 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGr
 WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateTopologyBindGroupLayout(
   const WGPUDevice& device, const std::string& label, bool homogeneousCellSize, bool useEdgeArray)
 {
-  auto result = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(wgpu::Device(device),
-    this->GetTopologyBindGroupLayoutEntries(homogeneousCellSize, useEdgeArray), label);
-  return result.Get();
+  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
+    device, this->GetTopologyBindGroupLayoutEntries(homogeneousCellSize, useEdgeArray), label);
 }
 
 //------------------------------------------------------------------------------
@@ -1180,9 +1178,8 @@ WGPUBindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
 {
   auto layout = this->CreateMeshAttributeBindGroupLayout(device, label + "_LAYOUT");
 
-  auto result = vtkWebGPUBindGroupInternals::MakeBindGroup(
-    wgpu::Device(device), wgpu::BindGroupLayout(layout), this->GetMeshBindGroupEntries(), label);
-  return result.Get();
+  return vtkWebGPUBindGroupInternals::MakeBindGroup(
+    device, layout, this->GetMeshBindGroupEntries(), label);
 }
 
 //------------------------------------------------------------------------------
@@ -1241,11 +1238,9 @@ WGPUBindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const WGPUDevice&
   bool useEdgeArray = info.EdgeArrayBuffer != nullptr;
   auto layout = this->CreateTopologyBindGroupLayout(
     device, label + "_LAYOUT", homogeneousCellSize, useEdgeArray);
-  auto result =
-    vtkWebGPUBindGroupInternals::MakeBindGroup(wgpu::Device(device), wgpu::BindGroupLayout(layout),
-      this->GetTopologyBindGroupEntries(topologySourceType, homogeneousCellSize, useEdgeArray),
-      label);
-  return result.Get();
+  return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
+    this->GetTopologyBindGroupEntries(topologySourceType, homogeneousCellSize, useEdgeArray),
+    label);
 }
 
 //------------------------------------------------------------------------------

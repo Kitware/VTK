@@ -79,4 +79,21 @@ wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& d
 
   return MakeBindGroup(device, layout, entries, label);
 }
+
+//------------------------------------------------------------------------------
+WGPUBindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const WGPUDevice& device,
+  const WGPUBindGroupLayout& layout, const std::vector<WGPUBindGroupEntry>& entries,
+  std::string label /*=""*/)
+{
+  // Convert WGPU* types to wgpu:: wrappers and call the existing implementation
+  wgpu::Device wrappedDevice(device);
+  wgpu::BindGroupLayout wrappedLayout(layout);
+  std::vector<wgpu::BindGroupEntry> wrappedEntries;
+  for (const auto& entry : entries)
+  {
+    wrappedEntries.push_back(*reinterpret_cast<const wgpu::BindGroupEntry*>(&entry));
+  }
+  auto result = MakeBindGroup(wrappedDevice, wrappedLayout, wrappedEntries, label);
+  return result.Get();
+}
 VTK_ABI_NAMESPACE_END

@@ -58,6 +58,12 @@ public:
   static wgpu::BindGroup MakeBindGroup(const wgpu::Device& device,
     const wgpu::BindGroupLayout& layout, const std::vector<wgpu::BindGroupEntry>& entries,
     std::string label = "");
+
+  /**
+   * Creates a bind group given the bind group layout and a list of BindGroupEntry (C API version)
+   */
+  static WGPUBindGroup MakeBindGroup(const WGPUDevice& device, const WGPUBindGroupLayout& layout,
+    const std::vector<WGPUBindGroupEntry>& entries, std::string label = "");
 };
 VTK_ABI_NAMESPACE_END
 
