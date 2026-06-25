@@ -274,14 +274,11 @@ void vtkWebGPURenderWindow::WGPUFinalize()
 
   // Temporarily disable Display closure during window destruction
 #if defined(VTK_USE_X)
-  if (this->WGPUConfiguration->IsNVIDIAGPUInUse())
+  if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+    if (xlibWindow->GetOwnDisplay())
     {
-      if (xlibWindow->GetOwnDisplay())
-      {
-        xlibWindow->SetOwnDisplay(false);
-      }
+      xlibWindow->SetOwnDisplay(false);
     }
   }
 #endif // VTK_USE_X
@@ -294,12 +291,9 @@ void vtkWebGPURenderWindow::WGPUFinalize()
 
   // Restore Display ownership so destructor can properly clean up
 #if defined(VTK_USE_X)
-  if (this->WGPUConfiguration->IsNVIDIAGPUInUse())
+  if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
-    {
-      xlibWindow->SetOwnDisplay(true);
-    }
+    xlibWindow->SetOwnDisplay(true);
   }
 #endif // VTK_USE_X
 
