@@ -1498,6 +1498,13 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
   vtkDebugWithObjectMacro(
     this->Writer, "Creating polydata steps sum " << name << " in " << this->GetGroupName(group));
 
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  {
+    hsize_t primitive_chunk[] = { 1, vtkHDFUtilities::NUM_POLY_DATA_TOPOS };
+    this->InitDynamicDataset(
+      group, name, H5T_STD_I64LE, vtkHDFUtilities::NUM_POLY_DATA_TOPOS, primitive_chunk);
+  }
+
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
   if (dataset == H5I_INVALID_HID)
   {
@@ -1506,7 +1513,7 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
 
   // Create VTK Array of size nbPrimitives * nbTimeSteps
   vtkNew<vtkIdTypeArray> totalsArray;
-  totalsArray->SetNumberOfComponents(static_cast<int>(this->PrimitiveNames.size()));
+  totalsArray->SetNumberOfComponents(vtkHDFUtilities::NUM_POLY_DATA_TOPOS);
   totalsArray->SetNumberOfTuples(this->Writer->NumberOfTimeSteps);
 
   // For each timestep, sum each primitive from all pieces
@@ -1514,7 +1521,7 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
   {
     totalsArray->SetTuple4(step, 0, 0, 0, 0);
     vtkDebugWithObjectMacro(this->Writer, "timestep " << step);
-    for (int prim = 0; prim < static_cast<int>(this->PrimitiveNames.size()); prim++)
+    for (int prim = 0; prim < static_cast<int>(vtkHDFUtilities::NUM_POLY_DATA_TOPOS); prim++)
     {
       vtkDebugWithObjectMacro(this->Writer, "primitive " << prim);
       // Collect size for the current time step in each subfile for each primitive

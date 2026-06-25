@@ -54,9 +54,6 @@ namespace
 {
 constexpr hsize_t SINGLE_COLUMN = 1;
 
-// Used for chunked arrays with 4 columns (polydata primitive topologies)
-hsize_t PRIMITIVE_CHUNK[] = { 1, vtkHDFUtilities::NUM_POLY_DATA_TOPOS };
-
 /**
  * Return the name of a partitioned dataset in a pdc given its index.
  * If not set, generate a name based on the id.
@@ -1348,10 +1345,9 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
     return true;
   }
 
-  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-
   // Add an initial 0 value in the offset arrays
   bool initResult = true;
+  hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets", { 0 });
@@ -1369,20 +1365,13 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
 {
-  if (!this->IsTemporal)
+  if (!this->IsTemporal || this->Impl->GetSubFilesReady())
   {
     return true;
   }
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-
   bool initResult = true;
-
-  if (this->Impl->GetSubFilesReady())
-  {
-    return true;
-  }
-
   initResult &=
     this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets", { 0 });
@@ -1402,27 +1391,15 @@ bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 {
-  if (!this->IsTemporal)
+  if (!this->IsTemporal || this->Impl->GetSubFilesReady())
   {
     return true;
   }
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-
-  // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "CellOffsets", H5T_STD_I64LE,
-    vtkHDFUtilities::NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE,
-    vtkHDFUtilities::NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
-
-  if (this->Impl->GetSubFilesReady())
-  {
-    return true;
-  }
-
   // Add an initial 0 value in the offset arrays
   std::vector<vtkIdType> emptyTopoArray(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
+  bool initResult = true;
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", emptyTopoArray);
