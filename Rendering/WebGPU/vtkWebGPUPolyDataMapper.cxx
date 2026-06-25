@@ -544,11 +544,12 @@ vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgsFo
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
-  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
+  vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder)
 {
   vtkLogScopeFunction(TRACE);
-  passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup,
-    this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
+  wgpu::RenderPassEncoder encoder(passEncoder);
+  encoder.SetBindGroup(2, this->MeshAttributeBindGroup, this->MeshAttributeDynamicOffsets.size(),
+    this->MeshAttributeDynamicOffsets.data());
   this->SetVertexBuffers(passEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -666,17 +667,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       if (!homogeneousBindGroupTypes.empty())
       {
         // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
-        passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+        encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
         vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
         for (const auto& bindGroupType : homogeneousBindGroupTypes)
         {
           const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-          passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+          encoder.SetBindGroup(3, bgInfo.BindGroup);
           const auto topologyBGInfoName =
             vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
           vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
           const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-          passEncoder.Draw(
+          encoder.Draw(
             args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
         }
       }
@@ -684,18 +685,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
     else if (!nonHomogeneousBindGroupTypes.empty())
     {
       // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
-      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
       for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
       {
         const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-        passEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
   }
@@ -735,18 +735,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
       const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
       const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
       for (const auto& bindGroupType : homogeneousBindGroupTypes)
       {
         const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        passEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
     if (!nonHomogeneousBindGroupTypes.empty())
@@ -762,18 +761,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
       const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
       const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
       for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
       {
         const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        passEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
   }
@@ -781,11 +779,12 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
-  vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder)
+  vtkRenderer* renderer, vtkActor* actor, const WGPURenderBundleEncoder& bundleEncoder)
 {
   vtkLog(TRACE, "record draw commands to bundle");
-  bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup,
-    this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
+  wgpu::RenderBundleEncoder encoder(bundleEncoder);
+  encoder.SetBindGroup(2, this->MeshAttributeBindGroup, this->MeshAttributeDynamicOffsets.size(),
+    this->MeshAttributeDynamicOffsets.data());
   this->SetVertexBuffers(bundleEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -903,17 +902,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       if (!homogeneousBindGroupTypes.empty())
       {
         // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
-        bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+        encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
         vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
         for (const auto& bindGroupType : homogeneousBindGroupTypes)
         {
           const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-          bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+          encoder.SetBindGroup(3, bgInfo.BindGroup);
           const auto topologyBGInfoName =
             vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
           vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
           const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-          bundleEncoder.Draw(
+          encoder.Draw(
             args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
         }
       }
@@ -921,18 +920,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
     else if (!nonHomogeneousBindGroupTypes.empty())
     {
       // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
-      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
       for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
       {
         const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-        bundleEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
   }
@@ -972,7 +970,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
       const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
       const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
       for (const auto& bindGroupType : homogeneousBindGroupTypes)
       {
@@ -981,13 +979,12 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         {
           continue;
         }
-        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        bundleEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
     if (!nonHomogeneousBindGroupTypes.empty())
@@ -1003,33 +1000,32 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
       const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
       const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      encoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
       vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
       for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
       {
         const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        encoder.SetBindGroup(3, bgInfo.BindGroup);
         const auto topologyBGInfoName =
           vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
         vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
         const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        bundleEncoder.Draw(
-          args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+        encoder.Draw(args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
       }
     }
   }
 }
 
 //------------------------------------------------------------------------------
-std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupLayoutEntries()
+std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupLayoutEntries()
 {
-  std::vector<wgpu::BindGroupLayoutEntry> entries;
+  std::vector<wgpu::BindGroupLayoutEntry> tempEntries;
   std::uint32_t bindingId = 0;
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
     if (this->HasPointAttributes[attributeIndex])
     {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
         bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
@@ -1039,10 +1035,10 @@ std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGrou
     {
       if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
       {
-        entries.emplace_back(
-          devRc->MakeSamplerBindGroupLayoutEntry(bindingId++, wgpu::ShaderStage::Fragment));
-        entries.emplace_back(
-          devRc->MakeTextureViewBindGroupLayoutEntry(bindingId++, wgpu::ShaderStage::Fragment));
+        tempEntries.emplace_back(devRc->MakeSamplerBindGroupLayoutEntry(
+          bindingId++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
+        tempEntries.emplace_back(devRc->MakeTextureViewBindGroupLayoutEntry(
+          bindingId++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
       }
     }
   }
@@ -1050,15 +1046,20 @@ std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGrou
   {
     if (this->HasCellAttributes[attributeIndex])
     {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
         bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
   if (this->GetNumberOfClippingPlanes() > 0)
   {
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
       wgpu::BufferBindingType::ReadOnlyStorage });
+  }
+  std::vector<WGPUBindGroupLayoutEntry> entries(tempEntries.size());
+  for (size_t i = 0; i < tempEntries.size(); ++i)
+  {
+    entries[i] = *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&tempEntries[i]);
   }
   return entries;
 }
@@ -1072,21 +1073,21 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayou
 }
 
 //------------------------------------------------------------------------------
-std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupLayoutEntries(
+std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupLayoutEntries(
   bool homogeneousCellSize, bool useEdgeArray)
 {
-  std::vector<wgpu::BindGroupLayoutEntry> entries;
+  std::vector<wgpu::BindGroupLayoutEntry> tempEntries;
   std::uint32_t bindingId = 0;
   if (homogeneousCellSize)
   {
     // connectivity
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++,
       wgpu::ShaderStage::Vertex,
       wgpu::BufferBindingType::ReadOnlyStorage,
     });
     // cell_id_offset
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++,
       wgpu::ShaderStage::Vertex,
       wgpu::BufferBindingType::Uniform,
@@ -1098,12 +1099,17 @@ std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBind
     std::size_t numberOfBindings = useEdgeArray ? 3 : 2;
     for (std::size_t i = 0; i < numberOfBindings; ++i)
     {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
         bindingId++,
         wgpu::ShaderStage::Vertex,
         wgpu::BufferBindingType::ReadOnlyStorage,
       });
     }
+  }
+  std::vector<WGPUBindGroupLayoutEntry> entries(tempEntries.size());
+  for (size_t i = 0; i < tempEntries.size(); ++i)
+  {
+    entries[i] = *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&tempEntries[i]);
   }
   return entries;
 }

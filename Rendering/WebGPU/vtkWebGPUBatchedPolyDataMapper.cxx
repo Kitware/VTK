@@ -614,14 +614,14 @@ vtkWebGPUBatchedPolyDataMapper::GetMeshBindGroupLayoutEntries()
   std::uint32_t bindingId = static_cast<std::uint32_t>(entries.size());
 
   // clang-format off
-  WGPUBindGroupLayoutEntry meshEntry = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+  auto meshHelper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
     bindingId++,
-    static_cast<WGPUShaderStage>(wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment),
-    static_cast<WGPUBufferBindingType>(wgpu::BufferBindingType::ReadOnlyStorage),
+    wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+    wgpu::BufferBindingType::ReadOnlyStorage,
     true,
     vtkWebGPUConfiguration::Align(sizeof(CompositeDataProperties), this->MinStorageBufferOffsetAlignment)
   };
-  entries.push_back(meshEntry);
+  entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&meshHelper));
   // clang-format on
   return entries;
 }
@@ -655,12 +655,12 @@ vtkWebGPUBatchedPolyDataMapper::GetTopologyBindGroupLayoutEntries(
     std::uint32_t bindingId = 0;
 
     // clang-format off
-    WGPUBindGroupLayoutEntry layoutEntry = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    auto layoutHelper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++,
-      static_cast<WGPUShaderStage>(wgpu::ShaderStage::Vertex),
-      static_cast<WGPUBufferBindingType>(wgpu::BufferBindingType::ReadOnlyStorage),
+      wgpu::ShaderStage::Vertex,
+      wgpu::BufferBindingType::ReadOnlyStorage,
     };
-    entries.push_back(layoutEntry);
+    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&layoutHelper));
     // clang-format on
     return entries;
   }
@@ -998,9 +998,9 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
   // cache the minimum required alignment for storage buffer
   if (this->MinStorageBufferOffsetAlignment == 0)
   {
-    const auto& device = wgpuConfiguration->GetDevice();
+    const auto device = wgpuConfiguration->GetDevice();
     wgpu::Limits limits{};
-    device.GetLimits(&limits);
+    wgpu::Device(device).GetLimits(&limits);
     this->MinStorageBufferOffsetAlignment = limits.minStorageBufferOffsetAlignment;
   }
   const auto bindingSize = wgpuConfiguration->Align(
@@ -1010,7 +1010,7 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
   {
     if (this->CompositeDataPropertyStorage.Buffer)
     {
-      this->CompositeDataPropertyStorage.Buffer.Destroy();
+      wgpu::Buffer(this->CompositeDataPropertyStorage.Buffer).Destroy();
       this->CompositeDataPropertyStorage.Size = 0;
     }
     const std::string label = "composite_data_property-" + this->GetObjectDescription();
