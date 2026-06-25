@@ -727,6 +727,16 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
 bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(
   hid_t group, const char* name, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  {
+    // Dataset needs to be created
+    std::vector<hsize_t> small_chunk = { 1, values.size() };
+    if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, values.size(), small_chunk.data()))
+    {
+      return false;
+    }
+  }
+
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
   if (!this->Subfiles.empty() && (group != this->StepsGroup || this->Writer->NbPieces > 1))
@@ -739,21 +749,13 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(
     return true;
   }
 
-  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  // Append value(s) to the dataset
+  vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
+  if (dataset == H5I_INVALID_HID)
   {
-    // Dataset needs to be created
-    return this->CreateSingleRowDataset(group, name, values) != H5I_INVALID_HID;
+    return false;
   }
-  else
-  {
-    // Append the value to an existing dataset
-    vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
-    if (dataset == H5I_INVALID_HID)
-    {
-      return false;
-    }
-    return this->AddSingleRowToDataset(dataset, values, offset, trim);
-  }
+  return this->AddSingleRowToDataset(dataset, values, offset, trim);
 }
 
 //------------------------------------------------------------------------------

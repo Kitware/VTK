@@ -618,12 +618,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int
 {
   bool writeSuccess = true;
 
-  if (this->IsTemporal && this->CurrentTimeIndex == 0)
-  {
-    writeSuccess &= this->Impl->InitDynamicDataset(
-      group, "NumberOfRows", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  }
-
   writeSuccess &=
     this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfRows", { input->GetNumberOfRows() });
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, nullptr);
@@ -1283,27 +1277,7 @@ bool vtkHDFWriter::InitializeTemporalHTG(hid_t group)
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
-  // Create empty offsets arrays, where a value is appended every step
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "TreeIdsOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "DepthPerTreeOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "NumberOfCellsPerTreeDepthOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "DescriptorsOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "MaskOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "XCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "YCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "ZCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-
   initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
@@ -1338,16 +1312,8 @@ bool vtkHDFWriter::InitializeTemporalRectilinearGrid(hid_t group)
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
-  // Create empty offsets arrays, where a value is appended every step
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "XCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "YCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "ZCoordinatesOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-
   // Add an initial 0 value in the offset arrays
+  bool initResult = true;
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "XCoordinatesOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets", { 0 });
@@ -1372,8 +1338,6 @@ bool vtkHDFWriter::InitializeTemporalStructuredGrid(hid_t group)
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   if (!initResult)
   {
@@ -1397,15 +1361,7 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
   // Create empty offsets arrays, where a value is appended every step
   bool initResult = true;
   initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "CellOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Add an initial 0 value in the offset arrays
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
@@ -1433,12 +1389,6 @@ bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "FaceConnectivityOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "FaceOffsetsOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PolyhedronToFaceIdOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   if (this->Impl->GetSubFilesReady())
   {
@@ -1473,10 +1423,6 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 
   // Create empty offsets arrays, where a value is appended every step, and add and initial 0 value.
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PointOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "PartOffsets", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   initResult &= this->Impl->InitDynamicDataset(
     stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
@@ -1528,24 +1474,12 @@ bool vtkHDFWriter::InitializeChunkedDatasets(hid_t group, vtkHyperTreeGrid* inpu
     SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
   res &= this->Impl->InitDynamicDataset(
     group, "Descriptors", H5T_STD_U8LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
-  res &= this->Impl->InitDynamicDataset(
-    group, "XCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN, SMALL_CHUNK, this->CompressionLevel);
-  res &= this->Impl->InitDynamicDataset(
-    group, "YCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN, SMALL_CHUNK, this->CompressionLevel);
-  res &= this->Impl->InitDynamicDataset(
-    group, "ZCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN, SMALL_CHUNK, this->CompressionLevel);
-
-  // Meta datasets
-  res &= this->Impl->InitDynamicDataset(
-    group, "NumberOfDepths", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  res &= this->Impl->InitDynamicDataset(
-    group, "NumberOfTrees", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  res &= this->Impl->InitDynamicDataset(
-    group, "NumberOfCells", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  res &= this->Impl->InitDynamicDataset(
-    group, "DescriptorsSize", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  res &=
-    this->Impl->InitDynamicDataset(group, "TreeIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  res &= this->Impl->InitDynamicDataset(group, "XCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN,
+    largeChunkSize, this->CompressionLevel);
+  res &= this->Impl->InitDynamicDataset(group, "YCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN,
+    largeChunkSize, this->CompressionLevel);
+  res &= this->Impl->InitDynamicDataset(group, "ZCoordinates", H5T_NATIVE_DOUBLE, SINGLE_COLUMN,
+    largeChunkSize, this->CompressionLevel);
 
   if (!res)
   {
@@ -1636,8 +1570,6 @@ bool vtkHDFWriter::InitializePointDatasets(hid_t group, vtkPoints* points)
   bool initResult = true;
   initResult &= this->Impl->InitDynamicDataset(
     group, "Points", datatype, components, pointChunkSize.data(), this->CompressionLevel);
-  initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfPoints", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   return initResult;
 }
 
@@ -1649,11 +1581,7 @@ bool vtkHDFWriter::InitializePrimitiveDataset(hid_t group)
   initResult &=
     this->Impl->InitDynamicDataset(group, "Offsets", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize);
   initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfCells", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
     group, "Connectivity", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
-  initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfConnectivityIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   return initResult;
 }
@@ -1666,17 +1594,11 @@ bool vtkHDFWriter::InitializePolyhedraDatasets(hid_t group)
   initResult &= this->Impl->InitDynamicDataset(group, "FaceConnectivity", H5T_STD_I64LE,
     SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
   initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfFaceConnectivityIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfFaces", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-  initResult &= this->Impl->InitDynamicDataset(
     group, "FaceOffsets", H5T_STD_I64LE, SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
   initResult &= this->Impl->InitDynamicDataset(group, "PolyhedronToFaces", H5T_STD_I64LE,
     SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
   initResult &= this->Impl->InitDynamicDataset(group, "PolyhedronOffsets", H5T_STD_I64LE,
     SINGLE_COLUMN, largeChunkSize, this->CompressionLevel);
-  initResult &= this->Impl->InitDynamicDataset(
-    group, "NumberOfPolyhedronToFaceIds", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
   return initResult;
 }
 
