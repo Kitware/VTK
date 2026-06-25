@@ -171,6 +171,13 @@ public:
   vtkHDF::ScopedH5DHandle OpenDataset(hid_t group, const char* name);
 
   /**
+   * Get size of 1D dataset. Return 0 if it does not exist.
+   *
+   * @warning: expects a 1D dataset.
+   */
+  hsize_t GetDataSetSize(hid_t group, const char* name);
+
+  /**
    * Return the name of a group given its id
    */
   std::string GetGroupName(hid_t group);

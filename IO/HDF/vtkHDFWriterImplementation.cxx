@@ -209,6 +209,21 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::OpenDataset(hid_t group, c
 }
 
 //------------------------------------------------------------------------------
+hsize_t vtkHDFWriter::Implementation::GetDataSetSize(hid_t group, const char* name)
+{
+  if (H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  {
+    return 0;
+  }
+
+  vtkHDF::ScopedH5DHandle ds = this->OpenDataset(group, name);
+  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(ds);
+  hsize_t currentSize = 0;
+  H5Sget_simple_extent_dims(currentDataspace, &currentSize, nullptr);
+  return currentSize;
+}
+
+//------------------------------------------------------------------------------
 std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 {
   size_t len = H5Iget_name(group, nullptr, 0);

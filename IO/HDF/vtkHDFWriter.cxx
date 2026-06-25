@@ -56,7 +56,6 @@ constexpr hsize_t SINGLE_COLUMN = 1;
 
 // Used for chunked arrays with 4 columns (polydata primitive topologies)
 hsize_t PRIMITIVE_CHUNK[] = { 1, vtkHDFUtilities::NUM_POLY_DATA_TOPOS };
-hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are read one by one
 
 /**
  * Return the name of a partitioned dataset in a pdc given its index.
@@ -440,7 +439,7 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
     return this->WriteDatasetToFile(group, dataObjectTree);
   }
 
-  if (!this->UpdateStepsGroupCommon(group))
+  if (!this->UpdateStepsGroupCommon(group, input, partId))
   {
     return false;
   }
@@ -973,9 +972,14 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::UpdateStepsGroupCommon(hid_t group)
+bool vtkHDFWriter::UpdateStepsGroupCommon(hid_t group, vtkDataObject* input, unsigned int partId)
 {
-  if (this->IsTemporal && this->Impl->GetStepsGroup(group) < 0)
+  if (!this->IsTemporal)
+  {
+    return true;
+  }
+
+  if (this->Impl->GetStepsGroup(group) < 0)
   {
     if (!this->Impl->CreateStepsGroup(group))
     {
@@ -987,6 +991,28 @@ bool vtkHDFWriter::UpdateStepsGroupCommon(hid_t group)
     {
       vtkErrorMacro(<< "Could not initialize temporal time values for " << input->GetClassName()
                     << " in " << this->FileName);
+      return false;
+    }
+  }
+
+  // Write "NumberOfParts" for datatypes that support it
+  if (vtkUnstructuredGrid::SafeDownCast(input) || vtkPolyData::SafeDownCast(input) ||
+    vtkHyperTreeGrid::SafeDownCast(input))
+  {
+
+    bool trim = false;
+    if (!this->Impl->GetSubFilesReady())
+    {
+      // Override the previous NumParts value if it's not the first partition we're processing for
+      // this time step
+      trim = static_cast<int>(this->Impl->GetDataSetSize(
+               this->Impl->GetStepsGroup(group), "NumberOfParts")) == this->CurrentTimeIndex + 1;
+    }
+
+    if (!this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(group), "NumberOfParts",
+          { static_cast<vtkIdType>(partId + 1) }, false, trim))
+    {
+      vtkErrorMacro(<< "Failed to write NumberOfParts in " << this->FileName);
       return false;
     }
   }
@@ -1079,21 +1105,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
     }
   }
 
-  bool trim = false;
-  if (!this->Impl->GetSubFilesReady())
-  {
-    // Override the previous NumParts value if it's not the first part we're processing for this
-    // time step
-    vtkHDF::ScopedH5DHandle dsNumParts = this->Impl->OpenDataset(stepsGroup, "NumberOfParts");
-    vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dsNumParts);
-    hsize_t currentSize = 0;
-    H5Sget_simple_extent_dims(currentDataspace, &currentSize, nullptr);
-    trim = static_cast<int>(currentSize) == this->CurrentTimeIndex + 1;
-  }
-
-  result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "NumberOfParts", { static_cast<vtkIdType>(partId + 1) }, false, trim);
-
   // Don't write offsets for the last timestep
   if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
   {
@@ -1169,15 +1180,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
       stepsGroup, "CellOffsets", negateNumCells, true, true);
   }
 
-  vtkHDF::ScopedH5DHandle dsNumParts = this->Impl->OpenDataset(stepsGroup, "NumberOfParts");
-  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dsNumParts);
-  hsize_t currentSize = 0;
-  H5Sget_simple_extent_dims(currentDataspace, &currentSize, nullptr);
-
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "NumberOfParts",
-    { static_cast<vtkIdType>(partId + 1) }, false,
-    static_cast<int>(currentSize) == this->CurrentTimeIndex + 1);
-
   // Don't write offsets for the last time step
   if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
   {
@@ -1221,14 +1223,6 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkHyperTreeGrid* input, unsign
 
   bool addToLastValue = partId > 0;
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-
-  vtkHDF::ScopedH5DHandle dsNumParts = this->Impl->OpenDataset(stepsGroup, "NumberOfParts");
-  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dsNumParts);
-  hsize_t currentSize = 0;
-  H5Sget_simple_extent_dims(currentDataspace, &currentSize, nullptr);
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "NumberOfParts",
-    { static_cast<vtkIdType>(partId + 1) }, false,
-    static_cast<int>(currentSize) == this->CurrentTimeIndex + 1);
 
   // Don't write offsets for the last time step
   if (this->CurrentTimeIndex >= this->NumberOfTimeSteps - 1)
@@ -1278,8 +1272,6 @@ bool vtkHDFWriter::InitializeTemporalHTG(hid_t group)
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
   bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
 
   // Add an initial 0 value in the offset arrays
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
@@ -1358,12 +1350,8 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
-  // Create empty offsets arrays, where a value is appended every step
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-
   // Add an initial 0 value in the offset arrays
+  bool initResult = true;
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", { 0 });
   initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets", { 0 });
@@ -1421,12 +1409,8 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
-  // Create empty offsets arrays, where a value is appended every step, and add and initial 0 value.
-  bool initResult = true;
-  initResult &= this->Impl->InitDynamicDataset(
-    stepsGroup, "NumberOfParts", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
-
   // Initialize datasets for primitive cells and connectivity. Fill with an empty 1*4 vector.
+  bool initResult = true;
   initResult &= this->Impl->InitDynamicDataset(stepsGroup, "CellOffsets", H5T_STD_I64LE,
     vtkHDFUtilities::NUM_POLY_DATA_TOPOS, PRIMITIVE_CHUNK);
   initResult &= this->Impl->InitDynamicDataset(stepsGroup, "ConnectivityIdOffsets", H5T_STD_I64LE,
