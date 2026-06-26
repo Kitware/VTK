@@ -191,7 +191,7 @@ void vtkWebGPURenderTextureDeviceResource::ReleaseGraphicsResources(vtkWindow* v
 {
   if (this->Texture)
   {
-    this->Texture.Destroy();
+    wgpu::Texture(this->Texture).Destroy();
     this->Texture = nullptr;
   }
   if (this->Sampler)
@@ -222,21 +222,21 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   }
   // create texture.
   this->TextureDescriptor = {};
-  this->TextureDescriptor.label = std::string_view(this->Label);
-  this->TextureDescriptor.dimension =
+  this->TextureDescriptor.label.data = this->Label.c_str();
+  this->TextureDescriptor.label.length = this->Label.size();
+  this->TextureDescriptor.dimension = static_cast<WGPUTextureDimension>(
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToWebGPU(
-      this->GetDimension());
+      this->GetDimension()));
   this->TextureDescriptor.size.width = this->GetWidth();
   this->TextureDescriptor.size.height = this->GetHeight();
   this->TextureDescriptor.size.depthOrArrayLayers = cubeMap ? 6 : this->GetDepth();
-  this->TextureDescriptor.format =
-    vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(this->GetFormat());
+  this->TextureDescriptor.format = static_cast<WGPUTextureFormat>(
+    vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(this->GetFormat()));
   this->TextureDescriptor.mipLevelCount = this->GetMipLevelCount();
   this->TextureDescriptor.sampleCount = this->SampleCount;
-  this->TextureDescriptor.usage =
-    vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(this->GetMode(),
-      this->TextureDescriptor.label.IsUndefined() ? std::string("Unnamed Texture")
-                                                  : std::string(this->TextureDescriptor.label));
+  this->TextureDescriptor.usage = static_cast<WGPUTextureUsage>(
+    vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
+      this->GetMode(), this->Label.empty() ? std::string("Unnamed Texture") : this->Label));
   this->Texture = wgpuConfiguration->CreateTexture(this->TextureDescriptor);
   // upload data
   const auto bytesPerRow = this->GetWidth() * this->GetBytesPerPixel();
@@ -267,47 +267,54 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   this->SamplerDescriptor.lodMaxClamp = this->LODMaxClamp;
   this->SamplerDescriptor.compare = this->GetWebGPUCompareFunction(this->CompareFunc);
   this->SamplerDescriptor.maxAnisotropy = this->MaxAnisotropy;
-  this->Sampler = wgpuConfiguration->GetDevice().CreateSampler(&this->SamplerDescriptor);
+  this->Sampler =
+    wgpu::Device(wgpuConfiguration->GetDevice())
+      .CreateSampler(reinterpret_cast<wgpu::SamplerDescriptor*>(&this->SamplerDescriptor))
+      .Get();
   this->TextureViewDescriptor = {};
   if (cubeMap)
   {
-    this->TextureViewDescriptor.dimension = wgpu::TextureViewDimension::Cube;
+    this->TextureViewDescriptor.dimension =
+      static_cast<WGPUTextureViewDimension>(wgpu::TextureViewDimension::Cube);
     this->TextureViewDescriptor.arrayLayerCount = 6;
   }
-  this->TextureView = this->Texture.CreateView(&this->TextureViewDescriptor);
+  this->TextureView =
+    wgpu::Texture(this->Texture)
+      .CreateView(reinterpret_cast<wgpu::TextureViewDescriptor*>(&this->TextureViewDescriptor))
+      .Get();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupLayoutEntry(
-  std::uint32_t binding, wgpu::ShaderStage visibility)
+WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupLayoutEntry(
+  std::uint32_t binding, WGPUShaderStage visibility)
 {
   wgpu::BindGroupLayoutEntry entry = {};
   entry.binding = binding;
-  entry.visibility = visibility;
+  entry.visibility = static_cast<wgpu::ShaderStage>(visibility);
   entry.sampler.nextInChain = nullptr;
-  entry.sampler.type = this->GetWebGPUSamplerBindingType(this->SamplerBindingType);
-  return entry;
+  entry.sampler.type = static_cast<wgpu::SamplerBindingType>(
+    this->GetWebGPUSamplerBindingType(this->SamplerBindingType));
+  return *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&entry);
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupEntry(
+WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupEntry(
   std::uint32_t binding)
 {
   wgpu::BindGroupEntry entry = {};
   entry.binding = binding;
-  entry.sampler = this->Sampler;
-  return entry;
+  entry.sampler = wgpu::Sampler(this->Sampler);
+  return *reinterpret_cast<WGPUBindGroupEntry*>(&entry);
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayoutEntry
-vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupLayoutEntry(
-  std::uint32_t binding, wgpu::ShaderStage visibility)
+WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupLayoutEntry(
+  std::uint32_t binding, WGPUShaderStage visibility)
 {
   wgpu::BindGroupLayoutEntry entry = {};
   entry.binding = binding;
-  entry.visibility = visibility;
+  entry.visibility = static_cast<wgpu::ShaderStage>(visibility);
   entry.texture.nextInChain = nullptr;
   entry.texture.sampleType =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureSampleTypeToWebGPU(
@@ -316,17 +323,17 @@ vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupLayoutEntry(
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
       this->GetDimension());
   entry.texture.multisampled = (this->SampleCount > 1);
-  return entry;
+  return *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&entry);
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupEntry(
+WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupEntry(
   std::uint32_t binding)
 {
   wgpu::BindGroupEntry entry = {};
   entry.binding = binding;
-  entry.textureView = this->TextureView;
-  return entry;
+  entry.textureView = wgpu::TextureView(this->TextureView);
+  return *reinterpret_cast<WGPUBindGroupEntry*>(&entry);
 }
 
 //------------------------------------------------------------------------------
@@ -349,90 +356,89 @@ const char* vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(Tex
 }
 
 //------------------------------------------------------------------------------
-wgpu::FilterMode vtkWebGPURenderTextureDeviceResource::GetWebGPUFilterMode(FilterMode mode)
+WGPUFilterMode vtkWebGPURenderTextureDeviceResource::GetWebGPUFilterMode(FilterMode mode)
 {
   switch (mode)
   {
     case FilterMode::NEAREST:
-      return wgpu::FilterMode::Nearest;
+      return static_cast<WGPUFilterMode>(wgpu::FilterMode::Nearest);
     case FilterMode::LINEAR:
-      return wgpu::FilterMode::Linear;
+      return static_cast<WGPUFilterMode>(wgpu::FilterMode::Linear);
     default:
-      return wgpu::FilterMode::Undefined;
+      return static_cast<WGPUFilterMode>(wgpu::FilterMode::Undefined);
   }
 }
 //------------------------------------------------------------------------------
-wgpu::MipmapFilterMode vtkWebGPURenderTextureDeviceResource::GetWGPUMipMapFilterMode(
-  FilterMode mode)
+WGPUMipmapFilterMode vtkWebGPURenderTextureDeviceResource::GetWGPUMipMapFilterMode(FilterMode mode)
 {
   switch (mode)
   {
     case FilterMode::NEAREST:
-      return wgpu::MipmapFilterMode::Nearest;
+      return static_cast<WGPUMipmapFilterMode>(wgpu::MipmapFilterMode::Nearest);
     case FilterMode::LINEAR:
-      return wgpu::MipmapFilterMode::Linear;
+      return static_cast<WGPUMipmapFilterMode>(wgpu::MipmapFilterMode::Linear);
     default:
-      return wgpu::MipmapFilterMode::Undefined;
+      return static_cast<WGPUMipmapFilterMode>(wgpu::MipmapFilterMode::Undefined);
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::AddressMode vtkWebGPURenderTextureDeviceResource::GetWebGPUAddressMode(AddressMode mode)
+WGPUAddressMode vtkWebGPURenderTextureDeviceResource::GetWebGPUAddressMode(AddressMode mode)
 {
   switch (mode)
   {
     case AddressMode::CLAMP_TO_EDGE:
-      return wgpu::AddressMode::ClampToEdge;
+      return static_cast<WGPUAddressMode>(wgpu::AddressMode::ClampToEdge);
     case AddressMode::REPEAT:
-      return wgpu::AddressMode::Repeat;
+      return static_cast<WGPUAddressMode>(wgpu::AddressMode::Repeat);
     case AddressMode::MIRROR_REPEAT:
-      return wgpu::AddressMode::MirrorRepeat;
+      return static_cast<WGPUAddressMode>(wgpu::AddressMode::MirrorRepeat);
     default:
-      return wgpu::AddressMode::Undefined;
+      return static_cast<WGPUAddressMode>(wgpu::AddressMode::Undefined);
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::SamplerBindingType vtkWebGPURenderTextureDeviceResource::GetWebGPUSamplerBindingType(
+WGPUSamplerBindingType vtkWebGPURenderTextureDeviceResource::GetWebGPUSamplerBindingType(
   SamplerMode mode)
 {
   switch (mode)
   {
     case SamplerMode::FILTERING:
-      return wgpu::SamplerBindingType::Filtering;
+      return static_cast<WGPUSamplerBindingType>(wgpu::SamplerBindingType::Filtering);
     case SamplerMode::NON_FILTERING:
-      return wgpu::SamplerBindingType::NonFiltering;
+      return static_cast<WGPUSamplerBindingType>(wgpu::SamplerBindingType::NonFiltering);
     case SamplerMode::COMPARISON:
-      return wgpu::SamplerBindingType::Comparison;
+      return static_cast<WGPUSamplerBindingType>(wgpu::SamplerBindingType::Comparison);
     default:
-      return wgpu::SamplerBindingType::Undefined;
+      return static_cast<WGPUSamplerBindingType>(wgpu::SamplerBindingType::Undefined);
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::CompareFunction vtkWebGPURenderTextureDeviceResource::GetWebGPUCompareFunction(
+WGPUCompareFunction vtkWebGPURenderTextureDeviceResource::GetWebGPUCompareFunction(
   CompareFunction mode)
 {
   switch (mode)
   {
     case CompareFunction::NEVER:
-      return wgpu::CompareFunction::Never;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Never);
     case CompareFunction::LESS:
-      return wgpu::CompareFunction::Less;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Less);
     case CompareFunction::LESS_EQUAL:
-      return wgpu::CompareFunction::LessEqual;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::LessEqual);
     case CompareFunction::GREATER:
-      return wgpu::CompareFunction::Greater;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Greater);
     case CompareFunction::GREATER_EQUAL:
-      return wgpu::CompareFunction::GreaterEqual;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::GreaterEqual);
     case CompareFunction::EQUAL:
-      return wgpu::CompareFunction::Equal;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Equal);
     case CompareFunction::NOT_EQUAL:
-      return wgpu::CompareFunction::NotEqual;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::NotEqual);
     case CompareFunction::ALWAYS:
-      return wgpu::CompareFunction::Always;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Always);
     default:
-      return wgpu::CompareFunction::Undefined;
+      return static_cast<WGPUCompareFunction>(wgpu::CompareFunction::Undefined);
   }
 }
 VTK_ABI_NAMESPACE_END
