@@ -51,6 +51,7 @@ class vtkPointSet;
 class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
+class vtkTable;
 class vtkUnstructuredGrid;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
@@ -239,6 +240,7 @@ private:
   bool WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId = 0);
+  bool WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsigned int partId = 0);
   bool WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input);
   bool WriteDatasetToFile(hid_t group, vtkDataObjectTree* input);

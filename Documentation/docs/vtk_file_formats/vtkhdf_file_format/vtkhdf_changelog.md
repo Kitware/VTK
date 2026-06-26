@@ -1,5 +1,9 @@
 # Changelog
 
+## VTKHDF - 2.8
+
+- add specification for `Table`
+
 ## VTKHDF - 2.7
 
 - add specification for `RectilinearGrid` and `StructuredGrid`

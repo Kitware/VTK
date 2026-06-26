@@ -36,6 +36,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkType.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnstructuredGrid.h"
@@ -240,6 +241,7 @@ int vtkHDFWriter::FillInputPortInformation(int port, vtkInformation* info)
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
@@ -440,6 +442,10 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
   {
     return this->WriteDatasetToFile(group, structuredGrid, partId);
   }
+  if (auto table = vtkTable::SafeDownCast(input))
+  {
+    return this->WriteDatasetToFile(group, table, partId);
+  }
   if (auto polyData = vtkPolyData::SafeDownCast(input))
   {
     return this->WriteDatasetToFile(group, polyData, partId);
@@ -611,6 +617,37 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
   }
   writeSuccess &= this->AppendPoints(group, input, dims);
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
+  return writeSuccess;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int partId)
+{
+  bool writeSuccess = true;
+  if (this->IsTemporal && !this->Impl->CreateStepsGroup(group))
+  {
+    vtkErrorMacro("Could not create steps group");
+    return false;
+  }
+
+  writeSuccess &= this->Impl->WriteHeader(group, "Table");
+
+  if (this->IsTemporal && this->CurrentTimeIndex == 0)
+  {
+    if (!this->AppendTimeValues(this->Impl->GetStepsGroup(group)))
+    {
+      vtkErrorMacro(<< "Could not initialize temporal time values for ImageData "
+                    << this->FileName);
+      return false;
+    }
+
+    writeSuccess &= this->Impl->InitDynamicDataset(
+      group, "NumberOfRows", H5T_STD_I64LE, SINGLE_COLUMN, SMALL_CHUNK);
+  }
+
+  writeSuccess &=
+    this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfRows", { input->GetNumberOfRows() });
+  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, nullptr);
   return writeSuccess;
 }
 
@@ -2051,9 +2088,18 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
 bool vtkHDFWriter::AppendDataSetAttributes(
   hid_t baseGroup, vtkDataObject* input, unsigned int partId, vtkIdList* cellIdMap, const int* dims)
 {
-  constexpr std::array<const char*, 2> groupNames = { "PointData", "CellData" };
-  for (int iAttribute = 0; iAttribute < vtkHDFUtilities::GetNumberOfDataArrayTypes(); ++iAttribute)
+  constexpr std::array<int, 3> attributeTypes = { vtkDataObject::AttributeTypes::POINT,
+    vtkDataObject::AttributeTypes::CELL, vtkDataObject::AttributeTypes::ROW };
+  constexpr std::array<const char*, 3> groupNames = { "PointData", "CellData", "RowData" };
+
+  for (size_t iAttribute = 0; iAttribute < attributeTypes.size(); ++iAttribute)
   {
+    vtkDataSetAttributes* attributes = input->GetAttributes(attributeTypes[iAttribute]);
+    if (!attributes)
+    {
+      continue;
+    }
+
     // Create the group corresponding to point, cell or field data
     const char* groupName = groupNames[iAttribute];
     const std::string offsetsGroupNameStr = std::string(groupName) + "Offsets";
@@ -2078,8 +2124,7 @@ bool vtkHDFWriter::AppendDataSetAttributes(
       }
     }
 
-    vtkDataSetAttributes* attributes = input->GetAttributes(iAttribute);
-    int nArrays = attributes ? attributes->GetNumberOfArrays() : 0;
+    int nArrays = attributes->GetNumberOfArrays();
     vtkHDF::ScopedH5GHandle attributeGroup = H5Gopen(baseGroup, groupName, H5P_DEFAULT);
 
     // Add the arrays data in the group

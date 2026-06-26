@@ -1765,7 +1765,10 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
 //------------------------------------------------------------------------------
 void vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data)
 {
-  std::array<hid_t, 3> attributeDataGroup{ H5I_INVALID_HID, H5I_INVALID_HID, H5I_INVALID_HID };
+  std::map<int, hid_t> attributeDataGroup;
+  attributeDataGroup[vtkDataObject::POINT] = H5I_INVALID_HID;
+  attributeDataGroup[vtkDataObject::CELL] = H5I_INVALID_HID;
+  attributeDataGroup[vtkDataObject::FIELD] = H5I_INVALID_HID;
   std::array attributeGroupNames = { PATH::POINT_DATA, PATH::CELL_DATA, PATH::FIELD_DATA };
 
   for (int i = 0; i < 3; i++)
