@@ -13,9 +13,15 @@ vtk_module_third_party(
     SPDX_LICENSE_IDENTIFIER
       "IJG AND BSD-3-Clause AND ZLIB"
     SPDX_COPYRIGHT_TEXT
-      "Copyright (C)2009-2021 D. R. Commander."
-      "Copyright (C)2015 Viktor Szathmáry."
-      "copyright (C) 1991-2020, Thomas G. Lane, Guido Vollbeding"
+      "Copyright (C) D. R. Commander."
+      "Copyright (C) Viktor Szathmáry."
+      "Copyright (C) Thomas G. Lane, Guido Vollbeding."
+      "Copyright (C) Matthieu Darbois."
+      "Copyright (C) Matthias Räncker."
+      "Copyright (C) Aliaksiej Kandracienka."
+      "Copyright (C) Ken Murchison."
+      "Copyright (C) Arm Limited."
+      "Copyright (C) Felix Hanau."
     SPDX_DOWNLOAD_LOCATION
       "git+${jpeg_repo}@${jpeg_tag}"
     VERSION
