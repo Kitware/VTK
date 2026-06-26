@@ -68,9 +68,10 @@ void Value::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 
 std::vector<fides::RawArray> Value::Read(const std::unordered_map<std::string, std::string>& paths,
                                          DataSourcesType& sources,
-                                         const fides::metadata::MetaData& selections)
+                                         const fides::metadata::MetaData& selections,
+                                         fides::io::ReadMode mode)
 {
-  return this->ValueImpl->Read(paths, sources, selections);
+  return this->ValueImpl->Read(paths, sources, selections, mode);
 }
 
 size_t Value::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
@@ -100,7 +101,8 @@ void ValueVariableDimensions::ProcessJSON(const rapidjson::Value& json, DataSour
 std::vector<fides::RawArray> ValueVariableDimensions::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  fides::io::ReadMode /*mode*/)
 {
   const auto& ds = sources[this->DataSourceName];
   ds->OpenSource(paths, this->DataSourceName);
@@ -170,7 +172,8 @@ void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fide
 std::vector<fides::RawArray> ValueArray::Read(
   const std::unordered_map<std::string, std::string>& fidesNotUsed(paths),
   DataSourcesType& fidesNotUsed(sources),
-  const fides::metadata::MetaData& fidesNotUsed(selections))
+  const fides::metadata::MetaData& fidesNotUsed(selections),
+  fides::io::ReadMode /*mode*/)
 {
   auto raw = fides::AllocateRawArray<double>(this->Values.size());
   std::memcpy(
@@ -193,7 +196,8 @@ std::set<std::string> ValueScalar::GetGroupNames(
 std::vector<fides::RawArray> ValueScalar::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  fides::io::ReadMode /*mode*/)
 {
   const auto& ds = sources[this->DataSourceName];
   ds->OpenSource(paths, this->DataSourceName);
@@ -203,13 +207,12 @@ std::vector<fides::RawArray> ValueScalar::Read(
 std::vector<fides::RawArray> ValueArrayVariable::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  fides::io::ReadMode mode)
 {
   const auto& ds = sources[this->DataSourceName];
   ds->OpenSource(paths, this->DataSourceName);
-
-  auto arrays = ds->ReadVariable(this->VariableName, selections);
-  return arrays;
+  return ds->ReadVariable(this->VariableName, selections, fides::io::IsVector::Auto, mode);
 }
 
 size_t ValueArrayVariable::GetNumberOfBlocks(

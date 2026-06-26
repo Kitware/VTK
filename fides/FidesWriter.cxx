@@ -384,69 +384,41 @@ void ValidatePartitionInfo(const PartitionInfo& info)
   }
 }
 
-/// Generate a Fides schema JSON from PartitionInfo metadata.
-std::string GenerateSchemaJSON(const PartitionInfo& info,
-                               const std::set<std::string>& fieldsToWrite,
-                               size_t totalNumberOfBlocks,
-                               bool hasTime = false,
-                               bool writeAll = true)
+/// Fill a schema body object with coordinate_system + cell_set + fields
+/// (+ step_variable when hasTime). The variable references are bare; on
+/// read they are prefixed by the dataset/group name. Shared by the
+/// single-dataset and multi-dataset (datasets[]) schema generators.
+void FillDataSetBody(const PartitionInfo& info,
+                     const std::set<std::string>& fieldsToWrite,
+                     bool hasTime,
+                     bool writeAll,
+                     rapidjson::Document::AllocatorType& alloc,
+                     rapidjson::Value& body)
 {
-  rapidjson::Document doc;
-  doc.SetObject();
-  auto& alloc = doc.GetAllocator();
-
-  // The schema must be wrapped: { "ModelName": { ... } }
-  rapidjson::Value inner(rapidjson::kObjectType);
-
-  // data_sources
-  rapidjson::Value dsArr(rapidjson::kArrayType);
-  rapidjson::Value dsObj(rapidjson::kObjectType);
-  dsObj.AddMember("name", "source", alloc);
-  dsObj.AddMember("filename_mode", "input", alloc);
-  dsArr.PushBack(dsObj, alloc);
-  inner.AddMember("data_sources", dsArr, alloc);
-
-  // step_information. When the writer's been told a time via SetCurrentTime
-  // we name the per-step "time" variable so the reader populates TIME_ARRAY
-  // (and consumers like ParaView surface real time values, not 0..N-1).
-  rapidjson::Value stepInfo(rapidjson::kObjectType);
-  stepInfo.AddMember("data_source", "source", alloc);
-  if (hasTime)
-  {
-    stepInfo.AddMember("variable", "time", alloc);
-  }
-  inner.AddMember("step_information", stepInfo, alloc);
-
-  // number_of_blocks
-  inner.AddMember("number_of_blocks", static_cast<unsigned int>(totalNumberOfBlocks), alloc);
-
-  std::string modelType = info.GetDataModelTypeString();
-
   // coordinate_system
   if (info.Coordinates == PartitionInfo::CoordType::Uniform)
   {
-    fides::predefined::CreateArrayUniformPointCoordinates(
-      alloc, inner, "dims", "origin", "spacing");
+    fides::predefined::CreateArrayUniformPointCoordinates(alloc, body, "dims", "origin", "spacing");
   }
   else if (info.Coordinates == PartitionInfo::CoordType::Rectilinear)
   {
     fides::predefined::CreateArrayRectilinearPointCoordinates(
-      alloc, inner, "x_array", "y_array", "z_array");
+      alloc, body, "x_array", "y_array", "z_array");
   }
   else
   {
-    fides::predefined::CreateArrayUnstructuredPointCoordinates(alloc, inner, "coordinates");
+    fides::predefined::CreateArrayUnstructuredPointCoordinates(alloc, body, "coordinates");
   }
 
   // cell_set
   if (info.Cells == PartitionInfo::CellType::Structured)
   {
-    fides::predefined::CreateStructuredCellset(alloc, inner, "dims");
+    fides::predefined::CreateStructuredCellset(alloc, body, "dims");
   }
   else if (info.Cells == PartitionInfo::CellType::SingleType)
   {
     std::string cellStr = ConvertCellShapeToString(info.SingleCellShape);
-    fides::predefined::CreateUnstructuredSingleTypeCellset(alloc, inner, "connectivity", cellStr);
+    fides::predefined::CreateUnstructuredSingleTypeCellset(alloc, body, "connectivity", cellStr);
   }
   else if (info.Cells == PartitionInfo::CellType::PolyData)
   {
@@ -479,30 +451,22 @@ std::string GenerateSchemaJSON(const PartitionInfo& info,
     addRole("polys", info.PolyDataPolysOffsets.IsValid());
     addRole("strips", info.PolyDataStripsOffsets.IsValid());
 
-    inner.AddMember("cell_set", cellSetObj, alloc);
+    body.AddMember("cell_set", cellSetObj, alloc);
   }
   else
   {
-    // Explicit cell set
     rapidjson::Value cellSetObj(rapidjson::kObjectType);
     cellSetObj.AddMember("cell_set_type", "explicit", alloc);
-
-    // cell_types must be an Array object
     rapidjson::Value cellTypesObj(rapidjson::kObjectType);
     fides::predefined::CreateArrayBasic(alloc, cellTypesObj, "source", "cell_types");
     cellSetObj.AddMember("cell_types", cellTypesObj, alloc);
-
-    // number_of_vertices must be an Array object
     rapidjson::Value numVertsObj(rapidjson::kObjectType);
     fides::predefined::CreateArrayBasic(alloc, numVertsObj, "source", "num_verts");
     cellSetObj.AddMember("number_of_vertices", numVertsObj, alloc);
-
-    // connectivity must be an Array object
     rapidjson::Value connObj(rapidjson::kObjectType);
     fides::predefined::CreateArrayBasic(alloc, connObj, "source", "connectivity");
     cellSetObj.AddMember("connectivity", connObj, alloc);
-
-    inner.AddMember("cell_set", cellSetObj, alloc);
+    body.AddMember("cell_set", cellSetObj, alloc);
   }
 
   // fields
@@ -513,13 +477,10 @@ std::string GenerateSchemaJSON(const PartitionInfo& info,
     {
       continue;
     }
-
     rapidjson::Value fieldObj(rapidjson::kObjectType);
     fieldObj.AddMember("name", fides::predefined::SetString(alloc, field.Name), alloc);
-
     std::string assocStr = (field.Association == FieldAssociation::Points) ? "points" : "cell_set";
     fieldObj.AddMember("association", fides::predefined::SetString(alloc, assocStr), alloc);
-
     rapidjson::Value arrObj(rapidjson::kObjectType);
     fides::predefined::CreateArrayBasic(alloc,
                                         arrObj,
@@ -531,18 +492,148 @@ std::string GenerateSchemaJSON(const PartitionInfo& info,
     fieldObj.AddMember("array", arrObj, alloc);
     fieldsArr.PushBack(fieldObj, alloc);
   }
-  inner.AddMember("fields", fieldsArr, alloc);
+  body.AddMember("fields", fieldsArr, alloc);
 
   if (hasTime)
   {
     rapidjson::Value timeObj(rapidjson::kObjectType);
     fides::predefined::CreateArrayBasic(alloc, timeObj, "source", "time");
-    inner.AddMember("step_variable", timeObj, alloc);
+    body.AddMember("step_variable", timeObj, alloc);
   }
+}
+
+/// Generate a Fides schema JSON from PartitionInfo metadata.
+std::string GenerateSchemaJSON(const PartitionInfo& info,
+                               const std::set<std::string>& fieldsToWrite,
+                               bool hasTime = false,
+                               bool writeAll = true)
+{
+  rapidjson::Document doc;
+  doc.SetObject();
+  auto& alloc = doc.GetAllocator();
+
+  // The schema must be wrapped: { "ModelName": { ... } }
+  rapidjson::Value inner(rapidjson::kObjectType);
+
+  rapidjson::Value dsArr(rapidjson::kArrayType);
+  rapidjson::Value dsObj(rapidjson::kObjectType);
+  dsObj.AddMember("name", "source", alloc);
+  dsObj.AddMember("filename_mode", "input", alloc);
+  dsArr.PushBack(dsObj, alloc);
+  inner.AddMember("data_sources", dsArr, alloc);
+
+  // step_information. When the writer's been told a time via SetCurrentTime
+  // we name the per-step "time" variable so the reader populates TIME_ARRAY
+  // (and consumers like ParaView surface real time values, not 0..N-1).
+  rapidjson::Value stepInfo(rapidjson::kObjectType);
+  stepInfo.AddMember("data_source", "source", alloc);
+  if (hasTime)
+  {
+    stepInfo.AddMember("variable", "time", alloc);
+  }
+  inner.AddMember("step_information", stepInfo, alloc);
+
+  FillDataSetBody(info, fieldsToWrite, hasTime, writeAll, alloc, inner);
 
   doc.AddMember("Fides_Generated", inner, alloc);
 
-  // Serialize
+  rapidjson::StringBuffer buf;
+  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+  doc.Accept(writer);
+  return buf.GetString();
+}
+
+/// Recursively translate an AssemblyNode into the schema's "assembly"
+/// JSON shape (name / datasets / children). Mirror of the reader's
+/// ParseAssemblyTree.
+void AppendAssemblyJSON(const fides::AssemblyNode& node,
+                        rapidjson::Document::AllocatorType& alloc,
+                        rapidjson::Value& out)
+{
+  if (!node.Name.empty())
+  {
+    out.AddMember("name", fides::predefined::SetString(alloc, node.Name), alloc);
+  }
+  if (!node.Datasets.empty())
+  {
+    rapidjson::Value dsArr(rapidjson::kArrayType);
+    for (const auto& d : node.Datasets)
+    {
+      dsArr.PushBack(fides::predefined::SetString(alloc, d), alloc);
+    }
+    out.AddMember("datasets", dsArr, alloc);
+  }
+  if (!node.Children.empty())
+  {
+    rapidjson::Value childArr(rapidjson::kArrayType);
+    for (const auto& c : node.Children)
+    {
+      rapidjson::Value childObj(rapidjson::kObjectType);
+      AppendAssemblyJSON(c, alloc, childObj);
+      childArr.PushBack(childObj, alloc);
+    }
+    out.AddMember("children", childArr, alloc);
+  }
+}
+
+/// Generate a multi-dataset (datasets[]) schema: shared data_sources +
+/// step_information at the top, one datasets[] entry per item (body via
+/// FillDataSetBody), and an optional assembly tree.
+std::string GenerateCollectionSchemaJSON(const std::vector<CollectionItem>& items,
+                                         bool hasTime,
+                                         const fides::AssemblyNode* assembly)
+{
+  rapidjson::Document doc;
+  doc.SetObject();
+  auto& alloc = doc.GetAllocator();
+  rapidjson::Value inner(rapidjson::kObjectType);
+
+  rapidjson::Value dsArr(rapidjson::kArrayType);
+  rapidjson::Value dsObj(rapidjson::kObjectType);
+  dsObj.AddMember("name", "source", alloc);
+  dsObj.AddMember("filename_mode", "input", alloc);
+  dsArr.PushBack(dsObj, alloc);
+  inner.AddMember("data_sources", dsArr, alloc);
+
+  // Same time-variable naming as the single-dataset path.
+  rapidjson::Value stepInfo(rapidjson::kObjectType);
+  stepInfo.AddMember("data_source", "source", alloc);
+  if (hasTime)
+  {
+    stepInfo.AddMember("variable", "time", alloc);
+  }
+  inner.AddMember("step_information", stepInfo, alloc);
+
+  if (assembly)
+  {
+    rapidjson::Value assemblyObj(rapidjson::kObjectType);
+    AppendAssemblyJSON(*assembly, alloc, assemblyObj);
+    inner.AddMember("assembly", assemblyObj, alloc);
+  }
+
+  rapidjson::Value datasetsArr(rapidjson::kArrayType);
+  for (size_t i = 0; i < items.size(); ++i)
+  {
+    if (items[i].Partitions.empty())
+    {
+      continue;
+    }
+    rapidjson::Value entry(rapidjson::kObjectType);
+    entry.AddMember("name", fides::predefined::SetString(alloc, items[i].Name), alloc);
+    rapidjson::Value body(rapidjson::kObjectType);
+    FillDataSetBody(items[i].Partitions.front(),
+                    {},
+                    hasTime,
+                    /*writeAll=*/true,
+                    alloc,
+                    body);
+    entry.AddMember("data_set", body, alloc);
+    datasetsArr.PushBack(entry, alloc);
+  }
+  inner.AddMember("datasets", datasetsArr, alloc);
+
+  doc.AddMember("Fides_Generated", inner, alloc);
+
   rapidjson::StringBuffer buf;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
   doc.Accept(writer);
@@ -719,6 +810,15 @@ struct FidesWriter::Impl
     this->Engine = this->IO.Open(this->OutputFile, adios2::Mode::Write);
     this->EngineOpen = true;
   }
+
+  /// Prefix an ADIOS2 variable name with the current collection item's
+  /// name (the variable group). Empty prefix (single-dataset write) leaves
+  /// the name bare, so legacy output is byte-identical.
+  std::string PrefixedName(const std::string& base) const
+  {
+    return this->ItemPrefix.empty() ? base : this->ItemPrefix + "/" + base;
+  }
+  std::string ItemPrefix;
 
   void ComputeGlobalBlockInfo(const std::vector<PartitionInfo>& partitions)
   {
@@ -1026,10 +1126,10 @@ struct FidesWriter::Impl
       localCoords += p.NumberOfPoints();
     }
     numCoords[static_cast<size_t>(this->Rank)] = localCoords;
-#if FIDES_USE_MPI
-    MPI_Allreduce(
-      MPI_IN_PLACE, numCoords.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm);
-#endif
+    FIDES_SAFE_MPI(
+      this->Comm,
+      MPI_Allreduce(
+        MPI_IN_PLACE, numCoords.data(), this->NumRanks, FIDES_MPI_SIZE_T, MPI_SUM, this->Comm));
     this->TotalNumberOfCoords = 0;
     for (int i = 0; i < this->NumRanks; i++)
     {
@@ -1067,14 +1167,13 @@ struct FidesWriter::Impl
       rankCounts[static_cast<size_t>(this->Rank) * kRoles * 2 + r * 2 + 0] = role.LocalOffsets;
       rankCounts[static_cast<size_t>(this->Rank) * kRoles * 2 + r * 2 + 1] = role.LocalConn;
     }
-#if FIDES_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE,
-                  rankCounts.data(),
-                  this->NumRanks * kRoles * 2,
-                  FIDES_MPI_SIZE_T,
-                  MPI_SUM,
-                  this->Comm);
-#endif
+    FIDES_SAFE_MPI(this->Comm,
+                   MPI_Allreduce(MPI_IN_PLACE,
+                                 rankCounts.data(),
+                                 this->NumRanks * kRoles * 2,
+                                 FIDES_MPI_SIZE_T,
+                                 MPI_SUM,
+                                 this->Comm));
     for (int r = 0; r < kRoles; r++)
     {
       auto& role = this->PolyDataRoles[static_cast<size_t>(r)];
@@ -1142,9 +1241,9 @@ struct FidesWriter::Impl
     std::vector<size_t> offset = { 3 * this->DataSetOffset };
     std::vector<size_t> size = { 3 * this->NumberOfDataSets };
 
-    this->IO.DefineVariable<size_t>("dims", shape, offset, size);
-    this->IO.DefineVariable<double>("origin", shape, offset, size);
-    this->IO.DefineVariable<double>("spacing", shape, offset, size);
+    this->IO.DefineVariable<size_t>(this->PrefixedName("dims"), shape, offset, size);
+    this->IO.DefineVariable<double>(this->PrefixedName("origin"), shape, offset, size);
+    this->IO.DefineVariable<double>(this->PrefixedName("spacing"), shape, offset, size);
   }
 
   void DefineStructuredExplicitVariables(const PartitionInfo* rep)
@@ -1155,13 +1254,13 @@ struct FidesWriter::Impl
     std::vector<size_t> shape = { this->TotalNumberOfCoords, 3 };
     std::vector<size_t> offset = { this->CoordOffset, 0 };
     std::vector<size_t> count = { this->LocalPoints, 3 };
-    DefineVariable(this->IO, "coordinates", coordType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("coordinates"), coordType, shape, offset, count);
 
     // Dims: 3 values per block
     shape = { 3 * this->TotalNumberOfDataSets };
     offset = { 3 * this->DataSetOffset };
     count = { 3 * this->NumberOfDataSets };
-    this->IO.DefineVariable<size_t>("dims", shape, offset, count);
+    this->IO.DefineVariable<size_t>(this->PrefixedName("dims"), shape, offset, count);
   }
 
   void DefineRectilinearVariables(const PartitionInfo* rep)
@@ -1171,24 +1270,24 @@ struct FidesWriter::Impl
     shape = { 3 * this->TotalNumberOfDataSets };
     offset = { 3 * this->DataSetOffset };
     size = { 3 * this->NumberOfDataSets };
-    this->IO.DefineVariable<size_t>("dims", shape, offset, size);
+    this->IO.DefineVariable<size_t>(this->PrefixedName("dims"), shape, offset, size);
 
     DataType coordType = (rep && rep->XCoords.IsValid()) ? rep->XCoords.Type : DataType::Float64;
 
     shape = { this->TotalXCoords };
     offset = { this->XCoordsOffset };
     size = { this->NumXCoords };
-    DefineVariable(this->IO, "x_array", coordType, shape, offset, size);
+    DefineVariable(this->IO, this->PrefixedName("x_array"), coordType, shape, offset, size);
 
     shape = { this->TotalYCoords };
     offset = { this->YCoordsOffset };
     size = { this->NumYCoords };
-    DefineVariable(this->IO, "y_array", coordType, shape, offset, size);
+    DefineVariable(this->IO, this->PrefixedName("y_array"), coordType, shape, offset, size);
 
     shape = { this->TotalZCoords };
     offset = { this->ZCoordsOffset };
     size = { this->NumZCoords };
-    DefineVariable(this->IO, "z_array", coordType, shape, offset, size);
+    DefineVariable(this->IO, this->PrefixedName("z_array"), coordType, shape, offset, size);
   }
 
   void DefineSingleTypeVariables(const PartitionInfo* rep)
@@ -1199,7 +1298,7 @@ struct FidesWriter::Impl
     std::vector<size_t> shape = { this->TotalNumberOfCoords, 3 };
     std::vector<size_t> offset = { this->CoordOffset, 0 };
     std::vector<size_t> count = { this->LocalPoints, 3 };
-    DefineVariable(this->IO, "coordinates", coordType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("coordinates"), coordType, shape, offset, count);
 
     // Connectivity
     DataType connType = (rep && rep->SingleTypeConnectivity.IsValid())
@@ -1208,7 +1307,7 @@ struct FidesWriter::Impl
     shape = { this->TotalNumberOfConnIds };
     offset = { this->ConnOffset };
     count = { this->LocalConns };
-    DefineVariable(this->IO, "connectivity", connType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("connectivity"), connType, shape, offset, count);
   }
 
   void DefineExplicitVariables(const PartitionInfo* rep)
@@ -1219,12 +1318,16 @@ struct FidesWriter::Impl
     std::vector<size_t> shape = { this->TotalNumberOfCoords, 3 };
     std::vector<size_t> offset = { this->CoordOffset, 0 };
     std::vector<size_t> count = { this->LocalPoints, 3 };
-    DefineVariable(this->IO, "coordinates", coordType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("coordinates"), coordType, shape, offset, count);
 
-    this->IO.DefineVariable<uint8_t>(
-      "cell_types", { this->TotalExplicitCells }, { this->CellOffset }, { this->LocalCells });
-    this->IO.DefineVariable<int32_t>(
-      "num_verts", { this->TotalExplicitCells }, { this->CellOffset }, { this->LocalCells });
+    this->IO.DefineVariable<uint8_t>(this->PrefixedName("cell_types"),
+                                     { this->TotalExplicitCells },
+                                     { this->CellOffset },
+                                     { this->LocalCells });
+    this->IO.DefineVariable<int32_t>(this->PrefixedName("num_verts"),
+                                     { this->TotalExplicitCells },
+                                     { this->CellOffset },
+                                     { this->LocalCells });
 
     DataType connType = (rep && rep->ExplicitConnectivity.IsValid())
       ? rep->ExplicitConnectivity.Type
@@ -1232,7 +1335,7 @@ struct FidesWriter::Impl
     shape = { this->TotalExplicitConns };
     offset = { this->ConnOffset };
     count = { this->LocalConns };
-    DefineVariable(this->IO, "connectivity", connType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("connectivity"), connType, shape, offset, count);
   }
 
   void DefinePolyDataVariables(const PartitionInfo* rep)
@@ -1243,7 +1346,7 @@ struct FidesWriter::Impl
     std::vector<size_t> shape = { this->TotalNumberOfCoords, 3 };
     std::vector<size_t> offset = { this->CoordOffset, 0 };
     std::vector<size_t> count = { this->LocalPoints, 3 };
-    DefineVariable(this->IO, "coordinates", coordType, shape, offset, count);
+    DefineVariable(this->IO, this->PrefixedName("coordinates"), coordType, shape, offset, count);
 
     // Define two 1-D streams per role, but only when the role has any
     // cells globally; this lets readers detect "no cells of this kind"
@@ -1255,13 +1358,13 @@ struct FidesWriter::Impl
         continue;
       }
       DefineVariable(this->IO,
-                     role.Name + "_offsets",
+                     this->PrefixedName(role.Name + "_offsets"),
                      role.OffsetsType,
                      { role.TotalOffsets },
                      { role.OffsetsRankStart },
                      { role.LocalOffsets });
       DefineVariable(this->IO,
-                     role.Name + "_connectivity",
+                     this->PrefixedName(role.Name + "_connectivity"),
                      role.ConnType,
                      { role.TotalConn },
                      { role.ConnRankStart },
@@ -1312,7 +1415,8 @@ struct FidesWriter::Impl
           offset = { this->DataSetPointsOffset, 0 };
           count = { localPoints, numComp };
         }
-        DefineVariable(this->IO, field.Name, field.Data.Type, shape, offset, count);
+        DefineVariable(
+          this->IO, this->PrefixedName(field.Name), field.Data.Type, shape, offset, count);
         this->PointFieldNames.push_back(field.Name);
       }
       else if (field.Association == FieldAssociation::Cells)
@@ -1329,7 +1433,8 @@ struct FidesWriter::Impl
           offset = { this->DataSetCellsOffset, 0 };
           count = { localCells, numComp };
         }
-        DefineVariable(this->IO, field.Name, field.Data.Type, shape, offset, count);
+        DefineVariable(
+          this->IO, this->PrefixedName(field.Name), field.Data.Type, shape, offset, count);
         this->CellFieldNames.push_back(field.Name);
       }
     }
@@ -1350,11 +1455,8 @@ struct FidesWriter::Impl
 
     if (this->Rank == rankWithDS && !partitions.empty())
     {
-      std::string schema = GenerateSchemaJSON(partitions[0],
-                                              this->FieldsToWrite,
-                                              this->TotalNumberOfDataSets,
-                                              this->TimeEverSet,
-                                              this->WriteAll);
+      std::string schema =
+        GenerateSchemaJSON(partitions[0], this->FieldsToWrite, this->TimeEverSet, this->WriteAll);
       this->IO.DefineAttribute<std::string>("fides/schema", schema);
 
       // Also write the data model type as an attribute
@@ -1390,9 +1492,9 @@ struct FidesWriter::Impl
     this->OriginsBuffer.resize(n * 3);
     this->SpacingsBuffer.resize(n * 3);
 
-    auto dimsVar = this->IO.InquireVariable<size_t>("dims");
-    auto originVar = this->IO.InquireVariable<double>("origin");
-    auto spacingVar = this->IO.InquireVariable<double>("spacing");
+    auto dimsVar = this->IO.InquireVariable<size_t>(this->PrefixedName("dims"));
+    auto originVar = this->IO.InquireVariable<double>(this->PrefixedName("origin"));
+    auto spacingVar = this->IO.InquireVariable<double>(this->PrefixedName("spacing"));
 
     std::vector<size_t> shape = { 3 * this->TotalNumberOfDataSets };
     dimsVar.SetShape(shape);
@@ -1428,7 +1530,7 @@ struct FidesWriter::Impl
     size_t n = partitions.size();
     this->DimsBuffer.resize(n * 3);
 
-    auto dimsVar = this->IO.InquireVariable<size_t>("dims");
+    auto dimsVar = this->IO.InquireVariable<size_t>(this->PrefixedName("dims"));
     dimsVar.SetShape({ 3 * this->TotalNumberOfDataSets });
 
     for (size_t i = 0; i < n; i++)
@@ -1438,12 +1540,27 @@ struct FidesWriter::Impl
       size_t ny = p.YCoords.NumValues;
       size_t nz = p.ZCoords.NumValues;
 
-      PutRawArray(
-        this->IO, this->Engine, "x_array", p.XCoords, { this->TotalXCoords }, { xcOff }, { nx });
-      PutRawArray(
-        this->IO, this->Engine, "y_array", p.YCoords, { this->TotalYCoords }, { ycOff }, { ny });
-      PutRawArray(
-        this->IO, this->Engine, "z_array", p.ZCoords, { this->TotalZCoords }, { zcOff }, { nz });
+      PutRawArray(this->IO,
+                  this->Engine,
+                  this->PrefixedName("x_array"),
+                  p.XCoords,
+                  { this->TotalXCoords },
+                  { xcOff },
+                  { nx });
+      PutRawArray(this->IO,
+                  this->Engine,
+                  this->PrefixedName("y_array"),
+                  p.YCoords,
+                  { this->TotalYCoords },
+                  { ycOff },
+                  { ny });
+      PutRawArray(this->IO,
+                  this->Engine,
+                  this->PrefixedName("z_array"),
+                  p.ZCoords,
+                  { this->TotalZCoords },
+                  { zcOff },
+                  { nz });
 
       adios2::Box<adios2::Dims> sel({ i * 3 + (3 * this->DataSetOffset) }, { 3 });
       dimsVar.SetSelection(sel);
@@ -1470,7 +1587,7 @@ struct FidesWriter::Impl
       size_t nPts = p.ExplicitCoords.NumValues;
       PutRawArray(this->IO,
                   this->Engine,
-                  "coordinates",
+                  this->PrefixedName("coordinates"),
                   p.ExplicitCoords,
                   { this->TotalNumberOfCoords, 3 },
                   { cOff, 0 },
@@ -1484,7 +1601,7 @@ struct FidesWriter::Impl
     size_t n = partitions.size();
     this->DimsBuffer.resize(n * 3);
 
-    auto dimsVar = this->IO.InquireVariable<size_t>("dims");
+    auto dimsVar = this->IO.InquireVariable<size_t>(this->PrefixedName("dims"));
     dimsVar.SetShape({ 3 * this->TotalNumberOfDataSets });
 
     for (size_t i = 0; i < n; i++)
@@ -1533,7 +1650,7 @@ struct FidesWriter::Impl
       size_t n = p.SingleTypeConnectivity.NumValues;
       PutRawArray(this->IO,
                   this->Engine,
-                  "connectivity",
+                  this->PrefixedName("connectivity"),
                   p.SingleTypeConnectivity,
                   { this->TotalNumberOfConnIds },
                   { connOff },
@@ -1547,8 +1664,8 @@ struct FidesWriter::Impl
     size_t cellOff = this->CellOffset;
     size_t connOff = this->ConnOffset;
 
-    auto shapesVar = this->IO.InquireVariable<uint8_t>("cell_types");
-    auto vertsVar = this->IO.InquireVariable<int32_t>("num_verts");
+    auto shapesVar = this->IO.InquireVariable<uint8_t>(this->PrefixedName("cell_types"));
+    auto vertsVar = this->IO.InquireVariable<int32_t>(this->PrefixedName("num_verts"));
 
     shapesVar.SetShape({ this->TotalExplicitCells });
     vertsVar.SetShape({ this->TotalExplicitCells });
@@ -1583,7 +1700,7 @@ struct FidesWriter::Impl
         size_t nConns = p.ExplicitConnectivity.NumValues;
         PutRawArray(this->IO,
                     this->Engine,
-                    "connectivity",
+                    this->PrefixedName("connectivity"),
                     p.ExplicitConnectivity,
                     { this->TotalExplicitConns },
                     { connOff },
@@ -1624,7 +1741,7 @@ struct FidesWriter::Impl
           const size_t n = ref.Offsets.NumValues;
           PutRawArray(this->IO,
                       this->Engine,
-                      this->PolyDataRoles[r].Name + "_offsets",
+                      this->PrefixedName(this->PolyDataRoles[r].Name + "_offsets"),
                       ref.Offsets,
                       { this->PolyDataRoles[r].TotalOffsets },
                       { offsetsCursor[r] },
@@ -1636,7 +1753,7 @@ struct FidesWriter::Impl
           const size_t n = ref.Connectivity.NumValues;
           PutRawArray(this->IO,
                       this->Engine,
-                      this->PolyDataRoles[r].Name + "_connectivity",
+                      this->PrefixedName(this->PolyDataRoles[r].Name + "_connectivity"),
                       ref.Connectivity,
                       { this->PolyDataRoles[r].TotalConn },
                       { connCursor[r] },
@@ -1669,7 +1786,7 @@ struct FidesWriter::Impl
             {
               PutRawArray(this->IO,
                           this->Engine,
-                          varName,
+                          this->PrefixedName(varName),
                           f.Data,
                           { this->TotalNumberOfPoints },
                           { ptsOff },
@@ -1679,7 +1796,7 @@ struct FidesWriter::Impl
             {
               PutRawArray(this->IO,
                           this->Engine,
-                          varName,
+                          this->PrefixedName(varName),
                           f.Data,
                           { this->TotalNumberOfPoints, nComp },
                           { ptsOff, 0 },
@@ -1712,7 +1829,7 @@ struct FidesWriter::Impl
             {
               PutRawArray(this->IO,
                           this->Engine,
-                          varName,
+                          this->PrefixedName(varName),
                           f.Data,
                           { this->TotalNumberOfCells },
                           { cellsOff },
@@ -1722,7 +1839,7 @@ struct FidesWriter::Impl
             {
               PutRawArray(this->IO,
                           this->Engine,
-                          varName,
+                          this->PrefixedName(varName),
                           f.Data,
                           { this->TotalNumberOfCells, nComp },
                           { cellsOff, 0 },
@@ -1751,10 +1868,11 @@ struct FidesWriter::Impl
     {
       throw std::logic_error("BeginStep() must be called before Write().");
     }
-    if (this->CurrentWriteMode == WriteMode::CellGrid)
+    if (this->CurrentWriteMode == WriteMode::CellGrid ||
+        this->CurrentWriteMode == WriteMode::Collection)
     {
-      throw std::runtime_error("FidesWriter: cannot mix vtkCellGrid and vtkDataSet writes "
-                               "on the same engine.");
+      throw std::runtime_error("FidesWriter: cannot mix vtkDataSet writes with "
+                               "vtkCellGrid or WriteCollection on the same engine.");
     }
     this->CurrentWriteMode = WriteMode::DataSet;
 
@@ -2007,16 +2125,155 @@ struct FidesWriter::Impl
     }
   }
 
+  /// Write a multi-dataset (PDC) collection: each item's partitions are
+  /// written under the item name as a variable group prefix, and a single
+  /// datasets[] schema (with optional assembly) is emitted once.
+  void DoWriteCollection(const std::vector<CollectionItem>& items, const AssemblyNode* assembly)
+  {
+    if (!this->InStep)
+    {
+      throw std::logic_error("BeginStep() must be called before Write().");
+    }
+    if (this->CurrentWriteMode == WriteMode::DataSet ||
+        this->CurrentWriteMode == WriteMode::CellGrid)
+    {
+      throw std::runtime_error("FidesWriter: cannot mix WriteCollection with vtkDataSet "
+                               "or vtkCellGrid writes on the same engine.");
+    }
+    this->CurrentWriteMode = WriteMode::Collection;
+
+    // Each item's name becomes its ADIOS variable group prefix; duplicates
+    // would silently overwrite the first item's variables. Reject early
+    // with a clear error.
+    {
+      std::set<std::string> seenNames;
+      for (const auto& item : items)
+      {
+        if (!seenNames.insert(item.Name).second)
+        {
+          throw std::runtime_error("WriteCollection: duplicate item name '" + item.Name +
+                                   "'. Each item in a collection must have a unique name.");
+        }
+      }
+    }
+
+    // Cross-rank consensus on the collection structure. The per-item loop
+    // below makes collective calls (ComputeGlobalBlockInfo and the Puts
+    // inside Write*), so any disagreement on item count would deadlock.
+    // Disagreement on names or order is silent corruption: each rank
+    // would route Puts under a different ADIOS variable group prefix at
+    // the same loop index. VTK's PDC contract is that the outer
+    // structure (count, names, order) is identical across ranks, but
+    // VTK doesn't enforce this and the lower-level WriteCollection API
+    // accepts arbitrary item vectors; verify it here. Both values are
+    // packed into one Allreduce(MIN)/(MAX) pair to keep this two
+    // collectives total.
+    {
+      std::string concat;
+      for (const auto& item : items)
+      {
+        concat += item.Name;
+        concat += '\0'; // separator makes the hash sensitive to order
+      }
+      size_t local[2] = { items.size(), std::hash<std::string>{}(concat) };
+      size_t mins[2] = { local[0], local[1] };
+      size_t maxs[2] = { local[0], local[1] };
+      FIDES_SAFE_MPI(this->Comm,
+                     MPI_Allreduce(local, mins, 2, FIDES_MPI_SIZE_T, MPI_MIN, this->Comm));
+      FIDES_SAFE_MPI(this->Comm,
+                     MPI_Allreduce(local, maxs, 2, FIDES_MPI_SIZE_T, MPI_MAX, this->Comm));
+      if (mins[0] != maxs[0])
+      {
+        throw std::runtime_error(
+          "WriteCollection: item count differs across ranks (min=" + std::to_string(mins[0]) +
+          ", max=" + std::to_string(maxs[0]) +
+          "). vtkPartitionedDataSetCollection structure must be identical on all ranks.");
+      }
+      if (mins[1] != maxs[1])
+      {
+        throw std::runtime_error(
+          "WriteCollection: item names or order differ across ranks. "
+          "vtkPartitionedDataSetCollection items must be identically named and "
+          "ordered on all ranks.");
+      }
+    }
+
+    for (size_t idx = 0; idx < items.size(); ++idx)
+    {
+      const auto& item = items[idx];
+      const auto& partitions = item.Partitions;
+      this->ItemPrefix = item.Name;
+
+      for (const auto& p : partitions)
+      {
+        ValidatePartitionInfo(p);
+      }
+      if (!partitions.empty())
+      {
+        auto coordType = partitions[0].Coordinates;
+        auto cellType = partitions[0].Cells;
+        for (size_t i = 1; i < partitions.size(); ++i)
+        {
+          if (partitions[i].Coordinates != coordType || partitions[i].Cells != cellType)
+          {
+            throw std::runtime_error("All partitions of dataset '" + item.Name +
+                                     "' must share CoordType and CellType.");
+          }
+        }
+      }
+
+      this->ComputeGlobalBlockInfo(partitions);
+
+      this->LocalPoints = 0;
+      this->LocalCells = 0;
+      this->LocalConns = 0;
+      for (const auto& p : partitions)
+      {
+        this->LocalPoints += p.NumberOfPoints();
+        this->LocalCells += p.NumberOfCells();
+        if (this->GlobalCellType == PartitionInfo::CellType::SingleType)
+        {
+          this->LocalConns += p.SingleTypeConnectivity.NumValues;
+        }
+        else if (this->GlobalCellType == PartitionInfo::CellType::Explicit)
+        {
+          this->LocalConns += p.ExplicitConnectivity.NumValues;
+        }
+      }
+
+      if (this->DefinedItemPrefixes.insert(item.Name).second)
+      {
+        this->DefineVariables(partitions);
+      }
+      this->WriteCoordinates(partitions);
+      this->WriteCells(partitions);
+      this->WriteFields(partitions);
+    }
+    this->ItemPrefix.clear();
+
+    // Emit the datasets[] schema once (attributes are write-once).
+    if (!this->CollectionSchemaWritten)
+    {
+      std::string schema = GenerateCollectionSchemaJSON(items, this->TimeEverSet, assembly);
+      this->IO.DefineAttribute<std::string>("fides/schema", schema);
+      this->IO.DefineAttribute<std::string>("Fides_Data_Model", "collection");
+      this->CollectionSchemaWritten = true;
+    }
+
+    this->Engine.PerformPuts();
+  }
+
   void DoWriteCellGrid(const std::vector<CellGridPartitionInfo>& partitions)
   {
     if (!this->InStep)
     {
       throw std::logic_error("BeginStep() must be called before Write().");
     }
-    if (this->CurrentWriteMode == WriteMode::DataSet)
+    if (this->CurrentWriteMode == WriteMode::DataSet ||
+        this->CurrentWriteMode == WriteMode::Collection)
     {
-      throw std::runtime_error("FidesWriter: cannot mix vtkDataSet and vtkCellGrid writes "
-                               "on the same engine.");
+      throw std::runtime_error("FidesWriter: cannot mix vtkCellGrid writes with "
+                               "vtkDataSet or WriteCollection on the same engine.");
     }
     this->CurrentWriteMode = WriteMode::CellGrid;
 
@@ -2060,6 +2317,10 @@ struct FidesWriter::Impl
   bool AdiosCreated = false;
   bool EngineOpen = false;
   bool VariablesDefined = false;
+  // Multi-dataset (PDC) write state: which item prefixes have had their
+  // variables defined, and whether the collection schema was emitted.
+  std::set<std::string> DefinedItemPrefixes;
+  bool CollectionSchemaWritten = false;
   bool CloseCalled = false;
   bool InStep = false;
 
@@ -2070,7 +2331,8 @@ struct FidesWriter::Impl
   {
     Unset,
     DataSet,
-    CellGrid
+    CellGrid,
+    Collection
   };
   WriteMode CurrentWriteMode = WriteMode::Unset;
 
@@ -2203,6 +2465,12 @@ void FidesWriter::Write(const std::vector<CellGridPartitionInfo>& partitions)
   this->PImpl->DoWriteCellGrid(partitions);
 }
 
+void FidesWriter::WriteCollection(const std::vector<CollectionItem>& items,
+                                  const AssemblyNode* assembly)
+{
+  this->PImpl->DoWriteCollection(items, assembly);
+}
+
 void FidesWriter::EndStep()
 {
   this->PImpl->Engine.EndStep();
@@ -2279,7 +2547,7 @@ std::string FidesWriter::GenerateSchema(const std::vector<PartitionInfo>& partit
     return "{}";
   }
   std::set<std::string> noFilter;
-  return GenerateSchemaJSON(partitions[0], noFilter, partitions.size(), false, true);
+  return GenerateSchemaJSON(partitions[0], noFilter, false, true);
 }
 
 } // namespace fides

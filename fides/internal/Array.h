@@ -417,10 +417,10 @@ struct ArrayXGCCoordinates : public ArrayXGC
 private:
   bool IsCylindrical = true;
   struct AddToVectorFunctor;
-  /// Stored XGC coordinate arrays, created in ProcessViskores from StoredCoordsRawArray.
+  /// Per-block XGC coordinate ArrayHandles, built in ProcessViskores from StoredCoordsArrayHandle.
   std::vector<viskores::cont::UnknownArrayHandle> StoredCoordArrays;
-  /// Raw coordinate data kept alive for deferred ADIOS2 reads.
-  fides::RawArray StoredCoordsRawArray;
+  /// Wrap of the deferred-read coordinates RawArray. Read in ProcessViskores.
+  viskores::cont::UnknownArrayHandle StoredCoordsArrayHandle;
   std::vector<XGCBlockInfo> StoredBlocksInfo;
   size_t StoredNumInsertPlanes = 0;
 };
@@ -589,15 +589,6 @@ private:
   viskores::cont::UnknownArrayHandle ZMNSArrayHandle;
   viskores::cont::UnknownArrayHandle LMNSArrayHandle;
   viskores::cont::UnknownArrayHandle PhiArrayHandle;
-
-  /// Raw data kept alive for deferred ADIOS2 reads. Converted to ArrayHandles in PostRead.
-  fides::RawArray XMRaw;
-  fides::RawArray XNRaw;
-  fides::RawArray RMNCRaw;
-  fides::RawArray ZMNSRaw;
-  fides::RawArray LMNSRaw;
-  fides::RawArray NFPRawData;
-  fides::RawArray PhiRawData;
 };
 
 #endif // FIDES_USE_VISKORES

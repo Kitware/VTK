@@ -17,6 +17,7 @@
 
 #if FIDES_USE_VTK
 #include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkSmartPointer.h>
 #endif
 
@@ -26,6 +27,8 @@
 
 namespace fides
 {
+
+const char* const kAutoNamesAssemblySubtree = "__fides_auto_names";
 
 CellShape ConvertStringToCellShape(const std::string& cellShapeName)
 {
@@ -205,6 +208,42 @@ fides::VTKCollection GetAsVTKPDS(fides::DataContainer& container)
 #endif
   (void)container;
   throw std::runtime_error("Fides was not compiled with VTK support.");
+}
+
+//-----------------------------------------------------------------------------
+// Multi-dataset (PDC) result: the container holds a
+// vtkSmartPointer<vtkPartitionedDataSetCollection>.
+fides::VTKPDC GetAsVTKPDC(fides::DataContainer& container)
+{
+#if FIDES_USE_VTK
+  if (auto* pdc = GetDataAs<vtkSmartPointer<vtkPartitionedDataSetCollection>>(container))
+  {
+    return *pdc;
+  }
+  throw std::runtime_error(
+    "Container does not hold a vtkSmartPointer<vtkPartitionedDataSetCollection>. "
+    "Use GetAsVTKPDC only on a multi-dataset / multi-group read; otherwise use GetAsVTKPDS.");
+#endif
+  (void)container;
+  throw std::runtime_error("Fides was not compiled with VTK support.");
+}
+
+//-----------------------------------------------------------------------------
+// Multi-dataset (PDC) result on the Viskores side: a vector of
+// PartitionedDataSets, one per collection item.
+fides::ViskoresPartitionedCollection GetAsViskoresCollection(fides::DataContainer& container)
+{
+#if FIDES_USE_VISKORES
+  if (auto* vec = GetDataAs<std::vector<viskores::cont::PartitionedDataSet>>(container))
+  {
+    return *vec;
+  }
+  throw std::runtime_error(
+    "Container does not hold a std::vector<viskores::cont::PartitionedDataSet>. "
+    "Use GetAsViskoresCollection only on a multi-dataset / multi-group read.");
+#endif
+  (void)container;
+  throw std::runtime_error("Fides was not compiled with Viskores support.");
 }
 
 //-----------------------------------------------------------------------------

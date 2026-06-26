@@ -64,8 +64,27 @@ public:
   /// Write cellgrid partition data for the current step. A FidesWriter
   /// is single-kind: once one of the two Write overloads has been
   /// called, the other will throw to keep the schema consistent across
-  /// steps.
+  /// steps. WriteCollection (below) further extends this to a third
+  /// "collection" mode that cannot be mixed with either Write overload.
   void Write(const std::vector<CellGridPartitionInfo>& partitions);
+
+  /// Write a multi-dataset (PDC) collection for the current step. Each
+  /// item's partitions are written under the item name as an ADIOS2
+  /// variable group prefix, and a single datasets[] schema (with the
+  /// optional assembly tree) is emitted. \c assembly may be null. The
+  /// collection path is single-kind: it cannot be mixed with either of
+  /// the Write overloads on the same engine.
+  ///
+  /// File-size note: write-side array deduplication is not implemented.
+  /// Each item's coordinates and cells are serialized to their own
+  /// per-item ADIOS2 variables, so two items that share an identical
+  /// mesh in memory still produce two copies on disk. If the items in
+  /// a collection naturally share a mesh, expressing them as a single
+  /// item carrying multiple fields will avoid the duplication; the
+  /// PDC-of-mesh shape is intended for items whose coordinates and
+  /// cells differ.
+  void WriteCollection(const std::vector<CollectionItem>& items,
+                       const AssemblyNode* assembly = nullptr);
 
   /// Close the current step. Must be called after Write() and before the next
   /// BeginStep() or Close().

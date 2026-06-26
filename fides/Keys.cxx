@@ -44,6 +44,11 @@ KeyType GROUP_SELECTION()
   return reinterpret_cast<KeyType>(&GROUP_SELECTION);
 }
 
+KeyType DATASET_SELECTION()
+{
+  return reinterpret_cast<KeyType>(&DATASET_SELECTION);
+}
+
 KeyType TIME_VALUE()
 {
   return reinterpret_cast<KeyType>(&TIME_VALUE);

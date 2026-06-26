@@ -92,6 +92,21 @@ public:
   /// The container must hold a VTK or Viskores collection.
   void Write(fides::DataContainer& container);
 
+  /// Write a multi-dataset (PDC) collection from a
+  /// vtkPartitionedDataSetCollection. Each partitioned dataset becomes a
+  /// named item (name from its NAME() metadata, else dataset_<i>), and the
+  /// PDC's vtkDataAssembly subtrees (other than the auto-names subtree)
+  /// are serialized into the schema. See FidesWriter::WriteCollection
+  /// for the per-item disk-amplification note.
+  void WriteCollection(const fides::VTKPDC& pdc);
+
+  /// Write a multi-dataset (PDC) collection from parallel name + Viskores
+  /// PartitionedDataSet vectors. Viskores carries no assembly. See
+  /// FidesWriter::WriteCollection for the per-item disk-amplification
+  /// note.
+  void WriteCollection(const std::vector<std::string>& names,
+                       const std::vector<fides::ViskoresCollection>& datasets);
+
   /// Close the current step.
   void EndStep();
 

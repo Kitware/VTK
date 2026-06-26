@@ -385,6 +385,9 @@ private:
     const viskores::cont::ArrayHandle<int>& igrid,
     const viskores::cont::ArrayHandle<int>& indexShift);
 
+  // ArrayHandles wrapping the deferred-read igrid / index_shift buffers.
+  // Populated in Read(); buffers are filled by the flush before
+  // ProcessViskores() consumes them.
   std::vector<viskores::cont::UnknownArrayHandle> IGridArrays;
   std::vector<viskores::cont::UnknownArrayHandle> IndexShiftArrays;
   std::unique_ptr<Array> IGrid = nullptr;
