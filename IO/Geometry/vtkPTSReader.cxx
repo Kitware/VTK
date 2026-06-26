@@ -249,7 +249,6 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   // 1) x y z,
   // 2) x y z intensity
   // 3) x y z intensity r g b
-  double irgb[4], pt[3];
 
   if (parser->ReadLine(buffer) == vtkParseResult::Error)
   {
@@ -262,22 +261,19 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   bool hasColor = false;
   if (resultPoint)
   {
-    std::tie(pt[0], pt[1], pt[2]) = resultPoint->values();
     auto resultIntensity = vtk::scan_value<double>(resultPoint->range());
-    hasIntensity = resultIntensity.has_value();
     if (resultIntensity)
     {
-      irgb[0] = resultIntensity->value();
+      hasIntensity = true;
       auto resultColor =
         vtk::scan<double, double, double>(resultIntensity->range(), "{:f} {:f} {:f}");
-      hasColor = resultColor.has_value();
       if (resultColor)
       {
-        std::tie(irgb[1], irgb[2], irgb[3]) = resultColor->values();
+        hasColor = true;
       }
     }
   }
-  if (!resultPoint)
+  else
   {
     // Unsupported line format!
     vtkErrorMacro(<< "Invalid Pts Format in the pts data");
@@ -372,6 +368,13 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   const bool hasOnlyPoint = resultPoint && !hasIntensity && !hasColor;
   const bool hasOnlyPointAndIntensity = resultPoint && hasIntensity && !hasColor;
   long lastCount = 0;
+  // Resetting parser and buffer for correct reading of lines
+  parser->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  if (skipFirstLine)
+  {
+    parser->ReadLine(buffer);
+  }
+  double irgb[4], pt[3];
   res = parser->ReadLine(buffer);
   for (long i = 0; res != vtkParseResult::Error && res != vtkParseResult::EndOfStream && i < numPts;
        res = parser->ReadLine(buffer), i++)
@@ -379,7 +382,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Should we process this point?  Meaning that we skipped the appropriate number of points
     // based on the Max Number of points (onRatio) or the filtering by the read bounding box
     // OK to process based on Max Number of Points
-    if (floor(i * onRatio) > lastCount)
+    if (floor((i + 1) * onRatio) > lastCount)
     {
       lastCount++;
       if (hasOnlyPoint)
