@@ -221,8 +221,14 @@ vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
   }
   if (isFactoryOverrideSubclass)
   {
-    for (const auto& superClassName : superClassNames)
+    // Walk the superclasses most-derived first so that the closest factory
+    // override to `className` wins. Iterating least-derived first would match a
+    // base class that also happens to be a factory override (e.g. vtkActor for a
+    // vtkSkybox subclass) before reaching the intended override (vtkSkybox),
+    // constructing the wrong concrete type.
+    for (auto it = superClassNames.rbegin(); it != superClassNames.rend(); ++it)
     {
+      const auto& superClassName = *it;
       for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
       {
         for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)
