@@ -134,9 +134,9 @@ public:
 
   vtkTypeUInt32 Id = 0;
 
-  void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  void PopulateBindgroupLayouts(std::vector<WGPUBindGroupLayout>& layouts)
   {
-    layouts.emplace_back(this->ActorBindGroupLayout);
+    layouts.emplace_back(this->ActorBindGroupLayout.Get());
   }
 };
 

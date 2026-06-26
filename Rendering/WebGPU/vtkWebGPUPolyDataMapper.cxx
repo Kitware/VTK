@@ -173,7 +173,7 @@ struct WriteTypedArray
       dataPtr = castedValues.data();
     }
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer, LastWatermark, dataPtr, sizeBytes, description);
+      this->DstBuffer.Get(), LastWatermark, dataPtr, sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 
@@ -190,7 +190,7 @@ struct WriteTypedArray
     scaledValues.reserve(values.size());
     std::copy(values.begin(), values.end(), std::back_inserter(scaledValues));
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer, LastWatermark, scaledValues.data(), sizeBytes, description);
+      this->DstBuffer.Get(), LastWatermark, scaledValues.data(), sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
@@ -234,7 +234,7 @@ struct WriteTypedArrayWithScale
       }
     }
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer, LastWatermark, scaledValues.data(), sizeBytes, description);
+      this->DstBuffer.Get(), LastWatermark, scaledValues.data(), sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
@@ -1019,14 +1019,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 //------------------------------------------------------------------------------
 std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupLayoutEntries()
 {
-  std::vector<wgpu::BindGroupLayoutEntry> tempEntries;
+  std::vector<WGPUBindGroupLayoutEntry> entries;
   std::uint32_t bindingId = 0;
+  auto addBufferEntry = [&entries](
+                          vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper helper)
+  { entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper)); };
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
     if (this->HasPointAttributes[attributeIndex])
     {
-      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+      addBufferEntry(
+        { bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
   if (this->HasPointAttributes[POINT_COLOR_UVS])
@@ -1035,9 +1038,9 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupL
     {
       if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
       {
-        tempEntries.emplace_back(devRc->MakeSamplerBindGroupLayoutEntry(
+        entries.push_back(devRc->MakeSamplerBindGroupLayoutEntry(
           bindingId++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
-        tempEntries.emplace_back(devRc->MakeTextureViewBindGroupLayoutEntry(
+        entries.push_back(devRc->MakeTextureViewBindGroupLayoutEntry(
           bindingId++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment)));
       }
     }
@@ -1046,20 +1049,14 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupL
   {
     if (this->HasCellAttributes[attributeIndex])
     {
-      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+      addBufferEntry(
+        { bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
   if (this->GetNumberOfClippingPlanes() > 0)
   {
-    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-      bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+    addBufferEntry({ bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
       wgpu::BufferBindingType::ReadOnlyStorage });
-  }
-  std::vector<WGPUBindGroupLayoutEntry> entries(tempEntries.size());
-  for (size_t i = 0; i < tempEntries.size(); ++i)
-  {
-    entries[i] = *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&tempEntries[i]);
   }
   return entries;
 }
@@ -1076,18 +1073,21 @@ WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayout(
 std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupLayoutEntries(
   bool homogeneousCellSize, bool useEdgeArray)
 {
-  std::vector<wgpu::BindGroupLayoutEntry> tempEntries;
+  std::vector<WGPUBindGroupLayoutEntry> entries;
   std::uint32_t bindingId = 0;
+  auto addBufferEntry = [&entries](
+                          vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper helper)
+  { entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper)); };
   if (homogeneousCellSize)
   {
     // connectivity
-    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    addBufferEntry({
       bindingId++,
       wgpu::ShaderStage::Vertex,
       wgpu::BufferBindingType::ReadOnlyStorage,
     });
     // cell_id_offset
-    tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    addBufferEntry({
       bindingId++,
       wgpu::ShaderStage::Vertex,
       wgpu::BufferBindingType::Uniform,
@@ -1099,17 +1099,12 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGr
     std::size_t numberOfBindings = useEdgeArray ? 3 : 2;
     for (std::size_t i = 0; i < numberOfBindings; ++i)
     {
-      tempEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      addBufferEntry({
         bindingId++,
         wgpu::ShaderStage::Vertex,
         wgpu::BufferBindingType::ReadOnlyStorage,
       });
     }
-  }
-  std::vector<WGPUBindGroupLayoutEntry> entries(tempEntries.size());
-  for (size_t i = 0; i < tempEntries.size(); ++i)
-  {
-    entries[i] = *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&tempEntries[i]);
   }
   return entries;
 }
@@ -1125,16 +1120,20 @@ WGPUBindGroupLayout vtkWebGPUPolyDataMapper::CreateTopologyBindGroupLayout(
 //------------------------------------------------------------------------------
 std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries()
 {
-  std::vector<wgpu::BindGroupEntry> tempEntries;
+  std::vector<WGPUBindGroupEntry> entries;
   std::uint32_t bindingId = 0;
+  auto addBufferEntry = [&entries](std::uint32_t binding, const WGPUBuffer& buffer)
+  {
+    auto entry =
+      vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, wgpu::Buffer(buffer), 0 }
+        .GetAsBinding();
+    entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
+  };
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
     if (this->HasPointAttributes[attributeIndex])
     {
-      const auto initializer =
-        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
-          this->PointBuffers[attributeIndex].Buffer, 0 };
-      tempEntries.emplace_back(initializer.GetAsBinding());
+      addBufferEntry(bindingId++, this->PointBuffers[attributeIndex].Buffer);
     }
   }
   if (this->HasPointAttributes[POINT_COLOR_UVS])
@@ -1143,8 +1142,8 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries
     {
       if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
       {
-        tempEntries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingId++));
-        tempEntries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingId++));
+        entries.push_back(devRc->MakeSamplerBindGroupEntry(bindingId++));
+        entries.push_back(devRc->MakeTextureViewBindGroupEntry(bindingId++));
       }
     }
   }
@@ -1152,22 +1151,12 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries
   {
     if (this->HasCellAttributes[attributeIndex])
     {
-      const auto initializer =
-        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
-          this->CellBuffers[attributeIndex].Buffer, 0 };
-      tempEntries.emplace_back(initializer.GetAsBinding());
+      addBufferEntry(bindingId++, this->CellBuffers[attributeIndex].Buffer);
     }
   }
   if (this->GetNumberOfClippingPlanes() > 0)
   {
-    const auto initializer = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
-      this->ClippingPlanesBuffer, 0 };
-    tempEntries.emplace_back(initializer.GetAsBinding());
-  }
-  std::vector<WGPUBindGroupEntry> entries(tempEntries.size());
-  for (size_t i = 0; i < tempEntries.size(); ++i)
-  {
-    entries[i] = *reinterpret_cast<WGPUBindGroupEntry*>(&tempEntries[i]);
+    addBufferEntry(bindingId++, this->ClippingPlanesBuffer);
   }
   return entries;
 }
@@ -1187,43 +1176,33 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupEnt
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType,
   bool homogeneousCellSize, bool useEdgeArray)
 {
-  std::vector<wgpu::BindGroupEntry> tempEntries;
+  std::vector<WGPUBindGroupEntry> entries;
   std::uint32_t bindingId = 0;
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
+  auto addBufferEntry = [&entries](std::uint32_t binding, const WGPUBuffer& buffer)
+  {
+    auto entry =
+      vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, wgpu::Buffer(buffer) }
+        .GetAsBinding();
+    entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
+  };
   if (homogeneousCellSize)
   {
     // connectivity
-    const auto connectivityBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{
-      bindingId++,
-      info.ConnectivityBuffer,
-    };
-    tempEntries.emplace_back(connectivityBindingInit.GetAsBinding());
+    addBufferEntry(bindingId++, info.ConnectivityBuffer);
     // cell_id_offset
-    const auto cellIdOffsetBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{
-      bindingId++,
-      info.CellIdOffsetUniformBuffer,
-    };
-    tempEntries.emplace_back(cellIdOffsetBindingInit.GetAsBinding());
+    addBufferEntry(bindingId++, info.CellIdOffsetUniformBuffer);
   }
   else
   {
     // connectivity, cell_ids [,edge_array]
     std::size_t numberOfBindings = useEdgeArray ? 3 : 2;
-    std::array<wgpu::Buffer, 3> buffers = { info.ConnectivityBuffer, info.CellIdBuffer,
+    std::array<WGPUBuffer, 3> buffers = { info.ConnectivityBuffer, info.CellIdBuffer,
       info.EdgeArrayBuffer };
     for (std::size_t i = 0; i < numberOfBindings; ++i)
     {
-      const auto initializer = vtkWebGPUBindGroupInternals::BindingInitializationHelper{
-        bindingId++,
-        buffers[i],
-      };
-      tempEntries.emplace_back(initializer.GetAsBinding());
+      addBufferEntry(bindingId++, buffers[i]);
     }
-  }
-  std::vector<WGPUBindGroupEntry> entries(tempEntries.size());
-  for (size_t i = 0; i < tempEntries.size(); ++i)
-  {
-    entries[i] = *reinterpret_cast<WGPUBindGroupEntry*>(&tempEntries[i]);
   }
   return entries;
 }
@@ -1571,7 +1550,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
     {
       if (this->PointBuffers[attributeIndex].Buffer)
       {
-        this->PointBuffers[attributeIndex].Buffer.Destroy();
+        wgpu::Buffer(this->PointBuffers[attributeIndex].Buffer).Destroy();
         this->PointBuffers[attributeIndex].Size = 0;
       }
       wgpu::BufferDescriptor descriptor{};
@@ -1604,7 +1583,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
     {
       if (this->CellBuffers[attributeIndex].Buffer)
       {
-        this->CellBuffers[attributeIndex].Buffer.Destroy();
+        wgpu::Buffer(this->CellBuffers[attributeIndex].Buffer).Destroy();
         this->CellBuffers[attributeIndex].Size = 0;
       }
       wgpu::BufferDescriptor descriptor{};
@@ -1889,7 +1868,7 @@ void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
     // Release any previously allocated buffer
     if (this->ClippingPlanesBuffer)
     {
-      this->ClippingPlanesBuffer.Destroy();
+      wgpu::Buffer(this->ClippingPlanesBuffer).Destroy();
       this->ClippingPlanesBuffer = nullptr;
     }
     return;
@@ -1953,13 +1932,13 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
   auto* mesh = this->CurrentInput;
   std::array<vtkTypeUInt32*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     vertexCounts;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     connectivityBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     cellIdBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     edgeArrayBuffers;
-  std::array<wgpu::Buffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+  std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     cellIdOffsetUniformBuffers;
 
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
@@ -2003,22 +1982,22 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
     {
       if (bgInfo.ConnectivityBuffer)
       {
-        bgInfo.ConnectivityBuffer.Destroy();
+        wgpu::Buffer(bgInfo.ConnectivityBuffer).Destroy();
         bgInfo.ConnectivityBuffer = nullptr;
       }
       if (bgInfo.CellIdBuffer)
       {
-        bgInfo.CellIdBuffer.Destroy();
+        wgpu::Buffer(bgInfo.CellIdBuffer).Destroy();
         bgInfo.CellIdBuffer = nullptr;
       }
       if (bgInfo.EdgeArrayBuffer)
       {
-        bgInfo.EdgeArrayBuffer.Destroy();
+        wgpu::Buffer(bgInfo.EdgeArrayBuffer).Destroy();
         bgInfo.EdgeArrayBuffer = nullptr;
       }
       if (bgInfo.CellIdOffsetUniformBuffer)
       {
-        bgInfo.CellIdOffsetUniformBuffer.Destroy();
+        wgpu::Buffer(bgInfo.CellIdOffsetUniformBuffer).Destroy();
         bgInfo.CellIdOffsetUniformBuffer = nullptr;
       }
       if (bgInfo.BindGroup != nullptr)
@@ -2072,7 +2051,7 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
-  const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
+  const WGPUDevice& device, vtkRenderer* renderer, vtkActor* actor)
 {
   vtkLogScopeFunction(TRACE);
   auto* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
@@ -2082,14 +2061,17 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   const auto vertexBufferLayouts = this->GetVertexBufferLayouts();
 
   vtkWebGPURenderPipelineDescriptorInternals descriptor;
-  descriptor.vertex.buffers = vertexBufferLayouts.data();
+  descriptor.vertex.buffers =
+    reinterpret_cast<const wgpu::VertexBufferLayout*>(vertexBufferLayouts.data());
   descriptor.vertex.bufferCount = vertexBufferLayouts.size();
   descriptor.vertex.entryPoint = "vertexMain";
   descriptor.cFragment.entryPoint = "fragmentMain";
   descriptor.EnableBlending(0);
-  descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  descriptor.cTargets[0].format =
+    wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSurfaceTextureFormat());
   ///@{ TODO: Only for valid depth stencil formats
-  auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+  auto depthState =
+    descriptor.EnableDepthStencil(wgpu::TextureFormat(wgpuRenderWindow->GetDepthStencilFormat()));
   depthState->depthWriteEnabled = true;
   // Use LessEqual (matching OpenGL's GL_LEQUAL) so that primitives drawn later
   // at the same depth overwrite earlier ones. The draw order within a single
@@ -2099,7 +2081,8 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   depthState->depthCompare = wgpu::CompareFunction::LessEqual;
   ///@}
   // Prepare selection ids output.
-  descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  descriptor.cTargets[1].format =
+    wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat());
   descriptor.cFragment.targetCount++;
   descriptor.DisableBlending(1);
 
@@ -2115,7 +2098,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     descriptor.primitive.cullMode = wgpu::CullMode::Front;
   }
 
-  std::vector<wgpu::BindGroupLayout> basicBGLayoutEntries;
+  std::vector<WGPUBindGroupLayout> basicBGLayoutEntries;
   wgpuRenderer->PopulateBindgroupLayouts(basicBGLayoutEntries);
   wgpuActor->Internals->PopulateBindgroupLayouts(basicBGLayoutEntries);
   basicBGLayoutEntries.emplace_back(this->CreateMeshAttributeBindGroupLayout(
@@ -2137,25 +2120,35 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
       useEdgeArrray));
 
+    // Convert C API bind group layouts to C++ wrappers for the pipeline layout helper.
+    std::vector<wgpu::BindGroupLayout> wgpuBgls;
+    wgpuBgls.reserve(bgls.size());
+    for (const auto& bgl : bgls)
+    {
+      wgpuBgls.emplace_back(bgl);
+    }
     descriptor.layout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
-      device, bgls, this->GetObjectDescription() + "-PipelineLayout");
+      wgpu::Device(device), wgpuBgls, this->GetObjectDescription() + "-PipelineLayout");
 
     const auto label =
       this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineType);
     descriptor.label = label.c_str();
-    descriptor.primitive.topology = this->GetPrimitiveTopologyForPipeline(pipelineType);
+    descriptor.primitive.topology =
+      wgpu::PrimitiveTopology(this->GetPrimitiveTopologyForPipeline(pipelineType));
     std::string vertexShaderSource = vtkPolyDataVSWGSL;
     std::string fragmentShaderSource = vtkPolyDataFSWGSL;
     this->ApplyShaderReplacements(
       pipelineType, wgpuRenderer, wgpuActor, vertexShaderSource, fragmentShaderSource);
     // generate a unique key for the pipeline descriptor and shader source pointer
     this->GraphicsPipelineKeys[i] = wgpuPipelineCache->GetPipelineKey(
-      &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+      reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), vertexShaderSource.c_str(),
+      fragmentShaderSource.c_str());
     // create a pipeline if it does not already exist
     if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipelineKeys[i]) == nullptr)
     {
       wgpuPipelineCache->CreateRenderPipeline(
-        &descriptor, wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+        reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), wgpuRenderWindow,
+        vertexShaderSource.c_str(), fragmentShaderSource.c_str());
     }
   }
 }
@@ -3966,7 +3959,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
 }
 
 //------------------------------------------------------------------------------
-wgpu::PrimitiveTopology vtkWebGPUPolyDataMapper::GetPrimitiveTopologyForPipeline(
+WGPUPrimitiveTopology vtkWebGPUPolyDataMapper::GetPrimitiveTopologyForPipeline(
   GraphicsPipelineType pipelineType)
 {
   wgpu::PrimitiveTopology topology = wgpu::PrimitiveTopology::Undefined;
@@ -4000,7 +3993,7 @@ wgpu::PrimitiveTopology vtkWebGPUPolyDataMapper::GetPrimitiveTopologyForPipeline
     case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
       break;
   }
-  return topology;
+  return static_cast<WGPUPrimitiveTopology>(topology);
 }
 
 //------------------------------------------------------------------------------
@@ -4082,7 +4075,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   }
   if (this->ClippingPlanesBuffer)
   {
-    this->ClippingPlanesBuffer.Destroy();
+    wgpu::Buffer(this->ClippingPlanesBuffer).Destroy();
     this->ClippingPlanesBuffer = nullptr;
   }
   if (this->ColorTextureHostResource != nullptr)
