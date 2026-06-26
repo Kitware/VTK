@@ -124,14 +124,6 @@ public:
 
   ///@{
   /**
-   * Controls how the lens circle outline is drawn.
-   */
-  vtkSetSmartPointerMacro(LensPen, vtkPen);
-  vtkGetSmartPointerMacro(LensPen, vtkPen);
-  ///@}
-
-  ///@{
-  /**
    * Controls how the vertices are drawn.
    */
   vtkSetSmartPointerMacro(VerticesPen, vtkPen);
@@ -160,6 +152,18 @@ public:
    */
   virtual void SetLensRadius(float radius);
   vtkGetMacro(LensRadius, float);
+  /**
+   * Controls how the lens circle outline is drawn.
+   */
+  vtkSetSmartPointerMacro(LensPen, vtkPen);
+  vtkGetSmartPointerMacro(LensPen, vtkPen);
+  /**
+   * Alpha (opacity) cap for points outside the lens. Each point's alpha is
+   * clamped to min(its alpha, OutsideLensAlpha). Default is 1 (no change).
+   * Set to 0 to make points outside the lens fully transparent.
+   */
+  vtkSetMacro(OutsideLensAlphaCap, double);
+  vtkGetMacro(OutsideLensAlphaCap, double);
   ///@}
 
   /**
@@ -212,6 +216,10 @@ protected:
    * Controls how the lens circle outline is drawn.
    */
   vtkSmartPointer<vtkPen> LensPen;
+  /**
+   * Alpha cap for points outside the lens.
+   */
+  double OutsideLensAlphaCap;
   /**
    * Where the lens is drawn and its radius in Window coordinates
    */

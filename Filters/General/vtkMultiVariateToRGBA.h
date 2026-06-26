@@ -91,6 +91,13 @@ public:
    * reference circle (center, radius). GetLensRadius returns the adjusted
    * radius; GetLensCenter returns the adjusted center.
    */
+  /**
+   * Alpha (opacity) cap for points outside the lens. Each point's alpha is
+   * clamped to min(its alpha, OutsideLensAlpha). Default is 1 (no change).
+   * Set to 0 to make points outside the lens fully transparent.
+   */
+  vtkSetMacro(OutsideLensAlphaCap, double);
+  vtkGetMacro(OutsideLensAlphaCap, double);
   static float GetLensRadius(
     float lensRadius, float radius, const float* lensCenter, const float* center);
   static std::array<float, 2> GetLensCenter(
@@ -135,8 +142,12 @@ protected:
   /**
    * Where the lens is drawn and its radius
    */
-  float LensCenter[2];
-  float LensRadius;
+  float LensCenter[2] = { 0.0f, 0.0f };
+  float LensRadius = 1.0f;
+  /**
+   * Alpha cap for points outside the lens.
+   */
+  double OutsideLensAlphaCap = 1.0;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

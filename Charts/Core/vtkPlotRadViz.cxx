@@ -132,6 +132,7 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->ColorWheelVisibility = true;
   this->ScalarVisibility = false;
   this->VerticesRotation = 0;
+  this->OutsideLensAlphaCap = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -314,6 +315,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     computeGBC->SetVerticesRotation(this->VerticesRotation);
     computeGBC->SetStoreRGBA(this->ScalarVisibility);
     computeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
+    computeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
     std::array<float, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };

@@ -385,10 +385,11 @@ struct ComputeAlphaWorker
 
 struct ComputeLensAlphaWorker
 {
-  ComputeLensAlphaWorker(float* center, float radius)
-    : Radius(radius)
+  ComputeLensAlphaWorker(float* lensCenter, float lensRadius, double outsideLensAlpha)
+    : LensRadius(lensRadius)
+    , OutsideLensAlpha(outsideLensAlpha)
   {
-    std::copy(center, center + 2, this->Center);
+    std::copy(lensCenter, lensCenter + 2, this->LensCenter);
   }
   template <typename Input, typename Output>
   void operator()(Input* gbcScalars, Output* rgbaScalars)
@@ -401,16 +402,17 @@ struct ComputeLensAlphaWorker
     vtkIdType nTuples = gbc.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      float distance = std::sqrt(
-        std::pow(gbc[i][0] - this->Center[0], 2) + std::pow(gbc[i][1] - this->Center[1], 2));
-      if (distance > this->Radius)
+      float distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
+        std::pow(gbc[i][1] - this->LensCenter[1], 2));
+      if (distance > this->LensRadius)
       {
-        rgba[i][3] = 0;
+        rgba[i][3] = std::min(this->OutsideLensAlpha, static_cast<double>(rgba[i][3]));
       }
     }
   }
-  float Center[2];
-  float Radius;
+  float LensCenter[2];
+  float LensRadius;
+  double OutsideLensAlpha;
 };
 
 template <typename DataType>
@@ -458,10 +460,6 @@ struct CreateSOAWorker
 //------------------------------------------------------------------------------
 vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 {
-  this->VerticesRotation = 0;
-  this->LensCenter[0] = 0;
-  this->LensCenter[1] = 0;
-  this->LensRadius = 1;
   // by default process active point/cell scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
@@ -622,7 +620,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
     {
-      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius);
+      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius, this->OutsideLensAlphaCap);
       if (!Dispatcher::Execute(gbcScalars, rgbaScalars, worker))
       {
         worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
