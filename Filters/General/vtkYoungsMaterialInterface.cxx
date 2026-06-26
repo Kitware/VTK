@@ -1555,9 +1555,8 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
     matBlock->Delete();
   }
 
-  int blockIndex = 0;
   for (std::map<int, vtkSmartPointer<vtkUnstructuredGrid>>::iterator it = outputBlocks.begin();
-       it != outputBlocks.end() && !this->CheckAbort(); ++it, ++blockIndex)
+       it != outputBlocks.end() && !this->CheckAbort(); ++it)
   {
     if (it->second->GetNumberOfCells() > 0)
     {
