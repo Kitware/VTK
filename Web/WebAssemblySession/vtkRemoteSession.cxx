@@ -4,7 +4,19 @@
 #include "vtkRemoteSession.h"
 
 #include "vtkLogger.h"
+#include "vtkRenderWindow.h"
+#include "vtkWebAssemblyHardwareWindow.h"
+#include "vtkWebAssemblyRenderWindowInteractor.h"
 #include "vtkWebAssemblySessionHelper.h"
+
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+#include "vtkWebAssemblyOpenGLRenderWindow.h"
+#endif
+
+#if VTK_MODULE_ENABLE_VTK_RenderingWebGPU
+#include "vtkWebGPURenderWindow.h"
+#endif
+
 #include <vtk_nlohmannjson.h>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -234,26 +246,32 @@ bool vtkRemoteSession::BindRenderWindow(vtkTypeUInt32 object, const std::string 
 {
   if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(this->Session)))
   {
-    if (auto renderWindowObject = manager->GetObjectAtId(object))
+    if (auto renderWindowObject = vtkRenderWindow::SafeDownCast(manager->GetObjectAtId(object)))
     {
-      (void)renderWindowObject;
-      // Update the canvas selector in the render window.
-      manager->UpdateObjectFromState({ { "Id", object }, { "CanvasSelector", canvasSelector } });
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+      if (auto* webglWindow = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(renderWindowObject))
+      {
+        webglWindow->SetCanvasSelector(canvasSelector.c_str());
+      }
+#endif
+#if VTK_MODULE_ENABLE_VTK_RenderingWebGPU
+      if (auto* webgpuWindow = vtkWebGPURenderWindow::SafeDownCast(renderWindowObject))
+      {
+        webgpuWindow->EnsureDisplay();
+        if (auto* hwWindow =
+              vtkWebAssemblyHardwareWindow::SafeDownCast(webgpuWindow->GetHardwareWindow()))
+        {
+          hwWindow->SetCanvasSelector(canvasSelector.c_str());
+        }
+      }
+#endif
       // Get the interactor associated with the render window
       // and set the canvas selector on it.
-      const auto& renderWindowState = manager->GetDeserializer()->GetContext()->GetState(object);
-      if (auto interactorStateIter = renderWindowState.find("Interactor");
-          interactorStateIter != renderWindowState.end())
+      if (auto* interactor =
+            vtkWebAssemblyRenderWindowInteractor::SafeDownCast(renderWindowObject->GetInteractor()))
       {
-        if (auto interactorIdIter = interactorStateIter->find("Id");
-            interactorIdIter != interactorStateIter->end())
-        {
-          // Update the interactor state with the canvas selector
-          const auto interactorId = interactorIdIter->get<vtkTypeUInt32>();
-          manager->UpdateObjectFromState(
-            { { "Id", interactorId }, { "CanvasSelector", canvasSelector } });
-          return true;
-        }
+        interactor->SetCanvasSelector(canvasSelector.c_str());
+        return true;
       }
       vtkLog(ERROR, "Failed to get interactor for render window: " << object);
       return false;
