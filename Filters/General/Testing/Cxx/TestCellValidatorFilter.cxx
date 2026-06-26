@@ -2,24 +2,22 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // This tests vtkCellValidator as a filter
-
-#include "vtkLogger.h"
 #include <vtkCellValidator.h>
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkCellStatus.h>
 #include <vtkDataArray.h>
+#include <vtkImageData.h>
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
-#include <vtkShortArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkWeakPointer.h>
 
-// #include <vtkXMLUnstructuredGridWriter.h>
-
-#include <iostream>
+#include <vector>
 
 //------------------------------------------------------------------------------
 namespace
@@ -45,7 +43,7 @@ bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellStatus>& expec
   bool ret = true;
   for (vtkIdType cellId = 0; cellId < size; cellId++)
   {
-    auto state = static_cast<vtkCellStatus>(static_cast<short>(stateArray->GetTuple1(cellId)));
+    auto state = static_cast<vtkCellStatus>((stateArray->GetTuple1(cellId)));
     if (state != vtkCellStatus::Valid && (state != expectedValues[cellId]))
     {
       vtkLog(ERROR, << "  ERROR: invalid cell state " << vtkCellStatus(state)
@@ -254,6 +252,26 @@ bool UnstructuredGridTest()
   return ok;
 }
 
+//------------------------------------------------------------------------------
+// if useVoxel is true, create 3D grid (cells will be vtkVoxel)
+// if useVoxel is false, create 2D grid (cells will be vtkPixel)
+bool ImageDataTest(bool useVoxel)
+{
+  vtkLogScopeFunction(INFO);
+  vtkLog(INFO, << "Use " << (useVoxel ? "vtkVoxel" : "vtkPixel") << " cells");
+  vtkNew<vtkImageData> image;
+  int zDim = useVoxel ? 10 : 1;
+  image->SetDimensions(10, 10, zDim);
+  vtkNew<vtkCellValidator> validator;
+  validator->SetInputData(image);
+  validator->Update();
+
+  std::vector<vtkCellStatus> expectedStatus(image->GetNumberOfCells(), vtkCellStatus::Valid);
+
+  auto status = validator->GetOutput()->GetCellData()->GetArray("ValidityState");
+  return TestArray(status, expectedStatus);
+}
+
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -261,5 +279,7 @@ int TestCellValidatorFilter(int, char*[])
 {
   bool result = ::PolyDataTest();
   result &= ::UnstructuredGridTest();
+  result &= ::ImageDataTest(true);
+  result &= ::ImageDataTest(false);
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
