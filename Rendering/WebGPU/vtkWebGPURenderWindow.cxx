@@ -110,10 +110,6 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow()
 vtkWebGPURenderWindow::~vtkWebGPURenderWindow()
 {
   this->Finalize();
-  if (this->Initialized)
-  {
-    this->WGPUFinalize();
-  }
   this->ReleaseGraphicsResources(this);
 
   vtkRenderer* renderer;
@@ -240,6 +236,12 @@ void vtkWebGPURenderWindow::Initialize()
   this->InitializeRendererComputePipelines();
 
   this->Initialized = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::Finalize()
+{
+  this->WGPUFinalize();
 }
 
 //------------------------------------------------------------------------------
