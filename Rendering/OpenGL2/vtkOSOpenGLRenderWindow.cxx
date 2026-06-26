@@ -125,7 +125,8 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
   this->OffScreenWindow = nullptr;
 
 #if defined(_WIN32)
-  OSMesaLibraryHandle = vtkDynamicLoader::OpenLibrary("osmesa.dll");
+  OSMesaLibraryHandle =
+    vtkDynamicLoader::OpenLibrary("osmesa.dll", vtksys::DynamicLoader::SearchBesideLibrary);
   if (OSMesaLibraryHandle == nullptr)
   {
     vtkGenericWarningMacro(
@@ -139,7 +140,8 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
     "libOSMesa.so" };
   for (const auto& libName : libNamesToTry)
   {
-    OSMesaLibraryHandle = vtkDynamicLoader::OpenLibrary(libName.c_str());
+    OSMesaLibraryHandle =
+      vtkDynamicLoader::OpenLibrary(libName.c_str(), vtksys::DynamicLoader::RTLDGlobal);
     if (OSMesaLibraryHandle)
     {
       break;
