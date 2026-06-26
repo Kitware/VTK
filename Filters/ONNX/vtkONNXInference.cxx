@@ -13,7 +13,6 @@
 #include "vtkONNXInternalUtils.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <numeric>
 #include <onnxruntime_cxx_api.h>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -61,10 +60,12 @@ void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
     os << this->InputShape[i];
   }
   os << ")" << std::endl;
+  os << indent << "AutoDetectInputShape: " << (this->AutoDetectInputShape ? "On" : "Off") << endl;
+  os << indent << "AutoDetectPermutation: " << (this->AutoDetectPermutation ? "On" : "Off") << endl;
 }
 
 //------------------------------------------------------------------------------
-void vtkONNXInference::InitializeSession()
+bool vtkONNXInference::InitializeSession()
 {
   Ort::SessionOptions sessionOptions;
 
@@ -91,9 +92,26 @@ void vtkONNXInference::InitializeSession()
   {
     vtkErrorMacro(<< e.what());
     this->Internals->Session.reset();
+    return false;
+  }
+
+  if (this->AutoDetectInputShape)
+  {
+    Ort::TypeInfo typeInfo = this->Internals->Session->GetInputTypeInfo(0);
+    Ort::ConstTensorTypeAndShapeInfo tensorInfo = typeInfo.GetTensorTypeAndShapeInfo();
+    std::vector<int64_t> shape = tensorInfo.GetShape();
+
+    // Replace dynamic dimensions (-1) with 1
+    // Typically used for the batch dimension
+    for (int64_t& dim : shape)
+    {
+      dim = dim < 0 ? 1 : dim;
+    }
+    this->SetInputShape(shape);
   }
 
   this->Initialized = true;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -364,6 +382,18 @@ const std::vector<int>& vtkONNXInference::GetOutputPermutation() const
 }
 
 //------------------------------------------------------------------------------
+void vtkONNXInference::SetAutoDetectInputShape(bool autoDetect)
+{
+  if (this->AutoDetectInputShape != autoDetect)
+  {
+    vtkDebugMacro("setting autoDetect");
+    this->AutoDetectInputShape = autoDetect;
+    this->Modified();
+    this->Initialized = false;
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkONNXInference::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -414,9 +444,9 @@ std::vector<Ort::Value> vtkONNXInference::RunModel(Ort::Value& inputTensor)
 int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (!this->Initialized)
+  if (!this->Initialized && !this->InitializeSession())
   {
-    this->InitializeSession();
+    return 0;
   }
 
   // Time handling: snap requested time to one of available time.
@@ -525,8 +555,7 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
     outData = outputTensors[0].GetTensorMutableData<float>();
     Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
     outputShape = shapeInfo.GetShape();
-    outputNumElements =
-      std::accumulate(outputShape.begin(), outputShape.end(), 1LL, std::multiplies<>());
+    outputNumElements = vtkONNXInternalUtils::TensorNumberOfElements(outputShape);
 
     if (numElements != outputNumElements / this->OutputDimension)
     {
@@ -616,6 +645,18 @@ bool vtkONNXInference::GenerateInputTensorFromFieldArray(
   {
     vtkErrorMacro(<< "Only input field of type vtkFloatArray can be used for prediction.");
     return false;
+  }
+
+  if (this->AutoDetectPermutation)
+  {
+    int64_t numTuples = modelInput->GetNumberOfTuples();
+    int64_t numComponents = modelInput->GetNumberOfComponents();
+
+    std::vector<int> detectedPerm = vtkONNXInternalUtils::InversePermutation(
+      vtkONNXInternalUtils::FindMatchingPermutation(numTuples, numComponents, this->InputShape));
+
+    this->InputPermutation = detectedPerm;
+    this->OutputPermutation = vtkONNXInternalUtils::InversePermutation(detectedPerm);
   }
 
   // Apply permutation if any

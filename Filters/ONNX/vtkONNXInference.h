@@ -216,7 +216,7 @@ public:
    * dimension (-1) replaced by 1.
    * This will override the input shape if it was set manually. (default: false)
    */
-  vtkSetMacro(AutoDetectInputShape, bool);
+  void SetAutoDetectInputShape(bool SetAutoDetectInputShape);
   vtkGetMacro(AutoDetectInputShape, bool);
   vtkBooleanMacro(AutoDetectInputShape, bool);
   ///@}
@@ -259,8 +259,9 @@ private:
   /**
    * This instanciates the ONNX runtime session by reading the file specified
    * by this->ModelFile.
+   * Return true if instantiation succeeded, false otherwise.
    */
-  void InitializeSession();
+  bool InitializeSession();
 
   /**
    * Return true if the filter should generate time steps.
@@ -305,6 +306,9 @@ private:
 
   int ArrayAssociation = vtkDataObject::CELL;
   std::vector<float> InputDataBuffer;
+
+  bool AutoDetectInputShape = false;
+  bool AutoDetectPermutation = false;
 
   bool Initialized = false;
   std::unique_ptr<vtkONNXInferenceInternals> Internals;

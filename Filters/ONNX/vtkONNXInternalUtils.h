@@ -13,25 +13,21 @@
 #include "vtkSMPTools.h"
 
 #include <algorithm>
+#include <cstdint>
+#include <iostream>
 #include <numeric>
-#include <onnxruntime_cxx_api.h>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace vtkONNXInternalUtils
 {
 
 /**
- * Wraps a raw float buffer into a ONNX Runtime tensor. Note that the ONNX object directly
- * references the memory pointed by data and does not manage or own it.
+ * Helper to find the total number of elements given the list of dimensions of a tensor.
  */
-inline Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
+inline int64_t TensorNumberOfElements(const std::vector<int64_t>& shape)
 {
-  int64_t numberElements = std::accumulate(shape.begin(), shape.end(), 1LL, std::multiplies<>());
-
-  Ort::MemoryInfo memInfo =
-    Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-
-  return Ort::Value::CreateTensor<float>(memInfo, data, numberElements, shape.data(), shape.size());
+  return std::accumulate(shape.begin(), shape.end(), 1LL, std::multiplies<>());
 }
 
 /**
@@ -39,9 +35,10 @@ inline Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
  */
 inline bool IsPermutation(const std::vector<int>& permutation)
 {
+  std::cout << std::endl;
   std::vector<int> identity(permutation.size());
   std::iota(identity.begin(), identity.end(), 0);
-  return std::is_permutation(identity.begin(), identity.end(), identity.begin());
+  return std::is_permutation(identity.begin(), identity.end(), permutation.begin());
 }
 
 /**
@@ -66,12 +63,12 @@ inline void Permute(
   float* data, const std::vector<int64_t>& outputShape, const std::vector<int>& permutation)
 {
   const size_t nDim = outputShape.size();
-  int64_t numElements =
-    std::accumulate(outputShape.begin(), outputShape.end(), 1LL, std::multiplies<>());
+  int64_t numElements = TensorNumberOfElements(outputShape);
 
-  // Compute intput shape
+  // Compute input shape
   std::vector<int> inversePermutation = InversePermutation(permutation);
   std::vector<int64_t> inputShape(outputShape.size());
+
   for (size_t i = 0; i < nDim; ++i)
   {
     inputShape[i] = outputShape[inversePermutation[i]];
@@ -130,6 +127,141 @@ inline void Permute(
   std::copy(buffer.begin(), buffer.end(), data);
 }
 
-} // namespace vtkONNXInternalUtils
+/**
+ * This function tries to find the permutation required to match the dimensions of
+ * a VTK array to any N dimensional array.
+ */
+inline std::vector<int> FindMatchingPermutation(
+  int64_t numTuples, int64_t numComponents, const std::vector<int64_t> modelShape)
+{
+  if (modelShape.empty())
+  {
+    return {};
+  }
 
+  const int64_t vtkShape[2] = { numTuples, numComponents };
+  constexpr int vtkRank = 2;
+  const int modelRank = static_cast<int>(modelShape.size());
+
+  const int64_t modelTotalElements = TensorNumberOfElements(modelShape);
+  const int64_t vtkTotalElements = numTuples * numComponents;
+
+  if (modelTotalElements != vtkTotalElements)
+  {
+    return {};
+  }
+
+  if (modelRank <= 1)
+  {
+    return {};
+  }
+
+  if (modelRank == 2)
+  {
+    if (modelShape[0] == numTuples && modelShape[1] == numComponents)
+    {
+      return {};
+    }
+
+    if (modelShape[0] == numComponents && modelShape[1] == numTuples)
+    {
+      return { 1, 0 };
+    }
+  }
+
+  // For high rank cases, first look for direct matches
+  std::array<std::vector<int>, vtkRank> vtkToModelMapping;
+
+  std::vector<bool> usedModel(modelRank, false);
+  std::vector<bool> usedVTK(vtkRank, false);
+
+  for (int i = 0; i < modelRank; ++i)
+  {
+    for (int j = 0; j < vtkRank; ++j)
+    {
+      if (modelShape[i] == vtkShape[j] && !usedVTK[j] && !usedModel[i])
+      {
+        vtkToModelMapping[j].push_back(i);
+        usedModel[i] = true;
+        usedVTK[j] = true;
+      }
+    }
+  }
+
+  // This iterates through each bit of the `productMask` and apply `func` if true
+  auto forEachSelectedDimension = [&](int productMask, auto&& func)
+  {
+    int bitShift = 0;
+
+    for (size_t i = 0; i < usedModel.size(); ++i)
+    {
+      if (!usedModel[i])
+      {
+        if (productMask & (1 << bitShift))
+        {
+          func(i);
+        }
+        ++bitShift;
+      }
+    }
+  };
+
+  // Then, brute-force remaining dimensions
+  for (int j = 0; j < vtkRank; ++j)
+  {
+    if (usedVTK[j])
+    {
+      continue;
+    }
+    const int64_t dimension = vtkShape[j];
+    int unusedShapeElements =
+      std::count_if(usedModel.begin(), usedModel.end(), [](bool used) { return !used; });
+
+    for (int productMask = (1 << unusedShapeElements); productMask > 0; --productMask)
+    {
+      int64_t extractedDimension = 1;
+
+      forEachSelectedDimension(productMask, [&](size_t i) { extractedDimension *= modelShape[i]; });
+
+      if (extractedDimension == dimension)
+      {
+        usedVTK[j] = true;
+
+        forEachSelectedDimension(productMask,
+          [&](size_t i)
+          {
+            vtkToModelMapping[j].push_back(i);
+            usedModel[i] = true;
+          });
+
+        break;
+      }
+    }
+  }
+
+  if (vtkToModelMapping[0].empty() || vtkToModelMapping[1].empty())
+  {
+    return {};
+  }
+
+  std::vector<int> permutation;
+  permutation.reserve(modelRank);
+  for (int i = 0; i < vtkRank; ++i)
+  {
+    for (int j = 0; j < static_cast<int>(vtkToModelMapping[i].size()); ++j)
+    {
+      permutation.push_back(vtkToModelMapping[i][j]);
+    }
+  }
+
+  if (!IsPermutation(permutation))
+  {
+    return {};
+  }
+
+  return permutation;
+}
+
+} // namespace vtkONNXInternalUtils
+VTK_ABI_NAMESPACE_END
 #endif
