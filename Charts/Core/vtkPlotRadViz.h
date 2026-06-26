@@ -57,20 +57,20 @@ public:
   bool Paint(vtkContext2D* painter) override;
 
   /**
-   * Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate
+   * Set the bounding box of the plot. Arguments 1 and 2 are the x and y coordinate
    * of the bottom corner. Arguments 3 and 4 are the width and height.
    */
   void SetDimensions(int arg1, int arg2, int arg3, int arg4);
 
   /**
-   * Set the dimensions of the pie, elements 0 and 1 are the x and y coordinate
+   * Set the bounding box of the plot. Elements 0 and 1 are the x and y coordinate
    * of the bottom corner. Elements 2 and 3 are the width and height.
    */
   void SetDimensions(const int arg[4]);
 
   ///@{
   /**
-   * Get the dimensions of the pie, elements 0 and 1 are the x and y coordinate
+   * Get the bounding box of the plot. Elements 0 and 1 are the x and y coordinate
    * of the bottom corner. Elements 2 and 3 are the width and height.
    */
   vtkGetVector4Macro(Dimensions, int);
@@ -78,8 +78,8 @@ public:
 
   ///@{
   /**
-   * How many segments do we use when drawing the color wheel. More segments
-   * will produce a smoother color wheel. The default is 120.
+   * Number of segments used when drawing the color wheel. More segments
+   * produce a smoother gradient. The default is 120.
    */
   vtkSetMacro(ColorWheelSegmentCount, int);
   vtkGetMacro(ColorWheelSegmentCount, int);
@@ -87,7 +87,7 @@ public:
 
   ///@{
   /**
-   * What angle is Red placed at. Default is 90 degrees.
+   * Angle in degrees at which red is placed on the color wheel. Default is 90.
    */
   vtkSetMacro(ColorWheelStartAngle, int);
   vtkGetMacro(ColorWheelStartAngle, int);
@@ -95,8 +95,8 @@ public:
 
   ///@{
   /**
-   * Colors are laid out in clockwise order if true, otherwise in
-   * counter-clockwise order. Default is true.
+   * Colors are laid out in clockwise order if true, counter-clockwise otherwise.
+   * Default is true.
    */
   vtkSetMacro(ColorWheelClockwiseOrdering, bool);
   vtkGetMacro(ColorWheelClockwiseOrdering, bool);
@@ -105,7 +105,7 @@ public:
 
   ///@{
   /**
-   * Color wheel is shown if true, and hidden otherwise. Default is true;
+   * Show the color wheel if true, hide it otherwise. Default is true.
    */
   vtkSetMacro(ColorWheelVisibility, bool);
   vtkGetMacro(ColorWheelVisibility, bool);
@@ -124,8 +124,7 @@ public:
 
   ///@{
   /**
-   * Controls how the Lens is drawn. Points outside the circle
-   * are set transparent (invisible).
+   * Controls how the lens circle outline is drawn.
    */
   vtkSetSmartPointerMacro(LensPen, vtkPen);
   vtkGetSmartPointerMacro(LensPen, vtkPen);
@@ -133,19 +132,17 @@ public:
 
   ///@{
   /**
-   * Controls how the vertices is drawn.
-   * These are the markers on the circle for the variables.
+   * Controls how the vertices are drawn.
    */
   vtkSetSmartPointerMacro(VerticesPen, vtkPen);
   vtkGetSmartPointerMacro(VerticesPen, vtkPen);
   /**
-   * Return the vertices of the plot. Valid after the first Paint.
+   * Return the vertex positions of the plot. Valid after the first Paint.
    */
   vtkGetSmartPointerMacro(Vertices, vtkPoints2D);
   /**
-   * Angle in degrees, to rotate the vertices
-   * coding the multivariate attributes Default is 0 degrees. This
-   * angle affects the GBC positions and the computed colors.
+   * Angle in degrees to rotate the vertices encoding the multivariate attributes.
+   * Default is 0 degrees. This angle affects the GBC positions and the computed colors.
    * The angle stored will be between [0, 360).
    */
   virtual void SetVerticesRotation(double rotation);
@@ -207,13 +204,12 @@ protected:
 
   int Dimensions[4];
   /**
-   * Controls how the vertices is drawn.
+   * Controls how the vertices are drawn.
    * These are the markers on the circle for the variables.
    */
   vtkSmartPointer<vtkPen> VerticesPen;
   /**
-   * Controls how the Lens is drawn. Points outside the circle
-   * are set transparent (invisible).
+   * Controls how the lens circle outline is drawn.
    */
   vtkSmartPointer<vtkPen> LensPen;
   /**

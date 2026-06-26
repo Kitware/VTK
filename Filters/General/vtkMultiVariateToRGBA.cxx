@@ -37,8 +37,8 @@ namespace
 {
 // Implement numpy.mod using std::fmod for a / b.
 // std::fmod returns a remainder with the sign of the dividend (a) while
-// numpy.mod returns a reminder with he sign of the divisor (b)
-// This code was ported from python/numpy so we use numpy_mod.
+// numpy.mod returns a remainder with the sign of the divisor (b).
+// This code mirrors behavior from Python/NumPy mod, hence the name.
 double numpy_mod(double a, double b)
 {
   double r = std::fmod(a, b);
@@ -51,21 +51,18 @@ double numpy_mod(double a, double b)
 }
 
 /**
- * Normalize each modality group together.
+ * Normalizes all components in a modality group together.
  *
- * For example, if Indices `[0, 1, 2]` are the same modality, we will
- * normalize them all together, meaning we compute the min/max over
- * all three scalars.
- *
- * In this example, all channels are in the same modality, so they all
- * get normalized together.
+ * For example, if indices `[0, 1, 2]` belong to the same modality, the
+ * min/max is computed across all three components and each is scaled to
+ * [NewMin, NewMax] using that shared range.
  */
 struct NormalizeWorker
 {
   NormalizeWorker(const std::vector<int>& indices,
     std::function<double(double)> globalMin = nullptr,
     std::function<double(double)> globalMax = nullptr, double newMin = 0, double newMax = 1)
-    : Indices(indices)
+    : GroupIndices(indices)
     , GlobalMin(globalMin)
     , GlobalMax(globalMax)
     , NewMin(newMin)
@@ -85,14 +82,14 @@ struct NormalizeWorker
 
     ValueType minValue = std::numeric_limits<ValueType>::max(),
               maxValue = std::numeric_limits<ValueType>::lowest();
-    for (int k = 0; k < this->Indices.size(); ++k)
+    for (int k = 0; k < this->GroupIndices.size(); ++k)
     {
       auto comparator = [this, k](const TupleReferenceType& a, const TupleReferenceType& b)
-      { return a[this->Indices[k]] < b[this->Indices[k]]; };
+      { return a[this->GroupIndices[k]] < b[this->GroupIndices[k]]; };
       TupleIteratorType minIt = std::min_element(scalars.begin(), scalars.end(), comparator);
-      ValueType minCurrent = (*minIt)[this->Indices[k]];
+      ValueType minCurrent = (*minIt)[this->GroupIndices[k]];
       TupleIteratorType maxIt = std::max_element(scalars.begin(), scalars.end(), comparator);
-      ValueType maxCurrent = (*maxIt)[this->Indices[k]];
+      ValueType maxCurrent = (*maxIt)[this->GroupIndices[k]];
       if (minCurrent < minValue)
       {
         minValue = minCurrent;
@@ -113,15 +110,15 @@ struct NormalizeWorker
     vtkIdType nTuples = scalars.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      for (int k = 0; k < this->Indices.size(); ++k)
+      for (int k = 0; k < this->GroupIndices.size(); ++k)
       {
-        normalized[i][this->Indices[k]] = (this->NewMax - this->NewMin) *
-            (scalars[i][this->Indices[k]] - minValue) / (maxValue - minValue) +
+        normalized[i][this->GroupIndices[k]] = (this->NewMax - this->NewMin) *
+            (scalars[i][this->GroupIndices[k]] - minValue) / (maxValue - minValue) +
           this->NewMin;
       }
     }
   }
-  std::vector<int> Indices;
+  std::vector<int> GroupIndices;
   double NewMin = 0;
   double NewMax = 1;
   std::function<double(double)> GlobalMin = nullptr;
@@ -129,9 +126,8 @@ struct NormalizeWorker
 };
 
 /**
- * Computes Generalized Barycentric Coordinate (GBC) interpolation
- * Uses
- * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data
+ * Computes generalized barycentric coordinate (GBC) positions for each data point.
+ * See: "RadViz Deluxe: An Attribute-Aware Display for Multivariate Data"
  */
 struct ComputeGBCWorker
 {
@@ -724,12 +720,12 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
 float vtkMultiVariateToRGBA::GetLensRadius(
   float lensRadius, float radius, const float* lensCenter, const float* center)
 {
-  // insure that the lens circle intersects the plot circle
-  // distance Center to LensCenter position.
+  // Ensure the lens circle intersects the reference circle.
+  // r is the distance between the two circle centers.
   float r =
     std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
   float newLensRadius;
-  // if he two circles do not intersect, move the newRadius so that they do.
+  // If the two circles do not intersect, grow the lens radius until they just touch.
   if (r - lensRadius > radius)
   {
     newLensRadius = r - radius;
@@ -755,13 +751,13 @@ void vtkMultiVariateToRGBA::SetLensRadius(float lensRadius)
 std::array<float, 2> vtkMultiVariateToRGBA::GetLensCenter(
   float lensRadius, float radius, const float* lensCenter, const float* center)
 {
-  // insure that the lens circle intersects the plot circle
-
-  // distance Center to mouse position.
+  // Ensure the lens circle intersects the reference circle.
+  // r is the distance between the two circle centers.
   float r =
     std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
   std::array<float, 2> newLensCenter;
-  // if he two circles do not intersect, move the newLensCenter so that they do.
+  // If the two circles do not intersect, move the lens center toward the reference
+  // circle until they just touch.
   if (r - lensRadius > radius)
   {
     std::array<float, 2> intersection;

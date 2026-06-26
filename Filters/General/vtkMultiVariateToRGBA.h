@@ -2,9 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkMultiVariateToRGBA
- * @brief   generalized histograms up to 4 dimensions
  *
- * vtkMultiVariateToRGBA takes a 3 component RGB image as
+ * @brief Maps multivariate data to color and opacity.
+ *
+ * Maps multivariate data (multi-component scalars (AOS array) in a vtkDataSet or
+ * multiple columns in a table (an SOA array)) to color and opacity (RGBA).
+ * Uses
+ * RadVolViz: An Information Display-Inspired Transfer Function Editor for Multivariate Volume
+ * Visualization
+ * Ayush Kumar, Xinyu Zhang, Huolin L. Xin, Hanfei Yan, Xiaojing Huang, Wei Xu,
+ * and Klaus Mueller
+ * and
+ * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data
+ * Shenghui Cheng, Wei Xu and Klaus Mueller
  */
 
 #ifndef vtkMultiVariateToRGBA_h
@@ -19,19 +29,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 class vtkInformationVector;
 
-/**
- * Maps multivariate data (multi-component scalars and tables) to
- * color and opacity (RGBA).
- *
- * Uses
- * RadVolViz: An Information Display-Inspired Transfer Function Editor for Multivariate Volume
- * Visualization
- * Ayush Kumar, Xinyu Zhang, Huolin L. Xin, Hanfei Yan, Xiaojing Huang, Wei Xu,
- * and Klaus Mueller
- * and
- * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data
- * Shenghui Cheng, Wei Xu and Klaus Mueller
- */
 class VTKFILTERSGENERAL_EXPORT vtkMultiVariateToRGBA : public vtkDataObjectAlgorithm
 {
 public:
@@ -40,10 +37,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Angle in degrees, to rotate the vertices
-   * coding the multivariate attributes Default is 0 degrees. This
-   * angle affects the GBC positions and the computed colors.
-   * The rotation will be clamped between [0, 360).
+   * Angle in degrees to rotate the vertices encoding the multivariate attributes.
+   * Default is 0 degrees. This angle affects the GBC positions and the computed colors.
+   * The rotation will be clamped to [0, 360).
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
@@ -79,20 +75,22 @@ public:
 
   ///@{
   /**
-   * Center of the lens.
-   * The GBC circle is centered at (0,1) and has radius 1.
-   * The lens has to intersect the the GBC circle.
+   * Center of the lens in GBC space (unit circle centered at the origin).
+   * The lens must intersect the GBC circle.
    */
   virtual void SetLensCenter(const float* center);
   vtkGetVector2Macro(LensCenter, float);
   /**
-   * Radius of the lens.
-   * The GBC circle is centered at (0,1) and has radius 1.
-   * The lens has to intersect the the GBC circle.
+   * Radius of the lens in GBC space (unit circle centered at the origin).
+   * The lens must intersect the GBC circle.
    */
   virtual void SetLensRadius(float radius);
   vtkGetMacro(LensRadius, float);
-
+  /**
+   * Clamp the lens circle (lensCenter, lensRadius) so it intersects the
+   * reference circle (center, radius). GetLensRadius returns the adjusted
+   * radius; GetLensCenter returns the adjusted center.
+   */
   static float GetLensRadius(
     float lensRadius, float radius, const float* lensCenter, const float* center);
   static std::array<float, 2> GetLensCenter(
@@ -111,6 +109,14 @@ public:
   vtkGetMacro(FlipY, bool);
   ///@}
 
+  /**
+   * Variables can be grouped in several groups. After that,
+   * all multivariate scalars in a group are normalized together.
+   *
+   * For example, if indices `[0, 1, 2]` are the same modality, we
+   * will normalize them all together, meaning we compute the min/max
+   * over all three scalars.
+   */
   void SetModalityGroups(std::vector<std::vector<int>>& modalityGroups);
   std::vector<std::vector<int>> GetModalityGroups() VTK_FUTURE_CONST;
 

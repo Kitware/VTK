@@ -63,9 +63,9 @@ public:
     this->Radius = 0;
   }
   /**
-   * Used to translate and scale GBCs and Vertices from
-   * from circle centered at (0,0) with radius 1 to the circle centered at (Center[0], Center[1])
-   * and radius Radius.
+   * Translates and scales GBC and vertex coordinates from the unit circle
+   * centered at (0,0) to the plot circle centered at (Center[0], Center[1])
+   * with radius Radius.
    */
   template <class TArray>
   void operator()(TArray* inputArray, vtkPoints2D* points)
