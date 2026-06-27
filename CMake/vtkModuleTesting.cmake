@@ -18,7 +18,7 @@ get_filename_component(_vtkModuleTesting_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECT
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   add_test(
-    NAME HTTPServerStart
+    NAME vtkWasm-HTTPServerSetup
     COMMAND  "${CMAKE_CROSSCOMPILING_EMULATOR}"
       "${_vtkModuleTesting_dir}/wasm/server.js"
       "--directory"
@@ -29,11 +29,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       "0"
       "--operation"
       "start")
-  set_tests_properties(HTTPServerStart
+  set_tests_properties(vtkWasm-HTTPServerSetup
     PROPERTIES
-      FIXTURES_SETUP "HTTP")
+      FIXTURES_SETUP "vtkWasm-HTTPServerFixture")
   add_test(
-    NAME HTTPServerStop
+    NAME vtkWasm-HTTPServerCleanup
     COMMAND  "${CMAKE_CROSSCOMPILING_EMULATOR}"
       "${_vtkModuleTesting_dir}/wasm/server.js"
       "--directory"
@@ -42,9 +42,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       "0"
       "--operation"
       "stop")
-  set_tests_properties(HTTPServerStop
+  set_tests_properties(vtkWasm-HTTPServerCleanup
     PROPERTIES
-      FIXTURES_CLEANUP "HTTP")
+      FIXTURES_CLEANUP "vtkWasm-HTTPServerFixture")
 endif ()
 #[==[.rst:
 Loading data
@@ -506,7 +506,7 @@ function (vtk_add_test_cxx exename _tests)
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       set_tests_properties(${test_list}
         PROPERTIES
-          FIXTURES_REQUIRED "HTTP"
+          FIXTURES_REQUIRED "vtkWasm-HTTPServerFixture"
         )
     endif ()
     if (_vtk_testing_ld_preload)
