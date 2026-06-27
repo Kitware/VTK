@@ -1117,28 +1117,41 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     }
   }
 
-  std::array<vtkTypeUInt32*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
-    vertexCounts;
-  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
-    connectivityBuffers;
-  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
-    cellIdBuffers;
-  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
-    edgeArrayBuffers;
-  std::array<WGPUBuffer, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
-    cellIdOffsetUniformBuffers;
-  for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
+  constexpr int kNumTopologyTypes = vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES;
+  std::array<vtkTypeUInt32*, kNumTopologyTypes> vertexCounts;
+  // Local WGPUBuffer storage the converter can write into; results are copied back into the
+  // wgpu:: members afterwards.
+  std::array<WGPUBuffer, kNumTopologyTypes> connectivityBufferStorage;
+  std::array<WGPUBuffer, kNumTopologyTypes> cellIdBufferStorage;
+  std::array<WGPUBuffer, kNumTopologyTypes> edgeArrayBufferStorage;
+  std::array<WGPUBuffer, kNumTopologyTypes> cellIdOffsetUniformBufferStorage;
+  std::array<WGPUBuffer*, kNumTopologyTypes> connectivityBuffers;
+  std::array<WGPUBuffer*, kNumTopologyTypes> cellIdBuffers;
+  std::array<WGPUBuffer*, kNumTopologyTypes> edgeArrayBuffers;
+  std::array<WGPUBuffer*, kNumTopologyTypes> cellIdOffsetUniformBuffers;
+  for (int i = 0; i < kNumTopologyTypes; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
     vertexCounts[i] = &(bgInfo.VertexCount);
-    connectivityBuffers[i] = bgInfo.ConnectivityBuffer.Get();
-    cellIdBuffers[i] = bgInfo.CellIdBuffer.Get();
-    edgeArrayBuffers[i] = nullptr;
-    cellIdOffsetUniformBuffers[i] = bgInfo.CellIdOffsetUniformBuffer.Get();
+    connectivityBufferStorage[i] = bgInfo.ConnectivityBuffer.Get();
+    cellIdBufferStorage[i] = bgInfo.CellIdBuffer.Get();
+    edgeArrayBufferStorage[i] = nullptr;
+    cellIdOffsetUniformBufferStorage[i] = bgInfo.CellIdOffsetUniformBuffer.Get();
+    connectivityBuffers[i] = &connectivityBufferStorage[i];
+    cellIdBuffers[i] = &cellIdBufferStorage[i];
+    edgeArrayBuffers[i] = &edgeArrayBufferStorage[i];
+    cellIdOffsetUniformBuffers[i] = &cellIdOffsetUniformBufferStorage[i];
   }
   bool updateTopologyBindGroup = this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
     wgpuConfiguration, input, VTK_SURFACE, vertexCounts, connectivityBuffers, cellIdBuffers,
     edgeArrayBuffers, cellIdOffsetUniformBuffers);
+  for (int i = 0; i < kNumTopologyTypes; ++i)
+  {
+    auto& bgInfo = this->TopologyBindGroupInfos[i];
+    bgInfo.ConnectivityBuffer = wgpu::Buffer(connectivityBufferStorage[i]);
+    bgInfo.CellIdBuffer = wgpu::Buffer(cellIdBufferStorage[i]);
+    bgInfo.CellIdOffsetUniformBuffer = wgpu::Buffer(cellIdOffsetUniformBufferStorage[i]);
+  }
 
   // Rebuild topology bind group if required (when VertexCount > 0)
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
