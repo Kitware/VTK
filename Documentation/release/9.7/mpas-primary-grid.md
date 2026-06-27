@@ -8,7 +8,7 @@ Delaunay triangulation of these points on the globe. As the names would imply,
 the grids are duals of each other with the cells of the primary corresponding to
 points of the dual and vice versa.
 
-![Comparison of primary and dual grids in MPAS](mpas-grids.jpg)
+![Comparison of primary and dual grids in MPAS](../imgs/9.7/mpas-grids.jpg)
 
 Although the simulation operates mostly on the primary grid, `vtkMPASReader`
 loaded the dual grid. This is because on the dual grid most results data are on

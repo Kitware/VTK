@@ -55,7 +55,10 @@ $if(BASEBRANCH != "master")\
 $endif\
   - [ ] Create update branch: `git checkout -b update-to-v$(VERSION)$(RC)`
   - Make a commit for each of these changes on the update branch:
-    - [ ] Move release note files to `Documentation/release/$(MAJOR).$(MINOR)` folder.
+    - [ ] Move release note files
+      - [ ] Move release note markdown files (*.md) to `Documentation/release/$(MAJOR).$(MINOR)` folder.
+      - [ ] Move release note image files (*.png, *.jpg, *.jpeg, *.gif) to `Documentation/release/imgs/$(MAJOR).$(MINOR)` folder.
+      - [ ] Update image references in `Documentation/release/$(MAJOR).$(MINOR)/*.md` to point to `../imgs/$(MAJOR).$(MINOR)/`.
 $if(BASEBRANCH == "master")\
     - [ ] If `$(BASEBRANCH)` is `master`, update the non-patch version in a
           separate commit (so that `master` gets it as well).
