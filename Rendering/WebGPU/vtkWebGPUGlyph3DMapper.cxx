@@ -78,9 +78,10 @@ public:
     const std::string label = "InstanceProperties-" + this->CurrentInput->GetObjectDescription();
     if (this->InstancePropertiesBuffer == nullptr)
     {
-      this->InstancePropertiesBuffer = wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
-        wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
-        /*mappedAtCreation=*/false, label.c_str());
+      this->InstancePropertiesBuffer =
+        wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
+          static_cast<WGPUBufferUsage>(wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst),
+          /*mappedAtCreation=*/false, label.c_str()));
       // Rebuild pipeline and bindgroups when buffer is re-created.
       this->RebuildGraphicsPipelines = true;
     }
@@ -110,7 +111,7 @@ public:
     }
   }
 
-  std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() override
+  std::vector<WGPUVertexBufferLayout> GetVertexBufferLayouts() override
   {
     // matCxR types are not allowed as vertex attributes.
     // For this reason the columns of the matrices are
@@ -153,32 +154,39 @@ public:
       layout.stepMode = wgpu::VertexStepMode::Instance;
       layouts.emplace_back(layout);
     }
-    return layouts;
+    std::vector<WGPUVertexBufferLayout> result(layouts.size());
+    for (std::size_t i = 0; i < layouts.size(); ++i)
+    {
+      result[i] = *reinterpret_cast<WGPUVertexBufferLayout*>(&layouts[i]);
+    }
+    return result;
   }
 
   /**
    * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
-  void SetVertexBuffers(const wgpu::RenderPassEncoder& encoder) override
+  void SetVertexBuffers(const WGPURenderPassEncoder& passEncoder) override
   {
+    wgpu::RenderPassEncoder encoder(passEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
       encoder.SetVertexBuffer(
-        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+        attributeIndex, wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer));
     }
   }
 
   /**
    * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
-  void SetVertexBuffers(const wgpu::RenderBundleEncoder& encoder) override
+  void SetVertexBuffers(const WGPURenderBundleEncoder& bundleEncoder) override
   {
+    wgpu::RenderBundleEncoder encoder(bundleEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
       encoder.SetVertexBuffer(
-        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+        attributeIndex, wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer));
     }
   }
 
@@ -363,19 +371,19 @@ protected:
       InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS, InstanceDataAttributes::INSTANCE_PICK_IDS
     };
 
-  std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
+  std::vector<WGPUBindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupLayoutEntries();
     std::uint32_t bindingId = entries.size();
 
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-      bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-      wgpu::BufferBindingType::Uniform });
+    auto helper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
+      wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform };
+    entries.emplace_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper));
     return entries;
   }
 
-  std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries() override
+  std::vector<WGPUBindGroupEntry> GetMeshBindGroupEntries() override
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupEntries();
@@ -383,7 +391,8 @@ protected:
 
     const auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
       this->InstancePropertiesBuffer, 0 };
-    entries.emplace_back(bindingInit.GetAsBinding());
+    auto entry = bindingInit.GetAsBinding();
+    entries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
     return entries;
   }
 
@@ -406,7 +415,7 @@ protected:
       {
         if (this->InstanceAttributesBuffers[attributeIndex].Buffer)
         {
-          this->InstanceAttributesBuffers[attributeIndex].Buffer.Destroy();
+          wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer).Destroy();
           this->InstanceAttributesBuffers[attributeIndex].Size = 0;
         }
         wgpu::BufferDescriptor descriptor{};
@@ -486,7 +495,7 @@ protected:
     instanceProperties.CompositeId = this->FlatIndex;
     instanceProperties.Pickable = this->Pickable ? 1u : 0u;
     instanceProperties.ProcessId = 1;
-    wgpuConfiguration->WriteBuffer(this->InstancePropertiesBuffer, 0, &instanceProperties,
+    wgpuConfiguration->WriteBuffer(this->InstancePropertiesBuffer.Get(), 0, &instanceProperties,
       sizeof(InstanceProperties), "InstanceProperties");
   }
 
@@ -820,8 +829,7 @@ const TRIANGLE_VERTS = array(
 
   // Uses TriangleList for pipeline types that originally used TriangleStrip
   // because we use the instance_id for glyphing.
-  wgpu::PrimitiveTopology GetPrimitiveTopologyForPipeline(
-    GraphicsPipelineType pipelineType) override
+  WGPUPrimitiveTopology GetPrimitiveTopologyForPipeline(GraphicsPipelineType pipelineType) override
   {
     wgpu::PrimitiveTopology topology = wgpu::PrimitiveTopology::Undefined;
     switch (pipelineType)
@@ -837,10 +845,11 @@ const TRIANGLE_VERTS = array(
         topology = wgpu::PrimitiveTopology::TriangleList;
         break;
       default:
-        topology = this->Superclass::GetPrimitiveTopologyForPipeline(pipelineType);
+        topology = static_cast<wgpu::PrimitiveTopology>(
+          this->Superclass::GetPrimitiveTopologyForPipeline(pipelineType));
         break;
     }
-    return topology;
+    return static_cast<WGPUPrimitiveTopology>(topology);
   }
 
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgs(GraphicsPipelineType pipelineType,

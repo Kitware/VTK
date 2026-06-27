@@ -784,7 +784,7 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(std::uint64_t sizeBytes, WGPUBuf
     return nullptr;
   }
   WGPUBufferDescriptor bufferDescriptor{};
-  bufferDescriptor.label = label == nullptr ? "(nolabel)" : label;
+  bufferDescriptor.label = WGPUStringView{ label == nullptr ? "(nolabel)" : label, WGPU_STRLEN };
   bufferDescriptor.size = sizeBytes;
   bufferDescriptor.usage = usage;
   bufferDescriptor.mappedAtCreation = mappedAtCreation;
@@ -856,7 +856,7 @@ WGPUTexture vtkWebGPUConfiguration::CreateTexture(WGPUExtent3D extents,
   textureDescriptor.usage = usage;
   textureDescriptor.viewFormatCount = 0;
   textureDescriptor.viewFormats = nullptr;
-  textureDescriptor.label = label;
+  textureDescriptor.label = WGPUStringView{ label, WGPU_STRLEN };
   return this->CreateTexture(textureDescriptor);
 }
 
@@ -879,7 +879,8 @@ WGPUTexture vtkWebGPUConfiguration::CreateTexture(const WGPUTextureDescriptor& t
   wgpuDesc.format = static_cast<wgpu::TextureFormat>(textureDescriptor.format);
   wgpuDesc.size = *reinterpret_cast<const wgpu::Extent3D*>(&textureDescriptor.size);
   wgpuDesc.mipLevelCount = textureDescriptor.mipLevelCount;
-  wgpuDesc.nextInChain = textureDescriptor.nextInChain;
+  wgpuDesc.nextInChain =
+    reinterpret_cast<const wgpu::ChainedStruct*>(textureDescriptor.nextInChain);
   wgpuDesc.sampleCount = textureDescriptor.sampleCount;
   wgpuDesc.usage = static_cast<wgpu::TextureUsage>(textureDescriptor.usage);
   wgpuDesc.viewFormatCount = textureDescriptor.viewFormatCount;
@@ -903,7 +904,7 @@ WGPUTextureView vtkWebGPUConfiguration::CreateView(WGPUTexture texture,
   textureViewDescriptor.baseMipLevel = baseMipLevel;
   textureViewDescriptor.dimension = dimension;
   textureViewDescriptor.format = format;
-  textureViewDescriptor.label = label;
+  textureViewDescriptor.label = WGPUStringView{ label, WGPU_STRLEN };
   textureViewDescriptor.mipLevelCount = mipLevelCount;
   textureViewDescriptor.nextInChain = nullptr;
 
@@ -930,7 +931,7 @@ WGPUTextureView vtkWebGPUConfiguration::CreateView(
   wgpuDesc.format = static_cast<wgpu::TextureFormat>(viewDescriptor.format);
   wgpuDesc.label = viewDescriptor.label;
   wgpuDesc.mipLevelCount = viewDescriptor.mipLevelCount;
-  wgpuDesc.nextInChain = viewDescriptor.nextInChain;
+  wgpuDesc.nextInChain = reinterpret_cast<const wgpu::ChainedStruct*>(viewDescriptor.nextInChain);
   wgpu::TextureView view = wrappedTexture.CreateView(&wgpuDesc);
   return view.Get();
 }
