@@ -137,6 +137,12 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartDataSetNoBackground,TestRadVizChartDataSet.cxx 1
 )
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartInteractionVertices,TestRadVizChartInteraction.cxx 0
+)
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartInteractionLens,TestRadVizChartInteraction.cxx 1
+)
 
 
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests

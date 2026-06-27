@@ -20,9 +20,24 @@ public:
   vtkInternals() = default;
 
   vtkSmartPointer<vtkPlotRadViz> Plot;
-  int DragVertex = -1;
+  /**
+   * The index of the vertex dragged after left mouse press, -1 when no vertex
+   * is dragged.
+   */
+  int DragVertexIndex = -1;
+  /**
+   * Set to true on left mouse press on the lens outline and set to false
+   * on left mouse release.
+   */
   bool ResizeLens = false;
+  /**
+   * Set to true on left mouse press on the lens interior and set to false
+   * on mouse release.
+   */
   bool DragLens = false;
+  /**
+   * Set to the mouse position on left mouse press.
+   */
   float DragLensStart[2];
 };
 
@@ -53,7 +68,6 @@ void vtkChartRadViz::Update()
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::Paint(vtkContext2D* painter)
 {
-  // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
   int geometry[] = { this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight() };
@@ -129,7 +143,6 @@ void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
   }
   this->Internals->Plot = plot;
   this->AddItem(this->Internals->Plot);
-  // Ensure legend remains on top
   this->Modified();
 }
 
@@ -177,12 +190,12 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   if (!this->Scene->GetDirty())
   {
     vtkVector2f pos{ mouse.GetScenePos() };
-    if (this->Internals->DragVertex >= 0)
+    if (this->Internals->DragVertexIndex >= 0)
     {
       // rotate vertices
       auto vertices = this->Internals->Plot->GetVertices();
       double vertex[2];
-      vertices->GetPoint(this->Internals->DragVertex, vertex);
+      vertices->GetPoint(this->Internals->DragVertexIndex, vertex);
       double mousePos[2] = { pos[0], pos[1] };
       double angle = this->Internals->Plot->GetAngle(vertex, mousePos);
       vtkDebugMacro("vtkChartRadViz::MouseMoveEvent, angle:"
@@ -241,11 +254,11 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
         pos[1] >= xy[1] - SIZE)
       {
         // drag a vertex
-        this->Internals->DragVertex = i;
+        this->Internals->DragVertexIndex = i;
         break;
       }
     }
-    if (this->Internals->DragVertex < 0)
+    if (this->Internals->DragVertexIndex < 0)
     {
       float* lensCenter = this->Internals->Plot->GetLensCenter();
       float lensRadius = this->Internals->Plot->GetLensRadius();
@@ -275,7 +288,7 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 {
-  this->Internals->DragVertex = -1;
+  this->Internals->DragVertexIndex = -1;
   this->Internals->ResizeLens = false;
   this->Internals->DragLens = false;
   return true;

@@ -3,10 +3,8 @@
 
 /**
  * @class   vtkChartRadViz
- * @brief   Factory class for drawing pie charts
+ * @brief   Handle interaction for vtkPlotRadViz
  *
- *
- * This class implements an pie chart.
  */
 
 #ifndef vtkChartRadViz_h
@@ -28,7 +26,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Creates a 2D Chart object.
+   * Creates a RadViz chart object.
    */
   static vtkChartRadViz* New();
 
