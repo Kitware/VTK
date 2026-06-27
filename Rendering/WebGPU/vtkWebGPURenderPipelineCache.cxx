@@ -7,6 +7,7 @@
 #include "vtkStringFormatter.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 
@@ -121,24 +122,24 @@ void vtkWebGPURenderPipelineCache::ReleaseGraphicsResources(vtkWindow*)
 }
 
 //------------------------------------------------------------------------------
-wgpu::RenderPipeline vtkWebGPURenderPipelineCache::GetRenderPipeline(const std::string& key)
+WGPURenderPipeline vtkWebGPURenderPipelineCache::GetRenderPipeline(const std::string& key)
 {
   auto iter = this->Internals->PipelineCache.find(key);
   if (iter != this->Internals->PipelineCache.end())
   {
     vtkDebugMacro(<< "Pipeline exists for key=" << key << "...");
-    return iter->second;
+    return iter->second.Get();
   }
   else
   {
     vtkDebugMacro(<< "Pipeline does not exist for key=" << key << "...");
-    return {};
+    return nullptr;
   }
 }
 
 //------------------------------------------------------------------------------
 std::string vtkWebGPURenderPipelineCache::GetPipelineKey(
-  wgpu::RenderPipelineDescriptor* descriptor, const char* shaderSource)
+  WGPURenderPipelineDescriptor* descriptor, const char* shaderSource)
 {
   if (descriptor == nullptr)
   {
@@ -154,7 +155,7 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(
 }
 
 //------------------------------------------------------------------------------
-std::string vtkWebGPURenderPipelineCache::GetPipelineKey(wgpu::RenderPipelineDescriptor* descriptor,
+std::string vtkWebGPURenderPipelineCache::GetPipelineKey(WGPURenderPipelineDescriptor* descriptor,
   const char* vertexShaderSource, const char* fragmentShaderSource)
 {
   if (descriptor == nullptr)
@@ -172,20 +173,23 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(wgpu::RenderPipelineDes
     vtkErrorMacro(<< "Invalid fragment shader source: nullptr");
     return {};
   }
+  auto* wgpuDescriptor = reinterpret_cast<wgpu::RenderPipelineDescriptor*>(descriptor);
   const auto cullModeStr = vtk::to_string(
-    static_cast<std::underlying_type<wgpu::CullMode>::type>(descriptor->primitive.cullMode));
+    static_cast<std::underlying_type<wgpu::CullMode>::type>(wgpuDescriptor->primitive.cullMode));
   const auto topologyStr =
     vtk::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
-      descriptor->primitive.topology));
+      wgpuDescriptor->primitive.topology));
   std::string hash;
-  this->Internals->ComputeMD5({ vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,
-                                descriptor->vertex.entryPoint, descriptor->fragment->entryPoint },
+  this->Internals->ComputeMD5(
+    { vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,
+      vtkWebGPUStringViewToStdString(wgpuDescriptor->vertex.entryPoint),
+      vtkWebGPUStringViewToStdString(wgpuDescriptor->fragment->entryPoint) },
     hash);
   return hash;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescriptor* descriptor,
   vtkWebGPURenderWindow* wgpuRenderWindow, const char* shaderSource)
 {
   if (descriptor == nullptr)
@@ -219,19 +223,20 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDesc
 
   // set shader module
   auto* pipelineDescriptorVtk =
-    static_cast<vtkWebGPURenderPipelineDescriptorInternals*>(descriptor);
+    reinterpret_cast<vtkWebGPURenderPipelineDescriptorInternals*>(descriptor);
   pipelineDescriptorVtk->vertex.module = shaderModule;
   pipelineDescriptorVtk->cFragment.module = shaderModule;
 
   // create pipeline
-  auto pipeline = wgpuRenderWindow->GetDevice().CreateRenderPipeline(pipelineDescriptorVtk);
+  auto pipeline =
+    wgpu::Device(wgpuRenderWindow->GetDevice()).CreateRenderPipeline(pipelineDescriptorVtk);
   std::string pipelineHash = this->GetPipelineKey(descriptor, shaderSource);
   this->Internals->PipelineCache[pipelineHash] = pipeline;
   vtkDebugMacro(<< "Create pipeline " << pipeline.Get() << " for key=" << pipelineHash);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescriptor* descriptor,
   vtkWebGPURenderWindow* wgpuRenderWindow, const char* vertexShaderSource,
   const char* fragmentShaderSource)
 {
@@ -262,7 +267,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDesc
 
   if (const char* path = std::getenv("VTK_WEBGPU_SHADER_DUMP_PREFIX"))
   {
-    const std::string sanitizedLabel = SanitizePipelineLabel(std::string(descriptor->label));
+    const std::string sanitizedLabel = SanitizePipelineLabel(vtkWebGPUStringViewToStdString(
+      reinterpret_cast<wgpu::RenderPipelineDescriptor*>(descriptor)->label));
     std::error_code ec;
     std::filesystem::create_directory(path, ec);
     if (ec)
@@ -308,12 +314,13 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDesc
 
   // set shader module
   auto* pipelineDescriptorVtk =
-    static_cast<vtkWebGPURenderPipelineDescriptorInternals*>(descriptor);
+    reinterpret_cast<vtkWebGPURenderPipelineDescriptorInternals*>(descriptor);
   pipelineDescriptorVtk->vertex.module = vertexShaderModule;
   pipelineDescriptorVtk->cFragment.module = fragmentShaderModule;
 
   // create pipeline
-  auto pipeline = wgpuRenderWindow->GetDevice().CreateRenderPipeline(pipelineDescriptorVtk);
+  auto pipeline =
+    wgpu::Device(wgpuRenderWindow->GetDevice()).CreateRenderPipeline(pipelineDescriptorVtk);
   const std::string pipelineHash =
     this->GetPipelineKey(descriptor, vertexShaderSource, fragmentShaderSource);
   this->Internals->PipelineCache[pipelineHash] = pipeline;
