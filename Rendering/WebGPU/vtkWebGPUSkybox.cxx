@@ -264,22 +264,25 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
         wgpu::TextureViewDimension::e2D, false });
   }
   this->BindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-    device, skyboxBGLEntries, "SkyboxBindGroupLayout");
+    device, skyboxBGLEntries, "SkyboxBindGroupLayout")
+                            .Get();
 
   // Group 1: inverse MCDC matrix
   std::vector<wgpu::BindGroupLayoutEntry> matrixBGLEntries;
   matrixBGLEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
     0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform });
   this->MatrixBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-    device, matrixBGLEntries, "SkyboxMatrixBindGroupLayout");
+    device, matrixBGLEntries, "SkyboxMatrixBindGroupLayout")
+                                  .Get();
 
   // Pipeline layout
-  wgpu::BindGroupLayout layouts[2] = { this->BindGroupLayout, this->MatrixBindGroupLayout };
+  wgpu::BindGroupLayout layouts[2] = { wgpu::BindGroupLayout(this->BindGroupLayout),
+    wgpu::BindGroupLayout(this->MatrixBindGroupLayout) };
   wgpu::PipelineLayoutDescriptor pipelineLayoutDescriptor;
   pipelineLayoutDescriptor.bindGroupLayoutCount = 2;
   pipelineLayoutDescriptor.bindGroupLayouts = layouts;
   pipelineLayoutDescriptor.label = "SkyboxPipelineLayout";
-  auto pipelineLayout = device.CreatePipelineLayout(&pipelineLayoutDescriptor);
+  auto pipelineLayout = wgpu::Device(device).CreatePipelineLayout(&pipelineLayoutDescriptor);
 
   std::string shaderSource = this->BuildShaderSource();
 
@@ -288,13 +291,16 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   pipelineDescriptor.vertex.entryPoint = "vertexMain";
   pipelineDescriptor.vertex.bufferCount = 0;
   pipelineDescriptor.cFragment.entryPoint = "fragmentMain";
-  pipelineDescriptor.cTargets[0].format = renWin->GetPreferredSurfaceTextureFormat();
+  pipelineDescriptor.cTargets[0].format =
+    wgpu::TextureFormat(renWin->GetPreferredSurfaceTextureFormat());
   // Prepare selection ids output.
-  pipelineDescriptor.cTargets[1].format = renWin->GetPreferredSelectorIdsTextureFormat();
+  pipelineDescriptor.cTargets[1].format =
+    wgpu::TextureFormat(renWin->GetPreferredSelectorIdsTextureFormat());
   pipelineDescriptor.cFragment.targetCount++;
   pipelineDescriptor.DisableBlending(1);
 
-  auto depthState = pipelineDescriptor.EnableDepthStencil(renWin->GetDepthStencilFormat());
+  auto depthState =
+    pipelineDescriptor.EnableDepthStencil(wgpu::TextureFormat(renWin->GetDepthStencilFormat()));
   depthState->depthWriteEnabled = false;
   depthState->depthCompare = wgpu::CompareFunction::LessEqual;
 
@@ -311,8 +317,11 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
     blendState->alpha.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
   }
 
-  this->PipelineKey = wgpuPipelineCache->GetPipelineKey(&pipelineDescriptor, shaderSource.c_str());
-  wgpuPipelineCache->CreateRenderPipeline(&pipelineDescriptor, renWin, shaderSource.c_str());
+  this->PipelineKey = wgpuPipelineCache->GetPipelineKey(
+    reinterpret_cast<WGPURenderPipelineDescriptor*>(&pipelineDescriptor), shaderSource.c_str());
+  wgpuPipelineCache->CreateRenderPipeline(
+    reinterpret_cast<WGPURenderPipelineDescriptor*>(&pipelineDescriptor), renWin,
+    shaderSource.c_str());
   this->Pipeline = wgpuPipelineCache->GetRenderPipeline(this->PipelineKey);
 
   this->LastProjection = this->Projection;
@@ -329,10 +338,11 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
   this->UniformBuffer = wgpuConfiguration->CreateBuffer(uniformSize,
     wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, "SkyboxUniformBuffer");
 
-  std::vector<wgpu::BindGroupEntry> bgEntries;
+  std::vector<WGPUBindGroupEntry> bgEntries;
   auto uniformBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0,
-    this->UniformBuffer, 0, uniformSize };
-  bgEntries.emplace_back(uniformBinding.GetAsBinding());
+    wgpu::Buffer(this->UniformBuffer), 0, uniformSize };
+  auto uniformEntry = uniformBinding.GetAsBinding();
+  bgEntries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&uniformEntry));
 
   if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
   {
@@ -349,12 +359,14 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
   // Create matrix buffer and bind group for group 1
   const auto matrixBufferSize = vtkWebGPUConfiguration::Align(16 * sizeof(float), 16);
   this->MatrixBuffer = wgpuConfiguration->CreateBuffer(matrixBufferSize,
-    wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, "SkyboxMatrixBuffer");
+    static_cast<WGPUBufferUsage>(wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst), false,
+    "SkyboxMatrixBuffer");
 
-  std::vector<wgpu::BindGroupEntry> matBGEntries;
-  auto matBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0, this->MatrixBuffer,
-    0, matrixBufferSize };
-  matBGEntries.emplace_back(matBinding.GetAsBinding());
+  std::vector<WGPUBindGroupEntry> matBGEntries;
+  auto matBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0,
+    wgpu::Buffer(this->MatrixBuffer), 0, matrixBufferSize };
+  auto matEntry = matBinding.GetAsBinding();
+  matBGEntries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&matEntry));
   this->MatrixBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
     device, this->MatrixBindGroupLayout, matBGEntries, "SkyboxMatrixBindGroup");
 }
@@ -502,14 +514,14 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
       return;
     }
 
-    auto renderPassEncoder = wgpuRen->GetRenderPassEncoder();
-    renderPassEncoder.SetPipeline(this->Pipeline);
-    renderPassEncoder.SetBindGroup(0, this->BindGroup);
-    renderPassEncoder.SetBindGroup(1, this->MatrixBindGroup);
+    wgpu::RenderPassEncoder renderPassEncoder(wgpuRen->GetRenderPassEncoder());
+    renderPassEncoder.SetPipeline(wgpu::RenderPipeline(this->Pipeline));
+    renderPassEncoder.SetBindGroup(0, wgpu::BindGroup(this->BindGroup));
+    renderPassEncoder.SetBindGroup(1, wgpu::BindGroup(this->MatrixBindGroup));
     renderPassEncoder.Draw(4);
     // Restore the scene bind group (Bind Group 0) so subsequent actors find the correct layout.
     // Bind Group 1 is managed per-draw-call by actors/mappers and doesn't require restoration.
-    renderPassEncoder.SetBindGroup(0, wgpuRen->GetSceneBindGroup());
+    renderPassEncoder.SetBindGroup(0, wgpu::BindGroup(wgpuRen->GetSceneBindGroup()));
   }
 }
 
