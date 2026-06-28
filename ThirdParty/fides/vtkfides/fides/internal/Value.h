@@ -21,11 +21,17 @@ namespace datamodel
 struct ValueBase : public DataModelBase
 {
   /// Reads and returns raw arrays. Has to be implemented
-  /// by subclasses.
+  /// by subclasses. The \c mode parameter is forwarded to
+  /// \c DataSource::ReadVariable by subclasses that go through the data
+  /// source (currently only \c ValueArrayVariable); others ignore it.
+  /// Defaults to \c Deferred to match the \c DataSource convention, but
+  /// callers that dereference the returned \c RawArray inline (before
+  /// the next \c EndStep() / \c PerformGets() flush) must pass \c Sync.
   virtual std::vector<fides::RawArray> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
-    const fides::metadata::MetaData& selections) = 0;
+    const fides::metadata::MetaData& selections,
+    fides::io::ReadMode mode = fides::io::ReadMode::Deferred) = 0;
 
   virtual size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
                                    DataSourcesType& sources,
@@ -53,14 +59,14 @@ struct Value : public DataModelBase
   /// Overridden to handle Value specific items.
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
-  /// Reads and returns values as RawArrays.
-  /// This method should not depend on DataSource::ReadVariable
-  /// as actual IO for the variable is done after this method is
-  /// called whereas the return value of this method is used
-  /// immediately.
+  /// Reads and returns values as RawArrays. The \c mode parameter is
+  /// forwarded to the underlying \c ValueBase implementation; callers
+  /// that dereference the returned \c RawArray inline (before the next
+  /// \c EndStep() / \c PerformGets() flush) must pass \c Sync.
   std::vector<fides::RawArray> Read(const std::unordered_map<std::string, std::string>& paths,
                                     DataSourcesType& sources,
-                                    const fides::metadata::MetaData& selections);
+                                    const fides::metadata::MetaData& selections,
+                                    fides::io::ReadMode mode = fides::io::ReadMode::Deferred);
 
   /// Returns the number of blocks in the underlying variable inside the group (if any).
   /// Used by the reader to provide meta-data on blocks.
@@ -89,10 +95,14 @@ struct ValueVariableDimensions : public ValueBase
 
   /// Reads the dimensions (shape) as well as the
   /// start of an n-dimensional variable. The first n values are the dimensions
-  /// and the following are the start indices.
-  std::vector<fides::RawArray> Read(const std::unordered_map<std::string, std::string>& paths,
-                                    DataSourcesType& sources,
-                                    const fides::metadata::MetaData& selections) override;
+  /// and the following are the start indices. The \c mode parameter is
+  /// ignored (this path goes through \c GetVariableDimensions, not
+  /// \c ReadVariable).
+  std::vector<fides::RawArray> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections,
+    fides::io::ReadMode mode = fides::io::ReadMode::Deferred) override;
 
   /// Returns the number of blocks in the underlying variable inside the group
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
@@ -115,9 +125,11 @@ private:
 /// used for the metadata describing uniform grids.
 struct ValueArrayVariable : public ValueBase
 {
-  std::vector<fides::RawArray> Read(const std::unordered_map<std::string, std::string>& paths,
-                                    DataSourcesType& sources,
-                                    const fides::metadata::MetaData& selections) override;
+  std::vector<fides::RawArray> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections,
+    fides::io::ReadMode mode = fides::io::ReadMode::Deferred) override;
 
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
                            DataSourcesType& sources,
@@ -154,10 +166,13 @@ struct ValueArray : public ValueBase
   /// Overridden to parse the value array.
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
-  /// Returns array values read from json.
-  std::vector<fides::RawArray> Read(const std::unordered_map<std::string, std::string>& paths,
-                                    DataSourcesType& sources,
-                                    const fides::metadata::MetaData& selections) override;
+  /// Returns array values read from json. The \c mode parameter is
+  /// ignored (values come from JSON, not a data source).
+  std::vector<fides::RawArray> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections,
+    fides::io::ReadMode mode = fides::io::ReadMode::Deferred) override;
 
   std::vector<double> Values;
 };
@@ -179,10 +194,13 @@ struct ValueScalar : public ValueBase
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
                                       DataSourcesType&) override;
 
-  /// Reads the variable
-  std::vector<fides::RawArray> Read(const std::unordered_map<std::string, std::string>& paths,
-                                    DataSourcesType& sources,
-                                    const fides::metadata::MetaData& selections) override;
+  /// Reads the variable. The \c mode parameter is ignored
+  /// (\c GetScalarVariable is always synchronous internally).
+  std::vector<fides::RawArray> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections,
+    fides::io::ReadMode mode = fides::io::ReadMode::Deferred) override;
 };
 
 }

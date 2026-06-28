@@ -15,6 +15,7 @@
 
 #include <vtkDataObject.h>
 #include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkSmartPointer.h>
 
 #include <unordered_map>
@@ -48,10 +49,21 @@ public:
 
   // --- VTK-specific accessors ---
 
-  /// Assembles and returns the final vtkPartitionedDataSet from added partitions.
+  /// Assembles and returns the final vtkPartitionedDataSet from the
+  /// default (single) item's partitions.
   vtkSmartPointer<vtkPartitionedDataSet> GetResult();
 
+  /// Assembles a vtkPartitionedDataSetCollection — one vtkPartitionedDataSet
+  /// per collection item — with a vtkDataAssembly carrying a synthesized
+  /// "names" subtree plus any schema-declared assembly subtrees.
+  vtkSmartPointer<vtkPartitionedDataSetCollection> GetResultCollection();
+
 private:
+  /// Build one vtkPartitionedDataSet from a list of partition (dataset)
+  /// tokens.
+  vtkSmartPointer<vtkPartitionedDataSet> BuildPartitionedDataSet(
+    const std::vector<size_t>& partitionTokens);
+
   // --- Built during Finalize ---
   // Holds vtkDataObject (not vtkDataSet) so cell grids — which derive from
   // vtkDataObject directly, peer to vtkDataSet — can sit alongside the

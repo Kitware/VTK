@@ -172,9 +172,66 @@ void OutputBuilder::AddField(size_t dsToken,
   this->DeferredFields.push_back({ dsToken, name, assoc, arrayToken });
 }
 
+OutputBuilder::ItemEntry& OutputBuilder::CurrentItem()
+{
+  if (this->Items.empty())
+  {
+    this->Items.push_back(ItemEntry{});
+  }
+  return this->Items.back();
+}
+
+const std::vector<size_t>& OutputBuilder::LegacyPartitionTokens() const
+{
+  static const std::vector<size_t> empty;
+  return this->Items.empty() ? empty : this->Items.front().Partitions;
+}
+
 void OutputBuilder::AddPartition(size_t dsToken)
 {
-  this->PartitionTokens.push_back(dsToken);
+  this->CurrentItem().Partitions.push_back(dsToken);
+}
+
+size_t OutputBuilder::CreateItem(const std::string& name)
+{
+  this->Items.push_back(ItemEntry{ name, {} });
+  return this->Items.size() - 1;
+}
+
+void OutputBuilder::SetAssembly(const AssemblyNode& root)
+{
+  this->AssemblyTree = root;
+  this->HasAssemblyTree = true;
+}
+
+size_t OutputBuilder::GetNumberOfItems() const
+{
+  return this->Items.size();
+}
+
+const std::string& OutputBuilder::GetItemName(size_t i) const
+{
+  return this->Items.at(i).Name;
+}
+
+const std::vector<size_t>& OutputBuilder::GetItemPartitions(size_t i) const
+{
+  return this->Items.at(i).Partitions;
+}
+
+bool OutputBuilder::IsMultiItem() const
+{
+  return this->Items.size() > 1 || (this->Items.size() == 1 && !this->Items.front().Name.empty());
+}
+
+bool OutputBuilder::HasAssembly() const
+{
+  return this->HasAssemblyTree;
+}
+
+const OutputBuilder::AssemblyNode& OutputBuilder::GetAssembly() const
+{
+  return this->AssemblyTree;
 }
 
 size_t OutputBuilder::CreateCellGrid()
@@ -302,7 +359,9 @@ void OutputBuilder::Reset()
   this->DeferredFields.clear();
   this->DataSetTokens.clear();
   this->DataSetTokenMap.clear();
-  this->PartitionTokens.clear();
+  this->Items.clear();
+  this->HasAssemblyTree = false;
+  this->AssemblyTree = AssemblyNode{};
   this->StoredCellGrids.clear();
   this->StoredCellAttributes.clear();
 }

@@ -184,6 +184,18 @@ public:
   /// Get all available group names.
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths);
 
+  /// Unified item-name enumeration for both schema shapes. For a
+  /// multi-dataset (`datasets[]`) schema returns the schema-declared
+  /// names in declaration order; \c paths is ignored. For a
+  /// single-dataset schema read against a multi-group `.bp`, opens the
+  /// step source and returns the discovered ADIOS variable groups in
+  /// sorted order. With an empty \c paths and a single-dataset schema,
+  /// no source can be opened so the result is empty (legacy behaviour).
+  /// The returned names are exactly the keys consumed by
+  /// `DATASET_SELECTION`.
+  std::vector<std::string> GetDataSetNames(
+    const std::unordered_map<std::string, std::string>& paths = {});
+
   /// Closes all open DataSources.
   void Close();
 

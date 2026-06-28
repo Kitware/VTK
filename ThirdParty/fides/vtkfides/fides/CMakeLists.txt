@@ -182,7 +182,7 @@ endif()
 
 # Backend specific settings
 if(FIDES_USE_VISKORES)
-  target_link_libraries(fides PRIVATE viskores::cont viskores::filter_clean_grid)
+  target_link_libraries(fides PRIVATE viskores::cont viskores::filter_clean_grid viskores::worklet)
 
   viskores_add_target_information(fides
     DROP_UNUSED_SYMBOLS
@@ -198,8 +198,14 @@ if(FIDES_USE_VISKORES)
 endif()
 
 if(FIDES_USE_VTK)
-  target_link_libraries(fides PRIVATE VTK::CommonCore VTK::CommonDataModel
-    VTK::FiltersCellGrid VTK::IOCellGrid)
+  target_link_libraries(fides
+    PUBLIC
+      VTK::CommonCore
+    PRIVATE
+      VTK::CommonDataModel
+      VTK::FiltersCellGrid
+      VTK::IOCellGrid
+  )
 endif()
 else()
   if (ADIOS_DEFS)

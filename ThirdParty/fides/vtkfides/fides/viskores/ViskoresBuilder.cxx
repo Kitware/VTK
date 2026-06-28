@@ -243,7 +243,7 @@ std::vector<viskores::cont::DataSet>& ViskoresBuilder::GetDataSets()
 viskores::cont::PartitionedDataSet ViskoresBuilder::GetResult()
 {
   std::vector<viskores::cont::DataSet> partitions;
-  for (auto token : this->PartitionTokens)
+  for (auto token : this->LegacyPartitionTokens())
   {
     auto it = this->DataSetTokenMap.find(token);
     if (it != this->DataSetTokenMap.end())
@@ -252,6 +252,27 @@ viskores::cont::PartitionedDataSet ViskoresBuilder::GetResult()
     }
   }
   return viskores::cont::PartitionedDataSet(partitions);
+}
+
+std::vector<viskores::cont::PartitionedDataSet> ViskoresBuilder::GetResultCollection()
+{
+  std::vector<viskores::cont::PartitionedDataSet> result;
+  const size_t nItems = this->GetNumberOfItems();
+  result.reserve(nItems);
+  for (size_t i = 0; i < nItems; ++i)
+  {
+    std::vector<viskores::cont::DataSet> partitions;
+    for (auto token : this->GetItemPartitions(i))
+    {
+      auto it = this->DataSetTokenMap.find(token);
+      if (it != this->DataSetTokenMap.end())
+      {
+        partitions.push_back(this->DataSetsVec[it->second]);
+      }
+    }
+    result.emplace_back(partitions);
+  }
+  return result;
 }
 
 } // namespace fides

@@ -119,8 +119,48 @@ public:
                         FieldAssociation assoc,
                         size_t arrayToken);
 
-  /// Add a dataset as a partition to the output.
+  /// Add a dataset as a partition to the output. The partition attaches
+  /// to the current collection item (an implicit unnamed item[0] if
+  /// \c CreateItem was never called — the legacy single-PartitionedDataSet
+  /// output).
   virtual void AddPartition(size_t dataSetToken);
+
+  // --- Collection (multi-item / PartitionedDataSetCollection) ---
+
+  /// One node of an assembly (vtkDataAssembly) tree. \c Datasets holds
+  /// leaf references to collection items by name. Multiple children of
+  /// the root are independent hierarchies over the same item set.
+  struct AssemblyNode
+  {
+    std::string Name;
+    std::vector<AssemblyNode> Children;
+    std::vector<std::string> Datasets;
+  };
+
+  /// Begin a new named collection item. Subsequent \c AddPartition() calls
+  /// attach to this item. Returns the item index. A builder with no
+  /// \c CreateItem call produces a single implicit unnamed item, i.e. the
+  /// legacy single-PartitionedDataSet output (byte-identical).
+  virtual size_t CreateItem(const std::string& name = std::string());
+
+  /// Set the collection's assembly tree (name-referenced).
+  virtual void SetAssembly(const AssemblyNode& root);
+
+  // --- Collection queries (used by materializers / adapters) ---
+
+  /// Number of collection items currently built.
+  size_t GetNumberOfItems() const;
+  /// Name of item \c i (empty for the implicit/unnamed item).
+  const std::string& GetItemName(size_t i) const;
+  /// Partition tokens of item \c i.
+  const std::vector<size_t>& GetItemPartitions(size_t i) const;
+  /// True when the output is a collection: more than one item, or one
+  /// item carrying a non-empty name.
+  bool IsMultiItem() const;
+  /// Whether an assembly tree was set.
+  bool HasAssembly() const;
+  /// The assembly tree (default-constructed when none was set).
+  const AssemblyNode& GetAssembly() const;
 
   // --- CellGrid (vtkCellGrid / DG finite element) creation ---
 
@@ -288,7 +328,27 @@ protected:
   std::vector<DeferredField> DeferredFields;
 
   std::vector<size_t> DataSetTokens; // ordered list of dataset tokens
-  std::vector<size_t> PartitionTokens;
+
+  // --- Collection storage ---
+  // Partitions are grouped into named items. A single implicit unnamed
+  // item holds everything in the legacy single-PartitionedDataSet case.
+  struct ItemEntry
+  {
+    std::string Name;
+    std::vector<size_t> Partitions;
+  };
+  std::vector<ItemEntry> Items;
+  bool HasAssemblyTree = false;
+  AssemblyNode AssemblyTree;
+
+  /// The current item partitions are appended to; creates an implicit
+  /// unnamed item[0] on first use.
+  ItemEntry& CurrentItem();
+
+  /// Partition tokens of the first/default item — the legacy
+  /// single-PartitionedDataSet view consumed by backend GetResult().
+  /// Empty when nothing was added.
+  const std::vector<size_t>& LegacyPartitionTokens() const;
 
   std::unordered_map<size_t, size_t> DataSetTokenMap; // token -> index in DataSetsVec
 

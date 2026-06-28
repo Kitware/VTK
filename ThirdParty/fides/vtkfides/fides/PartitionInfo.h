@@ -264,6 +264,25 @@ struct FIDES_EXPORT CellGridPartitionInfo
   std::vector<Attribute> Attributes;
 };
 
+/// One assembly (vtkDataAssembly) tree node for a multi-dataset write.
+/// \c Datasets references collection items by name. Mirrors the read-side
+/// OutputBuilder::AssemblyNode; kept separate so the writer stays
+/// independent of the read IR.
+struct FIDES_EXPORT AssemblyNode
+{
+  std::string Name;
+  std::vector<AssemblyNode> Children;
+  std::vector<std::string> Datasets;
+};
+
+/// One named item of a multi-dataset (PDC) write: the item name (which
+/// becomes the ADIOS variable group prefix) and its partitions.
+struct FIDES_EXPORT CollectionItem
+{
+  std::string Name;
+  std::vector<PartitionInfo> Partitions;
+};
+
 } // namespace fides
 
 #endif // fides_PartitionInfo_H_

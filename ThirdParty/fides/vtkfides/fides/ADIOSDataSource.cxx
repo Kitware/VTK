@@ -34,6 +34,11 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
 
 namespace
 {
+inline adios2::Mode ToAdiosMode(fides::io::ReadMode mode)
+{
+  return mode == fides::io::ReadMode::Sync ? adios2::Mode::Sync : adios2::Mode::Deferred;
+}
+
 std::vector<std::string> SplitString(const std::string& input, char sep)
 {
   std::vector<std::string> result;
@@ -449,6 +454,7 @@ fides::RawArray ReadVariableInternal(std::shared_ptr<adios2::Engine> reader,
                                      size_t blockId,
                                      EngineType engineType,
                                      size_t step,
+                                     adios2::Mode mode,
                                      IsVector isit = IsVector::Auto,
                                      bool createSharedPoints = false)
 {
@@ -509,12 +515,11 @@ fides::RawArray ReadVariableInternal(std::shared_ptr<adios2::Engine> reader,
   }
   else
   {
-    // Allocate our own buffer and read synchronously.
-    // Sync mode is used because deferred reads (followed by PerformGets)
-    // can fail to fill buffers for certain BP5 ReadRandomAccess configurations.
+    // Allocate our own buffer; mode is set by the caller (Deferred by
+    // default, Sync only when the caller needs the data immediately).
     auto raw = fides::AllocateRawArray<VariableType>(numValues, numComponents);
     VariableType* buffer = raw.template GetWritePointer<VariableType>();
-    reader->Get(varADIOS2, buffer, adios2::Mode::Sync);
+    reader->Get(varADIOS2, buffer, mode);
     return raw;
   }
 }
@@ -524,7 +529,8 @@ template <typename VariableType>
 fides::RawArray ReadMultiBlockVariableInternal(std::shared_ptr<adios2::Engine> reader,
                                                adios2::Variable<VariableType>& varADIOS2,
                                                std::vector<size_t> blocks,
-                                               size_t step)
+                                               size_t step,
+                                               adios2::Mode mode)
 {
   auto blocksInfo = reader->BlocksInfo(varADIOS2, step);
   size_t bufSize = 0;
@@ -551,7 +557,7 @@ fides::RawArray ReadMultiBlockVariableInternal(std::shared_ptr<adios2::Engine> r
       buffer += size;
     }
     varADIOS2.SetBlockSelection(blockId);
-    reader->Get(varADIOS2, buffer, adios2::Mode::Sync);
+    reader->Get(varADIOS2, buffer, mode);
   }
 
   return raw;
@@ -582,6 +588,7 @@ std::vector<fides::RawArray> ReadVariableBlocksInternal(adios2::IO& adiosIO,
                                                         const std::string& varName,
                                                         const fides::metadata::MetaData& selections,
                                                         EngineType engineType,
+                                                        adios2::Mode mode,
                                                         IsVector isit = IsVector::Auto,
                                                         bool isMultiBlock = false,
                                                         bool createSharedPoints = false)
@@ -634,8 +641,8 @@ std::vector<fides::RawArray> ReadVariableBlocksInternal(adios2::IO& adiosIO,
         "contiguous array");
     }
     arrays.reserve(1);
-    arrays.push_back(
-      ReadMultiBlockVariableInternal<VariableType>(reader, varADIOS2, blocksToReallyRead, step));
+    arrays.push_back(ReadMultiBlockVariableInternal<VariableType>(
+      reader, varADIOS2, blocksToReallyRead, step, mode));
   }
   else
   {
@@ -643,7 +650,7 @@ std::vector<fides::RawArray> ReadVariableBlocksInternal(adios2::IO& adiosIO,
     for (auto blockId : blocksToReallyRead)
     {
       arrays.push_back(ReadVariableInternal<VariableType>(
-        reader, varADIOS2, blockId, engineType, step, isit, createSharedPoints));
+        reader, varADIOS2, blockId, engineType, step, mode, isit, createSharedPoints));
     }
   }
 
@@ -972,7 +979,8 @@ std::vector<fides::RawArray> ADIOSDataSource::GetTimeArray(
 std::vector<fides::RawArray> ADIOSDataSource::ReadVariable(
   const std::string& varName,
   const fides::metadata::MetaData& selections,
-  IsVector isit)
+  IsVector isit,
+  ReadMode mode)
 {
   if (!this->Reader)
   {
@@ -999,11 +1007,14 @@ std::vector<fides::RawArray> ADIOSDataSource::ReadVariable(
     this->CreateSharedPoints = false;
   }
 
+  const adios2::Mode adiosMode = ToAdiosMode(mode);
+
   fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(this->AdiosIO,
                                                           this->Reader,
                                                           itr->first,
                                                           selections,
                                                           this->AdiosEngineType,
+                                                          adiosMode,
                                                           isit,
                                                           false,
                                                           this->CreateSharedPoints));
@@ -1013,7 +1024,8 @@ std::vector<fides::RawArray> ADIOSDataSource::ReadVariable(
 
 std::vector<fides::RawArray> ADIOSDataSource::ReadMultiBlockVariable(
   const std::string& varName,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  ReadMode mode)
 {
   if (!this->Reader)
   {
@@ -1032,11 +1044,14 @@ std::vector<fides::RawArray> ADIOSDataSource::ReadMultiBlockVariable(
     throw std::runtime_error("Variable type unavailable.");
   }
 
+  const adios2::Mode adiosMode = ToAdiosMode(mode);
+
   fidesTemplateMacro(ReadVariableBlocksInternal<fides_TT>(this->AdiosIO,
                                                           this->Reader,
                                                           itr->first,
                                                           selections,
                                                           this->AdiosEngineType,
+                                                          adiosMode,
                                                           IsVector::No,
                                                           true));
 
