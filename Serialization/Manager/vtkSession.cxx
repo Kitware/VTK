@@ -206,7 +206,11 @@ extern "C"
   //-------------------------------------------------------------------------------
   uint8_t* vtkSessionGetBlob(vtkSession session, const char* hash, size_t* length)
   {
-    auto blobArray = session->Manager->GetBlob(hash);
+    // Use copy=false so the returned pointer references the blob storage owned
+    // by the manager's marshal context, which outlives this call. With copy=true
+    // the data would be owned solely by the local smart pointer and freed on
+    // return, leaving the caller with a dangling pointer.
+    auto blobArray = session->Manager->GetBlob(hash, /*copy=*/false);
     *length = static_cast<std::size_t>(blobArray->GetNumberOfValues());
     return blobArray->GetPointer(0);
   }
