@@ -821,7 +821,7 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(const WGPUBufferDescriptor& buff
   wgpuDesc.usage = static_cast<wgpu::BufferUsage>(bufferDescriptor.usage);
   wgpuDesc.mappedAtCreation = bufferDescriptor.mappedAtCreation;
   wgpu::Buffer buffer = internals.Device.CreateBuffer(&wgpuDesc);
-  return buffer.Get();
+  return buffer.MoveToCHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -888,7 +888,7 @@ WGPUTexture vtkWebGPUConfiguration::CreateTexture(const WGPUTextureDescriptor& t
     const_cast<WGPUTextureFormat*>(textureDescriptor.viewFormats));
   wgpuDesc.label = textureDescriptor.label;
   wgpu::Texture texture = internals.Device.CreateTexture(&wgpuDesc);
-  return texture.Get();
+  return texture.MoveToCHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -933,7 +933,7 @@ WGPUTextureView vtkWebGPUConfiguration::CreateView(
   wgpuDesc.mipLevelCount = viewDescriptor.mipLevelCount;
   wgpuDesc.nextInChain = reinterpret_cast<const wgpu::ChainedStruct*>(viewDescriptor.nextInChain);
   wgpu::TextureView view = wrappedTexture.CreateView(&wgpuDesc);
-  return view.Get();
+  return view.MoveToCHandle();
 }
 
 //------------------------------------------------------------------------------

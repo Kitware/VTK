@@ -409,7 +409,7 @@ WGPURenderPassEncoder vtkWebGPURenderWindow::NewRenderPass(WGPURenderPassDescrip
   {
     return wgpu::CommandEncoder(this->CommandEncoder)
       .BeginRenderPass(reinterpret_cast<wgpu::RenderPassDescriptor*>(&descriptor))
-      .Get();
+      .MoveToCHandle();
   }
   else
   {
@@ -428,7 +428,7 @@ WGPURenderBundleEncoder vtkWebGPURenderWindow::NewRenderBundleEncoder(
     return wgpu::Device(device)
       .CreateRenderBundleEncoder(
         reinterpret_cast<wgpu::RenderBundleEncoderDescriptor*>(&descriptor))
-      .Get();
+      .MoveToCHandle();
   }
   else
   {
@@ -561,7 +561,7 @@ void vtkWebGPURenderWindow::CreateCommandEncoder()
   encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";
   if (auto device = this->WGPUConfiguration->GetDevice())
   {
-    this->CommandEncoder = wgpu::Device(device).CreateCommandEncoder(&encDesc).Get();
+    this->CommandEncoder = wgpu::Device(device).CreateCommandEncoder(&encDesc).MoveToCHandle();
   }
   else
   {
@@ -882,7 +882,7 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
       // clang-format on
     },
     std::string("ColorCopy-") + this->GetObjectDescription())
-                                              .Get();
+                                              .MoveToCHandle();
 
   const char* shaderSource = R"(
     struct VertexOutput {
@@ -1423,11 +1423,14 @@ void vtkWebGPURenderWindow::Frame()
   this->Superclass::Frame();
 
   wgpu::CommandBufferDescriptor cmdBufDesc = {};
-  WGPUCommandBuffer cmdBuffer = nullptr;
   // Flushing the commands for the props to be rendered
   if (this->CommandEncoder != nullptr)
   {
-    cmdBuffer = wgpu::CommandEncoder(this->CommandEncoder).Finish(&cmdBufDesc).Get();
+    // Keep the C++ wrapper alive for the duration of the flush so the command buffer is not
+    // released before it is submitted.
+    wgpu::CommandBuffer cmdBufferWrapper =
+      wgpu::CommandEncoder(this->CommandEncoder).Finish(&cmdBufDesc);
+    WGPUCommandBuffer cmdBuffer = cmdBufferWrapper.Get();
 
     this->CommandEncoder = nullptr;
     this->FlushCommandBuffers(1, &cmdBuffer);
@@ -1441,7 +1444,9 @@ void vtkWebGPURenderWindow::Frame()
   this->RenderOffscreenTexture();
 
   // Flushing the FSQ render pass
-  cmdBuffer = wgpu::CommandEncoder(this->CommandEncoder).Finish(&cmdBufDesc).Get();
+  wgpu::CommandBuffer fsqCmdBufferWrapper =
+    wgpu::CommandEncoder(this->CommandEncoder).Finish(&cmdBufDesc);
+  WGPUCommandBuffer cmdBuffer = fsqCmdBufferWrapper.Get();
 
   this->CommandEncoder = nullptr;
   this->FlushCommandBuffers(1, &cmdBuffer);

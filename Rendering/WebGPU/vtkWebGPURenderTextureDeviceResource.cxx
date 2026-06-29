@@ -270,7 +270,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   this->Sampler =
     wgpu::Device(wgpuConfiguration->GetDevice())
       .CreateSampler(reinterpret_cast<wgpu::SamplerDescriptor*>(&this->SamplerDescriptor))
-      .Get();
+      .MoveToCHandle();
   this->TextureViewDescriptor = {};
   if (cubeMap)
   {
@@ -281,7 +281,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   this->TextureView =
     wgpu::Texture(this->Texture)
       .CreateView(reinterpret_cast<wgpu::TextureViewDescriptor*>(&this->TextureViewDescriptor))
-      .Get();
+      .MoveToCHandle();
   this->Modified();
 }
 

@@ -443,7 +443,7 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
   internals.ActorBuffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(bufferSize,
-    static_cast<WGPUBufferUsage>(wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst), false,
+    static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
     bufferLabel.c_str()));
 
   std::uint32_t bindingIdBGL = 0;

@@ -83,7 +83,7 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
   if (!this->LabelUniformBuffer)
   {
     this->LabelUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(LabelUniforms2D),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
+      WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst,
       /*mappedAtCreation=*/false, "LabelUniforms2D");
     this->RebuildGraphicsPipelines = true;
   }
@@ -98,8 +98,8 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
     samplerDesc.addressModeV = wgpu::AddressMode::ClampToEdge;
     wgpu::Device device(wgpuConfiguration->GetDevice());
     wgpu::Sampler tempSampler = device.CreateSampler(&samplerDesc);
-    // Convert from wgpu::Sampler to WGPUSampler using the implicit conversion
-    this->GlyphsSampler = tempSampler.Get();
+    // Transfer ownership of the sampler handle to the raw WGPUSampler member.
+    this->GlyphsSampler = tempSampler.MoveToCHandle();
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);

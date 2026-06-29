@@ -172,7 +172,8 @@ void vtkWebGPURenderer::CreateBuffers()
   {
     const std::string label = "SceneTransforms-" + this->GetObjectDescription();
     this->SceneTransformBuffer = wgpuConfiguration->CreateBuffer(transformSizePadded,
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
     createSceneBindGroup = true;
   }
 
@@ -195,7 +196,8 @@ void vtkWebGPURenderer::CreateBuffers()
   {
     const std::string label = "LightInformation-" + this->GetObjectDescription();
     this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
-      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
     this->AllocatedLightsBufferSize = lightSizePadded;
   }
 
@@ -969,7 +971,7 @@ WGPUCommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(vtkProp** propL
   renderWindow->CreateCommandEncoder();
 
   this->DrawBackgroundInClearPass = false;
-  return commandBuffer.Get();
+  return commandBuffer.MoveToCHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -1034,7 +1036,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
         // clang-format on
       });
     layout.SetLabel("SceneBindGroupLayout");
-    this->SceneBindGroupLayout = layout.Get();
+    this->SceneBindGroupLayout = layout.MoveToCHandle();
   }
 }
 
@@ -1072,7 +1074,7 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
 
-  this->SceneBindGroup = device.CreateBindGroup(&descriptor).Get();
+  this->SceneBindGroup = device.CreateBindGroup(&descriptor).MoveToCHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -1085,7 +1087,7 @@ void vtkWebGPURenderer::EndRecording()
   {
     if (this->WGPUBundleEncoder)
     {
-      this->Bundle = wgpu::RenderBundleEncoder(this->WGPUBundleEncoder).Finish().Get();
+      this->Bundle = wgpu::RenderBundleEncoder(this->WGPUBundleEncoder).Finish().MoveToCHandle();
     }
     if (this->Bundle != nullptr)
     {

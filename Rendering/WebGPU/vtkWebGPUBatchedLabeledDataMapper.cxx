@@ -117,8 +117,7 @@ void vtkWebGPUBatchedLabeledDataMapper::RenderOpaqueGeometry(
       { static_cast<uint32_t>(dims[0]), static_cast<uint32_t>(dims[1]), 1 },
       static_cast<WGPUTextureDimension>(wgpu::TextureDimension::e2D),
       static_cast<WGPUTextureFormat>(wgpu::TextureFormat::RGBA8Unorm),
-      static_cast<WGPUTextureUsage>(
-        wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst));
+      static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst));
     this->Helper->GlyphsTextureView = wgpuConfiguration->CreateView(this->Helper->GlyphsTexture,
       static_cast<WGPUTextureViewDimension>(wgpu::TextureViewDimension::e2D),
       static_cast<WGPUTextureAspect>(wgpu::TextureAspect::All),

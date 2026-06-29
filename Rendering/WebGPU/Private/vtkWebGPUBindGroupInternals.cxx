@@ -94,6 +94,6 @@ WGPUBindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const WGPUDevice& devic
     wrappedEntries.push_back(*reinterpret_cast<const wgpu::BindGroupEntry*>(&entry));
   }
   auto result = MakeBindGroup(wrappedDevice, wrappedLayout, wrappedEntries, label);
-  return result.Get();
+  return result.MoveToCHandle();
 }
 VTK_ABI_NAMESPACE_END

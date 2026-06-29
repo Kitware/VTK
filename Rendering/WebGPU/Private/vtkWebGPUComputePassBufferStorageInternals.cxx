@@ -239,7 +239,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // (that has the MapRead usage flag) and then map this buffer to the CPU.
   vtkIdType byteSize = this->Buffers[bufferIndex]->GetByteSize();
   wgpu::Buffer mappedBuffer = this->ParentPassWGPUConfiguration->CreateBuffer(
-    byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
+    byteSize, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead, false, nullptr);
 
   // If we were to allocate this callbackData locally on the stack, it would be destroyed when going
   // out of scope (at the end of this function). The callback, called asynchronously would then be

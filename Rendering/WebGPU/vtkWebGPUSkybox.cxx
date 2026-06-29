@@ -265,7 +265,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   }
   this->BindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
     device, skyboxBGLEntries, "SkyboxBindGroupLayout")
-                            .Get();
+                            .MoveToCHandle();
 
   // Group 1: inverse MCDC matrix
   std::vector<wgpu::BindGroupLayoutEntry> matrixBGLEntries;
@@ -273,7 +273,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
     0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform });
   this->MatrixBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
     device, matrixBGLEntries, "SkyboxMatrixBindGroupLayout")
-                                  .Get();
+                                  .MoveToCHandle();
 
   // Pipeline layout
   wgpu::BindGroupLayout layouts[2] = { wgpu::BindGroupLayout(this->BindGroupLayout),
@@ -335,8 +335,8 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
 
   // Create uniform buffer
   const auto uniformSize = vtkWebGPUConfiguration::Align(sizeof(SkyboxUniforms), 16);
-  this->UniformBuffer = wgpuConfiguration->CreateBuffer(uniformSize,
-    wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, "SkyboxUniformBuffer");
+  this->UniformBuffer = wgpuConfiguration->CreateBuffer(
+    uniformSize, WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, "SkyboxUniformBuffer");
 
   std::vector<WGPUBindGroupEntry> bgEntries;
   auto uniformBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0,
@@ -359,7 +359,7 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
   // Create matrix buffer and bind group for group 1
   const auto matrixBufferSize = vtkWebGPUConfiguration::Align(16 * sizeof(float), 16);
   this->MatrixBuffer = wgpuConfiguration->CreateBuffer(matrixBufferSize,
-    static_cast<WGPUBufferUsage>(wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst), false,
+    static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
     "SkyboxMatrixBuffer");
 
   std::vector<WGPUBindGroupEntry> matBGEntries;

@@ -888,12 +888,12 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       cellArray->GetObjectDescription();
     *connectivityBuffer =
       wgpuConfiguration->CreateBuffer(ids->GetDataSize() * ids->GetDataTypeSize(),
-        wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
+        WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, label.c_str());
 
     label = std::string("CellIdOffsetUniform-") + primitiveTypeAsString + "@" +
       cellArray->GetObjectDescription();
     *cellIdOffsetUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(vtkTypeUInt32),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, label.c_str());
 
     vtkWebGPUComputeBufferInternals::UploadFromDataArray(
       wgpuConfiguration, *connectivityBuffer, ids, "Write connectivity");

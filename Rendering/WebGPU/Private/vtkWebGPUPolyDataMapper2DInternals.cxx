@@ -773,8 +773,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     const auto label = "Mapper2DState-" + input->GetObjectDescription();
     this->Mapper2DStateData.Buffer =
       wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
-        static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
-        false, label.c_str()));
+        static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
+        label.c_str()));
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
     const auto& device = wgpuConfiguration->GetDevice();
     recreateMeshBindGroup = true;
@@ -944,8 +944,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       recreateMeshBindGroup = true;
       this->AttributeDescriptorData.Buffer =
         wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
-          static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
-          false, meshAttrDescriptorLabel.c_str()));
+          static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
+          meshAttrDescriptorLabel.c_str()));
       this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
     }
     if (requiredBufferSize != this->MeshData.Size)
@@ -960,8 +960,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       recreateMeshBindGroup = true;
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
       this->MeshData.Buffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(requiredBufferSize,
-        static_cast<WGPUBufferUsage>(wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage),
-        false, label.c_str()));
+        static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
+        label.c_str()));
       this->MeshData.Size = requiredBufferSize;
     }
     using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
