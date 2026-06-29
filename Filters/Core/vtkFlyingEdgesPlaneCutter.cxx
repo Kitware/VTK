@@ -464,7 +464,6 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
-      TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
@@ -483,13 +482,11 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
         }
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
-          for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1] - 1; ++row)
+          for (row = 0; row < this->Algo->Dims[1] - 1; ++row)
           {
             this->Algo->InterpolateCellData(&this->CellArrays, row, slice);
-            rowPtr += this->Algo->Inc1;
           } // for all rows in this slice
         } // if there are triangles (i.e., output cells)
-        slicePtr += this->Algo->Inc2;
         eMD0 = eMD1;
         eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       } // for all slices in this batch

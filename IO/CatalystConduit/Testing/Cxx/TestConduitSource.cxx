@@ -1029,27 +1029,13 @@ bool ValidateMeshTypeMixed2D()
 
   // check cell types
   const auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
-  int nTris(0), nQuads(0);
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
     const int cellType = it->GetCellType();
-    switch (cellType)
+    if (cellType != VTK_TRIANGLE && cellType != VTK_QUAD)
     {
-      case VTK_TRIANGLE:
-      {
-        ++nTris;
-        break;
-      }
-      case VTK_QUAD:
-      {
-        ++nQuads;
-        break;
-      }
-      default:
-      {
-        vtkLog(ERROR, "Expected only triangles and quads.");
-        return false;
-      }
+      vtkLog(ERROR, "Expected only triangles and quads.");
+      return false;
     }
   }
 

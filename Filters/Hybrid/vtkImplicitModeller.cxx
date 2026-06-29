@@ -272,7 +272,6 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* inp
     }
   }
 
-  int testIndex = 0;
   for (k = outExt[4]; k <= outExt[5]; k++)
   {
     x[2] = spacing[2] * k + origin[2];
@@ -281,7 +280,7 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* inp
       cellId = -1;
       x[1] = spacing[1] * j + origin[1];
       OT* outSI = outIt.BeginSpan();
-      for (i = outExt[0]; i <= outExt[1]; i++, testIndex++)
+      for (i = outExt[0]; i <= outExt[1]; i++)
       {
         x[0] = spacing[0] * i + origin[0];
         ConvertToDoubleDistance(*outSI, prevDistance, prevDistance2, toDoubleScaleFactor);
