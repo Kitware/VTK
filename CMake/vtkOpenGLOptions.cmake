@@ -74,6 +74,12 @@ option(VTK_USE_WAYLAND_OPENGL
   "Use Wayland for rendering on Linux with EGL." OFF)
 mark_as_advanced(VTK_USE_WAYLAND_OPENGL)
 
+cmake_dependent_option(
+  VTK_USE_MESA_SOFTWARE_RENDERING
+  "Enable Mesa software rendering backend with EGL"
+  OFF VTK_OPENGL_HAS_EGL OFF)
+mark_as_advanced(VTK_USE_MESA_SOFTWARE_RENDERING)
+
 #-----------------------------------------------------------------------------
 # Irrespective of support for offscreen API, VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
 # lets the user select the default state for the  `Offscreen` flag on the

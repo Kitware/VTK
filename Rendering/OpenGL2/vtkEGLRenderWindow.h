@@ -5,9 +5,19 @@
  * @brief   OpenGL rendering window
  *
  * vtkEGLRenderWindow is a concrete implementation of the abstract class
- * vtkRenderWindow. This class creates a window on Android platform and
- * for client API OpenGL ES and an offscreen pbuffer for OpenGL.
- * vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+ * vtkRenderWindow.
+ *
+ * This class creates a window on various platforms depending on compiler options
+ * such as:
+ * - Android : with OpenGL ES as client API and an offscreen pbuffer for OpenGL.
+ *
+ * - Wayland (option VTK_USE_WAYLAND_OPENGL): for onscreen/offscreen support OpenGL
+ *   and OpenGL ES as client API.
+ *
+ * - Mesa (option VTK_USE_MESA_SOFTWARE_RENDERING): for offscreen software rendering
+ *   as replacement of OSMesa. If this option is used, GPU rendering with this render
+ *   window would not be possible for now.
+ *
  * Application programmers should normally use vtkRenderWindow instead of
  * the OpenGL specific version.
  *

@@ -296,10 +296,12 @@ if (VTK_OPENGL_HAS_EGL)
   list(APPEND private_sources
     "Private/vtkEGLConfig.cxx"
     "Private/vtkEGLDefaultConfig.cxx"
+    "Private/vtkEGLMesaConfig.cxx"
     "Private/vtkEGLRenderWindowInternals.cxx")
   list(APPEND private_headers
     "Private/vtkEGLConfig.h"
     "Private/vtkEGLDefaultConfig.h"
+    "Private/vtkEGLMesaConfig.h"
     "Private/vtkEGLRenderWindowInternals.h")
 
   set_source_files_properties(Private/vtkEGLRenderWindowInternals.cxx
@@ -452,6 +454,10 @@ if (VTK_USE_WAYLAND_OPENGL)
       ${WAYLAND_CLIENT_LIB}
       ${WAYLAND_EGL_LIB})
   vtk_module_definitions(VTK::RenderingOpenGL2 PRIVATE USE_WAYLAND)
+endif()
+
+if (VTK_USE_MESA_SOFTWARE_RENDERING)
+  vtk_module_definitions(VTK::RenderingOpenGL2 PRIVATE VTK_USE_MESA_SOFTWARE_RENDERING)
 endif()
 
 if (VTK_USE_COCOA)
