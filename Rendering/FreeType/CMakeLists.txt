@@ -11,7 +11,6 @@ set(classes
   vtkFreeTypeTools
   vtkMathTextFreeTypeTextRenderer
   vtkMathTextUtilities
-  vtkScaledTextActor
   vtkTextRendererStringToImage
   vtkVectorText)
 

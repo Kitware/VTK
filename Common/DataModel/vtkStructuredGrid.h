@@ -108,18 +108,13 @@ public:
    */
   vtkStructuredCellArray* GetCells();
 
-  ///@{
   /**
    * Get the array of all cell types in the structured grid. Each single-component
    * integer value is the same. The array is of size GetNumberOfCells().
    *
    * NOTE: the returned object should not be modified.
    */
-  using vtkDataSet::GetCellTypes; // VTK_DEPRECATED_IN_9_6_0
   vtkConstantArray<unsigned char>* GetCellTypes();
-  VTK_DEPRECATED_IN_9_6_0("Use vtkConstantArray<unsigned char>* GetCellTypes() instead")
-  vtkConstantArray<int>* GetCellTypesArray();
-  ///@}
 
   ///@{
   /**
@@ -275,7 +270,6 @@ protected:
 
   vtkSmartPointer<vtkStructuredCellArray> StructuredCells;
   vtkSmartPointer<vtkConstantArray<unsigned char>> StructuredCellTypes;
-  vtkSmartPointer<vtkConstantArray<int>> LegacyStructuredCellTypes; // VTK_DEPRECATED_IN_9_6_0
 
   /**
    * Compute the range of the scalars and cache it into ScalarRange

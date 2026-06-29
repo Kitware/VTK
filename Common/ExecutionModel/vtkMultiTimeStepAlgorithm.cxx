@@ -15,8 +15,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiTimeStepAlgorithm);
 
-vtkInformationKeyMacro(vtkMultiTimeStepAlgorithm, UPDATE_TIME_STEPS, DoubleVector);
-
 //------------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkMultiTimeStepAlgorithm::vtkMultiTimeStepAlgorithm()

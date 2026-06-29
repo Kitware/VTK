@@ -119,7 +119,6 @@
 #define vtkHyperTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // Include the macros.
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
@@ -170,18 +169,6 @@ public:
   static vtkHyperTree* New();
   vtkTypeMacro(vtkHyperTree, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Restore the initial state: only one vertice is then a leaf:
-   * the root cell for the hypertree.
-   * @param branchFactor
-   * @param dimension
-   * @param numberOfChildren
-   */
-  VTK_DEPRECATED_IN_9_6_0(
-    "Use bool Initialize(unsigned char branchFactor, unsigned char dimension) instead.")
-  void Initialize(
-    unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren);
 
   /**
    * Restore the initial state: only one vertice is then a leaf:
@@ -289,9 +276,6 @@ public:
    */
   void CopyStructure(vtkHyperTree* ht);
 
-  VTK_DEPRECATED_IN_9_6_0("No effect, do not use.")
-  virtual vtkHyperTree* Freeze(const char* vtkNotUsed(mode)) { return this; };
-
   ///@{
   /**
    * Set/Get tree index in hypertree grid.
@@ -379,18 +363,6 @@ public:
   std::shared_ptr<vtkHyperTreeGridScales> InitializeScales(
     const double* scales, bool reinitialize = false);
 
-  /**
-   * Return an instance of an implementation of a hypertree for
-   * given branch factor and dimension.
-   * Other versions of this code could be made available to meet
-   * other needs without questioning cursors and filters.
-   * Since an instance, an other instance can be creating by call
-   * the method Freeze (by default, nothing more, instance currently
-   * is returning).
-   */
-  VTK_NEWINSTANCE
-  VTK_DEPRECATED_IN_9_6_0("Use vtkNew<vtkHyperTree> and Initialize instead.")
-  static vtkHyperTree* CreateInstance(unsigned char branchFactor, unsigned char dimension);
   /**
    * Return memory used in bytes.
    * NB: Ignore the attribute array because its size is added by the data set.

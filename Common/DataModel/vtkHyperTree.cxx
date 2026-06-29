@@ -64,13 +64,6 @@ void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTree::Initialize(
-  unsigned char branchFactor, unsigned char dimension, unsigned char vtkNotUsed(numberOfChildren))
-{
-  this->Initialize(branchFactor, dimension);
-}
-
-//------------------------------------------------------------------------------
 bool vtkHyperTree::Initialize(const unsigned char branchFactor, const unsigned char dimension)
 {
   if (branchFactor < 2 || 3 < branchFactor)
@@ -502,10 +495,4 @@ void vtkHyperTree::ComputeBreadthFirstOrderDescriptorImpl(const unsigned int dep
   }
 }
 
-// VTK_DEPRECATED_IN_9_6_0
-vtkHyperTree* vtkHyperTree::CreateInstance(unsigned char factor, unsigned char dimension)
-{
-  vtkHyperTree* ht = vtkHyperTree::New();
-  return ht->Initialize(factor, dimension) ? ht : nullptr;
-}
 VTK_ABI_NAMESPACE_END

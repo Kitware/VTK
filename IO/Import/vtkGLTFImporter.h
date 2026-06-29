@@ -58,7 +58,7 @@
 #ifndef vtkGLTFImporter_h
 #define vtkGLTFImporter_h
 
-#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 #include "vtkSmartPointer.h" // For SmartPointer
@@ -178,19 +178,6 @@ public:
    * If a negative index is provided, no camera from the importer is used.
    */
   void SetCamera(vtkIdType camIndex) override;
-
-  /**
-   * DEPRECATED, use the version without framerate
-   * Get temporal information for the provided animationIndex and frameRate.
-   * frameRate is used to define the number of frames for one second of simulation,
-   * set to zero if timeSteps are not needed.
-   * If animation is present in the dataset, timeRange will be set by this method, return true.
-   * If animation is present and frameRate > 0, nbTimeSteps and timeSteps will also be set, return
-   * true. If animation is not present, return false.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetTemporalInformation without framerate parameter instead.")
-  bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
-    double timeRange[2], vtkDoubleArray* timeSteps) override;
 
   /**
    * Get temporal information for the provided animationIndex.

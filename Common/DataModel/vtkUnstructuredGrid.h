@@ -19,7 +19,6 @@
 #include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
 #include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkSmartPointer.h"          // for smart pointer
 #include "vtkUnstructuredGridBase.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
@@ -194,18 +193,13 @@ public:
     VTK_SIZEHINT(cells, ncells);
   ///@}
 
-  ///@{
   /**
    * Get the array of all cell types in the grid. Each single-component
    * tuple in the array at an index that corresponds to the type of the cell
    * with the same index. To get an array of only the distinct cell types in
    * the dataset, use GetDistinctCellTypes().
    */
-  using vtkDataSet::GetCellTypes;
   vtkDataArray* GetCellTypes() { return this->Types; }
-  VTK_DEPRECATED_IN_9_6_0("Use GetCellTypes() instead")
-  vtkUnsignedCharArray* GetCellTypesArray();
-  ///@}
 
   /**
    * Squeeze all arrays in the grid to conserve memory.
@@ -278,9 +272,6 @@ public:
   void SetCells(vtkDataArray* cellTypes, vtkCellArray* cells);
   void SetPolyhedralCells(
     vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces);
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  void SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells, vtkIdTypeArray* faceLocations,
-    vtkIdTypeArray* faces);
   ///@}
 
   /**
@@ -490,45 +481,6 @@ public:
    */
   static void ConvertFaceStreamPointIds(vtkCellArray* faces, vtkIdType* idMap);
 
-  //====================== Begin Legacy Methods ================================
-
-  /**
-   * Get the array of all the starting indices of cell definitions
-   * in the cell array.
-   *
-   * @warning vtkCellArray supports random access now. This array is no
-   * longer used.
-   */
-  VTK_DEPRECATED_IN_9_6_0("CellLocations is not longer used")
-  vtkIdTypeArray* GetCellLocationsArray();
-
-  ///@{
-  /**
-   * Special methods specific to vtkUnstructuredGrid for defining the cells
-   * composing the dataset. Most cells require just arrays of cellTypes,
-   * cellLocations and cellConnectivities which implicitly define the set of
-   * points in each cell and their ordering. In those cases the
-   * cellConnectivities are of the format
-   * (numFace0Pts, id1, id2, id3, numFace1Pts, id1, id2, id3...). However, some
-   * cells like vtkPolyhedron require points plus a list of faces. To handle
-   * vtkPolyhedron, SetCells() support a special input cellConnectivities format
-   * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-   * The functions use vtkPolyhedron::DecomposeAPolyhedronCell() to convert
-   * polyhedron cells into standard format.
-   *
-   * @warning The cellLocations array is no longer used; this information
-   * is stored in vtkCellArray. Use the other SetCells overloads.
-   */
-  VTK_DEPRECATED_IN_9_6_0("CellLocations is not longer used, use other SetCells methods")
-  void SetCells(
-    vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations, vtkCellArray* cells);
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  void SetCells(vtkUnsignedCharArray* cellTypes, vtkIdTypeArray* cellLocations, vtkCellArray* cells,
-    vtkIdTypeArray* faceLocations, vtkIdTypeArray* faces);
-  ///@}
-
-  //====================== End Legacy Methods ==================================
-
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid() override;
@@ -564,10 +516,6 @@ protected:
    */
   vtkSmartPointer<vtkCellArray> Faces;
   vtkSmartPointer<vtkCellArray> FaceLocations;
-
-  // VTK_DEPRECATED_IN_9_6_0()
-  // Legacy support -- stores the old-style cell array locations.
-  vtkSmartPointer<vtkIdTypeArray> CellLocations;
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;

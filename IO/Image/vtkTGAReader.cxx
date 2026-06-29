@@ -117,14 +117,6 @@ void vtkTGAReader::ExecuteInformation()
     stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     readSize = stream->Read(header, ::HeaderSize);
   }
-  else if (this->GetMemoryBuffer())
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    const char* memBuffer = static_cast<const char*>(this->GetMemoryBuffer());
-    readSize = std::min(
-      static_cast<size_t>(::HeaderSize), static_cast<size_t>(this->GetMemoryBufferLength()));
-    std::copy(memBuffer, memBuffer + readSize, header);
-  }
   else
   {
     this->ComputeInternalFileName(0);
@@ -184,12 +176,6 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
     content.resize(size);
     stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     stream->Read(content.data(), size);
-  }
-  else if (this->GetMemoryBuffer())
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    const unsigned char* uBuffer = reinterpret_cast<const unsigned char*>(this->GetMemoryBuffer());
-    content.assign(uBuffer, uBuffer + this->GetMemoryBufferLength());
   }
   else
   {

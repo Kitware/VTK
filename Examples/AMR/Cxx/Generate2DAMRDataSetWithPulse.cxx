@@ -115,14 +115,13 @@ void AttachPulseToGrid(vtkUniformGrid* grid)
 //------------------------------------------------------------------------------
 vtkOverlappingAMR* GetAMRDataSet()
 {
-  int NumLevels = 2;
-  int BlocksPerLevel[2] = { 1, 2 };
   double origin[3];
   origin[0] = origin[1] = -2.0;
   origin[2] = 0.0;
 
   vtkNew<vtkOverlappingAMR> data;
-  data->Initialize(NumLevels, BlocksPerLevel);
+  const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
+  data->Initialize(blocksPerLevel);
   data->SetOrigin(origin);
   data->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
 

@@ -31,7 +31,7 @@
 
 #include "vtkDataAssembly.h" // For vtkDataAssembly
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOHDFModule.h"  // For export macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -251,13 +251,6 @@ protected:
   int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
   int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, const std::string& path);
   ///@}
-
-  VTK_DEPRECATED_IN_9_6_0("This method is deprecated, do not use")
-  int Read(const std::vector<vtkIdType>& numberOfPoints,
-    const std::vector<vtkIdType>& numberOfCells,
-    const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
-    vtkIdType startingPointOffset, vtkIdType startingCellOffset,
-    vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData);
 
   /**
    * Read the field arrays from the file and add them to the dataset.

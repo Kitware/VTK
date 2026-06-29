@@ -246,9 +246,6 @@ struct DispatchByValueType;
  */
 template <typename ArrayList, typename ValueTypeList>
 struct DispatchByArrayAndValueType;
-template <typename ArrayList, typename ValueTypeList>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use DispatchByArrayAndValueType instead.") DispatchByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -286,9 +283,6 @@ struct Dispatch2SameValueType;
 template <typename ArrayList1, typename ArrayList2, typename ValueTypeList1,
   typename ValueTypeList2>
 struct Dispatch2ByArrayAndValueType;
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch2ByArrayAndValueType instead.") Dispatch2ByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -331,9 +325,6 @@ struct Dispatch2ByValueType;
  */
 template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArrayWithSameValueType;
-template <typename ArrayList>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch2ByArrayWithSameValueType instead.") Dispatch2SameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -364,9 +355,6 @@ struct Dispatch2BySameValueType;
  */
 template <typename ArrayList, typename ValueTypeList>
 struct Dispatch2ByArrayAndSameValueType;
-template <typename ArrayList, typename ValueTypeList>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch2ByArrayAndSameValueType instead.") Dispatch2BySameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -435,10 +423,6 @@ struct Dispatch3ByValueType;
 template <typename ArrayList1, typename ArrayList2, typename ArrayList3, typename ValueTypeList1,
   typename ValueTypeList2, typename ValueTypeList3>
 struct Dispatch3ByArrayAndValueType;
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2,
-  typename ValueTypeList3>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch3ByArrayAndValueType instead.") Dispatch3ByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -453,9 +437,6 @@ struct VTK_DEPRECATED_IN_9_6_0(
  */
 template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArrayWithSameValueType;
-template <typename ArrayList>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch3ByArrayWithSameValueType instead.") Dispatch3SameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -486,9 +467,6 @@ struct Dispatch3BySameValueType;
  */
 template <typename ArrayList, typename ValueTypeList>
 struct Dispatch3ByArraySameValueType;
-template <typename ArrayList, typename ValueTypeList>
-struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch3ByArraySameValueType instead.") Dispatch3BySameValueTypeUsingArrays;
 
 //----------------------------------------------------------------------------
 /**

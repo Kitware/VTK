@@ -3,11 +3,7 @@ set(cxx_tests
   TestBatchedLabeledDataMapperWorldCoords.cxx,LOOSE_VALID
   TestClipLabels.cxx
   TestDynamic2DLabelMapper.cxx
-  TestLabelPlacer.cxx
-  TestLabelPlacer2D.cxx
-  TestLabelPlacerCoincidentPoints.cxx,LOOSE_VALID
   TestLabelPlacementMapper.cxx
-  TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx)
 
 if (TARGET VTK::RenderingOpenGL2)
@@ -27,9 +23,3 @@ if (TARGET VTK::RenderingWebGPU)
 endif ()
 
 vtk_test_cxx_executable(vtkRenderingLabelCxxTests tests)
-if (TARGET VTK::RenderingOpenGL2)
-  set_tests_properties(VTK::RenderingLabelCxx-OpenGL-TestLabelPlacer PROPERTIES TIMEOUT 300)
-endif ()
-if (TARGET VTK::RenderingWebGPU)
-  set_tests_properties(VTK::RenderingLabelCxx-WebGPU-TestLabelPlacer PROPERTIES TIMEOUT 300)
-endif ()

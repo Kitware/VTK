@@ -29,15 +29,6 @@ void vtkAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   os << "\n";
 }
 
-// VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
-//------------------------------------------------------------------------------
-void vtkAMRMetaData::Initialize(int numLevels, const int* blocksPerLevel)
-{
-  std::vector<unsigned int> vec;
-  vec.assign(blocksPerLevel, blocksPerLevel + numLevels);
-  this->Initialize(vec);
-}
-
 //------------------------------------------------------------------------------
 void vtkAMRMetaData::Initialize(const std::vector<unsigned int>& blocksPerLevel)
 {

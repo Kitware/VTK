@@ -14,7 +14,6 @@
 #ifndef vtkConduitArrayUtilitiesDevice_h
 #define vtkConduitArrayUtilitiesDevice_h
 
-#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOCatalystConduitModule.h" // for exports
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
@@ -40,18 +39,6 @@ public:
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(
     const conduit_node* mcarray, const viskores::cont::DeviceAdapterId& deviceAdapterId);
 
-  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(const conduit_node* mcarray,
-    bool vtkNotUsed(force_signed), const viskores::cont::DeviceAdapterId& deviceAdapterId)
-  {
-    return MCArrayToVTKmAOSArray(mcarray, deviceAdapterId);
-  }
-  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(const conduit_node* mcarray,
-    bool vtkNotUsed(force_signed), const viskores::cont::DeviceAdapterId& deviceAdapterId)
-  {
-    return MCArrayToVTKmSOAArray(mcarray, deviceAdapterId);
-  }
   static bool IfVTKmConvertVTKMonoShapedCellArray(vtkIdType numberOfPoints, int cellType,
     vtkIdType cellSize, vtkDataArray* connectivity, vtkCellArray* cellArray);
   static bool IfVTKmConvertVTKMixedCellArray(vtkIdType numberOfPoints, vtkDataArray* offsets,

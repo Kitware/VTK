@@ -40,10 +40,6 @@ public:
   bool operator==(const vtkOverlappingAMRMetaData& other) const;
   bool operator!=(const vtkOverlappingAMRMetaData& other) const { return !(*this == other); }
 
-  // VTK_DEPRECATED_IN_9_6_0
-  // Remove once the deprecated Initialize method in parent class is removed
-  using vtkAMRMetaData::Initialize;
-
   /**
    * Initialize the meta information
    * blocksPerLevels is the number of blocks for each level

@@ -572,32 +572,6 @@ vtkCell* vtkPolyhedron::GetFace(int faceId)
   return this->Polygon;
 }
 
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-// Specify the faces for this cell.
-void vtkPolyhedron::SetFaces(vtkIdType* faces)
-{
-  // Set up face structure
-  this->GlobalFaces->Reset();
-
-  if (!faces)
-  {
-    return;
-  }
-
-  vtkIdType nfaces = faces[0];
-  this->GlobalFaces->AllocateEstimate(nfaces, nfaces);
-  vtkIdType* face = faces + 1;
-  vtkIdType faceLoc = 1;
-
-  for (vtkIdType fid = 0; fid < nfaces; ++fid)
-  {
-    this->GlobalFaces->InsertNextCell(face[0], &face[1]);
-    faceLoc += face[0] + 1;
-    face = faces + faceLoc;
-  } // for all faces
-}
-
 //------------------------------------------------------------------------------
 // Specify the faces for this cell from a vtkCellArray definition.
 int vtkPolyhedron::SetCellFaces(vtkCellArray* faces)
@@ -616,26 +590,6 @@ int vtkPolyhedron::SetCellFaces(vtkCellArray* faces)
   this->GlobalFaces->DeepCopy(faces);
 
   return 1;
-}
-
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-// Return the list of faces for this cell.
-vtkIdType* vtkPolyhedron::GetFaces()
-{
-  if (!this->GlobalFaces->GetNumberOfCells())
-  {
-    return nullptr;
-  }
-
-  vtkNew<vtkIdTypeArray> tmpFaces;
-  this->GlobalFaces->ExportLegacyFormat(tmpFaces);
-
-  this->LegacyGlobalFaces->Reset();
-  this->LegacyGlobalFaces->InsertNextValue(this->GlobalFaces->GetNumberOfCells());
-  this->LegacyGlobalFaces->InsertTuples(1, tmpFaces->GetNumberOfValues(), 0, tmpFaces);
-
-  return this->LegacyGlobalFaces->GetPointer(0);
 }
 
 vtkCellArray* vtkPolyhedron::GetCellFaces()

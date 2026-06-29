@@ -96,21 +96,6 @@ class vtkUnsignedCharArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataObject
 {
 public:
-  ///@{
-  /**
-   * Deprecated information keys for vtkHyperTreeGrids
-   * \ingroup InformationKeys
-   */
-  VTK_DEPRECATED_IN_9_6_0("Unused key.")
-  static vtkInformationIntegerKey* LEVELS();
-  VTK_DEPRECATED_IN_9_6_0("Unused key.")
-  static vtkInformationIntegerKey* DIMENSION();
-  VTK_DEPRECATED_IN_9_6_0("Unused key.")
-  static vtkInformationIntegerKey* ORIENTATION();
-  VTK_DEPRECATED_IN_9_6_0("Unused key.")
-  static vtkInformationDoubleVectorKey* SIZES();
-  ///@}
-
   static vtkHyperTreeGrid* New();
 
   vtkTypeMacro(vtkHyperTreeGrid, vtkDataObject);
@@ -121,14 +106,6 @@ public:
    * bounds (they can exist with the super cursors).
    */
   static constexpr vtkIdType InvalidIndex = ~0;
-
-  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
-  void SetModeSqueeze(const char* vtkNotUsed(vtksqueeze)) {};
-  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
-  char* GetModeSqueeze() { return nullptr; }
-
-  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
-  virtual void Squeeze() {};
 
   /**
    * Return what type of dataset this is.
@@ -260,9 +237,6 @@ public:
    */
   unsigned int GetOrientation() const { return this->Orientation; }
   ///@}
-
-  VTK_DEPRECATED_IN_9_6_0("No effect, do not use.")
-  bool GetFreezeState() { return false; };
 
   ///@{
   /**

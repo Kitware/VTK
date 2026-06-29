@@ -10,9 +10,7 @@
  * When TextScaleMode is VIEWPORT, the font resizes such that it maintains a
  * consistent size relative to the viewport in which it is rendered.
  * When TextScaleMode is PROP, the font resizes such that the text fits inside
- * the box defined by the position 1 & 2 coordinates. This class replaces the
- * deprecated vtkScaledTextActor and acts as a convenient wrapper for
- * a vtkTextMapper/vtkActor2D pair.
+ * the box defined by the position 1 & 2 coordinates.
  * Set the text property/attributes through the vtkTextProperty associated to
  * this actor.
  *
@@ -26,8 +24,6 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
-
-#include "vtkDeprecation.h" // For deprecation macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -122,30 +118,6 @@ public:
   vtkSetMacro(UseBorderAlign, vtkTypeBool);
   vtkGetMacro(UseBorderAlign, vtkTypeBool);
   vtkBooleanMacro(UseBorderAlign, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * This method is being deprecated.  Use SetJustification and
-   * SetVerticalJustification in text property instead.
-   * Set/Get the Alignment point
-   * if zero (default), the text aligns itself to the bottom left corner
-   * (which is defined by the PositionCoordinate)
-   * otherwise the text aligns itself to corner/midpoint or centre
-   * @verbatim
-   * 6   7   8
-   * 3   4   5
-   * 0   1   2
-   * @endverbatim
-   * This is the same as setting the TextProperty's justification.
-   * Currently TextActor is not oriented around its AlignmentPoint.
-   */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  VTK_DEPRECATED_IN_9_6_0("Please use vtkTextProperty Justification instead.")
-  void SetAlignmentPoint(int point);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  VTK_DEPRECATED_IN_9_6_0("Please use vtkTextProperty Justification instead.")
-  int GetAlignmentPoint();
   ///@}
 
   ///@{

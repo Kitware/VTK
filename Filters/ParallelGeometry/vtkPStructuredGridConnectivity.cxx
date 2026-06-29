@@ -804,26 +804,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
 }
 
 //------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::SerializeDataArray(
-  vtkDataArray* dataArray, vtkMultiProcessStream& bytestream)
-{
-  bytestream.Push(dataArray);
-}
-
-//------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::DeserializeDataArray(vtkDataArray*& dataArray,
-  int vtkNotUsed(dataType), int numberOfTuples, int numberOfComponents,
-  vtkMultiProcessStream& bytestream)
-{
-  bytestream.Pop(dataArray);
-  if (!dataArray || dataArray->GetNumberOfTuples() != numberOfTuples ||
-    dataArray->GetNumberOfComponents() != numberOfComponents)
-  {
-    vtkErrorMacro("Deserialized data array does not match expected layout");
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::SerializeFieldData(
   int GridExtent[6], int ext[6], vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
 {
@@ -880,16 +860,6 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
     bytestream.Push(ghostArray);
     ghostArray->Delete();
   } // END for all arrays
-}
-
-//------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::DeserializeFieldData(
-  int* vtkNotUsed(ext), vtkFieldData* fieldData, vtkMultiProcessStream& bytestream)
-{
-  assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
-  assert("pre: field data should not be nullptr!" && (fieldData != nullptr));
-
-  vtkFieldDataSerializer::Deserialize(bytestream, fieldData);
 }
 
 //------------------------------------------------------------------------------

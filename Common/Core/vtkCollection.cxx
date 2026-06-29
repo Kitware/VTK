@@ -106,12 +106,6 @@ void vtkCollection::RemoveAllItems()
 }
 
 //------------------------------------------------------------------------------
-int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
-{
-  return this->IndexOfFirstOccurrence(a);
-}
-
-//------------------------------------------------------------------------------
 int vtkCollection::IndexOfFirstOccurrence(vtkObject* a) const
 {
   if (this->Objects.empty() || !a)

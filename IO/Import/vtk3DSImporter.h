@@ -49,12 +49,6 @@ public:
   std::string GetOutputsDescription() override;
 
   /**
-   * Deprecated, returns nullptr
-   */
-  VTK_DEPRECATED_IN_9_6_0("This now always returns nullptr, do not use.")
-  FILE* GetFileFD() { return nullptr; }
-
-  /**
    * Return the stream being read or nullptr when not reading
    */
   vtkResourceStream* GetTempStream() { return this->TempStream; }

@@ -76,7 +76,6 @@
 
 #include "vtkCellStatus.h" // For enum class.
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_6_0.
 #include "vtkFiltersGeneralModule.h" // For export macro.
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -249,8 +248,6 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   static bool NoIntersectingEdges(vtkCell* cell, double tolerance);
-  VTK_DEPRECATED_IN_9_6_0("Do not use or make NoIntersectingFacesStatus protected and use it.")
-  static bool NoIntersectingFaces(vtkCell* cell, double tolerance);
   static bool ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance);
   static State Convex(vtkCell* cell, double tolerance);
   static bool FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, double tolerance);

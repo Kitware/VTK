@@ -102,15 +102,6 @@ public:
    */
   void AddScalarArrayName(const char* arrayName, int component = 0);
   void AddVectorArrayName(const char* arrayName);
-  VTK_DEPRECATED_IN_9_6_0("Use AddVectorArrayName(const char* arrayName) instead")
-  void AddVectorArrayName(
-    const char* arrayName, int component0, int component1 = 1, int component2 = 2)
-  {
-    static_cast<void>(component0); // to avoid unused parameter warning
-    static_cast<void>(component1); // to avoid unused parameter warning
-    static_cast<void>(component2); // to avoid unused parameter warning
-    this->AddVectorArrayName(arrayName);
-  }
   ///@}
 
   ///@{
@@ -122,16 +113,6 @@ public:
    */
   void AddScalarVariable(const char* variableName, const char* arrayName, int component = 0);
   void AddVectorVariable(const char* variableName, const char* arrayName);
-  VTK_DEPRECATED_IN_9_6_0(
-    "Use AddVectorVariable(const char* variableName, const char* arrayName) instead")
-  void AddVectorVariable(const char* variableName, const char* arrayName, int component0,
-    int component1 = 1, int component2 = 2)
-  {
-    static_cast<void>(component0); // to avoid unused parameter warning
-    static_cast<void>(component1); // to avoid unused parameter warning
-    static_cast<void>(component2); // to avoid unused parameter warning
-    this->AddVectorVariable(variableName, arrayName);
-  }
   ///@}
 
   ///@{
@@ -143,15 +124,6 @@ public:
    */
   void AddCoordinateScalarVariable(const char* variableName, int component = 0);
   void AddCoordinateVectorVariable(const char* variableName);
-  VTK_DEPRECATED_IN_9_6_0("Use AddCoordinateVectorVariable(const char* variableName) instead")
-  void AddCoordinateVectorVariable(
-    const char* variableName, int component0, int component1 = 1, int component2 = 2)
-  {
-    static_cast<void>(component0); // to avoid unused parameter warning
-    static_cast<void>(component1); // to avoid unused parameter warning
-    static_cast<void>(component2); // to avoid unused parameter warning
-    this->AddCoordinateVectorVariable(variableName);
-  }
   ///@}
 
   ///@{
@@ -270,10 +242,6 @@ public:
   std::string GetVectorVariableName(int i);
   const std::vector<int>& GetSelectedScalarComponents() { return this->SelectedScalarComponents; }
   int GetSelectedScalarComponent(int i);
-  VTK_DEPRECATED_IN_9_6_0("This method no longer returns valid data")
-  const std::vector<vtkTuple<int, 3>>& GetSelectedVectorComponents();
-  VTK_DEPRECATED_IN_9_6_0("This method no longer returns valid data")
-  vtkTuple<int, 3> GetSelectedVectorComponents(int) { return {}; }
   int GetNumberOfScalarArrays() { return static_cast<int>(this->ScalarArrayNames.size()); }
   int GetNumberOfVectorArrays() { return static_cast<int>(this->VectorArrayNames.size()); }
   const std::vector<std::string>& GetCoordinateScalarVariableNames()

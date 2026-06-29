@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_6_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
@@ -234,36 +231,6 @@ struct RemoveGhostCellsWorker
   }
 };
 } // anonymous namespace
-
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-vtkIdTypeArray* vtkUnstructuredGrid::GetCellLocationsArray()
-{
-  if (!this->CellLocations)
-  {
-    this->CellLocations = vtkSmartPointer<vtkIdTypeArray>::New();
-  }
-  this->CellLocations->DeepCopy(this->Connectivity->GetOffsetsArray());
-  this->CellLocations->SetNumberOfValues(this->GetNumberOfCells());
-
-  return this->CellLocations;
-}
-
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetCells(
-  vtkUnsignedCharArray* cellTypes, vtkIdTypeArray*, vtkCellArray* cells)
-{
-  this->SetCells(cellTypes, cells);
-}
-
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkIdTypeArray*,
-  vtkCellArray* cells, vtkIdTypeArray* faceLocations, vtkIdTypeArray* faces)
-{
-  this->SetCells(cellTypes, cells, faceLocations, faces);
-}
 
 //------------------------------------------------------------------------------
 vtkUnstructuredGrid::vtkUnstructuredGrid()
@@ -879,57 +846,6 @@ void vtkUnstructuredGrid::SetCells(vtkDataArray* cellTypes, vtkCellArray* cells)
   this->SetPolyhedralCells(cellTypes, newCells, faceLocations, faces);
 }
 
-// VTK_DEPRECATED_IN_9_6_0()
-//------------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells,
-  vtkIdTypeArray* faceLocations, vtkIdTypeArray* faces)
-{
-  this->Connectivity = cells;
-  this->Types = cellTypes;
-  this->DistinctCellTypes = nullptr;
-  this->DistinctCellTypesUpdateMTime = 0;
-  this->Faces = nullptr;
-  this->FaceLocations = nullptr;
-  if (faceLocations != nullptr && faces != nullptr)
-  {
-    vtkIdType prepareSize = faceLocations->GetCapacity();
-    vtkIdType faceId = 0;
-
-    vtkNew<vtkCellArray> newFaces;
-    newFaces->AllocateExact(prepareSize, faces->GetCapacity());
-
-    vtkNew<vtkCellArray> newFaceLocations;
-    newFaceLocations->AllocateExact(prepareSize, 4 * prepareSize);
-
-    auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(cells->NewIterator());
-    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
-    {
-      const vtkIdType cellId = cellIter->GetCurrentCellId();
-      if (cellTypes->GetValue(cellId) != VTK_POLYHEDRON)
-      {
-        newFaceLocations->InsertNextCell(0);
-      }
-      else
-      {
-        const vtkIdType loc = faceLocations->GetValue(cellId);
-        vtkIdType* facePtr = faces->GetPointer(loc);
-        vtkIdType nfaces = *facePtr++;
-        vtkIdType len = 0;
-        newFaceLocations->InsertNextCell(nfaces);
-        for (vtkIdType i = 0; i < nfaces; ++i)
-        {
-          len += *(facePtr + len);
-          len++;
-          newFaceLocations->InsertCellPoint(faceId++);
-        }
-        newFaces->AppendLegacyFormat(facePtr, len, 0);
-      }
-    }
-    this->Faces = newFaces;
-    this->FaceLocations = newFaceLocations;
-  }
-}
-
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetPolyhedralCells(
   vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces)
@@ -1043,12 +959,6 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
   }
 
   return this->DistinctCellTypes->GetCellTypesArray();
-}
-
-//------------------------------------------------------------------------------
-vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypesArray()
-{
-  return vtkUnsignedCharArray::FastDownCast(this->Types);
 }
 
 //----------------------------------------------------------------------------

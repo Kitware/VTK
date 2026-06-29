@@ -43,19 +43,16 @@
 #define vtkAMRDataObject_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkNew.h"                   // for vtkNew
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkAMRDataInternals; // VTK_DEPRECATED_IN_9_6_0
 class vtkAMRMetaData;
 class vtkCartesianGrid;
 class vtkCompositeDataIterator;
 class vtkDataSet;
 class vtkImageData;
-class vtkOverlappingAMRMetaData; // VTK_DEPRECATED_IN_9_6_0
 class vtkRectilinearGrid;
 class vtkUniformGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRDataObject : public vtkPartitionedDataSetCollection
@@ -90,12 +87,6 @@ public:
    */
   virtual void Initialize(vtkAMRMetaData* metadata);
 
-  /**
-   * Initialize the AMR with a specified number of levels and the blocks per level.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
-  virtual void Initialize(int numLevels, const int* blocksPerLevel);
-
   ///@{
   /**
    * Set/Get the data description of this uniform grid instance,
@@ -119,22 +110,10 @@ public:
   [[nodiscard]] unsigned int GetNumberOfBlocks() const;
 
   /**
-   * Deprecated, forward to GetNumberOfBlocks
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks instead")
-  virtual unsigned int GetTotalNumberOfBlocks() { return this->GetNumberOfBlocks(); }
-
-  /**
    * Get the number of block at the given level plus this AMR current level
    * Returns 0 if AMRMetaData is invalid.
    */
   [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level) const;
-
-  /**
-   * Deprecated, forward to GetNumberOfBlocks(level)
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks(level) instead")
-  unsigned int GetNumberOfDataSets(unsigned int level) { return this->GetNumberOfBlocks(level); }
 
   ///@{
   /**
@@ -168,14 +147,6 @@ public:
    */
   vtkRectilinearGrid* GetDataSetAsRectilinearGrid(unsigned int level, unsigned int idx);
 
-  using Superclass::GetDataSet;
-  /**
-   * Get the data set as an uniform grid using the (level, index) pair.
-   * Deprecated, using GetDataSetAsImageData or GetDataSetAsCartesianGrid
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetDataSetAsImageData or GetDataSetAsCartesianGrid instead")
-  vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx);
-
   /**
    * Returns the absolute block index for given level plus this AMR current level
    * and a relative block index or -1 if it doesn't exist or AMRMetaData is invalid.
@@ -184,31 +155,10 @@ public:
   [[nodiscard]] int GetAbsoluteBlockIndex(unsigned int level, unsigned int index) const;
 
   /**
-   * Forward to the internal GetAbsoluteBlockIndex
-   * Deprecated, use GetAbsoluteBlockIndex instead.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use GetAbsoluteBlockIndex() instead")
-  int GetCompositeIndex(unsigned int level, unsigned int index)
-  {
-    return this->GetAbsoluteBlockIndex(level, index);
-  }
-
-  /**
    * Returns the an index pair (level, relative index) given a absolute block index
    * Forward to the internal vtkAMRMetaData.
    */
   void ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id);
-
-  /**
-   * Returns the an index pair (level, relative index) given a absolute block index
-   * Forward to the ComputeIndexPair.
-   * Deprecated, using ComputeIndexPair.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use ComputeIndexPair() instead")
-  void GetLevelAndIndex(unsigned int compositeIdx, unsigned int& level, unsigned int& idx)
-  {
-    this->ComputeIndexPair(compositeIdx, level, idx);
-  }
 
   ///@{
   /**
@@ -260,29 +210,6 @@ protected:
    * Create and set a new vtkAMRMetaData as AMRMetaData
    */
   virtual void InstantiateMetaData();
-
-  ///@{
-  /**
-   * Get/Set the meta AMR data
-   * Deprecated, do not use.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be used, returns nullptr")
-  virtual vtkAMRDataInternals* GetAMRData() { return nullptr; }
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and has no effect")
-  virtual void SetAMRData(vtkAMRDataInternals*) {};
-  ///@}
-
-  ///@{
-  /**
-   * Noop and deprecated, use GetAMRData/SetAMRMetaData instead
-   */
-  VTK_DEPRECATED_IN_9_6_0(
-    "This function is deprecated and should not be inherited, use GetAMRMetaData() instead")
-  virtual vtkOverlappingAMRMetaData* GetAMRInfo() { return nullptr; };
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be inherited, use "
-                          "SetAMRMetaData() or Initialize(vtkAMRMetaData*) instead")
-  virtual void SetAMRInfo(vtkOverlappingAMRMetaData*) {};
-  ///@}
 
 private:
   vtkAMRDataObject(const vtkAMRDataObject&) = delete;

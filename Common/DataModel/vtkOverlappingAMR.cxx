@@ -265,12 +265,6 @@ int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int i
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMR::Audit()
-{
-  std::ignore = this->CheckValidity();
-}
-
-//------------------------------------------------------------------------------
 bool vtkOverlappingAMR::CheckValidity()
 {
   vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
@@ -375,13 +369,6 @@ const double* vtkOverlappingAMR::GetBounds()
 vtkOverlappingAMRMetaData* vtkOverlappingAMR::GetOverlappingAMRMetaData()
 {
   return vtkOverlappingAMRMetaData::SafeDownCast(this->GetAMRMetaData());
-}
-
-// VTK_DEPRECATED_IN_9_6_0
-//------------------------------------------------------------------------------
-void vtkOverlappingAMR::SetAMRInfo(vtkOverlappingAMRMetaData* info)
-{
-  this->SetAMRMetaData(info);
 }
 
 VTK_ABI_NAMESPACE_END

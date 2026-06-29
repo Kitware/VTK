@@ -18,7 +18,6 @@
 #define vtkStructuredData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -269,18 +268,11 @@ public:
   static vtkSmartPointer<vtkPoints> GetPoints(vtkDataArray* xCoords, vtkDataArray* yCoords,
     vtkDataArray* zCoords, int extent[6], double dirMatrix[9]);
 
-  ///@{
   /**
    * Get the implicit cell array types for structured data.
    */
   VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<unsigned char>> GetCellTypes(
     int extent[6], bool usePixelVoxelOrientation);
-  VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkSmartPointer<vtkConstantArray<unsigned char>> GetCellTypes(extent, "
-    "usePixelVoxelOrientation) instead")
-  VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<int>> GetCellTypesArray(
-    int extent[6], bool usePixelVoxelOrientation);
-  ///@}
 
 protected:
   vtkStructuredData() = default;

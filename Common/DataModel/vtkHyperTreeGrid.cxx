@@ -37,10 +37,6 @@
 #include <deque>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkInformationKeyMacro(vtkHyperTreeGrid, LEVELS, Integer);
-vtkInformationKeyMacro(vtkHyperTreeGrid, DIMENSION, Integer);
-vtkInformationKeyMacro(vtkHyperTreeGrid, ORIENTATION, Integer);
-vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3);
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 

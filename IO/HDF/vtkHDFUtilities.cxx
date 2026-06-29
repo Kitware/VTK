@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_6_0() warnings for this class.
+// VTK_DEPRECATED_IN_9_7_0()
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkHDFUtilities.h"

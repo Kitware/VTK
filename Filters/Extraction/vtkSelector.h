@@ -11,7 +11,6 @@
 #ifndef vtkSelector_h
 #define vtkSelector_h
 
-#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
@@ -102,18 +101,6 @@ protected:
     INCLUDE,
     EXCLUDE,
     INHERIT
-  };
-
-  /**
-   * Deprecated, always returns EXCLUDE.
-   * Use GetBlockSelection instead.
-   */
-  VTK_DEPRECATED_IN_9_6_0(
-    "Deprecated method without effect, use GetBlockSelection(idx, false) instead.")
-  virtual SelectionMode GetAMRBlockSelection(
-    unsigned int vtkNotUsed(level), unsigned int vtkNotUsed(index))
-  {
-    return EXCLUDE;
   };
 
   /**

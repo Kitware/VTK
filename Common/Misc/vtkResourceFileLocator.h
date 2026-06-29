@@ -21,7 +21,6 @@
 #define vtkResourceFileLocator_h
 
 #include "vtkCommonMiscModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 
 #include <string> // needed for std::string
@@ -73,21 +72,6 @@ public:
    * Return the path to the current executable.
    */
   static VTK_FILEPATH std::string GetCurrentExecutablePath();
-
-  ///@{
-  /**
-   * Returns the name of the library providing the symbol. For example, if you
-   * want to locate where the VTK libraries located call
-   * `GetLibraryPathForSymbolUnix("GetVTKVersion")` on Unixes and
-   * `GetLibraryPathForSymbolWin32(GetVTKVersion)` on Windows. Alternatively, you
-   * can simply use the `vtkGetLibraryPathForSymbol(GetVTKVersion)` macro
-   * that makes the appropriate call as per the current platform.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetLibraryPathForAddress() instead")
-  static VTK_FILEPATH std::string GetLibraryPathForSymbolUnix(const char* symbolname);
-  VTK_DEPRECATED_IN_9_6_0("Use GetLibraryPathForAddress() instead")
-  static VTK_FILEPATH std::string GetLibraryPathForSymbolWin32(const void* fptr);
-  ///@}
 
 protected:
   vtkResourceFileLocator();

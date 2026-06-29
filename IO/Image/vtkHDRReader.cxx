@@ -380,19 +380,6 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-bool vtkHDRReader::HasError(std::istream* is)
-{
-  if (!*is)
-  {
-    vtkErrorMacro(<< "HDRReader : Read error");
-    this->CloseFile();
-    return true;
-  }
-  return false;
-}
-
-//------------------------------------------------------------------------------
 int vtkHDRReader::GetWidth() const
 {
   return this->DataExtent[1] - this->DataExtent[0] + 1;

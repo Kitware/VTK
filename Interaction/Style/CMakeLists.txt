@@ -13,7 +13,6 @@ set(classes
   vtkInteractorStyleRubberBandZoom
   vtkInteractorStyleSwitch
   vtkInteractorStyleTerrain
-  vtkInteractorStyleTrackball
   vtkInteractorStyleTrackballActor
   vtkInteractorStyleTrackballCamera
   vtkInteractorStyleUnicam

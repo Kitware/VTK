@@ -318,7 +318,6 @@ Interaction/Style/vtkInteractorStyleRubberBand3D.h
 Interaction/Style/vtkInteractorStyleRubberBandPick.h
 Interaction/Style/vtkInteractorStyleRubberBandZoom.h
 Interaction/Style/vtkInteractorStyleTerrain.h
-Interaction/Style/vtkInteractorStyleTrackball.h
 Interaction/Style/vtkInteractorStyleTrackballActor.h
 Interaction/Style/vtkInteractorStyleTrackballCamera.h
 Interaction/Style/vtkInteractorStyleUnicam.h

@@ -14,7 +14,6 @@
 #include "vtkOverlappingAMRMetaData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkType.h"
-#include "vtkUniformGrid.h" // VTK_DEPRECATED_IN_9_6_0
 #include "vtkUniformGridAMRIterator.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -88,15 +87,6 @@ void vtkAMRDataObject::InstantiateMetaData()
 void vtkAMRDataObject::Initialize()
 {
   this->Initialize(std::vector<unsigned int>{});
-}
-
-// VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
-//------------------------------------------------------------------------------
-void vtkAMRDataObject::Initialize(int numLevels, const int* blocksPerLevel)
-{
-  std::vector<unsigned int> vec;
-  vec.assign(blocksPerLevel, blocksPerLevel + numLevels);
-  this->Initialize(vec);
 }
 
 //------------------------------------------------------------------------------
@@ -400,13 +390,6 @@ void vtkAMRDataObject::GetMax(double max[3])
   max[0] = bb[1];
   max[1] = bb[3];
   max[2] = bb[5];
-}
-
-// VTK_DEPRECATED_IN_9_6_0
-//------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRDataObject::GetDataSet(unsigned int level, unsigned int idx)
-{
-  return vtkUniformGrid::SafeDownCast(this->GetDataSetAsCartesianGrid(level, idx));
 }
 
 VTK_ABI_NAMESPACE_END

@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_6_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkThresholdPoints.h"
 
 #include "vtkCellArray.h"
@@ -78,97 +75,6 @@ int vtkThresholdPoints::GetThresholdFunction()
 
   vtkErrorMacro(<< "vtkThresholdPoints has an unknown threshold function");
   return -1;
-}
-
-//------------------------------------------------------------------------------
-// Criterion is cells whose scalars are less than lower threshold.
-void vtkThresholdPoints::ThresholdByLower(double lower)
-{
-  vtkWarningMacro(
-    "vtkThresholdPoints::ThresholdByLower is deprecated and will be removed in a future release. "
-    "Use SetLowerThreshold(lower) followed by SetThresholdFunction(THRESHOLD_LOWER) instead.");
-
-  int isModified = 0;
-
-  if (this->ThresholdFunction != &vtkThresholdPoints::Lower)
-  {
-    this->ThresholdFunction = &vtkThresholdPoints::Lower;
-    isModified = 1;
-  }
-
-  if (this->LowerThreshold != lower)
-  {
-    this->LowerThreshold = lower;
-    isModified = 1;
-  }
-
-  if (isModified)
-  {
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-// Criterion is cells whose scalars are less than upper threshold.
-void vtkThresholdPoints::ThresholdByUpper(double upper)
-{
-  vtkWarningMacro(
-    "vtkThresholdPoints::ThresholdByUpper is deprecated and will be removed in a future release. "
-    "Use SetUpperThreshold(upper) followed by SetThresholdFunction(THRESHOLD_UPPER) instead.");
-
-  int isModified = 0;
-
-  if (this->ThresholdFunction != &vtkThresholdPoints::Upper)
-  {
-    this->ThresholdFunction = &vtkThresholdPoints::Upper;
-    isModified = 1;
-  }
-
-  if (this->UpperThreshold != upper)
-  {
-    this->UpperThreshold = upper;
-    isModified = 1;
-  }
-
-  if (isModified)
-  {
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-// Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
-{
-  vtkWarningMacro(
-    "vtkThresholdPoints::ThresholdBetween is deprecated and will be removed in a future release. "
-    "Use SetLowerThreshold(lower), SetUpperThreshold(upper), and then "
-    "SetThresholdFunction(THRESHOLD_BETWEEN) instead.");
-
-  int isModified = 0;
-
-  if (this->ThresholdFunction != &vtkThresholdPoints::Between)
-  {
-    this->ThresholdFunction = &vtkThresholdPoints::Between;
-    isModified = 1;
-  }
-
-  if (this->LowerThreshold != lower)
-  {
-    this->LowerThreshold = lower;
-    isModified = 1;
-  }
-
-  if (this->UpperThreshold != upper)
-  {
-    this->UpperThreshold = upper;
-    isModified = 1;
-  }
-
-  if (isModified)
-  {
-    this->Modified();
-  }
 }
 
 //------------------------------------------------------------------------------

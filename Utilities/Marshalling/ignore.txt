@@ -125,7 +125,6 @@ Common/Core/vtkOStrStreamWrapper.h
 Common/Core/vtkOStreamWrapper.h
 Common/Core/vtkObjectFactory.h
 Common/Core/vtkObjectFactoryCollection.h
-Common/Core/vtkOldStyleCallbackCommand.h
 Common/Core/vtkOutputWindow.h
 Common/Core/vtkOverrideAttribute.h
 Common/Core/vtkOverrideInformation.h
@@ -196,9 +195,7 @@ Common/Core/vtkWindows.h
 Common/Core/vtkWrappingHints.h
 Common/Core/vtkXMLFileOutputWindow.h
 Common/DataModel/vtkAMRBox.h
-Common/DataModel/vtkAMRDataInternals.h
 Common/DataModel/vtkAMRDataObject.h
-Common/DataModel/vtkAMRInformation.h
 Common/DataModel/vtkAMRMetaData.h
 Common/DataModel/vtkAMRUtilities.h
 Common/DataModel/vtkAbstractCellLocator.h
@@ -461,7 +458,6 @@ Common/DataModel/vtkTriQuadraticPyramid.h
 Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
 Common/DataModel/vtkUniformGridAMR.h
-Common/DataModel/vtkUniformGridAMRDataIterator.h
 Common/DataModel/vtkUniformGridAMRIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
 Common/DataModel/vtkUnstructuredGridCellIterator.h
@@ -590,7 +586,6 @@ Imaging/Core/vtkImageDecomposeFilter.h
 Imaging/Core/vtkImageDifference.h
 Imaging/Core/vtkImageExtractComponents.h
 Imaging/Core/vtkImageFlip.h
-Imaging/Core/vtkImageInterpolatorInternals.h
 Imaging/Core/vtkImageIterateFilter.h
 Imaging/Core/vtkImageMagnify.h
 Imaging/Core/vtkImageMask.h

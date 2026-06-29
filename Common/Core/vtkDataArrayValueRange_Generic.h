@@ -957,28 +957,6 @@ public:
     return const_reference{ this->Array, this->BeginValue + i };
   }
 
-  ///@{
-  /**
-   * @warning Just be sure you know the repercussions of using `data()`. Only use
-   *  when absolutely necessary.  If the value_type is not the real underlying
-   *  type of the vtkDataArray, this method returns invalid values in some cases.
-   *  Ex: the elements are completely different when an array of 32-bit floats is reinterpreted as
-   * an array of unsigned 8-bit integer,
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
-  value_type* data() noexcept
-  {
-    // NOLINTNEXTLINE(bugprone-unsafe-functions)
-    return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
-  }
-  VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
-  value_type* data() const noexcept
-  {
-    // NOLINTNEXTLINE(bugprone-unsafe-functions)
-    return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
-  }
-  ///@}
-
 private:
   VTK_ITER_INLINE
   iterator NewIterator(IdStorageType id) const noexcept { return iterator{ this->Array, id }; }

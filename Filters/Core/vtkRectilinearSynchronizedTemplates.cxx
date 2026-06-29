@@ -740,16 +740,6 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(vtkInformation* vtk
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
-  vtkDataArray* array, int extent[6], vtkRectilinearGrid* data)
-{
-  const vtkIdType valueIndex = data->GetValueIndexForExtent(array, extent);
-  // NOLINTNEXTLINE(bugprone-unsafe-functions)
-  return valueIndex >= 0 ? array->GetVoidPointer(valueIndex) : nullptr;
-}
-
-//------------------------------------------------------------------------------
 void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
   vtkRectilinearGrid* data, int i, int j, int k, int extent[6], double spacing[6])
 {

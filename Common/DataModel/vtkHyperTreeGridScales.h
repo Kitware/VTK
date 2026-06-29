@@ -19,7 +19,6 @@
 #define vtkHyperTreeGridScales_h
 
 #include "vtkABINamespace.h"
-#include "vtkDeprecation.h" // VTK_DEPRECATED_IN_9_6_0
 
 #include <cstring> // For memcpy
 #include <vector>  // For std::vector
@@ -42,17 +41,11 @@ public:
 
   double GetBranchFactor() const { return this->BranchFactor; }
 
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, Use ComputeScale instead")
-  double* GetScale(unsigned int level) { return ComputeScale(level); };
-
   double* ComputeScale(unsigned int level)
   {
     this->Update(level);
     return this->CellScales.data() + 3 * level;
   }
-
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, Use ComputeScaleX instead")
-  double GetScaleX(unsigned int level) { return ComputeScaleX(level); };
 
   double ComputeScaleX(unsigned int level)
   {
@@ -60,26 +53,17 @@ public:
     return this->CellScales[3 * level + 0];
   }
 
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, Use ComputeScaleY instead")
-  double GetScaleY(unsigned int level) { return ComputeScaleY(level); };
-
   double ComputeScaleY(unsigned int level)
   {
     this->Update(level);
     return this->CellScales[3 * level + 1];
   }
 
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, Use ComputeScaleZ instead")
-  double GetScaleZ(unsigned int level) { return ComputeScaleZ(level); };
-
   double ComputeScaleZ(unsigned int level)
   {
     this->Update(level);
     return this->CellScales[3 * level + 2];
   }
-
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, Use ComputeScale instead")
-  void GetScale(unsigned int level, double scale[3]) { ComputeScale(level, scale); };
 
   /**
    * Return the mesh scale at the given level

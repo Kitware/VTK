@@ -50,7 +50,6 @@
 #ifndef vtkTesting_h
 #define vtkTesting_h
 
-#include "vtkDeprecation.h" // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
@@ -148,20 +147,6 @@ public:
    */
   static int InteractorEventLoop(
     int argc, char* argv[], vtkRenderWindowInteractor* iren, const char* stream = nullptr);
-
-  ///@{
-  /**
-   * Deprecated, no-op, do not use.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  void FrontBufferOn() {}
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  void FrontBufferOff() {}
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  vtkTypeBool GetFrontBuffer() { return false; }
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
-  void SetFrontBuffer(vtkTypeBool vtkNotUsed(fb)) {}
-  ///@}
 
   /**
    * Perform the test and return the result.

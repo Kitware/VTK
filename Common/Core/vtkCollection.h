@@ -20,7 +20,6 @@
 #define vtkCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -102,12 +101,6 @@ public:
    * value is its first location + 1 (a 1-based index). If given item is nullptr, returns 0.
    */
   int IsItemPresent(vtkObject* a) VTK_FUTURE_CONST;
-
-  /**
-   * Just calls IndexOfFirstOccurrence.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use correctly spelled IndexOfFirstOccurrence instead.")
-  int IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST;
 
   /**
    * Search for the given item and return the 0-based index of its first occurrence in the

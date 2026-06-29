@@ -134,8 +134,7 @@ void vtkJPEGReader::ExecuteInformation()
   jerr.fp = nullptr;
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == nullptr && this->MemoryBuffer == nullptr &&
-    this->GetStream() == nullptr)
+  if (this->InternalFileName == nullptr && this->GetStream() == nullptr)
   {
     return;
   }
@@ -143,23 +142,12 @@ void vtkJPEGReader::ExecuteInformation()
   // reset the error code before reading
   this->ErrorCode = 0;
 
-  if (!this->MemoryBuffer && !this->GetStream())
+  if (!this->GetStream())
   {
     jerr.fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
     if (!jerr.fp)
     {
       vtkErrorWithObjectMacro(this, "Unable to open file " << this->InternalFileName);
-      return;
-    }
-  }
-  else if (this->MemoryBuffer)
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    if (this->MemoryBufferLength == 0)
-    {
-      vtkErrorWithObjectMacro(this,
-        "Trying to read a JPEG image from "
-        "a zero-length memory buffer!");
       return;
     }
   }
@@ -204,15 +192,6 @@ void vtkJPEGReader::ExecuteInformation()
     jpeg_mem_src(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
 #endif
   }
-  else if (this->GetMemoryBuffer())
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
-    jMemSrc(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
-#else
-    jpeg_mem_src(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
-#endif
-  }
   else // if (jerr.fp)
   {
     jpeg_stdio_src(&cinfo, jerr.fp);
@@ -254,7 +233,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   jerr.JPEGReader = self;
   jerr.fp = nullptr;
 
-  if (!self->GetMemoryBuffer() && !self->GetStream())
+  if (!self->GetStream())
   {
     jerr.fp = vtksys::SystemTools::Fopen(self->GetInternalFileName(), "rb");
     if (!jerr.fp)
@@ -302,15 +281,6 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
     jMemSrc(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
 #else
     jpeg_mem_src(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
-#endif
-  }
-  else if (self->GetMemoryBuffer())
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
-    jMemSrc(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
-#else
-    jpeg_mem_src(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
 #endif
   }
   else // if (jerr.fp)

@@ -25,7 +25,6 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkDeprecation.h"                // For Deprecation macro
 #include "vtkSmartPointer.h"               //needed for a private variable
 
 #include "vtkDataObject.h" // needed for the smart pointer
@@ -45,12 +44,6 @@ protected:
   vtkMultiTimeStepAlgorithm();
 
   ~vtkMultiTimeStepAlgorithm() override = default;
-
-  /**
-   * This is filled by the child class to request multiple time steps
-   */
-  VTK_DEPRECATED_IN_9_6_0("Please use SetTimeSteps directly instead.")
-  static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   ///@{
   /**

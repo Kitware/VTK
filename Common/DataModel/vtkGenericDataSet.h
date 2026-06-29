@@ -47,7 +47,6 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_6_0()
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellTypes;
@@ -95,7 +94,6 @@ public:
    */
   virtual int GetCellDimension() = 0;
 
-  ///@{
   /**
    * Get a list of types of cells in a dataset. The list consists of an array
    * of types (not necessarily in any order), with a single entry per type.
@@ -107,9 +105,6 @@ public:
    * \pre types_exist: types!=0
    */
   virtual void GetDistinctCellTypes(vtkCellTypes* types);
-  VTK_DEPRECATED_IN_9_6_0("Use GetDistinctCellTypes(vtkCellTypes* types) instead.")
-  virtual void GetCellTypes(vtkCellTypes* types) { this->GetDistinctCellTypes(types); }
-  ///@}
 
   /**
    * Return an iterator to traverse cells of dimension `dim' (or all

@@ -495,7 +495,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     this->MajorTickPts->GetPoint(ptIdx, tickTop);
     this->MajorTickPts->GetPoint(ptIdx + 1, tickBottom);
 
-    pAxisFollower = this->LabelProps[i]->GetFollower();
+    pAxisFollower = vtkAxisFollower::SafeDownCast(this->LabelProps[i]->GetActiveProp(false, true));
 
     // get Label actor Transform matrix
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
@@ -2575,7 +2575,8 @@ vtkProp3DAxisFollower* vtkAxisActor::GetLabelFollower3D(int index)
 {
   if (static_cast<int>(this->LabelProps.size()) > index)
   {
-    return this->LabelProps[index]->GetFollower3D();
+    return vtkProp3DAxisFollower::SafeDownCast(
+      this->LabelProps[index]->GetActiveProp(false, false));
   }
 
   return nullptr;
@@ -2586,7 +2587,7 @@ vtkAxisFollower* vtkAxisActor::GetLabelFollower(int index)
 {
   if (static_cast<int>(this->LabelProps.size()) > index)
   {
-    return this->LabelProps[index]->GetFollower();
+    return vtkAxisFollower::SafeDownCast(this->LabelProps[index]->GetActiveProp(false, true));
   }
 
   return nullptr;
@@ -2595,25 +2596,25 @@ vtkAxisFollower* vtkAxisActor::GetLabelFollower(int index)
 //------------------------------------------------------------------------------
 vtkAxisFollower* vtkAxisActor::GetTitleActor()
 {
-  return this->TitleProp->GetFollower();
+  return vtkAxisFollower::SafeDownCast(this->TitleProp->GetActiveProp(false, true));
 }
 
 //------------------------------------------------------------------------------
 vtkAxisFollower* vtkAxisActor::GetExponentActor()
 {
-  return this->ExponentProp->GetFollower();
+  return vtkAxisFollower::SafeDownCast(this->ExponentProp->GetActiveProp(false, true));
 }
 
 //------------------------------------------------------------------------------
 vtkProp3DAxisFollower* vtkAxisActor::GetTitleProp3D()
 {
-  return this->TitleProp->GetFollower3D();
+  return vtkProp3DAxisFollower::SafeDownCast(this->TitleProp->GetActiveProp(false, false));
 }
 
 //------------------------------------------------------------------------------
 vtkProp3DAxisFollower* vtkAxisActor::GetExponentProp3D()
 {
-  return this->ExponentProp->GetFollower3D();
+  return vtkProp3DAxisFollower::SafeDownCast(this->ExponentProp->GetActiveProp(false, false));
 }
 
 VTK_ABI_NAMESPACE_END

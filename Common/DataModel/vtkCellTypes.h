@@ -29,7 +29,6 @@
 
 #include "vtkCellType.h"          // Needed for inline methods
 #include "vtkCellTypeUtilities.h" // for backward compatibility
-#include "vtkDeprecation.h"       // for deprec macros
 #include "vtkIdTypeArray.h"       // Needed for inline methods
 #include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
@@ -49,23 +48,15 @@ public:
    */
   int Allocate(vtkIdType sz = 512, vtkIdType ext = 1000);
 
-  ///@{
   /**
    * Add a cell at specified id.
    */
-  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore, use InsertCell(id, type).")
-  void InsertCell(vtkIdType id, unsigned char type, vtkIdType);
   void InsertCell(vtkIdType id, unsigned char type);
-  ///@}
 
-  ///@{
   /**
    * Add a cell to the object in the next available slot.
    */
-  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore, use InsertCell(id, type).")
-  vtkIdType InsertNextCell(unsigned char type, vtkIdType);
   vtkIdType InsertNextCell(unsigned char type);
-  ///@}
 
   /**
    * Specify a group of cell types.
@@ -124,51 +115,15 @@ public:
   void DeepCopy(vtkCellTypes* src);
 
   /**
-   * Given an int (as defined in vtkCellType.h) identifier for a class
-   * return it's classname.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
-  static const char* GetClassNameFromTypeId(int typeId);
-
-  /**
-   * Given a data object classname, return it's int identified (as
-   * defined in vtkCellType.h)
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
-  static int GetTypeIdFromClassName(const char* classname);
-
-  /**
-   * This convenience method is a fast check to determine if a cell type
-   * represents a linear or nonlinear cell.  This is generally much more
-   * efficient than getting the appropriate vtkCell and checking its IsLinear
-   * method.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
-  static int IsLinear(unsigned char type);
-
-  /**
-   * Get the dimension of a cell.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
-  static int GetDimension(unsigned char type);
-
-  ///@{
-  /**
    * Methods for obtaining the arrays representing types and locations.
    */
   vtkUnsignedCharArray* GetCellTypesArray() { return this->TypeArray; }
-  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore.")
-  vtkIdTypeArray* GetCellLocationsArray() { return this->LocationArray; }
-  ///@}
 
 protected:
   vtkCellTypes();
   ~vtkCellTypes() override = default;
 
   vtkSmartPointer<vtkUnsignedCharArray> TypeArray; // pointer to types array
-
-  // VTK_DEPRECATED_IN_9_6_0
-  vtkNew<vtkIdTypeArray> LocationArray; // pointer to array of offsets
 
   vtkIdType MaxId; // maximum index inserted thus far
 
@@ -190,12 +145,6 @@ inline int vtkCellTypes::IsType(unsigned char type)
     }
   }
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-inline int vtkCellTypes::IsLinear(unsigned char type)
-{
-  return vtkCellTypeUtilities::IsLinear(type);
 }
 
 VTK_ABI_NAMESPACE_END

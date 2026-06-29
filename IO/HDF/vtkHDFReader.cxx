@@ -1204,22 +1204,6 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   const std::vector<vtkIdType>& numberOfCells,
-  const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
-  vtkIdType startingPointOffset, vtkIdType startingCellOffset,
-  vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData)
-{
-  vtkHDFUtilities::TemporalGeometryOffsets geoOffset;
-  geoOffset.PartOffset = partOffset;
-  geoOffset.PointOffset = startingPointOffset;
-  geoOffset.CellOffsets = { startingCellOffset };
-  geoOffset.ConnectivityOffsets = { startingConnectctivityIdOffset };
-  return this->Read(numberOfPoints, numberOfCells, numberOfConnectivityIds, { 0 }, { 0 }, { 0 },
-    geoOffset, filePiece, pieceData);
-}
-
-//------------------------------------------------------------------------------
-int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
-  const std::vector<vtkIdType>& numberOfCells,
   const std::vector<vtkIdType>& numberOfConnectivityIds,
   const std::vector<vtkIdType>& numberOfFaces,
   const std::vector<vtkIdType>& numberOfPolyhedronToFaceIds,

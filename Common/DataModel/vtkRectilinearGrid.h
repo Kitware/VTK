@@ -27,7 +27,6 @@
 
 #include "vtkCartesianGrid.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 #include "vtkStructuredData.h"        // For inline methods
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
@@ -91,13 +90,6 @@ public:
    * point x is outside of the grid, and a 1 if inside the grid.
    */
   int ComputeStructuredCoordinates(const double x[3], int ijk[3], double pcoords[3]) override;
-
-  VTK_DEPRECATED_IN_9_6_0("Use the const version instead")
-  int ComputeStructuredCoordinates(double x[3], int ijk[3], double pcoords[3])
-  {
-    const double* pt = x;
-    return this->ComputeStructuredCoordinates(pt, ijk, pcoords);
-  };
 
   /**
    * Given a location in structured coordinates (i-j-k), return the point id.
