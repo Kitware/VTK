@@ -191,6 +191,12 @@ public:
   };
   //@}
 
+  /**
+   * Get the face selection object.
+   * This is initialized during UpdateInformation(): all available faces are added and enabled.
+   */
+  vtkGetMacro(FaceSelection, vtkDataArraySelection*);
+
 protected:
   vtkFLUENTCFFReader();
   ~vtkFLUENTCFFReader() override;
@@ -388,6 +394,12 @@ private:
   void CreateFaces(vtkMultiBlockDataSet* output);
 
   /**
+   * Fill FaceZones container with zones informations.
+   * This is safe to be called from RequestInfo as it is metadata only, thus quite fast.
+   */
+  void GetFaceZonesInformation();
+
+  /**
    * Fill faceGrid with data arrays based on a given face zone.
    * Additionally, to reconstruct these data arrays, a map is provided to link a cell with the
    * associated data in a Zone.
@@ -404,6 +416,7 @@ private:
 
   vtkNew<vtkDataArraySelection> FaceDataArraySelection;
   bool ReadFaces = false;
+  vtkNew<vtkDataArraySelection> FaceSelection;
 };
 VTK_ABI_NAMESPACE_END
 #endif

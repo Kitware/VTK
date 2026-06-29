@@ -77,6 +77,7 @@ vtkMTimeType vtkFLUENTCFFReader::GetMTime()
   vtkMTimeType mtime = this->Superclass::GetMTime();
   mtime = std::max(mtime, this->CellDataArraySelection->GetMTime());
   mtime = std::max(mtime, this->FaceDataArraySelection->GetMTime());
+  mtime = std::max(mtime, this->FaceSelection->GetMTime());
   return mtime;
 }
 
@@ -396,6 +397,12 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     for (const auto& variableName : this->PreReadFaceData)
     {
       this->FaceDataArraySelection->AddArray(variableName.c_str());
+    }
+
+    this->GetFaceZonesInformation();
+    for (const auto& zone : this->FaceZonesById)
+    {
+      this->FaceSelection->AddArray(zone.second.name.c_str());
     }
   }
 
@@ -1031,19 +1038,19 @@ void vtkFLUENTCFFReader::GetFacesGlobal()
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTCFFReader::GetFaces()
+void vtkFLUENTCFFReader::GetFaceZonesInformation()
 {
   hid_t group, attr, dset;
   uint64_t nZones;
   group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/zoneTopology", H5P_DEFAULT);
   if (group < 0)
   {
-    throw std::runtime_error("Unable to open HDF group (GetFaces).");
+    throw std::runtime_error("Unable to open HDF group (GetFaceZones).");
   }
   attr = H5Aopen(group, "nZones", H5P_DEFAULT);
   if (attr < 0)
   {
-    throw std::runtime_error("Unable to open HDF attribute (GetFaces).");
+    throw std::runtime_error("Unable to open HDF attribute (GetFaceZones).");
   }
   CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
   CHECK_HDF(H5Aclose(attr));
@@ -1052,7 +1059,7 @@ void vtkFLUENTCFFReader::GetFaces()
   dset = H5Dopen(group, "minId", H5P_DEFAULT);
   if (dset < 0)
   {
-    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+    throw std::runtime_error("Unable to open HDF dataset (GetFaceZones).");
   }
   CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, minId.data()));
   CHECK_HDF(H5Dclose(dset));
@@ -1092,7 +1099,7 @@ void vtkFLUENTCFFReader::GetFaces()
   dset = H5Dopen(group, "maxId", H5P_DEFAULT);
   if (dset < 0)
   {
-    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+    throw std::runtime_error("Unable to open HDF dataset (GetFaceZones).");
   }
   CHECK_HDF(H5Dread(dset, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL, H5P_DEFAULT, maxId.data()));
   CHECK_HDF(H5Dclose(dset));
@@ -1101,10 +1108,57 @@ void vtkFLUENTCFFReader::GetFaces()
   dset = H5Dopen(group, "id", H5P_DEFAULT);
   if (dset < 0)
   {
-    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
+    throw std::runtime_error("Unable to open HDF dataset (GetFaceZones).");
   }
   CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, Id.data()));
   CHECK_HDF(H5Dclose(dset));
+
+  std::vector<int32_t> faceT(nZones);
+  dset = H5Dopen(group, "faceType", H5P_DEFAULT);
+  if (dset < 0)
+  {
+    throw std::runtime_error("Unable to open HDF dataset (GetFaceZones).");
+  }
+  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, faceT.data()));
+  CHECK_HDF(H5Dclose(dset));
+
+  for (uint64_t iZone = 0; iZone < nZones; iZone++)
+  {
+    vtkFLUENTCFFReader::FaceZone zone;
+    zone.minId = static_cast<unsigned int>(minId[iZone]);
+    zone.maxId = static_cast<unsigned int>(maxId[iZone]);
+    zone.zoneType = static_cast<unsigned int>(faceT[iZone]);
+    if (v_str.size() > iZone)
+    {
+      zone.name = v_str[iZone];
+    }
+
+    unsigned int zoneId = static_cast<unsigned int>(Id[iZone]);
+
+    this->FaceZonesById[zoneId] = zone;
+  }
+
+  CHECK_HDF(H5Gclose(group));
+}
+
+//------------------------------------------------------------------------------
+void vtkFLUENTCFFReader::GetFaces()
+{
+  hid_t group, attr, dset;
+  uint64_t nZones;
+  group = H5Gopen(this->HDFImpl->FluentCaseFile, "/meshes/1/faces/zoneTopology", H5P_DEFAULT);
+  if (group < 0)
+  {
+    throw std::runtime_error("Unable to open HDF group (GetFaces).");
+  }
+
+  attr = H5Aopen(group, "nZones", H5P_DEFAULT);
+  if (attr < 0)
+  {
+    throw std::runtime_error("Unable to open HDF attribute (GetFaces).");
+  }
+  CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nZones));
+  CHECK_HDF(H5Aclose(attr));
 
   std::vector<uint64_t> dimension(nZones);
   dset = H5Dopen(group, "dimension", H5P_DEFAULT);
@@ -1122,15 +1176,6 @@ void vtkFLUENTCFFReader::GetFaces()
     throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
   }
   CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, zoneT.data()));
-  CHECK_HDF(H5Dclose(dset));
-
-  std::vector<int32_t> faceT(nZones);
-  dset = H5Dopen(group, "faceType", H5P_DEFAULT);
-  if (dset < 0)
-  {
-    throw std::runtime_error("Unable to open HDF dataset (GetFaces).");
-  }
-  CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, faceT.data()));
   CHECK_HDF(H5Dclose(dset));
 
   std::vector<int32_t> childZoneId(nZones);
@@ -1160,24 +1205,11 @@ void vtkFLUENTCFFReader::GetFaces()
   CHECK_HDF(H5Dread(dset, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, flags.data()));
   CHECK_HDF(H5Dclose(dset));
 
-  for (uint64_t iZone = 0; iZone < nZones; iZone++)
+  for (const auto& faceZone : this->FaceZonesById)
   {
-
-    vtkFLUENTCFFReader::FaceZone zone;
-    zone.minId = static_cast<unsigned int>(minId[iZone]);
-    zone.maxId = static_cast<unsigned int>(maxId[iZone]);
-    zone.zoneType = static_cast<unsigned int>(faceT[iZone]);
-    if (v_str.size() > iZone)
-    {
-      zone.name = v_str[iZone];
-    }
-
-    unsigned int zoneId = static_cast<unsigned int>(Id[iZone]);
-
-    this->FaceZonesById[zoneId] = zone;
-
-    unsigned int firstIndex = static_cast<unsigned int>(minId[iZone]);
-    unsigned int lastIndex = static_cast<unsigned int>(maxId[iZone]);
+    unsigned int zoneId = static_cast<unsigned int>(faceZone.first);
+    unsigned int firstIndex = static_cast<unsigned int>(faceZone.second.minId);
+    unsigned int lastIndex = static_cast<unsigned int>(faceZone.second.maxId);
     // This next lines should be uncommented following test with Fluent file
     // containing tree format (AMR) and interface faces
     //// unsigned int child = static_cast<unsigned int>(childZoneId[iZone]);
@@ -2713,6 +2745,11 @@ void vtkFLUENTCFFReader::CreateFaces(vtkMultiBlockDataSet* output)
 
   for (auto& [zoneId, facesData] : zoneCells)
   {
+    if (!this->FaceSelection->ArrayIsEnabled(this->FaceZonesById[zoneId].name.c_str()))
+    {
+      continue;
+    }
+
     vtkSmartPointer<vtkUnstructuredGrid> faceGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
 
     vtkNew<vtkPoints> localPoints;
