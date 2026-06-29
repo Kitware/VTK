@@ -151,6 +151,22 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
                               "your system. Please install the OSMesa library from your "
                               "distribution's package manager.");
   }
+#elif defined(__APPLE__)
+  const std::vector<std::string> libNamesToTry = { "libOSMesa.dylib.8", "libOSMesa.dylib.6",
+    "libOSMesa.dylib" };
+  for (const auto& libName : libNamesToTry)
+  {
+    OSMesaLibraryHandle = vtkDynamicLoader::OpenLibrary(libName.c_str());
+    if (OSMesaLibraryHandle)
+    {
+      break;
+    }
+  }
+  if (OSMesaLibraryHandle == nullptr)
+  {
+    vtkGenericWarningMacro(<< "libOSMesa not found. It appears that OSMesa is not installed in "
+                              "your system. Please install the OSMesa library.");
+  }
 #else
   vtkGenericWarningMacro(<< "VTK does not support OSMesa for your operating system."
                             "Please create an issue requesting osmesa support - "
