@@ -78,6 +78,7 @@ vtkSurfaceLICInterface::vtkSurfaceLICInterface()
   this->NumberOfSteps = 20;
   this->NormalizeVectors = 1;
 
+  this->OrientedLIC = false;
   this->EnhancedLIC = 1;
 
   this->EnhanceContrast = 0;
@@ -366,6 +367,7 @@ void vtkSurfaceLICInterface::ApplyLIC()
   LICer->SetComponentIds(0, 1);
   LICer->SetNormalizeVectors(this->NormalizeVectors);
   LICer->SetMaskThreshold(this->MaskThreshold);
+  LICer->SetOrientedLIC(this->OrientedLIC);
   LICer->SetCommunicator(comm);
 
   // loop over composited extents
@@ -738,6 +740,22 @@ vtkSetMonitoredParameterMacro(
   val = val > 1.0 ? 1.0 : val;);
 
 //------------------------------------------------------------------------------
+void vtkSurfaceLICInterface::SetOrientedLIC(bool val)
+{
+  if (val == this->OrientedLIC)
+  {
+    return;
+  }
+  this->OrientedLIC = val;
+  if (!this->GenerateNoiseTexture)
+  {
+    this->Internals->Noise = nullptr;
+    this->Internals->NoiseImage = nullptr;
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkSurfaceLICInterface::SetMaskColor(double* val)
 {
   double rgb[3];
@@ -835,6 +853,37 @@ vtkImageData* vtkSurfaceLICInterface::GetNoiseDataSet()
       noise->GetPointData()->SetScalars(noiseArray);
 
       noiseArray->Delete();
+    }
+    else if (this->OrientedLIC)
+    {
+      // Oriented LIC requires sparse impulse noise. The below noise is generated with 1% sparsity.
+      int noiseTextureSize = 200;
+      int noiseGrainSize = 2;
+      double noiseSparsity = 0.01f;
+      vtkLICRandomNoise2D noiseGen;
+      float* noiseValues = noiseGen.Generate(vtkLICRandomNoise2D::UNIFORM, noiseTextureSize,
+        noiseGrainSize, 1.0f, 1.0f, 1, noiseSparsity, 0.0f, this->NoiseGeneratorSeed);
+      if (noiseValues == nullptr)
+      {
+        vtkErrorMacro(
+          "Failed to generate sparse noise required for OLIC, falling back to default.");
+        noise = vtkLICRandomNoise2D::GetNoiseResource();
+      }
+      else
+      {
+        vtkFloatArray* noiseArray = vtkFloatArray::New();
+        noiseArray->SetNumberOfComponents(2);
+        noiseArray->SetName("noise");
+        noiseArray->SetArray(noiseValues, 2 * noiseTextureSize * noiseTextureSize, 0);
+
+        noise = vtkImageData::New();
+        noise->SetSpacing(1.0, 1.0, 1.0);
+        noise->SetOrigin(0.0, 0.0, 0.0);
+        noise->SetDimensions(noiseTextureSize, noiseTextureSize, 1);
+        noise->GetPointData()->SetScalars(noiseArray);
+
+        noiseArray->Delete();
+      }
     }
     else
     {

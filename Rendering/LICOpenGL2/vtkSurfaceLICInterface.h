@@ -161,6 +161,18 @@ public:
 
   ///@{
   /**
+   * Enable Oriented LIC (OLIC). When enabled the standard uniform box kernel is
+   * replaced by an exponential kernel so the per-pixel LIC value
+   * reflects the direction of flow, not just its presence.
+   * Default is off (0).
+   */
+  void SetOrientedLIC(bool val);
+  vtkGetMacro(OrientedLIC, bool);
+  vtkBooleanMacro(OrientedLIC, bool);
+  ///@}
+
+  ///@{
+  /**
    * EnhancedLIC mean compute the LIC twice with the second pass using
    * the edge-enhanced result of the first pass as a noise texture. Edge
    * enhancedment is made by a simple Laplace convolution.
@@ -587,6 +599,8 @@ protected:
 private:
   vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) = delete;
   void operator=(const vtkSurfaceLICInterface&) = delete;
+
+  bool OrientedLIC;
 };
 
 VTK_ABI_NAMESPACE_END
