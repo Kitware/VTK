@@ -17,13 +17,17 @@
 #include <vtkCellGrid.h>
 #include <vtkCellMetadata.h>
 #include <vtkCellType.h>
+#include <vtkCompositeDataSet.h>
 #include <vtkDGCell.h>
 #include <vtkDataArrayRange.h>
+#include <vtkDataAssembly.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkFiltersCellGrid.h>
 #include <vtkIOCellGrid.h>
 #include <vtkImageData.h>
+#include <vtkInformation.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -51,18 +55,28 @@ namespace
 // the VTK array buffer pointer so the data stays alive until VTK
 // releases it.
 std::mutex g_rawArrayRefsMutex;
-std::unordered_map<void*, std::shared_ptr<void>> g_rawArrayRefs;
+// A single source pointer may back multiple VTK arrays: two fields that
+// share one deduplicated read buffer each wrap the same pointer, and SOA
+// composite coordinates can share a base address across components. Using a
+// multimap (rather than a keyed map) means each wrapping registers its own
+// reference, and freeing one array erases only that one reference instead of
+// dropping the buffer out from under the still-living siblings.
+std::unordered_multimap<void*, std::shared_ptr<void>> g_rawArrayRefs;
 
 void KeepRawArrayAlive(void* ptr, std::shared_ptr<void> ref)
 {
   std::lock_guard<std::mutex> lock(g_rawArrayRefsMutex);
-  g_rawArrayRefs[ptr] = std::move(ref);
+  g_rawArrayRefs.emplace(ptr, std::move(ref));
 }
 
 void ReleaseRawArrayRef(void* ptr)
 {
   std::lock_guard<std::mutex> lock(g_rawArrayRefsMutex);
-  g_rawArrayRefs.erase(ptr);
+  auto it = g_rawArrayRefs.find(ptr);
+  if (it != g_rawArrayRefs.end())
+  {
+    g_rawArrayRefs.erase(it);
+  }
 }
 
 // --- Zero-copy AOS array from RawArray ---
@@ -932,11 +946,12 @@ void VTKBuilder::FinalizeCellGrids()
   }
 }
 
-vtkSmartPointer<vtkPartitionedDataSet> VTKBuilder::GetResult()
+vtkSmartPointer<vtkPartitionedDataSet> VTKBuilder::BuildPartitionedDataSet(
+  const std::vector<size_t>& partitionTokens)
 {
   auto pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
   unsigned int idx = 0;
-  for (auto token : this->PartitionTokens)
+  for (auto token : partitionTokens)
   {
     auto it = this->DataSetTokenMap.find(token);
     if (it != this->DataSetTokenMap.end())
@@ -945,6 +960,108 @@ vtkSmartPointer<vtkPartitionedDataSet> VTKBuilder::GetResult()
     }
   }
   return pds;
+}
+
+vtkSmartPointer<vtkPartitionedDataSet> VTKBuilder::GetResult()
+{
+  return this->BuildPartitionedDataSet(this->LegacyPartitionTokens());
+}
+
+namespace
+{
+/// Recursively add a schema assembly subtree under \c parent. Leaf
+/// dataset-name references are resolved to PDC slot indices via
+/// \c nameToSlot; unresolved names (e.g. filtered out by selection) are
+/// silently skipped so the surrounding tree stays informative.
+void AddAssemblySubtree(vtkDataAssembly* assembly,
+                        int parent,
+                        const OutputBuilder::AssemblyNode& node,
+                        const std::unordered_map<std::string, unsigned int>& nameToSlot)
+{
+  int self = parent;
+  if (!node.Name.empty())
+  {
+    // Names that flow through OutputBuilder::AssemblyNode were
+    // validated against vtkDataAssembly's rules at schema-parse time
+    // (DataSetReader's IsValidAssemblyNodeName), so they don't need
+    // mangling here.
+    self = assembly->AddNode(node.Name.c_str(), parent);
+  }
+  for (const auto& dsName : node.Datasets)
+  {
+    auto it = nameToSlot.find(dsName);
+    if (it != nameToSlot.end())
+    {
+      assembly->AddDataSetIndex(self, it->second);
+    }
+  }
+  for (const auto& child : node.Children)
+  {
+    AddAssemblySubtree(assembly, self, child, nameToSlot);
+  }
+}
+}
+
+vtkSmartPointer<vtkPartitionedDataSetCollection> VTKBuilder::GetResultCollection()
+{
+  auto pdc = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
+  std::unordered_map<std::string, unsigned int> nameToSlot;
+  const size_t nItems = this->GetNumberOfItems();
+  for (unsigned int i = 0; i < nItems; ++i)
+  {
+    pdc->SetPartitionedDataSet(i, this->BuildPartitionedDataSet(this->GetItemPartitions(i)));
+    const std::string& name = this->GetItemName(i);
+    if (!name.empty())
+    {
+      nameToSlot[name] = i;
+      pdc->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name.c_str());
+    }
+  }
+
+  // Always attach an assembly with a synthesized auto-names subtree
+  // (one leaf per named item), plus any schema-declared subtrees as
+  // siblings. The subtree's reserved name keeps it out of the user's
+  // assembly namespace; schemas declaring a node with this name are
+  // rejected at parse time, and the writer skips it on re-serialize.
+  auto assembly = vtkSmartPointer<vtkDataAssembly>::New();
+  assembly->Initialize();
+  int namesNode = assembly->AddNode(fides::kAutoNamesAssemblySubtree);
+  for (unsigned int i = 0; i < nItems; ++i)
+  {
+    const std::string& name = this->GetItemName(i);
+    if (name.empty())
+    {
+      continue;
+    }
+    int leaf =
+      assembly->AddNode(vtkDataAssembly::MakeValidNodeName(name.c_str()).c_str(), namesNode);
+    assembly->AddDataSetIndex(leaf, i);
+  }
+  if (this->HasAssembly())
+  {
+    const auto& root = this->GetAssembly();
+    if (!root.Name.empty())
+    {
+      assembly->SetRootNodeName(root.Name.c_str());
+    }
+    // The schema root's children become siblings of "names" under the
+    // assembly root.
+    for (const auto& child : root.Children)
+    {
+      AddAssemblySubtree(assembly, vtkDataAssembly::GetRootNode(), child, nameToSlot);
+    }
+    // Leaf datasets declared directly on the schema root attach to the root.
+    for (const auto& dsName : root.Datasets)
+    {
+      auto it = nameToSlot.find(dsName);
+      if (it != nameToSlot.end())
+      {
+        assembly->AddDataSetIndex(vtkDataAssembly::GetRootNode(), it->second);
+      }
+    }
+  }
+  pdc->SetDataAssembly(assembly);
+  return pdc;
 }
 
 } // namespace fides

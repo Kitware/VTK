@@ -48,6 +48,18 @@ enum class IsVector
   Auto
 };
 
+/// Read mode for ADIOS reads. Deferred
+/// is the default: the buffer is allocated immediately but only
+/// filled when the data source flushes (EndStep / DoAllReads).
+/// Sync is an opt-in for callers when they need the data being read immediately,
+/// e.g. ArrayUniformPointCoordinates reading dim/origin/spacing.
+/// Generally performance is better with Deferred, so Sync should be used only when necessary.
+enum class ReadMode
+{
+  Deferred,
+  Sync
+};
+
 /// \brief Abstract data producer for Fides data models.
 ///
 /// \c fides::io::DataSource is responsible of performing the
@@ -108,18 +120,26 @@ public:
   /// Applies the provided set of selections to potentially restricted
   /// what is loaded. Actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
+  /// \c mode defaults to \c ReadMode::Deferred — the buffer is allocated
+  /// now but not filled until the next flush. Callers that dereference
+  /// the returned \c RawArray inline (before \c EndStep() /
+  /// \c PerformGets() runs) must pass \c ReadMode::Sync explicitly.
   virtual std::vector<fides::RawArray> ReadVariable(const std::string& varName,
                                                     const fides::metadata::MetaData& selections,
-                                                    IsVector isit = IsVector::Auto) = 0;
+                                                    IsVector isit = IsVector::Auto,
+                                                    ReadMode mode = ReadMode::Deferred) = 0;
 
   /// Similar to\c ReadVariable() but for variables where multiple blocks
   /// should be written to a single array (useful for XGC, GTC).
   /// As with \c ReadVariable(), actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
-  /// Inline engine is not supported with this type of read
+  /// Inline engine is not supported with this type of read.
+  /// \c mode defaults to \c ReadMode::Deferred — see \c ReadVariable for
+  /// the Sync vs. Deferred contract.
   virtual std::vector<fides::RawArray> ReadMultiBlockVariable(
     const std::string& varName,
-    const fides::metadata::MetaData& selections) = 0;
+    const fides::metadata::MetaData& selections,
+    ReadMode mode = ReadMode::Deferred) = 0;
 
   /// Reads a scalar variable and can be used when when an
   /// actual value is needed immediately.

@@ -46,6 +46,13 @@ FIDES_EXPORT KeyType STEP_SELECTION();
 /// Uses fides::metadata::String
 FIDES_EXPORT KeyType GROUP_SELECTION();
 
+/// Key used for selecting which datasets (items) of a multi-dataset /
+/// multi-group collection to read. Filters both the schema-declared
+/// `datasets[]` entries and the auto-iterated ADIOS variable groups by
+/// item name. Empty or absent means read all items.
+/// Uses fides::metadata::Vector<fides::metadata::String>
+FIDES_EXPORT KeyType DATASET_SELECTION();
+
 /// Key used for retrieving the time value of a step.
 /// Should only be used when streaming.
 /// Uses fides::metadata::Time

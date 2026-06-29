@@ -21,12 +21,16 @@
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 #include <viskores/cont/DataSet.h>
+#include <viskores/cont/PartitionedDataSet.h>
 #endif
 
 #if FIDES_USE_VTK
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 #endif
+
+#include <vector>
 
 namespace fides
 {
@@ -44,6 +48,13 @@ using UniformCoordType = viskores::cont::ArrayHandleUniformPointCoordinates;
 inline std::unique_ptr<DataContainer> Wrap(std::vector<viskores::cont::DataSet>&& vec)
 {
   return std::make_unique<ConcreteDataWrapper<std::vector<viskores::cont::DataSet>>>(
+    std::move(vec));
+}
+
+/// Multi-dataset (PDC) Viskores result: one PartitionedDataSet per item.
+inline std::unique_ptr<DataContainer> Wrap(std::vector<viskores::cont::PartitionedDataSet>&& vec)
+{
+  return std::make_unique<ConcreteDataWrapper<std::vector<viskores::cont::PartitionedDataSet>>>(
     std::move(vec));
 }
 
@@ -73,12 +84,11 @@ std::string FIDES_EXPORT ConvertViskoresCellTypeToFides(viskores::UInt8 cellShap
 viskores::UInt8 FIDES_EXPORT ConvertFidesCellTypeToViskores(const std::string& cellShapeName);
 
 // Converts a Fides RawArray into a Viskores UnknownArrayHandle.
-// Safely handles both single-component and multi-component (RuntimeVec) data.
-// Memory ownership defaults to CopyFlag::Off (Zero-Copy) assuming Fides
-// outlives the Viskores pipeline execution.
-viskores::cont::UnknownArrayHandle RawArrayToUnknownArrayHandle(
-  const fides::RawArray& raw,
-  viskores::CopyFlag copy = viskores::CopyFlag::Off);
+// Handles both single-component and multi-component (RuntimeVec) data.
+// Zero-copy: the resulting ArrayHandle shares ownership of the RawArray's
+// buffer via shared_ptr, so it stays valid even if the source RawArray is
+// dropped.
+viskores::cont::UnknownArrayHandle RawArrayToUnknownArrayHandle(const fides::RawArray& raw);
 #endif
 
 #if FIDES_USE_VTK
@@ -87,6 +97,12 @@ viskores::cont::UnknownArrayHandle RawArrayToUnknownArrayHandle(
 inline std::unique_ptr<DataContainer> Wrap(vtkSmartPointer<vtkPartitionedDataSet> ds)
 {
   return std::make_unique<ConcreteDataWrapper<fides::VTKCollection>>(ds);
+}
+
+/// Multi-dataset (PDC) VTK result.
+inline std::unique_ptr<DataContainer> Wrap(vtkSmartPointer<vtkPartitionedDataSetCollection> pdc)
+{
+  return std::make_unique<ConcreteDataWrapper<fides::VTKPDC>>(pdc);
 }
 #endif
 

@@ -58,6 +58,45 @@ std::string baseFileName(std::string const& path)
   return path.substr(path.find_last_of("/\\") + 1);
 }
 
+/// True iff \c name would be accepted by vtkDataAssembly::IsNodeNameValid.
+///
+/// Mirrors VTK's rules here (rather than calling into VTK directly,
+/// which fides_core does not link against): first char must be a
+/// letter or '_'; subsequent chars must be letters, digits, '_', '-',
+/// or '.'; the name must not be empty; and names that start with "da"
+/// and are longer than 2 characters are reserved by VTK for internal
+/// <dataset> tags (e.g. "data", "database", "dataset"). Validating
+/// schema-supplied names at parse time means users hit a clean error
+/// at the source of the problem rather than seeing their identifiers
+/// silently mangled into the materialized vtkDataAssembly.
+bool IsValidAssemblyNodeName(const std::string& name)
+{
+  if (name.empty())
+  {
+    return false;
+  }
+  if (name.size() > 2 && name[0] == 'd' && name[1] == 'a')
+  {
+    return false; // reserved (matches vtkDataAssembly::IsNodeNameReserved)
+  }
+  const char c0 = name[0];
+  if (!((c0 >= 'a' && c0 <= 'z') || (c0 >= 'A' && c0 <= 'Z') || c0 == '_'))
+  {
+    return false;
+  }
+  for (size_t i = 1; i < name.size(); ++i)
+  {
+    const char c = name[i];
+    const bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+      c == '_' || c == '-' || c == '.';
+    if (!ok)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 /// Extracts a double value from a RawArray element, regardless of the underlying type.
 double GetRawArrayValueAsDouble(const fides::RawArray& raw, size_t index)
 {
@@ -106,6 +145,16 @@ using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSour
 class DataSetReader::DataSetReaderImpl
 {
 public:
+  /// One schema-declared dataset. A legacy single-dataset schema yields
+  /// one entry with an empty Name; a `datasets[]` schema yields one entry
+  /// per child, Name doubling as the ADIOS variable group prefix and the
+  /// DATASET_SELECTION key.
+  struct DatasetEntry
+  {
+    std::string Name;
+    std::unique_ptr<fides::datamodel::DataObjectModel> Model;
+  };
+
   DataSetReaderImpl(const std::string& dataModel,
                     DataModelInput inputType,
                     bool streamSteps,
@@ -339,7 +388,7 @@ public:
   void Cleanup()
   {
     this->DataSources.clear();
-    this->Model.reset();
+    this->Datasets.clear();
   }
 
   static rapidjson::Document GetJSONDocument(const std::string& dataModel, DataModelInput inputType)
@@ -563,51 +612,297 @@ public:
     }
   }
 
+  /// True when the schema declared a `datasets[]` block (multi-dataset
+  /// PDC). More than one entry, or one entry with a non-empty name.
+  bool IsMultiDataset() const
+  {
+    return this->Datasets.size() > 1 ||
+      (this->Datasets.size() == 1 && !this->Datasets.front().Name.empty());
+  }
+
+  /// The first/primary model — the single model for legacy schemas, or
+  /// the first dataset of a `datasets[]` schema (used for whole-schema
+  /// queries like step/time that are shared across PDC peers).
+  fides::datamodel::DataObjectModel& PrimaryModel() const { return *this->Datasets.front().Model; }
+
+  /// Build a model for a schema body, dispatching on required members:
+  /// `cell_attributes` → CellGridModel, `coordinate_system` → DataSetModel.
+  /// Works for legacy bodies and `datasets[]` entry bodies alike.
+  std::unique_ptr<fides::datamodel::DataObjectModel> BuildModelFor(const rapidjson::Value& obj)
+  {
+    const bool hasCellAttributes = obj.HasMember("cell_attributes");
+    const bool hasCoordinateSystem = obj.HasMember("coordinate_system");
+    if (hasCellAttributes && hasCoordinateSystem)
+    {
+      throw std::runtime_error("Schema contains both 'cell_attributes' and "
+                               "'coordinate_system' — model type is ambiguous.");
+    }
+    if (hasCellAttributes)
+    {
+      return std::make_unique<fides::datamodel::CellGridModel>();
+    }
+    if (hasCoordinateSystem)
+    {
+      return std::make_unique<fides::datamodel::DataSetModel>();
+    }
+    throw std::runtime_error(
+      "Schema body must contain either 'cell_attributes' (cell_grid model) or "
+      "'coordinate_system' (dataset model). Predefined data models (uniform, "
+      "rectilinear, unstructured, unstructured_single, xgc, gtc) are activated by "
+      "the Fides_Data_Model ADIOS attribute on a .bp file, not by JSON, and are "
+      "not currently supported inside a datasets[] collection; expand them into "
+      "the full coordinate_system + cell_set + fields body or use a single-dataset "
+      "schema instead.");
+  }
+
+  /// Recursively translate the JSON assembly tree into an
+  /// OutputBuilder::AssemblyNode, validating every leaf `datasets`
+  /// reference against the declared dataset names.
+  void ParseAssemblyTree(const rapidjson::Value& json,
+                         fides::OutputBuilder::AssemblyNode& out,
+                         const std::set<std::string>& declaredNames)
+  {
+    if (!json.IsObject())
+    {
+      throw std::runtime_error("Schema 'assembly' node must be an object.");
+    }
+    if (json.HasMember("name"))
+    {
+      if (!json["name"].IsString())
+      {
+        throw std::runtime_error("Schema 'assembly' node 'name' must be a string.");
+      }
+      out.Name = json["name"].GetString();
+      if (!IsValidAssemblyNodeName(out.Name))
+      {
+        throw std::runtime_error(
+          "Schema 'assembly' node name '" + out.Name +
+          "' is not a valid vtkDataAssembly node name. Names must start with a "
+          "letter or underscore; subsequent characters may be letters, digits, "
+          "underscores, hyphens, or periods; and the names \"da*\" (longer than "
+          "two characters) are reserved by VTK.");
+      }
+      if (out.Name == fides::kAutoNamesAssemblySubtree)
+      {
+        throw std::runtime_error(
+          "Schema 'assembly' node name '" + out.Name +
+          "' is reserved by Fides for the reader-synthesized auto-names subtree.");
+      }
+    }
+    if (json.HasMember("datasets"))
+    {
+      if (!json["datasets"].IsArray())
+      {
+        throw std::runtime_error(
+          "Schema 'assembly' node 'datasets' must be an array of dataset name strings.");
+      }
+      std::set<std::string> seenHere;
+      for (const auto& ds : json["datasets"].GetArray())
+      {
+        if (!ds.IsString())
+        {
+          throw std::runtime_error("Schema 'assembly' 'datasets' entries must be strings.");
+        }
+        std::string name = ds.GetString();
+        if (declaredNames.count(name) == 0)
+        {
+          throw std::runtime_error("Schema 'assembly' references unknown dataset '" + name +
+                                   "'. Every name in a leaf 'datasets' list must match a "
+                                   "schema-declared datasets[].name.");
+        }
+        if (!seenHere.insert(name).second)
+        {
+          throw std::runtime_error("Schema 'assembly' leaf lists dataset '" + name +
+                                   "' twice. Each name may appear at most once per leaf.");
+        }
+        out.Datasets.push_back(name);
+      }
+    }
+    if (json.HasMember("children"))
+    {
+      if (!json["children"].IsArray())
+      {
+        throw std::runtime_error("Schema 'assembly' 'children' must be an array.");
+      }
+      for (const auto& child : json["children"].GetArray())
+      {
+        out.Children.emplace_back();
+        this->ParseAssemblyTree(child, out.Children.back(), declaredNames);
+      }
+    }
+  }
+
   void ReadJSON(rapidjson::Document& document)
   {
+    // Fides schemas are wrapped in a single, arbitrary root key (its name
+    // identifies the data model but is otherwise ignored). Picking the
+    // schema body via .begin() would silently consume the textually-first
+    // member if a sibling were ever introduced, so insist on the
+    // single-key invariant up front.
+    if (document.GetObject().MemberCount() != 1)
+    {
+      throw std::runtime_error(
+        "Fides schema must contain exactly one top-level key wrapping the schema body (got " +
+        std::to_string(document.GetObject().MemberCount()) + ").");
+    }
     auto m = document.GetObject().begin();
-    const std::string topKey = m->name.GetString();
     const rapidjson::Value& obj = m->value;
-    std::unique_ptr<fides::datamodel::DataObjectModel> model;
-    if (topKey == "cell_grid")
-    {
-      model = std::make_unique<fides::datamodel::CellGridModel>();
-    }
-    else
-    {
-      model = std::make_unique<fides::datamodel::DataSetModel>();
-    }
+
     if (!obj.HasMember("data_sources"))
     {
       throw std::runtime_error("Missing data_sources member.");
     }
     this->ProcessDataSources(obj["data_sources"].GetArray());
 
-    model->ProcessJSON(obj, this->DataSources);
+    this->Datasets.clear();
+    this->DataSetNames.clear();
+
+    if (obj.HasMember("datasets"))
+    {
+      // Multi-dataset (PDC) schema: a top-level `datasets[]` array, each
+      // entry a named child carrying its own `data_set` / `cell_grid`
+      // body (inline or wrapped). Name doubles as the ADIOS group prefix
+      // and the DATASET_SELECTION key.
+      const auto& datasets = obj["datasets"];
+      if (!datasets.IsArray())
+      {
+        throw std::runtime_error("Schema 'datasets' member must be an array.");
+      }
+      this->Datasets.reserve(datasets.Size());
+      std::set<std::string> seenNames;
+      for (rapidjson::SizeType i = 0; i < datasets.Size(); ++i)
+      {
+        const auto& entry = datasets[i];
+        if (!entry.IsObject() || !entry.HasMember("name"))
+        {
+          throw std::runtime_error("Schema 'datasets' entry " + std::to_string(i) +
+                                   " missing 'name'.");
+        }
+        const std::string name = entry["name"].GetString();
+        if (!IsValidAssemblyNodeName(name))
+        {
+          throw std::runtime_error(
+            "Schema 'datasets' entry name '" + name +
+            "' is not a valid vtkDataAssembly node name. Names must start with a "
+            "letter or underscore; subsequent characters may be letters, digits, "
+            "underscores, hyphens, or periods; and the names \"da*\" (longer than "
+            "two characters) are reserved by VTK.");
+        }
+        if (!seenNames.insert(name).second)
+        {
+          throw std::runtime_error("Schema 'datasets' lists name '" + name +
+                                   "' twice. Each entry must have a unique name.");
+        }
+        const rapidjson::Value* body = &entry;
+        if (entry.HasMember("data_set"))
+        {
+          body = &entry["data_set"];
+        }
+        else if (entry.HasMember("cell_grid"))
+        {
+          body = &entry["cell_grid"];
+        }
+        // PDC peers share one step axis; reject a per-dataset
+        // step_information that would silently disagree with the
+        // top-level StepSource.
+        if (body->HasMember("step_information") || entry.HasMember("step_information"))
+        {
+          throw std::runtime_error(
+            "step_information must be at the schema top level, not inside dataset '" + name +
+            "'. PDC peers share a single step axis; move it next to 'datasets'.");
+        }
+        auto model = this->BuildModelFor(*body);
+        model->ProcessJSON(*body, this->DataSources);
+        this->Datasets.push_back({ name, std::move(model) });
+        this->DataSetNames.push_back(name);
+      }
+    }
+    else
+    {
+      // Legacy single-dataset schema: the whole body IS the model body;
+      // one nameless entry.
+      auto model = this->BuildModelFor(obj);
+      model->ProcessJSON(obj, this->DataSources);
+      this->Datasets.push_back({ std::string{}, std::move(model) });
+    }
 
     if (obj.HasMember("step_information"))
     {
-      const auto& sinf = obj["step_information"];
-      this->ProcessStepInformation(sinf);
+      this->ProcessStepInformation(obj["step_information"]);
     }
 
-    this->Model = std::move(model);
+    // Optional top-level assembly (multi-dataset only). Name-referenced;
+    // validated against declared dataset names so typos fail at parse.
+    this->HasAssembly = false;
+    this->Assembly = fides::OutputBuilder::AssemblyNode{};
+    if (obj.HasMember("assembly"))
+    {
+      if (!this->IsMultiDataset())
+      {
+        throw std::runtime_error("Schema 'assembly' requires a multi-dataset 'datasets[]' block.");
+      }
+      std::set<std::string> declaredNames(this->DataSetNames.begin(), this->DataSetNames.end());
+      this->ParseAssemblyTree(obj["assembly"], this->Assembly, declaredNames);
+      this->HasAssembly = true;
+    }
   }
 
   fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths,
                                          const std::string& groupName)
   {
-    size_t nBlocks = this->Model->GetNumberOfBlocks(paths, this->DataSources, groupName);
     fides::metadata::MetaData metaData;
-    fides::metadata::Size nBlocksM(nBlocks);
-    metaData.Set(fides::keys::NUMBER_OF_BLOCKS(), nBlocksM);
 
-    auto fieldInfos = this->Model->CollectFieldInformation(this->MetadataSource, this->DataSources);
-    if (!fieldInfos.empty())
+    if (this->IsMultiDataset() && groupName.empty())
     {
+      // Aggregated view across all datasets: FIELDS is the union deduped
+      // by (name, association). NUMBER_OF_BLOCKS is per-dataset only —
+      // omit it here; callers query a specific dataset via
+      // ReadMetaData(<name>).
       fides::metadata::Vector<fides::metadata::FieldInformation> fields;
-      fields.Data = std::move(fieldInfos);
-      metaData.Set(fides::keys::FIELDS(), fields);
+      std::set<std::pair<std::string, fides::FieldAssociation>> seen;
+      for (const auto& ds : this->Datasets)
+      {
+        auto infos = ds.Model->CollectFieldInformation(this->MetadataSource, this->DataSources);
+        for (auto& f : infos)
+        {
+          if (seen.emplace(f.Name, f.Association).second)
+          {
+            fields.Data.push_back(std::move(f));
+          }
+        }
+      }
+      if (!fields.Data.empty())
+      {
+        metaData.Set(fides::keys::FIELDS(), fields);
+      }
+    }
+    else
+    {
+      // Single dataset, or a specific dataset/group requested. In
+      // multi-dataset mode the group name selects the dataset (its name
+      // is the group prefix); fall back to the primary model otherwise.
+      fides::datamodel::DataObjectModel* model = &this->PrimaryModel();
+      if (this->IsMultiDataset() && !groupName.empty())
+      {
+        for (const auto& ds : this->Datasets)
+        {
+          if (ds.Name == groupName)
+          {
+            model = ds.Model.get();
+            break;
+          }
+        }
+      }
+      size_t nBlocks = model->GetNumberOfBlocks(paths, this->DataSources, groupName);
+      metaData.Set(fides::keys::NUMBER_OF_BLOCKS(), fides::metadata::Size(nBlocks));
+
+      auto fieldInfos = model->CollectFieldInformation(this->MetadataSource, this->DataSources);
+      if (!fieldInfos.empty())
+      {
+        fides::metadata::Vector<fides::metadata::FieldInformation> fields;
+        fields.Data = std::move(fieldInfos);
+        metaData.Set(fides::keys::FIELDS(), fields);
+      }
     }
 
     auto it = this->DataSources.find(this->StepSource);
@@ -663,24 +958,108 @@ public:
 
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>& paths)
   {
+    // In multi-dataset mode the "groups" are the declared dataset names
+    // (the unification — dataset name = group prefix).
+    if (this->IsMultiDataset())
+    {
+      return std::set<std::string>(this->DataSetNames.begin(), this->DataSetNames.end());
+    }
     auto it = this->DataSources.find(this->StepSource);
     if (it != this->DataSources.end())
     {
       auto ds = it->second;
       ds->OpenSource(paths, this->StepSource);
-      return this->Model->GetGroupNames(paths, this->DataSources);
+      return this->PrimaryModel().GetGroupNames(paths, this->DataSources);
     }
     return {};
   }
 
+  /// Unified item enumeration. For a `datasets[]` schema returns the
+  /// schema-declared names in declaration order; \c paths is ignored.
+  /// For a single-dataset schema read against a multi-group `.bp`,
+  /// queries the step source via \c GetGroupNames and returns the
+  /// discovered groups in name-sorted order. With an empty \c paths and
+  /// a single-dataset schema, no source can be opened so the result is
+  /// empty.
+  std::vector<std::string> GetDataSetNames(
+    const std::unordered_map<std::string, std::string>& paths)
+  {
+    if (this->IsMultiDataset())
+    {
+      return this->DataSetNames;
+    }
+    if (paths.empty())
+    {
+      return {};
+    }
+    auto groups = this->GetGroupNames(paths);
+    return std::vector<std::string>(groups.begin(), groups.end());
+  }
+
   void PostRead(DataContainer& container, const fides::metadata::MetaData& selections) const
   {
-    this->Model->PostRead(container, selections);
+    if (!this->IsMultiDataset())
+    {
+      this->PrimaryModel().PostRead(container, selections);
+      return;
+    }
+
+    // Multi-dataset: PostRead is per item, each against its own
+    // single-dataset container view, dispatched to the item's model.
+    // (For VTK the component ProcessVTK hooks are no-ops — the builder
+    // fully materializes — but we still route through PostRead for
+    // symmetry and future-proofing.)
+#if FIDES_USE_VISKORES
+    if (auto* coll = fides::GetDataAs<std::vector<viskores::cont::PartitionedDataSet>>(container))
+    {
+      for (size_t i = 0; i < coll->size() && i < this->ItemModels.size(); ++i)
+      {
+        std::vector<viskores::cont::DataSet> parts;
+        for (viskores::Id p = 0; p < (*coll)[i].GetNumberOfPartitions(); ++p)
+        {
+          parts.push_back((*coll)[i].GetPartition(p));
+        }
+        auto tmp = fides::internal::Wrap(std::move(parts));
+        this->ItemModels[i]->PostRead(*tmp, selections);
+        if (auto* mutated = fides::GetDataAs<std::vector<viskores::cont::DataSet>>(*tmp))
+        {
+          (*coll)[i] = viskores::cont::PartitionedDataSet(*mutated);
+        }
+      }
+      return;
+    }
+#endif
+#if FIDES_USE_VTK
+    if (auto* pdc = fides::GetDataAs<fides::VTKPDC>(container))
+    {
+      const unsigned int n = (*pdc)->GetNumberOfPartitionedDataSets();
+      for (unsigned int i = 0; i < n && i < this->ItemModels.size(); ++i)
+      {
+        vtkSmartPointer<vtkPartitionedDataSet> pds = (*pdc)->GetPartitionedDataSet(i);
+        auto tmp = fides::internal::Wrap(pds);
+        this->ItemModels[i]->PostRead(*tmp, selections);
+      }
+      return;
+    }
+#endif
+  }
+
+  /// Any dataset requiring VTK forces the whole collection to VTK output.
+  bool RequiresVTK() const
+  {
+    for (const auto& ds : this->Datasets)
+    {
+      if (ds.Model && ds.Model->RequiresVTK())
+      {
+        return true;
+      }
+    }
+    return false;
   }
 
   std::unique_ptr<OutputBuilder> CreateBuilder(fides::DataSetType dsType) const
   {
-    if (this->Model && this->Model->RequiresVTK() && dsType != fides::DataSetType::VTK)
+    if (this->RequiresVTK() && dsType != fides::DataSetType::VTK)
     {
       throw std::runtime_error(
         "The active Fides data model only supports VTK output (e.g. a cell_grid "
@@ -712,10 +1091,16 @@ public:
 
   std::unique_ptr<fides::DataContainer> WrapBuilderOutput(OutputBuilder& builder)
   {
+    const bool multiItem = builder.IsMultiItem();
+
     // Try to cast to ViskoresBuilder
 #if FIDES_USE_VISKORES
     if (auto* ptr = dynamic_cast<fides::ViskoresBuilder*>(&builder))
     {
+      if (multiItem)
+      {
+        return fides::internal::Wrap(ptr->GetResultCollection());
+      }
       return fides::internal::Wrap(std::move(ptr->GetDataSets()));
     }
 #endif
@@ -724,6 +1109,10 @@ public:
 #if FIDES_USE_VTK
     if (auto* ptr = dynamic_cast<fides::VTKBuilder*>(&builder))
     {
+      if (multiItem)
+      {
+        return fides::internal::Wrap(ptr->GetResultCollection());
+      }
       // No std::move: GetResult() returns by value, so the prvalue is elided
       // directly into Wrap's parameter. std::move would disable that elision.
       return fides::internal::Wrap(ptr->GetResult());
@@ -842,11 +1231,109 @@ public:
   }
 
   // Core orchestration: reads data model objects into the OutputBuilder
+  /// Drop FIELDS entries the model does not own, so a caller selection
+  /// spanning PDC peers doesn't trip a sub-model's "unknown field" guard.
+  void FilterFieldsForModel(fides::metadata::MetaData& sel,
+                            fides::datamodel::DataObjectModel& model)
+  {
+    if (!sel.Has(fides::keys::FIELDS()))
+    {
+      return;
+    }
+    using FieldVec = fides::metadata::Vector<fides::metadata::FieldInformation>;
+    const auto& wanted = sel.Get<FieldVec>(fides::keys::FIELDS());
+    auto known = model.CollectFieldInformation(this->MetadataSource, this->DataSources);
+    std::set<std::pair<std::string, fides::FieldAssociation>> knownSet;
+    for (const auto& f : known)
+    {
+      knownSet.emplace(f.Name, f.Association);
+    }
+    FieldVec filtered;
+    for (const auto& f : wanted.Data)
+    {
+      if (knownSet.count({ f.Name, f.Association }))
+      {
+        filtered.Data.push_back(f);
+      }
+    }
+    sel.Set(fides::keys::FIELDS(), filtered);
+  }
+
   void ReadDataSetInternal(const std::unordered_map<std::string, std::string>& paths,
                            const fides::metadata::MetaData& selections,
                            fides::OutputBuilder& builder)
   {
-    this->Model->Read(paths, this->DataSources, selections, builder);
+    // DATASET_SELECTION: the unified item filter (empty/absent = all),
+    // applied to both the datasets[] path and the group-iteration path.
+    std::set<std::string> wanted;
+    if (selections.Has(fides::keys::DATASET_SELECTION()))
+    {
+      const auto& names = selections.Get<fides::metadata::Vector<fides::metadata::String>>(
+        fides::keys::DATASET_SELECTION());
+      for (const auto& n : names.Data)
+      {
+        wanted.insert(n.Data);
+      }
+    }
+    auto isWanted = [&](const std::string& name) {
+      return wanted.empty() || wanted.count(name) > 0;
+    };
+    this->ItemModels.clear();
+
+    if (this->IsMultiDataset())
+    {
+      // One collection item per selected datasets[] entry; the entry name
+      // is the ADIOS group prefix.
+      for (const auto& ds : this->Datasets)
+      {
+        if (!isWanted(ds.Name))
+        {
+          continue;
+        }
+        builder.CreateItem(ds.Name);
+        this->ItemModels.push_back(ds.Model.get());
+        fides::metadata::MetaData perDataset = selections;
+        perDataset.Remove(fides::keys::DATASET_SELECTION());
+        perDataset.Set(fides::keys::GROUP_SELECTION(), fides::metadata::String(ds.Name));
+        this->FilterFieldsForModel(perDataset, *ds.Model);
+        ds.Model->Read(paths, this->DataSources, perDataset, builder);
+      }
+      if (this->HasAssembly)
+      {
+        builder.SetAssembly(this->Assembly);
+      }
+      return;
+    }
+
+    // Single-dataset schema. Group-iteration unification: a source with
+    // multiple ADIOS variable groups and no explicit GROUP_SELECTION
+    // produces one collection item per (selected) group.
+    auto& model = this->PrimaryModel();
+    if (!selections.Has(fides::keys::GROUP_SELECTION()))
+    {
+      auto groups = model.GetGroupNames(paths, this->DataSources);
+      if (groups.size() > 1)
+      {
+        for (const auto& g : groups)
+        {
+          if (!isWanted(g))
+          {
+            continue;
+          }
+          builder.CreateItem(g);
+          this->ItemModels.push_back(&model);
+          fides::metadata::MetaData perGroup = selections;
+          perGroup.Remove(fides::keys::DATASET_SELECTION());
+          perGroup.Set(fides::keys::GROUP_SELECTION(), fides::metadata::String(g));
+          model.Read(paths, this->DataSources, perGroup, builder);
+        }
+        return;
+      }
+    }
+
+    // Legacy single read (one group or fewer, or an explicit
+    // GROUP_SELECTION). Byte-identical to the pre-PDC path.
+    model.Read(paths, this->DataSources, selections, builder);
   }
 
 #if FIDES_USE_MPI
@@ -856,7 +1343,18 @@ public:
   std::shared_ptr<rapidjson::Document> DataModelDocument;
   DataSourcesType DataSources;
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
-  std::unique_ptr<fides::datamodel::DataObjectModel> Model;
+  /// Schema-declared datasets. Single-dataset schema = 1 entry, empty
+  /// Name; `datasets[]` schema = N named entries.
+  std::vector<DatasetEntry> Datasets;
+  /// Schema-declared dataset names (`datasets[]` order). Empty for a
+  /// legacy single-dataset schema (the "is this a PDC schema?" probe).
+  std::vector<std::string> DataSetNames;
+  /// Optional assembly tree (multi-dataset schemas only).
+  bool HasAssembly = false;
+  fides::OutputBuilder::AssemblyNode Assembly;
+  /// Model backing each collection item, in CreateItem order. Populated
+  /// by ReadDataSetInternal so PostRead can run per item.
+  std::vector<fides::datamodel::DataObjectModel*> ItemModels;
   std::string StepSource;
   std::string TimeVariable;
   bool StreamingMode = false;
@@ -1005,6 +1503,12 @@ std::set<std::string> DataSetReader::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths)
 {
   return this->Impl->GetGroupNames(paths);
+}
+
+std::vector<std::string> DataSetReader::GetDataSetNames(
+  const std::unordered_map<std::string, std::string>& paths)
+{
+  return this->Impl->GetDataSetNames(paths);
 }
 
 StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)

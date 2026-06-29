@@ -74,11 +74,12 @@ public:
 
   std::vector<fides::RawArray> ReadVariable(const std::string& varName,
                                             const fides::metadata::MetaData& selections,
-                                            IsVector isit = IsVector::Auto) override;
+                                            IsVector isit = IsVector::Auto,
+                                            ReadMode mode = ReadMode::Deferred) override;
 
-  std::vector<fides::RawArray> ReadMultiBlockVariable(
-    const std::string& varName,
-    const fides::metadata::MetaData& selections) override;
+  std::vector<fides::RawArray> ReadMultiBlockVariable(const std::string& varName,
+                                                      const fides::metadata::MetaData& selections,
+                                                      ReadMode mode = ReadMode::Deferred) override;
 
   std::vector<fides::RawArray> GetScalarVariable(
     const std::string& varName,

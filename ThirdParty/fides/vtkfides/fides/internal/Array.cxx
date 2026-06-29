@@ -688,18 +688,19 @@ std::vector<size_t> ArrayUniformPointCoordinates::Read(
 
   if (this->DefinedFromVariableShape)
   {
-    // In this situation we can do everything now instead of waiting for
-    // the PostRead
-    std::vector<fides::RawArray> dims = this->Dimensions->Read(paths, sources, selections);
+    // Sync: dims/origins/spacings are dereferenced inline below via
+    // GetRawArrayValueAs<>, before the next EndStep() / PerformGets() flush.
+    std::vector<fides::RawArray> dims =
+      this->Dimensions->Read(paths, sources, selections, fides::io::ReadMode::Sync);
     std::vector<fides::RawArray> origins;
     if (this->Origin)
     {
-      origins = this->Origin->Read(paths, sources, selections);
+      origins = this->Origin->Read(paths, sources, selections, fides::io::ReadMode::Sync);
     }
     std::vector<fides::RawArray> spacings;
     if (this->Spacing)
     {
-      spacings = this->Spacing->Read(paths, sources, selections);
+      spacings = this->Spacing->Read(paths, sources, selections, fides::io::ReadMode::Sync);
     }
 
     size_t nDims = dims.size();
@@ -747,11 +748,13 @@ std::vector<size_t> ArrayUniformPointCoordinates::Read(
   else
   {
     // Per-block dims/origin/spacing from ADIOS variables.
-    // With Sync reads, data is available immediately so we can create
-    // coordinate tokens now rather than deferring to PostRead.
-    this->DimensionArrays = this->Dimensions->Read(paths, sources, selections);
-    this->OriginArrays = this->Origin->Read(paths, sources, selections);
-    this->SpacingArrays = this->Spacing->Read(paths, sources, selections);
+    // Sync: dimRaw/originRaw/spacingRaw are dereferenced inline below via
+    // GetRawArrayValueAs<>, before the next EndStep() / PerformGets() flush.
+    this->DimensionArrays =
+      this->Dimensions->Read(paths, sources, selections, fides::io::ReadMode::Sync);
+    this->OriginArrays = this->Origin->Read(paths, sources, selections, fides::io::ReadMode::Sync);
+    this->SpacingArrays =
+      this->Spacing->Read(paths, sources, selections, fides::io::ReadMode::Sync);
 
     size_t nBlocks = this->DimensionArrays.size();
     ret.reserve(nBlocks);
@@ -1103,10 +1106,10 @@ std::vector<size_t> ArrayXGCCoordinates::Read(
     throw std::runtime_error("ArrayXGCCoordinates supports only one coordinates array");
   }
 
-  // Store the RawArray. We cannot convert to Viskores ArrayHandle here because
-  // ADIOS2 uses deferred reads — the buffer is allocated but not filled until
-  // DoAllReads(). We convert in PostRead after the data is available.
-  this->StoredCoordsRawArray = coordArrays[0];
+  // Wrap the deferred-read RawArray into an UnknownArrayHandle that shares
+  // ownership of the buffer. ADIOS2 fills the buffer in DoAllReads; the wrap
+  // is read after the flush in ProcessViskores.
+  this->StoredCoordsArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(coordArrays[0]);
 
   // Get block info (stored for PostRead)
   if (selections.Has(fides::keys::BLOCK_SELECTION()))
@@ -1132,22 +1135,21 @@ std::vector<size_t> ArrayXGCCoordinates::Read(
 void ArrayXGCCoordinates::ProcessViskores(std::vector<viskores::cont::DataSet>& dataSets,
                                           const fides::metadata::MetaData&)
 {
-  // Now data is filled (DoAllReads has been called). Convert to Viskores ArrayHandle.
-  auto coordsAH = fides::internal::RawArrayToUnknownArrayHandle(this->StoredCoordsRawArray);
-
+  // Data is now filled (DoAllReads has been called).
   // Create ArrayHandleXGCCoordinates for each block
   this->StoredCoordArrays.clear();
   for (size_t i = 0; i < this->StoredBlocksInfo.size(); ++i)
   {
     const auto& block = this->StoredBlocksInfo[i];
     viskores::Id numPlanes = block.NumberOfPlanesOwned * (1 + this->StoredNumInsertPlanes);
-    coordsAH.CastAndCallForTypes<viskores::TypeListFieldScalar, viskores::cont::StorageListBasic>(
-      AddToVectorFunctor{},
-      this->StoredCoordArrays,
-      this->NumberOfPlanes,
-      numPlanes,
-      block.PlaneStartId,
-      this->IsCylindrical);
+    this->StoredCoordsArrayHandle
+      .CastAndCallForTypes<viskores::TypeListFieldScalar, viskores::cont::StorageListBasic>(
+        AddToVectorFunctor{},
+        this->StoredCoordArrays,
+        this->NumberOfPlanes,
+        numPlanes,
+        block.PlaneStartId,
+        this->IsCylindrical);
   }
 
   for (size_t i = 0; i < dataSets.size() && i < this->StoredCoordArrays.size(); i++)
@@ -1806,8 +1808,6 @@ void ArrayGXCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesTy
 }
 
 /// Helper to read a variable from a data source and return the RawArray.
-/// Keeps the buffer alive for ADIOS2 deferred reads (unlike
-/// ReadVariableAsUnknownArrayHandle which copies immediately).
 static fides::RawArray ReadVariableAsRawArray(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
@@ -1832,40 +1832,43 @@ std::vector<size_t> ArrayGXCoordinates::Read(
   const fides::metadata::MetaData& selections,
   OutputBuilder&)
 {
-  // Read sub-arrays as RawArrays and store them. We cannot convert to
-  // Viskores ArrayHandles here because ADIOS2 uses deferred reads — the
-  // buffers are allocated but not filled until DoAllReads(). We store the
-  // RawArrays to keep the buffers alive and convert in PostRead.
-  this->XMRaw = ReadVariableAsRawArray(paths,
-                                       sources,
-                                       this->XM->DataSourceName,
-                                       this->XM->VariableName,
-                                       selections,
-                                       fides::io::IsVector::No);
-  this->XNRaw = ReadVariableAsRawArray(paths,
-                                       sources,
-                                       this->XN->DataSourceName,
-                                       this->XN->VariableName,
-                                       selections,
-                                       fides::io::IsVector::No);
-  this->RMNCRaw = ReadVariableAsRawArray(
-    paths, sources, this->RMNC->DataSourceName, this->RMNC->VariableName, selections);
-  this->ZMNSRaw = ReadVariableAsRawArray(
-    paths, sources, this->ZMNS->DataSourceName, this->ZMNS->VariableName, selections);
-  this->LMNSRaw = ReadVariableAsRawArray(
-    paths, sources, this->LMNS->DataSourceName, this->LMNS->VariableName, selections);
-  this->NFPRawData = ReadVariableAsRawArray(paths,
-                                            sources,
-                                            this->nfp->DataSourceName,
-                                            this->nfp->VariableName,
-                                            selections,
-                                            fides::io::IsVector::No);
-  this->PhiRawData = ReadVariableAsRawArray(paths,
-                                            sources,
-                                            this->phi->DataSourceName,
-                                            this->phi->VariableName,
-                                            selections,
-                                            fides::io::IsVector::No);
+  // Wrap each sub-array's RawArray into a Viskores ArrayHandle that shares
+  // ownership of the deferred-read buffer. ADIOS2 will fill the buffer
+  // during DoAllReads; the wrap reads it after the flush in ProcessViskores.
+  this->XMArrayHandle =
+    fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(paths,
+                                                                         sources,
+                                                                         this->XM->DataSourceName,
+                                                                         this->XM->VariableName,
+                                                                         selections,
+                                                                         fides::io::IsVector::No));
+  this->XNArrayHandle =
+    fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(paths,
+                                                                         sources,
+                                                                         this->XN->DataSourceName,
+                                                                         this->XN->VariableName,
+                                                                         selections,
+                                                                         fides::io::IsVector::No));
+  this->RMNCArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(
+    paths, sources, this->RMNC->DataSourceName, this->RMNC->VariableName, selections));
+  this->ZMNSArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(
+    paths, sources, this->ZMNS->DataSourceName, this->ZMNS->VariableName, selections));
+  this->LMNSArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(
+    paths, sources, this->LMNS->DataSourceName, this->LMNS->VariableName, selections));
+  this->NFPArrayHandle =
+    fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(paths,
+                                                                         sources,
+                                                                         this->nfp->DataSourceName,
+                                                                         this->nfp->VariableName,
+                                                                         selections,
+                                                                         fides::io::IsVector::No));
+  this->PhiArrayHandle =
+    fides::internal::RawArrayToUnknownArrayHandle(ReadVariableAsRawArray(paths,
+                                                                         sources,
+                                                                         this->phi->DataSourceName,
+                                                                         this->phi->VariableName,
+                                                                         selections,
+                                                                         fides::io::IsVector::No));
 
   // GX coordinates are fully handled in PostRead.
   std::vector<size_t> retVal;
@@ -1884,16 +1887,6 @@ void ArrayGXCoordinates::ProcessViskores(std::vector<viskores::cont::DataSet>& d
   {
     throw std::runtime_error("Error: ArrayGXCoordinates must have 1 dataset.");
   }
-
-  // Convert stored RawArrays to Viskores ArrayHandles.
-  // Data is now filled (DoAllReads has been called).
-  this->XMArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->XMRaw);
-  this->XNArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->XNRaw);
-  this->RMNCArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->RMNCRaw);
-  this->ZMNSArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->ZMNSRaw);
-  this->LMNSArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->LMNSRaw);
-  this->NFPArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->NFPRawData);
-  this->PhiArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(this->PhiRawData);
 
   auto& dataSet = dataSets[0];
 

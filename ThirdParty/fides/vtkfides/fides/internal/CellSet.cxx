@@ -384,10 +384,11 @@ void CellSetSingleType::ProcessViskores(std::vector<viskores::cont::DataSet>& pa
   for (size_t i = 0; i < nParts; i++)
   {
     auto& pds = partitions[i];
-    // Deep copy connectivity so the cell set owns its data (RawArrays may be cleared below)
-    viskores::cont::ArrayHandle<viskores::Id> connCasted;
-    viskores::cont::ArrayCopy(
-      fides::internal::RawArrayToUnknownArrayHandle(this->ConnectivityArrays[i]), connCasted);
+    // Shallow share if the source is already viskores::Id; deep-copy cast otherwise.
+    viskores::cont::UnknownArrayHandle connUnknown = viskores::cont::ArrayHandle<viskores::Id>{};
+    connUnknown.CopyShallowIfPossible(
+      fides::internal::RawArrayToUnknownArrayHandle(this->ConnectivityArrays[i]));
+    auto connCasted = connUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Id>>();
 
     viskores::UInt8 cellShapeViskores = fides::internal::ConvertCellShapeToViskores(
       static_cast<fides::CellShape>(this->CellInformation.first));
@@ -556,8 +557,7 @@ void CellSetExplicit::ProcessViskores(std::vector<viskores::cont::DataSet>& part
   {
     auto& pds = partitions[i];
 
-    // Deep copy nVerts (only used for ScanExtended, so CopyShallowIfPossible is
-    // fine here since offsets is a freshly allocated array)
+    // Shallow share if the source is already the expected viskores type; deep-copy cast otherwise.
     viskores::cont::UnknownArrayHandle nVertsUnknown =
       viskores::cont::ArrayHandle<viskores::IdComponent>{};
     nVertsUnknown.CopyShallowIfPossible(
@@ -571,15 +571,16 @@ void CellSetExplicit::ProcessViskores(std::vector<viskores::cont::DataSet>& part
         nVertsCasted),
       offsets);
 
-    // Deep copy connectivity and types so the cell set owns its data
-    // (RawArrays may be cleared below)
-    viskores::cont::ArrayHandle<viskores::Id> connCasted;
-    viskores::cont::ArrayCopy(
-      fides::internal::RawArrayToUnknownArrayHandle(this->ConnectivityArrays[i]), connCasted);
+    viskores::cont::UnknownArrayHandle connUnknown = viskores::cont::ArrayHandle<viskores::Id>{};
+    connUnknown.CopyShallowIfPossible(
+      fides::internal::RawArrayToUnknownArrayHandle(this->ConnectivityArrays[i]));
+    auto connCasted = connUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Id>>();
 
-    viskores::cont::ArrayHandle<viskores::UInt8> typesCasted;
-    viskores::cont::ArrayCopy(
-      fides::internal::RawArrayToUnknownArrayHandle(this->CellTypesArrays[i]), typesCasted);
+    viskores::cont::UnknownArrayHandle typesUnknown =
+      viskores::cont::ArrayHandle<viskores::UInt8>{};
+    typesUnknown.CopyShallowIfPossible(
+      fides::internal::RawArrayToUnknownArrayHandle(this->CellTypesArrays[i]));
+    auto typesCasted = typesUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::UInt8>>();
 
     viskores::cont::CellSetExplicit<> cellSet;
     if (pds.GetCellSet().IsValid())
@@ -800,7 +801,10 @@ std::vector<size_t> CellSetStructured::Read(
   const fides::metadata::MetaData& selections,
   OutputBuilder& builder)
 {
-  this->DimensionArrays = this->Dimensions->Read(paths, sources, selections);
+  // Sync: dims are dereferenced inline below via GetRawArrayValueAs<>,
+  // before the next EndStep() / PerformGets() flush.
+  this->DimensionArrays =
+    this->Dimensions->Read(paths, sources, selections, fides::io::ReadMode::Sync);
 
   std::size_t nArrays = this->DimensionArrays.size();
   std::vector<size_t> ret(nArrays);
@@ -827,26 +831,58 @@ void CellSetStructured::ProcessViskores(std::vector<viskores::cont::DataSet>& pa
   {
     auto& ds = partitions[i];
 
-    viskores::cont::CellSetStructured<3> cellSet;
-    if (ds.GetCellSet().IsValid())
-    {
-      cellSet = ds.GetCellSet().AsCellSet<viskores::cont::CellSetStructured<3>>();
-    }
-
     const auto& raw = this->DimensionArrays[i];
-    viskores::Id3 dims(static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 0)),
-                       static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 1)),
-                       static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 2)));
-    cellSet.SetPointDimensions(dims);
-
-    if (raw.NumValues > 3)
+    viskores::Id dims[3] = { static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 0)),
+                             static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 1)),
+                             static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 2)) };
+    viskores::Id start[3] = { 0, 0, 0 };
+    bool hasStart = raw.NumValues > 3;
+    if (hasStart)
     {
-      viskores::Id3 start(static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 3)),
-                          static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 4)),
-                          static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 5)));
-      cellSet.SetGlobalPointIndexStart(start);
+      start[0] = static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 3));
+      start[1] = static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 4));
+      start[2] = static_cast<viskores::Id>(GetRawArrayValueAs<std::size_t>(raw, 5));
     }
-    ds.SetCellSet(cellSet);
+
+    if (dims[2] > 1)
+    {
+      viskores::cont::CellSetStructured<3> cellSet;
+      if (ds.GetCellSet().IsValid() &&
+          ds.GetCellSet().IsType<viskores::cont::CellSetStructured<3>>())
+      {
+        cellSet = ds.GetCellSet().AsCellSet<viskores::cont::CellSetStructured<3>>();
+      }
+      cellSet.SetPointDimensions(viskores::Id3(dims[0], dims[1], dims[2]));
+      if (hasStart)
+        cellSet.SetGlobalPointIndexStart(viskores::Id3(start[0], start[1], start[2]));
+      ds.SetCellSet(cellSet);
+    }
+    else if (dims[1] > 1)
+    {
+      viskores::cont::CellSetStructured<2> cellSet;
+      if (ds.GetCellSet().IsValid() &&
+          ds.GetCellSet().IsType<viskores::cont::CellSetStructured<2>>())
+      {
+        cellSet = ds.GetCellSet().AsCellSet<viskores::cont::CellSetStructured<2>>();
+      }
+      cellSet.SetPointDimensions(viskores::Id2(dims[0], dims[1]));
+      if (hasStart)
+        cellSet.SetGlobalPointIndexStart(viskores::Id2(start[0], start[1]));
+      ds.SetCellSet(cellSet);
+    }
+    else
+    {
+      viskores::cont::CellSetStructured<1> cellSet;
+      if (ds.GetCellSet().IsValid() &&
+          ds.GetCellSet().IsType<viskores::cont::CellSetStructured<1>>())
+      {
+        cellSet = ds.GetCellSet().AsCellSet<viskores::cont::CellSetStructured<1>>();
+      }
+      cellSet.SetPointDimensions(dims[0]);
+      if (hasStart)
+        cellSet.SetGlobalPointIndexStart(start[0]);
+      ds.SetCellSet(cellSet);
+    }
   }
 }
 #endif // FIDES_USE_VISKORES
@@ -895,6 +931,8 @@ std::vector<size_t> CellSetXGC::Read(const std::unordered_map<std::string, std::
   {
     return std::vector<size_t>(this->CellSetCache.size(), 0);
   }
+  // Rebuild fresh; for non-static cell sets this runs every step.
+  this->CellSetCache.clear();
 
   if (this->NumberOfPlanes < 0)
   {
@@ -911,65 +949,51 @@ std::vector<size_t> CellSetXGC::Read(const std::unordered_map<std::string, std::
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  std::vector<viskores::cont::UnknownCellSet> cellSets;
-
-  //load the connect_list
-  // Read raw connectivity data via the data source directly
+  // Issue deferred reads for connectivity and plane connectivity, wrap each
+  // RawArray into an ArrayHandle that shares ownership of the deferred-read
+  // buffer, and build the CellSetExtrude objects from those handles here.
+  // Viskores does not touch buffer contents at construction; the ownership
+  // chain (cellset -> handle -> RawArray buffer) keeps the buffers alive
+  // until the flush (EndStep / DoAllReads) populates them, after which
+  // ProcessViskores() applies the cached cell sets to partitions.
+  // Pass IsVector::No so each connectivity is read as a flat 1D array.
+  using intType = viskores::cont::ArrayHandle<viskores::Int32>;
   {
     const auto& ds = sources[this->CellConnectivity->DataSourceName];
     ds->OpenSource(paths, this->CellConnectivity->DataSourceName);
   }
-
-  // Pass IsVector::No so the connectivity is read as a flat 1D array
-  std::vector<fides::RawArray> connectivityRaw =
-    sources[this->CellConnectivity->DataSourceName]->ReadVariable(
-      this->CellConnectivity->VariableName, newSelections, fides::io::IsVector::No);
-
+  auto connectivityRaw = sources[this->CellConnectivity->DataSourceName]->ReadVariable(
+    this->CellConnectivity->VariableName, newSelections, fides::io::IsVector::No);
   if (connectivityRaw.size() != 1)
   {
     throw std::runtime_error("XGC CellConnectivity should have one Array");
   }
-
-  using intType = viskores::cont::ArrayHandle<viskores::Int32>;
-
-  // Ask the helper to deep-copy the data so it survives scope
-  auto connUnknown =
-    fides::internal::RawArrayToUnknownArrayHandle(connectivityRaw[0], viskores::CopyFlag::On);
-
+  auto connUnknown = fides::internal::RawArrayToUnknownArrayHandle(connectivityRaw[0]);
   if (!connUnknown.IsType<intType>())
   {
     throw std::runtime_error("Only int arrays are supported for XGC cell connectivity.");
   }
-
-  intType connectivityAH = connUnknown.AsArrayHandle<intType>();
+  auto connectivityAH = connUnknown.AsArrayHandle<intType>();
 
   {
     const auto& ds = sources[this->PlaneConnectivity->DataSourceName];
     ds->OpenSource(paths, this->PlaneConnectivity->DataSourceName);
   }
-
-  // Pass IsVector::No here as well
-  std::vector<fides::RawArray> planeConnectivityRaw =
-    sources[this->PlaneConnectivity->DataSourceName]->ReadVariable(
-      this->PlaneConnectivity->VariableName, newSelections, fides::io::IsVector::No);
-
+  auto planeConnectivityRaw = sources[this->PlaneConnectivity->DataSourceName]->ReadVariable(
+    this->PlaneConnectivity->VariableName, newSelections, fides::io::IsVector::No);
   if (planeConnectivityRaw.size() > 1)
   {
     throw std::runtime_error("xgc nextNode is supposed to be included in one array.");
   }
-
-  // Ask the helper to deep-copy the data
-  auto planeConnUnknown =
-    fides::internal::RawArrayToUnknownArrayHandle(planeConnectivityRaw[0], viskores::CopyFlag::On);
-
+  auto planeConnUnknown = fides::internal::RawArrayToUnknownArrayHandle(planeConnectivityRaw[0]);
   if (!planeConnUnknown.IsType<intType>())
   {
     throw std::runtime_error("Only int arrays are supported for XGC plane connectivity.");
   }
+  auto planeConnectivityAH = planeConnUnknown.AsArrayHandle<intType>();
 
-  intType planeConnectivityAH = planeConnUnknown.AsArrayHandle<intType>();
+  auto numPointsPerPlane = planeConnectivityAH.GetNumberOfValues();
 
-  auto numPointsPerPlane = planeConnectivityRaw[0].NumValues;
   // blocks info doesn't need to be added to the selection for CellSet, since
   // it's not needed for reading the data
   std::vector<XGCBlockInfo> blocksInfo;
@@ -994,25 +1018,22 @@ std::vector<size_t> CellSetXGC::Read(const std::unordered_map<std::string, std::
       "No XGC block info returned. May want to double check block selection.");
   }
 
+  this->CellSetCache.reserve(blocksInfo.size());
   for (size_t i = 0; i < blocksInfo.size(); ++i)
   {
     const auto& block = blocksInfo[i];
     viskores::Int32 numPlanes = block.NumberOfPlanesOwned * (1 + numInsertPlanes);
-    auto xgcCell = viskores::cont::CellSetExtrude(connectivityAH,
-                                                  static_cast<viskores::Int32>(numPointsPerPlane),
-                                                  static_cast<viskores::Int32>(numPlanes),
-                                                  planeConnectivityAH,
-                                                  this->IsPeriodic);
-    cellSets.push_back(xgcCell);
+    this->CellSetCache.push_back(
+      viskores::cont::CellSetExtrude(connectivityAH,
+                                     static_cast<viskores::Int32>(numPointsPerPlane),
+                                     static_cast<viskores::Int32>(numPlanes),
+                                     planeConnectivityAH,
+                                     this->IsPeriodic));
   }
 
-  // Always store cell sets for PostRead (not just when IsStatic).
-  // Since Read returns InvalidToken (0) for XGC, the builder does not
-  // set cell sets on DataSets. PostRead applies them.
-  this->CellSetCache = cellSets;
-  // Return placeholder tokens (one per block). The real cell sets are
-  // stored internally and applied during PostRead.
-  return std::vector<size_t>(cellSets.size(), 0);
+  // Return placeholder tokens (one per block). The builder does not know
+  // about CellSetExtrude; the cached cell sets are applied in ProcessViskores().
+  return std::vector<size_t>(this->CellSetCache.size(), 0);
 }
 
 class CellSetXGC::CalcPsi : public viskores::worklet::WorkletMapField
@@ -1042,11 +1063,16 @@ private:
 void CellSetXGC::ProcessViskores(std::vector<viskores::cont::DataSet>& partitions,
                                  const fides::metadata::MetaData& selections)
 {
-  // Apply cached cell sets to DataSets (they were created in Read but
-  // not set by the builder since Read returns InvalidToken)
+  // Apply the cell sets built in Read(). The deferred ADIOS reads they wrap
+  // have been flushed by this point, so the connectivity buffers are filled.
+  // For non-static cell sets, clear the handoff slot after applying.
   for (size_t i = 0; i < partitions.size() && i < this->CellSetCache.size(); i++)
   {
     partitions[i].SetCellSet(this->CellSetCache[i]);
+  }
+  if (!this->IsStatic)
+  {
+    this->CellSetCache.clear();
   }
 
   //This is a hack until we decide with XGC how to cellset connectivity.
@@ -1158,46 +1184,48 @@ std::vector<size_t> CellSetGTC::Read(const std::unordered_map<std::string, std::
 
   if (!this->IsCached)
   {
-    // Read raw arrays via the data source directly and convert to Viskores
-    // UnknownArrayHandle for internal use
+    // Issue deferred reads for igrid and index_shift, then wrap each into an
+    // UnknownArrayHandle that shares ownership of the deferred-read buffer.
+    // The buffers are not filled until the flush (EndStep / DoAllReads); we
+    // consume the now-filled handles in ProcessViskores().
+    using intType = viskores::cont::ArrayHandle<int>;
     {
       const auto& ds = sources[this->IGrid->DataSourceName];
       ds->OpenSource(paths, this->IGrid->DataSourceName);
     }
-    std::vector<fides::RawArray> igridRaw =
+    auto igridRaw =
       sources[this->IGrid->DataSourceName]->ReadVariable(this->IGrid->VariableName, selections);
     if (igridRaw.size() != 1)
     {
       throw std::runtime_error("igrid object not found for GTC CellSet.");
     }
-    // Deep copy into owned ArrayHandles so data survives after RawArrays go out of scope
-    this->IGridArrays.clear();
+    auto igridUnknown = fides::internal::RawArrayToUnknownArrayHandle(igridRaw[0]);
+    if (!igridUnknown.IsType<intType>())
     {
-      viskores::cont::ArrayHandle<int> owned;
-      viskores::cont::ArrayCopy(fides::internal::RawArrayToUnknownArrayHandle(igridRaw[0]), owned);
-      this->IGridArrays.push_back(owned);
+      throw std::runtime_error("Only int arrays are supported for GTC igrid.");
     }
+    this->IGridArrays.clear();
+    this->IGridArrays.push_back(igridUnknown);
 
     {
       const auto& ds = sources[this->IndexShift->DataSourceName];
       ds->OpenSource(paths, this->IndexShift->DataSourceName);
     }
-    std::vector<fides::RawArray> indexShiftRaw =
-      sources[this->IndexShift->DataSourceName]->ReadVariable(this->IndexShift->VariableName,
-                                                              selections);
+    auto indexShiftRaw = sources[this->IndexShift->DataSourceName]->ReadVariable(
+      this->IndexShift->VariableName, selections);
     if (indexShiftRaw.size() != 1)
     {
       throw std::runtime_error("index_shift object not found for GTC CellSet.");
     }
-    this->IndexShiftArrays.clear();
+    auto indexShiftUnknown = fides::internal::RawArrayToUnknownArrayHandle(indexShiftRaw[0]);
+    if (!indexShiftUnknown.IsType<intType>())
     {
-      viskores::cont::ArrayHandle<int> owned;
-      viskores::cont::ArrayCopy(fides::internal::RawArrayToUnknownArrayHandle(indexShiftRaw[0]),
-                                owned);
-      this->IndexShiftArrays.push_back(owned);
+      throw std::runtime_error("Only int arrays are supported for GTC index_shift.");
     }
+    this->IndexShiftArrays.clear();
+    this->IndexShiftArrays.push_back(indexShiftUnknown);
 
-    //Create the cell sets. We will fill them in PostRead
+    //Create the cell sets. We will fill them in ProcessViskores.
     viskores::cont::CellSetSingleType<> cellSet;
     this->CachedCellSet = cellSet;
   }
@@ -1247,6 +1275,10 @@ void CellSetGTC::ProcessViskores(std::vector<viskores::cont::DataSet>& partition
     return;
   }
 
+  // IGridArrays / IndexShiftArrays now hold ArrayHandles wrapping the
+  // deferred-read buffers (filled by the flush before this runs). Note:
+  // ComputeCellSet mutates the igrid buffer in place (Fortran indices
+  // -> 0-based), which is safe because this CellSetGTC is the sole owner.
   if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
   {
     throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
@@ -1485,7 +1517,7 @@ void CellSetGTC::ComputeCellSet(viskores::cont::DataSet& dataSet)
     cellSet = dataSet.GetCellSet().AsCellSet<viskores::cont::CellSetSingleType<>>();
   }
 
-  auto connIdsAH = viskores::cont::make_ArrayHandle(connIds, viskores::CopyFlag::On);
+  auto connIdsAH = viskores::cont::make_ArrayHandleMove(std::move(connIds));
   cellSet.Fill(numCoords, viskores::CELL_SHAPE_WEDGE, 6, connIdsAH);
   dataSet.SetCellSet(cellSet);
 

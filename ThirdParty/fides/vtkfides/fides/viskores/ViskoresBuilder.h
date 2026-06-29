@@ -45,6 +45,9 @@ public:
   /// Assembles and returns the final PartitionedDataSet from added partitions.
   viskores::cont::PartitionedDataSet GetResult();
 
+  /// One PartitionedDataSet per collection item (multi-dataset / PDC).
+  std::vector<viskores::cont::PartitionedDataSet> GetResultCollection();
+
 private:
   // --- Built during Finalize ---
   std::vector<viskores::cont::DataSet> DataSetsVec;

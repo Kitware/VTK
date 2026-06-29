@@ -45,15 +45,18 @@ public:
 
   void OpenSource(const std::string& token, bool useMPI = true) override;
 
-  // NOTE: Selections are currently ignored for data coming from Conduit
+  // NOTE: Selections are currently ignored for data coming from Conduit.
+  // \c mode matches the base signature but is ignored.
   std::vector<fides::RawArray> ReadVariable(const std::string& varName,
                                             const fides::metadata::MetaData& selections,
-                                            IsVector isit = IsVector::Auto) override;
+                                            IsVector isit = IsVector::Auto,
+                                            ReadMode mode = ReadMode::Deferred) override;
 
-  // NOTE: Selections are currently ignored for data coming from Conduit
-  std::vector<fides::RawArray> ReadMultiBlockVariable(
-    const std::string& varName,
-    const fides::metadata::MetaData& selections) override;
+  // NOTE: Selections are currently ignored for data coming from Conduit.
+  // \c mode matches the base signature but is ignored.
+  std::vector<fides::RawArray> ReadMultiBlockVariable(const std::string& varName,
+                                                      const fides::metadata::MetaData& selections,
+                                                      ReadMode mode = ReadMode::Deferred) override;
 
   // NOTE: Selections are currently ignored for data coming from Conduit
   std::vector<fides::RawArray> GetScalarVariable(

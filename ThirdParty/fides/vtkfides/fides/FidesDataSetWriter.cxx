@@ -13,7 +13,11 @@
 
 #if FIDES_USE_VTK
 #include <fides/vtk/FidesDataSetWriterVTK.h>
+#include <vtkCompositeDataSet.h>
+#include <vtkDataAssembly.h>
+#include <vtkInformation.h>
 #include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkSmartPointer.h>
 #endif
 
@@ -30,6 +34,36 @@ namespace fides
 {
 namespace io
 {
+
+#if FIDES_USE_VTK
+namespace
+{
+/// Recursively translate a vtkDataAssembly node into a fides::AssemblyNode,
+/// resolving dataset slot indices to item names via \c slotToName. The
+/// reader-injected auto-names subtree is skipped by the caller so it does not
+/// accumulate on re-write.
+void ConvertAssemblyNode(vtkDataAssembly* a,
+                         int node,
+                         const std::vector<std::string>& slotToName,
+                         fides::AssemblyNode& out)
+{
+  const char* nm = a->GetNodeName(node);
+  out.Name = nm ? nm : "";
+  for (unsigned int idx : a->GetDataSetIndices(node, /*traverse_subtree=*/false))
+  {
+    if (idx < slotToName.size())
+    {
+      out.Datasets.push_back(slotToName[idx]);
+    }
+  }
+  for (int child : a->GetChildNodes(node, /*traverse_subtree=*/false))
+  {
+    out.Children.emplace_back();
+    ConvertAssemblyNode(a, child, slotToName, out.Children.back());
+  }
+}
+}
+#endif
 
 FidesDataSetWriter::FidesDataSetWriter(const std::string& outputFile, const std::string& outputMode)
   : Writer(new FidesWriter(outputFile, outputMode))
@@ -139,6 +173,98 @@ void FidesDataSetWriter::Write(fides::DataContainer& container)
   }
 #endif
   throw std::runtime_error("DataContainer does not hold a supported VTK or Viskores collection");
+}
+
+void FidesDataSetWriter::WriteCollection(const fides::VTKPDC& pdc)
+{
+#if FIDES_USE_VTK
+  auto* p = pdc.Get();
+  if (!p)
+  {
+    throw std::runtime_error("WriteCollection: null vtkPartitionedDataSetCollection");
+  }
+  const std::set<std::string> fields =
+    this->WriteAll ? std::set<std::string>() : this->FieldsToWrite;
+
+  std::vector<fides::CollectionItem> items;
+  std::vector<std::string> slotToName;
+  for (unsigned int i = 0; i < p->GetNumberOfPartitionedDataSets(); ++i)
+  {
+    fides::CollectionItem item;
+    item.Name = "dataset_" + std::to_string(i);
+    if (p->HasMetaData(i) && p->GetMetaData(i)->Has(vtkCompositeDataSet::NAME()))
+    {
+      item.Name = p->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
+    }
+    auto extraction = fides::ExtractVTKPartitions(p->GetPartitionedDataSet(i), fields);
+    // WriteCollection currently only carries DataSet items; cellgrid PDC
+    // items are a separate (not-yet-implemented) feature. Reject early
+    // with a clear error rather than silently dropping the cellgrid.
+    if (!extraction.CellGrids.empty())
+    {
+      throw std::runtime_error("WriteCollection: dataset '" + item.Name +
+                               "' contains vtkCellGrid partitions; multi-item PDCs containing "
+                               "cellgrids are not yet supported.");
+    }
+    item.Partitions = std::move(extraction.DataSets);
+    slotToName.push_back(item.Name);
+    items.push_back(std::move(item));
+  }
+
+  // Translate the schema-declared assembly subtrees (everything under
+  // the root except the reader-synthesized auto-names subtree, which is
+  // regenerated on read).
+  fides::AssemblyNode assembly;
+  bool hasAssembly = false;
+  if (auto* a = p->GetDataAssembly())
+  {
+    const char* rootName = a->GetRootNodeName();
+    assembly.Name = rootName ? rootName : "";
+    const int root = vtkDataAssembly::GetRootNode();
+    for (int child : a->GetChildNodes(root, /*traverse_subtree=*/false))
+    {
+      const char* cn = a->GetNodeName(child);
+      if (cn && std::string(cn) == fides::kAutoNamesAssemblySubtree)
+      {
+        continue;
+      }
+      assembly.Children.emplace_back();
+      ConvertAssemblyNode(a, child, slotToName, assembly.Children.back());
+      hasAssembly = true;
+    }
+  }
+  this->Writer->WriteCollection(items, hasAssembly ? &assembly : nullptr);
+#else
+  (void)pdc;
+  throw std::runtime_error("Fides was not built with VTK support");
+#endif
+}
+
+void FidesDataSetWriter::WriteCollection(const std::vector<std::string>& names,
+                                         const std::vector<fides::ViskoresCollection>& datasets)
+{
+#if FIDES_USE_VISKORES
+  if (names.size() != datasets.size())
+  {
+    throw std::runtime_error("WriteCollection: names and datasets size mismatch (" +
+                             std::to_string(names.size()) + " vs " +
+                             std::to_string(datasets.size()) + ").");
+  }
+  const std::set<std::string> fields =
+    this->WriteAll ? std::set<std::string>() : this->FieldsToWrite;
+  std::vector<fides::CollectionItem> items;
+  items.reserve(datasets.size());
+  for (size_t i = 0; i < datasets.size(); ++i)
+  {
+    items.push_back({ names[i], fides::ExtractViskoresPartitions(datasets[i], fields) });
+  }
+  // Viskores has no assembly concept.
+  this->Writer->WriteCollection(items, nullptr);
+#else
+  (void)names;
+  (void)datasets;
+  throw std::runtime_error("Fides was not built with Viskores support");
+#endif
 }
 
 void FidesDataSetWriter::EndStep()

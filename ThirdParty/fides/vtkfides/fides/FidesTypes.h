@@ -65,6 +65,7 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkSmartPointer;
 class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
 VTK_ABI_NAMESPACE_END
 #endif
 
@@ -78,23 +79,40 @@ class Node;
 namespace fides
 {
 
+/// Reserved name of the assembly subtree the reader synthesizes on top
+/// of any schema-declared subtrees in a multi-dataset (PDC) result; it
+/// holds one leaf per named collection item. Writers must skip a
+/// subtree with this exact name when re-serializing an assembly, and
+/// user schemas must not declare a node with this name (rejected at
+/// parse time). The leading double underscore + "fides" prefix keeps
+/// it out of the user's natural namespace.
+FIDES_EXPORT extern const char* const kAutoNamesAssemblySubtree;
+
 // Depending on support, use either type aliasing or opaque stubs
 #if FIDES_USE_VISKORES
 using ViskoresCollection = viskores::cont::PartitionedDataSet;
+// A multi-dataset (PDC) result: one PartitionedDataSet per collection
+// item. Viskores has no single container/assembly analogue.
+using ViskoresPartitionedCollection = std::vector<viskores::cont::PartitionedDataSet>;
 #else
 struct ViskoresMissingStub
 {
 };
 using ViskoresCollection = ViskoresMissingStub;
+using ViskoresPartitionedCollection = ViskoresMissingStub;
 #endif
 
 #if FIDES_USE_VTK
 using VTKCollection = vtkSmartPointer<vtkPartitionedDataSet>;
+// A multi-dataset (PDC) result: a vtkPartitionedDataSetCollection whose
+// items carry a vtkDataAssembly (names + schema-declared subtrees).
+using VTKPDC = vtkSmartPointer<vtkPartitionedDataSetCollection>;
 #else
 struct VTKMissingStub
 {
 };
 using VTKCollection = VTKMissingStub;
+using VTKPDC = VTKMissingStub;
 #endif
 
 #if FIDES_USE_CONDUIT
@@ -112,6 +130,11 @@ using ConduitCollection = ConduitMissingStub;
 FIDES_EXPORT ViskoresCollection GetAsViskoresPDS(DataContainer& container);
 FIDES_EXPORT VTKCollection GetAsVTKPDS(DataContainer& container);
 FIDES_EXPORT ConduitCollection GetAsConduit(DataContainer& container);
+
+/// Multi-dataset (PDC) output extractors — use when reading a
+/// `datasets[]` schema or a multi-group source.
+FIDES_EXPORT VTKPDC GetAsVTKPDC(DataContainer& container);
+FIDES_EXPORT ViskoresPartitionedCollection GetAsViskoresCollection(DataContainer& container);
 
 /// Public input wrappers
 FIDES_EXPORT std::shared_ptr<DataContainer> Wrap(const ViskoresCollection& dataset);
@@ -264,7 +287,7 @@ inline DataType GetDataType()
 /// in the core data flow.
 struct FIDES_EXPORT RawArray
 {
-  /// Refcounted buffer. null for deferred reads (inline engine).
+  /// Refcounted buffer holding the array data.
   std::shared_ptr<void> Data;
 
   /// Number of elements (not bytes).

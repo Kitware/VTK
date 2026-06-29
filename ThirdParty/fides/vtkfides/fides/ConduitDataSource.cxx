@@ -536,7 +536,8 @@ std::vector<fides::RawArray> ReadVariableInternal(std::shared_ptr<conduit::Node>
 std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
   const std::string& varName,
   const fides::metadata::MetaData& fidesNotUsed(selections),
-  IsVector isit)
+  IsVector isit,
+  ReadMode fidesNotUsed(mode))
 {
   std::string shapePath = GetConduitPath(ConduitNodeType::Shape, varName, this->SchemaDocument);
   std::string dataPath = GetConduitPath(ConduitNodeType::Data, varName, this->SchemaDocument);
@@ -582,10 +583,11 @@ std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
 
 std::vector<fides::RawArray> ConduitDataSource::ReadMultiBlockVariable(
   const std::string& varName,
-  const fides::metadata::MetaData& selections)
+  const fides::metadata::MetaData& selections,
+  ReadMode mode)
 {
   // Conduit does not have blocks, so just ReadVariable
-  return ReadVariable(varName, selections, IsVector::Auto);
+  return ReadVariable(varName, selections, IsVector::Auto, mode);
 }
 
 std::vector<size_t> ConduitDataSource::GetVariableShape(std::string& varName)

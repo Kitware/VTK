@@ -11,6 +11,7 @@
 #include <fides/internal/DataWrapHelper.h>
 
 #if FIDES_USE_VISKORES
+#include <viskores/cont/ArrayHandleBasic.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/Field.h>
 #include <viskores/cont/UnknownArrayHandle.h>
@@ -155,28 +156,48 @@ viskores::UInt8 ConvertFidesCellTypeToViskores(const std::string& cellShapeName)
   return cellType;
 }
 
-viskores::cont::UnknownArrayHandle RawArrayToUnknownArrayHandle(const fides::RawArray& raw,
-                                                                viskores::CopyFlag copy)
+namespace
+{
+
+// Deleter for the heap-allocated shared_ptr<void> container we pass to
+// viskores. When viskores destroys the buffer, this drops the refcount on
+// the underlying RawArray buffer.
+void DeleteSharedPtrContainer(void* container)
+{
+  delete static_cast<std::shared_ptr<void>*>(container);
+}
+
+// Build an ArrayHandleBasic<T> that shares ownership of raw's buffer via
+// shared_ptr held in viskores' buffer container slot.
+template <typename T>
+viskores::cont::ArrayHandleBasic<T> MakeOwningArrayHandleBasic(const fides::RawArray& raw,
+                                                               viskores::Id numValues)
+{
+  auto* container = new std::shared_ptr<void>(raw.Data);
+  return viskores::cont::ArrayHandleBasic<T>(
+    const_cast<T*>(raw.GetPointer<T>()), container, numValues, DeleteSharedPtrContainer);
+}
+
+} // anonymous namespace
+
+viskores::cont::UnknownArrayHandle RawArrayToUnknownArrayHandle(const fides::RawArray& raw)
 {
   // Local macro to generate the cases for each data type, handling
   // both flat arrays and multi-component vectors automatically.
-#define FIDES_GENERATE_VISKORES_ARRAY(FIDES_TYPE, C_TYPE)                          \
-  case fides::DataType::FIDES_TYPE:                                                \
-  {                                                                                \
-    if (raw.NumComponents == 1)                                                    \
-    {                                                                              \
-      return viskores::cont::make_ArrayHandle(                                     \
-        raw.GetPointer<C_TYPE>(), static_cast<viskores::Id>(raw.NumValues), copy); \
-    }                                                                              \
-    else                                                                           \
-    {                                                                              \
-      return viskores::cont::make_ArrayHandleRuntimeVec(                           \
-        raw.NumComponents,                                                         \
-        viskores::cont::make_ArrayHandle(                                          \
-          raw.GetPointer<C_TYPE>(),                                                \
-          static_cast<viskores::Id>(raw.NumValues * raw.NumComponents),            \
-          copy));                                                                  \
-    }                                                                              \
+#define FIDES_GENERATE_VISKORES_ARRAY(FIDES_TYPE, C_TYPE)                                       \
+  case fides::DataType::FIDES_TYPE:                                                             \
+  {                                                                                             \
+    if (raw.NumComponents == 1)                                                                 \
+    {                                                                                           \
+      return MakeOwningArrayHandleBasic<C_TYPE>(raw, static_cast<viskores::Id>(raw.NumValues)); \
+    }                                                                                           \
+    else                                                                                        \
+    {                                                                                           \
+      return viskores::cont::make_ArrayHandleRuntimeVec(                                        \
+        raw.NumComponents,                                                                      \
+        MakeOwningArrayHandleBasic<C_TYPE>(                                                     \
+          raw, static_cast<viskores::Id>(raw.NumValues * raw.NumComponents)));                  \
+    }                                                                                           \
   }
 
   switch (raw.Type)
