@@ -962,6 +962,10 @@
     - wasm-ld --version
     - wasm-opt --version
     - emcc --version
+    # emcc/em++ re-verify the toolchain (clang/wasm-ld/node) on every invocation. The check is
+    # redundant here (hopeful), the emsdk we just installed is immutable for the life of the job, and it
+    # adds up across the hundreds of try_compile probes during configure. Skip it.
+    - export EMCC_SKIP_SANITY_CHECK=1
 
 .cmake_build_wasm_emscripten_linux:
     stage: build
