@@ -272,6 +272,11 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
       .CreateSampler(reinterpret_cast<wgpu::SamplerDescriptor*>(&this->SamplerDescriptor))
       .MoveToCHandle();
   this->TextureViewDescriptor = {};
+  // The C WGPUTextureViewDescriptor zero-initializes mipLevelCount/arrayLayerCount to 0, which is
+  // invalid. The C++ wgpu::TextureViewDescriptor defaults these to the "undefined" sentinel so that
+  // Dawn resolves them to the texture's full mip/layer counts. Replicate that here.
+  this->TextureViewDescriptor.mipLevelCount = WGPU_MIP_LEVEL_COUNT_UNDEFINED;
+  this->TextureViewDescriptor.arrayLayerCount = WGPU_ARRAY_LAYER_COUNT_UNDEFINED;
   if (cubeMap)
   {
     this->TextureViewDescriptor.dimension =
