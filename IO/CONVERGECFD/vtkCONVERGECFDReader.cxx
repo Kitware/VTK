@@ -984,10 +984,31 @@ int vtkCONVERGECFDReader::RequestData(
 
         // Number of points in face
         faces->InsertNextId(numPts);
-        for (int i = 0; i < numPts; ++i)
+
+        // Each interior face is shared by two cells (CONNECTED_CELLS) but is
+        // stored once with a single winding. Insert it as stored for the cell it
+        // is stored against (connectedCells[2*polyId+0]) and reversed for the
+        // other cell, so every polyhedron is built with consistently oriented
+        // faces. Without this, nearly every interior face is wound backwards for
+        // one of its two cells, leaving vtkPolyhedron with mixed face normals and
+        // breaking slicing/contouring (self-overlapping or open cross sections).
+        // This mirrors the face reversal the CGNS reader applies using the signed
+        // NFACE_n connectivity.
+        if (connectedCells[2 * polyId + 0] == cellIdAndPolys.first)
         {
-          // Polygon vertex
-          faces->InsertNextId(polygons[polygonOffsets[polyId] + i]);
+          for (int i = 0; i < numPts; ++i)
+          {
+            // Polygon vertex, owner winding
+            faces->InsertNextId(polygons[polygonOffsets[polyId] + i]);
+          }
+        }
+        else
+        {
+          for (int i = numPts - 1; i >= 0; --i)
+          {
+            // Polygon vertex, reversed for the neighbor cell
+            faces->InsertNextId(polygons[polygonOffsets[polyId] + i]);
+          }
         }
       }
 
