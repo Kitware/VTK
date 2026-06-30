@@ -3,6 +3,8 @@
 
 #include "vtkFidesWriter.h"
 
+#include "vtkCellGrid.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
@@ -18,14 +20,12 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
-#include "vtkmlib/DataSetConverters.h"
 #include "vtksys/SystemTools.hxx"
 
 // Fides includes
 #include <vtk_fides.h>
 // clang-format off
-#include VTK_FIDES(fides/DataSetWriter.h)
-#include VTK_FIDES(fides/Deprecated.h)
+#include VTK_FIDES(fides/FidesDataSetWriter.h)
 // clang-format on
 
 #ifdef IOFIDES_HAVE_MPI
@@ -33,8 +33,8 @@
 #include "vtkMPIController.h"
 #endif
 
-#include <viskores/cont/DataSet.h>
-#include <viskores/cont/PartitionedDataSet.h>
+#include <cassert>
+#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFidesWriter);
@@ -46,9 +46,7 @@ struct vtkFidesWriter::FidesWriterImpl
   std::vector<double> TimeStepsToProcess;
   int CurrentTimeStepIndex{ 0 };
 
-  FIDES_DEPRECATED_SUPPRESS_BEGIN
-  std::map<std::string, std::unique_ptr<fides::io::DataSetAppendWriter>> Writers;
-  FIDES_DEPRECATED_SUPPRESS_END
+  std::map<std::string, std::unique_ptr<fides::io::FidesDataSetWriter>> Writers;
 
   FidesWriterImpl() = default;
   ~FidesWriterImpl()
@@ -122,6 +120,7 @@ int vtkFidesWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformatio
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCellGrid");
   return 1;
 }
 
@@ -271,12 +270,56 @@ int vtkFidesWriter::RequestData(
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+// Collect the names of the arrays that should be written for a partitioned
+// dataset, honoring the per-association selection when ChooseFieldsToWrite is
+// on. The vtkDataObject-typed accessor is used so vtkCellGrid partitions (which
+// aren't vtkDataSet) are visible; GetPartition() returns null for those.
+void CollectFieldsToWrite(vtkPartitionedDataSet* pds, bool chooseFields, vtkFidesWriter* self,
+  std::vector<std::string>& fieldsToWrite)
+{
+  if (!pds || pds->GetNumberOfPartitions() == 0)
+  {
+    return;
+  }
+  auto partition = pds->GetPartitionAsDataObject(0);
+  if (!partition)
+  {
+    return;
+  }
+  for (int association = 0; association < 3; ++association)
+  {
+    auto fd = partition->GetAttributesAsFieldData(association);
+    auto selection = self->GetArraySelection(association);
+    if (!fd || !selection)
+    {
+      continue;
+    }
+    for (int idx = 0; idx < fd->GetNumberOfArrays(); ++idx)
+    {
+      auto inarray = fd->GetAbstractArray(idx);
+      if (inarray && inarray->GetName() &&
+        (!chooseFields || selection->ArrayIsEnabled(inarray->GetName())))
+      {
+        fieldsToWrite.emplace_back(inarray->GetName());
+      }
+    }
+  }
+}
+}
+
+//------------------------------------------------------------------------------
 bool vtkFidesWriter::WriteDataAndReturn()
 {
   vtkLogScopeFunction(TRACE);
 
   vtkSmartPointer<vtkDataObject> inputDO = this->GetInput();
-  if (vtkDataSet::SafeDownCast(inputDO))
+  // Bare vtkDataSet or vtkCellGrid: wrap as a single-partition PDS so the
+  // common PDS/PDSC path below handles both uniformly. vtkCellGrid isn't a
+  // vtkDataSet (it derives directly from vtkDataObject) and so doesn't match
+  // the vtkDataSet downcast.
+  if (vtkDataSet::SafeDownCast(inputDO) || vtkCellGrid::SafeDownCast(inputDO))
   {
     vtkNew<vtkPartitionedDataSet> pd;
     pd->SetPartition(0, inputDO);
@@ -292,14 +335,16 @@ bool vtkFidesWriter::WriteDataAndReturn()
 
   if (auto mb = vtkMultiBlockDataSet::SafeDownCast(inputDO))
   {
-    // convert MB to PDC.
-    vtkNew<vtkDataAssembly> hierarchyUnused;
+    // convert MB to PDC, preserving the hierarchy as a vtkDataAssembly so it
+    // can be serialized into the Fides collection schema below.
+    vtkNew<vtkDataAssembly> hierarchy;
     vtkNew<vtkPartitionedDataSetCollection> pdc;
-    if (!vtkDataAssemblyUtilities::GenerateHierarchy(mb, hierarchyUnused, pdc))
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(mb, hierarchy, pdc))
     {
       vtkErrorMacro("Failed to generate hierarchy for input!");
       return false;
     }
+    pdc->SetDataAssembly(hierarchy);
     inputDO = pdc;
   }
 
@@ -310,58 +355,166 @@ bool vtkFidesWriter::WriteDataAndReturn()
     return false;
   }
 
+  // Read DATA_TIME_STEP from the original input object the upstream producer
+  // handed us, not from the per-PDS slices we walk below -- upstream stamps the
+  // time once on the top-level data object's info, and that's the only place
+  // the executive's pipeline machinery propagates it to. Must be set before the
+  // first Write so Fides' schema generator emits the step variable.
+  bool haveCurrentTime = false;
+  double currentTime = 0.0;
+  if (auto* originalInfo = this->GetInput() ? this->GetInput()->GetInformation() : nullptr)
+  {
+    if (originalInfo->Has(vtkDataObject::DATA_TIME_STEP()))
+    {
+      currentTime = originalInfo->Get(vtkDataObject::DATA_TIME_STEP());
+      haveCurrentTime = true;
+    }
+  }
+
+  const unsigned int numPDS = inputPDC->GetNumberOfPartitionedDataSets();
+
+  // Detect cellgrid partitions anywhere in the collection. The Fides VTK
+  // backend's WriteCollection cannot carry cellgrid items, so collections that
+  // contain them fall back to the per-PDS path below.
+  bool hasCellGrid = false;
+  for (unsigned int i = 0; i < numPDS && !hasCellGrid; ++i)
+  {
+    auto pds = inputPDC->GetPartitionedDataSet(i);
+    for (unsigned int j = 0; pds && j < pds->GetNumberOfPartitions(); ++j)
+    {
+      if (vtkCellGrid::SafeDownCast(pds->GetPartitionAsDataObject(j)))
+      {
+        hasCellGrid = true;
+        break;
+      }
+    }
+  }
+
+  const std::string mode = this->Engine == EngineTypes::BPFile ? "BPFile" : "SST";
+
+  // Create (on first step) or look up the FidesDataSetWriter for a given output
+  // file, run the per-step protocol (BeginStep -> SetCurrentTime -> write ->
+  // EndStep), and report success. SetWriteFields / SetAdiosConfigFile must
+  // happen before the first BeginStep, so they only run when the writer is
+  // first created. doWrite performs the actual Write/WriteCollection call.
+  auto writeTarget = [&](const std::string& fname, const std::vector<std::string>& fieldsToWrite,
+                       auto&& doWrite) -> bool
+  {
+    const bool firstStep = this->Impl->Writers.count(fname) == 0;
+    if (firstStep)
+    {
+#ifdef IOFIDES_HAVE_MPI
+      if (this->Controller)
+      {
+        vtkMPICommunicator* vtkComm =
+          vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
+        if (!vtkComm || !vtkComm->GetMPIComm())
+        {
+          vtkErrorMacro("Controller has no MPI communicator");
+          return false;
+        }
+        MPI_Comm comm = *(vtkComm->GetMPIComm()->GetHandle());
+        this->Impl->Writers.emplace(
+          fname, std::make_unique<fides::io::FidesDataSetWriter>(fname, comm, mode));
+      }
+      else
+      {
+        this->Impl->Writers.emplace(
+          fname, std::make_unique<fides::io::FidesDataSetWriter>(fname, mode));
+      }
+#else
+      this->Impl->Writers.emplace(
+        fname, std::make_unique<fides::io::FidesDataSetWriter>(fname, mode));
+#endif
+    }
+    auto it = this->Impl->Writers.find(fname);
+    if (it == this->Impl->Writers.end())
+    {
+      return true;
+    }
+    auto& writer = *it->second;
+
+    if (firstStep)
+    {
+      if (this->AdiosConfigFile && this->AdiosConfigFile[0])
+      {
+        writer.SetAdiosConfigFile(this->AdiosConfigFile);
+      }
+      // When not explicitly choosing fields, leave the writer's default
+      // write-all behavior in place rather than constraining it to a list.
+      if (this->ChooseFieldsToWrite)
+      {
+        writer.SetWriteFields(fieldsToWrite);
+      }
+    }
+
+    try
+    {
+      writer.BeginStep();
+      if (haveCurrentTime)
+      {
+        writer.SetCurrentTime(currentTime);
+      }
+      doWrite(writer);
+      writer.EndStep();
+    }
+    catch (const std::exception& e)
+    {
+      vtkErrorMacro("Exception encountered when trying to write data: " << e.what());
+      return false;
+    }
+    return true;
+  };
+
+  // True collection output: more than one partitioned dataset and no cellgrid
+  // items (which WriteCollection can't carry). The whole collection -- the
+  // partitions plus the data assembly -- is serialized into a single Fides
+  // dataset. A single partitioned dataset is not a collection and takes the
+  // simpler per-dataset path below.
+  if (!hasCellGrid && numPDS > 1)
+  {
+    // Fides names unnamed collection items "dataset_<i>", but VTK reserves
+    // "da*" vtkDataAssembly node names, so such a collection cannot be read
+    // back. Give every item a valid name up front (on a shallow copy, so the
+    // pipeline input is left untouched).
+    vtkNew<vtkPartitionedDataSetCollection> namedPDC;
+    namedPDC->ShallowCopy(inputPDC);
+    std::vector<std::string> fieldsToWrite;
+    for (unsigned int pdsIdx = 0; pdsIdx < numPDS; ++pdsIdx)
+    {
+      if (!namedPDC->HasMetaData(pdsIdx) ||
+        !namedPDC->GetMetaData(pdsIdx)->Has(vtkCompositeDataSet::NAME()))
+      {
+        namedPDC->GetMetaData(pdsIdx)->Set(
+          vtkCompositeDataSet::NAME(), ("block" + vtk::to_string(pdsIdx)).c_str());
+      }
+      CollectFieldsToWrite(
+        namedPDC->GetPartitionedDataSet(pdsIdx), this->ChooseFieldsToWrite, this, fieldsToWrite);
+    }
+    return writeTarget(this->FileName, fieldsToWrite,
+      [&](fides::io::FidesDataSetWriter& writer) { writer.WriteCollection(namedPDC); });
+  }
+
+  // Otherwise write each partitioned dataset to its own file. The common
+  // single-PDS case (a plain mesh or a cellgrid) writes to FileName directly;
+  // multi-PDS cellgrid collections get a -p<idx> suffix per dataset.
   std::vector<std::string> pathComponents;
   vtksys::SystemTools::SplitPath(this->FileName, pathComponents);
   std::string fileExt = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
   std::string fileBase = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
 
-  for (unsigned int pdsIdx = 0; pdsIdx < inputPDC->GetNumberOfPartitionedDataSets(); ++pdsIdx)
+  bool ok = true;
+  for (unsigned int pdsIdx = 0; pdsIdx < numPDS; ++pdsIdx)
   {
     vtkLogScopeF(TRACE, "pdsIdx %u", pdsIdx);
-    // process PDS
     auto inputPDS = inputPDC->GetPartitionedDataSet(pdsIdx);
     assert(inputPDS != nullptr);
 
-    viskores::cont::PartitionedDataSet vtkmPDS;
     std::vector<std::string> fieldsToWrite;
-    for (unsigned int partIdx = 0; partIdx < inputPDS->GetNumberOfPartitions(); ++partIdx)
-    {
-      vtkLogScopeF(TRACE, "partIdx %u", partIdx);
-      auto partition = inputPDS->GetPartition(partIdx);
-
-      if (partIdx == 0)
-      {
-        // determine the fields that should be written
-        // we're handling POINTS, CELLS and NONE
-        for (int association = 0; association < 3; ++association)
-        {
-          auto fd = partition->GetAttributesAsFieldData(association);
-          auto selection = this->GetArraySelection(association);
-
-          if (!fd || !selection)
-          {
-            continue;
-          }
-
-          for (int idx = 0; idx < fd->GetNumberOfArrays(); ++idx)
-          {
-            auto inarray = fd->GetAbstractArray(idx);
-            if (inarray && inarray->GetName() &&
-              (!this->ChooseFieldsToWrite || selection->ArrayIsEnabled(inarray->GetName())))
-            {
-              fieldsToWrite.emplace_back(inarray->GetName());
-            }
-          }
-        }
-      }
-
-      viskores::cont::DataSet ds =
-        tovtkm::Convert(partition, tovtkm::FieldsFlag::PointsAndCells, /*forceViskores=*/true);
-      vtkmPDS.AppendPartition(ds);
-    }
+    CollectFieldsToWrite(inputPDS, this->ChooseFieldsToWrite, this, fieldsToWrite);
 
     std::string fname = this->FileName;
-    if (inputPDC->GetNumberOfPartitionedDataSets() > 1)
+    if (numPDS > 1)
     {
       pathComponents[pathComponents.size() - 1] =
         fileBase + "-p" + vtk::to_string(pdsIdx) + fileExt;
@@ -369,69 +522,11 @@ bool vtkFidesWriter::WriteDataAndReturn()
     }
     vtkLog(TRACE, "fname " << fname);
 
-    if (this->Impl->Writers.count(fname) == 0)
-    {
-      FIDES_DEPRECATED_SUPPRESS_BEGIN
-#ifdef IOFIDES_HAVE_MPI
-      if (this->Controller)
-      {
-        vtkMPICommunicator* vtkComm =
-          vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-        if (!vtkComm->GetMPIComm())
-        {
-          vtkErrorMacro("Controller has not MPI communicator");
-          return false;
-        }
-        MPI_Comm comm = *(vtkComm->GetMPIComm()->GetHandle());
-        this->Impl->Writers.emplace(
-          fname, std::make_unique<fides::io::DataSetAppendWriter>(fname, comm));
-      }
-      else
-      {
-        this->Impl->Writers.emplace(fname, std::make_unique<fides::io::DataSetAppendWriter>(fname));
-      }
-#else
-      this->Impl->Writers.emplace(fname, std::make_unique<fides::io::DataSetAppendWriter>(fname));
-#endif
-      FIDES_DEPRECATED_SUPPRESS_END
-    }
-    auto it = this->Impl->Writers.find(fname);
-    if (it == this->Impl->Writers.end())
-    {
-      continue;
-    }
-    auto& writer = *it->second;
-
-    std::string mode;
-    if (this->AdiosConfigFile && this->AdiosConfigFile[0])
-    {
-      writer.SetAdiosConfigFile(this->AdiosConfigFile);
-    }
-    else
-    {
-      mode = this->Engine == EngineTypes::BPFile ? "BPFile" : "SST";
-    }
-
-    writer.SetWriteFields(fieldsToWrite);
-
-    try
-    {
-      if (mode.empty())
-      {
-        writer.Write(vtkmPDS);
-      }
-      else
-      {
-        writer.Write(vtkmPDS, mode);
-      }
-    }
-    catch (const std::exception& e)
-    {
-      vtkErrorMacro("Exception encountered when trying to write data: " << e.what());
-      return false;
-    }
+    ok = writeTarget(fname, fieldsToWrite,
+           [&](fides::io::FidesDataSetWriter& writer) { writer.Write(inputPDS); }) &&
+      ok;
   }
-  return true;
+  return ok;
 }
 
 //------------------------------------------------------------------------------

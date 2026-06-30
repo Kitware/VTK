@@ -1,5 +1,7 @@
   vtk_module_test_data(
     Data/vtk-uns-grid-2.json
+    Data/vtk-cellgrid.json
+    Data/dgHexahedra.bp/,REGEX:.*
     Data/tris-blocks-time.bp
     Data/tris-blocks-time.bp.dir/,REGEX:.*
     Data/cartesian-attr.bp
@@ -9,6 +11,8 @@
 
 vtk_add_test_python(
    TestFidesBasic.py,NO_VALID,NO_OUTPUT
+   TestFidesCellGrid.py,NO_VALID,NO_OUTPUT
+   TestFidesPolyData.py,NO_DATA,NO_VALID
    TestFidesWriterBasic.py,NO_DATA,NO_VALID
    TestFidesWriterTime.py,NO_DATA,NO_VALID
 )

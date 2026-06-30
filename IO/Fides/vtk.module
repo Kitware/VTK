@@ -25,7 +25,6 @@ TEST_OPTIONAL_DEPENDS
   VTK::conduit
   VTK::ParallelMPI
 PRIVATE_DEPENDS
-  VTK::AcceleratorsVTKmDataModel
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::fides
