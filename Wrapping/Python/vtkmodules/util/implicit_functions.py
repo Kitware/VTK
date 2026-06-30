@@ -1,10 +1,11 @@
 """Pythonic API for VTK implicit functions.
 
-Adds CSG operators, callable protocol, constructor kwargs, and repr::
+Adds CSG operators, a callable protocol, and an informative repr::
 
     from vtkmodules.vtkCommonDataModel import vtkSphere, vtkPlane, vtkBox
 
-    # Constructor kwargs:
+    # Constructor kwargs (handled by the Python wrapping layer, which maps
+    # snake_case keyword arguments to the corresponding Set methods):
     s = vtkSphere(center=(0, 0, 0), radius=1.0)
     p = vtkPlane(origin=(0, 0, 0), normal=(1, 0, 0))
 
@@ -49,15 +50,8 @@ from vtkmodules.vtkCommonDataModel import (
 )
 
 # ---------------------------------------------------------------------------
-# Operation type maps for vtkImplicitBoolean
+# Operation type names for the vtkImplicitBoolean repr
 # ---------------------------------------------------------------------------
-
-_OP_TYPE_MAP = {
-    "union": 0,
-    "intersection": 1,
-    "difference": 2,
-    "union_of_magnitudes": 3,
-}
 
 _OP_TYPE_REVERSE = {0: "Union", 1: "Intersection", 2: "Difference", 3: "UnionOfMagnitudes"}
 
@@ -186,18 +180,11 @@ class _ImplicitFunctionMixin:
 
 
 # ---------------------------------------------------------------------------
-# Tier 1: classes with constructor kwargs and custom repr
+# Tier 1: classes with a custom repr (constructor kwargs come for free from
+# the Python wrapping layer, which maps snake_case kwargs to Set methods)
 # ---------------------------------------------------------------------------
 
 class _SphereMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, center=None, radius=None):
-        if args and isinstance(args[0], str):
-            return
-        if center is not None:
-            self.SetCenter(center)
-        if radius is not None:
-            self.SetRadius(radius)
-
     def __repr__(self):
         return "vtkSphere(center=%s, radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -206,16 +193,6 @@ class _SphereMixin(_ImplicitFunctionMixin):
 
 
 class _PlaneMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, origin=None, normal=None, offset=None):
-        if args and isinstance(args[0], str):
-            return
-        if origin is not None:
-            self.SetOrigin(origin)
-        if normal is not None:
-            self.SetNormal(normal)
-        if offset is not None:
-            self.SetOffset(offset)
-
     def __repr__(self):
         return "vtkPlane(origin=%s, normal=%s, offset=%s)" % (
             _fmt3(self.GetOrigin()),
@@ -225,12 +202,6 @@ class _PlaneMixin(_ImplicitFunctionMixin):
 
 
 class _BoxMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, bounds=None):
-        if args and isinstance(args[0], str):
-            return
-        if bounds is not None:
-            self.SetBounds(bounds)
-
     def __repr__(self):
         b = self.GetBounds()
         return "vtkBox(bounds=(%s, %s, %s, %s, %s, %s))" % (
@@ -239,16 +210,6 @@ class _BoxMixin(_ImplicitFunctionMixin):
 
 
 class _CylinderMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, center=None, axis=None, radius=None):
-        if args and isinstance(args[0], str):
-            return
-        if center is not None:
-            self.SetCenter(center)
-        if axis is not None:
-            self.SetAxis(axis)
-        if radius is not None:
-            self.SetRadius(radius)
-
     def __repr__(self):
         return "vtkCylinder(center=%s, axis=%s, radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -258,16 +219,6 @@ class _CylinderMixin(_ImplicitFunctionMixin):
 
 
 class _ConeMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, origin=None, axis=None, angle=None):
-        if args and isinstance(args[0], str):
-            return
-        if origin is not None:
-            self.SetOrigin(origin)
-        if axis is not None:
-            self.SetAxis(axis)
-        if angle is not None:
-            self.SetAngle(angle)
-
     def __repr__(self):
         return "vtkCone(origin=%s, axis=%s, angle=%s)" % (
             _fmt3(self.GetOrigin()),
@@ -277,46 +228,12 @@ class _ConeMixin(_ImplicitFunctionMixin):
 
 
 class _QuadricMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, coefficients=None):
-        if args and isinstance(args[0], str):
-            return
-        if coefficients is not None:
-            self.SetCoefficients(coefficients)
-
     def __repr__(self):
         c = self.GetCoefficients()
         return "vtkQuadric(coefficients=(%s,))" % ", ".join(str(v) for v in c)
 
 
 class _SuperquadricMixin(_ImplicitFunctionMixin):
-    def __init__(
-        self,
-        *args,
-        center=None,
-        scale=None,
-        phi_roundness=None,
-        theta_roundness=None,
-        size=None,
-        thickness=None,
-        toroidal=None,
-    ):
-        if args and isinstance(args[0], str):
-            return
-        if center is not None:
-            self.SetCenter(center)
-        if scale is not None:
-            self.SetScale(scale)
-        if phi_roundness is not None:
-            self.SetPhiRoundness(phi_roundness)
-        if theta_roundness is not None:
-            self.SetThetaRoundness(theta_roundness)
-        if size is not None:
-            self.SetSize(size)
-        if thickness is not None:
-            self.SetThickness(thickness)
-        if toroidal is not None:
-            self.SetToroidal(toroidal)
-
     def __repr__(self):
         return "vtkSuperquadric(center=%s, phi_roundness=%s, theta_roundness=%s)" % (
             _fmt3(self.GetCenter()),
@@ -326,16 +243,6 @@ class _SuperquadricMixin(_ImplicitFunctionMixin):
 
 
 class _PerlinNoiseMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, frequency=None, phase=None, amplitude=None):
-        if args and isinstance(args[0], str):
-            return
-        if frequency is not None:
-            self.SetFrequency(frequency)
-        if phase is not None:
-            self.SetPhase(phase)
-        if amplitude is not None:
-            self.SetAmplitude(amplitude)
-
     def __repr__(self):
         return "vtkPerlinNoise(frequency=%s, amplitude=%s)" % (
             _fmt3(self.GetFrequency()),
@@ -344,18 +251,6 @@ class _PerlinNoiseMixin(_ImplicitFunctionMixin):
 
 
 class _ImplicitBooleanMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, operation_type=None):
-        if args and isinstance(args[0], str):
-            return
-        if operation_type is not None:
-            op = operation_type.lower()
-            if op not in _OP_TYPE_MAP:
-                raise ValueError(
-                    "Unknown operation_type '%s'. "
-                    "Valid types: %s" % (operation_type, ", ".join(_OP_TYPE_MAP))
-                )
-            self.SetOperationType(_OP_TYPE_MAP[op])
-
     def __repr__(self):
         n = self.GetFunction().GetNumberOfItems() if self.GetFunction() else 0
         return "vtkImplicitBoolean(operation='%s', functions=%d)" % (
@@ -365,12 +260,6 @@ class _ImplicitBooleanMixin(_ImplicitFunctionMixin):
 
 
 class _ImplicitSumMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, normalize_by_weight=None):
-        if args and isinstance(args[0], str):
-            return
-        if normalize_by_weight is not None:
-            self.SetNormalizeByWeight(normalize_by_weight)
-
     def __repr__(self):
         return "vtkImplicitSum(normalize_by_weight=%s)" % bool(
             self.GetNormalizeByWeight()
@@ -378,20 +267,6 @@ class _ImplicitSumMixin(_ImplicitFunctionMixin):
 
 
 class _AnnulusMixin(_ImplicitFunctionMixin):
-    def __init__(
-        self, *args, center=None, axis=None, inner_radius=None, outer_radius=None
-    ):
-        if args and isinstance(args[0], str):
-            return
-        if center is not None:
-            self.SetCenter(center)
-        if axis is not None:
-            self.SetAxis(axis)
-        if inner_radius is not None:
-            self.SetInnerRadius(inner_radius)
-        if outer_radius is not None:
-            self.SetOuterRadius(outer_radius)
-
     def __repr__(self):
         return "vtkAnnulus(center=%s, inner_radius=%s, outer_radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -401,22 +276,6 @@ class _AnnulusMixin(_ImplicitFunctionMixin):
 
 
 class _FrustumMixin(_ImplicitFunctionMixin):
-    def __init__(
-        self,
-        *args,
-        near_plane_distance=None,
-        horizontal_angle=None,
-        vertical_angle=None,
-    ):
-        if args and isinstance(args[0], str):
-            return
-        if near_plane_distance is not None:
-            self.SetNearPlaneDistance(near_plane_distance)
-        if horizontal_angle is not None:
-            self.SetHorizontalAngle(horizontal_angle)
-        if vertical_angle is not None:
-            self.SetVerticalAngle(vertical_angle)
-
     def __repr__(self):
         return (
             "vtkFrustum(near_plane_distance=%s, "
@@ -430,16 +289,6 @@ class _FrustumMixin(_ImplicitFunctionMixin):
 
 
 class _ImplicitHaloMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, center=None, radius=None, fade_out=None):
-        if args and isinstance(args[0], str):
-            return
-        if center is not None:
-            self.SetCenter(center)
-        if radius is not None:
-            self.SetRadius(radius)
-        if fade_out is not None:
-            self.SetFadeOut(fade_out)
-
     def __repr__(self):
         return "vtkImplicitHalo(center=%s, radius=%s, fade_out=%s)" % (
             _fmt3(self.GetCenter()),
@@ -449,24 +298,12 @@ class _ImplicitHaloMixin(_ImplicitFunctionMixin):
 
 
 class _CoordinateFrameMixin(_ImplicitFunctionMixin):
-    def __init__(self, *args, origin=None, x_axis=None, y_axis=None, z_axis=None):
-        if args and isinstance(args[0], str):
-            return
-        if origin is not None:
-            self.SetOrigin(origin)
-        if x_axis is not None:
-            self.SetXAxis(x_axis)
-        if y_axis is not None:
-            self.SetYAxis(y_axis)
-        if z_axis is not None:
-            self.SetZAxis(z_axis)
-
     def __repr__(self):
         return "vtkCoordinateFrame(origin=%s)" % _fmt3(self.GetOrigin())
 
 
 # ---------------------------------------------------------------------------
-# Register tier 1/2 overrides (classes with kwargs + custom repr)
+# Register tier 1/2 overrides (classes with a custom repr)
 # ---------------------------------------------------------------------------
 
 @vtkSphere.override
@@ -563,3 +400,5 @@ for _cls in _TIER3_CLASSES:
         {},
     )
     _cls.override(_override_cls)
+
+del _cls, _name, _override_cls
