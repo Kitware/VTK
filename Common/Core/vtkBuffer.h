@@ -249,7 +249,9 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
     {
       return false;
     }
-    std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
+    // Wrap std::min in parentheses to prevent expansion of the min() macro defined by
+    // <windows.h> when NOMINMAX is not set.
+    std::copy(this->Pointer, this->Pointer + (std::min)(this->Size, newsize), newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize);
     // The second check is needed because the array passed in may have been
