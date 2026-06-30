@@ -216,7 +216,7 @@ def test_node_content_preserved():
 
 def test_from_thresholds_single():
     """from_thresholds with a single range."""
-    sel = vtkSelection.from_thresholds("Temperature", (0, 100))
+    sel = vtkSelection().from_thresholds("Temperature", (0, 100))
     assert len(sel) == 1
     node = sel[0]
     assert node.content_type == "THRESHOLDS"
@@ -231,7 +231,7 @@ def test_from_thresholds_single():
 
 def test_from_thresholds_multiple():
     """from_thresholds with multiple ranges."""
-    sel = vtkSelection.from_thresholds("Temp", [(0, 10), (50, 100)])
+    sel = vtkSelection().from_thresholds("Temp", [(0, 10), (50, 100)])
     node = sel[0]
     sl = node.selection_list
     assert sl.GetNumberOfComponents() == 2
@@ -240,7 +240,7 @@ def test_from_thresholds_multiple():
 
 def test_from_values():
     """from_values creates VALUES selection."""
-    sel = vtkSelection.from_values("CellType", [1, 3, 5])
+    sel = vtkSelection().from_values("CellType", [1, 3, 5])
     node = sel[0]
     assert node.content_type == "VALUES"
     assert node.field_type == "CELL"
@@ -251,7 +251,7 @@ def test_from_values():
 def test_from_locations():
     """from_locations creates LOCATIONS selection."""
     pts = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float64)
-    sel = vtkSelection.from_locations(pts, epsilon=0.01)
+    sel = vtkSelection().from_locations(pts, epsilon=0.01)
     node = sel[0]
     assert node.content_type == "LOCATIONS"
     assert node.field_type == "POINT"
@@ -272,7 +272,7 @@ def test_from_frustum():
     for i in range(8):
         corners[i, 0] = float(i)
 
-    sel = vtkSelection.from_frustum(corners)
+    sel = vtkSelection().from_frustum(corners)
     node = sel[0]
     assert node.content_type == "FRUSTUM"
     assert node.field_type == "CELL"
@@ -283,7 +283,7 @@ def test_from_frustum():
 def test_from_frustum_wrong_size():
     """from_frustum rejects wrong array size."""
     try:
-        vtkSelection.from_frustum(np.zeros(16))
+        vtkSelection().from_frustum(np.zeros(16))
         assert False, "Expected ValueError"
     except ValueError:
         pass
@@ -291,7 +291,7 @@ def test_from_frustum_wrong_size():
 
 def test_from_blocks():
     """from_blocks creates BLOCKS selection."""
-    sel = vtkSelection.from_blocks([0, 2, 5])
+    sel = vtkSelection().from_blocks([0, 2, 5])
     node = sel[0]
     assert node.content_type == "BLOCKS"
     sl = node.selection_list
@@ -300,7 +300,7 @@ def test_from_blocks():
 
 def test_from_block_selectors():
     """from_block_selectors creates BLOCK_SELECTORS selection."""
-    sel = vtkSelection.from_block_selectors(
+    sel = vtkSelection().from_block_selectors(
         ["//Block[@name='Mesh']"],
         assembly_name="Hierarchy",
     )
@@ -415,7 +415,7 @@ def test_node_selection_list_vtk_array_setter():
 
 def test_from_thresholds_with_qualifiers():
     """from_thresholds passes through qualifiers."""
-    sel = vtkSelection.from_thresholds(
+    sel = vtkSelection().from_thresholds(
         "Temp", (0, 100), inverse=True, composite_index=3,
     )
     node = sel[0]
@@ -425,7 +425,7 @@ def test_from_thresholds_with_qualifiers():
 
 def test_from_values_with_component():
     """from_values sets component_number."""
-    sel = vtkSelection.from_values("Velocity", [1.0, 2.0], component=1)
+    sel = vtkSelection().from_values("Velocity", [1.0, 2.0], component=1)
     node = sel[0]
     assert node.component_number == 1
 

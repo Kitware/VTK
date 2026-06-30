@@ -75,37 +75,38 @@ compound = sel1 & (sel2 | ~sel3) # arbitrary nesting
 The result is a new `vtkSelection` whose `expression` reflects the
 combined logic — ready to pass to `vtkExtractSelection`.
 
-### Class methods for non-trivial content types
+### Populate helpers for non-trivial content types
 
 For content types whose selection lists have specific shape or naming
-requirements, dedicated class methods handle the conversion:
+requirements, dedicated helpers handle the conversion. They populate the
+selection in place and return it, so they chain off a constructor call:
 
 ```python
 # Threshold (single range or list of ranges)
-sel = vtkSelection.from_thresholds("Temperature", (0, 100))
-sel = vtkSelection.from_thresholds("Temperature", [(0, 10), (50, 100)])
+sel = vtkSelection().from_thresholds("Temperature", (0, 100))
+sel = vtkSelection().from_thresholds("Temperature", [(0, 10), (50, 100)])
 
 # Exact value matching, optionally on a specific component
-sel = vtkSelection.from_values("CellType", [1, 3, 5])
-sel = vtkSelection.from_values("Velocity", [0.0, 1.0], component=2)
+sel = vtkSelection().from_values("CellType", [1, 3, 5])
+sel = vtkSelection().from_values("Velocity", [0.0, 1.0], component=2)
 
 # World-space points (with optional distance tolerance)
-sel = vtkSelection.from_locations(
+sel = vtkSelection().from_locations(
     np.array([[0, 0, 0], [1, 1, 1]]), epsilon=0.01,
 )
 
 # Viewing frustum (8 corners x 4 homogeneous components = 32 values)
-sel = vtkSelection.from_frustum(corners_array)
+sel = vtkSelection().from_frustum(corners_array)
 
 # Composite-dataset block selection
-sel = vtkSelection.from_blocks([0, 2, 5])
-sel = vtkSelection.from_block_selectors(
+sel = vtkSelection().from_blocks([0, 2, 5])
+sel = vtkSelection().from_block_selectors(
     ["//Block[@name='Mesh']"], assembly_name="Hierarchy",
 )
 ```
 
-All class methods accept the same qualifier kwargs as the constructor,
-so e.g. `vtkSelection.from_thresholds("T", (0, 100), inverse=True)`
+All of these helpers accept the same qualifier kwargs as the constructor,
+so e.g. `vtkSelection().from_thresholds("T", (0, 100), inverse=True)`
 selects everything *outside* the range.
 
 ### Container interface

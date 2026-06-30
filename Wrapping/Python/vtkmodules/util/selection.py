@@ -9,8 +9,8 @@ Simplifies selection construction and composition::
     sel = vtkSelection(content_type="INDICES", field_type="CELL",
                        selection_list=np.array([0, 5, 10]))
 
-    # Threshold selection via class method:
-    temp_sel = vtkSelection.from_thresholds("Temperature", (0, 100))
+    # Threshold selection via populate helper:
+    temp_sel = vtkSelection().from_thresholds("Temperature", (0, 100))
 
     # Boolean composition — produces multi-node selections:
     combined = sel & temp_sel          # AND
@@ -328,21 +328,30 @@ class _SelectionMixin:
                 qualifiers[key] = kwargs.pop(key)
 
         if content_type is not None:
-            node = vtkSelectionNode()
-            node.SetContentType(_resolve_content_type(content_type))
-            if field_type is not None:
-                node.SetFieldType(_resolve_field_type(field_type))
-            if selection_list is not None:
-                from vtkmodules.vtkCommonCore import vtkAbstractArray
+            self._build_node(content_type, field_type, selection_list, qualifiers)
 
-                if isinstance(selection_list, vtkAbstractArray):
-                    node.SetSelectionList(selection_list)
-                else:
-                    node.SetSelectionList(_to_vtk_array(selection_list))
-            if qualifiers:
-                _set_qualifiers(node, qualifiers)
-            name = self.AddNode(node)
-            self._expr_label = name
+    def _build_node(self, content_type, field_type=None, selection_list=None,
+                    qualifiers=None):
+        """Create, configure, and append a vtkSelectionNode to this selection.
+
+        Returns the assigned node name.
+        """
+        node = vtkSelectionNode()
+        node.SetContentType(_resolve_content_type(content_type))
+        if field_type is not None:
+            node.SetFieldType(_resolve_field_type(field_type))
+        if selection_list is not None:
+            from vtkmodules.vtkCommonCore import vtkAbstractArray
+
+            if isinstance(selection_list, vtkAbstractArray):
+                node.SetSelectionList(selection_list)
+            else:
+                node.SetSelectionList(_to_vtk_array(selection_list))
+        if qualifiers:
+            _set_qualifiers(node, qualifiers)
+        name = self.AddNode(node)
+        self._expr_label = name
+        return name
 
     # -- Container interface --
 
@@ -479,10 +488,13 @@ class _SelectionMixin:
         result._expr_label = expr
         return result
 
-    # -- Class methods for tricky content types --
+    # -- Populate helpers for tricky content types --
+    #
+    # These are instance methods that clear any existing nodes and configure
+    # this selection in place, returning self so they can be chained, e.g.
+    # ``vtkSelection().from_thresholds("Temperature", (0, 100))``.
 
-    @classmethod
-    def from_thresholds(cls, array_name, ranges, field_type="CELL", **qualifiers):
+    def from_thresholds(self, array_name, ranges, field_type="CELL", **qualifiers):
         """Select elements whose array values fall within ranges.
 
         Parameters
@@ -508,12 +520,11 @@ class _SelectionMixin:
         vtk_arr = _to_vtk_array(arr, num_components=2)
         vtk_arr.SetName(array_name)
 
-        sel = cls(content_type="THRESHOLDS", field_type=field_type,
-                  selection_list=vtk_arr, **qualifiers)
-        return sel
+        self.RemoveAllNodes()
+        self._build_node("THRESHOLDS", field_type, vtk_arr, qualifiers)
+        return self
 
-    @classmethod
-    def from_values(cls, array_name, values, field_type="CELL",
+    def from_values(self, array_name, values, field_type="CELL",
                     component=-1, **qualifiers):
         """Select elements with exact array values.
 
@@ -534,12 +545,11 @@ class _SelectionMixin:
         vtk_arr.SetName(array_name)
 
         qualifiers["component_number"] = component
-        sel = cls(content_type="VALUES", field_type=field_type,
-                  selection_list=vtk_arr, **qualifiers)
-        return sel
+        self.RemoveAllNodes()
+        self._build_node("VALUES", field_type, vtk_arr, qualifiers)
+        return self
 
-    @classmethod
-    def from_locations(cls, points, field_type="POINT", epsilon=None,
+    def from_locations(self, points, field_type="POINT", epsilon=None,
                        **qualifiers):
         """Select elements near world coordinates.
 
@@ -561,12 +571,11 @@ class _SelectionMixin:
 
         if epsilon is not None:
             qualifiers["epsilon"] = epsilon
-        sel = cls(content_type="LOCATIONS", field_type=field_type,
-                  selection_list=vtk_arr, **qualifiers)
-        return sel
+        self.RemoveAllNodes()
+        self._build_node("LOCATIONS", field_type, vtk_arr, qualifiers)
+        return self
 
-    @classmethod
-    def from_frustum(cls, corners, field_type="CELL", **qualifiers):
+    def from_frustum(self, corners, field_type="CELL", **qualifiers):
         """Select elements within a viewing frustum.
 
         Parameters
@@ -586,12 +595,11 @@ class _SelectionMixin:
             raise ValueError("Frustum requires exactly 32 values (8 corners x 4 components), got %d" % len(arr))
         vtk_arr = _to_vtk_array(arr)
 
-        sel = cls(content_type="FRUSTUM", field_type=field_type,
-                  selection_list=vtk_arr, **qualifiers)
-        return sel
+        self.RemoveAllNodes()
+        self._build_node("FRUSTUM", field_type, vtk_arr, qualifiers)
+        return self
 
-    @classmethod
-    def from_blocks(cls, block_indices, **qualifiers):
+    def from_blocks(self, block_indices, **qualifiers):
         """Select blocks in a composite dataset by flat index.
 
         Parameters
@@ -606,11 +614,11 @@ class _SelectionMixin:
         arr = np.ascontiguousarray(block_indices, dtype=np.int64)
         vtk_arr = _to_vtk_array(arr)
 
-        sel = cls(content_type="BLOCKS", selection_list=vtk_arr, **qualifiers)
-        return sel
+        self.RemoveAllNodes()
+        self._build_node("BLOCKS", None, vtk_arr, qualifiers)
+        return self
 
-    @classmethod
-    def from_block_selectors(cls, selectors, assembly_name=None, **qualifiers):
+    def from_block_selectors(self, selectors, assembly_name=None, **qualifiers):
         """Select blocks using selector expressions.
 
         Parameters
@@ -624,14 +632,14 @@ class _SelectionMixin:
         """
         vtk_arr = _to_vtk_array(selectors, array_type="string")
 
-        sel = cls(content_type="BLOCK_SELECTORS", selection_list=vtk_arr,
-                  **qualifiers)
+        self.RemoveAllNodes()
+        self._build_node("BLOCK_SELECTORS", None, vtk_arr, qualifiers)
         if assembly_name is not None:
-            node = sel.GetNode(0)
+            node = self.GetNode(0)
             node.GetProperties().Set(
                 vtkSelectionNode.ASSEMBLY_NAME(), assembly_name
             )
-        return sel
+        return self
 
     # -- repr --
 
@@ -666,53 +674,3 @@ class SelectionNode(_SelectionNodeMixin, vtkSelectionNode):
 @vtkSelection.override
 class Selection(_SelectionMixin, vtkSelection):
     pass
-
-
-# Class methods are not automatically visible on the base VTK type after
-# override (VTK C types have the immutable flag set). Inject them by
-# temporarily clearing the immutable flag.
-import ctypes as _ctypes
-
-_Py_TPFLAGS_IMMUTABLETYPE = 1 << 8
-_CLASS_METHODS = [
-    "from_thresholds", "from_values", "from_locations",
-    "from_frustum", "from_blocks", "from_block_selectors",
-]
-
-
-def _set_type_attrs(tp, attrs):
-    """Set attributes on an immutable C extension type."""
-    # Find tp_flags offset by scanning for the known flags value.
-    # tp_flags contains Py_TPFLAGS_DEFAULT and other known bits.
-    # On CPython, tp_flags is at a well-defined offset in PyTypeObject.
-    # We use PyType_GetFlags to get the expected value, then scan.
-    get_flags = _ctypes.pythonapi.PyType_GetFlags
-    get_flags.argtypes = [_ctypes.py_object]
-    get_flags.restype = _ctypes.c_ulong
-    expected = get_flags(tp)
-
-    # Scan for tp_flags in the type object memory
-    ptr_size = _ctypes.sizeof(_ctypes.c_void_p)
-    # tp_flags is typically within the first 256 bytes
-    for offset in range(0, 256, ptr_size):
-        field = _ctypes.c_ulong.from_address(id(tp) + offset)
-        if field.value == expected:
-            break
-    else:
-        raise RuntimeError("Could not find tp_flags in type object")
-
-    saved = field.value
-    try:
-        field.value = saved & ~_Py_TPFLAGS_IMMUTABLETYPE
-        for name, value in attrs.items():
-            setattr(tp, name, value)
-    finally:
-        field.value = saved
-
-
-_set_type_attrs(
-    vtkSelection,
-    {name: getattr(Selection, name) for name in _CLASS_METHODS},
-)
-
-del _ctypes, _Py_TPFLAGS_IMMUTABLETYPE, _CLASS_METHODS, _set_type_attrs
