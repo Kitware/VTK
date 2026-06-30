@@ -312,6 +312,10 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
   {
     merge->IsUnblockThreads = func->IsUnblockThreads;
   }
+  if (func->IsMaySuspend)
+  {
+    merge->IsMaySuspend = func->IsMaySuspend;
+  }
 }
 
 /* try to resolve "Using" declarations with the given class. */

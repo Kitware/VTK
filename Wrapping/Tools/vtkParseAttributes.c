@@ -52,6 +52,7 @@ typedef enum parse_attribute_t_
   VTK_ATTRIB_MARSHALGETTER,  /* [[vtk::marshalgetter]]  */
   VTK_ATTRIB_MARSHALSETTER,  /* [[vtk::marshalsetter]]  */
   VTK_ATTRIB_PROPEXCLUDE,    /* [[vtk::propexclude]]    */
+  VTK_ATTRIB_MAYSUSPEND,     /* [[vtk::maysuspend]]     */
 } parse_attribute_t;
 
 /* Map attribute names to attribute enum constants */
@@ -74,6 +75,7 @@ static const struct
   { "vtk::marshalgetter", VTK_ATTRIB_MARSHALGETTER },
   { "vtk::marshalsetter", VTK_ATTRIB_MARSHALSETTER },
   { "vtk::propexclude", VTK_ATTRIB_PROPEXCLUDE },
+  { "vtk::maysuspend", VTK_ATTRIB_MAYSUSPEND },
   { NULL, VTK_ATTRIB_NONE },
 };
 
@@ -292,6 +294,11 @@ static parse_attribute_return_t handle_function_attribute(
     case VTK_ATTRIB_UNBLOCKTHREADS:
     {
       func->IsUnblockThreads = 1;
+      return VTK_ATTRIB_HANDLER_NO_ARGS;
+    }
+    case VTK_ATTRIB_MAYSUSPEND:
+    {
+      func->IsMaySuspend = 1;
       return VTK_ATTRIB_HANDLER_NO_ARGS;
     }
     default:

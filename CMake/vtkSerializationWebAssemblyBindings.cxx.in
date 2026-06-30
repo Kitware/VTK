@@ -148,10 +148,12 @@ EMSCRIPTEN_BINDINGS(bindings)
     .function("destroy", &vtkStandaloneSession::Destroy)
     .function("set", &vtkStandaloneSession::Set)
     .function("get", &vtkStandaloneSession::Get)
-#if _vtk_serdes_ASYNC
-    .function("invoke", &vtkStandaloneSession::Invoke, async())
-#else
     .function("invoke", &vtkStandaloneSession::Invoke)
+#if _vtk_serdes_ASYNC
+    // Async entry point for methods hinted with [[vtk::maysuspend]]. Shares the
+    // same C++ implementation but runs on a JSPI-suspendable stack, so it can
+    // await WebGPU (or other async) work and returns a Promise to JavaScript.
+    .function("invokeAsync", &vtkStandaloneSession::Invoke, async())
 #endif
     .function("observe", &vtkStandaloneSession::Observe)
     .function("unObserve", &vtkStandaloneSession::UnObserve)
@@ -179,10 +181,12 @@ EMSCRIPTEN_BINDINGS(bindings)
     .function("registerBlob", &vtkRemoteSession::RegisterBlob)
     .function("unRegisterBlob", &vtkRemoteSession::UnRegisterBlob)
     .function("getBlob", &vtkRemoteSession::GetBlob)
-#if _vtk_serdes_ASYNC
-    .function("invoke", &vtkRemoteSession::Invoke, async())
-#else
     .function("invoke", &vtkRemoteSession::Invoke)
+#if _vtk_serdes_ASYNC
+    // Async entry point for methods hinted with [[vtk::maysuspend]]. Shares the
+    // same C++ implementation but runs on a JSPI-suspendable stack, so it can
+    // await WebGPU (or other async) work and returns a Promise to JavaScript.
+    .function("invokeAsync", &vtkRemoteSession::Invoke, async())
 #endif
     .function("getAllDependencies", &vtkRemoteSession::GetAllDependencies)
     .function("updateObjectFromState", &vtkRemoteSession::UpdateObjectFromState)

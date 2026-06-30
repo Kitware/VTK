@@ -60,6 +60,9 @@
 #define VTK_MARSHALGETTER(property) VTK_DEFINE_WRAP_HINT_ARGS(vtk::marshalgetter, #property)
 // Enforces a function as the setter for `property`
 #define VTK_MARSHALSETTER(property) VTK_DEFINE_WRAP_HINT_ARGS(vtk::marshalsetter, #property)
+// The method may suspend execution (e.g. WebGPU/JSPI await), so wrappers that
+// support coroutines must invoke it asynchronously (return a Promise).
+#define VTK_MAYSUSPEND VTK_DEFINE_WRAP_HINT(vtk::maysuspend)
 #endif
 
 #ifndef VTK_WRAP_HINTS_DEFINED
@@ -77,6 +80,7 @@
 #define VTK_MARSHALEXCLUDE(reason)
 #define VTK_MARSHALGETTER(property)
 #define VTK_MARSHALSETTER(property)
+#define VTK_MAYSUSPEND
 #endif
 
 #define VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT "is redundant"
