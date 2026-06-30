@@ -4,8 +4,9 @@
 ## .SECTION Description
 ## WindowsMangleList is a script imported by HeaderTesting to get a regular
 ## expression matching method names that will be mangled by windows.h.
-## See VTK/Utilities/Upgrading/README.WindowsMangling.txt for details
+## See Common/Core/README.WindowsMangling.txt for details
 ## on the windows.h mangling problems.
+
 
 import re
 
