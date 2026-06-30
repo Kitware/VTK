@@ -431,13 +431,13 @@ public:
     }
   }
 
+  ///@{
   /**
    * Initialize internal data structures to use 32- or 64-bit storage.
    * If selecting default storage, the storage depends on the VTK_USE_64BIT_IDS
    * setting.
    *
    * All existing data is erased.
-   * @{
    */
   void Use32BitStorage();
   void Use64BitStorage();
@@ -445,15 +445,15 @@ public:
   void UseFixedSize32BitStorage(vtkIdType cellSize);
   void UseFixedSize64BitStorage(vtkIdType cellSize);
   void UseFixedSizeDefaultStorage(vtkIdType cellSize);
-  /**@}*/
+  ///@}
 
+  ///@{
   /**
    * Check if the existing data can safely be converted to use 32- or 64- bit
    * storage. Ensures that all values can be converted to the target storage
    * without truncating.
    * If selecting default storage, the storage depends on the VTK_USE_64BIT_IDS
    * setting.
-   * @{
    */
   bool CanConvertTo32BitStorage() const;
   bool CanConvertTo64BitStorage() const;
@@ -478,8 +478,9 @@ public:
         return true;
     }
   }
-  /**@}*/
+  ///@}
 
+  ///@{
   /**
    * Convert internal data structures to use 32- or 64-bit storage.
    *
@@ -493,8 +494,6 @@ public:
    *
    * @return True on success, false on failure. If this algorithm fails, the
    * cell array will be in an unspecified state.
-   *
-   * @{
    */
   bool ConvertTo32BitStorage();
   bool ConvertTo64BitStorage();
@@ -520,12 +519,12 @@ public:
         return true;
     }
   }
-  /**@}*/
+  ///@}
 
+  ///@{
   /**
    * Return the array used to store cell offsets. The 32/64 variants are only
    * valid when IsStorage64Bit() returns the appropriate value.
-   * @{
    */
   vtkDataArray* GetOffsetsArray() const { return this->Offsets; }
   AOSArray32* GetOffsetsAOSArray32() const { return AOSArray32::FastDownCast(this->Offsets); }
@@ -538,13 +537,13 @@ public:
   {
     return AffineArray64::FastDownCast(this->Offsets);
   }
-  /**@}*/
+  ///@}
 
+  ///@{
   /**
    * Return the array used to store the point ids that define the cells'
    * connectivity. The 32/64 variants are only valid when IsStorage64Bit()
    * returns the appropriate value.
-   * @{
    */
   vtkDataArray* GetConnectivityArray() const { return this->Connectivity; }
   AOSArray32* GetConnectivityAOSArray32() const
@@ -555,7 +554,7 @@ public:
   {
     return AOSArray64::FastDownCast(this->Connectivity);
   }
-  /**@}*/
+  ///@}
 
   /**
    * Check if all cells have the same number of vertices.
@@ -700,34 +699,34 @@ public:
    */
   void UpdateCellCount(int npts);
 
+  ///@{
   /**
    * Get/Set the current cellId for traversal.
    *
    * @note This method is not thread-safe and has tricky syntax to use
    * correctly. Prefer the use of vtkCellArrayIterator (see NewIterator()).
-   * @{
    */
   vtkIdType GetTraversalCellId();
   void SetTraversalCellId(vtkIdType cellId);
-  /**@}*/
+  ///@}
 
   /**
    * Reverses the order of the point ids for the specified cell.
    */
   void ReverseCellAtId(vtkIdType cellId) VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
+  ///@{
   /**
    * Replaces the point ids for the specified cell with the supplied list.
    *
    * @warning This can ONLY replace the cell if the size does not change.
    * Attempting to change cell size through this method will have undefined
    * results.
-   * @{
    */
   void ReplaceCellAtId(vtkIdType cellId, vtkIdList* list);
   void ReplaceCellAtId(vtkIdType cellId, vtkIdType cellSize, const vtkIdType* cellPoints)
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells()) VTK_SIZEHINT(cellPoints, cellSize);
-  /**@}*/
+  ///@}
 
   /**
    * Replaces the pointId at cellPointIndex of a cell with newPointId.
@@ -783,6 +782,7 @@ public:
    */
   void ExportLegacyFormat(vtkIdTypeArray* data);
 
+  ///@{
   /**
    * Import an array of data with the legacy vtkCellArray layout, e.g.:
    *
@@ -792,12 +792,12 @@ public:
    *
    * where `n0` is the number of points in cell 0, and `pX_Y` is the Y'th point
    * in cell X.
-   * @{
    */
   void ImportLegacyFormat(vtkIdTypeArray* data);
   void ImportLegacyFormat(const vtkIdType* data, vtkIdType len) VTK_SIZEHINT(data, len);
-  /** @} */
+  ///@}
 
+  ///@{
   /**
    * Append an array of data with the legacy vtkCellArray layout, e.g.:
    *
@@ -807,12 +807,11 @@ public:
    *
    * where `n0` is the number of points in cell 0, and `pX_Y` is the Y'th point
    * in cell X.
-   * @{
    */
   void AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset = 0);
   void AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset = 0)
     VTK_SIZEHINT(data, len);
-  /** @} */
+  ///@}
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this cell array. Used to
@@ -1000,7 +999,7 @@ public:
   ///@}
 
   // Holds connectivity and offset arrays of the given ArrayType.
-  // VTK_DEPRECATED_IN_9_6_0("Use DispatchUtilities")
+  VTK_DEPRECATED_IN_9_8_0("Use DispatchUtilities")
   template <typename ArrayT>
   struct VisitState
   {
@@ -1094,17 +1093,15 @@ private: // Helpers that allow Visit to return a value:
 #endif // __VTK_WRAP__
 
 public:
-  /** @} */
-
+  ///@{
   /**
    * Control the default internal storage size. Useful for saving memory when
    * most cases can be handled with 32bit indices, but large models may require
    * a run-time switch to 64bit indices.
-   * @{
    */
   static bool GetDefaultStorageIs64Bit() { return vtkCellArray::DefaultStorageIs64Bit; }
   static void SetDefaultStorageIs64Bit(bool val) { vtkCellArray::DefaultStorageIs64Bit = val; }
-  /** @} */
+  ///@}
 
   friend class vtkCellArrayIterator;
 
