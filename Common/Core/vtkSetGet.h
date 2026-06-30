@@ -1298,6 +1298,9 @@ public:
 // vtkArrayIteratorIncludes.h header file to provide for extending of this macro
 // by addition of new iterators.
 //
+// These macro are deprecated and should be remove
+// when removing VTK_DEPRECATED_IN_9_7_0() with a mention in release note.
+//
 // Example usage:
 // vtkArrayIter* iter = array->NewIterator();
 // switch(array->GetDataType())
