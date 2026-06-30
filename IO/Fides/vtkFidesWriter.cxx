@@ -272,12 +272,29 @@ int vtkFidesWriter::RequestData(
 //------------------------------------------------------------------------------
 namespace
 {
-// Collect the names of the arrays that should be written for a partitioned
-// dataset, honoring the per-association selection when ChooseFieldsToWrite is
-// on. The vtkDataObject-typed accessor is used so vtkCellGrid partitions (which
-// aren't vtkDataSet) are visible; GetPartition() returns null for those.
-void CollectFieldsToWrite(vtkPartitionedDataSet* pds, bool chooseFields, vtkFidesWriter* self,
-  std::vector<std::string>& fieldsToWrite)
+// Whether a collection item name is acceptable as-is for the Fides collection
+// schema (it becomes a vtkDataAssembly node name on read-back). This mirrors
+// Fides' own parse-time validation: it must be a valid vtkDataAssembly node
+// name, and additionally must not start with "da" while being longer than two
+// characters -- Fides reserves "da*" (e.g. "data", "dataset") for its internal
+// <dataset> tags, a rule stricter than vtkDataAssembly::IsNodeNameReserved.
+bool IsAcceptableItemName(const char* name)
+{
+  if (!name || !vtkDataAssembly::IsNodeNameValid(name))
+  {
+    return false;
+  }
+  const std::string s(name);
+  return !(s.size() > 2 && s[0] == 'd' && s[1] == 'a');
+}
+
+// Collect the names of the selection-enabled arrays for a partitioned dataset.
+// Only called when ChooseFieldsToWrite is on (when off, the writer leaves the
+// Fides default write-all behavior in place). The vtkDataObject-typed accessor
+// is used so vtkCellGrid partitions (which aren't vtkDataSet) are visible;
+// GetPartition() returns null for those.
+void CollectFieldsToWrite(
+  vtkPartitionedDataSet* pds, vtkFidesWriter* self, std::vector<std::string>& fieldsToWrite)
 {
   if (!pds || pds->GetNumberOfPartitions() == 0)
   {
@@ -299,8 +316,7 @@ void CollectFieldsToWrite(vtkPartitionedDataSet* pds, bool chooseFields, vtkFide
     for (int idx = 0; idx < fd->GetNumberOfArrays(); ++idx)
     {
       auto inarray = fd->GetAbstractArray(idx);
-      if (inarray && inarray->GetName() &&
-        (!chooseFields || selection->ArrayIsEnabled(inarray->GetName())))
+      if (inarray && inarray->GetName() && selection->ArrayIsEnabled(inarray->GetName()))
       {
         fieldsToWrite.emplace_back(inarray->GetName());
       }
@@ -473,23 +489,29 @@ bool vtkFidesWriter::WriteDataAndReturn()
   // simpler per-dataset path below.
   if (!hasCellGrid && numPDS > 1)
   {
-    // Fides names unnamed collection items "dataset_<i>", but VTK reserves
-    // "da*" vtkDataAssembly node names, so such a collection cannot be read
-    // back. Give every item a valid name up front (on a shallow copy, so the
-    // pipeline input is left untouched).
+    // Collection item names become vtkDataAssembly node names, which have strict
+    // validity rules (and "da*" is reserved). Fides also names unnamed items
+    // "dataset_<i>", which is itself reserved. Replace any missing, invalid, or
+    // reserved name with a synthesized "block<i>" up front, on a shallow copy so
+    // the pipeline input is left untouched.
     vtkNew<vtkPartitionedDataSetCollection> namedPDC;
     namedPDC->ShallowCopy(inputPDC);
     std::vector<std::string> fieldsToWrite;
     for (unsigned int pdsIdx = 0; pdsIdx < numPDS; ++pdsIdx)
     {
-      if (!namedPDC->HasMetaData(pdsIdx) ||
-        !namedPDC->GetMetaData(pdsIdx)->Has(vtkCompositeDataSet::NAME()))
+      const bool hasName = namedPDC->HasMetaData(pdsIdx) &&
+        namedPDC->GetMetaData(pdsIdx)->Has(vtkCompositeDataSet::NAME());
+      const char* name =
+        hasName ? namedPDC->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()) : nullptr;
+      if (!IsAcceptableItemName(name))
       {
         namedPDC->GetMetaData(pdsIdx)->Set(
           vtkCompositeDataSet::NAME(), ("block" + vtk::to_string(pdsIdx)).c_str());
       }
-      CollectFieldsToWrite(
-        namedPDC->GetPartitionedDataSet(pdsIdx), this->ChooseFieldsToWrite, this, fieldsToWrite);
+      if (this->ChooseFieldsToWrite)
+      {
+        CollectFieldsToWrite(namedPDC->GetPartitionedDataSet(pdsIdx), this, fieldsToWrite);
+      }
     }
     return writeTarget(this->FileName, fieldsToWrite,
       [&](fides::io::FidesDataSetWriter& writer) { writer.WriteCollection(namedPDC); });
@@ -511,7 +533,10 @@ bool vtkFidesWriter::WriteDataAndReturn()
     assert(inputPDS != nullptr);
 
     std::vector<std::string> fieldsToWrite;
-    CollectFieldsToWrite(inputPDS, this->ChooseFieldsToWrite, this, fieldsToWrite);
+    if (this->ChooseFieldsToWrite)
+    {
+      CollectFieldsToWrite(inputPDS, this, fieldsToWrite);
+    }
 
     std::string fname = this->FileName;
     if (numPDS > 1)

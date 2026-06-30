@@ -191,6 +191,40 @@ class TestFidesWriterBasic(Testing.vtkTest):
                 names.add(rt.GetMetaData(i).Get(vtkCompositeDataSet.NAME()))
         self.assertEqual(names, {"blockA", "blockB"})
 
+    def testPartitionedDataSetCollectionInvalidNames(self):
+        # Collection item names become vtkDataAssembly node names, which Fides
+        # validates strictly (and reserves "da*"). Names that are invalid or
+        # reserved must be sanitized by the writer so the collection still
+        # round-trips rather than failing to read back.
+        w1 = vtkRTAnalyticSource(); w1.Update()
+        w2 = vtkRTAnalyticSource(); w2.Update()
+
+        pdsc = vtkPartitionedDataSetCollection()
+        pds0 = vtkPartitionedDataSet(); pds0.SetPartition(0, w1.GetOutput())
+        pds1 = vtkPartitionedDataSet(); pds1.SetPartition(0, w2.GetOutput())
+        pdsc.SetPartitionedDataSet(0, pds0)
+        pdsc.SetPartitionedDataSet(1, pds1)
+        pdsc.GetMetaData(0).Set(vtkCompositeDataSet.NAME(), "data set 1")  # space: invalid
+        pdsc.GetMetaData(1).Set(vtkCompositeDataSet.NAME(), "database")    # "da*": reserved
+
+        filename = os.path.join(VTK_TEMP_DIR, 'testPDSCMulti.bp')
+        writer = vtkFidesWriter()
+        writer.SetFileName(filename)
+        writer.SetInputData(pdsc)
+        writer.Write()
+
+        reader = vtkFidesReader()
+        reader.SetFileName(filename)
+        reader.UpdateInformation()
+        reader.Update()
+
+        rt = reader.GetOutputDataObject(0)
+        self.assertTrue(isinstance(rt, vtkPartitionedDataSetCollection))
+        self.assertEqual(rt.GetNumberOfPartitionedDataSets(), 2)
+        for i in range(rt.GetNumberOfPartitionedDataSets()):
+            self.assertEqual(
+                rt.GetPartitionedDataSet(i).GetPartition(0).GetNumberOfCells(), 8000)
+
     def testMultiBlockDataSet(self):
         wavelet = vtkRTAnalyticSource()
 

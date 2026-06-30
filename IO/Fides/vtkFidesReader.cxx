@@ -474,6 +474,10 @@ void vtkFidesReader::ParseDataModel()
   // If RequestInformation is called again, we may end up deleting it and making
   // a new reader because we have new information about how the reader should
   // actually be opened (e.g., with some type of streaming engine)
+  // Re-parsing may switch to a schema that declares different data sources, so
+  // drop the cached source-name list; GetDataSourceNames repopulates it lazily.
+  this->Impl->SourceNames->Reset();
+
   fides::io::DataSetReader::DataModelInput inputType =
     fides::io::DataSetReader::DataModelInput::JSONFile;
   // SchemaString takes precedence: an in-memory schema (e.g. Catalyst flow)
@@ -1051,9 +1055,18 @@ int vtkFidesReader::RequestData(
 
     if (blocksToRead.Data.empty())
     {
-      // nothing to read on this rank
+      // Nothing to read on this rank for this group, but still occupy the slot
+      // (as an empty partitioned dataset with the group's name) so the output's
+      // group-to-index layout matches ranks that did read this group.
       output->SetNumberOfPartitions(pdsIdx, 0);
-      vtkDebugMacro(<< "No blocks to read on this rank; returning");
+      std::string datasetName;
+      {
+        const auto parts = vtksys::SystemTools::SplitString(groupMetaData.Name);
+        datasetName = parts.empty() ? "mesh" : parts.back();
+      }
+      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), datasetName.c_str());
+      vtkDebugMacro(<< "No blocks to read on this rank for this group");
+      ++pdsIdx;
       continue;
     }
     // Select blocks to read.
@@ -1119,76 +1132,80 @@ int vtkFidesReader::RequestData(
       return 0;
     }
 
-    // A collection-format Fides dataset (written via WriteCollection) reads
-    // back as a whole vtkPartitionedDataSetCollection in a single ReadDataSet
-    // call -- independent of our per-group iteration -- whereas a plain single
-    // group/dataset reads back as a vtkPartitionedDataSet. The accessors throw
-    // when the container holds the other type, and they must run inside libfides
-    // (where the container was created) for their RTTI checks to match: a
-    // GetDataAs<> instantiated in this module would not match the wrapper's
-    // typeinfo across the library boundary.
-    vtkSmartPointer<vtkPartitionedDataSetCollection> collection;
-    try
-    {
-      collection = fides::GetAsVTKPDC(*container);
-    }
-    catch (const std::exception&)
-    {
-      collection = nullptr;
-    }
-
-    if (collection)
-    {
-      // The collection read already returned every item, so populate the output
-      // from it (preserving item names and the data assembly) and stop
-      // iterating groups.
-      const unsigned int nItems = collection->GetNumberOfPartitionedDataSets();
-      output->SetNumberOfPartitionedDataSets(0);
-      for (unsigned int c = 0; c < nItems; ++c)
-      {
-        output->SetPartitionedDataSet(c, collection->GetPartitionedDataSet(c));
-        if (collection->HasMetaData(c) &&
-          collection->GetMetaData(c)->Has(vtkCompositeDataSet::NAME()))
-        {
-          output->GetMetaData(c)->Set(vtkCompositeDataSet::NAME(),
-            collection->GetMetaData(c)->Get(vtkCompositeDataSet::NAME()));
-        }
-      }
-      if (collection->GetDataAssembly())
-      {
-        output->SetDataAssembly(collection->GetDataAssembly());
-      }
-      pdsIdx = nItems;
-      break;
-    }
-
-    // Single dataset/group: the VTK Fides backend returns one
-    // vtkPartitionedDataSet; the wrap-in-PDSC happens here so multi-group files
-    // have somewhere to live.
+    // The container holds either a single vtkPartitionedDataSet (a plain
+    // group/dataset) or a whole vtkPartitionedDataSetCollection (a
+    // collection-format file written via WriteCollection, which Fides returns in
+    // one ReadDataSet call independent of our per-group iteration). The
+    // accessors throw when the container holds the other type, and they must run
+    // inside libfides (where the container was created) for their RTTI checks to
+    // match -- a GetDataAs<> instantiated in this module would not match the
+    // wrapper's typeinfo across the library boundary. The single-dataset case is
+    // the common one, so try it first to keep it off the exception path.
     vtkSmartPointer<vtkPartitionedDataSet> pds;
     try
     {
       pds = fides::GetAsVTKPDS(*container);
+    }
+    catch (const std::exception&)
+    {
+      pds = nullptr;
+    }
+
+    if (pds)
+    {
+      // The VTK Fides backend returns one vtkPartitionedDataSet per group; the
+      // wrap-in-PDSC happens here so multi-group files have somewhere to live.
+      output->SetPartitionedDataSet(pdsIdx, pds);
+      std::string datasetName;
+      {
+        const auto parts = vtksys::SystemTools::SplitString(groupMetaData.Name);
+        datasetName = parts.empty() ? "mesh" : parts.back();
+      }
+      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), datasetName.c_str());
+      ++pdsIdx;
+      continue;
+    }
+
+    vtkSmartPointer<vtkPartitionedDataSetCollection> collection;
+    try
+    {
+      collection = fides::GetAsVTKPDC(*container);
     }
     catch (const std::exception& e)
     {
       vtkErrorMacro(<< e.what());
       return 0;
     }
-    if (!pds)
+    if (!collection)
     {
-      vtkErrorMacro(<< "Fides ReadDataSet did not return a vtkPartitionedDataSet");
+      vtkErrorMacro(<< "Fides ReadDataSet returned neither a vtkPartitionedDataSet nor a "
+                       "vtkPartitionedDataSetCollection");
       return 0;
     }
-    output->SetPartitionedDataSet(pdsIdx, pds);
 
-    std::string datasetName;
+    // The collection read already returned every item. Append them at the
+    // current index (preserving item names) so any groups read on prior
+    // iterations are kept, then stop iterating groups. The data assembly's item
+    // indices are collection-relative, so only carry it over when this
+    // collection occupies the output from the start.
+    const unsigned int base = pdsIdx;
+    const unsigned int nItems = collection->GetNumberOfPartitionedDataSets();
+    for (unsigned int c = 0; c < nItems; ++c)
     {
-      const auto parts = vtksys::SystemTools::SplitString(groupMetaData.Name);
-      datasetName = parts.empty() ? "mesh" : parts.back();
+      output->SetPartitionedDataSet(base + c, collection->GetPartitionedDataSet(c));
+      if (collection->HasMetaData(c) &&
+        collection->GetMetaData(c)->Has(vtkCompositeDataSet::NAME()))
+      {
+        output->GetMetaData(base + c)->Set(vtkCompositeDataSet::NAME(),
+          collection->GetMetaData(c)->Get(vtkCompositeDataSet::NAME()));
+      }
     }
-    output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), datasetName.c_str());
-    pdsIdx++;
+    if (base == 0 && collection->GetDataAssembly())
+    {
+      output->SetDataAssembly(collection->GetDataAssembly());
+    }
+    pdsIdx = base + nItems;
+    break;
   }
 
   // Stamp the requested data time on the output so downstream filters and
