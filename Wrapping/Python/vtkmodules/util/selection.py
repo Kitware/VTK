@@ -305,6 +305,11 @@ def _remap_expr(expr, name_map):
 class _SelectionMixin:
     """Pythonic container and operator interface for vtkSelection."""
 
+    # Class-level default so the attribute always exists, even for objects
+    # that VTK reconstructs from an existing C++ pointer (which skip __init__
+    # below). Without this, the boolean operators raise AttributeError.
+    _expr_label = None
+
     def __init__(self, *args, content_type=None, field_type=None,
                  selection_list=None, **kwargs):
         # SWIG pointer reconstruction: tp_new already returned the

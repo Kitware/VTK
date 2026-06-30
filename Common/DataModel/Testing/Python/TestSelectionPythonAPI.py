@@ -449,6 +449,51 @@ def test_operators_with_non_selection():
         pass
 
 
+def _make_indices_node(ids):
+    node = vtkSelectionNode()
+    node.SetContentType(vtkSelectionNode.INDICES)
+    node.SetFieldType(vtkSelectionNode.CELL)
+    arr = vtkIdTypeArray()
+    for i in ids:
+        arr.InsertNextValue(i)
+    node.SetSelectionList(arr)
+    return node
+
+
+def test_reconstructed_selection_operators():
+    """Operators must work on selections that skipped our __init__.
+
+    When VTK rewraps an existing C++ vtkSelection from a pointer, the
+    Pythonic __init__ takes its early-return path and never runs the
+    body, so the instance never gets a per-instance _expr_label. The
+    boolean operators must still work via the class-level default rather
+    than raising AttributeError. Regression test for that crash.
+    """
+    src = vtkSelection(
+        content_type="INDICES", field_type="CELL",
+        selection_list=np.array([0, 5, 10], dtype=np.int64),
+    )
+
+    # Drive the pointer-reconstruction code path explicitly: passing an
+    # address string triggers the early-return branch in __init__, exactly
+    # as VTK's wrapping layer does when it rewraps a C++ object.
+    rewrapped = type(src)(src.__this__)
+    assert rewrapped._expr_label is None, \
+        "class-level _expr_label default missing"
+    rewrapped.AddNode(_make_indices_node([1, 2, 3]))
+
+    # None of these may raise AttributeError.
+    inverted = ~rewrapped
+    assert inverted.expression, "invert produced empty expression"
+
+    combined = rewrapped & src
+    assert combined.expression, "combine produced empty expression"
+    assert len(combined) == len(rewrapped) + len(src)
+
+    either = rewrapped | src
+    assert either.expression
+
+
 # ---------------------------------------------------------------------------
 # Run all tests
 # ---------------------------------------------------------------------------
