@@ -112,7 +112,7 @@ static int vtkWrapSerDes_IsDeserializable(const unsigned int methodType)
 
 /* -------------------------------------------------------------------- */
 /* If property type or name is to be excluded from marshalling, return 0 */
-static int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const ClassInfo* classInfo,
+int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const ClassInfo* classInfo,
   const FunctionInfo* functionInfo, const PropertyInfo* propertyInfo, const char** reason)
 {
   const int ALLOWABLE = 1;
