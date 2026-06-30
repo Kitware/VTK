@@ -77,6 +77,16 @@ public:
 
   ///@{
   /**
+   * When set, New() returns a vtkGenericOpenGLRenderWindow instead of
+   * trying hardware-specific backends (X, EGL, etc.).  Used by ParaView's
+   * Qt integration where raw GLX calls must be avoided.
+   */
+  static void SetUseGenericOpenGLRenderWindow(bool val);
+  static bool GetUseGenericOpenGLRenderWindow();
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...
    * front in this context indicates that the read should come from the
    * display buffer versus the render buffer
