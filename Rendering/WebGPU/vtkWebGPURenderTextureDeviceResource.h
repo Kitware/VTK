@@ -220,11 +220,11 @@ private:
   std::string Label;
 
   WGPUTextureDescriptor TextureDescriptor;
-  WGPUTexture Texture;
+  WGPUTexture Texture = nullptr;
   WGPUSamplerDescriptor SamplerDescriptor;
-  WGPUSampler Sampler;
+  WGPUSampler Sampler = nullptr;
   WGPUTextureViewDescriptor TextureViewDescriptor;
-  WGPUTextureView TextureView;
+  WGPUTextureView TextureView = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -93,13 +93,13 @@ private:
   int LastProjection = -1;
   bool LastGammaCorrect = false;
 
-  WGPURenderPipeline Pipeline;
-  WGPUBindGroupLayout BindGroupLayout;
-  WGPUBindGroup BindGroup;
-  WGPUBuffer UniformBuffer;
-  WGPUBuffer MatrixBuffer;
-  WGPUBindGroupLayout MatrixBindGroupLayout;
-  WGPUBindGroup MatrixBindGroup;
+  WGPURenderPipeline Pipeline = nullptr;
+  WGPUBindGroupLayout BindGroupLayout = nullptr;
+  WGPUBindGroup BindGroup = nullptr;
+  WGPUBuffer UniformBuffer = nullptr;
+  WGPUBuffer MatrixBuffer = nullptr;
+  WGPUBindGroupLayout MatrixBindGroupLayout = nullptr;
+  WGPUBindGroup MatrixBindGroup = nullptr;
   std::string PipelineKey;
 
   vtkNew<vtkMatrix3x3> RotationMatrix;

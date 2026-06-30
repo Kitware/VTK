@@ -420,7 +420,7 @@ protected:
 
   struct AttributeBuffer
   {
-    WGPUBuffer Buffer;
+    WGPUBuffer Buffer = nullptr;
     uint64_t Size = 0;
     uint64_t Watermark = 0;
     bool Touched = false;
@@ -432,7 +432,7 @@ protected:
     vtkTypeFloat32 PlaneEquations[6][4];
     vtkTypeUInt32 PlaneCount = 0;
   } ClippingPlanesData;
-  WGPUBuffer ClippingPlanesBuffer;
+  WGPUBuffer ClippingPlanesBuffer = nullptr;
 
   ///@{ Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp CellAttributesBuildTimestamp[CELL_NB_ATTRIBUTES];
@@ -455,24 +455,24 @@ protected:
   vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
 
   // 1 bind group for this polydata mesh
-  WGPUBindGroup MeshAttributeBindGroup;
+  WGPUBindGroup MeshAttributeBindGroup = nullptr;
   std::vector<std::uint32_t> MeshAttributeDynamicOffsets;
 
   struct TopologyBindGroupInfo
   {
     // buffer for point ids.
-    WGPUBuffer ConnectivityBuffer;
+    WGPUBuffer ConnectivityBuffer = nullptr;
     // buffer for the cell ids.
-    WGPUBuffer CellIdBuffer;
+    WGPUBuffer CellIdBuffer = nullptr;
     // buffer for edge array. this lets fragment shader hide internal edges of a polygon
     // when edge visibility is turned on.
-    WGPUBuffer EdgeArrayBuffer;
+    WGPUBuffer EdgeArrayBuffer = nullptr;
     // uniform buffer for cell id offset.
-    WGPUBuffer CellIdOffsetUniformBuffer;
+    WGPUBuffer CellIdOffsetUniformBuffer = nullptr;
     // // buffer for indirect draw command
     // WGPUBuffer IndirectDrawBuffer;
     // bind group for the primitive size uniform.
-    WGPUBindGroup BindGroup;
+    WGPUBindGroup BindGroup = nullptr;
     // maximum number of vertices in a cell
     vtkTypeUInt32 MaxCellSize = 0;
     // vertexCount for draw call.

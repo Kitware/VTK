@@ -328,19 +328,19 @@ private:
    */
   void RecordRenderCommands();
 
-  WGPURenderPassEncoder WGPURenderEncoder;
-  WGPURenderBundleEncoder WGPUBundleEncoder;
-  WGPUBuffer SceneTransformBuffer;
-  WGPUBuffer SceneLightsBuffer;
+  WGPURenderPassEncoder WGPURenderEncoder = nullptr;
+  WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
+  WGPUBuffer SceneTransformBuffer = nullptr;
+  WGPUBuffer SceneLightsBuffer = nullptr;
 
-  WGPUBindGroup SceneBindGroup;
-  WGPUBindGroupLayout SceneBindGroupLayout;
+  WGPUBindGroup SceneBindGroup = nullptr;
+  WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
 
   // Render bundles enable faster rendering.
   bool UseRenderBundles = true;
   bool RebuildRenderBundle = false;
   // the commands in bundle get reused every frame.
-  WGPURenderBundle Bundle;
+  WGPURenderBundle Bundle = nullptr;
 
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;

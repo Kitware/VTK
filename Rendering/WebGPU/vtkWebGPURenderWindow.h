@@ -590,15 +590,15 @@ private:
 
   bool RenderTexturesSetup = false;
 
-  WGPUSurface Surface;
-  WGPUCommandEncoder CommandEncoder;
+  WGPUSurface Surface = nullptr;
+  WGPUCommandEncoder CommandEncoder = nullptr;
   int SurfaceConfiguredSize[2];
   WGPUTextureFormat PreferredSurfaceTextureFormat = WGPUTextureFormat_BGRA8Unorm;
   WGPUTextureFormat PreferredSelectorIdsTextureFormat = WGPUTextureFormat_RGBA32Uint;
   struct vtkWGPUDepthStencil
   {
-    WGPUTexture Texture;
-    WGPUTextureView View;
+    WGPUTexture Texture = nullptr;
+    WGPUTextureView View = nullptr;
     WGPUTextureFormat Format;
     bool HasStencil;
   };
@@ -606,8 +606,8 @@ private:
 
   struct vtkWGPUAttachment
   {
-    WGPUTexture Texture;
-    WGPUTextureView View;
+    WGPUTexture Texture = nullptr;
+    WGPUTextureView View = nullptr;
     WGPUTextureFormat Format;
   };
   vtkWGPUAttachment ColorAttachment;
@@ -618,14 +618,14 @@ private:
     WGPUOrigin3D Origin;
     WGPUExtent3D Extent;
     WGPUTexelCopyBufferLayout Layout;
-    WGPUBuffer Buffer; // for SetPixelData
+    WGPUBuffer Buffer = nullptr; // for SetPixelData
   };
   vtkWGPUUserStagingPixelData StagingPixelData;
 
   struct vtkWGPUFullScreenQuad
   {
     std::string Key;
-    WGPUBindGroup BindGroup;
+    WGPUBindGroup BindGroup = nullptr;
   };
   vtkWGPUFullScreenQuad ColorCopyRenderPipeline;
 
