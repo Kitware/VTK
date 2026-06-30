@@ -8,6 +8,7 @@
 #include "vtkParseString.h"
 #include "vtkParseSystem.h"
 #include "vtkWrap.h"
+#include "vtkWrapJsonClass.h"
 #include "vtkWrapSerDesClass.h"
 
 #include <errno.h>
@@ -391,6 +392,25 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         registrarsExist = 1;
       }
       vtkWrapSerDes_Class(fp, hinfo, classInfo);
+
+      /* optionally emit a JSON type manifest for this class */
+      if (options->EmitTypesJsonDir)
+      {
+        size_t pathLen = strlen(options->EmitTypesJsonDir) + strlen(classInfo->Name) + 8;
+        char* jsonPath = (char*)malloc(pathLen);
+        snprintf(jsonPath, pathLen, "%s/%s.json", options->EmitTypesJsonDir, classInfo->Name);
+        FILE* jfp = vtkParse_FileOpen(jsonPath, "w");
+        if (jfp)
+        {
+          vtkWrapJson_Class(jfp, hinfo, classInfo, options->TypesJsonWordSize);
+          fclose(jfp);
+        }
+        else
+        {
+          fprintf(stderr, "Error opening JSON manifest file %s\n", jsonPath);
+        }
+        free(jsonPath);
+      }
     }
     /* generate handler code for templates/unmarshalled classes */
     for (int i = 0; i < contents->NumberOfClasses; ++i)

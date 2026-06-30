@@ -99,6 +99,13 @@ The `vtkWrapSerDes` executable makes use of the `WrappingTools` package to autom
       }
       ```
 
+## JSON type manifests
+
+When configured with `VTK_BUILD_TYPES_JSON=ON`, `vtkWrapSerDes` additionally
+emits a per-class JSON type manifest describing the marshalled properties and
+methods. These feed downstream TypeScript-definition generation for the
+WebAssembly object proxy. See {doc}`json_type_manifests`.
+
 ## Manual marshal code
 
 On the other hand, the `VTK_MARSHALMANUAL` macro is used to indicate that a class
