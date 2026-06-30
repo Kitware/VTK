@@ -62,5 +62,16 @@ endif()
 
 cmake_dependent_option(VTK_WRAP_SERIALIZATION "Should VTK serailizer wrapping be built?" OFF "VTK_ENABLE_WRAPPING" OFF)
 
+# Generate per-class JSON type manifests alongside the serialization sources.
+# Consumed by @kitware/vtk-wasm to produce TypeScript definitions.
+cmake_dependent_option(VTK_BUILD_TYPES_JSON "Should JSON type manifests be generated for serialized classes?" OFF "VTK_ENABLE_WRAPPING;VTK_WRAP_SERIALIZATION" OFF)
+mark_as_advanced(VTK_BUILD_TYPES_JSON)
+if (VTK_BUILD_TYPES_JSON)
+  # Common directory where vtkWrapSerDes writes <ClassName>.json. Referenced by
+  # both the serialization custom command (emit) and the module install rule.
+  set(VTK_TYPES_JSON_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/types"
+    CACHE INTERNAL "Directory where vtkWrapSerDes writes JSON type manifests")
+endif ()
+
 cmake_dependent_option(VTK_WRAP_JAVASCRIPT "Should VTK JavaScript wrapping be built?" OFF
   "VTK_ENABLE_WRAPPING;CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" OFF)

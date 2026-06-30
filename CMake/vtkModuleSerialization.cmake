@@ -232,6 +232,20 @@ function (_vtk_module_serdes_generate_sources)
     PROPERTY "library_name"
     VARIABLE _vtk_serdes_library_name)
   set(_vtk_serdes_args_file "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_library_name}-SerDes.$<CONFIG>.args")
+
+  # When enabled, vtkWrapSerDes additionally emits a per-class JSON type manifest
+  # (<ClassName>.json) into a common directory during the same header parse.
+  # The manifests feed @kitware/vtk-wasm's TypeScript definition generator.
+  # Word-width C types (long, size_t) are baked to a concrete width using the
+  # target pointer size, so each architecture's build emits its own manifest set.
+  set(_vtk_serdes_types_json_args)
+  if (VTK_BUILD_TYPES_JSON)
+    file(MAKE_DIRECTORY "${VTK_TYPES_JSON_OUTPUT_DIRECTORY}")
+    set(_vtk_serdes_types_json_args
+      --emit-types-json "${VTK_TYPES_JSON_OUTPUT_DIRECTORY}"
+      --emit-types-json-wordsize "${CMAKE_SIZEOF_VOID_P}")
+  endif ()
+
   set(_vtk_serdes_hierarchy_depends "${_vtk_serdes_MODULE}")
   # Get public dependencies of `module`.
   _vtk_module_get_module_property("${_vtk_serdes_MODULE}"
@@ -371,6 +385,7 @@ $<$<BOOL:${_vtk_serdes_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_serdes_hierar
               "$<TARGET_FILE:${_vtk_wrap_serdes_target}>"
               ${_vtk_serdes_depfile_flags}
               "@${_vtk_serdes_args_file}"
+              ${_vtk_serdes_types_json_args}
               -o "${_vtk_serdes_source_output}"
               "${_vtk_serdes_header}"
               ${_vtk_serdes_macros_args}

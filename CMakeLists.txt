@@ -655,6 +655,15 @@ vtk_module_build(
   SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master"
   ENABLE_SERIALIZATION    "${VTK_WRAP_SERIALIZATION}")
 
+if (VTK_BUILD_TYPES_JSON)
+  # Install the per-class JSON type manifests generated alongside the
+  # serialization sources. The manifests are architecture-agnostic, so a single
+  # flat directory serves both the wasm32 and wasm64 bundles.
+  install(DIRECTORY "${VTK_TYPES_JSON_OUTPUT_DIRECTORY}/"
+    DESTINATION    "${CMAKE_INSTALL_DATAROOTDIR}/vtk${vtk_version_suffix}/types"
+    FILES_MATCHING PATTERN "*.json")
+endif ()
+
 include(vtkModuleJson)
 vtk_module_json(
   MODULES ${vtk_modules}
