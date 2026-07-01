@@ -152,7 +152,7 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
                               "distribution's package manager.");
   }
 #elif defined(__APPLE__)
-  const std::vector<std::string> libNamesToTry = { "libOSMesa.dylib.8", "libOSMesa.dylib.6",
+  const std::vector<std::string> libNamesToTry = { "libOSMesa.8.dylib", "libOSMesa.6.dylib",
     "libOSMesa.dylib" };
   for (const auto& libName : libNamesToTry)
   {
