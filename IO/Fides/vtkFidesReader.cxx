@@ -46,6 +46,8 @@
 #endif
 #endif
 
+#include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <stdexcept>
 #include <utility>

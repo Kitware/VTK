@@ -33,6 +33,7 @@
 #include "vtkMPIController.h"
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
