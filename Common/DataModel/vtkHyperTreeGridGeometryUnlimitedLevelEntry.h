@@ -27,6 +27,7 @@
 
 #include "assert.h"
 
+#include "vtkDeprecation.h" // Include the macros.
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 
@@ -74,10 +75,15 @@ public:
    */
   void Dump(ostream& os);
 
+  VTK_DEPRECATED_IN_9_7_0(
+    "Please use the 'Initialize' overload specifying lastRealLevel and lastRealIndex explicitly.")
+  void Initialize(vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin);
+
   /**
    * Initialize cache entry from explicit required data
    */
-  void Initialize(vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin);
+  void Initialize(vtkHyperTree* tree, unsigned int level, vtkIdType index, const double* origin,
+    unsigned int lastRealLevel, vtkIdType lastRealIndex);
 
   /**
    * Initialize cache entry at root of given tree index in grid.
@@ -98,9 +104,8 @@ public:
    */
   void Copy(const vtkHyperTreeGridGeometryUnlimitedLevelEntry* entry)
   {
-    this->Initialize(entry->Tree, entry->Level, entry->Index, entry->Origin);
-    this->LastRealIndex = entry->LastRealIndex;
-    this->LastRealLevel = entry->LastRealLevel;
+    this->Initialize(entry->Tree, entry->Level, entry->Index, entry->Origin, entry->LastRealLevel,
+      entry->LastRealIndex);
   }
 
   /**
