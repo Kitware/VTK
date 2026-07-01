@@ -3,7 +3,6 @@
 
 #include "vtkChartRadViz.h"
 
-#include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
