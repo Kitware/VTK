@@ -4,6 +4,7 @@
 #include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGradient.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
@@ -25,12 +26,11 @@
       std::cerr << "Tuple " << tupleId << " expected (" << x << ", " << y << ", " << z             \
                 << ") but got (" << grad[0] << ", " << grad[1] << ", " << grad[2] << ")."          \
                 << std::endl;                                                                      \
-      return EXIT_FAILURE;                                                                         \
+      return false;                                                                                \
     }                                                                                              \
   } while (0)
 
-//------------------------------------------------------------------------------
-int TestHyperTreeGridGradient(int, char*[])
+bool RandomHyperTreeGridSource()
 {
   // Testing Unlimited / No masking
   vtkNew<vtkRandomHyperTreeGridSource> source;
@@ -70,7 +70,69 @@ int TestHyperTreeGridGradient(int, char*[])
   gradient->Update();
 
   CHECK_GRADIENT(gradArray, 10, -14.2, 1.4, 10.4);
-  CHECK_GRADIENT(gradArray, 15, 11.7, -11.9, -4.4);
+  CHECK_GRADIENT(gradArray, 15, 11.2, -13.3, -3.9);
 
-  return EXIT_SUCCESS;
+  return true;
+}
+
+/*
+  The vtkHyperTreeGridSource builds the HTGs shown below. We test the gradient on the cell
+  with the cross and compare it when masking the right grid or not.
+  +---+-+-+   +---+            +---+-+-+
+  |   +-+-+   |   |            |   +-+-+
+  +---+-+-+   +---+     vs     +---+-+-+
+  |   | X |   |   |            |   | X |
+  +-------+   +---+            +-------+
+*/
+bool HyperTreeGridSource()
+{
+  // Retrieve gradient for first HTG
+  vtkNew<vtkHyperTreeGridSource> htg;
+  htg->SetMaxDepth(3);
+  htg->SetBranchFactor(2);
+  htg->SetDimensions(2, 1, 3);
+  htg->SetGridScale(1, 1, 1);
+  htg->SetDescriptor("RR|...R....|....");
+  htg->SetUseMask(true);
+  htg->SetMask("11|11110011|1111");
+
+  vtkNew<vtkHyperTreeGridGradient> gradient;
+  gradient->SetInputConnection(htg->GetOutputPort());
+  gradient->SetMode(vtkHyperTreeGridGradient::ComputeMode::UNLIMITED);
+  gradient->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "Depth");
+  gradient->Update();
+
+  vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(gradient->GetOutput());
+  vtkDataArray* gradArray = output->GetCellData()->GetArray("Gradient");
+
+  double gradUnlimited[3];
+  gradArray->GetTuple(4, gradUnlimited);
+
+  gradient->SetMode(vtkHyperTreeGridGradient::ComputeMode::UNSTRUCTURED);
+  gradient->Update();
+  double gradUnstructured[3];
+  gradArray->GetTuple(4, gradUnstructured);
+
+  // Retrieve gradient for second HTG
+  htg->SetDescriptor("R.|...R|....");
+  htg->SetMask("10|1111|1111");
+  gradient->SetMode(vtkHyperTreeGridGradient::ComputeMode::UNLIMITED);
+  gradient->Update();
+
+  CHECK_GRADIENT(gradArray, 4, gradUnlimited[0], gradUnlimited[1], gradUnlimited[2]);
+
+  gradient->SetMode(vtkHyperTreeGridGradient::ComputeMode::UNSTRUCTURED);
+  gradient->Update();
+  CHECK_GRADIENT(gradArray, 4, gradUnstructured[0], gradUnstructured[1], gradUnstructured[2]);
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+int TestHyperTreeGridGradient(int, char*[])
+{
+  bool test = RandomHyperTreeGridSource();
+  test &= HyperTreeGridSource();
+
+  return test ? EXIT_SUCCESS : EXIT_FAILURE;
 }
