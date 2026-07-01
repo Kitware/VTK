@@ -174,6 +174,7 @@ public:
    * synchronize this process.
    */
   VTK_UNBLOCKTHREADS
+  VTK_MAYSUSPEND
   virtual void Render() {}
 
   /**
@@ -201,6 +202,7 @@ public:
   {
     return nullptr;
   }
+  VTK_MAYSUSPEND
   virtual int GetPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
     vtkUnsignedCharArray* /*data*/, int /*right*/ = 0)
   {

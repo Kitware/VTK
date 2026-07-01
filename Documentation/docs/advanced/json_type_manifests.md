@@ -34,7 +34,12 @@ One `<Class>.json` is emitted per serialized class:
       "parameters": { "index": { "type": "int32" }, "value": { "type": "float64" } },
       "returns":    { "type": "null" }
     },
-    "GetScalarTree": { "parameters": {}, "returns": { "$ref": "vtkScalarTree" } }
+    "GetScalarTree": { "parameters": {}, "returns": { "$ref": "vtkScalarTree" } },
+    "WaitForCompletion": {
+      "parameters": {},
+      "returns":    { "type": "null" },
+      "maySuspend": true
+    }
   }
 }
 ```
@@ -44,6 +49,16 @@ One `<Class>.json` is emitted per serialized class:
 - `inherits`: single parent class name; omitted for base classes.
 - `properties` / `methods`: PascalCase keys. A property with a Get but no Set is
   marked `"readOnly": true`. A `vtk*` value type is emitted as `{ "$ref": "<Class>" }`.
+- `maySuspend`: emitted as `true` on a method that may suspend execution, i.e.
+  yield to the browser event loop and resume later (WebGPU/JSPI await). It is set
+  when the C++ method is annotated `VTK_MAYSUSPEND`. Omitted (defaults to
+  false) otherwise. The flag is the OR of the hint across every same-named
+  overload, so a method dispatched by name is marked suspending if *any* overload
+  can suspend. The consumer uses it to call the method through the asynchronous,
+  Promise-returning `invokeAsync` binding instead of the synchronous `invoke`.
+  Because a method is emitted only at the class that first declares it as
+  virtual (overrides are handled by the superclass), annotate the base
+  declaration to mark the method suspending for every backend.
 
 ## Numeric types
 
@@ -82,3 +97,6 @@ Two things are easy to miss in the SerDes metadata:
   `$ref` with the concrete class name; reserve bare `"type":"object"` for
   genuinely opaque/unknown types. The `$ref` is what lets `x.getScalarTree()`
   chain into a typed proxy.
+- **`maySuspend`**: OR `FunctionInfo::IsMaySuspend` across the same-named overloads
+  that collapse into one manifest entry, and emit the key only when the result is
+  true. A false value is left implicit to keep manifests lean.

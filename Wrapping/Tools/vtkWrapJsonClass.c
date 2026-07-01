@@ -283,6 +283,7 @@ static void vtkWrapJson_WriteMethods(FILE* fp, ClassInfo* classInfo, const Hiera
   int* handled = (int*)calloc(classInfo->NumberOfFunctions, sizeof(int));
   int first = 1;
   int i = 0, k = 0, p = 0;
+  int maySuspend = 0;
 
   fprintf(fp, "  \"methods\": {");
   for (i = 0; i < classInfo->NumberOfFunctions; ++i)
@@ -299,12 +300,16 @@ static void vtkWrapJson_WriteMethods(FILE* fp, ClassInfo* classInfo, const Hiera
     {
       continue;
     }
-    /* mark every same-named allowed overload as handled (one manifest entry) */
+    /* mark every same-named overload as handled (one manifest entry) and OR
+       their maySuspend hints: a call dispatched by name may suspend if any
+       overload is annotated VTK_MAYSUSPEND. */
+    maySuspend = 0;
     for (k = i; k < classInfo->NumberOfFunctions; ++k)
     {
       if (!strcmp(theFunc->Name, classInfo->Functions[k]->Name))
       {
         handled[k] = 1;
+        maySuspend |= classInfo->Functions[k]->IsMaySuspend;
       }
     }
 
@@ -324,6 +329,10 @@ static void vtkWrapJson_WriteMethods(FILE* fp, ClassInfo* classInfo, const Hiera
     }
     fprintf(fp, "%s},\n      \"returns\": ", theFunc->NumberOfParameters ? " " : "");
     vtkWrapJson_WriteValueSchema(fp, theFunc->ReturnValue, hinfo, classInfo);
+    if (maySuspend)
+    {
+      fprintf(fp, ",\n      \"maySuspend\": true");
+    }
     fprintf(fp, "\n    }");
     first = 0;
   }
