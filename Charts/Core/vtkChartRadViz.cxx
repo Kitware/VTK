@@ -46,14 +46,11 @@ vtkStandardNewMacro(vtkChartRadViz);
 //------------------------------------------------------------------------------
 vtkChartRadViz::vtkChartRadViz()
 {
-  this->Internals = new vtkChartRadViz::vtkInternals();
+  this->Internals = std::make_unique<vtkChartRadViz::vtkInternals>();
 }
 
 //------------------------------------------------------------------------------
-vtkChartRadViz::~vtkChartRadViz()
-{
-  delete this->Internals;
-}
+vtkChartRadViz::~vtkChartRadViz() = default;
 
 //------------------------------------------------------------------------------
 void vtkChartRadViz::Update()
@@ -254,6 +251,7 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
       {
         // drag a vertex
         this->Internals->DragVertexIndex = i;
+        vtkDebugMacro("vtkChartRadViz::MouseButtonLeftEvent: Drag vertex: " << i);
         break;
       }
     }
@@ -268,10 +266,12 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
       {
         // resize the lens
         this->Internals->ResizeLens = true;
+        vtkDebugMacro("vtkChartRadViz::MouseButtonLeftEvent: Resize lens");
       }
       else if (lensRadius - r > 0)
       {
         // drag the lens
+        vtkDebugMacro("vtkChartRadViz::MouseButtonLeftEvent: Drag lens");
         this->Internals->DragLens = true;
         std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
       }

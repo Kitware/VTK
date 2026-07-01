@@ -13,6 +13,7 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
+#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
@@ -124,7 +125,7 @@ private:
    * Private implementation details
    */
   class vtkInternals;
-  vtkInternals* Internals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
 VTK_ABI_NAMESPACE_END
