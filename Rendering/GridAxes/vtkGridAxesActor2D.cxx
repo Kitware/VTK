@@ -10,17 +10,16 @@
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
 #include "vtkDoubleArray.h"
+#include "vtkFreeTypeTools.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
-#include "vtkTextRenderer.h"
 
 #include <algorithm>
 
@@ -659,21 +658,19 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
       vtkContext2D::FloatToInt(
         (axisNormals[index].GetY() * 10 * tileScale[1]) + this->LabelDisplayOffset[axis]));
 
-    // The geometry shader in vtk(OpenGL/WebGPU)BatchedLabeledDataMapperInternals offsets text
-    // away from the anchor by `1 + descender` pixels for left/right text anchors and by
-    // descender (or descender / 2) pixels for top/center vertical anchors, so the
-    // frame edge sits at the anchor rather than the glyph edge. The old per-tick
-    // vtkBillboardTextActor3D placement put the glyph edge at the anchor with no margin,
-    // so without compensation the new tick labels drift toward the title. Compensate by
-    // shifting DisplayOffset back the same amount in the opposite direction.
+    // The geometry shader offsets each glyph away from the anchor by (1 + descender) pixels
+    // for left/right anchors so that the background frame edge lands at the anchor rather
+    // than the glyph edge. Compensate by shifting DisplayOffset in the opposite direction
+    // by the same amount. Use the same face-level descender formula the shader uses so the
+    // two values cancel exactly.
     vtkTextProperty* labelProp = activeAxisHelpers[axis]->GetLabelProperties();
     int descender = 0;
-    if (vtkTextRenderer* tren = vtkTextRenderer::GetInstance())
+    if (vtkFreeTypeTools* ftt = vtkFreeTypeTools::GetInstance())
     {
-      vtkTextRenderer::Metrics metrics;
-      if (tren->GetMetrics(labelProp, "Mp", metrics, renWin->GetDPI()))
+      auto faceMetrics = ftt->GetFaceMetrics(labelProp);
+      if (faceMetrics.UnitsPerEM > 0)
       {
-        descender = std::abs(metrics.Descent.GetY());
+        descender = -faceMetrics.Descender * labelProp->GetFontSize() / faceMetrics.UnitsPerEM;
       }
     }
     const int hJust = this->Labels->Justifications[index].GetX();

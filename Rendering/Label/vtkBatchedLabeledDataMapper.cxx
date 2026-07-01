@@ -580,6 +580,18 @@ void vtkBatchedLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 //----------------------------------------------------------------------------
 void vtkBatchedLabeledDataMapper::BuildLabels()
 {
+  // If any stored text property was modified since the last build (e.g. font
+  // size changed via ShallowCopy on the same pointer), the glyph atlas is stale.
+  // Clear it so BuildLabelsInternal re-renders every character at the new settings.
+  for (const auto& tprop : this->Impl->TextProperties)
+  {
+    if (tprop && tprop->GetMTime() > this->BuildTime)
+    {
+      this->Impl->AllStrings.clear();
+      std::fill_n(this->Impl->Descenders, MaxTextProperties, -1);
+      break;
+    }
+  }
   this->Superclass::BuildLabels();
   this->Impl->UpdateTextPropertyAttributeArrays();
 }
