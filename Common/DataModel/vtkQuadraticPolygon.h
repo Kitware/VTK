@@ -105,11 +105,11 @@ public:
 
 protected:
   vtkQuadraticPolygon();
-  ~vtkQuadraticPolygon() override;
+  ~vtkQuadraticPolygon() override = default;
 
   // variables used by instances of this class
-  vtkPolygon* Polygon;
-  vtkQuadraticEdge* Edge;
+  vtkSmartPointer<vtkPolygon> Polygon;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
 
   // Parameter indicating whether to use Mean Value Coordinate algorithm
   // for interpolation. The parameter is true by default.

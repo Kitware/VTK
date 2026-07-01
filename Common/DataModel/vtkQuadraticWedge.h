@@ -25,7 +25,7 @@
 #define vtkQuadraticWedge_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNonLinearCell.h"
+#include "vtkNonLinearCell3D.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
@@ -34,11 +34,11 @@ class vtkQuadraticTriangle;
 class vtkWedge;
 class vtkDoubleArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticWedge : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticWedge : public vtkNonLinearCell3D
 {
 public:
   static vtkQuadraticWedge* New();
-  vtkTypeMacro(vtkQuadraticWedge, vtkNonLinearCell);
+  vtkTypeMacro(vtkQuadraticWedge, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -47,7 +47,6 @@ public:
    * of these methods.
    */
   int GetCellType() override { return VTK_QUADRATIC_WEDGE; }
-  int GetCellDimension() override { return 3; }
   int GetNumberOfEdges() override { return 9; }
   int GetNumberOfFaces() override { return 5; }
   vtkCell* GetEdge(int edgeId) override;
@@ -115,6 +114,21 @@ public:
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
   ///@}
 
+  ///@{
+  /**
+   * Implement the vtkNonLinearCell3D API. See the vtkNonLinearCell3D API for descriptions
+   * of these methods.
+   */
+  PointType GetPointType(vtkIdType pointId) override;
+  vtkIdType GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) override;
+  vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
+  ///@}
+
   /**
    * Given parametric coordinates compute inverse Jacobian transformation
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
@@ -124,16 +138,16 @@ public:
 
 protected:
   vtkQuadraticWedge();
-  ~vtkQuadraticWedge() override;
+  ~vtkQuadraticWedge() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticTriangle* TriangleFace;
-  vtkQuadraticQuad* Face;
-  vtkWedge* Wedge;
-  vtkPointData* PointData;
-  vtkCellData* CellData;
-  vtkDoubleArray* CellScalars;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> TriangleFace;
+  vtkSmartPointer<vtkQuadraticQuad> Face;
+  vtkSmartPointer<vtkWedge> Wedge;
+  vtkSmartPointer<vtkPointData> PointData;
+  vtkSmartPointer<vtkCellData> CellData;
+  vtkSmartPointer<vtkDoubleArray> CellScalars;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
   void Subdivide(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);

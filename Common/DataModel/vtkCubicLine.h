@@ -103,10 +103,10 @@ public:
 
 protected:
   vtkCubicLine();
-  ~vtkCubicLine() override;
+  ~vtkCubicLine() override = default;
 
-  vtkLine* Line;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkLine> Line;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkCubicLine(const vtkCubicLine&) = delete;

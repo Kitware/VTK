@@ -26,7 +26,7 @@
 #define vtkQuadraticTetra_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNonLinearCell.h"
+#include "vtkNonLinearCell3D.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
@@ -34,11 +34,11 @@ class vtkQuadraticTriangle;
 class vtkTetra;
 class vtkDoubleArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticTetra : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticTetra : public vtkNonLinearCell3D
 {
 public:
   static vtkQuadraticTetra* New();
-  vtkTypeMacro(vtkQuadraticTetra, vtkNonLinearCell);
+  vtkTypeMacro(vtkQuadraticTetra, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -47,7 +47,6 @@ public:
    * of these methods.
    */
   int GetCellType() override { return VTK_QUADRATIC_TETRA; }
-  int GetCellDimension() override { return 3; }
   int GetNumberOfEdges() override { return 6; }
   int GetNumberOfFaces() override { return 4; }
   vtkCell* GetEdge(int) override;
@@ -132,6 +131,21 @@ public:
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
   ///@}
 
+  ///@{
+  /**
+   * Implement the vtkNonLinearCell3D API. See the vtkNonLinearCell3D API for descriptions
+   * of these methods.
+   */
+  PointType GetPointType(vtkIdType pointId) override;
+  vtkIdType GetEdgePoints(vtkIdType edgeId, const vtkIdType*& pts) override;
+  vtkIdType GetFacePoints(vtkIdType faceId, const vtkIdType*& pts) override;
+  void GetEdgeToAdjacentFaces(vtkIdType edgeId, const vtkIdType*& faceIds) override;
+  vtkIdType GetFaceToAdjacentFaces(vtkIdType faceId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToIncidentEdges(vtkIdType pointId, const vtkIdType*& edgeIds) override;
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
+  vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
+  ///@}
+
   /**
    * Given parametric coordinates compute inverse Jacobian transformation
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
@@ -141,12 +155,12 @@ public:
 
 protected:
   vtkQuadraticTetra();
-  ~vtkQuadraticTetra() override;
+  ~vtkQuadraticTetra() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuadraticTriangle* Face;
-  vtkTetra* Tetra;
-  vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuadraticTriangle> Face;
+  vtkSmartPointer<vtkTetra> Tetra;
+  vtkSmartPointer<vtkDoubleArray> Scalars; // used to avoid New/Delete in contouring/clipping
 
 private:
   vtkQuadraticTetra(const vtkQuadraticTetra&) = delete;

@@ -12,6 +12,29 @@
 #include "vtkQuadraticEdge.h"
 
 #include <algorithm>
+#include <vector>
+
+namespace
+{
+//------------------------------------------------------------------------------
+[[maybe_unused]] constexpr const char* Topology = R"(
+   QuadraticPolygon topology:
+
+              ...----n+4----4
+              /              \
+            ...               n+3
+            /                   \
+          ...                    3
+           |                     |
+          ...                   n+2
+           |                     |
+          n-1                    2
+            \                   /
+            2n-1              n+1
+              \               /
+               0------n------1
+)";
+}
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticPolygon);
@@ -20,16 +43,9 @@ vtkStandardNewMacro(vtkQuadraticPolygon);
 // Instantiate quadratic polygon.
 vtkQuadraticPolygon::vtkQuadraticPolygon()
 {
-  this->Polygon = vtkPolygon::New();
-  this->Edge = vtkQuadraticEdge::New();
+  this->Polygon = vtkSmartPointer<vtkPolygon>::New();
+  this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
   this->UseMVCInterpolation = true;
-}
-
-//------------------------------------------------------------------------------
-vtkQuadraticPolygon::~vtkQuadraticPolygon()
-{
-  this->Polygon->Delete();
-  this->Edge->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -37,8 +53,7 @@ vtkCell* vtkQuadraticPolygon::GetEdge(int edgeId)
 {
   int numEdges = this->GetNumberOfEdges();
 
-  edgeId = std::max(edgeId, 0);
-  edgeId = std::min(edgeId, numEdges - 1);
+  edgeId = std::clamp(edgeId, 0, numEdges - 1);
   int p = (edgeId + 1) % numEdges;
 
   // load point id's
@@ -164,12 +179,10 @@ void vtkQuadraticPolygon::PrintSelf(ostream& os, vtkIndent indent)
 double vtkQuadraticPolygon::DistanceToPolygon(
   double x[3], int numPts, double* pts, double bounds[6], double closest[3])
 {
-  double* convertedPts = new double[numPts * 3];
-  vtkQuadraticPolygon::PermuteToPolygon(numPts, pts, convertedPts);
+  std::vector<double> convertedPts(numPts * 3);
+  vtkQuadraticPolygon::PermuteToPolygon(numPts, pts, convertedPts.data());
 
-  double result = vtkPolygon::DistanceToPolygon(x, numPts, convertedPts, bounds, closest);
-
-  delete[] convertedPts;
+  double result = vtkPolygon::DistanceToPolygon(x, numPts, convertedPts.data(), bounds, closest);
 
   return result;
 }
@@ -177,16 +190,13 @@ double vtkQuadraticPolygon::DistanceToPolygon(
 //------------------------------------------------------------------------------
 void vtkQuadraticPolygon::ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* p, double c[3])
 {
-  vtkPoints* convertedPts = vtkPoints::New();
+  vtkNew<vtkPoints> convertedPts;
   vtkQuadraticPolygon::PermuteToPolygon(p, convertedPts);
 
-  vtkIdTypeArray* convertedIds = vtkIdTypeArray::New();
+  vtkNew<vtkIdTypeArray> convertedIds;
   vtkQuadraticPolygon::PermuteToPolygon(ids, convertedIds);
 
   vtkPolygon::ComputeCentroid(convertedIds, convertedPts, c);
-
-  convertedPts->Delete();
-  convertedIds->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -201,69 +211,51 @@ int vtkQuadraticPolygon::ParameterizePolygon(
 int vtkQuadraticPolygon::IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6],
   int npts2, double* pts2, double bounds2[6], double tol2, double x[3])
 {
-  double* convertedPts = new double[npts * 3];
-  vtkQuadraticPolygon::PermuteToPolygon(npts, pts, convertedPts);
+  std::vector<double> convertedPts(npts * 3);
 
-  double* convertedPts2 = new double[npts2 * 3];
-  vtkQuadraticPolygon::PermuteToPolygon(npts2, pts2, convertedPts2);
+  vtkQuadraticPolygon::PermuteToPolygon(npts, pts, convertedPts.data());
 
-  int result = vtkPolygon::IntersectPolygonWithPolygon(
-    npts, convertedPts, bounds, npts2, convertedPts2, bounds2, tol2, x);
+  std::vector<double> convertedPts2(npts2 * 3);
+  vtkQuadraticPolygon::PermuteToPolygon(npts2, pts2, convertedPts2.data());
 
-  delete[] convertedPts;
-  delete[] convertedPts2;
-
-  return result;
+  return vtkPolygon::IntersectPolygonWithPolygon(
+    npts, convertedPts.data(), bounds, npts2, convertedPts2.data(), bounds2, tol2, x);
 }
 
 //------------------------------------------------------------------------------
 int vtkQuadraticPolygon::IntersectConvex2DCells(
   vtkCell* cell1, vtkCell* cell2, double tol, double p0[3], double p1[3])
 {
-  vtkPolygon* convertedCell1 = nullptr;
-  vtkPolygon* convertedCell2 = nullptr;
+  vtkSmartPointer<vtkPolygon> convertedCell1 = nullptr;
+  vtkSmartPointer<vtkPolygon> convertedCell2 = nullptr;
 
-  vtkQuadraticPolygon* qp1 = dynamic_cast<vtkQuadraticPolygon*>(cell1);
+  vtkQuadraticPolygon* qp1 = vtkQuadraticPolygon::SafeDownCast(cell1);
   if (qp1)
   {
-    convertedCell1 = vtkPolygon::New();
+    convertedCell1 = vtkSmartPointer<vtkPolygon>::New();
     vtkQuadraticPolygon::PermuteToPolygon(cell1, convertedCell1);
   }
 
-  vtkQuadraticPolygon* qp2 = dynamic_cast<vtkQuadraticPolygon*>(cell2);
+  vtkQuadraticPolygon* qp2 = vtkQuadraticPolygon::SafeDownCast(cell2);
   if (qp2)
   {
-    convertedCell2 = vtkPolygon::New();
+    convertedCell2 = vtkSmartPointer<vtkPolygon>::New();
     vtkQuadraticPolygon::PermuteToPolygon(cell2, convertedCell2);
   }
 
-  int result = vtkPolygon::IntersectConvex2DCells((convertedCell1 ? convertedCell1 : cell1),
+  return vtkPolygon::IntersectConvex2DCells((convertedCell1 ? convertedCell1 : cell1),
     (convertedCell2 ? convertedCell2 : cell2), tol, p0, p1);
-
-  if (convertedCell1)
-  {
-    convertedCell1->Delete();
-  }
-  if (convertedCell2)
-  {
-    convertedCell2->Delete();
-  }
-
-  return result;
 }
 
 //------------------------------------------------------------------------------
 int vtkQuadraticPolygon::PointInPolygon(
   double x[3], int numPts, double* pts, double bounds[6], double* n)
 {
-  double* convertedPts = new double[numPts * 3];
-  vtkQuadraticPolygon::PermuteToPolygon(numPts, pts, convertedPts);
+  std::vector<double> convertedPts(numPts * 3);
 
-  int result = vtkPolygon::PointInPolygon(x, numPts, convertedPts, bounds, n);
+  vtkQuadraticPolygon::PermuteToPolygon(numPts, pts, convertedPts.data());
 
-  delete[] convertedPts;
-
-  return result;
+  return vtkPolygon::PointInPolygon(x, numPts, convertedPts.data(), bounds, n);
 }
 
 //------------------------------------------------------------------------------
@@ -279,7 +271,7 @@ void vtkQuadraticPolygon::GetPermutationFromPolygon(vtkIdType nb, vtkIdList* per
 //------------------------------------------------------------------------------
 void vtkQuadraticPolygon::PermuteToPolygon(vtkIdType nbPoints, double* inPoints, double* outPoints)
 {
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nbPoints, permutation);
 
   for (vtkIdType i = 0; i < nbPoints; i++)
@@ -289,8 +281,6 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkIdType nbPoints, double* inPoints,
       outPoints[3 * i + j] = inPoints[3 * permutation->GetId(i) + j];
     }
   }
-
-  permutation->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -298,7 +288,7 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkPoints* inPoints, vtkPoints* outPo
 {
   vtkIdType nbPoints = inPoints->GetNumberOfPoints();
 
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nbPoints, permutation);
 
   outPoints->SetNumberOfPoints(nbPoints);
@@ -306,8 +296,6 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkPoints* inPoints, vtkPoints* outPo
   {
     outPoints->SetPoint(i, inPoints->GetPoint(permutation->GetId(i)));
   }
-
-  permutation->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -315,7 +303,7 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkIdTypeArray* inIds, vtkIdTypeArray
 {
   vtkIdType nbIds = inIds->GetNumberOfTuples();
 
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nbIds, permutation);
 
   outIds->SetNumberOfTuples(nbIds);
@@ -323,8 +311,6 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkIdTypeArray* inIds, vtkIdTypeArray
   {
     outIds->SetValue(i, inIds->GetValue(permutation->GetId(i)));
   }
-
-  permutation->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -332,14 +318,12 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkDataArray* inDataArray, vtkDataArr
 {
   vtkIdType nb = inDataArray->GetNumberOfTuples();
 
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nb, permutation);
 
   outDataArray->SetNumberOfComponents(inDataArray->GetNumberOfComponents());
   outDataArray->SetNumberOfTuples(nb);
   inDataArray->GetTuples(permutation, outDataArray);
-
-  permutation->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -347,7 +331,7 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkCell* inCell, vtkCell* outCell)
 {
   vtkIdType nbPoints = inCell->GetNumberOfPoints();
 
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nbPoints, permutation);
 
   outCell->Points->SetNumberOfPoints(nbPoints);
@@ -358,8 +342,6 @@ void vtkQuadraticPolygon::PermuteToPolygon(vtkCell* inCell, vtkCell* outCell)
     outCell->PointIds->SetId(i, inCell->PointIds->GetId(permutation->GetId(i)));
     outCell->Points->SetPoint(i, inCell->Points->GetPoint(permutation->GetId(i)));
   }
-
-  permutation->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -381,10 +363,10 @@ void vtkQuadraticPolygon::GetPermutationToPolygon(vtkIdType nb, vtkIdList* permu
 //------------------------------------------------------------------------------
 void vtkQuadraticPolygon::PermuteFromPolygon(vtkIdType nb, double* values)
 {
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationToPolygon(nb, permutation);
 
-  double* save = new double[nb];
+  std::vector<double> save(nb);
   for (vtkIdType i = 0; i < nb; i++)
   {
     save[i] = values[i];
@@ -393,9 +375,6 @@ void vtkQuadraticPolygon::PermuteFromPolygon(vtkIdType nb, double* values)
   {
     values[i] = save[permutation->GetId(i)];
   }
-
-  permutation->Delete();
-  delete[] save;
 }
 
 //------------------------------------------------------------------------------
@@ -403,10 +382,10 @@ void vtkQuadraticPolygon::ConvertFromPolygon(vtkIdType nb, vtkIdList* ids)
 {
   vtkIdType nbIds = ids->GetNumberOfIds();
 
-  vtkIdList* permutation = vtkIdList::New();
+  vtkNew<vtkIdList> permutation;
   vtkQuadraticPolygon::GetPermutationFromPolygon(nb, permutation);
 
-  vtkIdList* saveList = vtkIdList::New();
+  vtkNew<vtkIdList> saveList;
   saveList->SetNumberOfIds(nbIds);
   ids->SetNumberOfIds(nbIds);
 
@@ -418,9 +397,6 @@ void vtkQuadraticPolygon::ConvertFromPolygon(vtkIdType nb, vtkIdList* ids)
   {
     ids->SetId(i, permutation->GetId(saveList->GetId(i)));
   }
-
-  permutation->Delete();
-  saveList->Delete();
 }
 
 //------------------------------------------------------------------------------

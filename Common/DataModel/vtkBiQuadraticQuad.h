@@ -99,12 +99,11 @@ public:
 
 protected:
   vtkBiQuadraticQuad();
-  ~vtkBiQuadraticQuad() override;
+  ~vtkBiQuadraticQuad() override = default;
 
-  vtkQuadraticEdge* Edge;
-  vtkQuad* Quad;
-  vtkTriangle* Triangle;
-  vtkDoubleArray* Scalars;
+  vtkSmartPointer<vtkQuadraticEdge> Edge;
+  vtkSmartPointer<vtkQuad> Quad;
+  vtkSmartPointer<vtkDoubleArray> Scalars;
 
 private:
   vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) = delete;
