@@ -248,8 +248,9 @@ if(FALSE)
   option(NEON_INTRINSICS
     "Because GCC (as of this writing) and some older versions of Clang do not have a full or optimal set of Neon intrinsics, for performance reasons, the default when building libjpeg-turbo with those compilers is to continue using the older GAS implementation of the Neon SIMD extensions for certain algorithms.  Setting this option forces the full Neon intrinsics implementation to be used with all compilers.  Unsetting this option forces the hybrid GAS/intrinsics implementation to be used with all compilers."
     ${DEFAULT_NEON_INTRINSICS})
+  # NEON_INTRINSICS overriden in the parent CMakeLists.txt
+  set(NEON_INTRINSICS ${DEFAULT_NEON_INTRINSICS})
 endif()
-set(NEON_INTRINSICS ${DEFAULT_NEON_INTRINSICS})
 boolean_number(NEON_INTRINSICS PARENT_SCOPE)
 if(NEON_INTRINSICS)
   add_definitions(-DNEON_INTRINSICS)
