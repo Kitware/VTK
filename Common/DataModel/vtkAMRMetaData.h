@@ -16,6 +16,7 @@
 #define vtkAMRMetaData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"   // For vtkSmartPointer
 #include "vtkStructuredData.h" // For VTK_STRUCTURED_INVALID
@@ -79,8 +80,8 @@ public:
 
   /**
    * Returns internal vector of blocks.
-   * XXX: Do not use, will be deprecated.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use vtkAMRMetaData methods instead")
   [[nodiscard]] const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
 
   /**
