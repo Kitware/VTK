@@ -34,6 +34,10 @@ struct InternalMapBufferAsyncData
   // usually use their callback to copy the data from the mapped buffer into a CPU-side buffer that
   // will then use the result of the compute shader in the rest of the application
   vtkWebGPUComputePass::BufferMapAsyncCallback userCallback;
+
+  // Configuration that tracks the number of in-flight buffer maps so that callers (e.g. the compute
+  // pipeline Update()) can wait for the readback to complete before using the results.
+  vtkWebGPUConfiguration* configuration = nullptr;
 };
 
 //------------------------------------------------------------------------------
@@ -251,6 +255,9 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   internalCallbackData->byteSize = byteSize;
   internalCallbackData->userCallback = callback;
   internalCallbackData->userdata = userdata;
+  internalCallbackData->configuration = this->ParentPassWGPUConfiguration;
+  // Mark this readback as in-flight so callers can wait for its completion.
+  this->ParentPassWGPUConfiguration->IncrementActiveBufferMapCount();
 
   wgpu::CommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
   commandEncoder.CopyBufferToBuffer(
@@ -281,6 +288,11 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(callbackData->buffer.Get());
 #endif
+    // This readback is no longer in-flight.
+    if (callbackData->configuration != nullptr)
+    {
+      callbackData->configuration->DecrementActiveBufferMapCount();
+    }
     // Freeing the callbackData structure as it was dynamically allocated
     delete callbackData;
   };

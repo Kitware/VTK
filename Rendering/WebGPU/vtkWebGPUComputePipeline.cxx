@@ -154,7 +154,11 @@ void vtkWebGPUComputePipeline::Update()
         workStatus = status;
         done = true;
       });
-  while (!done)
+  // Wait not only for the submitted GPU work to finish, but also for any in-flight asynchronous
+  // buffer map (readback) callbacks to run. Those callbacks fire during ProcessEvents() and
+  // complete slightly after the queue work they depend on, so exiting as soon as the queue work is
+  // done would leave readback destinations (e.g. a culler's prop count) holding stale data.
+  while (!done || this->WGPUConfiguration->GetActiveBufferMapCount() > 0)
   {
     this->WGPUConfiguration->ProcessEvents();
   }

@@ -189,6 +189,19 @@ public:
   VTK_MAYSUSPEND
   void ProcessEvents();
 
+  ///@{
+  /**
+   * Tracks the number of in-flight asynchronous buffer map (readback) operations. Readback
+   * callbacks fire during ProcessEvents() and complete slightly after the queue work they depend
+   * on. Callers that need the readback results available (e.g. a compute pipeline's Update())
+   * should keep calling ProcessEvents() while GetActiveBufferMapCount() > 0, otherwise the map
+   * callbacks may not have run yet and the readback destinations will hold stale data.
+   */
+  void IncrementActiveBufferMapCount() { ++this->ActiveBufferMapCount; }
+  void DecrementActiveBufferMapCount() { --this->ActiveBufferMapCount; }
+  int GetActiveBufferMapCount() const { return this->ActiveBufferMapCount; }
+  ///@}
+
   /**
    * Adjusts a given value to the nearest multiple of the specified alignment.
    * It is useful for ensuring that memory addresses or other data sizes adhere to
@@ -316,6 +329,10 @@ private:
 
   friend class vtkWebGPUConfigurationInternals;
   std::unique_ptr<vtkWebGPUConfigurationInternals> Internals;
+
+  // Number of in-flight asynchronous buffer map (readback) operations. See
+  // IncrementActiveBufferMapCount().
+  int ActiveBufferMapCount = 0;
 
   PowerPreferenceType PowerPreference = PowerPreferenceType::HighPerformance;
   // Initialized in constructor at runtime based on the operating system.
