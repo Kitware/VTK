@@ -11,10 +11,12 @@
 #ifndef vtkStructuredPointsGeometryFilter_h
 #define vtkStructuredPointsGeometryFilter_h
 
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkImageDataGeometryFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+VTK_DEPRECATED_IN_9_8_0("Use vtkImageDataGeometryFilter instead")
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter
   : public vtkImageDataGeometryFilter
 {
