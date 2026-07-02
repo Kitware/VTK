@@ -51,15 +51,40 @@ class _WidgetMixin:
             return getattr(rep, name)
         raise AttributeError(name)
 
+    def _add_observer(self, event, callback):
+        # Register the callback and remember the AddObserver tag so it can be
+        # removed later (see the clear_on_* methods). Tags are kept per event
+        # name in a lazily-created dict stored directly in __dict__ so the
+        # lookup never falls through to __getattr__ (the representation).
+        tag = self.AddObserver(event, lambda w, e: callback())
+        self.__dict__.setdefault("_observer_tags", {}).setdefault(event, []).append(tag)
+        return callback
+
+    def _clear_observers(self, event):
+        for tag in self.__dict__.get("_observer_tags", {}).pop(event, []):
+            self.RemoveObserver(tag)
+
     def on_interaction(self, callback):
         """Decorator: call *callback()* on every InteractionEvent."""
-        self.AddObserver("InteractionEvent", lambda w, e: callback())
-        return callback
+        return self._add_observer("InteractionEvent", callback)
 
     def on_end_interaction(self, callback):
         """Decorator: call *callback()* on EndInteractionEvent."""
-        self.AddObserver("EndInteractionEvent", lambda w, e: callback())
-        return callback
+        return self._add_observer("EndInteractionEvent", callback)
+
+    def clear_on_interaction(self):
+        """Remove all callbacks registered via on_interaction()."""
+        self._clear_observers("InteractionEvent")
+
+    def clear_on_end_interaction(self):
+        """Remove all callbacks registered via on_end_interaction()."""
+        self._clear_observers("EndInteractionEvent")
+
+    def __del__(self):
+        # Drop our observers so the captured callbacks (which typically close
+        # over this widget) don't outlive it.
+        self.clear_on_interaction()
+        self.clear_on_end_interaction()
 
     def on(self):
         """Enable the widget. Returns *self* for chaining."""

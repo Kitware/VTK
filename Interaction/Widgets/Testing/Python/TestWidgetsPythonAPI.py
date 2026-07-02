@@ -223,6 +223,42 @@ def test_on_end_interaction_decorator():
     assert callable(handler)
 
 
+def test_clear_on_interaction():
+    w = vtkBoxWidget2(bounds=BOUNDS)
+
+    @w.on_interaction
+    def handler():
+        pass
+
+    @w.on_interaction
+    def handler2():
+        pass
+
+    assert w.HasObserver("InteractionEvent")
+    w.clear_on_interaction()
+    # every callback registered via on_interaction is removed
+    assert not w.HasObserver("InteractionEvent")
+
+
+def test_clear_on_end_interaction():
+    w = vtkBoxWidget2(bounds=BOUNDS)
+
+    @w.on_end_interaction
+    def handler():
+        pass
+
+    assert w.HasObserver("EndInteractionEvent")
+    w.clear_on_end_interaction()
+    assert not w.HasObserver("EndInteractionEvent")
+
+
+def test_clear_on_interaction_no_observers():
+    # Clearing when nothing was registered is a no-op, not an error.
+    w = vtkBoxWidget2(bounds=BOUNDS)
+    w.clear_on_interaction()
+    w.clear_on_end_interaction()
+
+
 # ---------------------------------------------------------------------------
 # Context manager
 # ---------------------------------------------------------------------------
