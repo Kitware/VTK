@@ -90,7 +90,13 @@ def _resolve_content_type(value):
                 % (value, ", ".join(sorted(_CONTENT_TYPE_MAP)))
             )
         return _CONTENT_TYPE_MAP[key]
-    return int(value)
+    ivalue = int(value)
+    if ivalue not in _CONTENT_TYPE_REVERSE:
+        raise ValueError(
+            "Unknown content type %r. Valid types: %s"
+            % (value, ", ".join(sorted(_CONTENT_TYPE_MAP)))
+        )
+    return ivalue
 
 
 def _resolve_field_type(value):
@@ -103,7 +109,13 @@ def _resolve_field_type(value):
                 % (value, ", ".join(sorted(_FIELD_TYPE_MAP)))
             )
         return _FIELD_TYPE_MAP[key]
-    return int(value)
+    ivalue = int(value)
+    if ivalue not in _FIELD_TYPE_REVERSE:
+        raise ValueError(
+            "Unknown field type %r. Valid types: %s"
+            % (value, ", ".join(sorted(_FIELD_TYPE_MAP)))
+        )
+    return ivalue
 
 
 def _set_qualifiers(node, qualifiers):
@@ -113,8 +125,7 @@ def _set_qualifiers(node, qualifiers):
         if pyname in qualifiers:
             val = qualifiers[pyname]
             key = getattr(vtkSelectionNode, vtkname)()
-            if isinstance(val, bool):
-                val = int(val)
+            # int() already handles bool (int(True) == 1).
             props.Set(key, int(val))
 
     if "epsilon" in qualifiers:
@@ -510,7 +521,10 @@ class _SelectionMixin:
         """
         import numpy as np
 
-        if isinstance(ranges, tuple) and len(ranges) == 2 and not isinstance(ranges[0], (list, tuple)):
+        # Accept a single (min, max) pair given as either a tuple or a list,
+        # wrapping it into a one-element list of ranges.
+        if (isinstance(ranges, (tuple, list)) and len(ranges) == 2
+                and not isinstance(ranges[0], (list, tuple))):
             ranges = [ranges]
 
         flat = []

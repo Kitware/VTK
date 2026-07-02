@@ -238,6 +238,37 @@ def test_from_thresholds_multiple():
     assert sl.GetNumberOfTuples() == 2
 
 
+def test_from_thresholds_single_range_as_list():
+    """A single (min, max) range given as a list is accepted like a tuple."""
+    sel = vtkSelection().from_thresholds("Temperature", [0, 100])
+    node = sel[0]
+    sl = node.selection_list
+    assert sl.GetNumberOfComponents() == 2
+    assert sl.GetNumberOfTuples() == 1
+    assert sl.GetValue(0) == 0.0
+    assert sl.GetValue(1) == 100.0
+
+
+def test_invalid_int_content_type_raises():
+    """An int that is not a valid content type raises ValueError."""
+    try:
+        vtkSelection(content_type=999, field_type="CELL",
+                     selection_list=np.array([0], dtype=np.int64))
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_invalid_int_field_type_raises():
+    """An int that is not a valid field type raises ValueError."""
+    try:
+        vtkSelection(content_type="INDICES", field_type=999,
+                     selection_list=np.array([0], dtype=np.int64))
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
+
+
 def test_from_values():
     """from_values creates VALUES selection."""
     sel = vtkSelection().from_values("CellType", [1, 3, 5])
