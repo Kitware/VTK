@@ -334,7 +334,6 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
-      TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       double xL[3], xR[3];
       xL[0] = this->Algo->XL;
       xR[0] = this->Algo->XR;
@@ -355,14 +354,12 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
         }
         xL[2] = slice;
         xR[2] = xL[2];
-        for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
+        for (row = 0; row < this->Algo->Dims[1]; ++row)
         {
           xL[1] = row;
           xR[1] = xL[1];
           this->Algo->ProcessXEdge(xL, xR, row, slice);
-          rowPtr += this->Algo->Inc1;
         } // for all rows in this slice
-        slicePtr += this->Algo->Inc2;
       } // for all slices in this batch
     }
   };
