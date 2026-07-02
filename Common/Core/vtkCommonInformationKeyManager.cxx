@@ -96,21 +96,21 @@ void vtkCommonInformationKeyManager::ClassFinalize()
 {
   if (vtkCommonInformationKeyManagerKeys)
   {
-    // Delete information keys.  Clear the callback first so the
-    // key destructor does not try to modify the vector during iteration.
-    // The mutex is held while iterating; the key destructor only locks
-    // the lookup table's separate mutex (via UnregisterKey), so there
-    // is no nested-lock conflict on this manager's mutex.
+    // Detach the registered keys under the lock, then delete them without
+    // holding it.  Deleting a key runs its destructor, which unregisters
+    // from the lookup table (a separate mutex) and, via the callback, could
+    // re-enter Unregister on this manager's mutex.  Doing the deletes outside
+    // our lock keeps this free of any lock-ordering or re-entrancy hazard
+    // rather than relying on the callback being cleared in time.
+    std::vector<vtkInformationKey*> doomedKeys;
     {
       std::lock_guard<std::mutex> lock(vtkCommonInformationKeyManagerKeys->Mutex);
-      for (vtkCommonInformationKeyManagerKeysType::iterator i =
-             vtkCommonInformationKeyManagerKeys->begin();
-           i != vtkCommonInformationKeyManagerKeys->end(); ++i)
-      {
-        vtkInformationKey* key = *i;
-        key->SetManagerUnregisterCallback(nullptr);
-        delete key;
-      }
+      doomedKeys.swap(*vtkCommonInformationKeyManagerKeys);
+    }
+    for (vtkInformationKey* key : doomedKeys)
+    {
+      key->SetManagerUnregisterCallback(nullptr);
+      delete key;
     }
 
     // Delete the singleton storing pointers to information keys.  See

@@ -148,7 +148,12 @@ class _InformationMixin:
         self.Remove(key)
 
     def __contains__(self, key):
-        key = _resolve_key(key)
+        # __contains__ must answer True/False, never raise: an unknown key
+        # name simply is not present.
+        try:
+            key = _resolve_key(key)
+        except KeyError:
+            return False
         return bool(self.Has(key))
 
     def __len__(self):
@@ -261,9 +266,11 @@ class _InformationVectorMixin:
         self.Append(info)
 
     def __repr__(self):
-        return "vtkInformationVector([%s])" % ", ".join(
-            repr(self.GetInformationObject(i)) for i in range(min(len(self), 8))
-        ) + (", ..." if len(self) > 8 else "")
+        n = len(self)
+        items = [repr(self.GetInformationObject(i)) for i in range(min(n, 8))]
+        if n > 8:
+            items.append("...")
+        return "vtkInformationVector([%s])" % ", ".join(items)
 
 
 @vtkInformationVector.override

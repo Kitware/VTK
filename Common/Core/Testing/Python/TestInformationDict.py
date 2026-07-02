@@ -115,6 +115,10 @@ class TestInformationDict(Testing.vtkTest):
     def test_contains_absent(self):
         self.assertNotIn(INT_KEY, self.info)
 
+    def test_contains_unknown_key_name(self):
+        # An unrecognized key name must answer False, not raise KeyError.
+        self.assertNotIn("NOT_A_REAL_KEY", self.info)
+
     # --- __delitem__ ---
 
     def test_delitem(self):
@@ -390,6 +394,15 @@ class TestInformationVector(Testing.vtkTest):
         self.vec.append(vtkInformation())
         r = repr(self.vec)
         self.assertIn("vtkInformationVector", r)
+
+    def test_repr_truncates_inside_brackets(self):
+        # More than 8 entries: the ellipsis belongs inside the [] list, not
+        # dangling after the closing bracket.
+        self.vec.SetNumberOfInformationObjects(10)
+        r = repr(self.vec)
+        self.assertTrue(r.startswith("vtkInformationVector(["))
+        self.assertTrue(r.endswith("...])"))
+        self.assertNotIn("]),", r)
 
     def test_isinstance(self):
         self.assertIsInstance(self.vec, vtkInformationVector)

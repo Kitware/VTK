@@ -31,8 +31,8 @@ struct vtkInformationKeyLookupKeysType
 // during its ClassFinalize.  When the count returns to zero (after
 // every manager has finished destroying its keys) the lookup table
 // is freed.
-std::atomic<unsigned int> g_RefCount{ 0 };
-vtkInformationKeyLookupKeysType* g_Keys = nullptr;
+std::atomic<unsigned int> gRefCount{ 0 };
+std::atomic<vtkInformationKeyLookupKeysType*> gKeys{ nullptr };
 }
 
 //------------------------------------------------------------------------------
@@ -41,12 +41,13 @@ void vtkInformationKeyLookup::PrintSelf(std::ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Registered Keys:\n";
   indent = indent.GetNextIndent();
-  if (!g_Keys)
+  auto* keys = gKeys.load(std::memory_order_acquire);
+  if (!keys)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(g_Keys->Mutex);
-  for (auto i = g_Keys->Map.begin(), iEnd = g_Keys->Map.end(); i != iEnd; ++i)
+  std::lock_guard<std::mutex> lock(keys->Mutex);
+  for (auto i = keys->Map.begin(), iEnd = keys->Map.end(); i != iEnd; ++i)
   {
     os << indent << i->first.first << "::" << i->first.second << " @" << i->second << " ("
        << i->second->GetClassName() << ")\n";
@@ -57,25 +58,27 @@ void vtkInformationKeyLookup::PrintSelf(std::ostream& os, vtkIndent indent)
 vtkInformationKey* vtkInformationKeyLookup::Find(
   const std::string& name, const std::string& location)
 {
-  if (!g_Keys)
+  auto* keys = gKeys.load(std::memory_order_acquire);
+  if (!keys)
   {
     return nullptr;
   }
-  std::lock_guard<std::mutex> lock(g_Keys->Mutex);
-  auto it = g_Keys->Map.find(std::make_pair(location, name));
-  return it != g_Keys->Map.end() ? it->second : nullptr;
+  std::lock_guard<std::mutex> lock(keys->Mutex);
+  auto it = keys->Map.find(std::make_pair(location, name));
+  return it != keys->Map.end() ? it->second : nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkInformationKey* vtkInformationKeyLookup::FindByName(const std::string& name)
 {
-  if (!g_Keys)
+  auto* keys = gKeys.load(std::memory_order_acquire);
+  if (!keys)
   {
     return nullptr;
   }
-  std::lock_guard<std::mutex> lock(g_Keys->Mutex);
+  std::lock_guard<std::mutex> lock(keys->Mutex);
   vtkInformationKey* result = nullptr;
-  for (auto it = g_Keys->Map.begin(); it != g_Keys->Map.end(); ++it)
+  for (auto it = keys->Map.begin(); it != keys->Map.end(); ++it)
   {
     if (it->first.second == name)
     {
@@ -102,27 +105,26 @@ void vtkInformationKeyLookup::RetainCleanup()
 {
   // RetainCleanup is invoked from each key manager's ClassInitialize,
   // which runs single-threaded during static initialization / library
-  // load.  That serialization is what makes the unlocked g_Keys store
-  // below safe: there is no concurrent caller that could observe g_Keys
-  // after the fetch_add but before the placement-new completes.
-  if (g_RefCount.fetch_add(1, std::memory_order_acq_rel) == 0)
+  // load.  That serialization is what makes the store below safe: there
+  // is no concurrent caller that could observe gKeys after the fetch_add
+  // but before the placement-new completes.
+  if (gRefCount.fetch_add(1, std::memory_order_acq_rel) == 0)
   {
     // First retain — allocate the storage.  Use malloc/placement new
     // for the same lazy-symbol-loading reason documented in
     // vtkCommonInformationKeyManager::ClassInitialize.
     void* mem = malloc(sizeof(vtkInformationKeyLookupKeysType));
-    g_Keys = new (mem) vtkInformationKeyLookupKeysType;
+    gKeys.store(new (mem) vtkInformationKeyLookupKeysType, std::memory_order_release);
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkInformationKeyLookup::ReleaseCleanup()
 {
-  if (g_RefCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
+  if (gRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
   {
     // Last release — destroy the storage.
-    vtkInformationKeyLookupKeysType* doomed = g_Keys;
-    g_Keys = nullptr;
+    vtkInformationKeyLookupKeysType* doomed = gKeys.exchange(nullptr, std::memory_order_acq_rel);
     if (doomed)
     {
       doomed->~vtkInformationKeyLookupKeysType();
@@ -145,19 +147,21 @@ void vtkInformationKeyLookup::RegisterKey(
   // key would be silently dropped from the lookup table; assert in debug
   // builds so the regression is caught rather than failing as a missing
   // string lookup at runtime.
-  assert(g_Keys && "vtkInformationKey registered before any key manager initialized");
-  if (!g_Keys)
+  auto* keys = gKeys.load(std::memory_order_acquire);
+  assert(keys && "vtkInformationKey registered before any key manager initialized");
+  if (!keys)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(g_Keys->Mutex);
-  g_Keys->Map.insert(std::make_pair(std::make_pair(location, name), key));
+  std::lock_guard<std::mutex> lock(keys->Mutex);
+  keys->Map.insert(std::make_pair(std::make_pair(location, name), key));
 }
 
 //------------------------------------------------------------------------------
 void vtkInformationKeyLookup::UnregisterKey(vtkInformationKey* key)
 {
-  if (!key || !g_Keys)
+  auto* keys = gKeys.load(std::memory_order_acquire);
+  if (!key || !keys)
   {
     return;
   }
@@ -167,11 +171,11 @@ void vtkInformationKeyLookup::UnregisterKey(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(g_Keys->Mutex);
-  auto it = g_Keys->Map.find(std::make_pair(std::string(location), std::string(name)));
-  if (it != g_Keys->Map.end() && it->second == key)
+  std::lock_guard<std::mutex> lock(keys->Mutex);
+  auto it = keys->Map.find(std::make_pair(std::string(location), std::string(name)));
+  if (it != keys->Map.end() && it->second == key)
   {
-    g_Keys->Map.erase(it);
+    keys->Map.erase(it);
   }
 }
 VTK_ABI_NAMESPACE_END
