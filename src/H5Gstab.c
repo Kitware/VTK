@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -685,7 +685,7 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
     /* Portably clear udata struct (before FUNC_ENTER) */
     memset(&udata, 0, sizeof(udata));
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(oloc);
@@ -975,9 +975,9 @@ H5G__stab_valid(H5O_loc_t *grp_oloc, H5O_stab_t *alt_stab)
 
     /* Check if the symbol table message's b-tree address is valid */
     H5E_PAUSE_ERRORS
-    {
-        bt_status = H5B_valid(grp_oloc->file, H5B_SNODE, stab.btree_addr);
-    }
+        {
+            bt_status = H5B_valid(grp_oloc->file, H5B_SNODE, stab.btree_addr);
+        }
     H5E_RESUME_ERRORS
 
     if (bt_status < 0) {
@@ -994,9 +994,9 @@ H5G__stab_valid(H5O_loc_t *grp_oloc, H5O_stab_t *alt_stab)
 
     /* Check if the symbol table message's heap address is valid */
     H5E_PAUSE_ERRORS
-    {
-        heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG);
-    }
+        {
+            heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG);
+        }
     H5E_RESUME_ERRORS
 
     if (NULL == heap) {

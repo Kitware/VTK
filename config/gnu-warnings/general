@@ -12,6 +12,7 @@
 -Wextra
 -Wfloat-equal
 -Wformat=2
+-Wformat-nonliteral
 -Winit-self
 -Winvalid-pch
 -Wmissing-include-dirs

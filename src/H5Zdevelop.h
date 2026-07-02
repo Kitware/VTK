@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -249,7 +249,7 @@ extern "C" {
  *          H5Z_class2_t, depending on the needs of the application. To affect
  *          only this macro, H5Z_class_t_vers may be defined as either 1 or 2.
  *          Otherwise, it will behave in the same manner as other API
- *          compatibility macros. See API Compatibility Macros in HDF5 for more
+ *          compatibility macros. See \ref api-compat-macros for more
  *          information. H5Z_class1_t matches the #H5Z_class_t structure that is
  *          used in the 1.6.x versions of the HDF5 library.
  *

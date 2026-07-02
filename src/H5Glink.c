@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -233,11 +233,17 @@ H5G_link_to_info(const H5O_loc_t *link_loc, const H5O_link_t *lnk, H5L_info2_t *
                 if (link_class != NULL && link_class->query_func != NULL) {
                     ssize_t cb_ret; /* Return value from UD callback */
 
-                    /* Call the link's query routine to retrieve the user-defined link's value size */
-                    /* (in case the query routine packs/unpacks the link value in some way that changes its
-                     * size) */
-                    if ((cb_ret = (link_class->query_func)(lnk->name, lnk->u.ud.udata, lnk->u.ud.size, NULL,
-                                                           (size_t)0)) < 0)
+                    /* Prepare & restore library for user callback */
+                    H5_BEFORE_USER_CB(FAIL)
+                        {
+                            /* Call the link's query routine to retrieve the user-defined link's value size */
+                            /* (in case the query routine packs/unpacks the link value in some way that
+                             * changes its size) */
+                            cb_ret = (link_class->query_func)(lnk->name, lnk->u.ud.udata, lnk->u.ud.size,
+                                                              NULL, (size_t)0);
+                        }
+                    H5_AFTER_USER_CB(FAIL)
+                    if (cb_ret < 0)
                         HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL,
                                     "query buffer size callback returned failure");
 

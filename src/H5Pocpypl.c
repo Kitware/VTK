@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -616,7 +616,7 @@ H5Pset_copy_object(hid_t plist_id, unsigned cpy_option)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown option specified");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
@@ -646,7 +646,7 @@ H5Pget_copy_object(hid_t plist_id, unsigned *cpy_option /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */
@@ -693,7 +693,7 @@ H5Padd_merge_committed_dtype_path(hid_t plist_id, const char *path)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "path is empty string");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get dtype list */
@@ -745,7 +745,7 @@ H5Pfree_merge_committed_dtype_paths(hid_t plist_id)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get dtype list */
@@ -795,7 +795,7 @@ H5Pset_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t func, void *op_data)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "callback is NULL while user data is not");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Populate the callback info struct */
@@ -835,7 +835,7 @@ H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func /*out*/, void *
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_OBJECT_COPY, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get callback info */

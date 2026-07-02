@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -231,7 +231,7 @@ done:
  *-------------------------------------------------------------------------
  */
 uint64_t
-H5T__bit_get_d(uint8_t *buf, size_t offset, size_t size)
+H5T__bit_get_d(const uint8_t *buf, size_t offset, size_t size)
 {
     uint64_t val = 0;
     size_t   i, hs;

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -62,6 +62,9 @@ static herr_t H5D__set_extent_api_common(hid_t dset_id, const hsize_t size[], vo
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /*****************************/
 /* Library Private Variables */
@@ -135,7 +138,7 @@ H5D__create_api_common(hid_t loc_id, const char *name, hid_t type_id, hid_t spac
         HGOTO_ERROR(H5E_DATASET, H5E_CANTCREATE, H5I_INVALID_HID, "unable to create dataset");
 
     /* Get an ID for the dataset */
-    if ((ret_value = H5VL_register(H5I_DATASET, dset, (*vol_obj_ptr)->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_DATASET, dset, H5VL_OBJ_CONNECTOR(*vol_obj_ptr), true)) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataset");
 
 done:
@@ -222,7 +225,7 @@ H5Dcreate_async(const char *app_file, const char *app_func, unsigned app_line, h
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE11(__func__, "*s*sIui*siiiiii", app_file, app_func, app_line, loc_id, name, type_id, space_id, lcpl_id, dcpl_id, dapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref_always_close(ret_value) < 0)
@@ -309,7 +312,7 @@ H5Dcreate_anon(hid_t loc_id, hid_t type_id, hid_t space_id, hid_t dcpl_id, hid_t
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, H5I_INVALID_HID, "unable to create dataset");
 
     /* Get an ID for the dataset */
-    if ((ret_value = H5VL_register(H5I_DATASET, dset, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_DATASET, dset, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataset");
 
 done:
@@ -360,7 +363,7 @@ H5D__open_api_common(hid_t loc_id, const char *name, hid_t dapl_id, void **token
         HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open dataset");
 
     /* Register an atom for the dataset */
-    if ((ret_value = H5VL_register(H5I_DATASET, dset, (*vol_obj_ptr)->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_DATASET, dset, H5VL_OBJ_CONNECTOR(*vol_obj_ptr), true)) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register dataset ID");
 
 done:
@@ -433,7 +436,7 @@ H5Dopen_async(const char *app_file, const char *app_func, unsigned app_line, hid
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE7(__func__, "*s*sIui*sii", app_file, app_func, app_line, loc_id, name, dapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref_always_close(ret_value) < 0)
@@ -489,11 +492,11 @@ done:
 herr_t
 H5Dclose_async(const char *app_file, const char *app_func, unsigned app_line, hid_t dset_id, hid_t es_id)
 {
-    void          *token     = NULL;            /* Request token for async operation        */
-    void         **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation        */
-    H5VL_object_t *vol_obj   = NULL;            /* VOL object of dset_id */
-    H5VL_t        *connector = NULL;            /* VOL connector */
-    herr_t         ret_value = SUCCEED;         /* Return value */
+    void             *token     = NULL;            /* Request token for async operation        */
+    void            **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation        */
+    H5VL_object_t    *vol_obj   = NULL;            /* VOL object of dset_id */
+    H5VL_connector_t *connector = NULL;            /* VOL connector */
+    herr_t            ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_API(FAIL)
 
@@ -509,7 +512,7 @@ H5Dclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
     if (H5ES_NONE != es_id) {
         /* Increase connector's refcount, so it doesn't get closed if closing
          * the dataset closes the file */
-        connector = vol_obj->connector;
+        connector = H5VL_OBJ_CONNECTOR(vol_obj);
         H5VL_conn_inc_rc(connector);
 
         /* Point at token for operation to set up */
@@ -525,7 +528,7 @@ H5Dclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, dset_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -639,7 +642,7 @@ H5Dget_space_async(const char *app_file, const char *app_func, unsigned app_line
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, dset_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref(ret_value) < 0)
@@ -929,11 +932,11 @@ H5D__read_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t m
     H5VL_object_t  *tmp_vol_obj = NULL; /* Object for loc_id */
     H5VL_object_t **vol_obj_ptr =
         (_vol_obj_ptr ? _vol_obj_ptr : &tmp_vol_obj); /* Ptr to object ptr for loc_id */
-    void   *obj_local;                                /* Local buffer for obj */
-    void  **obj = &obj_local;                         /* Array of object pointers */
-    H5VL_t *connector;                                /* VOL connector pointer */
-    size_t  i;                                        /* Local index variable */
-    herr_t  ret_value = SUCCEED;                      /* Return value */
+    void             *obj_local;                      /* Local buffer for obj */
+    void            **obj = &obj_local;               /* Array of object pointers */
+    H5VL_connector_t *connector;                      /* VOL connector pointer */
+    size_t            i;                              /* Local index variable */
+    herr_t            ret_value = SUCCEED;            /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -954,7 +957,7 @@ H5D__read_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t m
     /* Allocate obj array if necessary */
     if (count > 1)
         if (NULL == (obj = (void **)H5MM_malloc(count * sizeof(void *))))
-            HGOTO_ERROR(H5E_VOL, H5E_CANTALLOC, FAIL, "can't allocate space for object array");
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "can't allocate space for object array");
 
     /* Get vol_obj_ptr (return just the first dataset to caller if requested) */
     if (NULL == (*vol_obj_ptr = H5VL_vol_object_verify(dset_id[0], H5I_DATASET)))
@@ -963,18 +966,22 @@ H5D__read_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t m
     /* Save the connector of the first dataset.  Unpack the connector and call
      * the "direct" read function here to avoid allocating an array of count
      * H5VL_object_ts. */
-    connector = (*vol_obj_ptr)->connector;
+    connector = H5VL_OBJ_CONNECTOR(*vol_obj_ptr);
 
     /* Build obj array */
-    obj[0] = (*vol_obj_ptr)->data;
+    obj[0] = H5VL_OBJ_DATA(*vol_obj_ptr);
     for (i = 1; i < count; i++) {
+        htri_t cls_cmp;
+
         /* Get the object */
         if (NULL == (tmp_vol_obj = H5VL_vol_object_verify(dset_id[i], H5I_DATASET)))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "dset_id is not a dataset ID");
-        obj[i] = tmp_vol_obj->data;
+        obj[i] = H5VL_OBJ_DATA(tmp_vol_obj);
 
         /* Make sure the class matches */
-        if (tmp_vol_obj->connector->cls->value != connector->cls->value)
+        if ((cls_cmp = H5VL_conn_same_class(H5VL_OBJ_CONNECTOR(tmp_vol_obj), connector)) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTCOMPARE, FAIL, "can't compare VOL connectors");
+        if (!cls_cmp)
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL,
                         "datasets are accessed through different VOL connectors and can't be used in the "
                         "same I/O call");
@@ -1079,7 +1086,7 @@ H5Dread_async(const char *app_file, const char *app_func, unsigned app_line, hid
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE10(__func__, "*s*sIuiiiii*xi", app_file, app_func, app_line, dset_id, mem_type_id, mem_space_id, file_space_id, dxpl_id, buf, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1152,7 +1159,7 @@ H5Dread_multi_async(const char *app_file, const char *app_func, unsigned app_lin
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE11(__func__, "*s*sIuz*i*i*i*ii**xi", app_file, app_func, app_line, count, dset_id, mem_type_id, mem_space_id, file_space_id, dxpl_id, buf, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1162,7 +1169,7 @@ done:
 } /* end H5Dread_multi_async() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5Dread_chunk
+ * Function:    H5Dread_chunk2
  *
  * Purpose:     Reads an entire chunk from the file directly.
  *
@@ -1171,7 +1178,8 @@ done:
  *---------------------------------------------------------------------------
  */
 herr_t
-H5Dread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters, void *buf /*out*/)
+H5Dread_chunk2(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters /*out*/,
+               void *buf /*out*/, size_t *buf_size)
 {
     H5VL_object_t                      *vol_obj;             /* Dataset for this operation   */
     H5VL_optional_args_t                vol_cb_args;         /* Arguments to VOL callback */
@@ -1183,12 +1191,12 @@ H5Dread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fil
     /* Check arguments */
     if (NULL == (vol_obj = H5VL_vol_object_verify(dset_id, H5I_DATASET)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "dset_id is not a dataset ID");
-    if (!buf)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "buf cannot be NULL");
     if (!offset)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "offset cannot be NULL");
     if (!filters)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "filters cannot be NULL");
+    if (!buf_size)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "buf_size cannot be NULL");
 
     /* Get the default dataset transfer property list if the user didn't provide one */
     if (H5P_DEFAULT == dxpl_id)
@@ -1197,11 +1205,12 @@ H5Dread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fil
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "dxpl_id is not a dataset transfer property list ID");
 
     /* Set up VOL callback arguments */
-    dset_opt_args.chunk_read.offset  = offset;
-    dset_opt_args.chunk_read.filters = 0;
-    dset_opt_args.chunk_read.buf     = buf;
-    vol_cb_args.op_type              = H5VL_NATIVE_DATASET_CHUNK_READ;
-    vol_cb_args.args                 = &dset_opt_args;
+    dset_opt_args.chunk_read.offset   = offset;
+    dset_opt_args.chunk_read.filters  = 0;
+    dset_opt_args.chunk_read.buf      = buf;
+    dset_opt_args.chunk_read.buf_size = buf_size;
+    vol_cb_args.op_type               = H5VL_NATIVE_DATASET_CHUNK_READ;
+    vol_cb_args.args                  = &dset_opt_args;
 
     /* Read the raw chunk */
     if (H5VL_dataset_optional(vol_obj, &vol_cb_args, dxpl_id, H5_REQUEST_NULL) < 0)
@@ -1212,7 +1221,7 @@ H5Dread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fil
 
 done:
     FUNC_LEAVE_API(ret_value)
-} /* end H5Dread_chunk() */
+} /* end H5Dread_chunk2() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5D__write_api_common
@@ -1231,11 +1240,11 @@ H5D__write_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t 
     H5VL_object_t  *tmp_vol_obj = NULL; /* Object for loc_id */
     H5VL_object_t **vol_obj_ptr =
         (_vol_obj_ptr ? _vol_obj_ptr : &tmp_vol_obj); /* Ptr to object ptr for loc_id */
-    void   *obj_local;                                /* Local buffer for obj */
-    void  **obj = &obj_local;                         /* Array of object pointers */
-    H5VL_t *connector;                                /* VOL connector pointer */
-    size_t  i;                                        /* Local index variable */
-    herr_t  ret_value = SUCCEED;                      /* Return value */
+    void             *obj_local;                      /* Local buffer for obj */
+    void            **obj = &obj_local;               /* Array of object pointers */
+    H5VL_connector_t *connector;                      /* VOL connector pointer */
+    size_t            i;                              /* Local index variable */
+    herr_t            ret_value = SUCCEED;            /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1256,7 +1265,7 @@ H5D__write_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t 
     /* Allocate obj array if necessary */
     if (count > 1)
         if (NULL == (obj = (void **)H5MM_malloc(count * sizeof(void *))))
-            HGOTO_ERROR(H5E_VOL, H5E_CANTALLOC, FAIL, "can't allocate space for object array");
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "can't allocate space for object array");
 
     /* Get vol_obj_ptr (return just the first dataset to caller if requested) */
     if (NULL == (*vol_obj_ptr = (H5VL_object_t *)H5I_object_verify(dset_id[0], H5I_DATASET)))
@@ -1265,18 +1274,22 @@ H5D__write_api_common(size_t count, hid_t dset_id[], hid_t mem_type_id[], hid_t 
     /* Save the connector of the first dataset.  Unpack the connector and call
      * the "direct" write function here to avoid allocating an array of count
      * H5VL_object_ts. */
-    connector = (*vol_obj_ptr)->connector;
+    connector = H5VL_OBJ_CONNECTOR(*vol_obj_ptr);
 
     /* Build obj array */
-    obj[0] = (*vol_obj_ptr)->data;
+    obj[0] = H5VL_OBJ_DATA(*vol_obj_ptr);
     for (i = 1; i < count; i++) {
+        htri_t cls_cmp;
+
         /* Get the object */
         if (NULL == (tmp_vol_obj = (H5VL_object_t *)H5I_object_verify(dset_id[i], H5I_DATASET)))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "dset_id is not a dataset ID");
-        obj[i] = tmp_vol_obj->data;
+        obj[i] = H5VL_OBJ_DATA(tmp_vol_obj);
 
         /* Make sure the class matches */
-        if (tmp_vol_obj->connector->cls->value != connector->cls->value)
+        if ((cls_cmp = H5VL_conn_same_class(H5VL_OBJ_CONNECTOR(tmp_vol_obj), connector)) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTCOMPARE, FAIL, "can't compare VOL connectors");
+        if (!cls_cmp)
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL,
                         "datasets are accessed through different VOL connectors and can't be used in the "
                         "same I/O call");
@@ -1383,7 +1396,7 @@ H5Dwrite_async(const char *app_file, const char *app_func, unsigned app_line, hi
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE10(__func__, "*s*sIuiiiii*xi", app_file, app_func, app_line, dset_id, mem_type_id, mem_space_id, file_space_id, dxpl_id, buf, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1456,7 +1469,7 @@ H5Dwrite_multi_async(const char *app_file, const char *app_func, unsigned app_li
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE11(__func__, "*s*sIuz*i*i*i*ii**xi", app_file, app_func, app_line, count, dset_id, mem_type_id, mem_space_id, file_space_id, dxpl_id, buf, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1478,10 +1491,9 @@ herr_t
 H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, const hsize_t *offset, size_t data_size,
                const void *buf)
 {
-    H5VL_object_t                      *vol_obj;       /* Dataset for this operation   */
-    H5VL_optional_args_t                vol_cb_args;   /* Arguments to VOL callback */
-    H5VL_native_dataset_optional_args_t dset_opt_args; /* Arguments for optional operation */
-    uint32_t                            data_size_32;  /* Chunk data size (limited to 32-bits currently) */
+    H5VL_object_t                      *vol_obj;             /* Dataset for this operation   */
+    H5VL_optional_args_t                vol_cb_args;         /* Arguments to VOL callback */
+    H5VL_native_dataset_optional_args_t dset_opt_args;       /* Arguments for optional operation */
     herr_t                              ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -1496,11 +1508,6 @@ H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, const hsize_t *of
     if (0 == data_size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "data_size cannot be zero");
 
-    /* Make sure data size is less than 4 GiB */
-    data_size_32 = (uint32_t)data_size;
-    if (data_size != (size_t)data_size_32)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid data_size - chunks cannot be > 4 GiB");
-
     /* Get the default dataset transfer property list if the user didn't provide one */
     if (H5P_DEFAULT == dxpl_id)
         dxpl_id = H5P_DATASET_XFER_DEFAULT;
@@ -1510,7 +1517,7 @@ H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, const hsize_t *of
     /* Set up VOL callback arguments */
     dset_opt_args.chunk_write.offset  = offset;
     dset_opt_args.chunk_write.filters = filters;
-    dset_opt_args.chunk_write.size    = data_size_32;
+    dset_opt_args.chunk_write.size    = data_size;
     dset_opt_args.chunk_write.buf     = buf;
     vol_cb_args.op_type               = H5VL_NATIVE_DATASET_CHUNK_WRITE;
     vol_cb_args.args                  = &dset_opt_args;
@@ -1581,8 +1588,14 @@ H5Dscatter(H5D_scatter_func_t op, void *op_data, hid_t type_id, hid_t dst_space_
 
     /* Loop until all data has been scattered */
     while (nelmts > 0) {
-        /* Make callback to retrieve data */
-        if (op(&src_buf, &src_buf_nbytes, op_data) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                /* Make callback to retrieve data */
+                ret_value = op(&src_buf, &src_buf_nbytes, op_data);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CALLBACK, FAIL, "callback operator returned failure");
 
         /* Calculate number of elements */
@@ -1693,8 +1706,16 @@ H5Dgather(hid_t src_space_id, const void *src_buf, hid_t type_id, size_t dst_buf
         assert(nelmts_gathered == MIN(dst_buf_nelmts, (size_t)nelmts));
 
         /* Make callback to process dst_buf */
-        if (op && op(dst_buf, nelmts_gathered * type_size, op_data) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CALLBACK, FAIL, "callback operator returned failure");
+        if (op) {
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    ret_value = op(dst_buf, nelmts_gathered * type_size, op_data);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (ret_value < 0)
+                HGOTO_ERROR(H5E_DATASET, H5E_CALLBACK, FAIL, "callback operator returned failure");
+        }
 
         nelmts -= (hssize_t)nelmts_gathered;
         assert(op || (nelmts == 0));
@@ -2012,7 +2033,7 @@ H5Dset_extent_async(const char *app_file, const char *app_func, unsigned app_lin
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                 H5ARG_TRACE6(__func__, "*s*sIui*hi", app_file, app_func, app_line, dset_id, size, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINSERT, FAIL, "can't insert token into event set");

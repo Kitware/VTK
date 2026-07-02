@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -94,39 +94,6 @@ HDvasprintf(char **bufp, const char *fmt, va_list _ap)
 #endif /* H5_HAVE_VASPRINTF */
 
 /*-------------------------------------------------------------------------
- * Function:  HDrand/HDsrand
- *
- * Purpose:  Wrapper function for rand.  If rand_r exists on this system,
- *     use it.
- *
- *     Wrapper function for srand.  If rand_r is available, it will keep
- *     track of the seed locally instead of using srand() which modifies
- *     global state and can break other programs.
- *
- * Return:  Success:  Random number from 0 to RAND_MAX
- *
- *    Failure:  Cannot fail.
- *
- *-------------------------------------------------------------------------
- */
-#ifdef H5_HAVE_RAND_R
-
-static unsigned int g_seed = 42;
-
-int
-HDrand(void)
-{
-    return rand_r(&g_seed);
-}
-
-void
-HDsrand(unsigned int seed)
-{
-    g_seed = seed;
-}
-#endif /* H5_HAVE_RAND_R */
-
-/*-------------------------------------------------------------------------
  * Function:    Pflock
  *
  * Purpose:     Wrapper function for POSIX systems where flock(2) is not
@@ -206,14 +173,10 @@ Nflock(int H5_ATTR_UNUSED fd, int H5_ATTR_UNUSED operation)
 time_t
 H5_make_time(struct tm *tm)
 {
-    time_t the_time;                                     /* The converted time */
-#if defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) /* VS 2015 */
-    /* In gcc and in Visual Studio prior to VS 2015 'timezone' is a global
-     * variable declared in time.h. That variable was deprecated and in
-     * VS 2015 is removed, with _get_timezone replacing it.
-     */
+    time_t the_time; /* The converted time */
+#if defined(H5_HAVE_VISUAL_STUDIO)
     long timezone = 0;
-#endif                    /* defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) */
+#endif
     time_t ret_value = 0; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -236,13 +199,9 @@ H5_make_time(struct tm *tm)
     /* BSD-like systems */
     the_time += tm->tm_gmtoff;
 #elif defined(H5_HAVE_TIMEZONE)
-#if defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) /* VS 2015 */
-    /* In gcc and in Visual Studio prior to VS 2015 'timezone' is a global
-     * variable declared in time.h. That variable was deprecated and in
-     * VS 2015 is removed, with _get_timezone replacing it.
-     */
+#if defined(H5_HAVE_VISUAL_STUDIO)
     _get_timezone(&timezone);
-#endif /* defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) */
+#endif
 
     the_time -= timezone - (tm->tm_isdst ? 3600 : 0);
 #else
@@ -488,60 +447,72 @@ Wflock(int fd, int operation)
  *
  * Purpose:      Gets a UTF-16 string from an UTF-8 (or ASCII) string.
  *
- * Return:       Success:    A pointer to a UTF-16 string
- *                           This must be freed by the caller using H5MM_xfree()
- *               Failure:    NULL
+ *               On success, a pointer to the new UTF-16 string is returned
+ *               in `wstring`. This must be freed by the caller using
+ *               H5MM_xfree().
+ *
+ * Return:       Non-negative on success/Negative on failure
+ *
+ *               On failure, the result of GetLastError() is returned
+ *               through the `win_error` parameter, if non-NULL.
  *
  *-------------------------------------------------------------------------
  */
-wchar_t *
-H5_get_utf16_str(const char *s)
+herr_t
+H5_get_utf16_str(const char *s, wchar_t **wstring, uint32_t *win_error)
 {
     int      nwchars = -1;   /* Length of the UTF-16 buffer */
     wchar_t *ret_s   = NULL; /* UTF-16 version of the string */
 
     /* Get the number of UTF-16 characters needed */
-    if (0 == (nwchars = MultiByteToWideChar(CP_UTF8, 0, s, -1, NULL, 0)))
+    if (0 == (nwchars = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s, -1, NULL, 0)))
         goto error;
 
     /* Allocate a buffer for the UTF-16 string */
-    if (NULL == (ret_s = (wchar_t *)H5MM_calloc(sizeof(wchar_t) * (size_t)nwchars)))
+    if (NULL == (ret_s = H5MM_calloc(sizeof(wchar_t) * (size_t)nwchars)))
         goto error;
 
     /* Convert the input UTF-8 string to UTF-16 */
-    if (0 == MultiByteToWideChar(CP_UTF8, 0, s, -1, ret_s, nwchars))
+    if (0 == MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s, -1, ret_s, nwchars))
         goto error;
 
-    return ret_s;
+    *wstring = ret_s;
+
+    return SUCCEED;
 
 error:
+    /* Store error value first before doing anything else */
+    if (win_error)
+        *win_error = (uint32_t)GetLastError();
+
     if (ret_s)
         H5MM_xfree((void *)ret_s);
-    return NULL;
+
+    *wstring = NULL;
+
+    return FAIL;
 } /* end H5_get_utf16_str() */
 
 /*-------------------------------------------------------------------------
- * Function:     Wopen_utf8
+ * Function:     Wopen
  *
- * Purpose:      UTF-8 equivalent of open(2) for use on Windows.
- *               Converts a UTF-8 input path to UTF-16 and then opens the
- *               file via _wopen() under the hood
+ * Purpose:      Equivalent of open(2) for use on Windows. Necessary to
+ *               handle Unicode and code pages on that platform.
  *
  * Return:       Success:    A POSIX file descriptor
  *               Failure:    -1
- *
  *-------------------------------------------------------------------------
  */
 int
-Wopen_utf8(const char *path, int oflag, ...)
+Wopen(const char *path, int oflag, ...)
 {
-    int      fd    = -1;   /* POSIX file descriptor to be returned */
-    wchar_t *wpath = NULL; /* UTF-16 version of the path */
-    int      pmode = 0;    /* mode (optionally set via variable args) */
-
-    /* Convert the input UTF-8 path to UTF-16 */
-    if (NULL == (wpath = H5_get_utf16_str(path)))
-        goto done;
+    uint32_t win_error        = 0;     /* Windows error code for failures */
+    wchar_t *wpath            = NULL;  /* UTF-16 version of the path */
+    herr_t   h5_ret           = FAIL;  /* HDF5 return code */
+    char    *env              = NULL;  /* Environment variable string */
+    bool     prefer_code_page = false; /* Whether to prefer using the Windows code page */
+    int      fd               = -1;    /* POSIX file descriptor to be returned */
+    int      pmode            = 0;     /* mode (optionally set via variable args) */
 
     /* _O_BINARY must be set in Windows to avoid CR-LF <-> LF EOL
      * transformations when performing I/O. Note that this will
@@ -558,44 +529,99 @@ Wopen_utf8(const char *path, int oflag, ...)
         va_end(vl);
     }
 
-    /* Open the file */
-    fd = _wopen(wpath, oflag, pmode);
+    /*
+     * Check HDF5_PREFER_WINDOWS_CODE_PAGE environment variable to
+     * determine how to handle the pathname.
+     */
+    env = getenv(HDF5_PREFER_WINDOWS_CODE_PAGE);
+    if (env && (*env != '\0')) {
+        if (0 == HDstrcasecmp(env, "true") || 0 == strcmp(env, "1"))
+            prefer_code_page = true;
+    }
+
+    /*
+     * Unless requested to prefer Windows code pages, try to convert
+     * the pathname from UTF-8 to UTF-16. If this fails, fallback to
+     * the normal POSIX open() call.
+     */
+    if (!prefer_code_page) {
+        h5_ret = H5_get_utf16_str(path, &wpath, &win_error);
+        if (h5_ret >= 0) {
+            /* Open the file using a UTF-16 path */
+            fd = _wopen(wpath, oflag, pmode);
+        }
+        else {
+            if (ERROR_NO_UNICODE_TRANSLATION != win_error)
+                goto done;
+
+            fd = open(path, oflag, pmode);
+        }
+    }
+    else
+        fd = open(path, oflag, pmode);
 
 done:
     H5MM_xfree(wpath);
 
     return fd;
-} /* end Wopen_utf8() */
+} /* end Wopen() */
 
 /*-------------------------------------------------------------------------
- * Function:     Wremove_utf8
+ * Function:     Wremove
  *
- * Purpose:      UTF-8 equivalent of remove(3) for use on Windows.
- *               Converts a UTF-8 input path to UTF-16 and then opens the
- *               file via _wremove() under the hood
+ * Purpose:      Equivalent of remove(3) for use on Windows. Necessary to
+ *               handle Unicode and code pages on that platform.
  *
  * Return:       Success:    0
  *               Failure:    -1
  *-------------------------------------------------------------------------
  */
 int
-Wremove_utf8(const char *path)
+Wremove(const char *path)
 {
-    wchar_t *wpath = NULL; /* UTF-16 version of the path */
-    int      ret   = -1;
+    uint32_t win_error        = 0;     /* Windows error code for failures */
+    wchar_t *wpath            = NULL;  /* UTF-16 version of the path */
+    herr_t   h5_ret           = FAIL;  /* HDF5 return code */
+    char    *env              = NULL;  /* Environment variable string */
+    bool     prefer_code_page = false; /* Whether to prefer using the Windows code page */
+    int      ret              = -1;
 
-    /* Convert the input UTF-8 path to UTF-16 */
-    if (NULL == (wpath = H5_get_utf16_str(path)))
-        goto done;
+    /*
+     * Check HDF5_PREFER_WINDOWS_CODE_PAGE environment variable to
+     * determine how to handle the pathname.
+     */
+    env = getenv(HDF5_PREFER_WINDOWS_CODE_PAGE);
+    if (env && (*env != '\0')) {
+        if (0 == HDstrcasecmp(env, "true") || 0 == strcmp(env, "1"))
+            prefer_code_page = true;
+    }
 
-    /* Remove the file */
-    ret = _wremove(wpath);
+    /*
+     * Unless requested to prefer Windows code pages, try to convert
+     * the pathname from UTF-8 to UTF-16. If this fails, fallback to
+     * the normal POSIX remove() call.
+     */
+    if (!prefer_code_page) {
+        h5_ret = H5_get_utf16_str(path, &wpath, &win_error);
+        if (h5_ret >= 0) {
+            /* Remove the file using a UTF-16 path */
+            ret = _wremove(wpath);
+        }
+        else {
+            if (ERROR_NO_UNICODE_TRANSLATION != win_error)
+                goto done;
+
+            ret = remove(path);
+        }
+    }
+    else
+        ret = remove(path);
 
 done:
     H5MM_xfree(wpath);
 
     return ret;
-} /* end Wremove_utf8() */
+} /* end Wremove() */
 
 #endif /* H5_HAVE_WIN32_API */
 
@@ -1378,10 +1404,103 @@ H5_strcasestr(const char *haystack, const char *needle)
         /* if all characters in needle matched we found it */
         if (*n == 0) {
             /* must discard const qualifier here, so turn off the warning */
-            H5_GCC_CLANG_DIAG_OFF("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_OFF
             return (char *)haystack;
-            H5_GCC_CLANG_DIAG_ON("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_ON
         }
     } while (*haystack++);
     return 0;
 } /* end H5_strcasestr() */
+
+/*
+ * HDqsort_context - Reentrant qsort with context parameter
+ *
+ * Provides a uniform interface to platform-specific reentrant qsort functions.
+ * All library code should use the GNU/Linux signature for comparator functions:
+ *
+ *   int comparator(const void *a, const void *b, void *context)
+ *
+ * The macro handles platform differences internally, allowing the same
+ * comparator signature to work on Windows (qsort_s), macOS (BSD qsort_r),
+ * FreeBSD (use BSD qsort_r < 14.0, but GNU qsort_r >= 14.0), and Linux (GNU qsort_r).
+ *
+ * Usage:
+ *   HDqsort_context(base, count, elem_size, compare_func, context);
+ */
+#if defined(H5_HAVE_WIN32_API) || defined(H5_HAVE_DARWIN) || (defined(__FreeBSD__) && __FreeBSD__ < 14)
+/* Need wrapper for Windows, macOS, and FreeBSD < 14 which expect context-first comparators */
+typedef struct HDqsort_context_wrapper_t {
+    int (*gnu_compar)(const void *, const void *, void *);
+    void *gnu_arg;
+} HDqsort_context_wrapper_t;
+
+static int
+HDqsort_context_wrapper_func(void *wrapper_arg, const void *a, const void *b)
+{
+    HDqsort_context_wrapper_t *w = (HDqsort_context_wrapper_t *)wrapper_arg;
+    return w->gnu_compar(a, b, w->gnu_arg);
+}
+
+herr_t
+HDqsort_context(void *base, size_t nel, size_t size, int (*compar)(const void *, const void *, void *),
+                void *arg)
+{
+    HDqsort_context_wrapper_t wrapper;
+    wrapper.gnu_compar = compar;
+    wrapper.gnu_arg    = arg;
+#if defined(H5_HAVE_WIN32_API)
+    qsort_s(base, nel, size, HDqsort_context_wrapper_func, &wrapper);
+#elif defined(H5_HAVE_DARWIN) || (defined(__FreeBSD__) && __FreeBSD__ < 14)
+    /* Old BSD-style: context parameter comes before comparator function */
+    qsort_r(base, nel, size, &wrapper, HDqsort_context_wrapper_func);
+#endif
+    return SUCCEED;
+}
+#endif
+
+/*
+ * HDqsort_fallback - Fallback qsort implementation for platforms without qsort_r/qsort_s
+ *
+ * This implementation is not threadsafe, since it uses a global variable to store the
+ * comparator context, then uses standard qsort(). A beta branch of a threadsafe implementation
+ * of these routines may be found in the 'qsort_r_threadsafe' branch of the HDF5 GitHub repository.
+ *
+ */
+#ifndef H5_HAVE_QSORT_REENTRANT
+
+typedef struct HDqsort_fallback_context_t {
+    int (*gnu_compar)(const void *, const void *, void *);
+    void *gnu_arg;
+} HDqsort_fallback_context_t;
+
+/* Non-threadsafe: use global variable */
+static HDqsort_fallback_context_t *HDqsort_fallback_global_ctx = NULL;
+
+static int
+HDqsort_fallback_wrapper(const void *a, const void *b)
+{
+    /* Call the original GNU-style comparator with context from global */
+    return HDqsort_fallback_global_ctx->gnu_compar(a, b, HDqsort_fallback_global_ctx->gnu_arg);
+}
+
+herr_t
+HDqsort_fallback(void *base, size_t nel, size_t size, int (*compar)(const void *, const void *, void *),
+                 void *arg)
+{
+    HDqsort_fallback_context_t ctx;
+
+    ctx.gnu_compar = compar;
+    ctx.gnu_arg    = arg;
+
+    /* Store context in global variable */
+    HDqsort_fallback_global_ctx = &ctx;
+
+    qsort(base, nel, size, HDqsort_fallback_wrapper);
+
+    /* Clear the global pointer */
+    HDqsort_fallback_global_ctx = NULL;
+
+    return SUCCEED;
+}
+
+#endif /* !H5_HAVE_QSORT_REENTRANT */

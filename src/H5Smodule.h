@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,11 +22,13 @@
  *      reporting macros.
  */
 #define H5S_MODULE
-#define H5_MY_PKG     H5S
-#define H5_MY_PKG_ERR H5E_DATASPACE
+#define H5_MY_PKG      H5S
+#define H5_MY_PKG_INIT YES
 
 /** \page H5S_UG Dataspaces and Partial I/O
  *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_dataspace HDF5 Dataspaces and Partial I/O
  *
@@ -228,8 +230,8 @@
  *
  * When a C application reads data back, the dimensions will come out as 100 and 20, correctly describing
  * the size of the array to read data into, since the data was written as 100 records of 20 elements each.
- * Therefore C tools such as h5dump and h5ls always display transposed dimensions and values for the data
- * written by a Fortran application.
+ * Therefore C tools such as \ref sec_cltools_h5dump and \ref sec_cltools_h5ls always display transposed
+ * dimensions and values for the data written by a Fortran application.
  *
  * Consider the following simple example of equivalent C 3 x 5 and Fortran 5 x 3 arrays. As illustrated in
  * the figure below, a C application will store a 3 x 5 2‐dimensional array as three 5‐element rows. In order
@@ -972,7 +974,29 @@
  *
  * \subsection subsec_dataspace_select Dataspace Selection Operations and Data Transfer
  *
- * This section is under construction.
+ * Dataspace selections play a critical role in HDF5 data transfer operations. When reading or writing
+ * data with #H5Dread or #H5Dwrite, selections determine which elements are transferred between memory
+ * and the dataset. The HDF5 Library supports independent specification of selections for both the
+ * dataset (file dataspace) and the memory buffer (memory dataspace).
+ *
+ * During data transfer, selections work as follows:
+ * \li The selection in the file dataspace identifies which elements to read from or write to in the dataset.
+ * \li The selection in the memory dataspace defines where to place the read data or where to retrieve the
+ write data.
+ * \li Both selections must contain the same number of elements and should not exceed the dataset dimensions.
+ *
+ * Additionally, as data is transferred, HDF5 automatically performs data type conversion between the
+ * file and memory representations if the source and destination data types differ.
+ *
+ * Selection operations are designed to work with commonly structured patterns while also allowing for
+ * arbitrary point and hyperslab selections to provide maximum flexibility. These selections can be combined
+ * using set operations, such as #H5S_SELECT_OR for a union and #H5S_SELECT_AND for an intersection. You can
+ * then pass these combined selections to #H5Sselect_hyperslab or #H5Sselect_elements to efficiently create
+ * complex selection patterns.
+ *
+ * For parallel I/O operations, collective data transfers can optimize performance when multiple processes
+ * access different selections of the same dataset simultaneously. See the parallel HDF5 documentation for
+ * details on collective I/O with selections.
  *
  * \subsection subsec_dataspace_refer References
  *
@@ -1386,7 +1410,8 @@
  * \subsection subsec_dataspace_sample Sample Programs
  *
  * This section contains the full programs from which several of the code examples in this chapter were
- * derived. The h5dump output from the program's output file immediately follows each program.
+ * derived. The \ref sec_cltools_h5dump output from the program's output file immediately follows each
+ * program.
  *
  * <em>h5_write.c</em>
  * \code
@@ -1673,6 +1698,9 @@
  * \endcode
  *
  * Previous Chapter \ref sec_datatype - Next Chapter \ref sec_attribute
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  */
 

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -39,6 +39,7 @@
 #include "H5Iprivate.h"  /* IDs                                  */
 #include "H5MMprivate.h" /* Memory management                    */
 #include "H5RSprivate.h" /* Reference-counted strings            */
+#include "H5VLprivate.h" /* Virtual Object Layer                 */
 
 /****************/
 /* Local Macros */
@@ -88,7 +89,7 @@ typedef struct H5ES_gei_ctx_t {
 /********************/
 static herr_t H5ES__close(H5ES_t *es);
 static herr_t H5ES__close_cb(void *es, void **request_token);
-static herr_t H5ES__insert(H5ES_t *es, H5VL_t *connector, void *request_token, const char *app_file,
+static herr_t H5ES__insert(H5ES_t *es, H5VL_connector_t *connector, void *request_token, const char *app_file,
                            const char *app_func, unsigned app_line, const char *caller, const char *api_args);
 static int    H5ES__get_requests_cb(H5ES_event_t *ev, void *_ctx);
 static herr_t H5ES__handle_fail(H5ES_t *es, H5ES_event_t *ev);
@@ -101,6 +102,9 @@ static int    H5ES__close_failed_cb(H5ES_event_t *ev, void *_ctx);
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /*****************************/
 /* Library Private Variables */
@@ -122,20 +126,22 @@ static const H5I_class_t H5I_EVENTSET_CLS[1] = {{
 H5FL_DEFINE_STATIC(H5ES_t);
 
 /*-------------------------------------------------------------------------
- * Function:    H5ES_init
+ * Function:    H5ES__init_package
+ *
+ * Purpose:     Initializes any interface-specific data or routines.
+ *
+ * Return:      Non-negative on success / Negative on failure
  *
  * Purpose:     Initialize the interface from some other layer.
  *
- * Return:      Success:        non-negative
- *              Failure:        negative
  *-------------------------------------------------------------------------
  */
 herr_t
-H5ES_init(void)
+H5ES__init_package(void)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Initialize the ID group for the event set IDs */
     if (H5I_register_type(H5I_EVENTSET_CLS) < 0)
@@ -143,7 +149,7 @@ H5ES_init(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5ES__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5ES_term_package
@@ -163,8 +169,14 @@ H5ES_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* Destroy the event set ID group */
-    n += (H5I_dec_type_ref(H5I_EVENTSET) > 0);
+    if (H5_PKG_INIT_VAR) {
+        /* Destroy the event set ID group */
+        n += (H5I_dec_type_ref(H5I_EVENTSET) > 0);
+
+        /* Mark closed */
+        if (0 == n)
+            H5_PKG_INIT_VAR = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5ES_term_package() */
@@ -240,8 +252,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5ES__insert(H5ES_t *es, H5VL_t *connector, void *request_token, const char *app_file, const char *app_func,
-             unsigned app_line, const char *caller, const char *api_args)
+H5ES__insert(H5ES_t *es, H5VL_connector_t *connector, void *request_token, const char *app_file,
+             const char *app_func, unsigned app_line, const char *caller, const char *api_args)
 {
     H5ES_event_t *ev          = NULL;    /* Event for request */
     bool          ev_inserted = false;   /* Flag to indicate that event is in active list */
@@ -286,9 +298,18 @@ H5ES__insert(H5ES_t *es, H5VL_t *connector, void *request_token, const char *app
     ev_inserted = true;
 
     /* Invoke the event set's 'insert' callback, if present */
-    if (es->ins_func)
-        if ((es->ins_func)(&ev->op_info, es->ins_ctx) < 0)
+    if (es->ins_func) {
+        int status = -1;
+
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                status = (es->ins_func)(&ev->op_info, es->ins_ctx);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (status < 0)
             HGOTO_ERROR(H5E_EVENTSET, H5E_CALLBACK, FAIL, "'insert' callback for event set failed");
+    }
 
 done:
     /* Release resources on error */
@@ -313,7 +334,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5ES_insert(hid_t es_id, H5VL_t *connector, void *token, const char *caller, const char *caller_args, ...)
+H5ES_insert(hid_t es_id, H5VL_connector_t *connector, void *token, const char *caller,
+            const char *caller_args, ...)
 {
     H5ES_t     *es = NULL;             /* Event set for the operation */
     const char *app_file;              /* Application source file name */
@@ -389,7 +411,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5ES__insert_request(H5ES_t *es, H5VL_t *connector, void *token)
+H5ES__insert_request(H5ES_t *es, H5VL_connector_t *connector, void *token)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -424,7 +446,7 @@ H5ES__get_requests_cb(H5ES_event_t *ev, void *_ctx)
     H5ES_get_requests_ctx_t *ctx       = (H5ES_get_requests_ctx_t *)_ctx; /* Callback context */
     int                      ret_value = H5_ITER_CONT;                    /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(ev);
@@ -433,16 +455,18 @@ H5ES__get_requests_cb(H5ES_event_t *ev, void *_ctx)
 
     /* Get the connector ID for the event */
     if (ctx->connector_ids)
-        ctx->connector_ids[ctx->i] = ev->request->connector->id;
+        if ((ctx->connector_ids[ctx->i] = H5VL_conn_register(H5VL_OBJ_CONNECTOR(ev->request))) < 0)
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTREGISTER, H5_ITER_ERROR, "unable to register VOL connector ID");
 
     /* Get the request for the event */
     if (ctx->requests)
-        ctx->requests[ctx->i] = ev->request->data;
+        ctx->requests[ctx->i] = H5VL_OBJ_DATA(ev->request);
 
     /* Check if we've run out of room in the arrays */
     if (++ctx->i == ctx->array_len)
         ret_value = H5_ITER_STOP;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5ES__get_requests_cb() */
 
@@ -542,6 +566,7 @@ H5ES__op_complete(H5ES_t *es, H5ES_event_t *ev, H5VL_request_status_t ev_status)
         /* Invoke the event set's 'complete' callback, if present */
         if (es->comp_func) {
             H5ES_status_t op_status; /* Status for complete callback */
+            int           status = -1;
 
             /* Set appropriate info for callback */
             if (H5VL_REQUEST_STATUS_SUCCEED == ev_status) {
@@ -562,7 +587,13 @@ H5ES__op_complete(H5ES_t *es, H5ES_event_t *ev, H5VL_request_status_t ev_status)
                 /* Translate status */
                 op_status = H5ES_STATUS_CANCELED;
 
-            if ((es->comp_func)(&ev->op_info, op_status, H5I_INVALID_HID, es->comp_ctx) < 0)
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    status = (es->comp_func)(&ev->op_info, op_status, H5I_INVALID_HID, es->comp_ctx);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (status < 0)
                 HGOTO_ERROR(H5E_EVENTSET, H5E_CALLBACK, FAIL, "'complete' callback for event set failed");
         } /* end if */
 
@@ -576,6 +607,7 @@ H5ES__op_complete(H5ES_t *es, H5ES_event_t *ev, H5VL_request_status_t ev_status)
             /* Set up VOL callback arguments */
             vol_cb_args.op_type                         = H5VL_REQUEST_GET_ERR_STACK;
             vol_cb_args.args.get_err_stack.err_stack_id = H5I_INVALID_HID;
+            int status                                  = -1;
 
             /* Retrieve the error stack for the operation */
             if (H5VL_request_specific(ev->request, &vol_cb_args) < 0)
@@ -584,7 +616,13 @@ H5ES__op_complete(H5ES_t *es, H5ES_event_t *ev, H5VL_request_status_t ev_status)
             /* Set values */
             err_stack_id = vol_cb_args.args.get_err_stack.err_stack_id;
 
-            if ((es->comp_func)(&ev->op_info, H5ES_STATUS_FAIL, err_stack_id, es->comp_ctx) < 0)
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    status = (es->comp_func)(&ev->op_info, H5ES_STATUS_FAIL, err_stack_id, es->comp_ctx);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (status < 0)
                 HGOTO_ERROR(H5E_EVENTSET, H5E_CALLBACK, FAIL, "'complete' callback for event set failed");
         } /* end if */
 

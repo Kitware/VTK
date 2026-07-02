@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -80,7 +80,7 @@
 herr_t
 H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
 {
-    bool   is_complex;          /* Flag indicating current datatype is "complex" */
+    bool   is_composite;        /* Flag indicating current datatype is composite */
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -89,11 +89,11 @@ H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
     assert(dt);
     assert(op);
 
-    /* Check for complex datatype */
-    is_complex = H5T_IS_COMPLEX(dt->shared->type);
+    /* Check for composite datatype */
+    is_composite = H5T_IS_COMPOSITE(dt->shared->type);
 
     /* If the callback is to be made on the datatype first, do that */
-    if (is_complex && (visit_flags & H5T_VISIT_COMPLEX_FIRST))
+    if (is_composite && (visit_flags & H5T_VISIT_COMPOSITE_FIRST))
         if (op(dt, op_value) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "operator callback failed");
 
@@ -112,6 +112,7 @@ H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
         case H5T_ARRAY:
         case H5T_VLEN:
         case H5T_ENUM:
+        case H5T_COMPLEX:
             /* Visit parent type */
             if (H5T__visit(dt->shared->parent, visit_flags, op, op_value) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "can't visit parent datatype");
@@ -139,7 +140,7 @@ H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
     } /* end switch */
 
     /* If the callback is to be made on the datatype last, do that */
-    if (is_complex && (visit_flags & H5T_VISIT_COMPLEX_LAST))
+    if (is_composite && (visit_flags & H5T_VISIT_COMPOSITE_LAST))
         if (op(dt, op_value) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "operator callback failed");
 

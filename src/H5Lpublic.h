@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -75,7 +75,7 @@ typedef enum {
 //! <!-- [H5L_info2_t_snip] -->
 typedef struct {
     H5L_type_t type;         /**< Type of link                   */
-    hbool_t    corder_valid; /**< Indicate if creation order is valid */
+    bool       corder_valid; /**< Indicate if creation order is valid */
     int64_t    corder;       /**< Creation order                 */
     H5T_cset_t cset;         /**< Character set of link name     */
     union {
@@ -664,9 +664,9 @@ H5_DLL htri_t H5Lexists(hid_t loc_id, const char *name, hid_t lapl_id);
  */
 #ifndef H5_DOXYGEN
 H5_DLL herr_t H5Lexists_async(const char *app_file, const char *app_func, unsigned app_line, hid_t loc_id,
-                              const char *name, hbool_t *exists, hid_t lapl_id, hid_t es_id);
+                              const char *name, bool *exists, hid_t lapl_id, hid_t es_id);
 #else
-H5_DLL herr_t H5Lexists_async(hid_t loc_id, const char *name, hbool_t *exists, hid_t lapl_id, hid_t es_id);
+H5_DLL herr_t H5Lexists_async(hid_t loc_id, const char *name, bool *exists, hid_t lapl_id, hid_t es_id);
 #endif
 /**
  * \ingroup H5L
@@ -1457,7 +1457,7 @@ H5_DLL herr_t H5Lcreate_external(const char *file_name, const char *obj_name, hi
  */
 typedef struct {
     H5L_type_t type;         /**< Type of link                   */
-    hbool_t    corder_valid; /**< Indicate if creation order is valid */
+    bool       corder_valid; /**< Indicate if creation order is valid */
     int64_t    corder;       /**< Creation order                 */
     H5T_cset_t cset;         /**< Character set of link name     */
     union {

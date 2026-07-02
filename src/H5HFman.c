@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -470,10 +470,10 @@ H5HF__man_write(H5HF_hdr_t *hdr, const uint8_t *id, const void *obj)
      * was passed in as const. We quiet the warning here because an obj pointer
      * that was originally const should *never* arrive here.
      */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_OFF
     if (H5HF__man_op_real(hdr, id, H5HF__op_write, (void *)obj, H5HF_OP_MODIFY) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_ON
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

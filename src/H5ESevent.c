@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -79,7 +79,7 @@ H5FL_DEFINE_STATIC(H5ES_event_t);
  *-------------------------------------------------------------------------
  */
 H5ES_event_t *
-H5ES__event_new(H5VL_t *connector, void *token)
+H5ES__event_new(H5VL_connector_t *connector, void *token)
 {
     H5ES_event_t  *ev        = NULL; /* New event */
     H5VL_object_t *request   = NULL; /* Async request token VOL object */

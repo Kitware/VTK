@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -52,7 +52,7 @@
  * Function:    DETECT_F
  *
  * Purpose:     This macro takes a floating point type like `double' and
- *              detects byte order, mantissa location, exponent location,
+ *              and detects byte order, mantissa location, exponent location,
  *              sign bit location, presence or absence of implicit mantissa
  *              bit, and exponent bias and initializes a H5T_fpoint_det_t
  *              structure with those properties.
@@ -89,10 +89,10 @@
             for (_byte_mask = (uint8_t)1; _byte_mask; _byte_mask = (uint8_t)(_byte_mask << 1)) {             \
                 _buf1[_i] ^= _byte_mask;                                                                     \
                 H5MM_memcpy((void *)&_v2, (const void *)_buf1, sizeof(TYPE));                                \
-                H5_GCC_CLANG_DIAG_OFF("float-equal")                                                         \
+                H5_WARN_FLOAT_EQUAL_OFF                                                                      \
                 if (_v1 != _v2)                                                                              \
                     _pad_mask[_i] |= _byte_mask;                                                             \
-                H5_GCC_CLANG_DIAG_ON("float-equal")                                                          \
+                H5_WARN_FLOAT_EQUAL_ON                                                                       \
                 _buf1[_i] ^= _byte_mask;                                                                     \
             }                                                                                                \
                                                                                                              \
@@ -612,10 +612,14 @@ H5T__init_native_float_types(void)
 #endif
 
 done:
-    /* Clear any FE_INVALID exceptions from NaN handling */
+    /* Clear any FE_INVALID exceptions from NaN handling. FE_INVALID is C99/C11,
+     * but may not be present on all systems.
+     */
 #if !defined(__EMSCRIPTEN__)
+#ifdef FE_INVALID
     if (feclearexcept(FE_INVALID) != 0)
         HSYS_GOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't clear floating-point exceptions");
+#endif
 
     /* Restore the original environment */
     if (feupdateenv(&saved_fenv) != 0)

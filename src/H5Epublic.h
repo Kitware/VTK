@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -21,7 +21,7 @@
 #include "H5public.h"  /* Generic Functions                        */
 #include "H5Ipublic.h" /* Identifiers                              */
 
-/** Value for the default error stack \since 1.12.2 */
+/** Value for the default error stack \since 1.8.0 */
 #define H5E_DEFAULT 0 /* (hid_t) */
 
 /**
@@ -48,14 +48,6 @@ typedef struct H5E_error2_t {
     const char *desc;
     /**< Optional supplied description      */
 } H5E_error2_t;
-
-/* When this header is included from a private header, don't make calls to H5open() */
-#undef H5OPEN
-#ifndef H5private_H
-#define H5OPEN H5open(),
-#else /* H5private_H */
-#define H5OPEN
-#endif /* H5private_H */
 
 /* HDF5 error class */
 /* Extern "C" block needed to compile C++ filter plugins with some compilers */
@@ -322,7 +314,7 @@ H5_DLL hid_t H5Eget_current_stack(void);
  *
  * \since 1.14.0
  */
-H5_DLL herr_t H5Eappend_stack(hid_t dst_stack_id, hid_t src_stack_id, hbool_t close_source_stack);
+H5_DLL herr_t H5Eappend_stack(hid_t dst_stack_id, hid_t src_stack_id, bool close_source_stack);
 /**
  * --------------------------------------------------------------------------
  * \ingroup H5E
@@ -349,7 +341,7 @@ H5_DLL herr_t H5Eappend_stack(hid_t dst_stack_id, hid_t src_stack_id, hbool_t cl
  *
  * \since 1.14.5
  */
-H5_DLL herr_t H5Eis_paused(hid_t stack_id, hbool_t *is_paused);
+H5_DLL herr_t H5Eis_paused(hid_t stack_id, bool *is_paused);
 /**
  * --------------------------------------------------------------------------
  * \ingroup H5E

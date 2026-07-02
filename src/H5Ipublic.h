@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -64,14 +64,10 @@ typedef int64_t hid_t;
 #define PRIXHID PRIX64
 #define PRIoHID PRIo64
 
-/**
- * The size of identifiers
- */
+/** The size of identifiers \since 1.8.0 */
 #define H5_SIZEOF_HID_T H5_SIZEOF_INT64_T
 
-/**
- * An invalid object ID. This is also negative for error return.
- */
+/** An invalid object ID. This is also negative for error return. \since 1.6.0 */
 #define H5I_INVALID_HID (-1)
 
 /**
@@ -394,19 +390,13 @@ H5_DLL int H5Iget_ref(hid_t id);
  *
  * \brief Creates and returns a new ID type
  *
- * \param[in] hash_size Minimum hash table size (in entries) used to store IDs
- *                      for the new type (unused in 1.8.13 and later)
  * \param[in] reserved Number of reserved IDs for the new type
  * \param[in] free_func Function used to deallocate space for a single ID
  *
  * \return Returns the type identifier on success, negative on failure.
  *
- * \details H5Iregister_type() allocates space for a new ID type and returns an
+ * \details H5Iregister_type2() allocates space for a new ID type and returns an
  *          identifier for it.
- *
- *          The \p hash_size parameter indicates the minimum size of the hash
- *          table used to store IDs in the new type. This parameter is unused
- *          in 1.8.13 and later, when the implementation of ID storage changed.
  *
  *          The \p reserved parameter indicates the number of IDs in this new
  *          type to be reserved. Reserved IDs are valid IDs which are not
@@ -420,10 +410,10 @@ H5_DLL int H5Iget_ref(hid_t id);
  *          pointer which was passed in to the H5Iregister() function. The \p
  *          free_func function should return 0 on success and -1 on failure.
  *
- * \since 1.8.0
+ * \since 2.0.0
  *
  */
-H5_DLL H5I_type_t H5Iregister_type(size_t hash_size, unsigned reserved, H5I_free_t free_func);
+H5_DLL H5I_type_t H5Iregister_type2(unsigned reserved, H5I_free_t free_func);
 /**
  * \ingroup H5IUD
  *
@@ -449,7 +439,7 @@ H5_DLL H5I_type_t H5Iregister_type(size_t hash_size, unsigned reserved, H5I_free
  * \since 1.8.0
  *
  */
-H5_DLL herr_t H5Iclear_type(H5I_type_t type, hbool_t force);
+H5_DLL herr_t H5Iclear_type(H5I_type_t type, bool force);
 /**
  * \ingroup H5IUD
  *
@@ -682,6 +672,51 @@ H5_DLL htri_t H5Itype_exists(H5I_type_t type);
  *
  */
 H5_DLL htri_t H5Iis_valid(hid_t id);
+
+/* Symbols defined for compatibility with previous versions of the HDF5 API.
+ *
+ * Use of these symbols is deprecated.
+ */
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+
+/**
+ * \ingroup H5IUD
+ *
+ * \brief Creates and returns a new ID type
+ *
+ * \param[in] hash_size Minimum hash table size (in entries) used to store IDs
+ *                      for the new type (unused in 1.8.13 and later)
+ * \param[in] reserved Number of reserved IDs for the new type
+ * \param[in] free_func Function used to deallocate space for a single ID
+ *
+ * \return Returns the type identifier on success, negative on failure.
+ *
+ * \details H5Iregister_type1() allocates space for a new ID type and returns an
+ *          identifier for it.
+ *
+ *          The \p hash_size parameter indicates the minimum size of the hash
+ *          table used to store IDs in the new type. This parameter is unused
+ *          in 1.8.13 and later, when the implementation of ID storage changed.
+ *
+ *          The \p reserved parameter indicates the number of IDs in this new
+ *          type to be reserved. Reserved IDs are valid IDs which are not
+ *          associated with any storage within the library.
+ *
+ *          The \p free_func parameter is a function pointer to a function
+ *          which returns an herr_t and accepts a \c void*. The purpose of this
+ *          function is to deallocate memory for a single ID. It will be called
+ *          by H5Iclear_type() and H5Idestroy_type() on each ID. This function
+ *          is NOT called by H5Iremove_verify(). The \c void* will be the same
+ *          pointer which was passed in to the H5Iregister() function. The \p
+ *          free_func function should return 0 on success and -1 on failure.
+ *
+ * \since 1.8.0
+ * \deprecated 2.0.0 Deprecated in favor of the function H5Iregister_type2()
+ *
+ */
+H5_DLL H5I_type_t H5Iregister_type1(size_t hash_size, unsigned reserved, H5I_free_t free_func);
+
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
 
 #ifdef __cplusplus
 }

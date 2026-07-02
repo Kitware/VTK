@@ -6,6 +6,7 @@
 -Wdouble-promotion
 -Wextra
 -Wformat=2
+-Wformat-nonliteral
 -Wframe-larger-than=16384
 -Wimplicit-fallthrough
 -Wnull-dereference

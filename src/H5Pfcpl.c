@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -330,7 +330,7 @@ H5Pset_userblock(hid_t plist_id, hsize_t size)
     } /* end if */
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
@@ -362,7 +362,7 @@ H5Pget_userblock(hid_t plist_id, hsize_t *size /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value */
@@ -404,7 +404,7 @@ H5Pset_sizes(hid_t plist_id, size_t sizeof_addr, size_t sizeof_size)
     } /* end if */
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
@@ -446,7 +446,7 @@ H5Pget_sizes(hid_t plist_id, size_t *sizeof_addr /*out*/, size_t *sizeof_size /*
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */
@@ -501,7 +501,7 @@ H5Pset_sym_k(hid_t plist_id, unsigned ik, unsigned lk)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set values */
@@ -545,7 +545,7 @@ H5Pget_sym_k(hid_t plist_id, unsigned *ik /*out*/, unsigned *lk /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */
@@ -590,7 +590,7 @@ H5Pset_istore_k(hid_t plist_id, unsigned ik)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "istore IK value exceeds maximum B-tree entries");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
@@ -627,7 +627,7 @@ H5Pget_istore_k(hid_t plist_id, unsigned *ik /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value */
@@ -754,7 +754,7 @@ H5Pset_shared_mesg_nindexes(hid_t plist_id, unsigned nindexes)
                     "number of indexes is greater than H5O_SHMESG_MAX_NINDEXES");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     if (H5P_set(plist, H5F_CRT_SHMSG_NINDEXES_NAME, &nindexes) < 0)
@@ -783,7 +783,7 @@ H5Pget_shared_mesg_nindexes(hid_t plist_id, unsigned *nindexes /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     if (H5P_get(plist, H5F_CRT_SHMSG_NINDEXES_NAME, nindexes) < 0)
@@ -823,7 +823,7 @@ H5Pset_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned mesg_type_
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "unrecognized flags in mesg_type_flags");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Read the current number of indexes */
@@ -878,7 +878,7 @@ H5Pget_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned *mesg_type
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Read the current number of indexes */
@@ -1118,7 +1118,7 @@ H5Pset_shared_mesg_phase_change(hid_t plist_id, unsigned max_list, unsigned min_
         min_btree = 0;
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     if (H5P_set(plist, H5F_CRT_SHMSG_LIST_MAX_NAME, &max_list) < 0)
@@ -1149,7 +1149,7 @@ H5Pget_shared_mesg_phase_change(hid_t plist_id, unsigned *max_list /*out*/, unsi
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value(s) */
@@ -1165,32 +1165,21 @@ done:
 } /* end H5Pget_shared_mesg_phase_change() */
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_file_space_strategy
+ * Function:	H5P__set_file_space_strategy
  *
- * Purpose:	Sets the "strategy" that the library employs in managing file space
- *		    Sets the "persist" value as to persist free-space or not
- *		    Sets the "threshold" value that the free space manager(s) will use to track free space
- *sections. Ignore "persist" and "threshold" for strategies that do not use free-space managers
+ * Purpose:	Internal routine to set file space strategy properties.
  *
  * Return:	Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pset_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold)
+H5P__set_file_space_strategy(H5P_genplist_t *plist, H5F_fspace_strategy_t strategy, bool persist,
+                             hsize_t threshold)
 {
-    H5P_genplist_t *plist;               /* Property list pointer */
-    herr_t          ret_value = SUCCEED; /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_API(FAIL)
-
-    /* Check arguments */
-    if (strategy >= H5F_FSPACE_STRATEGY_NTYPES)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy");
-
-    /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
+    FUNC_ENTER_PACKAGE
 
     /* Set value(s), if non-zero */
     if (H5P_set(plist, H5F_CRT_FILE_SPACE_STRATEGY_NAME, &strategy) < 0)
@@ -1206,8 +1195,78 @@ H5Pset_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t strategy, hbool
     } /* end if */
 
 done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5P__set_file_space_strategy() */
+
+/*-------------------------------------------------------------------------
+ * Function:	H5Pset_file_space_strategy
+ *
+ * Purpose:	Sets the "strategy" that the library employs in managing file space
+ *		Sets the "persist" value as to persist free-space or not
+ *		Sets the "threshold" value that the free space manager(s) will
+ *              use to track free space sections. Ignore "persist" and
+ *              "threshold" for strategies that do not use free-space managers.
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Pset_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t strategy, bool persist, hsize_t threshold)
+{
+    H5P_genplist_t *plist;               /* Property list pointer */
+    herr_t          ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+
+    /* Check arguments */
+    if (strategy >= H5F_FSPACE_STRATEGY_NTYPES)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy");
+
+    /* Get the plist structure */
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
+
+    /* Set value(s) */
+    if (H5P__set_file_space_strategy(plist, strategy, persist, threshold) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set file space strategy values");
+
+done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_file_space_strategy() */
+
+/*-------------------------------------------------------------------------
+ * Function:	H5P__get_file_space_strategy
+ *
+ * Purpose:	Retrieves the strategy, persist, and threshold that the library
+ *          uses in managing file space.
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5P__get_file_space_strategy(H5P_genplist_t *plist, H5F_fspace_strategy_t *strategy /*out*/,
+                             bool *persist /*out*/, hsize_t *threshold /*out*/)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Get value(s) */
+    if (strategy)
+        if (H5P_get(plist, H5F_CRT_FILE_SPACE_STRATEGY_NAME, strategy) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
+    if (persist)
+        if (H5P_get(plist, H5F_CRT_FREE_SPACE_PERSIST_NAME, persist) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space persisting status");
+    if (threshold)
+        if (H5P_get(plist, H5F_CRT_FREE_SPACE_THRESHOLD_NAME, threshold) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space threshold");
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5P__get_file_space_strategy() */
 
 /*-------------------------------------------------------------------------
  * Function:	H5Pget_file_space_strategy
@@ -1220,7 +1279,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t *strategy /*out*/, hbool_t *persist /*out*/,
+H5Pget_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t *strategy /*out*/, bool *persist /*out*/,
                            hsize_t *threshold /*out*/)
 {
     H5P_genplist_t *plist;               /* Property list pointer */
@@ -1229,19 +1288,12 @@ H5Pget_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t *strategy /*out
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value(s) */
-    if (strategy)
-        if (H5P_get(plist, H5F_CRT_FILE_SPACE_STRATEGY_NAME, strategy) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
-    if (persist)
-        if (H5P_get(plist, H5F_CRT_FREE_SPACE_PERSIST_NAME, persist) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space persisting status");
-    if (threshold)
-        if (H5P_get(plist, H5F_CRT_FREE_SPACE_THRESHOLD_NAME, threshold) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space threshold");
+    if (H5P__get_file_space_strategy(plist, strategy, persist, threshold) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy values");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1331,7 +1383,7 @@ H5Pset_file_space_page_size(hid_t plist_id, hsize_t fsp_size)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     if (fsp_size < H5F_FILE_SPACE_PAGE_SIZE_MIN)
@@ -1367,7 +1419,7 @@ H5Pget_file_space_page_size(hid_t plist_id, hsize_t *fsp_size /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value */

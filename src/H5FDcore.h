@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,10 +16,13 @@
 #ifndef H5FDcore_H
 #define H5FDcore_H
 
-/** Initializer for the core VFD */
-#define H5FD_CORE (H5FDperform_init(H5FD_core_init))
+/* Public header files */
+#include "H5FDpublic.h" /* File drivers             */
 
-/** Identifier for the core VFD */
+/** ID for the core VFD */
+#define H5FD_CORE (H5OPEN H5FD_CORE_id_g)
+
+/** Identifier for the core VFD \since 1.14.0 */
 #define H5FD_CORE_VALUE H5_VFD_CORE
 
 #ifdef __cplusplus
@@ -28,9 +31,9 @@ extern "C" {
 
 /** @private
  *
- * \brief Private initializer for the core VFD
+ * \brief ID for the core VFD
  */
-H5_DLL hid_t H5FD_core_init(void);
+H5_DLLVAR hid_t H5FD_CORE_id_g;
 
 /**
  * \ingroup FAPL
@@ -75,7 +78,7 @@ H5_DLL hid_t H5FD_core_init(void);
  * \since 1.4.0
  *
  */
-H5_DLL herr_t H5Pset_fapl_core(hid_t fapl_id, size_t increment, hbool_t backing_store);
+H5_DLL herr_t H5Pset_fapl_core(hid_t fapl_id, size_t increment, bool backing_store);
 
 /**
  * \ingroup FAPL
@@ -94,7 +97,7 @@ H5_DLL herr_t H5Pset_fapl_core(hid_t fapl_id, size_t increment, hbool_t backing_
  * \since 1.4.0
  *
  */
-H5_DLL herr_t H5Pget_fapl_core(hid_t fapl_id, size_t *increment /*out*/, hbool_t *backing_store /*out*/);
+H5_DLL herr_t H5Pget_fapl_core(hid_t fapl_id, size_t *increment /*out*/, bool *backing_store /*out*/);
 #ifdef __cplusplus
 }
 #endif

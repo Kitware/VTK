@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -708,11 +708,9 @@ H5HF__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UN
     assert(len == hdr->heap_size);
 
     /* Set the shared heap header's file context for this operation */
-    H5_GCC_DIAG_OFF("discarded-qualifiers")
-    H5_CLANG_DIAG_OFF("incompatible-pointer-types-discards-qualifiers")
-    hdr->f = f;
-    H5_GCC_DIAG_ON("discarded-qualifiers")
-    H5_CLANG_DIAG_ON("incompatible-pointer-types-discards-qualifiers")
+    H5_WARN_CAST_AWAY_CONST_OFF
+    hdr->f = (H5F_t *)f;
+    H5_WARN_CAST_AWAY_CONST_ON
 
     /* Magic number */
     H5MM_memcpy(image, H5HF_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
@@ -1272,11 +1270,9 @@ H5HF__cache_iblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG
     hdr = iblock->hdr;
 
     /* Set the shared heap header's file context for this operation */
-    H5_GCC_DIAG_OFF("discarded-qualifiers")
-    H5_CLANG_DIAG_OFF("incompatible-pointer-types-discards-qualifiers")
-    hdr->f = f;
-    H5_GCC_DIAG_ON("discarded-qualifiers")
-    H5_CLANG_DIAG_ON("incompatible-pointer-types-discards-qualifiers")
+    H5_WARN_CAST_AWAY_CONST_OFF
+    hdr->f = (H5F_t *)f;
+    H5_WARN_CAST_AWAY_CONST_ON
 
     /* Magic number */
     H5MM_memcpy(image, H5HF_IBLOCK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
@@ -1591,9 +1587,9 @@ H5HF__cache_dblock_verify_chksum(const void *_image, size_t len, void *_udata)
         /* If the data are unfiltered, we just point to the image, which we
          * never modify. Casting away const is okay here.
          */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_OFF
         read_buf = (void *)image;
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_ON
     }
 
     /* Decode checksum */

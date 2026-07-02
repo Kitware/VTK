@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -152,6 +152,8 @@ const unsigned H5O_fill_ver_bounds[] = {
     H5O_FILL_VERSION_3,     /* H5F_LIBVER_V18 */
     H5O_FILL_VERSION_3,     /* H5F_LIBVER_V110 */
     H5O_FILL_VERSION_3,     /* H5F_LIBVER_V112 */
+    H5O_FILL_VERSION_3,     /* H5F_LIBVER_V114 */
+    H5O_FILL_VERSION_3,     /* H5F_LIBVER_V200 */
     H5O_FILL_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 

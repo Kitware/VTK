@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -70,6 +70,8 @@ static const unsigned HDF5_superblock_ver_bounds[] = {
     HDF5_SUPERBLOCK_VERSION_2,     /* H5F_LIBVER_V18 */
     HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V110 */
     HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V112 */
+    HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V114 */
+    HDF5_SUPERBLOCK_VERSION_3,     /* H5F_LIBVER_V200 */
     HDF5_SUPERBLOCK_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -362,9 +364,9 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, bool initial_read)
             /* Try detecting file's signature */
             /* (Don't leave before Bcast, to avoid hang on error) */
             H5E_PAUSE_ERRORS
-            {
-                H5FD_locate_signature(file, &super_addr);
-            }
+                {
+                    H5FD_locate_signature(file, &super_addr);
+                }
             H5E_RESUME_ERRORS
         } /* end if */
 
@@ -429,45 +431,27 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, bool initial_read)
         HGOTO_ERROR(H5E_FILE, H5E_CANTPROTECT, FAIL, "unable to load superblock");
 
     /*
-     * When opening a file with SWMR-write access, the library will first
-     * check to ensure that superblock version 3 is used.  Otherwise fail
-     * file open.
-     *
-     * Then the library will upgrade the file's low_bound depending on
-     * superblock version as follows:
-     *      --version 0 or 1: no change to low_bound
-     *      --version 2: upgrade low_bound to at least V18
-     *      --version 3: upgrade low_bound to at least V110
+     * When opening a file with SWMR-write access, the library will check to
+     * ensure that:
+     *      --superblock version 3 is used
+     *      --superblock version does not exceed the version allowed by high bound
+     *      --upgrade low_bound to at least V110
+     * Otherwise fail file open for SMWR-write access
      *
      * Upgrading low_bound will give the best format versions available for
      * that superblock version.  Due to the possible upgrade, the fapl returned
      * from H5Fget_access_plist() might indicate a low_bound higher than what
      * the user originally set.
      *
-     * After upgrading low_bound, the library will check to ensure that the
-     * superblock version does not exceed the version allowed by high_bound.
-     * Otherwise fail file open.
-     *
      * For details, please see RFC:Setting Bounds for Object Creation in HDF5 1.10.0.
      */
-
-    /* Check to ensure that superblock version 3 is used for SWMR-write access */
     if (H5F_INTENT(f) & H5F_ACC_SWMR_WRITE) {
         if (sblock->super_vers < HDF5_SUPERBLOCK_VERSION_3)
             HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "superblock version for SWMR is less than 3");
-    }
-
-    /* Upgrade low_bound to at least V18 when encountering version 2 superblock */
-    if (sblock->super_vers == HDF5_SUPERBLOCK_VERSION_2)
-        f->shared->low_bound = MAX(H5F_LIBVER_V18, f->shared->low_bound);
-
-    /* Upgrade low_bound to at least V110 when encountering version 3 superblock */
-    if (sblock->super_vers >= HDF5_SUPERBLOCK_VERSION_3)
+        if (sblock->super_vers > HDF5_superblock_ver_bounds[f->shared->high_bound])
+            HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "superblock version exceeds high bound");
         f->shared->low_bound = MAX(H5F_LIBVER_V110, f->shared->low_bound);
-
-    /* Version bounds check */
-    if (sblock->super_vers > HDF5_superblock_ver_bounds[f->shared->high_bound])
-        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "superblock version exceeds high bound");
+    }
 
     /* Pin the superblock in the cache */
     if (H5AC_pin_protected_entry(sblock) < 0)
@@ -745,6 +729,8 @@ H5F__super_read(H5F_t *f, H5P_genplist_t *fa_plist, bool initial_read)
             /* If message is NOT marked "unknown"--set up file space info  */
             if (!(flags & H5O_MSG_FLAG_WAS_UNKNOWN)) {
                 H5O_fsinfo_t fsinfo; /* File space info message from superblock extension */
+
+                memset(&fsinfo, 0, sizeof(H5O_fsinfo_t));
 
                 /* f->shared->null_fsm_addr: Whether to drop free-space to the floor */
                 /* The h5clear tool uses this property to tell the library

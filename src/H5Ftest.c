@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -82,9 +82,10 @@
 herr_t
 H5F__get_sohm_mesg_count_test(hid_t file_id, unsigned type_id, size_t *mesg_count)
 {
-    H5F_t *file;                     /* File info */
-    bool   api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t ret_value      = SUCCEED; /* Return value */
+    H5F_t      *file;                         /* File info */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t      ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -93,7 +94,7 @@ H5F__get_sohm_mesg_count_test(hid_t file_id, unsigned type_id, size_t *mesg_coun
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file");
 
     /* Push API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -123,9 +124,10 @@ done:
 herr_t
 H5F__check_cached_stab_test(hid_t file_id)
 {
-    H5F_t *file;                     /* File info */
-    bool   api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t ret_value      = SUCCEED; /* Return value */
+    H5F_t      *file;                         /* File info */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t      ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -134,7 +136,7 @@ H5F__check_cached_stab_test(hid_t file_id)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file");
 
     /* Push API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 

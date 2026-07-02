@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,8 +22,9 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5Eprivate.h"
-#include "H5Tconv.h"
+#include "H5private.h"  /* Generic Functions                    */
+#include "H5Eprivate.h" /* Error handling                       */
+#include "H5Tconv.h"    /* Datatype conversions                 */
 #include "H5Tconv_string.h"
 
 /*-------------------------------------------------------------------------

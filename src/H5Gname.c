@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -199,17 +199,23 @@ H5G__common_path(const H5RS_str_t *fullpath_r, const H5RS_str_t *prefix_r)
     size_t      nchars1, nchars2;  /* Number of characters in components */
     htri_t      ret_value = false; /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Get component of each name */
-    fullpath = H5RS_get_str(fullpath_r);
-    assert(fullpath);
-    fullpath = H5G__component(fullpath, &nchars1);
-    assert(fullpath);
-    prefix = H5RS_get_str(prefix_r);
-    assert(prefix);
-    prefix = H5G__component(prefix, &nchars2);
-    assert(prefix);
+    if (NULL == (fullpath = H5RS_get_str(fullpath_r)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve full path");
+    nchars1 = SIZE_MAX;
+    if (NULL == (fullpath = H5G__component(fullpath, &nchars1)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve pointer to path component");
+    if (SIZE_MAX == nchars1)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve component length");
+    if (NULL == (prefix = H5RS_get_str(prefix_r)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve path prefix");
+    nchars2 = SIZE_MAX;
+    if (NULL == (prefix = H5G__component(prefix, &nchars2)))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve pointer to path component");
+    if (SIZE_MAX == nchars2)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve component length");
 
     /* Check if we have a real string for each component */
     while (*fullpath && *prefix) {
@@ -226,6 +232,15 @@ H5G__common_path(const H5RS_str_t *fullpath_r, const H5RS_str_t *prefix_r)
                 assert(fullpath);
                 prefix = H5G__component(prefix, &nchars2);
                 assert(prefix);
+                if (NULL == (fullpath = H5G__component(fullpath, &nchars1)))
+                    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve pointer to path component");
+                if (SIZE_MAX == nchars1)
+                    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve component length");
+                nchars2 = SIZE_MAX;
+                if (NULL == (prefix = H5G__component(prefix, &nchars2)))
+                    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve pointer to path component");
+                if (SIZE_MAX == nchars2)
+                    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve component length");
             } /* end if */
             else
                 HGOTO_DONE(false);
@@ -417,9 +432,9 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
         dst->user_path_r = H5RS_dup(src->user_path_r);
     }
     else {
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_OFF
         H5G_name_reset((H5G_name_t *)src);
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_ON
     }
 
     FUNC_LEAVE_NOAPI(SUCCEED)

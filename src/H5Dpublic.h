@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -24,9 +24,25 @@
 /*****************/
 
 /* Macros used to "unset" chunk cache configuration parameters */
+
+/**
+ * Default of chunk slots in the raw data chunk cache for this dataset.
+ * See \ref H5Pset_chunk_cache for details.
+ * \since 1.8.3
+ */
 #define H5D_CHUNK_CACHE_NSLOTS_DEFAULT SIZE_MAX
+/**
+ * Total size of the raw data chunk cache for this dataset.
+ * See \ref H5Pset_chunk_cache for details.
+ * \since 1.8.3
+ */
 #define H5D_CHUNK_CACHE_NBYTES_DEFAULT SIZE_MAX
-#define H5D_CHUNK_CACHE_W0_DEFAULT     (-1.0)
+/**
+ * Chunk preemption policy for this dataset.
+ * See \ref H5Pset_chunk_cache for details.
+ * \since 1.8.3
+ */
+#define H5D_CHUNK_CACHE_W0_DEFAULT (-1.0)
 
 /** Bit flags for the H5Pset/get_chunk_opts() \since 1.10.0 */
 #define H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS (0x0002u)
@@ -40,12 +56,12 @@
  * Values for the H5D_LAYOUT property
  */
 typedef enum H5D_layout_t {
-    H5D_LAYOUT_ERROR = -1, /**< error */
-    H5D_COMPACT      = 0,  /**< raw data is small (< 64KB) */
-    H5D_CONTIGUOUS   = 1,  /**< contiguous layout */
-    H5D_CHUNKED      = 2,  /**< chunked or tiled layout */
-    H5D_VIRTUAL      = 3,  /**< actual data is stored in other datasets */
-    H5D_NLAYOUTS     = 4   /**< this one must be last! */
+    H5D_LAYOUT_ERROR = -1, /**< error \since 1.0.0 */
+    H5D_COMPACT      = 0,  /**< raw data is small (< 64KB) \since 1.0.0 */
+    H5D_CONTIGUOUS   = 1,  /**< contiguous layout \since 1.0.0 */
+    H5D_CHUNKED      = 2,  /**< chunked or tiled layout \since 1.0.0 */
+    H5D_VIRTUAL      = 3,  /**< actual data is stored in other datasets \since 1.10.0 */
+    H5D_NLAYOUTS     = 4   /**< this one must be last! \since 1.0.0 */
 } H5D_layout_t;
 //! <!-- [H5D_layout_t_snip] -->
 
@@ -54,14 +70,15 @@ typedef enum H5D_layout_t {
  * Types of chunk index data structures
  */
 typedef enum H5D_chunk_index_t {
-    H5D_CHUNK_IDX_BTREE = 0, /**< v1 B-tree index (default)                */
-    H5D_CHUNK_IDX_SINGLE =
-        1, /**< Single Chunk index (cur dims[]=max dims[]=chunk dims[]; filtered & non-filtered) */
-    H5D_CHUNK_IDX_NONE   = 2, /**< Implicit: No Index (#H5D_ALLOC_TIME_EARLY, non-filtered, fixed dims) */
-    H5D_CHUNK_IDX_FARRAY = 3, /**< Fixed array (for 0 unlimited dims)       */
-    H5D_CHUNK_IDX_EARRAY = 4, /**< Extensible array (for 1 unlimited dim)   */
-    H5D_CHUNK_IDX_BT2    = 5, /**< v2 B-tree index (for >1 unlimited dims)  */
-    H5D_CHUNK_IDX_NTYPES      /**< This one must be last!                   */
+    H5D_CHUNK_IDX_BTREE  = 0, /**< v1 B-tree index (default) \since 1.10.0                */
+    H5D_CHUNK_IDX_SINGLE = 1, /**< Single Chunk index (cur dims[]=max dims[]=chunk dims[]; filtered &
+                                 non-filtered) \since 1.10.0 */
+    H5D_CHUNK_IDX_NONE =
+        2, /**< Implicit: No Index (#H5D_ALLOC_TIME_EARLY, non-filtered, fixed dims) \since 1.10.0 */
+    H5D_CHUNK_IDX_FARRAY = 3, /**< Fixed array (for 0 unlimited dims) \since 1.10.0       */
+    H5D_CHUNK_IDX_EARRAY = 4, /**< Extensible array (for 1 unlimited dim) \since 1.10.0   */
+    H5D_CHUNK_IDX_BT2    = 5, /**< v2 B-tree index (for >1 unlimited dims) \since 1.10.0  */
+    H5D_CHUNK_IDX_NTYPES      /**< This one must be last! \since 1.10.0                   */
 } H5D_chunk_index_t;
 //! <!-- [H5D_chunk_index_t_snip] -->
 
@@ -70,11 +87,11 @@ typedef enum H5D_chunk_index_t {
  * Values for the space allocation time property
  */
 typedef enum H5D_alloc_time_t {
-    H5D_ALLOC_TIME_ERROR   = -1, /**< Error */
-    H5D_ALLOC_TIME_DEFAULT = 0,  /**< Default (layout dependent) */
-    H5D_ALLOC_TIME_EARLY   = 1,  /**< Allocate on creation */
-    H5D_ALLOC_TIME_LATE    = 2,  /**< Allocate on first write */
-    H5D_ALLOC_TIME_INCR    = 3   /**< Allocate incrementally (by chunk) */
+    H5D_ALLOC_TIME_ERROR   = -1, /**< Error \since 1.6.0 */
+    H5D_ALLOC_TIME_DEFAULT = 0,  /**< Default (layout dependent) \since 1.6.0 */
+    H5D_ALLOC_TIME_EARLY   = 1,  /**< Allocate on creation \since 1.6.0 */
+    H5D_ALLOC_TIME_LATE    = 2,  /**< Allocate on first write \since 1.6.0 */
+    H5D_ALLOC_TIME_INCR    = 3   /**< Allocate incrementally (by chunk) \since 1.6.0 */
 } H5D_alloc_time_t;
 //! <!-- [H5D_alloc_time_t_snip] -->
 
@@ -83,11 +100,11 @@ typedef enum H5D_alloc_time_t {
  * Values for the status of space allocation
  */
 typedef enum H5D_space_status_t {
-    H5D_SPACE_STATUS_ERROR          = -1, /**< Error */
-    H5D_SPACE_STATUS_NOT_ALLOCATED  = 0,  /**< Space has not been allocated for this dataset. */
+    H5D_SPACE_STATUS_ERROR          = -1, /**< Error \since 1.6.0 */
+    H5D_SPACE_STATUS_NOT_ALLOCATED  = 0,  /**< Space has not been allocated for this dataset. \since 1.6.0 */
     H5D_SPACE_STATUS_PART_ALLOCATED = 1,  /**< Space has been partially allocated for this dataset.
-                                               (Used only for datasets with chunked storage.) */
-    H5D_SPACE_STATUS_ALLOCATED = 2        /**< Space has been allocated for this dataset. */
+                                               (Used only for datasets with chunked storage.) \since 1.6.0 */
+    H5D_SPACE_STATUS_ALLOCATED = 2        /**< Space has been allocated for this dataset. \since 1.6.0 */
 } H5D_space_status_t;
 //! <!-- [H5D_space_status_t_snip] -->
 
@@ -96,10 +113,10 @@ typedef enum H5D_space_status_t {
  * Values for time of writing fill value property
  */
 typedef enum H5D_fill_time_t {
-    H5D_FILL_TIME_ERROR = -1, /**< Error */
-    H5D_FILL_TIME_ALLOC = 0,  /**< Fill on allocation */
-    H5D_FILL_TIME_NEVER = 1,  /**< Never write fill values */
-    H5D_FILL_TIME_IFSET = 2   /**< Fill if fill-value was set */
+    H5D_FILL_TIME_ERROR = -1, /**< Error \since 1.6.0 */
+    H5D_FILL_TIME_ALLOC = 0,  /**< Fill on allocation \since 1.6.0 */
+    H5D_FILL_TIME_NEVER = 1,  /**< Never write fill values \since 1.6.0 */
+    H5D_FILL_TIME_IFSET = 2   /**< Fill if fill-value was set \since 1.6.0 */
 } H5D_fill_time_t;
 //! <!-- [H5D_fill_time_t_snip] -->
 
@@ -108,10 +125,10 @@ typedef enum H5D_fill_time_t {
  * Values for fill value status
  */
 typedef enum H5D_fill_value_t {
-    H5D_FILL_VALUE_ERROR        = -1, /**< Error */
-    H5D_FILL_VALUE_UNDEFINED    = 0,  /**< No fill value defined */
-    H5D_FILL_VALUE_DEFAULT      = 1,  /**< Default fill-value */
-    H5D_FILL_VALUE_USER_DEFINED = 2   /**< User-defined fill-value */
+    H5D_FILL_VALUE_ERROR        = -1, /**< Error \since 1.6.0 */
+    H5D_FILL_VALUE_UNDEFINED    = 0,  /**< No fill value defined \since 1.6.0 */
+    H5D_FILL_VALUE_DEFAULT      = 1,  /**< Default fill-value \since 1.6.0 */
+    H5D_FILL_VALUE_USER_DEFINED = 2   /**< User-defined fill-value \since 1.6.0 */
 } H5D_fill_value_t;
 //! <!-- [H5D_fill_value_t_snip] -->
 
@@ -120,9 +137,9 @@ typedef enum H5D_fill_value_t {
  * Values for VDS bounds option
  */
 typedef enum H5D_vds_view_t {
-    H5D_VDS_ERROR          = -1, /**< Error */
-    H5D_VDS_FIRST_MISSING  = 0,  /**< Include all data before the first missing mapped data */
-    H5D_VDS_LAST_AVAILABLE = 1   /**< Include all available mapped data */
+    H5D_VDS_ERROR          = -1, /**< Error \since 1.10.0 */
+    H5D_VDS_FIRST_MISSING  = 0,  /**< Include all data before the first missing mapped data \since 1.10.0 */
+    H5D_VDS_LAST_AVAILABLE = 1   /**< Include all available mapped data \since 1.10.0 */
 } H5D_vds_view_t;
 //! <!-- [H5D_vds_view_t_snip] -->
 
@@ -992,7 +1009,7 @@ H5_DLL herr_t H5Dread_multi_async(size_t count, hid_t dset_id[], hid_t mem_type_
  * \param[in] mem_space_id   Identifier of the memory dataspace
  * \param[in] file_space_id  Identifier of the dataset's dataspace in the file
  * \dxpl_id
- * \param[out] buf           Buffer with data to be written to the file
+ * \param[in] buf           Buffer with data to be written to the file
  *
  * \return \herr_t
  *
@@ -1221,14 +1238,14 @@ H5_DLL herr_t H5Dwrite_multi_async(size_t count, hid_t dset_id[], hid_t mem_type
  *          \p buf is the memory buffer containing data to be written to
  *          the chunk in the file.
  *
- * \attention Exercise caution when using H5Dread_chunk() and
+ * \attention Exercise caution when using H5Dread_chunk2() and
  *          H5Dwrite_chunk(), as they read and write data chunks directly
  *          in a file. H5Dwrite_chunk() bypasses hyperslab selection, the
  *          conversion of data from one datatype to another, and the filter
  *          pipeline to write the chunk. Developers should have experience
  *          with these processes before using this function.
  *
- * \note    H5Dread_chunk() and H5Dwrite_chunk() are currently not supported
+ * \note    H5Dread_chunk2() and H5Dwrite_chunk() are currently not supported
  *          with parallel HDF5 and do not support variable-length types.
  *
  * \since 1.10.2
@@ -1249,11 +1266,12 @@ H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, con
  * \param[in]  offset   Logical position of the chunk's first element in the
  *                      dataspace
  * \param[in,out]  filters  Mask for identifying the filters in use
- * \param[out]  buf     Buffer containing data to be read from the chunk
+ * \param[out]  buf     Buffer to receive data read from the chunk
+ * \param[in,out]  buf_size   Size of buf in bytes
  *
  * \return \herr_t
  *
- * \details H5Dread_chunk() reads a raw data chunk as specified by
+ * \details H5Dread_chunk2() reads a raw data chunk as specified by
  *          its logical offset \p offset in a chunked dataset \p dset_id
  *          from the dataset in the file into the application memory
  *          buffer \p buf. The data in \p buf is read directly from the
@@ -1276,7 +1294,16 @@ H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, con
  *          \p buf is the memory buffer containing the chunk read from
  *          the dataset in the file.
  *
- * \attention Exercise caution when using H5Dread_chunk() and
+ *          \p buf_size must be passed as a pointer to a variable holding the
+ *          allocated size, in bytes, of the memory buffer \p buf. On exit,
+ *          \p *buf_size is set to the buffer size needed to read the chunk, which
+ *          is the same as the size of the chunk on disk. If the value of
+ *          \p *buf_size passed in was insufficient to read the entire, chunk, no
+ *          data is read. \p buf may be passed as NULL as long as \p *buf_size
+ *          is 0. \p filters is always set by this function even if the chunk
+ *          was not read.
+ *
+ * \attention Exercise caution when using H5Dread_chunk2() and
  *          H5Dwrite_chunk(), as they read and write data chunks directly
  *          in a file. H5Dwrite_chunk() bypasses hyperslab selection, the
  *          conversion of data from one datatype to another, and the filter
@@ -1284,14 +1311,14 @@ H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, con
  *          with these processes before using this function. Please see
  *          \ref subsec_hldo_direct_chunk_using for more information.
  *
- * \note H5Dread_chunk() and H5Dwrite_chunk() are currently not supported
+ * \note H5Dread_chunk2() and H5Dwrite_chunk() are currently not supported
  *       with parallel HDF5 and do not support variable-length datatypes.
  *
- * \since 1.10.2
+ * \since 2.0.0
  *
  */
-H5_DLL herr_t H5Dread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters,
-                            void *buf);
+H5_DLL herr_t H5Dread_chunk2(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters,
+                             void *buf, size_t *buf_size);
 
 /**
  * --------------------------------------------------------------------------
@@ -1702,13 +1729,20 @@ H5_DLL herr_t H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type);
  * These symbols are no longer used in the library.
  */
 /* Property names for H5DOwrite_chunk */
-#define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME     "direct_chunk_flag"
-#define H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME  "direct_chunk_filters"
-#define H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME   "direct_chunk_offset"
+/** Direct chunk write flag \deprecated As H5DOwrite_chunk was deprecated */
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME "direct_chunk_flag"
+/** Direct chunk write filters flag \deprecated As H5DOwrite_chunk was deprecated */
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME "direct_chunk_filters"
+/** Direct chunk write offset flag \deprecated As H5DOwrite_chunk was deprecated */
+#define H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME "direct_chunk_offset"
+/** Direct chunk write datasize flag \deprecated As H5DOwrite_chunk was deprecated */
 #define H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME "direct_chunk_datasize"
 /* Property names for H5DOread_chunk */
-#define H5D_XFER_DIRECT_CHUNK_READ_FLAG_NAME    "direct_chunk_read_flag"
-#define H5D_XFER_DIRECT_CHUNK_READ_OFFSET_NAME  "direct_chunk_read_offset"
+/** Direct chunk read flag \deprecated As H5DOread_chunk was deprecated */
+#define H5D_XFER_DIRECT_CHUNK_READ_FLAG_NAME "direct_chunk_read_flag"
+/** Direct chunk read offset flag \deprecated As H5DOread_chunk was deprecated */
+#define H5D_XFER_DIRECT_CHUNK_READ_OFFSET_NAME "direct_chunk_read_offset"
+/** Direct chunk read filters flag \deprecated As H5DOread_chunk was deprecated */
 #define H5D_XFER_DIRECT_CHUNK_READ_FILTERS_NAME "direct_chunk_read_filters"
 
 /* Typedefs */
@@ -1890,6 +1924,75 @@ H5_DLL herr_t H5Dextend(hid_t dset_id, const hsize_t size[]);
  *
  */
 H5_DLL herr_t H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t dxpl_id, void *buf);
+/**
+ * --------------------------------------------------------------------------
+ * \ingroup H5D
+ *
+ * \brief Reads a raw data chunk directly from a dataset in a file into
+ * a buffer
+ *
+ * \dset_id
+ * \dxpl_id
+ * \param[in]  offset   Logical position of the chunk's first element in the
+ *                      dataspace
+ * \param[in,out]  filters  Mask for identifying the filters in use
+ * \param[out]  buf     Buffer to receive data read from the chunk
+ *
+ * \return \herr_t
+ *
+ * \deprecation_note{H5Dread_chunk2() or the macro H5Dread_chunk()}
+ *
+ * \details H5Dread_chunk1() reads a raw data chunk as specified by
+ *          its logical offset \p offset in a chunked dataset \p dset_id
+ *          from the dataset in the file into the application memory
+ *          buffer \p buf. The data in \p buf is read directly from the
+ *          file bypassing the library's internal data transfer pipeline,
+ *          including filters.
+ *
+ *          \p offset is an array specifying the logical position of the
+ *          first element of the chunk in the dataset's dataspace. The
+ *          length of the \p offset array must equal the number of dimensions,
+ *          or rank, of the dataspace. The values in \p offset must not exceed
+ *          the dimension limits and must specify a point that falls on
+ *          a dataset chunk boundary.
+ *
+ *          The mask \p filters indicates which filters were used when the
+ *          chunk was written. A zero value (all bits 0) indicates that all
+ *          enabled filters are applied on the chunk. A filter is skipped if
+ *          the bit corresponding to the filter's position in the pipeline
+ *          (0 ≤ position < 32) is turned on.
+ *
+ *          \p buf is the memory buffer containing the chunk read from
+ *          the dataset in the file.
+ *
+ * \attention It is strongly recommended to use H5Dread_chunk2() instead of this
+ *          function due to the potential for memory corruption. During the
+ *          typical usage pattern of this function, the application has no way
+ *          of knowing the size of the chunk on disk, or even a maximum size
+ *          (filters can increase the size of a chunk). The library also has no
+ *          way of knowing the size of \p buf, so there is a potential for the
+ *          library to write past the end of the buffer. The only general way to
+ *          avoid this problem, besides upgrading to H5Dread_chunk2(), is to
+ *          query the chunk size beforehand, which can be expensive.
+ *
+ * \attention Exercise caution when using H5Dread_chunk1() and
+ *          H5Dwrite_chunk(), as they read and write data chunks directly
+ *          in a file. H5Dwrite_chunk() bypasses hyperslab selection, the
+ *          conversion of data from one datatype to another, and the filter
+ *          pipeline to write the chunk. Developers should have experience
+ *          with these processes before using this function. Please see
+ *          \ref subsec_hldo_direct_chunk_using for more information.
+ *
+ * \note H5Dread_chunk1() and H5Dwrite_chunk() are currently not supported
+ *       with parallel HDF5 and do not support variable-length datatypes.
+ *
+ * \version 2.0.0 Function was deprecated
+ *
+ * \since 1.10.2
+ *
+ */
+H5_DLL herr_t H5Dread_chunk1(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters,
+                             void *buf);
 
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -54,77 +54,77 @@
 #define H5VL_CAP_FLAG_NONE 0x0000000000000000
 /** Connector is threadsafe \since 1.12.0 */
 #define H5VL_CAP_FLAG_THREADSAFE 0x0000000000000001
-/** Connector performs operations asynchronously\since 1.12.0 */
+/** Connector performs operations asynchronously\since 1.14.0 */
 #define H5VL_CAP_FLAG_ASYNC 0x0000000000000002
-/** Connector produces native file format \since 1.12.0 */
+/** Connector produces native file format \since 1.14.0 */
 #define H5VL_CAP_FLAG_NATIVE_FILES 0x0000000000000004
-/** H5A create/delete/exists/open/close/read/write \since 1.12.0 */
+/** H5A create/delete/exists/open/close/read/write \since 1.14.0 */
 #define H5VL_CAP_FLAG_ATTR_BASIC 0x0000000000000008
-/** All other H5A API calls \since 1.12.0 */
+/** All other H5A API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_ATTR_MORE 0x0000000000000010
-/** H5D create/open/close/read/write \since 1.12.0 */
+/** H5D create/open/close/read/write \since 1.14.0 */
 #define H5VL_CAP_FLAG_DATASET_BASIC 0x0000000000000020
-/** All other H5D API calls \since 1.12.0 */
+/** All other H5D API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_DATASET_MORE 0x0000000000000040
-/** H5F create/open/close/read/write \since 1.12.0 */
+/** H5F create/open/close/read/write \since 1.14.0 */
 #define H5VL_CAP_FLAG_FILE_BASIC 0x0000000000000080
-/** All other H5F API calls \since 1.12.0 */
+/** All other H5F API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_FILE_MORE 0x0000000000000100
-/** H5G create/open/close \since 1.12.0 */
+/** H5G create/open/close \since 1.14.0 */
 #define H5VL_CAP_FLAG_GROUP_BASIC 0x0000000000000200
-/** All other H5G API calls\since 1.12.0 */
+/** All other H5G API calls\since 1.14.0 */
 #define H5VL_CAP_FLAG_GROUP_MORE 0x0000000000000400
-/** H5L exists/delete \since 1.12.0 */
+/** H5L exists/delete \since 1.14.0 */
 #define H5VL_CAP_FLAG_LINK_BASIC 0x0000000000000800
-/** All other H5L API calls \since 1.12.0 */
+/** All other H5L API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_LINK_MORE 0x0000000000001000
-/** H5M create/open/close/get*type/get_count/put/get/exists/delete \since 1.12.0 */
+/** H5M create/open/close/get*type/get_count/put/get/exists/delete \since 1.14.0 */
 #define H5VL_CAP_FLAG_MAP_BASIC 0x0000000000002000
-/** All other H5M API calls \since 1.12.0 */
+/** All other H5M API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_MAP_MORE 0x0000000000004000
-/** H5O open/close/exists \since 1.12.0 */
+/** H5O open/close/exists \since 1.14.0 */
 #define H5VL_CAP_FLAG_OBJECT_BASIC 0x0000000000008000
-/** All other H5O API calls \since 1.12.0 */
+/** All other H5O API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_OBJECT_MORE 0x0000000000010000
-/** H5Rdestroy \since 1.12.0 */
+/** H5Rdestroy \since 1.14.0 */
 #define H5VL_CAP_FLAG_REF_BASIC 0x0000000000020000
-/** All other H5R API calls \since 1.12.0 */
+/** All other H5R API calls \since 1.14.0 */
 #define H5VL_CAP_FLAG_REF_MORE 0x0000000000040000
-/** Connector supports object references \since 1.12.0 */
+/** Connector supports object references \since 1.14.0 */
 #define H5VL_CAP_FLAG_OBJ_REF 0x0000000000080000
-/** Connector supports regional references \since 1.12.0 */
+/** Connector supports regional references \since 1.14.0 */
 #define H5VL_CAP_FLAG_REG_REF 0x0000000000100000
-/** Connector supports attribute references \since 1.12.0 */
+/** Connector supports attribute references \since 1.14.0 */
 #define H5VL_CAP_FLAG_ATTR_REF 0x0000000000200000
-/** Connector supports stored datatypes \since 1.12.0 */
+/** Connector supports stored datatypes \since 1.14.0 */
 #define H5VL_CAP_FLAG_STORED_DATATYPES 0x0000000000400000
-/** Connector tracks creation order \since 1.12.0 */
+/** Connector tracks creation order \since 1.14.0 */
 #define H5VL_CAP_FLAG_CREATION_ORDER 0x0000000000800000
-/** Connector supports iteration functions \since 1.12.0 */
+/** Connector supports iteration functions \since 1.14.0 */
 #define H5VL_CAP_FLAG_ITERATE 0x0000000001000000
-/** Connector can return a meaningful storage size \since 1.12.0 */
+/** Connector can return a meaningful storage size \since 1.14.0 */
 #define H5VL_CAP_FLAG_STORAGE_SIZE 0x0000000002000000
-/** "by index" API calls are supported \since 1.12.0 */
+/** "by index" API calls are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_BY_IDX 0x0000000004000000
-/** Connector can return the property lists used to create an object \since 1.12.0 */
+/** Connector can return the property lists used to create an object \since 1.14.0 */
 #define H5VL_CAP_FLAG_GET_PLIST 0x0000000008000000
-/** flush/refresh calls are supported \since 1.12.0 */
+/** flush/refresh calls are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_FLUSH_REFRESH 0x0000000010000000
-/** External links are supported \since 1.12.0 */
+/** External links are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_EXTERNAL_LINKS 0x0000000020000000
-/** Hard links are supported \since 1.12.0 */
+/** Hard links are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_HARD_LINKS 0x0000000040000000
-/** Soft links are supported \since 1.12.0 */
+/** Soft links are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_SOFT_LINKS 0x0000000080000000
-/** User-defined links are supported \since 1.12.0 */
+/** User-defined links are supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_UD_LINKS 0x0000000100000000
-/** Connector tracks creation, etc. times \since 1.12.0 */
+/** Connector tracks creation, etc. times \since 1.14.0 */
 #define H5VL_CAP_FLAG_TRACK_TIMES 0x0000000200000000
-/** H5Fmount/unmount supported \since 1.12.0 */
+/** H5Fmount/unmount supported \since 1.14.0 */
 #define H5VL_CAP_FLAG_MOUNT 0x0000000400000000
-/** Connector implements a filter pipeline \since 1.12.0 */
+/** Connector implements a filter pipeline \since 1.14.0 */
 #define H5VL_CAP_FLAG_FILTERS 0x0000000800000000
-/** Connector allows fill values to be set \since 1.12.0 */
+/** Connector allows fill values to be set \since 1.14.0 */
 #define H5VL_CAP_FLAG_FILL_VALUES 0x0000001000000000
 
 /**
@@ -445,7 +445,7 @@ H5_DLL herr_t H5VLquery_optional(hid_t obj_id, H5VL_subclass_t subcls, int opt_t
  *
  * \since 1.12.2
  */
-H5_DLL herr_t H5VLobject_is_native(hid_t obj_id, hbool_t *is_native);
+H5_DLL herr_t H5VLobject_is_native(hid_t obj_id, bool *is_native);
 
 #ifdef __cplusplus
 }

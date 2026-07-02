@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,9 +16,19 @@
 /* Private headers needed by this file */
 #include "H5Tpkg.h"
 
+/*************************/
+/* Module private macros */
+/*************************/
+
+#define TEMP_INT_CONV_BUFFER_SIZE 64
+
 /***********************/
 /* Function Prototypes */
 /***********************/
+
+/* Helper functions shared between conversion modules */
+H5_DLL herr_t H5T__conv_i_f_loop(const H5T_t *src_p, const H5T_t *dst_p, const H5T_conv_ctx_t *conv_ctx,
+                                 size_t nelmts, size_t buf_stride, void *buf);
 
 /****************************************/
 /* Soft (emulated) conversion functions */
@@ -33,6 +43,9 @@ H5_DLL herr_t H5T__conv_i_i(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cda
 H5_DLL herr_t H5T__conv_i_f(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                             const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg);
+H5_DLL herr_t H5T__conv_i_complex(const H5T_t *src_p, const H5T_t *dst_p, H5T_cdata_t *cdata,
+                                  const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                  size_t bkg_stride, void *buf, void *bkg);
 
 /*********************************************/
 /* Hard (compiler cast) conversion functions */
@@ -80,6 +93,17 @@ H5_DLL herr_t H5T__conv_schar_double(const H5T_t *src, const H5T_t *dst, H5T_cda
 H5_DLL herr_t H5T__conv_schar_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_schar_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_schar_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_schar_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'unsigned char' */
 H5_DLL herr_t H5T__conv_uchar_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -123,6 +147,17 @@ H5_DLL herr_t H5T__conv_uchar_double(const H5T_t *src, const H5T_t *dst, H5T_cda
 H5_DLL herr_t H5T__conv_uchar_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_uchar_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_uchar_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_uchar_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'signed short' */
 H5_DLL herr_t H5T__conv_short_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -166,6 +201,17 @@ H5_DLL herr_t H5T__conv_short_double(const H5T_t *src, const H5T_t *dst, H5T_cda
 H5_DLL herr_t H5T__conv_short_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_short_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_short_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_short_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'unsigned short' */
 H5_DLL herr_t H5T__conv_ushort_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -209,6 +255,17 @@ H5_DLL herr_t H5T__conv_ushort_double(const H5T_t *src, const H5T_t *dst, H5T_cd
 H5_DLL herr_t H5T__conv_ushort_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                        size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_ushort_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_ushort_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_ushort_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'signed int' */
 H5_DLL herr_t H5T__conv_int_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -252,6 +309,17 @@ H5_DLL herr_t H5T__conv_int_double(const H5T_t *src, const H5T_t *dst, H5T_cdata
 H5_DLL herr_t H5T__conv_int_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                     const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                     size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_int_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                     const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                     size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_int_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                     const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                     size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_int_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                     const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                     size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'unsigned int' */
 H5_DLL herr_t H5T__conv_uint_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -295,6 +363,17 @@ H5_DLL herr_t H5T__conv_uint_double(const H5T_t *src, const H5T_t *dst, H5T_cdat
 H5_DLL herr_t H5T__conv_uint_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                      size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_uint_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_uint_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_uint_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'signed long' */
 H5_DLL herr_t H5T__conv_long_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -338,6 +417,17 @@ H5_DLL herr_t H5T__conv_long_double(const H5T_t *src, const H5T_t *dst, H5T_cdat
 H5_DLL herr_t H5T__conv_long_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                      size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_long_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_long_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_long_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                      const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                      size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'unsigned long' */
 H5_DLL herr_t H5T__conv_ulong_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -381,6 +471,17 @@ H5_DLL herr_t H5T__conv_ulong_double(const H5T_t *src, const H5T_t *dst, H5T_cda
 H5_DLL herr_t H5T__conv_ulong_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_ulong_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_ulong_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_ulong_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#endif
 
 /* Conversion functions for 'signed long long' */
 H5_DLL herr_t H5T__conv_llong_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -424,6 +525,19 @@ H5_DLL herr_t H5T__conv_llong_double(const H5T_t *src, const H5T_t *dst, H5T_cda
 H5_DLL herr_t H5T__conv_llong_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_llong_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_llong_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5T_CONV_INTERNAL_LLONG_LDOUBLE
+H5_DLL herr_t H5T__conv_llong_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                       const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                       size_t bkg_stride, void *buf, void *bkg);
+#endif
+#endif
 
 /* Conversion functions for 'unsigned long long' */
 H5_DLL herr_t H5T__conv_ullong_schar(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
@@ -467,5 +581,18 @@ H5_DLL herr_t H5T__conv_ullong_double(const H5T_t *src, const H5T_t *dst, H5T_cd
 H5_DLL herr_t H5T__conv_ullong_ldouble(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
                                        size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__conv_ullong_fcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+H5_DLL herr_t H5T__conv_ullong_dcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+#ifdef H5T_CONV_INTERNAL_ULLONG_LDOUBLE
+H5_DLL herr_t H5T__conv_ullong_lcomplex(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
+                                        const H5T_conv_ctx_t *conv_ctx, size_t nelmts, size_t buf_stride,
+                                        size_t bkg_stride, void *buf, void *bkg);
+#endif
+#endif
 
 #endif /* H5Tconv_integer_H */

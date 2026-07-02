@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -1256,13 +1256,13 @@ find_dataset(H5_ATTR_UNUSED hid_t loc_id, const char *name, H5_ATTR_UNUSED const
  * modify the op_data buffer (i.e.: dset_name) during the traversal, and the
  * library never modifies that buffer.
  */
-H5_GCC_CLANG_DIAG_OFF("cast-qual")
+H5_WARN_CAST_AWAY_CONST_OFF
 herr_t
 H5LTfind_dataset(hid_t loc_id, const char *dset_name)
 {
     return H5Literate2(loc_id, H5_INDEX_NAME, H5_ITER_INC, 0, find_dataset, (void *)dset_name);
 }
-H5_GCC_CLANG_DIAG_ON("cast-qual")
+H5_WARN_CAST_AWAY_CONST_ON
 
 /*-------------------------------------------------------------------------
  *
@@ -2305,6 +2305,27 @@ H5LT_dtype_to_text(hid_t dtype, char *dt_str, H5LT_lang_t lang, size_t *slen, bo
             else if (H5Tequal(dtype, H5T_IEEE_F64LE)) {
                 snprintf(dt_str, *slen, "H5T_IEEE_F64LE");
             }
+            else if (H5Tequal(dtype, H5T_FLOAT_BFLOAT16BE)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_BFLOAT16BE");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_BFLOAT16LE)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_BFLOAT16LE");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_F8E4M3)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_F8E4M3");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_F8E5M2)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_F8E5M2");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_F6E2M3)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_F6E2M3");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_F6E3M2)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_F6E3M2");
+            }
+            else if (H5Tequal(dtype, H5T_FLOAT_F4E2M1)) {
+                snprintf(dt_str, *slen, "H5T_FLOAT_F4E2M1");
+            }
 #ifdef H5_HAVE__FLOAT16
             else if (H5Tequal(dtype, H5T_NATIVE_FLOAT16)) {
                 snprintf(dt_str, *slen, "H5T_NATIVE_FLOAT16");
@@ -2742,6 +2763,49 @@ next:
                 if (!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
                     goto out;
             }
+
+            /* Print closing */
+            indent -= COL;
+            if (!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                goto out;
+            snprintf(tmp_str, TMP_LEN, "}");
+            if (!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                goto out;
+
+            break;
+        }
+        case H5T_COMPLEX: {
+            hid_t  super;
+            size_t super_len;
+            char  *stmp = NULL;
+
+            /* Print lead-in */
+            snprintf(dt_str, *slen, "H5T_COMPLEX {\n");
+            indent += COL;
+            if (!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                goto out;
+
+            if ((super = H5Tget_super(dtype)) < 0)
+                goto out;
+            if (H5LTdtype_to_text(super, NULL, lang, &super_len) < 0)
+                goto out;
+            stmp = (char *)calloc(super_len, sizeof(char));
+            if (H5LTdtype_to_text(super, stmp, lang, &super_len) < 0) {
+                free(stmp);
+                goto out;
+            }
+            if (!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, stmp))) {
+                free(stmp);
+                goto out;
+            }
+
+            if (stmp)
+                free(stmp);
+            stmp = NULL;
+            snprintf(tmp_str, TMP_LEN, "\n");
+            if (!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                goto out;
+            H5Tclose(super);
 
             /* Print closing */
             indent -= COL;
@@ -3284,7 +3348,7 @@ out:
 }
 
 htri_t
-H5LTpath_valid(hid_t loc_id, const char *path, hbool_t check_object_valid)
+H5LTpath_valid(hid_t loc_id, const char *path, bool check_object_valid)
 {
     char      *tmp_path = NULL; /* Temporary copy of the path */
     char      *curr_name;       /* Pointer to current component of path name */

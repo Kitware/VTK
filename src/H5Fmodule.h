@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,10 +22,13 @@
  *      reporting macros.
  */
 #define H5F_MODULE
-#define H5_MY_PKG     H5F
-#define H5_MY_PKG_ERR H5E_FILE
+#define H5_MY_PKG      H5F
+#define H5_MY_PKG_INIT YES
 
 /** \page H5F_UG HDF5 File
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_file The HDF5 File
  * \subsection subsec_file_intro Introduction
@@ -213,12 +216,12 @@
  * More comprehensive discussions regarding all of these steps are provided below.
  *
  * \subsection subsec_file_h5dump Using h5dump to View a File
- * h5dump is a command-line utility that is included in the HDF5 distribution. This program
+ * \ref sec_cltools_h5dump is a command-line utility that is included in the HDF5 distribution. This program
  * provides a straight-forward means of inspecting the contents of an HDF5 file. You can use
- * h5dump to verify that a program is generating the intended HDF5 file. h5dump displays ASCII
- * output formatted according to the HDF5 DDL grammar.
+ * \ref sec_cltools_h5dump to verify that a program is generating the intended HDF5 file. \ref
+ * sec_cltools_h5dump displays ASCII output formatted according to the HDF5 DDL grammar.
  *
- * The following h5dump command will display the contents of SampleFile.h5:
+ * The following \ref sec_cltools_h5dump command will display the contents of SampleFile.h5:
  * \code
  *   h5dump SampleFile.h5
  * \endcode
@@ -234,11 +237,11 @@
  *
  * Note that the root group, indicated above by <b>/</b>, was automatically created when the file was created.
  *
- * h5dump is described on the
+ * \ref sec_cltools_h5dump is described on the
  * \ref subsecViewToolsViewContent_h5dump
  * page under
  * \ref ViewToolsCommand.
- * The HDF5 DDL grammar is described in the document \ref DDLBNF114.
+ * The HDF5 DDL grammar is described in the document \ref DDLBNF200.
  *
  * \subsection subsec_file_summary File Function Summaries
  * General library (\ref H5 functions and macros), (\ref H5F functions), file related
@@ -854,7 +857,7 @@
  * <em>Managing file access for in-memory files</em>
  * \code
  *   herr_t H5Pset_fapl_core (hid_t access_properties, size_t block_size, bool backing_store)
- *   herr_t H5Pget_fapl_core (hid_t access_properties, size_t *block_size), bool *backing_store)
+ *   herr_t H5Pget_fapl_core (hid_t access_properties, size_t *block_size, bool *backing_store)
  * \endcode
  *
  * #H5Pset_fapl_core sets the file access property list to use the Memory driver; any previously
@@ -942,13 +945,14 @@
  *
  * <h4>Unix Tools and an HDF5 Utility</h4>
  * It occasionally becomes necessary to repartition a file family. A command-line utility for this
- * purpose, h5repart, is distributed with the HDF5 library.
+ * purpose, \ref sec_cltools_h5repart, is distributed with the HDF5 library.
  *
  * \code
  * h5repart [-v] [-b block_size[suffix]] [-m member_size[suffix]] source destination
  * \endcode
  *
- * h5repart repartitions an HDF5 file by copying the source file or file family to the destination file
+ * \ref sec_cltools_h5repart repartitions an HDF5 file by copying the source file or file family to
+ * the destination file
  * or file family, preserving holes in the underlying UNIX files. Families are used for the source
  * and/or destination if the name includes a printf-style integer format such as %d. The -v switch
  * prints input and output file names on the standard error stream for progress monitoring, -b sets
@@ -956,7 +960,7 @@
  * family name (the default is 1GB). block_size and member_size may be suffixed with the letters
  * g, m, or k for GB, MB, or KB respectively.
  *
- * The h5repart utility is described on the Tools page of the \ref RM.
+ * The \ref sec_cltools_h5repart utility is described on the Tools page of the \ref RM.
  *
  * An existing HDF5 file can be split into a family of files by running the file through split(1) on a
  * UNIX system and numbering the output files. However, the HDF5 Library is lazy about
@@ -964,7 +968,8 @@
  * concatenation of the family members.
  *
  * Splitting the file and rejoining the segments by concatenation (split(1) and cat(1) on UNIX
- * systems) does not generate files with holes; holes are preserved only through the use of h5repart.
+ * systems) does not generate files with holes; holes are preserved only through the use of \ref
+ * sec_cltools_h5repart.
  *
  * \subsubsection subsubsec_file_alternate_drivers_multi The Multi Driver
  * In some circumstances, it is useful to separate metadata from raw data and some types of
@@ -1034,6 +1039,50 @@
  * Additional parameters may be added to these functions in the future. Since there are no
  * additional variable settings associated with the Split driver, there is no H5Pget_fapl_split
  * function.
+ *
+ * \subsubsection subsubsec_file_alternate_drivers_ros3 The ROS3 Driver
+ * The ROS3 (read-only S3) driver is used to enable read-only access to HDF5 files which are stored
+ * in Amazon's S3 web service (https://aws.amazon.com/s3/) or an S3 API-compatible storage system.
+ * This driver expects that HDF5 files will be stored in the storage system as a single object.
+ * It translates I/O read requests from the HDF5 library into the appropriate REST API requests
+ * that will retrieve the relevant parts of the HDF5 file needed by the read requests.
+ *
+ * The functions #H5Pset_fapl_ros3 and #H5Pget_fapl_ros3 are used to manage file access properties
+ * for the #H5FD_ROS3 driver. See the example below.
+ *
+ * <em>Managing access properties for ROS3</em>
+ * \code
+ *   herr_t H5Pset_fapl_ros3(hid_t access_properties, const H5FD_ros3_fapl_t *fa)
+ *   herr_t H5Pget_fapl_ros3(hid_t fapl_id, H5FD_ros3_fapl_t *fa_out)
+ *
+ *   typedef struct H5FD_ros3_fapl_t {
+ *       int32_t version;
+ *       bool    authenticate;
+ *       char    aws_region[H5FD_ROS3_MAX_REGION_LEN + 1];
+ *       char    secret_id[H5FD_ROS3_MAX_SECRET_ID_LEN + 1];
+ *       char    secret_key[H5FD_ROS3_MAX_SECRET_KEY_LEN + 1];
+ *   } H5FD_ros3_fapl_t;
+ * \endcode
+ *
+ * #H5Pset_fapl_ros3 sets the file access properties managed by the #H5FD_ROS3 driver and
+ * #H5Pget_fapl_ros3 retrieves those file access properties.
+ *
+ * The `version` field is used to specify the revision of the #H5FD_ros3_fapl_t structure
+ * and currently must always be set to the macro value #H5FD_CURR_ROS3_FAPL_T_VERSION.
+ *
+ * The `authenticate` field is a boolean determining whether or not the driver should use
+ * credentials specified in the `secret_id` and `secret_key` fields of the structure. If
+ * `true`, credentials will be used from the structure. If `false`, the driver will instead
+ * look for credentials from standard AWS environment variables, configuration files and
+ * other locations. In this case, any values specified in the `secret_id` and `secret_key`
+ * fields will be ignored.
+ *
+ * The `aws_region` field is used to specify the AWS region to use when accessing files opened
+ * through the File Access Property List with these properties set on it. If this field is an
+ * empty string, the driver will search for a specified AWS region in the standard AWS
+ * environment variables and configuration files. An AWS region <em>must</em> be specified
+ * with one of these mechanisms or an error will be returned when attempting to open a file
+ * with the #H5FD_ROS3 driver.
  *
  * \subsubsection subsubsec_file_alternate_drivers_par The Parallel Driver
  * Parallel environments require a parallel low-level driver. HDF5's default driver for parallel
@@ -1188,7 +1237,13 @@
  *
  * Previous Chapter \ref sec_program - Next Chapter \ref sec_group
  *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
+ *
  * \page H5FIM_UG HDF5 File Image
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_file_image HDF5 File Image
  * \subsection subsec_file_image_intro Introduction to HDF5 File Image Operations
@@ -2613,6 +2668,9 @@
  * Fortran function call signatures for the file image operation APIs have not yet been implemented yet.
  *
  * Previous Chapter \ref sec_vol - Next Chapter \ref sec_async
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  */
 

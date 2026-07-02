@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -105,11 +105,58 @@
         }                                                                                                    \
                                                                                                              \
         /* If we're not using in-place type conversion, add this piece to global type conversion buffer      \
-         * size.  This will only be used if we must allocate a type conversion buffer for the entire I/O. */ \
-        if (!(PIECE_INFO)->in_place_tconv)                                                                   \
-            (IO_INFO)->tconv_buf_size += (PIECE_INFO)->piece_points * MAX((DINFO)->type_info.src_type_size,  \
-                                                                          (DINFO)->type_info.dst_type_size); \
+         * size.  This will only be used if we must allocate a type conversion buffer for the entire I/O.    \
+         * Make sure to check for overflow and disable selection I/O if it happens. */                       \
+        if (!(PIECE_INFO)->in_place_tconv) {                                                                 \
+            hsize_t tconv_buf_hsize;                                                                         \
+            hsize_t old_size;                                                                                \
+            H5_CHECKED_ASSIGN(tconv_buf_hsize, hsize_t, (IO_INFO)->tconv_buf_size, size_t);                  \
+            old_size = tconv_buf_hsize;                                                                      \
+            tconv_buf_hsize += (PIECE_INFO)->piece_points *                                                  \
+                               MAX((DINFO)->type_info.src_type_size, (DINFO)->type_info.dst_type_size);      \
+            if (H5_UNLIKELY(tconv_buf_hsize < old_size || tconv_buf_hsize > SIZE_MAX))                       \
+                (IO_INFO)->tconv_buf_overflow = true;                                                        \
+            else                                                                                             \
+                (IO_INFO)->tconv_buf_size = (size_t)tconv_buf_hsize;                                         \
+        }                                                                                                    \
     }
+
+/* Macro to add a virtual dataset source file or dataset name to a hash table for storing these names */
+#define H5D_VIRTUAL_FIND_OR_ADD_NAME(NAME_TYPE, LAYOUT, STR, STRLEN, ENT, ERR)                               \
+    do {                                                                                                     \
+        /* Check for source name in hash table. While this normally shouldn't be                             \
+         * necessary if it is version 1 or greater and it is at least as long as "size of                    \
+         * lengths", we should still check since if we don't and it's not shared in the                      \
+         * file for whatever reason it could cause the library to insert a duplicate key                     \
+         * if it rebuilds the hash table. */                                                                 \
+        H5O_storage_virtual_ent_t *_tmp_ent = NULL; /* Temporary VDS entry pointer */                        \
+                                                                                                             \
+        if ((ENT) > (LAYOUT)->storage.u.virt.list)                                                           \
+            HASH_FIND(hh_source_##NAME_TYPE, (LAYOUT)->storage.u.virt.source_##NAME_TYPE##_hash_table, STR,  \
+                      STRLEN, _tmp_ent);                                                                     \
+        if (_tmp_ent) {                                                                                      \
+            /* Found source name in previous mapping, use link to that mapping's source name */              \
+            assert(_tmp_ent >= (LAYOUT)->storage.u.virt.list && _tmp_ent < (ENT));                           \
+            (ENT)->source_##NAME_TYPE##_orig = (size_t)(_tmp_ent - (LAYOUT)->storage.u.virt.list);           \
+            (ENT)->source_##NAME_TYPE##_name = _tmp_ent->source_##NAME_TYPE##_name;                          \
+        }                                                                                                    \
+        else {                                                                                               \
+            /* Did not find source name, copy it to the entry and add it to the hash table */                \
+            if (NULL == ((ENT)->source_##NAME_TYPE##_name = (char *)H5MM_malloc((STRLEN) + 1)))              \
+                HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, ERR, "unable to allocate memory for source name");   \
+            (ENT)->source_##NAME_TYPE##_orig = SIZE_MAX;                                                     \
+            H5MM_memcpy((ENT)->source_##NAME_TYPE##_name, STR, (STRLEN) + 1);                                \
+                                                                                                             \
+            /* Add to source name hash table. If we eventually make the library                              \
+             * resilient to repeated strings not stored shared in memory, possibly by                        \
+             * permanently disabling the hash table, or marking it as needing a careful                      \
+             * rebuild, we can avoid this step if the version is 1 or greater and the name                   \
+             * is at least as long as "size of lengths". See comment above about HASH_FIND                   \
+             * line. */                                                                                      \
+            HASH_ADD_KEYPTR(hh_source_##NAME_TYPE, (LAYOUT)->storage.u.virt.source_##NAME_TYPE##_hash_table, \
+                            (ENT)->source_##NAME_TYPE##_name, STRLEN, ENT);                                  \
+        }                                                                                                    \
+    } while (0)
 
 /****************************/
 /* Package Private Typedefs */
@@ -141,7 +188,7 @@ typedef struct H5D_shared_t H5D_shared_t;
 
 /* Function pointers for I/O on particular types of dataset layouts */
 typedef herr_t (*H5D_layout_construct_func_t)(H5F_t *f, H5D_t *dset);
-typedef herr_t (*H5D_layout_init_func_t)(H5F_t *f, const H5D_t *dset, hid_t dapl_id);
+typedef herr_t (*H5D_layout_init_func_t)(H5F_t *f, H5D_t *dset, hid_t dapl_id, bool open_op);
 typedef bool (*H5D_layout_is_space_alloc_func_t)(const H5O_storage_t *storage);
 typedef bool (*H5D_layout_is_data_cached_func_t)(const H5D_shared_t *shared_dset);
 typedef herr_t (*H5D_layout_io_init_func_t)(struct H5D_io_info_t *io_info, struct H5D_dset_io_info_t *dinfo);
@@ -315,6 +362,7 @@ typedef struct H5D_io_info_t {
     uint8_t                *bkg_buf;               /* Background buffer */
     bool                    bkg_buf_allocated;     /* Whether the background buffer was allocated */
     size_t                  bkg_buf_size;          /* Size of background buffer */
+    bool                    tconv_buf_overflow;    /* Whether the tconv or bkg buf overflowed size_t */
     size_t max_tconv_type_size; /* Largest of all source and destination type sizes involved in type
                                    conversion */
     bool must_fill_bkg; /* Whether any datasets need a background buffer filled with destination contents */
@@ -338,10 +386,9 @@ typedef struct H5D_io_info_wrap_t {
 
 /* Typedef for chunked dataset index operation info */
 typedef struct H5D_chk_idx_info_t {
-    H5F_t               *f;       /* File pointer for operation */
-    const H5O_pline_t   *pline;   /* I/O pipeline info */
-    H5O_layout_chunk_t  *layout;  /* Chunk layout description */
-    H5O_storage_chunk_t *storage; /* Chunk storage description */
+    H5F_t             *f;      /* File pointer for operation */
+    const H5O_pline_t *pline;  /* I/O pipeline info */
+    H5O_layout_t      *layout; /* Layout description */
 } H5D_chk_idx_info_t;
 
 /*
@@ -357,7 +404,7 @@ typedef struct H5D_chk_idx_info_t {
  */
 typedef struct H5D_chunk_rec_t {
     hsize_t  scaled[H5O_LAYOUT_NDIMS]; /* Logical offset to start */
-    uint32_t nbytes;                   /* Size of stored data */
+    hsize_t  nbytes;                   /* Size of stored data */
     uint32_t filter_mask;              /* Excluded filters */
     haddr_t  chunk_addr;               /* Address of chunk in file */
 } H5D_chunk_rec_t;
@@ -469,7 +516,7 @@ typedef struct H5D_chunk_cached_t {
     bool     valid;                    /*whether cache info is valid*/
     hsize_t  scaled[H5O_LAYOUT_NDIMS]; /*scaled offset of chunk*/
     haddr_t  addr;                     /*file address of chunk */
-    uint32_t nbytes;                   /*size of stored data */
+    hsize_t  nbytes;                   /*size of stored data */
     hsize_t  chunk_idx;                /*index of chunk in dataset */
     unsigned filter_mask;              /*excluded filters */
 } H5D_chunk_cached_t;
@@ -515,14 +562,14 @@ typedef struct H5D_rdcc_t {
     unsigned scaled_encode_bits[H5S_MAX_RANK]; /* The number of bits needed to encode the scaled dim sizes */
 } H5D_rdcc_t;
 
-/* The raw data contiguous data cache */
-typedef struct H5D_rdcdc_t {
+/* Information about the dataset sieve buffer */
+typedef struct H5D_sieve_buf_t {
     unsigned char *sieve_buf;      /* Buffer to hold data sieve buffer */
     haddr_t        sieve_loc;      /* File location (offset) of the data sieve buffer */
     size_t         sieve_size;     /* Size of the data sieve buffer used (in bytes) */
     size_t         sieve_buf_size; /* Size of the data sieve buffer allocated (in bytes) */
     bool           sieve_dirty;    /* Flag to indicate that the data sieve buffer is dirty */
-} H5D_rdcdc_t;
+} H5D_sieve_buf_t;
 
 /*
  * A dataset is made of two layers, an H5D_t struct that is unique to
@@ -531,16 +578,17 @@ typedef struct H5D_rdcdc_t {
  * there will be two IDs and two H5D_t structs, both sharing one H5D_shared_t.
  */
 struct H5D_shared_t {
-    size_t           fo_count;        /* Reference count */
-    bool             closing;         /* Flag to indicate dataset is closing */
-    hid_t            type_id;         /* ID for dataset's datatype    */
-    H5T_t           *type;            /* Datatype for this dataset     */
-    H5S_t           *space;           /* Dataspace of this dataset    */
-    hid_t            dcpl_id;         /* Dataset creation property id */
-    hid_t            dapl_id;         /* Dataset access property id */
-    H5D_dcpl_cache_t dcpl_cache;      /* Cached DCPL values */
-    H5O_layout_t     layout;          /* Data layout                  */
-    bool             checked_filters; /* true if dataset passes can_apply check */
+    size_t           fo_count;              /* Reference count */
+    bool             closing;               /* Flag to indicate dataset is closing */
+    hid_t            type_id;               /* ID for dataset's datatype    */
+    H5T_t           *type;                  /* Datatype for this dataset     */
+    H5S_t           *space;                 /* Dataspace of this dataset    */
+    hid_t            dcpl_id;               /* Dataset creation property id */
+    hid_t            dapl_id;               /* Dataset access property id */
+    H5D_dcpl_cache_t dcpl_cache;            /* Cached DCPL values */
+    H5O_layout_t     layout;                /* Data layout                  */
+    bool             layout_copied_to_dcpl; /* Whether the layout has change not present in the DCPL */
+    bool             checked_filters;       /* true if dataset passes can_apply check */
 
     /* Cached dataspace info */
     unsigned ndims;                       /* The dataset's dataspace rank */
@@ -550,12 +598,8 @@ struct H5D_shared_t {
 
     /* Buffered/cached information for types of raw data storage*/
     struct {
-        H5D_rdcdc_t contig; /* Information about contiguous data */
-                            /* (Note that the "contig" cache
-                             * information can be used by a chunked
-                             * dataset in certain circumstances)
-                             */
-        H5D_rdcc_t chunk;   /* Information about chunked data */
+        H5D_sieve_buf_t sieve; /* Information about dataset sieve buffer */
+        H5D_rdcc_t      chunk; /* Information about chunked data */
     } cache;
 
     H5D_append_flush_t append_flush;   /* Append flush property information */
@@ -633,7 +677,7 @@ H5_DLLVAR const H5B2_class_t H5D_BT2[1];
 H5_DLLVAR const H5B2_class_t H5D_BT2_FILT[1];
 
 /*  Array of versions for Layout */
-H5_DLLVAR const unsigned H5O_layout_ver_bounds[H5F_LIBVER_NBOUNDS];
+H5_DLLVAR const unsigned H5O_layout_ver_bounds[H5F_LIBVER_NBOUNDS + 1];
 
 /******************************/
 /* Package Private Prototypes */
@@ -695,9 +739,6 @@ H5_DLL herr_t H5D__scatgath_write_select(H5D_io_info_t *io_info);
 /* Functions that operate on dataset's layout information */
 H5_DLL herr_t H5D__layout_set_io_ops(const H5D_t *dataset);
 H5_DLL size_t H5D__layout_meta_size(const H5F_t *f, const H5O_layout_t *layout, bool include_compact_data);
-H5_DLL herr_t H5D__layout_set_version(H5F_t *f, H5O_layout_t *layout);
-H5_DLL herr_t H5D__layout_set_latest_indexing(H5O_layout_t *layout, const H5S_t *space,
-                                              const H5D_dcpl_cache_t *dcpl_cache);
 H5_DLL herr_t H5D__layout_oh_create(H5F_t *file, H5O_t *oh, H5D_t *dset, hid_t dapl_id);
 H5_DLL herr_t H5D__layout_oh_read(H5D_t *dset, hid_t dapl_id, H5P_genplist_t *plist);
 H5_DLL herr_t H5D__layout_oh_write(const H5D_t *dataset, H5O_t *oh, unsigned update_flags);
@@ -732,25 +773,24 @@ H5_DLL void   H5D__chunk_mem_free(void *chk, void *pline);
 H5_DLL void  *H5D__chunk_mem_xfree(void *chk, const void *pline);
 H5_DLL void  *H5D__chunk_mem_realloc(void *chk, size_t size, const H5O_pline_t *pline);
 H5_DLL herr_t H5D__chunk_update_old_edge_chunks(H5D_t *dset, hsize_t old_dim[]);
-H5_DLL bool   H5D__chunk_is_partial_edge_chunk(unsigned dset_ndims, const uint32_t *chunk_dims,
+H5_DLL bool   H5D__chunk_is_partial_edge_chunk(unsigned dset_ndims, const hsize_t *chunk_dims,
                                                const hsize_t *chunk_scaled, const hsize_t *dset_dims);
 H5_DLL herr_t H5D__chunk_prune_by_extent(H5D_t *dset, const hsize_t *old_dim);
-H5_DLL herr_t H5D__chunk_set_sizes(H5D_t *dset);
 #ifdef H5_HAVE_PARALLEL
 H5_DLL herr_t H5D__chunk_addrmap(const H5D_t *dset, haddr_t chunk_addr[]);
 #endif /* H5_HAVE_PARALLEL */
 H5_DLL herr_t H5D__chunk_update_cache(H5D_t *dset);
-H5_DLL herr_t H5D__chunk_copy(H5F_t *f_src, H5O_storage_chunk_t *storage_src, H5O_layout_chunk_t *layout_src,
-                              H5F_t *f_dst, H5O_storage_chunk_t *storage_dst,
+H5_DLL herr_t H5D__chunk_copy(H5F_t *f_src, H5O_layout_t *layout_src, H5F_t *f_dst, H5O_layout_t *layout_dst,
                               const H5S_extent_t *ds_extent_src, H5T_t *dt_src, const H5O_pline_t *pline_src,
                               H5O_copy_t *cpy_info);
 H5_DLL herr_t H5D__chunk_bh_info(const H5O_loc_t *loc, H5O_t *oh, H5O_layout_t *layout, hsize_t *btree_size);
 H5_DLL herr_t H5D__chunk_dump_index(H5D_t *dset, FILE *stream);
-H5_DLL herr_t H5D__chunk_delete(H5F_t *f, H5O_t *oh, H5O_storage_t *store);
+H5_DLL herr_t H5D__chunk_delete(H5F_t *f, H5O_t *oh, H5O_layout_t *layout);
 H5_DLL herr_t H5D__chunk_get_offset_copy(const H5D_t *dset, const hsize_t *offset, hsize_t *offset_copy);
-H5_DLL herr_t H5D__chunk_direct_write(H5D_t *dset, uint32_t filters, hsize_t *offset, uint32_t data_size,
+H5_DLL herr_t H5D__chunk_direct_write(H5D_t *dset, uint32_t filters, hsize_t *offset, size_t data_size,
                                       const void *buf);
-H5_DLL herr_t H5D__chunk_direct_read(const H5D_t *dset, hsize_t *offset, uint32_t *filters, void *buf);
+H5_DLL herr_t H5D__chunk_direct_read(const H5D_t *dset, hsize_t *offset, uint32_t *filters, void *buf,
+                                     size_t *nalloc);
 #ifdef H5D_CHUNK_DEBUG
 H5_DLL herr_t H5D__chunk_stats(const H5D_t *dset, bool headers);
 #endif /* H5D_CHUNK_DEBUG */
@@ -766,13 +806,12 @@ H5_DLL herr_t H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src
 
 /* Functions that operate on virtual dataset storage */
 H5_DLL herr_t H5D__virtual_store_layout(H5F_t *f, H5O_layout_t *layout);
+H5_DLL herr_t H5D__virtual_load_layout(H5F_t *f, H5O_layout_t *layout);
 H5_DLL herr_t H5D__virtual_copy_layout(H5O_layout_t *layout);
 H5_DLL herr_t H5D__virtual_set_extent_unlim(const H5D_t *dset);
 H5_DLL herr_t H5D__virtual_reset_layout(H5O_layout_t *layout);
 H5_DLL herr_t H5D__virtual_delete(H5F_t *f, H5O_storage_t *storage);
 H5_DLL herr_t H5D__virtual_copy(H5F_t *f_src, H5O_layout_t *layout_dst);
-H5_DLL herr_t H5D__virtual_init(H5F_t *f, const H5D_t *dset, hid_t dapl_id);
-H5_DLL bool   H5D__virtual_is_space_alloc(const H5O_storage_t *storage);
 H5_DLL herr_t H5D__virtual_hold_source_dset_files(const H5D_t *dset, H5D_virtual_held_file_t **head);
 H5_DLL herr_t H5D__virtual_refresh_source_dsets(H5D_t *dset);
 H5_DLL herr_t H5D__virtual_release_source_dset_files(H5D_virtual_held_file_t *head);

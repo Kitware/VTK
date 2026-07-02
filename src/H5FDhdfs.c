@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -15,20 +15,18 @@
  *             File System (HDFS).
  */
 
-#ifdef H5_HAVE_LIBHDFS
-/* This source code file is part of the H5FD driver module */
-#include "H5FDdrvr_module.h"
-#endif
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
-#include "H5private.h"   /* Generic Functions        */
+#include "H5private.h" /* Generic Functions        */
+
+#ifdef H5_HAVE_LIBHDFS
+
 #include "H5Eprivate.h"  /* Error handling           */
-#include "H5FDprivate.h" /* File drivers             */
 #include "H5FDhdfs.h"    /* hdfs file driver         */
+#include "H5FDpkg.h"     /* File drivers             */
 #include "H5FLprivate.h" /* Free Lists               */
 #include "H5Iprivate.h"  /* IDs                      */
 #include "H5MMprivate.h" /* Memory management        */
-
-#ifdef H5_HAVE_LIBHDFS
 
 /* HDFS routines */
 #include "hdfs.h"
@@ -40,7 +38,12 @@
 #define HDFS_STATS 0
 
 /* The driver identification number, initialized at runtime */
-static hid_t H5FD_HDFS_g = 0;
+hid_t H5FD_HDFS_id_g = H5I_INVALID_HID;
+
+/* Flag to indicate whether global driver resources & settings have been
+ *      initialized.
+ */
+static bool H5FD_hdfs_init_s = false;
 
 #if HDFS_STATS
 
@@ -227,21 +230,7 @@ typedef struct H5FD_hdfs_t {
 #endif
 } H5FD_hdfs_t;
 
-/*
- * These macros check for overflow of various quantities.  These macros
- * assume that HDoff_t is signed and haddr_t and size_t are unsigned.
- *
- * ADDR_OVERFLOW:   Checks whether a file address of type `haddr_t'
- *                  is too large to be represented by the second argument
- *                  of the file seek function.
- *                  Only included if HDFS code should compile.
- *
- */
-#define MAXADDR          (((haddr_t)1 << (8 * sizeof(HDoff_t) - 1)) - 1)
-#define ADDR_OVERFLOW(A) (HADDR_UNDEF == (A) || ((A) & ~(haddr_t)MAXADDR))
-
 /* Prototypes */
-static herr_t  H5FD__hdfs_term(void);
 static void   *H5FD__hdfs_fapl_get(H5FD_t *_file);
 static void   *H5FD__hdfs_fapl_copy(const void *_old_fa);
 static herr_t  H5FD__hdfs_fapl_free(void *_fa);
@@ -265,9 +254,9 @@ static const H5FD_class_t H5FD_hdfs_g = {
     H5FD_CLASS_VERSION,       /* struct version       */
     H5FD_HDFS_VALUE,          /* value                */
     "hdfs",                   /* name                 */
-    MAXADDR,                  /* maxaddr              */
+    H5FD_MAXADDR,             /* maxaddr              */
     H5F_CLOSE_WEAK,           /* fc_degree            */
-    H5FD__hdfs_term,          /* terminate            */
+    NULL,                     /* terminate            */
     NULL,                     /* sb_size              */
     NULL,                     /* sb_encode            */
     NULL,                     /* sb_decode            */
@@ -308,61 +297,44 @@ static const H5FD_class_t H5FD_hdfs_g = {
 H5FL_DEFINE_STATIC(H5FD_hdfs_t);
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_hdfs_init
+ * Function:    H5FD__hdfs_register
  *
- * Purpose:     Initialize this driver by registering the driver with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the hdfs driver.
- *              Failure:    Negative
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_hdfs_init(void)
+herr_t
+H5FD__hdfs_register(void)
 {
-    hid_t ret_value = H5I_INVALID_HID;
-#if HDFS_STATS
-    unsigned int bin_i;
-#endif
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+    FUNC_ENTER_PACKAGE
 
 #if HDFS_DEBUG
     fprintf(stdout, "called %s.\n", __func__);
 #endif
 
-    if (H5I_VFL != H5I_get_type(H5FD_HDFS_g))
-        H5FD_HDFS_g = H5FD_register(&H5FD_hdfs_g, sizeof(H5FD_class_t), false);
-
-#if HDFS_STATS
-    /* pre-compute statsbin boundaries
-     */
-    for (bin_i = 0; bin_i < HDFS_STATS_BIN_COUNT; bin_i++) {
-        unsigned long long value = 0;
-
-        HDFS_STATS_POW(bin_i, &value)
-        hdfs_stats_boundaries[bin_i] = value;
-    }
-#endif
-
-    ret_value = H5FD_HDFS_g;
+    if (H5I_VFL != H5I_get_type(H5FD_HDFS_id_g))
+        if ((H5FD_HDFS_id_g = H5FD_register(&H5FD_hdfs_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register hdfs driver");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_hdfs_init() */
+} /* end H5FD__hdfs_register() */
 
 /*---------------------------------------------------------------------------
- * Function:    H5FD__hdfs_term
+ * Function:    H5FD__hdfs_unregister
  *
- * Purpose:     Shut down the VFD
+ * Purpose:     Reset library driver info.
  *
  * Returns:     SUCCEED (Can't fail)
  *
  *---------------------------------------------------------------------------
  */
-static herr_t
-H5FD__hdfs_term(void)
+herr_t
+H5FD__hdfs_unregister(void)
 {
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -371,10 +343,48 @@ H5FD__hdfs_term(void)
 #endif
 
     /* Reset VFL ID */
-    H5FD_HDFS_g = 0;
+    H5FD_HDFS_id_g = H5I_INVALID_HID;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5FD__hdfs_term() */
+} /* end H5FD__hdfs_unregister() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__hdfs_init
+ *
+ * Purpose:     Singleton to initialize global driver settings & resources.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD__hdfs_init(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
+
+#if HDFS_DEBUG
+    fprintf(stdout, "called %s.\n", __func__);
+#endif
+
+#if HDFS_STATS
+    /* pre-compute statsbin boundaries
+     */
+    for (unsigned bin_i = 0; bin_i < HDFS_STATS_BIN_COUNT; bin_i++) {
+        unsigned long long value = 0;
+
+        HDFS_STATS_POW(bin_i, &value)
+        hdfs_stats_boundaries[bin_i] = value;
+    }
+#endif
+
+    /* Indicate that driver is set up */
+    H5FD_hdfs_init_s = true;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__hdfs_init() */
 
 /*--------------------------------------------------------------------------
  * Function:   H5FD__hdfs_handle_open
@@ -400,6 +410,11 @@ H5FD__hdfs_handle_open(const char *path, const char *namenode_name, const int32_
 #if HDFS_DEBUG
     fprintf(stdout, "called %s.\n", __func__);
 #endif
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_hdfs_init_s)
+        if (H5FD__hdfs_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, NULL, "can't initialize driver");
 
     if (path == NULL || path[0] == '\0')
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "path cannot be null");
@@ -567,7 +582,7 @@ H5Pset_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t *fa)
     fprintf(stdout, "called %s.\n", __func__);
 #endif
 
-    plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS);
+    plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, false);
     if (plist == NULL)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     if (FAIL == H5FD__hdfs_validate_config(fa))
@@ -606,7 +621,7 @@ H5Pget_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t *fa_dst /*out*/)
 
     if (fa_dst == NULL)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "fa_dst ptr is NULL");
-    plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS);
+    plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true);
     if (plist == NULL)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
 
@@ -812,7 +827,7 @@ H5FD__hdfs_open(const char *path, unsigned flags, hid_t fapl_id, haddr_t maxaddr
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name");
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr");
-    if (ADDR_OVERFLOW(maxaddr))
+    if (H5FD_ADDR_OVERFLOW(maxaddr))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, NULL, "bogus maxaddr");
     if (flags != H5F_ACC_RDONLY)
         HGOTO_ERROR(H5E_ARGS, H5E_UNSUPPORTED, NULL, "only Read-Only access allowed");

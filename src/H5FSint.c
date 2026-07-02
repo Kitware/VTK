@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -65,6 +65,28 @@
 /*******************/
 
 /*-------------------------------------------------------------------------
+ * Function:    H5FS_init
+ *
+ * Purpose:     Initialize the interface in case it is unable to initialize
+ *              itself soon enough.
+ *
+ * Return:      Success:    non-negative
+ *              Failure:    negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FS_init(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI_NOERR
+    /* FUNC_ENTER() does all the work */
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FS_init() */
+
+/*-------------------------------------------------------------------------
  * Function:    H5FS__create_flush_depend
  *
  * Purpose:     Create a flush dependency between two data structure components
@@ -78,7 +100,7 @@ H5FS__create_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(parent_entry);
@@ -106,7 +128,7 @@ H5FS__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(parent_entry);

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -12,36 +12,38 @@
 
 /*
  * Purpose:     The IOC VFD implements a file driver which relays all the
- *              VFD calls to an underlying VFD, and send all the write calls to
+ *              VFD calls to an underlying VFD, and sends all the write calls to
  *              another underlying VFD. Maintains two files simultaneously.
  */
 
-/* This source code file is part of the H5FD driver module */
-#include "H5FDdrvr_module.h"
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
 #include "H5private.h"    /* Generic Functions        */
-#include "H5FDpublic.h"   /* Basic H5FD definitions   */
 #include "H5Eprivate.h"   /* Error handling           */
-#include "H5FDprivate.h"  /* File drivers             */
-#include "H5FDioc.h"      /* IOC file driver          */
-#include "H5FDioc_priv.h" /* IOC file driver          */
+#include "H5Fprivate.h"   /* File access              */
+#include "H5FDpkg.h"      /* File drivers             */
+#include "H5FDioc_priv.h" /* I/O concetrator file driver          */
 #include "H5FDmpio.h"     /* MPI I/O VFD              */
 #include "H5FLprivate.h"  /* Free Lists               */
-#include "H5Fprivate.h"   /* File access              */
 #include "H5Iprivate.h"   /* IDs                      */
 #include "H5MMprivate.h"  /* Memory management        */
 #include "H5Pprivate.h"   /* Property lists           */
 
 /* The driver identification number, initialized at runtime */
-static hid_t H5FD_IOC_g = H5I_INVALID_HID;
+hid_t H5FD_IOC_id_g = H5I_INVALID_HID;
+
+/* Flag to indicate whether global driver resources & settings have been
+ *      initialized.
+ */
+static bool H5FD_ioc_init_s = false;
 
 /* Whether the driver initialized MPI on its own */
-static bool H5FD_mpi_self_initialized = false;
+static bool H5FD_mpi_self_initialized_s = false;
 
 /* Pointer to value for MPI_TAG_UB */
 int *H5FD_IOC_tag_ub_val_ptr = NULL;
 
-/* The information of this ioc */
+/* The information of this IOC */
 typedef struct H5FD_ioc_t {
     H5FD_t            pub; /* public stuff, must be first    */
     int               fd;  /* the filesystem file descriptor */
@@ -66,27 +68,6 @@ typedef struct H5FD_ioc_t {
     char *file_dir;  /* Directory where we find files */
     char *file_path; /* The user defined filename */
 } H5FD_ioc_t;
-
-/*
- * These macros check for overflow of various quantities.  These macros
- * assume that HDoff_t is signed and haddr_t and size_t are unsigned.
- *
- * ADDR_OVERFLOW:   Checks whether a file address of type `haddr_t'
- *                  is too large to be represented by the second argument
- *                  of the file seek function.
- *
- * SIZE_OVERFLOW:   Checks whether a buffer size of type `hsize_t' is too
- *                  large to be represented by the `size_t' type.
- *
- * REGION_OVERFLOW: Checks whether an address and size pair describe data
- *                  which can be addressed entirely by the second
- *                  argument of the file seek function.
- */
-#define MAXADDR          (((haddr_t)1 << (8 * sizeof(HDoff_t) - 1)) - 1)
-#define ADDR_OVERFLOW(A) (HADDR_UNDEF == (A) || ((A) & ~(haddr_t)MAXADDR))
-#define SIZE_OVERFLOW(Z) ((Z) & ~(hsize_t)MAXADDR)
-#define REGION_OVERFLOW(A, Z)                                                                                \
-    (ADDR_OVERFLOW(A) || SIZE_OVERFLOW(Z) || HADDR_UNDEF == (A) + (Z) || (HDoff_t)((A) + (Z)) < (HDoff_t)(A))
 
 /* Private functions */
 /* Prototypes */
@@ -113,7 +94,7 @@ static herr_t  H5FD__ioc_read_vector(H5FD_t *file, hid_t dxpl_id, uint32_t count
 static herr_t  H5FD__ioc_write_vector(H5FD_t *file, hid_t dxpl_id, uint32_t count, H5FD_mem_t types[],
                                       haddr_t addrs[], size_t sizes[], const void *bufs[] /* in */);
 static herr_t  H5FD__ioc_truncate(H5FD_t *_file, hid_t dxpl_id, bool closing);
-static herr_t  H5FD__ioc_del(const char *name, hid_t fapl);
+static herr_t  H5FD__ioc_delete(const char *name, hid_t fapl);
 /*
 static herr_t H5FD__ioc_ctl(H5FD_t *file, uint64_t op_code, uint64_t flags,
                             const void *input, void **result);
@@ -133,7 +114,7 @@ static const H5FD_class_t H5FD_ioc_g = {
     H5FD_CLASS_VERSION,        /* VFD interface version */
     H5_VFD_IOC,                /* value                 */
     H5FD_IOC_NAME,             /* name                  */
-    MAXADDR,                   /* maxaddr               */
+    H5FD_MAXADDR,              /* maxaddr               */
     H5F_CLOSE_WEAK,            /* fc_degree             */
     H5FD__ioc_term,            /* terminate             */
     H5FD__ioc_sb_size,         /* sb_size               */
@@ -167,7 +148,7 @@ static const H5FD_class_t H5FD_ioc_g = {
     H5FD__ioc_truncate,        /* truncate              */
     NULL,                      /* lock                  */
     NULL,                      /* unlock                */
-    H5FD__ioc_del,             /* del                   */
+    H5FD__ioc_delete,          /* del                   */
     NULL,                      /* ctl                   */
     H5FD_FLMAP_DICHOTOMY       /* fl_map                */
 };
@@ -179,77 +160,112 @@ H5FL_DEFINE_STATIC(H5FD_ioc_t);
 H5FL_DEFINE_STATIC(H5FD_ioc_config_t);
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_ioc_init
+ * Function:    H5FD__ioc_register
  *
- * Purpose:     Initialize the IOC driver by registering it with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the ioc driver.
- *              Failure:    Negative
+ * Return:      SUCCEED/FAIL
+ *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_ioc_init(void)
+herr_t
+H5FD__ioc_register(void)
 {
-    hid_t ret_value = H5I_INVALID_HID;
+    herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+    FUNC_ENTER_PACKAGE
 
     /* Register the IOC VFD, if it isn't already registered */
-    if (H5I_VFL != H5I_get_type(H5FD_IOC_g)) {
-        char *env_var;
-        int   key_val_retrieved = 0;
-        int   mpi_code;
-
-        if ((H5FD_IOC_g = H5FD_register(&H5FD_ioc_g, sizeof(H5FD_class_t), false)) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register IOC VFD");
-
-        /* Check if IOC VFD has been loaded dynamically */
-        env_var = getenv(HDF5_DRIVER);
-        if (env_var && strlen(env_var) > 0 && !strcmp(env_var, H5FD_IOC_NAME)) {
-            int mpi_initialized = 0;
-            int provided        = 0;
-
-            /* Initialize MPI if not already initialized */
-            if (MPI_SUCCESS != (mpi_code = MPI_Initialized(&mpi_initialized)))
-                HMPI_GOTO_ERROR(H5I_INVALID_HID, "MPI_Initialized failed", mpi_code);
-            if (mpi_initialized) {
-                /* If MPI is initialized, validate that it was initialized with MPI_THREAD_MULTIPLE */
-                if (MPI_SUCCESS != (mpi_code = MPI_Query_thread(&provided)))
-                    HMPI_GOTO_ERROR(H5I_INVALID_HID, "MPI_Query_thread failed", mpi_code);
-                if (provided != MPI_THREAD_MULTIPLE)
-                    HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID,
-                                "IOC VFD requires the use of MPI_Init_thread with MPI_THREAD_MULTIPLE");
-            }
-            else {
-                int required = MPI_THREAD_MULTIPLE;
-
-                /* Otherwise, initialize MPI */
-                if (MPI_SUCCESS != (mpi_code = MPI_Init_thread(NULL, NULL, required, &provided)))
-                    HMPI_GOTO_ERROR(H5I_INVALID_HID, "MPI_Init_thread failed", mpi_code);
-
-                H5FD_mpi_self_initialized = true;
-
-                if (provided != required)
-                    HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID,
-                                "MPI doesn't support MPI_Init_thread with MPI_THREAD_MULTIPLE");
-            }
-        }
-
-        /* Retrieve upper bound for MPI message tag value */
-        if (MPI_SUCCESS != (mpi_code = MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &H5FD_IOC_tag_ub_val_ptr,
-                                                         &key_val_retrieved)))
-            HMPI_GOTO_ERROR(H5I_INVALID_HID, "MPI_Comm_get_attr failed", mpi_code);
-
-        if (!key_val_retrieved)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID, "couldn't retrieve value for MPI_TAG_UB");
-    }
-
-    ret_value = H5FD_IOC_g;
+    if (H5I_VFL != H5I_get_type(H5FD_IOC_id_g))
+        if ((H5FD_IOC_id_g = H5FD_register(&H5FD_ioc_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "can't register IOC VFD");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_ioc_init() */
+} /* end H5FD__ioc_register() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5FD__ioc_unregister
+ *
+ * Purpose:     Reset library driver info.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5FD__ioc_unregister(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Reset VFL ID */
+    H5FD_IOC_id_g = H5I_INVALID_HID;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5FD__ioc_unregister() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__ioc_init
+ *
+ * Purpose:     Singleton to initialize global driver settings & resources.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD__ioc_init(void)
+{
+    char  *env_var;
+    int    key_val_retrieved = 0;
+    int    mpi_code;
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check if IOC VFD has been loaded dynamically */
+    env_var = getenv(HDF5_DRIVER);
+    if (env_var && strlen(env_var) > 0 && !strcmp(env_var, H5FD_IOC_NAME)) {
+        int mpi_initialized = 0;
+        int provided        = 0;
+
+        /* Initialize MPI if not already initialized */
+        if (MPI_SUCCESS != (mpi_code = MPI_Initialized(&mpi_initialized)))
+            HMPI_GOTO_ERROR(FAIL, "MPI_Initialized failed", mpi_code);
+        if (mpi_initialized) {
+            /* If MPI is initialized, validate that it was initialized with MPI_THREAD_MULTIPLE */
+            if (MPI_SUCCESS != (mpi_code = MPI_Query_thread(&provided)))
+                HMPI_GOTO_ERROR(FAIL, "MPI_Query_thread failed", mpi_code);
+            if (provided != MPI_THREAD_MULTIPLE)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL,
+                            "IOC VFD requires the use of MPI_Init_thread with MPI_THREAD_MULTIPLE");
+        }
+        else {
+            /* Otherwise, initialize MPI */
+            if (MPI_SUCCESS != (mpi_code = MPI_Init_thread(NULL, NULL, MPI_THREAD_MULTIPLE, &provided)))
+                HMPI_GOTO_ERROR(FAIL, "MPI_Init_thread failed", mpi_code);
+
+            H5FD_mpi_self_initialized_s = true;
+
+            if (provided != MPI_THREAD_MULTIPLE)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL,
+                            "MPI doesn't support MPI_Init_thread with MPI_THREAD_MULTIPLE");
+        }
+    }
+
+    /* Retrieve upper bound for MPI message tag value */
+    if (MPI_SUCCESS != (mpi_code = MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &H5FD_IOC_tag_ub_val_ptr,
+                                                     &key_val_retrieved)))
+        HMPI_GOTO_ERROR(FAIL, "MPI_Comm_get_attr failed", mpi_code);
+    if (!key_val_retrieved)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "couldn't retrieve value for MPI_TAG_UB");
+
+    /* Indicate that driver is set up */
+    H5FD_ioc_init_s = true;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__ioc_init() */
 
 /*---------------------------------------------------------------------------
  * Function:    H5FD__ioc_term
@@ -257,6 +273,7 @@ done:
  * Purpose:     Shut down the IOC VFD.
  *
  * Return:      SUCCEED/FAIL
+ *
  *---------------------------------------------------------------------------
  */
 static herr_t
@@ -266,26 +283,21 @@ H5FD__ioc_term(void)
 
     FUNC_ENTER_PACKAGE
 
-    if (H5FD_IOC_g >= 0) {
-        /* Terminate MPI if the driver initialized it */
-        if (H5FD_mpi_self_initialized) {
-            int mpi_finalized = 0;
-            int mpi_code;
+    /* Terminate MPI if the driver initialized it */
+    if (H5FD_mpi_self_initialized_s) {
+        int mpi_finalized = 0;
+        int mpi_code;
 
-            if (MPI_SUCCESS != (mpi_code = MPI_Finalized(&mpi_finalized)))
-                HMPI_GOTO_ERROR(FAIL, "MPI_Finalized failed", mpi_code);
-            if (!mpi_finalized)
-                if (MPI_SUCCESS != (mpi_code = MPI_Finalize()))
-                    HMPI_GOTO_ERROR(FAIL, "MPI_Finalize failed", mpi_code);
+        if (MPI_SUCCESS != (mpi_code = MPI_Finalized(&mpi_finalized)))
+            HMPI_GOTO_ERROR(FAIL, "MPI_Finalized failed", mpi_code);
+        if (!mpi_finalized)
+            if (MPI_SUCCESS != (mpi_code = MPI_Finalize()))
+                HMPI_GOTO_ERROR(FAIL, "MPI_Finalize failed", mpi_code);
 
-            H5FD_mpi_self_initialized = false;
-        }
+        H5FD_mpi_self_initialized_s = false;
     }
 
 done:
-    /* Reset VFL ID */
-    H5FD_IOC_g = H5I_INVALID_HID;
-
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__ioc_term() */
 
@@ -293,7 +305,7 @@ done:
  * Function:    H5Pset_fapl_ioc
  *
  * Purpose:     Sets the file access property list to use the
- *              ioc driver.
+ *              IOC driver.
  *
  * Return:      SUCCEED/FAIL
  *-------------------------------------------------------------------------
@@ -307,8 +319,13 @@ H5Pset_fapl_ioc(hid_t fapl_id, H5FD_ioc_config_t *vfd_config)
 
     FUNC_ENTER_API(FAIL)
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, false)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_ioc_init_s)
+        if (H5FD__ioc_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     if (vfd_config == NULL) {
         /* Get IOC VFD defaults */
@@ -330,7 +347,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_fapl_ioc
  *
- * Purpose:     Returns information about the ioc file access property
+ * Purpose:     Returns information about the IOC file access property
  *              list through the structure config_out.
  *
  *              Will fail if config_out is received without pre-set valid
@@ -352,8 +369,13 @@ H5Pget_fapl_ioc(hid_t fapl_id, H5FD_ioc_config_t *config_out)
     /* Check arguments */
     if (config_out == NULL)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "config_out is NULL");
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_ioc_init_s)
+        if (H5FD__ioc_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     if (H5FD_IOC != H5P_peek_driver(plist))
         use_default_config = true;
@@ -676,8 +698,13 @@ H5FD__ioc_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name");
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr");
-    if (ADDR_OVERFLOW(maxaddr))
+    if (H5FD_ADDR_OVERFLOW(maxaddr))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, NULL, "bogus maxaddr");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_ioc_init_s)
+        if (H5FD__ioc_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, NULL, "can't initialize driver");
 
     if (NULL == (file = (H5FD_ioc_t *)H5FL_CALLOC(H5FD_ioc_t)))
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate file struct");
@@ -695,7 +722,7 @@ H5FD__ioc_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
 
-    if (H5FD_mpi_self_initialized) {
+    if (H5FD_mpi_self_initialized_s) {
         file->comm = MPI_COMM_WORLD;
         file->info = MPI_INFO_NULL;
 
@@ -1062,7 +1089,7 @@ H5FD__ioc_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UNUS
     /* Check for overflow conditions */
     if (!H5_addr_defined(addr))
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "addr undefined, addr = %" PRIuHADDR, addr);
-    if (REGION_OVERFLOW(addr, size))
+    if (H5FD_REGION_OVERFLOW(addr, size))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow, addr = %" PRIuHADDR, addr);
 
     if (H5FD__ioc_read_vector_internal(file, 1, &addr, &size, &buf) < 0)
@@ -1192,8 +1219,17 @@ H5FD__ioc_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, bool H5_ATTR_UNU
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__ioc_truncate */
 
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__ioc_delete
+ *
+ * Purpose:     Delete a file
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
 static herr_t
-H5FD__ioc_del(const char *name, hid_t fapl)
+H5FD__ioc_delete(const char *name, hid_t fapl)
 {
     H5P_genplist_t *plist;
     MPI_Comm        comm          = MPI_COMM_NULL;
@@ -1208,11 +1244,16 @@ H5FD__ioc_del(const char *name, hid_t fapl)
 
     FUNC_ENTER_PACKAGE
 
-    if (NULL == (plist = H5P_object_verify(fapl, H5P_FILE_ACCESS)))
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_ioc_init_s)
+        if (H5FD__ioc_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
+
+    if (NULL == (plist = H5P_object_verify(fapl, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     assert(H5FD_IOC == H5P_peek_driver(plist));
 
-    if (H5FD_mpi_self_initialized)
+    if (H5FD_mpi_self_initialized_s)
         comm = MPI_COMM_WORLD;
     else {
         /* Get the MPI communicator and info from the fapl */
@@ -1314,7 +1355,7 @@ done:
                 HMPI_DONE_ERROR(FAIL, "MPI_Barrier failed", mpi_code);
     }
 
-    if (!H5FD_mpi_self_initialized) {
+    if (!H5FD_mpi_self_initialized_s) {
         /* Free duplicated MPI Communicator and Info objects */
         if (H5_mpi_comm_free(&comm) < 0)
             HDONE_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "unable to free MPI communicator");

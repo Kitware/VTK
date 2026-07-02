@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -105,9 +105,10 @@ done:
 herr_t
 H5A__get_shared_rc_test(hid_t attr_id, hsize_t *ref_count)
 {
-    H5A_t *attr;                     /* Attribute object for ID */
-    bool   api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t ret_value      = SUCCEED; /* Return value */
+    H5A_t      *attr;                         /* Attribute object for ID */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t      ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -116,7 +117,7 @@ H5A__get_shared_rc_test(hid_t attr_id, hsize_t *ref_count)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an attribute");
 
     /* Push API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 

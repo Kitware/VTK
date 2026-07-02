@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -32,7 +32,7 @@ static herr_t H5DS_is_reserved(hid_t did, bool *is_reserved);
  *-------------------------------------------------------------------------
  */
 herr_t
-H5DSwith_new_ref(hid_t obj_id, hbool_t *with_new_ref)
+H5DSwith_new_ref(hid_t obj_id, bool *with_new_ref)
 {
     bool config_flag = false;
     bool native      = false;

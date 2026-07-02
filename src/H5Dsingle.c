@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -122,18 +122,17 @@ H5D__single_idx_init(const H5D_chk_idx_info_t *idx_info, const H5S_t H5_ATTR_UNU
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
 
     if (idx_info->pline->nused) {
-        idx_info->layout->flags |= H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER;
+        idx_info->layout->u.chunk.flags |= H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER;
 
-        if (!H5_addr_defined(idx_info->storage->idx_addr)) {
-            idx_info->storage->u.single.nbytes      = 0;
-            idx_info->storage->u.single.filter_mask = 0;
+        if (!H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr)) {
+            idx_info->layout->storage.u.chunk.u.single.nbytes      = 0;
+            idx_info->layout->storage.u.chunk.u.single.filter_mask = 0;
         }
     }
     else
-        idx_info->layout->flags = 0;
+        idx_info->layout->u.chunk.flags = 0;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__single_idx_init() */
@@ -158,15 +157,14 @@ H5D__single_idx_create(const H5D_chk_idx_info_t *idx_info)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(idx_info->layout->max_nchunks == idx_info->layout->nchunks);
-    assert(idx_info->layout->nchunks == 1);
-    assert(!H5_addr_defined(idx_info->storage->idx_addr));
+    assert(idx_info->layout->u.chunk.max_nchunks == idx_info->layout->u.chunk.nchunks);
+    assert(idx_info->layout->u.chunk.nchunks == 1);
+    assert(!H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
 
     if (idx_info->pline->nused)
-        assert(idx_info->layout->flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER);
+        assert(idx_info->layout->u.chunk.flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER);
     else
-        assert(!(idx_info->layout->flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER));
+        assert(!(idx_info->layout->u.chunk.flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5D__single_idx_create() */
@@ -224,8 +222,8 @@ H5D__single_idx_is_open(const H5D_chk_idx_info_t H5_ATTR_NDEBUG_UNUSED *idx_info
     FUNC_ENTER_PACKAGE_NOERR
 
     assert(idx_info);
-    assert(idx_info->storage);
-    assert(H5D_CHUNK_IDX_SINGLE == idx_info->storage->idx_type);
+    assert(idx_info->layout);
+    assert(H5D_CHUNK_IDX_SINGLE == idx_info->layout->storage.u.chunk.idx_type);
     assert(is_open);
 
     *is_open = true;
@@ -274,18 +272,17 @@ H5D__single_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(idx_info->layout->nchunks == 1);
-    assert(idx_info->layout->max_nchunks == 1);
+    assert(idx_info->layout->u.chunk.nchunks == 1);
+    assert(idx_info->layout->u.chunk.max_nchunks == 1);
     assert(udata);
 
     /* Set the address for the chunk */
     assert(H5_addr_defined(udata->chunk_block.offset));
-    idx_info->storage->idx_addr = udata->chunk_block.offset;
+    idx_info->layout->storage.u.chunk.idx_addr = udata->chunk_block.offset;
 
     if (idx_info->pline->nused > 0) {
-        H5_CHECKED_ASSIGN(idx_info->storage->u.single.nbytes, uint32_t, udata->chunk_block.length, hsize_t);
-        idx_info->storage->u.single.filter_mask = udata->filter_mask;
+        idx_info->layout->storage.u.chunk.u.single.nbytes      = udata->chunk_block.length;
+        idx_info->layout->storage.u.chunk.u.single.filter_mask = udata->filter_mask;
     } /* end if */
 
     if (dset)
@@ -318,18 +315,17 @@ H5D__single_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *uda
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(idx_info->layout->nchunks == 1);
-    assert(idx_info->layout->max_nchunks == 1);
+    assert(idx_info->layout->u.chunk.nchunks == 1);
+    assert(idx_info->layout->u.chunk.max_nchunks == 1);
     assert(udata);
 
-    udata->chunk_block.offset = idx_info->storage->idx_addr;
-    if (idx_info->layout->flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER) {
-        udata->chunk_block.length = idx_info->storage->u.single.nbytes;
-        udata->filter_mask        = idx_info->storage->u.single.filter_mask;
+    udata->chunk_block.offset = idx_info->layout->storage.u.chunk.idx_addr;
+    if (idx_info->layout->u.chunk.flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER) {
+        udata->chunk_block.length = idx_info->layout->storage.u.chunk.u.single.nbytes;
+        udata->filter_mask        = idx_info->layout->storage.u.chunk.u.single.filter_mask;
     } /* end if */
     else {
-        udata->chunk_block.length = idx_info->layout->size;
+        udata->chunk_block.length = idx_info->layout->u.chunk.size;
         udata->filter_mask        = 0;
     } /* end else */
     if (!H5_addr_defined(udata->chunk_block.offset))
@@ -380,21 +376,20 @@ H5D__single_idx_iterate(const H5D_chk_idx_info_t *idx_info, H5D_chunk_cb_func_t 
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
     assert(chunk_cb);
     assert(chunk_udata);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
 
     /* Initialize generic chunk record */
     memset(&chunk_rec, 0, sizeof(chunk_rec));
-    chunk_rec.chunk_addr = idx_info->storage->idx_addr;
+    chunk_rec.chunk_addr = idx_info->layout->storage.u.chunk.idx_addr;
 
-    if (idx_info->layout->flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER) {
-        chunk_rec.nbytes      = idx_info->storage->u.single.nbytes;
-        chunk_rec.filter_mask = idx_info->storage->u.single.filter_mask;
+    if (idx_info->layout->u.chunk.flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER) {
+        chunk_rec.nbytes      = idx_info->layout->storage.u.chunk.u.single.nbytes;
+        chunk_rec.filter_mask = idx_info->layout->storage.u.chunk.u.single.filter_mask;
     } /* end if */
     else {
-        chunk_rec.nbytes      = idx_info->layout->size;
+        chunk_rec.nbytes      = idx_info->layout->u.chunk.size;
         chunk_rec.filter_mask = 0;
     } /* end else */
 
@@ -427,18 +422,17 @@ H5D__single_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
 
-    if (idx_info->layout->flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER)
-        nbytes = idx_info->storage->u.single.nbytes;
+    if (idx_info->layout->u.chunk.flags & H5O_LAYOUT_CHUNK_SINGLE_INDEX_WITH_FILTER)
+        nbytes = idx_info->layout->storage.u.chunk.u.single.nbytes;
     else
-        nbytes = idx_info->layout->size;
+        nbytes = idx_info->layout->u.chunk.size;
 
-    if (H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, idx_info->storage->idx_addr, nbytes) < 0)
+    if (H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, idx_info->layout->storage.u.chunk.idx_addr, nbytes) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, H5_ITER_ERROR, "unable to free dataset chunks");
 
-    idx_info->storage->idx_addr = HADDR_UNDEF;
+    idx_info->layout->storage.u.chunk.idx_addr = HADDR_UNDEF;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -467,12 +461,11 @@ H5D__single_idx_delete(const H5D_chk_idx_info_t *idx_info)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
 
-    if (H5_addr_defined(idx_info->storage->idx_addr))
+    if (H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr))
         ret_value = H5D__single_idx_remove(idx_info, NULL);
     else
-        assert(!H5_addr_defined(idx_info->storage->idx_addr));
+        assert(!H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__single_idx_delete() */
@@ -500,14 +493,12 @@ H5D__single_idx_copy_setup(const H5D_chk_idx_info_t H5_ATTR_NDEBUG_UNUSED *idx_i
     assert(idx_info_src->f);
     assert(idx_info_src->pline);
     assert(idx_info_src->layout);
-    assert(idx_info_src->storage);
-    assert(H5_addr_defined(idx_info_src->storage->idx_addr));
+    assert(H5_addr_defined(idx_info_src->layout->storage.u.chunk.idx_addr));
 
     assert(idx_info_dst);
     assert(idx_info_dst->f);
     assert(idx_info_dst->pline);
     assert(idx_info_dst->layout);
-    assert(idx_info_dst->storage);
 
     /* Set copied metadata tag */
     H5_BEGIN_TAG(H5AC__COPIED_TAG)

@@ -4,22 +4,48 @@
 #
 # This file is part of HDF5.  The full HDF5 copyright notice, including
 # terms governing use, modification, and redistribution, is contained in
-# the COPYING file, which can be found at the root of the source code
+# the LICENSE file, which can be found at the root of the source code
 # distribution tree, or in https://www.hdfgroup.org/licenses.
 # If you do not have access to either file, you may request a copy from
 # help@hdfgroup.org.
 #
+
+# -----------------------------------------------------------------------------
+# HDF5 CMake Filter Support Configuration
+# -----------------------------------------------------------------------------
+# This CMake module configures support for external compression filters in HDF5,
+# specifically ZLIB (including zlib-ng) and SZIP (libaec). It provides options
+# for enabling/disabling filter support, selecting static/shared builds, and
+# controlling how dependencies are found or built (external, local, or via GIT/TGZ).
+#
+# Key Features:
+# - Options to enable/disable ZLIB and SZIP support, and select static/shared linking.
+# - Support for using zlib-ng as a drop-in replacement for zlib.
+# - Support for building dependencies externally (via GIT or TGZ) or using system libraries.
+# - Handles configuration of include directories, library targets, and CMake variables
+#   for downstream use.
+# - Sets up required variables for HDF5 to use the DEFLATE and SZIP filters.
+#
+# Usage:
+#   HDF5 includes this file from the main CMakeLists.txt if ZLIB or SZIP filter support in HDF5
+#   is enabled. Configure options as needed before including this file.
+#
+# See comments throughout for details on each option and logic branch.
+# -----------------------------------------------------------------------------
+
+# Specify major options at the top of the file
+# -----------------------------------------------------------------------------
 if (FALSE) # XXX(kitware): avoid this showing up in VTK's cache file
-option (HDF5_USE_ZLIB_NG "Use zlib-ng library as zlib library" OFF)
-option (HDF5_USE_ZLIB_STATIC "Find static zlib library" OFF)
-option (HDF5_USE_LIBAEC_STATIC "Find static AEC library" OFF)
+cmake_dependent_option (HDF5_USE_ZLIB_NG "Use zlib-ng library as zlib library" OFF HDF5_ENABLE_ZLIB_SUPPORT OFF)
+cmake_dependent_option (HDF5_USE_ZLIB_STATIC "Find static zlib library" OFF HDF5_ENABLE_ZLIB_SUPPORT OFF)
+cmake_dependent_option (HDF5_USE_LIBAEC_STATIC "Find static AEC library" OFF HDF5_ENABLE_SZIP_SUPPORT OFF)
 option (ZLIB_USE_EXTERNAL "Use External Library Building for ZLIB" OFF)
 mark_as_advanced (ZLIB_USE_EXTERNAL)
 option (SZIP_USE_EXTERNAL "Use External Library Building for SZIP" OFF)
 mark_as_advanced (SZIP_USE_EXTERNAL)
-option (ZLIB_USE_LOCALCONTENT "Use local file for ZLIB FetchContent" OFF)
+cmake_dependent_option (ZLIB_USE_LOCALCONTENT "Use local file for ZLIB FetchContent" OFF HDF5_ENABLE_ZLIB_SUPPORT OFF)
 mark_as_advanced (ZLIB_USE_LOCALCONTENT)
-option (LIBAEC_USE_LOCALCONTENT "Use local file for LIBAEC FetchContent" OFF)
+cmake_dependent_option (LIBAEC_USE_LOCALCONTENT "Use local file for LIBAEC FetchContent" OFF HDF5_ENABLE_SZIP_SUPPORT OFF)
 mark_as_advanced (LIBAEC_USE_LOCALCONTENT)
 else ()
 set (HDF5_USE_ZLIB_NG OFF)
@@ -31,30 +57,14 @@ set (ZLIB_USE_LOCALCONTENT OFF)
 set (LIBAEC_USE_LOCALCONTENT OFF)
 endif ()
 
-if (NOT ZLIB_USE_LOCALCONTENT)
-  if (HDF5_USE_ZLIB_NG)
-    set (ZLIB_URL ${ZLIBNG_TGZ_ORIGPATH}/${ZLIBNG_TGZ_NAME})
-  else ()
-    set (ZLIB_URL ${ZLIB_TGZ_ORIGPATH}/${ZLIB_TGZ_NAME})
-  endif ()
-else ()
-  if (HDF5_USE_ZLIB_NG)
-    set (ZLIB_URL ${TGZPATH}/${ZLIBNG_TGZ_NAME})
-  else ()
-    set (ZLIB_URL ${TGZPATH}/${ZLIB_TGZ_NAME})
-  endif ()
-endif ()
-#message (VERBOSE "Filter ZLIB file is ${ZLIB_URL}")
 
-if (NOT LIBAEC_USE_LOCALCONTENT)
-  set (SZIP_URL ${LIBAEC_TGZ_ORIGPATH}/${LIBAEC_TGZ_NAME})
-else ()
-  set (SZIP_URL ${TGZPATH}/${LIBAEC_TGZ_NAME})
-endif ()
-#message (VERBOSE "Filter SZIP file is ${SZIP_URL}")
-
+# -----------------------------------------------------------------------------
+# the ExternalProject module is needed for building compression libraries from source
 if (FALSE) # XXX(kitware): Hardcode settings.
 include (ExternalProject)
+
+# If compression libraries will be built from source, then choose which method and
+# source location.
 #option (HDF5_ALLOW_EXTERNAL_SUPPORT "Allow External Library Building (NO GIT TGZ)" "NO")
 set (HDF5_ALLOW_EXTERNAL_SUPPORT "NO" CACHE STRING "Allow External Library Building (NO GIT TGZ)")
 set_property (CACHE HDF5_ALLOW_EXTERNAL_SUPPORT PROPERTY STRINGS NO GIT TGZ)
@@ -62,31 +72,53 @@ else ()
 set(HDF5_ALLOW_EXTERNAL_SUPPORT NO)
 endif ()
 if (HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "GIT" OR HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "TGZ")
-  set (ZLIB_USE_EXTERNAL ON CACHE BOOL "Use External Library Building for ZLIB else search" FORCE)
-  set (SZIP_USE_EXTERNAL ON CACHE BOOL "Use External Library Building for SZIP else search" FORCE)
   if (HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "GIT")
-    set (ZLIB_URL ${ZLIB_GIT_URL} CACHE STRING "Path to zlib git repository")
-    set (ZLIB_BRANCH ${ZLIB_GIT_BRANCH})
+    if (HDF5_USE_ZLIB_NG)
+      set (ZLIB_URL ${ZLIBNG_GIT_URL} CACHE STRING "Path to zlib-ng git repository")
+      set (ZLIB_BRANCH ${ZLIBNG_GIT_BRANCH})
+    else ()
+      set (ZLIB_URL ${ZLIB_GIT_URL} CACHE STRING "Path to zlib git repository")
+      set (ZLIB_BRANCH ${ZLIB_GIT_BRANCH})
+    endif ()
+    
     set (SZIP_URL ${LIBAEC_GIT_URL} CACHE STRING "Path to szip git repository")
     set (SZIP_BRANCH ${LIBAEC_GIT_BRANCH})
   elseif (HDF5_ALLOW_EXTERNAL_SUPPORT MATCHES "TGZ")
     if (NOT TGZPATH)
       set (TGZPATH ${HDF5_SOURCE_DIR})
     endif ()
-    if (ZLIB_USE_LOCALCONTENT)
+    if (NOT ZLIB_USE_LOCALCONTENT)
+      if (HDF5_USE_ZLIB_NG)
+        set (ZLIB_URL ${ZLIBNG_TGZ_ORIGPATH}/${ZLIBNG_TGZ_NAME})
+      else ()
+        set (ZLIB_URL ${ZLIB_TGZ_ORIGPATH}/${ZLIB_TGZ_NAME})
+      endif ()
+    else ()
+      if (HDF5_USE_ZLIB_NG)
+        set (ZLIB_URL ${TGZPATH}/${ZLIBNG_TGZ_NAME})
+      else ()
+        set (ZLIB_URL ${TGZPATH}/${ZLIB_TGZ_NAME})
+      endif ()
       if (NOT EXISTS "${ZLIB_URL}")
-        set (HDF5_ENABLE_Z_LIB_SUPPORT OFF CACHE BOOL "" FORCE)
+        set (HDF5_ENABLE_ZLIB_SUPPORT OFF CACHE BOOL "" FORCE)
         #message (VERBOSE "Filter ZLIB file ${ZLIB_URL} not found")
       endif ()
     endif ()
-    if (LIBAEC_USE_LOCALCONTENT)
+    #message (VERBOSE "Filter ZLIB URL is ${ZLIB_URL}")
+
+    if (NOT LIBAEC_USE_LOCALCONTENT)
+      set (SZIP_URL ${LIBAEC_TGZ_ORIGPATH}/${LIBAEC_TGZ_NAME})
+    else ()
+      set (SZIP_URL ${TGZPATH}/${LIBAEC_TGZ_NAME})
       if (NOT EXISTS "${SZIP_URL}")
         set (HDF5_ENABLE_SZIP_SUPPORT OFF CACHE BOOL "" FORCE)
         #message (VERBOSE "Filter SZIP file ${SZIP_URL} not found")
       endif ()
     endif ()
+    #message (VERBOSE "Filter SZIP URL is ${SZIP_URL}")
+
   else ()
-    set (HDF5_ENABLE_Z_LIB_SUPPORT OFF CACHE BOOL "" FORCE)
+    set (HDF5_ENABLE_ZLIB_SUPPORT OFF CACHE BOOL "" FORCE)
     set (ZLIB_USE_EXTERNAL OFF CACHE BOOL "Use External Library Building for ZLIB else search")
     set (HDF5_ENABLE_SZIP_SUPPORT OFF CACHE BOOL "" FORCE)
     set (SZIP_USE_EXTERNAL OFF CACHE BOOL "Use External Library Building for SZIP else search")
@@ -96,44 +128,45 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option for ZLib support
 #-----------------------------------------------------------------------------
-set(H5_ZLIB_FOUND FALSE)
-if(NOT DEFINED ZLIB_PACKAGE_NAME)
-  set(ZLIB_PACKAGE_NAME "zlib")
+set (H5_ZLIB_FOUND FALSE)
+# Choose which zlib package to use by name
+if (NOT DEFINED ZLIB_PACKAGE_NAME)
+  set (ZLIB_PACKAGE_NAME "zlib")
 endif ()
-if(NOT DEFINED ZLIBNG_PACKAGE_NAME)
-  set(ZLIBNG_PACKAGE_NAME "zlib-ng")
+if (NOT DEFINED ZLIBNG_PACKAGE_NAME)
+  set (ZLIBNG_PACKAGE_NAME "zlib-ng")
 endif ()
-if (HDF5_ENABLE_Z_LIB_SUPPORT)
+if (HDF5_ENABLE_ZLIB_SUPPORT)
   # XXX(kitware): Use vtkzlib.
   set(H5_ZLIB_HEADER "vtk_zlib.h")
-  if (NOT H5_ZLIB_HEADER)
-    if (NOT ZLIB_USE_EXTERNAL)
-      option (HDF5_MODULE_MODE_ZLIB "Find the default system ZLIB in module mode" ON)
+  if (NOT H5_ZLIB_HEADER) # This checks if zlib has already been found/built
+    if (NOT ZLIB_USE_EXTERNAL) # This checks if zlib should be found on the system or built from an external source
+      cmake_dependent_option (HDF5_MODULE_MODE_ZLIB "Prefer module mode to find ZLIB" ON "NOT ZLIB_USE_EXTERNAL" OFF)
       mark_as_advanced (HDF5_MODULE_MODE_ZLIB)
       if (HDF5_USE_ZLIB_NG)
         set (HDF5_MODULE_MODE_ZLIB OFF CACHE BOOL "" FORCE)
-        set (PACKAGE_NAME ${ZLIBNG_PACKAGE_NAME}${HDF_PACKAGE_EXT})
+        set (Z_PACKAGE_NAME ${ZLIBNG_PACKAGE_NAME}${HDF_PACKAGE_EXT})
       else ()
-        set (PACKAGE_NAME ${ZLIB_PACKAGE_NAME}${HDF_PACKAGE_EXT})
+        set (Z_PACKAGE_NAME ${ZLIB_PACKAGE_NAME}${HDF_PACKAGE_EXT})
       endif ()
-      set(ZLIB_FOUND FALSE)
-      #message (VERBOSE "Filter HDF5_ZLIB package name:${PACKAGE_NAME}")
+      set (ZLIB_FOUND FALSE)
+      #message (VERBOSE "Filter HDF5_ZLIB package name:${Z_PACKAGE_NAME}")
       if (HDF5_MODULE_MODE_ZLIB)
         # Expect that the default shared library is expected with FindZLIB.cmake
         find_package (ZLIB MODULE)
       else ()
         # Expect that a correctly built library with CMake config files is available
         if (HDF5_USE_ZLIB_STATIC)
-          set(ZLIB_SEARCH_TYPE static)
+          set (ZLIB_SEARCH_TYPE "static")
           if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-            set(ZLIB_USE_STATIC_LIBS  ${HDF5_USE_ZLIB_STATIC})
-          endif()
+            set (ZLIB_USE_STATIC_LIBS  ${HDF5_USE_ZLIB_STATIC})
+          endif ()
         else ()
-          set(ZLIB_SEARCH_TYPE shared)
+          set (ZLIB_SEARCH_TYPE "shared")
         endif ()
-        find_package (ZLIB NAMES ${PACKAGE_NAME} CONFIG OPTIONAL_COMPONENTS ${ZLIB_SEARCH_TYPE})
+        find_package (ZLIB NAMES ${Z_PACKAGE_NAME} CONFIG OPTIONAL_COMPONENTS ${ZLIB_SEARCH_TYPE})
       endif ()
-      set(H5_ZLIB_FOUND ZLIB_FOUND})
+      set (H5_ZLIB_FOUND ${ZLIB_FOUND})
       if (H5_ZLIB_FOUND)
         if (HDF5_USE_ZLIB_NG)
           set (H5_ZLIB_HEADER "zlib-ng.h")
@@ -142,13 +175,6 @@ if (HDF5_ENABLE_Z_LIB_SUPPORT)
         endif ()
         set (H5_ZLIB_INCLUDE_DIR_GEN ${ZLIB_INCLUDE_DIR})
         set (H5_ZLIB_INCLUDE_DIRS ${H5_ZLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
-        if (NOT WIN32) #windows has a list of names
-          # The FindZLIB.cmake module does not set an OUTPUT_NAME
-          # on the target. The target returned is: ZLIB::ZLIB
-          get_filename_component (libname ${ZLIB_LIBRARIES} NAME_WLE)
-          string (REGEX REPLACE "^lib" "" libname ${libname})
-          set_target_properties (ZLIB::ZLIB PROPERTIES OUTPUT_NAME ${libname})
-        endif ()
         set (LINK_COMP_LIBS ${LINK_COMP_LIBS} ZLIB::ZLIB)
       endif ()
     else ()
@@ -160,12 +186,12 @@ if (HDF5_ENABLE_Z_LIB_SUPPORT)
     endif ()
   else ()
     # This project is being called from within another and ZLib is already configured
-    set(H5_ZLIB_FOUND TRUE)
+    set (H5_ZLIB_FOUND TRUE)
   endif ()
   if (H5_ZLIB_FOUND)
     set (H5_HAVE_FILTER_DEFLATE 1)
     set (H5_HAVE_ZLIB_H 1)
-    if (HDF5_USE_ZLIB_NG)
+    if (HDF5_USE_ZLIB_NG AND NOT ZLIB_COMPAT)
       set (H5_HAVE_ZLIBNG_H 1)
     endif ()
     set (H5_HAVE_LIBZ 1)
@@ -173,10 +199,10 @@ if (HDF5_ENABLE_Z_LIB_SUPPORT)
       set (EXTERNAL_FILTERS "${EXTERNAL_FILTERS} DEFLATE")
     endif ()
     set (HDF5_COMP_INCLUDE_DIRECTORIES "${HDF5_COMP_INCLUDE_DIRECTORIES};${H5_ZLIB_INCLUDE_DIRS}")
-    # message (VERBOSE "Filter HDF5_ZLIB is ON")
+    #message (VERBOSE "Filter HDF5_ZLIB is ON")
   else ()
-    set (HDF5_ENABLE_Z_LIB_SUPPORT OFF CACHE BOOL "" FORCE)
-    # message (WARNING " ZLib support in HDF5 was enabled but not found")
+    set (HDF5_ENABLE_ZLIB_SUPPORT OFF CACHE BOOL "" FORCE)
+    #message (FATAL_ERROR " ZLib support in HDF5 was enabled but not found")
   endif ()
   #message (VERBOSE "H5_ZLIB_HEADER=${H5_ZLIB_HEADER}")
 endif ()
@@ -184,29 +210,34 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option for SzLib support
 #-----------------------------------------------------------------------------
-set(H5_SZIP_FOUND FALSE)
-if(NOT DEFINED LIBAEC_PACKAGE_NAME)
-  set(LIBAEC_PACKAGE_NAME "libaec")
+set (H5_SZIP_FOUND FALSE)
+# Choose which szip package to use by name
+if (NOT DEFINED LIBAEC_PACKAGE_NAME)
+  set (LIBAEC_PACKAGE_NAME "libaec")
 endif ()
 if (FALSE) # XXX(kitware): no need for szip support.
 option (HDF5_ENABLE_SZIP_SUPPORT "Use SZip Filter" OFF)
 if (HDF5_ENABLE_SZIP_SUPPORT)
-  option (HDF5_ENABLE_SZIP_ENCODING "Use SZip Encoding" ON)
-  if (NOT SZIP_USE_EXTERNAL)
+  cmake_dependent_option (HDF5_ENABLE_SZIP_ENCODING "Use SZip Encoding" ON HDF5_ENABLE_SZIP_SUPPORT OFF)
+  if (NOT SZIP_USE_EXTERNAL) # This checks if szip should be found on the system or built from an external source
     if (HDF5_USE_LIBAEC_STATIC)
-      set(LIBAEC_SEARCH_TYPE static)
+      set (LIBAEC_SEARCH_TYPE "static")
     else ()
-      set(LIBAEC_SEARCH_TYPE shared)
+      set (LIBAEC_SEARCH_TYPE "shared")
     endif ()
-    set(libaec_USE_STATIC_LIBS ${HDF5_USE_LIBAEC_STATIC})
-    set(SZIP_FOUND FALSE)
-    # Search pure Config mode, there is not a FindSZIP module available
-    find_package (${LIBAEC_PACKAGE_NAME} NAMES ${LIBAEC_PACKAGE_NAME}${HDF_PACKAGE_EXT} OPTIONAL_COMPONENTS ${LIBAEC_SEARCH_TYPE})
-    set(H5_SZIP_FOUND ${${LIBAEC_PACKAGE_NAME}_FOUND})
+    set (libaec_USE_STATIC_LIBS ${HDF5_USE_LIBAEC_STATIC})
+    set (SZIP_FOUND FALSE)
+    find_package (${LIBAEC_PACKAGE_NAME} OPTIONAL_COMPONENTS ${LIBAEC_SEARCH_TYPE})
+    set (H5_SZIP_FOUND ${${LIBAEC_PACKAGE_NAME}_FOUND})
     if (H5_SZIP_FOUND)
       set (H5_SZIP_INCLUDE_DIR_GEN ${SZIP_INCLUDE_DIR})
       set (H5_SZIP_INCLUDE_DIRS ${H5_SZIP_INCLUDE_DIRS} ${SZIP_INCLUDE_DIR})
-      if(LIBAEC_PACKAGE_NAME STREQUAL "libaec")
+      if (LIBAEC_PACKAGE_NAME STREQUAL "libaec")
+        # When using libaec to replace SZIP, we require that the libsz compatibility library is available
+        if (NOT libsz_FOUND)
+          set (HDF5_ENABLE_SZIP_SUPPORT OFF CACHE BOOL "" FORCE)
+          message (FATAL_ERROR "SZIP support in HDF5 was enabled and libaec was found, but no libsz compatibility library was found")
+        endif ()
         set (LINK_COMP_LIBS ${LINK_COMP_LIBS} libaec::sz libaec::aec)
       else ()
         set (LINK_COMP_LIBS ${LINK_COMP_LIBS} ${SZIP_LIBRARIES})
@@ -236,7 +267,7 @@ if (HDF5_ENABLE_SZIP_SUPPORT)
     endif ()
   else ()
     set (HDF5_ENABLE_SZIP_SUPPORT OFF CACHE BOOL "" FORCE)
-    #message (WARNING "SZIP support in HDF5 was enabled but not found")
+    #message (FATAL_ERROR "SZIP support in HDF5 was enabled but not found")
   endif ()
 endif ()
 endif ()

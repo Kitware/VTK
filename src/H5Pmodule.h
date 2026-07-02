@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,10 +22,13 @@
  *      reporting macros.
  */
 #define H5P_MODULE
-#define H5_MY_PKG     H5P
-#define H5_MY_PKG_ERR H5E_PLIST
+#define H5_MY_PKG      H5P
+#define H5_MY_PKG_INIT YES
 
 /** \page H5P_UG  Properties and Property Lists in HDF5
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_plist Properties and Property Lists in HDF5
  *
@@ -290,13 +293,36 @@
  * See \ref subsec_attribute_work.
  *   </td>
  * </tr>
+ * <tr valign="top">
+ *   <td>
+ * Map creation (MCPL)
+ *   </td>
+ *   <td>
+ * \ref H5P_MAP_CREATE
+ *   </td>
+ *   <td>
+ * See \ref subsec_map_plist. Only available with VOL connectors that support maps.
+ *   </td>
+ * </tr>
+ * <tr valign="top">
+ *   <td>
+ * Map access (MAPL)
+ *   </td>
+ *   <td>
+ * \ref H5P_MAP_ACCESS
+ *   </td>
+ *   <td>
+ * See \ref subsec_map_plist. Only available with VOL connectors that support maps.
+ *   </td>
+ * </tr>
  * </table>
  *
  * Note: In the table above, the abbreviations to the right of each property list class name in this
  * table are widely used in both HDF5 programmer documentation and HDF5 source code. For
  * example, \ref FCPL (FCPL) is the file creation property list, \ref OCPL (OCPL) is the object creation
- * property list, \ref OCPYPL (OCPYPL) is object copy property list, and \ref STRCPL (STRCPL) is the string
- * creation property list. These abbreviations may appear in either uppercase or lowercase.
+ * property list, \ref OCPYPL (OCPYPL) is object copy property list, \ref STRCPL (STRCPL) is the string
+ * creation property list, and \ref MCPL (MCPL) and \ref MAPL (MAPL) are the map creation and access
+ * property lists. These abbreviations may appear in either uppercase or lowercase.
  *
  * The “HDF5 property list class inheritance hierarchy” figure, immediately following, illustrates
  * the inheritance hierarchy of HDF5's property list classes. Properties are defined at the root of the
@@ -878,6 +904,11 @@
  *
  * Previous Chapter \ref sec_error - Next Chapter \ref sec_vol
  *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
+ */
+
+/**
  * \defgroup H5P Property Lists (H5P)
  *
  * Use the functions in this module to manage HDF5 property lists and property
@@ -1050,7 +1081,7 @@
  * created.
  * <div>
  * \snippet{doc} tables/propertyLists.dox fcpl_table
-  * </div>
+ * </div>
  *
  * \defgroup GAPL Group Access Properties
  * \ingroup LAPL
@@ -1111,6 +1142,11 @@
  * \defgroup TAPL Datatype Access Properties
  * \ingroup LAPL
  * TAPL isn't supported yet.
+ *
+ *
+ * \defgroup MCPL Map Creation Properties
+ * \ingroup H5P
+ * Properties for map object creation.
  *
  *
  * \defgroup MAPL VOL Data Mapping Properties

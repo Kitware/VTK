@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -988,7 +988,7 @@ done:
  *-------------------------------------------------------------------------
  */
 hsize_t
-H5VM_chunk_index(unsigned ndims, const hsize_t *coord, const uint32_t *chunk, const hsize_t *down_nchunks)
+H5VM_chunk_index(unsigned ndims, const hsize_t *coord, const hsize_t *chunk, const hsize_t *down_nchunks)
 {
     hsize_t scaled_coord[H5VM_HYPER_NDIMS]; /* Scaled, coordinates, in terms of chunks */
     hsize_t chunk_idx;                      /* Chunk index computed */
@@ -1017,7 +1017,7 @@ H5VM_chunk_index(unsigned ndims, const hsize_t *coord, const uint32_t *chunk, co
  *-------------------------------------------------------------------------
  */
 void
-H5VM_chunk_scaled(unsigned ndims, const hsize_t *coord, const uint32_t *chunk, hsize_t *scaled)
+H5VM_chunk_scaled(unsigned ndims, const hsize_t *coord, const hsize_t *chunk, hsize_t *scaled)
 {
     unsigned u; /* Local index variable */
 
@@ -1078,7 +1078,7 @@ H5VM_chunk_scaled(unsigned ndims, const hsize_t *coord, const uint32_t *chunk, h
  *-------------------------------------------------------------------------
  */
 hsize_t
-H5VM_chunk_index_scaled(unsigned ndims, const hsize_t *coord, const uint32_t *chunk,
+H5VM_chunk_index_scaled(unsigned ndims, const hsize_t *coord, const hsize_t *chunk,
                         const hsize_t *down_nchunks, hsize_t *scaled)
 {
     hsize_t  chunk_idx; /* Computed chunk index */

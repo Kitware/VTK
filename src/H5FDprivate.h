@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -109,6 +109,7 @@ struct H5S_t;
 struct H5F_t;
 union H5PL_key_t;
 
+H5_DLL herr_t        H5FD_init(void);
 H5_DLL int           H5FD_term_interface(void);
 H5_DLL herr_t        H5FD_locate_signature(H5FD_t *file, haddr_t *sig_addr);
 H5_DLL H5FD_class_t *H5FD_get_class(hid_t id);
@@ -124,7 +125,7 @@ H5_DLL htri_t        H5FD_is_driver_registered_by_name(const char *driver_name, 
 H5_DLL htri_t  H5FD_is_driver_registered_by_value(H5FD_class_value_t driver_value, hid_t *registered_id);
 H5_DLL hid_t   H5FD_get_driver_id_by_name(const char *name, bool is_api);
 H5_DLL hid_t   H5FD_get_driver_id_by_value(H5FD_class_value_t value, bool is_api);
-H5_DLL herr_t  H5FD_open(bool try, H5FD_t **file, const char *name, unsigned flags, hid_t fapl_id,
+H5_DLL herr_t  H5FD_open(bool attempt, H5FD_t **file, const char *name, unsigned flags, hid_t fapl_id,
                          haddr_t maxaddr);
 H5_DLL herr_t  H5FD_close(H5FD_t *file);
 H5_DLL int     H5FD_cmp(const H5FD_t *f1, const H5FD_t *f2);
@@ -197,7 +198,6 @@ H5_DLL herr_t H5FD_sort_selection_io_req(bool *selection_was_sorted, size_t coun
                                          H5_flexible_const_ptr_t bufs[], hid_t **s_mem_space_ids,
                                          hid_t **s_file_space_ids, haddr_t **s_offsets_ptr,
                                          size_t **s_element_sizes_ptr, H5_flexible_const_ptr_t **s_bufs_ptr);
-H5_DLL herr_t H5FD_init(void);
 
 /* Function prototypes for MPI based VFDs*/
 #ifdef H5_HAVE_PARALLEL

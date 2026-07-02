@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -103,7 +103,7 @@ H5D__read(size_t count, H5D_dset_io_info_t *dset_info)
     char   fake_char; /* Temporary variable for NULL buffer pointers */
     herr_t ret_value = SUCCEED; /* Return value	*/
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
 #ifdef H5_HAVE_PARALLEL
     /* Reset the actual io mode properties to the default values in case
@@ -530,7 +530,7 @@ H5D__write(size_t count, H5D_dset_io_info_t *dset_info)
     char           fake_char;                 /* Temporary variable for NULL buffer pointers */
     herr_t         ret_value = SUCCEED;       /* Return value	*/
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
 #ifdef H5_HAVE_PARALLEL
     /* Reset the actual io mode properties to the default values in case
@@ -568,6 +568,10 @@ H5D__write(size_t count, H5D_dset_io_info_t *dset_info)
 
         /* All filters in the DCPL must have encoding enabled. */
         if (!dset_info[i].dset->shared->checked_filters) {
+            /* Flush layout to DCPL before readaing */
+            if (H5D_flush_layout_to_dcpl(dset_info[i].dset) < 0)
+                HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to flush layout");
+
             if (H5Z_can_apply(dset_info[i].dset->shared->dcpl_id, dset_info[i].dset->shared->type_id) < 0)
                 HGOTO_ERROR(H5E_PLINE, H5E_CANAPPLY, FAIL, "can't apply filters");
 
@@ -1189,9 +1193,15 @@ H5D__typeinfo_init_phase2(H5D_io_info_t *io_info)
 
             /* Check for background buffer */
             if (type_info->need_bkg) {
-                /* Add size of this dataset's background buffer to the global background buffer size
-                 */
-                io_info->bkg_buf_size += io_info->dsets_info[i].nelmts * type_info->dst_type_size;
+                hsize_t bkg_buf_hsize;
+
+                /* Add size of this dataset's background buffer to the global background buffer size. Make
+                 * sure to check for overflow and disable selection I/O if it happens. */
+                H5_CHECKED_ASSIGN(bkg_buf_hsize, hsize_t, io_info->bkg_buf_size, size_t);
+                bkg_buf_hsize += io_info->dsets_info[i].nelmts * type_info->dst_type_size;
+                io_info->bkg_buf_size = (size_t)bkg_buf_hsize;
+                if (H5_UNLIKELY((hsize_t)io_info->bkg_buf_size != bkg_buf_hsize))
+                    io_info->tconv_buf_overflow = true;
 
                 /* Check if we need to fill the background buffer with the destination contents */
                 if (type_info->need_bkg == H5T_BKG_YES)
@@ -1204,14 +1214,14 @@ H5D__typeinfo_init_phase2(H5D_io_info_t *io_info)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't retrieve max. temp. buf size");
 
         /* Check if the needed type conversion or background buffer size is too big */
-        if (io_info->tconv_buf_size > max_temp_buf) {
+        if (io_info->tconv_buf_size > max_temp_buf || io_info->tconv_buf_overflow) {
             io_info->use_select_io = H5D_SELECTION_IO_MODE_OFF;
             io_info->no_selection_io_cause |= H5D_SEL_IO_TCONV_BUF_TOO_SMALL;
             io_info->tconv_buf_size = 0;
             io_info->bkg_buf_size   = 0;
             io_info->must_fill_bkg  = false;
         }
-        if (io_info->bkg_buf_size > max_temp_buf) {
+        if (io_info->bkg_buf_size > max_temp_buf || io_info->tconv_buf_overflow) {
             io_info->use_select_io = H5D_SELECTION_IO_MODE_OFF;
             io_info->no_selection_io_cause |= H5D_SEL_IO_BKG_BUF_TOO_SMALL;
             io_info->tconv_buf_size = 0;

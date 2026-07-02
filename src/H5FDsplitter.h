@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -17,10 +17,13 @@
 #ifndef H5FDsplitter_H
 #define H5FDsplitter_H
 
-/** Initializer for the splitter VFD */
-#define H5FD_SPLITTER (H5FDperform_init(H5FD_splitter_init))
+/* Public header files */
+#include "H5FDpublic.h" /* File drivers             */
 
-/** Identifier for the splitter VFD */
+/** ID for the splitter VFD */
+#define H5FD_SPLITTER (H5OPEN H5FD_SPLITTER_id_g)
+
+/** Identifier for the splitter VFD \since 1.14.0 */
 #define H5FD_SPLITTER_VALUE H5_VFD_SPLITTER
 
 /** The version of the H5FD_splitter_vfd_config_t structure used */
@@ -28,7 +31,8 @@
 
 /**
  * Maximum length of a filename/path string in the Write-Only channel,
- * including the NULL-terminator. \since 1.10.7
+ * including the NULL-terminator.
+ * \since 1.10.7
  */
 #define H5FD_SPLITTER_PATH_MAX 4096
 
@@ -51,7 +55,7 @@ typedef struct H5FD_splitter_vfd_config_t {
     char log_file_path[H5FD_SPLITTER_PATH_MAX + 1]; /**< Path to the log file, which will be created on HDF5
                                                        file open (existing files will be clobbered). Can be
                                                        NULL, in which case no logging output is generated. */
-    hbool_t ignore_wo_errs;                         /**< Whether to ignore errors on the write-only channel */
+    bool ignore_wo_errs;                            /**< Whether to ignore errors on the write-only channel */
 } H5FD_splitter_vfd_config_t;
 //! <!-- [H5FD_splitter_vfd_config_t_snip] -->
 
@@ -61,9 +65,9 @@ extern "C" {
 
 /** @private
  *
- * \brief Private initializer for the splitter VFD
+ * \brief ID for the splitter VFD
  */
-H5_DLL hid_t H5FD_splitter_init(void);
+H5_DLLVAR hid_t H5FD_SPLITTER_id_g;
 
 /**
  * \ingroup FAPL
@@ -84,7 +88,7 @@ H5_DLL hid_t H5FD_splitter_init(void);
  *          which is a simplification of the multi VFD and creates separate
  *          files for metadata and data.
  *
- * \since 1.10.7, 1.12.1
+ * \since 1.12.1, back-ported to 1.10.7
  */
 H5_DLL herr_t H5Pset_fapl_splitter(hid_t fapl_id, H5FD_splitter_vfd_config_t *config_ptr);
 
@@ -107,7 +111,7 @@ H5_DLL herr_t H5Pset_fapl_splitter(hid_t fapl_id, H5FD_splitter_vfd_config_t *co
  *          which is a simplification of the multi VFD and creates separate
  *          files for metadata and data.
  *
- * \since 1.10.7, 1.12.1
+ * \since 1.12.1, back-ported to 1.10.7
  */
 H5_DLL herr_t H5Pget_fapl_splitter(hid_t fapl_id, H5FD_splitter_vfd_config_t *config_ptr);
 

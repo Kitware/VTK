@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -82,25 +82,23 @@
  *
  ***********************************************************************/
 #if H5C_COLLECT_CACHE_STATS
-/* clang-format off */
-#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_CREATE(cache_ptr) \
-do {                                                        \
-    (cache_ptr)->images_created++;                          \
-} while (0)
-#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_READ(cache_ptr)  \
-do {                                                       \
-    /* make sure image len is still good */                \
-    assert((cache_ptr)->image_len > 0);                  \
-    (cache_ptr)->images_read++;                            \
-} while (0)
-#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_LOAD(cache_ptr)  \
-do {                                                       \
-    /* make sure image len is still good */                \
-    assert((cache_ptr)->image_len > 0);                  \
-    (cache_ptr)->images_loaded++;                          \
-    (cache_ptr)->last_image_size = (cache_ptr)->image_len; \
-} while (0)
-/* clang-format on */
+#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_CREATE(cache_ptr)                                                  \
+    do {                                                                                                     \
+        (cache_ptr)->images_created++;                                                                       \
+    } while (0)
+#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_READ(cache_ptr)                                                    \
+    do {                                                                                                     \
+        /* make sure image len is still good */                                                              \
+        assert((cache_ptr)->image_len > 0);                                                                  \
+        (cache_ptr)->images_read++;                                                                          \
+    } while (0)
+#define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_LOAD(cache_ptr)                                                    \
+    do {                                                                                                     \
+        /* make sure image len is still good */                                                              \
+        assert((cache_ptr)->image_len > 0);                                                                  \
+        (cache_ptr)->images_loaded++;                                                                        \
+        (cache_ptr)->last_image_size = (cache_ptr)->image_len;                                               \
+    } while (0)
 #else /* H5C_COLLECT_CACHE_STATS */
 #define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_CREATE(cache_ptr)
 #define H5C__UPDATE_STATS_FOR_CACHE_IMAGE_READ(cache_ptr)
@@ -111,6 +109,28 @@ do {                                                       \
 /* Local Typedefs */
 /******************/
 
+/****************************************************************************
+ *
+ * structure H5C_recon_entry_t
+ *
+ * This structure provides a temporary uthash table to detect duplicate
+ * addresses.  Its fields are as follows:
+ *
+ * addr:      file offset of a metadata entry.  Entries are added to this
+ *            list when they are decoded.  If an entry has already existed
+ *            in the table, error will occur.
+ *
+ * entry_ptr: pointer to the cache entry, for expunging in failure cleanup.
+ *
+ * hh:        uthash hash table handle
+ *
+ ****************************************************************************/
+typedef struct H5C_recon_entry_t {
+    haddr_t            addr; /* The file address as key */
+    H5C_cache_entry_t *entry_ptr;
+    UT_hash_handle     hh; /* Hash table handle */
+} H5C_recon_entry_t;
+
 /********************/
 /* Local Prototypes */
 /********************/
@@ -118,7 +138,9 @@ do {                                                       \
 /* Helper routines */
 static size_t H5C__cache_image_block_entry_header_size(const H5F_t *f);
 static size_t H5C__cache_image_block_header_size(const H5F_t *f);
-static herr_t H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf);
+static herr_t H5C__check_for_duplicates(H5C_cache_entry_t *pf_entry_ptr, H5C_recon_entry_t **recon_table_ptr);
+static herr_t H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf,
+                                             size_t buf_size);
 #ifndef NDEBUG /* only used in assertions */
 static herr_t H5C__decode_cache_image_entry(const H5F_t *f, const H5C_t *cache_ptr, const uint8_t **buf,
                                             unsigned entry_num);
@@ -131,7 +153,8 @@ static void   H5C__prep_for_file_close__compute_fd_heights_real(H5C_cache_entry_
 static herr_t H5C__prep_for_file_close__setup_image_entries_array(H5C_t *cache_ptr);
 static herr_t H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr);
 static herr_t H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr);
-static H5C_cache_entry_t *H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf);
+static H5C_cache_entry_t *H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, hsize_t *buf_size,
+                                                       const uint8_t **buf);
 static herr_t             H5C__write_cache_image_superblock_msg(H5F_t *f, bool create);
 static herr_t             H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr);
 static herr_t             H5C__write_cache_image(H5F_t *f, const H5C_t *cache_ptr);
@@ -299,7 +322,7 @@ H5C__construct_cache_image_buffer(H5F_t *f, H5C_t *cache_ptr)
         /* needed for sanity checks */
         fake_cache_ptr->image_len = cache_ptr->image_len;
         q                         = (const uint8_t *)cache_ptr->image_buffer;
-        status                    = H5C__decode_cache_image_header(f, fake_cache_ptr, &q);
+        status = H5C__decode_cache_image_header(f, fake_cache_ptr, &q, cache_ptr->image_len + 1);
         assert(status >= 0);
 
         assert(NULL != p);
@@ -1269,7 +1292,7 @@ H5C__cache_image_block_header_size(const H5F_t *f)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf)
+H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf, size_t buf_size)
 {
     uint8_t        version;
     uint8_t        flags;
@@ -1277,7 +1300,8 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t *
     size_t         actual_header_len;
     size_t         expected_header_len;
     const uint8_t *p;
-    herr_t         ret_value = SUCCEED; /* Return value */
+    const uint8_t *p_end     = *buf + buf_size - 1; /* End of the p buffer */
+    herr_t         ret_value = SUCCEED;             /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1289,17 +1313,25 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t *
     /* Point to buffer to decode */
     p = *buf;
 
+    /* Ensure buffer has enough data for signature comparison */
+    if (H5_IS_BUFFER_OVERFLOW(p, H5C__MDCI_BLOCK_SIGNATURE_LEN, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, FAIL, "Insufficient buffer size for signature");
+
     /* Check signature */
     if (memcmp(p, H5C__MDCI_BLOCK_SIGNATURE, (size_t)H5C__MDCI_BLOCK_SIGNATURE_LEN) != 0)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Bad metadata cache image header signature");
     p += H5C__MDCI_BLOCK_SIGNATURE_LEN;
 
     /* Check version */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, FAIL, "ran off end of input buffer while decoding");
     version = *p++;
     if (version != (uint8_t)H5C__MDCI_BLOCK_VERSION_0)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Bad metadata cache image version");
 
     /* Decode flags */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, FAIL, "ran off end of input buffer while decoding");
     flags = *p++;
     if (flags & H5C__MDCI_HEADER_HAVE_RESIZE_STATUS)
         have_resize_status = true;
@@ -1307,6 +1339,8 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t *
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "MDC resize status not yet supported");
 
     /* Read image data length */
+    if (H5_IS_BUFFER_OVERFLOW(p, H5F_sizeof_size(f), p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, FAIL, "ran off end of input buffer while decoding");
     H5F_DECODE_LENGTH(f, p, cache_ptr->image_data_len);
 
     /* For now -- will become <= eventually */
@@ -1314,6 +1348,8 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr, const uint8_t *
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Bad metadata cache image data length");
 
     /* Read num entries */
+    if (H5_IS_BUFFER_OVERFLOW(p, 4, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, FAIL, "ran off end of input buffer while decoding");
     UINT32DECODE(p, cache_ptr->num_entries_in_image);
     if (cache_ptr->num_entries_in_image == 0)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Bad metadata cache entry count");
@@ -2355,6 +2391,45 @@ done:
 } /* H5C__prep_for_file_close__scan_entries() */
 
 /*-------------------------------------------------------------------------
+ * Function:    H5C__check_for_duplicates()
+ *
+ * Purpose:     Detects two entries with the same address.  When the
+ *      duplicate occurs, expunge the entry from the cache.  Leave the
+ *      half-processed entry for the caller to clean up as with other failures.
+ *
+ * Return:      SUCCEED on success, and FAIL on failure.
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5C__check_for_duplicates(H5C_cache_entry_t *pf_entry_ptr, H5C_recon_entry_t **recon_table_ptr)
+{
+    haddr_t            addr        = pf_entry_ptr->addr;
+    herr_t             ret_value   = SUCCEED; /* Return value */
+    H5C_recon_entry_t *recon_entry = NULL;    /* Points to an entry in the temp table */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check whether the address is duplicated */
+    HASH_FIND(hh, *recon_table_ptr, &addr, sizeof(haddr_t), recon_entry);
+
+    /* Duplicate found, remove the duplicated entry */
+    if (recon_entry)
+        HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "duplicate addresses found");
+    else {
+        /* Insert address into the hash table for checking against later */
+        if (NULL == (recon_entry = (H5C_recon_entry_t *)H5MM_malloc(sizeof(H5C_recon_entry_t))))
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for address entry");
+        recon_entry->addr      = addr;
+        recon_entry->entry_ptr = pf_entry_ptr;
+        HASH_ADD(hh, *recon_table_ptr, addr, sizeof(haddr_t), recon_entry);
+    }
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5C__check_for_duplicates() */
+
+/*-------------------------------------------------------------------------
  * Function:    H5C__reconstruct_cache_contents()
  *
  * Purpose:     Scan the image buffer, and create a prefetched
@@ -2370,11 +2445,16 @@ done:
 static herr_t
 H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
 {
-    H5C_cache_entry_t *pf_entry_ptr;        /* Pointer to prefetched entry */
+    H5C_cache_entry_t *pf_entry_ptr = NULL; /* Pointer to prefetched entry */
     H5C_cache_entry_t *parent_ptr;          /* Pointer to parent of prefetched entry */
+    hsize_t            image_len;           /* Image length */
     const uint8_t     *p;                   /* Pointer into image buffer */
     unsigned           u, v;                /* Local index variable */
     herr_t             ret_value = SUCCEED; /* Return value */
+
+    /* Declare a uthash table to detect duplicate addresses.  It will be destroyed
+       after decoding the cache contents */
+    H5C_recon_entry_t *recon_table = NULL; /* Hash table head */
 
     FUNC_ENTER_PACKAGE
 
@@ -2388,7 +2468,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
 
     /* Decode metadata cache image header */
     p = (uint8_t *)cache_ptr->image_buffer;
-    if (H5C__decode_cache_image_header(f, cache_ptr, &p) < 0)
+    if (H5C__decode_cache_image_header(f, cache_ptr, &p, cache_ptr->image_len + 1) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTDECODE, FAIL, "cache image header decode failed");
     assert((size_t)(p - (uint8_t *)cache_ptr->image_buffer) < cache_ptr->image_len);
 
@@ -2398,12 +2478,25 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
     assert(cache_ptr->num_entries_in_image > 0);
 
     /* Reconstruct entries in image */
+    image_len = cache_ptr->image_len;
     for (u = 0; u < cache_ptr->num_entries_in_image; u++) {
+
         /* Create the prefetched entry described by the ith
          * entry in cache_ptr->image_entrise.
          */
-        if (NULL == (pf_entry_ptr = H5C__reconstruct_cache_entry(f, cache_ptr, &p)))
+        if (NULL == (pf_entry_ptr = H5C__reconstruct_cache_entry(f, cache_ptr, &image_len, &p)))
             HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "reconstruction of cache entry failed");
+
+        /* Make sure different entries don't have the same address */
+        if (H5C__check_for_duplicates(pf_entry_ptr, &recon_table) < 0) {
+            /* Free the half-processed entry */
+            if (pf_entry_ptr->image_ptr)
+                H5MM_xfree(pf_entry_ptr->image_ptr);
+            if (pf_entry_ptr->fd_parent_count > 0 && pf_entry_ptr->fd_parent_addrs)
+                H5MM_xfree(pf_entry_ptr->fd_parent_addrs);
+            pf_entry_ptr = H5FL_FREE(H5C_cache_entry_t, pf_entry_ptr);
+            HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "duplicate addresses in cache");
+        }
 
         /* Note that we make no checks on available cache space before
          * inserting the reconstructed entry into the metadata cache.
@@ -2540,6 +2633,53 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
     } /* end if */
 
 done:
+    if (FAIL == ret_value) {
+
+        /* If we failed during reconstruction, remove reconstructed entries */
+        H5C_recon_entry_t *recon_entry, *tmp;
+
+        HASH_ITER(hh, recon_table, recon_entry, tmp)
+        {
+            H5C_cache_entry_t *entry_ptr = recon_entry->entry_ptr;
+            haddr_t            addr      = entry_ptr->addr;
+
+            /* If the entry is protected, unprotect it */
+            if (entry_ptr->is_protected)
+                if (H5C_unprotect(f, addr, (void *)entry_ptr, H5C__DELETED_FLAG) < 0)
+                    HDONE_ERROR(H5E_CACHE, H5E_CANTUNPROTECT, FAIL, "can't unprotect entry");
+
+            /* If the entry is pinned, unpin it */
+            if (entry_ptr->is_pinned)
+                if (H5C_unpin_entry((void *)entry_ptr) < 0)
+                    HDONE_ERROR(H5E_CACHE, H5E_CANTUNPIN, FAIL, "can't unpin entry");
+
+            /* Remove the unpinned and unprotected entry */
+            if (H5AC_expunge_entry(f, H5AC_PREFETCHED_ENTRY, addr, H5AC__NO_FLAGS_SET) < 0) {
+                if (entry_ptr->image_ptr)
+                    H5MM_xfree(entry_ptr->image_ptr);
+                if (entry_ptr->fd_parent_count > 0 && entry_ptr->fd_parent_addrs)
+                    H5MM_xfree(entry_ptr->fd_parent_addrs);
+                entry_ptr = H5FL_FREE(H5C_cache_entry_t, entry_ptr);
+                HDONE_ERROR(H5E_FILE, H5E_CANTEXPUNGE, FAIL, "unable to expunge driver info block");
+            }
+
+            HASH_DEL(recon_table, recon_entry);
+            H5MM_xfree(recon_entry);
+        }
+        /* The temporary hash table should be empty */
+        assert(recon_table == NULL);
+    }
+    /* No failure, only cleanup the temporary hash table */
+    else if (recon_table) {
+        /* Free the temporary hash table */
+        H5C_recon_entry_t *cur, *tmp;
+        HASH_ITER(hh, recon_table, cur, tmp)
+        {
+            HASH_DEL(recon_table, cur);
+            H5MM_xfree(cur);
+        }
+    }
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C__reconstruct_cache_contents() */
 
@@ -2558,19 +2698,21 @@ done:
  *-------------------------------------------------------------------------
  */
 static H5C_cache_entry_t *
-H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **buf)
+H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, hsize_t *buf_size, const uint8_t **buf)
 {
     H5C_cache_entry_t *pf_entry_ptr = NULL; /* Reconstructed cache entry */
     uint8_t            flags        = 0;
     bool               is_dirty     = false;
+    haddr_t            eoa;
+    bool               is_fd_parent = false;
 #ifndef NDEBUG /* only used in assertions */
-    bool in_lru       = false;
-    bool is_fd_parent = false;
-    bool is_fd_child  = false;
+    bool in_lru      = false;
+    bool is_fd_child = false;
 #endif
-    const uint8_t     *p;
     bool               file_is_rw;
-    H5C_cache_entry_t *ret_value = NULL; /* Return value */
+    const uint8_t     *p;
+    const uint8_t     *p_end     = *buf + *buf_size - 1; /* Pointer to last valid byte in buffer */
+    H5C_cache_entry_t *ret_value = NULL;                 /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -2590,9 +2732,15 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
     p = *buf;
 
     /* Decode type id */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     pf_entry_ptr->prefetch_type_id = *p++;
+    if (pf_entry_ptr->prefetch_type_id < H5AC_BT_ID || pf_entry_ptr->prefetch_type_id >= H5AC_NTYPES)
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "type id is out of valid range");
 
     /* Decode flags */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     flags = *p++;
     if (flags & H5C__MDCI_ENTRY_DIRTY_FLAG)
         is_dirty = true;
@@ -2620,19 +2768,31 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
     pf_entry_ptr->is_dirty = (is_dirty && file_is_rw);
 
     /* Decode ring */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     pf_entry_ptr->ring = *p++;
-    assert(pf_entry_ptr->ring > (uint8_t)(H5C_RING_UNDEFINED));
-    assert(pf_entry_ptr->ring < (uint8_t)(H5C_RING_NTYPES));
+    if (pf_entry_ptr->ring >= (uint8_t)(H5C_RING_NTYPES))
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "ring is out of valid range");
 
     /* Decode age */
+    if (H5_IS_BUFFER_OVERFLOW(p, 1, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     pf_entry_ptr->age = *p++;
+    if (pf_entry_ptr->age > H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX)
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "entry age is out of policy range");
 
     /* Decode dependency child count */
+    if (H5_IS_BUFFER_OVERFLOW(p, 2, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     UINT16DECODE(p, pf_entry_ptr->fd_child_count);
-    assert((is_fd_parent && pf_entry_ptr->fd_child_count > 0) ||
-           (!is_fd_parent && pf_entry_ptr->fd_child_count == 0));
+    if (is_fd_parent && pf_entry_ptr->fd_child_count <= 0)
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "parent entry has no children");
+    else if (!is_fd_parent && pf_entry_ptr->fd_child_count != 0)
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "non-parent entry has children");
 
     /* Decode dirty dependency child count */
+    if (H5_IS_BUFFER_OVERFLOW(p, 2, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     UINT16DECODE(p, pf_entry_ptr->fd_dirty_child_count);
     if (!file_is_rw)
         pf_entry_ptr->fd_dirty_child_count = 0;
@@ -2640,20 +2800,32 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid dirty flush dependency child count");
 
     /* Decode dependency parent count */
+    if (H5_IS_BUFFER_OVERFLOW(p, 2, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     UINT16DECODE(p, pf_entry_ptr->fd_parent_count);
     assert((is_fd_child && pf_entry_ptr->fd_parent_count > 0) ||
            (!is_fd_child && pf_entry_ptr->fd_parent_count == 0));
 
     /* Decode index in LRU */
+    if (H5_IS_BUFFER_OVERFLOW(p, 4, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     INT32DECODE(p, pf_entry_ptr->lru_rank);
     assert((in_lru && pf_entry_ptr->lru_rank >= 0) || (!in_lru && pf_entry_ptr->lru_rank == -1));
 
     /* Decode entry offset */
+    if (H5_IS_BUFFER_OVERFLOW(p, H5F_SIZEOF_ADDR(f), p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5F_addr_decode(f, &p, &pf_entry_ptr->addr);
-    if (!H5_addr_defined(pf_entry_ptr->addr))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid entry offset");
+
+    /* Validate address range */
+    eoa = H5F_get_eoa(f, H5FD_MEM_DEFAULT);
+    if (!H5_addr_defined(pf_entry_ptr->addr) || H5_addr_overflow(pf_entry_ptr->addr, pf_entry_ptr->size) ||
+        H5_addr_ge(pf_entry_ptr->addr + pf_entry_ptr->size, eoa))
+        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid entry address range");
 
     /* Decode entry length */
+    if (H5_IS_BUFFER_OVERFLOW(p, H5F_SIZEOF_SIZE(f), p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5F_DECODE_LENGTH(f, p, pf_entry_ptr->size);
     if (pf_entry_ptr->size == 0)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid entry size");
@@ -2674,6 +2846,9 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
                         "memory allocation failed for fd parent addrs buffer");
 
         for (u = 0; u < pf_entry_ptr->fd_parent_count; u++) {
+
+            if (H5_IS_BUFFER_OVERFLOW(p, H5F_SIZEOF_ADDR(f), p_end))
+                HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
             H5F_addr_decode(f, &p, &(pf_entry_ptr->fd_parent_addrs[u]));
             if (!H5_addr_defined(pf_entry_ptr->fd_parent_addrs[u]))
                 HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid flush dependency parent offset");
@@ -2689,6 +2864,8 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
 #endif /* H5C_DO_MEMORY_SANITY_CHECKS */
 
     /* Copy the entry image from the cache image block */
+    if (H5_IS_BUFFER_OVERFLOW(p, pf_entry_ptr->size, p_end))
+        HGOTO_ERROR(H5E_CACHE, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5MM_memcpy(pf_entry_ptr->image_ptr, p, pf_entry_ptr->size);
     p += pf_entry_ptr->size;
 
@@ -2703,14 +2880,20 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr, const uint8_t **b
     /* Sanity checks */
     assert(pf_entry_ptr->size > 0 && pf_entry_ptr->size < H5C_MAX_ENTRY_SIZE);
 
-    /* Update buffer pointer */
+    /* Update buffer pointer and buffer len */
+    *buf_size -= (hsize_t)(p - *buf);
     *buf = p;
 
     ret_value = pf_entry_ptr;
 
 done:
-    if (NULL == ret_value && pf_entry_ptr)
+    if (NULL == ret_value && pf_entry_ptr) {
+        if (pf_entry_ptr->image_ptr)
+            H5MM_xfree(pf_entry_ptr->image_ptr);
+        if (pf_entry_ptr->fd_parent_count > 0 && pf_entry_ptr->fd_parent_addrs)
+            H5MM_xfree(pf_entry_ptr->fd_parent_addrs);
         pf_entry_ptr = H5FL_FREE(H5C_cache_entry_t, pf_entry_ptr);
+    }
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C__reconstruct_cache_entry() */

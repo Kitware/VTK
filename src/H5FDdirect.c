@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,13 +16,13 @@
  *    buffer.  The main system support this feature is Linux.
  */
 
-#include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
 #include "H5private.h"   /* Generic Functions        */
 #include "H5Eprivate.h"  /* Error handling           */
 #include "H5Fprivate.h"  /* File access              */
-#include "H5FDprivate.h" /* File drivers             */
 #include "H5FDdirect.h"  /* Direct file driver       */
+#include "H5FDpkg.h"     /* File drivers             */
 #include "H5FLprivate.h" /* Free Lists               */
 #include "H5Iprivate.h"  /* IDs                      */
 #include "H5MMprivate.h" /* Memory management        */
@@ -31,10 +31,7 @@
 #ifdef H5_HAVE_DIRECT
 
 /* The driver identification number, initialized at runtime */
-static hid_t H5FD_DIRECT_g = 0;
-
-/* Whether to ignore file locks when disabled (env var value) */
-static htri_t ignore_disabled_file_locks_s = FAIL;
+hid_t H5FD_DIRECT_id_g = H5I_INVALID_HID;
 
 /* File operations */
 #define OP_UNKNOWN 0
@@ -93,29 +90,7 @@ typedef struct H5FD_direct_t {
 
 } H5FD_direct_t;
 
-/*
- * These macros check for overflow of various quantities.  These macros
- * assume that HDoff_t is signed and haddr_t and size_t are unsigned.
- *
- * ADDR_OVERFLOW:  Checks whether a file address of type `haddr_t'
- *      is too large to be represented by the second argument
- *      of the file seek function.
- *
- * SIZE_OVERFLOW:  Checks whether a buffer size of type `hsize_t' is too
- *      large to be represented by the `size_t' type.
- *
- * REGION_OVERFLOW:  Checks whether an address and size pair describe data
- *      which can be addressed entirely by the second
- *      argument of the file seek function.
- */
-#define MAXADDR          (((haddr_t)1 << (8 * sizeof(HDoff_t) - 1)) - 1)
-#define ADDR_OVERFLOW(A) (HADDR_UNDEF == (A) || ((A) & ~(haddr_t)MAXADDR))
-#define SIZE_OVERFLOW(Z) ((Z) & ~(hsize_t)MAXADDR)
-#define REGION_OVERFLOW(A, Z)                                                                                \
-    (ADDR_OVERFLOW(A) || SIZE_OVERFLOW(Z) || HADDR_UNDEF == (A) + (Z) || (HDoff_t)((A) + (Z)) < (HDoff_t)(A))
-
 /* Prototypes */
-static herr_t  H5FD__direct_term(void);
 static herr_t  H5FD__direct_populate_config(size_t boundary, size_t block_size, size_t cbuf_size,
                                             H5FD_direct_fapl_t *fa_out);
 static void   *H5FD__direct_fapl_get(H5FD_t *file);
@@ -141,9 +116,9 @@ static const H5FD_class_t H5FD_direct_g = {
     H5FD_CLASS_VERSION,         /* struct version       */
     H5FD_DIRECT_VALUE,          /* value                */
     "direct",                   /* name                 */
-    MAXADDR,                    /* maxaddr              */
+    H5FD_MAXADDR,               /* maxaddr              */
     H5F_CLOSE_WEAK,             /* fc_degree            */
-    H5FD__direct_term,          /* terminate            */
+    NULL,                       /* terminate            */
     NULL,                       /* sb_size              */
     NULL,                       /* sb_encode            */
     NULL,                       /* sb_decode            */
@@ -184,65 +159,48 @@ static const H5FD_class_t H5FD_direct_g = {
 H5FL_DEFINE_STATIC(H5FD_direct_t);
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_direct_init
+ * Function:    H5FD__direct_register
  *
- * Purpose:     Initialize this driver by registering the driver with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the direct driver
- *              Failure:    H5I_INVALID_HID
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_direct_init(void)
+herr_t
+H5FD__direct_register(void)
 {
-    char *lock_env_var = NULL;            /* Environment variable pointer */
-    hid_t ret_value    = H5I_INVALID_HID; /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+    FUNC_ENTER_PACKAGE
 
-    /* Check the use disabled file locks environment variable */
-    lock_env_var = getenv(HDF5_USE_FILE_LOCKING);
-    if (lock_env_var && !strcmp(lock_env_var, "BEST_EFFORT"))
-        ignore_disabled_file_locks_s = true; /* Override: Ignore disabled locks */
-    else if (lock_env_var && (!strcmp(lock_env_var, "TRUE") || !strcmp(lock_env_var, "1")))
-        ignore_disabled_file_locks_s = false; /* Override: Don't ignore disabled locks */
-    else
-        ignore_disabled_file_locks_s = FAIL; /* Environment variable not set, or not set correctly */
-
-    if (H5I_VFL != H5I_get_type(H5FD_DIRECT_g)) {
-        H5FD_DIRECT_g = H5FD_register(&H5FD_direct_g, sizeof(H5FD_class_t), false);
-        if (H5I_INVALID_HID == H5FD_DIRECT_g)
-            HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register direct");
-    }
-
-    /* Set return value */
-    ret_value = H5FD_DIRECT_g;
+    if (H5I_VFL != H5I_get_type(H5FD_DIRECT_id_g))
+        if ((H5FD_DIRECT_id_g = H5FD_register(&H5FD_direct_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register direct driver");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_direct_init() */
+} /* end H5FD__direct_register() */
 
 /*---------------------------------------------------------------------------
- * Function:  H5FD__direct_term
+ * Function:    H5FD__direct_unregister
  *
- * Purpose:  Shut down the VFD
+ * Purpose:     Reset library driver info.
  *
  * Returns:     Non-negative on success or negative on failure
  *
  *---------------------------------------------------------------------------
  */
-static herr_t
-H5FD__direct_term(void)
+herr_t
+H5FD__direct_unregister(void)
 {
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Reset VFL ID */
-    H5FD_DIRECT_g = 0;
+    H5FD_DIRECT_id_g = H5I_INVALID_HID;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5FD__direct_term() */
+} /* end H5FD__direct_unregister() */
 
 /*-------------------------------------------------------------------------
  * Function:  H5Pset_fapl_direct
@@ -264,7 +222,7 @@ H5Pset_fapl_direct(hid_t fapl_id, size_t boundary, size_t block_size, size_t cbu
 
     FUNC_ENTER_API(FAIL)
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, false)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
 
     if (H5FD__direct_populate_config(boundary, block_size, cbuf_size, &fa) < 0)
@@ -298,7 +256,7 @@ H5Pget_fapl_direct(hid_t fapl_id, size_t *boundary /*out*/, size_t *block_size /
 
     FUNC_ENTER_API(FAIL)
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
     if (H5FD_DIRECT != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
@@ -437,7 +395,7 @@ H5FD__direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
     int                       fd   = (-1);
     H5FD_direct_t            *file = NULL;
     const H5FD_direct_fapl_t *fa;
-    H5FD_direct_fapl_t        default_fa;
+    H5FD_direct_fapl_t        default_fa = {0};
 #ifdef H5_HAVE_WIN32_API
     HFILE                              filehandle;
     struct _BY_HANDLE_FILE_INFORMATION fileinfo;
@@ -457,7 +415,7 @@ H5FD__direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name");
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr");
-    if (ADDR_OVERFLOW(maxaddr))
+    if (H5FD_ADDR_OVERFLOW(maxaddr))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, NULL, "bogus maxaddr");
 
     /* Build the open flags */
@@ -485,7 +443,7 @@ H5FD__direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "unable to allocate file struct");
 
     /* Get the driver specific information */
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
     if (NULL == (fa = (const H5FD_direct_fapl_t *)H5P_peek_driver_info(plist))) {
         if (H5FD__direct_populate_config(0, 0, 0, &default_fa) < 0)
@@ -511,9 +469,9 @@ H5FD__direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
     file->fa.cbsize    = fa->cbsize;
 
     /* Check the file locking flags in the fapl */
-    if (ignore_disabled_file_locks_s != FAIL)
+    if (H5FD_ignore_disabled_file_locks_p != FAIL)
         /* The environment variable was set, so use that preferentially */
-        file->ignore_disabled_file_locks = ignore_disabled_file_locks_s;
+        file->ignore_disabled_file_locks = H5FD_ignore_disabled_file_locks_p;
     else {
         /* Use the value in the property list */
         if (H5P_get(plist, H5F_ACS_IGNORE_DISABLED_FILE_LOCKS_NAME, &file->ignore_disabled_file_locks) < 0)
@@ -644,21 +602,10 @@ H5FD__direct_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
         HGOTO_DONE(1);
 
 #else
-#ifdef H5_DEV_T_IS_SCALAR
     if (f1->device < f2->device)
         HGOTO_DONE(-1);
     if (f1->device > f2->device)
         HGOTO_DONE(1);
-#else  /* H5_DEV_T_IS_SCALAR */
-    /* If dev_t isn't a scalar value on this system, just use memcmp to
-     * determine if the values are the same or not.  The actual return value
-     * shouldn't really matter...
-     */
-    if (memcmp(&(f1->device), &(f2->device), sizeof(dev_t)) < 0)
-        HGOTO_DONE(-1);
-    if (memcmp(&(f1->device), &(f2->device), sizeof(dev_t)) > 0)
-        HGOTO_DONE(1);
-#endif /* H5_DEV_T_IS_SCALAR */
 
     if (f1->inode < f2->inode)
         HGOTO_DONE(-1);
@@ -839,7 +786,7 @@ H5FD__direct_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_U
     /* Check for overflow conditions */
     if (HADDR_UNDEF == addr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "addr undefined");
-    if (REGION_OVERFLOW(addr, size))
+    if (H5FD_REGION_OVERFLOW(addr, size))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow");
 
     /* If the system doesn't require data to be aligned, read the data in
@@ -1019,7 +966,7 @@ H5FD__direct_write(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_
     /* Check for overflow conditions */
     if (HADDR_UNDEF == addr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "addr undefined");
-    if (REGION_OVERFLOW(addr, size))
+    if (H5FD_REGION_OVERFLOW(addr, size))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow");
 
     /* If the system doesn't require data to be aligned, read the data in

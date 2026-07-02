@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -240,7 +240,7 @@ H5F_cwfs_advance_heap(H5F_t *f, H5HG_heap_t *heap, bool add_heap)
     unsigned u;                   /* Local index variable */
     herr_t   ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     assert(f);
@@ -260,6 +260,7 @@ H5F_cwfs_advance_heap(H5F_t *f, H5HG_heap_t *heap, bool add_heap)
         f->shared->cwfs[f->shared->ncwfs - 1] = heap;
     } /* end if */
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5F_cwfs_advance_heap() */
 
@@ -279,7 +280,7 @@ H5F_cwfs_remove_heap(H5F_shared_t *shared, H5HG_heap_t *heap)
     unsigned u;                   /* Local index variable */
     herr_t   ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     assert(shared);
@@ -294,5 +295,6 @@ H5F_cwfs_remove_heap(H5F_shared_t *shared, H5HG_heap_t *heap)
         } /* end if */
     }     /* end for */
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5F_cwfs_remove_heap() */

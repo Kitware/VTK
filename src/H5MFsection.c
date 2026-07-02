@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -360,7 +360,13 @@ H5MF__sect_simple_can_merge(const H5FS_section_info_t *_sect1, const H5FS_sectio
     assert(sect1);
     assert(sect2);
     assert(sect1->sect_info.type == sect2->sect_info.type); /* Checks "MERGE_SYM" flag */
-    assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr));
+
+    /*
+     * The library currently doesn't attempt to detect duplicate or overlapping
+     * free space sections being inserted into the free space managers. Until it
+     * does so, this assertion must be left out.
+     */
+    /* assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr)); */
 
     /* Check if second section adjoins first section */
     ret_value = H5_addr_eq(sect1->sect_info.addr + sect1->sect_info.size, sect2->sect_info.addr);
@@ -663,7 +669,13 @@ H5MF__sect_small_can_merge(const H5FS_section_info_t *_sect1, const H5FS_section
     assert(sect1);
     assert(sect2);
     assert(sect1->sect_info.type == sect2->sect_info.type); /* Checks "MERGE_SYM" flag */
-    assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr));
+
+    /*
+     * The library currently doesn't attempt to detect duplicate or overlapping
+     * free space sections being inserted into the free space managers. Until it
+     * does so, this assertion must be left out.
+     */
+    /* assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr)); */
 
     /* Check if second section adjoins first section */
     ret_value = H5_addr_eq(sect1->sect_info.addr + sect1->sect_info.size, sect2->sect_info.addr);
@@ -769,7 +781,13 @@ H5MF__sect_large_can_merge(const H5FS_section_info_t *_sect1, const H5FS_section
     assert(sect1);
     assert(sect2);
     assert(sect1->sect_info.type == sect2->sect_info.type); /* Checks "MERGE_SYM" flag */
-    assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr));
+
+    /*
+     * The library currently doesn't attempt to detect duplicate or overlapping
+     * free space sections being inserted into the free space managers. Until it
+     * does so, this assertion must be left out.
+     */
+    /* assert(H5_addr_lt(sect1->sect_info.addr, sect2->sect_info.addr)); */
 
     ret_value = H5_addr_eq(sect1->sect_info.addr + sect1->sect_info.size, sect2->sect_info.addr);
 

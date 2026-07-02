@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,10 +16,15 @@
 #ifndef H5Eprivate_H
 #define H5Eprivate_H
 
+/* Include package's public header */
 #include "H5Epublic.h"
 
 /* Private headers needed by this file */
 #include "H5private.h"
+
+/**************************/
+/* Library Private Macros */
+/**************************/
 
 /*
  * When one needs to temporarily disable recording errors while trying
@@ -181,29 +186,58 @@
 /*
  * MPI error handling macros.
  */
-
-extern char H5E_mpi_error_str[MPI_MAX_ERROR_STRING];
-extern int  H5E_mpi_error_str_len;
-
 #define HMPI_DONE_ERROR(retcode, str, mpierr)                                                                \
     {                                                                                                        \
+        char H5E_mpi_error_str[MPI_MAX_ERROR_STRING];                                                        \
+        int  H5E_mpi_error_str_len;                                                                          \
+                                                                                                             \
         MPI_Error_string(mpierr, H5E_mpi_error_str, &H5E_mpi_error_str_len);                                 \
         HDONE_ERROR(H5E_INTERNAL, H5E_MPI, retcode, "%s: MPI error string is '%s'", str, H5E_mpi_error_str); \
     }
 #define HMPI_GOTO_ERROR(retcode, str, mpierr)                                                                \
     {                                                                                                        \
+        char H5E_mpi_error_str[MPI_MAX_ERROR_STRING];                                                        \
+        int  H5E_mpi_error_str_len;                                                                          \
+                                                                                                             \
         MPI_Error_string(mpierr, H5E_mpi_error_str, &H5E_mpi_error_str_len);                                 \
         HGOTO_ERROR(H5E_INTERNAL, H5E_MPI, retcode, "%s: MPI error string is '%s'", str, H5E_mpi_error_str); \
     }
 #endif /* H5_HAVE_PARALLEL */
 
-/* Library-private functions defined in H5E package */
+/****************************/
+/* Library Private Typedefs */
+/****************************/
+
+/* State to preserve across user callbacks */
+typedef struct H5E_user_cb_state_t {
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+    unsigned vers; /* Which version callback to use */
+    union {
+        H5E_auto1_t func1;
+        H5E_auto2_t func2;
+    } u;
+#else           /* H5_NO_DEPRECATED_SYMBOLS */
+    H5E_auto2_t func2;
+#endif          /* H5_NO_DEPRECATED_SYMBOLS */
+    void *data; /* Callback data for 'automatic error reporting */
+} H5E_user_cb_state_t;
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+/******************************/
+/* Library Private Prototypes */
+/******************************/
 H5_DLL herr_t H5E_init(void);
+H5_DLL herr_t H5E_get_default_auto_func(H5E_auto2_t *func);
 H5_DLL herr_t H5E_printf_stack(const char *file, const char *func, unsigned line, hid_t maj_idx,
                                hid_t min_idx, const char *fmt, ...) H5_ATTR_FORMAT(printf, 6, 7);
 H5_DLL herr_t H5E_clear_stack(void);
 H5_DLL herr_t H5E_dump_api_stack(void);
 H5_DLL void   H5E_pause_stack(void);
 H5_DLL void   H5E_resume_stack(void);
+H5_DLL herr_t H5E_user_cb_prepare(H5E_user_cb_state_t *state);
+H5_DLL herr_t H5E_user_cb_restore(const H5E_user_cb_state_t *state);
 
 #endif /* H5Eprivate_H */

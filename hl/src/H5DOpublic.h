@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -18,6 +18,17 @@ extern "C" {
 #endif
 
 /** \page H5DO_UG HDF5 High Level Optimizations
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
+ *
+ * \section sec_hldo_intro Introduction
+ *
+ * The HDF5 Dataset Optimization (H5DO) interface provides high-performance functions for specialized
+ * dataset I/O operations that bypass standard HDF5 processing layers when appropriate.
+ *
+ * @see H5DO Reference Manual
+ *
  * Since version 1.10.3 these functions are deprecated in favor of #H5Dwrite_chunk and #H5Dread_chunk.
  *
  * \section sec_hldo_direct_chunk Direct Chunk Write Function
@@ -228,6 +239,11 @@ extern "C" {
  *     // Data verification here
  *     ...
  * \endcode
+ *
+ * Next Chapter \ref sec_dim_scales_stand
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  */
 
 /**\defgroup H5DO HDF5 Optimizations APIs (H5DO)
@@ -301,7 +317,7 @@ extern "C" {
  * \since   1.10.0
  *
  */
-H5_HLDLL herr_t H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t memtype,
+H5HL_DLL herr_t H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t memtype,
                            const void *buf);
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.
@@ -369,9 +385,7 @@ H5_HLDLL herr_t H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t e
  *              H5DOwrite_chunk() bypasses hyperslab selection, the conversion of data
  *              from one datatype to another, and the filter pipeline to write the chunk.
  *              Developers should have experience with these processes before
- *              using this function. Please see
- *              <a href="https://\DOCURL/advanced_topics/UsingDirectChunkWrite.pdf">
- *              Using the Direct Chunk Write Function</a>
+ *              using this function. Please see \ref H5DO_UG
  *              for more information.
  *
  * \note    H5DOread_chunk() and H5DOwrite_chunk() are not
@@ -386,7 +400,7 @@ H5_HLDLL herr_t H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t e
  *
  * \since   1.8.11
  */
-H5_HLDLL herr_t H5DOwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, const hsize_t *offset,
+H5HL_DLL herr_t H5DOwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, const hsize_t *offset,
                                 size_t data_size, const void *buf);
 
 /**
@@ -447,7 +461,7 @@ H5_HLDLL herr_t H5DOwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, 
  *
  * \since   1.10.2, 1.8.19
  */
-H5_HLDLL herr_t H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters /*out*/,
+H5HL_DLL herr_t H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters /*out*/,
                                void *buf /*out*/);
 
 #endif /* H5_NO_DEPRECATED_SYMBOLS */

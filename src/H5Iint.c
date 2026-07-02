@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -84,6 +84,9 @@ static int    H5I__find_id_cb(void *_item, void *_key, void *_udata);
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /* Declared extern in H5Ipkg.h and documented there */
 H5I_type_info_t *H5I_type_info_array_g[H5I_MAX_NUM_TYPES];
 int              H5I_next_type_g = (int)H5I_NTYPES;
@@ -123,29 +126,105 @@ H5I_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    H5I_type_info_t *type_info = NULL; /* Pointer to ID type */
-    int              i;
+    if (H5_PKG_INIT_VAR) {
+        H5I_type_info_t *type_info = NULL; /* Pointer to ID type */
+        int              i;
 
-    /* Count the number of types still in use */
-    for (i = 0; i < H5I_next_type_g; i++)
-        if ((type_info = H5I_type_info_array_g[i]) && type_info->hash_table)
-            in_use++;
-
-    /* If no types are still being used then clean up */
-    if (0 == in_use) {
-        for (i = 0; i < H5I_next_type_g; i++) {
-            type_info = H5I_type_info_array_g[i];
-            if (type_info) {
-                assert(NULL == type_info->hash_table);
-                type_info                = H5MM_xfree(type_info);
-                H5I_type_info_array_g[i] = NULL;
+        /* Count the number of types still in use */
+        for (i = 0; i < H5I_next_type_g; i++)
+            if ((type_info = H5I_type_info_array_g[i]) && type_info->hash_table)
                 in_use++;
+
+        /* If no types are still being used then clean up */
+        if (0 == in_use) {
+            for (i = 0; i < H5I_next_type_g; i++) {
+                type_info = H5I_type_info_array_g[i];
+                if (type_info) {
+                    assert(NULL == type_info->hash_table);
+                    type_info                = H5MM_xfree(type_info);
+                    H5I_type_info_array_g[i] = NULL;
+                    in_use++;
+                }
             }
+
+            /* Mark interface closed */
+            if (0 == in_use)
+                H5_PKG_INIT_VAR = false;
         }
     }
 
     FUNC_LEAVE_NOAPI(in_use)
 } /* end H5I_term_package() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5I__register_type_common
+ *
+ * Purpose:     Common functionality for H5Iregister_type(1|2)
+ *
+ * Return:      Success:    Type ID of the new type
+ *              Failure:    H5I_BADID
+ *-------------------------------------------------------------------------
+ */
+H5I_type_t
+H5I__register_type_common(unsigned reserved, H5I_free_t free_func)
+{
+    H5I_class_t *cls       = NULL;      /* New ID class */
+    H5I_type_t   new_type  = H5I_BADID; /* New ID type value */
+    H5I_type_t   ret_value = H5I_BADID; /* Return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Generate a new H5I_type_t value */
+
+    /* Increment the number of types */
+    if (H5I_next_type_g < H5I_MAX_NUM_TYPES) {
+        new_type = (H5I_type_t)H5I_next_type_g;
+        H5I_next_type_g++;
+    }
+    else {
+        bool done; /* Indicate that search was successful */
+        int  i;
+
+        /* Look for a free type to give out */
+        done = false;
+        for (i = H5I_NTYPES; i < H5I_MAX_NUM_TYPES && done == false; i++) {
+            if (NULL == H5I_type_info_array_g[i]) {
+                /* Found a free type ID */
+                new_type = (H5I_type_t)i;
+                done     = true;
+            }
+        }
+
+        /* Verify that we found a type to give out */
+        if (done == false)
+            HGOTO_ERROR(H5E_ID, H5E_NOSPACE, H5I_BADID, "Maximum number of ID types exceeded");
+    }
+
+    /* Allocate new ID class */
+    if (NULL == (cls = H5MM_calloc(sizeof(H5I_class_t))))
+        HGOTO_ERROR(H5E_ID, H5E_CANTALLOC, H5I_BADID, "ID class allocation failed");
+
+    /* Initialize class fields */
+    cls->type      = new_type;
+    cls->flags     = H5I_CLASS_IS_APPLICATION;
+    cls->reserved  = reserved;
+    cls->free_func = free_func;
+
+    /* Register the new ID class */
+    if (H5I_register_type(cls) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTINIT, H5I_BADID, "can't initialize ID class");
+
+    /* Set return value */
+    ret_value = new_type;
+
+done:
+    /* Clean up on error */
+    if (ret_value == H5I_BADID)
+        if (cls)
+            cls = H5MM_xfree(cls);
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5I__register_type_common() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5I_register_type
@@ -370,8 +449,16 @@ H5I__mark_node(void *_info, void H5_ATTR_UNUSED *key, void *_udata)
     if (udata->force || (info->count - (!udata->app_ref * info->app_count)) <= 1) {
         /* Check if this is an un-realized future object */
         if (info->is_future) {
-            /* Discard the future object */
-            if ((info->discard_cb)(info->u.object) < 0) {
+            herr_t status;
+
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB_NOCHECK
+                {
+                    /* Discard the future object */
+                    status = (info->discard_cb)(info->u.object);
+                }
+            H5_AFTER_USER_CB_NOCHECK
+            if (status < 0) {
                 if (udata->force) {
                     /* Indicate node should be removed from list */
                     mark = true;
@@ -384,12 +471,24 @@ H5I__mark_node(void *_info, void H5_ATTR_UNUSED *key, void *_udata)
         }
         else {
             /* Check for a 'free' function and call it, if it exists */
-            if (udata->type_info->cls->free_func &&
-                (udata->type_info->cls->free_func)(info->u.object, H5_REQUEST_NULL) < 0) {
-                if (udata->force) {
+            if (udata->type_info->cls->free_func) {
+                herr_t status;
+
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB_NOCHECK
+                    {
+                        status = (udata->type_info->cls->free_func)(info->u.object, H5_REQUEST_NULL);
+                    }
+                H5_AFTER_USER_CB_NOCHECK
+                if (status < 0) {
+                    if (udata->force) {
+                        /* Indicate node should be removed from list */
+                        mark = true;
+                    }
+                }
+                else
                     /* Indicate node should be removed from list */
                     mark = true;
-                }
             }
             else {
                 /* Indicate node should be removed from list */
@@ -963,15 +1062,31 @@ H5I__dec_ref(hid_t id, void **request)
      */
     if (1 == info->count) {
         H5I_type_info_t *type_info; /*ptr to the type    */
+        bool             remove_node = false;
 
         /* Get the ID's type */
         type_info = H5I_type_info_array_g[H5I_TYPE(id)];
 
-        if (!type_info->cls->free_func || (type_info->cls->free_func)(info->u.object, request) >= 0) {
+        if (type_info->cls->free_func) {
+            herr_t status;
+
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB((-1))
+                {
+                    status = (type_info->cls->free_func)(info->u.object, request);
+                }
+            H5_AFTER_USER_CB((-1))
+
+            if (status >= 0)
+                remove_node = true;
+        }
+        else
+            remove_node = true;
+
+        if (remove_node) {
             /* Remove the node from the type */
             if (NULL == H5I__remove_common(type_info, id))
                 HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, (-1), "can't remove ID node");
-            ret_value = 0;
         } /* end if */
         else
             ret_value = -1;
@@ -1442,7 +1557,7 @@ H5I__iterate_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
     if ((!udata->app_ref) || (info->app_count > 0)) {
         H5I_type_t type = udata->obj_type;
         void      *object;
-        herr_t     cb_ret_val;
+        herr_t     cb_ret_val = FAIL;
 
         /* The stored object pointer might be an H5VL_object_t, in which
          * case we'll need to get the wrapped object struct (H5F_t *, etc.).
@@ -1450,7 +1565,12 @@ H5I__iterate_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
         object = H5I__unwrap(info->u.object, type);
 
         /* Invoke callback function */
-        cb_ret_val = (*udata->user_func)((void *)object, info->id, udata->user_udata);
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB_NOERR(H5_ITER_ERROR)
+            {
+                cb_ret_val = (*udata->user_func)((void *)object, info->id, udata->user_udata);
+            }
+        H5_AFTER_USER_CB_NOERR(H5_ITER_ERROR)
 
         /* Set the return value based on the callback's return value */
         if (cb_ret_val > 0)
@@ -1571,12 +1691,19 @@ H5I__find_id(hid_t id)
 
     /* Check if this is a future ID */
     if (id_info && id_info->is_future) {
-        hid_t actual_id = H5I_INVALID_HID; /* ID for actual object */
-        void *future_object;               /* Pointer to the future object */
-        void *actual_object;               /* Pointer to the actual object */
+        hid_t  actual_id = H5I_INVALID_HID; /* ID for actual object */
+        void  *future_object;               /* Pointer to the future object */
+        void  *actual_object;               /* Pointer to the actual object */
+        herr_t status = FAIL;
 
-        /* Invoke the realize callback, to get the actual object */
-        if ((id_info->realize_cb)(id_info->u.object, &actual_id) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB_NOERR(NULL)
+            {
+                /* Invoke the realize callback, to get the actual object */
+                status = (id_info->realize_cb)(id_info->u.object, &actual_id);
+            }
+        H5_AFTER_USER_CB_NOERR(NULL)
+        if (status < 0)
             HGOTO_DONE(NULL);
 
         /* Verify that we received a valid ID, of the same type */
@@ -1591,8 +1718,14 @@ H5I__find_id(hid_t id)
         assert(actual_object);
         id_info->u.object = actual_object;
 
-        /* Discard the future object */
-        if ((id_info->discard_cb)(future_object) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB_NOERR(NULL)
+            {
+                /* Discard the future object */
+                status = (id_info->discard_cb)(future_object);
+            }
+        H5_AFTER_USER_CB_NOERR(NULL)
+        if (status < 0)
             HGOTO_DONE(NULL);
         future_object = NULL;
 

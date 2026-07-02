@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -604,6 +604,7 @@ H5O__cache_chk_get_initial_load_size(void *_udata, size_t *image_len)
     assert(udata);
     assert(udata->oh);
     assert(image_len);
+    assert(udata->size);
 
     /* Set the image length size */
     *image_len = udata->size;
@@ -784,6 +785,10 @@ H5O__cache_chk_serialize(const H5F_t *f, void *image, size_t len, void *_thing)
     /* copy the chunk into the image -- this is potentially expensive.
      * Can we rework things so that the chunk and the cache share a buffer?
      */
+    /* Ensure len does not exceed the size of the source buffer */
+    if (len > chk_proxy->oh->chunk[chk_proxy->chunkno].size)
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, FAIL, "buffer overflow detected");
+
     H5MM_memcpy(image, chk_proxy->oh->chunk[chk_proxy->chunkno].image, len);
 
 done:
@@ -1268,6 +1273,9 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t
         if (mesg_size != H5O_ALIGN_OH(oh, mesg_size))
             HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "message not aligned");
 
+        if (H5_IS_BUFFER_OVERFLOW(chunk_image, mesg_size, p_end))
+            HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, FAIL, "message size exceeds buffer end");
+
         /* Message flags */
         if (H5_IS_BUFFER_OVERFLOW(chunk_image, 1, p_end))
             HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, FAIL, "ran off end of input buffer while decoding");
@@ -1299,12 +1307,6 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t
                 UINT16DECODE(chunk_image, crt_idx);
             }
         }
-
-        /* Try to detect invalidly formatted object header message that
-         *  extends past end of chunk.
-         */
-        if (chunk_image + mesg_size > eom_ptr)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, FAIL, "corrupt object header");
 
         /* Increment count of null messages */
         if (H5O_NULL_ID == id)
@@ -1342,9 +1344,9 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t
             mesg->flags   = flags;
             mesg->crt_idx = crt_idx;
             mesg->native  = NULL;
-            H5_GCC_CLANG_DIAG_OFF("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_OFF
             mesg->raw = (uint8_t *)chunk_image;
-            H5_GCC_CLANG_DIAG_ON("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_ON
             mesg->raw_size = mesg_size;
             mesg->chunkno  = chunkno;
 
@@ -1402,8 +1404,8 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t
             else {
                 /* Check for message of unshareable class marked as "shareable"
                  */
-                if ((flags & H5O_MSG_FLAG_SHAREABLE) && H5O_msg_class_g[id] &&
-                    !(H5O_msg_class_g[id]->share_flags & H5O_SHARE_IS_SHARABLE))
+                if (((flags & H5O_MSG_FLAG_SHARED) || (flags & H5O_MSG_FLAG_SHAREABLE)) &&
+                    H5O_msg_class_g[id] && !(H5O_msg_class_g[id]->share_flags & H5O_SHARE_IS_SHARABLE))
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL,
                                 "message of unshareable class flagged as shareable");
 
@@ -1451,6 +1453,38 @@ H5O__chunk_deserialize(H5O_t *oh, haddr_t addr, size_t chunk_size, const uint8_t
                 if (!refcount)
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't decode refcount");
                 oh->nlink = *refcount;
+            }
+            /* Check if message is an old mtime message */
+            else if (H5O_MTIME_ID == id) {
+                time_t *mtime = NULL;
+
+                /* Decode mtime message */
+                mtime =
+                    (time_t *)(H5O_MSG_MTIME->decode)(udata->f, NULL, 0, &ioflags, mesg->raw_size, mesg->raw);
+
+                /* Save the decoded old format mtime */
+                if (!mtime)
+                    HGOTO_ERROR(H5E_OHDR, H5E_CANTDECODE, FAIL, "can't decode old format mtime");
+
+                /* Save 'native' form of mtime message and its value */
+                mesg->native = mtime;
+                oh->ctime    = *mtime;
+            }
+            /* Check if message is an new mtime message */
+            else if (H5O_MTIME_NEW_ID == id) {
+                time_t *mtime = NULL;
+
+                /* Decode mtime message */
+                mtime = (time_t *)(H5O_MSG_MTIME_NEW->decode)(udata->f, NULL, 0, &ioflags, mesg->raw_size,
+                                                              mesg->raw);
+
+                /* Save the decoded new format mtime */
+                if (!mtime)
+                    HGOTO_ERROR(H5E_OHDR, H5E_CANTDECODE, FAIL, "can't decode new format mtime");
+
+                /* Save 'native' form of mtime message and its value */
+                mesg->native = mtime;
+                oh->ctime    = *mtime;
             }
             /* Check if message is a link message */
             else if (H5O_LINK_ID == id) {
@@ -1548,10 +1582,10 @@ H5O__chunk_serialize(const H5F_t *f, H5O_t *oh, unsigned chunkno)
     /* Encode any dirty messages in this chunk */
     for (u = 0, curr_msg = &oh->mesg[0]; u < oh->nmesgs; u++, curr_msg++)
         if (curr_msg->dirty && curr_msg->chunkno == chunkno) {
-            H5_GCC_CLANG_DIAG_OFF("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_OFF
             if (H5O_msg_flush((H5F_t *)f, oh, curr_msg) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTENCODE, FAIL, "unable to encode object header message");
-            H5_GCC_CLANG_DIAG_ON("cast-qual")
+            H5_WARN_CAST_AWAY_CONST_ON
         }
 
     /* Sanity checks */

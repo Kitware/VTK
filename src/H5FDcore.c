@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,13 +16,13 @@
  *              access to small, temporary hdf5 files.
  */
 
-#include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
 #include "H5private.h"   /* Generic Functions            */
 #include "H5Eprivate.h"  /* Error handling               */
 #include "H5Fprivate.h"  /* File access                  */
-#include "H5FDprivate.h" /* File drivers                 */
 #include "H5FDcore.h"    /* Core file driver             */
+#include "H5FDpkg.h"     /* File drivers                 */
 #include "H5FLprivate.h" /* Free lists                   */
 #include "H5Iprivate.h"  /* IDs                          */
 #include "H5MMprivate.h" /* Memory management            */
@@ -30,10 +30,7 @@
 #include "H5SLprivate.h" /* Skip lists                   */
 
 /* The driver identification number, initialized at runtime */
-static hid_t H5FD_CORE_g = 0;
-
-/* Whether to ignore file locks when disabled (env var value) */
-static htri_t ignore_disabled_file_locks_s = FAIL;
+hid_t H5FD_CORE_id_g = H5I_INVALID_HID;
 
 /* The skip list node type.  Represents a region in the file. */
 typedef struct H5FD_core_region_t {
@@ -106,27 +103,27 @@ typedef struct H5FD_core_fapl_t {
 /* These macros check for overflow of various quantities.  These macros
  * assume that file_offset_t is signed and haddr_t and size_t are unsigned.
  *
- * ADDR_OVERFLOW:   Checks whether a file address of type `haddr_t'
- *                  is too large to be represented by the second argument
- *                  of the file seek function.
+ * CORE_ADDR_OVERFLOW:   Checks whether a file address of type `haddr_t'
+ *                       is too large to be represented by the second argument
+ *                       of the file seek function.
  *
- * SIZE_OVERFLOW:   Checks whether a buffer size of type `hsize_t' is too
- *                  large to be represented by the `size_t' type.
+ * CORE_SIZE_OVERFLOW:   Checks whether a buffer size of type `hsize_t' is too
+ *                       large to be represented by the `size_t' type.
  *
- * REGION_OVERFLOW: Checks whether an address and size pair describe data
- *                  which can be addressed entirely in memory.
+ * CORE_REGION_OVERFLOW: Checks whether an address and size pair describe data
+ *                       which can be addressed entirely in memory.
  */
-#define MAXADDR          ((haddr_t)((~(size_t)0) - 1))
-#define ADDR_OVERFLOW(A) (HADDR_UNDEF == (A) || (A) > (haddr_t)MAXADDR)
-#define SIZE_OVERFLOW(Z) ((Z) > (hsize_t)MAXADDR)
-#define REGION_OVERFLOW(A, Z)                                                                                \
-    (ADDR_OVERFLOW(A) || SIZE_OVERFLOW(Z) || HADDR_UNDEF == (A) + (Z) || (size_t)((A) + (Z)) < (size_t)(A))
+#define CORE_MAXADDR          ((haddr_t)((~(size_t)0) - 1))
+#define CORE_ADDR_OVERFLOW(A) (HADDR_UNDEF == (A) || (A) > (haddr_t)CORE_MAXADDR)
+#define CORE_SIZE_OVERFLOW(Z) ((Z) > (hsize_t)CORE_MAXADDR)
+#define CORE_REGION_OVERFLOW(A, Z)                                                                           \
+    (CORE_ADDR_OVERFLOW(A) || CORE_SIZE_OVERFLOW(Z) || HADDR_UNDEF == (A) + (Z) ||                           \
+     (size_t)((A) + (Z)) < (size_t)(A))
 
 /* Prototypes */
 static herr_t  H5FD__core_add_dirty_region(H5FD_core_t *file, haddr_t start, haddr_t end);
 static herr_t  H5FD__core_destroy_dirty_list(H5FD_core_t *file);
 static herr_t  H5FD__core_write_to_bstore(H5FD_core_t *file, haddr_t addr, size_t size);
-static herr_t  H5FD__core_term(void);
 static void   *H5FD__core_fapl_get(H5FD_t *_file);
 static H5FD_t *H5FD__core_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr);
 static herr_t  H5FD__core_close(H5FD_t *_file);
@@ -151,9 +148,9 @@ static const H5FD_class_t H5FD_core_g = {
     H5FD_CLASS_VERSION,       /* struct version       */
     H5FD_CORE_VALUE,          /* value                */
     "core",                   /* name                 */
-    MAXADDR,                  /* maxaddr              */
+    CORE_MAXADDR,             /* maxaddr              */
     H5F_CLOSE_WEAK,           /* fc_degree            */
-    H5FD__core_term,          /* terminate            */
+    NULL,                     /* terminate            */
     NULL,                     /* sb_size              */
     NULL,                     /* sb_encode            */
     NULL,                     /* sb_decode            */
@@ -443,61 +440,48 @@ H5FD__core_get_default_config(void)
 } /* end H5FD__core_get_default_config() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_core_init
+ * Function:    H5FD__core_register
  *
- * Purpose:     Initialize this driver by registering the driver with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the core driver
- *              Failure:    H5I_INVALID_HID
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_core_init(void)
+herr_t
+H5FD__core_register(void)
 {
-    char *lock_env_var = NULL;            /* Environment variable pointer */
-    hid_t ret_value    = H5I_INVALID_HID; /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_PACKAGE
 
-    /* Check the use disabled file locks environment variable */
-    lock_env_var = getenv(HDF5_USE_FILE_LOCKING);
-    if (lock_env_var && !strcmp(lock_env_var, "BEST_EFFORT"))
-        ignore_disabled_file_locks_s = true; /* Override: Ignore disabled locks */
-    else if (lock_env_var && (!strcmp(lock_env_var, "TRUE") || !strcmp(lock_env_var, "1")))
-        ignore_disabled_file_locks_s = false; /* Override: Don't ignore disabled locks */
-    else
-        ignore_disabled_file_locks_s = FAIL; /* Environment variable not set, or not set correctly */
+    if (H5I_VFL != H5I_get_type(H5FD_CORE_id_g))
+        if ((H5FD_CORE_id_g = H5FD_register(&H5FD_core_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register core driver");
 
-    if (H5I_VFL != H5I_get_type(H5FD_CORE_g))
-        H5FD_CORE_g = H5FD_register(&H5FD_core_g, sizeof(H5FD_class_t), false);
-
-    /* Set return value */
-    ret_value = H5FD_CORE_g;
-
+done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_core_init() */
+} /* end H5FD__core_register() */
 
 /*---------------------------------------------------------------------------
- * Function:    H5FD__core_term
+ * Function:    H5FD__core_unregister
  *
- * Purpose:     Shut down the VFD
+ * Purpose:     Reset library driver info.
  *
  * Returns:     SUCCEED (Can't fail)
  *
  *---------------------------------------------------------------------------
  */
-static herr_t
-H5FD__core_term(void)
+herr_t
+H5FD__core_unregister(void)
 {
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Reset VFL ID */
-    H5FD_CORE_g = 0;
+    H5FD_CORE_id_g = H5I_INVALID_HID;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5FD__core_term() */
+} /* end H5FD__core_unregister() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_core_write_tracking
@@ -510,7 +494,7 @@ H5FD__core_term(void)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pset_core_write_tracking(hid_t plist_id, hbool_t is_enabled, size_t page_size)
+H5Pset_core_write_tracking(hid_t plist_id, bool is_enabled, size_t page_size)
 {
     H5P_genplist_t         *plist;               /* Property list pointer */
     H5FD_core_fapl_t        fa;                  /* Core VFD info */
@@ -524,7 +508,7 @@ H5Pset_core_write_tracking(hid_t plist_id, hbool_t is_enabled, size_t page_size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "page_size cannot be zero");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADID, FAIL, "can't find object for ID");
     if (H5FD_CORE != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
@@ -557,7 +541,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_core_write_tracking(hid_t plist_id, hbool_t *is_enabled /*out*/, size_t *page_size /*out*/)
+H5Pget_core_write_tracking(hid_t plist_id, bool *is_enabled /*out*/, size_t *page_size /*out*/)
 {
     H5P_genplist_t         *plist;               /* Property list pointer */
     const H5FD_core_fapl_t *fa;                  /* Core VFD info */
@@ -566,7 +550,7 @@ H5Pget_core_write_tracking(hid_t plist_id, hbool_t *is_enabled /*out*/, size_t *
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADID, FAIL, "can't find object for ID");
     if (H5FD_CORE != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
@@ -595,7 +579,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pset_fapl_core(hid_t fapl_id, size_t increment, hbool_t backing_store)
+H5Pset_fapl_core(hid_t fapl_id, size_t increment, bool backing_store)
 {
     H5P_genplist_t  *plist;               /* Property list pointer */
     H5FD_core_fapl_t fa;                  /* Core VFD info */
@@ -604,7 +588,7 @@ H5Pset_fapl_core(hid_t fapl_id, size_t increment, hbool_t backing_store)
     FUNC_ENTER_API(FAIL)
 
     /* Check argument */
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, false)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
 
     /* Set VFD info values */
@@ -632,7 +616,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pget_fapl_core(hid_t fapl_id, size_t *increment /*out*/, hbool_t *backing_store /*out*/)
+H5Pget_fapl_core(hid_t fapl_id, size_t *increment /*out*/, bool *backing_store /*out*/)
 {
     H5P_genplist_t         *plist;               /* Property list pointer */
     const H5FD_core_fapl_t *fa;                  /* Core VFD info */
@@ -640,7 +624,7 @@ H5Pget_fapl_core(hid_t fapl_id, size_t *increment /*out*/, hbool_t *backing_stor
 
     FUNC_ENTER_API(FAIL)
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     if (H5FD_CORE != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
@@ -724,7 +708,7 @@ H5FD__core_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name");
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr");
-    if (ADDR_OVERFLOW(maxaddr))
+    if (CORE_ADDR_OVERFLOW(maxaddr))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, NULL, "maxaddr overflow");
     assert(H5P_DEFAULT != fapl_id);
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
@@ -798,9 +782,9 @@ H5FD__core_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
     file->fi_callbacks = file_image_info.callbacks;
 
     /* Check the file locking flags in the fapl */
-    if (ignore_disabled_file_locks_s != FAIL)
+    if (H5FD_ignore_disabled_file_locks_p != FAIL)
         /* The environment variable was set, so use that preferentially */
-        file->ignore_disabled_file_locks = ignore_disabled_file_locks_s;
+        file->ignore_disabled_file_locks = H5FD_ignore_disabled_file_locks_p;
     else {
         /* Use the value in the property list */
         if (H5P_get(plist, H5F_ACS_IGNORE_DISABLED_FILE_LOCKS_NAME, &file->ignore_disabled_file_locks) < 0)
@@ -840,13 +824,19 @@ H5FD__core_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
         if (size) {
             /* Allocate memory for the file's data, using the file image callback if available. */
             if (file->fi_callbacks.image_malloc) {
-                if (NULL == (file->mem = (unsigned char *)file->fi_callbacks.image_malloc(
-                                 size, H5FD_FILE_IMAGE_OP_FILE_OPEN, file->fi_callbacks.udata)))
-                    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, NULL, "image malloc callback failed");
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(NULL)
+                    {
+                        file->mem = file->fi_callbacks.image_malloc(size, H5FD_FILE_IMAGE_OP_FILE_OPEN,
+                                                                    file->fi_callbacks.udata);
+                    }
+                H5_AFTER_USER_CB(NULL)
+                if (NULL == file->mem)
+                    HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "image malloc callback failed");
             } /* end if */
             else {
-                if (NULL == (file->mem = (unsigned char *)H5MM_malloc(size)))
-                    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, NULL, "unable to allocate memory block");
+                if (NULL == (file->mem = H5MM_malloc(size)))
+                    HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate memory block");
             } /* end else */
 
             /* Set up data structures */
@@ -855,10 +845,18 @@ H5FD__core_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
             /* If there is an initial file image, copy it, using the callback if possible */
             if (file_image_info.buffer && file_image_info.size > 0) {
                 if (file->fi_callbacks.image_memcpy) {
-                    if (file->mem != file->fi_callbacks.image_memcpy(file->mem, file_image_info.buffer, size,
-                                                                     H5FD_FILE_IMAGE_OP_FILE_OPEN,
-                                                                     file->fi_callbacks.udata))
-                        HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, NULL, "image_memcpy callback failed");
+                    void *tmp;
+
+                    /* Prepare & restore library for user callback */
+                    H5_BEFORE_USER_CB(NULL)
+                        {
+                            tmp = file->fi_callbacks.image_memcpy(file->mem, file_image_info.buffer, size,
+                                                                  H5FD_FILE_IMAGE_OP_FILE_OPEN,
+                                                                  file->fi_callbacks.udata);
+                        }
+                    H5_AFTER_USER_CB(NULL)
+                    if (file->mem != tmp)
+                        HGOTO_ERROR(H5E_VFL, H5E_CANTCOPY, NULL, "image_memcpy callback failed");
                 } /* end if */
                 else
                     H5MM_memcpy(file->mem, file_image_info.buffer, size);
@@ -993,9 +991,15 @@ H5FD__core_close(H5FD_t *_file)
     if (file->mem) {
         /* Use image callback if available */
         if (file->fi_callbacks.image_free) {
-            if (file->fi_callbacks.image_free(file->mem, H5FD_FILE_IMAGE_OP_FILE_CLOSE,
-                                              file->fi_callbacks.udata) < 0)
-                HGOTO_ERROR(H5E_FILE, H5E_CANTFREE, FAIL, "image_free callback failed");
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    ret_value = file->fi_callbacks.image_free(file->mem, H5FD_FILE_IMAGE_OP_FILE_CLOSE,
+                                                              file->fi_callbacks.udata);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (ret_value < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "image_free callback failed");
         } /* end if */
         else
             H5MM_xfree(file->mem);
@@ -1049,21 +1053,10 @@ H5FD__core_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
             HGOTO_DONE(1);
 
 #else
-#ifdef H5_DEV_T_IS_SCALAR
         if (f1->device < f2->device)
             HGOTO_DONE(-1);
         if (f1->device > f2->device)
             HGOTO_DONE(1);
-#else  /* H5_DEV_T_IS_SCALAR */
-        /* If dev_t isn't a scalar value on this system, just use memcmp to
-         * determine if the values are the same or not.  The actual return value
-         * shouldn't really matter...
-         */
-        if (memcmp(&(f1->device), &(f2->device), sizeof(dev_t)) < 0)
-            HGOTO_DONE(-1);
-        if (memcmp(&(f1->device), &(f2->device), sizeof(dev_t)) > 0)
-            HGOTO_DONE(1);
-#endif /* H5_DEV_T_IS_SCALAR */
 
         if (f1->inode < f2->inode)
             HGOTO_DONE(-1);
@@ -1172,7 +1165,7 @@ H5FD__core_set_eoa(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr)
 
     FUNC_ENTER_PACKAGE
 
-    if (ADDR_OVERFLOW(addr))
+    if (CORE_ADDR_OVERFLOW(addr))
         HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "address overflow");
 
     file->eoa = addr;
@@ -1288,7 +1281,7 @@ H5FD__core_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UNU
     /* Check for overflow conditions */
     if (HADDR_UNDEF == addr)
         HGOTO_ERROR(H5E_IO, H5E_OVERFLOW, FAIL, "file address overflowed");
-    if (REGION_OVERFLOW(addr, size))
+    if (CORE_REGION_OVERFLOW(addr, size))
         HGOTO_ERROR(H5E_IO, H5E_OVERFLOW, FAIL, "file address overflowed");
 
     /* Read the part which is before the EOF marker */
@@ -1342,7 +1335,7 @@ H5FD__core_write(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UN
     assert(buf);
 
     /* Check for overflow conditions */
-    if (REGION_OVERFLOW(addr, size))
+    if (CORE_REGION_OVERFLOW(addr, size))
         HGOTO_ERROR(H5E_IO, H5E_OVERFLOW, FAIL, "file address overflowed");
 
     /*
@@ -1362,16 +1355,22 @@ H5FD__core_write(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UN
 
         /* (Re)allocate memory for the file buffer, using callbacks if available */
         if (file->fi_callbacks.image_realloc) {
-            if (NULL == (x = (unsigned char *)file->fi_callbacks.image_realloc(
-                             file->mem, new_eof, H5FD_FILE_IMAGE_OP_FILE_RESIZE, file->fi_callbacks.udata)))
-                HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL,
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    x = file->fi_callbacks.image_realloc(file->mem, new_eof, H5FD_FILE_IMAGE_OP_FILE_RESIZE,
+                                                         file->fi_callbacks.udata);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (NULL == x)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL,
                             "unable to allocate memory block of %llu bytes with callback",
                             (unsigned long long)new_eof);
         } /* end if */
         else {
-            if (NULL == (x = (unsigned char *)H5MM_realloc(file->mem, new_eof)))
-                HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL,
-                            "unable to allocate memory block of %llu bytes", (unsigned long long)new_eof);
+            if (NULL == (x = H5MM_realloc(file->mem, new_eof)))
+                HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate memory block of %llu bytes",
+                            (unsigned long long)new_eof);
         } /* end else */
 
         memset(x + file->eof, 0, (size_t)(new_eof - file->eof));
@@ -1520,15 +1519,20 @@ H5FD__core_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, bool closing)
 
             /* (Re)allocate memory for the file buffer, using callback if available */
             if (file->fi_callbacks.image_realloc) {
-                if (NULL ==
-                    (x = (unsigned char *)file->fi_callbacks.image_realloc(
-                         file->mem, new_eof, H5FD_FILE_IMAGE_OP_FILE_RESIZE, file->fi_callbacks.udata)))
-                    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL,
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(FAIL)
+                    {
+                        x = file->fi_callbacks.image_realloc(
+                            file->mem, new_eof, H5FD_FILE_IMAGE_OP_FILE_RESIZE, file->fi_callbacks.udata);
+                    }
+                H5_AFTER_USER_CB(FAIL)
+                if (NULL == x)
+                    HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL,
                                 "unable to allocate memory block with callback");
             } /* end if */
             else {
-                if (NULL == (x = (unsigned char *)H5MM_realloc(file->mem, new_eof)))
-                    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, "unable to allocate memory block");
+                if (NULL == (x = H5MM_realloc(file->mem, new_eof)))
+                    HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate memory block");
             } /* end else */
 
             if (file->eof < new_eof)

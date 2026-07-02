@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -21,7 +21,7 @@
 #include "H5VLpublic.h" /* Virtual Object Layer                 */
 
 /* Identifier for the pass-through VOL connector */
-#define H5VL_PASSTHRU (H5VL_pass_through_register())
+#define H5VL_PASSTHRU (H5OPEN H5VL_PASSTHRU_g)
 
 /* Characteristics of the pass-through VOL connector */
 #define H5VL_PASSTHRU_NAME    "pass_through"
@@ -38,7 +38,8 @@ typedef struct H5VL_pass_through_info_t {
 extern "C" {
 #endif
 
-H5_DLL hid_t H5VL_pass_through_register(void);
+/* Global variable to hold the VOL connector ID */
+H5_DLLVAR hid_t H5VL_PASSTHRU_g;
 
 #ifdef __cplusplus
 }

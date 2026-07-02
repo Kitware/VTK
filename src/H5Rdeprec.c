@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -368,7 +368,7 @@ H5Rdereference1(hid_t obj_id, H5R_type_t ref_type, const void *ref)
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open object by token");
 
     /* Register object */
-    if ((ret_value = H5VL_register(opened_type, opened_obj, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(opened_type, opened_obj, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object handle");
 
 done:
@@ -641,7 +641,7 @@ H5Rdereference2(hid_t obj_id, hid_t oapl_id, H5R_type_t ref_type, const void *re
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open object by token");
 
     /* Register object */
-    if ((ret_value = H5VL_register(opened_type, opened_obj, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(opened_type, opened_obj, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object handle");
 
 done:
@@ -741,9 +741,23 @@ done:
  * Purpose:     Given a reference to some object, determine a path to the
  *              object referenced in the file.
  *
- * Return:      Success:    Non-negative length of the path
- *              Failure:    -1
+ * Description:
+ *              When 'name' is non-NULL:
+ *                - if 'size' > 0: writes up to 'size' bytes into the buffer
+ *                  (including null terminator) and returns the actual length
+ *                  of the name (excluding null terminator).
+ *                - if 'size' == 0: treats the call as length query, does not
+ *                  write anything to the buffer (not even a null terminator), and
+ *                  returns the actual length of the name (excluding null terminator).
  *
+ *              When 'name' is NULL: does not write anything regardless of 'size'
+ *              and returns the actual length of the path (excluding null terminator).
+ *
+ *              On error, the buffer is unchanged and the function returns
+ *              a negative value.
+ *
+ * Return:      Success:    The length of the path (excluding null terminator)
+ *              Failure:    Negative
  *-------------------------------------------------------------------------
  */
 ssize_t
@@ -765,6 +779,10 @@ H5Rget_name(hid_t id, H5R_type_t ref_type, const void *ref, char *name /*out*/, 
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, (-1), "invalid reference pointer");
     if (ref_type != H5R_OBJECT1 && ref_type != H5R_DATASET_REGION1)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, (-1), "invalid reference type");
+
+    /* If buffer size is zero, treat as length query and do not write, even a '\0' */
+    if (name && size == 0)
+        name = NULL;
 
     /* Get the VOL object */
     if (NULL == (vol_obj = H5VL_vol_object(id)))

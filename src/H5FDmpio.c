@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -14,34 +14,40 @@
  * Purpose:     This is the MPI I/O driver.
  */
 
-#include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
-#include "H5private.h"   /* Generic Functions                    */
+#include "H5private.h" /* Generic Functions                    */
+
+#ifdef H5_HAVE_PARALLEL
+
 #include "H5CXprivate.h" /* API Contexts                         */
 #include "H5Dprivate.h"  /* Dataset functions                    */
 #include "H5Eprivate.h"  /* Error handling                       */
 #include "H5Fprivate.h"  /* File access                          */
-#include "H5FDprivate.h" /* File drivers                         */
 #include "H5FDmpi.h"     /* MPI-based file drivers               */
+#include "H5FDpkg.h"     /* File drivers                         */
 #include "H5Iprivate.h"  /* IDs                                  */
 #include "H5MMprivate.h" /* Memory management                    */
 #include "H5Pprivate.h"  /* Property lists                       */
-
-#ifdef H5_HAVE_PARALLEL
 
 /*
  * The driver identification number, initialized at runtime if H5_HAVE_PARALLEL
  * is defined. This allows applications to still have the H5FD_MPIO
  * "constants" in their source code.
  */
-static hid_t H5FD_MPIO_g = 0;
+hid_t H5FD_MPIO_id_g = H5I_INVALID_HID;
+
+/* Flag to indicate whether global driver resources & settings have been
+ *      initialized.
+ */
+static bool H5FD_mpio_init_s = false;
 
 /* Whether to allow collective I/O operations */
 /* (Can be changed by setting "HDF5_MPI_OPT_TYPES" environment variable to '0' or '1') */
 bool H5FD_mpi_opt_types_g = true;
 
 /* Whether the driver initialized MPI on its own */
-static bool H5FD_mpi_self_initialized = false;
+static bool H5FD_mpi_self_initialized_s = false;
 
 /*
  * The view is set to this value
@@ -256,79 +262,110 @@ H5FD__mem_t_to_str(H5FD_mem_t mem_type)
 #endif /* H5FDmpio_DEBUG */
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_mpio_init
+ * Function:    H5FD__mpio_register
  *
- * Purpose:     Initialize this driver by registering the driver with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the mpio driver
- *              Failure:    H5I_INVALID_HID
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_mpio_init(void)
+herr_t
+H5FD__mpio_register(void)
 {
-    static int H5FD_mpio_Debug_inited = 0;
-    char      *env                    = NULL;
-    hid_t      ret_value              = H5I_INVALID_HID; /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
+    FUNC_ENTER_PACKAGE
 
     /* Register the MPI-IO VFD, if it isn't already */
-    if (H5I_VFL != H5I_get_type(H5FD_MPIO_g)) {
-        H5FD_MPIO_g = H5FD_register((const H5FD_class_t *)&H5FD_mpio_g, sizeof(H5FD_class_t), false);
-
-        /* Check if MPI driver has been loaded dynamically */
-        env = getenv(HDF5_DRIVER);
-        if (env && !strcmp(env, "mpio")) {
-            int mpi_initialized = 0;
-
-            /* Initialize MPI if not already initialized */
-            if (MPI_SUCCESS != MPI_Initialized(&mpi_initialized))
-                HGOTO_ERROR(H5E_VFL, H5E_UNINITIALIZED, H5I_INVALID_HID, "can't check if MPI is initialized");
-            if (!mpi_initialized) {
-                if (MPI_SUCCESS != MPI_Init(NULL, NULL))
-                    HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, H5I_INVALID_HID, "can't initialize MPI");
-                H5FD_mpi_self_initialized = true;
-            }
-        }
-    }
-
-    if (!H5FD_mpio_Debug_inited) {
-        const char *s; /* String for environment variables */
-
-        /* Allow MPI buf-and-file-type optimizations? */
-        s = getenv("HDF5_MPI_OPT_TYPES");
-        if (s && isdigit(*s))
-            H5FD_mpi_opt_types_g = (0 == strtol(s, NULL, 0)) ? false : true;
-
-#ifdef H5FDmpio_DEBUG
-        /* Clear the flag buffer */
-        memset(H5FD_mpio_debug_flags_s, 0, sizeof(H5FD_mpio_debug_flags_s));
-
-        /* Retrieve MPI-IO debugging environment variable */
-        s = getenv("H5FD_mpio_Debug");
-        if (s)
-            H5FD__mpio_parse_debug_str(s);
-#endif /* H5FDmpio_DEBUG */
-
-        H5FD_mpio_Debug_inited++;
-    } /* end if */
-
-    /* Set return value */
-    ret_value = H5FD_MPIO_g;
+    if (H5I_VFL != H5I_get_type(H5FD_MPIO_id_g))
+        if ((H5FD_MPIO_id_g = H5FD_register(&H5FD_mpio_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register mpio driver");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_mpio_init() */
+} /* end H5FD__mpio_register() */
+
+/*---------------------------------------------------------------------------
+ * Function:    H5FD__mpio_unregister
+ *
+ * Purpose:     Reset library driver info.
+ *
+ * Returns:     SUCCEED (Can't fail)
+ *
+ *---------------------------------------------------------------------------
+ */
+herr_t
+H5FD__mpio_unregister(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Reset VFL ID */
+    H5FD_MPIO_id_g = H5I_INVALID_HID;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5FD__mpio_unregister() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__mpio_init
+ *
+ * Purpose:     Singleton to initialize global driver settings & resources.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD__mpio_init(void)
+{
+    char  *env       = NULL;
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check if MPI driver has been loaded dynamically */
+    env = getenv(HDF5_DRIVER);
+    if (env && !strcmp(env, "mpio")) {
+        int mpi_initialized = 0;
+
+        /* Initialize MPI if not already initialized */
+        if (MPI_SUCCESS != MPI_Initialized(&mpi_initialized))
+            HGOTO_ERROR(H5E_VFL, H5E_UNINITIALIZED, FAIL, "can't check if MPI is initialized");
+        if (!mpi_initialized) {
+            if (MPI_SUCCESS != MPI_Init(NULL, NULL))
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize MPI");
+            H5FD_mpi_self_initialized_s = true;
+        }
+    }
+
+    /* Allow MPI buf-and-file-type optimizations? */
+    env = getenv("HDF5_MPI_OPT_TYPES");
+    if (env && isdigit(*env))
+        H5FD_mpi_opt_types_g = (0 == strtol(env, NULL, 0)) ? false : true;
+
+#ifdef H5FDmpio_DEBUG
+    /* Clear the flag buffer */
+    memset(H5FD_mpio_debug_flags_s, 0, sizeof(H5FD_mpio_debug_flags_s));
+
+    /* Retrieve MPI-IO debugging environment variable */
+    env = getenv("H5FD_mpio_Debug");
+    if (env)
+        H5FD__mpio_parse_debug_str(env);
+#endif /* H5FDmpio_DEBUG */
+
+    /* Indicate that driver is set up */
+    H5FD_mpio_init_s = true;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD__mpio_init() */
 
 /*---------------------------------------------------------------------------
  * Function:    H5FD__mpio_term
  *
  * Purpose:     Shut down the VFD
  *
- * Returns:     Non-negative on success or negative on failure
+ * Returns:     SUCCEED (Can't fail)
  *
  *---------------------------------------------------------------------------
  */
@@ -338,18 +375,15 @@ H5FD__mpio_term(void)
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Terminate MPI if the driver initialized it */
-    if (H5FD_mpi_self_initialized) {
+    if (H5FD_mpi_self_initialized_s) {
         int mpi_finalized = 0;
 
         MPI_Finalized(&mpi_finalized);
         if (!mpi_finalized)
             MPI_Finalize();
 
-        H5FD_mpi_self_initialized = false;
+        H5FD_mpi_self_initialized_s = false;
     }
-
-    /* Reset VFL ID */
-    H5FD_MPIO_g = 0;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5FD__mpio_term() */
@@ -393,10 +427,15 @@ H5Pset_fapl_mpio(hid_t fapl_id, MPI_Comm comm, MPI_Info info)
     /* Check arguments */
     if (fapl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a file access list");
     if (MPI_COMM_NULL == comm)
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "MPI_COMM_NULL is not a valid communicator");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the MPI communicator and info object */
     if (H5P_set(plist, H5F_ACS_MPI_PARAMS_COMM_NAME, &comm) < 0)
@@ -446,10 +485,15 @@ H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm /*out*/, MPI_Info *info /*out*/)
         *info = MPI_INFO_NULL;
 
     /* Check arguments */
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a file access list");
     if (H5FD_MPIO != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "VFL driver is not MPI-I/O");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Get the MPI communicator and info object */
     if (comm)
@@ -505,10 +549,15 @@ H5Pset_dxpl_mpio(hid_t dxpl_id, H5FD_mpio_xfer_t xfer_mode)
     /* Check arguments */
     if (dxpl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
     if (H5FD_MPIO_INDEPENDENT != xfer_mode && H5FD_MPIO_COLLECTIVE != xfer_mode)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "incorrect xfer_mode");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the transfer mode */
     if (H5P_set(plist, H5D_XFER_IO_XFER_MODE_NAME, &xfer_mode) < 0)
@@ -540,8 +589,13 @@ H5Pget_dxpl_mpio(hid_t dxpl_id, H5FD_mpio_xfer_t *xfer_mode /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Check arguments */
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, true)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Get the transfer mode */
     if (xfer_mode)
@@ -579,8 +633,13 @@ H5Pset_dxpl_mpio_collective_opt(hid_t dxpl_id, H5FD_mpio_collective_opt_t opt_mo
     /* Check arguments */
     if (dxpl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the transfer mode */
     if (H5P_set(plist, H5D_XFER_MPIO_COLLECTIVE_OPT_NAME, &opt_mode) < 0)
@@ -617,8 +676,13 @@ H5Pset_dxpl_mpio_chunk_opt(hid_t dxpl_id, H5FD_mpio_chunk_opt_t opt_mode)
     /* Check arguments */
     if (dxpl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the transfer mode */
     if (H5P_set(plist, H5D_XFER_MPIO_CHUNK_OPT_HARD_NAME, &opt_mode) < 0)
@@ -653,8 +717,13 @@ H5Pset_dxpl_mpio_chunk_opt_num(hid_t dxpl_id, unsigned num_chunk_per_proc)
     /* Check arguments */
     if (dxpl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the transfer mode */
     if (H5P_set(plist, H5D_XFER_MPIO_CHUNK_OPT_NUM_NAME, &num_chunk_per_proc) < 0)
@@ -692,8 +761,13 @@ H5Pset_dxpl_mpio_chunk_opt_ratio(hid_t dxpl_id, unsigned percent_num_proc_per_ch
     /* Check arguments */
     if (dxpl_id == H5P_DEFAULT)
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "can't set values in default property list");
-    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER)))
+    if (NULL == (plist = H5P_object_verify(dxpl_id, H5P_DATASET_XFER, false)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a dxpl");
+
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
 
     /* Set the transfer mode */
     if (H5P_set(plist, H5D_XFER_MPIO_CHUNK_OPT_RATIO_NAME, &percent_num_proc_per_chunk) < 0)
@@ -824,11 +898,16 @@ H5FD__mpio_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t H5_ATTR
 
     FUNC_ENTER_PACKAGE
 
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, NULL, "can't initialize driver");
+
     /* Get a pointer to the fapl */
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
 
-    if (H5FD_mpi_self_initialized) {
+    if (H5FD_mpi_self_initialized_s) {
         comm = MPI_COMM_WORLD;
     }
     else {
@@ -3738,11 +3817,16 @@ H5FD__mpio_delete(const char *filename, hid_t fapl_id)
 
     assert(filename);
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    /* Initialize driver, if it's not yet */
+    if (!H5FD_mpio_init_s)
+        if (H5FD__mpio_init() < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize driver");
+
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     assert(H5FD_MPIO == H5P_peek_driver(plist));
 
-    if (H5FD_mpi_self_initialized) {
+    if (H5FD_mpi_self_initialized_s) {
         comm = MPI_COMM_WORLD;
     }
     else {
@@ -3820,7 +3904,7 @@ H5FD__mpio_ctl(H5FD_t *_file, uint64_t op_code, uint64_t flags, const void H5_AT
     H5FD_mpio_t *file      = (H5FD_mpio_t *)_file;
     herr_t       ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
     assert(file);

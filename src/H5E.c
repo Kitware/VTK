@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -72,6 +72,9 @@
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /* Declare extern the free list to manage the H5E_stack_t struct */
 H5FL_EXTERN(H5E_stack_t);
@@ -611,7 +614,7 @@ H5Eclear2(hid_t err_stack)
     } /* end else */
 
     /* Clear the error stack */
-    if (H5E__clear_stack(estack) < 0)
+    if (H5E__destroy_stack(estack) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't clear error stack");
 
 done:
@@ -861,7 +864,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Eappend_stack(hid_t dst_stack_id, hid_t src_stack_id, hbool_t close_source_stack)
+H5Eappend_stack(hid_t dst_stack_id, hid_t src_stack_id, bool close_source_stack)
 {
     H5E_stack_t *dst_stack, *src_stack; /* Error stacks */
     herr_t       ret_value = SUCCEED;   /* Return value */
@@ -900,7 +903,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Eis_paused(hid_t stack_id, hbool_t *is_paused)
+H5Eis_paused(hid_t stack_id, bool *is_paused)
 {
     H5E_stack_t *stack;               /* Error stack */
     herr_t       ret_value = SUCCEED; /* Return value */
