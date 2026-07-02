@@ -63,32 +63,32 @@ def test_container_interface():
     sel = vtkSelection()
 
     node1 = vtkSelectionNode()
-    node1.SetContentType(vtkSelectionNode.INDICES)
-    node1.SetFieldType(vtkSelectionNode.CELL)
+    node1.content_type = "INDICES"
+    node1.field_type = "CELL"
     name1 = sel.append(node1)
 
     node2 = vtkSelectionNode()
-    node2.SetContentType(vtkSelectionNode.INDICES)
-    node2.SetFieldType(vtkSelectionNode.POINT)
+    node2.content_type = "INDICES"
+    node2.field_type = "POINT"
     name2 = sel.append(node2)
 
     # len
     assert len(sel) == 2
 
     # getitem by index
-    assert sel[0].GetFieldType() == vtkSelectionNode.CELL
-    assert sel[1].GetFieldType() == vtkSelectionNode.POINT
+    assert sel[0].field_type == "CELL"
+    assert sel[1].field_type == "POINT"
 
     # getitem by name
     assert sel[name1] is not None
     assert sel[name2] is not None
 
     # negative index
-    assert sel[-1].GetFieldType() == vtkSelectionNode.POINT
+    assert sel[-1].field_type == "POINT"
 
     # iteration
-    types = [n.GetFieldType() for n in sel]
-    assert types == [vtkSelectionNode.CELL, vtkSelectionNode.POINT]
+    types = [n.field_type for n in sel]
+    assert types == ["CELL", "POINT"]
 
     # node_names
     assert name1 in sel.node_names
@@ -384,12 +384,12 @@ def test_selection_node_properties():
 def test_selection_node_repr():
     """SelectionNode repr."""
     node = vtkSelectionNode()
-    node.SetContentType(vtkSelectionNode.INDICES)
-    node.SetFieldType(vtkSelectionNode.CELL)
+    node.content_type = "INDICES"
+    node.field_type = "CELL"
     ids = vtkIdTypeArray()
     ids.InsertNextValue(0)
     ids.InsertNextValue(5)
-    node.SetSelectionList(ids)
+    node.selection_list = ids
     r = repr(node)
     assert "INDICES" in r
     assert "CELL" in r
@@ -482,12 +482,12 @@ def test_operators_with_non_selection():
 
 def _make_indices_node(ids):
     node = vtkSelectionNode()
-    node.SetContentType(vtkSelectionNode.INDICES)
-    node.SetFieldType(vtkSelectionNode.CELL)
+    node.content_type = "INDICES"
+    node.field_type = "CELL"
     arr = vtkIdTypeArray()
     for i in ids:
         arr.InsertNextValue(i)
-    node.SetSelectionList(arr)
+    node.selection_list = arr
     return node
 
 
@@ -511,7 +511,7 @@ def test_reconstructed_selection_operators():
     rewrapped = type(src)(src.__this__)
     assert rewrapped._expr_label is None, \
         "class-level _expr_label default missing"
-    rewrapped.AddNode(_make_indices_node([1, 2, 3]))
+    rewrapped.append(_make_indices_node([1, 2, 3]))
 
     # None of these may raise AttributeError.
     inverted = ~rewrapped
