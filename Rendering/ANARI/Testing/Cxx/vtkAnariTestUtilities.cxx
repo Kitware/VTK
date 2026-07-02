@@ -3,9 +3,65 @@
 
 #include "vtkAnariTestUtilities.h"
 
+#include "vtkAnariPass.h"
+#include "vtkAnariRenderWindow.h"
 #include "vtkAnariSceneGraph.h"
+#include "vtkRenderer.h"
 #include "vtkTesting.h"
 
+namespace
+{
+
+//------------------------------------------------------------------------------
+void SetParameterDefaultsInternal(vtkAnariDevice* device, vtkAnariRenderer* anariRenderer,
+  vtkRenderer* nativeRenderer, bool useDebugDevice, const char* testName)
+{
+  if (useDebugDevice)
+  {
+    vtkNew<vtkTesting> testing;
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace/";
+    traceDir += testName;
+    device->SetAnariDebugConfig(traceDir.c_str(), "code");
+  }
+
+  device->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+
+  // General renderer parameters:
+  device->SetParameterf("ambientRadiance", 1.f);
+
+  // VisRTX specific renderer parameters:
+  anariRenderer->SetParameterf("lightFalloff", 0.5f);
+  anariRenderer->SetParameterb("denoise", true);
+  anariRenderer->SetParameteri("pixelSamples", 8);
+
+  if (nativeRenderer)
+  {
+    vtkAnariSceneGraph::SetCompositeOnGL(nativeRenderer, 1);
+  }
+}
+
+}
+
+namespace vtkAnariTestUtilities
+{
+
+//------------------------------------------------------------------------------
+void SetParameterDefaults(
+  vtkAnariRenderWindow* renderWindow, bool useDebugDevice, const char* testName)
+{
+  if (!renderWindow)
+  {
+    return;
+  }
+
+  auto* anariDevice = renderWindow->GetAnariDevice();
+  auto* anariRenderer = renderWindow->GetAnariRenderer();
+
+  ::SetParameterDefaultsInternal(anariDevice, anariRenderer, nullptr, useDebugDevice, testName);
+}
+
+//------------------------------------------------------------------------------
 void SetParameterDefaults(
   vtkAnariPass* pass, vtkRenderer* renderer, bool useDebugDevice, const char* testName)
 {
@@ -15,24 +71,7 @@ void SetParameterDefaults(
   auto* ad = pass->GetAnariDevice();
   auto* ar = pass->GetAnariRenderer();
 
-  if (useDebugDevice)
-  {
-    vtkNew<vtkTesting> testing;
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace/";
-    traceDir += testName;
-    ad->SetAnariDebugConfig(traceDir.c_str(), "code");
-  }
+  ::SetParameterDefaultsInternal(ad, ar, renderer, useDebugDevice, testName);
+}
 
-  ad->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
-
-  // General renderer parameters:
-  ar->SetParameterf("ambientRadiance", 1.f);
-
-  // VisRTX specific renderer parameters:
-  ar->SetParameterf("lightFalloff", 0.5f);
-  ar->SetParameterb("denoise", true);
-  ar->SetParameteri("pixelSamples", 8);
-
-  vtkAnariSceneGraph::SetCompositeOnGL(renderer, 1);
 }
