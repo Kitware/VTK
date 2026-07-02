@@ -129,6 +129,9 @@ MODULE_MAPPER = {
     "vtkCommonExecutionModel": [
         "vtkmodules.util.execution_model",
     ],
+    "vtkInteractionWidgets": [
+        "vtkmodules.util.widgets",
+    ],
 }
 LOADED_MODULES = set()
 PENDING_LOADED_MODULES = set()
