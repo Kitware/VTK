@@ -203,7 +203,7 @@ public:
   bool IsRoot() { return this->Index == 0 && this->Level == 0; }
 
   /**
-   * Move the cursor to child `child' of the current vertex.
+   * Move the cursor to child \c child of the current vertex.
    * \pre not_tree: tree
    * \pre not_leaf: !IsLeaf()
    * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()

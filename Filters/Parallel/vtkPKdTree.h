@@ -263,7 +263,7 @@ public:
   /**
    * Return a list of all processes in order from front to back given a
    * vector direction of projection.  Use this to do visibility sorts
-   * in parallel projection mode. `orderedList' will be resized to the number
+   * in parallel projection mode. \c orderedList will be resized to the number
    * of processes. The return value is the number of processes.
    * \pre orderedList_exists: orderedList!=0
    */
@@ -273,7 +273,7 @@ public:
   /**
    * Return a list of all processes in order from front to back given a
    * camera position.  Use this to do visibility sorts in perspective
-   * projection mode. `orderedList' will be resized to the number
+   * projection mode. \c orderedList will be resized to the number
    * of processes. The return value is the number of processes.
    * \pre orderedList_exists: orderedList!=0
    */

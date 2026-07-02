@@ -51,10 +51,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Tessellate a face of a 3D `cell'. The face is specified by the
+   * Tessellate a face of a 3D \c cell. The face is specified by the
    * index value.
-   * The result is a set of smaller linear triangles in `cellArray' with
-   * `points' and point data `internalPd'.
+   * The result is a set of smaller linear triangles in \c cellArray with
+   * \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==3
    * \pre valid_index_range: (index>=0) && (index<cell->GetNumberOfBoundaries(2))
@@ -67,8 +67,8 @@ public:
     vtkIdType index, vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
   /**
-   * Tessellate a 3D `cell'. The result is a set of smaller linear
-   * tetrahedra in `cellArray' with `points' and point data `internalPd'.
+   * Tessellate a 3D \c cell. The result is a set of smaller linear
+   * tetrahedra in \c cellArray with \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==3
    * \pre att_exists: att!=0
@@ -80,8 +80,8 @@ public:
     vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
   /**
-   * Triangulate a 2D `cell'. The result is a set of smaller linear triangles
-   * in `cellArray' with `points' and point data `internalPd'.
+   * Triangulate a 2D \c cell. The result is a set of smaller linear triangles
+   * in \c cellArray with \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==2
    * \pre att_exists: att!=0
@@ -102,7 +102,7 @@ public:
   ///@}
 
   /**
-   * Initialize the tessellator with a data set `ds'.
+   * Initialize the tessellator with a data set \c ds.
    */
   virtual void Initialize(vtkGenericDataSet* ds) = 0;
 
@@ -133,12 +133,12 @@ protected:
 
   /**
    * Does the edge need to be subdivided according to at least one error
-   * metric? The edge is defined by its `leftPoint' and its `rightPoint'.
-   * `leftPoint', `midPoint' and `rightPoint' have to be initialized before
+   * metric? The edge is defined by its \c leftPoint and its \c rightPoint.
+   * \c leftPoint, \c midPoint and \c rightPoint have to be initialized before
    * calling RequiresEdgeSubdivision().
    * Their format is global coordinates, parametric coordinates and
    * point centered attributes: xyx rst abc de...
-   * `alpha' is the normalized abscissa of the midpoint along the edge.
+   * \c alpha is the normalized abscissa of the midpoint along the edge.
    * (close to 0 means close to the left point, close to 1 means close to the
    * right point)
    * \pre leftPoint_exists: leftPoint!=0

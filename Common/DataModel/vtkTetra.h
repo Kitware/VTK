@@ -198,7 +198,7 @@ public:
 
   ///@{
   /**
-   * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+   * Return the ids of the vertices defining edge/face (\c edgeId/\c faceId).
    * Ids are related to the cell, not to the dataset.
    *
    * @note The return type changed. It used to be int*, it is now const vtkIdType*.

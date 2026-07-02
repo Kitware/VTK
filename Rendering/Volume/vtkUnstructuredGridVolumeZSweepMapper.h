@@ -166,7 +166,7 @@ protected:
   void BuildUseSets();
 
   /**
-   * Reorder vertices `v' in increasing order in `w'. Return if the orientation
+   * Reorder vertices \c v in increasing order in \c w. Return if the orientation
    * has changed.
    */
   int ReorderTriangle(vtkIdType v[3], vtkIdType w[3]);
@@ -245,13 +245,13 @@ protected:
   double GetMinimumBoundsDepth(vtkRenderer* ren, vtkVolume* vol);
 
   /**
-   * Allocate an array of usesets of size `size' only if the current one is not
+   * Allocate an array of usesets of size \c size only if the current one is not
    * large enough. Otherwise clear each use set of each vertex.
    */
   void AllocateUseSet(vtkIdType size);
 
   /**
-   * Allocate a vertex array of size `size' only if the current one is not
+   * Allocate a vertex array of size \c size only if the current one is not
    * large enough.
    */
   void AllocateVertices(vtkIdType size);

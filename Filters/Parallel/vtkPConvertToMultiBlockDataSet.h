@@ -8,7 +8,7 @@
  * vtkConvertToMultiBlockDataSet.
  *
  * The extra work this filter does it to ensure that each `vtkPartitionedDataSet` instance
- * in the input when replaced by a `vtkMultiPieceDataSet in the output,
+ * in the input when replaced by a `vtkMultiPieceDataSet` in the output,
  * `vtkMultiPieceDataSet` has piece counts across ranks such the output
  * multiblock structure is identical on all ranks. `vtkPartitionedDataSet` /
  * `vtkPartitionedDataSetCollection` doesn't have this requirement and hence the

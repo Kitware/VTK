@@ -861,7 +861,7 @@ public:
    * all available at once. This is typically the case for visualization in situ.
    *
    * @note Default value in `vtkStreamingDemandDrivenPipeline::NO_PRIOR_TEMPORAL_ACCESS_RESET`.
-   * `vtkStreamingDemandDrivenPipeline` will set it to `NO_PRIOR_TEMPORAL_ACCESS_CONTINUE' after
+   * `vtkStreamingDemandDrivenPipeline` will set it to `NO_PRIOR_TEMPORAL_ACCESS_CONTINUE` after
    * execution of the first time step.
    */
   void SetNoPriorTemporalAccessInformationKey(int key);

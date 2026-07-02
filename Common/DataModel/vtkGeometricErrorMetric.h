@@ -53,7 +53,7 @@ public:
    * This is the geometric object-based accuracy.
    * Subdivision will be required if the square distance between the real
    * point and the straight line passing through the vertices of the edge is
-   * greater than `value'. For instance 0.01 will give better result than 0.1.
+   * greater than \c value. For instance 0.01 will give better result than 0.1.
    * \pre positive_value: value>0
    */
   void SetAbsoluteGeometricTolerance(double value);
@@ -70,12 +70,12 @@ public:
   /**
    * Does the edge need to be subdivided according to the distance between
    * the line passing through its endpoints and the mid point?
-   * The edge is defined by its `leftPoint' and its `rightPoint'.
-   * `leftPoint', `midPoint' and `rightPoint' have to be initialized before
+   * The edge is defined by its \c leftPoint and its \c rightPoint.
+   * \c leftPoint, \c midPoint and \c rightPoint have to be initialized before
    * calling RequiresEdgeSubdivision().
    * Their format is global coordinates, parametric coordinates and
    * point centered attributes: xyx rst abc de...
-   * `alpha' is the normalized abscissa of the midpoint along the edge.
+   * \c alpha is the normalized abscissa of the midpoint along the edge.
    * (close to 0 means close to the left point, close to 1 means close to the
    * right point)
    * \pre leftPoint_exists: leftPoint!=0

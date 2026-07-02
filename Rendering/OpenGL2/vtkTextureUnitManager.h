@@ -66,7 +66,7 @@ public:
   virtual int Allocate(int unit);
 
   /**
-   * Tell if texture unit `textureUnitId' is already allocated.
+   * Tell if texture unit \c textureUnitId is already allocated.
    * \pre valid_textureUnitId_range : textureUnitId>=0 &&
    * textureUnitId<this->GetNumberOfTextureUnits()
    */

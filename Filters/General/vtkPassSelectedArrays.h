@@ -12,7 +12,7 @@
  * instance using `GetArraySelection` or the association specific get methods
  * such as `GetPointDataArraySelection`, `GetCellDataArraySelection` etc. and
  * then enable/disable arrays using `vtkDataArraySelection` API. Using
- * vtkDataArraySelection::SetUnknownArraySetting` one also dictate how arrays
+ * `vtkDataArraySelection::SetUnknownArraySetting` one also dictate how arrays
  * not explicitly listed are to be handled.
  *
  */

@@ -30,7 +30,7 @@ public:
   ~vtkTDxQtUnixDevices();
 
   /**
-   * Process X11 event `e'. Create a device and emit signal CreateDevice if it
+   * Process X11 event \c e. Create a device and emit signal CreateDevice if it
    * does not exist yet.
    * \pre e_exists: e!=0
    */

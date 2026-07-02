@@ -125,7 +125,7 @@ public:
    * INTERNAL USE ONLY.
    * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
 
-   * Tell if the light `l' can create shadows.
+   * Tell if the light \c l can create shadows.
    * The light has to not be a head light and to be directional or
    * positional with an angle less than 180 degrees.
    * \pre l_exists: l!=0

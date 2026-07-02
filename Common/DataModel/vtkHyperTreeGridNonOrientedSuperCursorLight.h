@@ -46,7 +46,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Create a copy of `this'.
+   * Create a copy of \c this.
    * \post results_exists:result!=0
    */
   virtual vtkHyperTreeGridNonOrientedSuperCursorLight* Clone();
@@ -167,7 +167,7 @@ public:
   unsigned int GetLevel(unsigned int icursor);
 
   /**
-   * Move the cursor to child `child' of the current vertex.
+   * Move the cursor to child \c child of the current vertex.
    * \pre Non_leaf: !IsLeaf()
    * \pre valid_child: ichild>=0 && ichild<this->GetNumberOfChildren()
    */

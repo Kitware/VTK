@@ -12,7 +12,7 @@
  *
  * The implementation of vtkDecimatePro is similar to the algorithm
  * originally described in "Decimation of Triangle Meshes", Proc Siggraph
- * `92, with three major differences. First, this algorithm does not
+ * 92, with three major differences. First, this algorithm does not
  * necessarily preserve the topology of the mesh. Second, it is guaranteed to
  * give the a mesh reduction factor specified by the user (as long as certain
  * constraints are not set - see Caveats). Third, it is set up generate

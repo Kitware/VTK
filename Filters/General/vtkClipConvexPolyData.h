@@ -51,13 +51,13 @@ protected:
     vtkInformationVector* outputVector) override;
 
   /**
-   * Clip the input with a given plane `p'.
+   * Clip the input with a given plane \c p.
    * tolerance ?
    */
   void ClipWithPlane(vtkPlane* p, double tolerance);
 
   /**
-   * Tells if clipping the input by plane `p' creates some degeneracies.
+   * Tells if clipping the input by plane \c p creates some degeneracies.
    */
   bool HasDegeneracies(vtkPlane* p);
 

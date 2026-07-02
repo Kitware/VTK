@@ -107,7 +107,7 @@ public:
   virtual void GetDistinctCellTypes(vtkCellTypes* types);
 
   /**
-   * Return an iterator to traverse cells of dimension `dim' (or all
+   * Return an iterator to traverse cells of dimension \c dim (or all
    * dimensions if -1) that explicitly define the dataset. For instance, it
    * will return only tetrahedra if the mesh is defined by tetrahedra. If the
    * mesh is composed of two parts, one with tetrahedra and another part with
@@ -121,8 +121,8 @@ public:
   virtual vtkGenericCellIterator* NewCellIterator(int dim = -1) = 0;
 
   /**
-   * Return an iterator to traverse cell boundaries of dimension `dim' (or
-   * all dimensions if -1) of the dataset.  If `exteriorOnly' is true, only
+   * Return an iterator to traverse cell boundaries of dimension \c dim (or
+   * all dimensions if -1) of the dataset.  If \c exteriorOnly is true, only
    * the exterior cell boundaries of the dataset will be returned, otherwise
    * it will return exterior and interior cell boundaries. The user is
    * responsible for deleting the iterator.
@@ -142,10 +142,10 @@ public:
   virtual vtkGenericPointIterator* NewPointIterator() = 0;
 
   /**
-   * Locate the closest cell to position `x' (global coordinates) with
-   * respect to a tolerance squared `tol2' and an initial guess `cell' (if
-   * valid). The result consists in the `cell', the `subId' of the sub-cell
-   * (0 if primary cell), the parametric coordinates `pcoord' of the
+   * Locate the closest cell to position \c x (global coordinates) with
+   * respect to a tolerance squared \c tol2 and an initial guess \c cell (if
+   * valid). The result consists in the \c cell, the \c subId of the sub-cell
+   * (0 if primary cell), the parametric coordinates \c pcoord of the
    * position. It returns whether the position is inside the cell or
    * not (boolean). Tolerance is used to control how close the point is to be
    * considered "in" the cell.
@@ -158,7 +158,7 @@ public:
     double x[3], vtkGenericCellIterator*& cell, double tol2, int& subId, double pcoords[3]) = 0;
 
   /**
-   * Locate the closest point `p' to position `x' (global coordinates).
+   * Locate the closest point \c p to position \c x (global coordinates).
    * \pre not_empty: GetNumberOfPoints()>0
    * \pre p_exists: p!=0
    */
@@ -185,7 +185,7 @@ public:
 
   /**
    * Return the geometry bounding box in global coordinates in
-   * the form (xmin,xmax, ymin,ymax, zmin,zmax) in the `bounds' array.
+   * the form (xmin,xmax, ymin,ymax, zmin,zmax) in the \c bounds array.
    */
   virtual void GetBounds(double bounds[6]);
 

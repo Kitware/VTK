@@ -15,7 +15,7 @@
  * algorithm to take into account the dimensionality of the data (e.g., 2D,
  * x-y surfaces may be binned into n x n x 1 to reduce extra polygons in the
  * z-direction). Finally, the filter may optionally be set in "Static" mode
- * (this works with the vtkMapper::SetStatic() method). `Enabling Static results
+ * (this works with the vtkMapper::SetStatic() method). Enabling Static results
  * in a one time execution of the Mapper's pipeline. After that, the pipeline
  * no longer updated (unless manually forced to do so).
  *
