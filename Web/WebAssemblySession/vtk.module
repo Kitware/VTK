@@ -9,4 +9,9 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
 PRIVATE_DEPENDS
+  VTK::RenderingCore
+  VTK::RenderingUI
   VTK::SerializationManager
+OPTIONAL_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::RenderingWebGPU

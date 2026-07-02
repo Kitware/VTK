@@ -68,6 +68,11 @@ public:
    */
   void Initialize() override;
 
+  /**
+   * Call DestroyWindow
+   */
+  void Finalize() override;
+
   void Start() override;
 
   /**

@@ -470,7 +470,7 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
     if (id > 0)
     {
       state = context->GetState(id);
-      if (!state.empty())
+      if (auto iter = state.find("MTime"); (iter != state.end() && !iter->is_null()))
       {
         const auto stateMTime = state.at("MTime").get<vtkMTimeType>();
         if (da->GetMTime() <= stateMTime)

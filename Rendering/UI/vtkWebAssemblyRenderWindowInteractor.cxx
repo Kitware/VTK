@@ -50,6 +50,10 @@ bool spinOnceAndGetDone(void* arg)
 {
   vtkWebAssemblyRenderWindowInteractor* iren =
     static_cast<vtkWebAssemblyRenderWindowInteractor*>(arg);
+  if (iren->GetDone())
+  {
+    return true;
+  }
   iren->ProcessEvents();
   return iren->GetDone();
 }
@@ -614,29 +618,25 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
   if (!internals.StartedMessageLoop)
   {
     internals.StartedMessageLoop = true;
+    // The event loops below are driven by RAF (`requestAnimationFrame`) and return
+    // immediately (the vtkRenderWindowInteractor::Start() method is non-blocking).
+    // We will hold a reference for the entire lifetime of the loop so that the interactor
+    // cannot be destroyed while a RAF tick is still pending.
+    // The matching UnRegister happens inside the tick via `unRegisterInteractor`
+    // once `spinOnceAndGetDone` observes GetDone() == true (see TerminateApp).
+    // This guarantees a stray, already-scheduled tick never runs `spinOnceAndGetDone`
+    // on a freed interactor, which is just impossible to prevent reliably with
+    // `cancelAnimationFrame` alone in the asyncify path.
+    this->Register(nullptr);
     if (emscripten_has_asyncify())
     {
-      // when using asyncify, the vtkRenderWindowInteractor::Start() method
-      // is non-blocking(returns immediately).
-      // Increment reference count to ensure that the interactor
-      // is not destroyed before the first iteration of `spinOnceAndGetDone`
-      // is invoked.
-      this->Register(nullptr);
       vtkStartEventLoopAsync(
         &spinOnceAndGetDone, &unRegisterInteractor, reinterpret_cast<void*>(this));
     }
     else
     {
-      if (vtkRenderWindowInteractor::InteractorManagesTheEventLoop)
-      {
-        this->Register(nullptr);
-        vtkStartEventLoopSync(
-          &spinOnceAndGetDone, &unRegisterInteractor, reinterpret_cast<void*>(this));
-      }
-      else
-      {
-        vtkStartEventLoopSync(&spinOnceAndGetDone, nullptr, reinterpret_cast<void*>(this));
-      }
+      vtkStartEventLoopSync(
+        &spinOnceAndGetDone, &unRegisterInteractor, reinterpret_cast<void*>(this));
     }
   }
 }

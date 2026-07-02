@@ -10,6 +10,7 @@ else ()
     --import "$<TARGET_FILE:VTK::WebAssembly>")
 endif ()
 vtk_add_test_module_javascript_node(
+  testArrays.mjs
   testBindRenderWindow.mjs
   testBlobs.mjs
   testInitialize.mjs,NO_DATA

@@ -281,6 +281,34 @@ private:
   void operator=(const vtkObjectManager&) = delete;
 
   std::vector<vtkTypeUInt32> ImportFromJSON(const nlohmann::json& json);
+
+  /**
+   * Key under which a state records that its object is a kept-alive root.
+   *
+   * This marker is only a projection of the marshal context's
+   * strong-object store, which is the SSOT for ownership.
+   * It is needed to carry kept-alive status across a
+   * serialize/deserialize boundary (export/import, client/server) where the
+   * receiving side has states but not the live objects yet.
+   */
+  static const char* KEPT_ALIVE_KEY() { return "vtk-object-manager-kept-alive"; }
+
+  /**
+   * Returns `true` if `object` is a kept-alive root, i.e. a strong reference to
+   * it is held by the manager (registered via `RegisterObject`) or by the
+   * deserializer (deserialized as a strong root). The strong-object store is
+   * consulted directly so the answer never depends on a (potentially stale or
+   * overwritten) per-state marker.
+   */
+  bool IsKeptAlive(vtkObjectBase* object);
+
+  /**
+   * Re-stamps the kept-alive marker on the state at `identifier` when `object`
+   * is a kept-alive root. Call this after every (re)serialization of an object,
+   * because the serializer regenerates the state wholesale and has no knowledge
+   * of the manager's ownership bookkeeping.
+   */
+  void MarkKeptAlive(vtkObjectBase* object, vtkTypeUInt32 identifier);
 };
 VTK_ABI_NAMESPACE_END
 #endif
