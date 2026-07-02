@@ -11,9 +11,7 @@ vtk_third_party_extract(
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES
-      "vtkhdf5/COPYING"
-      "vtkhdf5/COPYING_LBNL_HDF5"
-      "vtkhdf5/src/H5FDsubfiling/mercury/LICENSE.txt"
+      "vtkhdf5/LICENSE"
     SPDX_LICENSE_IDENTIFIER
       "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT
