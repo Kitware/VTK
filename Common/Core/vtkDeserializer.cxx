@@ -201,28 +201,34 @@ vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
   // So we need to reverse the order of `superClassNames` to get correct order ['C','B','A']. This
   // is important for classes that use object factory to create the objects.
 
-  bool isDisabledOverrideClass = false;
+  // whether className is the thing that implements an abstract factory class
+  bool isFactoryOverrideSubclass = false;
   for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
   {
     for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)
     {
-      if (!objectFactory->GetEnableFlag(i) &&
-        !strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
+      if (!strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
       {
-        isDisabledOverrideClass = true;
+        isFactoryOverrideSubclass = true;
         break;
       }
     }
-    if (isDisabledOverrideClass)
+    if (isFactoryOverrideSubclass)
     {
       // No need to keep scanning factories once a disabled override is found.
       break;
     }
   }
-  if (isDisabledOverrideClass)
+  if (isFactoryOverrideSubclass)
   {
-    for (const auto& superClassName : superClassNames)
+    // Walk the superclasses most-derived first so that the closest factory
+    // override to `className` wins. Iterating least-derived first would match a
+    // base class that also happens to be a factory override (e.g. vtkActor for a
+    // vtkSkybox subclass) before reaching the intended override (vtkSkybox),
+    // constructing the wrong concrete type.
+    for (auto it = superClassNames.rbegin(); it != superClassNames.rend(); ++it)
     {
+      const auto& superClassName = *it;
       for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
       {
         for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)

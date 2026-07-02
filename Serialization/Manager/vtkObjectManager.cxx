@@ -211,8 +211,8 @@ std::vector<vtkTypeUInt32> vtkObjectManager::ImportFromJSON(const nlohmann::json
       {
         this->Context->RegisterState(state.value());
         const auto identifier = state.value().at("Id").get<vtkTypeUInt32>();
-        if (state.value().find("vtk-object-manager-kept-alive") != state.value().end() &&
-          (state.value().at("vtk-object-manager-kept-alive").get<bool>() == true))
+        if (state.value().find(KEPT_ALIVE_KEY()) != state.value().end() &&
+          (state.value().at(KEPT_ALIVE_KEY()).get<bool>() == true))
         {
           strongObjectIds.emplace_back(identifier);
         }
@@ -295,9 +295,8 @@ void vtkObjectManager::Import(const std::string& stateFileName, const std::strin
   if (strongObjectIds.empty())
   {
     vtkWarningMacro(<< "No strong objects were imported from the files: " << stateFileName << ", "
-                    << blobFileName
-                    << ". Check whether the states contain the key "
-                       "\"vtk-object-manager-kept-alive\": true");
+                    << blobFileName << ". Check whether the states contain the key \""
+                    << KEPT_ALIVE_KEY() << "\": true");
   }
 }
 
@@ -688,10 +687,7 @@ void vtkObjectManager::UpdateObjectsFromStates()
   const auto& states = this->Context->States();
   std::copy_if(states.begin(), states.end(), std::back_inserter(strongRefStates),
     [](const nlohmann::json& item)
-    {
-      return item.contains("vtk-object-manager-kept-alive") &&
-        item["vtk-object-manager-kept-alive"] == true;
-    });
+    { return item.contains(KEPT_ALIVE_KEY()) && item[KEPT_ALIVE_KEY()] == true; });
   const auto deserializerOwnershipKey = this->Deserializer->GetObjectDescription();
   for (const auto& state : strongRefStates)
   {
@@ -729,8 +725,7 @@ void vtkObjectManager::UpdateStatesFromObjects()
       auto idIter = stateId.find("Id");
       if ((idIter != stateId.end()) && idIter->is_number_unsigned())
       {
-        auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
-        state["vtk-object-manager-kept-alive"] = true;
+        this->MarkKeptAlive(object, idIter->get<vtkTypeUInt32>());
       }
     }
   }
@@ -818,7 +813,7 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
   // Tag strong objects as kept alive.
   // This is important for the deserializer to know that the object is kept alive.
   // This is done after the serialization of all objects. Otherwise, the serialization of a nested
-  // strong object will discard the "vtk-object-manager-kept-alive" tag.
+  // strong object will discard the kept-alive tag.
   if (managerStrongObjectsIter != this->Context->StrongObjects().end())
   {
     for (const auto& object : managerStrongObjectsIter->second)
@@ -826,8 +821,7 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
       // The object must have already been registered in the context and have a valid identifier.
       if (auto identifier = this->Context->GetId(object))
       {
-        auto& state = this->Context->GetState(identifier);
-        state["vtk-object-manager-kept-alive"] = true;
+        this->MarkKeptAlive(object, identifier);
       }
     }
   }
@@ -886,6 +880,10 @@ void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
     }
     else
     {
+      // The serializer regenerates the state wholesale, discarding the manager's
+      // kept-alive marker. Re-derive it from the authoritative strong-object store
+      // so that targeted serialization preserves ownership across round-trips.
+      this->MarkKeptAlive(object, identifier);
       vtkVLog(
         this->GetObjectManagerLogVerbosity(), << "Updated state for object at id=" << identifier);
     }
@@ -894,6 +892,35 @@ void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
   {
     vtkErrorMacro(<< "Cannot update state for object at id=" << identifier
                   << " because there is no such object!");
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkObjectManager::IsKeptAlive(vtkObjectBase* object)
+{
+  // An object is a kept-alive root when a strong reference to it is held either
+  // by the manager (registered via RegisterObject) or by the deserializer
+  // (deserialized as a strong root). The strong-object store in the context is the
+  // SSOT.
+  const auto& strongObjects = this->Context->StrongObjects();
+  for (const std::string& owner :
+    { std::string(this->OWNERSHIP_KEY()), this->Deserializer->GetObjectDescription() })
+  {
+    const auto iter = strongObjects.find(owner);
+    if (iter != strongObjects.end() && iter->second.count(object) > 0)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectManager::MarkKeptAlive(vtkObjectBase* object, vtkTypeUInt32 identifier)
+{
+  if (this->IsKeptAlive(object))
+  {
+    this->Context->GetState(identifier)[KEPT_ALIVE_KEY()] = true;
   }
 }
 
