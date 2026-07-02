@@ -290,9 +290,7 @@ def test_from_locations():
     assert sl.GetNumberOfComponents() == 3
     assert sl.GetNumberOfTuples() == 2
     # Check epsilon
-    props = node.GetProperties()
-    assert props.Has(vtkSelectionNode.EPSILON())
-    assert abs(props.Get(vtkSelectionNode.EPSILON()) - 0.01) < 1e-10
+    assert abs(node.epsilon - 0.01) < 1e-10
 
 
 def test_from_frustum():
@@ -342,9 +340,7 @@ def test_from_block_selectors():
     assert sl.GetNumberOfTuples() == 1
     assert sl.GetValue(0) == "//Block[@name='Mesh']"
     # Check assembly name
-    props = node.GetProperties()
-    assert props.Has(vtkSelectionNode.ASSEMBLY_NAME())
-    assert props.Get(vtkSelectionNode.ASSEMBLY_NAME()) == "Hierarchy"
+    assert node.assembly_name == "Hierarchy"
 
 
 def test_selection_node_properties():
@@ -379,6 +375,12 @@ def test_selection_node_properties():
 
     node.component_number = 2
     assert node.component_number == 2
+
+    node.epsilon = 0.25
+    assert abs(node.epsilon - 0.25) < 1e-10
+
+    node.assembly_name = "Hierarchy"
+    assert node.assembly_name == "Hierarchy"
 
 
 def test_selection_node_repr():

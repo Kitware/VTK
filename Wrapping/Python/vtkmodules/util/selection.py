@@ -129,7 +129,7 @@ def _set_qualifiers(node, qualifiers):
             props.Set(key, int(val))
 
     if "epsilon" in qualifiers:
-        props.Set(vtkSelectionNode.EPSILON(), float(qualifiers["epsilon"]))
+        node.epsilon = qualifiers["epsilon"]
 
 
 def _to_vtk_array(values, array_type=None, num_components=1, name=None):
@@ -264,6 +264,28 @@ class _SelectionNodeMixin:
         self.GetProperties().Set(
             vtkSelectionNode.COMPONENT_NUMBER(), int(value)
         )
+
+    @property
+    def epsilon(self):
+        """Distance tolerance for LOCATIONS selections."""
+        props = self.GetProperties()
+        key = vtkSelectionNode.EPSILON()
+        return props.Get(key) if props.Has(key) else None
+
+    @epsilon.setter
+    def epsilon(self, value):
+        self.GetProperties().Set(vtkSelectionNode.EPSILON(), float(value))
+
+    @property
+    def assembly_name(self):
+        """Data assembly name for BLOCK_SELECTORS selections."""
+        props = self.GetProperties()
+        key = vtkSelectionNode.ASSEMBLY_NAME()
+        return props.Get(key) if props.Has(key) else None
+
+    @assembly_name.setter
+    def assembly_name(self, value):
+        self.GetProperties().Set(vtkSelectionNode.ASSEMBLY_NAME(), str(value))
 
     def __repr__(self):
         ct = self.content_type
@@ -646,10 +668,7 @@ class _SelectionMixin:
         self.RemoveAllNodes()
         self._build_node("BLOCK_SELECTORS", None, vtk_arr, qualifiers)
         if assembly_name is not None:
-            node = self.GetNode(0)
-            node.GetProperties().Set(
-                vtkSelectionNode.ASSEMBLY_NAME(), assembly_name
-            )
+            self.GetNode(0).assembly_name = assembly_name
         return self
 
     # -- repr --
