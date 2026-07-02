@@ -5,6 +5,7 @@
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 #include "vtkParseProperties.h"
+#include "vtkWrap.h"
 #include "vtkWrapPythonMethodDef.h"
 
 #include <ctype.h>

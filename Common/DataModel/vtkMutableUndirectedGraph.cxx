@@ -4,6 +4,8 @@
 
 #include "vtkMutableUndirectedGraph.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGraphEdge.h"
 #include "vtkGraphInternals.h"
@@ -227,6 +229,104 @@ void vtkMutableUndirectedGraph::RemoveVertices(vtkIdTypeArray* arr)
 void vtkMutableUndirectedGraph::RemoveEdges(vtkIdTypeArray* arr)
 {
   this->RemoveEdgesInternal(arr, false);
+}
+
+namespace
+{
+struct SetUndirectedEdgesWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* edges, std::vector<vtkVertexAdjacencyList>& adjacency,
+    vtkIdType& numVerts, vtkIdType& numEdges)
+  {
+    auto tuples = vtk::DataArrayTupleRange<2>(edges);
+    numEdges = static_cast<vtkIdType>(tuples.size());
+
+    // Pass 1: find max vertex id.
+    numVerts = 0;
+    for (const auto tuple : tuples)
+    {
+      vtkIdType s = static_cast<vtkIdType>(tuple[0]);
+      vtkIdType t = static_cast<vtkIdType>(tuple[1]);
+      if (s >= numVerts)
+      {
+        numVerts = s + 1;
+      }
+      if (t >= numVerts)
+      {
+        numVerts = t + 1;
+      }
+    }
+
+    adjacency.clear();
+    adjacency.resize(numVerts);
+
+    // Pass 2: count degrees and reserve.
+    // Each edge adds to both endpoints (except self-loops add once).
+    std::vector<vtkIdType> deg(numVerts, 0);
+    for (const auto tuple : tuples)
+    {
+      vtkIdType s = static_cast<vtkIdType>(tuple[0]);
+      vtkIdType t = static_cast<vtkIdType>(tuple[1]);
+      deg[s]++;
+      if (s != t)
+      {
+        deg[t]++;
+      }
+    }
+    for (vtkIdType v = 0; v < numVerts; ++v)
+    {
+      adjacency[v].OutEdges.reserve(deg[v]);
+    }
+
+    // Pass 3: fill adjacency lists.
+    vtkIdType e = 0;
+    for (const auto tuple : tuples)
+    {
+      vtkIdType s = static_cast<vtkIdType>(tuple[0]);
+      vtkIdType t = static_cast<vtkIdType>(tuple[1]);
+      adjacency[s].OutEdges.emplace_back(t, e);
+      if (s != t)
+      {
+        adjacency[t].OutEdges.emplace_back(s, e);
+      }
+      ++e;
+    }
+  }
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::SetEdges(vtkDataArray* edges)
+{
+  if (!edges)
+  {
+    vtkErrorMacro("SetEdges called with null array.");
+    return;
+  }
+  if (edges->GetNumberOfComponents() != 2)
+  {
+    vtkErrorMacro("SetEdges requires an array with exactly 2 components.");
+    return;
+  }
+
+  this->ForceOwnership();
+
+  vtkIdType numVerts = 0;
+  vtkIdType numEdges = 0;
+  SetUndirectedEdgesWorker worker;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>;
+  if (!Dispatcher::Execute(edges, worker, this->Internals->Adjacency, numVerts, numEdges))
+  {
+    // Fallback for non-dispatched types.
+    worker(edges, this->Internals->Adjacency, numVerts, numEdges);
+  }
+
+  this->Internals->NumberOfEdges = numEdges;
+  this->SetEdgeList(nullptr);
+  this->GetVertexData()->SetNumberOfTuples(numVerts);
+  this->GetEdgeData()->SetNumberOfTuples(numEdges);
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
