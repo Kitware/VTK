@@ -78,8 +78,15 @@ def np_encode(array, np_type=None):
 
 
 def mesh_array(array):
-    if array:
-        return b64_encode_numpy(vtk_to_numpy(array.GetData()))
+    if array is None:
+        return None
+
+    if array.IsA("vtkCellArray"):
+        new_array = vtkIdTypeArray()
+        array.ExportLegacyFormat(new_array)
+        return b64_encode_numpy(vtk_to_numpy(new_array))
+
+    return b64_encode_numpy(vtk_to_numpy(array.GetData()))
 
 
 def data_array(data_array, location="PointData", name=None):

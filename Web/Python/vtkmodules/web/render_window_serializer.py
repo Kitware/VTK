@@ -12,7 +12,7 @@ from vtkmodules.web import (
     getReferenceId,
 )
 
-from vtkmodules.vtkCommonCore import vtkTypeUInt32Array
+from vtkmodules.vtkCommonCore import vtkTypeUInt32Array, vtkIdTypeArray
 from vtkmodules.vtkFiltersGeometry import vtkCompositeDataGeometryFilter
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
@@ -953,32 +953,22 @@ def polydataSerializer(parent, dataset, datasetId, context, depth, requested_fie
         points["vtkClass"] = "vtkPoints"
         properties["points"] = points
 
-        # Verts
-        if dataset.GetVerts() and dataset.GetVerts().GetData().GetNumberOfTuples() > 0:
-            _verts = getArrayDescription(dataset.GetVerts().GetData(), context)
-            properties["verts"] = _verts
-            properties["verts"]["vtkClass"] = "vtkCellArray"
+        # Cells
+        for key, cells in [
+            ("verts", dataset.GetVerts()),
+            ("lines", dataset.GetLines()),
+            ("polys", dataset.GetPolys()),
+            ("strips", dataset.GetStrips()),
+        ]:
+            if not cells or cells.GetNumberOfCells() == 0:
+                continue
 
-        # Lines
-        if dataset.GetLines() and dataset.GetLines().GetData().GetNumberOfTuples() > 0:
-            _lines = getArrayDescription(dataset.GetLines().GetData(), context)
-            properties["lines"] = _lines
-            properties["lines"]["vtkClass"] = "vtkCellArray"
+            cell_array = vtkIdTypeArray()
+            cells.ExportLegacyFormat(cell_array)
 
-        # Polys
-        if dataset.GetPolys() and dataset.GetPolys().GetData().GetNumberOfTuples() > 0:
-            _polys = getArrayDescription(dataset.GetPolys().GetData(), context)
-            properties["polys"] = _polys
-            properties["polys"]["vtkClass"] = "vtkCellArray"
+            properties[key] = getArrayDescription(cell_array, context)
+            properties[key]["vtkClass"] = "vtkCellArray"
 
-        # Strips
-        if (
-            dataset.GetStrips()
-            and dataset.GetStrips().GetData().GetNumberOfTuples() > 0
-        ):
-            _strips = getArrayDescription(dataset.GetStrips().GetData(), context)
-            properties["strips"] = _strips
-            properties["strips"]["vtkClass"] = "vtkCellArray"
 
         # Fields
         properties["fields"] = []
