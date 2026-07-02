@@ -325,7 +325,15 @@ VTK_ABI_NAMESPACE_END
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<T>, T);                             \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
-#elif defined(VTK_USE_EXTERN_TEMPLATE)
+// MinGW GCC does not reliably export inline member functions (such as IsTypeOf
+// defined by vtkTemplateTypeMacro above) when using template class __declspec(dllexport)
+// with extern template. This guard is applied here rather than in other VTK places
+// with #elif defined(VTK_USE_EXTERN_TEMPLATE) because only these three DataArrayTemplate
+// classes combine extern template with vtkTemplateTypeMacro inline functions in the class
+// body; other VTK template classes using this pattern (e.g. vtkConstantArray,
+// vtkAffineArray) use vtkImplicitArrayTypeMacro instead and were not observed with this
+// MinGW issue.
+#elif defined(VTK_USE_EXTERN_TEMPLATE) && !defined(__MINGW32__)
 #ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
 #define VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
 #ifdef _MSC_VER
