@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -83,10 +83,9 @@ static void *
 H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
                    unsigned H5_ATTR_UNUSED *ioflags, size_t p_size, const uint8_t *p)
 {
-    const uint8_t *p_end      = p + p_size - 1; /* End of the p buffer */
-    H5O_layout_t  *mesg       = NULL;
-    uint8_t       *heap_block = NULL;
-    void          *ret_value  = NULL;
+    const uint8_t *p_end     = p + p_size - 1; /* End of the p buffer */
+    H5O_layout_t  *mesg      = NULL;
+    void          *ret_value = NULL;
 
     FUNC_ENTER_PACKAGE
 
@@ -101,7 +100,7 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
         HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     mesg->version = *p++;
 
-    if (mesg->version < H5O_LAYOUT_VERSION_1 || mesg->version > H5O_LAYOUT_VERSION_4)
+    if (mesg->version < H5O_LAYOUT_VERSION_1 || mesg->version > H5O_LAYOUT_VERSION_LATEST)
         HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "bad version number for layout message");
 
     if (mesg->version < H5O_LAYOUT_VERSION_3) {
@@ -188,7 +187,7 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
                 if (mesg->u.chunk.dim[u] == 0)
                     HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL,
                                 "bad chunk dimension value when parsing layout message - chunk dimension "
-                                "must be positive: mesg->u.chunk.dim[%u] = %u",
+                                "must be positive: mesg->u.chunk.dim[%u] = %" PRIuHSIZE,
                                 u, mesg->u.chunk.dim[u]);
             }
 
@@ -300,7 +299,7 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
                         if (mesg->u.chunk.dim[u] == 0)
                             HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL,
                                         "bad chunk dimension value when parsing layout message - chunk "
-                                        "dimension must be positive: mesg->u.chunk.dim[%u] = %u",
+                                        "dimension must be positive: mesg->u.chunk.dim[%u] = %" PRIuHSIZE,
                                         u, mesg->u.chunk.dim[u]);
                     }
 
@@ -361,7 +360,7 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
                         if (mesg->u.chunk.dim[u] == 0)
                             HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL,
                                         "bad chunk dimension value when parsing layout message - chunk "
-                                        "dimension must be positive: mesg->u.chunk.dim[%u] = %u",
+                                        "dimension must be positive: mesg->u.chunk.dim[%u] = %" PRIuHSIZE,
                                         u, mesg->u.chunk.dim[u]);
                     }
 
@@ -550,213 +549,6 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
                 mesg->storage.u.virt.source_dapl = -1;
                 mesg->storage.u.virt.init        = false;
 
-                /* Decode heap block if it exists */
-                if (mesg->storage.u.virt.serial_list_hobjid.addr != HADDR_UNDEF) {
-                    const uint8_t *heap_block_p;
-                    const uint8_t *heap_block_p_end;
-                    uint8_t        heap_vers;
-                    size_t         block_size = 0;
-                    size_t         tmp_size;
-                    hsize_t        tmp_hsize = 0;
-                    uint32_t       stored_chksum;
-                    uint32_t       computed_chksum;
-
-                    /* Read heap */
-                    if (NULL == (heap_block = (uint8_t *)H5HG_read(
-                                     f, &(mesg->storage.u.virt.serial_list_hobjid), NULL, &block_size)))
-                        HGOTO_ERROR(H5E_OHDR, H5E_READERROR, NULL, "Unable to read global heap block");
-
-                    heap_block_p     = (const uint8_t *)heap_block;
-                    heap_block_p_end = heap_block_p + block_size - 1;
-
-                    /* Decode the version number of the heap block encoding */
-                    if (H5_IS_BUFFER_OVERFLOW(heap_block_p, 1, heap_block_p_end))
-                        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                    "ran off end of input buffer while decoding");
-                    heap_vers = (uint8_t)*heap_block_p++;
-
-                    if ((uint8_t)H5O_LAYOUT_VDS_GH_ENC_VERS != heap_vers)
-                        HGOTO_ERROR(H5E_OHDR, H5E_VERSION, NULL,
-                                    "bad version # of encoded VDS heap information, expected %u, got %u",
-                                    (unsigned)H5O_LAYOUT_VDS_GH_ENC_VERS, (unsigned)heap_vers);
-
-                    /* Number of entries */
-                    if (H5_IS_BUFFER_OVERFLOW(heap_block_p, H5F_sizeof_size(f), heap_block_p_end))
-                        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                    "ran off end of input buffer while decoding");
-                    H5F_DECODE_LENGTH(f, heap_block_p, tmp_hsize);
-
-                    /* Allocate entry list */
-                    if (tmp_hsize > 0) {
-                        if (NULL == (mesg->storage.u.virt.list = (H5O_storage_virtual_ent_t *)H5MM_calloc(
-                                         (size_t)tmp_hsize * sizeof(H5O_storage_virtual_ent_t))))
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, NULL, "unable to allocate heap block");
-                    }
-                    else {
-                        /* Avoid zero-size allocation */
-                        mesg->storage.u.virt.list = NULL;
-                    }
-
-                    mesg->storage.u.virt.list_nalloc = (size_t)tmp_hsize;
-                    mesg->storage.u.virt.list_nused  = (size_t)tmp_hsize;
-
-                    /* Decode each entry */
-                    for (size_t i = 0; i < mesg->storage.u.virt.list_nused; i++) {
-                        ptrdiff_t avail_buffer_space;
-
-                        avail_buffer_space = heap_block_p_end - heap_block_p + 1;
-                        if (avail_buffer_space <= 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                        "ran off end of input buffer while decoding");
-
-                        /* Source file name */
-                        tmp_size = strnlen((const char *)heap_block_p, (size_t)avail_buffer_space);
-                        if (tmp_size == (size_t)avail_buffer_space)
-                            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                        "ran off end of input buffer while decoding - unterminated source "
-                                        "file name string");
-                        else
-                            tmp_size += 1; /* Add space for NUL terminator */
-
-                        if (NULL ==
-                            (mesg->storage.u.virt.list[i].source_file_name = (char *)H5MM_malloc(tmp_size)))
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, NULL,
-                                        "unable to allocate memory for source file name");
-                        H5MM_memcpy(mesg->storage.u.virt.list[i].source_file_name, heap_block_p, tmp_size);
-                        heap_block_p += tmp_size;
-
-                        avail_buffer_space = heap_block_p_end - heap_block_p + 1;
-                        if (avail_buffer_space <= 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                        "ran off end of input buffer while decoding");
-
-                        /* Source dataset name */
-                        tmp_size = strnlen((const char *)heap_block_p, (size_t)avail_buffer_space);
-                        if (tmp_size == (size_t)avail_buffer_space)
-                            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                        "ran off end of input buffer while decoding - unterminated source "
-                                        "dataset name string");
-                        else
-                            tmp_size += 1; /* Add space for NUL terminator */
-
-                        if (NULL ==
-                            (mesg->storage.u.virt.list[i].source_dset_name = (char *)H5MM_malloc(tmp_size)))
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, NULL,
-                                        "unable to allocate memory for source dataset name");
-                        H5MM_memcpy(mesg->storage.u.virt.list[i].source_dset_name, heap_block_p, tmp_size);
-                        heap_block_p += tmp_size;
-
-                        /* Source selection */
-                        avail_buffer_space = heap_block_p_end - heap_block_p + 1;
-
-                        if (avail_buffer_space <= 0)
-                            HGOTO_ERROR(H5E_DATASPACE, H5E_OVERFLOW, NULL,
-                                        "buffer overflow while decoding layout");
-
-                        if (H5S_SELECT_DESERIALIZE(&mesg->storage.u.virt.list[i].source_select, &heap_block_p,
-                                                   (size_t)(avail_buffer_space)) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTDECODE, NULL,
-                                        "can't decode source space selection");
-
-                        /* Virtual selection */
-
-                        /* Buffer space must be updated after previous deserialization */
-                        avail_buffer_space = heap_block_p_end - heap_block_p + 1;
-
-                        if (avail_buffer_space <= 0)
-                            HGOTO_ERROR(H5E_DATASPACE, H5E_OVERFLOW, NULL,
-                                        "buffer overflow while decoding layout");
-
-                        if (H5S_SELECT_DESERIALIZE(&mesg->storage.u.virt.list[i].source_dset.virtual_select,
-                                                   &heap_block_p, (size_t)(avail_buffer_space)) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTDECODE, NULL,
-                                        "can't decode virtual space selection");
-
-                        /* Parse source file and dataset names for "printf"
-                         * style format specifiers */
-                        if (H5D_virtual_parse_source_name(
-                                mesg->storage.u.virt.list[i].source_file_name,
-                                &mesg->storage.u.virt.list[i].parsed_source_file_name,
-                                &mesg->storage.u.virt.list[i].psfn_static_strlen,
-                                &mesg->storage.u.virt.list[i].psfn_nsubs) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't parse source file name");
-                        if (H5D_virtual_parse_source_name(
-                                mesg->storage.u.virt.list[i].source_dset_name,
-                                &mesg->storage.u.virt.list[i].parsed_source_dset_name,
-                                &mesg->storage.u.virt.list[i].psdn_static_strlen,
-                                &mesg->storage.u.virt.list[i].psdn_nsubs) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't parse source dataset name");
-
-                        /* Set source names in source_dset struct */
-                        if ((mesg->storage.u.virt.list[i].psfn_nsubs == 0) &&
-                            (mesg->storage.u.virt.list[i].psdn_nsubs == 0)) {
-                            if (mesg->storage.u.virt.list[i].parsed_source_file_name)
-                                mesg->storage.u.virt.list[i].source_dset.file_name =
-                                    mesg->storage.u.virt.list[i].parsed_source_file_name->name_segment;
-                            else
-                                mesg->storage.u.virt.list[i].source_dset.file_name =
-                                    mesg->storage.u.virt.list[i].source_file_name;
-                            if (mesg->storage.u.virt.list[i].parsed_source_dset_name)
-                                mesg->storage.u.virt.list[i].source_dset.dset_name =
-                                    mesg->storage.u.virt.list[i].parsed_source_dset_name->name_segment;
-                            else
-                                mesg->storage.u.virt.list[i].source_dset.dset_name =
-                                    mesg->storage.u.virt.list[i].source_dset_name;
-                        }
-
-                        /* Unlim_dim fields */
-                        mesg->storage.u.virt.list[i].unlim_dim_source =
-                            H5S_get_select_unlim_dim(mesg->storage.u.virt.list[i].source_select);
-                        mesg->storage.u.virt.list[i].unlim_dim_virtual =
-                            H5S_get_select_unlim_dim(mesg->storage.u.virt.list[i].source_dset.virtual_select);
-                        mesg->storage.u.virt.list[i].unlim_extent_source  = HSIZE_UNDEF;
-                        mesg->storage.u.virt.list[i].unlim_extent_virtual = HSIZE_UNDEF;
-                        mesg->storage.u.virt.list[i].clip_size_source     = HSIZE_UNDEF;
-                        mesg->storage.u.virt.list[i].clip_size_virtual    = HSIZE_UNDEF;
-
-                        /* Clipped selections */
-                        if (mesg->storage.u.virt.list[i].unlim_dim_virtual < 0) {
-                            mesg->storage.u.virt.list[i].source_dset.clipped_source_select =
-                                mesg->storage.u.virt.list[i].source_select;
-                            mesg->storage.u.virt.list[i].source_dset.clipped_virtual_select =
-                                mesg->storage.u.virt.list[i].source_dset.virtual_select;
-                        }
-
-                        /* Check mapping for validity (do both pre and post
-                         * checks here, since we had to allocate the entry list
-                         * before decoding the selections anyways) */
-                        if (H5D_virtual_check_mapping_pre(
-                                mesg->storage.u.virt.list[i].source_dset.virtual_select,
-                                mesg->storage.u.virt.list[i].source_select, H5O_VIRTUAL_STATUS_INVALID) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "invalid mapping selections");
-                        if (H5D_virtual_check_mapping_post(&mesg->storage.u.virt.list[i]) < 0)
-                            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid mapping entry");
-
-                        /* Update min_dims */
-                        if (H5D_virtual_update_min_dims(mesg, i) < 0)
-                            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL,
-                                        "unable to update virtual dataset minimum dimensions");
-                    }
-
-                    /* Read stored checksum */
-                    if (H5_IS_BUFFER_OVERFLOW(heap_block_p, 4, heap_block_p_end))
-                        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL,
-                                    "ran off end of input buffer while decoding");
-                    UINT32DECODE(heap_block_p, stored_chksum);
-
-                    /* Compute checksum */
-                    computed_chksum = H5_checksum_metadata(heap_block, block_size - (size_t)4, 0);
-
-                    /* Verify checksum */
-                    if (stored_chksum != computed_chksum)
-                        HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL,
-                                    "incorrect metadata checksum for global heap block");
-
-                    /* Verify that the heap block size is correct */
-                    if ((size_t)(heap_block_p - heap_block) != block_size)
-                        HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "incorrect heap block size");
-                } /* end if */
-
                 /* Set the layout operations */
                 mesg->ops = H5D_LOPS_VIRTUAL;
 
@@ -773,15 +565,14 @@ H5O__layout_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
     ret_value = mesg;
 
 done:
-    if (ret_value == NULL)
+    if (ret_value == NULL) {
         if (mesg) {
             if (mesg->type == H5D_VIRTUAL)
                 if (H5D__virtual_reset_layout(mesg) < 0)
                     HDONE_ERROR(H5E_OHDR, H5E_CANTFREE, NULL, "unable to reset virtual layout");
             H5FL_FREE(H5O_layout_t, mesg);
         }
-
-    heap_block = (uint8_t *)H5MM_xfree(heap_block);
+    }
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__layout_decode() */
@@ -1155,7 +946,7 @@ H5O__layout_delete(H5F_t *f, H5O_t *open_oh, void *_mesg)
 
         case H5D_CHUNKED: /* Chunked blocks on disk */
             /* Free the file space for the index & chunk raw data */
-            if (H5D__chunk_delete(f, open_oh, &mesg->storage) < 0)
+            if (H5D__chunk_delete(f, open_oh, mesg) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free raw data");
             break;
 
@@ -1235,6 +1026,10 @@ H5O__layout_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst, bool H5_
     assert(layout_src);
     assert(file_dst);
 
+    if (layout_src->type == H5D_VIRTUAL)
+        if (H5D__virtual_load_layout(file_src, layout_src) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTLOAD, NULL, "unable to load virtual layout information");
+
     /* Copy the layout information */
     if (NULL == (layout_dst = (H5O_layout_t *)H5O__layout_copy(layout_src, NULL)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, NULL, "unable to copy layout");
@@ -1285,9 +1080,8 @@ H5O__layout_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst, bool H5_
                 (cpy_info->shared_fo &&
                  H5D__chunk_is_data_cached((const H5D_shared_t *)cpy_info->shared_fo))) {
                 /* Create chunked layout */
-                if (H5D__chunk_copy(file_src, &layout_src->storage.u.chunk, &layout_src->u.chunk, file_dst,
-                                    &layout_dst->storage.u.chunk, udata->src_space_extent, udata->src_dtype,
-                                    udata->common.src_pline, cpy_info) < 0)
+                if (H5D__chunk_copy(file_src, layout_src, file_dst, layout_dst, udata->src_space_extent,
+                                    udata->src_dtype, udata->common.src_pline, cpy_info) < 0)
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, NULL, "unable to copy chunked storage");
             } /* end if */
             break;
@@ -1350,7 +1144,7 @@ H5O__layout_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream, int 
                     "Number of dimensions:", (unsigned long)(mesg->u.chunk.ndims));
             fprintf(stream, "%*s%-*s {", indent, "", fwidth, "Size:");
             for (u = 0; u < (size_t)mesg->u.chunk.ndims; u++)
-                fprintf(stream, "%s%lu", u ? ", " : "", (unsigned long)(mesg->u.chunk.dim[u]));
+                fprintf(stream, "%s%" PRIuHSIZE, u ? ", " : "", mesg->u.chunk.dim[u]);
             fprintf(stream, "}\n");
 
             /* Index information */

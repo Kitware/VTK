@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -37,23 +37,20 @@
 /* Number of entries in an error stack */
 #define H5E_MAX_ENTRIES 32
 
-#ifdef H5_HAVE_THREADSAFE
+#ifdef H5_HAVE_THREADSAFE_API
 /*
- * The per-thread error stack. pthread_once() initializes a special
- * key that will be used by all threads to create a stack specific to
- * each thread individually. The association of stacks to threads will
- * be handled by the pthread library.
+ * The per-thread error stack.
  *
  * In order for this macro to work, H5E__get_my_stack() must be preceded
  * by "H5E_stack_t *estack =".
  */
-#define H5E__get_my_stack() H5E__get_stack()
-#else /* H5_HAVE_THREADSAFE */
+#define H5E__get_my_stack() H5TS_get_err_stack()
+#else /* H5_HAVE_THREADSAFE_API */
 /*
  * The current error stack.
  */
 #define H5E__get_my_stack() (H5E_stack_g + 0)
-#endif /* H5_HAVE_THREADSAFE */
+#endif /* H5_HAVE_THREADSAFE_API */
 
 /****************************/
 /* Package Private Typedefs */
@@ -121,7 +118,7 @@ typedef struct H5E_stack_t {
 /* Package Private Variables */
 /*****************************/
 
-#ifndef H5_HAVE_THREADSAFE
+#ifndef H5_HAVE_THREADSAFE_API
 /*
  * The current error stack.
  */
@@ -137,9 +134,6 @@ H5_DLLVAR hid_t H5E_last_min_id_g;
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-#ifdef H5_HAVE_THREADSAFE
-H5_DLL H5E_stack_t *H5E__get_stack(void);
-#endif /* H5_HAVE_THREADSAFE */
 H5_DLL H5E_cls_t   *H5E__register_class(const char *cls_name, const char *lib_name, const char *version);
 H5_DLL ssize_t      H5E__get_class_name(const H5E_cls_t *cls, char *name, size_t size);
 H5_DLL H5E_msg_t   *H5E__create_msg(H5E_cls_t *cls, H5E_type_t msg_type, const char *msg);
@@ -159,6 +153,6 @@ H5_DLL herr_t       H5E__get_auto(const H5E_stack_t *estack, H5E_auto_op_t *op, 
 H5_DLL herr_t       H5E__set_auto(H5E_stack_t *estack, const H5E_auto_op_t *op, void *client_data);
 H5_DLL herr_t       H5E__pop(H5E_stack_t *err_stack, size_t count);
 H5_DLL herr_t       H5E__append_stack(H5E_stack_t *dst_estack, const H5E_stack_t *src_stack);
-H5_DLL herr_t       H5E__clear_stack(H5E_stack_t *estack);
+H5_DLL herr_t       H5E__destroy_stack(H5E_stack_t *estack);
 
 #endif /* H5Epkg_H */

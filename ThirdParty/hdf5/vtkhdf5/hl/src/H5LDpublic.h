@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -33,7 +33,7 @@ extern "C" {
  *          It will return failure if \p cur_dims is NULL.
  *
  * \note See Also:
- * \note Dataset Watch functions (used with h5watch):
+ * \note Dataset Watch functions (used with \ref sec_cltools_h5watch):
  *       - H5LDget_dset_dims()
  *       - H5LDget_dset_elmts()
  *       - H5LDget_dset_type_size()
@@ -44,7 +44,7 @@ extern "C" {
  * \since 1.10.0
  *
  */
-H5_HLDLL herr_t H5LDget_dset_dims(hid_t did, hsize_t *cur_dims);
+H5HL_DLL herr_t H5LDget_dset_dims(hid_t did, hsize_t *cur_dims);
 
 /**
  *-------------------------------------------------------------------------
@@ -70,7 +70,7 @@ H5_HLDLL herr_t H5LDget_dset_dims(hid_t did, hsize_t *cur_dims);
  *          conflict with these two separators.
  *
  * \note See Also:
- * \note Dataset Watch functions (used with h5watch):
+ * \note Dataset Watch functions (used with \ref sec_cltools_h5watch):
  *       - H5LDget_dset_dims()
  *       - H5LDget_dset_elmts()
  *       - H5LDget_dset_type_size()
@@ -81,7 +81,7 @@ H5_HLDLL herr_t H5LDget_dset_dims(hid_t did, hsize_t *cur_dims);
  * \since 1.10.0
  *
  */
-H5_HLDLL size_t H5LDget_dset_type_size(hid_t did, const char *fields);
+H5HL_DLL size_t H5LDget_dset_type_size(hid_t did, const char *fields);
 
 /**
  *-------------------------------------------------------------------------
@@ -122,7 +122,7 @@ H5_HLDLL size_t H5LDget_dset_type_size(hid_t did, const char *fields);
  *          two separators.
  *
  * \note See Also:
- * \note Dataset Watch functions (used with h5watch):
+ * \note Dataset Watch functions (used with \ref sec_cltools_h5watch):
  *       - H5LDget_dset_dims()
  *       - H5LDget_dset_elmts()
  *       - H5LDget_dset_type_size()
@@ -157,7 +157,7 @@ H5_HLDLL size_t H5LDget_dset_type_size(hid_t did, const char *fields);
  * \since 1.10.0
  *
  */
-H5_HLDLL herr_t H5LDget_dset_elmts(hid_t did, const hsize_t *prev_dims, const hsize_t *cur_dims,
+H5HL_DLL herr_t H5LDget_dset_elmts(hid_t did, const hsize_t *prev_dims, const hsize_t *cur_dims,
                                    const char *fields, void *buf);
 
 #ifdef __cplusplus

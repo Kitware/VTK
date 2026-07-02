@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -28,6 +28,7 @@
  * will be selected. In the case of a memory dataspace, this means that
  * the specified file dataspace will also be used for the memory dataspace.
  * Used in place of a file or memory dataspace @ref hid_t value.
+ * \since 1.0.0
  */
 #define H5S_ALL 0
 
@@ -35,6 +36,7 @@
  * Indicates that the buffer provided in a call to @ref H5Dread or @ref H5Dwrite
  * is a single contiguous block of memory, with the same number of elements
  * as the file dataspace. Used in place of a memory dataspace @ref hid_t value.
+ * \since 1.14.0
  */
 #define H5S_BLOCK 1
 
@@ -42,36 +44,43 @@
  * Used with @ref H5Dread and @ref H5Dwrite to indicate that the file dataspace
  * selection was set via @ref H5Pset_dataset_io_hyperslab_selection calls.
  * Used in place of a file dataspace @ref hid_t value.
+ * \since 1.14.0
  */
 #define H5S_PLIST 2
 
-#define H5S_UNLIMITED HSIZE_UNDEF /**< Value for 'unlimited' dimensions */
+/** Value for 'unlimited' dimensions \since 1.0.0 */
+#define H5S_UNLIMITED HSIZE_UNDEF
 
 /**
- * The maximum dataspace rank or number of dimensions
+ * The maximum number of dimensions in a dataspace or array datatype
+ * \since 1.0.0
  */
 #define H5S_MAX_RANK 32
 
 /* Flags for selection iterators */
-#define H5S_SEL_ITER_GET_SEQ_LIST_SORTED                                                                     \
-    0x0001 /**< Retrieve elements from iterator in increasing offset order, for                              \
-            * each call to retrieve sequences. Currently, this only applies to                               \
-            * point selections, as hyperslab selections are always returned in                               \
-            * increasing offset order. Note that the order is only increasing                                \
-            * for each call to H5Sget_seq_list(), the next set of sequences                                  \
-            * could start with an earlier offset than the previous one.                                      \
-            *                                                                                                \
-            * \since 1.12.0                                                                                  \
-            */
-#define H5S_SEL_ITER_SHARE_WITH_DATASPACE                                                                    \
-    0x0002 /**< Don't copy the dataspace selection when creating the selection                               \
-            * iterator. This can improve performance of creating the iterator,                               \
-            * but the dataspace \Bold{MUST NOT} be modified or closed until the                              \
-            * selection iterator is closed or the iterator's behavior will be                                \
-            * undefined.                                                                                     \
-            *                                                                                                \
-            * \since 1.12.0                                                                                  \
-            */
+
+/**
+ * Retrieve elements from iterator in increasing offset order, for
+ * each call to retrieve sequences. Currently, this only applies to
+ * point selections, as hyperslab selections are always returned in
+ * increasing offset order. Note that the order is only increasing
+ * for each call to H5Sget_seq_list(), the next set of sequences
+ * could start with an earlier offset than the previous one.
+ *
+ * \since 1.12.0
+ */
+#define H5S_SEL_ITER_GET_SEQ_LIST_SORTED 0x0001
+
+/**
+ * Don't copy the dataspace selection when creating the selection
+ * iterator. This can improve performance of creating the iterator,
+ * but the dataspace \Bold{MUST NOT} be modified or closed until the
+ * selection iterator is closed or the iterator's behavior will be
+ * undefined.
+ *
+ * \since 1.12.0
+ */
+#define H5S_SEL_ITER_SHARE_WITH_DATASPACE 0x0002
 
 /**
  * Types of dataspaces
@@ -408,7 +417,7 @@ H5_DLL hid_t H5Sdecode(const void *buf);
  *
  * \note Motivation: This function was introduced in HDF5-1.12 as part of the
  *       H5Sencode() format change to enable 64-bit selection encodings and
- *       a dataspace selection that is tied to a file. See the \ref_news_112
+ *       a dataspace selection that is tied to a file. See the \ref sec_rel_spec_112_feat
  *       as well as the \ref_sencode_fmt_change.
  *
  * \since 1.12.0

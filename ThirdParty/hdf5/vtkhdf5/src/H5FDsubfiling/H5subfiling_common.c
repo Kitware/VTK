@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -14,10 +14,15 @@
  * Generic code for integrating an HDF5 VFD with the subfiling feature
  */
 
-#include "H5subfiling_common.h"
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
-#include "H5Eprivate.h"
-#include "H5MMprivate.h"
+#include "H5private.h"   /* Generic Functions        */
+#include "H5Eprivate.h"  /* Error handling           */
+#include "H5FDpkg.h"     /* File drivers             */
+#include "H5Iprivate.h"  /* IDs                      */
+#include "H5MMprivate.h" /* Memory management        */
+#include "H5TSprivate.h" /* Threadsafety             */
+#include "H5subfiling_common.h"
 
 typedef struct {            /* Format of a context map entry  */
     uint64_t file_id;       /* key value (linear search of the cache) */
@@ -93,7 +98,7 @@ static int64_t
 H5FD__subfiling_new_object_id(sf_obj_type_t obj_type)
 {
     int64_t index_val = 0;
-    int64_t ret_value;
+    int64_t ret_value = 0;
 
     FUNC_ENTER_PACKAGE
 
@@ -374,6 +379,9 @@ H5FD__subfiling_free_context(subfiling_context_t *sf_context)
         mpi_finalized = 1;
     }
 
+    if (H5TS_mutex_destroy(&sf_context->mutex) < 0)
+        HDONE_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "can't destroy subfiling context's mutex");
+
     if (!mpi_finalized) {
         if (H5_mpi_comm_free(&sf_context->sf_msg_comm) < 0)
             HDONE_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "can't free MPI communicator");
@@ -514,7 +522,7 @@ H5FD__subfiling_open_stub_file(const char *name, unsigned flags, MPI_Comm file_c
 
         if ((fapl_id = H5P_create_id(H5P_CLS_FILE_ACCESS_g, false)) < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "can't create FAPL for stub file");
-        if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+        if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
             HGOTO_ERROR(H5E_VFL, H5E_BADTYPE, FAIL, "not a file access property list");
 
         /* Use MPI I/O driver for stub file to allow access to vector I/O */
@@ -1715,7 +1723,9 @@ H5FD__subfiling_init_context(int64_t context_id, const char *prefix_env, const c
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "couldn't create new subfiling object");
 
     /* Set non-zero fields */
-    sf_context->h5_file_id      = file_id;
+    sf_context->h5_file_id = file_id;
+    if (H5TS_mutex_init(&sf_context->mutex, H5TS_MUTEX_TYPE_PLAIN) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "couldn't init subfiling context's mutex");
     sf_context->sf_context_id   = context_id;
     sf_context->sf_num_subfiles = subfiling_config->stripe_count;
     sf_context->sf_eof          = HADDR_UNDEF;
@@ -3022,7 +3032,7 @@ H5FD__subfiling_log(int64_t sf_context_id, const char *fmt, ...)
         goto done;
     }
 
-    H5FD_ioc_begin_thread_exclusive();
+    H5TS_mutex_lock(&sf_context->mutex);
 
     if (sf_context->sf_logfile) {
         vfprintf(sf_context->sf_logfile, fmt, log_args);
@@ -3035,7 +3045,7 @@ H5FD__subfiling_log(int64_t sf_context_id, const char *fmt, ...)
         fflush(stdout);
     }
 
-    H5FD_ioc_end_thread_exclusive();
+    H5TS_mutex_unlock(&sf_context->mutex);
 
 done:
     va_end(log_args);
@@ -3059,7 +3069,7 @@ H5FD__subfiling_log_nonewline(int64_t sf_context_id, const char *fmt, ...)
         goto done;
     }
 
-    H5FD_ioc_begin_thread_exclusive();
+    H5TS_mutex_lock(&sf_context->mutex);
 
     if (sf_context->sf_logfile) {
         vfprintf(sf_context->sf_logfile, fmt, log_args);
@@ -3070,7 +3080,7 @@ H5FD__subfiling_log_nonewline(int64_t sf_context_id, const char *fmt, ...)
         fflush(stdout);
     }
 
-    H5FD_ioc_end_thread_exclusive();
+    H5TS_mutex_unlock(&sf_context->mutex);
 
 done:
     va_end(log_args);

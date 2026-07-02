@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -68,6 +68,8 @@ static const unsigned H5O_fsinfo_ver_bounds[] = {
     H5O_INVALID_VERSION,      /* H5F_LIBVER_V18 */
     H5O_FSINFO_VERSION_1,     /* H5F_LIBVER_V110 */
     H5O_FSINFO_VERSION_1,     /* H5F_LIBVER_V112 */
+    H5O_FSINFO_VERSION_1,     /* H5F_LIBVER_V114 */
+    H5O_FSINFO_VERSION_1,     /* H5F_LIBVER_V200 */
     H5O_FSINFO_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 #define N_FSINFO_VERSION_BOUNDS H5F_LIBVER_NBOUNDS
@@ -182,6 +184,9 @@ H5O__fsinfo_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNU
         if (H5_IS_BUFFER_OVERFLOW(p, H5F_sizeof_size(f), p_end))
             HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
         H5F_DECODE_LENGTH(f, p, fsinfo->page_size); /* File space page size */
+        /* Basic sanity check */
+        if (fsinfo->page_size == 0 || fsinfo->page_size > H5F_FILE_SPACE_PAGE_SIZE_MAX)
+            HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "invalid page size in file space info");
 
         if (H5_IS_BUFFER_OVERFLOW(p, 2, p_end))
             HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");

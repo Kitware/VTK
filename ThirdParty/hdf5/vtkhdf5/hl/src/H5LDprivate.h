@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -42,8 +42,8 @@ extern "C" {
  * #2: these two routines are too specific to be made as public routines
  * Decide to do #3 at this point of time after some discussion.
  */
-H5_HLDLL void H5LD_clean_vector(H5LD_memb_t *listv[]);
-H5_HLDLL int  H5LD_construct_vector(char *fields, H5LD_memb_t *listv[], hid_t par_tid);
+H5HL_DLL void H5LD_clean_vector(H5LD_memb_t *listv[]);
+H5HL_DLL int  H5LD_construct_vector(char *fields, H5LD_memb_t *listv[], hid_t par_tid);
 
 #ifdef __cplusplus
 }

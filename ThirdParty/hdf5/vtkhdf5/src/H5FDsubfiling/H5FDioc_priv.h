@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -17,30 +17,17 @@
 #ifndef H5FDioc_priv_H
 #define H5FDioc_priv_H
 
-/********************/
-/* Standard Headers */
-/********************/
-
-#include <stdatomic.h>
-
 /**************/
 /* H5 Headers */
 /**************/
 
+/* Public header */
+#include "H5FDioc.h" /* IOC VFD                                  */
+
+/* Private headers */
 #include "H5private.h"   /* Generic Functions                        */
-#include "H5CXprivate.h" /* API Contexts                             */
-#include "H5Dprivate.h"  /* Datasets                                 */
-#include "H5Eprivate.h"  /* Error handling                           */
-#include "H5FDioc.h"     /* IOC VFD                                  */
-#include "H5Iprivate.h"  /* IDs                                      */
-#include "H5MMprivate.h" /* Memory management                        */
-#include "H5Pprivate.h"  /* Property lists                           */
-
+#include "H5TSprivate.h" /* Threadsafety                             */
 #include "H5subfiling_common.h"
-
-#include "mercury_thread.h"
-#include "mercury_thread_mutex.h"
-#include "mercury_thread_pool.h"
 
 /*
  * Some definitions for debugging the IOC VFD
@@ -74,74 +61,65 @@
 
 #define H5FD_IOC__IO_Q_ENTRY_MAGIC 0x1357
 
-/* clang-format off */
+#define H5FD_IOC__Q_APPEND(q_ptr, entry_ptr)                                                                 \
+    do {                                                                                                     \
+        assert(q_ptr);                                                                                       \
+        assert((q_ptr)->magic == H5FD_IOC__IO_Q_MAGIC);                                                      \
+        assert((((q_ptr)->q_len == 0) && ((q_ptr)->q_head == NULL) && ((q_ptr)->q_tail == NULL)) ||          \
+               (((q_ptr)->q_len > 0) && ((q_ptr)->q_head != NULL) && ((q_ptr)->q_tail != NULL)));            \
+        assert(entry_ptr);                                                                                   \
+        assert((entry_ptr)->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);                                            \
+        assert((entry_ptr)->next == NULL);                                                                   \
+        assert((entry_ptr)->prev == NULL);                                                                   \
+        assert((entry_ptr)->in_progress == false);                                                           \
+                                                                                                             \
+        if (((q_ptr)->q_head) == NULL) {                                                                     \
+            ((q_ptr)->q_head) = (entry_ptr);                                                                 \
+            ((q_ptr)->q_tail) = (entry_ptr);                                                                 \
+        }                                                                                                    \
+        else {                                                                                               \
+            ((q_ptr)->q_tail)->next = (entry_ptr);                                                           \
+            (entry_ptr)->prev       = ((q_ptr)->q_tail);                                                     \
+            ((q_ptr)->q_tail)       = (entry_ptr);                                                           \
+        }                                                                                                    \
+        ((q_ptr)->q_len)++;                                                                                  \
+    } while (false) /* H5FD_IOC__Q_APPEND() */
 
-#define H5FD_IOC__Q_APPEND(q_ptr, entry_ptr)                                                      \
-do {                                                                                              \
-    assert(q_ptr);                                                                              \
-    assert((q_ptr)->magic == H5FD_IOC__IO_Q_MAGIC);                                             \
-    assert((((q_ptr)->q_len == 0) && ((q_ptr)->q_head == NULL) && ((q_ptr)->q_tail == NULL)) || \
-             (((q_ptr)->q_len > 0) && ((q_ptr)->q_head != NULL) && ((q_ptr)->q_tail != NULL)));   \
-    assert(entry_ptr);                                                                          \
-    assert((entry_ptr)->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);                                   \
-    assert((entry_ptr)->next == NULL);                                                          \
-    assert((entry_ptr)->prev == NULL);                                                          \
-    assert((entry_ptr)->in_progress == false);                                                  \
-                                                                                                  \
-    if ( ((q_ptr)->q_head) == NULL )                                                              \
-    {                                                                                             \
-       ((q_ptr)->q_head) = (entry_ptr);                                                           \
-       ((q_ptr)->q_tail) = (entry_ptr);                                                           \
-    }                                                                                             \
-    else                                                                                          \
-    {                                                                                             \
-       ((q_ptr)->q_tail)->next = (entry_ptr);                                                     \
-       (entry_ptr)->prev = ((q_ptr)->q_tail);                                                     \
-       ((q_ptr)->q_tail) = (entry_ptr);                                                           \
-    }                                                                                             \
-    ((q_ptr)->q_len)++;                                                                           \
-} while ( false ) /* H5FD_IOC__Q_APPEND() */
-
-#define H5FD_IOC__Q_REMOVE(q_ptr, entry_ptr)                                                                         \
-do {                                                                                                                 \
-    assert(q_ptr);                                                                                                 \
-    assert((q_ptr)->magic == H5FD_IOC__IO_Q_MAGIC);                                                                \
-    assert((((q_ptr)->q_len == 1) && ((q_ptr)->q_head ==((q_ptr)->q_tail)) && ((q_ptr)->q_head == (entry_ptr))) || \
-             (((q_ptr)->q_len > 0) && ((q_ptr)->q_head != NULL) && ((q_ptr)->q_tail != NULL)));                      \
-    assert(entry_ptr);                                                                                             \
-    assert((entry_ptr)->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);                                                      \
-    assert((((q_ptr)->q_len == 1) && ((entry_ptr)->next == NULL) && ((entry_ptr)->prev == NULL)) ||                \
-             (((q_ptr)->q_len > 1) && (((entry_ptr)->next != NULL) || ((entry_ptr)->prev != NULL))));                \
-    assert((entry_ptr)->in_progress == true);                                                                      \
-                                                                                                                     \
-    {                                                                                                                \
-       if ( (((q_ptr)->q_head)) == (entry_ptr) )                                                                     \
-       {                                                                                                             \
-          (((q_ptr)->q_head)) = (entry_ptr)->next;                                                                   \
-          if ( (((q_ptr)->q_head)) != NULL )                                                                         \
-             (((q_ptr)->q_head))->prev = NULL;                                                                       \
-       }                                                                                                             \
-       else                                                                                                          \
-       {                                                                                                             \
-          (entry_ptr)->prev->next = (entry_ptr)->next;                                                               \
-       }                                                                                                             \
-       if (((q_ptr)->q_tail) == (entry_ptr) )                                                                        \
-       {                                                                                                             \
-          ((q_ptr)->q_tail) = (entry_ptr)->prev;                                                                     \
-          if ( ((q_ptr)->q_tail) != NULL )                                                                           \
-             ((q_ptr)->q_tail)->next = NULL;                                                                         \
-       }                                                                                                             \
-       else                                                                                                          \
-       {                                                                                                             \
-          (entry_ptr)->next->prev = (entry_ptr)->prev;                                                               \
-       }                                                                                                             \
-       (entry_ptr)->next = NULL;                                                                                     \
-       (entry_ptr)->prev = NULL;                                                                                     \
-       ((q_ptr)->q_len)--;                                                                                           \
-    }                                                                                                                \
-} while ( false ) /* H5FD_IOC__Q_REMOVE() */
-
-/* clang-format on */
+#define H5FD_IOC__Q_REMOVE(q_ptr, entry_ptr)                                                                 \
+    do {                                                                                                     \
+        assert(q_ptr);                                                                                       \
+        assert((q_ptr)->magic == H5FD_IOC__IO_Q_MAGIC);                                                      \
+        assert((((q_ptr)->q_len == 1) && ((q_ptr)->q_head == ((q_ptr)->q_tail)) &&                           \
+                ((q_ptr)->q_head == (entry_ptr))) ||                                                         \
+               (((q_ptr)->q_len > 0) && ((q_ptr)->q_head != NULL) && ((q_ptr)->q_tail != NULL)));            \
+        assert(entry_ptr);                                                                                   \
+        assert((entry_ptr)->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);                                            \
+        assert((((q_ptr)->q_len == 1) && ((entry_ptr)->next == NULL) && ((entry_ptr)->prev == NULL)) ||      \
+               (((q_ptr)->q_len > 1) && (((entry_ptr)->next != NULL) || ((entry_ptr)->prev != NULL))));      \
+        assert((entry_ptr)->in_progress == true);                                                            \
+                                                                                                             \
+        {                                                                                                    \
+            if ((((q_ptr)->q_head)) == (entry_ptr)) {                                                        \
+                (((q_ptr)->q_head)) = (entry_ptr)->next;                                                     \
+                if ((((q_ptr)->q_head)) != NULL)                                                             \
+                    (((q_ptr)->q_head))->prev = NULL;                                                        \
+            }                                                                                                \
+            else {                                                                                           \
+                (entry_ptr)->prev->next = (entry_ptr)->next;                                                 \
+            }                                                                                                \
+            if (((q_ptr)->q_tail) == (entry_ptr)) {                                                          \
+                ((q_ptr)->q_tail) = (entry_ptr)->prev;                                                       \
+                if (((q_ptr)->q_tail) != NULL)                                                               \
+                    ((q_ptr)->q_tail)->next = NULL;                                                          \
+            }                                                                                                \
+            else {                                                                                           \
+                (entry_ptr)->next->prev = (entry_ptr)->prev;                                                 \
+            }                                                                                                \
+            (entry_ptr)->next = NULL;                                                                        \
+            (entry_ptr)->prev = NULL;                                                                        \
+            ((q_ptr)->q_len)--;                                                                              \
+        }                                                                                                    \
+    } while (false) /* H5FD_IOC__Q_REMOVE() */
 
 /****************************************************************************
  *
@@ -211,9 +189,8 @@ typedef struct ioc_io_queue_entry {
     bool                       in_progress;
     uint32_t                   counter;
 
-    sf_work_request_t     wk_req;
-    struct hg_thread_work thread_wk;
-    int                   wk_ret;
+    sf_work_request_t wk_req;
+    int               wk_ret;
 
     /* statistics */
 #ifdef H5FD_IOC_COLLECT_STATS
@@ -369,7 +346,7 @@ typedef struct ioc_io_queue {
     int32_t               num_failed;
     int32_t               q_len;
     uint32_t              req_counter;
-    hg_thread_mutex_t     q_mutex;
+    H5TS_mutex_t          q_mutex;
 
     /* statistics */
 #ifdef H5FD_IOC_COLLECT_STATS

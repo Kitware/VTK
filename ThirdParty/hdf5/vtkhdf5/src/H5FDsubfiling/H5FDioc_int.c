@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -14,7 +14,12 @@
  * Purpose: This is part of an I/O concentrator driver.
  */
 
-#include "H5FDioc_priv.h"
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
+
+#include "H5private.h"    /* Generic Functions        */
+#include "H5Eprivate.h"   /* Error handling           */
+#include "H5FDpkg.h"      /* File drivers             */
+#include "H5FDioc_priv.h" /* I/O concetrator file driver          */
 
 /*
  * Given a file offset, the stripe size, the number of IOCs and the number of
@@ -80,12 +85,12 @@ herr_t
 H5FD__ioc_write_independent_async(int64_t context_id, int64_t offset, int64_t elements, const void *data,
                                   io_req_t **io_req)
 {
-    subfiling_context_t *sf_context    = NULL;
-    MPI_Request          ack_request   = MPI_REQUEST_NULL;
-    io_req_t            *sf_io_request = NULL;
-    int64_t              ioc_start;
-    int64_t              ioc_offset;
-    int64_t              ioc_subfile_idx;
+    subfiling_context_t *sf_context       = NULL;
+    MPI_Request          ack_request      = MPI_REQUEST_NULL;
+    io_req_t            *sf_io_request    = NULL;
+    int64_t              ioc_start        = -1;
+    int64_t              ioc_offset       = -1;
+    int64_t              ioc_subfile_idx  = -1;
     int64_t              msg[3]           = {0};
     int                 *io_concentrators = NULL;
     int                  num_io_concentrators;
@@ -236,13 +241,13 @@ herr_t
 H5FD__ioc_read_independent_async(int64_t context_id, int64_t offset, int64_t elements, void *data,
                                  io_req_t **io_req)
 {
-    subfiling_context_t *sf_context    = NULL;
-    MPI_Request          ack_request   = MPI_REQUEST_NULL;
-    io_req_t            *sf_io_request = NULL;
-    bool                 need_data_tag = false;
-    int64_t              ioc_start;
-    int64_t              ioc_offset;
-    int64_t              ioc_subfile_idx;
+    subfiling_context_t *sf_context       = NULL;
+    MPI_Request          ack_request      = MPI_REQUEST_NULL;
+    io_req_t            *sf_io_request    = NULL;
+    bool                 need_data_tag    = false;
+    int64_t              ioc_start        = -1;
+    int64_t              ioc_offset       = -1;
+    int64_t              ioc_subfile_idx  = -1;
     int64_t              msg[3]           = {0};
     int                 *io_concentrators = NULL;
     int                  num_io_concentrators;
@@ -391,13 +396,10 @@ H5FD__ioc_async_completion(MPI_Request *mpi_reqs, size_t num_reqs)
 
     H5_CHECK_OVERFLOW(num_reqs, size_t, int);
 
-    /* Have to suppress gcc warnings regarding MPI_STATUSES_IGNORE
-     * with MPICH (https://github.com/pmodels/mpich/issues/5687)
-     */
-    H5_GCC_DIAG_OFF("stringop-overflow")
+    H5_WARN_MPI_STATUSES_IGNORE_OFF
     if (MPI_SUCCESS != (mpi_code = MPI_Waitall((int)num_reqs, mpi_reqs, MPI_STATUSES_IGNORE)))
         HMPI_GOTO_ERROR(FAIL, "MPI_Waitall failed", mpi_code);
-    H5_GCC_DIAG_ON("stringop-overflow")
+    H5_WARN_MPI_STATUSES_IGNORE_ON
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

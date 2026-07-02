@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -302,13 +302,13 @@ typedef struct H5FD_class_t {
                               const void *bufs[] /*in*/);
     /**< */
 
-    herr_t (*flush)(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
+    herr_t (*flush)(H5FD_t *file, hid_t dxpl_id, bool closing);
     /**< Flushes all data to disk */
 
-    herr_t (*truncate)(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
+    herr_t (*truncate)(H5FD_t *file, hid_t dxpl_id, bool closing);
     /**< Truncates a file */
 
-    herr_t (*lock)(H5FD_t *file, hbool_t rw);
+    herr_t (*lock)(H5FD_t *file, bool rw);
     /**< Places an advisory lock on a file */
 
     herr_t (*unlock)(H5FD_t *file);
@@ -349,7 +349,7 @@ struct H5FD_t {
     /* Space allocation management fields */
     hsize_t threshold;  /**< Threshold for alignment  */
     hsize_t alignment;  /**< Allocation alignment     */
-    hbool_t paged_aggr; /**< Paged aggregation for file space is enabled or not */
+    bool    paged_aggr; /**< Paged aggregation for file space is enabled or not */
 };
 
 /* VFD initialization function */
@@ -367,7 +367,6 @@ typedef hid_t (*H5FD_init_t)(void);
 extern "C" {
 #endif
 
-H5_DLL hid_t   H5FDperform_init(H5FD_init_t op);
 H5_DLL hid_t   H5FDregister(const H5FD_class_t *cls);
 H5_DLL htri_t  H5FDis_driver_registered_by_name(const char *driver_name);
 H5_DLL htri_t  H5FDis_driver_registered_by_value(H5FD_class_value_t driver_value);
@@ -408,9 +407,9 @@ H5_DLL herr_t  H5FDread_from_selection(H5FD_t *file, H5FD_mem_t type, hid_t dxpl
 H5_DLL herr_t  H5FDwrite_from_selection(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, uint32_t count,
                                         hid_t mem_space_ids[], hid_t file_space_ids[], haddr_t offsets[],
                                         size_t element_sizes[], const void *bufs[] /* in */);
-H5_DLL herr_t  H5FDflush(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
-H5_DLL herr_t  H5FDtruncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
-H5_DLL herr_t  H5FDlock(H5FD_t *file, hbool_t rw);
+H5_DLL herr_t  H5FDflush(H5FD_t *file, hid_t dxpl_id, bool closing);
+H5_DLL herr_t  H5FDtruncate(H5FD_t *file, hid_t dxpl_id, bool closing);
+H5_DLL herr_t  H5FDlock(H5FD_t *file, bool rw);
 H5_DLL herr_t  H5FDunlock(H5FD_t *file);
 H5_DLL herr_t  H5FDdelete(const char *name, hid_t fapl_id);
 H5_DLL herr_t  H5FDctl(H5FD_t *file, uint64_t op_code, uint64_t flags, const void *input, void **output);

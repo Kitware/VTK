@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -74,7 +74,7 @@ typedef struct {
 
 static herr_t H5A__close_cb(H5VL_object_t *attr_vol_obj, void **request);
 static herr_t H5A__compact_build_table_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence,
-                                          unsigned *oh_flags_ptr, void *_udata /*in,out*/);
+                                          void *_udata /*in,out*/);
 static herr_t H5A__dense_build_table_cb(const H5A_t *attr, void *_udata);
 static int    H5A__attr_cmp_name_inc(const void *attr1, const void *attr2);
 static int    H5A__attr_cmp_name_dec(const void *attr1, const void *attr2);
@@ -88,12 +88,17 @@ static herr_t H5A__iterate_common(hid_t loc_id, H5_index_t idx_type, H5_iter_ord
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /* Format version bounds for attribute */
 const unsigned H5O_attr_ver_bounds[] = {
     H5O_ATTR_VERSION_1,     /* H5F_LIBVER_EARLIEST */
     H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V18 */
     H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V110 */
     H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V112 */
+    H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V114 */
+    H5O_ATTR_VERSION_3,     /* H5F_LIBVER_V200 */
     H5O_ATTR_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -125,6 +130,9 @@ static const H5I_class_t H5I_ATTR_CLS[1] = {{
     (H5I_free_t)H5A__close_cb /* Callback routine for closing objects of this class */
 }};
 
+/* Flag indicating "top" of interface has been initialized */
+static bool H5A_top_package_initialize_s = false;
+
 /*-------------------------------------------------------------------------
  * Function: H5A_init
  *
@@ -141,6 +149,30 @@ H5A_init(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5A_init() */
+
+/*--------------------------------------------------------------------------
+NAME
+   H5A__init_package -- Initialize interface-specific information
+USAGE
+    herr_t H5A__init_package()
+
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Initializes any interface-specific data or routines.
+
+--------------------------------------------------------------------------*/
+herr_t
+H5A__init_package(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /*
      * Create attribute ID type.
@@ -148,9 +180,12 @@ H5A_init(void)
     if (H5I_register_type(H5I_ATTR_CLS) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, FAIL, "unable to initialize interface");
 
+    /* Mark "top" of interface as initialized, too */
+    H5A_top_package_initialize_s = true;
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_init() */
+} /* end H5A__init_package() */
 
 /*--------------------------------------------------------------------------
  NAME
@@ -176,10 +211,16 @@ H5A_top_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5I_nmembers(H5I_ATTR) > 0) {
-        (void)H5I_clear_type(H5I_ATTR, false, false);
-        n++; /*H5I*/
-    }        /* end if */
+    if (H5A_top_package_initialize_s) {
+        if (H5I_nmembers(H5I_ATTR) > 0) {
+            (void)H5I_clear_type(H5I_ATTR, false, false);
+            n++; /*H5I*/
+        }        /* end if */
+
+        /* Mark closed */
+        if (0 == n)
+            H5A_top_package_initialize_s = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* H5A_top_term_package() */
@@ -210,11 +251,18 @@ H5A_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* Sanity checks */
-    assert(0 == H5I_nmembers(H5I_ATTR));
+    if (H5_PKG_INIT_VAR) {
+        /* Sanity checks */
+        assert(0 == H5I_nmembers(H5I_ATTR));
+        assert(false == H5A_top_package_initialize_s);
 
-    /* Destroy the attribute object id group */
-    n += (H5I_dec_type_ref(H5I_ATTR) > 0);
+        /* Destroy the attribute object id group */
+        n += (H5I_dec_type_ref(H5I_ATTR) > 0);
+
+        /* Mark closed */
+        if (0 == n)
+            H5_PKG_INIT_VAR = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* H5A_term_package() */
@@ -1092,9 +1140,7 @@ done:
 herr_t
 H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo)
 {
-    herr_t ret_value = SUCCEED; /* Return value */
-
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check args */
     assert(attr);
@@ -1112,7 +1158,7 @@ H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo)
         ainfo->corder       = attr->shared->crt_idx;
     } /* end else */
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5A__get_info() */
 
 /*-------------------------------------------------------------------------
@@ -1316,13 +1362,14 @@ H5A_oloc(H5A_t *attr)
 {
     H5O_loc_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(NULL)
 
     assert(attr);
 
     /* Set return value */
     ret_value = &(attr->oloc);
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_oloc() */
 
@@ -1343,13 +1390,14 @@ H5A_nameof(H5A_t *attr)
 {
     H5G_name_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(NULL)
 
     assert(attr);
 
     /* Set return value */
     ret_value = &(attr->path);
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_nameof() */
 
@@ -1368,13 +1416,14 @@ H5A_type(const H5A_t *attr)
 {
     H5T_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(NULL)
 
     assert(attr);
 
     /* Set return value */
     ret_value = attr->shared->dt;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_type() */
 
@@ -1432,11 +1481,12 @@ done:
  *              into table.
  *
  * Return:    Non-negative on success/Negative on failure
+ *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5A__compact_build_table_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence,
-                            unsigned H5_ATTR_UNUSED *oh_modified, void *_udata /*in,out*/)
+                            void *_udata /*in,out*/)
 {
     H5A_compact_bt_ud_t *udata     = (H5A_compact_bt_ud_t *)_udata; /* Operator user data */
     herr_t               ret_value = H5_ITER_CONT;                  /* Return value */
@@ -1842,15 +1892,26 @@ H5A__attr_iterate_table(const H5A_attr_table_t *atable, hsize_t skip, hsize_t *l
                 if (H5A__get_info(atable->attrs[u], &ainfo) < 0)
                     HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, H5_ITER_ERROR, "unable to get attribute info");
 
-                /* Make the application callback */
-                ret_value = (attr_op->u.app_op2)(loc_id, ((atable->attrs[u])->shared)->name, &ainfo, op_data);
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(H5_ITER_ERROR)
+                    {
+                        /* Make the application callback */
+                        ret_value =
+                            (attr_op->u.app_op2)(loc_id, ((atable->attrs[u])->shared)->name, &ainfo, op_data);
+                    }
+                H5_AFTER_USER_CB(H5_ITER_ERROR)
                 break;
             }
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
             case H5A_ATTR_OP_APP:
-                /* Make the application callback */
-                ret_value = (attr_op->u.app_op)(loc_id, ((atable->attrs[u])->shared)->name, op_data);
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(H5_ITER_ERROR)
+                    {
+                        /* Make the application callback */
+                        ret_value = (attr_op->u.app_op)(loc_id, ((atable->attrs[u])->shared)->name, op_data);
+                    }
+                H5_AFTER_USER_CB(H5_ITER_ERROR)
                 break;
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
@@ -1933,7 +1994,7 @@ H5A__get_ainfo(H5F_t *f, H5O_t *oh, H5O_ainfo_t *ainfo)
     H5B2_t *bt2_name  = NULL; /* v2 B-tree handle for name index */
     htri_t  ret_value = FAIL; /* Return value */
 
-    FUNC_ENTER_NOAPI_TAG(oh->cache_info.addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check arguments */
     assert(f);

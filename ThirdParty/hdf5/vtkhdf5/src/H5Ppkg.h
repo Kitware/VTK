@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -192,6 +192,12 @@ H5_DLL herr_t H5P__decode_coll_md_read_flag_t(const void **_pp, void *value);
 
 /* Private FAPL routines */
 H5_DLL herr_t H5P__facc_set_def_driver(void);
+
+/* Private FCPL routines */
+H5_DLL herr_t H5P__get_file_space_strategy(H5P_genplist_t *plist, H5F_fspace_strategy_t *strategy,
+                                           bool *persist, hsize_t *threshold);
+H5_DLL herr_t H5P__set_file_space_strategy(H5P_genplist_t *plist, H5F_fspace_strategy_t strategy,
+                                           bool persist, hsize_t threshold);
 
 /* Private OCPL routines */
 H5_DLL herr_t H5P__get_filter(const struct H5Z_filter_info_t *filter, unsigned int *flags, size_t *cd_nelmts,

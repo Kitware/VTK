@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -57,6 +57,9 @@ static herr_t H5M__get_api_common(hid_t map_id, hid_t key_mem_type_id, const voi
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -72,6 +75,9 @@ static const H5I_class_t H5I_MAP_CLS[1] = {{
     0,                        /* # of reserved IDs for class */
     (H5I_free_t)H5M__close_cb /* Callback routine for closing objects of this class */
 }};
+
+/* Flag indicating "top" of interface has been initialized */
+static bool H5M_top_package_initialize_s = false;
 
 /*-------------------------------------------------------------------------
  * Function: H5M_init
@@ -89,14 +95,40 @@ H5M_init(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5M_init() */
+
+/*-------------------------------------------------------------------------
+NAME
+    H5M__init_package -- Initialize interface-specific information
+USAGE
+    herr_t H5M__init_package()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Initializes any interface-specific data or routines.
+---------------------------------------------------------------------------
+*/
+herr_t
+H5M__init_package(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* Initialize the ID group for the map IDs */
     if (H5I_register_type(H5I_MAP_CLS) < 0)
         HGOTO_ERROR(H5E_MAP, H5E_CANTINIT, FAIL, "unable to initialize interface");
 
+    /* Mark "top" of interface as initialized, too */
+    H5M_top_package_initialize_s = true;
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5M_init() */
+} /* end H5M__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function: H5M_top_term_package
@@ -115,10 +147,16 @@ H5M_top_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5I_nmembers(H5I_MAP) > 0) {
-        (void)H5I_clear_type(H5I_MAP, false, false);
-        n++;
-    }
+    if (H5M_top_package_initialize_s) {
+        if (H5I_nmembers(H5I_MAP) > 0) {
+            (void)H5I_clear_type(H5I_MAP, false, false);
+            n++;
+        }
+
+        /* Mark closed */
+        if (0 == n)
+            H5M_top_package_initialize_s = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5M_top_term_package() */
@@ -143,11 +181,18 @@ H5M_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* Sanity checks */
-    assert(0 == H5I_nmembers(H5I_MAP));
+    if (H5_PKG_INIT_VAR) {
+        /* Sanity checks */
+        assert(0 == H5I_nmembers(H5I_MAP));
+        assert(false == H5M_top_package_initialize_s);
 
-    /* Destroy the dataset object id group */
-    n += (H5I_dec_type_ref(H5I_MAP) > 0);
+        /* Destroy the dataset object id group */
+        n += (H5I_dec_type_ref(H5I_MAP) > 0);
+
+        /* Mark closed */
+        if (0 == n)
+            H5_PKG_INIT_VAR = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5M_term_package() */
@@ -253,7 +298,7 @@ H5M__create_api_common(hid_t loc_id, const char *name, hid_t key_type_id, hid_t 
     map = map_args.create.map;
 
     /* Get an ID for the map */
-    if ((ret_value = H5VL_register(H5I_MAP, map, (*vol_obj_ptr)->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_MAP, map, H5VL_OBJ_CONNECTOR(*vol_obj_ptr), true)) < 0)
         HGOTO_ERROR(H5E_MAP, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register map handle");
 
 done:
@@ -339,7 +384,7 @@ H5Mcreate_async(const char *app_file, const char *app_func, unsigned app_line, h
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE11(__func__, "*s*sIui*siiiiii", app_file, app_func, app_line, loc_id, name, key_type_id, val_type_id, lcpl_id, mcpl_id, mapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref_always_close(ret_value) < 0)
@@ -420,7 +465,7 @@ H5Mcreate_anon(hid_t loc_id, hid_t key_type_id, hid_t val_type_id, hid_t mcpl_id
     map = map_args.create.map;
 
     /* Get an ID for the map */
-    if ((ret_value = H5VL_register(H5I_MAP, map, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_MAP, map, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_MAP, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register map");
 
 done:
@@ -484,7 +529,7 @@ H5M__open_api_common(hid_t loc_id, const char *name, hid_t mapl_id, void **token
     map = map_args.open.map;
 
     /* Register an ID for the map */
-    if ((ret_value = H5VL_register(H5I_MAP, map, (*vol_obj_ptr)->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_MAP, map, H5VL_OBJ_CONNECTOR(*vol_obj_ptr), true)) < 0)
         HGOTO_ERROR(H5E_MAP, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register map ID");
 
 done:
@@ -564,7 +609,7 @@ H5Mopen_async(const char *app_file, const char *app_func, unsigned app_line, hid
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE7(__func__, "*s*sIui*sii", app_file, app_func, app_line, loc_id, name, mapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref_always_close(ret_value) < 0)
@@ -620,11 +665,11 @@ done:
 herr_t
 H5Mclose_async(const char *app_file, const char *app_func, unsigned app_line, hid_t map_id, hid_t es_id)
 {
-    void          *token     = NULL;            /* Request token for async operation            */
-    void         **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation */
-    H5VL_object_t *vol_obj   = NULL;            /* VOL object of dset_id */
-    H5VL_t        *connector = NULL;            /* VOL connector */
-    herr_t         ret_value = SUCCEED;         /* Return value */
+    void             *token     = NULL;            /* Request token for async operation            */
+    void            **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation */
+    H5VL_object_t    *vol_obj   = NULL;            /* VOL object of dset_id */
+    H5VL_connector_t *connector = NULL;            /* VOL connector */
+    herr_t            ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_API(FAIL)
 
@@ -640,7 +685,7 @@ H5Mclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
     if (H5ES_NONE != es_id) {
         /* Increase connector's refcount, so it doesn't get closed if closing
          * the dataset closes the file */
-        connector = vol_obj->connector;
+        connector = H5VL_OBJ_CONNECTOR(vol_obj);
         H5VL_conn_inc_rc(connector);
 
         /* Point at token for operation to set up */
@@ -656,7 +701,7 @@ H5Mclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, map_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_MAP, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1017,7 +1062,7 @@ H5Mput_async(const char *app_file, const char *app_func, unsigned app_line, hid_
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE10(__func__, "*s*sIuii*xi*xii", app_file, app_func, app_line, map_id, key_mem_type_id, key, val_mem_type_id, value, dxpl_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_MAP, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1149,7 +1194,7 @@ H5Mget_async(const char *app_file, const char *app_func, unsigned app_line, hid_
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE10(__func__, "*s*sIuii*xi*xii", app_file, app_func, app_line, map_id, key_mem_type_id, key, val_mem_type_id, value, dxpl_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_MAP, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1172,7 +1217,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Mexists(hid_t map_id, hid_t key_mem_type_id, const void *key, hbool_t *exists, hid_t dxpl_id)
+H5Mexists(hid_t map_id, hid_t key_mem_type_id, const void *key, bool *exists, hid_t dxpl_id)
 {
     H5VL_object_t       *vol_obj = NULL;
     H5VL_optional_args_t vol_cb_args;         /* Arguments to VOL callback */

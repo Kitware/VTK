@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -110,6 +110,9 @@ struct H5FL_fac_node_t {
     struct H5FL_fac_node_t *next; /* Pointer to next block in free list */
 };
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /* The head of the list of factory things to garbage collect */
 static H5FL_fac_gc_list_t H5FL_fac_gc_head = {0, NULL};
 
@@ -168,15 +171,20 @@ H5FL_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
+    if (H5_PKG_INIT_VAR) {
         /* Garbage collect any nodes on the free lists */
-        (void)
-    H5FL_garbage_coll();
+        (void)H5FL_garbage_coll();
 
-    /* Shut down the various kinds of free lists */
-    n += H5FL__reg_term();
-    n += H5FL__fac_term_all();
-    n += H5FL__arr_term();
-    n += H5FL__blk_term();
+        /* Shut down the various kinds of free lists */
+        n += H5FL__reg_term();
+        n += H5FL__fac_term_all();
+        n += H5FL__arr_term();
+        n += H5FL__blk_term();
+
+        /* Mark interface closed */
+        if (0 == n)
+            H5_PKG_INIT_VAR = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5FL_term_package() */
@@ -1933,7 +1941,7 @@ H5FL__fac_gc(void)
     H5FL_fac_gc_node_t *gc_node;             /* Pointer into the list of things to garbage collect */
     herr_t              ret_value = SUCCEED; /* return value*/
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Walk through all the free lists, free()'ing the nodes */
     gc_node = H5FL_fac_gc_head.first;

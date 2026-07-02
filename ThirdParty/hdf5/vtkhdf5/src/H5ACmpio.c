@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -2024,8 +2024,8 @@ H5AC__run_sync_point(H5F_t *f, int sync_point_op)
            (sync_point_op == H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED));
 
 #ifdef H5AC_DEBUG_DIRTY_BYTES_CREATION
-    fprintf(stdout, "%d:%s...:%u: (u/uu/i/iu/m/mu) = %zu/%u/%zu/%u/%zu/%u\n", aux_ptr->mpi_rank,
-            __func__ aux_ptr->dirty_bytes_propagations, aux_ptr->unprotect_dirty_bytes,
+    fprintf(stdout, "%d:%s...:%u: (u/uu/i/iu/m/mu) = %zu/%u/%zu/%u/%zu/%u\n", aux_ptr->mpi_rank, __func__,
+            aux_ptr->dirty_bytes_propagations, aux_ptr->unprotect_dirty_bytes,
             aux_ptr->unprotect_dirty_bytes_updates, aux_ptr->insert_dirty_bytes,
             aux_ptr->insert_dirty_bytes_updates, aux_ptr->move_dirty_bytes,
             aux_ptr->move_dirty_bytes_updates);

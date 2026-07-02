@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -39,12 +39,20 @@
   #define H5_USE_112_API 1
 #endif /* H5_USE_112_API_DEFAULT && !H5_USE_112_API */
 
+#if defined(H5_USE_114_API_DEFAULT) && !defined(H5_USE_114_API)
+  #define H5_USE_114_API 1
+#endif /* H5_USE_114_API_DEFAULT && !H5_USE_114_API */
+
+#if defined(H5_USE_200_API_DEFAULT) && !defined(H5_USE_200_API)
+  #define H5_USE_200_API 1
+#endif /* H5_USE_200_API_DEFAULT && !H5_USE_200_API */
+
 
 /* Issue error if contradicting macros have been defined. */
 /* (Can't use an older (deprecated) API version if deprecated symbols have been disabled) */
-#if (defined(H5_USE_16_API) || defined(H5_USE_18_API) || defined(H5_USE_110_API) || defined(H5_USE_112_API)) && defined(H5_NO_DEPRECATED_SYMBOLS)
+#if (defined(H5_USE_16_API) || defined(H5_USE_18_API) || defined(H5_USE_110_API) || defined(H5_USE_112_API) || defined(H5_USE_114_API)) && defined(H5_NO_DEPRECATED_SYMBOLS)
   #error "Can't choose old API versions when deprecated APIs are disabled"
-#endif /* (defined(H5_USE_16_API) || defined(H5_USE_18_API) || defined(H5_USE_110_API) || defined(H5_USE_112_API)) && defined(H5_NO_DEPRECATED_SYMBOLS) */
+#endif /* (defined(H5_USE_16_API) || defined(H5_USE_18_API) || defined(H5_USE_110_API) || defined(H5_USE_112_API) || defined(H5_USE_114_API)) && defined(H5_NO_DEPRECATED_SYMBOLS) */
 
 
 /* If a particular "global" version of the library's interfaces is chosen,
@@ -220,6 +228,10 @@
   #define H5Gopen_vers 2
 #endif /* !defined(H5Gopen_vers) */
 
+#if !defined(H5Iregister_type_vers)
+  #define H5Iregister_type_vers 1
+#endif /* !defined(H5Iregister_type_vers) */
+
 #if !defined(H5Lget_info_vers)
   #define H5Lget_info_vers 1
 #endif /* !defined(H5Lget_info_vers) */
@@ -300,6 +312,10 @@
   #define H5Tcommit_vers 2
 #endif /* !defined(H5Tcommit_vers) */
 
+#if !defined(H5Tdecode_vers)
+  #define H5Tdecode_vers 1
+#endif /* !defined(H5Tdecode_vers) */
+
 #if !defined(H5Tget_array_dims_vers)
   #define H5Tget_array_dims_vers 2
 #endif /* !defined(H5Tget_array_dims_vers) */
@@ -352,6 +368,10 @@
   #define H5Dopen_vers 2
 #endif /* !defined(H5Dopen_vers) */
 
+#if !defined(H5Dread_chunk_vers)
+  #define H5Dread_chunk_vers 1
+#endif /* !defined(H5Dread_chunk_vers) */
+
 #if !defined(H5Eclear_vers)
   #define H5Eclear_vers 2
 #endif /* !defined(H5Eclear_vers) */
@@ -387,6 +407,10 @@
 #if !defined(H5Gopen_vers)
   #define H5Gopen_vers 2
 #endif /* !defined(H5Gopen_vers) */
+
+#if !defined(H5Iregister_type_vers)
+  #define H5Iregister_type_vers 1
+#endif /* !defined(H5Iregister_type_vers) */
 
 #if !defined(H5Lget_info_vers)
   #define H5Lget_info_vers 1
@@ -472,6 +496,10 @@
   #define H5Tcommit_vers 2
 #endif /* !defined(H5Tcommit_vers) */
 
+#if !defined(H5Tdecode_vers)
+  #define H5Tdecode_vers 1
+#endif /* !defined(H5Tdecode_vers) */
+
 #if !defined(H5Tget_array_dims_vers)
   #define H5Tget_array_dims_vers 2
 #endif /* !defined(H5Tget_array_dims_vers) */
@@ -524,6 +552,10 @@
   #define H5Dopen_vers 2
 #endif /* !defined(H5Dopen_vers) */
 
+#if !defined(H5Dread_chunk_vers)
+  #define H5Dread_chunk_vers 1
+#endif /* !defined(H5Dread_chunk_vers) */
+
 #if !defined(H5Eclear_vers)
   #define H5Eclear_vers 2
 #endif /* !defined(H5Eclear_vers) */
@@ -559,6 +591,10 @@
 #if !defined(H5Gopen_vers)
   #define H5Gopen_vers 2
 #endif /* !defined(H5Gopen_vers) */
+
+#if !defined(H5Iregister_type_vers)
+  #define H5Iregister_type_vers 1
+#endif /* !defined(H5Iregister_type_vers) */
 
 #if !defined(H5Lget_info_vers)
   #define H5Lget_info_vers 2
@@ -644,6 +680,10 @@
   #define H5Tcommit_vers 2
 #endif /* !defined(H5Tcommit_vers) */
 
+#if !defined(H5Tdecode_vers)
+  #define H5Tdecode_vers 1
+#endif /* !defined(H5Tdecode_vers) */
+
 #if !defined(H5Tget_array_dims_vers)
   #define H5Tget_array_dims_vers 2
 #endif /* !defined(H5Tget_array_dims_vers) */
@@ -673,6 +713,374 @@
 #endif /* !defined(H5Z_class_t_vers) */
 
 #endif /* H5_USE_112_API */
+
+#ifdef H5_USE_114_API
+
+/*************/
+/* Functions */
+/*************/
+
+#if !defined(H5Acreate_vers)
+  #define H5Acreate_vers 2
+#endif /* !defined(H5Acreate_vers) */
+
+#if !defined(H5Aiterate_vers)
+  #define H5Aiterate_vers 2
+#endif /* !defined(H5Aiterate_vers) */
+
+#if !defined(H5Dcreate_vers)
+  #define H5Dcreate_vers 2
+#endif /* !defined(H5Dcreate_vers) */
+
+#if !defined(H5Dopen_vers)
+  #define H5Dopen_vers 2
+#endif /* !defined(H5Dopen_vers) */
+
+#if !defined(H5Dread_chunk_vers)
+  #define H5Dread_chunk_vers 1
+#endif /* !defined(H5Dread_chunk_vers) */
+
+#if !defined(H5Eclear_vers)
+  #define H5Eclear_vers 2
+#endif /* !defined(H5Eclear_vers) */
+
+#if !defined(H5Eget_auto_vers)
+  #define H5Eget_auto_vers 2
+#endif /* !defined(H5Eget_auto_vers) */
+
+#if !defined(H5Eprint_vers)
+  #define H5Eprint_vers 2
+#endif /* !defined(H5Eprint_vers) */
+
+#if !defined(H5Epush_vers)
+  #define H5Epush_vers 2
+#endif /* !defined(H5Epush_vers) */
+
+#if !defined(H5Eset_auto_vers)
+  #define H5Eset_auto_vers 2
+#endif /* !defined(H5Eset_auto_vers) */
+
+#if !defined(H5Ewalk_vers)
+  #define H5Ewalk_vers 2
+#endif /* !defined(H5Ewalk_vers) */
+
+#if !defined(H5Fget_info_vers)
+  #define H5Fget_info_vers 2
+#endif /* !defined(H5Fget_info_vers) */
+
+#if !defined(H5Gcreate_vers)
+  #define H5Gcreate_vers 2
+#endif /* !defined(H5Gcreate_vers) */
+
+#if !defined(H5Gopen_vers)
+  #define H5Gopen_vers 2
+#endif /* !defined(H5Gopen_vers) */
+
+#if !defined(H5Iregister_type_vers)
+  #define H5Iregister_type_vers 1
+#endif /* !defined(H5Iregister_type_vers) */
+
+#if !defined(H5Lget_info_vers)
+  #define H5Lget_info_vers 2
+#endif /* !defined(H5Lget_info_vers) */
+
+#if !defined(H5Lget_info_by_idx_vers)
+  #define H5Lget_info_by_idx_vers 2
+#endif /* !defined(H5Lget_info_by_idx_vers) */
+
+#if !defined(H5Literate_vers)
+  #define H5Literate_vers 2
+#endif /* !defined(H5Literate_vers) */
+
+#if !defined(H5Literate_by_name_vers)
+  #define H5Literate_by_name_vers 2
+#endif /* !defined(H5Literate_by_name_vers) */
+
+#if !defined(H5Lvisit_vers)
+  #define H5Lvisit_vers 2
+#endif /* !defined(H5Lvisit_vers) */
+
+#if !defined(H5Lvisit_by_name_vers)
+  #define H5Lvisit_by_name_vers 2
+#endif /* !defined(H5Lvisit_by_name_vers) */
+
+#if !defined(H5Oget_info_vers)
+  #define H5Oget_info_vers 3
+#endif /* !defined(H5Oget_info_vers) */
+
+#if !defined(H5Oget_info_by_idx_vers)
+  #define H5Oget_info_by_idx_vers 3
+#endif /* !defined(H5Oget_info_by_idx_vers) */
+
+#if !defined(H5Oget_info_by_name_vers)
+  #define H5Oget_info_by_name_vers 3
+#endif /* !defined(H5Oget_info_by_name_vers) */
+
+#if !defined(H5Ovisit_vers)
+  #define H5Ovisit_vers 3
+#endif /* !defined(H5Ovisit_vers) */
+
+#if !defined(H5Ovisit_by_name_vers)
+  #define H5Ovisit_by_name_vers 3
+#endif /* !defined(H5Ovisit_by_name_vers) */
+
+#if !defined(H5Pencode_vers)
+  #define H5Pencode_vers 2
+#endif /* !defined(H5Pencode_vers) */
+
+#if !defined(H5Pget_filter_vers)
+  #define H5Pget_filter_vers 2
+#endif /* !defined(H5Pget_filter_vers) */
+
+#if !defined(H5Pget_filter_by_id_vers)
+  #define H5Pget_filter_by_id_vers 2
+#endif /* !defined(H5Pget_filter_by_id_vers) */
+
+#if !defined(H5Pinsert_vers)
+  #define H5Pinsert_vers 2
+#endif /* !defined(H5Pinsert_vers) */
+
+#if !defined(H5Pregister_vers)
+  #define H5Pregister_vers 2
+#endif /* !defined(H5Pregister_vers) */
+
+#if !defined(H5Rdereference_vers)
+  #define H5Rdereference_vers 2
+#endif /* !defined(H5Rdereference_vers) */
+
+#if !defined(H5Rget_obj_type_vers)
+  #define H5Rget_obj_type_vers 2
+#endif /* !defined(H5Rget_obj_type_vers) */
+
+#if !defined(H5Sencode_vers)
+  #define H5Sencode_vers 2
+#endif /* !defined(H5Sencode_vers) */
+
+#if !defined(H5Tarray_create_vers)
+  #define H5Tarray_create_vers 2
+#endif /* !defined(H5Tarray_create_vers) */
+
+#if !defined(H5Tcommit_vers)
+  #define H5Tcommit_vers 2
+#endif /* !defined(H5Tcommit_vers) */
+
+#if !defined(H5Tdecode_vers)
+  #define H5Tdecode_vers 1
+#endif /* !defined(H5Tdecode_vers) */
+
+#if !defined(H5Tget_array_dims_vers)
+  #define H5Tget_array_dims_vers 2
+#endif /* !defined(H5Tget_array_dims_vers) */
+
+#if !defined(H5Topen_vers)
+  #define H5Topen_vers 2
+#endif /* !defined(H5Topen_vers) */
+
+/************/
+/* Typedefs */
+/************/
+
+#if !defined(H5E_auto_t_vers)
+  #define H5E_auto_t_vers 2
+#endif /* !defined(H5E_auto_t_vers) */
+
+#if !defined(H5O_info_t_vers)
+  #define H5O_info_t_vers 2
+#endif /* !defined(H5O_info_t_vers) */
+
+#if !defined(H5O_iterate_t_vers)
+  #define H5O_iterate_t_vers 2
+#endif /* !defined(H5O_iterate_t_vers) */
+
+#if !defined(H5Z_class_t_vers)
+  #define H5Z_class_t_vers 2
+#endif /* !defined(H5Z_class_t_vers) */
+
+#endif /* H5_USE_114_API */
+
+#ifdef H5_USE_200_API
+
+/*************/
+/* Functions */
+/*************/
+
+#if !defined(H5Acreate_vers)
+  #define H5Acreate_vers 2
+#endif /* !defined(H5Acreate_vers) */
+
+#if !defined(H5Aiterate_vers)
+  #define H5Aiterate_vers 2
+#endif /* !defined(H5Aiterate_vers) */
+
+#if !defined(H5Dcreate_vers)
+  #define H5Dcreate_vers 2
+#endif /* !defined(H5Dcreate_vers) */
+
+#if !defined(H5Dopen_vers)
+  #define H5Dopen_vers 2
+#endif /* !defined(H5Dopen_vers) */
+
+#if !defined(H5Dread_chunk_vers)
+  #define H5Dread_chunk_vers 2
+#endif /* !defined(H5Dread_chunk_vers) */
+
+#if !defined(H5Eclear_vers)
+  #define H5Eclear_vers 2
+#endif /* !defined(H5Eclear_vers) */
+
+#if !defined(H5Eget_auto_vers)
+  #define H5Eget_auto_vers 2
+#endif /* !defined(H5Eget_auto_vers) */
+
+#if !defined(H5Eprint_vers)
+  #define H5Eprint_vers 2
+#endif /* !defined(H5Eprint_vers) */
+
+#if !defined(H5Epush_vers)
+  #define H5Epush_vers 2
+#endif /* !defined(H5Epush_vers) */
+
+#if !defined(H5Eset_auto_vers)
+  #define H5Eset_auto_vers 2
+#endif /* !defined(H5Eset_auto_vers) */
+
+#if !defined(H5Ewalk_vers)
+  #define H5Ewalk_vers 2
+#endif /* !defined(H5Ewalk_vers) */
+
+#if !defined(H5Fget_info_vers)
+  #define H5Fget_info_vers 2
+#endif /* !defined(H5Fget_info_vers) */
+
+#if !defined(H5Gcreate_vers)
+  #define H5Gcreate_vers 2
+#endif /* !defined(H5Gcreate_vers) */
+
+#if !defined(H5Gopen_vers)
+  #define H5Gopen_vers 2
+#endif /* !defined(H5Gopen_vers) */
+
+#if !defined(H5Iregister_type_vers)
+  #define H5Iregister_type_vers 2
+#endif /* !defined(H5Iregister_type_vers) */
+
+#if !defined(H5Lget_info_vers)
+  #define H5Lget_info_vers 2
+#endif /* !defined(H5Lget_info_vers) */
+
+#if !defined(H5Lget_info_by_idx_vers)
+  #define H5Lget_info_by_idx_vers 2
+#endif /* !defined(H5Lget_info_by_idx_vers) */
+
+#if !defined(H5Literate_vers)
+  #define H5Literate_vers 2
+#endif /* !defined(H5Literate_vers) */
+
+#if !defined(H5Literate_by_name_vers)
+  #define H5Literate_by_name_vers 2
+#endif /* !defined(H5Literate_by_name_vers) */
+
+#if !defined(H5Lvisit_vers)
+  #define H5Lvisit_vers 2
+#endif /* !defined(H5Lvisit_vers) */
+
+#if !defined(H5Lvisit_by_name_vers)
+  #define H5Lvisit_by_name_vers 2
+#endif /* !defined(H5Lvisit_by_name_vers) */
+
+#if !defined(H5Oget_info_vers)
+  #define H5Oget_info_vers 3
+#endif /* !defined(H5Oget_info_vers) */
+
+#if !defined(H5Oget_info_by_idx_vers)
+  #define H5Oget_info_by_idx_vers 3
+#endif /* !defined(H5Oget_info_by_idx_vers) */
+
+#if !defined(H5Oget_info_by_name_vers)
+  #define H5Oget_info_by_name_vers 3
+#endif /* !defined(H5Oget_info_by_name_vers) */
+
+#if !defined(H5Ovisit_vers)
+  #define H5Ovisit_vers 3
+#endif /* !defined(H5Ovisit_vers) */
+
+#if !defined(H5Ovisit_by_name_vers)
+  #define H5Ovisit_by_name_vers 3
+#endif /* !defined(H5Ovisit_by_name_vers) */
+
+#if !defined(H5Pencode_vers)
+  #define H5Pencode_vers 2
+#endif /* !defined(H5Pencode_vers) */
+
+#if !defined(H5Pget_filter_vers)
+  #define H5Pget_filter_vers 2
+#endif /* !defined(H5Pget_filter_vers) */
+
+#if !defined(H5Pget_filter_by_id_vers)
+  #define H5Pget_filter_by_id_vers 2
+#endif /* !defined(H5Pget_filter_by_id_vers) */
+
+#if !defined(H5Pinsert_vers)
+  #define H5Pinsert_vers 2
+#endif /* !defined(H5Pinsert_vers) */
+
+#if !defined(H5Pregister_vers)
+  #define H5Pregister_vers 2
+#endif /* !defined(H5Pregister_vers) */
+
+#if !defined(H5Rdereference_vers)
+  #define H5Rdereference_vers 2
+#endif /* !defined(H5Rdereference_vers) */
+
+#if !defined(H5Rget_obj_type_vers)
+  #define H5Rget_obj_type_vers 2
+#endif /* !defined(H5Rget_obj_type_vers) */
+
+#if !defined(H5Sencode_vers)
+  #define H5Sencode_vers 2
+#endif /* !defined(H5Sencode_vers) */
+
+#if !defined(H5Tarray_create_vers)
+  #define H5Tarray_create_vers 2
+#endif /* !defined(H5Tarray_create_vers) */
+
+#if !defined(H5Tcommit_vers)
+  #define H5Tcommit_vers 2
+#endif /* !defined(H5Tcommit_vers) */
+
+#if !defined(H5Tdecode_vers)
+  #define H5Tdecode_vers 2
+#endif /* !defined(H5Tdecode_vers) */
+
+#if !defined(H5Tget_array_dims_vers)
+  #define H5Tget_array_dims_vers 2
+#endif /* !defined(H5Tget_array_dims_vers) */
+
+#if !defined(H5Topen_vers)
+  #define H5Topen_vers 2
+#endif /* !defined(H5Topen_vers) */
+
+/************/
+/* Typedefs */
+/************/
+
+#if !defined(H5E_auto_t_vers)
+  #define H5E_auto_t_vers 2
+#endif /* !defined(H5E_auto_t_vers) */
+
+#if !defined(H5O_info_t_vers)
+  #define H5O_info_t_vers 2
+#endif /* !defined(H5O_info_t_vers) */
+
+#if !defined(H5O_iterate_t_vers)
+  #define H5O_iterate_t_vers 2
+#endif /* !defined(H5O_iterate_t_vers) */
+
+#if !defined(H5Z_class_t_vers)
+  #define H5Z_class_t_vers 2
+#endif /* !defined(H5Z_class_t_vers) */
+
+#endif /* H5_USE_200_API */
 
 
 /* Choose the correct version of each API symbol, defaulting to the latest
@@ -730,6 +1138,17 @@
 #else /* H5Dopen_vers */
   #error "H5Dopen_vers set to invalid value"
 #endif /* H5Dopen_vers */
+
+#if !defined(H5Dread_chunk_vers) || H5Dread_chunk_vers == 2
+  #ifndef H5Dread_chunk_vers
+    #define H5Dread_chunk_vers 2
+  #endif /* H5Dread_chunk_vers */
+  #define H5Dread_chunk H5Dread_chunk2
+#elif H5Dread_chunk_vers == 1
+  #define H5Dread_chunk H5Dread_chunk1
+#else /* H5Dread_chunk_vers */
+  #error "H5Dread_chunk_vers set to invalid value"
+#endif /* H5Dread_chunk_vers */
 
 #if !defined(H5Eclear_vers) || H5Eclear_vers == 2
   #ifndef H5Eclear_vers
@@ -835,6 +1254,17 @@
 #else /* H5Gopen_vers */
   #error "H5Gopen_vers set to invalid value"
 #endif /* H5Gopen_vers */
+
+#if !defined(H5Iregister_type_vers) || H5Iregister_type_vers == 2
+  #ifndef H5Iregister_type_vers
+    #define H5Iregister_type_vers 2
+  #endif /* H5Iregister_type_vers */
+  #define H5Iregister_type H5Iregister_type2
+#elif H5Iregister_type_vers == 1
+  #define H5Iregister_type H5Iregister_type1
+#else /* H5Iregister_type_vers */
+  #error "H5Iregister_type_vers set to invalid value"
+#endif /* H5Iregister_type_vers */
 
 #if !defined(H5Lget_info_vers) || H5Lget_info_vers == 2
   #ifndef H5Lget_info_vers
@@ -1088,6 +1518,17 @@
 #else /* H5Tcommit_vers */
   #error "H5Tcommit_vers set to invalid value"
 #endif /* H5Tcommit_vers */
+
+#if !defined(H5Tdecode_vers) || H5Tdecode_vers == 2
+  #ifndef H5Tdecode_vers
+    #define H5Tdecode_vers 2
+  #endif /* H5Tdecode_vers */
+  #define H5Tdecode H5Tdecode2
+#elif H5Tdecode_vers == 1
+  #define H5Tdecode H5Tdecode1
+#else /* H5Tdecode_vers */
+  #error "H5Tdecode_vers set to invalid value"
+#endif /* H5Tdecode_vers */
 
 #if !defined(H5Tget_array_dims_vers) || H5Tget_array_dims_vers == 2
   #ifndef H5Tget_array_dims_vers

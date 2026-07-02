@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,10 +22,13 @@
  *      reporting macros.
  */
 #define H5A_MODULE
-#define H5_MY_PKG     H5A
-#define H5_MY_PKG_ERR H5E_ATTR
+#define H5_MY_PKG      H5A
+#define H5_MY_PKG_INIT YES
 
 /** \page H5A_UG HDF5 Attributes
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_attribute HDF5 Attributes
  *
@@ -350,6 +353,9 @@
  *      attributes are not extendable
  *
  * Previous Chapter \ref sec_dataspace - Next Chapter \ref sec_error
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  * \defgroup H5A Attributes (H5A)
  *

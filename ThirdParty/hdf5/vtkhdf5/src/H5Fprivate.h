@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -82,8 +82,8 @@ typedef struct H5F_t H5F_t;
 #define H5F_SET_STORE_MSG_CRT_IDX(F, FL) ((F)->shared->store_msg_crt_idx = (FL))
 #define H5F_GRP_BTREE_SHARED(F)          ((F)->shared->grp_btree_shared)
 #define H5F_SET_GRP_BTREE_SHARED(F, RC)  (((F)->shared->grp_btree_shared = (RC)) ? SUCCEED : FAIL)
-#define H5F_USE_TMP_SPACE(F)             ((F)->shared->fs.use_tmp_space)
-#define H5F_IS_TMP_ADDR(F, ADDR)         (H5_addr_le((F)->shared->fs.tmp_addr, (ADDR)))
+#define H5F_USE_TMP_SPACE(F)             ((F)->shared->use_tmp_space)
+#define H5F_IS_TMP_ADDR(F, ADDR)         (H5_addr_le((F)->shared->tmp_addr, (ADDR)))
 #ifdef H5_HAVE_PARALLEL
 #define H5F_COLL_MD_READ(F)           ((F)->shared->coll_md_read)
 #define H5F_SHARED_COLL_MD_READ(F_SH) ((F_SH)->coll_md_read)
@@ -93,12 +93,11 @@ typedef struct H5F_t H5F_t;
 #define H5F_MDC_LOG_LOCATION(F)        ((F)->shared->mdc_log_location)
 #define H5F_ALIGNMENT(F)               ((F)->shared->alignment)
 #define H5F_THRESHOLD(F)               ((F)->shared->threshold)
-#define H5F_PGEND_META_THRES(F)        ((F)->shared->fs.pgend_meta_thres)
-#define H5F_POINT_OF_NO_RETURN(F)      ((F)->shared->fs.point_of_no_return)
+#define H5F_PGEND_META_THRES(F)        ((F)->shared->pgend_meta_thres)
+#define H5F_POINT_OF_NO_RETURN(F)      ((F)->shared->point_of_no_return)
 #define H5F_NULL_FSM_ADDR(F)           ((F)->shared->null_fsm_addr)
 #define H5F_GET_MIN_DSET_OHDR(F)       ((F)->shared->crt_dset_min_ohdr_flag)
 #define H5F_SET_MIN_DSET_OHDR(F, V)    ((F)->shared->crt_dset_min_ohdr_flag = (V))
-#define H5F_VOL_CLS(F)                 ((F)->shared->vol_cls)
 #define H5F_VOL_OBJ(F)                 ((F)->vol_obj)
 #define H5F_USE_FILE_LOCKING(F)        ((F)->shared->use_file_locking)
 #define H5F_RFIC_FLAGS(F)              ((F)->shared->rfic_flags)
@@ -125,7 +124,7 @@ typedef struct H5F_t H5F_t;
 #define H5F_HAS_FEATURE(F, FL)           (H5F_has_feature(F, FL))
 #define H5F_BASE_ADDR(F)                 (H5F_get_base_addr(F))
 #define H5F_SYM_LEAF_K(F)                (H5F_sym_leaf_k(F))
-#define H5F_KVALUE(F, T)                 (H5F_Kvalue(F, T))
+#define H5F_KVALUE(F, T)                 (H5F_kvalue(F, T))
 #define H5F_NREFS(F)                     (H5F_get_nrefs(F))
 #define H5F_SIZEOF_ADDR(F)               (H5F_sizeof_addr(F))
 #define H5F_SIZEOF_SIZE(F)               (H5F_sizeof_size(F))
@@ -163,7 +162,6 @@ typedef struct H5F_t H5F_t;
 #define H5F_NULL_FSM_ADDR(F)           (H5F_get_null_fsm_addr(F))
 #define H5F_GET_MIN_DSET_OHDR(F)       (H5F_get_min_dset_ohdr(F))
 #define H5F_SET_MIN_DSET_OHDR(F, V)    (H5F_set_min_dset_ohdr((F), (V)))
-#define H5F_VOL_CLS(F)                 (H5F_get_vol_cls(F))
 #define H5F_VOL_OBJ(F)                 (H5F_get_vol_obj(F))
 #define H5F_USE_FILE_LOCKING(F)        (H5F_get_use_file_locking(F))
 #define H5F_RFIC_FLAGS(F)              (H5F_get_rfic_flags(F))
@@ -495,7 +493,7 @@ typedef enum H5F_prefix_open_t {
 
 /* Private functions */
 H5_DLL herr_t H5F_init(void);
-H5_DLL herr_t H5F_open(bool try, H5F_t **file, const char *name, unsigned flags, hid_t fcpl_id,
+H5_DLL herr_t H5F_open(bool attempt, H5F_t **file, const char *name, unsigned flags, hid_t fcpl_id,
                        hid_t fapl_id);
 H5_DLL herr_t H5F_try_close(H5F_t *f, bool *was_closed /*out*/);
 H5_DLL hid_t  H5F_get_file_id(H5VL_object_t *vol_obj, H5I_type_t obj_type, bool app_ref);
@@ -527,15 +525,14 @@ H5_DLL bool    H5F_get_point_of_no_return(const H5F_t *f);
 H5_DLL bool    H5F_get_null_fsm_addr(const H5F_t *f);
 H5_DLL bool    H5F_get_min_dset_ohdr(const H5F_t *f);
 H5_DLL herr_t  H5F_set_min_dset_ohdr(H5F_t *f, bool minimize);
-H5_DLL const H5VL_class_t *H5F_get_vol_cls(const H5F_t *f);
-H5_DLL H5VL_object_t      *H5F_get_vol_obj(const H5F_t *f);
-H5_DLL bool                H5F_get_use_file_locking(const H5F_t *f);
-H5_DLL uint64_t            H5F_get_rfic_flags(const H5F_t *f);
+H5_DLL H5VL_object_t *H5F_get_vol_obj(const H5F_t *f);
+H5_DLL bool           H5F_get_use_file_locking(const H5F_t *f);
+H5_DLL uint64_t       H5F_get_rfic_flags(const H5F_t *f);
 
 /* Functions than retrieve values set/cached from the superblock/FCPL */
 H5_DLL haddr_t            H5F_get_base_addr(const H5F_t *f);
 H5_DLL unsigned           H5F_sym_leaf_k(const H5F_t *f);
-H5_DLL unsigned           H5F_Kvalue(const H5F_t *f, const struct H5B_class_t *type);
+H5_DLL unsigned           H5F_kvalue(const H5F_t *f, const struct H5B_class_t *type);
 H5_DLL unsigned           H5F_get_nrefs(const H5F_t *f);
 H5_DLL uint8_t            H5F_sizeof_addr(const H5F_t *f);
 H5_DLL uint8_t            H5F_sizeof_size(const H5F_t *f);
@@ -660,9 +657,9 @@ H5_DLL herr_t   H5F_shared_get_mpi_file_sync_required(const H5F_shared_t *f_sh, 
 H5_DLL herr_t H5F_efc_close(H5F_t *parent, H5F_t *file);
 
 /* File prefix routines */
-H5_DLL herr_t H5F_prefix_open_file(bool try, H5F_t **file, H5F_t *primary_file, H5F_prefix_open_t prefix_type,
-                                   const char *prop_prefix, const char *file_name, unsigned file_intent,
-                                   hid_t fapl_id);
+H5_DLL herr_t H5F_prefix_open_file(bool attempt, H5F_t **file, H5F_t *primary_file,
+                                   H5F_prefix_open_t prefix_type, const char *prop_prefix,
+                                   const char *file_name, unsigned file_intent, hid_t fapl_id);
 
 /* Global heap CWFS routines */
 H5_DLL herr_t H5F_cwfs_add(H5F_t *f, struct H5HG_heap_t *heap);

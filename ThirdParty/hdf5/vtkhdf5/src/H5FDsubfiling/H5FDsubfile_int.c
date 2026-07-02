@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -19,7 +19,12 @@
 /* Headers */
 /***********/
 
-#include "H5FDsubfiling_priv.h"
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
+
+#include "H5private.h"          /* Generic Functions        */
+#include "H5Eprivate.h"         /* Error handling           */
+#include "H5FDpkg.h"            /* File drivers             */
+#include "H5FDsubfiling_priv.h" /* Subfiling file driver          */
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD__subfiling__truncate_sub_files
@@ -141,10 +146,10 @@ H5FD__subfiling__truncate_sub_files(hid_t context_id, int64_t logical_file_eof, 
         }
 
         /* Wait for truncate operations to complete */
-        H5_GCC_DIAG_OFF("stringop-overflow")
+        H5_WARN_MPI_STATUSES_IGNORE_OFF
         if (MPI_SUCCESS != (mpi_code = MPI_Waitall(num_subfiles_owned, recv_reqs, MPI_STATUSES_IGNORE)))
             HMPI_GOTO_ERROR(FAIL, "MPI_Waitall", mpi_code);
-        H5_GCC_DIAG_ON("stringop-overflow")
+        H5_WARN_MPI_STATUSES_IGNORE_ON
     }
 
     /* Barrier on exit */
@@ -314,10 +319,10 @@ H5FD__subfiling__get_real_eof(hid_t context_id, int64_t *logical_eof_ptr)
     }
 
     /* Wait for EOF communication to complete */
-    H5_GCC_DIAG_OFF("stringop-overflow")
+    H5_WARN_MPI_STATUSES_IGNORE_OFF
     if (MPI_SUCCESS != (mpi_code = MPI_Waitall(num_subfiles, recv_reqs, MPI_STATUSES_IGNORE)))
         HMPI_GOTO_ERROR(FAIL, "MPI_Waitall", mpi_code);
-    H5_GCC_DIAG_ON("stringop-overflow")
+    H5_WARN_MPI_STATUSES_IGNORE_ON
 
     for (int i = 0; i < num_subfiles; i++) {
 #ifndef NDEBUG

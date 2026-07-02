@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -762,8 +762,12 @@ H5G__dense_build_table(H5F_t *f, const H5O_linfo_t *linfo, H5_index_t idx_type, 
         H5G_dense_bt_ud_t udata; /* User data for iteration callback */
 
         /* Allocate the table to store the links */
-        if ((ltable->lnks = (H5O_link_t *)H5MM_malloc(sizeof(H5O_link_t) * ltable->nlinks)) == NULL)
+        if ((ltable->lnks = (H5O_link_t *)H5MM_calloc(sizeof(H5O_link_t) * ltable->nlinks)) == NULL)
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed");
+
+        /* Initialize all links to invalid. NOTE: If H5O_link_t changes, update this loop. */
+        for (size_t i = 0; i < ltable->nlinks; i++)
+            ltable->lnks[i].type = H5L_TYPE_ERROR;
 
         /* Set up user data for iteration */
         udata.ltable   = ltable;

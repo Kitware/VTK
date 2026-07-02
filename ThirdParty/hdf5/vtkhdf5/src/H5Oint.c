@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -75,12 +75,15 @@ static herr_t H5O__obj_type_real(const H5O_t *oh, H5O_type_t *obj_type);
 static herr_t H5O__get_hdr_info_real(const H5O_t *oh, H5O_hdr_info_t *hdr);
 static herr_t H5O__free_visit_visited(void *item, void *key, void *operator_data /*in,out*/);
 static herr_t H5O__visit_cb(hid_t group, const char *name, const H5L_info2_t *linfo, void *_udata);
-static const H5O_obj_class_t *H5O__obj_class_real(const H5O_t *oh);
-static herr_t                 H5O__reset_info2(H5O_info2_t *oinfo);
+static herr_t H5O__obj_class_real(const H5O_t *oh, const H5O_obj_class_t **cls);
+static herr_t H5O__reset_info2(H5O_info2_t *oinfo);
 
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /* Header message ID to class mapping
  *
@@ -117,7 +120,8 @@ const H5O_msg_class_t *const H5O_msg_class_g[] = {
     H5O_MSG_REFCOUNT,    /*0x0016 Object's ref. count             */
     H5O_MSG_FSINFO,      /*0x0017 Free-space manager info         */
     H5O_MSG_MDCI,        /*0x0018 Metadata cache image            */
-    H5O_MSG_UNKNOWN      /*0x0019 Placeholder for unknown message */
+    H5O_MSG_UNKNOWN,     /*0x0019 Placeholder for unknown message */
+    H5O_MSG_DELETED      /*0x001a Placeholder for deleted message */
 };
 
 /* Format version bounds for object header */
@@ -126,6 +130,8 @@ const unsigned H5O_obj_ver_bounds[] = {
     H5O_VERSION_2,     /* H5F_LIBVER_V18 */
     H5O_VERSION_2,     /* H5F_LIBVER_V110 */
     H5O_VERSION_2,     /* H5F_LIBVER_V112 */
+    H5O_VERSION_2,     /* H5F_LIBVER_V114 */
+    H5O_VERSION_2,     /* H5F_LIBVER_V200 */
     H5O_VERSION_LATEST /* H5F_LIBVER_LATEST */
 };
 
@@ -177,18 +183,39 @@ static const H5O_obj_class_t *const H5O_obj_class_g[] = {
 /*-------------------------------------------------------------------------
  * Function:    H5O_init
  *
- * Purpose:     Initialize the interface from some other layer.
+ * Purpose:     Initialize the interface from some other package.
  *
- * Return:      Success:        non-negative
- *              Failure:        negative
+ * Return:      Success:	non-negative
+ *              Failure:	negative
+ *
  *-------------------------------------------------------------------------
  */
-herr_t
+H5_ATTR_CONST herr_t
 H5O_init(void)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5O_init() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5O__init_package
+ *
+ * Purpose:     Initialize information specific to H5O interface.
+ *
+ * Return:      Success:        non-negative
+ *              Failure:        negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5O__init_package(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* H5O interface sanity checks */
     HDcompile_assert(H5O_MSG_TYPES == NELMTS(H5O_msg_class_g));
@@ -196,8 +223,8 @@ H5O_init(void)
 
     HDcompile_assert(H5O_UNKNOWN_ID < H5O_MSG_TYPES);
 
-    FUNC_LEAVE_NOAPI(ret_value)
-}
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5O__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5O__set_version
@@ -543,7 +570,7 @@ H5O_open(H5O_loc_t *loc)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     assert(loc);
@@ -555,6 +582,7 @@ H5O_open(H5O_loc_t *loc)
     else
         H5F_INCR_NOPEN_OBJS(loc->file);
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_open() */
 
@@ -1013,10 +1041,9 @@ H5O_protect(const H5O_loc_t *loc, unsigned prot_flags, bool pin_all_chunks)
          */
         curr_msg = 0;
         while (curr_msg < cont_msg_info.nmsgs) {
-            H5O_chunk_proxy_t *chk_proxy; /* Proxy for chunk, to bring it into memory */
-#ifndef NDEBUG
-            size_t chkcnt = oh->nchunks; /* Count of chunks (for sanity checking) */
-#endif                                   /* NDEBUG */
+            H5O_chunk_proxy_t *chk_proxy;            /* Proxy for chunk, to bring it into memory */
+            unsigned           chunkno;              /* Chunk number for chunk proxy */
+            size_t             chkcnt = oh->nchunks; /* Count of chunks (for sanity checking) */
 
             /* Bring the chunk into the cache */
             /* (which adds to the object header) */
@@ -1029,13 +1056,19 @@ H5O_protect(const H5O_loc_t *loc, unsigned prot_flags, bool pin_all_chunks)
 
             /* Sanity check */
             assert(chk_proxy->oh == oh);
-            assert(chk_proxy->chunkno == chkcnt);
-            assert(oh->nchunks == (chkcnt + 1));
+
+            chunkno = chk_proxy->chunkno;
 
             /* Release the chunk from the cache */
             if (H5AC_unprotect(loc->file, H5AC_OHDR_CHK, cont_msg_info.msgs[curr_msg].addr, chk_proxy,
                                H5AC__NO_FLAGS_SET) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, NULL, "unable to release object header chunk");
+
+            if (chunkno != chkcnt)
+                HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "incorrect chunk number for object header chunk");
+            if (oh->nchunks != (chkcnt + 1))
+                HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL,
+                            "incorrect number of chunks after deserializing object header chunk");
 
             /* Advance to next continuation message */
             curr_msg++;
@@ -1592,37 +1625,36 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5O__obj_type_real
  *
- * Purpose:    Returns the type of object pointed to by `oh'.
+ * Purpose:     On success, returns the type of object pointed to by `oh' or
+ *              NULL in *obj_type.  *obj_type not defined on failure.
  *
- * Return:    Success:    Non-negative
- *        Failure:    Negative
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O__obj_type_real(const H5O_t *oh, H5O_type_t *obj_type)
 {
-    const H5O_obj_class_t *obj_class; /* Class of object for header */
+    const H5O_obj_class_t *obj_class = NULL; /* Class of object for header */
+    herr_t                 ret_value = SUCCEED;
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(oh);
     assert(obj_type);
 
     /* Look up class for object header */
-    if (NULL == (obj_class = H5O__obj_class_real(oh))) {
-        /* Clear error stack from "failed" class lookup */
-        H5E_clear_stack();
+    if (H5O__obj_class_real(oh, &obj_class) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object class");
+    assert(obj_class);
 
-        /* Set type to "unknown" */
-        *obj_type = H5O_TYPE_UNKNOWN;
-    }
-    else
-        /* Set object type */
-        *obj_type = obj_class->type;
+    /* Set object type */
+    *obj_type = obj_class->type;
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__obj_type_real() */
 
 /*-------------------------------------------------------------------------
@@ -1648,7 +1680,7 @@ H5O__obj_class(const H5O_loc_t *loc)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to load object header");
 
     /* Test whether entry qualifies as a particular type of object */
-    if (NULL == (ret_value = H5O__obj_class_real(oh)))
+    if (H5O__obj_class_real(oh, &ret_value) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to determine object type");
 
 done:
@@ -1661,23 +1693,25 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5O__obj_class_real
  *
- * Purpose:    Returns the class of object pointed to by `oh'.
+ * Purpose:     On success returns the class of object pointed to by `oh' or
+ *              NULL in *cls.  *cls not defined on failure.
  *
- * Return:    Success:    An object class
- *        Failure:    NULL
+ * Return:      Success:    Non-negative
+ *              Failure:    Negative
  *
  *-------------------------------------------------------------------------
  */
-static const H5O_obj_class_t *
-H5O__obj_class_real(const H5O_t *oh)
+static herr_t
+H5O__obj_class_real(const H5O_t *oh, const H5O_obj_class_t **cls)
 {
-    size_t                 i;                /* Local index variable */
-    const H5O_obj_class_t *ret_value = NULL; /* Return value */
+    size_t i; /* Local index variable */
+    herr_t ret_value = SUCCEED;
 
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     assert(oh);
+    assert(cls);
 
     /* Test whether entry qualifies as a particular type of object */
     /* (Note: loop is in reverse order, to test specific objects first) */
@@ -1685,13 +1719,15 @@ H5O__obj_class_real(const H5O_t *oh)
         htri_t isa; /* Is entry a particular type? */
 
         if ((isa = (H5O_obj_class_g[i - 1]->isa)(oh)) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "unable to determine object type");
-        else if (isa)
-            HGOTO_DONE(H5O_obj_class_g[i - 1]);
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object type");
+        else if (isa) {
+            *cls = H5O_obj_class_g[i - 1];
+            break;
+        }
     }
 
     if (0 == i)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "unable to determine object type");
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object type");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2069,9 +2105,8 @@ H5O__get_hdr_info_real(const H5O_t *oh, H5O_hdr_info_t *hdr)
 herr_t
 H5O_get_info(const H5O_loc_t *loc, H5O_info2_t *oinfo, unsigned fields)
 {
-    const H5O_obj_class_t *obj_class;           /* Class of object for header */
-    H5O_t                 *oh        = NULL;    /* Object header */
-    herr_t                 ret_value = SUCCEED; /* Return value */
+    H5O_t *oh        = NULL;    /* Object header */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI_TAG(loc->addr, FAIL)
 
@@ -2083,16 +2118,14 @@ H5O_get_info(const H5O_loc_t *loc, H5O_info2_t *oinfo, unsigned fields)
     if (NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, false)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header");
 
-    /* Get class for object */
-    if (NULL == (obj_class = H5O__obj_class_real(oh)))
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object class");
-
     /* Reset the object info structure */
     if (H5O__reset_info2(oinfo) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't reset object data struct");
 
     /* Get basic information, if requested */
     if (fields & H5O_INFO_BASIC) {
+        H5O_type_t obj_type = H5O_TYPE_UNKNOWN; /* Type of object */
+
         /* Retrieve the file's fileno */
         H5F_GET_FILENO(loc->file, oinfo->fileno);
 
@@ -2100,8 +2133,12 @@ H5O_get_info(const H5O_loc_t *loc, H5O_info2_t *oinfo, unsigned fields)
         if (H5VL_native_addr_to_token(loc->file, H5I_FILE, loc->addr, &oinfo->token) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTSERIALIZE, FAIL, "can't serialize address into object token");
 
-        /* Retrieve the type of the object */
-        oinfo->type = obj_class->type;
+        /* Get type of object */
+        if (H5O__obj_type_real(oh, &obj_type) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object type");
+
+        /* Set the type of the object */
+        oinfo->type = obj_type;
 
         /* Set the object's reference count */
         oinfo->rc = oh->nlink;
@@ -2175,9 +2212,8 @@ done:
 herr_t
 H5O_get_native_info(const H5O_loc_t *loc, H5O_native_info_t *oinfo, unsigned fields)
 {
-    const H5O_obj_class_t *obj_class;           /* Class of object for header */
-    H5O_t                 *oh        = NULL;    /* Object header */
-    herr_t                 ret_value = SUCCEED; /* Return value */
+    H5O_t *oh        = NULL;    /* Object header */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI_TAG(loc->addr, FAIL)
 
@@ -2189,10 +2225,6 @@ H5O_get_native_info(const H5O_loc_t *loc, H5O_native_info_t *oinfo, unsigned fie
     if (NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, false)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header");
 
-    /* Get class for object */
-    if (NULL == (obj_class = H5O__obj_class_real(oh)))
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object class");
-
     /* Reset the object info structure */
     memset(oinfo, 0, sizeof(*oinfo));
 
@@ -2203,6 +2235,12 @@ H5O_get_native_info(const H5O_loc_t *loc, H5O_native_info_t *oinfo, unsigned fie
 
     /* Get B-tree & heap metadata storage size, if requested */
     if (fields & H5O_NATIVE_INFO_META_SIZE) {
+        const H5O_obj_class_t *obj_class = NULL; /* Class of object for header */
+
+        /* Get class for object */
+        if (H5O__obj_class_real(oh, &obj_class) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to determine object class");
+
         /* Check for 'bh_info' callback for this type of object */
         if (obj_class->bh_info)
             /* Call the object's class 'bh_info' routine */
@@ -2369,7 +2407,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-haddr_t
+H5_ATTR_PURE haddr_t
 H5O_get_oh_addr(const H5O_t *oh)
 {
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
@@ -2386,7 +2424,7 @@ H5O_get_oh_addr(const H5O_t *oh)
  *
  *-------------------------------------------------------------------------
  */
-uint8_t
+H5_ATTR_PURE uint8_t
 H5O_get_oh_flags(const H5O_t *oh)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
@@ -2403,7 +2441,7 @@ H5O_get_oh_flags(const H5O_t *oh)
  *
  *-------------------------------------------------------------------------
  */
-time_t
+H5_ATTR_PURE time_t
 H5O_get_oh_mtime(const H5O_t *oh)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
@@ -2417,7 +2455,7 @@ H5O_get_oh_mtime(const H5O_t *oh)
  *
  *-------------------------------------------------------------------------
  */
-uint8_t
+H5_ATTR_PURE uint8_t
 H5O_get_oh_version(const H5O_t *oh)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
@@ -2540,8 +2578,13 @@ H5O__visit_cb(hid_t H5_ATTR_UNUSED group, const char *name, const H5L_info2_t *l
             if (H5O_get_info(&obj_oloc, &oinfo, udata->fields) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, H5_ITER_ERROR, "unable to get object info");
 
-            /* Make the application callback */
-            ret_value = (udata->op)(udata->obj_id, name, &oinfo, udata->op_data);
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    /* Make the application callback */
+                    ret_value = (udata->op)(udata->obj_id, name, &oinfo, udata->op_data);
+                }
+            H5_AFTER_USER_CB(FAIL)
 
             /* Check for continuing to visit objects */
             if (ret_value == H5_ITER_CONT) {
@@ -2615,7 +2658,9 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
     H5O_loc_t           obj_oloc;                    /* Opened object object location */
     bool                loc_found = false;           /* Entry at 'name' found */
     H5O_info2_t         oinfo;                       /* Object info struct */
-    void               *obj = NULL;                  /* Object */
+    H5O_info2_t         int_oinfo;                   /* Internal object info */
+    H5O_info2_t        *oinfop = &oinfo;             /* Object info pointer */
+    void               *obj    = NULL;               /* Object */
     H5I_type_t          opened_type;                 /* ID type of object */
     hid_t               obj_id    = H5I_INVALID_HID; /* ID of object */
     herr_t              ret_value = FAIL;            /* Return value */
@@ -2642,6 +2687,14 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
     if (H5O_get_info(&obj_oloc, &oinfo, fields) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to get object info");
 
+    /* If basic fields are not requested, get object basic info to use here */
+    if (!(fields & H5O_INFO_BASIC)) {
+        oinfop = &int_oinfo;
+        /* Get the object's basic info for local use */
+        if (H5O_get_info(&obj_oloc, &int_oinfo, H5O_INFO_BASIC) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to get object's basic info");
+    }
+
     /* Open the object */
     /* (Takes ownership of the obj_loc information) */
     if (NULL == (obj = H5O_open_by_loc(&obj_loc, &opened_type)))
@@ -2660,7 +2713,7 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
         HGOTO_DONE(ret_value);
 
     /* Check for object being a group */
-    if (oinfo.type == H5O_TYPE_GROUP) {
+    if (oinfop->type == H5O_TYPE_GROUP) {
         H5G_loc_t start_loc; /* Location of starting group */
         H5G_loc_t vis_loc;   /* Location of visited group */
 
@@ -2681,7 +2734,7 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
 
         /* If its ref count is > 1, we add it to the list of visited objects */
         /* (because it could come up again during traversal) */
-        if (oinfo.rc > 1) {
+        if (oinfop->rc > 1) {
             H5_obj_t *obj_pos; /* New object node for visited list */
 
             /* Allocate new object "position" node */
@@ -2689,10 +2742,10 @@ H5O__visit(H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_or
                 HGOTO_ERROR(H5E_OHDR, H5E_NOSPACE, FAIL, "can't allocate object node");
 
             /* Construct unique "position" for this object */
-            obj_pos->fileno = oinfo.fileno;
+            obj_pos->fileno = oinfop->fileno;
 
             /* De-serialize object token into an object address */
-            if (H5VL_native_token_to_addr(loc->oloc->file, H5I_FILE, oinfo.token, &(obj_pos->addr)) < 0)
+            if (H5VL_native_token_to_addr(loc->oloc->file, H5I_FILE, oinfop->token, &(obj_pos->addr)) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNSERIALIZE, FAIL,
                             "can't deserialize object token into address");
 
@@ -2835,7 +2888,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-H5AC_proxy_entry_t *
+H5_ATTR_PURE H5AC_proxy_entry_t *
 H5O_get_proxy(const H5O_t *oh)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
@@ -2866,6 +2919,8 @@ H5O__free(H5O_t *oh, bool H5_ATTR_NDEBUG_UNUSED force)
     /* check args */
     assert(oh);
     assert(0 == oh->rc);
+    assert(0 == oh->mesgs_modified);
+    assert(0 == oh->recursion_level);
 
     /* Destroy chunks */
     if (oh->chunk) {
@@ -2943,7 +2998,7 @@ H5O__reset_info2(H5O_info2_t *oinfo)
  *
  *-------------------------------------------------------------------------
  */
-bool
+H5_ATTR_PURE bool
 H5O_has_chksum(const H5O_t *oh)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
@@ -2953,3 +3008,20 @@ H5O_has_chksum(const H5O_t *oh)
 
     FUNC_LEAVE_NOAPI(H5O_SIZEOF_CHKSUM_OH(oh) > 0)
 } /* end H5O_has_chksum() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5O_get_version_bound
+ *
+ * Purpose:     Retrieve the version for a given bound from object version array
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5O_get_version_bound(H5F_libver_t bound, uint8_t *version)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    *version = (uint8_t)H5O_obj_ver_bounds[bound];
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5O_get_version_bound() */

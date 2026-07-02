@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -115,6 +115,13 @@ H5O__mdci_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSE
     if (H5_IS_BUFFER_OVERFLOW(p, H5F_sizeof_size(f), p_end))
         HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5F_DECODE_LENGTH(f, p, mesg->size);
+
+    if (mesg->addr >= (HADDR_UNDEF - mesg->size))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "address plus size overflows");
+    if (mesg->addr == HADDR_UNDEF)
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "address is undefined");
+    if ((mesg->addr + mesg->size) > H5F_get_eoa(f, H5FD_MEM_SUPER))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "address plus size exceeds file eoa");
 
     /* Set return value */
     ret_value = (void *)mesg;

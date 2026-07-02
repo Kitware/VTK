@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -82,16 +82,33 @@ H5T_NATIVE_ULONG {return hid(H5T_NATIVE_ULONG_TOKEN);}
 H5T_NATIVE_LLONG   {return hid(H5T_NATIVE_LLONG_TOKEN);}
 H5T_NATIVE_ULLONG  {return hid(H5T_NATIVE_ULLONG_TOKEN);}
 
-H5T_IEEE_F16BE   {return hid(H5T_IEEE_F16BE_TOKEN);}
-H5T_IEEE_F16LE   {return hid(H5T_IEEE_F16LE_TOKEN);}
-H5T_IEEE_F32BE   {return hid(H5T_IEEE_F32BE_TOKEN);}
-H5T_IEEE_F32LE   {return hid(H5T_IEEE_F32LE_TOKEN);}
-H5T_IEEE_F64BE   {return hid(H5T_IEEE_F64BE_TOKEN);}
-H5T_IEEE_F64LE   {return hid(H5T_IEEE_F64LE_TOKEN);}
-H5T_NATIVE_FLOAT16 {return hid(H5T_NATIVE_FLOAT16_TOKEN);}
-H5T_NATIVE_FLOAT   {return hid(H5T_NATIVE_FLOAT_TOKEN);}
-H5T_NATIVE_DOUBLE  {return hid(H5T_NATIVE_DOUBLE_TOKEN);}
-H5T_NATIVE_LDOUBLE {return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
+H5T_IEEE_F16BE       {return hid(H5T_IEEE_F16BE_TOKEN);}
+H5T_IEEE_F16LE       {return hid(H5T_IEEE_F16LE_TOKEN);}
+H5T_IEEE_F32BE       {return hid(H5T_IEEE_F32BE_TOKEN);}
+H5T_IEEE_F32LE       {return hid(H5T_IEEE_F32LE_TOKEN);}
+H5T_IEEE_F64BE       {return hid(H5T_IEEE_F64BE_TOKEN);}
+H5T_IEEE_F64LE       {return hid(H5T_IEEE_F64LE_TOKEN);}
+H5T_FLOAT_BFLOAT16BE {return hid(H5T_FLOAT_BFLOAT16BE_TOKEN);}
+H5T_FLOAT_BFLOAT16LE {return hid(H5T_FLOAT_BFLOAT16LE_TOKEN);}
+H5T_FLOAT_F8E4M3     {return hid(H5T_FLOAT_F8E4M3_TOKEN);}
+H5T_FLOAT_F8E5M2     {return hid(H5T_FLOAT_F8E5M2_TOKEN);}
+H5T_FLOAT_F6E2M3     {return hid(H5T_FLOAT_F6E2M3_TOKEN);}
+H5T_FLOAT_F6E3M2     {return hid(H5T_FLOAT_F6E3M2_TOKEN);}
+H5T_FLOAT_F4E2M1     {return hid(H5T_FLOAT_F4E2M1_TOKEN);}
+H5T_NATIVE_FLOAT16   {return hid(H5T_NATIVE_FLOAT16_TOKEN);}
+H5T_NATIVE_FLOAT     {return hid(H5T_NATIVE_FLOAT_TOKEN);}
+H5T_NATIVE_DOUBLE    {return hid(H5T_NATIVE_DOUBLE_TOKEN);}
+H5T_NATIVE_LDOUBLE   {return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
+
+H5T_COMPLEX_IEEE_F16BE        {return hid(H5T_COMPLEX_IEEE_F16BE_TOKEN);}
+H5T_COMPLEX_IEEE_F16LE        {return hid(H5T_COMPLEX_IEEE_F16LE_TOKEN);}
+H5T_COMPLEX_IEEE_F32BE        {return hid(H5T_COMPLEX_IEEE_F32BE_TOKEN);}
+H5T_COMPLEX_IEEE_F32LE        {return hid(H5T_COMPLEX_IEEE_F32LE_TOKEN);}
+H5T_COMPLEX_IEEE_F64BE        {return hid(H5T_COMPLEX_IEEE_F64BE_TOKEN);}
+H5T_COMPLEX_IEEE_F64LE        {return hid(H5T_COMPLEX_IEEE_F64LE_TOKEN);}
+H5T_NATIVE_FLOAT_COMPLEX   {return hid(H5T_NATIVE_FLOAT_COMPLEX_TOKEN);}
+H5T_NATIVE_DOUBLE_COMPLEX  {return hid(H5T_NATIVE_DOUBLE_COMPLEX_TOKEN);}
+H5T_NATIVE_LDOUBLE_COMPLEX {return hid(H5T_NATIVE_LDOUBLE_COMPLEX_TOKEN);}
 
 H5T_STRING       {return token(H5T_STRING_TOKEN);}
 STRSIZE          {return token(STRSIZE_TOKEN);}
@@ -111,6 +128,7 @@ H5T_COMPOUND     {return token(H5T_COMPOUND_TOKEN);}
 H5T_ENUM         {return token(H5T_ENUM_TOKEN);}
 H5T_ARRAY        {return token(H5T_ARRAY_TOKEN);}
 H5T_VLEN         {return token(H5T_VLEN_TOKEN);}
+H5T_COMPLEX      {return token(H5T_COMPLEX_TOKEN);}
 
 H5T_OPAQUE       {return token(H5T_OPAQUE_TOKEN);}
 OPQ_SIZE         {return token(OPQ_SIZE_TOKEN);}

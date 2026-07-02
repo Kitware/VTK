@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -41,15 +41,6 @@ H5FL_BLK_EXTERN(lheap_chunk);
 /**************************/
 /* Package Private Macros */
 /**************************/
-
-/* If this package header is being included in one of the H5HL source files,
- *      define the proper control macros for the generic FUNC_ENTER/LEAVE and
- *      error reporting macros.
- */
-#ifdef H5HL_PACKAGE
-#define H5_MY_PKG     H5HL
-#define H5_MY_PKG_ERR H5E_HEAP
-#endif
 
 #define H5HL_SIZEOF_HDR(F)                                                                                   \
     H5HL_ALIGN(H5_SIZEOF_MAGIC +    /* heap signature   */                                                   \

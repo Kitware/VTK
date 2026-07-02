@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -54,6 +54,7 @@
 #define H5D_ACS_VDS_PREFIX_NAME           "vds_prefix"           /* VDS file prefix */
 #define H5D_ACS_APPEND_FLUSH_NAME         "append_flush"         /* Append flush actions */
 #define H5D_ACS_EFILE_PREFIX_NAME         "external file prefix" /* External file prefix */
+#define H5D_ACS_USE_TREE_NAME             "tree"                 /* Whether to use spatial tree */
 
 /* ======== Data transfer properties ======== */
 #define H5D_XFER_MAX_TEMP_BUF_NAME          "max_temp_buf"        /* Maximum temp buffer size */
@@ -124,6 +125,9 @@
 /* Default virtual dataset list size */
 #define H5D_VIRTUAL_DEF_LIST_SIZE 8
 
+/* Threshold for use of a tree for VDS mappings */
+#define H5D_VIRTUAL_TREE_THRESHOLD 50
+
 #ifdef H5D_MODULE
 #define H5D_OBJ_ID(D) (((H5D_obj_create_t *)(D))->dcpl_id)
 #else /* H5D_MODULE */
@@ -179,6 +183,7 @@ H5_DLL herr_t      H5D_flush_all(H5F_t *f);
 H5_DLL hid_t       H5D_get_create_plist(const H5D_t *dset);
 H5_DLL hid_t       H5D_get_access_plist(const H5D_t *dset);
 H5_DLL hid_t       H5D_get_dcpl_id(const H5D_obj_create_t *d);
+H5_DLL herr_t      H5D_flush_layout_to_dcpl(const H5D_t *dset);
 
 /* Functions that operate on chunked storage */
 H5_DLL herr_t H5D_chunk_idx_reset(H5O_storage_chunk_t *storage, bool reset_addr);

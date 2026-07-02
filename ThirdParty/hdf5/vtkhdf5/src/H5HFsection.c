@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -673,10 +673,10 @@ done:
 static herr_t
 H5HF__sect_single_full_dblock(H5HF_hdr_t *hdr, H5HF_free_section_t *sect)
 {
-    haddr_t dblock_addr;         /* Section's direct block's address */
-    size_t  dblock_size;         /* Section's direct block's size */
-    size_t  dblock_overhead;     /* Direct block's overhead */
-    herr_t  ret_value = SUCCEED; /* Return value */
+    haddr_t dblock_addr = HADDR_UNDEF; /* Section's direct block's address */
+    size_t  dblock_size = SIZE_MAX;    /* Section's direct block's size */
+    size_t  dblock_overhead;           /* Direct block's overhead */
+    herr_t  ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -688,6 +688,10 @@ H5HF__sect_single_full_dblock(H5HF_hdr_t *hdr, H5HF_free_section_t *sect)
     /* Retrieve direct block address from section */
     if (H5HF__sect_single_dblock_info(hdr, sect, &dblock_addr, &dblock_size) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve direct block information");
+    if (!H5_addr_defined(dblock_addr))
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block address");
+    if (SIZE_MAX == dblock_size)
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block size");
 
     /* Check for section occupying entire direct block */
     /* (and not the root direct block) */
@@ -971,9 +975,9 @@ H5HF__sect_single_shrink(H5FS_section_info_t **_sect, void *_udata)
     H5HF_sect_add_ud_t   *udata = (H5HF_sect_add_ud_t *)_udata;  /* User callback data */
     H5HF_hdr_t           *hdr   = udata->hdr;                    /* Fractal heap header */
     H5HF_direct_t        *dblock;                                /* Pointer to direct block for section */
-    haddr_t               dblock_addr;                           /* Section's direct block's address */
-    size_t                dblock_size;                           /* Section's direct block's size */
-    herr_t                ret_value = SUCCEED;                   /* Return value */
+    haddr_t               dblock_addr = HADDR_UNDEF;             /* Section's direct block's address */
+    size_t                dblock_size = SIZE_MAX;                /* Section's direct block's size */
+    herr_t                ret_value   = SUCCEED;                 /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -990,6 +994,10 @@ H5HF__sect_single_shrink(H5FS_section_info_t **_sect, void *_udata)
     /* Retrieve direct block address from section */
     if (H5HF__sect_single_dblock_info(hdr, (*sect), &dblock_addr, &dblock_size) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve direct block information");
+    if (!H5_addr_defined(dblock_addr))
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block address");
+    if (SIZE_MAX == dblock_size)
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block size");
 
     /* Protect the direct block for the section */
     /* (should be a root direct block) */
@@ -1066,8 +1074,9 @@ static herr_t
 H5HF__sect_single_valid(const H5FS_section_class_t H5_ATTR_UNUSED *cls, const H5FS_section_info_t *_sect)
 {
     const H5HF_free_section_t *sect = (const H5HF_free_section_t *)_sect; /* Pointer to section to check */
+    herr_t                     ret_value = SUCCEED;                       /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
     assert(sect);
@@ -1077,8 +1086,8 @@ H5HF__sect_single_valid(const H5FS_section_class_t H5_ATTR_UNUSED *cls, const H5
         /* (not enough information to check on a single section in a root direct block) */
         if (sect->u.single.parent != NULL) {
             H5HF_indirect_t             *iblock; /* Indirect block that section's direct block resides in */
-            haddr_t                      dblock_addr;       /* Direct block address */
-            size_t                       dblock_size;       /* Direct block size */
+            haddr_t                      dblock_addr   = HADDR_UNDEF; /* Direct block address */
+            size_t                       dblock_size   = SIZE_MAX;    /* Direct block size */
             unsigned                     dblock_status = 0; /* Direct block's status in the metadata cache */
             size_t H5_ATTR_NDEBUG_UNUSED dblock_overhead;   /* Direct block's overhead */
             herr_t H5_ATTR_NDEBUG_UNUSED status;            /* Generic status value */
@@ -1088,11 +1097,14 @@ H5HF__sect_single_valid(const H5FS_section_class_t H5_ATTR_UNUSED *cls, const H5
             assert(H5_addr_defined(iblock->ents[sect->u.single.par_entry].addr));
 
             /* Retrieve direct block address from section */
-            status = H5HF__sect_single_dblock_info(iblock->hdr, (const H5HF_free_section_t *)sect,
-                                                   &dblock_addr, &dblock_size);
-            assert(status >= 0);
+            if (H5HF__sect_single_dblock_info(iblock->hdr, (const H5HF_free_section_t *)sect, &dblock_addr,
+                                              &dblock_size) < 0)
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve direct block information");
+            if (!H5_addr_defined(dblock_addr))
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block address");
+            if (SIZE_MAX == dblock_size)
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve data block size");
             assert(H5_addr_eq(iblock->ents[sect->u.single.par_entry].addr, dblock_addr));
-            assert(dblock_size > 0);
 
             /* Check if the section is actually within the heap */
             assert(sect->sect_info.addr < iblock->hdr->man_iter_off);
@@ -1132,7 +1144,8 @@ H5HF__sect_single_valid(const H5FS_section_class_t H5_ATTR_UNUSED *cls, const H5
         }     /* end if */
     }         /* end if */
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* H5HF__sect_single_valid() */
 
 /*-------------------------------------------------------------------------
@@ -3259,15 +3272,15 @@ H5HF__sect_indirect_get_iblock(H5HF_free_section_t *sect)
 static herr_t
 H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr, H5HF_free_section_t *row_sect1, H5HF_free_section_t *row_sect2)
 {
-    H5HF_free_section_t *sect1, *sect2;          /* Indirect sections underlying row sections */
-    unsigned             start_entry1;           /* Start entry for section #1 */
-    unsigned             start_row1, start_col1; /* Starting row & column for section #1 */
-    unsigned             end_entry1;             /* End entry for section #1 */
-    unsigned             end_row1;               /* Ending row for section #1 */
-    unsigned             start_row2;             /* Starting row for section #2 */
-    bool                 merged_rows;            /* Flag to indicate that rows was merged together */
-    unsigned             u;                      /* Local index variable */
-    herr_t               ret_value = SUCCEED;    /* Return value */
+    H5HF_free_section_t *sect1 = NULL, *sect2 = NULL; /* Indirect sections underlying row sections */
+    unsigned             start_entry1;                /* Start entry for section #1 */
+    unsigned             start_row1, start_col1;      /* Starting row & column for section #1 */
+    unsigned             end_entry1;                  /* End entry for section #1 */
+    unsigned             end_row1;                    /* Ending row for section #1 */
+    unsigned             start_row2;                  /* Starting row for section #2 */
+    bool                 merged_rows;                 /* Flag to indicate that rows was merged together */
+    unsigned             u;                           /* Local index variable */
+    herr_t               ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -3280,10 +3293,10 @@ H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr, H5HF_free_section_t *row_sect1, H
     assert(row_sect2->sect_info.type == H5HF_FSPACE_SECT_FIRST_ROW);
 
     /* Set up indirect section information */
-    sect1 = H5HF__sect_indirect_top(row_sect1->u.row.under);
-    assert(sect1);
-    sect2 = H5HF__sect_indirect_top(row_sect2->u.row.under);
-    assert(sect2);
+    if (NULL == (sect1 = H5HF__sect_indirect_top(row_sect1->u.row.under)))
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve pointer to sections");
+    if (NULL == (sect2 = H5HF__sect_indirect_top(row_sect2->u.row.under)))
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve pointer to sections");
 
     /* Sanity check some assumptions about the indirect sections */
     assert(sect1->u.indirect.span_size > 0);

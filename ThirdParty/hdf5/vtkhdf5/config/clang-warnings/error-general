@@ -57,8 +57,6 @@
 # Here is a list of tests and examples that have issues with the stricter warnings as error
 #
 # NOTE: Test files are not compatible with these warnings as errors
-#     thread_id.c,
-#       -Werror=unused-function
 #     dsets.c
 #       -Werror=unused-parameter
 #

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,26 +16,14 @@
 #ifndef H5public_H
 #define H5public_H
 
-/* Include files for public use... */
-/*
- * Since H5pubconf.h is a generated header file, it is messy to try
- * to put a #ifndef H5pubconf_H ... #endif guard in it.
- * HDF5 has set an internal rule that it is being included here.
- * Source files should NOT include H5pubconf.h directly but include
- * it via H5public.h.  The #ifndef H5public_H guard above would
- * prevent repeated include.
- */
-#include "H5pubconf.h" /* From configure */
+/* Configure options */
+#include "H5pubconf.h"
 
 /* XXX(kitware): Mangle all HDF5 symbols */
 #include "vtk_hdf5_mangle.h"
 
 /* API Version macro wrapper definitions */
 #include "H5version.h"
-
-#ifdef H5_HAVE_FEATURES_H
-#include <features.h> /* For setting POSIX, BSD, etc. compatibility */
-#endif
 
 /* C library header files for things that appear in HDF5 public headers */
 #ifdef __cplusplus
@@ -53,9 +41,7 @@
  * on Windows, though it doesn't necessarily contain all the POSIX types
  * we need for HDF5 (e.g. ssize_t).
  */
-#ifdef H5_HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
 
 #ifdef H5_HAVE_PARALLEL
 /* Don't link against MPI C++ bindings */
@@ -78,27 +64,44 @@
 /**
  * For major interface/format changes
  */
-#define H5_VERS_MAJOR 1
+#define H5_VERS_MAJOR 2
 /**
  * For minor interface/format changes
  */
-#define H5_VERS_MINOR 14
+#define H5_VERS_MINOR 1
 /**
  * For tweaks, bug-fixes, or development
  */
-#define H5_VERS_RELEASE 6
+#define H5_VERS_RELEASE 1
 /**
  * For pre-releases like \c snap0. Empty string for official releases.
  */
+/*
+ * IMPORTANT: This MUST be a string literal (quoted), not an unquoted value.
+ *
+ *   Valid:   #define H5_VERS_SUBRELEASE ""
+ *   Valid:   #define H5_VERS_SUBRELEASE "-snap0"
+ *   Invalid: #define H5_VERS_SUBRELEASE -snap0
+ *
+ */
 #define H5_VERS_SUBRELEASE ""
+
+/* Derived version strings - automatically generated from the above */
 /**
- * Short version string
+ * Short version string - automatically derived from H5_VERS_MAJOR/MINOR/RELEASE/SUBRELEASE
+ *
+ * This macro uses C preprocessor string concatenation. The H5_VERS_MAJOR, H5_VERS_MINOR,
+ * and H5_VERS_RELEASE values are stringified and concatenated with dots, then concatenated
+ * with H5_VERS_SUBRELEASE (which must already be a string literal).
  */
-#define H5_VERS_STR "1.14.6"
+#define H5_VERS_STR_HELPER(major, minor, release)      #major "." #minor "." #release
+#define H5_VERS_STR_CONCAT(major, minor, release, sub) H5_VERS_STR_HELPER(major, minor, release) sub
+#define H5_VERS_STR                                    H5_VERS_STR_CONCAT(H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE, H5_VERS_SUBRELEASE)
+
 /**
- * Full version string
+ * Full version string - automatically derived from H5_VERS_STR
  */
-#define H5_VERS_INFO "HDF5 library version: 1.14.6"
+#define H5_VERS_INFO "HDF5 library version: " H5_VERS_STR
 
 #define H5check() H5check_version(H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE)
 
@@ -176,16 +179,21 @@
      ((H5_VERS_MAJOR == Maj) && (H5_VERS_MINOR < Min)) || (H5_VERS_MAJOR < Maj))
 
 /* Macros for various environment variables that HDF5 interprets */
+
 /**
  * Used to specify the name of an HDF5 Virtual File Driver to use as
  * the default file driver for file access. Setting this environment
  * variable overrides the default file driver for File Access Property
  * Lists.
+ *
+ * \since 1.14.0
  */
 #define HDF5_DRIVER "HDF5_DRIVER"
 /**
  * Used to specify a configuration string for the HDF5 Virtual File
  * Driver being used for file access.
+ *
+ * \since 1.14.0
  */
 #define HDF5_DRIVER_CONFIG "HDF5_DRIVER_CONFIG"
 /**
@@ -193,12 +201,16 @@
  * to use as the default VOL connector for file access. Setting this
  * environment variable overrides the default VOL connector for File
  * Access Property Lists.
+ *
+ * \since 1.14.0
  */
 #define HDF5_VOL_CONNECTOR "HDF5_VOL_CONNECTOR"
 /**
  * Used to specify a delimiter-separated (currently, ';' for Windows
  * and ':' for other systems) list of paths that HDF5 should search
  * when loading plugins.
+ *
+ * \since 1.14.0
  */
 #define HDF5_PLUGIN_PATH "HDF5_PLUGIN_PATH"
 /**
@@ -207,6 +219,8 @@
  * in H5PLpublic.h as H5PL_NO_PLUGIN), then dynamic loading of any
  * HDF5 plugins will be disabled. No other values are valid for this
  * environment variable.
+ *
+ * \since 1.14.0
  */
 #define HDF5_PLUGIN_PRELOAD "HDF5_PLUGIN_PRELOAD"
 /**
@@ -214,18 +228,34 @@
  * opening a file. Valid values for this environment variable are
  * as follows:
  *
- *  "TRUE" or "1"  - Request that file locks should be used
- *  "FALSE" or "0" - Request that file locks should NOT be used
+ *  "TRUE" or "1"  - Request that file locks should be used <br />
+ *  "FALSE" or "0" - Request that file locks should NOT be used <br />
  *  "BEST_EFFORT"  - Request that file locks should be used and
  *                     that any locking errors caused by file
  *                     locking being disabled on the system
  *                     should be ignored
+ *
+ * \since 1.14.0
  */
 #define HDF5_USE_FILE_LOCKING "HDF5_USE_FILE_LOCKING"
 /**
  * Used to instruct HDF5 not to cleanup files created during testing.
+ *
+ * \since 1.14.0
  */
 #define HDF5_NOCLEANUP "HDF5_NOCLEANUP"
+/**
+ * Macro for environment variable used to instruct HDF5 to prefer
+ * Windows code pages over UTF-8 for functions that accept 'char *'
+ * parameters. Valid values for this environment variable are as
+ * follows (case-insensitive):
+ *
+ * "TRUE" or "1"  - Request that Windows code pages be preferred <br />
+ * "FALSE" or "0" - Request that UTF-8 be preferred <br />
+ *
+ * \since 2.0.0
+ */
+#define HDF5_PREFER_WINDOWS_CODE_PAGE "HDF5_PREFER_WINDOWS_CODE_PAGE"
 
 /**
  * Status return values.  Failed integer functions in HDF5 result almost
@@ -248,12 +278,12 @@ typedef int herr_t;
  * \deprecated Now that we require C99, hbool_t is typedef'd to C99's bool
  *             and hbool_t is considered deprecated. Due to its long-standing,
  *             widespread use, we have no plans to remove the hbool_t typedef
- *             from the public API, though we will probably switch to using
- *             bool in the public API starting in the next major release of HDF5.
+ *             from the public API, though it is otherwise unused in the library.
  * \attention Boolean functions cannot fail.
  */
 #include <stdbool.h>
 typedef bool hbool_t;
+
 /**
  * Three-valued Boolean type. Functions that return #htri_t however return zero
  * (false), positive (true), or negative (failure).
@@ -279,21 +309,11 @@ typedef int htri_t;
  *
  * Use of ssize_t should be discouraged in new code.
  */
-#if H5_SIZEOF_SSIZE_T == 0
-/* Undefine this size, we will re-define it in one of the sections below */
-#undef H5_SIZEOF_SSIZE_T
-#if H5_SIZEOF_SIZE_T == H5_SIZEOF_INT
-typedef int ssize_t;
-#define H5_SIZEOF_SSIZE_T H5_SIZEOF_INT
-#elif H5_SIZEOF_SIZE_T == H5_SIZEOF_LONG
-typedef long ssize_t;
-#define H5_SIZEOF_SSIZE_T H5_SIZEOF_LONG
-#elif H5_SIZEOF_SIZE_T == H5_SIZEOF_LONG_LONG
-typedef long long ssize_t;
-#define H5_SIZEOF_SSIZE_T H5_SIZEOF_LONG_LONG
-#else /* Can't find matching type for ssize_t */
-#error "nothing appropriate for ssize_t"
-#endif
+#if defined(_WIN32) && !defined(__MINGW32__)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+/* This will have been defined to 0 in configure */
+#define H5_SIZEOF_SSIZE_T H5_SIZEOF_SIZE_T
 #endif
 
 /**
@@ -302,6 +322,22 @@ typedef long long ssize_t;
  * \internal Defined as a (minimum) 64-bit integer type.
  */
 typedef uint64_t hsize_t;
+
+/* off_t exists on Windows, but is always a 32-bit long, even on 64-bit Windows,
+ * so on Windows we define HDoff_t to be int64_t, which is equivalent to __int64,
+ * the type of the st_size field of the _stati64 struct.
+ */
+#ifdef H5_HAVE_WIN32_API
+/**
+ * Platform-independent offset
+ */
+typedef int64_t HDoff_t;
+#else
+/**
+ * Platform-independent offset
+ */
+typedef off_t HDoff_t;
+#endif
 
 #ifdef H5_HAVE_PARALLEL
 #define HSIZE_AS_MPI_TYPE MPI_UINT64_T
@@ -431,9 +467,58 @@ typedef void (*H5_atclose_func_t)(void *ctx);
 /* API adapter header (defines H5_DLL, etc.) */
 #include "H5api_adpt.h"
 
+/*
+ * Does the compiler support the __builtin_expect() syntax?
+ * It's not a problem if not.
+ */
+
+/* clang-format off */
+#if defined(__has_builtin)
+    /* clang extension to check for builtins. Do this first, because clang
+     * also defines __GNUC__ and didn't support __builtin_expect() until
+     * more recently.
+     */
+#   if __has_builtin(__builtin_expect)
+#       define H5_HAVE_BUILTIN_EXPECT 1
+#   endif
+#elif defined(__GNUC__)
+    /* __builtin_expect() has been supported since 2.95 or 2.96 (circa 2000) */
+#   define H5_HAVE_BUILTIN_EXPECT 1
+#endif
+/* clang-format on */
+
+#if H5_HAVE_BUILTIN_EXPECT
+#define H5_LIKELY(expression)   __builtin_expect(!!(expression), 1)
+#define H5_UNLIKELY(expression) __builtin_expect(!!(expression), 0)
+#else
+#define H5_LIKELY(expression)   (expression)
+#define H5_UNLIKELY(expression) (expression)
+#endif
+
+/* Definition of H5OPEN macro used for returning library defined IDs to
+ * applications with macros, e.g. H5FD_SEC2.  Will only call H5open() for
+ * the application  once per library init/term epoch, and will not call
+ * H5open() when a macro that uses it is used within the library.
+ * Note: for library source, this coding pattern requires that H5private.h
+ * is the first library private header file included in the source file.
+ */
+#undef H5OPEN
+#ifndef H5private_H
+#define H5OPEN (H5_UNLIKELY(!H5_libinit_g && !H5_libterm_g) ? H5open() : 0),
+#else /* H5private_H */
+#define H5OPEN
+#endif /* H5private_H */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @private
+ *
+ * \brief Library init / term status (global)
+ */
+H5_DLLVAR bool H5_libinit_g; /* Has the library been initialized? */
+H5_DLLVAR bool H5_libterm_g; /* Is the library being shutdown? */
 
 /* Functions in H5.c */
 /**
@@ -697,7 +782,7 @@ H5_DLL herr_t H5check_version(unsigned majnum, unsigned minnum, unsigned relnum)
  *
  * \since 1.14.0
  */
-H5_DLL herr_t H5is_library_terminating(hbool_t *is_terminating);
+H5_DLL herr_t H5is_library_terminating(bool *is_terminating);
 /**
  * \ingroup H5
  * \brief Determines whether the HDF5 library was built with the thread-safety
@@ -716,7 +801,7 @@ H5_DLL herr_t H5is_library_terminating(hbool_t *is_terminating);
  * \since 1.10.0
  *
  */
-H5_DLL herr_t H5is_library_threadsafe(hbool_t *is_ts);
+H5_DLL herr_t H5is_library_threadsafe(bool *is_ts);
 /**
  * \ingroup H5
  * \brief Frees memory allocated by the HDF5 library
@@ -809,7 +894,7 @@ H5_DLL herr_t H5free_memory(void *mem);
  * \since 1.8.15
  *
  */
-H5_DLL void *H5allocate_memory(size_t size, hbool_t clear);
+H5_DLL void *H5allocate_memory(size_t size, bool clear);
 /**
  * \ingroup H5
  * \brief Resizes and, if required, re-allocates memory that will later be

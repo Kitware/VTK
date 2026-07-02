@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -405,7 +405,7 @@ H5F__accum_write(H5F_shared_t *f_sh, H5FD_mem_t map_type, haddr_t addr, size_t s
     H5FD_t *file;                /* File driver pointer */
     herr_t  ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
     assert(f_sh);
@@ -879,6 +879,9 @@ H5F__accum_free(H5F_shared_t *f_sh, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr
 
                 /* Calculate the size of the overlap with the accumulator, etc. */
                 H5_CHECKED_ASSIGN(overlap_size, size_t, (addr + size) - accum->loc, haddr_t);
+                /* Sanity check */
+                /* Overlap size should not result in "negative" value after subtraction */
+                assert(overlap_size < accum->size);
                 new_accum_size = accum->size - overlap_size;
 
                 /* Move the accumulator buffer information to eliminate the freed block */
@@ -1004,7 +1007,7 @@ H5F__accum_flush(H5F_shared_t *f_sh)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
     assert(f_sh);

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -247,7 +247,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag)
+H5Fset_mpi_atomicity(hid_t file_id, bool flag)
 {
     H5VL_object_t                   *vol_obj;             /* File info */
     H5VL_optional_args_t             vol_cb_args;         /* Arguments to VOL callback */
@@ -395,7 +395,7 @@ H5F_mpi_retrieve_comm(hid_t loc_id, hid_t acspl_id, MPI_Comm *mpi_comm)
         unsigned long      driver_feat_flags;
         H5FD_class_t      *driver_class = NULL;
 
-        if (NULL == (plist = H5P_object_verify(acspl_id, H5P_FILE_ACCESS)))
+        if (NULL == (plist = H5P_object_verify(acspl_id, H5P_FILE_ACCESS, true)))
             HGOTO_ERROR(H5E_FILE, H5E_BADTYPE, FAIL, "not a file access list");
 
         if (H5P_peek(plist, H5F_ACS_FILE_DRV_NAME, &driver_prop) < 0)
@@ -432,7 +432,7 @@ done:
 bool
 H5F_get_coll_metadata_reads(const H5F_t *file)
 {
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     assert(file && file->shared);
 
@@ -458,7 +458,7 @@ H5F_shared_get_coll_metadata_reads(const H5F_shared_t *f_sh)
     H5P_coll_md_read_flag_t file_flag = H5P_USER_FALSE;
     bool                    ret_value = false;
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     assert(f_sh);
 
@@ -536,7 +536,7 @@ H5F_set_coll_metadata_reads(H5F_t *file, H5P_coll_md_read_flag_t *file_flag, boo
     H5P_coll_md_read_flag_t prev_file_flag    = H5P_USER_FALSE;
     bool                    prev_context_flag = false;
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     assert(file && file->shared);
     assert(file_flag);

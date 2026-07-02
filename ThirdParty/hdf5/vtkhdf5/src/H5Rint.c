@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -135,6 +135,9 @@ static herr_t H5R__decode_string(const unsigned char *buf, size_t *nbytes, char 
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -143,27 +146,26 @@ static herr_t H5R__decode_string(const unsigned char *buf, size_t *nbytes, char 
 /* Local Variables */
 /*******************/
 
-/*-------------------------------------------------------------------------
- * Function:    H5R_init
- *
- * Purpose:     Initialize the interface from some other layer.
- *
- * Return:      Success:        non-negative
- *              Failure:        negative
- *-------------------------------------------------------------------------
- */
+/*--------------------------------------------------------------------------
+NAME
+   H5R__init_package -- Initialize interface-specific information
+USAGE
+    herr_t H5R__init_package()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Initializes any interface-specific data or routines.
+--------------------------------------------------------------------------*/
 herr_t
-H5R_init(void)
+H5R__init_package(void)
 {
-    herr_t ret_value = SUCCEED;
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check, if assert fails, H5R_REF_BUF_SIZE must be increased */
     HDcompile_assert(sizeof(H5R_ref_priv_t) <= H5R_REF_BUF_SIZE);
 
-    FUNC_LEAVE_NOAPI(ret_value)
-}
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5R__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5R__create_object
@@ -484,12 +486,12 @@ H5R__reopen_file(H5R_ref_priv_t *ref, hid_t fapl_id)
 
     /* Open the file */
     /* (Must open file read-write to allow for object modifications) */
-    if (NULL == (new_file = H5VL_file_open(&connector_prop, H5R_REF_FILENAME(ref), H5F_ACC_RDWR, fapl_id,
-                                           H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)))
+    if (NULL == (new_file = H5VL_file_open(connector_prop.connector, H5R_REF_FILENAME(ref), H5F_ACC_RDWR,
+                                           fapl_id, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)))
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTOPENFILE, H5I_INVALID_HID, "unable to open file");
 
     /* Get an ID for the file */
-    if ((ret_value = H5VL_register_using_vol_id(H5I_FILE, new_file, connector_prop.connector_id, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_FILE, new_file, connector_prop.connector, true)) < 0)
         HGOTO_ERROR(H5E_REFERENCE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register file handle");
 
     /* Get the file object */

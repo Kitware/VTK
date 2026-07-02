@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -87,12 +87,6 @@ static herr_t H5F__flush_api_common(hid_t object_id, H5F_scope_t scope, void **t
 /*******************/
 /* Local Variables */
 /*******************/
-
-/* Declare a free list to manage the H5VL_t struct */
-H5FL_EXTERN(H5VL_t);
-
-/* Declare a free list to manage the H5VL_object_t struct */
-H5FL_EXTERN(H5VL_object_t);
 
 /*-------------------------------------------------------------------------
  * Function:    H5Fget_create_plist
@@ -603,12 +597,12 @@ H5F__create_api_common(const char *filename, unsigned flags, hid_t fcpl_id, hid_
     flags |= H5F_ACC_RDWR | H5F_ACC_CREAT;
 
     /* Create a new file or truncate an existing file through the VOL */
-    if (NULL == (new_file = H5VL_file_create(&connector_prop, filename, flags, fcpl_id, fapl_id,
+    if (NULL == (new_file = H5VL_file_create(connector_prop.connector, filename, flags, fcpl_id, fapl_id,
                                              H5P_DATASET_XFER_DEFAULT, token_ptr)))
         HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, H5I_INVALID_HID, "unable to create file");
 
     /* Get an ID for the file */
-    if ((ret_value = H5VL_register_using_vol_id(H5I_FILE, new_file, connector_prop.connector_id, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_FILE, new_file, connector_prop.connector, true)) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register file handle");
 
 done:
@@ -701,7 +695,7 @@ H5Fcreate_async(const char *app_file, const char *app_func, unsigned app_line, c
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE8(__func__, "*s*sIu*sIuiii", app_file, app_func, app_line, filename, flags, fcpl_id, fapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref(ret_value) < 0)
@@ -720,7 +714,7 @@ H5Fcreate_async(const char *app_file, const char *app_func, unsigned app_line, c
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE8(__func__, "*s*sIu*sIuiii", app_file, app_func, app_line, filename, flags, fcpl_id, fapl_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_FILE, H5E_CANTINSERT, H5I_INVALID_HID, "can't insert token into event set");
@@ -783,12 +777,12 @@ H5F__open_api_common(const char *filename, unsigned flags, hid_t fapl_id, void *
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set VOL connector info in API context");
 
     /* Open the file through the VOL layer */
-    if (NULL == (new_file = H5VL_file_open(&connector_prop, filename, flags, fapl_id,
+    if (NULL == (new_file = H5VL_file_open(connector_prop.connector, filename, flags, fapl_id,
                                            H5P_DATASET_XFER_DEFAULT, token_ptr)))
         HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, H5I_INVALID_HID, "unable to open file");
 
     /* Get an ID for the file */
-    if ((ret_value = H5VL_register_using_vol_id(H5I_FILE, new_file, connector_prop.connector_id, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_FILE, new_file, connector_prop.connector, true)) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register file handle");
 
 done:
@@ -876,7 +870,7 @@ H5Fopen_async(const char *app_file, const char *app_func, unsigned app_line, con
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE7(__func__, "*s*sIu*sIuii", app_file, app_func, app_line, filename, flags, fapl_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref(ret_value) < 0)
@@ -895,7 +889,7 @@ H5Fopen_async(const char *app_file, const char *app_func, unsigned app_line, con
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE7(__func__, "*s*sIu*sIuii", app_file, app_func, app_line, filename, flags, fapl_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_FILE, H5E_CANTINSERT, H5I_INVALID_HID, "can't insert token into event set");
@@ -1006,7 +1000,7 @@ H5Fflush_async(const char *app_file, const char *app_func, unsigned app_line, hi
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                 H5ARG_TRACE6(__func__, "*s*sIuiFsi", app_file, app_func, app_line, object_id, scope, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_FILE, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1062,11 +1056,11 @@ done:
 herr_t
 H5Fclose_async(const char *app_file, const char *app_func, unsigned app_line, hid_t file_id, hid_t es_id)
 {
-    H5VL_object_t *vol_obj   = NULL;            /* Object for loc_id */
-    H5VL_t        *connector = NULL;            /* VOL connector */
-    void          *token     = NULL;            /* Request token for async operation        */
-    void         **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation        */
-    herr_t         ret_value = SUCCEED;         /* Return value */
+    H5VL_object_t    *vol_obj   = NULL;            /* Object for loc_id */
+    H5VL_connector_t *connector = NULL;            /* VOL connector */
+    void             *token     = NULL;            /* Request token for async operation        */
+    void            **token_ptr = H5_REQUEST_NULL; /* Pointer to request token for async operation        */
+    herr_t            ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_API(FAIL)
 
@@ -1082,7 +1076,7 @@ H5Fclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
 
         /* Increase connector's refcount, so it doesn't get closed if closing
          * this file ID closes the file */
-        connector = vol_obj->connector;
+        connector = H5VL_OBJ_CONNECTOR(vol_obj);
         H5VL_conn_inc_rc(connector);
 
         /* Point at token for operation to set up */
@@ -1098,7 +1092,7 @@ H5Fclose_async(const char *app_file, const char *app_func, unsigned app_line, hi
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, file_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_FILE, H5E_CANTINSERT, FAIL, "can't insert token into event set");
@@ -1193,8 +1187,8 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
     H5VL_group_specific_args_t vol_cb_args;          /* Arguments to VOL callback */
     void                      *grp = NULL;           /* Root group opened */
     H5I_type_t                 loc_type;             /* ID type of location  */
-    int                        same_connector = 0; /* Whether parent and child files use the same connector */
-    herr_t                     ret_value      = SUCCEED; /* Return value         */
+    htri_t                     same_connector; /* Whether parent and child files use the same connector */
+    herr_t                     ret_value = SUCCEED; /* Return value         */
 
     FUNC_ENTER_API(FAIL)
 
@@ -1239,7 +1233,7 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENOBJ, FAIL, "unable to open group");
 
         /* Create a VOL object for the root group */
-        if (NULL == (loc_vol_obj = H5VL_create_object(grp, vol_obj->connector)))
+        if (NULL == (loc_vol_obj = H5VL_create_object(grp, H5VL_OBJ_CONNECTOR(vol_obj))))
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENOBJ, FAIL, "can't create VOL object for root group");
     } /* end if */
     else {
@@ -1253,10 +1247,10 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "could not get child object");
 
     /* Check if both objects are associated with the same VOL connector */
-    if (H5VL_cmp_connector_cls(&same_connector, loc_vol_obj->connector->cls, child_vol_obj->connector->cls) <
-        0)
+    if ((same_connector =
+             H5VL_conn_same_class(H5VL_OBJ_CONNECTOR(loc_vol_obj), H5VL_OBJ_CONNECTOR(child_vol_obj))) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTCOMPARE, FAIL, "can't compare connector classes");
-    if (same_connector)
+    if (!same_connector)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL,
                     "can't mount file onto object from different VOL connector");
 
@@ -1264,7 +1258,7 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
     vol_cb_args.op_type         = H5VL_GROUP_MOUNT;
     vol_cb_args.args.mount.name = name;
     vol_cb_args.args.mount.child_file =
-        child_vol_obj->data; /* Don't unwrap fully, so each connector can see its object */
+        H5VL_OBJ_DATA(child_vol_obj); /* Don't unwrap fully, so each connector can see its object */
     vol_cb_args.args.mount.fmpl_id = plist_id;
 
     /* Perform the mount operation */
@@ -1349,7 +1343,7 @@ H5Funmount(hid_t loc_id, const char *name)
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENOBJ, FAIL, "unable to open group");
 
         /* Create a VOL object for the root group */
-        if (NULL == (loc_vol_obj = H5VL_create_object(grp, vol_obj->connector)))
+        if (NULL == (loc_vol_obj = H5VL_create_object(grp, H5VL_OBJ_CONNECTOR(vol_obj))))
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENOBJ, FAIL, "can't create VOL object for root group");
     } /* end if */
     else {
@@ -1420,7 +1414,7 @@ H5F__reopen_api_common(hid_t file_id, void **token_ptr)
         HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, H5I_INVALID_HID, "unable to reopen file");
 
     /* Get an ID for the file */
-    if ((ret_value = H5VL_register(H5I_FILE, reopen_file, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_FILE, reopen_file, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register file handle");
 
 done:
@@ -1504,7 +1498,7 @@ H5Freopen_async(const char *app_file, const char *app_func, unsigned app_line, h
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, file_id, es_id)) < 0) {
             /* clang-format on */
             if (H5I_dec_app_ref(ret_value) < 0)
@@ -1523,7 +1517,7 @@ H5Freopen_async(const char *app_file, const char *app_func, unsigned app_line, h
     /* If a token was created, add the token to the event set */
     if (NULL != token)
         /* clang-format off */
-        if (H5ES_insert(es_id, vol_obj->connector, token,
+        if (H5ES_insert(es_id, H5VL_OBJ_CONNECTOR(vol_obj), token,
                         H5ARG_TRACE5(__func__, "*s*sIuii", app_file, app_func, app_line, file_id, es_id)) < 0)
             /* clang-format on */
             HGOTO_ERROR(H5E_FILE, H5E_CANTINSERT, H5I_INVALID_HID, "can't insert token into event set");
@@ -1978,19 +1972,27 @@ done:
  * Function:    H5Fget_name
  *
  * Purpose:     Gets the name of the file to which object OBJ_ID belongs.
- *              If 'name' is non-NULL then write up to 'size' bytes into that
- *              buffer and always return the length of the entry name.
- *              Otherwise `size' is ignored and the function does not store
- *              the name, just returning the number of characters required to
- *              store the name. If an error occurs then the buffer pointed to
- *              by 'name' (NULL or non-NULL) is unchanged and the function
- *              returns a negative value.
+ *
+ * Description:
+ *              When 'name' is non-NULL:
+ *                - if 'size' > 0: writes up to 'size' bytes into the buffer
+ *                  (including null terminator) and returns the actual length
+ *                  of the name (excluding null terminator).
+ *                - if 'size' == 0: treats the call as length query, does not
+ *                  write anything to the buffer (not even a null terminator), and
+ *                  returns the actual length of the name (excluding null terminator).
+ *
+ *              When 'name' is NULL: does not write anything regardless of 'size'
+ *              and returns the actual length of the name (excluding null terminator).
+ *
+ *              On error, the buffer is unchanged and the function returns
+ *              a negative value.
+ *
+ * Return:      Success:    Length of the name (excluding null terminator)
+ *              Failure:    Negative
  *
  * Note:        This routine returns the name that was used to open the file,
  *              not the actual name after resolving symlinks, etc.
- *
- * Return:      Success:    The length of the file name
- *              Failure:    -1
  *-------------------------------------------------------------------------
  */
 ssize_t
@@ -2003,6 +2005,10 @@ H5Fget_name(hid_t obj_id, char *name /*out*/, size_t size)
     ssize_t              ret_value     = -1; /* Return value */
 
     FUNC_ENTER_API((-1))
+
+    /* If name size is zero, treat as length query and do not write, even a '\0' */
+    if (name && size == 0)
+        name = NULL;
 
     /* Check the type */
     type = H5I_get_type(obj_id);
@@ -2355,7 +2361,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Fget_mdc_logging_status(hid_t file_id, hbool_t *is_enabled /*out*/, hbool_t *is_currently_logging /*out*/)
+H5Fget_mdc_logging_status(hid_t file_id, bool *is_enabled /*out*/, bool *is_currently_logging /*out*/)
 {
     H5VL_object_t                   *vol_obj;             /* File info */
     H5VL_optional_args_t             vol_cb_args;         /* Arguments to VOL callback */
@@ -2674,7 +2680,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Fget_dset_no_attrs_hint(hid_t file_id, hbool_t *minimize /*out*/)
+H5Fget_dset_no_attrs_hint(hid_t file_id, bool *minimize /*out*/)
 {
     H5VL_object_t                   *vol_obj;             /* File info */
     H5VL_optional_args_t             vol_cb_args;         /* Arguments to VOL callback */
@@ -2713,7 +2719,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Fset_dset_no_attrs_hint(hid_t file_id, hbool_t minimize)
+H5Fset_dset_no_attrs_hint(hid_t file_id, bool minimize)
 {
     H5VL_object_t                   *vol_obj;             /* File info */
     H5VL_optional_args_t             vol_cb_args;         /* Arguments to VOL callback */

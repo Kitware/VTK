@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -111,9 +111,9 @@ done:
 herr_t
 H5ESinsert_request(hid_t es_id, hid_t connector_id, void *request)
 {
-    H5ES_t *es;                  /* Event set */
-    H5VL_t *connector = NULL;    /* VOL connector */
-    herr_t  ret_value = SUCCEED; /* Return value */
+    H5ES_t           *es;                  /* Event set */
+    H5VL_connector_t *connector = NULL;    /* VOL connector */
+    herr_t            ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
 
@@ -122,22 +122,14 @@ H5ESinsert_request(hid_t es_id, hid_t connector_id, void *request)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
     if (NULL == request)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL request pointer");
-
-    /* Create new VOL connector object, using the connector ID */
-    if (NULL == (connector = H5VL_new_connector(connector_id)))
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCREATE, FAIL, "can't create VOL connector object");
+    if (NULL == (connector = H5I_object_verify(connector_id, H5I_VOL)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a VOL connector ID");
 
     /* Insert request into event set */
     if (H5ES__insert_request(es, connector, request) < 0)
         HGOTO_ERROR(H5E_EVENTSET, H5E_CANTINSERT, FAIL, "can't insert request into event set");
 
 done:
-    /* Clean up on error */
-    if (ret_value < 0)
-        /* Release newly created connector */
-        if (connector && H5VL_conn_dec_rc(connector) < 0)
-            HDONE_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "unable to decrement ref count on VOL connector");
-
     FUNC_LEAVE_API(ret_value)
 } /* end H5ESinsert_request() */
 
@@ -293,7 +285,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress /*out*/, hbool_t *op_failed /*out*/)
+H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress /*out*/, bool *op_failed /*out*/)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -332,7 +324,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5EScancel(hid_t es_id, size_t *num_not_canceled /*out*/, hbool_t *op_failed /*out*/)
+H5EScancel(hid_t es_id, size_t *num_not_canceled /*out*/, bool *op_failed /*out*/)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -371,7 +363,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5ESget_err_status(hid_t es_id, hbool_t *err_status /*out*/)
+H5ESget_err_status(hid_t es_id, bool *err_status /*out*/)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -141,7 +141,7 @@ H5Pset_create_intermediate_group(hid_t plist_id, unsigned crt_intmd_group)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_LINK_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_LINK_CREATE, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
@@ -172,7 +172,7 @@ H5Pget_create_intermediate_group(hid_t plist_id, unsigned *crt_intmd_group /*out
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_LINK_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_LINK_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */

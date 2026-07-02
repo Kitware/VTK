@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -63,6 +63,9 @@ static herr_t H5C__pin_entry_from_client(H5C_t *cache_ptr, H5C_cache_entry_t *en
 static herr_t H5C__unpin_entry_real(H5C_t *cache_ptr, H5C_cache_entry_t *entry_ptr, bool update_rp);
 static herr_t H5C__unpin_entry_from_client(H5C_t *cache_ptr, H5C_cache_entry_t *entry_ptr, bool update_rp);
 static herr_t H5C__generate_image(H5F_t *f, H5C_t *cache_ptr, H5C_cache_entry_t *entry_ptr);
+static herr_t H5C__discard_single_entry(H5F_t *f, H5C_t *cache_ptr, H5C_cache_entry_t *entry_ptr,
+                                        bool destroy_entry, bool free_file_space,
+                                        bool suppress_image_entry_frees);
 static herr_t H5C__verify_len_eoa(H5F_t *f, const H5C_class_t *type, haddr_t addr, size_t *len, bool actual);
 static void  *H5C__load_entry(H5F_t *f,
 #ifdef H5_HAVE_PARALLEL
@@ -753,118 +756,13 @@ H5C__flush_single_entry(H5F_t *f, H5C_cache_entry_t *entry_ptr, unsigned flags)
      * Now discard the entry if appropriate.
      */
     if (destroy) {
-        /* Sanity check */
-        assert(0 == entry_ptr->flush_dep_nparents);
+        /* Make sure one of either `destroy_entry` or `take_ownership` are true */
+        assert(destroy_entry != take_ownership);
 
-        /* if both suppress_image_entry_frees and entry_ptr->include_in_image
-         * are true, simply set entry_ptr->image_ptr to NULL, as we have
-         * another pointer to the buffer in an instance of H5C_image_entry_t
-         * in cache_ptr->image_entries.
-         *
-         * Otherwise, free the buffer if it exists.
-         */
-        if (suppress_image_entry_frees && entry_ptr->include_in_image)
-            entry_ptr->image_ptr = NULL;
-        else if (entry_ptr->image_ptr != NULL)
-            entry_ptr->image_ptr = H5MM_xfree(entry_ptr->image_ptr);
-
-        /* If the entry is not a prefetched entry, verify that the flush
-         * dependency parents addresses array has been transferred.
-         *
-         * If the entry is prefetched, the free_isr routine will dispose of
-         * the flush dependency parents addresses array if necessary.
-         */
-        if (!entry_ptr->prefetched) {
-            assert(0 == entry_ptr->fd_parent_count);
-            assert(NULL == entry_ptr->fd_parent_addrs);
-        } /* end if */
-
-        /* Check whether we should free the space in the file that
-         * the entry occupies
-         */
-        if (free_file_space) {
-            hsize_t fsf_size;
-
-            /* Sanity checks */
-            assert(H5_addr_defined(entry_ptr->addr));
-            assert(!H5F_IS_TMP_ADDR(f, entry_ptr->addr));
-#ifndef NDEBUG
-            {
-                size_t curr_len;
-
-                /* Get the actual image size for the thing again */
-                entry_ptr->type->image_len((void *)entry_ptr, &curr_len);
-                assert(curr_len == entry_ptr->size);
-            }
-#endif
-
-            /* If the file space free size callback is defined, use
-             * it to get the size of the block of file space to free.
-             * Otherwise use entry_ptr->size.
-             */
-            if (entry_ptr->type->fsf_size) {
-                if ((entry_ptr->type->fsf_size)((void *)entry_ptr, &fsf_size) < 0)
-                    HGOTO_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "unable to get file space free size");
-            }    /* end if */
-            else /* no file space free size callback -- use entry size */
-                fsf_size = entry_ptr->size;
-
-            /* Release the space on disk */
-            if (H5MF_xfree(f, entry_ptr->type->mem_type, entry_ptr->addr, fsf_size) < 0)
-                HGOTO_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "unable to free file space for cache entry");
-        } /* end if ( free_file_space ) */
-
-        /* Reset the pointer to the cache the entry is within. -QAK */
-        entry_ptr->cache_ptr = NULL;
-
-        /* increment entries_removed_counter and set
-         * last_entry_removed_ptr.  As we are likely abuut to
-         * free the entry, recall that last_entry_removed_ptr
-         * must NEVER be dereferenced.
-         *
-         * Recall that these fields are maintained to allow functions
-         * that perform scans of lists of entries to detect the
-         * unexpected removal of entries (via expunge, eviction,
-         * or take ownership at present), so that they can re-start
-         * their scans if necessary.
-         *
-         * Also check if the entry we are watching for removal is being
-         * removed (usually the 'next' entry for an iteration) and reset
-         * it to indicate that it was removed.
-         */
-        cache_ptr->entries_removed_counter++;
-        cache_ptr->last_entry_removed_ptr = entry_ptr;
-
-        if (entry_ptr == cache_ptr->entry_watched_for_removal)
-            cache_ptr->entry_watched_for_removal = NULL;
-
-        /* Check for actually destroying the entry in memory */
-        /* (As opposed to taking ownership of it) */
-        if (destroy_entry) {
-            if (entry_ptr->is_dirty) {
-                /* Reset dirty flag */
-                entry_ptr->is_dirty = false;
-
-                /* If the entry's type has a 'notify' callback send a
-                 * 'entry cleaned' notice now that the entry is fully
-                 * integrated into the cache.
-                 */
-                if (entry_ptr->type->notify &&
-                    (entry_ptr->type->notify)(H5C_NOTIFY_ACTION_ENTRY_CLEANED, entry_ptr) < 0)
-                    HGOTO_ERROR(H5E_CACHE, H5E_CANTNOTIFY, FAIL,
-                                "can't notify client about entry dirty flag cleared");
-            } /* end if */
-
-            /* verify that the image has been freed */
-            assert(entry_ptr->image_ptr == NULL);
-
-            if (entry_ptr->type->free_icr((void *)entry_ptr) < 0)
-                HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "free_icr callback failed");
-        } /* end if */
-        else {
-            assert(take_ownership);
-        } /* end else */
-    }     /* if (destroy) */
+        if (H5C__discard_single_entry(f, cache_ptr, entry_ptr, destroy_entry, free_file_space,
+                                      suppress_image_entry_frees) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "can't discard cache entry");
+    }
 
     /* Check if we have to update the page buffer with cleared entries
      * so it doesn't go out of date
@@ -890,6 +788,145 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C__flush_single_entry() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5C__discard_single_entry
+ *
+ * Purpose:     Helper routine to discard a cache entry, freeing as much
+ *              of the relevant file space and data structures as possible
+ *              along the way.
+ *
+ * Return:      FAIL if error is detected, SUCCEED otherwise.
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5C__discard_single_entry(H5F_t *f, H5C_t *cache_ptr, H5C_cache_entry_t *entry_ptr, bool destroy_entry,
+                          bool free_file_space, bool suppress_image_entry_frees)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_PACKAGE
+
+    assert(f);
+    assert(cache_ptr);
+    assert(entry_ptr);
+
+    /* Sanity check */
+    assert(0 == entry_ptr->flush_dep_nparents);
+
+    /* if both suppress_image_entry_frees and entry_ptr->include_in_image
+     * are true, simply set entry_ptr->image_ptr to NULL, as we have
+     * another pointer to the buffer in an instance of H5C_image_entry_t
+     * in cache_ptr->image_entries.
+     *
+     * Otherwise, free the buffer if it exists.
+     */
+    if (suppress_image_entry_frees && entry_ptr->include_in_image)
+        entry_ptr->image_ptr = NULL;
+    else if (entry_ptr->image_ptr != NULL)
+        entry_ptr->image_ptr = H5MM_xfree(entry_ptr->image_ptr);
+
+    /* If the entry is not a prefetched entry, verify that the flush
+     * dependency parents addresses array has been transferred.
+     *
+     * If the entry is prefetched, the free_icr routine will dispose of
+     * the flush dependency parents addresses array if necessary.
+     */
+    if (!entry_ptr->prefetched) {
+        assert(0 == entry_ptr->fd_parent_count);
+        assert(NULL == entry_ptr->fd_parent_addrs);
+    } /* end if */
+
+    /* Check whether we should free the space in the file that
+     * the entry occupies
+     */
+    if (free_file_space) {
+        hsize_t fsf_size;
+
+        /* Sanity checks */
+        assert(H5_addr_defined(entry_ptr->addr));
+        assert(!H5F_IS_TMP_ADDR(f, entry_ptr->addr));
+#ifndef NDEBUG
+        {
+            size_t curr_len;
+
+            /* Get the actual image size for the thing again */
+            entry_ptr->type->image_len((void *)entry_ptr, &curr_len);
+            assert(curr_len == entry_ptr->size);
+        }
+#endif
+
+        /* If the file space free size callback is defined, use
+         * it to get the size of the block of file space to free.
+         * Otherwise use entry_ptr->size.
+         */
+        if (entry_ptr->type->fsf_size) {
+            if ((entry_ptr->type->fsf_size)((void *)entry_ptr, &fsf_size) < 0)
+                /* Note error but keep going */
+                HDONE_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "unable to get file space free size");
+        }    /* end if */
+        else /* no file space free size callback -- use entry size */
+            fsf_size = entry_ptr->size;
+
+        /* Release the space on disk */
+        if ((ret_value >= 0) && H5MF_xfree(f, entry_ptr->type->mem_type, entry_ptr->addr, fsf_size) < 0)
+            /* Note error but keep going */
+            HDONE_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "unable to free file space for cache entry");
+    } /* end if ( free_file_space ) */
+
+    /* Reset the pointer to the cache the entry is within. -QAK */
+    entry_ptr->cache_ptr = NULL;
+
+    /* increment entries_removed_counter and set
+     * last_entry_removed_ptr.  As we are likely about to
+     * free the entry, recall that last_entry_removed_ptr
+     * must NEVER be dereferenced.
+     *
+     * Recall that these fields are maintained to allow functions
+     * that perform scans of lists of entries to detect the
+     * unexpected removal of entries (via expunge, eviction,
+     * or take ownership at present), so that they can re-start
+     * their scans if necessary.
+     *
+     * Also check if the entry we are watching for removal is being
+     * removed (usually the 'next' entry for an iteration) and reset
+     * it to indicate that it was removed.
+     */
+    cache_ptr->entries_removed_counter++;
+    cache_ptr->last_entry_removed_ptr = entry_ptr;
+
+    if (entry_ptr == cache_ptr->entry_watched_for_removal)
+        cache_ptr->entry_watched_for_removal = NULL;
+
+    /* Check for actually destroying the entry in memory */
+    /* (As opposed to taking ownership of it) */
+    if (destroy_entry) {
+        if (entry_ptr->is_dirty) {
+            /* Reset dirty flag */
+            entry_ptr->is_dirty = false;
+
+            /* If the entry's type has a 'notify' callback send a
+             * 'entry cleaned' notice now that the entry is fully
+             * integrated into the cache.
+             */
+            if (entry_ptr->type->notify &&
+                (entry_ptr->type->notify)(H5C_NOTIFY_ACTION_ENTRY_CLEANED, entry_ptr) < 0)
+                /* Note error but keep going */
+                HDONE_ERROR(H5E_CACHE, H5E_CANTNOTIFY, FAIL,
+                            "can't notify client about entry dirty flag cleared");
+        } /* end if */
+
+        /* verify that the image has been freed */
+        assert(entry_ptr->image_ptr == NULL);
+
+        if (entry_ptr->type->free_icr((void *)entry_ptr) < 0)
+            /* Note error but keep going */
+            HDONE_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "free_icr callback failed");
+    } /* end if */
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5C__discard_single_entry() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5C__verify_len_eoa
@@ -933,17 +970,18 @@ H5C__verify_len_eoa(H5F_t *f, const H5C_class_t *type, haddr_t addr, size_t *len
     if (H5_addr_gt(addr, eoa))
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "address of object past end of allocation");
 
-    /* Check if the amount of data to read will be past the EOA */
-    if (H5_addr_gt((addr + *len), eoa)) {
+    /* Check if the amount of data to read will be past the EOA, or wraps around */
+    if (H5_addr_lt((addr + *len), addr) || H5_addr_gt((addr + *len), eoa)) {
         if (actual)
             HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "actual len exceeds EOA");
-        else
+        else {
             /* Trim down the length of the metadata */
             *len = (size_t)(eoa - addr);
-    } /* end if */
 
-    if (*len <= 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "len not positive after adjustment for EOA");
+            if (*len <= 0)
+                HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "len not positive after adjustment for EOA");
+        } /* end else */
+    }     /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1051,9 +1089,14 @@ H5C__load_entry(H5F_t *f,
          */
         do {
             if (actual_len != len) {
+                /* Verify that the length isn't a bad value  */
+                if (len == 0)
+                    HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "len is a bad value");
+
                 if (NULL == (new_image = H5MM_realloc(image, len + H5C_IMAGE_EXTRA_SPACE)))
                     HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, NULL, "image null after H5MM_realloc()");
                 image = (uint8_t *)new_image;
+
 #if H5C_DO_MEMORY_SANITY_CHECKS
                 H5MM_memcpy(image + len, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
 #endif        /* H5C_DO_MEMORY_SANITY_CHECKS */
@@ -1104,10 +1147,15 @@ H5C__load_entry(H5F_t *f,
                     if (H5C__verify_len_eoa(f, type, addr, &actual_len, true) < 0)
                         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "actual_len exceeds EOA");
 
+                    /* Verify that the length isn't 0  */
+                    if (actual_len == 0)
+                        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "actual_len is a bad value");
+
                     /* Expand buffer to new size */
                     if (NULL == (new_image = H5MM_realloc(image, actual_len + H5C_IMAGE_EXTRA_SPACE)))
                         HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, NULL, "image null after H5MM_realloc()");
                     image = (uint8_t *)new_image;
+
 #if H5C_DO_MEMORY_SANITY_CHECKS
                     H5MM_memcpy(image + actual_len, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
 #endif /* H5C_DO_MEMORY_SANITY_CHECKS */

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -53,6 +53,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
+static herr_t H5P__get_file_space(H5P_genplist_t *plist, H5F_file_space_type_t *strategy, hsize_t *threshold);
 
 /*********************/
 /* Package Variables */
@@ -447,7 +448,7 @@ H5Pget_version(hid_t plist_id, unsigned *super /*out*/, unsigned *freelist /*out
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */
@@ -514,9 +515,9 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Pset_file_space
  *
- * Purpose:	    It is mapped to H5Pset_file_space_strategy().
+ * Purpose:	Mapped to H5Pset_file_space_strategy().
  *
- * Return:	    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -524,6 +525,7 @@ herr_t
 H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t threshold)
 {
 
+    H5P_genplist_t       *plist;                                        /* Property list pointer */
     H5F_fspace_strategy_t new_strategy;                                 /* File space strategy type */
     bool                  new_persist   = H5F_FREE_SPACE_PERSIST_DEF;   /* Persisting free-space or not */
     hsize_t               new_threshold = H5F_FREE_SPACE_THRESHOLD_DEF; /* Free-space section threshold */
@@ -533,8 +535,14 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
 
     FUNC_ENTER_API(FAIL)
 
+    /* Check args */
     if ((unsigned)in_strategy >= H5F_FILE_SPACE_NTYPES)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy");
+
+    /* Get the plist structure */
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, false)))
+        HGOTO_ERROR(H5E_PLIST, H5E_BADID, FAIL, "can't find object for ID");
+
     /*
      *  For 1.10.0 H5Pset_file_space:
      *      If strategy is zero, the property is not changed;
@@ -543,9 +551,11 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
      *      the existing threshold is retained.
      */
     if (!in_strategy)
-        H5Pget_file_space(plist_id, &in_strategy, NULL);
+        if (H5P__get_file_space(plist, &in_strategy, NULL) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
     if (!in_threshold)
-        H5Pget_file_space(plist_id, NULL, &in_threshold);
+        if (H5P__get_file_space(plist, NULL, &in_threshold) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space threshold");
 
     switch (in_strategy) {
         case H5F_FILE_SPACE_ALL_PERSIST:
@@ -573,7 +583,7 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
             HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid file space strategy");
     }
 
-    if (H5Pset_file_space_strategy(plist_id, new_strategy, new_persist, new_threshold) < 0)
+    if (H5P__set_file_space_strategy(plist, new_strategy, new_persist, new_threshold) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set file space strategy");
 
 done:
@@ -581,27 +591,27 @@ done:
 } /* H5Pset_file_space() */
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_file_space
+ * Function:	H5P__get_file_space
  *
- * Purpose:	    It is mapped to H5Pget_file_space_strategy().
+ * Purpose:	Mapped to H5Pget_file_space_strategy().
  *
- * Return:	    Non-negative on success/Negative on failure
+ * Return:	Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
-herr_t
-H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy /*out*/, hsize_t *threshold /*out*/)
+static herr_t
+H5P__get_file_space(H5P_genplist_t *plist, H5F_file_space_type_t *strategy, hsize_t *threshold)
 {
     H5F_fspace_strategy_t new_strategy;        /* File space strategy type */
     bool                  new_persist;         /* Persisting free-space or not */
     hsize_t               new_threshold;       /* Free-space section threshold */
     herr_t                ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get current file space info */
-    if (H5Pget_file_space_strategy(plist_id, &new_strategy, &new_persist, &new_threshold) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
+    if (H5P__get_file_space_strategy(plist, &new_strategy, &new_persist, &new_threshold) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy values");
 
     /* Get value(s) */
     if (strategy) {
@@ -631,6 +641,35 @@ H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy /*out*/, hsize
 
     if (threshold)
         *threshold = new_threshold;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5P__get_file_space() */
+
+/*-------------------------------------------------------------------------
+ * Function:	H5Pget_file_space
+ *
+ * Purpose:	    It is mapped to H5Pget_file_space_strategy().
+ *
+ * Return:	    Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy /*out*/, hsize_t *threshold /*out*/)
+{
+    H5P_genplist_t *plist;               /* Property list pointer */
+    herr_t          ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+
+    /* Get the plist structure */
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE, true)))
+        HGOTO_ERROR(H5E_PLIST, H5E_BADID, FAIL, "can't find object for ID");
+
+    /* Get current file space info */
+    if (H5P__get_file_space(plist, strategy, threshold) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
 
 done:
     FUNC_LEAVE_API(ret_value)

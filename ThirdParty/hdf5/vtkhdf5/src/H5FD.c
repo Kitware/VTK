@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -59,6 +59,12 @@ static herr_t H5FD__query(const H5FD_t *f, unsigned long *flags /*out*/);
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
+/* Whether to ignore file locks when disabled (env var value) */
+htri_t H5FD_ignore_disabled_file_locks_p = FAIL;
+
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -92,10 +98,11 @@ static const H5I_class_t H5I_VFL_CLS[1] = {{
 /*-------------------------------------------------------------------------
  * Function:    H5FD_init
  *
- * Purpose:     Initialize the interface from some other layer.
+ * Purpose:     Initialize the interface from some other package.
  *
- * Return:      Success:        non-negative
- *              Failure:        negative
+ * Return:      Success:	non-negative
+ *              Failure:	negative
+ *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -104,6 +111,28 @@ H5FD_init(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_init() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD__init_package
+ *
+ * Purpose:     Initialize the virtual file layer.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5FD__init_package(void)
+{
+    char  *lock_env_var = NULL;    /* Environment variable pointer */
+    herr_t ret_value    = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     if (H5I_register_type(H5I_VFL_CLS) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to initialize interface");
@@ -111,9 +140,64 @@ H5FD_init(void)
     /* Reset the file serial numbers */
     H5FD_file_serial_no_g = 0;
 
+    /* Check the use disabled file locks environment variable */
+    lock_env_var = getenv(HDF5_USE_FILE_LOCKING);
+    if (lock_env_var && !strcmp(lock_env_var, "BEST_EFFORT"))
+        H5FD_ignore_disabled_file_locks_p = true; /* Override: Ignore disabled locks */
+    else if (lock_env_var && (!strcmp(lock_env_var, "TRUE") || !strcmp(lock_env_var, "1")))
+        H5FD_ignore_disabled_file_locks_p = false; /* Override: Don't ignore disabled locks */
+    else
+        H5FD_ignore_disabled_file_locks_p = FAIL; /* Environment variable not set, or not set correctly */
+
+    /* Initialize all internal VFD drivers, so their driver IDs are set up */
+    if (H5FD__core_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register core VFD");
+#ifdef H5_HAVE_DIRECT
+    if (H5FD__direct_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register direct VFD");
+#endif
+    if (H5FD__family_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register family VFD");
+#ifdef H5_HAVE_LIBHDFS
+    if (H5FD__hdfs_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register hdfs VFD");
+#endif
+#ifdef H5_HAVE_IOC_VFD
+    if (H5FD__ioc_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register ioc VFD");
+#endif
+    if (H5FD__log_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register log VFD");
+#ifdef H5_HAVE_MIRROR_VFD
+    if (H5FD__mirror_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register mirror VFD");
+#endif
+#ifdef H5_HAVE_PARALLEL
+    if (H5FD__mpio_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register mpio VFD");
+#endif
+    if (H5FD__multi_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register multi VFD");
+    if (H5FD__onion_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register onion VFD");
+#ifdef H5_HAVE_ROS3_VFD
+    if (H5FD__ros3_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register ros3 VFD");
+#endif
+    if (H5FD__sec2_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register sec2 VFD");
+    if (H5FD__splitter_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register splitter VFD");
+    if (H5FD__stdio_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register stdio VFD");
+#ifdef H5_HAVE_SUBFILING_VFD
+    if (H5FD__subfiling_register() < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register subfiling VFD");
+#endif
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5FD__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD_term_package
@@ -137,14 +221,52 @@ H5FD_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5I_nmembers(H5I_VFL) > 0) {
-        (void)H5I_clear_type(H5I_VFL, false, false);
-        n++; /*H5I*/
-    }        /* end if */
-    else {
-        /* Destroy the VFL driver ID group */
-        n += (H5I_dec_type_ref(H5I_VFL) > 0);
-    } /* end else */
+    if (H5_PKG_INIT_VAR) {
+        if (H5I_nmembers(H5I_VFL) > 0) {
+            (void)H5I_clear_type(H5I_VFL, false, false);
+
+            /* Reset all internal VFD driver IDs */
+            H5FD__core_unregister();
+#ifdef H5_HAVE_DIRECT
+            H5FD__direct_unregister();
+#endif
+            H5FD__family_unregister();
+#ifdef H5_HAVE_LIBHDFS
+            H5FD__hdfs_unregister();
+#endif
+#ifdef H5_HAVE_IOC_VFD
+            H5FD__ioc_unregister();
+#endif
+            H5FD__log_unregister();
+#ifdef H5_HAVE_MIRROR_VFD
+            H5FD__mirror_unregister();
+#endif
+#ifdef H5_HAVE_PARALLEL
+            H5FD__mpio_unregister();
+#endif
+            H5FD__multi_unregister();
+            H5FD__onion_unregister();
+#ifdef H5_HAVE_ROS3_VFD
+            H5FD__ros3_unregister();
+#endif
+            H5FD__sec2_unregister();
+            H5FD__splitter_unregister();
+            H5FD__stdio_unregister();
+#ifdef H5_HAVE_SUBFILING_VFD
+            H5FD__subfiling_unregister();
+#endif
+
+            n++; /*H5I*/
+        }        /* end if */
+        else {
+            /* Destroy the VFL driver ID group */
+            n += (H5I_dec_type_ref(H5I_VFL) > 0);
+
+            /* Mark closed */
+            if (0 == n)
+                H5_PKG_INIT_VAR = false;
+        } /* end else */
+    }     /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5FD_term_package() */
@@ -154,7 +276,7 @@ H5FD_term_package(void)
  *
  * Purpose:     Frees a file driver class struct and returns an indication of
  *              success. This function is used as the free callback for the
- *              virtual file layer object identifiers (cf H5FD_init).
+ *              virtual file layer object identifiers (cf H5FD__init_package).
  *
  * Return:      SUCCEED/FAIL
  *
@@ -174,9 +296,17 @@ H5FD__free_cls(H5FD_class_t *cls, void H5_ATTR_UNUSED **request)
      * driver a chance to free singletons or other resources which will become
      * invalid once the class structure is freed.
      */
-    if (cls->terminate && cls->terminate() < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTCLOSEOBJ, FAIL, "virtual file driver '%s' did not terminate cleanly",
-                    cls->name);
+    if (cls->terminate) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = cls->terminate();
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTCLOSEOBJ, FAIL, "virtual file driver '%s' did not terminate cleanly",
+                        cls->name);
+    }
 
     H5MM_xfree(cls);
 
@@ -268,13 +398,12 @@ H5FD_register(const void *_cls, size_t size, bool app_ref)
     assert(cls->get_eoa && cls->set_eoa);
     assert(cls->get_eof);
     assert(cls->read && cls->write);
-    for (type = H5FD_MEM_DEFAULT; type < H5FD_MEM_NTYPES; type++) {
+    for (type = H5FD_MEM_DEFAULT; type < H5FD_MEM_NTYPES; type++)
         assert(cls->fl_map[type] >= H5FD_MEM_NOLIST && cls->fl_map[type] < H5FD_MEM_NTYPES);
-    }
 
     /* Copy the class structure so the caller can reuse or free it */
     if (NULL == (saved = (H5FD_class_t *)H5MM_malloc(size)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, H5I_INVALID_HID,
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, H5I_INVALID_HID,
                     "memory allocation failed for file driver class struct");
     H5MM_memcpy(saved, cls, size);
 
@@ -441,16 +570,23 @@ H5FD_sb_size(H5FD_t *file)
 {
     hsize_t ret_value = 0;
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(0)
 
     /* Sanity checks */
     assert(file);
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->sb_size)
-        ret_value = (file->cls->sb_size)(file);
+    if (file->cls->sb_size) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB_NOERR(0)
+            {
+                ret_value = (file->cls->sb_size)(file);
+            }
+        H5_AFTER_USER_CB_NOERR(0)
+    }
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
@@ -480,8 +616,16 @@ H5FD_sb_encode(H5FD_t *file, char *name /*out*/, uint8_t *buf)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->sb_encode && (file->cls->sb_encode)(file, name /*out*/, buf /*out*/) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver sb_encode request failed");
+    if (file->cls->sb_encode) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->sb_encode)(file, name /*out*/, buf /*out*/);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver sb_encode request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -508,8 +652,16 @@ H5FD__sb_decode(H5FD_t *file, const char *name, const uint8_t *buf)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->sb_decode && (file->cls->sb_decode)(file, name, buf) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver sb_decode request failed");
+    if (file->cls->sb_decode) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->sb_decode)(file, name, buf);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver sb_decode request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -578,16 +730,23 @@ H5FD_fapl_get(H5FD_t *file)
 {
     void *ret_value = NULL;
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Sanity checks */
     assert(file);
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->fapl_get)
-        ret_value = (file->cls->fapl_get)(file);
+    if (file->cls->fapl_get) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB_NOERR(NULL)
+            {
+                ret_value = (file->cls->fapl_get)(file);
+            }
+        H5_AFTER_USER_CB_NOERR(NULL)
+    }
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_fapl_get() */
 
@@ -616,9 +775,15 @@ H5FD_free_driver_info(hid_t driver_id, const void *driver_info)
 
         /* Allow driver to free info or do it ourselves */
         if (driver->fapl_free) {
-            /* Free the const pointer */
-            /* Cast through uintptr_t to de-const memory */
-            if ((driver->fapl_free)((void *)(uintptr_t)driver_info) < 0)
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    /* Free the const pointer */
+                    /* (Cast through uintptr_t to de-const memory) */
+                    ret_value = (driver->fapl_free)((void *)(uintptr_t)driver_info);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (ret_value < 0)
                 HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "driver free request failed");
         }
         else
@@ -771,20 +936,35 @@ H5FD_open(bool try, H5FD_t **_file, const char *name, unsigned flags, hid_t fapl
     if (HADDR_UNDEF == maxaddr)
         maxaddr = driver->maxaddr;
 
+    /* clang-format off */
+
     /* Try dispatching to file driver */
     if (try) {
         H5E_PAUSE_ERRORS
-        {
-            file = (driver->open)(name, flags, fapl_id, maxaddr);
-        }
+            {/* Prepare & restore library for user callback */
+                 H5_BEFORE_USER_CB(FAIL)
+                    {
+                        file = (driver->open)(name, flags, fapl_id, maxaddr);
+                    }
+                H5_AFTER_USER_CB(FAIL)
+            }
         H5E_RESUME_ERRORS
 
         /* Check if file was not opened */
         if (NULL == file)
             HGOTO_DONE(SUCCEED);
     }
-    else if (NULL == (file = (driver->open)(name, flags, fapl_id, maxaddr)))
-        HGOTO_ERROR(H5E_VFL, H5E_CANTOPENFILE, FAIL, "can't open file");
+    else
+    {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                file = (driver->open)(name, flags, fapl_id, maxaddr);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (NULL == file)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTOPENFILE, FAIL, "can't open file");
+    }
 
     /* Set the file access flags */
     file->access_flags = flags;
@@ -807,10 +987,9 @@ H5FD_open(bool try, H5FD_t **_file, const char *name, unsigned flags, hid_t fapl
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to query file driver");
 
     /* Increment the global serial number & assign it to this H5FD_t object */
-    if (++H5FD_file_serial_no_g == 0) {
+    if (++H5FD_file_serial_no_g == 0)
         /* (Just error out if we wrap around for now...) */
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to get file serial number");
-    } /* end if */
     file->fileno = H5FD_file_serial_no_g;
 
     /* Start with base address set to 0 */
@@ -820,7 +999,9 @@ H5FD_open(bool try, H5FD_t **_file, const char *name, unsigned flags, hid_t fapl
     /* Set 'out' parameter */
     *_file = file;
 
-done:
+/* clang-format on */
+
+done :
     /* Can't cleanup 'file' information, since we don't know what type it is */
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_open() */
@@ -885,11 +1066,17 @@ H5FD_close(H5FD_t *file)
     if (H5I_dec_ref(file->driver_id) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID");
 
-    /* Dispatch to the driver for actual close. If the driver fails to
-     * close the file then the file will be in an unusable state.
-     */
-    assert(driver->close);
-    if ((driver->close)(file) < 0)
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(FAIL)
+        {
+            /* Dispatch to the driver for actual close. If the driver fails to
+             * close the file then the file will be in an unusable state.
+             */
+            assert(driver->close);
+            ret_value = (driver->close)(file);
+        }
+    H5_AFTER_USER_CB(FAIL)
+    if (ret_value < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTCLOSEFILE, FAIL, "close failed");
 
 done:
@@ -945,7 +1132,7 @@ H5FD_cmp(const H5FD_t *f1, const H5FD_t *f2)
 {
     int ret_value = -1; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR /* return value is arbitrary */
+    FUNC_ENTER_NOAPI(-1) /* return value is arbitrary */
 
     if ((!f1 || !f1->cls) && (!f2 || !f2->cls))
         HGOTO_DONE(0);
@@ -967,8 +1154,13 @@ H5FD_cmp(const H5FD_t *f1, const H5FD_t *f2)
         HGOTO_DONE(0);
     }
 
-    /* Dispatch to driver */
-    ret_value = (f1->cls->cmp)(f1, f2);
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB_NOCHECK
+        {
+            /* Dispatch to driver */
+            ret_value = (f1->cls->cmp)(f1, f2);
+        }
+    H5_AFTER_USER_CB_NOCHECK
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1029,7 +1221,13 @@ H5FD__query(const H5FD_t *file, unsigned long *flags /*out*/)
 
     /* Dispatch to driver (if available) */
     if (file->cls->query) {
-        if ((file->cls->query)(file, flags) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->query)(file, flags);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "unable to query feature flags");
     }
     else
@@ -1299,7 +1497,7 @@ H5FD_get_maxaddr(const H5FD_t *file)
 {
     haddr_t ret_value = HADDR_UNDEF; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
     /* Sanity checks */
     assert(file);
@@ -1307,6 +1505,7 @@ H5FD_get_maxaddr(const H5FD_t *file)
     /* Set return value */
     ret_value = file->maxaddr;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_get_maxaddr() */
 
@@ -1380,8 +1579,14 @@ H5FD_get_fs_type_map(const H5FD_t *file, H5FD_mem_t *type_map)
 
     /* Check for VFD class providing a type map retrieval routine */
     if (file->cls->get_type_map) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->get_type_map)(file, type_map);
+            }
+        H5_AFTER_USER_CB(FAIL)
         /* Retrieve type mapping for this file */
-        if ((file->cls->get_type_map)(file, type_map) < 0)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get type map failed");
     } /* end if */
     else
@@ -2226,7 +2431,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FDflush(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
+H5FDflush(H5FD_t *file, hid_t dxpl_id, bool closing)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -2275,8 +2480,16 @@ H5FD_flush(H5FD_t *file, bool closing)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->flush && (file->cls->flush)(file, H5CX_get_dxpl(), closing) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver flush request failed");
+    if (file->cls->flush) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->flush)(file, H5CX_get_dxpl(), closing);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver flush request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2292,7 +2505,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FDtruncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
+H5FDtruncate(H5FD_t *file, hid_t dxpl_id, bool closing)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -2340,8 +2553,16 @@ H5FD_truncate(H5FD_t *file, bool closing)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->truncate && (file->cls->truncate)(file, H5CX_get_dxpl(), closing) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "driver truncate request failed");
+    if (file->cls->truncate) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->truncate)(file, H5CX_get_dxpl(), closing);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "driver truncate request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2357,7 +2578,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FDlock(H5FD_t *file, hbool_t rw)
+H5FDlock(H5FD_t *file, bool rw)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -2398,8 +2619,16 @@ H5FD_lock(H5FD_t *file, bool rw)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->lock && (file->cls->lock)(file, rw) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTLOCKFILE, FAIL, "driver lock request failed");
+    if (file->cls->lock) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->lock)(file, rw);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTLOCKFILE, FAIL, "driver lock request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2456,8 +2685,16 @@ H5FD_unlock(H5FD_t *file)
     assert(file->cls);
 
     /* Dispatch to driver */
-    if (file->cls->unlock && (file->cls->unlock)(file) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTUNLOCKFILE, FAIL, "driver unlock request failed");
+    if (file->cls->unlock) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->unlock)(file);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTUNLOCKFILE, FAIL, "driver unlock request failed");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2546,16 +2783,18 @@ H5FD_ctl(H5FD_t *file, uint64_t op_code, uint64_t flags, const void *input, void
      * Otherwise, report success.
      */
     if (file->cls->ctl) {
-
-        if ((file->cls->ctl)(file, op_code, flags, input, output) < 0)
-
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (file->cls->ctl)(file, op_code, flags, input, output);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_VFL, H5E_FCNTL, FAIL, "VFD ctl request failed");
     }
-    else if (flags & H5FD_CTL_FAIL_IF_UNKNOWN_FLAG) {
-
+    else if (flags & H5FD_CTL_FAIL_IF_UNKNOWN_FLAG)
         HGOTO_ERROR(H5E_VFL, H5E_FCNTL, FAIL,
                     "VFD ctl request failed (no ctl callback and fail if unknown flag is set)");
-    }
 
 done:
 
@@ -2653,7 +2892,14 @@ H5FD_get_vfd_handle(H5FD_t *file, hid_t fapl_id, void **file_handle)
     /* Dispatch to driver */
     if (NULL == file->cls->get_handle)
         HGOTO_ERROR(H5E_VFL, H5E_UNSUPPORTED, FAIL, "file driver has no `get_vfd_handle' method");
-    if ((file->cls->get_handle)(file, fapl_id, file_handle) < 0)
+
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(FAIL)
+        {
+            ret_value = (file->cls->get_handle)(file, fapl_id, file_handle);
+        }
+    H5_AFTER_USER_CB(FAIL)
+    if (ret_value < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get file handle for file driver");
 
 done:

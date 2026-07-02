@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -14,12 +14,15 @@
  * Purpose:	Common routines for all MPI-based VFL drivers.
  */
 
-#include "H5private.h"   /* Generic Functions			*/
-#include "H5Eprivate.h"  /* Error handling		  	*/
-#include "H5FDprivate.h" /* File drivers				*/
-#include "H5FDmpi.h"     /* Common MPI file driver		*/
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
+
+#include "H5private.h" /* Generic Functions			*/
 
 #ifdef H5_HAVE_PARALLEL
+
+#include "H5Eprivate.h" /* Error handling		  	*/
+#include "H5FDmpi.h"    /* Common MPI file driver		*/
+#include "H5FDpkg.h"    /* File drivers                        */
 
 /*-------------------------------------------------------------------------
  * Function:	H5FD_mpi_get_rank
@@ -36,10 +39,10 @@ int
 H5FD_mpi_get_rank(H5FD_t *file)
 {
     const H5FD_class_t *cls;
-    uint64_t            flags    = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
-    int                 rank     = -1;
-    void               *rank_ptr = (void *)(&rank);
-    int                 ret_value;
+    uint64_t            flags     = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
+    int                 rank      = -1;
+    void               *rank_ptr  = (void *)(&rank);
+    int                 ret_value = -1;
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -75,10 +78,10 @@ int
 H5FD_mpi_get_size(H5FD_t *file)
 {
     const H5FD_class_t *cls;
-    uint64_t            flags    = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
-    int                 size     = 0;
-    void               *size_ptr = (void *)(&size);
-    int                 ret_value;
+    uint64_t            flags     = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
+    int                 size      = 0;
+    void               *size_ptr  = (void *)(&size);
+    int                 ret_value = 0;
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -114,10 +117,10 @@ MPI_Comm
 H5FD_mpi_get_comm(H5FD_t *file)
 {
     const H5FD_class_t *cls;
-    uint64_t            flags    = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
-    MPI_Comm            comm     = MPI_COMM_NULL;
-    void               *comm_ptr = (void *)(&comm);
-    MPI_Comm            ret_value;
+    uint64_t            flags     = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
+    MPI_Comm            comm      = MPI_COMM_NULL;
+    void               *comm_ptr  = (void *)(&comm);
+    MPI_Comm            ret_value = MPI_COMM_NULL;
 
     FUNC_ENTER_NOAPI(MPI_COMM_NULL)
 
@@ -153,10 +156,10 @@ MPI_Info
 H5FD_mpi_get_info(H5FD_t *file)
 {
     const H5FD_class_t *cls;
-    uint64_t            flags    = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
-    MPI_Info            info     = MPI_INFO_NULL;
-    void               *info_ptr = (void *)(&info);
-    MPI_Info            ret_value;
+    uint64_t            flags     = H5FD_CTL_FAIL_IF_UNKNOWN_FLAG | H5FD_CTL_ROUTE_TO_TERMINAL_VFD_FLAG;
+    MPI_Info            info      = MPI_INFO_NULL;
+    void               *info_ptr  = (void *)(&info);
+    MPI_Info            ret_value = MPI_INFO_NULL;
 
     FUNC_ENTER_NOAPI(MPI_INFO_NULL)
 

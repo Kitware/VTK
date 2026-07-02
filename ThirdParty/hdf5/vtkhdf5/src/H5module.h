@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,10 +22,13 @@
  *      reporting macros.
  */
 #define H5_MODULE
-#define H5_MY_PKG     H5
-#define H5_MY_PKG_ERR H5E_LIB
+#define H5_MY_PKG      H5
+#define H5_MY_PKG_INIT YES
 
 /** \page H5DM_UG HDF5 Data Model and File Structure
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_data_model The HDF5 Data Model and File Structure
  *
@@ -406,7 +409,33 @@
  * @see @ref sec_plist.
  *
  * \subsubsection subsubsec_data_model_abstract_link Link
- * This section is under construction.
+ *
+ * Links are the fundamental mechanism for organizing objects in the HDF5 file hierarchy. A link is a
+ * path from one object (typically a group) to another object, creating relationships that enable
+ * navigation and provide meaningful structure to the data.
+ *
+ * HDF5 supports three types of links:
+ *
+ * \li \Bold{Hard Links}: Direct references to objects within the file. An object exists as long as at
+ *     least one hard link points to it. Hard links implement reference counting - when the last hard
+ *     link to an object is deleted, the object's storage is freed. Hard links cannot cross file boundaries.
+ *
+ * \li \Bold{Soft Links (Symbolic Links)}: Path-based references stored as strings. Soft links provide
+ *     flexible indirection but can "dangle" if the target object is deleted or renamed. Soft links can
+ *     reference objects that do not yet exist, enabling forward references.
+ *
+ * \li \Bold{External Links}: References to objects in other HDF5 files. External links store both the
+ *     target filename and the path to the object within that file, enabling multi-file data organizations.
+ *
+ * Links have names and are stored within groups. The combination of links and groups creates a hierarchical
+ * namespace similar to a filesystem directory structure. Multiple hard links can point to the same object,
+ * allowing objects to appear in multiple locations within the hierarchy.
+ *
+ * The HDF5 Link interface (H5L) provides functions for creating, querying, and manipulating links.
+ * Additionally, HDF5 supports user-defined link types, allowing applications to implement custom link
+ * behaviors and traversal semantics.
+ *
+ * @see @ref sec_link for detailed information on links and the H5L interface.
  *
  * \subsection subsec_data_model_storage The HDF5 Storage Model
  * \subsubsection subsubsec_data_model_storage_spec The Abstract Storage Model: the HDF5 Format Specification
@@ -605,9 +634,15 @@
  *
  * Next Chapter \ref sec_program
  *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
+ *
  */
 
 /** \page H5_UG HDF5 Library and Programming Model
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_program The HDF5 Library and Programming Model
  * \subsection subsec_program_intro Introduction
@@ -1424,6 +1459,9 @@
  * will add the algorithm to the selected dataset's transfer property list.
  *
  * Previous Chapter \ref sec_data_model - Next Chapter \ref sec_file
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  */
 

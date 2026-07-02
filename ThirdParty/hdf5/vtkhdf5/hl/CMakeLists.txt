@@ -1,5 +1,5 @@
 if (FALSE) # XXX(kitware): cmake versions are handled by VTK.
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required (VERSION 3.26)
 endif ()
 project (HDF5_HL C)
 

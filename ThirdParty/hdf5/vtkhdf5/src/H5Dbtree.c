@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -41,7 +41,7 @@
 /* Local Macros */
 /****************/
 
-#define H5D_BTREE_IDX_IS_OPEN(idx_info) (NULL != (idx_info)->storage->u.btree.shared)
+#define H5D_BTREE_IDX_IS_OPEN(idx_info) (NULL != (idx_info)->layout->storage.u.chunk.u.btree.shared)
 
 /******************/
 /* Local Typedefs */
@@ -819,13 +819,13 @@ H5D__btree_idx_init(const H5D_chk_idx_info_t *idx_info, const H5S_t H5_ATTR_UNUS
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
     assert(H5_addr_defined(dset_ohdr_addr));
 
-    idx_info->storage->u.btree.dset_ohdr_addr = dset_ohdr_addr;
+    idx_info->layout->storage.u.chunk.u.btree.dset_ohdr_addr = dset_ohdr_addr;
 
     /* Allocate the shared structure */
-    if (H5D__btree_shared_create(idx_info->f, idx_info->storage, idx_info->layout) < 0)
+    if (H5D__btree_shared_create(idx_info->f, &idx_info->layout->storage.u.chunk,
+                                 &idx_info->layout->u.chunk) < 0)
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL, "can't create wrapper for shared B-tree info");
 
 done:
@@ -861,15 +861,14 @@ H5D__btree_idx_create(const H5D_chk_idx_info_t *idx_info)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(!H5_addr_defined(idx_info->storage->idx_addr));
+    assert(!H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
 
     /* Initialize "user" data for B-tree callbacks, etc. */
-    udata.layout  = idx_info->layout;
-    udata.storage = idx_info->storage;
+    udata.layout  = &idx_info->layout->u.chunk;
+    udata.storage = &idx_info->layout->storage.u.chunk;
 
     /* Create the v1 B-tree for the chunk index */
-    if (H5B_create(idx_info->f, H5B_BTREE, &udata, &(idx_info->storage->idx_addr) /*out*/) < 0)
+    if (H5B_create(idx_info->f, H5B_BTREE, &udata, &(idx_info->layout->storage.u.chunk.idx_addr) /*out*/) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create B-tree");
 
 done:
@@ -929,8 +928,8 @@ H5D__btree_idx_is_open(const H5D_chk_idx_info_t *idx_info, bool *is_open)
     FUNC_ENTER_PACKAGE_NOERR
 
     assert(idx_info);
-    assert(idx_info->storage);
-    assert(H5D_CHUNK_IDX_BTREE == idx_info->storage->idx_type);
+    assert(idx_info->layout);
+    assert(H5D_CHUNK_IDX_BTREE == idx_info->layout->storage.u.chunk.idx_type);
     assert(is_open);
 
     *is_open = H5D_BTREE_IDX_IS_OPEN(idx_info);
@@ -979,15 +978,14 @@ H5D__btree_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata,
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
     assert(udata);
 
     /*
      * Create the chunk it if it doesn't exist, or reallocate the chunk if
      * its size changed.
      */
-    if (H5B_insert(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, udata) < 0)
+    if (H5B_insert(idx_info->f, H5B_BTREE, idx_info->layout->storage.u.chunk.idx_addr, udata) < 0)
         HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "unable to allocate chunk");
 
 done:
@@ -1017,14 +1015,13 @@ H5D__btree_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udat
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->layout->ndims > 0);
-    assert(idx_info->storage);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(idx_info->layout->u.chunk.ndims > 0);
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
     assert(udata);
 
     /* Go get the chunk information from the B-tree */
     found = false;
-    if (H5B_find(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, &found, udata) < 0)
+    if (H5B_find(idx_info->f, H5B_BTREE, idx_info->layout->storage.u.chunk.idx_addr, &found, udata) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTFIND, FAIL, "can't check for chunk in B-tree");
 
 done:
@@ -1075,16 +1072,14 @@ H5D__btree_idx_iterate_cb(H5F_t H5_ATTR_UNUSED *f, const void *_lt_key, haddr_t 
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check for memcpy() */
-    HDcompile_assert(offsetof(H5D_chunk_rec_t, nbytes) == offsetof(H5D_btree_key_t, nbytes));
-    HDcompile_assert(sizeof(chunk_rec.nbytes) == sizeof(lt_key->nbytes));
     HDcompile_assert(offsetof(H5D_chunk_rec_t, scaled) == offsetof(H5D_btree_key_t, scaled));
     HDcompile_assert(sizeof(chunk_rec.scaled) == sizeof(lt_key->scaled));
-    HDcompile_assert(offsetof(H5D_chunk_rec_t, filter_mask) == offsetof(H5D_btree_key_t, filter_mask));
-    HDcompile_assert(sizeof(chunk_rec.filter_mask) == sizeof(lt_key->filter_mask));
 
     /* Compose generic chunk record for callback */
-    H5MM_memcpy(&chunk_rec, lt_key, sizeof(*lt_key));
-    chunk_rec.chunk_addr = addr;
+    H5MM_memcpy(&(chunk_rec.scaled), &(lt_key->scaled), sizeof(lt_key->scaled));
+    chunk_rec.nbytes      = (hsize_t)lt_key->nbytes;
+    chunk_rec.filter_mask = (uint32_t)lt_key->filter_mask;
+    chunk_rec.chunk_addr  = addr;
 
     /* Make "generic chunk" callback */
     if ((ret_value = (udata->cb)(&chunk_rec, udata->udata)) < 0)
@@ -1115,20 +1110,19 @@ H5D__btree_idx_iterate(const H5D_chk_idx_info_t *idx_info, H5D_chunk_cb_func_t c
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
     assert(chunk_cb);
     assert(chunk_udata);
 
     /* Initialize userdata */
     memset(&udata, 0, sizeof udata);
-    udata.common.layout  = idx_info->layout;
-    udata.common.storage = idx_info->storage;
+    udata.common.layout  = &idx_info->layout->u.chunk;
+    udata.common.storage = &idx_info->layout->storage.u.chunk;
     udata.cb             = chunk_cb;
     udata.udata          = chunk_udata;
 
     /* Iterate over existing chunks */
-    if ((ret_value = H5B_iterate(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr,
+    if ((ret_value = H5B_iterate(idx_info->f, H5B_BTREE, idx_info->layout->storage.u.chunk.idx_addr,
                                  H5D__btree_idx_iterate_cb, &udata)) < 0)
         HERROR(H5E_DATASET, H5E_BADITER, "unable to iterate over chunk B-tree");
 
@@ -1155,14 +1149,13 @@ H5D__btree_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t 
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
-    assert(H5_addr_defined(idx_info->storage->idx_addr));
+    assert(H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr));
     assert(udata);
 
     /* Remove the chunk from the v1 B-tree index and release the space for the
      * chunk (in the B-tree callback).
      */
-    if (H5B_remove(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, udata) < 0)
+    if (H5B_remove(idx_info->f, H5B_BTREE, idx_info->layout->storage.u.chunk.idx_addr, udata) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTDELETE, FAIL, "unable to remove chunk entry");
 
 done:
@@ -1192,23 +1185,22 @@ H5D__btree_idx_delete(const H5D_chk_idx_info_t *idx_info)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
 
     /* Check if the index data structure has been allocated */
-    if (H5_addr_defined(idx_info->storage->idx_addr)) {
+    if (H5_addr_defined(idx_info->layout->storage.u.chunk.idx_addr)) {
         H5O_storage_chunk_t   tmp_storage; /* Local copy of storage info */
         H5D_chunk_common_ud_t udata;       /* User data for B-tree operations */
 
         /* Set up temporary chunked storage info */
-        tmp_storage = *idx_info->storage;
+        tmp_storage = idx_info->layout->storage.u.chunk;
 
         /* Set up the shared structure */
-        if (H5D__btree_shared_create(idx_info->f, &tmp_storage, idx_info->layout) < 0)
+        if (H5D__btree_shared_create(idx_info->f, &tmp_storage, &idx_info->layout->u.chunk) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create wrapper for shared B-tree info");
 
         /* Set up B-tree user data */
         memset(&udata, 0, sizeof udata);
-        udata.layout  = idx_info->layout;
+        udata.layout  = &idx_info->layout->u.chunk;
         udata.storage = &tmp_storage;
 
         /* Delete entire B-tree */
@@ -1246,25 +1238,25 @@ H5D__btree_idx_copy_setup(const H5D_chk_idx_info_t *idx_info_src, const H5D_chk_
     assert(idx_info_src->f);
     assert(idx_info_src->pline);
     assert(idx_info_src->layout);
-    assert(idx_info_src->storage);
     assert(idx_info_dst);
     assert(idx_info_dst->f);
     assert(idx_info_dst->pline);
     assert(idx_info_dst->layout);
-    assert(idx_info_dst->storage);
-    assert(!H5_addr_defined(idx_info_dst->storage->idx_addr));
+    assert(!H5_addr_defined(idx_info_dst->layout->storage.u.chunk.idx_addr));
 
     /* Create shared B-tree info for each file */
-    if (H5D__btree_shared_create(idx_info_src->f, idx_info_src->storage, idx_info_src->layout) < 0)
+    if (H5D__btree_shared_create(idx_info_src->f, &idx_info_src->layout->storage.u.chunk,
+                                 &idx_info_src->layout->u.chunk) < 0)
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL, "can't create wrapper for source shared B-tree info");
-    if (H5D__btree_shared_create(idx_info_dst->f, idx_info_dst->storage, idx_info_dst->layout) < 0)
+    if (H5D__btree_shared_create(idx_info_dst->f, &idx_info_dst->layout->storage.u.chunk,
+                                 &idx_info_dst->layout->u.chunk) < 0)
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL,
                     "can't create wrapper for destination shared B-tree info");
 
     /* Create the root of the B-tree that describes chunked storage in the dest. file */
     if (H5D__btree_idx_create(idx_info_dst) < 0)
         HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to initialize chunked storage");
-    assert(H5_addr_defined(idx_info_dst->storage->idx_addr));
+    assert(H5_addr_defined(idx_info_dst->layout->storage.u.chunk.idx_addr));
 
 done:
     FUNC_LEAVE_NOAPI_TAG(ret_value)
@@ -1323,16 +1315,16 @@ H5D__btree_idx_size(const H5D_chk_idx_info_t *idx_info, hsize_t *index_size)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
     assert(index_size);
 
     /* Initialize B-tree node user-data */
     memset(&udata, 0, sizeof udata);
-    udata.layout  = idx_info->layout;
-    udata.storage = idx_info->storage;
+    udata.layout  = &idx_info->layout->u.chunk;
+    udata.storage = &idx_info->layout->storage.u.chunk;
 
     /* Get metadata information for B-tree */
-    if (H5B_get_info(idx_info->f, H5B_BTREE, idx_info->storage->idx_addr, &bt_info, NULL, &udata) < 0)
+    if (H5B_get_info(idx_info->f, H5B_BTREE, idx_info->layout->storage.u.chunk.idx_addr, &bt_info, NULL,
+                     &udata) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "unable to iterate over chunk B-tree");
 
     /* Set the size of the B-tree */
@@ -1408,12 +1400,11 @@ H5D__btree_idx_dest(const H5D_chk_idx_info_t *idx_info)
     assert(idx_info->f);
     assert(idx_info->pline);
     assert(idx_info->layout);
-    assert(idx_info->storage);
 
     /* Free the raw B-tree node buffer */
-    if (NULL == idx_info->storage->u.btree.shared)
+    if (NULL == idx_info->layout->storage.u.chunk.u.btree.shared)
         HGOTO_ERROR(H5E_IO, H5E_CANTFREE, FAIL, "ref-counted page nil");
-    if (H5UC_DEC(idx_info->storage->u.btree.shared) < 0)
+    if (H5UC_DEC(idx_info->layout->storage.u.chunk.u.btree.shared) < 0)
         HGOTO_ERROR(H5E_IO, H5E_CANTFREE, FAIL, "unable to decrement ref-counted page");
 
 done:

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -923,7 +923,7 @@ H5_DLL herr_t H5Odecr_refcount(hid_t object_id);
  *          - H5Pset_copy_object()
  *          - H5Pset_create_intermediate_group()
  *          - H5Pset_mcdt_search_cb()
- *      - Copying Committed Datatypes with #H5Ocopy - A comprehensive
+ *      - \ref copying_committed - A comprehensive
  *        discussion of copying committed datatypes (PDF) in
  *        Advanced Topics in HDF5
  *
@@ -1563,7 +1563,7 @@ H5_DLL herr_t H5Oenable_mdc_flushes(hid_t object_id);
  * \since 1.10.0
  *
  */
-H5_DLL herr_t H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled);
+H5_DLL herr_t H5Oare_mdc_flushes_disabled(hid_t object_id, bool *are_disabled);
 
 /**
  *-------------------------------------------------------------------------

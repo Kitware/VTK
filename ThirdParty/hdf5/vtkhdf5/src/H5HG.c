@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -80,6 +80,9 @@ static size_t  H5HG__alloc(H5F_t *f, H5HG_heap_t *heap, size_t size, unsigned *h
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /* Declare a free list to manage the H5HG_heap_t struct */
 H5FL_DEFINE(H5HG_heap_t);
@@ -838,7 +841,7 @@ H5HG__free(H5HG_heap_t *heap)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     assert(heap);

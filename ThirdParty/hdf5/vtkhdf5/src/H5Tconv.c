@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -28,20 +28,12 @@
 #include "H5private.h"   /* Generic Functions                        */
 #include "H5CXprivate.h" /* API Contexts                             */
 #include "H5Eprivate.h"  /* Error handling                           */
+#include "H5Tconv.h"     /* Datatype Conversions                     */
 #include "H5Tpkg.h"      /* Datatypes                                */
 
 /****************/
 /* Local Macros */
 /****************/
-
-/* Swap two elements (I & J) of an array using a temporary variable */
-#define H5_SWAP_BYTES(ARRAY, I, J)                                                                           \
-    do {                                                                                                     \
-        uint8_t _tmp;                                                                                        \
-        _tmp     = ARRAY[I];                                                                                 \
-        ARRAY[I] = ARRAY[J];                                                                                 \
-        ARRAY[J] = _tmp;                                                                                     \
-    } while (0)
 
 /******************/
 /* Local Typedefs */
@@ -185,27 +177,47 @@ H5T_get_force_conv(const H5T_t *dt)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5T__reverse_order(uint8_t *rev, uint8_t *s, size_t size, H5T_order_t order)
+H5T__reverse_order(uint8_t *rev, uint8_t *s, const H5T_t *dtype)
 {
-    size_t i;
+    H5T_order_t order;
+    size_t      size;
 
     FUNC_ENTER_PACKAGE_NOERR
 
     assert(s);
-    assert(size);
+    assert(dtype);
+    assert(H5T_IS_ATOMIC(dtype->shared) || H5T_COMPLEX == dtype->shared->type);
+
+    size = dtype->shared->size;
+
+    if (H5T_IS_ATOMIC(dtype->shared))
+        order = dtype->shared->u.atomic.order;
+    else
+        order = dtype->shared->parent->shared->u.atomic.order;
 
     if (H5T_ORDER_VAX == order) {
-        for (i = 0; i < size; i += 2) {
+        for (size_t i = 0; i < size; i += 2) {
             rev[i]     = s[(size - 2) - i];
             rev[i + 1] = s[(size - 1) - i];
         }
     }
     else if (H5T_ORDER_BE == order) {
-        for (i = 0; i < size; i++)
-            rev[size - (i + 1)] = s[i];
+        if (H5T_IS_ATOMIC(dtype->shared)) {
+            for (size_t i = 0; i < size; i++)
+                rev[size - (i + 1)] = s[i];
+        }
+        else {
+            size_t part_size = size / 2;
+            for (size_t i = 0; i < part_size; i++)
+                rev[part_size - (i + 1)] = s[i];
+            rev += part_size;
+            s += part_size;
+            for (size_t i = 0; i < part_size; i++)
+                rev[part_size - (i + 1)] = s[i];
+        }
     }
     else {
-        for (i = 0; i < size; i++)
+        for (size_t i = 0; i < size; i++)
             rev[i] = s[i];
     }
 
@@ -255,12 +267,12 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5T__conv_order
  *
- * Purpose:    Convert one type to another when byte order is the only
- *        difference.
+ * Purpose:     Convert one type to another when byte order is the only
+ *              difference.
  *
- * Note:    This is a soft conversion function.
+ * Note:        This is a soft conversion function.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -269,10 +281,13 @@ H5T__conv_order(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                 const H5T_conv_ctx_t H5_ATTR_UNUSED *conv_ctx, size_t nelmts, size_t buf_stride,
                 size_t H5_ATTR_UNUSED bkg_stride, void *_buf, void H5_ATTR_UNUSED *background)
 {
-    uint8_t *buf = (uint8_t *)_buf;
-    size_t   i;
-    size_t   j, md;
-    herr_t   ret_value = SUCCEED; /* Return value */
+    H5T_order_t src_order, dst_order;
+    uint8_t    *buf = (uint8_t *)_buf;
+    size_t      src_offset, dst_offset;
+    size_t      src_size, dst_size;
+    size_t      i;
+    size_t      j, md;
+    herr_t      ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -281,12 +296,38 @@ H5T__conv_order(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
             /* Capability query */
             if (NULL == src || NULL == dst)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype");
-            if (src->shared->size != dst->shared->size || 0 != src->shared->u.atomic.offset ||
-                0 != dst->shared->u.atomic.offset ||
-                !((H5T_ORDER_BE == src->shared->u.atomic.order &&
-                   H5T_ORDER_LE == dst->shared->u.atomic.order) ||
-                  (H5T_ORDER_LE == src->shared->u.atomic.order &&
-                   H5T_ORDER_BE == dst->shared->u.atomic.order)))
+
+            src_size = src->shared->size;
+            dst_size = dst->shared->size;
+            if (src_size != dst_size)
+                HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+
+            if (src->shared->parent) {
+                if (!H5T_IS_ATOMIC(src->shared->parent->shared))
+                    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+                src_offset = src->shared->parent->shared->u.atomic.offset;
+                src_order  = src->shared->parent->shared->u.atomic.order;
+            }
+            else {
+                src_offset = src->shared->u.atomic.offset;
+                src_order  = src->shared->u.atomic.order;
+            }
+            if (dst->shared->parent) {
+                if (!H5T_IS_ATOMIC(dst->shared->parent->shared))
+                    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+                dst_offset = dst->shared->parent->shared->u.atomic.offset;
+                dst_order  = dst->shared->parent->shared->u.atomic.order;
+            }
+            else {
+                dst_offset = dst->shared->u.atomic.offset;
+                dst_order  = dst->shared->u.atomic.order;
+            }
+
+            if (0 != src_offset || 0 != dst_offset)
+                HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+
+            if (!((H5T_ORDER_BE == src_order && H5T_ORDER_LE == dst_order) ||
+                  (H5T_ORDER_LE == src_order && H5T_ORDER_BE == dst_order)))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
             switch (src->shared->type) {
                 case H5T_INTEGER:
@@ -306,6 +347,23 @@ H5T__conv_order(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                         HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
                     } /* end if */
                     break;
+
+                case H5T_COMPLEX: {
+                    const H5T_shared_t *src_base_sh = src->shared->parent->shared;
+                    const H5T_shared_t *dst_base_sh = dst->shared->parent->shared;
+
+                    if (src_base_sh->u.atomic.u.f.sign != dst_base_sh->u.atomic.u.f.sign ||
+                        src_base_sh->u.atomic.u.f.epos != dst_base_sh->u.atomic.u.f.epos ||
+                        src_base_sh->u.atomic.u.f.esize != dst_base_sh->u.atomic.u.f.esize ||
+                        src_base_sh->u.atomic.u.f.ebias != dst_base_sh->u.atomic.u.f.ebias ||
+                        src_base_sh->u.atomic.u.f.mpos != dst_base_sh->u.atomic.u.f.mpos ||
+                        src_base_sh->u.atomic.u.f.msize != dst_base_sh->u.atomic.u.f.msize ||
+                        src_base_sh->u.atomic.u.f.norm != dst_base_sh->u.atomic.u.f.norm ||
+                        src_base_sh->u.atomic.u.f.pad != dst_base_sh->u.atomic.u.f.pad)
+                        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+
+                    break;
+                }
 
                 case H5T_NO_CLASS:
                 case H5T_TIME:
@@ -328,11 +386,41 @@ H5T__conv_order(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
             if (NULL == src)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype");
 
-            buf_stride = buf_stride ? buf_stride : src->shared->size;
-            md         = src->shared->size / 2;
-            for (i = 0; i < nelmts; i++, buf += buf_stride)
-                for (j = 0; j < md; j++)
-                    H5_SWAP_BYTES(buf, j, src->shared->size - (j + 1));
+            src_size   = src->shared->size;
+            buf_stride = buf_stride ? buf_stride : src_size;
+            md         = src_size / 2;
+
+            /* Complex number types are composed of two floating-point
+             * elements, each of which is half the size of the datatype
+             * and have to be converted separately. While halving the
+             * source datatype size and doubling the number elements to
+             * be converted works in some cases, structure padding can
+             * cause issues with that approach, so we special-case
+             * conversions on complex numbers here.
+             */
+            if (H5T_COMPLEX == src->shared->type) {
+                size_t part_size = src_size / 2;
+
+                md = part_size / 2;
+                for (i = 0; i < nelmts; i++, buf += buf_stride) {
+                    uint8_t *cur_part = buf;
+
+                    /* Convert real part of complex number element */
+                    for (j = 0; j < md; j++)
+                        H5_SWAP_BYTES(cur_part, j, part_size - (j + 1));
+
+                    /* Convert imaginary part of complex number element */
+                    cur_part += part_size;
+                    for (j = 0; j < md; j++)
+                        H5_SWAP_BYTES(cur_part, j, part_size - (j + 1));
+                }
+            }
+            else {
+                for (i = 0; i < nelmts; i++, buf += buf_stride)
+                    for (j = 0; j < md; j++)
+                        H5_SWAP_BYTES(buf, j, src_size - (j + 1));
+            }
+
             break;
 
         case H5T_CONV_FREE:
@@ -350,13 +438,13 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5T__conv_order_opt
  *
- * Purpose:    Convert one type to another when byte order is the only
- *        difference. This is the optimized version of H5T__conv_order()
- *              for a handful of different sizes.
+ * Purpose:     Convert one type to another when byte order is the only
+ *              difference. This is the optimized version of
+ *              H5T__conv_order() for a handful of different sizes.
  *
- * Note:    This is a soft conversion function.
+ * Note:        This is a soft conversion function.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -365,9 +453,12 @@ H5T__conv_order_opt(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                     const H5T_conv_ctx_t H5_ATTR_UNUSED *conv_ctx, size_t nelmts, size_t buf_stride,
                     size_t H5_ATTR_UNUSED bkg_stride, void *_buf, void H5_ATTR_UNUSED *background)
 {
-    uint8_t *buf = (uint8_t *)_buf;
-    size_t   i;
-    herr_t   ret_value = SUCCEED; /* Return value */
+    H5T_order_t src_order, dst_order;
+    uint8_t    *buf = (uint8_t *)_buf;
+    size_t      src_offset, dst_offset;
+    size_t      src_size, dst_size;
+    size_t      i;
+    herr_t      ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -376,19 +467,43 @@ H5T__conv_order_opt(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
             /* Capability query */
             if (NULL == src || NULL == dst)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype");
-            if (src->shared->size != dst->shared->size || 0 != src->shared->u.atomic.offset ||
-                0 != dst->shared->u.atomic.offset)
+
+            src_size = src->shared->size;
+            dst_size = dst->shared->size;
+            if (src_size != dst_size)
+                HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+
+            if (src->shared->parent) {
+                if (!H5T_IS_ATOMIC(src->shared->parent->shared))
+                    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+                src_offset = src->shared->parent->shared->u.atomic.offset;
+                src_order  = src->shared->parent->shared->u.atomic.order;
+            }
+            else {
+                src_offset = src->shared->u.atomic.offset;
+                src_order  = src->shared->u.atomic.order;
+            }
+            if (dst->shared->parent) {
+                if (!H5T_IS_ATOMIC(dst->shared->parent->shared))
+                    HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
+                dst_offset = dst->shared->parent->shared->u.atomic.offset;
+                dst_order  = dst->shared->parent->shared->u.atomic.order;
+            }
+            else {
+                dst_offset = dst->shared->u.atomic.offset;
+                dst_order  = dst->shared->u.atomic.order;
+            }
+
+            if (0 != src_offset || 0 != dst_offset)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
             if ((src->shared->type == H5T_REFERENCE && dst->shared->type != H5T_REFERENCE) ||
                 (dst->shared->type == H5T_REFERENCE && src->shared->type != H5T_REFERENCE))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
-            if (src->shared->type != H5T_REFERENCE && !((H5T_ORDER_BE == src->shared->u.atomic.order &&
-                                                         H5T_ORDER_LE == dst->shared->u.atomic.order) ||
-                                                        (H5T_ORDER_LE == src->shared->u.atomic.order &&
-                                                         H5T_ORDER_BE == dst->shared->u.atomic.order)))
+            if (src->shared->type != H5T_REFERENCE &&
+                !((H5T_ORDER_BE == src_order && H5T_ORDER_LE == dst_order) ||
+                  (H5T_ORDER_LE == src_order && H5T_ORDER_BE == dst_order)))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
-            if (src->shared->size != 1 && src->shared->size != 2 && src->shared->size != 4 &&
-                src->shared->size != 8 && src->shared->size != 16)
+            if (src_size != 1 && src_size != 2 && src_size != 4 && src_size != 8 && src_size != 16)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");
             switch (src->shared->type) {
                 case H5T_INTEGER:
@@ -417,6 +532,10 @@ H5T__conv_order_opt(const H5T_t *src, const H5T_t *dst, H5T_cdata_t *cdata,
                 case H5T_ENUM:
                 case H5T_VLEN:
                 case H5T_ARRAY:
+                /* Complex numbers require some special-case logic for
+                 * proper handling. Defer to H5T__conv_order for these types.
+                 */
+                case H5T_COMPLEX:
                 case H5T_NCLASSES:
                 default:
                     HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "conversion not supported");

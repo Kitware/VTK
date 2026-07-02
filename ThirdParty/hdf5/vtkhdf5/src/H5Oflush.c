@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -194,11 +194,11 @@ H5O_refresh_metadata(H5O_loc_t *oloc, hid_t oid)
 
     /* If the file is opened with write access, no need to perform refresh actions. */
     if (!(H5F_INTENT(oloc->file) & H5F_ACC_RDWR)) {
-        H5G_loc_t    obj_loc;
-        H5O_loc_t    obj_oloc;
-        H5G_name_t   obj_path;
-        H5O_shared_t cached_H5O_shared;
-        H5VL_t      *connector = NULL;
+        H5G_loc_t         obj_loc;
+        H5O_loc_t         obj_oloc;
+        H5G_name_t        obj_path;
+        H5O_shared_t      cached_H5O_shared;
+        H5VL_connector_t *connector = NULL;
 
         /* Hold a copy of the object's file pointer, since closing the object will
          * invalidate the file pointer in the oloc.
@@ -227,27 +227,28 @@ H5O_refresh_metadata(H5O_loc_t *oloc, hid_t oid)
          */
         if (NULL == (vol_obj = H5VL_vol_object(oid)))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid object identifier");
-        connector = vol_obj->connector;
+        connector = H5VL_OBJ_CONNECTOR(vol_obj);
 
         /* Bump the number of references on the VOL connector.
          * If you don't do this, VDS refreshes can accidentally close the connector.
          */
-        connector->nrefs++;
+        H5VL_conn_inc_rc(connector);
 
         /* Close object & evict its metadata */
         if (H5O__refresh_metadata_close(oloc, &obj_loc, oid) < 0) {
-            connector->nrefs--;
+            H5VL_conn_dec_rc(connector);
             HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "unable to refresh object");
         }
 
         /* Re-open the object, re-fetching its metadata */
         if (H5O_refresh_metadata_reopen(oid, H5P_DEFAULT, &obj_loc, connector, false) < 0) {
-            connector->nrefs--;
+            H5VL_conn_dec_rc(connector);
             HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "unable to refresh object");
         }
 
         /* Restore the number of references on the VOL connector */
-        connector->nrefs--;
+        if (H5VL_conn_dec_rc(connector) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTDEC, FAIL, "can't decrement reference count for connector");
 
         /* Restore important datatype state */
         if (H5I_get_type(oid) == H5I_DATATYPE)
@@ -347,7 +348,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_refresh_metadata_reopen(hid_t oid, hid_t apl_id, H5G_loc_t *obj_loc, H5VL_t *vol_connector,
+H5O_refresh_metadata_reopen(hid_t oid, hid_t apl_id, H5G_loc_t *obj_loc, H5VL_connector_t *vol_connector,
                             bool start_swmr)
 {
     void      *object = NULL;       /* Object for this operation */

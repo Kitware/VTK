@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -1057,8 +1057,9 @@ done:
 static herr_t
 H5FS__sect_link(H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flags)
 {
-    const H5FS_section_class_t *cls;                 /* Class of section */
-    herr_t                      ret_value = SUCCEED; /* Return value */
+    const H5FS_section_class_t *cls;                   /* Class of section */
+    bool                        linked_sect = false;   /* Was the section linked in? */
+    herr_t                      ret_value   = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1073,6 +1074,7 @@ H5FS__sect_link(H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flags)
     /* Add section to size tracked data structures */
     if (H5FS__sect_link_size(fspace->sinfo, cls, sect) < 0)
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTINSERT, FAIL, "can't add section to size tracking data structures");
+    linked_sect = true;
 
     /* Update rest of free space manager data structures for section addition */
     if (H5FS__sect_link_rest(fspace, cls, sect, flags) < 0)
@@ -1080,6 +1082,12 @@ H5FS__sect_link(H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flags)
                     "can't add section to non-size tracking data structures");
 
 done:
+    if (ret_value < 0) {
+        if (linked_sect && H5FS__sect_unlink_size(fspace->sinfo, cls, sect) < 0)
+            HDONE_ERROR(H5E_FSPACE, H5E_CANTFREE, FAIL,
+                        "can't remove section from size tracking data structures");
+    }
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5FS__sect_link() */
 
@@ -1289,7 +1297,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_sect_add(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flags, void *op_data)
+H5FS_sect_add(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flags, void *op_data,
+              bool *merged_or_shrunk)
 {
     H5FS_section_class_t *cls;                      /* Section's class */
     bool                  sinfo_valid    = false;   /* Whether the section info is valid */
@@ -1309,6 +1318,9 @@ H5FS_sect_add(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flag
     assert(sect);
     assert(H5_addr_defined(sect->addr));
     assert(sect->size);
+
+    if (merged_or_shrunk)
+        *merged_or_shrunk = false;
 
     /* Get a pointer to the section info */
     if (H5FS__sinfo_lock(f, fspace, H5AC__NO_FLAGS_SET) < 0)
@@ -1336,9 +1348,12 @@ H5FS_sect_add(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *sect, unsigned flag
     /* (If section has been completely merged or shrunk away, 'sect' will
      *  be NULL at this point - QAK)
      */
-    if (sect)
+    if (sect) {
         if (H5FS__sect_link(fspace, sect, flags) < 0)
             HGOTO_ERROR(H5E_FSPACE, H5E_CANTINSERT, FAIL, "can't insert free space section into skip list");
+    }
+    else if (merged_or_shrunk)
+        *merged_or_shrunk = true;
 
 #ifdef H5FS_SINFO_DEBUG
     fprintf(stderr, "%s: fspace->tot_space = %" PRIuHSIZE "\n", __func__, fspace->tot_space);
@@ -2306,11 +2321,15 @@ done:
 herr_t
 H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace, haddr_t *fs_addr_ptr)
 {
-    hsize_t hdr_alloc_size;
-    hsize_t sinfo_alloc_size;
-    haddr_t sect_addr = HADDR_UNDEF; /* address of sinfo */
-    haddr_t eoa       = HADDR_UNDEF; /* Initial EOA for the file */
-    herr_t  ret_value = SUCCEED;     /* Return value */
+    hsize_t hdr_alloc_size    = 0;
+    hsize_t sinfo_alloc_size  = 0;
+    haddr_t sect_addr         = HADDR_UNDEF; /* address of sinfo */
+    haddr_t eoa               = HADDR_UNDEF; /* Initial EOA for the file */
+    bool    allocated_header  = false;       /* Whether a free space header was allocated */
+    bool    inserted_header   = false; /* Whether a free space header was inserted into the metadata cache */
+    bool    allocated_section = false; /* Whether a free space section was allocated */
+    bool    inserted_section  = false; /* Whether a free space section was inserted into the metadata cache */
+    herr_t  ret_value         = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -2359,10 +2378,12 @@ H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace, haddr_t 
             /* Allocate space for the free space header */
             if (HADDR_UNDEF == (fspace->addr = H5MF_alloc(f, H5FD_MEM_FSPACE_HDR, hdr_alloc_size)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "file allocation failed for free space header");
+            allocated_header = true;
 
             /* Cache the new free space header (pinned) */
             if (H5AC_insert_entry(f, H5AC_FSPACE_HDR, fspace->addr, fspace, H5AC__PIN_ENTRY_FLAG) < 0)
                 HGOTO_ERROR(H5E_FSPACE, H5E_CANTINIT, FAIL, "can't add free space header to cache");
+            inserted_header = true;
 
             *fs_addr_ptr = fspace->addr;
         }
@@ -2388,6 +2409,7 @@ H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace, haddr_t 
             /* allocate space for the section info */
             if (HADDR_UNDEF == (sect_addr = H5MF_alloc(f, H5FD_MEM_FSPACE_SINFO, sinfo_alloc_size)))
                 HGOTO_ERROR(H5E_FSPACE, H5E_NOSPACE, FAIL, "file allocation failed for section info");
+            allocated_section = true;
 
             /* update fspace->alloc_sect_size and fspace->sect_addr to reflect
              * the allocation
@@ -2429,6 +2451,7 @@ H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace, haddr_t 
                  */
                 if (H5AC_insert_entry(f, H5AC_FSPACE_SINFO, sect_addr, fspace->sinfo, H5AC__NO_FLAGS_SET) < 0)
                     HGOTO_ERROR(H5E_FSPACE, H5E_CANTINIT, FAIL, "can't add free space sinfo to cache");
+                inserted_section = true;
 
                 /* We have changed the sinfo address -- Mark free space header dirty */
                 if (H5AC_mark_entry_dirty(fspace) < 0)
@@ -2445,5 +2468,53 @@ H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace, haddr_t 
     } /* end if */
 
 done:
+    if (ret_value < 0) {
+        /* Remove the free space section that was inserted into the metadata cache,
+         * making sure to free the file space that was allocated for it as well.
+         * Avoid expunging the entry, as the information needs to be kept around
+         * until we finish trying to settle the metadata free space manager(s).
+         */
+        if (allocated_section && (sect_addr == fspace->sect_addr)) {
+            assert(H5_addr_defined(fspace->sect_addr));
+
+            if (H5MF_xfree(f, H5FD_MEM_FSPACE_SINFO, sect_addr, sinfo_alloc_size) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTFREE, FAIL, "unable to free free space sections");
+            fspace->sect_addr = HADDR_UNDEF;
+        }
+
+        if (inserted_section) {
+            if (H5AC_remove_entry(fspace->sinfo) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTEXPUNGE, FAIL,
+                            "can't remove file free space section from cache");
+        }
+
+        /* Remove the free space header that was inserted into the metadata cache,
+         * making sure to free the file space that was allocated for it as well.
+         * Avoid expunging the entry, as the information needs to be kept around
+         * until we finish trying to settle the metadata free space manager(s).
+         */
+        if (allocated_header) {
+            assert(H5_addr_defined(fspace->addr));
+
+            /* Free file space before removing entry from cache, as freeing the
+             * file space may depend on a valid cache pointer.
+             */
+            if (H5MF_xfree(f, H5FD_MEM_FSPACE_HDR, fspace->addr, hdr_alloc_size) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTFREE, FAIL, "unable to free file free space header");
+            fspace->addr = HADDR_UNDEF;
+        }
+
+        if (inserted_header) {
+            if (H5AC_mark_entry_clean(fspace) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTMARKCLEAN, FAIL,
+                            "can't mark file free space header as clean");
+            if (H5AC_unpin_entry(fspace) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTUNPIN, FAIL, "can't unpin file free space header");
+            if (H5AC_remove_entry(fspace) < 0)
+                HDONE_ERROR(H5E_FSPACE, H5E_CANTEXPUNGE, FAIL,
+                            "can't remove file free space header from cache");
+        }
+    }
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5FS_vfd_alloc_hdr_and_section_info_if_needed() */

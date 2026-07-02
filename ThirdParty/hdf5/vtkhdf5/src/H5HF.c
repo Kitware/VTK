@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -59,6 +59,9 @@
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -109,9 +112,9 @@ H5HF__op_write(const void *obj, size_t obj_len, void *op_data)
      * We cast away const here because no obj pointer that was originally
      * const should ever arrive here.
      */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_OFF
     H5MM_memcpy((void *)obj, op_data, obj_len);
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_ON
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF__op_write() */
@@ -335,10 +338,10 @@ H5HF_insert(H5HF_t *fh, size_t size, const void *obj, void *id /*out*/)
          * Although not ideal, we can quiet the const warning here because no
          * obj pointer that was originally const should ever arrive here.
          */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_OFF
         if (H5HF__huge_insert(hdr, size, (void *)obj, id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "can't store 'huge' object in fractal heap");
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_ON
     } /* end if */
     /* Check for 'tiny' object */
     else if (size <= hdr->tiny_max_len) {

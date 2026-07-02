@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -40,64 +40,63 @@
 /* Local Macros */
 /****************/
 
-#ifdef H5_HAVE_THREADSAFE
+#ifdef H5_HAVE_THREADSAFE_API
 /*
- * The per-thread API context. pthread_once() initializes a special
- * key that will be used by all threads to create a stack specific to
- * each thread individually. The association of contexts to threads will
- * be handled by the pthread library.
+ * The per-thread API context.
  *
  * In order for this macro to work, H5CX_get_my_context() must be preceded
  * by "H5CX_node_t **ctx =".
  */
-#define H5CX_get_my_context() H5CX__get_context()
-#else /* H5_HAVE_THREADSAFE */
+#define H5CX_get_my_context() H5TS_get_api_ctx_ptr()
+#else /* H5_HAVE_THREADSAFE_API */
 /*
  * The current API context.
  */
 #define H5CX_get_my_context() (&H5CX_head_g)
-#endif /* H5_HAVE_THREADSAFE */
+#endif /* H5_HAVE_THREADSAFE_API */
 
 /* Common macro for the retrieving the pointer to a property list */
 #define H5CX_RETRIEVE_PLIST(PL, FAILVAL)                                                                     \
     /* Check if the property list is already available */                                                    \
     if (NULL == (*head)->ctx.PL)                                                                             \
         /* Get the property list pointer */                                                                  \
-        if (NULL == ((*head)->ctx.PL = (H5P_genplist_t *)H5I_object((*head)->ctx.H5_GLUE(PL, _id))))         \
+        if (H5_UNLIKELY(NULL ==                                                                              \
+                        ((*head)->ctx.PL = (H5P_genplist_t *)H5I_object((*head)->ctx.H5_GLUE(PL, _id)))))    \
             HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, (FAILVAL), "can't get property list");
 
 /* Common macro for the duplicated code to retrieve properties from a property list */
 #define H5CX_RETRIEVE_PROP_COMMON(PL, DEF_PL, PROP_NAME, PROP_FIELD)                                         \
-    /* Check for default property list */                                                                    \
-    if ((*head)->ctx.H5_GLUE(PL, _id) == (DEF_PL))                                                           \
-        H5MM_memcpy(&(*head)->ctx.PROP_FIELD, &H5_GLUE3(H5CX_def_, PL, _cache).PROP_FIELD,                   \
-                    sizeof(H5_GLUE3(H5CX_def_, PL, _cache).PROP_FIELD));                                     \
-    else {                                                                                                   \
-        /* Retrieve the property list */                                                                     \
-        H5CX_RETRIEVE_PLIST(PL, FAIL)                                                                        \
+    {                                                                                                        \
                                                                                                              \
-        /* Get the property */                                                                               \
-        if (H5P_get((*head)->ctx.PL, (PROP_NAME), &(*head)->ctx.PROP_FIELD) < 0)                             \
-            HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "can't retrieve value from API context");            \
-    } /* end else */                                                                                         \
+        /* Check for default property list */                                                                \
+        if ((*head)->ctx.H5_GLUE(PL, _id) == (DEF_PL))                                                       \
+            H5MM_memcpy(&(*head)->ctx.PROP_FIELD, &H5_GLUE3(H5CX_def_, PL, _cache).PROP_FIELD,               \
+                        sizeof(H5_GLUE3(H5CX_def_, PL, _cache).PROP_FIELD));                                 \
+        else {                                                                                               \
+            /* Retrieve the property list */                                                                 \
+            H5CX_RETRIEVE_PLIST(PL, FAIL)                                                                    \
                                                                                                              \
-    /* Mark the field as valid */                                                                            \
-    (*head)->ctx.H5_GLUE(PROP_FIELD, _valid) = true;
+            /* Get the property */                                                                           \
+            if (H5_UNLIKELY(H5P_get((*head)->ctx.PL, (PROP_NAME), &(*head)->ctx.PROP_FIELD) < 0))            \
+                HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "can't retrieve value from API context");        \
+        } /* end else */                                                                                     \
+                                                                                                             \
+        /* Mark the field as valid */                                                                        \
+        (*head)->ctx.H5_GLUE(PROP_FIELD, _valid) = true;                                                     \
+    }
 
 /* Macro for the duplicated code to retrieve a value from a plist if the context value is invalid */
 #define H5CX_RETRIEVE_PROP_VALID(PL, DEF_PL, PROP_NAME, PROP_FIELD)                                          \
     /* Check if the value has been retrieved already */                                                      \
-    if (!(*head)->ctx.H5_GLUE(PROP_FIELD, _valid)) {                                                         \
-        H5CX_RETRIEVE_PROP_COMMON(PL, DEF_PL, PROP_NAME, PROP_FIELD)                                         \
-    } /* end if */
+    if (!(*head)->ctx.H5_GLUE(PROP_FIELD, _valid))                                                           \
+    H5CX_RETRIEVE_PROP_COMMON(PL, DEF_PL, PROP_NAME, PROP_FIELD)
 
 /* Macro for the duplicated code to retrieve a value from a plist if the context value is invalid, or the
  * library has previously modified the context value for return */
 #define H5CX_RETRIEVE_PROP_VALID_SET(PL, DEF_PL, PROP_NAME, PROP_FIELD)                                      \
     /* Check if the value has been retrieved already */                                                      \
-    if (!((*head)->ctx.H5_GLUE(PROP_FIELD, _valid) || (*head)->ctx.H5_GLUE(PROP_FIELD, _set))) {             \
-        H5CX_RETRIEVE_PROP_COMMON(PL, DEF_PL, PROP_NAME, PROP_FIELD)                                         \
-    } /* end if */
+    if (!((*head)->ctx.H5_GLUE(PROP_FIELD, _valid) || (*head)->ctx.H5_GLUE(PROP_FIELD, _set)))               \
+    H5CX_RETRIEVE_PROP_COMMON(PL, DEF_PL, PROP_NAME, PROP_FIELD)
 
 #if defined(H5_HAVE_PARALLEL) && defined(H5_HAVE_INSTRUMENTED_LIBRARY)
 /* Macro for the duplicated code to set a context field that may not exist as a property */
@@ -110,7 +109,7 @@
             /* Retrieve the dataset transfer property list */                                                \
             H5CX_RETRIEVE_PLIST(dxpl, FAIL)                                                                  \
                                                                                                              \
-            if ((check_prop = H5P_exist_plist((*head)->ctx.dxpl, PROP_NAME)) < 0)                            \
+            if (H5_UNLIKELY((check_prop = H5P_exist_plist((*head)->ctx.dxpl, PROP_NAME)) < 0))               \
                 HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "error checking for property");                  \
         } /* end if */                                                                                       \
                                                                                                              \
@@ -127,246 +126,16 @@
 #define H5CX_SET_PROP(PROP_NAME, PROP_FIELD)                                                                 \
     if ((*head)->ctx.H5_GLUE(PROP_FIELD, _set)) {                                                            \
         /* Retrieve the dataset transfer property list */                                                    \
-        H5CX_RETRIEVE_PLIST(dxpl, NULL)                                                                      \
+        H5CX_RETRIEVE_PLIST(dxpl, FAIL)                                                                      \
                                                                                                              \
         /* Set the property */                                                                               \
-        if (H5P_set((*head)->ctx.dxpl, PROP_NAME, &(*head)->ctx.PROP_FIELD) < 0)                             \
-            HGOTO_ERROR(H5E_CONTEXT, H5E_CANTSET, NULL, "error setting data xfer property");                 \
+        if (H5_UNLIKELY(H5P_set((*head)->ctx.dxpl, PROP_NAME, &(*head)->ctx.PROP_FIELD) < 0))                \
+            HGOTO_ERROR(H5E_CONTEXT, H5E_CANTSET, FAIL, "error setting data xfer property");                 \
     } /* end if */
 
 /******************/
 /* Local Typedefs */
 /******************/
-
-/* Typedef for context about each API call, as it proceeds */
-/* Fields in this struct are of several types:
- * - The DXPL & LAPL ID are either library default ones (from the API context
- *      initialization) or passed in from the application via an API call
- *      parameter.  The corresponding H5P_genplist_t* is just the underlying
- *      property list struct for the ID, to optimize retrieving properties
- *      from the list multiple times.
- *
- * - Internal fields, used and set only within the library, for managing the
- *      operation under way.  These do not correspond to properties in the
- *      DXPL or LAPL and can have any name.
- *
- * - Cached fields, which are not returned to the application, for managing
- *      the operation under way.  These correspond to properties in the DXPL
- *      or LAPL, and are retrieved either from the (global) cache for a
- *      default property list, or from the corresponding property in the
- *      application's (non-default) property list.  Getting / setting these
- *      properties within the library does _not_ affect the application's
- *      property list.  Note that the naming of these fields, <foo> and
- *      <foo>_valid, is important for the H5CX_RETRIEVE_PROP_VALID
- *      macro to work properly.
- *
- * - "Return-only" properties that are returned to the application, mainly
- *      for sending out "introspection" information ("Why did collective I/O
- *      get broken for this operation?", "Which filters are set on the chunk I
- *      just directly read in?", etc) Setting these fields will cause the
- *      corresponding property in the property list to be set when the API
- *      context is popped, when returning from the API routine.  Note that the
- *      naming of these fields, <foo> and <foo>_set, is important for the
- *      H5CX_TEST_SET_PROP and H5CX_SET_PROP macros to work properly.
- *
- * - "Return-and-read" properties that are returned to the application to send out introspection information,
- *      but are also queried by the library internally. If the context value has been 'set' by an accessor,
- *      all future queries will return the stored value from the context, to avoid later queries overwriting
- *      that stored value with the value from the property list.
- *
- *      These properties have both a 'valid' and 'set' flag. <foo>_valid is true if the field has ever been
- *      populated from its underlying property list. <foo>_set flag is true if this field has ever been set on
- *      the context for application introspection. The naming of these fields is important for the
- *      H5CX_RETRIEVE_PROP_VALID_SET macro to work properly.
- *
- *      If a field has been set on the context but never read internally, <foo>_valid will be false
- *      despite the context containing a meaningful cached value.
- */
-typedef struct H5CX_t {
-    /* DXPL */
-    hid_t           dxpl_id; /* DXPL ID for API operation */
-    H5P_genplist_t *dxpl;    /* Dataset Transfer Property List */
-
-    /* LCPL */
-    hid_t           lcpl_id; /* LCPL ID for API operation */
-    H5P_genplist_t *lcpl;    /* Link Creation Property List */
-
-    /* LAPL */
-    hid_t           lapl_id; /* LAPL ID for API operation */
-    H5P_genplist_t *lapl;    /* Link Access Property List */
-
-    /* DCPL */
-    hid_t           dcpl_id; /* DCPL ID for API operation */
-    H5P_genplist_t *dcpl;    /* Dataset Creation Property List */
-
-    /* DAPL */
-    hid_t           dapl_id; /* DAPL ID for API operation */
-    H5P_genplist_t *dapl;    /* Dataset Access Property List */
-
-    /* FAPL */
-    hid_t           fapl_id; /* FAPL ID for API operation */
-    H5P_genplist_t *fapl;    /* File Access Property List */
-
-    /* Internal: Object tagging info */
-    haddr_t tag; /* Current object's tag (ohdr chunk #0 address) */
-
-    /* Internal: Metadata cache info */
-    H5AC_ring_t ring; /* Current metadata cache ring for entries */
-
-#ifdef H5_HAVE_PARALLEL
-    /* Internal: Parallel I/O settings */
-    bool         coll_metadata_read; /* Whether to use collective I/O for metadata read */
-    MPI_Datatype btype;              /* MPI datatype for buffer, when using collective I/O */
-    MPI_Datatype ftype;              /* MPI datatype for file, when using collective I/O */
-    bool         mpi_file_flushing;  /* Whether an MPI-opened file is being flushed */
-    bool         rank0_bcast;        /* Whether a dataset meets read-with-rank0-and-bcast requirements */
-#endif                               /* H5_HAVE_PARALLEL */
-
-    /* Cached DXPL properties */
-    size_t    max_temp_buf;            /* Maximum temporary buffer size (H5D_XFER_MAX_TEMP_BUF_NAME) .*/
-    bool      max_temp_buf_valid;      /* Whether maximum temporary buffer size is valid */
-    void     *tconv_buf;               /* Temporary conversion buffer (H5D_XFER_TCONV_BUF_NAME) */
-    bool      tconv_buf_valid;         /* Whether temporary conversion buffer is valid */
-    void     *bkgr_buf;                /* Background conversion buffer (H5D_XFER_BKGR_BUF_NAME) */
-    bool      bkgr_buf_valid;          /* Whether background conversion buffer is valid */
-    H5T_bkg_t bkgr_buf_type;           /* Background buffer type (H5D_XFER_BKGR_BUF_TYPE_NAME) */
-    bool      bkgr_buf_type_valid;     /* Whether background buffer type is valid */
-    double    btree_split_ratio[3];    /* B-tree split ratios (H5D_XFER_BTREE_SPLIT_RATIO_NAME) */
-    bool      btree_split_ratio_valid; /* Whether B-tree split ratios are valid */
-    size_t    vec_size;                /* Size of hyperslab vector (H5D_XFER_HYPER_VECTOR_SIZE_NAME) */
-    bool      vec_size_valid;          /* Whether hyperslab vector is valid */
-#ifdef H5_HAVE_PARALLEL
-    H5FD_mpio_xfer_t io_xfer_mode; /* Parallel transfer mode for this request (H5D_XFER_IO_XFER_MODE_NAME) */
-    bool             io_xfer_mode_valid;      /* Whether parallel transfer mode is valid */
-    H5FD_mpio_collective_opt_t mpio_coll_opt; /* Parallel transfer with independent IO or collective IO with
-                                                 this mode (H5D_XFER_MPIO_COLLECTIVE_OPT_NAME) */
-    bool mpio_coll_opt_valid;                 /* Whether parallel transfer option is valid */
-    H5FD_mpio_chunk_opt_t
-             mpio_chunk_opt_mode;        /* Collective chunk option (H5D_XFER_MPIO_CHUNK_OPT_HARD_NAME) */
-    bool     mpio_chunk_opt_mode_valid;  /* Whether collective chunk option is valid */
-    unsigned mpio_chunk_opt_num;         /* Collective chunk threshold (H5D_XFER_MPIO_CHUNK_OPT_NUM_NAME) */
-    bool     mpio_chunk_opt_num_valid;   /* Whether collective chunk threshold is valid */
-    unsigned mpio_chunk_opt_ratio;       /* Collective chunk ratio (H5D_XFER_MPIO_CHUNK_OPT_RATIO_NAME) */
-    bool     mpio_chunk_opt_ratio_valid; /* Whether collective chunk ratio is valid */
-#endif                                   /* H5_HAVE_PARALLEL */
-    H5Z_EDC_t               err_detect;  /* Error detection info (H5D_XFER_EDC_NAME) */
-    bool                    err_detect_valid;     /* Whether error detection info is valid */
-    H5Z_cb_t                filter_cb;            /* Filter callback function (H5D_XFER_FILTER_CB_NAME) */
-    bool                    filter_cb_valid;      /* Whether filter callback function is valid */
-    H5Z_data_xform_t       *data_transform;       /* Data transform info (H5D_XFER_XFORM_NAME) */
-    bool                    data_transform_valid; /* Whether data transform info is valid */
-    H5T_vlen_alloc_info_t   vl_alloc_info;        /* VL datatype alloc info (H5D_XFER_VLEN_*_NAME) */
-    bool                    vl_alloc_info_valid;  /* Whether VL datatype alloc info is valid */
-    H5T_conv_cb_t           dt_conv_cb;           /* Datatype conversion struct (H5D_XFER_CONV_CB_NAME) */
-    bool                    dt_conv_cb_valid;     /* Whether datatype conversion struct is valid */
-    H5D_selection_io_mode_t selection_io_mode;    /* Selection I/O mode (H5D_XFER_SELECTION_IO_MODE_NAME) */
-    bool                    selection_io_mode_valid; /* Whether selection I/O mode is valid */
-    bool modify_write_buf; /* Whether the library can modify write buffers (H5D_XFER_MODIFY_WRITE_BUF_NAME)*/
-    bool modify_write_buf_valid; /* Whether the modify_write_buf field is valid */
-
-    /* Return-only DXPL properties to return to application */
-#ifdef H5_HAVE_PARALLEL
-    H5D_mpio_actual_chunk_opt_mode_t mpio_actual_chunk_opt; /* Chunk optimization mode used for parallel I/O
-                                                               (H5D_MPIO_ACTUAL_CHUNK_OPT_MODE_NAME) */
-    bool mpio_actual_chunk_opt_set; /* Whether chunk optimization mode used for parallel I/O is set */
-    H5D_mpio_actual_io_mode_t
-             mpio_actual_io_mode; /* Actual I/O mode used for parallel I/O (H5D_MPIO_ACTUAL_IO_MODE_NAME) */
-    bool     mpio_actual_io_mode_set;        /* Whether actual I/O mode used for parallel I/O is set */
-    uint32_t mpio_local_no_coll_cause;       /* Local reason for breaking collective I/O
-                                                (H5D_MPIO_LOCAL_NO_COLLECTIVE_CAUSE_NAME) */
-    bool     mpio_local_no_coll_cause_set;   /* Whether local reason for breaking collective I/O is set */
-    bool     mpio_local_no_coll_cause_valid; /* Whether local reason for breaking collective I/O is valid */
-    uint32_t mpio_global_no_coll_cause;      /* Global reason for breaking collective I/O
-                                                (H5D_MPIO_GLOBAL_NO_COLLECTIVE_CAUSE_NAME) */
-    bool mpio_global_no_coll_cause_set;      /* Whether global reason for breaking collective I/O is set */
-    bool mpio_global_no_coll_cause_valid;    /* Whether global reason for breaking collective I/O is valid */
-#ifdef H5_HAVE_INSTRUMENTED_LIBRARY
-    int mpio_coll_chunk_link_hard;       /* Instrumented "collective chunk link hard" value
-                                            (H5D_XFER_COLL_CHUNK_LINK_HARD_NAME) */
-    bool mpio_coll_chunk_link_hard_set;  /* Whether instrumented "collective chunk link hard" value is set */
-    int  mpio_coll_chunk_multi_hard;     /* Instrumented "collective chunk multi hard" value
-                                            (H5D_XFER_COLL_CHUNK_MULTI_HARD_NAME) */
-    bool mpio_coll_chunk_multi_hard_set; /* Whether instrumented "collective chunk multi hard" value is set */
-    int  mpio_coll_chunk_link_num_true;  /* Instrumented "collective chunk link num true" value
-                                            (H5D_XFER_COLL_CHUNK_LINK_NUM_TRUE_NAME) */
-    bool mpio_coll_chunk_link_num_true_set;    /* Whether instrumented "collective chunk link num true" value
-                                                     is set */
-    int mpio_coll_chunk_link_num_false;        /* Instrumented "collective chunk link num false" value
-                                                  (H5D_XFER_COLL_CHUNK_LINK_NUM_FALSE_NAME) */
-    bool mpio_coll_chunk_link_num_false_set;   /* Whether instrumented "collective chunk link num false"
-                                                     value is set */
-    int mpio_coll_chunk_multi_ratio_coll;      /* Instrumented "collective chunk multi ratio coll" value
-                                                  (H5D_XFER_COLL_CHUNK_MULTI_RATIO_COLL_NAME) */
-    bool mpio_coll_chunk_multi_ratio_coll_set; /* Whether instrumented "collective chunk multi ratio coll"
-                                                     value is set */
-    int mpio_coll_chunk_multi_ratio_ind;       /* Instrumented "collective chunk multi ratio ind" value
-                                                  (H5D_XFER_COLL_CHUNK_MULTI_RATIO_IND_NAME) */
-    bool mpio_coll_chunk_multi_ratio_ind_set;  /* Whether instrumented "collective chunk multi ratio ind"
-                                                     value is set */
-    bool mpio_coll_rank0_bcast;                /* Instrumented "collective rank 0 broadcast" value
-                                                     (H5D_XFER_COLL_RANK0_BCAST_NAME) */
-    bool mpio_coll_rank0_bcast_set;   /* Whether instrumented "collective rank 0 broadcast" value is set */
-#endif                                /* H5_HAVE_INSTRUMENTED_LIBRARY */
-#endif                                /* H5_HAVE_PARALLEL */
-    uint32_t no_selection_io_cause;   /* Reason for not performing selection I/O
-                                            (H5D_XFER_NO_SELECTION_IO_CAUSE_NAME) */
-    bool no_selection_io_cause_set;   /* Whether reason for not performing selection I/O is set */
-    bool no_selection_io_cause_valid; /* Whether reason for not performing selection I/O is valid */
-
-    uint32_t actual_selection_io_mode;   /* Actual selection I/O mode used
-                                            (H5D_XFER_ACTUAL_SELECTION_IO_MODE_NAME) */
-    bool actual_selection_io_mode_set;   /* Whether actual selection I/O mode is set */
-    bool actual_selection_io_mode_valid; /* Whether actual selection I/O mode is valid */
-
-    /* Cached LCPL properties */
-    H5T_cset_t encoding;         /* Link name character encoding (H5P_STRCRT_CHAR_ENCODING_NAME) */
-    bool       encoding_valid;   /* Whether link name character encoding is valid */
-    unsigned intermediate_group; /* Whether to create intermediate groups (H5L_CRT_INTERMEDIATE_GROUP_NAME) */
-    bool     intermediate_group_valid; /* Whether create intermediate group flag is valid */
-
-    /* Cached LAPL properties */
-    size_t nlinks;       /* Number of soft / UD links to traverse (H5L_ACS_NLINKS_NAME) */
-    bool   nlinks_valid; /* Whether number of soft / UD links to traverse is valid */
-
-    /* Cached DCPL properties */
-    bool    do_min_dset_ohdr; /* Whether to minimize dataset object header (H5D_CRT_MIN_DSET_HDR_SIZE_NAME) */
-    bool    do_min_dset_ohdr_valid; /* Whether minimize dataset object header flag is valid */
-    uint8_t ohdr_flags;             /* Object header flags (H5O_CRT_OHDR_FLAGS_NAME) */
-    bool    ohdr_flags_valid;       /* Whether the object headers flags are valid */
-
-    /* Cached DAPL properties */
-    const char *extfile_prefix;       /* Prefix for external file (H5D_ACS_EFILE_PREFIX_NAME) */
-    bool        extfile_prefix_valid; /* Whether the prefix for external file is valid */
-    const char *vds_prefix;           /* Prefix for VDS (H5D_ACS_VDS_PREFIX_NAME) */
-    bool        vds_prefix_valid;     /* Whether the prefix for VDS is valid           */
-
-    /* Cached FAPL properties */
-    H5F_libver_t low_bound;       /* low_bound property for H5Pset_libver_bounds()
-                                     (H5F_ACS_LIBVER_LOW_BOUND_NAME) */
-    bool         low_bound_valid; /* Whether low_bound property is valid */
-    H5F_libver_t high_bound;      /* high_bound property for H5Pset_libver_bounds
-                                     (H5F_ACS_LIBVER_HIGH_BOUND_NAME) */
-    bool high_bound_valid;        /* Whether high_bound property is valid */
-
-    /* Cached VOL settings */
-    H5VL_connector_prop_t vol_connector_prop; /* Property for VOL connector ID & info
-                               This is treated as an independent field with
-                               no relation to the property H5F_ACS_VOL_CONN_NAME stored on the FAPL */
-    bool  vol_connector_prop_valid;           /* Whether property for VOL connector ID & info is valid */
-    void *vol_wrap_ctx;                       /* VOL connector's "wrap context" for creating IDs */
-    bool  vol_wrap_ctx_valid; /* Whether VOL connector's "wrap context" for creating IDs is valid */
-} H5CX_t;
-
-/* Typedef for nodes on the API context stack */
-/* Each entry into the library through an API routine invokes H5CX_push()
- * in a FUNC_ENTER_API* macro, which pushes an H5CX_node_t on the API
- * context [thread-local] stack, after initializing it with default values
- * in H5CX__push_common().
- */
-typedef struct H5CX_node_t {
-    H5CX_t              ctx;  /* Context for current API call */
-    struct H5CX_node_t *next; /* Pointer to previous context, on stack */
-} H5CX_node_t;
 
 /* Typedef for cached default dataset transfer property list information */
 /* This is initialized to the values in the default DXPL during package
@@ -445,23 +214,21 @@ typedef struct H5CX_fapl_cache_t {
 /********************/
 /* Local Prototypes */
 /********************/
-#ifdef H5_HAVE_THREADSAFE
-static H5CX_node_t **H5CX__get_context(void);
-#endif /* H5_HAVE_THREADSAFE */
-static void         H5CX__push_common(H5CX_node_t *cnode);
-static H5CX_node_t *H5CX__pop_common(bool update_dxpl_props);
 
 /*********************/
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /*******************/
 /* Local Variables */
 /*******************/
 
-#ifndef H5_HAVE_THREADSAFE
+#ifndef H5_HAVE_THREADSAFE_API
 static H5CX_node_t *H5CX_head_g = NULL; /* Pointer to head of context stack */
-#endif                                  /* H5_HAVE_THREADSAFE */
+#endif                                  /* H5_HAVE_THREADSAFE_API */
 
 /* Define a "default" dataset transfer property list cache structure to use for default DXPLs */
 static H5CX_dxpl_cache_t H5CX_def_dxpl_cache;
@@ -481,23 +248,21 @@ static H5CX_dapl_cache_t H5CX_def_dapl_cache;
 /* Define a "default" file access property list cache structure to use for default FAPLs */
 static H5CX_fapl_cache_t H5CX_def_fapl_cache;
 
-/* Declare a static free list to manage H5CX_node_t structs */
-H5FL_DEFINE_STATIC(H5CX_node_t);
-
 /* Declare a static free list to manage H5CX_state_t structs */
 H5FL_DEFINE_STATIC(H5CX_state_t);
 
-/*-------------------------------------------------------------------------
- * Function:    H5CX_init
- *
- * Purpose:     Initialize the interface from some other layer.
- *
- * Return:      Success:        non-negative
- *              Failure:        negative
- *-------------------------------------------------------------------------
- */
+/*--------------------------------------------------------------------------
+NAME
+    H5CX__init_package -- Initialize interface-specific information
+USAGE
+    herr_t H5CX__init_package()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Initializes any interface-specific data or routines.
+--------------------------------------------------------------------------*/
 herr_t
-H5CX_init(void)
+H5CX__init_package(void)
 {
     H5P_genplist_t *dx_plist;            /* Data transfer property list */
     H5P_genplist_t *lc_plist;            /* Link creation property list */
@@ -507,7 +272,7 @@ H5CX_init(void)
     H5P_genplist_t *fa_plist;            /* File access property list */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Reset the "default DXPL cache" information */
     memset(&H5CX_def_dxpl_cache, 0, sizeof(H5CX_dxpl_cache_t));
@@ -691,9 +456,10 @@ H5CX_init(void)
 
     if (H5P_get(fa_plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &H5CX_def_fapl_cache.high_bound) < 0)
         HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "Can't retrieve dataset minimize flag");
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5CX__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function: H5CX_term_package
@@ -711,71 +477,21 @@ H5CX_term_package(void)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    H5CX_node_t *cnode; /* Context node */
+    if (H5_PKG_INIT_VAR) {
+        H5CX_node_t **head = NULL; /* Pointer to head of API context list */
 
-    /* Pop the top context node from the stack */
-    /* (Can't check for errors, as rest of library is shut down) */
-    cnode = H5CX__pop_common(false);
+        /* Get the pointer to the head of the API context, for this thread */
+        head = H5CX_get_my_context();
+        assert(head);
 
-    /* Free the context node */
-    /* (Allocated with malloc() in H5CX_push_special() ) */
-    free(cnode);
+        /* Reset head of context list */
+        *head = NULL;
 
-#ifndef H5_HAVE_THREADSAFE
-    H5CX_head_g = NULL;
-#endif /* H5_HAVE_THREADSAFE */
+        H5_PKG_INIT_VAR = false;
+    } /* end if */
 
     FUNC_LEAVE_NOAPI(0)
 } /* end H5CX_term_package() */
-
-#ifdef H5_HAVE_THREADSAFE
-/*-------------------------------------------------------------------------
- * Function:	H5CX__get_context
- *
- * Purpose:	Support function for H5CX_get_my_context() to initialize and
- *              acquire per-thread API context stack.
- *
- * Return:	Success: Non-NULL pointer to head pointer of API context stack for thread
- *		Failure: NULL
- *
- *-------------------------------------------------------------------------
- */
-static H5CX_node_t **
-H5CX__get_context(void)
-{
-    H5CX_node_t **ctx = NULL;
-
-    FUNC_ENTER_PACKAGE_NOERR
-
-    ctx = (H5CX_node_t **)H5TS_get_thread_local_value(H5TS_apictx_key_g);
-
-    if (!ctx) {
-        /* No associated value with current thread - create one */
-#ifdef H5_HAVE_WIN_THREADS
-        /* Win32 has to use LocalAlloc to match the LocalFree in DllMain */
-        ctx = (H5CX_node_t **)LocalAlloc(LPTR, sizeof(H5CX_node_t *));
-#else
-        /* Use malloc here since this has to match the free in the
-         * destructor and we want to avoid the codestack there.
-         */
-        ctx = (H5CX_node_t **)malloc(sizeof(H5CX_node_t *));
-#endif /* H5_HAVE_WIN_THREADS */
-        assert(ctx);
-
-        /* Reset the thread-specific info */
-        *ctx = NULL;
-
-        /* (It's not necessary to release this in this API, it is
-         *      released by the "key destructor" set up in the H5TS
-         *      routines.  See calls to pthread_key_create() in H5TS.c -QAK)
-         */
-        H5TS_set_thread_local_value(H5TS_apictx_key_g, (void *)ctx);
-    } /* end if */
-
-    /* Set return value */
-    FUNC_LEAVE_NOAPI(ctx)
-} /* end H5CX__get_context() */
-#endif /* H5_HAVE_THREADSAFE */
 
 /*-------------------------------------------------------------------------
  * Function:    H5CX_pushed
@@ -789,31 +505,36 @@ H5CX__get_context(void)
 bool
 H5CX_pushed(void)
 {
-    H5CX_node_t **head = NULL; /* Pointer to head of API context list */
+    H5CX_node_t **head      = NULL;  /* Pointer to head of API context list */
+    bool          is_pushed = false; /* Flag to indicate context is pushed */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
     assert(head);
 
-    FUNC_LEAVE_NOAPI(*head != NULL);
+    /* Set return value */
+    is_pushed = (*head != NULL);
+
+    FUNC_LEAVE_NOAPI(is_pushed)
 }
 
 /*-------------------------------------------------------------------------
- * Function:    H5CX__push_common
+ * Function:    H5CX_push
  *
- * Purpose:     Internal routine to push a context for an API call.
+ * Purpose:     Pushes a context for an API call.
  *
  * Return:      Non-negative on success / Negative on failure
  *
  *-------------------------------------------------------------------------
  */
-static void
-H5CX__push_common(H5CX_node_t *cnode)
+herr_t
+H5CX_push(H5CX_node_t *cnode)
 {
-    H5CX_node_t **head = NULL; /* Pointer to head of API context list */
+    H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
+    herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     assert(cnode);
@@ -839,64 +560,9 @@ H5CX__push_common(H5CX_node_t *cnode)
     cnode->next = *head;
     *head       = cnode;
 
-    FUNC_LEAVE_NOAPI_VOID
-} /* end H5CX__push_common() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5CX_push
- *
- * Purpose:     Pushes a context for an API call.
- *
- * Return:      Non-negative on success / Negative on failure
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5CX_push(void)
-{
-    H5CX_node_t *cnode     = NULL;    /* Context node */
-    herr_t       ret_value = SUCCEED; /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Allocate & clear API context node */
-    if (NULL == (cnode = H5FL_CALLOC(H5CX_node_t)))
-        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTALLOC, FAIL, "unable to allocate new struct");
-
-    /* Set context info */
-    H5CX__push_common(cnode);
-
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_push() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5CX_push_special
- *
- * Purpose:     Pushes a context for an API call, without using library routines.
- *
- * Note:	This should only be called in special circumstances, like H5close.
- *
- * Return:      <none>
- *
- *-------------------------------------------------------------------------
- */
-void
-H5CX_push_special(void)
-{
-    H5CX_node_t *cnode = NULL; /* Context node */
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    /* Allocate & clear API context node, without using library API routines */
-    cnode = (H5CX_node_t *)calloc(1, sizeof(H5CX_node_t));
-    assert(cnode);
-
-    /* Set context info */
-    H5CX__push_common(cnode);
-
-    FUNC_LEAVE_NOAPI_VOID
-} /* end H5CX_push_special() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5CX_retrieve_state
@@ -986,33 +652,27 @@ H5CX_retrieve_state(H5CX_state_t **api_state)
     } /* end if */
 
     /* Keep a copy of the VOL connector property, if there is one */
-    if ((*head)->ctx.vol_connector_prop_valid && (*head)->ctx.vol_connector_prop.connector_id > 0) {
+    if ((*head)->ctx.vol_connector_prop_valid && (*head)->ctx.vol_connector_prop.connector) {
         /* Get the connector property */
         H5MM_memcpy(&(*api_state)->vol_connector_prop, &(*head)->ctx.vol_connector_prop,
                     sizeof(H5VL_connector_prop_t));
 
         /* Check for actual VOL connector property */
-        if ((*api_state)->vol_connector_prop.connector_id) {
+        if ((*api_state)->vol_connector_prop.connector) {
             /* Copy connector info, if it exists */
             if ((*api_state)->vol_connector_prop.connector_info) {
-                H5VL_class_t *connector;                 /* Pointer to connector */
-                void         *new_connector_info = NULL; /* Copy of connector info */
-
-                /* Retrieve the connector for the ID */
-                if (NULL ==
-                    (connector = (H5VL_class_t *)H5I_object((*api_state)->vol_connector_prop.connector_id)))
-                    HGOTO_ERROR(H5E_CONTEXT, H5E_BADTYPE, FAIL, "not a VOL connector ID");
+                void *new_connector_info = NULL; /* Copy of connector info */
 
                 /* Allocate and copy connector info */
-                if (H5VL_copy_connector_info(connector, &new_connector_info,
+                if (H5VL_copy_connector_info((*api_state)->vol_connector_prop.connector, &new_connector_info,
                                              (*api_state)->vol_connector_prop.connector_info) < 0)
                     HGOTO_ERROR(H5E_CONTEXT, H5E_CANTCOPY, FAIL, "connector info copy failed");
                 (*api_state)->vol_connector_prop.connector_info = new_connector_info;
             } /* end if */
 
-            /* Increment the refcount on the connector ID */
-            if (H5I_inc_ref((*api_state)->vol_connector_prop.connector_id, false) < 0)
-                HGOTO_ERROR(H5E_CONTEXT, H5E_CANTINC, FAIL, "incrementing VOL connector ID failed");
+            /* Increment the refcount on the connector */
+            if (H5VL_conn_inc_rc((*api_state)->vol_connector_prop.connector) < 0)
+                HGOTO_ERROR(H5E_CONTEXT, H5E_CANTINC, FAIL, "incrementing VOL connector refcount failed");
         } /* end if */
     }     /* end if */
 
@@ -1083,7 +743,7 @@ H5CX_restore_state(const H5CX_state_t *api_state)
         (*head)->ctx.vol_wrap_ctx_valid = true;
 
     /* Restore the VOL connector info */
-    if (api_state->vol_connector_prop.connector_id) {
+    if (api_state->vol_connector_prop.connector) {
         H5MM_memcpy(&(*head)->ctx.vol_connector_prop, &api_state->vol_connector_prop,
                     sizeof(H5VL_connector_prop_t));
         (*head)->ctx.vol_connector_prop_valid = true;
@@ -1142,16 +802,17 @@ H5CX_free_state(H5CX_state_t *api_state)
             HGOTO_ERROR(H5E_CONTEXT, H5E_CANTDEC, FAIL, "can't decrement refcount on VOL wrapping context");
 
     /* Release the VOL connector property, if it was set */
-    if (api_state->vol_connector_prop.connector_id) {
+    if (api_state->vol_connector_prop.connector) {
         /* Clean up any VOL connector info */
         if (api_state->vol_connector_prop.connector_info)
-            if (H5VL_free_connector_info(api_state->vol_connector_prop.connector_id,
+            if (H5VL_free_connector_info(api_state->vol_connector_prop.connector,
                                          api_state->vol_connector_prop.connector_info) < 0)
                 HGOTO_ERROR(H5E_CONTEXT, H5E_CANTRELEASE, FAIL,
                             "unable to release VOL connector info object");
-        /* Decrement connector ID */
-        if (H5I_dec_ref(api_state->vol_connector_prop.connector_id) < 0)
-            HDONE_ERROR(H5E_CONTEXT, H5E_CANTDEC, FAIL, "can't close VOL connector ID");
+
+        /* Decrement connector refcount */
+        if (H5VL_conn_dec_rc(api_state->vol_connector_prop.connector) < 0)
+            HDONE_ERROR(H5E_CONTEXT, H5E_CANTDEC, FAIL, "can't close VOL connector");
     } /* end if */
 
     /* Free the state */
@@ -1256,7 +917,7 @@ H5CX_set_libver_bounds(H5F_t *f)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -1270,6 +931,7 @@ H5CX_set_libver_bounds(H5F_t *f)
     (*head)->ctx.low_bound_valid  = true;
     (*head)->ctx.high_bound_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_libver_bounds() */
 
@@ -1518,7 +1180,7 @@ H5CX_set_vol_wrap_ctx(void *vol_wrap_ctx)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -1530,6 +1192,7 @@ H5CX_set_vol_wrap_ctx(void *vol_wrap_ctx)
     /* Mark the value as valid */
     (*head)->ctx.vol_wrap_ctx_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_vol_wrap_ctx() */
 
@@ -1548,7 +1211,7 @@ H5CX_set_vol_connector_prop(const H5VL_connector_prop_t *vol_connector_prop)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -1560,6 +1223,7 @@ H5CX_set_vol_connector_prop(const H5VL_connector_prop_t *vol_connector_prop)
     /* Mark the value as valid */
     (*head)->ctx.vol_connector_prop_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_vol_connector_prop() */
 
@@ -1673,7 +1337,7 @@ H5CX_get_vol_connector_prop(H5VL_connector_prop_t *vol_connector_prop)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     assert(vol_connector_prop);
@@ -1687,6 +1351,7 @@ H5CX_get_vol_connector_prop(H5VL_connector_prop_t *vol_connector_prop)
     else
         memset(vol_connector_prop, 0, sizeof(H5VL_connector_prop_t));
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_get_vol_connector_prop() */
 
@@ -1745,7 +1410,6 @@ H5CX_get_ring(void)
 } /* end H5CX_get_ring() */
 
 #ifdef H5_HAVE_PARALLEL
-
 /*-------------------------------------------------------------------------
  * Function:    H5CX_get_coll_metadata_read
  *
@@ -1790,7 +1454,7 @@ H5CX_get_mpi_coll_datatypes(MPI_Datatype *btype, MPI_Datatype *ftype)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     assert(btype);
@@ -1802,6 +1466,7 @@ H5CX_get_mpi_coll_datatypes(MPI_Datatype *btype, MPI_Datatype *ftype)
     *btype = (*head)->ctx.btype;
     *ftype = (*head)->ctx.ftype;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_get_mpi_coll_datatypes() */
 
@@ -3009,11 +2674,10 @@ H5CX_set_coll_metadata_read(bool cmdr)
 herr_t
 H5CX_set_mpi_coll_datatypes(MPI_Datatype btype, MPI_Datatype ftype)
 {
-    H5CX_node_t **head = NULL; /* Pointer to head of API context list */
+    H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
+    herr_t        ret_value = SUCCEED; /* Return value */
 
-    herr_t ret_value = SUCCEED; /* Return value */
-
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3023,6 +2687,7 @@ H5CX_set_mpi_coll_datatypes(MPI_Datatype btype, MPI_Datatype ftype)
     (*head)->ctx.btype = btype;
     (*head)->ctx.ftype = ftype;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_mpi_coll_datatypes() */
 
@@ -3041,7 +2706,7 @@ H5CX_set_io_xfer_mode(H5FD_mpio_xfer_t io_xfer_mode)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3053,6 +2718,7 @@ H5CX_set_io_xfer_mode(H5FD_mpio_xfer_t io_xfer_mode)
     /* Mark the value as valid */
     (*head)->ctx.io_xfer_mode_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_io_xfer_mode() */
 
@@ -3071,7 +2737,7 @@ H5CX_set_mpio_coll_opt(H5FD_mpio_collective_opt_t mpio_coll_opt)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3083,6 +2749,7 @@ H5CX_set_mpio_coll_opt(H5FD_mpio_collective_opt_t mpio_coll_opt)
     /* Mark the value as valid */
     (*head)->ctx.mpio_coll_opt_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_mpio_coll_opt() */
 
@@ -3153,7 +2820,7 @@ H5CX_set_vlen_alloc_info(H5MM_allocate_t alloc_func, void *alloc_info, H5MM_free
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3168,6 +2835,7 @@ H5CX_set_vlen_alloc_info(H5MM_allocate_t alloc_func, void *alloc_info, H5MM_free
     /* Mark the value as valid */
     (*head)->ctx.vl_alloc_info_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_vlen_alloc_info() */
 
@@ -3186,7 +2854,7 @@ H5CX_set_nlinks(size_t nlinks)
     H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
     herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3198,6 +2866,7 @@ H5CX_set_nlinks(size_t nlinks)
     /* Mark the value as valid */
     (*head)->ctx.nlinks_valid = true;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5CX_set_nlinks() */
 
@@ -3635,21 +3304,21 @@ done:
 } /* End H5CX_get_ohdr_flags() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5CX__pop_common
+ * Function:    H5CX_pop
  *
- * Purpose:     Common code for popping the context for an API call.
+ * Purpose:     Pops the context for an API call.
  *
  * Return:      Non-negative on success / Negative on failure
  *
  *-------------------------------------------------------------------------
  */
-static H5CX_node_t *
-H5CX__pop_common(bool update_dxpl_props)
+herr_t
+H5CX_pop(bool update_dxpl_props)
 {
-    H5CX_node_t **head      = NULL; /* Pointer to head of API context list */
-    H5CX_node_t  *ret_value = NULL; /* Return value */
+    H5CX_node_t **head      = NULL;    /* Pointer to head of API context list */
+    herr_t        ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     head = H5CX_get_my_context(); /* Get the pointer to the head of the API context, for this thread */
@@ -3686,36 +3355,7 @@ H5CX__pop_common(bool update_dxpl_props)
     }  /* end if */
 
     /* Pop the top context node from the stack */
-    ret_value = (*head);
-    (*head)   = (*head)->next;
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5CX__pop_common() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5CX_pop
- *
- * Purpose:     Pops the context for an API call.
- *
- * Return:      Non-negative on success / Negative on failure
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5CX_pop(bool update_dxpl_props)
-{
-    H5CX_node_t *cnode;               /* Context node */
-    herr_t       ret_value = SUCCEED; /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Perform common operations and get top context from stack */
-    if (NULL == (cnode = H5CX__pop_common(update_dxpl_props)))
-        HGOTO_ERROR(H5E_CONTEXT, H5E_CANTGET, FAIL, "error getting API context node");
-
-    /* Free the context node */
-    cnode = H5FL_FREE(H5CX_node_t, cnode);
+    (*head) = (*head)->next;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

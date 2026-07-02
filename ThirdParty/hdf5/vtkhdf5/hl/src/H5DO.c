@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -60,7 +60,7 @@ herr_t
 H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *filters, void *buf)
 {
     /* Call underlying H5D function */
-    if (H5Dread_chunk(dset_id, dxpl_id, offset, filters, buf) < 0)
+    if (H5Dread_chunk1(dset_id, dxpl_id, offset, filters, buf) < 0)
         return FAIL;
     else
         return SUCCEED;

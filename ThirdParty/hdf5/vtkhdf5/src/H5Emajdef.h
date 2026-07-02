@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -53,10 +53,12 @@ static const H5E_msg_t H5E_PLUGIN_msg_s = {false, "Plugin for dynamically loaded
 static const H5E_msg_t H5E_REFERENCE_msg_s = {false, "References", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_RESOURCE_msg_s = {false, "Resource unavailable", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_RS_msg_s = {false, "Reference Counted Strings", H5E_MAJOR, &H5E_err_cls_s};
+static const H5E_msg_t H5E_RTREE_msg_s = {false, "R-Tree spatial index", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_SLIST_msg_s = {false, "Skip Lists", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_SOHM_msg_s = {false, "Shared Object Header Messages", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_STORAGE_msg_s = {false, "Data storage", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_SYM_msg_s = {false, "Symbol table", H5E_MAJOR, &H5E_err_cls_s};
+static const H5E_msg_t H5E_THREADSAFE_msg_s = {false, "Threadsafety", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_TST_msg_s = {false, "Ternary Search Trees", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_VFL_msg_s = {false, "Virtual File Layer", H5E_MAJOR, &H5E_err_cls_s};
 static const H5E_msg_t H5E_VOL_msg_s = {false, "Virtual Object Layer", H5E_MAJOR, &H5E_err_cls_s};

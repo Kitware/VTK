@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -91,6 +91,9 @@ static herr_t H5F__flush_phase2(H5F_t *f, bool closing);
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /* Based on the value of the HDF5_USE_FILE_LOCKING environment variable.
  * true/false have obvious meanings. FAIL means the environment variable was
  * not set, so the code should ignore it and use the fapl value instead.
@@ -136,6 +139,29 @@ H5F_init(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_init() */
+
+/*--------------------------------------------------------------------------
+NAME
+   H5F__init_package -- Initialize interface-specific information
+USAGE
+    herr_t H5F__init_package()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Initializes any interface-specific data or routines.
+
+--------------------------------------------------------------------------*/
+herr_t
+H5F__init_package(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* Initialize the ID group for the file IDs */
     if (H5I_register_type(H5I_FILE_CLS) < 0)
@@ -147,7 +173,7 @@ H5F_init(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_init() */
+} /* H5F__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5F_term_package
@@ -171,17 +197,23 @@ H5F_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if (H5I_nmembers(H5I_FILE) > 0) {
-        (void)H5I_clear_type(H5I_FILE, false, false);
-        n++; /*H5I*/
-    }        /* end if */
-    else {
-        /* Make certain we've cleaned up all the shared file objects */
-        H5F_sfile_assert_num(0);
+    if (H5_PKG_INIT_VAR) {
+        if (H5I_nmembers(H5I_FILE) > 0) {
+            (void)H5I_clear_type(H5I_FILE, false, false);
+            n++; /*H5I*/
+        }        /* end if */
+        else {
+            /* Make certain we've cleaned up all the shared file objects */
+            H5F_sfile_assert_num(0);
 
-        /* Destroy the file object id group */
-        n += (H5I_dec_type_ref(H5I_FILE) > 0);
-    } /* end else */
+            /* Destroy the file object id group */
+            n += (H5I_dec_type_ref(H5I_FILE) > 0);
+
+            /* Mark closed */
+            if (0 == n)
+                H5_PKG_INIT_VAR = false;
+        } /* end else */
+    }     /* end if */
 
     FUNC_LEAVE_NOAPI(n)
 } /* end H5F_term_package() */
@@ -296,23 +328,19 @@ H5F__set_vol_conn(H5F_t *file)
         HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get VOL connector info from API context");
 
     /* Sanity check */
-    assert(0 != connector_prop.connector_id);
-
-    /* Retrieve the connector for the ID */
-    if (NULL == (file->shared->vol_cls = (H5VL_class_t *)H5I_object(connector_prop.connector_id)))
-        HGOTO_ERROR(H5E_FILE, H5E_BADTYPE, FAIL, "not a VOL connector ID");
+    assert(connector_prop.connector);
 
     /* Allocate and copy connector info, if it exists */
     if (connector_prop.connector_info)
-        if (H5VL_copy_connector_info(file->shared->vol_cls, &new_connector_info,
+        if (H5VL_copy_connector_info(connector_prop.connector, &new_connector_info,
                                      connector_prop.connector_info) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, FAIL, "connector info copy failed");
 
-    /* Cache the connector ID & info for the container */
-    file->shared->vol_id   = connector_prop.connector_id;
+    /* Cache the connector & info for the container */
+    file->shared->vol_conn = connector_prop.connector;
     file->shared->vol_info = new_connector_info;
-    if (H5I_inc_ref(file->shared->vol_id, false) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTINC, FAIL, "incrementing VOL connector ID failed");
+    if (H5VL_conn_inc_rc(file->shared->vol_conn) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTINC, FAIL, "incrementing VOL connector refcount failed");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -452,7 +480,7 @@ H5F_get_access_plist(H5F_t *f, bool app_ref)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set file driver ID & info");
 
     /* Set the VOL connector property */
-    connector_prop.connector_id   = f->shared->vol_id;
+    connector_prop.connector      = f->shared->vol_conn;
     connector_prop.connector_info = f->shared->vol_info;
     if (H5P_set(new_plist, H5F_ACS_VOL_CONN_NAME, &connector_prop) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set VOL connector ID & info");
@@ -1580,14 +1608,13 @@ H5F__dest(H5F_t *f, bool flush, bool free_on_failure)
 
         /* Clean up the cached VOL connector ID & info */
         if (f->shared->vol_info)
-            if (H5VL_free_connector_info(f->shared->vol_id, f->shared->vol_info) < 0)
+            if (H5VL_free_connector_info(f->shared->vol_conn, f->shared->vol_info) < 0)
                 /* Push error, but keep going*/
                 HDONE_ERROR(H5E_FILE, H5E_CANTRELEASE, FAIL, "unable to release VOL connector info object");
-        if (f->shared->vol_id > 0)
-            if (H5I_dec_ref(f->shared->vol_id) < 0)
+        if (f->shared->vol_conn)
+            if (H5VL_conn_dec_rc(f->shared->vol_conn) < 0)
                 /* Push error, but keep going*/
-                HDONE_ERROR(H5E_FILE, H5E_CANTDEC, FAIL, "can't close VOL connector ID");
-        f->shared->vol_cls = NULL;
+                HDONE_ERROR(H5E_FILE, H5E_CANTDEC, FAIL, "can't close VOL connector");
 
         /* Close the file */
         if (H5FD_close(f->shared->lf) < 0)
@@ -2007,9 +2034,14 @@ H5F_open(bool try, H5F_t **_file, const char *name, unsigned flags, hid_t fcpl_i
                         "file locking 'ignore disabled locks' flag values don't match");
     }
 
-    /* Check if page buffering is enabled */
+    /* Retrieve page buffer size from FAPL and replace "default" value with actual default
+     * (H5PB_SIZE_DEFAULT_VALUE) */
     if (H5P_get(a_plist, H5F_ACS_PAGE_BUFFER_SIZE_NAME, &page_buf_size) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get page buffer size");
+    if (page_buf_size == H5F_PAGE_BUFFER_SIZE_DEFAULT)
+        page_buf_size = H5PB_SIZE_DEFAULT_VALUE;
+
+    /* Check if page buffering is enabled */
     if (page_buf_size) {
         /* Query for other page buffer cache properties */
         if (H5P_get(a_plist, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_NAME, &page_buf_min_meta_perc) < 0)
@@ -2242,7 +2274,7 @@ H5F__post_open(H5F_t *f)
     assert(f);
 
     /* Store a vol object in the file struct */
-    if (NULL == (f->vol_obj = H5VL_create_object_using_vol_id(H5I_FILE, f, f->shared->vol_id)))
+    if (NULL == (f->vol_obj = H5VL_new_vol_obj(H5I_FILE, f, f->shared->vol_conn, true)))
         HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "can't create VOL object");
 
 done:
@@ -3186,7 +3218,8 @@ H5F__set_libver_bounds(H5F_t *f, H5F_libver_t low, H5F_libver_t high)
     assert(f->shared);
 
     /* Set the bounds only if the existing setting is different from the inputs */
-    if (f->shared->low_bound != low || f->shared->high_bound != high) {
+    if ((f->shared->low_bound != low || f->shared->high_bound != high) &&
+        !(H5F_INTENT(f) & H5F_ACC_SWMR_WRITE)) {
         /* Call the flush routine, for this file */
         /* Note: This is done in case the binary format for representing a
          *      metadata entry class changes when the file format low / high
@@ -3294,11 +3327,12 @@ H5F__get_file_image(H5F_t *file, void *buf_ptr, size_t buf_len, size_t *image_le
 
     /* Test to see if a buffer was provided */
     if (buf_ptr != NULL) {
-        unsigned tmp, tmp_size;
+        size_t tmp, tmp_size;
 
         /* Check for buffer too small */
         if ((haddr_t)buf_len < eoa)
             HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "supplied buffer too small");
+        assert(buf_len >= (size_t)H5F_SUPERBLOCK_SIZE(file->shared->sblock));
 
         /* Read in the file image */
         /* (Note compensation for base address addition in internal routine) */
@@ -3313,7 +3347,27 @@ H5F__get_file_image(H5F_t *file, void *buf_ptr, size_t buf_len, size_t *image_le
 
         /* Clear "status_flags" */
         memset((uint8_t *)buf_ptr + tmp, 0, tmp_size);
-    } /* end if */
+
+        /* Check if the version is 2 or greater, if so we need to recalculate the checksum */
+        if (file->shared->sblock->super_vers >= HDF5_SUPERBLOCK_VERSION_2) {
+            uint32_t chksum; /* Checksum temporary variable      */
+            uint8_t *chksum_image_ptr;
+
+            /* When we add new superblock versions make sure this code still works, then modify this assert
+             * appropriately */
+            assert(file->shared->sblock->super_vers <= HDF5_SUPERBLOCK_VERSION_3);
+
+            /* Offset to checksum */
+            tmp = (size_t)H5F_SUPERBLOCK_SIZE(file->shared->sblock) - H5F_SIZEOF_CHKSUM;
+
+            /* Recompute superblock checksum */
+            chksum = H5_checksum_metadata(buf_ptr, tmp, 0);
+
+            /* Encode checksum into image */
+            chksum_image_ptr = (uint8_t *)buf_ptr + tmp;
+            UINT32ENCODE(chksum_image_ptr, chksum);
+        }
+    }
 
     /* Set *image_len = to EOA */
     *image_len = (size_t)eoa;
@@ -3473,9 +3527,16 @@ H5F_object_flush_cb(H5F_t *f, hid_t obj_id)
     assert(f->shared);
 
     /* Invoke object flush callback if there is one */
-    if (f->shared->object_flush.func &&
-        f->shared->object_flush.func(obj_id, f->shared->object_flush.udata) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "object flush callback returns error");
+    if (f->shared->object_flush.func) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = f->shared->object_flush.func(obj_id, f->shared->object_flush.udata);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "object flush callback returns error");
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -3709,6 +3770,7 @@ done:
  *                  --only allow datasets and groups without attributes
  *                  --disallow named datatype with/without attributes
  *                  --disallow opened attributes attached to objects
+ *                  --disallow opened objects below 1.10
  *
  * NOTE:        Currently, only opened groups and datasets are allowed
  *              when enabling SWMR via H5Fstart_swmr_write().
@@ -3723,19 +3785,19 @@ done:
 herr_t
 H5F__start_swmr_write(H5F_t *f)
 {
-    bool        ci_load        = false;  /* whether MDC ci load requested */
-    bool        ci_write       = false;  /* whether MDC CI write requested */
-    size_t      grp_dset_count = 0;      /* # of open objects: groups & datasets */
-    size_t      nt_attr_count  = 0;      /* # of opened named datatypes  + opened attributes */
-    hid_t      *obj_ids        = NULL;   /* List of ids */
-    hid_t      *obj_apl_ids    = NULL;   /* List of access property lists */
-    H5G_loc_t  *obj_glocs      = NULL;   /* Group location of the object */
-    H5O_loc_t  *obj_olocs      = NULL;   /* Object location */
-    H5G_name_t *obj_paths      = NULL;   /* Group hierarchy path */
-    size_t      u;                       /* Local index variable */
-    bool        setup         = false;   /* Boolean flag to indicate whether SWMR setting is enabled */
-    H5VL_t     *vol_connector = NULL;    /* VOL connector for the file */
-    herr_t      ret_value     = SUCCEED; /* Return value */
+    bool              ci_load        = false;  /* whether MDC ci load requested */
+    bool              ci_write       = false;  /* whether MDC CI write requested */
+    size_t            grp_dset_count = 0;      /* # of open objects: groups & datasets */
+    size_t            nt_attr_count  = 0;      /* # of opened named datatypes  + opened attributes */
+    hid_t            *obj_ids        = NULL;   /* List of ids */
+    hid_t            *obj_apl_ids    = NULL;   /* List of access property lists */
+    H5G_loc_t        *obj_glocs      = NULL;   /* Group location of the object */
+    H5O_loc_t        *obj_olocs      = NULL;   /* Object location */
+    H5G_name_t       *obj_paths      = NULL;   /* Group hierarchy path */
+    size_t            u;                       /* Local index variable */
+    bool              setup         = false;   /* Boolean flag to indicate whether SWMR setting is enabled */
+    H5VL_connector_t *vol_connector = NULL;    /* VOL connector for the file */
+    herr_t            ret_value     = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -3751,7 +3813,7 @@ H5F__start_swmr_write(H5F_t *f)
     if (f->shared->sblock->super_vers < HDF5_SUPERBLOCK_VERSION_3)
         HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "file superblock version - should be at least 3");
 
-    /* Check for correct file format version */
+    /* Check for correct file format version to start SWMR writing */
     if ((f->shared->low_bound < H5F_LIBVER_V110) || (f->shared->high_bound < H5F_LIBVER_V110))
         HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL,
                     "file format version does not support SWMR - needs to be 1.10 or greater");
@@ -3788,6 +3850,31 @@ H5F__start_swmr_write(H5F_t *f)
         /* Allocate space for group and object locations */
         if ((obj_ids = (hid_t *)H5MM_malloc(grp_dset_count * sizeof(hid_t))) == NULL)
             HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, FAIL, "can't allocate buffer for hid_t");
+
+        /* Get the list of opened object ids (groups & datasets) */
+        if (H5F_get_obj_ids(f, H5F_OBJ_GROUP | H5F_OBJ_DATASET, grp_dset_count, obj_ids, false,
+                            &grp_dset_count) < 0)
+            HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "H5F_get_obj_ids failed");
+
+        /* Ensure that there's no old-style opened objects */
+        for (u = 0; u < grp_dset_count; u++) {
+            H5O_native_info_t ninfo;
+            H5O_loc_t        *oloc;
+            uint8_t           version;
+
+            if (NULL == (oloc = H5O_get_loc(obj_ids[u])))
+                HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "H5O_get_loc() failed");
+
+            if (H5O_get_native_info(oloc, &ninfo, H5O_NATIVE_INFO_HDR) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "H5O_get_native_info() failed");
+
+            if (H5O_get_version_bound(f->shared->low_bound, &version) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "H5O_get_version_bound() failed");
+
+            if (ninfo.hdr.version < version)
+                HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "disallow opened objects below 1.10");
+        }
+
         if ((obj_glocs = (H5G_loc_t *)H5MM_malloc(grp_dset_count * sizeof(H5G_loc_t))) == NULL)
             HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, FAIL, "can't allocate buffer for object group locations");
         if ((obj_olocs = (H5O_loc_t *)H5MM_malloc(grp_dset_count * sizeof(H5O_loc_t))) == NULL)
@@ -3802,11 +3889,6 @@ H5F__start_swmr_write(H5F_t *f)
             HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, FAIL, "can't allocate buffer for hid_t");
         assert(obj_apl_ids[0] == H5P_DEFAULT);
 
-        /* Get the list of opened object ids (groups & datasets) */
-        if (H5F_get_obj_ids(f, H5F_OBJ_GROUP | H5F_OBJ_DATASET, grp_dset_count, obj_ids, false,
-                            &grp_dset_count) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "H5F_get_obj_ids failed");
-
         /* Save the VOL connector and the object wrapping context for the refresh step */
         if (grp_dset_count > 0) {
             H5VL_object_t *vol_obj;
@@ -3816,7 +3898,7 @@ H5F__start_swmr_write(H5F_t *f)
                 HGOTO_ERROR(H5E_FILE, H5E_BADTYPE, FAIL, "invalid object identifier");
 
             /* Get the (top) connector for the ID */
-            vol_connector = vol_obj->connector;
+            vol_connector = H5VL_OBJ_CONNECTOR(vol_obj);
         } /* end if */
 
         /* Gather information about opened objects (groups, datasets) in the file */

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -214,7 +214,7 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group");
 
     /* Get an ID for the group */
-    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_GROUP, grp, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group");
 
 done:
@@ -271,7 +271,7 @@ H5Gopen1(hid_t loc_id, const char *name)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open group");
 
     /* Get an ID for the group */
-    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_GROUP, grp, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group");
 
 done:
@@ -312,10 +312,10 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
     if (type == H5L_TYPE_HARD) {
         H5VL_object_t    *vol_obj; /* Object of loc_id */
         H5VL_loc_params_t new_loc_params;
-        H5VL_object_t     tmp_vol_obj; /* Temporary object */
 
         /* Set up new location struct */
         new_loc_params.type                         = H5VL_OBJECT_BY_NAME;
+        new_loc_params.obj_type                     = H5I_get_type(cur_loc_id);
         new_loc_params.loc_data.loc_by_name.name    = new_name;
         new_loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
@@ -323,20 +323,16 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
         if (NULL == (vol_obj = H5VL_vol_object(cur_loc_id)))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
-        /* Construct a temporary VOL object */
-        tmp_vol_obj.data      = NULL;
-        tmp_vol_obj.connector = vol_obj->connector;
-
         /* Set up VOL callback arguments */
         vol_cb_args.op_type                                                = H5VL_LINK_CREATE_HARD;
-        vol_cb_args.args.hard.curr_obj                                     = vol_obj->data;
+        vol_cb_args.args.hard.curr_obj                                     = H5VL_OBJ_DATA(vol_obj);
         vol_cb_args.args.hard.curr_loc_params.type                         = H5VL_OBJECT_BY_NAME;
         vol_cb_args.args.hard.curr_loc_params.obj_type                     = H5I_get_type(cur_loc_id);
         vol_cb_args.args.hard.curr_loc_params.loc_data.loc_by_name.name    = cur_name;
         vol_cb_args.args.hard.curr_loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
         /* Create the link through the VOL */
-        if (H5VL_link_create(&vol_cb_args, &tmp_vol_obj, &new_loc_params, H5P_LINK_CREATE_DEFAULT,
+        if (H5VL_link_create(&vol_cb_args, vol_obj, &new_loc_params, H5P_LINK_CREATE_DEFAULT,
                              H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link");
     } /* end if */
@@ -416,7 +412,7 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
 
         /* Set up VOL callback arguments */
         vol_cb_args.op_type                                                = H5VL_LINK_CREATE_HARD;
-        vol_cb_args.args.hard.curr_obj                                     = vol_obj1->data;
+        vol_cb_args.args.hard.curr_obj                                     = H5VL_OBJ_DATA(vol_obj1);
         vol_cb_args.args.hard.curr_loc_params.type                         = H5VL_OBJECT_BY_NAME;
         vol_cb_args.args.hard.curr_loc_params.obj_type                     = H5I_get_type(cur_loc_id);
         vol_cb_args.args.hard.curr_loc_params.loc_data.loc_by_name.name    = cur_name;
@@ -935,7 +931,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link, H5G_stat_t *statbuf /*out*/)
+H5Gget_objinfo(hid_t loc_id, const char *name, bool follow_link, H5G_stat_t *statbuf /*out*/)
 {
     H5VL_object_t                    *vol_obj = NULL;      /* Object of loc_id */
     H5VL_optional_args_t              vol_cb_args;         /* Arguments to VOL callback */
@@ -1149,20 +1145,26 @@ done:
  * Function:	H5Gget_objname_by_idx
  *
  * Purpose:     Returns the name of objects in the group by giving index.
- *              If `name' is non-NULL then write up to `size' bytes into that
- *              buffer and always return the length of the entry name.
- *              Otherwise `size' is ignored and the function does not store the name,
- *              just returning the number of characters required to store the name.
- *              If an error occurs then the buffer pointed to by `name' (NULL or non-NULL)
- *              is unchanged and the function returns a negative value.
- *              If a zero is returned for the name's length, then there is no name
- *              associated with the ID.
+ *
+ * Description:
+ *              When 'name' is non-NULL:
+ *                - if 'size' > 0: writes up to 'size' bytes into the buffer
+ *                  (including null terminator) and returns the actual length
+ *                  of the name (excluding null terminator).
+ *                - if 'size' == 0: treats the call as length query, does not
+ *                  write anything to the buffer (not even a null terminator), and
+ *                  returns the actual length of the name (excluding null terminator).
+ *
+ *              When 'name' is NULL: does not write anything regardless of 'size'
+ *              and returns the actual length of the name (excluding null terminator).
+ *
+ *              On error, the buffer is unchanged and the function returns
+ *              a negative value.
+ *
+ * Return:      Success:    Length of the name (excluding null terminator)
+ *              Failure:    Negative
  *
  * Note:	Deprecated in favor of H5Lget_name_by_idx
- *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
- *
  *-------------------------------------------------------------------------
  */
 ssize_t
@@ -1175,6 +1177,10 @@ H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name /*out*/, size_t size
     ssize_t              ret_value;    /* Return value */
 
     FUNC_ENTER_API(-1)
+
+    /* If name size is zero, treat as length query and do not write, even a '\0' */
+    if (name && size == 0)
+        name = NULL;
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)

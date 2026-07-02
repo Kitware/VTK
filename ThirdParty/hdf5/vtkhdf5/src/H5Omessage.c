@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -64,7 +64,7 @@ typedef struct {
 
 static herr_t H5O__msg_reset_real(const H5O_msg_class_t *type, void *native);
 static herr_t H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence,
-                                 unsigned *oh_modified, void *_udata /*in,out*/);
+                                 void *_udata /*in,out*/);
 static herr_t H5O__copy_mesg(H5F_t *f, H5O_t *oh, size_t idx, const H5O_msg_class_t *type, const void *mesg,
                              unsigned mesg_flags, unsigned update_flags);
 
@@ -353,6 +353,9 @@ H5O__msg_write_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, unsigned m
          *      a message to increase in size in the object header)
          */
         assert(!(mesg_flags & H5O_MSG_FLAG_DONTSHARE));
+
+        /* Sanity check to see if the type is not sharable */
+        assert(type->share_flags & H5O_SHARE_IS_SHARABLE);
 
         /* Remove the old message from the SOHM index */
         /* (It would be more efficient to try to share the message first, then
@@ -944,8 +947,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence, unsigned *oh_modified,
-                   void *_udata /*in,out*/)
+H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence, void *_udata /*in,out*/)
 {
     H5O_iter_rm_t *udata      = (H5O_iter_rm_t *)_udata; /* Operator user data */
     htri_t         try_remove = false;                   /* Whether to try removing a message */
@@ -981,7 +983,7 @@ H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence, un
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, H5_ITER_ERROR, "unable to release message");
 
         /* Indicate that the object header was modified */
-        *oh_modified = H5O_MODIFY_CONDENSE;
+        oh->mesgs_modified = H5O_MODIFY_CONDENSE;
 
         /* Break out now, if we've found the correct message */
         if (udata->sequence == H5O_FIRST || udata->sequence != H5O_ALL)
@@ -1137,11 +1139,10 @@ herr_t
 H5O__msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, const H5O_mesg_operator_t *op,
                       void *op_data)
 {
-    H5O_mesg_t *idx_msg;                    /* Pointer to current message */
-    unsigned    idx;                        /* Absolute index of current message in all messages */
-    unsigned    sequence;                   /* Relative index of current message for messages of type */
-    unsigned    oh_modified = 0;            /* Whether the callback modified the object header */
-    herr_t      ret_value   = H5_ITER_CONT; /* Return value */
+    H5O_mesg_t *idx_msg;                  /* Pointer to current message */
+    unsigned    idx;                      /* Absolute index of current message in all messages */
+    unsigned    sequence;                 /* Relative index of current message for messages of type */
+    herr_t      ret_value = H5_ITER_CONT; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1152,6 +1153,9 @@ H5O__msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, const H5
     assert(op);
     assert(op->u.app_op);
 
+    /* Advance recursion level */
+    oh->recursion_level++;
+
     /* Iterate over messages */
     for (sequence = 0, idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs && !ret_value; idx++, idx_msg++) {
         if (type == idx_msg->type) {
@@ -1160,7 +1164,7 @@ H5O__msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, const H5
 
             /* Check for making an "internal" (i.e. within the H5O package) callback */
             if (op->op_type == H5O_MESG_OP_LIB)
-                ret_value = (op->u.lib_op)(oh, idx_msg, sequence, &oh_modified, op_data);
+                ret_value = (op->u.lib_op)(oh, idx_msg, sequence, op_data);
             else
                 ret_value = (op->u.app_op)(idx_msg->native, sequence, op_data);
 
@@ -1178,14 +1182,18 @@ H5O__msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, const H5
         HERROR(H5E_OHDR, H5E_CANTLIST, "iterator function failed");
 
 done:
-    /* Check if object message was modified */
-    if (oh_modified) {
+    /* Reduce recursion level */
+    oh->recursion_level--;
+
+    /* If we are at the root of recursion (we are not inside any other msg_iterate), check if any message was
+     * modified (handle deferred operations) */
+    if (oh->recursion_level == 0 && oh->mesgs_modified) {
         /* Try to condense object header info */
         /* (Since this routine is used to remove messages from an
          *  object header, the header will be condensed after each
          *  message removal)
          */
-        if (oh_modified & H5O_MODIFY_CONDENSE)
+        if (oh->mesgs_modified & H5O_MODIFY_CONDENSE)
             if (H5O__condense_header(f, oh) < 0)
                 HDONE_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't pack object header");
 
@@ -1195,7 +1203,10 @@ done:
 
         /* Mark object header as dirty in cache */
         if (H5AC_mark_entry_dirty(oh) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTMARKDIRTY, FAIL, "unable to mark object header as dirty");
+            HDONE_ERROR(H5E_OHDR, H5E_CANTMARKDIRTY, FAIL, "unable to mark object header as dirty");
+
+        /* Reset mesgs_modified */
+        oh->mesgs_modified = 0;
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1740,6 +1751,29 @@ H5O__msg_alloc(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type, unsigned *mesg_
     *mesg_idx = new_idx;
 
 done:
+    /* If we are not in a recursive call, remove any deleted messages from the object header */
+    if (oh->recursion_level == 0) {
+        for (unsigned u = 0; oh->num_deleted_mesgs > 0 && u < oh->nmesgs;)
+            if (oh->mesg[u].type->id == H5O_DELETED_ID) {
+                /* Check if mesg_idx is in the section to be moved, and adjust it if so */
+                assert(u != *mesg_idx);
+                if (*mesg_idx > u)
+                    (*mesg_idx)--;
+
+                /* Slide down mesg array and adjust message counts */
+                if (u < (oh->nmesgs - 1))
+                    memmove(&oh->mesg[u], &oh->mesg[u + 1], ((oh->nmesgs - 1) - u) * sizeof(H5O_mesg_t));
+                oh->nmesgs--;
+                oh->num_deleted_mesgs--;
+            }
+            else
+                u++;
+        assert(oh->num_deleted_mesgs == 0);
+    }
+    else
+        /* Otherwise, mark that we should condense the header when we leave recursion */
+        oh->mesgs_modified = H5O_MODIFY_CONDENSE;
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__msg_alloc() */
 
@@ -1944,9 +1978,13 @@ H5O_msg_flush(H5F_t *f, H5O_t *oh, H5O_mesg_t *mesg)
     /* Make certain that null messages aren't in chunks w/gaps */
     if (H5O_NULL_ID == msg_id)
         assert(oh->chunk[mesg->chunkno].gap == 0);
-    else
+    else {
+        /* Deleted messages should have been removed by now */
+        assert(H5O_DELETED_ID != msg_id);
+
         /* Non-null messages should always have a native pointer */
         assert(mesg->native);
+    }
 #endif /* NDEBUG */
 
     /* Encode the message itself, if it's not an "unknown" message */
@@ -1960,6 +1998,8 @@ H5O_msg_flush(H5F_t *f, H5O_t *oh, H5O_mesg_t *mesg)
         assert(mesg->raw_size == H5O_ALIGN_OH(oh, mesg->raw_size));
         assert(mesg->raw + mesg->raw_size <=
                oh->chunk[mesg->chunkno].image + (oh->chunk[mesg->chunkno].size - H5O_SIZEOF_CHKSUM_OH(oh)));
+        assert(msg_id != H5O_DELETED_ID);
+
 #ifndef NDEBUG
         /* Sanity check that the message won't overwrite past it's allocated space */
         {
@@ -1970,6 +2010,7 @@ H5O_msg_flush(H5F_t *f, H5O_t *oh, H5O_mesg_t *mesg)
             assert(msg_size <= mesg->raw_size);
         }
 #endif /* NDEBUG */
+
         assert(mesg->type->encode);
         if ((mesg->type->encode)(f, false, mesg->raw_size, mesg->raw, mesg->native) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTENCODE, FAIL, "unable to encode object header message");

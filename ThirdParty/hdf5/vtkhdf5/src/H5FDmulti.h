@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -16,8 +16,11 @@
 #ifndef H5FDmulti_H
 #define H5FDmulti_H
 
-/** Initializer for the multi VFD */
-#define H5FD_MULTI (H5FDperform_init(H5FD_multi_init))
+/* Public header files */
+#include "H5FDpublic.h" /* File drivers             */
+
+/** ID for the multi VFD */
+#define H5FD_MULTI (H5OPEN H5FD_MULTI_id_g)
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +28,9 @@ extern "C" {
 
 /** @private
  *
- * \brief Private initializer for the multi VFD
+ * \brief ID for the multi VFD
  */
-H5_DLL hid_t H5FD_multi_init(void);
+H5_DLLVAR hid_t H5FD_MULTI_id_g;
 
 /**
  * \ingroup FAPL
@@ -67,9 +70,9 @@ H5_DLL hid_t H5FD_multi_init(void);
  *          usage type that will be associated with a file.
  *
  *          The array \p memb_name should be a name generator (a
- *          \TText{printf}-style format with a \TText{%s} which will be replaced
+ *          \TText{printf}-style format with a \TText{%%s} which will be replaced
  *          with the name passed to H5FDopen(), usually from H5Fcreate() or
- *          H5Fopen()).
+ *          H5Fopen()). There must be no other format specifiers in the string.
  *
  *          The array \p memb_addr specifies the offsets within the virtual
  *          address space, from 0 (zero) to #HADDR_MAX, at which each type of
@@ -99,7 +102,7 @@ H5_DLL hid_t H5FD_multi_init(void);
  *          \p memb_name
  *          </td>
  *          <td>
- *          The default string is \TText{%s-X.h5} where \c X is one of the following letters:
+ *          The default string is \TText{%%s-X.h5} where \c X is one of the following letters:
  *          - \c s for #H5FD_MEM_SUPER
  *          - \c b for #H5FD_MEM_BTREE
  *          - \c r for #H5FD_MEM_DRAW
@@ -158,7 +161,7 @@ H5_DLL hid_t H5FD_multi_init(void);
  * \since 1.4.0
  */
 H5_DLL herr_t H5Pset_fapl_multi(hid_t fapl_id, const H5FD_mem_t *memb_map, const hid_t *memb_fapl,
-                                const char *const *memb_name, const haddr_t *memb_addr, hbool_t relax);
+                                const char *const *memb_name, const haddr_t *memb_addr, bool relax);
 
 /**
  * \ingroup FAPL
@@ -181,7 +184,7 @@ H5_DLL herr_t H5Pset_fapl_multi(hid_t fapl_id, const H5FD_mem_t *memb_map, const
  *
  */
 H5_DLL herr_t H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map /*out*/, hid_t *memb_fapl /*out*/,
-                                char **memb_name /*out*/, haddr_t *memb_addr /*out*/, hbool_t *relax /*out*/);
+                                char **memb_name /*out*/, haddr_t *memb_addr /*out*/, bool *relax /*out*/);
 
 /**
  * \ingroup FAPL
@@ -206,7 +209,7 @@ H5_DLL herr_t H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map /*out*/, hid
  *          \p meta_ext is the filename extension for the metadata file. The
  *          extension is appended to the name passed to H5FDopen(), usually from
  *          H5Fcreate() or H5Fopen(), to form the name of the metadata file. If
- *          the string \TText{%s} is used in the extension, it works like the
+ *          the string \TText{%%s} is used in the extension, it works like the
  *          name generator as in H5Pset_fapl_multi().
  *
  *          \p meta_plist_id is the file access property list identifier for the
@@ -215,8 +218,9 @@ H5_DLL herr_t H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map /*out*/, hid
  *          \p raw_ext is the filename extension for the raw data file. The
  *          extension is appended to the name passed to H5FDopen(), usually from
  *          H5Fcreate() or H5Fopen(), to form the name of the raw data file. If
- *          the string \TText{%s} is used in the extension, it works like the
- *          name generator as in H5Pset_fapl_multi().
+ *          the string \TText{%%s} is used in the extension, it works like the
+ *          name generator as in H5Pset_fapl_multi(). There must be no other
+ *          format specifiers in the string.
  *
  *          \p raw_plist_id is the file access property list identifier for the
  *          raw data file.
