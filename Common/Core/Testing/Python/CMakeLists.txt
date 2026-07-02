@@ -53,4 +53,5 @@ vtk_add_test_python(
   TestVtkBufferNumpy.py
   TestWeakref.py
   TestCollectionPythonAPI.py
+  TestInformationDict.py
   )

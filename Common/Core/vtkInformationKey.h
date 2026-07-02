@@ -23,10 +23,15 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
+class vtkCommonInformationKeyManager;
+class vtkFilteringInformationKeyManager;
 
 class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
+  friend class vtkCommonInformationKeyManager;
+  friend class vtkFilteringInformationKeyManager;
+
   vtkBaseTypeMacro(vtkInformationKey, vtkObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -140,6 +145,24 @@ public:
   }
 
 protected:
+  /**
+   * Callback type used by information key managers to unregister
+   * a key when it is destroyed (e.g. when Python releases a key
+   * created via MakeKey before static finalization).
+   */
+  using ManagerUnregisterCallback = void (*)(vtkInformationKey*);
+
+  /**
+   * Set the callback that will be invoked from the destructor to
+   * unregister this key from its manager.  Called automatically
+   * by the information key manager's Register method.  Restricted
+   * to the manager classes via friend access.
+   */
+  void SetManagerUnregisterCallback(ManagerUnregisterCallback callback)
+  {
+    this->ManagerCallback = callback;
+  }
+
   char* Name;
   char* Location;
 
@@ -191,6 +214,8 @@ protected:
 private:
   vtkInformationKey(const vtkInformationKey&) = delete;
   void operator=(const vtkInformationKey&) = delete;
+
+  ManagerUnregisterCallback ManagerCallback = nullptr;
 };
 
 // Macros to define an information key instance in a C++ source file.
