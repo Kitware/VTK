@@ -347,17 +347,14 @@ class _SelectionMixin:
 
         Returns the assigned node name.
         """
+        # Configure the node through its own pythonic API so the resolution and
+        # array-conversion logic lives only in the node property setters.
         node = vtkSelectionNode()
-        node.SetContentType(_resolve_content_type(content_type))
+        node.content_type = content_type
         if field_type is not None:
-            node.SetFieldType(_resolve_field_type(field_type))
+            node.field_type = field_type
         if selection_list is not None:
-            from vtkmodules.vtkCommonCore import vtkAbstractArray
-
-            if isinstance(selection_list, vtkAbstractArray):
-                node.SetSelectionList(selection_list)
-            else:
-                node.SetSelectionList(_to_vtk_array(selection_list))
+            node.selection_list = selection_list
         if qualifiers:
             _set_qualifiers(node, qualifiers)
         name = self.AddNode(node)
