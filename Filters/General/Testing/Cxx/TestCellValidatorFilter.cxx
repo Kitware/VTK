@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // This tests vtkCellValidator as a filter
-
 #include <vtkCellValidator.h>
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkCellStatus.h>
 #include <vtkDataArray.h>
+#include <vtkImageData.h>
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -15,44 +17,48 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkWeakPointer.h>
 
-// #include <vtkXMLUnstructuredGridWriter.h>
-
-#include <iostream>
+#include <vector>
 
 //------------------------------------------------------------------------------
 namespace
 {
 
+//------------------------------------------------------------------------------
 bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellStatus>& expectedValues)
 {
   if (!stateArray)
   {
+    vtkLog(ERROR, "no input data array");
     return false;
   }
 
   vtkIdType size = static_cast<vtkIdType>(expectedValues.size());
   if (stateArray->GetNumberOfTuples() != size)
   {
+    vtkLog(
+      ERROR, "Number of values mismatched: " << stateArray->GetNumberOfTuples() << " " << size);
     return false;
   }
 
+  bool ret = true;
   for (vtkIdType cellId = 0; cellId < size; cellId++)
   {
-    auto state = static_cast<vtkCellStatus>(static_cast<short>(stateArray->GetTuple1(cellId)));
+    auto state = static_cast<vtkCellStatus>((stateArray->GetTuple1(cellId)));
     if (state != vtkCellStatus::Valid && (state != expectedValues[cellId]))
     {
-      std::cerr << "  ERROR: invalid cell state " << vtkCellStatus(state)
-                << " found at id: " << cellId << ", expected " << expectedValues[cellId] << "\n";
-      return false;
+      vtkLog(ERROR, << "  ERROR: invalid cell state " << vtkCellStatus(state)
+                    << " found at id: " << cellId << ", expected " << expectedValues[cellId]);
+      ret = false;
     }
   }
 
-  return true;
+  return ret;
 }
 
-int PolyDataTest()
+//------------------------------------------------------------------------------
+bool PolyDataTest()
 {
-  std::cout << "Testing validator on polydata\n";
+  vtkLogScopeFunction(INFO);
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->Reserve(5);
@@ -63,18 +69,18 @@ int PolyDataTest()
   points->InsertNextPoint(0, 0.1, 0.1);
   polydata->SetPoints(points);
 
-  std::vector<vtkCellStatus> cellsValidity;
+  std::vector<vtkCellStatus> expectedCellsValidity;
 
   vtkNew<vtkCellArray> lines;
   lines->InsertNextCell(2);
   lines->InsertCellPoint(0);
   lines->InsertCellPoint(1);
-  cellsValidity.emplace_back(vtkCellStatus::Valid);
+  expectedCellsValidity.emplace_back(vtkCellStatus::Valid);
 
   lines->InsertNextCell(2);
   lines->InsertCellPoint(2);
   lines->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellStatus::Valid);
+  expectedCellsValidity.emplace_back(vtkCellStatus::Valid);
 
   vtkNew<vtkCellArray> polys;
   polys->InsertNextCell(4);
@@ -82,27 +88,27 @@ int PolyDataTest()
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellStatus::Valid);
+  expectedCellsValidity.emplace_back(vtkCellStatus::Valid);
 
   polys->InsertNextCell(4);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(3);
   polys->InsertCellPoint(2);
-  cellsValidity.emplace_back(vtkCellStatus::IntersectingEdges | vtkCellStatus::Nonconvex);
+  expectedCellsValidity.emplace_back(vtkCellStatus::IntersectingEdges | vtkCellStatus::Nonconvex);
 
   polys->InsertNextCell(4);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(4);
   polys->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellStatus::Nonconvex);
+  expectedCellsValidity.emplace_back(vtkCellStatus::Nonconvex);
 
   polys->InsertNextCell(2);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   // line is not a poly: wrong number of points
-  cellsValidity.emplace_back(vtkCellStatus::WrongNumberOfPoints);
+  expectedCellsValidity.emplace_back(vtkCellStatus::WrongNumberOfPoints);
 
   polydata->SetLines(lines);
   polydata->SetPolys(polys);
@@ -117,11 +123,8 @@ int PolyDataTest()
 
   // "hard" ref to array, to test its persistence on dataset deletion.
   vtkSmartPointer<vtkDataArray> stateArray = cellData->GetArray("ValidityState");
-  if (!TestArray(stateArray, cellsValidity))
-  {
-    std::cout << "  Result: failure on initial pass\n";
-    return EXIT_FAILURE;
-  }
+  bool arrayOk = TestArray(stateArray, expectedCellsValidity);
+  vtkLogIf(ERROR, !arrayOk, "Computed array has not the expected values.");
 
   // test that ValidityState array is persistent when dataset is deleted.
   // This is done because the filters create an implicit array that called the dataset
@@ -131,31 +134,26 @@ int PolyDataTest()
   // see vtkDataSetImplicitBackendInterface for more.
   validator = nullptr;
 
-  if (!stateArray)
-  {
-    std::cout << "  Result: Failure to retain state array.\n";
-    return EXIT_FAILURE;
-  }
+  bool ret = true;
+  bool dataDestroyed = output == nullptr;
+  vtkLogIf(ERROR, !dataDestroyed, "Failure to destroy output dataset");
+  ret &= dataDestroyed;
 
-  if (output)
-  {
-    std::cout << "  Result: Failure to destroy output dataset.\n";
-    return EXIT_FAILURE;
-  }
+  bool persistentArray = stateArray != nullptr;
+  vtkLogIf(ERROR, !persistentArray, "Failure to retain state array");
+  ret &= persistentArray;
 
-  if (!TestArray(stateArray, cellsValidity))
-  {
-    std::cout << "  Result: Failure to return expected test values.\n";
-    return EXIT_FAILURE;
-  }
+  bool cachedArrayOk = TestArray(stateArray, expectedCellsValidity);
+  vtkLogIf(ERROR, !cachedArrayOk, "Cached array has not the expected values.");
+  ret &= cachedArrayOk;
 
-  std::cout << "  Result: pass\n";
-  return EXIT_SUCCESS;
+  return ret;
 }
 
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkUnstructuredGrid> CreateUGrid(bool inverted)
 {
-  auto ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkNew<vtkUnstructuredGrid> ugrid;
   vtkNew<vtkPoints> pts;
   pts->SetDataTypeToDouble();
   pts->SetNumberOfPoints(4);
@@ -220,10 +218,11 @@ vtkSmartPointer<vtkUnstructuredGrid> CreateUGrid(bool inverted)
   return ugrid;
 }
 
+//------------------------------------------------------------------------------
 bool TestUGrid(bool inverted, bool autoTol)
 {
-  std::cout << "Testing " << (inverted ? "inverted" : "properly-oriented") << " cell with "
-            << (autoTol ? "automatic" : "manual") << " tolerance.\n";
+  vtkLogScopeFunction(INFO);
+  vtkLog(INFO, << (inverted ? "inverted" : "properly-oriented") << " cell with " << (autoTol ? "automatic" : "manual") << " tolerance.");
 
   auto ugrid = CreateUGrid(inverted);
   std::vector<vtkCellStatus> expectedStatus(1,
@@ -238,12 +237,11 @@ bool TestUGrid(bool inverted, bool autoTol)
   validator->Update();
 
   auto* status = validator->GetOutput()->GetCellData()->GetArray("ValidityState");
-  bool ok = TestArray(status, expectedStatus);
-  std::cout << "  Result: " << (ok ? "pass" : "fail") << "\n";
-  return ok;
+  return TestArray(status, expectedStatus);
 }
 
-int UnstructuredGridTest()
+//------------------------------------------------------------------------------
+bool UnstructuredGridTest()
 {
   bool ok = true;
   ok &= TestUGrid(true, true);
@@ -251,19 +249,37 @@ int UnstructuredGridTest()
   ok &= TestUGrid(true, false);
   ok &= TestUGrid(false, false);
 
-  return ok ? EXIT_SUCCESS : EXIT_FAILURE;
+  return ok;
+}
+
+//------------------------------------------------------------------------------
+// if useVoxel is true, create 3D grid (cells will be vtkVoxel)
+// if useVoxel is false, create 2D grid (cells will be vtkPixel)
+bool ImageDataTest(bool useVoxel)
+{
+  vtkLogScopeFunction(INFO);
+  vtkLog(INFO, << "Use " << (useVoxel ? "vtkVoxel" : "vtkPixel") << " cells");
+  vtkNew<vtkImageData> image;
+  int zDim = useVoxel ? 10 : 1;
+  image->SetDimensions(10, 10, zDim);
+  vtkNew<vtkCellValidator> validator;
+  validator->SetInputData(image);
+  validator->Update();
+
+  std::vector<vtkCellStatus> expectedStatus(image->GetNumberOfCells(), vtkCellStatus::Valid);
+
+  auto status = validator->GetOutput()->GetCellData()->GetArray("ValidityState");
+  return TestArray(status, expectedStatus);
 }
 
 } // anonymous namespace
+
 //------------------------------------------------------------------------------
 int TestCellValidatorFilter(int, char*[])
 {
-  int result = PolyDataTest();
-  if (result == EXIT_FAILURE)
-  {
-    return EXIT_FAILURE;
-  }
-
-  result = UnstructuredGridTest();
-  return result;
+  bool result = ::PolyDataTest();
+  result &= ::UnstructuredGridTest();
+  result &= ::ImageDataTest(true);
+  result &= ::ImageDataTest(false);
+  return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
