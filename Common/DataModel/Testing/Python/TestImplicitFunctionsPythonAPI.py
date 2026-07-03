@@ -206,15 +206,16 @@ class TestRepr(unittest.TestCase):
 class TestCallable(unittest.TestCase):
     def test_call_three_scalars(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
-        val = s(0, 0, 0)
-        self.assertIsInstance(val, float)
-        self.assertLess(val, 0)  # inside sphere
+        inside = s(0, 0, 0)
+        outside = s(2, 0, 0)
+        self.assertIsInstance(inside, float)
+        self.assertLess(inside, 0)  # inside sphere
+        self.assertGreater(outside, 0)  # outside sphere
 
     def test_call_single_point(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
-        val = s([0, 0, 0])
-        self.assertIsInstance(val, float)
-        self.assertLess(val, 0)
+        self.assertLess(s([0, 0, 0]), 0)  # inside sphere
+        self.assertGreater(s([2, 0, 0]), 0)  # outside sphere
 
     def test_call_batch_array(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
@@ -248,6 +249,10 @@ class TestCSGOperators(unittest.TestCase):
         self.assertIsInstance(result, vtkImplicitBoolean)
         self.assertEqual(result.GetOperationType(), vtkImplicitBoolean.VTK_UNION)
         self.assertEqual(result.GetFunction().GetNumberOfItems(), 2)
+        # Geometry: the union is inside wherever EITHER shape is inside.
+        self.assertLess(result(0, 0, 0), 0)  # inside the sphere
+        self.assertLess(result(-2, 0, 0), 0)  # outside sphere, but on plane's inside half
+        self.assertGreater(result(2, 0, 0), 0)  # outside both
 
     def test_intersection(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
@@ -256,6 +261,10 @@ class TestCSGOperators(unittest.TestCase):
         self.assertIsInstance(result, vtkImplicitBoolean)
         self.assertEqual(result.GetOperationType(), vtkImplicitBoolean.VTK_INTERSECTION)
         self.assertEqual(result.GetFunction().GetNumberOfItems(), 2)
+        # Geometry: the intersection is inside only where BOTH shapes are.
+        self.assertLess(result(-0.5, 0, 0), 0)  # inside sphere and plane's inside half
+        self.assertGreater(result(0.5, 0, 0), 0)  # inside sphere, but plane's outside half
+        self.assertGreater(result(-2, 0, 0), 0)  # plane's inside half, but outside sphere
 
     def test_difference(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
@@ -263,15 +272,23 @@ class TestCSGOperators(unittest.TestCase):
         result = s - p
         self.assertIsInstance(result, vtkImplicitBoolean)
         self.assertEqual(result.GetOperationType(), vtkImplicitBoolean.VTK_DIFFERENCE)
+        # Geometry: the sphere with the plane's inside half carved away, i.e.
+        # the +x hemisphere of the sphere.
+        self.assertLess(result(0.5, 0, 0), 0)  # in sphere, plane's outside half -> kept
+        self.assertGreater(result(-0.5, 0, 0), 0)  # in sphere, plane's inside half -> removed
+        self.assertGreater(result(2, 0, 0), 0)  # outside the sphere entirely
 
     def test_negate(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
         result = ~s
         self.assertIsInstance(result, vtkImplicitSum)
-        # Negated sphere should flip sign.
+        # Negation flips the sign everywhere: the sphere's inside becomes
+        # "outside" and vice versa.
         inside_val = s(0, 0, 0)
         negated_val = result(0, 0, 0)
         self.assertAlmostEqual(negated_val + inside_val, 0.0, places=10)
+        self.assertGreater(result(0, 0, 0), 0)  # sphere-inside is now outside
+        self.assertLess(result(2, 0, 0), 0)  # sphere-outside is now inside
 
     def test_chaining(self):
         a = vtkSphere(center=(0, 0, 0), radius=1)
@@ -281,6 +298,11 @@ class TestCSGOperators(unittest.TestCase):
         self.assertIsInstance(result, vtkImplicitBoolean)
         self.assertEqual(result.GetOperationType(), vtkImplicitBoolean.VTK_DIFFERENCE)
         self.assertIsInstance(result(0.0, 0.0, 0.0), float)
+        # Geometry: (sphere on the plane's inside half) with the cylinder
+        # column removed.
+        self.assertLess(result(-0.7, 0, 0), 0)  # in the carved region
+        self.assertGreater(result(0.7, 0, 0), 0)  # plane's outside half
+        self.assertGreater(result(0, 0, 0), 0)  # removed by the cylinder
 
     def test_double_negate(self):
         s = vtkSphere(center=(0, 0, 0), radius=1)
