@@ -31,8 +31,9 @@
 #include "vtkWaylandHardwareWindow.h"
 #elif VTK_USE_X
 #include "vtkXlibHardwareWindow.h"
-#endif // _WIN32, __APPLE__, VTK_USE_Wayland, Xlib
-#else  // __EMSCRIPTEN__
+#include <unistd.h> // for close()
+#endif              // _WIN32, __APPLE__, VTK_USE_Wayland, Xlib
+#else               // __EMSCRIPTEN__
 #include "vtkWebAssemblyHardwareWindow.h"
 #endif // !__EMSCRIPTEN__
 
@@ -255,7 +256,7 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   }
   this->ReleaseGraphicsResources(this);
 
-  // CRITICAL: Reorder cleanup to handle NVIDIA's lazy GLX initialization.
+  // x11 display cleanup ordering
   //
   // NVIDIA's Vulkan driver defers GLX extension initialization until device
   // destruction time. During this deferred initialization, the driver modifies
@@ -265,37 +266,85 @@ void vtkWebGPURenderWindow::WGPUFinalize()
   //
   // Minimal repro example shared with NVIDIA: https://github.com/sankhesh/nvidia-vulkan-reproducer
   //
-  // Solution: Keep the Display open until after Vulkan finalization completes.
-  // This is achieved by:
-  // 1. Temporarily preventing Display closure during X11 window destruction
-  // 2. Destroying the X11 window (without closing the Display)
-  // 3. Finalizing Vulkan (which can safely access the Display)
-  // 4. Let the destructor close the Display (after Vulkan finalization)
+  // The correct cleanup sequence on X11 is:
+  //   1. DestroyWindow()    — destroy the X11 window (keep Display open)
+  //   2. FinalizeDevice()   — destroy Vulkan device/adapter; instance stays alive
+  //                           so the ICD shared library remains loaded
+  //   3. CloseDisplay()     — call XCloseDisplay() while the ICD is still in memory
+  //                           (its close_display handlers are therefore still valid)
+  //   4. Finalize()         — destroy the Vulkan instance; the Vulkan loader
+  //                           dlclose()s the ICD — Display already closed, safe
+  //
+  // We prevent DestroyWindow() from also closing the Display (it would, because
+  // vtkXlibHardwareWindow::Destroy() always calls CloseDisplay() at its end) by
+  // temporarily setting OwnDisplay=false before the call and restoring it after.
+  // The destructor's guard (WindowId != 0) would skip CloseDisplay() anyway since
+  // DestroyWindow() zeroes WindowId, so we must call CloseDisplay() explicitly.
 
-  // Temporarily disable Display closure during window destruction
 #if defined(VTK_USE_X)
+  bool savedOwnDisplay = false;
+  bool isNVIDIA = false; // queried now, before the adapter is destroyed
+  vtkXlibHardwareWindow* xlibWindowPtr = nullptr;
   if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    if (xlibWindow->GetOwnDisplay())
-    {
-      xlibWindow->SetOwnDisplay(false);
-    }
+    xlibWindowPtr = xlibWindow;
+    savedOwnDisplay = xlibWindow->GetOwnDisplay();
+    isNVIDIA = this->WGPUConfiguration->IsNVIDIAGPUInUse();
+    // Prevent DestroyWindow() → Destroy() → CloseDisplay() from firing.
+    xlibWindow->SetOwnDisplay(false);
   }
 #endif // VTK_USE_X
 
-  // Destroy X11 window resources (but not the Display connection)
+  // Destroy the X11 window (Display connection is still open).
   this->DestroyWindow();
 
-  // Finalize Vulkan (Display is still valid for any deferred initialization)
-  this->WGPUConfiguration->Finalize();
+  // Destroy Vulkan device/adapter; keep the instance alive so the ICD
+  // library (and its close_display handlers) remain loaded in memory.
+  this->WGPUConfiguration->FinalizeDevice();
 
-  // Restore Display ownership so destructor can properly clean up
+  // Close the Display.
+  //
+  // === Begin workaround ===
+  // Instead of XCloseDisplay(), close the socket file descriptor
+  // directly. The X server sees the EOF and immediately releases the client
+  // slot (freeing the server-side slot and the per-process OS FD), but Xlib
+  // never iterates its close_display handler list — so the NVIDIA handler is
+  // never called. We clear DisplayId to prevent any later Xlib use.
+  //
+  // When the issue is fixed in the nvidia driver, remove the if/else below and
+  // replace with the unconditional call that is already used for non-NVIDIA:
+  //
+  //   if (xlibWindowPtr && savedOwnDisplay)
+  //   {
+  //     xlibWindowPtr->SetOwnDisplay(true);
+  //     xlibWindowPtr->CloseDisplay();
+  //   }
+  //
+  // Also remove the isNVIDIA variable above and the <unistd.h> include.
 #if defined(VTK_USE_X)
-  if (auto xlibWindow = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+  if (xlibWindowPtr && savedOwnDisplay)
   {
-    xlibWindow->SetOwnDisplay(true);
+    if (isNVIDIA)
+    {
+      Display* dpy = xlibWindowPtr->GetDisplayId();
+      if (dpy)
+      {
+        close(ConnectionNumber(dpy));
+        xlibWindowPtr->SetDisplayId(static_cast<void*>(nullptr));
+      }
+    }
+    else
+    {
+      xlibWindowPtr->SetOwnDisplay(true);
+      xlibWindowPtr->CloseDisplay();
+    }
   }
+  // === End workaround ===
 #endif // VTK_USE_X
+
+  // Finally, release the Vulkan instance — triggers vkDestroyInstance() and
+  // unloads the ICD. Display is already closed so no dangling handler fires.
+  this->WGPUConfiguration->Finalize();
 
   this->Initialized = false;
 }

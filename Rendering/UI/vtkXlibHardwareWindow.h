@@ -141,18 +141,19 @@ public:
   void SetOwnDisplay(vtkTypeBool ownDisplay);
   ///@}
 
+  /**
+   * Close the X11 Display connection.
+   * Only closes if OwnDisplay is true. Safe to call even if the window
+   * has already been destroyed (WindowId == 0).
+   */
+  void CloseDisplay();
+
 protected:
   vtkXlibHardwareWindow();
   ~vtkXlibHardwareWindow() override;
 
   // Helper members
   vtkXVisualInfo* GetDesiredVisualInfo();
-
-  /**
-   * Close the X11 Display connection.
-   * Only closes if OwnDisplay is true.
-   */
-  void CloseDisplay();
 
   Display* DisplayId;
   Window ParentId;

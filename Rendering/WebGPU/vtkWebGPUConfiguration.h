@@ -153,6 +153,14 @@ public:
   bool Initialize();
 
   /**
+   * Destroys the WebGPU device and adapter without releasing the shared instance.
+   * Use this when you need to perform platform-specific cleanup (e.g., closing an X11
+   * Display connection) between device destruction and instance release. After calling
+   * this, call Finalize() to release the instance.
+   */
+  void FinalizeDevice();
+
+  /**
    * Finalizes the class.
    * This method destroys the device, adapter and releases the reference to `WGPUInstance` if not
    * already done.
@@ -304,6 +312,9 @@ private:
   double Timeout;
 
   vtkLogger::Verbosity GPUMemoryLogVerbosity = vtkLogger::VERBOSITY_INVALID;
+  // Tracks whether AddInstanceRef() was called so Finalize() can release it
+  // even after FinalizeDevice() has already set DeviceReady=false.
+  bool InstanceRefHeld = false;
 };
 
 VTK_ABI_NAMESPACE_END
