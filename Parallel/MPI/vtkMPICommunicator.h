@@ -88,6 +88,27 @@ public:
 
   ///@{
   /**
+   * Similar to SplitInitialize(), but partitions using MPI_Comm_split_type
+   * instead of MPI_Comm_split.
+   *
+   * splitType is one of the MPI_COMM_TYPE_* constants, e.g.
+   * MPI_COMM_TYPE_SHARED to group together ranks that could form a shared
+   * memory region, which in practice means "ranks running on the same
+   * node." Unlike matching on a self-reported hostname string, this asks
+   * the MPI runtime directly and so is robust to hostname aliasing,
+   * containerized/virtualized naming, and similar edge cases.
+   *
+   * key controls rank ordering within the resulting subgroup, same as in
+   * SplitInitialize().
+   *
+   * Returns 1 on success, 0 on failure (e.g. if this communicator was
+   * already initialized, or the underlying MPI call fails).
+   */
+  int SplitInitializeByType(vtkCommunicator* oldcomm, int splitType, int key);
+  ///@}
+
+  ///@{
+  /**
    * Performs the actual communication.  You will usually use the convenience
    * Send functions defined in the superclass. Return values are 1 for success
    * and 0 otherwise.

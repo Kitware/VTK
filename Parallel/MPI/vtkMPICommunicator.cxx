@@ -793,7 +793,9 @@ void vtkMPICommunicator::InitializeAttributes()
 int vtkMPICommunicator::SplitInitialize(vtkCommunicator* oldcomm, int color, int key)
 {
   if (this->Initialized)
+  {
     return 0;
+  }
 
   vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(oldcomm);
   if (!mpiComm)
@@ -835,6 +837,47 @@ int vtkMPICommunicator::SplitInitialize(vtkCommunicator* oldcomm, int color, int
   return 1;
 }
 
+//------------------------------------------------------------------------------
+int vtkMPICommunicator::SplitInitializeByType(vtkCommunicator* oldcomm, int splitType, int key)
+{
+  if (this->Initialized)
+  {
+    return 0;
+  }
+
+  vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(oldcomm);
+  if (!mpiComm)
+  {
+    vtkErrorMacro("Split communicator must be an MPI communicator.");
+    return 0;
+  }
+
+  this->KeepHandleOff();
+
+  this->MPIComm->Handle = new MPI_Comm;
+  int err;
+  if ((err = MPI_Comm_split_type(*(mpiComm->MPIComm->Handle), splitType, key, MPI_INFO_NULL,
+         this->MPIComm->Handle)) != MPI_SUCCESS)
+  {
+    delete this->MPIComm->Handle;
+    this->MPIComm->Handle = nullptr;
+
+    char* msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occurred: " << msg);
+    delete[] msg;
+
+    return 0;
+  }
+
+  this->InitializeNumberOfProcesses();
+  this->Initialized = 1;
+
+  this->Modified();
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkMPICommunicator::InitializeExternal(vtkMPICommunicatorOpaqueComm* comm)
 {
   this->KeepHandleOn();
