@@ -180,11 +180,13 @@ class _ImplicitFunctionMixin:
 
 
 # ---------------------------------------------------------------------------
-# Tier 1: classes with a custom repr (constructor kwargs come for free from
-# the Python wrapping layer, which maps snake_case kwargs to Set methods)
+# Tier 1/2: override classes with a custom repr.  Constructor kwargs come for
+# free from the Python wrapping layer, which maps snake_case keyword arguments
+# to the corresponding Set methods.
 # ---------------------------------------------------------------------------
 
-class _SphereMixin(_ImplicitFunctionMixin):
+@vtkSphere.override
+class Sphere(_ImplicitFunctionMixin, vtkSphere):
     def __repr__(self):
         return "vtkSphere(center=%s, radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -192,7 +194,8 @@ class _SphereMixin(_ImplicitFunctionMixin):
         )
 
 
-class _PlaneMixin(_ImplicitFunctionMixin):
+@vtkPlane.override
+class Plane(_ImplicitFunctionMixin, vtkPlane):
     def __repr__(self):
         return "vtkPlane(origin=%s, normal=%s, offset=%s)" % (
             _fmt3(self.GetOrigin()),
@@ -201,7 +204,8 @@ class _PlaneMixin(_ImplicitFunctionMixin):
         )
 
 
-class _BoxMixin(_ImplicitFunctionMixin):
+@vtkBox.override
+class Box(_ImplicitFunctionMixin, vtkBox):
     def __repr__(self):
         b = self.GetBounds()
         return "vtkBox(bounds=(%s, %s, %s, %s, %s, %s))" % (
@@ -209,7 +213,8 @@ class _BoxMixin(_ImplicitFunctionMixin):
         )
 
 
-class _CylinderMixin(_ImplicitFunctionMixin):
+@vtkCylinder.override
+class Cylinder(_ImplicitFunctionMixin, vtkCylinder):
     def __repr__(self):
         return "vtkCylinder(center=%s, axis=%s, radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -218,7 +223,8 @@ class _CylinderMixin(_ImplicitFunctionMixin):
         )
 
 
-class _ConeMixin(_ImplicitFunctionMixin):
+@vtkCone.override
+class Cone(_ImplicitFunctionMixin, vtkCone):
     def __repr__(self):
         return "vtkCone(origin=%s, axis=%s, angle=%s)" % (
             _fmt3(self.GetOrigin()),
@@ -227,13 +233,15 @@ class _ConeMixin(_ImplicitFunctionMixin):
         )
 
 
-class _QuadricMixin(_ImplicitFunctionMixin):
+@vtkQuadric.override
+class Quadric(_ImplicitFunctionMixin, vtkQuadric):
     def __repr__(self):
         c = self.GetCoefficients()
         return "vtkQuadric(coefficients=(%s,))" % ", ".join(str(v) for v in c)
 
 
-class _SuperquadricMixin(_ImplicitFunctionMixin):
+@vtkSuperquadric.override
+class Superquadric(_ImplicitFunctionMixin, vtkSuperquadric):
     def __repr__(self):
         return "vtkSuperquadric(center=%s, phi_roundness=%s, theta_roundness=%s)" % (
             _fmt3(self.GetCenter()),
@@ -242,7 +250,8 @@ class _SuperquadricMixin(_ImplicitFunctionMixin):
         )
 
 
-class _PerlinNoiseMixin(_ImplicitFunctionMixin):
+@vtkPerlinNoise.override
+class PerlinNoise(_ImplicitFunctionMixin, vtkPerlinNoise):
     def __repr__(self):
         return "vtkPerlinNoise(frequency=%s, amplitude=%s)" % (
             _fmt3(self.GetFrequency()),
@@ -250,7 +259,8 @@ class _PerlinNoiseMixin(_ImplicitFunctionMixin):
         )
 
 
-class _ImplicitBooleanMixin(_ImplicitFunctionMixin):
+@vtkImplicitBoolean.override
+class ImplicitBoolean(_ImplicitFunctionMixin, vtkImplicitBoolean):
     def __repr__(self):
         n = self.GetFunction().GetNumberOfItems() if self.GetFunction() else 0
         return "vtkImplicitBoolean(operation='%s', functions=%d)" % (
@@ -259,14 +269,16 @@ class _ImplicitBooleanMixin(_ImplicitFunctionMixin):
         )
 
 
-class _ImplicitSumMixin(_ImplicitFunctionMixin):
+@vtkImplicitSum.override
+class ImplicitSum(_ImplicitFunctionMixin, vtkImplicitSum):
     def __repr__(self):
         return "vtkImplicitSum(normalize_by_weight=%s)" % bool(
             self.GetNormalizeByWeight()
         )
 
 
-class _AnnulusMixin(_ImplicitFunctionMixin):
+@vtkAnnulus.override
+class Annulus(_ImplicitFunctionMixin, vtkAnnulus):
     def __repr__(self):
         return "vtkAnnulus(center=%s, inner_radius=%s, outer_radius=%s)" % (
             _fmt3(self.GetCenter()),
@@ -275,7 +287,8 @@ class _AnnulusMixin(_ImplicitFunctionMixin):
         )
 
 
-class _FrustumMixin(_ImplicitFunctionMixin):
+@vtkFrustum.override
+class Frustum(_ImplicitFunctionMixin, vtkFrustum):
     def __repr__(self):
         return (
             "vtkFrustum(near_plane_distance=%s, "
@@ -288,7 +301,8 @@ class _FrustumMixin(_ImplicitFunctionMixin):
         )
 
 
-class _ImplicitHaloMixin(_ImplicitFunctionMixin):
+@vtkImplicitHalo.override
+class ImplicitHalo(_ImplicitFunctionMixin, vtkImplicitHalo):
     def __repr__(self):
         return "vtkImplicitHalo(center=%s, radius=%s, fade_out=%s)" % (
             _fmt3(self.GetCenter()),
@@ -297,83 +311,10 @@ class _ImplicitHaloMixin(_ImplicitFunctionMixin):
         )
 
 
-class _CoordinateFrameMixin(_ImplicitFunctionMixin):
+@vtkCoordinateFrame.override
+class CoordinateFrame(_ImplicitFunctionMixin, vtkCoordinateFrame):
     def __repr__(self):
         return "vtkCoordinateFrame(origin=%s)" % _fmt3(self.GetOrigin())
-
-
-# ---------------------------------------------------------------------------
-# Register tier 1/2 overrides (classes with a custom repr)
-# ---------------------------------------------------------------------------
-
-@vtkSphere.override
-class Sphere(_SphereMixin, vtkSphere):
-    pass
-
-
-@vtkPlane.override
-class Plane(_PlaneMixin, vtkPlane):
-    pass
-
-
-@vtkBox.override
-class Box(_BoxMixin, vtkBox):
-    pass
-
-
-@vtkCylinder.override
-class Cylinder(_CylinderMixin, vtkCylinder):
-    pass
-
-
-@vtkCone.override
-class Cone(_ConeMixin, vtkCone):
-    pass
-
-
-@vtkQuadric.override
-class Quadric(_QuadricMixin, vtkQuadric):
-    pass
-
-
-@vtkSuperquadric.override
-class Superquadric(_SuperquadricMixin, vtkSuperquadric):
-    pass
-
-
-@vtkPerlinNoise.override
-class PerlinNoise(_PerlinNoiseMixin, vtkPerlinNoise):
-    pass
-
-
-@vtkImplicitBoolean.override
-class ImplicitBoolean(_ImplicitBooleanMixin, vtkImplicitBoolean):
-    pass
-
-
-@vtkImplicitSum.override
-class ImplicitSum(_ImplicitSumMixin, vtkImplicitSum):
-    pass
-
-
-@vtkAnnulus.override
-class Annulus(_AnnulusMixin, vtkAnnulus):
-    pass
-
-
-@vtkFrustum.override
-class Frustum(_FrustumMixin, vtkFrustum):
-    pass
-
-
-@vtkImplicitHalo.override
-class ImplicitHalo(_ImplicitHaloMixin, vtkImplicitHalo):
-    pass
-
-
-@vtkCoordinateFrame.override
-class CoordinateFrame(_CoordinateFrameMixin, vtkCoordinateFrame):
-    pass
 
 
 # ---------------------------------------------------------------------------
