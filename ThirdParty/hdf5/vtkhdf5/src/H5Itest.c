@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -63,17 +63,18 @@
 ssize_t
 H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, bool *cached)
 {
-    H5VL_object_t *vol_obj;                 /* Object of id */
-    H5G_loc_t      loc;                     /* Object location */
-    bool           api_ctx_pushed  = false; /* Whether API context pushed */
-    bool           vol_wrapper_set = false; /* Whether the VOL object wrapping context was set up */
-    size_t         name_len        = 0;     /* Length of name */
-    ssize_t        ret_value       = -1;    /* Return value */
+    H5VL_object_t *vol_obj;                       /* Object of id */
+    H5G_loc_t      loc;                           /* Object location */
+    H5CX_node_t    api_ctx         = {{0}, NULL}; /* API context node to push */
+    bool           api_ctx_pushed  = false;       /* Whether API context pushed */
+    bool           vol_wrapper_set = false;       /* Whether the VOL object wrapping context was set up */
+    size_t         name_len        = 0;           /* Length of name */
+    ssize_t        ret_value       = -1;          /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, (-1), "can't set API context");
     api_ctx_pushed = true;
 

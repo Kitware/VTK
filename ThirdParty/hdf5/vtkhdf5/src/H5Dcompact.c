@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -58,7 +58,7 @@ typedef struct H5D_compact_iovv_memmanage_ud_t {
 
 /* Layout operation callbacks */
 static herr_t  H5D__compact_construct(H5F_t *f, H5D_t *dset);
-static herr_t  H5D__compact_init(H5F_t *f, const H5D_t *dset, hid_t dapl_id);
+static herr_t  H5D__compact_init(H5F_t *f, H5D_t *dset, hid_t dapl_id, bool open_op);
 static bool    H5D__compact_is_space_alloc(const H5O_storage_t *storage);
 static herr_t  H5D__compact_io_init(H5D_io_info_t *io_info, H5D_dset_io_info_t *dinfo);
 static herr_t  H5D__compact_iovv_memmanage_cb(hsize_t dst_off, hsize_t src_off, size_t len, void *_udata);
@@ -148,11 +148,12 @@ done:
 } /* end H5D__compact_fill() */
 
 /*-------------------------------------------------------------------------
- * Function:	H5D__compact_construct
+ * Function:    H5D__compact_construct
  *
- * Purpose:	Constructs new compact layout information for dataset
+ * Purpose:     Constructs new compact layout information for dataset and
+ *              upgrades layout version if appropriate
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -162,6 +163,7 @@ H5D__compact_construct(H5F_t *f, H5D_t *dset)
     hssize_t stmp_size;           /* Temporary holder for raw data size */
     hsize_t  tmp_size;            /* Temporary holder for raw data size */
     hsize_t  max_comp_data_size;  /* Max. allowed size of compact data */
+    unsigned version;             /* Message version */
     unsigned u;                   /* Local index variable */
     herr_t   ret_value = SUCCEED; /* Return value */
 
@@ -170,6 +172,7 @@ H5D__compact_construct(H5F_t *f, H5D_t *dset)
     /* Sanity checks */
     assert(f);
     assert(dset);
+    assert(dset->shared);
 
     /* Check for invalid dataset dimensions */
     for (u = 0; u < dset->shared->ndims; u++)
@@ -195,6 +198,19 @@ H5D__compact_construct(H5F_t *f, H5D_t *dset)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL,
                     "compact dataset size is bigger than header message maximum size");
 
+    /* If the layout is below version 3, upgrade to version 3 if allowed. Do not upgrade past version 3 since
+     * there is no benefit. */
+    if (dset->shared->layout.version < H5O_LAYOUT_VERSION_3) {
+        version = MAX(dset->shared->layout.version,
+                      MIN(H5O_layout_ver_bounds[H5F_LOW_BOUND(f)], H5O_LAYOUT_VERSION_3));
+
+        /* Version bounds check */
+        if (version > H5O_layout_ver_bounds[H5F_HIGH_BOUND(f)])
+            HGOTO_ERROR(H5E_DATASET, H5E_BADRANGE, FAIL, "layout version out of bounds");
+
+        dset->shared->layout.version = version;
+    }
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5D__compact_construct() */
@@ -210,7 +226,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__compact_init(H5F_t H5_ATTR_UNUSED *f, const H5D_t *dset, hid_t H5_ATTR_UNUSED dapl_id)
+H5D__compact_init(H5F_t H5_ATTR_UNUSED *f, H5D_t *dset, hid_t H5_ATTR_UNUSED dapl_id,
+                  bool H5_ATTR_UNUSED open_op)
 {
     hssize_t snelmts;             /* Temporary holder for number of elements in dataspace */
     hsize_t  nelmts;              /* Number of elements in dataspace */

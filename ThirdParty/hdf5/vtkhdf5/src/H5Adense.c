@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -633,8 +633,8 @@ H5A__dense_write_bt2_cb(void *_record, void *_op_data, bool *changed)
             udata.found_op_data = NULL;
 
             /* Modify record for creation order index */
-            if (H5B2_modify(bt2_corder, &udata, H5A__dense_write_bt2_cb2, &op_data->attr->sh_loc.u.heap_id) <
-                0)
+            if (H5B2_modify(bt2_corder, &udata, false, H5A__dense_write_bt2_cb2,
+                            &op_data->attr->sh_loc.u.heap_id) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_CANTINSERT, FAIL, "unable to modify record in v2 B-tree");
         } /* end if */
 
@@ -763,7 +763,7 @@ H5A__dense_write(H5F_t *f, const H5O_ainfo_t *ainfo, H5A_t *attr)
     op_data.corder_bt2_addr = ainfo->corder_bt2_addr;
 
     /* Modify attribute through 'name' tracking v2 B-tree */
-    if (H5B2_modify(bt2_name, &udata, H5A__dense_write_bt2_cb, &op_data) < 0)
+    if (H5B2_modify(bt2_name, &udata, false, H5A__dense_write_bt2_cb, &op_data) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINSERT, FAIL, "unable to modify record in v2 B-tree");
 
 done:
@@ -1053,17 +1053,27 @@ H5A__dense_iterate_bt2_cb(const void *_record, void *_bt2_udata)
                 if (H5A__get_info(fh_udata.attr, &ainfo) < 0)
                     HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, H5_ITER_ERROR, "unable to get attribute info");
 
-                /* Make the application callback */
-                ret_value = (bt2_udata->attr_op->u.app_op2)(bt2_udata->loc_id, fh_udata.attr->shared->name,
-                                                            &ainfo, bt2_udata->op_data);
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(H5_ITER_ERROR)
+                    {
+                        /* Make the application callback */
+                        ret_value = (bt2_udata->attr_op->u.app_op2)(
+                            bt2_udata->loc_id, fh_udata.attr->shared->name, &ainfo, bt2_udata->op_data);
+                    }
+                H5_AFTER_USER_CB(H5_ITER_ERROR)
                 break;
             }
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
             case H5A_ATTR_OP_APP:
-                /* Make the application callback */
-                ret_value = (bt2_udata->attr_op->u.app_op)(bt2_udata->loc_id, fh_udata.attr->shared->name,
-                                                           bt2_udata->op_data);
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(H5_ITER_ERROR)
+                    {
+                        /* Make the application callback */
+                        ret_value = (bt2_udata->attr_op->u.app_op)(
+                            bt2_udata->loc_id, fh_udata.attr->shared->name, bt2_udata->op_data);
+                    }
+                H5_AFTER_USER_CB(H5_ITER_ERROR)
                 break;
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -21,10 +21,13 @@
  *      reporting macros.
  */
 #define H5R_MODULE
-#define H5_MY_PKG     H5R
-#define H5_MY_PKG_ERR H5E_REFERENCE
+#define H5_MY_PKG      H5R
+#define H5_MY_PKG_INIT YES
 
 /** \page H5R_UG HDF5 References
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_reference HDF5 References
  * HDF5 references allow users to reference existing HDF5 objects (file, group, dataset, named datatype, or
@@ -389,6 +392,11 @@
  *   }
  * \endcode
  *
+ *
+ * Previous Chapter \ref sec_map - Next Chapter \ref sec_filter_plugins
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  */
 

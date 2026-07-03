@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -200,24 +200,6 @@ typedef struct {
                                 * If the message doesn't yet have a
                                 * heap ID, the heap ID will be 0. */
 } H5SM_mesg_key_t;
-
-/*
- * Data exchange structure to pass through the fractal heap layer for the
- * H5HF_op function when computing a hash value for a message.
- */
-typedef struct {
-    /* downward (internal) */
-    unsigned type_id; /* Message type */
-
-    /* upward */
-    uint32_t hash; /* Hash value */
-} H5SM_fh_ud_gh_t;
-
-/* Typedef to increment a reference count in the B-tree */
-typedef struct {
-    H5SM_mesg_key_t *key;      /* IN: key for message being incremented */
-    H5O_fheap_id_t   fheap_id; /* OUT: fheap ID of record */
-} H5SM_incr_ref_opdata;
 
 /* v2 B-tree client callback context */
 typedef struct H5SM_bt2_ctx_t {

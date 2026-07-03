@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -940,11 +940,11 @@ H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null, const H5O_
             for (u = 0, curr_msg = &oh->mesg[0]; u < oh->nmesgs; u++, curr_msg++)
                 if (curr_msg->chunkno == chunkno - 1) {
                     if (curr_msg->type->id == H5O_NULL_ID) {
-                        /* Delete the null message */
-                        if (u < oh->nmesgs - 1)
-                            memmove(curr_msg, curr_msg + 1, ((oh->nmesgs - 1) - u) * sizeof(H5O_mesg_t));
-                        oh->nmesgs--;
-                    } /* end if */
+                        /* Delete the null message. Defer actual deletion so we don't interfere with a higher
+                         * level of recursion by moving the messages. */
+                        curr_msg->type = H5O_MSG_DELETED;
+                        oh->num_deleted_mesgs++;
+                    }
                     else {
                         assert(curr_msg->type->id != H5O_CONT_ID);
 
@@ -1039,17 +1039,10 @@ H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null, const H5O_
                 /* Release any information/memory for message */
                 H5O__msg_free_mesg(old_null_msg);
 
-                /* Remove null message from list of messages */
-                if (found_msg->null_msgno < (oh->nmesgs - 1))
-                    memmove(old_null_msg, old_null_msg + 1,
-                            ((oh->nmesgs - 1) - found_msg->null_msgno) * sizeof(H5O_mesg_t));
-
-                /* Decrement # of messages */
-                /* (Don't bother reducing size of message array for now -QAK) */
-                oh->nmesgs--;
-
-                /* Adjust message index for new NULL message */
-                found_null--;
+                /* Delete null message from list of messages. Defer actual deletion so we don't interfere with
+                 * a higher level of recursion by moving the messages. */
+                old_null_msg->type = H5O_MSG_DELETED;
+                oh->num_deleted_mesgs++;
             } /* end if */
 
             /* Mark the new null message as dirty */
@@ -2270,6 +2263,18 @@ H5O__condense_header(H5F_t *f, H5O_t *oh)
 
     /* check args */
     assert(oh != NULL);
+
+    /* First remove all deleted messages from the object header */
+    for (unsigned u = 0; oh->num_deleted_mesgs > 0 && u < oh->nmesgs;)
+        if (oh->mesg[u].type->id == H5O_DELETED_ID) {
+            if (u < (oh->nmesgs - 1))
+                memmove(&oh->mesg[u], &oh->mesg[u + 1], ((oh->nmesgs - 1) - u) * sizeof(H5O_mesg_t));
+            oh->nmesgs--;
+            oh->num_deleted_mesgs--;
+        }
+        else
+            u++;
+    assert(oh->num_deleted_mesgs == 0);
 
     /* Loop until no changed to the object header messages & chunks */
     do {

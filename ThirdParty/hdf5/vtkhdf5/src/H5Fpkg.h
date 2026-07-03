@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -311,9 +311,8 @@ struct H5F_shared_t {
     uint64_t             rfic_flags;            /* Relaxed file integrity check (RFIC) flags */
 
     /* Cached VOL connector ID & info */
-    hid_t               vol_id;   /* ID of VOL connector for the container */
-    const H5VL_class_t *vol_cls;  /* Pointer to VOL connector class for the container */
-    void               *vol_info; /* Copy of VOL connector info for container */
+    H5VL_connector_t *vol_conn; /* VOL connector for the container */
+    void             *vol_info; /* Copy of VOL connector info for container */
 
     /* File space allocation information */
     H5F_fspace_strategy_t fs_strategy;  /* File space handling strategy	*/

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -28,13 +28,13 @@
  *
  */
 
-#include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
 #include "H5private.h"   /* Generic Functions                       */
 #include "H5Eprivate.h"  /* Error handling                          */
 #include "H5Fprivate.h"  /* File access                             */
-#include "H5FDprivate.h" /* File drivers                            */
 #include "H5FDfamily.h"  /* Family file driver                      */
+#include "H5FDpkg.h"     /* File drivers                            */
 #include "H5Iprivate.h"  /* IDs                                     */
 #include "H5MMprivate.h" /* Memory management                       */
 #include "H5Pprivate.h"  /* Property lists                          */
@@ -46,7 +46,7 @@
 #define H5FD_FAM_DEF_MEM_SIZE ((hsize_t)(100 * H5_MB))
 
 /* The driver identification number, initialized at runtime */
-static hid_t H5FD_FAMILY_g = 0;
+hid_t H5FD_FAMILY_id_g = H5I_INVALID_HID;
 
 /* The description of a file belonging to this driver. */
 typedef struct H5FD_family_t {
@@ -80,7 +80,6 @@ static herr_t H5FD__family_get_default_config(H5FD_family_fapl_t *fa_out);
 static char  *H5FD__family_get_default_printf_filename(const char *old_filename);
 
 /* Callback prototypes */
-static herr_t  H5FD__family_term(void);
 static void   *H5FD__family_fapl_get(H5FD_t *_file);
 static void   *H5FD__family_fapl_copy(const void *_old_fa);
 static herr_t  H5FD__family_fapl_free(void *_fa);
@@ -112,7 +111,7 @@ static const H5FD_class_t H5FD_family_g = {
     "family",                   /* name                 */
     HADDR_MAX,                  /* maxaddr              */
     H5F_CLOSE_WEAK,             /* fc_degree            */
-    H5FD__family_term,          /* terminate            */
+    NULL,                       /* terminate            */
     H5FD__family_sb_size,       /* sb_size              */
     H5FD__family_sb_encode,     /* sb_encode            */
     H5FD__family_sb_decode,     /* sb_decode            */
@@ -267,51 +266,48 @@ done:
 } /* end H5FD__family_get_default_printf_filename() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_family_init
+ * Function:    H5FD__family_register
  *
- * Purpose:     Initialize this driver by registering the driver with the
- *              library.
+ * Purpose:     Register the driver with the library.
  *
- * Return:      Success:    The driver ID for the family driver
- *              Failure:    H5I_INVALID_HID
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
-hid_t
-H5FD_family_init(void)
+herr_t
+H5FD__family_register(void)
 {
-    hid_t ret_value = H5I_INVALID_HID;
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_PACKAGE
 
-    if (H5I_VFL != H5I_get_type(H5FD_FAMILY_g))
-        H5FD_FAMILY_g = H5FD_register(&H5FD_family_g, sizeof(H5FD_class_t), false);
+    if (H5I_VFL != H5I_get_type(H5FD_FAMILY_id_g))
+        if ((H5FD_FAMILY_id_g = H5FD_register(&H5FD_family_g, sizeof(H5FD_class_t), false)) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTREGISTER, FAIL, "unable to register family driver");
 
-    /* Set return value */
-    ret_value = H5FD_FAMILY_g;
-
+done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5FD_family_init() */
+} /* H5FD__family_register() */
 
 /*---------------------------------------------------------------------------
- * Function:    H5FD__family_term
+ * Function:    H5FD__family_unregister
  *
- * Purpose:    Shut down the VFD
+ * Purpose:     Reset library driver info.
  *
  * Returns:     Non-negative on success or negative on failure
  *
  *---------------------------------------------------------------------------
  */
-static herr_t
-H5FD__family_term(void)
+herr_t
+H5FD__family_unregister(void)
 {
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Reset VFL ID */
-    H5FD_FAMILY_g = 0;
+    H5FD_FAMILY_id_g = H5I_INVALID_HID;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5FD__family_term() */
+} /* end H5FD__family_unregister() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_fapl_family
@@ -382,7 +378,7 @@ H5Pget_fapl_family(hid_t fapl_id, hsize_t *msize /*out*/, hid_t *memb_fapl_id /*
 
     FUNC_ENTER_API(FAIL)
 
-    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
     if (H5FD_FAMILY != H5P_peek_driver(plist))
         HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
@@ -644,13 +640,6 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-/* Disable warning for "format not a string literal" here -QAK */
-/*
- *      This pragma only needs to surround the snprintf() calls with
- *      memb_name & temp in the code below, but early (4.4.7, at least) gcc only
- *      allows diagnostic pragmas to be toggled outside of functions.
- */
-H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
 static H5FD_t *
 H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 {
@@ -736,8 +725,11 @@ H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate temporary member name");
 
     /* Check that names are unique */
+    H5_WARN_FORMAT_NONLITERAL_OFF
     snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 0);
     snprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 1);
+    H5_WARN_FORMAT_NONLITERAL_ON
+
     if (!strcmp(memb_name, temp)) {
         if (default_config) {
             temp = H5MM_xfree(temp);
@@ -746,12 +738,16 @@ H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
             name = temp;
         }
         else
-            HGOTO_ERROR(H5E_VFL, H5E_FILEEXISTS, NULL, "file names not unique");
+            HGOTO_ERROR(H5E_VFL, H5E_FILEEXISTS, NULL,
+                        "differing member numbers do not produce unique member file names - try inserting "
+                        "\"%%06d\" into the file name string");
     }
 
     /* Open all the family members */
     while (1) {
+        H5_WARN_FORMAT_NONLITERAL_OFF
         snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, file->nmembs);
+        H5_WARN_FORMAT_NONLITERAL_ON
 
         /* Enlarge member array */
         if (file->nmembs >= file->amembs) {
@@ -828,7 +824,6 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__family_open() */
-H5_GCC_CLANG_DIAG_ON("format-nonliteral")
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD__family_close
@@ -977,13 +972,6 @@ H5FD__family_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
  *
  *-------------------------------------------------------------------------
  */
-/* Disable warning for "format not a string literal" here -QAK */
-/*
- *      This pragma only needs to surround the snprintf() call with
- *      memb_name in the code below, but early (4.4.7, at least) gcc only
- *      allows diagnostic pragmas to be toggled outside of functions.
- */
-H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
 static herr_t
 H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
 {
@@ -1016,7 +1004,11 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
         /* Create another file if necessary */
         if (u >= file->nmembs || !file->memb[u]) {
             file->nmembs = MAX(file->nmembs, u + 1);
+
+            H5_WARN_FORMAT_NONLITERAL_OFF
             snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, file->name, u);
+            H5_WARN_FORMAT_NONLITERAL_ON
+
             H5_CHECK_OVERFLOW(file->memb_size, hsize_t, haddr_t);
             if (H5FD_open(false, &file->memb[u], memb_name, file->flags | H5F_ACC_CREAT, file->memb_fapl_id,
                           (haddr_t)file->memb_size) < 0)
@@ -1024,15 +1016,14 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
         } /* end if */
 
         /* Set the EOA marker for the member */
-        /* (Note compensating for base address addition in internal routine) */
         H5_CHECK_OVERFLOW(file->memb_size, hsize_t, haddr_t);
         if (addr > (haddr_t)file->memb_size) {
-            if (H5FD_set_eoa(file->memb[u], type, ((haddr_t)file->memb_size - file->pub.base_addr)) < 0)
+            if (H5FD_set_eoa(file->memb[u], type, (haddr_t)file->memb_size) < 0)
                 HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to set file eoa");
             addr -= file->memb_size;
         } /* end if */
         else {
-            if (H5FD_set_eoa(file->memb[u], type, (addr - file->pub.base_addr)) < 0)
+            if (H5FD_set_eoa(file->memb[u], type, addr) < 0)
                 HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to set file eoa");
             addr = 0;
         } /* end else */
@@ -1047,7 +1038,6 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 }
-H5_GCC_CLANG_DIAG_ON("format-nonliteral")
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD__family_get_eof
@@ -1086,9 +1076,6 @@ H5FD__family_get_eof(const H5FD_t *_file, H5FD_mem_t type)
             break;
     } /* end for */
 
-    /* Adjust for base address for file */
-    eof += file->pub.base_addr;
-
     /*
      * The file size is the number of members before the i'th member plus the
      * size of the i'th member.
@@ -1122,7 +1109,7 @@ H5FD__family_get_handle(H5FD_t *_file, hid_t fapl, void **file_handle)
     FUNC_ENTER_PACKAGE
 
     /* Get the plist structure and family offset */
-    if (NULL == (plist = H5P_object_verify(fapl, H5P_FILE_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(fapl, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_VFL, H5E_BADID, FAIL, "can't find object for ID");
     if (H5P_get(plist, H5F_ACS_FAMILY_OFFSET_NAME, &offset) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get offset for family driver");
@@ -1452,10 +1439,11 @@ H5FD__family_delete(const char *filename, hid_t fapl_id)
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate temporary member name");
 
     /* Sanity check to make sure that generated names are unique */
-    H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
+
+    H5_WARN_FORMAT_NONLITERAL_OFF
     snprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 0);
     snprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 1);
-    H5_GCC_CLANG_DIAG_ON("format-nonliteral")
+    H5_WARN_FORMAT_NONLITERAL_ON
 
     if (!strcmp(member_name, temp)) {
         if (default_config) {
@@ -1473,9 +1461,9 @@ H5FD__family_delete(const char *filename, hid_t fapl_id)
     current_member = 0;
     while (1) {
         /* Fix up the filename with the current member's number */
-        H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
+        H5_WARN_FORMAT_NONLITERAL_OFF
         snprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, current_member);
-        H5_GCC_CLANG_DIAG_ON("format-nonliteral")
+        H5_WARN_FORMAT_NONLITERAL_ON
 
         /* Attempt to delete the member files. If the first file throws an error
          * we always consider this an error. With subsequent member files, however,
@@ -1492,9 +1480,9 @@ H5FD__family_delete(const char *filename, hid_t fapl_id)
             herr_t delete_error;
 
             H5E_PAUSE_ERRORS
-            {
-                delete_error = H5FD_delete(member_name, memb_fapl_id);
-            }
+                {
+                    delete_error = H5FD_delete(member_name, memb_fapl_id);
+                }
             H5E_RESUME_ERRORS
             if (delete_error < 0)
                 break;

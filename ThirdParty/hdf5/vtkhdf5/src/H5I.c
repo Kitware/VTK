@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -73,16 +73,15 @@ static int H5I__iterate_pub_cb(void *obj, hid_t id, void *udata);
 /*******************/
 
 /*-------------------------------------------------------------------------
- * Function:    H5Iregister_type
+ * Function:    H5Iregister_type2
  *
- * Purpose:     Public interface to H5I_register_type.  Creates a new type
+ * Purpose:     Public interface to H5I_register_type2.  Creates a new type
  *              of ID's to give out.  A specific number (RESERVED) of type
  *              entries may be reserved to enable "constant" values to be handed
  *              out which are valid IDs in the type, but which do not map to any
- *              data structures and are not allocated dynamically later. HASH_SIZE is
- *              the minimum hash table size to use for the type. FREE_FUNC is
- *              called with an object pointer when the object is removed from
- *              the type.
+ *              data structures and are not allocated dynamically later.
+ *              FREE_FUNC is called with an object pointer when the object is
+ *              removed from the type.
  *
  * Return:      Success:    Type ID of the new type
  *              Failure:    H5I_BADID
@@ -90,65 +89,18 @@ static int H5I__iterate_pub_cb(void *obj, hid_t id, void *udata);
  *-------------------------------------------------------------------------
  */
 H5I_type_t
-H5Iregister_type(size_t H5_ATTR_UNUSED hash_size, unsigned reserved, H5I_free_t free_func)
+H5Iregister_type2(unsigned reserved, H5I_free_t free_func)
 {
-    H5I_class_t *cls       = NULL;      /* New ID class */
-    H5I_type_t   new_type  = H5I_BADID; /* New ID type value */
-    H5I_type_t   ret_value = H5I_BADID; /* Return value */
+    H5I_type_t ret_value = H5I_BADID;
 
     FUNC_ENTER_API(H5I_BADID)
 
-    /* Generate a new H5I_type_t value */
-
-    /* Increment the number of types */
-    if (H5I_next_type_g < H5I_MAX_NUM_TYPES) {
-        new_type = (H5I_type_t)H5I_next_type_g;
-        H5I_next_type_g++;
-    }
-    else {
-        bool done; /* Indicate that search was successful */
-        int  i;
-
-        /* Look for a free type to give out */
-        done = false;
-        for (i = H5I_NTYPES; i < H5I_MAX_NUM_TYPES && done == false; i++) {
-            if (NULL == H5I_type_info_array_g[i]) {
-                /* Found a free type ID */
-                new_type = (H5I_type_t)i;
-                done     = true;
-            }
-        }
-
-        /* Verify that we found a type to give out */
-        if (done == false)
-            HGOTO_ERROR(H5E_ID, H5E_NOSPACE, H5I_BADID, "Maximum number of ID types exceeded");
-    }
-
-    /* Allocate new ID class */
-    if (NULL == (cls = H5MM_calloc(sizeof(H5I_class_t))))
-        HGOTO_ERROR(H5E_ID, H5E_CANTALLOC, H5I_BADID, "ID class allocation failed");
-
-    /* Initialize class fields */
-    cls->type      = new_type;
-    cls->flags     = H5I_CLASS_IS_APPLICATION;
-    cls->reserved  = reserved;
-    cls->free_func = free_func;
-
-    /* Register the new ID class */
-    if (H5I_register_type(cls) < 0)
+    if (H5I_BADID == (ret_value = H5I__register_type_common(reserved, free_func)))
         HGOTO_ERROR(H5E_ID, H5E_CANTINIT, H5I_BADID, "can't initialize ID class");
 
-    /* Set return value */
-    ret_value = new_type;
-
 done:
-    /* Clean up on error */
-    if (ret_value < 0)
-        if (cls)
-            cls = H5MM_xfree(cls);
-
     FUNC_LEAVE_API(ret_value)
-} /* end H5Iregister_type() */
+} /* end H5Iregister_type2() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5Itype_exists
@@ -236,7 +188,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Iclear_type(H5I_type_t type, hbool_t force)
+H5Iclear_type(H5I_type_t type, bool force)
 {
     herr_t ret_value = FAIL; /* Return value */
 
@@ -668,13 +620,18 @@ done:
 static int
 H5I__search_cb(void *obj, hid_t id, void *_udata)
 {
-    H5I_search_ud_t *udata = (H5I_search_ud_t *)_udata; /* User data for callback */
-    herr_t           cb_ret_val;                        /* User callback return value */
-    int              ret_value = H5_ITER_ERROR;         /* Callback return value */
+    H5I_search_ud_t *udata      = (H5I_search_ud_t *)_udata; /* User data for callback */
+    herr_t           cb_ret_val = FAIL;                      /* User callback return value */
+    int              ret_value  = H5_ITER_ERROR;             /* Callback return value */
 
     FUNC_ENTER_PACKAGE_NOERR
 
-    cb_ret_val = (*udata->app_cb)(obj, id, udata->app_key);
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB_NOERR(H5_ITER_ERROR)
+        {
+            cb_ret_val = (*udata->app_cb)(obj, id, udata->app_key);
+        }
+    H5_AFTER_USER_CB_NOERR(H5_ITER_ERROR)
 
     /* Set the return value based on the callback's return value */
     if (cb_ret_val > 0) {
@@ -758,8 +715,13 @@ H5I__iterate_pub_cb(void H5_ATTR_UNUSED *obj, hid_t id, void *_udata)
 
     FUNC_ENTER_PACKAGE_NOERR
 
-    /* Invoke the callback */
-    cb_ret_val = (*udata->op)(id, udata->op_data);
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB_NOERR(H5_ITER_ERROR)
+        {
+            /* Invoke the callback */
+            cb_ret_val = (*udata->op)(id, udata->op_data);
+        }
+    H5_AFTER_USER_CB_NOERR(H5_ITER_ERROR)
 
     /* Set the return value based on the callback's return value */
     if (cb_ret_val > 0)
@@ -862,19 +824,27 @@ done:
  *
  * Purpose:     Gets a name of an object from its ID.
  *
- * Return:      Success:    The length of the name
+ * Description:
+ *              When 'name' is non-NULL:
+ *                - if 'size' > 0: writes up to 'size' bytes into the buffer
+ *                  (including null terminator) and returns the actual length
+ *                  of the name (excluding null terminator).
+ *                - if 'size' == 0: treats the call as length query, does not
+ *                  write anything to the buffer (not even a null terminator), and
+ *                  returns the actual length of the name (excluding null terminator).
  *
- *              Failure:    -1
+ *              When 'name' is NULL: does not write anything regardless of 'size'
+ *              and returns the actual length of the name (excluding null terminator).
+ *
+ *              On error, the buffer is unchanged and the function returns
+ *              a negative value.
+ *
+ * Return:      Success:    The length of the name (excluding null terminator)
+ *              Failure:    Negative
  *
  * Notes:
- *  If 'name' is non-NULL then write up to 'size' bytes into that
- *  buffer and always return the length of the entry name.
- *  Otherwise 'size' is ignored and the function does not store the name,
- *  just returning the number of characters required to store the name.
- *  If an error occurs then the buffer pointed to by 'name' (NULL or non-NULL)
- *  is unchanged and the function returns a negative value.
- *  If a zero is returned for the name's length, then there is no name
- *  associated with the ID.
+ *              If a zero is returned for the name's length, then there is no name
+ *              associated with the ID.
  *
  *-------------------------------------------------------------------------
  */
@@ -888,6 +858,10 @@ H5Iget_name(hid_t id, char *name /*out*/, size_t size)
     ssize_t                ret_value    = -1; /* Return value */
 
     FUNC_ENTER_API((-1))
+
+    /* If name size is zero, treat as length query and do not write, even a '\0' */
+    if (name && size == 0)
+        name = NULL;
 
     /* Get the object pointer */
     if (NULL == (vol_obj = H5VL_vol_object(id)))

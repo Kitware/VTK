@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -27,15 +27,19 @@
 /**
  * Default value for "no event set" / synchronous execution. Used in
  * place of a @ref hid_t identifier.
+ * \since 1.14.0
  */
 #define H5ES_NONE 0
 
 /* Special "wait" timeout values */
-#define H5ES_WAIT_FOREVER (UINT64_MAX) /**< Wait until all operations complete */
+
+/** Wait until all operations complete \since 1.14.0 */
+#define H5ES_WAIT_FOREVER (UINT64_MAX)
 
 /**
  * Don't wait for operations to complete, just check their status.
  * (This allows @ref H5ESwait to behave like a 'test' operation)
+ * \since 1.14.0
  */
 #define H5ES_WAIT_NONE (0)
 
@@ -191,7 +195,7 @@ H5_DLL hid_t H5EScreate(void);
  * \since 1.14.0
  *
  */
-H5_DLL herr_t H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress, hbool_t *err_occurred);
+H5_DLL herr_t H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress, bool *err_occurred);
 
 /**
  * \ingroup H5ES
@@ -209,7 +213,7 @@ H5_DLL herr_t H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress, h
  * \since 1.14.0
  *
  */
-H5_DLL herr_t H5EScancel(hid_t es_id, size_t *num_not_canceled, hbool_t *err_occurred);
+H5_DLL herr_t H5EScancel(hid_t es_id, size_t *num_not_canceled, bool *err_occurred);
 
 /**
  * \ingroup H5ES
@@ -265,7 +269,7 @@ H5_DLL herr_t H5ESget_op_counter(hid_t es_id, uint64_t *counter);
  * \since 1.14.0
  *
  */
-H5_DLL herr_t H5ESget_err_status(hid_t es_id, hbool_t *err_occurred);
+H5_DLL herr_t H5ESget_err_status(hid_t es_id, bool *err_occurred);
 
 /**
  * \ingroup H5ES

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -159,10 +159,10 @@ H5O__linfo_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUS
 
     /* Address of v2 B-tree to index creation order of links, if there is one */
     if (linfo->index_corder) {
-        H5_GCC_CLANG_DIAG_OFF("type-limits")
+        H5_WARN_USELESS_COMPARISON_OFF
         if (H5_IS_BUFFER_OVERFLOW(p, addr_size, p_end))
             HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
-        H5_GCC_CLANG_DIAG_ON("type-limits")
+        H5_WARN_USELESS_COMPARISON_ON
         H5F_addr_decode(f, &p, &(linfo->corder_bt2_addr));
     }
     else

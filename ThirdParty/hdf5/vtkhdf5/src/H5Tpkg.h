@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -41,9 +41,10 @@
 /* Other public headers needed by this file */
 #include "H5Spublic.h" /* Dataspace functions			*/
 
-/* Macro to ease detecting "complex" datatypes (i.e. those with base types or fields) */
-#define H5T_IS_COMPLEX(t)                                                                                    \
-    ((t) == H5T_COMPOUND || (t) == H5T_ENUM || (t) == H5T_VLEN || (t) == H5T_ARRAY || (t) == H5T_REFERENCE)
+/* Macro to ease detecting composite datatypes (i.e. those with base types or fields) */
+#define H5T_IS_COMPOSITE(t)                                                                                  \
+    ((t) == H5T_COMPOUND || (t) == H5T_ENUM || (t) == H5T_VLEN || (t) == H5T_ARRAY ||                        \
+     (t) == H5T_REFERENCE || (t) == H5T_COMPLEX)
 
 /* Macro to ease detecting fixed "string" datatypes */
 #define H5T_IS_FIXED_STRING(dt) (H5T_STRING == (dt)->type)
@@ -55,7 +56,7 @@
 #define H5T_IS_STRING(dt) (H5T_IS_FIXED_STRING(dt) || H5T_IS_VL_STRING(dt))
 
 /* Macro to ease detecting atomic datatypes */
-#define H5T_IS_ATOMIC(dt) (!(H5T_IS_COMPLEX((dt)->type) || (dt)->type == H5T_OPAQUE))
+#define H5T_IS_ATOMIC(dt) (!(H5T_IS_COMPOSITE((dt)->type) || (dt)->type == H5T_OPAQUE))
 
 /* Macro to ease retrieving class of shared datatype */
 /* (Externally, a VL string is a string; internally, a VL string is a VL.  Lie
@@ -95,19 +96,26 @@
  */
 #define H5O_DTYPE_VERSION_4 4
 
+/* This is the version that adds support for complex number types and prevents
+ * older versions of the library to attempt reading unknown types.
+ */
+#define H5O_DTYPE_VERSION_5 5
+
 /* The latest version of the format.  Look through the 'encode helper' routine
  *      and 'size' callback for places to change when updating this. */
-#define H5O_DTYPE_VERSION_LATEST H5O_DTYPE_VERSION_4
+#define H5O_DTYPE_VERSION_LATEST H5O_DTYPE_VERSION_5
 
 /* Flags for visiting datatype */
-#define H5T_VISIT_COMPLEX_FIRST 0x01 /* Visit complex datatype before visiting member/parent datatypes */
-#define H5T_VISIT_COMPLEX_LAST  0x02 /* Visit complex datatype after visiting member/parent datatypes */
-                                     /* (setting both flags will mean visiting complex type twice) */
-#define H5T_VISIT_SIMPLE 0x04        /* Visit simple datatypes (at all) */
-/* (setting H5T_VISIT_SIMPLE and _not_ setting either H5T_VISIT_COMPLEX_FIRST or H5T_VISIT_COMPLEX_LAST will
- * mean visiting _only_ "simple" "leafs" in the "tree" */
-/* (_not_ setting H5T_VISIT_SIMPLE and setting either H5T_VISIT_COMPLEX_FIRST or H5T_VISIT_COMPLEX_LAST will
- * mean visiting all nodes _except_ "simple" "leafs" in the "tree" */
+#define H5T_VISIT_COMPOSITE_FIRST                                                                            \
+    0x01                              /* Visit composite datatype before visiting member/parent datatypes    \
+                                       */
+#define H5T_VISIT_COMPOSITE_LAST 0x02 /* Visit composite datatype after visiting member/parent datatypes */
+                                      /* (setting both flags will mean visiting composite type twice) */
+#define H5T_VISIT_SIMPLE 0x04         /* Visit simple datatypes (at all) */
+/* (setting H5T_VISIT_SIMPLE and _not_ setting either H5T_VISIT_COMPOSITE_FIRST or H5T_VISIT_COMPOSITE_LAST
+ * will mean visiting _only_ "simple" "leafs" in the "tree" */
+/* (_not_ setting H5T_VISIT_SIMPLE and setting either H5T_VISIT_COMPOSITE_FIRST or H5T_VISIT_COMPOSITE_LAST
+ * will mean visiting all nodes _except_ "simple" "leafs" in the "tree" */
 
 /* Define an internal macro for converting long long to long double.  Mac OS 10.4 gives some
  * incorrect conversions. */
@@ -136,8 +144,6 @@
  * floating exception. */
 #if (H5_WANT_DATA_ACCURACY && defined(H5_LDOUBLE_TO_LLONG_ACCURATE)) || (!H5_WANT_DATA_ACCURACY)
 #define H5T_CONV_INTERNAL_LDOUBLE_ULLONG 1
-#else
-#define H5T_CONV_INTERNAL_LDOUBLE_ULLONG 0
 #endif
 
 /* Define an internal macro for converting long double to _Float16. Mac OS 13
@@ -291,6 +297,18 @@ typedef struct H5T_array_t {
     size_t   dim[H5S_MAX_RANK]; /* size in each dimension       */
 } H5T_array_t;
 
+/* Form (Rectangular, Polar, Exponential) of complex number */
+typedef enum H5T_complex_form_t {
+    H5T_COMPLEX_RECTANGULAR,
+    H5T_COMPLEX_POLAR,
+    H5T_COMPLEX_EXPONENTIAL,
+} H5T_complex_form_t;
+
+/* A complex number datatype */
+typedef struct H5T_complex_t {
+    H5T_complex_form_t form; /* Form (Rectangular, Polar, Exponential) of complex number */
+} H5T_complex_t;
+
 typedef enum H5T_state_t {
     H5T_STATE_TRANSIENT, /*type is a modifiable, closable transient */
     H5T_STATE_RDONLY,    /*transient, not modifiable, closable */
@@ -310,12 +328,13 @@ typedef struct H5T_shared_t {
     struct H5T_t  *parent;        /*parent type for derived datatypes	     */
     H5VL_object_t *owned_vol_obj; /* Vol object owned by this type (free on close) */
     union {
-        H5T_atomic_t atomic; /* an atomic datatype              */
-        H5T_compnd_t compnd; /* a compound datatype (struct)    */
-        H5T_enum_t   enumer; /* an enumeration type (enum)       */
-        H5T_vlen_t   vlen;   /* a variable-length datatype       */
-        H5T_opaque_t opaque; /* an opaque datatype              */
-        H5T_array_t  array;  /* an array datatype                */
+        H5T_atomic_t  atomic; /* an atomic datatype              */
+        H5T_compnd_t  compnd; /* a compound datatype (struct)    */
+        H5T_enum_t    enumer; /* an enumeration type (enum)      */
+        H5T_vlen_t    vlen;   /* a variable-length datatype      */
+        H5T_opaque_t  opaque; /* an opaque datatype              */
+        H5T_array_t   array;  /* an array datatype               */
+        H5T_complex_t cplx;   /* a complex number datatype       */
     } u;
 } H5T_shared_t;
 
@@ -344,7 +363,7 @@ typedef struct {
 typedef herr_t (*H5T_operator_t)(H5T_t *dt, void *op_data /*in,out*/);
 
 /*  Array of versions for Datatype */
-H5_DLLVAR const unsigned H5O_dtype_ver_bounds[H5F_LIBVER_NBOUNDS];
+H5_DLLVAR const unsigned H5O_dtype_ver_bounds[H5F_LIBVER_NBOUNDS + 1];
 
 /*
  * Alignment constraints for HDF5 types.  Accessing objects of these
@@ -384,6 +403,9 @@ H5_DLLVAR size_t H5T_NATIVE_FLOAT16_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_FLOAT_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_DOUBLE_ALIGN_g;
 H5_DLLVAR size_t H5T_NATIVE_LDOUBLE_ALIGN_g;
+H5_DLLVAR size_t H5T_NATIVE_FLOAT_COMPLEX_ALIGN_g;
+H5_DLLVAR size_t H5T_NATIVE_DOUBLE_COMPLEX_ALIGN_g;
+H5_DLLVAR size_t H5T_NATIVE_LDOUBLE_COMPLEX_ALIGN_g;
 
 /* C9x alignment constraints */
 H5_DLLVAR size_t H5T_NATIVE_INT8_ALIGN_g;
@@ -420,12 +442,20 @@ H5_DLLVAR size_t H5T_NATIVE_UINT_FAST64_ALIGN_g;
 H5_DLLVAR H5__Float16 H5T_NATIVE_FLOAT16_POS_INF_g;
 H5_DLLVAR H5__Float16 H5T_NATIVE_FLOAT16_NEG_INF_g;
 #endif
-H5_DLLVAR float  H5T_NATIVE_FLOAT_POS_INF_g;
-H5_DLLVAR float  H5T_NATIVE_FLOAT_NEG_INF_g;
-H5_DLLVAR double H5T_NATIVE_DOUBLE_POS_INF_g;
-H5_DLLVAR double H5T_NATIVE_DOUBLE_NEG_INF_g;
-H5_DLLVAR double H5T_NATIVE_LDOUBLE_POS_INF_g;
-H5_DLLVAR double H5T_NATIVE_LDOUBLE_NEG_INF_g;
+H5_DLLVAR float       H5T_NATIVE_FLOAT_POS_INF_g;
+H5_DLLVAR float       H5T_NATIVE_FLOAT_NEG_INF_g;
+H5_DLLVAR double      H5T_NATIVE_DOUBLE_POS_INF_g;
+H5_DLLVAR double      H5T_NATIVE_DOUBLE_NEG_INF_g;
+H5_DLLVAR long double H5T_NATIVE_LDOUBLE_POS_INF_g;
+H5_DLLVAR long double H5T_NATIVE_LDOUBLE_NEG_INF_g;
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLLVAR H5_float_complex   H5T_NATIVE_FLOAT_COMPLEX_POS_INF_g;
+H5_DLLVAR H5_float_complex   H5T_NATIVE_FLOAT_COMPLEX_NEG_INF_g;
+H5_DLLVAR H5_double_complex  H5T_NATIVE_DOUBLE_COMPLEX_POS_INF_g;
+H5_DLLVAR H5_double_complex  H5T_NATIVE_DOUBLE_COMPLEX_NEG_INF_g;
+H5_DLLVAR H5_ldouble_complex H5T_NATIVE_LDOUBLE_COMPLEX_POS_INF_g;
+H5_DLLVAR H5_ldouble_complex H5T_NATIVE_LDOUBLE_COMPLEX_NEG_INF_g;
+#endif
 
 /* Declare extern the free lists for H5T_t's and H5T_shared_t's */
 H5FL_EXTERN(H5T_t);
@@ -434,6 +464,9 @@ H5FL_EXTERN(H5T_shared_t);
 /* Common functions */
 H5_DLL herr_t H5T__init_native_float_types(void);
 H5_DLL herr_t H5T__init_native_internal(void);
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+H5_DLL herr_t H5T__init_native_complex_types(void);
+#endif
 H5_DLL H5T_t *H5T__create(H5T_class_t type, size_t size);
 H5_DLL H5T_t *H5T__alloc(void);
 H5_DLL herr_t H5T__free(H5T_t *dt);
@@ -453,7 +486,7 @@ H5_DLL void     H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *sr
                               size_t size);
 H5_DLL herr_t   H5T__bit_shift(uint8_t *buf, ssize_t shift_dist, size_t offset, size_t size);
 H5_DLL void     H5T__bit_set(uint8_t *buf, size_t offset, size_t size, bool value);
-H5_DLL uint64_t H5T__bit_get_d(uint8_t *buf, size_t offset, size_t size);
+H5_DLL uint64_t H5T__bit_get_d(const uint8_t *buf, size_t offset, size_t size);
 H5_DLL void     H5T__bit_set_d(uint8_t *buf, size_t offset, size_t size, uint64_t val);
 H5_DLL ssize_t  H5T__bit_find(const uint8_t *buf, size_t offset, size_t size, H5T_sdir_t direction,
                               bool value);
@@ -489,5 +522,8 @@ H5_DLL herr_t H5T__get_member_value(const H5T_t *dt, unsigned membno, void *valu
 H5_DLL char  *H5T__get_member_name(H5T_t const *dt, unsigned membno) H5_ATTR_MALLOC;
 H5_DLL herr_t H5T__sort_value(const H5T_t *dt, int *map);
 H5_DLL herr_t H5T__sort_name(const H5T_t *dt, int *map);
+
+/* Complex number functions */
+H5_DLL H5T_t *H5T__complex_create(const H5T_t *base);
 
 #endif /* H5Tpkg_H */

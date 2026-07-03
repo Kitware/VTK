@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -39,9 +39,9 @@ extern "C" {
 #endif
 
 /* HDF5 global library lock routines */
-H5_DLL herr_t H5TSmutex_acquire(unsigned int lock_count, bool *acquired);
-H5_DLL herr_t H5TSmutex_release(unsigned int *lock_count);
-H5_DLL herr_t H5TSmutex_get_attempt_count(unsigned int *count);
+H5_DLL herr_t H5TSmutex_acquire(unsigned lock_count, bool *acquired);
+H5_DLL herr_t H5TSmutex_release(unsigned *lock_count);
+H5_DLL herr_t H5TSmutex_get_attempt_count(unsigned *count);
 
 #ifdef __cplusplus
 }

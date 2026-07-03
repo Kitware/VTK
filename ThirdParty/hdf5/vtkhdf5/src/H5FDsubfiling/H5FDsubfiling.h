@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -14,12 +14,16 @@
 #ifndef H5FDsubfiling_H
 #define H5FDsubfiling_H
 
+/* Public header files */
+#include "H5FDpublic.h" /* File drivers             */
+
 #ifdef H5_HAVE_SUBFILING_VFD
+
 /**
  * \def H5FD_SUBFILING
  * Macro that returns the identifier for the #H5FD_SUBFILING driver. \hid_t{file driver}
  */
-#define H5FD_SUBFILING (H5FDperform_init(H5FD_subfiling_init))
+#define H5FD_SUBFILING (H5OPEN H5FD_SUBFILING_id_g)
 #else
 #define H5FD_SUBFILING (H5I_INVALID_HID)
 #endif
@@ -319,11 +323,12 @@ typedef struct H5FD_subfiling_config_t {
 extern "C" {
 #endif
 
-/**
- * \brief Internal routine to initialize #H5FD_SUBFILING driver. Not meant to be
- *        called directly by an HDF5 application
+/** @private
+ *
+ * \brief ID for the SUBFILING VFD
  */
-H5_DLL hid_t H5FD_subfiling_init(void);
+H5_DLLVAR hid_t H5FD_SUBFILING_id_g;
+
 /**
  * \ingroup FAPL
  *
@@ -391,6 +396,12 @@ H5_DLL herr_t H5Pset_fapl_subfiling(hid_t fapl_id, const H5FD_subfiling_config_t
  *          the default values and then calling H5Pset_fapl_subfiling() with the configured
  *          H5FD_subfiling_config_t structure.
  *
+ *          The `ioc_fapl_id` field of the returned structure will be the ID of a copied or
+ *          newly-created property list which should be closed with H5Pclose() when the
+ *          configuration structure is no longer in use. An application should also be sure to
+ *          close this property list ID first if a different property list ID will be assigned
+ *          to the `ioc_fapl_id` field.
+ *
  * \note H5Pget_fapl_subfiling() returns the #H5FD_SUBFILING driver properties as they
  *       were initially set for the File Access Property List using H5Pset_fapl_subfiling().
  *       Alternatively, the driver properties can be modified at runtime according to values
@@ -405,6 +416,103 @@ H5_DLL herr_t H5Pset_fapl_subfiling(hid_t fapl_id, const H5FD_subfiling_config_t
  *
  */
 H5_DLL herr_t H5Pget_fapl_subfiling(hid_t fapl_id, H5FD_subfiling_config_t *config_out);
+
+/**
+ * \ingroup H5VFD
+ *
+ * \brief Retrieve the subfile names for an HDF5 file using the subfiling VFD
+ *
+ * \file_id{file_id}
+ *
+ * \param[out] filenames Pointer to an array of C strings containing the subfile names.
+ *                       Memory is allocated by the function and must be freed by the caller.
+ * \param[out] len       Pointer to the number of subfiles in the \p filenames array.
+ *
+ * \returns \herr_t
+ *
+ * \details H5FDsubfiling_get_file_mapping() retrieves the names of all physical subfiles
+ *          that collectively make up a logical HDF5 file using the subfiling Virtual File
+ *          Driver (VFD). The subfiling VFD distributes file data across multiple subfiles
+ *          to improve parallel I/O performance, particularly systems where metadata operations
+ *          can become a bottleneck.
+ *
+ *          The function returns an array of subfile names corresponding to the physical files
+ *          stored on the file system. Each MPI rank may be responsible for different subfiles,
+ *          and this function provides visibility into which subfiles are associated with the
+ *          calling rank.
+ *
+ *          **Typical use cases include:**
+ *          - **File management**: Understanding the physical storage layout for backup and archival
+ *          - **Performance analysis**: Identifying subfile distribution patterns
+ *          - **File fusion**: Providing subfile lists to tools like h5fuse for recombining files
+ *          - **Debugging**: Troubleshooting subfiling configuration and I/O patterns
+ *          - **Storage optimization**: Analyzing subfile sizes and distribution
+ *
+ * \note
+ * \parblock
+ * **Memory management**: The caller must call H5free_memory() on each string in the
+ * \p filenames array, and then call H5free_memory() on the \p filenames array itself:
+ * \code{.c}
+ * for (size_t i = 0; i < len; i++) {
+ *     H5free_memory(filenames[i]);
+ * }
+ * H5free_memory(filenames);
+ * \endcode
+ * \endparblock
+ *
+ * \note
+ * \parblock
+ * **VFD requirement**: This function only works with files that use the subfiling VFD.
+ *   Calling it on files using other VFDs will result in an error. This function will not
+ *   be accessible if support for the subfiling VFD is unavailable or disabled.
+ * \endparblock
+ *
+ * \note
+ * \parblock
+ * **MPI context**: The function returns subfiles associated with the calling MPI rank.
+ * Different ranks may receive different subfile lists depending on the subfiling
+ * configuration and I/O concentrator (IOC) assignment.
+ * \endparblock
+ *
+ * \note
+ * \parblock
+ * \warning
+ * \endparblock
+ *
+ * \par Example
+ * \code{.c}
+ * #include "hdf5.h"
+ *
+ * hid_t   file_id;
+ * char  **subfile_names = NULL;
+ * size_t  num_subfiles;
+ * herr_t  ret;
+ *
+ * // Open file with subfiling VFD (setup not shown)
+ * // ...
+ *
+ * // Get subfile mapping
+ * ret = H5FDsubfiling_get_file_mapping(file_id, &subfile_names, &num_subfiles);
+ * if (ret >= 0) {
+ *     printf("Found %zu subfiles:\n", num_subfiles);
+ *     for (size_t i = 0; i < num_subfiles; i++) {
+ *         printf("  %s\n", subfile_names[i]);
+ *         H5free_memory(subfile_names[i]);  // Free each string
+ *     }
+ *     H5free_memory(subfile_names);         // Free the array
+ * } else {
+ *     printf("Error getting file mapping\n");
+ * }
+ * \endcode
+ *
+ * \see H5Pset_fapl_subfiling()
+ * \see H5Pget_fapl_subfiling()
+ * \see H5free_memory()
+ *
+ * \since 2.0.0
+ *
+ */
+H5_DLL herr_t H5FDsubfiling_get_file_mapping(hid_t file_id, char ***filenames, size_t *len);
 
 #ifdef __cplusplus
 }

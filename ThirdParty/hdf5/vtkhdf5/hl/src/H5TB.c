@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -1736,7 +1736,7 @@ H5TBcombine_tables(hid_t loc_id1, const char *dset_name1, hid_t loc_id2, const c
                 goto out;
 
             /* get the member offset */
-            member_offset = H5Tget_member_offset(tid_3, (unsigned)i);
+            member_offset = src_offset[i];
 
             snprintf(attr_name, sizeof(attr_name), "FIELD_%d_FILL", (int)i);
 
@@ -1973,6 +1973,7 @@ H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name, hi
     char          *member_name  = NULL;
     unsigned char *tmp_buf      = NULL;
     unsigned char *tmp_fill_buf = NULL;
+    size_t        *src_offset   = NULL;
     bool           inserted;
     herr_t         ret_val = -1;
 
@@ -2030,6 +2031,13 @@ H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name, hi
 
     /* get the fill value attributes */
     if ((H5TBAget_fill(loc_id, dset_name, did_1, tmp_fill_buf)) < 0)
+        goto out;
+
+    if (NULL == (src_offset = (size_t *)malloc((size_t)nfields * sizeof(size_t))))
+        goto out;
+
+    /* get field info */
+    if (H5TBget_field_info(loc_id, dset_name, NULL, NULL, src_offset, NULL) < 0)
         goto out;
 
     /*-------------------------------------------------------------------------
@@ -2232,8 +2240,7 @@ H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name, hi
             goto out;
 
         /* get the member offset */
-        member_offset = H5Tget_member_offset(tid_3, (unsigned)i);
-
+        member_offset = src_offset[i];
         snprintf(attr_name, sizeof(attr_name), "FIELD_%d_FILL", (int)i);
 
         if ((attr_id = H5Acreate2(did_3, attr_name, member_type_id, sid_3, H5P_DEFAULT, H5P_DEFAULT)) < 0)
@@ -2283,6 +2290,8 @@ H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name, hi
 out:
     if (member_name)
         H5free_memory(member_name);
+    if (src_offset)
+        free(src_offset);
     if (tmp_buf)
         free(tmp_buf);
     if (tmp_fill_buf)
@@ -2382,6 +2391,7 @@ H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name)
     char          *member_name  = NULL;
     unsigned char *tmp_buf      = NULL;
     unsigned char *tmp_fill_buf = NULL;
+    size_t        *src_offset   = NULL;
     htri_t         has_fill     = false;
     herr_t         ret_val      = -1;
 
@@ -2676,6 +2686,13 @@ H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name)
     if (H5TB_attach_attributes(table_title, loc_id, dset_name, nfields, tid_3) < 0)
         goto out;
 
+    if (NULL == (src_offset = (size_t *)malloc((size_t)nfields * sizeof(size_t))))
+        goto out;
+
+    /* get field info */
+    if (H5TBget_field_info(loc_id, dset_name, NULL, NULL, src_offset, NULL) < 0)
+        goto out;
+
     /*-------------------------------------------------------------------------
      * attach the fill attributes from previous table
      *-------------------------------------------------------------------------
@@ -2690,7 +2707,7 @@ H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name)
                 goto out;
 
             /* get the member offset */
-            member_offset = H5Tget_member_offset(tid_3, (unsigned)i);
+            member_offset = src_offset[i];
 
             snprintf(attr_name, sizeof(attr_name), "FIELD_%d_FILL", (int)i);
 
@@ -2721,6 +2738,8 @@ H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name)
 out:
     if (member_name)
         H5free_memory(member_name);
+    if (src_offset)
+        free(src_offset);
     if (tmp_fill_buf)
         free(tmp_fill_buf);
     if (tmp_buf)
@@ -3185,7 +3204,7 @@ H5TB_create_type(hid_t loc_id, const char *dset_name, size_t type_size, const si
     if (H5TBget_table_info(loc_id, dset_name, &nfields, NULL) < 0)
         goto out;
 
-    if (NULL == (fnames = (char **)calloc(sizeof(char *), (size_t)nfields)))
+    if (NULL == (fnames = (char **)calloc((size_t)nfields, sizeof(char *))))
         goto out;
 
     for (i = 0; i < nfields; i++)

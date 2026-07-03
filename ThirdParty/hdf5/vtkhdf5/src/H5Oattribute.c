@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -109,24 +109,20 @@ typedef struct {
 /* Local Prototypes */
 /********************/
 static herr_t H5O__attr_to_dense_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned H5_ATTR_UNUSED sequence,
-                                    unsigned *oh_modified, void *_udata);
+                                    void *_udata);
 static htri_t H5O__attr_find_opened_attr(const H5O_loc_t *loc, H5A_t **attr, const char *name_to_open);
-static herr_t H5O__attr_open_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned sequence,
-                                unsigned H5_ATTR_UNUSED *oh_modified, void *_udata);
+static herr_t H5O__attr_open_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned sequence, void *_udata);
 static herr_t H5O__attr_open_by_idx_cb(const H5A_t *attr, void *_ret_attr);
-static herr_t H5O__attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned H5_ATTR_UNUSED sequence,
-                                 unsigned *oh_modified, void *_udata);
+static herr_t H5O__attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned H5_ATTR_UNUSED sequence, void *_udata);
 static herr_t H5O__attr_rename_chk_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg,
-                                      unsigned H5_ATTR_UNUSED sequence, unsigned H5_ATTR_UNUSED *oh_modified,
-                                      void *_udata);
+                                      unsigned H5_ATTR_UNUSED sequence, void *_udata);
 static herr_t H5O__attr_rename_mod_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned H5_ATTR_UNUSED sequence,
-                                      unsigned *oh_modified, void *_udata);
+                                      void *_udata);
 static herr_t H5O__attr_remove_update(const H5O_loc_t *loc, H5O_t *oh, H5O_ainfo_t *ainfo);
 static herr_t H5O__attr_remove_cb(H5O_t *oh, H5O_mesg_t *mesg, unsigned H5_ATTR_UNUSED sequence,
-                                  unsigned *oh_modified, void *_udata);
-static herr_t H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg,
-                                  unsigned H5_ATTR_UNUSED sequence, unsigned H5_ATTR_UNUSED *oh_modified,
                                   void *_udata);
+static herr_t H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg,
+                                  unsigned H5_ATTR_UNUSED sequence, void *_udata);
 
 /*********************/
 /* Package Variables */
@@ -152,7 +148,7 @@ static herr_t H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg,
  */
 static herr_t
 H5O__attr_to_dense_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
-                      unsigned *oh_modified, void *_udata /*in,out*/)
+                      void *_udata /*in,out*/)
 {
     H5O_iter_cvt_t *udata     = (H5O_iter_cvt_t *)_udata; /* Operator user data */
     H5A_t          *attr      = (H5A_t *)mesg->native;    /* Pointer to attribute to insert */
@@ -178,7 +174,7 @@ H5O__attr_to_dense_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_U
         HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, H5_ITER_ERROR, "unable to convert into null message");
 
     /* Indicate that the object header was modified */
-    *oh_modified = H5O_MODIFY_CONDENSE;
+    oh->mesgs_modified = H5O_MODIFY_CONDENSE;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -201,7 +197,7 @@ H5O__attr_create(const H5O_loc_t *loc, H5A_t *attr)
     htri_t      shared_mesg;         /* Should this message be stored in the Shared Message table? */
     herr_t      ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     assert(loc);
@@ -394,8 +390,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__attr_open_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence,
-                  unsigned H5_ATTR_UNUSED *oh_modified, void *_udata /*in,out*/)
+H5O__attr_open_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned sequence, void *_udata /*in,out*/)
 {
     H5O_iter_opn_t *udata     = (H5O_iter_opn_t *)_udata; /* Operator user data */
     herr_t          ret_value = H5_ITER_CONT;             /* Return value */
@@ -776,7 +771,7 @@ done:
  */
 static herr_t
 H5O__attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
-                   unsigned *oh_modified, void *_udata /*in,out*/)
+                   void *_udata /*in,out*/)
 {
     H5O_iter_wrt_t    *udata       = (H5O_iter_wrt_t *)_udata; /* Operator user data */
     H5O_chunk_proxy_t *chk_proxy   = NULL;                     /* Chunk that message is in */
@@ -828,7 +823,7 @@ H5O__attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUS
                             "unable to update attribute in shared storage");
 
         /* Indicate that the object header was modified */
-        *oh_modified = H5O_MODIFY;
+        oh->mesgs_modified = H5O_MODIFY;
 
         /* Indicate that the attribute was found */
         udata->found = true;
@@ -928,8 +923,7 @@ done:
  */
 static herr_t
 H5O__attr_rename_chk_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/,
-                        unsigned H5_ATTR_UNUSED sequence, unsigned H5_ATTR_UNUSED *oh_modified,
-                        void *_udata /*in,out*/)
+                        unsigned H5_ATTR_UNUSED sequence, void *_udata /*in,out*/)
 {
     H5O_iter_ren_t *udata     = (H5O_iter_ren_t *)_udata; /* Operator user data */
     herr_t          ret_value = H5_ITER_CONT;             /* Return value */
@@ -970,7 +964,7 @@ H5O__attr_rename_chk_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/,
  */
 static herr_t
 H5O__attr_rename_mod_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
-                        unsigned *oh_modified, void *_udata /*in,out*/)
+                        void *_udata /*in,out*/)
 {
     H5O_iter_ren_t    *udata       = (H5O_iter_ren_t *)_udata; /* Operator user data */
     H5O_chunk_proxy_t *chk_proxy   = NULL;                     /* Chunk that message is in */
@@ -1047,7 +1041,7 @@ H5O__attr_rename_mod_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR
                     HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, H5_ITER_ERROR,
                                 "unable to release previous attribute");
 
-                *oh_modified = H5O_MODIFY_CONDENSE;
+                oh->mesgs_modified = H5O_MODIFY_CONDENSE;
 
                 /* Append renamed attribute to object header */
                 /* (Don't let it become shared) */
@@ -1065,7 +1059,7 @@ H5O__attr_rename_mod_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR
         }     /* end else */
 
         /* Indicate that the object header was modified */
-        *oh_modified |= H5O_MODIFY;
+        oh->mesgs_modified |= H5O_MODIFY;
 
         /* Indicate that we found an existing attribute with the old name */
         udata->found = true;
@@ -1415,7 +1409,7 @@ done:
  */
 static herr_t
 H5O__attr_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
-                    unsigned *oh_modified, void *_udata /*in,out*/)
+                    void *_udata /*in,out*/)
 {
     H5O_iter_rm_t *udata     = (H5O_iter_rm_t *)_udata; /* Operator user data */
     herr_t         ret_value = H5_ITER_CONT;            /* Return value */
@@ -1434,7 +1428,7 @@ H5O__attr_remove_cb(H5O_t *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNU
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, H5_ITER_ERROR, "unable to convert into null message");
 
         /* Indicate that the object header was modified */
-        *oh_modified = H5O_MODIFY_CONDENSE;
+        oh->mesgs_modified = H5O_MODIFY_CONDENSE;
 
         /* Indicate that this message is the attribute to be deleted */
         udata->found = true;
@@ -1674,7 +1668,7 @@ done:
  */
 static herr_t
 H5O__attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg /*in,out*/, unsigned H5_ATTR_UNUSED sequence,
-                    unsigned H5_ATTR_UNUSED *oh_modified, void *_udata /*in,out*/)
+                    void *_udata /*in,out*/)
 {
     H5O_iter_xst_t *udata     = (H5O_iter_xst_t *)_udata; /* Operator user data */
     herr_t          ret_value = H5_ITER_CONT;             /* Return value */

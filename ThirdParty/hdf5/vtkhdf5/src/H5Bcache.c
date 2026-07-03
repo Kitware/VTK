@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -169,6 +169,11 @@ H5B__cache_deserialize(const void *_image, size_t len, void *_udata, bool H5_ATT
     if (*image++ != (uint8_t)udata->type->id)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTLOAD, NULL, "incorrect B-tree node type");
     bt->level = *image++;
+
+    /* Check in case of level is corrupted, if expected level is known */
+    if (udata->exp_level != H5B_UNKNOWN_NODELEVEL)
+        if (bt->level != (unsigned)udata->exp_level)
+            HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "level is not as expected, possibly corrupted");
 
     /* Entries used */
     if (H5_IS_BUFFER_OVERFLOW(image, 2, p_end))

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -17,26 +17,15 @@
 #ifndef H5FDsubfiling_priv_H
 #define H5FDsubfiling_priv_H
 
-/********************/
-/* Standard Headers */
-/********************/
-
-#include <stdatomic.h>
-
 /**************/
 /* H5 Headers */
 /**************/
 
-#include "H5private.h"     /* Generic Functions                        */
-#include "H5CXprivate.h"   /* API Contexts                             */
-#include "H5Dprivate.h"    /* Datasets                                 */
-#include "H5Eprivate.h"    /* Error handling                           */
+/* Public header */
 #include "H5FDsubfiling.h" /* Subfiling VFD                            */
-#include "H5FDioc.h"       /* IOC VFD                                  */
-#include "H5Iprivate.h"    /* IDs                                      */
-#include "H5MMprivate.h"   /* Memory management                        */
-#include "H5Pprivate.h"    /* Property lists                           */
 
+/* Private headers */
+#include "H5private.h" /* Generic Functions                        */
 #include "H5subfiling_common.h"
 
 #define DRIVER_INFO_MESSAGE_MAX_INFO   65536

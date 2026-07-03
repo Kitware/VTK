@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -174,6 +174,9 @@ static herr_t H5L__get_name_by_idx_cb(H5G_loc_t *grp_loc /*in*/, const char *nam
 /* Package Variables */
 /*********************/
 
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
+
 /*****************************/
 /* Library Private Variables */
 /*****************************/
@@ -204,6 +207,27 @@ H5L_init(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+    /* FUNC_ENTER() does all the work */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5L_init() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5L__init_package
+ *
+ * Purpose:     Initialize information specific to H5L interface.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5L__init_package(void)
+{
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* Initialize user-defined link classes */
     if (H5L_register_external() < 0)
@@ -211,12 +235,12 @@ H5L_init(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5L_init() */
+} /* end H5L_init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5L_term_package
  *
- * Purpose:     Terminate any resources allocated in H5L_init.
+ * Purpose:     Terminate any resources allocated in H5L__init_package.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -229,11 +253,17 @@ H5L_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* Free the table of link types */
-    if (H5L_table_g) {
-        H5L_table_g      = (H5L_class_t *)H5MM_xfree(H5L_table_g);
-        H5L_table_used_g = H5L_table_alloc_g = 0;
-        n++;
+    if (H5_PKG_INIT_VAR) {
+        /* Free the table of link types */
+        if (H5L_table_g) {
+            H5L_table_g      = (H5L_class_t *)H5MM_xfree(H5L_table_g);
+            H5L_table_used_g = H5L_table_alloc_g = 0;
+            n++;
+        } /* end if */
+
+        /* Mark the interface as uninitialized */
+        if (0 == n)
+            H5_PKG_INIT_VAR = false;
     } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
@@ -567,9 +597,9 @@ H5L__link_cb(H5G_loc_t *grp_loc /*in*/, const char *name, const H5O_link_t H5_AT
         udata->lnk->cset = H5F_DEFAULT_CSET; /* Default character encoding for link */
 
     /* Set the link's name correctly */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_OFF
     udata->lnk->name = (char *)name;
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_ON
 
     /* Insert link into group */
     if (H5G_obj_insert(grp_loc->oloc, udata->lnk, true,
@@ -611,9 +641,15 @@ H5L__link_cb(H5G_loc_t *grp_loc /*in*/, const char *name, const H5O_link_t H5_AT
             if ((grp_id = H5VL_wrap_register(H5I_GROUP, grp, true)) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CANTREGISTER, FAIL, "unable to register ID for group");
 
-            /* Make callback */
-            if ((link_class->create_func)(name, grp_id, udata->lnk->u.ud.udata, udata->lnk->u.ud.size,
-                                          H5P_DEFAULT) < 0)
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    /* Make callback */
+                    ret_value = (link_class->create_func)(name, grp_id, udata->lnk->u.ud.udata,
+                                                          udata->lnk->u.ud.size, H5P_DEFAULT);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (ret_value < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "link creation callback failed");
         } /* end if */
     }     /* end if */
@@ -944,7 +980,15 @@ H5L__get_val_real(const H5O_link_t *lnk, void *buf, size_t size)
         link_class = H5L_find_class(lnk->type);
 
         if (link_class != NULL && link_class->query_func != NULL) {
-            if ((link_class->query_func)(lnk->name, lnk->u.ud.udata, lnk->u.ud.size, buf, size) < 0)
+            ssize_t len;
+
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    len = (link_class->query_func)(lnk->name, lnk->u.ud.udata, lnk->u.ud.size, buf, size);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (len < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "query callback returned failure");
         } /* end if */
         else if (buf && size > 0)
@@ -1310,9 +1354,9 @@ H5L__move_dest_cb(H5G_loc_t *grp_loc /*in*/, const char *name, const H5O_link_t 
 
     /* Give the object its new name */
     assert(udata->lnk->name == NULL);
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_OFF
     udata->lnk->name = (char *)name;
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_ON
 
     /* Insert the link into the group */
     if (H5G_obj_insert(grp_loc->oloc, udata->lnk, true, H5O_TYPE_UNKNOWN, NULL) < 0)
@@ -1348,13 +1392,25 @@ H5L__move_dest_cb(H5G_loc_t *grp_loc /*in*/, const char *name, const H5O_link_t 
                 HGOTO_ERROR(H5E_LINK, H5E_CANTREGISTER, FAIL, "unable to register group ID");
 
             if (udata->copy) {
-                if ((link_class->copy_func)(udata->lnk->name, grp_id, udata->lnk->u.ud.udata,
-                                            udata->lnk->u.ud.size) < 0)
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(FAIL)
+                    {
+                        ret_value = (link_class->copy_func)(udata->lnk->name, grp_id, udata->lnk->u.ud.udata,
+                                                            udata->lnk->u.ud.size);
+                    }
+                H5_AFTER_USER_CB(FAIL)
+                if (ret_value < 0)
                     HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "UD copy callback returned error");
             } /* end if */
             else {
-                if ((link_class->move_func)(udata->lnk->name, grp_id, udata->lnk->u.ud.udata,
-                                            udata->lnk->u.ud.size) < 0)
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(FAIL)
+                    {
+                        ret_value = (link_class->move_func)(udata->lnk->name, grp_id, udata->lnk->u.ud.udata,
+                                                            udata->lnk->u.ud.size);
+                    }
+                H5_AFTER_USER_CB(FAIL)
+                if (ret_value < 0)
                     HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "UD move callback returned error");
             } /* end else */
         }     /* end if */
@@ -2026,9 +2082,9 @@ H5L__link_copy_file(H5F_t *dst_file, const H5O_link_t *_src_lnk, const H5O_loc_t
         /* Set up group location for link */
         H5G_name_reset(&lnk_grp_path);
         lnk_grp_loc.path = &lnk_grp_path;
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_OFF
         lnk_grp_loc.oloc = (H5O_loc_t *)src_oloc;
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
+        H5_WARN_CAST_AWAY_CONST_ON
 
         /* Check if the target object exists */
         if (H5G_loc_exists(&lnk_grp_loc, src_lnk->name, &tar_exists) < 0)

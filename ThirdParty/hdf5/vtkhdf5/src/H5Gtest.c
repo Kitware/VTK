@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -83,11 +83,12 @@
 htri_t
 H5G__is_empty_test(hid_t gid)
 {
-    H5G_t *grp            = NULL;  /* Pointer to group */
-    htri_t msg_exists     = false; /* Indicate that a header message is present */
-    htri_t linfo_exists   = false; /* Indicate that the 'link info' message is present */
-    bool   api_ctx_pushed = false; /* Whether API context pushed */
-    htri_t ret_value      = true;  /* Return value */
+    H5G_t      *grp            = NULL;        /* Pointer to group */
+    htri_t      msg_exists     = false;       /* Indicate that a header message is present */
+    htri_t      linfo_exists   = false;       /* Indicate that the 'link info' message is present */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    htri_t      ret_value      = true;        /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -96,7 +97,7 @@ H5G__is_empty_test(hid_t gid)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -203,10 +204,11 @@ done:
 htri_t
 H5G__has_links_test(hid_t gid, unsigned *nmsgs)
 {
-    H5G_t *grp            = NULL;  /* Pointer to group */
-    htri_t msg_exists     = 0;     /* Indicate that a header message is present */
-    bool   api_ctx_pushed = false; /* Whether API context pushed */
-    htri_t ret_value      = true;  /* Return value */
+    H5G_t      *grp            = NULL;        /* Pointer to group */
+    htri_t      msg_exists     = 0;           /* Indicate that a header message is present */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    htri_t      ret_value      = true;        /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -215,7 +217,7 @@ H5G__has_links_test(hid_t gid, unsigned *nmsgs)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -269,10 +271,11 @@ done:
 htri_t
 H5G__has_stab_test(hid_t gid)
 {
-    H5G_t *grp            = NULL;  /* Pointer to group */
-    htri_t msg_exists     = 0;     /* Indicate that a header message is present */
-    bool   api_ctx_pushed = false; /* Whether API context pushed */
-    htri_t ret_value      = true;  /* Return value */
+    H5G_t      *grp            = NULL;        /* Pointer to group */
+    htri_t      msg_exists     = 0;           /* Indicate that a header message is present */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    htri_t      ret_value      = true;        /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -281,7 +284,7 @@ H5G__has_stab_test(hid_t gid)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -327,10 +330,11 @@ done:
 htri_t
 H5G__is_new_dense_test(hid_t gid)
 {
-    H5G_t *grp            = NULL;  /* Pointer to group */
-    htri_t msg_exists     = 0;     /* Indicate that a header message is present */
-    bool   api_ctx_pushed = false; /* Whether API context pushed */
-    htri_t ret_value      = true;  /* Return value */
+    H5G_t      *grp            = NULL;        /* Pointer to group */
+    htri_t      msg_exists     = 0;           /* Indicate that a header message is present */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    htri_t      ret_value      = true;        /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -339,7 +343,7 @@ H5G__is_new_dense_test(hid_t gid)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -403,12 +407,13 @@ done:
 herr_t
 H5G__new_dense_info_test(hid_t gid, hsize_t *name_count, hsize_t *corder_count)
 {
-    H5B2_t     *bt2_name   = NULL;        /* v2 B-tree handle for name index */
-    H5B2_t     *bt2_corder = NULL;        /* v2 B-tree handle for creation order index */
-    H5O_linfo_t linfo;                    /* Link info message */
-    H5G_t      *grp            = NULL;    /* Pointer to group */
-    bool        api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t      ret_value      = SUCCEED; /* Return value */
+    H5B2_t     *bt2_name   = NULL;            /* v2 B-tree handle for name index */
+    H5B2_t     *bt2_corder = NULL;            /* v2 B-tree handle for creation order index */
+    H5O_linfo_t linfo;                        /* Link info message */
+    H5G_t      *grp            = NULL;        /* Pointer to group */
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t      ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -417,7 +422,7 @@ H5G__new_dense_info_test(hid_t gid, hsize_t *name_count, hsize_t *corder_count)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -494,10 +499,11 @@ done:
 herr_t
 H5G__lheap_size_test(hid_t gid, size_t *lheap_size)
 {
-    H5G_t     *grp = NULL;               /* Pointer to group */
-    H5O_stab_t stab;                     /* Symbol table message	*/
-    bool       api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t     ret_value      = SUCCEED; /* Return value */
+    H5G_t      *grp = NULL;                   /* Pointer to group */
+    H5O_stab_t  stab;                         /* Symbol table message	*/
+    H5CX_node_t api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool        api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t      ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -506,7 +512,7 @@ H5G__lheap_size_test(hid_t gid, size_t *lheap_size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 
@@ -550,10 +556,11 @@ done:
 herr_t
 H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsigned *obj_hidden)
 {
-    void             *obj_ptr;                  /* Pointer to object for ID */
-    const H5G_name_t *obj_path;                 /* Pointer to group hier. path for obj */
-    bool              api_ctx_pushed = false;   /* Whether API context pushed */
-    herr_t            ret_value      = SUCCEED; /* Return value */
+    void             *obj_ptr;                      /* Pointer to object for ID */
+    const H5G_name_t *obj_path;                     /* Pointer to group hier. path for obj */
+    H5CX_node_t       api_ctx        = {{0}, NULL}; /* API context node to push */
+    bool              api_ctx_pushed = false;       /* Whether API context pushed */
+    herr_t            ret_value      = SUCCEED;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -566,7 +573,7 @@ H5G__user_path_test(hid_t obj_id, char *user_path, size_t *user_path_len, unsign
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get object for ID");
 
     /* Set API context */
-    if (H5CX_push() < 0)
+    if (H5CX_push(&api_ctx) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set API context");
     api_ctx_pushed = true;
 

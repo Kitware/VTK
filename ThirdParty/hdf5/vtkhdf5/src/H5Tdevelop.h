@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -39,7 +39,7 @@ typedef enum H5T_cmd_t {
 } H5T_cmd_t;
 
 /**
- * How is the `bkg' buffer used by the conversion function?
+ * How is the `bkg` buffer used by the conversion function?
  */
 typedef enum H5T_bkg_t {
     H5T_BKG_NO   = 0, /**< background buffer is not needed, send NULL */
@@ -54,7 +54,7 @@ typedef enum H5T_bkg_t {
 typedef struct H5T_cdata_t {
     H5T_cmd_t command;  /**< what should the conversion function do?    */
     H5T_bkg_t need_bkg; /**< is the background buffer needed?	     */
-    hbool_t   recalc;   /**< recalculate private data		     */
+    bool      recalc;   /**< recalculate private data		     */
     void     *priv;     /**< private data				     */
 } H5T_cdata_t;
 //! <!-- [H5T_cdata_t_snip] -->

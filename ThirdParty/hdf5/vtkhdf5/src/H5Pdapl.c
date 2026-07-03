@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -97,6 +97,12 @@
 #define H5D_ACS_EFILE_PREFIX_CMP   H5P__dapl_efile_pref_cmp
 #define H5D_ACS_EFILE_PREFIX_CLOSE H5P__dapl_efile_pref_close
 
+/* Definitions for use of VDS mapping spatial tree */
+#define H5D_ACS_USE_TREE_SIZE sizeof(bool)
+#define H5D_ACS_USE_TREE_DEF  true
+#define H5D_ACS_USE_TREE_ENC  H5P__encode_bool
+#define H5D_ACS_USE_TREE_DEC  H5P__decode_bool
+
 /******************/
 /* Local Typedefs */
 /******************/
@@ -175,6 +181,7 @@ static const H5D_append_flush_t H5D_def_append_flush_g =
 static const char *H5D_def_efile_prefix_g =
     H5D_ACS_EFILE_PREFIX_DEF;                                     /* Default external file prefix string */
 static const char *H5D_def_vds_prefix_g = H5D_ACS_VDS_PREFIX_DEF; /* Default vds prefix string */
+static const bool  H5D_def_tree_g = H5D_ACS_USE_TREE_DEF; /* Default use of spatial tree for VDS mappings */
 
 /*-------------------------------------------------------------------------
  * Function:    H5P__dacc_reg_prop
@@ -245,6 +252,11 @@ H5P__dacc_reg_prop(H5P_genclass_t *pclass)
                            H5D_ACS_EFILE_PREFIX_ENC, H5D_ACS_EFILE_PREFIX_DEC, H5D_ACS_EFILE_PREFIX_DEL,
                            H5D_ACS_EFILE_PREFIX_COPY, H5D_ACS_EFILE_PREFIX_CMP,
                            H5D_ACS_EFILE_PREFIX_CLOSE) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
+
+    /* Register the spatial tree use property */
+    if (H5P__register_real(pclass, H5D_ACS_USE_TREE_NAME, H5D_ACS_USE_TREE_SIZE, &H5D_def_tree_g, NULL, NULL,
+                           NULL, H5D_ACS_USE_TREE_ENC, H5D_ACS_USE_TREE_DEC, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
 done:
@@ -771,7 +783,7 @@ H5Pset_chunk_cache(hid_t dapl_id, size_t rdcc_nslots, size_t rdcc_nbytes, double
             "raw data cache w0 value must be between 0.0 and 1.0 inclusive, or H5D_CHUNK_CACHE_W0_DEFAULT");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set sizes */
@@ -811,7 +823,7 @@ H5Pget_chunk_cache(hid_t dapl_id, size_t *rdcc_nslots /*out*/, size_t *rdcc_nbyt
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get default file access plist */
@@ -951,7 +963,7 @@ H5P__decode_chunk_cache_nslots(const void **_pp, void *_value)
  *
  * Purpose:        Encode the rdcc_nbytes parameter to a serialized
  *                 property list.  Similar to H5P__encode_size_t except
- *                 the value of 255 for the enc_size field is reserved to
+ *                 the value of 0 for the enc_size field is reserved to
  *                 indicate H5D_ACS_DATA_CACHE_BYTE_SIZE_DEF, in which
  *                 nothing further is encoded.
  *
@@ -973,7 +985,7 @@ H5P__encode_chunk_cache_nbytes(const void *value, void **_pp, size_t *size)
     assert(size);
 
     /* Determine if this is the default value, in which case only encode
-     * enc_size (as 255).  Also set size needed for encoding. */
+     * enc_size (as 0).  Also set size needed for encoding. */
     if (*(const size_t *)value == H5D_ACS_DATA_CACHE_BYTE_SIZE_DEF) {
         enc_size = 0;
         *size += 1;
@@ -1005,7 +1017,7 @@ H5P__encode_chunk_cache_nbytes(const void *value, void **_pp, size_t *size)
  *
  * Purpose:        Decode the rdcc_nbytes parameter from a serialized
  *                 property list.  Similar to H5P__decode_size_t except
- *                 the value of 255 for the enc_size field is reserved to
+ *                 the value of 0 for the enc_size field is reserved to
  *                 indicate H5D_ACS_DATA_CACHE_BYTE_SIZE_DEF, in which
  *                 nothing further needs to be decoded.
  *
@@ -1076,7 +1088,7 @@ H5Pset_virtual_view(hid_t plist_id, H5D_vds_view_t view)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid bounds option");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Update property list */
@@ -1107,7 +1119,7 @@ H5Pget_virtual_view(hid_t plist_id, H5D_vds_view_t *view /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value from property list */
@@ -1216,7 +1228,7 @@ H5Pset_virtual_printf_gap(hid_t plist_id, hsize_t gap_size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid printf gap size");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Update property list */
@@ -1248,7 +1260,7 @@ H5Pget_virtual_printf_gap(hid_t plist_id, hsize_t *gap_size /*out*/)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value from property list */
@@ -1300,7 +1312,7 @@ H5Pset_append_flush(hid_t plist_id, unsigned ndims, const hsize_t *boundary, H5D
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "callback is NULL while user data is not");
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set up values */
@@ -1348,7 +1360,7 @@ H5Pget_append_flush(hid_t plist_id, unsigned ndims, hsize_t boundary[], H5D_appe
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Retrieve info for append flush */
@@ -1397,7 +1409,7 @@ H5Pset_efile_prefix(hid_t plist_id, const char *prefix)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set prefix */
@@ -1429,7 +1441,7 @@ H5Pget_efile_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get the current prefix */
@@ -1483,7 +1495,7 @@ H5Pset_virtual_prefix(hid_t plist_id, const char *prefix)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, false)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set prefix */
@@ -1517,7 +1529,7 @@ H5Pget_virtual_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     FUNC_ENTER_API(FAIL)
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get the current prefix */
@@ -1543,3 +1555,99 @@ H5Pget_virtual_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_virtual_prefix() */
+
+/*-----------------------------------------------------------------------------
+ * Function: H5Pget_virtual_spatial_tree
+ *
+ * Purpose:
+ *
+ *     Access the flag for whether or not datasets created by the given dcpl
+ *     construct a spatial tree and use it when searching over VDS mappings
+ *
+ *     Use of a spatial tree will accelerate the process of searching through mappings
+ *     to determine which contain intersections with the user's selection region.
+ *     With the tree disabled, all mappings will simply be iterated through and
+ *     checked directly.
+ *
+ *     Certain workflows may find that tree creation overhead outweighs the time saved
+ *     on reads. In this case, disabling this property will lead to a performance improvement,
+ *     though it is expected that almost all cases will benefit from the tree on net.
+ *
+ * Return:
+ *
+ *     Failure: Negative value (FAIL)
+ *     Success: Non-negative value (SUCCEED)
+ *
+ *-----------------------------------------------------------------------------
+ */
+herr_t
+H5Pget_virtual_spatial_tree(hid_t dcpl_id, bool *use_tree)
+{
+    bool            setting   = false;
+    H5P_genplist_t *plist     = NULL;
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+
+    if (NULL == use_tree)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "receiving pointer cannot be NULL");
+
+    plist = H5P_object_verify(dcpl_id, H5P_DATASET_ACCESS, true);
+    if (NULL == plist)
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
+
+    if (H5P_peek(plist, H5D_ACS_USE_TREE_NAME, &setting) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get dset use spatial tree flag value");
+
+    *use_tree = setting;
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Pget_virtual_spatial_tree() */
+
+/*-----------------------------------------------------------------------------
+ * Function: H5Pset_virtual_spatial_tree
+ *
+ * Purpose:
+ *
+ *     Set the DAPL to construct a spatial tree and use it when searching over
+ *     VDS mappings
+ *
+ *     Use of a spatial tree will accelerate the process of searching through mappings
+ *     to determine which contain intersections with the user's selection region.
+ *     With the tree disabled, all mappings will simply be iterated through and
+ *     checked directly.
+ *
+ *     Certain workflows may find that tree creation overhead outweighs the time saved
+ *     on reads. In this case, disabling this property will lead to a performance improvement,
+ *     though it is expected that almost all cases will benefit from the tree on net.
+ *
+ * Return:
+ *
+ *     Failure: Negative value (FAIL)
+ *     Success: Non-negative value (SUCCEED)
+ *
+ *-----------------------------------------------------------------------------
+ */
+herr_t
+H5Pset_virtual_spatial_tree(hid_t dapl_id, bool use_tree)
+{
+    H5P_genplist_t *plist     = NULL;
+    bool            prev_set  = false;
+    herr_t          ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+
+    plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS, false);
+    if (NULL == plist)
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
+
+    if (H5P_peek(plist, H5D_ACS_USE_TREE_NAME, &prev_set) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get extant dset use spatial tree flag value");
+
+    if (H5P_poke(plist, H5D_ACS_USE_TREE_NAME, &use_tree) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set dset use spatial tree flag value");
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* H5Pset_virtual_spatial_tree() */

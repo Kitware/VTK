@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -23,10 +23,13 @@
  *      reporting macros.
  */
 #define H5PL_MODULE
-#define H5_MY_PKG     H5PL
-#define H5_MY_PKG_ERR H5E_PLUGIN
+#define H5_MY_PKG      H5PL
+#define H5_MY_PKG_INIT YES
 
 /** \page H5PL_UG HDF5 Plugins
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_filter_plugins HDF5 Filter Plugins
  *
@@ -42,8 +45,8 @@
  * available on the system in a default location. The HDF5 filter plugin is discussed in detail in the
  * \ref subsec_filter_plugins_prog section.
  *
- * \subsubsection subsubsec_filter_plugins_model_apply Applying a Third-party Filter When Creating and Writing
- * a Dataset A third-party filter can be added to the HDF5 filter pipeline by using the H5Pset_filter
+ * \subsubsection sssec_filt_pl_model_apply Applying a Third-party Filter When Creating and Writing a Dataset
+ * A third-party filter can be added to the HDF5 filter pipeline by using the H5Pset_filter
  * function, as a user would do in the past. The identification number and the filter parameters should be
  * available to the application. For example, if the application intends to apply the HDF5 bzip2 compression
  * filter that was registered with The HDF Group and has an identification number 307
@@ -368,6 +371,11 @@
  * href="https://\PLURL/docs/INSTALL_With_CMake.txt">INSTALL_With_CMake</a>
  * <a
  * href="https://\PLURL/docs/USING_HDF5_AND_CMake.txt">USING_HDF5_AND_CMake</a>
+ *
+ * Previous Chapter \ref sec_reference - Next Chapter \ref sec_addition
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  */
 
 /**

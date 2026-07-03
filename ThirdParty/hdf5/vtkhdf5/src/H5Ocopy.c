@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -1464,12 +1464,17 @@ H5O__copy_search_comm_dt(H5F_t *file_src, H5O_t *oh_src, H5O_loc_t *oloc_dst /*i
 
             /* Walk through the list of datatype suggestions */
             while (suggestion) {
+                bool exists = false;
+
                 /* Find the object */
-                if (H5G_loc_find(&dst_root_loc, suggestion->path, &obj_loc /*out*/) < 0)
-                    /* Ignore errors - i.e. suggestions not present in
-                     * destination file */
-                    H5E_clear_stack();
-                else
+                if (H5G_loc_exists(&dst_root_loc, suggestion->path, &exists /*out*/) < 0)
+                    HGOTO_ERROR(H5E_OHDR, H5E_CANTFIND, FAIL, "can't check object's existence");
+
+                if (exists) {
+                    /* Retrieve the object location info */
+                    if (H5G_loc_find(&dst_root_loc, suggestion->path, &obj_loc /*out*/) < 0)
+                        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't retrieve object location");
+
                     /* Check object and add to skip list if appropriate */
                     if (H5O__copy_search_comm_dt_check(&obj_oloc, &udata) < 0) {
                         if (H5G_loc_free(&obj_loc) < 0)
@@ -1477,9 +1482,10 @@ H5O__copy_search_comm_dt(H5F_t *file_src, H5O_t *oh_src, H5O_loc_t *oloc_dst /*i
                         HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't check object");
                     } /* end if */
 
-                /* Free location */
-                if (H5G_loc_free(&obj_loc) < 0)
-                    HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "can't free location");
+                    /* Free location */
+                    if (H5G_loc_free(&obj_loc) < 0)
+                        HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "can't free location");
+                } /* end if */
 
                 /* Advance the suggestion pointer */
                 suggestion = suggestion->next;
@@ -1500,9 +1506,16 @@ H5O__copy_search_comm_dt(H5F_t *file_src, H5O_t *oh_src, H5O_loc_t *oloc_dst /*i
             H5O_mcdt_search_ret_t search_cb_ret = H5O_MCDT_SEARCH_CONT;
 
             /* Make callback to see if we should search destination file */
-            if (cpy_info->mcdt_cb)
-                if ((search_cb_ret = cpy_info->mcdt_cb(cpy_info->mcdt_ud)) == H5O_MCDT_SEARCH_ERROR)
+            if (cpy_info->mcdt_cb) {
+                /* Prepare & restore library for user callback */
+                H5_BEFORE_USER_CB(FAIL)
+                    {
+                        search_cb_ret = cpy_info->mcdt_cb(cpy_info->mcdt_ud);
+                    }
+                H5_AFTER_USER_CB(FAIL)
+                if (H5O_MCDT_SEARCH_ERROR == search_cb_ret)
                     HGOTO_ERROR(H5E_OHDR, H5E_CALLBACK, FAIL, "callback returned error");
+            }
 
             if (search_cb_ret == H5O_MCDT_SEARCH_CONT) {
                 /* Build the complete dst dt list */

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -20,14 +20,18 @@
 #ifndef H5FDioc_H
 #define H5FDioc_H
 
-#include "H5FDsubfiling.h"
+/* Public header files */
+#include "H5FDpublic.h" /* File drivers             */
 
 #ifdef H5_HAVE_IOC_VFD
+
 /**
  * \def H5FD_IOC
  * Macro that returns the identifier for the #H5FD_IOC driver. \hid_t{file driver}
+ *
+ * \since 1.14.0
  */
-#define H5FD_IOC (H5FDperform_init(H5FD_ioc_init))
+#define H5FD_IOC (H5OPEN H5FD_IOC_id_g)
 #else
 #define H5FD_IOC (H5I_INVALID_HID)
 #endif
@@ -35,6 +39,8 @@
 /**
  * \def H5FD_IOC_NAME
  * The canonical name for the #H5FD_IOC driver
+ *
+ * \since 1.14.0
  */
 #define H5FD_IOC_NAME "ioc"
 
@@ -114,11 +120,12 @@ typedef struct H5FD_ioc_config_t {
 extern "C" {
 #endif
 
-/**
- * \brief Internal routine to initialize #H5FD_IOC driver. Not meant to be
- *        called directly by an HDF5 application
+/** @private
+ *
+ * \brief ID for the IOC VFD
  */
-H5_DLL hid_t H5FD_ioc_init(void);
+H5_DLLVAR hid_t H5FD_IOC_id_g;
+
 /**
  * \ingroup FAPL
  *
@@ -174,18 +181,6 @@ H5_DLL herr_t H5Pset_fapl_ioc(hid_t fapl_id, H5FD_ioc_config_t *vfd_config);
  *
  */
 H5_DLL herr_t H5Pget_fapl_ioc(hid_t fapl_id, H5FD_ioc_config_t *config_out);
-/**
- * \brief Internal routine for managing exclusive access to critical sections
- *        by the #H5FD_IOC driver's worker threads. Not meant to be called
- *        directly by an HDF5 application
- */
-H5_DLL void H5FD_ioc_begin_thread_exclusive(void);
-/**
- * \brief Internal routine for managing exclusive access to critical sections
- *        by the #H5FD_IOC driver's worker threads. Not meant to be called
- *        directly by an HDF5 application
- */
-H5_DLL void H5FD_ioc_end_thread_exclusive(void);
 
 #ifdef __cplusplus
 }

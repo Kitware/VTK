@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -18,7 +18,31 @@ extern "C" {
 #endif
 
 /** \page H5TB_UG HDF5 High Level Table
- * @todo Under Construction
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
+ *
+ * \section sec_hl_table_api HDF5 Table APIs
+ *
+ * \subsection subsec_hl_table_intro Introduction
+ *
+ * The HDF5 Table API (H5TB) provides functions for creating and manipulating HDF5 datasets
+ * as tables with named fields, similar to database tables or spreadsheets. Tables organize
+ * data in rows and columns, making them ideal for storing structured records.
+ *
+ * @see H5TB Reference Manual
+ *
+ * \subsection subsec_hl_table_ops Table Operations
+ *
+ * Create tables with #H5TBmake_table, append rows with #H5TBappend_records, write data with
+ * #H5TBwrite_records, and read with #H5TBread_records. Insert or delete records using
+ * #H5TBinsert_record and #H5TBdelete_record. Add or delete fields with #H5TBinsert_field
+ * and #H5TBdelete_field. Query table properties with #H5TBget_table_info and #H5TBget_field_info.
+ *
+ * Previous Chapter \ref sec_hl_lite_api - Next Chapter \ref sec_hl_packet_table_api
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  */
 
 /**\defgroup H5TB HDF5 Table APIs (H5TB)
@@ -124,7 +148,7 @@ extern "C" {
  *          identifier loc_id.
  *
  */
-H5_HLDLL herr_t H5TBmake_table(const char *table_title, hid_t loc_id, const char *dset_name, hsize_t nfields,
+H5HL_DLL herr_t H5TBmake_table(const char *table_title, hid_t loc_id, const char *dset_name, hsize_t nfields,
                                hsize_t nrecords, size_t type_size, const char *field_names[],
                                const size_t *field_offset, const hid_t *field_types, hsize_t chunk_size,
                                void *fill_data, int compress, const void *buf);
@@ -162,7 +186,7 @@ H5_HLDLL herr_t H5TBmake_table(const char *table_title, hid_t loc_id, const char
  *          new records.
  *
  */
-H5_HLDLL herr_t H5TBappend_records(hid_t loc_id, const char *dset_name, hsize_t nrecords, size_t type_size,
+H5HL_DLL herr_t H5TBappend_records(hid_t loc_id, const char *dset_name, hsize_t nrecords, size_t type_size,
                                    const size_t *field_offset, const size_t *dst_sizes, const void *buf);
 
 /**
@@ -191,7 +215,7 @@ H5_HLDLL herr_t H5TBappend_records(hid_t loc_id, const char *dset_name, hsize_t 
  *          to the object specified by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBwrite_records(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
+H5HL_DLL herr_t H5TBwrite_records(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
                                   size_t type_size, const size_t *field_offset, const size_t *dst_sizes,
                                   const void *buf);
 
@@ -223,7 +247,7 @@ H5_HLDLL herr_t H5TBwrite_records(hid_t loc_id, const char *dset_name, hsize_t s
  *          by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBwrite_fields_name(hid_t loc_id, const char *dset_name, const char *field_names,
+H5HL_DLL herr_t H5TBwrite_fields_name(hid_t loc_id, const char *dset_name, const char *field_names,
                                       hsize_t start, hsize_t nrecords, size_t type_size,
                                       const size_t *field_offset, const size_t *dst_sizes, const void *buf);
 
@@ -258,7 +282,7 @@ H5_HLDLL herr_t H5TBwrite_fields_name(hid_t loc_id, const char *dset_name, const
  *          specified by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBwrite_fields_index(hid_t loc_id, const char *dset_name, hsize_t nfields,
+H5HL_DLL herr_t H5TBwrite_fields_index(hid_t loc_id, const char *dset_name, hsize_t nfields,
                                        const int *field_index, hsize_t start, hsize_t nrecords,
                                        size_t type_size, const size_t *field_offset, const size_t *dst_sizes,
                                        const void *buf);
@@ -295,7 +319,7 @@ H5_HLDLL herr_t H5TBwrite_fields_index(hid_t loc_id, const char *dset_name, hsiz
  *          the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBread_table(hid_t loc_id, const char *dset_name, size_t dst_size, const size_t *dst_offset,
+H5HL_DLL herr_t H5TBread_table(hid_t loc_id, const char *dset_name, size_t dst_size, const size_t *dst_offset,
                                const size_t *dst_sizes, void *dst_buf);
 
 /**
@@ -325,7 +349,7 @@ H5_HLDLL herr_t H5TBread_table(hid_t loc_id, const char *dset_name, size_t dst_s
  *          attached to the object specified by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBread_fields_name(hid_t loc_id, const char *dset_name, const char *field_names,
+H5HL_DLL herr_t H5TBread_fields_name(hid_t loc_id, const char *dset_name, const char *field_names,
                                      hsize_t start, hsize_t nrecords, size_t type_size,
                                      const size_t *field_offset, const size_t *dst_sizes, void *buf);
 
@@ -360,7 +384,7 @@ H5_HLDLL herr_t H5TBread_fields_name(hid_t loc_id, const char *dset_name, const 
  *          to the object specified by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBread_fields_index(hid_t loc_id, const char *dset_name, hsize_t nfields,
+H5HL_DLL herr_t H5TBread_fields_index(hid_t loc_id, const char *dset_name, hsize_t nfields,
                                       const int *field_index, hsize_t start, hsize_t nrecords,
                                       size_t type_size, const size_t *field_offset, const size_t *dst_sizes,
                                       void *buf);
@@ -392,7 +416,7 @@ H5_HLDLL herr_t H5TBread_fields_index(hid_t loc_id, const char *dset_name, hsize
  *          identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBread_records(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
+H5HL_DLL herr_t H5TBread_records(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
                                  size_t type_size, const size_t *dst_offset, const size_t *dst_sizes,
                                  void *buf);
 
@@ -422,7 +446,7 @@ H5_HLDLL herr_t H5TBread_records(hid_t loc_id, const char *dset_name, hsize_t st
  *          by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBget_table_info(hid_t loc_id, const char *dset_name, hsize_t *nfields, hsize_t *nrecords);
+H5HL_DLL herr_t H5TBget_table_info(hid_t loc_id, const char *dset_name, hsize_t *nfields, hsize_t *nrecords);
 
 /**
  * --------------------------------------------------------------------------
@@ -449,7 +473,7 @@ H5_HLDLL herr_t H5TBget_table_info(hid_t loc_id, const char *dset_name, hsize_t 
  *          by the identifier \p loc_id.
  *
  */
-H5_HLDLL herr_t H5TBget_field_info(hid_t loc_id, const char *dset_name, char *field_names[],
+H5HL_DLL herr_t H5TBget_field_info(hid_t loc_id, const char *dset_name, char *field_names[],
                                    size_t *field_sizes, size_t *field_offsets, size_t *type_size);
 
 /*-------------------------------------------------------------------------
@@ -478,7 +502,7 @@ H5_HLDLL herr_t H5TBget_field_info(hid_t loc_id, const char *dset_name, char *fi
  *          ("pulling up" all the records after it).
  *
  */
-H5_HLDLL herr_t H5TBdelete_record(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords);
+H5HL_DLL herr_t H5TBdelete_record(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords);
 
 /**
  * --------------------------------------------------------------------------
@@ -505,7 +529,7 @@ H5_HLDLL herr_t H5TBdelete_record(hid_t loc_id, const char *dset_name, hsize_t s
  *          ("pushing down" all the records after it)
  *
  */
-H5_HLDLL herr_t H5TBinsert_record(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
+H5HL_DLL herr_t H5TBinsert_record(hid_t loc_id, const char *dset_name, hsize_t start, hsize_t nrecords,
                                   size_t dst_size, const size_t *dst_offset, const size_t *dst_sizes,
                                   void *buf);
 
@@ -533,7 +557,7 @@ H5_HLDLL herr_t H5TBinsert_record(hid_t loc_id, const char *dset_name, hsize_t s
  *          are attached to the object specified by the identifier loc_id.
  *
  */
-H5_HLDLL herr_t H5TBadd_records_from(hid_t loc_id, const char *dset_name1, hsize_t start1, hsize_t nrecords,
+H5HL_DLL herr_t H5TBadd_records_from(hid_t loc_id, const char *dset_name1, hsize_t start1, hsize_t nrecords,
                                      const char *dset_name2, hsize_t start2);
 
 /**
@@ -563,7 +587,7 @@ H5_HLDLL herr_t H5TBadd_records_from(hid_t loc_id, const char *dset_name1, hsize
  *          table is written in the first file.
  *
  */
-H5_HLDLL herr_t H5TBcombine_tables(hid_t loc_id1, const char *dset_name1, hid_t loc_id2,
+H5HL_DLL herr_t H5TBcombine_tables(hid_t loc_id1, const char *dset_name1, hid_t loc_id2,
                                    const char *dset_name2, const char *dset_name3);
 
 /**
@@ -592,7 +616,7 @@ H5_HLDLL herr_t H5TBcombine_tables(hid_t loc_id1, const char *dset_name1, hid_t 
  *          time if the table is large.
  *
  */
-H5_HLDLL herr_t H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name,
+H5HL_DLL herr_t H5TBinsert_field(hid_t loc_id, const char *dset_name, const char *field_name,
                                  hid_t field_type, hsize_t position, const void *fill_data, const void *buf);
 
 /**
@@ -615,7 +639,7 @@ H5_HLDLL herr_t H5TBinsert_field(hid_t loc_id, const char *dset_name, const char
  *          time if the table is large.
  *
  */
-H5_HLDLL herr_t H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name);
+H5HL_DLL herr_t H5TBdelete_field(hid_t loc_id, const char *dset_name, const char *field_name);
 
 /*-------------------------------------------------------------------------
  *
@@ -640,7 +664,7 @@ H5_HLDLL herr_t H5TBdelete_field(hid_t loc_id, const char *dset_name, const char
  *          by \p loc_id in a buffer \p table_title.
  *
  */
-H5_HLDLL herr_t H5TBAget_title(hid_t loc_id, char *table_title);
+H5HL_DLL herr_t H5TBAget_title(hid_t loc_id, char *table_title);
 
 /**
  * --------------------------------------------------------------------------
@@ -667,7 +691,7 @@ H5_HLDLL herr_t H5TBAget_title(hid_t loc_id, char *table_title);
  * \include H5TBAget_fill.c
  *
  */
-H5_HLDLL htri_t H5TBAget_fill(hid_t loc_id, const char *dset_name, hid_t dset_id, unsigned char *dst_buf);
+H5HL_DLL htri_t H5TBAget_fill(hid_t loc_id, const char *dset_name, hid_t dset_id, unsigned char *dst_buf);
 
 #ifdef __cplusplus
 }

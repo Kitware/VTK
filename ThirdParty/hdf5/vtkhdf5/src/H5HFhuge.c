@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -192,7 +192,7 @@ H5HF__huge_init(H5HF_hdr_t *hdr)
             hdr->huge_ids_direct = false;
     } /* end if */
     else {
-        if ((hdr->sizeof_addr + hdr->sizeof_size) <= (hdr->id_len - 1)) {
+        if ((unsigned)(hdr->sizeof_addr + hdr->sizeof_size) <= (unsigned)(hdr->id_len - 1)) {
             /* Indicate that v2 B-tree doesn't have to be used to locate object */
             hdr->huge_ids_direct = true;
 

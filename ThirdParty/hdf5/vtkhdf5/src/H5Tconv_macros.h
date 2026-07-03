@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -99,8 +99,8 @@ typedef struct H5T_conv_hw_t {
  *           destination is at least as wide as the source. This case
  *           cannot generate overflows.
  *
- * Ff:       Floating-point values to floating-point values the source is at
- *           least as large as the destination. Overflows can occur when
+ * Ff:       Floating-point values to floating-point values where the source is
+ *           at least as large as the destination. Overflows can occur when
  *           the destination is narrower than the source.
  *
  * xF:       Integers to float-point(float or double) values where the destination
@@ -117,6 +117,55 @@ typedef struct H5T_conv_hw_t {
  * Xf:       Integers to floating-point values where the source is at least as
  *           wide as the destination. Overflows can occur when the destination is
  *           narrower than the source.
+ *
+ * zZ:       Complex number values to complex number values where the
+ *           destination is at least as wide as the source. This case
+ *           cannot generate overflows.
+ *
+ * Zz:       Complex number values to complex number values where the
+ *           source is at least as large as the destination. Overflows can
+ *           occur when the destination is narrower than the source.
+ *
+ * zF:       Complex number values to floating-point values where the
+ *           destination is at least as wide as the real part of the source
+ *           complex number value. This case cannot generate overflows.
+ *
+ * Zf:       Complex number values to floating-point values where the real
+ *           part of the source complex number value is at least as large
+ *           as the destination. Overflows can occur when the destination
+ *           is narrower then the source.
+ *
+ * fZ:       Floating-point values to complex number values where the
+ *           destination is at least as wide as the source. This case
+ *           cannot generate overflows.
+ *
+ * Fz:       Floating-point values to complex number values where the source is
+ *           at least as large as the destination. Overflows can occur when
+ *           the destination is narrower than the source.
+ *
+ * zf:       Complex number values to floating-point values where the real
+ *           part of the source complex number value is the same size as
+ *           the destination. This case cannot generate overflows.
+ *
+ * fz:       Floating-point values to complex number values where the source
+ *           is the same size as the real part of the destination. This case
+ *           cannot generate overflows.
+ *
+ * xZ:       Integers to complex number values where the destination is at
+ *           least as wide as the source. This case cannot generate overflows.
+ *
+ * Zx:       Complex number values to integers where the real part of the
+ *           source complex number value is at least as wide as the destination.
+ *           Overflow can occur when the source magnitude is too large for
+ *           the destination.
+ *
+ * zX:       Complex number values to integers where the destination is at
+ *           least as wide as the real part of the source complex number
+ *           value. This case cannot generate overflows.
+ *
+ * Xz:       Integers to complex number values where the source is at least as
+ *           wide as the destination. Overflows can occur when the destination
+ *           is narrower than the source.
  *
  *
  * The macros take a subset of these arguments in the order listed here:
@@ -190,10 +239,16 @@ typedef struct H5T_conv_hw_t {
  */
 #define H5T_CONV_Xx_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
+        H5T_conv_ret_t except_ret;                                                                           \
         if (*(S) > (ST)(D_MAX)) {                                                                            \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MAX);                                                                          \
@@ -202,9 +257,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (*(S) < (ST)(D_MIN)) {                                                                       \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MIN);                                                                          \
@@ -230,9 +290,16 @@ typedef struct H5T_conv_hw_t {
 #define H5T_CONV_Ux_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
         if (*(S) > (ST)(D_MAX)) {                                                                            \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MAX);                                                                          \
@@ -261,9 +328,16 @@ typedef struct H5T_conv_hw_t {
 #define H5T_CONV_sU_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
         if (*(S) < 0) {                                                                                      \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = 0;                                                                                    \
@@ -323,9 +397,16 @@ typedef struct H5T_conv_hw_t {
 /* Called if overflow is possible */
 #define H5T_CONV_uS_CORE_1(S, D, ST, DT, D_MIN, D_MAX)                                                       \
     if (*(S) > (DT)(D_MAX)) {                                                                                \
-        H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                       \
-            H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,      \
-            conv_ctx->u.conv.cb_struct.user_data);                                                           \
+        H5T_conv_ret_t except_ret;                                                                           \
+                                                                                                             \
+        /* Prepare & restore library for user callback */                                                    \
+        H5_BEFORE_USER_CB(FAIL)                                                                              \
+            {                                                                                                \
+                except_ret = (conv_ctx->u.conv.cb_struct.func)(                                              \
+                    H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, \
+                    D, conv_ctx->u.conv.cb_struct.user_data);                                                \
+            }                                                                                                \
+        H5_AFTER_USER_CB(FAIL)                                                                               \
         if (except_ret == H5T_CONV_UNHANDLED)                                                                \
             /* Let compiler convert if case is ignored by user handler */                                    \
             *(D) = (DT)(D_MAX);                                                                              \
@@ -385,10 +466,16 @@ typedef struct H5T_conv_hw_t {
 
 #define H5T_CONV_Su_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
+        H5T_conv_ret_t except_ret;                                                                           \
         if (*(S) < 0) {                                                                                      \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = 0;                                                                                    \
@@ -397,9 +484,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (sizeof(ST) > sizeof(DT) && *(S) > (ST)(D_MAX)) {                                            \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MAX);                                                                          \
@@ -442,9 +534,16 @@ typedef struct H5T_conv_hw_t {
     {                                                                                                        \
         /* Assumes memory format of unsigned & signed integers is same */                                    \
         if (*(S) < 0) {                                                                                      \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = 0;                                                                                    \
@@ -474,9 +573,16 @@ typedef struct H5T_conv_hw_t {
     {                                                                                                        \
         /* Assumes memory format of unsigned & signed integers is same */                                    \
         if (*(S) > (ST)(D_MAX)) {                                                                            \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MAX);                                                                          \
@@ -513,10 +619,16 @@ typedef struct H5T_conv_hw_t {
  */
 #define H5T_CONV_Ff_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
+        H5T_conv_ret_t except_ret;                                                                           \
         if (*(S) > (ST)(D_MAX)) {                                                                            \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                             \
@@ -525,9 +637,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (*(S) < (ST)(D_MIN)) {                                                                       \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                             \
@@ -624,9 +741,16 @@ typedef struct H5T_conv_hw_t {
                                                                                                              \
             /* Check for more bits of precision in src than available in dst */                              \
             if ((high_bit_pos - low_bit_pos) >= dprec) {                                                     \
-                H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                               \
-                    H5T_CONV_EXCEPT_PRECISION, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id,   \
-                    S, D, conv_ctx->u.conv.cb_struct.user_data);                                             \
+                H5T_conv_ret_t except_ret;                                                                   \
+                                                                                                             \
+                /* Prepare & restore library for user callback */                                            \
+                H5_BEFORE_USER_CB(FAIL)                                                                      \
+                    {                                                                                        \
+                        except_ret = (conv_ctx->u.conv.cb_struct.func)(                                      \
+                            H5T_CONV_EXCEPT_PRECISION, conv_ctx->u.conv.src_type_id,                         \
+                            conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);       \
+                    }                                                                                        \
+                H5_AFTER_USER_CB(FAIL)                                                                       \
                 if (except_ret == H5T_CONV_UNHANDLED)                                                        \
                     /* Let compiler convert if case is ignored by user handler*/                             \
                     *(D) = (DT)(*(S));                                                                       \
@@ -660,10 +784,16 @@ typedef struct H5T_conv_hw_t {
  */
 #define H5T_CONV_Fx_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
+        H5T_conv_ret_t except_ret;                                                                           \
         if (*(S) > (ST)(D_MAX) || (sprec < dprec && *(S) == (ST)(D_MAX))) {                                  \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MAX);                                                                          \
@@ -672,9 +802,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (*(S) < (ST)(D_MIN)) {                                                                       \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(D_MIN);                                                                          \
@@ -683,9 +818,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (*(S) != (ST)((DT)(*(S)))) {                                                                 \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_TRUNCATE, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_TRUNCATE, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = (DT)(*(S));                                                                           \
@@ -719,10 +859,16 @@ typedef struct H5T_conv_hw_t {
 
 #define H5T_CONV_Xf_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
     {                                                                                                        \
+        H5T_conv_ret_t except_ret;                                                                           \
         if (*(S) > (ST)(D_MAX) || (sprec < dprec && *(S) == (ST)(D_MAX))) {                                  \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D,  \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                             \
@@ -731,9 +877,14 @@ typedef struct H5T_conv_hw_t {
             /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
         }                                                                                                    \
         else if (*(S) < (ST)(D_MIN)) {                                                                       \
-            H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                                   \
-                H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id, S, D, \
-                conv_ctx->u.conv.cb_struct.user_data);                                                       \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
             if (except_ret == H5T_CONV_UNHANDLED)                                                            \
                 /* Let compiler convert if case is ignored by user handler*/                                 \
                 *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                             \
@@ -749,9 +900,14 @@ typedef struct H5T_conv_hw_t {
                                                                                                              \
             /* Check for more bits of precision in src than available in dst */                              \
             if ((high_bit_pos - low_bit_pos) >= dprec) {                                                     \
-                H5T_conv_ret_t except_ret = (conv_ctx->u.conv.cb_struct.func)(                               \
-                    H5T_CONV_EXCEPT_PRECISION, conv_ctx->u.conv.src_type_id, conv_ctx->u.conv.dst_type_id,   \
-                    S, D, conv_ctx->u.conv.cb_struct.user_data);                                             \
+                /* Prepare & restore library for user callback */                                            \
+                H5_BEFORE_USER_CB(FAIL)                                                                      \
+                    {                                                                                        \
+                        except_ret = (conv_ctx->u.conv.cb_struct.func)(                                      \
+                            H5T_CONV_EXCEPT_PRECISION, conv_ctx->u.conv.src_type_id,                         \
+                            conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);       \
+                    }                                                                                        \
+                H5_AFTER_USER_CB(FAIL)                                                                       \
                 if (except_ret == H5T_CONV_UNHANDLED)                                                        \
                     /* Let compiler convert if case is ignored by user handler*/                             \
                     *(D) = (DT)(*(S));                                                                       \
@@ -804,6 +960,630 @@ typedef struct H5T_conv_hw_t {
         H5T_CONV(H5T_CONV_Xf, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, Y)                                         \
     } while (0)
 
+#ifdef H5_HAVE_COMPLEX_NUMBERS
+/*
+ * NOTE: while it would be very nice to be able to use type-generic macros for
+ * the complex number functions used below to reduce macro duplication between
+ * the float, double and long double _Complex cases, support for the tgmath.h
+ * header appears to be problematic and not particularly portable pre-C11. This
+ * should be revisited if the minimum required C standard version is moved to
+ * C11 or later.
+ */
+#define H5T_CONV_FLOAT_COMPLEX_REALVAL(S)   float sr_val = crealf(*(S));
+#define H5T_CONV_DOUBLE_COMPLEX_REALVAL(S)  double sr_val = creal(*(S));
+#define H5T_CONV_LDOUBLE_COMPLEX_REALVAL(S) long double sr_val = creall(*(S));
+#define H5T_CONV_FLOAT_COMPLEX_IMAGVAL(S)   float si_val = cimagf(*(S));
+#define H5T_CONV_DOUBLE_COMPLEX_IMAGVAL(S)  double si_val = cimag(*(S));
+#define H5T_CONV_LDOUBLE_COMPLEX_IMAGVAL(S) long double si_val = cimagl(*(S));
+
+/*
+ * Since MSVC defines complex numbers as structure types, they can't be cast
+ * directly to other types, so we have to simulate the behavior of the standard
+ * types here. When casting to a complex number type, a new complex number
+ * value is constructed from the given real and imaginary parts. When casting
+ * from a complex number type, the real and imaginary parts are extracted as
+ * needed and used as appropriate. With other platforms/compilers, the
+ * H5T_CONV_CAST_Z macro just maps this to direct casts.
+ */
+#ifndef H5_HAVE_C99_COMPLEX_NUMBERS
+#define H5T_CONV_CAST_TO_FLOAT_COMPLEX(S_REAL, S_IMAG, D, DT)                                                \
+    {                                                                                                        \
+        *(D) = H5_CMPLXF(S_REAL, S_IMAG);                                                                    \
+    }
+#define H5T_CONV_CAST_TO_DOUBLE_COMPLEX(S_REAL, S_IMAG, D, DT)                                               \
+    {                                                                                                        \
+        *(D) = H5_CMPLX(S_REAL, S_IMAG);                                                                     \
+    }
+#define H5T_CONV_CAST_TO_LDOUBLE_COMPLEX(S_REAL, S_IMAG, D, DT)                                              \
+    {                                                                                                        \
+        *(D) = H5_CMPLXL(S_REAL, S_IMAG);                                                                    \
+    }
+
+#define H5T_CONV_CAST_zZ(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        H5T_CONV_##STYPE##_IMAGVAL(S); /* Extract "imaginary" part of complex number */                      \
+        H5T_CONV_CAST_TO_##DTYPE(sr_val, si_val, D, DT)                                                      \
+    }
+#define H5T_CONV_CAST_Zz(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_CAST_TO_##DTYPE(S_REAL, S_IMAG, D, DT)                                                      \
+    }
+#define H5T_CONV_CAST_zF(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        *(D) = (DT)(sr_val);                                                                                 \
+    }
+#define H5T_CONV_CAST_zf(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        *(D) = (DT)(sr_val);                                                                                 \
+    }
+#define H5T_CONV_CAST_zX(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        *(D) = (DT)(sr_val);                                                                                 \
+    }
+#define H5T_CONV_CAST_fZ(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_CAST_TO_##DTYPE(*(S), (ST)0.0, D, DT)                                                       \
+    }
+#define H5T_CONV_CAST_Fz(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_CAST_TO_##DTYPE(*(S), (ST)0.0, D, DT)                                                       \
+    }
+#define H5T_CONV_CAST_fz(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_CAST_TO_##DTYPE(*(S), (ST)0.0, D, DT)                                                       \
+    }
+#define H5T_CONV_CAST_xZ(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                         \
+    {                                                                                                        \
+        H5T_CONV_CAST_TO_##DTYPE(*(S), (ST)0.0, D, DT)                                                       \
+    }
+
+#define H5T_CONV_CAST_Z(SYMBOLS, STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                 \
+    do {                                                                                                     \
+        H5T_CONV_CAST_##SYMBOLS(STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                  \
+    } while (0)
+
+#else
+
+/* Map all complex number casts to direct casts */
+#define H5T_CONV_CAST_Z(SYMBOLS, STYPE, DTYPE, S, S_REAL, S_IMAG, D, ST, DT)                                 \
+    do {                                                                                                     \
+        *(D) = (DT)(*(S));                                                                                   \
+    } while (0)
+
+#endif
+
+#define H5T_CONV_zZ_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(zZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_zZ_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_zZ_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Identical logic to H5T_CONV_fF, but special implementation is needed
+ * here to deal with MSVC's complex number structure types.
+ */
+#define H5T_CONV_zZ(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) <= sizeof(DT));                                                          \
+        H5T_CONV(H5T_CONV_zZ, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_Zz_CORE_IMP(STYPE, DTYPE, DBTYPE, S, D, ST, DT, SBT, DBT, D_MIN, D_MAX)                     \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        H5T_CONV_##STYPE##_IMAGVAL(S); /* Extract "imaginary" part of complex number */                      \
+        bool sr_over  = (sr_val) > (SBT)(D_MAX);                                                             \
+        bool sr_under = (sr_val) < (SBT)(D_MIN);                                                             \
+        bool si_over  = (si_val) > (SBT)(D_MAX);                                                             \
+        bool si_under = (si_val) < (SBT)(D_MIN);                                                             \
+        if (!sr_over && !sr_under && !si_over && !si_under)                                                  \
+            H5T_CONV_CAST_Z(Zz, STYPE, DTYPE, S, sr_val, si_val, D, ST, DT);                                 \
+        else {                                                                                               \
+            H5T_conv_ret_t except_ret = H5T_CONV_UNHANDLED;                                                  \
+                                                                                                             \
+            /* Since there's just one chance to raise a conversion exception here and either                 \
+             * or both of the real and imaginary parts of a complex number could raise an                    \
+             * exception, arbitrarily raise an exception in the order of: "overflow for either               \
+             * part" -> "underflow for either part". There are other orderings that may make                 \
+             * more sense, such as "overflow for real part" -> "underflow for real part" ->                  \
+             * "underflow..." -> "underflow...". For now, this will assume that the user's                   \
+             * conversion exception function will inspect and handle both parts of the complex               \
+             * number.                                                                                       \
+             */                                                                                              \
+            if (sr_over || si_over) {                                                                        \
+                /* Prepare & restore library for user callback */                                            \
+                H5_BEFORE_USER_CB(FAIL)                                                                      \
+                    {                                                                                        \
+                        except_ret = (conv_ctx->u.conv.cb_struct.func)(                                      \
+                            H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                          \
+                            conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);       \
+                    }                                                                                        \
+                H5_AFTER_USER_CB(FAIL)                                                                       \
+            }                                                                                                \
+            else if (sr_under || si_under) {                                                                 \
+                /* Prepare & restore library for user callback */                                            \
+                H5_BEFORE_USER_CB(FAIL)                                                                      \
+                    {                                                                                        \
+                        except_ret = (conv_ctx->u.conv.cb_struct.func)(                                      \
+                            H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                         \
+                            conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);       \
+                    }                                                                                        \
+                H5_AFTER_USER_CB(FAIL)                                                                       \
+            }                                                                                                \
+                                                                                                             \
+            /* If user conversion exception function handled the exception, do nothing.                      \
+             * Otherwise, if explicitly left unhandled, create a complex number value                        \
+             * to return based on the exception type.                                                        \
+             */                                                                                              \
+            if (except_ret == H5T_CONV_UNHANDLED) {                                                          \
+                DBT tmp_val[2]; /* [ real, imaginary ] */                                                    \
+                                                                                                             \
+                if (sr_over)                                                                                 \
+                    tmp_val[0] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _POS_INF_g);                                  \
+                else if (sr_under)                                                                           \
+                    tmp_val[0] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _NEG_INF_g);                                  \
+                else                                                                                         \
+                    tmp_val[0] = (DBT)(sr_val);                                                              \
+                if (si_over)                                                                                 \
+                    tmp_val[1] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _POS_INF_g);                                  \
+                else if (si_under)                                                                           \
+                    tmp_val[1] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _NEG_INF_g);                                  \
+                else                                                                                         \
+                    tmp_val[1] = (DBT)(si_val);                                                              \
+                                                                                                             \
+                H5T_CONV_CAST_Z(Zz, STYPE, DTYPE, (DT *)tmp_val, tmp_val[0], tmp_val[1], D, ST, DT);         \
+            }                                                                                                \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+        }                                                                                                    \
+    }
+#define H5T_CONV_Zz_DOUBLE_COMPLEX_FLOAT_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)              \
+    H5T_CONV_Zz_CORE_IMP(STYPE, DTYPE, FLOAT, S, D, ST, DT, double, float, D_MIN, D_MAX)
+#define H5T_CONV_Zz_DOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                            \
+    H5T_CONV_Zz_DOUBLE_COMPLEX_##DTYPE##_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_FLOAT_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)             \
+    H5T_CONV_Zz_CORE_IMP(STYPE, DTYPE, FLOAT, S, D, ST, DT, long double, float, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_DOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)            \
+    H5T_CONV_Zz_CORE_IMP(STYPE, DTYPE, DOUBLE, S, D, ST, DT, long double, double, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                           \
+    H5T_CONV_Zz_LDOUBLE_COMPLEX_##DTYPE##_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+#define H5T_CONV_Zz_NOEX_CORE_IMP(STYPE, DTYPE, DBTYPE, S, D, ST, DT, SBT, DBT, D_MIN, D_MAX)                \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        H5T_CONV_##STYPE##_IMAGVAL(S); /* Extract "imaginary" part of complex number */                      \
+        bool sr_over  = (sr_val) > (SBT)(D_MAX);                                                             \
+        bool sr_under = (sr_val) < (SBT)(D_MIN);                                                             \
+        bool si_over  = (si_val) > (SBT)(D_MAX);                                                             \
+        bool si_under = (si_val) < (SBT)(D_MIN);                                                             \
+        if (!sr_over && !sr_under && !si_over && !si_under)                                                  \
+            H5T_CONV_CAST_Z(Zz, STYPE, DTYPE, S, sr_val, si_val, D, ST, DT);                                 \
+        else {                                                                                               \
+            DBT tmp_val[2]; /* [ real, imaginary ] */                                                        \
+                                                                                                             \
+            if (sr_over)                                                                                     \
+                tmp_val[0] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _POS_INF_g);                                      \
+            else if (sr_under)                                                                               \
+                tmp_val[0] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _NEG_INF_g);                                      \
+            else                                                                                             \
+                tmp_val[0] = (DBT)(sr_val);                                                                  \
+            if (si_over)                                                                                     \
+                tmp_val[1] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _POS_INF_g);                                      \
+            else if (si_under)                                                                               \
+                tmp_val[1] = H5_GLUE3(H5T_NATIVE_, DBTYPE, _NEG_INF_g);                                      \
+            else                                                                                             \
+                tmp_val[1] = (DBT)(si_val);                                                                  \
+                                                                                                             \
+            H5T_CONV_CAST_Z(Zz, STYPE, DTYPE, (DT *)tmp_val, tmp_val[0], tmp_val[1], D, ST, DT);             \
+        }                                                                                                    \
+    }
+#define H5T_CONV_Zz_DOUBLE_COMPLEX_FLOAT_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)         \
+    H5T_CONV_Zz_NOEX_CORE_IMP(STYPE, DTYPE, FLOAT, S, D, ST, DT, double, float, D_MIN, D_MAX)
+#define H5T_CONV_Zz_DOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                       \
+    H5T_CONV_Zz_DOUBLE_COMPLEX_##DTYPE##_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_FLOAT_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)        \
+    H5T_CONV_Zz_NOEX_CORE_IMP(STYPE, DTYPE, FLOAT, S, D, ST, DT, long double, float, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_DOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)       \
+    H5T_CONV_Zz_NOEX_CORE_IMP(STYPE, DTYPE, DOUBLE, S, D, ST, DT, long double, double, D_MIN, D_MAX)
+#define H5T_CONV_Zz_LDOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                      \
+    H5T_CONV_Zz_LDOUBLE_COMPLEX_##DTYPE##_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/*
+ * Similar logic to H5T_CONV_Ff. The "real" and "imaginary" parts of the complex
+ * number value are retrieved using one of the creal() and cimag() variants
+ * (according to the source complex number type) and then are used for comparisons
+ * when checking for overflow and underflow.
+ *
+ * To efficiently convert between complex number types, the macros need to be aware
+ * of the base floating-point type for both the source and destination complex number
+ * types. Since there are currently only three cases where H5T_CONV_Zz applies
+ * (DOUBLE_COMPLEX -> FLOAT_COMPLEX, LDOUBLE_COMPLEX -> FLOAT_COMPLEX and
+ * LDOUBLE_COMPLEX -> DOUBLE_COMPLEX), use some specialized macros above for this
+ * for now. H5T_CONV_Zz directs the H5T_CONV macro to H5T_CONV_Zz_<source_type>_(NOEX_)CORE
+ * (depending on whether conversion exceptions are handled), which then redirects to
+ * H5T_CONV_Zz_<source_type>_<destination_type>_(NOEX_)CORE, ending at H5T_CONV_Zz_(NOEX_)CORE_IMP
+ * after replacing values related to the source and destination datatypes that are
+ * passed. While a bit difficult to reason through, alternative approaches proved to
+ * be much more awkward.
+ */
+#define H5T_CONV_Zz(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) >= sizeof(DT));                                                          \
+        H5T_CONV(H5T_CONV_Zz_##STYPE, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                 \
+    } while (0)
+
+#define H5T_CONV_zF_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(zF, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_zF_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_zF_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Identical logic to H5T_CONV_fF, but special implementation is needed
+ * here to deal with MSVC's complex number structure types.
+ */
+#define H5T_CONV_zF(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        H5T_CONV(H5T_CONV_zF, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_Zf_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, SBT, D_MIN, D_MAX)                                  \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S);                                                                       \
+        if ((sr_val) > (SBT)(D_MAX)) {                                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                             \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else if ((sr_val) < (SBT)(D_MIN)) {                                                                  \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                             \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else                                                                                                 \
+            *(D) = (DT)((sr_val));                                                                           \
+    }
+#define H5T_CONV_Zf_FLOAT_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                             \
+    H5T_CONV_Zf_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, float, D_MIN, D_MAX)
+#define H5T_CONV_Zf_DOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                            \
+    H5T_CONV_Zf_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, double, D_MIN, D_MAX)
+#define H5T_CONV_Zf_LDOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                           \
+    H5T_CONV_Zf_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, long double, D_MIN, D_MAX)
+#define H5T_CONV_Zf_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, SBT, D_MIN, D_MAX)                             \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        if ((sr_val) > (SBT)(D_MAX))                                                                         \
+            *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                                 \
+        else if ((sr_val) < (SBT)(D_MIN))                                                                    \
+            *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                                 \
+        else                                                                                                 \
+            *(D) = (DT)((sr_val));                                                                           \
+    }
+#define H5T_CONV_Zf_FLOAT_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                        \
+    H5T_CONV_Zf_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, float, D_MIN, D_MAX)
+#define H5T_CONV_Zf_DOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                       \
+    H5T_CONV_Zf_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, double, D_MIN, D_MAX)
+#define H5T_CONV_Zf_LDOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                      \
+    H5T_CONV_Zf_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, long double, D_MIN, D_MAX)
+
+/* Similar logic to H5T_CONV_Ff. The "real" part of the complex number is
+ * retrieved using one of the creal() variants (according to the source
+ * complex number type) and then is used for comparisons when checking for
+ * overflow and underflow. Uses specialized macros above to also pass the
+ * base floating-point C type of the complex number type for use in casts
+ * during those comparisons.
+ */
+#define H5T_CONV_Zf(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) >= sizeof(DT));                                                          \
+        H5T_CONV(H5T_CONV_Zf_##STYPE, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                 \
+    } while (0)
+
+#define H5T_CONV_fZ_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(fZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_fZ_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_fZ_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Identical logic to H5T_CONV_fF, but special implementation is needed
+ * here to deal with MSVC's complex number structure types.
+ */
+#define H5T_CONV_fZ(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) <= sizeof(DT));                                                          \
+        H5T_CONV(H5T_CONV_fZ, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_Fz_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        if (*(S) > (ST)(D_MAX)) {                                                                            \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                             \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else if (*(S) < (ST)(D_MIN)) {                                                                       \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                             \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else                                                                                                 \
+            H5T_CONV_CAST_Z(Fz, STYPE, DTYPE, S, -, -, D, ST, DT);                                           \
+    }
+#define H5T_CONV_Fz_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    {                                                                                                        \
+        if (*(S) > (ST)(D_MAX))                                                                              \
+            *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _POS_INF_g);                                                 \
+        else if (*(S) < (ST)(D_MIN))                                                                         \
+            *(D) = H5_GLUE3(H5T_NATIVE_, DTYPE, _NEG_INF_g);                                                 \
+        else                                                                                                 \
+            H5T_CONV_CAST_Z(Fz, STYPE, DTYPE, S, -, -, D, ST, DT);                                           \
+    }
+
+/* Similar logic to H5T_CONV_Ff. In the case of overflow or underflow, the
+ * floating-point value is converted to a complex number value where the
+ * "real" part of the value is set to positive or negative infinity and
+ * the "imaginary" part of the value is set to 0.
+ */
+#define H5T_CONV_Fz(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        H5T_CONV(H5T_CONV_Fz, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_zf_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(zf, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_zf_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_zf_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Convert a complex number value to the matching base floating-point type. Simple
+ * direct cast where the imaginary part of the complex number value is discarded.
+ * Special implementation is needed here to deal with MSVC's complex number
+ * structure types.
+ */
+#define H5T_CONV_zf(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) == (2 * sizeof(DT)));                                                    \
+        H5T_CONV(H5T_CONV_zf, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_fz_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(fz, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_fz_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_fz_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Convert a floating-point value to the matching complex number type. Simple direct
+ * cast where the imaginary part should be a zero (positive or unsigned). Special
+ * implementation is needed here to deal with MSVC's complex number structure types.
+ */
+#define H5T_CONV_fz(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert((2 * sizeof(ST)) == sizeof(DT));                                                    \
+        H5T_CONV(H5T_CONV_fz, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+#define H5T_CONV_xZ_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        if (sprec > dprec) {                                                                                 \
+            unsigned low_bit_pos, high_bit_pos;                                                              \
+                                                                                                             \
+            /* Detect high & low bits set in source */                                                       \
+            H5T_HI_LO_BIT_SET(ST, *(S), low_bit_pos, high_bit_pos)                                           \
+                                                                                                             \
+            /* Check for more bits of precision in src than available in dst */                              \
+            if ((high_bit_pos - low_bit_pos) >= dprec) {                                                     \
+                H5T_conv_ret_t except_ret;                                                                   \
+                                                                                                             \
+                /* Prepare & restore library for user callback */                                            \
+                H5_BEFORE_USER_CB(FAIL)                                                                      \
+                    {                                                                                        \
+                        except_ret = (conv_ctx->u.conv.cb_struct.func)(                                      \
+                            H5T_CONV_EXCEPT_PRECISION, conv_ctx->u.conv.src_type_id,                         \
+                            conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);       \
+                    }                                                                                        \
+                H5_AFTER_USER_CB(FAIL)                                                                       \
+                if (except_ret == H5T_CONV_UNHANDLED)                                                        \
+                    /* Let compiler convert if case is ignored by user handler*/                             \
+                    H5T_CONV_CAST_Z(xZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                   \
+                else if (except_ret == H5T_CONV_ABORT)                                                       \
+                    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");   \
+                /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                        \
+            }                                                                                                \
+            else                                                                                             \
+                H5T_CONV_CAST_Z(xZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                       \
+        }                                                                                                    \
+        else                                                                                                 \
+            H5T_CONV_CAST_Z(xZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                           \
+    }
+#define H5T_CONV_xZ_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(xZ, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+
+/* Identical logic to H5T_CONV_xF */
+#define H5T_CONV_xZ(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        H5T_CONV(H5T_CONV_xZ, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, Y)                                         \
+    } while (0)
+
+#define H5T_CONV_Zx_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, SBT, D_MIN, D_MAX)                                  \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        if ((sr_val) > (SBT)(D_MAX) || (sprec < dprec && (sr_val) == (SBT)(D_MAX))) {                        \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_HI, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = (DT)(D_MAX);                                                                          \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else if ((sr_val) < (SBT)(D_MIN)) {                                                                  \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_RANGE_LOW, conv_ctx->u.conv.src_type_id,                             \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = (DT)(D_MIN);                                                                          \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else if ((sr_val) != (SBT)((DT)((sr_val)))) {                                                        \
+            H5T_conv_ret_t except_ret;                                                                       \
+                                                                                                             \
+            /* Prepare & restore library for user callback */                                                \
+            H5_BEFORE_USER_CB(FAIL)                                                                          \
+                {                                                                                            \
+                    except_ret = (conv_ctx->u.conv.cb_struct.func)(                                          \
+                        H5T_CONV_EXCEPT_TRUNCATE, conv_ctx->u.conv.src_type_id,                              \
+                        conv_ctx->u.conv.dst_type_id, S, D, conv_ctx->u.conv.cb_struct.user_data);           \
+                }                                                                                            \
+            H5_AFTER_USER_CB(FAIL)                                                                           \
+            if (except_ret == H5T_CONV_UNHANDLED)                                                            \
+                /* Let compiler convert if case is ignored by user handler*/                                 \
+                *(D) = (DT)((sr_val));                                                                       \
+            else if (except_ret == H5T_CONV_ABORT)                                                           \
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception");       \
+            /* if(except_ret==H5T_CONV_HANDLED): Fall through, user handled it */                            \
+        }                                                                                                    \
+        else                                                                                                 \
+            *(D) = (DT)((sr_val));                                                                           \
+    }
+#define H5T_CONV_Zx_FLOAT_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                             \
+    H5T_CONV_Zx_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, float, D_MIN, D_MAX)
+#define H5T_CONV_Zx_DOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                            \
+    H5T_CONV_Zx_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, double, D_MIN, D_MAX)
+#define H5T_CONV_Zx_LDOUBLE_COMPLEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                           \
+    H5T_CONV_Zx_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, long double, D_MIN, D_MAX)
+#define H5T_CONV_Zx_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, SBT, D_MIN, D_MAX)                             \
+    {                                                                                                        \
+        H5T_CONV_##STYPE##_REALVAL(S); /* Extract "real" part of complex number */                           \
+        if ((sr_val) > (SBT)(D_MAX))                                                                         \
+            *(D) = (DT)(D_MAX);                                                                              \
+        else if ((sr_val) < (SBT)(D_MIN))                                                                    \
+            *(D) = (DT)(D_MIN);                                                                              \
+        else                                                                                                 \
+            *(D) = (DT)((sr_val));                                                                           \
+    }
+#define H5T_CONV_Zx_FLOAT_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                        \
+    H5T_CONV_Zx_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, float, D_MIN, D_MAX)
+#define H5T_CONV_Zx_DOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                       \
+    H5T_CONV_Zx_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, double, D_MIN, D_MAX)
+#define H5T_CONV_Zx_LDOUBLE_COMPLEX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                      \
+    H5T_CONV_Zx_NOEX_CORE_IMP(STYPE, DTYPE, S, D, ST, DT, long double, D_MIN, D_MAX)
+
+/* Similar logic to H5T_CONV_Fx. The "real" part of the complex number is
+ * retrieved using one of the creal() variants (according to the source
+ * complex number type) and then is used for comparisons when checking for
+ * overflow and underflow. Uses specialized macros above to also pass the
+ * base floating-point C type of the complex number type for use in casts
+ * during those comparisons.
+ */
+#define H5T_CONV_Zx(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        H5T_CONV(H5T_CONV_Zx_##STYPE, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, Y)                                 \
+    } while (0)
+
+#define H5T_CONV_zX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                           \
+    {                                                                                                        \
+        H5T_CONV_CAST_Z(zX, STYPE, DTYPE, S, -, -, D, ST, DT);                                               \
+    }
+#define H5T_CONV_zX_NOEX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)                                      \
+    H5T_CONV_zX_CORE(STYPE, DTYPE, S, D, ST, DT, D_MIN, D_MAX)
+
+/* Identical logic to H5T_CONV_fX, but special implementation is needed
+ * here to deal with MSVC's complex number structure types.
+ */
+#define H5T_CONV_zX(STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                                                      \
+    do {                                                                                                     \
+        HDcompile_assert(sizeof(ST) <= sizeof(DT));                                                          \
+        H5T_CONV(H5T_CONV_zX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX, N)                                         \
+    } while (0)
+
+/* H5T_CONV_Xz is currently unused (as there is no standard _Complex type for
+ * smaller floats than "float", though some compilers will allow this). When
+ * implemented, the logic should be nearly identical to H5T_CONV_Xf, with the
+ * comparisons being made against the "real" part of the complex number, as
+ * extracted with the creal() variants (similar to H5T_CONV_Zx, foH5T_CONV_zX(r guidance).
+ */
+/* #define H5T_CONV_Xz(STYPE, DTYPE, ST, DT, D_MIN, D_MAX) */
+#endif
+
 /* Since all "no exception" cores do the same thing (assign the value in the
  * source location to the destination location, using casting), use one "core"
  * to do them all.
@@ -831,17 +1611,21 @@ typedef struct H5T_conv_hw_t {
 #define H5T_CONV_SET_PREC_Y                                                                                  \
     /* Get source & destination precisions into a variable */                                                \
     tclass = st->shared->type;                                                                               \
-    assert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);                                                    \
+    assert(tclass == H5T_INTEGER || tclass == H5T_FLOAT || tclass == H5T_COMPLEX);                           \
     if (tclass == H5T_INTEGER)                                                                               \
         sprec = st->shared->u.atomic.prec;                                                                   \
-    else                                                                                                     \
+    else if (tclass == H5T_FLOAT)                                                                            \
         sprec = 1 + st->shared->u.atomic.u.f.msize;                                                          \
+    else                                                                                                     \
+        sprec = 1 + st->shared->parent->shared->u.atomic.u.f.msize;                                          \
     tclass = dt->shared->type;                                                                               \
-    assert(tclass == H5T_INTEGER || tclass == H5T_FLOAT);                                                    \
+    assert(tclass == H5T_INTEGER || tclass == H5T_FLOAT || tclass == H5T_COMPLEX);                           \
     if (tclass == H5T_INTEGER)                                                                               \
         dprec = dt->shared->u.atomic.prec;                                                                   \
+    else if (tclass == H5T_FLOAT)                                                                            \
+        dprec = 1 + dt->shared->u.atomic.u.f.msize;                                                          \
     else                                                                                                     \
-        dprec = 1 + dt->shared->u.atomic.u.f.msize;
+        dprec = 1 + dt->shared->parent->shared->u.atomic.u.f.msize;
 
 #define H5T_CONV_SET_PREC_N /*don't init precision variables */
 

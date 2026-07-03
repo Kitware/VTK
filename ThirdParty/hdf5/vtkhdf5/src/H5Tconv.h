@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -24,6 +24,15 @@
 
 /* Length of debugging name buffer */
 #define H5T_NAMELEN 32
+
+/* Swap two elements (I & J) of an array using a temporary variable */
+#define H5_SWAP_BYTES(ARRAY, I, J)                                                                           \
+    do {                                                                                                     \
+        uint8_t _tmp;                                                                                        \
+        _tmp     = ARRAY[I];                                                                                 \
+        ARRAY[I] = ARRAY[J];                                                                                 \
+        ARRAY[J] = _tmp;                                                                                     \
+    } while (0)
 
 /****************************/
 /* Library Private Typedefs */
@@ -184,7 +193,7 @@ H5_DLL herr_t H5T__conv_order_opt(const H5T_t *src, const H5T_t *dst, H5T_cdata_
                                   size_t bkg_stride, void *_buf, void *bkg);
 
 /* Utility functions */
-H5_DLL herr_t H5T__reverse_order(uint8_t *rev, uint8_t *s, size_t size, H5T_order_t order);
+H5_DLL herr_t H5T__reverse_order(uint8_t *rev, uint8_t *s, const H5T_t *dtype);
 
 /* Debugging functions */
 H5_DLL herr_t H5T__print_path_stats(H5T_path_t *path, int *nprint /*in,out*/);

@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -40,14 +40,10 @@ typedef enum H5PL_type_t {
 //! <!-- [H5PL_type_t_snip] -->
 
 /* Common dynamic plugin type flags used by the set/get_loading_state functions */
-/** Flag for filter plugin \since 1.8.15 */
-#define H5PL_FILTER_PLUGIN 0x0001
-/** Flag for VOL plugin \since 1.12.0 */
-#define H5PL_VOL_PLUGIN 0x0002
-/** Flag for VFD plugin \since 1.14.0 */
-#define H5PL_VFD_PLUGIN 0x0004
-/** Flag for all plugin types \since 1.8.15 */
-#define H5PL_ALL_PLUGIN 0xFFFF
+#define H5PL_FILTER_PLUGIN 0x0001 /**< Flag for filter plugin \since 1.8.15 */
+#define H5PL_VOL_PLUGIN    0x0002 /**< Flag for VOL plugin \since 1.12.0 */
+#define H5PL_VFD_PLUGIN    0x0004 /**< Flag for VFD plugin \since 1.14.0 */
+#define H5PL_ALL_PLUGIN    0xFFFF /**< Flag for all plugin types \since 1.8.15 */
 
 #ifdef __cplusplus
 extern "C" {

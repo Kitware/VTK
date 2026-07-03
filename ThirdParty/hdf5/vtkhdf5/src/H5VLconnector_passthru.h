@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -80,11 +80,52 @@ H5_DLL herr_t H5VLcmp_connector_cls(int *cmp, hid_t connector_id1, hid_t connect
  *       can't be retrieved.
  *
  */
-H5_DLL hid_t  H5VLwrap_register(void *obj, H5I_type_t type);
+H5_DLL hid_t H5VLwrap_register(void *obj, H5I_type_t type);
+
+/* Library context and state routines */
 H5_DLL herr_t H5VLretrieve_lib_state(void **state);
-H5_DLL herr_t H5VLstart_lib_state(void);
+/**
+ * \ingroup H5VLDEV
+ *
+ * \brief Opens a new internal context for the HDF5 library.
+ *
+ * \param[out] context library's context
+ *
+ * \return Returns a non-negative value if \p *context is set; otherwise returns
+ *         negative value if \p *context is unset.
+ *
+ * \details Opens a new internal context for the HDF5 library.  The context
+ *          returned (via the OUT parameter) must be passed to
+ *          H5VLclose_lib_context() to conclude the library's context and
+ *          release resources.
+ *
+ * \note \vol_only_api
+ *
+ * \since 2.0.0
+ *
+ */
+H5_DLL herr_t H5VLopen_lib_context(void **context);
 H5_DLL herr_t H5VLrestore_lib_state(const void *state);
-H5_DLL herr_t H5VLfinish_lib_state(void);
+/**
+ * \ingroup H5VLDEV
+ *
+ * \brief Closes the internal state of the HDF5 library.
+ *
+ * \param[in] context library's context
+ *
+ * \return \herr_t
+ *
+ * \details Closes the internal state of the HDF5 library, undoing the effects
+ *          of H5VLopen_lib_context(). This function must be called as a \em pair
+ *          with H5VLopen_lib_context(). It can be invoked before, after, or
+ *          independently of H5VLfree_lib_state().
+ *
+ * \note \vol_only_api
+ *
+ * \since 2.0.0
+ *
+ */
+H5_DLL herr_t H5VLclose_lib_context(void *context);
 H5_DLL herr_t H5VLfree_lib_state(void *state);
 
 /* Pass-through callbacks */

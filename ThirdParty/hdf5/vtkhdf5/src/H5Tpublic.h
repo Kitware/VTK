@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -40,6 +40,7 @@ typedef enum H5T_class_t {
     H5T_ENUM      = 8,  /**< enumeration types                       */
     H5T_VLEN      = 9,  /**< variable-Length types                   */
     H5T_ARRAY     = 10, /**< array types                             */
+    H5T_COMPLEX   = 11, /**< complex number types                    */
 
     H5T_NCLASSES /**< sentinel: this must be last             */
 } H5T_class_t;
@@ -203,6 +204,7 @@ typedef struct {
 /**
  * Indicate that a string is variable length (null-terminated in C, instead of
  * fixed length)
+ * \since 1.0.0
  */
 #define H5T_VARIABLE SIZE_MAX
 
@@ -210,6 +212,7 @@ typedef struct {
 /**
  * Maximum length of an opaque tag
  * \internal This could be raised without too much difficulty
+ * \since 1.6.5
  */
 #define H5T_OPAQUE_TAG_MAX 256
 
@@ -239,45 +242,43 @@ typedef H5T_conv_ret_t (*H5T_conv_except_func_t)(H5T_conv_except_t except_type, 
                                                  void *src_buf, void *dst_buf, void *user_data);
 //! <!-- [H5T_conv_except_func_t_snip] -->
 
-/* When this header is included from a private header, don't make calls to H5open() */
-#undef H5OPEN
-#ifndef H5private_H
-#define H5OPEN H5open(),
-#else /* H5private_H */
-#define H5OPEN
-#endif /* H5private_H */
-
 /*
  * The IEEE floating point types in various byte orders.
  */
 /**
  * \ingroup PDTIEEE
  * 16-bit big-endian IEEE floating-point numbers
+ * \since 1.14.4
  */
 #define H5T_IEEE_F16BE (H5OPEN H5T_IEEE_F16BE_g)
 /**
  * \ingroup PDTIEEE
  * 16-bit little-endian IEEE floating-point numbers
+ * \since 1.14.4
  */
 #define H5T_IEEE_F16LE (H5OPEN H5T_IEEE_F16LE_g)
 /**
  * \ingroup PDTIEEE
  * 32-bit big-endian IEEE floating-point numbers
+ * \since 1.0.0
  */
 #define H5T_IEEE_F32BE (H5OPEN H5T_IEEE_F32BE_g)
 /**
  * \ingroup PDTIEEE
  * 32-bit little-endian IEEE floating-point numbers
+ * \since 1.0.0
  */
 #define H5T_IEEE_F32LE (H5OPEN H5T_IEEE_F32LE_g)
 /**
  * \ingroup PDTIEEE
  * 64-bit big-endian IEEE floating-point numbers
+ * \since 1.0.0
  */
 #define H5T_IEEE_F64BE (H5OPEN H5T_IEEE_F64BE_g)
 /**
  * \ingroup PDTIEEE
  * 64-bit little-endian IEEE floating-point numbers
+ * \since 1.0.0
  */
 #define H5T_IEEE_F64LE (H5OPEN H5T_IEEE_F64LE_g)
 H5_DLLVAR hid_t H5T_IEEE_F16BE_g;
@@ -286,6 +287,153 @@ H5_DLLVAR hid_t H5T_IEEE_F32BE_g;
 H5_DLLVAR hid_t H5T_IEEE_F32LE_g;
 H5_DLLVAR hid_t H5T_IEEE_F64BE_g;
 H5_DLLVAR hid_t H5T_IEEE_F64LE_g;
+
+/*
+ * Alternative (non-IEEE) floating point types.
+ */
+/**
+ * \ingroup PDTALTFLOAT
+ * 16-bit big-endian bfloat16 floating-point numbers
+ */
+#define H5T_FLOAT_BFLOAT16BE (H5OPEN H5T_FLOAT_BFLOAT16BE_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 16-bit little-endian bfloat16 floating-point numbers
+ */
+#define H5T_FLOAT_BFLOAT16LE (H5OPEN H5T_FLOAT_BFLOAT16LE_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 8-bit FP8 E4M3 (4 exponent bits, 3 mantissa bits) floating-point numbers
+ *
+ * \parblock
+ * \attention Implicit datatype conversion should currently be avoided when using
+ *            this datatype for I/O operations. Incomplete handling of non-IEEE
+ *            floating-point formats in HDF5 can cause certain FP8 E4M3 values
+ *            to be improperly converted to Infinities or NaN values. If possible,
+ *            an application should perform I/O with this datatype using an
+ *            in-memory type that matches the FP8 E4M3 format and perform explicit
+ *            data conversion outside of HDF5, if necessary. Otherwise, read/written
+ *            values should be verified to be correct.
+ * \endparblock
+ */
+#define H5T_FLOAT_F8E4M3 (H5OPEN H5T_FLOAT_F8E4M3_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 8-bit FP8 E5M2 (5 exponent bits, 2 mantissa bits) floating-point numbers
+ *
+ * \parblock
+ * \attention Implicit datatype conversion should currently be avoided when using
+ *            this datatype for I/O operations. Incomplete handling of non-IEEE
+ *            floating-point formats in HDF5 can cause certain FP8 E5M2 values
+ *            to be improperly converted to Infinities or NaN values. If possible,
+ *            an application should perform I/O with this datatype using an
+ *            in-memory type that matches the FP8 E5M2 format and perform explicit
+ *            data conversion outside of HDF5, if necessary. Otherwise, read/written
+ *            values should be verified to be correct.
+ * \endparblock
+ */
+#define H5T_FLOAT_F8E5M2 (H5OPEN H5T_FLOAT_F8E5M2_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 6-bit FP6 E2M3 (2 exponent bits, 3 mantissa bits) floating-point numbers
+ *
+ * \parblock
+ * \attention Implicit datatype conversion should currently be avoided when using
+ *            this datatype for I/O operations. Incomplete handling of non-IEEE
+ *            floating-point formats in HDF5 can cause certain FP6 E2M3 values
+ *            to be improperly converted to Infinities or NaN values. If possible,
+ *            an application should perform I/O with this datatype using an
+ *            in-memory type that matches the FP6 E2M3 format and perform explicit
+ *            data conversion outside of HDF5, if necessary. Otherwise, read/written
+ *            values should be verified to be correct.
+ * \endparblock
+ */
+#define H5T_FLOAT_F6E2M3 (H5OPEN H5T_FLOAT_F6E2M3_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 6-bit FP6 E3M2 (3 exponent bits, 2 mantissa bits) floating-point numbers
+ *
+ * \parblock
+ * \attention Implicit datatype conversion should currently be avoided when using
+ *            this datatype for I/O operations. Incomplete handling of non-IEEE
+ *            floating-point formats in HDF5 can cause certain FP6 E3M2 values
+ *            to be improperly converted to Infinities or NaN values. If possible,
+ *            an application should perform I/O with this datatype using an
+ *            in-memory type that matches the FP6 E3M2 format and perform explicit
+ *            data conversion outside of HDF5, if necessary. Otherwise, read/written
+ *            values should be verified to be correct.
+ * \endparblock
+ */
+#define H5T_FLOAT_F6E3M2 (H5OPEN H5T_FLOAT_F6E3M2_g)
+/**
+ * \ingroup PDTALTFLOAT
+ * 4-bit FP4 E2M1 (2 exponent bits, 1 mantissa bit) floating-point numbers
+ *
+ * \parblock
+ * \attention Implicit datatype conversion should currently be avoided when using
+ *            this datatype for I/O operations. Incomplete handling of non-IEEE
+ *            floating-point formats in HDF5 can cause certain FP4 E2M1 values
+ *            to be improperly converted to Infinities or NaN values. If possible,
+ *            an application should perform I/O with this datatype using an
+ *            in-memory type that matches the FP4 E2M1 format and perform explicit
+ *            data conversion outside of HDF5, if necessary. Otherwise, read/written
+ *            values should be verified to be correct.
+ * \endparblock
+ */
+#define H5T_FLOAT_F4E2M1 (H5OPEN H5T_FLOAT_F4E2M1_g)
+H5_DLLVAR hid_t H5T_FLOAT_BFLOAT16BE_g;
+H5_DLLVAR hid_t H5T_FLOAT_BFLOAT16LE_g;
+H5_DLLVAR hid_t H5T_FLOAT_F8E4M3_g;
+H5_DLLVAR hid_t H5T_FLOAT_F8E5M2_g;
+H5_DLLVAR hid_t H5T_FLOAT_F6E2M3_g;
+H5_DLLVAR hid_t H5T_FLOAT_F6E3M2_g;
+H5_DLLVAR hid_t H5T_FLOAT_F4E2M1_g;
+
+/*
+ * Complex number types made up of IEEE floating point types
+ */
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 16-bit big-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F16BE (H5OPEN H5T_COMPLEX_IEEE_F16BE_g)
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 16-bit little-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F16LE (H5OPEN H5T_COMPLEX_IEEE_F16LE_g)
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 32-bit big-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F32BE (H5OPEN H5T_COMPLEX_IEEE_F32BE_g)
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 32-bit little-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F32LE (H5OPEN H5T_COMPLEX_IEEE_F32LE_g)
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 64-bit big-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F64BE (H5OPEN H5T_COMPLEX_IEEE_F64BE_g)
+/**
+ * \ingroup PDTCOMPLEX
+ * Complex number of 2 64-bit little-endian IEEE floating-point numbers
+ * \since 2.0.0
+ */
+#define H5T_COMPLEX_IEEE_F64LE (H5OPEN H5T_COMPLEX_IEEE_F64LE_g)
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F16BE_g;
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F16LE_g;
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F32BE_g;
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F32LE_g;
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F64BE_g;
+H5_DLLVAR hid_t H5T_COMPLEX_IEEE_F64LE_g;
 
 /*
  * These are "standard" types.  For instance, signed (2's complement) and
@@ -459,18 +607,26 @@ H5_DLLVAR hid_t H5T_STD_REF_g;
  */
 /**
  * \ingroup PDTUNIX
+ * Big-endian 32-bit UNIX time_t
+ * \since 1.0.0
  */
 #define H5T_UNIX_D32BE (H5OPEN H5T_UNIX_D32BE_g)
 /**
  * \ingroup PDTUNIX
+ * Little-endian 32-bit UNIX time_t
+ * \since 1.0.0
  */
 #define H5T_UNIX_D32LE (H5OPEN H5T_UNIX_D32LE_g)
 /**
  * \ingroup PDTUNIX
+ * Big-endian 64-bit UNIX time_t
+ * \since 1.0.0
  */
 #define H5T_UNIX_D64BE (H5OPEN H5T_UNIX_D64BE_g)
 /**
  * \ingroup PDTUNIX
+ * Little-endian 64-bit UNIX time_t
+ * \since 1.0.0
  */
 #define H5T_UNIX_D64LE (H5OPEN H5T_UNIX_D64LE_g)
 H5_DLLVAR hid_t H5T_UNIX_D32BE_g;
@@ -485,6 +641,7 @@ H5_DLLVAR hid_t H5T_UNIX_D64LE_g;
 /**
  * \ingroup PDTS
  * String datatype in C (size defined in bytes rather than in bits)
+ * \since 1.0.0
  */
 #define H5T_C_S1 (H5OPEN H5T_C_S1_g)
 H5_DLLVAR hid_t H5T_C_S1_g;
@@ -495,6 +652,7 @@ H5_DLLVAR hid_t H5T_C_S1_g;
 /**
  * \ingroup PDTS
  * String datatype in Fortran (as defined for the HDF5 C library)
+ * \since 1.0.0
  */
 #define H5T_FORTRAN_S1 (H5OPEN H5T_FORTRAN_S1_g)
 H5_DLLVAR hid_t H5T_FORTRAN_S1_g;
@@ -506,71 +664,85 @@ H5_DLLVAR hid_t H5T_FORTRAN_S1_g;
 /**
  * \ingroup PDTX86
  * 8-bit little-endian signed (2's complement) integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_I8 H5T_STD_I8LE
 /**
  * \ingroup PDTX86
  * 16-bit little-endian signed (2's complement) integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_I16 H5T_STD_I16LE
 /**
  * \ingroup PDTX86
  * 32-bit little-endian signed (2's complement) integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_I32 H5T_STD_I32LE
 /**
  * \ingroup PDTX86
  * 64-bit little-endian signed (2's complement) integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_I64 H5T_STD_I64LE
 /**
  * \ingroup PDTX86
  * 8-bit little-endian unsigned integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_U8 H5T_STD_U8LE
 /**
  * \ingroup PDTX86
  * 16-bit little-endian unsigned integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_U16 H5T_STD_U16LE
 /**
  * \ingroup PDTX86
  * 32-bit little-endian unsigned integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_U32 H5T_STD_U32LE
 /**
  * \ingroup PDTX86
  * 64-bit little-endian unsigned integers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_U64 H5T_STD_U64LE
 /**
  * \ingroup PDTX86
  * 8-bit little-endian bitfield for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_B8 H5T_STD_B8LE
 /**
  * \ingroup PDTX86
  * 16-bit little-endian bitfield for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_B16 H5T_STD_B16LE
 /**
  * \ingroup PDTX86
  * 32-bit little-endian bitfield for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_B32 H5T_STD_B32LE
 /**
  * \ingroup PDTX86
  * 64-bit little-endian bitfield for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_B64 H5T_STD_B64LE
 /**
  * \ingroup PDTX86
  * 32-bit little-endian IEEE floating-point numbers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_F32 H5T_IEEE_F32LE
 /**
  * \ingroup PDTX86
  * 64-bit little-endian IEEE floating-point numbers for Intel CPUs
+ * \since 1.0.0
  */
 #define H5T_INTEL_F64 H5T_IEEE_F64LE
 
@@ -581,71 +753,85 @@ H5_DLLVAR hid_t H5T_FORTRAN_S1_g;
 /**
  * \ingroup PDTALPHA
  * 8-bit little-endian signed (2's complement) integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_I8 H5T_STD_I8LE
 /**
  * \ingroup PDTALPHA
  * 16-bit little-endian signed (2's complement) integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_I16 H5T_STD_I16LE
 /**
  * \ingroup PDTALPHA
  * 32-bit little-endian signed (2's complement) integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_I32 H5T_STD_I32LE
 /**
  * \ingroup PDTALPHA
  * 64-bit little-endian signed (2's complement) integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_I64 H5T_STD_I64LE
 /**
  * \ingroup PDTALPHA
  * 8-bit little-endian unsigned integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_U8 H5T_STD_U8LE
 /**
  * \ingroup PDTALPHA
  * 16-bit little-endian unsigned integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_U16 H5T_STD_U16LE
 /**
  * \ingroup PDTALPHA
  * 32-bit little-endian unsigned integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_U32 H5T_STD_U32LE
 /**
  * \ingroup PDTALPHA
  * 64-bit little-endian unsigned integers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_U64 H5T_STD_U64LE
 /**
  * \ingroup PDTALPHA
  * 8-bit little-endian bitfield for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_B8 H5T_STD_B8LE
 /**
  * \ingroup PDTALPHA
  * 16-bit little-endian bitfield for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_B16 H5T_STD_B16LE
 /**
  * \ingroup PDTALPHA
  * 32-bit little-endian bitfield for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_B32 H5T_STD_B32LE
 /**
  * \ingroup PDTALPHA
  * 64-bit little-endian bitfield for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_B64 H5T_STD_B64LE
 /**
  * \ingroup PDTALPHA
  * 32-bit little-endian IEEE floating-point numbers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_F32 H5T_IEEE_F32LE
 /**
  * \ingroup PDTALPHA
  * 64-bit little-endian IEEE floating-point numbers for DEC Alpha CPUs
+ * \since 1.0.0
  */
 #define H5T_ALPHA_F64 H5T_IEEE_F64LE
 
@@ -656,71 +842,85 @@ H5_DLLVAR hid_t H5T_FORTRAN_S1_g;
 /**
  * \ingroup PDTMIPS
  * 8-bit big-endian signed (2's complement) integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_I8 H5T_STD_I8BE
 /**
  * \ingroup PDTMIPS
  * 16-bit big-endian signed (2's complement) integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_I16 H5T_STD_I16BE
 /**
  * \ingroup PDTMIPS
  * 32-bit big-endian signed (2's complement) integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_I32 H5T_STD_I32BE
 /**
  * \ingroup PDTMIPS
  * 64-bit big-endian signed (2's complement) integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_I64 H5T_STD_I64BE
 /**
  * \ingroup PDTMIPS
  * 8-bit big-endian unsigned integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_U8 H5T_STD_U8BE
 /**
  * \ingroup PDTMIPS
  * 16-bit big-endian unsigned integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_U16 H5T_STD_U16BE
 /**
  * \ingroup PDTMIPS
  * 32-bit big-endian unsigned integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_U32 H5T_STD_U32BE
 /**
  * \ingroup PDTMIPS
  * 64-bit big-endian unsigned integers for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_U64 H5T_STD_U64BE
 /**
  * \ingroup PDTMIPS
  * 8-bit big-endian bitfield for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_B8 H5T_STD_B8BE
 /**
  * \ingroup PDTMIPS
  * 16-bit big-endian bitfield for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_B16 H5T_STD_B16BE
 /**
  * \ingroup PDTMIPS
  * 32-bit big-endian bitfield for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_B32 H5T_STD_B32BE
 /**
  * \ingroup PDTMIPS
  * 64-bit big-endian bitfield for SGI MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_B64 H5T_STD_B64BE
 /**
  * \ingroup PDTMIPS
  * 32-bit big-endian IEEE floating-point numbers for MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_F32 H5T_IEEE_F32BE
 /**
  * \ingroup PDTMIPS
  * 64-bit big-endian IEEE floating-point numbers for MIPS CPUs
+ * \since 1.0.0
  */
 #define H5T_MIPS_F64 H5T_IEEE_F64BE
 
@@ -730,11 +930,13 @@ H5_DLLVAR hid_t H5T_FORTRAN_S1_g;
 /**
  * \ingroup PDTALPHA
  * 32-bit VAX byte order floating-point numbers for OpenVMS on DEC Alpha CPUs
+ * \since 1.8.0
  */
 #define H5T_VAX_F32 (H5OPEN H5T_VAX_F32_g)
 /**
  * \ingroup PDTALPHA
  * 64-bit VAX byte order floating-point numbers for OpenVMS on DEC Alpha CPUs
+ * \since 1.8.0
  */
 #define H5T_VAX_F64 (H5OPEN H5T_VAX_F64_g)
 H5_DLLVAR hid_t H5T_VAX_F32_g;
@@ -751,126 +953,172 @@ H5_DLLVAR hid_t H5T_VAX_F64_g;
 /**
  * \ingroup PDTNAT
  * C-style \c char
+ * \since 1.0.0
  */
 #define H5T_NATIVE_CHAR (CHAR_MIN ? H5T_NATIVE_SCHAR : H5T_NATIVE_UCHAR)
 /**
  * \ingroup PDTNAT
  * C-style \TText{signed char}
+ * \since 1.2.0
  */
 #define H5T_NATIVE_SCHAR (H5OPEN H5T_NATIVE_SCHAR_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{unsigned char}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_UCHAR (H5OPEN H5T_NATIVE_UCHAR_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{short}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_SHORT (H5OPEN H5T_NATIVE_SHORT_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{unsigned short}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_USHORT (H5OPEN H5T_NATIVE_USHORT_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{int}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_INT (H5OPEN H5T_NATIVE_INT_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{unsigned int}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_UINT (H5OPEN H5T_NATIVE_UINT_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{long}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_LONG (H5OPEN H5T_NATIVE_LONG_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{unsigned long}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_ULONG (H5OPEN H5T_NATIVE_ULONG_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{long long}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_LLONG (H5OPEN H5T_NATIVE_LLONG_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{unsigned long long}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_ULLONG (H5OPEN H5T_NATIVE_ULLONG_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{_Float16} (May be \TText{H5I_INVALID_HID} if platform doesn't support \TText{_Float16} type)
+ * \since 1.14.4
  */
 #define H5T_NATIVE_FLOAT16 (H5OPEN H5T_NATIVE_FLOAT16_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{float}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_FLOAT (H5OPEN H5T_NATIVE_FLOAT_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{double}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_DOUBLE (H5OPEN H5T_NATIVE_DOUBLE_g)
 /**
  * \ingroup PDTNAT
  * C-style \TText{long double}
+ * \since 1.0.0
  */
 #define H5T_NATIVE_LDOUBLE (H5OPEN H5T_NATIVE_LDOUBLE_g)
 /**
  * \ingroup PDTNAT
+ * C-style \TText{float _Complex} / (MSVC) \TText{_Fcomplex} (May be \TText{H5I_INVALID_HID} if platform
+ * doesn't support \TText{float _Complex}/\TText{_Fcomplex} type)
+ * \since 2.0.0
+ */
+#define H5T_NATIVE_FLOAT_COMPLEX (H5OPEN H5T_NATIVE_FLOAT_COMPLEX_g)
+/**
+ * \ingroup PDTNAT
+ * C-style \TText{double _Complex} / (MSVC) \TText{_Dcomplex} (May be \TText{H5I_INVALID_HID} if platform
+ * doesn't support \TText{double _Complex}/\TText{_Dcomplex} type)
+ * \since 2.0.0
+ */
+#define H5T_NATIVE_DOUBLE_COMPLEX (H5OPEN H5T_NATIVE_DOUBLE_COMPLEX_g)
+/**
+ * \ingroup PDTNAT
+ * C-style \TText{long double _Complex} / (MSVC) \TText{_Lcomplex} (May be \TText{H5I_INVALID_HID} if platform
+ * doesn't support \TText{long double _Complex}/\TText{_Lcomplex} type)
+ * \since 2.0.0
+ */
+#define H5T_NATIVE_LDOUBLE_COMPLEX (H5OPEN H5T_NATIVE_LDOUBLE_COMPLEX_g)
+/**
+ * \ingroup PDTNAT
  * HDF5 8-bit bitfield based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_B8 (H5OPEN H5T_NATIVE_B8_g)
 /**
  * \ingroup PDTNAT
  * HDF5 16-bit bitfield based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_B16 (H5OPEN H5T_NATIVE_B16_g)
 /**
  * \ingroup PDTNAT
  * HDF5 32-bit bitfield based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_B32 (H5OPEN H5T_NATIVE_B32_g)
 /**
  * \ingroup PDTNAT
  * HDF5 64-bit bitfield based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_B64 (H5OPEN H5T_NATIVE_B64_g)
 /**
  * \ingroup PDTNAT
  * HDF5 opaque unit based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_OPAQUE (H5OPEN H5T_NATIVE_OPAQUE_g)
 /**
  * \ingroup PDTNAT
  * HDF5 address type based on native types
+ * \since 1.4.0
  */
 #define H5T_NATIVE_HADDR (H5OPEN H5T_NATIVE_HADDR_g)
 /**
  * \ingroup PDTNAT
  * HDF5 size type based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_HSIZE (H5OPEN H5T_NATIVE_HSIZE_g)
 /**
  * \ingroup PDTNAT
  * HDF5 signed size type based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_HSSIZE (H5OPEN H5T_NATIVE_HSSIZE_g)
 /**
  * \ingroup PDTNAT
  * HDF5 error code type based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_HERR (H5OPEN H5T_NATIVE_HERR_g)
 /**
  * \ingroup PDTNAT
  * HDF5 Boolean type based on native types
+ * \since 1.0.0
  */
 #define H5T_NATIVE_HBOOL (H5OPEN H5T_NATIVE_HBOOL_g)
 H5_DLLVAR hid_t H5T_NATIVE_SCHAR_g;
@@ -887,6 +1135,9 @@ H5_DLLVAR hid_t H5T_NATIVE_FLOAT16_g;
 H5_DLLVAR hid_t H5T_NATIVE_FLOAT_g;
 H5_DLLVAR hid_t H5T_NATIVE_DOUBLE_g;
 H5_DLLVAR hid_t H5T_NATIVE_LDOUBLE_g;
+H5_DLLVAR hid_t H5T_NATIVE_FLOAT_COMPLEX_g;
+H5_DLLVAR hid_t H5T_NATIVE_DOUBLE_COMPLEX_g;
+H5_DLLVAR hid_t H5T_NATIVE_LDOUBLE_COMPLEX_g;
 H5_DLLVAR hid_t H5T_NATIVE_B8_g;
 H5_DLLVAR hid_t H5T_NATIVE_B16_g;
 H5_DLLVAR hid_t H5T_NATIVE_B32_g;
@@ -901,26 +1152,32 @@ H5_DLLVAR hid_t H5T_NATIVE_HBOOL_g;
 /* C9x integer types */
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT8 (H5OPEN H5T_NATIVE_INT8_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT8 (H5OPEN H5T_NATIVE_UINT8_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_LEAST8 (H5OPEN H5T_NATIVE_INT_LEAST8_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_LEAST8 (H5OPEN H5T_NATIVE_UINT_LEAST8_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_FAST8 (H5OPEN H5T_NATIVE_INT_FAST8_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_FAST8 (H5OPEN H5T_NATIVE_UINT_FAST8_g)
 H5_DLLVAR hid_t H5T_NATIVE_INT8_g;
@@ -963,26 +1220,32 @@ H5_DLLVAR hid_t H5T_NATIVE_UINT_FAST16_g;
 
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT32 (H5OPEN H5T_NATIVE_INT32_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT32 (H5OPEN H5T_NATIVE_UINT32_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_LEAST32 (H5OPEN H5T_NATIVE_INT_LEAST32_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_LEAST32 (H5OPEN H5T_NATIVE_UINT_LEAST32_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_FAST32 (H5OPEN H5T_NATIVE_INT_FAST32_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_FAST32 (H5OPEN H5T_NATIVE_UINT_FAST32_g)
 H5_DLLVAR hid_t H5T_NATIVE_INT32_g;
@@ -994,26 +1257,32 @@ H5_DLLVAR hid_t H5T_NATIVE_UINT_FAST32_g;
 
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT64 (H5OPEN H5T_NATIVE_INT64_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT64 (H5OPEN H5T_NATIVE_UINT64_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_LEAST64 (H5OPEN H5T_NATIVE_INT_LEAST64_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_LEAST64 (H5OPEN H5T_NATIVE_UINT_LEAST64_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_INT_FAST64 (H5OPEN H5T_NATIVE_INT_FAST64_g)
 /**
  * \ingroup PDTC9x
+ * \since 1.2.0
  */
 #define H5T_NATIVE_UINT_FAST64 (H5OPEN H5T_NATIVE_UINT_FAST64_g)
 H5_DLLVAR hid_t H5T_NATIVE_INT64_g;
@@ -1398,11 +1667,12 @@ H5_DLL herr_t H5Tencode(hid_t obj_id, void *buf, size_t *nalloc);
  *        object handle
  *
  * \param[in] buf Buffer for the datatype object to be decoded
+ * \param[in] buf_size Size of the buffer
  *
  * \return \hid_t{datatype}
  *
- * \details H5Tdecode() Given an object description of datatype in binary in a
- *          buffer, H5Tdecode() reconstructs the HDF5 datatype object and
+ * \details H5Tdecode2() Given an object description of datatype in binary in a
+ *          buffer, H5Tdecode2() reconstructs the HDF5 datatype object and
  *          returns a new object handle for it. The binary description of
  *          the object is encoded by H5Tencode(). User is responsible for
  *          passing in the right buffer.
@@ -1411,10 +1681,11 @@ H5_DLL herr_t H5Tencode(hid_t obj_id, void *buf, size_t *nalloc);
  *          with H5Tclose() when the identifier is no longer needed so that
  *          resource leaks will not develop.
  *
- * \since 1.2.0
+ * \since 2.0.0
  *
  */
-H5_DLL hid_t H5Tdecode(const void *buf);
+H5_DLL hid_t H5Tdecode2(const void *buf, size_t buf_size);
+
 /**
  * \ingroup H5T
  *
@@ -1730,6 +2001,33 @@ H5_DLL int H5Tget_array_ndims(hid_t type_id);
  *
  */
 H5_DLL int H5Tget_array_dims2(hid_t type_id, hsize_t dims[]);
+
+/* Operations defined on complex number datatypes */
+/**
+ * \ingroup COMPLEX
+ *
+ * \brief Creates a new complex number datatype
+ *
+ * \type_id{base_type_id}, datatype identifier for the base datatype of the
+ *          complex number datatype. Must be a floating-point datatype.
+ *
+ * \return \hid_t{complex number datatype}
+ *
+ * \details H5Tcomplex_create() creates a new complex number datatype consisting
+ *          of real and imaginary number parts. The datatype for both parts of
+ *          the new complex number datatype is based on \p base_type_id, which
+ *          must be a floating-point datatype.
+ *
+ *          When necessary, use H5Tget_super() to determine the base datatype
+ *          of the complex number datatype.
+ *
+ *          The datatype identifier returned from this function should be
+ *          released with H5Tclose() or resource leaks will result.
+ *
+ * \since 2.0.0
+ *
+ */
+H5_DLL hid_t H5Tcomplex_create(hid_t base_type_id);
 
 /* Operations defined on opaque datatypes */
 /**
@@ -2343,6 +2641,10 @@ H5_DLL htri_t H5Tis_variable_str(hid_t type_id);
  *          \li #H5T_NATIVE_DOUBLE
  *          \li #H5T_NATIVE_LDOUBLE
  *
+ *          \li #H5T_NATIVE_FLOAT_COMPLEX (if available)
+ *          \li #H5T_NATIVE_DOUBLE_COMPLEX (if available)
+ *          \li #H5T_NATIVE_LDOUBLE_COMPLEX (if available)
+ *
  *          \li #H5T_NATIVE_B8
  *          \li #H5T_NATIVE_B16
  *          \li #H5T_NATIVE_B32
@@ -2417,8 +2719,8 @@ H5_DLL hid_t H5Tget_native_type(hid_t type_id, H5T_direction_t direction);
  *
  *          \li Ineligible datatypes: This function cannot be used with
  *          enumerated datatypes (#H5T_ENUM), array datatypes (#H5T_ARRAY),
- *          variable-length array datatypes (#H5T_VLEN), or reference datatypes
- *          (#H5T_REFERENCE).
+ *          variable-length array datatypes (#H5T_VLEN), reference datatypes
+ *          (#H5T_REFERENCE), or complex number datatypes (#H5T_COMPLEX).
  *
  * \see H5Tget_size()
  *
@@ -2491,6 +2793,9 @@ H5_DLL herr_t H5Tset_order(hid_t type_id, H5T_order_t order);
  *          locations and sizes of the sign, mantissa, and exponent fields
  *          first.
  *
+ *          When called with a #H5T_COMPLEX datatype, H5Tset_precision() sets
+ *          the precision for the base datatype of the complex number datatype.
+ *
  * \since 1.0.0
  *
  */
@@ -2524,6 +2829,9 @@ H5_DLL herr_t H5Tset_precision(hid_t type_id, size_t prec);
  *          hanging over the edge of the datatype.
  *
  *          The offset of an #H5T_STRING cannot be set to anything but zero.
+ *
+ *          When called with a #H5T_COMPLEX datatype, H5Tset_offset() sets
+ *          the offset for the base datatype of the complex number datatype.
  *
  * \since 1.0.0
  *
@@ -2819,6 +3127,35 @@ H5_DLL herr_t H5Treclaim(hid_t type_id, hid_t space_id, hid_t plist_id, void *bu
 /* Typedefs */
 
 /* Function prototypes */
+/**
+ * \ingroup H5T
+ *
+ * \brief Decodes a binary object description of datatype and returns a new
+ *        object handle
+ *
+ * \param[in] buf Buffer for the datatype object to be decoded
+ *
+ * \return \hid_t{datatype}
+ *
+ * \deprecated This function has been renamed from H5Tdecode() and is
+ *             deprecated in favor of the macro #H5Tdecode or the function
+ *             H5Tdecode2().
+ *
+ * \details H5Tdecode1() Given an object description of datatype in binary in a
+ *          buffer, H5Tdecode() reconstructs the HDF5 datatype object and
+ *          returns a new object handle for it. The binary description of
+ *          the object is encoded by H5Tencode(). User is responsible for
+ *          passing in the right buffer.
+ *
+ *          The datatype identifier returned by this function can be released
+ *          with H5Tclose() when the identifier is no longer needed so that
+ *          resource leaks will not develop.
+ * \version 2.0.0 C function H5Tdecode() renamed to H5Tdecode1() and deprecated
+ *          in this release.
+ * \since 1.8.0
+ *
+ */
+H5_DLL hid_t H5Tdecode1(const void *buf);
 /**
  * \ingroup H5T
  *

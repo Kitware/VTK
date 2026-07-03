@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -20,17 +20,10 @@
 
 #ifdef H5_HAVE_WIN32_API
 
-/* off_t exists on Windows, but is always a 32-bit long, even on 64-bit Windows,
- * so we define HDoff_t to be __int64, which is the type of the st_size field
- * of the _stati64 struct and what is returned by _ftelli64().
- */
-#define HDoff_t __int64
-
-/* __int64 is the correct type for the st_size field of the _stati64 struct.
- * MSDN isn't very clear about this.
+/* Win32 platform-independent definition for struct stat. For POSIX, see
+ * H5private.h.
  */
 typedef struct _stati64 h5_stat_t;
-typedef __int64         h5_stat_size_t;
 
 #ifdef H5_HAVE_VISUAL_STUDIO
 struct timezone {
@@ -39,7 +32,7 @@ struct timezone {
 };
 #endif
 
-#define HDcreat(S, M)        Wopen_utf8(S, O_CREAT | O_TRUNC | O_RDWR, M)
+#define HDcreat(S, M)        Wopen(S, O_CREAT | O_TRUNC | O_RDWR, M)
 #define HDflock(F, L)        Wflock(F, L)
 #define HDfstat(F, B)        _fstati64(F, B)
 #define HDftell(F)           _ftelli64(F)
@@ -50,22 +43,13 @@ struct timezone {
 #define HDlstat(S, B)        _lstati64(S, B)
 #define HDmkdir(S, M)        _mkdir(S)
 
-/* Note that with the traditional MSVC preprocessor, the variadic
- * HDopen macro uses an MSVC-specific extension where the comma
- * is dropped if nothing is passed to the ellipsis.
- *
- * MinGW and the newer, conforming MSVC preprocessor do not exhibit this
- * behavior.
- */
-#if (defined(_MSC_VER) && !defined(_MSVC_TRADITIONAL)) || defined(_MSVC_TRADITIONAL)
-/* Using the MSVC traditional preprocessor */
-#define HDopen(S, F, ...) Wopen_utf8(S, F, __VA_ARGS__)
-#else
-/* Using a standards conformant preprocessor */
-#define HDopen(S, F, ...) Wopen_utf8(S, F, ##__VA_ARGS__)
-#endif
+/* Windows has a variant of qsort_r with a different signature */
+#define HDqsort_r(B, N, S, C, A) HDqsort_context(B, N, S, C, A)
 
-#define HDremove(S)           Wremove_utf8(S)
+/* We only support the standards conformant preprocessor */
+#define HDopen(S, F, ...) Wopen(S, F, ##__VA_ARGS__)
+
+#define HDremove(S)           Wremove(S)
 #define HDsetenv(N, V, O)     Wsetenv(N, V, O)
 #define HDsetvbuf(F, S, M, Z) setvbuf(F, S, M, (Z > 1 ? Z : 2))
 #define HDsleep(S)            Sleep(S * 1000)
@@ -81,19 +65,37 @@ struct timezone {
 #define HDfseek(F, O, W)  _fseeki64(F, O, W)
 #endif
 
+#if defined(H5_HAVE_COMPLEX_NUMBERS) && !defined(H5_HAVE_C99_COMPLEX_NUMBERS)
+/*
+ * MSVC uses its own types for complex numbers that are separate from the
+ * C99 standard types, so we must use a typedef. These types are structure
+ * types, so we also need some wrapper functions for interacting with them,
+ * as the arithmetic operators can't be used on them. These types also may
+ * not be used for casts (other than pointer casts) anywhere in the library
+ * that will be compiled by MSVC, as casts can't be made between structure
+ * types and other types and MSVC will fail to compile.
+ */
+typedef _Fcomplex H5_float_complex;
+typedef _Dcomplex H5_double_complex;
+typedef _Lcomplex H5_ldouble_complex;
+#define H5_CMPLXF _FCbuild
+#define H5_CMPLX  _Cbuild
+#define H5_CMPLXL _LCbuild
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-H5_DLL int      Wgettimeofday(struct timeval *tv, struct timezone *tz);
-H5_DLL int      Wsetenv(const char *name, const char *value, int overwrite);
-H5_DLL int      Wflock(int fd, int operation);
-H5_DLL herr_t   H5_expand_windows_env_vars(char **env_var);
-H5_DLL wchar_t *H5_get_utf16_str(const char *s);
-H5_DLL int      Wopen_utf8(const char *path, int oflag, ...);
-H5_DLL int      Wremove_utf8(const char *path);
-H5_DLL int      H5_get_win32_times(H5_timevals_t *tvs);
-H5_DLL char    *H5_strndup(const char *s, size_t n);
-H5_DLL char    *Wstrcasestr_wrap(const char *haystack, const char *needle);
+H5_DLL int    Wgettimeofday(struct timeval *tv, struct timezone *tz);
+H5_DLL int    Wsetenv(const char *name, const char *value, int overwrite);
+H5_DLL int    Wflock(int fd, int operation);
+H5_DLL herr_t H5_expand_windows_env_vars(char **env_var);
+H5_DLL herr_t H5_get_utf16_str(const char *s, wchar_t **wstring, uint32_t *win_error);
+H5_DLL int    Wopen(const char *path, int oflag, ...);
+H5_DLL int    Wremove(const char *path);
+H5_DLL int    H5_get_win32_times(H5_timevals_t *tvs);
+H5_DLL char  *H5_strndup(const char *s, size_t n);
+H5_DLL char  *Wstrcasestr_wrap(const char *haystack, const char *needle);
 #ifdef __cplusplus
 }
 #endif

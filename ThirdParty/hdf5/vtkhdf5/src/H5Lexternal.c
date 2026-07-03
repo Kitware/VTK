@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -134,7 +134,7 @@ H5L__extern_traverse(const char H5_ATTR_UNUSED *link_name, hid_t cur_group, cons
     obj_name  = (const char *)p + fname_len + 1;
 
     /* Get the plist structure */
-    if (NULL == (plist = H5P_object_verify(lapl_id, H5P_LINK_ACCESS)))
+    if (NULL == (plist = H5P_object_verify(lapl_id, H5P_LINK_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, H5I_INVALID_HID, "can't find object for ID");
 
     /* Get the fapl_id set for lapl_id if any */
@@ -162,7 +162,7 @@ H5L__extern_traverse(const char H5_ATTR_UNUSED *link_name, hid_t cur_group, cons
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, H5I_INVALID_HID, "can't get elink callback info");
 
     /* Get file access property list */
-    if (NULL == (fa_plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
+    if (NULL == (fa_plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS, true)))
         HGOTO_ERROR(H5E_ID, H5E_BADID, H5I_INVALID_HID, "can't find object for ID");
 
     /* Make callback if it exists */
@@ -193,9 +193,14 @@ H5L__extern_traverse(const char H5_ATTR_UNUSED *link_name, hid_t cur_group, cons
         if (H5G_get_name(&loc, parent_group_name, group_name_len, NULL, NULL) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, H5I_INVALID_HID, "unable to retrieve group name");
 
-        /* Make callback */
-        if ((cb_info.func)(parent_file_name, parent_group_name, file_name, obj_name, &intent, fapl_id,
-                           cb_info.user_data) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                ret_value = (cb_info.func)(parent_file_name, parent_group_name, file_name, obj_name, &intent,
+                                           fapl_id, cb_info.user_data);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, H5I_INVALID_HID, "traversal operator failed");
 
         /* Check access flags */

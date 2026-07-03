@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -22,10 +22,13 @@
  *      reporting macros.
  */
 #define H5E_MODULE
-#define H5_MY_PKG     H5E
-#define H5_MY_PKG_ERR H5E_ERROR
+#define H5_MY_PKG      H5E
+#define H5_MY_PKG_INIT YES
 
 /** \page H5E_UG HDF5 Error Handling
+ *
+ * Navigate back: \ref index "Main" / \ref UG
+ * <hr>
  *
  * \section sec_error HDF5 Error Handling
  *
@@ -61,7 +64,51 @@
  * see @ref H5E reference manual
  *
  * \subsection subsec_error_program Programming Model for Error Handling
- * This section is under construction.
+ *
+ * The HDF5 error handling programming model provides a structured approach for detecting, reporting,
+ * and managing errors in applications. The model is based on error stacks that accumulate contextual
+ * information as errors propagate through the library call stack.
+ *
+ * \subsubsection subsubsec_error_program_model Basic Programming Model
+ *
+ * Applications typically use one of two approaches for error handling:
+ *
+ * \li \Bold{Automatic Error Handling}: By default, HDF5 automatically prints error information to
+ *     stderr when errors occur. This is suitable for development and debugging but may not be
+ *     appropriate for production applications.
+ *
+ * \li \Bold{Custom Error Handling}: Applications can register custom error handling functions using
+ *     #H5Eset_auto to gain full control over error reporting and recovery. Custom handlers can log
+ *     errors, display messages to users, or implement application-specific recovery strategies.
+ *
+ * \subsubsection subsubsec_error_program_detection Error Detection
+ *
+ * HDF5 functions indicate errors through their return values:
+ * \li Functions returning \c hid_t (identifiers) return a negative value on error
+ * \li Functions returning \c herr_t (error codes) return a negative value on error
+ * \li Functions returning pointers return NULL on error
+ * \li Functions returning \c htri_t (tri-state) return negative on error, zero for false, positive for true
+ *
+ * Applications should check return values from all HDF5 API calls to detect errors.
+ *
+ * \subsubsection subsubsec_error_program_handling Error Handling Strategies
+ *
+ * Common error handling strategies include:
+ *
+ * \li \Bold{Print and Continue}: Use default error handling to print diagnostic information and
+ *     continue execution where possible. This is the default behavior.
+ *
+ * \li \Bold{Silent Error Handling}: Disable automatic error printing with #H5Eset_auto(H5E_DEFAULT, NULL,
+ *NULL) and check return values explicitly. This is common in production code.
+ *
+ * \li \Bold{Custom Error Handler}: Install a custom error handler to implement application-specific
+ *     error logging, user notification, or recovery procedures.
+ *
+ * \li \Bold{Error Stack Inspection}: Walk the error stack with #H5Ewalk to examine detailed error
+ *     information and make programmatic decisions based on specific error conditions.
+ *
+ * @see \ref subsec_error_ops for details on error stack operations and \ref subsec_error_adv for
+ *      advanced error handling features including custom error classes and messages.
  *
  * \subsection subsec_error_ops Basic Error Handling Operations
  * Let us first try to understand the error stack. An error stack is a collection of error records. Error
@@ -512,6 +559,9 @@
  * \endcode
  *
  * Previous Chapter \ref sec_attribute - Next Chapter \ref sec_plist
+ *
+ * <hr>
+ * Navigate back: \ref index "Main" / \ref UG
  *
  * \defgroup H5E Error Handling (H5E)
  *

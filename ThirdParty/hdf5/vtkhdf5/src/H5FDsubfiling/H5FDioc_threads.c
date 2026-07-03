@@ -4,15 +4,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "H5FDioc_priv.h"
+#include "H5FDmodule.h" /* This source code file is part of the H5FD module */
 
-#include "H5FDsubfiling.h"
+#include "H5private.h"    /* Generic Functions        */
+#include "H5Eprivate.h"   /* Error handling           */
+#include "H5FDpkg.h"      /* File drivers             */
+#include "H5FDioc_priv.h" /* I/O concetrator file driver          */
 
 #define MIN_READ_RETRIES 10
 
@@ -28,13 +31,13 @@
  * file's subfiling context object
  */
 typedef struct ioc_data_t {
-    ioc_io_queue_t    io_queue;
-    hg_thread_t       ioc_main_thread;
-    hg_thread_pool_t *io_thread_pool;
-    int64_t           sf_context_id;
+    ioc_io_queue_t io_queue;
+    H5TS_thread_t  ioc_main_thread;
+    H5TS_pool_t   *io_thread_pool;
+    int64_t        sf_context_id;
 
-    atomic_int sf_ioc_ready;
-    atomic_int sf_shutdown_flag;
+    H5TS_atomic_int_t sf_ioc_ready;
+    H5TS_atomic_int_t sf_shutdown_flag;
     /* sf_io_ops_pending tracks the number of I/O operations pending so that we can wait
      * until all I/O operations have been serviced before shutting down the worker thread pool.
      * The value of this variable must always be non-negative.
@@ -42,21 +45,9 @@ typedef struct ioc_data_t {
      * Note that this is a convenience variable -- we could use io_queue.q_len instead.
      * However, accessing this field requires locking io_queue.q_mutex.
      */
-    atomic_int sf_io_ops_pending;
-    atomic_int sf_work_pending;
+    H5TS_atomic_int_t sf_io_ops_pending;
+    H5TS_atomic_int_t sf_work_pending;
 } ioc_data_t;
-
-/*
- * NOTES:
- * Rather than re-create the code for creating and managing a thread pool,
- * I'm utilizing a reasonably well tested implementation from the mercury
- * project.  At some point, we should revisit this decision or possibly
- * directly link against the mercury library.  This would make sense if
- * we move away from using MPI as the messaging infrastructure and instead
- * use mercury for that purpose...
- */
-
-static hg_thread_mutex_t ioc_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #ifdef H5FD_IOC_COLLECT_STATS
 static int    sf_write_ops        = 0;
@@ -68,7 +59,7 @@ static double sf_queue_delay_time = 0.0;
 #endif
 
 /* Prototypes */
-static HG_THREAD_RETURN_TYPE H5FD__ioc_thread_main(void *arg);
+static H5TS_THREAD_RETURN_TYPE H5FD__ioc_thread_main(void *arg);
 
 static int H5FD__ioc_file_queue_write_indep(sf_work_request_t *msg, int ioc_idx, int source, MPI_Comm comm,
                                             uint32_t counter);
@@ -123,44 +114,24 @@ H5FD__ioc_init_threads(void *_sf_context)
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "can't allocate IOC data for IOC main thread");
     ioc_data->sf_context_id  = sf_context->sf_context_id;
     ioc_data->io_thread_pool = NULL;
-    ioc_data->io_queue       = (ioc_io_queue_t){/* magic               = */ H5FD_IOC__IO_Q_MAGIC,
-                                          /* q_head              = */ NULL,
-                                          /* q_tail              = */ NULL,
-                                          /* num_pending         = */ 0,
-                                          /* num_in_progress     = */ 0,
-                                          /* num_failed          = */ 0,
-                                          /* q_len               = */ 0,
-                                          /* req_counter         = */ 0,
-                                          /* q_mutex             = */
-                                          PTHREAD_MUTEX_INITIALIZER,
-#ifdef H5FD_IOC_COLLECT_STATS
-                                          /* max_q_len           = */ 0,
-                                          /* max_num_pending     = */ 0,
-                                          /* max_num_in_progress = */ 0,
-                                          /* ind_read_requests   = */ 0,
-                                          /* ind_write_requests  = */ 0,
-                                          /* truncate_requests   = */ 0,
-                                          /* get_eof_requests    = */ 0,
-                                          /* requests_queued     = */ 0,
-                                          /* requests_dispatched = */ 0,
-                                          /* requests_completed  = */ 0
-#endif
-    };
-
-    sf_context->ioc_data = ioc_data;
 
     /* Initialize atomic vars */
-    atomic_init(&ioc_data->sf_ioc_ready, 0);
-    atomic_init(&ioc_data->sf_shutdown_flag, 0);
-    atomic_init(&ioc_data->sf_io_ops_pending, 0);
-    atomic_init(&ioc_data->sf_work_pending, 0);
+    H5TS_atomic_init_int(&ioc_data->sf_ioc_ready, 0);
+    H5TS_atomic_init_int(&ioc_data->sf_shutdown_flag, 0);
+    H5TS_atomic_init_int(&ioc_data->sf_io_ops_pending, 0);
+    H5TS_atomic_init_int(&ioc_data->sf_work_pending, 0);
+
+    /* Initialize I/O queue */
+    memset(&ioc_data->io_queue, 0, sizeof(ioc_data->io_queue));
+    ioc_data->io_queue.magic = H5FD_IOC__IO_Q_MAGIC;
+    if (H5TS_mutex_init(&ioc_data->io_queue.q_mutex, H5TS_MUTEX_TYPE_PLAIN) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize IOC thread queue mutex");
+
+    sf_context->ioc_data = ioc_data;
 
 #ifdef H5FD_IOC_COLLECT_STATS
     t_start = MPI_Wtime();
 #endif
-
-    if (hg_thread_mutex_init(&ioc_data->io_queue.q_mutex) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize IOC thread queue mutex");
 
     /* Allow experimentation with the number of helper threads */
     if ((env_value = getenv(H5FD_IOC_THREAD_POOL_SIZE)) != NULL) {
@@ -170,15 +141,15 @@ H5FD__ioc_init_threads(void *_sf_context)
     }
 
     /* Initialize a thread pool for the I/O concentrator's worker threads */
-    if (hg_thread_pool_init(thread_pool_size, &ioc_data->io_thread_pool) < 0)
+    if (H5TS_pool_create(&ioc_data->io_thread_pool, thread_pool_size) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't initialize IOC worker thread pool");
 
     /* Create the main IOC thread that will receive and dispatch I/O requests */
-    if (hg_thread_create(&ioc_data->ioc_main_thread, H5FD__ioc_thread_main, ioc_data) < 0)
+    if (H5TS_thread_create(&ioc_data->ioc_main_thread, H5FD__ioc_thread_main, ioc_data) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "can't create IOC main thread");
 
     /* Wait until H5FD__ioc_thread_main() reports that it is ready */
-    while (atomic_load(&ioc_data->sf_ioc_ready) != 1)
+    while (H5TS_atomic_load_int(&ioc_data->sf_ioc_ready) != 1)
         usleep(20);
 
 #ifdef H5FD_IOC_COLLECT_STATS
@@ -211,24 +182,30 @@ H5FD__ioc_finalize_threads(void *_sf_context)
 
     ioc_data = sf_context->ioc_data;
     if (ioc_data) {
-        assert(0 == atomic_load(&ioc_data->sf_shutdown_flag));
+        assert(0 == H5TS_atomic_load_int(&ioc_data->sf_shutdown_flag));
 
         /* Shutdown the main IOC thread */
-        atomic_store(&ioc_data->sf_shutdown_flag, 1);
+        H5TS_atomic_store_int(&ioc_data->sf_shutdown_flag, 1);
 
         /* Allow H5FD__ioc_thread_main to exit.*/
         do {
             usleep(20);
-        } while (0 != atomic_load(&ioc_data->sf_shutdown_flag));
+        } while (0 != H5TS_atomic_load_int(&ioc_data->sf_shutdown_flag));
 
         /* Tear down IOC worker thread pool */
-        assert(0 == atomic_load(&ioc_data->sf_io_ops_pending));
-        hg_thread_pool_destroy(ioc_data->io_thread_pool);
+        assert(0 == H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
+        H5TS_pool_destroy(ioc_data->io_thread_pool);
 
-        hg_thread_mutex_destroy(&ioc_data->io_queue.q_mutex);
+        H5TS_mutex_destroy(&ioc_data->io_queue.q_mutex);
 
         /* Wait for IOC main thread to exit */
-        hg_thread_join(ioc_data->ioc_main_thread);
+        H5TS_thread_join(ioc_data->ioc_main_thread, NULL);
+
+        /* Destroy atomic vars */
+        H5TS_atomic_destroy_int(&ioc_data->sf_ioc_ready);
+        H5TS_atomic_destroy_int(&ioc_data->sf_shutdown_flag);
+        H5TS_atomic_destroy_int(&ioc_data->sf_io_ops_pending);
+        H5TS_atomic_destroy_int(&ioc_data->sf_work_pending);
     }
 
     if (ioc_data->io_queue.num_failed > 0)
@@ -299,14 +276,14 @@ H5FD__ioc_finalize_threads(void *_sf_context)
  *
  *-------------------------------------------------------------------------
  */
-static HG_THREAD_RETURN_TYPE
+static H5TS_THREAD_RETURN_TYPE
 H5FD__ioc_thread_main(void *arg)
 {
     ioc_data_t          *ioc_data = (ioc_data_t *)arg;
     subfiling_context_t *context  = NULL;
     sf_work_request_t    wk_req;
     int                  shutdown_requested;
-    hg_thread_ret_t      ret_value = (hg_thread_ret_t)SUCCEED;
+    H5TS_thread_ret_t    ret_value = (H5TS_thread_ret_t)SUCCEED;
 
     assert(ioc_data);
 
@@ -320,13 +297,13 @@ H5FD__ioc_thread_main(void *arg)
      * represent an open file).
      */
 
-    /* tell H5FD__ioc_init_threads() that ioc_main() is ready to enter its main loop */
-    atomic_store(&ioc_data->sf_ioc_ready, 1);
+    /* tell H5FD__ioc_init_threads() that H5FD__ioc_thread_main() is ready to enter its main loop */
+    H5TS_atomic_store_int(&ioc_data->sf_ioc_ready, 1);
 
     shutdown_requested = 0;
 
-    while ((!shutdown_requested) || (0 < atomic_load(&ioc_data->sf_io_ops_pending)) ||
-           (0 < atomic_load(&ioc_data->sf_work_pending))) {
+    while ((!shutdown_requested) || (0 < H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending)) ||
+           (0 < H5TS_atomic_load_int(&ioc_data->sf_work_pending))) {
         MPI_Status status;
         int        flag = 0;
         int        mpi_code;
@@ -334,7 +311,7 @@ H5FD__ioc_thread_main(void *arg)
         /* Probe for incoming work requests */
         if (MPI_SUCCESS !=
             (mpi_code = (MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, context->sf_msg_comm, &flag, &status))))
-            HGOTO_DONE((hg_thread_ret_t)FAIL);
+            HGOTO_DONE((H5TS_thread_ret_t)FAIL);
 
         if (flag) {
             int count;
@@ -342,15 +319,15 @@ H5FD__ioc_thread_main(void *arg)
             int tag    = status.MPI_TAG;
 
             if (tag != READ_INDEP && tag != WRITE_INDEP && tag != TRUNC_OP && tag != GET_EOF_OP)
-                HGOTO_DONE((hg_thread_ret_t)FAIL);
+                HGOTO_DONE((H5TS_thread_ret_t)FAIL);
 
             if (MPI_SUCCESS != (mpi_code = MPI_Get_count(&status, MPI_BYTE, &count)))
-                HGOTO_DONE((hg_thread_ret_t)FAIL);
+                HGOTO_DONE((H5TS_thread_ret_t)FAIL);
 
             if (count < 0)
-                HGOTO_DONE((hg_thread_ret_t)FAIL);
+                HGOTO_DONE((H5TS_thread_ret_t)FAIL);
             if ((size_t)count > sizeof(sf_work_request_t))
-                HGOTO_DONE((hg_thread_ret_t)FAIL);
+                HGOTO_DONE((H5TS_thread_ret_t)FAIL);
 
             /*
              * Zero out work request, since the received message should
@@ -359,7 +336,7 @@ H5FD__ioc_thread_main(void *arg)
             memset(&wk_req, 0, sizeof(sf_work_request_t));
             if (MPI_SUCCESS != (mpi_code = MPI_Recv(&wk_req, count, MPI_BYTE, source, tag,
                                                     context->sf_msg_comm, MPI_STATUS_IGNORE)))
-                HGOTO_DONE((hg_thread_ret_t)FAIL);
+                HGOTO_DONE((H5TS_thread_ret_t)FAIL);
 
             /* Dispatch work request to worker threads in thread pool */
 
@@ -373,7 +350,7 @@ H5FD__ioc_thread_main(void *arg)
 
             H5FD__ioc_io_queue_add_entry(ioc_data, &wk_req);
 
-            assert(atomic_load(&ioc_data->sf_io_ops_pending) >= 0);
+            assert(H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending) >= 0);
         }
         else {
             struct timespec sleep_spec = {0, IOC_MAIN_SLEEP_DELAY};
@@ -383,11 +360,11 @@ H5FD__ioc_thread_main(void *arg)
 
         H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data, flag ? 0 : 1);
 
-        shutdown_requested = atomic_load(&ioc_data->sf_shutdown_flag);
+        shutdown_requested = H5TS_atomic_load_int(&ioc_data->sf_shutdown_flag);
     }
 
     /* Reset the shutdown flag */
-    atomic_store(&ioc_data->sf_shutdown_flag, 0);
+    H5TS_atomic_store_int(&ioc_data->sf_shutdown_flag, 0);
 
 done:
     return ret_value;
@@ -445,7 +422,7 @@ translate_opcode(io_op_t op)
  *
  *-------------------------------------------------------------------------
  */
-static HG_THREAD_RETURN_TYPE
+static H5TS_THREAD_RETURN_TYPE
 H5FD__ioc_handle_work_request(void *arg)
 {
     ioc_io_queue_entry_t *q_entry_ptr     = (ioc_io_queue_entry_t *)arg;
@@ -454,7 +431,7 @@ H5FD__ioc_handle_work_request(void *arg)
     ioc_data_t           *ioc_data        = NULL;
     int64_t               file_context_id = msg->context_id;
     int                   op_ret;
-    hg_thread_ret_t       ret_value = 0;
+    H5TS_thread_ret_t     ret_value = 0;
 
     assert(q_entry_ptr);
     assert(q_entry_ptr->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);
@@ -466,7 +443,7 @@ H5FD__ioc_handle_work_request(void *arg)
     ioc_data = sf_context->ioc_data;
     assert(ioc_data);
 
-    atomic_fetch_add(&ioc_data->sf_work_pending, 1);
+    H5TS_atomic_fetch_add_int(&ioc_data->sf_work_pending, 1);
 
     switch (msg->tag) {
         case WRITE_INDEP:
@@ -498,7 +475,7 @@ H5FD__ioc_handle_work_request(void *arg)
             break;
     }
 
-    atomic_fetch_sub(&ioc_data->sf_work_pending, 1);
+    H5TS_atomic_fetch_sub_int(&ioc_data->sf_work_pending, 1);
 
     if (op_ret < 0) {
 #ifdef H5_SUBFILING_DEBUG
@@ -514,7 +491,7 @@ H5FD__ioc_handle_work_request(void *arg)
 
 #ifdef H5FD_IOC_DEBUG
     {
-        int curr_io_ops_pending = atomic_load(&ioc_data->sf_io_ops_pending);
+        int curr_io_ops_pending = H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending);
         assert(curr_io_ops_pending > 0);
     }
 #endif
@@ -522,43 +499,12 @@ H5FD__ioc_handle_work_request(void *arg)
     /* complete the I/O request */
     H5FD__ioc_io_queue_complete_entry(ioc_data, q_entry_ptr);
 
-    assert(atomic_load(&ioc_data->sf_io_ops_pending) >= 0);
+    assert(H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending) >= 0);
 
     /* Check the I/O Queue to see if there are any dispatchable entries */
     H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data, 1);
 
     return ret_value;
-}
-
-/*-------------------------------------------------------------------------
- * Function:    H5FD_ioc_begin_thread_exclusive
- *
- * Purpose:     Mutex lock to restrict access to code or variables.
- *
- * Return:      integer result of mutex_lock request.
- *
- *-------------------------------------------------------------------------
- */
-void
-H5FD_ioc_begin_thread_exclusive(void)
-{
-    hg_thread_mutex_lock(&ioc_thread_mutex);
-}
-
-/*-------------------------------------------------------------------------
- * Function:    H5FD_ioc_end_thread_exclusive
- *
- * Purpose:     Mutex unlock.  Should only be called by the current holder
- *              of the locked mutex.
- *
- * Return:      result of mutex_unlock operation.
- *
- *-------------------------------------------------------------------------
- */
-void
-H5FD_ioc_end_thread_exclusive(void)
-{
-    hg_thread_mutex_unlock(&ioc_thread_mutex);
 }
 
 static herr_t
@@ -746,13 +692,13 @@ H5FD__ioc_file_queue_write_indep(sf_work_request_t *msg, int ioc_idx, int source
     sf_queue_delay_time += t_queue_delay;
 #endif
 
-    H5FD_ioc_begin_thread_exclusive();
+    H5TS_mutex_lock(&sf_context->mutex);
 
     /* Adjust EOF if necessary */
     if (sf_eof > sf_context->sf_eof)
         sf_context->sf_eof = sf_eof;
 
-    H5FD_ioc_end_thread_exclusive();
+    H5TS_mutex_unlock(&sf_context->mutex);
 
     /*
      * Send a message back to the client that the I/O call has
@@ -961,7 +907,7 @@ H5FD__ioc_file_write_data(int fd, int64_t file_offset, void *data_buffer, int64_
     (void)ioc_idx;
 #endif
 
-    HDcompile_assert(H5_SIZEOF_OFF_T == sizeof(file_offset));
+    HDcompile_assert(sizeof(HDoff_t) == sizeof(file_offset));
 
     while (bytes_remaining) {
         errno = 0;
@@ -1008,7 +954,7 @@ H5FD__ioc_file_read_data(int fd, int64_t file_offset, void *data_buffer, int64_t
     (void)ioc_idx;
 #endif
 
-    HDcompile_assert(H5_SIZEOF_OFF_T == sizeof(file_offset));
+    HDcompile_assert(sizeof(HDoff_t) == sizeof(file_offset));
 
     while (bytes_remaining) {
         errno = 0;
@@ -1236,9 +1182,9 @@ H5FD__ioc_io_queue_add_entry(ioc_data_t *ioc_data, sf_work_request_t *wk_req_ptr
     H5MM_memcpy((void *)(&(entry_ptr->wk_req)), (const void *)wk_req_ptr, sizeof(sf_work_request_t));
 
     /* must obtain io_queue mutex before appending */
-    hg_thread_mutex_lock(&ioc_data->io_queue.q_mutex);
+    H5TS_mutex_lock(&ioc_data->io_queue.q_mutex);
 
-    assert(ioc_data->io_queue.q_len == atomic_load(&ioc_data->sf_io_ops_pending));
+    assert(ioc_data->io_queue.q_len == H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 
     entry_ptr->counter = ioc_data->io_queue.req_counter++;
 
@@ -1246,7 +1192,7 @@ H5FD__ioc_io_queue_add_entry(ioc_data_t *ioc_data, sf_work_request_t *wk_req_ptr
 
     H5FD_IOC__Q_APPEND(&ioc_data->io_queue, entry_ptr);
 
-    atomic_fetch_add(&ioc_data->sf_io_ops_pending, 1);
+    H5TS_atomic_fetch_add_int(&ioc_data->sf_io_ops_pending, 1);
 
 #ifdef H5_SUBFILING_DEBUG
     H5FD__subfiling_log(
@@ -1255,7 +1201,7 @@ H5FD__ioc_io_queue_add_entry(ioc_data_t *ioc_data, sf_work_request_t *wk_req_ptr
         entry_ptr->counter, (entry_ptr->wk_req.tag), (long long)(entry_ptr->wk_req.header[0]),
         (long long)(entry_ptr->wk_req.header[1]), (long long)(entry_ptr->wk_req.header[2]),
         ioc_data->io_queue.num_pending, ioc_data->io_queue.num_in_progress,
-        atomic_load(&ioc_data->sf_io_ops_pending));
+        H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 #endif
 
     assert(ioc_data->io_queue.num_pending + ioc_data->io_queue.num_in_progress == ioc_data->io_queue.q_len);
@@ -1282,17 +1228,17 @@ H5FD__ioc_io_queue_add_entry(ioc_data_t *ioc_data, sf_work_request_t *wk_req_ptr
 #endif
 
 #ifdef H5_SUBFILING_DEBUG
-    if (ioc_data->io_queue.q_len != atomic_load(&ioc_data->sf_io_ops_pending)) {
+    if (ioc_data->io_queue.q_len != H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending)) {
         H5FD__subfiling_log(
             wk_req_ptr->context_id,
-            "%s: ioc_data->io_queue->q_len = %d != %d = atomic_load(&ioc_data->sf_io_ops_pending).", __func__,
-            ioc_data->io_queue.q_len, atomic_load(&ioc_data->sf_io_ops_pending));
+            "%s: ioc_data->io_queue->q_len = %d != %d = H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending).",
+            __func__, ioc_data->io_queue.q_len, H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
     }
 #endif
 
-    assert(ioc_data->io_queue.q_len == atomic_load(&ioc_data->sf_io_ops_pending));
+    assert(ioc_data->io_queue.q_len == H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 
-    hg_thread_mutex_unlock(&ioc_data->io_queue.q_mutex);
+    H5TS_mutex_unlock(&ioc_data->io_queue.q_mutex);
 
     return;
 } /* H5FD__ioc_io_queue_add_entry() */
@@ -1351,11 +1297,14 @@ H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data_t *ioc_data, bool try_lock
     assert(ioc_data->io_queue.magic == H5FD_IOC__IO_Q_MAGIC);
 
     if (try_lock) {
-        if (hg_thread_mutex_try_lock(&ioc_data->io_queue.q_mutex) < 0)
+        bool acquired;
+
+        H5TS_mutex_trylock(&ioc_data->io_queue.q_mutex, &acquired);
+        if (!acquired)
             return;
     }
     else
-        hg_thread_mutex_lock(&ioc_data->io_queue.q_mutex);
+        H5TS_mutex_lock(&ioc_data->io_queue.q_mutex);
 
     entry_ptr = ioc_data->io_queue.q_head;
 
@@ -1420,9 +1369,6 @@ H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data_t *ioc_data, bool try_lock
                 assert(ioc_data->io_queue.num_pending + ioc_data->io_queue.num_in_progress ==
                        ioc_data->io_queue.q_len);
 
-                entry_ptr->thread_wk.func = H5FD__ioc_handle_work_request;
-                entry_ptr->thread_wk.args = entry_ptr;
-
 #ifdef H5_SUBFILING_DEBUG
                 H5FD__subfiling_log(
                     entry_ptr->wk_req.context_id,
@@ -1431,7 +1377,7 @@ H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data_t *ioc_data, bool try_lock
                     __func__, entry_ptr->counter, (entry_ptr->wk_req.tag),
                     (long long)(entry_ptr->wk_req.header[0]), (long long)(entry_ptr->wk_req.header[1]),
                     (long long)(entry_ptr->wk_req.header[2]), ioc_data->io_queue.num_pending,
-                    ioc_data->io_queue.num_in_progress, atomic_load(&ioc_data->sf_io_ops_pending));
+                    ioc_data->io_queue.num_in_progress, H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 #endif
 
 #ifdef H5FD_IOC_COLLECT_STATS
@@ -1443,16 +1389,16 @@ H5FD__ioc_io_queue_dispatch_eligible_entries(ioc_data_t *ioc_data, bool try_lock
                 entry_ptr->dispatch_time = H5_now_usec();
 #endif
 
-                hg_thread_pool_post(ioc_data->io_thread_pool, &(entry_ptr->thread_wk));
+                H5TS_pool_add_task(ioc_data->io_thread_pool, H5FD__ioc_handle_work_request, entry_ptr);
             }
         }
 
         entry_ptr = entry_ptr->next;
     }
 
-    assert(ioc_data->io_queue.q_len == atomic_load(&ioc_data->sf_io_ops_pending));
+    assert(ioc_data->io_queue.q_len == H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 
-    hg_thread_mutex_unlock(&ioc_data->io_queue.q_mutex);
+    H5TS_mutex_unlock(&ioc_data->io_queue.q_mutex);
 } /* H5FD__ioc_io_queue_dispatch_eligible_entries() */
 
 /*-------------------------------------------------------------------------
@@ -1482,7 +1428,7 @@ H5FD__ioc_io_queue_complete_entry(ioc_data_t *ioc_data, ioc_io_queue_entry_t *en
     assert(entry_ptr->magic == H5FD_IOC__IO_Q_ENTRY_MAGIC);
 
     /* must obtain io_queue mutex before deleting and updating stats */
-    hg_thread_mutex_lock(&ioc_data->io_queue.q_mutex);
+    H5TS_mutex_lock(&ioc_data->io_queue.q_mutex);
 
     assert(ioc_data->io_queue.num_pending + ioc_data->io_queue.num_in_progress == ioc_data->io_queue.q_len);
     assert(ioc_data->io_queue.num_in_progress > 0);
@@ -1496,7 +1442,7 @@ H5FD__ioc_io_queue_complete_entry(ioc_data_t *ioc_data, ioc_io_queue_entry_t *en
 
     assert(ioc_data->io_queue.num_pending + ioc_data->io_queue.num_in_progress == ioc_data->io_queue.q_len);
 
-    atomic_fetch_sub(&ioc_data->sf_io_ops_pending, 1);
+    H5TS_atomic_fetch_sub_int(&ioc_data->sf_io_ops_pending, 1);
 
 #ifdef H5_SUBFILING_DEBUG
     H5FD__subfiling_log(entry_ptr->wk_req.context_id,
@@ -1505,7 +1451,8 @@ H5FD__ioc_io_queue_complete_entry(ioc_data_t *ioc_data, ioc_io_queue_entry_t *en
                         __func__, entry_ptr->counter, entry_ptr->wk_ret, (entry_ptr->wk_req.tag),
                         (long long)(entry_ptr->wk_req.header[0]), (long long)(entry_ptr->wk_req.header[1]),
                         (long long)(entry_ptr->wk_req.header[2]), ioc_data->io_queue.num_pending,
-                        ioc_data->io_queue.num_in_progress, atomic_load(&ioc_data->sf_io_ops_pending));
+                        ioc_data->io_queue.num_in_progress,
+                        H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 
     /*
      * If this I/O request is a truncate or "get eof" op, make sure
@@ -1515,7 +1462,7 @@ H5FD__ioc_io_queue_complete_entry(ioc_data_t *ioc_data, ioc_io_queue_entry_t *en
         assert(ioc_data->io_queue.num_in_progress == 0);
 #endif
 
-    assert(ioc_data->io_queue.q_len == atomic_load(&ioc_data->sf_io_ops_pending));
+    assert(ioc_data->io_queue.q_len == H5TS_atomic_load_int(&ioc_data->sf_io_ops_pending));
 
 #ifdef H5FD_IOC_COLLECT_STATS
     ioc_data->io_queue.requests_completed++;
@@ -1523,7 +1470,7 @@ H5FD__ioc_io_queue_complete_entry(ioc_data_t *ioc_data, ioc_io_queue_entry_t *en
     entry_ptr->q_time = H5_now_usec();
 #endif
 
-    hg_thread_mutex_unlock(&ioc_data->io_queue.q_mutex);
+    H5TS_mutex_unlock(&ioc_data->io_queue.q_mutex);
 
     H5MM_free(entry_ptr);
 

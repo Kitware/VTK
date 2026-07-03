@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -761,7 +761,7 @@ done:
  * the "blob". Disable this warning here (at least temporarily)
  * for this reason.
  */
-H5_GCC_CLANG_DIAG_OFF("cast-qual")
+H5_WARN_CAST_AWAY_CONST_OFF
 static herr_t
 H5T__ref_disk_isnull(const H5VL_object_t *src_file, const void *src_buf, bool *isnull)
 {
@@ -801,7 +801,7 @@ H5T__ref_disk_isnull(const H5VL_object_t *src_file, const void *src_buf, bool *i
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__ref_disk_isnull() */
-H5_GCC_CLANG_DIAG_ON("cast-qual")
+H5_WARN_CAST_AWAY_CONST_ON
 
 /*-------------------------------------------------------------------------
  * Function:    H5T__ref_disk_setnull

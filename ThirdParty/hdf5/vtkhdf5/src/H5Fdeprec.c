@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -203,7 +203,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Fset_latest_format(hid_t file_id, hbool_t latest_format)
+H5Fset_latest_format(hid_t file_id, bool latest_format)
 {
     H5VL_object_t                   *vol_obj;                       /* File as VOL object           */
     H5VL_optional_args_t             vol_cb_args;                   /* Arguments to VOL callback */

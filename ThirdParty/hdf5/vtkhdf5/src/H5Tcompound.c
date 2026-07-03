@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -503,6 +503,8 @@ H5T__pack(const H5T_t *dt)
             /* Adjust size of datatype appropriately */
             if (dt->shared->type == H5T_ARRAY)
                 dt->shared->size = dt->shared->parent->shared->size * dt->shared->u.array.nelem;
+            else if (dt->shared->type == H5T_COMPLEX)
+                dt->shared->size = 2 * dt->shared->parent->shared->size;
             else if (dt->shared->type != H5T_VLEN)
                 dt->shared->size = dt->shared->parent->shared->size;
         } /* end if */

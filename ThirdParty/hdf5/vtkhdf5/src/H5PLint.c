@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -44,6 +44,9 @@
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /*****************************/
 /* Library Private Variables */
@@ -119,21 +122,22 @@ H5PL__set_plugin_control_mask(unsigned int mask)
 } /* end H5PL__set_plugin_control_mask() */
 
 /*-------------------------------------------------------------------------
- * Function:    H5PL_init
+ * Function:    H5PL__init_package
  *
- * Purpose:     Initialize the interface from some other layer.
+ * Purpose:     Initialize any package-specific data and call any init
+ *              routines for the package.
  *
  * Return:      Success:        non-negative
  *              Failure:        negative
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PL_init(void)
+H5PL__init_package(void)
 {
     char  *env_var   = NULL;
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check the environment variable to determine if the user wants
      * to ignore plugins. The special symbol H5PL_NO_PLUGIN (defined in
@@ -155,7 +159,7 @@ H5PL_init(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5PL__init_package() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5PL_term_package
@@ -178,17 +182,23 @@ H5PL_term_package(void)
 
     FUNC_ENTER_NOAPI_NOINIT
 
-    /* Close the plugin cache.
-     * We need to bump the return value if we did any real work here.
-     */
-    if (H5PL__close_plugin_cache(&already_closed) < 0)
-        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing plugin cache");
-    if (!already_closed)
-        ret_value++;
+    if (H5_PKG_INIT_VAR) {
+        /* Close the plugin cache.
+         * We need to bump the return value if we did any real work here.
+         */
+        if (H5PL__close_plugin_cache(&already_closed) < 0)
+            HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing plugin cache");
+        if (!already_closed)
+            ret_value++;
 
-    /* Close the search path table and free the paths */
-    if (H5PL__close_path_table() < 0)
-        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing search path table");
+        /* Close the search path table and free the paths */
+        if (H5PL__close_path_table() < 0)
+            HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, (-1), "problem closing search path table");
+
+        /* Mark the interface as uninitialized */
+        if (0 == ret_value)
+            H5_PKG_INIT_VAR = false;
+    } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -304,23 +314,13 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-/* NOTE: We turn off -Wpedantic in gcc to quiet a warning about converting
- *       object pointers to function pointers, which is undefined in ANSI C.
- *       This is basically unavoidable due to the nature of dlsym() and *is*
- *       defined in POSIX, so it's fine.
- *
- *       This pragma only needs to surround the assignment of the
- *       get_plugin_info function pointer, but early (4.4.7, at least) gcc
- *       only allows diagnostic pragmas to be toggled outside of functions.
- */
-H5_GCC_CLANG_DIAG_OFF("pedantic")
 herr_t
 H5PL__open(const char *path, H5PL_type_t type, const H5PL_key_t *key, bool *success, H5PL_type_t *plugin_type,
            const void **plugin_info)
 {
     H5PL_HANDLE            handle          = NULL;
-    H5PL_get_plugin_type_t get_plugin_type = NULL;
     H5PL_get_plugin_info_t get_plugin_info = NULL;
+    H5PL_get_plugin_type_t get_plugin_type = NULL;
     H5PL_type_t            loaded_plugin_type;
     H5PL_key_t             tmp_key;
     herr_t                 ret_value = SUCCEED;
@@ -348,17 +348,27 @@ H5PL__open(const char *path, H5PL_type_t type, const H5PL_key_t *key, bool *succ
         HGOTO_DONE(SUCCEED);
     }
 
+    /* NOTE: We turn off -Wpedantic to quiet a warning about converting object
+     *       pointers to function pointers, which is undefined in ANSI C. This
+     *       is basically unavoidable due to the nature of dlsym() and *is*
+     *       defined in POSIX, so it's fine.
+     */
+
     /* Return a handle for the function H5PLget_plugin_type in the dynamic library.
      * The plugin library is supposed to define this function.
      */
+    H5_WARN_OBJ_FXN_POINTER_CONVERSION_OFF
     if (NULL == (get_plugin_type = (H5PL_get_plugin_type_t)H5PL_GET_LIB_FUNC(handle, "H5PLget_plugin_type")))
         HGOTO_DONE(SUCCEED);
+    H5_WARN_OBJ_FXN_POINTER_CONVERSION_ON
 
     /* Return a handle for the function H5PLget_plugin_info in the dynamic library.
      * The plugin library is supposed to define this function.
      */
+    H5_WARN_OBJ_FXN_POINTER_CONVERSION_OFF
     if (NULL == (get_plugin_info = (H5PL_get_plugin_info_t)H5PL_GET_LIB_FUNC(handle, "H5PLget_plugin_info")))
         HGOTO_DONE(SUCCEED);
+    H5_WARN_OBJ_FXN_POINTER_CONVERSION_ON
 
     /* Check the plugin type and return if it doesn't match the one passed in */
     loaded_plugin_type = (H5PL_type_t)(*get_plugin_type)();
@@ -465,7 +475,6 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL__open() */
-H5_GCC_CLANG_DIAG_ON("pedantic")
 
 /*-------------------------------------------------------------------------
  * Function:    H5PL__close
@@ -504,9 +513,10 @@ H5PL_iterate(H5PL_iterate_type_t iter_type, H5PL_iterate_t iter_op, void *op_dat
 {
     herr_t ret_value = H5_ITER_CONT;
 
-    FUNC_ENTER_NOAPI_NOERR
+    FUNC_ENTER_NOAPI(H5_ITER_ERROR)
 
     ret_value = H5PL__path_table_iterate(iter_type, iter_op, op_data);
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL_iterate() */

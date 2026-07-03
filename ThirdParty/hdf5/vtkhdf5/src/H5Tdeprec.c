@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -126,7 +126,7 @@ H5Tcommit1(hid_t loc_id, const char *name, hid_t type_id)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to commit datatype");
 
     /* Set up VOL object */
-    if (NULL == (new_obj = H5VL_create_object(data, vol_obj->connector)))
+    if (NULL == (new_obj = H5VL_create_object(data, H5VL_OBJ_CONNECTOR(vol_obj))))
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "can't create VOL object for committed datatype");
 
     /* Set the committed type object to the VOL connector pointer in the H5T_t struct */
@@ -176,7 +176,7 @@ H5Topen1(hid_t loc_id, const char *name)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open named datatype");
 
     /* Register the type and return the ID */
-    if ((ret_value = H5VL_register(H5I_DATATYPE, dt, vol_obj->connector, true)) < 0)
+    if ((ret_value = H5VL_register(H5I_DATATYPE, dt, H5VL_OBJ_CONNECTOR(vol_obj), true)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register named datatype");
 
 done:
@@ -187,4 +187,48 @@ done:
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Topen1() */
+
+/*-------------------------------------------------------------------------
+ * Function:  H5Tdecode1
+ *
+ * Purpose:   Decode a binary object description and return a new object
+ *            handle.
+ *
+ * Note:      Deprecated in favor of H5Tdecode2
+ *
+ * Return:    Success:    datatype ID(non-negative)
+ *
+ *            Failure:    negative
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5Tdecode1(const void *buf)
+{
+    H5T_t *dt;
+    hid_t  ret_value; /* Return value */
+
+    FUNC_ENTER_API(H5I_INVALID_HID)
+
+    /* Check args */
+    if (buf == NULL)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "empty buffer");
+
+    /* Create datatype by decoding buffer
+     * There is no way to get the size of the buffer, so we pass in
+     * SIZE_MAX and assume the caller knows what they are doing.
+     * Really fixing this will require an H5Tdecode2() call that
+     * takes a size parameter.
+     */
+    if (NULL == (dt = H5T_decode(SIZE_MAX, (const unsigned char *)buf)))
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTDECODE, H5I_INVALID_HID, "can't decode object");
+
+    /* Register the type and return the ID */
+    if ((ret_value = H5I_register(H5I_DATATYPE, dt, true)) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register data type");
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Tdecode1() */
+
 #endif /* H5_NO_DEPRECATED_SYMBOLS */

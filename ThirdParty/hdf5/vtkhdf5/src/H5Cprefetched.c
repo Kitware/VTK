@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -231,7 +231,7 @@ H5C__prefetched_entry_notify(H5C_notify_action_t action, void *_thing)
             break;
 
         case H5C_NOTIFY_ACTION_BEFORE_EVICT:
-            for (u = 0; u < entry_ptr->flush_dep_nparents; u++) {
+            for (u = entry_ptr->flush_dep_nparents - 1; u < entry_ptr->flush_dep_nparents; u--) {
                 H5C_cache_entry_t *parent_ptr;
 
                 /* Sanity checks */

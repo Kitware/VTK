@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -86,6 +86,7 @@ static haddr_t
 H5FD__extend(H5FD_t *file, H5FD_mem_t type, hsize_t size)
 {
     haddr_t eoa;                     /* Address of end-of-allocated space */
+    herr_t  status;                  /* Generic status return */
     haddr_t ret_value = HADDR_UNDEF; /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -96,8 +97,13 @@ H5FD__extend(H5FD_t *file, H5FD_mem_t type, hsize_t size)
     assert(type >= H5FD_MEM_DEFAULT && type < H5FD_MEM_NTYPES);
     assert(size > 0);
 
-    /* Get current end-of-allocated space address */
-    eoa = file->cls->get_eoa(file, type);
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(HADDR_UNDEF)
+        {
+            /* Get current end-of-allocated space address */
+            eoa = (file->cls->get_eoa)(file, type);
+        }
+    H5_AFTER_USER_CB(HADDR_UNDEF)
 
     /* Check for overflow when extending */
     if (H5_addr_overflow(eoa, size) || (eoa + size) > file->maxaddr)
@@ -106,9 +112,15 @@ H5FD__extend(H5FD_t *file, H5FD_mem_t type, hsize_t size)
     /* Set the [NOT aligned] address to return */
     ret_value = eoa;
 
-    /* Extend the end-of-allocated space address */
-    eoa += size;
-    if (file->cls->set_eoa(file, type, eoa) < 0)
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(HADDR_UNDEF)
+        {
+            /* Extend the end-of-allocated space address */
+            eoa += size;
+            status = (file->cls->set_eoa)(file, type, eoa);
+        }
+    H5_AFTER_USER_CB(HADDR_UNDEF)
+    if (status < 0)
         HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "file allocation request failed");
 
 done:
@@ -135,6 +147,7 @@ H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size, haddr_t *frag_addr
     hsize_t       extra;                   /* Extra space to allocate, to align request */
     unsigned long flags = 0;               /* Driver feature flags */
     bool          use_alloc_size;          /* Just pass alloc size to the driver */
+    herr_t        status;                  /* Generic status return */
     haddr_t       ret_value = HADDR_UNDEF; /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -149,14 +162,27 @@ H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size, haddr_t *frag_addr
     assert(size > 0);
 
     /* Check for query driver and call it */
-    if (file->cls->query)
-        (file->cls->query)(file, &flags);
+    if (file->cls->query) {
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(HADDR_UNDEF)
+            {
+                status = (file->cls->query)(file, &flags);
+            }
+        H5_AFTER_USER_CB(HADDR_UNDEF)
+        if (status < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, HADDR_UNDEF, "driver query request failed");
+    }
 
     /* Check for the driver feature flag */
     use_alloc_size = flags & H5FD_FEAT_USE_ALLOC_SIZE;
 
-    /* Get current end-of-allocated space address */
-    eoa = file->cls->get_eoa(file, type);
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(HADDR_UNDEF)
+        {
+            /* Get current end-of-allocated space address */
+            eoa = (file->cls->get_eoa)(file, type);
+        }
+    H5_AFTER_USER_CB(HADDR_UNDEF)
 
     /* Compute extra space to allocate, if this should be aligned */
     extra = 0;
@@ -179,7 +205,13 @@ H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size, haddr_t *frag_addr
     /* For all other drivers: the size passed down to the alloc callback is the size + [possibly] alignment
      * size */
     if (file->cls->alloc) {
-        ret_value = (file->cls->alloc)(file, type, H5CX_get_dxpl(), use_alloc_size ? size : size + extra);
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(HADDR_UNDEF)
+            {
+                ret_value =
+                    (file->cls->alloc)(file, type, H5CX_get_dxpl(), use_alloc_size ? size : size + extra);
+            }
+        H5_AFTER_USER_CB(HADDR_UNDEF)
         if (!H5_addr_defined(ret_value))
             HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "driver allocation request failed");
     } /* end if */
@@ -292,7 +324,14 @@ H5FD__free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
 #ifdef H5FD_ALLOC_DEBUG
         fprintf(stderr, "%s: Letting VFD free space\n", __func__);
 #endif /* H5FD_ALLOC_DEBUG */
-        if ((file->cls->free)(file, type, H5CX_get_dxpl(), addr, size) < 0)
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                /* Dispatch to driver */
+                ret_value = (file->cls->free)(file, type, H5CX_get_dxpl(), addr, size);
+            }
+        H5_AFTER_USER_CB(FAIL)
+        if (ret_value < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "driver free request failed");
     } /* end if */
     /* Check if this free block is at the end of file allocated space.
@@ -301,7 +340,13 @@ H5FD__free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
     else if (file->cls->get_eoa) {
         haddr_t eoa;
 
-        eoa = file->cls->get_eoa(file, type);
+        /* Prepare & restore library for user callback */
+        H5_BEFORE_USER_CB(FAIL)
+            {
+                /* Dispatch to driver */
+                eoa = (file->cls->get_eoa)(file, type);
+            }
+        H5_AFTER_USER_CB(FAIL)
 #ifdef H5FD_ALLOC_DEBUG
         fprintf(stderr, "%s: eoa = %" PRIuHADDR "\n", __func__, eoa);
 #endif /* H5FD_ALLOC_DEBUG */
@@ -309,7 +354,14 @@ H5FD__free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
 #ifdef H5FD_ALLOC_DEBUG
             fprintf(stderr, "%s: Reducing file size to = %" PRIuHADDR "\n", __func__, addr);
 #endif /* H5FD_ALLOC_DEBUG */
-            if (file->cls->set_eoa(file, type, addr) < 0)
+            /* Prepare & restore library for user callback */
+            H5_BEFORE_USER_CB(FAIL)
+                {
+                    /* Dispatch to driver */
+                    ret_value = (file->cls->set_eoa)(file, type, addr);
+                }
+            H5_AFTER_USER_CB(FAIL)
+            if (ret_value < 0)
                 HGOTO_ERROR(H5E_VFL, H5E_CANTSET, FAIL, "set end of space allocation request failed");
         } /* end if */
     }     /* end else-if */
@@ -395,8 +447,14 @@ H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end, hsize_
     assert(extra_requested > 0);
     assert(f);
 
-    /* Retrieve the end of the address space */
-    if (HADDR_UNDEF == (eoa = file->cls->get_eoa(file, type)))
+    /* Prepare & restore library for user callback */
+    H5_BEFORE_USER_CB(FAIL)
+        {
+            /* Retrieve the end of the address space */
+            eoa = (file->cls->get_eoa)(file, type);
+        }
+    H5_AFTER_USER_CB(FAIL)
+    if (!H5_addr_defined(eoa))
         HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_eoa request failed");
 
     /* Adjust block end by base address of the file, to create absolute address */

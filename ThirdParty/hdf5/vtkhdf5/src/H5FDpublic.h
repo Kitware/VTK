@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -77,8 +77,8 @@
  * Defining H5FD_FEAT_DATA_SIEVE for a VFL driver means that
  * the library will attempt to cache raw data as it is read from/written to
  * a file in a "data sieve" buffer.  See Rajeev Thakur's papers:
- *  http://www.mcs.anl.gov/~thakur/papers/romio-coll.ps.gz
- *  http://www.mcs.anl.gov/~thakur/papers/mpio-high-perf.ps.gz
+ *  https://web.cels.anl.gov/~thakur/papers/romio-coll.pdf
+ *  https://web.cels.anl.gov/~thakur/papers/users-guide.pdf
  */
 #define H5FD_FEAT_DATA_SIEVE 0x00000008
 /*
@@ -99,7 +99,6 @@
  * the library will mark the driver info dirty when the file is opened
  * R/W.  This will cause the driver info to be re-encoded when the file
  * is flushed/closed.
- *
  * \since 1.10.0
  */
 #define H5FD_FEAT_DIRTY_DRVRINFO_LOAD 0x00000040
@@ -114,18 +113,16 @@
  * Defining H5FD_FEAT_HAS_MPI for a VFL driver means that
  * the driver makes use of MPI communication and code may retrieve
  * communicator/rank information from it
- *
  * \since 1.8.15
  */
 #define H5FD_FEAT_HAS_MPI 0x00000100
 
-#define H5FD_FEAT_ALLOCATE_EARLY 0x00000200
-/**< Defining the H5FD_FEAT_ALLOCATE_EARLY for a VFL driver will force
+/** Defining the H5FD_FEAT_ALLOCATE_EARLY for a VFL driver will force
  *   the library to use the H5D_ALLOC_TIME_EARLY on dataset create
  *   instead of the default H5D_ALLOC_TIME_LATE
- *
  * \since 1.8.15
  */
+#define H5FD_FEAT_ALLOCATE_EARLY 0x00000200
 
 /*
  * Defining H5FD_FEAT_ALLOW_FILE_IMAGE for a VFL driver means that
@@ -142,7 +139,6 @@
 /**
  * Defining H5FD_FEAT_SUPPORTS_SWMR_IO for a VFL driver means that the
  * driver supports the single-writer/multiple-readers I/O pattern.
- *
  * \since 1.10.0
  */
 #define H5FD_FEAT_SUPPORTS_SWMR_IO 0x00001000
@@ -151,7 +147,6 @@
  * means that the library will just pass the allocation size to the
  * the driver's allocation callback which will eventually handle alignment.
  * This is specifically used for the multi/split driver.
- *
  * \since 1.10.1
  */
 #define H5FD_FEAT_USE_ALLOC_SIZE 0x00002000
@@ -159,7 +154,6 @@
  * Defining H5FD_FEAT_PAGED_AGGR for a VFL driver
  * means that the driver needs special file space mapping for paged aggregation.
  * This is specifically used for the multi/split driver.
- *
  * \since 1.10.1
  */
 #define H5FD_FEAT_PAGED_AGGR 0x00004000
@@ -170,7 +164,6 @@
  * the canonical HDF5 file format.
  * Regarding the Splitter VFD specifically, only drivers with this flag
  * enabled may be used as the Write-Only (W/O) channel driver.
- *
  * \since 1.10.2
  */
 #define H5FD_FEAT_DEFAULT_VFD_COMPATIBLE 0x00008000
@@ -184,12 +177,15 @@
 #define H5FD_FEAT_MEMMANAGE 0x00010000
 
 /* ctl function definitions: */
-#define H5FD_CTL_OPC_RESERVED 512 /* Opcodes below this value are reserved for library use */
-#define H5FD_CTL_OPC_EXPER_MIN                                                                               \
-    H5FD_CTL_OPC_RESERVED /* Minimum opcode value available for experimental use                             \
-                           */
-#define H5FD_CTL_OPC_EXPER_MAX                                                                               \
-    (H5FD_CTL_OPC_RESERVED + 511) /* Maximum opcode value available for experimental use */
+
+/** Opcodes below this value are reserved for library use */
+#define H5FD_CTL_OPC_RESERVED 512
+
+/** Minimum opcode value available for experimental use */
+#define H5FD_CTL_OPC_EXPER_MIN H5FD_CTL_OPC_RESERVED
+
+/** Maximum opcode value available for experimental use */
+#define H5FD_CTL_OPC_EXPER_MAX (H5FD_CTL_OPC_RESERVED + 511)
 
 /* ctl function op codes: */
 #define H5FD_CTL_INVALID_OPCODE              0

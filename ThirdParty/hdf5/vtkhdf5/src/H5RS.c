@@ -4,7 +4,7 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the COPYING file, which can be found at the root of the source code       *
+ * the LICENSE file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
@@ -68,6 +68,9 @@ static herr_t H5RS__resize_for_append(H5RS_str_t *rs, size_t len);
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+bool H5_PKG_INIT_VAR = false;
 
 /*****************************/
 /* Library Private Variables */
@@ -319,9 +322,9 @@ H5RS_wrap(const char *s)
      * since we never modify or free the string when the wrapped struct
      * field is set to true.
      */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_OFF
     ret_value->s = (char *)s;
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    H5_WARN_CAST_AWAY_CONST_ON
 
     ret_value->len = strlen(s);
     ret_value->end = ret_value->s + ret_value->len;
@@ -345,13 +348,6 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-/* Disable warning for "format not a string literal" here -QAK */
-/*
- *      This pragma only needs to surround the snprintf() calls with
- *      format_templ in the code below, but early (4.4.7, at least) gcc only
- *      allows diagnostic pragmas to be toggled outside of functions.
- */
-H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
 H5_ATTR_FORMAT(printf, 2, 3)
 herr_t
 H5RS_asprintf_cat(H5RS_str_t *rs, const char *fmt, ...)
@@ -394,7 +390,6 @@ H5RS_asprintf_cat(H5RS_str_t *rs, const char *fmt, ...)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5RS_asprintf_cat() */
-H5_GCC_CLANG_DIAG_ON("format-nonliteral")
 
 /*-------------------------------------------------------------------------
  * Function:    H5RS_acat
