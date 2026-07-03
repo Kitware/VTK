@@ -208,7 +208,7 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
   //    and update the sphere to include former sphere + this point
 
   auto points = vtk::DataArrayTupleRange(this->Points->GetData());
-  using ConstRefType = typename decltype(points)::ConstTupleReferenceType;
+  using ConstRefType = decltype(points)::ConstTupleReferenceType;
 
   ConstRefType x = points[0];
   vtkIdType yid = 1, zid = 0;

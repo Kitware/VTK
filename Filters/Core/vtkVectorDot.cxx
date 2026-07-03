@@ -111,7 +111,7 @@ struct MapWorker
     // Restrict the iterator range to [begin,end)
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars, begin, end);
 
-    using ScalarRef = typename decltype(scalars)::ReferenceType;
+    using ScalarRef = decltype(scalars)::ReferenceType;
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 

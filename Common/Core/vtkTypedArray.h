@@ -40,8 +40,8 @@ class vtkTypedArray : public vtkArray
 {
 public:
   vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray);
-  typedef typename vtkArray::CoordinateT CoordinateT;
-  typedef typename vtkArray::SizeT SizeT;
+  typedef vtkArray::CoordinateT CoordinateT;
+  typedef vtkArray::SizeT SizeT;
 
   using vtkArray::GetVariantValue;
   using vtkArray::SetVariantValue;

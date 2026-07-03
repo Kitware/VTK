@@ -33,7 +33,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkReservoirSamplerBase
 {
 protected:
-  using SeedType = typename std::random_device::result_type;
+  using SeedType = std::random_device::result_type;
 
   static SeedType RandomSeed();
 };

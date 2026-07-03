@@ -1708,8 +1708,8 @@ struct ReplaceDuplicateByHiddenWorker
     auto inputGhostsRange = vtk::DataArrayValueRange<1>(this->InputGhosts);
     auto outputGhostsRange = vtk::DataArrayValueRange<1>(this->OutputGhosts);
 
-    using ConstRef = typename decltype(inputGhostsRange)::ConstReferenceType;
-    using Ref = typename decltype(outputGhostsRange)::ReferenceType;
+    using ConstRef = decltype(inputGhostsRange)::ConstReferenceType;
+    using Ref = decltype(outputGhostsRange)::ReferenceType;
 
     for (vtkIdType cellId = startId; cellId < endId; ++cellId)
     {
@@ -2273,7 +2273,7 @@ struct MatchingPointExtractor
     if (sourceGlobalPointIds)
     {
       auto gidRange = vtk::DataArrayValueRange<1>(sourceGlobalPointIds);
-      using ConstRef = typename decltype(gidRange)::ConstReferenceType;
+      using ConstRef = decltype(gidRange)::ConstReferenceType;
 
       for (ConstRef gid : gidRange)
       {
@@ -2300,7 +2300,7 @@ struct MatchingPointExtractor
       inverseMap.reserve(gidRange.size());
       this->MatchingSourcePointIds->Reserve(gidRange.size());
 
-      using ConstRef = typename decltype(gidRange)::ConstReferenceType;
+      using ConstRef = decltype(gidRange)::ConstReferenceType;
 
       for (ConstRef gid : gidRange)
       {
@@ -4816,8 +4816,8 @@ void DeepCopyInputAndAllocateGhosts(::UnstructuredGridBlock* block, vtkUnstructu
   vtkUnstructuredGrid* output, bool cloneArrays)
 {
   using BlockType = ::UnstructuredGridBlock;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-  using BlockInformationType = typename BlockType::InformationType;
+  using BlockStructureType = BlockType::BlockStructureType;
+  using BlockInformationType = BlockType::InformationType;
 
   BlockInformationType& info = block->Information;
 
@@ -4894,8 +4894,8 @@ void DeepCopyInputAndAllocateGhosts(
   ::PolyDataBlock* block, vtkPolyData* input, vtkPolyData* output, bool cloneArrays)
 {
   using BlockType = ::PolyDataBlock;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-  using BlockInformationType = typename BlockType::InformationType;
+  using BlockStructureType = BlockType::BlockStructureType;
+  using BlockInformationType = BlockType::InformationType;
 
   BlockInformationType& info = block->Information;
 
@@ -5633,8 +5633,8 @@ void FillIdListFromInputArrays(
   ImplicitArrayData* implicitData, vtkUnstructuredGrid* input,
   vtkUnstructuredGrid* vtkNotUsed(output))
 {
-  using BlockType = typename ::DataSetTypeToBlockTypeConverter<vtkUnstructuredGrid>::BlockType;
-  using BlockInformationType = typename BlockType::InformationType;
+  using BlockType = ::DataSetTypeToBlockTypeConverter<vtkUnstructuredGrid>::BlockType;
+  using BlockInformationType = BlockType::InformationType;
 
   vtkPointData* inputPointData = input->GetPointData();
   vtkCellData* inputCellData = input->GetCellData();
@@ -5690,8 +5690,8 @@ void FillIdListFromInputArrays(
 void FillIdListFromInputArrays(::DataSetTypeToBlockTypeConverter<vtkPolyData>::BlockType* block,
   ImplicitArrayData* implicitData, vtkPolyData* input, vtkPolyData* output)
 {
-  using BlockType = typename ::DataSetTypeToBlockTypeConverter<vtkPolyData>::BlockType;
-  using BlockInformationType = typename BlockType::InformationType;
+  using BlockType = ::DataSetTypeToBlockTypeConverter<vtkPolyData>::BlockType;
+  using BlockInformationType = BlockType::InformationType;
 
   vtkPointData* inputPointData = input->GetPointData();
   vtkCellData* inputCellData = input->GetCellData();
@@ -6870,7 +6870,7 @@ void vtkDIYGhostUtilities::InitializeBlocks(
   {
     vtkStructuredGrid* input = inputs[localId];
     BlockType* block = master.block<BlockType>(localId);
-    typename BlockType::InformationType& information = block->Information;
+    BlockType::InformationType& information = block->Information;
     information.InputPoints = input->GetPoints();
   }
 }
@@ -6886,7 +6886,7 @@ void vtkDIYGhostUtilities::InitializeBlocks(
   {
     vtkUnstructuredGrid* input = inputs[localId];
     BlockType* block = master.block<BlockType>(localId);
-    typename BlockType::InformationType& information = block->Information;
+    BlockType::InformationType& information = block->Information;
 
     vtkCellArray* faces = input->GetPolyhedronFaces();
     information.Faces = faces && faces->GetNumberOfCells() ? faces : nullptr;

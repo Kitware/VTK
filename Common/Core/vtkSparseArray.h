@@ -63,9 +63,9 @@ public:
   static vtkSparseArray<T>* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  typedef typename vtkArray::CoordinateT CoordinateT;
-  typedef typename vtkArray::DimensionT DimensionT;
-  typedef typename vtkArray::SizeT SizeT;
+  typedef vtkArray::CoordinateT CoordinateT;
+  typedef vtkArray::DimensionT DimensionT;
+  typedef vtkArray::SizeT SizeT;
 
   // vtkArray API
   bool IsDense() VTK_FUTURE_CONST override;

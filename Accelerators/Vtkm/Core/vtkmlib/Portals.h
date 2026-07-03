@@ -72,7 +72,9 @@ class VTK_DEPRECATED_IN_9_7_0("No longer needed") VISKORES_ALWAYS_EXPORT vtkPoin
   static const int NUM_COMPONENTS = viskores::VecTraits<Type>::NUM_COMPONENTS;
 
 public:
+  // NOLINTNEXTLINE(readability-redundant-typename)
   using ValueType = typename vtkPortalTraits<Type>::Type;
+  // NOLINTNEXTLINE(readability-redundant-typename)
   using ComponentType = typename vtkPortalTraits<Type>::ComponentType;
 
   VISKORES_EXEC_CONT
