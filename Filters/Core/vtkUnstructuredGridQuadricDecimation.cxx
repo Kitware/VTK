@@ -13,6 +13,7 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include <map>
+#include <random>
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1178,7 +1179,7 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
   {
     for (int i = 0; i < setSize; i++)
     {
-      int k = rand() % maxTet;
+      int k = std::random_device{}() % maxTet;
       if (tets[k].index < 0)
       {
         do
@@ -1198,10 +1199,10 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
         }
       }
 
-      e.Verts[0] = tets[k].Verts[rand() % 4];
+      e.Verts[0] = tets[k].Verts[std::random_device{}() % 4];
       do
       {
-        e.Verts[1] = tets[k].Verts[rand() % 4];
+        e.Verts[1] = tets[k].Verts[std::random_device{}() % 4];
       } while (e.Verts[1] == e.Verts[0]);
 
       if (!stored)

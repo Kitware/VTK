@@ -11,7 +11,7 @@
 
 #include "vtk_theora.h"
 
-#include <ctime>
+#include <random>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -93,8 +93,7 @@ int vtkOggTheoraWriterInternal::Start()
   this->closedFile = 0;
 
   // ogg information
-  srand(time(nullptr));
-  if (ogg_stream_init(&this->oggState, rand()) != 0)
+  if (ogg_stream_init(&this->oggState, std::random_device{}()) != 0)
   {
     vtkGenericWarningMacro("Could not initialize ogg stream state.");
     return 0;

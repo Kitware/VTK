@@ -18,7 +18,6 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-#include <cstdlib>
 #include <random>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -26,9 +25,18 @@ namespace
 {
 
 //------------------------------------------------------------------------------
+// mt19937 seeded once per process; avoids repeated std::random_device construction
+// and keeps d_rand() result in [0, 1) as required by Vitter's algorithm D.
+std::mt19937& GetRNG()
+{
+  static std::mt19937 rng(std::random_device{}());
+  return rng;
+}
+
+//------------------------------------------------------------------------------
 inline double d_rand()
 {
-  return rand() / (double)((unsigned long)RAND_MAX + 1);
+  return std::uniform_real_distribution<double>(0.0, 1.0)(GetRNG());
 }
 
 //------------------------------------------------------------------------------
@@ -65,7 +73,7 @@ void QuickSelect(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vtkI
   }
 
   // pick a pivot
-  vtkIdType pivot = (vtkIdType)(rand() % (end - start)) + start;
+  vtkIdType pivot = std::uniform_int_distribution<vtkIdType>(start, end - 1)(GetRNG());
   double value = points->GetPoint(pivot)[axis];
 
   // swap the pivot to end
@@ -119,7 +127,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vt
   // if size == 1 return it (get one sample from a stratum)
   if (size < 2)
   {
-    vtkIdType pick = (vtkIdType)(rand() % (end - start)) + start;
+    vtkIdType pick = std::uniform_int_distribution<vtkIdType>(start, end - 1)(GetRNG());
     SwapPoint(points, data, temp, start, pick);
     return;
   }
@@ -130,7 +138,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vt
   // randomly make one side bigger if it doesn't split evenly
   if ((end - start) % 2)
   {
-    if (rand() % 2)
+    if (std::uniform_int_distribution<int>(0, 1)(GetRNG()))
     {
       bigger = 1;
       half = half + 1;
@@ -161,7 +169,7 @@ void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vt
       }
     }
     // randomly make a sample size bigger if it doesn't split evenly
-    else if (rand() % 2)
+    else if (std::random_device{}() % 2)
     {
       leftsize = size / 2 + 1;
       rightsize = size / 2;
@@ -273,7 +281,7 @@ unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 
         for (int i = 0; i < np; i = i + 1)
         {
-          vtkIdType index = (vtkIdType)(rand() % np);
+          vtkIdType index = std::uniform_int_distribution<int>(0, np - 1)(GetRNG());
           unsigned long temp = rem[index];
           rem[index] = rem[i];
           rem[i] = temp;

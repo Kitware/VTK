@@ -10,6 +10,7 @@
 #include "vtkStructuredGrid.h"
 
 #include <iostream>
+#include <random>
 
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2, vtkPointSet* grid)
@@ -221,14 +222,17 @@ int TestKdTreePointLocator()
   double pointA[3];
   double pointB[3];
 
+  std::mt19937 rng(std::random_device{}());
+  std::uniform_real_distribution<double> dist(0.0, 1.0);
+
   vtkPoints* A = vtkPoints::New();
   A->SetDataTypeToDouble();
   A->SetNumberOfPoints(num_points);
   for (point = 0; point < num_points; ++point)
   {
-    pointA[0] = ((double)rand()) / RAND_MAX;
-    pointA[1] = ((double)rand()) / RAND_MAX;
-    pointA[2] = ((double)rand()) / RAND_MAX;
+    pointA[0] = dist(rng);
+    pointA[1] = dist(rng);
+    pointA[2] = dist(rng);
     A->SetPoint(point, pointA);
   }
 
@@ -238,9 +242,9 @@ int TestKdTreePointLocator()
   for (test_point = 0; test_point < num_test_points; ++test_point)
   {
     double min_dist2 = 10.0;
-    pointB[0] = ((double)rand()) / RAND_MAX;
-    pointB[1] = ((double)rand()) / RAND_MAX;
-    pointB[2] = ((double)rand()) / RAND_MAX;
+    pointB[0] = dist(rng);
+    pointB[1] = dist(rng);
+    pointB[2] = dist(rng);
     for (point = 0; point < num_points; ++point)
     {
       double dist2;

@@ -15,6 +15,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
+#include <random>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -301,8 +302,7 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
 
   // Randomization (of find edge neighbors) avoids walking in
   // circles in certain weird cases
-  srand(tri);
-  ir = rand() % 3;
+  ir = std::random_device{}() % 3;
 
   // evaluate in/out of each edge
   for (inside = 1, minProj = VTK_DEL2D_TOLERANCE, ic = 0; ic < 3; ic++)
