@@ -164,6 +164,7 @@ set(python_files
   vtkmodules/util/implicit_functions.py
   vtkmodules/util/information.py
   vtkmodules/util/keys.py
+  vtkmodules/util/matrix.py
   vtkmodules/util/misc.py
   vtkmodules/util/selection.py
   vtkmodules/util/widgets.py

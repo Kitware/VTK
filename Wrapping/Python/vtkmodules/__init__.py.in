@@ -123,6 +123,9 @@ MODULE_MAPPER = {
         "vtkmodules.util.data_array_selection",
         "vtkmodules.util.information",
     ],
+    "vtkCommonMath": [
+        "vtkmodules.util.matrix",
+    ],
     "vtkCommonDataModel": [
         "vtkmodules.util.data_model",
         "vtkmodules.util.graph",
