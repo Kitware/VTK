@@ -61,4 +61,5 @@ vtk_add_test_python(
   TestDataSetProperties.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestMeshBuildingPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestGraphPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
+  TestImplicitFunctionsPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
   )

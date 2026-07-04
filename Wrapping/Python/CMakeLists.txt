@@ -161,6 +161,7 @@ set(python_files
   vtkmodules/util/execution_model.py
   vtkmodules/util/functions.py
   vtkmodules/util/graph.py
+  vtkmodules/util/implicit_functions.py
   vtkmodules/util/information.py
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
