@@ -27,6 +27,7 @@
 #include "vtkPythonUtil.h"
 #include "vtkStringFormatter.h"
 
+#include <cctype>
 #include <cstddef>
 #include <cstdlib>
 #include <dictobject.h>
@@ -390,12 +391,14 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
         if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
         {
           getset->set = superGetSet->set;
-          if (getset->closure)
+          if (getset->closure && superGetSet->closure)
           {
             auto* subClosure = static_cast<PyVTKGetSet*>(getset->closure);
             auto* superClosure = static_cast<PyVTKGetSet*>(superGetSet->closure);
             subClosure->set = superClosure->set;
             subClosure->add = superClosure->add;
+            subClosure->propertyName = superClosure->propertyName;
+            subClosure->enumNames = superClosure->enumNames;
           }
         }
         Py_DECREF(key);
@@ -615,7 +618,6 @@ int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods)
 }
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 // Setter for Add/RemoveAll sequence properties (e.g. renderer.lights = [l1, l2])
 
 int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods)
@@ -656,6 +658,78 @@ int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods
 
   Py_DECREF(seq);
   return 0;
+}
+
+//------------------------------------------------------------------------------
+// Setter for enum-like properties: accepts string (case-insensitive) or integer
+
+int PyVTKObject_SetPropertyEnum(PyObject* op, PyObject* value, void* methods)
+{
+  PyVTKGetSet* getset = static_cast<PyVTKGetSet*>(methods);
+
+  if (PyUnicode_Check(value) && getset->enumNames != nullptr)
+  {
+    const char* strValue = PyUnicode_AsUTF8(value);
+    if (strValue == nullptr)
+    {
+      return -1;
+    }
+
+    // Search for a case-insensitive match in enumNames
+    const char** names = getset->enumNames;
+    const char* matchedName = nullptr;
+    for (int i = 0; names[i] != nullptr; i++)
+    {
+      const char* a = strValue;
+      const char* b = names[i];
+      while (*a && *b && (tolower((unsigned char)*a) == tolower((unsigned char)*b)))
+      {
+        a++;
+        b++;
+      }
+      if (*a == '\0' && *b == '\0')
+      {
+        matchedName = names[i];
+        break;
+      }
+    }
+
+    if (matchedName == nullptr)
+    {
+      // Build error message listing valid values
+      std::string validValues;
+      for (int i = 0; names[i] != nullptr; i++)
+      {
+        if (i > 0)
+        {
+          validValues += ", ";
+        }
+        validValues += "'";
+        validValues += names[i];
+        validValues += "'";
+      }
+      PyErr_Format(PyExc_ValueError, "invalid value '%s' for %s, valid values are: %s", strValue,
+        getset->propertyName, validValues.c_str());
+      return -1;
+    }
+
+    // Construct method name: "Set" + propertyName + "To" + matchedName
+    std::string methodName = "Set";
+    methodName += getset->propertyName;
+    methodName += "To";
+    methodName += matchedName;
+
+    PyObject* result = PyObject_CallMethod(op, methodName.c_str(), nullptr);
+    if (result == nullptr)
+    {
+      return -1;
+    }
+    Py_DECREF(result);
+    return 0;
+  }
+
+  // Fall through to integer path
+  return PyVTKObject_SetProperty(op, value, methods);
 }
 
 //------------------------------------------------------------------------------
