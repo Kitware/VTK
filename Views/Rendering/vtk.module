@@ -17,6 +17,9 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersParallel
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
   VTK::RenderingAnnotation
+  VTK::RenderingUI
   VTK::RenderingVolume
   VTK::RenderingVolumeOpenGL2

@@ -1,4 +1,5 @@
 set(classes
+  vtkStandardRenderView
   vtkSurfaceRepresentation
   vtkVolumeRepresentation
   )
