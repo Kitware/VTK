@@ -1,0 +1,22 @@
+NAME
+  VTK::ViewsRendering
+LIBRARY_NAME
+  vtkViewsRendering
+GROUPS
+  Rendering
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+  VTK::ViewsCore
+PRIVATE_DEPENDS
+  VTK::FiltersExtraction
+  VTK::FiltersParallel
+  VTK::RenderingAnnotation
+  VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
