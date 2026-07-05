@@ -1,0 +1,133 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+#include "vtkActor.h"
+#include "vtkDataObject.h"
+#include "vtkIdTypeArray.h"
+#include "vtkNew.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSphereSource.h"
+#include "vtkStandardRenderView.h"
+#include "vtkSurfaceRepresentation.h"
+
+#include <iostream>
+
+#define CHECK(expr, msg)                                                                           \
+  {                                                                                                \
+    if (!(expr))                                                                                   \
+    {                                                                                              \
+      std::cerr << "FAILED: " << msg << "\n";                                                      \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  }
+
+int TestStandardRenderViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+  // Create view with off-screen rendering
+  vtkNew<vtkStandardRenderView> view;
+  view->GetRenderWindow()->SetOffScreenRendering(true);
+  view->SetWindowSize(400, 400);
+
+  // Create a sphere source and representation
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetThetaResolution(16);
+  sphere->SetPhiResolution(16);
+  sphere->Update();
+
+  vtkNew<vtkSurfaceRepresentation> rep;
+  rep->SetInputConnection(sphere->GetOutputPort());
+  view->AddRepresentation(rep);
+
+  // --- Test interaction mode API ---
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_3D,
+    "Default interaction mode should be 3D");
+
+  view->SetInteractionModeToSelection();
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_SELECTION,
+    "Interaction mode should be SELECTION after SetInteractionModeToSelection");
+
+  view->SetInteractionModeTo3D();
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_3D,
+    "Interaction mode should be 3D after SetInteractionModeTo3D");
+
+  view->SetInteractionMode(vtkStandardRenderView::INTERACTION_MODE_SELECTION);
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_SELECTION,
+    "SetInteractionMode with enum should work");
+
+  // --- Test selection mode API ---
+  CHECK(view->GetSelectionMode() == vtkStandardRenderView::SELECTION_MODE_SURFACE,
+    "Default selection mode should be SURFACE");
+
+  view->SetSelectionModeToFrustum();
+  CHECK(view->GetSelectionMode() == vtkStandardRenderView::SELECTION_MODE_FRUSTUM,
+    "Selection mode should be FRUSTUM after SetSelectionModeToFrustum");
+
+  view->SetSelectionModeToSurface();
+  CHECK(view->GetSelectionMode() == vtkStandardRenderView::SELECTION_MODE_SURFACE,
+    "Selection mode should be SURFACE after SetSelectionModeToSurface");
+
+  // --- Test field association API ---
+  CHECK(view->GetSelectionFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS,
+    "Default field association should be CELLS");
+
+  view->SelectPoints();
+  CHECK(view->GetSelectionFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS,
+    "Field association should be POINTS after SelectPoints");
+
+  view->SelectCells();
+  CHECK(view->GetSelectionFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS,
+    "Field association should be CELLS after SelectCells");
+
+  // Render once to initialize the pipeline
+  view->Render();
+
+  // --- Test programmatic index selection ---
+  vtkNew<vtkSelection> selection;
+  vtkNew<vtkSelectionNode> node;
+  node->SetContentType(vtkSelectionNode::INDICES);
+  node->SetFieldType(vtkSelectionNode::CELL);
+
+  vtkNew<vtkIdTypeArray> ids;
+  ids->InsertNextValue(0);
+  ids->InsertNextValue(1);
+  ids->InsertNextValue(2);
+  node->SetSelectionList(ids);
+  selection->AddNode(node);
+
+  rep->Select(view, selection, false);
+  CHECK(rep->GetSelectionActor()->GetVisibility(),
+    "Selection actor should be visible after Select with indices");
+
+  // --- Test clear selection ---
+  view->ClearSelection();
+  CHECK(!rep->GetSelectionActor()->GetVisibility(),
+    "Selection actor should be invisible after ClearSelection");
+
+  // --- Test selection color/style API ---
+  rep->SetSelectionColor(0.0, 1.0, 0.0);
+  double* color = rep->GetSelectionActor()->GetProperty()->GetColor();
+  CHECK(color[0] == 0.0 && color[1] == 1.0 && color[2] == 0.0,
+    "Selection color should be green after SetSelectionColor");
+
+  rep->SetSelectionOpacity(0.5);
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetOpacity() == 0.5,
+    "Selection opacity should be 0.5");
+
+  rep->SetSelectionLineWidth(4.0);
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetLineWidth() == 4.0,
+    "Selection line width should be 4.0");
+
+  rep->SetSelectionPointSize(8.0);
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetPointSize() == 8.0,
+    "Selection point size should be 8.0");
+
+  rep->SetSelectionRepresentation(vtkSurfaceRepresentation::SURFACE);
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetRepresentation() == VTK_SURFACE,
+    "Selection representation should be SURFACE");
+
+  std::cout << "All selection tests passed.\n";
+  return EXIT_SUCCESS;
+}
