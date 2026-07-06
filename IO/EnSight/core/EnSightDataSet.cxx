@@ -821,6 +821,7 @@ void EnSightDataSet::ParseTimeSection()
   auto result = this->CaseFile.ReadNextLine(MAX_CASE_LINE_LENGTH);
   while (moreTimeSets && result.first)
   {
+    // NOLINTNEXTLINE(modernize-make-shared)
     std::shared_ptr<TimeSetInfo> tsInfo(new TimeSetInfo);
     int timeSet, startNum = -1, increment = -1;
 
@@ -921,6 +922,7 @@ void EnSightDataSet::ParseFileSection()
   auto result = this->CaseFile.ReadNextLine(MAX_CASE_LINE_LENGTH);
   while (moreFileSets && result.first)
   {
+    // NOLINTNEXTLINE(modernize-make-shared)
     std::shared_ptr<FileSetInfo> fsInfo(new FileSetInfo);
     int fileSet = -1, numSteps = -1, fileIndex = -1;
     moreFileSets = false;
