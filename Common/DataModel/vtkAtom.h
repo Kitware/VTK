@@ -11,11 +11,10 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"                // For macros, defines, etc
+#include "vtkVector.h"                // For vtkVector3d, vtkVector3f
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
-class vtkVector3d;
-class vtkVector3f;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAtom
 {

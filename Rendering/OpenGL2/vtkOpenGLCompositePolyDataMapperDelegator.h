@@ -17,6 +17,7 @@
 #include "vtkCompositePolyDataMapperDelegator.h"
 
 #include "vtkNew.h"                    // for ivar
+#include "vtkOpenGLCellToVTKCellMap.h" // for vtkOpenGLCellToVTKCellMap
 #include "vtkOpenGLPolyDataMapper.h"   // for PrimitiveEnd
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 

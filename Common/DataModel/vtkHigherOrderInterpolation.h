@@ -9,6 +9,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro.
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For API.
+#include "vtkVector.h"       // vtkVector2i, vtkVector3d
 
 #include <vector> // For scratch storage.
 
@@ -17,8 +18,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
-class vtkVector2i;
-class vtkVector3d;
 class vtkHigherOrderTriangle;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHigherOrderInterpolation : public vtkObject

@@ -15,7 +15,9 @@
 #define vtkImageIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkSetGet.h"                // For VTK_FUTURE_CONST
 #include "vtkSystemIncludes.h"
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 

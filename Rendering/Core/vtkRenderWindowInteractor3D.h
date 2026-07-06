@@ -21,13 +21,12 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO, VTK_MARSHALEXCLUDE
 
-#include "vtkNew.h" // ivars
+#include "vtkEventData.h" // for vtkEventDataDevice
+#include "vtkNew.h"       // ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkMatrix4x4;
-enum class vtkEventDataDevice;
-enum class vtkEventDataDeviceInput;
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderWindowInteractor3D
   : public vtkRenderWindowInteractor

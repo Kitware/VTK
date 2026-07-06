@@ -26,6 +26,7 @@
 
 #include "vtkActorCollection.h" // Needed for access in inline members
 #include "vtkMatrix3x3.h"
+#include "vtkVector.h"           // vtkVector3d
 #include "vtkVolumeCollection.h" // Needed for access in inline members
 
 #include <array> // To store matrices
@@ -49,7 +50,6 @@ class vtkRenderPass;
 class vtkTexture;
 
 class vtkRecti;
-class vtkVector3d;
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderer : public vtkViewport
 {

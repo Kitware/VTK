@@ -13,6 +13,7 @@
 #define vtkBlockDistribution_h
 
 #include "vtkABINamespace.h"
+#include "vtkType.h" // for vtkIdType
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBlockDistribution

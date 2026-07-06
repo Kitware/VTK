@@ -43,6 +43,7 @@
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStringToken.h"             // For constructor map
 #include "vtkTableAlgorithm.h"
+#include "vtkVariant.h" // For vtkVariant
 
 #include <token/Singletons.h> // For Schwarz counter.
 
@@ -51,8 +52,6 @@ class vtkDataObjectCollection;
 class vtkStatisticalModel;
 class vtkStdString;
 class vtkStringArray;
-class vtkStringToken;
-class vtkVariant;
 class vtkVariantArray;
 class vtkDoubleArray;
 class vtkStatisticsAlgorithmPrivate;

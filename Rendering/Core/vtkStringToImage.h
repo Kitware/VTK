@@ -15,12 +15,12 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkVector.h"              // For vtkVector2i
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
 class vtkTextProperty;
 class vtkImageData;
-class vtkVector2i;
 
 class VTKRENDERINGCORE_EXPORT vtkStringToImage : public vtkObject
 {

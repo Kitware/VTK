@@ -15,6 +15,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <stdio.h> // For FILE
+
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkByteSwap : public vtkObject
 {
