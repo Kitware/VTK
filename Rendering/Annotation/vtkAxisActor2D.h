@@ -451,17 +451,6 @@ public:
   static void ComputeRange(
     double inRange[2], double outRange[2], int inNumTicks, int& outNumTicks, double& interval);
 
-  /**
-   * General method to computes font size from a representative size on the
-   * viewport (given by size[2]). The method returns the font size (in points)
-   * and the string height/width (in pixels). It also sets the font size of the
-   * instance of vtkTextMapper provided. The factor is used when you're trying
-   * to create text of different size-factor (it is usually = 1 but you can
-   * adjust the font size by making factor larger or smaller).
-   */
-  static int SetMultipleFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
-    int nbOfMappers, int* targetSize, double factor, int* stringSize);
-
   ///@{
   /**
    * Specify whether to size the fonts relative to the viewport or relative to
