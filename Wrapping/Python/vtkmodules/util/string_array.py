@@ -64,10 +64,9 @@ class _StringArrayMixin:
     # ---- repr ---------------------------------------------------------------
     def __repr__(self):
         n = self.GetNumberOfValues()
+        items = [self.GetValue(i) for i in range(min(10, n))]
         if n <= 10:
-            items = [self.GetValue(i) for i in range(n)]
             return "vtkStringArray(%r)" % items
-        items = [self.GetValue(i) for i in range(10)]
         return "vtkStringArray(%r, ... %d total)" % (items, n)
 
     # ---- list-like mutators -------------------------------------------------

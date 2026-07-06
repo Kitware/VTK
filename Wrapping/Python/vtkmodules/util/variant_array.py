@@ -77,10 +77,9 @@ class _VariantArrayMixin:
     # ---- repr ---------------------------------------------------------------
     def __repr__(self):
         n = self.GetNumberOfValues()
+        items = [_get_extract()(self.GetValue(i)) for i in range(min(10, n))]
         if n <= 10:
-            items = [_get_extract()(self.GetValue(i)) for i in range(n)]
             return "vtkVariantArray(%r)" % items
-        items = [_get_extract()(self.GetValue(i)) for i in range(10)]
         return "vtkVariantArray(%r, ... %d total)" % (items, n)
 
     # ---- list-like mutators -------------------------------------------------
