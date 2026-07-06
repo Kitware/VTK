@@ -69,10 +69,6 @@ public:
   void UnmarkBatchElements() override;
   ///@}
 
-protected:
-  vtkOpenGLCompositePolyDataMapperDelegator();
-  ~vtkOpenGLCompositePolyDataMapperDelegator() override;
-
   ///@{
   /**
    * Implement parent class API.
@@ -83,6 +79,10 @@ protected:
   BatchElement* Get(vtkPolyData* polydata) override;
   void Clear() override;
   ///@}
+
+protected:
+  vtkOpenGLCompositePolyDataMapperDelegator();
+  ~vtkOpenGLCompositePolyDataMapperDelegator() override;
 
   // The actual mapper which renders multiple vtkPolyData.
   // Constructor assigns it to vtkBatchedPolyDataMapperDelegator::Delegate.

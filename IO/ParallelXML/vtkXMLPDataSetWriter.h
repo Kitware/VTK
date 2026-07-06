@@ -33,6 +33,9 @@ public:
    */
   vtkDataSet* GetInput();
 
+  // Dummy to satisfy pure virtuals from superclass.
+  const char* GetDefaultFileExtension() override;
+
 protected:
   vtkXMLPDataSetWriter();
   ~vtkXMLPDataSetWriter() override;
@@ -45,7 +48,6 @@ protected:
 
   // Dummies to satisfy pure virtuals from superclass.
   const char* GetDataSetName() override;
-  const char* GetDefaultFileExtension() override;
   vtkXMLWriter* CreatePieceWriter(int index) override;
 
 private:

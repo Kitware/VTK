@@ -121,14 +121,14 @@ public:
    */
   vtkStructuredAMRNeighbor GetNeighbor(int gridID, int nei);
 
-protected:
-  vtkStructuredAMRGridConnectivity();
-  ~vtkStructuredAMRGridConnectivity() override;
-
   /**
    * Sets the total number of grids(blocks) in the AMR hierarchy
    */
   void SetNumberOfGrids(unsigned int N) override;
+
+protected:
+  vtkStructuredAMRGridConnectivity();
+  ~vtkStructuredAMRGridConnectivity() override;
 
   /**
    * Creates the ghosted mask arrays

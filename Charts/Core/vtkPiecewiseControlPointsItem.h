@@ -60,6 +60,10 @@ public:
    */
   vtkIdType RemovePoint(double* pos) override;
 
+  vtkIdType GetNumberOfPoints() const override;
+  void GetControlPoint(vtkIdType index, double* point) const override;
+  void SetControlPoint(vtkIdType index, double* point) override;
+
 protected:
   vtkPiecewiseControlPointsItem();
   ~vtkPiecewiseControlPointsItem() override;
@@ -67,10 +71,6 @@ protected:
   void emitEvent(unsigned long event, void* params = nullptr) override;
 
   vtkMTimeType GetControlPointsMTime() override;
-
-  vtkIdType GetNumberOfPoints() const override;
-  void GetControlPoint(vtkIdType index, double* point) const override;
-  void SetControlPoint(vtkIdType index, double* point) override;
   void EditPoint(float tX, float tY) override;
 
   vtkPiecewiseFunction* PiecewiseFunction;

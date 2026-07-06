@@ -100,11 +100,11 @@ public:
    */
   void SetTolerance(int t) override;
 
+  vtkResliceCursorPolyDataAlgorithm* GetCursorAlgorithm() override;
+
 protected:
   vtkResliceCursorLineRepresentation();
   ~vtkResliceCursorLineRepresentation() override;
-
-  vtkResliceCursorPolyDataAlgorithm* GetCursorAlgorithm() override;
 
   double RotateAxis(double evenPos[2], int axis);
   double TranslateAxis(double evenPos[2], int axis);

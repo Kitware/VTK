@@ -151,6 +151,20 @@ public:
   // \post done: this->OpenGLObjectsCreated==0
   void ReleaseGraphicsResources(vtkWindow* window) override;
 
+  /**
+   * Description:
+   * Returns a reduction ratio for each dimension
+   * This ratio is computed from MaxMemoryInBytes and MaxMemoryFraction so that the total
+   * memory usage of the resampled image, by the returned ratio, does not exceed
+   * `MaxMemoryInBytes * MaxMemoryFraction`
+   * \pre input is up-to-date
+   * \post Aspect ratio of image is always kept
+   * - for a 1D image `ratio[1] == ratio[2] == 1`
+   * - for a 2D image `ratio[0] == ratio[1]` and `ratio[2] == 1`
+   * - for a 3D image `ratio[0] == ratio[1] == ratio[2]`
+   */
+  void GetReductionRatio(double* ratio) override;
+
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
   ~vtkOpenGLGPUVolumeRayCastMapper() override;
@@ -201,18 +215,6 @@ protected:
   // \pre positive_time: allocatedTime>0
   // \post valid_new_reduction_range: this->ReductionFactor>0.0 && this->ReductionFactor<=1.0
   void ComputeReductionFactor(double allocatedTime);
-
-  // Description:
-  // Returns a reduction ratio for each dimension
-  // This ratio is computed from MaxMemoryInBytes and MaxMemoryFraction so that the total
-  // memory usage of the resampled image, by the returned ratio, does not exceed
-  // `MaxMemoryInBytes * MaxMemoryFraction`
-  // \pre input is up-to-date
-  // \post Aspect ratio of image is always kept
-  // - for a 1D image `ratio[1] == ratio[2] == 1`
-  // - for a 2D image `ratio[0] == ratio[1]` and `ratio[2] == 1`
-  // - for a 3D image `ratio[0] == ratio[1] == ratio[2]`
-  void GetReductionRatio(double* ratio) override;
 
   // Description:
   // Empty implementation.
