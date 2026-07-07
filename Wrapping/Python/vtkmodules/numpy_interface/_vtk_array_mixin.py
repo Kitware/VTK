@@ -217,8 +217,15 @@ def register_template_overrides(mixin_cls, template_cls, name_prefix,
         'int8', 'int16', 'int32', 'int', 'int64',
         'uint8', 'uint16', 'uint32', 'uint', 'uint64',
     ]
+    # On some platforms two dtype strings resolve to the same instantiation
+    # (e.g. 'int' and 'int32' when long is 32-bit); override each class once,
+    # keeping the sized name since sized dtypes come first in the list.
+    seen = set()
     for dt in _dtype_strings:
         base = template_cls[dt]
+        if id(base) in seen:
+            continue
+        seen.add(id(base))
         cls = type(f'{name_prefix}_{dt}', (mixin_cls, base),
                   {'__doc__': mixin_cls.__doc__})
         base.override(cls)
