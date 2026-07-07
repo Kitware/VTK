@@ -65,38 +65,9 @@ void vtkWindowNode::Synchronize(bool prepass)
     {
       return;
     }
-    /*
-      GetAAFrames()   vtkRenderWindow virtual
-      GetActualSize() vtkWindow
-      GetAlphaBitPlanes()     vtkRenderWindow virtual
-      GetDoubleBuffer()       vtkWindow       virtual
-      GetDPI()        vtkWindow       virtual
-      GetFDFrames()   vtkRenderWindow virtual
-      GetFullScreen() vtkRenderWindow virtual
-      GetLineSmoothing()      vtkRenderWindow virtual
-      GetMapped()     vtkWindow       virtual
-      GetMTime()      vtkObject       virtual
-      GetMultiSamples()       vtkRenderWindow virtual
-      GetNeverRendered()      vtkRenderWindow virtual
-      GetNumberOfLayers()     vtkRenderWindow virtual
-      GetOffScreenRendering() vtkWindow       virtual
-      GetPointSmoothing()     vtkRenderWindow virtual
-      GetPolygonSmoothing()   vtkRenderWindow virtual
-      GetPosition()   vtkWindow       virtual
-      GetScreenSize()=0       vtkWindow       pure virtual
-    */
     const int* sz = mine->GetSize();
     this->Size[0] = sz[0];
     this->Size[1] = sz[1];
-    /*
-      GetStereoType() vtkRenderWindow virtual
-      GetSubFrames()  vtkRenderWindow virtual
-      GetSwapBuffers()        vtkRenderWindow virtual
-      GetTileScale()  vtkWindow       virtual
-      GetTileViewport()       vtkWindow       virtual
-      GetUseConstantFDOffsets()       vtkRenderWindow virtual
-    */
-
     auto const& renderers = this->GetChildren();
     for (auto ren : renderers)
     {

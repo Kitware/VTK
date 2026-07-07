@@ -15,6 +15,7 @@
 #define vtkWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -243,6 +244,7 @@ public:
    * instead.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  VTK_DEPRECATED_IN_9_8_0("Use GetShowWindow instead")
   vtkTypeBool GetOffScreenRendering() { return this->GetShowWindow() ? 0 : 1; }
 
   /**
