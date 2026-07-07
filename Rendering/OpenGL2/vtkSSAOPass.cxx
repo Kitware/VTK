@@ -279,7 +279,13 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
     ostate->vtkglClear(clear_mask);
   }
 
-  this->DelegatePass->Render(s);
+  // Render the delegate with a render state that is aware of the framebuffer,
+  // so that camera-based delegate passes (vtkCameraPass) use the framebuffer
+  // origin (0, 0) rather than the renderer's tiled (viewport) origin.
+  vtkRenderState s2(s->GetRenderer());
+  s2.SetPropArrayAndCount(s->GetPropArray(), s->GetPropArrayCount());
+  s2.SetFrameBuffer(this->FrameBufferObject);
+  this->DelegatePass->Render(&s2);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
   this->FrameBufferObject->RemoveColorAttachments(3);
@@ -537,8 +543,14 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   this->SSAOTexture->Resize(w, h);
   this->DepthTexture->Resize(w, h);
 
-  ostate->vtkglViewport(x, y, w, h);
-  ostate->vtkglScissor(x, y, w, h);
+  // The delegate and the SSAO computation render into the pass's own
+  // framebuffers, which start at (0, 0), so use the framebuffer origin here.
+  // The renderer's tiled origin (x, y) is only applied at the final
+  // compositing step (RenderCombine) below. Using (x, y) here would render the
+  // scene outside of the framebuffers whenever the renderer does not fill the
+  // whole window (e.g. a subplot), leaving the result black.
+  ostate->vtkglViewport(0, 0, w, h);
+  ostate->vtkglScissor(0, 0, w, h);
 
   this->RenderDelegate(s, w, h);
 
@@ -554,6 +566,11 @@ void vtkSSAOPass::Render(const vtkRenderState* s)
   projection->Transpose();
 
   this->RenderSSAO(renWin, projection, w, h);
+
+  // Composite the result back into the renderer's viewport within the window,
+  // which may be offset from the window origin (e.g. a subplot).
+  ostate->vtkglViewport(x, y, w, h);
+  ostate->vtkglScissor(x, y, w, h);
   this->RenderCombine(renWin);
 
   vtkOpenGLCheckErrorMacro("failed after Render");
