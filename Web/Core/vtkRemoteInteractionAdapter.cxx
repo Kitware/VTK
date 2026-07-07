@@ -215,24 +215,29 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
         iren->GetLastEventPosition(lastEventPosition);
 
         // get center of positions for event
-        int position[2] = { 0, 0 };
+        double position[2] = { 0, 0 };
         for (const auto& item : event.at("positions"))
         {
-          position[0] += item.at("x").get<double>() / event.at("w").get<double>();
-          position[1] += item.at("y").get<double>() / event.at("h").get<double>();
+          position[0] += item.at("x").get<double>();
+          position[1] += item.at("y").get<double>();
         }
 
         position[0] /= static_cast<int>(event.at("positions").size());
         position[1] /= static_cast<int>(event.at("positions").size());
 
-        iren->SetEventInformation(position[0] * devicePixelRatio * devicePixelRatioTolerance,
-          position[1] * devicePixelRatio * devicePixelRatioTolerance);
+        const int x = (position[0] / event.at("w").get<double>() * devicePixelRatio +
+                        devicePixelRatioTolerance) *
+          iren->GetRenderWindow()->GetSize()[0];
+        const int y = (position[1] / event.at("h").get<double>() * devicePixelRatio +
+                        devicePixelRatioTolerance) *
+          iren->GetRenderWindow()->GetSize()[1];
+
+        iren->SetEventInformation(x, y);
 
         if (eventType == vtkCommand::StartPinchEvent || eventType == vtkCommand::EndPinchEvent ||
           eventType == vtkCommand::PinchEvent)
         {
           const double factor = event.at("factor").get<double>();
-          iren->SetScale(1.0);
           iren->SetScale(factor);
         }
         else if (eventType == vtkCommand::StartPanEvent || eventType == vtkCommand::EndPanEvent ||
