@@ -294,7 +294,7 @@ VTK_ABI_NAMESPACE_END
 namespace std
 {
 template <class T>
-struct hash<vtkSmartPointer<T>>
+struct hash<vtkSmartPointer<T>> // NOLINT(bugprone-std-namespace-modification)
 {
   std::size_t operator()(const vtkSmartPointer<T>& p) const { return this->Hasher(p.Get()); }
 
