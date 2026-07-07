@@ -196,14 +196,24 @@ public:
   /**
    * Set component @a comp of all tuples to @a value.
    */
+#ifdef __VTK_WRAP__
+  // Defined in vtkGenericDataArray, not vtkDataArray
+  virtual void FillTypedComponent(int compIdx, ValueType value);
+#else
   void FillTypedComponent(int compIdx, ValueType value) override;
+#endif
   ///@}
 
   ///@{
   /**
    * Set all the values in array to @a value.
    */
+#ifdef __VTK_WRAP__
+  // Defined in vtkGenericDataArray, not vtkDataArray
+  virtual void FillValue(ValueType value);
+#else
   void FillValue(ValueType value) override;
+#endif
   void Fill(double value) override;
   ///@}
 

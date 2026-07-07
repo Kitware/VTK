@@ -430,7 +430,6 @@ VTK_ABI_NAMESPACE_END
   T GetDataTypeValueMax() const;                                                                   \
   T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
   T* GetValueRange() VTK_SIZEHINT(2);                                                              \
-  void GetValueRange(T range[2], int comp);                                                        \
   void GetValueRange(T range[2], int comp);
 #define vtkCreateGenericWrappedArrayWriteInterface(T)                                              \
   void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
@@ -453,7 +452,7 @@ VTK_ABI_NAMESPACE_END
 #define vtkCreateWrappedArrayWriteInterface(T)                                                     \
   vtkCreateGenericWrappedArrayWriteInterface(T);                                                   \
   void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
-  void SetTypedComponent(vtkIdType i, int c, ValueType value);                                     \
+  void SetTypedComponent(vtkIdType i, int c, T value);                                             \
   void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
   bool SetNumberOfValues(vtkIdType number) override;
 
