@@ -850,9 +850,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
   }
 
   this->DepthCopyFBO->Bind(GL_DRAW_FRAMEBUFFER);
-  orenWin->GetState()->vtkglBlitFramebuffer(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
-    this->WindowLowerLeft[0] + this->WindowSize[0], this->WindowLowerLeft[1] + this->WindowSize[1],
-    0, 0, this->WindowSize[0], this->WindowSize[1], GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+  int tiledSize[2];
+  int tiledOrigin[2];
+  ren->GetTiledSizeAndOrigin(&tiledSize[0], &tiledSize[1], &tiledOrigin[0], &tiledOrigin[1]);
+  orenWin->GetState()->vtkglBlitFramebuffer(tiledOrigin[0], tiledOrigin[1],
+    tiledOrigin[0] + tiledSize[0], tiledOrigin[1] + tiledSize[1], 0, 0, this->WindowSize[0],
+    this->WindowSize[1], GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
   orenWin->GetState()->PopDrawFramebufferBinding();
 }
