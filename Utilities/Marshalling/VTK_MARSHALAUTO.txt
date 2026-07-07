@@ -631,6 +631,7 @@ Rendering/OpenGL2/vtkSimpleMotionBlurPass.h
 Rendering/OpenGL2/vtkSobelGradientMagnitudePass.h
 Rendering/OpenGL2/vtkSSAAPass.h
 Rendering/OpenGL2/vtkSSAOPass.h
+Rendering/OpenGL2/vtkStencilMaskPass.h
 Rendering/OpenGL2/vtkTextureObject.h
 Rendering/OpenGL2/vtkToneMappingPass.h
 Rendering/OpenGL2/vtkTranslucentPass.h
