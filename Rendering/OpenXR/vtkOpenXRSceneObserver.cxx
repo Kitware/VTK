@@ -44,9 +44,8 @@ struct vtkOpenXRSceneObserver::vtkInternals
 
     XrSceneMarkersMSFT markers{ XR_TYPE_SCENE_MARKERS_MSFT };
 
-    XrSceneComponentsGetInfoMSFT getInfo{ XR_TYPE_SCENE_COMPONENTS_GET_INFO_MSFT };
-    getInfo.componentType = XR_SCENE_COMPONENT_TYPE_MARKER_MSFT;
-    getInfo.next = &filter;
+    XrSceneComponentsGetInfoMSFT getInfo{ XR_TYPE_SCENE_COMPONENTS_GET_INFO_MSFT, &filter,
+      XR_SCENE_COMPONENT_TYPE_MARKER_MSFT };
 
     XrSceneMarkerQRCodesMSFT qrcodes{ XR_TYPE_SCENE_MARKER_QR_CODES_MSFT };
     qrcodes.next = &markers;
@@ -237,6 +236,7 @@ bool vtkOpenXRSceneObserver::UpdateSceneData()
     sphere.center = manager.GetViewPose(0)->position;
     sphere.radius = static_cast<float>(this->ClippingRadius);
 
+    // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
     XrNewSceneComputeInfoMSFT info{ XR_TYPE_NEW_SCENE_COMPUTE_INFO_MSFT };
     info.requestedFeatureCount = static_cast<uint32_t>(this->Impl->EnabledFeatures.size());
     info.requestedFeatures = this->Impl->EnabledFeatures.data();

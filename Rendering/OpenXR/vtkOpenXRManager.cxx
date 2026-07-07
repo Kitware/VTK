@@ -243,10 +243,8 @@ bool vtkOpenXRManager::WaitAndBeginFrame()
   if (this->ShouldRenderCurrentFrame)
   {
     // Locate the views : this will update view pose and projection fov for each view
-    XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
-    viewLocateInfo.viewConfigurationType = this->ViewType;
-    viewLocateInfo.displayTime = frameState.predictedDisplayTime;
-    viewLocateInfo.space = this->ReferenceSpace;
+    XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO, nullptr, this->ViewType,
+      frameState.predictedDisplayTime, this->ReferenceSpace };
     const uint32_t viewCount = this->GetViewCount();
     uint32_t viewCountOutput;
     if (!this->XrCheckOutput(vtkOpenXRManager::ErrorOutput,
@@ -439,11 +437,8 @@ bool vtkOpenXRManager::EndFrame()
 
   // Submit the composition layers for the predicted display time.
   // If the frame shouldn't be rendered, submit an empty vector
-  XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
-  frameEndInfo.displayTime = this->PredictedDisplayTime;
-  frameEndInfo.environmentBlendMode = this->EnvironmentBlendMode;
-  frameEndInfo.layerCount = (uint32_t)layers.size();
-  frameEndInfo.layers = layers.data();
+  XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO, nullptr, this->PredictedDisplayTime,
+    this->EnvironmentBlendMode, (uint32_t)layers.size(), layers.data() };
   xrEndFrame(this->Session, &frameEndInfo);
 
   return true;
@@ -572,6 +567,7 @@ void vtkOpenXRManager::PrintSupportedViewConfigs()
 
   for (uint32_t i = 0; i < viewConfigCount; ++i)
   {
+    // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
     XrViewConfigurationProperties props = { XR_TYPE_VIEW_CONFIGURATION_PROPERTIES };
     this->XrCheckOutput(vtkOpenXRManager::WarningOutput,
       xrGetViewConfigurationProperties(this->Instance, this->SystemId, viewConfigs[i], &props),

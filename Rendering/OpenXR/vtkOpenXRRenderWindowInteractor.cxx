@@ -79,6 +79,7 @@ public:
 
     // This structure is defined in vtkOpenXRManager
     // And hold OpenXR related data
+    // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
     vtk::detail::vtkOpenXRManager::Action_t ActionStruct{ XR_NULL_HANDLE };
 
     vtkCommand::EventIds EventId;
