@@ -103,6 +103,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSSAOPass.cxx
   TestSSAOPassMultiViewports.cxx
   TestSSAOPassWithRenderer.cxx
+  TestStencilMaskPass.cxx
   TestSurfaceInterpolationSwitch.cxx
   TestTessellationShader.cxx,NO_DATA,NO_SERDES
   TestTexture16Bits.cxx,NO_DATA
