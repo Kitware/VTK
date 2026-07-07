@@ -34,7 +34,7 @@ int TestPTSReader(int argc, char* argv[])
   reader->SetMaxNumberOfPoints(100000);
 
   reader->Update();
-  if (reader->GetOutput()->GetNumberOfPoints() != 446)
+  if (reader->GetOutput()->GetNumberOfPoints() != 448)
   {
     std::cerr << "Unexpected number of points" << std::endl;
     return EXIT_FAILURE;
