@@ -57,7 +57,7 @@ const std::unordered_map< std::string, enum_type > EVENT_MAP {
   {"EndPan"                     ,vtkCommand::EndPanEvent},
   {"StartRotate"                ,vtkCommand::StartRotateEvent},
   {"Rotate"                     ,vtkCommand::RotateEvent},
-  {"EndRotate"                  ,vtkCommand::RenderEvent},
+  {"EndRotate"                  ,vtkCommand::EndRotateEvent},
   {"Button3D"                   ,vtkCommand::NoEvent},
   {"Move3D"                     ,vtkCommand::NoEvent},
   {"StartPointerLock"           ,vtkCommand::NoEvent},
