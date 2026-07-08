@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkLogger.h"
 #include <vtkCellData.h>
 #include <vtkDataAssembly.h>
 #include <vtkFDSReader.h>
@@ -16,7 +17,6 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 
 /**
  * This tests the core features of the FDS reader, i.e. the parsing of:
@@ -36,8 +36,7 @@ bool testValue(T1 gotVal, T2 expectedVal, const char* valName)
 {
   if (gotVal != expectedVal)
   {
-    std::cerr << "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal
-              << std::endl;
+    vtkLog(ERROR, "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal);
     return false;
   }
   return true;
@@ -48,16 +47,15 @@ bool testValueFuzzy(T1 gotVal, T2 expectedVal, const char* valName)
 {
   if (!vtkMathUtilities::FuzzyCompare(gotVal, expectedVal))
   {
-    std::cerr << "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal
-              << std::endl;
+    vtkLog(ERROR, "Wrong " << valName << ". Expected " << expectedVal << ", got " << gotVal);
     return false;
   }
   return true;
 }
-}
 
 bool TestEmptyFile(const std::string& tempDirectory)
 {
+  vtkLogScopeFunction(INFO);
   // Create empty file.
   std::string emptyFilePath = tempDirectory + "/empty.smv";
   std::ofstream outputStream(emptyFilePath);
@@ -70,12 +68,12 @@ bool TestEmptyFile(const std::string& tempDirectory)
   vtkObject::SetGlobalWarningDisplay(0);
   reader->UpdateTimeStep(0.0);
   vtkObject::SetGlobalWarningDisplay(previousGlobalWarningFlag);
-
   return true;
 }
 
 bool TestExampleFile(const std::string& dataRoot)
 {
+  vtkLogScopeFunction(INFO);
   // Test RequestInformation
   vtkNew<vtkFDSReader> reader;
   std::string fileName = dataRoot + "/Data/FDS/test_core/test_core.smv";
@@ -116,6 +114,7 @@ bool TestExampleFile(const std::string& dataRoot)
   // Following slice contains cell-centered data
   reader->AddSelector("/test_core/Slices/Mesh01_STRUCTURED_TempZ_TEMPERATURE");
   reader->AddSelector("/test_core/Boundaries/Mesh01_Blockage_3");
+  reader->AddSelector("/test_core/Boundaries/Mesh01_Blockage_5");
   reader->Update();
 
   vtkPartitionedDataSetCollection* output =
@@ -142,7 +141,7 @@ bool TestExampleFile(const std::string& dataRoot)
   {
     return false;
   }
-  if (!testValue(outAssembly->GetNumberOfChildren(5), 1, "number of boundaries"))
+  if (!testValue(outAssembly->GetNumberOfChildren(5), 2, "number of boundaries"))
   {
     return false;
   }
@@ -153,7 +152,7 @@ bool TestExampleFile(const std::string& dataRoot)
     vtkRectilinearGrid::SafeDownCast(output->GetPartitionedDataSet(nodeIds[0])->GetPartition(0));
   if (!mesh01)
   {
-    std::cerr << "Mesh01 is nullptr" << std::endl;
+    vtkLog(ERROR, "Mesh01 is nullptr");
     return false;
   }
 
@@ -173,7 +172,7 @@ bool TestExampleFile(const std::string& dataRoot)
     vtkPolyData::SafeDownCast(output->GetPartitionedDataSet(nodeIds[0])->GetPartition(0));
   if (!hrr3D)
   {
-    std::cerr << "HRR_3D device is nullptr" << std::endl;
+    vtkLog(ERROR, "HRR_3D device is nullptr");
     return false;
   }
 
@@ -198,7 +197,7 @@ bool TestExampleFile(const std::string& dataRoot)
   auto* hrr = vtkTable::SafeDownCast(output->GetPartitionAsDataObject(nodeIds[0], 0));
   if (!hrr)
   {
-    std::cerr << "HRR is nullptr" << std::endl;
+    vtkLog(ERROR, "HRR is nullptr");
     return false;
   }
 
@@ -219,7 +218,7 @@ bool TestExampleFile(const std::string& dataRoot)
   auto* sliceVelX = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!sliceVelX)
   {
-    std::cerr << "VelX slice is nullptr" << std::endl;
+    vtkLog(ERROR, "VelX slice is nullptr");
     return false;
   }
 
@@ -235,7 +234,7 @@ bool TestExampleFile(const std::string& dataRoot)
 
   if (!sliceVelX->GetPointData()->GetArray("Values"))
   {
-    std::cerr << "VelX slice has no \"Values\" point data array." << std::endl;
+    vtkLog(ERROR, "VelX slice has no \"Values\" point data array.");
     return false;
   }
 
@@ -251,7 +250,7 @@ bool TestExampleFile(const std::string& dataRoot)
   auto* sliceTempZ = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!sliceTempZ)
   {
-    std::cerr << "TempZ slice is nullptr" << std::endl;
+    vtkLog(ERROR, "TempZ slice is nullptr");
     return false;
   }
 
@@ -273,7 +272,7 @@ bool TestExampleFile(const std::string& dataRoot)
 
   if (!sliceTempZ->GetCellData()->GetArray("Values"))
   {
-    std::cerr << "TempZ slice has no \"Values\" cell data array." << std::endl;
+    vtkLog(ERROR, "TempZ slice has no \"Values\" cell data array.");
     return false;
   }
 
@@ -285,47 +284,60 @@ bool TestExampleFile(const std::string& dataRoot)
 
   // Test boundary
   nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
-  auto* boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
-  if (!boundary)
+  auto* boundary3 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5"));
+  auto* boundary5 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  if (!boundary3)
   {
-    std::cerr << "Mesh01_Blockage_3 boundary is nullptr" << std::endl;
+    vtkLog(ERROR, "Mesh01_Blockage_3 boundary is nullptr");
+    return false;
+  }
+  if (!boundary5)
+  {
+    vtkLog(ERROR, "Mesh01_Blockage_5 boundary is nullptr");
     return false;
   }
 
   if (!testValue(
-        boundary->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_3 boundary"))
+        boundary3->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
   if (!testValue(
-        boundary->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_3 boundary"))
+        boundary3->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
-  if (!boundary->GetPointData()->GetArray("gauge"))
+  if (!boundary3->GetPointData()->GetArray("gauge"))
   {
-    std::cerr << "Mesh01_Blockage_3 boundary has no \"gauge\" point data array." << std::endl;
+    vtkLog(ERROR, "Mesh01_Blockage_3 boundary has no \"gauge\" point data array.");
     return false;
   }
 
   constexpr double value_at_t0 = -0.00013127682905178517103195190429688;
-  if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
+  if (!testValueFuzzy(boundary3->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
         "gauge in Mesh01_Blockage_3 boundary"))
   {
     return false;
   }
 
-  if (!boundary->GetCellData()->GetArray("gauge"))
+  if (!boundary3->GetCellData()->GetArray("gauge"))
   {
-    std::cerr << "Mesh01_Blockage_3 boundary has no \"gauge\" point data array." << std::endl;
+    vtkLog(ERROR, "Mesh01_Blockage_3 boundary has no \"gauge\" point data array.");
     return false;
   }
 
   // Same value than before since no interpolation is done on the corner of the boundary
-  if (!testValueFuzzy(boundary->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
+  if (!testValueFuzzy(boundary3->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
         "gauge in Mesh01_Blockage_3 boundary"))
+  {
+    return false;
+  }
+
+  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(39, 0),
+        -0.000470318947918713092803955078125, "gauge in Mesh01_Blockage_5"))
   {
     return false;
   }
@@ -334,7 +346,7 @@ bool TestExampleFile(const std::string& dataRoot)
   auto* outInfo = reader->GetOutputInformation(0);
   if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    std::cerr << "Unable to retrieve timestep information " << std::endl;
+    vtkLog(ERROR, "Unable to retrieve timestep information ");
     return false;
   }
 
@@ -350,21 +362,30 @@ bool TestExampleFile(const std::string& dataRoot)
   output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
   outAssembly = output->GetDataAssembly();
   nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
-  boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  boundary3 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
+  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5"));
+  boundary5 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
 
   constexpr double value_at_t8 = 0.935839116573333740234375;
-  if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
+  if (!testValueFuzzy(boundary3->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
         "gauge in Mesh01_Blockage_3 boundary at time value 8.1"))
   {
     return false;
   }
-  if (!testValueFuzzy(boundary->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
+  if (!testValueFuzzy(boundary3->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
         "gauge (cell-centered) in Mesh01_Blockage_3 boundary at time value 8.1"))
   {
     return false;
   }
 
+  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(39, 0),
+        0.070915885269641876220703125, "gauge in Mesh01_Blockage_5"))
+  {
+    return false;
+  }
+
   return true;
+}
 }
 
 int TestFDSReader(int argc, char* argv[])
@@ -373,21 +394,15 @@ int TestFDSReader(int argc, char* argv[])
   testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
   {
-    std::cerr << "Error: -D /path/to/data was not specified.";
+    vtkLog(ERROR, "Error: -D /path/to/data was not specified.");
     return EXIT_FAILURE;
   }
 
   std::string dataRoot = testHelper->GetDataRoot();
-  if (!TestExampleFile(dataRoot))
-  {
-    return EXIT_FAILURE;
-  }
+  bool ret = ::TestExampleFile(dataRoot);
 
   std::string tempDirectory = testHelper->GetTempDirectory();
-  if (!TestEmptyFile(tempDirectory))
-  {
-    return EXIT_FAILURE;
-  }
+  ret &= ::TestEmptyFile(tempDirectory);
 
-  return EXIT_SUCCESS;
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
