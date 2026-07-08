@@ -90,13 +90,15 @@ void vtkRemoteInteractionAdapter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // converts a position from a web event to the correponding position in the vtk render window
-void vtkRemoteInteractionAdapter::webPositionToVtkPosition(const double webPosition[2],
-  int (&vtkPosition)[2], double w, double h, vtkRenderWindowInteractor* iren,
+void vtkRemoteInteractionAdapter::physicalToLogicalPosition(const double physicalPosition[2],
+  int (&logicalPosition)[2], const double physicalSize[2], vtkRenderWindowInteractor* iren,
   double devicePixelRatio, double devicePixelRatioTolerance)
 {
-  vtkPosition[0] = (webPosition[0] / w * devicePixelRatio + devicePixelRatioTolerance) *
+  logicalPosition[0] =
+    (physicalPosition[0] / physicalSize[0] * devicePixelRatio + devicePixelRatioTolerance) *
     iren->GetRenderWindow()->GetSize()[0];
-  vtkPosition[1] = (webPosition[1] / h * devicePixelRatio + devicePixelRatioTolerance) *
+  logicalPosition[1] =
+    (physicalPosition[1] / physicalSize[1] * devicePixelRatio + devicePixelRatioTolerance) *
     iren->GetRenderWindow()->GetSize()[1];
 }
 
@@ -137,19 +139,17 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
       case vtkCommand::MiddleButtonPressEvent:
       case vtkCommand::MiddleButtonReleaseEvent:
       {
-        const int x =
-          (event.at("x").get<double>() / event.at("w").get<double>() * devicePixelRatio +
-            devicePixelRatioTolerance) *
-          iren->GetRenderWindow()->GetSize()[0];
-        const int y =
-          (event.at("y").get<double>() / event.at("h").get<double>() * devicePixelRatio +
-            devicePixelRatioTolerance) *
-          iren->GetRenderWindow()->GetSize()[1];
+        double physicalPosition[2] = { event.at("x").get<double>(), event.at("y").get<double>() };
+        double physicalSize[2] = { event.at("w").get<double>(), event.at("h").get<double>() };
+        int logicalPosition[2];
+        physicalToLogicalPosition(physicalPosition, logicalPosition, physicalSize, iren,
+          devicePixelRatio, devicePixelRatioTolerance);
 
         const int ctrlKeyPressed = event.at("ctrlKey").get<int>();
         const int altKeyPressed = event.at("altKey").get<int>();
         const int shiftKeyPressed = event.at("shiftKey").get<int>();
-        iren->SetEventInformation(x, y, ctrlKeyPressed, shiftKeyPressed);
+        iren->SetEventInformation(
+          logicalPosition[0], logicalPosition[1], ctrlKeyPressed, shiftKeyPressed);
         iren->SetAltKey(altKeyPressed);
         iren->InvokeEvent(eventType, (void*)&event);
         break;
@@ -173,18 +173,18 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
       }
       case WheelEvent:
       {
-        double webPosition[2] = { event.at("x").get<double>(), event.at("y").get<double>() };
-
-        int vtkPosition[2];
-        vtkRemoteInteractionAdapter::webPositionToVtkPosition(webPosition, vtkPosition,
-          event.at("w").get<double>(), event.at("h").get<double>(), iren, devicePixelRatio,
-          devicePixelRatioTolerance);
+        double physicalPosition[2] = { event.at("x").get<double>(), event.at("y").get<double>() };
+        double physicalSize[2] = { event.at("w").get<double>(), event.at("h").get<double>() };
+        int logicalPosition[2];
+        physicalToLogicalPosition(physicalPosition, logicalPosition, physicalSize, iren,
+          devicePixelRatio, devicePixelRatioTolerance);
 
         const int ctrlKeyPressed = event.at("ctrlKey").get<int>();
         const int altKeyPressed = event.at("altKey").get<int>();
         const int shiftKeyPressed = event.at("shiftKey").get<int>();
 
-        iren->SetEventInformation(vtkPosition[0], vtkPosition[1], ctrlKeyPressed, shiftKeyPressed);
+        iren->SetEventInformation(
+          logicalPosition[0], logicalPosition[1], ctrlKeyPressed, shiftKeyPressed);
         iren->SetAltKey(altKeyPressed);
 
         static double accumulatedDelta = 0;
@@ -235,12 +235,12 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
         position[0] /= static_cast<int>(event.at("positions").size());
         position[1] /= static_cast<int>(event.at("positions").size());
 
-        int vtkPosition[2];
-        vtkRemoteInteractionAdapter::webPositionToVtkPosition(position, vtkPosition,
-          event.at("w").get<double>(), event.at("h").get<double>(), iren, devicePixelRatio,
+        double physicalSize[2] = { event.at("w").get<double>(), event.at("h").get<double>() };
+        int logicalPosition[2];
+        physicalToLogicalPosition(position, logicalPosition, physicalSize, iren, devicePixelRatio,
           devicePixelRatioTolerance);
 
-        iren->SetEventInformation(vtkPosition[0], vtkPosition[1]);
+        iren->SetEventInformation(logicalPosition[0], logicalPosition[1]);
         if (eventType == vtkCommand::StartPinchEvent || eventType == vtkCommand::EndPinchEvent ||
           eventType == vtkCommand::PinchEvent)
         {
