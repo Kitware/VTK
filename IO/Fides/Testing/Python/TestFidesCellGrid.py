@@ -4,12 +4,6 @@ import os.path
 from vtkmodules.vtkIOFides import vtkFidesReader, vtkFidesWriter
 from vtkmodules.vtkCommonDataModel import vtkPartitionedDataSetCollection, vtkCellGrid
 from vtkmodules.util.misc import vtkGetDataRoot, vtkGetTempDir
-try:
-    # Not directly used here, but if it's not imported when VTK_USE_MPI, we get following error:
-    # Attempting to use an MPI routine before initializing MPICH
-    from mpi4py import MPI
-except ImportError:
-    pass
 
 VTK_DATA_ROOT = vtkGetDataRoot()
 VTK_TEMP_DIR = vtkGetTempDir()

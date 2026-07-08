@@ -10,10 +10,6 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkIOFides import vtkFidesReader, vtkFidesWriter
 from vtkmodules.util import numpy_support
 from vtkmodules.util.misc import vtkGetTempDir
-try:
-    from mpi4py import MPI
-except ImportError:
-    pass
 
 import numpy as np
 VTK_TEMP_DIR = vtkGetTempDir()
