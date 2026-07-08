@@ -15,11 +15,20 @@
  * along the x-y-z axes. The coordinate arrays are specified using three
  * vtkDataArray objects (one for x, one for y, one for z).
  *
+ * The grid has structured coordinates: each element is associated to (i-j-k) indices
+ * (along x, y and z axis).
+ * The points and cells are ordered increasing i first, then j and finally k.
+ * This way it is easy to get a mapping between an element id and its (i-j-k) structured
+ * coordinates.
+ *
  * @warning
  * Make sure that the dimensions of the grid match the number of coordinates
  * in the x-y-z directions. If not, unpredictable results (including
  * program failure) may result. Also, you must supply coordinates in all
  * three directions, even if the dataset topology is 2D, 1D, or 0D.
+ *
+ * @warning
+ * The values inside the x, y and z coordinates arrays are expected to be in the increasing order.
  */
 
 #ifndef vtkRectilinearGrid_h
@@ -85,10 +94,12 @@ public:
   ///@}
 
   /**
-   * Computes the structured coordinates for a point x[3].
-   * The cell is specified by the array ijk[3], and the parametric coordinates
+   * Computes the cell structured coordinates for a point x[3].
+   * The cell found is specified by the array ijk[3], and the parametric coordinates
    * in the cell are specified with pcoords[3]. The function returns a 0 if the
    * point x is outside of the grid, and a 1 if inside the grid.
+   * For a given axis, a point that exactly match a coordinate of the grid belongs to the previous
+   * cell (and thus pcoord is set to 1).
    */
   int ComputeStructuredCoordinates(const double x[3], int ijk[3], double pcoords[3]) override;
 
