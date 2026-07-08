@@ -300,12 +300,6 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
     return;
   }
 
-  if ((strcmp(name, "albedoTex") == 0 || strcmp(name, "emissiveTex") == 0) &&
-    !tex->GetUseSRGBColorSpace())
-  {
-    vtkErrorMacro("The " << name << " texture is not in sRGB color space.");
-    return;
-  }
   const bool texNeedLinear = strcmp(name, "materialTex") == 0 || strcmp(name, "normalTex") == 0 ||
     strcmp(name, "anisotropyTex") == 0 || strcmp(name, "coatNormalTex") == 0;
   if (texNeedLinear && tex->GetUseSRGBColorSpace())
