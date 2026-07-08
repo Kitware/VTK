@@ -224,6 +224,22 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
       this->Scene->SetDirty(true);
     }
+    else
+    {
+      int activeVertexIndex;
+      bool activeLensOutline;
+      bool activeLensInterior;
+      this->GetActiveElement(pos, activeVertexIndex, activeLensOutline, activeLensInterior);
+      if ((activeVertexIndex > 0) ^ this->Internals->Plot->GetActiveVertexIndex() ||
+        activeLensOutline ^ this->Internals->Plot->GetActiveLensOutline() ||
+        activeLensInterior ^ this->Internals->Plot->GetActiveLensInterior())
+      {
+        this->Scene->SetDirty(true);
+      }
+      this->Internals->Plot->SetActiveVertexIndex(activeVertexIndex);
+      this->Internals->Plot->SetActiveLensOutline(activeLensOutline);
+      this->Internals->Plot->SetActiveLensInterior(activeLensInterior);
+    }
   }
   return true;
 }
@@ -240,48 +256,58 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
   vtkDebugMacro("vtkChartRadViz::MouseButtonPressEvent");
   if (this->Internals->Plot)
   {
-    const int SIZE = 5;
-    auto vertices = this->Internals->Plot->GetVertices();
     vtkVector2f pos{ mouse.GetScenePos() };
-    for (int i = 0; i < vertices->GetNumberOfPoints(); ++i)
+    this->GetActiveElement(pos, this->Internals->DragVertexIndex, this->Internals->ResizeLens,
+      this->Internals->DragLens);
+    if (this->Internals->DragLens)
     {
-      double xy[2];
-      vertices->GetPoint(i, xy);
-      if (pos[0] <= xy[0] + SIZE && pos[0] >= xy[0] - SIZE && pos[1] <= xy[1] + SIZE &&
-        pos[1] >= xy[1] - SIZE)
-      {
-        // drag a vertex
-        this->Internals->DragVertexIndex = i;
-        vtkDebugMacro("vtkChartRadViz::MouseButtonPressEvent: Drag vertex: " << i);
-        break;
-      }
-    }
-    if (this->Internals->DragVertexIndex < 0)
-    {
-      float* lensCenter = this->Internals->Plot->GetLensCenter();
-      float lensRadius = this->Internals->Plot->GetLensRadius();
-      // distance between the lensCenter and the mouse point
-      float r =
-        std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
-      if (std::abs(lensRadius - r) < SIZE)
-      {
-        // resize the lens
-        this->Internals->ResizeLens = true;
-        vtkDebugMacro("vtkChartRadViz::MouseButtonPressEvent: Resize lens");
-      }
-      else if (lensRadius - r > 0)
-      {
-        // drag the lens
-        vtkDebugMacro("vtkChartRadViz::MouseButtonPressEvent: Drag lens");
-        this->Internals->DragLens = true;
-        std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
-      }
+      std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
     }
     return true;
   }
   else
   {
     return false;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::GetActiveElement(
+  const vtkVector2f& pos, int& activeVertexIndex, bool& activeLensOutline, bool& activeLensInterior)
+{
+  activeVertexIndex = -1;
+  activeLensOutline = false;
+  activeLensInterior = false;
+  const int SIZE = 5;
+  auto vertices = this->Internals->Plot->GetVertices();
+  for (int i = 0; i < vertices->GetNumberOfPoints(); ++i)
+  {
+    double xy[2];
+    vertices->GetPoint(i, xy);
+    if (pos[0] <= xy[0] + SIZE && pos[0] >= xy[0] - SIZE && pos[1] <= xy[1] + SIZE &&
+      pos[1] >= xy[1] - SIZE)
+    {
+      activeVertexIndex = i;
+      vtkDebugMacro("vtkChartRadViz::GetActiveElement: Vertex: " << i);
+      break;
+    }
+  }
+  if (activeVertexIndex < 0)
+  {
+    float* lensCenter = this->Internals->Plot->GetLensCenter();
+    float lensRadius = this->Internals->Plot->GetLensRadius();
+    // distance between the lensCenter and the mouse point
+    float r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
+    if (std::abs(lensRadius - r) < SIZE)
+    {
+      activeLensOutline = true;
+      vtkDebugMacro("vtkChartRadViz::GetActiveElement: Lens Outline");
+    }
+    else if (lensRadius - r > 0)
+    {
+      activeLensInterior = true;
+      vtkDebugMacro("vtkChartRadViz::GetActiveElement: Lens Interior");
+    }
   }
 }
 

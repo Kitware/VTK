@@ -12,6 +12,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiVariateToRGBA.h"
@@ -20,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderingCoreEnums.h"
+#include "vtkSmartPointer.h"
 #include "vtkSmartPointerBase.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -102,8 +104,17 @@ public:
     this->Radius = dimensions[2] < dimensions[3] ? 0.5 * dimensions[2] : 0.5 * dimensions[3];
   }
 
+  /**
+   * The center of the GBC circle in window space
+   */
   float Center[2];
+  /**
+   * The radius of the GBC circle in window space
+   */
   float Radius;
+  /**
+   * PlotRadViz object, used for debug or error logging
+   */
   vtkObject* Parent;
 };
 
@@ -114,7 +125,10 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
   this->VerticesPen = vtkSmartPointer<vtkPen>::New();
   this->VerticesPen->SetWidth(8);
+
   this->LensPen = vtkSmartPointer<vtkPen>::New();
+
+  this->ActiveColor = vtkColor4ub(255, 0, 0, 255); // red
   this->LensCenter[0] = this->LensCenter[1] = 0;
   this->LensRadius = 0;
   this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
@@ -227,7 +241,7 @@ void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkPlotRadViz::GetOutputArray(vtkTable* table, const char* name)
+vtkDataArray* vtkPlotRadViz::GetArray(vtkTable* table, const char* name)
 {
   auto a = vtkDataArray::FastDownCast(table->GetColumnByName(name));
   if (!a)
@@ -238,7 +252,7 @@ vtkDataArray* vtkPlotRadViz::GetOutputArray(vtkTable* table, const char* name)
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkPlotRadViz::GetOutputArray(vtkDataSet* dataset, const char* name)
+vtkDataArray* vtkPlotRadViz::GetArray(vtkDataSet* dataset, const char* name)
 {
   vtkDataSetAttributes* pd = dataset->GetPointData();
   vtkDataSetAttributes* cd = dataset->GetCellData();
@@ -255,7 +269,7 @@ vtkDataArray* vtkPlotRadViz::GetOutputArray(vtkDataSet* dataset, const char* nam
 }
 
 //------------------------------------------------------------------------------
-std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetOutputArrays(
+std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetVerticesGbcRgba(
   vtkDataObject* output)
 {
   auto table = vtkTable::SafeDownCast(output);
@@ -264,18 +278,18 @@ std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetOutput
   vtkDataArray* rgba = nullptr;
   if (table)
   {
-    gbc = this->GetOutputArray(table, "gbc");
+    gbc = this->GetArray(table, "gbc");
     if (this->ScalarVisibility)
     {
-      rgba = this->GetOutputArray(table, "rgba");
+      rgba = this->GetArray(table, "rgba");
     }
   }
   else if (dataset)
   {
-    gbc = this->GetOutputArray(dataset, "gbc");
+    gbc = this->GetArray(dataset, "gbc");
     if (this->ScalarVisibility)
     {
-      rgba = this->GetOutputArray(dataset, "rgba");
+      rgba = this->GetArray(dataset, "rgba");
     }
   }
   else
@@ -327,13 +341,22 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     }
     computeGBC->Update();
     vtkDataObject* output = computeGBC->GetOutputDataObject(0);
-    auto [vertices, gbc, rgba] = this->GetOutputArrays(output);
+    auto [vertices, gbc, rgba] = this->GetVerticesGbcRgba(output);
     if (this->ColorWheelVisibility)
     {
       this->DrawColorWheel(painter);
     }
-    this->DrawMarkers(painter, gbc, this->Pen, rgba);
-    this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen);
+    // draw the data points
+    if (this->ScalarVisibility)
+    {
+      this->DrawColoredMarkers(painter, gbc, this->Pen, rgba);
+    }
+    else
+    {
+      this->DrawMarkers(painter, gbc, this->Pen);
+    }
+    // draw the vertices
+    this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen, ActiveVertexIndex);
     this->DrawLabels(painter, vertices, this->VerticesPen);
     this->DrawLens(painter);
     this->PaintChildren(painter);
@@ -446,7 +469,22 @@ void vtkPlotRadViz::ShiftLabelByPenWidth(float width, double xy[2])
 
 void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 {
+  // draw the center of the lens. DrawMarkers expects points in the [-1, 1] space.
+  vtkNew<vtkFloatArray> center;
+  center->SetNumberOfComponents(3);
+  center->SetNumberOfTuples(1);
+  center->SetTypedTuple(0,
+    std::array<float, 3>{
+      (this->LensCenter[0] - this->Internals->Center[0]) / this->Internals->Radius,
+      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius, 0 }
+      .data());
+  this->DrawMarkers(painter, center, this->VerticesPen, this->ActiveLensInterior ? 0 : -1);
+  // draw the lens circle
   painter->ApplyPen(this->LensPen);
+  if (this->ActiveLensOutline)
+  {
+    painter->GetPen()->SetColor(this->GetActiveColor());
+  }
   painter->GetBrush()->SetColor(0, 0, 0, 0); // transparent brush (only outline)
   painter->DrawArc(this->LensCenter[0], this->LensCenter[1], this->LensRadius, 0, 360);
 }
@@ -503,20 +541,32 @@ void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkP
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
+  vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, int activeIndex)
+{
+  const int markerStyle = VTK_MARKER_CIRCLE;
+  auto transformedPoints = this->TransformPoints(points);
+  painter->ApplyPen(pen);
+  vtkFloatArray* dataArray = vtkFloatArray::SafeDownCast(transformedPoints->GetData());
+  float* data = dataArray->GetPointer(0);
+  painter->DrawMarkers(
+    markerStyle, false /*highlight*/, data, transformedPoints->GetNumberOfPoints());
+  if (activeIndex >= 0)
+  {
+    painter->DrawMarkers(
+      markerStyle, false /*highlight*/, data + 2 * activeIndex, 1, this->ActiveColor.GetData(), 4);
+  }
+  return transformedPoints;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawColoredMarkers(
   vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, vtkDataArray* colors)
 {
   const int markerStyle = VTK_MARKER_CIRCLE;
   auto transformedPoints = this->TransformPoints(points);
   painter->ApplyPen(pen);
-  if (colors)
-  {
-    auto transformedColors = this->TransformColors(colors);
-    painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints, transformedColors);
-  }
-  else
-  {
-    painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints);
-  }
+  auto transformedColors = this->TransformColors(colors);
+  painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints, transformedColors);
   return transformedPoints;
 }
 

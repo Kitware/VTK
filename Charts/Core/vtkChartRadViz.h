@@ -116,6 +116,12 @@ public:
 protected:
   vtkChartRadViz();
   ~vtkChartRadViz() override;
+  /**
+   * Gets the active element (vertex, lens outline or lens interior) based
+   * on the mouse position.
+   */
+  void GetActiveElement(const vtkVector2f& pos, int& activeVertexIndex, bool& activeLensOutline,
+    bool& activeLensInterior);
 
 private:
   vtkChartRadViz(const vtkChartRadViz&) = delete;

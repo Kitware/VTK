@@ -25,6 +25,7 @@
 #include "vtkPen.h"              // For SetSmartPointerMacro
 #include "vtkPlot.h"             // For the base class
 #include "vtkPoints2D.h"         // For GetSmartPointerMacro
+#include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h" // For SetSmartPointerMacro
 #include "vtkUnsignedCharArray.h"
@@ -143,12 +144,13 @@ public:
 
   ///@{
   /**
-   * Center of the lens in window coordinates
+   * Center of the lens in window space. The set function ensures that
+   * the lens intersects the the GBC circle.
    */
   virtual void SetLensCenter(const float* center);
   vtkGetVector2Macro(LensCenter, float);
   /**
-   * Radius of the lens
+   * Radius of the lens in window space
    */
   virtual void SetLensRadius(float radius);
   vtkGetMacro(LensRadius, float);
@@ -166,12 +168,38 @@ public:
   vtkGetMacro(OutsideLensAlphaCap, double);
   ///@}
 
+  ///@{
   /**
-   * Center of the plot
+   * Color used for active vertex, active lens circle or active lens center.
+   */
+  vtkSetMacro(ActiveColor, vtkColor4ub);
+  vtkGetMacro(ActiveColor, vtkColor4ub);
+  /**
+   * The index of the active vertex (mouse over it or rotating the
+   * vertices by dragging that vertex), -1 when no vertex is active.
+   */
+  vtkSetMacro(ActiveVertexIndex, int);
+  vtkGetMacro(ActiveVertexIndex, int);
+  /**
+   * Set to true when the mouse is over the lens outline or when the
+   * lens is resided and set to false otherwise.
+   */
+  vtkSetMacro(ActiveLensOutline, bool);
+  vtkGetMacro(ActiveLensOutline, bool);
+  /**
+   * Set to true when the mouse is over the lens interior or when the
+   * lens is dragged and set to false otherwise.
+   */
+  vtkSetMacro(ActiveLensInterior, bool);
+  vtkGetMacro(ActiveLensInterior, bool);
+  ///@}
+
+  /**
+   * Center of the plot in window space
    */
   const float* GetCenter() const;
   /**
-   * Radius of the plot
+   * Radius of the plot in window space
    */
   float GetRadius() const;
 
@@ -189,9 +217,20 @@ protected:
   vtkPlotRadViz();
   ~vtkPlotRadViz() override = default;
   void DrawColorWheel(vtkContext2D* painter);
-  // draw the points either using the 'color' if its not nullptr or using the 'pen' color.
+  /**
+   * Draw the points using the 'pen' attributes and  'color' instead of
+   * the 'pen' color. The 'points' are in the [-1, 1] space.
+   *
+   */
+  vtkSmartPointer<vtkPoints2D> DrawColoredMarkers(
+    vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, vtkDataArray* color = nullptr);
+  /**
+   * Draw the points using the 'pen' attributes. The 'points' are in
+   * the [-1, 1] space. If activeIndex >= 0, draw that point using the ActiveColor
+   *
+   */
   vtkSmartPointer<vtkPoints2D> DrawMarkers(
-    vtkContext2D* painter, vtkDataArray* gbc, vtkPen* pen, vtkDataArray* color = nullptr);
+    vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, int activeIndex = -1);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
   void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
@@ -202,9 +241,21 @@ protected:
    */
   static std::pair<int, int> GetJustification(double xy[2]);
   void ShiftLabelByPenWidth(float width, double transformedXy[2]);
-  std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetOutputArrays(vtkDataObject* output);
-  static vtkDataArray* GetOutputArray(vtkTable* output, const char* name);
-  static vtkDataArray* GetOutputArray(vtkDataSet* dataset, const char* name);
+  ///@{
+  /**
+   * Returns the arrays named 'vertices', 'gbc', 'rgba' from a table or dataset or throws
+   * std::runtime_error if not found
+   */
+  std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetVerticesGbcRgba(vtkDataObject* output);
+  /**
+   * Returns the column array 'name' or throws std::runtime_error if the array is not found.
+   */
+  static vtkDataArray* GetArray(vtkTable* output, const char* name);
+  /**
+   * Returns the point or cell array 'name' or throws std::runtime_error if the array is not found.
+   */
+  static vtkDataArray* GetArray(vtkDataSet* dataset, const char* name);
+  ///@}
 
   int Dimensions[4];
   /**
@@ -216,6 +267,26 @@ protected:
    * Controls how the lens circle outline is drawn.
    */
   vtkSmartPointer<vtkPen> LensPen;
+  /**
+   * Pen used for active vertex, active lens circle or active lens center.
+   * Only the color is used.
+   */
+  vtkColor4ub ActiveColor;
+  /**
+   * The index of the active vertex (mouse over it or rotating the
+   * vertices by dragging that vertex), -1 when no vertex is active.
+   */
+  int ActiveVertexIndex = -1;
+  /**
+   * Set to true when the mouse is over the lens outline or when the
+   * lens is resided and set to false otherwise.
+   */
+  bool ActiveLensOutline = false;
+  /**
+   * Set to true when the mouse is over the lens interior or when the
+   * lens is dragged and set to false otherwise.
+   */
+  bool ActiveLensInterior = false;
   /**
    * Alpha cap for points outside the lens.
    */
