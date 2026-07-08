@@ -22,16 +22,4 @@ void vtkUniformGridAMR::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//------------------------------------------------------------------------------
-vtkUniformGridAMR* vtkUniformGridAMR::GetData(vtkInformation* info)
-{
-  return info ? vtkUniformGridAMR::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
-}
-
-//------------------------------------------------------------------------------
-vtkUniformGridAMR* vtkUniformGridAMR::GetData(vtkInformationVector* v, int i)
-{
-  return vtkUniformGridAMR::GetData(v->GetInformationObject(i));
-}
-
 VTK_ABI_NAMESPACE_END

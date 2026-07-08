@@ -1,8 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// VTK_DEPRECATED_IN_9_6_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkAxis.h"
 
 #include "vtkAxisExtended.h"
@@ -280,6 +277,7 @@ void vtkAxis::Update()
   }
 
   this->UpdateLogScaleActive(false);
+  // VTK_DEPRECATED_IN_9_8_0 remove this->Behavior checks
   if ((this->Behavior == vtkAxis::AUTO || this->Behavior == vtkAxis::FIXED) && this->TickMarksDirty)
   {
     // Regenerate the tick marks/positions if necessary
@@ -306,6 +304,7 @@ void vtkAxis::Update()
   }
 
   // Figure out what type of behavior we should follow
+  // VTK_DEPRECATED_IN_9_8_0 remove this->Behavior checks
   if (this->Resized && (this->Behavior == vtkAxis::AUTO || this->Behavior == vtkAxis::FIXED))
   {
     this->RecalculateTickSpacing();
@@ -939,6 +938,7 @@ void vtkAxis::RecalculateTickSpacing()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing,
   // discard the min and max in this case. TODO: Refactor the function called.
+  // VTK_DEPRECATED_IN_9_8_0 remove this->Behavior checks
   if (this->Behavior == vtkAxis::AUTO || this->Behavior == vtkAxis::FIXED)
   {
     double min = this->Minimum;
@@ -2002,6 +2002,7 @@ void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
       os << "FIXED";
       break;
 
+    // VTK_DEPRECATED_IN_9_8_0 Remove
     case CUSTOM:
       os << "CUSTOM";
       break;

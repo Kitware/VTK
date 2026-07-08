@@ -20,98 +20,6 @@
 namespace
 {
 
-// These implementations are for methods that will be deprecated in the future:
-namespace deprec
-{
-
-// Given a legacy Location, find the corresponding cellId. The location
-// *must* refer to a [numPts] entry in the old connectivity array, or the
-// returned CellId will be -1.
-struct LocationToCellIdFunctor : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(
-    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType location, vtkIdType& cellId) const
-  {
-    using ValueType = GetAPIType<OffsetsT>;
-
-    const auto offsetsRange = GetRange(offsets);
-
-    // Use a binary-search to find the location:
-    auto it = this->BinarySearchOffset(
-      offsetsRange.begin(), offsetsRange.end() - 1, static_cast<ValueType>(location));
-
-    cellId = std::distance(offsetsRange.begin(), it);
-
-    if (it == offsetsRange.end() - 1 /* no match found */ ||
-      static_cast<vtkIdType>(*it + cellId) != location /* `location` not at cell head */)
-    { // Location invalid.
-      cellId = -1;
-      return;
-    }
-  }
-
-  template <typename IterT>
-  IterT BinarySearchOffset(const IterT& beginIter, const IterT& endIter,
-    const typename std::iterator_traits<IterT>::value_type& targetLocation) const
-  {
-    using ValueType = typename std::iterator_traits<IterT>::value_type;
-    using DifferenceType = typename std::iterator_traits<IterT>::difference_type;
-
-    DifferenceType roiSize = std::distance(beginIter, endIter);
-
-    IterT roiBegin = beginIter;
-    while (roiSize > 0)
-    {
-      IterT it = roiBegin;
-      const DifferenceType step = roiSize / 2;
-      std::advance(it, step);
-      // This differs from a generic binary search in the following line:
-      // Adding the distance from the start of the array to the current
-      // iterator will account for the cellSize entries in the old cell array
-      // format, such that curLocation would be the offset in the old style
-      // connectivity array.
-      const ValueType curLocation = *it + std::distance(beginIter, it);
-      if (curLocation < targetLocation)
-      {
-        roiBegin = ++it;
-        roiSize -= step + 1;
-      }
-      else
-      {
-        roiSize = step;
-      }
-    }
-
-    return roiBegin;
-  }
-};
-
-struct CellIdToLocationFunctor : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(
-    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType cellId, vtkIdType& loc) const
-  {
-    // Adding the cellId to the offset of that cell id gives us the cell
-    // location in the old-style vtkCellArray connectivity array.
-    loc = static_cast<vtkIdType>(GetRange(offsets)[cellId]) + cellId;
-  }
-};
-
-struct GetInsertLocationImpl : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType& insertLoc) const
-  {
-    // The insert location used to just be the tail of the connectivity array.
-    // Compute the equivalent value:
-    insertLoc = offsets->GetNumberOfValues() - 1 + conn->GetNumberOfValues();
-  }
-};
-
-} // end namespace deprec
-
 struct PrintDebugImpl : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
@@ -594,156 +502,6 @@ bool vtkCellArray::DefaultStorageIs64Bit = true;
 bool vtkCellArray::DefaultStorageIs64Bit = false;
 #endif
 
-//=================== Begin Legacy Methods ===================================
-// These should be deprecated at some point as they are confusing or very slow
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::GetSize()
-{
-  // We can still compute roughly the same result, so go ahead and do that.
-  return this->GetOffsetsArray()->GetCapacity() + this->GetConnectivityArray()->GetCapacity();
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::GetNumberOfConnectivityEntries()
-{
-  // We can still compute roughly the same result, so go ahead and do that.
-  vtkIdType size;
-  this->Dispatch(GetLegacyDataSizeImpl{}, size);
-  return size;
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::GetCell(vtkIdType loc, vtkIdType& npts, const vtkIdType*& pts)
-{
-  vtkIdType cellId;
-  this->Dispatch(deprec::LocationToCellIdFunctor{}, loc, cellId);
-  if (cellId < 0)
-  {
-    vtkErrorMacro("Invalid location.");
-    npts = 0;
-    pts = nullptr;
-    return;
-  }
-
-  this->GetCellAtId(cellId, this->TempCell);
-  npts = this->TempCell->GetNumberOfIds();
-  pts = this->TempCell->GetPointer(0);
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::GetCell(vtkIdType loc, vtkIdList* pts)
-{
-  vtkIdType cellId;
-  this->Dispatch(deprec::LocationToCellIdFunctor{}, loc, cellId);
-  if (cellId < 0)
-  {
-    vtkErrorMacro("Invalid location.");
-    pts->Reset();
-    return;
-  }
-
-  this->GetCellAtId(cellId, pts);
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::GetInsertLocation(int npts)
-{
-  // It looks like the original implementation of this actually returned the
-  // location of the last cell (of size npts), not the current insert location.
-  vtkIdType insertLoc;
-  this->Dispatch(deprec::GetInsertLocationImpl{}, insertLoc);
-  return insertLoc - npts - 1;
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::GetTraversalLocation()
-{
-  vtkIdType loc;
-  this->Dispatch(deprec::CellIdToLocationFunctor{}, this->GetTraversalCellId(), loc);
-  return loc;
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::GetTraversalLocation(vtkIdType npts)
-{
-  vtkIdType loc;
-  this->Dispatch(deprec::CellIdToLocationFunctor{}, this->GetTraversalCellId(), loc);
-  return loc - npts - 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetTraversalLocation(vtkIdType loc)
-{
-  vtkIdType cellId;
-  this->Dispatch(deprec::LocationToCellIdFunctor{}, loc, cellId);
-  if (cellId < 0)
-  {
-    vtkErrorMacro("Invalid location, ignoring.");
-    return;
-  }
-
-  this->SetTraversalCellId(cellId);
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkCellArray::EstimateSize(vtkIdType numCells, int maxPtsPerCell)
-{
-  return numCells * (1 + maxPtsPerCell);
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetNumberOfCells(vtkIdType)
-{
-  // no-op
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::ReverseCell(vtkIdType loc)
-{
-  vtkIdType cellId;
-  this->Dispatch(deprec::LocationToCellIdFunctor{}, loc, cellId);
-  if (cellId < 0)
-  {
-    vtkErrorMacro("Invalid location, ignoring.");
-    return;
-  }
-
-  this->ReverseCellAtId(cellId);
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::ReplaceCell(vtkIdType loc, int npts, const vtkIdType pts[])
-{
-  vtkIdType cellId;
-  this->Dispatch(deprec::LocationToCellIdFunctor{}, loc, cellId);
-  if (cellId < 0)
-  {
-    vtkErrorMacro("Invalid location, ignoring.");
-    return;
-  }
-
-  this->ReplaceCellAtId(cellId, static_cast<vtkIdType>(npts), pts);
-}
-
-//------------------------------------------------------------------------------
-vtkIdTypeArray* vtkCellArray::GetData()
-{
-  this->ExportLegacyFormat(this->LegacyData);
-
-  return this->LegacyData;
-}
-
-//------------------------------------------------------------------------------
-// Specify a group of cells.
-void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray* cells)
-{
-  this->AllocateExact(ncells, cells->GetNumberOfValues() - ncells);
-  this->ImportLegacyFormat(cells);
-}
-
-//=================== End Legacy Methods =====================================
-
 //------------------------------------------------------------------------------
 void vtkCellArray::DeepCopy(vtkAbstractCellArray* ca)
 {
@@ -834,8 +592,6 @@ void vtkCellArray::Append(vtkCellArray* src, vtkIdType pointOffset)
 void vtkCellArray::Initialize()
 {
   this->Dispatch(InitializeImpl{});
-
-  this->LegacyData->Initialize();
 }
 
 //------------------------------------------------------------------------------
@@ -1517,9 +1273,6 @@ void vtkCellArray::AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkI
 void vtkCellArray::Squeeze()
 {
   this->Dispatch(SqueezeImpl{});
-
-  // Just delete the legacy buffer.
-  this->LegacyData->Initialize();
 }
 
 //------------------------------------------------------------------------------

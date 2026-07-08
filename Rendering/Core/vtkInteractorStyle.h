@@ -13,7 +13,7 @@
  * vtkInteractorStyle implements the "joystick" style of interaction. That
  * is, holding down the mouse keys generates a stream of events that cause
  * continuous actions (e.g., rotate, translate, pan, zoom). (The class
- * vtkInteractorStyleTrackball implements a grab and move style.) The event
+ * vtkInteractorStyleSwitch implements a grab and move style.) The event
  * bindings for this class include the following:
  * - Keypress j / Keypress t: toggle between joystick (position sensitive) and
  * trackball (motion sensitive) styles. In joystick style, motion occurs

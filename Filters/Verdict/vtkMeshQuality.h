@@ -52,7 +52,6 @@
 #define vtkMeshQuality_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For deprecation macro
 #include "vtkFiltersVerdictModule.h" // For export macro
 
 #include <functional> // For std::function
@@ -1536,25 +1535,6 @@ public:
    * @note Supports only vtkHexahedron, vtkQuadraticHexahedron and vtkTriQuadraticHexahedron.
    */
   static double HexVolume(vtkCell* cell, bool linearApproximation = false);
-
-  /**
-   * These methods are deprecated. Use Get/SetSaveCellQuality() instead.
-   *
-   * Formerly, SetRatio could be used to disable computation
-   * of the tetrahedral radius ratio so that volume alone could be computed.
-   * Now, cell quality is always computed, but you may decide not
-   * to store the result for each cell.
-   * This allows average cell quality of a mesh to be
-   * calculated without requiring per-cell storage.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Please use SetSaveCellQuality instead.")
-  virtual void SetRatio(vtkTypeBool r) { this->SetSaveCellQuality(r); }
-  VTK_DEPRECATED_IN_9_6_0("Please use GetSaveCellQuality instead.")
-  vtkTypeBool GetRatio() { return this->GetSaveCellQuality(); }
-  VTK_DEPRECATED_IN_9_6_0("Please use SaveCellQualityOn instead.")
-  void RatioOn() { this->SaveCellQualityOn(); }
-  VTK_DEPRECATED_IN_9_6_0("Please use SaveCellQualityOff instead.")
-  void RatioOff() { this->SaveCellQualityOff(); }
 
 protected:
   vtkMeshQuality();

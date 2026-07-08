@@ -77,17 +77,6 @@ public:
   vtkGetObjectMacro(ActiveRenderer, vtkRenderer);
   ///@}
 
-  ///@{
-  /**
-   * These methods are provided for backward compatibility. Will disappear
-   * soon.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Please use SetRenderWindow instead")
-  void SetInput(vtkRenderWindow* renWin) { this->SetRenderWindow(renWin); }
-  VTK_DEPRECATED_IN_9_6_0("Please use GetRenderWindow instead")
-  vtkRenderWindow* GetInput() { return this->GetRenderWindow(); }
-  ///@}
-
   /**
    * Specify a function to be called before data is written.  Function will
    * be called with argument provided.

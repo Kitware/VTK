@@ -148,29 +148,6 @@ VTK_FILEPATH std::string vtkResourceFileLocator::GetCurrentExecutablePath()
 }
 
 //------------------------------------------------------------------------------
-VTK_FILEPATH std::string vtkResourceFileLocator::GetLibraryPathForSymbolUnix(const char* symbolname)
-{
-#if !defined(_WIN32) || defined(__CYGWIN__)
-  void* ptr = dlsym(RTLD_DEFAULT, symbolname);
-  return vtkResourceFileLocator::GetLibraryPathForAddress(ptr);
-#else
-  (void)symbolname;
-  return std::string();
-#endif
-}
-
-//------------------------------------------------------------------------------
-VTK_FILEPATH std::string vtkResourceFileLocator::GetLibraryPathForSymbolWin32(const void* fptr)
-{
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  return vtkResourceFileLocator::GetLibraryPathForAddress(fptr);
-#else
-  (void)fptr;
-  return std::string();
-#endif
-}
-
-//------------------------------------------------------------------------------
 void vtkResourceFileLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

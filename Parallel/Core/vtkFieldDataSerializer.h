@@ -16,7 +16,6 @@
 #ifndef vtkFieldDataSerializer_h
 #define vtkFieldDataSerializer_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkParallelCoreModule.h" // For export macro
 
@@ -106,18 +105,6 @@ protected:
    */
   static vtkDataArray* ExtractSubExtentData(
     int subext[6], int gridExtent[6], vtkDataArray* inputDataArray);
-
-  /**
-   * Serializes the data array into a bytestream.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkMultiProcessStream::Push(vtkDataArray*) instead.")
-  static void SerializeDataArray(vtkDataArray* dataArray, vtkMultiProcessStream& bytestream);
-
-  /**
-   * Deserializes the data array from a bytestream
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkMultiProcessStream::Pop(vtkDataArray*&) instead.")
-  static void DeserializeDataArray(vtkMultiProcessStream& bytestream, vtkDataArray*& dataArray);
 
 private:
   vtkFieldDataSerializer(const vtkFieldDataSerializer&) = delete;

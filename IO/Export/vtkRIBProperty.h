@@ -16,6 +16,7 @@
 #ifndef vtkRIBProperty_h
 #define vtkRIBProperty_h
 
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkProperty.h"
 
@@ -80,7 +81,9 @@ public:
    * Specify parameter values for variables.
    * DEPRECATED: use (Set/Add)SurfaceShaderParameter instead.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use SetSurfaceShaderParameter instead")
   void SetParameter(const char* parameter, const char* value);
+  VTK_DEPRECATED_IN_9_8_0("Use AddSurfaceShaderParameter instead")
   void AddParameter(const char* parameter, const char* value);
   ///@}
 
@@ -104,6 +107,7 @@ public:
   /**
    * Get parameters.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use GetSurfaceShaderParameter instead")
   char* GetParameters(); // DEPRECATED: use GetSurfaceShaderParameters instead.
   char* GetSurfaceShaderParameters();
   char* GetDisplacementShaderParameters();

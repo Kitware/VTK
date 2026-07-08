@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Hide VTK_DEPRECATED_IN_9_6_0() warnings for this file
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkCityGMLReader.h"
 
 #include "vtkAppendPolyData.h"
@@ -1154,19 +1151,6 @@ void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Stream: (none)\n";
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkCityGMLReader::SetField(vtkDataObject* obj, const char* name, const char* value)
-{
-  vtkPolyDataMaterial::SetField(obj, name, value);
-}
-
-//------------------------------------------------------------------------------
-void vtkCityGMLReader::SetField(
-  vtkDataObject* obj, const char* name, double* value, vtkIdType components)
-{
-  vtkPolyDataMaterial::SetField(obj, name, value, components);
 }
 
 //----------------------------------------------------------------------------

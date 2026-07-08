@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// VTK_DEPRECATED_IN_9_8_0
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkProperty.h"
 #include "vtkRIBExporter.h"
 #include "vtkRIBLight.h"
@@ -110,6 +113,7 @@ int TestRIBProperty()
     std::cout << ".PASSED" << std::endl;
   }
   {
+    // VTK_DEPRECATED_IN_9_8_0 Remove
     std::cout << "RIBProperty Deprecated Set/Get..";
     vtkSmartPointer<vtkRIBProperty> prop = vtkSmartPointer<vtkRIBProperty>::New();
     vtkSmartPointer<vtkTest::ErrorObserver> warningObserver =

@@ -363,18 +363,6 @@ vtkSmartPointer<vtkConstantArray<unsigned char>> vtkStructuredData::GetCellTypes
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
-  int extent[6], bool usePixelVoxelOrientation)
-{
-  auto resultUC = vtkStructuredData::GetCellTypes(extent, usePixelVoxelOrientation);
-  auto resultInt = vtkSmartPointer<vtkConstantArray<int>>::New();
-  resultInt->ConstructBackend(static_cast<int>(resultUC->GetBackend()->Value));
-  resultInt->SetNumberOfComponents(1);
-  resultInt->SetNumberOfTuples(resultUC->GetNumberOfTuples());
-  return resultInt;
-}
-
-//------------------------------------------------------------------------------
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredData::GetCellPoints(
   vtkIdType cellId, vtkIdList* ptIds, int dataDescription, int dim[3])

@@ -9,9 +9,6 @@
  * This may be set on any subclass of vtkView.  The view class will attempt
  * to use the values set in the theme to customize the view.  Views will not
  * generally use every aspect of the theme.
- * NOTICE: This class will be deprecated in favor of a more robust
- * solution based on style sheets.  Do not become overly-dependent on the
- * functionality of themes.
  */
 
 #ifndef vtkViewTheme_h

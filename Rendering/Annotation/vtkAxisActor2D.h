@@ -147,12 +147,6 @@ public:
   vtkGetMacro(RulerDistance, double);
   ///@}
 
-  enum LabelMax
-  {
-    VTK_MAX_LABELS VTK_DEPRECATED_IN_9_6_0(
-      "VTK_MAX_LABELS has been removed. Labels are now dynamically allocated. Do not use.") = 25
-  };
-
   ///@{
   /**
    * Set/Get the number of annotation labels to show. This also controls the

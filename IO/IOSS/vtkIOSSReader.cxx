@@ -589,38 +589,6 @@ vtkDataArraySelection* vtkIOSSReader::GetGlobalFieldSelection()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSSReader::SetReadGlobalFields(bool value)
-{
-  if (value)
-  {
-    this->GlobalFieldSelection->EnableAllArrays();
-  }
-  else
-  {
-    this->GlobalFieldSelection->DisableAllArrays();
-  }
-}
-
-//----------------------------------------------------------------------------
-bool vtkIOSSReader::GetReadGlobalFields()
-{
-  return this->GlobalFieldSelection->GetNumberOfArrays() ==
-    this->GlobalFieldSelection->GetNumberOfArraysEnabled();
-}
-
-//----------------------------------------------------------------------------
-void vtkIOSSReader::ReadGlobalFieldsOn()
-{
-  this->SetReadGlobalFields(true);
-}
-
-//----------------------------------------------------------------------------
-void vtkIOSSReader::ReadGlobalFieldsOff()
-{
-  this->SetReadGlobalFields(false);
-}
-
-//----------------------------------------------------------------------------
 vtkDataArraySelection* vtkIOSSReader::GetFieldSelection(int type)
 {
   if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)

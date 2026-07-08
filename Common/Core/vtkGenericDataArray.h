@@ -56,7 +56,7 @@
 #include "vtkDataArray.h"
 
 #include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_6_0
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_7_0
 #include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
@@ -78,15 +78,6 @@ public:
   using ArrayTypeTag = std::integral_constant<int, ArrayType>;
   using DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueTypeT>::VTK_TYPE_ID>;
   using ValueType = ValueTypeT;
-
-  /**
-   * Compile time access to the VTK type identifier.
-   */
-  enum
-  {
-    VTK_DATA_TYPE VTK_DEPRECATED_IN_9_6_0("Use DataTypeTag::value") =
-      vtkTypeTraits<ValueType>::VTK_TYPE_ID
-  };
 
   /// @defgroup vtkGDAConceptMethods vtkGenericDataArray Concept Methods
   /// These signatures must be reimplemented in subclasses as public,

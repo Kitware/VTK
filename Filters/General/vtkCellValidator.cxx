@@ -269,12 +269,6 @@ bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], 
 }
 
 //------------------------------------------------------------------------------
-bool vtkCellValidator::NoIntersectingFaces(vtkCell* cell, double tolerance)
-{
-  return vtkCellValidator::NoIntersectingFacesStatus(cell, tolerance) == State::Valid;
-}
-
-//------------------------------------------------------------------------------
 bool vtkCellValidator::ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance)
 {
   // Ensures that a two-dimensional cell's edges are contiguous.

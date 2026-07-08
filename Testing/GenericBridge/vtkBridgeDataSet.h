@@ -12,7 +12,6 @@
 #define vtkBridgeDataSet_h
 
 #include "vtkBridgeExport.h" //for module export macro
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_6_0()
 #include "vtkGenericDataSet.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -60,7 +59,6 @@ public:
    */
   int GetCellDimension() override;
 
-  ///@{
   /**
    * Get a list of types of cells in a dataset. The list consists of an array
    * of types (not necessarily in any order), with a single entry per type.
@@ -72,9 +70,6 @@ public:
    * \pre types_exist: types!=0
    */
   void GetDistinctCellTypes(vtkCellTypes* types) override;
-  VTK_DEPRECATED_IN_9_6_0("Use GetDistinctCellTypes(vtkCellTypes* types) instead.")
-  void GetCellTypes(vtkCellTypes* types) override { this->GetDistinctCellTypes(types); }
-  ///@}
 
   /**
    * Cells of dimension `dim' (or all dimensions if -1) that explicitly define

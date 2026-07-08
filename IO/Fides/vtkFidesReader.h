@@ -23,7 +23,6 @@
 #define vtkFidesReader_h
 
 #include "vtkAlgorithm.h"
-#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOFidesModule.h" // For export macro
 #include <memory>             // for std::unique_ptr
 #include <string>             // for std::string
@@ -191,23 +190,6 @@ public:
    * Should only be used in streaming mode.
    */
   double GetTimeOfCurrentStep();
-
-  ///@{
-  /**
-   * Methods to determine whether to output a set of vtkmDataSets
-   * or native VTK datasets. If the pipeline following the reader
-   * is mainly VTK filters (as opposed to Viskores accelerated VTK
-   * filters), set this to on. False by default.
-   */
-  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
-  virtual void SetConvertToVTK(bool) {};
-  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
-  virtual bool GetConvertToVTK() { return true; };
-  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
-  virtual void ConvertToVTKOn() {}
-  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
-  virtual void ConvertToVTKOff() {}
-  ///@}
 
   ///@{
   /**

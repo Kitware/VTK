@@ -34,7 +34,6 @@
 
 #include "vtkAMRBox.h"                // For vtkAMRBox
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkUniformGridAMR.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -120,19 +119,15 @@ public:
    */
   static vtkOverlappingAMR* GetData(vtkInformation* info)
   {
-    // VTK_DEPRECATED_IN_9_6_0:
-    // We cannot use Superclass directly because this method is deprecated
-    // When removing deprecated code, please Remove this command and replace
-    // `vtkAMRDataObject` by `Superclass` in the line below.
-    return vtkOverlappingAMR::SafeDownCast(vtkAMRDataObject::GetData(info));
+    return vtkOverlappingAMR::SafeDownCast(Superclass::GetData(info));
   }
+
+  /**
+   * Retrieve an instance of this class from an information vector and index.
+   */
   static vtkOverlappingAMR* GetData(vtkInformationVector* v, int i = 0)
   {
-    // VTK_DEPRECATED_IN_9_6_0:
-    // We cannot use Superclass directly because this method is deprecated
-    // When removing deprecated code, please Remove this command and replace
-    // `vtkAMRDataObject` by `Superclass` in the line below.
-    return vtkOverlappingAMR::SafeDownCast(vtkAMRDataObject::GetData(v, i));
+    return vtkOverlappingAMR::SafeDownCast(Superclass::GetData(v, i));
   }
 
   /**
@@ -202,12 +197,6 @@ public:
   bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
   /**
-   * Deprecated, forward to CheckValidity
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use CheckValidity")
-  void Audit();
-
-  /**
    * Check whether the data set is internally consistent, e.g.
    * whether the meta data and actual data blocks match.
    * Incorrectness will be reported as error messages
@@ -220,16 +209,6 @@ public:
    * vtkOverlappingAMRMetaDat
    */
   [[nodiscard]] vtkOverlappingAMRMetaData* GetOverlappingAMRMetaData();
-
-  /**
-   * Get/Set the AMR meta data
-   * Deprecated, use Get/SetAMRMetaData or GetOverlappingAMRMetaData
-   */
-  VTK_DEPRECATED_IN_9_6_0(
-    "This function is deprecated, use GetAMRMetaData() or GetOverlappingAMRMetaData()")
-  vtkOverlappingAMRMetaData* GetAMRInfo() override { return this->GetOverlappingAMRMetaData(); }
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetAMRMetaData()")
-  void SetAMRInfo(vtkOverlappingAMRMetaData* info) override;
 
 protected:
   vtkOverlappingAMR();

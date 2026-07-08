@@ -34,7 +34,6 @@
 #define vtkImporter_h
 
 #include "vtkDataAssembly.h"   // for vtkDataAssembly
-#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkResourceStream.h" // For Stream
 #include "vtkSmartPointer.h"   // for vtkSmartPointer
@@ -193,21 +192,6 @@ public:
    * Does nothing if not provided by implementation.
    */
   virtual void SetCamera(vtkIdType vtkNotUsed(camIndex)) {}
-
-  /**
-   * DEPRECATED, use the version without framerate
-   * Get temporal information for the provided animationIndex and frameRate.
-   * This implementation return false, but concrete class implementation
-   * behavior is as follows.
-   * frameRate is used to define the number of frames for one second of simulation,
-   * set to zero if timeSteps are not needed.
-   * If animation is present in the dataset, timeRange should be set by this method, return true.
-   * If animation is present and frameRate > 0, nbTimeSteps and timeSteps should also be set, return
-   * true. If animation is not present, return false.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetTemporalInformation without framerate parameter instead.")
-  virtual bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
-    double timeRange[2], vtkDoubleArray* timeSteps);
 
   /**
    * Get temporal information for the provided animationIndex.

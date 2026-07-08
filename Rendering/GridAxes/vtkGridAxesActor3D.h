@@ -234,7 +234,7 @@ public:
   ///@{
   /**
    * Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
-   * Accepted values are vtkAxis::AUTO, vtkAxis::FIXED, vtkAxis::CUSTOM.
+   * Accepted values are vtkAxis::AUTO, vtkAxis::FIXED.
    *
    * By default, this is set to vtkAxis::AUTO.
    */

@@ -1269,37 +1269,6 @@ bool vtkGLTFImporter::IsAnimationEnabled(vtkIdType animationIndex)
 }
 
 //----------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double frameRate,
-  int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps)
-{
-  if (animationIndex < this->GetNumberOfAnimations())
-  {
-    const auto& model = this->Loader->GetInternalModel();
-    assert(model);
-
-    timeRange[0] = 0;
-    timeRange[1] = model->Animations[animationIndex].Duration;
-
-    if (frameRate > 0)
-    {
-      nbTimeSteps = 0;
-      timeSteps->Initialize();
-
-      std::vector<double> ts;
-      double period = (1.0 / frameRate);
-      for (double i = timeRange[0]; i < timeRange[1]; i += period)
-      {
-        timeSteps->InsertNextTuple(&i);
-        nbTimeSteps++;
-      }
-    }
-    return true;
-  }
-  return false;
-}
-
-//----------------------------------------------------------------------------
 bool vtkGLTFImporter::GetTemporalInformation(
   vtkIdType animationIndex, double timeRange[2], int& nbTimeStep, vtkDoubleArray* timeSteps)
 {

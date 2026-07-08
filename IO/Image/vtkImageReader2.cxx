@@ -56,9 +56,6 @@ vtkImageReader2::vtkImageReader2()
   this->FileName = nullptr;
   this->InternalFileName = nullptr;
 
-  this->MemoryBuffer = nullptr;
-  this->MemoryBufferLength = 0;
-
   this->HeaderSize = 0;
   this->ManualHeaderSize = 0;
 
@@ -707,42 +704,6 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject* output, vtkInfor
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
   }
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-void vtkImageReader2::SetMemoryBuffer(const void* membuf)
-{
-  if (this->MemoryBuffer != membuf)
-  {
-    this->MemoryBuffer = membuf;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-const void* vtkImageReader2::GetMemoryBuffer()
-{
-  return this->MemoryBuffer;
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-void vtkImageReader2::SetMemoryBufferLength(vtkIdType buflen)
-{
-  if (this->MemoryBufferLength != buflen)
-  {
-    this->MemoryBufferLength = buflen;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-vtkIdType vtkImageReader2::GetMemoryBufferLength()
-{
-  return this->MemoryBufferLength;
 }
 
 //------------------------------------------------------------------------------

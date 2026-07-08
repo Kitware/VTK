@@ -77,7 +77,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestNonOverlappingAMRRectilinear.cxx
   TestOverlappingAMR.cxx
   TestOverlappingAMRRectilinear.cxx
-  TestOverlappingAMRDeprecated.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPiecewiseFunction.cxx
@@ -102,7 +101,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestSMPFeatures.cxx
   TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
-  TestSetCellsPolyhedronBackCompatibility.cxx
   TestSimpleIncrementalOctreePointLocator.cxx
   TestSortFieldData.cxx
   TestStaticCellLocator.cxx

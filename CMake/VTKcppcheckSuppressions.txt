@@ -93,7 +93,6 @@ uninitMemberVar:*/Common/DataModel/vtkPointLocator.cxx
 uninitMemberVar:*/Common/DataModel/vtkReebGraph.cxx
 uninitMemberVar:*/Common/DataModel/vtkStaticCellLocator.cxx
 uninitMemberVar:*/Common/DataModel/vtkStaticPointLocator.cxx
-uninitMemberVar:*/Common/DataModel/vtkUniformGridAMRDataIterator.cxx
 uninitMemberVar:*/Common/ExecutionModel/vtkProgressObserver.cxx
 uninitMemberVar:*/Common/ExecutionModel/vtkSpanSpace.cxx
 uninitMemberVar:*/Common/ExecutionModel/vtkSphereTree.cxx
@@ -197,7 +196,6 @@ uninitMemberVar:*/Filters/Statistics/vtkKMeansDistanceFunctor.cxx
 uninitMemberVar:*/Filters/Statistics/vtkMultiCorrelativeStatisticsAssessFunctor.h
 uninitMemberVar:*/Filters/Verdict/vtkMeshQuality.cxx
 uninitMemberVar:*/Imaging/Color/vtkImageQuantizeRGBToIndex.cxx
-uninitMemberVar:*/Imaging/Core/vtkImageInterpolatorInternals.h
 uninitMemberVar:*/Imaging/Hybrid/vtkCheckerboardSplatter.cxx
 uninitMemberVar:*/Imaging/Hybrid/vtkFastSplatter.cxx
 uninitMemberVar:*/Imaging/Hybrid/vtkGaussianSplatter.cxx

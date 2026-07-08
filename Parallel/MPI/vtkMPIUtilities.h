@@ -3,7 +3,6 @@
 #ifndef vtkMPIUtilities_h
 #define vtkMPIUtilities_h
 
-#include "vtkDeprecation.h"     // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkMPIController.h"   // For vtkMPIController
 #include "vtkStringFormatter.h" // For vtk::print
 
@@ -32,14 +31,6 @@ void Print(vtkMPIController* comm, const char* format, T&&... args)
     std::fflush(stdout);
   }
   comm->Barrier();
-}
-template <typename... T>
-VTK_DEPRECATED_IN_9_6_0("Use vtkMPIUtilities::Print instead")
-void Printf(vtkMPIController* comm, const char* formatArg, T&&... args)
-{
-  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
-  assert(comm != nullptr);
-  vtkMPIUtilities::Print(comm, format.c_str(), std::forward<T>(args)...);
 }
 ///@}
 
@@ -103,14 +94,7 @@ void SynchronizedPrint(vtkMPIController* comm, const char* format, T&&... args)
 
   comm->Barrier();
 }
-template <typename... T>
-VTK_DEPRECATED_IN_9_6_0("Use vtkMPIUtilities::SynchronizedPrint instead")
-void SynchronizedPrintf(vtkMPIController* comm, const char* formatArg, T&&... args)
-{
-  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
-  assert(comm != nullptr);
-  vtkMPIUtilities::SynchronizedPrint(comm, format.c_str(), std::forward<T>(args)...);
-}
+
 ///@}
 VTK_ABI_NAMESPACE_END
 } // END namespace vtkMPIUtilities

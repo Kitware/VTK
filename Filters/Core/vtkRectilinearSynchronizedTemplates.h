@@ -20,7 +20,6 @@
 #define vtkRectilinearSynchronizedTemplates_h
 
 #include "vtkContourValues.h"     // Passes calls through
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -173,9 +172,6 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int ArrayComponent;
-
-  VTK_DEPRECATED_IN_9_6_0("GetScalarsForExtent is no longer used.")
-  void* GetScalarsForExtent(vtkDataArray*, int[6], vtkRectilinearGrid*);
 
 private:
   vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) = delete;

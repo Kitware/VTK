@@ -20,7 +20,6 @@
 #define vtkPStructuredGridConnectivity_h
 
 // VTK include directives
-#include "vtkDeprecation.h"                   // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkMPICommunicator.h"               // Needed for vtkMPICommunicator::Request
 #include "vtkStructuredGridConnectivity.h"
@@ -269,12 +268,6 @@ protected:
   void SerializeGhostPoints(int gridIdx, int ext[6], vtkMultiProcessStream& bytestream);
 
   /**
-   * Serializes the data array into a bytestream.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkMultiProcessStream::Push(vtkDataArray*) instead")
-  void SerializeDataArray(vtkDataArray*, vtkMultiProcessStream&);
-
-  /**
    * Helper method to serialize field data. Called from
    * SerializeGhostPointData and SerializeGhostCellData.
    */
@@ -298,19 +291,6 @@ protected:
    * process. Called from DeserializeGhostData.
    */
   void DeserializeGhostPoints(int gridIdx, int nei, int ext[6], vtkMultiProcessStream& bytestream);
-
-  /**
-   * Helper method to deserialize the data array from a bytestream.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkMultiProcessStream::Pop(vtkDataArray*&) instead")
-  void DeserializeDataArray(vtkDataArray*&, int, int, int, vtkMultiProcessStream&);
-
-  /**
-   * Helper method to de-serialize field data. Called from
-   * DeserializeGhostPointData and DeserializeGhostCellData.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkFieldDataSerializer::Deserialize() instead.")
-  void DeserializeFieldData(int ext[6], vtkFieldData* fieldData, vtkMultiProcessStream& bytestream);
 
   /**
    * Helper method to de-serialize the ghost point data received from a

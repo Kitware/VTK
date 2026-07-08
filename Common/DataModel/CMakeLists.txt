@@ -1,8 +1,6 @@
 set(classes
   vtkAMRBox
-  vtkAMRDataInternals # VTK_DEPRECATED_IN_9_6_0
   vtkAMRDataObject
-  vtkAMRInformation
   vtkAMRMetaData
   vtkAMRUtilities
   vtkAbstractCellArray
@@ -263,7 +261,6 @@ set(classes
   vtkUndirectedGraph
   vtkUniformGrid
   vtkUniformGridAMR
-  vtkUniformGridAMRDataIterator
   vtkUniformGridAMRIterator
   vtkUniformHyperTreeGrid
   vtkUnstructuredGrid

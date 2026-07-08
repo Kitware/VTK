@@ -11,10 +11,6 @@ set(sources
 set(private_headers
   vtkmlib/ArrayConverters.hxx)
 
-set(classes
-  vtkmDataSet
-  )
-
 set(nowrap_classes
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
@@ -36,7 +32,6 @@ vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
-  CLASSES ${classes}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
 vtk_module_set_property(VTK::AcceleratorsVTKmDataModel

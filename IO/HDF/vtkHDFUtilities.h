@@ -11,7 +11,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0 VTK_DEPRECATED_IN_9_6_0
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOHDFModule.h" // For export macro
 #include "vtkStringArray.h"
 #include "vtkType.h"
@@ -92,9 +92,6 @@ struct VTKIOHDF_EXPORT TemporalGeometryOffsets
 {
 public:
   TemporalGeometryOffsets();
-
-  VTK_DEPRECATED_IN_9_6_0("Member is deprecated. Please use GetOffsets instead.")
-  bool Success = true;
 
   vtkIdType PartOffset = 0;
   vtkIdType PointOffset = 0;

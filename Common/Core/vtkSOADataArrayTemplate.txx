@@ -282,8 +282,8 @@ void vtkSOADataArrayTemplate<ValueType>::SetBuffer(
 
   if (updateMaxId)
   {
-    this->Size = numComps * buffer->GetSize();
-    this->MaxId = this->Size - 1;
+    this->Capacity = numComps * buffer->GetSize();
+    this->MaxId = this->Capacity - 1;
   }
   this->DataChanged();
   this->InvokeEvent(vtkCommand::BufferChangedEvent);

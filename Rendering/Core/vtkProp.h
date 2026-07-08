@@ -18,7 +18,6 @@
 
 #include "vtkObject.h"
 
-#include "vtkDeprecation.h"         // for deprecation macro
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
@@ -184,8 +183,6 @@ public:
    * down to a mapper.
    * \ingroup InformationKeys
    */
-  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_UNIT() instead.")
-  static vtkInformationIntegerKey* GeneralTextureUnit() { return vtkProp::GENERAL_TEXTURE_UNIT(); }
   static vtkInformationIntegerKey* GENERAL_TEXTURE_UNIT();
   ///@}
 
@@ -200,11 +197,6 @@ public:
    * down to a mapper.
    * \ingroup InformationKeys
    */
-  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_TRANSFORM() instead.")
-  static vtkInformationDoubleVectorKey* GeneralTextureTransform()
-  {
-    return vtkProp::GENERAL_TEXTURE_TRANSFORM();
-  }
   static vtkInformationDoubleVectorKey* GENERAL_TEXTURE_TRANSFORM();
   ///@}
 

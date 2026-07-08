@@ -20,7 +20,7 @@
  *
  *
  * @sa
- * vtkCommand vtkOldStyleCallbackCommand
+ * vtkCommand
  */
 
 #ifndef vtkCallbackCommand_h

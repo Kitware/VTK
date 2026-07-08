@@ -18,7 +18,6 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextPolygon.h"   // For vtkContextPolygon
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
@@ -423,13 +422,6 @@ public:
    */
   static void BuildSelection(
     int selectionMode, MapIndexToIds& selection, const MapIndexToIds& oldSelection);
-
-  /**
-   * Combine the SelectionMode with any mouse modifiers to get an effective
-   * selection mode for this click event.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use use vtkChart::GetSelectionModeFromMouseModifiers instead")
-  static int GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode);
 
 protected:
   vtkChartXY();

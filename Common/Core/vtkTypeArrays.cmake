@@ -46,15 +46,6 @@ macro(_generate_array_specialization array_prefix vtk_type concrete_type depreca
   unset(_className)
 endmacro()
 
-# VTK_DEPRECATED_IN_9_6_0 to be removed later
-foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
-  foreach (type IN LISTS vtk_numeric_types)
-    vtk_type_to_camel_case("${type}" cased_type)
-    set(deprecation "VTK_DEPRECATED_IN_9_6_0(\"Use vtk${array_prefix}Type${cased_type}Array instead\")")
-    _generate_array_specialization("${array_prefix}" "${cased_type}" "${type}" "${deprecation}")
-  endforeach ()
-endforeach ()
-
 # VTK_DEPRECATED_IN_9_7_0 to be removed later
 foreach (array_prefix IN ITEMS ScaledSOA StdFunction)
   foreach (type IN LISTS vtk_fixed_size_numeric_types)

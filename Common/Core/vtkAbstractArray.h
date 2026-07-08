@@ -45,13 +45,6 @@
  * Unless `Modified` is called, various cached entities, like array range,
  * map created for `LookupValue` may become obsolete and yield incorrect results.
  *
- * @warning
- * In VTK 9.4, new method `nlohmann::json vtkAbstractArray::SerializeValues()` was
- * introduced which required exposing symbols from
- * VTK::nlohmannjson library in public API. This method will be removed in VTK 9.5 as it caused
- * difficulty for downstream projects that linked to a different nlohmannjson. It cannot be
- * deprecated because doing so prevents fixing the underlying issue.
- *
  * @sa
  * vtkDataArray vtkStringArray vtkCellArray
  */
@@ -715,25 +708,6 @@ public:
   vtkGetMacro(MaxDiscreteValues, unsigned int);
   vtkSetMacro(MaxDiscreteValues, unsigned int);
   ///@}
-
-  static constexpr int AbstractArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_ABSTRACT_ARRAY") = vtkArrayTypes::VTK_ABSTRACT_ARRAY;
-  static constexpr int DataArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_DATA_ARRAY") = vtkArrayTypes::VTK_DATA_ARRAY;
-  static constexpr int AoSDataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_AOS_DATA_ARRAY") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
-  static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SOA_DATA_ARRAY;
-  static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") =
-    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
-  static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::VTK_IMPLICIT_ARRAY") = vtkArrayTypes::VTK_IMPLICIT_ARRAY;
-  static constexpr int DataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "DataArrayTemplate has been deprecated") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
-  static constexpr int ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
-    /*vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY*/ 7;
 
   /**
    * Method for type-checking in FastDownCast implementations. See also

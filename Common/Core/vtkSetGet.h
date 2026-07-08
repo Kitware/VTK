@@ -1298,6 +1298,9 @@ public:
 // vtkArrayIteratorIncludes.h header file to provide for extending of this macro
 // by addition of new iterators.
 //
+// These macro are deprecated and should be remove
+// when removing VTK_DEPRECATED_IN_9_7_0() with a mention in release note.
+//
 // Example usage:
 // vtkArrayIter* iter = array->NewIterator();
 // switch(array->GetDataType())
@@ -1327,29 +1330,6 @@ public:
   vtkTemplateMacroCase(VTK_BIT, vtkBitArrayIterator, call)
 
 //----------------------------------------------------------------------------
-// Deprecation attribute, currently deprecated and will be removed
-// at the same time as VTK_DEPRECATED_IN_9_6_0 deprecations
-#if !defined(VTK_WRAPPING_CXX)
-
-#if defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG) || defined(VTK_COMPILER_ICC)
-// GCC warning compatible compiler
-#define VTK_DEPRECATED                                                                             \
-  _Pragma("GCC warning \"VTK_DEPRECATED is deprecated, use [[deprecated]] instead\"") [[deprecated]]
-#elif defined(VTK_COMPILER_MSVC)
-// MSVC pragma
-#define VTK_DEPRECATED                                                                             \
-  _Pragma("message( \"VTK_DEPRECATED is deprecated, use [[deprecated]] instead\")") [[deprecated]]
-#else
-// Other compiler do not have a deprecated warning
-#define VTK_DEPRECATED [[deprecated]]
-#endif
-
-#else
-// During wrapping, do not deprecate at all
-#define VTK_DEPRECATED
-#endif
-
-//----------------------------------------------------------------------------
 // format string checking.
 
 #if !defined(VTK_FORMAT_PRINTF)
@@ -1363,26 +1343,6 @@ public:
 // Qualifiers used for function arguments and return types indicating that the
 // class is wrapped externally.
 #define VTK_WRAP_EXTERN
-
-//----------------------------------------------------------------------------
-// Switch case fall-through policy, currently deprecated and will be removed
-// at the same time as VTK_DEPRECATED_IN_9_6_0 deprecations
-
-// Use "VTK_FALLTHROUGH;" to annotate deliberate fall-through in switches,
-// use it analogously to "break;".  The trailing semi-colon is required.
-#if defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG) || defined(VTK_COMPILER_ICC)
-// GCC warning compatible compiler
-#define VTK_FALLTHROUGH                                                                            \
-  _Pragma("GCC warning \"VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead\"")            \
-    [[fallthrough]]
-#elif defined(VTK_COMPILER_MSVC)
-// MSVC pragma
-#define VTK_FALLTHROUGH                                                                            \
-  __pragma(message("VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead")) [[fallthrough]]
-#else
-// Other compiler do not have a deprecated warning
-#define VTK_FALLTHROUGH [[fallthrough]]
-#endif
 
 //----------------------------------------------------------------------------
 // To suppress code with undefined behaviour. Ideally, such code should be fixed

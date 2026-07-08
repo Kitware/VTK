@@ -127,19 +127,6 @@ public:
   vtkGetMacro(EndBuildingIndex, int);
   ///@}
 
-  ///@{
-  /**
-   * Helper functions for setting field arrays. These are used to save texture paths or colors
-   * for polydata.
-   *
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkPolyDataMaterial::SetField() instead.")
-  static void SetField(vtkDataObject* obj, const char* name, const char* value);
-  VTK_DEPRECATED_IN_9_6_0("Use vtkPolyDataMaterial::SetField() instead.")
-  static void SetField(
-    vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
-  ///@}
-
   /**
    * Overridden to take into account mtime from the internal vtkResourceStream.
    */

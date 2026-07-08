@@ -128,7 +128,6 @@
 #include "vtkCell3D.h"
 #include "vtkCellStatus.h"            // For enum.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -381,45 +380,6 @@ public:
 
   /**
    * Set the faces of the polyhedron.
-   * Face are expressed as sequences of <b> global point IDs </b>.
-   * The SetFaces method will require a copy from internal unstructured grid layout.
-   *
-   * @param faces 1-dimensional array with the following structure :
-   * ```
-   * [ NbOfFaces,
-   *   NbOfPtsFace1, face1Pt1, face1Pt2, …, face1PtNbOfPtsFace1,
-   *   NbOfPtsFace2, face2Pt1, face2Pt2, …, face2PtNbOfPtsFace2,
-   *   …,
-   *   NbOfPtsFaceN, faceNPt1, faceNPt2, …, faceNPtNbOfPtsFaceN ]
-   * ```
-   * This ordering corresponds to the legacy vtkCellArray form, with in
-   * addition a leading count indicating the total number of faces in
-   * the list.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetCellFaces")
-  void SetFaces(vtkIdType* faces);
-
-  /**
-   * Get the faces of the polyhedron.
-   * Face are expressed as sequences of <b> global point IDs </b>.
-   *
-   * @return A 1-dimentional array with the following structure :
-   * ```
-   * [ NbOfPtsFace1, face1Pt1, face1Pt2, …, face1PtNbOfPtsFace1,
-   *   NbOfPtsFace2, face2Pt1, face2Pt2, …, face2PtNbOfPtsFace2,
-   *   …,
-   *   NbOfPtsFaceN, faceNPt1, faceNPt2, …, faceNPtNbOfPtsFaceN ]
-   * ```
-   * This ordering corresponds to the legacy vtkCellArray form.
-   * Note that unlike the SetFaces method, the total faces number leading
-   * count is missing. In order to get the number of faces, please use the
-   * vtkPolyhedron::GetNumberOfFaces() method.
-   */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use GetCellFaces")
-  vtkIdType* GetFaces();
-
-  /**
-   * Set the faces of the polyhedron.
    * Symmetric method to <b> GetCellFaces </b>
    *
    * @param faces vtkCellArray that stores a contiguous list of polygonal faces
@@ -494,10 +454,6 @@ protected:
   // Filled with the SetFaces method.
   // These faces are numbered in global id space
   vtkNew<vtkCellArray> GlobalFaces;
-
-  // VTK_DEPRECATED_IN_9_6_0()
-  // Backward compatibility
-  vtkNew<vtkIdTypeArray> LegacyGlobalFaces;
 
   // If edges are needed. Note that the edge numbering is in canonical space.
   int EdgesGenerated = 0;           // true/false

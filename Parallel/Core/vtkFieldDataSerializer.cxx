@@ -309,13 +309,6 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldDataSerializer::SerializeDataArray(
-  vtkDataArray* dataArray, vtkMultiProcessStream& bytestream)
-{
-  bytestream.Push(dataArray);
-}
-
-//------------------------------------------------------------------------------
 void vtkFieldDataSerializer::Deserialize(vtkMultiProcessStream& bytestream, vtkFieldData* fieldData)
 {
   if (fieldData == nullptr)
@@ -350,15 +343,4 @@ void vtkFieldDataSerializer::Deserialize(vtkMultiProcessStream& bytestream, vtkF
   } // END for all arrays
 }
 
-//------------------------------------------------------------------------------
-void vtkFieldDataSerializer::DeserializeDataArray(
-  vtkMultiProcessStream& bytestream, vtkDataArray*& dataArray)
-{
-  if (bytestream.Empty())
-  {
-    vtkGenericWarningMacro("Bytestream is empty!");
-    return;
-  }
-  bytestream.Pop(dataArray);
-}
 VTK_ABI_NAMESPACE_END

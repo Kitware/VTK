@@ -248,21 +248,6 @@ vtkConstantArray<unsigned char>* vtkCartesianGrid::GetCellTypes()
 }
 
 //------------------------------------------------------------------------------
-vtkConstantArray<int>* vtkCartesianGrid::GetCellTypesArray()
-{
-  if (!this->LegacyStructuredCellTypes)
-  {
-    this->LegacyStructuredCellTypes = vtkSmartPointer<vtkConstantArray<int>>::New();
-    this->LegacyStructuredCellTypes->ConstructBackend(
-      static_cast<int>(this->StructuredCellTypes->GetBackend()->Value));
-    this->LegacyStructuredCellTypes->SetNumberOfComponents(1);
-    this->LegacyStructuredCellTypes->SetNumberOfTuples(
-      this->StructuredCellTypes->GetNumberOfTuples());
-  }
-  return this->LegacyStructuredCellTypes;
-}
-
-//------------------------------------------------------------------------------
 void vtkCartesianGrid::GetCellDims(int cellDims[3])
 {
   for (int i = 0; i < 3; ++i)

@@ -41,6 +41,7 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkPen.h"           // For vtkPen
 #include "vtkRect.h"          // For bounding rect
 #include "vtkSmartPointer.h"  // For vtkSmartPointer
@@ -474,7 +475,7 @@ public:
   {
     AUTO = 0, // Automatically scale the axis to view all data that is visible.
     FIXED,    // Use a fixed axis range and make no attempt to rescale.
-    CUSTOM    // Deprecated, use the tick label settings instead.
+    CUSTOM VTK_DEPRECATED_IN_9_8_0("Use tick label settings instead")
   };
 
   ///@{

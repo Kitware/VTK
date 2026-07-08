@@ -223,16 +223,4 @@ void vtkTextActorInterfaceInternal::SetScreenOffsetVector(double offset[2])
   this->RasterFollower->SetScreenOffsetVector(offset);
 }
 
-//------------------------------------------------------------------------------
-vtkProp3DAxisFollower* vtkTextActorInterfaceInternal::GetFollower3D() const
-{
-  return this->RasterFollower;
-}
-
-//------------------------------------------------------------------------------
-vtkAxisFollower* vtkTextActorInterfaceInternal::GetFollower() const
-{
-  return this->VectorFollower;
-}
-
 VTK_ABI_NAMESPACE_END

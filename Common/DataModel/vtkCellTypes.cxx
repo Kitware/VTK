@@ -9,18 +9,6 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellTypes);
 
 //------------------------------------------------------------------------------
-const char* vtkCellTypes::GetClassNameFromTypeId(int type)
-{
-  return vtkCellTypeUtilities::GetClassNameFromTypeId(type);
-}
-
-//------------------------------------------------------------------------------
-int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
-{
-  return vtkCellTypeUtilities::GetTypeIdFromClassName(classname);
-}
-
-//------------------------------------------------------------------------------
 vtkCellTypes::vtkCellTypes()
   : TypeArray(vtkSmartPointer<vtkUnsignedCharArray>::New())
   , MaxId(-1)
@@ -43,13 +31,6 @@ int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-void vtkCellTypes::InsertCell(vtkIdType id, unsigned char type, vtkIdType)
-{
-  this->InsertCell(id, type);
-}
-
-//------------------------------------------------------------------------------
 // Add a cell at specified id.
 void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type)
 {
@@ -57,13 +38,6 @@ void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type)
   TypeArray->InsertValue(cellId, type);
 
   this->MaxId = std::max(cellId, this->MaxId);
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType)
-{
-  return this->InsertNextCell(type);
 }
 
 //------------------------------------------------------------------------------
@@ -81,12 +55,6 @@ void vtkCellTypes::SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray* cellType
 {
   this->TypeArray = cellTypes;
   this->MaxId = ncells - 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkCellTypes::GetDimension(unsigned char type)
-{
-  return vtkCellTypeUtilities::GetDimension(type);
 }
 
 //------------------------------------------------------------------------------

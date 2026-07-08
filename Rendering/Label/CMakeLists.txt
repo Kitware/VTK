@@ -9,7 +9,6 @@ set(classes
   vtkLabelHierarchyCompositeIterator
   vtkLabelHierarchyIterator
   vtkLabelPlacementMapper
-  vtkLabelPlacer
   vtkLabelRenderStrategy
   vtkLabelSizeCalculator
   vtkPointSetToLabelHierarchy)

@@ -349,45 +349,6 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer* ren, double tran
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_6_0
-void vtkAxisFollower::ComputerAutoCenterTranslation(
-  const double& vtkNotUsed(autoScaleFactor), double translation[3])
-{
-  if (!translation)
-  {
-    vtkErrorMacro("ERROR: Invalid or nullptr translation\n");
-    return;
-  }
-
-  const double* bounds = this->GetMapper()->GetBounds();
-
-  // Offset by half of width.
-  double halfWidth = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];
-
-  if (this->TextUpsideDown == 1)
-  {
-    halfWidth = -halfWidth;
-  }
-
-  if (this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_X)
-  {
-    translation[0] = translation[0] - halfWidth;
-  }
-  else if (this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Y)
-  {
-    translation[1] = translation[1] - halfWidth;
-  }
-  else if (this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Z)
-  {
-    translation[2] = translation[2] - halfWidth;
-  }
-  else
-  {
-    // Do nothing.
-  }
-}
-
-//------------------------------------------------------------------------------
 int vtkAxisFollower::TestDistanceVisibility()
 {
   if (!this->Camera->GetParallelProjection())

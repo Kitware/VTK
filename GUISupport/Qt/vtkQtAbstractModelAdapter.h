@@ -19,7 +19,9 @@
 #ifndef vtkQtAbstractModelAdapter_h
 #define vtkQtAbstractModelAdapter_h
 
+#include "vtkDeprecation.h"        // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkGUISupportQtModule.h" // For export macro
+
 #include <QAbstractItemModel>
 #include <QItemSelection> // Needed for selection methods
 
@@ -112,6 +114,7 @@ public:
   // by an outside entity.
   /// \sa beginResetModel, endResetModel
   /// \deprecated
+  VTK_DEPRECATED_IN_9_8_0("Use beginResetModel/endResetModel instead")
   void reset()
   {
     QAbstractItemModel::beginResetModel();

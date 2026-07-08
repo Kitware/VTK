@@ -159,7 +159,6 @@
  * vtkIOSSWriter, vtkExodusIIReader, vtkCGNSReader
  */
 
-#include "vtkDeprecation.h"  // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOIOSSModule.h" // for export macros
 #include "vtkNew.h"          // for vtkNew
 #include "vtkReaderAlgorithm.h"
@@ -381,20 +380,6 @@ public:
   vtkSetMacro(ApplyDisplacements, bool);
   vtkGetMacro(ApplyDisplacements, bool);
   vtkBooleanMacro(ApplyDisplacements, bool);
-  ///@}
-
-  ///@{
-  /**
-   * When set to true (default), the reader will read global fields.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
-  virtual void SetReadGlobalFields(bool value);
-  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
-  virtual bool GetReadGlobalFields();
-  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
-  virtual void ReadGlobalFieldsOn();
-  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
-  virtual void ReadGlobalFieldsOff();
   ///@}
 
   ///@{

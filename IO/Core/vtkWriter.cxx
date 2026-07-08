@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_6_0()
+// VTK_DEPRECATED_IN_9_7_0()
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkWriter.h"
@@ -115,14 +115,6 @@ void vtkWriter::EncodeString(char* resname, const char* name)
   std::copy_n(string.c_str(), string.size() + 1, resname);
 }
 
-void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
-{
-  std::ostringstream str;
-  vtkWriter::EncodeWriteString(&str, name, doublePercent);
-  const auto string = str.str();
-  std::copy_n(string.c_str(), string.size() + 1, resname);
-}
-
 void vtkWriter::EncodeWriteString(ostream* out, const char* name)
 {
   if (!name)
@@ -143,43 +135,6 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name)
         vtk::format_to_n(buffer, sizeof(buffer), "{:02X}", static_cast<unsigned char>(name[cc]));
       *result.out = '\0';
       *out << "%" << buffer;
-    }
-    else
-    {
-      *out << name[cc];
-    }
-    cc++;
-  }
-}
-
-void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)
-{
-  if (!name)
-  {
-    return;
-  }
-  int cc = 0;
-
-  char buffer[10];
-
-  while (name[cc])
-  {
-    // Encode spaces and %'s (and most non-printable ascii characters)
-    // The reader does not support spaces in strings.
-    if (name[cc] < 33 || name[cc] > 126 || name[cc] == '\"' || name[cc] == '%')
-    {
-      auto result =
-        vtk::format_to_n(buffer, sizeof(buffer), "{:02X}", static_cast<unsigned char>(name[cc]));
-      *result.out = '\0';
-      if (doublePercent)
-      {
-        *out << "%%";
-      }
-      else
-      {
-        *out << "%";
-      }
-      *out << buffer;
     }
     else
     {

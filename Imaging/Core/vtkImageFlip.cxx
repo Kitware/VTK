@@ -16,7 +16,6 @@ vtkStandardNewMacro(vtkImageFlip);
 //------------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
 {
-  this->PreserveImageExtent = 1;
   this->FlipAboutOrigin = 0;
   this->FilteredAxis = 0;
 
@@ -97,6 +96,5 @@ void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
   os << indent << "FlipAboutOrigin: " << (this->FlipAboutOrigin ? "On\n" : "Off\n");
-  os << indent << "PreserveImageExtent: " << (this->PreserveImageExtent ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END

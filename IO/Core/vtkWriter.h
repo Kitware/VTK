@@ -20,7 +20,7 @@
 #define vtkWriter_h
 
 #include "vtkAlgorithm.h"
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_9_6_0 VTK_DEPRECATED_IN_9_7_0
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkIOCoreModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -50,18 +50,6 @@ public:
    */
   static void EncodeString(char* resname, const char* name);
 
-  /**
-   * Encode the string so that the reader will not have problems.
-   * The resulting string is up to three times the size of the input
-   * string.
-   *
-   * @deprecated doublePercent indicates whether to output a double '%' before
-   * escaped characters so the string may be used as a printf format string.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use the version without doublePercent instead.")
-  static void EncodeString(char* resname, const char* name, bool doublePercent);
-  ///@}
-
   ///@{
   /**
    * Encode the string so that the reader will not have problems.
@@ -69,18 +57,6 @@ public:
    * string.  Write the string to the output stream.
    */
   static void EncodeWriteString(ostream* out, const char* name);
-
-  /**
-   * Encode the string so that the reader will not have problems.
-   * The resulting string is up to three times the size of the input
-   * string.  Write the string to the output stream.
-   *
-   * @deprecated doublePercent indicates whether to output a double '%' before
-   * escaped characters so the string may be used as a printf format string.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use the version without doublePercent instead.")
-  static void EncodeWriteString(ostream* out, const char* name, bool doublePercent);
-  ///@}
 
   ///@{
   /**

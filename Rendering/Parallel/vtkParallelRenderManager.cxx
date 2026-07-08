@@ -1045,7 +1045,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
 //------------------------------------------------------------------------------
 void vtkParallelRenderManager::SetRenderWindowSize()
 {
-  if (!this->RenderWindow->GetOffScreenRendering())
+  if (!this->RenderWindow->GetShowWindow())
   {
     // Make sure we can support the requested image size.
     const int* screensize = this->RenderWindow->GetScreenSize();
