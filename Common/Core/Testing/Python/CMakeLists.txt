@@ -54,4 +54,6 @@ vtk_add_test_python(
   TestWeakref.py
   TestCollectionPythonAPI.py
   TestInformationDict.py
+  TestStringArrayPythonAPI.py
+  TestVariantArrayPythonAPI.py
   )
