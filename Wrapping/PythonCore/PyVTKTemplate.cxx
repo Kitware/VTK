@@ -386,9 +386,9 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     }
     else if (PyObject_HasAttrString(o, "char"))
     {
-      // assume this is a numpy dtype
+      // assume this is a numpy dtype: key on its underlying C type character
       o = PyObject_GetAttrString(o, "char");
-      if (PyUnicode_Check(o))
+      if (o != nullptr && PyUnicode_Check(o))
       {
         tname = PyUnicode_AsUTF8AndSize(o, nullptr);
       }
@@ -397,14 +397,26 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
     {
       // else convert into an ASCII string
       o = PyObject_Str(o);
-      if (PyBytes_Check(o))
+      if (o != nullptr && PyBytes_Check(o))
       {
         tname = PyBytes_AsString(o);
       }
-      else if (PyUnicode_Check(o))
+      else if (o != nullptr && PyUnicode_Check(o))
       {
         tname = PyUnicode_AsUTF8AndSize(o, nullptr);
       }
+    }
+
+    if (tname == nullptr)
+    {
+      // the key was not a type, a usable numpy dtype, or a valid type name;
+      // raise instead of dereferencing a null name below
+      if (!PyErr_Occurred())
+      {
+        PyErr_SetString(PyExc_TypeError, "template argument could not be converted to a type name");
+      }
+      Py_XDECREF(o);
+      return nullptr;
     }
 
     if ((*tname >= '0' && *tname <= '9') || (*tname == '-' && tname[1] >= '0' && tname[1] <= '9'))
@@ -490,6 +502,25 @@ PyObject* PyVTKTemplate_NameFromKey(PyObject* self, PyObject* key)
             typechar = typechars[j];
             break;
           }
+        }
+      }
+      if (sizeof(long) == 8)
+      {
+        // numpy spells the platform's 64-bit integer as "int64"/"uint64"; on
+        // LP64 that is C 'long', on LLP64/ILP32 it is 'long long'.  The name
+        // table maps the sized names to long long unconditionally, so resolve
+        // them to the platform's 64-bit C type here.  This keeps indexing by
+        // the scalar type (numpy.int64) consistent with indexing by the dtype
+        // instance (numpy.dtype('int64'), whose 'char' is 'l' on LP64), which
+        // would otherwise disagree.  The 'l'/'m' fixup below then selects
+        // whichever long / long long instantiation actually exists.
+        if (strcmp(tname, "int64") == 0)
+        {
+          typechar = 'l'; // C long
+        }
+        else if (strcmp(tname, "uint64") == 0)
+        {
+          typechar = 'm'; // C unsigned long
         }
       }
       if (typechar == 'l' || typechar == 'm')
