@@ -24,6 +24,7 @@
 #include "vtkResourceParser.h"
 #include "vtkResourceStream.h"
 #include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
@@ -34,6 +35,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vtksys/SystemTools.hxx>
 
 #include <array>
@@ -548,17 +550,10 @@ void PreParseBoundaryFile(::BoundaryFieldData& bfData)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
+vtkSmartPointer<vtkDataArray> ReadBoundaryFile(vtkFileResourceStream* fileStream,
   const ::BoundaryFieldData& bfData, vtkIdType requestedTimeStep, vtkIdType nComponents,
   vtkRectilinearGrid& grid, ::ObstacleData& oData)
 {
-  vtkNew<vtkFileResourceStream> fileStream;
-  if (fileName.empty() || !fileStream->Open(fileName.c_str()))
-  {
-    throw vtkFDSReaderError(vtk::format(
-      "Failed to open file: {}.", fileName.empty() ? fileName : "No file name for boundary given"));
-  }
-
   vtkNew<vtkResourceParser> parser;
   parser->Reset();
   parser->SetStream(fileStream);
@@ -950,6 +945,20 @@ public:
   static vtkFDSBoundaryVisitor* New() { VTK_STANDARD_NEW_BODY(vtkFDSBoundaryVisitor<InternalsT>); }
   vtkTypeMacro(vtkFDSBoundaryVisitor, vtkDataAssemblyVisitor);
 
+  bool Initialize()
+  {
+    for (const ::BoundaryFieldData& bfData : this->Internals->BoundaryFields)
+    {
+      this->BoundaryFiles[bfData.FileName] = vtkSmartPointer<vtkFileResourceStream>::New();
+      if (!this->BoundaryFiles[bfData.FileName]->Open(bfData.FileName.c_str()))
+      {
+        vtkErrorMacro("Couldn't open file " << bfData.FileName);
+        return false;
+      }
+    }
+    return true;
+  }
+
   void Visit(int nodeId) override
   {
     if (!this->Internals || !this->OutputPDSC)
@@ -985,8 +994,8 @@ public:
 
       try
       {
-        vtkSmartPointer<vtkDataArray> field =
-          ::ReadBoundaryFile(bfieldData.FileName, bfieldData, requestedTimeStep, 1, *copy, oData);
+        vtkSmartPointer<vtkDataArray> field = ::ReadBoundaryFile(
+          this->BoundaryFiles[bfieldData.FileName], bfieldData, requestedTimeStep, 1, *copy, oData);
 
         if (!field)
         {
@@ -1052,6 +1061,8 @@ protected:
 private:
   vtkFDSBoundaryVisitor(const vtkFDSBoundaryVisitor&) = delete;
   void operator=(const vtkFDSBoundaryVisitor&) = delete;
+
+  std::unordered_map<std::string, vtkSmartPointer<vtkFileResourceStream>> BoundaryFiles;
 };
 }
 
@@ -2150,6 +2161,10 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
     boundaryVisitor->Internals = this->Internals;
     boundaryVisitor->OutputPDSC = output;
     boundaryVisitor->RequestedTimeValue = requestedTimeValue;
+    if (!boundaryVisitor->Initialize())
+    {
+      return 0;
+    }
     outAssembly->Visit(boundaryIdx, boundaryVisitor);
   }
 
