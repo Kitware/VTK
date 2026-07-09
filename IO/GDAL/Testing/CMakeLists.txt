@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/GIS/badbands.tif
   Data/GIS/countries.dbf
   Data/GIS/countries.shp
   Data/GIS/countries.shx
