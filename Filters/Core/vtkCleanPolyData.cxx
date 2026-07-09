@@ -16,6 +16,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <unordered_map>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCleanPolyData);
@@ -170,7 +171,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< "No data to Operate On!");
     return 1;
   }
-  vtkIdType* updatedPts = new vtkIdType[input->GetMaxCellSize()];
+  std::vector<vtkIdType> updatedPts(input->GetMaxCellSize());
 
   vtkIdType numNewPts;
   vtkIdType numUsedPts = 0;
@@ -200,11 +201,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* pts = nullptr;
   double x[3];
   double newx[3];
-  vtkIdType* pointMap = new vtkIdType[numPts];
-  for (i = 0; i < numPts; ++i)
-  {
-    pointMap[i] = -1; // initialize unused
-  }
+  std::vector<vtkIdType> pointMap(numPts, -1); // initialize unused
 
   vtkCellArray *inVerts = input->GetVerts(), *newVerts = nullptr;
   vtkCellArray *inLines = input->GetLines(), *newLines = nullptr;
@@ -312,7 +309,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (numNewPts > 0)
       {
-        newId = newVerts->InsertNextCell(numNewPts, updatedPts);
+        newId = newVerts->InsertNextCell(numNewPts, updatedPts.data());
         outputCD->CopyData(inputCD, inCellID, newId);
         if (vertIDcounter != newId)
         {
@@ -375,7 +372,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       if (numNewPts >= 2)
       {
         // Cell is a proper line or polyline, always add
-        newId = newLines->InsertNextCell(numNewPts, updatedPts);
+        newId = newLines->InsertNextCell(numNewPts, updatedPts.data());
         outLineData->CopyData(inputCD, inCellID, newId);
         if (lineIDcounter != newId)
         {
@@ -392,7 +389,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           newVerts = vtkCellArray::New();
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numNewPts, updatedPts);
+        newId = newVerts->InsertNextCell(numNewPts, updatedPts.data());
         outputCD->CopyData(inputCD, inCellID, newId);
         if (vertIDcounter != newId)
         {
@@ -461,7 +458,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       if (numNewPts > 2)
       {
         // Cell is a proper polygon, always add
-        newId = newPolys->InsertNextCell(numNewPts, updatedPts);
+        newId = newPolys->InsertNextCell(numNewPts, updatedPts.data());
         outPolyData->CopyData(inputCD, inCellID, newId);
         if (polyIDcounter != newId)
         {
@@ -481,7 +478,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           outLineData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outLineData->CopyAllocate(inputCD);
         }
-        newId = newLines->InsertNextCell(numNewPts, updatedPts);
+        newId = newLines->InsertNextCell(numNewPts, updatedPts.data());
         outLineData->CopyData(inputCD, inCellID, newId);
         if (lineIDcounter != newId)
         {
@@ -498,7 +495,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           newVerts = vtkCellArray::New();
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numNewPts, updatedPts);
+        newId = newVerts->InsertNextCell(numNewPts, updatedPts.data());
         outputCD->CopyData(inputCD, inCellID, newId);
         if (vertIDcounter != newId)
         {
@@ -565,7 +562,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       if (numNewPts > 3)
       {
         // Cell is a proper triangle strip, always add
-        newId = newStrips->InsertNextCell(numNewPts, updatedPts);
+        newId = newStrips->InsertNextCell(numNewPts, updatedPts.data());
         outStrpData->CopyData(inputCD, inCellID, newId);
         if (strpIDcounter != newId)
         {
@@ -585,7 +582,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           outPolyData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outPolyData->CopyAllocate(inputCD);
         }
-        newId = newPolys->InsertNextCell(numNewPts, updatedPts);
+        newId = newPolys->InsertNextCell(numNewPts, updatedPts.data());
         outPolyData->CopyData(inputCD, inCellID, newId);
         if (polyIDcounter != newId)
         {
@@ -605,7 +602,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           outLineData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outLineData->CopyAllocate(inputCD);
         }
-        newId = newLines->InsertNextCell(numNewPts, updatedPts);
+        newId = newLines->InsertNextCell(numNewPts, updatedPts.data());
         outLineData->CopyData(inputCD, inCellID, newId);
         if (lineIDcounter != newId)
         {
@@ -622,7 +619,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           newVerts = vtkCellArray::New();
           newVerts->AllocateEstimate(5, 1);
         }
-        newId = newVerts->InsertNextCell(numNewPts, updatedPts);
+        newId = newVerts->InsertNextCell(numNewPts, updatedPts.data());
         outputCD->CopyData(inputCD, inCellID, newId);
         if (vertIDcounter != newId)
         {
@@ -638,8 +635,6 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Removed " << numPts - newPts->GetNumberOfPoints() << " points");
 
   // Update ourselves and release memory
-  //
-  delete[] updatedPts;
   if (this->PointMerging)
   {
     this->Locator->Initialize(); // release memory.
@@ -647,7 +642,6 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     newPts->SetNumberOfPoints(numUsedPts);
-    delete[] pointMap;
   }
 
   // Now transfer all CellData from Lines/Polys/Strips into final
