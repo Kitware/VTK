@@ -541,6 +541,16 @@ public:
    */
   void SetOpenGLSymbolLoader2(long long toolGetProcAddressFunc, long long glLibHandle);
 
+  /**
+   * Query and save OpenGL state
+   */
+  void SaveGLState();
+
+  /**
+   * Restore OpenGL state at end of the rendering
+   */
+  void RestoreGLState();
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -619,16 +629,6 @@ protected:
    * Destroy a not-off-screen window.
    */
   virtual void DestroyWindow() = 0;
-
-  /**
-   * Query and save OpenGL state
-   */
-  void SaveGLState();
-
-  /**
-   * Restore OpenGL state at end of the rendering
-   */
-  void RestoreGLState();
 
   std::map<std::string, int> GLStateIntegers;
 
