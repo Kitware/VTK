@@ -9,6 +9,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkGDAL.h"
 #include "vtkInformation.h"
@@ -97,6 +98,7 @@ public:
   std::vector<int> HasNoDataValue;
   std::vector<double> NoDataValue;
   vtkIdType NumberOfCells;
+  bool HasError{ false };
   vtkDataArraySelection* CellArraySelection;
   vtkCallbackCommand* SelectionObserver;
 
@@ -158,7 +160,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::s
 
   if (this->GDALData == nullptr)
   {
-    std::cout << "NO GDALData loaded for file " << fileName << std::endl;
+    vtkErrorWithObjectMacro(this->Reader, << "NO GDALData loaded for file " << fileName);
   }
   else
   {
@@ -209,6 +211,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::s
 //------------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadData(const std::string& fileName)
 {
+  this->HasError = false;
+
   // If data is not initialized by now, it means that we were unable to read
   // the file.
   if (!this->GDALData)
@@ -431,19 +435,39 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
         err = redBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on red band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = greenBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 1 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on green band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = blueBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 2 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on blue band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = alphaBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 3 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on alpha band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         completedBand = 4.0;
       }
       else
@@ -454,15 +478,30 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
         err = redBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
           destWidth, destHeight, this->TargetDataType, 0, 0);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on red band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = greenBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 1 * bandSpace),
           destWidth, destHeight, this->TargetDataType, 0, 0);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on green band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = blueBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 2 * bandSpace),
           destWidth, destHeight, this->TargetDataType, 0, 0);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on blue band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         completedBand = 3.0;
       }
     }
@@ -481,11 +520,21 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
         err = grayBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on gray band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         err = alphaBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 1 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on alpha band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         completedBand = 2.0;
       }
       else
@@ -496,7 +545,12 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
         err = grayBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
           static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
           destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-        assert(err == CE_None);
+        if (err != CE_None)
+        {
+          vtkErrorWithObjectMacro(this->Reader,
+            << "GDAL RasterIO failed on gray band for file " << this->Reader->GetFileName());
+          this->HasError = true;
+        }
         completedBand = 1.0;
       }
     }
@@ -510,13 +564,17 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       err = paletteBand->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
         static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
         destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
+      if (err != CE_None)
+      {
+        vtkErrorWithObjectMacro(this->Reader,
+          << "GDAL RasterIO failed on palette band for file " << this->Reader->GetFileName());
+        this->HasError = true;
+      }
 
       this->ReadColorTable(paletteBand, colorTable);
       completedBand = 1.0;
     }
     this->Reader->UpdateProgress(completedBand / enabledBands);
-    (void)err; // unused
     this->Convert<VTK_TYPE, RAW_TYPE>(
       rawUniformGridData, destWidth, destHeight, groupIndex, "Elevation", flip[0], flip[1]);
     this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
@@ -532,7 +590,12 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       err = allBands[i]->RasterIO(GF_Read, windowX, windowY, windowWidth, windowHeight,
         static_cast<void*>(reinterpret_cast<GByte*>(rawUniformGridData.data()) + 0 * bandSpace),
         destWidth, destHeight, this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
+      if (err != CE_None)
+      {
+        vtkErrorWithObjectMacro(this->Reader, << "GDAL RasterIO failed on band " << (i + 1)
+                                              << " for file " << this->Reader->GetFileName());
+        this->HasError = true;
+      }
       this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight, groupIndex,
         this->GetBandName(i + 1).c_str(), flip[0], flip[1]);
       completedBand += 1;
@@ -664,7 +727,7 @@ bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
   if (gcpProj == nullptr || gcps == nullptr)
   {
     // Transform the point into georeferenced coordinates
-    if (GDALGetGeoTransform(this->GDALData, adfGeoTransform) == CE_None)
+    if (GDALGetGeoTransform(dataset, adfGeoTransform) == CE_None)
     {
       dfGeoX = adfGeoTransform[0] + adfGeoTransform[1] * x + adfGeoTransform[2] * y;
       dfGeoY = adfGeoTransform[3] + adfGeoTransform[4] * x + adfGeoTransform[5] * y;
@@ -953,6 +1016,12 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Failed to read " << this->FileName);
     return 0;
   }
+  if (this->Impl->HasError)
+  {
+    this->SetErrorCode(vtkErrorCode::ErrorIds::UnknownError);
+    // this->Impl->GenericReadData already set the specific error. No need to do so here.
+    return 0;
+  }
 
   // Get the projection.
   this->ProjectionWKT = this->Impl->GDALData->GetProjectionRef();
@@ -1004,6 +1073,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(this->Impl->UniformGridData);
+  this->SetErrorCode(vtkErrorCode::ErrorIds::NoError);
   return 1;
 }
 
