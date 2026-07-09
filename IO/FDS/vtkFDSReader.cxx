@@ -31,6 +31,7 @@
 #include "vtkTable.h"
 #include "vtkType.h"
 
+#include <cstddef>
 #include <stdexcept>
 #include <string>
 #include <vtksys/SystemTools.hxx>
@@ -112,16 +113,6 @@ struct ObstacleData
 };
 
 //------------------------------------------------------------------------------
-struct BoundaryFieldData
-{
-  vtkIdType GridID;
-  std::string FieldName;
-  std::string FileName;
-  bool CellCentered = false;
-  std::vector<float> TimeValues;
-};
-
-//------------------------------------------------------------------------------
 struct BlockagePatch
 {
   // Defined in section 27.11 of the FDS User's Guide
@@ -137,6 +128,21 @@ struct BlockagePatch
 
   // Position of the patch in the patch list
   vtkIdType pos = 0;
+};
+
+//------------------------------------------------------------------------------
+struct BoundaryFieldData
+{
+  vtkIdType GridID;
+  std::string FieldName;
+  std::string FileName;
+  bool CellCentered = false;
+  std::vector<float> TimeValues;
+
+  // Cached information to speed up the boundary file parsing
+  std::vector<BlockagePatch> Patches;
+  // Access with TimeStepsPositionInFile[requestedTimestep][requestedPatch]
+  std::vector<std::vector<vtkIdType>> TimeStepsPositionInFile;
 };
 
 //------------------------------------------------------------------------------
@@ -474,15 +480,13 @@ vtkSmartPointer<vtkDataArray> ReadSliceFile(const std::string& fileName,
 }
 
 //------------------------------------------------------------------------------
-std::vector<float> ParseTimeStepsInBoundaryFile(const std::string& fileName)
+void PreParseBoundaryFile(::BoundaryFieldData& bfData)
 {
   vtkNew<vtkFileResourceStream> fileStream;
-  if (fileName.empty() || !fileStream->Open(fileName.c_str()))
+  if (bfData.FileName.empty() || !fileStream->Open(bfData.FileName.c_str()))
   {
-    vtkErrorWithObjectMacro(
-      nullptr, << "Failed to open file: "
-               << (fileName.empty() ? fileName : "No file name for boundary given"));
-    return std::vector<float>();
+    throw vtkFDSReaderError(vtk::format("Failed to open file: {}.",
+      bfData.FileName.empty() ? bfData.FileName : "No file name for boundary given"));
   }
 
   vtkNew<vtkResourceParser> parser;
@@ -500,43 +504,53 @@ std::vector<float> ParseTimeStepsInBoundaryFile(const std::string& fileName)
 
   // read number of patches
   parser->Read(reinterpret_cast<char*>(&size), 4);
-  unsigned int nBlockages = 0;
-  parser->Read(reinterpret_cast<char*>(&nBlockages), size);
+  size_t nPatches = 0;
+  parser->Read(reinterpret_cast<char*>(&nPatches), size);
   parser->Read(reinterpret_cast<char*>(&size), 4);
 
-  // discard blockage descriptions
-  for (unsigned int iBlock = 0; iBlock < nBlockages; ++iBlock)
+  // blockage patches descriptions
+  bfData.Patches.resize(nPatches);
+  for (unsigned int iBlock = 0; iBlock < nPatches; ++iBlock)
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
+    // blockage patch data should always be 36 bytes long (see Section 27.11 of the FDS User Guide)
+    if (size != 36)
+    {
+      throw vtkFDSReaderError("Unexpected blockage patch dimensions.");
+    }
+    parser->Read(reinterpret_cast<char*>(&bfData.Patches[iBlock]), size);
+    parser->Read(reinterpret_cast<char*>(&size), 4);
+    bfData.Patches[iBlock].pos = iBlock;
   }
 
-  std::vector<float> timeValues;
-  vtkParseResult result = vtkParseResult::Ok;
   do
   {
     parser->Read(reinterpret_cast<char*>(&size), 4);
     if (size != sizeof(float))
     {
-      break;
+      throw vtkFDSReaderError("Unexpected time value size.");
     }
     float time = 0.0;
     parser->Read(reinterpret_cast<char*>(&time), 4);
-    timeValues.emplace_back(time);
+    std::vector<vtkIdType> timestep(nPatches);
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    for (unsigned int iBlock = 0; iBlock < nBlockages; ++iBlock)
+    for (unsigned int iBlock = 0; iBlock < nPatches; ++iBlock)
     {
+      timestep[iBlock] = parser->Tell();
       parser->Read(reinterpret_cast<char*>(&size), 4);
-      result = parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
+      parser->Seek(size, vtkResourceStream::SeekDirection::Current);
+      // Read size again to trigger EndOfStream
+      parser->Read(reinterpret_cast<char*>(&size), 4);
     }
-  } while (result != vtkParseResult::EndOfStream);
-  return timeValues;
+    bfData.TimeValues.push_back(time);
+    bfData.TimeStepsPositionInFile.push_back(timestep);
+  } while (!parser->GetStream()->EndOfStream());
 }
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
-  vtkIdType requestedTimeStep, vtkIdType nComponents, vtkRectilinearGrid& grid,
-  ::ObstacleData& oData)
+  const ::BoundaryFieldData& bfData, vtkIdType requestedTimeStep, vtkIdType nComponents,
+  vtkRectilinearGrid& grid, ::ObstacleData& oData)
 {
   vtkNew<vtkFileResourceStream> fileStream;
   if (fileName.empty() || !fileStream->Open(fileName.c_str()))
@@ -550,68 +564,29 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
   parser->SetStream(fileStream);
   parser->StopOnNewLineOff();
 
-  unsigned int size = 0;
-  // skip header lines
-  for (vtkIdType iL = 0; iL < 3; ++iL)
-  {
-    parser->Read(reinterpret_cast<char*>(&size), 4);
-    parser->ReadUntil(vtkResourceParser::DiscardNone, ReadNothing, size + 4);
-  }
-
-  // read number of patches
-  parser->Read(reinterpret_cast<char*>(&size), 4);
-  unsigned int nBlockages = 0;
-  parser->Read(reinterpret_cast<char*>(&nBlockages), size);
-  parser->Read(reinterpret_cast<char*>(&size), 4);
-
-  std::vector<::BlockagePatch> blockagePatches;
-  for (unsigned int iBlock = 0; iBlock < nBlockages; ++iBlock)
-  {
-    parser->Read(reinterpret_cast<char*>(&size), 4);
-    ::BlockagePatch blockagePatch;
-    // read blockage patch data should always be 36 bytes long
-    if (size != 36)
-    {
-      throw vtkFDSReaderError("Unexpected blockage dimensions.");
-    }
-    parser->Read(reinterpret_cast<char*>(&blockagePatch), size);
-    parser->Read(reinterpret_cast<char*>(&size), 4);
-    if (static_cast<vtkIdType>(blockagePatch.OBST_INDEX) == oData.BlockageNumber)
-    {
-      blockagePatch.pos = static_cast<vtkIdType>(iBlock);
-      blockagePatches.push_back(blockagePatch);
-    }
-  }
-
-  if (blockagePatches.empty())
-  {
-    // No data for this boundary.
-    return nullptr;
-  }
-
   vtkSmartPointer<vtkFloatArray> result = vtkSmartPointer<vtkFloatArray>::New();
   result->SetNumberOfComponents(1);
   result->SetNumberOfTuples(grid.GetNumberOfPoints());
   result->Fill(std::numeric_limits<float>::quiet_NaN());
 
-  vtkIdType skippedLines = 0;
+  bool foundPatch = false;
 
-  for (auto& currentBlockagePatch : blockagePatches)
+  for (auto& currentBlockagePatch : bfData.Patches)
   {
-    vtkIdType nLinesToSkip =
-      (static_cast<vtkIdType>(nBlockages) + 1) * requestedTimeStep + currentBlockagePatch.pos + 1;
-    for (vtkIdType iL = skippedLines; iL < nLinesToSkip; ++iL)
+    if (static_cast<vtkIdType>(currentBlockagePatch.OBST_INDEX) != oData.BlockageNumber)
     {
-      parser->Read(reinterpret_cast<char*>(&size), 4);
-      parser->Seek(size + 4, vtkResourceStream::SeekDirection::Current);
+      continue;
     }
-    skippedLines = nLinesToSkip + 1;
+    foundPatch = true;
 
-    parser->Read(reinterpret_cast<char*>(&size), 4);
     auto actualNumberOfValues = (currentBlockagePatch.I2 - currentBlockagePatch.I1 + 1) *
       (currentBlockagePatch.J2 - currentBlockagePatch.J1 + 1) *
       (currentBlockagePatch.K2 - currentBlockagePatch.K1 + 1);
     std::size_t nBytesFloat = actualNumberOfValues * sizeof(float);
+    unsigned int size = 0;
+    parser->Seek(bfData.TimeStepsPositionInFile[requestedTimeStep][currentBlockagePatch.pos],
+      vtkResourceStream::SeekDirection::Begin);
+    parser->Read(reinterpret_cast<char*>(&size), 4);
 
     if (size != nBytesFloat)
     {
@@ -653,9 +628,12 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
         }
       }
     }
-    parser->Read(reinterpret_cast<char*>(&size), 4);
   }
 
+  if (!foundPatch)
+  {
+    return nullptr;
+  }
   return result;
 }
 
@@ -1008,7 +986,7 @@ public:
       try
       {
         vtkSmartPointer<vtkDataArray> field =
-          ::ReadBoundaryFile(bfieldData.FileName, requestedTimeStep, 1, *copy, oData);
+          ::ReadBoundaryFile(bfieldData.FileName, bfieldData, requestedTimeStep, 1, *copy, oData);
 
         if (!field)
         {
@@ -2026,7 +2004,14 @@ bool vtkFDSReader::ParseBNDFBNDC(bool cellCentered)
     return false;
   }
 
-  bfData.TimeValues = ::ParseTimeStepsInBoundaryFile(bfData.FileName);
+  try
+  {
+    ::PreParseBoundaryFile(bfData);
+  }
+  catch (const vtkFDSReaderError& err)
+  {
+    vtkErrorMacro("Couldn't parse boundary file : " << err.what());
+  }
 
   // discard rest of line
   if (!parser.DiscardLine())
