@@ -9,9 +9,9 @@
  * data streams is defined by the Fides library:
  * (https://gitlab.kitware.com/vtk/fides/)
  * See the Fides documentation for the details of the schema used to
- * represent VTK/Viskores data models.
- * The reader can create partitioned dataset collection containing
- * native VTK dataset or  VTK Viskores datasets.
+ * represent VTK data models.
+ * The reader creates a vtkPartitionedDataSetCollection containing
+ * native VTK datasets.
  * Time and time streaming is supported. Note that the interface for
  * time streaming is different. It requires calling PrepareNextStep()
  * and Update() for each new step.
@@ -42,6 +42,7 @@ typedef struct conduit_node_impl conduit_node;
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkMultiProcessController;
+class vtkStringArray;
 
 class VTKIOFIDES_EXPORT vtkFidesReader : public vtkAlgorithm
 {
@@ -85,6 +86,22 @@ public:
   void ParseDataModel(VTK_FILEPATH const std::string& fname);
   void ParseDataModel();
   ///@}
+
+  /**
+   * Set the data model directly from an in-memory JSON string instead of from a
+   * file. This is used by in-memory (e.g. Catalyst) flows where the producer
+   * hands the schema over alongside the live data. When non-empty, the schema
+   * string takes precedence over the FileName and any preset (BP-attached)
+   * data model.
+   */
+  void SetSchema(const std::string& jsonText);
+
+  /**
+   * Return the names of the data sources declared in the data model. Only
+   * valid after the reader has parsed a data model. The returned array is owned
+   * by the reader.
+   */
+  vtkStringArray* GetDataSourceNames();
 
   /**
    * Set the path for a Fides data source. This can be a file, an
@@ -186,6 +203,15 @@ public:
   int GetNextStepStatus();
 
   /**
+   * Set the time value to stamp on the output as DATA_TIME_STEP(). Used by
+   * in-memory (e.g. Catalyst) flows where the schema does not itself declare a
+   * step variable the executive could otherwise propagate. Calling this forces
+   * a re-execution on the next update so downstream consumers (notably the
+   * Fides writer) can forward the time through.
+   */
+  void SetTimeValue(double t);
+
+  /**
    * Gets the time (from the specified ADIOS variable) of the current step.
    * Should only be used in streaming mode.
    */
@@ -258,6 +284,23 @@ public:
   ///@}
 
   /**
+   * Object to perform cell-grid attribute selection before update. CellGrid
+   * attributes live on a vtkCellGrid (DG finite-element data) and do not fit
+   * the point/cell/whole-dataset triad, so they get their own selection.
+   */
+  vtkGetObjectMacro(CellGridAttributeArraySelection, vtkDataArraySelection);
+
+  ///@{
+  /**
+   * Get/Set whether the cell-grid attribute with the given name is to be read.
+   */
+  int GetNumberOfCellGridAttributeArrays();
+  const char* GetCellGridAttributeArrayName(int index);
+  int GetCellGridAttributeArrayStatus(const char* name);
+  void SetCellGridAttributeArrayStatus(const char* name, int status);
+  ///@}
+
+  /**
    * Overridden to take into account mtimes for vtkDataArraySelection instances.
    */
   vtkMTimeType GetMTime() override;
@@ -279,9 +322,12 @@ protected:
   std::unique_ptr<vtkFidesReaderImpl> Impl;
 
   std::string FileName;
+  std::string SchemaString;
   bool StreamSteps;
   StepStatus NextStepStatus;
   bool CreateSharedPoints;
+  double CurrentTime{ 0.0 };
+  bool HasCurrentTime{ false };
 
   virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
@@ -295,6 +341,7 @@ protected:
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
   vtkDataArraySelection* FieldDataArraySelection;
+  vtkDataArraySelection* CellGridAttributeArraySelection;
 
   vtkMultiProcessController* Controller;
 

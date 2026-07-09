@@ -5,12 +5,14 @@
  * @class   vtkFidesWriter
  * @brief   Write ADIOS2 streams using Fides data model
  *
- * vtkFidesWriter uses ADIOS2 to write files using the Fides schema. Fides requires
- * data in Viskores format, so this vtkFidesWriter first converts VTK datasets to Viskores datasets.
- * This also writes out a Fides schema so it can be read back in using vtkFidesReader.
- * The schema is written as an attribute in the ADIOS2 file.
+ * vtkFidesWriter uses ADIOS2 to write files using the Fides schema, writing native
+ * VTK datasets (vtkDataSet, vtkCellGrid, and partitioned collections) through the
+ * Fides VTK backend. It also writes out a Fides schema so the data can be read back
+ * in using vtkFidesReader. The schema is written as an attribute in the ADIOS2 file.
  *
- * Note: Currently only supports BP file engine.
+ * vtkPartitionedDataSetCollection input is written as a Fides collection, preserving
+ * the data assembly. Collections that contain vtkCellGrid partitions are instead
+ * written one partitioned dataset per file.
  *
  * Typical usage is as follows:
  *
