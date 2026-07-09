@@ -237,6 +237,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   std::unordered_map<vtkIdType, vtkIdType> addedGlobalIdsMap;
   vtkIdTypeArray* globalIdsArray = vtkIdTypeArray::SafeDownCast(inputPD->GetGlobalIds());
+  // Entries from a previous execution would wrongly skip point data copies.
+  this->CopiedPoints.clear();
 
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();
@@ -638,6 +640,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->PointMerging)
   {
     this->Locator->Initialize(); // release memory.
+    this->CopiedPoints.clear();
   }
   else
   {
