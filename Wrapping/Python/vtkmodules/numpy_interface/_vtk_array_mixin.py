@@ -214,18 +214,20 @@ def register_template_overrides(mixin_cls, template_cls, name_prefix,
     """
     _dtype_strings = [
         'float32', 'float64',
-        # Sized names precede the pythonic aliases ('int'/'uint') so the dedup
-        # below keeps the sized name when both resolve to the same
+        # Sized names precede the C-type names and pythonic aliases so the
+        # dedup below keeps the sized name when several resolve to the same
         # instantiation. 'longlong'/'ulonglong' keep the C long long template
         # base covered on LP64, where numpy's int64/uint64 map to C long/ulong
-        # and so no sized name would otherwise reach it.
-        'int8', 'int16', 'int32', 'int64', 'longlong', 'int',
-        'uint8', 'uint16', 'uint32', 'uint64', 'ulonglong', 'uint',
+        # and so no sized name would otherwise reach it; 'intc'/'uintc' do the
+        # same for the C int base on LLP64/ILP32, where int32/uint32 map to
+        # C long/ulong.
+        'int8', 'int16', 'int32', 'intc', 'int64', 'longlong', 'int',
+        'uint8', 'uint16', 'uint32', 'uintc', 'uint64', 'ulonglong', 'uint',
     ]
-    # On some platforms two dtype strings resolve to the same instantiation
-    # (e.g. 'int' and 'int32' when long is 32-bit, or 'int64' and 'longlong'
-    # when long is 64-bit); override each class once, keeping the sized name
-    # since sized dtypes come first in the list.
+    # On every platform some dtype strings resolve to the same instantiation
+    # (e.g. 'int32' and 'intc' when long is 64-bit, 'int64' and 'int' too;
+    # 'int32' and 'int' when long is 32-bit); override each class once,
+    # keeping the sized name since sized dtypes come first in the list.
     seen = set()
     for dt in _dtype_strings:
         base = template_cls[dt]

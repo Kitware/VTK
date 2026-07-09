@@ -3,13 +3,31 @@
 import array
 import vtkmodules.vtkCommonCore
 from vtkmodules.vtkCommonCore import vtkSOADataArrayTemplate
+from vtkmodules.util import vtkConstants
 
 # types can be specified either with one of the strings listed below,
 # or with a numpy dtype.  You can get a list of types by calling the
 # method vtkSOADataArrayTemplate.keys().
 types = ['char', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32',
          'int64', 'uint64', 'float32', 'float64']
-formats = ['c', 'b', 'B', 'h', 'H', 'i', 'I', 'q', 'Q', 'f', 'd']
+
+# array-module format for each VTK data type; looked up from the actual
+# instantiation because a sized name resolves to a platform-dependent C type
+# (e.g. 'int32' is C long on LLP64 Windows, C int on LP64 Linux).
+vtk_type_formats = {
+    vtkConstants.VTK_SIGNED_CHAR: 'b',
+    vtkConstants.VTK_UNSIGNED_CHAR: 'B',
+    vtkConstants.VTK_SHORT: 'h',
+    vtkConstants.VTK_UNSIGNED_SHORT: 'H',
+    vtkConstants.VTK_INT: 'i',
+    vtkConstants.VTK_UNSIGNED_INT: 'I',
+    vtkConstants.VTK_LONG: 'l',
+    vtkConstants.VTK_UNSIGNED_LONG: 'L',
+    vtkConstants.VTK_LONG_LONG: 'q',
+    vtkConstants.VTK_UNSIGNED_LONG_LONG: 'Q',
+    vtkConstants.VTK_FLOAT: 'f',
+    vtkConstants.VTK_DOUBLE: 'd',
+}
 
 
 for T in types:
@@ -30,8 +48,9 @@ for T in types:
         assert a.GetTypedComponent(0, 1) == 4
         assert a.GetTypedComponent(0, 2) == 6
     # test SetArray for types compatible with 'array' module
-    if T not in ('char', 'int64', 'uint64'):
-        t = formats[types.index(T)]
+    # ('char' is excluded: the array module has no 'c' format)
+    if T != 'char':
+        t = vtk_type_formats[a.GetDataType()]
         b1 = array.array(t, [10, 11, 12, 20])
         b2 = array.array(t, [14, 15, 16, 30])
         b3 = array.array(t, [17, 18, 19, 40])

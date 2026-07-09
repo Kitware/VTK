@@ -122,11 +122,12 @@ def test_template_override_dedup():
     shared_uint = make_fake('FakeUInt')
     fake_template = {
         dt: make_fake(f'Fake_{dt}')
-        for dt in ['float32', 'float64', 'int8', 'int16', 'int32', 'int64',
-                   'longlong', 'uint8', 'uint16', 'uint32', 'uint64',
-                   'ulonglong']
+        for dt in ['float32', 'float64', 'int8', 'int16', 'int32', 'intc',
+                   'int64', 'longlong', 'uint8', 'uint16', 'uint32', 'uintc',
+                   'uint64', 'ulonglong']
     }
-    # Alias the pythonic names to the sized instantiations, as on Windows.
+    # Alias the pythonic names to the sized instantiations, as on Windows
+    # where 'int32', 'int' both resolve to the C long instantiation.
     fake_template['int32'] = shared_int
     fake_template['int'] = shared_int
     fake_template['uint32'] = shared_uint
@@ -134,8 +135,8 @@ def test_template_override_dedup():
 
     register_template_overrides(FakeMixin, fake_template, 'Fake')
 
-    check(len(calls) == 12,
-          f"expected 12 override calls (14 dtype strings, 2 aliased), got {len(calls)}")
+    check(len(calls) == 14,
+          f"expected 14 override calls (16 dtype strings, 2 aliased), got {len(calls)}")
     overridden = {}
     for base, sub in calls:
         check(base not in overridden,
@@ -160,11 +161,12 @@ def test_template_dtype_matches_scalar():
 
     # Indexing a template by the numpy scalar type and by the equivalent
     # numpy.dtype instance must resolve to the same instantiation. This
-    # matters most for int64/uint64: numpy identifies them by their underlying
-    # C type ('long' on LP64, 'long long' on LLP64), so both spellings must
-    # agree rather than one selecting long and the other long long.
+    # matters most for the sized types that numpy binds to C 'long' first
+    # (int64/uint64 on LP64, int32/uint32 on LLP64), where the scalar type
+    # name and the dtype's underlying C type would otherwise disagree.
     for dt in [np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32,
-               np.int64, np.uint64, np.float32, np.float64]:
+               np.int64, np.uint64, np.intc, np.uintc, np.longlong,
+               np.ulonglong, np.float32, np.float64]:
         by_type = vtkAOSDataArrayTemplate[dt]
         by_dtype = vtkAOSDataArrayTemplate[np.dtype(dt)]
         check(by_type is by_dtype,
