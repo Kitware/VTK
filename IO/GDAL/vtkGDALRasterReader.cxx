@@ -162,6 +162,15 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::s
   }
   else
   {
+    if (this->GDALData->GetRasterCount() == 0 || this->GDALData->GetRasterXSize() == 0 ||
+      this->GDALData->GetRasterYSize() == 0)
+    {
+      vtkErrorWithObjectMacro(this->Reader, << "Invalid raster dimensions in file " << fileName);
+      GDALClose(this->GDALData);
+      this->GDALData = nullptr;
+      return;
+    }
+
     this->PrevReadFileName = fileName;
     this->NumberOfBands = this->GDALData->GetRasterCount();
     this->NumberOfDigitsForBands = ceil(log10(this->NumberOfBands + 1));
@@ -645,11 +654,12 @@ bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
   double adfGeoTransform[6];
 
 #if GDAL_VERSION_MAJOR >= 3
-  const char* gcpProj = this->GDALData->GetSpatialRef()->GetName();
+  const OGRSpatialReference* gcpSrs = dataset->GetGCPSpatialRef();
+  const char* gcpProj = gcpSrs ? gcpSrs->GetName() : nullptr;
 #else
-  const char* gcpProj = this->GDALData->GetGCPProjection();
+  const char* gcpProj = dataset->GetGCPProjection();
 #endif
-  const GDAL_GCP* gcps = this->GDALData->GetGCPs();
+  const GDAL_GCP* gcps = dataset->GetGCPs();
 
   if (gcpProj == nullptr || gcps == nullptr)
   {
