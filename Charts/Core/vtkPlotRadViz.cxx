@@ -27,6 +27,11 @@
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtk_fmt.h>
+// clang-format off
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ranges.h)
+// clang-format on
 
 #include <algorithm>
 
@@ -330,6 +335,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     computeGBC->SetStoreRGBA(this->ScalarVisibility);
     computeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
     computeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
+    computeGBC->SetComponentsPartition(this->ComponentsPartition);
     std::array<float, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
@@ -358,7 +364,10 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     // draw the vertices
     this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen, ActiveVertexIndex);
     this->DrawLabels(painter, vertices, this->VerticesPen);
-    this->DrawLens(painter);
+    if (this->GetLensVisibility())
+    {
+      this->DrawLens(painter);
+    }
     this->PaintChildren(painter);
     return true;
   }
@@ -591,6 +600,24 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 void vtkPlotRadViz::SetDimensions(const int arg[4])
 {
   this->SetDimensions(arg[0], arg[1], arg[2], arg[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetComponentsPartition(const std::vector<std::vector<int>>& modalityGroups)
+{
+  vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ComponentsPartition));
+  if (this->ComponentsPartition != modalityGroups)
+  {
+    this->ComponentsPartition = modalityGroups;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<std::vector<int>> vtkPlotRadViz::GetComponentsPartition() VTK_FUTURE_CONST
+{
+  vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ComponentsPartition));
+  return this->ComponentsPartition;
 }
 
 //------------------------------------------------------------------------------

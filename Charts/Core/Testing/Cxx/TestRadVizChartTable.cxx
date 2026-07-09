@@ -7,13 +7,13 @@
 #include "vtkContextView.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
-#include "vtkPlot.h"
+#include "vtkPlotRadViz.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
-// #include "vtkXMLTableWriter.h"
+#include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
 int TestRadVizChartTable(int argc, char** argv)
@@ -37,10 +37,10 @@ int TestRadVizChartTable(int argc, char** argv)
   // tableWriter->Write();
 
   // Add a RadViz plot
-  vtkPlot* plot = chart->AddPlot(0);
+  vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
   plot->GetPen()->SetWidth(4);
-
-  plot->SetInputData(table);
+  plot->vtkPlot::SetInputData(table);
 
   chart->SetShowLegend(false);
 

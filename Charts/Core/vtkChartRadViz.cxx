@@ -37,7 +37,7 @@ public:
   /**
    * Set to the mouse position on left mouse press.
    */
-  float DragLensStart[2];
+  float DragLensStart[2] = { 0.0f, 0.0f };
 };
 
 //------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ void vtkChartRadViz::GetActiveElement(
       break;
     }
   }
-  if (activeVertexIndex < 0)
+  if (activeVertexIndex < 0 && this->Internals->Plot->GetLensVisibility())
   {
     float* lensCenter = this->Internals->Plot->GetLensCenter();
     float lensRadius = this->Internals->Plot->GetLensRadius();

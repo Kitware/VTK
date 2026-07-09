@@ -5,9 +5,28 @@
  *
  * @brief Maps multivariate data to color and opacity.
  *
- * Maps multivariate data (multi-component scalars (AOS array) in a vtkDataSet or
- * multiple columns in a table (an SOA array)) to color and opacity (RGBA).
- * Uses
+ * Maps multivariate data (multi-component point or cell scalars (AOS
+ * array) in a vtkDataSet or multiple columns in a table (an SOA
+ * array)) to color and opacity (RGBA). The filter can also generate
+ * generalized barycentric coordinates (GBC) in a circle centered at
+ * (0, 0) with radius 1, as well as vertices associated with the
+ * components on the outline of this circle (StoreGBC, StoreVertices,
+ * StoreRGBA).
+ *
+ * Vertices can be rotated (VerticesRotation), which will change the GBC
+ * positions and colors.
+ *
+ * Points' opacity can be further modified using a lens (LensCenter,
+ * LensRadius) which modifies the opacity of the points outside the
+ * lens (see OutsideLensAlphaCap).
+ *
+ * You can specify a partition of the components (see
+ * ComponentsPartition) so that components in a partition are normalized
+ * together. By default, all components are in one partition. This can
+ * be used when value ranges of different components are very
+ * different.
+ *
+ * The implementation is based on the papers:
  * RadVolViz: An Information Display-Inspired Transfer Function Editor for Multivariate Volume
  * Visualization
  * Ayush Kumar, Xinyu Zhang, Huolin L. Xin, Hanfei Yan, Xiaojing Huang, Wei Xu,
@@ -23,7 +42,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include <functional>                // For std::function
-#include <vector>                    // For modality groups
+#include <vector>                    // For components partition
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
@@ -36,32 +55,22 @@ public:
   vtkTypeMacro(vtkMultiVariateToRGBA, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Angle in degrees to rotate the vertices encoding the multivariate attributes.
-   * Default is 0 degrees. This angle affects the GBC positions and the computed colors.
-   * The rotation will be clamped to [0, 360).
-   */
-  virtual void SetVerticesRotation(double rotation);
-  vtkGetMacro(VerticesRotation, double);
-
   ///@{
   /**
-   *
    * This filter computes colors (RGBA) that can be used to volume
    * render the data. To do that, it computes several intermediate
-   * arrays which include vertices positions used to encode variables and
+   * arrays which include vertex positions used to encode variables and
    * generalized barycentric coordinates (GBC). All arrays are stored as vtkDoubleArray.
    *
-   * If StoreVertices (default is false) is set to true
+   * If StoreVertices (default is false) is set to true,
    * we store the computed vertices as a field array named 'vertices'.
    *
-   * If StoreGBC (default is false) is set to true we
-   * store the computed attribute as an array named 'gbc'.
+   * If StoreGBC (default is false) is set to true, we
+   * store the computed GBC as an array named 'gbc'.
    *
    * If StoreRGBA (default is true, in which case we store the computed
-   * array named 'rgba') is set to false, we don't proceed to
-   * computing the color.  Setting both parameters to false is an
-   * error.
+   * array named 'rgba') is set to false, we don't compute the color.
+   * Setting both parameters to false is an error.
    *
    * @sa vtkChartRadViz, vtkPlotRadViz
    */
@@ -72,6 +81,14 @@ public:
   vtkSetMacro(StoreRGBA, bool);
   vtkGetMacro(StoreRGBA, bool);
   ///@}
+
+  /**
+   * Angle in degrees to rotate the vertices encoding the multivariate attributes.
+   * Default is 0 degrees. This angle affects the GBC positions and the computed colors.
+   * The rotation will be clamped to [0, 360).
+   */
+  virtual void SetVerticesRotation(double rotation);
+  vtkGetMacro(VerticesRotation, double);
 
   ///@{
   /**
@@ -87,17 +104,17 @@ public:
   virtual void SetLensRadius(float radius);
   vtkGetMacro(LensRadius, float);
   /**
-   * Clamp the lens circle (lensCenter, lensRadius) so it intersects the
-   * reference circle (center, radius). GetLensRadius returns the adjusted
-   * radius; GetLensCenter returns the adjusted center.
-   */
-  /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlpha). Default is 1 (no change).
+   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1 (no change).
    * Set to 0 to make points outside the lens fully transparent.
    */
   vtkSetMacro(OutsideLensAlphaCap, double);
   vtkGetMacro(OutsideLensAlphaCap, double);
+  /**
+   * Clamp the lens circle (lensCenter, lensRadius) so that it intersects the
+   * reference circle (center, radius). GetLensRadius returns the adjusted
+   * radius; GetLensCenter returns the adjusted center.
+   */
   static float GetLensRadius(
     float lensRadius, float radius, const float* lensCenter, const float* center);
   static std::array<float, 2> GetLensCenter(
@@ -106,8 +123,8 @@ public:
 
   ///@{
   /**
-   * If true, negates the Y coordinates for points, vertices and in
-   * color computation. This is necessary to get the same RadViz graph
+   * If true, negates the Y coordinate for points and vertices, and
+   * when computing colors. This is necessary to get the same RadViz graph
    * in VTK (origin bottom-left, Y grows up) and JavaScript (origin
    * top-left, Y grows down). Default is true.
    * @sa vtkPlotRadViz
@@ -117,15 +134,16 @@ public:
   ///@}
 
   /**
-   * Variables can be grouped in several groups. After that,
+   * Variables can be partitioned into several groups. After that,
    * all multivariate scalars in a group are normalized together.
+   * By default, all variables (components) are in one group.
    *
-   * For example, if indices `[0, 1, 2]` are the same modality, we
+   * For example, if indices `[0, 1, 2]` are the same partition, we
    * will normalize them all together, meaning we compute the min/max
    * over all three scalars.
    */
-  void SetModalityGroups(std::vector<std::vector<int>>& modalityGroups);
-  std::vector<std::vector<int>> GetModalityGroups() VTK_FUTURE_CONST;
+  void SetComponentsPartition(const std::vector<std::vector<int>>& partition);
+  std::vector<std::vector<int>> GetComponentsPartition() VTK_FUTURE_CONST;
 
 protected:
   vtkMultiVariateToRGBA();
@@ -136,7 +154,7 @@ protected:
   bool StoreVertices = false;
   bool StoreRGBA = true;
   bool FlipY = true;
-  std::vector<std::vector<int>> ModalityGroups;
+  std::vector<std::vector<int>> ComponentsPartition;
   std::function<double(double)> GlobalMin = nullptr;
   std::function<double(double)> GlobalMax = nullptr;
   /**

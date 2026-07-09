@@ -18,15 +18,14 @@
 #include "vtkPointData.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkTable.h"
-
-#include <algorithm>
-#include <array>
 #include <vtk_fmt.h>
 // clang-format off
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ranges.h)
 // clang-format on
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <numeric>
 
@@ -481,21 +480,22 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetModalityGroups(std::vector<std::vector<int>>& modalityGroups)
+void vtkMultiVariateToRGBA::SetComponentsPartition(
+  const std::vector<std::vector<int>>& modalityGroups)
 {
-  vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ModalityGroups));
-  if (this->ModalityGroups != modalityGroups)
+  vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ComponentsPartition));
+  if (this->ComponentsPartition != modalityGroups)
   {
-    this->ModalityGroups = modalityGroups;
+    this->ComponentsPartition = modalityGroups;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetModalityGroups() VTK_FUTURE_CONST
+std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetComponentsPartition() VTK_FUTURE_CONST
 {
-  vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ModalityGroups));
-  return this->ModalityGroups;
+  vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ComponentsPartition));
+  return this->ComponentsPartition;
 }
 
 //------------------------------------------------------------------------------
@@ -544,12 +544,12 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   int numComponents = scalars->GetNumberOfComponents();
-  if (this->ModalityGroups.empty())
+  if (this->ComponentsPartition.empty())
   {
     // add one group with all variables
-    this->ModalityGroups.resize(1);
-    this->ModalityGroups[0].resize(numComponents);
-    std::iota(this->ModalityGroups[0].begin(), this->ModalityGroups[0].end(), 0);
+    this->ComponentsPartition.resize(1);
+    this->ComponentsPartition[0].resize(numComponents);
+    std::iota(this->ComponentsPartition[0].begin(), this->ComponentsPartition[0].end(), 0);
   }
   vtkNew<vtkDoubleArray> normalizedScalars;
   normalizedScalars->SetName("normalized");
@@ -561,9 +561,9 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
-  for (int i = 0; i < this->ModalityGroups.size(); ++i)
+  for (int i = 0; i < this->ComponentsPartition.size(); ++i)
   {
-    NormalizeWorker worker(this->ModalityGroups[i], this->GlobalMin, this->GlobalMax);
+    NormalizeWorker worker(this->ComponentsPartition[i], this->GlobalMin, this->GlobalMax);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());

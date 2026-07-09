@@ -75,6 +75,7 @@ int TestRadVizChartDataSet(int argc, char** argv)
   // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
   plot->GetPen()->SetOpacity(20);
+  plot->SetLensVisibility(true);
   plot->GetPen()->SetWidth(6);
   if (variant)
   {

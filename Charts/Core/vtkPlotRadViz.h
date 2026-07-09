@@ -3,18 +3,50 @@
 
 /**
  * @class   vtkPlotRadViz
- * @brief   Radial plot of multivariate data that show the relations among these variables.
  *
- * Radial plot of multivariate data (tuples with multiple components) that
- * shows the relations among these variables (components). The plot
- * accepts either a vtkTable or a vtkDataSet as input and uses
- * vtkMultiVariateToRGBA to compute the generalized barycentric coordinates (GBC)
- * for the variables.
+ * @brief Radial plot of multivariate data that shows the relations
+ * among these variables.
  *
+ * Radial plot of multivariate data (a tuple with multiple components
+ * corresponds to a point) that shows the relations among these
+ * variables (components). The plot accepts either a vtkTable or a
+ * vtkDataSet as input. It uses vtkMultiVariateToRGBA to compute the
+ * point generalized barycentric coordinates (GBC) and the color
+ * (RGBA) for a tuple. The point position and color represent the
+ * normalized value of each component in relation to each other while
+ * the opacity represents the average normalized value for all
+ * components. For example, in three-component data, both (0.1, 0.1,
+ * 0.2) and (0.4, 0.4, 0.8) will have the same point position and
+ * color but the second point will be 4 times more opaque.
+ *
+ * You can specify a partition of the components (see
+ * ComponentsPartition) so that components in a partition are normalized
+ * together. By default, all components are in one partition. This can
+ * be used when value ranges of different components are very
+ * different.
+ *
+ * You can show an HSV (hue, saturation and value) ColorWheel
+ * (ColorWheelVisibility) that can be used to infer the color computed
+ * for the point.
+ *
+ * Alternatively, you can use ScalarVisibility to show the color and
+ * opacity on the points.
+ *
+ * The components are shown as vertices on the outer circle outline of
+ * the plot. The vertices can be rotated using VerticesRotation, which
+ * changes the points' positions and colors.
+ *
+ * Points' opacity can be further modified using a lens which modifies
+ * the opacity of the points outside the lens (see
+ * OutsideLensAlphaCap). The lens can be shown or hidden using
+ * LensVisibility.
+ *
+ * The implementation is based on the paper:
  * RadViz Deluxe: An Attribute-Aware Display for Multivariate Data.
  * Shenghui Cheng, Wei Xu and Klaus Mueller.
  *
- * @sa vtkPlotParallelCoordinates, vtkMultiVariateToRGBA
+ * @sa vtkChartRadViz, vtkMultiVariateToRGBA
+ * @sa vtkPlotParallelCoordinates
  *
  */
 
@@ -57,23 +89,14 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  /**
-   * Set the bounding box of the plot. Arguments 1 and 2 are the x and y coordinate
-   * of the bottom corner. Arguments 3 and 4 are the width and height.
-   */
-  void SetDimensions(int arg1, int arg2, int arg3, int arg4);
-
-  /**
-   * Set the bounding box of the plot. Elements 0 and 1 are the x and y coordinate
-   * of the bottom corner. Elements 2 and 3 are the width and height.
-   */
-  void SetDimensions(const int arg[4]);
-
   ///@{
   /**
-   * Get the bounding box of the plot. Elements 0 and 1 are the x and y coordinate
-   * of the bottom corner. Elements 2 and 3 are the width and height.
+   * Set/Get the bounding box of the plot. Arguments 1 and 2 are the x and y coordinates
+   * of the bottom corner. Arguments 3 and 4 are the width and height.
+   * Set is called from vtkChartRadViz.
    */
+  void SetDimensions(int arg1, int arg2, int arg3, int arg4);
+  void SetDimensions(const int arg[4]);
   vtkGetVector4Macro(Dimensions, int);
   ///@}
 
@@ -88,20 +111,19 @@ public:
 
   ///@{
   /**
-   * Angle in degrees at which red is placed on the color wheel. Default is 90.
+   * Angle in degrees at which the starting color (red) is placed on the
+   * color wheel. It is set to 90 to match colors computed by
+   * vtkMultiVariateToRGBA.
    */
-  vtkSetMacro(ColorWheelStartAngle, int);
   vtkGetMacro(ColorWheelStartAngle, int);
   ///@}
 
   ///@{
   /**
    * Colors are laid out in clockwise order if true, counter-clockwise otherwise.
-   * Default is true.
+   * It is set to true to match colors computed by vtkMultiVariateToRGBA.
    */
-  vtkSetMacro(ColorWheelClockwiseOrdering, bool);
   vtkGetMacro(ColorWheelClockwiseOrdering, bool);
-  vtkBooleanMacro(ColorWheelClockwiseOrdering, bool);
   ///@}
 
   ///@{
@@ -118,9 +140,9 @@ public:
    * Turn on/off flag to control whether scalar data is used to color objects.
    * The RGBA colors are automatically computed by vtkMultiVariateToRGBA.
    */
-  vtkSetMacro(ScalarVisibility, vtkTypeBool);
-  vtkGetMacro(ScalarVisibility, vtkTypeBool);
-  vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
+  vtkSetMacro(ScalarVisibility, bool);
+  vtkGetMacro(ScalarVisibility, bool);
+  vtkBooleanMacro(ScalarVisibility, bool);
   ///@}
 
   ///@{
@@ -145,12 +167,12 @@ public:
   ///@{
   /**
    * Center of the lens in window space. The set function ensures that
-   * the lens intersects the the GBC circle.
+   * the lens intersects the GBC circle.
    */
   virtual void SetLensCenter(const float* center);
   vtkGetVector2Macro(LensCenter, float);
   /**
-   * Radius of the lens in window space
+   * Radius of the lens in window space.
    */
   virtual void SetLensRadius(float radius);
   vtkGetMacro(LensRadius, float);
@@ -161,11 +183,17 @@ public:
   vtkGetSmartPointerMacro(LensPen, vtkPen);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlpha). Default is 1 (no change).
+   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1 (no change).
    * Set to 0 to make points outside the lens fully transparent.
    */
   vtkSetMacro(OutsideLensAlphaCap, double);
   vtkGetMacro(OutsideLensAlphaCap, double);
+  /**
+   * Show the lens if true. Default is false.
+   */
+  vtkSetMacro(LensVisibility, bool);
+  vtkGetMacro(LensVisibility, bool);
+  vtkBooleanMacro(LensVisibility, bool);
   ///@}
 
   ///@{
@@ -182,7 +210,7 @@ public:
   vtkGetMacro(ActiveVertexIndex, int);
   /**
    * Set to true when the mouse is over the lens outline or when the
-   * lens is resided and set to false otherwise.
+   * lens is resized and set to false otherwise.
    */
   vtkSetMacro(ActiveLensOutline, bool);
   vtkGetMacro(ActiveLensOutline, bool);
@@ -195,22 +223,38 @@ public:
   ///@}
 
   /**
-   * Center of the plot in window space
+   * Center of the plot in window space.
    */
   const float* GetCenter() const;
   /**
-   * Radius of the plot in window space
+   * Radius of the plot in window space.
    */
   float GetRadius() const;
 
   ///@{
   /**
-   * Get the vtkTextProperty that governs how the vertices labels are displayed
+   * Get the vtkTextProperty that governs how the vertex labels are displayed.
    */
   vtkSetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   vtkGetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   ///@}
 
+  /**
+   * Variables can be partitioned into several groups. After that,
+   * all multivariate scalars in a group are normalized together.
+   * By default, all variables (components) are in one group.
+   *
+   * For example, if indices `[0, 1, 2]` are the same partition, we
+   * will normalize them all together, meaning we compute the min/max
+   * over all three scalars.
+   */
+  void SetComponentsPartition(const std::vector<std::vector<int>>& partition);
+  std::vector<std::vector<int>> GetComponentsPartition() VTK_FUTURE_CONST;
+
+  /**
+   * Returns the angle in degrees between vertex and mousePos, measured
+   * at the plot's center. All these positions are in window space.
+   */
   double GetAngle(double vertex[2], double mousePos[2]);
 
 protected:
@@ -218,16 +262,14 @@ protected:
   ~vtkPlotRadViz() override = default;
   void DrawColorWheel(vtkContext2D* painter);
   /**
-   * Draw the points using the 'pen' attributes and  'color' instead of
+   * Draw the points using the 'pen' attributes and 'color' instead of
    * the 'pen' color. The 'points' are in the [-1, 1] space.
-   *
    */
   vtkSmartPointer<vtkPoints2D> DrawColoredMarkers(
     vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, vtkDataArray* color = nullptr);
   /**
    * Draw the points using the 'pen' attributes. The 'points' are in
-   * the [-1, 1] space. If activeIndex >= 0, draw that point using the ActiveColor
-   *
+   * the [-1, 1] space. If activeIndex >= 0, draw that point using the ActiveColor.
    */
   vtkSmartPointer<vtkPoints2D> DrawMarkers(
     vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, int activeIndex = -1);
@@ -243,8 +285,8 @@ protected:
   void ShiftLabelByPenWidth(float width, double transformedXy[2]);
   ///@{
   /**
-   * Returns the arrays named 'vertices', 'gbc', 'rgba' from a table or dataset or throws
-   * std::runtime_error if not found
+   * Returns the arrays named 'vertices', 'gbc' and 'rgba' from a table or dataset, or throws
+   * std::runtime_error if not found.
    */
   std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetVerticesGbcRgba(vtkDataObject* output);
   /**
@@ -257,6 +299,7 @@ protected:
   static vtkDataArray* GetArray(vtkDataSet* dataset, const char* name);
   ///@}
 
+  std::vector<std::vector<int>> ComponentsPartition;
   int Dimensions[4];
   /**
    * Controls how the vertices are drawn.
@@ -279,7 +322,7 @@ protected:
   int ActiveVertexIndex = -1;
   /**
    * Set to true when the mouse is over the lens outline or when the
-   * lens is resided and set to false otherwise.
+   * lens is resized and set to false otherwise.
    */
   bool ActiveLensOutline = false;
   /**
@@ -292,7 +335,11 @@ protected:
    */
   double OutsideLensAlphaCap;
   /**
-   * Where the lens is drawn and its radius in Window coordinates
+   * Show the lens if true.
+   */
+  bool LensVisibility = false;
+  /**
+   * Where the lens is drawn and its radius in window coordinates.
    */
   float LensCenter[2];
   float LensRadius;
@@ -301,14 +348,14 @@ protected:
   double VerticesRotation;
 
   /**
-   * The text properties associated with the vertices labels
+   * The text properties associated with the vertex labels.
    */
   vtkSmartPointer<vtkTextProperty> LabelsProperties;
   int ColorWheelSegmentCount;
   int ColorWheelStartAngle;
   bool ColorWheelClockwiseOrdering;
   bool ColorWheelVisibility;
-  vtkTypeBool ScalarVisibility;
+  bool ScalarVisibility;
 
 private:
   vtkPlotRadViz(const vtkPlotRadViz&) = delete;

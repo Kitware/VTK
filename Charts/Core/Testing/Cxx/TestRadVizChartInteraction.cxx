@@ -206,6 +206,7 @@ int TestRadVizChartInteraction(int argc, char** argv)
 
   // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->SetLensVisibility(true);
   plot->GetPen()->SetOpacity(20);
   plot->GetPen()->SetWidth(6);
   plot->ColorWheelVisibilityOff();

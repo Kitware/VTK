@@ -3,8 +3,25 @@
 
 /**
  * @class   vtkChartRadViz
- * @brief   Handle interaction for vtkPlotRadViz
+ * @brief   Handles the interaction for vtkPlotRadViz
  *
+ * You can rotate the vertices by dragging on any vertex
+ * position. User feedback is provided by drawing the active vertex using
+ * the active color (vtkPlotRadViz::ActiveColor) when the mouse
+ * pointer is over the vertex or when the vertices are rotated (by
+ * dragging on a vertex).
+ *
+ * You can resize the lens by dragging on the lens outline. User
+ * feedback is provided by drawing the lens outline using the active
+ * color when the mouse pointer is over the outline or when the lens
+ * is resized.
+ *
+ * You can move the lens by dragging on the lens interior. User
+ * feedback is provided by drawing the lens center using the active
+ * color when the mouse pointer is over the lens interior or when the
+ * lens is moved.
+ *
+ * @sa vtkPlotRadViz
  */
 
 #ifndef vtkChartRadViz_h
@@ -39,19 +56,19 @@ public:
   void Update() override;
 
   /**
-   * Paint event for the chart, called whenever the chart needs to be drawn
+   * Paint event for the chart, called whenever the chart needs to be drawn.
    */
   bool Paint(vtkContext2D* painter) override;
 
   using vtkChart::AddPlot;
   /**
-   * Add a plot to the chart. If a plot already exists it does nothing.
+   * Add a plot to the chart. If a plot already exists, it does nothing.
    * It returns the added or existing plot.
    */
   vtkPlot* AddPlot(int type) override;
 
   /**
-   * Set plot to use for the chart. Since this type of chart can
+   * Set the plot to use for the chart. Since this type of chart can
    * only contain one plot, this will replace the previous plot.
    */
   virtual void SetPlot(vtkPlotRadViz* plot);
@@ -73,7 +90,7 @@ public:
 
   ///@{
   /**
-   * Return true if the supplied x, y coordinate is inside the item.
+   * Return true if the supplied x, y coordinates are inside the item.
    */
   bool Hit(const vtkContextMouseEvent& mouse) override;
 
