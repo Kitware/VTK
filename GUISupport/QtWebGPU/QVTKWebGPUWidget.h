@@ -140,14 +140,14 @@ private:
 
   // Platform-specific surface descriptor storage
 #ifdef _WIN32
-  wgpu::SurfaceDescriptorFromWindowsHWND PlatformSurfaceDescriptor;
+  wgpu::SurfaceSourceWindowsHWND PlatformSurfaceDescriptor;
 #elif defined(__APPLE__)
-  wgpu::SurfaceDescriptorFromMetalLayer PlatformSurfaceDescriptor;
+  wgpu::SurfaceSourceMetalLayer PlatformSurfaceDescriptor;
   void* MetalLayer = nullptr;
 #elif defined(VTK_USE_Wayland)
-  wgpu::SurfaceDescriptorFromWaylandSurface PlatformSurfaceDescriptor;
+  wgpu::SurfaceSourceWaylandSurface PlatformSurfaceDescriptor;
 #elif defined(VTK_USE_X)
-  wgpu::SurfaceDescriptorFromXlibWindow PlatformSurfaceDescriptor;
+  wgpu::SurfaceSourceXlibWindow PlatformSurfaceDescriptor;
 #endif
   wgpu::SurfaceDescriptor SurfaceDescriptor;
 };
