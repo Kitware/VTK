@@ -49,7 +49,7 @@ class Scene:
 
         self.renderWindowInteractor = vtkRenderWindowInteractor()
         self.renderWindowInteractor.SetRenderWindow(self.renderWindow)
-        self.renderWindowInteractor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+        self.renderWindowInteractor.GetInteractorStyle().SetCurrentStyleToMultiTouchCamera()
 
         self.cone_source = vtkConeSource()
         self.mapper = vtkPolyDataMapper()
