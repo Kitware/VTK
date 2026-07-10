@@ -38,6 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vtksys/FStream.hxx>
@@ -403,10 +404,11 @@ vtkHDFReader::vtkHDFReader()
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkHDFReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
-  for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
+  for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
   {
-    this->DataArraySelection[i] = vtkDataArraySelection::New();
-    this->DataArraySelection[i]->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+    this->DataArraySelection[attrType] = vtkDataArraySelection::New();
+    this->DataArraySelection[attrType]->AddObserver(
+      vtkCommand::ModifiedEvent, this->SelectionObserver);
   }
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -420,10 +422,10 @@ vtkHDFReader::~vtkHDFReader()
 {
   delete this->Impl;
   this->SetFileName(nullptr);
-  for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
+  for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
   {
-    this->DataArraySelection[i]->RemoveObserver(this->SelectionObserver);
-    this->DataArraySelection[i]->Delete();
+    this->DataArraySelection[attrType]->RemoveObserver(this->SelectionObserver);
+    this->DataArraySelection[attrType]->Delete();
   }
   this->SelectionObserver->Delete();
 }
@@ -443,6 +445,7 @@ void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "PointDataArraySelection: " << this->DataArraySelection[vtkDataObject::POINT]
      << "\n";
+  os << indent << "RowDataArraySelection: " << this->DataArraySelection[vtkDataObject::ROW] << "\n";
   os << indent << "HasTemporalData: " << (this->HasTemporalData ? "true" : "false") << "\n";
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << "\n";
   os << indent << "Step: " << this->Step << "\n";
@@ -551,6 +554,12 @@ vtkDataArraySelection* vtkHDFReader::GetFieldDataArraySelection()
 }
 
 //----------------------------------------------------------------------------
+vtkDataArraySelection* vtkHDFReader::GetRowDataArraySelection()
+{
+  return this->DataArraySelection[vtkDataObject::ROW];
+}
+
+//----------------------------------------------------------------------------
 int vtkHDFReader::GetNumberOfCellArrays()
 {
   return this->DataArraySelection[vtkDataObject::CELL]->GetNumberOfArrays();
@@ -574,8 +583,9 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
 {
   std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
     { VTK_RECTILINEAR_GRID, "vtkRectilinearGrid" }, { VTK_STRUCTURED_GRID, "vtkStructuredGrid" },
-    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_POLY_DATA, "vtkPolyData" },
-    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" }, { VTK_HYPER_TREE_GRID, "vtkHyperTreeGrid" },
+    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_TABLE, "vtkTable" },
+    { VTK_POLY_DATA, "vtkPolyData" }, { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
+    { VTK_HYPER_TREE_GRID, "vtkHyperTreeGrid" },
     { VTK_PARTITIONED_DATA_SET_COLLECTION, "vtkPartitionedDataSetCollection" },
     { VTK_MULTIBLOCK_DATA_SET, "vtkMultiBlockDataSet" } };
 
@@ -618,18 +628,18 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
   {
     this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
     info->Set(vtkDataObject::DATA_OBJECT(), this->Impl->GetNewDataSet(dataSetType, numPieces));
-    for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
+    for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
     {
-      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrType);
       // Remove obsolete arrays from selection
       vtkIdType arrId = 0;
-      while (arrId < this->DataArraySelection[i]->GetNumberOfArrays())
+      while (arrId < this->DataArraySelection[attrType]->GetNumberOfArrays())
       {
-        auto arrName = this->DataArraySelection[i]->GetArrayName(arrId);
+        auto arrName = this->DataArraySelection[attrType]->GetArrayName(arrId);
         if (std::find(arrayNames.cbegin(), arrayNames.cend(), arrName) == arrayNames.cend())
         {
           // Selected array is not available anymore
-          this->DataArraySelection[i]->RemoveArrayByName(arrName);
+          this->DataArraySelection[attrType]->RemoveArrayByName(arrName);
         }
         else
         {
@@ -639,9 +649,9 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
       // Add new arrays to selection
       for (const std::string& arrayName : arrayNames)
       {
-        if (!this->DataArraySelection[i]->ArrayExists(arrayName.c_str()))
+        if (!this->DataArraySelection[attrType]->ArrayExists(arrayName.c_str()))
         {
-          this->DataArraySelection[i]->AddArray(arrayName.c_str());
+          this->DataArraySelection[attrType]->AddArray(arrayName.c_str());
         }
       }
     }
@@ -726,6 +736,10 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
   else if (dataSetType == VTK_UNSTRUCTURED_GRID || dataSetType == VTK_POLY_DATA)
   {
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  }
+  else if (dataSetType == VTK_TABLE)
+  {
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
@@ -969,6 +983,48 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkStructuredGrid* data)
 }
 
 //------------------------------------------------------------------------------
+int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkTable* data)
+{
+  // Read number of rows
+  vtkIdType numberOfRows = this->Impl->GetMetadata("NumberOfRows", 1, this->Step)[0];
+  data->SetNumberOfRows(numberOfRows);
+
+  // Read row data
+  int rowType = vtkDataObject::AttributeTypes::ROW;
+  const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(rowType);
+  for (const std::string& name : arrayNames)
+  {
+    if (!this->DataArraySelection[rowType]->ArrayIsEnabled(name.c_str()))
+    {
+      continue;
+    }
+
+    vtkIdType arrayOffset = 0;
+    if (this->GetHasTemporalData())
+    {
+      arrayOffset += this->Impl->GetArrayOffset(this->Step, rowType, name);
+    }
+
+    // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
+    auto [cacheArray, array] =
+      ::ReadFromFileOrCache(this->Impl, this->UseCache ? this->Cache : nullptr, rowType, name,
+        this->CompositeCachePath, arrayOffset, numberOfRows, false);
+
+    if (!array)
+    {
+      vtkErrorMacro("Error reading array " << name);
+      return 0;
+    }
+
+    array->SetName(name.c_str());
+    data->AddColumn(array);
+    this->Impl->AttachDatasetAttributeToArray(rowType, array, data->GetRowData());
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 {
   if (!data)
@@ -1046,7 +1102,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 
 //------------------------------------------------------------------------------
 bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
-  vtkDataArraySelection* dataArraySelection[3], bool isTemporalData)
+  const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData)
 {
   for (unsigned int level = 0; level < maxLevel; level++)
   {
@@ -1074,7 +1130,7 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attributeType);
       for (const std::string& name : arrayNames)
       {
-        if (!dataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
+        if (!dataArraySelection.at(attributeType)->ArrayIsEnabled(name.c_str()))
         {
           continue;
         }
@@ -2301,6 +2357,10 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   {
     ok = this->Read(
       outInfo, vtkUnstructuredGrid::SafeDownCast(data), vtkPartitionedDataSet::SafeDownCast(data));
+  }
+  else if (dataSetType == VTK_TABLE)
+  {
+    ok = this->Read(outInfo, vtkTable::SafeDownCast(data));
   }
   else if (dataSetType == VTK_POLY_DATA)
   {

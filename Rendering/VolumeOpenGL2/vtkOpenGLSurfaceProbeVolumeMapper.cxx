@@ -21,7 +21,6 @@
 #include "vtkShaderProgram.h"
 #include "vtkShaderProperty.h"
 #include "vtkTextureObject.h"
-#include "vtkVolumeTexture.h"
 
 #include <vtk_glad.h>
 
@@ -31,6 +30,7 @@ vtkStandardNewMacro(vtkOpenGLSurfaceProbeVolumeMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLSurfaceProbeVolumeMapper::vtkOpenGLSurfaceProbeVolumeMapper()
 {
+  this->VolumeTexture = vtkSmartPointer<vtkVolumeTexture>::New();
   this->SetNumberOfInputPorts(3);
 }
 

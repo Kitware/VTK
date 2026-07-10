@@ -52,13 +52,13 @@
 #include "vtkNew.h" // For vtkNew
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkVolumeTexture.h"                // For VolumeTexture
 #include "vtkWrappingHints.h"                // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
-class vtkVolumeTexture;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSurfaceProbeVolumeMapper
   : public vtkOpenGLPolyDataMapper
@@ -85,6 +85,15 @@ public:
   vtkImageData* GetSource();
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
   ///@}
+
+  /**
+   * Specify the volume texture to use for this mapper.
+   * This allows many mappers to use the same texture, reducing GPU usage.
+   * The volume texture is uploaded only once for the first mapper being rendered.
+   * The source image data still has to be set for all mappers even when they share the same
+   * volume texture.
+   */
+  vtkSetSmartPointerMacro(VolumeTexture, vtkVolumeTexture);
 
   ///@{
   /**
@@ -184,7 +193,7 @@ private:
 
   vtkNew<vtkTextureObject> PositionsTextureObject;
   vtkNew<vtkTextureObject> NormalsTextureObject;
-  vtkNew<vtkVolumeTexture> VolumeTexture;
+  vtkSmartPointer<vtkVolumeTexture> VolumeTexture;
 
   vtkNew<vtkImageData> TransformedSource;
 

@@ -43,8 +43,13 @@ to suppress all console output on error. The previous version has been deprecate
 
 `vtkHDFWriter` now properly supports the HyperTreeGrid data model. It can write partitioned, temporal and distributed data.
 
-## vtkRectilinearGrid & vtkStructuredGrid support
+## New data types specified: vtkRectilinearGrid, vtkStructuredGrid and vtkTable
 
-The VTKHDF specification now supports Recilinear Grids and Structured Grids.
+The VTKHDF specification now supports Recilinear Grids, Structured Grids and Tables.
 
-`vtkHDFWriter` and `vtkHDFReader` are both capable of handling these new datatypes, for simple and time-dependent data.
+`vtkHDFWriter` and `vtkHDFReader` are both capable of handling these new datatypes, for simple and time-dependent data (no partition or extent support).
+
+## vtkHDFUtilities and vtkHDFReader deprecations
+
+- The protect method `vtkHDFReader::DataArraySelection` now returns a `std::map` instead of a `std::array` with `vtkDataObject::AttributeTypes::` as a key.
+- `vtkHDFUtilities::GetArrayNames`, `RetrieveHDFInformation` and `NewFieldArray` also use a `std::map<int, hid_t>` for the `attributeDataGroup` argument instead of a `std::array<hid_t, 3>`.

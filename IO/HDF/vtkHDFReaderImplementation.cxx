@@ -28,6 +28,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -56,7 +57,10 @@ vtkHDFReader::Implementation::Implementation(vtkHDFReader* reader)
   , NumberOfPieces(-1)
   , Reader(reader)
 {
-  std::fill(this->AttributeDataGroup.begin(), this->AttributeDataGroup.end(), -1);
+  for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
+  {
+    this->AttributeDataGroup[attrType] = H5I_INVALID_HID;
+  }
   std::fill(this->Version.begin(), this->Version.end(), 0);
 }
 
@@ -226,12 +230,12 @@ void vtkHDFReader::Implementation::CloseMemberGroups()
     H5Gclose(this->VTKGroup);
     this->VTKGroup = -1;
   }
-  for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
+  for (auto& it : this->AttributeDataGroup)
   {
-    if (this->AttributeDataGroup[i] >= 0)
+    if (it.second >= 0)
     {
-      H5Gclose(this->AttributeDataGroup[i]);
-      this->AttributeDataGroup[i] = -1;
+      H5Gclose(it.second);
+      it.second = -1;
     }
   }
 }
@@ -608,13 +612,9 @@ bool vtkHDFReader::Implementation::GetDimensionsAttribute(int Dimensions[3])
 
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ComputeAMROffsetsPerLevels(
-  vtkDataArraySelection* dataArraySelection[3], vtkIdType step, unsigned int nLevels)
+  const std::map<int, vtkDataArraySelection*>& dataArraySelection, vtkIdType step,
+  unsigned int nLevels)
 {
-  if (!dataArraySelection)
-  {
-    return false;
-  }
-
   this->AMRInformation.Clear();
 
   if (this->DataSetType != VTK_OVERLAPPING_AMR)
@@ -726,7 +726,7 @@ bool vtkHDFReader::Implementation::ComputeAMROffsetsPerLevels(
       const std::vector<std::string> arrayNames = this->GetArrayNames(attributeType);
       for (const std::string& name : arrayNames)
       {
-        if (!dataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
+        if (!dataArraySelection.at(attributeType)->ArrayIsEnabled(name.c_str()))
         {
           continue;
         }
@@ -1400,6 +1400,10 @@ vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
   else if (dataSetType == VTK_STRUCTURED_GRID)
   {
     newOutput = vtkSmartPointer<vtkStructuredGrid>::New();
+  }
+  else if (dataSetType == VTK_TABLE)
+  {
+    newOutput = vtkSmartPointer<vtkTable>::New();
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {

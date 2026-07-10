@@ -562,6 +562,13 @@ digraph G {
 Figure 5. - HyperTreeGrid VTKHDF File Format
 </div>
 
+## Table
+
+`vtkTable` data objects do not carry information about geometry; they are tabular data with named columns and a fixed number of rows.
+
+The VTKHDF format requires a `/VTKHDF/NumberOfRows` dataset containing 1 element per time step, giving the number of rows for time step `i`.
+Row data is stored as arrays in `/VTKHDF/RowData/<ColumnName>`. The size of the datasets must be consistent with `NumberOfRows`.
+
 ## PartitionedDataSetCollection and MultiBlockDataSet
 
 VTKHDF supports composite types, made of multiple datasets of simple types, organized as a tree.
@@ -780,6 +787,10 @@ Datasets `Steps/XCoordinatesOffsets`, `Steps/YCoordinatesOffsets` and `Steps/ZCo
 Point positions in the `Points` dataset are added in the first dimension at every time step. The `Steps/PointOffsets` dataset defines the read offset in the first dimension of the explicit point positions dataset `Points`. When not specified, the offset is `0`, which means that the structured point positions are the same as the previous step.
 
 When point positions are changing between time steps, `Points` is a 5-dimensional dataset of shape (`NumberOfTimeSteps`, `X dimension`,`Y dimension`, `Z dimension`, 3). X/Y/Z dimensions need to be consistent between time steps.
+
+### Temporal Table
+
+In a similar way to `PointDataOffsets` and `CellDataOffsets`, temporal tables use `Steps/RowDataOffets/<ColumnName>` datasets to store temporal offsets into `RowData/<ColumnName>` arrays, with 1 value per time step.
 
 ### Temporal OverlappingAMR
 

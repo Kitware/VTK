@@ -76,6 +76,10 @@ private:
   vtkRemoteInteractionAdapter(const vtkRemoteInteractionAdapter&) = delete;
   void operator=(const vtkRemoteInteractionAdapter&) = delete;
 
+  static void physicalToLogicalPosition(const double physicalPosition[2], int (&logicalPosition)[2],
+    const double physicalSize[2], vtkRenderWindowInteractor* iren, double devicePixelRatio,
+    double devicePixelRatioTolerance);
+
   double DevicePixelRatio = 1.0;
   double DevicePixelRatioTolerance = 1e-5;
   vtkRenderWindowInteractor* Interactor = nullptr;
