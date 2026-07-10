@@ -14,13 +14,13 @@
 #ifndef vtkPeriodicTable_h
 #define vtkPeriodicTable_h
 
+#include "vtkColor.h"                  // For vtkColor3f
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkNew.h"                    // Needed for the static data member
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBlueObeliskData;
-class vtkColor3f;
 class vtkLookupTable;
 class vtkStdString;
 

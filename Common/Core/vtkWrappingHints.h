@@ -26,7 +26,7 @@
 #define VTK_DEFINE_WRAP_HINT_ARGS(name, ...) [[name(__VA_ARGS__)]]
 #endif
 
-#ifdef __VTK_WRAP__
+#if defined(__VTK_WRAP__) || defined(VTK_WRAP_HINTS_USE_CLANG_ANNOTATE)
 #define VTK_WRAP_HINTS_DEFINED
 // Exclude a method or class from wrapping
 #define VTK_WRAPEXCLUDE VTK_DEFINE_WRAP_HINT(vtk::wrapexclude)

@@ -48,6 +48,11 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Get the default file extension for files written by this writer.
+   */
+  const char* GetDefaultFileExtension() override;
+
 protected:
   vtkXMLTableWriter();
   ~vtkXMLTableWriter() override;
@@ -56,11 +61,6 @@ protected:
 
   vtkTable* GetTableInput();
   const char* GetDataSetName() override; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
-
-  /**
-   * Get the default file extension for files written by this writer.
-   */
-  const char* GetDefaultFileExtension() override;
 
   void SetInputUpdateExtent(int piece, int numPieces);
 

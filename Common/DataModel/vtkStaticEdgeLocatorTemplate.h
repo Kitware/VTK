@@ -52,6 +52,7 @@
 #define vtkStaticEdgeLocatorTemplate_h
 
 #include "vtkABINamespace.h"
+#include "vtkType.h" // For vtkIdType
 
 #include <algorithm>
 #include <vector>

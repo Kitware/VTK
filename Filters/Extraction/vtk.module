@@ -29,6 +29,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersHyperTree
   VTK::FiltersStatistics
+  VTK::ParallelCore
   VTK::ParallelDIY
 OPTIONAL_DEPENDS
   VTK::ParallelMPI

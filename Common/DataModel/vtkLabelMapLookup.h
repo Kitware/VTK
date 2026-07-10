@@ -20,6 +20,7 @@
 #define vtkLabelMapLookup_h
 
 #include "vtkCommonDataModelModule.h"
+#include "vtkSetGet.h" // For vtkNotUsed
 
 #include <unordered_set>
 #include <vector>

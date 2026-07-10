@@ -43,6 +43,8 @@ public:
    */
   static vtkXMLWriter* NewWriter(int dataset_type);
 
+  const char* GetDefaultFileExtension() override;
+
 protected:
   vtkXMLDataObjectWriter();
   ~vtkXMLDataObjectWriter() override;
@@ -55,7 +57,6 @@ protected:
 
   // Dummies to satisfy pure virtuals from superclass.
   const char* GetDataSetName() override;
-  const char* GetDefaultFileExtension() override;
 
   // Callback registered with the InternalProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);

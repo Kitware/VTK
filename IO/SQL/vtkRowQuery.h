@@ -39,9 +39,9 @@
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkVariant.h" // For vtkVariant
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkVariant;
 class vtkVariantArray;
 
 class VTKIOSQL_EXPORT vtkRowQuery : public vtkObject

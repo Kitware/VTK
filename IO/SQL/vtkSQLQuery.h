@@ -44,6 +44,7 @@
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkRowQuery.h"
 #include "vtkStdString.h" // for EscapeString()
+#include "vtkVariant.h"   // For vtkVariant
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSQLDatabase;

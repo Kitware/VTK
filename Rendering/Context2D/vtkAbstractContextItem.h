@@ -17,6 +17,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkVector.h"                   // For vtkVector2f
 #include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,7 +26,6 @@ class vtkContextMouseEvent;
 class vtkContextKeyEvent;
 class vtkContextScene;
 class vtkContextScenePrivate;
-class vtkVector2f;
 
 class VTKRENDERINGCONTEXT2D_EXPORT VTK_MARSHALAUTO vtkAbstractContextItem : public vtkObject
 {

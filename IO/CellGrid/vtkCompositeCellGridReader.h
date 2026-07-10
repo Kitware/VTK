@@ -50,16 +50,16 @@ public:
   /// the cell-type or cell-attribute array-selections are modified.
   vtkMTimeType GetMTime() override;
 
+  int ReadMetaData(vtkInformation* metadata) override;
+  int ReadMesh(int, int, int, int, vtkDataObject*) override;
+  int ReadPoints(int, int, int, int, vtkDataObject*) override;
+  int ReadArrays(int, int, int, int, vtkDataObject*) override;
+
 protected:
   vtkCompositeCellGridReader();
   ~vtkCompositeCellGridReader() override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-
-  int ReadMetaData(vtkInformation* metadata) override;
-  int ReadMesh(int, int, int, int, vtkDataObject*) override;
-  int ReadPoints(int, int, int, int, vtkDataObject*) override;
-  int ReadArrays(int, int, int, int, vtkDataObject*) override;
 
   bool UpdateMetadata();
 
