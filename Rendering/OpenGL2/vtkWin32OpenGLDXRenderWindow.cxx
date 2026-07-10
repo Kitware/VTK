@@ -138,8 +138,12 @@ void vtkWin32OpenGLDXRenderWindow::InitializeDX()
   // Create D3D Texture2D
   this->CreateTexture(this->Impl->ColorTextureFormat,
     D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, &this->Impl->D3DSharedColorTexture);
+
+  DXGI_FORMAT depthTextureFormat =
+    this->StencilCapable ? DXGI_FORMAT_D24_UNORM_S8_UINT : DXGI_FORMAT_D32_FLOAT;
+
   this->CreateTexture(
-    DXGI_FORMAT_D32_FLOAT, D3D11_BIND_DEPTH_STENCIL, &this->Impl->D3DSharedDepthTexture);
+    depthTextureFormat, D3D11_BIND_DEPTH_STENCIL, &this->Impl->D3DSharedDepthTexture);
 }
 
 //------------------------------------------------------------------------------
@@ -201,7 +205,10 @@ void vtkWin32OpenGLDXRenderWindow::UpdateTextures()
     D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
     this->Impl->D3DSharedColorTexture.ReleaseAndGetAddressOf());
 
-  this->CreateTexture(DXGI_FORMAT_D32_FLOAT, D3D11_BIND_DEPTH_STENCIL,
+  DXGI_FORMAT depthTextureFormat =
+    this->StencilCapable ? DXGI_FORMAT_D24_UNORM_S8_UINT : DXGI_FORMAT_D32_FLOAT;
+
+  this->CreateTexture(depthTextureFormat, D3D11_BIND_DEPTH_STENCIL,
     this->Impl->D3DSharedDepthTexture.ReleaseAndGetAddressOf());
 
   this->RegisterSharedTexture(colorId, depthId);
