@@ -680,6 +680,7 @@
 .linux_x86_64_cuda_tester_tags:
     tags:
         - cuda-rt
+        - cuda-arch-ptx-compat-75
         - docker
         - linux-x86_64
         - vtk
