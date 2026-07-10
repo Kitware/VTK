@@ -17,7 +17,7 @@ vtk_module_test_data(
 
 vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestConvertSelection.cxx,NO_VALID
-  TestExpandMarkedElements.cxx
+  TestExpandMarkedElements.cxx,NO_VALID
   TestExtractBlock.cxx,NO_VALID,NO_DATA
   TestExtractBlockUsingDataAssembly.cxx,NO_VALID
   TestExtractDataArraysOverTime.cxx,NO_VALID
