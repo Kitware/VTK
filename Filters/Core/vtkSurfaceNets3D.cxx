@@ -51,13 +51,13 @@ vtkStandardNewMacro(vtkSurfaceNets3D);
 //
 // The surface extraction portion of this implementation is organized as five
 // passes: 1) classify x-edges; 2) classify y-z-edges and voxels; 3) prefix sum
-// and allocate output data; 4) generate an auxiliary EdgeRowIndices array
+// and allocate output data; 4) generate an auxiliary OuterSpaceIndices array
 // (recording the x-position of each generated point); and 5) generate points,
-// polygons, and optional scalar data. The EdgeRowIndices pass accelerates
+// polygons, and optional scalar data. The OuterSpaceIndices pass accelerates
 // output generation because the majority of trimmed interval [xMin_i,xMax_i) of a
 // row contains many triads that do not actually emit points.
 //
-// This extra EdgeRowIndices pass is an optimization applicable to any discrete
+// This extra OuterSpaceIndices pass is an optimization applicable to any discrete
 // (label-map-based) Flying Edges-style algorithm (e.g., Discrete Flying Edges);
 // it is simply implemented here. Because label maps often contain large homogeneous
 // regions, the skip rate within a trim interval is high. A typical continuous
@@ -134,7 +134,7 @@ namespace
 // center of the voxel, and whether the voxel origin point/triad origin is
 // inside any labeled region, or outside. In Pass#3, a prefix sum is used
 // to characterize the output, and allocate the appropriate output
-// arrays. In Pass#4, the algorithm generates EdgeRowIndices, which record the
+// arrays. In Pass#4, the algorithm generates OuterSpaceIndices, which record the
 // x-position of the triad that produced each output point (multiple
 // consecutive entries share the same x when a non-manifold triad produces more
 // than one point). This additional pass is used to accelerate output
@@ -218,7 +218,7 @@ struct SurfaceNets
   using NonManifoldCaseType = NonManifoldCases::NonManifoldCaseType;
   using VoxelCaseType = NonManifoldCases::VoxelCaseType;
   using VoxelNeighborhood = NonManifoldCases::VoxelNeighborhood<vtk::GetAPIType<TArray>>;
-  using EdgeRowIndexType = TEdgeRowIndex;
+  using OuterSpaceIndexType = TEdgeRowIndex;
 
   // The triad classification carries information on 8/16 different bits.
   // 1. Bit 1 indicates whether the origin of the triad is inside or outside
@@ -646,8 +646,9 @@ struct SurfaceNets
   vtkIdType TriadDims[3];
   vtkIdType TriadSliceOffset;
   std::vector<EdgeMetaDataType> EdgeMetaData;
-  std::vector<EdgeTrimType> EdgeTrims;          // per-row trim interval [XMin, XMax)
-  std::vector<EdgeRowIndexType> EdgeRowIndices; // x-position per output point, indexed by point id
+  std::vector<EdgeTrimType> EdgeTrims; // per-row trim interval [XMin, XMax)
+  std::vector<OuterSpaceIndexType>
+    OuterSpaceIndices; // x-position per output point, indexed by point id
 
   // The stencil table used to obtain smoothing stencils from the voxel *edge
   // case*. This table indexes into the StencilFaceCases[64][7] using the voxel
@@ -834,7 +835,7 @@ struct SurfaceNets
   //
   // Output generation traverses a 3x3 bundle of edge rows centered at k=4.
   // Each edge row has an associated contiguous range of output point ids
-  // [eMD[k]->NumPoints, next(eMD[k])->NumPoints). The EdgeRowIndices array (built
+  // [eMD[k]->NumPoints, next(eMD[k])->NumPoints). The OuterSpaceIndices array (built
   // in Pass 4) maps each output point id in that range to the x-position of the
   // generating triad within the corresponding edge row.
   //
@@ -847,9 +848,9 @@ struct SurfaceNets
   {
     assert(eMDPtrs[4] != nullptr); // current row is never a boundary row, so always has metadata
     // Initialize point numbering and build end-of-section point ids for each row
-    // in the 3x3 bundle (used to bound EdgeRowIndices traversal). For null rows
+    // in the 3x3 bundle (used to bound OuterSpaceIndices traversal). For null rows
     // (on boundaries), use -1 so that pointIds[k] = -1 never satisfies
-    // pointIds[k] < endPtIds[k] and we never index EdgeRowIndices.
+    // pointIds[k] < endPtIds[k] and we never index OuterSpaceIndices.
     const EdgeMetaDataType* eMDEnd = this->EdgeMetaData.data() + this->EdgeMetaData.size();
     for (int k = 0; k < 9; ++k)
     {
@@ -863,7 +864,7 @@ struct SurfaceNets
 
       pointIds[k] = eMDPtr->NumPoints;
       const EdgeMetaDataType* nextEMD = eMDPtr + 1;
-      endPtIds[k] = (nextEMD < eMDEnd) ? nextEMD->NumPoints : this->EdgeRowIndices.size();
+      endPtIds[k] = (nextEMD < eMDEnd) ? nextEMD->NumPoints : this->OuterSpaceIndices.size();
     }
 
     // One-time pre-alignment: catch neighboring rows up to the first active
@@ -872,19 +873,19 @@ struct SurfaceNets
     const vtkIdType endPtId4 = endPtIds[4];
     if (pointIds[4] < endPtId4)
     {
-      const EdgeRowIndexType i = this->EdgeRowIndices[pointIds[4]];
+      const OuterSpaceIndexType i = this->OuterSpaceIndices[pointIds[4]];
       // Neighbor rows live in the 3x3 bundle excluding the current row k=4.
       // Use two tight loops (0..3 and 5..8) to keep the hot path simple.
       for (int k = 0; k < 4; ++k)
       {
-        while (pointIds[k] < endPtIds[k] && this->EdgeRowIndices[pointIds[k]] < i)
+        while (pointIds[k] < endPtIds[k] && this->OuterSpaceIndices[pointIds[k]] < i)
         {
           ++pointIds[k];
         }
       }
       for (int k = 5; k < 9; ++k)
       {
-        while (pointIds[k] < endPtIds[k] && this->EdgeRowIndices[pointIds[k]] < i)
+        while (pointIds[k] < endPtIds[k] && this->OuterSpaceIndices[pointIds[k]] < i)
         {
           ++pointIds[k];
         }
@@ -912,17 +913,17 @@ struct SurfaceNets
       return;
     }
     // Pre-align neighbor rows to the next active position nextI in the current row.
-    const EdgeRowIndexType& nextI = this->EdgeRowIndices[pointIds[4]];
+    const OuterSpaceIndexType& nextI = this->OuterSpaceIndices[pointIds[4]];
     for (int k = 0; k < 4; ++k)
     {
-      while (pointIds[k] < endPtIds[k] && this->EdgeRowIndices[pointIds[k]] < nextI)
+      while (pointIds[k] < endPtIds[k] && this->OuterSpaceIndices[pointIds[k]] < nextI)
       {
         ++pointIds[k];
       }
     }
     for (int k = 5; k < 9; ++k)
     {
-      while (pointIds[k] < endPtIds[k] && this->EdgeRowIndices[pointIds[k]] < nextI)
+      while (pointIds[k] < endPtIds[k] && this->OuterSpaceIndices[pointIds[k]] < nextI)
       {
         ++pointIds[k];
       }
@@ -1233,9 +1234,13 @@ struct SurfaceNets
   void ConfigureOutput(vtkPoints* newPts, vtkTypeInt8Array* nonManifoldTableIndices,
     vtkCellArray* newQuads, TArray* newScalars, vtkCellArray* stencils); // PASS 3
 
-  // PASS 4: Build an auxiliary array that records, for each generated output point,
-  // the x-position (within the current edge row) of the triad that generated it.
-  void BuildPointGeneratingEdgeRowXIndices(vtkIdType row, vtkIdType slice);
+  // PASS 4: For each volume cell row V_{j,k}, traverse the trim interval once and
+  // write the x-position of every triad that produces output points into the auxiliary
+  // outer-space indices array. The array is indexed by output point id, so multiple
+  // consecutive entries share the same x-position when a non-manifold triad emits more
+  // than one point. Each row writes into a contiguous, pre-allocated slice of the array
+  // determined by the prefix sum from Pass 3.
+  void BuildOuterSpaceIndices(vtkIdType row, vtkIdType slice);
 
   // The fifth pass produces the output geometry (i.e., points) and topology
   // (quads and smoothing stencils). It processes an x-row of voxels.
@@ -1721,18 +1726,16 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ConfigureOutput(vtkPoints* newPts,
     this->NewStencils = stencils;
 
     // Edge row Indices
-    this->EdgeRowIndices.resize(static_cast<size_t>(outputEMD.NumPoints));
+    this->OuterSpaceIndices.resize(static_cast<size_t>(outputEMD.NumPoints));
   }
 } // ConfigureOutput
 
 //------------------------------------------------------------------------------
-// PASS 4: Build an auxiliary array that records, for each generated output point,
-// the x-position (within the current edge row) of the triad that generated it.
-// This allows output generation to traverse only point-generating triads in a
-// row even when the trimmed interval [xMin_i,xMax_i) is sparse in such triads.
+// PASS 4: Build the outer-space indices array. For each volume cell row, traverse
+// the trim interval and write the x-position of every point-producing triad into
+// a contiguous, pre-allocated slice of the array (determined by the Pass 3 prefix sum).
 template <typename TArray, typename TEdgeRowIndex>
-void SurfaceNets<TArray, TEdgeRowIndex>::BuildPointGeneratingEdgeRowXIndices(
-  vtkIdType row, vtkIdType slice)
+void SurfaceNets<TArray, TEdgeRowIndex>::BuildOuterSpaceIndices(vtkIdType row, vtkIdType slice)
 {
   const vtkIdType edgeRow = slice * this->TriadDims[Y] + row;
   const EdgeTrimType& eTrim = this->EdgeTrims[edgeRow];
@@ -1750,11 +1753,11 @@ void SurfaceNets<TArray, TEdgeRowIndex>::BuildPointGeneratingEdgeRowXIndices(
     const TriadType& triad = triadPtr[i];
     if (VTK_UNLIKELY(SurfaceNets::ProducesPoints(triad)))
     {
-      const EdgeRowIndexType n = SurfaceNets::GetNumberOfPoints(triad);
+      const OuterSpaceIndexType n = SurfaceNets::GetNumberOfPoints(triad);
       VTK_ASSUME(n >= 1 && n <= 5);
-      for (EdgeRowIndexType j = 0; j < n; ++j)
+      for (OuterSpaceIndexType j = 0; j < n; ++j)
       {
-        this->EdgeRowIndices[offset++] = i;
+        this->OuterSpaceIndices[offset++] = i;
       }
     }
   }
@@ -1814,19 +1817,19 @@ void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType
   // rows surrounding the current edge (in total, a 3x3 stencil, which
   // includes in the center of the stencil, the current edge).  The pointIds
   // are initialized with the edge metadata, and advanced as a function of
-  // the EdgeRowIndices along the nine edges.
+  // the OuterSpaceIndices along the nine edges.
   std::array<vtkIdType, 9> pointIds, endPtIds;
   this->InitRowIterator(eMDPtrs, pointIds, endPtIds);
   vtkIdType quadId = eMD.NumQuads;         // starting quad id for this row
   vtkIdType sOffset = eMD.NumStencilEdges; // starting stencil offset for this row
 
-  // Traverse only the active positions in this row by following EdgeRowIndices
+  // Traverse only the active positions in this row by following OuterSpaceIndices
   // for the current row (k=4). For each active position i, first catch up
   // neighboring rows to i, then generate output, then advance all rows past i.
   const vtkIdType endPtId4 = endPtIds[4];
   while (pointIds[4] < endPtId4)
   {
-    const vtkIdType i = static_cast<vtkIdType>(this->EdgeRowIndices[pointIds[4]]);
+    const vtkIdType i = static_cast<vtkIdType>(this->OuterSpaceIndices[pointIds[4]]);
     const TriadType& triad = triadPtr[i];
     const auto [numPoints, tableIndex] = SurfaceNets::GetStateInfo(triad);
     assert(numPoints > 0); // should be guaranteed
@@ -1977,10 +1980,13 @@ struct NetsWorker
     algo->ConfigureOutput(newPts, nonManifoldTableIndices, newQuads, newScalars, stencils);
   } // Pass3
 
-  // PASS 4: BuildPointGeneratingEdgeRowXIndices: for each output point, record the
-  // x-position (within the current edge row) of its generating triad.
-  // Indexed by point id; multiple consecutive entries share the same x when a
-  // non-manifold triad generates more than one point.
+  // PASS 4: Identify the outer space between materials. For each volume cell row V_{j,k},
+  // traverse the trim interval once and write the x-positions of all triads that produce
+  // output points into the auxiliary outer-space indices array. The array is indexed by
+  // output point id; multiple consecutive entries share the same x-position when a
+  // non-manifold triad emits more than one point. Each row writes into a contiguous,
+  // pre-allocated slice determined by the prefix sum from Pass 3, and rows are processed
+  // independently in parallel.
   template <typename TArray, typename TEdgeRowIndex>
   struct Pass4
   {
@@ -2008,7 +2014,7 @@ struct NetsWorker
           const vtkIdType rowEnd = sliceRowEnd - slice * numRows;
           for (vtkIdType row = rowStart; row < rowEnd; ++row)
           {
-            this->Algo->BuildPointGeneratingEdgeRowXIndices(row, slice);
+            this->Algo->BuildOuterSpaceIndices(row, slice);
           } // for all rows
         } // if points are generated
         sliceRow = sliceRowEnd; // advance sliceRow
@@ -2189,8 +2195,8 @@ struct NetsWorker
     // load balancing. The last (padded) slice and row are excluded.
     const vtkIdType sliceRows = (algo.TriadDims[Z] - 1) * (algo.TriadDims[Y] - 1);
 
-    // Generate the edge row indices, which are used to accelerate the output generation step by
-    // providing direct access to the x-positions of the triads that generate output points.
+    // Build the outer-space indices, which accelerate output generation by providing
+    // direct access to the x-positions of the triads that produce output points.
     Pass4<TArray, TEdgeRowIndex> pass4(&algo);
     vtkSMPTools::For(0, sliceRows, pass4);
 
@@ -2211,7 +2217,7 @@ struct NetsWorker
 
     algo.Triads.clear();
     algo.EdgeMetaData.clear();
-    algo.EdgeRowIndices.clear();
+    algo.OuterSpaceIndices.clear();
   }
 
   // Dispatch to SurfaceNets.
