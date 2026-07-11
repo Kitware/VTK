@@ -59,11 +59,11 @@ void FillShaderProperty(vtkActor* actor)
     "  in vec3 myNormalMCVSOutput;\n",                   // but we add this
     false                                                // only do it once
   );
-  sp->AddFragmentShaderReplacement("//VTK::Normal::Impl", // replace the normal block
-    true,                                                 // before the standard replacements
-    "//VTK::Normal::Impl\n"                               // we still want the default calc
-    "  diffuseColor = abs(myNormalMCVSOutput);\n",        // but we add this
-    false                                                 // only do it once
+  sp->AddFragmentShaderReplacement("//VTK::Color::Impl", // replace the normal block
+    true,                                                // before the standard replacements
+    "//VTK::Color::Impl\n"                               // we still want the default calc
+    "  diffuseColor = abs(myNormalMCVSOutput);\n",       // but we add this
+    false                                                // only do it once
   );
 }
 }
