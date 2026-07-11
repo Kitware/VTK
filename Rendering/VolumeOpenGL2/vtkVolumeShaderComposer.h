@@ -2946,7 +2946,7 @@ inline std::string ShadingSingleInput(vtkRenderer* vtkNotUsed(ren), vtkVolumeMap
           \n        for (int i = 0; i < in_noOfComponents; ++i)\
           \n          {\
           \n          // Only let visible components contribute to the final color\
-          \n          if (in_componentWeight[i] <= 0) continue;\
+          \n          if (in_componentWeight[i] <= 0.0) continue;\
           \n\
           \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i];\
           \n          tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
