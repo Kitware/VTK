@@ -2740,13 +2740,13 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   {
     // build the shader source code
     std::map<vtkShader::Type, vtkShader*> shaders;
-    vtkShader* vss = vtkShader::New();
+    vtkNew<vtkShader> vss;
     vss->SetType(vtkShader::Vertex);
     shaders[vtkShader::Vertex] = vss;
-    vtkShader* gss = vtkShader::New();
+    vtkNew<vtkShader> gss;
     gss->SetType(vtkShader::Geometry);
     shaders[vtkShader::Geometry] = gss;
-    vtkShader* fss = vtkShader::New();
+    vtkNew<vtkShader> fss;
     fss->SetType(vtkShader::Fragment);
     shaders[vtkShader::Fragment] = fss;
 
@@ -2756,10 +2756,6 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     vtkShaderProgram* newShader = renWin->GetShaderCache()->ReadyShaderProgram(shaders);
     if (newShader)
     {
-      vss->Delete();
-      fss->Delete();
-      gss->Delete();
-
       // if the shader changed reinitialize the VAO
       if (newShader != cellBO.Program || cellBO.Program->GetMTime() > cellBO.AttributeUpdateTime)
       {
