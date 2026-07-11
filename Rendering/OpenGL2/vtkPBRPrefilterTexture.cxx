@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPBRPrefilterTexture.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
@@ -66,9 +68,14 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
   }
 
 #ifdef GL_ES_VERSION_3_0
-  // Mipmap generation is not supported for most texture formats (like GL_RGB32F)
-  this->InputTexture->MipmapOff();
-  this->InputTexture->InterpolateOff();
+  // Mipmap generation is not supported for GL_RGB32F
+  vtkImageData* inputImage = this->InputTexture->GetInput();
+  if (inputImage && inputImage->GetScalarType() == VTK_FLOAT &&
+    inputImage->GetNumberOfScalarComponents() == 3)
+  {
+    this->InputTexture->MipmapOff();
+    this->InputTexture->InterpolateOff();
+  }
 #endif
   this->InputTexture->Render(ren);
   this->PrefilterSize = this->InputTexture->GetTextureObject()->GetHeight();
@@ -89,11 +96,13 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
     this->TextureObject->SetGenerateMipmap(true);
     this->TextureObject->SetMaxLevel(this->PrefilterLevels - 1);
 #ifdef GL_ES_VERSION_3_0
-    this->TextureObject->SetFormat(GL_RGB);
-    this->TextureObject->SetDataType(GL_UNSIGNED_BYTE);
-    this->TextureObject->SetInternalFormat(GL_RGB8);
+    // RGB32F is not colorable in GLES, so we use RGBA32F instead. The alpha channel is always 1.
+    // It's important to use float textures to properly store HDR values
+    // See https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float
+    this->TextureObject->SetFormat(GL_RGBA);
+    this->TextureObject->SetInternalFormat(this->HalfPrecision ? GL_RGBA16F : GL_RGBA32F);
     this->TextureObject->CreateCubeFromRaw(
-      this->PrefilterSize, this->PrefilterSize, 3, VTK_UNSIGNED_CHAR, nullptr);
+      this->PrefilterSize, this->PrefilterSize, 4, VTK_FLOAT, nullptr);
 #else
     this->TextureObject->SetFormat(GL_RGB);
     this->TextureObject->SetInternalFormat(this->HalfPrecision ? GL_RGB16F : GL_RGB32F);
