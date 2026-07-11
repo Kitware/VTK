@@ -52,6 +52,7 @@ vtkGLSLModLight::LightStatsBasic vtkGLSLModLight::GetBasicLightStats(
   {
     stats.Complexity = renderer->GetLightingComplexity();
     stats.Count = renderer->GetLightingCount();
+    stats.IBL = renderer->GetUseImageBasedLighting();
   }
   return stats;
 }
@@ -105,9 +106,11 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
   auto stats = vtkGLSLModLight::GetBasicLightStats(renderer, actor);
   this->LastLightComplexity = stats.Complexity;
   this->LastLightCount = stats.Count;
+  this->LastLightIBL = stats.IBL;
 
   int lastLightComplexity = this->LastLightComplexity;
   int lastLightCount = this->LastLightCount;
+  bool hasIBL = this->LastLightIBL;
 
   if (actor->GetProperty()->GetInterpolation() != VTK_PBR && lastLightCount == 0)
   {
@@ -126,7 +129,6 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
   vtkShaderProgram::Substitute(fragmentShader, "//VTK::Normal::Impl",
     "  vec3 normalizedNormalVCVSOutput = normalize(vertexNormalVCVS);", false);
 
-  bool hasIBL = false;
   std::ostringstream oss;
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
   {
@@ -204,9 +206,8 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
       }
 
       // IBL
-      if (oglRen && renderer->GetUseImageBasedLighting())
+      if (hasIBL)
       {
-        hasIBL = true;
         oss << "  const float prefilterMaxLevel = float("
             << (oglRen->GetEnvMapPrefiltered()->GetPrefilterLevels() - 1) << ");\n";
       }
@@ -879,7 +880,8 @@ bool vtkGLSLModLight::IsUpToDate(
   vtkOpenGLRenderer* renderer, vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
 {
   auto stats = vtkGLSLModLight::GetBasicLightStats(renderer, actor);
-  if (this->LastLightComplexity != stats.Complexity || this->LastLightCount != stats.Count)
+  if (this->LastLightComplexity != stats.Complexity || this->LastLightCount != stats.Count ||
+    this->LastLightIBL != stats.IBL)
   {
     // lighting is not up to date.
     return false;

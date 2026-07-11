@@ -30,6 +30,7 @@ public:
   {
     int Complexity = 0;
     int Count = 0;
+    bool IBL = false;
   };
 
   static LightStatsBasic GetBasicLightStats(vtkOpenGLRenderer* renderer, vtkActor* actor);
@@ -58,6 +59,7 @@ protected:
   /// @name Light statistics
   int LastLightComplexity = 0;
   int LastLightCount = 0;
+  bool LastLightIBL = false;
 
   /// @name PBR settings
   bool UsePBRTextures = false;
