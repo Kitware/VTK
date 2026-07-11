@@ -1263,7 +1263,14 @@ vtkSmartPointer<vtkPolyData> vtkSurfaceNetsAtlas::ExtractLabel(vtkPolyData* sour
   if (inCells->IsStorageFixedSize())
   {
     const vtkIdType isHomogeneous = inCells->IsHomogeneous();
-    outCells->UseFixedSizeDefaultStorage(isHomogeneous);
+    if (inCells->IsStorageFixedSize32Bit())
+    {
+      outCells->UseFixedSize32BitStorage(isHomogeneous);
+    }
+    else
+    {
+      outCells->UseFixedSize64BitStorage(isHomogeneous);
+    }
     outCells->ResizeExact(numSubsetCells, numSubsetCells * isHomogeneous);
   }
   else

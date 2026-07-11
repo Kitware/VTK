@@ -912,7 +912,7 @@ struct SurfaceNets
       return;
     }
     // Pre-align neighbor rows to the next active position nextI in the current row.
-    const EdgeRowIndexType nextI = this->EdgeRowIndices[pointIds[4]];
+    const EdgeRowIndexType& nextI = this->EdgeRowIndices[pointIds[4]];
     for (int k = 0; k < 4; ++k)
     {
       while (pointIds[k] < endPtIds[k] && this->EdgeRowIndices[pointIds[k]] < nextI)
@@ -949,7 +949,7 @@ struct SurfaceNets
   // 4, 8) can be produced (i.e., for the edges of the voxel triad). Scalar
   // data indicating the regions/labels on either side of the quad are also
   // written.
-  struct GenerateQuadsImpl : public vtkCellArray::DispatchUtilities
+  struct GenerateQuads : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
     void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType i, vtkIdType row,
@@ -957,8 +957,7 @@ struct SurfaceNets
       int8_t tableIndex4, const std::array<TriadType*, 9>& triadPtrs,
       std::array<vtkIdType, 9>& pointIds, vtkIdType& quadId)
     {
-      auto connRange = GetRange(conn);
-      auto connIter = connRange.begin() + (quadId * 4);
+      auto connIter = conn->GetPointer(quadId * 4);
 
       // Prepare to write scalar data. s0 is the triad origin.
       const T backgroundLabel = snet->BackgroundLabel;
@@ -1117,10 +1116,10 @@ struct SurfaceNets
       }
 
     } // operator()
-  }; // GenerateQuadsImpl
+  }; // GenerateQuads
 
   // Produce the smoothing stencils for this voxel cell.
-  struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
+  struct GenerateStencils
   {
     template <class OffsetsT, class ConnectivityT>
     void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType i, SurfaceNets* snet,
@@ -1131,10 +1130,8 @@ struct SurfaceNets
       // The point on which the stencil operates
       const vtkIdType& pointId4 = pointIds[4];
 
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + pointId4;
-      auto connRange = GetRange(conn);
-      auto connIter = connRange.begin() + sOffset;
+      auto offsetIter = offsets->GetPointer(pointId4);
+      auto connIter = conn->GetPointer(sOffset);
 
       // Create the stencil. Note that for stencils with just one connection
       // (e.g., on the boundary of the image), the stencil point is "locked"
@@ -1197,7 +1194,7 @@ struct SurfaceNets
         }
       }
     } // operator()
-  }; // GenerateStencilImpl
+  }; // GenerateStencils
 
   // Given a triad i,j,k return the voxel value. Note that the
   // triad i,j,k is shifted by 1 due to the padding of the image
@@ -1242,6 +1239,7 @@ struct SurfaceNets
 
   // The fifth pass produces the output geometry (i.e., points) and topology
   // (quads and smoothing stencils). It processes an x-row of voxels.
+  template <typename QuadConnectivity, typename StencilOffsets, typename StencilConnectivity>
   void GenerateOutput(vtkIdType row, vtkIdType slice); // PASS 5
 
 }; // SurfaceNets
@@ -1690,7 +1688,16 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ConfigureOutput(vtkPoints* newPts,
     this->NonManifoldTableIndices = nonManifoldTableIndices->GetPointer(0);
 
     // Boundaries, a set of quads contained in vtkCellArray
-    newQuads->UseFixedSizeDefaultStorage(4);
+#ifdef VTK_USE_64BIT_IDS
+    if (4 * outputEMD.NumQuads > VTK_TYPE_INT32_MAX) // use64BitsIds
+    {
+      newQuads->UseFixedSize64BitStorage(4);
+    }
+    else
+#endif
+    {
+      newQuads->UseFixedSize32BitStorage(4);
+    }
     newQuads->ResizeExact(outputEMD.NumQuads, 4 * outputEMD.NumQuads);
     this->NewQuads = newQuads;
 
@@ -1699,6 +1706,16 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ConfigureOutput(vtkPoints* newPts,
     this->NewScalars = vtk::DataArrayValueRange<2>(newScalars).begin();
 
     // Smoothing stencils, which are represented by a vtkCellArray
+#ifdef VTK_USE_64BIT_IDS
+    if (outputEMD.NumStencilEdges > VTK_TYPE_INT32_MAX) // use64BitsIds
+    {
+      stencils->Use64BitStorage();
+    }
+    else
+#endif
+    {
+      stencils->Use32BitStorage();
+    }
     stencils->ResizeExact(outputEMD.NumPoints, outputEMD.NumStencilEdges);
     stencils->SetOffset(outputEMD.NumPoints, outputEMD.NumStencilEdges);
     this->NewStencils = stencils;
@@ -1757,6 +1774,7 @@ void SurfaceNets<TArray, TEdgeRowIndex>::BuildPointGeneratingEdgeRowXIndices(
 // a 3x3 bundle of volume edges / voxel rows centered on the current x-row.
 // The edge trim is used to reduce the amount of computation to perform.
 template <typename TArray, typename TEdgeRowIndex>
+template <typename QuadConnectivity, typename StencilOffsets, typename StencilConnectivity>
 void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType slice)
 {
   // This volume edge's metadata, and the neighboring edge.
@@ -1772,6 +1790,14 @@ void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType
   {
     return;
   }
+
+  auto* quadOffsets = this->NewQuads->GetOffsetsArray();
+  auto* quadConnectivity = QuadConnectivity::FastDownCast(this->NewQuads->GetConnectivityArray());
+  auto* stencilOffsets = StencilOffsets::FastDownCast(this->NewStencils->GetOffsetsArray());
+  auto* stencilConnectivity =
+    StencilConnectivity::FastDownCast(this->NewStencils->GetConnectivityArray());
+  GenerateQuads genQuads;
+  GenerateStencils genStencils;
 
   // Given a volume x-edge to process (defined by [row,slice]), determine the
   // trim edges and the 3x3 row triad cases centered around the current
@@ -1815,15 +1841,15 @@ void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType
     // Produce quads if necessary.
     if (SurfaceNets::ProducesQuad(triad))
     {
-      this->NewQuads->Dispatch(GenerateQuadsImpl{}, i, row, slice, this, edgeCase, numPoints,
-        tableIndex, triadPtrs, pointIds, quadId);
+      genQuads(quadOffsets, quadConnectivity, i, row, slice, this, edgeCase, numPoints, tableIndex,
+        triadPtrs, pointIds, quadId);
     }
 
     // If a point is generated, then smoothing stencils are required (i.e.,
     // stencils indicate how the generated point is connected to other
     // points). Up to six connections corresponding to six face neighbors
     // may be generated.
-    this->NewStencils->Dispatch(GenerateStencilImpl{}, i, this, edgeCase, numPoints, tableIndex,
+    genStencils(stencilOffsets, stencilConnectivity, i, this, edgeCase, numPoints, tableIndex,
       triadPtrs, pointIds, sOffset);
 
     // Advance all rows past position i, and pre-align neighbor rows to the next
@@ -1990,9 +2016,9 @@ struct NetsWorker
     }
   };
 
-  // PASS 5: Process all voxels on given volume slices to produce
-  // output. Interface to vtkSMPTools::For().
-  template <typename TArray, typename TEdgeRowIndex>
+  // PASS 5: SMP worker — processes (slice, row) pairs with concrete array types.
+  template <typename TArray, typename TEdgeRowIndex, typename QuadConnectivity,
+    typename StencilOffsets, typename StencilConnectivity>
   struct Pass5
   {
     SurfaceNets<TArray, TEdgeRowIndex>* Algo;
@@ -2018,13 +2044,37 @@ struct NetsWorker
           const vtkIdType rowEnd = sliceRowEnd - slice * numRows;
           for (vtkIdType row = rowStart; row < rowEnd; ++row)
           {
-            this->Algo->GenerateOutput(row, slice);
+            this->Algo
+              ->template GenerateOutput<QuadConnectivity, StencilOffsets, StencilConnectivity>(
+                row, slice);
           } // for all rows
         } // if points are generated
         sliceRow = sliceRowEnd; // advance sliceRow
       }
     }
-  }; // Pass5 dispatch
+  }; // Pass5
+
+  // vtkArrayDispatch worker for Pass 5: resolves concrete cell-array types and
+  // launches Pass5 via vtkSMPTools::For.
+  template <typename TArray, typename TEdgeRowIndex>
+  struct Pass5Worker
+  {
+    SurfaceNets<TArray, TEdgeRowIndex>* Algo;
+    vtkIdType SliceRows;
+    Pass5Worker(SurfaceNets<TArray, TEdgeRowIndex>* algo, vtkIdType sliceRows)
+      : Algo(algo)
+      , SliceRows(sliceRows)
+    {
+    }
+
+    template <typename QuadConnectivity, typename StencilOffsets, typename StencilConnectivity>
+    void operator()(QuadConnectivity*, StencilOffsets*, StencilConnectivity*)
+    {
+      Pass5<TArray, TEdgeRowIndex, QuadConnectivity, StencilOffsets, StencilConnectivity> pass5(
+        this->Algo);
+      vtkSMPTools::For(0, this->SliceRows, pass5);
+    }
+  }; // Pass5Worker
 
   // Dispatch to SurfaceNets.
   template <typename TArray, typename TEdgeRowIndex>
@@ -2145,8 +2195,19 @@ struct NetsWorker
     vtkSMPTools::For(0, sliceRows, pass4);
 
     // Generate the output points, quads, and scalar data.
-    Pass5<TArray, TEdgeRowIndex> pass5(&algo);
-    vtkSMPTools::For(0, sliceRows, pass5);
+    if (algo.NewQuads != nullptr)
+    {
+      Pass5Worker<TArray, TEdgeRowIndex> pass5Worker(&algo, sliceRows);
+      using Pass5Dispatcher =
+        vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::ConnectivityArrays,
+          vtkArrayDispatch::OffsetsArrays, vtkArrayDispatch::ConnectivityArrays>;
+      if (!Pass5Dispatcher::Execute(algo.NewQuads->GetConnectivityArray(),
+            algo.NewStencils->GetOffsetsArray(), algo.NewStencils->GetConnectivityArray(),
+            pass5Worker))
+      {
+        vtkErrorWithObjectMacro(self, "Unsupported cell array type in Pass 5.");
+      }
+    }
 
     algo.Triads.clear();
     algo.EdgeMetaData.clear();
@@ -2356,7 +2417,16 @@ void TransformMeshType(
   vtkCellArray* quadCells = output->GetPolys();
   vtkIdType numQuads = quadCells->GetNumberOfCells();
   vtkNew<vtkCellArray> triCells;
-  triCells->UseFixedSizeDefaultStorage(3);
+#ifdef VTK_USE_64BIT_IDS
+  if (3 * 2 * numQuads > VTK_TYPE_INT32_MAX) // use64BitsIds
+  {
+    triCells->UseFixedSize64BitStorage(3);
+  }
+  else
+#endif
+  {
+    triCells->UseFixedSize32BitStorage(3);
+  }
   triCells->ResizeExact(2 * numQuads, 3 * 2 * numQuads);
 
   auto triScalars = vtk::TakeSmartPointer(quadScalars->NewInstance());

@@ -132,7 +132,7 @@ vtkSmartPointer<vtkCellArray> BuildStencils(vtkPointSet* input)
 // the vtkPoints (the original input points, the output points, and a temporary
 // set of points) are of the same type.
 template <typename PT>
-struct SmoothPoints
+struct SmoothPoints : public vtkCellArray::DispatchUtilities
 {
   PT* InPts;
   PT* OutPts;
@@ -144,8 +144,6 @@ struct SmoothPoints
   double CDist2; // Temporary variable for smoothing distance
   const double* CArray;
   double MaxDistance; // used to determine convergence
-  // Avoid constructing/deleting the iterator
-  vtkSMPThreadLocalObject<vtkIdList> TLIdList;
   // Maximum smoothing distance in this thread
   vtkSMPThreadLocal<double> MaxDistance2;
 
@@ -192,17 +190,19 @@ struct SmoothPoints
 
   void Initialize() { this->MaxDistance2.Local() = 0.0; }
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
+  template <typename Offsets, typename Connectivity>
+  void operator()(
+    Offsets* offsetsArray, Connectivity* connectivityArray, vtkIdType ptId, vtkIdType endPtId)
   {
-    auto& idList = this->TLIdList.Local();
     double& maxDistance2 = this->MaxDistance2.Local();
 
     const auto inPts = vtk::DataArrayTupleRange<3>(this->InPts);
     auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
     const auto tmpPts = vtk::DataArrayTupleRange<3>(this->TmpPts);
 
-    vtkIdType npts;
-    const vtkIdType* pts;
+    auto offsets = GetRange(offsetsArray).begin();
+    auto conn = GetRange(connectivityArray).begin();
+
     double relax = this->Relax;
     const double* cBox = this->CBox;
 
@@ -210,7 +210,8 @@ struct SmoothPoints
     {
       // Get the original point position and the stencil
       const auto xIn = inPts[ptId];
-      this->Stencils->GetCellAtId(ptId, npts, pts, idList);
+      const vtkIdType npts = offsets[ptId + 1] - offsets[ptId];
+      const auto pts = conn + offsets[ptId];
 
       // For each point in the stencil, compute an average position.
       // Make sure the stencil is valid (i.e., contains points).
@@ -281,6 +282,8 @@ struct SmoothPoints
       xOut[2] = x[2];
     } // over all points
   }
+
+  void operator()(vtkIdType begin, vtkIdType end) { this->Stencils->Dispatch(*this, begin, end); }
 
   void Reduce()
   {
