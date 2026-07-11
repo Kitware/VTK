@@ -277,7 +277,7 @@ struct SurfaceNets
 
   // Given a pointer to a voxel's triad, first determine the seven triad cases
   // (from the points defining a voxel cell: (x,y,z); ([x+1],y,z); (x,[y+1],z);
-  // ([x+1],[y+1],z); (x,y,[z+1]); ([x+1],y,[z+1]); (x,[y+1],[z+1]), and then
+  // ([x+1],[y+1],z); (x,y,[z+1]); ([x+1],y,[z+1]); (x,[y+1],[z+1])), and then
   // compute the edge case number for this voxel cell. Note that a resulting
   // value of zero means that the voxel cell is not intersected (i.e., no edge is
   // intersected). This method assumes that the triadPtr is not on the boundary
@@ -1479,8 +1479,8 @@ void SurfaceNets<TArray, TEdgeRowIndex>::ClassifyYZEdges(
   // next slice (z-classification).
   const vtkIdType& numTriads = this->TriadDims[X];
   TriadType* triadPtr = this->Triads.data() + row * numTriads + slice * this->TriadSliceOffset;
-  TriadType* triadPtrY = triadPtr + this->TriadDims[X];
-  TriadType* triadPtrZ = triadPtr + this->TriadSliceOffset;
+  const TriadType* triadPtrY = triadPtr + this->TriadDims[X];
+  const TriadType* triadPtrZ = triadPtr + this->TriadSliceOffset;
 
   // Edge trim: this edgeRow, in the y-direction, and the z-direction.
   const vtkIdType edgeRow = row + slice * this->TriadDims[Y];
@@ -2218,18 +2218,18 @@ void SmoothOutput(vtkPolyData* geomCache, vtkCellArray* stencils, vtkPolyData* o
 
 // Functor to drive the threaded conversion of a quad output mesh to
 // a different type (i.e., triangles).
-template <typename TConnectivityArray, typename TScalarsArray>
-struct TransformQuadsToTriangles
+template <class TQuadConnectivityArray, class TScalarsArray, class TTriConnectivityArray>
+struct TransformQuadsToTriangles : public vtkCellArray::DispatchUtilities
 {
-  TConnectivityArray* QuadConnectivity;
+  TQuadConnectivityArray* QuadConnectivity;
   TScalarsArray* InScalars;
-  TConnectivityArray* TriConnectivity;
+  TTriConnectivityArray* TriConnectivity;
   TScalarsArray* OutScalars;
   vtkFloatArray* Points;
   const int TriStrategy;
 
-  TransformQuadsToTriangles(TConnectivityArray* quadConnectivity, TScalarsArray* inScalars,
-    TConnectivityArray* triConnectivity, TScalarsArray* outScalars, vtkFloatArray* pts,
+  TransformQuadsToTriangles(TQuadConnectivityArray* quadConnectivity, TScalarsArray* inScalars,
+    TTriConnectivityArray* triConnectivity, TScalarsArray* outScalars, vtkFloatArray* pts,
     int triStrategy)
     : QuadConnectivity(quadConnectivity)
     , InScalars(inScalars)
@@ -2242,39 +2242,48 @@ struct TransformQuadsToTriangles
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    auto points = vtk::DataArrayTupleRange<3>(this->Points);
+    const float* points = this->Points->GetPointer(0);
     auto inScalars = vtk::DataArrayTupleRange<2>(this->InScalars, cellId, endCellId).begin();
-    auto triConn =
-      vtk::DataArrayValueRange<1>(this->TriConnectivity, 6 * cellId, 6 * endCellId).begin();
+    auto quadConn = GetRange(this->QuadConnectivity).begin() + 4 * cellId;
     auto outScalars =
       vtk::DataArrayTupleRange<2>(this->OutScalars, 2 * cellId, 2 * endCellId).begin();
-    auto quadConn =
-      vtk::DataArrayValueRange<1>(this->QuadConnectivity, 4 * cellId, 4 * endCellId).begin();
+    auto triConn = GetRange(this->TriConnectivity).begin() + 6 * cellId;
 
     bool d02;
-    double x0[3], x1[3], x2[3], x3[3], a02, a13;
     for (; cellId < endCellId; ++cellId, ++inScalars, quadConn += 4, outScalars += 2, triConn += 6)
     {
-      if (this->TriStrategy != vtkSurfaceNets3D::TRIANGULATION_GREEDY)
+      switch (this->TriStrategy)
       {
-        points.GetTuple(quadConn[0], x0);
-        points.GetTuple(quadConn[1], x1);
-        points.GetTuple(quadConn[2], x2);
-        points.GetTuple(quadConn[3], x3);
-        if (this->TriStrategy == vtkSurfaceNets3D::TRIANGULATION_MIN_EDGE)
+        case vtkSurfaceNets3D::TRIANGULATION_MIN_EDGE:
         {
+          const float* x0 = points + 3 * quadConn[0];
+          const float* x1 = points + 3 * quadConn[1];
+          const float* x2 = points + 3 * quadConn[2];
+          const float* x3 = points + 3 * quadConn[3];
           d02 = vtkMath::Distance2BetweenPoints(x0, x2) < vtkMath::Distance2BetweenPoints(x1, x3);
+          break;
         }
-        else // if (this->TriStrategy == vtkSurfaceNets3D::TRIANGULATION_MIN_AREA)
+        case vtkSurfaceNets3D::TRIANGULATION_MIN_AREA:
         {
-          a02 = vtkTriangle::TriangleArea(x0, x2, x1) + vtkTriangle::TriangleArea(x0, x2, x3);
-          a13 = vtkTriangle::TriangleArea(x1, x3, x0) + vtkTriangle::TriangleArea(x1, x3, x2);
+          const float* x0F = points + 3 * quadConn[0];
+          const double x0[3] = { x0F[0], x0F[1], x0F[2] };
+          const float* x1F = points + 3 * quadConn[1];
+          const double x1[3] = { x1F[0], x1F[1], x1F[2] };
+          const float* x2F = points + 3 * quadConn[2];
+          const double x2[3] = { x2F[0], x2F[1], x2F[2] };
+          const float* x3F = points + 3 * quadConn[3];
+          const double x3[3] = { x3F[0], x3F[1], x3F[2] };
+          double a02 =
+            vtkTriangle::TriangleArea(x0, x2, x1) + vtkTriangle::TriangleArea(x0, x2, x3);
+          double a13 =
+            vtkTriangle::TriangleArea(x1, x3, x0) + vtkTriangle::TriangleArea(x1, x3, x2);
           d02 = a02 < a13;
+          break;
         }
-      }
-      else // if (this->TriStrategy == vtkSurfaceNets3D::TRIANGULATION_GREEDY)
-      {
-        d02 = true;
+        case vtkSurfaceNets3D::TRIANGULATION_GREEDY:
+        default:
+          d02 = true;
+          break;
       }
 
       // The "connectivity" is defined by bisecting edge, and then
@@ -2308,13 +2317,14 @@ struct TransformQuadsToTriangles
 
 struct TransformQuadsToTrianglesWorker
 {
-  template <class TConnectivityArray, class TScalarsArray>
-  void operator()(TConnectivityArray* quadConnectivity, TScalarsArray* inScalars,
-    vtkDataArray* triConnectivity, vtkDataArray* outScalars, vtkFloatArray* points, int triStrategy)
+  template <class TQuadConnectivityArray, class TScalarsArray, class TTriConnectivityArray>
+  void operator()(TQuadConnectivityArray* quadConnectivity, TScalarsArray* inScalars,
+    TTriConnectivityArray* triConnectivity, vtkDataArray* outScalars, vtkFloatArray* points,
+    int triStrategy)
   {
-    TransformQuadsToTriangles<TConnectivityArray, TScalarsArray> worker(quadConnectivity, inScalars,
-      TConnectivityArray::FastDownCast(triConnectivity), TScalarsArray::FastDownCast(outScalars),
-      points, triStrategy);
+    TransformQuadsToTriangles<TQuadConnectivityArray, TScalarsArray, TTriConnectivityArray> worker(
+      quadConnectivity, inScalars, triConnectivity, TScalarsArray::FastDownCast(outScalars), points,
+      triStrategy);
     vtkSMPTools::For(0, inScalars->GetNumberOfTuples(), worker);
   }
 };
@@ -2325,7 +2335,7 @@ struct TransformQuadsToTrianglesWorker
 // appropriate type. The input to this method is a quad mesh. The conversion
 // process is threaded.
 void TransformMeshType(
-  int outputMeshType, vtkPolyData* output, vtkDataArray* newScalars, int triStrategy)
+  int outputMeshType, vtkPolyData* output, vtkDataArray* quadScalars, int triStrategy)
 {
   // Ensure that we have a specific type, and that we are not requesting
   // quads which are already available.
@@ -2349,24 +2359,23 @@ void TransformMeshType(
   triCells->UseFixedSizeDefaultStorage(3);
   triCells->ResizeExact(2 * numQuads, 3 * 2 * numQuads);
 
-  vtkSmartPointer<vtkDataArray> updatedScalars;
-  updatedScalars.TakeReference(newScalars->NewInstance());
-  updatedScalars->SetNumberOfComponents(2);
-  updatedScalars->SetName("BoundaryLabels");
-  updatedScalars->SetNumberOfTuples(2 * numQuads);
+  auto triScalars = vtk::TakeSmartPointer(quadScalars->NewInstance());
+  triScalars->SetNumberOfComponents(2);
+  triScalars->SetName("BoundaryLabels");
+  triScalars->SetNumberOfTuples(2 * numQuads);
 
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::ConnectivityArrays,
-    vtkArrayDispatch::AOSArrays>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::ConnectivityArrays,
+    vtkArrayDispatch::AOSArrays, vtkArrayDispatch::ConnectivityArrays>;
   TransformQuadsToTrianglesWorker worker;
-  if (!Dispatcher::Execute(quadCells->GetConnectivityArray(), newScalars, worker,
-        triCells->GetConnectivityArray(), updatedScalars, pts, triStrategy))
+  if (!Dispatcher::Execute(quadCells->GetConnectivityArray(), quadScalars,
+        triCells->GetConnectivityArray(), worker, triScalars, pts, triStrategy))
   {
-    worker(quadCells->GetConnectivityArray(), newScalars, triCells->GetConnectivityArray(),
-      updatedScalars.Get(), pts, triStrategy);
+    worker(quadCells->GetConnectivityArray(), quadScalars, triCells->GetConnectivityArray(),
+      triScalars.Get(), pts, triStrategy);
   }
   // Update the cells and scalars
   output->SetPolys(triCells);
-  output->GetCellData()->AddArray(updatedScalars);
+  output->GetCellData()->AddArray(triScalars);
 }
 
 } // anonymous namespace
