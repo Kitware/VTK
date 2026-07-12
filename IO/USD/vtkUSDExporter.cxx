@@ -151,17 +151,18 @@ UsdGeomMesh WriteMesh(
   }
   mesh.GetPointsAttr().Set(points);
 
-  // Face vertex counts
-  VtArray<int> faceVertexCounts(pd->GetNumberOfCells());
+  // Face vertex counts from polys only because any triangle strips will be converted
+  // to polys by the triangle filter above.
+  vtkCellArray* polys = pd->GetPolys();
+  VtArray<int> faceVertexCounts(polys->GetNumberOfCells());
   // Indices into the points array
   VtArray<int> faceVertexIndices;
-  faceVertexIndices.reserve(pd->GetNumberOfCells() * 4); // rough estimate
+  faceVertexIndices.reserve(polys->GetNumberOfCells() * 4); // rough estimate
 
-  vtkCellArray* polys = pd->GetPolys();
   vtkIdType npts;
   const vtkIdType* pts;
   vtkIdType cellId = 0;
-  for (vtkIdType cellIdx = 0; cellIdx < pd->GetNumberOfCells(); ++cellIdx)
+  for (vtkIdType cellIdx = 0; cellIdx < polys->GetNumberOfCells(); ++cellIdx)
   {
     polys->GetCellAtId(cellIdx, npts, pts);
 
@@ -582,7 +583,9 @@ void vtkUSDExporter::WriteData()
                 if (pdMapper->GetBlockVisibility(flatIndex))
                 {
                   vtkPolyData* pd = vtkPolyData::SafeDownCast(childDO);
-                  if (pd && pd->GetNumberOfCells() > 0)
+                  if (pd &&
+                    (pd->GetPolys()->GetNumberOfCells() > 0 ||
+                      pd->GetStrips()->GetNumberOfCells() > 0))
                   {
                     vtkMapper* partMapper = part->GetMapper();
                     // save and restore prop changed when generating texture coords
@@ -612,7 +615,8 @@ void vtkUSDExporter::WriteData()
             }
 
             vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
-            if (pd && pd->GetNumberOfCells() > 0)
+            if (pd &&
+              (pd->GetPolys()->GetNumberOfCells() > 0 || pd->GetStrips()->GetNumberOfCells() > 0))
             {
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();
