@@ -1,0 +1,6 @@
+*.ppm binary
+*.pgm binary
+/ChangeLog.md conflict-marker-size=8
+
+# XXX(kitware): Don't confuse headings for conflict markers.
+README.md conflict-marker-size=30

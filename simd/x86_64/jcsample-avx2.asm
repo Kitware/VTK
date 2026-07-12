@@ -1,8 +1,8 @@
 ;
-; jcsample.asm - downsampling (64-bit AVX2)
+; Downsampling (64-bit AVX2)
 ;
 ; Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
-; Copyright (C) 2009, 2016, D. R. Commander.
+; Copyright (C) 2009, 2016, 2024-2026, D. R. Commander.
 ; Copyright (C) 2015, Intel Corporation.
 ; Copyright (C) 2018, Matthias Räncker.
 ;
@@ -10,19 +10,15 @@
 ; Copyright (C) 1999-2006, MIYASAKA Masaru.
 ; For conditions of distribution and use, see copyright notice in jsimdext.inc
 ;
-; This file should be assembled with NASM (Netwide Assembler),
-; can *not* be assembled with Microsoft's MASM or any compatible
-; assembler (including Borland's Turbo Assembler).
-; NASM is available from http://nasm.sourceforge.net/ or
-; http://sourceforge.net/project/showfiles.php?group_id=6208
+; This file should be assembled with NASM (Netwide Assembler) or Yasm.
 
 %include "jsimdext.inc"
 
 ; --------------------------------------------------------------------------
     SECTION     SEG_TEXT
     BITS        64
-;
-; Downsample pixel values of a single component.
+
+; Downsample components from a single plane.
 ; This version handles the common case of 2:1 horizontal and 1:1 vertical,
 ; without smoothing.
 ;
@@ -30,9 +26,8 @@
 ; jsimd_h2v1_downsample_avx2(JDIMENSION image_width, int max_v_samp_factor,
 ;                            JDIMENSION v_samp_factor,
 ;                            JDIMENSION width_in_blocks, JSAMPARRAY input_data,
-;                            JSAMPARRAY output_data);
+;                            JSAMPARRAY output_data)
 ;
-
 ; r10d = JDIMENSION image_width
 ; r11 = int max_v_samp_factor
 ; r12d = JDIMENSION v_samp_factor
@@ -44,13 +39,13 @@
     GLOBAL_FUNCTION(jsimd_h2v1_downsample_avx2)
 
 EXTN(jsimd_h2v1_downsample_avx2):
+    ENDBR64
     push        rbp
-    mov         rax, rsp
     mov         rbp, rsp
-    collect_args 6
+    COLLECT_ARGS 6
 
     mov         ecx, r13d
-    shl         rcx, 3                  ; imul rcx,DCTSIZE (rcx = output_cols)
+    shl         rcx, 3                  ; imul rcx, DCTSIZE (rcx = output_cols)
     jz          near .return
 
     mov         edx, r10d
@@ -74,7 +69,7 @@ EXTN(jsimd_h2v1_downsample_avx2):
 
     mov         rdip, JSAMPROW [rsi]
     add         rdi, rdx
-    mov         al, JSAMPLE [rdi-1]
+    mov         al, JSAMPLE [rdi - 1]
 
     rep stosb
 
@@ -96,10 +91,10 @@ EXTN(jsimd_h2v1_downsample_avx2):
 
     mov         rdx, 0x00010000         ; bias pattern
     vmovd       xmm7, edx
-    vpshufd     xmm7, xmm7, 0x00        ; xmm7={0, 1, 0, 1, 0, 1, 0, 1}
-    vperm2i128  ymm7, ymm7, ymm7, 0     ; ymm7={xmm7, xmm7}
+    vpshufd     xmm7, xmm7, 0x00        ; xmm7 = { 0, 1, 0, 1, 0, 1, 0, 1 }
+    vperm2i128  ymm7, ymm7, ymm7, 0     ; ymm7 = { xmm7, xmm7 }
     vpcmpeqw    ymm6, ymm6, ymm6
-    vpsrlw      ymm6, ymm6, BYTE_BIT    ; ymm6={0xFF 0x00 0xFF 0x00 ..}
+    vpsrlw      ymm6, ymm6, BYTE_BIT    ; ymm6 = { 0xFF 0x00 0xFF 0x00 .. }
 
     mov         rsi, r14                ; input_data
     mov         rdi, r15                ; output_data
@@ -118,28 +113,28 @@ EXTN(jsimd_h2v1_downsample_avx2):
     ; rcx can possibly be 8, 16, 24
     cmp         rcx, 24
     jne         .columnloop_r16
-    vmovdqu     ymm0, YMMWORD [rsi+0*SIZEOF_YMMWORD]
-    vmovdqu     xmm1, XMMWORD [rsi+1*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
+    vmovdqu     xmm1, XMMWORD [rsi + 1 * SIZEOF_YMMWORD]
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop_r16:
     cmp         rcx, 16
     jne         .columnloop_r8
-    vmovdqu     ymm0, YMMWORD [rsi+0*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
     vpxor       ymm1, ymm1, ymm1
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop_r8:
-    vmovdqu     xmm0, XMMWORD[rsi+0*SIZEOF_YMMWORD]
+    vmovdqu     xmm0, XMMWORD[rsi + 0 * SIZEOF_YMMWORD]
     vpxor       ymm1, ymm1, ymm1
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop:
-    vmovdqu     ymm0, YMMWORD [rsi+0*SIZEOF_YMMWORD]
-    vmovdqu     ymm1, YMMWORD [rsi+1*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
+    vmovdqu     ymm1, YMMWORD [rsi + 1 * SIZEOF_YMMWORD]
 
 .downsample:
     vpsrlw      ymm2, ymm0, BYTE_BIT
@@ -157,11 +152,11 @@ EXTN(jsimd_h2v1_downsample_avx2):
     vpackuswb   ymm0, ymm0, ymm1
     vpermq      ymm0, ymm0, 0xd8
 
-    vmovdqu     YMMWORD [rdi+0*SIZEOF_YMMWORD], ymm0
+    vmovdqu     YMMWORD [rdi + 0 * SIZEOF_YMMWORD], ymm0
 
-    sub         rcx, byte SIZEOF_YMMWORD    ; outcol
-    add         rsi, byte 2*SIZEOF_YMMWORD  ; inptr
-    add         rdi, byte 1*SIZEOF_YMMWORD  ; outptr
+    sub         rcx, byte SIZEOF_YMMWORD      ; outcol
+    add         rsi, byte 2 * SIZEOF_YMMWORD  ; inptr
+    add         rdi, byte 1 * SIZEOF_YMMWORD  ; outptr
     cmp         rcx, byte SIZEOF_YMMWORD
     jae         short .columnloop
     test        rcx, rcx
@@ -178,13 +173,13 @@ EXTN(jsimd_h2v1_downsample_avx2):
 
 .return:
     vzeroupper
-    uncollect_args 6
+    UNCOLLECT_ARGS 6
     pop         rbp
     ret
 
 ; --------------------------------------------------------------------------
 ;
-; Downsample pixel values of a single component.
+; Downsample components from a single plane.
 ; This version handles the standard case of 2:1 horizontal and 2:1 vertical,
 ; without smoothing.
 ;
@@ -192,9 +187,8 @@ EXTN(jsimd_h2v1_downsample_avx2):
 ; jsimd_h2v2_downsample_avx2(JDIMENSION image_width, int max_v_samp_factor,
 ;                            JDIMENSION v_samp_factor,
 ;                            JDIMENSION width_in_blocks, JSAMPARRAY input_data,
-;                            JSAMPARRAY output_data);
+;                            JSAMPARRAY output_data)
 ;
-
 ; r10d = JDIMENSION image_width
 ; r11 = int max_v_samp_factor
 ; r12d = JDIMENSION v_samp_factor
@@ -206,13 +200,13 @@ EXTN(jsimd_h2v1_downsample_avx2):
     GLOBAL_FUNCTION(jsimd_h2v2_downsample_avx2)
 
 EXTN(jsimd_h2v2_downsample_avx2):
+    ENDBR64
     push        rbp
-    mov         rax, rsp
     mov         rbp, rsp
-    collect_args 6
+    COLLECT_ARGS 6
 
     mov         ecx, r13d
-    shl         rcx, 3                  ; imul rcx,DCTSIZE (rcx = output_cols)
+    shl         rcx, 3                  ; imul rcx, DCTSIZE (rcx = output_cols)
     jz          near .return
 
     mov         edx, r10d
@@ -236,7 +230,7 @@ EXTN(jsimd_h2v2_downsample_avx2):
 
     mov         rdip, JSAMPROW [rsi]
     add         rdi, rdx
-    mov         al, JSAMPLE [rdi-1]
+    mov         al, JSAMPLE [rdi - 1]
 
     rep stosb
 
@@ -259,9 +253,9 @@ EXTN(jsimd_h2v2_downsample_avx2):
     mov         rdx, 0x00020001         ; bias pattern
     vmovd       xmm7, edx
     vpcmpeqw    ymm6, ymm6, ymm6
-    vpshufd     xmm7, xmm7, 0x00        ; ymm7={1, 2, 1, 2, 1, 2, 1, 2}
+    vpshufd     xmm7, xmm7, 0x00        ; ymm7 = { 1, 2, 1, 2, 1, 2, 1, 2 }
     vperm2i128  ymm7, ymm7, ymm7, 0
-    vpsrlw      ymm6, ymm6, BYTE_BIT    ; ymm6={0xFF 0x00 0xFF 0x00 ..}
+    vpsrlw      ymm6, ymm6, BYTE_BIT    ; ymm6 = { 0xFF 0x00 0xFF 0x00 .. }
 
     mov         rsi, r14                ; input_data
     mov         rdi, r15                ; output_data
@@ -270,9 +264,9 @@ EXTN(jsimd_h2v2_downsample_avx2):
     push        rdi
     push        rsi
 
-    mov         rdxp, JSAMPROW [rsi+0*SIZEOF_JSAMPROW]  ; inptr0
-    mov         rsip, JSAMPROW [rsi+1*SIZEOF_JSAMPROW]  ; inptr1
-    mov         rdip, JSAMPROW [rdi]                    ; outptr
+    mov         rdxp, JSAMPROW [rsi + 0 * SIZEOF_JSAMPROW]  ; inptr0
+    mov         rsip, JSAMPROW [rsi + 1 * SIZEOF_JSAMPROW]  ; inptr1
+    mov         rdip, JSAMPROW [rdi]                        ; outptr
 
     cmp         rcx, byte SIZEOF_YMMWORD
     jae         short .columnloop
@@ -280,36 +274,36 @@ EXTN(jsimd_h2v2_downsample_avx2):
 .columnloop_r24:
     cmp         rcx, 24
     jne         .columnloop_r16
-    vmovdqu     ymm0, YMMWORD [rdx+0*SIZEOF_YMMWORD]
-    vmovdqu     ymm1, YMMWORD [rsi+0*SIZEOF_YMMWORD]
-    vmovdqu     xmm2, XMMWORD [rdx+1*SIZEOF_YMMWORD]
-    vmovdqu     xmm3, XMMWORD [rsi+1*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rdx + 0 * SIZEOF_YMMWORD]
+    vmovdqu     ymm1, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
+    vmovdqu     xmm2, XMMWORD [rdx + 1 * SIZEOF_YMMWORD]
+    vmovdqu     xmm3, XMMWORD [rsi + 1 * SIZEOF_YMMWORD]
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop_r16:
     cmp         rcx, 16
     jne         .columnloop_r8
-    vmovdqu     ymm0, YMMWORD [rdx+0*SIZEOF_YMMWORD]
-    vmovdqu     ymm1, YMMWORD [rsi+0*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rdx + 0 * SIZEOF_YMMWORD]
+    vmovdqu     ymm1, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
     vpxor       ymm2, ymm2, ymm2
     vpxor       ymm3, ymm3, ymm3
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop_r8:
-    vmovdqu     xmm0, XMMWORD [rdx+0*SIZEOF_XMMWORD]
-    vmovdqu     xmm1, XMMWORD [rsi+0*SIZEOF_XMMWORD]
+    vmovdqu     xmm0, XMMWORD [rdx + 0 * SIZEOF_XMMWORD]
+    vmovdqu     xmm1, XMMWORD [rsi + 0 * SIZEOF_XMMWORD]
     vpxor       ymm2, ymm2, ymm2
     vpxor       ymm3, ymm3, ymm3
     mov         rcx, SIZEOF_YMMWORD
     jmp         short .downsample
 
 .columnloop:
-    vmovdqu     ymm0, YMMWORD [rdx+0*SIZEOF_YMMWORD]
-    vmovdqu     ymm1, YMMWORD [rsi+0*SIZEOF_YMMWORD]
-    vmovdqu     ymm2, YMMWORD [rdx+1*SIZEOF_YMMWORD]
-    vmovdqu     ymm3, YMMWORD [rsi+1*SIZEOF_YMMWORD]
+    vmovdqu     ymm0, YMMWORD [rdx + 0 * SIZEOF_YMMWORD]
+    vmovdqu     ymm1, YMMWORD [rsi + 0 * SIZEOF_YMMWORD]
+    vmovdqu     ymm2, YMMWORD [rdx + 1 * SIZEOF_YMMWORD]
+    vmovdqu     ymm3, YMMWORD [rsi + 1 * SIZEOF_YMMWORD]
 
 .downsample:
     vpand       ymm4, ymm0, ymm6
@@ -336,12 +330,12 @@ EXTN(jsimd_h2v2_downsample_avx2):
     vpackuswb   ymm0, ymm0, ymm2
     vpermq      ymm0, ymm0, 0xd8
 
-    vmovdqu     YMMWORD [rdi+0*SIZEOF_YMMWORD], ymm0
+    vmovdqu     YMMWORD [rdi + 0 * SIZEOF_YMMWORD], ymm0
 
-    sub         rcx, byte SIZEOF_YMMWORD    ; outcol
-    add         rdx, byte 2*SIZEOF_YMMWORD  ; inptr0
-    add         rsi, byte 2*SIZEOF_YMMWORD  ; inptr1
-    add         rdi, byte 1*SIZEOF_YMMWORD  ; outptr
+    sub         rcx, byte SIZEOF_YMMWORD      ; outcol
+    add         rdx, byte 2 * SIZEOF_YMMWORD  ; inptr0
+    add         rsi, byte 2 * SIZEOF_YMMWORD  ; inptr1
+    add         rdi, byte 1 * SIZEOF_YMMWORD  ; outptr
     cmp         rcx, byte SIZEOF_YMMWORD
     jae         near .columnloop
     test        rcx, rcx
@@ -351,14 +345,14 @@ EXTN(jsimd_h2v2_downsample_avx2):
     pop         rdi
     pop         rcx
 
-    add         rsi, byte 2*SIZEOF_JSAMPROW  ; input_data
-    add         rdi, byte 1*SIZEOF_JSAMPROW  ; output_data
-    dec         rax                          ; rowctr
+    add         rsi, byte 2 * SIZEOF_JSAMPROW  ; input_data
+    add         rdi, byte 1 * SIZEOF_JSAMPROW  ; output_data
+    dec         rax                            ; rowctr
     jg          near .rowloop
 
 .return:
     vzeroupper
-    uncollect_args 6
+    UNCOLLECT_ARGS 6
     pop         rbp
     ret
 

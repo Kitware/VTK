@@ -1,10 +1,9 @@
 /*
- * jsimd_arm.c
- *
  * Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
  * Copyright (C) 2011, Nokia Corporation and/or its subsidiary(-ies).
- * Copyright (C) 2009-2011, 2013-2014, 2016, 2018, D. R. Commander.
- * Copyright (C) 2015-2016, 2018, Matthieu Darbois.
+ * Copyright (C) 2009-2011, 2013-2014, 2016, 2018, 2022, 2024-2025,
+ *           D. R. Commander.
+ * Copyright (C) 2015-2016, 2018, 2022, Matthieu Darbois.
  * Copyright (C) 2019, Google LLC.
  * Copyright (C) 2020, Arm Limited.
  *
@@ -18,21 +17,25 @@
  */
 
 #define JPEG_INTERNALS
-#include "../../../jinclude.h"
-#include "../../../jpeglib.h"
-#include "../../../jsimd.h"
-#include "../../../jdct.h"
-#include "../../../jsimddct.h"
+#include "../../../src/jinclude.h"
+#include "../../../src/jpeglib.h"
+#include "../../../src/jsimd.h"
+#include "../../../src/jdct.h"
+#include "../../../src/jsimddct.h"
 #include "../../jsimd.h"
 
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
 
-static unsigned int simd_support = ~0;
-static unsigned int simd_huffman = 1;
+#if !defined(__ARM_NEON__) && \
+    (defined(HAVE_GETAUXVAL) || defined(HAVE_ELF_AUX_INFO))
+#include <sys/auxv.h>
+#endif
 
-#if !defined(__ARM_NEON__) && (defined(__linux__) || defined(ANDROID) || defined(__ANDROID__))
+static THREAD_LOCAL unsigned int simd_support = ~0;
+static THREAD_LOCAL unsigned int simd_huffman = 1;
+
+#if !defined(__ARM_NEON__) && !defined(HAVE_GETAUXVAL) && \
+    (defined(__linux__) || defined(ANDROID) || defined(__ANDROID__))
 
 #define SOMEWHAT_SANE_PROC_CPUINFO_SIZE_LIMIT  (1024 * 1024)
 
@@ -98,17 +101,19 @@ parse_proc_cpuinfo(int bufsize)
 
 /*
  * Check what SIMD accelerations are supported.
- *
- * FIXME: This code is racy under a multi-threaded environment.
  */
 LOCAL(void)
 init_simd(void)
 {
 #ifndef NO_GETENV
-  char *env = NULL;
+  char env[2] = { 0 };
 #endif
-#if !defined(__ARM_NEON__) && (defined(__linux__) || defined(ANDROID) || defined(__ANDROID__))
+#if !defined(__ARM_NEON__)
+#if defined(HAVE_GETAUXVAL) || defined(HAVE_ELF_AUX_INFO)
+  unsigned long cpufeatures = 0;
+#elif defined(__linux__) || defined(ANDROID) || defined(__ANDROID__)
   int bufsize = 1024; /* an initial guess for the line buffer size limit */
+#endif
 #endif
 
   if (simd_support != ~0U)
@@ -118,6 +123,10 @@ init_simd(void)
 
 #if defined(__ARM_NEON__)
   simd_support |= JSIMD_NEON;
+#elif defined(HAVE_GETAUXVAL)
+  cpufeatures = getauxval(AT_HWCAP);
+  if (cpufeatures & HWCAP_ARM_NEON)
+    simd_support |= JSIMD_NEON;
 #elif defined(__linux__) || defined(ANDROID) || defined(__ANDROID__)
   /* We still have a chance to use Neon regardless of globally used
    * -mcpu/-mfpu options passed to gcc by performing runtime detection via
@@ -127,18 +136,19 @@ init_simd(void)
     if (bufsize > SOMEWHAT_SANE_PROC_CPUINFO_SIZE_LIMIT)
       break;
   }
+#elif defined(HAVE_ELF_AUX_INFO)
+  elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures));
+  if (cpufeatures & HWCAP_NEON)
+    simd_support |= JSIMD_NEON;
 #endif
 
 #ifndef NO_GETENV
   /* Force different settings through environment variables */
-  env = getenv("JSIMD_FORCENEON");
-  if ((env != NULL) && (strcmp(env, "1") == 0))
+  if (!GETENV_S(env, 2, "JSIMD_FORCENEON") && !strcmp(env, "1"))
     simd_support = JSIMD_NEON;
-  env = getenv("JSIMD_FORCENONE");
-  if ((env != NULL) && (strcmp(env, "1") == 0))
+  if (!GETENV_S(env, 2, "JSIMD_FORCENONE") && !strcmp(env, "1"))
     simd_support = 0;
-  env = getenv("JSIMD_NOHUFFENC");
-  if ((env != NULL) && (strcmp(env, "1") == 0))
+  if (!GETENV_S(env, 2, "JSIMD_NOHUFFENC") && !strcmp(env, "1"))
     simd_huffman = 0;
 #endif
 }
@@ -916,7 +926,7 @@ jsimd_can_huff_encode_one_block(void)
   if (sizeof(JCOEF) != 2)
     return 0;
 
-  if (simd_support & JSIMD_NEON && simd_huffman)
+  if ((simd_support & JSIMD_NEON) && simd_huffman)
     return 1;
 
   return 0;
@@ -941,7 +951,7 @@ jsimd_can_encode_mcu_AC_first_prepare(void)
   if (sizeof(JCOEF) != 2)
     return 0;
 
-  if (simd_support & JSIMD_NEON)
+  if ((simd_support & JSIMD_NEON) && simd_huffman)
     return 1;
 
   return 0;
@@ -950,7 +960,7 @@ jsimd_can_encode_mcu_AC_first_prepare(void)
 GLOBAL(void)
 jsimd_encode_mcu_AC_first_prepare(const JCOEF *block,
                                   const int *jpeg_natural_order_start, int Sl,
-                                  int Al, JCOEF *values, size_t *zerobits)
+                                  int Al, UJCOEF *values, size_t *zerobits)
 {
   jsimd_encode_mcu_AC_first_prepare_neon(block, jpeg_natural_order_start,
                                          Sl, Al, values, zerobits);
@@ -966,7 +976,7 @@ jsimd_can_encode_mcu_AC_refine_prepare(void)
   if (sizeof(JCOEF) != 2)
     return 0;
 
-  if (simd_support & JSIMD_NEON)
+  if ((simd_support & JSIMD_NEON) && simd_huffman)
     return 1;
 
   return 0;
@@ -975,7 +985,7 @@ jsimd_can_encode_mcu_AC_refine_prepare(void)
 GLOBAL(int)
 jsimd_encode_mcu_AC_refine_prepare(const JCOEF *block,
                                    const int *jpeg_natural_order_start, int Sl,
-                                   int Al, JCOEF *absvalues, size_t *bits)
+                                   int Al, UJCOEF *absvalues, size_t *bits)
 {
   return jsimd_encode_mcu_AC_refine_prepare_neon(block,
                                                  jpeg_natural_order_start, Sl,

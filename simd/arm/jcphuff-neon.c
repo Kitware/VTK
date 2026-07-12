@@ -1,7 +1,9 @@
 /*
- * jcphuff-neon.c - prepare data for progressive Huffman encoding (Arm Neon)
+ * Prepare data for progressive Huffman encoding (Arm Neon)
  *
  * Copyright (C) 2020-2021, Arm Limited.  All Rights Reserved.
+ * Copyright (C) 2022, Matthieu Darbois.  All Rights Reserved.
+ * Copyright (C) 2022, 2024-2025, D. R. Commander.  All Rights Reserved.
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -21,11 +23,11 @@
  */
 
 #define JPEG_INTERNALS
-#include "../../jinclude.h"
-#include "../../jpeglib.h"
-#include "../../jsimd.h"
-#include "../../jdct.h"
-#include "../../jsimddct.h"
+#include "../../src/jinclude.h"
+#include "../../src/jpeglib.h"
+#include "../../src/jsimd.h"
+#include "../../src/jdct.h"
+#include "../../src/jsimddct.h"
 #include "../jsimd.h"
 #include "neon-compat.h"
 
@@ -40,10 +42,10 @@
 
 void jsimd_encode_mcu_AC_first_prepare_neon
   (const JCOEF *block, const int *jpeg_natural_order_start, int Sl, int Al,
-   JCOEF *values, size_t *zerobits)
+   UJCOEF *values, size_t *zerobits)
 {
-  JCOEF *values_ptr = values;
-  JCOEF *diff_values_ptr = values + DCTSIZE2;
+  UJCOEF *values_ptr = values;
+  UJCOEF *diff_values_ptr = values + DCTSIZE2;
 
   /* Rows of coefficients to zero (since they haven't been processed) */
   int i, rows_to_zero = 8;
@@ -67,23 +69,23 @@ void jsimd_encode_mcu_AC_first_prepare_neon
     coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[15], coefs2, 7);
 
     /* Isolate sign of coefficients. */
-    int16x8_t sign_coefs1 = vshrq_n_s16(coefs1, 15);
-    int16x8_t sign_coefs2 = vshrq_n_s16(coefs2, 15);
+    uint16x8_t sign_coefs1 = vreinterpretq_u16_s16(vshrq_n_s16(coefs1, 15));
+    uint16x8_t sign_coefs2 = vreinterpretq_u16_s16(vshrq_n_s16(coefs2, 15));
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs1 = vabsq_s16(coefs1);
-    int16x8_t abs_coefs2 = vabsq_s16(coefs2);
-    coefs1 = vshlq_s16(abs_coefs1, vdupq_n_s16(-Al));
-    coefs2 = vshlq_s16(abs_coefs2, vdupq_n_s16(-Al));
+    uint16x8_t abs_coefs1 = vreinterpretq_u16_s16(vabsq_s16(coefs1));
+    uint16x8_t abs_coefs2 = vreinterpretq_u16_s16(vabsq_s16(coefs2));
+    abs_coefs1 = vshlq_u16(abs_coefs1, vdupq_n_s16(-Al));
+    abs_coefs2 = vshlq_u16(abs_coefs2, vdupq_n_s16(-Al));
 
     /* Compute diff values. */
-    int16x8_t diff1 = veorq_s16(coefs1, sign_coefs1);
-    int16x8_t diff2 = veorq_s16(coefs2, sign_coefs2);
+    uint16x8_t diff1 = veorq_u16(abs_coefs1, sign_coefs1);
+    uint16x8_t diff2 = veorq_u16(abs_coefs2, sign_coefs2);
 
     /* Store transformed coefficients and diff values. */
-    vst1q_s16(values_ptr, coefs1);
-    vst1q_s16(values_ptr + DCTSIZE, coefs2);
-    vst1q_s16(diff_values_ptr, diff1);
-    vst1q_s16(diff_values_ptr + DCTSIZE, diff2);
+    vst1q_u16(values_ptr, abs_coefs1);
+    vst1q_u16(values_ptr + DCTSIZE, abs_coefs2);
+    vst1q_u16(diff_values_ptr, diff1);
+    vst1q_u16(diff_values_ptr + DCTSIZE, diff2);
     values_ptr += 16;
     diff_values_ptr += 16;
     jpeg_natural_order_start += 16;
@@ -105,40 +107,47 @@ void jsimd_encode_mcu_AC_first_prepare_neon
     switch (remaining_coefs) {
     case 15:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[14], coefs2, 6);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 14:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[13], coefs2, 5);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 13:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[12], coefs2, 4);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 12:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[11], coefs2, 3);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 11:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[10], coefs2, 2);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 10:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[9], coefs2, 1);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 9:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[8], coefs2, 0);
+      FALLTHROUGH               /*FALLTHROUGH*/
     default:
       break;
     }
 
     /* Isolate sign of coefficients. */
-    int16x8_t sign_coefs1 = vshrq_n_s16(coefs1, 15);
-    int16x8_t sign_coefs2 = vshrq_n_s16(coefs2, 15);
+    uint16x8_t sign_coefs1 = vreinterpretq_u16_s16(vshrq_n_s16(coefs1, 15));
+    uint16x8_t sign_coefs2 = vreinterpretq_u16_s16(vshrq_n_s16(coefs2, 15));
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs1 = vabsq_s16(coefs1);
-    int16x8_t abs_coefs2 = vabsq_s16(coefs2);
-    coefs1 = vshlq_s16(abs_coefs1, vdupq_n_s16(-Al));
-    coefs2 = vshlq_s16(abs_coefs2, vdupq_n_s16(-Al));
+    uint16x8_t abs_coefs1 = vreinterpretq_u16_s16(vabsq_s16(coefs1));
+    uint16x8_t abs_coefs2 = vreinterpretq_u16_s16(vabsq_s16(coefs2));
+    abs_coefs1 = vshlq_u16(abs_coefs1, vdupq_n_s16(-Al));
+    abs_coefs2 = vshlq_u16(abs_coefs2, vdupq_n_s16(-Al));
 
     /* Compute diff values. */
-    int16x8_t diff1 = veorq_s16(coefs1, sign_coefs1);
-    int16x8_t diff2 = veorq_s16(coefs2, sign_coefs2);
+    uint16x8_t diff1 = veorq_u16(abs_coefs1, sign_coefs1);
+    uint16x8_t diff2 = veorq_u16(abs_coefs2, sign_coefs2);
 
     /* Store transformed coefficients and diff values. */
-    vst1q_s16(values_ptr, coefs1);
-    vst1q_s16(values_ptr + DCTSIZE, coefs2);
-    vst1q_s16(diff_values_ptr, diff1);
-    vst1q_s16(diff_values_ptr + DCTSIZE, diff2);
+    vst1q_u16(values_ptr, abs_coefs1);
+    vst1q_u16(values_ptr + DCTSIZE, abs_coefs2);
+    vst1q_u16(diff_values_ptr, diff1);
+    vst1q_u16(diff_values_ptr + DCTSIZE, diff2);
     values_ptr += 16;
     diff_values_ptr += 16;
     rows_to_zero -= 2;
@@ -149,36 +158,44 @@ void jsimd_encode_mcu_AC_first_prepare_neon
     switch (remaining_coefs) {
     case 8:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[7], coefs, 7);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 7:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[6], coefs, 6);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 6:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[5], coefs, 5);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 5:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[4], coefs, 4);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 4:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[3], coefs, 3);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 3:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[2], coefs, 2);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 2:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[1], coefs, 1);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 1:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[0], coefs, 0);
+      FALLTHROUGH               /*FALLTHROUGH*/
     default:
       break;
     }
 
     /* Isolate sign of coefficients. */
-    int16x8_t sign_coefs = vshrq_n_s16(coefs, 15);
+    uint16x8_t sign_coefs = vreinterpretq_u16_s16(vshrq_n_s16(coefs, 15));
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs = vabsq_s16(coefs);
-    coefs = vshlq_s16(abs_coefs, vdupq_n_s16(-Al));
+    uint16x8_t abs_coefs = vreinterpretq_u16_s16(vabsq_s16(coefs));
+    abs_coefs = vshlq_u16(abs_coefs, vdupq_n_s16(-Al));
 
     /* Compute diff values. */
-    int16x8_t diff = veorq_s16(coefs, sign_coefs);
+    uint16x8_t diff = veorq_u16(abs_coefs, sign_coefs);
 
     /* Store transformed coefficients and diff values. */
-    vst1q_s16(values_ptr, coefs);
-    vst1q_s16(diff_values_ptr, diff);
+    vst1q_u16(values_ptr, abs_coefs);
+    vst1q_u16(diff_values_ptr, diff);
     values_ptr += 8;
     diff_values_ptr += 8;
     rows_to_zero--;
@@ -186,8 +203,8 @@ void jsimd_encode_mcu_AC_first_prepare_neon
 
   /* Zero remaining memory in the values and diff_values blocks. */
   for (i = 0; i < rows_to_zero; i++) {
-    vst1q_s16(values_ptr, vdupq_n_s16(0));
-    vst1q_s16(diff_values_ptr, vdupq_n_s16(0));
+    vst1q_u16(values_ptr, vdupq_n_u16(0));
+    vst1q_u16(diff_values_ptr, vdupq_n_u16(0));
     values_ptr += 8;
     diff_values_ptr += 8;
   }
@@ -195,23 +212,23 @@ void jsimd_encode_mcu_AC_first_prepare_neon
   /* Construct zerobits bitmap.  A set bit means that the corresponding
    * coefficient != 0.
    */
-  int16x8_t row0 = vld1q_s16(values + 0 * DCTSIZE);
-  int16x8_t row1 = vld1q_s16(values + 1 * DCTSIZE);
-  int16x8_t row2 = vld1q_s16(values + 2 * DCTSIZE);
-  int16x8_t row3 = vld1q_s16(values + 3 * DCTSIZE);
-  int16x8_t row4 = vld1q_s16(values + 4 * DCTSIZE);
-  int16x8_t row5 = vld1q_s16(values + 5 * DCTSIZE);
-  int16x8_t row6 = vld1q_s16(values + 6 * DCTSIZE);
-  int16x8_t row7 = vld1q_s16(values + 7 * DCTSIZE);
+  uint16x8_t row0 = vld1q_u16(values + 0 * DCTSIZE);
+  uint16x8_t row1 = vld1q_u16(values + 1 * DCTSIZE);
+  uint16x8_t row2 = vld1q_u16(values + 2 * DCTSIZE);
+  uint16x8_t row3 = vld1q_u16(values + 3 * DCTSIZE);
+  uint16x8_t row4 = vld1q_u16(values + 4 * DCTSIZE);
+  uint16x8_t row5 = vld1q_u16(values + 5 * DCTSIZE);
+  uint16x8_t row6 = vld1q_u16(values + 6 * DCTSIZE);
+  uint16x8_t row7 = vld1q_u16(values + 7 * DCTSIZE);
 
-  uint8x8_t row0_eq0 = vmovn_u16(vceqq_s16(row0, vdupq_n_s16(0)));
-  uint8x8_t row1_eq0 = vmovn_u16(vceqq_s16(row1, vdupq_n_s16(0)));
-  uint8x8_t row2_eq0 = vmovn_u16(vceqq_s16(row2, vdupq_n_s16(0)));
-  uint8x8_t row3_eq0 = vmovn_u16(vceqq_s16(row3, vdupq_n_s16(0)));
-  uint8x8_t row4_eq0 = vmovn_u16(vceqq_s16(row4, vdupq_n_s16(0)));
-  uint8x8_t row5_eq0 = vmovn_u16(vceqq_s16(row5, vdupq_n_s16(0)));
-  uint8x8_t row6_eq0 = vmovn_u16(vceqq_s16(row6, vdupq_n_s16(0)));
-  uint8x8_t row7_eq0 = vmovn_u16(vceqq_s16(row7, vdupq_n_s16(0)));
+  uint8x8_t row0_eq0 = vmovn_u16(vceqq_u16(row0, vdupq_n_u16(0)));
+  uint8x8_t row1_eq0 = vmovn_u16(vceqq_u16(row1, vdupq_n_u16(0)));
+  uint8x8_t row2_eq0 = vmovn_u16(vceqq_u16(row2, vdupq_n_u16(0)));
+  uint8x8_t row3_eq0 = vmovn_u16(vceqq_u16(row3, vdupq_n_u16(0)));
+  uint8x8_t row4_eq0 = vmovn_u16(vceqq_u16(row4, vdupq_n_u16(0)));
+  uint8x8_t row5_eq0 = vmovn_u16(vceqq_u16(row5, vdupq_n_u16(0)));
+  uint8x8_t row6_eq0 = vmovn_u16(vceqq_u16(row6, vdupq_n_u16(0)));
+  uint8x8_t row7_eq0 = vmovn_u16(vceqq_u16(row7, vdupq_n_u16(0)));
 
   /* { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 } */
   const uint8x8_t bitmap_mask =
@@ -234,7 +251,7 @@ void jsimd_encode_mcu_AC_first_prepare_neon
   uint8x8_t bitmap_rows_4567 = vpadd_u8(bitmap_rows_45, bitmap_rows_67);
   uint8x8_t bitmap_all = vpadd_u8(bitmap_rows_0123, bitmap_rows_4567);
 
-#if defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   /* Move bitmap to a 64-bit scalar register. */
   uint64_t bitmap = vget_lane_u64(vreinterpret_u64_u8(bitmap_all), 0);
   /* Store zerobits bitmap. */
@@ -258,7 +275,7 @@ void jsimd_encode_mcu_AC_first_prepare_neon
 
 int jsimd_encode_mcu_AC_refine_prepare_neon
   (const JCOEF *block, const int *jpeg_natural_order_start, int Sl, int Al,
-   JCOEF *absvalues, size_t *bits)
+   UJCOEF *absvalues, size_t *bits)
 {
   /* Temporary storage buffers for data used to compute the signbits bitmap and
    * the end-of-block (EOB) position
@@ -266,7 +283,7 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
   uint8_t coef_sign_bits[64];
   uint8_t coef_eq1_bits[64];
 
-  JCOEF *absvalues_ptr = absvalues;
+  UJCOEF *absvalues_ptr = absvalues;
   uint8_t *coef_sign_bits_ptr = coef_sign_bits;
   uint8_t *eq1_bits_ptr = coef_eq1_bits;
 
@@ -300,18 +317,18 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
     vst1_u8(coef_sign_bits_ptr + DCTSIZE, sign_coefs2);
 
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs1 = vabsq_s16(coefs1);
-    int16x8_t abs_coefs2 = vabsq_s16(coefs2);
-    coefs1 = vshlq_s16(abs_coefs1, vdupq_n_s16(-Al));
-    coefs2 = vshlq_s16(abs_coefs2, vdupq_n_s16(-Al));
-    vst1q_s16(absvalues_ptr, coefs1);
-    vst1q_s16(absvalues_ptr + DCTSIZE, coefs2);
+    uint16x8_t abs_coefs1 = vreinterpretq_u16_s16(vabsq_s16(coefs1));
+    uint16x8_t abs_coefs2 = vreinterpretq_u16_s16(vabsq_s16(coefs2));
+    abs_coefs1 = vshlq_u16(abs_coefs1, vdupq_n_s16(-Al));
+    abs_coefs2 = vshlq_u16(abs_coefs2, vdupq_n_s16(-Al));
+    vst1q_u16(absvalues_ptr, abs_coefs1);
+    vst1q_u16(absvalues_ptr + DCTSIZE, abs_coefs2);
 
     /* Test whether transformed coefficient values == 1 (used to find EOB
      * position.)
      */
-    uint8x8_t coefs_eq11 = vmovn_u16(vceqq_s16(coefs1, vdupq_n_s16(1)));
-    uint8x8_t coefs_eq12 = vmovn_u16(vceqq_s16(coefs2, vdupq_n_s16(1)));
+    uint8x8_t coefs_eq11 = vmovn_u16(vceqq_u16(abs_coefs1, vdupq_n_u16(1)));
+    uint8x8_t coefs_eq12 = vmovn_u16(vceqq_u16(abs_coefs2, vdupq_n_u16(1)));
     vst1_u8(eq1_bits_ptr, coefs_eq11);
     vst1_u8(eq1_bits_ptr + DCTSIZE, coefs_eq12);
 
@@ -337,18 +354,25 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
     switch (remaining_coefs) {
     case 15:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[14], coefs2, 6);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 14:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[13], coefs2, 5);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 13:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[12], coefs2, 4);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 12:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[11], coefs2, 3);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 11:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[10], coefs2, 2);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 10:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[9], coefs2, 1);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 9:
       coefs2 = vld1q_lane_s16(block + jpeg_natural_order_start[8], coefs2, 0);
+      FALLTHROUGH               /*FALLTHROUGH*/
     default:
       break;
     }
@@ -362,18 +386,18 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
     vst1_u8(coef_sign_bits_ptr + DCTSIZE, sign_coefs2);
 
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs1 = vabsq_s16(coefs1);
-    int16x8_t abs_coefs2 = vabsq_s16(coefs2);
-    coefs1 = vshlq_s16(abs_coefs1, vdupq_n_s16(-Al));
-    coefs2 = vshlq_s16(abs_coefs2, vdupq_n_s16(-Al));
-    vst1q_s16(absvalues_ptr, coefs1);
-    vst1q_s16(absvalues_ptr + DCTSIZE, coefs2);
+    uint16x8_t abs_coefs1 = vreinterpretq_u16_s16(vabsq_s16(coefs1));
+    uint16x8_t abs_coefs2 = vreinterpretq_u16_s16(vabsq_s16(coefs2));
+    abs_coefs1 = vshlq_u16(abs_coefs1, vdupq_n_s16(-Al));
+    abs_coefs2 = vshlq_u16(abs_coefs2, vdupq_n_s16(-Al));
+    vst1q_u16(absvalues_ptr, abs_coefs1);
+    vst1q_u16(absvalues_ptr + DCTSIZE, abs_coefs2);
 
     /* Test whether transformed coefficient values == 1 (used to find EOB
      * position.)
      */
-    uint8x8_t coefs_eq11 = vmovn_u16(vceqq_s16(coefs1, vdupq_n_s16(1)));
-    uint8x8_t coefs_eq12 = vmovn_u16(vceqq_s16(coefs2, vdupq_n_s16(1)));
+    uint8x8_t coefs_eq11 = vmovn_u16(vceqq_u16(abs_coefs1, vdupq_n_u16(1)));
+    uint8x8_t coefs_eq12 = vmovn_u16(vceqq_u16(abs_coefs2, vdupq_n_u16(1)));
     vst1_u8(eq1_bits_ptr, coefs_eq11);
     vst1_u8(eq1_bits_ptr + DCTSIZE, coefs_eq12);
 
@@ -389,20 +413,28 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
     switch (remaining_coefs) {
     case 8:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[7], coefs, 7);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 7:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[6], coefs, 6);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 6:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[5], coefs, 5);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 5:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[4], coefs, 4);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 4:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[3], coefs, 3);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 3:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[2], coefs, 2);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 2:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[1], coefs, 1);
+      FALLTHROUGH               /*FALLTHROUGH*/
     case 1:
       coefs = vld1q_lane_s16(block + jpeg_natural_order_start[0], coefs, 0);
+      FALLTHROUGH               /*FALLTHROUGH*/
     default:
       break;
     }
@@ -413,14 +445,14 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
     vst1_u8(coef_sign_bits_ptr, sign_coefs);
 
     /* Compute absolute value of coefficients and apply point transform Al. */
-    int16x8_t abs_coefs = vabsq_s16(coefs);
-    coefs = vshlq_s16(abs_coefs, vdupq_n_s16(-Al));
-    vst1q_s16(absvalues_ptr, coefs);
+    uint16x8_t abs_coefs = vreinterpretq_u16_s16(vabsq_s16(coefs));
+    abs_coefs = vshlq_u16(abs_coefs, vdupq_n_s16(-Al));
+    vst1q_u16(absvalues_ptr, abs_coefs);
 
     /* Test whether transformed coefficient values == 1 (used to find EOB
      * position.)
      */
-    uint8x8_t coefs_eq1 = vmovn_u16(vceqq_s16(coefs, vdupq_n_s16(1)));
+    uint8x8_t coefs_eq1 = vmovn_u16(vceqq_u16(abs_coefs, vdupq_n_u16(1)));
     vst1_u8(eq1_bits_ptr, coefs_eq1);
 
     absvalues_ptr += 8;
@@ -431,7 +463,7 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
 
   /* Zero remaining memory in blocks. */
   for (i = 0; i < rows_to_zero; i++) {
-    vst1q_s16(absvalues_ptr, vdupq_n_s16(0));
+    vst1q_u16(absvalues_ptr, vdupq_n_u16(0));
     vst1_u8(coef_sign_bits_ptr, vdup_n_u8(0));
     vst1_u8(eq1_bits_ptr, vdup_n_u8(0));
     absvalues_ptr += 8;
@@ -440,23 +472,23 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
   }
 
   /* Construct zerobits bitmap. */
-  int16x8_t abs_row0 = vld1q_s16(absvalues + 0 * DCTSIZE);
-  int16x8_t abs_row1 = vld1q_s16(absvalues + 1 * DCTSIZE);
-  int16x8_t abs_row2 = vld1q_s16(absvalues + 2 * DCTSIZE);
-  int16x8_t abs_row3 = vld1q_s16(absvalues + 3 * DCTSIZE);
-  int16x8_t abs_row4 = vld1q_s16(absvalues + 4 * DCTSIZE);
-  int16x8_t abs_row5 = vld1q_s16(absvalues + 5 * DCTSIZE);
-  int16x8_t abs_row6 = vld1q_s16(absvalues + 6 * DCTSIZE);
-  int16x8_t abs_row7 = vld1q_s16(absvalues + 7 * DCTSIZE);
+  uint16x8_t abs_row0 = vld1q_u16(absvalues + 0 * DCTSIZE);
+  uint16x8_t abs_row1 = vld1q_u16(absvalues + 1 * DCTSIZE);
+  uint16x8_t abs_row2 = vld1q_u16(absvalues + 2 * DCTSIZE);
+  uint16x8_t abs_row3 = vld1q_u16(absvalues + 3 * DCTSIZE);
+  uint16x8_t abs_row4 = vld1q_u16(absvalues + 4 * DCTSIZE);
+  uint16x8_t abs_row5 = vld1q_u16(absvalues + 5 * DCTSIZE);
+  uint16x8_t abs_row6 = vld1q_u16(absvalues + 6 * DCTSIZE);
+  uint16x8_t abs_row7 = vld1q_u16(absvalues + 7 * DCTSIZE);
 
-  uint8x8_t abs_row0_eq0 = vmovn_u16(vceqq_s16(abs_row0, vdupq_n_s16(0)));
-  uint8x8_t abs_row1_eq0 = vmovn_u16(vceqq_s16(abs_row1, vdupq_n_s16(0)));
-  uint8x8_t abs_row2_eq0 = vmovn_u16(vceqq_s16(abs_row2, vdupq_n_s16(0)));
-  uint8x8_t abs_row3_eq0 = vmovn_u16(vceqq_s16(abs_row3, vdupq_n_s16(0)));
-  uint8x8_t abs_row4_eq0 = vmovn_u16(vceqq_s16(abs_row4, vdupq_n_s16(0)));
-  uint8x8_t abs_row5_eq0 = vmovn_u16(vceqq_s16(abs_row5, vdupq_n_s16(0)));
-  uint8x8_t abs_row6_eq0 = vmovn_u16(vceqq_s16(abs_row6, vdupq_n_s16(0)));
-  uint8x8_t abs_row7_eq0 = vmovn_u16(vceqq_s16(abs_row7, vdupq_n_s16(0)));
+  uint8x8_t abs_row0_eq0 = vmovn_u16(vceqq_u16(abs_row0, vdupq_n_u16(0)));
+  uint8x8_t abs_row1_eq0 = vmovn_u16(vceqq_u16(abs_row1, vdupq_n_u16(0)));
+  uint8x8_t abs_row2_eq0 = vmovn_u16(vceqq_u16(abs_row2, vdupq_n_u16(0)));
+  uint8x8_t abs_row3_eq0 = vmovn_u16(vceqq_u16(abs_row3, vdupq_n_u16(0)));
+  uint8x8_t abs_row4_eq0 = vmovn_u16(vceqq_u16(abs_row4, vdupq_n_u16(0)));
+  uint8x8_t abs_row5_eq0 = vmovn_u16(vceqq_u16(abs_row5, vdupq_n_u16(0)));
+  uint8x8_t abs_row6_eq0 = vmovn_u16(vceqq_u16(abs_row6, vdupq_n_u16(0)));
+  uint8x8_t abs_row7_eq0 = vmovn_u16(vceqq_u16(abs_row7, vdupq_n_u16(0)));
 
   /* { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 } */
   const uint8x8_t bitmap_mask =
@@ -479,7 +511,7 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
   uint8x8_t bitmap_rows_4567 = vpadd_u8(bitmap_rows_45, bitmap_rows_67);
   uint8x8_t bitmap_all = vpadd_u8(bitmap_rows_0123, bitmap_rows_4567);
 
-#if defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   /* Move bitmap to a 64-bit scalar register. */
   uint64_t bitmap = vget_lane_u64(vreinterpret_u64_u8(bitmap_all), 0);
   /* Store zerobits bitmap. */
@@ -520,7 +552,7 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
   bitmap_rows_4567 = vpadd_u8(bitmap_rows_45, bitmap_rows_67);
   bitmap_all = vpadd_u8(bitmap_rows_0123, bitmap_rows_4567);
 
-#if defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   /* Move bitmap to a 64-bit scalar register. */
   bitmap = vget_lane_u64(vreinterpret_u64_u8(bitmap_all), 0);
   /* Store signbits bitmap. */
@@ -563,7 +595,7 @@ int jsimd_encode_mcu_AC_refine_prepare_neon
   bitmap_rows_4567 = vpadd_u8(bitmap_rows_45, bitmap_rows_67);
   bitmap_all = vpadd_u8(bitmap_rows_0123, bitmap_rows_4567);
 
-#if defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   /* Move bitmap to a 64-bit scalar register. */
   bitmap = vget_lane_u64(vreinterpret_u64_u8(bitmap_all), 0);
 
