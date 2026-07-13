@@ -203,7 +203,7 @@ UsdGeomMesh WriteMesh(
           GfVec3f(static_cast<float>(n[0]), static_cast<float>(n[1]), static_cast<float>(n[2]));
       }
       mesh.GetNormalsAttr().Set(normals);
-      mesh.SetNormalsInterpolation(UsdGeomTokens->faceVarying);
+      mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
     }
   }
   else
@@ -233,7 +233,7 @@ UsdGeomMesh WriteMesh(
       }
     }
     mesh.GetNormalsAttr().Set(normals);
-    mesh.SetNormalsInterpolation(UsdGeomTokens->faceVarying);
+    mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
   }
 
   // if we have vertex colors then retrieve them
