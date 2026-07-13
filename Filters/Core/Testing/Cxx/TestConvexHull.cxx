@@ -7,6 +7,8 @@
 
 #include "vtkConvexHull.h"
 
+#include "vtkCellArray.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -14,7 +16,9 @@
 #include "vtkVector.h"
 
 #include <array>
+#include <cmath>
 #include <iostream>
+#include <map>
 #include <vector>
 
 namespace
@@ -23,6 +27,7 @@ namespace
 vtkSmartPointer<vtkPolyData> MakeInput(const std::vector<std::array<double, 3>>& coords)
 {
   vtkNew<vtkPoints> pts;
+  pts->SetDataTypeToDouble();
   for (const auto& p : coords)
   {
     pts->InsertNextPoint(p[0], p[1], p[2]);
@@ -149,6 +154,119 @@ static int Test3D()
 }
 
 //------------------------------------------------------------------------------
+// 3D regression: the same unit cube in VTK hexahedron corner order.
+// This ordering used to leave QuickHull with degenerate non-supporting planes
+// (from coplanar sliver faces) that wrongly classified interior points as
+// outside the hull.
+static int Test3DHexCornerOrder()
+{
+  int errors = 0;
+
+  vtkNew<vtkConvexHull> hull;
+  hull->SetInputData(MakeInput({ { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 },
+    { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } }));
+  hull->SetDimension(3);
+  hull->Update();
+
+  // Interior points that the degenerate planes used to reject.
+  errors += Check(
+    hull->IsPointWithinConvexHull(0.3, 0.4, 0.65), "3D-hex-order: (0.3,0.4,0.65) should be inside");
+  errors += Check(hull->IsPointWithinConvexHull(0.625, 0.7, 0.35),
+    "3D-hex-order: (0.625,0.7,0.35) should be inside");
+  errors += Check(
+    hull->IsPointWithinConvexHull(0.5, 0.5, 0.5), "3D-hex-order: cube center should be inside");
+
+  // Exterior points must still be rejected.
+  errors +=
+    Check(!hull->IsPointWithinConvexHull(-0.1, 0.5, 0.5), "3D-hex-order: x=-0.1 should be outside");
+  errors +=
+    Check(!hull->IsPointWithinConvexHull(0.5, 0.5, 1.1), "3D-hex-order: z=1.1 should be outside");
+
+  // All 8 cube corners must be hull vertices.
+  auto* output = vtkPolyData::SafeDownCast(hull->GetOutput());
+  errors += Check(output != nullptr && output->GetNumberOfPoints() == 8,
+    "3D-hex-order: all 8 cube corners should be hull vertices");
+
+  return errors;
+}
+
+//------------------------------------------------------------------------------
+// 3D regression: a lat/long point grid on the unit sphere. Every point is a
+// hull vertex, which used to expose inconsistent face winding in QuickHull's
+// horizon search: the hull came out with missing vertices and an open surface.
+static int Test3DSphere()
+{
+  int errors = 0;
+
+  // Poles plus 18 interior latitude rings of 20 points each (matches
+  // vtkSphereSource with theta/phi resolution 20): N = 2 + 18 * 20 = 362.
+  const double pi = vtkMath::Pi();
+  std::vector<std::array<double, 3>> coords;
+  coords.push_back({ 0.0, 0.0, 1.0 });
+  coords.push_back({ 0.0, 0.0, -1.0 });
+  for (int i = 1; i <= 18; ++i)
+  {
+    const double phi = pi * i / 19.0;
+    for (int j = 0; j < 20; ++j)
+    {
+      const double theta = 2.0 * pi * j / 20.0;
+      coords.push_back(
+        { std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi) });
+    }
+  }
+  const vtkIdType numPoints = static_cast<vtkIdType>(coords.size());
+
+  vtkNew<vtkConvexHull> hull;
+  hull->SetInputData(MakeInput(coords));
+  hull->SetDimension(3);
+  hull->Update();
+
+  // Every input point is a hull vertex; a simplicial hull has 2V-4 facets.
+  auto* output = vtkPolyData::SafeDownCast(hull->GetOutput());
+  errors += Check(output != nullptr && output->GetNumberOfPoints() == numPoints,
+    "3D-sphere: every input point should be a hull vertex");
+  errors += Check(output != nullptr && output->GetNumberOfCells() == 2 * numPoints - 4,
+    "3D-sphere: hull should have 2V-4 triangles");
+
+  // All input points are inside (on the boundary of) the half-plane set, and
+  // pushed-out copies are rejected.
+  for (const auto& p : coords)
+  {
+    errors +=
+      Check(hull->IsPointWithinConvexHull(p.data()), "3D-sphere: input point should be inside");
+    errors += Check(!hull->IsPointWithinConvexHull(1.05 * p[0], 1.05 * p[1], 1.05 * p[2]),
+      "3D-sphere: scaled-out point should be outside");
+  }
+
+  // The surface is closed and consistently oriented: every directed edge
+  // appears exactly once, and so does its reverse.
+  if (output)
+  {
+    std::map<std::pair<vtkIdType, vtkIdType>, int> edgeCount;
+    auto* polys = output->GetPolys();
+    vtkIdType npts;
+    const vtkIdType* cellPts;
+    for (polys->InitTraversal(); polys->GetNextCell(npts, cellPts);)
+    {
+      for (vtkIdType e = 0; e < npts; ++e)
+      {
+        ++edgeCount[{ cellPts[e], cellPts[(e + 1) % npts] }];
+      }
+    }
+    bool closed = !edgeCount.empty();
+    for (const auto& entry : edgeCount)
+    {
+      const auto reverse = std::make_pair(entry.first.second, entry.first.first);
+      const auto rIt = edgeCount.find(reverse);
+      closed = closed && entry.second == 1 && rIt != edgeCount.end() && rIt->second == 1;
+    }
+    errors += Check(closed, "3D-sphere: hull surface should be closed and consistently oriented");
+  }
+
+  return errors;
+}
+
+//------------------------------------------------------------------------------
 // Static API: ComputeConvexHull with a raw vtkVector3d array, then IsPointInside.
 static int TestStaticAPI()
 {
@@ -259,6 +377,8 @@ int TestConvexHull(int, char*[])
   errors += Test1D();
   errors += Test2D();
   errors += Test3D();
+  errors += Test3DHexCornerOrder();
+  errors += Test3DSphere();
   errors += TestStaticAPI();
   errors += TestNoGeometry();
   errors += TestEdgeCases();
