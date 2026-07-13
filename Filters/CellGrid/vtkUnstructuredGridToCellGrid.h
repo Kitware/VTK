@@ -12,7 +12,9 @@
  * Note that this filter assumes all the cells of the same shape in
  * the vtkUnstructuredGrid are of the same order. This matches
  * assumptions in the IOSS reader but may not be true of arbitrary
- * unstructured grids.
+ * unstructured grids. When cells of the same shape but different orders
+ * are present (e.g. linear and quadratic hexahedra), all of them are
+ * transcribed at order 1 (corner nodes only) and a warning is emitted.
  *
  * ## Design notes
  *
