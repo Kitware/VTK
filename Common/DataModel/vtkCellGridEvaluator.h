@@ -170,6 +170,23 @@ public:
   /// These points are in world coordinates (not in reference cell coordinates).
   vtkGetObjectMacro(InputPoints, vtkDataArray);
 
+  ///@{
+  /// Set/get the parametric-space tolerance used by the classifier to accept
+  /// points near the reference-element boundary.
+  ///
+  /// A point is classified into a cell when its computed parametric coordinates
+  /// satisfy `GetSignedParametricDistance(rst) <= ClassifierTolerance`. Because the
+  /// coordinates are computed by an iterative solver, responders may floor this
+  /// tolerance at the solver's own convergence precision; with the default (0.0)
+  /// containment is tested as strictly as the solver can resolve. Points lying
+  /// exactly on cell boundaries (corners, edges, faces shared between neighboring
+  /// cells) may still converge marginally outside one of the cells that share the
+  /// boundary; set a small positive tolerance (e.g. 1e-8) to classify such points
+  /// into every cell that contains them.
+  vtkSetClampMacro(ClassifierTolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(ClassifierTolerance, double);
+  ///@}
+
   /// Get the discovered types of cells containing input points.
   vtkGetObjectMacro(ClassifierCellTypes, vtkTypeUInt32Array);
 
@@ -264,6 +281,8 @@ protected:
 
   vtkNew<vtkStaticPointLocator> Locator;
 
+  /// Parametric-space tolerance for accepting points near the reference-element boundary.
+  double ClassifierTolerance{ 0.0 };
   /// Which of the phases are the arrays above configured to perform?
   Phases PhasesToPerform{ Phases::None };
   /// The total number of output points (across all cell types).

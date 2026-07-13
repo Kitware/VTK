@@ -23,6 +23,7 @@
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigen)
 
+#include <algorithm>
 #include <iostream>
 
 // Switch the following to #define to get debug printouts. Beware, these are in a tight loop.
@@ -193,6 +194,9 @@ bool vtkDGEvaluator::ClassifyPoints(
   // Computed once per ClassifyPoints call since all cells share the same dgCell type.
   const vtkVector3d rstCenter = dgCell->GetParametricCenterOfSide(-1);
 
+  // Parametric-space tolerance for accepting points near the reference-element boundary.
+  const double tolerance = query->GetClassifierTolerance();
+
   // Accumulation pass: for each cell, find candidate probe points via the
   // circumscribed-sphere filter, then run Newton-Raphson to classify them.
   // Successful classifications are stored in cellPoints[cellId] and counted
@@ -246,7 +250,7 @@ bool vtkDGEvaluator::ClassifyPoints(
             // Classify by inverting the reference-to-world mapping. Parametric coordinates
             // are stored on success, eliminating a separate EvaluatePositions pass.
             rst = rstCenter;
-            if (EvaluatePosition(calc, dgCell, cellId, testPoint, xyz, jacobian, rst))
+            if (EvaluatePosition(calc, dgCell, cellId, testPoint, tolerance, xyz, jacobian, rst))
             {
               pointsInsideCell.emplace_back(
                 testPointID, std::array<double, 3>{ rst[0], rst[1], rst[2] });
@@ -297,16 +301,31 @@ bool vtkDGEvaluator::ClassifyPoints(
 ///
 /// \a rst must be set to the initial guess on entry (typically the parametric center of the cell
 /// shape). On convergence it holds the parametric coordinates and the function returns true only
-/// if those coordinates satisfy \a dgCell->GetSignedParametricDistance() ≤ 0. Returns false if
-/// Newton did not converge within 20 iterations or if the converged point lies outside the
-/// reference element.
+/// if \a dgCell->GetSignedParametricDistance() at those coordinates does not exceed the
+/// acceptance tolerance described below. Returns false if Newton did not converge within
+/// 20 iterations or if the converged point lies outside the reference element.
+///
+/// \a tolerance is the caller's parametric-space acceptance tolerance (vtkCellGridEvaluator's
+/// ClassifierTolerance). Because containment can only be decided to the precision the Newton
+/// iteration achieves, the effective acceptance tolerance is never smaller than twice the
+/// iteration's convergence tolerance.
 ///
 /// \a xyz (size ≥ 3) and \a jacobian (size ≥ 9) are caller-supplied working buffers that are
 /// reused across calls to amortize allocation cost.
 bool vtkDGEvaluator::EvaluatePosition(vtkInterpolateCalculator* calc, vtkDGCell* dgCell,
-  vtkIdType cellId, const vtkVector3d& testPoint, std::vector<double>& xyz,
+  vtkIdType cellId, const vtkVector3d& testPoint, double tolerance, std::vector<double>& xyz,
   std::vector<double>& jacobian, vtkVector3d& rst)
 {
+  // Newton is converged when the parametric-space update ‖xx‖ falls below this tolerance.
+  // The update is the world-space residual mapped through the inverse Jacobian, so unlike
+  // a world-space residual test this is independent of the world-space size of the cell
+  // and directly comparable to GetSignedParametricDistance() below.
+  constexpr double newtonTolerance = 1e-9;
+  // Containment can only be decided to within the precision Newton achieves, so floor the
+  // acceptance tolerance at a small multiple of newtonTolerance; a larger caller-provided
+  // tolerance widens the band to accept points on boundaries shared between neighboring cells.
+  const double acceptanceTolerance = std::max(tolerance, 2.0 * newtonTolerance);
+
   for (int iter = 0; iter < 20; ++iter)
   {
     calc->Evaluate(cellId, rst, xyz);
@@ -314,18 +333,6 @@ bool vtkDGEvaluator::EvaluatePosition(vtkInterpolateCalculator* calc, vtkDGCell*
     std::cout << "  " << rst << " → " << xyz[0] << " " << xyz[1] << " " << xyz[2] << "\n";
 #endif
     vtkVector3d delta(xyz[0] - testPoint[0], xyz[1] - testPoint[1], xyz[2] - testPoint[2]);
-    const double paramDist = dgCell->GetSignedParametricDistance(rst);
-    const bool isInside = paramDist <= 0.0;
-    if (!isInside && (delta.Norm() / paramDist) < 1e-3)
-    {
-      // Newton diverged;
-      return false;
-    }
-    if (isInside && delta.Norm() < 1e-7)
-    {
-      // Newton converged; accept only if the parametric point is inside the reference element.
-      return true;
-    }
     calc->EvaluateDerivative(cellId, rst, jacobian);
     Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>> map(jacobian.data());
     Eigen::Vector3d edelt(delta[0], delta[1], delta[2]);
@@ -338,9 +345,20 @@ bool vtkDGEvaluator::EvaluatePosition(vtkInterpolateCalculator* calc, vtkDGCell*
     rst[0] -= xx[0];
     rst[1] -= xx[1];
     rst[2] -= xx[2];
-#ifdef VTK_DBG_DGEVAL
-    std::cout << "      delta " << edelt[0] << " " << edelt[1] << " " << edelt[2] << "\n";
-#endif
+    const double paramDist = dgCell->GetSignedParametricDistance(rst);
+    const double stepNorm = xx.norm();
+    if (stepNorm < newtonTolerance)
+    {
+      // Newton converged; accept only if the parametric point is inside the
+      // reference element or within acceptanceTolerance of its boundary.
+      return paramDist <= acceptanceTolerance;
+    }
+    if (paramDist > acceptanceTolerance && stepNorm < 1e-3 * paramDist)
+    {
+      // The iteration has settled on a point outside the reference element: the
+      // remaining Newton correction is far too small to bring it back inside.
+      return false;
+    }
   }
   return false; // Newton did not converge within the iteration budget.
 }
