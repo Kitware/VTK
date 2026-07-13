@@ -384,7 +384,7 @@ struct ComputeAlphaWorker
 
 struct ComputeLensAlphaWorker
 {
-  ComputeLensAlphaWorker(float* lensCenter, float lensRadius, double outsideLensAlpha)
+  ComputeLensAlphaWorker(double* lensCenter, double lensRadius, double outsideLensAlpha)
     : LensRadius(lensRadius)
     , OutsideLensAlpha(outsideLensAlpha)
   {
@@ -401,7 +401,7 @@ struct ComputeLensAlphaWorker
     vtkIdType nTuples = gbc.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      float distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
+      double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
         std::pow(gbc[i][1] - this->LensCenter[1], 2));
       if (distance > this->LensRadius)
       {
@@ -409,8 +409,8 @@ struct ComputeLensAlphaWorker
       }
     }
   }
-  float LensCenter[2];
-  float LensRadius;
+  double LensCenter[2];
+  double LensRadius;
   double OutsideLensAlpha;
 };
 
@@ -715,14 +715,14 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
   return { nullptr, nullptr };
 }
 
-float vtkMultiVariateToRGBA::GetLensRadius(
-  float lensRadius, float radius, const float* lensCenter, const float* center)
+double vtkMultiVariateToRGBA::GetLensRadius(
+  double lensRadius, double radius, const double* lensCenter, const double* center)
 {
   // Ensure the lens circle intersects the reference circle.
   // r is the distance between the two circle centers.
-  float r =
+  double r =
     std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
-  float newLensRadius;
+  double newLensRadius;
   // If the two circles do not intersect, grow the lens radius until they just touch.
   if (r - lensRadius > radius)
   {
@@ -735,10 +735,10 @@ float vtkMultiVariateToRGBA::GetLensRadius(
   return newLensRadius;
 }
 
-void vtkMultiVariateToRGBA::SetLensRadius(float lensRadius)
+void vtkMultiVariateToRGBA::SetLensRadius(double lensRadius)
 {
-  float newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
-    lensRadius, 1, this->LensCenter, std::array<float, 2>{ 0, 0 }.data());
+  double newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
+    lensRadius, 1, this->LensCenter, std::array<double, 2>{ 0, 0 }.data());
   if (newLensRadius != this->LensRadius)
   {
     this->LensRadius = newLensRadius;
@@ -746,19 +746,19 @@ void vtkMultiVariateToRGBA::SetLensRadius(float lensRadius)
   }
 }
 
-std::array<float, 2> vtkMultiVariateToRGBA::GetLensCenter(
-  float lensRadius, float radius, const float* lensCenter, const float* center)
+std::array<double, 2> vtkMultiVariateToRGBA::GetLensCenter(
+  double lensRadius, double radius, const double* lensCenter, const double* center)
 {
   // Ensure the lens circle intersects the reference circle.
   // r is the distance between the two circle centers.
-  float r =
+  double r =
     std::sqrt(std::pow(lensCenter[0] - center[0], 2) + std::pow(lensCenter[1] - center[1], 2));
-  std::array<float, 2> newLensCenter;
+  std::array<double, 2> newLensCenter;
   // If the two circles do not intersect, move the lens center toward the reference
   // circle until they just touch.
   if (r - lensRadius > radius)
   {
-    std::array<float, 2> intersection;
+    std::array<double, 2> intersection;
     intersection = { ((lensCenter[0] - center[0]) / r) * radius,
       ((lensCenter[1] - center[1]) / r) * radius };
     newLensCenter = { (intersection[0] / radius) * (radius + lensRadius) + center[0],
@@ -771,10 +771,15 @@ std::array<float, 2> vtkMultiVariateToRGBA::GetLensCenter(
   return newLensCenter;
 }
 
-void vtkMultiVariateToRGBA::SetLensCenter(const float* lensCenter)
+void vtkMultiVariateToRGBA::SetLensCenter(double centerX, double centerY)
 {
-  std::array<float, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
-    this->LensRadius, 1, lensCenter, std::array<float, 2>{ 1, 1 }.data());
+  SetLensCenter(std::array<double, 2>{ centerX, centerY }.data());
+}
+
+void vtkMultiVariateToRGBA::SetLensCenter(const double* lensCenter)
+{
+  std::array<double, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
+    this->LensRadius, 1, lensCenter, std::array<double, 2>{ 1, 1 }.data());
   if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
   {
     std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);

@@ -202,21 +202,21 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     }
     else if (this->Internals->ResizeLens)
     {
-      float* lensCenter = this->Internals->Plot->GetLensCenter();
+      double* lensCenter = this->Internals->Plot->GetLensCenter();
       // distance between the lensCenter and the mouse point
-      float r =
+      double r =
         std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
       this->Internals->Plot->SetLensRadius(r);
       this->Scene->SetDirty(true);
     }
     else if (this->Internals->DragLens)
     {
-      float d[2];
+      double d[2];
 
       d[0] = pos[0] - this->Internals->DragLensStart[0];
       d[1] = pos[1] - this->Internals->DragLensStart[1];
-      float newLensCenter[2];
-      float* lensCenter = this->Internals->Plot->GetLensCenter();
+      double newLensCenter[2];
+      double* lensCenter = this->Internals->Plot->GetLensCenter();
       newLensCenter[0] = lensCenter[0] + d[0];
       ;
       newLensCenter[1] = lensCenter[1] + d[1];
@@ -294,10 +294,10 @@ void vtkChartRadViz::GetActiveElement(
   }
   if (activeVertexIndex < 0 && this->Internals->Plot->GetLensVisibility())
   {
-    float* lensCenter = this->Internals->Plot->GetLensCenter();
-    float lensRadius = this->Internals->Plot->GetLensRadius();
+    double* lensCenter = this->Internals->Plot->GetLensCenter();
+    double lensRadius = this->Internals->Plot->GetLensRadius();
     // distance between the lensCenter and the mouse point
-    float r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
+    double r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
     if (std::abs(lensRadius - r) < SIZE)
     {
       activeLensOutline = true;

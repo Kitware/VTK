@@ -112,11 +112,11 @@ public:
   /**
    * The center of the GBC circle in window space
    */
-  float Center[2];
+  double Center[2];
   /**
    * The radius of the GBC circle in window space
    */
-  float Radius;
+  double Radius;
   /**
    * PlotRadViz object, used for debug or error logging
    */
@@ -155,22 +155,22 @@ vtkPlotRadViz::vtkPlotRadViz()
 }
 
 //------------------------------------------------------------------------------
-const float* vtkPlotRadViz::GetCenter() const
+const double* vtkPlotRadViz::GetCenter() const
 {
   return this->Internals->Center;
 }
 
 //------------------------------------------------------------------------------
-float vtkPlotRadViz::GetRadius() const
+double vtkPlotRadViz::GetRadius() const
 {
   return this->Internals->Radius;
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensRadius(float lensRadius)
+void vtkPlotRadViz::SetLensRadius(double lensRadius)
 {
   vtkDebugMacro(<< " setting LensRadius to " << lensRadius);
-  float newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
+  double newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
     lensRadius, this->Internals->Radius, this->LensCenter, this->Internals->Center);
 
   if (newLensRadius != this->LensRadius)
@@ -181,10 +181,10 @@ void vtkPlotRadViz::SetLensRadius(float lensRadius)
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensCenter(const float* lensCenter)
+void vtkPlotRadViz::SetLensCenter(const double* lensCenter)
 {
   vtkDebugMacro(<< " setting LensLensCenter to [" << lensCenter[0] << ", " << lensCenter[1] << ")");
-  std::array<float, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
+  std::array<double, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
     this->LensRadius, this->Internals->Radius, lensCenter, this->Internals->Center);
   if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
   {
@@ -336,7 +336,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     computeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
     computeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
     computeGBC->SetComponentsPartition(this->ComponentsPartition);
-    std::array<float, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
+    std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
     computeGBC->SetLensCenter(lensCenter.data());
@@ -465,7 +465,7 @@ std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
   }
 }
 
-void vtkPlotRadViz::ShiftLabelByPenWidth(float width, double xy[2])
+void vtkPlotRadViz::ShiftLabelByPenWidth(double width, double xy[2])
 {
   double radius = (width / 2) * 1.2;
   double cos_a = (xy[0] - this->Internals->Center[0]) / this->Internals->Radius;
@@ -483,9 +483,11 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
   center->SetNumberOfComponents(3);
   center->SetNumberOfTuples(1);
   center->SetTypedTuple(0,
-    std::array<float, 3>{
-      (this->LensCenter[0] - this->Internals->Center[0]) / this->Internals->Radius,
-      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius, 0 }
+    std::array<float, 3>{ static_cast<float>((this->LensCenter[0] - this->Internals->Center[0]) /
+                            this->Internals->Radius),
+      static_cast<float>(
+        (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius),
+      0 }
       .data());
   this->DrawMarkers(painter, center, this->VerticesPen, this->ActiveLensInterior ? 0 : -1);
   // draw the lens circle

@@ -95,14 +95,15 @@ public:
    * Center of the lens in GBC space (unit circle centered at the origin).
    * The lens must intersect the GBC circle.
    */
-  virtual void SetLensCenter(const float* center);
-  vtkGetVector2Macro(LensCenter, float);
+  void SetLensCenter(const double* center);
+  virtual void SetLensCenter(double centerX, double centerY);
+  vtkGetVector2Macro(LensCenter, double);
   /**
    * Radius of the lens in GBC space (unit circle centered at the origin).
    * The lens must intersect the GBC circle.
    */
-  virtual void SetLensRadius(float radius);
-  vtkGetMacro(LensRadius, float);
+  virtual void SetLensRadius(double radius);
+  vtkGetMacro(LensRadius, double);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
    * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1 (no change).
@@ -115,10 +116,10 @@ public:
    * reference circle (center, radius). GetLensRadius returns the adjusted
    * radius; GetLensCenter returns the adjusted center.
    */
-  static float GetLensRadius(
-    float lensRadius, float radius, const float* lensCenter, const float* center);
-  static std::array<float, 2> GetLensCenter(
-    float lensRadius, float radius, const float* lensCenter, const float* center);
+  static double GetLensRadius(
+    double lensRadius, double radius, const double* lensCenter, const double* center);
+  static std::array<double, 2> GetLensCenter(
+    double lensRadius, double radius, const double* lensCenter, const double* center);
   ///@}
 
   ///@{
@@ -160,8 +161,8 @@ protected:
   /**
    * Where the lens is drawn and its radius
    */
-  float LensCenter[2] = { 0.0f, 0.0f };
-  float LensRadius = 1.0f;
+  double LensCenter[2] = { 0.0, 0.0 };
+  double LensRadius = 1.0;
   /**
    * Alpha cap for points outside the lens.
    */

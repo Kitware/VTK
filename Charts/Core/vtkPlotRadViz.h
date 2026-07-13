@@ -169,13 +169,13 @@ public:
    * Center of the lens in window space. The set function ensures that
    * the lens intersects the GBC circle.
    */
-  virtual void SetLensCenter(const float* center);
-  vtkGetVector2Macro(LensCenter, float);
+  virtual void SetLensCenter(const double* center);
+  vtkGetVector2Macro(LensCenter, double);
   /**
    * Radius of the lens in window space.
    */
-  virtual void SetLensRadius(float radius);
-  vtkGetMacro(LensRadius, float);
+  virtual void SetLensRadius(double radius);
+  vtkGetMacro(LensRadius, double);
   /**
    * Controls how the lens circle outline is drawn.
    */
@@ -225,11 +225,11 @@ public:
   /**
    * Center of the plot in window space.
    */
-  const float* GetCenter() const;
+  const double* GetCenter() const;
   /**
    * Radius of the plot in window space.
    */
-  float GetRadius() const;
+  double GetRadius() const;
 
   ///@{
   /**
@@ -282,7 +282,7 @@ protected:
    * Returns the horizontal and vertical text justification for xy coordinates.
    */
   static std::pair<int, int> GetJustification(double xy[2]);
-  void ShiftLabelByPenWidth(float width, double transformedXy[2]);
+  void ShiftLabelByPenWidth(double width, double transformedXy[2]);
   ///@{
   /**
    * Returns the arrays named 'vertices', 'gbc' and 'rgba' from a table or dataset, or throws
@@ -341,8 +341,8 @@ protected:
   /**
    * Where the lens is drawn and its radius in window coordinates.
    */
-  float LensCenter[2];
-  float LensRadius;
+  double LensCenter[2];
+  double LensRadius;
 
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation;
