@@ -166,7 +166,14 @@ vtkOpenGLArrayTextureBufferAdapter::AppendNarrowed(
 #endif
     }
     break;
-#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
+    // VTK_LONG / VTK_UNSIGNED_LONG have no GL texture-buffer format on any
+    // platform. The code in vtkTextureObject::GetDefaultDataType and
+    // vtkOpenGLState::InitializeTextureBufferInternalFormats handles only
+    // the basic fixed width types, leaving everything else to be handled here.
+    // So here we should convert unconditionally. Reasoning: on systems where
+    // long is 64 bits, this narrows to 32 bits, while on systems where long is
+    // 32 bits, it normalizes to int. In the latter case, long and int are still
+    // are distinct types, so the copy is required regardless of matching width.
     case VTK_LONG:
     {
       array = vtkSmartPointer<vtkTypeInt32Array>::New();
@@ -179,7 +186,6 @@ vtkOpenGLArrayTextureBufferAdapter::AppendNarrowed(
       array->DeepCopy(actualArray);
     }
     break;
-#endif
     case VTK_LONG_LONG:
     {
       array = vtkSmartPointer<vtkTypeInt32Array>::New();
