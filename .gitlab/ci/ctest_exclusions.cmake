@@ -131,6 +131,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64")
 
     # MPI detects bad memory handling
     "^VTK::IOPIOPython-MPI-TestPIOReader$"
+
+    # Widget with strange artifacts in resulting image
+    # https://gitlab.kitware.com/vtk/vtk/-/work_items/20113
+    "^VTK::InteractionWidgetsCxx-TestFinitePlaneWidget$"
     )
 endif ()
 
