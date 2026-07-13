@@ -22,7 +22,7 @@ const std::map<std::string, std::map<std::string, std::string>> Aliases = {
     { { "colorMap", "map_kd" }, { "map_Kd", "map_kd" }, { "map_Ks", "map_ks" },
       { "map_Ns", "map_ns" }, { "map_Bump", "map_bump" }, { "normalMap", "map_bump" },
       { "BumpMap", "map_bump" }, { "color", "kd" }, { "Kd", "kd" }, { "alpha", "d" },
-      { "Ks", "ks" }, { "ns", "Ns" }, { "tf", "Tf" } } },
+      { "Ks", "ks" }, { "Ns", "ns" }, { "Tf", "tf" } } },
   { "thinGlass", { { "color", "attenuationColor" }, { "transmission", "attenuationColor" } } },
   { "metallicPaint", { { "color", "baseColor" } } },
   { "glass",
