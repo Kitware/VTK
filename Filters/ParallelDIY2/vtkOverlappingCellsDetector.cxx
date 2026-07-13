@@ -6,6 +6,7 @@
 #include "vtkAbstractPointLocator.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYExplicitAssigner.h"
@@ -124,10 +125,15 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
 {
   // Each output vtkUnstructuredGrid needs those data objects in order to be constructed.
   // We tie them together in one tuple to facilitate iterating over blocks.
-  using CellArrayCellTypePointsIdTuple =
-    std::tuple<vtkSmartPointer<vtkCellArray>, vtkSmartPointer<vtkUnsignedCharArray>,
-      vtkSmartPointer<vtkPoints>, vtkSmartPointer<vtkIdTypeArray>>;
+  // The last two members carry polyhedron face topology, which is not described
+  // by a polyhedron's point list and would otherwise be dropped.
+  using CellArrayCellTypePointsIdTuple = std::tuple<vtkSmartPointer<vtkCellArray>,
+    vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkPoints>,
+    vtkSmartPointer<vtkIdTypeArray>, vtkSmartPointer<vtkCellArray>, vtkSmartPointer<vtkCellArray>>;
   std::map<int, CellArrayCellTypePointsIdTuple> cactptidList;
+
+  // Faces can only be recovered from an unstructured grid.
+  vtkUnstructuredGrid* sourceUG = vtkUnstructuredGrid::SafeDownCast(source);
 
   // Creating the output
   std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ugList;
@@ -149,7 +155,9 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
         CellArrayCellTypePointsIdTuple(vtkSmartPointer<vtkCellArray>::Take(vtkCellArray::New()),
           vtkSmartPointer<vtkUnsignedCharArray>::Take(vtkUnsignedCharArray::New()),
           vtkSmartPointer<vtkPoints>::Take(vtkPoints::New(pointsType)),
-          vtkSmartPointer<vtkIdTypeArray>::Take(vtkIdTypeArray::New())));
+          vtkSmartPointer<vtkIdTypeArray>::Take(vtkIdTypeArray::New()),
+          vtkSmartPointer<vtkCellArray>::Take(vtkCellArray::New()),
+          vtkSmartPointer<vtkCellArray>::Take(vtkCellArray::New())));
     });
 
   vtkDataArray* radiusArray = pointCloud->GetPointData()->GetArray(SPHERE_RADIUS_ARRAY_NAME);
@@ -184,6 +192,35 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
         std::get<0>(cactptid)->InsertNextCell(cell);
         std::get<1>(cactptid)->InsertNextTuple1(cell->GetCellType());
         std::get<3>(cactptid)->InsertNextTuple1(id);
+
+        // vtkCell::GetPointIds() gives a polyhedron's point list, which does
+        // not describe its faces. Copy them across as well, and give every
+        // other cell an empty face locations entry so the two arrays stay in
+        // step with the connectivity.
+        vtkCellArray* blockFaces = std::get<4>(cactptid);
+        vtkCellArray* blockFaceLocations = std::get<5>(cactptid);
+        if (sourceUG && cell->GetCellType() == VTK_POLYHEDRON)
+        {
+          vtkNew<vtkCellArray> cellFaces;
+          sourceUG->GetPolyhedronFaces(id, cellFaces);
+
+          std::vector<vtkIdType> faceIds;
+          faceIds.reserve(cellFaces->GetNumberOfCells());
+          for (vtkIdType f = 0; f < cellFaces->GetNumberOfCells(); ++f)
+          {
+            vtkIdType numberOfFacePoints;
+            const vtkIdType* facePoints;
+            cellFaces->GetCellAtId(f, numberOfFacePoints, facePoints);
+            faceIds.push_back(
+              blockFaces->InsertNextCell(static_cast<int>(numberOfFacePoints), facePoints));
+          }
+          blockFaceLocations->InsertNextCell(
+            static_cast<int>(faceIds.size()), faceIds.empty() ? nullptr : faceIds.data());
+        }
+        else
+        {
+          blockFaceLocations->InsertNextCell(0);
+        }
       }
     }
   }
@@ -221,6 +258,19 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
       }
       ca->ReplaceCellAtId(cellId, idList);
     }
+
+    // The faces name the same points, so they take the same remapping. Face
+    // locations hold face ids rather than point ids and are left alone.
+    vtkCellArray* blockFaces = std::get<4>(cactptid);
+    for (vtkIdType faceId = 0; faceId < blockFaces->GetNumberOfCells(); ++faceId)
+    {
+      blockFaces->GetCellAtId(faceId, idList);
+      for (vtkIdType i = 0; i < idList->GetNumberOfIds(); ++i)
+      {
+        idList->SetId(i, inversePointIdsMap[idList->GetId(i)]);
+      }
+      blockFaces->ReplaceCellAtId(faceId, idList);
+    }
   }
 
   for (const auto& pair : cactptidList)
@@ -234,8 +284,21 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
       vtkPoints* pt = std::get<2>(cactptid);
       vtkIdTypeArray* idArray = std::get<3>(cactptid);
 
+      vtkCellArray* faces = std::get<4>(cactptid);
+      vtkCellArray* faceLocations = std::get<5>(cactptid);
+
       vtkNew<vtkUnstructuredGrid> ug;
-      ug->SetCells(ct, ca);
+      // The connectivity holds point lists. SetCells() would reinterpret them
+      // as a legacy face stream as soon as a VTK_POLYHEDRON is present, so the
+      // faces have to be handed over explicitly.
+      if (faces->GetNumberOfCells())
+      {
+        ug->SetPolyhedralCells(ct, ca, faceLocations, faces);
+      }
+      else
+      {
+        ug->SetCells(ct, ca);
+      }
       ug->SetPoints(pt);
       idArray->SetName(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME);
       ug->GetCellData()->AddArray(idArray);
