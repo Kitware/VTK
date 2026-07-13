@@ -2705,17 +2705,17 @@ int vtkSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request),
   {
     auto atlas = vtkSmartPointer<vtkSurfaceNetsAtlas>::New();
     atlas->SetBackgroundLabel(static_cast<vtkIdType>(this->BackgroundLabel));
-    atlas->SetGeneratePatches(false);
+    atlas->SetOutputStyleToBoundary();
     atlas->SetResolveNonManifoldPoints(false);
     if (this->OutputStyle == OUTPUT_STYLE_BOUNDARY)
     {
       atlas->SetExtractionModeToAll();
-      atlas->SetOutputStyleToBoundary();
+      atlas->SetGeneratePatches(false);
     }
     else // OUTPUT_STYLE_SELECTED
     {
       atlas->SetExtractionModeToLabelSet();
-      atlas->SetOutputStyleToAll();
+      atlas->SetGeneratePatches(true);
       for (const double label : this->SelectedLabels)
       {
         atlas->AddSelectedLabel(static_cast<vtkIdType>(label));
