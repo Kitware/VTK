@@ -3,8 +3,10 @@
 #include "vtkAlembicExporter.h"
 
 #include <cstdio>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 #include "vtkAssemblyPath.h"
 #include "vtkBase64OutputStream.h"
@@ -47,17 +49,58 @@
 using namespace Alembic::AbcGeom; // Contains Abc, AbcCoreAbstract
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkAlembicExporter);
 
-vtkAlembicExporter::vtkAlembicExporter()
+// Holds state that must persist across multiple WriteData() calls when
+// accumulating timesteps into a single archive (i.e. between Start() and
+// Finish()). Alembic objects (OXform/OPolyMesh/OCamera) must be created
+// exactly once and then reused: creating a second "mesh_0" under the same
+// parent on a later frame would create a second, sibling object rather than
+// add a time sample to the existing one.
+class vtkAlembicExporterInternals
 {
-  this->FileName = nullptr;
-}
+public:
+  std::unique_ptr<OArchive> Archive;
 
-vtkAlembicExporter::~vtkAlembicExporter()
-{
-  delete[] this->FileName;
-}
+  std::vector<OXform> ActorXforms;
+  std::vector<OPolyMesh> ActorMeshes;
+  std::vector<bool> ActorHasColor;
+  std::vector<OC4fGeomParam> ActorColorParams;
+
+  // Deep copy of the last texture data actually written for each mesh
+  // index, used to avoid writing a duplicate PNG when a texture hasn't
+  // changed since the previous frame.
+  std::vector<vtkSmartPointer<vtkUnsignedCharArray>> PreviousTextureData;
+
+  bool HasCamera = false;
+  OXform CameraXform;
+  OCamera Camera;
+
+  // Every TimeValue seen since Start(), used to build the archive's final
+  // TimeSampling at Finish().
+  std::vector<double> SampleTimes;
+
+  size_t FirstFrameMeshCount = 0;
+
+  // Counts WriteData() calls since Start(), used to give each frame's
+  // texture images distinct filenames (see WriteTexture).
+  size_t FrameIndex = 0;
+
+  void Reset()
+  {
+    this->Archive.reset();
+    this->ActorXforms.clear();
+    this->ActorMeshes.clear();
+    this->ActorHasColor.clear();
+    this->ActorColorParams.clear();
+    this->PreviousTextureData.clear();
+    this->HasCamera = false;
+    this->CameraXform = OXform();
+    this->Camera = OCamera();
+    this->SampleTimes.clear();
+    this->FirstFrameMeshCount = 0;
+    this->FrameIndex = 0;
+  }
+};
 
 namespace
 {
@@ -87,8 +130,8 @@ vtkPolyData* findPolyData(vtkDataObject* input)
   return nullptr;
 }
 
-void WriteMesh(
-  OArchive& archive, vtkPolyData* pd, vtkActor* aPart, const char* /*fileName*/, size_t index)
+void WriteMesh(vtkAlembicExporterInternals* internal, bool isFirstFrame, vtkPolyData* pd,
+  vtkActor* aPart, size_t index)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -105,22 +148,39 @@ void WriteMesh(
   vtkMatrix4x4::DeepCopy((double*)matData, transpose);
   Abc::M44d camMatrix(matData);
 
+  // The xform/mesh pair for a given index is created exactly once and
+  // reused on subsequent frames: Alembic objects, like USD prims, can't be
+  // structurally added to an already-created schema, only their per-sample
+  // data can vary via repeated set() calls.
+  bool needNewObjects =
+    isFirstFrame || internal->ActorXforms.size() <= index || !internal->ActorXforms[index].valid();
+  if (needNewObjects)
+  {
+    if (internal->ActorXforms.size() <= index)
+    {
+      internal->ActorXforms.resize(index + 1);
+      internal->ActorMeshes.resize(index + 1);
+      internal->ActorHasColor.resize(index + 1, false);
+      internal->ActorColorParams.resize(index + 1);
+    }
+
+    std::ostringstream strm;
+    strm << "xform_" << index;
+    internal->ActorXforms[index] = OXform(OObject(*internal->Archive, kTop), strm.str());
+
+    std::ostringstream().swap(strm);
+    strm << "mesh_" << index;
+    internal->ActorMeshes[index] = OPolyMesh(internal->ActorXforms[index], strm.str());
+  }
+
+  OXform& xform = internal->ActorXforms[index];
+  OPolyMeshSchema& mesh = internal->ActorMeshes[index].getSchema();
+
   // set the transform in an alembic node.
-  std::ostringstream strm;
-  strm << "xform_" << index;
-  std::string xformName = strm.str();
-  OXform xform(OObject(archive, kTop), xformName);
   XformSample xformSamp;
   XformOp transop(kMatrixOperation, kMatrixHint);
   xformSamp.addOp(transop, camMatrix);
   xform.getSchema().set(xformSamp);
-
-  std::ostringstream().swap(strm);
-  strm << "mesh_" << index;
-  std::string name = strm.str();
-  // Create a PolyMesh output class.
-  OPolyMesh meshObj(xform, name);
-  OPolyMeshSchema& mesh = meshObj.getSchema();
 
   // write the point locations
   vtkNew<vtkFloatArray> pointData;
@@ -215,7 +275,6 @@ void WriteMesh(
 
   if (vertColor)
   {
-    OCompoundProperty arbParams = mesh.getArbGeomParams();
     // Convert to floats with values between 0 and 1.
     std::vector<float> rgbaAsFloat;
     rgbaAsFloat.resize(vertColor->GetNumberOfTuples() * vertColor->GetNumberOfComponents());
@@ -231,15 +290,20 @@ void WriteMesh(
 
     C4fArraySample valSamp((const C4f*)rgbaAsFloat.data(), vertColor->GetNumberOfTuples());
 
-    // "rgba" is a magic name for some Alembic imports, 3DSMax
-    OC4fGeomParam color(arbParams, "rgba", false, kVertexScope, 1);
-    OC4fGeomParam::Sample colorSamp(valSamp, kVertexScope);
+    if (!internal->ActorHasColor[index])
+    {
+      OCompoundProperty arbParams = mesh.getArbGeomParams();
+      // "rgba" is a magic name for some Alembic imports, 3DSMax
+      internal->ActorColorParams[index] = OC4fGeomParam(arbParams, "rgba", false, kVertexScope, 1);
+      internal->ActorHasColor[index] = true;
+    }
 
-    color.set(colorSamp);
+    OC4fGeomParam::Sample colorSamp(valSamp, kVertexScope);
+    internal->ActorColorParams[index].set(colorSamp);
   }
 }
 
-void WriteCamera(OArchive& archive, vtkRenderer* ren)
+void WriteCamera(vtkAlembicExporterInternals* internal, vtkRenderer* ren)
 {
   // setup the camera transform
   // Get the camera's transform in world coords:
@@ -255,18 +319,23 @@ void WriteCamera(OArchive& archive, vtkRenderer* ren)
   vtkMatrix4x4::DeepCopy((double*)matData, transpose);
   Abc::M44d camMatrix(matData);
 
+  if (!internal->HasCamera)
+  {
+    internal->CameraXform = OXform(OObject(*internal->Archive, kTop), "camXform");
+    internal->Camera = OCamera(internal->CameraXform, "cam");
+    internal->HasCamera = true;
+  }
+
   // set the transform in an alembic node.
-  OXform xform(OObject(archive, kTop), "camXform");
   XformSample xformSamp;
   XformOp transop(kMatrixOperation, kMatrixHint);
   xformSamp.addOp(transop, camMatrix);
-  xform.getSchema().set(xformSamp);
+  internal->CameraXform.getSchema().set(xformSamp);
 
   vtkCamera* cam = ren->GetActiveCamera();
   CameraSample samp;
 
-  OCamera camObj(xform, "cam");
-  OCameraSchema camSchema = camObj.getSchema();
+  OCameraSchema camSchema = internal->Camera.getSchema();
   samp.setNearClippingPlane(cam->GetClippingRange()[0]);
   samp.setFarClippingPlane(cam->GetClippingRange()[1]);
   camSchema.set(samp);
@@ -276,7 +345,8 @@ void WriteCamera(OArchive& archive, vtkRenderer* ren)
   // if (cam->GetParallelProjection())
 }
 
-size_t WriteTexture(vtkActor* aPart, const char* fileName, size_t index,
+size_t WriteTexture(vtkAlembicExporterInternals* internal, bool started, size_t frameIndex,
+  vtkActor* aPart, const char* fileName, size_t index,
   std::map<vtkUnsignedCharArray*, size_t>& textureMap)
 {
   // do we have a texture?
@@ -339,6 +409,76 @@ size_t WriteTexture(vtkActor* aPart, const char* fileName, size_t index,
   }
   return textureSource;
 }
+
+// Finalizes and closes the archive: builds the real TimeSampling from every
+// recorded TimeValue, points every persisted xform/mesh/camera schema at
+// it, then destroys the archive, which is what actually flushes it to disk.
+void FinalizeArchive(vtkAlembicExporterInternals* internal)
+{
+  if (!internal->Archive)
+  {
+    return;
+  }
+
+  TimeSampling timeSampling(TimeSamplingType(TimeSamplingType::kAcyclic), internal->SampleTimes);
+  uint32_t tsIndex = internal->Archive->addTimeSampling(timeSampling);
+
+  for (auto& xform : internal->ActorXforms)
+  {
+    if (xform.valid())
+    {
+      xform.getSchema().setTimeSampling(tsIndex);
+    }
+  }
+  for (auto& meshObj : internal->ActorMeshes)
+  {
+    if (meshObj.valid())
+    {
+      meshObj.getSchema().setTimeSampling(tsIndex);
+    }
+  }
+  if (internal->HasCamera)
+  {
+    internal->CameraXform.getSchema().setTimeSampling(tsIndex);
+    internal->Camera.getSchema().setTimeSampling(tsIndex);
+  }
+
+  internal->Archive.reset();
+}
+
+} // end anonymous namespace
+
+vtkStandardNewMacro(vtkAlembicExporter);
+
+vtkAlembicExporter::vtkAlembicExporter()
+{
+  this->FileName = nullptr;
+  this->Internal = new vtkAlembicExporterInternals;
+}
+
+vtkAlembicExporter::~vtkAlembicExporter()
+{
+  delete[] this->FileName;
+  delete this->Internal;
+}
+
+void vtkAlembicExporter::Start()
+{
+  this->Internal->Reset();
+  this->Started = true;
+}
+
+void vtkAlembicExporter::Finish()
+{
+  if (!this->Started)
+  {
+    return;
+  }
+
+  FinalizeArchive(this->Internal);
+
+  this->Internal->Reset();
+  this->Started = false;
 }
 
 void vtkAlembicExporter::WriteData()
@@ -350,15 +490,45 @@ void vtkAlembicExporter::WriteData()
     return;
   }
 
-  std::vector<size_t> topNodes;
+  // Determine whether this call is part of a multi-frame, single-file
+  // export (this->Started), and if so, whether it is the first frame of
+  // that sequence, i.e. whether the shared archive still needs to be
+  // created.
+  bool isFirstFrame = true;
+  if (this->Started)
+  {
+    if (this->Internal->Archive)
+    {
+      isFirstFrame = false;
+    }
+    else
+    {
+      this->Internal->Archive =
+        std::make_unique<OArchive>(Alembic::AbcCoreOgawa::WriteArchive(), this->FileName);
+      isFirstFrame = true;
+    }
+  }
+  else
+  {
+    // Legacy, single-shot behavior: always a fresh, self-contained archive.
+    this->Internal->Reset();
+    this->Internal->Archive =
+      std::make_unique<OArchive>(Alembic::AbcCoreOgawa::WriteArchive(), this->FileName);
+    isFirstFrame = true;
+  }
 
-  // support sharing texture maps
+  if (!this->Internal->Archive)
+  {
+    vtkErrorMacro(<< "Failed to create Alembic archive for file: " << this->FileName);
+    return;
+  }
+
+  size_t frameIndex = this->Internal->FrameIndex++;
+  this->Internal->SampleTimes.push_back(this->TimeValue);
+
+  // support sharing texture maps between actors within a single frame
   std::map<vtkUnsignedCharArray*, size_t> textureMap;
 
-  OArchive archive(Alembic::AbcCoreOgawa::WriteArchive(), this->FileName);
-
-  // Alembic objects close themselves automatically when they go out
-  // of scope. File is written then.
   size_t meshCount = 0;
   for (auto ren : vtk::Range(this->RenderWindow->GetRenderers()))
   {
@@ -404,8 +574,9 @@ void vtkAlembicExporter::WriteData()
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = aPart->GetMapper()->GetInterpolateScalarsBeforeMapping();
               foundVisibleProp = true;
-              WriteMesh(archive, pd, aPart, this->FileName, meshCount);
-              WriteTexture(aPart, this->FileName, meshCount, textureMap);
+              WriteMesh(this->Internal, isFirstFrame, pd, aPart, meshCount);
+              WriteTexture(this->Internal, this->Started, frameIndex, aPart, this->FileName,
+                meshCount, textureMap);
               // TODO, look at the data exported by vtkGLTFExporter, we'd want similar.
               // WriteMaterial(archive, meshCount, oldTextureCount != textures.size(), aPart);
               aPart->GetMapper()->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
@@ -418,8 +589,30 @@ void vtkAlembicExporter::WriteData()
     // only write the camera if we had visible nodes
     if (foundVisibleProp)
     {
-      WriteCamera(archive, ren);
+      WriteCamera(this->Internal, ren);
     }
+  }
+
+  if (this->Started)
+  {
+    if (isFirstFrame)
+    {
+      this->Internal->FirstFrameMeshCount = meshCount;
+    }
+    else if (meshCount != this->Internal->FirstFrameMeshCount)
+    {
+      vtkWarningMacro(<< "The number of visible meshes changed from "
+                      << this->Internal->FirstFrameMeshCount << " to " << meshCount
+                      << " between frames of a single-file animated Alembic export. Alembic "
+                         "objects cannot be added or removed once the archive has been "
+                         "created; only the geometry of already-created meshes can vary "
+                         "between frames.");
+    }
+  }
+  else
+  {
+    // Legacy behavior: finalize and close the archive immediately.
+    FinalizeArchive(this->Internal);
   }
 }
 
