@@ -3,6 +3,7 @@
 #include "vtkAlembicExporter.h"
 
 #include <cstdio>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -128,6 +129,26 @@ vtkPolyData* findPolyData(vtkDataObject* input)
     }
   }
   return nullptr;
+}
+
+// True if both arrays have identical shape and byte content.
+bool TextureContentsEqual(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
+{
+  if (!a || !b)
+  {
+    return false;
+  }
+  if (a->GetNumberOfTuples() != b->GetNumberOfTuples() ||
+    a->GetNumberOfComponents() != b->GetNumberOfComponents())
+  {
+    return false;
+  }
+  vtkIdType n = a->GetNumberOfTuples() * a->GetNumberOfComponents();
+  if (n == 0)
+  {
+    return true;
+  }
+  return std::memcmp(a->GetPointer(0), b->GetPointer(0), static_cast<size_t>(n)) == 0;
 }
 
 void WriteMesh(vtkAlembicExporterInternals* internal, bool isFirstFrame, vtkPolyData* pd,
@@ -376,30 +397,60 @@ size_t WriteTexture(vtkAlembicExporterInternals* internal, bool started, size_t 
     auto texIndex = index;
     textureMap[da] = texIndex;
 
-    // figure out a filename - strip extension, add "_tex0.png"
-    std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
-    std::string baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
-    std::ostringstream strm;
-    strm << filePath << '/' << baseName << "_tex" << index << ".png";
-    std::string fname = strm.str();
+    // When accumulating multiple timesteps into a single archive, only
+    // write a new texture image if its contents actually changed since the
+    // last frame that wrote one for this slot; a static texture shouldn't
+    // be duplicated on every frame.
+    bool contentChanged = true;
+    if (started && index < internal->PreviousTextureData.size() &&
+      internal->PreviousTextureData[index])
+    {
+      contentChanged = !TextureContentsEqual(internal->PreviousTextureData[index], da);
+    }
 
-    // we don't want the NaN color in the texture file
-    vtkNew<vtkTrivialProducer> triv;
-    triv->SetOutput(id);
+    if (contentChanged)
+    {
+      // figure out a filename - strip extension, add "_tex0.png"
+      std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
+      std::string baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
+      std::ostringstream strm;
+      strm << filePath << '/' << baseName << "_tex" << index;
+      if (started)
+      {
+        strm << "_frame" << frameIndex;
+      }
+      strm << ".png";
+      std::string fname = strm.str();
 
-    vtkNew<vtkExtractVOI> extractVOI;
-    extractVOI->SetInputConnection(triv->GetOutputPort());
-    int extent[6];
-    id->GetExtent(extent);
-    extent[3] = 0;
-    extractVOI->SetVOI(extent);
+      // we don't want the NaN color in the texture file
+      vtkNew<vtkTrivialProducer> triv;
+      triv->SetOutput(id);
 
-    // Alembic has no standard way to store image data, so write a separate PNG
-    vtkNew<vtkPNGWriter> png;
-    png->SetFileName(fname.c_str());
-    png->SetCompressionLevel(5);
-    png->SetInputConnection(extractVOI->GetOutputPort());
-    png->Write();
+      vtkNew<vtkExtractVOI> extractVOI;
+      extractVOI->SetInputConnection(triv->GetOutputPort());
+      int extent[6];
+      id->GetExtent(extent);
+      extent[3] = 0;
+      extractVOI->SetVOI(extent);
+
+      // Alembic has no standard way to store image data, so write a separate PNG
+      vtkNew<vtkPNGWriter> png;
+      png->SetFileName(fname.c_str());
+      png->SetCompressionLevel(5);
+      png->SetInputConnection(extractVOI->GetOutputPort());
+      png->Write();
+
+      if (started)
+      {
+        if (internal->PreviousTextureData.size() <= index)
+        {
+          internal->PreviousTextureData.resize(index + 1);
+        }
+        vtkNew<vtkUnsignedCharArray> snapshot;
+        snapshot->DeepCopy(da);
+        internal->PreviousTextureData[index] = snapshot;
+      }
+    }
 
     textureSource = texIndex;
   }
