@@ -152,7 +152,11 @@ class TestVtkBufferNumpy(Testing.vtkTest):
         self.assertEqual(m.ndim, 1)
         self.assertEqual(m.shape, (4,))
         self.assertEqual(m.itemsize, 4)
-        self.assertEqual(m.format, 'i')
+        # int32 maps to:
+        # - C long on LLP64 (Windows)
+        # - C int on LP64 (Linux, macOS)
+        expected = 'l' if struct.calcsize('l') == 4 else 'i'
+        self.assertEqual(m.format, expected)
 
         # Write through numpy, read through memoryview
         arr = numpy.asarray(buf)
