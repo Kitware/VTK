@@ -104,7 +104,7 @@
 #define vtkXSetWMName VTK_ABI_NAMESPACE_MANGLE(vtkXSetWMName)
 #define vtkXSetWMProtocols VTK_ABI_NAMESPACE_MANGLE(vtkXSetWMProtocols)
 #define vtkXStoreName VTK_ABI_NAMESPACE_MANGLE(vtkXStoreName)
-#define vtkXStringListToTextProperty VTK_ABI_NAMESPACE_MANGLE(vtkXStringListToTextProperty)
+#define vtkXutf8TextListToTextProperty VTK_ABI_NAMESPACE_MANGLE(vtkXutf8TextListToTextProperty)
 #define vtkXSync VTK_ABI_NAMESPACE_MANGLE(vtkXSync)
 #define vtkXUndefineCursor VTK_ABI_NAMESPACE_MANGLE(vtkXUndefineCursor)
 #define vtkXUnmapWindow VTK_ABI_NAMESPACE_MANGLE(vtkXUnmapWindow)
@@ -204,7 +204,8 @@ extern "C"
   typedef int (*vtkXSetWMNameType)(Display*, Window, XTextProperty*);
   typedef int (*vtkXSetWMProtocolsType)(Display*, Window, Atom*, int);
   typedef int (*vtkXStoreNameType)(Display*, Window, const char*);
-  typedef int (*vtkXStringListToTextPropertyType)(char**, int, XTextProperty*);
+  typedef int (*vtkXutf8TextListToTextPropertyType)(
+    Display*, char**, int, XICCEncodingStyle, XTextProperty*);
   typedef int (*vtkXSyncType)(Display*, Bool);
   typedef int (*vtkXUndefineCursorType)(Display*, Window);
   typedef int (*vtkXUnmapWindowType)(Display*, Window);
@@ -278,7 +279,7 @@ extern "C"
   VTKX11_EXPORT extern vtkXSetWMNameType vtkXSetWMName;
   VTKX11_EXPORT extern vtkXSetWMProtocolsType vtkXSetWMProtocols;
   VTKX11_EXPORT extern vtkXStoreNameType vtkXStoreName;
-  VTKX11_EXPORT extern vtkXStringListToTextPropertyType vtkXStringListToTextProperty;
+  VTKX11_EXPORT extern vtkXutf8TextListToTextPropertyType vtkXutf8TextListToTextProperty;
   VTKX11_EXPORT extern vtkXSyncType vtkXSync;
   VTKX11_EXPORT extern vtkXUndefineCursorType vtkXUndefineCursor;
   VTKX11_EXPORT extern vtkXUnmapWindowType vtkXUnmapWindow;
