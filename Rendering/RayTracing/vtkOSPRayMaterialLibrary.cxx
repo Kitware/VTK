@@ -3,6 +3,7 @@
 
 #include "vtkOSPRayMaterialLibrary.h"
 
+#include "vtkCommand.h"
 #include "vtkJPEGReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGReader.h"
@@ -723,6 +724,12 @@ bool vtkOSPRayMaterialLibrary::ReadTextureFileOrData(const std::string& texFilen
   }
   textr->Update();
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkOSPRayMaterialLibrary::Fire()
+{
+  this->InvokeEvent(vtkCommand::UpdateDataEvent);
 }
 
 VTK_ABI_NAMESPACE_END
