@@ -73,7 +73,7 @@ DEFINE_POINTER_TO_FUNCTION(vtkXSetWMIconName);
 DEFINE_POINTER_TO_FUNCTION(vtkXSetWMName);
 DEFINE_POINTER_TO_FUNCTION(vtkXSetWMProtocols);
 DEFINE_POINTER_TO_FUNCTION(vtkXStoreName);
-DEFINE_POINTER_TO_FUNCTION(vtkXStringListToTextProperty);
+DEFINE_POINTER_TO_FUNCTION(vtkXutf8TextListToTextProperty);
 DEFINE_POINTER_TO_FUNCTION(vtkXSync);
 DEFINE_POINTER_TO_FUNCTION(vtkXUndefineCursor);
 DEFINE_POINTER_TO_FUNCTION(vtkXUnmapWindow);
@@ -176,7 +176,7 @@ extern "C"
       LOAD_POINTER_TO_FUNCTION(libX11, XSetWMName, vtkXSetWMName);
       LOAD_POINTER_TO_FUNCTION(libX11, XSetWMProtocols, vtkXSetWMProtocols);
       LOAD_POINTER_TO_FUNCTION(libX11, XStoreName, vtkXStoreName);
-      LOAD_POINTER_TO_FUNCTION(libX11, XStringListToTextProperty, vtkXStringListToTextProperty);
+      LOAD_POINTER_TO_FUNCTION(libX11, Xutf8TextListToTextProperty, vtkXutf8TextListToTextProperty);
       LOAD_POINTER_TO_FUNCTION(libX11, XSync, vtkXSync);
       LOAD_POINTER_TO_FUNCTION(libX11, XUndefineCursor, vtkXUndefineCursor);
       LOAD_POINTER_TO_FUNCTION(libX11, XUnmapWindow, vtkXUnmapWindow);
@@ -269,7 +269,7 @@ extern "C"
       NULLIFY_POINTER_TO_FUNCTION(vtkXSetWMName);
       NULLIFY_POINTER_TO_FUNCTION(vtkXSetWMProtocols);
       NULLIFY_POINTER_TO_FUNCTION(vtkXStoreName);
-      NULLIFY_POINTER_TO_FUNCTION(vtkXStringListToTextProperty);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXutf8TextListToTextProperty);
       NULLIFY_POINTER_TO_FUNCTION(vtkXSync);
       NULLIFY_POINTER_TO_FUNCTION(vtkXUndefineCursor);
       NULLIFY_POINTER_TO_FUNCTION(vtkXUnmapWindow);
