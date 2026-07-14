@@ -328,6 +328,32 @@ vtkMultiProcessController* vtkMultiProcessController::PartitionController(
 }
 
 //------------------------------------------------------------------------------
+int vtkMultiProcessController::BlockDistribute(int position, int count, int numberOfGroups)
+{
+  // Split [0, count) into numberOfGroups contiguous blocks, as evenly as
+  // possible.
+  const auto divResult = std::div(count, numberOfGroups);
+  const int itemsPerGroup = divResult.quot;
+  int group = position / itemsPerGroup;
+  if (divResult.rem)
+  {
+    group = static_cast<int>(position / (1.0 * itemsPerGroup));
+  }
+  return std::min(group, numberOfGroups - 1);
+}
+
+//------------------------------------------------------------------------------
+vtkMultiProcessController* vtkMultiProcessController::PartitionControllerByCount(int numberOfGroups)
+{
+  const int numberOfProcesses = this->GetNumberOfProcesses();
+  numberOfGroups = std::max(1, std::min(numberOfGroups, numberOfProcesses));
+
+  const int localColor =
+    this->BlockDistribute(this->GetLocalProcessId(), numberOfProcesses, numberOfGroups);
+  return this->PartitionController(localColor, 0);
+}
+
+//------------------------------------------------------------------------------
 unsigned long vtkMultiProcessController::AddRMICallback(
   vtkRMIFunctionType callback, void* localArg, int tag)
 {
