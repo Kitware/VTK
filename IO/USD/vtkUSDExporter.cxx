@@ -32,10 +32,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 #include <vtkStringFormatter.h>
 
 // Avoid warning about deprecated hash_map header inclusion from
@@ -63,6 +65,8 @@
 #include "pxr/usd/usdShade/shader.h"
 
 #include <algorithm>
+#include <cstring>
+#include <map>
 #include <vector>
 
 #if defined(undef_GLIBCXX_PERMIT_BACKWARD_HASH)
@@ -104,6 +108,17 @@ public:
   // texture images distinct filenames (see WriteTexture).
   size_t FrameIndex = 0;
 
+  // Remembers, per mesh index, the pixel data and filename of the last
+  // texture actually written to disk. This lets WriteTexture() detect that
+  // a texture is unchanged (e.g. from one animation frame to the next) and
+  // reuse the previous file instead of writing a duplicate.
+  struct TextureRecord
+  {
+    vtkSmartPointer<vtkUnsignedCharArray> Data;
+    std::string FileName;
+  };
+  std::map<size_t, TextureRecord> LastTextures;
+
   void Reset()
   {
     this->Stage = UsdStageRefPtr();
@@ -119,6 +134,7 @@ public:
     this->FirstFrameXformCount = 0;
     this->FirstFrameMeshCount = 0;
     this->FrameIndex = 0;
+    this->LastTextures.clear();
   }
 
   void RecordTime(double time)
@@ -449,8 +465,26 @@ void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkA
   }
 }
 
-std::string WriteTexture(
-  vtkActor* actor, const char* fileName, size_t index, bool timeVarying, size_t frameIndex)
+// Returns true if two texture pixel arrays have identical dimensions and
+// content.
+bool TextureDataEqual(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
+{
+  if (!a || !b)
+  {
+    return false;
+  }
+  if (a->GetNumberOfTuples() != b->GetNumberOfTuples() ||
+    a->GetNumberOfComponents() != b->GetNumberOfComponents())
+  {
+    return false;
+  }
+  size_t numValues =
+    static_cast<size_t>(a->GetNumberOfTuples()) * static_cast<size_t>(a->GetNumberOfComponents());
+  return numValues == 0 || std::memcmp(a->GetPointer(0), b->GetPointer(0), numValues) == 0;
+}
+
+std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index, bool timeVarying,
+  size_t frameIndex, vtkUSDExporterInternals* internal)
 {
   // do we have a texture?
   vtkImageData* id = actor->GetMapper()->GetColorTextureMap();
@@ -469,6 +503,15 @@ std::string WriteTexture(
   if (!da)
   {
     return {};
+  }
+
+  // If the texture at this mesh index is identical to the last one we wrote
+  // (e.g. an unchanging texture across animation frames), reuse that file
+  // instead of writing a duplicate.
+  auto lastIt = internal->LastTextures.find(index);
+  if (lastIt != internal->LastTextures.end() && TextureDataEqual(da, lastIt->second.Data))
+  {
+    return lastIt->second.FileName;
   }
 
   // figure out a filename - strip extension, add "_tex0.png". When
@@ -505,6 +548,10 @@ std::string WriteTexture(
   png->SetCompressionLevel(5);
   png->SetInputConnection(extractVOI->GetOutputPort());
   png->Write();
+
+  vtkNew<vtkUnsignedCharArray> dataCopy;
+  dataCopy->ShallowCopy(da);
+  internal->LastTextures[index] = { dataCopy, textureFile };
 
   return textureFile;
 }
@@ -588,6 +635,9 @@ void vtkUSDExporter::WriteData()
     // Legacy, single-shot behavior: always a fresh, self-contained stage.
     stage = UsdStage::CreateNew(this->FileName);
     isFirstFrame = true;
+    // Each independent single-shot export starts a new stage, so texture
+    // reuse tracking must not carry over from a previous, unrelated export.
+    this->Internal->LastTextures.clear();
   }
 
   if (!stage)
@@ -791,8 +841,8 @@ void vtkUSDExporter::WriteData()
                     }
                     else
                     {
-                      textureFileName =
-                        WriteTexture(part, this->FileName, meshCount, this->Started, frameIndex);
+                      textureFileName = WriteTexture(
+                        part, this->FileName, meshCount, this->Started, frameIndex, this->Internal);
                     }
 
                     WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
@@ -810,8 +860,8 @@ void vtkUSDExporter::WriteData()
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();
               UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount, timeCode);
-              std::string textureFileName =
-                WriteTexture(part, this->FileName, meshCount, this->Started, frameIndex);
+              std::string textureFileName = WriteTexture(
+                part, this->FileName, meshCount, this->Started, frameIndex, this->Internal);
               WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
               part->GetMapper()->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
               ++meshCount;
