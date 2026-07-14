@@ -10,18 +10,18 @@
   font-size: 13px;
   font-family: inherit;
   padding: 3px 8px;
-  border: 1px solid #b4b4b4;
+  border: 1px solid var(--separator-color, #b4b4b4);
   border-radius: 4px;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: var(--page-background-color, #f5f5f5);
+  color: var(--page-foreground-color, #333);
   cursor: pointer;
   outline: none;
   appearance: auto;
 }
 
 #vtk-version-selector:hover {
-  border-color: #888;
-  background-color: #e8e8e8;
+  border-color: var(--page-foreground-color, #888);
+  background-color: var(--separator-color, #e8e8e8);
 }
 
 #vtk-version-selector:focus {
