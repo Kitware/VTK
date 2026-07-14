@@ -12,7 +12,18 @@ import sys
 from vtkmodules.vtkCommonCore import (
     VTK_INT,
     vtkBitArray,
+    vtkSignedCharArray,
+    vtkUnsignedCharArray,
+    vtkShortArray,
+    vtkUnsignedShortArray,
+    vtkIntArray,
+    vtkUnsignedIntArray,
     vtkLongArray,
+    vtkUnsignedLongArray,
+    vtkLongLongArray,
+    vtkUnsignedLongLongArray,
+    vtkFloatArray,
+    vtkDoubleArray,
 )
 from vtkmodules.test import Testing
 try:
@@ -92,6 +103,64 @@ class TestNumpySupport(Testing.vtkTest):
         self._check_arrays(res, vtk_arr)
         vtk_arr = numpy_to_vtk(res)
         self._check_arrays(res, vtk_arr)
+
+    def testNumpyRoundtrip(self):
+        "Test that VTK arrays roundtrip via numpy"
+        test_arrays = [
+           # vtkCharArray does not rountrip (no 'char' in numpy)
+           vtkSignedCharArray(),
+           vtkUnsignedCharArray(),
+           vtkShortArray(),
+           vtkUnsignedShortArray(),
+           vtkIntArray(),
+           vtkUnsignedIntArray(),
+           vtkLongArray(),
+           vtkUnsignedLongArray(),
+           vtkLongLongArray(),
+           vtkUnsignedLongLongArray(),
+           # vtkIdTypeArray does not roundtrip (no 'vtkIdType' in numpy)
+           vtkFloatArray(),
+           vtkDoubleArray(),
+        ]
+        for array in test_arrays:
+           # check that data type stays the same
+           numpy_array = vtk_to_numpy(array)
+           roundtrip = numpy_to_vtk(numpy_array)
+           self.assertEqual(array.GetDataType(), roundtrip.GetDataType())
+
+    def testPlatformSizedIntegerMapping(self):
+        """int64/uint64 map to the platform's native 64-bit C type.
+
+        numpy identifies int64 by its underlying C type: C 'long' on LP64
+        (Linux/macOS) and C 'long long' on LLP64 (Windows). numpy_to_vtk
+        follows numpy's own identity, so the produced VTK array type depends on
+        the platform's C 'long' width rather than being hardwired to
+        VTK_LONG_LONG. Pin that here so the mapping is not reverted.
+        """
+        from vtkmodules.vtkCommonCore import (
+            VTK_LONG,
+            VTK_UNSIGNED_LONG,
+            VTK_LONG_LONG,
+            VTK_UNSIGNED_LONG_LONG,
+        )
+        from vtkmodules.util.numpy_support import get_vtk_array_type
+
+        if numpy.dtype('long').itemsize == 8:
+            # LP64: numpy int64 IS C long
+            self.assertEqual(get_vtk_array_type(numpy.int64), VTK_LONG)
+            self.assertEqual(get_vtk_array_type(numpy.uint64), VTK_UNSIGNED_LONG)
+        else:
+            # LLP64 / ILP32: numpy int64 is C long long
+            self.assertEqual(get_vtk_array_type(numpy.int64), VTK_LONG_LONG)
+            self.assertEqual(get_vtk_array_type(numpy.uint64), VTK_UNSIGNED_LONG_LONG)
+
+        # Regardless of platform, the array must be 64 bits wide and round-trip
+        # back to the same numpy dtype without loss.
+        for dt in (numpy.int64, numpy.uint64):
+            arr = numpy.array([0, 1, 2], dtype=dt)
+            vtk_arr = numpy_to_vtk(arr)
+            self.assertEqual(vtk_arr.GetDataTypeSize(), 8)
+            self.assertTrue(numpy.array_equal(vtk_to_numpy(vtk_arr), arr))
 
     def testNumpyView(self):
         "Test if the numpy and VTK array share the same data."

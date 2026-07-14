@@ -87,6 +87,98 @@ test_template_access()
 
 
 # -------------------------------------------------------------------
+# 2b. Override registration — dedup of aliased dtype strings
+# -------------------------------------------------------------------
+def test_template_override_dedup():
+    from vtkmodules.vtkCommonCore import vtkAOSDataArrayTemplate
+    from vtkmodules.numpy_interface._vtk_array_mixin import register_template_overrides
+
+    # Registered class names must use the sized dtype name on every platform,
+    # even where a pythonic alias ('int', 'uint') resolves to the same
+    # underlying instantiation (e.g. long == int on Windows).
+    for np_dt, expected in [(np.int32, 'VTKAOSArray_int32'),
+                            (np.uint32, 'VTKAOSArray_uint32'),
+                            (np.float32, 'VTKAOSArray_float32'),
+                            (np.float64, 'VTKAOSArray_float64')]:
+        a = vtkAOSDataArrayTemplate[np_dt]()
+        check(type(a).__name__ == expected,
+              f"vtkAOSDataArrayTemplate[{np_dt.__name__}]() class name should be "
+              f"{expected}, got {type(a).__name__}")
+
+    # Each underlying class must be overridden exactly once even when two
+    # dtype strings alias to the same instantiation. Simulate the Windows
+    # long == int case with a fake template so this is testable everywhere.
+    class FakeMixin:
+        """fake mixin"""
+
+    calls = []
+
+    def make_fake(name):
+        return type(name, (), {
+            'override': classmethod(lambda cls, sub: calls.append((cls, sub))),
+        })
+
+    shared_int = make_fake('FakeInt')
+    shared_uint = make_fake('FakeUInt')
+    fake_template = {
+        dt: make_fake(f'Fake_{dt}')
+        for dt in ['float32', 'float64', 'int8', 'int16', 'int32', 'intc',
+                   'int64', 'longlong', 'uint8', 'uint16', 'uint32', 'uintc',
+                   'uint64', 'ulonglong']
+    }
+    # Alias the pythonic names to the sized instantiations, as on Windows
+    # where 'int32', 'int' both resolve to the C long instantiation.
+    fake_template['int32'] = shared_int
+    fake_template['int'] = shared_int
+    fake_template['uint32'] = shared_uint
+    fake_template['uint'] = shared_uint
+
+    register_template_overrides(FakeMixin, fake_template, 'Fake')
+
+    check(len(calls) == 14,
+          f"expected 14 override calls (16 dtype strings, 2 aliased), got {len(calls)}")
+    overridden = {}
+    for base, sub in calls:
+        check(base not in overridden,
+              f"{base.__name__} overridden more than once")
+        overridden[base] = sub
+    check(overridden[shared_int].__name__ == 'Fake_int32',
+          f"aliased int override should keep sized name Fake_int32, "
+          f"got {overridden[shared_int].__name__}")
+    check(overridden[shared_uint].__name__ == 'Fake_uint32',
+          f"aliased uint override should keep sized name Fake_uint32, "
+          f"got {overridden[shared_uint].__name__}")
+    print("  test_template_override_dedup PASSED")
+
+test_template_override_dedup()
+
+
+# -------------------------------------------------------------------
+# 2c. Template access — dtype instance agrees with scalar type
+# -------------------------------------------------------------------
+def test_template_dtype_matches_scalar():
+    from vtkmodules.vtkCommonCore import vtkAOSDataArrayTemplate
+
+    # Indexing a template by the numpy scalar type and by the equivalent
+    # numpy.dtype instance must resolve to the same instantiation. This
+    # matters most for the sized types that numpy binds to C 'long' first
+    # (int64/uint64 on LP64, int32/uint32 on LLP64), where the scalar type
+    # name and the dtype's underlying C type would otherwise disagree.
+    for dt in [np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32,
+               np.int64, np.uint64, np.intc, np.uintc, np.longlong,
+               np.ulonglong, np.float32, np.float64]:
+        by_type = vtkAOSDataArrayTemplate[dt]
+        by_dtype = vtkAOSDataArrayTemplate[np.dtype(dt)]
+        check(by_type is by_dtype,
+              f"vtkAOSDataArrayTemplate[{dt.__name__}] ({by_type}) and "
+              f"[np.dtype('{np.dtype(dt).name}')] ({by_dtype}) should be the "
+              f"same instantiation")
+    print("  test_template_dtype_matches_scalar PASSED")
+
+test_template_dtype_matches_scalar()
+
+
+# -------------------------------------------------------------------
 # 3. Properties — shape, dtype, ndim, size
 # -------------------------------------------------------------------
 def test_properties():
