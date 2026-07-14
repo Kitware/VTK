@@ -680,15 +680,6 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       edgeArrayComputeBuffer->SetByteSize(sizeof(vtkTypeUInt32));
     }
 
-    // polygon_to_triangle declares point_coordinates at binding 7 and ear-clips
-    // non-convex polygons using them. The bind group layout is derived from the
-    // buffers added to the pass, so a binding-7 buffer must be present for every
-    // dispatch of this module. When point coordinates are supplied (polygon
-    // path), concatenate each mesh's coordinates in the same mesh order used for
-    // the connectivity concatenation above, so that a connectivity index
-    // (pointId + pointOffset) resolves to the correct coordinates. Otherwise a
-    // 1-float placeholder is bound (never dereferenced for size <= 4 polygons
-    // or non-polygon passes).
     const bool isPolygonToTriangle = (idx == TOPOLOGY_SOURCE_POLYGONS);
     vtkNew<vtkWebGPUComputeBuffer> pointCoordinatesBuffer;
     pointCoordinatesBuffer->SetGroup(0);
