@@ -25,7 +25,6 @@
 #include "vtkWebGPULight.h"
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
-
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -149,7 +148,9 @@ void vtkWebGPURenderer::CreateBuffers()
   const auto transformSizePadded = vtkWebGPUConfiguration::Align(transformSize, 32);
 
   // Match WriteLightsBuffer: count (4) + padding (12) + N * 80 bytes per light.
-  const auto lightSize = 16 + this->LightIDs.size() * vtkWebGPULight::GetCacheSizeBytes();
+  // Ensure we have space for at least 1 light to match shader expectations
+  const auto lightCount = std::max(std::size_t(1), this->LightIDs.size());
+  const auto lightSize = 16 + lightCount * vtkWebGPULight::GetCacheSizeBytes();
   const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
@@ -164,12 +165,27 @@ void vtkWebGPURenderer::CreateBuffers()
     createSceneBindGroup = true;
   }
 
+  bool recreateLightsBuffer = false;
   if (this->SceneLightsBuffer == nullptr)
+  {
+    recreateLightsBuffer = true;
+    createSceneBindGroup = true;
+  }
+  else if (this->AllocatedLightsBufferSize < lightSizePadded)
+  {
+    // Buffer exists but is too small for the number of lights, need to recreate it
+    vtkDebugMacro(<< "Recreating lights buffer: " << this->AllocatedLightsBufferSize << " < "
+                  << lightSizePadded);
+    recreateLightsBuffer = true;
+    createSceneBindGroup = true;
+  }
+
+  if (recreateLightsBuffer)
   {
     const std::string label = "LightInformation-" + this->GetObjectDescription();
     this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
       wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
-    createSceneBindGroup = true;
+    this->AllocatedLightsBufferSize = lightSizePadded;
   }
 
   if (createSceneBindGroup)
@@ -331,6 +347,12 @@ void vtkWebGPURenderer::UpdateBuffers()
           break;
         }
       }
+    }
+    // Invalidate the bundle if the number of lights has changed
+    if (this->LightIDs.size() != this->PreviousLightCount)
+    {
+      this->InvalidateBundle();
+      this->PreviousLightCount = this->LightIDs.size();
     }
   }
   this->UpdateGeometry(); // mappers prepare geometry SSBO and pipeline layout.
@@ -885,15 +907,35 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   wgpu::Device device = wgpuRenderWindow->GetDevice();
 
-  this->SceneBindGroup =
-    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->SceneBindGroupLayout,
-      {
-        // clang-format off
-        { 0, this->SceneTransformBuffer },
-        { 1, this->SceneLightsBuffer }
-        // clang-format on
-      });
-  this->SceneBindGroup.SetLabel("SceneBindGroup");
+  // Calculate current buffer sizes to bind
+  const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
+  const auto transformSizePadded = vtkWebGPUConfiguration::Align(transformSize, 32);
+  const auto lightCount = std::max(std::size_t(1), this->LightIDs.size());
+  const auto lightSize = 16 + lightCount * vtkWebGPULight::GetCacheSizeBytes();
+  const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
+
+  std::vector<wgpu::BindGroupEntry> entries;
+  wgpu::BindGroupEntry entry0{};
+  entry0.binding = 0;
+  entry0.buffer = this->SceneTransformBuffer;
+  entry0.offset = 0;
+  entry0.size = transformSizePadded;
+  entries.push_back(entry0);
+
+  wgpu::BindGroupEntry entry1{};
+  entry1.binding = 1;
+  entry1.buffer = this->SceneLightsBuffer;
+  entry1.offset = 0;
+  entry1.size = lightSizePadded;
+  entries.push_back(entry1);
+
+  wgpu::BindGroupDescriptor descriptor;
+  descriptor.label = "SceneBindGroup";
+  descriptor.layout = this->SceneBindGroupLayout;
+  descriptor.entryCount = static_cast<uint32_t>(entries.size());
+  descriptor.entries = entries.data();
+
+  this->SceneBindGroup = device.CreateBindGroup(&descriptor);
 }
 
 //------------------------------------------------------------------------------

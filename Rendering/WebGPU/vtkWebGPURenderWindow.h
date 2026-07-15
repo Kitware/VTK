@@ -69,7 +69,21 @@ public:
   void Initialize() override;
 
   /**
-   * Call DestroyWindow
+   * Call DestroyWindow.
+   *
+   * On X11, this performs a specific cleanup ordering to work around an NVIDIA Vulkan
+   * driver bug where GLX extension initialization is deferred until device destruction,
+   * causing the driver to touch a freed Display connection if the Display is closed too
+   * early:
+   *   1. DestroyWindow()                    - destroy the X11 window; Display stays open.
+   *   2. vtkWebGPUConfiguration::FinalizeDevice() - destroy the Vulkan device/adapter while
+   *      keeping the shared WGPUInstance alive, so the ICD shared library remains loaded.
+   *   3. Close the X11 Display connection while the ICD is still resident in memory.
+   *   4. vtkWebGPUConfiguration::Finalize()  - release the WGPUInstance, which unloads the
+   *      ICD now that the Display is already closed.
+   *
+   * @sa vtkWebGPUConfiguration::FinalizeDevice(), vtkWebGPUConfiguration::Finalize(),
+   *     WGPUFinalize()
    */
   void Finalize() override;
 
@@ -453,6 +467,10 @@ private:
 
   /**
    * Finalize the WebGPU context by releasing all WebGPU resources and resetting the internal
+   * state. Implements the cleanup sequence documented in Finalize() to work around the
+   * NVIDIA X11/Vulkan driver bug (see comments in the .cxx implementation for details).
+   *
+   * @sa Finalize()
    */
   void WGPUFinalize();
 

@@ -680,15 +680,6 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       edgeArrayComputeBuffer->SetByteSize(sizeof(vtkTypeUInt32));
     }
 
-    // polygon_to_triangle declares point_coordinates at binding 7 and ear-clips
-    // non-convex polygons using them. The bind group layout is derived from the
-    // buffers added to the pass, so a binding-7 buffer must be present for every
-    // dispatch of this module. When point coordinates are supplied (polygon
-    // path), concatenate each mesh's coordinates in the same mesh order used for
-    // the connectivity concatenation above, so that a connectivity index
-    // (pointId + pointOffset) resolves to the correct coordinates. Otherwise a
-    // 1-float placeholder is bound (never dereferenced for size <= 4 polygons
-    // or non-polygon passes).
     const bool isPolygonToTriangle = (idx == TOPOLOGY_SOURCE_POLYGONS);
     vtkNew<vtkWebGPUComputeBuffer> pointCoordinatesBuffer;
     pointCoordinatesBuffer->SetGroup(0);
@@ -1023,10 +1014,34 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     pointCoordinatesBuffer->SetLabel(std::string("PointCoordinates-") + primitiveTypeAsString +
       "@" + cellArray->GetObjectDescription());
     pointCoordinatesBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    // The WGSL shader declares point_coordinates as array<f32> (4 bytes per
+    // element). vtkPoints stores coordinates as doubles by default, so we must
+    // convert to float before upload; uploading doubles raw would cause the
+    // shader to misinterpret every 8-byte double as two 4-byte floats.
+    // This local array must outlive pass->Dispatch() below.
+    vtkNew<vtkFloatArray> floatCoords;
     static const std::vector<float> placeholderCoords = { 0.0f };
     if (isPolygonToTriangle && pointCoordinates != nullptr)
     {
-      pointCoordinatesBuffer->SetData(pointCoordinates);
+      auto* alreadyFloat = vtkFloatArray::SafeDownCast(pointCoordinates);
+      if (alreadyFloat)
+      {
+        pointCoordinatesBuffer->SetData(alreadyFloat);
+      }
+      else
+      {
+        const vtkIdType nTuples = pointCoordinates->GetNumberOfTuples();
+        floatCoords->SetNumberOfComponents(3);
+        floatCoords->SetNumberOfTuples(nTuples);
+        double xyz[3] = { 0.0, 0.0, 0.0 };
+        for (vtkIdType p = 0; p < nTuples; ++p)
+        {
+          pointCoordinates->GetTuple(p, xyz);
+          floatCoords->SetTuple3(
+            p, static_cast<float>(xyz[0]), static_cast<float>(xyz[1]), static_cast<float>(xyz[2]));
+        }
+        pointCoordinatesBuffer->SetData(floatCoords.GetPointer());
+      }
       pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
     }
     else
