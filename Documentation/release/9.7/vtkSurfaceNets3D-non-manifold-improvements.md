@@ -25,8 +25,10 @@ Additional related improvements:
 3. Pass 2 is run in odd/even slice phases to avoid a potential race when reading
    neighboring-slice edge metadata
 4. Output generation has been accelerated by adding an additional pass
-   (`BuildPointGeneratingEdgeRowXIndices`) which builds point-generating
-   x-indices for each edge row (used to avoid scanning
-   many non-point-generating triads inside a trimmed interval). The corresponding
-   index array uses a compact unsigned integer type based on the x-dimension.
-5. `SetOptimizedSmoothingStencils` has been deprecated since it was not actually used.
+   (`BuildOuterSpaceIndices`) which, for each volume cell row, traverses the trim
+   interval and records the x-position of every point-producing triad into an auxiliary
+   outer-space indices array. This allows Pass 5 to skip over non-emitting triads inside
+   a trimmed interval directly. The array uses a compact unsigned integer type sized to
+   the x-dimension.
+5. Output connectivity will be saved in 32 or 64 bit arrays depending on what's needed.
+6. `SetOptimizedSmoothingStencils` has been deprecated since it was not actually used.
