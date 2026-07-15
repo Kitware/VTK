@@ -214,6 +214,19 @@ public:
   ///@}
 
   /**
+   * Apportions `numberOfGroups` "slots" (each slot corresponds to one
+   * group) across `nodeSizes.size()` groupings of processes (e.g. nodes),
+   * proportional to each grouping's size in `nodeSizes`, using the
+   * largest-remainder method (a standard apportionment rule; also known as
+   * Hamilton's method) so the slot counts sum exactly to `numberOfGroups`.
+   * Every grouping is guaranteed at least 1 slot. Precondition:
+   * numberOfGroups >= nodeSizes.size(). Returns
+   * slotsPerNode[nodeIndex] = number of groups that grouping supplies.
+   */
+  static std::vector<int> ApportionGroupSlots(
+    const std::vector<int>& nodeSizes, int numberOfGroups);
+
+  /**
    * Assigns `position` (0-indexed) to one of `numberOfGroups` contiguous
    * blocks of `count` total positions, as evenly as possible -- the block
    * distribution scheme used throughout parallel computing (e.g. HPF,
@@ -224,6 +237,20 @@ public:
    * within that scope instead. Result is clamped to [0, numberOfGroups - 1].
    */
   static int BlockDistribute(int position, int count, int numberOfGroups);
+
+  /**
+   * Assigns each of `nodeSizes.size()` groupings of processes (e.g. nodes)
+   * to one of `numberOfGroups` groups, balancing total size per group,
+   * using the longest-processing-time-first (LPT) heuristic for
+   * multiprocessor scheduling (Graham, 1969): process groupings
+   * largest-first, always adding the next one to whichever group
+   * currently has the smallest total size. Ties (multiple groups at the
+   * same smallest total) are broken deterministically in favor of the
+   * lowest-numbered group. Precondition: numberOfGroups <= nodeSizes.size().
+   * Returns groupOfNode[nodeIndex] = assigned group id in
+   * [0, numberOfGroups).
+   */
+  static std::vector<int> PartitionNodesLPT(const std::vector<int>& nodeSizes, int numberOfGroups);
 
   //------------------ RMIs --------------------
 

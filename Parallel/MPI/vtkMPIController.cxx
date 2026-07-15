@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 int vtkMPIController::Initialized = 0;
@@ -410,6 +411,86 @@ int vtkMPIController::GetSharedMemoryNodeId()
     return 0;
   }
   return nodeIndex;
+}
+
+//------------------------------------------------------------------------------
+vtkMPIController* vtkMPIController::PartitionControllerByCount(int numberOfGroups)
+{
+  const int numberOfProcesses = this->GetNumberOfProcesses();
+  numberOfGroups = std::max(1, std::min(numberOfGroups, numberOfProcesses));
+
+  // Step 1: discover node membership through the same public API any other
+  // node-aware caller would use. If it can't be determined, both accessors
+  // report a single node containing every process (with a warning); fed
+  // through the "numberOfGroups > numberOfNodes" branch below, that
+  // degenerate topology reproduces the base class' round-robin behavior
+  // exactly, so no separate fallback path is needed here.
+  //
+  // Calling both accessors independently repeats the underlying
+  // MPI_Comm_split(_type) discovery twice; that's deliberate -- it keeps
+  // this method a thin, public-API-only consumer of node topology instead
+  // of hand-rolling and caching it, and the extra collective calls are
+  // negligible next to the data movement PartitionControllerByCount's
+  // caller is about to do.
+  const int numberOfNodes = this->GetNumberOfSharedMemoryNodes();
+  const int nodeIndex = this->GetSharedMemoryNodeId();
+
+  // Step 2: every rank learns the full per-node layout -- every node's rank
+  // count, and this rank's position within its own node -- from a single
+  // AllGather of each rank's node id.
+  const int me = this->GetLocalProcessId();
+  std::vector<int> allNodeIndices(numberOfProcesses);
+  this->AllGather(&nodeIndex, allNodeIndices.data(), 1);
+
+  std::vector<int> nodeSizes(numberOfNodes, 0);
+  int nodeRank = 0;
+  for (int rank = 0; rank < numberOfProcesses; ++rank)
+  {
+    if (allNodeIndices[rank] == nodeIndex && rank < me)
+    {
+      ++nodeRank;
+    }
+    ++nodeSizes[allNodeIndices[rank]];
+  }
+  const int numberOfNodeRanks = nodeSizes[nodeIndex];
+
+  // Step 3: assign this rank's final color, balancing by node size rather
+  // than raw rank position. Branches on how numberOfGroups compares to
+  // numberOfNodes.
+  int localColor;
+  if (numberOfGroups == numberOfNodes)
+  {
+    // Exactly one group per node: the common case, and trivial. No
+    // proportional math needed -- every node gets exactly 1 slot, so this
+    // node's ranks all collapse into a single group, numbered by nodeIndex.
+    localColor = nodeIndex;
+  }
+  else if (numberOfGroups > numberOfNodes)
+  {
+    // More groups than nodes: give each node a share of groups proportional
+    // to its size, then chunk that node's own ranks across its share.
+    // Groups never span more than one node in this branch.
+    const std::vector<int> slotsPerNode = this->ApportionGroupSlots(nodeSizes, numberOfGroups);
+    const int myNodeSlots = slotsPerNode[nodeIndex];
+    // Running total of slots claimed by earlier nodes, so this node's
+    // colors don't collide with another node's.
+    const int slotOffset =
+      std::accumulate(slotsPerNode.begin(), slotsPerNode.begin() + nodeIndex, 0);
+
+    const int withinNodeColor = this->BlockDistribute(nodeRank, numberOfNodeRanks, myNodeSlots);
+
+    localColor = slotOffset + withinNodeColor;
+  }
+  else
+  {
+    // Fewer groups than nodes: not every node can have its own group, so
+    // pack whole nodes into groups, balancing total rank count per group.
+    // No node is ever split across groups in this branch.
+    const std::vector<int> groupOfNode = this->PartitionNodesLPT(nodeSizes, numberOfGroups);
+    localColor = groupOfNode[nodeIndex];
+  }
+
+  return this->PartitionController(localColor, 0);
 }
 
 //------------------------------------------------------------------------------

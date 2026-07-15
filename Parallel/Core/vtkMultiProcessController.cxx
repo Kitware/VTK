@@ -20,7 +20,10 @@
 #include "vtkWeakPointer.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 #include <list>
+#include <numeric>
 #include <unordered_map>
 #include <vector>
 
@@ -328,6 +331,72 @@ vtkMultiProcessController* vtkMultiProcessController::PartitionController(
 }
 
 //------------------------------------------------------------------------------
+std::vector<int> vtkMultiProcessController::ApportionGroupSlots(
+  const std::vector<int>& nodeSizes, int numberOfGroups)
+{
+  const int numberOfNodes = static_cast<int>(nodeSizes.size());
+  const int totalRanks = std::accumulate(nodeSizes.begin(), nodeSizes.end(), 0);
+
+  // Exact (fractional) share of groups each node would get if slots could
+  // be fractional.
+  std::vector<double> exactShares(numberOfNodes);
+  std::transform(nodeSizes.begin(), nodeSizes.end(), exactShares.begin(),
+    [totalRanks, numberOfGroups](int size)
+    { return static_cast<double>(size) * numberOfGroups / totalRanks; });
+
+  std::vector<int> slots(numberOfNodes);
+  std::transform(exactShares.begin(), exactShares.end(), slots.begin(),
+    [](double exact) { return std::max(1, static_cast<int>(exact)); });
+
+  std::vector<double> remainders(numberOfNodes);
+  std::transform(exactShares.begin(), exactShares.end(), remainders.begin(),
+    [](double exact) { return exact - std::floor(exact); });
+
+  int allocated = std::accumulate(slots.begin(), slots.end(), 0);
+
+  std::vector<int> nodeOrder(numberOfNodes);
+  std::iota(nodeOrder.begin(), nodeOrder.end(), 0);
+  std::stable_sort(nodeOrder.begin(), nodeOrder.end(),
+    [&remainders](int a, int b) { return remainders[a] > remainders[b]; });
+
+  // Largest-remainder method: hand out (or claw back) one slot at a time, in
+  // order of largest fractional remainder first, until totals match
+  // numberOfGroups exactly. Nodes are never reduced below 1 slot.
+  //
+  // Both loops are bounded to numberOfNodes iterations: by construction the
+  // discrepancy between `allocated` and `numberOfGroups` never exceeds
+  // numberOfNodes, so one full pass through nodeOrder always suffices. The
+  // explicit bound (rather than relying solely on the allocated ==
+  // numberOfGroups condition) guards against a hang across every process in
+  // the job if that invariant is ever violated by a future change upstream;
+  // the asserts document and check the invariant itself in debug builds.
+  for (int pass = 0, orderIdx = 0; allocated < numberOfGroups && pass < numberOfNodes;
+       ++pass, orderIdx = (orderIdx + 1) % numberOfNodes)
+  {
+    slots[nodeOrder[orderIdx]]++;
+    ++allocated;
+  }
+  assert(allocated == numberOfGroups &&
+    "ApportionGroupSlots: could not fully allocate slots within one pass; "
+    "the proportional allocation above must have violated its invariant.");
+
+  for (int pass = 0, orderIdx = numberOfNodes - 1;
+       allocated > numberOfGroups && pass < numberOfNodes;
+       ++pass, orderIdx = (orderIdx - 1 + numberOfNodes) % numberOfNodes)
+  {
+    if (slots[nodeOrder[orderIdx]] > 1)
+    {
+      slots[nodeOrder[orderIdx]]--;
+      --allocated;
+    }
+  }
+  assert(allocated == numberOfGroups &&
+    "ApportionGroupSlots: could not fully deallocate slots within one pass; "
+    "the proportional allocation above must have violated its invariant.");
+  return slots;
+}
+
+//------------------------------------------------------------------------------
 int vtkMultiProcessController::BlockDistribute(int position, int count, int numberOfGroups)
 {
   // Split [0, count) into numberOfGroups contiguous blocks, as evenly as
@@ -340,6 +409,35 @@ int vtkMultiProcessController::BlockDistribute(int position, int count, int numb
     group = static_cast<int>(position / (1.0 * itemsPerGroup));
   }
   return std::min(group, numberOfGroups - 1);
+}
+
+//------------------------------------------------------------------------------
+// LPT is a well-known 2-approximation to the optimal balanced partition; for
+// typical HPC node-count/size distributions it is exact or near-exact.
+std::vector<int> vtkMultiProcessController::PartitionNodesLPT(
+  const std::vector<int>& nodeSizes, int numberOfGroups)
+{
+  const int numberOfNodes = static_cast<int>(nodeSizes.size());
+  assert(numberOfGroups <= numberOfNodes &&
+    "PartitionNodesLPT: numberOfGroups must not exceed the number of nodes, "
+    "or some groups would be assigned no node at all.");
+
+  std::vector<int> nodeOrder(numberOfNodes);
+  std::iota(nodeOrder.begin(), nodeOrder.end(), 0);
+  std::stable_sort(nodeOrder.begin(), nodeOrder.end(),
+    [&nodeSizes](int a, int b) { return nodeSizes[a] > nodeSizes[b]; });
+
+  std::vector<int> groupTotals(numberOfGroups, 0);
+  std::vector<int> groupOfNode(numberOfNodes, 0);
+  for (int node : nodeOrder)
+  {
+    // Index (not iterator) of the currently-smallest group total.
+    const int group = static_cast<int>(
+      std::min_element(groupTotals.begin(), groupTotals.end()) - groupTotals.begin());
+    groupOfNode[node] = group;
+    groupTotals[group] += nodeSizes[node];
+  }
+  return groupOfNode;
 }
 
 //------------------------------------------------------------------------------
