@@ -1,16 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkPMultiVariateToRGBA
- * @brief   Extract VOI and/or sub-sample a distributed
- *  structured dataset.
- *
- *
- *  vtkPMultiVariateToRGBA inherits from vtkMultiVariateToRGBA and provides additional
- *  functionality when dealing with a distributed dataset. Specifically, when
- *  sub-sampling a dataset, a gap may be introduced between partitions. This
- *  filter handles such cases correctly by growing the grid to the right to
- *  close the gap.
+ * @class vtkPMultiVariateToRGBA
+ * @brief Maps multivariate parallel data to color and opacity.
  *
  * @sa
  *  vtkMultiVariateToRGBA
@@ -33,11 +25,18 @@ public:
   vtkTypeMacro(vtkPMultiVariateToRGBA, vtkMultiVariateToRGBA);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /**
+   * Set and get the controller.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
+
 protected:
   vtkPMultiVariateToRGBA();
   ~vtkPMultiVariateToRGBA() override;
 
-  void SetController(vtkMultiProcessController*);
   vtkMultiProcessController* Controller;
 
 private:

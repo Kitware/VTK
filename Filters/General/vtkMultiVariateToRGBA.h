@@ -8,10 +8,12 @@
  * Maps multivariate data (multi-component point or cell scalars (AOS
  * array) in a vtkDataSet or multiple columns in a table (an SOA
  * array)) to color and opacity (RGBA). The filter can also generate
- * generalized barycentric coordinates (GBC) in a circle centered at
- * (0, 0) with radius 1, as well as vertices associated with the
- * components on the outline of this circle (StoreGBC, StoreVertices,
- * StoreRGBA).
+ * two additional set of point coordinates. First, point coordinates
+ * for vertices associated with the components on the outline of a
+ * circle centered at (0, 0) with radius 1 (these points form a
+ * polygon). Second, points associated with the data (generalized
+ * barycentric coordinates (GBC) in the vertices polygon) (StoreGBC,
+ * StoreVertices, StoreRGBA).
  *
  * Vertices can be rotated (VerticesRotation), which will change the GBC
  * positions and colors.
@@ -156,6 +158,9 @@ protected:
   bool StoreRGBA = true;
   bool FlipY = true;
   std::vector<std::vector<int>> ComponentsPartition;
+  /**
+   * Functions to compute the global min/max given the local min/max.
+   */
   std::function<double(double)> GlobalMin = nullptr;
   std::function<double(double)> GlobalMax = nullptr;
   /**
