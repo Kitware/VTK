@@ -571,7 +571,6 @@ void vtkUSDExporter::WriteData()
             {
               vtkCompositePolyDataMapper* pdMapper =
                 vtkCompositePolyDataMapper::SafeDownCast(mapper);
-              using Opts = vtk::CompositeDataSetOptions;
               vtkSmartPointer<vtkCompositeDataIterator> cpdIter;
               cpdIter.TakeReference(cpd->NewIterator());
               for (cpdIter->InitTraversal(); !cpdIter->IsDoneWithTraversal();
