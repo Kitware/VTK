@@ -1704,175 +1704,18 @@ wheel-linux-python315t-aarch64-egl:test-x11:
     needs:
         - wheel-linux-python315t-aarch64:build
 
-wheel:pypi:upload:
+## Per-platform wheel and wheel-sdk uploads
+#
+# Each wheel build gets its own upload jobs so that a failure or delay in one
+# platform's build/test does not block uploads for the other platforms.
+
+wheel-linux-python310-x86_64:pypi:upload:
     extends:
         - .pypi_upload
         - .rules
     variables:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
-        # If you update this list, you probably need to update the list of:
-        # wheel:vtk:upload, wheel-sdk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
-        - wheel-linux-python310-x86_64:build
-        - job: wheel-linux-python310-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python311-x86_64:build
-        - job: wheel-linux-python311-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python312-x86_64:build
-        - job: wheel-linux-python312-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python313-x86_64:build
-        - job: wheel-linux-python313-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python314-x86_64:build
-        - job: wheel-linux-python314-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python315-x86_64:build
-        - job: wheel-linux-python315-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python314t-x86_64:build
-        - job: wheel-linux-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python315t-x86_64:build
-        - job: wheel-linux-python315t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python310-aarch64:build
-        - job: wheel-linux-python310-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python310-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python311-aarch64:build
-        - job: wheel-linux-python311-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python311-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python312-aarch64:build
-        - job: wheel-linux-python312-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python312-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python313-aarch64:build
-        - job: wheel-linux-python313-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314-aarch64:build
-        - job: wheel-linux-python314-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315-aarch64:build
-        - job: wheel-linux-python315-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314t-aarch64:build
-        - job: wheel-linux-python314t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314t-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315t-aarch64:build
-        - job: wheel-linux-python315t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315t-aarch64:test-x11
-          artifacts: false
-        - wheel-macos-python310-arm64:build
-        - job: wheel-macos-python310-arm64:test
-          artifacts: false
-        - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
-        - wheel-macos-python311-arm64:build
-        - job: wheel-macos-python311-arm64:test
-          artifacts: false
-        - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
-        - wheel-macos-python312-arm64:build
-        - job: wheel-macos-python312-arm64:test
-          artifacts: false
-        - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
-        - wheel-macos-python313-arm64:build
-        - job: wheel-macos-python313-arm64:test
-          artifacts: false
-        - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-        - wheel-macos-python314-arm64:build
-        - job: wheel-macos-python314-arm64:test
-          artifacts: false
-        - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
-        - wheel-macos-python315-arm64:build
-        - job: wheel-macos-python315-arm64:test
-          artifacts: false
-        - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
-#        - wheel-macos-python314t-arm64:build
-#        - job: wheel-macos-python314t-arm64:test
-#          artifacts: false
-        - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
-#        - wheel-macos-python315t-arm64:build
-#        - job: wheel-macos-python315t-arm64:test
-#          artifacts: false
-        - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
-        - wheel-windows-python310-x86_64:build
-        - job: wheel-windows-python310-x86_64:test
-          artifacts: false
-        - wheel-windows-python311-x86_64:build
-        - job: wheel-windows-python311-x86_64:test
-          artifacts: false
-        - wheel-windows-python312-x86_64:build
-        - job: wheel-windows-python312-x86_64:test
-          artifacts: false
-        - wheel-windows-python313-x86_64:build
-        - job: wheel-windows-python313-x86_64:test
-          artifacts: false
-        - wheel-windows-python314-x86_64:build
-        - job: wheel-windows-python314-x86_64:test
-          artifacts: false
-        - wheel-windows-python315-x86_64:build
-        - job: wheel-windows-python315-x86_64:test
-          artifacts: false
-        - wheel-windows-python314t-x86_64:build
-        - job: wheel-windows-python314t-x86_64:test
-          artifacts: false
-
-wheel:vtk:upload:
-    extends:
-        - .pypi_vtk_upload
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
-    needs:
-        # If you update this list, you probably need to update the list of:
-        # wheel:pypi:upload, wheel-sdk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
         - wheel-linux-python310-x86_64:build
         - job: wheel-linux-python310-x86_64:test
           artifacts: false
@@ -1886,6 +1729,36 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python310-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python310-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python310-x86_64:build
+        - job: wheel-linux-python310-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python311-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python311-x86_64:build
         - job: wheel-linux-python311-x86_64:test
           artifacts: false
@@ -1899,6 +1772,36 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python311-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python311-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python311-x86_64:build
+        - job: wheel-linux-python311-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python312-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python312-x86_64:build
         - job: wheel-linux-python312-x86_64:test
           artifacts: false
@@ -1912,6 +1815,36 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python312-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python312-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python312-x86_64:build
+        - job: wheel-linux-python312-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python313-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python313-x86_64:build
         - job: wheel-linux-python313-x86_64:test
           artifacts: false
@@ -1925,6 +1858,36 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python313-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python313-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python313-x86_64:build
+        - job: wheel-linux-python313-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python314-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python314-x86_64:build
         - job: wheel-linux-python314-x86_64:test
           artifacts: false
@@ -1938,444 +1901,15 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python314-x86_64-egl:test-x11
           artifacts: false
-        - wheel-linux-python315-x86_64:build
-        - job: wheel-linux-python315-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python314t-x86_64:build
-        - job: wheel-linux-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python315t-x86_64:build
-        - job: wheel-linux-python315t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python310-aarch64:build
-        - job: wheel-linux-python310-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python310-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python311-aarch64:build
-        - job: wheel-linux-python311-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python311-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python312-aarch64:build
-        - job: wheel-linux-python312-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python312-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python313-aarch64:build
-        - job: wheel-linux-python313-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314-aarch64:build
-        - job: wheel-linux-python314-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315-aarch64:build
-        - job: wheel-linux-python315-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314t-aarch64:build
-        - job: wheel-linux-python314t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314t-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315t-aarch64:build
-        - job: wheel-linux-python315t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315t-aarch64:test-x11
-          artifacts: false
-        - wheel-macos-python310-arm64:build
-        - job: wheel-macos-python310-arm64:test
-          artifacts: false
-        - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
-        - wheel-macos-python311-arm64:build
-        - job: wheel-macos-python311-arm64:test
-          artifacts: false
-        - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
-        - wheel-macos-python312-arm64:build
-        - job: wheel-macos-python312-arm64:test
-          artifacts: false
-        - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
-        - wheel-macos-python313-arm64:build
-        - job: wheel-macos-python313-arm64:test
-          artifacts: false
-        - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-        - wheel-macos-python314-arm64:build
-        - job: wheel-macos-python314-arm64:test
-          artifacts: false
-        - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
-        - wheel-macos-python315-arm64:build
-        - job: wheel-macos-python315-arm64:test
-          artifacts: false
-        - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
-#        - wheel-macos-python314t-arm64:build
-#        - job: wheel-macos-python314t-arm64:test
-#          artifacts: false
-        - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
-#        - wheel-macos-python315t-arm64:build
-#        - job: wheel-macos-python315t-arm64:test
-#          artifacts: false
-        - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
-        - wheel-windows-python310-x86_64:build
-        - job: wheel-windows-python310-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python310-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python311-x86_64:build
-        - job: wheel-windows-python311-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python311-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python312-x86_64:build
-        - job: wheel-windows-python312-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python312-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python313-x86_64:build
-        - job: wheel-windows-python313-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python313-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python314-x86_64:build
-        - job: wheel-windows-python314-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python315-x86_64:build
-        - job: wheel-windows-python315-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python315-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python314t-x86_64:build
-        - job: wheel-windows-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314t-x86_64-osmesa:test
-          artifacts: false
 
-wheel-sdk:upload:
+wheel-linux-python314-x86_64:upload:
     extends:
-        - .rsync_upload_wheel_sdk
+        - .wheel_upload
         - .rules
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
-        RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
-        RSYNC_DESTINATION: wheel-sdks/
     needs:
-        # If you update this list, you probably need to update the list of:
-        # wheel:pypi:upload, wheel:vtk:upload, wheel-vtk-sdk:upload and release-artifacts:upload
-        - wheel-linux-python310-x86_64:build
-        - job: wheel-linux-python310-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python311-x86_64:build
-        - job: wheel-linux-python311-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python312-x86_64:build
-        - job: wheel-linux-python312-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python313-x86_64:build
-        - job: wheel-linux-python313-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python314-x86_64:build
-        - job: wheel-linux-python314-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python315-x86_64:build
-        - job: wheel-linux-python315-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python314t-x86_64:build
-        - job: wheel-linux-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python315t-x86_64:build
-        - job: wheel-linux-python315t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315t-x86_64:test-x11
-          artifacts: false
-        - wheel-linux-python310-aarch64:build
-        - job: wheel-linux-python310-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python310-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python311-aarch64:build
-        - job: wheel-linux-python311-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python311-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python312-aarch64:build
-        - job: wheel-linux-python312-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python312-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python313-aarch64:build
-        - job: wheel-linux-python313-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314-aarch64:build
-        - job: wheel-linux-python314-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315-aarch64:build
-        - job: wheel-linux-python315-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python314t-aarch64:build
-        - job: wheel-linux-python314t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314t-aarch64:test-x11
-          artifacts: false
-        - wheel-linux-python315t-aarch64:build
-        - job: wheel-linux-python315t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python315t-aarch64:test-x11
-          artifacts: false
-#        - wheel-macos-python310-arm64:build
-#        - job: wheel-macos-python310-arm64:test
-          artifacts: false
-        - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
-#        - wheel-macos-python311-arm64:build
-#        - job: wheel-macos-python311-arm64:test
-#          artifacts: false
-        - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
-#        - wheel-macos-python312-arm64:build
-#        - job: wheel-macos-python312-arm64:test
-#          artifacts: false
-        - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
-#        - wheel-macos-python313-arm64:build
-#        - job: wheel-macos-python313-arm64:test
-#          artifacts: false
-        - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
-        - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
-#        - wheel-macos-python315-arm64:build
-#        - job: wheel-macos-python315-arm64:test
-#          artifacts: false
-        - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
-#        - wheel-macos-python314t-arm64:build
-#        - job: wheel-macos-python314t-arm64:test
-#          artifacts: false
-        - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
-#        - wheel-macos-python315t-arm64:build
-#        - job: wheel-macos-python315t-arm64:test
-#          artifacts: false
-        - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
-        - wheel-windows-python310-x86_64:build
-        - job: wheel-windows-python310-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python310-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python311-x86_64:build
-        - job: wheel-windows-python311-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python311-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python312-x86_64:build
-        - job: wheel-windows-python312-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python312-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python313-x86_64:build
-        - job: wheel-windows-python313-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python313-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python314-x86_64:build
-        - job: wheel-windows-python314-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python315-x86_64:build
-        - job: wheel-windows-python315-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python315-x86_64-osmesa:test
-          artifacts: false
-        - wheel-windows-python314t-x86_64:build
-        - job: wheel-windows-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314t-x86_64-osmesa:test
-          artifacts: false
-
-# Use a different job to upload vtk-sdk wheels because we want to push then in a different location: vtk-sdk subfolder.
-wheel-vtk-sdk:upload:
-    extends:
-        - .rsync_upload_wheel_sdk
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_WEEKLY_UPLOAD: "true"
-        # The wheel location is the name of the PIP package. It is important that the last component is the same as the package name.
-        # as `pip install vtk-sdk --extra-index-url "vtk.org/files/wheel-sdks"` will look into `vtk.org/files/wheel-sdks/vtk-sdk`.
-        RSYNC_SOURCE: build/wheel_sdks/*.whl
-        RSYNC_DESTINATION: wheel-sdks/vtk-sdk
-    needs:
-        # If you update this list, you probably need to update the list of:
-        # wheel:pypi:upload, wheel:vtk:upload, wheel-sdk:upload and release-artifacts:upload
-        - wheel-linux-python310-x86_64:build
-        - job: wheel-linux-python310-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python311-x86_64:build
-        - job: wheel-linux-python311-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python312-x86_64:build
-        - job: wheel-linux-python312-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python313-x86_64:build
-        - job: wheel-linux-python313-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test-x11
-          artifacts: false
         - wheel-linux-python314-x86_64:build
         - job: wheel-linux-python314-x86_64:test
           artifacts: false
@@ -2389,19 +1923,14 @@ wheel-vtk-sdk:upload:
           artifacts: false
         - job: wheel-linux-python314-x86_64-egl:test-x11
           artifacts: false
-        - wheel-linux-python315-x86_64:build
-        - job: wheel-linux-python315-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python315-x86_64-egl:test-x11
-          artifacts: false
+
+wheel-linux-python314t-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python314t-x86_64:build
         - job: wheel-linux-python314t-x86_64:test
           artifacts: false
@@ -2415,6 +1944,35 @@ wheel-vtk-sdk:upload:
           artifacts: false
         - job: wheel-linux-python314t-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python315-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
+        - wheel-linux-python315-x86_64:build
+        - job: wheel-linux-python315-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python315t-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python315t-x86_64:build
         - job: wheel-linux-python315t-x86_64:test
           artifacts: false
@@ -2428,128 +1986,804 @@ wheel-vtk-sdk:upload:
           artifacts: false
         - job: wheel-linux-python315t-x86_64-egl:test-x11
           artifacts: false
+
+wheel-linux-python314t-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python314t-x86_64:build
+        - job: wheel-linux-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python315-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python315-x86_64:build
+        - job: wheel-linux-python315-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python315-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python315t-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python315t-x86_64:build
+        - job: wheel-linux-python315t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python315t-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python315t-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python315t-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python315t-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python315t-x86_64-egl:test-x11
+          artifacts: false
+
+wheel-linux-python310-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python310-aarch64:build
         - job: wheel-linux-python310-aarch64:test
           artifacts: false
         - job: wheel-linux-python310-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python310-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python310-aarch64:build
+        - job: wheel-linux-python310-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python310-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python311-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python311-aarch64:build
         - job: wheel-linux-python311-aarch64:test
           artifacts: false
         - job: wheel-linux-python311-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python311-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python311-aarch64:build
+        - job: wheel-linux-python311-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python311-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python312-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python312-aarch64:build
         - job: wheel-linux-python312-aarch64:test
           artifacts: false
         - job: wheel-linux-python312-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python312-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python312-aarch64:build
+        - job: wheel-linux-python312-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python312-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python313-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python313-aarch64:build
         - job: wheel-linux-python313-aarch64:test
           artifacts: false
         - job: wheel-linux-python313-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python313-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python313-aarch64:build
+        - job: wheel-linux-python313-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python313-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python314-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python314-aarch64:build
         - job: wheel-linux-python314-aarch64:test
           artifacts: false
         - job: wheel-linux-python314-aarch64:test-x11
           artifacts: false
-        - wheel-linux-python315-aarch64:build
-        - job: wheel-linux-python315-aarch64:test
+
+wheel-linux-python314-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python314-aarch64:build
+        - job: wheel-linux-python314-aarch64:test
           artifacts: false
-        - job: wheel-linux-python315-aarch64:test-x11
+        - job: wheel-linux-python314-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python314t-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python314t-aarch64:build
         - job: wheel-linux-python314t-aarch64:test
           artifacts: false
         - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python315-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
+        - wheel-linux-python315-aarch64:build
+        - job: wheel-linux-python315-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python315-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python315t-aarch64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-linux-python315t-aarch64:build
         - job: wheel-linux-python315t-aarch64:test
           artifacts: false
         - job: wheel-linux-python315t-aarch64:test-x11
           artifacts: false
+
+wheel-linux-python314t-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python315-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python315-aarch64:build
+        - job: wheel-linux-python315-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python315-aarch64:test-x11
+          artifacts: false
+
+wheel-linux-python315t-aarch64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-linux-python315t-aarch64:build
+        - job: wheel-linux-python315t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python315t-aarch64:test-x11
+          artifacts: false
+
+wheel-macos-python310-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python310-arm64:build
         - job: wheel-macos-python310-arm64:test
           artifacts: false
+
+wheel-macos-python310-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python310-arm64:build
+        - job: wheel-macos-python310-arm64:test
+          artifacts: false
+
+wheel-macos-python310-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python310-x86_64:build
         - job: wheel-macos-python310-x86_64:test
           artifacts: false
+
+wheel-macos-python310-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python310-x86_64:build
+        - job: wheel-macos-python310-x86_64:test
+          artifacts: false
+
+wheel-macos-python311-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python311-arm64:build
         - job: wheel-macos-python311-arm64:test
           artifacts: false
+
+wheel-macos-python311-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python311-arm64:build
+        - job: wheel-macos-python311-arm64:test
+          artifacts: false
+
+wheel-macos-python311-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python311-x86_64:build
         - job: wheel-macos-python311-x86_64:test
           artifacts: false
+
+wheel-macos-python311-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python311-x86_64:build
+        - job: wheel-macos-python311-x86_64:test
+          artifacts: false
+
+wheel-macos-python312-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python312-arm64:build
         - job: wheel-macos-python312-arm64:test
           artifacts: false
+
+wheel-macos-python312-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python312-arm64:build
+        - job: wheel-macos-python312-arm64:test
+          artifacts: false
+
+wheel-macos-python312-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python312-x86_64:build
         - job: wheel-macos-python312-x86_64:test
           artifacts: false
+
+wheel-macos-python312-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python312-x86_64:build
+        - job: wheel-macos-python312-x86_64:test
+          artifacts: false
+
+wheel-macos-python313-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python313-arm64:build
         - job: wheel-macos-python313-arm64:test
           artifacts: false
+
+wheel-macos-python313-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python313-arm64:build
+        - job: wheel-macos-python313-arm64:test
+          artifacts: false
+
+wheel-macos-python313-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
+
+wheel-macos-python313-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python313-x86_64:build
+        - job: wheel-macos-python313-x86_64:test
+          artifacts: false
+
+wheel-macos-python314-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python314-arm64:build
         - job: wheel-macos-python314-arm64:test
           artifacts: false
-        - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
+
+wheel-macos-python314-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
           artifacts: false
+
+wheel-macos-python315-arm64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python315-arm64:build
         - job: wheel-macos-python315-arm64:test
           artifacts: false
-        - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
+
+wheel-macos-python315-arm64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_CI_WHEEL_SDK_TARBALL: "false"
+    needs:
+        - wheel-macos-python315-arm64:build
+        - job: wheel-macos-python315-arm64:test
           artifacts: false
-#        - wheel-macos-python314t-arm64:build
-#        - job: wheel-macos-python314t-arm64:test
-#          artifacts: false
+
+wheel-macos-python314-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
+        - wheel-macos-python314-x86_64:build
+        - job: wheel-macos-python314-x86_64:test
+          artifacts: false
+
+wheel-macos-python314-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python314-x86_64:build
+        - job: wheel-macos-python314-x86_64:test
+          artifacts: false
+
+wheel-macos-python314t-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python314t-x86_64:build
         - job: wheel-macos-python314t-x86_64:test
           artifacts: false
-#        - wheel-macos-python315t-arm64:build
-#        - job: wheel-macos-python315t-arm64:test
-#          artifacts: false
+
+wheel-macos-python315-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
+        - wheel-macos-python315-x86_64:build
+        - job: wheel-macos-python315-x86_64:test
+          artifacts: false
+
+wheel-macos-python315t-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-macos-python315t-x86_64:build
         - job: wheel-macos-python315t-x86_64:test
           artifacts: false
+
+wheel-macos-python314t-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python314t-x86_64:build
+        - job: wheel-macos-python314t-x86_64:test
+          artifacts: false
+
+wheel-macos-python315-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python315-x86_64:build
+        - job: wheel-macos-python315-x86_64:test
+          artifacts: false
+
+wheel-macos-python315t-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-macos-python315t-x86_64:build
+        - job: wheel-macos-python315t-x86_64:test
+          artifacts: false
+
+wheel-windows-python310-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python310-x86_64:build
         - job: wheel-windows-python310-x86_64:test
           artifacts: false
         - job: wheel-windows-python310-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python310-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python310-x86_64:build
+        - job: wheel-windows-python310-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python310-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python311-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python311-x86_64:build
         - job: wheel-windows-python311-x86_64:test
           artifacts: false
         - job: wheel-windows-python311-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python311-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python311-x86_64:build
+        - job: wheel-windows-python311-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python311-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python312-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python312-x86_64:build
         - job: wheel-windows-python312-x86_64:test
           artifacts: false
         - job: wheel-windows-python312-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python312-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python312-x86_64:build
+        - job: wheel-windows-python312-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python312-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python313-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python313-x86_64:build
         - job: wheel-windows-python313-x86_64:test
           artifacts: false
         - job: wheel-windows-python313-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python313-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python313-x86_64:build
+        - job: wheel-windows-python313-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python313-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python314-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python314-x86_64:build
         - job: wheel-windows-python314-x86_64:test
           artifacts: false
         - job: wheel-windows-python314-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python314-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python314-x86_64:build
+        - job: wheel-windows-python314-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python314-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python314t-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
+        - wheel-windows-python314t-x86_64:build
+        - job: wheel-windows-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python314t-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python315-x86_64:pypi:upload:
+    extends:
+        - .pypi_upload
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+    needs:
         - wheel-windows-python315-x86_64:build
         - job: wheel-windows-python315-x86_64:test
           artifacts: false
         - job: wheel-windows-python315-x86_64-osmesa:test
           artifacts: false
+
+wheel-windows-python314t-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
         - wheel-windows-python314t-x86_64:build
         - job: wheel-windows-python314t-x86_64:test
           artifacts: false
         - job: wheel-windows-python314t-x86_64-osmesa:test
+          artifacts: false
+
+wheel-windows-python315-x86_64:upload:
+    extends:
+        - .wheel_upload
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+    needs:
+        - wheel-windows-python315-x86_64:build
+        - job: wheel-windows-python315-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python315-x86_64-osmesa:test
           artifacts: false
 
 ## Static analysis builds
@@ -2698,7 +2932,7 @@ release-artifacts:upload:
         RSYNC_SOURCE: release/
     needs:
         # If you update this list, you probably need to update the list of:
-        # wheel:pypi:upload, wheel:vtk:upload, wheel-sdk:upload and wheel-vtk-sdk:upload
+        # wheel-<config>:pypi:upload and wheel-<config>:upload
         - source:build
         - documentation:release-prep
         - wheel-linux-python310-x86_64:build
