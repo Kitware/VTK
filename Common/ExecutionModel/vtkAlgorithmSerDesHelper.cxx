@@ -21,6 +21,36 @@ extern "C"
   int RegisterHandlers_vtkAlgorithmSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
+namespace
+{
+// An algorithm can execute only when every non-optional input port of every
+// algorithm upstream of it has an input connection or input data object.
+bool CanExecute(vtkAlgorithm* algorithm)
+{
+  for (int port = 0; port < algorithm->GetNumberOfInputPorts(); ++port)
+  {
+    const int numberOfConnections = algorithm->GetNumberOfInputConnections(port);
+    if (numberOfConnections == 0)
+    {
+      auto* portInfo = algorithm->GetInputPortInformation(port);
+      if (!portInfo->Has(vtkAlgorithm::INPUT_IS_OPTIONAL()) ||
+        !portInfo->Get(vtkAlgorithm::INPUT_IS_OPTIONAL()))
+      {
+        return false;
+      }
+    }
+    for (int index = 0; index < numberOfConnections; ++index)
+    {
+      if (!CanExecute(algorithm->GetInputAlgorithm(port, index)))
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+}
+
 static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerializer* serializer)
 {
   using json = nlohmann::json;
@@ -32,7 +62,7 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
       state = superSerializer(object, serializer);
     }
     state["SuperClassNames"].push_back("vtkObject");
-    if (algorithm->GetNumberOfOutputPorts() > 0)
+    if (algorithm->GetNumberOfOutputPorts() > 0 && ::CanExecute(algorithm))
     {
       if (auto outputDataObject = algorithm->GetOutputDataObject(0))
       {
@@ -50,9 +80,20 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
       for (int index = 0; index < algorithm->GetNumberOfInputConnections(port); ++index)
       {
         auto* inputAlgorithm = algorithm->GetInputAlgorithm(port, index);
-        inputAlgorithm->Update();
-        auto* inputDataObject = algorithm->GetInputDataObject(port, index);
-        stateOfInputDataObjects.push_back(serializer->SerializeJSON(inputDataObject));
+        // Update the input algorithm only when it can execute i.e, every
+        // non-optional input port upstream has an input connection or data
+        // object. Otherwise, requesting data from it would make the pipeline
+        // report errors.
+        if (::CanExecute(inputAlgorithm))
+        {
+          inputAlgorithm->Update();
+          auto* inputDataObject = algorithm->GetInputDataObject(port, index);
+          stateOfInputDataObjects.push_back(serializer->SerializeJSON(inputDataObject));
+        }
+        else
+        {
+          stateOfInputDataObjects.push_back(nullptr);
+        }
       }
       statesOfInputDataObjects.push_back(stateOfInputDataObjects);
     }
@@ -106,6 +147,19 @@ static bool Deserialize_vtkAlgorithm(
         const bool hasMultipleConnections = stateOfInputDataObjects.size() > 1;
         for (std::size_t index = 0; index < stateOfInputDataObjects.size(); ++index)
         {
+          // A null entry means the input data object was absent at serialization time.
+          if (stateOfInputDataObjects[index].is_null())
+          {
+            if (hasMultipleConnections)
+            {
+              inputDataObjects.emplace_back(nullptr);
+            }
+            else
+            {
+              algorithm->SetInputDataObject(port, nullptr);
+            }
+            continue;
+          }
           const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
           auto subObject = context->GetObjectAtId(identifier);
           success &= deserializer->DeserializeJSON(identifier, subObject);

@@ -611,9 +611,15 @@ void vtkMapper::CreateDefaultLookupTable()
   this->LookupTable->Register(this);
   this->LookupTable->Delete();
 
+  // Peek at the input data object without driving the pipeline. If the pipeline
+  // has not executed yet, the input has no scalars, so the plain default lookup
+  // table below is used - same as when the input data object exists but is empty.
+  vtkDataSet* input = this->GetNumberOfInputConnections(0) > 0
+    ? vtkDataSet::SafeDownCast(vtkDataObject::GetData(this->GetInputInformation(0, 0)))
+    : nullptr;
   int cellFlag = 0; // not used
-  vtkAbstractArray* abstractArray = vtkAbstractMapper::GetAbstractScalars(this->GetInput(),
-    this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::GetAbstractScalars(
+    input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
 
   vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
