@@ -65,6 +65,7 @@ VTKRENDERINGOPENGL2_EXPORT
 @private
   vtkCocoaRenderWindowRef _myVTKRenderWindow;
   NSTrackingArea* _rolloverTrackingArea;
+  int _keyRepeatCount;
 }
 
 - (vtkCocoaRenderWindowRef)getVTKRenderWindow;

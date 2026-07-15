@@ -56,6 +56,7 @@ VTK_MARSHALAUTO
 @private
   vtkCocoaHardwareWindowRef _myHardwareWindow;
   NSTrackingArea* _rolloverTrackingArea;
+  int _keyRepeatCount;
 }
 
 - (vtkCocoaHardwareWindowRef)getHardwareWindow;
