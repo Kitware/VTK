@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtk_glad.h"
 
 #include "vtkOpenGLHelper.h"
@@ -74,6 +75,11 @@ VTK_ABI_NAMESPACE_BEGIN
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 VTK_ABI_NAMESPACE_END
 #endif
+
+namespace
+{
+bool vtkOpenGLRenderWindowUseGenericBackend = false;
+}
 
 // Some linux drivers have issues reading a multisampled texture,
 // so we check the driver's "Renderer" against this list of strings.
@@ -499,6 +505,18 @@ int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::SetUseGenericOpenGLRenderWindow(bool val)
+{
+  vtkOpenGLRenderWindowUseGenericBackend = val;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderWindow::GetUseGenericOpenGLRenderWindow()
+{
+  return vtkOpenGLRenderWindowUseGenericBackend;
+}
+
+//------------------------------------------------------------------------------
 const char* vtkOpenGLRenderWindow::GetRenderingBackend()
 {
   return "OpenGL2";
@@ -611,6 +629,10 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 //------------------------------------------------------------------------------
 vtkOpenGLRenderWindow* vtkOpenGLRenderWindow::New()
 {
+  if (vtkOpenGLRenderWindowUseGenericBackend)
+  {
+    return vtkGenericOpenGLRenderWindow::New();
+  }
   const char* backend = std::getenv("VTK_DEFAULT_OPENGL_WINDOW");
 #if defined(_WIN32)
   if ((backend == nullptr) || (std::string(backend) == "vtkWin32OpenGLRenderWindow"))
