@@ -2075,7 +2075,12 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   ///@{ TODO: Only for valid depth stencil formats
   auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
   depthState->depthWriteEnabled = true;
-  depthState->depthCompare = wgpu::CompareFunction::Less;
+  // Use LessEqual (matching OpenGL's GL_LEQUAL) so that primitives drawn later
+  // at the same depth overwrite earlier ones. The draw order within a single
+  // polydata actor is Points → Lines → Triangles (ascending pipeline enum),
+  // which with LessEqual gives: Triangles > Lines > Points at coincident depth,
+  // matching the OpenGL renderer's convention.
+  depthState->depthCompare = wgpu::CompareFunction::LessEqual;
   ///@}
   // Prepare selection ids output.
   descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();

@@ -497,6 +497,7 @@ bool vtkWebGPUConfiguration::Initialize()
     return true;
   }
   vtkWebGPUConfigurationInternals::AddInstanceRef();
+  this->InstanceRefHeld = true;
 
   wgpu::RequestAdapterOptions adapterOptions = {};
   adapterOptions.backendType = internals.ToWGPUBackendType(this->Backend);
@@ -617,7 +618,7 @@ bool vtkWebGPUConfiguration::Initialize()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUConfiguration::Finalize()
+void vtkWebGPUConfiguration::FinalizeDevice()
 {
   auto& internals = (*this->Internals);
   if (!internals.DeviceReady)
@@ -627,7 +628,19 @@ void vtkWebGPUConfiguration::Finalize()
   internals.Adapter = nullptr;
   internals.Device = nullptr;
   internals.DeviceReady = false;
-  vtkWebGPUConfigurationInternals::ReleaseInstanceRef();
+  // Deliberately does NOT call ReleaseInstanceRef() so the Vulkan instance
+  // stays alive (keeping GLX libraries loaded) until Finalize() is called.
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::Finalize()
+{
+  this->FinalizeDevice();
+  if (this->InstanceRefHeld)
+  {
+    this->InstanceRefHeld = false;
+    vtkWebGPUConfigurationInternals::ReleaseInstanceRef();
+  }
 }
 
 //------------------------------------------------------------------------------

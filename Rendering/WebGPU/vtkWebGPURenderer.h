@@ -319,6 +319,8 @@ private:
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;
   std::vector<std::size_t> LightIDs;
+  std::size_t AllocatedLightsBufferSize = 0;
+  std::size_t PreviousLightCount = 0;
 
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
