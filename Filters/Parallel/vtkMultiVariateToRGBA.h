@@ -12,8 +12,9 @@
  * for vertices associated with the components on the outline of a
  * circle centered at (0, 0) with radius 1 (these points form a
  * polygon). Second, points associated with the data (generalized
- * barycentric coordinates (GBC) in the vertices polygon) (StoreGBC,
- * StoreVertices, StoreRGBA).
+ * barycentric coordinates (GBC) inside the vertices polygon, scaled
+ * to cover the circle) (see StoreRGBA, StoreVertices, StoreGBC).
+ * The color and opacity can be used to volume render the dataset.
  *
  * Vertices can be rotated (VerticesRotation), which will change the GBC
  * positions and colors.
