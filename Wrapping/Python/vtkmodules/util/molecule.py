@@ -144,6 +144,13 @@ class _MoleculeMixin:
             else:
                 nums = np.ones(n, dtype=np.uint16)
 
+            if len(nums) != n:
+                which = "atomic_numbers" if atomic_numbers is not None else "symbols"
+                raise ValueError(
+                    "%s length %d != positions length %d"
+                    % (which, len(nums), n)
+                )
+
             for i in range(n):
                 self.AppendAtom(int(nums[i]),
                                 float(positions[i, 0]),
@@ -188,7 +195,15 @@ class _MoleculeMixin:
 
     @property
     def positions(self):
-        """Atom positions as an (N, 3) float32 numpy array."""
+        """Atom positions as an (N, 3) float32 numpy array.
+
+        This is a live view into VTK memory; mutating it changes the
+        molecule in place (call ``Modified()`` afterwards to notify the
+        pipeline). The view is invalidated if the atom array is
+        reallocated (e.g. by ``AppendAtom``), so do not hold onto it
+        across mutations. Use the ``positions`` setter for a safe,
+        length-checked bulk assignment.
+        """
         import numpy as np
         from vtkmodules.util.numpy_support import vtk_to_numpy
 
@@ -218,7 +233,15 @@ class _MoleculeMixin:
 
     @property
     def atomic_numbers(self):
-        """Atomic numbers as an (N,) uint16 numpy array."""
+        """Atomic numbers as an (N,) uint16 numpy array.
+
+        This is a live view into VTK memory; mutating it changes the
+        molecule in place (call ``Modified()`` afterwards to notify the
+        pipeline). The view is invalidated if the atom array is
+        reallocated (e.g. by ``AppendAtom``), so do not hold onto it
+        across mutations. Use the ``atomic_numbers`` setter for a safe,
+        length-checked bulk assignment.
+        """
         import numpy as np
         from vtkmodules.util.numpy_support import vtk_to_numpy
 
@@ -249,7 +272,9 @@ class _MoleculeMixin:
 
         This is a live view into VTK memory; mutating it changes the
         molecule in place (call ``Modified()`` afterwards to notify the
-        pipeline).
+        pipeline). The view is invalidated if the bond array is
+        reallocated (e.g. by ``AppendBond``), so do not hold onto it
+        across mutations.
         """
         import numpy as np
         from vtkmodules.util.numpy_support import vtk_to_numpy
@@ -381,7 +406,13 @@ class _MoleculeMixin:
 
     @property
     def lattice_origin(self):
-        """Lattice origin as a (3,) numpy array."""
+        """Lattice origin as a (3,) numpy array, or None if no lattice is set.
+
+        The origin is only meaningful together with a lattice, so this
+        mirrors ``lattice`` and returns None when ``HasLattice()`` is false.
+        """
+        if not self.HasLattice():
+            return None
         import numpy as np
 
         origin = self.GetLatticeOrigin()
@@ -467,11 +498,22 @@ class _MoleculeMixin:
 
     # -- RDKit interop --
 
-    def to_rdkit(self):
+    def to_rdkit(self, sanitize=False):
         """Convert to an RDKit Mol object.
 
         Atoms, bonds, and 3D coordinates (as a conformer) are transferred.
         Bond order mapping: 1→SINGLE, 2→DOUBLE, 3→TRIPLE, 4→AROMATIC.
+
+        Parameters
+        ----------
+        sanitize : bool
+            If True, run ``Chem.SanitizeMol`` on the result. The returned
+            mol is otherwise unsanitized: perception of rings, valence, and
+            aromaticity has not been run, and some downstream RDKit
+            operations require a sanitized mol. Sanitization is off by
+            default because molecules derived from geometry or bond
+            perceivers need not satisfy RDKit's valence model, and
+            ``SanitizeMol`` would raise on them.
         """
         try:
             from rdkit import Chem
@@ -499,9 +541,18 @@ class _MoleculeMixin:
             bond = self.GetBond(i)
             order = int(bond.GetOrder())
             bt = bond_type_map.get(order, Chem.BondType.SINGLE)
-            emol.AddBond(int(bond.GetBeginAtomId()), int(bond.GetEndAtomId()), bt)
+            begin = int(bond.GetBeginAtomId())
+            end = int(bond.GetEndAtomId())
+            emol.AddBond(begin, end, bt)
+            # Aromatic bonds require their endpoints to be flagged aromatic,
+            # otherwise RDKit treats the mol as inconsistent.
+            if bt == Chem.BondType.AROMATIC:
+                emol.GetAtomWithIdx(begin).SetIsAromatic(True)
+                emol.GetAtomWithIdx(end).SetIsAromatic(True)
 
         mol = emol.GetMol()
+        if sanitize:
+            Chem.SanitizeMol(mol)
 
         # Add 3D conformer
         conf = Chem.Conformer(self.GetNumberOfAtoms())

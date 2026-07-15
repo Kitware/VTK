@@ -215,6 +215,25 @@ class TestConstructor(unittest.TestCase):
         with self.assertRaises(ValueError):
             vtkMolecule(atomic_numbers=[1, 2])
 
+    def test_mismatched_atomic_numbers_raises(self):
+        # A length mismatch must fail cleanly, not leave a partial molecule.
+        with self.assertRaises(ValueError):
+            vtkMolecule(
+                atomic_numbers=[8, 1],
+                positions=[[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            )
+
+    def test_mismatched_symbols_raises(self):
+        try:
+            from vtkmodules.vtkDomainsChemistry import vtkPeriodicTable  # noqa: F401
+        except ImportError:
+            self.skipTest("vtkDomainsChemistry not available")
+        with self.assertRaises(ValueError):
+            vtkMolecule(
+                symbols=["O", "H"],
+                positions=[[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            )
+
 
 class TestMutation(unittest.TestCase):
     def test_append_by_number(self):
@@ -272,9 +291,14 @@ class TestLattice(unittest.TestCase):
 
     def test_lattice_origin(self):
         mol = _build_water()
+        mol.lattice = np.eye(3) * 10.0
         mol.lattice_origin = [1.0, 2.0, 3.0]
         origin = mol.lattice_origin
         np.testing.assert_allclose(origin, [1.0, 2.0, 3.0], atol=1e-10)
+
+    def test_lattice_origin_none_without_lattice(self):
+        mol = _build_water()
+        self.assertIsNone(mol.lattice_origin)
 
 
 class TestASEInterop(unittest.TestCase):
@@ -304,7 +328,10 @@ class TestASEInterop(unittest.TestCase):
         if not self.has_ase:
             self.skipTest("ASE not installed")
         mol = _build_water()
-        lat = np.array([[10, 0, 0], [0, 12, 0], [0, 0, 14]], dtype=np.float64)
+        # Non-symmetric (triclinic) cell so lat.T != lat and the
+        # VTK-columns vs ASE-rows transpose is actually exercised.
+        lat = np.array([[10, 1, 2], [0, 12, 3], [0, 0, 14]], dtype=np.float64)
+        assert not np.array_equal(lat, lat.T)
         mol.lattice = lat
 
         atoms = mol.to_ase()
@@ -357,6 +384,24 @@ class TestRDKitInterop(unittest.TestCase):
         self.assertEqual(len(mol.bonds), 1)
         # Positions should be zeros
         np.testing.assert_allclose(mol.positions, np.zeros((2, 3)), atol=1e-10)
+
+    def test_aromatic_sanitize(self):
+        if not self.has_rdkit:
+            self.skipTest("RDKit not installed")
+        from rdkit import Chem
+
+        # Benzene ring: 6 carbons, aromatic bonds (VTK order 4).
+        mol = vtkMolecule()
+        for i in range(6):
+            mol.append("C", [float(i), 0.0, 0.0])
+        for i in range(6):
+            mol.add_bond(i, (i + 1) % 6, order=4)
+
+        # Aromatic bonds flag their endpoints, so sanitization succeeds.
+        rdmol = mol.to_rdkit(sanitize=True)
+        self.assertEqual(rdmol.GetNumAtoms(), 6)
+        self.assertEqual(rdmol.GetNumBonds(), 6)
+        self.assertTrue(all(a.GetIsAromatic() for a in rdmol.GetAtoms()))
 
 
 class TestEmptyMolecule(unittest.TestCase):
