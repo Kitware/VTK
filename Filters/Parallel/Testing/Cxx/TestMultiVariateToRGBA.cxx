@@ -27,9 +27,20 @@
 #include <vtkTestingObjectFactory.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
 
 int TestMultiVariateToRGBA(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  vtkNew<vtkMPIController> controller;
+#else
+  vtkNew<vtkDummyController> controller;
+#endif
+
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
@@ -89,6 +100,6 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   {
     iren->Start();
   }
-
+  controller->Finalize();
   return EXIT_SUCCESS;
 }

@@ -26,6 +26,7 @@ set(classes
   vtkIntegrationStrategy
   vtkMergeBlocks
   vtkMultiProcessControllerHelper
+  vtkMultiVariateToRGBA
   vtkPHyperTreeGridProbeFilter
   vtkPeriodicFilter
   vtkPConvertToMultiBlockDataSet
@@ -39,7 +40,6 @@ set(classes
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
   vtkPMergeArrays
-  vtkPMultiVariateToRGBA
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals

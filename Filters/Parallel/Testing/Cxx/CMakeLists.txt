@@ -3,6 +3,7 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAngularPeriodicFilter.cxx
   TestGaussianQuadratureIntegration.cxx,NO_VALID
   TestGeometryFilterDispatcher.cxx
+  TestMultiVariateToRGBA.cxx
   TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
@@ -14,6 +15,7 @@ if (TARGET VTK::ParallelMPI)
     DistributedData.cxx
     DistributedDataRenderPass.cxx
     PTextureMapToSphere.cxx
+    TestMultiVariateToRGBA.cxx
     TestPHyperTreeGridProbeFilter.cxx
     TestPExtractDataArraysOverTime.cxx,NO_VALID
     TestPartitionBalancer.cxx,NO_VALID

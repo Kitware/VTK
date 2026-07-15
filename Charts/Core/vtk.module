@@ -15,6 +15,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersGeneral
+  VTK::FiltersParallel
   VTK::RenderingContext2D
   VTK::RenderingCore
   VTK::vtksys

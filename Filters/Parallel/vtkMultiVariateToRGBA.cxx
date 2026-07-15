@@ -13,6 +13,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,6 +32,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiVariateToRGBA);
+vtkCxxSetObjectMacro(vtkMultiVariateToRGBA, Controller, vtkMultiProcessController);
 
 namespace
 {
@@ -58,12 +60,10 @@ double numpy_mod(double a, double b)
  */
 struct NormalizeWorker
 {
-  NormalizeWorker(const std::vector<int>& indices,
-    std::function<double(double)> globalMin = nullptr,
-    std::function<double(double)> globalMax = nullptr, double newMin = 0, double newMax = 1)
+  NormalizeWorker(const std::vector<int>& indices, vtkMultiProcessController* controller,
+    double newMin = 0, double newMax = 1)
     : GroupIndices(indices)
-    , GlobalMin(globalMin)
-    , GlobalMax(globalMax)
+    , Controller(controller)
     , NewMin(newMin)
     , NewMax(newMax)
   {
@@ -98,13 +98,19 @@ struct NormalizeWorker
         maxValue = maxCurrent;
       }
     }
-    if (this->GlobalMin)
+    if (this->Controller)
     {
-      minValue = this->GlobalMin(minValue);
+      double globalMin;
+      double localMin = minValue;
+      this->Controller->AllReduce(&localMin, &globalMin, 1, vtkCommunicator::MIN_OP);
+      minValue = globalMin;
     }
-    if (this->GlobalMax)
+    if (this->Controller)
     {
-      maxValue = this->GlobalMax(maxValue);
+      double globalMax;
+      double localMax = maxValue;
+      this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
+      maxValue = globalMax;
     }
     vtkIdType nTuples = scalars.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
@@ -120,8 +126,7 @@ struct NormalizeWorker
   std::vector<int> GroupIndices;
   double NewMin = 0;
   double NewMax = 1;
-  std::function<double(double)> GlobalMin = nullptr;
-  std::function<double(double)> GlobalMax = nullptr;
+  vtkMultiProcessController* Controller = nullptr;
 };
 
 /**
@@ -462,6 +467,7 @@ vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
   // by default process active point/cell scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
@@ -563,7 +569,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     Dispatcher;
   for (int i = 0; i < this->ComponentsPartition.size(); ++i)
   {
-    NormalizeWorker worker(this->ComponentsPartition[i], this->GlobalMin, this->GlobalMax);
+    NormalizeWorker worker(this->ComponentsPartition[i], this->Controller);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());

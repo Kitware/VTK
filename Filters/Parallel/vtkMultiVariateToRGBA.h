@@ -42,15 +42,15 @@
 #define vtkMultiVariateToRGBA_h
 
 #include "vtkDataObjectAlgorithm.h"
-#include "vtkFiltersGeneralModule.h" // For export macro
-#include <functional>                // For std::function
-#include <vector>                    // For components partition
+#include "vtkFiltersParallelModule.h" // For export macro
+#include <functional>                 // For std::function
+#include <vector>                     // For components partition
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkLookupTable;
 class vtkInformationVector;
+class vtkMultiProcessController;
 
-class VTKFILTERSGENERAL_EXPORT vtkMultiVariateToRGBA : public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkMultiVariateToRGBA : public vtkDataObjectAlgorithm
 {
 public:
   static vtkMultiVariateToRGBA* New();
@@ -136,6 +136,14 @@ public:
   vtkGetMacro(FlipY, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set and get the controller.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
+
   /**
    * Variables can be partitioned into several groups. After that,
    * all multivariate scalars in a group are normalized together.
@@ -152,17 +160,13 @@ protected:
   vtkMultiVariateToRGBA();
   ~vtkMultiVariateToRGBA() override;
 
+  vtkMultiProcessController* Controller = nullptr;
   double VerticesRotation = 0;
   bool StoreGBC = false;
   bool StoreVertices = false;
   bool StoreRGBA = true;
   bool FlipY = true;
   std::vector<std::vector<int>> ComponentsPartition;
-  /**
-   * Functions to compute the global min/max given the local min/max.
-   */
-  std::function<double(double)> GlobalMin = nullptr;
-  std::function<double(double)> GlobalMax = nullptr;
   /**
    * Where the lens is drawn and its radius
    */
