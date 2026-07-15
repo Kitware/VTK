@@ -19,6 +19,8 @@
 #define vtkOSPRayMaterialLibrary_h
 
 #include "vtkRenderMaterialLibrary.h"
+
+#include "vtkDeprecation.h"               // For VTK_DEPRECATED_IN_*
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -69,6 +71,15 @@ public:
    */
   const TextureInfo* GetTextureInfo(
     const std::string& nickname, const std::string& varname) const override;
+
+  /**
+   * Invoke an update event to notify observers of changes to the material library.
+   * This can be used to trigger rendering updates after material modifications.
+   *
+   * @deprecated Use Modified() instead to notify observers of changes.
+   */
+  VTK_DEPRECATED_IN_9_7_0("Use Modified() instead to notify observers of changes.")
+  void Fire();
 
   /**
    * Get the dictionary of all possible materials based on OSPRay documentation.
