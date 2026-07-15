@@ -20,6 +20,7 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkSmartPointer.h"
 #include "vtkThresholdPoints.h"
 
 #include <vtk_mpi.h>
@@ -58,6 +59,16 @@ int AggregateDataSet(int argc, char* argv[])
 
   int numProcs = contr->GetNumberOfProcesses();
 
+  // vtkAggregateDataSetFilter groups ranks via
+  // PartitionControllerByCount(), which balances by real node topology
+  // (not necessarily contiguous rank id), and aggregates each group onto
+  // that group's local rank 0. Ask the same question here instead of
+  // assuming which world ranks end up as receivers.
+  const int numberOfTargetProcesses = 2;
+  vtkSmartPointer<vtkMultiProcessController> subController;
+  subController.TakeReference(contr->PartitionControllerByCount(numberOfTargetProcesses));
+  const bool isReceiver = (subController->GetLocalProcessId() == 0);
+
   // Create and execute pipeline
   vtkRTAnalyticSource* wavelet = vtkRTAnalyticSource::New();
   vtkDataSetSurfaceFilter* toPolyData = vtkDataSetSurfaceFilter::New();
@@ -66,7 +77,7 @@ int AggregateDataSet(int argc, char* argv[])
 
   toPolyData->SetInputConnection(wavelet->GetOutputPort());
   aggregate->SetInputConnection(toPolyData->GetOutputPort());
-  aggregate->SetNumberOfTargetProcesses(2);
+  aggregate->SetNumberOfTargetProcesses(numberOfTargetProcesses);
 
   mapper->SetInputConnection(aggregate->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
@@ -74,14 +85,14 @@ int AggregateDataSet(int argc, char* argv[])
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 1408)
+  if (isReceiver && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 1408)
   {
     vtkGenericWarningMacro("Wrong number of polydata points on process "
       << me << ". Should be 1408 but is "
       << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
-  else if (me % 2 != 0 &&
+  else if (!isReceiver &&
     vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
   {
     vtkGenericWarningMacro("Wrong number of polydata points on process "
@@ -104,14 +115,14 @@ int AggregateDataSet(int argc, char* argv[])
   mapper->SetInputConnection(contour->GetOutputPort());
   mapper->Update();
 
-  if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 5082)
+  if (isReceiver && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 5082)
   {
     vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
       << me << ". Should be 5082 but is "
       << vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
-  else if (me % 2 != 0 &&
+  else if (!isReceiver &&
     vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 0)
   {
     vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
