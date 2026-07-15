@@ -26,11 +26,12 @@ compareImage(renwin, img_fname, threshold=0.05):
    The function also handles multiple images and finds the best
    matching image.
 
-compareImageWithSavedImage(src_img, img_fname, threshold=0.05):
-   Compares given source image (in the form of a vtkImageData) with
-   saved image and generates the image if it does not exist.  The
-   threshold determines how closely the images must match.  The
-   function also handles multiple images and finds the best matching
+compareImageWithSavedImage(src_image_algorithm, img_fname, threshold=0.05):
+   Compares given source image (in the form of a vtkAlgorithm that
+   produces a vtkImageData) with saved image and generates the image
+   if it does not exist.
+   The threshold determines how closely the images must match.
+   The function also handles multiple images and finds the best matching
    image.
 
 getAbsImagePath(img_basename):
@@ -312,9 +313,10 @@ def _GetController():
         pass
     return None
 
-def compareImageWithSavedImage(src_img, img_fname, threshold=0.05):
-    """Compares a source image (src_img, which is a vtkImageData) with
-    the saved image file whose name is given in the second argument.
+def compareImageWithSavedImage(src_image_algorithm, img_fname, threshold=0.05):
+    """Compares a source image (src_image_algorithm, which is a vtkAlgorithm that
+    produces a vtkImageData) with the saved image file whose name is given
+    in the second argument.
     If the image file does not exist the image is generated and
     stored.  If not the source image is compared to that of the
     figure.  This function also handles multiple images and finds the
@@ -342,7 +344,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=0.05):
     rtTester.AddArgument(img_fname)
 
     output_string =  reference("")
-    result = rtTester.RegressionTest(src_img, threshold, output_string)
+    result = rtTester.RegressionTest(src_image_algorithm, threshold, output_string)
 
     # If the test failed, raise an exception
     if result == vtkTesting.FAILED:
