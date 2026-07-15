@@ -129,6 +129,27 @@ public:
 
   ///@{
   /**
+   * Returns the number of disjoint groups of processes that can share
+   * memory (e.g. run on the same physical node), and which one of those
+   * groups (in [0, GetNumberOfSharedMemoryNodes())) the local process
+   * belongs to. Two processes that report the same id from
+   * GetSharedMemoryNodeId() belong to the same group; the numbering
+   * itself is otherwise unspecified but consistent across all processes.
+   * Both methods are collective: every process must call them.
+   *
+   * Node membership is discovered via MPI_Comm_split_type
+   * (MPI_COMM_TYPE_SHARED), i.e. ranks that could share a memory region are
+   * considered to be on the same node; nodes are numbered deterministically
+   * by order of first appearance among world ranks. Falls back to
+   * reporting a single node containing every process (with a warning) if
+   * node membership can't be determined.
+   */
+  int GetNumberOfSharedMemoryNodes();
+  int GetSharedMemoryNodeId();
+  ///@}
+
+  ///@{
+  /**
    * This method sends data to another process (non-blocking).
    * Tag eliminates ambiguity when multiple sends or receives
    * exist in the same process. The last argument,
