@@ -18,6 +18,7 @@
 #include <limits>
 #include <numeric>
 #include <unordered_map>
+#include <utility>
 
 static_assert(sizeof(vtkVector3d) == 3 * sizeof(double),
   "vtkVector3d must be layout-compatible with double[3] for reinterpret_cast to be valid");
@@ -355,8 +356,6 @@ void vtkConvexHull::Compute2D(
 
 //------------------------------------------------------------------------------
 // 3-D: Quickhull, O(n log n) average.
-//------------------------------------------------------------------------------
-// 3-D: Quickhull, O(n log n) average.
 void vtkConvexHull::Compute3D(
   const vtkVector3d* pts, vtkIdType n, std::vector<Plane>& planes, vtkPolyData* geom)
 {
@@ -493,6 +492,10 @@ void vtkConvexHull::Compute3D(
     {
       fn = -1.0 * fn;
       d = -d;
+      // Swap two vertices so the stored winding stays consistent with the
+      // outward normal; the horizon search relies on every shared edge
+      // appearing in opposite directions in its two adjacent faces.
+      std::swap(v1, v2);
     }
     return { { v0, v1, v2 }, fn, d, {}, true };
   };
