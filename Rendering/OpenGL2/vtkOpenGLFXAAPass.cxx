@@ -3,11 +3,11 @@
 #include "vtkOpenGLFXAAPass.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFXAAPass);

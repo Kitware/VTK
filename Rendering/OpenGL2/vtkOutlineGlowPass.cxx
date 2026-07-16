@@ -5,6 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -13,26 +14,13 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
-#include <cassert>
-
-#include "vtkOpenGLHelper.h"
-
-// to be able to dump intermediate passes into png files for debugging.
-// only for vtkOutlineGlowPass developers.
-// #define VTK_OUTLINE_GLOW_PASS_DEBUG
-
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-#include "vtkImageExtractComponents.h"
-#include "vtkImageImport.h"
-#include "vtkPNGWriter.h"
-#include "vtkPixelBufferObject.h"
-#endif
 
 // Shader includes
 #include "vtkOutlineGlowBlurPassFS.h"
 #include "vtkOutlineGlowUpscalePassFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+#include <cassert>
 #include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -136,48 +124,6 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
     this->RenderDelegate(s, width, height, widthFullTarget, heightFullTarget,
       this->FrameBufferObject, this->ScenePass);
 
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    // Save first pass in file for debugging.
-    vtkPixelBufferObject* pbo = this->BlurPass1->Download();
-
-    unsigned char* openglRawData = new unsigned char[4 * widthHalfTarget * heightHalfTarget];
-    unsigned int dims[2];
-    dims[0] = widthHalfTarget;
-    dims[1] = heightHalfTarget;
-    vtkIdType incs[2];
-    incs[0] = 0;
-    incs[1] = 0;
-    bool status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-    assert("check" && status);
-    pbo->Delete();
-
-    // no pbo
-    this->BlurPass1->Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, openglRawData);
-    this->BlurPass1->Deactivate();
-
-    vtkImageImport* importer = vtkImageImport::New();
-    importer->CopyImportVoidPointer(
-      openglRawData, 4 * widthHalfTarget * heightHalfTarget * sizeof(unsigned char));
-    importer->SetDataScalarTypeToUnsignedChar();
-    importer->SetNumberOfScalarComponents(4);
-    importer->SetWholeExtent(0, widthHalfTarget - 1, 0, heightHalfTarget - 1, 0, 0);
-    importer->SetDataExtentToWholeExtent();
-    delete[] openglRawData;
-
-    vtkImageExtractComponents* rgbaToRgb = vtkImageExtractComponents::New();
-    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-    rgbaToRgb->SetComponents(0, 1, 2);
-
-    vtkPNGWriter* writer = vtkPNGWriter::New();
-    writer->SetFileName("BlurPass1.png");
-    writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-    importer->Delete();
-    rgbaToRgb->Delete();
-    writer->Write();
-    writer->Delete();
-#endif
-
     // 3. Render Scene to Buffer1 while applying horizontal blur
     if (this->BlurPass1 == nullptr)
     {
@@ -194,11 +140,6 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
 
     this->FrameBufferObject->AddColorAttachment(0, this->BlurPass1);
     this->FrameBufferObject->Start(widthHalfTarget, heightHalfTarget);
-
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    std::cout << "outline finish2" << endl;
-    glFinish();
-#endif
 
     // Use a blur shader, do it horizontally. this->ScenePass is the source
     // (this->BlurPass1 is the fbo render target)
@@ -276,59 +217,13 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
     fvalues[0] = 0.0f;
     this->BlurProgram->Program->SetUniformf("offsety", fvalues[0]);
 
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    std::cout << "outline finish3-" << endl;
-    glFinish();
-#endif
-
     ostate->vtkglDisable(GL_BLEND);
     ostate->vtkglDisable(GL_DEPTH_TEST);
 
     this->FrameBufferObject->RenderQuad(0, widthHalfTarget - 1, 0, heightHalfTarget - 1,
       this->BlurProgram->Program, this->BlurProgram->VAO);
 
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    std::cout << "outline finish3" << endl;
-    glFinish();
-#endif
-
     this->BlurPass1->Deactivate();
-
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-
-    // Save second pass in file for debugging.
-    pbo = this->BlurPass2->Download();
-    openglRawData = new unsigned char[4 * widthHalfTarget * heightHalfTarget];
-    status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-    assert("check2" && status);
-    pbo->Delete();
-
-    // no pbo
-    this->BlurPass2->Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, openglRawData);
-    this->BlurPass2->Deactivate();
-
-    importer = vtkImageImport::New();
-    importer->CopyImportVoidPointer(
-      openglRawData, 4 * widthHalfTarget * heightHalfTarget * sizeof(unsigned char));
-    importer->SetDataScalarTypeToUnsignedChar();
-    importer->SetNumberOfScalarComponents(4);
-    importer->SetWholeExtent(0, widthHalfTarget - 1, 0, heightHalfTarget - 1, 0, 0);
-    importer->SetDataExtentToWholeExtent();
-    delete[] openglRawData;
-
-    rgbaToRgb = vtkImageExtractComponents::New();
-    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-    rgbaToRgb->SetComponents(0, 1, 2);
-
-    writer = vtkPNGWriter::New();
-    writer->SetFileName("BlurPass2.png");
-    writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-    importer->Delete();
-    rgbaToRgb->Delete();
-    writer->Write();
-    writer->Delete();
-#endif
 
     // 4. Render BlurrPass1 to BlurrPass2 while applying vertical blur
     if (this->BlurPass2 == nullptr)
@@ -431,11 +326,6 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
       this->UpscaleProgram->Program, this->UpscaleProgram->VAO);
 
     this->BlurPass2->Deactivate();
-
-#ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    std::cout << "outline finish4" << endl;
-    glFinish();
-#endif
   }
   else
   {

@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkSobelGradientMagnitudePass.h"
-#include "vtkObjectFactory.h"
-#include <cassert>
 
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -16,24 +16,11 @@
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 
-#include "vtkOpenGLHelper.h"
-
-// to be able to dump intermediate passes into png files for debugging.
-// only for vtkSobelGradientMagnitudePass developers.
-// #define VTK_SOBEL_PASS_DEBUG
-
-#ifdef VTK_SOBEL_BLUR_PASS_DEBUG
-#include "vtkImageExtractComponents.h"
-#include "vtkImageImport.h"
-#include "vtkPNGWriter.h"
-#include "vtkPixelBufferObject.h"
-#endif
-
 #include "vtkSobelGradientMagnitudePass1FS.h"
 #include "vtkSobelGradientMagnitudePass2FS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
-#include <iostream>
+#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
@@ -144,47 +131,6 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   ostate->PushFramebufferBindings();
   this->RenderDelegate(s, width, height, w, h, this->FrameBufferObject, this->Pass1);
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  // Save first pass in file for debugging.
-  vtkPixelBufferObject* pbo = this->Pass1->Download();
-
-  unsigned char* openglRawData = new unsigned char[4 * w * h];
-  unsigned int dims[2];
-  dims[0] = w;
-  dims[1] = h;
-  vtkIdType incs[2];
-  incs[0] = 0;
-  incs[1] = 0;
-  bool status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-  assert("check" && status);
-  pbo->Delete();
-
-  // no pbo
-  this->Pass1->Bind();
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, openglRawData);
-  this->Pass1->UnBind();
-
-  vtkImageImport* importer = vtkImageImport::New();
-  importer->CopyImportVoidPointer(openglRawData, 4 * w * h * sizeof(unsigned char));
-  importer->SetDataScalarTypeToUnsignedChar();
-  importer->SetNumberOfScalarComponents(4);
-  importer->SetWholeExtent(0, w - 1, 0, h - 1, 0, 0);
-  importer->SetDataExtentToWholeExtent();
-  delete[] openglRawData;
-
-  vtkImageExtractComponents* rgbaToRgb = vtkImageExtractComponents::New();
-  rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-  rgbaToRgb->SetComponents(0, 1, 2);
-
-  vtkPNGWriter* writer = vtkPNGWriter::New();
-  writer->SetFileName("SobelPass1.png");
-  writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-  importer->Delete();
-  rgbaToRgb->Delete();
-  writer->Write();
-  writer->Delete();
-#endif
-
   // 3. Same FBO, but two color attachments (new TOs gx1 and gy1).
 
   if (this->Gx1 == nullptr)
@@ -210,21 +156,12 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   {
     this->Gy1->Create2D(w, h, 4, VTK_UNSIGNED_CHAR, false);
   }
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "gx1 TOid=" << this->Gx1->GetHandle() << endl;
-  std::cout << "gy1 TOid=" << this->Gy1->GetHandle() << endl;
-#endif
   this->FrameBufferObject->AddColorAttachment(0, this->Gx1);
   this->FrameBufferObject->AddColorAttachment(1, this->Gy1);
   unsigned int indices[2] = { 0, 1 };
   this->FrameBufferObject->ActivateDrawBuffers(indices, 2);
 
   this->FrameBufferObject->Start(w, h);
-
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish2" << endl;
-  glFinish();
-#endif
 
   // Use the horizontal shader to compute the first pass of Gx and Gy.
   // this->Pass1 is the source
@@ -258,11 +195,6 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
     context->GetShaderCache()->ReadyShaderProgram(this->Program1->Program);
   }
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish build 1" << endl;
-  glFinish();
-#endif
-
   if (!this->Program1->Program || !this->Program1->Program->GetCompiled())
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
@@ -282,77 +214,10 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   float fvalue = static_cast<float>(1.0 / w);
   this->Program1->Program->SetUniformf("stepSize", fvalue);
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish3-" << endl;
-  glFinish();
-#endif
-
   this->FrameBufferObject->RenderQuad(
     0, w - 1, 0, h - 1, this->Program1->Program, this->Program1->VAO);
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish3" << endl;
-  glFinish();
-#endif
-
   this->Pass1->Deactivate();
-
-#ifdef VTK_SOBEL_PASS_DEBUG
-
-  // Save second pass in file for debugging.
-  pbo = this->Gx1->Download();
-  openglRawData = new unsigned char[4 * w * h];
-  status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-  assert("check2" && status);
-  pbo->Delete();
-
-  importer = vtkImageImport::New();
-  importer->CopyImportVoidPointer(openglRawData, 4 * w * h * sizeof(unsigned char));
-  importer->SetDataScalarTypeToUnsignedChar();
-  importer->SetNumberOfScalarComponents(4);
-  importer->SetWholeExtent(0, w - 1, 0, h - 1, 0, 0);
-  importer->SetDataExtentToWholeExtent();
-  delete[] openglRawData;
-
-  rgbaToRgb = vtkImageExtractComponents::New();
-  rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-  rgbaToRgb->SetComponents(0, 1, 2);
-
-  writer = vtkPNGWriter::New();
-  writer->SetFileName("SobelPass2Gx1.png");
-  writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-  importer->Delete();
-  rgbaToRgb->Delete();
-  writer->Write();
-  writer->Delete();
-
-  pbo = this->Gy1->Download();
-  openglRawData = new unsigned char[4 * w * h];
-  status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-  assert("check3" && status);
-  pbo->Delete();
-
-  importer = vtkImageImport::New();
-  importer->CopyImportVoidPointer(openglRawData, 4 * w * h * sizeof(unsigned char));
-  importer->SetDataScalarTypeToUnsignedChar();
-  importer->SetNumberOfScalarComponents(4);
-  importer->SetWholeExtent(0, w - 1, 0, h - 1, 0, 0);
-  importer->SetDataExtentToWholeExtent();
-  delete[] openglRawData;
-
-  rgbaToRgb = vtkImageExtractComponents::New();
-  rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-  rgbaToRgb->SetComponents(0, 1, 2);
-
-  writer = vtkPNGWriter::New();
-  writer->SetFileName("SobelPass2Gy1.png");
-  writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-  importer->Delete();
-  rgbaToRgb->Delete();
-  writer->Write();
-  writer->Delete();
-
-#endif
 
   // 4. Render in original FB (from renderstate in arg)
 
@@ -387,22 +252,12 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
     context->GetShaderCache()->ReadyShaderProgram(this->Program2->Program);
   }
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish build 2" << endl;
-  glFinish();
-#endif
-
   if (!this->Program2->Program || !this->Program2->Program->GetCompiled())
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
                   "shader or a driver bug.");
     return;
   }
-
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish build 2" << endl;
-  glFinish();
-#endif
 
   // this->Gx1 and this->Gy1 are the sources
   this->Gx1->Activate();
@@ -421,16 +276,6 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   fvalue = static_cast<float>(1.0 / h);
   this->Program2->Program->SetUniformf("stepSize", fvalue);
 
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish use 2" << endl;
-  glFinish();
-#endif
-
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish 4-" << endl;
-  glFinish();
-#endif
-
   // Prepare blitting
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_DEPTH_TEST);
@@ -442,11 +287,6 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
 
   this->Gy1->Deactivate();
   this->Gx1->Deactivate();
-
-#ifdef VTK_SOBEL_PASS_DEBUG
-  std::cout << "sobel finish4" << endl;
-  glFinish();
-#endif
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
