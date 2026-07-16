@@ -272,8 +272,6 @@ struct GBCToHSLWorker
     auto gbc = vtk::DataArrayTupleRange(gbcScalars);
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
 
-    vtkIdType nComponents = gbc.GetTupleSize();
-
     vtkIdType nTuples = gbc.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
@@ -307,8 +305,6 @@ struct HSLToRGBWorker
   {
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
-
-    vtkIdType nComponents = hsl.GetTupleSize();
 
     vtkIdType nTuples = hsl.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
@@ -400,8 +396,6 @@ struct ComputeLensAlphaWorker
   {
     auto gbc = vtk::DataArrayTupleRange(gbcScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
-
-    vtkIdType nComponents = gbc.GetTupleSize();
 
     vtkIdType nTuples = gbc.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
