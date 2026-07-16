@@ -37,6 +37,11 @@ Less common, but variables which may be of interest to some:
     The version of Java in which VTK's Java wrapping will be built for.
   * `VTK_WRAP_SERIALIZATION` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
     Whether serialization code will be auto generated or not.
+  * `VTK_BUILD_TYPES_JSON` (default `OFF`; requires `VTK_WRAP_SERIALIZATION`):
+    Whether to emit a per-class JSON type manifest (`<Class>.json`) describing
+    the serialized properties and methods, for language-agnostic API bindings.
+    Installed to `share/vtk*/types`. Off by default; default builds emit no
+    manifests and incur no extra parse. See [](/advanced/json_type_manifests.md).
   * `VTK_BUILD_MAVEN_PKG` (default `OFF`; requires `VTK_WRAP_JAVA`):
     Whether to build the Java Maven package for VTK.
   * `VTK_SMP_IMPLEMENTATION_TYPE` (default `Sequential`): Set which SMPTools

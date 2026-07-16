@@ -280,6 +280,8 @@ static int parse_check_options(int argc, char* argv[], int multi)
   options.HintFileNames = NULL;
   options.DumpMacros = 0;
   options.DependencyFileName = NULL;
+  options.EmitTypesJsonDir = NULL;
+  options.TypesJsonWordSize = (int)sizeof(void*); /* default to host width */
   options.WarningFlags.Empty = 0;
 
   for (i = 1; i < argc; i++)
@@ -418,6 +420,24 @@ static int parse_check_options(int argc, char* argv[], int multi)
       }
       options.HierarchyFileNames[options.NumberOfHierarchyFileNames++] = argv[i];
     }
+    else if (!multi && strcmp(argv[i], "--emit-types-json") == 0)
+    {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+      {
+        return -1;
+      }
+      options.EmitTypesJsonDir = argv[i];
+    }
+    else if (!multi && strcmp(argv[i], "--emit-types-json-wordsize") == 0)
+    {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+      {
+        return -1;
+      }
+      options.TypesJsonWordSize = (int)strtol(argv[i], NULL, 10);
+    }
   }
 
   return i;
@@ -433,6 +453,7 @@ static void parse_free_options(void)
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
   options.DependencyFileName = NULL;
+  options.EmitTypesJsonDir = NULL;
 
   free(options.HintFileNames);
   options.HintFileNames = NULL;

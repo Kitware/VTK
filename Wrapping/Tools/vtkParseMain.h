@@ -15,6 +15,10 @@
  --version         print the VTK version number and exit
  --hints <file>    hints file
  --types <file>    type hierarchy file
+ --emit-types-json <dir>  also write per-class JSON type manifests to <dir>
+                          (vtkWrapSerDes only)
+ --emit-types-json-wordsize <n>  target pointer size in bytes (4 or 8) used to
+                          bake word-width types (long, size_t) in the manifests
 
  Notes:
 
@@ -61,6 +65,8 @@ typedef struct OptionInfo_
   char** HierarchyFileNames;      /* the file preceded by "--types" */
   int DumpMacros;                 /* dump macros to output */
   char* DependencyFileName;       /* dependency tracking output file */
+  char* EmitTypesJsonDir;         /* dir for "--emit-types-json" JSON manifests */
+  int TypesJsonWordSize;          /* target pointer size (bytes) for word-width types */
 
   Warnings WarningFlags; /* warning flags */
 } OptionInfo;

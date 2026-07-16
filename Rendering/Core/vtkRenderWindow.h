@@ -137,6 +137,7 @@ public:
   /**
    * Start the rendering process for a frame
    */
+  VTK_MAYSUSPEND
   virtual void Start() {}
 
   /**
@@ -149,6 +150,7 @@ public:
    * The responsibility to set the Initialized boolean to true is
    * left to the subclass.
    */
+  VTK_MAYSUSPEND
   virtual void Initialize() {}
 
   ///@{
@@ -167,12 +169,14 @@ public:
    * A termination method performed at the end of the rendering process
    * to do things like swapping buffers (if necessary) or similar actions.
    */
+  VTK_MAYSUSPEND
   virtual void Frame() {}
 
   /**
    * Block the thread until the actual rendering is finished().
    * Useful for measurement only.
    */
+  VTK_MAYSUSPEND
   virtual void WaitForCompletion() {}
 
   /**
@@ -416,6 +420,7 @@ public:
   {
     return nullptr;
   }
+  VTK_MAYSUSPEND
   virtual int GetRGBAPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
     vtkFloatArray* /*data*/, int /*right*/ = 0)
   {
@@ -437,6 +442,7 @@ public:
   {
     return nullptr;
   }
+  VTK_MAYSUSPEND
   virtual int GetRGBACharPixelData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, int /*front*/,
     vtkUnsignedCharArray* /*data*/, int /*right*/ = 0)
   {
@@ -465,6 +471,7 @@ public:
   {
     return 0;
   }
+  VTK_MAYSUSPEND
   virtual int GetZbufferData(int /*x*/, int /*y*/, int /*x2*/, int /*y2*/, vtkFloatArray* /*z*/)
   {
     return 0;

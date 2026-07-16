@@ -166,6 +166,7 @@ public:
    * Get the Ids data from the last render.
    */
   vtkTypeUInt32* GetIdsData(int x1, int y1, int x2, int y2);
+  VTK_MAYSUSPEND
   void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32Array* data);
   ///@}
 
@@ -201,6 +202,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  VTK_MAYSUSPEND
   void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
   vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
 

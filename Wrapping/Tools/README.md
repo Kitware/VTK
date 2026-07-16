@@ -169,6 +169,12 @@ This generates C++ code to serialize a VTK object into json and deserialize
 the object back from json. This relies upon the property parser from
 `vtkParseProperties`
 
+With the `--emit-types-json <dir>` option (enabled by the `VTK_BUILD_TYPES_JSON`
+build option), it also writes a per-class JSON type manifest describing the
+marshalled properties and methods, used to generate TypeScript definitions for
+the WebAssembly object proxy. See the "JSON type manifests" page in the
+Documentation for the schema.
+
 ## Rebuilding the Parser
 
 The code for the C++ parser is generated from the files vtkParse.l and

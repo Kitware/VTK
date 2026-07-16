@@ -150,6 +150,7 @@ public:
    *       milliseconds by calling SetTimeout().
    * @sa SetTimeout(), GetTimeout()
    */
+  VTK_MAYSUSPEND
   bool Initialize();
 
   /**
@@ -185,6 +186,7 @@ public:
    *       `-sJSPI=1` for `emscripten_sleep` to yield to the browsers run loop for processing
    *       webgpu callbacks.
    */
+  VTK_MAYSUSPEND
   void ProcessEvents();
 
   /**

@@ -198,6 +198,7 @@ struct FunctionInfo_
   int IsOverride;        /* methods only */
   int IsMarshalExcluded; /* methods only */
   int IsUnblockThreads;  /* hint to unlock Python GIL before calling */
+  int IsMaySuspend;      /* hint that method may suspend, wrap as async */
   int IsExplicit;        /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int NumberOfArguments;            /* legacy */

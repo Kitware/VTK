@@ -46,11 +46,8 @@ object_manager.InitializeExtensionModuleHandler(vtkInteractionWidgets.RegisterCl
 
 ### Serialization of addon in WASM
 
-In WASM, you will need to create two directories that resemble this tree. In this illustration, we wish to
+In WASM, you will need to create a directory that resembles this tree. In this illustration, we wish to
 (de)serialize classes from the `Bar` and `Foo` modules in WASM using `vtkRemoteSession` or `vtkStandaloneSession`.
-
-The `WebAssemblyAsync` module is optional. You can leave it out if you are not interested in having WebGPU support.
-
 
 ```sh
 - Bar
@@ -60,9 +57,6 @@ The `WebAssemblyAsync` module is optional. You can leave it out if you are not i
  |- ...
  |- vtk.module
 - WebAssembly
- |- vtk.module
- |- CMakeLists.txt
-- WebAssemblyAsync
  |- vtk.module
  |- CMakeLists.txt
 ```
@@ -84,7 +78,12 @@ OPTIONAL_DEPENDS
   VTK::RenderingOpenGL2
   VTK::RenderingUI
   VTK::RenderingVolumeOpenGL2
+  VTK::RenderingWebGPU
 ```
+
+`VTK::RenderingWebGPU` is optional; drop it if you do not need WebGPU support.
+A single `vtkWebAssembly.wasm` binary now exposes both the synchronous and
+asynchronous sessions, so no separate async module is required.
 
 Build the module in the `WebAssembly/CMakeLists.txt`
 
@@ -101,24 +100,3 @@ vtk_module_add_serdes_wasm_package(
 ```
 
 Finally, ensure the `WebAssembly/vtk.module` is passed to `vtk_module_build` in your project's root `CMakeLists.txt`
-
-If you are interested in WebGPU support, declare your dependencies in `WebAssemblyAsync/vtk.module` and repeat similar steps
-as in the non-async section using the new module names.
-
-```sh
-NAME
-  FooBar::WebAssemblyAsync
-LIBRARY_NAME
-  fooBarWebAssemblyAsync
-PRIVATE_DEPENDS
-  VTK::SerializationManager
-  VTK::WebAssemblySession
-OPTIONAL_DEPENDS
-  FooBar::Foo
-  FooBar::Bar
-  VTK::RenderingContextOpenGL2
-  VTK::RenderingOpenGL2
-  VTK::RenderingUI
-  VTK::RenderingVolumeOpenGL2
-  VTK::RenderingWebGPU
-```

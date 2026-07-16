@@ -7,6 +7,12 @@
 
 #include <stdio.h>
 
+/* Returns nonzero if the property can be serialized and later deserialized.
+   Exposed so the JSON type-manifest emitter (vtkWrapJsonClass) selects exactly
+   the same properties that the serializer marshals. */
+int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const ClassInfo* classInfo,
+  const FunctionInfo* functionInfo, const PropertyInfo* propertyInfo, const char** reason);
+
 int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   const HierarchyInfo* hinfo, const FunctionInfo* functionInfo, unsigned int methodType,
   const PropertyInfo* propertyInfo);

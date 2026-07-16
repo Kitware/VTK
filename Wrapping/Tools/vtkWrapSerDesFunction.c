@@ -132,7 +132,7 @@ static int vtkWrapSerDes_CanMarshalValue(
   return isAllowed;
 }
 
-static int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const ClassInfo* classInfo,
+int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const ClassInfo* classInfo,
   const HierarchyInfo* hinfo, const char** rejectReason, int* rejectedParameterId)
 {
   *rejectedParameterId = -1;
