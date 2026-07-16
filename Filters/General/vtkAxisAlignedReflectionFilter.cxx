@@ -9,6 +9,9 @@
 #include "vtkDataArray.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
+#include "vtkDataObjectMeshCache.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -19,6 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMeshCacheRunner.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -27,6 +31,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkReflectionUtilities.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformHyperTreeGrid.h"
@@ -58,7 +63,21 @@ void RemoveGlobalIds(vtkDataObject* dataObj)
     cd->RemoveArray(cd->GetGlobalIds()->GetName());
   }
 }
+
+const std::string ROOT_NODE_NAME = "Root";
+const std::string INPUT_NODE_NAME = "Input";
+const std::string REFLECT_NODE_NAME = "Reflection";
+
 } // anonymous namespace
+
+//------------------------------------------------------------------------------
+vtkAxisAlignedReflectionFilter::vtkAxisAlignedReflectionFilter()
+{
+  this->MeshCache->SetConsumer(this);
+}
+
+//------------------------------------------------------------------------------
+vtkAxisAlignedReflectionFilter::~vtkAxisAlignedReflectionFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkAxisAlignedReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
@@ -96,17 +115,18 @@ bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection*
     }
     inputAssembly->DeepCopy(tempPDC->GetDataAssembly());
   }
-  inputAssembly->SetRootNodeName("Input");
-  inputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Input");
+  inputAssembly->SetRootNodeName(::INPUT_NODE_NAME.c_str());
+  inputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::INPUT_NODE_NAME.c_str());
   // create a reflection assembly
   vtkNew<vtkDataAssembly> reflectionAssembly;
   reflectionAssembly->DeepCopy(inputAssembly);
-  reflectionAssembly->SetRootNodeName("Reflection");
-  reflectionAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Reflection");
+  reflectionAssembly->SetRootNodeName(::REFLECT_NODE_NAME.c_str());
+  reflectionAssembly->SetAttribute(
+    vtkDataAssembly::GetRootNode(), "label", ::REFLECT_NODE_NAME.c_str());
   // create the output data assembly using the input assembly optionally and reflection assembly.
   auto outputAssembly = outputPDC->GetDataAssembly();
-  outputAssembly->SetRootNodeName("Root");
-  outputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Root");
+  outputAssembly->SetRootNodeName(::ROOT_NODE_NAME.c_str());
+  outputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::ROOT_NODE_NAME.c_str());
   // append input assembly to output assembly if requested.
   if (this->CopyInput)
   {
@@ -155,10 +175,10 @@ bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection*
     // change vtkCompositeDataSet::NAME() to indicate that this is the input/reflection
     if (this->CopyInput)
     {
-      auto inputName = "Input_" + name;
+      auto inputName = ::INPUT_NODE_NAME + "_" + name;
       outputPDC->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), inputName);
     }
-    auto reflectionName = "Reflection_" + name;
+    auto reflectionName = ::REFLECT_NODE_NAME + "_" + name;
     outputPDC->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), reflectionName.c_str());
   }
   return true;
@@ -221,30 +241,96 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   vtkPartitionedDataSetCollection* outputPDSC =
     vtkPartitionedDataSetCollection::GetData(outputVector, 0);
 
-  vtkNew<vtkDataAssembly> outputHierarchy;
-  outputPDSC->SetDataAssembly(outputHierarchy);
-  outputHierarchy->SetRootNodeName("Root");
+  vtkDataObject* input = vtkDataObject::GetData(inputVector[0]);
+
+  double bounds[6];
+  this->ComputeBounds(input, bounds);
 
   vtkDataSet* inputDS = vtkDataSet::GetData(inputVector[0], 0);
   vtkHyperTreeGrid* inputHtg = vtkHyperTreeGrid::GetData(inputVector[0], 0);
-  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkDataObjectTree* inputTree = vtkDataObjectTree::GetData(inputVector[0], 0);
+
+  if (inputHtg)
+  {
+    // Cache is not available for HTG
+    this->MeshCache->InvalidateCache();
+  }
+
+  vtkMeshCacheRunner cacheRunner{ this->MeshCache, input, outputPDSC, false };
+  if (cacheRunner.GetCacheLoaded())
+  {
+    int mirrorDir[3] = { 1, 1, 1 };
+    int mirrorSymmetricTensorDir[6] = { 1, 1, 1, 1, 1, 1 };
+    int mirrorTensorDir[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+    if (!this->GetMirrorValues(bounds, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir))
+    {
+      return false;
+    }
+
+    // output dataset ids to update
+    const std::string reflectPath =
+      std::string("/") + ::ROOT_NODE_NAME + std::string("/") + ::REFLECT_NODE_NAME;
+    auto assembly = outputPDSC->GetDataAssembly();
+    auto selectedNodes = assembly->SelectNodes({ reflectPath });
+    std::set<unsigned int> dataSetIds;
+    for (auto nodeid : selectedNodes)
+    {
+      const auto datasets = assembly->GetDataSetIndices(nodeid);
+      dataSetIds.insert(datasets.begin(), datasets.end());
+    }
+
+    if (inputDS)
+    {
+      auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(*dataSetIds.begin(), 0));
+      vtkReflectionUtilities::CopyAndReflect(inputDS->GetPointData(), outLeaf->GetPointData(),
+        mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+      vtkReflectionUtilities::CopyAndReflect(inputDS->GetCellData(), outLeaf->GetCellData(),
+        mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+      if (this->CopyInput)
+      {
+        ::RemoveGlobalIds(outLeaf);
+      }
+    }
+    else if (inputTree)
+    {
+      for (const auto id : dataSetIds)
+      {
+        auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(id, 0));
+        int inputId = this->CopyInput ? id - inputTree->GetNumberOfChildren() : id;
+        auto inLeaf = vtkDataSet::SafeDownCast(inputTree->GetChild(inputId));
+
+        vtkReflectionUtilities::CopyAndReflect(inLeaf->GetPointData(), outLeaf->GetPointData(),
+          mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+        vtkReflectionUtilities::CopyAndReflect(inLeaf->GetCellData(), outLeaf->GetCellData(),
+          mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+
+        if (this->CopyInput)
+        {
+          ::RemoveGlobalIds(outLeaf);
+        }
+      }
+    }
+
+    return 1;
+  }
+
+  vtkNew<vtkDataAssembly> outputHierarchy;
+  outputPDSC->SetDataAssembly(outputHierarchy);
+  outputHierarchy->SetRootNodeName(::ROOT_NODE_NAME.c_str());
 
   if (inputDS || inputHtg)
   {
     vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
-    double bounds[6];
-    this->ComputeBounds(inputDO, bounds);
     if (!this->ProcessDO(inputDO, outputPDSC, bounds))
     {
       vtkErrorMacro("Failed to process data object " << inputDO->GetClassName());
       return 0;
     }
   }
-  else if (inputCD)
+  else if (inputTree)
   {
-    double bounds[6];
-    this->ComputeBounds(inputCD, bounds);
-    if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputCD))
+    if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputTree))
     {
       if (!this->ProcessPDC(inputPDC, outputPDSC, bounds))
       {
@@ -252,7 +338,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
         return 0;
       }
     }
-    else if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputCD))
+    else if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputTree))
     {
       if (!this->ProcessMB(inputMB, outputPDSC, bounds))
       {
@@ -260,7 +346,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
         return 0;
       }
     }
-    else if (auto inputPDS = vtkPartitionedDataSet::SafeDownCast(inputCD))
+    else if (auto inputPDS = vtkPartitionedDataSet::SafeDownCast(inputTree))
     {
       if (!this->ProcessPDS(inputPDS, outputPDSC, bounds))
       {
@@ -270,7 +356,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     }
     else
     {
-      vtkErrorMacro("Unhandled composite dataset: " << inputCD->GetClassName());
+      vtkErrorMacro("Unhandled composite dataset: " << inputTree->GetClassName());
       return 0;
     }
   }
@@ -281,6 +367,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     return 0;
   }
 
+  cacheRunner.UpdateCache();
   return 1;
 }
 
@@ -405,7 +492,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   output->SetExtent(input->GetExtent());
 
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
@@ -435,7 +522,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   output->SetPoints(outPoints);
 
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkSmartPointer<vtkCellArray> outCells = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> outCells;
   outCells->UseFixedSize64BitStorage(8);
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
@@ -450,7 +537,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   vtkNew<vtkIdList> cellPts;
   for (vtkIdType i = 0; i < numCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -479,7 +566,7 @@ void vtkAxisAlignedReflectionFilter::ProcessStructuredGrid(vtkStructuredGrid* in
   output->SetExtent(input->GetExtent());
 
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
 
@@ -493,7 +580,7 @@ void vtkAxisAlignedReflectionFilter::ProcessStructuredGrid(vtkStructuredGrid* in
 
   for (vtkIdType i = numPts - 1; i >= 0; i--)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -519,16 +606,16 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
 
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> outPoints;
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
 
-  vtkSmartPointer<vtkCellArray> outVerts = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outLines = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outPolys = vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkCellArray> outStrips = vtkSmartPointer<vtkCellArray>::New();
+  vtkNew<vtkCellArray> outVerts;
+  vtkNew<vtkCellArray> outLines;
+  vtkNew<vtkCellArray> outPolys;
+  vtkNew<vtkCellArray> outStrips;
   outVerts->AllocateExact(
     input->GetNumberOfVerts(), input->GetVerts()->GetNumberOfConnectivityIds());
   outLines->AllocateExact(
@@ -539,37 +626,26 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
     input->GetNumberOfStrips(), input->GetStrips()->GetNumberOfConnectivityIds());
 
   outPoints->Reserve(numPts);
-  outPD->CopyAllOn();
-  outPD->CopyAllocate(inPD);
-  outCD->CopyAllOn();
-  outCD->CopyAllocate(inCD);
-
-  std::vector<std::pair<vtkIdType, int>> reflectableArrays;
-  vtkReflectionUtilities::FindAllReflectableArrays(
-    reflectableArrays, inPD, this->ReflectAllInputArrays);
-
   for (vtkIdType i = 0; i < numPts; i++)
   {
     double point[3];
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
     input->GetPoint(i, point);
-    vtkIdType ptId = outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
+    outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
       mirrorDir[1] * point[1] + constant[1], mirrorDir[2] * point[2] + constant[2]);
-    outPD->CopyData(inPD, i, ptId);
-
-    vtkReflectionUtilities::ReflectReflectableArrays(reflectableArrays, inPD, outPD, i, mirrorDir,
-      mirrorSymmetricTensorDir, mirrorTensorDir, ptId);
   }
-
   output->SetPoints(outPoints);
+
+  vtkReflectionUtilities::CopyAndReflect(
+    inPD, outPD, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
 
   vtkNew<vtkIdList> cellPts;
   for (vtkIdType i = 0; i < numCells; i++)
   {
-    if (this->CheckAbort())
+    if (i % 1000 == 0 && this->CheckAbort())
     {
       break;
     }
@@ -577,7 +653,6 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
     int cellType = input->GetCellType(i);
     input->GetCellPoints(i, cellPts);
     int numCellPts = cellPts->GetNumberOfIds();
-    vtkIdType newCellId;
 
     if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
     {
@@ -596,7 +671,7 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       {
         newCellPts[j] = cellPts->GetId(j - 1) + pointIdOffset;
       }
-      newCellId = outStrips->InsertNextCell(numCellPts, newCellPts.data());
+      outStrips->InsertNextCell(numCellPts, newCellPts.data());
     }
     else
     {
@@ -619,21 +694,20 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       {
         case VTK_VERTEX:
         case VTK_POLY_VERTEX:
-          newCellId = outVerts->InsertNextCell(numCellPts, newCellPts.data());
+          outVerts->InsertNextCell(numCellPts, newCellPts.data());
           break;
         case VTK_LINE:
         case VTK_POLY_LINE:
-          newCellId = outLines->InsertNextCell(numCellPts, newCellPts.data());
+          outLines->InsertNextCell(numCellPts, newCellPts.data());
           break;
         case VTK_TRIANGLE_STRIP:
-          newCellId = outStrips->InsertNextCell(numCellPts, newCellPts.data());
+          outStrips->InsertNextCell(numCellPts, newCellPts.data());
           break;
         default:
-          newCellId = outPolys->InsertNextCell(numCellPts, newCellPts.data());
+          outPolys->InsertNextCell(numCellPts, newCellPts.data());
           break;
       }
     }
-    outCD->CopyData(inCD, i, newCellId);
   }
 
   output->SetVerts(outVerts);
@@ -641,15 +715,8 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   output->SetPolys(outPolys);
   output->SetStrips(outStrips);
 
-  reflectableArrays.clear();
-  vtkReflectionUtilities::FindAllReflectableArrays(
-    reflectableArrays, inCD, this->ReflectAllInputArrays);
-
-  for (vtkIdType i = 0; i < numCells; i++)
-  {
-    vtkReflectionUtilities::ReflectReflectableArrays(
-      reflectableArrays, inCD, outCD, i, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, i);
-  }
+  vtkReflectionUtilities::CopyAndReflect(
+    inCD, outCD, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
 }
 
 //------------------------------------------------------------------------------
@@ -790,7 +857,7 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
 
     // Create array for reflected coordinates
     ++size;
-    vtkDoubleArray* outCoords = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outCoords;
     outCoords->SetNumberOfTuples(size);
 
     // Reflect point coordinate
@@ -813,9 +880,6 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
       case 2:
         output->SetZCoordinates(outCoords);
     } // switch ( direction )
-
-    // Clean up
-    outCoords->Delete();
   }
 
   // Retrieve interface arrays if available
@@ -834,19 +898,16 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
     }
   }
 
-  // Create arrays for reflected interface if present
-  vtkDoubleArray* outNormals = nullptr;
-  vtkDoubleArray* outIntercepts = nullptr;
   if (hasInterface)
   {
     vtkIdType nTuples = inNormals->GetNumberOfTuples();
-    outNormals = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outNormals;
     outNormals->SetNumberOfComponents(3);
     outNormals->SetNumberOfTuples(nTuples);
     outNormals->SetName("outNormals");
     output->SetInterfaceNormalsName(outNormals->GetName());
 
-    outIntercepts = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> outIntercepts;
     outIntercepts->SetNumberOfComponents(3);
     outIntercepts->SetNumberOfTuples(nTuples);
     outIntercepts->SetName("outIntercepts");
@@ -877,18 +938,11 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
       }
 
       outIntercepts->SetTuple3(i, inter[0], inter[1], inter[2]);
-    } // i
+    }
 
     // Assign new interface arrays if available
     outCD->SetVectors(outNormals);
     outCD->AddArray(outIntercepts);
-  } // if ( hasInterface )
-
-  // Clean up
-  if (hasInterface)
-  {
-    outNormals->Delete();
-    outIntercepts->Delete();
   }
 
   // Update HTGs scale
@@ -911,78 +965,60 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
 }
 
 //------------------------------------------------------------------------------
-bool vtkAxisAlignedReflectionFilter::ProcessLeaf(
-  vtkDataObject* inputDataObject, vtkDataObject* outputDataObject, double bounds[6])
+bool vtkAxisAlignedReflectionFilter::GetMirrorValues(
+  double bounds[6], int mirrorDir[3], int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9])
 {
-  double constant[3] = { 0.0, 0.0, 0.0 };
-  int mirrorDir[3] = { 1, 1, 1 };
-  int mirrorSymmetricTensorDir[6] = { 1, 1, 1, 1, 1, 1 };
-  int mirrorTensorDir[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-
-  if (this->PlaneMode == PLANE)
+  switch (this->PlaneMode)
   {
-    if (!this->ReflectionPlane->GetAxisAligned())
+    case PLANE:
     {
-      vtkErrorMacro("Unable to retrieve valid axis-aligned implicit function to reflect with.");
-      return false;
+      if (!this->ReflectionPlane->GetAxisAligned())
+      {
+        vtkErrorMacro("Unable to retrieve valid axis-aligned implicit function to reflect with.");
+        return false;
+      }
+      double* normal = this->ReflectionPlane->GetNormal();
+      double* origin = this->ReflectionPlane->GetOrigin();
+      double offset = this->ReflectionPlane->GetOffset();
+      this->PlaneAxisInternal = X_PLANE;
+      if (normal[1] > normal[0])
+      {
+        this->PlaneAxisInternal = Y_PLANE;
+      }
+      if (normal[2] > normal[0])
+      {
+        this->PlaneAxisInternal = Z_PLANE;
+      }
+      this->PlaneOriginInternal[0] = origin[0] + offset;
+      this->PlaneOriginInternal[1] = origin[1] + offset;
+      this->PlaneOriginInternal[2] = origin[2] + offset;
     }
-    double* normal = this->ReflectionPlane->GetNormal();
-    double* origin = this->ReflectionPlane->GetOrigin();
-    double offset = this->ReflectionPlane->GetOffset();
-    this->PlaneAxisInternal = X_PLANE;
-    if (normal[1] > normal[0])
-    {
+    break;
+    case X_MIN:
+      this->PlaneAxisInternal = X_PLANE;
+      this->PlaneOriginInternal[0] = bounds[0];
+      break;
+    case Y_MIN:
       this->PlaneAxisInternal = Y_PLANE;
-    }
-    if (normal[2] > normal[0])
-    {
+      this->PlaneOriginInternal[1] = bounds[2];
+      break;
+    case Z_MIN:
       this->PlaneAxisInternal = Z_PLANE;
-    }
-    this->PlaneOriginInternal[0] = origin[0] + offset;
-    this->PlaneOriginInternal[1] = origin[1] + offset;
-    this->PlaneOriginInternal[2] = origin[2] + offset;
-  }
-  else
-  {
-    switch (this->PlaneMode)
-    {
-      case X_MIN:
-        this->PlaneAxisInternal = X_PLANE;
-        this->PlaneOriginInternal[0] = bounds[0];
-        break;
-      case Y_MIN:
-        this->PlaneAxisInternal = Y_PLANE;
-        this->PlaneOriginInternal[1] = bounds[2];
-        break;
-      case Z_MIN:
-        this->PlaneAxisInternal = Z_PLANE;
-        this->PlaneOriginInternal[2] = bounds[4];
-        break;
-      case X_MAX:
-        this->PlaneAxisInternal = X_PLANE;
-        this->PlaneOriginInternal[0] = bounds[1];
-        break;
-      case Y_MAX:
-        this->PlaneAxisInternal = Y_PLANE;
-        this->PlaneOriginInternal[1] = bounds[3];
-        break;
-      case Z_MAX:
-        this->PlaneAxisInternal = Z_PLANE;
-        this->PlaneOriginInternal[2] = bounds[5];
-        break;
-    }
-  }
-
-  switch (this->PlaneAxisInternal)
-  {
-    case X_PLANE:
-      constant[0] = 2 * this->PlaneOriginInternal[0];
+      this->PlaneOriginInternal[2] = bounds[4];
       break;
-    case Y_PLANE:
-      constant[1] = 2 * this->PlaneOriginInternal[1];
+    case X_MAX:
+      this->PlaneAxisInternal = X_PLANE;
+      this->PlaneOriginInternal[0] = bounds[1];
       break;
-    case Z_PLANE:
-      constant[2] = 2 * this->PlaneOriginInternal[2];
+    case Y_MAX:
+      this->PlaneAxisInternal = Y_PLANE;
+      this->PlaneOriginInternal[1] = bounds[3];
+      break;
+    case Z_MAX:
+      this->PlaneAxisInternal = Z_PLANE;
+      this->PlaneOriginInternal[2] = bounds[5];
+      break;
+    default:
       break;
   }
 
@@ -1005,6 +1041,36 @@ bool vtkAxisAlignedReflectionFilter::ProcessLeaf(
       break;
   }
   vtkMath::TensorFromSymmetricTensor(mirrorSymmetricTensorDir, mirrorTensorDir);
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAxisAlignedReflectionFilter::ProcessLeaf(
+  vtkDataObject* inputDataObject, vtkDataObject* outputDataObject, double bounds[6])
+{
+  int mirrorDir[3] = { 1, 1, 1 };
+  int mirrorSymmetricTensorDir[6] = { 1, 1, 1, 1, 1, 1 };
+  int mirrorTensorDir[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+  if (!this->GetMirrorValues(bounds, mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir))
+  {
+    return false;
+  }
+
+  double constant[3] = { 0.0, 0.0, 0.0 };
+  switch (this->PlaneAxisInternal)
+  {
+    case X_PLANE:
+      constant[0] = 2 * this->PlaneOriginInternal[0];
+      break;
+    case Y_PLANE:
+      constant[1] = 2 * this->PlaneOriginInternal[1];
+      break;
+    case Z_PLANE:
+      constant[2] = 2 * this->PlaneOriginInternal[2];
+      break;
+  }
 
   if (auto ug = vtkUnstructuredGrid::SafeDownCast(inputDataObject))
   {

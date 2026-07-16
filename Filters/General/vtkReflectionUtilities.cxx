@@ -348,11 +348,8 @@ void vtkReflectionUtilities::ProcessUnstructuredGrid(vtkDataSet* input, vtkUnstr
   // Copy first points.
   if (copyInput)
   {
-    for (vtkIdType i = 0; i < numPts; i++)
-    {
-      input->GetPoint(i, point);
-      outPD->CopyData(inPD, i, outPoints->InsertNextPoint(point));
-    }
+    outPD->CopyData(inPD, 0, inPD->GetNumberOfTuples(), 0);
+    outPoints->DeepCopy(input->GetPoints());
   }
 
   std::vector<std::pair<vtkIdType, int>> reflectableArrays;
@@ -891,6 +888,26 @@ void vtkReflectionUtilities::ProcessUnstructuredGrid(vtkDataSet* input, vtkUnstr
 
   output->SetPoints(outPoints);
   output->CheckAttributes();
+}
+
+//------------------------------------------------------------------------------
+void vtkReflectionUtilities::CopyAndReflect(vtkDataSetAttributes* inAttr,
+  vtkDataSetAttributes* outAttr, int mirrorDir[3], int mirrorSymmetricTensorDir[6],
+  int mirrorTensorDir[9], bool reflectAll)
+{
+  vtkIdType numElements = inAttr->GetNumberOfTuples();
+  outAttr->CopyAllOn();
+  outAttr->CopyAllocate(inAttr);
+  outAttr->CopyData(inAttr, 0, numElements, 0);
+
+  std::vector<std::pair<vtkIdType, int>> reflectableArrays;
+  vtkReflectionUtilities::FindAllReflectableArrays(reflectableArrays, inAttr, reflectAll);
+
+  for (vtkIdType i = 0; i < numElements; i++)
+  {
+    vtkReflectionUtilities::ReflectReflectableArrays(reflectableArrays, inAttr, outAttr, i,
+      mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, i);
+  }
 }
 
 VTK_ABI_NAMESPACE_END

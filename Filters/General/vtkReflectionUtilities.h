@@ -10,7 +10,8 @@
 #ifndef vtkReflectionUtilities_h
 #define vtkReflectionUtilities_h
 
-#include "vtkAlgorithm.h"        // for vtkAlgorithm class
+#include "vtkAlgorithm.h" // for vtkAlgorithm class
+#include "vtkDataSetAttributes.h"
 #include "vtkUnstructuredGrid.h" // for vtkUnstructuredGrid class
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -85,6 +86,12 @@ vtkIdType ReflectNon3DCellInternal(vtkDataSet* input, vtkUnstructuredGrid* outpu
 void ProcessUnstructuredGrid(vtkDataSet* input, vtkUnstructuredGrid* output, double constant[3],
   int mirrorDir[3], int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9], bool copyInput,
   bool reflectAllInputArrays, vtkAlgorithm* algorithm);
+
+/**
+ * Copy all arrays and reflect the relevant ones.
+ */
+void CopyAndReflect(vtkDataSetAttributes* inAttr, vtkDataSetAttributes* outAttr, int mirrorDir[3],
+  int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9], bool reflectAll);
 }
 
 VTK_ABI_NAMESPACE_END
