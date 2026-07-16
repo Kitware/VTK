@@ -101,6 +101,8 @@ $endif\
 $if(PATCH == 0)\
   - If `$(PATCH) == 0` Software process updates **these can all be done independently**
     - [ ] Update kwrobot with the new `release` branch rules (@utils/maintainers/ghostflow)
+      - Use the first commit listed by the command:
+      - `git fetch origin; git log --first-parent --reverse origin/master '^origin/release'`
     - [ ] Run [this script][cdash-update-groups] to update the CDash groups
       - This must be done after a nightly run to ensure all builds are in the `release` group
       - See the script itself for usage documentation
