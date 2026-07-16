@@ -63,9 +63,9 @@ struct NormalizeWorker
   NormalizeWorker(const std::vector<int>& indices, vtkMultiProcessController* controller,
     double newMin = 0, double newMax = 1)
     : GroupIndices(indices)
-    , Controller(controller)
     , NewMin(newMin)
     , NewMax(newMax)
+    , Controller(controller)
   {
   }
 

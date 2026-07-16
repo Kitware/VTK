@@ -134,8 +134,10 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->LensPen = vtkSmartPointer<vtkPen>::New();
 
   this->ActiveColor = vtkColor4ub(255, 0, 0, 255); // red
+  this->OutsideLensAlphaCap = 1;
   this->LensCenter[0] = this->LensCenter[1] = 0;
   this->LensRadius = 0;
+  this->VerticesRotation = 0;
   this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelsProperties->SetJustificationToCentered();
   this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
@@ -150,8 +152,6 @@ vtkPlotRadViz::vtkPlotRadViz()
   this->ColorWheelClockwiseOrdering = true;
   this->ColorWheelVisibility = true;
   this->ScalarVisibility = false;
-  this->VerticesRotation = 0;
-  this->OutsideLensAlphaCap = 1;
 }
 
 //------------------------------------------------------------------------------
