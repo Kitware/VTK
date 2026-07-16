@@ -67,6 +67,21 @@ void updateFlippedEdges(
   }
 }
 
+// Present IsInside's raw coordinate array through the point/cell access concept
+// used by vtkPolygon::EarClipPolygon3D, the shared, tested, allocation-free ear
+// clip. A face gives local ids into pts[0..n-1], so a coordinate read is a
+// single pointer offset and the adapter inlines away.
+struct LocalPointAccessor
+{
+  const double* Pts;
+  struct Pt3
+  {
+    const double* P;
+    double operator[](int i) const { return this->P[i]; }
+  };
+  Pt3 operator[](vtkIdType id) const { return Pt3{ this->Pts + 3 * id }; }
+};
+
 //------------------------------------------------------------------------------
 } // anonymous namespace
 
@@ -734,10 +749,19 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
     return it != this->PointIdMap.end() ? it->second : -1;
   };
 
-  // Reusable polygon + id list for faces with > 4 vertices.
-  vtkNew<vtkPolygon> poly;
-  vtkNew<vtkIdList> triPtIds;
+  // Reusable scratch for triangulating faces with more than four vertices.
+  // These are stack-local std::vectors (not cached cell members): IsInside is
+  // called per integration substep by streamline/probe filters, so the >4-gon
+  // path must not allocate per call - the vectors are reused across faces within
+  // a call and across calls they cost only a cleared-but-retained buffer. Unlike
+  // the previous implementation they hold no vtkObject, so nothing heavyweight is
+  // ever stranded on the cached vtkPolyhedron (which lives in vtkGenericCell's
+  // cell store and can outlive leak checking).
   std::vector<vtkIdType> localIds;
+  std::vector<int> earTris;
+  std::vector<int> earPrev;
+  std::vector<int> earNext;
+  std::vector<int> earRing;
 
   vtkIdType npts = 0;
   const vtkIdType* fpts = nullptr;
@@ -789,25 +813,33 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
       {
         localIds[i] = toLocal(fpts[i]);
       }
-      poly->PointIds->SetNumberOfIds(npts);
-      poly->Points->SetNumberOfPoints(npts);
-      for (vtkIdType i = 0; i < npts; ++i)
+
+      // Shared allocation-free ear clip (vtkPolygon::EarClipPolygon3D), the same
+      // implementation the rendering triangulators use. Collect the triples and
+      // sum the solid angle of each below; the choice of diagonals does not
+      // affect the sum for a planar face, so the edge mask is ignored.
+      earTris.clear();
+      const LocalPointAccessor accessor{ pts };
+      vtkPolygon::EarClipPolygon3D(accessor, localIds.data(), static_cast<int>(npts), earPrev,
+        earNext, earRing,
+        [&earTris](int a, int b, int c, unsigned char)
+        {
+          earTris.push_back(a);
+          earTris.push_back(b);
+          earTris.push_back(c);
+        });
+
+      if (earTris.empty())
       {
-        poly->PointIds->SetId(i, i); // local ids 0..npts-1
-        poly->Points->SetPoint(i, pts + 3 * localIds[i]);
+        return 0; // degenerate face: conservative
       }
 
-      triPtIds->Reset();
-      if (!poly->TriangulateLocalIds(0, triPtIds))
+      const std::size_t ntri = earTris.size();
+      for (std::size_t i = 0; i + 2 < ntri; i += 3)
       {
-        return 0; // can't triangulate: conservative
-      }
-
-      for (vtkIdType i = 0; i < triPtIds->GetNumberOfIds(); i += 3)
-      {
-        const double* a = pts + 3 * localIds[triPtIds->GetId(i)];
-        const double* b = pts + 3 * localIds[triPtIds->GetId(i + 1)];
-        const double* c = pts + 3 * localIds[triPtIds->GetId(i + 2)];
+        const double* a = pts + 3 * localIds[earTris[i]];
+        const double* b = pts + 3 * localIds[earTris[i + 1]];
+        const double* c = pts + 3 * localIds[earTris[i + 2]];
 
         if (tol > 0.0 && vtkTriangle::DistanceToTriangle(x, a, b, c) <= tol2)
         {

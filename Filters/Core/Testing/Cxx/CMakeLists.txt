@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestExecutionTimer.cxx,NO_VALID
   TestExtractCells.cxx,NO_VALID
   TestExtractCellsAlongPolyLine.cxx,NO_VALID
+  TestExtractCellsAlongPolyLinePolyhedron.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
   TestFieldDataToDataSetAttribute.cxx,NO_VALID
   TestFlyingEdges.cxx

@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCellsAlongPolyLine);
@@ -552,6 +553,86 @@ struct GenerateOutputCellsWithInputDataSetDispatcher
 };
 
 //------------------------------------------------------------------------------
+// Build the output polyhedron face arrays for the extracted cells.
+//
+// vtkExtractCellsAlongPolyLine keeps whole cells, but the (cell-array) point
+// list it copies for a VTK_POLYHEDRON does not carry the cell's face topology -
+// that lives in the input's separate PolyhedronFaces / PolyhedronFaceLocations
+// arrays. Without copying those, output->SetCells() would reinterpret a
+// polyhedron's point list as a face stream, producing garbage (and, on large
+// meshes, effectively hanging in DecomposeAPolyhedronCell). Here we copy each
+// extracted polyhedron's faces, remapping point ids through the same
+// input->output point id map used for the connectivity, and emit empty
+// faceLocations entries for non-polyhedral cells. The result is handed to
+// vtkUnstructuredGrid::SetPolyhedralCells. Returns true if any polyhedron was
+// found (i.e. face arrays are needed).
+bool BuildOutputPolyhedronFaces(vtkUnstructuredGrid* input, vtkIdList* sortedCellIds,
+  const std::unordered_map<vtkIdType, vtkIdType>& inputToOutputPointIdMap,
+  vtkUnsignedCharArray* outputCellTypes, vtkCellArray* outputFaces,
+  vtkCellArray* outputFaceLocations)
+{
+  const vtkIdType numberOfOutputCells = sortedCellIds->GetNumberOfIds();
+
+  // Detect whether any extracted cell is a polyhedron.
+  bool hasPolyhedra = false;
+  for (vtkIdType i = 0; i < numberOfOutputCells; ++i)
+  {
+    if (outputCellTypes->GetValue(i) == VTK_POLYHEDRON)
+    {
+      hasPolyhedra = true;
+      break;
+    }
+  }
+  if (!hasPolyhedra)
+  {
+    return false;
+  }
+
+  outputFaces->Initialize();
+  outputFaceLocations->Initialize();
+
+  vtkNew<vtkCellArray> cellFaces; // scratch, reused per polyhedron
+  std::vector<vtkIdType> remappedFace;
+  std::vector<vtkIdType> faceIds; // global face ids for this cell's faceLocations entry
+
+  for (vtkIdType outId = 0; outId < numberOfOutputCells; ++outId)
+  {
+    if (outputCellTypes->GetValue(outId) != VTK_POLYHEDRON)
+    {
+      // Non-polyhedral cell: empty faceLocations entry (the convention used by
+      // vtkUnstructuredGrid for non-polyhedron cells).
+      outputFaceLocations->InsertNextCell(0);
+      continue;
+    }
+
+    const vtkIdType inputCellId = sortedCellIds->GetId(outId);
+    cellFaces->Reset();
+    input->GetPolyhedronFaces(inputCellId, cellFaces);
+    const vtkIdType numberOfFaces = cellFaces->GetNumberOfCells();
+
+    faceIds.clear();
+    for (vtkIdType f = 0; f < numberOfFaces; ++f)
+    {
+      vtkIdType npts;
+      const vtkIdType* pts;
+      cellFaces->GetCellAtId(f, npts, pts);
+      remappedFace.resize(npts);
+      for (vtkIdType p = 0; p < npts; ++p)
+      {
+        remappedFace[p] = inputToOutputPointIdMap.at(pts[p]);
+      }
+      const vtkIdType globalFaceId =
+        outputFaces->InsertNextCell(static_cast<int>(npts), remappedFace.data());
+      faceIds.push_back(globalFaceId);
+    }
+    outputFaceLocations->InsertNextCell(
+      static_cast<int>(faceIds.size()), faceIds.empty() ? nullptr : faceIds.data());
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 // This function extracts the cells in the input that are intersected by a set of input lines.
 // The algorithm is as follows:
 // * Intersect the lines using a cell locator and store their cell ids and point ids belonging to
@@ -732,7 +813,21 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
     }
   }
 
-  output->SetCells(outputCellTypes, outputCells);
+  // For unstructured-grid input that contains polyhedra, the extracted point
+  // lists do not carry face topology; build the output face arrays and use
+  // SetPolyhedralCells. Otherwise the 2-argument SetCells suffices.
+  vtkNew<vtkCellArray> outputFaces;
+  vtkNew<vtkCellArray> outputFaceLocations;
+  if (inputUG &&
+    ::BuildOutputPolyhedronFaces(inputUG, sortedIntersectedCellIds, inputToOutputPointIdMap,
+      outputCellTypes, outputFaces, outputFaceLocations))
+  {
+    output->SetPolyhedralCells(outputCellTypes, outputCells, outputFaceLocations, outputFaces);
+  }
+  else
+  {
+    output->SetCells(outputCellTypes, outputCells);
+  }
 
   // Copying point and cell data
   vtkCellData* inputCD = input->GetCellData();

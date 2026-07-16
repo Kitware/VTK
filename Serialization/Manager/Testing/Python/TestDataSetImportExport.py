@@ -1,8 +1,62 @@
 from vtkmodules.test import Testing as vtkTesting
 from vtkmodules.vtkSerializationManager import vtkObjectManager
-from vtkmodules.vtkCommonCore import vtkObjectBase, vtkCharArray, vtkIndent
-from vtkmodules.vtkCommonDataModel import vtkImageData, vtkDataObjectTreeIterator
+from vtkmodules.vtkCommonCore import vtkObjectBase, vtkCharArray, vtkIdList, vtkIndent, vtkPoints, vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkImageData, vtkDataObjectTreeIterator, vtkCellArray, vtkUnstructuredGrid, VTK_POLYHEDRON
 from vtkmodules.vtkFiltersSources import vtkSphereSource, vtkCellTypeSource, vtkPartitionedDataSetCollectionSource
+
+
+# Faces of a hexahedron, in terms of its eight corners in VTK ordering.
+HEXAHEDRON_FACES = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4],
+                    [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+
+
+def create_polyhedral_grid():
+    """Two unit hexahedra side by side along x, expressed as VTK_POLYHEDRON.
+
+    A polyhedron's faces are not described by its point list, so this is the
+    only dataset here whose topology can be lost without changing the point
+    count, the cell count or the bounds.
+    """
+    def point_id(i, j, k):
+        return i + 3 * j + 6 * k
+
+    points = vtkPoints()
+    points.SetNumberOfPoints(12)
+    for k in range(2):
+        for j in range(2):
+            for i in range(3):
+                points.SetPoint(point_id(i, j, k), i, j, k)
+
+    cells = vtkCellArray()
+    faces = vtkCellArray()
+    face_locations = vtkCellArray()
+    cell_types = vtkUnsignedCharArray()
+
+    for c in range(2):
+        corners = [point_id(c, 0, 0), point_id(c + 1, 0, 0),
+                   point_id(c + 1, 1, 0), point_id(c, 1, 0),
+                   point_id(c, 0, 1), point_id(c + 1, 0, 1),
+                   point_id(c + 1, 1, 1), point_id(c, 1, 1)]
+
+        cells.InsertNextCell(len(corners))
+        for corner in corners:
+            cells.InsertCellPoint(corner)
+        cell_types.InsertNextValue(VTK_POLYHEDRON)
+
+        global_face_ids = []
+        for local_face in HEXAHEDRON_FACES:
+            global_face_ids.append(faces.InsertNextCell(len(local_face)))
+            for local_point in local_face:
+                faces.InsertCellPoint(corners[local_point])
+
+        face_locations.InsertNextCell(len(global_face_ids))
+        for face_id in global_face_ids:
+            face_locations.InsertCellPoint(face_id)
+
+    grid = vtkUnstructuredGrid()
+    grid.SetPoints(points)
+    grid.SetPolyhedralCells(cell_types, cells, face_locations, faces)
+    return grid
 
 
 def create_test_datasets():
@@ -93,6 +147,49 @@ class TestDataSetImportExport(vtkTesting.vtkTest):
                 self.assertTupleEqual(
                     original_array.GetRange(), deserialized_array.GetRange())
 
+    def test_polyhedral_unstructured_grid(self):
+        # A polyhedron's faces live outside its point list. Point count, cell
+        # count and bounds all survive their loss, so this asserts on the face
+        # arrays directly.
+        original = create_polyhedral_grid()
+        deserialized = deserialize(serialize(original))
+
+        self.assertTrue(deserialized.IsA("vtkUnstructuredGrid"))
+        self.assertEqual(original.GetNumberOfPoints(),
+                         deserialized.GetNumberOfPoints())
+        self.assertEqual(original.GetNumberOfCells(),
+                         deserialized.GetNumberOfCells())
+
+        original_faces = original.GetPolyhedronFaces()
+        deserialized_faces = deserialized.GetPolyhedronFaces()
+        self.assertIsNotNone(deserialized_faces,
+                             "polyhedron faces were lost in serialization")
+        self.assertEqual(original_faces.GetNumberOfCells(),
+                         deserialized_faces.GetNumberOfCells())
+
+        for cell_id in range(original.GetNumberOfCells()):
+            self.assertEqual(VTK_POLYHEDRON, deserialized.GetCellType(cell_id))
+
+            original_cell_faces = vtkCellArray()
+            original.GetPolyhedronFaces(cell_id, original_cell_faces)
+            deserialized_cell_faces = vtkCellArray()
+            deserialized.GetPolyhedronFaces(cell_id, deserialized_cell_faces)
+
+            self.assertEqual(original_cell_faces.GetNumberOfCells(),
+                             deserialized_cell_faces.GetNumberOfCells())
+
+            for face_id in range(original_cell_faces.GetNumberOfCells()):
+                original_face = vtkIdList()
+                original_cell_faces.GetCellAtId(face_id, original_face)
+                deserialized_face = vtkIdList()
+                deserialized_cell_faces.GetCellAtId(face_id, deserialized_face)
+
+                self.assertEqual(original_face.GetNumberOfIds(),
+                                 deserialized_face.GetNumberOfIds())
+                for i in range(original_face.GetNumberOfIds()):
+                    self.assertEqual(original_face.GetId(i),
+                                     deserialized_face.GetId(i))
+
     def test_image_data(self):
         serialized_image_data = serialize(self.image_data)
         deserialized_image_data = deserialize(serialized_image_data)
@@ -148,5 +245,7 @@ class TestDataSetImportExport(vtkTesting.vtkTest):
 if __name__ == "__main__":
     vtkTesting.main([(TestDataSetImportExport, 'test_polydata'),
                      (TestDataSetImportExport, 'test_unstructured_grid'),
+                     (TestDataSetImportExport,
+                      'test_polyhedral_unstructured_grid'),
                      (TestDataSetImportExport, 'test_image_data'),
                      (TestDataSetImportExport, 'test_partitioned_data_set_collection')])
