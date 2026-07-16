@@ -119,12 +119,6 @@ private:
   void SetCoordinateArrays(vtkInformationVector** inputInfo, vtkRectilinearGrid* output);
 
   /**
-   * Fill coords array with unique, sorted values from the given column.
-   * Return true on success, false on any error.
-   */
-  bool ComputeCoordinateArray(vtkDataArray* column, vtkDoubleArray* coords);
-
-  /**
    * Transform each table column into a PointData array for the output grid.
    * Points that does not exist in the input will be masked, and their associated pointdata will
    * be the same as the first row. This should not be an issue as blanked points should be ignored

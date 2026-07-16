@@ -5,20 +5,18 @@
 #include "vtkArrayDispatch.h"
 #include "vtkConstantArray.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIndexedArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSetGet.h"
 #include "vtkTable.h"
 
-#include <algorithm>
+#include "Private/vtkTableToCoordinatesInternal.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -168,7 +166,7 @@ void vtkTableToRectilinearGrid::SetCoordinateArrays(
     }
 
     vtkNew<vtkDoubleArray> coordArray;
-    this->ComputeCoordinateArray(column, coordArray);
+    vtkTableToCoordinatesInternal::ComputeUniqueAndSorted(column, coordArray);
     dimensions[axisIdx] = coordArray->GetNumberOfTuples();
     if (axisIdx == 0)
     {
@@ -188,31 +186,6 @@ void vtkTableToRectilinearGrid::SetCoordinateArrays(
   }
 
   outputGrid->SetDimensions(dimensions);
-}
-
-// ----------------------------------------------------------------------------
-bool vtkTableToRectilinearGrid::ComputeCoordinateArray(vtkDataArray* column, vtkDoubleArray* coords)
-{
-  if (!column)
-  {
-    coords->InsertNextTuple1(0.);
-    return false;
-  }
-  auto inputIter = vtk::DataArrayTupleRange(column);
-  for (const auto inputCoord : inputIter)
-  {
-    auto outIter = vtk::DataArrayValueRange(coords);
-    auto pos = std::find(outIter.begin(), outIter.end(), inputCoord[0]);
-    if (pos == outIter.end())
-    {
-      coords->InsertNextValue(inputCoord[0]);
-    }
-  }
-
-  auto outIter = vtk::DataArrayValueRange(coords);
-  std::sort(outIter.begin(), outIter.end());
-
-  return true;
 }
 
 // ----------------------------------------------------------------------------
