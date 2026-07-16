@@ -81,7 +81,7 @@ struct NormalizeWorker
 
     ValueType minValue = std::numeric_limits<ValueType>::max(),
               maxValue = std::numeric_limits<ValueType>::lowest();
-    for (int k = 0; k < this->GroupIndices.size(); ++k)
+    for (size_t k = 0; k < this->GroupIndices.size(); ++k)
     {
       auto comparator = [this, k](const TupleReferenceType& a, const TupleReferenceType& b)
       { return a[this->GroupIndices[k]] < b[this->GroupIndices[k]]; };
@@ -115,7 +115,7 @@ struct NormalizeWorker
     vtkIdType nTuples = scalars.size();
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      for (int k = 0; k < this->GroupIndices.size(); ++k)
+      for (size_t k = 0; k < this->GroupIndices.size(); ++k)
       {
         normalized[i][this->GroupIndices[k]] = (this->NewMax - this->NewMin) *
             (scalars[i][this->GroupIndices[k]] - minValue) / (maxValue - minValue) +
@@ -561,7 +561,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
-  for (int i = 0; i < this->ComponentsPartition.size(); ++i)
+  for (size_t i = 0; i < this->ComponentsPartition.size(); ++i)
   {
     NormalizeWorker worker(this->ComponentsPartition[i], this->Controller);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
