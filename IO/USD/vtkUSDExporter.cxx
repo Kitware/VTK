@@ -151,17 +151,18 @@ UsdGeomMesh WriteMesh(
   }
   mesh.GetPointsAttr().Set(points);
 
-  // Face vertex counts
-  VtArray<int> faceVertexCounts(pd->GetNumberOfCells());
+  // Face vertex counts from polys only because any triangle strips will be converted
+  // to polys by the triangle filter above.
+  vtkCellArray* polys = pd->GetPolys();
+  VtArray<int> faceVertexCounts(polys->GetNumberOfCells());
   // Indices into the points array
   VtArray<int> faceVertexIndices;
-  faceVertexIndices.reserve(pd->GetNumberOfCells() * 4); // rough estimate
+  faceVertexIndices.reserve(polys->GetNumberOfCells() * 4); // rough estimate
 
-  vtkCellArray* polys = pd->GetPolys();
   vtkIdType npts;
   const vtkIdType* pts;
   vtkIdType cellId = 0;
-  for (vtkIdType cellIdx = 0; cellIdx < pd->GetNumberOfCells(); ++cellIdx)
+  for (vtkIdType cellIdx = 0; cellIdx < polys->GetNumberOfCells(); ++cellIdx)
   {
     polys->GetCellAtId(cellIdx, npts, pts);
 
@@ -202,7 +203,7 @@ UsdGeomMesh WriteMesh(
           GfVec3f(static_cast<float>(n[0]), static_cast<float>(n[1]), static_cast<float>(n[2]));
       }
       mesh.GetNormalsAttr().Set(normals);
-      mesh.SetNormalsInterpolation(UsdGeomTokens->faceVarying);
+      mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
     }
   }
   else
@@ -232,7 +233,7 @@ UsdGeomMesh WriteMesh(
       }
     }
     mesh.GetNormalsAttr().Set(normals);
-    mesh.SetNormalsInterpolation(UsdGeomTokens->faceVarying);
+    mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
   }
 
   // if we have vertex colors then retrieve them
@@ -570,7 +571,6 @@ void vtkUSDExporter::WriteData()
             {
               vtkCompositePolyDataMapper* pdMapper =
                 vtkCompositePolyDataMapper::SafeDownCast(mapper);
-              using Opts = vtk::CompositeDataSetOptions;
               vtkSmartPointer<vtkCompositeDataIterator> cpdIter;
               cpdIter.TakeReference(cpd->NewIterator());
               for (cpdIter->InitTraversal(); !cpdIter->IsDoneWithTraversal();
@@ -582,7 +582,9 @@ void vtkUSDExporter::WriteData()
                 if (pdMapper->GetBlockVisibility(flatIndex))
                 {
                   vtkPolyData* pd = vtkPolyData::SafeDownCast(childDO);
-                  if (pd && pd->GetNumberOfCells() > 0)
+                  if (pd &&
+                    (pd->GetPolys()->GetNumberOfCells() > 0 ||
+                      pd->GetStrips()->GetNumberOfCells() > 0))
                   {
                     vtkMapper* partMapper = part->GetMapper();
                     // save and restore prop changed when generating texture coords
@@ -612,7 +614,8 @@ void vtkUSDExporter::WriteData()
             }
 
             vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
-            if (pd && pd->GetNumberOfCells() > 0)
+            if (pd &&
+              (pd->GetPolys()->GetNumberOfCells() > 0 || pd->GetStrips()->GetNumberOfCells() > 0))
             {
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();

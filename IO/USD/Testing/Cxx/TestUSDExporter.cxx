@@ -527,7 +527,67 @@ int TestUSDExporter(int argc, char* argv[])
 
   if (!checksPassed)
   {
-    vtkLog(ERROR, "Test 6: one or more checks failed when exporting composite dataset.");
+    vtkLog(ERROR, "Test 7: one or more checks failed when exporting composite dataset.");
+    return EXIT_FAILURE;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Test 8: check that exporting a vtkPolyData with verts and polylines only
+  // results in an exported USD file without a Mesh
+
+  vtkNew<vtkPolyData> polydata;
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 0.0, 0.0);
+  points->InsertNextPoint(1.0, 1.0, 0.0);
+  points->InsertNextPoint(0.0, 1.0, 0.0);
+  polydata->SetPoints(points);
+
+  // Add vertex cells
+  vtkNew<vtkCellArray> verts;
+  vtkIdType vert = 0;
+  verts->InsertNextCell(1, &vert);
+  vert = 1;
+  verts->InsertNextCell(1, &vert);
+  polydata->SetVerts(verts);
+
+  // Add polyline cells
+  vtkNew<vtkCellArray> lines;
+  vtkIdType line[2] = { 2, 3 };
+  lines->InsertNextCell(2, line);
+  polydata->SetLines(lines);
+
+  vtkNew<vtkPolyDataMapper> vertsLinesMapper;
+  vertsLinesMapper->SetInputData(polydata);
+  vtkNew<vtkActor> vertsLinesActor;
+  vertsLinesActor->SetMapper(vertsLinesMapper);
+
+  renderer->RemoveAllViewProps();
+  renderer->AddActor(vertsLinesActor);
+
+  filename = rootname + "_verts_lines.usda";
+  exporter->SetFileName(filename.c_str());
+  exporter->Write();
+
+  if (!FileContainsString(filename, "Mesh"))
+  {
+    // Expected: no Mesh should be present
+  }
+  else
+  {
+    vtkLog(
+      ERROR, "File " << filename << " should not contain a Mesh element for verts/lines only.");
+    checksPassed = false;
+  }
+
+  if (enableCleanupAfterTest)
+  {
+    vtksys::SystemTools::RemoveFile(filename);
+  }
+
+  if (!checksPassed)
+  {
+    vtkLog(ERROR, "Test 8: one or more checks failed when exporting verts and polylines.");
     return EXIT_FAILURE;
   }
 
