@@ -300,21 +300,21 @@ protected:
   ///@}
 
   std::vector<std::vector<int>> ComponentsPartition;
-  int Dimensions[4];
+  int Dimensions[4] = { 0, 0, 0, 0 };
   /**
    * Controls how the vertices are drawn.
    * These are the markers on the circle for the variables.
    */
-  vtkSmartPointer<vtkPen> VerticesPen;
+  vtkSmartPointer<vtkPen> VerticesPen = vtkSmartPointer<vtkPen>::New();
   /**
    * Controls how the lens circle outline is drawn.
    */
-  vtkSmartPointer<vtkPen> LensPen;
+  vtkSmartPointer<vtkPen> LensPen = vtkSmartPointer<vtkPen>::New();
   /**
    * Pen used for active vertex, active lens circle or active lens center.
    * Only the color is used.
    */
-  vtkColor4ub ActiveColor;
+  vtkColor4ub ActiveColor = vtkColor4ub(255, 0, 0, 255); // red
   /**
    * The index of the active vertex (mouse over it or rotating the
    * vertices by dragging that vertex), -1 when no vertex is active.
@@ -333,7 +333,7 @@ protected:
   /**
    * Alpha cap for points outside the lens.
    */
-  double OutsideLensAlphaCap;
+  double OutsideLensAlphaCap = 1.0;
   /**
    * Show the lens if true.
    */
@@ -341,21 +341,21 @@ protected:
   /**
    * Where the lens is drawn and its radius in window coordinates.
    */
-  double LensCenter[2];
-  double LensRadius;
+  double LensCenter[2] = { 0.0, 0.0 };
+  double LensRadius = 0.0;
 
   vtkSmartPointer<vtkPoints2D> Vertices;
-  double VerticesRotation;
+  double VerticesRotation = 0.0;
 
   /**
    * The text properties associated with the vertex labels.
    */
-  vtkSmartPointer<vtkTextProperty> LabelsProperties;
-  int ColorWheelSegmentCount;
-  int ColorWheelStartAngle;
-  bool ColorWheelClockwiseOrdering;
-  bool ColorWheelVisibility;
-  bool ScalarVisibility;
+  vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
+  int ColorWheelSegmentCount = 120;
+  int ColorWheelStartAngle = 90;
+  bool ColorWheelClockwiseOrdering = true;
+  bool ColorWheelVisibility = true;
+  bool ScalarVisibility = false;
 
 private:
   vtkPlotRadViz(const vtkPlotRadViz&) = delete;

@@ -127,18 +127,7 @@ public:
 vtkPlotRadViz::vtkPlotRadViz()
   : Internals(new vtkInternals(this))
 {
-  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = this->Dimensions[3] = 0;
-  this->VerticesPen = vtkSmartPointer<vtkPen>::New();
   this->VerticesPen->SetWidth(8);
-
-  this->LensPen = vtkSmartPointer<vtkPen>::New();
-
-  this->ActiveColor = vtkColor4ub(255, 0, 0, 255); // red
-  this->OutsideLensAlphaCap = 1;
-  this->LensCenter[0] = this->LensCenter[1] = 0;
-  this->LensRadius = 0;
-  this->VerticesRotation = 0;
-  this->LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelsProperties->SetJustificationToCentered();
   this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
   this->LabelsProperties->SetFontSize(12);
@@ -147,11 +136,6 @@ vtkPlotRadViz::vtkPlotRadViz()
   // otherwise we process all columns of a table
   this->GetData()->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
-  this->ColorWheelSegmentCount = 120;
-  this->ColorWheelStartAngle = 90;
-  this->ColorWheelClockwiseOrdering = true;
-  this->ColorWheelVisibility = true;
-  this->ScalarVisibility = false;
 }
 
 //------------------------------------------------------------------------------
