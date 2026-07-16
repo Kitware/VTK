@@ -70,7 +70,7 @@ const std::regex& GetIntRegEx()
 // floating point
 const std::regex& GetNumRegEx()
 {
-  static const std::regex numRegEx(R"((?:^|\s)([-]?\d*\.?\d*e?[+-]?\d*[^\s])(?=$|\s))");
+  static const std::regex numRegEx(R"((?:^|\s)([-]?\d*\.?\d*[eE]?[+-]?\d*[^\s])(?=$|\s))");
   return numRegEx;
 }
 
@@ -406,8 +406,11 @@ void readCaseFileValues(EnSightFile& file, std::string& line, std::vector<T>& va
     if (continueReading)
     {
       line = result.second;
-      if (!std::all_of(line.begin(), line.end(), [](char c) -> bool
-            { return isdigit(c) || isspace(c) || c == '.' || c == 'e' || c == '+' || c == '-'; }))
+      if (!std::all_of(line.begin(), line.end(),
+            [](char c) -> bool {
+              return isdigit(c) || isspace(c) || c == '.' || c == 'e' || c == 'E' || c == '+' ||
+                c == '-';
+            }))
       {
         // The current line is not more time step values, so reset
         // this line so we can continue processing.
