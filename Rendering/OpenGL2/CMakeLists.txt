@@ -110,6 +110,7 @@ set(classes
   vtkShadowMapPass
   vtkSimpleMotionBlurPass
   vtkSobelGradientMagnitudePass
+  vtkStencilMaskPass
   vtkTextureObject
   vtkTextureUnitManager
   vtkToneMappingPass
