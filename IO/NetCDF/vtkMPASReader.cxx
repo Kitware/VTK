@@ -1424,7 +1424,8 @@ int vtkMPASReader::CheckParams()
     }
     if (this->UsePrimaryGrid)
     {
-      vtkWarningMacro("Ignoring UsePrimaryGrid -- Not supported on planar geometry.");
+      vtkErrorMacro("UsePrimaryGrid is not supported on planar geometry.");
+      return 0;
     }
   }
 
