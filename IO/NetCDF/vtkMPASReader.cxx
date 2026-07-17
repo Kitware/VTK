@@ -2106,7 +2106,7 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
-    state.MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
+    state.MaximumLevelPoint = new int[this->NumberOfCells + this->CellOffset];
     if (!this->Internals->ValidateDimensions(maxLevelPerCellId, false, 1, "nCells"))
     {
       return 0;
