@@ -248,7 +248,9 @@ public:
    * will normalize them all together, meaning we compute the min/max
    * over all three scalars.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetComponentsPartition(const std::vector<std::vector<int>>& partition);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   std::vector<std::vector<int>> GetComponentsPartition() VTK_FUTURE_CONST;
 
   /**
