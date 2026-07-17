@@ -184,6 +184,7 @@ struct FunctionInfo_
   const char* SizeHint;          /* hint the size e.g. for operator[] */
   const char* DeprecatedReason;  /* reason for deprecation, or NULL */
   const char* DeprecatedVersion; /* version of deprecation, or NULL */
+  int Line; /* line in the file where the declaration starts, or 0 if unknown */
   int IsOperator;
   int IsVariadic;
   int IsExcluded;        /* marked as excluded from wrapping */
