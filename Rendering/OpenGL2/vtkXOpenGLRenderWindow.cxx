@@ -1376,7 +1376,6 @@ int* vtkXOpenGLRenderWindow::GetScreenSize()
 int* vtkXOpenGLRenderWindow::GetPosition()
 {
   XWindowAttributes attribs;
-  int x, y;
   Window child;
 
   if (!this->WindowId)
@@ -1384,14 +1383,34 @@ int* vtkXOpenGLRenderWindow::GetPosition()
     return this->Position;
   }
 
-  //  Find the current window size
-  vtkXGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
-  x = attribs.x;
-  y = attribs.y;
+  // Retrieve position of the inner top-left corner.
+  vtkXTranslateCoordinates(this->DisplayId, this->WindowId, this->ParentId, 0, 0,
+    &this->Position[0], &this->Position[1], &child);
 
-  vtkXTranslateCoordinates(this->DisplayId, this->ParentId,
-    vtkXRootWindowOfScreen(vtkXScreenOfDisplay(this->DisplayId, 0)), x, y, &this->Position[0],
-    &this->Position[1], &child);
+  // Attempt to retrieve size of the window decoration (title bar)
+  // so we can subtract and end up with the outer top-left corner
+  // which will properly round-trip with `SetPosition()`.
+  const Atom prop = vtkXInternAtom(this->DisplayId, "_NET_FRAME_EXTENTS", True);
+  Atom type;
+  int fmt;
+  unsigned long nitems, bytesafter;
+  unsigned char* data;
+  if (vtkXGetWindowProperty(this->DisplayId, this->WindowId, prop, 0, 4, False, AnyPropertyType,
+        &type, &fmt, &nitems, &bytesafter, &data) == Success)
+  {
+    const long* extents = (long*)data; // left, right, top, bottom
+    this->Position[0] -= extents[0];
+    this->Position[1] -= extents[2];
+  }
+  else
+  {
+    vtkWarningMacro(<< "Could not retrieve window decoration size");
+    // fall back to subtracting window position, which should also work
+    // but may be too much in some cases, e.g. Gnome adding padding for shadows.
+    vtkXGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+    this->Position[0] -= attribs.x;
+    this->Position[1] -= attribs.y;
+  }
 
   return this->Position;
 }
