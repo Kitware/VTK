@@ -138,6 +138,12 @@ vtkPlotRadViz::vtkPlotRadViz()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
 }
 
+vtkPlotRadViz::~vtkPlotRadViz()
+
+{
+  delete this->Internals;
+}
+
 //------------------------------------------------------------------------------
 const double* vtkPlotRadViz::GetCenter() const
 {
@@ -189,9 +195,10 @@ void vtkPlotRadViz::SetVerticesRotation(double rotation)
   }
 }
 
-void vtkPlotRadViz::SetInputData(vtkDataSet* dataset)
+void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
 {
   this->Data->SetInputDataObject(0, dataset);
+  this->AutoLabels = nullptr; // No longer valid
 }
 
 void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
@@ -300,10 +307,9 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   {
     vtkDebugMacro(<< "Paint event called.");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
-    vtkTable* table = vtkTable::SafeDownCast(input);
     vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
     vtkDataArray* array = nullptr;
-    int association;
+    int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
     if (dataset)
     {
       // get the array to process and association from vtkContextMapper2D

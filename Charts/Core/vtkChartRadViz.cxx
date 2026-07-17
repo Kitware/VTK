@@ -312,7 +312,7 @@ void vtkChartRadViz::GetActiveElement(
 }
 
 //------------------------------------------------------------------------------
-bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
+bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   this->Internals->DragVertexIndex = -1;
   this->Internals->ResizeLens = false;

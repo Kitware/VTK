@@ -159,7 +159,7 @@ public:
   void SetView(vtkContextView* view) { this->View = view; }
 
   // This Execute method triggers when the event fires
-  void Execute(vtkObject* caller, unsigned long eventId, void* callData) override
+  void Execute(vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData)) override
   {
     if (eventId == vtkCommand::KeyPressEvent)
     {
@@ -184,7 +184,7 @@ public:
 };
 
 //------------------------------------------------------------------------------
-int TestRadVizChartInteraction(int argc, char** argv)
+int TestRadVizChartInteraction(int argc, char* argv[])
 {
   int variant;
   VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], variant, EXIT_FAILURE);
@@ -213,7 +213,7 @@ int TestRadVizChartInteraction(int argc, char** argv)
   plot->ScalarVisibilityOn();
   plot->SetOutsideLensAlphaCap(0.01);
 
-  plot->SetInputData(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
+  plot->SetInputDataSet(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
 
   chart->SetShowLegend(false);
 

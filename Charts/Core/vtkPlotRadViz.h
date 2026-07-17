@@ -63,8 +63,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-#include <memory>
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkColorSeries;
@@ -83,7 +81,7 @@ public:
 
   static vtkPlotRadViz* New();
 
-  void SetInputData(vtkDataSet* dataset);
+  virtual void SetInputDataSet(vtkDataSet* dataset);
   /**
    * Paint event for the item.
    */
@@ -261,7 +259,7 @@ public:
 
 protected:
   vtkPlotRadViz();
-  ~vtkPlotRadViz() override = default;
+  ~vtkPlotRadViz() override;
   void DrawColorWheel(vtkContext2D* painter);
   /**
    * Draw the points using the 'pen' attributes and 'color' instead of
@@ -364,7 +362,7 @@ private:
   void operator=(const vtkPlotRadViz&) = delete;
 
   class vtkInternals;
-  std::unique_ptr<vtkInternals> Internals;
+  vtkInternals* Internals;
 };
 
 VTK_ABI_NAMESPACE_END

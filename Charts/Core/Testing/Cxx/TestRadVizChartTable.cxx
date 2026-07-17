@@ -16,7 +16,7 @@
 #include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
-int TestRadVizChartTable(int argc, char** argv)
+int TestRadVizChartTable(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
