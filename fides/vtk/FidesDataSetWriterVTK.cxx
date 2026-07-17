@@ -509,12 +509,16 @@ VTKExtraction ExtractVTKPartitions(vtkPartitionedDataSet* dataSets,
       imageData->GetOrigin(origin);
       double spacing[3];
       imageData->GetSpacing(spacing);
+      int extent[6];
+      imageData->GetExtent(extent);
 
       for (int j = 0; j < 3; j++)
       {
         pi.Dims[j] = static_cast<size_t>(dims[j]);
         pi.Origin[j] = origin[j];
         pi.Spacing[j] = spacing[j];
+        // The lower corner of the extent is at indices 0, 2 and 4
+        pi.Start[j] = extent[2 * j];
       }
     }
     else if (auto* rectGrid = vtkRectilinearGrid::SafeDownCast(ds))

@@ -398,7 +398,8 @@ void FillDataSetBody(const PartitionInfo& info,
   // coordinate_system
   if (info.Coordinates == PartitionInfo::CoordType::Uniform)
   {
-    fides::predefined::CreateArrayUniformPointCoordinates(alloc, body, "dims", "origin", "spacing");
+    fides::predefined::CreateArrayUniformPointCoordinates(
+      alloc, body, "dims", "origin", "spacing", "start");
   }
   else if (info.Coordinates == PartitionInfo::CoordType::Rectilinear)
   {
@@ -1244,6 +1245,7 @@ struct FidesWriter::Impl
     this->IO.DefineVariable<size_t>(this->PrefixedName("dims"), shape, offset, size);
     this->IO.DefineVariable<double>(this->PrefixedName("origin"), shape, offset, size);
     this->IO.DefineVariable<double>(this->PrefixedName("spacing"), shape, offset, size);
+    this->IO.DefineVariable<int64_t>(this->PrefixedName("start"), shape, offset, size);
   }
 
   void DefineStructuredExplicitVariables(const PartitionInfo* rep)
@@ -1491,15 +1493,18 @@ struct FidesWriter::Impl
     this->DimsBuffer.resize(n * 3);
     this->OriginsBuffer.resize(n * 3);
     this->SpacingsBuffer.resize(n * 3);
+    this->StartBuffer.resize(n * 3);
 
     auto dimsVar = this->IO.InquireVariable<size_t>(this->PrefixedName("dims"));
     auto originVar = this->IO.InquireVariable<double>(this->PrefixedName("origin"));
     auto spacingVar = this->IO.InquireVariable<double>(this->PrefixedName("spacing"));
+    auto startVar = this->IO.InquireVariable<int64_t>(this->PrefixedName("start"));
 
     std::vector<size_t> shape = { 3 * this->TotalNumberOfDataSets };
     dimsVar.SetShape(shape);
     originVar.SetShape(shape);
     spacingVar.SetShape(shape);
+    startVar.SetShape(shape);
 
     for (size_t i = 0; i < n; i++)
     {
@@ -1509,15 +1514,18 @@ struct FidesWriter::Impl
         this->DimsBuffer[i * 3 + static_cast<size_t>(j)] = p.Dims[j];
         this->OriginsBuffer[i * 3 + static_cast<size_t>(j)] = p.Origin[j];
         this->SpacingsBuffer[i * 3 + static_cast<size_t>(j)] = p.Spacing[j];
+        this->StartBuffer[i * 3 + static_cast<size_t>(j)] = p.Start[j];
       }
 
       adios2::Box<adios2::Dims> sel({ i * 3 + (3 * this->DataSetOffset) }, { 3 });
       dimsVar.SetSelection(sel);
       originVar.SetSelection(sel);
       spacingVar.SetSelection(sel);
+      startVar.SetSelection(sel);
       this->Engine.Put<size_t>(dimsVar, &this->DimsBuffer[i * 3]);
       this->Engine.Put<double>(originVar, &this->OriginsBuffer[i * 3]);
       this->Engine.Put<double>(spacingVar, &this->SpacingsBuffer[i * 3]);
+      this->Engine.Put<int64_t>(startVar, &this->StartBuffer[i * 3]);
     }
   }
 
@@ -2412,6 +2420,7 @@ struct FidesWriter::Impl
   std::vector<size_t> DimsBuffer;
   std::vector<double> OriginsBuffer;
   std::vector<double> SpacingsBuffer;
+  std::vector<int64_t> StartBuffer;
 
   // Field variable names
   std::vector<std::string> PointFieldNames;
