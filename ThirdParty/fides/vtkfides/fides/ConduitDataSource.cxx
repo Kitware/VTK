@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <type_traits>
 
 #include <iostream>
 
@@ -194,28 +195,65 @@ std::vector<fides::RawArray> ConduitDataSource::GetVariableDimensions(
   return std::vector<fides::RawArray>{ std::move(raw) };
 }
 
+// Choose conduit_TT to match the *actual* width of the conduit buffer, so a
+// 32-bit buffer is read as 32-bit rather than through an int64_t/double pointer
+// (which Conduit's type-strict Node::value() would reject anyway). The output
+// type is selected separately by fidesTemplateMacro (fides_TT), so a data model
+// may still request a narrower output than the stored buffer.
 #define conduitTemplateMacro(call) \
-  switch (conduitType[0])          \
+  do                               \
   {                                \
-    case 'i':                      \
+    if (conduitType == "int8")     \
+    {                              \
+      using conduit_TT = int8_t;   \
+      return call;                 \
+    }                              \
+    if (conduitType == "int16")    \
+    {                              \
+      using conduit_TT = int16_t;  \
+      return call;                 \
+    }                              \
+    if (conduitType == "int32")    \
+    {                              \
+      using conduit_TT = int32_t;  \
+      return call;                 \
+    }                              \
+    if (conduitType == "int64")    \
     {                              \
       using conduit_TT = int64_t;  \
       return call;                 \
-      break;                       \
     }                              \
-    case 'u':                      \
+    if (conduitType == "uint8")    \
+    {                              \
+      using conduit_TT = uint8_t;  \
+      return call;                 \
+    }                              \
+    if (conduitType == "uint16")   \
+    {                              \
+      using conduit_TT = uint16_t; \
+      return call;                 \
+    }                              \
+    if (conduitType == "uint32")   \
+    {                              \
+      using conduit_TT = uint32_t; \
+      return call;                 \
+    }                              \
+    if (conduitType == "uint64")   \
     {                              \
       using conduit_TT = uint64_t; \
       return call;                 \
-      break;                       \
     }                              \
-    case 'f':                      \
+    if (conduitType == "float32")  \
+    {                              \
+      using conduit_TT = float;    \
+      return call;                 \
+    }                              \
+    if (conduitType == "float64")  \
     {                              \
       using conduit_TT = double;   \
       return call;                 \
-      break;                       \
     }                              \
-  }
+  } while (0)
 
 #define fidesTemplateMacro(call)                 \
   switch (type[0])                               \
@@ -404,12 +442,28 @@ std::vector<fides::RawArray> GetScalarVariableInternal(std::shared_ptr<conduit::
   auto raw = fides::AllocateRawArray<VariableType>(1, 1);
   VariableType* buffer = raw.template GetWritePointer<VariableType>();
 
-  // Directly assign the casted value into the allocated RawArray buffer
-  *buffer = static_cast<VariableType>(*vecData);
+  // Cast the value into the allocated RawArray buffer, warning if a narrower
+  // requested integer dtype truncated it: a round-trip cast that does not
+  // recover the original value indicates lost data.
+  const VariableType out = static_cast<VariableType>(*vecData);
+  if constexpr (std::is_integral_v<ConduitType> && std::is_integral_v<VariableType>)
+  {
+    if (static_cast<ConduitType>(out) != *vecData)
+    {
+      std::cerr << "WARNING: Conduit variable '" << dataPath
+                << "' was read into a narrower integer dtype that truncated its value."
+                << std::endl;
+    }
+  }
+  *buffer = out;
 
   return std::vector<fides::RawArray>{ std::move(raw) };
 }
 
+// clang-tidy flags "readability-function-size" here, but it is due to macro-generated
+// numeric type dispatch (fidesTemplateMacro x conduitTemplateMacro), rather than logic
+// complexity.
+// NOLINTNEXTLINE(readability-function-size)
 std::vector<fides::RawArray> ConduitDataSource::GetScalarVariable(
   const std::string& varName,
   const fides::metadata::MetaData& fidesNotUsed(selections))
@@ -430,17 +484,19 @@ std::vector<fides::RawArray> ConduitDataSource::GetScalarVariable(
     throw std::runtime_error("Missing expected data node " + dataPath + " for variable " + varName);
   }
 
-  if (!n.has_path(dataTypePath))
-  {
-    throw std::runtime_error("Missing expected dtype node " + dataTypePath + " for variable " +
-                             varName);
-  }
-
   const conduit::Node& nodeData = n[dataPath];
-  const conduit::Node& nodeDataType = n[dataTypePath];
-
   const std::string& conduitType = nodeData.dtype().name();
-  const std::string& type = nodeDataType.as_string();
+
+  // The declared dtype node is optional. When present it is an explicit request
+  // for the output type, which may differ from the stored buffer (for example a
+  // float64 buffer declared "float" narrows to float on output). When absent,
+  // honor the buffer's own type: a Conduit node is self-describing, so no
+  // separate type declaration is required.
+  std::string type = conduitType;
+  if (n.has_path(dataTypePath))
+  {
+    type = n[dataTypePath].as_string();
+  }
 
   fidesTemplateMacro(
     (GetScalarVariableInternal<conduit_TT, fides_TT>(this->Internals->Node, dataPath)));
@@ -525,14 +581,36 @@ std::vector<fides::RawArray> ReadVariableInternal(std::shared_ptr<conduit::Node>
     auto raw = fides::AllocateRawArray<VariableType>(numValues, numComponents);
     VariableType* buffer = raw.template GetWritePointer<VariableType>();
 
-    std::transform(vecData, vecData + totalElements, buffer, [](ConduitType val) {
-      return static_cast<VariableType>(val);
+    // Convert element-by-element, flagging any value that a narrower requested
+    // integer dtype truncated: a round-trip cast that does not recover the
+    // original value indicates lost data.
+    bool truncated = false;
+    std::transform(vecData, vecData + totalElements, buffer, [&truncated](ConduitType val) {
+      const VariableType out = static_cast<VariableType>(val);
+      if constexpr (std::is_integral_v<ConduitType> && std::is_integral_v<VariableType>)
+      {
+        if (static_cast<ConduitType>(out) != val)
+        {
+          truncated = true;
+        }
+      }
+      return out;
     });
+    if (truncated)
+    {
+      std::cerr << "WARNING: Conduit variable '" << dataPath
+                << "' was read into a narrower integer dtype that truncated one or more values."
+                << std::endl;
+    }
 
     return std::vector<fides::RawArray>{ std::move(raw) };
   }
 }
 
+// clang-tidy flags "readability-function-size" here, but it is due to macro-generated
+// numeric type dispatch (fidesTemplateMacro x conduitTemplateMacro), rather than logic
+// complexity.
+// NOLINTNEXTLINE(readability-function-size)
 std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
   const std::string& varName,
   const fides::metadata::MetaData& fidesNotUsed(selections),
@@ -563,17 +641,19 @@ std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
     throw std::runtime_error("Missing expected data node " + dataPath + " for variable " + varName);
   }
 
-  if (!n.has_path(dataTypePath))
-  {
-    throw std::runtime_error("Missing expected dtype node " + dataTypePath + " for variable " +
-                             varName);
-  }
-
   const conduit::Node& nodeData = n[dataPath];
-  const conduit::Node& nodeDataType = n[dataTypePath];
-
   const std::string& conduitType = nodeData.dtype().name();
-  const std::string& type = nodeDataType.as_string();
+
+  // The declared dtype node is optional. When present it is an explicit request
+  // for the output type, which may differ from the stored buffer (for example a
+  // float64 buffer declared "float" narrows to float on output). When absent,
+  // honor the buffer's own type: a Conduit node is self-describing, so no
+  // separate type declaration is required.
+  std::string type = conduitType;
+  if (n.has_path(dataTypePath))
+  {
+    type = n[dataTypePath].as_string();
+  }
 
   fidesTemplateMacro(
     (ReadVariableInternal<conduit_TT, fides_TT>(this->Internals->Node, shapePath, dataPath, isit)));

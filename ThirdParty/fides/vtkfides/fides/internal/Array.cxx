@@ -645,6 +645,13 @@ void ArrayUniformPointCoordinates::ProcessJSON(const rapidjson::Value& json,
     this->Spacing->ProcessJSON(spacing, sources);
   }
 
+  if (json.HasMember("start") && json["start"].IsObject())
+  {
+    this->Start.reset(new Value());
+    const auto& start = json["start"];
+    this->Start->ProcessJSON(start, sources);
+  }
+
   //See if we are using variable shape, or variables for dims/origin/spacing.
   this->DefinedFromVariableShape = true;
   if (dimensions.HasMember("source"))
@@ -755,6 +762,14 @@ std::vector<size_t> ArrayUniformPointCoordinates::Read(
     this->OriginArrays = this->Origin->Read(paths, sources, selections, fides::io::ReadMode::Sync);
     this->SpacingArrays =
       this->Spacing->Read(paths, sources, selections, fides::io::ReadMode::Sync);
+    // Optional extent start: present only when the file recorded it. Consumed
+    // inline below (Sync), so a local is sufficient. When absent, the extent
+    // defaults to starting at 0 -- the historical behavior.
+    std::vector<fides::RawArray> startArrays;
+    if (this->Start)
+    {
+      startArrays = this->Start->Read(paths, sources, selections, fides::io::ReadMode::Sync);
+    }
 
     size_t nBlocks = this->DimensionArrays.size();
     ret.reserve(nBlocks);
@@ -774,7 +789,18 @@ std::vector<size_t> ArrayUniformPointCoordinates::Read(
                              GetRawArrayValueAs<double>(spacingRaw, 1),
                              GetRawArrayValueAs<double>(spacingRaw, 2) };
 
-      ret.push_back(builder.CreateUniformCoordinates(dimValues, originA, spacingA));
+      if (i < startArrays.size())
+      {
+        const auto& startRaw = startArrays[i];
+        int64_t startA[3] = { GetRawArrayValueAs<int64_t>(startRaw, 0),
+                              GetRawArrayValueAs<int64_t>(startRaw, 1),
+                              GetRawArrayValueAs<int64_t>(startRaw, 2) };
+        ret.push_back(builder.CreateUniformCoordinates(dimValues, originA, spacingA, startA));
+      }
+      else
+      {
+        ret.push_back(builder.CreateUniformCoordinates(dimValues, originA, spacingA));
+      }
     }
 
     // Clear stored arrays so PostRead knows not to re-process

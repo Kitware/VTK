@@ -58,6 +58,7 @@ struct FIDES_EXPORT PartitionInfo
   size_t Dims[3] = { 0, 0, 0 };
   double Origin[3] = { 0, 0, 0 };
   double Spacing[3] = { 1, 1, 1 };
+  int64_t Start[3] = { 0, 0, 0 };
 
   // --- Rectilinear coordinates ---
   RawArray XCoords;
