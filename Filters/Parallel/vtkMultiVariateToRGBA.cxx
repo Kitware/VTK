@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSOADataArrayTemplate.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include <vtk_fmt.h>
 // clang-format off
@@ -510,11 +511,13 @@ int vtkMultiVariateToRGBA::RequestDataObject(
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(inData);
   if (table)
   {
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), table->NewInstance());
+    auto newTable = vtkSmartPointer<vtkTable>::Take(table->NewInstance());
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), newTable);
   }
   else if (dataset)
   {
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), dataset->NewInstance());
+    auto newDataSet = vtkSmartPointer<vtkDataSet>::Take(dataset->NewInstance());
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), newDataSet);
   }
   else
   {
