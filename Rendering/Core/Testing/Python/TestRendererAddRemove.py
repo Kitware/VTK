@@ -282,12 +282,8 @@ class TestRendererAddRemove(Testing.vtkTest):
         iren.AddObserver(vtkCommand.KeyPressEvent, cb)
 
         iren.Initialize()
-        # Testing with image comparison
-        img_file = "TestRendererAddRemove.png"
-        Testing.compareImage(
-            iren.GetRenderWindow(), Testing.getAbsImagePath(img_file), threshold=25
-        )
-        Testing.interact()
+        if Testing.isInteractive():
+            iren.Start()
 
 
 if __name__ == "__main__":

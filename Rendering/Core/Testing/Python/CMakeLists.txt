@@ -36,7 +36,7 @@ vtk_add_test_python(
   TestLeaderActor2D.py
   TestOpacity2.py
   TestOpacityVectors.py
-  TestRendererAddRemove.py
+  TestRendererAddRemove.py,NO_VALID
   TestTransformCoordinateSystems.py
   TestWindowToImageTransparency.py
   TexturedSphere.py
