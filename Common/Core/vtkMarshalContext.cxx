@@ -30,6 +30,10 @@ class vtkMarshalContext::vtkInternals
 public:
   // UniqueId for each registered vtk object.
   vtkTypeUInt32 UniqueId = 0;
+  // Counter used when identifiers are allocated in descending order. See
+  // vtkMarshalContext::SetAllocateIdsDescending.
+  vtkTypeUInt32 DescendingUniqueId = VTK_TYPE_UINT32_MAX;
+  bool AllocateIdsDescending = false;
   // The global state of objects that serializers write into or deserializers read from.
   nlohmann::json States = nlohmann::json::object();
   // Cache for data arrays.
@@ -237,8 +241,14 @@ bool vtkMarshalContext::RegisterObject(vtkObjectBase* objectBase, vtkTypeUInt32&
   }
   else
   {
-    // bump the counter so that newer calls to `MakeId` doesn't give out already used identifiers.
+    // bump the counters so that newer calls to `MakeId` doesn't give out already used identifiers.
     this->Internals->UniqueId = std::max(this->Internals->UniqueId, identifier);
+    // Identifiers in the upper half-space belong to the descending allocator (see
+    // SetAllocateIdsDescending); lower ones must not drag its watermark down.
+    if (identifier > VTK_TYPE_UINT32_MAX / 2 && identifier <= this->Internals->DescendingUniqueId)
+    {
+      this->Internals->DescendingUniqueId = identifier - 1;
+    }
   }
   auto objectIter = internals.WeakObjects.find(identifier);
   if (objectIter == internals.WeakObjects.end())
@@ -415,7 +425,23 @@ void vtkMarshalContext::ResetDirectDependenciesForNode(vtkTypeUInt32 identifier)
 //------------------------------------------------------------------------------
 vtkTypeUInt32 vtkMarshalContext::MakeId()
 {
+  if (this->Internals->AllocateIdsDescending)
+  {
+    return (this->Internals->DescendingUniqueId)--;
+  }
   return (++(this->Internals->UniqueId));
+}
+
+//------------------------------------------------------------------------------
+void vtkMarshalContext::SetAllocateIdsDescending(bool allocateIdsDescending)
+{
+  this->Internals->AllocateIdsDescending = allocateIdsDescending;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMarshalContext::GetAllocateIdsDescending() const
+{
+  return this->Internals->AllocateIdsDescending;
 }
 
 //------------------------------------------------------------------------------

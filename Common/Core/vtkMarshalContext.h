@@ -198,6 +198,22 @@ public:
    */
   vtkTypeUInt32 MakeId();
 
+  ///@{
+  /**
+   * When enabled, `MakeId` hands out identifiers counting down from the maximum
+   * value of `vtkTypeUInt32` instead of counting up from 0.
+   *
+   * A mirror context (e.g. a WebAssembly remote session that deserializes states
+   * produced by a server-side context) must not allocate identifiers from the same
+   * range as its remote counterpart. Otherwise, locally registered objects
+   * would occupy identifiers the remote context hands out later for new objects,
+   * and incoming states would then be applied to unrelated local objects.
+   * Default is off.
+   */
+  void SetAllocateIdsDescending(bool allocateIdsDescending);
+  bool GetAllocateIdsDescending() const;
+  ///@}
+
   /**
    * Convenient to push a parent as the 'active' identifier and
    * add children to that parent when (de)serializing sub-states or
