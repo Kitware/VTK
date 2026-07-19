@@ -2135,6 +2135,10 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::SetWGPUConfiguration(vtkWebGPUConfiguration* config)
 {
+  if (this->WGPUConfiguration == config)
+  {
+    return;
+  }
   // Release all wgpu objects from the current device.
   const bool reInitialize = this->Initialized;
   if (this->Initialized)
