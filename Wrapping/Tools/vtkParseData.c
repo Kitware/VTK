@@ -135,6 +135,7 @@ void vtkParse_InitFunction(FunctionInfo* func)
   func->SizeHint = NULL;
   func->DeprecatedReason = NULL;
   func->DeprecatedVersion = NULL;
+  func->Line = 0;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -230,6 +231,7 @@ void vtkParse_CopyFunction(FunctionInfo* func, const FunctionInfo* orig)
   func->SizeHint = orig->SizeHint;
   func->DeprecatedReason = orig->DeprecatedReason;
   func->DeprecatedVersion = orig->DeprecatedVersion;
+  func->Line = orig->Line;
   func->IsStatic = orig->IsStatic;
   func->IsVirtual = orig->IsVirtual;
   func->IsPureVirtual = orig->IsPureVirtual;

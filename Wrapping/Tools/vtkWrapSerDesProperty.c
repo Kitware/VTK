@@ -5,9 +5,11 @@
 #include "vtkWrapSerDesProperty.h"
 #include "vtkParseData.h"
 #include "vtkParseExtras.h"
+#include "vtkParseMain.h"
 #include "vtkParseProperties.h"
 #include "vtkWrap.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,6 +25,20 @@
 #define callSetterNextParameterMacro(fp, ...) fprintf(fp, ", " __VA_ARGS__)
 
 #define callSetterEndMacro(fp) fprintf(fp, ");\n")
+
+/* report an unserializable property as "file:line: error: ..." */
+static void vtkWrapSerDes_PropertyError(const ClassInfo* classInfo,
+  const FunctionInfo* functionInfo, const PropertyInfo* propertyInfo, const char* what)
+{
+  const OptionInfo* options = vtkParse_GetCommandLineOptions();
+  const char* fileName =
+    (options != NULL && options->InputFileName != NULL) ? options->InputFileName : "<unknown>";
+  const int lineNumber = functionInfo->Line > 0 ? functionInfo->Line : 1;
+  fprintf(stderr,
+    "%s:%d: error: The property %s::%s cannot be %s. Please create an issue at "
+    "https://gitlab.kitware.com/vtk/vtk/-/issues/new\n",
+    fileName, lineNumber, classInfo->Name, propertyInfo->Name, what);
+}
 
 /* test whether all types in testTypes exist in methodTypes */
 static int vtkWrapSerDes_MethodTypeMatches(
@@ -563,12 +579,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     }
     return 1;
   }
-  // __builtin_debugtrap();
-  // __builtin_trap();
-  fprintf(stderr,
-    "Uh oh, the property %s::%s cannot be serialized. Please create an issue at "
-    "https://gitlab.kitware.com/vtk/vtk/-/issues/new\n",
-    classInfo->Name, propertyInfo->Name);
+  vtkWrapSerDes_PropertyError(classInfo, functionInfo, propertyInfo, "serialized");
   exit(1);
 }
 
@@ -995,12 +1006,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     return 1;
   }
 
-  // __builtin_debugtrap();
-  // __builtin_trap();
-  fprintf(stderr,
-    "Uh oh, the property %s::%s cannot be deserialized. Please create an issue at "
-    "https://gitlab.kitware.com/vtk/vtk/-/issues/new\n",
-    classInfo->Name, propertyInfo->Name);
+  vtkWrapSerDes_PropertyError(classInfo, functionInfo, propertyInfo, "deserialized");
   exit(1);
 }
 
