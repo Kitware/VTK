@@ -20,7 +20,6 @@ int TestRadVizChartTable(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
-  std::string dataRoot = testUtils->GetDataRoot();
 
   // Set up a 2D scene, add an RadViz chart to it
   vtkNew<vtkContextView> view;
