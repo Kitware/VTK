@@ -129,7 +129,8 @@ inline void CreateArrayUniformPointCoordinates(rapidjson::Document::AllocatorTyp
                                                rapidjson::Value& parent,
                                                const std::string& dimFieldName,
                                                const std::string& originFieldName,
-                                               const std::string& spacingFieldName)
+                                               const std::string& spacingFieldName,
+                                               const std::string& startFieldName = std::string())
 {
   rapidjson::Value coordObj(rapidjson::kObjectType);
   rapidjson::Value arrObj(rapidjson::kObjectType);
@@ -138,6 +139,11 @@ inline void CreateArrayUniformPointCoordinates(rapidjson::Document::AllocatorTyp
   CreateValueArrayVariable(allocator, arrObj, dimFieldName, "source", "dimensions");
   CreateValueArrayVariable(allocator, arrObj, originFieldName, "source", "origin");
   CreateValueArrayVariable(allocator, arrObj, spacingFieldName, "source", "spacing");
+  // Skip start field for older files that omitted the extent start
+  if (!startFieldName.empty())
+  {
+    CreateValueArrayVariable(allocator, arrObj, startFieldName, "source", "start");
+  }
 
   coordObj.AddMember("array", arrObj, allocator);
   parent.AddMember("coordinate_system", coordObj, allocator);

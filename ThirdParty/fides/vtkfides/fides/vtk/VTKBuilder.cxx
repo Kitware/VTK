@@ -34,6 +34,7 @@
 #include <vtkRectilinearGrid.h>
 #include <vtkStringToken.h>
 #include <vtkStructuredGrid.h>
+#include <vtkType.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnstructuredGrid.h>
 
@@ -130,20 +131,20 @@ vtkSmartPointer<vtkDataArray> MakeConnectivityArray(const RawArray& connRaw)
   switch (connRaw.Type)
   {
     case DataType::Int32:
-      return MakeZeroCopyVTKArrayImpl<int32_t>(connRaw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt32>(connRaw);
     case DataType::Int64:
-      return MakeZeroCopyVTKArrayImpl<int64_t>(connRaw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt64>(connRaw);
     case DataType::UInt32:
     {
       // Bulk-convert uint32 -> int32
       size_t n = connRaw.NumValues;
-      auto arr = vtkSmartPointer<vtkAOSDataArrayTemplate<int32_t>>::New();
+      auto arr = vtkSmartPointer<vtkAOSDataArrayTemplate<vtkTypeInt32>>::New();
       arr->SetNumberOfTuples(static_cast<vtkIdType>(n));
       const uint32_t* src = connRaw.GetPointer<uint32_t>();
-      int32_t* dst = arr->GetPointer(0);
+      vtkTypeInt32* dst = arr->GetPointer(0);
       for (size_t i = 0; i < n; i++)
       {
-        dst[i] = static_cast<int32_t>(src[i]);
+        dst[i] = static_cast<vtkTypeInt32>(src[i]);
       }
       return arr;
     }
@@ -151,13 +152,13 @@ vtkSmartPointer<vtkDataArray> MakeConnectivityArray(const RawArray& connRaw)
     {
       // Bulk-convert uint64 -> int64
       size_t n = connRaw.NumValues;
-      auto arr = vtkSmartPointer<vtkAOSDataArrayTemplate<int64_t>>::New();
+      auto arr = vtkSmartPointer<vtkAOSDataArrayTemplate<vtkTypeInt64>>::New();
       arr->SetNumberOfTuples(static_cast<vtkIdType>(n));
       const uint64_t* src = connRaw.GetPointer<uint64_t>();
-      int64_t* dst = arr->GetPointer(0);
+      vtkTypeInt64* dst = arr->GetPointer(0);
       for (size_t i = 0; i < n; i++)
       {
-        dst[i] = static_cast<int64_t>(src[i]);
+        dst[i] = static_cast<vtkTypeInt64>(src[i]);
       }
       return arr;
     }
@@ -200,25 +201,25 @@ vtkSmartPointer<vtkDataArray> VTKBuilder::MakeVTKArray(const RawArray& raw)
   switch (raw.Type)
   {
     case DataType::Float32:
-      return MakeZeroCopyVTKArrayImpl<float>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeFloat32>(raw);
     case DataType::Float64:
-      return MakeZeroCopyVTKArrayImpl<double>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeFloat64>(raw);
     case DataType::Int8:
-      return MakeZeroCopyVTKArrayImpl<int8_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt8>(raw);
     case DataType::Int16:
-      return MakeZeroCopyVTKArrayImpl<int16_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt16>(raw);
     case DataType::Int32:
-      return MakeZeroCopyVTKArrayImpl<int32_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt32>(raw);
     case DataType::Int64:
-      return MakeZeroCopyVTKArrayImpl<int64_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeInt64>(raw);
     case DataType::UInt8:
-      return MakeZeroCopyVTKArrayImpl<uint8_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeUInt8>(raw);
     case DataType::UInt16:
-      return MakeZeroCopyVTKArrayImpl<uint16_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeUInt16>(raw);
     case DataType::UInt32:
-      return MakeZeroCopyVTKArrayImpl<uint32_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeUInt32>(raw);
     case DataType::UInt64:
-      return MakeZeroCopyVTKArrayImpl<uint64_t>(raw);
+      return MakeZeroCopyVTKArrayImpl<vtkTypeUInt64>(raw);
     default:
       throw std::runtime_error("VTKBuilder::MakeVTKArray: unknown DataType");
   }

@@ -291,6 +291,8 @@ private:
   std::unique_ptr<Value> Dimensions = nullptr;
   std::unique_ptr<Value> Origin = nullptr;
   std::unique_ptr<Value> Spacing = nullptr;
+  // Start == nullptr for files written before the writer recorded it
+  std::unique_ptr<Value> Start = nullptr;
   std::vector<fides::RawArray> DimensionArrays;
   std::vector<fides::RawArray> OriginArrays;
   std::vector<fides::RawArray> SpacingArrays;
