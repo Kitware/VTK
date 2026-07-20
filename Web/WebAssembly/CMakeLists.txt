@@ -4,6 +4,7 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif ()
 
 vtk_module_add_serdes_wasm_package(
+  ASYNC
   MODULE VTK::WebAssembly
   OUTPUT_NAME vtkWebAssembly
   # Uncomment the next line when quick linking is desired for faster dev cycles.
