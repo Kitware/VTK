@@ -8,6 +8,7 @@ Charts/Core/vtkChartLegend.h
 Charts/Core/vtkChartMatrix.h
 Charts/Core/vtkChartParallelCoordinates.h
 Charts/Core/vtkChartPie.h
+Charts/Core/vtkChartRadViz.h
 Charts/Core/vtkChartXY.h
 Charts/Core/vtkChartXYZ.h
 Charts/Core/vtkColorLegend.h
@@ -36,6 +37,7 @@ Charts/Core/vtkPlotHistogram2D.h
 Charts/Core/vtkPlotLine.h
 Charts/Core/vtkPlotLine3D.h
 Charts/Core/vtkPlotParallelCoordinates.h
+Charts/Core/vtkPlotRadViz.h
 Charts/Core/vtkPlotPie.h
 Charts/Core/vtkPlotPoints.h
 Charts/Core/vtkPlotPoints3D.h
