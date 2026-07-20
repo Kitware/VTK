@@ -1,0 +1,110 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include "vtkWebGPUVolumeRayCastMapper.h"
+
+#include "Private/vtkWebGPUVolumeRayCastMapperInternals.h"
+
+#include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
+#include "vtkVolumeProperty.h"
+#include "vtkWebGPURenderWindow.h"
+
+VTK_ABI_NAMESPACE_BEGIN
+
+vtkStandardNewMacro(vtkWebGPUVolumeRayCastMapper);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkWebGPUVolumeRayCastMapper::CreateOverrideAttributes()
+{
+  return vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "WebGPU", nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkWebGPUVolumeRayCastMapper::vtkWebGPUVolumeRayCastMapper()
+  : Internals(new vtkInternals(this))
+{
+}
+
+//------------------------------------------------------------------------------
+vtkWebGPUVolumeRayCastMapper::~vtkWebGPUVolumeRayCastMapper() = default;
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "AdaptiveSampling: " << this->AdaptiveSampling << "\n";
+  os << indent << "EmptySpaceSkipping: " << this->EmptySpaceSkipping << "\n";
+  os << indent << "Jittering: " << this->Jittering << "\n";
+  os << indent << "BrickSize: " << this->BrickSize << "\n";
+  os << indent << "MinimumSampleDistanceFactor: " << this->MinimumSampleDistanceFactor << "\n";
+  os << indent << "MaximumSampleDistanceFactor: " << this->MaximumSampleDistanceFactor << "\n";
+  os << indent << "EmptySpaceOpacityThreshold: " << this->EmptySpaceOpacityThreshold << "\n";
+  os << indent << "InteractiveMaximumNumberOfSamples: " << this->InteractiveMaximumNumberOfSamples
+     << "\n";
+}
+
+//------------------------------------------------------------------------------
+int vtkWebGPUVolumeRayCastMapper::IsRenderSupported(
+  vtkRenderWindow* window, vtkVolumeProperty* vtkNotUsed(property))
+{
+  return vtkWebGPURenderWindow::SafeDownCast(window) != nullptr ? 1 : 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(window))
+{
+  this->Internals->ReleaseGraphicsResources();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
+{
+  ratio[0] = ratio[1] = ratio[2] = 1.0;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::SetVolumeProperty(int port, vtkVolumeProperty* property)
+{
+  auto& current = this->Internals->PortProperties[port];
+  if (current == property)
+  {
+    return;
+  }
+  current = property;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkVolumeProperty* vtkWebGPUVolumeRayCastMapper::GetVolumeProperty(int port)
+{
+  auto it = this->Internals->PortProperties.find(port);
+  return it == this->Internals->PortProperties.end() ? nullptr : it->second;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::GPURender(
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
+{
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::PreRender(vtkRenderer* vtkNotUsed(ren),
+  vtkVolume* vtkNotUsed(vol), double vtkNotUsed(datasetBounds)[6],
+  double vtkNotUsed(scalarRange)[2], int vtkNotUsed(numberOfScalarComponents),
+  unsigned int vtkNotUsed(numberOfLevels))
+{
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::RenderBlock(
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol), unsigned int vtkNotUsed(level))
+{
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::PostRender(
+  vtkRenderer* vtkNotUsed(ren), int vtkNotUsed(numberOfScalarComponents))
+{
+}
+
+VTK_ABI_NAMESPACE_END
