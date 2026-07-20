@@ -74,12 +74,14 @@ class vtkVolume;
 class vtkVolumeInputHelper;
 class vtkVolumeTexture;
 class vtkOpenGLShaderProperty;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLGPUVolumeRayCastMapper
   : public vtkGPUVolumeRayCastMapper
 {
 public:
   static vtkOpenGLGPUVolumeRayCastMapper* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
 
   enum Passes
   {
@@ -305,6 +307,9 @@ private:
   vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
   void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
 };
+
+#define vtkOpenGLGPUVolumeRayCastMapper_OVERRIDE_ATTRIBUTES                                        \
+  vtkOpenGLGPUVolumeRayCastMapper::CreateOverrideAttributes()
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

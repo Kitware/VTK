@@ -19,6 +19,7 @@
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLUniforms.h"
+#include "vtkOverrideAttribute.h"
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>
@@ -94,6 +95,12 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLGPUVolumeRayCastMapper::CreateOverrideAttributes()
+{
+  return vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+}
 
 //------------------------------------------------------------------------------
 class vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
