@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkVolumetricPass
- * @brief   Render the volumetric geometry with property key
+ * @class   vtkOverlayPass
+ * @brief   Render the overlay geometry with property key
  * filtering.
  *
- * vtkVolumetricPass renders the volumetric geometry of all the props that
- * have the keys contained in vtkRenderState.
+ * vtkOverlayPass renders the overlay geometry of all the props that have the
+ * keys contained in vtkRenderState.
  *
  * This pass expects an initialized depth buffer and color buffer.
  * Initialized buffers means they have been cleared with farthest z-value and
@@ -16,19 +16,19 @@
  * vtkRenderPass vtkDefaultPass
  */
 
-#ifndef vtkVolumetricPass_h
-#define vtkVolumetricPass_h
+#ifndef vtkOverlayPass_h
+#define vtkOverlayPass_h
 
 #include "vtkDefaultPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkVolumetricPass : public vtkDefaultPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkOverlayPass : public vtkDefaultPass
 {
 public:
-  static vtkVolumetricPass* New();
-  vtkTypeMacro(vtkVolumetricPass, vtkDefaultPass);
+  static vtkOverlayPass* New();
+  vtkTypeMacro(vtkOverlayPass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -41,16 +41,16 @@ protected:
   /**
    * Default constructor.
    */
-  vtkVolumetricPass();
+  vtkOverlayPass();
 
   /**
    * Destructor.
    */
-  ~vtkVolumetricPass() override;
+  ~vtkOverlayPass() override;
 
 private:
-  vtkVolumetricPass(const vtkVolumetricPass&) = delete;
-  void operator=(const vtkVolumetricPass&) = delete;
+  vtkOverlayPass(const vtkOverlayPass&) = delete;
+  void operator=(const vtkOverlayPass&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

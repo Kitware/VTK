@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkOverlayPass
- * @brief   Render the overlay geometry with property key
+ * @class   vtkOpaquePass
+ * @brief   Render the opaque geometry with property key
  * filtering.
  *
- * vtkOverlayPass renders the overlay geometry of all the props that have the
+ * vtkOpaquePass renders the opaque geometry of all the props that have the
  * keys contained in vtkRenderState.
  *
  * This pass expects an initialized depth buffer and color buffer.
@@ -16,19 +16,19 @@
  * vtkRenderPass vtkDefaultPass
  */
 
-#ifndef vtkOverlayPass_h
-#define vtkOverlayPass_h
+#ifndef vtkOpaquePass_h
+#define vtkOpaquePass_h
 
 #include "vtkDefaultPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOverlayPass : public vtkDefaultPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkOpaquePass : public vtkDefaultPass
 {
 public:
-  static vtkOverlayPass* New();
-  vtkTypeMacro(vtkOverlayPass, vtkDefaultPass);
+  static vtkOpaquePass* New();
+  vtkTypeMacro(vtkOpaquePass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -41,16 +41,16 @@ protected:
   /**
    * Default constructor.
    */
-  vtkOverlayPass();
+  vtkOpaquePass();
 
   /**
    * Destructor.
    */
-  ~vtkOverlayPass() override;
+  ~vtkOpaquePass() override;
 
 private:
-  vtkOverlayPass(const vtkOverlayPass&) = delete;
-  void operator=(const vtkOverlayPass&) = delete;
+  vtkOpaquePass(const vtkOpaquePass&) = delete;
+  void operator=(const vtkOpaquePass&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END
