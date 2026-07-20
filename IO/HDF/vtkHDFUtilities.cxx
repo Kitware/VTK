@@ -863,7 +863,10 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& rootID, const std::string& r
     for (const auto& it : groupNames)
     {
       std::string path = rootName + it.second;
-      attributeDataGroup[it.first] = H5Gopen(rootID, path.c_str(), H5P_DEFAULT);
+      if (H5Lexists(rootID, path.c_str(), H5P_DEFAULT) > 0)
+      {
+        attributeDataGroup[it.first] = H5Gopen(rootID, path.c_str(), H5P_DEFAULT);
+      }
     }
   }
 

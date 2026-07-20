@@ -110,10 +110,10 @@ public:
 
   ///@{
   /**
-   * Get/set the chunk size used for chunk storage layout. Chunked storage is required for
-   * extensible/unlimited dimensions datasets (such as time-dependent data), and filters such as
-   * compression. Read more about chunks and chunk size here :
-   * https://support.hdfgroup.org/documentation/hdf5/latest/hdf5_chunking.html
+   * Get/set the maximum number of elements in chunks used for chunk storage layout.
+   * Chunked storage is required for extensible/unlimited dimensions datasets (such as
+   * time-dependent data), and filters such as compression. Read more about chunks and chunk size
+   * here : https://support.hdfgroup.org/documentation/hdf5/latest/hdf5_chunking.html
    *
    * Regarding performance impact of chunking and how to find the optimal value depending on the
    * data, please check this documentation:
@@ -251,6 +251,7 @@ private:
    * For temporal data, update the steps group with information relevant to the current timestep.
    * return true if the operation was successful.
    */
+  bool UpdateStepsGroupCommon(hid_t group, vtkDataObject* input, unsigned int partId);
   bool UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkStructuredGrid* input);
   bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, unsigned int partId);
@@ -274,15 +275,9 @@ private:
 
   ///@{
   /**
-   * Initialize empty dynamic chunked datasets where data will be appended.
-   * These datasets will be extended when a new partition is written.
+   * Initialize groups for polydata primitives
    */
-  bool InitializeChunkedDatasets(hid_t group, vtkUnstructuredGrid* input);
-  bool InitializeChunkedDatasets(hid_t group, vtkPolyData* input);
-  bool InitializeChunkedDatasets(hid_t group, vtkHyperTreeGrid* input);
-  bool InitializePointDatasets(hid_t group, vtkPoints* input);
-  bool InitializePrimitiveDataset(hid_t group);
-  bool InitializePolyhedraDatasets(hid_t group);
+  bool CreatePrimitiveGroups(hid_t group, vtkPolyData* input);
   ///@}
 
   /**
@@ -300,8 +295,8 @@ private:
   /**
    * Add the points of the point set to the file
    * OpenRoot should succeed on this->Impl before calling this function
-   * dims provides the dimensions of the structured dataset. Used only for ImageData,
-   * RectilinearGrid and StructuredGrid for now.
+   * dims provides the dimensions of the structured dataset.
+   * Used only for StructuredGrid for now.
    */
   bool AppendPoints(hid_t group, vtkPointSet* input, const int* dims = nullptr);
 

@@ -69,7 +69,7 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   HDFWriter->SetUseExternalTimeSteps(config.UseExternalTimeSteps);
   HDFWriter->SetUseExternalPartitions(config.UseExternalPartitions);
   HDFWriter->SetWriteAllTimeSteps(true);
-  HDFWriter->SetChunkSize(100);
+  HDFWriter->SetChunkSize(10);
   HDFWriter->SetCompressionLevel(4);
   HDFWriter->Write();
 
