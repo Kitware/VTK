@@ -86,7 +86,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkAct
         return;
       }
 
-      wgpuRenderer->AddPostRasterizationActor(act);
+      wgpuRenderer->AddPostRasterizationProp(act);
 
       break;
     }

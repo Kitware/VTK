@@ -281,6 +281,13 @@ public:
   WGPUTextureView GetDepthStencilView();
 
   /**
+   * Get the depth-stencil attachment used in the offscreen render target. Mappers that run after
+   * the main rasterization pass can create a depth-only view of it and sample the depth left
+   * behind by the opaque geometry.
+   */
+  WGPUTexture GetDepthStencilTexture();
+
+  /**
    * Get the texture format of the depth-stencil attachment.
    */
   WGPUTextureFormat GetDepthStencilFormat();

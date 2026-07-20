@@ -520,6 +520,12 @@ WGPUTextureView vtkWebGPURenderWindow::GetDepthStencilView()
 }
 
 //------------------------------------------------------------------------------
+WGPUTexture vtkWebGPURenderWindow::GetDepthStencilTexture()
+{
+  return this->DepthStencilAttachment.Texture;
+}
+
+//------------------------------------------------------------------------------
 WGPUTextureFormat vtkWebGPURenderWindow::GetDepthStencilFormat()
 {
   return this->DepthStencilAttachment.Format;
@@ -1552,24 +1558,30 @@ void vtkWebGPURenderWindow::Frame()
   }
 
   this->PostRenderComputePipelines();
+
+  // New command encoder for the post rasterization props and the FSQ pass. It is created up front
+  // so that post rasterization mappers can open a render pass on it, now that the attachments of
+  // the main pass have been flushed and are free to be sampled.
+  this->CreateCommandEncoder();
   this->PostRasterizationRender();
 
   // The full-screen-quad pass copies the offscreen attachment to the surface. Without a surface
   // the attachment is already the final image, and GetPixelData() reads it from there.
   if (this->Surface != nullptr)
   {
-    // New command encoder for the FSQ pass
-    this->CreateCommandEncoder();
     this->RenderOffscreenTexture();
+  }
 
-    // Flushing the FSQ render pass
-    vtkWebGPU::CommandBuffer fsqCmdBufferWrapper = vtkWebGPU::CommandBuffer::Acquire(
-      wgpuCommandEncoderFinish(this->CommandEncoder, &cmdBufDesc));
-    WGPUCommandBuffer cmdBuffer = fsqCmdBufferWrapper;
+  // Flushing the post rasterization and FSQ render passes
+  vtkWebGPU::CommandBuffer fsqCmdBufferWrapper =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(this->CommandEncoder, &cmdBufDesc));
+  WGPUCommandBuffer cmdBuffer = fsqCmdBufferWrapper;
 
-    vtkWebGPU::ReleaseAndNull(this->CommandEncoder, wgpuCommandEncoderRelease);
-    this->FlushCommandBuffers(1, &cmdBuffer);
+  vtkWebGPU::ReleaseAndNull(this->CommandEncoder, wgpuCommandEncoderRelease);
+  this->FlushCommandBuffers(1, &cmdBuffer);
 
+  if (this->Surface != nullptr)
+  {
     // On web, html5 `requestAnimateFrame` takes care of presentation.
 #ifndef __EMSCRIPTEN__
     wgpuSurfacePresent(this->Surface);
