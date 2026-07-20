@@ -3,11 +3,15 @@
 
 #include "vtkXYZMolReader2.h"
 
+#include "vtkFileResourceStream.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMolecule.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
+#include "vtkResourceParser.h"
+#include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/FStream.hxx"
 
@@ -97,6 +101,13 @@ int vtkXYZMolReader2::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
   }
   fileInput.close();
+
+  if (this->TimeSteps.empty())
+  {
+    vtkErrorMacro(
+      "vtkXYZMolReader2 error reading file: " << this->FileName << ". No timesteps found.");
+    return 0;
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeSteps.data(), timeStep);
   double timeRange[2];
@@ -199,6 +210,39 @@ int vtkXYZMolReader2::RequestData(
   fileInput.close();
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkXYZMolReader2::CanReadFile(const char* filename)
+{
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename))
+  {
+    return false;
+  }
+  return vtkXYZMolReader2::CanReadFile(stream);
+}
+
+//------------------------------------------------------------------------------
+bool vtkXYZMolReader2::CanReadFile(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  vtkNew<vtkResourceParser> parser;
+  parser->SetStream(stream);
+
+  // A valid XYZ file begins with a positive integer: the atom count.
+  int nAtoms = 0;
+  if (parser->Parse(nAtoms) != vtkParseResult::Ok)
+  {
+    return false;
+  }
+
+  return nAtoms > 0;
 }
 
 //------------------------------------------------------------------------------

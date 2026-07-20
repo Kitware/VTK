@@ -9,6 +9,10 @@ vtk_add_test_cxx(vtkIOChemistryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOChemistryCxxTests tests
+  TestXYZMolReader2Invalid.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+)
+
+vtk_add_test_cxx(vtkIOChemistryCxxTests tests
   TestPDBReader.cxx NO_VALID DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/6VWW.pdb}
 )
 
