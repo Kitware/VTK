@@ -69,6 +69,7 @@ void vtkTrackballRotate::OnMouseMove(int x, int y, vtkRenderer* ren, vtkRenderWi
   transform->Identity();
   std::transform(
     center.begin(), center.end(), center.begin(), [scale](double v) { return v / scale; });
+  transform->Translate(center[0], center[1], center[2]);
 
   const int dx = rwi->GetLastEventPosition()[0] - x;
   const int dy = rwi->GetLastEventPosition()[1] - y;

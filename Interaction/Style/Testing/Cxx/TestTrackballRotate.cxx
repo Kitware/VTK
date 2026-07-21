@@ -70,6 +70,42 @@ int TestTrackballRotate(int argc, char* argv[])
   camera->GetViewUp(actualViewUp.data());
   success &= assertTuplesEqual(expectedViewUp, actualViewUp, "view up after rotate");
 
+  // Exercise a non-zero center of rotation. The drag below azimuths the camera
+  // by 360 * 150 / 300 = 180 degrees about the view-up axis (0, 1, 0) passing
+  // through the center, so the camera position and focal point must end up
+  // mirrored about the center in the x-z plane.
+  const std::array<double, 3> center = { 0.5, 0.25, -0.5 };
+  style->SetCenterOfRotation(center[0], center[1], center[2]);
+
+  std::array<double, 3> positionBefore, focalPointBefore;
+  camera->GetPosition(positionBefore.data());
+  camera->GetFocalPoint(focalPointBefore.data());
+
+  interactor->SetEventInformation(150, 150, 0, 0, 0, 0);
+  interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent);
+  for (int i = 150; i >= 0; i -= 10)
+  {
+    interactor->SetEventInformation(i, 150, 0, 0, 0, 0);
+    interactor->InvokeEvent(vtkCommand::MouseMoveEvent);
+  }
+  interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent);
+  renderWindow->Render();
+
+  expectedPosition = { 2.0 * center[0] - positionBefore[0], positionBefore[1],
+    2.0 * center[2] - positionBefore[2] };
+  camera->GetPosition(actualPosition.data());
+  success &= assertTuplesEqual(
+    expectedPosition, actualPosition, "position after rotate about non-zero center");
+  expectedFocalPoint = { 2.0 * center[0] - focalPointBefore[0], focalPointBefore[1],
+    2.0 * center[2] - focalPointBefore[2] };
+  camera->GetFocalPoint(actualFocalPoint.data());
+  success &= assertTuplesEqual(
+    expectedFocalPoint, actualFocalPoint, "focal point after rotate about non-zero center");
+  expectedViewUp = { 0.0, 1.0, 0.0 };
+  camera->GetViewUp(actualViewUp.data());
+  success &=
+    assertTuplesEqual(expectedViewUp, actualViewUp, "view up after rotate about non-zero center");
+
   vtkNew<vtkTesting> testing;
   testing->AddArguments(argc, argv);
   if (testing->IsInteractiveModeSpecified())
