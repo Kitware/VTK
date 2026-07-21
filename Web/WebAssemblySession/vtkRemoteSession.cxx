@@ -4,7 +4,10 @@
 #include "vtkRemoteSession.h"
 
 #include "vtkLogger.h"
+#include "vtkMarshalContext.h"
+#include "vtkObjectManager.h"
 #include "vtkRenderWindow.h"
+#include "vtkSerializer.h"
 #include "vtkWebAssemblyHardwareWindow.h"
 #include "vtkWebAssemblyRenderWindowInteractor.h"
 #include "vtkWebAssemblySessionHelper.h"
@@ -26,6 +29,15 @@ vtkRemoteSession::vtkRemoteSession()
 {
   this->Session = NewVTKInterfaceForJavaScript();
   vtkSessionInitializeObjectManager(this->Session);
+  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(this->Session)))
+  {
+    // This session mirrors a remote (server-side) context which owns the ascending
+    // identifier range. Allocate identifiers for objects that are only created on
+    // this side (interactor, hardware window, webgpu configuration, ...) from the
+    // opposite end of the range so they can never collide with identifiers the
+    // remote context assigns later.
+    manager->GetSerializer()->GetContext()->SetAllocateIdsDescending(true);
+  }
 }
 
 //-------------------------------------------------------------------------------
