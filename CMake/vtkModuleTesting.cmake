@@ -1078,17 +1078,6 @@ function (vtk_add_test_mangling module)
     return()
   endif ()
 
-  get_property(_vtkmoduletesting_nomangle_warnings_isset GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings SET)
-  if (NOT _vtkmoduletesting_nomangle_warnings_isset)
-    set_property(GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings FALSE)
-  endif ()
-  get_property(_vtkmoduletesting_nomangle_warnings GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings)
-
-  if (_vtkmoduletesting_nomangle_warnings)
-    # Only warn on these issues once
-    return()
-  endif ()
-
   if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
     get_property(_vtk_real_target_kit GLOBAL
       PROPERTY "_vtk_module_${module}_kit")
@@ -1099,11 +1088,6 @@ function (vtk_add_test_mangling module)
         "See <https://gitlab.kitware.com/vtk/vtk/-/issues/19207>.")
       return ()
     endif ()
-  endif ()
-
-  if (_vtkmoduletesting_nomangle_warnings)
-    set_property(GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings "${_vtkmoduletesting_nomangle_warnings}")
-    return()
   endif ()
 
   cmake_parse_arguments(_vtk_mangling_test "" "" "EXEMPTIONS" ${ARGN})
