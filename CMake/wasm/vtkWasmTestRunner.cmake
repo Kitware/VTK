@@ -141,6 +141,9 @@ if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
   if (UNIX)
     list(APPEND CHROME_ENABLED_FEATURES "Vulkan")
     list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-webgpu")
+    # Chrome's default /dev/shm (64 MB in most containers) is too small and makes
+    # it crash; route shared memory to a regular temp file instead.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--disable-dev-shm-usage")
     # Drive WebGL through ANGLE's SwiftShader software rasterizer. The Linux CI
     # testers do not get a usable GL driver injected (even the GPU runners only
     # provide the CUDA compute stack), so chrome blocklists hardware WebGL2 and
