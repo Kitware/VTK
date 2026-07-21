@@ -85,11 +85,21 @@ struct TangentComputation
         double dUV2_x = uv1[0] - uv2[0];
         double dUV2_y = uv1[1] - uv2[1];
 
-        double f = 1.0 / (dUV1_x * dUV2_y - dUV2_x * dUV1_y);
+        double denom = dUV1_x * dUV2_y - dUV2_x * dUV1_y;
+        if (denom == 0.0)
+        {
+          tangent[0] = 1.0;
+          tangent[1] = 0.0;
+          tangent[2] = 0.0;
+        }
+        else
+        {
+          double f = 1.0 / denom;
 
-        tangent[0] = f * (dUV2_y * ax - dUV1_y * bx);
-        tangent[1] = f * (dUV2_y * ay - dUV1_y * by);
-        tangent[2] = f * (dUV2_y * az - dUV1_y * bz);
+          tangent[0] = f * (dUV2_y * ax - dUV1_y * bx);
+          tangent[1] = f * (dUV2_y * ay - dUV1_y * by);
+          tangent[2] = f * (dUV2_y * az - dUV1_y * bz);
+        }
       }
       else
       {
