@@ -158,7 +158,8 @@ When copy pasting the commands on windows, please paste them into a Powershell w
 ```
 
 In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,
-specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`.
+specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`. If you forgot
+to set this variable during the configure step, you may also set it as an environment variable `VTK_TESTING_WASM_ENGINE` just before running `ctest`.
 
 The binaries are now installed and you may use `-DVTK_DIR=/path/to/VTK/installRelease/lib/cmake/vtk-X.Y` to configure VTK wasm applications with CMake.
 

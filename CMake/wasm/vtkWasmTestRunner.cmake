@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.29)
 
 if (NOT DEFINED TESTING_WASM_ENGINE OR NOT TESTING_WASM_ENGINE)
-  message(FATAL_ERROR "TESTING_WASM_ENGINE not specified!")
-  cmake_language(EXIT 1)
+  if (DEFINED ENV{VTK_TESTING_WASM_ENGINE})
+    # Allow overriding the engine via environment variable. This makes it easy to
+    # reuse build artifacts with a different browser without reconfiguring.
+    set(TESTING_WASM_ENGINE "$ENV{VTK_TESTING_WASM_ENGINE}")
+  else ()
+    message(FATAL_ERROR "TESTING_WASM_ENGINE not specified!")
+    cmake_language(EXIT 1)
+  endif ()
 endif()
 
 if (NOT DEFINED TESTING_WASM_HTML_TEMPLATE OR NOT TESTING_WASM_HTML_TEMPLATE)
