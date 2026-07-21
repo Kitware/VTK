@@ -1104,9 +1104,8 @@ function (vtk_add_test_mangling module)
     endif ()
   endif ()
   get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
-  get_property(has_test GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" SET)
 
-  if (NOT has_test AND has_sources)
+  if (has_sources)
     set_property(GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" 1)
     add_test(
       NAME    "${module}-ManglingTest"
