@@ -317,26 +317,29 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   }
   else
   {
-    double pc[3], w[8];
     if (closestPoint)
     {
-      for (int i = 0; i < 3; i++) // only approximate, not really true for warped hexa
+      // The point lies outside the cell. Since a general hexahedron is trilinearly
+      // warped, its 6 faces are (possibly non-planar) bilinear patches rather than
+      // planes, so simply clamping pcoords component-wise is only approximate.
+      // Instead, project x onto each of the 6 faces via vtkQuad::EvaluatePosition
+      // (which itself handles a non-planar quad correctly) and keep the nearest
+      // result.
+      dist2 = VTK_DOUBLE_MAX;
+      for (int f = 0; f < 6; f++)
       {
-        if (pcoords[i] < 0.0)
+        auto face = this->GetFace(f);
+        int quadSubId;
+        double quadPcoords[3], quadWeights[4], cp[3], d2;
+        face->EvaluatePosition(x, cp, quadSubId, quadPcoords, d2, quadWeights);
+        if (d2 < dist2)
         {
-          pc[i] = 0.0;
-        }
-        else if (pcoords[i] > 1.0)
-        {
-          pc[i] = 1.0;
-        }
-        else
-        {
-          pc[i] = pcoords[i];
+          dist2 = d2;
+          closestPoint[0] = cp[0];
+          closestPoint[1] = cp[1];
+          closestPoint[2] = cp[2];
         }
       }
-      this->EvaluateLocation(subId, pc, closestPoint, w);
-      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
     }
     return 0;
   }
