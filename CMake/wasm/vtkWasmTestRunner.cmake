@@ -131,7 +131,10 @@ if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
     "--no-first-run"
     "--enable-logging=stderr"
     "--v=INFO:CONSOLE"
-    "--user-data-dir=${USER_PROFILE_DIR}")
+    "--user-data-dir=${USER_PROFILE_DIR}"
+    # CI containers run as root, where Chromium refuses to start its sandbox.
+    # The test content is local and trusted, so disabling the sandbox is safe.
+    "--no-sandbox")
   # Chrome does not merge repeated --enable-features flags (the last one wins),
   # so collect all features and emit a single flag below.
   set(CHROME_ENABLED_FEATURES "WebAssemblyExperimentalJSPI")
