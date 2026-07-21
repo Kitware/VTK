@@ -1094,11 +1094,6 @@ function (vtk_add_test_mangling module)
     message(WARNING "Mangling tests are not supported with VTK_ENABLE_KITS (https://gitlab.kitware.com/vtk/vtk/-/issues/19207)")
   endif ()
 
-  if (NOT UNIX)
-    set(_vtkmoduletesting_nomangle_warnings TRUE)
-    message(WARNING "Mangling tests are not supported on non-UNIX platforms")
-  endif ()
-
   if (_vtkmoduletesting_nomangle_warnings)
     set_property(GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings "${_vtkmoduletesting_nomangle_warnings}")
     return()
@@ -1135,5 +1130,8 @@ function (vtk_add_test_mangling module)
               "--exemptions"
               "${_vtk_mangling_test_EXEMPTIONS}")
     set_property(TEST "${module}-ManglingTest" APPEND PROPERTY LABELS MANGLING)
+    set_property(TEST "${module}-ManglingTest"
+      PROPERTY
+        SKIP_RETURN_CODE 125)
   endif ()
 endfunction ()
