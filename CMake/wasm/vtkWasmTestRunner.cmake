@@ -131,14 +131,18 @@ if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
     "--no-first-run"
     "--enable-logging=stderr"
     "--v=INFO:CONSOLE"
-    "--user-data-dir=${USER_PROFILE_DIR}"
-    "--enable-features=WebAssemblyExperimentalJSPI")
+    "--user-data-dir=${USER_PROFILE_DIR}")
+  # Chrome does not merge repeated --enable-features flags (the last one wins),
+  # so collect all features and emit a single flag below.
+  set(CHROME_ENABLED_FEATURES "WebAssemblyExperimentalJSPI")
   if (UNIX)
-    list(APPEND IMPLICIT_ENGINE_ARGS "--enable-features=Vulkan,VulkanFromANGLE")
+    list(APPEND CHROME_ENABLED_FEATURES "Vulkan")
     list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-webgpu")
     list(APPEND IMPLICIT_ENGINE_ARGS "--use-angle=vulkan")
     list(APPEND IMPLICIT_ENGINE_ARGS "--ozone-platform=x11")
   endif()
+  list(JOIN CHROME_ENABLED_FEATURES "," _chrome_enabled_features)
+  list(APPEND IMPLICIT_ENGINE_ARGS "--enable-features=${_chrome_enabled_features}")
   is_interactive_test(TEST_ARGS INTERACTIVE)
   if (NOT INTERACTIVE)
     list(APPEND IMPLICIT_ENGINE_ARGS "--headless")
