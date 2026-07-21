@@ -459,12 +459,25 @@ wasm32-emscripten-linux:build:
         - .wasm32_emscripten_linux
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
-        - .cmake_wasm_build_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
     needs: []
     stage: quick
+
+wasm32-emscripten-linux:test:
+    extends:
+        - .wasm32_emscripten_linux
+        - .cmake_test_wasm_emscripten_linux
+        - .linux_x86_64_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        CTEST_MAX_PARALLELISM: 4
+    timeout: 2 hours
+    needs:
+        - wasm32-emscripten-linux:build
 
 wasm32-emscripten:package:
     extends:
@@ -493,11 +506,24 @@ wasm64-emscripten-linux:build:
         - .wasm64_emscripten_linux
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
-        - .cmake_wasm_build_artifacts
+        - .cmake_build_artifacts
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
     needs: []
+
+wasm64-emscripten-linux:test:
+    extends:
+        - .wasm64_emscripten_linux
+        - .cmake_test_wasm_emscripten_linux
+        - .linux_x86_64_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+    variables:
+        CTEST_MAX_PARALLELISM: 4
+    timeout: 2 hours
+    needs:
+        - wasm64-emscripten-linux:build
 
 wasm64-emscripten:package:
     extends:
