@@ -1947,7 +1947,8 @@ struct NetsWorker
     Pass2(SurfaceNets<TArray, TEdgeRowIndex>* algo, bool odd, vtkIdType numTotalSlices)
     {
       this->Algo = algo;
-      vtkIdType numSlices = odd ? (numTotalSlices / 2) : ((numTotalSlices + 1) / 2);
+      // Odd values in [1, numTotalSlices] number ceil(N/2); even values number floor(N/2).
+      vtkIdType numSlices = odd ? (numTotalSlices + 1) / 2 : (numTotalSlices / 2);
       this->Slices->SetNumberOfValues(numSlices);
       this->Slices->ConstructBackend(2, odd ? 1 : 2); // stride=2, start=1 or 2
     }
