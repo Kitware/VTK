@@ -304,6 +304,13 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
     }
     else
     {
+      if (auto* style = vtkInteractorStyle::SafeDownCast(self->Interactor->GetInteractorStyle()))
+      {
+        if (style->GetAutoAdjustCameraClippingRange())
+        {
+          self->ParentRenderer->ResetCameraClippingRange();
+        }
+      }
       if (self->ShouldResetCamera)
       {
         self->ParentRenderer->ResetCamera();
@@ -342,6 +349,13 @@ void vtkCameraOrientationWidget::PlayAnimationSingleFrame(
     if (this->AnimatorCurrentFrame < this->AnimatorTotalFrames)
     {
       this->InterpolateCamera(this->AnimatorCurrentFrame);
+      if (auto* style = vtkInteractorStyle::SafeDownCast(this->Interactor->GetInteractorStyle()))
+      {
+        if (style->GetAutoAdjustCameraClippingRange())
+        {
+          this->ParentRenderer->ResetCameraClippingRange();
+        }
+      }
       if (this->ShouldResetCamera)
       {
         this->ParentRenderer->ResetCamera();
