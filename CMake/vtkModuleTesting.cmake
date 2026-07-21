@@ -1089,9 +1089,16 @@ function (vtk_add_test_mangling module)
     return()
   endif ()
 
-  if (VTK_ENABLE_KITS)
-    set(_vtkmoduletesting_nomangle_warnings TRUE)
-    message(WARNING "Mangling tests are not supported with VTK_ENABLE_KITS (https://gitlab.kitware.com/vtk/vtk/-/issues/19207)")
+  if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
+    get_property(_vtk_real_target_kit GLOBAL
+      PROPERTY "_vtk_module_${module}_kit")
+    if (_vtk_real_target_kit)
+      set(_vtkmoduletesting_nomangle_warnings TRUE)
+      message(WARNING
+        "Skipping mangling tests for '${module}' because it is part of a kit. "
+        "See <https://gitlab.kitware.com/vtk/vtk/-/issues/19207>.")
+      return ()
+    endif ()
   endif ()
 
   if (_vtkmoduletesting_nomangle_warnings)
