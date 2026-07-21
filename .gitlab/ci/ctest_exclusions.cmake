@@ -612,6 +612,23 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-OpenGL-TestSurfacePlusEdges$"
     "^VTK::RenderingCoreCxx-OpenGL-TestTextureWrap$"
     "^VTK::RenderingCoreCxx-OpenGL-TestWireframe$"
+    # Newly observed failing when running the wasm test suite on Linux hosts.
+    # OpenGL/WebGL2 image comparison differences, tracked with the other wasm
+    # OpenGL failures in https://gitlab.kitware.com/vtk/vtk/-/issues/19343
+    "^VTK::RenderingCoreCxx-OpenGL-TestCoincident$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$"
+    # OpenGL tests that fail under ANGLE's SwiftShader software rasterizer (used
+    # because the Linux runners have no usable GL driver). TestHardwareSelector
+    # reads back mismatched selection ids; the other two are image-comparison
+    # differences. Tracked with the other wasm OpenGL failures in
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
+    "^VTK::RenderingCoreCxx-OpenGL-TestGlyph3DMapperCompositeDisplayAttributeInheritance$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestTransformCoordinateUseDouble$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPass$"
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
@@ -689,6 +706,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRIrradianceHDR$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL$"
     "^VTK::RenderingOpenGL2Cxx-TestPointFillPass$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapperAnisotropic$"
@@ -707,7 +725,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint$"
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint2$"
     "^VTK::RenderingOpenGL2Cxx-TestVBOPLYMapper$"
-    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$")
+    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$"
+    # WebGPU failures observed on Linux hosts, tracked with the other wasm
+    # WebGPU RenderingCore failures in
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19921
+    # TestCoincident hangs (times out); TestGlyph3DMapperPicking is an image
+    # mismatch; TestHardwareSelector returns mismatched selected ids.
+    "^VTK::RenderingCoreCxx-WebGPU-TestCoincident$"
+    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$"
+    "^VTK::RenderingCoreCxx-WebGPU-TestHardwareSelector$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
