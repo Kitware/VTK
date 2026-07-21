@@ -8,6 +8,8 @@
 #include "vtkCameraOrientationRepresentation.h"
 #include "vtkCommand.h"
 #include "vtkEvent.h"
+#include "vtkInteractorStyle.h"
+#include "vtkMath.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
@@ -17,8 +19,28 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
+#include <array>
+
 //----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+double GetCameraScale(vtkCamera* cam)
+{
+  double scale = vtkMath::Norm(cam->GetPosition());
+  if (scale <= 0.0)
+  {
+    scale = vtkMath::Norm(cam->GetFocalPoint());
+    if (scale <= 0.0)
+    {
+      scale = 1.0;
+    }
+  }
+  return scale;
+}
+}
+
 vtkStandardNewMacro(vtkCameraOrientationWidget);
 
 //----------------------------------------------------------------------------
@@ -404,11 +426,58 @@ void vtkCameraOrientationWidget::MoveAction(vtkAbstractWidget* w)
     // compute representation's azimuth, elevation
     self->WidgetRep->WidgetInteraction(e);
 
+    // Pivot about the interactor style's center of rotation when enabled,
+    // otherwise about the focal point (legacy behavior). Captured in world
+    // coordinates before the camera is normalized by the scale below.
+    std::array<double, 3> center;
+    cam->GetFocalPoint(center.data());
+    bool autoAdjustClipRange = false;
+    if (auto* style = vtkInteractorStyle::SafeDownCast(self->Interactor->GetInteractorStyle()))
+    {
+      if (self->UseCenterOfRotation)
+      {
+        style->GetCenterOfRotation(center.data());
+      }
+      autoAdjustClipRange = style->GetAutoAdjustCameraClippingRange();
+    }
+
     // copy widget's az, elev to parent cam.
-    cam->Azimuth(rep->GetAzimuth());
-    cam->Elevation(rep->GetElevation());
+    vtkNew<vtkTransform> transform;
+    const double scale = ::GetCameraScale(cam);
+    std::array<double, 3> temp;
+    cam->GetFocalPoint(temp.data());
+    vtkMath::MultiplyScalar(temp.data(), 1.0 / scale);
+    cam->SetFocalPoint(temp.data());
+
+    cam->GetPosition(temp.data());
+    vtkMath::MultiplyScalar(temp.data(), 1.0 / scale);
+    cam->SetPosition(temp.data());
     cam->OrthogonalizeViewUp();
-    self->ParentRenderer->ResetCameraClippingRange();
+
+    transform->Identity();
+    vtkMath::MultiplyScalar(center.data(), 1.0 / scale);
+    transform->Translate(center[0], center[1], center[2]);
+    transform->RotateWXYZ(rep->GetAzimuth(), cam->GetViewUp());
+    std::array<double, 3> elevAxis;
+    vtkMath::Cross(cam->GetViewUp(), cam->GetDirectionOfProjection(), elevAxis);
+    transform->RotateWXYZ(rep->GetElevation(), elevAxis.data());
+    transform->Translate(-center[0], -center[1], -center[2]);
+    cam->ApplyTransform(transform);
+    cam->OrthogonalizeViewUp();
+
+    // For rescale back.
+    cam->GetFocalPoint(temp.data());
+    vtkMath::MultiplyScalar(temp.data(), scale);
+    cam->SetFocalPoint(temp.data());
+
+    cam->GetPosition(temp.data());
+    vtkMath::MultiplyScalar(temp.data(), scale);
+    cam->SetPosition(temp.data());
+
+    if (autoAdjustClipRange)
+    {
+      self->ParentRenderer->ResetCameraClippingRange();
+    }
     if (self->Interactor->GetLightFollowCamera())
     {
       self->ParentRenderer->UpdateLightsGeometryToFollowCamera();
@@ -436,24 +505,79 @@ void vtkCameraOrientationWidget::OrientParentCamera(double back[3], double up[3]
   this->CameraInterpolator->Initialize();
 
   // get old camera vars
-  double dstPos[3] = {}, srcPos[3] = {}, srcUp[3] = {}, focalP[3] = {}, distV[3] = {};
-  cam->GetFocalPoint(focalP);
-  cam->GetPosition(srcPos);
-  cam->GetViewUp(srcUp);
+  std::array<double, 3> srcPos, srcFp, srcUp;
+  cam->GetFocalPoint(srcFp.data());
+  cam->GetPosition(srcPos.data());
+  cam->GetViewUp(srcUp.data());
   this->CameraInterpolator->AddCamera(0, cam);
 
-  // move camera to look down 'back'
-  vtkMath::Subtract(srcPos, focalP, distV);
-  double dist = vtkMath::Norm(distV);
-  for (int i = 0; i < 3; ++i)
+  // Pivot about the interactor style's center of rotation when enabled,
+  // otherwise about the focal point (legacy behavior).
+  std::array<double, 3> center = srcFp;
+  if (this->UseCenterOfRotation && this->Interactor != nullptr)
   {
-    dstPos[i] = focalP[i] - back[i] * dist;
+    if (auto* style = vtkInteractorStyle::SafeDownCast(this->Interactor->GetInteractorStyle()))
+    {
+      style->GetCenterOfRotation(center.data());
+    }
   }
 
+  // source frame: view direction, orthogonalized view up, right
+  std::array<double, 3> srcDir, srcOrthoUp, srcRight;
+  vtkMath::Subtract(srcFp.data(), srcPos.data(), srcDir.data());
+  vtkMath::Normalize(srcDir.data());
+  const double srcUpDotDir = vtkMath::Dot(srcUp.data(), srcDir.data());
+  // compute a view up vector that is perpendicular to the view direction
+  // with Gram-Schmidt orthogonalization.
+  for (int i = 0; i < 3; ++i)
+  {
+    srcOrthoUp[i] = srcUp[i] - srcUpDotDir * srcDir[i];
+  }
+  vtkMath::Normalize(srcOrthoUp.data());
+  vtkMath::Cross(srcDir.data(), srcOrthoUp.data(), srcRight.data());
+
+  // target frame from 'back' and 'up'
+  std::array<double, 3> dstDir = { back[0], back[1], back[2] };
+  vtkMath::Normalize(dstDir.data());
+  std::array<double, 3> dstUp = { up[0], up[1], up[2] };
+  // Gram-Schmidt orthogonalization to ensure dstUp is perpendicular to dstDir
+  const double dstUpDotDir = vtkMath::Dot(dstUp.data(), dstDir.data());
+  for (int i = 0; i < 3; ++i)
+  {
+    dstUp[i] -= dstUpDotDir * dstDir[i];
+  }
+  vtkMath::Normalize(dstUp.data());
+  std::array<double, 3> dstRight;
+  vtkMath::Cross(dstDir.data(), dstUp.data(), dstRight.data());
+
+  // rotation = dstBasis * srcBasis^T maps the source frame onto the target
+  // frame.
+  double srcBasis[3][3], srcBasisT[3][3], dstBasis[3][3], rotation[3][3];
+  for (int i = 0; i < 3; ++i)
+  {
+    srcBasis[i][0] = srcRight[i];
+    srcBasis[i][1] = srcOrthoUp[i];
+    srcBasis[i][2] = srcDir[i];
+    dstBasis[i][0] = dstRight[i];
+    dstBasis[i][1] = dstUp[i];
+    dstBasis[i][2] = dstDir[i];
+  }
+  vtkMath::Transpose3x3(srcBasis, srcBasisT);
+  vtkMath::Multiply3x3(dstBasis, srcBasisT, rotation);
+
+  // rotate the camera rig rigidly about the center
+  std::array<double, 3> dstPos, dstFp;
+  vtkMath::Subtract(srcPos.data(), center.data(), dstPos.data());
+  vtkMath::Subtract(srcFp.data(), center.data(), dstFp.data());
+  vtkMath::Multiply3x3(rotation, dstPos.data(), dstPos.data());
+  vtkMath::Multiply3x3(rotation, dstFp.data(), dstFp.data());
+  vtkMath::Add(dstPos.data(), center.data(), dstPos.data());
+  vtkMath::Add(dstFp.data(), center.data(), dstFp.data());
+
   // set new camera vars
-  cam->SetFocalPoint(focalP);
-  cam->SetPosition(dstPos);
-  cam->SetViewUp(up);
+  cam->SetFocalPoint(dstFp.data());
+  cam->SetPosition(dstPos.data());
+  cam->SetViewUp(dstUp.data());
   cam->ComputeViewPlaneNormal();
   this->CameraInterpolator->AddCamera(this->AnimatorTotalFrames - 1, cam);
 }
