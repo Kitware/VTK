@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 set(dawn_version "20251002.162335")
 set(dawn_build_date "20260130.0")
 
-# Avoids matching wasm(32|64)_emscripten_windows_chrome_ext_vtk
+# Avoids matching wasm(32|64)_emscripten_windows
 # This is equivalent to `if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows(?!.*wasm)")`
 # if CMake supported regex lookaheads
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "wasm")
