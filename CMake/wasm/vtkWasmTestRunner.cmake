@@ -138,8 +138,21 @@ if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
   if (UNIX)
     list(APPEND CHROME_ENABLED_FEATURES "Vulkan")
     list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-webgpu")
-    list(APPEND IMPLICIT_ENGINE_ARGS "--use-angle=vulkan")
-    list(APPEND IMPLICIT_ENGINE_ARGS "--ozone-platform=x11")
+    # Drive WebGL through ANGLE's SwiftShader software rasterizer. The Linux CI
+    # testers do not get a usable GL driver injected (even the GPU runners only
+    # provide the CUDA compute stack), so chrome blocklists hardware WebGL2 and
+    # fails to create a context. SwiftShader renders on the CPU, needing no GPU,
+    # driver, or X display.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-gl=angle")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-angle=swiftshader")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-swiftshader")
+    # The Vulkan feature above makes the GPU process create a native Vulkan
+    # instance for compositing and WebGPU swap-chain shared images. Without a
+    # real ICD vkCreateInstance() fails and WebGPU canvas presentation breaks
+    # (no SharedImageBackingFactory for Webgpu* usage), so route Chrome's own
+    # Vulkan and Dawn's WebGPU adapter through SwiftShader as well.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-vulkan=swiftshader")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-webgpu-adapter=swiftshader")
   endif()
   list(JOIN CHROME_ENABLED_FEATURES "," _chrome_enabled_features)
   list(APPEND IMPLICIT_ENGINE_ARGS "--enable-features=${_chrome_enabled_features}")
