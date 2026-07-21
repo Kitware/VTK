@@ -59,7 +59,7 @@ public:
     {
       this->CurrentManipulator->Register(parent);
       parent->InvokeEvent(vtkCommand::StartInteractionEvent);
-      this->CurrentManipulator->SetCenterOfRotation(parent->CenterOfRotation);
+      this->CurrentManipulator->SetCenterOfRotation(parent->GetCenterOfRotation());
       this->CurrentManipulator->SetMouseMotionFactor(parent->MouseMotionFactor);
       this->CurrentManipulator->StartInteraction();
       this->CurrentManipulator->OnButtonDown(parent->Interactor->GetEventPosition()[0],
@@ -373,8 +373,6 @@ vtkCameraManipulator* vtkInteractorStyleManipulator::FindManipulator(
 void vtkInteractorStyleManipulator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "CenterOfRotation: " << this->CenterOfRotation[0] << ", "
-     << this->CenterOfRotation[1] << ", " << this->CenterOfRotation[2] << endl;
   os << indent << "MouseMotionFactor: " << this->MouseMotionFactor << endl;
   os << indent << "CameraManipulators: " << this->CameraManipulators << endl;
 }

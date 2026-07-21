@@ -86,20 +86,6 @@ public:
 
   ///@{
   /**
-   * Propagates the center to the manipulators.
-   * This simply sets an internal ivar.
-   * It is propagated to a manipulator before the event
-   * is sent to it.
-   * Also changing the CenterOfRotation during interaction
-   * i.e. after a button press but before a button up
-   * has no effect until the next button press.
-   */
-  vtkSetVector3Macro(CenterOfRotation, double);
-  vtkGetVector3Macro(CenterOfRotation, double);
-  ///@}
-
-  ///@{
-  /**
    * Propagates the motion factor to the manipulators.
    * This simply sets an internal ivar.
    * It is propagated to a manipulator with vtkCameraManipulator::SetMouseMotionFactor
@@ -128,7 +114,6 @@ private:
   void operator=(const vtkInteractorStyleManipulator&) = delete;
 
   bool MouseWheelZoomsToCursor = false;
-  double CenterOfRotation[3] = { 0.0, 0.0, 0.0 };
   double MouseMotionFactor = 1.0;
 
   // The CameraInteractors also store there button and modifier.
