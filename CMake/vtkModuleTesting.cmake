@@ -1075,7 +1075,7 @@ Options:
 function (vtk_add_test_mangling module)
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
   if (vtk_abi_namespace_name STREQUAL "")
-    return()
+    return ()
   endif ()
 
   if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
@@ -1100,7 +1100,7 @@ function (vtk_add_test_mangling module)
     # `SOURCES`. Avoid the error in this case (there aren't any objects
     # anyways, so no need to make any noise).
     if (target_type STREQUAL "INTERFACE_LIBRARY")
-      return()
+      return ()
     endif ()
   endif ()
   get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
@@ -1119,7 +1119,9 @@ function (vtk_add_test_mangling module)
               "${vtk_abi_namespace_name}"
               "--exemptions"
               "${_vtk_mangling_test_EXEMPTIONS}")
-    set_property(TEST "${module}-ManglingTest" APPEND PROPERTY LABELS MANGLING)
+    set_property(TEST "${module}-ManglingTest" APPEND
+      PROPERTY
+        LABELS MANGLING)
     set_property(TEST "${module}-ManglingTest"
       PROPERTY
         SKIP_RETURN_CODE 125)
