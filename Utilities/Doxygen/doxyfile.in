@@ -11,6 +11,8 @@ FULL_PATH_NAMES      = YES
 STRIP_FROM_PATH      = "@VTK_BINARY_DIR@/Utilities/Doxygen/dox"
 WARN_IF_UNDOCUMENTED = NO
 
+LAYOUT_FILE          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/DoxygenLayout.xml"
+
 DISABLE_INDEX        = NO
 GENERATE_TREEVIEW    = NO
 GENERATE_TODOLIST    = YES
@@ -100,8 +102,10 @@ SORT_MEMBER_DOCS     = NO
 DISTRIBUTE_GROUP_DOC = YES
 TAB_SIZE             = 3
 HTML_TIMESTAMP       = YES
+HTML_COLORSTYLE      = TOGGLE
 HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/dox_header.html"
 HTML_EXTRA_FILES     += "@VTK_SOURCE_DIR@/Utilities/Doxygen/vtk_favicon.png"
+HTML_EXTRA_FILES     += "@VTK_SOURCE_DIR@/Utilities/Doxygen/vtk_doxygen_layout.js"
 HTML_EXTRA_FILES     += "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk_version_selector.js"
 HTML_EXTRA_FILES     += "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk_versions.json"
 HTML_EXTRA_STYLESHEET = "@VTK_SOURCE_DIR@/Utilities/Doxygen/doc_extra_stylesheet.css"
