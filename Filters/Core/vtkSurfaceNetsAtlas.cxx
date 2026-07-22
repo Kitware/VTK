@@ -1771,9 +1771,10 @@ void vtkSurfaceNetsAtlas::BuildOutput(
       {
         continue;
       }
-      // Background is never in selectedLIDs, so treat it as implicitly selected.
-      if (!(p.LID0 == bgLID || selectedLIDs.count(p.LID0)) ||
-        !(p.LID1 == bgLID || selectedLIDs.count(p.LID1)))
+      // Emit a patch when at least one of its labels is selected (background is never
+      // in selectedLIDs). This keeps every interface of a selected region, so that its
+      // boundary-only Region shell plus these patches reconstruct the region's full surface.
+      if (!selectedLIDs.count(p.LID0) && !selectedLIDs.count(p.LID1))
       {
         continue;
       }
