@@ -719,7 +719,6 @@ private:
 
   std::shared_ptr<Model> InternalModel;
 
-  static const std::vector<std::string> SupportedExtensions;
   std::vector<std::string> UsedExtensions;
   bool IsBinary = false;
   vtkTypeInt64 GLBStart = 0;
