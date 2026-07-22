@@ -271,14 +271,46 @@ inline double sign(double v)
 // compile-time declaration of needed function/variables/vectors/packages
 // these are useful to minimize the construction cost, especially when
 // multiple instances of this class are instantiated
-exprtk::rtl::vecops::package<double> vectorOperationsPackage;
-std::vector<double> iHat = { 1, 0, 0 };
-std::vector<double> jHat = { 0, 1, 0 };
-std::vector<double> kHat = { 0, 0, 1 };
-mag<double> magnitude;
-crossX<double> crossXProduct;
-crossY<double> crossYProduct;
-crossZ<double> crossZProduct;
+exprtk::rtl::vecops::package<double>& vectorOperationsPackage()
+{
+  static exprtk::rtl::vecops::package<double> package;
+  return package;
+}
+std::vector<double>& iHat()
+{
+  static std::vector<double> ihat = { 1, 0, 0 };
+  return ihat;
+}
+std::vector<double>& jHat()
+{
+  static std::vector<double> jhat = { 0, 1, 0 };
+  return jhat;
+}
+std::vector<double>& kHat()
+{
+  static std::vector<double> khat = { 0, 0, 1 };
+  return khat;
+}
+mag<double>& magnitude()
+{
+  static mag<double> magnitude;
+  return magnitude;
+}
+crossX<double>& crossXProduct()
+{
+  static crossX<double> product;
+  return product;
+}
+crossY<double>& crossYProduct()
+{
+  static crossY<double> product;
+  return product;
+}
+crossZ<double>& crossZProduct()
+{
+  static crossZ<double> product;
+  return product;
+}
 
 //------------------------------------------------------------------------------
 std::string RemoveSpacesFrom(std::string str)
@@ -341,24 +373,24 @@ vtkExprTkFunctionParser::vtkExprTkFunctionParser()
 
   this->ExprTkTools = new vtkExprTkTools;
   // add vector support
-  this->ExprTkTools->SymbolTable.add_package(vectorOperationsPackage);
+  this->ExprTkTools->SymbolTable.add_package(vectorOperationsPackage());
   // add basic constants (inf, pi)
   // this->ExprTkTools->SymbolTable.add_epsilon();
   this->ExprTkTools->SymbolTable.add_infinity();
   this->ExprTkTools->SymbolTable.add_pi();
   // add unit vectors
-  this->ExprTkTools->SymbolTable.add_vector("iHat", iHat);
-  this->ExprTkTools->SymbolTable.add_vector("jHat", jHat);
-  this->ExprTkTools->SymbolTable.add_vector("kHat", kHat);
+  this->ExprTkTools->SymbolTable.add_vector("iHat", iHat());
+  this->ExprTkTools->SymbolTable.add_vector("jHat", jHat());
+  this->ExprTkTools->SymbolTable.add_vector("kHat", kHat());
   // add ln and sign
   this->ExprTkTools->SymbolTable.add_function("ln", std::log);
   this->ExprTkTools->SymbolTable.add_function("sign", sign);
   // add magnitude function
-  this->ExprTkTools->SymbolTable.add_function("mag", magnitude);
+  this->ExprTkTools->SymbolTable.add_function("mag", magnitude());
   // add functions which are used to implement cross product
-  this->ExprTkTools->SymbolTable.add_function("crossX", crossXProduct);
-  this->ExprTkTools->SymbolTable.add_function("crossY", crossYProduct);
-  this->ExprTkTools->SymbolTable.add_function("crossZ", crossZProduct);
+  this->ExprTkTools->SymbolTable.add_function("crossX", crossXProduct());
+  this->ExprTkTools->SymbolTable.add_function("crossY", crossYProduct());
+  this->ExprTkTools->SymbolTable.add_function("crossZ", crossZProduct());
   // register symbol table
   this->ExprTkTools->Expression.register_symbol_table(this->ExprTkTools->SymbolTable);
   // enable the collection of variables, which will be used in UpdateNeededVariables
