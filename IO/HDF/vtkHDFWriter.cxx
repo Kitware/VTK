@@ -2189,13 +2189,13 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
       {
         // Create a subgroup in root, write the data into it and softlink it to the assembly
         this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), uniqueSubTreeName.c_str());
-        if (treeIter->GetCurrentDataObject())
-        {
-          this->AppendIterDataObject(treeIter, leafIndex, uniqueSubTreeName);
-        }
-        else if (this->Impl->GetSubFilesReady())
+        if (this->Impl->GetSubFilesReady())
         {
           this->AppendCompositeSubfilesDataObject(uniqueSubTreeName);
+        }
+        else if (treeIter->GetCurrentDataObject())
+        {
+          this->AppendIterDataObject(treeIter, leafIndex, uniqueSubTreeName);
         }
       }
 
@@ -2292,6 +2292,42 @@ bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
     this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
     ret = this->DispatchDataObject(
       this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
+  }
+  else if (type == VTK_HYPER_TREE_GRID)
+  {
+    vtkNew<vtkHyperTreeGrid> htg;
+    htg->Initialize();
+    if (H5Lexists(nonNullPart, "Mask", H5P_DEFAULT) > 0)
+    {
+      vtkNew<vtkBitArray> mask;
+      mask->SetNumberOfTuples(1); // Required for the mask to be detected
+      htg->SetMask(mask);
+    }
+
+    // Copy attributes, because we have no way to know the HTG dimensions only present in other
+    // parts
+    int branchFactor = 0;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "BranchFactor", 1, &branchFactor);
+    htg->SetBranchFactor(branchFactor);
+    int transposedRoot = 0;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "TransposedRootIndexing", 1, &transposedRoot);
+    htg->SetTransposedRootIndexing(transposedRoot);
+    std::array<int, 3> dimensions;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "Dimensions", 3, dimensions.data());
+    htg->SetDimensions(dimensions.data());
+    if (H5Aexists(nonNullPart, "InterfaceNormalsName") > 0)
+    {
+      std::string tmp;
+      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceInterceptsName", tmp);
+      htg->SetInterfaceInterceptsName(tmp.c_str());
+      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceNormalsName", tmp);
+      htg->SetInterfaceNormalsName(tmp.c_str());
+      htg->SetHasInterface(true);
+    }
+
+    this->Impl->CreateArraysFromNonNullPart(nonNullPart, htg);
+    ret = this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), htg);
   }
   return ret;
 }
