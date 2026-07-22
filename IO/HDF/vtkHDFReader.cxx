@@ -156,7 +156,7 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
 
   for (std::size_t iTopo = 0; iTopo < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++iTopo)
   {
-    const auto& name = vtkHDFUtilities::POLY_DATA_TOPOS[iTopo];
+    const auto& name = vtkHDFUtilities::POLY_DATA_TOPOS()[iTopo];
     auto [cacheOffset, offsetsArray] = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG,
       (name + "/Offsets"), cellOffsets[iTopo], numberOfCells[iTopo] + 1);
     if (!offsetsArray)
@@ -768,7 +768,7 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     {
       return 0;
     }
-    if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+    if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH()))
     {
       return 0;
     }
@@ -1106,7 +1106,7 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
 {
   for (unsigned int level = 0; level < maxLevel; level++)
   {
-    this->Impl->OpenGroupAsVTKGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH); // Change root
+    this->Impl->OpenGroupAsVTKGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH()); // Change root
 
     std::string levelGroupName = "Level" + vtk::to_string(level);
     if (!this->Impl->HasDataset(levelGroupName.c_str()))
@@ -1115,9 +1115,9 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
       return false;
     }
 
-    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + levelGroupName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + levelGroupName;
     if (!this->Impl->RetrieveHDFInformation(
-          vtkHDFUtilities::VTKHDF_ROOT_PATH, "/" + levelGroupName))
+          vtkHDFUtilities::VTKHDF_ROOT_PATH(), "/" + levelGroupName))
     {
       vtkErrorMacro("Could not retrieve AMR level information: " << level);
       return false;
@@ -1588,7 +1588,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   std::map<std::string, std::vector<vtkIdType>> numberOfCells;
   std::map<std::string, std::vector<vtkIdType>> numberOfCellsBefore;
   std::map<std::string, std::vector<vtkIdType>> numberOfConnectivityIds;
-  for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS)
+  for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS())
   {
     // extract the array containing the number of cells of this topology for this step
     numberOfCells[name] =
@@ -1645,10 +1645,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     std::vector<vtkIdType> pieceNumberOfConnectivityIds(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
     for (std::size_t iTopo = 0; iTopo < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++iTopo)
     {
-      const auto& nCells = numberOfCells[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]];
+      const auto& nCells = numberOfCells[vtkHDFUtilities::POLY_DATA_TOPOS()[iTopo]];
       vtkIdType connectivityPartOffset = 0;
       vtkIdType numCellSum = 0;
-      for (const auto& numCell : numberOfCellsBefore[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]])
+      for (const auto& numCell : numberOfCellsBefore[vtkHDFUtilities::POLY_DATA_TOPOS()[iTopo]])
       {
         // No need to iterate if there is no offsetting on the connectivity. Otherwise, we
         // accumulate the number of part until we reach the current offset, it's useful to retrieve
@@ -1666,7 +1666,8 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
       cellOffsets[iTopo] = std::accumulate(nCells.begin(), nCells.begin() + filePiece,
         startingCellOffsets[iTopo] + connectivityPartOffset + filePiece);
       pieceNumberOfCells[iTopo] = nCells[filePiece];
-      const auto& nConnectivity = numberOfConnectivityIds[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]];
+      const auto& nConnectivity =
+        numberOfConnectivityIds[vtkHDFUtilities::POLY_DATA_TOPOS()[iTopo]];
       connectivityOffsets[iTopo] = std::accumulate(nConnectivity.begin(),
         nConnectivity.begin() + filePiece, startingConnectivityIdOffsets[iTopo]);
       pieceNumberOfConnectivityIds[iTopo] = nConnectivity[filePiece];
@@ -1699,7 +1700,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 
     // sum over topologies to get total offsets for fields
     vtkIdType cellOffset = startingCellOffset;
-    for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS)
+    for (const auto& name : vtkHDFUtilities::POLY_DATA_TOPOS())
     {
       const auto& nCells = numberOfCells[name];
       cellOffset = std::accumulate(nCells.begin(), nCells.begin() + filePiece, cellOffset);
@@ -1799,7 +1800,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
   vtkIdType pdcSteps = this->NumberOfSteps;
 
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH());
 
   pdc->SetNumberOfPartitionedDataSets(
     static_cast<unsigned int>(datasets.size() - 1)); // One child is the assembly
@@ -1810,7 +1811,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     {
       continue;
     }
-    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + datasetName;
     if (!this->Impl->RetrieveHDFInformation(hdfPathName))
     {
       return 0;
@@ -1881,7 +1882,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 
   // Implementation can point to a subset due to the previous method instead of the root, reset it
   // to avoid any conflict for temporal dataset.
-  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH());
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1895,9 +1896,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
   bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
 
-  int result = this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly");
+  int result =
+    this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/Assembly");
 
-  if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+  if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH()))
   {
     return 0;
   }
@@ -1918,14 +1920,14 @@ void vtkHDFReader::GenerateAssembly()
 bool vtkHDFReader::RetrieveStepsFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH());
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + datasetName;
     if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
     {
       // Do not read the (null) block if type is not set
@@ -1954,14 +1956,14 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 bool vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
-    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+    this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH());
   for (const auto& datasetName : datasets)
   {
     if (datasetName == "Assembly")
     {
       continue;
     }
-    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + datasetName;
 
     if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
     {
