@@ -1305,13 +1305,18 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataSet* dsA, vtkDataSet* dsB, double 
 int vtkTesting::InteractorEventLoop(
   int argc, char* argv[], vtkRenderWindowInteractor* iren, const char* playbackStream)
 {
-  bool disableReplay = false, record = false, playbackFile = false;
+  bool disableReplay = false;
+  bool record = false;
+  bool playbackFile = false;
+  bool showCursor = false;
+
   std::string playbackFileName;
   for (int i = 0; i < argc; i++)
   {
     disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     record |= (strcmp("--Record", argv[i]) == 0);
     playbackFile |= (strcmp("--PlaybackFile", argv[i]) == 0);
+    showCursor |= (strcmp("--ShowCursor", argv[i]) == 0);
     if (playbackFile && playbackFileName.empty())
     {
       if (i + 1 < argc)
@@ -1336,6 +1341,7 @@ int vtkTesting::InteractorEventLoop(
     }
     else
     {
+      recorder->SetShowCursor(showCursor);
       if (playbackStream)
       {
         recorder->ReadFromInputStringOn();

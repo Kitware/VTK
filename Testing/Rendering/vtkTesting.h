@@ -107,6 +107,8 @@ public:
    * or can copied into a location as a playback file.
    * - If a "--PlaybackFile filename is specified,the provided file
    * contains the events and is passed to the event recorder.
+   * - If a "--ShowCursor" is specified, the event loop will be played with a white dot showing
+   * where the cursor mouse is at any time.
 
    * Typical usage in a test for a VTK widget that needs playback
    * testing / recording is :
