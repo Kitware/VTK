@@ -87,11 +87,11 @@ int TestUserShader(int argc, char* argv[])
     "  in vec3 myNormalMCVSOutput;\n",                   // but we add this
     false                                                // only do it once
   );
-  sp->AddFragmentShaderReplacement("//VTK::Normal::Impl", // replace the normal block
-    true,                                                 // before the standard replacements
-    "//VTK::Normal::Impl\n"                               // we still want the default calc
-    "  diffuseColor = abs(myNormalMCVSOutput);\n",        // but we add this
-    false                                                 // only do it once
+  sp->AddFragmentShaderReplacement("//VTK::Color::Impl", // replace the color block
+    true,                                                // before the standard replacements
+    "//VTK::Color::Impl\n"                               // we still want the default calc
+    "  diffuseColor = abs(myNormalMCVSOutput);\n",       // but we add this
+    false                                                // only do it once
   );
 
   // Test enumerating shader replacements
@@ -100,10 +100,10 @@ int TestUserShader(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (sp->GetNthShaderReplacementTypeAsString(0) != std::string("Vertex") ||
-    sp->GetNthShaderReplacementTypeAsString(1) != std::string("Fragment") ||
-    sp->GetNthShaderReplacementTypeAsString(2) != std::string("Vertex") ||
-    sp->GetNthShaderReplacementTypeAsString(3) != std::string("Fragment"))
+  if (sp->GetNthShaderReplacementTypeAsString(0) != std::string("Fragment") ||
+    sp->GetNthShaderReplacementTypeAsString(1) != std::string("Vertex") ||
+    sp->GetNthShaderReplacementTypeAsString(2) != std::string("Fragment") ||
+    sp->GetNthShaderReplacementTypeAsString(3) != std::string("Vertex"))
   {
     return EXIT_FAILURE;
   }

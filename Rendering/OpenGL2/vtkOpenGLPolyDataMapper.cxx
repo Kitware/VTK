@@ -704,43 +704,34 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
     {
       fsimpl +=
         "  diffuseColor = mix(diffuseColor, diffuseIntensity*edgeColor, emix * edgeOpacity);\n"
-        "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix * edgeOpacity);\n"
-        // " else { discard; }\n" // this yields wireframe only
-        ;
+        "  ambientColor = mix(ambientColor, ambientIntensity*edgeColor, emix * edgeOpacity);\n";
+
+      // even more fake tubes, for surface with edges this implementation
+      // just adjusts the normal calculation but not the zbuffer
+      fsimpl += "  float cdist = min(edist[0], edist[1]);\n"
+                "  vec4 cedge = mix(edgeEqn[0], edgeEqn[1], 0.5 + 0.5*sign(edist[0] - edist[1]));\n"
+                "  cedge = mix(cedge, edgeEqn[2], 0.5 + 0.5*sign(cdist - edist[2]));\n"
+                "  vec3 tnorm = normalize(cross(normalVCVSOutput, cross(vec3(cedge.xy,0.0), "
+                "normalVCVSOutput)));\n"
+                "  float rdist = 2.0*min(cdist, edist[2])/lineWidth;\n"
+
+                // these two lines adjust for the fact that normally part of the
+                // tube would be self occluded but as these are fake tubes this does
+                // not happen. The code adjusts the computed location on the tube as
+                // the surface normal dot view direction drops.
+                "  float A = tnorm.z;\n"
+                "  rdist = 0.5*rdist + 0.5*(rdist + A)/(1+abs(A));\n"
+
+                "  float lenZ = clamp(sqrt(1.0 - rdist*rdist),0.0,1.0);\n"
+                "  normalVCVSOutput = mix(normalVCVSOutput, normalize(rdist*tnorm + "
+                "normalVCVSOutput*lenZ), emix);\n";
     }
     else
     {
       fsimpl += "  diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);\n"
-                "  ambientColor = mix( ambientColor, edgeColor, emix * edgeOpacity);\n"
-        // " else { discard; }\n" // this yields wireframe only
-        ;
+                "  ambientColor = mix( ambientColor, edgeColor, emix * edgeOpacity);\n";
     }
     vtkShaderProgram::Substitute(FSSource, "//VTK::Edges::Impl", fsimpl);
-
-    // even more fake tubes, for surface with edges this implementation
-    // just adjusts the normal calculation but not the zbuffer
-    if (canRenderLinesAsTube)
-    {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-        "//VTK::Normal::Impl\n"
-        "  float cdist = min(edist[0], edist[1]);\n"
-        "  vec4 cedge = mix(edgeEqn[0], edgeEqn[1], 0.5 + 0.5*sign(edist[0] - edist[1]));\n"
-        "  cedge = mix(cedge, edgeEqn[2], 0.5 + 0.5*sign(cdist - edist[2]));\n"
-        "  vec3 tnorm = normalize(cross(normalVCVSOutput, cross(vec3(cedge.xy,0.0), "
-        "normalVCVSOutput)));\n"
-        "  float rdist = 2.0*min(cdist, edist[2])/lineWidth;\n"
-
-        // these two lines adjust for the fact that normally part of the
-        // tube would be self occluded but as these are fake tubes this does
-        // not happen. The code adjusts the computed location on the tube as
-        // the surface normal dot view direction drops.
-        "  float A = tnorm.z;\n"
-        "  rdist = 0.5*rdist + 0.5*(rdist + A)/(1+abs(A));\n"
-
-        "  float lenZ = clamp(sqrt(1.0 - rdist*rdist),0.0,1.0);\n"
-        "  normalVCVSOutput = mix(normalVCVSOutput, normalize(rdist*tnorm + "
-        "normalVCVSOutput*lenZ), emix);\n");
-    }
 
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -2550,9 +2541,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
 {
   this->ReplaceShaderRenderPass(shaders, ren, actor, true);
   this->ReplaceShaderCustomUniforms(shaders, actor);
+  this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderEdges(shaders, ren, actor);
-  this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
   this->ReplaceShaderTCoord(shaders, ren, actor);
   this->ReplaceShaderPicking(shaders, ren, actor);

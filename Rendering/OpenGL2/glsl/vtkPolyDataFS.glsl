@@ -74,12 +74,12 @@ void main()
 
   //VTK::ValuePass::Impl
 
+  // Generate the normal if we are not passed in one
+  //VTK::Normal::Impl
+
   //VTK::Color::Impl
 
   //VTK::Edges::Impl
-
-  // Generate the normal if we are not passed in one
-  //VTK::Normal::Impl
 
   //VTK::PBR::Impl
 
