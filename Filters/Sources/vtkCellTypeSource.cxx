@@ -41,15 +41,19 @@ vtkStandardNewMacro(vtkCellTypeSource);
 
 namespace
 {
-const std::set<int> SupportedCellTypes = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
-  VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE, VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, VTK_PIXEL,
-  VTK_QUADRATIC_TRIANGLE, VTK_QUADRATIC_QUAD, VTK_BIQUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE,
-  VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE, VTK_BEZIER_QUADRILATERAL, VTK_TETRA,
-  VTK_HEXAHEDRON, VTK_POLYHEDRON, VTK_VOXEL, VTK_WEDGE, VTK_PYRAMID, VTK_PENTAGONAL_PRISM,
-  VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
-  VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON,
-  VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
-  VTK_BEZIER_WEDGE };
+const std::set<int>& SupportedCellTypes()
+{
+  static const std::set<int> cellTypes = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
+    VTK_LAGRANGE_CURVE, VTK_BEZIER_CURVE, VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, VTK_PIXEL,
+    VTK_QUADRATIC_TRIANGLE, VTK_QUADRATIC_QUAD, VTK_BIQUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE,
+    VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_TRIANGLE, VTK_BEZIER_QUADRILATERAL, VTK_TETRA,
+    VTK_HEXAHEDRON, VTK_POLYHEDRON, VTK_VOXEL, VTK_WEDGE, VTK_PYRAMID, VTK_PENTAGONAL_PRISM,
+    VTK_HEXAGONAL_PRISM, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
+    VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON,
+    VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE, VTK_BEZIER_TETRAHEDRON, VTK_BEZIER_HEXAHEDRON,
+    VTK_BEZIER_WEDGE };
+  return cellTypes;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -74,7 +78,7 @@ void vtkCellTypeSource::SetCellType(int cellType)
   {
     return;
   }
-  else if (SupportedCellTypes.find(cellType) != SupportedCellTypes.end())
+  else if (SupportedCellTypes().find(cellType) != SupportedCellTypes().end())
   {
     this->CellType = cellType;
     this->Modified();
@@ -86,7 +90,7 @@ void vtkCellTypeSource::SetCellType(int cellType)
 //------------------------------------------------------------------------------
 int vtkCellTypeSource::GetCellDimension()
 {
-  if (SupportedCellTypes.find(this->CellType) != SupportedCellTypes.end())
+  if (SupportedCellTypes().find(this->CellType) != SupportedCellTypes().end())
   {
     return vtkCellTypeUtilities::GetDimension(this->CellType);
   }
