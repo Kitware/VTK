@@ -20,6 +20,36 @@
 #pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
+#if defined(_WIN32)
+#include "vtkWindows.h" // For DllMain(), to detect process shutdown
+
+namespace
+{
+// Set by DllMain() when the whole process is terminating, as opposed to this
+// library merely being unloaded. See the destructor of
+// vtkSMPToolsImplTBBInitialize below for why this distinction matters.
+bool vtkSMPToolsTBBProcessIsExiting = false;
+}
+
+// On Windows, global/static destructors run at process exit only after
+// ExitProcess() has already terminated every other thread, including TBB's
+// worker threads. Tearing down the TBB task arena at that point blocks forever
+// on TBB-internal state the killed workers left locked, hanging the process.
+// Record process termination here (lpvReserved != nullptr) as opposed to a
+// FreeLibrary() unload (lpvReserved == nullptr), so the arena teardown can be
+// skipped during shutdown while still running normally on library unload. TBB
+// itself makes the very same distinction in its own DllMain (oneTBB
+// src/tbb/main.cpp).
+extern "C" BOOL WINAPI DllMain(HINSTANCE, DWORD reason, LPVOID lpvReserved)
+{
+  if (reason == DLL_PROCESS_DETACH && lpvReserved != nullptr)
+  {
+    vtkSMPToolsTBBProcessIsExiting = true;
+  }
+  return TRUE;
+}
+#endif
+
 namespace vtk
 {
 namespace detail
@@ -55,8 +85,20 @@ vtkSMPToolsImplTBBInitialize::~vtkSMPToolsImplTBBInitialize()
 {
   if (--vtkSMPToolsImplTBBInitializeCount == 0)
   {
-    delete taskArena;
-    taskArena = nullptr;
+#if defined(_WIN32)
+    // Do not tear down the task arena while the process is shutting down (see
+    // DllMain above). At that point ExitProcess() has already terminated TBB's
+    // worker threads, so tbb::task_arena::~task_arena() -> terminate() would
+    // block forever on TBB-internal state the killed workers left locked,
+    // hanging process exit. The OS reclaims the memory anyway. On a normal
+    // library unload the workers are still alive, so the arena is destroyed
+    // normally.
+    if (!vtkSMPToolsTBBProcessIsExiting)
+#endif
+    {
+      delete taskArena;
+      taskArena = nullptr;
+    }
 
     delete vtkSMPToolsCS;
     vtkSMPToolsCS = nullptr;
