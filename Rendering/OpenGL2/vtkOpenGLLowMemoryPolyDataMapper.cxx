@@ -1167,18 +1167,34 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderValues(
   vtkShaderProgram::Substitute(fsSource, "//VTK::Light::Dec",
     "//VTK::Light::Dec\n"
     "uniform int enable_lights;\n");
+
+  std::string pbrImpl;
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR)
+  {
+    // in case vtkEnableLights is 0, we won't apply the full PBR pipeline.
+    // but we can sample albedo and apply gamma correction.
+    for (auto& t : actor->GetProperty()->GetAllTextures())
+    {
+      if (t.first == "albedoTex")
+      {
+        pbrImpl = "  gl_FragData[0] *= texture(albedoTex, tcoordVCVSOutput);\n";
+      }
+    }
+    pbrImpl += "  gl_FragData[0].rgb = pow(gl_FragData[0].rgb, vec3(1.0 / 2.2));\n";
+  }
+
   vtkShaderProgram::Substitute(fsSource, "//VTK::Light::Impl",
-    "  gl_FragData[0] = vec4(ambientColor + diffuseColor, opacity);\n"
-    "   int vtkEnableLights = enable_lights;\n"
-    "   if (vtkEnableLights == 0 && renderLinesAsTubes == 1 && primitiveSize == 3 && "
-    "hasTubeBasisVS == 1)\n"
-    "   {\n"
-    "     vtkEnableLights = 1;\n"
-    "   }\n"
-    "   if (vtkEnableLights == 1)\n"
-    "   {\n"
-    "   //VTK::Light::Impl\n"
-    "   }\n");
+    "  gl_FragData[0] = vec4(ambientColor + diffuseColor, opacity);\n" + pbrImpl +
+      "   int vtkEnableLights = enable_lights;\n"
+      "   if (vtkEnableLights == 0 && renderLinesAsTubes == 1 && primitiveSize == 3 && "
+      "hasTubeBasisVS == 1)\n"
+      "   {\n"
+      "     vtkEnableLights = 1;\n"
+      "   }\n"
+      "   if (vtkEnableLights == 1)\n"
+      "   {\n"
+      "   //VTK::Light::Impl\n"
+      "   }\n");
   auto oglRenderer = static_cast<vtkOpenGLRenderer*>(renderer);
   // Apply shader mods.
   for (const auto& modName : this->ModNames)
