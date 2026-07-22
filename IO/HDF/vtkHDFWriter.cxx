@@ -734,11 +734,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
   input->GetDimensions(dims);
   this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims);
 
-  if (input->GetTransposedRootIndexing())
-  {
-    this->Impl->CreateScalarAttribute(
-      group, "TransposedRootIndexing", input->GetTransposedRootIndexing());
-  }
+  this->Impl->CreateScalarAttribute(
+    group, "TransposedRootIndexing", input->GetTransposedRootIndexing());
   if (input->GetHasInterface())
   {
     this->Impl->CreateStringAttribute(
@@ -747,17 +744,31 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
       group, "InterfaceNormalsName", input->GetInterfaceNormalsName());
   }
 
-  auto xcoords = input->GetXCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(xcoords->GetDataType()), xcoords);
+  if (input->GetMaxNumberOfTrees() > 0)
+  {
+    auto xcoords = input->GetXCoordinates();
+    this->Impl->AddOrCreateDataset(group, "XCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(xcoords->GetDataType()), xcoords);
+    auto ycoords = input->GetYCoordinates();
+    this->Impl->AddOrCreateDataset(group, "YCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(ycoords->GetDataType()), ycoords);
 
-  auto ycoords = input->GetYCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(ycoords->GetDataType()), ycoords);
-
-  auto zcoords = input->GetZCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(zcoords->GetDataType()), zcoords);
+    auto zcoords = input->GetZCoordinates();
+    this->Impl->AddOrCreateDataset(group, "ZCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(zcoords->GetDataType()), zcoords);
+  }
+  else
+  {
+    // When HTG are initialized without any trees, an empty tuple is pushed in coordinate arrays.
+    // We don't want to write it to the file.
+    vtkNew<vtkDoubleArray> empty;
+    this->Impl->AddOrCreateDataset(
+      group, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+    this->Impl->AddOrCreateDataset(
+      group, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+    this->Impl->AddOrCreateDataset(
+      group, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+  }
 
   vtkNew<vtkBitArray> descriptors;
   vtkNew<vtkTypeInt64Array> treeIds;
