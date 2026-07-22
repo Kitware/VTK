@@ -1387,9 +1387,11 @@ int* vtkXOpenGLRenderWindow::GetPosition()
   vtkXTranslateCoordinates(this->DisplayId, this->WindowId, this->ParentId, 0, 0,
     &this->Position[0], &this->Position[1], &child);
 
-  // Attempt to retrieve size of the window decoration (title bar)
-  // so we can subtract and end up with the outer top-left corner
-  // which will properly round-trip with `SetPosition()`.
+  // Retrieve the EWMH _NET_FRAME_EXTENTS property describing the
+  // frame decoration (left, right, top, bottom). Subtracting the
+  // left/top extents converts the client origin returned by
+  // XTranslateCoordinates() into the outer frame origin expected by
+  // SetPosition().
   const Atom prop = vtkXInternAtom(this->DisplayId, "_NET_FRAME_EXTENTS", True);
   Atom type;
   int fmt;
