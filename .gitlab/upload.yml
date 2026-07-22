@@ -51,13 +51,6 @@
 
     interruptible: false
 
-.rsync_upload_wheel_sdk:
-    extends: .rsync_upload
-    environment:
-        name: rsync-upload-wheel-sdk
-    variables:
-        RSYNC_KEY_PATH: $RSYNC_WHEEL_SDK_KEY
-
 .rsync_upload_release_artifacts:
     extends: .rsync_upload
     environment:
@@ -71,6 +64,7 @@
     variables:
         RSYNC_KEY_PATH: $RSYNC_RELEASE_KEY
 
+## Uploads a wheel config's built wheel to PyPI. Tag (release) pipelines only.
 .pypi_upload:
     image: "fedora:42"
     stage: upload
@@ -90,22 +84,39 @@
         - pipx install twine==6.1.0
         - twine upload --verbose -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*
 
-.pypi_vtk_upload:
+## Uploads a wheel config's built wheel to the GitLab package registry, plus
+## the wheel-sdk tarball and vtk-sdk wheel to vtk.org (both via rsync).
+## Weekly-upload schedule pipelines only.
+## Set VTK_CI_WHEEL_SDK_TARBALL: "false" for configs that do not produce a
+## wheel-sdk tarball (currently the macOS arm64 configs).
+.wheel_upload:
     image: "fedora:42"
     stage: upload
     tags:
         - docker
         - linux-x86_64
         - build
+    environment:
+        name: rsync-upload-wheel-sdk
+    variables:
+        RSYNC_KEY_PATH: $RSYNC_WHEEL_SDK_KEY
+        VTK_CI_WHEEL_SDK_TARBALL: "true"
 
     script:
         - cd build/
         - ls dist
-        - dnf install -y --setopt=install_weak_deps=False pipx
+        - dnf install -y --setopt=install_weak_deps=False pipx rsync openssh-clients
         - pipx ensurepath
         - source $HOME/.bash_profile
         - pipx install twine==6.1.0
         - twine upload --verbose -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
+        - cd ..
+        - chmod 400 $RSYNC_KEY_PATH
+        - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
+        - '[ "$VTK_CI_WHEEL_SDK_TARBALL" != "false" ] && rsync -tv --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" build/*-wheel-sdk-*.tar.xz kitware@web.kitware.com:wheel-sdks/'
+        # The wheel location is the name of the PIP package. It is important that the last component is the same as the package name.
+        # as `pip install vtk-sdk --extra-index-url "vtk.org/files/wheel-sdks"` will look into `vtk.org/files/wheel-sdks/vtk-sdk`.
+        - rsync -tv --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" build/wheel_sdks/*.whl kitware@web.kitware.com:wheel-sdks/vtk-sdk/
 
 .generic_vtk_wasm_emscripten_linux_upload:
     stage: upload
