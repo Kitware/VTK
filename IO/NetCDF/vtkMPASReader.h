@@ -36,6 +36,7 @@
 #ifndef vtkMPASReader_h
 #define vtkMPASReader_h
 
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -79,8 +80,15 @@ public:
   ///@{
   /**
    * Get the number of data variables at the cell centers and points
+   *
+   * The point and cell arrays are defined in terms of the dual grid. When the
+   * `UsePrimaryGrid` option gets turned on, the semantics of points and cells
+   * get reversed. In that case the selection of points affects cells and vice
+   * versa.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use GetNumberOfCellArrays instead.")
   virtual int GetNumberOfCellVars();
+  VTK_DEPRECATED_IN_9_8_0("Use GetNumberOfPointArrays instead.")
   virtual int GetNumberOfPointVars();
   ///@}
 
