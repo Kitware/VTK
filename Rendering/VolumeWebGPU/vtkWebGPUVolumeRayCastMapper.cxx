@@ -8,6 +8,7 @@
 #include "vtkOverrideAttribute.h"
 #include "vtkVolumeProperty.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -82,9 +83,35 @@ vtkVolumeProperty* vtkWebGPUVolumeRayCastMapper::GetVolumeProperty(int port)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUVolumeRayCastMapper::GPURender(
-  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
+void vtkWebGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 {
+  auto* window = vtkWebGPURenderWindow::SafeDownCast(ren->GetRenderWindow());
+  auto* renderer = vtkWebGPURenderer::SafeDownCast(ren);
+  if (window == nullptr || renderer == nullptr)
+  {
+    vtkErrorMacro(<< "A WebGPU render window and renderer are required.");
+    return;
+  }
+
+  switch (renderer->GetRenderStage())
+  {
+    case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
+      this->Internals->SyncDeviceResources(window, vol);
+      break;
+
+    case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
+      // The ray march reads the depth the opaque geometry left behind, which is still being
+      // written into at this point, so draw once that pass has been flushed.
+      renderer->AddPostRasterizationProp(vol);
+      break;
+
+    case vtkWebGPURenderer::RenderStageEnum::RenderPostRasterization:
+      this->Internals->Render(window, ren, vol);
+      break;
+
+    default:
+      break;
+  }
 }
 
 //------------------------------------------------------------------------------

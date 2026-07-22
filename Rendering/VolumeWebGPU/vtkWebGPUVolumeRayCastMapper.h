@@ -152,6 +152,9 @@ public:
   vtkBooleanMacro(Jittering, bool);
   ///@}
 
+  /// Device side state, defined in a private header so that no WebGPU type reaches this one.
+  class vtkInternals;
+
 protected:
   vtkWebGPUVolumeRayCastMapper();
   ~vtkWebGPUVolumeRayCastMapper() override;
@@ -175,7 +178,6 @@ private:
   vtkWebGPUVolumeRayCastMapper(const vtkWebGPUVolumeRayCastMapper&) = delete;
   void operator=(const vtkWebGPUVolumeRayCastMapper&) = delete;
 
-  class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
 
