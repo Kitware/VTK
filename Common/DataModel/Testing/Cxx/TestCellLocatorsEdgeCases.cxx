@@ -87,8 +87,8 @@ static bool TestLocatorFindClosestPointWithinRadius(vtkDataSet* ds, vtkAbstractC
   double test_point[] = { -5.091451e-02, -1.800857e-01, 1.153756e+00 };
 
   // expected result
-  constexpr double dist2_exp = 1.658136e-01;
-  constexpr double closest_point_exp[] = { -1.582647e-01, -5.475835e-01, 1.015066e+00 };
+  constexpr double dist2_exp = 1.6581517e-01;
+  constexpr double closest_point_exp[] = { -1.5828091e-01, -5.4740456e-01, 1.0145997e+00 };
   constexpr int cell_id_exp = 1944;
 
   // threshold for floating point checking
