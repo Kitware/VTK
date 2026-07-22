@@ -36,7 +36,7 @@ public:
    * Access the static vtkBlueObeliskData object for raw access to
    * BODR data.
    */
-  vtkGetNewMacro(BlueObeliskData, vtkBlueObeliskData);
+  virtual vtkBlueObeliskData* GetBlueObeliskData();
   ///@}
 
   /**
@@ -102,8 +102,6 @@ public:
 protected:
   vtkPeriodicTable();
   ~vtkPeriodicTable() override;
-
-  static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
   vtkPeriodicTable(const vtkPeriodicTable&) = delete;

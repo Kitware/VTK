@@ -22,7 +22,12 @@
 
 // Setup static variables
 VTK_ABI_NAMESPACE_BEGIN
-vtkNew<vtkBlueObeliskData> vtkPeriodicTable::BlueObeliskData;
+
+static vtkBlueObeliskData* GetStaticBlueObeliskData()
+{
+  static vtkNew<vtkBlueObeliskData> data;
+  return data;
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPeriodicTable);
@@ -30,14 +35,14 @@ vtkStandardNewMacro(vtkPeriodicTable);
 //------------------------------------------------------------------------------
 vtkPeriodicTable::vtkPeriodicTable()
 {
-  vtkPeriodicTable::BlueObeliskData->LockWriteMutex();
+  GetStaticBlueObeliskData()->LockWriteMutex();
 
-  if (!vtkPeriodicTable::BlueObeliskData->IsInitialized())
+  if (!GetStaticBlueObeliskData()->IsInitialized())
   {
-    vtkPeriodicTable::BlueObeliskData->Initialize();
+    GetStaticBlueObeliskData()->Initialize();
   }
 
-  vtkPeriodicTable::BlueObeliskData->UnlockWriteMutex();
+  GetStaticBlueObeliskData()->UnlockWriteMutex();
 }
 
 //------------------------------------------------------------------------------
@@ -49,13 +54,21 @@ void vtkPeriodicTable::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "BlueObeliskData:\n";
-  vtkPeriodicTable::BlueObeliskData->PrintSelf(os, indent.GetNextIndent());
+  GetStaticBlueObeliskData()->PrintSelf(os, indent.GetNextIndent());
+}
+
+//------------------------------------------------------------------------------
+vtkBlueObeliskData* vtkPeriodicTable::GetBlueObeliskData()
+{
+  auto* data = GetStaticBlueObeliskData();
+  vtkDebugMacro(<< " returning BlueObeliskData address " << data);
+  return data;
 }
 
 //------------------------------------------------------------------------------
 unsigned short vtkPeriodicTable::GetNumberOfElements()
 {
-  return vtkPeriodicTable::BlueObeliskData->GetNumberOfElements();
+  return GetStaticBlueObeliskData()->GetNumberOfElements();
 }
 
 //------------------------------------------------------------------------------
@@ -67,7 +80,7 @@ const char* vtkPeriodicTable::GetSymbol(unsigned short atomicNum)
     atomicNum = 0;
   }
 
-  return vtkPeriodicTable::BlueObeliskData->GetSymbols()->GetValue(atomicNum).c_str();
+  return GetStaticBlueObeliskData()->GetSymbols()->GetValue(atomicNum).c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +92,7 @@ const char* vtkPeriodicTable::GetElementName(unsigned short atomicNum)
     atomicNum = 0;
   }
 
-  return vtkPeriodicTable::BlueObeliskData->GetNames()->GetValue(atomicNum).c_str();
+  return GetStaticBlueObeliskData()->GetNames()->GetValue(atomicNum).c_str();
 }
 
 //------------------------------------------------------------------------------
@@ -113,8 +126,8 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
     [](unsigned char c) -> char { return static_cast<char>(std::tolower(c)); });
 
   // Cache pointers:
-  vtkStringArray* lnames = vtkPeriodicTable::BlueObeliskData->GetLowerNames();
-  vtkStringArray* lsymbols = vtkPeriodicTable::BlueObeliskData->GetLowerSymbols();
+  vtkStringArray* lnames = GetStaticBlueObeliskData()->GetLowerNames();
+  vtkStringArray* lsymbols = GetStaticBlueObeliskData()->GetLowerSymbols();
   const unsigned short numElements = this->GetNumberOfElements();
 
   // Compare with other lowercase strings
@@ -155,7 +168,7 @@ float vtkPeriodicTable::GetCovalentRadius(unsigned short atomicNum)
     atomicNum = 0;
   }
 
-  return vtkPeriodicTable::BlueObeliskData->GetCovalentRadii()->GetValue(atomicNum);
+  return GetStaticBlueObeliskData()->GetCovalentRadii()->GetValue(atomicNum);
 }
 
 //------------------------------------------------------------------------------
@@ -167,7 +180,7 @@ float vtkPeriodicTable::GetVDWRadius(unsigned short atomicNum)
     atomicNum = 0;
   }
 
-  return vtkPeriodicTable::BlueObeliskData->GetVDWRadii()->GetValue(atomicNum);
+  return GetStaticBlueObeliskData()->GetVDWRadii()->GetValue(atomicNum);
 }
 
 //------------------------------------------------------------------------------
@@ -185,7 +198,7 @@ float vtkPeriodicTable::GetMaxVDWRadius()
 void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable* lut)
 {
   const unsigned short numColors = this->GetNumberOfElements() + 1;
-  vtkFloatArray* colors = vtkPeriodicTable::BlueObeliskData->GetDefaultColors();
+  vtkFloatArray* colors = GetStaticBlueObeliskData()->GetDefaultColors();
   lut->SetNumberOfColors(numColors);
   lut->SetIndexedLookup(true);
   float rgb[3];
@@ -200,14 +213,14 @@ void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable* lut)
 //------------------------------------------------------------------------------
 void vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum, float rgb[3])
 {
-  vtkPeriodicTable::BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, rgb);
+  GetStaticBlueObeliskData()->GetDefaultColors()->GetTypedTuple(atomicNum, rgb);
 }
 
 //------------------------------------------------------------------------------
 vtkColor3f vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum)
 {
   vtkColor3f result;
-  vtkPeriodicTable::BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, result.GetData());
+  GetStaticBlueObeliskData()->GetDefaultColors()->GetTypedTuple(atomicNum, result.GetData());
   return result;
 }
 VTK_ABI_NAMESPACE_END
