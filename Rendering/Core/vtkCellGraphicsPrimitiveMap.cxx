@@ -196,6 +196,7 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
       // overlapping or out-of-polygon triangles. boundaryMask gives the polygon-
       // boundary edges of each emitted triangle; combined with the per-vertex
       // edge flags it reproduces the historical edge-visibility values.
+      vtkIdType emittedTriangles = 0;
       EarClipPolygon3D(points, pts, static_cast<int>(npts), earPrev, earNext, earRing,
         [&](int a, int b, int c, int boundaryMask)
         {
@@ -220,7 +221,22 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
           {
             result.EdgeArray->InsertNextValue(static_cast<uint8_t>(boundaryMask));
           }
+          ++emittedTriangles;
         });
+      // EarClipPolygon3D compacts coincident vertices, so it emits fewer than
+      // npts - 2 triangles when the polygon has degenerate edges. Degenerate
+      // triangles are intentionally kept (matching vtkOpenGLIndexBufferObject):
+      // pad the output with zero-area (dummy) triangles so every polygon
+      // contributes npts - 2 primitives. Zero-area triangles rasterize to
+      // nothing, and their edge flag is 0 so no edges are drawn.
+      for (; emittedTriangles < npts - 2; ++emittedTriangles)
+      {
+        result.PrimitiveToCell->InsertNextValue(cellIDOffset);
+        result.VertexIDs->InsertNextValue(pts[0]);
+        result.VertexIDs->InsertNextValue(pts[0]);
+        result.VertexIDs->InsertNextValue(pts[0]);
+        result.EdgeArray->InsertNextValue(0);
+      }
     }
   }
   else

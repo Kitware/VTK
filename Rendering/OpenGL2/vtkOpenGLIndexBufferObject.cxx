@@ -93,12 +93,7 @@ struct AppendTrianglesFunctor
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
-    auto points = vtk::DataArrayTupleRange<3>(this->Points);
     auto offsets = vtk::DataArrayValueRange<1, vtkIdType>(this->Offsets);
-    auto connectivity = vtk::DataArrayValueRange<1, vtkIdType>(this->Connectivity);
-
-    // Scratch reused across cells for compacting coincident polygon vertices.
-    std::vector<int> earRing;
 
     for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
@@ -111,32 +106,14 @@ struct AppendTrianglesFunctor
         {
           continue;
         }
-        auto cell = connectivity.begin() + offsets[cellId];
-        if (cellSize >= 5)
-        {
-          // Ear-clip path. Coincident consecutive vertices are compacted away
-          // (see CompactPolygonRing), so the triangle count is on the number of
-          // distinct vertices, not cellSize. Must match the emit phase exactly.
-          batchNumberOfTriangles +=
-            vtkPolygon::EarClipTriangleCount(points, cell, static_cast<int>(cellSize), earRing);
-          continue;
-        }
-        // Fan path for cellSize 3 or 4: preserve historical degenerate-skip
-        // behavior so the count and emit phases agree.
-        const auto& id1 = cell[0];
-        for (int i = 1; i < cellSize - 1; i++)
-        {
-          const auto& id2 = cell[i];
-          const auto& id3 = cell[i + 1];
-
-          const auto& pt1 = points[id1];
-          const auto& pt2 = points[id2];
-          const auto& pt3 = points[id3];
-          if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
-          {
-            ++batchNumberOfTriangles;
-          }
-        }
+        // Any triangulation of a simple polygon with n vertices produces
+        // exactly n - 2 triangles, so the fan path (size 3/4) and the ear-clip
+        // path (size >= 5) yield the same triangle count. Degenerate triangles
+        // are intentionally kept (the ear-clip path pads its output with
+        // degenerate triangles to make up for coincident vertices it compacts
+        // away), so the count is purely combinatorial and matches both the emit
+        // phase and the cell-to-VTK-cell map.
+        batchNumberOfTriangles += cellSize - 2;
       }
     }
   }
@@ -193,6 +170,7 @@ struct AppendTrianglesFunctor
               // boundaryMask is the 3-bit polygon-boundary edge mask computed by
               // the triangulator over the compacted ring (bit 0: edge A-B,
               // bit 1: B-C, bit 2: C-A). a/b/c are polygon-local vertex indices.
+              vtkIdType emittedTriangles = 0;
               auto emit = [&](int a, int b, int c, int boundaryMask)
               {
                 const auto idA = cell[a];
@@ -214,44 +192,58 @@ struct AppendTrianglesFunctor
                     *edgeArray++ = static_cast<unsigned char>(boundaryMask);
                   }
                 }
+                ++emittedTriangles;
               };
               vtkPolygon::EarClipPolygon3D(
                 points, cell, static_cast<int>(cellSize), earPrev, earNext, earRing, emit);
+              // EarClipPolygon3D compacts coincident vertices, so it emits fewer
+              // than cellSize - 2 triangles when the polygon has degenerate
+              // edges. Degenerate triangles are intentionally kept: pad the
+              // output with zero-area (dummy) triangles so the emitted count
+              // equals cellSize - 2, keeping alignment with the count phase and
+              // the cell-to-VTK-cell map. Zero-area triangles rasterize to
+              // nothing, and their edge flag is 0 so no edges are drawn.
+              const auto degenerateId = static_cast<unsigned int>(cell[0] + this->VOffset);
+              for (; emittedTriangles < cellSize - 2; ++emittedTriangles)
+              {
+                *indexArray++ = degenerateId;
+                *indexArray++ = degenerateId;
+                *indexArray++ = degenerateId;
+                if (edgeArray)
+                {
+                  *edgeArray++ = 0;
+                }
+              }
             }
             else
             {
               // Fan path for cellSize 3 or 4. Correct for triangles and any
-              // simple quad (convex or not). Preserved unchanged from prior
-              // implementation, including the degenerate-triangle skip.
+              // simple quad (convex or not). Degenerate triangles are
+              // intentionally kept, so every fan triangle is emitted (must
+              // match the count phase).
               const auto& id1 = cell[0];
               for (int i = 1; i < cellSize - 1; i++)
               {
                 const auto& id2 = cell[i];
                 const auto& id3 = cell[i + 1];
 
-                const auto& pt1 = points[id1];
-                const auto& pt2 = points[id2];
-                const auto& pt3 = points[id3];
-                if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
+                *indexArray++ = static_cast<unsigned int>(id1 + this->VOffset);
+                *indexArray++ = static_cast<unsigned int>(id2 + this->VOffset);
+                *indexArray++ = static_cast<unsigned int>(id3 + this->VOffset);
+                if (edgeArray)
                 {
-                  *indexArray++ = static_cast<unsigned int>(id1 + this->VOffset);
-                  *indexArray++ = static_cast<unsigned int>(id2 + this->VOffset);
-                  *indexArray++ = static_cast<unsigned int>(id3 + this->VOffset);
-                  if (edgeArray)
+                  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+                  int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
+                  if (this->EdgeFlags)
                   {
-                    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
-                    int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
-                    if (this->EdgeFlags)
-                    {
-                      int mask = 0;
-                      mask =
-                        this->EdgeFlags[id1] + this->EdgeFlags[id2] * 2 + this->EdgeFlags[id3] * 4;
-                      *edgeArray++ = val & mask;
-                    }
-                    else
-                    {
-                      *edgeArray++ = val;
-                    }
+                    int mask = 0;
+                    mask =
+                      this->EdgeFlags[id1] + this->EdgeFlags[id2] * 2 + this->EdgeFlags[id3] * 4;
+                    *edgeArray++ = val & mask;
+                  }
+                  else
+                  {
+                    *edgeArray++ = val;
                   }
                 }
               }
