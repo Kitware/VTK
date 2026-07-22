@@ -18,6 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -128,7 +129,7 @@ bool TestDistributedSimpleHTG(vtkMPIController* controller, const std::string& t
   int nbRanks = controller->GetNumberOfProcesses();
 
   vtkNew<vtkHyperTreeGridSource> htgSource;
-  htgSource->SetDescriptor("1.R0R.|........");
+  htgSource->SetDescriptor("2.R0R.|........");
   htgSource->SetDimensions(3, 3, 1);
   htgSource->SetBranchFactor(2);
   htgSource->SetMask("0110|01000010");
@@ -223,6 +224,50 @@ bool TestDistributedPartitionedHTG(vtkMPIController* controller, const std::stri
 
   return true;
 }
+
+bool TestHDFWriterDistributedMissingBlocksMB(
+  vtkMPIController* controller, const std::string& tempDir)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // Create a multiblock, with non null HTG partition on 1 different block on each rank
+  vtkNew<vtkMultiBlockDataSet> mb;
+  mb->SetNumberOfBlocks(nbRanks);
+
+  vtkNew<vtkRandomHyperTreeGridSource> randomHTG;
+  randomHTG->SetDimensions(3, 3, 3);
+  randomHTG->SetMaskedFraction(0.2);
+  randomHTG->SetOutputBounds(10.0 * myRank, 10.0 * (myRank + 1), 0.0, 10.0, 0.0, 10.0);
+  randomHTG->SetSeed(myRank);
+  randomHTG->Update();
+  mb->SetBlock(myRank, randomHTG->GetHyperTreeGridOutput());
+
+  const std::string writtenFile = tempDir + "/composite_distrib_htg.vtkhdf";
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetFileName(writtenFile.c_str());
+  writer->SetInputDataObject(mb);
+  writer->SetChunkSize(100);
+  writer->Write();
+
+  controller->Barrier();
+
+  vtkNew<vtkHDFReader> readerHDF;
+  readerHDF->SetFileName(writtenFile.c_str());
+  // Get all pieces on the current rank
+  // Currently the vtkHDFReader does not distributed pieces among ranks like XML does
+  // See  https://gitlab.kitware.com/vtk/vtk/-/work_items/20118
+  readerHDF->Update();
+
+  auto outputData = vtkMultiBlockDataSet::SafeDownCast(readerHDF->GetOutputDataObject(0));
+  if (!vtkTestUtilities::CompareDataObjects(outputData->GetBlock(myRank), mb->GetBlock(myRank)))
+  {
+    vtkLog(ERROR, "Original and read part do not match");
+    return false;
+  }
+
+  return true;
+}
 }
 
 //----------------------------------------------------------------------------
@@ -243,6 +288,7 @@ int TestHDFWriterHTGDistributed(int argc, char* argv[])
   delete[] tempDirCStr;
 
   bool testPasses = true;
+  testPasses &= TestHDFWriterDistributedMissingBlocksMB(controller, tempDir);
   testPasses &= TestHDFWriterHTGTDistributedTemporalPDC(controller, tempDir, false);
   testPasses &= TestHDFWriterHTGTDistributedTemporalPDC(controller, tempDir, true);
   testPasses &= ::TestDistributedSimpleHTG(controller, tempDir);
