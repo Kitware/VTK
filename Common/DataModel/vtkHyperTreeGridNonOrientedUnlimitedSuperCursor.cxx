@@ -435,7 +435,8 @@ void vtkHyperTreeGridNonOrientedUnlimitedSuperCursor::ToChild(unsigned char ichi
         //
         vtkHyperTreeGridGeometryUnlimitedLevelEntry& current = this->Entries[reference];
         current.Initialize(this->CentralCursor->GetTree(), this->CentralCursor->GetLevel(),
-          this->CentralCursor->GetVertexId(), this->CentralCursor->GetOrigin());
+          this->CentralCursor->GetVertexId(), this->CentralCursor->GetOrigin(),
+          this->CentralCursor->GetLevel(), this->CentralCursor->GetVertexId());
 
         if (!this->IsMasked())
         {

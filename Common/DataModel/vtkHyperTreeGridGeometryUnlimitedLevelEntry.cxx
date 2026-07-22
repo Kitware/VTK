@@ -27,6 +27,21 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
 }
 
 //------------------------------------------------------------------------------
+void vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(vtkHyperTree* tree, unsigned int level,
+  vtkIdType index, const double* origin, unsigned int lastRealLevel, vtkIdType lastRealIndex)
+{
+  this->Tree = tree;
+  this->Level = level;
+  this->Index = index;
+  this->LastRealIndex = lastRealIndex;
+  this->LastRealLevel = lastRealLevel;
+  for (unsigned int d = 0; d < 3; ++d)
+  {
+    this->Origin[d] = origin[d];
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkHyperTree* vtkHyperTreeGridGeometryUnlimitedLevelEntry::Initialize(
   vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create)
 {
@@ -144,12 +159,7 @@ void vtkHyperTreeGridGeometryUnlimitedLevelEntry::ToChild(
   assert("pre: not_tree" && this->Tree);
   assert(
     "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
-
-  if (this->IsMasked(grid))
-  {
-    this->Index = vtkHyperTreeGrid::InvalidIndex;
-    return;
-  }
+  assert("pre: is_masked" && !this->IsMasked(grid));
 
   const double* sizeChild = this->Tree->GetScales()->ComputeScale(this->Level + 1);
 

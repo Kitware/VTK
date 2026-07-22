@@ -103,7 +103,7 @@ void vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::Initialize(
   this->LastValidEntry = 0;
   this->Entries.resize(1);
   // Initially, the index is valid
-  this->Entries[0].Initialize(this->Tree, this->Level, index, origin);
+  this->Entries[0].Initialize(this->Tree, this->Level, index, origin, 0, 0);
 }
 
 //------------------------------------------------------------------------------
