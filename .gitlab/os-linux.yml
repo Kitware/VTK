@@ -946,13 +946,14 @@
         - make -C Documentation/docs html |& tee sphinx_output.log
     interruptible: true
 
-.before_script_linux_emscripten: &before_script_linux_emscripten
-    - *before_script_linux
+.install_nodejs_linux: &install_nodejs_linux
     # Fetch node
     - cmake -P .gitlab/ci/download_node.cmake
     - export NODE_DIR=$PWD/.gitlab/node
     - export PATH=$PWD/.gitlab/node/bin:$PATH
     - node --version
+
+.install_emsdk_linux: &install_emsdk_linux
     - cmake -P .gitlab/ci/download_emsdk.cmake
     # Fetches clang, wasm link tools and emscripten
     - $PWD/.gitlab/emsdk/emsdk install latest
@@ -967,24 +968,49 @@
     # adds up across the hundreds of try_compile probes during configure. Skip it.
     - export EMCC_SKIP_SANITY_CHECK=1
 
+.install_chrome_for_testing_linux: &install_chrome_for_testing_linux
+    # Fetch chrome-for-testing to run the unit tests in a browser.
+    - cmake -P .gitlab/ci/download_chrome.cmake
+    - .gitlab/chrome/chrome --version
+
+.before_script_emscripten_linux: &before_script_emscripten_linux
+    - *before_script_linux
+    - *install_nodejs_linux
+    - *install_emsdk_linux
+
 .cmake_build_wasm_emscripten_linux:
     stage: build
     extends: .warning_policy
 
     script:
-        - *before_script_linux_emscripten
+        - *before_script_emscripten_linux
+        # The unit tests run in chrome-for-testing. The engine path is baked into
+        # the generated test commands at configure time, so it must be exported
+        # for the build job. The test job downloads chrome to this same path.
+        - export VTK_TESTING_WASM_ENGINE=$PWD/.gitlab/chrome/chrome
         - .gitlab/ci/clang-tidy-cache.sh
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
-        - python3 -m venv build/ci-venv
-        - source build/ci-venv/bin/activate
-        - python3 -m pip install --upgrade --no-cache-dir pip
-        - python3 -m pip install --exists-action=w --no-cache-dir -r .gitlab/ci/requirements-wasm.txt
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - exec .gitlab/ci/check_warnings.sh .
+
+    interruptible: true
+
+.cmake_test_wasm_emscripten_linux:
+    stage: test
+
+    script:
+        # The test job only needs node (to serve the wasm over HTTP) and chrome
+        # (to run it), not the full emscripten toolchain. The engine path baked
+        # into the test commands at build time resolves to this same chrome.
+        - *before_script_linux
+        - *install_nodejs_linux
+        - *install_chrome_for_testing_linux
+        - export VTK_TESTING_WASM_ENGINE=$PWD/.gitlab/chrome/chrome
+        - $LAUNCHER ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true
 

@@ -158,7 +158,8 @@ When copy pasting the commands on windows, please paste them into a Powershell w
 ```
 
 In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,
-specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`.
+specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`. If you forgot
+to set this variable during the configure step, you may also set it as an environment variable `VTK_TESTING_WASM_ENGINE` just before running `ctest`.
 
 The binaries are now installed and you may use `-DVTK_DIR=/path/to/VTK/installRelease/lib/cmake/vtk-X.Y` to configure VTK wasm applications with CMake.
 
@@ -230,7 +231,7 @@ $ ctest -R FooUnitTest -VV
 
 ### Running unit tests interactively
 
-In order to run the unit test interactively, you will need to determine the exact program and arguments that `ctest` uses to run your unit test. You can see the test command for a test named `FooUnitTest` by running `ctest -R FooUnitTest -N -V`. Now, reconstruct the test command line and add a `-I` argument at the end. This will keep the browser open because the unit test is in interactive mode. If your test uses data or a valid baseline, you will require the HTTP server. When run using `ctest`, the HTTP server is automatically started before your test runs and shut down after the test completes. On the other hand, if you run the test manually by copying the test command into the console, you will need to run `ctest -R HTTPServerStart` by hand before executing the test. Do not forget to run `ctest -R HTTPServerStop` when you are finished. The wasm test suite is explained in detail at [WebAssemblyTestSuiteArchitecture](../design_documents/WebAssemblyTestSuiteArchitecture.md).
+In order to run the unit test interactively, you will need to determine the exact program and arguments that `ctest` uses to run your unit test. You can see the test command for a test named `FooUnitTest` by running `ctest -R FooUnitTest -N -V`. Now, reconstruct the test command line and add a `-I` argument at the end. This will keep the browser open because the unit test is in interactive mode. If your test uses data or a valid baseline, you will require the HTTP server. When run using `ctest`, the HTTP server is automatically started before your test runs and shut down after the test completes. On the other hand, if you run the test manually by copying the test command into the console, you will need to run `ctest -R vtkWasm-HTTPServerSetup` by hand before executing the test. Do not forget to run `ctest -R vtkWasm-HTTPServerCleanup` when you are finished. The wasm test suite is explained in detail at [WebAssemblyTestSuiteArchitecture](../design_documents/WebAssemblyTestSuiteArchitecture.md).
 
 Here's an example:
 ```pwsh
@@ -238,11 +239,11 @@ $ ctest -R TestHardwareSelector -N -V
 
 1: Test command: C:\Users\jaswant.panchumarti\AppData\Local\fnm_multishells\32664_1751993516170\node.exe "C:/dev/vtk/CMake/wasm/server.js" "--directory" "C:/dev/vtk/buildRelease/Testing/Temporary" "--port" "0" "--operation" "start"
 1: Working Directory: C:/dev/vtk/buildRelease
-  Test   #1: HTTPServerStart
+  Test   #1: vtkWasm-HTTPServerSetup
 
 2: Test command: C:\Users\jaswant.panchumarti\AppData\Local\fnm_multishells\32664_1751993516170\node.exe "C:/dev/vtk/CMake/wasm/server.js" "--directory" "C:/dev/vtk/buildRelease/Testing/Temporary" "--port" "0" "--operation" "stop"
 2: Working Directory: C:/dev/vtk/buildRelease
-  Test   #2: HTTPServerStop
+  Test   #2: vtkWasm-HTTPServerCleanup
 
 188: Test command: "C:\Program Files\CMake\bin\cmake.exe" "-DEXIT_AFTER_TEST=ON" "-DTESTING_WASM_ENGINE=C:/dev/vtk/.gitlab/chrome/chrome.exe" "-DTESTING_WASM_HTML_TEMPLATE=C:/dev/vtk/CMake/wasm/vtkWasmTest.html.in" "-DTEST_NAME=VTK::RenderingWebGPUCxx-TestHardwareSelector" "-DTEST_OUTPUT_DIR=C:/dev/vtk/buildRelease/Testing/Temporary" "-P" "C:/dev/vtk/CMake/wasm/vtkWasmTestRunner.cmake" "--" "C:/dev/vtk/buildRelease/bin/vtkRenderingWebGPUCxxTests.js" "TestHardwareSelector" "-T" "C:/dev/vtk/buildRelease/Testing/Temporary"
 188: Working Directory: C:/dev/vtk/buildRelease/Rendering/WebGPU/Testing/Cxx

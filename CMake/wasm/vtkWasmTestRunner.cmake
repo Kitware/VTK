@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.29)
 
 if (NOT DEFINED TESTING_WASM_ENGINE OR NOT TESTING_WASM_ENGINE)
-  message(FATAL_ERROR "TESTING_WASM_ENGINE not specified!")
-  cmake_language(EXIT 1)
+  if (DEFINED ENV{VTK_TESTING_WASM_ENGINE})
+    # Allow overriding the engine via environment variable. This makes it easy to
+    # reuse build artifacts with a different browser without reconfiguring.
+    set(TESTING_WASM_ENGINE "$ENV{VTK_TESTING_WASM_ENGINE}")
+  else ()
+    message(FATAL_ERROR "TESTING_WASM_ENGINE not specified!")
+    cmake_language(EXIT 1)
+  endif ()
 endif()
 
 if (NOT DEFINED TESTING_WASM_HTML_TEMPLATE OR NOT TESTING_WASM_HTML_TEMPLATE)
@@ -126,13 +132,36 @@ if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
     "--enable-logging=stderr"
     "--v=INFO:CONSOLE"
     "--user-data-dir=${USER_PROFILE_DIR}"
-    "--enable-features=WebAssemblyExperimentalJSPI")
+    # CI containers run as root, where Chromium refuses to start its sandbox.
+    # The test content is local and trusted, so disabling the sandbox is safe.
+    "--no-sandbox")
+  # Chrome does not merge repeated --enable-features flags (the last one wins),
+  # so collect all features and emit a single flag below.
+  set(CHROME_ENABLED_FEATURES "WebAssemblyExperimentalJSPI")
   if (UNIX)
-    list(APPEND IMPLICIT_ENGINE_ARGS "--enable-features=Vulkan,VulkanFromANGLE")
+    list(APPEND CHROME_ENABLED_FEATURES "Vulkan")
     list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-webgpu")
-    list(APPEND IMPLICIT_ENGINE_ARGS "--use-angle=vulkan")
-    list(APPEND IMPLICIT_ENGINE_ARGS "--ozone-platform=x11")
+    # Chrome's default /dev/shm (64 MB in most containers) is too small and makes
+    # it crash; route shared memory to a regular temp file instead.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--disable-dev-shm-usage")
+    # Drive WebGL through ANGLE's SwiftShader software rasterizer. The Linux CI
+    # testers do not get a usable GL driver injected (even the GPU runners only
+    # provide the CUDA compute stack), so chrome blocklists hardware WebGL2 and
+    # fails to create a context. SwiftShader renders on the CPU, needing no GPU,
+    # driver, or X display.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-gl=angle")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-angle=swiftshader")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--enable-unsafe-swiftshader")
+    # The Vulkan feature above makes the GPU process create a native Vulkan
+    # instance for compositing and WebGPU swap-chain shared images. Without a
+    # real ICD vkCreateInstance() fails and WebGPU canvas presentation breaks
+    # (no SharedImageBackingFactory for Webgpu* usage), so route Chrome's own
+    # Vulkan and Dawn's WebGPU adapter through SwiftShader as well.
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-vulkan=swiftshader")
+    list(APPEND IMPLICIT_ENGINE_ARGS "--use-webgpu-adapter=swiftshader")
   endif()
+  list(JOIN CHROME_ENABLED_FEATURES "," _chrome_enabled_features)
+  list(APPEND IMPLICIT_ENGINE_ARGS "--enable-features=${_chrome_enabled_features}")
   is_interactive_test(TEST_ARGS INTERACTIVE)
   if (NOT INTERACTIVE)
     list(APPEND IMPLICIT_ENGINE_ARGS "--headless")

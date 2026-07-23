@@ -2,7 +2,9 @@ set(vtk_nodejs_min_version "24.0.1")
 find_package(NodeJS "${vtk_nodejs_min_version}" REQUIRED)
 set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
-set(_vtk_node_args)
+set(_vtk_node_args 
+  # Remove this after https://gitlab.kitware.com/vtk/vtk/-/issues/19675 is closed
+  --experimental-wasm-jspi)
 if (CMAKE_HOST_WIN32)
   list(APPEND _vtk_node_args
     --import "file://$<TARGET_FILE:VTK::WebAssembly>")

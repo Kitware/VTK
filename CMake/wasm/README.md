@@ -9,9 +9,9 @@ The test suite requires a HTTP server to run in the background. Additionally, th
 This lock file must contain the URL of a HTTP server that the tests may connect to using web browser APIs. Right now, the connection is only made when a unit test needs to dump a file (like difference images)
 to server filesystem.
 
-A new fixture called "HTTP" is used to coordinate the startup and shutdown of the HTTP server.
-The special unit test `HTTPServerStart` is run before all the unit tests that have "HTTP" in their `FIXTURES_REQUIRED`
-property and finally the `HTTPServerStop` is run at the end to shutdown the HTTP server.
+A new fixture called "vtkWasm-HTTPServerFixture" is used to coordinate the startup and shutdown of the HTTP server.
+The special unit test `vtkWasm-HTTPServerSetup` is run before all the unit tests that have "vtkWasm-HTTPServerFixture" in their `FIXTURES_REQUIRED`
+property and finally the `vtkWasm-HTTPServerCleanup` is run at the end to shutdown the HTTP server.
 
 ## Arguments
 
