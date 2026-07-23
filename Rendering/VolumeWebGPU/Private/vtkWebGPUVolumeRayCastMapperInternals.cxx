@@ -18,6 +18,7 @@
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
+#include "vtkVolumeMapper.h"
 #include "vtkVolumeProperty.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
@@ -75,11 +76,14 @@ struct GlobalUniforms
   float MaximumStepFactor;
   std::uint32_t NumberOfClipPlanes;
   float Padding0;
+  float AverageRangeMinimum;
+  float AverageRangeMaximum;
+  float Padding1[2];
   float LightDirections[MaxLights][4];
   float LightColors[MaxLights][4];
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(GlobalUniforms) == 512, "GlobalUniforms must match the WGSL layout");
+static_assert(sizeof(GlobalUniforms) == 528, "GlobalUniforms must match the WGSL layout");
 
 // Must match VolumeParams in VolumeRayCast.wgsl.
 struct VolumeParams
@@ -707,8 +711,13 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateBrickClassification(
       table.Query(static_cast<int>(std::floor(low * (TableSize - 1))),
         static_cast<int>(std::ceil(high * (TableSize - 1))), opacityLow, opacityHigh);
 
+      // How much the block varies, either in the data or in what the transfer function makes of
+      // it. Amplified so that a block only counts as featureless when it really is almost flat,
+      // because coarse steps through a slowly changing region are what banding is made of.
+      constexpr float sensitivity = 4.0f;
       const float detail =
-        std::clamp(std::max(static_cast<float>(high - low), opacityHigh - opacityLow), 0.0f, 1.0f);
+        std::clamp(sensitivity * std::max(static_cast<float>(high - low), opacityHigh - opacityLow),
+          0.0f, 1.0f);
 
       const std::size_t slot = (input.BrickOffset + brick) * 2;
       classification[slot] = opacityHigh;
@@ -855,7 +864,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateUniforms(
       params.Spacing[axis] = static_cast<float>(voxel[axis]);
     }
 
-    double step = 0.5 * std::min({ voxel[0], voxel[1], voxel[2] });
+    // One voxel is the sample distance vtkOpenGLGPUVolumeRayCastMapper settles on, which keeps
+    // the two backends comparable. Adaptive sampling refines it from here.
+    double step = std::min({ voxel[0], voxel[1], voxel[2] });
     if (this->Self->GetAutoAdjustSampleDistances() == 0 && this->Self->GetSampleDistance() > 0.0f)
     {
       step = this->Self->GetSampleDistance();
@@ -1002,12 +1013,20 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateUniforms(
   globals.MaximumSteps = static_cast<std::uint32_t>(
     std::clamp(2.5 * diagonal / std::max(smallestStep, 1.0e-9) + 32.0, 64.0, 10000.0));
 
+  double averageRange[2];
+  this->Self->GetAverageIPScalarRange(averageRange);
+  globals.AverageRangeMinimum = static_cast<float>(averageRange[0]);
+  globals.AverageRangeMaximum = static_cast<float>(averageRange[1]);
+
   globals.Flags = 0;
   if (this->Self->GetJittering())
   {
     globals.Flags |= FlagJitter;
   }
-  if (this->Self->GetAdaptiveSampling())
+  // The intensity blend modes weigh every sample equally, so they only mean what they say when
+  // the samples are evenly spaced.
+  const bool compositing = this->Self->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND;
+  if (this->Self->GetAdaptiveSampling() && compositing)
   {
     globals.Flags |= FlagAdaptive;
     if (this->Self->GetEmptySpaceSkipping())

@@ -52,6 +52,10 @@ struct GlobalUniforms {
   max_step_factor: f32,
   num_clip_planes: u32,
   padding0: f32,
+  // Window the average intensity mode restricts itself to, in data units.
+  average_range_minimum: f32,
+  average_range_maximum: f32,
+  padding1: vec2<f32>,
   light_directions: array<vec4<f32>, MAX_LIGHTS>,
   light_colors: array<vec4<f32>, MAX_LIGHTS>,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
@@ -398,9 +402,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
 
   let adaptive = (globals.flags & FLAG_ADAPTIVE) != 0u;
   let skip_empty = adaptive && (globals.flags & FLAG_SKIP_EMPTY) != 0u;
-  // The composite and additive modes accumulate color, the intensity modes accumulate a scalar.
-  let accumulates_color =
-    globals.blend_mode == BLEND_COMPOSITE || globals.blend_mode == BLEND_ADDITIVE;
+  let compositing = globals.blend_mode == BLEND_COMPOSITE;
 
   var t = t_first;
   if ((globals.flags & FLAG_JITTER) != 0u) {
@@ -472,21 +474,29 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       let normalized =
         clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
 
-      if (!accumulates_color) {
-        // The intensity modes work on the scalar, not on a composited color.
+      let lookup = vec2<f32>(normalized, 0.5);
+
+      if (!compositing) {
+        // The intensity modes work on the scalar rather than on a composited color.
         if (globals.blend_mode == BLEND_MAXIMUM_INTENSITY) {
           if (normalized > state.value) { state.value = normalized; state.value_volume = i; }
         } else if (globals.blend_mode == BLEND_MINIMUM_INTENSITY) {
           if (normalized < state.value) { state.value = normalized; state.value_volume = i; }
         } else {
-          if (state.count == 0.0) { state.value = 0.0; state.value_volume = i; }
-          state.value += normalized;
+          if (globals.blend_mode == BLEND_AVERAGE_INTENSITY &&
+              (scalar < globals.average_range_minimum ||
+               scalar > globals.average_range_maximum)) {
+            continue;
+          }
+          if (state.count == 0.0) { state.value = 0.0; }
+          let weight = textureSampleLevel(
+            opacity_transfer_functions, transfer_function_sampler, lookup, i, 0.0).r;
+          state.value += weight * normalized;
           state.count += 1.0;
         }
         continue;
       }
 
-      let lookup = vec2<f32>(normalized, 0.5);
       let color =
         textureSampleLevel(color_transfer_functions, transfer_function_sampler, lookup, i, 0.0).rgb;
       var opacity = textureSampleLevel(
@@ -525,40 +535,42 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     }
 
     if (weight_sum > 0.0) {
-      if (globals.blend_mode == BLEND_ADDITIVE) {
-        state.color += weighted_color;
-        state.alpha += weight_sum;
-        if (state.alpha >= 1.0) {
-          break;
-        }
-      } else {
-        let alpha = 1.0 - transmittance;
-        let remaining = 1.0 - state.alpha;
-        state.color += remaining * alpha * (weighted_color / weight_sum);
-        state.alpha += remaining * alpha;
-        if (state.alpha >= 0.99) {
-          break;
-        }
+      let alpha = 1.0 - transmittance;
+      let remaining = 1.0 - state.alpha;
+      state.color += remaining * alpha * (weighted_color / weight_sum);
+      state.alpha += remaining * alpha;
+      if (state.alpha >= 0.99) {
+        break;
       }
     }
 
     t += step;
   }
 
-  if (!accumulates_color) {
-    if (state.count > 0.0) {
-      state.value /= state.count;
-    } else if (state.value <= -FAR_AWAY || state.value >= FAR_AWAY) {
-      discard;
+  if (!compositing) {
+    if (globals.blend_mode == BLEND_MAXIMUM_INTENSITY ||
+        globals.blend_mode == BLEND_MINIMUM_INTENSITY) {
+      if (state.value <= -FAR_AWAY || state.value >= FAR_AWAY) {
+        discard;
+      }
+      let lookup = vec2<f32>(clamp(state.value, 0.0, 1.0), 0.5);
+      let index = state.value_volume;
+      let alpha = textureSampleLevel(
+        opacity_transfer_functions, transfer_function_sampler, lookup, index, 0.0).r;
+      state.color = textureSampleLevel(
+        color_transfer_functions, transfer_function_sampler, lookup, index, 0.0).rgb * alpha;
+      state.alpha = alpha;
+    } else {
+      // The summed and averaged modes report intensity, not color, and cover the proxy opaquely.
+      if (state.count == 0.0) {
+        discard;
+      }
+      if (globals.blend_mode == BLEND_AVERAGE_INTENSITY) {
+        state.value /= state.count;
+      }
+      state.color = vec3<f32>(clamp(state.value, 0.0, 1.0));
+      state.alpha = 1.0;
     }
-
-    let lookup = vec2<f32>(clamp(state.value, 0.0, 1.0), 0.5);
-    let index = state.value_volume;
-    let alpha = textureSampleLevel(
-      opacity_transfer_functions, transfer_function_sampler, lookup, index, 0.0).r;
-    state.color = textureSampleLevel(
-      color_transfer_functions, transfer_function_sampler, lookup, index, 0.0).rgb * alpha;
-    state.alpha = alpha;
   } else {
     state.color = min(state.color, vec3<f32>(1.0));
     state.alpha = min(state.alpha, 1.0);
