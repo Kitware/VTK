@@ -4,18 +4,13 @@
 #ifndef vtkAnariTestUtilities_h
 #define vtkAnariTestUtilities_h
 
-class vtkAnariPass;
-class vtkAnariRenderWindow;
 class vtkRenderer;
+class vtkRenderWindow;
 
 namespace vtkAnariTestUtilities
 {
 
-void SetParameterDefaults(
-  vtkAnariRenderWindow* renderWindow, bool useDebugDevice, const char* testName);
-
-void SetParameterDefaults(
-  vtkAnariPass*, vtkRenderer* renderer, bool useDebugDevice, const char* testName);
+void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, const char* testName);
 
 }
 

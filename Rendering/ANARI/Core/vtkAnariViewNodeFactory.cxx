@@ -87,15 +87,15 @@ vtkStandardNewMacro(vtkAnariViewNodeFactory);
 //----------------------------------------------------------------------------
 vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
 {
-  this->RegisterOverride("vtkOpenGLRenderer", ren_maker);
-  this->RegisterOverride("vtkOpenGLActor", act_maker);
+  this->RegisterOverride("vtkRenderer", ren_maker);
+  this->RegisterOverride("vtkActor", act_maker);
   this->RegisterOverride("vtkPVLODActor", act_maker);
-  this->RegisterOverride("vtkOpenGLCamera", cam_maker);
+  this->RegisterOverride("vtkCamera", cam_maker);
   this->RegisterOverride("vtkFollower", fol_maker);
-  this->RegisterOverride("vtkOpenGLLight", light_maker);
+  this->RegisterOverride("vtkLight", light_maker);
   this->RegisterOverride("vtkPVLight", light_maker);
   this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
-  this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
+  this->RegisterOverride("vtkPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper", cpd_maker);
   this->RegisterOverride("vtkVolume", vol_maker);
   this->RegisterOverride("vtkPVLODVolume", vol_maker);
@@ -103,7 +103,7 @@ vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
   this->RegisterOverride("vtkAnariVolumeMapper", vm_maker);
   this->RegisterOverride("vtkMultiBlockVolumeMapper", vm_maker);
   this->RegisterOverride("vtkGlyph3DMapper", gm_maker);
-  this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
+  this->RegisterOverride("vtkAnariGPUVolumeRayCastMapper", vm_maker);
 }
 
 //----------------------------------------------------------------------------

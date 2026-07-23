@@ -12,12 +12,10 @@ SPDX_LICENSE_IDENTIFIER
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
-  VTK::RenderingOpenGL2
   VTK::RenderingCore
   VTK::RenderingSceneGraph
   VTK::CommonDataModel
   VTK::RenderingVolume
-  VTK::RenderingVolumeOpenGL2
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::IOImage
@@ -29,6 +27,7 @@ TEST_DEPENDS
   VTK::IOGeometry
   VTK::IOPLY
   VTK::IOXML
+  VTK::IOImage
   VTK::TestingCore
   VTK::TestingRendering
   VTK::FiltersTexture
@@ -36,6 +35,5 @@ TEST_DEPENDS
   VTK::FiltersSources
   VTK::RenderingAnnotation
   VTK::RenderingVolume
-  VTK::RenderingVolumeOpenGL2
   VTK::RenderingFreeType
   VTK::ImagingHybrid

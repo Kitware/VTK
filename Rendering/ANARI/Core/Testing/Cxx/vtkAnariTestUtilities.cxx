@@ -3,75 +3,48 @@
 
 #include "vtkAnariTestUtilities.h"
 
-#include "vtkAnariPass.h"
-#include "vtkAnariRenderWindow.h"
-#include "vtkAnariSceneGraph.h"
-#include "vtkRenderer.h"
+#include "vtkLogger.h"
+#include "vtkRenderWindow.h"
 #include "vtkTesting.h"
 
-namespace
+#include "vtkAnariDevice.h"
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
+
+namespace vtkAnariTestUtilities
 {
 
-//------------------------------------------------------------------------------
-void SetParameterDefaultsInternal(vtkAnariDevice* device, vtkAnariRenderer* anariRenderer,
-  vtkRenderer* nativeRenderer, bool useDebugDevice, const char* testName)
+void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, const char* testName)
 {
+  if (!renderWindow->IsA("vtkAnariRenderWindow"))
+  {
+    vtkLogF(ERROR, "Expected vtkAnariRenderWindow but got %s", renderWindow->GetClassName());
+    return;
+  }
+
+  vtkAnariRenderWindow* anariRenderWindow = vtkAnariRenderWindow::SafeDownCast(renderWindow);
+
+  auto* anariDevice = anariRenderWindow->GetAnariDevice();
+  auto* anariRenderer = anariRenderWindow->GetAnariRenderer();
+
   if (useDebugDevice)
   {
     vtkNew<vtkTesting> testing;
     std::string traceDir = testing->GetTempDirectory();
     traceDir += "/anari-trace/";
     traceDir += testName;
-    device->SetAnariDebugConfig(traceDir.c_str(), "code");
+    anariDevice->SetAnariDebugConfig(traceDir.c_str(), "code");
   }
 
-  device->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+  anariDevice->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
 
   // General renderer parameters:
-  device->SetParameterf("ambientRadiance", 1.f);
+  anariDevice->SetParameterf("ambientRadiance", 1.f);
 
   // VisRTX specific renderer parameters:
   anariRenderer->SetParameterf("lightFalloff", 0.5f);
   anariRenderer->SetParameterb("denoise", true);
   anariRenderer->SetParameteri("pixelSamples", 8);
-
-  if (nativeRenderer)
-  {
-    vtkAnariSceneGraph::SetCompositeOnGL(nativeRenderer, 1);
-  }
-}
-
-}
-
-namespace vtkAnariTestUtilities
-{
-
-//------------------------------------------------------------------------------
-void SetParameterDefaults(
-  vtkAnariRenderWindow* renderWindow, bool useDebugDevice, const char* testName)
-{
-  if (!renderWindow)
-  {
-    return;
-  }
-
-  auto* anariDevice = renderWindow->GetAnariDevice();
-  auto* anariRenderer = renderWindow->GetAnariRenderer();
-
-  ::SetParameterDefaultsInternal(anariDevice, anariRenderer, nullptr, useDebugDevice, testName);
-}
-
-//------------------------------------------------------------------------------
-void SetParameterDefaults(
-  vtkAnariPass* pass, vtkRenderer* renderer, bool useDebugDevice, const char* testName)
-{
-  if (!pass || !renderer)
-    return;
-
-  auto* ad = pass->GetAnariDevice();
-  auto* ar = pass->GetAnariRenderer();
-
-  ::SetParameterDefaultsInternal(ad, ar, renderer, useDebugDevice, testName);
 }
 
 }

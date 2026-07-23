@@ -13,7 +13,7 @@
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderer.h"
+#include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
@@ -191,9 +191,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
 
   this->ClearLight();
 
-  vtkOpenGLRenderer* openGLRenderer =
-    vtkOpenGLRenderer::SafeDownCast(this->Internals->RendererNode->GetRenderable());
-  vtkTransform* userLightTransform = openGLRenderer->GetUserLightTransform();
+  vtkTransform* userLightTransform = vtkRenderer->GetUserLightTransform();
 
   vtkNew<vtkMatrix4x4> cameraTransform;
   vtkNew<vtkMatrix4x4> invCameraTransform;
