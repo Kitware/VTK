@@ -35,6 +35,7 @@ class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkAnariSceneGraphInternals;
 class vtkRenderer;
+class vtkAnariRenderer;
 class vtkAnariDevice;
 class vtkRenderMaterialLibrary;
 
@@ -244,8 +245,8 @@ private:
   vtkAnariSceneGraph(const vtkAnariSceneGraph&) = delete;
   void operator=(const vtkAnariSceneGraph&) = delete;
 
-  void SetAnariDevice(vtkAnariDevice* ad, anari::Extensions e, const char* const* es);
-  void SetAnariRenderer(anari::Renderer r);
+  void SetAnariDevice(vtkAnariDevice* ad);
+  void SetAnariRenderer(vtkAnariRenderer* r);
 
   // only allow these classes to set the Anari device + renderer
   friend class vtkAnariPass;

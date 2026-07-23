@@ -17,18 +17,16 @@
 #include "vtkAnariDevice.h"
 #include "vtkAnariLightNode.h"
 #include "vtkAnariProfiling.h"
+#include "vtkAnariRenderer.h"
 #include "vtkAnariVolumeNode.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkInformation.h"
-#include "vtkInformationDoubleKey.h"
-#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
-#include "vtkLogger.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderMaterialLibrary.h"
@@ -82,12 +80,9 @@ public:
   bool OnlyUpdateWorld{ false };
 
   vtkSmartPointer<vtkAnariDevice> AnariDevice{ nullptr };
-  anari::Renderer AnariRenderer{ nullptr };
+  vtkSmartPointer<vtkAnariRenderer> AnariRenderer{ nullptr };
   anari::World AnariWorld{ nullptr };
   anari::Frame AnariFrame{ nullptr };
-
-  anari::Extensions AnariExtensions{};
-  const char* const* AnariExtensionStrings{ nullptr };
 
   std::vector<anari::Surface> AnariSurfaces;
   std::vector<anari::Volume> AnariVolumes;
@@ -109,7 +104,6 @@ vtkAnariSceneGraphInternals::~vtkAnariSceneGraphInternals()
     if (d)
     {
       anari::release(d, this->AnariWorld);
-      anari::release(d, this->AnariRenderer);
       anari::release(d, this->AnariFrame);
     }
   }
@@ -164,7 +158,7 @@ void vtkAnariSceneGraph::SetupAnariRendererParameters(vtkRenderer* ren)
   }
 
   auto anariDevice = this->GetDeviceHandle();
-  auto anariRenderer = this->Internal->AnariRenderer;
+  auto anariRenderer = this->Internal->AnariRenderer->GetHandle();
 
   double* bg = ren->GetBackground();
   double bgAlpha = ren->GetBackgroundAlpha();
@@ -550,7 +544,7 @@ void vtkAnariSceneGraph::Build(bool prepass)
   {
     vtkRenderer* aren = vtkRenderer::SafeDownCast(this->Renderable);
 
-    ResetReservedPropIds(); // Make sure the prop ids are reset before rendering
+    this->ResetReservedPropIds(); // Make sure the prop ids are reset before rendering
 
     // make sure we have a camera
     if (!(aren->IsActiveCameraCreated()))
@@ -577,7 +571,7 @@ void vtkAnariSceneGraph::Render(bool prepass)
   this->SetupAnariRendererParameters(ren);
   this->UpdateAnariFrameSize();
 #if 0
-    this->DebugOutputWorldBounds();
+  this->DebugOutputWorldBounds();
 #endif
 
   // Render frame
@@ -697,19 +691,19 @@ anari::Device vtkAnariSceneGraph::GetDeviceHandle() const
 //------------------------------------------------------------------------------
 anari::Renderer vtkAnariSceneGraph::GetRendererHandle() const
 {
-  return this->Internal->AnariRenderer;
+  return this->Internal->AnariRenderer->GetHandle();
 }
 
 //------------------------------------------------------------------------------
 const anari::Extensions& vtkAnariSceneGraph::GetAnariDeviceExtensions() const
 {
-  return this->Internal->AnariExtensions;
+  return this->Internal->AnariDevice->GetAnariDeviceExtensions();
 }
 
 //------------------------------------------------------------------------------
 const char* const* vtkAnariSceneGraph::GetAnariDeviceExtensionStrings() const
 {
-  return this->Internal->AnariExtensionStrings;
+  return this->Internal->AnariDevice->GetAnariDeviceExtensionStrings();
 }
 
 //------------------------------------------------------------------------------
@@ -764,8 +758,7 @@ int vtkAnariSceneGraph::ReservePropId()
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariSceneGraph::SetAnariDevice(
-  vtkAnariDevice* ad, anari::Extensions e, const char* const* es)
+void vtkAnariSceneGraph::SetAnariDevice(vtkAnariDevice* ad)
 {
   vtkRenderer* renderer = GetRenderer();
   if (!renderer)
@@ -785,12 +778,8 @@ void vtkAnariSceneGraph::SetAnariDevice(
     return;
   }
 
-  anari::Device d = ad->GetHandle();
   this->IssuedWarnings.clear();
-  anari::retain(d, d);
   this->Internal->AnariDevice = ad;
-  this->Internal->AnariExtensions = e;
-  this->Internal->AnariExtensionStrings = es;
   this->InitAnariFrame(renderer);
   this->InitAnariWorld();
 
@@ -798,29 +787,27 @@ void vtkAnariSceneGraph::SetAnariDevice(
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariSceneGraph::SetAnariRenderer(anari::Renderer r)
+void vtkAnariSceneGraph::SetAnariRenderer(vtkAnariRenderer* renderer)
 {
   if (!this->Internal->AnariDevice)
   {
     return;
   }
 
-  auto d = this->GetDeviceHandle();
-  anari::retain(d, r);
-  anari::release(d, this->Internal->AnariRenderer);
-  this->Internal->AnariRenderer = r;
+  this->Internal->AnariRenderer = renderer;
 
   if (!this->Internal->AnariFrame)
   {
     return;
   }
 
-  auto f = this->Internal->AnariFrame;
-  if (r)
-    anari::setParameter(d, f, "renderer", r);
+  anari::Device device = this->GetDeviceHandle();
+  auto frame = this->Internal->AnariFrame;
+  if (renderer->GetHandle())
+    anari::setParameter(device, frame, "renderer", renderer->GetHandle());
   else
-    anari::unsetParameter(d, f, "renderer");
-  anari::commitParameters(d, f);
+    anari::unsetParameter(device, frame, "renderer");
+  anari::commitParameters(device, frame);
 
   this->AnariRendererModifiedTime.Modified();
 }
