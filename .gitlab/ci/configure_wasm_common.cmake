@@ -60,4 +60,9 @@ if (NOT "$ENV{VTK_TESTING_WASM_ENGINE}" STREQUAL "")
   set(VTK_TESTING_WASM_ENGINE "$ENV{VTK_TESTING_WASM_ENGINE}" CACHE FILEPATH "")
 endif ()
 
+# Emit per-class JSON type manifests for serialization.
+# VTK_WRAP_SERIALIZATION is ON in configure_common.cmake, which is the
+# prerequisite for this cmake_dependent_option.
+set(VTK_BUILD_TYPES_JSON ON CACHE BOOL "")
+
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")
