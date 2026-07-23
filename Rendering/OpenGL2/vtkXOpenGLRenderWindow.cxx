@@ -21,6 +21,7 @@
 #include "vtkStringOutputWindow.h"
 #include "vtkStringScanner.h"
 
+#include <cstddef>
 #include <sstream>
 
 #include "vtk_glad.h"
@@ -1376,7 +1377,6 @@ int* vtkXOpenGLRenderWindow::GetScreenSize()
 int* vtkXOpenGLRenderWindow::GetPosition()
 {
   XWindowAttributes attribs;
-  int x, y;
   Window child;
 
   if (!this->WindowId)
@@ -1384,14 +1384,49 @@ int* vtkXOpenGLRenderWindow::GetPosition()
     return this->Position;
   }
 
-  //  Find the current window size
-  vtkXGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
-  x = attribs.x;
-  y = attribs.y;
+  // Retrieve position of the inner top-left corner.
+  vtkXTranslateCoordinates(this->DisplayId, this->WindowId, this->ParentId, 0, 0,
+    &this->Position[0], &this->Position[1], &child);
 
-  vtkXTranslateCoordinates(this->DisplayId, this->ParentId,
-    vtkXRootWindowOfScreen(vtkXScreenOfDisplay(this->DisplayId, 0)), x, y, &this->Position[0],
-    &this->Position[1], &child);
+  // Retrieve the EWMH _NET_FRAME_EXTENTS property describing the
+  // frame decoration (left, right, top, bottom). Subtracting the
+  // left/top extents converts the client origin returned by
+  // XTranslateCoordinates() into the outer frame origin expected by
+  // SetPosition().
+  const Atom prop = vtkXInternAtom(this->DisplayId, "_NET_FRAME_EXTENTS", True);
+  Atom type;
+  int fmt;
+  unsigned long nitems, bytesafter;
+  unsigned char* data;
+  if (prop != None &&
+    vtkXGetWindowProperty(this->DisplayId, this->WindowId, prop, 0, 4, False, AnyPropertyType,
+      &type, &fmt, &nitems, &bytesafter, &data) == Success)
+  {
+    if (type != None && fmt == 32 && nitems >= 4 && data != nullptr)
+    {
+      const long* extents = reinterpret_cast<const long*>(data); // left, right, top, bottom
+      this->Position[0] -= extents[0];
+      this->Position[1] -= extents[2];
+    }
+    else
+    {
+      vtkWarningMacro(
+        << "Could not retrieve window decoration size (unexpected _NET_FRAME_EXTENTS)");
+    }
+    if (data != nullptr)
+    {
+      vtkXFree(data);
+    }
+  }
+  else
+  {
+    vtkWarningMacro(<< "Could not retrieve window decoration size (no _NET_FRAME_EXTENTS)");
+    // fall back to subtracting window position, which should also work
+    // but may be too much in some cases, e.g. Gnome adding padding for shadows.
+    vtkXGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+    this->Position[0] -= attribs.x;
+    this->Position[1] -= attribs.y;
+  }
 
   return this->Position;
 }
