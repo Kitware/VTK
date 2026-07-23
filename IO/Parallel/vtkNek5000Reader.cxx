@@ -44,11 +44,11 @@ vtkStandardNewMacro(vtkNek5000Reader);
 namespace
 {
 
-void ByteSwap32(void* aVals, int nVals)
+void ByteSwap32(void* aVals, int64_t nVals)
 {
   char* v = (char*)aVals;
   char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 4)
+  for (int64_t ii = 0; ii < nVals; ii++, v += 4)
   {
     tmp = v[0];
     v[0] = v[3];
@@ -59,11 +59,11 @@ void ByteSwap32(void* aVals, int nVals)
   }
 }
 
-void ByteSwap64(void* aVals, int nVals)
+void ByteSwap64(void* aVals, int64_t nVals)
 {
   char* v = (char*)aVals;
   char tmp;
-  for (long ii = 0; ii < nVals; ii++, v += 8)
+  for (int64_t ii = 0; ii < nVals; ii++, v += 8)
   {
     tmp = v[0];
     v[0] = v[7];
@@ -541,9 +541,9 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 
 void vtkNek5000Reader::readData(char* dfName)
 {
-  long total_header_size = 136 + (this->numBlocks * 4);
-  long read_location;
-  long read_size;
+  int64_t total_header_size = 136 + (this->numBlocks * 4);
+  int64_t read_location;
+  int64_t read_size;
   std::ifstream dfPtr;
   float* dataPtr;
   double* tmpDblPtr = nullptr;
@@ -571,8 +571,8 @@ void vtkNek5000Reader::readData(char* dfName)
     }
 
     // for each variable
-    long var_offset;
-    long l_blocksize, scalar_offset;
+    int64_t var_offset;
+    int64_t l_blocksize, scalar_offset;
     scalar_offset = this->numBlocks;
     scalar_offset *= this->totalBlockSize;
     scalar_offset *= this->precision;
@@ -606,7 +606,7 @@ void vtkNek5000Reader::readData(char* dfName)
 
         if (this->precision == 4)
         {
-          for (auto j = 0; j < this->myNumBlocks; j++)
+          for (int64_t j = 0; j < this->myNumBlocks; j++)
           {
             read_location =
               total_header_size + var_offset + (this->myBlockPositions[j] * l_blocksize);
@@ -638,7 +638,7 @@ void vtkNek5000Reader::readData(char* dfName)
         }
         else // precision == 8
         {
-          for (auto j = 0; j < this->myNumBlocks; j++)
+          for (int64_t j = 0; j < this->myNumBlocks; j++)
           {
             read_location =
               total_header_size + var_offset + (this->myBlockPositions[j] * l_blocksize);
@@ -668,10 +668,10 @@ void vtkNek5000Reader::readData(char* dfName)
           float vx, vy, vz;
           int coord_offset =
             this->totalBlockSize; // number of values for one coordinate (X or Y or Z)
-          for (auto j = 0; j < this->myNumBlocks; j++)
+          for (int64_t j = 0; j < this->myNumBlocks; j++)
           {
-            int mag_block_offset = j * this->totalBlockSize;
-            int comp_block_offset = mag_block_offset * 3;
+            int64_t mag_block_offset = j * this->totalBlockSize;
+            int64_t comp_block_offset = mag_block_offset * 3;
             for (auto k = 0; k < this->totalBlockSize; k++)
             {
               vx = this->dataArray[i][comp_block_offset + k];
@@ -704,9 +704,9 @@ void vtkNek5000Reader::readData(char* dfName)
 void vtkNek5000Reader::partitionAndReadMesh()
 {
   std::ifstream dfPtr;
-  int i;
+  int64_t i;
   std::string buf2, tag;
-  std::map<long, long> blockMap;
+  std::map<int64_t, int64_t> blockMap;
 
   int my_rank;
   int num_ranks;
@@ -782,11 +782,11 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   int* tmpBlocks = new int[numBlocks];
-  this->proc_numBlocks = new int[num_ranks];
+  this->proc_numBlocks = new int64_t[num_ranks];
 
   // figure out how many blocks (elements) each proc will handle
-  int elements_per_proc = this->numBlocks / num_ranks;
-  int one_extra_until = this->numBlocks % num_ranks;
+  int64_t elements_per_proc = this->numBlocks / num_ranks;
+  int64_t one_extra_until = this->numBlocks % num_ranks;
 
   for (i = 0; i < num_ranks; i++)
   {
@@ -841,7 +841,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
   free(map_filename);
 
-  int start_index = 0;
+  int64_t start_index = 0;
   for (i = 0; i < my_rank; i++)
   {
     start_index += this->proc_numBlocks[i];
@@ -858,7 +858,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   // now that we have our list of blocks, get their positions in the file (their index)
-  this->myBlockPositions = new long[this->myNumBlocks];
+  this->myBlockPositions = new int64_t[this->myNumBlocks];
 
   for (i = 0; i < this->myNumBlocks; i++)
   {
@@ -892,8 +892,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
     this->meshCoords = new float[this->myNumBlocks * this->totalBlockSize * 3];
   }
 
-  long total_header_size = 136 + (this->numBlocks * 4);
-  long read_location, offset1;
+  int64_t total_header_size = 136 + (this->numBlocks * 4);
+  int64_t read_location, offset1;
 
   if (this->precision == 4)
   {
@@ -956,8 +956,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
     for (i = 0; i < this->myNumBlocks; i++)
     {
       // header + (index_of_this_block * size_of_a_block * variable_in_block (x,y,z) * precision)
-      read_location = total_header_size +
-        int64_t(this->myBlockPositions[i] * this->totalBlockSize * 3 * this->precision);
+      read_location =
+        total_header_size + this->myBlockPositions[i] * this->totalBlockSize * 3 * this->precision;
       // fseek(dfPtr, read_location, SEEK_SET);
       // fread(tmpDblPts, sizeof(double), read_size, dfPtr);
       dfPtr.seekg(read_location, std::ios_base::beg);
@@ -1368,8 +1368,8 @@ void vtkNek5000Reader::updateVtuData(vtkUnstructuredGrid* pv_ugrid)
   // otherwise the grid in the curObj is NULL, and/or the resolution has changed,
   // and/or we need more data than is in curObj, we need to do everything
 
-  int Nvert_total = 0;
-  int Nelements_total;
+  int64_t Nvert_total = 0;
+  int64_t Nelements_total;
 
   vtkSmartPointer<vtkPoints> points;
 
@@ -1484,7 +1484,7 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
 {
   // Note that point ids are starting at 0, and are local to each processor
   // same with cellids. Local and starting at 0 on each MPI task
-  int numVTKCells = this->myNumBlocks * (this->blockDims[0] - 1) * (this->blockDims[1] - 1);
+  int64_t numVTKCells = this->myNumBlocks * (this->blockDims[0] - 1) * (this->blockDims[1] - 1);
   if (this->MeshIs3D)
     numVTKCells *= (this->blockDims[2] - 1);
 
@@ -1494,13 +1494,13 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
   vtkCellArray* outCells = vtkCellArray::New(); // the connectivity array
 
   vtkIdType p, pts[8];
-  int n = 0;
+  int64_t n = 0;
 
   if (this->MeshIs3D)
   {
     cellTypes->Fill(VTK_HEXAHEDRON);
     outCells->AllocateExact(numVTKCells, 8 * numVTKCells); // 8 nodes per hex
-    for (auto e = 0; e < this->myNumBlocks; ++e)
+    for (int64_t e = 0; e < this->myNumBlocks; ++e)
     {
       for (auto ii = 0; ii < this->blockDims[0] - 1; ++ii)
       {
@@ -1534,7 +1534,7 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
   {
     cellTypes->Fill(VTK_QUAD);
     outCells->AllocateExact(numVTKCells, 4 * numVTKCells); // 4 nodes per quad
-    for (auto e = 0; e < this->myNumBlocks; ++e)
+    for (int64_t e = 0; e < this->myNumBlocks; ++e)
     {
       for (auto ii = 0; ii < this->blockDims[0] - 1; ++ii)
       {
@@ -1558,12 +1558,12 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
   cellTypes->Delete();
 } // addPointsToContinuumMesh()
 
-void vtkNek5000Reader::addSpectralElementId(int nelements)
+void vtkNek5000Reader::addSpectralElementId(int64_t nelements)
 {
-  vtkTypeUInt32Array* spectral_id = vtkTypeUInt32Array::New();
+  vtkTypeInt64Array* spectral_id = vtkTypeInt64Array::New();
   spectral_id->SetNumberOfTuples(nelements);
   spectral_id->SetName("spectral element id");
-  int n = 0;
+  int64_t n = 0;
   int my_rank;
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   if (ctrl != nullptr)
@@ -1575,7 +1575,7 @@ void vtkNek5000Reader::addSpectralElementId(int nelements)
     my_rank = 0;
   }
 
-  int start_index = 0;
+  int64_t start_index = 0;
   for (auto i = 0; i < my_rank; i++)
   {
     start_index += this->proc_numBlocks[i];
@@ -1616,11 +1616,11 @@ void vtkNek5000Reader::addSpectralElementId(int nelements)
 
 void vtkNek5000Reader::copyContinuumPoints(vtkPoints* points)
 {
-  int index = 0;
+  int64_t index = 0;
   // for each element/block in the continuum mesh
-  for (auto k = 0; k < this->myNumBlocks; ++k)
+  for (int64_t k = 0; k < this->myNumBlocks; ++k)
   {
-    int block_offset = k * this->totalBlockSize * 3; // 3 is for X,Y,Z coordinate components
+    int64_t block_offset = k * this->totalBlockSize * 3; // 3 is for X,Y,Z coordinate components
     // for every point in this element/block
     for (auto i = 0; i < this->totalBlockSize; ++i)
     { /*
@@ -1654,8 +1654,8 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
     my_rank = 0;
   }
 #endif
-  int index = 0;
-  int num_verts = this->myNumBlocks * this->totalBlockSize;
+  int64_t index = 0;
+  int64_t num_verts = this->myNumBlocks * this->totalBlockSize;
 
   // for each variable
   for (auto v_index = 0; v_index < this->num_vars; v_index++)
@@ -1694,14 +1694,14 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
         vectors->SetName(this->var_names[v_index]);
 
         // for each  element/block in the continuum mesh
-        for (int b_index = 0; b_index < this->myNumBlocks; ++b_index)
+        for (int64_t b_index = 0; b_index < this->myNumBlocks; ++b_index)
         {
           // for every point in this element/block
 #ifndef NDEBUG
           std::cerr << "rank= " << my_rank << " : b_index= " << b_index << std::endl;
 #endif
-          int mag_block_offset = b_index * this->totalBlockSize;
-          int comp_block_offset = mag_block_offset * 3;
+          int64_t mag_block_offset = b_index * this->totalBlockSize;
+          int64_t comp_block_offset = mag_block_offset * 3;
 
           for (int p_index = 0; p_index < this->totalBlockSize; ++p_index)
           {
