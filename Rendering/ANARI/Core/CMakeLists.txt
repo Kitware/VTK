@@ -22,6 +22,7 @@ set(classes
   vtkAnariCompositePolyDataMapperNode
   vtkAnariDevice
   vtkAnariGlyph3DMapperNode
+  vtkAnariGPUVolumeRayCastMapper
   vtkAnariLightNode
   vtkAnariPass
   vtkAnariPolyDataMapperNode
