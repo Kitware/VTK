@@ -60,6 +60,13 @@ public:
    */
   static constexpr int MaximumNumberOfVolumes = 12;
 
+  /**
+   * Bounds of every connected input taken together, so that a mapper with several inputs is
+   * framed and culled as a whole even when it is not held by a vtkMultiVolume.
+   */
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  using Superclass::GetBounds;
+
   void GPURender(vtkRenderer* ren, vtkVolume* vol) override;
   int IsRenderSupported(vtkRenderWindow* window, vtkVolumeProperty* property) override;
   void ReleaseGraphicsResources(vtkWindow* window) override;

@@ -4,11 +4,14 @@
 
 #include "Private/vtkWebGPUVolumeRayCastMapperInternals.h"
 
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverrideAttribute.h"
 #include "vtkVolumeProperty.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+
+#include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -80,6 +83,36 @@ vtkVolumeProperty* vtkWebGPUVolumeRayCastMapper::GetVolumeProperty(int port)
 {
   auto it = this->Internals->PortProperties.find(port);
   return it == this->Internals->PortProperties.end() ? nullptr : it->second;
+}
+
+//------------------------------------------------------------------------------
+double* vtkWebGPUVolumeRayCastMapper::GetBounds()
+{
+  const std::vector<int> ports = this->GetPorts();
+  if (ports.size() < 2)
+  {
+    return this->Superclass::GetBounds();
+  }
+
+  vtkMath::UninitializeBounds(this->Bounds);
+  bool first = true;
+  for (int port : ports)
+  {
+    double bounds[6];
+    std::copy_n(this->GetBoundsFromPort(port), 6, bounds);
+    if (bounds[1] < bounds[0])
+    {
+      continue;
+    }
+    for (int i = 0; i < 3; ++i)
+    {
+      this->Bounds[2 * i] = first ? bounds[2 * i] : std::min(this->Bounds[2 * i], bounds[2 * i]);
+      this->Bounds[2 * i + 1] =
+        first ? bounds[2 * i + 1] : std::max(this->Bounds[2 * i + 1], bounds[2 * i + 1]);
+    }
+    first = false;
+  }
+  return this->Bounds;
 }
 
 //------------------------------------------------------------------------------
