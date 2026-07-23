@@ -1244,7 +1244,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   // As scalars, each xyz triple lives in three consecutive texels; this helper
   // reconstructs it. The samplerBuffer parameter becomes sampler2D on GLES via the global
   // samplerBuffer->sampler2D substitution in vtkOpenGLShaderCache.
-  oss << "vec3 fetchTuple3(samplerBuffer s, int id)\n"
+  oss << "vec3 fetchTuple3(highp samplerBuffer s, int id)\n"
          "{\n"
          "  int base = id * 3;\n"
          "  return vec3(texelFetchBuffer(s, base).x,\n"
