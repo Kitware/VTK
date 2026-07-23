@@ -48,6 +48,7 @@ class vtkHardwareSelector;
 class vtkRendererDelegate;
 class vtkRenderPass;
 class vtkTexture;
+class vtkTransform;
 
 class vtkRecti;
 
@@ -966,6 +967,15 @@ public:
 
   ///@{
   /**
+   * Set the user light transform applied after the camera transform.
+   * Can be null to disable it.
+   */
+  void SetUserLightTransform(vtkTransform* transform);
+  vtkTransform* GetUserLightTransform() const;
+  ///@}
+
+  ///@{
+  /**
    * If UseOIT is on and there are translucent props in the scene, the renderer will use the
    * OrderIndependentTranslucentPass to render. If UseOIT is disabled, traditional depth sorting is
    * used for translucency.
@@ -1325,6 +1335,11 @@ private:
    */
   double EnvironmentUp[3] = { 0.0, 1.0, 0.0 };
   double EnvironmentRight[3] = { 1.0, 0.0, 0.0 };
+
+  /**
+   * Optional user transform for lights
+   */
+  vtkSmartPointer<vtkTransform> UserLightTransform;
 
   vtkRenderer(const vtkRenderer&) = delete;
   void operator=(const vtkRenderer&) = delete;

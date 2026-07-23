@@ -26,6 +26,7 @@
 #include "vtkSkybox.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
+#include "vtkTransform.h"
 #include "vtkVector.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2236,6 +2237,22 @@ void vtkRenderer::SetEnvironmentRotationMatrix(vtkMatrix3x3* rotationMatrix)
     return;
   }
   this->EnvironmentRotationMatrix = rotationMatrix;
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetUserLightTransform(vtkTransform* transform)
+{
+  if (this->UserLightTransform != transform)
+  {
+    this->UserLightTransform = transform;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkTransform* vtkRenderer::GetUserLightTransform() const
+{
+  return this->UserLightTransform;
 }
 
 //------------------------------------------------------------------------------
