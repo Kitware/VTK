@@ -116,9 +116,10 @@ struct VolumeParams {
 fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> @builtin(position) vec4<f32> {
   if ((globals.flags & FLAG_FULL_SCREEN) != 0u) {
     // A triangle that covers the whole clip volume, used when the near plane cuts into the
-    // proxy box and its back faces can no longer be relied on to cover every pixel.
+    // proxy box and its back faces can no longer be relied on to cover every pixel. Wound the
+    // same way round as the faces of the box that survive culling.
     var corners = array<vec2<f32>, 3>(
-      vec2<f32>(-1.0, -3.0), vec2<f32>(-1.0, 1.0), vec2<f32>(3.0, 1.0));
+      vec2<f32>(-1.0, -3.0), vec2<f32>(3.0, 1.0), vec2<f32>(-1.0, 1.0));
     return vec4<f32>(corners[vertex_id], 0.0, 1.0);
   }
 
