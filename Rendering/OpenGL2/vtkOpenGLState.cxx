@@ -247,11 +247,33 @@ void vtkOpenGLState::CheckState()
   GLfloat fparams[4];
   // note people do set this to nan
   ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
-  if ((!(std::isnan(fparams[0]) && std::isnan(cs.ClearColor[0])) &&
-        fparams[0] != cs.ClearColor[0]) ||
-    (!(std::isnan(fparams[1]) && std::isnan(cs.ClearColor[1])) && fparams[1] != cs.ClearColor[1]) ||
-    (!(std::isnan(fparams[2]) && std::isnan(cs.ClearColor[2])) && fparams[2] != cs.ClearColor[2]) ||
-    (!(std::isnan(fparams[3]) && std::isnan(cs.ClearColor[3])) && fparams[3] != cs.ClearColor[3]))
+  // The value returned by glGetFloatv(GL_COLOR_CLEAR_VALUE) is clamped to
+  // [0,1] when GL_CLAMP_READ_COLOR is FIXED_ONLY (the default) and the bound
+  // framebuffer's color buffer is fixed-point. The cache, however, stores the
+  // unclamped value passed to glClearColor. A clear color with components
+  // outside [0,1] (for example vtkDualDepthPeelingPass clears its float depth
+  // textures to -1) is therefore reported back clamped whenever the query
+  // happens while a fixed-point framebuffer is bound, which would otherwise
+  // trigger a spurious cache-mismatch warning even though the clear color GL
+  // will actually use is correct. Treat components as matching when they are
+  // equal or when the queried value equals the cached value clamped to [0,1].
+  auto clearColorMismatch = [](GLfloat gl, GLclampf cached)
+  {
+    if (std::isnan(gl) && std::isnan(cached))
+    {
+      return false;
+    }
+    if (gl == cached)
+    {
+      return false;
+    }
+    GLfloat clampedCached = vtkMath::ClampValue(cached, 0.0f, 1.0f);
+    return gl != clampedCached;
+  };
+  if (clearColorMismatch(fparams[0], cs.ClearColor[0]) ||
+    clearColorMismatch(fparams[1], cs.ClearColor[1]) ||
+    clearColorMismatch(fparams[2], cs.ClearColor[2]) ||
+    clearColorMismatch(fparams[3], cs.ClearColor[3]))
   {
     vtkGenericWarningMacro("Error in cache state for GL_COLOR_CLEAR_VALUE");
     this->ResetGLClearColorState();
