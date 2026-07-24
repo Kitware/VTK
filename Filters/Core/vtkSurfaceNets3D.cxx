@@ -950,252 +950,245 @@ struct SurfaceNets
   // 4, 8) can be produced (i.e., for the edges of the voxel triad). Scalar
   // data indicating the regions/labels on either side of the quad are also
   // written.
-  struct GenerateQuads : public vtkCellArray::DispatchUtilities
+  template <class OffsetsT, class ConnectivityT>
+  void GenerateQuads(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType i, vtkIdType row,
+    vtkIdType slice, EdgeCaseType edgeCase, uint8_t numPoints4, int8_t tableIndex4,
+    const std::array<TriadType*, 9>& triadPtrs, std::array<vtkIdType, 9>& pointIds,
+    vtkIdType& quadId)
   {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType i, vtkIdType row,
-      vtkIdType slice, SurfaceNets* snet, EdgeCaseType edgeCase, uint8_t numPoints4,
-      int8_t tableIndex4, const std::array<TriadType*, 9>& triadPtrs,
-      std::array<vtkIdType, 9>& pointIds, vtkIdType& quadId)
+    auto connIter = conn->GetPointer(quadId * 4);
+
+    // Prepare to write scalar data. s0 is the triad origin.
+    const T backgroundLabel = this->BackgroundLabel;
+    const T s0Origin = this->GetVoxelForTriad(i, row, slice);
+    const bool s0IsBackground = s0Origin == backgroundLabel;
+    const TriadType& triad = triadPtrs[4][i];
+
+    if (SurfaceNets::GenerateXYQuad(triad))
     {
-      auto connIter = conn->GetPointer(quadId * 4);
-
-      // Prepare to write scalar data. s0 is the triad origin.
-      const T backgroundLabel = snet->BackgroundLabel;
-      const T s0Origin = snet->GetVoxelForTriad(i, row, slice);
-      const bool s0IsBackground = s0Origin == backgroundLabel;
-      const TriadType& triad = triadPtrs[4][i];
-
-      if (SurfaceNets::GenerateXYQuad(triad))
+      // (i, row, slice)
+      vtkIdType c0 = pointIds[4];
+      if (VTK_UNLIKELY(numPoints4 != 1))
       {
-        // (i, row, slice)
-        vtkIdType c0 = pointIds[4];
-        if (VTK_UNLIKELY(numPoints4 != 1))
-        {
-          c0 += NonManifoldCases::GetNonManiFoldPointIndex<8>(edgeCase, tableIndex4);
-        }
-        // (i - 1, row, slice)
-        vtkIdType c1 = pointIds[4] - 1;
-        const auto [numPoints4_1, tableIndex4_1] = SurfaceNets::GetStateInfo(triadPtrs[4][i - 1]);
-        if (VTK_UNLIKELY(numPoints4_1 != 1))
-        {
-          c1 = pointIds[4] - numPoints4_1 +
-            NonManifoldCases::GetNonManiFoldPointIndex<9>(
-              snet->GetEdgeCase(triadPtrs[4] + i - 1), tableIndex4_1);
-        }
-        // (i - 1, row - 1, slice)
-        vtkIdType c2 = pointIds[3] - 1;
-        const auto [numPoints3_1, tableIndex3_1] = SurfaceNets::GetStateInfo(triadPtrs[3][i - 1]);
-        if (VTK_UNLIKELY(numPoints3_1 != 1))
-        {
-          c2 = pointIds[3] - numPoints3_1 +
-            NonManifoldCases::GetNonManiFoldPointIndex<11>(
-              snet->GetEdgeCase(triadPtrs[3] + i - 1), tableIndex3_1);
-        }
-        // (i, row - 1, slice)
-        vtkIdType c3 = pointIds[3];
-        const auto [numPoints3, tableIndex3] = SurfaceNets::GetStateInfo(triadPtrs[3][i]);
-        if (VTK_UNLIKELY(numPoints3 != 1))
-        {
-          c3 += NonManifoldCases::GetNonManiFoldPointIndex<10>(
-            snet->GetEdgeCase(triadPtrs[3] + i), tableIndex3);
-        }
-        T s0 = s0Origin;
-        T s1 = snet->GetVoxelForTriad(i, row, slice + 1);
-        if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
-        {
-          std::swap(s0, s1);
-          std::swap(c1, c3);
-        }
-
-        *connIter++ = c0;
-        *connIter++ = c1;
-        *connIter++ = c2;
-        *connIter++ = c3;
-
-        snet->WriteScalarTuple(s0, s1, quadId++);
+        c0 += NonManifoldCases::GetNonManiFoldPointIndex<8>(edgeCase, tableIndex4);
+      }
+      // (i - 1, row, slice)
+      vtkIdType c1 = pointIds[4] - 1;
+      const auto [numPoints4_1, tableIndex4_1] = SurfaceNets::GetStateInfo(triadPtrs[4][i - 1]);
+      if (VTK_UNLIKELY(numPoints4_1 != 1))
+      {
+        c1 = pointIds[4] - numPoints4_1 +
+          NonManifoldCases::GetNonManiFoldPointIndex<9>(
+            this->GetEdgeCase(triadPtrs[4] + i - 1), tableIndex4_1);
+      }
+      // (i - 1, row - 1, slice)
+      vtkIdType c2 = pointIds[3] - 1;
+      const auto [numPoints3_1, tableIndex3_1] = SurfaceNets::GetStateInfo(triadPtrs[3][i - 1]);
+      if (VTK_UNLIKELY(numPoints3_1 != 1))
+      {
+        c2 = pointIds[3] - numPoints3_1 +
+          NonManifoldCases::GetNonManiFoldPointIndex<11>(
+            this->GetEdgeCase(triadPtrs[3] + i - 1), tableIndex3_1);
+      }
+      // (i, row - 1, slice)
+      vtkIdType c3 = pointIds[3];
+      const auto [numPoints3, tableIndex3] = SurfaceNets::GetStateInfo(triadPtrs[3][i]);
+      if (VTK_UNLIKELY(numPoints3 != 1))
+      {
+        c3 += NonManifoldCases::GetNonManiFoldPointIndex<10>(
+          this->GetEdgeCase(triadPtrs[3] + i), tableIndex3);
+      }
+      T s0 = s0Origin;
+      T s1 = this->GetVoxelForTriad(i, row, slice + 1);
+      if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
+      {
+        std::swap(s0, s1);
+        std::swap(c1, c3);
       }
 
-      if (SurfaceNets::GenerateXZQuad(triad))
+      *connIter++ = c0;
+      *connIter++ = c1;
+      *connIter++ = c2;
+      *connIter++ = c3;
+
+      this->WriteScalarTuple(s0, s1, quadId++);
+    }
+
+    if (SurfaceNets::GenerateXZQuad(triad))
+    {
+      // (i, row, slice)
+      vtkIdType c0 = pointIds[4];
+      if (VTK_UNLIKELY(numPoints4 != 1))
       {
-        // (i, row, slice)
-        vtkIdType c0 = pointIds[4];
-        if (VTK_UNLIKELY(numPoints4 != 1))
-        {
-          c0 += NonManifoldCases::GetNonManiFoldPointIndex<4>(edgeCase, tableIndex4);
-        }
-        // (i, row, slice - 1)
-        vtkIdType c1 = pointIds[1];
-        const auto [numPoints1, tableIndex1] = SurfaceNets::GetStateInfo(triadPtrs[1][i]);
-        if (VTK_UNLIKELY(numPoints1 != 1))
-        {
-          c1 += NonManifoldCases::GetNonManiFoldPointIndex<6>(
-            snet->GetEdgeCase(triadPtrs[1] + i), tableIndex1);
-        }
-        // (i - 1, row, slice - 1)
-        vtkIdType c2 = pointIds[1] - 1;
-        const auto [numPoints1_1, tableIndex1_1] = SurfaceNets::GetStateInfo(triadPtrs[1][i - 1]);
-        if (VTK_UNLIKELY(numPoints1_1 != 1))
-        {
-          c2 = pointIds[1] - numPoints1_1 +
-            NonManifoldCases::GetNonManiFoldPointIndex<7>(
-              snet->GetEdgeCase(triadPtrs[1] + i - 1), tableIndex1_1);
-        }
-        // (i - 1, row, slice)
-        vtkIdType c3 = pointIds[4] - 1;
-        const auto [numPoints4_1, tableIndex4_1] = SurfaceNets::GetStateInfo(triadPtrs[4][i - 1]);
-        if (VTK_UNLIKELY(numPoints4_1 != 1))
-        {
-          c3 = pointIds[4] - numPoints4_1 +
-            NonManifoldCases::GetNonManiFoldPointIndex<5>(
-              snet->GetEdgeCase(triadPtrs[4] + i - 1), tableIndex4_1);
-        }
-
-        T s0 = s0Origin;
-        T s1 = snet->GetVoxelForTriad(i, row + 1, slice);
-        if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
-        {
-          std::swap(s0, s1);
-          std::swap(c1, c3);
-        }
-
-        *connIter++ = c0;
-        *connIter++ = c1;
-        *connIter++ = c2;
-        *connIter++ = c3;
-
-        snet->WriteScalarTuple(s0, s1, quadId++);
+        c0 += NonManifoldCases::GetNonManiFoldPointIndex<4>(edgeCase, tableIndex4);
+      }
+      // (i, row, slice - 1)
+      vtkIdType c1 = pointIds[1];
+      const auto [numPoints1, tableIndex1] = SurfaceNets::GetStateInfo(triadPtrs[1][i]);
+      if (VTK_UNLIKELY(numPoints1 != 1))
+      {
+        c1 += NonManifoldCases::GetNonManiFoldPointIndex<6>(
+          this->GetEdgeCase(triadPtrs[1] + i), tableIndex1);
+      }
+      // (i - 1, row, slice - 1)
+      vtkIdType c2 = pointIds[1] - 1;
+      const auto [numPoints1_1, tableIndex1_1] = SurfaceNets::GetStateInfo(triadPtrs[1][i - 1]);
+      if (VTK_UNLIKELY(numPoints1_1 != 1))
+      {
+        c2 = pointIds[1] - numPoints1_1 +
+          NonManifoldCases::GetNonManiFoldPointIndex<7>(
+            this->GetEdgeCase(triadPtrs[1] + i - 1), tableIndex1_1);
+      }
+      // (i - 1, row, slice)
+      vtkIdType c3 = pointIds[4] - 1;
+      const auto [numPoints4_1, tableIndex4_1] = SurfaceNets::GetStateInfo(triadPtrs[4][i - 1]);
+      if (VTK_UNLIKELY(numPoints4_1 != 1))
+      {
+        c3 = pointIds[4] - numPoints4_1 +
+          NonManifoldCases::GetNonManiFoldPointIndex<5>(
+            this->GetEdgeCase(triadPtrs[4] + i - 1), tableIndex4_1);
       }
 
-      if (SurfaceNets::GenerateYZQuad(triad))
+      T s0 = s0Origin;
+      T s1 = this->GetVoxelForTriad(i, row + 1, slice);
+      if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
       {
-        // (i, row, slice)
-        vtkIdType c0 = pointIds[4];
-        if (VTK_UNLIKELY(numPoints4 != 1))
-        {
-          c0 += NonManifoldCases::GetNonManiFoldPointIndex<0>(edgeCase, tableIndex4);
-        }
-        // (i, row - 1, slice)
-        vtkIdType c1 = pointIds[3];
-        const auto [numPoints3, tableIndex3] = SurfaceNets::GetStateInfo(triadPtrs[3][i]);
-        if (VTK_UNLIKELY(numPoints3 != 1))
-        {
-          c1 += NonManifoldCases::GetNonManiFoldPointIndex<1>(
-            snet->GetEdgeCase(triadPtrs[3] + i), tableIndex3);
-        }
-        // (i, row - 1, slice - 1)
-        vtkIdType c2 = pointIds[0];
-        const auto [numPoints0, tableIndex0] = SurfaceNets::GetStateInfo(triadPtrs[0][i]);
-        if (VTK_UNLIKELY(numPoints0 != 1))
-        {
-          c2 += NonManifoldCases::GetNonManiFoldPointIndex<3>(
-            snet->GetEdgeCase(triadPtrs[0] + i), tableIndex0);
-        }
-        // (i, row, slice - 1)
-        vtkIdType c3 = pointIds[1];
-        const auto [numPoints1, tableIndex1] = SurfaceNets::GetStateInfo(triadPtrs[1][i]);
-        if (VTK_UNLIKELY(numPoints1 != 1))
-        {
-          c3 += NonManifoldCases::GetNonManiFoldPointIndex<2>(
-            snet->GetEdgeCase(triadPtrs[1] + i), tableIndex1);
-        }
-
-        T s0 = s0Origin;
-        T s1 = snet->GetVoxelForTriad(i + 1, row, slice);
-        if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
-        {
-          std::swap(s0, s1);
-          std::swap(c1, c3);
-        }
-
-        *connIter++ = c0;
-        *connIter++ = c1;
-        *connIter++ = c2;
-        *connIter++ = c3;
-
-        snet->WriteScalarTuple(s0, s1, quadId++);
+        std::swap(s0, s1);
+        std::swap(c1, c3);
       }
 
-    } // operator()
-  }; // GenerateQuads
+      *connIter++ = c0;
+      *connIter++ = c1;
+      *connIter++ = c2;
+      *connIter++ = c3;
+
+      this->WriteScalarTuple(s0, s1, quadId++);
+    }
+
+    if (SurfaceNets::GenerateYZQuad(triad))
+    {
+      // (i, row, slice)
+      vtkIdType c0 = pointIds[4];
+      if (VTK_UNLIKELY(numPoints4 != 1))
+      {
+        c0 += NonManifoldCases::GetNonManiFoldPointIndex<0>(edgeCase, tableIndex4);
+      }
+      // (i, row - 1, slice)
+      vtkIdType c1 = pointIds[3];
+      const auto [numPoints3, tableIndex3] = SurfaceNets::GetStateInfo(triadPtrs[3][i]);
+      if (VTK_UNLIKELY(numPoints3 != 1))
+      {
+        c1 += NonManifoldCases::GetNonManiFoldPointIndex<1>(
+          this->GetEdgeCase(triadPtrs[3] + i), tableIndex3);
+      }
+      // (i, row - 1, slice - 1)
+      vtkIdType c2 = pointIds[0];
+      const auto [numPoints0, tableIndex0] = SurfaceNets::GetStateInfo(triadPtrs[0][i]);
+      if (VTK_UNLIKELY(numPoints0 != 1))
+      {
+        c2 += NonManifoldCases::GetNonManiFoldPointIndex<3>(
+          this->GetEdgeCase(triadPtrs[0] + i), tableIndex0);
+      }
+      // (i, row, slice - 1)
+      vtkIdType c3 = pointIds[1];
+      const auto [numPoints1, tableIndex1] = SurfaceNets::GetStateInfo(triadPtrs[1][i]);
+      if (VTK_UNLIKELY(numPoints1 != 1))
+      {
+        c3 += NonManifoldCases::GetNonManiFoldPointIndex<2>(
+          this->GetEdgeCase(triadPtrs[1] + i), tableIndex1);
+      }
+
+      T s0 = s0Origin;
+      T s1 = this->GetVoxelForTriad(i + 1, row, slice);
+      if (s0IsBackground || (s1 != backgroundLabel && s0 > s1))
+      {
+        std::swap(s0, s1);
+        std::swap(c1, c3);
+      }
+
+      *connIter++ = c0;
+      *connIter++ = c1;
+      *connIter++ = c2;
+      *connIter++ = c3;
+
+      this->WriteScalarTuple(s0, s1, quadId++);
+    }
+
+  } // GenerateQuads()
 
   // Produce the smoothing stencils for this voxel cell.
-  struct GenerateStencils
+  template <class OffsetsT, class ConnectivityT>
+  void GenerateStencils(OffsetsT* offsets, ConnectivityT* conn, vtkIdType i, EdgeCaseType edgeCase,
+    uint8_t numPoints4, int8_t tableIndex4, const std::array<TriadType*, 9>& triadPtrs,
+    std::array<vtkIdType, 9>& pointIds, vtkIdType& sOffset)
   {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType i, SurfaceNets* snet,
-      EdgeCaseType edgeCase, uint8_t numPoints4, int8_t tableIndex4,
-      const std::array<TriadType*, 9>& triadPtrs, std::array<vtkIdType, 9>& pointIds,
-      vtkIdType& sOffset)
+    // The point on which the stencil operates
+    const vtkIdType& pointId4 = pointIds[4];
+
+    auto offsetIter = offsets->GetPointer(pointId4);
+    auto connIter = conn->GetPointer(sOffset);
+
+    // Create the stencil. Note that for stencils with just one connection
+    // (e.g., on the boundary of the image), the stencil point is "locked"
+    // in place to prevent any motion to avoid shrinkage etc.
+    // Locked stencil: boundary points are anchored to themselves.
+    if (VTK_UNLIKELY(this->GetNumberOfStencilEdges(edgeCase, tableIndex4, numPoints4) == 1))
     {
-      // The point on which the stencil operates
-      const vtkIdType& pointId4 = pointIds[4];
+      *offsetIter = sOffset++;
+      *connIter = pointId4;
+      return;
+    }
 
-      auto offsetIter = offsets->GetPointer(pointId4);
-      auto connIter = conn->GetPointer(sOffset);
+    const auto manifoldSubEdgeCases =
+      NonManifoldCases::GetManifoldSubEdgeCases(edgeCase, tableIndex4);
+    VTK_ASSUME(numPoints4 >= 1 && numPoints4 <= 5);
+    const uint8_t numManifoldSubCases = std::max(1, numPoints4 - 1);
+    for (uint8_t j = 0; j < numPoints4; ++j, ++offsetIter)
+    {
+      // If point is manifold, we create stencils for the edge case.
+      // Else, we create stencils for the manifold sub-edge cases and also the edge case itself
+      const bool isEdgeCase = (numManifoldSubCases == 1 || j == numManifoldSubCases);
+      const EdgeCaseType edgeCaseToProcess = isEdgeCase ? edgeCase : manifoldSubEdgeCases[j];
+      const unsigned char numEdges = this->GetNumberOfStencilEdges(edgeCaseToProcess);
+      *offsetIter = sOffset;
+      sOffset += numEdges;
+      // Create up to six stencil edges connecting the voxel edge face neighbors.
+      const unsigned char* stencilEdges = this->GetStencilEdges(edgeCaseToProcess);
 
-      // Create the stencil. Note that for stencils with just one connection
-      // (e.g., on the boundary of the image), the stencil point is "locked"
-      // in place to prevent any motion to avoid shrinkage etc.
-      // Locked stencil: boundary points are anchored to themselves.
-      if (VTK_UNLIKELY(snet->GetNumberOfStencilEdges(edgeCase, tableIndex4, numPoints4) == 1))
+      // -x face
+      if (stencilEdges[1])
       {
-        *offsetIter = sOffset++;
-        *connIter = pointId4;
-        return;
+        // Anchor stencil is always the last point id regardless of the numPoints in the triad.
+        *connIter++ = pointId4 - 1;
       }
-
-      const auto manifoldSubEdgeCases =
-        NonManifoldCases::GetManifoldSubEdgeCases(edgeCase, tableIndex4);
-      VTK_ASSUME(numPoints4 >= 1 && numPoints4 <= 5);
-      const uint8_t numManifoldSubCases = std::max(1, numPoints4 - 1);
-      for (uint8_t j = 0; j < numPoints4; ++j, ++offsetIter)
+      // +x face
+      if (stencilEdges[2])
       {
-        // If point is manifold, we create stencils for the edge case.
-        // Else, we create stencils for the manifold sub-edge cases and also the edge case itself
-        const bool isEdgeCase = (numManifoldSubCases == 1 || j == numManifoldSubCases);
-        const EdgeCaseType edgeCaseToProcess = isEdgeCase ? edgeCase : manifoldSubEdgeCases[j];
-        const unsigned char numEdges = snet->GetNumberOfStencilEdges(edgeCaseToProcess);
-        *offsetIter = sOffset;
-        sOffset += numEdges;
-        // Create up to six stencil edges connecting the voxel edge face neighbors.
-        const unsigned char* stencilEdges = snet->GetStencilEdges(edgeCaseToProcess);
-
-        // -x face
-        if (stencilEdges[1])
-        {
-          // Anchor stencil is always the last point id regardless of the numPoints in the triad.
-          *connIter++ = pointId4 - 1;
-        }
-        // +x face
-        if (stencilEdges[2])
-        {
-          *connIter++ =
-            pointId4 + numPoints4 + SurfaceNets::GetNumberOfPoints(triadPtrs[4][i + 1]) - 1;
-        }
-        // -y face
-        if (stencilEdges[3])
-        {
-          *connIter++ = pointIds[3] + SurfaceNets::GetNumberOfPoints(triadPtrs[3][i]) - 1;
-        }
-        // +y face
-        if (stencilEdges[4])
-        {
-          *connIter++ = pointIds[5] + SurfaceNets::GetNumberOfPoints(triadPtrs[5][i]) - 1;
-        }
-        // -z face
-        if (stencilEdges[5])
-        {
-          *connIter++ = pointIds[1] + SurfaceNets::GetNumberOfPoints(triadPtrs[1][i]) - 1;
-        }
-        // +z face
-        if (stencilEdges[6])
-        {
-          *connIter++ = pointIds[7] + SurfaceNets::GetNumberOfPoints(triadPtrs[7][i]) - 1;
-        }
+        *connIter++ =
+          pointId4 + numPoints4 + SurfaceNets::GetNumberOfPoints(triadPtrs[4][i + 1]) - 1;
       }
-    } // operator()
-  }; // GenerateStencils
+      // -y face
+      if (stencilEdges[3])
+      {
+        *connIter++ = pointIds[3] + SurfaceNets::GetNumberOfPoints(triadPtrs[3][i]) - 1;
+      }
+      // +y face
+      if (stencilEdges[4])
+      {
+        *connIter++ = pointIds[5] + SurfaceNets::GetNumberOfPoints(triadPtrs[5][i]) - 1;
+      }
+      // -z face
+      if (stencilEdges[5])
+      {
+        *connIter++ = pointIds[1] + SurfaceNets::GetNumberOfPoints(triadPtrs[1][i]) - 1;
+      }
+      // +z face
+      if (stencilEdges[6])
+      {
+        *connIter++ = pointIds[7] + SurfaceNets::GetNumberOfPoints(triadPtrs[7][i]) - 1;
+      }
+    }
+  } // GenerateStencils()
 
   // Given a triad i,j,k return the voxel value. Note that the
   // triad i,j,k is shifted by 1 due to the padding of the image
@@ -1799,8 +1792,6 @@ void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType
   auto* stencilOffsets = StencilOffsets::FastDownCast(this->NewStencils->GetOffsetsArray());
   auto* stencilConnectivity =
     StencilConnectivity::FastDownCast(this->NewStencils->GetConnectivityArray());
-  GenerateQuads genQuads;
-  GenerateStencils genStencils;
 
   // Given a volume x-edge to process (defined by [row,slice]), determine the
   // trim edges and the 3x3 row triad cases centered around the current
@@ -1844,15 +1835,15 @@ void SurfaceNets<TArray, TEdgeRowIndex>::GenerateOutput(vtkIdType row, vtkIdType
     // Produce quads if necessary.
     if (SurfaceNets::ProducesQuad(triad))
     {
-      genQuads(quadOffsets, quadConnectivity, i, row, slice, this, edgeCase, numPoints, tableIndex,
-        triadPtrs, pointIds, quadId);
+      this->GenerateQuads(quadOffsets, quadConnectivity, i, row, slice, edgeCase, numPoints,
+        tableIndex, triadPtrs, pointIds, quadId);
     }
 
     // If a point is generated, then smoothing stencils are required (i.e.,
     // stencils indicate how the generated point is connected to other
     // points). Up to six connections corresponding to six face neighbors
     // may be generated.
-    genStencils(stencilOffsets, stencilConnectivity, i, this, edgeCase, numPoints, tableIndex,
+    this->GenerateStencils(stencilOffsets, stencilConnectivity, i, edgeCase, numPoints, tableIndex,
       triadPtrs, pointIds, sOffset);
 
     // Advance all rows past position i, and pre-align neighbor rows to the next
@@ -1947,7 +1938,8 @@ struct NetsWorker
     Pass2(SurfaceNets<TArray, TEdgeRowIndex>* algo, bool odd, vtkIdType numTotalSlices)
     {
       this->Algo = algo;
-      vtkIdType numSlices = odd ? (numTotalSlices / 2) : ((numTotalSlices + 1) / 2);
+      // Odd values in [1, numTotalSlices] number ceil(N/2); even values number floor(N/2).
+      vtkIdType numSlices = odd ? (numTotalSlices + 1) / 2 : (numTotalSlices / 2);
       this->Slices->SetNumberOfValues(numSlices);
       this->Slices->ConstructBackend(2, odd ? 1 : 2); // stride=2, start=1 or 2
     }

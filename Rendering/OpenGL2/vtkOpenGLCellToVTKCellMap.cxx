@@ -6,6 +6,8 @@
 #include "vtkPoints.h"
 #include "vtkProperty.h"
 
+#include <numeric>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLCellToVTKCellMap);
@@ -133,7 +135,7 @@ void vtkOpenGLCellToVTKCellMap::BuildPrimitiveOffsetsIfNeeded(
 //   cellCellMap which maps a openGL cell id to the VTK cell it came from
 //
 void vtkOpenGLCellToVTKCellMap::BuildCellSupportArrays(
-  vtkCellArray* prims[4], int representation, vtkPoints* points)
+  vtkCellArray* prims[4], int representation, vtkPoints* vtkNotUsed(points))
 {
   // need an array to track what points to orig points
   vtkIdType minSize = prims[0]->GetNumberOfCells() + prims[1]->GetNumberOfCells() +
@@ -229,29 +231,33 @@ void vtkOpenGLCellToVTKCellMap::BuildCellSupportArrays(
   }
 
   // polys
-  for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices);)
+  // Degenerate triangles are intentionally kept: emit one cell-map entry per
+  // triangle (fan-triangulated for polygons with more than 3 points) without
+  // any degenerate-triangle check. This stays aligned with the index buffers
+  // built by vtkOpenGLIndexBufferObject, which also keep degenerate triangles.
+  const bool polysHaveOnlyTriangles =
+    prims[2]->GetNumberOfConnectivityIds() == prims[2]->GetNumberOfCells() * 3;
+  if (polysHaveOnlyTriangles)
   {
-    if (npts > 2)
+    // Fast path: every cell is a single triangle, so it contributes exactly one
+    // cell-map entry. Fill them sequentially without traversing the cells.
+    const vtkIdType numTriangles = prims[2]->GetNumberOfCells();
+    const size_t oldSize = this->CellCellMap.size();
+    this->CellCellMap.resize(oldSize + numTriangles);
+    std::iota(this->CellCellMap.begin() + oldSize, this->CellCellMap.end(), vtkCellCount);
+    vtkCellCount += numTriangles;
+  }
+  else
+  {
+    for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices);)
     {
       for (vtkIdType i = 2; i < npts; i++)
       {
-        double p1[3];
-        points->GetPoint(indices[0], p1);
-        double p2[3];
-        points->GetPoint(indices[i - 1], p2);
-        double p3[3];
-        points->GetPoint(indices[i], p3);
-        bool valid = (p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
-          (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
-          (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]);
-        if (valid)
-        {
-          this->CellCellMap.push_back(vtkCellCount);
-        }
+        this->CellCellMap.push_back(vtkCellCount);
       }
-    }
-    vtkCellCount++;
-  } // for cell
+      vtkCellCount++;
+    } // for cell
+  }
   this->PrimitiveOffsets[2] = this->PrimitiveOffsets[1] + this->CellMapSizes[1];
   this->CellMapSizes[2] = static_cast<vtkIdType>(this->CellCellMap.size()) - cumulativeSize;
   cumulativeSize = static_cast<vtkIdType>(this->CellCellMap.size());
