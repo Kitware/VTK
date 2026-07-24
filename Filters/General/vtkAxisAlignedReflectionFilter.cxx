@@ -294,11 +294,20 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     }
     else if (inputTree)
     {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(inputTree);
+      iter->InitTraversal();
       for (const auto id : dataSetIds)
       {
         auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(id, 0));
-        int inputId = this->CopyInput ? id - inputTree->GetNumberOfChildren() : id;
-        auto inLeaf = vtkDataSet::SafeDownCast(inputTree->GetChild(inputId));
+        auto inLeaf = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+
+        iter->GoToNextItem();
+        if (!inLeaf)
+        {
+          continue;
+        }
 
         vtkReflectionUtilities::CopyAndReflect(inLeaf->GetPointData(), outLeaf->GetPointData(),
           mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
