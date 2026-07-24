@@ -48,6 +48,7 @@
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #if VTK_HAVE_XCURSOR
@@ -121,6 +122,11 @@
 #define vtkXFreeColormap VTK_ABI_NAMESPACE_MANGLE(vtkXFreeColormap)
 #define vtkXMapRaised VTK_ABI_NAMESPACE_MANGLE(vtkXMapRaised)
 #define vtkXWindowEvent VTK_ABI_NAMESPACE_MANGLE(vtkXWindowEvent)
+#define vtkXResourceManagerString VTK_ABI_NAMESPACE_MANGLE(vtkXResourceManagerString)
+#define vtkXrmInitialize VTK_ABI_NAMESPACE_MANGLE(vtkXrmInitialize)
+#define vtkXrmGetStringDatabase VTK_ABI_NAMESPACE_MANGLE(vtkXrmGetStringDatabase)
+#define vtkXrmGetResource VTK_ABI_NAMESPACE_MANGLE(vtkXrmGetResource)
+#define vtkXrmDestroyDatabase VTK_ABI_NAMESPACE_MANGLE(vtkXrmDestroyDatabase)
 
 #if VTK_HAVE_XCURSOR
 #define vtkXcursorFilenameLoadCursor VTK_ABI_NAMESPACE_MANGLE(vtkXcursorFilenameLoadCursor)
@@ -224,6 +230,11 @@ extern "C"
   typedef Colormap (*vtkXFreeColormapType)(Display*, Window);
   typedef int (*vtkXMapRaisedType)(Display*, Window);
   typedef int (*vtkXWindowEventType)(Display*, Window, long, XEvent*);
+  typedef char* (*vtkXResourceManagerStringType)(Display*);
+  typedef void (*vtkXrmInitializeType)(void);
+  typedef XrmDatabase (*vtkXrmGetStringDatabaseType)(const char*);
+  typedef Bool (*vtkXrmGetResourceType)(XrmDatabase, const char*, const char*, char**, XrmValue*);
+  typedef void (*vtkXrmDestroyDatabaseType)(XrmDatabase);
   // Xcursor API
 #if VTK_HAVE_XCURSOR
   typedef Cursor (*vtkXcursorFilenameLoadCursorType)(Display*, const char*);
@@ -296,6 +307,11 @@ extern "C"
   VTKX11_EXPORT extern vtkXFreeColormapType vtkXFreeColormap;
   VTKX11_EXPORT extern vtkXMapRaisedType vtkXMapRaised;
   VTKX11_EXPORT extern vtkXWindowEventType vtkXWindowEvent;
+  VTKX11_EXPORT extern vtkXResourceManagerStringType vtkXResourceManagerString;
+  VTKX11_EXPORT extern vtkXrmInitializeType vtkXrmInitialize;
+  VTKX11_EXPORT extern vtkXrmGetStringDatabaseType vtkXrmGetStringDatabase;
+  VTKX11_EXPORT extern vtkXrmGetResourceType vtkXrmGetResource;
+  VTKX11_EXPORT extern vtkXrmDestroyDatabaseType vtkXrmDestroyDatabase;
   // Xcursor API
 #if VTK_HAVE_XCURSOR
   VTKX11_EXPORT extern vtkXcursorFilenameLoadCursorType vtkXcursorFilenameLoadCursor;

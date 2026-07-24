@@ -852,6 +852,16 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(
       return 0;
     }
     break;
+    case WM_DPICHANGED:
+    {
+      UINT dpi = LOWORD(wParam);
+      this->SetDPI(dpi);
+
+      RECT* rect = reinterpret_cast<RECT*>(lParam);
+      SetWindowPos(hWnd, nullptr, rect->left, rect->top, rect->right - rect->left,
+        rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+      return TRUE;
+    }
     case WM_ERASEBKGND:
       return TRUE;
     case WM_SETCURSOR:
@@ -1484,7 +1494,8 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
 //------------------------------------------------------------------------------
 bool vtkWin32OpenGLRenderWindow::DetectDPI()
 {
-  this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));
+  UINT dpi = GetDpiForWindow(this->WindowId);
+  this->SetDPI(dpi);
   return true;
 }
 VTK_ABI_NAMESPACE_END

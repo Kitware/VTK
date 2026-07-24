@@ -402,6 +402,16 @@ public:
 
   void Render() override;
 
+  /**
+   * on macOS, only a scaling factor can be detected (usually 1.0 or 2.0).
+   * Compute the scaling factor using the view's height and backing height
+   * when possible.
+   * Fallback on the window's backingScaleFactor value otherwise.
+   *
+   * The DPI is set to 72 * scale.
+   */
+  bool DetectDPI() override;
+
 protected:
   vtkCocoaRenderWindow();
   ~vtkCocoaRenderWindow() override;
