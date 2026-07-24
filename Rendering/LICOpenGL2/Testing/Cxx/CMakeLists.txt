@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
   TestStructuredGridLIC2DYSlice.cxx
   TestStructuredGridLIC2DZSlice.cxx
   TestSurfaceLICViewports.cxx
+  TestSurfaceLICTranslucencyWithoutVectors.cxx,NO_SERDES
   )
 
 # surface lic on a curved surface

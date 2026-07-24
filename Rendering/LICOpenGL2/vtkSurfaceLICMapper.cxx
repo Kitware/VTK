@@ -81,6 +81,21 @@ void vtkSurfaceLICMapper::ReleaseGraphicsResources(vtkWindow* win)
 void vtkSurfaceLICMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
 {
+  // When surface LIC is not going to run (e.g. no vectors, or disabled), the
+  // geometry is drawn through the plain polydata path (see RenderPiece's
+  // fallback to Superclass::RenderPiece). In that case we must not emit the
+  // extra gl_FragData[1]/gl_FragData[2] vector outputs: the vecsMC attribute is
+  // not bound and, those additional draw-buffer writes leak
+  // the projected vectors into other render targets. This is visible under
+  // dual depth peeling, whose back-peel shader path leaves gl_FragData[1]
+  // untouched, so the leaked vectors end up in the front color accumulation
+  // buffer (rendered as spurious red/green).
+  if (!this->LICInterface->CanRenderSurfaceLIC(actor))
+  {
+    this->Superclass::ReplaceShaderValues(shaders, ren, actor);
+    return;
+  }
+
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
@@ -145,7 +160,13 @@ void vtkSurfaceLICMapper::SetMapperShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
-  cellBO.Program->SetUniformi("uMaskOnSurface", this->LICInterface->GetMaskOnSurface());
+  // The uMaskOnSurface uniform only exists when the LIC shader outputs were
+  // injected; skip it on the plain polydata fallback path (see
+  // ReplaceShaderValues) to avoid setting a non-existent uniform.
+  if (this->LICInterface->CanRenderSurfaceLIC(actor))
+  {
+    cellBO.Program->SetUniformi("uMaskOnSurface", this->LICInterface->GetMaskOnSurface());
+  }
 }
 
 //------------------------------------------------------------------------------

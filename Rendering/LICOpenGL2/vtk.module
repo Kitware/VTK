@@ -37,4 +37,6 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::GUISupportQt
 INCLUDE_MARSHAL
