@@ -15,6 +15,7 @@ vtk_module_test_data(
   Data/ghostBrokenScalars/ghostBrokenScalars_1.vtp
   Data/ghostBrokenScalars/ghostBrokenScalars_2.vtp
   Data/ghostBrokenScalars/ghostBrokenScalars_3.vtp
+  Data/label_map.vti
   Data/sliding_multi_block_end.vtm
   Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
   Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
