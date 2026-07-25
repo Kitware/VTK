@@ -251,9 +251,11 @@ class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
         # Remove the observers so we can go interactive. Without this the "-I"
         # testing option fails.
         self.recorder.Off()
-        vtkmodules.test.Testing.compareImage(self.renWin, vtkmodules.test.Testing.getAbsImagePath(
-            "TestCameraOrientationWidget.png"))
-        vtkmodules.test.Testing.interact()
+        if vtkmodules.test.Testing.isInteractive():
+            self.interactor.Start()
+        else:
+            vtkmodules.test.Testing.compareImage(self.renWin, vtkmodules.test.Testing.getAbsImagePath(
+                "TestCameraOrientationWidget.png"))
 
 
 if __name__ == "__main__":

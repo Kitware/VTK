@@ -947,6 +947,9 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pick Color: (" << this->PickColor[0] << ", " << this->PickColor[1] << ", "
      << this->PickColor[2] << ")\n";
 
+  os << indent << "CenterOfRotation: (" << this->CenterOfRotation[0] << ", "
+     << this->CenterOfRotation[1] << ", " << this->CenterOfRotation[2] << ")\n";
+
   os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
   if (this->PickedRenderer)
   {

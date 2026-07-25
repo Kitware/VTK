@@ -123,6 +123,19 @@ public:
   vtkSetMacro(ShouldResetCamera, bool);
   vtkGetMacro(ShouldResetCamera, bool);
   vtkBooleanMacro(ShouldResetCamera, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When enabled, the widget rotates the camera about the center of rotation
+   * provided by the interactor style (vtkInteractorStyle::GetCenterOfRotation)
+   * instead of the camera focal point. Default is false, which preserves the
+   * legacy behavior of rotating about the focal point.
+   */
+  vtkSetMacro(UseCenterOfRotation, bool);
+  vtkGetMacro(UseCenterOfRotation, bool);
+  vtkBooleanMacro(UseCenterOfRotation, bool);
+  ///@}
 
 protected:
   vtkCameraOrientationWidget();
@@ -159,6 +172,7 @@ protected:
 
   bool Animate = true;
   bool ShouldResetCamera = true;
+  bool UseCenterOfRotation = false;
   int AnimatorTotalFrames = 20;
   int AnimatorCurrentFrame = 0;
   int AnimationTimerId = -1;
