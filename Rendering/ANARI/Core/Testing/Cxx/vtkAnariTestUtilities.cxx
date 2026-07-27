@@ -47,4 +47,15 @@ void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, co
   anariRenderer->SetParameteri("pixelSamples", 8);
 }
 
+const anari::Extensions& GetDeviceExtensions(vtkRenderWindow* renderWindow)
+{
+  vtkAnariRenderWindow* anariRenderWindow = vtkAnariRenderWindow::SafeDownCast(renderWindow);
+  if (!anariRenderWindow)
+  {
+    vtkLogF(ERROR, "Expected vtkAnariRenderWindow but got %s", renderWindow->GetClassName());
+  }
+
+  return anariRenderWindow->GetAnariDevice()->GetAnariDeviceExtensions();
+}
+
 }
