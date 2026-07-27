@@ -949,11 +949,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
   }
 
   const bool isStructured = !dims.empty();
-  if (isStructured && (trim != 0))
-  {
-    vtkErrorWithObjectMacro(this->Writer, "trim is not supported for appending structured data");
-    return false;
-  }
+  assert((!isStructured || trim == 0) && "Cannot trim when setting dimensions");
 
   // Create dataspace from array
   vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray, dims);
@@ -1100,7 +1096,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(hid_t group, const char* n
     return true;
   }
 
-  if (dims.size() <= 1 && H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  if (dims.empty() && H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
     const std::vector<hsize_t> largeChunkSize = {
       std::clamp<hsize_t>(
