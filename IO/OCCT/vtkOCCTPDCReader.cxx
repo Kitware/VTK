@@ -46,6 +46,7 @@
 #if VTK_OCCT_USE_PROGRESS
 #include <Message_ProgressIndicator.hxx>
 #endif
+#include <NCollection_Sequence.hxx>
 #include <PCDM_ReaderStatus.hxx>
 #include <Poly.hxx>
 #include <Quantity_Color.hxx>
@@ -54,7 +55,7 @@
 #endif
 #include <STEPCAFControl_Reader.hxx>
 #include <TCollection_AsciiString.hxx>
-#include <TDF_LabelSequence.hxx>
+#include <TDF_Label.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
@@ -317,6 +318,8 @@ using OCC_ColorType = Quantity_ColorRGBA;
 #else
 using OCC_ColorType = Quantity_Color;
 #endif
+
+using OCC_LabelSequence = NCollection_Sequence<TDF_Label>;
 
 //----------------------------------------------------------------------------
 // Internal class for the reader that handles all OpenCascade functionality
@@ -851,7 +854,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
     Standard_Integer nbV = poly->NbNodes();
 
     // Points
-    const TColgp_Array1OfPnt& aNodes = poly->Nodes();
+    const auto& aNodes = poly->Nodes();
     for (Standard_Integer i = 1; i <= nbV; i++)
     {
       gp_Pnt pt = aNodes(i).Transformed(location);
@@ -975,7 +978,7 @@ void vtkOCCTPDCReader::vtkInternals::AddLabelToOutput(const TDF_Label& label,
   // If this is an assembly then process all of its children.
   if (this->ShapeTool->IsAssembly(label))
   {
-    TDF_LabelSequence children;
+    OCC_LabelSequence children;
 
     // If a new node was created then we need to provide an
     // empty map to make its children node names are unique
@@ -1201,7 +1204,7 @@ int vtkOCCTPDCReader::RequestData(
   this->Internals->ShapeTool = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
   this->Internals->ColorTool = XCAFDoc_DocumentTool::ColorTool(doc->Main());
 
-  TDF_LabelSequence topLevelShapes;
+  OCC_LabelSequence topLevelShapes;
 
   // Visit all of the base geometric shapes and for each one create
   // vtkPolydata for its surfaces and optionally for its wires.

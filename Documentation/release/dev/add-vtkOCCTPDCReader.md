@@ -25,3 +25,8 @@ RGBA values, preserving alpha transparency when supported by OpenCASCADE.
 
 * If an assembly label shares a name with one of its siblings, the reader will append a '_' followed by a number to make the name unique.
 * You can request that the reader produce a map (represented as a 2-component vtkIntArray named *NodeMapping* attached as Field data to the output) which represents each renamed vtkDataAssembly node and the node that shared its original name.
+
+
+In addition, both OpenCASCADE readers no longer depend on deprecated collection aliases or
+typedef-only headers that are not part of a standard OpenCASCADE 8
+installation. Existing OpenCASCADE 7.x support is preserved.
