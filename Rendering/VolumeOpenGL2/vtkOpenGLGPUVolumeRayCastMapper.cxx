@@ -114,6 +114,11 @@ public:
     this->DepthCopyColorTextureObject = nullptr;
     this->DepthCopyFBO = nullptr;
     this->SharedDepthTextureObject = false;
+#ifdef GL_ES_VERSION_3_0
+    this->DepthTextureFormat = vtkTextureObject::Fixed24;
+#else
+    this->DepthTextureFormat = vtkTextureObject::Fixed32;
+#endif
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
     this->CurrentMask = nullptr;
@@ -432,6 +437,7 @@ public:
   vtkTextureObject* DepthCopyColorTextureObject;
   vtkOpenGLFramebufferObject* DepthCopyFBO;
   bool SharedDepthTextureObject;
+  int DepthTextureFormat;
 
   int TextureWidth;
 
@@ -810,14 +816,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
     }
     else
     {
-      // For now, the format is set by default to GL_DEPTH_COMPONENT24.
-      // This should be configurable in the future
-      // See https://gitlab.kitware.com/vtk/vtk/-/issues/19823
-#ifdef GL_ES_VERSION_3_0
-      this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 3);
-#else
-      this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 4);
-#endif
+      this->DepthTextureObject->AllocateDepth(
+        this->WindowSize[0], this->WindowSize[1], this->DepthTextureFormat);
     }
   }
 
@@ -2224,6 +2224,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentPass: " << this->CurrentPass << "\n";
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::SetSharedDepthTexture(vtkTextureObject* nt)
 {
   if (this->Impl->DepthTextureObject == nt)
@@ -2245,6 +2246,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetSharedDepthTexture(vtkTextureObject* nt
   {
     this->Impl->SharedDepthTextureObject = false;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::SetDepthTextureFormat(int format)
+{
+  this->Impl->DepthTextureFormat = format;
 }
 
 //------------------------------------------------------------------------------

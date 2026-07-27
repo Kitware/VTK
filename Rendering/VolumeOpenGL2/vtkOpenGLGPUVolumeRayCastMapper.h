@@ -130,6 +130,12 @@ public:
   void SetSharedDepthTexture(vtkTextureObject* nt);
 
   /**
+   * Set the depth texture format. This is only used if the depth texture is not shared.
+   * The default is vtkTextureObject::Fixed32 on OpenGL and vtkTextureObject::Fixed24 on OpenGL ES.
+   */
+  void SetDepthTextureFormat(int format);
+
+  /**
    * Set a fixed number of partitions in which to split the volume
    * during rendering. This will force by-block rendering without
    * trying to compute an optimum number of partitions.
