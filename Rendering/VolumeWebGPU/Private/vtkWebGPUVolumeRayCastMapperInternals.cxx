@@ -357,6 +357,14 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
 
   if (this->ActivePorts != previous)
   {
+    // Let go of the textures of ports that are no longer connected.
+    for (auto it = this->InputCache.begin(); it != this->InputCache.end();)
+    {
+      const bool active = std::find(this->ActivePorts.begin(), this->ActivePorts.end(),
+                            it->first) != this->ActivePorts.end();
+      it = active ? std::next(it) : this->InputCache.erase(it);
+    }
+
     this->TransferFunctionTime = 0;
     this->BrickClassificationTime = 0;
     this->BindGroup = nullptr;
