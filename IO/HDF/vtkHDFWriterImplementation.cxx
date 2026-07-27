@@ -811,11 +811,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
   }
 
   const bool isStructured = !dims.empty();
-  if (isStructured && (trim != 0))
-  {
-    vtkErrorWithObjectMacro(this->Writer, "trim is not supported for appending structured data");
-    return false;
-  }
+  assert((!isStructured || trim == 0) && "Cannot trim when setting dimensions");
 
   // Create dataspace from array
   vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray, dims);
