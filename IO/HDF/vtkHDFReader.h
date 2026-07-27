@@ -350,7 +350,7 @@ private:
    * Return true on success, false otherwise
    */
   bool ReadStructuredData(
-    vtkDataSet* data, const int* WholeExtent, const std::vector<int>& updateExtent);
+    vtkDataSet* data, const std::vector<int>& wholeExtent, const std::vector<int>& localExtent);
 
   /**
    * Read the actual data into the provided amr up to maxLevel

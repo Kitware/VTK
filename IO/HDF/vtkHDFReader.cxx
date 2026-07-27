@@ -56,35 +56,6 @@ vtkCxxSetSmartPointerMacro(vtkHDFReader, Stream, vtkResourceStream);
 namespace
 {
 //----------------------------------------------------------------------------
-int GetNDims(const int* extent)
-{
-  int ndims = 3;
-  if (extent[5] - extent[4] == 0)
-  {
-    --ndims;
-  }
-  if (extent[3] - extent[2] == 0)
-  {
-    --ndims;
-  }
-  return ndims;
-}
-
-//----------------------------------------------------------------------------
-std::vector<hsize_t> ReduceDimension(const int* updateExtent, const int* wholeExtent)
-{
-  int dims = ::GetNDims(wholeExtent);
-  std::vector<hsize_t> v(2 * dims);
-  for (int i = 0; i < dims; ++i)
-  {
-    int j = 2 * i;
-    v[j] = updateExtent[j];
-    v[j + 1] = updateExtent[j + 1];
-  }
-  return v;
-}
-
-//----------------------------------------------------------------------------
 /**
  * Convenience tooling method that read from file or from the cache
  * It returns a std::pair containing a boolean and a smart pointer to the recovered data array.
@@ -297,7 +268,7 @@ private:
 
 //----------------------------------------------------------------------------
 bool vtkHDFReader::ReadStructuredData(
-  vtkDataSet* data, const int* WholeExtent, const std::vector<int>& updateExtent)
+  vtkDataSet* data, const std::vector<int>& wholeExtent, const std::vector<int>& localExtent)
 {
   // in the same order as vtkDataObject::AttributeTypes: POINT, CELL
   for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
@@ -313,44 +284,43 @@ bool vtkHDFReader::ReadStructuredData(
         continue;
       }
       vtkSmartPointer<vtkDataArray> array;
-      std::vector<hsize_t> fileExtent = ::ReduceDimension(updateExtent.data(), WholeExtent);
-      std::vector<int> extentBuffer(fileExtent.size(), 0);
-      std::copy(
-        updateExtent.begin(), updateExtent.begin() + extentBuffer.size(), extentBuffer.begin());
+      std::vector<hsize_t> fileExtent;
+
+      vtkDebugMacro("Whole extent      " << name << " " << wholeExtent[0] << " " << wholeExtent[1]
+                                         << " " << wholeExtent[2] << " " << wholeExtent[3] << " "
+                                         << wholeExtent[4] << " " << wholeExtent[5]);
+      vtkDebugMacro("Local extent      " << name << " " << localExtent[0] << " " << localExtent[1]
+                                         << " " << localExtent[2] << " " << localExtent[3] << " "
+                                         << localExtent[4] << " " << localExtent[5]);
+
+      for (std::size_t iDim = 0; iDim < wholeExtent.size() / 2; ++iDim)
+      {
+        // Reverse axis order for VTK fortran order,
+        // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
+        // than along rows (C order)
+        std::size_t rIDim = (wholeExtent.size() / 2) - 1 - iDim;
+
+        if (wholeExtent[rIDim * 2] - wholeExtent[rIDim * 2 + 1] == 0)
+        {
+          // No extent in this dimension, this is one less dimension in the file
+          continue;
+        }
+
+        fileExtent.push_back(localExtent[rIDim * 2] - wholeExtent[rIDim * 2]);
+        fileExtent.push_back(localExtent[rIDim * 2 + 1] - wholeExtent[rIDim * 2]);
+
+        // For a dimsension of size N, read N+1 point values
+        fileExtent.back() += pointModifier;
+
+        // Null dimensions have at least 1 value
+        fileExtent.back() = std::max<size_t>(1, fileExtent.back());
+      }
+
       if (this->GetHasTemporalData())
       {
         vtkIdType offset = this->Impl->GetArrayOffset(this->Step, attributeType, name);
-        if (offset >= 0)
-        {
-          extentBuffer.emplace_back(offset);
-          extentBuffer.emplace_back(offset);
-        }
-        else
-        {
-          extentBuffer.emplace_back(this->Step);
-          extentBuffer.emplace_back(this->Step);
-        }
-        fileExtent.resize(extentBuffer.size(), 0);
-      }
-
-      // Create the memory space, reverse axis order for VTK fortran order,
-      // because VTK stores 2D/3D arrays in memory along columns (fortran order) rather
-      // than along rows (C order)
-      for (std::size_t iDim = 0; iDim < fileExtent.size() / 2; ++iDim)
-      {
-        std::size_t rIDim = (fileExtent.size() / 2) - 1 - iDim;
-        // if an extent value is negative it won't go into an hsize_t
-        if (extentBuffer[rIDim * 2] < 0)
-        {
-          extentBuffer[rIDim * 2 + 1] -= extentBuffer[rIDim * 2];
-          extentBuffer[rIDim * 2] = 0;
-        }
-        fileExtent[iDim * 2] = extentBuffer[rIDim * 2];
-        fileExtent[iDim * 2 + 1] = extentBuffer[rIDim * 2 + 1] + pointModifier;
-      }
-      if (this->GetHasTemporalData() && !pointModifier)
-      {
-        fileExtent[1] += 1;
+        fileExtent.insert(fileExtent.begin(), offset >= 0 ? offset + 1 : this->Step + 1);
+        fileExtent.insert(fileExtent.begin(), offset >= 0 ? offset : this->Step);
       }
 
       bool cacheHit = false;
@@ -833,16 +803,16 @@ void vtkHDFReader::PrintPieceInformation(vtkInformation* outInfo)
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
 {
-  int WholeExtent[6];
+  std::vector<int> wholeExtent(6);
   double Origin[3];
   double Spacing[3];
 
-  if (!this->Impl->GetImageAttributes(WholeExtent, Origin, Spacing))
+  if (!this->Impl->GetImageAttributes(wholeExtent.data(), Origin, Spacing))
   {
     return 0;
   }
 
-  std::vector<int> updateExtent(WholeExtent, WholeExtent + 6);
+  std::vector<int> updateExtent(wholeExtent.begin(), wholeExtent.end());
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent.data());
@@ -856,7 +826,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
     return 0;
   }
 
-  if (!ReadStructuredData(data, WholeExtent, updateExtent))
+  if (!ReadStructuredData(data, wholeExtent, updateExtent))
   {
     return 0;
   }
@@ -876,11 +846,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkRectilinearGrid* data)
   data->SetDimensions(Dimensions);
 
   // Get whole extent and update extent
-  int WholeExtent[6];
-  data->GetExtent(WholeExtent);
+  std::vector<int> wholeExtent(6);
+  data->GetExtent(wholeExtent.data());
 
   // Get update extent and set data extent accordingly
-  std::vector<int> updateExtent(WholeExtent, WholeExtent + 6);
+  std::vector<int> updateExtent(wholeExtent.begin(), wholeExtent.end());
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent.data());
@@ -914,7 +884,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkRectilinearGrid* data)
   data->SetZCoordinates(zCoords);
 
   // Read point and cell data
-  if (!ReadStructuredData(data, WholeExtent, updateExtent))
+  if (!ReadStructuredData(data, wholeExtent, updateExtent))
   {
     return 0;
   }
@@ -934,22 +904,22 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkStructuredGrid* data)
   data->SetDimensions(Dimensions);
 
   // Get whole extent and update extent
-  int WholeExtent[6];
-  data->GetExtent(WholeExtent);
+  std::vector<int> wholeExtent(6, 0);
+  data->GetExtent(wholeExtent.data());
 
   // Get update extent and set data extent accordingly
-  std::vector<int> updateExtent(WholeExtent, WholeExtent + 6);
+  std::vector<int> localExtent(wholeExtent.begin(), wholeExtent.end());
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent.data());
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), localExtent.data());
   }
-  data->SetExtent(updateExtent.data());
+  data->SetExtent(localExtent.data());
 
   // Read Points array
-  std::vector<hsize_t> fileExtent{ static_cast<hsize_t>(updateExtent[4]),
-    static_cast<hsize_t>(updateExtent[5]) + 1, static_cast<hsize_t>(updateExtent[2]),
-    static_cast<hsize_t>(updateExtent[3]) + 1, static_cast<hsize_t>(updateExtent[0]),
-    static_cast<hsize_t>(updateExtent[1]) + 1, 0, 3 };
+  std::vector<hsize_t> fileExtent{ static_cast<hsize_t>(localExtent[4]),
+    static_cast<hsize_t>(localExtent[5]) + 1, static_cast<hsize_t>(localExtent[2]),
+    static_cast<hsize_t>(localExtent[3]) + 1, static_cast<hsize_t>(localExtent[0]),
+    static_cast<hsize_t>(localExtent[1]) + 1, 0, 3 };
 
   // Coordinates for time steps are added to the first dimension
   vtkIdType offset = this->Impl->GetTemporalOffset(this->Step, "PointOffsets");
@@ -974,7 +944,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkStructuredGrid* data)
   data->SetPoints(vtkpoints);
 
   // Read point and cell data
-  if (!ReadStructuredData(data, WholeExtent, updateExtent))
+  if (!ReadStructuredData(data, wholeExtent, localExtent))
   {
     return 0;
   }
