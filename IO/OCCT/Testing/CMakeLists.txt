@@ -5,6 +5,7 @@ vtk_module_test_data(
   Data/cheese.brep
   Data/cheese.xbf
   Data/boxes.step
+  Data/f3d.bin.brep
 )
 
 add_subdirectory(Cxx)

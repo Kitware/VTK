@@ -37,6 +37,7 @@
 #include <BRepTools.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
+#include <BinTools.hxx>
 #include <BinXCAFDrivers.hxx>
 #include <IGESCAFControl_Reader.hxx>
 #include <Interface_Static.hxx>
@@ -68,6 +69,7 @@
 #include <XCAFDoc_ShapeTool.hxx>
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <sstream>
 #include <string>
@@ -194,6 +196,41 @@ bool IsBRepHeader(const std::string& header)
 }
 
 //----------------------------------------------------------------------------
+// Determine whether a header appears to be an OCCT binary BREP.
+bool IsBinaryBRepHeader(const std::string& header)
+{
+  const auto firstNonWhitespace =
+    std::find_if(header.begin(), header.end(), [](unsigned char ch) { return !std::isspace(ch); });
+  return std::string(firstNonWhitespace, header.end()).rfind("Open CASCADE Topology V", 0) == 0;
+}
+
+//----------------------------------------------------------------------------
+// Determine whether the input is an OCCT binary BREP. Preserve the stream
+// position so that probing does not affect the subsequent read.
+bool IsBinaryBRep(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    return false;
+  }
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  auto streambuf = stream->ToStreambuf();
+  if (!streambuf)
+  {
+    return false;
+  }
+
+  std::istream input(streambuf.get());
+  std::string header(32, '\0');
+  input.read(header.data(), static_cast<std::streamsize>(header.size()));
+  header.resize(static_cast<std::size_t>(input.gcount()));
+
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  return IsBinaryBRepHeader(header);
+}
+
+//----------------------------------------------------------------------------
 // Determine the data format from input stream
 vtkOCCTPDCReader::Format GetFormatFromStream(vtkResourceStream* stream)
 {
@@ -238,7 +275,8 @@ vtkOCCTPDCReader::Format GetFormatFromStream(vtkResourceStream* stream)
     return vtkOCCTPDCReader::Format::XBF;
   }
 
-  // ASCII OCCT BREP
+  // ASCII or binary OCCT BREP. Both encodings are exposed as BREP; the
+  // appropriate OCCT reader is selected when loading the shape.
   if (IsBRepHeader(header))
   {
     return vtkOCCTPDCReader::Format::BREP;
@@ -403,15 +441,25 @@ void vtkOCCTPDCReader::vtkInternals::GetMatrix(const TopLoc_Location& loc, vtkMa
 bool vtkOCCTPDCReader::vtkInternals::AddBRepToDocument(Handle(TDocStd_Document) & doc)
 {
   TopoDS_Shape shape;
-  BRep_Builder builder;
 
   bool ok = false;
 
   if (this->Parent->GetStream())
   {
+    vtkResourceStream* stream = this->Parent->GetStream();
+    const bool isBinary = IsBinaryBRep(stream);
     auto streambuf = this->Parent->GetStream()->ToStreambuf();
     std::istream input(streambuf.get());
-    BRepTools::Read(shape, input, builder);
+
+    if (isBinary)
+    {
+      BinTools::Read(shape, input);
+    }
+    else
+    {
+      BRep_Builder builder;
+      BRepTools::Read(shape, input, builder);
+    }
     ok = !shape.IsNull();
   }
   else
@@ -423,7 +471,22 @@ bool vtkOCCTPDCReader::vtkInternals::AddBRepToDocument(Handle(TDocStd_Document) 
       return false;
     }
 
-    ok = BRepTools::Read(shape, this->Parent->GetFileName(), builder);
+    vtkNew<vtkFileResourceStream> stream;
+    if (!stream->Open(fileName))
+    {
+      vtkErrorWithObjectMacro(this->Parent, "Failed opening file " << fileName);
+      return false;
+    }
+
+    if (IsBinaryBRep(stream))
+    {
+      ok = BinTools::Read(shape, fileName);
+    }
+    else
+    {
+      BRep_Builder builder;
+      ok = BRepTools::Read(shape, fileName, builder);
+    }
   }
 
   if (!ok || shape.IsNull())
@@ -765,8 +828,6 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
     std::iota(polyline.begin(), polyline.end(), shift);
     lineCells->InsertNextCell(polyline.size(), polyline.data());
 
-    std::array<unsigned char, 3> rgb;
-    Quantity_Color aColor;
     if (hasColors)
     {
       colors->InsertNextTypedTuple(rgb.data());

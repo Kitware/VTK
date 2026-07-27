@@ -13,6 +13,8 @@
 
 #include "vtkOCCTPDCReader.h"
 
+#include <iostream>
+
 namespace
 {
 int TestReader(int argc, char* argv[], const std::string& filePath, unsigned int format)
@@ -27,7 +29,11 @@ int TestReader(int argc, char* argv[], const std::string& filePath, unsigned int
   reader->SetFileName(path);
   delete[] path;
   reader->SetFileFormat(format);
-  reader->Update();
+  if (!reader->Update() || reader->GetOutput()->GetNumberOfPartitionedDataSets() == 0)
+  {
+    std::cerr << "Failed to read " << filePath << '\n';
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputDataObject(reader->GetOutput());
@@ -74,6 +80,11 @@ int TestOCCTPDCReader(int argc, char* argv[])
   }
 
   if (!TestReader(argc, argv, "/Data/cheese.brep", vtkOCCTPDCReader::Format::AUTO))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestReader(argc, argv, "/Data/f3d.bin.brep", vtkOCCTPDCReader::Format::AUTO))
   {
     return EXIT_FAILURE;
   }

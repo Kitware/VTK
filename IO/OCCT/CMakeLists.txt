@@ -21,6 +21,7 @@ else()
     TKSTEP
     TKIGES
     TKMesh
+    TKBRep
     TKXDESTEP
     TKXDEIGES)
 endif()

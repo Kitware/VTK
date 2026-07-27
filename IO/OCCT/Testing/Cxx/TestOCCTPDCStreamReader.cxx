@@ -14,6 +14,8 @@
 
 #include "vtkOCCTPDCReader.h"
 
+#include <iostream>
+
 namespace
 {
 int TestReader(int argc, char* argv[], const std::string& filePath, unsigned int format)
@@ -21,7 +23,20 @@ int TestReader(int argc, char* argv[], const std::string& filePath, unsigned int
   // Compute the full path to the file
   char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, filePath.c_str(), 0);
   vtkNew<vtkFileResourceStream> stream;
-  stream->Open(path);
+  if (!stream->Open(path))
+  {
+    std::cerr << "Failed to open " << filePath << '\n';
+    delete[] path;
+    return EXIT_FAILURE;
+  }
+  delete[] path;
+
+  vtkOCCTPDCReader::Format detectedFormat;
+  if (!vtkOCCTPDCReader::CanReadFile(stream, detectedFormat))
+  {
+    std::cerr << "Failed to detect the format of " << filePath << '\n';
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkOCCTPDCReader> reader;
   reader->RelativeDeflectionOn();
@@ -30,7 +45,11 @@ int TestReader(int argc, char* argv[], const std::string& filePath, unsigned int
   reader->ReadWireOn();
   reader->SetFileFormat(format);
   reader->SetStream(stream);
-  reader->Update();
+  if (!reader->Update() || reader->GetOutput()->GetNumberOfPartitionedDataSets() == 0)
+  {
+    std::cerr << "Failed to read " << filePath << '\n';
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   mapper->SetInputDataObject(reader->GetOutput());
@@ -72,6 +91,11 @@ int TestOCCTPDCStreamReader(int argc, char* argv[])
   }
 
   if (!TestReader(argc, argv, "/Data/cheese.brep", vtkOCCTPDCReader::Format::AUTO))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestReader(argc, argv, "/Data/f3d.bin.brep", vtkOCCTPDCReader::Format::AUTO))
   {
     return EXIT_FAILURE;
   }

@@ -1,7 +1,7 @@
 ## Adding a new OpenCascade Reader
 
 VTK now provides a reader that produces a vtkPartinionedDataSetCollection that represents
-the structures found in a STEP, IGES, BREP, or XBF files/streams using OpenCascade.  The collection
+the structures found in a STEP, IGES, BREP, Binary BREP, or XBF files/streams using OpenCascade.  The collection
 will also contain a VTK DataAssembly which is used to capture the hierarchy of
 the geometry.
 
