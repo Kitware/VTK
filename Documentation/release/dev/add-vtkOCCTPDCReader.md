@@ -18,6 +18,10 @@ corresponding parent in the assembly.
 in a hierarchy that better represents what is displayed in CAD packages.
 * The reader provides a format option called AUTO that will attempt to determine the format of data.
 * As with the original reader, the reader will pull normals, colors, and UV parametric information if present; however, in the case of color, if a shape does not have color directly associated with it, the reader will see
-if the color is inherited by checking its ancestors.
+if the color is inherited by checking its ancestors. In addition, `vtkOCCTPDCReader`  resolves XCAF surface colors for individual faces and curve colors for individual edges. The generated cell-data color arrays contain
+RGBA values, preserving alpha transparency when supported by OpenCASCADE.
+
+**Note**: Colors assigned to assembly instances are not applied.
+
 * If an assembly label shares a name with one of its siblings, the reader will append a '_' followed by a number to make the name unique.
 * You can request that the reader produce a map (represented as a 2-component vtkIntArray named *NodeMapping* attached as Field data to the output) which represents each renamed vtkDataAssembly node and the node that shared its original name.

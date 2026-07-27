@@ -49,6 +49,9 @@
 #include <PCDM_ReaderStatus.hxx>
 #include <Poly.hxx>
 #include <Quantity_Color.hxx>
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+#include <Quantity_ColorRGBA.hxx>
+#endif
 #include <STEPCAFControl_Reader.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_LabelSequence.hxx>
@@ -69,6 +72,7 @@
 #include <XCAFDoc_ShapeTool.hxx>
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstring>
 #include <sstream>
@@ -308,6 +312,12 @@ using OCC_IdType = size_t;
 using OCC_IdType = int;
 #endif
 
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+using OCC_ColorType = Quantity_ColorRGBA;
+#else
+using OCC_ColorType = Quantity_Color;
+#endif
+
 //----------------------------------------------------------------------------
 // Internal class for the reader that handles all OpenCascade functionality
 class vtkOCCTPDCReader::vtkInternals
@@ -326,11 +336,18 @@ public:
 
   // Return the color of a shape if it or its ancestors has color
   // else return false;
-  bool GetShapeColor(const TopoDS_Shape& shape, XCAFDoc_ColorType type, Quantity_Color& color);
+  bool GetShapeColor(const TopoDS_Shape& shape, XCAFDoc_ColorType type, OCC_ColorType& color);
 
   // Return the color of a label if it or its ancestors has color
   // else return false;
-  bool GetLabelColor(const TDF_Label& label, XCAFDoc_ColorType type, Quantity_Color& color);
+  bool GetLabelColor(const TDF_Label& label, XCAFDoc_ColorType type, OCC_ColorType& color);
+
+  // Return a subshape color, falling back to the containing shape.
+  bool GetSubShapeColor(const TopoDS_Shape& subShape, const TopoDS_Shape& shape,
+    XCAFDoc_ColorType type, OCC_ColorType& color);
+
+  // Convert an OCCT color to an RGBA tuple.
+  static std::array<unsigned char, 4> GetRGBA(const OCC_ColorType& color);
 
   // Create a polydata representation for the faces of a shape
   vtkSmartPointer<vtkPolyData> SurfacesToPolyData(const TopoDS_Shape& shape);
@@ -560,7 +577,7 @@ bool vtkOCCTPDCReader::vtkInternals::ReadXBFToDocument(Handle(TDocStd_Document) 
 // Return the color of a shape if it or its ancestors has color
 // else return false;
 bool vtkOCCTPDCReader::vtkInternals::GetShapeColor(
-  const TopoDS_Shape& shape, XCAFDoc_ColorType type, Quantity_Color& color)
+  const TopoDS_Shape& shape, XCAFDoc_ColorType type, OCC_ColorType& color)
 {
   // Get the label of the shape
   TDF_Label label;
@@ -578,7 +595,7 @@ bool vtkOCCTPDCReader::vtkInternals::GetShapeColor(
 // Return the color of a label if it or its ancestors has color
 // else return false;
 bool vtkOCCTPDCReader::vtkInternals::GetLabelColor(
-  const TDF_Label& label, XCAFDoc_ColorType type, Quantity_Color& color)
+  const TDF_Label& label, XCAFDoc_ColorType type, OCC_ColorType& color)
 {
   // If there is no label then there is no color
   if (label.IsNull())
@@ -601,6 +618,32 @@ bool vtkOCCTPDCReader::vtkInternals::GetLabelColor(
 }
 
 //----------------------------------------------------------------------------
+// Return a subshape color, falling back to the containing shape.
+bool vtkOCCTPDCReader::vtkInternals::GetSubShapeColor(const TopoDS_Shape& subShape,
+  const TopoDS_Shape& shape, XCAFDoc_ColorType type, OCC_ColorType& color)
+{
+  return this->GetShapeColor(subShape, type, color) || this->GetShapeColor(shape, type, color);
+}
+
+//----------------------------------------------------------------------------
+// Convert an OCCT color to an RGBA tuple.
+std::array<unsigned char, 4> vtkOCCTPDCReader::vtkInternals::GetRGBA(const OCC_ColorType& color)
+{
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+  const Quantity_Color& rgb = color.GetRGB();
+#else
+  const Quantity_Color& rgb = color;
+#endif
+  std::array<unsigned char, 4> rgba = { static_cast<unsigned char>(255.0 * rgb.Red()),
+    static_cast<unsigned char>(255.0 * rgb.Green()), static_cast<unsigned char>(255.0 * rgb.Blue()),
+    255 };
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+  rgba[3] = static_cast<unsigned char>(255.0 * color.Alpha());
+#endif
+  return rgba;
+}
+
+//----------------------------------------------------------------------------
 // Returns a Polydata representing the tessellation of all of the faces related
 // to the shape - if any of the faces have normals, colors, or uv data then
 // the resulting polydata will contain the appropriate point/cell data
@@ -615,23 +658,13 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
   uvs->SetNumberOfComponents(2);
   uvs->SetName("UV");
   vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetNumberOfComponents(3);
+  colors->SetNumberOfComponents(4);
   colors->SetName("Colors");
   vtkNew<vtkCellArray> trianglesCells;
-  std::array<unsigned char, 3> rgb;
-  Quantity_Color aColor;
 
   bool hasNormals = false;
   bool hasUVs = false;
-
-  bool hasColors = this->GetShapeColor(shape, XCAFDoc_ColorSurf, aColor);
-  if (hasColors)
-  {
-    // Convert the color into VTK format
-    rgb[0] = static_cast<unsigned char>(255.0 * aColor.Red());
-    rgb[1] = static_cast<unsigned char>(255.0 * aColor.Green());
-    rgb[2] = static_cast<unsigned char>(255.0 * aColor.Blue());
-  }
+  bool hasColors = false;
 
   Standard_Integer shift = 0;
 
@@ -658,6 +691,14 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     if (poly.IsNull())
     {
       continue;
+    }
+
+    std::array<unsigned char, 4> rgba = { 255, 255, 255, 255 };
+    OCC_ColorType faceColor;
+    if (this->GetSubShapeColor(face, shape, XCAFDoc_ColorSurf, faceColor))
+    {
+      rgba = this->GetRGBA(faceColor);
+      hasColors = true;
     }
 
     Poly::ComputeNormals(poly);
@@ -727,11 +768,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
         std::swap(cell[0], cell[2]);
       }
       trianglesCells->InsertNextCell(3, cell);
-
-      if (hasColors)
-      {
-        colors->InsertNextTypedTuple(rgb.data());
-      }
+      colors->InsertNextTypedTuple(rgba.data());
     }
     shift += nbV;
   }
@@ -771,21 +808,10 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
 {
   vtkNew<vtkPoints> points;
   vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetNumberOfComponents(3);
+  colors->SetNumberOfComponents(4);
   colors->SetName("Colors");
   vtkNew<vtkCellArray> lineCells;
-  std::array<unsigned char, 3> rgb;
-  Quantity_Color aColor;
-
-  // See if the wire has color associated with it
-  bool hasColors = this->GetShapeColor(shape, XCAFDoc_ColorCurv, aColor);
-  if (hasColors)
-  {
-    // Convert the color into VTK format
-    rgb[0] = static_cast<unsigned char>(255.0 * aColor.Red());
-    rgb[1] = static_cast<unsigned char>(255.0 * aColor.Green());
-    rgb[2] = static_cast<unsigned char>(255.0 * aColor.Blue());
-  }
+  bool hasColors = false;
 
   Standard_Integer shift = 0;
 
@@ -814,6 +840,14 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
       continue;
     }
 
+    std::array<unsigned char, 4> rgba = { 255, 255, 255, 255 };
+    OCC_ColorType edgeColor;
+    if (this->GetSubShapeColor(edge, shape, XCAFDoc_ColorCurv, edgeColor))
+    {
+      rgba = this->GetRGBA(edgeColor);
+      hasColors = true;
+    }
+
     Standard_Integer nbV = poly->NbNodes();
 
     // Points
@@ -827,11 +861,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
     std::vector<vtkIdType> polyline(nbV);
     std::iota(polyline.begin(), polyline.end(), shift);
     lineCells->InsertNextCell(polyline.size(), polyline.data());
-
-    if (hasColors)
-    {
-      colors->InsertNextTypedTuple(rgb.data());
-    }
+    colors->InsertNextTypedTuple(rgba.data());
 
     shift += nbV;
   }
